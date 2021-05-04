@@ -1,0 +1,1 @@
+<test name="TestHeterogeneousCoreMPIServices" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/MPIServices/test/testMPIService.py"/>

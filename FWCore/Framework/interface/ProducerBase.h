@@ -2,7 +2,7 @@
 #define FWCore_Framework_ProducerBase_h
 
 /*----------------------------------------------------------------------
-  
+
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
@@ -20,9 +20,11 @@ EDProducts into an Event.
 namespace edm {
   class BranchDescription;
   class ModuleDescription;
+  class ProducesCollector;
   class ProductRegistry;
   class Event;
   class LuminosityBlock;
+  class ProcessBlock;
   class Run;
 
   class EDProducer;
@@ -48,6 +50,10 @@ namespace edm {
     template <typename P>
     struct PrincipalTraits;
     template <>
+    struct PrincipalTraits<ProcessBlock> {
+      static constexpr int kBranchType = InProcess;
+    };
+    template <>
     struct PrincipalTraits<Run> {
       static constexpr int kBranchType = InRun;
     };
@@ -72,7 +78,6 @@ namespace edm {
 
     void registerProducts(ProducerBase*, ProductRegistry*, ModuleDescription const&);
 
-    using ProductRegistryHelper::produces;
     using ProductRegistryHelper::recordProvenanceList;
     using ProductRegistryHelper::typeLabelList;
 
@@ -93,6 +98,10 @@ namespace edm {
     std::vector<edm::ProductResolverIndex> const& putTokenIndexToProductResolverIndex() const {
       return putTokenToResolverIndex_;
     }
+
+  protected:
+    ProducesCollector producesCollector();
+    using ProductRegistryHelper::produces;
 
   private:
     friend class EDProducer;

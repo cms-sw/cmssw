@@ -15,5 +15,5 @@ namespace edm {
 
   std::unique_ptr<edm::ParameterSet> readPSetsFrom(std::string const& fileOrString);
 
-};  // namespace edm
+}  // namespace edm
 #endif

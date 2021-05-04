@@ -14,8 +14,7 @@
 #include <iostream>
 
 // user include files
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -43,7 +42,7 @@
 #include <TH2F.h>
 
 //  Define the interface
-class HigPhotonJetHLTOfflineSource : public DQMEDAnalyzer {
+class HigPhotonJetHLTOfflineSource : public DQMOneEDAnalyzer<> {
 public:
   explicit HigPhotonJetHLTOfflineSource(const edm::ParameterSet&);
 
@@ -52,7 +51,7 @@ private:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
   bool isMonitoredTriggerAccepted(const edm::TriggerNames&, const edm::Handle<edm::TriggerResults>&);
 
   // Input from Configuration File
@@ -326,7 +325,7 @@ void HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::
     deletajj_->Fill(deletajj);
 }
 
-void HigPhotonJetHLTOfflineSource::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void HigPhotonJetHLTOfflineSource::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // Normalize to the total number of events in the run
   TH2F* h = trigvsnvtx_->getTH2F();
   double integral = h->Integral();

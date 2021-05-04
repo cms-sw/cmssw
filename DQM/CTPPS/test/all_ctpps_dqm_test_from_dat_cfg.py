@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-process = cms.Process('ctppsDQMfromRAW', ctpps_2016)
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
+process = cms.Process('ctppsDQMfromRAW', ctpps)
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
@@ -37,7 +37,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
-process.load("RecoCTPPS.Configuration.recoCTPPS_DD_cff")
+process.load("RecoPPS.Configuration.recoCTPPS_DD_cff")
 
 process.load('EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi')
 process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')

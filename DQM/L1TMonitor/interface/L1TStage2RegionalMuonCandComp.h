@@ -19,7 +19,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
@@ -64,6 +63,10 @@ private:
     RPT2
   };
   enum tfs { BMTFBIN = 1, OMTFNEGBIN, OMTFPOSBIN, EMTFNEGBIN, EMTFPOSBIN };
+  int numSummaryBins_{
+      TRACKADDRBAD};  // In Run-2 we didn't have the last two bins. This is incremented in source file if we configure for Run-3.
+  int numErrBins_{
+      RTRACKADDR};  // In Run-2 we didn't have the last two bins. This is incremented in source file if we configure for Run-3.
   bool incBin[RPT2 + 1];
 
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken1;
@@ -75,7 +78,7 @@ private:
   bool ignoreBadTrkAddr;
   std::vector<int> ignoreBin;
   bool verbose;
-  bool isBmtf;
+  bool hasDisplacementInfo;
 
   MonitorElement* summary;
   MonitorElement* errorSummaryNum;
@@ -96,7 +99,7 @@ private:
   MonitorElement* muColl1TrkAddrSize;
   MonitorElement* muColl1TrkAddr;
   MonitorElement* muColl1hwDXY;
-  MonitorElement* muColl1hwPt2;
+  MonitorElement* muColl1hwPtUnconstrained;
 
   MonitorElement* muColl2BxRange;
   MonitorElement* muColl2nMu;
@@ -113,7 +116,7 @@ private:
   MonitorElement* muColl2TrkAddrSize;
   MonitorElement* muColl2TrkAddr;
   MonitorElement* muColl2hwDXY;
-  MonitorElement* muColl2hwPt2;
+  MonitorElement* muColl2hwPtUnconstrained;
 };
 
 #endif

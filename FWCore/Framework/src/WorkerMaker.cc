@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <sstream>
 #include <exception>
@@ -57,6 +58,11 @@ namespace edm {
       MakeModuleParams const& p,
       signalslot::Signal<void(ModuleDescription const&)>& pre,
       signalslot::Signal<void(ModuleDescription const&)>& post) const {
+    // Add process_name for SwitchProducer
+    if (p.pset_->getParameter<std::string>("@module_type") == "SwitchProducer") {
+      p.pset_->addUntrackedParameter("@process_name", p.processConfiguration_->processName());
+    }
+
     ConfigurationDescriptions descriptions(baseType(), p.pset_->getParameter<std::string>("@module_type"));
     fillDescriptions(descriptions);
     try {
@@ -92,9 +98,7 @@ namespace edm {
       });
     } catch (cms::Exception& iException) {
       if (!postCalled) {
-        try {
-          post(md);
-        } catch (...) {
+        CMS_SA_ALLOW try { post(md); } catch (...) {
           // If post throws an exception ignore it because we are already handling another exception
         }
       }

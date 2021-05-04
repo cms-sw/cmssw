@@ -19,8 +19,6 @@
 #include <memory>
 #include <string>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 //   base class
 #include "FWCore/Framework/interface/ESProducer.h"

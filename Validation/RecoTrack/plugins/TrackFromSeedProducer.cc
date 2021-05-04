@@ -40,6 +40,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 //
 // class declaration
@@ -58,7 +60,10 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedsToken;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
-  std::string tTRHBuilderName;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geoToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhToken_;
 };
 
 //
@@ -72,7 +77,11 @@ private:
 //
 // constructors and destructor
 //
-TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig) {
+TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig)
+    : geoToken_(esConsumes()),
+      tTopoToken_(esConsumes()),
+      mfToken_(esConsumes()),
+      ttrhToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("TTRHBuilder")))) {
   //register your products
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -81,7 +90,6 @@ TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig) {
   // read parametes
   edm::InputTag seedsTag(iConfig.getParameter<edm::InputTag>("src"));
   edm::InputTag beamSpotTag(iConfig.getParameter<edm::InputTag>("beamSpot"));
-  tTRHBuilderName = iConfig.getParameter<std::string>("TTRHBuilder");
 
   //consumes
   seedsToken = consumes<edm::View<TrajectorySeed> >(seedsTag);
@@ -117,24 +125,24 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
   // some objects to build to tracks
   TSCBLBuilderNoMaterial tscblBuilder;
 
-  edm::ESHandle<TransientTrackingRecHitBuilder> tTRHBuilder;
-  iSetup.get<TransientRecHitRecord>().get(tTRHBuilderName, tTRHBuilder);
-
-  edm::ESHandle<MagneticField> theMF;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
-
-  edm::ESHandle<TrackerTopology> httopo;
-  iSetup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology& ttopo = *httopo;
+  const auto& tTRHBuilder = &iSetup.getData(ttrhToken_);
+  const auto& theMF = &iSetup.getData(mfToken_);
+  const TrackerTopology& ttopo = iSetup.getData(tTopoToken_);
+  const GlobalTrackingGeometry* const geometry_ = &iSetup.getData(geoToken_);
 
   // create tracks from seeds
   int nfailed = 0;
   for (size_t iSeed = 0; iSeed < seeds.size(); ++iSeed) {
     auto const& seed = seeds[iSeed];
     // try to create a track
-    TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().second - 1));
-    TrajectoryStateOnSurface state =
-        trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), theMF.product());
+    TrajectoryStateOnSurface state;
+    if (seed.nHits() == 0) {  //this is for deepCore seeds only
+      const Surface* deepCore_sruface = &geometry_->idToDet(seed.startingState().detId())->specificSurface();
+      state = trajectoryStateTransform::transientState(seed.startingState(), deepCore_sruface, theMF);
+    } else {
+      TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().end() - 1));
+      state = trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), theMF);
+    }
     TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed =
         tscblBuilder(*state.freeState(), *beamSpot);  //as in TrackProducerAlgorithm
     if (tsAtClosestApproachSeed.isValid()) {
@@ -157,11 +165,11 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
       nfailed++;
     }
 
-    tracks->back().appendHits(seed.recHits().first, seed.recHits().second, ttopo);
+    tracks->back().appendHits(seed.recHits().begin(), seed.recHits().end(), ttopo);
     // store the hits
     size_t firsthitindex = rechits->size();
-    for (auto hitit = seed.recHits().first; hitit != seed.recHits().second; ++hitit) {
-      rechits->push_back(*hitit);
+    for (auto const& recHit : seed.recHits()) {
+      rechits->push_back(recHit);
     }
 
     // create a trackextra, just to store the hit range

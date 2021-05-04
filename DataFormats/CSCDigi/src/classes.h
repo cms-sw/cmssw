@@ -29,6 +29,10 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 
 // dummy structs to ensure backward compatibility
 struct GEMCSCLCTDigi {};

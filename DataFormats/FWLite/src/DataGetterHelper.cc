@@ -23,6 +23,7 @@
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
+#include "DataFormats/Common/interface/getThinned_implementation.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
@@ -43,8 +44,8 @@ namespace fwlite {
   // static data member definitions
   //
   // empty object used to signal that the branch requested was not found
-  static internal::Data branchNotFound;
-  static char kEmptyString[1] = {0};
+  static internal::Data branchNotFound{};
+  static const char kEmptyString[1] = {0};
 
   //
   // constructors and destructor
@@ -208,18 +209,20 @@ namespace fwlite {
       std::strncpy(newModule, iModuleLabel, moduleLabelLen);
       labels_.push_back(newModule);
 
-      char* newProduct = kEmptyString;
+      char const* newProduct = kEmptyString;
       if (key.product()[0] != 0) {
         size_t newProductLen = strlen(key.product()) + 1;
-        newProduct = new char[newProductLen];
-        std::strncpy(newProduct, key.product(), newProductLen);
+        auto newProductTmp = new char[newProductLen];
+        std::strncpy(newProductTmp, key.product(), newProductLen);
+        newProduct = newProductTmp;
         labels_.push_back(newProduct);
       }
-      char* newProcess = kEmptyString;
+      char const* newProcess = kEmptyString;
       if (key.process()[0] != 0) {
         size_t newProcessLen = strlen(key.process()) + 1;
-        newProcess = new char[newProcessLen];
-        std::strncpy(newProcess, key.process(), newProcessLen);
+        auto newProcessTmp = new char[newProcessLen];
+        std::strncpy(newProcessTmp, key.process(), newProcessLen);
+        newProcess = newProcessTmp;
         labels_.push_back(newProcess);
       }
       internal::DataKey newKey(edm::TypeID(iInfo), newModule, newProduct, newProcess);
@@ -228,15 +231,15 @@ namespace fwlite {
         //We do not already have this data as another key
 
         //create an instance of the object to be used as a buffer
-        edm::TypeWithDict type(iInfo);
-        if (!bool(type)) {
+        edm::TypeWithDict typeWithDict(iInfo);
+        if (!bool(typeWithDict)) {
           throw cms::Exception("UnknownType") << "No dictionary exists for type " << iInfo.name();
         }
 
-        edm::ObjectWithDict obj = edm::ObjectWithDict::byType(type);
+        edm::ObjectWithDict obj = edm::ObjectWithDict::byType(typeWithDict);
 
         if (obj.address() == nullptr) {
-          throw cms::Exception("ConstructionFailed") << "failed to construct an instance of " << type.name();
+          throw cms::Exception("ConstructionFailed") << "failed to construct an instance of " << typeWithDict.name();
         }
         auto newData = std::make_shared<internal::Data>();
         newData->branch_ = branch;
@@ -251,12 +254,13 @@ namespace fwlite {
 
       if (!foundProcessLabel.empty()) {
         //also remember it with the process label
-        newProcess = new char[foundProcessLabel.size() + 1];
-        std::strcpy(newProcess, foundProcessLabel.c_str());
+        auto newProcessTmp = new char[foundProcessLabel.size() + 1];
+        std::strcpy(newProcessTmp, foundProcessLabel.c_str());
+        newProcess = newProcessTmp;
         labels_.push_back(newProcess);
-        internal::DataKey newKey(edm::TypeID(iInfo), newModule, newProduct, newProcess);
+        internal::DataKey newKeyWithProcess(edm::TypeID(iInfo), newModule, newProduct, newProcess);
 
-        data_.insert(std::make_pair(newKey, theData));
+        data_.insert(std::make_pair(newKeyWithProcess, theData));
       }
     }
     return *(itFind->second);
@@ -340,7 +344,7 @@ namespace fwlite {
   edm::WrapperBase const* DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t eventEntry) const {
     typedef std::pair<edm::ProductID, edm::BranchListIndex> IDPair;
     IDPair theID = std::make_pair(iID, branchMap_->branchListIndexes()[iID.processIndex() - 1]);
-    std::map<IDPair, std::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(theID);
+    std::map<IDPair, std::shared_ptr<internal::Data>>::const_iterator itFound = idToData_.find(theID);
 
     if (itFound == idToData_.end()) {
       edm::BranchDescription const& bDesc = branchMap_->productToBranch(iID);
@@ -396,124 +400,63 @@ namespace fwlite {
         wrapperBaseTypeWithDict.pointerToBaseType(objectWithDict.address(), objectWithDict.typeOf()));
   }
 
-  edm::WrapperBase const* DataGetterHelper::getThinnedProduct(edm::ProductID const& pid,
-                                                              unsigned int& key,
-                                                              Long_t eventEntry) const {
-    edm::BranchID parent = branchMap_->productToBranchID(pid);
-    if (!parent.isValid())
-      return nullptr;
-    edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper = branchMap_->thinnedAssociationsHelper();
-
-    // Loop over thinned containers which were made by selecting elements from the parent container
-    for (auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent),
-              iEnd = thinnedAssociationsHelper.parentEnd(parent);
-         associatedBranches != iEnd;
-         ++associatedBranches) {
-      edm::ThinnedAssociation const* thinnedAssociation =
-          getThinnedAssociation(associatedBranches->association(), eventEntry);
-      if (thinnedAssociation == nullptr)
-        continue;
-
-      if (associatedBranches->parent() != branchMap_->productToBranchID(thinnedAssociation->parentCollectionID())) {
-        continue;
-      }
-
-      unsigned int thinnedIndex = 0;
-      // Does this thinned container have the element referenced by key?
-      // If yes, thinnedIndex is set to point to it in the thinned container
-      if (!thinnedAssociation->hasParentIndex(key, thinnedIndex)) {
-        continue;
-      }
-      // Get the thinned container and return a pointer if we can find it
-      edm::ProductID const& thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-      edm::WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID, eventEntry);
-
-      if (thinnedCollection == nullptr) {
-        // Thinned container is not found, try looking recursively in thinned containers
-        // which were made by selecting elements from this thinned container.
-        edm::WrapperBase const* thinnedFromRecursiveCall =
-            getThinnedProduct(thinnedCollectionPID, thinnedIndex, eventEntry);
-        if (thinnedFromRecursiveCall != nullptr) {
-          key = thinnedIndex;
-          return thinnedFromRecursiveCall;
-        } else {
-          continue;
-        }
-      }
-      key = thinnedIndex;
-      return thinnedCollection;
-    }
-    return nullptr;
+  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> DataGetterHelper::getThinnedProduct(
+      edm::ProductID const& pid, unsigned int key, Long_t eventEntry) const {
+    return edm::detail::getThinnedProduct(
+        pid,
+        key,
+        branchMap_->thinnedAssociationsHelper(),
+        [this](edm::ProductID const& p) { return branchMap_->productToBranchID(p); },
+        [this, eventEntry](edm::BranchID const& b) { return getThinnedAssociation(b, eventEntry); },
+        [this, eventEntry](edm::ProductID const& p) { return getByProductID(p, eventEntry); });
   }
 
   void DataGetterHelper::getThinnedProducts(edm::ProductID const& pid,
                                             std::vector<edm::WrapperBase const*>& foundContainers,
                                             std::vector<unsigned int>& keys,
                                             Long_t eventEntry) const {
-    edm::BranchID parent = branchMap_->productToBranchID(pid);
+    edm::detail::getThinnedProducts(
+        pid,
+        branchMap_->thinnedAssociationsHelper(),
+        [this](edm::ProductID const& p) { return branchMap_->productToBranchID(p); },
+        [this, eventEntry](edm::BranchID const& b) { return getThinnedAssociation(b, eventEntry); },
+        [this, eventEntry](edm::ProductID const& p) { return getByProductID(p, eventEntry); },
+        foundContainers,
+        keys);
+  }
+
+  edm::OptionalThinnedKey DataGetterHelper::getThinnedKeyFrom(edm::ProductID const& parentID,
+                                                              unsigned int key,
+                                                              edm::ProductID const& thinnedID,
+                                                              Long_t eventEntry) const {
+    edm::BranchID parent = branchMap_->productToBranchID(parentID);
     if (!parent.isValid())
-      return;
-    edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper = branchMap_->thinnedAssociationsHelper();
+      return std::monostate{};
+    edm::BranchID thinned = branchMap_->productToBranchID(thinnedID);
+    if (!thinned.isValid())
+      return std::monostate{};
 
-    // Loop over thinned containers which were made by selecting elements from the parent container
-    for (auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent),
-              iEnd = thinnedAssociationsHelper.parentEnd(parent);
-         associatedBranches != iEnd;
-         ++associatedBranches) {
-      edm::ThinnedAssociation const* thinnedAssociation =
-          getThinnedAssociation(associatedBranches->association(), eventEntry);
-      if (thinnedAssociation == nullptr)
-        continue;
-
-      if (associatedBranches->parent() != branchMap_->productToBranchID(thinnedAssociation->parentCollectionID())) {
-        continue;
-      }
-
-      unsigned int nKeys = keys.size();
-      unsigned int doNotLookForThisIndex = std::numeric_limits<unsigned int>::max();
-      std::vector<unsigned int> thinnedIndexes(nKeys, doNotLookForThisIndex);
-      bool hasAny = false;
-      for (unsigned k = 0; k < nKeys; ++k) {
-        // Already found this one
-        if (foundContainers[k] != nullptr)
-          continue;
-        // Already know this one is not in this thinned container
-        if (keys[k] == doNotLookForThisIndex)
-          continue;
-        // Does the thinned container hold the entry of interest?
-        // Modifies thinnedIndexes[k] only if it returns true and
-        // sets it to the index in the thinned collection.
-        if (thinnedAssociation->hasParentIndex(keys[k], thinnedIndexes[k])) {
-          hasAny = true;
-        }
-      }
-      if (!hasAny) {
-        continue;
-      }
-      // Get the thinned container and set the pointers and indexes into
-      // it (if we can find it)
-      edm::ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
-      edm::WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID, eventEntry);
-
-      if (thinnedCollection == nullptr) {
-        // Thinned container is not found, try looking recursively in thinned containers
-        // which were made by selecting elements from this thinned container.
-        getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes, eventEntry);
-        for (unsigned k = 0; k < nKeys; ++k) {
-          if (foundContainers[k] == nullptr)
-            continue;
-          if (thinnedIndexes[k] == doNotLookForThisIndex)
-            continue;
-          keys[k] = thinnedIndexes[k];
-        }
+    try {
+      auto ret = edm::detail::getThinnedKeyFrom_implementation(
+          parentID,
+          parent,
+          key,
+          thinnedID,
+          thinned,
+          branchMap_->thinnedAssociationsHelper(),
+          [this, eventEntry](edm::BranchID const& branchID) { return getThinnedAssociation(branchID, eventEntry); });
+      if (auto factory = std::get_if<edm::detail::GetThinnedKeyFromExceptionFactory>(&ret)) {
+        return [func = *factory]() {
+          auto ex = func();
+          ex.addContext("Calling DataGetterHelper::getThinnedKeyFrom()");
+          return ex;
+        };
       } else {
-        for (unsigned k = 0; k < nKeys; ++k) {
-          if (thinnedIndexes[k] == doNotLookForThisIndex)
-            continue;
-          keys[k] = thinnedIndexes[k];
-          foundContainers[k] = thinnedCollection;
-        }
+        return ret;
       }
+    } catch (edm::Exception& ex) {
+      ex.addContext("Calling DataGetterHelper::getThinnedKeyFrom()");
+      throw ex;
     }
   }
 

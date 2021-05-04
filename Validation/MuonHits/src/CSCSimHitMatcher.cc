@@ -1,4 +1,6 @@
 #include "Validation/MuonHits/interface/CSCSimHitMatcher.h"
+#include "TGraphErrors.h"
+#include "TF1.h"
 
 using namespace std;
 
@@ -10,46 +12,46 @@ CSCSimHitMatcher::CSCSimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesCol
   discardEleHits_ = simHitPSet_.getParameter<bool>("discardEleHits");
 
   simHitInput_ = iC.consumes<edm::PSimHitContainer>(simHitPSet_.getParameter<edm::InputTag>("inputTag"));
+  geomToken_ = iC.esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
 
 /// initialize the event
 void CSCSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(csc_geom_);
-  if (csc_geom_.isValid()) {
-    geometry_ = &*csc_geom_;
-  } else {
-    hasGeometry_ = false;
-    edm::LogWarning("CSCSimHitMatcher") << "+++ Info: CSC geometry is unavailable. +++\n";
-  }
+  geometry_ = &iSetup.getData(geomToken_);
   MuonSimHitMatcher::init(iEvent, iSetup);
 }
 
 /// do the matching
 void CSCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
+  clear();
+
   // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
-  if (hasGeometry_) {
-    matchSimHitsToSimTrack();
+  // hard cut on non-CSC muons
+  if (std::abs(track.momentum().eta()) < 0.9)
+    return;
+  if (std::abs(track.momentum().eta()) > 2.45)
+    return;
 
-    if (verbose_) {
-      edm::LogInfo("CSCSimHitMatcher") << "nTrackIds " << track_ids_.size() << " nSelectedCSCSimHits " << hits_.size()
-                                       << endl;
-      edm::LogInfo("CSCSimHitMatcher") << "detids CSC " << detIds(0).size() << endl;
+  matchSimHitsToSimTrack();
 
-      for (const auto& id : detIds(0)) {
-        const auto& simhits = hitsInDetId(id);
-        const auto& simhits_gp = simHitsMeanPosition(simhits);
-        const auto& strips = hitStripsInDetId(id);
-        CSCDetId cscid(id);
-        if (cscid.station() == 1 and (cscid.ring() == 1 or cscid.ring() == 4)) {
-          edm::LogInfo("CSCSimHitMatcher") << "cscdetid " << CSCDetId(id) << ": " << simhits.size() << " "
-                                           << simhits_gp.phi() << " " << detid_to_hits_[id].size() << endl;
-          edm::LogInfo("CSCSimHitMatcher") << "nStrip " << strips.size() << endl;
-          edm::LogInfo("CSCSimHitMatcher") << "strips : ";
-          for (const auto& p : strips) {
-            edm::LogInfo("CSCSimHitMatcher") << p;
-          }
+  if (verbose_) {
+    edm::LogInfo("CSCSimHitMatcher") << "nTrackIds " << track_ids_.size() << " nSelectedCSCSimHits " << hits_.size();
+    edm::LogInfo("CSCSimHitMatcher") << "detids CSC " << detIds(0).size();
+
+    for (const auto& id : detIds(0)) {
+      const auto& simhits = hitsInDetId(id);
+      const auto& simhits_gp = simHitsMeanPosition(simhits);
+      const auto& strips = hitStripsInDetId(id);
+      CSCDetId cscid(id);
+      if (cscid.station() == 1 and (cscid.ring() == 1 or cscid.ring() == 4)) {
+        edm::LogInfo("CSCSimHitMatcher") << "cscdetid " << CSCDetId(id) << ": " << simhits.size() << " "
+                                         << simhits_gp.phi() << " " << detid_to_hits_[id].size();
+        edm::LogInfo("CSCSimHitMatcher") << "nStrip " << strips.size();
+        edm::LogInfo("CSCSimHitMatcher") << "strips : ";
+        for (const auto& p : strips) {
+          edm::LogInfo("CSCSimHitMatcher") << p;
         }
       }
     }
@@ -65,7 +67,7 @@ void CSCSimHitMatcher::matchSimHitsToSimTrack() {
       if (simMuOnly_ && std::abs(pdgid) != 13)
         continue;
       // discard electron hits in the CSC chambers
-      if (discardEleHits_ && pdgid == 11)
+      if (discardEleHits_ && std::abs(pdgid) == 11)
         continue;
 
       const CSCDetId& layer_id(h.detUnitId());
@@ -204,6 +206,43 @@ float CSCSimHitMatcher::LocalBendingInChamber(unsigned int detid) const {
   return deltaPhi(phi_layer6, phi_layer1);
 }
 
+// difference in strip per layer
+void CSCSimHitMatcher::fitHitsInChamber(unsigned int detid, float& intercept, float& slope) const {
+  const CSCDetId cscid(detid);
+
+  const auto& sim_hits = hitsInChamber(detid);
+
+  if (sim_hits.empty())
+    return;
+
+  vector<float> x;
+  vector<float> y;
+  vector<float> xe;
+  vector<float> ye;
+
+  const float HALF_STRIP_ERROR = 0.288675;
+
+  for (const auto& h : sim_hits) {
+    const LocalPoint& lp = h.entryPoint();
+    const auto& d = h.detUnitId();
+    float s = dynamic_cast<const CSCGeometry*>(geometry_)->layer(d)->geometry()->strip(lp);
+    // shift to key half strip layer (layer 3)
+    x.push_back(CSCDetId(d).layer() - 3);
+    y.push_back(s);
+    xe.push_back(float(0));
+    ye.push_back(2 * HALF_STRIP_ERROR);
+  }
+  if (x.size() < 2)
+    return;
+
+  std::unique_ptr<TGraphErrors> gr(new TGraphErrors(x.size(), &x[0], &y[0], &xe[0], &ye[0]));
+  std::unique_ptr<TF1> fit(new TF1("fit", "pol1", -3, 4));
+  gr->Fit("fit", "EMQ");
+
+  intercept = fit->GetParameter(0);
+  slope = fit->GetParameter(1);
+}
+
 float CSCSimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const {
   if (sim_hits.empty())
     return -1.f;
@@ -340,3 +379,5 @@ std::set<unsigned int> CSCSimHitMatcher::chamberIdsStation(int station) const {
   };
   return result;
 }
+
+void CSCSimHitMatcher::clear() { MuonSimHitMatcher::clear(); }

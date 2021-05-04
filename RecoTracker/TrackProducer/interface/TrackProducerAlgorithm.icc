@@ -43,9 +43,8 @@ void TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry* theG,
 
   int cont = 0;
   int ntc = 0;
-  for (auto const theTC : theTCCollection) {
+  for (auto const& theTC : theTCCollection) {
     PTrajectoryStateOnDet const& state = theTC.trajectoryStateOnDet();
-    const TrackCandidate::range& recHitVec = theTC.recHits();
     const TrajectorySeed& seed = theTC.seed();
 
     //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
@@ -61,8 +60,8 @@ void TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry* theG,
 
     float ndof = 0;
     //  we assume are transient...
-    for (auto i = recHitVec.first; i != recHitVec.second; ++i) {
-      hits.push_back((*i).cloneSH());  // major waste, will be soon fitted and recloned...
+    for (auto const& recHit : theTC.recHits()) {
+      hits.push_back(recHit.cloneSH());  // major waste, will be soon fitted and recloned...
     }
 
     stopReason_ = theTC.stopReason();
@@ -162,7 +161,7 @@ void TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry* theG,
             << std::endl;
       }
 
-      const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), seedDir);
+      const TrajectorySeed seed({}, {}, seedDir);
       // =========================
       //LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
@@ -245,7 +244,7 @@ void TrackProducerAlgorithm<T>::runWithMomentum(
       hits.swap(tmpHits);
 
       // the seed has dummy state and hits.What matters for the fitting is the seedDirection;
-      const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), seedDir);
+      const TrajectorySeed seed({}, {}, seedDir);
       // =========================
       //LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
@@ -312,7 +311,7 @@ void TrackProducerAlgorithm<T>::runWithTrackParameters(
       TrajectoryStateOnSurface theInitialStateForRefitting = *(i->val);
 
       // the seed has dummy state and hits.What matters for the fitting is the seedDirection;
-      const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), seedDir);
+      const TrajectorySeed seed({}, {}, seedDir);
 
       //=====  the hits are in the same order as they were in the track::extra.
       FitterCloner fc(theFitter, builder);
@@ -418,7 +417,7 @@ void TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry* theG,
       theInitialStateForRefitting = myPropagator.propagate(theInitialStateForRefitting, *(hits[0]->surface()));
 
       // the seed has dummy state and hits.What matters for the fitting is the seedDirection;
-      const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), seedDir);
+      const TrajectorySeed seed({}, {}, seedDir);
       // =========================
       //LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 

@@ -1,9 +1,50 @@
+#include "FWCore/Concurrency/interface/include_first_syncWait.h"
 #include "Mixing/Base/src/SecondaryEventProvider.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "tbb/task_arena.h"
+
+namespace {
+  template <typename T, typename U>
+  void processOneOccurrence(edm::WorkerManager& manager,
+                            typename T::TransitionInfoType& info,
+                            edm::StreamID streamID,
+                            typename T::Context const* topContext,
+                            U const* context,
+                            bool cleaningUpAfterException = false) {
+    manager.resetAll();
+
+    if (manager.allWorkers().empty())
+      return;
+
+    auto token = edm::ServiceRegistry::instance().presentToken();
+    //we need the arena to guarantee that the syncWait will return to this thread
+    // and not cause this callstack to possibly be moved to a new thread
+    tbb::task_arena localArena{tbb::this_task_arena::max_concurrency()};
+    std::exception_ptr exceptPtr = localArena.execute([&]() {
+      return edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
+        manager.processOneOccurrenceAsync<T, U>(std::move(iHolder), info, token, streamID, topContext, context);
+      });
+    });
+
+    if (exceptPtr) {
+      try {
+        edm::convertException::wrap([&]() { std::rethrow_exception(exceptPtr); });
+      } catch (cms::Exception& ex) {
+        if (ex.context().empty()) {
+          edm::addContextAndPrintException("Calling SecondaryEventProvider", ex, cleaningUpAfterException);
+        } else {
+          edm::addContextAndPrintException("", ex, cleaningUpAfterException);
+        }
+        throw;
+      }
+    }
+  }
+}  // namespace
 
 namespace edm {
   SecondaryEventProvider::SecondaryEventProvider(std::vector<ParameterSet>& psets,
@@ -35,46 +76,52 @@ namespace edm {
                                         const EventSetupImpl& setup,
                                         ModuleCallingContext const* mcc,
                                         StreamContext& sContext) {
-    workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> >(
-        run, setup, StreamID::invalidStreamID(), nullptr, mcc);
-    workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> >(
-        run, setup, sContext.streamID(), &sContext, mcc);
+    RunTransitionInfo info(run, setup);
+    processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> >(
+        workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
+    processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> >(
+        workerManager_, info, sContext.streamID(), &sContext, mcc);
   }
 
   void SecondaryEventProvider::beginLuminosityBlock(LuminosityBlockPrincipal& lumi,
                                                     const EventSetupImpl& setup,
                                                     ModuleCallingContext const* mcc,
                                                     StreamContext& sContext) {
-    workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> >(
-        lumi, setup, StreamID::invalidStreamID(), nullptr, mcc);
-    workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> >(
-        lumi, setup, sContext.streamID(), &sContext, mcc);
+    LumiTransitionInfo info(lumi, setup);
+    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> >(
+        workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
+    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> >(
+        workerManager_, info, sContext.streamID(), &sContext, mcc);
   }
 
   void SecondaryEventProvider::endRun(RunPrincipal& run,
                                       const EventSetupImpl& setup,
                                       ModuleCallingContext const* mcc,
                                       StreamContext& sContext) {
-    workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> >(
-        run, setup, sContext.streamID(), &sContext, mcc);
-    workerManager_.processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> >(
-        run, setup, StreamID::invalidStreamID(), nullptr, mcc);
+    RunTransitionInfo info(run, setup);
+    processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> >(
+        workerManager_, info, sContext.streamID(), &sContext, mcc);
+    processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> >(
+        workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
   }
 
   void SecondaryEventProvider::endLuminosityBlock(LuminosityBlockPrincipal& lumi,
                                                   const EventSetupImpl& setup,
                                                   ModuleCallingContext const* mcc,
                                                   StreamContext& sContext) {
-    workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> >(
-        lumi, setup, sContext.streamID(), &sContext, mcc);
-    workerManager_.processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> >(
-        lumi, setup, StreamID::invalidStreamID(), nullptr, mcc);
+    LumiTransitionInfo info(lumi, setup);
+    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> >(
+        workerManager_, info, sContext.streamID(), &sContext, mcc);
+    processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> >(
+        workerManager_, info, StreamID::invalidStreamID(), nullptr, mcc);
   }
 
   void SecondaryEventProvider::setupPileUpEvent(EventPrincipal& ep,
                                                 const EventSetupImpl& setup,
                                                 StreamContext& sContext) {
-    workerManager_.setupOnDemandSystem(ep, setup);
+    workerManager_.setupResolvers(ep);
+    EventTransitionInfo info(ep, setup);
+    workerManager_.setupOnDemandSystem(info);
   }
   void SecondaryEventProvider::beginStream(edm::StreamID iID, StreamContext& sContext) {
     workerManager_.beginStream(iID, sContext);

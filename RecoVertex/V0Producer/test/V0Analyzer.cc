@@ -23,18 +23,12 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 //#include "DataFormats/TrackReco/interface/Track.h"
@@ -72,7 +66,7 @@
 // class declaration
 //
 
-class V0Analyzer : public edm::EDAnalyzer {
+class V0Analyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit V0Analyzer(const edm::ParameterSet&);
   ~V0Analyzer();
@@ -82,6 +76,9 @@ private:
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_mfToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_geomToken;
 
   std::string algoLabel;
   std::string recoAlgoLabel;
@@ -154,9 +151,11 @@ const double piMassSq = 0.019479101;
 
 //
 // constructors and destructor
-//
+
 V0Analyzer::V0Analyzer(const edm::ParameterSet& iConfig)
-    : algoLabel(iConfig.getUntrackedParameter("recoAlgorithm", std::string("ctfV0Prod"))),
+    : m_mfToken(esConsumes()),
+      m_geomToken(esConsumes()),
+      algoLabel(iConfig.getUntrackedParameter("recoAlgorithm", std::string("ctfV0Prod"))),
       recoAlgoLabel(iConfig.getUntrackedParameter("trackingAlgo", std::string("ctfWithMaterialTracks"))),
       SimTkLabel(iConfig.getUntrackedParameter("moduleLabelTk", std::string("g4SimHits"))),
       SimVtxLabel(iConfig.getUntrackedParameter("moduleLabelVtx", std::string("g4SimHits"))),
@@ -165,6 +164,8 @@ V0Analyzer::V0Analyzer(const edm::ParameterSet& iConfig)
       cmsswVersion(iConfig.getUntrackedParameter("cmsswVersion", std::string("200"))) {
   //now do what ever initialization is needed
   //theHistoFile = 0;
+
+  usesResource(TFileService::kSharedResource);
 
   numDiff1 = numDiff2 = 0;
 }
@@ -370,11 +371,8 @@ void V0Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle<SimVertexContainer> SimVtx;
   Handle<reco::TrackCollection> RecoTk;
 
-  ESHandle<MagneticField> bFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
-
-  ESHandle<TrackerGeometry> trackerGeomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);
+  ESHandle<MagneticField> bFieldHandle = iSetup.getHandle(m_mfToken);
+  ESHandle<TrackerGeometry> trackerGeomHandle = iSetup.getHandle(m_geomToken);
 
   //const TrackerGeometry* trackerGeom = trackerGeomHandle.product();
 

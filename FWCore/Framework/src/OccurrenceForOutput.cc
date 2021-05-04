@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
@@ -27,7 +26,7 @@ namespace edm {
   ProcessHistoryID const& OccurrenceForOutput::processHistoryID() const { return principal().processHistoryID(); }
 
   Provenance OccurrenceForOutput::getProvenance(BranchID const& bid) const {
-    return provRecorder_.principal().getProvenance(bid, moduleCallingContext_);
+    return provRecorder_.principal().getProvenance(bid);
   }
 
   void OccurrenceForOutput::getAllProvenance(std::vector<Provenance const*>& provenances) const {

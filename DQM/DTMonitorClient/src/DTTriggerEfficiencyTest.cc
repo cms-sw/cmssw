@@ -36,7 +36,6 @@ using namespace std;
 DTTriggerEfficiencyTest::DTTriggerEfficiencyTest(const edm::ParameterSet& ps) {
   setConfig(ps, "DTTriggerEfficiency");
   baseFolderTM = "DT/03-LocalTrigger-TM/";
-  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   detailedPlots = ps.getUntrackedParameter<bool>("detailedAnalysis", true);
 
   bookingdone = false;
@@ -180,7 +179,7 @@ string DTTriggerEfficiencyTest::getMEName(string histoTag, string folder, int wh
   stringstream wheel;
   wheel << wh;
 
-  string folderName = topFolder(hwSource == "TM") + folder + "/";
+  string folderName = topFolder() + folder + "/";
 
   string histoname = sourceFolder + folderName + fullName(histoTag) + "_W" + wheel.str();
 
@@ -189,8 +188,7 @@ string DTTriggerEfficiencyTest::getMEName(string histoTag, string folder, int wh
 
 void DTTriggerEfficiencyTest::bookHistos(DQMStore::IBooker& ibooker, string hTag, string folder) {
   string basedir;
-  bool isTM = hwSource == "TM";
-  basedir = topFolder(isTM);  //Book summary histo outside Task directory
+  basedir = topFolder();  //Book summary histo outside Task directory
 
   if (!folder.empty()) {
     basedir += folder + "/";
@@ -209,11 +207,10 @@ void DTTriggerEfficiencyTest::bookWheelHistos(DQMStore::IBooker& ibooker, int wh
   stringstream wh;
   wh << wheel;
   string basedir;
-  bool isTM = hwSource == "TM";
   if (hTag.find("Summary") != string::npos) {
-    basedir = topFolder(isTM);  //Book summary histo outside wheel directories
+    basedir = topFolder();  //Book summary histo outside wheel directories
   } else {
-    basedir = topFolder(isTM) + "Wheel" + wh.str() + "/";
+    basedir = topFolder() + "Wheel" + wh.str() + "/";
   }
   if (!folder.empty()) {
     basedir += folder + "/";
@@ -270,13 +267,12 @@ void DTTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker& ibooker,
   sector << chambId.sector();
 
   string fullType = fullName(htype);
-  bool isTM = hwSource == "TM";
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  ibooker.setCurrentFolder(topFolder(isTM) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" +
-                           station.str() + "/" + folder + "/");
+  ibooker.setCurrentFolder(topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() +
+                           "/" + folder + "/");
 
-  LogTrace(category()) << "[" << testName << "Test]: booking " + topFolder(isTM) + "Wheel" << wheel.str() << "/Sector"
+  LogTrace(category()) << "[" << testName << "Test]: booking " + topFolder() + "Wheel" << wheel.str() << "/Sector"
                        << sector.str() << "/Station" << station.str() << "/" + folder + "/" << HistoName;
 
   uint32_t indexChId = chambId.rawId();

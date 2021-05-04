@@ -1,8 +1,8 @@
 
 /*----------------------------------------------------------------------
 
-Toy edm::one::EDAnalyzer modules of 
-edm::one cache templates 
+Toy edm::one::EDAnalyzer modules of
+edm::one cache templates
 for testing purposes only.
 
 ----------------------------------------------------------------------*/
@@ -12,6 +12,7 @@ for testing purposes only.
 #include <map>
 #include <functional>
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -92,7 +93,13 @@ namespace edmtest {
 
     class WatchLumiBlocksAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
     public:
-      explicit WatchLumiBlocksAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {}
+      explicit WatchLumiBlocksAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {
+        // just to create a data dependence
+        auto const& tag = p.getParameter<edm::InputTag>("moduleLabel");
+        if (not tag.label().empty()) {
+          consumes<unsigned int, edm::InLumi>(tag);
+        }
+      }
       const unsigned int trans_;
       bool bl = false;
       bool el = false;
@@ -141,7 +148,7 @@ namespace edmtest {
     public:
       explicit RunCacheAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {}
       const unsigned int trans_;
-      mutable unsigned int m_count = 0;
+      mutable std::atomic<unsigned int> m_count = 0;
 
       void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {
         ++m_count;
@@ -185,7 +192,7 @@ namespace edmtest {
     public:
       explicit LumiBlockCacheAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {}
       const unsigned int trans_;
-      mutable unsigned int m_count = 0;
+      mutable std::atomic<unsigned int> m_count = 0;
 
       void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {
         ++m_count;
@@ -224,6 +231,87 @@ namespace edmtest {
       }
     };
 
+    class ProcessBlockIntAnalyzer : public edm::one::EDAnalyzer<edm::WatchProcessBlock> {
+    public:
+      explicit ProcessBlockIntAnalyzer(edm::ParameterSet const& pset) : trans_(pset.getParameter<int>("transitions")) {
+        {
+          auto tag = pset.getParameter<edm::InputTag>("consumesBeginProcessBlock");
+          if (not tag.label().empty()) {
+            getTokenBegin_ = consumes<unsigned int, edm::InProcess>(tag);
+          }
+        }
+        {
+          auto tag = pset.getParameter<edm::InputTag>("consumesEndProcessBlock");
+          if (not tag.label().empty()) {
+            getTokenEnd_ = consumes<unsigned int, edm::InProcess>(tag);
+          }
+        }
+      }
+
+      void beginProcessBlock(edm::ProcessBlock const& processBlock) override {
+        if (m_count != 0) {
+          throw cms::Exception("transitions")
+              << "ProcessBlockIntAnalyzer::begin transitions " << m_count << " but it was supposed to be " << 0;
+        }
+        ++m_count;
+
+        const unsigned int valueToGet = 11;
+        if (not getTokenBegin_.isUninitialized()) {
+          if (processBlock.get(getTokenBegin_) != valueToGet) {
+            throw cms::Exception("BadValue")
+                << "expected " << valueToGet << " but got " << processBlock.get(getTokenBegin_);
+          }
+        }
+      }
+
+      void analyze(edm::Event const&, edm::EventSetup const&) override {
+        if (m_count < 1u) {
+          throw cms::Exception("out of sequence") << "analyze before beginProcessBlock " << m_count;
+        }
+        ++m_count;
+      }
+
+      void endProcessBlock(edm::ProcessBlock const& processBlock) override {
+        ++m_count;
+        if (m_count != trans_) {
+          throw cms::Exception("transitions")
+              << "ProcessBlockIntAnalyzer::end transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+
+        {
+          const unsigned int valueToGet = 11;
+          if (not getTokenBegin_.isUninitialized()) {
+            if (processBlock.get(getTokenBegin_) != valueToGet) {
+              throw cms::Exception("BadValue")
+                  << "expected " << valueToGet << " but got " << processBlock.get(getTokenBegin_);
+            }
+          }
+        }
+        {
+          const unsigned int valueToGet = 21;
+          if (not getTokenEnd_.isUninitialized()) {
+            if (processBlock.get(getTokenEnd_) != valueToGet) {
+              throw cms::Exception("BadValue")
+                  << "expected " << valueToGet << " but got " << processBlock.get(getTokenEnd_);
+            }
+          }
+        }
+      }
+
+      ~ProcessBlockIntAnalyzer() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions")
+              << "ProcessBlockIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+
+    private:
+      const unsigned int trans_;
+      mutable std::atomic<unsigned int> m_count{0};
+      edm::EDGetTokenT<unsigned int> getTokenBegin_;
+      edm::EDGetTokenT<unsigned int> getTokenEnd_;
+    };
+
   }  // namespace one
 }  // namespace edmtest
 
@@ -232,3 +320,4 @@ DEFINE_FWK_MODULE(edmtest::one::WatchRunsAnalyzer);
 DEFINE_FWK_MODULE(edmtest::one::WatchLumiBlocksAnalyzer);
 DEFINE_FWK_MODULE(edmtest::one::RunCacheAnalyzer);
 DEFINE_FWK_MODULE(edmtest::one::LumiBlockCacheAnalyzer);
+DEFINE_FWK_MODULE(edmtest::one::ProcessBlockIntAnalyzer);

@@ -15,7 +15,6 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(91.188),
     ElectronPositronInitialState = cms.PSet(),
-    VinciaPlugin = cms.PSet(),
     PythiaParameters = cms.PSet(
         pythia8_example13 = cms.vstring('WeakSingleBoson:ffbar2gmZ = on',
                                         '23:onMode = off',
@@ -23,19 +22,23 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
                                         'PDF:lepton = off',
                                         'SpaceShower:QEDshowerByL = off',
                                         'HadronLevel:all = on',
-                                        'Vincia:uncertaintyBands = on'),
+                                        'PartonShowers:model = 2',
+                                        'Vincia:verbose = 2'),
         parameterSets = cms.vstring('pythia8_example13')
     )
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(2)
-        )
-    ),
-    destinations = cms.untracked.vstring('cout')
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",

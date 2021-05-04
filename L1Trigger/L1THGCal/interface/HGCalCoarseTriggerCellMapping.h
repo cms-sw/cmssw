@@ -33,7 +33,8 @@ private:
   static constexpr int kSplit_v8_Fine_ = 0x3a;
   static constexpr int kSplit_v8_VeryFine_ = 0x3e;
   static constexpr int kSplit_v8_Individual_ = 0x3f;
-  static constexpr int kNLayers_ = 4;
+  static constexpr int kNThicknesses_ = 4;
+  static constexpr int kNHGCalLayersMax_ = 52;
   static constexpr int kSplit_v9_Coarse_ = 0;
   static constexpr int kSplit_v9_Mid_ = 0x2;
   static constexpr int kSplit_v9_Fine_ = 0xa;

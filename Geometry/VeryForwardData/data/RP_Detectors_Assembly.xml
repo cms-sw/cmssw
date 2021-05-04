@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
-    <ConstantsSection label="RP_Detectors_Assembly.xml">
+    <ConstantsSection label="RP_Detectors_Assembly.xml" eval="true">
         <Constant name="RP_Det_Assembly_z" value="2*[RP_Hybrid:RP_Front_Frame_Z]+10*[RP_Hybrid:RP_Barrette_Thick_z]"/>
         <Constant name="RP_Frames_dy_base" value="[RP_Box:RP_Box_Secondary_Vacuum_Height]/2-[RP_Box:RP_Box_Bottom_Wall_Thickness]"/>
         <Constant name="RP_Frames_dy" value="-([RP_Frames_dy_base]-[RP_Hybrid:RP_Front_Frame_Y]/2-[RP_Hybrid:RP_Front_Frame_Leg_y])"/>

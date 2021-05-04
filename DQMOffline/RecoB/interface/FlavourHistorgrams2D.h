@@ -580,23 +580,23 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D(TString baseNameTitle_,
   // statistics if requested
   if (theStatistics) {
     if (theHisto_all)
-      theHisto_all->getTH2F()->Sumw2();
+      theHisto_all->enableSumw2();
     if (createProfile)
       if (theProfile_all)
         theProfile_all->getTProfile()->Sumw2();
     if (mcPlots_) {
       if (mcPlots_ > 2) {
-        theHisto_d->getTH2F()->Sumw2();
-        theHisto_u->getTH2F()->Sumw2();
-        theHisto_s->getTH2F()->Sumw2();
-        theHisto_g->getTH2F()->Sumw2();
-        theHisto_dus->getTH2F()->Sumw2();
+        theHisto_d->enableSumw2();
+        theHisto_u->enableSumw2();
+        theHisto_s->enableSumw2();
+        theHisto_g->enableSumw2();
+        theHisto_dus->enableSumw2();
       }
-      theHisto_c->getTH2F()->Sumw2();
-      theHisto_b->getTH2F()->Sumw2();
-      theHisto_ni->getTH2F()->Sumw2();
-      theHisto_dusg->getTH2F()->Sumw2();
-      theHisto_pu->getTH2F()->Sumw2();
+      theHisto_c->enableSumw2();
+      theHisto_b->enableSumw2();
+      theHisto_ni->enableSumw2();
+      theHisto_dusg->enableSumw2();
+      theHisto_pu->enableSumw2();
 
       if (createProfile) {
         if (mcPlots_ > 2) {
@@ -829,7 +829,7 @@ void FlavourHistograms2D<T, G>::plot(TPad *theCanvas /* = 0 */) {
     markerStyle[3] = 23;
   }
 
-  histo[0]->getTH2F()->GetXaxis()->SetTitle(theBaseNameDescription.c_str());
+  histo[0]->setAxisTitle(theBaseNameDescription);
   histo[0]->getTH2F()->GetYaxis()->SetTitle("Arbitrary Units");
   histo[0]->getTH2F()->GetYaxis()->SetTitleOffset(1.25);
 

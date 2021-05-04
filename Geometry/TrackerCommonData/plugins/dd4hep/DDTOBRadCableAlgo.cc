@@ -8,7 +8,7 @@ using namespace dd4hep;
 using namespace cms;
 using namespace cms_units::operators;
 
-static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
+static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   DDAlgoArguments args(ctxt, e);
   double diskDz = args.dble("DiskDz");                   // Disk  thickness
@@ -87,7 +87,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
                         << convertRadToDeg((coolStartPhi2 + coolDeltaPhi2)) << " with Rin " << coolRin << " Rout "
                         << coolRout2 << " R torus " << coolR1[i];
     Volume coolManifoldFluidLogic_a = ns.addVolume(Volume(name, solid, ns.material(coolM2)));
-    disk.placeVolume(coolManifoldFluidLogic_a, i + 1);  // i+1
+    coolManifoldLogic_a.placeVolume(coolManifoldFluidLogic_a, i + 1);  // i+1
     LogDebug("TOBGeom") << name << " number " << i + 1 << " positioned in " << coolM2
                         << " with no translation and no rotation";
 
@@ -110,7 +110,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
                         << convertRadToDeg((coolStartPhi2 + coolDeltaPhi2)) << " with Rin " << coolRin << " Rout "
                         << coolRout2 << " R torus " << coolR2[i];
     Volume coolManifoldFluidLogic_r = ns.addVolume(Volume(name, solid, ns.material(coolM2)));
-    disk.placeVolume(coolManifoldFluidLogic_r, i + 1);  // i+1
+    coolManifoldLogic_r.placeVolume(coolManifoldFluidLogic_r, i + 1);  // i+1
     LogDebug("TOBGeom") << name << " number " << i + 1 << " positioned in " << coolM2
                         << " with no translation and no rotation";
 

@@ -51,10 +51,9 @@ namespace edmtest {
   class ExistingDictionaryTestAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit ExistingDictionaryTestAnalyzer(edm::ParameterSet const& iConfig)
-        : intToken_{consumes<int>(iConfig.getParameter<edm::InputTag>("src"))},
-          vecUniqIntToken_{consumes<std::vector<std::unique_ptr<int>>>(iConfig.getParameter<edm::InputTag>("src"))},
-          vecUniqIntProdToken_{
-              consumes<std::vector<std::unique_ptr<IntProduct>>>(iConfig.getParameter<edm::InputTag>("src"))},
+        : intToken_{consumes(iConfig.getParameter<edm::InputTag>("src"))},
+          vecUniqIntToken_{consumes(iConfig.getParameter<edm::InputTag>("src"))},
+          vecUniqIntProdToken_{consumes(iConfig.getParameter<edm::InputTag>("src"))},
           testVecUniqInt_{iConfig.getParameter<bool>("testVecUniqInt")} {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

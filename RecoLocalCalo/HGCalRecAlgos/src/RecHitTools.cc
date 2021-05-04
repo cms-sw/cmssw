@@ -65,13 +65,8 @@ namespace {
 
 }  // namespace
 
-void RecHitTools::getEvent(const edm::Event& ev) {}
-
-void RecHitTools::getEventSetup(const edm::EventSetup& es) {
-  edm::ESHandle<CaloGeometry> geom;
-  es.get<CaloGeometryRecord>().get(geom);
-
-  geom_ = geom.product();
+void RecHitTools::setGeometry(const CaloGeometry& geom) {
+  geom_ = &geom;
   unsigned int wmaxEE(0), wmaxFH(0);
   auto geomEE = static_cast<const HGCalGeometry*>(
       geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
@@ -111,8 +106,10 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
       static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HFNose));
   if (geomNose) {
     maxNumberOfWafersNose_ = (geomNose->topology().dddConstants()).waferCount(0);
+    noseLastLayer_ = (geomNose->topology().dddConstants()).layers(true);
   } else {
     maxNumberOfWafersNose_ = 0;
+    noseLastLayer_ = 0;
   }
 }
 
@@ -362,6 +359,7 @@ unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
   } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
     layer += bhOffset_;
   }
+  // no need to add offset for HFnose
   return layer;
 }
 
@@ -415,13 +413,12 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
 }
 
 bool RecHitTools::isSilicon(const DetId& id) const {
-  bool issilicon = false;
-  if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi)
-    issilicon = true;
-  return issilicon;
+  return (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi ||
+          (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)));
 }
 
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
+  // HFnose TODO
   bool isonlysilicon = (layer % bhLastLayer_) < bhOffset_;
   return isonlysilicon;
 }

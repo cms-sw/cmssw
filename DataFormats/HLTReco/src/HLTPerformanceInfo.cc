@@ -75,7 +75,7 @@ double HLTPerformanceInfo::longestModuleCPUTime() const {
   return t;
 }
 
-const char* HLTPerformanceInfo::longestModuleTimeName() const {
+std::string HLTPerformanceInfo::longestModuleTimeName() const {
   double t = -1;
   std::string slowpoke("unknown");
   for (Modules::const_iterator i = modules_.begin(); i != modules_.end(); ++i) {
@@ -84,10 +84,10 @@ const char* HLTPerformanceInfo::longestModuleTimeName() const {
       t = i->time();
     }
   }
-  return slowpoke.c_str();
+  return slowpoke;
 }
 
-const char* HLTPerformanceInfo::longestModuleCPUTimeName() const {
+std::string HLTPerformanceInfo::longestModuleCPUTimeName() const {
   double t = -1;
   std::string slowpoke("unknown");
   for (Modules::const_iterator i = modules_.begin(); i != modules_.end(); ++i) {
@@ -96,7 +96,7 @@ const char* HLTPerformanceInfo::longestModuleCPUTimeName() const {
       t = i->cputime();
     }
   }
-  return slowpoke.c_str();
+  return slowpoke;
 }
 
 // I think we can no longer do this as it requires going from path -> modules

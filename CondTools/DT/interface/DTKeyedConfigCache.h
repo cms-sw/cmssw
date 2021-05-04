@@ -18,8 +18,9 @@
 #include <string>
 #include <vector>
 
+#include "CondCore/CondDB/interface/KeyList.h"
+
 class DTKeyedConfig;
-class DTKeyedConfigListRcd;
 
 //              ---------------------
 //              -- Class Interface --
@@ -30,9 +31,9 @@ public:
   DTKeyedConfigCache();
   virtual ~DTKeyedConfigCache();
 
-  int get(const DTKeyedConfigListRcd& keyRecord, int cfgId, const DTKeyedConfig*& obj);
+  int get(const cond::persistency::KeyList& keyList, int cfgId, const DTKeyedConfig*& obj);
 
-  void getData(const DTKeyedConfigListRcd& keyRecord, int cfgId, std::vector<std::string>& list);
+  void getData(const cond::persistency::KeyList& keyList, int cfgId, std::vector<std::string>& list);
 
   void purge();
 

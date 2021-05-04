@@ -1,8 +1,11 @@
-#include <vector>
 #include <memory>
+
+#include <memory>
+#include <vector>
 
 // framework
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
 
@@ -33,7 +36,6 @@
 // other
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "CondFormats/External/interface/DetID.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 
 ///////////////////////////////////////////////
 // Author: L. Vanelderen, S. Kurz
@@ -70,7 +72,7 @@ namespace fastsim {
                   const RandomEngineAndDistribution& random) override;
 
     //! Register the SimHit collection.
-    void registerProducts(edm::ProducerBase& producer) const override;
+    void registerProducts(edm::ProducesCollector) const override;
 
     //! Store the SimHit collection.
     void storeProducts(edm::Event& iEvent) override;
@@ -113,13 +115,13 @@ fastsim::TrackerSimHitProducer::TrackerSimHitProducer(const std::string& name, c
   doHitsFromInboundParticles_ = cfg.getParameter<bool>("doHitsFromInboundParticles");
 }
 
-void fastsim::TrackerSimHitProducer::registerProducts(edm::ProducerBase& producer) const {
-  producer.produces<edm::PSimHitContainer>("TrackerHits");
+void fastsim::TrackerSimHitProducer::registerProducts(edm::ProducesCollector producesCollector) const {
+  producesCollector.produces<edm::PSimHitContainer>("TrackerHits");
 }
 
 void fastsim::TrackerSimHitProducer::storeProducts(edm::Event& iEvent) {
   iEvent.put(std::move(simHitContainer_), "TrackerHits");
-  simHitContainer_.reset(new edm::PSimHitContainer);
+  simHitContainer_ = std::make_unique<edm::PSimHitContainer>();
 }
 
 void fastsim::TrackerSimHitProducer::interact(Particle& particle,
@@ -316,18 +318,17 @@ std::pair<double, std::unique_ptr<PSimHit>> fastsim::TrackerSimHitProducer::crea
   // Position of the hit in global coordinates
   GlobalPoint hitPos(detector.surface().toGlobal(localPosition));
 
-  return std::pair<double, std::unique_ptr<PSimHit>>(
-      (hitPos - refPos).mag(),
-      std::unique_ptr<PSimHit>(new PSimHit(entry,
-                                           exit,
-                                           localMomentum.mag(),
-                                           tof,
-                                           eLoss,
-                                           pdgId,
-                                           detector.geographicalId().rawId(),
-                                           simTrackId,
-                                           localMomentum.theta(),
-                                           localMomentum.phi())));
+  return std::pair<double, std::unique_ptr<PSimHit>>((hitPos - refPos).mag(),
+                                                     std::make_unique<PSimHit>(entry,
+                                                                               exit,
+                                                                               localMomentum.mag(),
+                                                                               tof,
+                                                                               eLoss,
+                                                                               pdgId,
+                                                                               detector.geographicalId().rawId(),
+                                                                               simTrackId,
+                                                                               localMomentum.theta(),
+                                                                               localMomentum.phi()));
 }
 
 DEFINE_EDM_PLUGIN(fastsim::InteractionModelFactory, fastsim::TrackerSimHitProducer, "fastsim::TrackerSimHitProducer");

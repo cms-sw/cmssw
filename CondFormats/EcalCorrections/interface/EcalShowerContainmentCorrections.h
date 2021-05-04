@@ -37,7 +37,6 @@
 #include <vector>
 #include <algorithm>
 #include <map>
-#include <boost/cstdint.hpp>
 
 #include <DataFormats/Math/interface/Point3D.h>
 

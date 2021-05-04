@@ -15,6 +15,5 @@ process.source = cms.Source("PoolSource",
 )
 
 process.p1 = cms.Path(process.EDMtoMEConverter*process.dqmSaver)
-process.DQMStore.referenceFileName = 'mixCollValStandardMM.root'
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/ConverterTester/Test/RECO'

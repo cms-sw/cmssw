@@ -26,7 +26,7 @@ public:
   // side numbering
   //  enum CrystalSide{EAST=0,NORTH=1,WEST=2,SOUTH=3,FRONT=4,BACK=5};
   /// Empty constructor
-  Crystal() { number_ = 0; };
+  Crystal() = default;
   /// constructor from DetId
   Crystal(const DetId& cell, const BaseCrystal* bc = nullptr);
 
@@ -109,11 +109,11 @@ public:
   ~Crystal() { ; };
 
 private:
-  unsigned number_;
+  unsigned number_ = 0;
   DetId cellid_;
   std::vector<CrystalNeighbour> neighbours_;
-  double X0back_;
-  const BaseCrystal* myCrystal_;
+  double X0back_ = 0.;
+  const BaseCrystal* myCrystal_ = nullptr;
 
 public:
   class crystalEqual {

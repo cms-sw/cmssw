@@ -124,9 +124,9 @@ void testValueMapNew::test(const edm::ValueMap<int> &values) {
     CPPUNIT_ASSERT(i.id() == pids[idx]);
     CPPUNIT_ASSERT(i.size() == w[idx]->size());
     {
-      std::vector<int>::const_iterator b = i.begin(), e = i.end(), j;
-      for (j = b; j != e; ++j) {
-        size_t jdx = j - b;
+      std::vector<int>::const_iterator bb = i.begin(), ee = i.end(), j;
+      for (j = bb; j != ee; ++j) {
+        size_t jdx = j - bb;
         CPPUNIT_ASSERT(*j == (*w[idx])[jdx]);
         CPPUNIT_ASSERT(i[jdx] == (*w[idx])[jdx]);
       }

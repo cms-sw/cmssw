@@ -84,7 +84,7 @@ void TkHistoMap::loadTkHistoMap(const std::string& path, const std::string& MapN
       LogTrace("TkHistoMap") << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName
                              << " find " << folder.find_last_of("/") << "  length " << folder.length();
 #endif
-      if (folder.find_last_of("/") != folder.length() - 1)
+      if (folder.find_last_of('/') != folder.length() - 1)
         folder += "/";
       tkHistoMap_[layer] = igetter.get(folder + fullName);
 #ifdef debug_TkHistoMap
@@ -210,7 +210,7 @@ void TkHistoMap::setBinContent(DetId detid, float value) {
     tkHistoMap_[layer]->getTProfile2D()->SetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix, xybin.iy),
                                                        value);
   } else if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F) {
-    tkHistoMap_[layer]->getTH2F()->SetBinContent(xybin.ix, xybin.iy, value);
+    tkHistoMap_[layer]->setBinContent(xybin.ix, xybin.iy, value);
   }
 
 #ifdef debug_TkHistoMap

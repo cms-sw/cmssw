@@ -24,7 +24,6 @@
  */
 GEMSegmentAlgorithm::GEMSegmentAlgorithm(const edm::ParameterSet& ps)
     : GEMSegmentAlgorithmBase(ps), myName("GEMSegmentAlgorithm") {
-  debug = ps.getUntrackedParameter<bool>("GEMDebug");
   minHitsPerSegment = ps.getParameter<unsigned int>("minHitsPerSegment");
   preClustering = ps.getParameter<bool>("preClustering");
   dXclusBoxMax = ps.getParameter<double>("dXclusBoxMax");

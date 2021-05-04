@@ -3,8 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("LikelihoodDBLocalReader")
 
 process.MessageLogger = cms.Service("MessageLogger",
-            destinations = cms.untracked.vstring('cout'),
-            cout = cms.untracked.PSet(threshold = cms.untracked.string( 'INFO' )),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 process.load('Configuration.StandardSequences.Services_cff')

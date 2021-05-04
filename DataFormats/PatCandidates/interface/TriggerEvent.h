@@ -27,12 +27,12 @@
 
 #include <string>
 #include <vector>
-#include <boost/cstdint.hpp>
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include <cstdint>
 
 namespace pat {
 
@@ -52,21 +52,21 @@ namespace pat {
     /// PhysicsDeclared GT bit
     bool physDecl_;
     /// LHC fill number
-    boost::uint32_t lhcFill_;
+    uint32_t lhcFill_;
     /// LHC beam mode
     /// as defined in http://bdidev1.cern.ch/bdisoft/operational/abbdisw_wiki/LHC/BST-config --> Beam mode.
-    boost::uint16_t beamMode_;
+    uint16_t beamMode_;
     /// LHC beam momentum in GeV
-    boost::uint16_t beamMomentum_;
+    uint16_t beamMomentum_;
     /// LHC beam 1 intensity in ???
-    boost::uint32_t intensityBeam1_;
+    uint32_t intensityBeam1_;
     /// LHC beam 2 intensity in ???
-    boost::uint32_t intensityBeam2_;
+    uint32_t intensityBeam2_;
     /// LHC master status
     /// as defined in http://bdidev1.cern.ch/bdisoft/operational/abbdisw_wiki/LHC/BST-config
-    boost::uint16_t bstMasterStatus_;
+    uint16_t bstMasterStatus_;
     /// LHC beam turn counter
-    boost::uint32_t turnCount_;
+    uint32_t turnCount_;
     /// CMS magnet current in ??? at start of run
     float bCurrentStart_;
     /// CMS magnet current in ??? at end of run
@@ -123,19 +123,19 @@ namespace pat {
     /// Set the PhysicsDeclared GT bit
     void setPhysDecl(bool physDecl) { physDecl_ = physDecl; };
     /// Set the LHC fill number
-    void setLhcFill(boost::uint32_t lhcFill) { lhcFill_ = lhcFill; };
+    void setLhcFill(uint32_t lhcFill) { lhcFill_ = lhcFill; };
     /// Set the LHC beam mode
-    void setBeamMode(boost::uint16_t beamMode) { beamMode_ = beamMode; };
+    void setBeamMode(uint16_t beamMode) { beamMode_ = beamMode; };
     /// Set the LHC beam momentum
-    void setBeamMomentum(boost::uint16_t beamMomentum) { beamMomentum_ = beamMomentum; };
+    void setBeamMomentum(uint16_t beamMomentum) { beamMomentum_ = beamMomentum; };
     /// Set the LHC beam 1 intensity
-    void setIntensityBeam1(boost::uint32_t intensityBeam1) { intensityBeam1_ = intensityBeam1; };
+    void setIntensityBeam1(uint32_t intensityBeam1) { intensityBeam1_ = intensityBeam1; };
     /// Set the LHC beam 2 intensity
-    void setIntensityBeam2(boost::uint32_t intensityBeam2) { intensityBeam2_ = intensityBeam2; };
+    void setIntensityBeam2(uint32_t intensityBeam2) { intensityBeam2_ = intensityBeam2; };
     /// Set the LHC master status
-    void setBstMasterStatus(boost::uint16_t bstMasterStatus) { bstMasterStatus_ = bstMasterStatus; };
+    void setBstMasterStatus(uint16_t bstMasterStatus) { bstMasterStatus_ = bstMasterStatus; };
     /// Set the LHC beam turn counter
-    void setTurnCount(boost::uint32_t turnCount) { turnCount_ = turnCount; };
+    void setTurnCount(uint32_t turnCount) { turnCount_ = turnCount; };
     /// Set the CMS magnet current at start of run
     void setBCurrentStart(float bCurrentStart) { bCurrentStart_ = bCurrentStart; };
     /// Set the CMS magnet current at end of run
@@ -155,19 +155,19 @@ namespace pat {
     /// Get the PhysicsDeclared GT bit
     bool wasPhysDecl() const { return physDecl_; };
     /// Get the LHC fill number
-    boost::uint32_t lhcFill() const { return lhcFill_; };
+    uint32_t lhcFill() const { return lhcFill_; };
     /// Get the LHC beam mode
-    boost::uint16_t beamMode() const { return beamMode_; };
+    uint16_t beamMode() const { return beamMode_; };
     /// Get the LHC beam momentum
-    boost::uint16_t beamMomentum() const { return beamMomentum_; };
+    uint16_t beamMomentum() const { return beamMomentum_; };
     /// Get the LHC beam 1 intensity
-    boost::uint32_t intensityBeam1() const { return intensityBeam1_; };
+    uint32_t intensityBeam1() const { return intensityBeam1_; };
     /// Get the LHC beam 2 intensity
-    boost::uint32_t intensityBeam2() const { return intensityBeam2_; };
+    uint32_t intensityBeam2() const { return intensityBeam2_; };
     /// Get the LHC master status
-    boost::uint16_t bstMasterStatus() const { return bstMasterStatus_; };
+    uint16_t bstMasterStatus() const { return bstMasterStatus_; };
     /// Get the LHC beam turn counter
-    boost::uint32_t turnCount() const { return turnCount_; };
+    uint32_t turnCount() const { return turnCount_; };
     /// Get the CMS magnet current at start of run
     float bCurrentStart() const { return bCurrentStart_; };
     /// Get the CMS magnet current at end of run

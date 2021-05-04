@@ -58,7 +58,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -70,24 +70,16 @@
 // class declaration
 //
 
-class GenTtbarCategorizer : public edm::EDProducer {
+class GenTtbarCategorizer : public edm::global::EDProducer<> {
 public:
   explicit GenTtbarCategorizer(const edm::ParameterSet&);
-  ~GenTtbarCategorizer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
-  std::vector<int> nHadronsOrderedJetIndices(const std::map<int, int>& m_jetIndex);
+  std::vector<int> nHadronsOrderedJetIndices(const std::map<int, int>& m_jetIndex) const;
 
   // ----------member data ---------------------------
 
@@ -149,14 +141,12 @@ GenTtbarCategorizer::GenTtbarCategorizer(const edm::ParameterSet& iConfig)
   produces<int>("genTtbarId");
 }
 
-GenTtbarCategorizer::~GenTtbarCategorizer() {}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void GenTtbarCategorizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void GenTtbarCategorizer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Access gen jets
   edm::Handle<reco::GenJetCollection> genJets;
   iEvent.getByToken(genJetsToken_, genJets);
@@ -386,46 +376,8 @@ void GenTtbarCategorizer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.put(std::move(ttbarId), "genTtbarId");
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void GenTtbarCategorizer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void GenTtbarCategorizer::endJob() {}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-GenTtbarCategorizer::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-GenTtbarCategorizer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-GenTtbarCategorizer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-GenTtbarCategorizer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
 // ------------ method returns a vector of jet indices from the given map, sorted by N hadrons in descending order  ------------
-std::vector<int> GenTtbarCategorizer::nHadronsOrderedJetIndices(const std::map<int, int>& m_jetIndex) {
+std::vector<int> GenTtbarCategorizer::nHadronsOrderedJetIndices(const std::map<int, int>& m_jetIndex) const {
   const int nElements = m_jetIndex.size();
   std::vector<std::pair<int, int> > v_jetNhadIndexPair;
   v_jetNhadIndexPair.reserve(nElements);
@@ -453,8 +405,25 @@ void GenTtbarCategorizer::fillDescriptions(edm::ConfigurationDescriptions& descr
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+
+  desc.add<double>("genJetPtMin", 20.);
+  desc.add<double>("genJetAbsEtaMax", 2.4);
+  desc.add<edm::InputTag>("genJets", edm::InputTag("ak4GenJets"));
+  desc.add<edm::InputTag>("genBHadJetIndex", edm::InputTag("matchGenBHadron", "genBHadJetIndex"));
+  desc.add<edm::InputTag>("genBHadFlavour", edm::InputTag("matchGenBHadron", "genBHadFlavour"));
+  desc.add<edm::InputTag>("genBHadFromTopWeakDecay", edm::InputTag("matchGenBHadron", "genBHadFromTopWeakDecay"));
+  desc.add<edm::InputTag>("genBHadPlusMothers", edm::InputTag("matchGenBHadron", "genBHadPlusMothers"));
+  desc.add<edm::InputTag>("genBHadPlusMothersIndices", edm::InputTag("matchGenBHadron", "genBHadPlusMothersIndices"));
+  desc.add<edm::InputTag>("genBHadIndex", edm::InputTag("matchGenBHadron", "genBHadIndex"));
+  desc.add<edm::InputTag>("genBHadLeptonHadronIndex", edm::InputTag("matchGenBHadron", "genBHadLeptonHadronIndex"));
+  desc.add<edm::InputTag>("genBHadLeptonViaTau", edm::InputTag("matchGenBHadron", "genBHadLeptonViaTau"));
+
+  desc.add<edm::InputTag>("genCHadJetIndex", edm::InputTag("matchGenCHadron", "genCHadJetIndex"));
+  desc.add<edm::InputTag>("genCHadFlavour", edm::InputTag("matchGenCHadron", "genCHadFlavour"));
+  desc.add<edm::InputTag>("genCHadFromTopWeakDecay", edm::InputTag("matchGenCHadron", "genCHadFromTopWeakDecay"));
+  desc.add<edm::InputTag>("genCHadBHadronId", edm::InputTag("matchGenCHadron", "genCHadBHadronId"));
+
+  descriptions.add("categorizeGenTtbar", desc);
 }
 
 //define this as a plug-in

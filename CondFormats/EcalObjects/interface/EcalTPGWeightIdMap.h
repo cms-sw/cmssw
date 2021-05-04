@@ -4,8 +4,8 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
-#include <boost/cstdint.hpp>
 #include "CondFormats/EcalObjects/interface/EcalTPGWeights.h"
+#include <cstdint>
 
 class EcalTPGWeightIdMap {
 public:

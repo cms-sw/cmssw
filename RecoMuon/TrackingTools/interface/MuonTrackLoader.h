@@ -55,10 +55,10 @@ public:
 
   /// Convert the trajectories into tracks and load the tracks in the event
   edm::OrphanHandle<reco::TrackCollection> loadTracks(
-      const TrajectoryContainer&, edm::Event&, const TrackerTopology& ttopo, const std::string& = "", bool = true);
+      TrajectoryContainer&, edm::Event&, const TrackerTopology& ttopo, const std::string& = "", bool = true);
 
   /// Convert the trajectories into tracks and load the tracks in the event
-  edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&,
+  edm::OrphanHandle<reco::TrackCollection> loadTracks(TrajectoryContainer&,
                                                       edm::Event&,
                                                       std::vector<bool>&,
                                                       const TrackerTopology& ttopo,
@@ -66,7 +66,7 @@ public:
                                                       bool = true);
 
   /// Convert the trajectories into tracks and load the tracks in the event
-  edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&,
+  edm::OrphanHandle<reco::TrackCollection> loadTracks(TrajectoryContainer&,
                                                       edm::Event&,
                                                       const std::vector<std::pair<Trajectory*, reco::TrackRef> >&,
                                                       edm::Handle<reco::TrackCollection> const& trackHandle,
@@ -75,7 +75,7 @@ public:
                                                       bool = true);
 
   /// Convert the trajectories into tracks and load the tracks in the event
-  edm::OrphanHandle<reco::MuonTrackLinksCollection> loadTracks(const CandidateContainer&,
+  edm::OrphanHandle<reco::MuonTrackLinksCollection> loadTracks(CandidateContainer&,
                                                                edm::Event&,
                                                                const TrackerTopology& ttopo);
 
@@ -93,7 +93,7 @@ private:
   const MuonServiceProxy* theService;
 
   bool theUpdatingAtVtx;
-  MuonUpdatorAtVertex* theUpdatorAtVtx;
+  std::unique_ptr<MuonUpdatorAtVertex> theUpdatorAtVtx;
 
   bool theTrajectoryFlag;
 

@@ -16,6 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -23,13 +24,15 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
+#include "CondFormats/GBRForest/interface/GBRForestD.h"
 #include "RecoEgamma/EgammaTools/interface/EpCombinationTool.h"
 #include "RecoEgamma/EgammaTools/interface/ElectronEnergyCalibrator.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergySysIndex.h"
 #include "RecoEgamma/EgammaTools/interface/EgammaRandomSeeds.h"
 
 #include "TRandom2.h"
+
+#include <memory>
 
 #include <vector>
 
@@ -83,16 +86,16 @@ namespace {
 
 template <typename T>
 CalibratedElectronProducerT<T>::CalibratedElectronProducerT(const edm::ParameterSet& conf)
-    : electronToken_(consumes<edm::View<T>>(conf.getParameter<edm::InputTag>("src"))),
-      epCombinationTool_(conf.getParameter<edm::ParameterSet>("epCombConfig")),
+    : electronToken_(consumes(conf.getParameter<edm::InputTag>("src"))),
+      epCombinationTool_{conf.getParameterSet("epCombConfig"), consumesCollector()},
       energyCorrector_(epCombinationTool_, conf.getParameter<std::string>("correctionFile")),
-      recHitCollectionEBToken_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitCollectionEB"))),
-      recHitCollectionEEToken_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitCollectionEE"))),
+      recHitCollectionEBToken_(consumes(conf.getParameter<edm::InputTag>("recHitCollectionEB"))),
+      recHitCollectionEEToken_(consumes(conf.getParameter<edm::InputTag>("recHitCollectionEE"))),
       produceCalibratedObjs_(conf.getParameter<bool>("produceCalibratedObjs")) {
   energyCorrector_.setMinEt(conf.getParameter<double>("minEtToCalibrate"));
 
   if (conf.getParameter<bool>("semiDeterministic")) {
-    semiDeterministicRng_.reset(new TRandom2());
+    semiDeterministicRng_ = std::make_unique<TRandom2>();
     energyCorrector_.initPrivateRng(semiDeterministicRng_.get());
   }
 
@@ -116,6 +119,7 @@ void CalibratedElectronProducerT<T>::fillDescriptions(edm::ConfigurationDescript
   desc.add<bool>("produceCalibratedObjs", true);
   desc.add<bool>("semiDeterministic", true);
   std::vector<std::string> valMapsProduced;
+  valMapsProduced.reserve(valMapsToStore_.size());
   for (auto varToStore : valMapsToStore_)
     valMapsProduced.push_back(EGEnergySysIndex::name(varToStore));
   desc.add<std::vector<std::string>>("valueMapsStored", valMapsProduced)
@@ -128,14 +132,10 @@ template <typename T>
 void CalibratedElectronProducerT<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   epCombinationTool_.setEventContent(iSetup);
 
-  edm::Handle<edm::View<T>> inHandle;
-  iEvent.getByToken(electronToken_, inHandle);
+  auto inHandle = iEvent.getHandle(electronToken_);
 
-  edm::Handle<EcalRecHitCollection> recHitCollectionEBHandle;
-  edm::Handle<EcalRecHitCollection> recHitCollectionEEHandle;
-
-  iEvent.getByToken(recHitCollectionEBToken_, recHitCollectionEBHandle);
-  iEvent.getByToken(recHitCollectionEEToken_, recHitCollectionEEHandle);
+  auto recHitCollectionEBHandle = iEvent.getHandle(recHitCollectionEBToken_);
+  auto recHitCollectionEEHandle = iEvent.getHandle(recHitCollectionEEToken_);
 
   std::unique_ptr<std::vector<T>> out = std::make_unique<std::vector<T>>();
 

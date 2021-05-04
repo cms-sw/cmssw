@@ -72,8 +72,6 @@ void ESPedestalTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, Even
   }
 }
 
-void ESPedestalTask::endJob(void) { LogInfo("ESPedestalTask") << "analyzed " << ievt_ << " events"; }
-
 void ESPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   ievt_++;
   runNum_ = e.id().run();

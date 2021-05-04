@@ -8,8 +8,8 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
+#include <memory>
 #include <vector>
-#include <boost/ptr_container/ptr_vector.hpp>
 
 template <typename T, typename TProd>
 class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
@@ -18,19 +18,22 @@ public:
       : name_(params.getParameter<std::string>("name")),
         doc_(params.existsAs<std::string>("doc") ? params.getParameter<std::string>("doc") : ""),
         extension_(params.existsAs<bool>("extension") ? params.getParameter<bool>("extension") : false),
-        src_(consumes<TProd>(params.getParameter<edm::InputTag>("src"))) {
+        skipNonExistingSrc_(
+            params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
+        src_(skipNonExistingSrc_ ? mayConsume<TProd>(params.getParameter<edm::InputTag>("src"))
+                                 : consumes<TProd>(params.getParameter<edm::InputTag>("src"))) {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
       const auto &varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
       const std::string &type = varPSet.getParameter<std::string>("type");
       if (type == "int")
-        vars_.push_back(new IntVar(vname, nanoaod::FlatTable::IntColumn, varPSet));
+        vars_.push_back(std::make_unique<IntVar>(vname, varPSet));
       else if (type == "float")
-        vars_.push_back(new FloatVar(vname, nanoaod::FlatTable::FloatColumn, varPSet));
+        vars_.push_back(std::make_unique<FloatVar>(vname, varPSet));
       else if (type == "uint8")
-        vars_.push_back(new UInt8Var(vname, nanoaod::FlatTable::UInt8Column, varPSet));
+        vars_.push_back(std::make_unique<UInt8Var>(vname, varPSet));
       else if (type == "bool")
-        vars_.push_back(new BoolVar(vname, nanoaod::FlatTable::BoolColumn, varPSet));
+        vars_.push_back(std::make_unique<BoolVar>(vname, varPSet));
       else
         throw cms::Exception("Configuration", "unsupported type " + type + " for variable " + vname);
     }
@@ -58,36 +61,35 @@ protected:
   const std::string name_;
   const std::string doc_;
   const bool extension_;
+  const bool skipNonExistingSrc_;
   const edm::EDGetTokenT<TProd> src_;
 
   class VariableBase {
   public:
-    VariableBase(const std::string &aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet &cfg)
+    VariableBase(const std::string &aname, const edm::ParameterSet &cfg)
         : name_(aname),
           doc_(cfg.getParameter<std::string>("doc")),
-          type_(atype),
           precision_(cfg.existsAs<int>("precision") ? cfg.getParameter<int>("precision")
                                                     : (cfg.existsAs<std::string>("precision") ? -2 : -1)) {}
     virtual ~VariableBase() {}
     const std::string &name() const { return name_; }
-    const nanoaod::FlatTable::ColumnType &type() const { return type_; }
 
   protected:
     std::string name_, doc_;
-    nanoaod::FlatTable::ColumnType type_;
     int precision_;
   };
+
   class Variable : public VariableBase {
   public:
-    Variable(const std::string &aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet &cfg)
-        : VariableBase(aname, atype, cfg) {}
+    Variable(const std::string &aname, const edm::ParameterSet &cfg) : VariableBase(aname, cfg) {}
     virtual void fill(std::vector<const T *> selobjs, nanoaod::FlatTable &out) const = 0;
   };
+
   template <typename StringFunctor, typename ValType>
   class FuncVariable : public Variable {
   public:
-    FuncVariable(const std::string &aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet &cfg)
-        : Variable(aname, atype, cfg),
+    FuncVariable(const std::string &aname, const edm::ParameterSet &cfg)
+        : Variable(aname, cfg),
           func_(cfg.getParameter<std::string>("expr"), true),
           precisionFunc_(cfg.existsAs<std::string>("precision") ? cfg.getParameter<std::string>("precision") : "23",
                          true) {}
@@ -95,12 +97,18 @@ protected:
     void fill(std::vector<const T *> selobjs, nanoaod::FlatTable &out) const override {
       std::vector<ValType> vals(selobjs.size());
       for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-        if (this->precision_ == -2) {
-          vals[i] = MiniFloatConverter::reduceMantissaToNbitsRounding(func_(*selobjs[i]), precisionFunc_(*selobjs[i]));
-        } else
+        if constexpr (std::is_same<ValType, float>()) {
+          if (this->precision_ == -2) {
+            vals[i] =
+                MiniFloatConverter::reduceMantissaToNbitsRounding(func_(*selobjs[i]), precisionFunc_(*selobjs[i]));
+          } else {
+            vals[i] = func_(*selobjs[i]);
+          }
+        } else {
           vals[i] = func_(*selobjs[i]);
+        }
       }
-      out.template addColumn<ValType>(this->name_, vals, this->doc_, this->type_, this->precision_);
+      out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
     }
 
   protected:
@@ -110,8 +118,8 @@ protected:
   typedef FuncVariable<StringObjectFunction<T>, int> IntVar;
   typedef FuncVariable<StringObjectFunction<T>, float> FloatVar;
   typedef FuncVariable<StringObjectFunction<T>, uint8_t> UInt8Var;
-  typedef FuncVariable<StringCutObjectSelector<T>, uint8_t> BoolVar;
-  boost::ptr_vector<Variable> vars_;
+  typedef FuncVariable<StringCutObjectSelector<T>, bool> BoolVar;
+  std::vector<std::unique_ptr<Variable>> vars_;
 };
 
 template <typename T>
@@ -131,18 +139,20 @@ public:
         const auto &varPSet = extvarsPSet.getParameter<edm::ParameterSet>(vname);
         const std::string &type = varPSet.getParameter<std::string>("type");
         if (type == "int")
-          extvars_.push_back(new IntExtVar(vname, nanoaod::FlatTable::IntColumn, varPSet, this->consumesCollector()));
+          extvars_.push_back(
+              std::make_unique<IntExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "float")
           extvars_.push_back(
-              new FloatExtVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, this->consumesCollector()));
+              std::make_unique<FloatExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "double")
           extvars_.push_back(
-              new DoubleExtVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, this->consumesCollector()));
+              std::make_unique<DoubleExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "uint8")
           extvars_.push_back(
-              new UInt8ExtVar(vname, nanoaod::FlatTable::UInt8Column, varPSet, this->consumesCollector()));
+              std::make_unique<UInt8ExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "bool")
-          extvars_.push_back(new BoolExtVar(vname, nanoaod::FlatTable::BoolColumn, varPSet, this->consumesCollector()));
+          extvars_.push_back(
+              std::make_unique<BoolExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else
           throw cms::Exception("Configuration", "unsupported type " + type + " for variable " + vname);
       }
@@ -155,28 +165,30 @@ public:
                                                 const edm::Handle<edm::View<T>> &prod) const override {
     std::vector<const T *> selobjs;
     std::vector<edm::Ptr<T>> selptrs;  // for external variables
-    if (singleton_) {
-      assert(prod->size() == 1);
-      selobjs.push_back(&(*prod)[0]);
-      if (!extvars_.empty())
-        selptrs.emplace_back(prod->ptrAt(0));
-    } else {
-      for (unsigned int i = 0, n = prod->size(); i < n; ++i) {
-        const auto &obj = (*prod)[i];
-        if (cut_(obj)) {
-          selobjs.push_back(&obj);
-          if (!extvars_.empty())
-            selptrs.emplace_back(prod->ptrAt(i));
+    if (prod.isValid() || !(this->skipNonExistingSrc_)) {
+      if (singleton_) {
+        assert(prod->size() == 1);
+        selobjs.push_back(&(*prod)[0]);
+        if (!extvars_.empty())
+          selptrs.emplace_back(prod->ptrAt(0));
+      } else {
+        for (unsigned int i = 0, n = prod->size(); i < n; ++i) {
+          const auto &obj = (*prod)[i];
+          if (cut_(obj)) {
+            selobjs.push_back(&obj);
+            if (!extvars_.empty())
+              selptrs.emplace_back(prod->ptrAt(i));
+          }
+          if (selobjs.size() >= maxLen_)
+            break;
         }
-        if (selobjs.size() >= maxLen_)
-          break;
       }
     }
     auto out = std::make_unique<nanoaod::FlatTable>(selobjs.size(), this->name_, singleton_, this->extension_);
     for (const auto &var : this->vars_)
-      var.fill(selobjs, *out);
+      var->fill(selobjs, *out);
     for (const auto &var : this->extvars_)
-      var.fill(iEvent, selptrs, *out);
+      var->fill(iEvent, selptrs, *out);
     return out;
   }
 
@@ -187,38 +199,43 @@ protected:
 
   class ExtVariable : public base::VariableBase {
   public:
-    ExtVariable(const std::string &aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet &cfg)
-        : base::VariableBase(aname, atype, cfg) {}
+    ExtVariable(const std::string &aname, const edm::ParameterSet &cfg) : base::VariableBase(aname, cfg) {}
     virtual void fill(const edm::Event &iEvent, std::vector<edm::Ptr<T>> selptrs, nanoaod::FlatTable &out) const = 0;
   };
   template <typename TIn, typename ValType = TIn>
   class ValueMapVariable : public ExtVariable {
   public:
     ValueMapVariable(const std::string &aname,
-                     nanoaod::FlatTable::ColumnType atype,
                      const edm::ParameterSet &cfg,
-                     edm::ConsumesCollector &&cc)
-        : ExtVariable(aname, atype, cfg),
-          token_(cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
+                     edm::ConsumesCollector &&cc,
+                     bool skipNonExistingSrc = false)
+        : ExtVariable(aname, cfg),
+          skipNonExistingSrc_(skipNonExistingSrc),
+          token_(skipNonExistingSrc_ ? cc.mayConsume<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))
+                                     : cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
     void fill(const edm::Event &iEvent, std::vector<edm::Ptr<T>> selptrs, nanoaod::FlatTable &out) const override {
       edm::Handle<edm::ValueMap<TIn>> vmap;
       iEvent.getByToken(token_, vmap);
-      std::vector<ValType> vals(selptrs.size());
-      for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-        vals[i] = (*vmap)[selptrs[i]];
+      std::vector<ValType> vals;
+      if (vmap.isValid() || !skipNonExistingSrc_) {
+        vals.resize(selptrs.size());
+        for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
+          vals[i] = (*vmap)[selptrs[i]];
+        }
       }
-      out.template addColumn<ValType>(this->name_, vals, this->doc_, this->type_, this->precision_);
+      out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
     }
 
   protected:
+    const bool skipNonExistingSrc_;
     edm::EDGetTokenT<edm::ValueMap<TIn>> token_;
   };
   typedef ValueMapVariable<int> IntExtVar;
   typedef ValueMapVariable<float> FloatExtVar;
   typedef ValueMapVariable<double, float> DoubleExtVar;
-  typedef ValueMapVariable<bool, uint8_t> BoolExtVar;
+  typedef ValueMapVariable<bool> BoolExtVar;
   typedef ValueMapVariable<int, uint8_t> UInt8ExtVar;
-  boost::ptr_vector<ExtVariable> extvars_;
+  std::vector<std::unique_ptr<ExtVariable>> extvars_;
 };
 
 template <typename T>
@@ -232,7 +249,7 @@ public:
     auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
     std::vector<const T *> selobjs(1, prod.product());
     for (const auto &var : this->vars_)
-      var.fill(selobjs, *out);
+      var->fill(selobjs, *out);
     return out;
   }
 };
@@ -250,7 +267,7 @@ public:
     auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
     std::vector<const T *> selobjs(1, &(*prod)[0]);
     for (const auto &var : this->vars_)
-      var.fill(selobjs, *out);
+      var->fill(selobjs, *out);
     return out;
   }
 };

@@ -7,8 +7,6 @@
 
 #include <vector>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class DetLayer;
 class FreeTrajectoryState;
 class NavigationSchool;

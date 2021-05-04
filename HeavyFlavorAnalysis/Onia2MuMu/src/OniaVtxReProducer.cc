@@ -1,28 +1,27 @@
-#include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/Common/interface/Provenance.h"
+#include <memory>
+
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &handle, const edm::Event &iEvent) {
   const edm::Provenance *prov = handle.provenance();
   if (prov == nullptr)
     throw cms::Exception("CorruptData") << "Vertex handle doesn't have provenance.";
-  edm::ParameterSet psetFromProvenance = edm::parameterSet(*prov);
+  edm::ParameterSet psetFromProvenance = edm::parameterSet(prov->stable(), iEvent.processHistory());
 
   bool is_primary_available = false;
   const edm::Provenance *parent_prov = prov;
-  if (edm::moduleName(*prov) != "PrimaryVertexProducer") {
+  if (edm::moduleName(prov->stable(), iEvent.processHistory()) != "PrimaryVertexProducer") {
     std::vector<edm::BranchID> parents = prov->productProvenance()->parentage().parents();
     for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
       edm::Provenance parprov = iEvent.getProvenance(*it);
       if (parprov.friendlyClassName() == "recoVertexs") {  // for AOD actually this the parent we should look for
         parent_prov = &parprov;
-        psetFromProvenance = edm::parameterSet(parprov);
+        psetFromProvenance = edm::parameterSet(parprov.stable(), iEvent.processHistory());
         is_primary_available = true;
         break;
       }
@@ -41,7 +40,7 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
   bool foundTracks = false;
   bool foundBeamSpot = false;
   for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
-    edm::Provenance parprov = iEvent.getProvenance(*it);
+    const edm::Provenance &parprov = iEvent.getProvenance(*it);
     if (parprov.friendlyClassName() == "recoTracks") {
       tracksTag_ = edm::InputTag(parprov.moduleLabel(), parprov.productInstanceName(), parprov.processName());
       foundTracks = true;
@@ -66,19 +65,16 @@ void OniaVtxReProducer::configure(const edm::ParameterSet &iConfig) {
   config_ = iConfig;
   tracksTag_ = iConfig.getParameter<edm::InputTag>("TrackLabel");
   beamSpotTag_ = iConfig.getParameter<edm::InputTag>("beamSpotLabel");
-  algo_.reset(new PrimaryVertexProducerAlgorithm(iConfig));
+  algo_ = std::make_unique<PrimaryVertexProducerAlgorithm>(iConfig);
 }
 
 std::vector<TransientVertex> OniaVtxReProducer::makeVertices(const reco::TrackCollection &tracks,
                                                              const reco::BeamSpot &bs,
-                                                             const edm::EventSetup &iSetup) const {
-  edm::ESHandle<TransientTrackBuilder> theB;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
-
+                                                             const TransientTrackBuilder &theB) const {
   std::vector<reco::TransientTrack> t_tks;
   t_tks.reserve(tracks.size());
   for (reco::TrackCollection::const_iterator it = tracks.begin(), ed = tracks.end(); it != ed; ++it) {
-    t_tks.push_back((*theB).build(*it));
+    t_tks.push_back(theB.build(*it));
     t_tks.back().setBeamSpot(bs);
   }
 

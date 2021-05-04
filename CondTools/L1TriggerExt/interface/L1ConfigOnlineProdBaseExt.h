@@ -9,7 +9,6 @@
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyListExt.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListExtRcd.h"
@@ -41,10 +40,13 @@ public:
 
 private:
   // ----------member data ---------------------------
+  edm::ESGetToken<L1TriggerKeyListExt, L1TriggerKeyListExtRcd> keyList_token;
+  edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> key_token;
 
 protected:
   l1t::OMDSReader m_omdsReader;
   bool m_forceGeneration;
+  edm::ESConsumesCollectorT<TRcd> wrappedSetWhatProduced(const edm::ParameterSet&);
 
   // Called from produce methods.
   // bool is true if the object data should be made.
@@ -65,7 +67,9 @@ L1ConfigOnlineProdBaseExt<TRcd, TData>::L1ConfigOnlineProdBaseExt(const edm::Par
       m_copyFromCondDB(false) {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this);
+  // setWhatProduced(this)
+  //   .setConsumes(keyList_token)
+  //   .setConsumes(key_token);
 
   //now do what ever other initialization is needed
 
@@ -83,6 +87,15 @@ L1ConfigOnlineProdBaseExt<TRcd, TData>::L1ConfigOnlineProdBaseExt(const edm::Par
     m_omdsReader.connect(iConfig.getParameter<std::string>("onlineDB"),
                          iConfig.getParameter<std::string>("onlineAuthentication"));
   }
+}
+
+template <class TRcd, class TData>
+edm::ESConsumesCollectorT<TRcd> L1ConfigOnlineProdBaseExt<TRcd, TData>::wrappedSetWhatProduced(
+    const edm::ParameterSet& iConfig) {
+  auto collector = setWhatProduced(this);
+  keyList_token = collector.consumes();
+  key_token = collector.consumes();
+  return collector;
 }
 
 template <class TRcd, class TData>
@@ -104,16 +117,15 @@ std::unique_ptr<const TData> L1ConfigOnlineProdBaseExt<TRcd, TData>::produce(con
           ///	 // Get L1TriggerKeyList from EventSetup
           ///	 const L1TriggerKeyListRcd& keyListRcd =
           iRecord.template getRecord<L1TriggerKeyListExtRcd>();
-      edm::ESHandle<L1TriggerKeyListExt> keyList;
       ///	   iRecord.template getRecord< L1TriggerKeyListRcd >() ;
       ///	 edm::ESHandle< L1TriggerKeyList > keyList ;
 
-      keyListRcd.get(keyList);
+      auto const& keyList = keyListRcd.get(keyList_token);
 
       // Find payload token
       std::string recordName = edm::typelookup::className<TRcd>();
       std::string dataType = edm::typelookup::className<TData>();
-      std::string payloadToken = keyList->token(recordName, dataType, key);
+      std::string payloadToken = keyList.token(recordName, dataType, key);
 
       edm::LogVerbatim("L1-O2O") << "Copying payload for " << recordName << "@" << dataType << " obj key " << key
                                  << " from CondDB.";
@@ -156,9 +168,9 @@ bool L1ConfigOnlineProdBaseExt<TRcd, TData>::getObjectKey(const TRcd& record, st
 
   // If L1TriggerKeyExt is invalid, then all configuration objects are
   // already in ORCON.
-  edm::ESHandle<L1TriggerKeyExt> key;
+  // edm::ESHandle<L1TriggerKeyExt> key_token;
   try {
-    keyRcd.get(key);
+    keyRcd.get(key_token);
   } catch (l1t::DataAlreadyPresentException& ex) {
     objectKey = std::string();
     return false;
@@ -168,7 +180,7 @@ bool L1ConfigOnlineProdBaseExt<TRcd, TData>::getObjectKey(const TRcd& record, st
   std::string recordName = edm::typelookup::className<TRcd>();
   std::string dataType = edm::typelookup::className<TData>();
 
-  objectKey = key->get(recordName, dataType);
+  objectKey = keyRcd.get(key_token).get(recordName, dataType);
 
   /*    edm::LogVerbatim( "L1-O2O" ) */
   /*      << "L1ConfigOnlineProdBase record " << recordName */

@@ -35,7 +35,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 // Conversions
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 
 // Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -52,7 +52,6 @@ protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
-  void endRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
 
 private:
   // histos booking function

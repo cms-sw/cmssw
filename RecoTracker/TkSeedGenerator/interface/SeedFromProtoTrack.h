@@ -5,7 +5,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
-#include <boost/shared_ptr.hpp>
 
 namespace reco {
   class Track;

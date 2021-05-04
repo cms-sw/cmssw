@@ -22,6 +22,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include <memory>
 
 namespace edm {
   class ParameterSet;
@@ -56,10 +57,10 @@ private:
   edm::EDGetTokenT<TrajTrackAssociationCollection> l2AssoMapToken_;
   edm::EDGetTokenT<reco::TrackToTrackMap> updatedL2AssoMapToken_;
 
-  MuonTrackFinder* theTrackFinder;
+  std::unique_ptr<MuonTrackFinder> theTrackFinder;
 
   /// the event setup proxy, it takes care the services update
-  MuonServiceProxy* theService;
+  std::unique_ptr<MuonServiceProxy> theService;
 };
 
 #endif

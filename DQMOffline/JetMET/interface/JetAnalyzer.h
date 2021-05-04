@@ -95,9 +95,6 @@ public:
   /// Initialize run-based parameters
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  /// Finish up a run
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
-
 private:
   // ----------member data ---------------------------
   static bool jetSortingRule(reco::Jet x, reco::Jet y) { return x.pt() > y.pt(); }

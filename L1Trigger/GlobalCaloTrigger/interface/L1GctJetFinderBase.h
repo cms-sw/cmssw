@@ -12,7 +12,6 @@
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
-#include <boost/cstdint.hpp>  //for uint16_t
 #include <vector>
 
 class L1GctInternJetData;

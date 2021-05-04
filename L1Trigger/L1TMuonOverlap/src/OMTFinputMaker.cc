@@ -12,17 +12,17 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinput.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlap/interface/AngleConverter.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ///////////////////////////////////////
 ///////////////////////////////////////
-OMTFinputMaker::OMTFinputMaker() {}
+OMTFinputMaker::OMTFinputMaker(edm::ConsumesCollector &iC, bool getDuringEvent)
+    : myAngleConverter(std::make_unique<AngleConverter>(iC, getDuringEvent)) {}
 ///////////////////////////////////////
 ///////////////////////////////////////
 void OMTFinputMaker::initialize(const edm::EventSetup &es, const OMTFConfiguration *omtfConfig) {
-  myAngleConverter.checkAndUpdateGeometry(es, omtfConfig->nPhiBins());
+  myAngleConverter->checkAndUpdateGeometry(es, omtfConfig->nPhiBins());
 
   myOmtfConfig = omtfConfig;
 }
@@ -217,7 +217,7 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
   if (!dtPhDigis)
     return result;
 
-  for (const auto digiIt : *dtPhDigis->getContainer()) {
+  for (const auto &digiIt : *dtPhDigis->getContainer()) {
     DTChamberId detid(digiIt.whNum(), digiIt.stNum(), digiIt.scNum() + 1);
 
     ///Check it the data fits into given processor input range
@@ -248,8 +248,8 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
 
     auto iter = myOmtfConfig->getHwToLogicLayer().find(hwNumber);
     unsigned int iLayer = iter->second;
-    int iPhi = myAngleConverter.getProcessorPhi(iProcessor, type, digiIt);
-    int iEta = myAngleConverter.getGlobalEta(detid.rawId(), digiIt, dtThDigis);
+    int iPhi = myAngleConverter->getProcessorPhi(iProcessor, type, digiIt);
+    int iEta = myAngleConverter->getGlobalEta(detid.rawId(), digiIt, dtThDigis);
     unsigned int iInput = getInputNumber(detid.rawId(), iProcessor, type);
     bool allowOverwrite = false;
     result.addLayerHit(iLayer, iInput, iPhi, iEta, allowOverwrite);
@@ -287,8 +287,8 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
         continue;
 
       unsigned int iLayer = myOmtfConfig->getHwToLogicLayer().at(hwNumber);
-      int iPhi = myAngleConverter.getProcessorPhi(iProcessor, type, CSCDetId(rawid), *digi);
-      int iEta = myAngleConverter.getGlobalEta(rawid, *digi);
+      int iPhi = myAngleConverter->getProcessorPhi(iProcessor, type, CSCDetId(rawid), *digi);
+      int iEta = myAngleConverter->getGlobalEta(rawid, *digi);
       ///Accept CSC digis only up to eta=1.26.
       ///The nominal OMTF range is up to 1.24, but cutting at 1.24
       ///kill efficnency at the edge. 1.26 is one eta bin above nominal.
@@ -348,14 +348,14 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
     }
 
     for (auto &cluster : clusters) {
-      //      int iPhiHalfStrip1 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.first);
-      //      int iPhiHalfStrip2 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.second);
-      int iPhi = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.first, cluster.second);
+      //      int iPhiHalfStrip1 = myAngleConverter->getProcessorPhi(iProcessor, type, roll, cluster.first);
+      //      int iPhiHalfStrip2 = myAngleConverter->getProcessorPhi(iProcessor, type, roll, cluster.second);
+      int iPhi = myAngleConverter->getProcessorPhi(iProcessor, type, roll, cluster.first, cluster.second);
       int cSize = abs(int(cluster.first) - int(cluster.second)) + 1;
       //      std::cout << " HStrip_1: " << iPhiHalfStrip1 <<" HStrip_2: "<<iPhiHalfStrip2<<" iPhi: " << iPhi << " cluster: ["<< cluster.first << ", "<<  cluster.second <<"]"<< std::endl;
       if (cSize > 3)
         continue;
-      int iEta = myAngleConverter.getGlobalEta(rawid, cluster.first);
+      int iEta = myAngleConverter->getGlobalEta(rawid, cluster.first);
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
       unsigned int iLayer = myOmtfConfig->getHwToLogicLayer().at(hwNumber);
       unsigned int iInput = getInputNumber(rawid, iProcessor, type);

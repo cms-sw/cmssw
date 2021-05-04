@@ -1,11 +1,9 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/TFWLiteSelector"/>
-<use   name="clhep"/>
-<use   name="rootgpad"/>
-
+<use name="DataFormats/Common"/>
+<use name="DataFormats/TrackReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/TFWLiteSelector"/>
+<use name="clhep"/>
+<use name="rootgpad"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

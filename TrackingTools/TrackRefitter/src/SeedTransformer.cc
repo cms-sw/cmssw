@@ -83,13 +83,10 @@ vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) c
   aTSOS.rescaleError(errorRescale);
 
   vector<TransientTrackingRecHit::ConstRecHitPointer> recHits;
-  unsigned int countRH = 0;
 
-  for (TrajectorySeed::recHitContainer::const_iterator itRecHits = aSeed.recHits().first;
-       itRecHits != aSeed.recHits().second;
-       ++itRecHits, ++countRH) {
-    if ((*itRecHits).isValid()) {
-      TransientTrackingRecHit::ConstRecHitPointer ttrh(theMuonRecHitBuilder->build(&(*itRecHits)));
+  for (auto const& recHit : aSeed.recHits()) {
+    if (recHit.isValid()) {
+      TransientTrackingRecHit::ConstRecHitPointer ttrh(theMuonRecHitBuilder->build(&recHit));
 
       if (useSubRecHits) {
         TransientTrackingRecHit::ConstRecHitContainer subHits =
@@ -99,7 +96,7 @@ vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) c
         recHits.push_back(ttrh);
       }
     }
-  }  // end for(TrajectorySeed::recHitContainer::const_iterator itRecHits=aSeed.recHits().first; itRecHits!=aSeed.recHits().second; ++itRecHits, ++countRH)
+  }
 
   TrajectoryStateOnSurface aInitTSOS = thePropagator->propagate(aTSOS, recHits.front()->det()->surface());
 

@@ -14,12 +14,15 @@
   \author   Steven Lowette, Christophe Delaere
 */
 
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 
@@ -33,8 +36,11 @@
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataMerger.h"
+
+#include "RecoTauTag/RecoTau/interface/PositionAtECalEntranceComputer.h"
 
 #include <string>
 
@@ -87,9 +93,17 @@ namespace pat {
 
     bool addTauID_;
     typedef std::pair<std::string, edm::InputTag> NameTag;
+    typedef std::pair<std::string, std::string> WPCfg;
+    typedef std::pair<WPCfg, int> WPIdx;
+    typedef std::pair<std::string, WPIdx> NameWPIdx;
+    typedef std::pair<edm::InputTag, std::vector<NameWPIdx> >
+        IDContainerData;  //to save input module tag and corresponding pairs <working point name for the output tree, WP index in the input ID container>
     std::vector<NameTag> tauIDSrcs_;
+    std::vector<std::vector<NameWPIdx> > tauIDSrcContainers_;
     std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > pfTauIDTokens_;
+    std::vector<edm::EDGetTokenT<reco::TauDiscriminatorContainer> > pfTauIDContainerTokens_;
     bool skipMissingTauID_;
+    edm::ProcessHistoryID phID_;
     // tools
     GreaterByPt<Tau> pTTauComparator_;
 
@@ -109,6 +123,12 @@ namespace pat {
 
     template <typename TauCollectionType, typename TauDiscrType>
     float getTauIdDiscriminator(const edm::Handle<TauCollectionType>&, size_t, const edm::Handle<TauDiscrType>&);
+    float getTauIdDiscriminatorFromContainer(const edm::Handle<reco::PFTauCollection>&,
+                                             size_t,
+                                             const edm::Handle<reco::TauDiscriminatorContainer>&,
+                                             int);
+
+    PositionAtECalEntranceComputer posAtECalEntranceComputer_;
   };
 
 }  // namespace pat

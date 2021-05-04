@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 
-Toy edm::one::EDFilter modules of 
+Toy edm::one::EDFilter modules of
 edm::one cache classes and edm::*Producer classes
 for testing purposes only.
 
@@ -12,6 +12,7 @@ for testing purposes only.
 #include <map>
 #include <functional>
 #include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/src/WorkerT.h"
@@ -142,7 +143,7 @@ namespace edmtest {
     public:
       explicit RunCacheFilter(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {}
       const unsigned int trans_;
-      mutable unsigned int m_count = 0;
+      mutable std::atomic<unsigned int> m_count = 0;
 
       bool filter(edm::Event& iEvent, edm::EventSetup const&) override {
         ++m_count;
@@ -188,7 +189,7 @@ namespace edmtest {
     public:
       explicit LumiBlockCacheFilter(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {}
       const unsigned int trans_;
-      mutable unsigned int m_count = 0;
+      mutable std::atomic<unsigned int> m_count = 0;
 
       bool filter(edm::Event& iEvent, edm::EventSetup const&) override {
         ++m_count;
@@ -226,6 +227,191 @@ namespace edmtest {
               << "WatchLumiBlocksAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
         }
       }
+    };
+
+    class ProcessBlockIntFilter : public edm::one::EDFilter<edm::WatchProcessBlock> {
+    public:
+      explicit ProcessBlockIntFilter(edm::ParameterSet const& pset) : trans_(pset.getParameter<int>("transitions")) {
+        produces<unsigned int>();
+
+        {
+          auto tag = pset.getParameter<edm::InputTag>("consumesBeginProcessBlock");
+          if (not tag.label().empty()) {
+            getTokenBegin_ = consumes<unsigned int, edm::InProcess>(tag);
+          }
+        }
+        {
+          auto tag = pset.getParameter<edm::InputTag>("consumesEndProcessBlock");
+          if (not tag.label().empty()) {
+            getTokenEnd_ = consumes<unsigned int, edm::InProcess>(tag);
+          }
+        }
+      }
+
+      void beginProcessBlock(edm::ProcessBlock const& processBlock) override {
+        if (m_count != 0) {
+          throw cms::Exception("transitions")
+              << "ProcessBlockIntFilter::begin transitions " << m_count << " but it was supposed to be " << 0;
+        }
+        ++m_count;
+
+        const unsigned int valueToGet = 31;
+        if (not getTokenBegin_.isUninitialized()) {
+          if (processBlock.get(getTokenBegin_) != valueToGet) {
+            throw cms::Exception("BadValue")
+                << "expected " << valueToGet << " but got " << processBlock.get(getTokenBegin_);
+          }
+        }
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        if (m_count < 1u) {
+          throw cms::Exception("out of sequence") << "produce before beginProcessBlock " << m_count;
+        }
+        ++m_count;
+        return true;
+      }
+
+      void endProcessBlock(edm::ProcessBlock const& processBlock) override {
+        ++m_count;
+        if (m_count != trans_) {
+          throw cms::Exception("transitions")
+              << "ProcessBlockIntFilter::end transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+
+        {
+          const unsigned int valueToGet = 31;
+          if (not getTokenBegin_.isUninitialized()) {
+            if (processBlock.get(getTokenBegin_) != valueToGet) {
+              throw cms::Exception("BadValue")
+                  << "expected " << valueToGet << " but got " << processBlock.get(getTokenBegin_);
+            }
+          }
+        }
+        {
+          const unsigned int valueToGet = 41;
+          if (not getTokenEnd_.isUninitialized()) {
+            if (processBlock.get(getTokenEnd_) != valueToGet) {
+              throw cms::Exception("BadValue")
+                  << "expected " << valueToGet << " but got " << processBlock.get(getTokenEnd_);
+            }
+          }
+        }
+      }
+
+      ~ProcessBlockIntFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions")
+              << "ProcessBlockIntFilter transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+
+    private:
+      const unsigned int trans_;
+      mutable std::atomic<unsigned int> m_count{0};
+      edm::EDGetTokenT<unsigned int> getTokenBegin_;
+      edm::EDGetTokenT<unsigned int> getTokenEnd_;
+    };
+
+    class TestBeginProcessBlockFilter : public edm::one::EDFilter<edm::BeginProcessBlockProducer> {
+    public:
+      explicit TestBeginProcessBlockFilter(edm::ParameterSet const& pset)
+          : trans_(pset.getParameter<int>("transitions")),
+            token_(produces<unsigned int, edm::Transition::BeginProcessBlock>("begin")) {
+        produces<unsigned int>();
+
+        auto tag = pset.getParameter<edm::InputTag>("consumesBeginProcessBlock");
+        if (not tag.label().empty()) {
+          getToken_ = consumes<unsigned int, edm::InProcess>(tag);
+        }
+      }
+
+      void beginProcessBlockProduce(edm::ProcessBlock& processBlock) override {
+        if (m_count != 0) {
+          throw cms::Exception("transitions")
+              << "TestBeginProcessBlockFilter transitions " << m_count << " but it was supposed to be " << 0;
+        }
+        ++m_count;
+
+        const unsigned int valueToPutAndGet = 31;
+        processBlock.emplace(token_, valueToPutAndGet);
+        if (not getToken_.isUninitialized()) {
+          if (processBlock.get(getToken_) != valueToPutAndGet) {
+            throw cms::Exception("BadValue")
+                << "expected " << valueToPutAndGet << " but got " << processBlock.get(getToken_);
+          }
+        }
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        if (m_count < 1u) {
+          throw cms::Exception("out of sequence") << "produce before beginProcessBlockProduce " << m_count;
+        }
+        ++m_count;
+        return true;
+      }
+
+      ~TestBeginProcessBlockFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions")
+              << "TestBeginProcessBlockFilter transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+
+    private:
+      const unsigned int trans_;
+      mutable std::atomic<unsigned int> m_count{0};
+      edm::EDPutTokenT<unsigned int> token_;
+      edm::EDGetTokenT<unsigned int> getToken_;
+    };
+
+    class TestEndProcessBlockFilter : public edm::one::EDFilter<edm::EndProcessBlockProducer> {
+    public:
+      explicit TestEndProcessBlockFilter(edm::ParameterSet const& pset)
+          : trans_(pset.getParameter<int>("transitions")),
+            token_(produces<unsigned int, edm::Transition::EndProcessBlock>("end")) {
+        produces<unsigned int>();
+
+        auto tag = pset.getParameter<edm::InputTag>("consumesEndProcessBlock");
+        if (not tag.label().empty()) {
+          getToken_ = consumes<unsigned int, edm::InProcess>(tag);
+        }
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        ++m_count;
+        return true;
+      }
+
+      void endProcessBlockProduce(edm::ProcessBlock& processBlock) override {
+        ++m_count;
+        if (m_count != trans_) {
+          throw cms::Exception("transitions")
+              << "TestEndProcessBlockFilter transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+
+        const unsigned int valueToPutAndGet = 41;
+        processBlock.emplace(token_, valueToPutAndGet);
+        if (not getToken_.isUninitialized()) {
+          if (processBlock.get(getToken_) != valueToPutAndGet) {
+            throw cms::Exception("BadValue")
+                << "expected " << valueToPutAndGet << " but got " << processBlock.get(getToken_);
+          }
+        }
+      }
+
+      ~TestEndProcessBlockFilter() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions")
+              << "~TestEndProcessBlockFilter transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+
+    private:
+      const unsigned int trans_;
+      mutable std::atomic<unsigned int> m_count{0};
+      edm::EDPutTokenT<unsigned int> token_;
+      edm::EDGetTokenT<unsigned int> getToken_;
     };
 
     class BeginRunFilter : public edm::one::EDFilter<edm::one::WatchRuns, edm::BeginRunProducer> {
@@ -372,6 +558,9 @@ DEFINE_FWK_MODULE(edmtest::one::WatchRunsFilter);
 DEFINE_FWK_MODULE(edmtest::one::WatchLumiBlocksFilter);
 DEFINE_FWK_MODULE(edmtest::one::RunCacheFilter);
 DEFINE_FWK_MODULE(edmtest::one::LumiBlockCacheFilter);
+DEFINE_FWK_MODULE(edmtest::one::ProcessBlockIntFilter);
+DEFINE_FWK_MODULE(edmtest::one::TestBeginProcessBlockFilter);
+DEFINE_FWK_MODULE(edmtest::one::TestEndProcessBlockFilter);
 DEFINE_FWK_MODULE(edmtest::one::BeginRunFilter);
 DEFINE_FWK_MODULE(edmtest::one::BeginLumiBlockFilter);
 DEFINE_FWK_MODULE(edmtest::one::EndRunFilter);

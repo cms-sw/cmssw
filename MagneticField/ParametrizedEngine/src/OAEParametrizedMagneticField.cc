@@ -25,8 +25,8 @@ GlobalVector OAEParametrizedMagneticField::inTesla(const GlobalPoint& gp) const 
   if (isDefined(gp)) {
     return inTeslaUnchecked(gp);
   } else {
-    edm::LogWarning("MagneticField|FieldOutsideValidity")
-        << " Point " << gp << " is outside the validity region of OAEParametrizedMagneticField";
+    edm::LogWarning("MagneticField") << " Point " << gp
+                                     << " is outside the validity region of OAEParametrizedMagneticField";
     return GlobalVector();
   }
 }

@@ -1,17 +1,17 @@
-#ifndef DETECTOR_DESCRIPTION_DD_ALGO_ARGUMENTS_H
-#define DETECTOR_DESCRIPTION_DD_ALGO_ARGUMENTS_H
+#ifndef DetectorDescription_DDCMS_DDAlgoArguments_h
+#define DetectorDescription_DDCMS_DDAlgoArguments_h
 
 #include "XML/XML.h"
-#include "DD4hep/DetElement.h"
 #include "DetectorDescription/DDCMS/interface/DDXMLTags.h"
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
 #include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
+#include "DetectorDescription/DDCMS/interface/DDRotationMatrix.h"
+#include "DetectorDescription/DDCMS/interface/DDTranslation.h"
 
 #include <map>
 #include <sstream>
 
 namespace cms {
-  using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
   static constexpr long s_executed = 1l;
 
@@ -19,11 +19,11 @@ namespace cms {
 
   inline unsigned int hash(const std::string& str) { return hash(str.c_str()); }
 
-  dd4hep::Rotation3D makeRotation3D(double thetaX, double phiX, double thetaY, double phiY, double thetaZ, double phiZ);
+  DDRotationMatrix makeRotation3D(double thetaX, double phiX, double thetaY, double phiY, double thetaZ, double phiZ);
 
-  dd4hep::Rotation3D makeRotReflect(double thetaX, double phiX, double thetaY, double phiY, double thetaZ, double phiZ);
+  DDRotationMatrix makeRotReflect(double thetaX, double phiX, double thetaY, double phiY, double thetaZ, double phiZ);
 
-  dd4hep::Rotation3D makeRotation3D(dd4hep::Rotation3D rotation, const std::string& axis, double angle);
+  DDRotationMatrix makeRotation3D(DDRotationMatrix rotation, const std::string& axis, double angle);
 
   class DDAlgoArguments {
   public:
@@ -47,6 +47,7 @@ namespace cms {
     double dble(const std::string& nam) const;
     int integer(const std::string& nam) const;
     std::vector<double> vecDble(const std::string& nam) const;
+    std::vector<float> vecFloat(const std::string& nam) const;
     std::vector<int> vecInt(const std::string& nam) const;
     std::vector<std::string> vecStr(const std::string& nam) const;
     std::string resolveValue(const std::string& value) const;

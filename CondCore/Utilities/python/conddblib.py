@@ -15,14 +15,19 @@ import logging
 
 import sqlalchemy
 import sqlalchemy.ext.declarative
+import enum
+from sqlalchemy import Enum
 
-authPathEnvVar = 'COND_AUTH_PATH'
 schema_name = 'CMS_CONDITIONS'
 dbuser_name = 'cms_conditions'
 dbreader_user_name = 'cms_cond_general_r'
 dbwriter_user_name = 'cms_cond_general_w'
-devdbwriter_user_name = 'cms_cond_general_w'
 logger = logging.getLogger(__name__)
+
+#authentication/authorization params
+authPathEnvVar = 'COND_AUTH_PATH'
+dbkey_filename = 'db.key'
+dbkey_folder = os.path.join('.cms_cond',dbkey_filename)
 
 # frontier services
 PRO ='PromptProd'
@@ -43,44 +48,9 @@ ONLINEORAINT = 'cmsintr_lb'
 if logger.level == logging.NOTSET:
     logger.setLevel(logging.WARN)
 
-
-class EnumMetaclass(type):
-    def __init__(cls, name, bases, dct):
-        cls._members = sorted([member for member in dir(cls) if not member.startswith('_')])
-        cls._map = dict([(member, getattr(cls, member)) for member in cls._members])
-        cls._reversemap = dict([(value, key) for (key, value) in cls._map.items()])
-        super(EnumMetaclass, cls).__init__(name, bases, dct)
-
-    def __len__(cls):
-        return len(cls._members)
-
-    def __getitem__(cls, key):
-        '''Returns the value for this key (if the key is an integer,
-        the value is the nth member from the sorted members list).
-        '''
-
-        if isinstance(key, int):
-            # for tuple() and list()
-            key = cls._members[key]
-        return cls._map[key]
-
-    def __call__(cls, value):
-        '''Returns the key for this value.
-        '''
-
-        return cls._reversemap[value]
-
-
-class Enum(object):
-    '''A la PEP 435, simplified.
-    '''
-
-    __metaclass__ = EnumMetaclass
-
-
 # Utility functions
 def hash(data):
-    return hashlib.sha1(data).hexdigest()
+    return hashlib.sha1(data.encode('ascii')).hexdigest()
 
 
 # Constants
@@ -166,7 +136,10 @@ database_help = '''
       /absolute/path/to/file.db  ===  sqlite:////absolute/path/to/file.db
 '''
 
-class Synchronization(Enum):
+def oracle_connection_string(db_service, db_schema ):
+    return 'oracle://%s/%s'%(db_service,db_schema)
+
+class Synchronization(enum.Enum):
     any        = 'any'
     validation = 'validation'
     mc         = 'mc'
@@ -177,12 +150,14 @@ class Synchronization(Enum):
     pcl        = 'pcl'
     offline    = 'offline'
 
-class TimeType(Enum):
-    run  = 'Run'
-    time = 'Time'
-    lumi = 'Lumi'
-    hash = 'Hash'
-    user = 'User'
+synch_list = list(x.value for x in list(Synchronization))
+
+class TimeType(enum.Enum):
+    Run  = 'Run'
+    Time = 'Time'
+    Lumi = 'Lumi'
+    Hash = 'Hash'
+    User = 'User'
 
 
 # Schema definition
@@ -254,9 +229,9 @@ def getSchema(tp):
 class Tag:
     __tablename__       = 'TAG'
     columns             = { 'name': (sqlalchemy.String(name_length),_Col.pk), 
-                            'time_type': (sqlalchemy.Enum(*tuple(TimeType)),_Col.notNull),
+                            'time_type': (sqlalchemy.Enum(*tuple(TimeType.__members__.keys())),_Col.notNull),
                             'object_type': (sqlalchemy.String(name_length),_Col.notNull),
-                            'synchronization': (sqlalchemy.Enum(*tuple(Synchronization)),_Col.notNull),
+                            'synchronization': (sqlalchemy.Enum(*tuple(Synchronization.__members__.keys())),_Col.notNull),
                             'description': (sqlalchemy.String(description_length),_Col.notNull),
                             'last_validated_time':(sqlalchemy.BIGINT,_Col.notNull),
                             'end_of_validity':(sqlalchemy.BIGINT,_Col.notNull),
@@ -372,7 +347,6 @@ class Connection(object):
         self._url = url
         self._backendName = ('sqlite' if self._is_sqlite else 'oracle' ) 
         self._schemaName = ( None if self._is_sqlite else schema_name )
-        logging.debug(' ... using db "%s", schema "%s"' % (url, self._schemaName) )
         logging.debug('Loading db types...')
         self.get_dbtype(Tag).__name__
         self.get_dbtype(Payload)
@@ -485,7 +459,12 @@ def _getCMSFrontierConnectionString(database):
 def _getCMSSQLAlchemyConnectionString(technology,service,schema_name):
     if technology == 'frontier':
         import urllib
-        return '%s://@%s/%s' % ('oracle+frontier', urllib.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
+        import sys
+        py3k = sys.version_info >= (3, 0)        
+        if py3k:
+            return '%s://@%s/%s' % ('oracle+frontier', urllib.parse.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
+        else:
+            return '%s://@%s/%s' % ('oracle+frontier', urllib.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
     elif technology == 'oracle':
         return '%s://%s@%s' % (technology, schema_name, service)
 
@@ -510,7 +489,7 @@ def make_url(database='pro',read_only = True):
         'oraint':       ('oracle',         'cms_orcoff_int',  { 'R': dbreader_user_name,
                                                                 'W': dbwriter_user_name }, ),
         'oradev':       ('oracle',         'cms_orcoff_prep', { 'R': dbreader_user_name,
-                                                                'W': devdbwriter_user_name }, ),
+                                                                'W': dbwriter_user_name }, ),
         'onlineorapro': ('oracle',         'cms_orcon_prod',  { 'R': dbreader_user_name,
                                                                 'W': dbwriter_user_name }, ),
         'onlineoraint': ('oracle',         'cmsintr_lb',      { 'R': dbreader_user_name,
@@ -556,20 +535,33 @@ def connect(url, authPath=None, verbose=0):
             if authPath is None:
                 if authPathEnvVar in os.environ:
                     authPath = os.environ[authPathEnvVar]
-            authFile = None
+            explicit_auth = False
             if authPath is not None:
-                authFile = os.path.join(authPath,'.netrc')
-            if authFile is not None:
-                entryKey = url.host.lower()+"/"+url.username.lower()
-                logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
-                import netrc
-                params = netrc.netrc( authFile ).authenticators(entryKey)
-                if params is not None:
-                    (username, account, password) = params
-                    url.password = password
+                dbkey_path = os.path.join(authPath,dbkey_folder)
+                if not os.path.exists(dbkey_path):
+                    authFile = os.path.join(authPath,'.netrc')
+                    if os.path.exists(authFile):
+                        entryKey = url.host.lower()+"/"+url.username.lower()
+                        logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
+                        import netrc
+                        params = netrc.netrc( authFile ).authenticators(entryKey)
+                        if params is not None:
+                            (username, account, password) = params
+                            url.username = username
+                            url.password = password
+                        else:
+                            msg = 'The entry %s has not been found in the .netrc file.' %entryKey
+                            raise TypeError(msg)
+                    else:
+                        explicit_auth =True
                 else:
-                    msg = 'The entry %s has not been found in the .netrc file.' %entryKey
-                    raise TypeError(msg)
+                    import pluginCondDBPyBind11Interface as credential_store
+                    connect_for_update = ( url.username == dbwriter_user_name )
+                    connection_string = oracle_connection_string(url.host.lower(),schema_name)
+                    logging.debug('Using db key to get credentials for %s' %connection_string )
+                    (username,password) = credential_store.get_db_credentials(connection_string,connect_for_update,authPath)
+                    url.username = username
+                    url.password = password
             else:
                 import getpass
                 pwd = getpass.getpass('Password for %s: ' % str(url))

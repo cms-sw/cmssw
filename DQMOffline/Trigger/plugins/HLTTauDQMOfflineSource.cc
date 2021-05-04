@@ -32,6 +32,8 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource(const edm::ParameterSet& ps)
   edm::ParameterSet matching = ps.getParameter<edm::ParameterSet>("Matching");
   doRefAnalysis_ = matching.getUntrackedParameter<bool>("doMatching");
 
+  iWrapper = new HistoWrapper(ps);
+
   if (ps.exists("L1Plotter") && !ps.exists("TagAndProbe")) {
     l1Plotter_ = std::make_unique<HLTTauDQML1Plotter>(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"),
                                                       consumesCollector(),
@@ -76,8 +78,9 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
         std::vector<std::string> foundPaths;
         std::smatch what;
         LogDebug("HLTTauDQMOffline") << "Looking for paths with regex " << pathRegex_;
+        const std::regex pathRegex(pathRegex_);
         for (const std::string& pathName : HLTCP_.triggerNames()) {
-          if (std::regex_search(pathName, what, pathRegex_)) {
+          if (std::regex_search(pathName, what, pathRegex)) {
             LogDebug("HLTTauDQMOffline") << "Found path " << pathName;
             foundPaths.emplace_back(pathName);
           }
@@ -163,16 +166,16 @@ void HLTTauDQMOfflineSource::bookHistograms(DQMStore::IBooker& iBooker,
                                             const edm::Run& iRun,
                                             const EventSetup& iSetup) {
   if (l1Plotter_) {
-    l1Plotter_->bookHistograms(iBooker);
+    l1Plotter_->bookHistograms(*iWrapper, iBooker);
   }
   for (auto& pathPlotter : pathPlotters_) {
-    pathPlotter.bookHistograms(iBooker);
+    pathPlotter.bookHistograms(*iWrapper, iBooker);
   }
   for (auto& tpPlotter : tagandprobePlotters_) {
-    tpPlotter->bookHistograms(iBooker, iRun, iSetup);
+    tpPlotter->bookHistograms(*iWrapper, iBooker, iRun, iSetup);
   }
   if (pathSummaryPlotter_) {
-    pathSummaryPlotter_->bookHistograms(iBooker);
+    pathSummaryPlotter_->bookHistograms(*iWrapper, iBooker);
   }
 }
 

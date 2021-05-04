@@ -13,7 +13,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -60,7 +60,7 @@ private:
                   int& NClusterSaturating);
 
   // ----------member data ---------------------------
-  BaseDeDxEstimator* m_estimator;
+  std::unique_ptr<BaseDeDxEstimator> m_estimator;
 
   edm::EDGetTokenT<reco::TrackCollection> m_tracksTag;
 
@@ -78,7 +78,8 @@ private:
   std::vector<std::vector<float> > calibGains;
   unsigned int m_off;
 
-  edm::ESHandle<TrackerGeometry> tkGeom;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken;
+  const TrackerGeometry* tkGeom = nullptr;
 };
 
 #endif

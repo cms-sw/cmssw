@@ -65,7 +65,7 @@ namespace ecaldqm {
     for (typename DigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
       DetId id(digiItr->id());
 
-      int iDCC(dccId(id) - 1);
+      int iDCC(dccId(id, GetElectronicsMap()) - 1);
 
       if (!enable_[iDCC])
         continue;
@@ -96,10 +96,10 @@ namespace ecaldqm {
         static_cast<MESetMulti&>(mePedestal).use(iME);
       }
 
-      meOccupancy.fill(id);
+      meOccupancy.fill(getEcalDQMSetupObjects(), id);
 
       for (int iSample(0); iSample < EcalDataFrame::MAXSAMPLES; iSample++)
-        mePedestal.fill(id, double(dataFrame.sample(iSample).adc()));
+        mePedestal.fill(getEcalDQMSetupObjects(), id, double(dataFrame.sample(iSample).adc()));
     }
   }
 
@@ -111,7 +111,7 @@ namespace ecaldqm {
     for (EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
       EcalPnDiodeDetId id(digiItr->id());
 
-      int iDCC(dccId(id) - 1);
+      int iDCC(dccId(id, GetElectronicsMap()) - 1);
 
       if (!enable_[iDCC])
         continue;
@@ -137,7 +137,7 @@ namespace ecaldqm {
       }
 
       for (int iSample(0); iSample < 50; iSample++)
-        mePNPedestal.fill(id, double(digiItr->sample(iSample).adc()));
+        mePNPedestal.fill(getEcalDQMSetupObjects(), id, double(digiItr->sample(iSample).adc()));
     }
   }
 

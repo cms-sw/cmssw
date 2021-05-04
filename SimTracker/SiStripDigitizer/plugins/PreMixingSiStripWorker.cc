@@ -1,11 +1,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 
@@ -21,6 +22,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvSimulationParameters.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
@@ -42,7 +44,7 @@
 
 class PreMixingSiStripWorker : public PreMixingWorker {
 public:
-  PreMixingSiStripWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
+  PreMixingSiStripWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
   ~PreMixingSiStripWorker() override = default;
 
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
@@ -62,6 +64,15 @@ private:
   edm::InputTag SistripAPVLabelSig_;  // where to find vector of dead APVs
   edm::InputTag SiStripAPVPileInputTag_;
   std::string SistripAPVListDM_;  // output tag
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const pDDToken_;
+  edm::ESGetToken<SiStripBadStrip, SiStripBadChannelRcd> const deadChannelToken_;
+  edm::ESGetToken<SiStripGain, SiStripGainSimRcd> const gainToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> const noiseToken_;
+  edm::ESGetToken<SiStripThreshold, SiStripThresholdRcd> const thresholdToken_;
+  //edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> const pedestalToken_;
+  edm::ESGetToken<SiStripApvSimulationParameters, SiStripApvSimulationParametersRcd> apvSimulationParametersToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   //
 
@@ -98,20 +109,18 @@ private:
 
   // for noise adding:
 
-  std::string gainLabel;
   bool SingleStripNoise;
   bool peakMode;
   double theThreshold;
   double theElectronPerADC;
   bool APVSaturationFromHIP_;
   int theFedAlgo;
-  std::string geometryType;
 
   std::unique_ptr<SiGaussianTailNoiseAdder> theSiNoiseAdder;
   std::unique_ptr<SiStripFedZeroSuppression> theSiZeroSuppress;
   std::unique_ptr<SiTrivialDigitalConverter> theSiDigitalConverter;
 
-  edm::ESHandle<TrackerGeometry> pDD;
+  const TrackerGeometry* pDD;
 
   // bad channels for each detector ID
   std::map<unsigned int, std::vector<bool>> allBadChannels;
@@ -120,6 +129,13 @@ private:
   // first and last channel wit signal for each detector ID
   std::map<unsigned int, size_t> firstChannelsWithSignal;
   std::map<unsigned int, size_t> lastChannelsWithSignal;
+
+  bool includeAPVSimulation_;
+  const double fracOfEventsToSimAPV_;
+  const double apv_maxResponse_;
+  const double apv_rate_;
+  const double apv_mVPerQ_;
+  const double apv_fCPerElectron_;
 
   //----------------------------
 
@@ -135,18 +151,27 @@ private:
 };
 
 PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
-                                               edm::ProducerBase& producer,
+                                               edm::ProducesCollector producesCollector,
                                                edm::ConsumesCollector&& iC)
-    : gainLabel(ps.getParameter<std::string>("Gain")),
+    : pDDToken_(iC.esConsumes(edm::ESInputTag("", ps.getParameter<std::string>("GeometryType")))),
+      deadChannelToken_(iC.esConsumes()),
+      gainToken_(iC.esConsumes(edm::ESInputTag("", ps.getParameter<std::string>("Gain")))),
+      noiseToken_(iC.esConsumes()),
+      thresholdToken_(iC.esConsumes()),
       SingleStripNoise(ps.getParameter<bool>("SingleStripNoise")),
       peakMode(ps.getParameter<bool>("APVpeakmode")),
       theThreshold(ps.getParameter<double>("NoiseSigmaThreshold")),
       theElectronPerADC(ps.getParameter<double>(peakMode ? "electronPerAdcPeak" : "electronPerAdcDec")),
       APVSaturationFromHIP_(ps.getParameter<bool>("APVSaturationFromHIP")),
       theFedAlgo(ps.getParameter<int>("FedAlgorithm_PM")),
-      geometryType(ps.getParameter<std::string>("GeometryType")),
       theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
-      theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, false))  // no premixing
+      theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, false)),  // no premixing
+      includeAPVSimulation_(ps.getParameter<bool>("includeAPVSimulation")),
+      fracOfEventsToSimAPV_(ps.getParameter<double>("fracOfEventsToSimAPV")),
+      apv_maxResponse_(ps.getParameter<double>("apv_maxResponse")),
+      apv_rate_(ps.getParameter<double>("apv_rate")),
+      apv_mVPerQ_(ps.getParameter<double>("apv_mVPerQ")),
+      apv_fCPerElectron_(ps.getParameter<double>("apvfCPerElectron"))
 
 {
   // declare the products to produce
@@ -157,7 +182,8 @@ PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
   SiStripDigiCollectionDM_ = ps.getParameter<std::string>("SiStripDigiCollectionDM");
   SistripAPVListDM_ = ps.getParameter<std::string>("SiStripAPVListDM");
 
-  producer.produces<edm::DetSetVector<SiStripDigi>>(SiStripDigiCollectionDM_);
+  producesCollector.produces<edm::DetSetVector<SiStripDigi>>(SiStripDigiCollectionDM_);
+  producesCollector.produces<bool>(SiStripDigiCollectionDM_ + "SimulatedAPVDynamicGain");
 
   if (APVSaturationFromHIP_) {
     SistripAPVLabelSig_ = ps.getParameter<edm::InputTag>("SistripAPVLabelSig");
@@ -165,6 +191,11 @@ PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
     iC.consumes<std::vector<std::pair<int, std::bitset<6>>>>(SistripAPVLabelSig_);
   }
   iC.consumes<edm::DetSetVector<SiStripDigi>>(SistripLabelSig_);
+
+  if (includeAPVSimulation_) {
+    tTopoToken_ = iC.esConsumes();
+    apvSimulationParametersToken_ = iC.esConsumes();
+  }
   // clear local storage for this event
   SiHitStorage_.clear();
 
@@ -175,13 +206,13 @@ PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
                                            "in the configuration file or remove the modules that require it.";
   }
 
-  theSiNoiseAdder.reset(new SiGaussianTailNoiseAdder(theThreshold));
+  theSiNoiseAdder = std::make_unique<SiGaussianTailNoiseAdder>(theThreshold);
 }
 
 void PreMixingSiStripWorker::initializeEvent(const edm::Event& e, edm::EventSetup const& iSetup) {
   // initialize individual detectors so we can copy real digitization code:
 
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
+  pDD = &iSetup.getData(pDDToken_);
 
   for (auto iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
     unsigned int detId = (*iu)->geographicalId().rawId();
@@ -197,13 +228,12 @@ void PreMixingSiStripWorker::initializeEvent(const edm::Event& e, edm::EventSetu
 }
 
 void PreMixingSiStripWorker::DMinitializeDetUnit(StripGeomDetUnit const* det, const edm::EventSetup& iSetup) {
-  edm::ESHandle<SiStripBadStrip> deadChannelHandle;
-  iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
+  SiStripBadStrip const& deadChannel = iSetup.getData(deadChannelToken_);
 
   unsigned int detId = det->geographicalId().rawId();
   int numStrips = (det->specificTopology()).nstrips();
 
-  SiStripBadStrip::Range detBadStripRange = deadChannelHandle->getRange(detId);
+  SiStripBadStrip::Range detBadStripRange = deadChannel.getRange(detId);
   //storing the bad strip of the the module. the module is not removed but just signal put to 0
   std::vector<bool>& badChannels = allBadChannels[detId];
   std::vector<bool>& hipChannels = allHIPChannels[detId];
@@ -213,7 +243,7 @@ void PreMixingSiStripWorker::DMinitializeDetUnit(StripGeomDetUnit const* det, co
   hipChannels.insert(hipChannels.begin(), numStrips, false);
 
   for (SiStripBadStrip::ContainerIterator it = detBadStripRange.first; it != detBadStripRange.second; ++it) {
-    SiStripBadStrip::data fs = deadChannelHandle->decode(*it);
+    SiStripBadStrip::data fs = deadChannel.decode(*it);
     for (int strip = fs.firstStrip; strip < fs.firstStrip + fs.range; ++strip)
       badChannels[strip] = true;
   }
@@ -326,18 +356,30 @@ void PreMixingSiStripWorker::put(edm::Event& e,
                                  std::vector<PileupSummaryInfo> const& ps,
                                  int bs) {
   // set up machinery to do proper noise adding:
-  edm::ESHandle<SiStripGain> gainHandle;
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripThreshold> thresholdHandle;
-  edm::ESHandle<SiStripPedestals> pedestalHandle;
-  edm::ESHandle<SiStripBadStrip> deadChannelHandle;
-  iSetup.get<SiStripGainSimRcd>().get(gainLabel, gainHandle);
-  iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
-  iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
-  iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
+  SiStripGain const& gain = iSetup.getData(gainToken_);
+  SiStripNoises const& noise = iSetup.getData(noiseToken_);
+  SiStripThreshold const& threshold = iSetup.getData(thresholdToken_);
+  //SiStripPedestals const& pedestal = iSetup.getData(pedestalToken_);
+  SiStripApvSimulationParameters const* apvSimulationParameters = nullptr;
+  TrackerTopology const* tTopo = nullptr;
 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+
+  const bool simulateAPVInThisEvent = includeAPVSimulation_ && (CLHEP::RandFlat::shoot(engine) < fracOfEventsToSimAPV_);
+  float nTruePU = 0.;  // = ps.getTrueNumInteractions();
+  if (simulateAPVInThisEvent) {
+    tTopo = &iSetup.getData(tTopoToken_);
+    apvSimulationParameters = &iSetup.getData(apvSimulationParametersToken_);
+    const auto it = std::find_if(
+        std::begin(ps), std::end(ps), [](const PileupSummaryInfo& bxps) { return bxps.getBunchCrossing() == 0; });
+    if (it != std::begin(ps)) {
+      nTruePU = it->getTrueNumInteractions();
+    } else {
+      edm::LogWarning("PreMixingSiStripWorker") << "Could not find PileupSummaryInfo for current bunch crossing";
+      nTruePU = std::begin(ps)->getTrueNumInteractions();
+    }
+  }
 
   std::map<int, std::bitset<6>> DeadAPVList;
   DeadAPVList.clear();
@@ -522,6 +564,59 @@ void PreMixingSiStripWorker::put(edm::Event& e,
           detAmpl[strip] = 0.;
       }
 
+      if (simulateAPVInThisEvent) {
+        // Get index in apv baseline distributions corresponding to z of detSet and PU
+        const StripTopology* topol = dynamic_cast<const StripTopology*>(&(sgd->specificTopology()));
+        LocalPoint localPos = topol->localPosition(0);
+        GlobalPoint globalPos = sgd->surface().toGlobal(Local3DPoint(localPos.x(), localPos.y(), localPos.z()));
+        float detSet_z = fabs(globalPos.z());
+        float detSet_r = globalPos.perp();
+
+        const uint32_t SubDet = DetId(detID).subdetId();
+        // Simulate APV response for each strip
+        for (int strip = 0; strip < numStrips; ++strip) {
+          if (detAmpl[strip] > 0) {
+            // Convert charge from electrons to fC
+            double stripCharge = detAmpl[strip] * apv_fCPerElectron_;
+
+            // Get APV baseline
+            double baselineV = 0;
+            if (SubDet == SiStripSubdetector::TIB) {
+              baselineV = apvSimulationParameters->sampleTIB(tTopo->tibLayer(detID), detSet_z, nTruePU, engine);
+            } else if (SubDet == SiStripSubdetector::TOB) {
+              baselineV = apvSimulationParameters->sampleTOB(tTopo->tobLayer(detID), detSet_z, nTruePU, engine);
+            } else if (SubDet == SiStripSubdetector::TID) {
+              baselineV = apvSimulationParameters->sampleTID(tTopo->tidWheel(detID), detSet_r, nTruePU, engine);
+            } else if (SubDet == SiStripSubdetector::TEC) {
+              baselineV = apvSimulationParameters->sampleTEC(tTopo->tecWheel(detID), detSet_r, nTruePU, engine);
+            }
+            // Fitted parameters from G Hall/M Raymond
+            double maxResponse = apv_maxResponse_;
+            double rate = apv_rate_;
+
+            double outputChargeInADC = 0;
+            if (baselineV < apv_maxResponse_) {
+              // Convert V0 into baseline charge
+              double baselineQ = -1.0 * rate * log(2 * maxResponse / (baselineV + maxResponse) - 1);
+
+              // Add charge deposited in this BX
+              double newStripCharge = baselineQ + stripCharge;
+
+              // Apply APV response
+              double signalV = 2 * maxResponse / (1 + exp(-1.0 * newStripCharge / rate)) - maxResponse;
+              double gain = signalV - baselineV;
+
+              // Convert gain (mV) to charge (assuming linear region of APV) and then to electrons
+              double outputCharge = gain / apv_mVPerQ_;
+              outputChargeInADC = outputCharge / apv_fCPerElectron_;
+            }
+
+            // Output charge back to original container
+            detAmpl[strip] = outputChargeInADC;
+          }
+        }
+      }
+
       if (APVSaturationFromHIP_) {
         std::bitset<6>& bs = DeadAPVList[detID];
 
@@ -541,8 +636,8 @@ void PreMixingSiStripWorker::put(edm::Event& e,
         }
       }
 
-      SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
-      SiStripApvGain::Range detGainRange = gainHandle->getRange(detID);
+      SiStripNoises::Range detNoiseRange = noise.getRange(detID);
+      SiStripApvGain::Range detGainRange = gain.getRange(detID);
 
       // Gain conversion is already done during signal adding
       //convert our signals back to raw counts so that we can add noise properly:
@@ -552,7 +647,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
         for(unsigned int iv = 0; iv!=detAmpl.size(); iv++) {
         float signal = detAmpl[iv];
         if(signal > 0) {
-        float gainValue = gainHandle->getStripGain(iv, detGainRange);
+        float gainValue = gain.getStripGain(iv, detGainRange);
         signal *= theElectronPerADC/gainValue;
         detAmpl[iv] = signal;
         }
@@ -560,7 +655,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
         }
       */
 
-      //SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(detID);
+      //SiStripPedestals::Range detPedestalRange = pedestal.getRange(detID);
 
       // -----------------------------------------------------------
 
@@ -573,8 +668,8 @@ void PreMixingSiStripWorker::put(edm::Event& e,
         noiseRMSv.insert(noiseRMSv.begin(), numStrips, 0.);
         for (int strip = 0; strip < numStrips; ++strip) {
           if (!badChannels[strip]) {
-            float gainValue = gainHandle->getStripGain(strip, detGainRange);
-            noiseRMSv[strip] = (noiseHandle->getNoise(strip, detNoiseRange)) * theElectronPerADC / gainValue;
+            float gainValue = gain.getStripGain(strip, detGainRange);
+            noiseRMSv[strip] = (noise.getNoise(strip, detNoiseRange)) * theElectronPerADC / gainValue;
           }
         }
         theSiNoiseAdder->addNoiseVR(detAmpl, noiseRMSv, engine);
@@ -585,8 +680,8 @@ void PreMixingSiStripWorker::put(edm::Event& e,
           RefStrip++;
         }
         if (RefStrip < numStrips) {
-          float RefgainValue = gainHandle->getStripGain(RefStrip, detGainRange);
-          float RefnoiseRMS = noiseHandle->getNoise(RefStrip, detNoiseRange) * theElectronPerADC / RefgainValue;
+          float RefgainValue = gain.getStripGain(RefStrip, detGainRange);
+          float RefnoiseRMS = noise.getNoise(RefStrip, detNoiseRange) * theElectronPerADC / RefgainValue;
 
           theSiNoiseAdder->addNoise(
               detAmpl, firstChannelWithSignal, lastChannelWithSignal, numStrips, RefnoiseRMS, engine);
@@ -595,7 +690,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
 
       DigitalVecType digis;
       theSiZeroSuppress->suppress(
-          theSiDigitalConverter->convert(detAmpl, gainHandle, detID), digis, detID, noiseHandle, thresholdHandle);
+          theSiDigitalConverter->convert(detAmpl, &gain, detID), digis, detID, noise, threshold);
 
       SSD.data = digis;
 
@@ -616,6 +711,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
   // put collection
 
   e.put(std::move(MySiStripDigis), SiStripDigiCollectionDM_);
+  e.put(std::make_unique<bool>(simulateAPVInThisEvent), SiStripDigiCollectionDM_ + "SimulatedAPVDynamicGain");
 
   // clear local storage for this event
   SiHitStorage_.clear();

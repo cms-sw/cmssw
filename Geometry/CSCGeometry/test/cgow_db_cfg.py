@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CSCGeometryTest")
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 
 process.GlobalTag.globaltag = 'MC_61_V2::All'
@@ -25,8 +25,6 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.debugModules.append('CSCGeometryESModule')
-process.MessageLogger.categories.append('CSCGeometry')
-process.MessageLogger.categories.append('CSCGeometryBuilder')
 process.MessageLogger.cout = cms.untracked.PSet(
        threshold = cms.untracked.string('DEBUG'),
        default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

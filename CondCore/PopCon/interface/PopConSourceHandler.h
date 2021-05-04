@@ -4,11 +4,11 @@
 #include "CondCore/CondDB/interface/Session.h"
 #include "CondCore/CondDB/interface/Time.h"
 
-#include <boost/bind.hpp>
 #include <algorithm>
+#include <functional>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace cond {
   class Summary;
@@ -78,7 +78,7 @@ namespace popcon {
     cond::TagInfo_t const& tagInfo() const { return *m_tagInfo; }
 
     // return last paylod of the tag
-    Ref lastPayload() const { return Ref(m_session, tagInfo().lastPayloadToken); }
+    Ref lastPayload() const { return Ref(m_session, tagInfo().lastInterval.payloadId); }
 
     // return last successful log entry for the tag in question
     cond::LogDBEntry_t const& logDBEntry() const { return *m_logDBEntry; }
@@ -120,9 +120,9 @@ namespace popcon {
     void sort() {
       std::sort(m_triplets.begin(),
                 m_triplets.end(),
-                boost::bind(std::less<cond::Time_t>(),
-                            boost::bind(&Container::value_type::time, _1),
-                            boost::bind(&Container::value_type::time, _2)));
+                std::bind(std::less<cond::Time_t>(),
+                          std::bind(&Container::value_type::time, std::placeholders::_1),
+                          std::bind(&Container::value_type::time, std::placeholders::_2)));
     }
 
     // make sure to create a new one each time...
@@ -133,11 +133,11 @@ namespace popcon {
     void convertFromOld() {
       std::for_each(m_to_transfer.begin(),
                     m_to_transfer.end(),
-                    boost::bind(&self::add,
-                                this,
-                                boost::bind(&OldContainer::value_type::first, _1),
-                                boost::bind(&self::dummySummary, this, _1),
-                                boost::bind(&OldContainer::value_type::second, _1)));
+                    std::bind(&self::add,
+                              this,
+                              std::bind(&OldContainer::value_type::first, std::placeholders::_1),
+                              std::bind(&self::dummySummary, this, std::placeholders::_1),
+                              std::bind(&OldContainer::value_type::second, std::placeholders::_1)));
     }
 
   protected:

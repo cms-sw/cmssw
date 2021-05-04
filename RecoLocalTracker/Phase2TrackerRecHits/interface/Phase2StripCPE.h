@@ -5,8 +5,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -24,7 +25,10 @@ public:
   };
 
 public:
-  Phase2StripCPE(edm::ParameterSet& conf, const MagneticField&, const TrackerGeometry&);
+  Phase2StripCPE(edm::ParameterSet& conf,
+                 const MagneticField&,
+                 const TrackerGeometry&,
+                 const SiPhase2OuterTrackerLorentzAngle&);
   LocalValues localParameters(const Phase2TrackerCluster1D& cluster, const GeomDetUnit& det) const override;
   LocalVector driftDirection(const Phase2TrackerGeomDetUnit& det) const;
 
@@ -34,6 +38,8 @@ private:
 
   const MagneticField& magfield_;
   const TrackerGeometry& geom_;
+  const SiPhase2OuterTrackerLorentzAngle& lorentzAngleMap_;
+
   float tanLorentzAnglePerTesla_;
   unsigned int m_off;
 

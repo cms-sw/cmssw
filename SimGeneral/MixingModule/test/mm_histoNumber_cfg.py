@@ -29,18 +29,20 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('mix'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         MixingModule = cms.untracked.PSet(
             limit = cms.untracked.int32(1000000)
-        )
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
     ),
-    categories = cms.untracked.vstring('MixingModule'),
-    destinations = cms.untracked.vstring('cout')
+    debugModules = cms.untracked.vstring('mix')
 )
 
 process.p = cms.Path(process.mix)

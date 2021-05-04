@@ -370,7 +370,9 @@ void FWPSetTableManager::handleEntry(const edm::Entry &entry, const std::string 
       createScalarString(data, entry.getEventRange());
       break;
     }
-    default: { break; }
+    default: {
+      break;
+    }
   }
 }
 

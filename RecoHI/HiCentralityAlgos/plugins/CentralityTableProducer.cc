@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -53,7 +52,6 @@ private:
   bool firstRunOnly_;
   bool debug_;
 
-  edm::ESHandle<CentralityTable> inputDB_;
   TFile* inputTFile_;
   string inputTFileName_;
   edm::Service<TFileService> fs;

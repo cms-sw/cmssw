@@ -2,46 +2,46 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
-    <ConstantsSection label="CTPPS_210_Left_Station.xml">
-        <Constant name="RP_210_Left_Station_Length" value="([CTPPS_Stations_Assembly:CTPPS_220_Left_Station_Position_z]-[CTPPS_Stations_Assembly:CTPPS_210_Left_Station_Position_z])*mm"/>
+    <ConstantsSection label="CTPPS_210_Left_Station.xml" eval="true">
+        <Constant name="RP_210_Left_Station_Length" value="[CTPPS_Stations_Assembly:CTPPS_220_Left_Station_Position_z]-[CTPPS_Stations_Assembly:CTPPS_210_Left_Station_Position_z]"/>
         <!--Positions calculated from the wall closer to IP point-->
         <Constant name="RP_210_Left_Prim_Vert_z" value="608*mm"/>
         <Constant name="RP_210_Left_Prim_Hor_z" value="1058*mm"/>
         <Constant name="RP_210_Left_Sec_Hor_z" value="9781*mm"/>
         <Constant name="RP_210_Left_Sec_Vert_z" value="10231*mm"/>
 
-        <Constant name="RP_210_Left_Sec_Rot_Angle" value="8"/>
-        <Constant name="RP_210_Left_Sec_Rot_Angle_neg8" value="-8"/>
-        <Constant name="RP_210_Left_Sec_Rot_Angle_180" value="180"/>
-        <Constant name="RP_210_Left_Sec_Rot_Angle_172" value="172"/>
+        <Constant name="RP_210_Left_Sec_Rot_Angle" value="8*deg"/>
+        <Constant name="RP_210_Left_Sec_Rot_Angle_neg8" value="-8*deg"/>
+        <Constant name="RP_210_Left_Sec_Rot_Angle_180" value="180*deg"/>
+        <Constant name="RP_210_Left_Sec_Rot_Angle_172" value="172*deg"/>
  
         <Constant name="RP_210_Left_Hor_Vac_Length" value="[RP_Device:RP_Device_Envelope_Radius]+[RP_Device:RP_Device_Length_y]/2-[RP_Horizontal_Device:RP_Device_Hor_Closed_Wall_Thick_Int]"/>
     </ConstantsSection>
 
     <RotationSection label="CTPPS_210_Left_Station.xml">
         <Rotation name="RP_210_Left_Sec_Rotation" 
-            phiX="[RP_210_Left_Sec_Rot_Angle]*deg" thetaX="90*deg" 
-            phiY="(90+[RP_210_Left_Sec_Rot_Angle])*deg" thetaY="90*deg"
+            phiX="[RP_210_Left_Sec_Rot_Angle]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Left_Sec_Rot_Angle])" thetaY="90*deg"
             phiZ="0*deg" thetaZ="0*deg"/>
         <Rotation name="RP_210_Left_90_y_Sec_Rotation_neg8" 
             phiX="0*deg" thetaX="180*deg" 
             phiY="82*deg" thetaY="90*deg"
             phiZ="-8*deg" thetaZ="90*deg"/>
         <Rotation name="RP_210_Left_90_x_Sec_Rotation" 
-            phiX="(0+[RP_210_Left_Sec_Rot_Angle_neg8])*deg" thetaX="90*deg" 
+            phiX="(0*deg+[RP_210_Left_Sec_Rot_Angle_neg8])" thetaX="90*deg" 
             phiY="0*deg" thetaY="180*deg" 
-            phiZ="(90+[RP_210_Left_Sec_Rot_Angle_neg8])*deg" thetaZ="90*deg"/>
+            phiZ="(90*deg+[RP_210_Left_Sec_Rot_Angle_neg8])" thetaZ="90*deg"/>
         <Rotation name="RP_210_Left_Sec_Rotation_neg8" 
-            phiX="[RP_210_Left_Sec_Rot_Angle_neg8]*deg" thetaX="90*deg" 
-            phiY="(90+[RP_210_Left_Sec_Rot_Angle_neg8])*deg" thetaY="90*deg"
+            phiX="[RP_210_Left_Sec_Rot_Angle_neg8]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Left_Sec_Rot_Angle_neg8])" thetaY="90*deg"
             phiZ="0*deg" thetaZ="0*deg"/>
         <Rotation name="RP_210_Left_Sec_Rotation_180" 
-            phiX="[RP_210_Left_Sec_Rot_Angle_180]*deg" thetaX="90*deg" 
-            phiY="(90+[RP_210_Left_Sec_Rot_Angle_180])*deg" thetaY="90*deg"
+            phiX="[RP_210_Left_Sec_Rot_Angle_180]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Left_Sec_Rot_Angle_180])" thetaY="90*deg"
             phiZ="0*deg" thetaZ="0*deg"/>
         <Rotation name="RP_210_Left_Sec_Rotation_172" 
-            phiX="[RP_210_Left_Sec_Rot_Angle_172]*deg" thetaX="90*deg" 
-            phiY="(90+[RP_210_Left_Sec_Rot_Angle_172])*deg" thetaY="90*deg"
+            phiX="[RP_210_Left_Sec_Rot_Angle_172]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Left_Sec_Rot_Angle_172])" thetaY="90*deg"
             phiZ="0*deg" thetaZ="0*deg"/>
     </RotationSection>
     
@@ -161,39 +161,39 @@
             <Translation x="0*mm" y="0*mm" z="-[RP_210_Left_Station_Length]/2+[RP_210_Left_Sec_Hor_z]"/>
         </PosPart>
         
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_210_Left_Station"/>
             <rChild name="RP_210_Left_Station_Tube_1"/>
             <Translation x="0*mm" y="0*mm" z="-[RP_210_Left_Station_Length]/2+([RP_210_Left_Prim_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2"/>
         </PosPart>
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_210_Left_Station"/>
             <rChild name="RP_210_Left_Station_Tube_2"/>
             <Translation x="0*mm" y="0*mm" z="-[RP_210_Left_Station_Length]/2+([RP_210_Left_Prim_Vert_z]+[RP_210_Left_Prim_Hor_z])/2"/>
         </PosPart>
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_210_Left_Station"/>
             <rChild name="RP_210_Left_Station_Tube_3"/>
             <Translation x="0*mm" y="0*mm" z="-[RP_210_Left_Station_Length]/2+([RP_210_Left_Prim_Hor_z]+[RP_210_Left_Sec_Hor_z])/2"/>
         </PosPart>
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_210_Left_Station"/>
             <rChild name="RP_210_Left_Station_Tube_4"/>
             <Translation x="0*mm" y="0*mm" z="-[RP_210_Left_Station_Length]/2+([RP_210_Left_Sec_Hor_z]+[RP_210_Left_Sec_Vert_z])/2"/>
         </PosPart>
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_210_Left_Station"/>
             <rChild name="RP_210_Left_Station_Tube_5"/>
             <Translation x="0*mm" y="0*mm" z="[RP_210_Left_Station_Length]/2-([RP_210_Left_Station_Length]-[RP_210_Left_Sec_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2"/>
         </PosPart>
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_210_Left_Station"/>
             <rChild name="RP_210_Left_Station_Vacuum_5"/>
             <rRotation name="RP_210_Left_Sec_Rotation_180"/>
             <!--<rRotation name="RP_210_Left_Sec_Rotation_180"/>-->
         </PosPart>
 
-        <PosPart>
+        <PosPart copyNumber="1">
             <rParent name="RP_210_Left_Station_Vacuum_5"/>
             <rChild name="RP_210_Left_Station_Vacuum_3_Far"/>
             <rRotation name="RP_210_Left_Sec_Rotation_neg8"/>

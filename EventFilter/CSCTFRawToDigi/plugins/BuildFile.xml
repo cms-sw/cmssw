@@ -1,5 +1,6 @@
-<use   name="EventFilter/CSCTFRawToDigi"/>
-<use   name="FWCore/Utilities"/>
-<library   file="*.cc" name="EventFilterCSCTFRawToDigiPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="CondFormats/CSCObjects"/>
+<use name="EventFilter/CSCTFRawToDigi"/>
+<use name="FWCore/Utilities"/>
+<library file="*.cc" name="EventFilterCSCTFRawToDigiPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

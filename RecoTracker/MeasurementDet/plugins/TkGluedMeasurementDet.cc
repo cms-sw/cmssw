@@ -12,9 +12,10 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <functional>
 #include <iostream>
 #include <memory>
-
 #include <typeinfo>
 
 namespace {
@@ -94,8 +95,8 @@ bool TkGluedMeasurementDet::recHits(SimpleHitContainer& result,
                                     const TrajectoryStateOnSurface& stateOnThisDet,
                                     const MeasurementEstimator& est,
                                     const MeasurementTrackerEvent& data) const {
-  if
-    UNLIKELY((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) return false;
+  if UNLIKELY ((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data)))
+    return false;
   auto oldSize = result.size();
   HitCollectorForSimpleHits collector(&fastGeomDet(), theMatcher, theCPE, stateOnThisDet, est, result);
   collectRecHits(stateOnThisDet, data, collector);
@@ -107,12 +108,11 @@ bool TkGluedMeasurementDet::measurements(const TrajectoryStateOnSurface& stateOn
                                          const MeasurementEstimator& est,
                                          const MeasurementTrackerEvent& data,
                                          TempMeasurements& result) const {
-  if
-    UNLIKELY((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
-      //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
-      result.add(theInactiveHit, 0.F);
-      return true;
-    }
+  if UNLIKELY ((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
+    //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
+    result.add(theInactiveHit, 0.F);
+    return true;
+  }
 
   auto oldSize = result.size();
 
@@ -419,7 +419,6 @@ bool TkGluedMeasurementDet::testStrips(const TrajectoryStateOnSurface& tsos,
   return mdet.testStrips(utraj, uerr);
 }
 
-#include <boost/bind.hpp>
 TkGluedMeasurementDet::HitCollectorForRecHits::HitCollectorForRecHits(const GeomDet* geomDet,
                                                                       const SiStripRecHitMatcher* matcher,
                                                                       const StripClusterParameterEstimator* cpe,
@@ -428,7 +427,7 @@ TkGluedMeasurementDet::HitCollectorForRecHits::HitCollectorForRecHits(const Geom
       matcher_(matcher),
       cpe_(cpe),
       target_(target),
-      collector_(boost::bind(&HitCollectorForRecHits::add, boost::ref(*this), _1)),
+      collector_(std::bind(&HitCollectorForRecHits::add, std::ref(*this), std::placeholders::_1)),
       hasNewHits_(false) {}
 
 TkGluedMeasurementDet::HitCollectorForSimpleHits::HitCollectorForSimpleHits(
@@ -444,7 +443,7 @@ TkGluedMeasurementDet::HitCollectorForSimpleHits::HitCollectorForSimpleHits(
       stateOnThisDet_(stateOnThisDet),
       est_(est),
       target_(target),
-      collector_(boost::bind(&HitCollectorForSimpleHits::add, boost::ref(*this), _1)),
+      collector_(std::bind(&HitCollectorForSimpleHits::add, std::ref(*this), std::placeholders::_1)),
       hasNewHits_(false) {}
 
 void TkGluedMeasurementDet::HitCollectorForRecHits::addProjected(const TrackingRecHit& hit, const GlobalVector& gdir) {
@@ -495,7 +494,7 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::HitCollectorForFastMeasu
       stateOnThisDet_(stateOnThisDet),
       est_(est),
       target_(target),
-      collector_(boost::bind(&HitCollectorForFastMeasurements::add, boost::ref(*this), _1)),
+      collector_(std::bind(&HitCollectorForFastMeasurements::add, std::ref(*this), std::placeholders::_1)),
       hasNewHits_(false) {}
 
 void TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d) {

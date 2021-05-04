@@ -1,0 +1,10 @@
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/HcalRecHit"/>
+<use name="EventFilter/HcalRawToDigi"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/HcalCommonData"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="CalibCalorimetry/HcalAlgos"/>
+<flags EDM_PLUGIN="1"/>

@@ -71,7 +71,7 @@ bool PFFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
     // std::endl; std::cout << "FL: var[0] = " << collections_[0] << std::endl;
 
     // if the collection is collection1-collection2:
-    const unsigned int minuspos = collections_[varc].find("-");
+    const unsigned int minuspos = collections_[varc].find('-');
     if (minuspos < collections_[varc].size()) {
       std::string collection1;
       collection1.assign(collections_[varc], 0, minuspos);

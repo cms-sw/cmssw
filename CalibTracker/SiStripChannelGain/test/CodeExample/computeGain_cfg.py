@@ -25,8 +25,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet( threshold = cms.untracked.string('ERROR')  ),
-    destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('ERROR')
+    )
 )
 
 # Conditions (Global Tag is used here):
@@ -78,7 +83,6 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 #process.load("DQM.SiStripMonitorClient.SiStripDQMOnline_cff")
-#process.DQMStore.referenceFileName = ''
 
 process.TFileService = cms.Service("TFileService",
         fileName = cms.string('XXX_LOCALPATH_XXX/Gains_Tree.root')  

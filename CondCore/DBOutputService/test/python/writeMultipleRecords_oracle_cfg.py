@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_WEB')
-process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/test'
+process.CondDB.connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS')
+process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(1),

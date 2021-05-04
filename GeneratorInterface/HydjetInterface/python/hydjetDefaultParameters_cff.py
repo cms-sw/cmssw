@@ -16,7 +16,7 @@ collisionParameters5020GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/t
                                    comEnergy = cms.double(5020.0)
                                    )
 
-qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.1), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
+qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
                          qgpProperTimeFormation = cms.double(0.1), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
                          hadronFreezoutTemperature = cms.double(0.125),
                          doRadiativeEnLoss = cms.bool(True), ## if true, perform partonic radiative en loss
@@ -27,20 +27,20 @@ qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.1), ## initial tem
 
 hydjetParameters = cms.PSet(sigmaInelNN = cms.double(70),
                             shadowingSwitch = cms.int32(1),
-                            nMultiplicity = cms.int32(25000),
+                            nMultiplicity = cms.int32(18545),
                             fracSoftMultiplicity = cms.double(1.),
-                            maxLongitudinalRapidity = cms.double(4.5),
-                            maxTransverseRapidity = cms.double(1.25),
+                            maxLongitudinalRapidity = cms.double(3.75),
+                            maxTransverseRapidity = cms.double(1.160),
                             rotateEventPlane = cms.bool(True),
                             allowEmptyEvents = cms.bool(False),
-                            angularSpectrumSelector = cms.int32(1), ## angular emitted gluon spectrum :
+                            angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum :
                             embeddingMode = cms.bool(False)
                             )
 
 pyquenPythiaDefaultBlock = cms.PSet(
     pythiaUESettingsBlock,
     hydjetPythiaDefault = cms.vstring('MSEL=0   ! user processes',
-                                      'CKIN(3)=10.',# ! ptMin
+                                      'CKIN(3)=9.2',# ! ptMin
                                       'MSTP(81)=1'
                                       ),
     ppDefault = cms.vstring('MSEL=1   ! QCD hight pT processes (only jets)',

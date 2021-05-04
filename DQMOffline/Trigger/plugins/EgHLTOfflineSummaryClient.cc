@@ -12,6 +12,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include <boost/algorithm/string.hpp>
+#include <fnmatch.h>
 
 EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iConfig)
     : egHLTSumHistName_("egHLTTrigSum"), isSetup_(false) {
@@ -22,9 +23,6 @@ EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iC
     edm::LogError("EgHLTOfflineSummaryClient")
         << "unable to get DQMStore service, no summary histograms will be produced";
   } else {
-    if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-      dbe_->setVerbose(0);
-    }
     dbe_->setCurrentFolder(dirName_);
   }
 
@@ -226,9 +224,15 @@ int EgHLTOfflineSummaryClient::getQTestResults_(const std::string& filterName,
   int nrFail = 0;
   int nrQTests = 0;
   for (auto const& pattern : patterns) {
-    std::vector<MonitorElement*> monElems = dbe_->getMatchingContents(dirName_ + "/" + filterName + pattern);
+    auto filterpattern = filterName + pattern;
+    std::vector<MonitorElement*> monElems = dbe_->getAllContents(dirName_);
     // std::cout <<"mon elem "<<dirName_+"/"+filterName+patterns[patternNr]<<"nr monElems "<<monElems.size()<<std::endl;
     for (auto& monElem : monElems) {
+      const auto& name = monElem->getName();
+      int match = fnmatch(filterpattern.c_str(), name.c_str(), 0);
+      if (match == FNM_NOMATCH)
+        continue;
+
       std::vector<QReport*> qTests = monElem->getQReports();
       nrQTests += qTests.size();
       //  std::cout <<monElems[monElemNr]->getName()<<" "<<monElems[monElemNr]->hasError()<<" nr test "<<qTests.size()<<std::endl;

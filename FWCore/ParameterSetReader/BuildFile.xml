@@ -1,6 +1,6 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PythonParameterSet"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PythonParameterSet"/>
 <export>
-  <lib   name="1"/>
-  <use  name="py2-pybind11"/>
+  <lib name="1"/>
+  <use name="py2-pybind11"/>
 </export>

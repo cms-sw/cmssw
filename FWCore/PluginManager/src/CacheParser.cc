@@ -80,7 +80,7 @@ namespace edmplugin {
   }
 
   bool CacheParser::readline(std::istream& iIn,
-                             const boost::filesystem::path& iDirectory,
+                             const std::filesystem::path& iDirectory,
                              unsigned long iRecordNumber,
                              PluginInfo& oInfo,
                              std::string& oPluginType) {
@@ -118,7 +118,7 @@ namespace edmplugin {
   }  // namespace
 
   void CacheParser::read(std::istream& iIn,
-                         const boost::filesystem::path& iDirectory,
+                         const std::filesystem::path& iDirectory,
                          CacheParser::CategoryToInfos& iOut) {
     unsigned long recordNumber = 0;
 
@@ -180,7 +180,7 @@ namespace edmplugin {
 
     PluginInfo info;
     NameAndType pat;
-    boost::filesystem::path empty;
+    std::filesystem::path empty;
 
     while (iIn) {
       ++recordNumber;
@@ -202,7 +202,7 @@ namespace edmplugin {
 
   std::string& CacheParser::restoreSpaces(std::string& io) {
     std::string::size_type index = 0;
-    while (std::string::npos != (index = io.find_first_of("%", index))) {
+    while (std::string::npos != (index = io.find_first_of('%', index))) {
       io[index] = ' ';
     }
     return io;

@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -28,8 +29,9 @@ namespace {
   class TrackCollectionMerger final : public edm::global::EDProducer<> {
   public:
     explicit TrackCollectionMerger(const edm::ParameterSet& conf)
-        : collectionCloner(*this, conf, true),
+        : collectionCloner(producesCollector(), conf, true),
           priorityName_(conf.getParameter<std::string>("trackAlgoPriorityOrder")),
+          m_priorityToken(esConsumes<TrackAlgoPriorityOrder, CkfComponentsRecord>(edm::ESInputTag("", priorityName_))),
           m_foundHitBonus(conf.getParameter<double>("foundHitBonus")),
           m_lostHitPenalty(conf.getParameter<double>("lostHitPenalty")),
           m_shareFrac(conf.getParameter<double>("shareFrac")),
@@ -80,6 +82,7 @@ namespace {
     std::vector<edm::EDGetTokenT<QualityMaskCollection>> srcQuals;
 
     std::string priorityName_;
+    edm::ESGetToken<TrackAlgoPriorityOrder, CkfComponentsRecord> m_priorityToken;
 
     float m_foundHitBonus;
     float m_lostHitPenalty;
@@ -103,8 +106,7 @@ namespace {
   void TrackCollectionMerger::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
     TrackCollectionCloner::Producer producer(evt, collectionCloner);
 
-    edm::ESHandle<TrackAlgoPriorityOrder> priorityH;
-    es.get<CkfComponentsRecord>().get(priorityName_, priorityH);
+    edm::ESHandle<TrackAlgoPriorityOrder> priorityH = es.getHandle(m_priorityToken);
     auto const& trackAlgoPriorityOrder = *priorityH;
 
     // load collections
@@ -182,11 +184,10 @@ namespace {
           for (auto it = track.recHitsBegin(); it != track.recHitsEnd(); ++it) {
             auto const& hit = *(*it);
             auto id = hit.rawId();
-            if
-              LIKELY(hit.isValid()) {
-                rhv.emplace_back(id, &hit);
-                std::push_heap(rhv.begin(), rhv.end(), compById);
-              }
+            if LIKELY (hit.isValid()) {
+              rhv.emplace_back(id, &hit);
+              std::push_heap(rhv.begin(), rhv.end(), compById);
+            }
           }
           std::sort_heap(rhv.begin(), rhv.end(), compById);
 

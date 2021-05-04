@@ -24,7 +24,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include <TH1D.h>
 #include <TH2D.h>
@@ -1067,8 +1067,8 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
         edm::Ptr< TrackingParticle > thisTP = MCTruthTTStubHandle->findTrackingParticlePtr( tempStubRef );
         partStub = thisTP->pdgId();
       }
-      double displStub    = tempStubRef->getTriggerDisplacement();
-      double offsetStub   = tempStubRef->getTriggerOffset();
+      double displStub    = tempStubRef->getRawBend();
+      double offsetStub   = tempStubRef->getBendOffset();
       GlobalPoint posStub = theStackedGeometry->findGlobalPosition( &(*tempStubRef) );
 
       hStub_RZ->Fill( posStub.z(), posStub.perp() );

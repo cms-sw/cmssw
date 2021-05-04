@@ -9,7 +9,6 @@
 #include <boost/algorithm/string.hpp>
 
 // Geometry stuff
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -33,9 +32,10 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInt
       range_x_max(iconfig.getParameter<double>("range_max")),
       range_y_nbins(iconfig.getParameter<int>("range_y_nbins")),
       range_y_min(iconfig.getParameter<double>("range_y_min")),
-      range_y_max(iconfig.getParameter<double>("range_y_max")) {
+      range_y_max(iconfig.getParameter<double>("range_y_max")),
+      statsOverflows(iconfig.getParameter<bool>("statsOverflows")) {
   auto spec_configs = iconfig.getParameter<edm::VParameterSet>("specs");
-  for (auto spec : spec_configs) {
+  for (const auto& spec : spec_configs) {
     // this would fit better in SummationSpecification(...), but it has to
     // happen here.
     auto conf = spec.getParameter<edm::ParameterSet>("conf");
@@ -296,6 +296,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
     GeometryInterface::Value binwidth_y = 0;
     std::string title, xlabel, ylabel, zlabel;
     bool do_profile = false;
+    bool statsOverflows = true;
+    ;
   };
   std::map<GeometryInterface::Values, MEInfo> toBeBooked;
 
@@ -343,6 +345,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
         // create new histo
         MEInfo& mei = toBeBooked[significantvalues];
         mei.title = this->title;
+        mei.statsOverflows = this->statsOverflows;
         if (bookCounters)
           mei.title =
               "Number of " + mei.title + " per Event and " + geometryInterface.pretty(*(s.steps[0].columns.end() - 1));
@@ -519,6 +522,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker, edm::EventSetup const& i
         assert(!"Illegal Histogram kind.");
       }
       h.th1 = h.me->getTH1();
+      h.me->setStatOverflows(mei.statsOverflows);
     }
   }
 }
@@ -601,6 +605,7 @@ void HistogramManager::executeGroupBy(SummationStep const& step,
     } else {
       new_histo.th1->Add(th1);
     }
+    new_histo.me->setStatOverflows(e.second.me->getStatOverflows());
   }
   t.swap(out);
 }
@@ -682,6 +687,7 @@ void HistogramManager::executeExtend(SummationStep const& step,
       } else {
         assert(!"Reduction type not supported");
       }
+      new_histo.me->setStatOverflows(e.second.me->getStatOverflows());
     } else {
       assert(!"2D extend not implemented in harvesting.");
     }

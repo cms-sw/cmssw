@@ -7,7 +7,7 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
@@ -29,6 +29,8 @@ public:
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> L1TriggerKeyExt_token;
+
 protected:
   l1t::OMDSReader m_omdsReader;
 };

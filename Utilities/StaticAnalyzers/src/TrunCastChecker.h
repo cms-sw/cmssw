@@ -11,7 +11,7 @@ namespace clangcms {
 
   class TrunCastChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
   public:
-    CMS_THREAD_SAFE mutable std::unique_ptr<clang::ento::BugType> BT;
+    CMS_SA_ALLOW mutable std::unique_ptr<clang::ento::BugType> BT;
     void checkASTDecl(const clang::CXXRecordDecl *D,
                       clang::ento::AnalysisManager &Mgr,
                       clang::ento::BugReporter &BR) const;

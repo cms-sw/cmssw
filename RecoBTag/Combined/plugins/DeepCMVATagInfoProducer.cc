@@ -29,6 +29,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -75,6 +76,10 @@ private:
   const edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > elInfoSrc_;
   std::string jpComputer_, jpbComputer_, softmuComputer_, softelComputer_;
   double cMVAPtThreshold_;
+  edm::ESGetToken<JetTagComputer, JetTagComputerRecord> jpComputerToken_;
+  edm::ESGetToken<JetTagComputer, JetTagComputerRecord> jpbComputerToken_;
+  edm::ESGetToken<JetTagComputer, JetTagComputerRecord> softmuComputerToken_;
+  edm::ESGetToken<JetTagComputer, JetTagComputerRecord> softelComputerToken_;
 };
 
 //
@@ -97,7 +102,11 @@ DeepCMVATagInfoProducer::DeepCMVATagInfoProducer(const edm::ParameterSet& iConfi
       jpbComputer_(iConfig.getParameter<std::string>("jpbComputerSrc")),
       softmuComputer_(iConfig.getParameter<std::string>("softmuComputerSrc")),
       softelComputer_(iConfig.getParameter<std::string>("softelComputerSrc")),
-      cMVAPtThreshold_(iConfig.getParameter<double>("cMVAPtThreshold")) {
+      cMVAPtThreshold_(iConfig.getParameter<double>("cMVAPtThreshold")),
+      jpComputerToken_(esConsumes<JetTagComputer, JetTagComputerRecord>(edm::ESInputTag("", jpComputer_))),
+      jpbComputerToken_(esConsumes<JetTagComputer, JetTagComputerRecord>(edm::ESInputTag("", jpbComputer_))),
+      softmuComputerToken_(esConsumes<JetTagComputer, JetTagComputerRecord>(edm::ESInputTag("", softmuComputer_))),
+      softelComputerToken_(esConsumes<JetTagComputer, JetTagComputerRecord>(edm::ESInputTag("", softelComputer_))) {
   produces<std::vector<reco::ShallowTagInfo> >();
 }
 
@@ -125,17 +134,13 @@ void DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(elInfoSrc_, elInfos);
 
   //get computers
-  edm::ESHandle<JetTagComputer> jp;
-  iSetup.get<JetTagComputerRecord>().get(jpComputer_, jp);
+  edm::ESHandle<JetTagComputer> jp = iSetup.getHandle(jpComputerToken_);
   const JetTagComputer* compjp = jp.product();
-  edm::ESHandle<JetTagComputer> jpb;
-  iSetup.get<JetTagComputerRecord>().get(jpbComputer_, jpb);
+  edm::ESHandle<JetTagComputer> jpb = iSetup.getHandle(jpbComputerToken_);
   const JetTagComputer* compjpb = jpb.product();
-  edm::ESHandle<JetTagComputer> softmu;
-  iSetup.get<JetTagComputerRecord>().get(softmuComputer_, softmu);
+  edm::ESHandle<JetTagComputer> softmu = iSetup.getHandle(softmuComputerToken_);
   const JetTagComputer* compsoftmu = softmu.product();
-  edm::ESHandle<JetTagComputer> softel;
-  iSetup.get<JetTagComputerRecord>().get(softelComputer_, softel);
+  edm::ESHandle<JetTagComputer> softel = iSetup.getHandle(softelComputerToken_);
   const JetTagComputer* compsoftel = softel.product();
 
   // create the output collection
@@ -174,10 +179,10 @@ void DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     //if jetPt larger than cMVAPtThreshold_ --> default these taggers for easier SF measurements
     if ((nnInfo.jet().get())->pt() < cMVAPtThreshold_) {
-      vars.insert(reco::btau::Jet_SoftMu, !(isinf(softmu_discr)) ? softmu_discr : -0.2, true);
-      vars.insert(reco::btau::Jet_SoftEl, !(isinf(softel_discr)) ? softel_discr : -0.2, true);
-      vars.insert(reco::btau::Jet_JBP, !(isinf(jpb_discr)) ? jpb_discr : -0.2, true);
-      vars.insert(reco::btau::Jet_JP, !(isinf(jp_discr)) ? jp_discr : -0.2, true);
+      vars.insert(reco::btau::Jet_SoftMu, !(std::isinf(softmu_discr)) ? softmu_discr : -0.2, true);
+      vars.insert(reco::btau::Jet_SoftEl, !(std::isinf(softel_discr)) ? softel_discr : -0.2, true);
+      vars.insert(reco::btau::Jet_JBP, !(std::isinf(jpb_discr)) ? jpb_discr : -0.2, true);
+      vars.insert(reco::btau::Jet_JP, !(std::isinf(jp_discr)) ? jp_discr : -0.2, true);
     }
 
     vars.finalize();

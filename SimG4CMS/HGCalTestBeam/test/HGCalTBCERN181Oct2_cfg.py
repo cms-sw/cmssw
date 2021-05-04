@@ -11,6 +11,7 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct2XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
+process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
@@ -26,11 +27,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HGCalGeom')
-    process.MessageLogger.categories.append('SimG4CoreGeometry')
-    process.MessageLogger.categories.append('HGCSim')
-    process.MessageLogger.categories.append('HcalSim')
-    process.MessageLogger.categories.append('HcalTB06BeamSD')
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.SimG4CoreGeometry=dict()
+    process.MessageLogger.HGCSim=dict()
+    process.MessageLogger.HcalSim=dict()
+    process.MessageLogger.HcalTB06BeamSD=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")

@@ -36,7 +36,7 @@ void L1TMuonBarrelParamsWriter::analyze(const edm::Event& iEvent, const edm::Eve
   else
     evSetup.get<L1TMuonBarrelParamsRcd>().get(handle1);
 
-  boost::shared_ptr<L1TMuonBarrelParams> ptr1(new L1TMuonBarrelParams(*(handle1.product())));
+  std::shared_ptr<L1TMuonBarrelParams> ptr1(new L1TMuonBarrelParams(*(handle1.product())));
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {

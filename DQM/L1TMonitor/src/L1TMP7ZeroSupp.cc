@@ -71,8 +71,6 @@ void L1TMP7ZeroSupp::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.add("l1tMP7ZeroSupp", desc);
 }
 
-void L1TMP7ZeroSupp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
   // overall summary
   ibooker.setCurrentFolder(monitorDir_);
@@ -97,7 +95,7 @@ void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsig
     sizeTitleText = "cumulated caption id " + std::to_string(id) + " block ";
   }
 
-  zeroSuppValMap_[id] = ibooker.book1D("zeroSuppVal", summaryTitleText, NBINLABELS, 0, NBINLABELS);
+  zeroSuppValMap_[id] = ibooker.book1D("zeroSuppVal", summaryTitleText, (int)NBINLABELS, 0, (int)NBINLABELS);
   zeroSuppValMap_[id]->setAxisTitle("ZS status", 1);
   zeroSuppValMap_[id]->setBinLabel(EVTS + 1, "events", 1);
   zeroSuppValMap_[id]->setBinLabel(EVTSGOOD + 1, "good events", 1);
@@ -113,7 +111,7 @@ void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsig
   zeroSuppValMap_[id]->setBinLabel(ZSBXBLKSBADFALSEPOS + 1, "BX false pos.", 1);
   zeroSuppValMap_[id]->setBinLabel(ZSBXBLKSBADFALSENEG + 1, "BX false neg.", 1);
 
-  errorSummaryNumMap_[id] = ibooker.book1D("errorSummaryNum", summaryTitleText, RNBINLABELS, 0, RNBINLABELS);
+  errorSummaryNumMap_[id] = ibooker.book1D("errorSummaryNum", summaryTitleText, (int)RNBINLABELS, 0, (int)RNBINLABELS);
   errorSummaryNumMap_[id]->setBinLabel(REVTS + 1, "bad events", 1);
   errorSummaryNumMap_[id]->setBinLabel(RBLKS + 1, "bad blocks", 1);
   errorSummaryNumMap_[id]->setBinLabel(RBLKSFALSEPOS + 1, "false pos.", 1);
@@ -122,7 +120,7 @@ void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsig
   errorSummaryNumMap_[id]->setBinLabel(RBXBLKSFALSEPOS + 1, "BX false pos.", 1);
   errorSummaryNumMap_[id]->setBinLabel(RBXBLKSFALSENEG + 1, "BX false neg.", 1);
 
-  errorSummaryDenMap_[id] = ibooker.book1D("errorSummaryDen", "denominators", RNBINLABELS, 0, RNBINLABELS);
+  errorSummaryDenMap_[id] = ibooker.book1D("errorSummaryDen", "denominators", (int)RNBINLABELS, 0, (int)RNBINLABELS);
   errorSummaryDenMap_[id]->setBinLabel(REVTS + 1, "# events", 1);
   errorSummaryDenMap_[id]->setBinLabel(RBLKS + 1, "# blocks", 1);
   errorSummaryDenMap_[id]->setBinLabel(RBLKSFALSEPOS + 1, "# blocks", 1);

@@ -10,14 +10,15 @@
  * \version $Revision: 1.2 $
  *
  */
-#include <boost/shared_ptr.hpp>
+
 #include <vector>
+#include <memory>
 
 namespace reco {
   namespace parser {
     struct ExpressionBase;
 
-    typedef std::vector<boost::shared_ptr<ExpressionBase> > ExpressionStack;
+    typedef std::vector<std::shared_ptr<ExpressionBase> > ExpressionStack;
   }  // namespace parser
 }  // namespace reco
 

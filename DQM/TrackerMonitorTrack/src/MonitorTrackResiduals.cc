@@ -6,18 +6,18 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 template <TrackerType pixel_or_strip>
 MonitorTrackResidualsBase<pixel_or_strip>::MonitorTrackResidualsBase(const edm::ParameterSet &iConfig)
     : conf_(iConfig),
+      tkDetMapToken_{esConsumes<TkDetMap, TrackerTopologyRcd, edm::Transition::BeginRun>()},
+      trackerTopologyRunToken_{esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()},
+      trackerGeometryToken_{esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()},
+      trackerTopologyEventToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()},
       m_cacheID_(0),
       genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this)),
@@ -44,10 +44,9 @@ void MonitorTrackResidualsBase<pixel_or_strip>::bookHistograms(DQMStore::IBooker
   std::string topFolderName_ = "SiStrip";
   SiStripFolderOrganizer folder_organizer;
   folder_organizer.setSiStripFolderName(topFolderName_);
-  edm::ESHandle<TkDetMap> tkDetMapHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-  tkhisto_ResidualsMean = std::make_unique<TkHistoMap>(
-      tkDetMapHandle.product(), ibooker, topFolderName_, "TkHMap_ResidualsMean", 0.0, true);
+  const TkDetMap *tkDetMap = &iSetup.getData(tkDetMapToken_);
+  tkhisto_ResidualsMean =
+      std::make_unique<TkHistoMap>(tkDetMap, ibooker, topFolderName_, "TkHMap_ResidualsMean", 0.0, true);
 }
 
 template <TrackerType pixel_or_strip>
@@ -101,12 +100,8 @@ std::pair<std::string, int32_t> MonitorTrackResidualsBase<pixel_or_strip>::findS
 template <TrackerType pixel_or_strip>
 void MonitorTrackResidualsBase<pixel_or_strip>::createMEs(DQMStore::IBooker &ibooker, const edm::EventSetup &iSetup) {
   // Retrieve tracker topology and geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
-
-  edm::ESHandle<TrackerGeometry> TG;
-  iSetup.get<TrackerDigiGeometryRecord>().get(TG);
+  const TrackerTopology *const tTopo = &iSetup.getData(trackerTopologyRunToken_);
+  const TrackerGeometry *TG = &iSetup.getData(trackerGeometryToken_);
 
   Parameters = conf_.getParameter<edm::ParameterSet>("TH1ResModules");
   int32_t i_residuals_Nbins = Parameters.getParameter<int32_t>("Nbinx");
@@ -246,18 +241,16 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event &iEvent
   const auto primaryVertex = vertices->at(0);
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &iSetup.getData(trackerTopologyEventToken_);
 
-  avalidator_.fillTrackQuantities(iEvent,
-                                  iSetup,
-                                  // tell the validator to only look at good tracks
-                                  [&](const reco::Track &track) -> bool {
-                                    return track.pt() > 0.75 &&
-                                           abs(track.dxy(primaryVertex.position())) < 5 * track.dxyError();
-                                  },
-                                  vtracks);
+  avalidator_.fillTrackQuantities(
+      iEvent,
+      iSetup,
+      // tell the validator to only look at good tracks
+      [&](const reco::Track &track) -> bool {
+        return track.pt() > 0.75 && abs(track.dxy(primaryVertex.position())) < 5 * track.dxyError();
+      },
+      vtracks);
 
   for (auto &track : vtracks) {
     for (auto &it : track.hits) {

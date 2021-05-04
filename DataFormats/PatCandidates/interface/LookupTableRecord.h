@@ -13,7 +13,7 @@
  */
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1DFloat.h"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace pat {
   class LookupTableRecord {

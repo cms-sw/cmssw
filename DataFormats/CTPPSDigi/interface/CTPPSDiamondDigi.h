@@ -4,7 +4,7 @@
 /** \class CTPPSDiamondDigi
  *
  * Digi Class for CTPPS Timing Detector
- *  
+ *
  *
  * \author Seyed Mohsen Etesami
  * March 2016
@@ -25,15 +25,15 @@ public:
 
   /// Return digi values number
 
-  unsigned int getLeadingEdge() const { return ledgt; }
+  unsigned int leadingEdge() const { return ledgt; }
 
-  unsigned int getTrailingEdge() const { return tedgt; }
+  unsigned int trailingEdge() const { return tedgt; }
 
-  unsigned int getThresholdVoltage() const { return threvolt; }
+  unsigned int thresholdVoltage() const { return threvolt; }
 
-  bool getMultipleHit() const { return mhit; }
+  bool multipleHit() const { return mhit; }
 
-  HPTDCErrorFlags getHPTDCErrorFlags() const { return hptdcerror; }
+  HPTDCErrorFlags hptdcErrorFlags() const { return hptdcerror; }
 
   /// Set digi values
   inline void setLeadingEdge(unsigned int ledgt_) { ledgt = ledgt_; }
@@ -57,32 +57,32 @@ private:
 #include <iostream>
 
 inline bool operator<(const CTPPSDiamondDigi& one, const CTPPSDiamondDigi& other) {
-  if (one.getLeadingEdge() < other.getLeadingEdge())
+  if (one.leadingEdge() < other.leadingEdge())
     return true;
-  if (one.getLeadingEdge() > other.getLeadingEdge())
+  if (one.leadingEdge() > other.leadingEdge())
     return false;
-  if (one.getTrailingEdge() < other.getTrailingEdge())
+  if (one.trailingEdge() < other.trailingEdge())
     return true;
-  if (one.getTrailingEdge() > other.getTrailingEdge())
+  if (one.trailingEdge() > other.trailingEdge())
     return false;
-  if (one.getMultipleHit() < other.getMultipleHit())
+  if (one.multipleHit() < other.multipleHit())
     return true;
-  if (one.getMultipleHit() > other.getMultipleHit())
+  if (one.multipleHit() > other.multipleHit())
     return false;
-  if (one.getHPTDCErrorFlags().getErrorFlag() < other.getHPTDCErrorFlags().getErrorFlag())
+  if (one.hptdcErrorFlags().errorFlag() < other.hptdcErrorFlags().errorFlag())
     return true;
-  if (one.getHPTDCErrorFlags().getErrorFlag() > other.getHPTDCErrorFlags().getErrorFlag())
+  if (one.hptdcErrorFlags().errorFlag() > other.hptdcErrorFlags().errorFlag())
     return false;
-  if (one.getThresholdVoltage() < other.getThresholdVoltage())
+  if (one.thresholdVoltage() < other.thresholdVoltage())
     return true;
-  if (one.getThresholdVoltage() > other.getThresholdVoltage())
+  if (one.thresholdVoltage() > other.thresholdVoltage())
     return false;
   return false;
 }
 
 inline std::ostream& operator<<(std::ostream& o, const CTPPSDiamondDigi& digi) {
-  return o << " " << digi.getLeadingEdge() << " " << digi.getTrailingEdge() << " " << digi.getThresholdVoltage() << " "
-           << digi.getMultipleHit() << " " << digi.getHPTDCErrorFlags().getErrorFlag();
+  return o << " " << digi.leadingEdge() << " " << digi.trailingEdge() << " " << digi.thresholdVoltage() << " "
+           << digi.multipleHit() << " " << digi.hptdcErrorFlags().errorFlag();
 }
 
 #endif

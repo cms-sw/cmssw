@@ -18,12 +18,10 @@ void TTClusterBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
   this->RetrieveRawHits(rawHits, iEvent);
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(tTopoToken);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-  edm::ESHandle<TrackerGeometry> tGeomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
+  edm::ESHandle<TrackerGeometry> tGeomHandle = iSetup.getHandle(tGeomToken);
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
 
   // Loop on the OT stacks

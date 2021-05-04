@@ -15,6 +15,10 @@ namespace MTDTopologyMode {
       output = Mode::barzflat;
     } else if (value == prefix + "barphiflat") {
       output = Mode::barphiflat;
+    } else if (value == prefix + "btlv1etlv4") {
+      output = Mode::btlv1etlv4;
+    } else if (value == prefix + "btlv1etlv5") {
+      output = Mode::btlv1etlv5;
     } else {
       throw cms::Exception("MTDTopologyModeError") << "the value " << value << " is not defined.";
     }

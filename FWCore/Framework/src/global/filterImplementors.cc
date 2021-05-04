@@ -19,6 +19,9 @@
 namespace edm {
   namespace global {
     namespace impl {
+      template class WatchProcessBlock<edm::global::EDFilterBase>;
+      template class BeginProcessBlockProducer<edm::global::EDFilterBase>;
+      template class EndProcessBlockProducer<edm::global::EDFilterBase>;
       template class BeginRunProducer<edm::global::EDFilterBase>;
       template class EndRunProducer<edm::global::EDFilterBase>;
       template class BeginLuminosityBlockProducer<edm::global::EDFilterBase>;

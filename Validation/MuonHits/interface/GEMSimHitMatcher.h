@@ -8,6 +8,8 @@
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
@@ -65,7 +67,7 @@ public:
   // calculate average strip number for a provided collection of simhits
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
 
-  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;
+  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 1) const;
   std::set<int> hitPadsInDetId(unsigned int) const;
   std::set<int> hitCoPadsInDetId(unsigned int) const;
 
@@ -75,7 +77,9 @@ public:
 private:
   void matchSimHitsToSimTrack();
 
-  edm::ESHandle<GEMGeometry> gem_geom_;
+  void clear();
+
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
 
   std::map<unsigned int, edm::PSimHitContainer> superchamber_to_hits_;
 

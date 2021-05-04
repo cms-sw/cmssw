@@ -8,9 +8,9 @@
  *
  *  This class holds no dynamic data and all the methods are static.
  */
-#include <boost/cstdint.hpp>
 #include <iostream>
 #include <vector>
+#include <cstdint>
 
 class EcalErrorDictionary {
 public:

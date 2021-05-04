@@ -1,9 +1,14 @@
-<use   name="boost"/>
-<use   name="rootcore"/>
-<use   name="roothistmatrix"/>
-<use   name="CommonTools/Utils"/>
-<use   name="DataFormats/FWLite"/>
-<use   name="DataFormats/MuonReco"/>
+<use name="boost"/>
+<use name="rootcore"/>
+<use name="roothistmatrix"/>
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/FWLite"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="PhysicsTools/SelectorUtils"/>
+<use name="DataFormats/Common"/>
+<use name="FWCore/FWLite"/>
+<use name="FWCore/Reflection"/>
+<use name="FWCore/Utilities"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

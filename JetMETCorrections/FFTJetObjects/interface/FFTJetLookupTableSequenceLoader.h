@@ -11,7 +11,7 @@
 class FFTJetLookupTableSequenceLoader : public DefaultFFTJetRcdMapper<FFTJetLookupTableSequence> {
   typedef DefaultFFTJetRcdMapper<FFTJetLookupTableSequence> Base;
   friend class StaticFFTJetRcdMapper<FFTJetLookupTableSequenceLoader>;
-  FFTJetLookupTableSequenceLoader();
+  FFTJetLookupTableSequenceLoader();  // NOLINT - prevent clang-tidy from adding `= delete`
 };
 
 typedef StaticFFTJetRcdMapper<FFTJetLookupTableSequenceLoader> StaticFFTJetLookupTableSequenceLoader;

@@ -7,41 +7,43 @@
 #include <atomic>
 #include <fstream>
 
-#include <boost/format.hpp>
+#include <fmt/printf.h>
 
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/FastMonitor.h"
-#include "EventFilter/Utilities/interface/JSONSerializer.h"
-#include "EventFilter/Utilities/interface/FastMonitoringService.h"
-#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
-#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
-#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
-#include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 
 struct L1TriggerJSONMonitoringData {
+  // special values for prescale index checks
+  static constexpr const int kPrescaleUndefined = -2;
+  static constexpr const int kPrescaleConflict = -1;
   // variables accumulated event by event in each stream
   struct stream {
-    unsigned int processed;                          // number of events processed
+    unsigned int processed = 0;                      // number of events processed
     std::vector<unsigned int> l1tAccept;             // number of events accepted by each L1 trigger
     std::vector<unsigned int> l1tAcceptPhysics;      // number of "physics" events accepted by each L1 trigger
     std::vector<unsigned int> l1tAcceptCalibration;  // number of "calibration" events accepted by each L1 trigger
     std::vector<unsigned int> l1tAcceptRandom;       // number of "random" events accepted by each L1 trigger
-    std::vector<unsigned int> tcdsAccept;  // number of "physics", "calibration", "random" and other event types
-    int prescaleIndex;                     // prescale column index
+    std::vector<unsigned int> tcdsAccept;    // number of "physics", "calibration", "random" and other event types
+    int prescaleIndex = kPrescaleUndefined;  // prescale column index
   };
 
   // variables initialised for each run
@@ -61,7 +63,7 @@ struct L1TriggerJSONMonitoringData {
         l1tAcceptCalibration;                             // number of "calibration" events accepted by each L1 trigger
     jsoncollector::HistoJ<unsigned int> l1tAcceptRandom;  // number of "random" events accepted by each L1 trigger
     jsoncollector::HistoJ<unsigned int> tcdsAccept;  // number of "physics", "calibration", "random" and other event types
-    int prescaleIndex;                               // prescale column index
+    int prescaleIndex = kPrescaleUndefined;          // prescale column index
   };
 };
 
@@ -141,18 +143,15 @@ private:
       ""                // 15 - reserved
   }};
 
-  // special values for prescale index checks
-  static constexpr const int kPrescaleUndefined = -2;
-  static constexpr const int kPrescaleConflict = -1;
-
   static constexpr const char* streamName_ = "streamL1Rates";
 
   static void writeJsdFile(L1TriggerJSONMonitoringData::run const&);
   static void writeIniFile(L1TriggerJSONMonitoringData::run const&, unsigned int, std::vector<std::string> const&);
 
   // configuration
-  const edm::InputTag level1Results_;                                    // InputTag for L1 trigge results
-  const edm::EDGetTokenT<GlobalAlgBlkBxCollection> level1ResultsToken_;  // Token for L1 trigge results
+  const edm::InputTag level1Results_;                                    // InputTag for L1 trigger results
+  const edm::EDGetTokenT<GlobalAlgBlkBxCollection> level1ResultsToken_;  // Token for L1 trigger results
+  const edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1tUtmTriggerMenuRcdToken_;
 };
 
 // instantiate static data members
@@ -161,7 +160,8 @@ constexpr const std::array<const char*, 16> L1TriggerJSONMonitoring::tcdsTrigger
 // constructor
 L1TriggerJSONMonitoring::L1TriggerJSONMonitoring(edm::ParameterSet const& config)
     : level1Results_(config.getParameter<edm::InputTag>("L1Results")),
-      level1ResultsToken_(consumes<GlobalAlgBlkBxCollection>(level1Results_)) {}
+      level1ResultsToken_(consumes<GlobalAlgBlkBxCollection>(level1Results_)),
+      l1tUtmTriggerMenuRcdToken_(esConsumes()) {}
 
 // validate the configuration and optionally fill the default values
 void L1TriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -194,8 +194,7 @@ std::shared_ptr<L1TriggerJSONMonitoringData::run> L1TriggerJSONMonitoring::globa
 
   // read the L1 trigger names from the EventSetup
   std::vector<std::string> triggerNames(GlobalAlgBlk::maxPhysicsTriggers, ""s);
-  edm::ESHandle<L1TUtmTriggerMenu> menuHandle;
-  setup.get<L1TUtmTriggerMenuRcd>().get(menuHandle);
+  auto const& menuHandle = setup.getHandle(l1tUtmTriggerMenuRcdToken_);
   if (menuHandle.isValid()) {
     for (auto const& algo : menuHandle->getAlgorithmMap())
       triggerNames[algo.second.getIndex()] = algo.first;
@@ -205,11 +204,11 @@ std::shared_ptr<L1TriggerJSONMonitoringData::run> L1TriggerJSONMonitoring::globa
   }
 
   // write the per-run .jsd file
-  rundata->jsdFileName = (boost::format("run%06d_ls0000_streamL1Rates_pid%05d.jsd") % run.run() % getpid()).str();
+  rundata->jsdFileName = fmt::sprintf("run%06d_ls0000_streamL1Rates_pid%05d.jsd", run.run(), getpid());
   writeJsdFile(*rundata);
 
   // write the per-run .ini file
-  // iniFileName = (boost::format("run%06d_ls0000_streamL1Rates_pid%05d.ini") % run.run() % getpid()).str();
+  //iniFileName = fmt::sprintf("run%06d_ls0000_streamL1Rates_pid%05d.ini", run.run(), getpid());
   writeIniFile(*rundata, run.run(), triggerNames);
 
   return rundata;
@@ -231,7 +230,7 @@ void L1TriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event
 
   // get hold of TriggerResults
   edm::Handle<GlobalAlgBlkBxCollection> handle;
-  if (not event.getByToken(level1ResultsToken_, handle) or not handle.isValid()) {
+  if (not event.getByToken(level1ResultsToken_, handle) or not handle.isValid() or handle->isEmpty(0)) {
     edm::LogError("L1TriggerJSONMonitoring")
         << "L1 trigger results with label [" + level1Results_.encode() + "] not present or invalid";
     return;
@@ -266,14 +265,14 @@ void L1TriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event
 
   // check for conflicting values in the prescale column index, and store it
   int prescaleIndex = results.getPreScColumn();
-  if (stream.prescaleIndex == kPrescaleUndefined) {
+  if (stream.prescaleIndex == L1TriggerJSONMonitoringData::kPrescaleUndefined) {
     stream.prescaleIndex = prescaleIndex;
-  } else if (stream.prescaleIndex == kPrescaleConflict) {
+  } else if (stream.prescaleIndex == L1TriggerJSONMonitoringData::kPrescaleConflict) {
     // do nothing
   } else if (stream.prescaleIndex != prescaleIndex) {
     edm::LogWarning("L1TriggerJSONMonitoring") << "Prescale index changed from " << stream.prescaleIndex << " to "
                                                << prescaleIndex << " inside lumisection " << event.luminosityBlock();
-    stream.prescaleIndex = kPrescaleConflict;
+    stream.prescaleIndex = L1TriggerJSONMonitoringData::kPrescaleConflict;
   }
 }
 
@@ -302,7 +301,7 @@ std::shared_ptr<L1TriggerJSONMonitoringData::lumisection> L1TriggerJSONMonitorin
     lumidata->l1tAcceptRandom.update(0);
   for (unsigned int i = 0; i < tcdsTriggerTypes_.size(); ++i)
     lumidata->tcdsAccept.update(0);
-  lumidata->prescaleIndex = kPrescaleUndefined;
+  lumidata->prescaleIndex = L1TriggerJSONMonitoringData::kPrescaleUndefined;
 
   return lumidata;
 }
@@ -320,7 +319,7 @@ void L1TriggerJSONMonitoring::streamBeginLuminosityBlock(edm::StreamID sid,
   stream.l1tAcceptCalibration.assign(GlobalAlgBlk::maxPhysicsTriggers, 0);
   stream.l1tAcceptRandom.assign(GlobalAlgBlk::maxPhysicsTriggers, 0);
   stream.tcdsAccept.assign(tcdsTriggerTypes_.size(), 0);
-  stream.prescaleIndex = kPrescaleUndefined;
+  stream.prescaleIndex = L1TriggerJSONMonitoringData::kPrescaleUndefined;
 }
 
 // called when a Stream has finished processing a LuminosityBlock, after streamEndLuminosityBlock
@@ -341,10 +340,10 @@ void L1TriggerJSONMonitoring::streamEndLuminosityBlockSummary(edm::StreamID sid,
     lumidata->tcdsAccept.value()[i] += stream.tcdsAccept[i];
 
   // check for conflicting values in the prescale column index
-  if (lumidata->prescaleIndex == kPrescaleUndefined)
+  if (lumidata->prescaleIndex == L1TriggerJSONMonitoringData::kPrescaleUndefined)
     lumidata->prescaleIndex = stream.prescaleIndex;
   else if (lumidata->prescaleIndex != stream.prescaleIndex)
-    lumidata->prescaleIndex = kPrescaleConflict;
+    lumidata->prescaleIndex = L1TriggerJSONMonitoringData::kPrescaleConflict;
 }
 
 // called after the streamEndLuminosityBlockSummary method for all Streams have finished processing a given LuminosityBlock
@@ -404,14 +403,14 @@ void L1TriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
     */
     jsndata[jsoncollector::DataPoint::DATA].append(lumidata->prescaleIndex);
 
-    auto jsndataFileName = boost::format("run%06d_ls%04d_streamL1Rates_pid%05d.jsndata") % run % ls % getpid();
+    auto jsndataFileName = fmt::sprintf("run%06d_ls%04d_streamL1Rates_pid%05d.jsndata", run, ls, getpid());
 
     std::string result = writer.write(jsndata);
-    std::ofstream jsndataFile(rundata.baseRunDir + "/" + jsndataFileName.str());
+    std::ofstream jsndataFile(rundata.baseRunDir + "/" + jsndataFileName);
     jsndataFile << result;
     jsndataFile.close();
 
-    jsndataFileList = jsndataFileName.str();
+    jsndataFileList = jsndataFileName;
     jsndataSize = result.size();
     jsndataAdler32 = cms::Adler32(result.c_str(), result.size());
   }
@@ -439,8 +438,8 @@ void L1TriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
   jsn[jsoncollector::DataPoint::DATA].append(rundata.streamMergeType);
   jsn[jsoncollector::DataPoint::DATA].append(jsnHLTErrorEvents);
 
-  auto jsnFileName = boost::format("run%06d_ls%04d_streamL1Rates_pid%05d.jsn") % run % ls % getpid();
-  std::ofstream jsnFile(rundata.baseRunDir + "/" + jsnFileName.str());
+  auto jsnFileName = fmt::sprintf("run%06d_ls%04d_streamL1Rates_pid%05d.jsn", run, ls, getpid());
+  std::ofstream jsnFile(rundata.baseRunDir + "/" + jsnFileName);
   jsnFile << writer.write(jsn);
   jsnFile.close();
 }
@@ -481,7 +480,7 @@ void L1TriggerJSONMonitoring::writeIniFile(L1TriggerJSONMonitoringData::run cons
   */
   content["Event-Type"] = eventTypes;
 
-  std::string iniFileName = (boost::format("run%06d_ls0000_streamL1Rates_pid%05d.ini") % run % getpid()).str();
+  std::string iniFileName = fmt::sprintf("run%06d_ls0000_streamL1Rates_pid%05d.ini", run, getpid());
   std::ofstream file(rundata.baseRunDir + "/" + iniFileName);
   Json::StyledWriter writer;
   file << writer.write(content);

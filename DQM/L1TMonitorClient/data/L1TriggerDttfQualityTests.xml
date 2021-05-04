@@ -42,20 +42,6 @@
         <PARAM name="neighbours">3</PARAM>
     </QTEST>
 
-    <QTEST name="CompareHist_DTTF">
-        <TYPE>Comp2RefChi2</TYPE>
-        <PARAM name="testparam">0</PARAM>
-        <PARAM name="error">0.30</PARAM>
-        <PARAM name="warning">0.70</PARAM>
-    </QTEST>
-
-
-    <LINK name="*Integrated Packed *">
-        <TestName activate="false">CompareHist_DTTF</TestName>
-    </LINK>
-
-
-
     <LINK name="*Occupancy Summary">
         <TestName activate="true">DeadChannels_DTTF_2D</TestName>
         <TestName activate="true">HotChannels_DTTF_2D</TestName>

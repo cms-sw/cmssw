@@ -34,7 +34,6 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet &iConfig) {
   reconnTime = iConfig.getUntrackedParameter<unsigned int>("ReconnectionTime", 5);
   DistribIP1 = iConfig.getUntrackedParameter<std::string>("PrimaryHLXDAQIP", "vmepcs2f17-18");
   DistribIP2 = iConfig.getUntrackedParameter<std::string>("SecondaryHLXDAQIP", "vmepcs2f17-19");
-  ResetAtNewRun = iConfig.getUntrackedParameter<bool>("NewRun_Reset", true);
 
   eventInfoFolderHLX_ = iConfig.getUntrackedParameter<std::string>("eventInfoFolderHLX", "EventInfoHLX");
   eventInfoFolder_ = iConfig.getUntrackedParameter<std::string>("eventInfoFolder", "EventInfo");
@@ -169,8 +168,6 @@ void HLXMonitor::SetupHists(DQMStore::IBooker &iBooker) {
     Set2Above[iWedge] =
         iBooker.book1D("Set2_Above", "HF+ Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 2", NBINS, XMIN, XMAX);
     ETSum[iWedge] = iBooker.book1D("ETSum", "HF+ Wedge " + wedgeNum.str() + ": Transverse Energy", NBINS, XMIN, XMAX);
-
-    iBooker.tagContents(monitorName_ + "/HFPlus/Wedge" + tempStreamer.str(), iWedge + 1);
   }
 
   if (NUM_HLX > 17) {
@@ -197,20 +194,6 @@ void HLXMonitor::SetupHists(DQMStore::IBooker &iBooker) {
       Set2Above[iWedge] = iBooker.book1D(
           "Set2_Above", "HF- Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 2", NBINS, XMIN, XMAX);
       ETSum[iWedge] = iBooker.book1D("ETSum", "HF- Wedge " + wedgeNum.str() + ": Transverse Energy", NBINS, XMIN, XMAX);
-
-      iBooker.tagContents(monitorName_ + "/HFMinus/Wedge" + tempStreamer.str(), iWedge + 1);
-    }
-  }
-
-  if (!Accumulate) {
-    for (unsigned int iWedge = 0; iWedge < NUM_HLX; ++iWedge) {
-      Set1Below[iWedge]->setResetMe(true);
-      Set1Between[iWedge]->setResetMe(true);
-      Set1Above[iWedge]->setResetMe(true);
-      Set2Below[iWedge]->setResetMe(true);
-      Set2Between[iWedge]->setResetMe(true);
-      Set2Above[iWedge]->setResetMe(true);
-      ETSum[iWedge]->setResetMe(true);
     }
   }
 
@@ -912,8 +895,6 @@ void HLXMonitor::EndRun() {
     totalNibbles_[iHLX] = 0;
 
   std::cout << "** Here in end run **" << std::endl;
-  if (ResetAtNewRun)
-    ResetAll();
   runNumber_ = 0;
   currentRunEnded_ = true;
   sectionInstantSumEt = 0;
@@ -1073,10 +1054,6 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION &section) {
   sectionInstantSumOcc2 += section.lumiSummary.InstantOccLumi[1];
   sectionInstantErrSumOcc2 += section.lumiSummary.InstantOccLumiErr[1] * section.lumiSummary.InstantOccLumiErr[1];
   ++sectionInstantNorm;
-
-  LumiInstantEtSum->softReset();
-  LumiInstantOccSet1->softReset();
-  LumiInstantOccSet2->softReset();
 
   for (int iHLX = 0; iHLX < (int)NUM_HLX; ++iHLX) {
     unsigned int utotal1 = 0;
@@ -1463,103 +1440,6 @@ void HLXMonitor::FillReportSummary() {
     overall = 0.0;
   // std::cout << "Filling report summary! Main. " << overall << std::endl;
   reportSummary_->Fill(overall);
-}
-
-void HLXMonitor::ResetAll() {
-  for (unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX) {
-    Set1Below[iHLX]->softReset();
-    Set1Between[iHLX]->softReset();
-    Set1Above[iHLX]->softReset();
-    Set2Below[iHLX]->softReset();
-    Set2Between[iHLX]->softReset();
-    Set2Above[iHLX]->softReset();
-    ETSum[iHLX]->softReset();
-  }
-
-  HFCompareEtSum->softReset();
-  HFCompareOccBelowSet1->softReset();
-  HFCompareOccBetweenSet1->softReset();
-  HFCompareOccAboveSet1->softReset();
-  HFCompareOccBelowSet2->softReset();
-  HFCompareOccBetweenSet2->softReset();
-  HFCompareOccAboveSet2->softReset();
-
-  AvgEtSum->softReset();
-  AvgOccBelowSet1->softReset();
-  AvgOccBetweenSet1->softReset();
-  AvgOccAboveSet1->softReset();
-  AvgOccBelowSet2->softReset();
-  AvgOccBetweenSet2->softReset();
-  AvgOccAboveSet2->softReset();
-
-  // Luminosity Monitoring
-  LumiAvgEtSum->softReset();
-  LumiAvgOccSet1->softReset();
-  LumiAvgOccSet2->softReset();
-  LumiInstantEtSum->softReset();
-  LumiInstantOccSet1->softReset();
-  LumiInstantOccSet2->softReset();
-  LumiIntegratedEtSum->softReset();
-  LumiIntegratedOccSet1->softReset();
-  LumiIntegratedOccSet2->softReset();
-
-  // Sanity Check for Occupancy
-  SumAllOccSet1->softReset();
-  SumAllOccSet2->softReset();
-  MissingDQMDataCheck->softReset();
-
-  MaxInstLumiBX1->softReset();
-  MaxInstLumiBX2->softReset();
-  MaxInstLumiBX3->softReset();
-  MaxInstLumiBX4->softReset();
-
-  MaxInstLumiBXNum1->softReset();
-  MaxInstLumiBXNum2->softReset();
-  MaxInstLumiBXNum3->softReset();
-  MaxInstLumiBXNum4->softReset();
-
-  // History
-  lumiSectionCount = 0;
-  previousSection = 0;
-  HistAvgEtSumHFP->softReset();
-  HistAvgEtSumHFM->softReset();
-
-  HistAvgOccBelowSet1HFP->softReset();
-  HistAvgOccBelowSet1HFM->softReset();
-  HistAvgOccBetweenSet1HFP->softReset();
-  HistAvgOccBetweenSet1HFM->softReset();
-  HistAvgOccAboveSet1HFP->softReset();
-  HistAvgOccAboveSet1HFM->softReset();
-
-  HistAvgOccBelowSet2HFP->softReset();
-  HistAvgOccBelowSet2HFM->softReset();
-  HistAvgOccBetweenSet2HFP->softReset();
-  HistAvgOccBetweenSet2HFM->softReset();
-  HistAvgOccAboveSet2HFP->softReset();
-  HistAvgOccAboveSet2HFM->softReset();
-
-  HistAvgLumiEtSum->softReset();
-  HistAvgLumiOccSet1->softReset();
-  HistAvgLumiOccSet2->softReset();
-  HistInstantLumiEtSum->softReset();
-  HistInstantLumiOccSet1->softReset();
-  HistInstantLumiOccSet2->softReset();
-  HistInstantLumiEtSumError->softReset();
-  HistInstantLumiOccSet1Error->softReset();
-  HistInstantLumiOccSet2Error->softReset();
-  HistIntegratedLumiEtSum->softReset();
-  HistIntegratedLumiOccSet1->softReset();
-  HistIntegratedLumiOccSet2->softReset();
-
-  RecentInstantLumiEtSum->softReset();
-  RecentInstantLumiOccSet1->softReset();
-  RecentInstantLumiOccSet2->softReset();
-  RecentIntegratedLumiEtSum->softReset();
-  RecentIntegratedLumiOccSet1->softReset();
-  RecentIntegratedLumiOccSet2->softReset();
-
-  BXvsTimeAvgEtSumHFP->softReset();
-  BXvsTimeAvgEtSumHFM->softReset();
 }
 
 double HLXMonitor::getUTCtime(timeval *a, timeval *b) {

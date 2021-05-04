@@ -1,15 +1,12 @@
-<use   name="DataFormats/HcalDigi"/>
-<use   name="CalibFormats/HcalObjects"/>
-<use   name="Geometry/HcalTowerAlgo"/>
-<use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="Utilities/Xerces"/>
-<use   name="CondFormats/HcalObjects"/>
-<use   name="CalibFormats/CaloObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="xerces-c"/>
-<use   name="md5"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="CalibCalorimetry/HcalAlgos"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="Utilities/Xerces"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="xerces-c"/>
+<use name="md5"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -13,6 +13,7 @@
  * $Id: MuonSelector.h,v 1.1 2009/03/04 13:11:28 llista Exp $
  *
  */
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -71,8 +72,8 @@ namespace helper {
     std::unique_ptr<reco::TrackCollection> selStandAloneTracks_;
     std::unique_ptr<reco::TrackExtraCollection> selStandAloneTracksExtras_;
     std::unique_ptr<TrackingRecHitCollection> selStandAloneTracksHits_;
-    std::unique_ptr<edmNew::DetSetVector<SiStripCluster> > selStripClusters_;
-    std::unique_ptr<edmNew::DetSetVector<SiPixelCluster> > selPixelClusters_;
+    std::unique_ptr<edmNew::DetSetVector<SiStripCluster>> selStripClusters_;
+    std::unique_ptr<edmNew::DetSetVector<SiPixelCluster>> selPixelClusters_;
 
     reco::MuonRefProd rMuons_;
     reco::TrackRefProd rTracks_;
@@ -121,11 +122,11 @@ namespace helper {
     rSATracks_ = evt.template getRefBeforePut<TrackCollection>("StandAlone");
     rMuons_ = evt.template getRefBeforePut<MuonCollection>("SelectedMuons");
     //--- New: save clusters too
-    edm::RefProd<edmNew::DetSetVector<SiStripCluster> > rStripClusters =
-        evt.template getRefBeforePut<edmNew::DetSetVector<SiStripCluster> >();
+    edm::RefProd<edmNew::DetSetVector<SiStripCluster>> rStripClusters =
+        evt.template getRefBeforePut<edmNew::DetSetVector<SiStripCluster>>();
 
-    edm::RefProd<edmNew::DetSetVector<SiPixelCluster> > rPixelClusters =
-        evt.template getRefBeforePut<edmNew::DetSetVector<SiPixelCluster> >();
+    edm::RefProd<edmNew::DetSetVector<SiPixelCluster>> rPixelClusters =
+        evt.template getRefBeforePut<edmNew::DetSetVector<SiPixelCluster>>();
 
     id_ = 0;
     igbd_ = 0;
@@ -148,7 +149,7 @@ namespace helper {
   }
 
   //----------------------------------------------------------------------
-  class MuonSelectorBase : public edm::EDFilter {
+  class MuonSelectorBase : public edm::stream::EDFilter<> {
   public:
     MuonSelectorBase(const edm::ParameterSet &cfg) {
       std::string alias(cfg.getParameter<std::string>("@module_label"));
@@ -158,8 +159,8 @@ namespace helper {
       produces<reco::TrackExtraCollection>("TrackerOnly").setBranchAlias(alias + "TrackerOnlyExtras");
       produces<TrackingRecHitCollection>("TrackerOnly").setBranchAlias(alias + "TrackerOnlyHits");
       //--- New: save clusters too
-      produces<edmNew::DetSetVector<SiPixelCluster> >().setBranchAlias(alias + "PixelClusters");
-      produces<edmNew::DetSetVector<SiStripCluster> >().setBranchAlias(alias + "StripClusters");
+      produces<edmNew::DetSetVector<SiPixelCluster>>().setBranchAlias(alias + "PixelClusters");
+      produces<edmNew::DetSetVector<SiStripCluster>>().setBranchAlias(alias + "StripClusters");
       produces<reco::TrackCollection>("GlobalMuon").setBranchAlias(alias + "GlobalMuonTracks");
       produces<reco::TrackExtraCollection>("GlobalMuon").setBranchAlias(alias + "GlobalMuonExtras");
       produces<TrackingRecHitCollection>("GlobalMuon").setBranchAlias(alias + "GlobalMuonHits");
@@ -170,7 +171,7 @@ namespace helper {
   };  // (end of class MuonSelectorBase)
 
   template <>
-  struct StoreManagerTrait<reco::MuonCollection> {
+  struct StoreManagerTrait<reco::MuonCollection, edm::stream::EDFilter<>> {
     typedef MuonCollectionStoreManager type;
     typedef MuonSelectorBase base;
   };

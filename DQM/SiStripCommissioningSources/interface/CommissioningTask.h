@@ -7,11 +7,11 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "boost/cstdint.hpp"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <cstdint>
 
 class TAxis;
 namespace edm {

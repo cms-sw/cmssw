@@ -79,7 +79,7 @@ namespace edm {
     // any object containing this Ptr.
     template <typename C>
     Ptr(TestHandle<C> const& handle, key_type itemKey, bool /*setNow*/ = true)
-        : core_(handle.id(), getItem_(handle.product(), itemKey), 0, true), key_(itemKey) {}
+        : core_(handle.id(), getItem_(handle.product(), itemKey), nullptr, true), key_(itemKey) {}
 
     /** Constructor for those users who do not have a product handle,
      but have a pointer to a product getter (such as the EventPrincipal).
@@ -182,14 +182,15 @@ namespace edm {
         WrapperBase const* prod = getter->getIt(core_.id());
         unsigned int iKey = key_;
         if (prod == nullptr) {
-          prod = getter->getThinnedProduct(core_.id(), iKey);
-          if (prod == nullptr) {
+          auto optionalProd = getter->getThinnedProduct(core_.id(), key_);
+          if (not optionalProd.has_value()) {
             if (throwIfNotFound) {
               core_.productNotFoundException(typeid(T));
             } else {
               return;
             }
           }
+          std::tie(prod, iKey) = *optionalProd;
         }
         void const* ad = nullptr;
         prod->setPtr(typeid(T), iKey, ad);

@@ -35,9 +35,10 @@ Implementation:
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/TotemFramePosition.h"
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
@@ -74,6 +75,7 @@ private:
   bool debug_;
   edm::ESWatcher<TotemReadoutRcd> recordWatcher_;
   edm::EDGetTokenT<edm::DetSetVector<TotemRPDigi>> tTotemRPDigi_;
+  edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> tTotemDAQMapping_;
   std::vector<CTPPSTotemDataFormatter::PPSStripIndex> v_iDdet2fed_;
   TotemFramePosition fPos_;
 
@@ -95,6 +97,7 @@ CTPPSTotemDigiToRaw::CTPPSTotemDigiToRaw(const edm::ParameterSet& iConfig)
     : eventCounter_(0), allDigiCounter_(0), allWordCounter_(0) {
   //register your products
   tTotemRPDigi_ = consumes<edm::DetSetVector<TotemRPDigi>>(iConfig.getParameter<edm::InputTag>("InputLabel"));
+  tTotemDAQMapping_ = esConsumes<TotemDAQMapping, TotemReadoutRcd>();
   produces<FEDRawDataCollection>();
 }
 
@@ -127,7 +130,7 @@ void CTPPSTotemDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::ESHandle<TotemDAQMapping> mapping;
   // label of the CTPPS sub-system
   if (recordWatcher_.check(iSetup)) {
-    iSetup.get<TotemReadoutRcd>().get(mapping);
+    mapping = iSetup.getHandle(tTotemDAQMapping_);
     for (const auto& p : mapping->VFATMapping) {
       //get TotemVFATInfo information
       fedIds_.emplace(p.first.getFEDId());

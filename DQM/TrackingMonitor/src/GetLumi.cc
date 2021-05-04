@@ -4,7 +4,6 @@
  *  \author:  Mia Tosi,40 3-B32,+41227671609 
  */
 
-#include <iostream>
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -63,9 +62,9 @@ double GetLumi::getRawValue(edm::LuminosityBlock const& lumiBlock, edm::EventSet
   if (lumiSummary_->isValid()) {
     lumi = lumiSummary_->avgInsDelLumi();
     intDelLumi = lumiSummary_->intgDelLumi();
-    std::cout << "Luminosity in this Lumi Section " << lumi << " --> " << intDelLumi << std::endl;
+    edm::LogInfo("GetLumi") << "Luminosity in this Lumi Section " << lumi << " --> " << intDelLumi << std::endl;
   } else {
-    std::cout << "No valid data found!" << std::endl;
+    edm::LogWarning("GetLumi") << "No valid data found!" << std::endl;
   }
 
   return lumi;

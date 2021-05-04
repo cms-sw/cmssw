@@ -12,46 +12,88 @@
 
 // system include files
 #include <cassert>
-#include <string>
-#include <exception>
+#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
-#include "FWCore/Framework/interface/EventSetupImpl.h"
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace edm {
   namespace eventsetup {
-    //
-    // constants, enums and typedefs
-    //
 
-    //
-    // static data member definitions
-    //
-
-    //
-    // constructors and destructor
-    //
-    EventSetupRecordImpl::EventSetupRecordImpl(EventSetupRecordKey const& iKey)
+    EventSetupRecordImpl::EventSetupRecordImpl(EventSetupRecordKey const& iKey,
+                                               ActivityRegistry const* activityRegistry,
+                                               unsigned int iovIndex)
         : validity_(),
           key_(iKey),
-          proxies_(),
-          eventSetup_(nullptr),
-          cacheIdentifier_(1),  //start with 1 since 0 means we haven't checked yet
-          transientAccessRequested_(false) {}
+          activityRegistry_(activityRegistry),
+          cacheIdentifier_(1),  // initial value meaningless, gets overwritten before use
+          iovIndex_(iovIndex),
+          isAvailable_(true),
+          validityModificationUnderway_(false) {}
 
-    //
-    // member functions
-    //
-    void EventSetupRecordImpl::set(const ValidityInterval& iInterval) { validity_ = iInterval; }
+    EventSetupRecordImpl::EventSetupRecordImpl(EventSetupRecordImpl&& source)
+        : validity_{source.validity_},
+          key_{source.key_},
+          keysForProxies_{std::move(source.keysForProxies_)},
+          proxies_(std::move(source.proxies_)),
+          activityRegistry_{source.activityRegistry_},
+          cacheIdentifier_{source.cacheIdentifier_},
+          iovIndex_{source.iovIndex_},
+          isAvailable_{source.isAvailable_.load()},
+          validityModificationUnderway_{source.validityModificationUnderway_.load()} {}
 
-    void EventSetupRecordImpl::getESProducers(std::vector<ComponentDescription const*>& esproducers) {
+    EventSetupRecordImpl& EventSetupRecordImpl::operator=(EventSetupRecordImpl&& rhs) {
+      validity_ = rhs.validity_;
+      key_ = rhs.key_;
+      keysForProxies_ = std::move(rhs.keysForProxies_);
+      proxies_ = std::move(rhs.proxies_);
+      activityRegistry_ = rhs.activityRegistry_;
+      cacheIdentifier_ = rhs.cacheIdentifier_;
+      iovIndex_ = rhs.iovIndex_;
+      isAvailable_.store(rhs.isAvailable_.load());
+      validityModificationUnderway_.store(validityModificationUnderway_.load());
+      return *this;
+    }
+
+    ValidityInterval EventSetupRecordImpl::validityInterval() const {
+      bool expected = false;
+      while (not validityModificationUnderway_.compare_exchange_strong(expected, true)) {
+        expected = false;
+      }
+      ValidityInterval temp = validity_;
+      validityModificationUnderway_ = false;
+      return temp;
+    }
+
+    void EventSetupRecordImpl::initializeForNewIOV(unsigned long long iCacheIdentifier,
+                                                   ValidityInterval const& iValidityInterval,
+                                                   bool hasFinder) {
+      cacheIdentifier_ = iCacheIdentifier;
+      validity_ = iValidityInterval;
+      if (hasFinder) {
+        for (auto& dataProxy : proxies_) {
+          dataProxy->initializeForNewIOV();
+        }
+      }
+    }
+
+    void EventSetupRecordImpl::setSafely(const ValidityInterval& iInterval) const {
+      bool expected = false;
+      while (not validityModificationUnderway_.compare_exchange_strong(expected, true)) {
+        expected = false;
+      }
+      validity_ = iInterval;
+      validityModificationUnderway_ = false;
+    }
+
+    void EventSetupRecordImpl::getESProducers(std::vector<ComponentDescription const*>& esproducers) const {
       esproducers.clear();
       esproducers.reserve(proxies_.size());
       for (auto const& iData : proxies_) {
@@ -71,8 +113,7 @@ namespace edm {
       return ret;
     }
 
-    bool EventSetupRecordImpl::add(const DataKey& iKey, const DataProxy* iProxy) {
-      //
+    bool EventSetupRecordImpl::add(const DataKey& iKey, DataProxy* iProxy) {
       const DataProxy* proxy = find(iKey);
       if (nullptr != proxy) {
         //
@@ -126,28 +167,23 @@ namespace edm {
       proxies_.clear();
     }
 
-    void EventSetupRecordImpl::cacheReset() {
-      transientAccessRequested_ = false;
-      ++cacheIdentifier_;
+    void EventSetupRecordImpl::invalidateProxies() {
+      for (auto& dataProxy : proxies_) {
+        dataProxy->invalidate();
+      }
     }
 
-    bool EventSetupRecordImpl::transientReset() {
-      bool returnValue = transientAccessRequested_;
-      transientAccessRequested_ = false;
-      return returnValue;
+    void EventSetupRecordImpl::resetIfTransientInProxies() {
+      for (auto& dataProxy : proxies_) {
+        dataProxy->resetIfTransient();
+      }
     }
-
-    //
-    // const member functions
-    //
 
     const void* EventSetupRecordImpl::getFromProxy(DataKey const& iKey,
                                                    const ComponentDescription*& iDesc,
-                                                   bool iTransientAccessOnly) const {
-      if (iTransientAccessOnly) {
-        this->transientAccessRequested();
-      }
-
+                                                   bool iTransientAccessOnly,
+                                                   ESParentContext const& iParent,
+                                                   EventSetupImpl const* iEventSetupImpl) const {
       const DataProxy* proxy = this->find(iKey);
 
       const void* hold = nullptr;
@@ -155,7 +191,7 @@ namespace edm {
       if (nullptr != proxy) {
         try {
           convertException::wrap([&]() {
-            hold = proxy->get(*this, iKey, iTransientAccessOnly, eventSetup_->activityRegistry());
+            hold = proxy->get(*this, iKey, iTransientAccessOnly, activityRegistry_, iEventSetupImpl, iParent);
             iDesc = proxy->providerDescription();
           });
         } catch (cms::Exception& e) {
@@ -171,12 +207,11 @@ namespace edm {
     const void* EventSetupRecordImpl::getFromProxy(ESProxyIndex iProxyIndex,
                                                    bool iTransientAccessOnly,
                                                    const ComponentDescription*& iDesc,
-                                                   DataKey const*& oGottenKey) const {
+                                                   DataKey const*& oGottenKey,
+                                                   ESParentContext const& iParent,
+                                                   EventSetupImpl const* iEventSetupImpl) const {
       if (iProxyIndex.value() >= static_cast<ESProxyIndex::Value_t>(proxies_.size())) {
         return nullptr;
-      }
-      if (iTransientAccessOnly) {
-        this->transientAccessRequested();
       }
 
       const DataProxy* proxy = proxies_[iProxyIndex.value()];
@@ -188,12 +223,32 @@ namespace edm {
       auto const& key = keysForProxies_[iProxyIndex.value()];
       oGottenKey = &key;
       try {
-        convertException::wrap(
-            [&]() { hold = proxy->get(*this, key, iTransientAccessOnly, eventSetup_->activityRegistry()); });
+        convertException::wrap([&]() {
+          hold = proxy->get(*this, key, iTransientAccessOnly, activityRegistry_, iEventSetupImpl, iParent);
+        });
       } catch (cms::Exception& e) {
         addTraceInfoToCmsException(e, key.name().value(), proxy->providerDescription(), key);
-        //NOTE: the above function can't do the 'throw' since it causes the C++ class type
-        // of the throw to be changed, a 'rethrow' does not have that problem
+        throw;
+      }
+      return hold;
+    }
+
+    void const* EventSetupRecordImpl::getFromProxyAfterPrefetch(ESProxyIndex iProxyIndex,
+                                                                bool iTransientAccessOnly,
+                                                                ComponentDescription const*& iDesc,
+                                                                DataKey const*& oGottenKey) const {
+      const DataProxy* proxy = proxies_[iProxyIndex.value()];
+      assert(nullptr != proxy);
+      iDesc = proxy->providerDescription();
+
+      auto const& key = keysForProxies_[iProxyIndex.value()];
+      oGottenKey = &key;
+
+      void const* hold = nullptr;
+      try {
+        convertException::wrap([&]() { hold = proxy->getAfterPrefetch(*this, key, iTransientAccessOnly); });
+      } catch (cms::Exception& e) {
+        addTraceInfoToCmsException(e, key.name().value(), proxy->providerDescription(), key);
         throw;
       }
       return hold;
@@ -204,23 +259,23 @@ namespace edm {
       if ((lb == keysForProxies_.end()) or (*lb != iKey)) {
         return nullptr;
       }
-      return proxies_[std::distance(keysForProxies_.begin(), lb)];
+      return proxies_[std::distance(keysForProxies_.begin(), lb)].get();
     }
 
-    bool EventSetupRecordImpl::doGet(const DataKey& aKey, bool aGetTransiently) const {
-      const DataProxy* proxy = find(aKey);
-      if (nullptr != proxy) {
-        try {
-          convertException::wrap(
-              [&]() { proxy->doGet(*this, aKey, aGetTransiently, eventSetup_->activityRegistry()); });
-        } catch (cms::Exception& e) {
-          addTraceInfoToCmsException(e, aKey.name().value(), proxy->providerDescription(), aKey);
-          //NOTE: the above function can't do the 'throw' since it causes the C++ class type
-          // of the throw to be changed, a 'rethrow' does not have that problem
-          throw;
-        }
+    void EventSetupRecordImpl::prefetchAsync(WaitingTaskHolder iTask,
+                                             ESProxyIndex iProxyIndex,
+                                             EventSetupImpl const* iEventSetupImpl,
+                                             ServiceToken const& iToken,
+                                             ESParentContext iParent) const {
+      if UNLIKELY (iProxyIndex.value() == std::numeric_limits<int>::max()) {
+        return;
       }
-      return nullptr != proxy;
+
+      const DataProxy* proxy = proxies_[iProxyIndex.value()];
+      if (nullptr != proxy) {
+        auto const& key = keysForProxies_[iProxyIndex.value()];
+        proxy->prefetchAsync(iTask, *this, key, iEventSetupImpl, iToken, iParent);
+      }
     }
 
     bool EventSetupRecordImpl::wasGotten(const DataKey& aKey) const {
@@ -274,8 +329,5 @@ namespace edm {
       iException.addContext(ost.str());
     }
 
-    //
-    // static member functions
-    //
   }  // namespace eventsetup
 }  // namespace edm

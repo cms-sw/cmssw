@@ -85,7 +85,9 @@ namespace edm {
     auto it = m_nextTransition;
     --it;
     EventAuxiliary aux(it->second, processGUID(), Timestamp(0), false);
-    eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
+    auto history = processHistoryRegistry().getMapped(aux.processHistoryID());
+
+    eventPrincipal.fillEventPrincipal(aux, history);
   }
 
   void TestSource::fillDescriptions(ConfigurationDescriptions& descriptions) {

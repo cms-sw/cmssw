@@ -1,4 +1,6 @@
 #include <iostream>
+#include <memory>
+
 //
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -3161,10 +3163,10 @@ void PhotonValidator::dqmBeginRun(edm::Run const& r, edm::EventSetup const& theE
                                           << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
 
-  thePhotonMCTruthFinder_.reset(new PhotonMCTruthFinder());
+  thePhotonMCTruthFinder_ = std::make_unique<PhotonMCTruthFinder>();
 }
 
-void PhotonValidator::endRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
+void PhotonValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
   thePhotonMCTruthFinder_.reset();
 }
 
@@ -4638,14 +4640,12 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
                 float recoPhi2 = aConv->ecalImpactPosition()[1].phi();
                 float recoEta1 = aConv->ecalImpactPosition()[0].eta();
                 float recoEta2 = aConv->ecalImpactPosition()[1].eta();
-                float bcPhi1 = aConv->bcMatchingWithTracks()[0]->phi();
-                float bcPhi2 = aConv->bcMatchingWithTracks()[1]->phi();
-                // unused	float bcEta1 = aConv->bcMatchingWithTracks()[0]->eta();
+                // unused   float bcPhi1 = aConv->bcMatchingWithTracks()[0]->phi();
+                // unused   float bcPhi2 = aConv->bcMatchingWithTracks()[1]->phi();
+                // unused   float bcEta1 = aConv->bcMatchingWithTracks()[0]->eta();
                 // unused   float bcEta2 = aConv->bcMatchingWithTracks()[1]->eta();
                 recoPhi1 = phiNormalization(recoPhi1);
                 recoPhi2 = phiNormalization(recoPhi2);
-                bcPhi1 = phiNormalization(bcPhi1);
-                bcPhi2 = phiNormalization(bcPhi2);
                 dPhiTracksAtEcal = recoPhi1 - recoPhi2;
                 dPhiTracksAtEcal = phiNormalization(dPhiTracksAtEcal);
                 dEtaTracksAtEcal = recoEta1 - recoEta2;

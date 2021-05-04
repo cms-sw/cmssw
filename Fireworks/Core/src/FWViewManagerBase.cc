@@ -15,7 +15,7 @@
 #include "TROOT.h"
 #include <cassert>
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
@@ -99,14 +99,14 @@ void FWViewManagerBase::colorsChangedSlot() { this->colorsChanged(); }
 void FWViewManagerBase::setChangeManager(FWModelChangeManager* iCM) {
   assert(nullptr != iCM);
   m_changeManager = iCM;
-  m_changeManager->changeSignalsAreComing_.connect(boost::bind(&FWViewManagerBase::modelChangesComing, this));
-  m_changeManager->changeSignalsAreDone_.connect(boost::bind(&FWViewManagerBase::modelChangesDone, this));
+  m_changeManager->changeSignalsAreComing_.connect(std::bind(&FWViewManagerBase::modelChangesComing, this));
+  m_changeManager->changeSignalsAreDone_.connect(std::bind(&FWViewManagerBase::modelChangesDone, this));
 }
 
 void FWViewManagerBase::setColorManager(FWColorManager* iCM) {
   assert(nullptr != iCM);
   m_colorManager = iCM;
-  m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWViewManagerBase::colorsChanged, this));
+  m_colorManager->colorsHaveChanged_.connect(std::bind(&FWViewManagerBase::colorsChanged, this));
   //make sure to pickup any changes that occurred earlier
   colorsChanged();
 }

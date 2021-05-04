@@ -19,6 +19,7 @@
 // system include files
 #include <cmath>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -95,10 +96,12 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -152,13 +155,10 @@ private:
 
   void bookHistograms();
 
-  double deltaPhi(double v1, double v2);
-  double deltaR(double eta1, double phi1, double eta2, double phi2);
-
   void clearTreeVectors();
 
 private:
-  L1GtUtils m_l1GtUtils;
+  std::unique_ptr<L1GtUtils> m_l1GtUtils;
   static constexpr size_t nL1BitsMax = 128;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
@@ -200,6 +200,13 @@ private:
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEE_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloHH_;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> tok_htmap_;
   static constexpr size_t NPBins = 15;
   static constexpr size_t NEtaBins = 3;
   double genPartPBins[NPBins + 1], genPartEtaBins[NEtaBins + 1];
@@ -298,8 +305,7 @@ static const bool useL1EventSetup(true);
 static const bool useL1GtTriggerMenuLite(true);
 
 IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet &iConfig)
-    : m_l1GtUtils(iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this),
-      trackerHitAssociatorConfig_(consumesCollector()),
+    : trackerHitAssociatorConfig_(consumesCollector()),
       doMC_(iConfig.getUntrackedParameter<bool>("doMC", false)),
       writeAllTracks_(iConfig.getUntrackedParameter<bool>("writeAllTracks", false)),
       myverbose_(iConfig.getUntrackedParameter<int>("verbosity", 5)),
@@ -488,6 +494,11 @@ IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet &iConfig)
       t_hsim3x3CharHad(nullptr),
       t_hsim5x5CharHad(nullptr),
       t_hsim7x7CharHad(nullptr) {
+  if (L1TriggerAlgoInfo_) {
+    m_l1GtUtils = std::make_unique<L1GtUtils>(
+        iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this, L1GtUtils::UseEventSetupIn::Event);
+  }
+
   usesResource(TFileService::kSharedResource);
 
   //now do what ever initialization is needed
@@ -534,6 +545,14 @@ IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet &iConfig)
                                  << "\n debugL1Info " << debugL1Info_ << "\t L1TriggerAlgoInfo " << L1TriggerAlgoInfo_
                                  << "\n";
   }
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
+  tok_htmap_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
 }
 
 IsolatedTracksNxN::~IsolatedTracksNxN() {
@@ -747,9 +766,7 @@ void IsolatedTracksNxN::fillDescriptions(edm::ConfigurationDescriptions &descrip
 void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   bool haveIsoTrack = false;
 
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField *bField = bFieldH.product();
+  const MagneticField *bField = &iSetup.getData(tok_magField_);
 
   clearTreeVectors();
 
@@ -771,11 +788,11 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
   //===================== save L1 Trigger information =======================
   if (L1TriggerAlgoInfo_) {
-    m_l1GtUtils.getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
+    m_l1GtUtils->getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
 
     int iErrorCode = -1;
     int l1ConfCode = -1;
-    const bool l1Conf = m_l1GtUtils.availableL1Configuration(iErrorCode, l1ConfCode);
+    const bool l1Conf = m_l1GtUtils->availableL1Configuration(iErrorCode, l1ConfCode);
     if (!l1Conf) {
       edm::LogVerbatim("IsoTrack")
           << "\nL1 configuration code:" << l1ConfCode << "\nNo valid L1 trigger configuration available."
@@ -783,7 +800,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
           << "\nNo return here, in order to test each method, protected against configuration error.";
     }
 
-    const L1GtTriggerMenu *m_l1GtMenu = m_l1GtUtils.ptrL1TriggerMenuEventSetup(iErrorCode);
+    const L1GtTriggerMenu *m_l1GtMenu = m_l1GtUtils->ptrL1TriggerMenuEventSetup(iErrorCode);
     const AlgorithmMap &algorithmMap = m_l1GtMenu->gtAlgorithmMap();
     const std::string &menuName = m_l1GtMenu->gtTriggerMenuName();
 
@@ -807,8 +824,8 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
       std::string algName = itAlgo->first;
       int algBitNumber = (itAlgo->second).algoBitNumber();
-      bool decision = m_l1GtUtils.decision(iEvent, itAlgo->first, iErrorCode);
-      int preScale = m_l1GtUtils.prescaleFactor(iEvent, itAlgo->first, iErrorCode);
+      bool decision = m_l1GtUtils->decision(iEvent, itAlgo->first, iErrorCode);
+      int preScale = m_l1GtUtils->prescaleFactor(iEvent, itAlgo->first, iErrorCode);
 
       // save the algo names which fired
       if (decision) {
@@ -1024,17 +1041,9 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
   //===================================================================================
 
   // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry *geo = pG.product();
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology *caloTopology = theCaloTopology.product();
-
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology *theHBHETopology = htopo.product();
+  const CaloGeometry *geo = &iSetup.getData(tok_geom_);
+  const CaloTopology *caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology *theHBHETopology = &iSetup.getData(tok_topo_);
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
@@ -1042,14 +1051,11 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
 
   // Retrieve the good/bad ECAL channels from the DB
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
-  const EcalChannelStatus *theEcalChStatus = ecalChStatus.product();
+  const EcalChannelStatus *theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
+  const EcalSeverityLevelAlgo *sevlv = &iSetup.getData(tok_sevlv_);
 
   // Retrieve trigger tower map
-  edm::ESHandle<EcalTrigTowerConstituentsMap> hTtmap;
-  iSetup.get<IdealGeometryRecord>().get(hTtmap);
-  const EcalTrigTowerConstituentsMap &ttMap = *hTtmap;
+  const EcalTrigTowerConstituentsMap &ttMap = iSetup.getData(tok_htmap_);
 
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_hbhe_, hbhe);
@@ -1086,7 +1092,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
   //associates tracker rechits/simhits to a track
   std::unique_ptr<TrackerHitAssociator> associate;
   if (doMC_)
-    associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
+    associate = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
 
   //===================================================================================
 
@@ -1254,9 +1260,6 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
             simTrackP = matchedSimTrk->momentum().P();
         }
 
-        edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-        iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-
         // get ECal Tranverse Profile
         std::pair<double, bool> e7x7P, e9x9P, e11x11P, e15x15P;
         std::pair<double, bool> e7x7_10SigP, e9x9_10SigP, e11x11_10SigP, e15x15_10SigP;
@@ -1276,7 +1279,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                  *theEcalChStatus,
                                  geo,
                                  caloTopology,
-                                 sevlv.product(),
+                                 sevlv,
                                  3,
                                  3,
                                  -100.0,
@@ -1289,7 +1292,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                  *theEcalChStatus,
                                  geo,
                                  caloTopology,
-                                 sevlv.product(),
+                                 sevlv,
                                  4,
                                  4,
                                  -100.0,
@@ -1302,7 +1305,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                    *theEcalChStatus,
                                    geo,
                                    caloTopology,
-                                   sevlv.product(),
+                                   sevlv,
                                    5,
                                    5,
                                    -100.0,
@@ -1315,7 +1318,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                    *theEcalChStatus,
                                    geo,
                                    caloTopology,
-                                   sevlv.product(),
+                                   sevlv,
                                    7,
                                    7,
                                    -100.0,
@@ -1329,7 +1332,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        3,
                                        3,
                                        0.030,
@@ -1342,7 +1345,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        4,
                                        4,
                                        0.030,
@@ -1355,7 +1358,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                          *theEcalChStatus,
                                          geo,
                                          caloTopology,
-                                         sevlv.product(),
+                                         sevlv,
                                          5,
                                          5,
                                          0.030,
@@ -1368,7 +1371,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                          *theEcalChStatus,
                                          geo,
                                          caloTopology,
-                                         sevlv.product(),
+                                         sevlv,
                                          7,
                                          7,
                                          0.030,
@@ -1382,7 +1385,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        ttMap,
                                        3,
                                        3,
@@ -1396,7 +1399,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        ttMap,
                                        4,
                                        4,
@@ -1410,7 +1413,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                          *theEcalChStatus,
                                          geo,
                                          caloTopology,
-                                         sevlv.product(),
+                                         sevlv,
                                          ttMap,
                                          5,
                                          5,
@@ -1424,7 +1427,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                          *theEcalChStatus,
                                          geo,
                                          caloTopology,
-                                         sevlv.product(),
+                                         sevlv,
                                          ttMap,
                                          7,
                                          7,
@@ -1440,7 +1443,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        3,
                                        3,
                                        0.060,
@@ -1453,7 +1456,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        4,
                                        4,
                                        0.060,
@@ -1466,7 +1469,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                          *theEcalChStatus,
                                          geo,
                                          caloTopology,
-                                         sevlv.product(),
+                                         sevlv,
                                          5,
                                          5,
                                          0.060,
@@ -1479,7 +1482,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                          *theEcalChStatus,
                                          geo,
                                          caloTopology,
-                                         sevlv.product(),
+                                         sevlv,
                                          7,
                                          7,
                                          0.060,
@@ -1493,7 +1496,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        3,
                                        3,
                                        0.075,
@@ -1506,7 +1509,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        4,
                                        4,
                                        0.075,
@@ -1519,7 +1522,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                          *theEcalChStatus,
                                          geo,
                                          caloTopology,
-                                         sevlv.product(),
+                                         sevlv,
                                          5,
                                          5,
                                          0.075,
@@ -1532,7 +1535,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                          *theEcalChStatus,
                                          geo,
                                          caloTopology,
-                                         sevlv.product(),
+                                         sevlv,
                                          7,
                                          7,
                                          0.075,
@@ -1546,7 +1549,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        3,
                                        3,
                                        0.090,
@@ -1559,7 +1562,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        4,
                                        4,
                                        0.090,
@@ -1572,7 +1575,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                          *theEcalChStatus,
                                          geo,
                                          caloTopology,
-                                         sevlv.product(),
+                                         sevlv,
                                          5,
                                          5,
                                          0.090,
@@ -1585,7 +1588,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                          *theEcalChStatus,
                                          geo,
                                          caloTopology,
-                                         sevlv.product(),
+                                         sevlv,
                                          7,
                                          7,
                                          0.090,
@@ -1847,7 +1850,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
         for (unsigned int ind = 0; ind < recVtxs->size(); ind++) {
           if (!((*recVtxs)[ind].isFake())) {
             reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
-            if (deltaR(eta1, phi1, (*vtxTrack)->eta(), (*vtxTrack)->phi()) < 0.01)
+            if (reco::deltaR(eta1, phi1, (*vtxTrack)->eta(), (*vtxTrack)->phi()) < 0.01)
               t_trackPVIdx->push_back(ind);
             else
               t_trackPVIdx->push_back(-1);
@@ -2739,20 +2742,6 @@ void IsolatedTracksNxN::bookHistograms() {
     tree_->Branch("t_hsim7x7CharHad", "std::vector<double>", &t_hsim7x7CharHad);
   }
   tree_->Branch("t_nTracks", &t_nTracks, "t_nTracks/I");
-}
-
-double IsolatedTracksNxN::deltaPhi(double v1, double v2) {
-  // Computes the correctly normalized phi difference
-  // v1, v2 = phi of object 1 and 2
-  double diff = std::abs(v2 - v1);
-  double corr = 2 * M_PI - diff;
-  return ((diff < M_PI) ? diff : corr);
-}
-
-double IsolatedTracksNxN::deltaR(double eta1, double phi1, double eta2, double phi2) {
-  double deta = eta1 - eta2;
-  double dphi = deltaPhi(phi1, phi2);
-  return std::sqrt(deta * deta + dphi * dphi);
 }
 
 void IsolatedTracksNxN::printTrack(const reco::Track *pTrack) {

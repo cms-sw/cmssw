@@ -8,7 +8,8 @@ pfBoostedDoubleSVAK8TagInfos = cms.EDProducer("BoostedDoubleSVProducer",
     R0 = cms.double(0.8),
     maxSVDeltaRToJet = cms.double(0.7),
     trackPairV0Filter = cms.PSet(k0sMassWindow = cms.double(0.03)),
-    svTagInfos = cms.InputTag("pfInclusiveSecondaryVertexFinderAK8TagInfos")
+    svTagInfos = cms.InputTag("pfInclusiveSecondaryVertexFinderAK8TagInfos"),
+    weights = cms.InputTag("")
 )
 
 pfBoostedDoubleSVAK8TagInfos.trackSelection.jetDeltaRMax = cms.double(0.8)

@@ -1,9 +1,8 @@
-<use   name="root"/>
-<use   name="TrackingTools/IPTools"/>
-<use   name="SimTracker/TrackHistory"/>
-<use   name="DataFormats/BTauReco"/>
-<use   name="RecoVertex/PrimaryVertexProducer"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="CommonTools/Utils"/>
-<library   file="*.cc" name="TrackHistoryPlugins">
+<use name="root"/>
+<use name="TrackingTools/IPTools"/>
+<use name="SimTracker/TrackHistory"/>
+<use name="DataFormats/BTauReco"/>
+<use name="RecoVertex/PrimaryVertexProducer"/>
+<use name="CommonTools/UtilAlgos"/>
+<library file="*.cc" name="TrackHistoryPlugins">
 </library>

@@ -4,12 +4,14 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
 
-#include <vector>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <vector>
+#include <string>
 
 class HcalTopology;
 
@@ -62,7 +64,7 @@ public:
   const Item* getValues(DetId fId, bool throwOnFail = true) const;
 
   // does the object exist ?
-  const bool exists(DetId fId) const;
+  bool exists(DetId fId) const;
 
   // set the object/fill it in:
   bool addValues(const Item& myItem);
@@ -218,7 +220,7 @@ const Item* HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail
 }
 
 template <class Item>
-const bool HcalCondObjectContainer<Item>::exists(DetId fId) const {
+bool HcalCondObjectContainer<Item>::exists(DetId fId) const {
   const Item* cell = getValues(fId, false);
 
   if (cell) {

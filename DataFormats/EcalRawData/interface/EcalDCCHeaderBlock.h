@@ -1,8 +1,6 @@
 #ifndef RAWECAL_ECALDCCHEADERBLOCK_H
 #define RAWECAL_ECALDCCHEADERBLOCK_H
 
-#include <boost/cstdint.hpp>
-
 /** \class EcalDCCHeaderBlock
  *  Container for ECAL specific DCC Header information
  *

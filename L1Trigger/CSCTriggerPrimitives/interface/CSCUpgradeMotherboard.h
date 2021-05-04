@@ -13,6 +13,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTContainer.h"
 
 // generic container type
 namespace {
@@ -33,37 +34,6 @@ namespace {
 
 class CSCUpgradeMotherboard : public CSCMotherboard {
 public:
-  /** for the case when more than 2 LCTs/BX are allowed;
-      maximum match window = 15 */
-  class LCTContainer {
-  public:
-    // constructor
-    LCTContainer(unsigned int trig_window_size);
-
-    // access the LCT in a particular ALCT BX, a particular CLCT matched BX
-    // and particular LCT number
-    CSCCorrelatedLCTDigi& operator()(int bx, int match_bx, int lct);
-
-    // get the matching LCTs for a certain ALCT BX
-    void getTimeMatched(const int bx, std::vector<CSCCorrelatedLCTDigi>&) const;
-
-    // get all LCTs in the 16 BX readout window
-    void getMatched(std::vector<CSCCorrelatedLCTDigi>&) const;
-
-    // clear the array with stubs
-    void clear();
-
-    // array with stored LCTs
-    // 1st index: depth of pipeline that stores the ALCT and CLCT
-    // 2nd index: BX number of the ALCT-CLCT match in the matching window
-    // 3rd index: LCT number in the time bin
-    CSCCorrelatedLCTDigi data[CSCConstants::MAX_LCT_TBINS][CSCConstants::MAX_MATCH_WINDOW_SIZE]
-                             [CSCConstants::MAX_LCTS_PER_CSC];
-
-    // matching trigger window
-    const unsigned int match_trig_window_size_;
-  };
-
   // standard constructor
   CSCUpgradeMotherboard(unsigned endcap,
                         unsigned station,
@@ -71,9 +41,6 @@ public:
                         unsigned subsector,
                         unsigned chamber,
                         const edm::ParameterSet& conf);
-
-  //Default constructor for testing
-  CSCUpgradeMotherboard();
 
   ~CSCUpgradeMotherboard() override;
 
@@ -101,10 +68,6 @@ public:
   /** get CSCPart from HS, station, ring number **/
   enum CSCPart getCSCPart(int keystrip) const;
 
-  // functions to setup geometry and LUTs
-  void setupGeometry();
-  void debugLUTs();
-
   // run TMB with GEM pad clusters as input
   void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc) override;
 
@@ -126,8 +89,6 @@ protected:
   /** for the case when more than 2 LCTs/BX are allowed;
       maximum match window = 15 */
   LCTContainer allLCTs;
-
-  std::unique_ptr<CSCUpgradeMotherboardLUTGenerator> generator_;
 
   /** "preferential" index array in matching window for cross-BX sorting */
   int pref[CSCConstants::MAX_LCT_TBINS];

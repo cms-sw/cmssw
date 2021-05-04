@@ -5,7 +5,6 @@
  * Assign barrel pixel modules (defined by name and unit) to links
  */
 
-#include <boost/cstdint.hpp>
 #include <vector>
 
 #include "CalibTracker/SiPixelConnectivity/interface/TRange.h"
@@ -14,6 +13,7 @@ class PixelModuleName;
 class PixelBarrelName;
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
+#include <cstdint>
 
 class PixelBarrelLinkMaker {
 public:

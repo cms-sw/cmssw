@@ -57,11 +57,11 @@ void RPCMonitorRaw::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
 
   me_mapGoodEvents = ibooker.book2D("mapGoodRecords", "mapGoodRecords", 36, -0.5, 35.5, 3, 789.5, 792.5);
   me_mapGoodEvents->getTH2F()->SetNdivisions(3, "y");
-  me_mapGoodEvents->getTH2F()->SetXTitle("rmb");
+  me_mapGoodEvents->setAxisTitle("rmb");
   me_mapGoodEvents->getTH2F()->SetYTitle("fed");
   me_mapGoodEvents->getTH2F()->SetStats(false);
   me_mapBadEvents = ibooker.book2D("mapErrorRecords", "mapErrorRecords", 36, -0.5, 35.5, 3, 789.5, 792.5);
-  me_mapBadEvents->getTH2F()->SetXTitle("fed");
+  me_mapBadEvents->setAxisTitle("fed");
   me_mapBadEvents->getTH2F()->SetYTitle("rmb");
   me_mapBadEvents->getTH2F()->SetNdivisions(3, "y");
   me_mapBadEvents->getTH2F()->SetStats(false);

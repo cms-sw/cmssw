@@ -101,10 +101,6 @@ void SUSY_HLT_ElecFakes::analyze(edm::Event const &e, edm::EventSetup const &eSe
   }
 }
 
-void SUSY_HLT_ElecFakes::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_ElecFakes") << "SUSY_HLT_ElecFakes::endRun" << std::endl;
-}
-
 void SUSY_HLT_ElecFakes::bookHistos(DQMStore::IBooker &ibooker_) {
   ibooker_.cd();
   ibooker_.setCurrentFolder("HLT/SUSYBSM/" + triggerPath_);

@@ -77,8 +77,8 @@ void DTLVStatusHandler::getNewObjects() {
   // offline info
 
   //to access the information on the tag inside the offline database:
-  cond::TagInfo const& ti = tagInfo();
-  unsigned int last = ti.lastInterval.first;
+  cond::TagInfo_t const& ti = tagInfo();
+  cond::Time_t last = ti.lastInterval.since;
   std::cout << "latest DCS data (CCB status) already copied for run: " << last << std::endl;
 
   if (last == 0) {

@@ -45,6 +45,7 @@ class EcalRecHit;
 class HcalChannelQuality;
 class HcalSeverityLevelComputer;
 class EcalSeverityLevelAlgo;
+class CaloGeometry;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -173,14 +174,13 @@ public:
     bool operator()(const PhysicsTower& lhs, const PhysicsTower& rhs) const { return (lhs.id < rhs.id); }
   };
 
-  PhysicsTowerOrganizer(const edm::Event& iEvent,
-                        const edm::EventSetup& evSetup,
-                        const edm::Handle<HBHERecHitCollection>& hbhehitcoll_h,
+  PhysicsTowerOrganizer(const edm::Handle<HBHERecHitCollection>& hbhehitcoll_h,
                         const edm::Handle<EcalRecHitCollection>& ebhitcoll_h,
                         const edm::Handle<EcalRecHitCollection>& eehitcoll_h,
                         const edm::Handle<std::vector<reco::TrackExtrapolation> >& trackextrapcoll_h,
                         const ObjectValidatorAbs& objectvalidator,
-                        const CaloTowerConstituentsMap& ctcm);
+                        const CaloTowerConstituentsMap& ctcm,
+                        const CaloGeometry& geo);
 
   virtual ~PhysicsTowerOrganizer() {}
 

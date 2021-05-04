@@ -4,8 +4,6 @@
 #include <string>
 #include <memory>
 
-#include <boost/bind.hpp>
-
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -34,7 +32,7 @@ using namespace lhef;
 
 LHESource::LHESource(const edm::ParameterSet& params, const edm::InputSourceDescription& desc)
     : ProducerSourceFromFiles(params, desc, false),
-      reader_(new LHEReader(fileNames(), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
+      reader_(new LHEReader(fileNames(0), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
       lheProvenanceHelper_(
           edm::TypeID(typeid(LHEEventProduct)), edm::TypeID(typeid(LHERunInfoProduct)), productRegistryUpdate()),
       phid_() {
@@ -109,14 +107,15 @@ void LHESource::readRun_(edm::RunPrincipal& runPrincipal) {
 
 void LHESource::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) {
   luminosityBlockAuxiliary()->setProcessHistoryID(phid_);
-  lumiPrincipal.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
+  lumiPrincipal.fillLuminosityBlockPrincipal(
+      processHistoryRegistry().getMapped(lumiPrincipal.aux().processHistoryID()));
 }
 
 void LHESource::putRunInfoProduct(edm::RunPrincipal& iRunPrincipal) {
   if (runInfoProductLast_) {
     auto product = std::make_unique<LHERunInfoProduct>(*runInfoProductLast_);
     std::unique_ptr<edm::WrapperBase> rdp(new edm::Wrapper<LHERunInfoProduct>(std::move(product)));
-    iRunPrincipal.put(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
+    iRunPrincipal.putOrMerge(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
   }
 }
 
@@ -137,7 +136,7 @@ void LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
   assert(eventCached() || processingMode() != RunsLumisAndEvents);
   edm::EventAuxiliary aux(eventID(), processGUID(), edm::Timestamp(presentTime()), false);
   aux.setProcessHistoryID(phid_);
-  eventPrincipal.fillEventPrincipal(aux, processHistoryRegistryForUpdate());
+  eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry().getMapped(aux.processHistoryID()));
 
   std::unique_ptr<LHEEventProduct> product(
       new LHEEventProduct(*partonLevel_->getHEPEUP(), partonLevel_->originalXWGTUP()));
@@ -146,13 +145,13 @@ void LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
   }
   std::for_each(partonLevel_->weights().begin(),
                 partonLevel_->weights().end(),
-                boost::bind(&LHEEventProduct::addWeight, product.get(), _1));
+                std::bind(&LHEEventProduct::addWeight, product.get(), std::placeholders::_1));
   product->setScales(partonLevel_->scales());
   product->setNpLO(partonLevel_->npLO());
   product->setNpNLO(partonLevel_->npNLO());
   std::for_each(partonLevel_->getComments().begin(),
                 partonLevel_->getComments().end(),
-                boost::bind(&LHEEventProduct::addComment, product.get(), _1));
+                std::bind(&LHEEventProduct::addComment, product.get(), std::placeholders::_1));
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<LHEEventProduct>(std::move(product)));
   eventPrincipal.put(lheProvenanceHelper_.eventProductBranchDescription_,

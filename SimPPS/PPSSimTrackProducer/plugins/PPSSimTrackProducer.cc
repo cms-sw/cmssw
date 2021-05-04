@@ -28,16 +28,20 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "SimDataFormats/Forward/interface/LHCTransportLink.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "SimTransport/PPSProtonTransport/interface/TotemTransport.h"
-#include "SimTransport/PPSProtonTransport/interface/HectorTransport.h"
 #include "SimTransport/PPSProtonTransport/interface/ProtonTransport.h"
 #include "TRandom3.h"
 #include "IOMC/RandomEngine/src/TRandomAdaptor.h"
+
 //
 // class declaration
 //
@@ -47,7 +51,7 @@ public:
   explicit PPSSimTrackProducer(const edm::ParameterSet&);
   ~PPSSimTrackProducer() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  //static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginStream(edm::StreamID) override;
@@ -56,7 +60,7 @@ private:
 
   // ----------member data ---------------------------
   bool m_verbosity;
-  ProtonTransport* theTransporter = nullptr;
+  ProtonTransport* theTransporter;
   edm::InputTag m_InTag;
   edm::EDGetTokenT<edm::HepMCProduct> m_InTagToken;
 
@@ -78,27 +82,17 @@ private:
 PPSSimTrackProducer::PPSSimTrackProducer(const edm::ParameterSet& iConfig) {
   //now do what ever other initialization is needed
   // TransportHector
+  theTransporter = new ProtonTransport(iConfig);
+
   m_InTag = iConfig.getParameter<edm::InputTag>("HepMCProductLabel");
   m_InTagToken = consumes<edm::HepMCProduct>(m_InTag);
 
   m_verbosity = iConfig.getParameter<bool>("Verbosity");
-  m_transportMethod = iConfig.getParameter<std::string>("TransportMethod");
+  m_eventsAnalysed = 0;
+  //m_transportMethod = iConfig.getParameter<std::string>("TransportMethod");
 
   produces<edm::HepMCProduct>();
   produces<edm::LHCTransportLinkContainer>();
-
-  theTransporter = nullptr;
-
-  if (m_transportMethod == "Totem") {
-    theTransporter = new TotemTransport(iConfig, m_verbosity);
-  } else if (m_transportMethod == "Hector") {
-    theTransporter = new HectorTransport(iConfig, m_verbosity);
-  } else {
-    throw cms::Exception("Configuration")
-        << "LHCTransport (ProtonTransport) requires a Method (Hector or Totem) \n"
-           "which is not present in the configuration file. You should add one of the method\n"
-           "above in the configuration file or remove the module that requires it.";
-  }
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
@@ -143,13 +137,14 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   if (HepMCEvt.provenance()->moduleLabel() == "LHCTransport") {
-    throw cms::Exception("LogicError") << "HectorTrasported HepMCProduce already exists\n";
+    throw cms::Exception("LogicError") << "LHCTrasport HepMCProduce already exists\n";
   }
+  edm::LogVerbatim("ProtonTransportEventProcessing") << "produce begin for event " << m_eventsAnalysed;
 
-  evt = new HepMC::GenEvent(*HepMCEvt->GetEvent());
+  evt = new HepMC::GenEvent(HepMCEvt->GetEvent()->signal_process_id(), HepMCEvt->GetEvent()->event_number());
 
-  theTransporter->clear();
-  theTransporter->process(evt, iSetup, engine);
+  theTransporter->process(HepMCEvt->GetEvent(), iSetup, engine);
+  theTransporter->addPartToHepMC(HepMCEvt->GetEvent(), evt);
 
   if (m_verbosity)
     evt->print();
@@ -164,13 +159,15 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   (*NewCorrespondenceMap).swap(thisLink);
 
   if (m_verbosity) {
-    for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); i++)
-      LogDebug("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
+    for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); ++i)
+      LogDebug("ProtonTransportEventProcessing")
+          << "ProtonTransport correspondence table: " << (*NewCorrespondenceMap)[i];
   }
 
   iEvent.put(std::move(NewCorrespondenceMap));
   // There is no need to delete the pointer to the event, since it is deleted in HepMCProduct,
   // in fact, it MUST NOT be delete here, as a protection is missing in above package
+  edm::LogVerbatim("ProtonTransportEventProcessing") << "produce end ";
 }
 // The methods below are pure virtual, so it needs to be implemented even if not used
 //
@@ -181,13 +178,6 @@ void PPSSimTrackProducer::beginStream(edm::StreamID) {}
 void PPSSimTrackProducer::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void PPSSimTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
-}
-
+/* to be done */
 //define this as a plug-in
 DEFINE_FWK_MODULE(PPSSimTrackProducer);

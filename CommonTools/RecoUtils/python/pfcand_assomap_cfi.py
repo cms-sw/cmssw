@@ -138,6 +138,5 @@ PFCands2Vertex = PFCandAssoMap.clone(
 	 
 	  #Choose which map should be created
 	  # "VertexToPFCands", "PFCandsToVertex" or "Both"
-	  AssociationType = cms.InputTag('PFCandsToVertex'),
-	 	 
+	  AssociationType = 'PFCandsToVertex',
 )

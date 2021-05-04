@@ -29,7 +29,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
@@ -50,7 +50,7 @@ process.localreco = cms.Sequence(muonlocalreco)
 
 #????
 #process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
-#process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+#process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 #process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 #process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometryDB_cff')
 

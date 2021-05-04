@@ -20,15 +20,17 @@ BasicHepMCValidation::~BasicHepMCValidation() {}
 
 void BasicHepMCValidation::dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) { c.getData(fPDGTable); }
 
-// Set upper bound & lower bound for PDF & Scale related histograms
-double logPdfMax = 3.0;
-double logPdfMin = -3.0;
-int logPdfNbin = 150;
-double logPdfBinsize = (logPdfMax - logPdfMin) / (double)logPdfNbin;
-double logQScaleMax = 4.0;
-double logQScaleMin = -1.0;
-int logQScaleNbin = 500;
-double logQScaleBinsize = (logQScaleMax - logQScaleMin) / (double)logQScaleNbin;
+namespace {
+  // Set upper bound & lower bound for PDF & Scale related histograms
+  constexpr double logPdfMax = 3.0;
+  constexpr double logPdfMin = -3.0;
+  constexpr int logPdfNbin = 150;
+  constexpr double logPdfBinsize = (logPdfMax - logPdfMin) / (double)logPdfNbin;
+  constexpr double logQScaleMax = 4.0;
+  constexpr double logQScaleMin = -1.0;
+  constexpr int logQScaleNbin = 500;
+  constexpr double logQScaleBinsize = (logQScaleMax - logQScaleMin) / (double)logQScaleNbin;
+}  // namespace
 
 void BasicHepMCValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) {
   ///Setting the DQM top directories

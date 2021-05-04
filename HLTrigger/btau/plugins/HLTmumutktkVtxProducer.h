@@ -7,9 +7,6 @@
 /**\class HLTmumutktkVtxProducer
 */
 
-// system include files
-#include <memory>
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,7 +17,12 @@
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include <vector>
+#include <memory>
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -46,7 +48,9 @@ public:
 private:
   bool overlap(const reco::TrackRef& trackref1, const reco::TrackRef& trackref2);
   static FreeTrajectoryState initialFreeState(const reco::Track&, const MagneticField*);
-  bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
+  bool checkPreviousCand(const reco::TrackRef& trackref, const std::vector<reco::RecoChargedCandidateRef>& ref2) const;
+
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackRecordToken_;
 
   const edm::InputTag muCandTag_;
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muCandToken_;
@@ -56,6 +60,8 @@ private:
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
 
   const std::string mfName_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldRecordToken_;
+
   const double thirdTrackMass_;
   const double fourthTrackMass_;
   const double maxEta_;

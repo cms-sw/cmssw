@@ -14,7 +14,7 @@
 
 class CSCNoiseMatrixTest : public edm::EDAnalyzer {
 public:
-  CSCNoiseMatrixTest(const edm::ParameterSet &pset) : theDbConditions(pset) {
+  CSCNoiseMatrixTest(const edm::ParameterSet &pset) : theDbConditions(pset, consumesCollector()) {
     edm::Service<edm::RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration") << "CSCNoiseMatrixTest requires the RandomNumberGeneratorService\n"

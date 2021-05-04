@@ -67,12 +67,16 @@ namespace ecaldqm {
     return copy;
   }
 
-  void MESetEcal::book(DQMStore::IBooker &_ibooker) {
+  void MESetEcal::book(DQMStore::IBooker &_ibooker, EcalElectronicsMapping const *electronicsMap) {
     using namespace std;
+
+    auto oldscope = MonitorElementData::Scope::RUN;
+    if (lumiFlag_)
+      oldscope = _ibooker.setScope(MonitorElementData::Scope::LUMI);
 
     clear();
 
-    vector<string> mePaths(generatePaths());
+    vector<string> mePaths(generatePaths(electronicsMap));
 
     for (unsigned iME(0); iME < mePaths.size(); iME++) {
       string &path(mePaths[iME]);
@@ -95,7 +99,7 @@ namespace ecaldqm {
           zaxis = *zaxis_;
 
         if (xaxis.nbins == 0) {  // uses preset
-          binning::AxisSpecs xdef(binning::getBinning(actualObject, btype_, isMap, 1, iME));
+          binning::AxisSpecs xdef(binning::getBinning(electronicsMap, actualObject, btype_, isMap, 1, iME));
           if (xaxis.labels || !xaxis.title.empty()) {  // PSet specifies title / label only
             std::string *labels(xaxis.labels);
             std::string title(xaxis.title);
@@ -108,7 +112,7 @@ namespace ecaldqm {
         }
 
         if (isMap && yaxis.nbins == 0) {
-          binning::AxisSpecs ydef(binning::getBinning(actualObject, btype_, isMap, 2, iME));
+          binning::AxisSpecs ydef(binning::getBinning(electronicsMap, actualObject, btype_, isMap, 2, iME));
           if (yaxis.labels || !yaxis.title.empty()) {  // PSet specifies title / label only
             std::string *labels(yaxis.labels);
             std::string title(yaxis.title);
@@ -264,19 +268,21 @@ namespace ecaldqm {
         me->getTH1()->SetUniqueID(uint32_t(2 * (actualObject + 1) + (isMap ? 1 : 0)));
       }
 
-      if (lumiFlag_)
-        me->setLumiFlag();
-
       mes_.push_back(me);
     }
+
+    if (lumiFlag_)
+      _ibooker.setScope(oldscope);
 
     active_ = true;
   }
 
-  bool MESetEcal::retrieve(DQMStore::IGetter &_igetter, std::string *_failedPath /* = 0*/) const {
+  bool MESetEcal::retrieve(EcalElectronicsMapping const *electronicsMap,
+                           DQMStore::IGetter &_igetter,
+                           std::string *_failedPath /* = 0*/) const {
     clear();
 
-    std::vector<std::string> mePaths(generatePaths());
+    std::vector<std::string> mePaths(generatePaths(electronicsMap));
     if (mePaths.empty()) {
       if (_failedPath)
         _failedPath->clear();
@@ -303,37 +309,46 @@ namespace ecaldqm {
     return true;
   }
 
-  void MESetEcal::fill(DetId const &_id, double _x /* = 1.*/, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetEcal::fill(EcalDQMSetupObjects const edso,
+                       DetId const &_id,
+                       double _x /* = 1.*/,
+                       double _wy /* = 1.*/,
+                       double _w /* = 1.*/) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     fill_(iME, _x, _wy, _w);
   }
 
-  void MESetEcal::fill(EcalElectronicsId const &_id, double _x /* = 1.*/, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetEcal::fill(EcalDQMSetupObjects const edso,
+                       EcalElectronicsId const &_id,
+                       double _x /* = 1.*/,
+                       double _wy /* = 1.*/,
+                       double _w /* = 1.*/) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     fill_(iME, _x, _wy, _w);
   }
 
-  void MESetEcal::fill(int _dcctccid, double _x /* = 1.*/, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetEcal::fill(
+      EcalDQMSetupObjects const edso, int _dcctccid, double _x /* = 1.*/, double _wy /* = 1.*/, double _w /* = 1.*/) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     fill_(iME, _x, _wy, _w);
   }
 
-  void MESetEcal::fill(double _x, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetEcal::fill(EcalDQMSetupObjects const edso, double _x, double _wy /* = 1.*/, double _w /* = 1.*/) {
     if (!active_)
       return;
 
@@ -343,223 +358,232 @@ namespace ecaldqm {
     fill_(0, _x, _wy, _w);
   }
 
-  void MESetEcal::setBinContent(DetId const &_id, int _bin, double _content) {
+  void MESetEcal::setBinContent(EcalDQMSetupObjects const edso, DetId const &_id, int _bin, double _content) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinContent(_bin, _content);
   }
 
-  void MESetEcal::setBinContent(EcalElectronicsId const &_id, int _bin, double _content) {
+  void MESetEcal::setBinContent(EcalDQMSetupObjects const edso,
+                                EcalElectronicsId const &_id,
+                                int _bin,
+                                double _content) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinContent(_bin, _content);
   }
 
-  void MESetEcal::setBinContent(int _dcctccid, int _bin, double _content) {
+  void MESetEcal::setBinContent(EcalDQMSetupObjects const edso, int _dcctccid, int _bin, double _content) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     mes_[iME]->setBinContent(_bin, _content);
   }
 
-  void MESetEcal::setBinError(DetId const &_id, int _bin, double _error) {
+  void MESetEcal::setBinError(EcalDQMSetupObjects const edso, DetId const &_id, int _bin, double _error) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinError(_bin, _error);
   }
 
-  void MESetEcal::setBinError(EcalElectronicsId const &_id, int _bin, double _error) {
+  void MESetEcal::setBinError(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _bin, double _error) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinError(_bin, _error);
   }
 
-  void MESetEcal::setBinError(int _dcctccid, int _bin, double _error) {
+  void MESetEcal::setBinError(EcalDQMSetupObjects const edso, int _dcctccid, int _bin, double _error) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     mes_[iME]->setBinError(_bin, _error);
   }
 
-  void MESetEcal::setBinEntries(DetId const &_id, int _bin, double _entries) {
+  void MESetEcal::setBinEntries(EcalDQMSetupObjects const edso, DetId const &_id, int _bin, double _entries) {
     if (!active_)
       return;
     if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinEntries(_bin, _entries);
   }
 
-  void MESetEcal::setBinEntries(EcalElectronicsId const &_id, int _bin, double _entries) {
+  void MESetEcal::setBinEntries(EcalDQMSetupObjects const edso,
+                                EcalElectronicsId const &_id,
+                                int _bin,
+                                double _entries) {
     if (!active_)
       return;
     if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinEntries(_bin, _entries);
   }
 
-  void MESetEcal::setBinEntries(int _dcctccid, int _bin, double _entries) {
+  void MESetEcal::setBinEntries(EcalDQMSetupObjects const edso, int _dcctccid, int _bin, double _entries) {
     if (!active_)
       return;
     if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     mes_[iME]->setBinEntries(_bin, _entries);
   }
 
-  double MESetEcal::getBinContent(DetId const &_id, int _bin) const {
+  double MESetEcal::getBinContent(EcalDQMSetupObjects const edso, DetId const &_id, int _bin) const {
     if (!active_)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinContent(_bin);
   }
 
-  double MESetEcal::getBinContent(EcalElectronicsId const &_id, int _bin) const {
+  double MESetEcal::getBinContent(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _bin) const {
     if (!active_)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinContent(_bin);
   }
 
-  double MESetEcal::getBinContent(int _dcctccid, int _bin) const {
+  double MESetEcal::getBinContent(EcalDQMSetupObjects const edso, int _dcctccid, int _bin) const {
     if (!active_)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getBinContent(_bin);
   }
 
-  double MESetEcal::getBinError(DetId const &_id, int _bin) const {
+  double MESetEcal::getBinError(EcalDQMSetupObjects const edso, DetId const &_id, int _bin) const {
     if (!active_)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinError(_bin);
   }
 
-  double MESetEcal::getBinError(EcalElectronicsId const &_id, int _bin) const {
+  double MESetEcal::getBinError(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _bin) const {
     if (!active_)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinError(_bin);
   }
 
-  double MESetEcal::getBinError(int _dcctccid, int _bin) const {
+  double MESetEcal::getBinError(EcalDQMSetupObjects const edso, int _dcctccid, int _bin) const {
     if (!active_)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getBinError(_bin);
   }
 
-  double MESetEcal::getBinEntries(DetId const &_id, int _bin) const {
+  double MESetEcal::getBinEntries(EcalDQMSetupObjects const edso, DetId const &_id, int _bin) const {
     if (!active_)
       return 0.;
     if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinEntries(_bin);
   }
 
-  double MESetEcal::getBinEntries(EcalElectronicsId const &_id, int _bin) const {
+  double MESetEcal::getBinEntries(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _bin) const {
     if (!active_)
       return 0.;
     if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinEntries(_bin);
   }
 
-  double MESetEcal::getBinEntries(int _dcctccid, int _bin) const {
+  double MESetEcal::getBinEntries(EcalDQMSetupObjects const edso, int _dcctccid, int _bin) const {
     if (!active_)
       return 0.;
     if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getBinEntries(_bin);
   }
 
-  int MESetEcal::findBin(DetId const &_id, double _x, double _y /* = 0.*/) const {
+  int MESetEcal::findBin(EcalDQMSetupObjects const edso, DetId const &_id, double _x, double _y /* = 0.*/) const {
     if (!active_)
       return -1;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getTH1()->FindBin(_x, _y);
   }
 
-  int MESetEcal::findBin(EcalElectronicsId const &_id, double _x, double _y /* = 0.*/) const {
+  int MESetEcal::findBin(EcalDQMSetupObjects const edso,
+                         EcalElectronicsId const &_id,
+                         double _x,
+                         double _y /* = 0.*/) const {
     if (!active_)
       return -1;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getTH1()->FindBin(_x, _y);
   }
 
-  int MESetEcal::findBin(int _dcctccid, double _x, double _y /* = 0.*/) const {
+  int MESetEcal::findBin(EcalDQMSetupObjects const edso, int _dcctccid, double _x, double _y /* = 0.*/) const {
     if (!active_)
       return -1;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getTH1()->FindBin(_x, _y);
@@ -569,7 +593,7 @@ namespace ecaldqm {
     return (xaxis_ && xaxis_->edges) || (yaxis_ && yaxis_->edges) || (zaxis_ && zaxis_->edges);
   }
 
-  std::vector<std::string> MESetEcal::generatePaths() const {
+  std::vector<std::string> MESetEcal::generatePaths(EcalElectronicsMapping const *electronicsMap) const {
     using namespace std;
 
     vector<string> paths(0);
@@ -626,18 +650,18 @@ namespace ecaldqm {
             replacements["prefix"] = "EB";
             replacements["supercrystal"] = "trigger tower";
           }
-          replacements["sm"] = binning::channelName(iME + 1);
+          replacements["sm"] = binning::channelName(electronicsMap, iME + 1);
           break;
         case binning::kEBSM:
           replacements["subdet"] = "EcalBarrel";
           replacements["prefix"] = "EB";
-          replacements["sm"] = binning::channelName(iME + kEBmLow + 1);
+          replacements["sm"] = binning::channelName(electronicsMap, iME + kEBmLow + 1);
           replacements["supercrystal"] = "trigger tower";
           break;
         case binning::kEESM:
           replacements["subdet"] = "EcalEndcap";
           replacements["prefix"] = "EE";
-          replacements["sm"] = binning::channelName(iME <= kEEmHigh ? iME + 1 : iME + 37);
+          replacements["sm"] = binning::channelName(electronicsMap, iME <= kEEmHigh ? iME + 1 : iME + 37);
           replacements["supercrystal"] = "super crystal";
           break;
         case binning::kSMMEM: {
@@ -650,19 +674,19 @@ namespace ecaldqm {
             replacements["subdet"] = "EcalBarrel";
             replacements["prefix"] = "EB";
           }
-          replacements["sm"] = binning::channelName(iDCC + 1);
+          replacements["sm"] = binning::channelName(electronicsMap, iDCC + 1);
         } break;
         case binning::kEBSMMEM: {
           unsigned iDCC(memDCCId(iME + 4) - 1);
           replacements["subdet"] = "EcalBarrel";
           replacements["prefix"] = "EB";
-          replacements["sm"] = binning::channelName(iDCC + 1);
+          replacements["sm"] = binning::channelName(electronicsMap, iDCC + 1);
         } break;
         case binning::kEESMMEM: {
           unsigned iDCC(memDCCId(iME < 4 ? iME : iME + 36) - 1);
           replacements["subdet"] = "EcalEndcap";
           replacements["prefix"] = "EE";
-          replacements["sm"] = binning::channelName(iDCC + 1);
+          replacements["sm"] = binning::channelName(electronicsMap, iDCC + 1);
         }
         default:
           break;

@@ -177,6 +177,9 @@ public:
     fractions_.emplace_back(fraction);
   }
 
+  /** @brief add rechit energy */
+  void addHitEnergy(float energy) { energies_.emplace_back(energy); }
+
   /** @brief Returns list of rechit IDs and fractions for this SimCluster */
   std::vector<std::pair<uint32_t, float>> hits_and_fractions() const {
     std::vector<std::pair<uint32_t, float>> result;
@@ -186,11 +189,25 @@ public:
     return result;
   }
 
+  /** @brief Returns list of rechit IDs and energies for this SimCluster */
+  std::vector<std::pair<uint32_t, float>> hits_and_energies() const {
+    assert(hits_.size() == energies_.size());
+    std::vector<std::pair<uint32_t, float>> result;
+    result.reserve(hits_.size());
+    for (size_t i = 0; i < hits_.size(); ++i) {
+      result.emplace_back(hits_[i], energies_[i]);
+    }
+    return result;
+  }
+
   /** @brief clear the hits and fractions list */
   void clearHitsAndFractions() {
     std::vector<uint32_t>().swap(hits_);
     std::vector<float>().swap(fractions_);
   }
+
+  /** @brief clear the energies list */
+  void clearHitsEnergy() { std::vector<float>().swap(energies_); }
 
   /** @brief returns the accumulated sim energy in the cluster */
   float simEnergy() const { return simhit_energy_; }
@@ -206,6 +223,7 @@ private:
   float simhit_energy_;
   std::vector<uint32_t> hits_;
   std::vector<float> fractions_;
+  std::vector<float> energies_;
 
   math::XYZTLorentzVectorF theMomentum_;
 

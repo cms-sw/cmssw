@@ -85,9 +85,14 @@ process.es_prefer_beamspot = cms.ESPrefer("PoolDBESSource","BeamSpotDBSource")
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring('cout'),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO'))
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
+)
 
 process.scalersRawToDigi = cms.EDProducer('ScalersRawToDigi')
 

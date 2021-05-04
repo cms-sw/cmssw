@@ -19,6 +19,8 @@
 //
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -34,6 +36,7 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
   std::ofstream outputFile_;
   std::string filePath_;
 };

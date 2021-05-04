@@ -294,18 +294,18 @@ void test_throwIfImproperDependencies::twoPathsNoCycleTest() {
           pathModules.push_back(moduleName[k]);
 
           std::vector<std::string> path2Modules;
-          for (unsigned int i = 0; i < 3; ++i) {
-            path2Modules.push_back(moduleName[i]);
-            for (unsigned int j = 0; j < 3; ++j) {
-              if (j == i) {
+          for (unsigned int ii = 0; ii < 3; ++ii) {
+            path2Modules.push_back(moduleName[ii]);
+            for (unsigned int jj = 0; jj < 3; ++jj) {
+              if (jj == ii) {
                 continue;
               }
-              path2Modules.push_back(moduleName[j]);
-              for (unsigned int k = 0; k < 3; ++k) {
-                if (j == k or i == k) {
+              path2Modules.push_back(moduleName[jj]);
+              for (unsigned int kk = 0; kk < 3; ++kk) {
+                if (jj == kk or ii == kk) {
                   continue;
                 }
-                path2Modules.push_back(moduleName[k]);
+                path2Modules.push_back(moduleName[kk]);
                 PathToModules paths;
                 paths["p1"] = pathModules;
                 paths["p2"] = path2Modules;

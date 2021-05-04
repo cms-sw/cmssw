@@ -1,4 +1,3 @@
-
 #ifndef POPCON_POPCON_H
 #define POPCON_POPCON_H
 //
@@ -15,10 +14,10 @@
 
 #include "CondCore/CondDB/interface/Time.h"
 
-#include <boost/bind.hpp>
 #include <algorithm>
-#include <vector>
+#include <functional>
 #include <string>
+#include <vector>
 
 #include <iostream>
 
@@ -78,7 +77,7 @@ namespace popcon {
 
   template <typename T>
   void PopCon::writeOne(T* payload, Time_t time) {
-    m_dbService->writeOne(payload, time, m_record, m_LoggingOn);
+    m_dbService->writeOne(payload, time, m_record);
   }
 
   template <typename Container>
@@ -122,10 +121,10 @@ namespace popcon {
 
     std::for_each(payloads.begin(),
                   payloads.end(),
-                  boost::bind(&popcon::PopCon::writeOne<value_type>,
-                              this,
-                              boost::bind(&Container::value_type::payload, _1),
-                              boost::bind(&Container::value_type::time, _1)));
+                  std::bind(&popcon::PopCon::writeOne<value_type>,
+                            this,
+                            std::bind(&Container::value_type::payload, std::placeholders::_1),
+                            std::bind(&Container::value_type::time, std::placeholders::_1)));
 
     finalize(payloads.empty() ? Time_t(0) : payloads.back().time);
   }

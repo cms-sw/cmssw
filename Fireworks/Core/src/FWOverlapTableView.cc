@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 #include "Fireworks/Core/src/FWOverlapTableView.h"
@@ -145,12 +145,12 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
   m_marker->SetPickable(kTRUE);
   m_marker->SetOwnIds(kTRUE);
 
-  m_drawPoints.changed_.connect(boost::bind(&FWOverlapTableView::drawPoints, this));
-  m_pointSize.changed_.connect(boost::bind(&FWOverlapTableView::pointSize, this));
-  m_rnrOverlap.changed_.connect(boost::bind(&FWOverlapTableView::refreshTable3D, this));
-  m_overlapMarkerColor.changed_.connect(boost::bind(&FWOverlapTableView::refreshTable3D, this));
-  m_extrusionMarkerColor.changed_.connect(boost::bind(&FWOverlapTableView::refreshTable3D, this));
-  m_rnrExtrusion.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D, this));
+  m_drawPoints.changed_.connect(std::bind(&FWOverlapTableView::drawPoints, this));
+  m_pointSize.changed_.connect(std::bind(&FWOverlapTableView::pointSize, this));
+  m_rnrOverlap.changed_.connect(std::bind(&FWOverlapTableView::refreshTable3D, this));
+  m_overlapMarkerColor.changed_.connect(std::bind(&FWOverlapTableView::refreshTable3D, this));
+  m_extrusionMarkerColor.changed_.connect(std::bind(&FWOverlapTableView::refreshTable3D, this));
+  m_rnrExtrusion.changed_.connect(std::bind(&FWGeometryTableViewBase::refreshTable3D, this));
 
   postConst();
 }

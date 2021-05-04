@@ -2,8 +2,8 @@
 #define CalibTracker_SiStripCommon_TKHistoMap_h
 
 #include <vector>
-#include <boost/cstdint.hpp>
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include <cstdint>
 
 class TrackerTopology;
 

@@ -11,9 +11,9 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
 #include <algorithm>
 #include <cassert>
+#include <functional>
 
 // user include files
 #include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
@@ -63,7 +63,8 @@ FWFromTEveCaloDataSelector::~FWFromTEveCaloDataSelector() {
 void FWFromTEveCaloDataSelector::doSelect() {
   assert(m_changeManager);
   FWChangeSentry sentry(*m_changeManager);
-  std::for_each(m_sliceSelectors.begin(), m_sliceSelectors.end(), boost::bind(&FWFromSliceSelector::clear, _1));
+  std::for_each(
+      m_sliceSelectors.begin(), m_sliceSelectors.end(), std::bind(&FWFromSliceSelector::clear, std::placeholders::_1));
   const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();
   for (TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(), itEnd = cellIds.end(); it != itEnd; ++it) {
     assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));

@@ -68,10 +68,9 @@ Triggers.append(
     )
 
 process.load( "FWCore.MessageLogger.MessageLogger_cfi" )
-process.MessageLogger.cerr = cms.untracked.PSet(
-  placeholder = cms.untracked.bool( True )
-)
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+  enable = cms.untracked.bool(True),
   INFO = cms.untracked.PSet(
     reportEvery = cms.untracked.int32( 1 )
   )

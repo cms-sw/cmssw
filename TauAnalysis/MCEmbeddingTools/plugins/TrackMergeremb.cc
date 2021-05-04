@@ -1,5 +1,7 @@
 #include "TauAnalysis/MCEmbeddingTools/plugins/TrackMergeremb.h"
 
+#include <memory>
+
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
@@ -84,12 +86,10 @@ void TrackMergeremb<reco::TrackCollection>::willproduce(std::string instance, st
 template <>
 void TrackMergeremb<reco::TrackCollection>::merg_and_put(
     edm::Event& iEvent, std::string instance, std::vector<edm::EDGetTokenT<reco::TrackCollection> >& to_merge) {
-  std::unique_ptr<reco::TrackCollection> outTracks = std::unique_ptr<reco::TrackCollection>(new reco::TrackCollection);
-  std::unique_ptr<reco::TrackExtraCollection> outTracks_ex =
-      std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
-  std::unique_ptr<TrackingRecHitCollection> outTracks_rh =
-      std::unique_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
-  std::unique_ptr<TrackToTrackMapnew> outTracks_refs = std::unique_ptr<TrackToTrackMapnew>(new TrackToTrackMapnew());
+  std::unique_ptr<reco::TrackCollection> outTracks = std::make_unique<reco::TrackCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> outTracks_ex = std::make_unique<reco::TrackExtraCollection>();
+  std::unique_ptr<TrackingRecHitCollection> outTracks_rh = std::make_unique<TrackingRecHitCollection>();
+  std::unique_ptr<TrackToTrackMapnew> outTracks_refs = std::make_unique<TrackToTrackMapnew>();
 
   auto rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
   // auto rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
@@ -138,14 +138,10 @@ void TrackMergeremb<reco::GsfTrackCollection>::willproduce(std::string instance,
 template <>
 void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
     edm::Event& iEvent, std::string instance, std::vector<edm::EDGetTokenT<reco::GsfTrackCollection> >& to_merge) {
-  std::unique_ptr<reco::GsfTrackCollection> outTracks =
-      std::unique_ptr<reco::GsfTrackCollection>(new reco::GsfTrackCollection);
-  std::unique_ptr<reco::TrackExtraCollection> outTracks_ex =
-      std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
-  std::unique_ptr<reco::GsfTrackExtraCollection> outTracks_exgsf =
-      std::unique_ptr<reco::GsfTrackExtraCollection>(new reco::GsfTrackExtraCollection());
-  std::unique_ptr<TrackingRecHitCollection> outTracks_rh =
-      std::unique_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
+  std::unique_ptr<reco::GsfTrackCollection> outTracks = std::make_unique<reco::GsfTrackCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> outTracks_ex = std::make_unique<reco::TrackExtraCollection>();
+  std::unique_ptr<reco::GsfTrackExtraCollection> outTracks_exgsf = std::make_unique<reco::GsfTrackExtraCollection>();
+  std::unique_ptr<TrackingRecHitCollection> outTracks_rh = std::make_unique<TrackingRecHitCollection>();
 
   auto rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
   auto rTrackExtras_gsf = iEvent.getRefBeforePut<reco::GsfTrackExtraCollection>();
@@ -202,9 +198,9 @@ void TrackMergeremb<reco::MuonCollection>::willconsume(const edm::ParameterSet& 
 template <>
 void TrackMergeremb<reco::MuonCollection>::merg_and_put(
     edm::Event& iEvent, std::string instance, std::vector<edm::EDGetTokenT<reco::MuonCollection> >& to_merge) {
-  std::unique_ptr<reco::MuonCollection> outTracks = std::unique_ptr<reco::MuonCollection>(new reco::MuonCollection);
+  std::unique_ptr<reco::MuonCollection> outTracks = std::make_unique<reco::MuonCollection>();
   std::unique_ptr<reco::CaloMuonCollection> calomu =
-      std::unique_ptr<reco::CaloMuonCollection>(new reco::CaloMuonCollection);  //not implemented so far
+      std::make_unique<reco::CaloMuonCollection>();  //not implemented so far
 
   edm::Handle<TrackToTrackMapnew> track_ref_map;
   iEvent.getByToken(inputs_fixtrackrefs_, track_ref_map);
@@ -294,8 +290,7 @@ void TrackMergeremb<reco::PFCandidateCollection>::willconsume(const edm::Paramet
 template <>
 void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
     edm::Event& iEvent, std::string instance, std::vector<edm::EDGetTokenT<reco::PFCandidateCollection> >& to_merge) {
-  std::unique_ptr<reco::PFCandidateCollection> outTracks =
-      std::unique_ptr<reco::PFCandidateCollection>(new reco::PFCandidateCollection);
+  std::unique_ptr<reco::PFCandidateCollection> outTracks = std::make_unique<reco::PFCandidateCollection>();
 
   edm::Handle<TrackToTrackMapnew> track_ref_map;
   iEvent.getByToken(inputs_fixtrackrefs_, track_ref_map);

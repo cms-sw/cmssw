@@ -6,7 +6,11 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
+#include "CondFormats/DataRecord/interface/RPCLBLinkMapRcd.h"
 #include "CondFormats/DataRecord/interface/RPCCPPFLinkMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
 #include "CondFormats/RPCObjects/interface/RPCLBLinkMap.h"
@@ -21,7 +25,7 @@ class RPCAMCLinkCounters;
 
 class RPCCPPFUnpacker : public RPCAMCUnpacker {
 public:
-  RPCCPPFUnpacker(edm::stream::EDProducerBase& producer, edm::ParameterSet const& config);
+  RPCCPPFUnpacker(edm::ParameterSet const&, edm::ConsumesCollector, edm::ProducesCollector);
 
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) override;
   void produce(edm::Event& event,
@@ -55,6 +59,9 @@ protected:
   edm::ESWatcher<RPCCPPFLinkMapRcd> es_cppf_link_map_watcher_;
   edm::ESHandle<RPCAMCLinkMap> es_cppf_link_map_;
   edm::ESHandle<RPCLBLinkMap> es_lb_link_map_;
+  edm::ESGetToken<RPCAMCLinkMap, RPCCPPFLinkMapRcd> es_cppf_link_map_br_token_;
+  edm::ESGetToken<RPCAMCLinkMap, RPCCPPFLinkMapRcd> es_cppf_link_map_token_;
+  edm::ESGetToken<RPCLBLinkMap, RPCLBLinkMapRcd> es_lb_link_map_token_;
 };
 
 #endif  // EventFilter_RPCRawToDigi_RPCCPPFUnpacker_h

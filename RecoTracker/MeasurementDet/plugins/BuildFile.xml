@@ -1,12 +1,13 @@
-<use   name="RecoTracker/MeasurementDet"/>
-<use   name="RecoLocalTracker/Phase2TrackerRecHits"/>
-<use   name="CalibFormats/SiStripObjects"/>
-<use   name="CalibTracker/Records"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/SiPixelObjects"/>
-<use   name="TrackingTools/KalmanUpdators"/>
-<use   name="RecoTracker/Record"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<library   file="*.cc" name="RecoTrackerMeasurementDetPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="RecoTracker/MeasurementDet"/>
+<use name="RecoLocalTracker/Phase2TrackerRecHits"/>
+<use name="CalibFormats/SiStripObjects"/>
+<use name="CalibTracker/Records"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="TrackingTools/KalmanUpdators"/>
+<use name="RecoTracker/Record"/>
+<use name="RecoTracker/TkDetLayers"/>
+<library file="*.cc" name="RecoTrackerMeasurementDetPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

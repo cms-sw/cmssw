@@ -16,8 +16,6 @@
 #include "EventFilter/DTRawToDigi/plugins/DTuROSRawToDigi.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 
 #include "DataFormats/DTDigi/interface/DTuROSControlData.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -40,6 +38,7 @@ DTuROSRawToDigi::DTuROSRawToDigi(const edm::ParameterSet& pset) {
   nfeds_ = feds_.size();
 
   Raw_token = consumes<FEDRawDataCollection>(DTuROSInputTag_);
+  mapping_token_ = esConsumes<DTReadOutMapping, DTReadOutMappingRcd>();
 }
 
 DTuROSRawToDigi::~DTuROSRawToDigi() {}
@@ -65,8 +64,7 @@ bool DTuROSRawToDigi::fillRawData(edm::Event& e,
   edm::Handle<FEDRawDataCollection> data;
   e.getByToken(Raw_token, data);
 
-  edm::ESHandle<DTReadOutMapping> mapping;
-  c.get<DTReadOutMappingRcd>().get(mapping);
+  edm::ESHandle<DTReadOutMapping> mapping = c.getHandle(mapping_token_);
 
   for (int w_i = 0; w_i < nfeds_; ++w_i) {
     DTuROSFEDData fwords;

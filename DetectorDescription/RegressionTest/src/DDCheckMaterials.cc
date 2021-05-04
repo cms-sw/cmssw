@@ -106,7 +106,7 @@ bool DDCheckMaterials(std::ostream& os, std::vector<std::pair<std::string, std::
   os << "[DDCore:Report] Materials " << std::endl;
   os << s << mr.size() << " Materials declared" << std::endl;
   os << s << "detected errors:" << errors.size() << std::endl;
-  for (auto j : errors) {
+  for (const auto& j : errors) {
     os << std::endl << s << j.second << "  " << j.first << std::endl;
     result = true;
   }

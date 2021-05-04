@@ -1,6 +1,5 @@
 
 #include <vector>
-#include <boost/cstdint.hpp>
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/L1TriggerRates.h"

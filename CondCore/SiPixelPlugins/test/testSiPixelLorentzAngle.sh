@@ -17,6 +17,30 @@ mkdir $W_DIR/plots_LA
 
 getPayloadData.py \
      --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+     --plot plot_SiPixelLorentzAngleValuesBarrelCompareTwoTags \
+     --tag SiPixelLorentzAngleSim_phase1_BoR3_HV350_Tr2000 \
+     --tagtwo SiPixelLorentzAngle_phase1_EEoR3_HV800_Tr2000  \
+     --time_type Run \
+     --iovs '{"start_iov": "1", "end_iov": "1"}' \
+     --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+     --db Prod \
+     --test ;
+
+mv *.png  $W_DIR/plots_LA/comparisonByRegionTwoTagsPhase1.png
+
+getPayloadData.py \
+     --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+     --plot plot_SiPixelLorentzAngleValuesEndcapCompareSingleTag \
+     --tag SiPixelLorentzAngle_2009_v1_express  \
+     --time_type Run \
+     --iovs '{"start_iov": "197571", "end_iov": "326083"}' \
+     --db Prod \
+     --test ;
+
+mv *.png  $W_DIR/plots_LA/comparisonByRegionSingleTagsPhase0-Phase1.png
+
+getPayloadData.py \
+     --plugin pluginSiPixelLorentzAngle_PayloadInspector \
      --plot plot_SiPixelLorentzAngleValueComparisonTwoTags \
      --tag SiPixelLorentzAngleSim_phase1_BoR3_HV350_Tr1300 \
      --tagtwo SiPixelLorentzAngle_phase1_BoR3_HV350_Tr1300 \
@@ -75,3 +99,25 @@ getPayloadData.py \
      --test ;
 
 mv *.png  $W_DIR/plots_LA/SiPixelBPixLorentzAngleMap.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+    --plot plot_SiPixelLorentzAngleValuesEndcap \
+    --tag SiPixelLorentzAngle_forWidth_phase1_mc_v1 \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
+
+mv *.png  $W_DIR/plots_LA/SiPixelBPixLorentzAngleEndcapPlots.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+    --plot plot_SiPixelLorentzAngleValuesBarrel \
+    --tag SiPixelLorentzAngle_forWidth_phase1_mc_v1 \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
+
+mv *.png  $W_DIR/plots_LA/SiPixelBPixLorentzAngleBarrel.png

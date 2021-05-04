@@ -1,7 +1,5 @@
-<use   name="cppunit"/>
-<use   name="DataFormats/TestObjects"/>
-<bin   file="Enum_t.cpp">
-  <use   name="FWCore/Reflection"/>
-  <use   name="DataFormats/StdDictionaries"/>
-  <use   name="DataFormats/WrappedStdDictionaries"/>
+<use name="cppunit"/>
+<use name="DataFormats/TestObjects"/>
+<bin file="Enum_t.cpp">
+  <use name="FWCore/Reflection"/>
 </bin>

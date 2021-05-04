@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerStringBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -7,15 +8,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
-void CmsTrackerStringBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsDetConstruction theCmsDetConstruction;
+template <class FilteredView>
+void CmsTrackerStringBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsDetConstruction<FilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-void CmsTrackerStringBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerStringBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
-  std::stable_sort(comp.begin(), comp.end(), isLessModZ);
+  std::stable_sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
 
   if (!comp.empty()) {
     for (uint32_t i = 0; i < comp.size(); i++) {
@@ -25,3 +28,6 @@ void CmsTrackerStringBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
     edm::LogError("CmsTrackerStringBuilder") << "Where are the String's modules?";
   }
 }
+
+template class CmsTrackerStringBuilder<DDFilteredView>;
+template class CmsTrackerStringBuilder<cms::DDFilteredView>;

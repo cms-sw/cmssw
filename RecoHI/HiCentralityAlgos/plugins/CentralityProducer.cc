@@ -10,7 +10,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -18,28 +19,27 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 using namespace std;
 using namespace edm;
@@ -50,56 +50,53 @@ using namespace reco;
 //
 
 namespace reco {
-  class CentralityProducer : public edm::EDProducer {
+  class CentralityProducer : public edm::global::EDProducer<> {
   public:
     explicit CentralityProducer(const edm::ParameterSet&);
-    ~CentralityProducer() override;
+    ~CentralityProducer() override = default;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     void beginJob() override;
-    void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
     void endJob() override;
 
     // ----------member data ---------------------------
 
-    bool recoLevel_;
+    const bool produceHFhits_;
+    const bool produceHFtowers_;
+    const bool produceEcalhits_;
+    const bool produceZDChits_;
+    const bool lowGainZDC_;
+    const bool produceETmidRap_;
+    const bool producePixelhits_;
+    const bool doPixelCut_;
+    const bool produceTracks_;
+    const bool producePixelTracks_;
 
-    bool produceHFhits_;
-    bool produceHFtowers_;
-    bool produceEcalhits_;
-    bool produceZDChits_;
-    bool produceETmidRap_;
-    bool producePixelhits_;
-    bool produceTracks_;
-    bool reuseAny_;
-    bool producePixelTracks_;
+    const double midRapidityRange_;
+    const double trackPtCut_;
+    const double trackEtaCut_;
+    const double hfEtaCut_;
 
-    bool doPixelCut_;
+    const bool reuseAny_;
+    const bool useQuality_;
+    const reco::TrackBase::TrackQuality trackQuality_;
 
-    double midRapidityRange_;
-    double trackPtCut_;
-    double trackEtaCut_;
-    double hfEtaCut_;
+    const edm::EDGetTokenT<HFRecHitCollection> srcHFhits_;
+    const edm::EDGetTokenT<CaloTowerCollection> srcTowers_;
+    const edm::EDGetTokenT<EcalRecHitCollection> srcEBhits_;
+    const edm::EDGetTokenT<EcalRecHitCollection> srcEEhits_;
+    const edm::EDGetTokenT<ZDCRecHitCollection> srcZDChits_;
+    const edm::EDGetTokenT<SiPixelRecHitCollection> srcPixelhits_;
+    const edm::EDGetTokenT<TrackCollection> srcTracks_;
+    const edm::EDGetTokenT<TrackCollection> srcPixelTracks_;
+    const edm::EDGetTokenT<VertexCollection> srcVertex_;
+    const edm::EDGetTokenT<Centrality> reuseTag_;
 
-    bool lowGainZDC_;
-
-    edm::EDGetTokenT<HFRecHitCollection> srcHFhits_;
-    edm::EDGetTokenT<CaloTowerCollection> srcTowers_;
-    edm::EDGetTokenT<EcalRecHitCollection> srcEEhits_;
-    edm::EDGetTokenT<EcalRecHitCollection> srcEBhits_;
-    edm::EDGetTokenT<ZDCRecHitCollection> srcZDChits_;
-    edm::EDGetTokenT<SiPixelRecHitCollection> srcPixelhits_;
-    edm::EDGetTokenT<TrackCollection> srcTracks_;
-    edm::EDGetTokenT<TrackCollection> srcPixelTracks_;
-    edm::EDGetTokenT<VertexCollection> srcVertex_;
-    edm::EDGetTokenT<Centrality> reuseTag_;
-
-    bool useQuality_;
-    reco::TrackBase::TrackQuality trackQuality_;
-
-    edm::ESHandle<TrackerGeometry> tGeo;
-    edm::ESHandle<CaloGeometry> cGeo;
-    edm::ESHandle<TrackerTopology> topo_;
+    const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeom_;
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeom_;
+    const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopo_;
   };
 
   //
@@ -113,61 +110,55 @@ namespace reco {
   //
   // constructors and destructor
   //
-  CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig) {
-    //register your products
-    produceHFhits_ = iConfig.getParameter<bool>("produceHFhits");
-    produceHFtowers_ = iConfig.getParameter<bool>("produceHFtowers");
-    produceEcalhits_ = iConfig.getParameter<bool>("produceEcalhits");
-    produceZDChits_ = iConfig.getParameter<bool>("produceZDChits");
-    produceETmidRap_ = iConfig.getParameter<bool>("produceETmidRapidity");
-    producePixelhits_ = iConfig.getParameter<bool>("producePixelhits");
-    produceTracks_ = iConfig.getParameter<bool>("produceTracks");
-    producePixelTracks_ = iConfig.getParameter<bool>("producePixelTracks");
-
-    midRapidityRange_ = iConfig.getParameter<double>("midRapidityRange");
-    trackPtCut_ = iConfig.getParameter<double>("trackPtCut");
-    trackEtaCut_ = iConfig.getParameter<double>("trackEtaCut");
-
-    hfEtaCut_ = iConfig.getParameter<double>("hfEtaCut");
-
-    if (produceHFhits_)
-      srcHFhits_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcHFhits"));
-    if (produceHFtowers_ || produceETmidRap_)
-      srcTowers_ = consumes<CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("srcTowers"));
-
-    if (produceEcalhits_) {
-      srcEBhits_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcEBhits"));
-      srcEEhits_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcEEhits"));
-    }
-    if (produceZDChits_) {
-      srcZDChits_ = consumes<ZDCRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcZDChits"));
-      lowGainZDC_ = iConfig.getParameter<bool>("lowGainZDC");
-    }
-    if (producePixelhits_) {
-      srcPixelhits_ = consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcPixelhits"));
-      doPixelCut_ = iConfig.getParameter<bool>("doPixelCut");
-      srcVertex_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertex"));
-    }
-    if (produceTracks_) {
-      srcTracks_ = consumes<TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"));
-      srcVertex_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertex"));
-    }
-    if (producePixelTracks_)
-      srcPixelTracks_ = consumes<TrackCollection>(iConfig.getParameter<edm::InputTag>("srcPixelTracks"));
-
-    reuseAny_ = iConfig.getParameter<bool>("reUseCentrality");
-    if (reuseAny_)
-      reuseTag_ = consumes<Centrality>(iConfig.getParameter<edm::InputTag>("srcReUse"));
-
-    useQuality_ = iConfig.getParameter<bool>("UseQuality");
-    trackQuality_ = TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
-
+  CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
+      : produceHFhits_(iConfig.getParameter<bool>("produceHFhits")),
+        produceHFtowers_(iConfig.getParameter<bool>("produceHFtowers")),
+        produceEcalhits_(iConfig.getParameter<bool>("produceEcalhits")),
+        produceZDChits_(iConfig.getParameter<bool>("produceZDChits")),
+        lowGainZDC_(iConfig.getParameter<bool>("lowGainZDC")),
+        produceETmidRap_(iConfig.getParameter<bool>("produceETmidRapidity")),
+        producePixelhits_(iConfig.getParameter<bool>("producePixelhits")),
+        doPixelCut_(iConfig.getParameter<bool>("doPixelCut")),
+        produceTracks_(iConfig.getParameter<bool>("produceTracks")),
+        producePixelTracks_(iConfig.getParameter<bool>("producePixelTracks")),
+        midRapidityRange_(iConfig.getParameter<double>("midRapidityRange")),
+        trackPtCut_(iConfig.getParameter<double>("trackPtCut")),
+        trackEtaCut_(iConfig.getParameter<double>("trackEtaCut")),
+        hfEtaCut_(iConfig.getParameter<double>("hfEtaCut")),
+        reuseAny_(iConfig.getParameter<bool>("reUseCentrality")),
+        useQuality_(iConfig.getParameter<bool>("useQuality")),
+        trackQuality_(TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"))),
+        srcHFhits_(produceHFhits_ ? consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcHFhits"))
+                                  : edm::EDGetTokenT<HFRecHitCollection>()),
+        srcTowers_((produceHFtowers_ || produceETmidRap_)
+                       ? consumes<CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("srcTowers"))
+                       : edm::EDGetTokenT<CaloTowerCollection>()),
+        srcEBhits_(produceEcalhits_ ? consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcEBhits"))
+                                    : edm::EDGetTokenT<EcalRecHitCollection>()),
+        srcEEhits_(produceEcalhits_ ? consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcEEhits"))
+                                    : edm::EDGetTokenT<EcalRecHitCollection>()),
+        srcZDChits_(produceZDChits_ ? consumes<ZDCRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcZDChits"))
+                                    : edm::EDGetTokenT<ZDCRecHitCollection>()),
+        srcPixelhits_(producePixelhits_
+                          ? consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("srcPixelhits"))
+                          : edm::EDGetTokenT<SiPixelRecHitCollection>()),
+        srcTracks_(produceTracks_ ? consumes<TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"))
+                                  : edm::EDGetTokenT<TrackCollection>()),
+        srcPixelTracks_(producePixelTracks_
+                            ? consumes<TrackCollection>(iConfig.getParameter<edm::InputTag>("srcPixelTracks"))
+                            : edm::EDGetTokenT<TrackCollection>()),
+        srcVertex_((produceTracks_ || producePixelTracks_)
+                       ? consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertex"))
+                       : edm::EDGetTokenT<VertexCollection>()),
+        reuseTag_(reuseAny_ ? consumes<Centrality>(iConfig.getParameter<edm::InputTag>("srcReUse"))
+                            : edm::EDGetTokenT<Centrality>()),
+        caloGeom_(produceEcalhits_ ? esConsumes<CaloGeometry, CaloGeometryRecord>()
+                                   : edm::ESGetToken<CaloGeometry, CaloGeometryRecord>()),
+        trackerGeom_(producePixelhits_ ? esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()
+                                       : edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord>()),
+        trackerTopo_(producePixelhits_ ? esConsumes<TrackerTopology, TrackerTopologyRcd>()
+                                       : edm::ESGetToken<TrackerTopology, TrackerTopologyRcd>()) {
     produces<Centrality>();
-  }
-
-  CentralityProducer::~CentralityProducer() {
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
   }
 
   //
@@ -175,24 +166,15 @@ namespace reco {
   //
 
   // ------------ method called to produce the data  ------------
-  void CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    if (producePixelhits_)
-      iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
-    if (produceEcalhits_)
-      iSetup.get<CaloGeometryRecord>().get(cGeo);
-    if (producePixelhits_)
-      iSetup.get<TrackerTopologyRcd>().get(topo_);
-
+  void CentralityProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
     auto creco = std::make_unique<Centrality>();
     Handle<Centrality> inputCentrality;
-
     if (reuseAny_)
       iEvent.getByToken(reuseTag_, inputCentrality);
 
     if (produceHFhits_) {
       creco->etHFhitSumPlus_ = 0;
       creco->etHFhitSumMinus_ = 0;
-
       Handle<HFRecHitCollection> hits;
       iEvent.getByToken(srcHFhits_, hits);
       for (size_t ihit = 0; ihit < hits->size(); ++ihit) {
@@ -217,22 +199,20 @@ namespace reco {
       creco->etMidRapiditySum_ = 0;
 
       Handle<CaloTowerCollection> towers;
-
       iEvent.getByToken(srcTowers_, towers);
 
       for (size_t i = 0; i < towers->size(); ++i) {
         const CaloTower& tower = (*towers)[i];
         double eta = tower.eta();
-        bool isHF = tower.ietaAbs() > 29;
         if (produceHFtowers_) {
+          bool isHF = tower.ietaAbs() > 29;
           if (isHF && eta > 0) {
             creco->etHFtowerSumPlus_ += tower.pt();
             if (tower.energy() > 1.5)
               creco->etHFtowerSumECutPlus_ += tower.pt();
             if (eta > hfEtaCut_)
               creco->etHFtruncatedPlus_ += tower.pt();
-          }
-          if (isHF && eta < 0) {
+          } else if (isHF && eta < 0) {
             creco->etHFtowerSumMinus_ += tower.pt();
             if (tower.energy() > 1.5)
               creco->etHFtowerSumECutMinus_ += tower.pt();
@@ -272,10 +252,10 @@ namespace reco {
 
       Handle<EcalRecHitCollection> ebHits;
       Handle<EcalRecHitCollection> eeHits;
-
       iEvent.getByToken(srcEBhits_, ebHits);
       iEvent.getByToken(srcEEhits_, eeHits);
 
+      edm::ESHandle<CaloGeometry> cGeo = iSetup.getHandle(caloGeom_);
       for (unsigned int i = 0; i < ebHits->size(); ++i) {
         const EcalRecHit& hit = (*ebHits)[i];
         const GlobalPoint& pos = cGeo->getPosition(hit.id());
@@ -302,6 +282,8 @@ namespace reco {
     }
 
     if (producePixelhits_) {
+      edm::ESHandle<TrackerGeometry> tGeo = iSetup.getHandle(trackerGeom_);
+      edm::ESHandle<TrackerTopology> topo = iSetup.getHandle(trackerTopo_);
       creco->pixelMultiplicity_ = 0;
       const SiPixelRecHitCollection* rechits;
       Handle<SiPixelRecHitCollection> rchts;
@@ -325,23 +307,27 @@ namespace reco {
           GlobalPoint gpos = pixelLayer->toGlobal(recHit->localPosition());
           math::XYZVector rechitPos(gpos.x(), gpos.y(), gpos.z());
           double eta = rechitPos.eta();
-          double abeta = std::abs(rechitPos.eta());
           int clusterSize = recHit->cluster()->size();
-          unsigned layer = topo_->layer(detId);
+          unsigned layer = topo->layer(detId);
           if (doPixelCut_) {
             if (detId.det() == DetId::Tracker && detId.subdetId() == PixelSubdetector::PixelBarrel) {
-              if (layer == 1 && 18 * abeta - 40 > clusterSize)
-                continue;
-              if (layer == 2 && 6 * abeta - 7.2 > clusterSize)
-                continue;
-              if ((layer == 3 || layer == 4) && 4 * abeta - 2.4 > clusterSize)
-                continue;
+              double abeta = std::abs(eta);
+              if (layer == 1) {
+                if (18 * abeta - 40 > clusterSize)
+                  continue;
+              } else if (layer == 2) {
+                if (6 * abeta - 7.2 > clusterSize)
+                  continue;
+              } else if (layer == 3 || layer == 4) {
+                if (4 * abeta - 2.4 > clusterSize)
+                  continue;
+              }
             }
           }
           nPixel++;
           if (eta >= 0)
             nPixel_plus++;
-          if (eta < 0)
+          else if (eta < 0)
             nPixel_minus++;
         }
       }
@@ -499,6 +485,39 @@ namespace reco {
     }
 
     iEvent.put(std::move(creco));
+  }
+
+  void CentralityProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<bool>("produceHFhits", true);
+    desc.add<bool>("produceHFtowers", true);
+    desc.add<bool>("produceEcalhits", true);
+    desc.add<bool>("produceZDChits", true);
+    desc.add<bool>("produceETmidRapidity", true);
+    desc.add<bool>("producePixelhits", true);
+    desc.add<bool>("produceTracks", true);
+    desc.add<bool>("producePixelTracks", true);
+    desc.add<bool>("reUseCentrality", false);
+    desc.add<edm::InputTag>("srcHFhits", edm::InputTag("hfreco"));
+    desc.add<edm::InputTag>("srcTowers", edm::InputTag("towerMaker"));
+    desc.add<edm::InputTag>("srcEBhits", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+    desc.add<edm::InputTag>("srcEEhits", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
+    desc.add<edm::InputTag>("srcZDChits", edm::InputTag("zdcreco"));
+    desc.add<edm::InputTag>("srcPixelhits", edm::InputTag("siPixelRecHits"));
+    desc.add<edm::InputTag>("srcTracks", edm::InputTag("hiGeneralTracks"));
+    desc.add<edm::InputTag>("srcVertex", edm::InputTag("hiSelectedVertex"));
+    desc.add<edm::InputTag>("srcReUse", edm::InputTag("hiCentrality"));
+    desc.add<edm::InputTag>("srcPixelTracks", edm::InputTag("hiPixel3PrimTracks"));
+    desc.add<bool>("doPixelCut", true);
+    desc.add<bool>("useQuality", true);
+    desc.add<string>("trackQuality", "highPurity");
+    desc.add<double>("trackEtaCut", 2);
+    desc.add<double>("trackPtCut", 1);
+    desc.add<double>("hfEtaCut", 4)->setComment("hf above the absolute value of this cut is used");
+    desc.add<double>("midRapidityRange", 1);
+    desc.add<bool>("lowGainZDC", true);
+
+    descriptions.addDefault(desc);
   }
 
   // ------------ method called once each job just before starting event loop  ------------

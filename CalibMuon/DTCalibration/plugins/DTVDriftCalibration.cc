@@ -35,10 +35,6 @@
 #include "TF1.h"
 #include "TROOT.h"
 
-// Declare histograms.
-TH1F* hChi2;
-extern void bookHistos();
-
 using namespace std;
 using namespace edm;
 using namespace dttmaxenums;
@@ -70,7 +66,7 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset)
   h2DSegmRPhi = new h2DSegm("SLRPhi");
   h2DSegmRZ = new h2DSegm("SLRZ");
   h4DSegmAllCh = new h4DSegm("AllCh");
-  bookHistos();
+  histograms_.bookHistos();
 
   findVDriftAndT0 = pset.getUntrackedParameter<bool>("fitAndWrite", false);
 
@@ -229,7 +225,8 @@ void DTVDriftCalibration::analyze(const Event& event, const EventSetup& eventSet
                      *(chamber->superLayer(slIdAndHits->first)),
                      chamber->toGlobal((*segment).localDirection()),
                      chamber->toGlobal((*segment).localPosition()),
-                     *theSync);
+                     *theSync,
+                     histograms_);
 
         if (theGranularity == bySL) {
           vector<const TMax*> tMaxes = slSeg.getTMax(slId);

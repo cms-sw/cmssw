@@ -116,7 +116,7 @@ void RecoBTag::PrintCanvasHistos(TCanvas* canvas,
     canvas->Print(epsFile.c_str(), "eps");
   // if in batch: use a converter tool
   const std::string& rootVersion(gROOT->GetVersion());
-  const bool& rootCanGif = rootVersion.find("4") == 0 || rootVersion.find("5") == 0;
+  const bool& rootCanGif = rootVersion.find('4') == 0 || rootVersion.find('5') == 0;
   if (!gifFile.empty()) {
     if (!(gROOT->IsBatch()) || rootCanGif) {  // to find out if running in batch mode
       cout << "--> Print directly gif!" << endl;

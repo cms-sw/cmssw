@@ -9,14 +9,14 @@
    associated quantities.
 
  ******************************************/
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <time.h>
+#include <climits>
 #include <cstdlib>
-#include <limits.h>
+#include <ctime>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -269,7 +269,7 @@ public:
 	  prim.setWhereClause("(LOGIC_ID = :I1 OR LOGIC_ID = :I2 OR LOGIC_ID = :I3)", channels); // selects only endcap primitives
 	  */
           prim.fetch();
-          if (prim.getLogicIds().size() > 0) {
+          if (!prim.getLogicIds().empty()) {
             LMFRunDat run_dat(econn);
             run_dat.setLMFRunIOV(*ri);
             /* uncomment the following to select only endcaps
@@ -488,7 +488,7 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   void init();
   TTree *tree;
   TFile *tfile;

@@ -1,22 +1,29 @@
 from __future__ import print_function
 # Auto generated configuration file
 # with command line options: stepALCA --datatier ALCARECO --conditions auto:run2_data -s ALCA:PromptCalibProdSiStripGains --eventcontent ALCARECO -n 1000 --dasquery=file dataset=/ZeroBias/Run2016C-SiStripCalMinBias-18Apr2017-v1/ALCARECO run=276243 --no_exec
+import warnings
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
+
+options = VarParsing('analysis')
+options.register('era',"A", VarParsing.multiplicity.singleton, VarParsing.varType.string, "input era")
+options.parseArguments()
+
 import os
 
 import Utilities.General.cmssw_das_client as das_client
 
 ###################################################################
-def getFileNames_das_client():
+def getFileNames_das_client(era_name):
 ###################################################################
     """Return files for given DAS query via das_client"""
     files = []
 
-    query = "dataset dataset=/ZeroBias/Run2*SiStripCalMinBias-*/ALCARECO site=T2_CH_CERN" 
+    query = "dataset dataset=/ZeroBias/Run2*"+era_name+"*SiStripCalMinBias-*/ALCARECO site=T2_CH_CERN"
     jsondict = das_client.get_data(query)
     status = jsondict['status']
     if status != 'ok':
-        print("DAS query status: %s"%(status))
+        warnings.warn("DAS query status: %s"%(status))
         return files
 
     data =  jsondict['data']
@@ -30,7 +37,7 @@ def getFileNames_das_client():
     jsondict = das_client.get_data(query)
     status = jsondict['status']
     if status != 'ok':
-        print("DAS query status: %s"%(status))
+        warnings.warn("DAS query status: %s"%(status))
         return files
 
     mongo_query = jsondict['mongo_query']
@@ -55,17 +62,18 @@ process.load('Configuration.StandardSequences.Services_cff')
 # Messages
 ###################################################################
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("SiStripGainsPCLWorker")  
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiStripGainsPCLWorker=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
+    enableStatistics = cms.untracked.bool(True),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
                                    reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
     SiStripGainsPCLWorker = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     )
-process.MessageLogger.statistics.append('cout') 
 
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -79,11 +87,12 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 
-INPUTFILES=getFileNames_das_client()
+INPUTFILES=getFileNames_das_client(options.era)
 
 if len(INPUTFILES)==0: 
-    print("** WARNING: ** According to a DAS query no suitable data for test is available. Skipping test")
-    os._exit(0)
+    warnings.warn("** WARNING: ** According to a DAS query no suitable data for test is available. Skipping test!")
+    ### since there are tests depending on this one, if the query fails, let's exit with an error
+    os._exit(1)
 
 myFiles = cms.untracked.vstring()
 myFiles.extend([INPUTFILES[0][0].replace("\"","")])
@@ -97,13 +106,11 @@ process.options = cms.untracked.PSet()
 
 # Additional output definition
 process.ALCARECOStreamPromptCalibProdSiStripGains = cms.OutputModule("PoolOutputModule",
-                                                                     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('pathALCARECOPromptCalibProdSiStripGains')
-                                                                                                       ),
+                                                                     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('pathALCARECOPromptCalibProdSiStripGains')),
                                                                      dataset = cms.untracked.PSet(dataTier = cms.untracked.string('ALCARECO'),
-                                                                                                  filterName = cms.untracked.string('PromptCalibProdSiStripGains')
-                                                                                                  ),
+                                                                                                  filterName = cms.untracked.string('PromptCalibProdSiStripGains')),
                                                                      eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-                                                                     fileName = cms.untracked.string('PromptCalibProdSiStripGains.root'),
+                                                                     fileName = cms.untracked.string('PromptCalibProdSiStripGains_'+options.era+'.root'),
                                                                      outputCommands = cms.untracked.vstring('drop *', 
                                                                                                             'keep *_MEtoEDMConvertSiStripGains_*_*'
                                                                                                             )

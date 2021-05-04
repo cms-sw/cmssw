@@ -60,8 +60,8 @@ def setCrossingFrameOn(process):
             crossingFrames = process.mix.mixObjects.mixSH.crossingFrames + [ 'MuonME0Hits' ]
         )
     )
-    from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
-    phase2_timing_layer_bar.toModify( process.mix.mixObjects,
+    from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+    phase2_timing_layer.toModify( process.mix.mixObjects,
         mixSH = dict(
             crossingFrames = process.mix.mixObjects.mixSH.crossingFrames + [ 'FastTimerHitsBarrel', 'FastTimerHitsEndcap' ]
         )

@@ -1,14 +1,14 @@
-#include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DD4hep/DetFactoryHelper.h"
 
 //#define EDM_ML_DEBUG
+using namespace angle_units::operators;
 
-static long algorithm(dd4hep::Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   // Header section
@@ -23,10 +23,11 @@ static long algorithm(dd4hep::Detector& /* description */,
   std::vector<int> size = args.value<std::vector<int> >("Size");                        //Number of children
   std::vector<int> type = args.value<std::vector<int> >("Type");                        //First child
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: Cell material " << cellMat << "\tCell Size " << cellDx << ", "
-                               << cellDy << ", " << cellDz << "\tStarting Y " << startY << "\tChildren " << childName[0]
-                               << ", " << childName[1] << "\n               "
-                               << "          Cell positioning done for " << number.size() << " times";
+  edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: Cell material " << cellMat << "\tCell Size "
+                               << cms::convert2mm(cellDx) << ", " << cms::convert2mm(cellDy) << ", "
+                               << cms::convert2mm(cellDz) << "\tStarting Y " << cms::convert2mm(startY) << "\tChildren "
+                               << childName[0] << ", " << childName[1]
+                               << "\n                         Cell positioning done for " << number.size() << " times";
   for (unsigned int i = 0; i < number.size(); ++i)
     edm::LogVerbatim("HCalGeom") << "\t" << i << " Number of children " << size[i] << " occurence " << number[i]
                                  << " first child index " << type[i];
@@ -44,33 +45,30 @@ static long algorithm(dd4hep::Detector& /* description */,
     for (int j = 0; j < number[i]; j++) {
       box++;
       std::string name = parentName + std::to_string(box);
-      dd4hep::Solid solid = dd4hep::Box(dx, cellDy, cellDz);
-      ns.addSolidNS(ns.prepend(name), solid);
+      dd4hep::Solid solid = dd4hep::Box(ns.prepend(name), dx, cellDy, cellDz);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: " << solid.name() << " Box made of " << cellMat << " of Size "
-                                   << dx << ", " << cellDy << ", " << cellDz;
+                                   << cms::convert2mm(dx) << ", " << cms::convert2mm(cellDy) << ", "
+                                   << cms::convert2mm(cellDz);
 #endif
       dd4hep::Volume glog(solid.name(), solid, matter);
-      ns.addVolumeNS(glog);
 
-      dd4hep::Position r0(0.0, ypos, 0.0);
-      dd4hep::Rotation3D rot;
-      parent.placeVolume(glog, box, dd4hep::Transform3D(rot, r0));
+      parent.placeVolume(glog, box, dd4hep::Position(0.0, ypos, 0.0));
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: " << solid.name() << " number " << box << " positioned in "
-                                   << parent.name() << " at " << r0 << " with " << rot;
+                                   << parent.name() << " at (0.0, " << cms::convert2mm(ypos)
+                                   << ", 0.0) with no rotation";
 #endif
 
       double xpos = -dx + cellDx;
       ypos += 2 * cellDy;
       indx = 1 - indx;
-
       for (int k = 0; k < size[i]; ++k) {
-        dd4hep::Position r1(xpos, 0.0, 0.0);
-        glog.placeVolume(ns.volume(childName[indx]), k + 1, dd4hep::Transform3D(rot, r1));
+        glog.placeVolume(ns.volume(childName[indx]), k + 1, dd4hep::Position(xpos, 0.0, 0.0));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: " << childName[indx] << " number " << k + 1
-                                     << " positioned in " << glog.name() << " at " << r1 << " with " << rot;
+        edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: " << childName[indx] << " number " << (k + 1)
+                                     << " positioned in " << glog.name() << " at (" << cms::convert2mm(xpos)
+                                     << ", 0,0, 0.0) with no rotation";
 #endif
         xpos += 2 * cellDx;
       }
@@ -79,7 +77,7 @@ static long algorithm(dd4hep::Detector& /* description */,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "<<== End of DDHCalForwardAlgo construction";
 #endif
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

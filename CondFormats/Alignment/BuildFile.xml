@@ -1,12 +1,13 @@
-<use   name="CondFormats/Common"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="DataFormats/CLHEP"/>
-<use   name="DataFormats/Math"/>
-<use   name="boost"/>
-<use   name="clhep"/>
-
-<use   name="DataFormats/DetId"/>
-<use   name="FWCore/Utilities"/>
+<use name="CondFormats/Serialization"/>
+<use name="DataFormats/CLHEP"/>
+<use name="DataFormats/Math"/>
+<use name="boost"/>
+<use name="clhep"/>
+<use name="DataFormats/DetId"/>
+<use name="FWCore/Utilities"/>
+<use name="CondFormats/External"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

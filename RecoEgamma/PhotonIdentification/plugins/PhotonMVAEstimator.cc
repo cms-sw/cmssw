@@ -5,10 +5,12 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CommonTools/Egamma/interface/EffectiveAreas.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
+#include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
-#include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/ThreadSafeFunctor.h"
 
 class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base {
 public:
@@ -28,7 +30,7 @@ private:
 
   // The number of categories and number of variables per category
   int nCategories_;
-  std::vector<ThreadSafeStringCut<StringCutObjectSelector<reco::Photon>, reco::Photon>> categoryFunctions_;
+  std::vector<ThreadSafeFunctor<StringCutObjectSelector<reco::Photon>>> categoryFunctions_;
   std::vector<int> nVariables_;
 
   // Data members
@@ -48,7 +50,8 @@ private:
 };
 
 PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
-    : AnyMVAEstimatorRun2Base(conf), mvaVarMngr_(conf.getParameter<std::string>("variableDefinition")) {
+    : AnyMVAEstimatorRun2Base(conf),
+      mvaVarMngr_(conf.getParameter<std::string>("variableDefinition"), MVAVariableHelper::indexMap()) {
   //
   // Construct the MVA estimators
   //
@@ -112,6 +115,7 @@ float PhotonMVAEstimator::mvaValue(const reco::Candidate* candPtr,
 
   std::vector<float> vars;
 
+  vars.reserve(nVariables_[iCategory]);
   for (int i = 0; i < nVariables_[iCategory]; ++i) {
     vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], *phoPtr, auxVars));
   }

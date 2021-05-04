@@ -32,7 +32,7 @@ void L1TMuonEndCapParamsViewer::analyze(const edm::Event& iEvent, const edm::Eve
   edm::ESHandle<L1TMuonEndCapParams> handle1;
   evSetup.get<L1TMuonEndCapParamsRcd>().get(handle1);
   //    evSetup.get<L1TMuonEndCapParamsRcd>().get( handle1 ) ;
-  boost::shared_ptr<L1TMuonEndCapParams> ptr1(new L1TMuonEndCapParams(*(handle1.product())));
+  std::shared_ptr<L1TMuonEndCapParams> ptr1(new L1TMuonEndCapParams(*(handle1.product())));
 
   cout << "L1TMuonEndCapParams: " << endl;
   cout << " PtAssignVersion_ = " << ptr1->PtAssignVersion_ << endl;
@@ -44,7 +44,7 @@ void L1TMuonEndCapParamsViewer::analyze(const edm::Event& iEvent, const edm::Eve
 
   ///    edm::ESHandle<L1TMuonEndCapForest> handle2;
   ///    evSetup.get<L1TMuonEndCapForestRcd>().get( handle2 ) ;
-  ///    boost::shared_ptr<L1TMuonEndCapForest> ptr2(new L1TMuonEndCapForest(*(handle2.product ())));
+  ///    std::shared_ptr<L1TMuonEndCapForest> ptr2(new L1TMuonEndCapForest(*(handle2.product ())));
   ///
   ///    cout<<"L1TMuonEndCapForest: "<<endl;
   ///    l1t::ForestHelper fhelp( ptr2.get() );

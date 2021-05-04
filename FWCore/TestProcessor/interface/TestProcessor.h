@@ -22,6 +22,9 @@
 #include <string>
 #include <utility>
 #include <memory>
+#include "tbb/global_control.h"
+#include "tbb/task_arena.h"
+#include "tbb/task_group.h"
 
 // user include files
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
@@ -42,6 +45,9 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "FWCore/TestProcessor/interface/Event.h"
+#include "FWCore/TestProcessor/interface/LuminosityBlock.h"
+#include "FWCore/TestProcessor/interface/ProcessBlock.h"
+#include "FWCore/TestProcessor/interface/Run.h"
 #include "FWCore/TestProcessor/interface/TestDataProxy.h"
 #include "FWCore/TestProcessor/interface/ESPutTokenT.h"
 #include "FWCore/TestProcessor/interface/ESProduceEntry.h"
@@ -153,7 +159,9 @@ namespace edm {
     public:
       using Config = TestProcessorConfig;
 
-      TestProcessor(Config const& iConfig);
+      TestProcessor(Config const& iConfig, ServiceToken iToken = ServiceToken());
+      TestProcessor(const TestProcessor&) = delete;
+      const TestProcessor& operator=(const TestProcessor&) = delete;
       ~TestProcessor() noexcept(false);
 
       /** Run the test. The function arguments are the data products to be added to the
@@ -164,28 +172,73 @@ namespace edm {
         return testImpl(std::forward<T>(iArgs)...);
       }
 
+      template <typename... T>
+      edm::test::LuminosityBlock testBeginLuminosityBlock(edm::LuminosityBlockNumber_t iNum, T&&... iArgs) {
+        return testBeginLuminosityBlockImpl(iNum, std::forward<T>(iArgs)...);
+      }
+      template <typename... T>
+      edm::test::LuminosityBlock testEndLuminosityBlock(T&&... iArgs) {
+        return testEndLuminosityBlockImpl(std::forward<T>(iArgs)...);
+      }
+
+      template <typename... T>
+      edm::test::Run testBeginRun(edm::RunNumber_t iNum, T&&... iArgs) {
+        return testBeginRunImpl(iNum, std::forward<T>(iArgs)...);
+      }
+      template <typename... T>
+      edm::test::Run testEndRun(T&&... iArgs) {
+        return testEndRunImpl(std::forward<T>(iArgs)...);
+      }
+
+      // It makes no sense to pass EventSetup products and at least
+      // for now Runs, Lumis, and ProcessBlocks don't allow passing
+      // in other products. So for now these don't need to be templates
+      // for ProcessBlock.
+      edm::test::ProcessBlock testBeginProcessBlock() { return testBeginProcessBlockImpl(); }
+
+      edm::test::ProcessBlock testEndProcessBlock() { return testEndProcessBlockImpl(); }
+
       /** Run only beginJob and endJob. Once this is used, you should not attempt to run any further tests.
 This simulates a problem happening early in the job which causes processing not to proceed.
    */
       void testBeginAndEndJobOnly() {
-        beginJob();
-        endJob();
+        arena_.execute([this]() {
+          beginJob();
+          endJob();
+        });
+      }
+
+      void testWithNoRuns() {
+        arena_.execute([this]() {
+          beginJob();
+          beginProcessBlock();
+          endProcessBlock();
+          endJob();
+        });
       }
 
       void testRunWithNoLuminosityBlocks() {
-        beginJob();
-        beginRun();
-        endRun();
-        endJob();
+        arena_.execute([this]() {
+          beginJob();
+          beginProcessBlock();
+          beginRun();
+          endRun();
+          endProcessBlock();
+          endJob();
+        });
       }
 
       void testLuminosityBlockWithNoEvents() {
-        beginJob();
-        beginRun();
-        beginLuminosityBlock();
-        endLuminosityBlock();
-        endRun();
-        endJob();
+        arena_.execute([this]() {
+          beginJob();
+          beginProcessBlock();
+          beginRun();
+          beginLuminosityBlock();
+          endLuminosityBlock();
+          endRun();
+          endProcessBlock();
+          endJob();
+        });
       }
       void setRunNumber(edm::RunNumber_t);
       void setLuminosityBlockNumber(edm::LuminosityBlockNumber_t);
@@ -194,10 +247,6 @@ This simulates a problem happening early in the job which causes processing not 
       std::string const& labelOfTestModule() const { return labelOfTestModule_; }
 
     private:
-      TestProcessor(const TestProcessor&) = delete;  // stop default
-
-      const TestProcessor& operator=(const TestProcessor&) = delete;  // stop default
-
       template <typename T, typename... U>
       edm::test::Event testImpl(std::pair<edm::EDPutTokenT<T>, std::unique_ptr<T>>&& iPut, U&&... iArgs) {
         put(std::move(iPut));
@@ -224,18 +273,60 @@ This simulates a problem happening early in the job which causes processing not 
 
       edm::test::Event testImpl();
 
+      template <typename T, typename... U>
+      edm::test::LuminosityBlock testBeginLuminosityBlockImpl(
+          edm::LuminosityBlockNumber_t iNum,
+          std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>>&& iPut,
+          U&&... iArgs) {
+        put(std::move(iPut));
+        return testBeginLuminosityBlockImpl(iNum, std::forward<U>(iArgs)...);
+      }
+      edm::test::LuminosityBlock testBeginLuminosityBlockImpl(edm::LuminosityBlockNumber_t);
+
+      template <typename T, typename... U>
+      edm::test::LuminosityBlock testEndLuminosityBlockImpl(
+          std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>>&& iPut, U&&... iArgs) {
+        put(std::move(iPut));
+        return testEndLuminosityBlockImpl(std::forward<U>(iArgs)...);
+      }
+      edm::test::LuminosityBlock testEndLuminosityBlockImpl();
+
+      template <typename T, typename... U>
+      edm::test::Run testBeginRunImpl(edm::RunNumber_t iNum,
+                                      std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>>&& iPut,
+                                      U&&... iArgs) {
+        put(std::move(iPut));
+        return testBeginRunImpl(iNum, std::forward<U>(iArgs)...);
+      }
+      edm::test::Run testBeginRunImpl(edm::RunNumber_t);
+      template <typename T, typename... U>
+      edm::test::LuminosityBlock testEndRunImpl(std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>>&& iPut,
+                                                U&&... iArgs) {
+        put(std::move(iPut));
+        return testEndRunImpl(std::forward<U>(iArgs)...);
+      }
+      edm::test::Run testEndRunImpl();
+
+      edm::test::ProcessBlock testBeginProcessBlockImpl();
+      edm::test::ProcessBlock testEndProcessBlockImpl();
+
       void setupProcessing();
       void teardownProcessing();
 
       void beginJob();
+      void beginProcessBlock();
       void beginRun();
       void beginLuminosityBlock();
       void event();
-      void endLuminosityBlock();
-      void endRun();
+      std::shared_ptr<LuminosityBlockPrincipal> endLuminosityBlock();
+      std::shared_ptr<RunPrincipal> endRun();
+      ProcessBlockPrincipal const* endProcessBlock();
       void endJob();
 
       // ---------- member data --------------------------------
+      tbb::global_control globalControl_;
+      tbb::task_group taskGroup_;
+      tbb::task_arena arena_;
       std::string labelOfTestModule_;
       std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
       std::shared_ptr<ProductRegistry> preg_;
@@ -266,10 +357,9 @@ This simulates a problem happening early in the job which causes processing not 
       LuminosityBlockNumber_t lumiNumber_ = 1;
       EventNumber_t eventNumber_ = 1;
       bool beginJobCalled_ = false;
+      bool beginProcessBlockCalled_ = false;
       bool beginRunCalled_ = false;
       bool beginLumiCalled_ = false;
-      bool newRun_ = true;
-      bool newLumi_ = true;
     };
   }  // namespace test
 }  // namespace edm

@@ -9,8 +9,13 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = 'sqlite_file:DBEcalTimeBiasCorrections.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
-  debugModules = cms.untracked.vstring('*'),
-  destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.source = cms.Source("EmptyIOVSource",

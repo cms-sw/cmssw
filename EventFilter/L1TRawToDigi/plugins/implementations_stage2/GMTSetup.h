@@ -5,6 +5,7 @@
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include "GMTCollections.h"
 #include "GMTTokens.h"
@@ -16,7 +17,7 @@ namespace l1t {
       std::unique_ptr<PackerTokens> registerConsumes(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) override;
       void fillDescription(edm::ParameterSetDescription& desc) override;
       PackerMap getPackers(int fed, unsigned int fw) override;
-      void registerProducts(edm::stream::EDProducerBase& prod) override;
+      void registerProducts(edm::ProducesCollector) override;
       std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override;
       UnpackerMap getUnpackers(int fed, int board, int amc, unsigned int fw) override;
     };

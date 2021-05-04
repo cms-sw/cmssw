@@ -1,24 +1,38 @@
-<bin   name="TestRecoTauTagCombinatoricGenerator" file="CombinatoricGenerator_t.cppunit.cc">
-  <use   name="RecoTauTag/RecoTau"/>
-  <use   name="cppunit"/>
+<bin name="TestRecoTauTagCombinatoricGenerator" file="CombinatoricGenerator_t.cppunit.cc">
+  <use name="RecoTauTag/RecoTau"/>
+  <use name="cppunit"/>
 </bin>
+
 <library name="rerunMVAIsolationOnMiniAOD" file="rerunMVAIsolationOnMiniAOD.cc">
+  <use name="CommonTools/UtilAlgos"/>
   <use name="FWCore/Framework"/>
-  <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
   <use name="DataFormats/PatCandidates"/>
   <use name="DataFormats/TauReco"/>
   <use name="RecoTauTag/RecoTau"/>
-  <use name="PhysicsTools/PatAlgos"/>
-  <use name="PhysicsTools/UtilAlgos"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="clhep"/>
   <use name="root"/>
-<flags EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
+
+<library name="rerunMVAIsolationOnMiniAOD_Phase2" file="rerunMVAIsolationOnMiniAOD_Phase2.cc">
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="DataFormats/TauReco"/>
+  <use name="RecoTauTag/RecoTau"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="clhep"/>
+  <use name="root"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <environment>
-  <bin   file="runtestRecoTauTagRecoTau.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash RecoTauTag/RecoTau/test runtests.sh"/>
-    <use   name="FWCore/Utilities"/>
+  <bin file="runtestRecoTauTagRecoTau.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash RecoTauTag/RecoTau/test runtests.sh"/>
+    <use name="FWCore/Utilities"/>
   </bin>
+
 </environment>

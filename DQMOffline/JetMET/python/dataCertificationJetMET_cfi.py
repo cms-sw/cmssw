@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 ################# Quality Tests for jets #########################
-qTesterJet = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+qTesterJet = DQMQualityTester(
      qtList = cms.untracked.FileInPath('DQMOffline/JetMET/test/JetQualityTests.xml'),
      prescaleFactor = cms.untracked.int32(1),
      testInEventloop = cms.untracked.bool(False),
@@ -10,7 +11,7 @@ qTesterJet = cms.EDAnalyzer("QualityTester",
  )
 
 ################# Quality Tests for MET #########################
-qTesterMET = cms.EDAnalyzer("QualityTester",
+qTesterMET = DQMQualityTester(
      qtList = cms.untracked.FileInPath('DQMOffline/JetMET/test/METQualityTests.xml'),
      prescaleFactor = cms.untracked.int32(1),
      testInEventloop = cms.untracked.bool(False),

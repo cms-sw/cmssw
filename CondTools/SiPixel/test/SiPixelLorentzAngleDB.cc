@@ -4,7 +4,7 @@
 #include <fstream>
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondTools/SiPixel/test/SiPixelLorentzAngleDB.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -60,7 +60,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
       << " There are " << pDD->detUnits().size() << " detectors (old)" << std::endl;
 
   for (const auto& it : pDD->detUnits()) {
-    if (dynamic_cast<PixelGeomDetUnit const*>(it) != 0) {
+    if (dynamic_cast<PixelGeomDetUnit const*>(it) != nullptr) {
       DetId detid = it->geographicalId();
       const DetId detidc = it->geographicalId();
 

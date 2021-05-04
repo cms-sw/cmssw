@@ -3,10 +3,10 @@
 #define DataFormats_SiStripCommon_SiStripKey_H
 
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <cstdint>
 
 class SiStripKey;
 

@@ -7,6 +7,7 @@
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 
+#include <optional>
 #include <vector>
 
 namespace edm {
@@ -19,7 +20,10 @@ namespace edm {
     ProductID const& thinnedCollectionID() const { return thinnedCollectionID_; }
     std::vector<unsigned int> const& indexesIntoParent() const { return indexesIntoParent_; }
 
-    bool hasParentIndex(unsigned int parentIndex, unsigned int& thinnedIndex) const;
+    // If this association contains the parent index, return the
+    // corresponding index into the thinned collection. Otherwise
+    // return null std::optional.
+    std::optional<unsigned int> getThinnedIndex(unsigned int parentIndex) const;
 
     void setParentCollectionID(ProductID const& v) { parentCollectionID_ = v; }
     void setThinnedCollectionID(ProductID const& v) { thinnedCollectionID_ = v; }

@@ -6,10 +6,10 @@
 #include <vector>
 #include <utility>
 #include <iostream>
-#include <boost/cstdint.hpp>
 
 #include <cassert>
 #include <cstring>
+#include <cstdint>
 
 class TrackerTopology;
 
@@ -62,6 +62,8 @@ public:
   ContainerIterator getDataVectorEnd() const { return v_noises.end(); }
   RegistryIterator getRegistryVectorBegin() const { return indexes.begin(); }
   RegistryIterator getRegistryVectorEnd() const { return indexes.end(); }
+
+  static inline float getRawNoise(const uint16_t& strip, const Range& range) { return decode(strip, range); }
 
   static inline float getNoiseFast(const uint16_t& strip, const Range& range) {
     return 0.1f * float(decode(strip, range));

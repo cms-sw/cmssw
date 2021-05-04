@@ -1,32 +1,152 @@
-#include "DQMOffline/Trigger/plugins/DiJetMonitor.h"
+#include <string>
+#include <vector>
+#include <map>
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+
+class DiJetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
+public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
+  DiJetMonitor(const edm::ParameterSet&);
+  ~DiJetMonitor() throw() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  bool dijet_selection(double eta_1,
+                       double phi_1,
+                       double eta_2,
+                       double phi_2,
+                       double pt_1,
+                       double pt_2,
+                       int& tag_id,
+                       int& probe_id,
+                       int Event);
+
+private:
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
+
+  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muoToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> dijetSrc_;  // test for Jet
+
+  MEbinning dijetpt_binning_;
+  MEbinning dijetptThr_binning_;
+
+  ObjME jetpt1ME_;
+  ObjME jetpt2ME_;
+  ObjME jetptAvgaME_;
+  ObjME jetptAvgaThrME_;
+  ObjME jetptAvgbME_;
+  ObjME jetptTagME_;
+  ObjME jetptPrbME_;
+  ObjME jetptAsyME_;
+  ObjME jetetaPrbME_;
+  ObjME jetetaTagME_;
+  ObjME jetphiPrbME_;
+  ObjME jetAsyEtaME_;
+  ObjME jetEtaPhiME_;
+
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+
+  int nmuons_;
+  double ptcut_;
+
+  // Define Phi Bin //
+  const double DiJet_MAX_PHI = 3.2;
+  //unsigned int DiJet_N_PHI = 64;
+  unsigned int DiJet_N_PHI = 32;
+  MEbinning dijet_phi_binning{DiJet_N_PHI, -DiJet_MAX_PHI, DiJet_MAX_PHI};
+  // Define Eta Bin //
+  const double DiJet_MAX_ETA = 5;
+  //unsigned int DiJet_N_ETA = 50;
+  unsigned int DiJet_N_ETA = 20;
+  MEbinning dijet_eta_binning{DiJet_N_ETA, -DiJet_MAX_ETA, DiJet_MAX_ETA};
+
+  const double MAX_asy = 1;
+  const double MIN_asy = -1;
+  //unsigned int N_asy = 100;
+  unsigned int N_asy = 50;
+  MEbinning asy_binning{N_asy, MIN_asy, MAX_asy};
+};
 
 DiJetMonitor::DiJetMonitor(const edm::ParameterSet& iConfig)
-    : num_genTriggerEventFlag_(new GenericTriggerEventFlag(
+    : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
+      dijetSrc_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"))),
+      dijetpt_binning_(getHistoPSet(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dijetPSet"))),
+      dijetptThr_binning_(getHistoPSet(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dijetPtThrPSet"))),
+      num_genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
       den_genTriggerEventFlag_(new GenericTriggerEventFlag(
-          iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this)) {
-  folderName_ = iConfig.getParameter<std::string>("FolderName");
-  dijetSrc_ = mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("dijetSrc"));  //jet
+          iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this)),
+      ptcut_(iConfig.getParameter<double>("ptcut")) {}
 
-  dijetpt_binning_ =
-      getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dijetPSet"));
-  dijetptThr_binning_ = getHistoPSet(
-      iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dijetPtThrPSet"));
-
-  ptcut_ = iConfig.getParameter<double>("ptcut");
+DiJetMonitor::~DiJetMonitor() throw() {
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void DiJetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  // Initialize the GenericTriggerEventFlag
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname, histtitle;
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
@@ -141,23 +261,15 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
          dijet_phi_binning.xmin,
          dijet_phi_binning.xmax);
   setMETitle(jetphiPrbME_, "Phi_probe #phi", "events");
-
-  // Initialize the GenericTriggerEventFlag
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/Math/interface/deltaR.h"  // For Delta R
 void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-  int Event = -999;
-  Event = iEvent.id().event();
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
@@ -202,7 +314,7 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   jetpt2ME_.denominator->Fill(pt_2);
   jetptAvgbME_.denominator->Fill(pt_avg_b);
 
-  if (dijet_selection(eta_1, phi_1, eta_2, phi_2, pt_1, pt_2, tag_id, probe_id, Event)) {
+  if (dijet_selection(eta_1, phi_1, eta_2, phi_2, pt_1, pt_2, tag_id, probe_id, iEvent.id().event())) {
     if (tag_id == 0 && probe_id == 1) {
       double pt_asy = (pt_2 - pt_1) / (pt_1 + pt_2);
       double pt_avg = (pt_1 + pt_2) * 0.5;
@@ -270,9 +382,49 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   }
 }
 
+//---- Additional DiJet offline selection------
+bool DiJetMonitor::dijet_selection(double eta_1,
+                                   double phi_1,
+                                   double eta_2,
+                                   double phi_2,
+                                   double pt_1,
+                                   double pt_2,
+                                   int& tag_id,
+                                   int& probe_id,
+                                   int Event) {
+  double etacut = 1.7;
+  double phicut = 2.7;
+
+  bool passeta = (std::abs(eta_1) < etacut || std::abs(eta_2) < etacut);  //check that one of the jets in the barrel
+
+  float delta_phi_1_2 = (phi_1 - phi_2);
+  bool other_cuts = (std::abs(delta_phi_1_2) >= phicut);  //check that jets are back to back
+
+  if (std::abs(eta_1) < etacut && std::abs(eta_2) > etacut) {
+    tag_id = 0;
+    probe_id = 1;
+  } else if (std::abs(eta_2) < etacut && std::abs(eta_1) > etacut) {
+    tag_id = 1;
+    probe_id = 0;
+  } else if (std::abs(eta_2) < etacut && std::abs(eta_1) < etacut) {
+    int numb = Event % 2;
+    if (numb == 0) {
+      tag_id = 0;
+      probe_id = 1;
+    }
+    if (numb == 1) {
+      tag_id = 1;
+      probe_id = 0;
+    }
+  }
+
+  return (passeta && other_cuts);
+}
+
 void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/JME/Jets/AK4/PF");
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("dijetSrc", edm::InputTag("ak4PFJets"));
@@ -318,48 +470,4 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   descriptions.add("dijetMonitoring", desc);
 }
 
-//---- Additional DiJet offline selection------
-bool DiJetMonitor::dijet_selection(double eta_1,
-                                   double phi_1,
-                                   double eta_2,
-                                   double phi_2,
-                                   double pt_1,
-                                   double pt_2,
-                                   int& tag_id,
-                                   int& probe_id,
-                                   int Event) {
-  double etacut = 1.7;
-  double phicut = 2.7;
-
-  bool passeta = (std::abs(eta_1) < etacut || std::abs(eta_2) < etacut);  //check that one of the jets in the barrel
-
-  float delta_phi_1_2 = (phi_1 - phi_2);
-  bool other_cuts = (std::abs(delta_phi_1_2) >= phicut);  //check that jets are back to back
-
-  if (std::abs(eta_1) < etacut && std::abs(eta_2) > etacut) {
-    tag_id = 0;
-    probe_id = 1;
-  } else if (std::abs(eta_2) < etacut && std::abs(eta_1) > etacut) {
-    tag_id = 1;
-    probe_id = 0;
-  } else if (std::abs(eta_2) < etacut && std::abs(eta_1) < etacut) {
-    int numb = Event % 2;
-    if (numb == 0) {
-      tag_id = 0;
-      probe_id = 1;
-    }
-    if (numb == 1) {
-      tag_id = 1;
-      probe_id = 0;
-    }
-  }
-  if (passeta && other_cuts)
-    return true;
-  else
-    return false;
-}
-
-//------------------------------------------------------------------------//
-// Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(DiJetMonitor);

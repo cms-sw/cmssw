@@ -12,6 +12,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,7 +24,6 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
@@ -35,9 +35,8 @@
 
 #include <boost/algorithm/string.hpp>
 
-SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf)
-    : lorentzAngleName(conf.getParameter<std::string>("LorentzAngle")),
-      theThreshold(conf.getParameter<double>("NoiseSigmaThreshold")),
+SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+    : theThreshold(conf.getParameter<double>("NoiseSigmaThreshold")),
       cmnRMStib(conf.getParameter<double>("cmnRMStib")),
       cmnRMStob(conf.getParameter<double>("cmnRMStob")),
       cmnRMStid(conf.getParameter<double>("cmnRMStid")),
@@ -61,12 +60,20 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
       inefficiency(conf.getParameter<double>("Inefficiency")),
       pedOffset((unsigned int)conf.getParameter<double>("PedestalsOffset")),
       PreMixing_(conf.getParameter<bool>("PreMixingMode")),
+      deadChannelToken_(iC.esConsumes()),
+      pdtToken_(iC.esConsumes()),
+      lorentzAngleToken_(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("LorentzAngle")))),
       theSiHitDigitizer(new SiHitDigitizer(conf)),
       theSiPileUpSignals(new SiPileUpSignals()),
       theSiNoiseAdder(new SiGaussianTailNoiseAdder(theThreshold)),
       theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, PreMixing_)),
       theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
-      APVProbabilityFile(conf.getParameter<edm::FileInPath>("APVProbabilityFile")) {
+      APVProbabilityFile(conf.getParameter<edm::FileInPath>("APVProbabilityFile")),
+      includeAPVSimulation_(conf.getParameter<bool>("includeAPVSimulation")),
+      apv_maxResponse_(conf.getParameter<double>("apv_maxResponse")),
+      apv_rate_(conf.getParameter<double>("apv_rate")),
+      apv_mVPerQ_(conf.getParameter<double>("apv_mVPerQ")),
+      apv_fCPerElectron_(conf.getParameter<double>("apvfCPerElectron")) {
   if (peakMode) {
     LogDebug("StripDigiInfo") << "APVs running in peak mode (poor time resolution)";
   } else {
@@ -102,19 +109,18 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm() {}
 
 void SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const* det, const edm::EventSetup& iSetup) {
-  edm::ESHandle<SiStripBadStrip> deadChannelHandle;
-  iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
+  auto const& deadChannel = iSetup.getData(deadChannelToken_);
 
   unsigned int detId = det->geographicalId().rawId();
   int numStrips = (det->specificTopology()).nstrips();
 
-  SiStripBadStrip::Range detBadStripRange = deadChannelHandle->getRange(detId);
+  SiStripBadStrip::Range detBadStripRange = deadChannel.getRange(detId);
   //storing the bad strip of the the module. the module is not removed but just signal put to 0
   std::vector<bool>& badChannels = allBadChannels[detId];
   badChannels.clear();
   badChannels.insert(badChannels.begin(), numStrips, false);
   for (SiStripBadStrip::ContainerIterator it = detBadStripRange.first; it != detBadStripRange.second; ++it) {
-    SiStripBadStrip::data fs = deadChannelHandle->decode(*it);
+    SiStripBadStrip::data fs = deadChannel.decode(*it);
     for (int strip = fs.firstStrip; strip < fs.firstStrip + fs.range; ++strip) {
       badChannels[strip] = true;
     }
@@ -138,11 +144,11 @@ void SiStripDigitizerAlgorithm::initializeEvent(const edm::EventSetup& iSetup) {
   FirstLumiCalc_ = true;
   FirstDigitize_ = true;
 
+  nTruePU_ = 0;
+
   //get gain noise pedestal lorentzAngle from ES handle
-  edm::ESHandle<ParticleDataTable> pdt;
-  iSetup.getData(pdt);
-  setParticleDataTable(&*pdt);
-  iSetup.get<SiStripLorentzAngleSimRcd>().get(lorentzAngleName, lorentzAngleHandle);
+  setParticleDataTable(&iSetup.getData(pdtToken_));
+  lorentzAngleHandle = iSetup.getHandle(lorentzAngleToken_);
 }
 
 //  Run the algorithm for a given module
@@ -265,8 +271,8 @@ void SiStripDigitizerAlgorithm::calculateInstlumiScale(PileupMixingContent* puIn
       pui++;
     }
     if (pu0 != bunchCrossing.end()) {  // found the in-time interaction
-      double Tintr = TrueInteractionList.at(p);
-      double instLumi = Bunch * Tintr * RevFreq / minBXsec;
+      nTruePU_ = TrueInteractionList.at(p);
+      double instLumi = Bunch * nTruePU_ * RevFreq / minBXsec;
       APVSaturationProb_ = instLumi / 6.0E33;
     }
     FirstLumiCalc_ = false;
@@ -277,16 +283,25 @@ void SiStripDigitizerAlgorithm::calculateInstlumiScale(PileupMixingContent* puIn
 
 void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
                                          edm::DetSet<SiStripRawDigi>& outrawdigi,
+                                         edm::DetSet<SiStripRawDigi>& outStripAmplitudes,
+                                         edm::DetSet<SiStripRawDigi>& outStripAmplitudesPostAPV,
+                                         edm::DetSet<SiStripRawDigi>& outStripAPVBaselines,
                                          edm::DetSet<StripDigiSimLink>& outLink,
                                          const StripGeomDetUnit* det,
-                                         edm::ESHandle<SiStripGain>& gainHandle,
-                                         edm::ESHandle<SiStripThreshold>& thresholdHandle,
-                                         edm::ESHandle<SiStripNoises>& noiseHandle,
-                                         edm::ESHandle<SiStripPedestals>& pedestalHandle,
+                                         const SiStripGain& gain,
+                                         const SiStripThreshold& threshold,
+                                         const SiStripNoises& noiseObj,
+                                         const SiStripPedestals& pedestal,
+                                         bool simulateAPVInThisEvent,
+                                         const SiStripApvSimulationParameters* apvSimulationParameters,
                                          std::vector<std::pair<int, std::bitset<6>>>& theAffectedAPVvector,
-                                         CLHEP::HepRandomEngine* engine) {
+                                         CLHEP::HepRandomEngine* engine,
+                                         const TrackerTopology* tTopo) {
   unsigned int detID = det->geographicalId().rawId();
   int numStrips = (det->specificTopology()).nstrips();
+
+  DetId detId(detID);
+  uint32_t SubDet = detId.subdetId();
 
   const SiPileUpSignals::SignalMapType* theSignal(theSiPileUpSignals->getSignal(detID));
 
@@ -303,6 +318,72 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     if (badChannels[strip]) {
       detAmpl[strip] = 0.;
     }
+  }
+
+  if (includeAPVSimulation_ && simulateAPVInThisEvent) {
+    // Get index in apv baseline distributions corresponding to z of detSet and PU
+    const StripTopology* topol = dynamic_cast<const StripTopology*>(&(det->specificTopology()));
+    LocalPoint localPos = topol->localPosition(0);
+    GlobalPoint globalPos = det->surface().toGlobal(Local3DPoint(localPos.x(), localPos.y(), localPos.z()));
+    float detSet_z = fabs(globalPos.z());
+    float detSet_r = globalPos.perp();
+
+    // Store SCD, before APV sim
+    outStripAmplitudes.reserve(numStrips);
+    for (int strip = 0; strip < numStrips; ++strip) {
+      outStripAmplitudes.emplace_back(SiStripRawDigi(detAmpl[strip] / theElectronPerADC));
+    }
+
+    // Simulate APV response for each strip
+    for (int strip = 0; strip < numStrips; ++strip) {
+      if (detAmpl[strip] > 0) {
+        // Convert charge from electrons to fC
+        double stripCharge = detAmpl[strip] * apv_fCPerElectron_;
+
+        // Get APV baseline
+        double baselineV = 0;
+        if (SubDet == SiStripSubdetector::TIB) {
+          baselineV = apvSimulationParameters->sampleTIB(tTopo->tibLayer(detId), detSet_z, nTruePU_, engine);
+        } else if (SubDet == SiStripSubdetector::TOB) {
+          baselineV = apvSimulationParameters->sampleTOB(tTopo->tobLayer(detId), detSet_z, nTruePU_, engine);
+        } else if (SubDet == SiStripSubdetector::TID) {
+          baselineV = apvSimulationParameters->sampleTID(tTopo->tidWheel(detId), detSet_r, nTruePU_, engine);
+        } else if (SubDet == SiStripSubdetector::TEC) {
+          baselineV = apvSimulationParameters->sampleTEC(tTopo->tecWheel(detId), detSet_r, nTruePU_, engine);
+        }
+        // Store APV baseline for this strip
+        outStripAPVBaselines.emplace_back(SiStripRawDigi(baselineV));
+
+        // Fitted parameters from G Hall/M Raymond
+        double maxResponse = apv_maxResponse_;
+        double rate = apv_rate_;
+
+        double outputChargeInADC = 0;
+        if (baselineV < apv_maxResponse_) {
+          // Convert V0 into baseline charge
+          double baselineQ = -1.0 * rate * log(2 * maxResponse / (baselineV + maxResponse) - 1);
+
+          // Add charge deposited in this BX
+          double newStripCharge = baselineQ + stripCharge;
+
+          // Apply APV response
+          double signalV = 2 * maxResponse / (1 + exp(-1.0 * newStripCharge / rate)) - maxResponse;
+          double gain = signalV - baselineV;
+
+          // Convert gain (mV) to charge (assuming linear region of APV) and then to electrons
+          double outputCharge = gain / apv_mVPerQ_;
+          outputChargeInADC = outputCharge / apv_fCPerElectron_;
+        }
+
+        // Output charge back to original container
+        detAmpl[strip] = outputChargeInADC;
+      }
+    }
+
+    // Store SCD, after APV sim
+    outStripAmplitudesPostAPV.reserve(numStrips);
+    for (int strip = 0; strip < numStrips; ++strip)
+      outStripAmplitudesPostAPV.emplace_back(SiStripRawDigi(detAmpl[strip] / theElectronPerADC));
   }
 
   if (APVSaturationFromHIP) {
@@ -363,9 +444,9 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     }
   }
 
-  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
-  SiStripApvGain::Range detGainRange = gainHandle->getRange(detID);
-  SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(detID);
+  SiStripNoises::Range detNoiseRange = noiseObj.getRange(detID);
+  SiStripApvGain::Range detGainRange = gain.getRange(detID);
+  SiStripPedestals::Range detPedestalRange = pedestal.getRange(detID);
 
   // -----------------------------------------------------------
 
@@ -385,8 +466,8 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
         noiseRMSv.insert(noiseRMSv.begin(), numStrips, 0.);
         for (int strip = 0; strip < numStrips; ++strip) {
           if (!badChannels[strip]) {
-            float gainValue = gainHandle->getStripGain(strip, detGainRange);
-            noiseRMSv[strip] = (noiseHandle->getNoise(strip, detNoiseRange)) * theElectronPerADC / gainValue;
+            float gainValue = gain.getStripGain(strip, detGainRange);
+            noiseRMSv[strip] = (noiseObj.getNoise(strip, detNoiseRange)) * theElectronPerADC / gainValue;
             //std::cout<<"<SiStripDigitizerAlgorithm::digitize>: gainValue: "<<gainValue<<"\tnoiseRMSv["<<strip<<"]: "<<noiseRMSv[strip]<<std::endl;
           }
         }
@@ -398,8 +479,8 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
           RefStrip++;
         }
         if (RefStrip < numStrips) {
-          float RefgainValue = gainHandle->getStripGain(RefStrip, detGainRange);
-          float RefnoiseRMS = noiseHandle->getNoise(RefStrip, detNoiseRange) * theElectronPerADC / RefgainValue;
+          float RefgainValue = gain.getStripGain(RefStrip, detGainRange);
+          float RefnoiseRMS = noiseObj.getNoise(RefStrip, detNoiseRange) * theElectronPerADC / RefgainValue;
 
           theSiNoiseAdder->addNoise(
               detAmpl, firstChannelWithSignal, lastChannelWithSignal, numStrips, RefnoiseRMS, engine);
@@ -410,7 +491,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
 
     DigitalVecType digis;
     theSiZeroSuppress->suppress(
-        theSiDigitalConverter->convert(detAmpl, gainHandle, detID), digis, detID, noiseHandle, thresholdHandle);
+        theSiDigitalConverter->convert(detAmpl, &gain, detID), digis, detID, noiseObj, threshold);
     // Now do the association to truth. Note that if truth association was turned off in the configuration this map
     // will be empty and the iterator will always equal associationInfoForDetId_.end().
     if (iAssociationInfoByChannel !=
@@ -472,7 +553,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
       if (SingleStripNoise) {
         for (int strip = 0; strip < numStrips; ++strip) {
           if (!badChannels[strip])
-            noiseRMSv[strip] = (noiseHandle->getNoise(strip, detNoiseRange)) * theElectronPerADC;
+            noiseRMSv[strip] = (noiseObj.getNoise(strip, detNoiseRange)) * theElectronPerADC;
         }
 
       } else {
@@ -482,7 +563,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
           RefStrip++;
         }
         if (RefStrip < numStrips) {
-          float noiseRMS = noiseHandle->getNoise(RefStrip, detNoiseRange) * theElectronPerADC;
+          float noiseRMS = noiseObj.getNoise(RefStrip, detNoiseRange) * theElectronPerADC;
           for (int strip = 0; strip < numStrips; ++strip) {
             if (!badChannels[strip])
               noiseRMSv[strip] = noiseRMS;
@@ -498,15 +579,19 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     if (CommonModeNoise) {
       float cmnRMS = 0.;
       DetId detId(detID);
-      uint32_t SubDet = detId.subdetId();
-      if (SubDet == 3) {
-        cmnRMS = cmnRMStib;
-      } else if (SubDet == 4) {
-        cmnRMS = cmnRMStid;
-      } else if (SubDet == 5) {
-        cmnRMS = cmnRMStob;
-      } else if (SubDet == 6) {
-        cmnRMS = cmnRMStec;
+      switch (detId.subdetId()) {
+        case SiStripSubdetector::TIB:
+          cmnRMS = cmnRMStib;
+          break;
+        case SiStripSubdetector::TID:
+          cmnRMS = cmnRMStid;
+          break;
+        case SiStripSubdetector::TOB:
+          cmnRMS = cmnRMStob;
+          break;
+        case SiStripSubdetector::TEC:
+          cmnRMS = cmnRMStec;
+          break;
       }
       cmnRMS *= theElectronPerADC;
       theSiNoiseAdder->addCMNoise(detAmpl, cmnRMS, badChannels, engine);
@@ -522,7 +607,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     if (RealPedestals) {
       for (int strip = 0; strip < numStrips; ++strip) {
         if (!badChannels[strip])
-          vPeds[strip] = (pedestalHandle->getPed(strip, detPedestalRange) + pedOffset) * theElectronPerADC;
+          vPeds[strip] = (pedestal.getPed(strip, detPedestalRange) + pedOffset) * theElectronPerADC;
       }
     } else {
       for (int strip = 0; strip < numStrips; ++strip) {
@@ -534,10 +619,11 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     theSiNoiseAdder->addPedestals(detAmpl, vPeds);
 
     //if(!RealPedestals&&!CommonModeNoise&&!noise&&!BaselineShift&&!APVSaturationFromHIP){
+
     //  edm::LogWarning("SiStripDigitizer")<<"You are running the digitizer without Noise generation and without applying Zero Suppression. ARE YOU SURE???";
     //}else{
 
-    DigitalRawVecType rawdigis = theSiDigitalConverter->convertRaw(detAmpl, gainHandle, detID);
+    DigitalRawVecType rawdigis = theSiDigitalConverter->convertRaw(detAmpl, &gain, detID);
 
     // Now do the association to truth. Note that if truth association was turned off in the configuration this map
     // will be empty and the iterator will always equal associationInfoForDetId_.end().

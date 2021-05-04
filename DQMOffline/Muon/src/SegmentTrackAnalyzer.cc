@@ -27,9 +27,6 @@ using namespace edm;
 SegmentTrackAnalyzer::SegmentTrackAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
 
-  // MuonService
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-
   // Read Data:
   theMuTrackCollectionLabel_ =
       consumes<reco::TrackCollection>(parameters.getParameter<edm::InputTag>("MuTrackCollection"));
@@ -203,8 +200,6 @@ void SegmentTrackAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  theService->update(iSetup);
-
   Handle<reco::TrackCollection> glbTracks;
   iEvent.getByToken(theMuTrackCollectionLabel_, glbTracks);
 

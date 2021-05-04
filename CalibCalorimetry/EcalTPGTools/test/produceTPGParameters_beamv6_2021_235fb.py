@@ -17,7 +17,7 @@ process.eegeom = cms.ESSource("EmptyESSource",
 )
 
 process.load("CondCore.CondDB.CondDB_cfi")
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '101X_postLS2_realistic_v6', '')
 

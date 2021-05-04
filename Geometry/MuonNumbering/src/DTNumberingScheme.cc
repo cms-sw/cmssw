@@ -1,19 +1,24 @@
+/** \class DTNumberingScheme
+ *
+ * implementation of MuonNumberingScheme for muon barrel,
+ * converts the MuonBaseNumber to a unit id
+ *  
+ * Original \author Arno Straessner, CERN <arno.straessner@cern.ch>
+ *         Modified by Sunanda B. in different PRs (the last one is #30971)
+ *
+ */
+
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define LOCAL_DEBUG
+//#define EDM_ML_DEBUG
 
-DTNumberingScheme::DTNumberingScheme(const MuonDDDConstants& muonConstants) { initMe(muonConstants); }
+DTNumberingScheme::DTNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
-DTNumberingScheme::DTNumberingScheme(const DDCompactView& cpv) {
-  MuonDDDConstants muonConstants(cpv);
-  initMe(muonConstants);
-}
-
-void DTNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
+void DTNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   int theLevelPart = muonConstants.getValue("level");
   theRegionLevel = muonConstants.getValue("mb_region") / theLevelPart;
   theWheelLevel = muonConstants.getValue("mb_wheel") / theLevelPart;
@@ -21,7 +26,7 @@ void DTNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
   theSuperLayerLevel = muonConstants.getValue("mb_superlayer") / theLevelPart;
   theLayerLevel = muonConstants.getValue("mb_layer") / theLevelPart;
   theWireLevel = muonConstants.getValue("mb_wire") / theLevelPart;
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTNumberingScheme") << "Initialize DTNumberingScheme"
                                         << "\ntheRegionLevel " << theRegionLevel << "\ntheWheelLevel " << theWheelLevel
                                         << "\ntheStationLevel " << theStationLevel << "\ntheSuperLayerLevel "
@@ -30,16 +35,16 @@ void DTNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
 #endif
 }
 
-int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
-#ifdef LOCAL_DEBUG
+int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTNumberingScheme") << "DTNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
     edm::LogVerbatim("DTNumberingScheme") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
   }
 #endif
-  if (num.getLevels() != theWireLevel) {
+  if (num.getLevels() < theStationLevel) {  // it was  if (num.getLevels() != theWireLevel) {
     edm::LogWarning("DTNumberingScheme") << "DTNumberingScheme::BNToUN: BaseNumber has " << num.getLevels()
-                                         << " levels, need " << theWireLevel;
+                                         << " levels, need " << theStationLevel;  //it was theWireLevel;
     return 0;
   }
 
@@ -99,7 +104,7 @@ int DTNumberingScheme::getDetId(const MuonBaseNumber& num) const {
 
   DTWireId id(wheel_id, station_id, sector_id, superlayer_id, layer_id, wire_id);
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTNumberingScheme") << "DTNumberingScheme: " << id;
 #endif
 

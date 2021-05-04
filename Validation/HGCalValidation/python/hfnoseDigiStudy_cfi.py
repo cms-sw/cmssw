@@ -15,4 +15,6 @@ hfnoseDigiStudy = hgcalDigiStudyEE.clone(
     nBinR        = cms.untracked.int32(150),
     nBinZ        = cms.untracked.int32(100),
     nBinEta      = cms.untracked.int32(150),
+    layers       = cms.untracked.int32(8),
+    ifLayer      = cms.untracked.bool(True)
     )

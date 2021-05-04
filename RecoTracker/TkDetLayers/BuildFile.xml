@@ -1,13 +1,12 @@
-<use   name="ofast-flag"/>
+<use name="ofast-flag"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-<use   name="TrackingTools/DetLayers"/>
-<use   name="TrackingTools/GeomPropagators"/>
-<use   name="TrackingTools/PatternTools"/>
-<use   name="clhep"/>
-<use   name="Utilities/General"/>
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="FWCore/MessageLogger"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="clhep"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="RecoMTD/DetLayers"/>
+<use name="FWCore/MessageLogger"/>

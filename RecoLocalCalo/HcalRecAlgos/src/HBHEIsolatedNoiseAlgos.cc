@@ -149,20 +149,16 @@ bool ObjectValidator::validTrack(const reco::Track& trk) const {
 ////////////////////////////////////////////////////////////
 
 PhysicsTowerOrganizer::PhysicsTowerOrganizer(
-    const edm::Event& iEvent,
-    const edm::EventSetup& evSetup,
     const edm::Handle<HBHERecHitCollection>& hbhehitcoll_h,
     const edm::Handle<EcalRecHitCollection>& ebhitcoll_h,
     const edm::Handle<EcalRecHitCollection>& eehitcoll_h,
     const edm::Handle<std::vector<reco::TrackExtrapolation> >& trackextrapcoll_h,
     const ObjectValidatorAbs& objectvalidator,
-    const CaloTowerConstituentsMap& ctcm) {
+    const CaloTowerConstituentsMap& ctcm,
+    const CaloGeometry& geo) {
   // get some geometries
-  edm::ESHandle<CaloGeometry> pG;
-  evSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
-  const CaloSubdetectorGeometry* gEB = geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  const CaloSubdetectorGeometry* gEE = geo->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  const CaloSubdetectorGeometry* gEB = geo.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const CaloSubdetectorGeometry* gEE = geo.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
 
   // do the HCAL hits
   for (HBHERecHitCollection::const_iterator it = hbhehitcoll_h->begin(); it != hbhehitcoll_h->end(); ++it) {

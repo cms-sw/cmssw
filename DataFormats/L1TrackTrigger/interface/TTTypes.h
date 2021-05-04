@@ -17,8 +17,33 @@
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 
-/// The reference types
+/// Templated aliases
+template <typename T>
+using TTClusterDetSetVecT = edmNew::DetSetVector<TTCluster<T> >;
+template <typename T>
+using TTStubDetSetVecT = edmNew::DetSetVector<TTStub<T> >;
+
+template <typename T>
+using TTClusterRefT = edm::Ref<TTClusterDetSetVecT<T>, TTCluster<T> >;
+template <typename T>
+using TTStubRefT = edm::Ref<TTStubDetSetVecT<T>, TTStub<T> >;
+
+template <typename T>
+using TTTrackPtrT = edm::Ptr<TTTrack<T> >;
+
+/// Specialized aliases
 typedef edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> Ref_Phase2TrackerDigi_;
+
+typedef edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_> > TTStubDetSet;
+
+typedef TTClusterDetSetVecT<Ref_Phase2TrackerDigi_> TTClusterDetSetVec;
+typedef TTStubDetSetVecT<Ref_Phase2TrackerDigi_> TTStubDetSetVec;
+
+typedef TTClusterRefT<Ref_Phase2TrackerDigi_> TTClusterRef;
+typedef TTStubRefT<Ref_Phase2TrackerDigi_> TTStubRef;
+
+typedef TTTrackPtrT<Ref_Phase2TrackerDigi_> TTTrackPtr;
 
 #endif

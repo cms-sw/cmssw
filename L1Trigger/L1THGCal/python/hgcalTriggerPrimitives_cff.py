@@ -8,14 +8,22 @@ from L1Trigger.L1THGCal.hgcalBackEndLayer2_cff import *
 from L1Trigger.L1THGCal.hgcalTowerMap_cff import *
 from L1Trigger.L1THGCal.hgcalTower_cff import *
 
-
 hgcalTriggerPrimitivesTask = cms.Task(hgcalVFE, hgcalConcentrator, hgcalBackEndLayer1, hgcalBackEndLayer2, hgcalTowerMap, hgcalTower)
 hgcalTriggerPrimitives = cms.Sequence(hgcalTriggerPrimitivesTask)
 
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
-from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
+_hfnose_hgcalTriggerPrimitivesTask = hgcalTriggerPrimitivesTask.copy()
+_hfnose_hgcalTriggerPrimitivesTask.add(hfnoseVFE, hgcalConcentratorHFNose, hgcalBackEndLayer1HFNose, hgcalBackEndLayer2HFNose, hgcalTowerMapHFNose, hgcalTowerHFNose)
+
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toReplaceWith(
+        hgcalTriggerPrimitivesTask, _hfnose_hgcalTriggerPrimitivesTask )
+
+from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
+from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
+from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_decentralized_V9, custom_geometry_decentralized_V11
 from L1Trigger.L1THGCal.customCalibration import  custom_cluster_calibration_global
-modifyHgcalTriggerPrimitivesWithV9Geometry_ = phase2_hgcalV9.makeProcessModifier(custom_geometry_V9)
+modifyHgcalTriggerPrimitivesWithV9Geometry_ = (phase2_hgcalV10 & ~phase2_hgcalV11).makeProcessModifier(custom_geometry_decentralized_V9)
+modifyHgcalTriggerPrimitivesWithV11Geometry_ = phase2_hgcalV11.makeProcessModifier(custom_geometry_decentralized_V11)
 
 from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCalDigisSim
 # can't declare a producer version of simHGCalUnsuppressedDigis in the normal flow of things,

@@ -14,7 +14,7 @@ in Offline Trigger DQM etc
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -30,15 +30,17 @@ in Offline Trigger DQM etc
 typedef math::XYZTLorentzVectorD LorentzVector;
 typedef std::vector<LorentzVector> LorentzVectorCollection;
 
-class HLTTauMCProducer : public edm::EDProducer {
+class HLTTauMCProducer : public edm::global::EDProducer<> {
 public:
   explicit HLTTauMCProducer(const edm::ParameterSet &);
-  ~HLTTauMCProducer() override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
 private:
-  void getGenDecayProducts(const reco::GenParticleRef &, reco::GenParticleRefVector &, int status = 1, int pdgId = 0);
+  void getGenDecayProducts(const reco::GenParticleRef &,
+                           reco::GenParticleRefVector &,
+                           int status = 1,
+                           int pdgId = 0) const;
 
   enum tauDecayModes {
     kElectron,
@@ -52,13 +54,13 @@ private:
     kUndefined
   };
 
-  edm::EDGetTokenT<reco::GenParticleCollection> MC_;
-  edm::EDGetTokenT<reco::GenMETCollection> MCMET_;
-  double ptMinMCTau_;
-  double ptMinMCElectron_;
-  double ptMinMCMuon_;
-  std::vector<int> m_PDG_;
-  double etaMin, etaMax, phiMin, phiMax;
+  const edm::EDGetTokenT<reco::GenParticleCollection> MC_;
+  const edm::EDGetTokenT<reco::GenMETCollection> MCMET_;
+  const double ptMinMCTau_;
+  const double ptMinMCElectron_;
+  const double ptMinMCMuon_;
+  const std::vector<int> m_PDG_;
+  const double etaMin_, etaMax_, phiMin_, phiMax_;
 };
 
 #endif

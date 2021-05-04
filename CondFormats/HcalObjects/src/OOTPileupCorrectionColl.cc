@@ -10,8 +10,8 @@ bool OOTPileupCorrectionColl::exists(const std::string& name, const std::string&
     return !(dit->second.find(name) == dit->second.end());
 }
 
-boost::shared_ptr<AbsOOTPileupCorrection> OOTPileupCorrectionColl::get(const std::string& name,
-                                                                       const std::string& category) const {
+std::shared_ptr<AbsOOTPileupCorrection> OOTPileupCorrectionColl::get(const std::string& name,
+                                                                     const std::string& category) const {
   DataMap::const_iterator dit = data_.find(category);
   if (dit == data_.end())
     throw cms::Exception("In OOTPileupCorrectionColl::get: unknown category");

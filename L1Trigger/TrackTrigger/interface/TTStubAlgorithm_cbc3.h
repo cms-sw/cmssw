@@ -49,7 +49,6 @@ public:
   void PatternHitCorrelation(bool &aConfirmation,
                              int &aDisplacement,
                              int &anOffset,
-                             float &anROffset,
                              float &anHardBend,
                              const TTStub<T> &aTTStub) const override;
 
@@ -68,7 +67,6 @@ void TTStubAlgorithm_cbc3<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
     bool &aConfirmation,
     int &aDisplacement,
     int &anOffset,
-    float &anROffset,
     float &anHardBend,
     const TTStub<Ref_Phase2TrackerDigi_> &aTTStub) const;
 
@@ -94,7 +92,9 @@ public:
   /// Constructor
   ES_TTStubAlgorithm_cbc3(const edm::ParameterSet &p) {
     mPerformZMatching2S = p.getParameter<bool>("zMatching2S");
-    setWhatProduced(this).setConsumes(mGeomToken).setConsumes(mTopoToken);
+    auto cc = setWhatProduced(this);
+    mGeomToken = cc.consumes();
+    mTopoToken = cc.consumes();
   }
 
   /// Destructor

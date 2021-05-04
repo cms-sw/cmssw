@@ -12,11 +12,20 @@
 
 namespace ecaldqm {
   RecoSummaryTask::RecoSummaryTask()
-      : DQWorkerTask(), rechitThresholdEB_(0.), rechitThresholdEE_(0.), ebHits_(nullptr), eeHits_(nullptr) {}
+      : DQWorkerTask(),
+        rechitThresholdEB_(0.),
+        rechitThresholdEE_(0.),
+        ebHits_(nullptr),
+        eeHits_(nullptr),
+        fillRecoFlagReduced_(true) {}
 
   void RecoSummaryTask::setParams(edm::ParameterSet const& _params) {
     rechitThresholdEB_ = _params.getUntrackedParameter<double>("rechitThresholdEB");
     rechitThresholdEE_ = _params.getUntrackedParameter<double>("rechitThresholdEE");
+    fillRecoFlagReduced_ = _params.getUntrackedParameter<bool>("fillRecoFlagReduced");
+    if (!fillRecoFlagReduced_) {
+      MEs_.erase(std::string("RecoFlagReduced"));
+    }
   }
 
   void RecoSummaryTask::addDependencies(DependencySet& _dependencies) {
@@ -54,7 +63,7 @@ namespace ecaldqm {
     int subdet(isBarrel ? EcalBarrel : EcalEndcap);
 
     for (EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr) {
-      meRecoFlag.fill(subdet, hitItr->recoFlag());
+      meRecoFlag.fill(getEcalDQMSetupObjects(), subdet, hitItr->recoFlag());
       float energy(hitItr->energy());
 
       int signedSubdet;
@@ -67,7 +76,7 @@ namespace ecaldqm {
         if (energy > 3.) {
           EBDetId ebId(hitItr->id());
           if (ebId.ieta() != 85)
-            meSwissCross->fill(EcalTools::swissCross(ebId, _hits, 0.));
+            meSwissCross->fill(getEcalDQMSetupObjects(), EcalTools::swissCross(ebId, _hits, 0.));
         }
 
         if (energy > maxE[0])
@@ -88,18 +97,18 @@ namespace ecaldqm {
       }
 
       if (energy > rechitThreshold) {
-        meChi2.fill(signedSubdet, hitItr->chi2());
-        meTime.fill(signedSubdet, hitItr->time());
+        meChi2.fill(getEcalDQMSetupObjects(), signedSubdet, hitItr->chi2());
+        meTime.fill(getEcalDQMSetupObjects(), signedSubdet, hitItr->time());
       }
     }
 
     if (isBarrel) {
-      meEnergyMax.fill(EcalBarrel, maxE[0]);
+      meEnergyMax.fill(getEcalDQMSetupObjects(), EcalBarrel, maxE[0]);
 
       ebHits_ = &_hits;
     } else {
-      meEnergyMax.fill(-EcalEndcap, maxE[0]);
-      meEnergyMax.fill(EcalEndcap, maxE[1]);
+      meEnergyMax.fill(getEcalDQMSetupObjects(), -EcalEndcap, maxE[0]);
+      meEnergyMax.fill(getEcalDQMSetupObjects(), EcalEndcap, maxE[1]);
 
       eeHits_ = &_hits;
     }
@@ -111,7 +120,7 @@ namespace ecaldqm {
     int subdet(_collections == kEBReducedRecHit ? EcalBarrel : EcalEndcap);
 
     for (EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr)
-      meRecoFlag.fill(subdet, hitItr->recoFlag());
+      meRecoFlag.fill(getEcalDQMSetupObjects(), subdet, hitItr->recoFlag());
   }
 
   void RecoSummaryTask::runOnBasicClusters(edm::View<reco::CaloCluster> const& _bcs, Collections _collection) {
@@ -139,7 +148,7 @@ namespace ecaldqm {
         EcalRecHitCollection::const_iterator hItr(hitCol->find(haf[iH].first));
         if (hItr == hitCol->end())
           continue;
-        meRecoFlag.fill(subdet, hItr->recoFlag());
+        meRecoFlag.fill(getEcalDQMSetupObjects(), subdet, hItr->recoFlag());
       }
     }
   }

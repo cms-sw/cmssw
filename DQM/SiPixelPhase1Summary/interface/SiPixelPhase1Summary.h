@@ -37,8 +37,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <boost/cstdint.hpp>
-
 class SiPixelPhase1Summary : public DQMEDHarvester {
 public:
   explicit SiPixelPhase1Summary(const edm::ParameterSet& conf);
@@ -70,6 +68,7 @@ private:
 
   std::map<std::string, MonitorElement*> summaryMap_;
   MonitorElement* deadROCSummary;
+  std::map<std::string, MonitorElement*> residuals_;
   MonitorElement* reportSummary;  //Float value of the average of the ins in the grand summary
 
   std::map<std::string, std::string> summaryPlotName_;

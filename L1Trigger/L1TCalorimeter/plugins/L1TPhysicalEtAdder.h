@@ -22,12 +22,17 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/CaloSpare.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 
 //
 // class declaration
@@ -53,6 +58,9 @@ private:
   edm::EDGetToken EtSumToken_;
   edm::EDGetToken HfSumsToken_;
   edm::EDGetToken HfCountsToken_;
+  edm::ESGetToken<L1CaloEtScale, L1EmEtScaleRcd> emScaleToken_;
+  edm::ESGetToken<L1CaloEtScale, L1JetEtScaleRcd> jetScaleToken_;
+  edm::ESGetToken<L1CaloEtScale, L1HtMissScaleRcd> htMissScaleToken_;
 };
 
 #endif

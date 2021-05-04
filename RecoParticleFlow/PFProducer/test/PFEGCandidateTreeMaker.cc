@@ -8,60 +8,36 @@
 // Author: L. Gray (FNAL)
 //
 
-#include <memory>
-#include <map>
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
-
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h"
-
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
+#include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+
 #include "TTree.h"
 #include "TVector2.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
-#include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
-namespace MK = reco::MustacheKernel;
-
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-
 #include <algorithm>
+#include <map>
 #include <memory>
 
 typedef edm::ParameterSet PSet;
@@ -101,7 +77,7 @@ public:
   PFEGCandidateTreeMaker(const PSet&);
   ~PFEGCandidateTreeMaker() {}
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::Service<TFileService> _fs;
@@ -117,6 +93,13 @@ private:
                                   const reco::PFCandidateRef&,
                                   const edm::Handle<reco::PFCandidateCollection>&);
   bool getPFCandMatch(const reco::PFCandidate&, const edm::Handle<reco::PFCandidateCollection>&, const int);
+
+  // SC parameters
+  edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
+  const EcalMustacheSCParameters* mustacheSCParams_;
+  edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
+  const EcalSCDynamicDPhiParameters* scDynamicDPhiParams_;
+
   // the tree
   void setTreeArraysForSize(const size_t N_ECAL, const size_t N_PS);
   treeptr _tree;
@@ -136,6 +119,9 @@ private:
 };
 
 void PFEGCandidateTreeMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
+  mustacheSCParams_ = &es.getData(ecalMustacheSCParametersToken_);
+  scDynamicDPhiParams_ = &es.getData(ecalSCDynamicDPhiParametersToken_);
+
   edm::Handle<reco::VertexCollection> vtcs;
   e.getByLabel(_vtxsrc, vtcs);
   if (vtcs.isValid())
@@ -285,10 +271,14 @@ void PFEGCandidateTreeMaker::processEGCandidateFillTree(const edm::Event& e,
       clusterDPhiToGen[iclus] = TVector2::Phi_mpi_pi(pclus->phi() - genmatch->phi());
       clusterDEtaToGen[iclus] = pclus->eta() - genmatch->eta();
     }
-    clusterInMustache[iclus] =
-        (Int_t)MK::inMustache(theseed->eta(), theseed->phi(), pclus->energy(), pclus->eta(), pclus->phi());
-    clusterInDynDPhi[iclus] = (Int_t)MK::inDynamicDPhiWindow(
-        PFLayer::ECAL_BARREL == pclus->layer(), theseed->phi(), pclus->energy(), pclus->eta(), pclus->phi());
+    clusterInMustache[iclus] = (Int_t)reco::MustacheKernel::inMustache(
+        mustacheSCParams_, theseed->eta(), theseed->phi(), pclus->energy(), pclus->eta(), pclus->phi());
+    clusterInDynDPhi[iclus] = (Int_t)reco::MustacheKernel::inDynamicDPhiWindow(scDynamicDPhiParams_,
+                                                                               PFLayer::ECAL_BARREL == pclus->layer(),
+                                                                               theseed->phi(),
+                                                                               pclus->energy(),
+                                                                               pclus->eta(),
+                                                                               pclus->phi());
     ++iclus;
   }
   // loop over all preshower clusters
@@ -335,6 +325,9 @@ bool PFEGCandidateTreeMaker::getPFCandMatch(const reco::PFCandidate& cand,
 }
 
 PFEGCandidateTreeMaker::PFEGCandidateTreeMaker(const PSet& p) {
+  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
+  ecalSCDynamicDPhiParametersToken_ = esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>();
+
   N_ECALClusters = 1;
   N_PSClusters = 1;
   _tree = _fs->make<TTree>("SuperClusterTree", "Dump of all available SC info");

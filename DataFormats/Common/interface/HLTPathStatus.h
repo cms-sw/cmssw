@@ -26,8 +26,8 @@
  */
 
 #include "DataFormats/Common/interface/HLTenums.h"
-#include <boost/cstdint.hpp>
 #include <cassert>
+#include <cstdint>
 
 namespace edm {
   class HLTPathStatus {

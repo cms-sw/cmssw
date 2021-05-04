@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #example taken from https://pypi.python.org/pypi/uncertainties/3.0.1
 from __future__ import print_function

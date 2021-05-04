@@ -3,32 +3,38 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-typedef CaloGeometryLoader<EcalEndcapGeometry, DDCompactView> EcalEGL;
+typedef CaloGeometryLoader<EcalEndcapGeometry> EcalEGL;
 
 template <>
 void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
                        const EcalEGL::ParmVec& vv,
                        const HepGeom::Transform3D& tr,
-                       const DetId& id);
+                       const DetId& id,
+                       const double& scale);
 template <>
+void EcalEGL::fillNamedParams(const DDFilteredView& fv, EcalEndcapGeometry* geom);
 template <>
-void EcalEGL::fillNamedParams<>(const DDFilteredView& fv, EcalEndcapGeometry* geom);
+void EcalEGL::fillNamedParams(const cms::DDFilteredView& fv, EcalEndcapGeometry* geom);
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
-template class CaloGeometryLoader<EcalEndcapGeometry, DDCompactView>;
+template class CaloGeometryLoader<EcalEndcapGeometry>;
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 
 template <>
 void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
                        const EcalEGL::ParmVec& vv,
                        const HepGeom::Transform3D& tr,
-                       const DetId& id) {
+                       const DetId& id,
+                       const double& scale) {
+  static constexpr uint32_t maxSize = 11;
   std::vector<CCGFloat> pv;
-  pv.reserve(vv.size());
-  for (unsigned int i(0); i != vv.size(); ++i) {
-    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : k_ScaleFromDDDtoGeant);
-    pv.emplace_back(factor * vv[i]);
+  unsigned int size = (vv.size() > maxSize) ? maxSize : vv.size();
+  unsigned int ioff = (vv.size() > maxSize) ? (vv.size() - maxSize) : 0;
+  pv.reserve(size);
+  for (unsigned int i(0); i != size; ++i) {
+    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : static_cast<CCGFloat>(scale));
+    pv.emplace_back(factor * vv[i + ioff]);
   }
 
   std::vector<GlobalPoint> corners(8);
@@ -49,8 +55,7 @@ void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
 }
 
 template <>
-template <>
-void EcalEGL::fillNamedParams<>(const DDFilteredView& _fv, EcalEndcapGeometry* geom) {
+void EcalEGL::fillNamedParams(const DDFilteredView& _fv, EcalEndcapGeometry* geom) {
   DDFilteredView fv = _fv;
   bool doSubDets = fv.firstChild();
   while (doSubDets) {
@@ -63,7 +68,7 @@ void EcalEGL::fillNamedParams<>(const DDFilteredView& _fv, EcalEndcapGeometry* g
 
       // this parameter can only appear once
       assert(fvec.size() == 1);
-      geom->setNumberOfCrystalPerModule((int)fvec[0]);
+      geom->setNumberOfCrystalPerModule(static_cast<int>(fvec[0]));
     } else
       continue;
 
@@ -74,11 +79,26 @@ void EcalEGL::fillNamedParams<>(const DDFilteredView& _fv, EcalEndcapGeometry* g
 
       // there can only be one such value
       assert(fmvec.size() == 1);
-      geom->setNumberOfModules((int)fmvec[0]);
+      geom->setNumberOfModules(static_cast<int>(fmvec[0]));
     }
 
     break;
 
     doSubDets = fv.nextSibling();  // go to next layer
   }
+}
+
+template <>
+void EcalEGL::fillNamedParams(const cms::DDFilteredView& fv, EcalEndcapGeometry* geom) {
+  const std::string specName = "ecal_ee";
+
+  //ncrys
+  std::vector<double> tempD = fv.get<std::vector<double> >(specName, "ncrys");
+  assert(tempD.size() == 1);
+  geom->setNumberOfCrystalPerModule(static_cast<int>(tempD[0]));
+
+  //nmods
+  tempD = fv.get<std::vector<double> >(specName, "nmods");
+  assert(tempD.size() == 1);
+  geom->setNumberOfModules(static_cast<int>(tempD[0]));
 }

@@ -13,19 +13,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring('cout'),
-                                    categories = cms.untracked.vstring('GEMGeometryBuilderFromDDD'),
-                                    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        GEMGeometryBuilderFromDDD = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            )
-        )
-                                    )
-
 process.test = cms.EDAnalyzer("GEMGeometryAnalyzer")
 
 process.p = cms.Path(process.test)
@@ -38,11 +25,13 @@ process.p = cms.Path(process.test)
 ### before issuing the scram command above
 ###############################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-# process.MessageLogger.categories.append("GEMGeometryBuilderFromDDD")
-# process.MessageLogger.categories.append("GEMNumberingScheme")
+# 
+# 
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.junk = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
     default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),

@@ -34,7 +34,6 @@ using namespace std;
 DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterSet& ps) : trigGeomUtils(nullptr) {
   setConfig(ps, "DTLocalTriggerEfficiency");
   baseFolderTM = "DT/03-LocalTrigger-TM/";
-  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
 
   bookingdone = false;
 }
@@ -301,13 +300,12 @@ void DTLocalTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker& ibooker, D
   sector << chambId.sector();
 
   string fullType = fullName(htype);
-  bool isTM = hwSource == "TM";
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  ibooker.setCurrentFolder(topFolder(isTM) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" +
-                           station.str() + "/Segment");
+  ibooker.setCurrentFolder(topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() +
+                           "/Segment");
 
-  LogTrace(category()) << "[" << testName << "Test]: booking " + topFolder(isTM) + "Wheel" << wheel.str() << "/Sector"
+  LogTrace(category()) << "[" << testName << "Test]: booking " + topFolder() + "Wheel" << wheel.str() << "/Sector"
                        << sector.str() << "/Station" << station.str() << "/Segment/" << HistoName;
 
   uint32_t indexChId = chambId.rawId();

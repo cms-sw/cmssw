@@ -28,6 +28,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
@@ -35,13 +36,7 @@
 #include "SiStripOfflineDQM.h"
 
 //Run Info
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
-
-// Cabling
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include <iostream>
 #include <iomanip>
@@ -51,19 +46,53 @@
 #include <cmath>
 
 SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet)
-    : configPar_{pSet},
-      actionExecutor_{pSet},
-      usedWithEDMtoMEConverter_{configPar_.getUntrackedParameter<bool>("UsedWithEDMtoMEConverter", false)},
-      createSummary_{configPar_.getUntrackedParameter<bool>("CreateSummary", false)},
-      createTkInfoFile_{configPar_.getUntrackedParameter<bool>("CreateTkInfoFile", false)},
-      inputFileName_{configPar_.getUntrackedParameter<std::string>("InputFileName", "")},
-      outputFileName_{configPar_.getUntrackedParameter<std::string>("OutputFileName", "")},
-      globalStatusFilling_{configPar_.getUntrackedParameter<int>("GlobalStatusFilling", 1)},
-      printFaultyModuleList_{configPar_.getUntrackedParameter<bool>("PrintFaultyModuleList", false)} {
+    : actionExecutor_{pSet},
+      usedWithEDMtoMEConverter_{pSet.getUntrackedParameter<bool>("UsedWithEDMtoMEConverter", false)},
+      createSummary_{pSet.getUntrackedParameter<bool>("CreateSummary", false)},
+      createTkMap_{pSet.getUntrackedParameter<bool>("CreateTkMap", false)},
+      createTkInfoFile_{pSet.getUntrackedParameter<bool>("CreateTkInfoFile", false)},
+      inputFileName_{pSet.getUntrackedParameter<std::string>("InputFileName", "")},
+      outputFileName_{pSet.getUntrackedParameter<std::string>("OutputFileName", "")},
+      globalStatusFilling_{pSet.getUntrackedParameter<int>("GlobalStatusFilling", 1)},
+      printFaultyModuleList_{pSet.getUntrackedParameter<bool>("PrintFaultyModuleList", false)},
+      detCablingToken_{globalStatusFilling_ > 0 || createTkMap_
+                           ? decltype(detCablingToken_){esConsumes<edm::Transition::EndRun>()}
+                           : decltype(detCablingToken_){}},
+      tTopoToken_{globalStatusFilling_ > 0 || createTkMap_
+                      ? decltype(tTopoToken_){esConsumes<edm::Transition::EndRun>()}
+                      : decltype(tTopoToken_){}},
+      tkDetMapToken_{globalStatusFilling_ > 0 || createTkMap_
+                         ? decltype(tkDetMapToken_){esConsumes<edm::Transition::EndRun>()}
+                         : decltype(tkDetMapToken_){}},
+      geomDetToken_{createTkMap_ && createTkInfoFile_ ? decltype(geomDetToken_){esConsumes<edm::Transition::EndRun>()}
+                                                      : decltype(geomDetToken_){}},
+      runInfoToken_{esConsumes<edm::Transition::BeginRun>()} {
+  if (createTkMap_) {
+    using QualityToken = edm::ESGetToken<SiStripQuality, SiStripQualityRcd>;
+    for (const auto& ps : pSet.getUntrackedParameter<std::vector<edm::ParameterSet>>("TkMapOptions")) {
+      edm::ParameterSet tkMapPSet = ps;
+      const auto map_type = ps.getUntrackedParameter<std::string>("mapName", "");
+      tkMapPSet.augment(pSet.getUntrackedParameter<edm::ParameterSet>("TkmapParameters"));
+      const bool useSSQ = tkMapPSet.getUntrackedParameter<bool>("useSSQuality", false);
+      auto token = useSSQ ? QualityToken{esConsumes<edm::Transition::EndRun>(
+                                edm::ESInputTag{"", tkMapPSet.getUntrackedParameter<std::string>("ssqLabel", "")})}
+                          : QualityToken{};
+      tkMapOptions_.emplace_back(map_type, std::move(tkMapPSet), useSSQ, std::move(token));
+    }
+  }
+
   if (createTkInfoFile_) {
     tkinfoTree_ = edm::Service<TFileService> {}
     ->make<TTree>("TkDetIdInfo", "");
   }
+
+  // explicit dependency to make sure the QTest reults needed here are present
+  // already in endRun.
+  consumes<DQMToken, edm::InRun>(edm::InputTag("siStripQTester", "DQMGenerationQTestRun"));
+  consumes<DQMToken, edm::InLumi>(edm::InputTag("siStripQTester", "DQMGenerationQTestLumi"));
+  usesResource("DQMStore");
+  produces<DQMToken, edm::Transition::EndRun>("DQMGenerationSiStripAnalyserRun");
+  produces<DQMToken, edm::Transition::EndLuminosityBlock>("DQMGenerationSiStripAnalyserLumi");
 }
 
 void SiStripOfflineDQM::beginJob() {
@@ -83,10 +112,8 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
   edm::LogInfo("BeginRun") << "SiStripOfflineDQM:: Begining of Run";
 
   int nFEDs = 0;
-  if (auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-    if (sumFED.isValid()) {
+  if (eSetup.tryToGet<RunInfoRcd>()) {
+    if (auto sumFED = eSetup.getHandle(runInfoToken_)) {
       constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
       constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
 
@@ -107,7 +134,7 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
   }
 }
 
-void SiStripOfflineDQM::analyze(edm::Event const&, edm::EventSetup const&) {}
+void SiStripOfflineDQM::produce(edm::Event&, edm::EventSetup const&) {}
 
 void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
   edm::LogInfo("EndLumiBlock") << "SiStripOfflineDQM::endLuminosityBlock";
@@ -122,10 +149,6 @@ void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo("EndOfRun") << "SiStripOfflineDQM::endRun";
 
-  // Access Cabling
-  edm::ESHandle<SiStripDetCabling> det_cabling;
-  eSetup.get<SiStripDetCablingRcd>().get(det_cabling);
-
   auto& dqm_store = *edm::Service<DQMStore>{};
   if (globalStatusFilling_ > 0) {
     actionExecutor_.createStatus(dqm_store);
@@ -134,7 +157,8 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
       return;
     }
     // Fill Global Status
-    actionExecutor_.fillStatus(dqm_store, det_cabling, eSetup);
+    actionExecutor_.fillStatus(
+        dqm_store, &eSetup.getData(detCablingToken_), &eSetup.getData(tkDetMapToken_), &eSetup.getData(tTopoToken_));
   }
 
   if (usedWithEDMtoMEConverter_)
@@ -145,21 +169,19 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
     actionExecutor_.createSummaryOffline(dqm_store);
 
   // Create TrackerMap
-  bool const create_tkmap = configPar_.getUntrackedParameter<bool>("CreateTkMap", false);
-  if (create_tkmap) {
-    auto const tkMapOptions = configPar_.getUntrackedParameter<std::vector<edm::ParameterSet>>("TkMapOptions");
-    if (actionExecutor_.readTkMapConfiguration(eSetup)) {
-      std::vector<std::string> map_names;
-      for (auto const& ps : tkMapOptions) {
-        edm::ParameterSet tkMapPSet = ps;
-        std::string map_type = ps.getUntrackedParameter<std::string>("mapName", "");
-        map_names.push_back(map_type);
-        tkMapPSet.augment(configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters"));
-        edm::LogInfo("TkMapParameters") << tkMapPSet;
-        actionExecutor_.createOfflineTkMap(tkMapPSet, dqm_store, map_type, eSetup);
+  if (createTkMap_) {
+    if (actionExecutor_.readTkMapConfiguration(
+            &eSetup.getData(detCablingToken_), &eSetup.getData(tkDetMapToken_), &eSetup.getData(tTopoToken_))) {
+      std::vector<std::string> mapNames;
+      for (const auto& mapOptions : tkMapOptions_) {
+        edm::LogInfo("TkMapParameters") << mapOptions.pset;
+        std::string map_type = mapOptions.type;
+        actionExecutor_.createOfflineTkMap(
+            mapOptions.pset, dqm_store, map_type, mapOptions.useSSQ ? &eSetup.getData(mapOptions.token) : nullptr);
+        mapNames.push_back(map_type);
       }
       if (createTkInfoFile_) {
-        actionExecutor_.createTkInfoFile(map_names, tkinfoTree_, dqm_store);
+        actionExecutor_.createTkInfoFile(mapNames, tkinfoTree_, dqm_store, &eSetup.getData(geomDetToken_));
       }
     }
   }

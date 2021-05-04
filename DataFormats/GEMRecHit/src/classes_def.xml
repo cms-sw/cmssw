@@ -36,8 +36,12 @@
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<GEMCSCSegment,edm::ClonePolicy<GEMCSCSegment> >,edm::ClonePolicy<GEMCSCSegment> > >" splitLevel="0"/>
   <class name="GEMCSCSegmentRef" splitLevel="0"/>
 
-  <class name="GEMSegment" ClassVersion="3">
+  <class name="GEMSegment" ClassVersion="4">
+  <version ClassVersion="4" checksum="1506093327"/>
   <version ClassVersion="3" checksum="1513163288"/>
+  <ioread sourceClass="GEMSegment" version="[-3]" targetClass="GEMSegment" source="" target="theDeltaPhi">
+    <![CDATA[ theDeltaPhi = -10.; ]]>
+  </ioread>
   </class>
   <class name="std::vector<GEMSegment*>" splitLevel="0"/>
   <class name="edm::OwnVector<GEMSegment,edm::ClonePolicy<GEMSegment> >" splitLevel="0"/>

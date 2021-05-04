@@ -121,7 +121,7 @@ std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::s
         edm::LogError("JetCorrectionUncertainty::") << " jet phi is not set";
         result.push_back(-999.0);
       } else {
-        result.push_back(mJetPt);
+        result.push_back(mJetPhi);
       }
     } else if (fNames[i] == "JetE") {
       if (!mIsJetEset) {

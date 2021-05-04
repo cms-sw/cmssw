@@ -1,7 +1,7 @@
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 
-#include "boost/shared_array.hpp"
+#include <memory>
 
 #include <fstream>
 #include <iostream>
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
   std::ifstream::pos_type size = file.tellg();
   file.seekg(0, std::ios::beg);
 
-  boost::shared_array<char> ptr(new char[1024 * 1024]);
+  auto ptr = std::make_unique<char[]>(1024 * 1024);
   uint32_t a = 1, b = 0;
 
   std::ifstream::pos_type rsize = 0;

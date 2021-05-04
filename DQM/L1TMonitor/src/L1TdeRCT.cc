@@ -1964,8 +1964,8 @@ void L1TdeRCT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, c
   for (unsigned int i = 0; i < 108; ++i) {
     char fed[10];
     sprintf(fed, "%d", crateFED[i]);
-    fedVectorMonitorRUN_->getTH2F()->GetXaxis()->SetBinLabel(i + 1, fed);
-    fedVectorMonitorLS_->getTH2F()->GetXaxis()->SetBinLabel(i + 1, fed);
+    fedVectorMonitorRUN_->setBinLabel(i + 1, fed);
+    fedVectorMonitorLS_->setBinLabel(i + 1, fed);
   }
   fedVectorMonitorRUN_->getTH2F()->GetYaxis()->SetBinLabel(1, "OUT");
   fedVectorMonitorRUN_->getTH2F()->GetYaxis()->SetBinLabel(2, "IN");

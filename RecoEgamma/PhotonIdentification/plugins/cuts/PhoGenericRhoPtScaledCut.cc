@@ -1,7 +1,8 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
-#include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
+#include "CommonTools/Egamma/interface/EffectiveAreas.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/ThreadSafeFunctor.h"
 #include "RecoEgamma/EgammaTools/interface/EBEECutValues.h"
 
 class PhoGenericRhoPtScaledCut : public CutApplicatorWithEventContentBase {
@@ -18,7 +19,7 @@ public:
   CandidateType candidateType() const final { return PHOTON; }
 
 private:
-  ThreadSafeStringCut<StringObjectFunction<reco::Photon>, reco::Photon> varFunc_;
+  ThreadSafeFunctor<StringObjectFunction<reco::Photon>> varFunc_;
   bool lessThan_;
   //cut value is constTerm + linearRhoTerm_*rho + linearPtTerm*pt + quadraticPtTerm*pt*pt
   //note EBEECutValues & Effective areas are conceptually the same thing, both are eta

@@ -3,9 +3,7 @@
 #include <cassert>
 
 #ifndef STANDALONE
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"

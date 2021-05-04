@@ -1,4 +1,7 @@
 #include "SimMuon/Neutron/src/EDMNeutronWriter.h"
+
+#include <memory>
+
 #include "FWCore/Framework/interface/Event.h"
 
 EDMNeutronWriter::EDMNeutronWriter() : theEvent(nullptr), theHits(nullptr) {}
@@ -11,7 +14,7 @@ void EDMNeutronWriter::writeCluster(int detType, const edm::PSimHitContainer& si
 
 void EDMNeutronWriter::beginEvent(edm::Event& e, const edm::EventSetup& es) {
   theEvent = &e;
-  theHits = std::unique_ptr<edm::PSimHitContainer>(new edm::PSimHitContainer());
+  theHits = std::make_unique<edm::PSimHitContainer>();
 }
 
 void EDMNeutronWriter::endEvent() { theEvent->put(std::move(theHits)); }

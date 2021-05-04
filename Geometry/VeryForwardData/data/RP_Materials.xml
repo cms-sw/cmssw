@@ -119,7 +119,6 @@
     <rMaterial name="RP_Materials:Hydrogen"/>
    </MaterialFraction>
   </CompositeMaterial>
- </MaterialSection>
   
  <CompositeMaterial name="PCB" density="1.957*g/cm3" symbol=" " method="mixture by weight">
   <MaterialFraction fraction="0.2562774130">
@@ -153,4 +152,5 @@
     <rMaterial name="RP_Materials:Aluminum"/>
    </MaterialFraction>
   </CompositeMaterial>
+ </MaterialSection>
 </DDDefinition>

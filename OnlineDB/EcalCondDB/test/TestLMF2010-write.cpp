@@ -1,15 +1,15 @@
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <vector>
-#include <time.h>
-#include <cstdlib>
-#include <limits.h>
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/LMFDefFabric.h"
 #include "OnlineDB/EcalCondDB/interface/LMFLaserPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPnPrimDat.h"
 #include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
+#include <climits>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -117,13 +117,10 @@ public:
       cout << "Does not exists" << endl;
     }
     // we can just get the tags from the DB
-    boost::ptr_list<LMFUnique> listOfTags = lmfruntag.fetchAll();
-    boost::ptr_list<LMFUnique>::iterator itag = listOfTags.begin();
-    boost::ptr_list<LMFUnique>::iterator etag = listOfTags.end();
+    auto listOfTags = lmfruntag.fetchAll();
     cout << "Found " << listOfTags.size() << " tags" << endl;
-    while (itag != etag) {
-      itag->dump();
-      itag++;
+    for (auto &tag : listOfTags) {
+      tag->dump();
     }
     // we can also get the tags from the fabric
     lmfruntag = fabric.getRunTag("gen", 3);
@@ -190,7 +187,7 @@ public:
       tpDat.setData(logic_id, gain[g], rand(), rand(), rand());
       vector<float> random_data;
       for (int k = 0; k < 8; k++) {
-        random_data.push_back((float)rand() / RAND_MAX);
+        random_data.push_back((float)rand() / static_cast<float>(RAND_MAX));
       }
       lcDat.setData(logic_id, random_data);
     }
@@ -250,7 +247,7 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   EcalCondDBInterface *econn;
   run_t run;
 };

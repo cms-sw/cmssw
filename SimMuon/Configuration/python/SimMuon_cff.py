@@ -24,10 +24,15 @@ _run3_muonDigiTask.add(muonGEMDigiTask)
 _phase2_muonDigiTask = _run3_muonDigiTask.copy()
 _phase2_muonDigiTask.add(muonME0DigiTask)
 
+# while GE0 is in development, just turn off ME0 tasks
+_phase2_ge0 = _phase2_muonDigiTask.copyAndExclude([muonME0DigiTask])
+
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith( muonDigiTask, _run3_muonDigiTask )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( muonDigiTask, _run3_muonDigiTask )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( muonDigiTask, _phase2_muonDigiTask )
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toReplaceWith( muonDigiTask, _phase2_ge0 )
 

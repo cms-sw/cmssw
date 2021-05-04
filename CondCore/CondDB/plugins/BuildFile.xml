@@ -1,21 +1,28 @@
-<library   file="CondDBPyWrappers.cc" name="CondDBV2PyInterface">
-  <use   name="CondCore/CondDB"/>
-  <use   name="boost_python"/>
-</library>
-<library   file="XMLAuthenticationService.cc" name="CondCoreCondDBXMLAuthenticationService">		
-  <use   name="boost"/>
-  <use   name="tbb"/>
-  <use   name="xerces-c"/>
-  <use   name="RelationalAccess"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="Utilities/Xerces"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>		
-<library   file="RelationalAuthenticationService.cc" name="CondCoreCondDBRelationalAuthenticationService">		
-  <use   name="boost"/>
-  <use   name="tbb"/>
-  <use   name="RelationalAccess"/>
-  <use   name="CondCore/CondDB"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="CondDBPyWrappers.cc" name="CondDBV2PyInterface">
+  <use name="CondCore/CondDB"/>
+  <use name="boost_python"/>
 </library>
 
+<library file="CondDBPyBind11Wrappers.cc" name="CondDBPyBind11Interface">
+  <use name="CondCore/CondDB"/>
+  <use name="py2-pybind11"/>
+  <use name="python"/>
+</library>                                                                                                                                                                    
+
+<library file="XMLAuthenticationService.cc" name="CondCoreCondDBXMLAuthenticationService">
+  <use name="boost"/>
+  <use name="tbb"/>
+  <use name="xerces-c"/>
+  <use name="RelationalAccess"/>
+  <use name="CondCore/CondDB"/>
+  <use name="Utilities/Xerces"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="RelationalAuthenticationService.cc" name="CondCoreCondDBRelationalAuthenticationService">
+  <use name="boost"/>
+  <use name="tbb"/>
+  <use name="RelationalAccess"/>
+  <use name="CondCore/CondDB"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

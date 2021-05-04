@@ -11,12 +11,16 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorSummary/interface/SiStripClassToMonitorCondData.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
 #include <map>
 #include <string>
@@ -61,10 +65,13 @@ private:
   std::string outputFilePath_;
   std::string outputFileName_;
 
-  edm::ESHandle<SiStripFedCabling> fedCabling_;
-  edm::ESHandle<SiStripDetCabling> detCabling_;
+  const SiStripDetCabling* detCabling_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_, tTopoTokenELB_, tTopoTokenBR_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_, tkDetMapTokenELB_, tkDetMapTokenBR_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
 
-  unsigned long long m_cacheID_;
   int nLumiSecs_{};
   int nEvents_{};
   bool trackerFEDsFound_{false};

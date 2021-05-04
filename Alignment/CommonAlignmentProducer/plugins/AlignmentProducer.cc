@@ -18,28 +18,12 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet &config)
   if (doTracker_) {
     setWhatProduced(this, &AlignmentProducer::produceTracker);
   }
-  if (doMuon_) {
-    setWhatProduced(this, &AlignmentProducer::produceDT);
-    setWhatProduced(this, &AlignmentProducer::produceCSC);
-  }
 }
 
 //------------------------------------------------------------------------------
 std::shared_ptr<TrackerGeometry> AlignmentProducer::produceTracker(const TrackerDigiGeometryRecord &) {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::produceTracker";
   return trackerGeometry_;
-}
-
-//------------------------------------------------------------------------------
-std::shared_ptr<DTGeometry> AlignmentProducer::produceDT(const MuonGeometryRecord &) {
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::produceDT";
-  return muonDTGeometry_;
-}
-
-//------------------------------------------------------------------------------
-std::shared_ptr<CSCGeometry> AlignmentProducer::produceCSC(const MuonGeometryRecord &) {
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::produceCSC";
-  return muonCSCGeometry_;
 }
 
 //------------------------------------------------------------------------------

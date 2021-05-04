@@ -1,20 +1,20 @@
-<use   name="SimGeneral/HepPDTRecord"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/MuonReco"/>
-<use   name="DataFormats/TrackingRecHit"/>
-<use   name="DataFormats/SiStripCluster"/>
-<use   name="DataFormats/SiPixelCluster"/>
-<use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="DataFormats/METReco"/>
-<use   name="DataFormats/RecoCandidate"/>
-<use   name="DataFormats/Candidate"/>
-<use   name="TrackingTools/Records"/>
-<use   name="TrackingTools/IPTools"/>
-<use   name="TrackingTools/TransientTrack"/>
-<use   name="fastjet"/>
-
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/MuonReco"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="DataFormats/SiStripCluster"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/VertexReco"/>
+<use name="TrackingTools/IPTools"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="fastjet"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

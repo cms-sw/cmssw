@@ -23,6 +23,7 @@ premix_stage2.toModify(stripDigitizer,
     Noise = False, # will be added in DataMixer
     PreMixingMode = True, #Special mode to save all hit strips
     FedAlgorithm = 5, # special ZS mode: accept adc>0
+    includeAPVSimulation = False  # APV simulation is off for the MixingModule configuration in premix stage2
 )
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

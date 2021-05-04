@@ -44,7 +44,6 @@ private:
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endRun(const edm::Run &, const edm::EventSetup &) override;
 
   // Extra Methods
   std::vector<std::string> moduleLabels(const std::string &);
@@ -142,10 +141,6 @@ void HLTMuonOfflineAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
 
 void HLTMuonOfflineAnalyzer::analyze(const Event &iEvent, const EventSetup &iSetup) {
   plotterContainer_.analyze(iEvent, iSetup);
-}
-
-void HLTMuonOfflineAnalyzer::endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
-  //   plotterContainer_.endRun(iRun, iSetup);
 }
 
 //define this as a plug-in

@@ -46,11 +46,11 @@ namespace {
   KFTrajectoryFitterESProducer::KFTrajectoryFitterESProducer(const edm::ParameterSet& p)
       : minHits_{p.getParameter<int>("minHits")} {
     std::string myname = p.getParameter<std::string>("ComponentName");
-    setWhatProduced(this, myname)
-        .setConsumes(propToken_, edm::ESInputTag("", p.getParameter<std::string>("Propagator")))
-        .setConsumes(updToken_, edm::ESInputTag("", p.getParameter<std::string>("Updator")))
-        .setConsumes(estToken_, edm::ESInputTag("", p.getParameter<std::string>("Estimator")))
-        .setConsumes(geoToken_, edm::ESInputTag("", p.getParameter<std::string>("RecoGeometry")));
+    auto cc = setWhatProduced(this, myname);
+    propToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("Propagator")));
+    updToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("Updator")));
+    estToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("Estimator")));
+    geoToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("RecoGeometry")));
   }
 
   std::unique_ptr<TrajectoryFitter> KFTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord& iRecord) {

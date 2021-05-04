@@ -1,5 +1,6 @@
 #ifndef TkNavigation_SimpleForwardNavigableLayer_H
 #define TkNavigation_SimpleForwardNavigableLayer_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "SimpleNavigableLayer.h"
 

@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <cassert>
 
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
@@ -152,8 +153,8 @@ public:
   double totalCPUTime() const;
   double longestModuleTime() const;
   double longestModuleCPUTime() const;
-  const char *longestModuleTimeName() const;
-  const char *longestModuleCPUTimeName() const;
+  std::string longestModuleTimeName() const;
+  std::string longestModuleCPUTimeName() const;
 
   double totalPathTime(const size_t path);
   double totalPathCPUTime(const size_t path);

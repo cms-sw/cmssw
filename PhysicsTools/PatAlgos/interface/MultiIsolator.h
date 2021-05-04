@@ -4,17 +4,17 @@
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-
 #include "PhysicsTools/PatAlgos/interface/BaseIsolator.h"
-#include "boost/ptr_container/ptr_vector.hpp"
-
 #include "DataFormats/PatCandidates/interface/Isolation.h"
+
+#include <memory>
+#include <vector>
 
 namespace pat {
   namespace helper {
     class MultiIsolator {
     public:
-      typedef std::vector<std::pair<pat::IsolationKeys, float> > IsolationValuePairs;
+      typedef std::vector<std::pair<pat::IsolationKeys, float>> IsolationValuePairs;
       MultiIsolator() {}
       MultiIsolator(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC, bool cuts = true);
       ~MultiIsolator() {}
@@ -55,7 +55,7 @@ namespace pat {
       bool enabled() const { return !isolators_.empty(); }
 
     private:
-      boost::ptr_vector<BaseIsolator> isolators_;
+      std::vector<std::unique_ptr<BaseIsolator>> isolators_;
       std::vector<uint32_t> masks_;
       std::vector<pat::IsolationKeys> keys_;
     };
@@ -65,7 +65,7 @@ namespace pat {
       uint32_t retval = 0;
       edm::RefToBase<T> rb = coll.refAt(idx);  // edm::Ptr<T> in a shiny new future to come one remote day ;-)
       for (size_t i = 0, n = isolators_.size(); i < n; ++i) {
-        if (!isolators_[i].test(rb))
+        if (!isolators_[i]->test(rb))
           retval |= masks_[i];
       }
       return retval;
@@ -76,7 +76,7 @@ namespace pat {
       isolations.resize(isolators_.size());
       for (size_t i = 0, n = isolators_.size(); i < n; ++i) {
         isolations[i].first = keys_[i];
-        isolations[i].second = isolators_[i].getValue(rb);
+        isolations[i].second = isolators_[i]->getValue(rb);
       }
     }
 

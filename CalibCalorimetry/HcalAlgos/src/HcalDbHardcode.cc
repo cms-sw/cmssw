@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <memory>
+#include <cassert>
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
@@ -27,7 +28,8 @@ HcalDbHardcode::HcalDbHardcode()
                             125,                   //MC shape
                             105,                   //Reco shape
                             0.0,                   //photoelectronsToAnalog
-                            {0.0}                  //dark current
+                            {0.0},                 //dark current
+                            {0.0}                  //noise correlation
                             ),
       setHB_(false),
       setHE_(false),
@@ -643,11 +645,13 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter(HcalGenericDetId fId
                                                             double intlumi) {
   // SiPMParameter defined for each DetId the following quantities:
   //  SiPM type, PhotoElectronToAnalog, Dark Current, two auxiliary words
+  //  (the second of those containing float noise correlation coefficient
   //  These numbers come from some measurements done with SiPMs
   // rule for type: cells with >4 layers use larger device (3.3mm diameter), otherwise 2.8mm
   HcalSiPMType theType = HcalNoSiPM;
   double thePe2fC = getParameters(fId).photoelectronsToAnalog();
   double theDC = getParameters(fId).darkCurrent(0, intlumi);
+  double theNoiseCN = getParameters(fId).noiseCorrelation(0);
   if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
     if (useHBUpgrade_) {
       HcalDetId hid(fId);
@@ -655,9 +659,11 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter(HcalGenericDetId fId
       if (nLayersInDepth > 4) {
         theType = HcalHBHamamatsu2;
         theDC = getParameters(fId).darkCurrent(1, intlumi);
+        theNoiseCN = getParameters(fId).noiseCorrelation(1);
       } else {
         theType = HcalHBHamamatsu1;
         theDC = getParameters(fId).darkCurrent(0, intlumi);
+        theNoiseCN = getParameters(fId).noiseCorrelation(0);
       }
     } else
       theType = HcalHPD;
@@ -668,9 +674,11 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter(HcalGenericDetId fId
       if (nLayersInDepth > 4) {
         theType = HcalHEHamamatsu2;
         theDC = getParameters(fId).darkCurrent(1, intlumi);
+        theNoiseCN = getParameters(fId).noiseCorrelation(1);
       } else {
         theType = HcalHEHamamatsu1;
         theDC = getParameters(fId).darkCurrent(0, intlumi);
+        theNoiseCN = getParameters(fId).noiseCorrelation(0);
       }
     } else
       theType = HcalHPD;
@@ -681,7 +689,7 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter(HcalGenericDetId fId
       theType = HcalHPD;
   }
 
-  return HcalSiPMParameter(fId.rawId(), theType, thePe2fC, theDC, 0, 0);
+  return HcalSiPMParameter(fId.rawId(), theType, thePe2fC, theDC, 0, (float)theNoiseCN);
 }
 
 std::unique_ptr<HcalSiPMCharacteristics> HcalDbHardcode::makeHardcodeSiPMCharacteristics() const {

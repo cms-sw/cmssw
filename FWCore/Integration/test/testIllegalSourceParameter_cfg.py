@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr_stats.output = 'NULL'
+process.MessageLogger.cerr.enableStatistics = False
 
 # Intentionally define a parameter that does not
 # exist in the ParameterSetDescription which

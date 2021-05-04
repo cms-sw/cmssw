@@ -16,10 +16,10 @@ namespace funct {
   template <typename F>
   struct ExpressionT : public AbsExpression {
     inline ExpressionT(const F& f) : _f(f) {}
-    virtual ~ExpressionT() {}
-    virtual double operator()() const { return _f(); }
-    virtual AbsExpression* clone() const { return new ExpressionT<F>(_f); }
-    virtual std::ostream& print(std::ostream& cout) const { return cout << _f; }
+    ~ExpressionT() override {}
+    double operator()() const override { return _f(); }
+    AbsExpression* clone() const override { return new ExpressionT<F>(_f); }
+    std::ostream& print(std::ostream& cout) const override { return cout << _f; }
 
   private:
     F _f;
@@ -55,9 +55,9 @@ namespace funct {
   template <typename F>
   struct FunctExpressionT : public AbsFunctExpression {
     inline FunctExpressionT(const F& f) : _f(f) {}
-    virtual ~FunctExpressionT() {}
-    virtual double operator()(double x) const { return _f(x); }
-    virtual AbsFunctExpression* clone() const { return new FunctExpressionT<F>(_f); }
+    ~FunctExpressionT() override {}
+    double operator()(double x) const override { return _f(x); }
+    AbsFunctExpression* clone() const override { return new FunctExpressionT<F>(_f); }
 
   private:
     F _f;

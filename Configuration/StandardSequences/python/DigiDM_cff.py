@@ -45,17 +45,3 @@ pdigiTask.remove(simEcalDigis)  # does zero suppression
 pdigiTask.remove(simEcalPreshowerDigis)  # does zero suppression
 pdigiTask.remove(simHcalDigis)
 pdigiTask.remove(simHcalTTPDigis)
-
-# premixing stage2 runs addPileupInfo, and muon digis after PreMixingModule (configured in DataMixerPreMix_cff)
-premix_stage2.toReplaceWith(pdigiTask, pdigiTask.copyAndExclude([addPileupInfo, genPUProtons, muonDigiTask]))
-
-# genPUProtons, on the other hand, is an EDAlias. In principle it is
-# already loaded with digitizers_cfi, but in practice that gets
-# overwritten by the EDProducer by loading this file. So we hack
-# around by adding a ProcessModifier with overwrites it back to
-# EDAlias (because we can't toReplaceWith() an EDProducer with an
-# EDAlias).
-def _loadPremixStage2Alias(process):
-    import SimGeneral.MixingModule.aliases_PreMix_cfi as _aliases
-    process.genPUProtons = _aliases.genPUProtons
-modifyDigiDM_loadPremixStage2Alias = premix_stage2.makeProcessModifier(_loadPremixStage2Alias)

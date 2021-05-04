@@ -20,8 +20,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <atomic>
-
-#pragma GCC diagnostic ignored "-Wformat"  // shut warning on '%z'
+#include <memory>
 
 /// Information about file systems on this node.
 struct LocalFileSystem::FSInfo {
@@ -60,8 +59,9 @@ int LocalFileSystem::readFSTypes(void) {
   int ret = 0;
 
 #if __linux__
-  static const char procfs[] = "/proc/filesystems";
-  FILE *fs = fopen(procfs, "r");
+  constexpr char procfs[] = "/proc/filesystems";
+  auto close_ = [](FILE *iFile) { fclose(iFile); };
+  std::unique_ptr<FILE, decltype(close_)> fs(fopen(procfs, "r"), close_);
   if (!fs) {
     int nerr = errno;
     edm::LogWarning("LocalFileSystem::readFSTypes()")
@@ -71,47 +71,42 @@ int LocalFileSystem::readFSTypes(void) {
 
   ssize_t nread;
   int line = 0;
-  while (!feof(fs)) {
+  auto free_ = [](char **iPtr) { free(*iPtr); };
+  while (!feof(fs.get())) {
     char *type = nullptr;
-    char *fstype = nullptr;
+    std::unique_ptr<char *, decltype(free_)> freeType(&type, free_);
+
     size_t len = 0;
     ++line;
 
-    if ((nread = getdelim(&type, &len, '\t', fs)) == -1 && !feof(fs)) {
-      fprintf(stderr, "%s:%d: %s (%zd; 1)\n", procfs, line, strerror(errno), nread);
-      free(type);
+    if ((nread = getdelim(&type, &len, '\t', fs.get())) == -1 && !feof(fs.get())) {
+      edm::LogError("LocalFileSystem::readFSTypes()")
+          .format("{}:{}: {} ({}; 1)\n", procfs, line, strerror(errno), nread);
       ret = -1;
       break;
     }
 
-    if ((nread = getdelim(&fstype, &len, '\n', fs)) == -1 && !feof(fs)) {
-      fprintf(stderr, "%s:%d: %s (%zd; 2)\n", procfs, line, strerror(errno), nread);
-      free(type);
-      free(fstype);
+    char *fstype = nullptr;
+    std::unique_ptr<char *, decltype(free_)> freeFSType(&fstype, free_);
+    if ((nread = getdelim(&fstype, &len, '\n', fs.get())) == -1 && !feof(fs.get())) {
+      edm::LogError("LocalFileSystem::readFSTypes()")
+          .format("{}:{}: {} ({}; 2)\n", procfs, line, strerror(errno), nread);
       ret = -1;
       break;
     }
 
-    if (feof(fs)) {
-      free(type);
-      free(fstype);
+    if (feof(fs.get())) {
       break;
     }
 
     if (!strcmp(type, "nodev\t") || !strcmp(fstype, "lustre\n") || !strncmp(fstype, "fuse", 4)) {
-      free(type);
-      free(fstype);
       continue;
     }
 
     assert(nread >= 1);
     fstype[nread - 1] = 0;
     fstypes_.push_back(fstype);
-    free(fstype);
-    free(type);
   }
-
-  fclose(fs);
 #endif  // __linux__
 
   return ret;
@@ -441,7 +436,7 @@ std::pair<std::string, std::string> LocalFileSystem::findCachePath(const std::ve
     const char *path = inpath;
 
     if (*path == '$') {
-      char *p = getenv(path + 1);
+      char *p = std::getenv(path + 1);
       if (p && *p)
         path = p;
       else if (!strcmp(path, "$TMPDIR"))

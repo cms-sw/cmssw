@@ -6,12 +6,13 @@
 
 #include "RecoLocalMuon/GEMRecHit/interface/GEMClusterContainer.h"
 #include "RecoLocalMuon/GEMRecHit/interface/GEMCluster.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMEtaPartitionMask.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
 class GEMClusterizer {
 public:
   GEMClusterizer(){};
   ~GEMClusterizer(){};
-  GEMClusterContainer doAction(const GEMDigiCollection::Range& digiRange);
+  GEMClusterContainer doAction(const GEMDigiCollection::Range& digiRange, const EtaPartitionMask& mask);
 };
 #endif

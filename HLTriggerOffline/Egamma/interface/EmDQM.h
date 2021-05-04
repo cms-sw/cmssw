@@ -3,7 +3,7 @@
 
 // Base Class Headers
 #include "CommonTools/Utils/interface/PtComparator.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -63,7 +63,7 @@ private:
   EmDQM *dqm;
 };
 
-class EmDQM : public DQMEDAnalyzer {
+class EmDQM : public DQMOneEDAnalyzer<> {
 public:
   friend class HistoFiller<reco::ElectronCollection>;
   friend class HistoFiller<reco::RecoEcalCandidateCollection>;
@@ -81,7 +81,7 @@ public:
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endRun(edm::Run const &, edm::EventSetup const &) override;
+  void dqmEndRun(edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // interface to DQM framework

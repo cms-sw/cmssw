@@ -4,7 +4,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimG4Core/Application/interface/OscarMTProducer.h"
+#include "OscarMTProducer.h"
+
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
@@ -62,11 +63,12 @@ namespace {
   };
 }  // namespace
 
-OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread*) {
+OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread* ms) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  m_runManagerWorker.reset(new RunManagerMTWorker(p, consumesCollector()));
+  m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
+  m_masterThread = ms;
 
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
@@ -121,13 +123,15 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   produces<edm::PCaloHitContainer>("FibreHits");
   produces<edm::PCaloHitContainer>("WedgeHits");
   produces<edm::PCaloHitContainer>("HFNoseHits");
+  produces<edm::PCaloHitContainer>("TotemHitsT2Scint");
 
   //register any products
-  m_producers = m_runManagerWorker->producers();
+  auto& producers = m_runManagerWorker->producers();
 
-  for (Producers::iterator itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
-    (*itProd)->registerProducts(*this);
+  for (Producers::iterator itProd = producers.begin(); itProd != producers.end(); ++itProd) {
+    (*itProd)->registerProducts(producesCollector());
   }
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer is constructed";
 }
 
 OscarMTProducer::~OscarMTProducer() {}
@@ -135,6 +139,7 @@ OscarMTProducer::~OscarMTProducer() {}
 std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::initializeGlobalCache";
 
   return std::unique_ptr<OscarMTMasterThread>(new OscarMTMasterThread(iConfig));
 }
@@ -145,27 +150,40 @@ std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run& iRun,
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalBeginRun";
   masterThread->beginRun(iSetup);
-
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalBeginRun done";
   return std::shared_ptr<int>();
 }
 
 void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext* iContext) {
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalEndRun";
   iContext->global()->endRun();
 }
 
-void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) { masterThread->stopThread(); }
+void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) {
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalEndJob";
+  masterThread->stopThread();
+}
+
+void OscarMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun";
+  m_runManagerWorker->initializeG4(m_masterThread->runManagerMasterPtr(), es);
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun done";
+}
 
 void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun";
   m_runManagerWorker->endRun();
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun done";
 }
 
 void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   StaticRandomEngineSetUnset random(e.streamID());
-  LogDebug("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID()
-                                   << " rand= " << G4UniformRand();
+  edm::LogVerbatim("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID();
+  LogDebug("SimG4CoreApplication") << "Before event rand= " << G4UniformRand();
 
   auto& sTk = m_runManagerWorker->sensTkDetectors();
   auto& sCalo = m_runManagerWorker->sensCaloDetectors();
@@ -194,6 +212,8 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     for (auto& name : v) {
       std::unique_ptr<edm::PSimHitContainer> product(new edm::PSimHitContainer);
       tracker->fillHits(*product, name);
+      if (product != nullptr && !product->empty())
+        edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " traker hits <" << name << ">";
       e.put(std::move(product), name);
     }
   }
@@ -203,15 +223,18 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     for (auto& name : v) {
       std::unique_ptr<edm::PCaloHitContainer> product(new edm::PCaloHitContainer);
       calo->fillHits(*product, name);
+      if (product != nullptr && !product->empty())
+        edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " calo hits <" << name << ">";
       e.put(std::move(product), name);
     }
   }
 
-  for (auto& prod : m_producers) {
+  auto& producers = m_runManagerWorker->producers();
+  for (auto& prod : producers) {
     prod.get()->produce(e, es);
   }
-  LogDebug("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID()
-                                   << " rand= " << G4UniformRand();
+  edm::LogVerbatim("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID();
+  LogDebug("SimG4CoreApplication") << "End of event rand= " << G4UniformRand();
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(edm::StreamID const& streamID) {

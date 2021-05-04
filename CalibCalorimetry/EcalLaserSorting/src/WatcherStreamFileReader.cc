@@ -5,16 +5,17 @@
 
 #include <cerrno>
 #include <climits>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#include <unistd.h>
-#include <sys/types.h>
+#include <fcntl.h>
+#include <fstream>
+#include <libgen.h>
+#include <memory>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <fcntl.h>
-#include <libgen.h>
-#include <fstream>
+#include <sys/types.h>
+#include <unistd.h>
 
 //using namespace edm;
 using namespace std;
@@ -215,7 +216,7 @@ const EventMsgView* WatcherStreamFileReader::getNextEvent() {
   edm::StreamerInputFile* inputFile;
 
   //go to next input file, till no new event is found
-  while ((inputFile = getInputFile()) != nullptr && inputFile->next() == 0) {
+  while ((inputFile = getInputFile()) != nullptr && inputFile->next() != edm::StreamerInputFile::Next::kEvent) {
     closeFile();
   }
 
@@ -376,7 +377,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
         cout << "[WatcherSource " << now() << "]"
              << " Opening file " << fileName_ << "\n"
              << flush;
-        streamerInputFile_ = unique_ptr<edm::StreamerInputFile>(new edm::StreamerInputFile(fileName_));
+        streamerInputFile_ = std::make_unique<edm::StreamerInputFile>(fileName_);
 
         ofstream f(".watcherfile");
         f << fileName_;

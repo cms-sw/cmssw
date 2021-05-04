@@ -22,6 +22,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include <memory>
+
 namespace edm {
   class ParameterSet;
   class Event;
@@ -54,7 +56,7 @@ private:
   /// Make a TrackCand collection using tracker Track, Trajectory information
   std::vector<TrackCand> makeTkCandCollection(const TrackCand&) override;
 
-  TrajectoryCleaner* theTrajectoryCleaner;
+  std::unique_ptr<TrajectoryCleaner> theTrajectoryCleaner;
   edm::InputTag theTkCollName;
   edm::Handle<reco::TrackCollection> allTrackerTracks;
   reco::BeamSpot beamSpot;

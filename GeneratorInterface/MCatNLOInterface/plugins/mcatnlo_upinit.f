@@ -73,7 +73,9 @@ CC SET 'TOUCHED' FLAGS TO ZERO (CMSSW)
       GAMMAXS=0
       GAMWS=0
       GAMZS=0
-
+c... initialize
+      NDNS1=0
+      NDNS2=0
       DO I=1,1000
          RMASSS(I)=0
       ENDDO

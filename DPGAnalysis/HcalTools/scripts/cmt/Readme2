@@ -1,0 +1,151 @@
+---------------------         For Global runs of 2021
+======================================================
+
+
+I.  ------- Preparation of framework: 
+=====================================
+
+ssh lxplus
+
+cd your_working_dir
+
+scram p -s CMSSW CMSSW_11_1_0
+
+cd CMSSW_11_1_0/src
+
+setenv SCRAM_ARCH slc7_amd64_gcc820
+
+cmsenv
+
+git cms-addpkg DPGAnalysis/HcalTools
+
+cd DPGAnalysis/HcalTools
+
+II.  ----- Compilation of main code CMTRawAnalyzer.cc 
+======================================================
+
+scram b 
+
+cd your_dir_CMSSW_11_1_0/src/DPGAnalysis/HcalTools/scripts/cmt 
+( this is initial_dir )
+
+III.-------   Necessary corrections: 
+======================================
+
+1) correct file "file_lists.csh" for dataset used
+
+2) correct file "runlist_run" to specify run list
+
+IVa.  -------  Running interactive: 
+====================================
+
+./mkcfg_new120.csh runlist_run
+
+- see, how many py-files in PYTHON_runlist_run dir..
+
+- run ~ 15 jobs per PC: 1-15, 15-30, ...nn1- NN using commands:
+
+./run_interactive.csh runlist_run nn1 NN
+
+IVb.  ------  Running using condor.jdl: 
+======================================
+
+-  specify if necessary the lines in file run_condor.csh: 
+
+setenv SCRAM_ARCH slc7_amd64_gcc820
+
+scram p -s CMSSW CMSSW_11_1_0
+
+cd CMSSW_11_1_0/src
+
+- and line with eos-directory, 
+where you are going to record the resulting root files:
+
+/eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2019
+
+- specify the line "Transfer_Input_Files =" in file condor.jdl: 
+
+correct path for CMTRawAnalyzer.cc and BuildFile.xml
+
+------    In advance, before condor starting issue commands: 
+
+voms-proxy-init -voms cms -rfc
+
+voms-proxy-init -voms cms -rfc -out /afs/cern.ch/user/z/zhokin/private/x509up
+
+chmod +x /afs/cern.ch/user/z/zhokin/private/x509up 
+
+
+- to start, issue main command: 
+
+condor_submit condor.jdl
+
+- running...... wait, check using condor commands like:
+
+condor_q
+
+(condor_rm 3748513.0 (to remove all jobs 3748513.0))
+
+    see obtained root files in dir: 
+
+cd /eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2019
+
+V.  -------------------  Copying:
+======================================
+
+ all good root files to be copied into /initial_dir/longruns/.
+(example:
+scp Global*.root /afs/cern.ch/work/z/zhokin/hcal/voc2/CMSSW_11_1_0_pre3/src/DPGAnalysis/HcalTools/scripts/cmt/longruns/.
+)
+    check all root-files availability: 
+
+cd  /initial_dir
+./checkoutput120.csh PYTHON_runlist_run longruns > tmp.txt
+
+see file tmp.txt and missed_run_parts to see which root file still to be reproduced:
+crashed jobs to be re-runned interactively and copied into dir longruns/.
+ 
+- merging run-root-piecies into one big run-root file: 
+
+./glu_runs_fromfile.csh longruns runlist_run
+
+-  copy into /eos using examples like:
+
+eos cp Global_325001.root /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos/Global_325001.root
+
+cp Global_320002.root /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos/Global_555555.root
+
+- for check:
+eos ls -l /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos/
+
+
+VI. --- Three steps to provide visualization of new global-runs: 
+================================================================
+
+- correct file "index_toAddOnlyNewRuns_EOS.sh" for "dasgoclient.. dataset=..." and 
+"k=" - number(!) of new-recorded global-runs and execute:
+
+  1) ./index_toAddOnlyNewRuns_EOS.sh runlist_run 
+
+eos cp OLDindex.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/OLDindex.html
+
+eos cp index_draft.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/index.html
+
+--------------------------------------
+
+- in dir. .../macros/cmt/
+./compile.csh RemoteMonitoringGLOBAL.cc
+./compile.csh RemoteMonitoringMAP_Global.cc
+
+- and again, in dir. /scripts/cmt/ execute:
+  2) ./CMT_EOS.sh runlist_run 
+  3) ./GlobalRMT_EOS.sh runlist_run 
+wait until there 2 last steps are done (a lot of output possible)
+
+
+    See the results at https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/ 
+-- provide for each new run the CMTanalysis using Instruction below. 
+    Edit default file CMTresults.html to provide the summary for each new run. 
+Copy each time corrected CMTresults.html file into /eos in corresponding dir. , 
+as is shown below :
+cp CMTresults.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/GLOBAL_325001/CMTresults.html 

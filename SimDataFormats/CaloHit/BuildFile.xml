@@ -1,8 +1,7 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/Math"/>
-<use   name="SimDataFormats/EncodedEventId"/>
-<use   name="boost"/>
-
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Math"/>
+<use name="SimDataFormats/EncodedEventId"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -5,7 +5,7 @@
 #define __RecoHGCal_TICL_SeedingRegionGlobal_H__
 #include <memory>  // unique_ptr
 #include <string>
-#include "RecoHGCal/TICL/interface/SeedingRegionAlgoBase.h"
+#include "RecoHGCal/TICL/plugins/SeedingRegionAlgoBase.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -25,6 +25,8 @@ namespace ticl {
     void initialize(const edm::EventSetup& es) override{};
 
     void makeRegions(const edm::Event& ev, const edm::EventSetup& es, std::vector<TICLSeedingRegion>& result) override;
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc);
   };
 }  // namespace ticl
 #endif

@@ -65,7 +65,9 @@ std::string ReadoutError::name(const ReadoutErrorType &code) {
       result = "EOD";
       break;
     }
-    default: { result = "NoProblem"; }
+    default: {
+      result = "NoProblem";
+    }
   }
   return result;
 }

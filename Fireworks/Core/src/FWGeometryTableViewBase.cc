@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/regex.hpp>
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -37,6 +37,7 @@
 #include "TGLViewer.h"
 #include "TGLCamera.h"
 #include "TEveSelection.h"
+#include "TVirtualX.h"
 #ifdef PERFTOOL_BROWSER
 #include <google/profiler.h>
 #endif
@@ -173,10 +174,10 @@ FWGeometryTableViewBase::FWGeometryTableViewBase(TEveWindowSlot* iParent,
 
   xf->AddFrame(m_frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-  m_parentTransparencyFactor.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D, this));
-  m_leafTransparencyFactor.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D, this));
-  m_minParentTransparency.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D, this));
-  m_minLeafTransparency.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D, this));
+  m_parentTransparencyFactor.changed_.connect(std::bind(&FWGeometryTableViewBase::refreshTable3D, this));
+  m_leafTransparencyFactor.changed_.connect(std::bind(&FWGeometryTableViewBase::refreshTable3D, this));
+  m_minParentTransparency.changed_.connect(std::bind(&FWGeometryTableViewBase::refreshTable3D, this));
+  m_minLeafTransparency.changed_.connect(std::bind(&FWGeometryTableViewBase::refreshTable3D, this));
 }
 
 void FWGeometryTableViewBase::postConst() {

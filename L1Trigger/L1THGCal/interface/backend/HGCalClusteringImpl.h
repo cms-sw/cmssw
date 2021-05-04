@@ -16,7 +16,7 @@ bool distanceSorter(pair<edm::Ptr<l1t::HGCalTriggerCell>, float> i, pair<edm::Pt
 
 class HGCalClusteringImpl {
 private:
-  static const unsigned kNSides_ = 2;
+  static constexpr unsigned kNSides_ = 2;
 
 public:
   HGCalClusteringImpl(const edm::ParameterSet& conf);

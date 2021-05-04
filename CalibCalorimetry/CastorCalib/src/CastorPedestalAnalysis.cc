@@ -7,10 +7,9 @@
 #include "CondFormats/CastorObjects/interface/CastorPedestalWidths.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorPedestalAnalysis.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <TFile.h>
 #include <cmath>
-
-using namespace std;
 
 CastorPedestalAnalysis::CastorPedestalAnalysis(const edm::ParameterSet& ps)
     : fRefPedestals(nullptr),
@@ -29,17 +28,17 @@ CastorPedestalAnalysis::CastorPedestalAnalysis(const edm::ParameterSet& ps)
     state.push_back(true);
 
   // user cfg parameters
-  m_outputFileMean = ps.getUntrackedParameter<string>("outputFileMeans", "");
+  m_outputFileMean = ps.getUntrackedParameter<std::string>("outputFileMeans", "");
   if (!m_outputFileMean.empty()) {
-    cout << "Castor pedestal means will be saved to " << m_outputFileMean.c_str() << endl;
+    edm::LogWarning("Castor") << "Castor pedestal means will be saved to " << m_outputFileMean.c_str();
   }
-  m_outputFileWidth = ps.getUntrackedParameter<string>("outputFileWidths", "");
+  m_outputFileWidth = ps.getUntrackedParameter<std::string>("outputFileWidths", "");
   if (!m_outputFileWidth.empty()) {
-    cout << "Castor pedestal widths will be saved to " << m_outputFileWidth.c_str() << endl;
+    edm::LogWarning("Castor") << "Castor pedestal widths will be saved to " << m_outputFileWidth.c_str();
   }
-  m_outputFileROOT = ps.getUntrackedParameter<string>("outputFileHist", "");
+  m_outputFileROOT = ps.getUntrackedParameter<std::string>("outputFileHist", "");
   if (!m_outputFileROOT.empty()) {
-    cout << "Castor pedestal histograms will be saved to " << m_outputFileROOT.c_str() << endl;
+    edm::LogWarning("Castor") << "Castor pedestal histograms will be saved to " << m_outputFileROOT.c_str();
   }
   m_nevtsample = ps.getUntrackedParameter<int>("nevtsample", 0);
   // for compatibility with previous versions
@@ -51,9 +50,9 @@ CastorPedestalAnalysis::CastorPedestalAnalysis(const edm::ParameterSet& ps)
   if (m_pedValflag < 0)
     m_pedValflag = 0;
   if (m_nevtsample > 0 && m_pedValflag > 0) {
-    cout << "WARNING - incompatible cfg options: nevtsample = " << m_nevtsample << ", pedValflag = " << m_pedValflag
-         << endl;
-    cout << "Setting pedValflag = 0" << endl;
+    edm::LogWarning("Castor") << "WARNING - incompatible cfg options: nevtsample = " << m_nevtsample
+                              << ", pedValflag = " << m_pedValflag;
+    edm::LogWarning("Castor") << "Setting pedValflag = 0";
     m_pedValflag = 0;
   }
   if (m_pedValflag > 1)
@@ -146,7 +145,7 @@ void CastorPedestalAnalysis::per2CapsHists(int flag,
                                            const HcalDetId detid,
                                            const HcalQIESample& qie1,
                                            const HcalQIESample& qie2,
-                                           map<HcalDetId, map<int, PEDBUNCH> >& toolT,
+                                           std::map<HcalDetId, std::map<int, PEDBUNCH> >& toolT,
                                            const CastorDbService& cond) {
   // this function is due to be called for every time slice, it fills either a charge
   // histo for a single capID (flag=0) or a product histo for two capIDs (flag>0)
@@ -155,9 +154,9 @@ void CastorPedestalAnalysis::per2CapsHists(int flag,
   static const int bins2 = 100;
   float lo = -0.5;
   float hi = 9.5;
-  map<int, PEDBUNCH> _mei;
-  static map<HcalDetId, map<int, float> > QieCalibMap;
-  string type = "Castor";
+  std::map<int, PEDBUNCH> _mei;
+  static std::map<HcalDetId, std::map<int, float> > QieCalibMap;
+  std::string type = "Castor";
 
   /*
   if(id==0){
@@ -176,8 +175,8 @@ void CastorPedestalAnalysis::per2CapsHists(int flag,
 
   // if histos for the current channel do not exist, first create them,
   if (_meot == toolT.end()) {
-    map<int, PEDBUNCH> insert;
-    map<int, float> qiecalib;
+    std::map<int, PEDBUNCH> insert;
+    std::map<int, float> qiecalib;
     char name[1024];
     for (int i = 0; i < 4; i++) {
       lo = -0.5;
@@ -266,7 +265,7 @@ void CastorPedestalAnalysis::per2CapsHists(int flag,
 
   // fill 2 capID histo
   if (flag > 0) {
-    map<int, float> qiecalib = QieCalibMap[detid];
+    std::map<int, float> qiecalib = QieCalibMap[detid];
     //float charge1=(qie1.adc()-qiecalib[qie1.capid()+4])/qiecalib[qie1.capid()];
     //float charge2=(qie2.adc()-qiecalib[qie2.capid()+4])/qiecalib[qie2.capid()];
     if (charge1 * charge2 < bins2) {
@@ -292,11 +291,11 @@ void CastorPedestalAnalysis::AllChanHists(const HcalDetId detid,
                                           const HcalQIESample& qie3,
                                           const HcalQIESample& qie4,
                                           const HcalQIESample& qie5,
-                                          map<HcalDetId, map<int, PEDBUNCH> >& toolT) {
+                                          std::map<HcalDetId, std::map<int, PEDBUNCH> >& toolT) {
   // this function is due to be called for every channel
 
   _meot = toolT.find(detid);
-  map<int, PEDBUNCH> _mei = _meot->second;
+  std::map<int, PEDBUNCH> _mei = _meot->second;
   _mei[16].first->Fill(qie4.adc() + qie5.adc() - 1.);
   _mei[17].first->Fill(qie4.adc() + qie5.adc() - qie2.adc() - qie3.adc());
   _mei[18].first->Fill(qie4.adc() + qie5.adc() - (qie0.adc() + qie1.adc() + qie2.adc() + qie3.adc()) / 2.);
@@ -316,7 +315,9 @@ void CastorPedestalAnalysis::SampleAnalysis() {
 }
 
 //-----------------------------------------------------------------------------
-void CastorPedestalAnalysis::GetPedConst(map<HcalDetId, map<int, PEDBUNCH> >& toolT, TH1F* PedMeans, TH1F* PedWidths) {
+void CastorPedestalAnalysis::GetPedConst(std::map<HcalDetId, std::map<int, PEDBUNCH> >& toolT,
+                                         TH1F* PedMeans,
+                                         TH1F* PedWidths) {
   // Completely rewritten version oct 2006
   // Compute pedestal constants and fill into CastorPedestals and CastorPedestalWidths objects
   float cap[4];
@@ -547,18 +548,18 @@ int CastorPedestalAnalysis::done(const CastorPedestals* fInputPedestals,
   castorHists.PEDMEAN->Write();
 
   m_file->Close();
-  cout << "Hcal/Castor histograms written to " << m_outputFileROOT.c_str() << endl;
+  edm::LogWarning("Castor") << "Hcal/Castor histograms written to " << m_outputFileROOT.c_str();
   return (int)m_AllPedsOK;
 }
 
 //-----------------------------------------------------------------------------
-void CastorPedestalAnalysis::Trendings(map<HcalDetId, map<int, PEDBUNCH> >& toolT,
+void CastorPedestalAnalysis::Trendings(std::map<HcalDetId, std::map<int, PEDBUNCH> >& toolT,
                                        TH1F* Chi2,
                                        TH1F* CapidAverage,
                                        TH1F* CapidChi2) {
   // check stability of pedestal constants in a single long run
 
-  map<int, std::vector<double> > AverageValues;
+  std::map<int, std::vector<double> > AverageValues;
 
   for (_meot = toolT.begin(); _meot != toolT.end(); _meot++) {
     for (int i = 0; i < 4; i++) {
@@ -727,8 +728,8 @@ int CastorPedestalAnalysis::CastorPedVal(int nstat[4],
   float RefPedSigs[4][4];
   float RawPedVals[4];
   float RawPedSigs[4][4];
-  map<HcalDetId, bool> isinRaw;
-  map<HcalDetId, bool> isinRef;
+  std::map<HcalDetId, bool> isinRaw;
+  std::map<HcalDetId, bool> isinRef;
   std::vector<DetId> RefChanns = fRefPedestals->getAllChannels();
   std::vector<DetId> RawChanns = fRawPedestals->getAllChannels();
   std::ofstream PedValLog;

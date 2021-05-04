@@ -1,5 +1,4 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerSubStrctBuilder.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -8,20 +7,24 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerWheelBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerDiskBuilder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include <vector>
 
 #include <bitset>
 
-CmsTrackerSubStrctBuilder::CmsTrackerSubStrctBuilder() {}
+template <class FilteredView>
+void CmsTrackerSubStrctBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsTrackerLayerBuilder<FilteredView> theCmsTrackerLayerBuilder;
+  CmsTrackerOTLayerBuilder<FilteredView> theCmsTrackerOTLayerBuilder;
+  CmsTrackerWheelBuilder<FilteredView> theCmsTrackerWheelBuilder;
+  CmsTrackerDiskBuilder<FilteredView> theCmsTrackerDiskBuilder;
 
-void CmsTrackerSubStrctBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerLayerBuilder theCmsTrackerLayerBuilder;
-  CmsTrackerOTLayerBuilder theCmsTrackerOTLayerBuilder;
-  CmsTrackerWheelBuilder theCmsTrackerWheelBuilder;
-  CmsTrackerDiskBuilder theCmsTrackerDiskBuilder;
-
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::layer:
       theCmsTrackerLayerBuilder.build(fv, subdet, s);
       break;
@@ -36,28 +39,29 @@ void CmsTrackerSubStrctBuilder::buildComponent(DDFilteredView& fv, GeometricDet*
       break;
 
     default:
-      edm::LogError("CmsTrackerSubStrctBuilder")
-          << " ERROR - I was expecting a Layer ,Wheel or Disk... I got a " << ExtractStringFromDDD::getString(s, &fv);
+      edm::LogError("CmsTrackerSubStrctBuilder") << " ERROR - I was expecting a Layer ,Wheel or Disk... I got a "
+                                                 << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
 
   g->addComponent(subdet);
 }
 
-void CmsTrackerSubStrctBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerSubStrctBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (comp.front()->type()) {
     case GeometricDet::layer:
-      std::sort(comp.begin(), comp.end(), isLessR);
+      std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessR);
       break;
     case GeometricDet::OTPhase2Layer:
-      std::sort(comp.begin(), comp.end(), isLessR);
+      std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessR);
       break;
     case GeometricDet::wheel:
-      std::sort(comp.begin(), comp.end(), isLessModZ);
+      std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
       break;
     case GeometricDet::disk:
-      std::sort(comp.begin(), comp.end(), isLessModZ);
+      std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
       break;
     default:
       edm::LogError("CmsTrackerSubStrctBuilder")
@@ -68,3 +72,6 @@ void CmsTrackerSubStrctBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
     det->component(i)->setGeographicalID(i + 1);  // Every subdetector: Layer/Disk/Wheel Number
   }
 }
+
+template class CmsTrackerSubStrctBuilder<DDFilteredView>;
+template class CmsTrackerSubStrctBuilder<cms::DDFilteredView>;

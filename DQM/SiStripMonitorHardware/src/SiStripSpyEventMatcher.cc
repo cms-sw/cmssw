@@ -63,11 +63,11 @@ namespace sistrip {
     processConfiguration_->setParameterSetID(edm::ParameterSet::emptyParameterSetID());
     productRegistry_->setFrozen();
 
-    eventPrincipal_.reset(new edm::EventPrincipal(source_->productRegistry(),
-                                                  std::make_shared<edm::BranchIDListHelper>(),
-                                                  std::make_shared<edm::ThinnedAssociationsHelper>(),
-                                                  *processConfiguration_,
-                                                  nullptr));
+    eventPrincipal_ = std::make_unique<edm::EventPrincipal>(source_->productRegistry(),
+                                                            std::make_shared<edm::BranchIDListHelper>(),
+                                                            std::make_shared<edm::ThinnedAssociationsHelper>(),
+                                                            *processConfiguration_,
+                                                            nullptr);
   }
 
   std::unique_ptr<SpyEventMatcher::Source> SpyEventMatcher::constructSource(const edm::ParameterSet& sourceConfig) {
@@ -79,16 +79,17 @@ namespace sistrip {
   void SpyEventMatcher::initialize() {
     size_t fileNameHash = 0U;
     //add spy events to the map until there are none left
-    source_->loopOverEvents(*eventPrincipal_,
-                            fileNameHash,
-                            std::numeric_limits<size_t>::max(),
-                            [this](auto const& iE, auto const&) {
-                              this->addNextEventToMap(iE);
-                              return true;
-                            },
-                            nullptr,
-                            nullptr,
-                            false);
+    source_->loopOverEvents(
+        *eventPrincipal_,
+        fileNameHash,
+        std::numeric_limits<size_t>::max(),
+        [this](auto const& iE, auto const&) {
+          this->addNextEventToMap(iE);
+          return true;
+        },
+        nullptr,
+        nullptr,
+        false);
     //debug
     std::ostringstream ss;
     ss << "Events with possible matches (eventID,apvAddress): ";
@@ -393,7 +394,7 @@ namespace sistrip {
     const std::vector<uint32_t>* vectorFromEvent = getProduct<std::vector<uint32_t> >(event, tag);
     if (vectorFromEvent) {
       //vector is from event so, will be deleted when the event is destroyed (and not before)
-      return CountersPtr(new CountersWrapper(vectorFromEvent));
+      return std::make_shared<CountersWrapper>(vectorFromEvent);
     } else {
       const std::map<uint32_t, uint32_t>* mapFromEvent = getProduct<std::map<uint32_t, uint32_t> >(event, tag);
       if (mapFromEvent) {

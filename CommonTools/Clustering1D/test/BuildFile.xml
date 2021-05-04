@@ -1,4 +1,3 @@
-<use   name="CommonTools/Clustering1D"/>
-<use   name="FWCore/Framework"/>
-<bin   file="ClusteringTest.cpp">
+<use name="CommonTools/Clustering1D"/>
+<bin file="ClusteringTest.cpp">
 </bin>

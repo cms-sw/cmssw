@@ -1,5 +1,5 @@
-<use   name="EventFilter/RPCRawToDigi"/>
-<use   name="DataFormats/L1TMuon"/>
-<library   file="*.cc" name="EventFilterRPCRawToDigiPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="EventFilter/RPCRawToDigi"/>
+<use name="DataFormats/L1TMuon"/>
+<library file="*.cc" name="EventFilterRPCRawToDigiPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

@@ -12,6 +12,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/isFinite.h"
@@ -27,12 +28,13 @@
 GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& iConfig)
     : inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),
       inputLinksCollection_(iConfig.getParameter<edm::InputTag>("InputLinksCollection")),
+      tTopoToken_(esConsumes()),
       theService(nullptr),
       theGlbRefitter(nullptr),
       theGlbMatcher(nullptr) {
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   // TrackRefitter parameters
   edm::ConsumesCollector iC = consumesCollector();
@@ -80,9 +82,7 @@ void GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSet
   iEvent.getByToken(linkCollectionToken, linkCollectionHandle);
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
   // reserve some space
   std::vector<reco::MuonQuality> valuesQual;
@@ -143,14 +143,15 @@ void GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     if (!staTrack.isNull())
       LogTrace(theCategory) << "GLBQual: Used UpdatedAtVtx : "
-                            << (iEvent.getProvenance(staTrack.id()).productInstanceName() ==
+                            << (iEvent.getStableProvenance(staTrack.id()).productInstanceName() ==
                                 std::string("UpdatedAtVtx"));
 
     float maxFloat01 =
         std::numeric_limits<float>::max() * 0.1;  // a better solution would be to use float above .. m/be not
     reco::MuonQuality muQual;
     if (!staTrack.isNull())
-      muQual.updatedSta = iEvent.getProvenance(staTrack.id()).productInstanceName() == std::string("UpdatedAtVtx");
+      muQual.updatedSta =
+          iEvent.getStableProvenance(staTrack.id()).productInstanceName() == std::string("UpdatedAtVtx");
     muQual.trkKink = thisKink.first > maxFloat01 ? maxFloat01 : thisKink.first;
     muQual.glbKink = thisKink.second > maxFloat01 ? maxFloat01 : thisKink.second;
     muQual.trkRelChi2 = relative_tracker_chi2 > maxFloat01 ? maxFloat01 : relative_tracker_chi2;

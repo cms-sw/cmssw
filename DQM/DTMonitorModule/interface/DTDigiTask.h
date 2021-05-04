@@ -19,7 +19,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
@@ -44,7 +44,7 @@ class DTChamberId;
 class DTTtrig;
 class DTT0;
 
-class DTDigiTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTDigiTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTDigiTask(const edm::ParameterSet& ps);

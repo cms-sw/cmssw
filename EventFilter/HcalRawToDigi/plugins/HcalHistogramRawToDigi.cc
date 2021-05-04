@@ -2,8 +2,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
@@ -17,6 +15,7 @@ HcalHistogramRawToDigi::HcalHistogramRawToDigi(edm::ParameterSet const& conf)
   edm::LogInfo("HCAL") << "HcalHistogramRawToDigi will unpack FEDs ( " << ss.str() << ")";
 
   tok_data_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("InputLabel"));
+  tok_dbService_ = esConsumes<HcalDbService, HcalDbRecord>();
 
   // products produced...
   produces<HcalHistogramDigiCollection>();
@@ -31,8 +30,7 @@ void HcalHistogramRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<FEDRawDataCollection> rawraw;
   e.getByToken(tok_data_, rawraw);
   // get the mapping
-  edm::ESHandle<HcalDbService> pSetup;
-  es.get<HcalDbRecord>().get(pSetup);
+  edm::ESHandle<HcalDbService> pSetup = es.getHandle(tok_dbService_);
   const HcalElectronicsMap* readoutMap = pSetup->getHcalMapping();
 
   // Step B: Create empty output

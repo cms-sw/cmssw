@@ -56,14 +56,14 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include <vector>
 #include <cstring>
 #include <iterator>
+#include <filesystem>
+
 #include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
-#include <boost/filesystem.hpp>
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem/operations.hpp"
+
 std::string LumiCorrectionSource::x2s(const XMLCh* toTranscode) const {
   std::string tmp(xercesc::XMLString::transcode(toTranscode));
   return tmp;
@@ -139,7 +139,7 @@ std::string LumiCorrectionSource::translateFrontierConnect(const std::string& co
   std::string result;
   const std::string fproto("frontier://");
   std::string::size_type startservlet = fproto.length();
-  std::string::size_type endservlet = connectStr.find("(", startservlet);
+  std::string::size_type endservlet = connectStr.find('(', startservlet);
   if (endservlet == std::string::npos) {
     endservlet = connectStr.rfind('/', connectStr.length());
   }
@@ -148,19 +148,19 @@ std::string LumiCorrectionSource::translateFrontierConnect(const std::string& co
     if (servlet == "cms_conditions_data")
       servlet = "";
     if (m_siteconfpath.length() == 0) {
-      std::string url = (boost::filesystem::path("SITECONF") / boost::filesystem::path("local") /
-                         boost::filesystem::path("JobConfig") / boost::filesystem::path("site-local-config.xml"))
+      std::string url = (std::filesystem::path("SITECONF") / std::filesystem::path("local") /
+                         std::filesystem::path("JobConfig") / std::filesystem::path("site-local-config.xml"))
                             .string();
-      char* tmp = getenv("CMS_PATH");
+      char* tmp = std::getenv("CMS_PATH");
       if (tmp) {
-        m_siteconfpath = (boost::filesystem::path(tmp) / boost::filesystem::path(url)).string();
+        m_siteconfpath = (std::filesystem::path(tmp) / std::filesystem::path(url)).string();
       }
     } else {
-      if (!boost::filesystem::exists(boost::filesystem::path(m_siteconfpath))) {
+      if (!std::filesystem::exists(std::filesystem::path(m_siteconfpath))) {
         throw cms::Exception("Non existing path ") << m_siteconfpath;
       }
       m_siteconfpath =
-          (boost::filesystem::path(m_siteconfpath) / boost::filesystem::path("site-local-config.xml")).string();
+          (std::filesystem::path(m_siteconfpath) / std::filesystem::path("site-local-config.xml")).string();
     }
     result = fproto + servletTranslation(servlet) + connectStr.substr(endservlet);
   }
@@ -195,9 +195,9 @@ LumiCorrectionSource::LumiCorrectionSource(const edm::ParameterSet& iConfig)
   } else {
     m_connectStr = connectStr;
     std::string authpath = iConfig.getUntrackedParameter<std::string>("authpath", "");
-    boost::filesystem::path boostAuthPath(authpath);
-    if (boost::filesystem::is_directory(boostAuthPath)) {
-      boostAuthPath /= boost::filesystem::path("authentication.xml");
+    std::filesystem::path boostAuthPath(authpath);
+    if (std::filesystem::is_directory(boostAuthPath)) {
+      boostAuthPath /= std::filesystem::path("authentication.xml");
     }
     m_authfilename = boostAuthPath.string();
   }

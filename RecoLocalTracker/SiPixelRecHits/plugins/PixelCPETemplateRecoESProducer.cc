@@ -30,7 +30,8 @@ private:
   edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> templateDBobjectToken_;
 
   edm::ParameterSet pset_;
-  bool DoLorentz_;
+  bool doLorentzFromAlignment_;
+  bool useLAFromDB_;
 };
 
 using namespace edm;
@@ -38,24 +39,28 @@ using namespace edm;
 PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
 
-  //DoLorentz_ = p.getParameter<bool>("DoLorentz"); // True when LA from alignment is used
-  DoLorentz_ = p.getParameter<bool>("DoLorentz");
+  useLAFromDB_ = p.getParameter<bool>("useLAFromDB");
+  doLorentzFromAlignment_ = p.getParameter<bool>("doLorentzFromAlignment");
 
   pset_ = p;
   auto c = setWhatProduced(this, myname);
-  c.setConsumes(magfieldToken_).setConsumes(pDDToken_).setConsumes(hTTToken_).setConsumes(templateDBobjectToken_);
-  if (DoLorentz_) {
-    c.setConsumes(lorentzAngleToken_, edm::ESInputTag("", "fromAlignment"));
+  magfieldToken_ = c.consumes();
+  pDDToken_ = c.consumes();
+  hTTToken_ = c.consumes();
+  templateDBobjectToken_ = c.consumes();
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
+    char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
+    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
   }
-  //std::cout<<" from ES Producer Templates "<<myname<<" "<<DoLorentz_<<std::endl;  //dk
 }
 
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPETemplateRecoESProducer::produce(
     const TkPixelCPERecord& iRecord) {
-  // Normal, deafult LA actually is NOT needed
-  // null is ok becuse LA is not use by templates in this mode
+  // Normal, default LA is used in case of template failure, load it unless
+  // turned off
+  // if turned off, null is ok, becomes zero
   const SiPixelLorentzAngle* lorentzAngleProduct = nullptr;
-  if (DoLorentz_) {  //  LA correction from alignment
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
     lorentzAngleProduct = &iRecord.get(lorentzAngleToken_);
   }
 
@@ -78,7 +83,6 @@ void PixelCPETemplateRecoESProducer::fillDescriptions(edm::ConfigurationDescript
 
   // specific to PixelCPETemplateRecoESProducer
   desc.add<std::string>("ComponentName", "PixelCPETemplateReco");
-  desc.add<bool>("DoLorentz", true);
   descriptions.add("_templates_default", desc);
 }
 

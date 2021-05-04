@@ -7,10 +7,6 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -149,6 +145,8 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf)
   if (REGIONAL_) {
     fedsToken_ = consumes<EcalListOfFEDS>(fedsLabel);
   }
+  chStatusToken_ = esConsumes<EcalChannelStatusMap, EcalChannelStatusRcd, edm::Transition::BeginRun>();
+  ecalMappingToken_ = esConsumes<EcalElectronicsMapping, EcalMappingRcd>();
 
   // Build a new Electronics mapper and parse default map file
   myMap_ = new EcalElectronicsMapper(numbXtalTSamples_, numbTriggerTSamples_);
@@ -275,8 +273,7 @@ void EcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
 
 void EcalRawToDigi::beginRun(const edm::Run&, const edm::EventSetup& es) {
   // channel status database
-  edm::ESHandle<EcalChannelStatusMap> pChStatus;
-  es.get<EcalChannelStatusRcd>().get(pChStatus);
+  edm::ESHandle<EcalChannelStatusMap> pChStatus = es.getHandle(chStatusToken_);
   theUnpacker_->setChannelStatusDB(pChStatus.product());
 
   // uncomment following line to print list of crystals with bad status
@@ -292,16 +289,14 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 
   if (first_) {
     watcher_.check(es);
-    edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-    es.get<EcalMappingRcd>().get(ecalmapping);
+    edm::ESHandle<EcalElectronicsMapping> ecalmapping = es.getHandle(ecalMappingToken_);
     myMap_->setEcalElectronicsMapping(ecalmapping.product());
 
     first_ = false;
 
   } else {
     if (watcher_.check(es)) {
-      edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-      es.get<EcalMappingRcd>().get(ecalmapping);
+      edm::ESHandle<EcalElectronicsMapping> ecalmapping = es.getHandle(ecalMappingToken_);
       myMap_->deletePointers();
       myMap_->resetPointers();
       myMap_->setEcalElectronicsMapping(ecalmapping.product());

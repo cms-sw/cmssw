@@ -19,13 +19,9 @@
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
 
 #include "TROOT.h"
@@ -47,10 +43,10 @@ namespace cms {
 
   private:
     edm::ParameterSet conf_;
-    edm::ESHandle<TrackerGeometry> tkgeom;
-    //edm::ESHandle<SiPixelGainCalibrationOffline> SiPixelGainCalibrationOffline_;
-    SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
 
+    SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
     std::map<uint32_t, TH1F*> _TH1F_Pedestals_m;
     std::map<uint32_t, TH1F*> _TH1F_Gains_m;
     std::string filename_;

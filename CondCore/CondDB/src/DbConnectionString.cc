@@ -76,7 +76,7 @@ namespace cond {
         if (startRefresh != std::string::npos) {
           startRefresh += 3;
         }
-        std::string::size_type endRefresh = finalConn.rfind("/", std::string::npos);
+        std::string::size_type endRefresh = finalConn.rfind('/', std::string::npos);
         if (endRefresh == std::string::npos) {
           refreshConn = finalConn;
         } else {

@@ -71,7 +71,7 @@ process.outpath = cms.EndPath(process.o1)
 #process.Timing =  cms.Service("Timing")
 #process.load("FWCore/MessageService/MessageLogger_cfi")
 #process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt","cout")
-#process.MessageLogger.categories.append("FamosManager")
+#
 #process.MessageLogger.cout = cms.untracked.PSet(threshold=cms.untracked.string("INFO"),
 #                                                default=cms.untracked.PSet(limit=cms.untracked.int32(0)),
 #                                                FamosManager=cms.untracked.PSet(limit=cms.untracked.int32(100000)))

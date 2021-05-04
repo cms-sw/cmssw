@@ -150,6 +150,26 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   set_EfficiencyFlag = histosSet.getParameter<bool>("EfficiencyFlag");
   set_StatOverflowFlag = histosSet.getParameter<bool>("StatOverflowFlag");
 
+  opv_nbin = histosSet.getParameter<int>("NbinOPV");
+  opv_min = histosSet.getParameter<double>("OPV_min");
+  opv_max = histosSet.getParameter<double>("OPV_max");
+
+  ele_nbin = histosSet.getParameter<int>("NbinELE");
+  ele_min = histosSet.getParameter<double>("ELE_min");
+  ele_max = histosSet.getParameter<double>("ELE_max");
+
+  core_nbin = histosSet.getParameter<int>("NbinCORE");
+  core_min = histosSet.getParameter<double>("CORE_min");
+  core_max = histosSet.getParameter<double>("CORE_max");
+
+  track_nbin = histosSet.getParameter<int>("NbinTRACK");
+  track_min = histosSet.getParameter<double>("TRACK_min");
+  track_max = histosSet.getParameter<double>("TRACK_max");
+
+  seed_nbin = histosSet.getParameter<int>("NbinSEED");
+  seed_min = histosSet.getParameter<double>("SEED_min");
+  seed_max = histosSet.getParameter<double>("SEED_max");
+
   // so to please coverity
   h1_matchingObjectNum = nullptr;
   h1_recEleNum_ = nullptr;
@@ -459,12 +479,12 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
   h1_matchingObjectNum = bookH1withSumw2(iBooker, "matchingObjectNum", htitle, fhits_nbin, 0., fhits_max, xtitle);
 
   // rec event collections sizes
-  h1_recEleNum_ = bookH1(iBooker, "recEleNum", "# rec electrons", 11, -0.5, 10.5, "N_{ele}");
-  h1_recCoreNum_ = bookH1(iBooker, "recCoreNum", "# rec electron cores", 21, -0.5, 20.5, "N_{core}");
-  h1_recTrackNum_ = bookH1(iBooker, "recTrackNum", "# rec gsf tracks", 41, -0.5, 40.5, "N_{track}");
-  h1_recSeedNum_ = bookH1(iBooker, "recSeedNum", "# rec electron seeds", 101, -0.5, 100.5, "N_{seed}");
-  h1_recOfflineVertices_ =
-      bookH1(iBooker, "recOfflineVertices", "# rec Offline Primary Vertices", 81, -0.5, 161.5, "N_{Vertices}");
+  h1_recEleNum_ = bookH1(iBooker, "recEleNum", "# rec electrons", ele_nbin, ele_min, ele_max, "N_{ele}");
+  h1_recCoreNum_ = bookH1(iBooker, "recCoreNum", "# rec electron cores", core_nbin, core_min, core_max, "N_{core}");
+  h1_recTrackNum_ = bookH1(iBooker, "recTrackNum", "# rec gsf tracks", track_nbin, track_min, track_max, "N_{track}");
+  h1_recSeedNum_ = bookH1(iBooker, "recSeedNum", "# rec electron seeds", seed_nbin, seed_min, seed_max, "N_{seed}");
+  h1_recOfflineVertices_ = bookH1(
+      iBooker, "recOfflineVertices", "# rec Offline Primary Vertices", opv_nbin, opv_min, opv_max, "N_{Vertices}");
 
   // mc
   h1_matchingObjectEta =
@@ -2698,35 +2718,35 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
       if (!readAOD_) {  // track extra does not exist in AOD
         edm::RefToBase<TrajectorySeed> seed = bestGsfElectron.gsfTrack()->extra()->seedRef();
         ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>();
-        h1_ele_seed_subdet2_->Fill(elseed->subDet2());
+        h1_ele_seed_subdet2_->Fill(elseed->subDet(1));
         h1_ele_seed_mask_->Fill(elseed->hitsMask());
-        if (elseed->subDet2() == 1) {
+        if (elseed->subDet(1) == 1) {
           h1_ele_seed_mask_bpix_->Fill(elseed->hitsMask());
-        } else if (elseed->subDet2() == 2) {
+        } else if (elseed->subDet(1) == 2) {
           h1_ele_seed_mask_fpix_->Fill(elseed->hitsMask());
-        } else if (elseed->subDet2() == 6) {
+        } else if (elseed->subDet(1) == 6) {
           h1_ele_seed_mask_tec_->Fill(elseed->hitsMask());
         }
 
-        if (elseed->dPhi2() != std::numeric_limits<float>::infinity()) {
-          h1_ele_seed_dphi2_->Fill(elseed->dPhi2());
-          h2_ele_seed_dphi2VsEta_->Fill(bestGsfElectron.eta(), elseed->dPhi2());
-          h2_ele_seed_dphi2VsPt_->Fill(bestGsfElectron.pt(), elseed->dPhi2());
+        if (elseed->dPhiNeg(1) != std::numeric_limits<float>::infinity()) {
+          h1_ele_seed_dphi2_->Fill(elseed->dPhiNeg(1));
+          h2_ele_seed_dphi2VsEta_->Fill(bestGsfElectron.eta(), elseed->dPhiNeg(1));
+          h2_ele_seed_dphi2VsPt_->Fill(bestGsfElectron.pt(), elseed->dPhiNeg(1));
         }
-        if (elseed->dPhi2Pos() != std::numeric_limits<float>::infinity()) {
-          h1_ele_seed_dphi2pos_->Fill(elseed->dPhi2Pos());
-          h2_ele_seed_dphi2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dPhi2Pos());
-          h2_ele_seed_dphi2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dPhi2Pos());
+        if (elseed->dPhiPos(1) != std::numeric_limits<float>::infinity()) {
+          h1_ele_seed_dphi2pos_->Fill(elseed->dPhiPos(1));
+          h2_ele_seed_dphi2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dPhiPos(1));
+          h2_ele_seed_dphi2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dPhiPos(1));
         }
-        if (elseed->dRz2() != std::numeric_limits<float>::infinity()) {
-          h1_ele_seed_drz2_->Fill(elseed->dRz2());
-          h2_ele_seed_drz2VsEta_->Fill(bestGsfElectron.eta(), elseed->dRz2());
-          h2_ele_seed_drz2VsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2());
+        if (elseed->dRZNeg(1) != std::numeric_limits<float>::infinity()) {
+          h1_ele_seed_drz2_->Fill(elseed->dRZNeg(1));
+          h2_ele_seed_drz2VsEta_->Fill(bestGsfElectron.eta(), elseed->dRZNeg(1));
+          h2_ele_seed_drz2VsPt_->Fill(bestGsfElectron.pt(), elseed->dRZNeg(1));
         }
-        if (elseed->dRz2Pos() != std::numeric_limits<float>::infinity()) {
-          h1_ele_seed_drz2pos_->Fill(elseed->dRz2Pos());
-          h2_ele_seed_drz2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dRz2Pos());
-          h2_ele_seed_drz2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2Pos());
+        if (elseed->dRZPos(1) != std::numeric_limits<float>::infinity()) {
+          h1_ele_seed_drz2pos_->Fill(elseed->dRZPos(1));
+          h2_ele_seed_drz2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dRZPos(1));
+          h2_ele_seed_drz2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dRZPos(1));
         }
       }
       // match distributions

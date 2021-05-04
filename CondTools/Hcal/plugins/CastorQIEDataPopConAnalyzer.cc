@@ -11,7 +11,8 @@ public:
   CastorQIEDataPopConAnalyzer(const edm::ParameterSet& pset)
       : popcon::PopConAnalyzer<CastorQIEDataHandler>(pset),
         m_populator(pset),
-        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        m_tok(esConsumes<CastorQIEData, CastorQIEDataRcd>()) {}
 
 private:
   void endJob() override {
@@ -22,9 +23,7 @@ private:
   void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
-    edm::ESHandle<CastorQIEData> objecthandle;
-    esetup.get<CastorQIEDataRcd>().get(objecthandle);
-    myDBObject = new CastorQIEData(*objecthandle.product());
+    myDBObject = new CastorQIEData(esetup.getData(m_tok));
   }
 
   void write() { m_populator.write(m_source); }
@@ -32,6 +31,7 @@ private:
 private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
+  edm::ESGetToken<CastorQIEData, CastorQIEDataRcd> m_tok;
 
   CastorQIEData* myDBObject;
 };

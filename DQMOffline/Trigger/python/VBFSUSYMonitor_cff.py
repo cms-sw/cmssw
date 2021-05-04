@@ -10,6 +10,7 @@ VBFSUSYmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_Trk
 VBFSUSYmonitoring.jetSelection = cms.string("pt>40 & abs(eta)<5.0")
 VBFSUSYmonitoring.jetId = cms.string("loose")
 VBFSUSYmonitoring.njets = cms.int32(2)
+#VBFSUSYmonitoring.enableMETPlot = True
 #VBFSUSYmonitoring.metSelection = cms.string("pt>50")
 VBFSUSYmonitoring.htjetSelection = cms.string("pt>30 & abs(eta)<5.0")
 

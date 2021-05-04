@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalPreshowerSimHitsValidation = cms.EDAnalyzer("EcalPreshowerSimHitsValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalPreshowerSimHitsValidation = DQMEDAnalyzer("EcalPreshowerSimHitsValidation",
     EEHitsCollection = cms.string('EcalHitsEE'),
     ESHitsCollection = cms.string('EcalHitsES'),
     moduleLabelG4 = cms.string('g4SimHits'),

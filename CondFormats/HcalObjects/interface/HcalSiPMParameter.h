@@ -2,7 +2,7 @@
 #define CondFormatsHcalObjectsHcalSiPMParameter_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class HcalSiPMParameter {
 public:

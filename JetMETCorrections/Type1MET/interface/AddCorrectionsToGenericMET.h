@@ -31,12 +31,12 @@ public:
 
   void setCorTokens(std::vector<edm::EDGetTokenT<CorrMETData> > const& corrTokens);
 
-  reco::MET getCorrectedMET(const reco::MET& srcMET, edm::Event& evt, const edm::EventSetup& es);
-  reco::PFMET getCorrectedPFMET(const reco::PFMET& srcMET, edm::Event& evt, const edm::EventSetup& es);
-  reco::CaloMET getCorrectedCaloMET(const reco::CaloMET& srcMET, edm::Event& evt, const edm::EventSetup& es);
+  reco::MET getCorrectedMET(const reco::MET& srcMET, edm::Event& evt);
+  reco::PFMET getCorrectedPFMET(const reco::PFMET& srcMET, edm::Event& evt);
+  reco::CaloMET getCorrectedCaloMET(const reco::CaloMET& srcMET, edm::Event& evt);
 
 private:
-  CorrMETData getCorrection(const reco::MET& srcMET, edm::Event& evt, const edm::EventSetup& es);
+  CorrMETData getCorrection(const reco::MET& srcMET, edm::Event& evt);
 
   std::vector<edm::EDGetTokenT<CorrMETData> > corrTokens_;
   reco::Candidate::LorentzVector constructP4From(const reco::MET& met, const CorrMETData& correction);

@@ -40,6 +40,9 @@ ZDCDigiStudy::~ZDCDigiStudy() {}
 
 void ZDCDigiStudy::bookHistograms(DQMStore::IBooker& ib, edm::Run const& run, edm::EventSetup const& es) {
   ib.setCurrentFolder("ZDCDigiValidation");
+  // run histos only since there is dqmEndRun processing.
+  ib.setScope(MonitorElementData::Scope::RUN);
+
   //Histograms for Hits
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //# Below we are filling the histograms made in the .h file. The syntax is as follows:                                      #
@@ -173,12 +176,12 @@ void ZDCDigiStudy::bookHistograms(DQMStore::IBooker& ib, edm::Run const& run, ed
     meZdcfCPEMvHAD = ib.book2D("PEMvPHAD", "PZDC_EMvHAD", 200, -25, 12000, 200, -25, 15000);
     meZdcfCPEMvHAD->setAxisTitle("SumEM_fC", 2);
     meZdcfCPEMvHAD->setAxisTitle("SumHAD_fC", 1);
-    meZdcfCPEMvHAD->getTH2F()->SetOption("colz");
+    meZdcfCPEMvHAD->setOption("colz");
     ////////////////////////////////24///////////////////////////////////////////
     meZdcfCNEMvHAD = ib.book2D("NEMvNHAD", "NZDC_EMvHAD", 1000, -25, 12000, 1000, -25, 15000);
     meZdcfCNEMvHAD->setAxisTitle("SumEM_fC", 2);
     meZdcfCNEMvHAD->setAxisTitle("SumHAD_fC", 1);
-    meZdcfCNEMvHAD->getTH2F()->SetOption("colz");
+    meZdcfCNEMvHAD->setOption("colz");
     ///////////////////////////////////////////////////////////////////////////////
   }
 }
@@ -361,7 +364,7 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 ////////////////////////////////////////////////////////////////////
 
-void ZDCDigiStudy::endRun(const edm::Run& run, const edm::EventSetup& c) {
+void ZDCDigiStudy::dqmEndRun(const edm::Run& run, const edm::EventSetup& c) {
   int nevents =
       (meZdcPHAD1fCvsTS->getTH1F())
           ->GetBinContent(

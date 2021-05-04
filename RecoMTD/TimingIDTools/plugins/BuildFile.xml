@@ -1,0 +1,8 @@
+<library name="RecoMTDTimingIDTools_plugins" file="*.cc">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/BeamSpot"/>
+  <use name="DataFormats/VertexReco"/>
+  <use name="RecoMTD/TimingIDTools"/>
+</library>

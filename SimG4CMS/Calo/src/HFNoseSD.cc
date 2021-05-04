@@ -192,9 +192,9 @@ void HFNoseSD::update(const BeginOfJob* job) {
                                << mouseBite;
 #endif
 
-    numberingScheme_.reset(new HFNoseNumberingScheme(*hgcons_));
+    numberingScheme_ = std::make_unique<HFNoseNumberingScheme>(*hgcons_);
     if (rejectMB_)
-      mouseBite_.reset(new HGCMouseBite(*hgcons_, angles_, mouseBiteCut_, waferRot_));
+      mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
   } else {
     throw cms::Exception("Unknown", "HFNoseSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }

@@ -4,7 +4,6 @@
 #include <future>
 #include <vector>
 
-#include <boost/utility.hpp>
 #include <XrdCl/XrdClXRootDResponses.hh>
 
 #include "Utilities/StorageFactory/interface/Storage.h"
@@ -20,10 +19,13 @@ namespace XrdAdaptor {
 
   class XrdReadStatistics;
 
-  class ClientRequest : boost::noncopyable, public XrdCl::ResponseHandler {
+  class ClientRequest : public XrdCl::ResponseHandler {
     friend class Source;
 
   public:
+    ClientRequest(const ClientRequest &) = delete;
+    ClientRequest &operator=(const ClientRequest &) = delete;
+
     ClientRequest(RequestManager &manager, void *into, IOSize size, IOOffset off)
         : m_failure_count(0), m_into(into), m_size(size), m_off(off), m_iolist(nullptr), m_manager(manager) {}
 

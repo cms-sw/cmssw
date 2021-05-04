@@ -19,16 +19,24 @@ namespace ecaldqm {
     minEntries_ = _params.getUntrackedParameter<int>("minEntries");
     errorFractionThreshold_ = _params.getUntrackedParameter<double>("errorFractionThreshold");
     TTF4MaskingAlarmThreshold_ = _params.getUntrackedParameter<double>("TTF4MaskingAlarmThreshold");
+    sourceFromEmul_ = _params.getUntrackedParameter<bool>("sourceFromEmul");
+    if (!sourceFromEmul_) {
+      MEs_.erase(std::string("NonSingleSummary"));
+      MEs_.erase(std::string("TimingSummary"));
+      sources_.erase(std::string("EtEmulError"));
+      sources_.erase(std::string("MatchedIndex"));
+    }
   }
 
   void TrigPrimClient::producePlots(ProcessType) {
-    MESet& meTimingSummary(MEs_.at("TimingSummary"));
-    MESet& meNonSingleSummary(MEs_.at("NonSingleSummary"));
+    MESet* meNonSingleSummary = nullptr;
+    MESet* meTimingSummary = nullptr;
+    MESet* sEtEmulError = nullptr;
+    MESet* sMatchedIndex = nullptr;
+
     MESet& meEmulQualitySummary(MEs_.at("EmulQualitySummary"));
     MESet& meTrendTTF4Flags(MEs_.at("TrendTTF4Flags"));
 
-    MESet const& sEtEmulError(sources_.at("EtEmulError"));
-    MESet const& sMatchedIndex(sources_.at("MatchedIndex"));
     MESet const& sTPDigiThrAll(sources_.at("TPDigiThrAll"));
     MESetNonObject const& sLHCStatusByLumi(static_cast<MESetNonObject&>(sources_.at("LHCStatusByLumi")));
 
@@ -45,41 +53,47 @@ namespace ecaldqm {
     for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
 
-      bool doMask(meEmulQualitySummary.maskMatches(ttid, mask, statusManager_));
+      bool doMask(meEmulQualitySummary.maskMatches(ttid, mask, statusManager_, GetTrigTowerMap()));
 
-      float towerEntries(0.);
-      float tMax(0.5);
-      float nMax(0.);
-      for (int iBin(0); iBin < 6; iBin++) {
-        float entries(sMatchedIndex.getBinContent(ttid, iBin + 1));
-        towerEntries += entries;
+      if (sourceFromEmul_) {
+        sEtEmulError = &sources_.at("EtEmulError");
+        sMatchedIndex = &sources_.at("MatchedIndex");
+        meNonSingleSummary = &MEs_.at("NonSingleSummary");
+        meTimingSummary = &MEs_.at("TimingSummary");
+        float towerEntries(0.);
+        float tMax(0.5);
+        float nMax(0.);
+        for (int iBin(0); iBin < 6; iBin++) {
+          float entries(sMatchedIndex->getBinContent(getEcalDQMSetupObjects(), ttid, iBin + 1));
+          towerEntries += entries;
 
-        if (entries > nMax) {
-          nMax = entries;
-          tMax = iBin == 0 ? -0.5 : iBin + 0.5;  // historical reasons.. much clearer to say "no entry = -0.5"
+          if (entries > nMax) {
+            nMax = entries;
+            tMax = iBin == 0 ? -0.5 : iBin + 0.5;  // historical reasons.. much clearer to say "no entry = -0.5"
+          }
+        }
+        meTimingSummary->setBinContent(getEcalDQMSetupObjects(), ttid, tMax);
+        if (towerEntries < minEntries_) {
+          meEmulQualitySummary.setBinContent(getEcalDQMSetupObjects(), ttid, doMask ? kMUnknown : kUnknown);
+          continue;
+        }
+
+        float nonsingleFraction(1. - nMax / towerEntries);
+
+        if (nonsingleFraction > 0.) {
+          meNonSingleSummary->setBinContent(getEcalDQMSetupObjects(), ttid, nonsingleFraction);
+        }
+
+        if (sEtEmulError->getBinContent(getEcalDQMSetupObjects(), ttid) / towerEntries > errorFractionThreshold_) {
+          meEmulQualitySummary.setBinContent(getEcalDQMSetupObjects(), ttid, doMask ? kMBad : kBad);
+        } else {
+          meEmulQualitySummary.setBinContent(getEcalDQMSetupObjects(), ttid, doMask ? kMGood : kGood);
         }
       }
 
-      meTimingSummary.setBinContent(ttid, tMax);
-
-      if (towerEntries < minEntries_) {
-        meEmulQualitySummary.setBinContent(ttid, doMask ? kMUnknown : kUnknown);
-        continue;
-      }
-
-      float nonsingleFraction(1. - nMax / towerEntries);
-
-      if (nonsingleFraction > 0.)
-        meNonSingleSummary.setBinContent(ttid, nonsingleFraction);
-
-      if (sEtEmulError.getBinContent(ttid) / towerEntries > errorFractionThreshold_)
-        meEmulQualitySummary.setBinContent(ttid, doMask ? kMBad : kBad);
-      else
-        meEmulQualitySummary.setBinContent(ttid, doMask ? kMGood : kGood);
-
       // Keep count for Occupancy analysis
-      unsigned iDCC(dccId(ttid) - 1);
-      Nentries[iDCC] += sTPDigiThrAll.getBinContent(ttid);
+      unsigned iDCC(dccId(ttid, GetElectronicsMap()) - 1);
+      Nentries[iDCC] += sTPDigiThrAll.getBinContent(getEcalDQMSetupObjects(), ttid);
     }
 
     // Fill TTF4 v Masking ME
@@ -98,10 +112,10 @@ namespace ecaldqm {
     // Loop over all TTs
     for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
-      unsigned iDCC(dccId(ttid) - 1);
-      bool isMasked(sTTMaskMapAll.getBinContent(ttid) > 0.);
-      bool hasTTF4(sTTFlags4.getBinContent(ttid) > 0.);
-      bool hasTTF4InThisLumiSection(sTTFlags4ByLumi.getBinContent(ttid) > 0.);
+      unsigned iDCC(dccId(ttid, GetElectronicsMap()) - 1);
+      bool isMasked(sTTMaskMapAll.getBinContent(getEcalDQMSetupObjects(), ttid) > 0.);
+      bool hasTTF4(sTTFlags4.getBinContent(getEcalDQMSetupObjects(), ttid) > 0.);
+      bool hasTTF4InThisLumiSection(sTTFlags4ByLumi.getBinContent(getEcalDQMSetupObjects(), ttid) > 0.);
       if (hasTTF4InThisLumiSection) {
         nWithTTF4[iDCC]++;
         if (ttid.subDet() == EcalBarrel)
@@ -111,26 +125,26 @@ namespace ecaldqm {
       }
       if (isMasked) {
         if (hasTTF4) {
-          meTTF4vMask.setBinContent(ttid, 12);  // Masked, has TTF4
+          meTTF4vMask.setBinContent(getEcalDQMSetupObjects(), ttid, 12);  // Masked, has TTF4
         } else {
-          meTTF4vMask.setBinContent(ttid, 11);  // Masked, no TTF4
+          meTTF4vMask.setBinContent(getEcalDQMSetupObjects(), ttid, 11);  // Masked, no TTF4
         }
         if (hasTTF4InThisLumiSection) {
-          meTTF4vMaskByLumi.setBinContent(ttid, 12);  // Masked, has TTF4
+          meTTF4vMaskByLumi.setBinContent(getEcalDQMSetupObjects(), ttid, 12);  // Masked, has TTF4
         } else {
-          meTTF4vMaskByLumi.setBinContent(ttid, 11);  // Masked, no TTF4
+          meTTF4vMaskByLumi.setBinContent(getEcalDQMSetupObjects(), ttid, 11);  // Masked, no TTF4
         }
       } else {
         if (hasTTF4)
-          meTTF4vMask.setBinContent(ttid, 13);  // not Masked, has TTF4
+          meTTF4vMask.setBinContent(getEcalDQMSetupObjects(), ttid, 13);  // not Masked, has TTF4
         if (hasTTF4InThisLumiSection)
-          meTTF4vMaskByLumi.setBinContent(ttid, 13);  // not Masked, has TTF4
+          meTTF4vMaskByLumi.setBinContent(getEcalDQMSetupObjects(), ttid, 13);  // not Masked, has TTF4
       }
     }  // TT loop
 
     // Fill trend plots for number of TTs with TTF4 flag set
-    meTrendTTF4Flags.fill(EcalBarrel, double(timestamp_.iLumi), nWithTTF4_EB);
-    meTrendTTF4Flags.fill(EcalEndcap, double(timestamp_.iLumi), nWithTTF4_EE);
+    meTrendTTF4Flags.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), nWithTTF4_EB);
+    meTrendTTF4Flags.fill(getEcalDQMSetupObjects(), EcalEndcap, double(timestamp_.iLumi), nWithTTF4_EE);
 
     // Quality check: set an entire FED to BAD if a more than 80% of the TTs in that FED show any DCC-SRP flag mismatch errors
     // Fill flag mismatch statistics
@@ -139,18 +153,20 @@ namespace ecaldqm {
     MESet const& sTTFMismatch(sources_.at("TTFMismatch"));
     for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
-      unsigned iDCC(dccId(ttid) - 1);
-      if (sTTFMismatch.getBinContent(ttid) > 0.)
+      unsigned iDCC(dccId(ttid, GetElectronicsMap()) - 1);
+      if (sTTFMismatch.getBinContent(getEcalDQMSetupObjects(), ttid) > 0.)
         nTTFMismath[iDCC]++;
       nTTs[iDCC]++;
     }
     // Analyze flag mismatch statistics and TTF4 fraction statistics
     for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
-      unsigned iDCC(dccId(ttid) - 1);
+      unsigned iDCC(dccId(ttid, GetElectronicsMap()) - 1);
       if (nTTFMismath[iDCC] > 0.8 * nTTs[iDCC] || nWithTTF4[iDCC] > TTF4MaskingAlarmThreshold_ * nTTs[iDCC]) {
-        meEmulQualitySummary.setBinContent(ttid,
-                                           meEmulQualitySummary.maskMatches(ttid, mask, statusManager_) ? kMBad : kBad);
+        meEmulQualitySummary.setBinContent(
+            getEcalDQMSetupObjects(),
+            ttid,
+            meEmulQualitySummary.maskMatches(ttid, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
       }
     }
 
@@ -179,7 +195,7 @@ namespace ecaldqm {
     float meanFED(0.), rmsFED(0.), nRMS(5.);
     for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
-      unsigned iDCC(dccId(ttid) - 1);
+      unsigned iDCC(dccId(ttid, GetElectronicsMap()) - 1);
       if (iDCC >= kEBmLow && iDCC <= kEBpHigh) {
         meanFED = meanFEDEB;
         rmsFED = rmsFEDEB;
@@ -189,8 +205,10 @@ namespace ecaldqm {
       }
       float threshold(meanFED < nRMS * rmsFED ? minEntries_ : meanFED - nRMS * rmsFED);
       if ((meanFED > 100. && Nentries[iDCC] < threshold) && statsCheckEnabled)
-        meEmulQualitySummary.setBinContent(ttid,
-                                           meEmulQualitySummary.maskMatches(ttid, mask, statusManager_) ? kMBad : kBad);
+        meEmulQualitySummary.setBinContent(
+            getEcalDQMSetupObjects(),
+            ttid,
+            meEmulQualitySummary.maskMatches(ttid, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
     }
 
   }  // producePlots()

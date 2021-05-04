@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelGainCalibrations.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
 #include "CondFormats/DataRecord/interface/CTPPSPixelGainCalibrationsRcd.h"
 #include "TH2D.h"
 #include "TFile.h"

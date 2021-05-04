@@ -20,10 +20,32 @@
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPRecHit> >"/>
   <class name="std::vector<TotemRPRecHit>"/>
   <class name="std::vector<const TotemRPRecHit*>"/>
+  <class name="std::map<int, edm::DetSetVector<TotemRPRecHit>>"/>
+  <class name="std::pair<const int, edm::DetSetVector<TotemRPRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<TotemRPRecHit>>>"/>
 
-  <class name="TotemRPUVPattern" ClassVersion="2">
+  <class name="TotemRPUVPattern" ClassVersion="3">
     <version ClassVersion="2" checksum="3530058029"/>
+    <version ClassVersion="3" checksum="1693481125"/>
   </class>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="double a" target="a_">
+  <![CDATA[a_ = onfile.a;]]>
+  </ioread>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="double b" target="b_">
+  <![CDATA[b_ = onfile.b;]]>
+  </ioread>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="double w" target="w_">
+  <![CDATA[w_ = onfile.w;]]>
+  </ioread>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="bool fittable" target="fittable_">
+  <![CDATA[fittable_ = onfile.fittable;]]>
+  </ioread>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="TotemRPUVPattern::ProjectionType projection" target="projection_">
+  <![CDATA[projection_ = onfile.projection;]]>
+  </ioread>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="edm::DetSetVector<TotemRPRecHit> hits" target="hits_">
+  <![CDATA[hits_ = onfile.hits;]]>
+  </ioread>
   <class name="edm::DetSet<TotemRPUVPattern>"/>
   <class name="std::vector<TotemRPUVPattern>"/>
   <class name="std::vector<edm::DetSet<TotemRPUVPattern> >"/>
@@ -56,6 +78,8 @@
   <class name="edm::DetSetVector<CTPPSTimingRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSTimingRecHit> >"/>
   <class name="edm::Wrapper<std::vector<CTPPSTimingRecHit> >"/>
+  <class name="std::map<int, edm::DetSetVector<CTPPSTimingRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSTimingRecHit>>>"/>
 
   <class name="TotemTimingRecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="156399384"/>
@@ -83,6 +107,9 @@
   <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondRecHit> >"/>
   <class name="edm::Wrapper<std::vector<CTPPSDiamondRecHit> >"/>
+  <class name="std::pair<const int, edm::DetSetVector<CTPPSDiamondRecHit>>"/>
+  <class name="std::map<int, edm::DetSetVector<CTPPSDiamondRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSDiamondRecHit>>>"/>
 
   <class name="CTPPSTimingLocalTrack" ClassVersion="3">
     <version ClassVersion="3" checksum="3964976910"/>
@@ -141,14 +168,16 @@
   <class name="std::vector<edm::DetSet<CTPPSPixelRecHit> >"/>
   <class name="edm::DetSetVector<CTPPSPixelRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
+  <class name="std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>"/>
+  <class name="std::pair<const int, edm::DetSetVector<CTPPSPixelRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>>"/>
 
   <class name="CTPPSPixelLocalTrack" ClassVersion="4">
-    <version ClassVersion="3" checksum="4150373475"/>    
+    <version ClassVersion="3" checksum="4150373475"/>
     <version ClassVersion="4" checksum="298693321"/>
   </class>
-  <ioread sourceClass = "CTPPSPixelLocalTrack" version="[3]" targetClass="CTPPSPixelLocalTrack" source="int numberOfPointUsedForFit_" target="numberOfPointsUsedForFit_">
-  <![CDATA[ numberOfPointsUsedForFit_ = onfile.numberOfPointUsedForFit_;
-  ]]>
+  <ioread sourceClass="CTPPSPixelLocalTrack" version="[3]" targetClass="CTPPSPixelLocalTrack" source="int numberOfPointUsedForFit_" target="numberOfPointsUsedForFit_">
+  <![CDATA[numberOfPointsUsedForFit_ = onfile.numberOfPointUsedForFit_;]]>
   </ioread>
   <class name="edm::DetSet<CTPPSPixelLocalTrack>"/>
   <class name="std::vector<CTPPSPixelLocalTrack>"/>
@@ -163,10 +192,53 @@
 
 <!-- common objects -->
 
-  <class name="CTPPSLocalTrackLite" ClassVersion="4">
-    <version ClassVersion="3" checksum="3838813906"/>    
+  <class name="CTPPSLocalTrackLite" ClassVersion="5">
+    <version ClassVersion="3" checksum="3838813906"/>
     <version ClassVersion="4" checksum="2435718827"/>
+    <version ClassVersion="5" checksum="4235453685"/>
   </class>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="uint32_t rpId" target="rp_id_">
+  <![CDATA[rp_id_ = onfile.rpId;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float x" target="x_">
+  <![CDATA[x_ = onfile.x;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float x_unc" target="x_unc_">
+  <![CDATA[x_unc_ = onfile.x_unc;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float y" target="y_">
+  <![CDATA[y_ = onfile.y;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float y_unc" target="y_unc_">
+  <![CDATA[y_unc_ = onfile.y_unc;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float tx" target="tx_">
+  <![CDATA[tx_ = onfile.tx;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float tx_unc" target="tx_unc_">
+  <![CDATA[tx_unc_ = onfile.tx_unc;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float ty" target="ty_">
+  <![CDATA[ty_ = onfile.ty;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float ty_unc" target="ty_unc_">
+  <![CDATA[ty_unc_ = onfile.ty_unc;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float chiSquaredOverNDF" target="chi2_norm_">
+  <![CDATA[chi2_norm_ = onfile.chiSquaredOverNDF;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="CTPPSpixelLocalTrackReconstructionInfo pixelTrack_reco_info" target="pixel_track_reco_info_">
+  <![CDATA[pixel_track_reco_info_ = onfile.pixelTrack_reco_info;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="unsigned short numberOfPointsUsedForFit" target="num_points_fit_">
+  <![CDATA[num_points_fit_ = onfile.numberOfPointsUsedForFit;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float time" target="time_">
+  <![CDATA[time_ = onfile.time;]]>
+  </ioread>
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float time_unc" target="time_unc_">
+  <![CDATA[time_unc_ = onfile.time_unc;]]>
+  </ioread>
   <class name="std::vector<CTPPSLocalTrackLite>"/>
   <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
   <class name="edm::Wrapper<std::vector<CTPPSLocalTrackLite>>"/>

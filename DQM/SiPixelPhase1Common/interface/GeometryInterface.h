@@ -13,8 +13,18 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/Transition.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <functional>
 #include <map>
@@ -35,7 +45,9 @@ public:
   // this should always be faster). Most ops turned out to be not needed.
   typedef std::vector<std::pair<Column, Value>> Values;
 
-  GeometryInterface(const edm::ParameterSet& conf) : iConfig(conf){};
+  GeometryInterface(const edm::ParameterSet&,
+                    edm::ConsumesCollector&&,
+                    edm::Transition transition = edm::Transition::BeginRun);
 
   bool loaded() { return is_loaded; };
 
@@ -115,13 +127,29 @@ public:
   std::string formatValue(Column, Value);
 
 private:
-  void loadFromTopology(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
-  void loadFromSiPixelCoordinates(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
-  void loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
-  void loadModuleLevel(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
-  void loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
+  void loadFromTopology(const TrackerGeometry&, const TrackerTopology&, const edm::ParameterSet&);
+  void loadFromSiPixelCoordinates(const TrackerGeometry&,
+                                  const TrackerTopology&,
+                                  const SiPixelFedCablingMap&,
+                                  const edm::ParameterSet&);
+  void loadTimebased(const edm::ParameterSet& iConfig);
+  void loadModuleLevel(const edm::ParameterSet& iConfig);
+  void loadFEDCabling(const SiPixelFedCablingMap*);
 
   const edm::ParameterSet iConfig;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+  // When converting this module to use esConsumes I preserved the previous behavior.
+  // In one place a configurable label is allowed when getting SiPixelFedCablingMap
+  // and in another place it always assumes an empty label. I am not sure if this is
+  // actually correct (seems strange). Maybe it does not matter as in all the configurations
+  // I could find in the repository the parameter was an empty string... An expert who
+  // understands this might want to fix this or eliminate this comment if the behavior is
+  // correct.
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> siPixelFedCablingMapToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> labeledSiPixelFedCablingMapToken_;
+  std::string cablingMapLabel_;
 
   bool is_loaded = false;
 

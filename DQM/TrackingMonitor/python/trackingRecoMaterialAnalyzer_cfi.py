@@ -20,9 +20,6 @@ materialDumperAnalyzer = DQMEDAnalyzer('TrackingRecoMaterialAnalyser',
                                         PropagatorOpposite = cms.string("RungeKuttaTrackerPropagatorOpposite")
 )
 
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(materialDumperAnalyzer, TrackerRecHitBuilder='WithTrackAngle')
-
 materialDumper = cms.Sequence(materialDumperAnalyzer)
 materialDumper_step = cms.Path(materialDumper)
 

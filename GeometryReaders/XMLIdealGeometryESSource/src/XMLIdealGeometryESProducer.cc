@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
@@ -19,19 +20,21 @@ public:
 
   ReturnType produce(const IdealGeometryRecord&);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
-  std::string rootDDName_;  // this must be the form namespace:name
-  std::string label_;
+  const std::string rootDDName_;  // this must be the form namespace:name
+  const edm::ESGetToken<FileBlob, GeometryFileRcd> blobToken_;
 };
 
 XMLIdealGeometryESProducer::XMLIdealGeometryESProducer(const edm::ParameterSet& iConfig)
-    : rootDDName_(iConfig.getParameter<std::string>("rootDDName")), label_(iConfig.getParameter<std::string>("label")) {
-  setWhatProduced(this);
+    : rootDDName_(iConfig.getParameter<std::string>("rootDDName")),
+      blobToken_(setWhatProduced(this).consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("label")))) {
+  usesResources({{edm::ESSharedResourceNames::kDDGeometry}});
 }
 
 XMLIdealGeometryESProducer::ReturnType XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {
-  edm::ESTransientHandle<FileBlob> gdd;
-  iRecord.getRecord<GeometryFileRcd>().get(label_, gdd);
+  edm::ESTransientHandle<FileBlob> gdd = iRecord.getTransientHandle(blobToken_);
   auto cpv = std::make_unique<DDCompactView>(DDName(rootDDName_));
   DDLParser parser(*cpv);
   parser.getDDLSAX2FileHandler()->setUserNS(true);
@@ -44,6 +47,14 @@ XMLIdealGeometryESProducer::ReturnType XMLIdealGeometryESProducer::produce(const
   cpv->lockdown();
 
   return cpv;
+}
+
+void XMLIdealGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("rootDDName")->setComment("The value must be of the form 'namespace:name'");
+  desc.add<std::string>("label")->setComment("product label used to get the FileBlob");
+
+  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in

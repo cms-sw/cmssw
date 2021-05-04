@@ -22,7 +22,6 @@
 class photonIsolationHIProducer : public edm::stream::EDProducer<> {
 public:
   explicit photonIsolationHIProducer(const edm::ParameterSet& ps);
-  ~photonIsolationHIProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -39,24 +38,25 @@ private:
   edm::EDGetTokenT<reco::BasicClusterCollection> endcapClusters_;
   edm::EDGetTokenT<reco::TrackCollection> tracks_;
 
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+
   std::string trackQuality_;
 };
 
 photonIsolationHIProducer::photonIsolationHIProducer(const edm::ParameterSet& config)
-    : photonProducer_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("photonProducer"))),
-      barrelEcalHits_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("ebRecHitCollection"))),
-      endcapEcalHits_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("eeRecHitCollection"))),
-      hbhe_(consumes<HBHERecHitCollection>(config.getParameter<edm::InputTag>("hbhe"))),
-      hf_(consumes<HFRecHitCollection>(config.getParameter<edm::InputTag>("hf"))),
-      ho_(consumes<HORecHitCollection>(config.getParameter<edm::InputTag>("ho"))),
-      barrelClusters_(consumes<reco::BasicClusterCollection>(config.getParameter<edm::InputTag>("basicClusterBarrel"))),
-      endcapClusters_(consumes<reco::BasicClusterCollection>(config.getParameter<edm::InputTag>("basicClusterEndcap"))),
-      tracks_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("trackCollection"))),
+    : photonProducer_(consumes(config.getParameter<edm::InputTag>("photonProducer"))),
+      barrelEcalHits_(consumes(config.getParameter<edm::InputTag>("ebRecHitCollection"))),
+      endcapEcalHits_(consumes(config.getParameter<edm::InputTag>("eeRecHitCollection"))),
+      hbhe_(consumes(config.getParameter<edm::InputTag>("hbhe"))),
+      hf_(consumes(config.getParameter<edm::InputTag>("hf"))),
+      ho_(consumes(config.getParameter<edm::InputTag>("ho"))),
+      barrelClusters_(consumes(config.getParameter<edm::InputTag>("basicClusterBarrel"))),
+      endcapClusters_(consumes(config.getParameter<edm::InputTag>("basicClusterEndcap"))),
+      tracks_(consumes(config.getParameter<edm::InputTag>("trackCollection"))),
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       trackQuality_(config.getParameter<std::string>("trackQuality")) {
   produces<reco::HIPhotonIsolationMap>();
 }
-
-photonIsolationHIProducer::~photonIsolationHIProducer() {}
 
 void photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<reco::PhotonCollection> photons;
@@ -84,8 +84,8 @@ void photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
   EcalClusterIsoCalculator CxC(evt, es, barrelClusters, endcapClusters);
   HcalRechitIsoCalculator RxC(evt, es, hbhe, hf, ho);
-  TrackIsoCalculator TxC(evt, es, trackCollection, trackQuality_);
-  EcalClusterLazyTools lazyTool(evt, es, barrelEcalHits_, endcapEcalHits_);
+  TrackIsoCalculator TxC(*trackCollection, trackQuality_);
+  EcalClusterLazyTools lazyTool(evt, ecalClusterToolsESGetTokens_.get(es), barrelEcalHits_, endcapEcalHits_);
 
   for (reco::PhotonCollection::const_iterator phoItr = photons->begin(); phoItr != photons->end(); ++phoItr) {
     reco::HIPhotonIsolation iso;

@@ -119,7 +119,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
     if (phiRange.empty()) continue;
     */
 
-    const HitRZCompatibility* checkRZ = region.checkRZ(innerLayerObj.detLayer(), ohit, es);
+    std::unique_ptr<const HitRZCompatibility> checkRZ = region.checkRZ(innerLayerObj.detLayer(), ohit, es);
     if (!checkRZ) {
 #ifdef mydebug_Seed
       ss << "*******\nNo valid checkRZ\n*******" << std::endl;
@@ -180,10 +180,6 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
           result.resize(oldSize);
 #ifdef mydebug_Seed
           edm::LogError("TooManySeeds") << "number of pairs exceed maximum, no pairs produced";
-#endif
-          delete checkRZ;
-
-#ifdef mydebug_Seed
           std::cout << ss.str();
 #endif
           return;
@@ -191,7 +187,6 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
         result.push_back(OrderedHitPair(*ih, ohit));
       }
     }
-    delete checkRZ;
   }
 
 #ifdef mydebug_Seed

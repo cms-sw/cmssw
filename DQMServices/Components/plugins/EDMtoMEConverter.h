@@ -60,8 +60,6 @@ public:
   explicit EDMtoMEConverter(const edm::ParameterSet&);
   ~EDMtoMEConverter() override;
 
-  void beginJob() final{};
-  void endJob() final{};
   void beginRun(const edm::Run&, const edm::EventSetup&) final{};
   void endRun(const edm::Run&, const edm::EventSetup&) final{};
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final{};
@@ -83,6 +81,7 @@ private:
 
   bool convertOnEndLumi;
   bool convertOnEndRun;
+  MonitorElementData::Scope reScope;
 
   template <typename T>
   class Tokens {

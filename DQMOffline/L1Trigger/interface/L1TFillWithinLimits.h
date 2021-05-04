@@ -6,7 +6,7 @@
 namespace dqmoffline {
   namespace l1t {
 
-    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::reco::MonitorElement MonitorElement;
 
     /**
  * Fills a given MonitorElement within the boundaries of the underlying histogram.

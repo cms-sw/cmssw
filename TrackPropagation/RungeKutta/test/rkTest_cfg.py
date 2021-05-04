@@ -31,25 +31,27 @@ process.maxEvents = cms.untracked.PSet(
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag,'auto:phase1_2017_realistic', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
-#process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
-#process.AutoMagneticFieldESProducer.valueOverride = 18000
+#process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.VolumeBasedMagneticFieldESProducer.valueOverride = 18000
 
 process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    categories   = cms.untracked.vstring("MagneticField"),
-    destinations = cms.untracked.vstring("cout"),
-    cout = cms.untracked.PSet(  
-    noLineBreaks = cms.untracked.bool(True),
-    threshold = cms.untracked.string("WARNING"),
-    WARNING = cms.untracked.PSet(
-      limit = cms.untracked.int32(0)
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    MagneticField = cms.untracked.PSet(
-     limit = cms.untracked.int32(10000000)
+    cout = cms.untracked.PSet(
+        MagneticField = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000)
+        ),
+        WARNING = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING')
     )
-  )
 )
 
 process.testField  = cms.EDAnalyzer("RKTest")

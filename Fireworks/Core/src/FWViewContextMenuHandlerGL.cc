@@ -6,6 +6,7 @@
 #include "TGLAnnotation.h"
 #include "TGLWidget.h"
 #include "TEveVector.h"
+#include "TVirtualX.h"
 
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"

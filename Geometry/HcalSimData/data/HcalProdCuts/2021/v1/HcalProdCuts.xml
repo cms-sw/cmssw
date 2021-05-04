@@ -8,7 +8,7 @@
       <PartSelector path="//VCAL"/>
       <Parameter name="CMSCutsRegion" value="HcalRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-<Parameter name="ProdCutsForProtons" value="1*mm"/>
+      <Parameter name="ProdCutsForProtons" value="1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1*mm"/>
       <Parameter name="ProdCutsForGamma" value="1*mm"/>
     </SpecPar>

@@ -13,11 +13,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <algorithm>
-#include <boost/cstdint.hpp>
 #include <iostream>
 #include <sstream>
 #include <time.h>
 #include <vector>
+#include <cstdint>
 
 using namespace sistrip;
 

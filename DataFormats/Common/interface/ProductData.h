@@ -9,6 +9,7 @@ is the storage unit of such information.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <memory>
 
 namespace edm {
@@ -52,15 +53,9 @@ namespace edm {
 
     void unsafe_resetProductData() const { wrapper_.reset(); }
 
-    void setProcessHistory(ProcessHistory const& ph) { prov_.setProcessHistory(ph); }
+    void setProvenance(ProductProvenanceRetriever const* provRetriever) { prov_.setStore(provRetriever); }
 
-    void setProvenance(ProductProvenanceRetriever const* provRetriever,
-                       ProcessHistory const& ph,
-                       ProductID const& pid) {
-      prov_.setProductID(pid);
-      prov_.setStore(provRetriever);
-      prov_.setProcessHistory(ph);
-    }
+    void setProductID(ProductID const& pid) { prov_.setProductID(pid); }
 
     void setMergeableRunProductMetadata(MergeableRunProductMetadataBase const* mrpm) {
       prov_.setMergeableRunProductMetadata(mrpm);
@@ -71,8 +66,9 @@ namespace edm {
     // the effort to make the Framework multithread capable ...
 
   private:
-    // "non-const data" (updated every event)
-    mutable std::shared_ptr<WrapperBase const> wrapper_;
+    // "non-const data" (updated every event).
+    // The mutating function begin with 'unsafe_'
+    CMS_SA_ALLOW mutable std::shared_ptr<WrapperBase const> wrapper_;
     Provenance prov_;
   };
 

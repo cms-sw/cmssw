@@ -1,17 +1,8 @@
-<use   name="Geometry/HcalCommonData"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Utilities"/>
-<use   name="Geometry/Records"/>
-<library   file="HcalParametersAnalyzer.cc" name="testHcalParametersAnalyzer">
- <use name="CondFormats/GeometryObjects"/>
- <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="HcalSimNumberingTester.cc" name="testHcalSimNumberingTester">
- <use name="CondFormats/GeometryObjects"/>
- <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="HcalRecNumberingTester.cc" name="testHcalRecNumberingTester">
- <use name="CondFormats/GeometryObjects"/>
- <flags   EDM_PLUGIN="1"/>
+<use name="Geometry/HcalCommonData"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/Records"/>
+<use name="CondFormats/GeometryObjects"/>
+<library file="*.cc" name="testHcalCommonDataAnalyzer">
+  <flags EDM_PLUGIN="1"/>
 </library>

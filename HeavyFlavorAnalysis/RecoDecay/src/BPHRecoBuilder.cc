@@ -25,9 +25,6 @@
 //---------------
 // C++ Headers --
 //---------------
-#include <iostream>
-#include <map>
-
 using namespace std;
 
 //-------------------
@@ -66,12 +63,38 @@ BPHRecoBuilder::~BPHRecoBuilder() {
 //--------------
 BPHRecoBuilder::BPHGenericCollection* BPHRecoBuilder::createCollection(const vector<const reco::Candidate*>& candList,
                                                                        const string& list) {
-  return new BPHSpecificCollection<vector<const reco::Candidate*> >(candList, list);
+  return new BPHSpecificCollection<vector<const reco::Candidate*>>(candList, list);
 }
 
-template <>
-const reco::Candidate& BPHRecoBuilder::BPHSpecificCollection<vector<const reco::Candidate*> >::get(int i) const {
-  return *(*cPtr)[i];
+void BPHRecoBuilder::add(const string& name, const BPHGenericCollection* collection, double mass, double msig) {
+  BPHRecoSource* rs;
+  if (sourceId.find(name) != sourceId.end()) {
+    edm::LogPrint("TooManyParticles") << "BPHRecoBuilder::add: "
+                                      << "Decay product already inserted with name " << name << " , skipped";
+    return;
+  }
+  rs = new BPHRecoSource;
+  rs->name = &sourceId.insert(make_pair(name, sourceList.size())).first->first;
+  rs->collection = collection;
+  rs->selector.reserve(5);
+  rs->mass = mass;
+  rs->msig = msig;
+  sourceList.push_back(rs);
+  return;
+}
+
+void BPHRecoBuilder::add(const string& name, const vector<BPHRecoConstCandPtr>& collection) {
+  BPHCompSource* cs;
+  if (srCompId.find(name) != srCompId.end()) {
+    edm::LogPrint("TooManyParticles") << "BPHRecoBuilder::add: "
+                                      << "Decay product already inserted with name " << name << " , skipped";
+    return;
+  }
+  cs = new BPHCompSource;
+  cs->name = &srCompId.insert(make_pair(name, srCompList.size())).first->first;
+  cs->collection = &collection;
+  srCompList.push_back(cs);
+  return;
 }
 
 void BPHRecoBuilder::filter(const string& name, const BPHRecoSelect& sel) const {
@@ -180,37 +203,6 @@ bool BPHRecoBuilder::sameTrack(const reco::Candidate* lCand, const reco::Candida
   return false;
 }
 
-void BPHRecoBuilder::add(const string& name, const BPHGenericCollection* collection, double mass, double msig) {
-  BPHRecoSource* rs;
-  if (sourceId.find(name) != sourceId.end()) {
-    edm::LogPrint("TooManyParticles") << "BPHRecoBuilder::add: "
-                                      << "Decay product already inserted with name " << name << " , skipped";
-    return;
-  }
-  rs = new BPHRecoSource;
-  rs->name = &sourceId.insert(make_pair(name, sourceList.size())).first->first;
-  rs->collection = collection;
-  rs->selector.reserve(5);
-  rs->mass = mass;
-  rs->msig = msig;
-  sourceList.push_back(rs);
-  return;
-}
-
-void BPHRecoBuilder::add(const string& name, const vector<BPHRecoConstCandPtr>& collection) {
-  BPHCompSource* cs;
-  if (srCompId.find(name) != srCompId.end()) {
-    edm::LogPrint("TooManyParticles") << "BPHRecoBuilder::add: "
-                                      << "Decay product already inserted with name " << name << " , skipped";
-    return;
-  }
-  cs = new BPHCompSource;
-  cs->name = &srCompId.insert(make_pair(name, srCompList.size())).first->first;
-  cs->collection = &collection;
-  srCompList.push_back(cs);
-  return;
-}
-
 void BPHRecoBuilder::build(vector<ComponentSet>& compList,
                            ComponentSet& compSet,
                            vector<BPHRecoSource*>::const_iterator r_iter,
@@ -240,18 +232,28 @@ void BPHRecoBuilder::build(vector<ComponentSet>& compList,
         continue;
       m = momSelector.size();
       for (j = 0; j < m; ++j) {
-        if (!momSelector[j]->accept(*cand))
+        if (!momSelector[j]->accept(*cand)) {
           skip = true;
+          break;
+        }
       }
+      if (skip)
+        continue;
       m = vtxSelector.size();
       for (j = 0; j < m; ++j) {
-        if (!vtxSelector[j]->accept(*cand))
+        if (!vtxSelector[j]->accept(*cand)) {
           skip = true;
+          break;
+        }
       }
+      if (skip)
+        continue;
       m = fitSelector.size();
       for (j = 0; j < m; ++j) {
-        if (!fitSelector[j]->accept(*cand))
+        if (!fitSelector[j]->accept(*cand)) {
           skip = true;
+          break;
+        }
       }
       if (skip)
         continue;
@@ -275,8 +277,10 @@ void BPHRecoBuilder::build(vector<ComponentSet>& compList,
       continue;
     skip = false;
     for (j = 0; j < m; ++j) {
-      if (!selector[j]->accept(cand, this))
+      if (!selector[j]->accept(cand, this)) {
         skip = true;
+        break;
+      }
     }
     if (skip)
       continue;

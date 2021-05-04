@@ -26,7 +26,7 @@ public:
     neighbourmapcalculated_ = false;
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) override {
+  void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
 

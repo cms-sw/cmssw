@@ -41,9 +41,15 @@ DEFINE_EDM_PLUGIN(CITKIsolationConeDefinitionFactory, MuonPFIsolationWithConeVet
 
 bool MuonPFIsolationWithConeVeto::isInIsolationCone(const reco::CandidatePtr& physob,
                                                     const reco::CandidatePtr& iso_obj) const {
+  if (iso_obj->pt() <= _vetoThreshold)
+    return false;
+  const double deltar2 = reco::deltaR2(*physob, *iso_obj);
+  if (deltar2 <= _vetoConeSize2 || deltar2 >= _coneSize2)
+    return false;
+
+  //the rest will check the vertex selection
   const pat::PackedCandidatePtr aspacked(iso_obj);
   const reco::PFCandidatePtr aspf(iso_obj);
-  const double deltar2 = reco::deltaR2(*physob, *iso_obj);
 
   bool result = true;
   if (aspacked.isNonnull() && aspacked.get()) {
@@ -57,9 +63,7 @@ bool MuonPFIsolationWithConeVeto::isInIsolationCone(const reco::CandidatePtr& ph
       }
       result = result && (is_vertex_allowed);
     }
-    result = result && (aspacked->pt() > _vetoThreshold && deltar2 > _vetoConeSize2 && deltar2 < _coneSize2);
   } else if (aspf.isNonnull() && aspf.get()) {
-    result = result && (aspf->pt() > _vetoThreshold && deltar2 > _vetoConeSize2 && deltar2 < _coneSize2);
   } else {
     throw cms::Exception("InvalidIsolationInput") << "The supplied candidate to be used as isolation "
                                                   << "was neither a reco::PFCandidate nor a pat::PackedCandidate!";

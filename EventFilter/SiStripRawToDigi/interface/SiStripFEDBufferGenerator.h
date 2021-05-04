@@ -1,13 +1,13 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripFEDBufferGenerator_H
 #define EventFilter_SiStripRawToDigi_SiStripFEDBufferGenerator_H
 
-#include "boost/cstdint.hpp"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include <vector>
 #include <list>
 #include <utility>
 #include <memory>
+#include <cstdint>
 
 namespace sistrip {
 
@@ -197,9 +197,9 @@ namespace sistrip {
 
   inline FEDStripData::FEDStripData(const std::vector<ChannelData>& data) : data_(data) {}
 
-  //re-use non-const method
+  //re-use const method
   inline FEDStripData::ChannelData& FEDStripData::channel(const uint8_t internalFEDChannelNum) {
-    return const_cast<ChannelData&>(static_cast<const FEDStripData*>(this)->channel(internalFEDChannelNum));
+    return const_cast<FEDStripData::ChannelData&>(std::as_const(*this).channel(internalFEDChannelNum));
   }
 
   inline FEDStripData::ChannelData& FEDStripData::operator[](const uint8_t internalFEDChannelNum) {
@@ -223,7 +223,7 @@ namespace sistrip {
 
   //re-use const method
   inline uint16_t& FEDStripData::ChannelData::operator[](const size_t sampleNumber) {
-    return const_cast<uint16_t&>(static_cast<const ChannelData&>(*this)[sampleNumber]);
+    return const_cast<uint16_t&>(std::as_const(*this)[sampleNumber]);
   }
 
   inline uint16_t FEDStripData::ChannelData::getSample(const uint16_t sampleNumber) const {

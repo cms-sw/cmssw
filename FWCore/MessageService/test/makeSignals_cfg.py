@@ -8,31 +8,32 @@ process = cms.Process("TEST")
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    sig_debugs = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noTimeStamps = cms.untracked.bool(True),
-        FwkReport = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
     debugModules = cms.untracked.vstring('*'),
-    sig_infos = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True),
-        FwkReport = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+    files = cms.untracked.PSet(
+        sig_debugs = cms.untracked.PSet(
+            FwkReport = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            noTimeStamps = cms.untracked.bool(True),
+            preEventProcessing = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            threshold = cms.untracked.string('DEBUG')
         ),
-        preEventProcessing = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        sig_infos = cms.untracked.PSet(
+            FwkReport = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            noTimeStamps = cms.untracked.bool(True),
+            preEventProcessing = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            threshold = cms.untracked.string('INFO')
         )
-    ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkReport'),
-    destinations = cms.untracked.vstring('sig_infos', 
-        'sig_debugs')
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

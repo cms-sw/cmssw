@@ -16,7 +16,6 @@
 #include <cassert>
 #include <sys/types.h>
 #include <unistd.h>
-#include <boost/filesystem/fstream.hpp>
 
 using namespace jsoncollector;
 
@@ -239,16 +238,19 @@ JsonMonitorable* FastMonitor::getMergedIntJForLumi(std::string const& name, unsi
   return dataPoints_[it->second]->mergeAndRetrieveValue(forLumi);
 }
 
-bool FastMonitor::outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi) {
+bool FastMonitor::outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi, bool output) {
   LogDebug("FastMonitor") << "SNAP updates -: " << recentSnaps_ << " (by timer: " << recentSnapsTimer_
                           << ") in lumisection ";
 
   recentSnaps_ = recentSnapsTimer_ = 0;
   for (unsigned int i = 0; i < nStreams_; i++) {
+    //merge even if no output
     Json::Value serializeRoot;
     for (unsigned int j = 0; j < jsonDpIndex_.size(); j++) {
       dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot, lumi, true, i);
     }
+    if (!output)
+      continue;
     //get extension
     std::stringstream tidext;
     tidext << "_tid" << i;
@@ -258,10 +260,10 @@ bool FastMonitor::outputFullJSONs(std::string const& pathstem, std::string const
     std::string&& result = writer.write(serializeRoot);
     FileIO::writeStringToFile(path, result);
   }
-  return true;
+  return output;
 }
 
-bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi) {
+bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi, bool output) {
   LogDebug("FastMonitor") << "SNAP updates -: " << recentSnaps_ << " (by timer: " << recentSnapsTimer_
                           << ") in lumisection ";
 
@@ -270,6 +272,8 @@ bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi) {
   for (unsigned int j = 0; j < jsonDpIndex_.size(); j++) {
     dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot, lumi, j == 0, -1);
   }
+  if (!output)
+    return false;
 
   Json::StyledWriter writer;
   std::string&& result = writer.write(serializeRoot);

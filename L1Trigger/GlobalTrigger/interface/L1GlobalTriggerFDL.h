@@ -18,8 +18,6 @@
 // system include files
 #include <vector>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -28,6 +26,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include <cstdint>
 
 // forward declarations
 class L1GlobalTriggerReadoutRecord;
@@ -72,7 +71,7 @@ public:
 
   /// fill the FDL block in the L1 GT DAQ record for iBxInEvent
   void fillDaqFdlBlock(const int iBxInEvent,
-                       const boost::uint16_t &activeBoardsGtDaq,
+                       const uint16_t &activeBoardsGtDaq,
                        const int recordLength0,
                        const int recordLength1,
                        const unsigned int altNrBxBoardDaq,
@@ -81,7 +80,7 @@ public:
 
   /// fill the FDL block in the L1 GT EVM record for iBxInEvent
   void fillEvmFdlBlock(const int iBxInEvent,
-                       const boost::uint16_t &activeBoardsGtEvm,
+                       const uint16_t &activeBoardsGtEvm,
                        const int recordLength0,
                        const int recordLength1,
                        const unsigned int altNrBxBoardEvm,

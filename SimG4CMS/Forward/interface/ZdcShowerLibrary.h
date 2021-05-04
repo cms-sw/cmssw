@@ -12,18 +12,16 @@
 
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 
 #include <string>
 #include <memory>
 
 class G4Step;
-class DDCompactView;
 class ZdcShowerLibrary {
 public:
   //Constructor and Destructor
-  ZdcShowerLibrary(const std::string& name, const DDCompactView& cpv, edm::ParameterSet const& p);
+  ZdcShowerLibrary(const std::string& name, edm::ParameterSet const& p);
   ~ZdcShowerLibrary();
 
 public:

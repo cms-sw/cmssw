@@ -32,19 +32,20 @@ namespace ecaldqm {
     std::vector<int> dccStatus(nDCC, 1);
 
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
-      double entries(sEntries.getBinContent(iDCC + 1));
-      if (entries > 1. &&
-          sL1ADCC.getBinContent(iDCC + 1) > synchErrThresholdFactor_ * std::log(entries) / std::log(10.))
+      double entries(sEntries.getBinContent(getEcalDQMSetupObjects(), iDCC + 1));
+      if (entries > 1. && sL1ADCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) >
+                              synchErrThresholdFactor_ * std::log(entries) / std::log(10.))
         dccStatus[iDCC] = 0;
     }
 
-    MESet::iterator meEnd(meQualitySummary.end());
-    for (MESet::iterator meItr(meQualitySummary.beginChannel()); meItr != meEnd; meItr.toNextChannel()) {
+    MESet::iterator meEnd(meQualitySummary.end(GetElectronicsMap()));
+    for (MESet::iterator meItr(meQualitySummary.beginChannel(GetElectronicsMap())); meItr != meEnd;
+         meItr.toNextChannel(GetElectronicsMap())) {
       DetId id(meItr->getId());
 
-      bool doMask(meQualitySummary.maskMatches(id, mask, statusManager_));
+      bool doMask(meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
-      int dccid(dccId(id));
+      int dccid(dccId(id, GetElectronicsMap()));
 
       if (dccStatus[dccid - 1] == 0) {
         meItr->setBinContent(doMask ? kMUnknown : kUnknown);
@@ -54,7 +55,7 @@ namespace ecaldqm {
       int towerStatus(doMask ? kMGood : kGood);
       float towerEntries(0.);
       for (unsigned iS(0); iS < nFEFlags; iS++) {
-        float entries(sFEStatus.getBinContent(id, iS + 1));
+        float entries(sFEStatus.getBinContent(getEcalDQMSetupObjects(), id, iS + 1));
         towerEntries += entries;
         if (entries > 0. && iS != Enabled && iS != Suppressed && iS != FIFOFull && iS != FIFOFullL1ADesync &&
             iS != ForcedZS)
@@ -66,7 +67,7 @@ namespace ecaldqm {
 
       meItr->setBinContent(towerStatus);
       if (towerStatus == kBad)
-        meErrorsSummary.fill(dccid);
+        meErrorsSummary.fill(getEcalDQMSetupObjects(), dccid);
     }
   }
 

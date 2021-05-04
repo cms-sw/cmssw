@@ -1,0 +1,14 @@
+<use name="boost"/>
+<use name="clhep"/>
+<use name="root"/>
+<use name="rootrflx"/>
+<use name="xerces-c"/>
+<use name="DataFormats/L1TrackTrigger"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="L1Trigger/TrackFindingTMTT"/>
+<flags CXXFLAGS="-DUSEHYBRID"/>
+
+<export>
+  <lib   name="1"/>
+</export>

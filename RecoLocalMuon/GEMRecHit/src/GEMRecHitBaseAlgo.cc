@@ -23,7 +23,7 @@ edm::OwnVector<GEMRecHit> GEMRecHitBaseAlgo::reconstruct(const GEMEtaPartition& 
   edm::OwnVector<GEMRecHit> result;
 
   GEMClusterizer clizer;
-  GEMClusterContainer tcls = clizer.doAction(digiRange);
+  GEMClusterContainer tcls = clizer.doAction(digiRange, mask);
   GEMMaskReClusterizer mrclizer;
   GEMClusterContainer cls = mrclizer.doAction(gemId, tcls, mask);
 

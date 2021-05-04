@@ -1,4 +1,4 @@
-<TESTCONFIGURATION>
+<TESTSCONFIGURATION>
   <!-- QTESTS for MEAN SIZE: -->
 
   <!-- PXBARREL -->
@@ -531,4 +531,4 @@
         <TestName activate="true">Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+3:mean_size</TestName>
       </LINK>
 
-</TESTCONFIGURATION>
+</TESTSCONFIGURATION>

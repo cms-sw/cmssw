@@ -31,7 +31,7 @@ void popcon::EcalADCToGeVHandler::getNewObjects() {
   ss << "ECAL ";
 
   unsigned int max_since = 0;
-  max_since = static_cast<unsigned int>(tagInfo().lastInterval.first);
+  max_since = static_cast<unsigned int>(tagInfo().lastInterval.since);
   std::cout << "max_since : " << max_since << std::endl;
   bool magnet_high = false;
   bool something_to_transfer = false;
@@ -153,11 +153,11 @@ void popcon::EcalADCToGeVHandler::getNewObjects() {
       }
       for (int iPart = 0; iPart < 2; iPart++) {  //  EB, EE
         fxml >> bid;
-        std::size_t begin = bid.find_first_of(">");
-        std::size_t end = bid.find_last_of("<");
+        std::size_t begin = bid.find_first_of('>');
+        std::size_t end = bid.find_last_of('<');
         begin++;
         std::string str2 = bid.substr(begin, end - begin);
-        std::size_t endmantissa = str2.find("e");
+        std::size_t endmantissa = str2.find('e');
         std::string mantissa = str2.substr(0, endmantissa);
         std::size_t string_size = str2.size();
         std::string exponent = str2.substr(endmantissa + 1, string_size);

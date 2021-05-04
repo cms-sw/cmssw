@@ -191,7 +191,7 @@ unsigned int RunRangeDependentPedeLabeler::numberOfParameterInstances(Alignable*
   if (positionAli != theAlignableToRunRangeRangeMap.end()) {
     size_t nRunRanges = 1;
     if (param == -1) {
-      for (const auto iParam : (*positionAli).second) {
+      for (const auto& iParam : (*positionAli).second) {
         nRunRanges = std::max(nRunRanges, iParam.second.size());
       }
       return nRunRanges;

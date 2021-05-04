@@ -36,31 +36,31 @@ public:
   /// Return digi values number
 
   /// Hardware Id formatted as: bits 0-3 Channel Id, bit 4 Sampic Id, bits 5-7 Digitizer Board Id
-  inline unsigned int getHardwareId() const { return hwId_; }
+  inline unsigned int hardwareId() const { return hwId_; }
 
-  inline unsigned int getHardwareBoardId() const { return (hwId_ & 0xE0) >> 5; }
+  inline unsigned int hardwareBoardId() const { return (hwId_ & 0xE0) >> 5; }
 
-  inline unsigned int getHardwareSampicId() const { return (hwId_ & 0x10) >> 4; }
+  inline unsigned int hardwareSampicId() const { return (hwId_ & 0x10) >> 4; }
 
-  inline unsigned int getHardwareChannelId() const { return (hwId_ & 0x0F); }
+  inline unsigned int hardwareChannelId() const { return (hwId_ & 0x0F); }
 
-  inline unsigned int getL1ATimestamp() const { return l1ATimestamp_; }
+  inline unsigned int l1ATimestamp() const { return l1ATimestamp_; }
 
-  inline unsigned int getBunchNumber() const { return bunchNumber_; }
+  inline unsigned int bunchNumber() const { return bunchNumber_; }
 
-  inline unsigned int getOrbitNumber() const { return orbitNumber_; }
+  inline unsigned int orbitNumber() const { return orbitNumber_; }
 
-  inline unsigned int getEventNumber() const { return eventNumber_; }
+  inline unsigned int eventNumber() const { return eventNumber_; }
 
-  inline uint16_t getChannelMap() const { return channelMap_; }
+  inline uint16_t channelMap() const { return channelMap_; }
 
-  inline unsigned int getL1ALatency() const { return l1ALatency_; }
+  inline unsigned int l1ALatency() const { return l1ALatency_; }
 
-  inline unsigned int getNumberOfSamples() const { return numberOfSamples_; }
+  inline unsigned int numberOfSamples() const { return numberOfSamples_; }
 
-  inline unsigned int getOffsetOfSamples() const { return offsetOfSamples_; }
+  inline unsigned int offsetOfSamples() const { return offsetOfSamples_; }
 
-  inline uint8_t getPLLInfo() const { return pllInfo_; }
+  inline uint8_t pllInfo() const { return pllInfo_; }
 
   /// Set digi values
   /// Hardware Id formatted as: bits 0-3 Channel Id, bit 4 Sampic Id, bits 5-7 Digitizer Board Id
@@ -115,25 +115,25 @@ private:
 #include <iostream>
 
 inline bool operator<(const TotemTimingEventInfo& one, const TotemTimingEventInfo& other) {
-  if (one.getEventNumber() < other.getEventNumber())
+  if (one.eventNumber() < other.eventNumber())
     return true;
-  if (one.getL1ATimestamp() < other.getL1ATimestamp())
+  if (one.l1ATimestamp() < other.l1ATimestamp())
     return true;
-  if (one.getHardwareId() < other.getHardwareId())
+  if (one.hardwareId() < other.hardwareId())
     return true;
   return false;
 }
 
 inline std::ostream& operator<<(std::ostream& o, const TotemTimingEventInfo& digi) {
-  std::bitset<16> bitsPLLInfo(digi.getPLLInfo());
+  std::bitset<16> bitsPLLInfo(digi.pllInfo());
   return o << "TotemTimingEventInfo:"
-           << "\nHardwareId:\t" << std::hex << digi.getHardwareId() << "\nDB: " << std::dec << digi.getHardwareBoardId()
-           << "\tSampic: " << digi.getHardwareSampicId() << "\tChannel: " << digi.getHardwareChannelId()
-           << "\nL1A Timestamp:\t" << std::dec << digi.getL1ATimestamp() << "\nL1A Latency:\t" << std::dec
-           << digi.getL1ALatency() << "\nBunch Number:\t" << std::dec << digi.getBunchNumber() << "\nOrbit Number:\t"
-           << std::dec << digi.getOrbitNumber() << "\nEvent Number:\t" << std::dec << digi.getEventNumber()
-           << "\nChannels fired:\t" << std::hex << digi.getChannelMap() << "\nNumber of Samples:\t" << std::dec
-           << digi.getNumberOfSamples() << "\nOffset of Samples:\t" << std::dec << digi.getOffsetOfSamples()
+           << "\nHardwareId:\t" << std::hex << digi.hardwareId() << "\nDB: " << std::dec << digi.hardwareBoardId()
+           << "\tSampic: " << digi.hardwareSampicId() << "\tChannel: " << digi.hardwareChannelId()
+           << "\nL1A Timestamp:\t" << std::dec << digi.l1ATimestamp() << "\nL1A Latency:\t" << std::dec
+           << digi.l1ALatency() << "\nBunch Number:\t" << std::dec << digi.bunchNumber() << "\nOrbit Number:\t"
+           << std::dec << digi.orbitNumber() << "\nEvent Number:\t" << std::dec << digi.eventNumber()
+           << "\nChannels fired:\t" << std::hex << digi.channelMap() << "\nNumber of Samples:\t" << std::dec
+           << digi.numberOfSamples() << "\nOffset of Samples:\t" << std::dec << digi.offsetOfSamples()
            << "\nPLL Info:\t" << bitsPLLInfo.to_string() << std::endl;
 }
 

@@ -1,7 +1,6 @@
 #ifndef L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboardLUT_h
 #define L1Trigger_CSCTriggerPrimitives_CSCUpgradeMotherboardLUT_h
 
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 
@@ -44,7 +43,7 @@ public:
   // map of CSC wiregroup to GEM rols
   std::vector<std::pair<int, int> > get_csc_wg_to_gem_roll(Parity par, int layer = 1) const;
   // map the GEM roll to the wire-group in the middle of that roll
-  std::vector<int> get_gem_roll_to_csc_wg(Parity par, int layer = 1) const;
+  std::vector<int> get_gem_roll_to_csc_wg(Parity par) const;
 
 protected:
   // maps the edges of the CSC wire group to eta for odd numbered chambers
@@ -71,10 +70,8 @@ protected:
   std::vector<std::pair<int, int> > csc_wg_to_gem_roll_even_l2;
 
   // map the GEM roll to the wire-group in the middle of that roll
-  std::vector<int> gem_roll_to_csc_wg_odd_l1;
-  std::vector<int> gem_roll_to_csc_wg_odd_l2;
-  std::vector<int> gem_roll_to_csc_wg_even_l1;
-  std::vector<int> gem_roll_to_csc_wg_even_l2;
+  std::vector<int> gem_roll_to_csc_wg_odd;
+  std::vector<int> gem_roll_to_csc_wg_even;
 };
 
 class CSCGEMMotherboardLUTME11 : public CSCGEMMotherboardLUT {

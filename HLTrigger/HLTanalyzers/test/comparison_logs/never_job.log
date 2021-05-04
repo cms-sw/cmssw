@@ -1,0 +1,9 @@
+HLT-Report ---------- Event  Summary ------------
+HLT-Report Summary for Job
+HLT-Report Events total = 10 wasrun = 10 passed = 4 errors = 0
+HLT-Report ---------- HLTrig Summary ------------
+HLT-Report   HLT #  WasRun     L1S     Pre     HLT   %L1sPre    Rate  RateHi  Errors Name
+HLT-Report       0      10      10      10       4  40.00000   100.0     0.0       0 HLTriggerFinalPath
+HLT-Report       1      10      10      10       3  30.00000    75.0    95.8       0 p1
+HLT-Report       2      10      10      10       1  10.00000    25.0    62.0       0 p2
+HLT-Report end!

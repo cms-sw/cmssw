@@ -1,28 +1,37 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Validation/MuonCSCDigis/src/CSCWireDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCWireDigiValidation.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 
-CSCWireDigiValidation::CSCWireDigiValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC, bool doSim)
-    : CSCBaseValidation(inputTag), doSim_(doSim), theTimeBinPlots(), theNDigisPerLayerPlots() {
-  wires_Token_ = iC.consumes<CSCWireDigiCollection>(inputTag);
+CSCWireDigiValidation::CSCWireDigiValidation(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC)
+    : CSCBaseValidation(ps), theTimeBinPlots(), theNDigisPerLayerPlots() {
+  const auto &pset = ps.getParameterSet("cscWireDigi");
+  inputTag_ = pset.getParameter<edm::InputTag>("inputTag");
+  wires_Token_ = iC.consumes<CSCWireDigiCollection>(inputTag_);
 }
 
 CSCWireDigiValidation::~CSCWireDigiValidation() {}
 
 void CSCWireDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
-  theNDigisPerEventPlot = iBooker.book1D("CSCWireDigisPerEvent", "CSC Wire Digis per event", 100, 0, 100);
-  for (int i = 0; i < 10; ++i) {
-    char title1[200], title2[200], title3[200];
-    sprintf(title1, "CSCWireDigiTimeType%d", i + 1);
-    sprintf(title2, "CSCWireDigisPerLayerType%d", i + 1);
-    sprintf(title3, "CSCWireDigiResolution%d", i + 1);
-    theTimeBinPlots[i] = iBooker.book1D(title1, title1, 9, 0, 8);
-    theNDigisPerLayerPlots[i] = iBooker.book1D(title2, title2, 100, 0, 20);
-    theResolutionPlots[i] = iBooker.book1D(title3, title3, 100, -10, 10);
+  theNDigisPerEventPlot =
+      iBooker.book1D("CSCWireDigisPerEvent", "CSC Wire Digis per event;CSC Wire Digis per event;Entries", 100, 0, 100);
+  for (int i = 1; i <= 10; ++i) {
+    const std::string t1("CSCWireDigiTime_" + CSCDetId::chamberName(i));
+    const std::string t2("CSCWireDigisPerLayer_" + CSCDetId::chamberName(i));
+    const std::string t3("CSCWireDigiResolution_" + CSCDetId::chamberName(i));
+    theTimeBinPlots[i - 1] =
+        iBooker.book1D(t1, "Wire Time Bin " + CSCDetId::chamberName(i) + ";Wire Time Bin; Entries", 16, 0, 16);
+    theNDigisPerLayerPlots[i - 1] = iBooker.book1D(
+        t2, "Number of Wire Digis " + CSCDetId::chamberName(i) + ";Number of Wire Digis; Entries", 100, 0, 20);
+    theResolutionPlots[i - 1] = iBooker.book1D(
+        t3,
+        "Wire Y Position Resolution " + CSCDetId::chamberName(i) + ";Wire Y Position Resolution; Entries",
+        100,
+        -10,
+        10);
   }
 }
 
@@ -32,14 +41,14 @@ void CSCWireDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &
   e.getByToken(wires_Token_, wires);
 
   if (!wires.isValid()) {
-    edm::LogError("CSCDigiDump") << "Cannot get wires by label " << theInputTag.encode();
+    edm::LogError("CSCWireDigiValidation") << "Cannot get wires by label " << inputTag_.encode();
   }
 
   unsigned nDigisPerEvent = 0;
 
-  for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin(); j != wires->end(); j++) {
-    std::vector<CSCWireDigi>::const_iterator beginDigi = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator endDigi = (*j).second.second;
+  for (auto j = wires->begin(); j != wires->end(); j++) {
+    auto beginDigi = (*j).second.first;
+    auto endDigi = (*j).second.second;
     int detId = (*j).first.rawId();
 
     const CSCLayer *layer = findLayer(detId);
@@ -48,7 +57,7 @@ void CSCWireDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &
     nDigisPerEvent += nDigis;
     theNDigisPerLayerPlots[chamberType - 1]->Fill(nDigis);
 
-    for (std::vector<CSCWireDigi>::const_iterator digiItr = beginDigi; digiItr != endDigi; ++digiItr) {
+    for (auto digiItr = beginDigi; digiItr != endDigi; ++digiItr) {
       theTimeBinPlots[chamberType - 1]->Fill(digiItr->getTimeBin());
     }
 

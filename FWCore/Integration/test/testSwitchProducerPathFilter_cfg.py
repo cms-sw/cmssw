@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testSwitchProducerPath%d.root' % (1 if enableTest2 else 2,)),
+    fileName = cms.untracked.string('testSwitchProducerPathFilter%d.root' % (1 if enableTest2 else 2,)),
     outputCommands = cms.untracked.vstring(
         'keep *_intProducer_*_*'
     )
@@ -42,12 +42,12 @@ process.intProducer3 = cms.EDProducer("ManyIntProducer",
 )
 
 process.intProducer = SwitchProducerTest(
-    test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
-    test2 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer2"))
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer1")),
+    test2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer2"))
 )
 # SwitchProducer with an alias
 process.intProducerAlias = SwitchProducerTest(
-    test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer1")),
     test2 = cms.EDAlias(intProducer3 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string(""), toProductInstance = cms.string("")),
                                                  cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )

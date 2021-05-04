@@ -1,44 +1,31 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripCablingDQM.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "TCanvas.h"
-using namespace std;
-// -----
 
-SiStripCablingDQM::SiStripCablingDQM(const edm::EventSetup &eSetup,
+SiStripCablingDQM::SiStripCablingDQM(edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> token,
                                      edm::RunNumber_t iRun,
                                      edm::ParameterSet const &hPSet,
-                                     edm::ParameterSet const &fPSet)
-    : SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet) {
-  // Build the Histo_TkMap:
+                                     edm::ParameterSet const &fPSet,
+                                     const TrackerTopology *tTopo,
+                                     const TkDetMap *tkDetMap)
+    : SiStripBaseCondObjDQMGet<SiStripDetCabling, SiStripDetCablingRcd>{token, iRun, hPSet, fPSet, tTopo} {
   if (HistoMaps_On_) {
-    edm::ESHandle<TkDetMap> tkDetMapHandle;
-    eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SiStrip/Histo_Map", "Cabling_TkMap", 0.);
+    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMap, "SiStrip/Histo_Map", "Cabling_TkMap", 0.);
   }
 }
-// -----
 
-// -----
 SiStripCablingDQM::~SiStripCablingDQM() {}
-// -----
 
-// -----
 void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
-
   // Get active and total detIds
   getConditionObject(eSetup);
-  if (!cablingHandle_.isValid()) {
+  if (!condObj_) {
     edm::LogError("InvalidCablingHandle") << "Invalid Cabling Handle";
     return;
   }
-  cablingHandle_->addActiveDetectorsRawIds(activeDetIds);
-  cablingHandle_->addAllDetectorsRawIds(activeDetIds);
+  condObj_->addActiveDetectorsRawIds(activeDetIds);
+  condObj_->addAllDetectorsRawIds(activeDetIds);
 
   // Initialize arrays for counting:
   int counterTIB[4];
@@ -58,34 +45,31 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
       counterTEC[i][j] = 0;
   }
 
-  std::vector<uint32_t>::const_iterator idet = activeDetIds.begin();
-
   // fill arrays for counting and fill Histo_Map with value for connected :
-  for (; idet != activeDetIds.end(); ++idet) {
-    uint32_t detId = *idet;
+  for (const auto detId : activeDetIds) {
     StripSubdetector subdet(detId);
 
     if (HistoMaps_On_) {
-      Tk_HM_->fill(detId, cablingHandle_->nApvPairs(detId) * 2);
+      Tk_HM_->fill(detId, condObj_->nApvPairs(detId) * 2);
     }
     if (fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) {
       int32_t n_conn = 0;
-      for (uint32_t connDet_i = 0; connDet_i < cablingHandle_->getConnections(detId).size(); connDet_i++) {
-        if (cablingHandle_->getConnections(detId)[connDet_i] != nullptr &&
-            cablingHandle_->getConnections(detId)[connDet_i]->isConnected() != 0)
+      for (uint32_t connDet_i = 0; connDet_i < condObj_->getConnections(detId).size(); connDet_i++) {
+        if (condObj_->getConnections(detId)[connDet_i] != nullptr &&
+            condObj_->getConnections(detId)[connDet_i]->isConnected() != 0)
           n_conn++;
       }
       fillTkMap(detId, n_conn * 2.);
     }
     switch (subdet.subdetId()) {
       case StripSubdetector::TIB: {
-        int i = tTopo->tibLayer(detId) - 1;
+        int i = tTopo_->tibLayer(detId) - 1;
         counterTIB[i]++;
         break;
       }
       case StripSubdetector::TID: {
-        int j = tTopo->tidWheel(detId) - 1;
-        int side = tTopo->tidSide(detId);
+        int j = tTopo_->tidWheel(detId) - 1;
+        int side = tTopo_->tidSide(detId);
         if (side == 2) {
           counterTID[0][j]++;
         } else if (side == 1) {
@@ -94,13 +78,13 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
         break;
       }
       case StripSubdetector::TOB: {
-        int i = tTopo->tobLayer(detId) - 1;
+        int i = tTopo_->tobLayer(detId) - 1;
         counterTOB[i]++;
         break;
       }
       case StripSubdetector::TEC: {
-        int j = tTopo->tecWheel(detId) - 1;
-        int side = tTopo->tecSide(detId);
+        int j = tTopo_->tecWheel(detId) - 1;
+        int side = tTopo_->tecSide(detId);
         if (side == 2) {
           counterTEC[0][j]++;
         } else if (side == 1) {
@@ -130,12 +114,12 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
   ME->setAxisTitle("Sub Det", 1);
   ME->setAxisTitle("Layer", 2);
 
-  ME->getTH1()->GetXaxis()->SetBinLabel(1, "TIB");
-  ME->getTH1()->GetXaxis()->SetBinLabel(2, "TID F");
-  ME->getTH1()->GetXaxis()->SetBinLabel(3, "TID B");
-  ME->getTH1()->GetXaxis()->SetBinLabel(4, "TOB");
-  ME->getTH1()->GetXaxis()->SetBinLabel(5, "TEC F");
-  ME->getTH1()->GetXaxis()->SetBinLabel(6, "TEC B");
+  ME->setBinLabel(1, "TIB");
+  ME->setBinLabel(2, "TID F");
+  ME->setBinLabel(3, "TID B");
+  ME->setBinLabel(4, "TOB");
+  ME->setBinLabel(5, "TEC F");
+  ME->setBinLabel(6, "TEC B");
 
   for (int i = 0; i < 4; i++) {
     ME->Fill(1, i + 1, float(counterTIB[i]) / TIBDetIds[i]);
@@ -161,7 +145,7 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
     TCanvas c1("c1");
     ME->getTH1()->Draw("TEXT");
     ME->getTH1()->SetStats(kFALSE);
-    std::string name(ME->getTH1()->GetTitle());
+    std::string name(ME->getTitle());
     name += ".png";
     c1.Print(name.c_str());
   }

@@ -20,13 +20,15 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   killHeavy = p.getParameter<bool>("KillHeavy");
   killGamma = p.getParameter<bool>("KillGamma");
-  kmaxGamma = p.getParameter<double>("GammaThreshold") * MeV;
-  kmaxIon = p.getParameter<double>("IonThreshold") * MeV;
-  kmaxProton = p.getParameter<double>("ProtonThreshold") * MeV;
-  kmaxNeutron = p.getParameter<double>("NeutronThreshold") * MeV;
+  kmaxGamma = p.getParameter<double>("GammaThreshold") * CLHEP::MeV;
+  kmaxIon = p.getParameter<double>("IonThreshold") * CLHEP::MeV;
+  kmaxProton = p.getParameter<double>("ProtonThreshold") * CLHEP::MeV;
+  kmaxNeutron = p.getParameter<double>("NeutronThreshold") * CLHEP::MeV;
   killDeltaRay = p.getParameter<bool>("KillDeltaRay");
-  limitEnergyForVacuum = p.getParameter<double>("CriticalEnergyForVacuum") * MeV;
+  limitEnergyForVacuum = p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV;
   maxTrackTime = p.getParameter<double>("MaxTrackTime") * ns;
+  maxTrackTimeForward = p.getParameter<double>("MaxTrackTimeForward") * ns;
+  maxZCentralCMS = p.getParameter<double>("MaxZCentralCMS") * CLHEP::m;
   maxTrackTimes = p.getParameter<std::vector<double> >("MaxTrackTimes");
   maxTimeNames = p.getParameter<std::vector<std::string> >("MaxTimeNames");
   deadRegionNames = p.getParameter<std::vector<std::string> >("DeadRegions");
@@ -46,8 +48,8 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   regionCastor = nullptr;
   regionWorld = nullptr;
 
-  gRusRoEnerLim = p.getParameter<double>("RusRoGammaEnergyLimit") * MeV;
-  nRusRoEnerLim = p.getParameter<double>("RusRoNeutronEnergyLimit") * MeV;
+  gRusRoEnerLim = p.getParameter<double>("RusRoGammaEnergyLimit") * CLHEP::MeV;
+  nRusRoEnerLim = p.getParameter<double>("RusRoNeutronEnergyLimit") * CLHEP::MeV;
 
   gRusRoEcal = p.getParameter<double>("RusRoEcalGamma");
   gRusRoHcal = p.getParameter<double>("RusRoHcalGamma");
@@ -92,28 +94,30 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
       << " Tracker: " << savePDandCinTracker << " in Calo: " << savePDandCinCalo << " in Muon: " << savePDandCinMuon
       << " everywhere: " << savePDandCinAll << "\n  saveFirstSecondary"
       << ": " << saveFirstSecondary << " Tracking neutrino flag: " << trackNeutrino
-      << " Kill Delta Ray flag: " << killDeltaRay << " Kill hadrons/ions flag: " << killHeavy;
+      << " Kill Delta Ray flag: " << killDeltaRay << " Kill hadrons/ions flag: " << killHeavy
+      << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
+      << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns";
 
   if (killHeavy) {
-    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction kill protons below " << kmaxProton / MeV
-                                             << " MeV, neutrons below " << kmaxNeutron / MeV << " MeV and ions"
-                                             << " below " << kmaxIon / MeV << " MeV";
+    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction kill protons below " << kmaxProton / CLHEP::MeV
+                                             << " MeV, neutrons below " << kmaxNeutron / CLHEP::MeV << " MeV and ions"
+                                             << " below " << kmaxIon / CLHEP::MeV << " MeV";
   }
   killExtra = killDeltaRay || killHeavy || killInCalo || killInCaloEfH;
 
   edm::LogVerbatim("SimG4CoreApplication") << "StackingAction kill tracks with "
-                                           << "time larger than " << maxTrackTime / ns << " ns ";
+                                           << "time larger than " << maxTrackTime / CLHEP::ns << " ns ";
   numberTimes = maxTimeNames.size();
   if (0 < numberTimes) {
     for (unsigned int i = 0; i < numberTimes; ++i) {
       edm::LogVerbatim("SimG4CoreApplication")
-          << "StackingAction MaxTrackTime for " << maxTimeNames[i] << " is " << maxTrackTimes[i] << " ns ";
-      maxTrackTimes[i] *= ns;
+          << "          MaxTrackTime for " << maxTimeNames[i] << " is " << maxTrackTimes[i] << " ns ";
+      maxTrackTimes[i] *= CLHEP::ns;
     }
   }
   if (limitEnergyForVacuum > 0.0) {
     edm::LogVerbatim("SimG4CoreApplication")
-        << "StackingAction LowDensity regions - kill if E < " << limitEnergyForVacuum / MeV << " MeV";
+        << "StackingAction LowDensity regions - kill if E < " << limitEnergyForVacuum / CLHEP::MeV << " MeV";
     printRegions(lowdensRegions, "LowDensity");
   }
   if (deadRegions.size() > 0.0) {
@@ -123,7 +127,7 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   if (gRRactive) {
     edm::LogVerbatim("SimG4CoreApplication")
         << "StackingAction: "
-        << "Russian Roulette for gamma Elimit(MeV)= " << gRusRoEnerLim / MeV << "\n"
+        << "Russian Roulette for gamma Elimit(MeV)= " << gRusRoEnerLim / CLHEP::MeV << "\n"
         << "                 ECAL Prob= " << gRusRoEcal << "\n"
         << "                 HCAL Prob= " << gRusRoHcal << "\n"
         << "             MuonIron Prob= " << gRusRoMuonIron << "\n"
@@ -134,7 +138,7 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   if (nRRactive) {
     edm::LogVerbatim("SimG4CoreApplication")
         << "StackingAction: "
-        << "Russian Roulette for neutron Elimit(MeV)= " << nRusRoEnerLim / MeV << "\n"
+        << "Russian Roulette for neutron Elimit(MeV)= " << nRusRoEnerLim / CLHEP::MeV << "\n"
         << "                 ECAL Prob= " << nRusRoEcal << "\n"
         << "                 HCAL Prob= " << nRusRoHcal << "\n"
         << "             MuonIron Prob= " << nRusRoMuonIron << "\n"
@@ -182,17 +186,28 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
   } else {
     // secondary
     const G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
+
     // definetly killed tracks
     if (aTrack->GetTrackStatus() == fStopAndKill) {
       classification = fKill;
     } else if (!trackNeutrino && (abspdg == 12 || abspdg == 14 || abspdg == 16 || abspdg == 18)) {
       classification = fKill;
-    } else if (isItOutOfTimeWindow(reg, aTrack)) {
-      classification = fKill;
-    }
 
-    // potentially good for tracking
-    else {
+    } else if (std::abs(aTrack->GetPosition().z()) >= maxZCentralCMS) {
+      // very forward secondary
+      if (aTrack->GetGlobalTime() > maxTrackTimeForward) {
+        classification = fKill;
+      } else {
+        const G4Track* mother = trackAction->geant4Track();
+        newTA->secondary(aTrack, *mother, 0);
+      }
+
+    } else if (isItOutOfTimeWindow(reg, aTrack)) {
+      // time window check
+      classification = fKill;
+
+    } else {
+      // potentially good for tracking
       double ke = aTrack->GetKineticEnergy();
 
       // kill tracks in specific regions

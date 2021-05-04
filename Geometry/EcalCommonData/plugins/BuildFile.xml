@@ -1,7 +1,10 @@
-<library   file="*.cc" name="GeometryEcalCommonDataPlugins">
-  <use   name="DetectorDescription/Core"/>
-  <use   name="Geometry/EcalCommonData"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="GeometryEcalCommonDataPlugins">
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="Geometry/EcalCommonData"/>
+  <use name="Geometry/Records"/>
+  <use name="CondFormats/GeometryObjects"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="DD4hep_GeometryEcalCommonDataPlugins" file="dd4hep/*.cc">

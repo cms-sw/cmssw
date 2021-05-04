@@ -3,7 +3,7 @@
 
 #ifndef __RecoHGCal_TICL_PRbyMultiClusters_H__
 #define __RecoHGCal_TICL_PRbyMultiClusters_H__
-#include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
+#include "RecoHGCal/TICL/plugins/PatternRecognitionAlgoBase.h"
 
 #include <iostream>
 
@@ -14,12 +14,16 @@ namespace edm {
 }  // namespace edm
 
 namespace ticl {
-  class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBase {
+  template <typename TILES>
+  class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
-    PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf) : PatternRecognitionAlgoBase(conf) {}
+    PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf, const CacheBase* cache)
+        : PatternRecognitionAlgoBaseT<TILES>(conf, cache) {}
     ~PatternRecognitionbyMultiClusters() override{};
 
-    void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input, std::vector<Trackster>& result) override;
+    void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
+                        std::vector<Trackster>& result,
+                        std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
   };
 }  // namespace ticl
 #endif

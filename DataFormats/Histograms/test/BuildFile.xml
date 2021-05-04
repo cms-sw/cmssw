@@ -1,4 +1,4 @@
-<bin   name="TestDataFormatsHistogramsMEtoEDMFormat" file="metoedmformat_t.cc">
-  <use   name="cppunit"/>
-  <use   name="DataFormats/Histograms"/>
+<bin name="TestDataFormatsHistogramsMEtoEDMFormat" file="metoedmformat_t.cc">
+  <use name="cppunit"/>
+  <use name="DataFormats/Histograms"/>
 </bin>

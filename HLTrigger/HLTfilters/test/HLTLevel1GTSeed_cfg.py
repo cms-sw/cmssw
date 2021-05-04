@@ -474,8 +474,7 @@ process.p = cms.Path(process.hltL1GtObjectMap * process.L1Extra * process.hltLev
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['hltLevel1GTSeed']
-process.MessageLogger.categories.append('HLTLevel1GTSeed')
-#process.MessageLogger.destinations = ['cerr']
+process.MessageLogger.HLTLevel1GTSeed=dict()
 
 process.MessageLogger.cerr.threshold = 'DEBUG'
 #process.MessageLogger.cerr.threshold = 'INFO'

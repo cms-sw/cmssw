@@ -6,8 +6,6 @@ from DQMServices.Components.MEtoEDMConverter_cfi import *
 #Subsystem Includes 
 # Tracker Alignment
 from DQMOffline.Alignment.ALCARECOTkAlDQM_cff import *
-# Muon  Alignment
-from DQMOffline.Alignment.ALCARECOMuAlDQM_cff import *
 #Tracker Calibration
 from DQMOffline.Configuration.ALCARECOTkCalDQMHI_cff import *
 # Ecal Calibration

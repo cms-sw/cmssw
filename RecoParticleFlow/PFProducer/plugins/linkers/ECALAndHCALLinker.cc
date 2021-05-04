@@ -7,13 +7,15 @@ class ECALAndHCALLinker : public BlockElementLinkerBase {
 public:
   ECALAndHCALLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
-        _useKDTree(conf.getParameter<bool>("useKDTree")),
-        _debug(conf.getUntrackedParameter<bool>("debug", false)) {}
+        minAbsEtaEcal_(conf.getParameter<double>("minAbsEtaEcal")),
+        useKDTree_(conf.getParameter<bool>("useKDTree")),
+        debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree, _debug;
+  double minAbsEtaEcal_;
+  bool useKDTree_, debug_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, ECALAndHCALLinker, "ECALAndHCALLinker");
@@ -34,7 +36,7 @@ double ECALAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const reco
   if (hcalref.isNull() || ecalref.isNull()) {
     throw cms::Exception("BadClusterRefs") << "PFBlockElementCluster's refs are null!";
   }
-  dist = (std::abs(ecalreppos.Eta()) > 2.5
+  dist = (std::abs(ecalreppos.Eta()) > minAbsEtaEcal_
               ? LinkByRecHit::computeDist(
                     ecalreppos.Eta(), ecalreppos.Phi(), hcalref->positionREP().Eta(), hcalref->positionREP().Phi())
               : -1.0);

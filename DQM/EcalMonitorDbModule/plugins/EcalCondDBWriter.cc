@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "DQM/EcalMonitorDbModule/interface/EcalCondDBWriter.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -67,12 +69,11 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const &_ps)
     edm::LogInfo("EcalDQM") << "Establishing DB connection";
 
   try {
-    db = std::unique_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
+    db = std::make_unique<EcalCondDBInterface>(DBName, userName, password);
   } catch (std::runtime_error &re) {
     if (!hostName.empty()) {
       try {
-        db = std::unique_ptr<EcalCondDBInterface>(
-            new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
+        db = std::make_unique<EcalCondDBInterface>(hostName, DBName, userName, password, hostPort);
       } catch (std::runtime_error &re2) {
         throw cms::Exception("DBError") << re2.what();
       }
@@ -116,6 +117,12 @@ EcalCondDBWriter::~EcalCondDBWriter() {
 
   for (unsigned iC(0); iC < nTasks; ++iC)
     delete workers_[iC];
+}
+
+void EcalCondDBWriter::beginRun(edm::Run const &_run, edm::EventSetup const &_es) {
+  for (unsigned iC(0); iC < nTasks; ++iC)
+    if (workers_[iC])
+      workers_[iC]->setSetupObjects(_es);
 }
 
 void EcalCondDBWriter::dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &_igetter) {

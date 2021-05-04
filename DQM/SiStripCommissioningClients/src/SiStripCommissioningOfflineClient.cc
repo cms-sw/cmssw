@@ -19,7 +19,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include <boost/cstdint.hpp>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -28,6 +27,7 @@
 #include <dirent.h>
 #include <cerrno>
 #include "TProfile.h"
+#include <cstdint>
 
 using namespace sistrip;
 
@@ -80,7 +80,6 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
                                 << " Aborting...";
     return;
   }
-  bei_->setVerbose(0);
 
   // Check if .root file can be opened
   std::vector<std::string>::const_iterator ifile = inputFiles_.begin();
@@ -158,20 +157,23 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
                                  << " Opened " << inputFiles_.size() << " root files!";
 
   // Retrieve list of histograms
+  auto allmes = bei_->getAllContents("");
   std::vector<std::string> contents;
-  bei_->getContents(contents);
 
   // If using client file, remove "source" histograms from list
   if (clientHistos_) {
-    std::vector<std::string> temp;
-    std::vector<std::string>::iterator istr = contents.begin();
-    for (; istr != contents.end(); istr++) {
-      if (istr->find(sistrip::collate_) != std::string::npos) {
-        temp.push_back(*istr);
+    std::set<std::string> temp;
+    for (auto me : allmes) {
+      const auto& name = me->getPathname();
+      if (name.find(sistrip::collate_) != std::string::npos) {
+        temp.insert(name);
       }
     }
     contents.clear();
-    contents = temp;
+    for (const auto& s : temp) {
+      // the old code expects a ":", but does not really need the ME names
+      contents.push_back(s + ":");
+    }
   }
 
   // Some debug

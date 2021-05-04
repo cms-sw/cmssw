@@ -1,11 +1,11 @@
-#include <iostream>
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include <climits>
+#include <cstdlib>
+#include <ctime>
 #include <iomanip>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <time.h>
-#include <cstdlib>
-#include <limits.h>
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
 using namespace std;
 
@@ -43,7 +43,7 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   EcalCondDBInterface* econn;
   run_t run;
 };

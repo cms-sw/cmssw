@@ -3,11 +3,24 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SiStripHotStripCalibration")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('orbitFilter','OrbitFilter','SiStripQualityHotStripIdentifierRoot','siStripQualityHotStripIdentifierRoot','SiStripHotStripAlgorithmFromClusterOccupancy'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring(
+        'orbitFilter', 
+        'OrbitFilter', 
+        'SiStripQualityHotStripIdentifierRoot', 
+        'siStripQualityHotStripIdentifierRoot', 
+        'SiStripHotStripAlgorithmFromClusterOccupancy'
+    ),
+    files = cms.untracked.PSet(
+        log = cms.untracked.PSet(
+            extension = cms.untracked.string('txt')
+        )
+    ),
     log = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
-    ),
-    destinations = cms.untracked.vstring('log.txt')
+    )
 )
 
 #-------------------------------------------------
@@ -44,7 +57,6 @@ process.load("DQM.SiStripMonitorClient.RecoForDQM_Cosmic_cff")
 # DQM
 #--------------------------
 process.load("DQM.SiStripMonitorClient.SiStripDQMOnline_cff")
-process.DQMStore.referenceFileName = ''
 
 process.SiStripMonitorCluster.TH1ClusterPos.moduleswitchon = cms.bool(True)
 process.SiStripMonitorCluster.TH1nClusters.layerswitchon  = cms.bool(True)

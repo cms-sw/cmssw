@@ -1,5 +1,13 @@
-<bin   name="testSSTGainPCL_fromRECO" file="testSSTGain_PCL_FromRECO.cpp">
-  <flags   TEST_RUNNER_ARGS="/bin/bash
-  CalibTracker/SiStripChannelGain/test testSSTGain_PCL_FromRECO.sh"/>
-  <use   name="FWCore/Utilities"/>
-</bin>
+<environment>
+  <bin name="testSSTGainPCL_fromRECO" file="testSSTGain_PCL_FromRECO.cpp">
+    <flags TEST_RUNNER_ARGS="/bin/bash CalibTracker/SiStripChannelGain/test testSSTGain_PCL_FromRECO.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+
+  <bin name="checkMultiRunHarvestingOutput" file="checkMultiRunHarvesting.cpp">
+    <flags PRE_TEST="testSSTGainPCL_fromRECO"/>
+    <use name="rootmath"/>
+    <use name="roothistmatrix"/>
+  </bin>
+
+</environment>

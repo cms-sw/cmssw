@@ -1,21 +1,7 @@
-void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "Building tubs surfaces...: " << endl;
-
-  DDTubs tubs(solid);
-
-  double zhalf = tubs.zhalf() / cm;
-  double rIn = tubs.rIn() / cm;
-  double rOut = tubs.rOut() / cm;
-  double startPhi = tubs.startPhi();
-  double deltaPhi = tubs.deltaPhi();
-
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "zhalf    " << zhalf << endl
-         << "rIn      " << rIn << endl
-         << "rOut     " << rOut << endl
-         << "startPhi " << startPhi << endl
-         << "deltaPhi " << deltaPhi << endl;
+void volumeHandle::buildTubs(double zhalf, double rIn, double rOut, double startPhi, double deltaPhi) {
+  LogTrace("MagGeoBuilder") << "Building tubs surfaces...: ";
+  LogTrace("MagGeoBuilder") << "zhalf    " << zhalf << newln << "rIn      " << rIn << newln << "rOut     " << rOut
+                            << newln << "startPhi " << startPhi << newln << "deltaPhi " << deltaPhi;
 
   // recalculate center: (for a DDTubs, DDD gives 0,0,Z)
   double rCentr = (rIn + rOut) / 2.;
@@ -36,13 +22,12 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);
 
   // Check ordering.
-  if (MagGeoBuilderFromDDD::debug) {
-    if (dynamic_cast<const Cylinder *>(&(*surfaces[outer]))->radius() <
-        dynamic_cast<const Cylinder *>(&(*surfaces[inner]))->radius()) {
-      cout << "*** WARNING: pos_outer < pos_inner " << endl;
+  if (debug) {
+    if (dynamic_cast<const Cylinder*>(&(*surfaces[outer]))->radius() <
+        dynamic_cast<const Cylinder*>(&(*surfaces[inner]))->radius()) {
+      LogTrace("MagGeometry") << "*** WARNING: pos_outer < pos_inner ";
     }
   }
-
   // Save volume boundaries
   theRMin = rIn;
   theRMax = rOut;

@@ -1,34 +1,28 @@
-// $Id: RawEventFileWriterForBU.cc,v 1.1.2.6 2013/03/28 14:56:53 aspataru Exp $
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <sstream>
 
-#include "EventFilter/Utilities/plugins/RawEventFileWriterForBU.h"
+// CMSSW headers
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
-#include "IOPool/Streamer/interface/FRDEventMessage.h"
-#include "IOPool/Streamer/interface/FRDFileHeader.h"
-
+#include "EventFilter/Utilities/plugins/RawEventFileWriterForBU.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <iostream>
-#include <sstream>
-#include <cstdio>
-#include <cstdlib>
-#include <cerrno>
-#include <cstring>
-#include <boost/filesystem/fstream.hpp>
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
+#include "IOPool/Streamer/interface/FRDFileHeader.h"
 
 using namespace jsoncollector;
 
 //TODO:get run directory information from DaqDirector
 
 RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps)
-    :  // default to .5ms sleep per event
-      microSleep_(ps.getUntrackedParameter<int>("microSleep", 0)),
-      frdFileVersion_(ps.getUntrackedParameter<unsigned int>("frdFileVersion", 0))
-//debug_(ps.getUntrackedParameter<bool>("debug", False))
-{
+    : microSleep_(ps.getParameter<int>("microSleep")),
+      frdFileVersion_(ps.getParameter<unsigned int>("frdFileVersion")) {
   //per-file JSD and FastMonitor
   rawJsonDef_.setDefaultGroup("legend");
   rawJsonDef_.addLegendItem("NEvents", "integer", DataPointDefinition::SUM);
@@ -105,12 +99,6 @@ void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg) {
   perFileSize_.value() += msg.size();
 
   //  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
-}
-
-void RawEventFileWriterForBU::doOutputEventFragment(unsigned char* dataPtr, unsigned long dataSize) {
-  throw cms::Exception("RawEventFileWriterForBU", "doOutputEventFragment") << "Unsupported output mode ";
-
-  //cms::Adler32((const char*) dataPtr, dataSize, adlera_, adlerb_);
 }
 
 void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std::string const& name, int ls) {
@@ -223,7 +211,7 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
     write(outfd_, (char*)&frdFileHeader, sizeof(FRDFileHeader_v1));
     closefd();
     //move raw file from open to run directory
-    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind("/"))).c_str());
+    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind('/'))).c_str());
 
     edm::LogInfo("RawEventFileWriterForBU")
         << "Wrote RAW input file: " << fileName_ << " with perFileEventCount = " << perFileEventCount_.value()
@@ -231,10 +219,10 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
   } else {
     closefd();
     //move raw file from open to run directory
-    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind("/"))).c_str());
+    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind('/'))).c_str());
     //create equivalent JSON file
     //TODO:fix this to use DaqDirector convention and better extension replace
-    boost::filesystem::path source(fileName_);
+    std::filesystem::path source(fileName_);
     std::string path = source.replace_extension(".jsn").string();
 
     fileMon_->snap(ls);
@@ -242,7 +230,7 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
     fileMon_->discardCollected(ls);
 
     //move the json file from open
-    rename(path.c_str(), (destinationDir_ + path.substr(path.rfind("/"))).c_str());
+    rename(path.c_str(), (destinationDir_ + path.substr(path.rfind('/'))).c_str());
 
     edm::LogInfo("RawEventFileWriterForBU")
         << "Wrote JSON input file: " << path << " with perFileEventCount = " << perFileEventCount_.value()
@@ -313,4 +301,9 @@ void RawEventFileWriterForBU::makeRunPrefix(std::string const& destinationDir) {
   std::stringstream ss;
   ss << "run" << std::setfill('0') << std::setw(6) << run_;
   runPrefix_ = ss.str();
+}
+
+void RawEventFileWriterForBU::extendDescription(edm::ParameterSetDescription& desc) {
+  desc.add<int>("microSleep", 0);
+  desc.add<unsigned int>("frdFileVersion", 0);
 }

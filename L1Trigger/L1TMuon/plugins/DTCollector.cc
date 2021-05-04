@@ -1,7 +1,9 @@
-#include "L1Trigger/L1TMuon/interface/deprecate/DTCollector.h"
+#include <memory>
+
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "L1Trigger/L1TMuon/interface/deprecate/DTCollector.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,7 +16,7 @@ DTCollector::DTCollector(const edm::ParameterSet& ps)
     : SubsystemCollector(ps), bx_min(ps.getParameter<int>("BX_min")), bx_max(ps.getParameter<int>("BX_max")) {
   if (ps.getParameter<bool>("runBunchCrossingCleaner")) {
     const edm::ParameterSet& bxccfg = ps.getParameterSet("bxCleanerCfg");
-    _bxc.reset(new DTBunchCrossingCleaner(bxccfg));
+    _bxc = std::make_unique<DTBunchCrossingCleaner>(bxccfg);
   } else {
     _bxc.reset(nullptr);
   }

@@ -1,6 +1,5 @@
-<use   name="RecoTracker/TkHitPairs"/>
-<use   name="RecoTracker/TkTrackingRegions"/>
-<use   name="RecoPixelVertexing/PixelTriplets"/>
-<library   file="*.cc" name="RecoTrackerTkHitPairsPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="RecoTracker/TkHitPairs"/>
+<use name="RecoTracker/TkTrackingRegions"/>
+<library file="*.cc" name="RecoTrackerTkHitPairsPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

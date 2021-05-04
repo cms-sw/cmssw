@@ -61,7 +61,7 @@ std::string L1TMuonBarrelParamsViewer::hash(void *buf, size_t len) const {
 void L1TMuonBarrelParamsViewer::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetup) {
   edm::ESHandle<L1TMuonBarrelParams> handle1;
   evSetup.get<L1TMuonBarrelParamsRcd>().get(handle1);
-  boost::shared_ptr<L1TMuonBarrelParams> ptr(new L1TMuonBarrelParams(*(handle1.product())));
+  std::shared_ptr<L1TMuonBarrelParams> ptr(new L1TMuonBarrelParams(*(handle1.product())));
 
   L1TMuonBarrelParamsHelper *ptr1 = (L1TMuonBarrelParamsHelper *)ptr.get();
 
@@ -69,17 +69,18 @@ void L1TMuonBarrelParamsViewer::analyze(const edm::Event &iEvent, const edm::Eve
 
   // typedef std::map<short, short, std::less<short> > LUT;
 
-  for (size_t l = 0; l < ptr1->pta_lut().size(); l++) {
-    const LUT &lut = ptr1->pta_lut()[l];
+  size_t k = 0;  // avoid using l
+  for (const auto &lut : ptr1->pta_lut()) {
     if (!lut.empty()) {
-      cout << "  pta_lut[" << setw(2) << l << "]=          [" << lut.size() << "] " << flush;
+      cout << "  pta_lut[" << setw(2) << k << "]=          [" << lut.size() << "] " << flush;
       int lut_[lut.size()], i = 0;
-      for (const pair<short, short> &p : lut)
+      for (const pair<const short, short> &p : lut)
         lut_[i++] = p.first * 0xFFFF + p.second;
       cout << hash(lut_, sizeof(int) * lut.size()) << endl;
     } else {
-      cout << "  pta_lut[" << setw(2) << l << "]=          [0] " << endl;
+      cout << "  pta_lut[" << setw(2) << k << "]=          [0] " << endl;
     }
+    k++;
   }
 
   cout << "  pta_threshold=        [" << ptr1->pta_threshold().size() << "] " << flush;
@@ -94,47 +95,52 @@ void L1TMuonBarrelParamsViewer::analyze(const edm::Event &iEvent, const edm::Eve
   else
     cout << endl;
 
-  for (size_t l = 0; l < ptr1->phi_lut().size(); l++) {
-    const LUT &lut = ptr1->phi_lut()[l];
+  k = 0;
+  for (const auto &lut : ptr1->pta_lut()) {
     if (!lut.empty()) {
-      cout << "  phi_lut[" << l << "]=           [" << lut.size() << "] " << flush;
+      cout << "  phi_lut[" << k << "]=           [" << lut.size() << "] " << flush;
       int lut_[lut.size()], i = 0;
-      for (const pair<short, short> &p : lut)
+      for (const pair<const short, short> &p : lut)
         lut_[i++] = p.first * 0xFFFF + p.second;
       cout << hash(lut_, sizeof(int) * lut.size()) << endl;
     } else {
-      cout << "  phi_lut[" << l << "]=           [0] " << endl;
+      cout << "  phi_lut[" << k << "]=           [0] " << endl;
     }
+    k++;
   }
 
-  for (size_t l = 0; l < ptr1->ext_lut().size(); l++) {
-    const LUT &lut = (ptr1->ext_lut()[l]).low;
+  k = 0;
+  for (const auto &lu : ptr1->ext_lut()) {
+    const auto &lut = lu.low;
     if (!lut.empty()) {
-      cout << "  ext_lut_low[" << setw(2) << l << "]=      [" << lut.size() << "] " << flush;
+      cout << "  ext_lut_low[" << setw(2) << k << "]=      [" << lut.size() << "] " << flush;
       int lut_[lut.size()], i = 0;
-      for (const pair<short, short> &p : lut)
+      for (const pair<const short, short> &p : lut)
         lut_[i++] = p.first * 0xFFFF + p.second;
       cout << hash(lut_, sizeof(int) * lut.size()) << endl;
     } else {
-      cout << "  ext_lut_low[" << setw(2) << l << "]=      [0] " << endl;
+      cout << "  ext_lut_low[" << setw(2) << k << "]=      [0] " << endl;
     }
+    k++;
   }
 
-  for (size_t l = 0; l < ptr1->ext_lut().size(); l++) {
-    const LUT &lut = (ptr1->ext_lut()[l]).high;
+  k = 0;
+  for (const auto &lu : ptr1->ext_lut()) {
+    const auto &lut = lu.high;
     if (!lut.empty()) {
-      cout << "  ext_lut_high[" << setw(2) << l << "]=     [" << lut.size() << "] " << flush;
+      cout << "  ext_lut_high[" << setw(2) << k << "]=     [" << lut.size() << "] " << flush;
       int lut_[lut.size()], i = 0;
-      for (const pair<short, short> &p : lut)
+      for (const pair<const short, short> &p : lut)
         lut_[i++] = p.first * 0xFFFF + p.second;
       cout << hash(lut_, sizeof(int) * lut.size()) << endl;
     } else {
-      cout << "  ext_lut_high[" << setw(2) << l << "]=     [0] " << endl;
+      cout << "  ext_lut_high[" << setw(2) << k << "]=     [0] " << endl;
     }
+    k++;
   }
 
   // typedef std::map< LUTID, LUTCONT > qpLUT;
-  for (const pair<pair<short, short>, pair<short, vector<short>>> item : ptr1->qp_lut()) {
+  for (const auto &item : ptr1->qp_lut()) {
     cout << "  qp_lut[" << item.first.first << "," << item.first.second << "]= " << item.second.first << ", ["
          << item.second.second.size() << "] " << flush;
     if (!item.second.second.empty()) {
@@ -148,7 +154,7 @@ void L1TMuonBarrelParamsViewer::analyze(const edm::Event &iEvent, const edm::Eve
   }
 
   // typedef std::map<short, L1MuDTEtaPattern, std::less<short> > etaLUT;
-  for (const pair<short, L1MuDTEtaPattern> &item : ptr1->eta_lut())
+  for (const pair<const short, L1MuDTEtaPattern> &item : ptr1->eta_lut())
     cout << "  eta_lut[" << item.first << "]= " << endl << item.second << endl;
 
   cout << "PT_Assignment_nbits_Phi=   " << ptr1->get_PT_Assignment_nbits_Phi() << endl;

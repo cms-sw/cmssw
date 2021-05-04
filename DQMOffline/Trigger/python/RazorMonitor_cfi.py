@@ -22,8 +22,4 @@ hltRazorMonitoring.denGenericTriggerEventPSet.dcsPartitions  = cms.vint32 ( 24, 
 hltRazorMonitoring.denGenericTriggerEventPSet.andOrDcs       = cms.bool( False )
 hltRazorMonitoring.denGenericTriggerEventPSet.errorReplyDcs  = cms.bool( True )
 hltRazorMonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
-hltRazorMonitoring.denGenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_Ele25_WPTight_Gsf*",
-                                                                          "HLT_Ele27_WPTight_Gsf*",
-                                                                          "HLT_Ele30_WPTight_Gsf*", 
-                                                                          "HLT_Ele32_WPTight_Gsf*")
-
+hltRazorMonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Ele27_WPTight_Gsf*", "HLT_Ele30_WPTight_Gsf*", "HLT_Ele32_WPTight_Gsf*")

@@ -4,13 +4,26 @@ function die { echo $1: status $2 ;  exit $2; }
 
 pushd ${LOCAL_TMP_DIR}
 
-cmsRun ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py PoolInputTest.root 11 561 7 6 3 || die 'Failure using PrePoolInputTest_cfg.py' $?
+cmsRun -j PoolInputTest_jobreport.xml ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py PoolInputTest.root 11 561 7 6 3 || die 'Failure using PrePoolInputTest_cfg.py' $?
+
+cmsRun  -j PoolGuidTest_jobreport.xml ${LOCAL_TEST_DIR}/PoolGUIDTest_cfg.py file:PoolInputTest.root && die 'PoolGUIDTest_cfg.py PoolInputTest.root did not throw an exception' 1
+GUID_EXIT_CODE=$(edmFjrDump --exitCode PoolGuidTest_jobreport.xml)
+if [ "x${GUID_EXIT_CODE}" != "x8034" ]; then
+    echo "Inconsistent GUID test reported exit code ${GUID_EXIT_CODE} which is different from the expected 8034"
+    exit 1
+fi
+GUID_NAME=$(edmFjrDump --guid PoolInputTest_jobreport.xml).root
+cp PoolInputTest.root ${GUID_NAME}
+cmsRun ${LOCAL_TEST_DIR}/PoolGUIDTest_cfg.py file:${GUID_NAME} || die 'Failure using PoolGUIDTest_cfg.py ${GUID_NAME}' $?
+
 
 cp PoolInputTest.root PoolInputOther.root
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolInputTest_cfg.py || die 'Failure using PoolInputTest_cfg.py' $?
 cmsRun  ${LOCAL_TEST_DIR}/PoolInputTest_noDelay_cfg.py >& ${LOCAL_TMP_DIR}/PoolInputTest_noDelay_cfg.txt || die 'Failure using PoolInputTest_noDelay_cfg.py' $?
 grep 'event delayed read from source' ${LOCAL_TMP_DIR}/PoolInputTest_noDelay_cfg.txt && die 'Failure in PoolInputTest_noDelay_cfg.py, found delay reads from source' 1
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolInputTest_skip_with_failure_cfg.py || die 'Failure using PoolInputTest_skip_with_failure_cfg.py' $?
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolInputTest_skipBadFiles_cfg.py  || die 'Failure using PoolInputTest_skipBadFiles_cfg.py ' $?
 
 cmsRun ${LOCAL_TEST_DIR}/PrePool2FileInputTest_cfg.py || die 'Failure using PrePool2FileInputTest_cfg.py' $?
 cmsRun ${LOCAL_TEST_DIR}/Pool2FileInputTest_cfg.py || die 'Failure using Pool2FileInputTest_cfg.py' $?
@@ -53,6 +66,19 @@ diff ${LOCAL_TEST_DIR}/unit_test_outputs/RunPerLumiTest.filtered.txt ${LOCAL_TMP
 
 cmsRun ${LOCAL_TEST_DIR}/RunPerLumiTest_cfg.py 50 >& ${LOCAL_TMP_DIR}/tooManyLumis.txt && die 'RunPerLumiTest_cfg.py should have failed but did not' $?
 grep "MismatchedInputFiles" ${LOCAL_TMP_DIR}/tooManyLumis.txt || die  'RunPerLumiTest_cfg.py should have failed but did not' $?
+
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRunTest_cfg.py 'file:RunPerLumiTest.root' 25 1 25 1 5 || die 'Failure using firstLuminosityBlockForEachRunTest_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py firstLumiTest1.root 25 1 100 1 5 || die 'Failure using PrePoolInputTest_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py firstLumiTest2.root 25 1 100 6 5 || die 'Failure using PrePoolInputTest_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRunTest_cfg.py 'file:firstLumiTest1.root,file:firstLumiTest2.root' 50 1 25 1 5 || die 'Failure using firstLuminosityBlockForEachRunTest_cfg.py with 2 files' $?
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRunTest_cfg.py 'file:firstLumiTest1.root,file:firstLumiTest2.root' 50 1 25 1 5 shareRun || die 'Failure using firstLuminosityBlockForEachRunTest_cfg.py with 2 files which share a run' $?
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py 'file:firstLumiTest1.root' 2 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py with first lumi 2' $?
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py 'file:firstLumiTest1.root' 4 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py with first lumi 4' $?
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py 'file:firstLumiTest1.root' 3 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py with first lumi 3' $?
+
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py 'file:firstLumiTest1.root' 2 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py with first lumi 2' $?
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py 'file:firstLumiTest1.root' 4 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py with first lumi 4' $?
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py 'file:firstLumiTest1.root' 3 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py with first lumi 3' $?
 
 
 #test merging of heterogeneous files with extra provenenace in subsequent files

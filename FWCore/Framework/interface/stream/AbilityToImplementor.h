@@ -36,6 +36,11 @@ namespace edm {
     };
 
     template <typename C>
+    struct AbilityToImplementor<edm::InputProcessBlockCache<C>> {
+      typedef edm::stream::impl::InputProcessBlockCacheHolder<C> Type;
+    };
+
+    template <typename C>
     struct AbilityToImplementor<edm::RunCache<C>> {
       typedef edm::stream::impl::RunCacheHolder<C> Type;
     };
@@ -53,6 +58,21 @@ namespace edm {
     template <typename C>
     struct AbilityToImplementor<edm::LuminosityBlockSummaryCache<C>> {
       typedef edm::stream::impl::LuminosityBlockSummaryCacheHolder<C> Type;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::WatchProcessBlock> {
+      typedef edm::stream::impl::WatchProcessBlock Type;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::BeginProcessBlockProducer> {
+      typedef edm::stream::impl::BeginProcessBlockProducer Type;
+    };
+
+    template <>
+    struct AbilityToImplementor<edm::EndProcessBlockProducer> {
+      typedef edm::stream::impl::EndProcessBlockProducer Type;
     };
 
     template <>

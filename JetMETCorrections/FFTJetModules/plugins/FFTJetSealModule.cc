@@ -1,11 +1,10 @@
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetCorrectorSequenceTypes.h"
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetCorrectorSequenceRcdTypes.h"
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableRcdTypes.h"
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableSequence.h"
-
-#include "CondFormats/External/interface/FFTJet.h"
+#include "JetMETCorrections/FFTJetObjects/interface/FFTJet.h"
 
 REGISTER_PLUGIN(FFTBasicJetCorrectorSequenceRcd, FFTBasicJetCorrectorSequence);
 REGISTER_PLUGIN(FFTGenJetCorrectorSequenceRcd, FFTGenJetCorrectorSequence);

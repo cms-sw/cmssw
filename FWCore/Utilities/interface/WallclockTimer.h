@@ -39,6 +39,8 @@ namespace edm {
     WallclockTimer();
     ~WallclockTimer();
     WallclockTimer(WallclockTimer&&) = default;
+    WallclockTimer(const WallclockTimer&) = delete;
+    WallclockTimer& operator=(const WallclockTimer&) = delete;
 
     // ---------- const member functions ---------------------
     double realTime() const;
@@ -53,10 +55,6 @@ namespace edm {
     void add(double t);
 
   private:
-    WallclockTimer(const WallclockTimer&) = delete;  // stop default
-
-    const WallclockTimer& operator=(const WallclockTimer&) = delete;  // stop default
-
     double calculateDeltaTime() const;
 
     // ---------- member data --------------------------------

@@ -1,10 +1,10 @@
-<use name="CommonTools/MVAUtils"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CommonTools/BaseParticlePropagator"/>
 <use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/Common"/>
 <use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/GsfTrackReco"/>
 <use name="DataFormats/ParticleFlowReco"/>
 <use name="DataFormats/TrackReco"/>
-<use name="FWCore/ParameterSet"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <export>
   <lib name="RecoEgammaEgammaElectronProducers"/>

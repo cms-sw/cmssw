@@ -45,9 +45,6 @@ process.reader = cms.EDFilter("DQMReadFileExample",
 #process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/testing/damn/reader'
 process.dqmSaver.dirName = '/tmp/valdo'
-process.DQMStore.collateHistograms = False
-process.DQMStore.referenceFileName = ''
-#process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/data/csc_reference.root'
 
 #-------------------------------------------------
 # GEOMETRY

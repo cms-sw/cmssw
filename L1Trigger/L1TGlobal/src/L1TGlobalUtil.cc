@@ -5,21 +5,15 @@
 
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
-#include <iostream>
 #include <fstream>
-
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
+#include <iostream>
+#include <memory>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -30,8 +24,6 @@ l1t::L1TGlobalUtil::L1TGlobalUtil() : m_l1GtMenu(nullptr) {
   m_l1GtMenuCacheID = 0ULL;
   m_l1GtPfAlgoCacheID = 0ULL;
   m_filledPrescales = false;
-  m_algorithmTriggersUnprescaled = true;
-  m_algorithmTriggersUnmasked = true;
 
   edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/prescale_L1TGlobal.csv");
   m_preScaleFileName = f1.fullPath();
@@ -43,12 +35,18 @@ l1t::L1TGlobalUtil::L1TGlobalUtil() : m_l1GtMenu(nullptr) {
   m_triggerMaskAlgoTrig = nullptr;
 }
 
-l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC)
-    : L1TGlobalUtil(pset, iC) {}
+l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
+                                  edm::ConsumesCollector&& iC,
+                                  UseEventSetupIn useEventSetupIn)
+    : L1TGlobalUtil(pset, iC, useEventSetupIn) {}
 
-l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset, edm::ConsumesCollector& iC) : L1TGlobalUtil() {
-  m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset, iC));
+l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
+                                  edm::ConsumesCollector& iC,
+                                  UseEventSetupIn useEventSetupIn)
+    : L1TGlobalUtil() {
+  m_l1tGlobalUtilHelper = std::make_unique<L1TGlobalUtilHelper>(pset, iC);
   m_readPrescalesFromFile = m_l1tGlobalUtilHelper->readPrescalesFromFile();
+  eventSetupConsumes(iC, useEventSetupIn);
 }
 
 // destructor
@@ -67,7 +65,8 @@ void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(std::string filename, unsigne
 
 void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   // typically, the L1T menu and prescale table (may change only between Runs)
-  retrieveL1Setup(evSetup);
+  bool isRun = false;
+  retrieveL1Setup(evSetup, isRun);
   // typically the prescale set index used and the event by event accept/reject info (changes between Events)
   retrieveL1Event(iEvent, evSetup);
 }
@@ -76,20 +75,29 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent,
                                     const edm::EventSetup& evSetup,
                                     edm::EDGetToken gtAlgToken) {
   // typically, the L1T menu and prescale table (may change only between Runs)
-  retrieveL1Setup(evSetup);
+  bool isRun = false;
+  retrieveL1Setup(evSetup, isRun);
   // typically the prescale set index used and the event by event accept/reject info (changes between Events)
   retrieveL1Event(iEvent, evSetup, gtAlgToken);
 }
 
 void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
+  bool isRun = true;
+  retrieveL1Setup(evSetup, isRun);
+}
+
+void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool isRun) {
   // get / update the trigger menu from the EventSetup
   // local cache & check on cacheIdentifier
-  unsigned long long l1GtMenuCacheID = evSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
+  auto menuRcd = evSetup.get<L1TUtmTriggerMenuRcd>();
+  unsigned long long l1GtMenuCacheID = menuRcd.cacheIdentifier();
 
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-    evSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
-    m_l1GtMenu = l1GtMenu.product();
+    if (isRun) {
+      m_l1GtMenu = &menuRcd.get(m_L1TUtmTriggerMenuRunToken);
+    } else {
+      m_l1GtMenu = &menuRcd.get(m_L1TUtmTriggerMenuEventToken);
+    }
 
     //std::cout << "Attempting to fill the map " << std::endl;
     m_algorithmMap = &(m_l1GtMenu->getAlgorithmMap());
@@ -100,8 +108,9 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
     m_l1GtMenuCacheID = l1GtMenuCacheID;
   }
 
-  if (!(m_readPrescalesFromFile) or !(m_algorithmTriggersUnprescaled && m_algorithmTriggersUnmasked)) {
-    unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1TGlobalPrescalesVetosRcd>().cacheIdentifier();
+  if (!m_readPrescalesFromFile) {
+    auto vetosRcd = evSetup.get<L1TGlobalPrescalesVetosFractRcd>();
+    unsigned long long l1GtPfAlgoCacheID = vetosRcd.cacheIdentifier();
 
     if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
       //std::cout << "Reading Prescales and Masks from dB" << std::endl;
@@ -113,10 +122,13 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
       m_numberOfPreScaleColumns = 0;
       m_numberPhysTriggers = 0;
 
-      edm::ESHandle<L1TGlobalPrescalesVetos> l1GtPrescalesVetoes;
-      evSetup.get<L1TGlobalPrescalesVetosRcd>().get(l1GtPrescalesVetoes);
-      const L1TGlobalPrescalesVetos* es = l1GtPrescalesVetoes.product();
-      m_l1GtPrescalesVetoes = PrescalesVetosHelper::readFromEventSetup(es);
+      const L1TGlobalPrescalesVetosFract* es = nullptr;
+      if (isRun) {
+        es = &vetosRcd.get(m_L1TGlobalPrescalesVetosFractRunToken);
+      } else {
+        es = &vetosRcd.get(m_L1TGlobalPrescalesVetosFractEventToken);
+      }
+      m_l1GtPrescalesVetoes = PrescalesVetosFractHelper::readFromEventSetup(es);
 
       m_prescaleFactorsAlgoTrig = &(m_l1GtPrescalesVetoes->prescaleTable());
       m_numberOfPreScaleColumns = m_prescaleFactorsAlgoTrig->size();
@@ -151,7 +163,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
     m_PreScaleColumn = 0;
   }
   //std::cout << "Using prescale column: " << m_PreScaleColumn << std::endl;
-  const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
+  const std::vector<double>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
 
   for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin();
        itAlgo != m_algorithmMap->end();
@@ -228,7 +240,7 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent,
           m_PreScaleColumn = 0;
         }
       }
-      const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
+      const std::vector<double>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
 
       // Grab the final OR from the AlgBlk,
       m_finalOR = algBlk->getFinalOR();
@@ -273,7 +285,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
   inputPrescaleFile.open(m_preScaleFileName);
 
   std::vector<std::vector<int> > vec;
-  std::vector<std::vector<int> > prescale_vec;
+  std::vector<std::vector<double> > prescale_vec;
 
   if (inputPrescaleFile) {
     std::string prefix1("#");
@@ -327,7 +339,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     if (NumPrescaleSets > 0) {
       // Fill default prescale set
       for (int iSet = 0; iSet < NumPrescaleSets; iSet++) {
-        prescale_vec.push_back(std::vector<int>());
+        prescale_vec.push_back(std::vector<double>());
         for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
           int inputDefaultPrescale = 1;
           prescale_vec[iSet].push_back(inputDefaultPrescale);
@@ -368,7 +380,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     m_PreScaleColumn = 0;
 
     for (int col = 0; col < 1; col++) {
-      prescale_vec.push_back(std::vector<int>());
+      prescale_vec.push_back(std::vector<double>());
       for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
         int inputDefaultPrescale = 0;
         prescale_vec[col].push_back(inputDefaultPrescale);
@@ -381,6 +393,23 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
   m_initialPrescaleFactorsAlgoTrig = prescale_vec;
   // setting of bx masks from an input file not enabled; do not see a use case at the moment
   std::map<int, std::vector<int> > m_initialTriggerMaskAlgoTrig;
+}
+
+void l1t::L1TGlobalUtil::eventSetupConsumes(edm::ConsumesCollector& iC, UseEventSetupIn useEventSetupIn) {
+  if (useEventSetupIn == UseEventSetupIn::Run || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
+    m_L1TUtmTriggerMenuRunToken = iC.esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd, edm::Transition::BeginRun>();
+    if (!m_readPrescalesFromFile) {
+      m_L1TGlobalPrescalesVetosFractRunToken =
+          iC.esConsumes<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd, edm::Transition::BeginRun>();
+    }
+  }
+  if (useEventSetupIn == UseEventSetupIn::Event || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
+    m_L1TUtmTriggerMenuEventToken = iC.esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
+    if (!m_readPrescalesFromFile) {
+      m_L1TGlobalPrescalesVetosFractEventToken =
+          iC.esConsumes<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd>();
+    }
+  }
 }
 
 void l1t::L1TGlobalUtil::resetDecisionVectors() {
@@ -477,7 +506,7 @@ const bool l1t::L1TGlobalUtil::getFinalDecisionByBit(int& bit, bool& decision) c
 
   return false;  //couldn't get the information requested.
 }
-const bool l1t::L1TGlobalUtil::getPrescaleByBit(int& bit, int& prescale) const {
+const bool l1t::L1TGlobalUtil::getPrescaleByBit(int& bit, double& prescale) const {
   // Need some check that this is a valid bit
   if ((m_prescales[bit]).first != "NULL") {
     prescale = (m_prescales[bit]).second;
@@ -525,7 +554,7 @@ const bool l1t::L1TGlobalUtil::getFinalDecisionByName(const std::string& algName
 
   return false;  //trigger name was not the menu.
 }
-const bool l1t::L1TGlobalUtil::getPrescaleByName(const std::string& algName, int& prescale) const {
+const bool l1t::L1TGlobalUtil::getPrescaleByName(const std::string& algName, double& prescale) const {
   int bit = -1;
   if (getAlgBitFromName(algName, bit)) {
     prescale = (m_prescales[bit]).second;

@@ -18,7 +18,6 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
@@ -30,15 +29,17 @@
 
 #include "G4SystemOfUnits.hh"
 
-#include <vector>
+#include <memory>
+
 #include <iostream>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define FAKEFRAMEROTATION
 
-static TrackerG4SimHitNumberingScheme& numberingScheme(const DDCompactView& cpv, const GeometricDet& det) {
-  static thread_local TrackerG4SimHitNumberingScheme s_scheme(cpv, det);
+static TrackerG4SimHitNumberingScheme& numberingScheme(const GeometricDet& det) {
+  static thread_local TrackerG4SimHitNumberingScheme s_scheme(det);
   return s_scheme;
 }
 
@@ -73,7 +74,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
 
   // No Rotation given in input, automagically choose one based upon the name
   std::string rotType;
-  theRotation.reset(new TrackerFrameRotation());
+  theRotation = std::make_unique<TrackerFrameRotation>();
   rotType = "TrackerFrameRotation";
 
 #ifdef FAKEFRAMEROTATION
@@ -81,7 +82,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
   rotType = "FakeFrameRotation";
 #endif
 
-  edm::LogInfo("TrackerSimInfo") << " TkAccumulatingSensitiveDetector: "
+  edm::LogVerbatim("TrackerSim") << " TkAccumulatingSensitiveDetector: "
                                  << " Criteria for Saving Tracker SimTracks: \n"
                                  << " History: " << energyHistoryCut << " MeV; Persistency: " << energyCut
                                  << " MeV;  TofLimit: " << theTofLimit << " ns"
@@ -90,15 +91,15 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
                                  << " allowZeroEnergyLoss: " << allowZeroEnergyLoss
                                  << " neverAccumulate: " << neverAccumulate << " printHits: " << printHits;
 
-  slaveLowTof.reset(new TrackingSlaveSD(name + "LowTof"));
-  slaveHighTof.reset(new TrackingSlaveSD(name + "HighTof"));
+  slaveLowTof = std::make_unique<TrackingSlaveSD>(name + "LowTof");
+  slaveHighTof = std::make_unique<TrackingSlaveSD>(name + "HighTof");
 
   std::vector<std::string> temp;
   temp.push_back(slaveLowTof.get()->name());
   temp.push_back(slaveHighTof.get()->name());
   setNames(temp);
 
-  theG4ProcTypeEnumerator.reset(new G4ProcessTypeEnumerator);
+  theG4ProcTypeEnumerator = std::make_unique<G4ProcessTypeEnumerator>();
   theNumberingScheme = nullptr;
 }
 
@@ -131,9 +132,9 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack* bot) {
 
 #ifdef DUMPPROCESSES
   if (gTrack->GetCreatorProcess()) {
-    edm::LogVerbatim("TrackerSimInfo") << " -> PROCESS CREATOR : " << gTrack->GetCreatorProcess()->GetProcessName();
+    edm::LogVerbatim("TrackerSim") << " -> PROCESS CREATOR : " << gTrack->GetCreatorProcess()->GetProcessName();
   } else {
-    edm::LogVerbatim("TrackerSimInfo") << " -> No Creator process";
+    edm::LogVerbatim("TrackerSim") << " -> No Creator process";
   }
 #endif
 
@@ -357,10 +358,7 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfJob* i) {
   const edm::EventSetup* es = (*i)();
   es->get<IdealGeometryRecord>().get(pDD);
 
-  edm::ESTransientHandle<DDCompactView> pView;
-  es->get<IdealGeometryRecord>().get(pView);
-
-  theNumberingScheme = &(numberingScheme(*pView, *pDD));
+  theNumberingScheme = &(numberingScheme(*pDD));
 }
 
 void TkAccumulatingSensitiveDetector::clearHits() {

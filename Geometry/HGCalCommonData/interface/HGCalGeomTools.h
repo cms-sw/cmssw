@@ -10,25 +10,10 @@ public:
   HGCalGeomTools();
   ~HGCalGeomTools() {}
 
-  enum WaferType {
-    WaferFull = 0,
-    WaferFive = 1,
-    WaferChoptwo = 2,
-    WaferChopTwom = 3,
-    WaferHalf = 4,
-    WaferSemi = 5,
-    WaferSemi2 = 6,
-    WaferThree = 7
-  };
-
-  enum WaferPosition {
-    UnknownPosition = -1,
-    WaferCenter = 0,
-    CornerCenterYp = 1,
-    CornerCenterYm = 2,
-    CornerCenterXp = 3,
-    CornerCenterXm = 4
-  };
+  static constexpr int k_allCorners = 6;
+  static constexpr int k_fiveCorners = 5;
+  static constexpr int k_fourCorners = 4;
+  static constexpr int k_threeCorners = 3;
 
   static void radius(double zf,
                      double zb,
@@ -48,7 +33,7 @@ public:
                        std::vector<double> const& slope);
   static double radius(
       double z, int layer0, int layerf, std::vector<double> const& zFront, std::vector<double> const& rFront);
-  std::pair<double, double> shiftXY(int waferPosition, double waferSize);
+  std::pair<double, double> shiftXY(int waferPosition, double waferSize) const;
   static double slope(double z, std::vector<double> const& zFront, std::vector<double> const& slope);
   static std::pair<double, double> zradius(double z1,
                                            double z2,

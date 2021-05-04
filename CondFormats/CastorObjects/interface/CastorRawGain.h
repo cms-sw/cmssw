@@ -6,8 +6,8 @@
 \author Panos Katsas (UoA)
 POOL object to store raw Gain values
 */
-#include <boost/cstdint.hpp>
 #include <string>
+#include <cstdint>
 
 class CastorRawGain {
 public:

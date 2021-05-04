@@ -31,7 +31,6 @@
 
 #include <memory>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
 class dso_hidden VirtualJetProducer : public edm::stream::EDProducer<> {
 protected:
@@ -71,12 +70,12 @@ public:
   static void fillDescriptionsFromVirtualJetProducer(edm::ParameterSetDescription& desc);
 
   // typedefs
-  typedef boost::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
-  typedef boost::shared_ptr<fastjet::JetDefinition::Plugin> PluginPtr;
-  typedef boost::shared_ptr<fastjet::JetDefinition> JetDefPtr;
-  typedef boost::shared_ptr<fastjet::GhostedAreaSpec> ActiveAreaSpecPtr;
-  typedef boost::shared_ptr<fastjet::AreaDefinition> AreaDefinitionPtr;
-  typedef boost::shared_ptr<fastjet::Selector> SelectorPtr;
+  typedef std::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
+  typedef std::shared_ptr<fastjet::JetDefinition::Plugin> PluginPtr;
+  typedef std::shared_ptr<fastjet::JetDefinition> JetDefPtr;
+  typedef std::shared_ptr<fastjet::GhostedAreaSpec> ActiveAreaSpecPtr;
+  typedef std::shared_ptr<fastjet::AreaDefinition> AreaDefinitionPtr;
+  typedef std::shared_ptr<fastjet::Selector> SelectorPtr;
 
   //
   // member functions
@@ -180,7 +179,7 @@ protected:
   bool doPUOffsetCorr_;  // add the pileup calculation from offset correction?
   std::string puSubtractorName_;
 
-  std::vector<edm::Ptr<reco::Candidate> >
+  std::vector<edm::Ptr<reco::Candidate>>
       inputs_;                                // input candidates [View, PtrVector and CandCollection have limitations]
   reco::Particle::Point vertex_;              // Primary vertex
   ClusterSequencePtr fjClusterSeq_;           // fastjet cluster sequence
@@ -200,26 +199,29 @@ protected:
   std::string jetCollInstanceName_;  // instance name for output jet collection
   bool writeCompound_;               // write compound jets (i.e. jets of jets)
   bool writeJetsWithConst_;          // write jets with constituents
-  boost::shared_ptr<PileUpSubtractor> subtractor_;
+  std::shared_ptr<PileUpSubtractor> subtractor_;
 
   bool useDeterministicSeed_;  // If desired, use a deterministic seed to fastjet
   unsigned int minSeed_;       // minimum seed to use, useful for MC generation
 
   int verbosity_;                       // flag to enable/disable debug output
   bool fromHTTTopJetProducer_ = false;  // for running the v2.0 HEPTopTagger
+  bool applyWeight_;              // Apply weights stored in a value map or inside PackedCandidate (e.g. from PUPPI)
+  edm::ValueMap<float> weights_;  // weights per particle (e.g. from PUPPI)
 
 private:
   std::unique_ptr<AnomalousTower> anomalousTowerDef_;  // anomalous tower definition
 
   // tokens for the data access
   edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::PFCandidate> > > input_candidatefwdptr_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedCandidate> > > input_packedcandidatefwdptr_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::GenParticle> > > input_gencandidatefwdptr_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedGenParticle> > > input_packedgencandidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::PFCandidate>>> input_candidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedCandidate>>> input_packedcandidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::GenParticle>>> input_gencandidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedGenParticle>>> input_packedgencandidatefwdptr_token_;
 
 protected:
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> input_weights_token_;
 };
 
 #endif

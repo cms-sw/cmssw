@@ -11,7 +11,8 @@ CovarianceParameterization pat::PackedCandidate::covarianceParameterization_;
 std::once_flag pat::PackedCandidate::covariance_load_flag;
 
 void pat::PackedCandidate::pack(bool unpackAfterwards) {
-  packedPt_ = MiniFloatConverter::float32to16(p4_.load()->Pt());
+  float unpackedPt = std::min<float>(p4_.load()->Pt(), MiniFloatConverter::max());
+  packedPt_ = MiniFloatConverter::float32to16(unpackedPt);
   packedEta_ = int16_t(std::round(p4_.load()->Eta() / 6.0f * std::numeric_limits<int16_t>::max()));
   packedPhi_ = int16_t(std::round(p4_.load()->Phi() / 3.2f * std::numeric_limits<int16_t>::max()));
   packedM_ = MiniFloatConverter::float32to16(p4_.load()->M());

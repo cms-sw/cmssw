@@ -27,10 +27,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -99,6 +100,7 @@ private:
 
   edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken;
   edm::EDGetTokenT<FastTrackerRecHitRefCollection> simHit2RecHitMapToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken;
 
   bool usePixel;
   bool useStrip;
@@ -118,8 +120,8 @@ void FastTrackDeDxProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<bool>("UsePixel", false);
   desc.add<bool>("UseStrip", true);
-  desc.add<double>("MeVperADCPixel", 3.61e-06 * 265);
-  desc.add<double>("MeVperADCStrip", 3.61e-06);
+  desc.add<double>("MeVperADCStrip", 3.61e-06 * 265);
+  desc.add<double>("MeVperADCPixel", 3.61e-06);
   desc.add<bool>("ShapeTest", true);
   desc.add<bool>("UseCalibration", false);
   desc.add<string>("calibrationPath", "");
@@ -137,9 +139,11 @@ void FastTrackDeDxProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
     : simHitsToken(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHits"))),
       simHit2RecHitMapToken(
-          consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap"))) {
+          consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap"))),
+      tkGeomToken(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
   produces<ValueMap<DeDxData>>();
 
+  auto cCollector = consumesCollector();
   string estimatorName = iConfig.getParameter<string>("estimator");
   if (estimatorName == "median")
     m_estimator = std::unique_ptr<BaseDeDxEstimator>(new MedianDeDxEstimator(iConfig));
@@ -149,13 +153,13 @@ FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
     m_estimator = std::unique_ptr<BaseDeDxEstimator>(new TruncatedAverageDeDxEstimator(iConfig));
   //else if(estimatorName == "unbinnedFit")         m_estimator = std::unique_ptr<BaseDeDxEstimator> (new UnbinnedFitDeDxEstimator(iConfig));//estimator used in FullSimVersion
   else if (estimatorName == "productDiscrim")
-    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new ProductDeDxDiscriminator(iConfig));
+    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new ProductDeDxDiscriminator(iConfig, cCollector));
   else if (estimatorName == "btagDiscrim")
-    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new BTagLikeDeDxDiscriminator(iConfig));
+    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new BTagLikeDeDxDiscriminator(iConfig, cCollector));
   else if (estimatorName == "smirnovDiscrim")
-    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new SmirnovDeDxDiscriminator(iConfig));
+    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new SmirnovDeDxDiscriminator(iConfig, cCollector));
   else if (estimatorName == "asmirnovDiscrim")
-    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new ASmirnovDeDxDiscriminator(iConfig));
+    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new ASmirnovDeDxDiscriminator(iConfig, cCollector));
   else
     throw cms::Exception("fastsim::SimplifiedGeometry::FastTrackDeDxProducer.cc") << " estimator name does not exist";
 
@@ -244,6 +248,12 @@ void FastTrackDeDxProducer::processHit(const FastTrackerRecHit& recHit,
                                        reco::DeDxHitCollection& dedxHits,
                                        int& NClusterSaturating) {
   if (!recHit.isValid())
+    return;
+
+  auto const& thit = static_cast<BaseTrackerRecHit const&>(recHit);
+  if (!thit.isValid())
+    return;
+  if (!thit.hasPositionAndError())
     return;
 
   if (recHit.isPixel()) {

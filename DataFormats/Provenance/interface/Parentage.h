@@ -43,7 +43,7 @@ namespace edm {
 
     std::vector<BranchID> const& parents() const { return parents_; }
     std::vector<BranchID>& parentsForUpdate() { return parents_; }
-    void setParents(std::vector<BranchID> const& parents) { parents_ = parents; }
+    void setParents(std::vector<BranchID> parents) { parents_ = std::move(parents); }
     void swap(Parentage& other) { parents_.swap(other.parents_); }
     void initializeTransients() { transient_.reset(); }
     struct Transients {

@@ -93,7 +93,7 @@ void BTagPerformaceRootProducerFromSQLITE::analyze(const edm::Event& iEvent, con
     if (!writer_.get()) {
       edm::Service<TFileService> fs;
       TFile* f = &(fs->file());
-      writer_ = std::unique_ptr<fwlite::RecordWriter>(new fwlite::RecordWriter(r.key().name(), f));
+      writer_ = std::make_unique<fwlite::RecordWriter>(r.key().name(), f);
     }
     lastValue_ = r.validityInterval().last();
 

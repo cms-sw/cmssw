@@ -20,7 +20,6 @@
 
 // system include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 // user include files
 
 // forward declarations

@@ -1,5 +1,6 @@
 #ifndef RecoTracker_TkSeedGenerator_SeedGeneratorFromProtoTracksEDProducer_H
 #define RecoTracker_TkSeedGenerator_SeedGeneratorFromProtoTracksEDProducer_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,6 +27,7 @@ private:
   const bool useEventsWithNoVertex;
   const std::string builderName;
   const bool usePV_;
+  const bool includeFourthHit_;
   const edm::EDGetTokenT<reco::TrackCollection> theInputCollectionTag;
   const edm::EDGetTokenT<reco::VertexCollection> theInputVertexCollectionTag;
 };

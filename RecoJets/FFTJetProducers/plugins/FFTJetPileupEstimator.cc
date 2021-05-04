@@ -198,9 +198,9 @@ std::unique_ptr<reco::FFTJetPileupSummary> FFTJetPileupEstimator::calibrateFromD
                                                                                   const edm::EventSetup& iSetup) const {
   edm::ESHandle<FFTJetLookupTableSequence> h;
   StaticFFTJetLookupTableSequenceLoader::instance().load(iSetup, calibTableRecord, h);
-  boost::shared_ptr<npstat::StorableMultivariateFunctor> uz = (*h)[calibTableCategory][uncertaintyZonesName];
-  boost::shared_ptr<npstat::StorableMultivariateFunctor> cc = (*h)[calibTableCategory][calibrationCurveName];
-  boost::shared_ptr<npstat::StorableMultivariateFunctor> uc = (*h)[calibTableCategory][uncertaintyCurveName];
+  std::shared_ptr<npstat::StorableMultivariateFunctor> uz = (*h)[calibTableCategory][uncertaintyZonesName];
+  std::shared_ptr<npstat::StorableMultivariateFunctor> cc = (*h)[calibTableCategory][calibrationCurveName];
+  std::shared_ptr<npstat::StorableMultivariateFunctor> uc = (*h)[calibTableCategory][uncertaintyCurveName];
 
   const double pileupRho = ptToDensityFactor * (*cc)(&curve, 1U);
   const double rhoUncert = ptToDensityFactor * (*uc)(&curve, 1U);

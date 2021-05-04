@@ -3,13 +3,12 @@ import FWCore.ParameterSet.Config as cms
 from Geometry.HGCalCommonData.testHGCV8XML_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff import *
-from Geometry.HcalCommonData.hcalParameters_cfi      import *
-from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *
+from Geometry.HcalCommonData.hcalDDConstants_cff import *
 from Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi import *
 from Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi import *
 
 # tracker
-from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
+from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *

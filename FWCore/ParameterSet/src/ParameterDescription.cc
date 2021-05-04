@@ -7,7 +7,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/FillDescriptionFromPSet.h"
+#include "FWCore/ParameterSet/src/FillDescriptionFromPSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -412,14 +412,15 @@ namespace edm {
     // but that approach was rejected because it would require the
     // ParameterSetDescription to know how to parse the strings.
     void formatDouble(double value, std::string& result) {
-      std::stringstream s;
-      s << std::setprecision(17) << value;
-      result = s.str();
-
-      if (result.size() > 15 && std::string::npos != result.find(".")) {
-        std::stringstream s;
-        s << std::setprecision(15) << value;
-        std::string resultLessPrecision = s.str();
+      {
+        std::stringstream ss;
+        ss << std::setprecision(17) << value;
+        result = ss.str();
+      }
+      if (result.size() > 15 && std::string::npos != result.find('.')) {
+        std::stringstream ss;
+        ss << std::setprecision(15) << value;
+        std::string resultLessPrecision = ss.str();
 
         if (resultLessPrecision.size() < result.size() - 2) {
           double test = std::strtod(resultLessPrecision.c_str(), nullptr);

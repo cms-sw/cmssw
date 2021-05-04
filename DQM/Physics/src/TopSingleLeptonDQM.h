@@ -1,11 +1,9 @@
 #ifndef TOPSINGLELEPTONDQM
 #define TOPSINGLELEPTONDQM
 
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include <string>
 #include <vector>
-
-#include "FWCore/Framework/interface/Event.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DQM/Physics/interface/TopDQMHelpers.h"
@@ -223,7 +221,6 @@ namespace TopSingleLepton {
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /**
    \class   TopSingleLeptonDQM TopSingleLeptonDQM.h
@@ -266,7 +263,7 @@ namespace TopSingleLepton {
 /// define MonitorEnsembple to be used
 // using TopSingleLepton::MonitorEnsemble;
 
-class TopSingleLeptonDQM : public DQMEDAnalyzer {
+class TopSingleLeptonDQM : public DQMOneEDAnalyzer<> {
 public:
   /// default constructor
   TopSingleLeptonDQM(const edm::ParameterSet& cfg);

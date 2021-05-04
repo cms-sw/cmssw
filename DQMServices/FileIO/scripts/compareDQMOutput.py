@@ -43,8 +43,18 @@ def compare(base_dir, pr_dir, output_dir, files, pr_number, test_number, release
             base_dataset = '/' + '/'.join(base_output_filename.rstrip('.root').split('__')[1:])
             pr_dataset = '/' + '/'.join(pr_output_filename.rstrip('.root').split('__')[1:])
             
+            cmssw_version = '_'.join(release_format.split('_')[:4])
+            cmssw_version = cmssw_version[:-1] + 'x'
+            root_file_dir_in_gui = 'ROOT/RelValData/%s/' % cmssw_version
+            if 'R000000001__RelVal' in base_output_filename:
+                root_file_dir_in_gui = 'ROOT/RelVal/%s/' % cmssw_version
+
+            base_file_path_in_gui = root_file_dir_in_gui + base_output_filename
+            pr_file_path_in_gui = root_file_dir_in_gui + pr_output_filename
+            
             COMPARISON_RESULTS.append({'workflow': workflow, 'base_dataset': base_dataset, 'pr_dataset': pr_dataset, 'run_nr': run_nr,\
-                'changed_elements': int(output_numbers[0]), 'removed_elements': int(output_numbers[1]), 'added_elements': int(output_numbers[2])})
+                'changed_elements': int(output_numbers[0]), 'removed_elements': int(output_numbers[1]), 'added_elements': int(output_numbers[2]),
+                'base_file_path_in_gui': base_file_path_in_gui, 'pr_file_path_in_gui': pr_file_path_in_gui})
         except Exception as ex:
             print('Exception comparing two root files: %s' % ex)
     
@@ -89,7 +99,10 @@ def upload(files):
             print('Exception uploading a file: %s' % ex)
 
 def generate_summary_html(output_dir, pr_list, summary_dir):
-    template_file = open(os.path.join(os.path.dirname(__file__), 'dqm-histo-comparison-summary-template.html'), 'r')
+    template_file_path = os.path.join(os.getenv('CMSSW_BASE'), 'src', 'DQMServices', 'FileIO', 'scripts', 'dqm-histo-comparison-summary-template.html')
+    if not os.path.isfile(template_file_path):
+        template_file_path = os.path.join(os.getenv('CMSSW_RELEASE_BASE'), 'src', 'DQMServices', 'FileIO', 'scripts', 'dqm-histo-comparison-summary-template.html')
+    template_file = open(template_file_path, 'r')
     result = template_file.read()
 
     result = result.replace('$PR_LIST$', pr_list)
@@ -106,13 +119,17 @@ def generate_summary_html(output_dir, pr_list, summary_dir):
         # Make urls
         base_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;sampletype%%3Doffline_relval;workspace%%3DEverything;' % (comp['run_nr'], comp['base_dataset'])
         pr_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;sampletype%%3Doffline_relval;workspace%%3DEverything;' % (comp['run_nr'], comp['pr_dataset'])
-        overlay_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;referenceshow%%3Dall;referenceobj1%%3Dother::%s::;sampletype%%3Doffline_relval;workspace%%3DEverything;' \
+        overlay_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;referenceshow%%3Dall;referencenorm=False;referenceobj1%%3Dother::%s::;sampletype%%3Doffline_relval;workspace%%3DEverything;' \
             % (comp['run_nr'], comp['pr_dataset'], comp['base_dataset'])
+        base_raw_url = 'https://cmsweb.cern.ch/dqm/dev/jsroot/index.htm?file=https://cmsweb.cern.ch/dqm/dev/data/browse/%s' % comp['base_file_path_in_gui']
+        pr_raw_url = 'https://cmsweb.cern.ch/dqm/dev/jsroot/index.htm?file=https://cmsweb.cern.ch/dqm/dev/data/browse/%s' % comp['pr_file_path_in_gui']
 
         table_items += '        <tr>\n'
         table_items += '            <td><a href="%s" target="_blank">%s baseline GUI</a><span> (%s)</span></td>\n' % (base_url, comp['workflow'], baseline_count)
         table_items += '            <td><a href="%s" target="_blank">%s pr GUI</a><span> (%s)</span></td>\n' % (pr_url, comp['workflow'], pr_count)
         table_items += '            <td><a href="%s" target="_blank">%s overlay GUI</a><span> (%s)</span></td>\n' % (overlay_url, comp['workflow'], overlay_count)
+        table_items += '            <td><a href="%s" target="_blank">%s baseline rootjs</a><span> (%s)</span></td>\n' % (base_raw_url, comp['workflow'], baseline_count)
+        table_items += '            <td><a href="%s" target="_blank">%s pr rootjs</a><span> (%s)</span></td>\n' % (pr_raw_url, comp['workflow'], pr_count)
         table_items += '            <td><span class="removed">-%s</span><span class="added">+%s</span><span class="changed">%s</span></td>\n' \
             % (comp['removed_elements'], comp['added_elements'], comp['changed_elements'])
         table_items += '        </tr>\n'
@@ -141,14 +158,26 @@ if __name__ == '__main__':
     parser.add_argument('-j', '--nprocs', help='Number of processes', default=1, type=int)
     parser.add_argument('-n', '--pr-number', help='This is obsolete and should NOT be used.', required=False)
     parser.add_argument('-t', '--test-number', help='Unique test number to distinguish different comparisons of the same PR.', default='1')
-    parser.add_argument('-r', '--release-format', help='Release format in this format: CMSSW_10_5_X_2019-02-17-0000', required=True)
+    parser.add_argument('-r', '--release-format', help='Release format in this format: CMSSW_10_5_X_2019-02-17-0000')
     parser.add_argument('-s', '--summary-dir', help='Directory where summary with all links will be saved', default='')
     parser.add_argument('-l', '--pr-list', help='A list of PRs participating in the comparison', default='')
     args = parser.parse_args()
 
-    # Get the repository and a number of the PR which triggered the comparison
-    pr_number = args.pr_list.split(' ')[0].split('/')[1].replace('#', '_')
+    # Get the number of the PR which triggered the comparison
+    pr_number = 'Unknown'
+    try:
+        pr_number = args.pr_list.split(' ')[0].split('/')[1].replace('#', '_')
+    except:
+        pass
 
-    collect_and_compare_files(args.base_dir, args.pr_dir, args.output_dir, args.nprocs, pr_number, args.test_number, args.release_format)
+    release_format = args.release_format
+    if not release_format:
+        try:
+            release_format = os.environ['CMSSW_VERSION']
+        except:
+            print('You are not in a CMSSW release. Please provide a valid release-format (-r option)')
+            os._exit(1)
+
+    collect_and_compare_files(args.base_dir, args.pr_dir, args.output_dir, args.nprocs, pr_number, args.test_number, release_format)
     upload_to_gui(args.output_dir, args.nprocs)
     generate_summary_html(args.output_dir, args.pr_list, args.summary_dir)

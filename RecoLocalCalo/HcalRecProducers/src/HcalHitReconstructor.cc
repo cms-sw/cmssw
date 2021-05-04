@@ -2,7 +2,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -26,7 +26,8 @@
 HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf)
     : reco_(conf.getParameter<bool>("correctForTimeslew"),
             conf.getParameter<bool>("correctForPhaseContainment"),
-            conf.getParameter<double>("correctionPhaseNS")),
+            conf.getParameter<double>("correctionPhaseNS"),
+            consumesCollector()),
       det_(DetId::Hcal),
       inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
       correctTiming_(conf.getParameter<bool>("correctTiming")),
@@ -46,10 +47,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf)
       dataOOTCorrectionCategory_("Data"),
       mcOOTCorrectionName_(""),
       mcOOTCorrectionCategory_("MC"),
-      setPileupCorrection_(nullptr),
-      paramTS(nullptr)
-
-{
+      setPileupCorrection_(nullptr) {
   // register for data access
   tok_ho_ = consumes<HODigiCollection>(inputLabel_);
   tok_hf_ = consumes<HFDigiCollection>(inputLabel_);
@@ -162,6 +160,16 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf)
     mcOOTCorrectionCategory_ = conf.getParameter<std::string>("mcOOTCorrectionCategory");
   if (dataOOTCorrectionName_.empty() && mcOOTCorrectionName_.empty())
     setPileupCorrection_ = nullptr;
+
+  // ES tokens
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  if (tsFromDB_ || recoParamsFromDB_)
+    paramsToken_ = esConsumes<HcalRecoParams, HcalRecoParamsRcd, edm::Transition::BeginRun>();
+  if (digiTimeFromDB_)
+    digiTimeToken_ = esConsumes<HcalFlagHFDigiTimeParams, HcalFlagHFDigiTimeParamsRcd, edm::Transition::BeginRun>();
+  conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
+  qualToken_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
+  sevToken_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
 }
 
 HcalHitReconstructor::~HcalHitReconstructor() {
@@ -172,64 +180,40 @@ HcalHitReconstructor::~HcalHitReconstructor() {
   delete hfPET_;
   delete saturationFlagSetter_;
   delete HFTimingTrustFlagSetter_;
-
-  delete paramTS;
 }
 
 void HcalHitReconstructor::beginRun(edm::Run const& r, edm::EventSetup const& es) {
-  edm::ESHandle<HcalTopology> htopo;
-  es.get<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology& htopo = es.getData(htopoToken_);
 
-  if (tsFromDB_ == true || recoParamsFromDB_ == true) {
-    edm::ESHandle<HcalRecoParams> p;
-    es.get<HcalRecoParamsRcd>().get(p);
-    paramTS = new HcalRecoParams(*p.product());
-    paramTS->setTopo(htopo.product());
+  if (tsFromDB_ || recoParamsFromDB_) {
+    const HcalRecoParams& p = es.getData(paramsToken_);
+    paramTS_ = std::make_unique<HcalRecoParams>(p);
+    paramTS_->setTopo(&htopo);
 
     // std::cout<<" skdump in HcalHitReconstructor::beginRun   dupm RecoParams "<<std::endl;
     // std::ofstream skfile("skdumpRecoParamsNewFormat.txt");
-    // HcalDbASCIIIO::dumpObject(skfile, (*paramTS) );
+    // HcalDbASCIIIO::dumpObject(skfile, (*paramTS_) );
   }
 
-  if (digiTimeFromDB_ == true) {
-    edm::ESHandle<HcalFlagHFDigiTimeParams> p;
-    es.get<HcalFlagHFDigiTimeParamsRcd>().get(p);
-    HFDigiTimeParams.reset(new HcalFlagHFDigiTimeParams(*p));
-    HFDigiTimeParams->setTopo(htopo.product());
+  if (digiTimeFromDB_) {
+    const HcalFlagHFDigiTimeParams& p = es.getData(digiTimeToken_);
+    hFDigiTimeParams_ = std::make_unique<HcalFlagHFDigiTimeParams>(p);
+    hFDigiTimeParams_->setTopo(&htopo);
   }
 
   reco_.beginRun(es);
 }
 
-void HcalHitReconstructor::endRun(edm::Run const& r, edm::EventSetup const& es) {
-  if (tsFromDB_ == true) {
-    delete paramTS;
-    paramTS = nullptr;
-  }
-  if (digiTimeFromDB_ == true) {
-    //DL delete HFDigiTimeParams; HFDigiTimeParams = 0;
-  }
-  reco_.endRun();
-}
+void HcalHitReconstructor::endRun(edm::Run const& r, edm::EventSetup const& es) { reco_.endRun(); }
 
 void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   // get conditions
-  edm::ESHandle<HcalTopology> topo;
-  eventSetup.get<HcalRecNumberingRecord>().get(topo);
-
-  edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
+  const HcalDbService* conditions = &eventSetup.getData(conditionsToken_);
+  const HcalChannelQuality* myqual = &eventSetup.getData(qualToken_);
+  const HcalSeverityLevelComputer* mySeverity = &eventSetup.getData(sevToken_);
 
   if (useLeakCorrection_)
     reco_.setLeakCorrection();
-
-  edm::ESHandle<HcalChannelQuality> p;
-  eventSetup.get<HcalChannelQualityRcd>().get("withTopo", p);
-  const HcalChannelQuality* myqual = p.product();
-
-  edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
-  eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
-  const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
 
   // GET THE BEAM CROSSING INFO HERE, WHEN WE UNDERSTAND HOW THINGS WORK.
   // Then, call "setBXInfo" method of the reco_ object.
@@ -264,7 +248,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
         DetId detcell = (DetId)cell;
         // firstSample & samplesToAdd
         if (tsFromDB_ || recoParamsFromDB_) {
-          const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+          const HcalRecoParam* param_ts = paramTS_->getValues(detcell.rawId());
           if (tsFromDB_) {
             firstSample_ = param_ts->firstSample();
             samplesToAdd_ = param_ts->samplesToAdd();
@@ -359,7 +343,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
         DetId detcell = (DetId)cell;
 
         if (tsFromDB_ || recoParamsFromDB_) {
-          const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+          const HcalRecoParam* param_ts = paramTS_->getValues(detcell.rawId());
           if (tsFromDB_) {
             firstSample_ = param_ts->firstSample();
             samplesToAdd_ = param_ts->samplesToAdd();
@@ -398,8 +382,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
         HcalCoderDb coder(*channelCoder, *shape);
 
         // Set HFDigiTime flag values from digiTimeFromDB_
-        if (digiTimeFromDB_ == true && hfdigibit_ != nullptr) {
-          const HcalFlagHFDigiTimeParam* hfDTparam = HFDigiTimeParams->getValues(detcell.rawId());
+        if (digiTimeFromDB_ && hfdigibit_) {
+          const HcalFlagHFDigiTimeParam* hfDTparam = hFDigiTimeParams_->getValues(detcell.rawId());
           hfdigibit_->resetParamsFromDB(hfDTparam->HFdigiflagFirstSample(),
                                         hfDTparam->HFdigiflagSamplesToAdd(),
                                         hfDTparam->HFdigiflagExpectedPeak(),
@@ -508,7 +492,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
         // firstSample & samplesToAdd
         if (tsFromDB_) {
-          const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+          const HcalRecoParam* param_ts = paramTS_->getValues(detcell.rawId());
           first = param_ts->firstSample();
           toadd = param_ts->samplesToAdd();
         }

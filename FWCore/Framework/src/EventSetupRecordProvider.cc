@@ -16,7 +16,9 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
@@ -29,48 +31,26 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "make_shared_noexcept_false.h"
 
-//
-// constants, enums and typedefs
-//
-
 namespace edm {
   namespace eventsetup {
-    //
-    // static data member definitions
-    //
 
-    //
-    // constructors and destructor
-    //
-    EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey)
-        : record_(iKey),
-          key_(iKey),
+    EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey,
+                                                       ActivityRegistry const* activityRegistry,
+                                                       unsigned int nConcurrentIOVs)
+        : key_(iKey),
           validityInterval_(),
           finder_(),
           providers_(),
           multipleFinders_(new std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>()),
-          lastSyncWasBeginOfRun_(true) {}
+          nConcurrentIOVs_(nConcurrentIOVs) {
+      recordImpls_.reserve(nConcurrentIOVs);
+      for (unsigned int i = 0; i < nConcurrentIOVs_; ++i) {
+        recordImpls_.emplace_back(iKey, activityRegistry, i);
+      }
+    }
 
-    // EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordProvider& rhs)
-    // {
-    //    // do actual copying here;
-    // }
+    EventSetupRecordImpl const& EventSetupRecordProvider::firstRecordImpl() const { return recordImpls_[0]; }
 
-    //
-    // assignment operators
-    //
-    // const EventSetupRecordProvider& EventSetupRecordProvider::operator=(const EventSetupRecordProvider& rhs)
-    // {
-    //   //An exception safe implementation is
-    //   EventSetupRecordProvider temp(rhs);
-    //   swap(rhs);
-    //
-    //   return *this;
-    // }
-
-    //
-    // member functions
-    //
     void EventSetupRecordProvider::add(std::shared_ptr<DataProxyProvider> iProvider) {
       assert(iProvider->isUsingRecord(key_));
       edm::propagate_const<std::shared_ptr<DataProxyProvider>> pProvider(iProvider);
@@ -94,8 +74,9 @@ namespace edm {
         }
       }
     }
-    void EventSetupRecordProvider::setValidityInterval(const ValidityInterval& iInterval) {
+    void EventSetupRecordProvider::setValidityInterval_forTesting(const ValidityInterval& iInterval) {
       validityInterval_ = iInterval;
+      initializeForNewSyncValue();
     }
 
     void EventSetupRecordProvider::setDependentProviders(
@@ -124,6 +105,10 @@ namespace edm {
         intFinder->swapFinders(*multipleFinders_);
         finder_ = intFinder;
       }
+      if (finder_) {
+        hasNonconcurrentFinder_ = !finder_->concurrentFinder();
+      }
+
       //now we get rid of the temporary
       multipleFinders_.reset(nullptr);
     }
@@ -133,97 +118,124 @@ namespace edm {
       typedef DataProxyProvider::KeyedProxies ProxyList;
       typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
 
-      const ProxyList& keyedProxies(iProvider->keyedProxies(this->key()));
-      ProxyList::const_iterator finishedProxyList(keyedProxies.end());
-      for (ProxyList::const_iterator keyedProxy(keyedProxies.begin()); keyedProxy != finishedProxyList; ++keyedProxy) {
-        PreferredMap::const_iterator itFound = iMap.find(keyedProxy->first);
-        if (iMap.end() != itFound) {
-          if (itFound->second.type_ != keyedProxy->second->providerDescription()->type_ ||
-              itFound->second.label_ != keyedProxy->second->providerDescription()->label_) {
-            //this is not the preferred provider
-            continue;
+      for (auto& record : recordImpls_) {
+        ProxyList& keyedProxies(iProvider->keyedProxies(this->key(), record.iovIndex()));
+
+        for (auto keyedProxy : keyedProxies) {
+          PreferredMap::const_iterator itFound = iMap.find(keyedProxy.dataKey_);
+          if (iMap.end() != itFound) {
+            if (itFound->second.type_ != keyedProxy.dataProxy_->providerDescription()->type_ ||
+                itFound->second.label_ != keyedProxy.dataProxy_->providerDescription()->label_) {
+              //this is not the preferred provider
+              continue;
+            }
           }
+          record.add(keyedProxy.dataKey_, keyedProxy.dataProxy_);
         }
-        record_.add((*keyedProxy).first, (*keyedProxy).second.get());
       }
     }
 
-    void EventSetupRecordProvider::addRecordTo(EventSetupProvider& iEventSetupProvider) {
-      record_.set(this->validityInterval());
-      iEventSetupProvider.addRecordToEventSetup(record_);
+    void EventSetupRecordProvider::initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier) {
+      EventSetupRecordImpl* impl = &recordImpls_[iovIndex];
+      recordImpl_ = impl;
+      bool hasFinder = finder_.get() != nullptr;
+      impl->initializeForNewIOV(cacheIdentifier, validityInterval_, hasFinder);
+      eventSetupImpl_->addRecordImpl(*recordImpl_);
     }
 
-    //
-    // const member functions
-    //
-    void EventSetupRecordProvider::resetTransients() {
-      using std::placeholders::_1;
-      if (checkResetTransients()) {
-        for_all(providers_, std::bind(&DataProxyProvider::resetProxiesIfTransient, _1, key_));
+    void EventSetupRecordProvider::continueIOV(bool newEventSetupImpl) {
+      if (intervalStatus_ == IntervalStatus::UpdateIntervalEnd) {
+        recordImpl_->setSafely(validityInterval_);
+      }
+      if (newEventSetupImpl && intervalStatus_ != IntervalStatus::Invalid) {
+        eventSetupImpl_->addRecordImpl(*recordImpl_);
       }
     }
 
-    void EventSetupRecordProvider::addRecordToIfValid(EventSetupProvider& iEventSetupProvider,
-                                                      const IOVSyncValue& iTime) {
-      if (setValidityIntervalFor(iTime)) {
-        addRecordTo(iEventSetupProvider);
+    void EventSetupRecordProvider::endIOV(unsigned int iovIndex) { recordImpls_[iovIndex].invalidateProxies(); }
+
+    void EventSetupRecordProvider::initializeForNewSyncValue() {
+      intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
+    }
+
+    bool EventSetupRecordProvider::doWeNeedToWaitForIOVsToFinish(IOVSyncValue const& iTime) const {
+      if (!hasNonconcurrentFinder_) {
+        return false;
       }
+      if (intervalStatus_ == IntervalStatus::Invalid || !validityInterval_.validFor(iTime)) {
+        return finder_->nonconcurrentAndIOVNeedsUpdate(key_, iTime);
+      }
+      return false;
     }
 
     bool EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime) {
-      //we want to wait until after the first event of a new run before
-      // we reset any transients just in case some modules get their data at beginRun or beginLumi
-      // and others wait till the first event
-      if (!lastSyncWasBeginOfRun_) {
-        resetTransients();
-      }
-      lastSyncWasBeginOfRun_ = iTime.eventID().event() == 0;
+      // This function can be called multiple times for the same
+      // IOVSyncValue because DependentRecordIntervalFinder::setIntervalFor
+      // can call it in addition to it being called directly. We don't
+      // need to do the work multiple times for the same IOVSyncValue.
+      // The next line of code protects against this. Note that it would
+      // be possible to avoid this check if the calls to setValidityIntervalFor
+      // were made in the right order, but it would take some development work
+      // to come up with code to calculate that order (maybe a project for the
+      // future, but it's not clear it would be worth the effort).
+      if (intervalStatus_ == IntervalStatus::NotInitializedForSyncValue) {
+        intervalStatus_ = IntervalStatus::Invalid;
 
-      if (validityInterval_.validFor(iTime)) {
-        return true;
-      }
-      bool returnValue = false;
-      //need to see if we get a new interval
-      if (nullptr != finder_.get()) {
-        IOVSyncValue oldFirst(validityInterval_.first());
+        if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue() && validityInterval_.validFor(iTime)) {
+          intervalStatus_ = IntervalStatus::SameInterval;
 
-        validityInterval_ = finder_->findIntervalFor(key_, iTime);
-        //are we in a valid range?
-        if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue()) {
-          returnValue = true;
-          //did we actually change?
-          if (oldFirst != validityInterval_.first()) {
-            //tell all Providers to update
-            for (auto& provider : providers_) {
-              provider->newInterval(key_, validityInterval_);
+        } else if (finder_.get() != nullptr) {
+          IOVSyncValue oldFirst(validityInterval_.first());
+          IOVSyncValue oldLast(validityInterval_.last());
+          validityInterval_ = finder_->findIntervalFor(key_, iTime);
+
+          // An interval is valid if and only if the start of the interval is
+          // valid. If the start is valid and the end is invalid, it means we
+          // do not know when the interval ends, but the interval is valid and
+          // iTime is within the interval.
+          if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue()) {
+            // An interval is new if the start of the interval changes
+            if (validityInterval_.first() != oldFirst) {
+              intervalStatus_ = IntervalStatus::NewInterval;
+
+              // If the start is the same but the end changes, we consider
+              // this the same interval because we do not want to do the
+              // work to update the caches of data in this case.
+            } else if (validityInterval_.last() != oldLast) {
+              intervalStatus_ = IntervalStatus::UpdateIntervalEnd;
+            } else {
+              intervalStatus_ = IntervalStatus::SameInterval;
             }
-            cacheReset();
           }
         }
       }
-      return returnValue;
+      return intervalStatus_ != IntervalStatus::Invalid;
     }
 
     void EventSetupRecordProvider::resetProxies() {
-      using std::placeholders::_1;
-      cacheReset();
-      for_all(providers_, std::bind(&DataProxyProvider::resetProxies, _1, key_));
-      //some proxies only clear if they were accessed transiently,
-      // since resetProxies resets that flag, calling resetTransients
-      // will force a clear
-      for_all(providers_, std::bind(&DataProxyProvider::resetProxiesIfTransient, _1, key_));
+      // Clear out all the DataProxy's
+      for (auto& recordImplIter : recordImpls_) {
+        recordImplIter.invalidateProxies();
+        recordImplIter.resetIfTransientInProxies();
+      }
+      // Force a new IOV to start with a new cacheIdentifier
+      // on the next eventSetupForInstance call.
+      validityInterval_ = ValidityInterval{};
+      if (finder_.get() != nullptr) {
+        finder_->resetInterval(key_);
+      }
     }
 
     void EventSetupRecordProvider::getReferencedESProducers(
-        std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers) {
-      record().getESProducers(referencedESProducers[key_]);
+        std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers) const {
+      firstRecordImpl().getESProducers(referencedESProducers[key_]);
     }
 
     void EventSetupRecordProvider::fillReferencedDataKeys(
         std::map<DataKey, ComponentDescription const*>& referencedDataKeys) const {
       std::vector<DataKey> keys;
-      record().fillRegisteredDataKeys(keys);
-      std::vector<ComponentDescription const*> components = record().componentsForRegisteredDataKeys();
+      firstRecordImpl().fillRegisteredDataKeys(keys);
+      std::vector<ComponentDescription const*> components = firstRecordImpl().componentsForRegisteredDataKeys();
       auto itComponents = components.begin();
       for (auto const& k : keys) {
         referencedDataKeys.emplace(k, *itComponents);
@@ -232,14 +244,12 @@ namespace edm {
     }
 
     void EventSetupRecordProvider::resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap) {
+      for (auto& recordImplIter : recordImpls_) {
+        recordImplIter.clearProxies();
+      }
       using std::placeholders::_1;
-      record().clearProxies();
       for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper, this, _1, iMap));
     }
-
-    void EventSetupRecordProvider::cacheReset() { record().cacheReset(); }
-
-    bool EventSetupRecordProvider::checkResetTransients() { return record().transientReset(); }
 
     std::set<EventSetupRecordKey> EventSetupRecordProvider::dependentRecords() const { return dependencies(key()); }
 
@@ -279,22 +289,20 @@ namespace edm {
       for (auto& dataProxyProvider : providers_) {
         if (dataProxyProvider->description().pid_ == psetID.psetID()) {
           dataProxyProvider = sharedDataProxyProvider;
+          dataProxyProvider->createKeyedProxies(key_, nConcurrentIOVs_);
         }
       }
     }
 
     std::vector<DataKey> EventSetupRecordProvider::registeredDataKeys() const {
       std::vector<DataKey> ret;
-      record_.fillRegisteredDataKeys(ret);
+      firstRecordImpl().fillRegisteredDataKeys(ret);
       return ret;
     }
 
     std::vector<ComponentDescription const*> EventSetupRecordProvider::componentsForRegisteredDataKeys() const {
-      return record_.componentsForRegisteredDataKeys();
+      return firstRecordImpl().componentsForRegisteredDataKeys();
     }
 
-    //
-    // static member functions
-    //
   }  // namespace eventsetup
 }  // namespace edm

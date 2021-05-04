@@ -29,14 +29,14 @@ namespace fit {
     std::vector<double> doubleArgs;
     void print(std::ostream& cout) const {
       cout << name;
-      if (stringArgs.size() > 0) {
+      if (!stringArgs.empty()) {
         for (size_t i = 0; i != stringArgs.size(); ++i) {
           if (i != 0)
             cout << ",";
           cout << " \"" << stringArgs[i] << "\"";
         }
       }
-      if (doubleArgs.size() > 0) {
+      if (!doubleArgs.empty()) {
         for (size_t i = 0; i != doubleArgs.size(); ++i) {
           if (i != 0)
             cout << ",";
@@ -107,8 +107,8 @@ namespace fit {
   template <typename Function>
   void RootMinuitCommands<Function>::init(const char* fileName) {
     using namespace std;
-    string cmssw_release_base = getenv("CMSSW_RELEASE_BASE");
-    string cmssw_base = getenv("CMSSW_BASE");
+    string cmssw_release_base = std::getenv("CMSSW_RELEASE_BASE");
+    string cmssw_base = std::getenv("CMSSW_BASE");
     vector<string> directories;
     directories.reserve(3);
     directories.emplace_back(".");
@@ -138,7 +138,7 @@ namespace fit {
     bool commands = false;
     while (getline(file, line)) {
       ++lineNumber_;
-      if (line.size() == 0)
+      if (line.empty())
         continue;
       char last = *line.rbegin();
       if (!(last >= '0' && last <= 'z'))

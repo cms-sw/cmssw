@@ -5,6 +5,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include <memory>
 #include <vector>
 
@@ -28,7 +29,8 @@ namespace edm {
                                                       ThinnedAssociationsHelper const& helper,
                                                       std::string const& processName,
                                                       std::string const& moduleLabel,
-                                                      ParameterSetID const& toplevel);
+                                                      ParameterSetID const& toplevel,
+                                                      SendJobHeader::ParameterSetMap const* psetMap);
 
     std::unique_ptr<EventMsgBuilder> serializeEvent(SerializeDataBuffer& sbuf,
                                                     EventForOutput const& e,

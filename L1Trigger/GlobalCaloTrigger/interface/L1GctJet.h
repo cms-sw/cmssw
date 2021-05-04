@@ -1,12 +1,13 @@
 #ifndef L1GCTJET_H_
 #define L1GCTJET_H_
 
-#include <boost/cstdint.hpp>  //for uint16_t
 #include <functional>
 #include <vector>
 #include <ostream>
+#include <memory>
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
+#include <cstdint>
 
 /*!
  * \author Jim Brooke & Robert Frazier
@@ -19,8 +20,6 @@
  *  Move this to DataFormats/L1GlobalCaloTrigger if possible
  */
 
-#include "boost/shared_ptr.hpp"
-
 class L1GctJetCand;
 class L1GctJetEtCalibrationLut;
 
@@ -30,7 +29,7 @@ public:
   enum numberOfBits { kRawsumBitWidth = 10, kRawsumMaxValue = (1 << kRawsumBitWidth) - 1 };
 
   //Typedefs
-  typedef boost::shared_ptr<L1GctJetEtCalibrationLut> lutPtr;
+  typedef std::shared_ptr<L1GctJetEtCalibrationLut> lutPtr;
 
   //Constructors/destructors
   L1GctJet(const uint16_t rawsum = 0,

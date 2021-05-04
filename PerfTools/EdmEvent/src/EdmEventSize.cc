@@ -6,7 +6,6 @@
 #include <valarray>
 #include <functional>
 #include <algorithm>
-#include <boost/bind.hpp>
 #include <ostream>
 #include <limits>
 #include <cassert>
@@ -115,17 +114,17 @@ namespace perftools {
     }
     std::sort(m_branches.begin(),
               m_branches.end(),
-              boost::bind(std::greater<double>(),
-                          boost::bind(&BranchRecord::compr_size, _1),
-                          boost::bind(&BranchRecord::compr_size, _2)));
+              std::bind(std::greater<double>(),
+                        std::bind(&BranchRecord::compr_size, std::placeholders::_1),
+                        std::bind(&BranchRecord::compr_size, std::placeholders::_2)));
   }
 
   void EdmEventSize::sortAlpha() {
-    std::sort(
-        m_branches.begin(),
-        m_branches.end(),
-        boost::bind(
-            std::less<std::string>(), boost::bind(&BranchRecord::name, _1), boost::bind(&BranchRecord::name, _2)));
+    std::sort(m_branches.begin(),
+              m_branches.end(),
+              std::bind(std::less<std::string>(),
+                        std::bind(&BranchRecord::name, std::placeholders::_1),
+                        std::bind(&BranchRecord::name, std::placeholders::_2)));
   }
 
   namespace detail {
@@ -163,7 +162,7 @@ namespace perftools {
       co << "File " << m_fileName << " Events " << m_nEvents << "\n";
       co << "Branch Name | Average Uncompressed Size (Bytes/Event) | Average Compressed Size (Bytes/Event) \n";
     }
-    std::for_each(m_branches.begin(), m_branches.end(), boost::bind(detail::dump, boost::ref(co), _1));
+    std::for_each(m_branches.begin(), m_branches.end(), std::bind(detail::dump, std::ref(co), std::placeholders::_1));
   }
 
   namespace detail {
@@ -232,7 +231,8 @@ namespace perftools {
     if (top == 0)
       top = m_branches.size();
     detail::Hist h(top);
-    std::for_each(m_branches.begin(), m_branches.end(), boost::bind(&detail::Hist::fill, boost::ref(h), _1));
+    std::for_each(
+        m_branches.begin(), m_branches.end(), std::bind(&detail::Hist::fill, std::ref(h), std::placeholders::_1));
     h.finalize();
     if (!plot.empty()) {
       gROOT->SetStyle("Plain");

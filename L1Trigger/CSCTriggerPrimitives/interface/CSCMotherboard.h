@@ -37,7 +37,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 
 class CSCMotherboard : public CSCBaseboard {
 public:
@@ -48,9 +48,6 @@ public:
                  unsigned subsector,
                  unsigned chamber,
                  const edm::ParameterSet& conf);
-
-  /** Constructor for use during testing. */
-  CSCMotherboard();
 
   /** Default destructor. */
   ~CSCMotherboard() override = default;
@@ -64,6 +61,9 @@ public:
 
   /** Returns vector of all found correlated LCTs, if any. */
   std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
+
+  /** Returns shower bits */
+  CSCShowerDigi readoutShower() const;
 
   /** Clears correlated LCT and passes clear signal on to cathode and anode
       LCT processors. */
@@ -90,35 +90,40 @@ protected:
   /** Container for second correlated LCT. */
   CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
 
-  // helper function to return ALCT with correct central BX
+  CSCShowerDigi shower_;
+
+  // helper function to return ALCT/CLCT with correct central BX
   CSCALCTDigi getBXShiftedALCT(const CSCALCTDigi&) const;
+  CSCCLCTDigi getBXShiftedCLCT(const CSCCLCTDigi&) const;
 
   /** Configuration parameters. */
   unsigned int mpc_block_me1a;
   unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
   unsigned int match_trig_window_size, tmb_l1a_window_size;
 
-  /** SLHC: whether to not reuse ALCTs that were used by previous matching CLCTs */
+  /** Phase2: whether to not reuse ALCTs that were used by previous matching CLCTs */
   bool drop_used_alcts;
 
-  /** SLHC: whether to not reuse CLCTs that were used by previous matching ALCTs */
+  /** Phase2: whether to not reuse CLCTs that were used by previous matching ALCTs */
   bool drop_used_clcts;
 
-  /** SLHC: separate handle for early time bins */
+  /** Phase2: separate handle for early time bins */
   int early_tbins;
 
-  /** SLHC: whether to readout only the earliest two LCTs in readout window */
+  /** Phase2: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
 
-  /** if true: use regular CLCT-to-ALCT matching in TMB
-      if false: do ALCT-to-CLCT matching */
-  bool clct_to_alct;
+  // encode special bits for high-multiplicity triggers
+  unsigned showerSource_;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
   static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
   static const unsigned int def_match_trig_enable, def_match_trig_window_size;
   static const unsigned int def_tmb_l1a_window_size;
+
+  /* quality control */
+  std::unique_ptr<LCTQualityControl> qualityControl_;
 
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
@@ -137,9 +142,7 @@ protected:
   unsigned int encodePattern(const int clctPattern) const;
 
   // 4-bit LCT quality number.Made by TMB lookup tables and used for MPC sorting.
-  unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
-
-  enum LCT_Quality {
+  enum class LCT_Quality : unsigned int {
     INVALID = 0,
     NO_CLCT = 1,
     NO_ALCT = 2,
@@ -158,7 +161,21 @@ protected:
     HQ_PATTERN_10 = 15
   };
 
+  enum class LCT_QualityRun3 : unsigned int {
+    INVALID = 0,
+    LowQ = 1,
+    MedQ = 2,
+    HighQ = 3,
+  };
+
+  LCT_Quality findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
+
+  LCT_QualityRun3 findQualityRun3(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
+
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
+
+  /* encode high multiplicity bits for Run-3 exotic triggers */
+  void encodeHighMultiplicityBits();
 };
 #endif

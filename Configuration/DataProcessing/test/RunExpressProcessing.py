@@ -110,13 +110,13 @@ class RunExpressProcessing:
 
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
-        pklFile = open("RunExpressProcessingCfg.pkl", "w")
+        pklFile = open("RunExpressProcessingCfg.pkl", "wb")
         psetFile = open("RunExpressProcessingCfg.py", "w")
         try:
-            pickle.dump(process, pklFile)
+            pickle.dump(process, pklFile, protocol=0)
             psetFile.write("import FWCore.ParameterSet.Config as cms\n")
             psetFile.write("import pickle\n")
-            psetFile.write("handle = open('RunExpressProcessingCfg.pkl')\n")
+            psetFile.write("handle = open('RunExpressProcessingCfg.pkl','rb')\n")
             psetFile.write("process = pickle.load(handle)\n")
             psetFile.write("handle.close()\n")
             psetFile.close()

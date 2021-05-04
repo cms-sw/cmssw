@@ -1,17 +1,22 @@
-<use   name="Geometry/RPCGeometry"/>
-<use   name="Geometry/Records"/>
-<use   name="FWCore/Framework"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="RPCGeometryAnalyzer.cc" name="testGeometryRPCGeometry">
+<use name="Geometry/RPCGeometry"/>
+<use name="Geometry/Records"/>
+<use name="FWCore/Framework"/>
+<flags EDM_PLUGIN="1"/>
+<library file="RPCGeometryAnalyzer.cc" name="testGeometryRPCGeometry">
 </library>
-<library   file="RPCSectorAnalyzer.cc" name="testGeometryRPCSector">
+
+<library file="RPCSectorAnalyzer.cc" name="testGeometryRPCSector">
 </library>
-<library   file="RPCRadiiAnalyzer.cc" name="testGeometryRPCRadii">
+
+<library file="RPCRadiiAnalyzer.cc" name="testGeometryRPCRadii">
 </library>
-<library   file="RPCGEO.cc" name="testGeometryRPCGEO">
+
+<library file="RPCGEO.cc" name="testGeometryRPCGEO">
 </library>
-<library   file="RPCGEO2.cc" name="testGeometryRPCGEO2">
+
+<library file="RPCGEO2.cc" name="testGeometryRPCGEO2">
 </library>
-<library   file="RPCCSC.cc" name="testGeometryRPCCSC">
+
+<library file="RPCCSC.cc" name="testGeometryRPCCSC">
   <use name="Geometry/CSCGeometry"/>
 </library>

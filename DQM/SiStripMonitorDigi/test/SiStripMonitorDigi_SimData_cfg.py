@@ -34,16 +34,20 @@ process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_Sim
 process.load("DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('siStripDigis', 
-        'SiStripMonitorDigi'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('ERROR')
     ),
-    destinations = cms.untracked.vstring('cout')
+    debugModules = cms.untracked.vstring(
+        'siStripDigis', 
+        'SiStripMonitorDigi'
+    )
 )
 
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
 

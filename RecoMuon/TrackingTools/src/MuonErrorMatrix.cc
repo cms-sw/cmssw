@@ -428,19 +428,15 @@ double MuonErrorMatrix::Term(const AlgebraicSymMatrix55 &curv, int i, int j) {
   } else {
     double si = curv(i, i);
     double sj = curv(j, j);
-
     if (si <= 0 || sj <= 0) {
+      //check validity
       edm::LogError("MuonErrorMatrix") << "invalid term in the error matrix.\n si: " << si << " sj: " << sj
                                        << ". result will be corrupted\n"
                                        << curv;
       return 0;
     }
-
-    si = sqrt(si);
-    sj = sqrt(sj);
-    //check validity
-
-    return result = curv(i, j) / (si * sj);
+    result = curv(i, j) / sqrt(si * sj);
+    return result;
   }
   //by default
   return 0;

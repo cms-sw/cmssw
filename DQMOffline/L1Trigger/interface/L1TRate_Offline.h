@@ -6,9 +6,8 @@
 #include <unistd.h>
 
 // user include files
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -16,7 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DataFormats
@@ -28,9 +26,9 @@
 #include "DataFormats/Luminosity/interface/LumiDetails.h"  // Luminosity Information
 #include "DataFormats/Luminosity/interface/LumiSummary.h"  // Luminosity Information
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 
 #include <TString.h>
 
@@ -42,7 +40,7 @@
 // class declaration
 //
 
-class L1TRate_Offline : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class L1TRate_Offline : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   enum Errors { UNKNOWN = 1, WARNING_PY_MISSING_FIT = 2 };
 
@@ -56,7 +54,6 @@ protected:
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
   // Private methods
   //private:
@@ -119,6 +116,9 @@ private:
   // MonitorElement
   MonitorElement* m_ErrorMonitor;
 
+  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_menuToken;
+  const edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> m_l1GtPfAlgoToken;
+  L1TMenuHelper::Tokens m_helperTokens;
   L1GtUtils m_l1GtUtils;
 };
 

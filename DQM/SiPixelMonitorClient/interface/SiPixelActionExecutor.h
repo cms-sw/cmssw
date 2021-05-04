@@ -8,10 +8,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <fstream>
 #include <map>
 #include <string>
@@ -90,7 +86,6 @@ private:
                    std::vector<std::string> &me_names,
                    bool isbarrel,
                    bool isUpgrade);
-  void fillDeviations(DQMStore::IGetter &iGetter);
   void fillFEDErrorSummary(DQMStore::IBooker &iBooker,
                            DQMStore::IGetter &iGetter,
                            std::string dir_name,
@@ -113,7 +108,6 @@ private:
 
   SiPixelConfigParser *configParser_;
   SiPixelConfigWriter *configWriter_;
-  edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
 
   std::vector<std::string> summaryMENames;
   std::vector<std::string> tkMapMENames;

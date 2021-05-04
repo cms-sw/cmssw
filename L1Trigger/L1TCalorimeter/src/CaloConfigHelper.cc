@@ -10,7 +10,7 @@ namespace l1t {
   }
   CaloConfigHelper::CaloConfigHelper(const CaloConfig& db) : db_(&db) {}
   CaloConfigHelper::CaloConfigHelper() {
-    static CaloConfig db;
+    static const CaloConfig db;
     db_ = &db;
   }
 }  // namespace l1t

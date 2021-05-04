@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerESSourceImpl.h"
 
 #define MVA_COMPUTER_RECORD_DEFINE(T) \

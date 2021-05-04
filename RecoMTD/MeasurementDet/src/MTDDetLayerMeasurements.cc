@@ -35,7 +35,7 @@ MTDRecHitContainer MTDDetLayerMeasurements::recHits(const GeomDet* geomDet, cons
 
   // Create the ChamberId
   DetId detId(geoId.rawId());
-  LogDebug("Track|RecoMTD|MTDDetLayerMeasurements") << "(MTD): " << detId << std::endl;
+  LogDebug("Track|RecoMTD|MTDDetLayerMeasurements") << "(MTD): " << static_cast<MTDDetId>(detId) << std::endl;
 
   // Get the MTD-Segment which relies on this chamber
   //auto cmp = [](const unsigned one, const unsigned two) -> bool { return one < two; };
@@ -127,7 +127,7 @@ MeasurementContainer MTDDetLayerMeasurements::fastMeasurements(const DetLayer* l
                                                                const edm::Event& iEvent) {
   MeasurementContainer result;
   MTDRecHitContainer rhs = recHits(layer, iEvent);
-  for (MTDRecHitContainer::value_type irh : rhs) {
+  for (const MTDRecHitContainer::value_type& irh : rhs) {
     MeasurementEstimator::HitReturnType estimate = est.estimate(theStateOnDet, (*irh));
     if (estimate.first) {
       result.push_back(TrajectoryMeasurement(theStateOnDet, irh, estimate.second, layer));

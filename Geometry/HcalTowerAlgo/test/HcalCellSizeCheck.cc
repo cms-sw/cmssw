@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -22,18 +21,20 @@ public:
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
+
+private:
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
 };
 
-HcalCellSizeCheck::HcalCellSizeCheck(const edm::ParameterSet& iConfig) {}
+HcalCellSizeCheck::HcalCellSizeCheck(const edm::ParameterSet& iConfig) {
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>();
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+}
 
 void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> hDRCons;
-  iSetup.get<HcalRecNumberingRecord>().get(hDRCons);
-  const HcalDDDRecConstants hcons = (*hDRCons);
-
-  edm::ESHandle<HcalTopology> topologyHandle;
-  iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
-  const HcalTopology topology = (*topologyHandle);
+  const HcalDDDRecConstants hcons = iSetup.getData(tok_ddrec_);
+  const HcalTopology topology = iSetup.getData(tok_htopo_);
 
   HcalFlexiHardcodeGeometryLoader m_loader;
   CaloSubdetectorGeometry* geom = m_loader.load(topology, hcons);

@@ -1,11 +1,11 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Utilities"/>
-<use   name="RecoTracker/Record"/>
-<use   name="TrackingTools/DetLayers"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="boost"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="RecoTracker/Record"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="RecoTracker/TkDetLayers"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -31,7 +31,7 @@
 
 PrintMaterialBudgetInfo::PrintMaterialBudgetInfo(const edm::ParameterSet& p) {
   name = p.getUntrackedParameter<std::string>("Name", "*");
-  nchar = name.find("*");
+  nchar = name.find('*');
   name.assign(name, 0, nchar);
   std::cout << "PrintMaterialBudget selected volume " << name << std::endl;
   volumeFound = false;

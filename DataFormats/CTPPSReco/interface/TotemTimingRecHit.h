@@ -13,7 +13,7 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSTimingRecHit.h"
 
 /// Reconstructed hit in Totem UFSDetectors.
-/// \note t: time computed using algorithm getTimingAlgorithm()
+/// \note t: time computed using algorithm timingAlgorithm()
 class TotemTimingRecHit : public CTPPSTimingRecHit {
 public:
   enum TimingAlgorithm { NOT_SET, CFD, SMART, SIMPLE };
@@ -42,18 +42,18 @@ public:
         mode_(mode) {}
 
   inline void setSampicThresholdTime(float stt) { sampicThresholdTime_ = stt; }
-  inline float getSampicThresholdTime() const { return sampicThresholdTime_; }
+  inline float sampicThresholdTime() const { return sampicThresholdTime_; }
 
   inline void setTPrecision(float tPrecision) { tPrecision_ = tPrecision; }
-  inline float getTPrecision() const { return tPrecision_; }
+  inline float tPrecision() const { return tPrecision_; }
 
   inline void setAmplitude(float amplitude) { amplitude_ = amplitude; }
-  inline float getAmplitude() const { return amplitude_; }
+  inline float amplitude() const { return amplitude_; }
 
   inline void setBaselineRMS(float brms) { baselineRMS_ = brms; }
-  inline float getBaselineRMS() const { return baselineRMS_; }
+  inline float baselineRMS() const { return baselineRMS_; }
 
-  inline TimingAlgorithm getTimingAlgorithm() const { return mode_; }
+  inline TimingAlgorithm timingAlgorithm() const { return mode_; }
 
 private:
   float sampicThresholdTime_, tPrecision_;

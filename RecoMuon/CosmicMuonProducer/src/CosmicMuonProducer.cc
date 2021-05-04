@@ -14,6 +14,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -22,7 +23,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -55,9 +55,11 @@ CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig) {
 
   edm::ConsumesCollector iC = consumesCollector();
 
-  theService = new MuonServiceProxy(serviceParameters);
-  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar, theService, iC),
-                                       new MuonTrackLoader(trackLoaderParameters, iC, theService));
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
+  theTrackFinder =
+      std::make_unique<MuonTrackFinder>(std::make_unique<CosmicMuonTrajectoryBuilder>(tbpar, theService.get(), iC),
+                                        std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get()),
+                                        iC);
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -66,12 +68,7 @@ CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig) {
   produces<TrajTrackAssociationCollection>();
 }
 
-CosmicMuonProducer::~CosmicMuonProducer() {
-  if (theService)
-    delete theService;
-  if (theTrackFinder)
-    delete theTrackFinder;
-}
+CosmicMuonProducer::~CosmicMuonProducer() {}
 
 // ------------ method called to produce the data  ------------
 void CosmicMuonProducer::produce(Event& iEvent, const EventSetup& iSetup) {

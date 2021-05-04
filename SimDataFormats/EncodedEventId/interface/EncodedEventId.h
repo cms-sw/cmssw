@@ -2,8 +2,8 @@
 #define SimDataFormats_EncodedEventId_H 1
 
 #include <TMath.h>
-#include <boost/cstdint.hpp>  //INCLUDECHECKER:SKIP
 #include <ostream>
+#include <cstdint>
 
 /** \class EncodedEventId
 
@@ -28,7 +28,7 @@ public:
   }
   /// get the contents of the subdetector field (should be protected?)
   int event() const { return int(id_ & 0xFFFF); }
-  uint32_t operator()() { return id_; }
+  uint32_t operator()() const { return id_; }
   /// get the raw id
   uint32_t rawId() const { return id_; }
   /// equality

@@ -47,16 +47,11 @@ public:
 
 private:
   // ----------member data ---------------------------
-  edm::ESGetToken<SiPixelFEDChannelContainer, SiPixelStatusScenariosRcd> qualityToken_;
+  const edm::ESGetToken<SiPixelFEDChannelContainer, SiPixelStatusScenariosRcd> qualityToken_;
 };
 
-PixelFEDChannelCollectionProducer::PixelFEDChannelCollectionProducer(const edm::ParameterSet& iConfig) {
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setWhatProduced(this).setConsumes(qualityToken_);
-
-  //now do what ever other initialization is needed
-}
+PixelFEDChannelCollectionProducer::PixelFEDChannelCollectionProducer(const edm::ParameterSet& iConfig)
+    : qualityToken_(setWhatProduced(this).consumes()) {}
 
 PixelFEDChannelCollectionProducer::~PixelFEDChannelCollectionProducer() {
   // do anything here that needs to be done at destruction time

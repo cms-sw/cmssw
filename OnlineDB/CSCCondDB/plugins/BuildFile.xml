@@ -1,0 +1,5 @@
+<library file="*.cc" name="OnlineDBCSCCondDBPlugins">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="OnlineDB/CSCCondDB"/>
+</library>

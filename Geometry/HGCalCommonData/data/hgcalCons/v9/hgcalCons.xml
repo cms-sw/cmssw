@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="hgcalCons.xml" eval="true">
   <Constant name="MinimumTileSize"        value="10.0*mm"/>
@@ -20,7 +20,7 @@
 </ConstantsSection>
 
 <SpecParSection label="hgcalCons.xml" eval="true">
-  <SpecPar name="HGCalEE">
+  <SpecPar name="HGCalEESensitive">
     <PartSelector path="//HGCalEESensitive.*"/>    
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
@@ -33,6 +33,8 @@
     <Parameter name="FirstMixedLayer"     value="-1"/>
     <Parameter name="LayerOffset"         value="0"/>
     <Parameter name="DetectorType"        value="1"/>
+    <Parameter name="WaferMaskMode"       value="0"/>
+    <Parameter name="WaferZside"          value="-1"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
@@ -66,7 +68,7 @@
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal3]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal4]"/>
   </SpecPar>
-  <SpecPar name="HGCalHEsil">
+  <SpecPar name="HGCalHESiliconSensitive">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
@@ -78,6 +80,8 @@
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
     <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="LayerOffset"         value="28"/>
+    <Parameter name="WaferMaskMode"       value="0"/>
+    <Parameter name="WaferZside"          value="-1"/>
     <Parameter name="DetectorType"        value="2"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
@@ -112,7 +116,7 @@
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal3]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal4]"/>
   </SpecPar>
-  <SpecPar name="HGCalHEsci">
+  <SpecPar name="HGCalHEScintillatorSensitive">
     <PartSelector path="//HGCalHEScintillatorSensitive.*"/>
     <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Trapezoid" eval="false"/>
@@ -123,6 +127,8 @@
     <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="LayerOffset"         value="28"/>
     <Parameter name="DetectorType"        value="3"/>
+    <Parameter name="WaferMaskMode"       value="0"/>
+    <Parameter name="WaferZside"          value="1"/>
     <Parameter name="WaferThickness"      value="[hgcal:ScintillatorThickness]"/>
     <Parameter name="MinimumTileSize"     value="[MinimumTileSize]"/>
     <Parameter name="NPhiBinBH"           value="360"/>
@@ -150,7 +156,7 @@
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal3]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal4]"/>
   </SpecPar>
-  <SpecPar name="HGCalWafer">
+  <SpecPar name="HGCal">
     <PartSelector path="//HGCalEECell.*"/>
     <PartSelector path="//HGCalHECell.*"/>
     <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>

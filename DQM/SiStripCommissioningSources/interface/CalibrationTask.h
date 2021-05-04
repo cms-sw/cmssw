@@ -4,6 +4,8 @@
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
 #include <string>
 
+class SiStripPedestals;
+
 /**
    @class CalibrationTask
 */
@@ -14,7 +16,7 @@ public:
                   const sistrip::RunType&,
                   const char* filename,
                   uint32_t run,
-                  const edm::EventSetup& setup);
+                  const SiStripPedestals& pedestals);
   ~CalibrationTask() override;
   void setCurrentFolder(const std::string&);
 

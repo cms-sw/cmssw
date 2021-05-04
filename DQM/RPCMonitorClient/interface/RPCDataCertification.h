@@ -27,8 +27,10 @@ private:
 
   MonitorElement* CertMap_;
   MonitorElement* totalCertFraction;
-  MonitorElement* certWheelFractions[5];
-  MonitorElement* certDiskFractions[10];
+  constexpr static int kNWheels = 5;
+  MonitorElement* certWheelFractions[kNWheels];
+  constexpr static int kNDisks = 10;
+  MonitorElement* certDiskFractions[kNDisks];
   std::pair<int, int> FEDRange_;
   int numberOfDisks_;
   int NumberOfFeds_;

@@ -15,7 +15,7 @@
 template <class T, class D>
 class CaloGeometryEP : public edm::ESProducer {
 public:
-  using LoaderType = CaloGeometryLoader<T, D>;
+  using LoaderType = CaloGeometryLoader<T>;
   using PtrType = typename LoaderType::PtrType;
 
   CaloGeometryEP<T, D>(const edm::ParameterSet& ps) : applyAlignment_(ps.getParameter<bool>("applyAlignment")) {

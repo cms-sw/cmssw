@@ -6,11 +6,12 @@
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <sstream>
+#include <filesystem>
 #include <iomanip>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
+#include <sstream>
+
 #include <zlib.h>
+#include <boost/algorithm/string.hpp>
 
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
@@ -50,8 +51,8 @@ namespace evf {
   private:
     std::unique_ptr<Consumer> c_;
     std::string streamLabel_;
-    boost::filesystem::path openDatFilePath_;
-    boost::filesystem::path openDatChecksumFilePath_;
+    std::filesystem::path openDatFilePath_;
+    std::filesystem::path openDatChecksumFilePath_;
     jsoncollector::IntJ processed_;
     mutable jsoncollector::IntJ accepted_;
     jsoncollector::IntJ errorEvents_;
@@ -63,7 +64,7 @@ namespace evf {
     jsoncollector::StringJ transferDestination_;
     jsoncollector::StringJ mergeType_;
     jsoncollector::IntJ hltErrorEvents_;
-    boost::shared_ptr<jsoncollector::FastMonitor> jsonMonitor_;
+    std::shared_ptr<jsoncollector::FastMonitor> jsonMonitor_;
     evf::FastMonitoringService* fms_;
     jsoncollector::DataPointDefinition outJsonDef_;
     unsigned char* outBuf_ = nullptr;
@@ -157,7 +158,7 @@ namespace evf {
       std::string content;
       jsoncollector::JSONSerializer::serialize(&outJsonDef_, content);
       jsoncollector::FileIO::writeStringToFile(outTmpJsonDefName, content);
-      boost::filesystem::rename(outTmpJsonDefName, outJsonDefName);
+      std::filesystem::rename(outTmpJsonDefName, outJsonDefName);
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 
@@ -224,7 +225,7 @@ namespace evf {
           << " obtained:" << adler32c;
     } else {
       LogDebug("RecoEventOutputModuleForFU") << "Ini file checksum -: " << streamLabel_ << " " << adler32c;
-      boost::filesystem::rename(openIniFileName, edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
+      std::filesystem::rename(openIniFileName, edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
     }
   }
 
@@ -289,9 +290,8 @@ namespace evf {
       struct stat istat;
       stat(openDatFilePath_.string().c_str(), &istat);
       filesize = istat.st_size;
-      boost::filesystem::rename(
-          openDatFilePath_.string().c_str(),
-          edm::Service<evf::EvFDaqDirector>()->getDatFilePath(ls.luminosityBlock(), streamLabel_));
+      std::filesystem::rename(openDatFilePath_.string().c_str(),
+                              edm::Service<evf::EvFDaqDirector>()->getDatFilePath(ls.luminosityBlock(), streamLabel_));
     } else {
       filelist_ = "";
       fileAdler32_.value() = -1;

@@ -8,20 +8,13 @@
 //=============================================================================
 //*****************************************************************************
 
-//C++ includes
-#include <vector>
-#include <functional>
-
-//Root includes
-#include "TObjArray.h"
-
-//CMSSW includes
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
 
 #include <string>
+#include <vector>
 
 class ElectronTkIsolation {
 public:

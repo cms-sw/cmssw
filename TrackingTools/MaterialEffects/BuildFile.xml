@@ -1,12 +1,9 @@
-<use   name="ofast-flag"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Utilities"/>
-<use   name="MagneticField/Engine"/>
-<use   name="TrackingTools/GeomPropagators"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<use   name="TrackPropagation/RungeKutta"/>
-<use   name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="ofast-flag"/>
+<use name="FWCore/Utilities"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackPropagation/RungeKutta"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

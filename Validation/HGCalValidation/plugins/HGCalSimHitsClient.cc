@@ -7,14 +7,10 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -22,16 +18,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCalSimHitsClient : public DQMEDHarvester {
 private:
   //member data
-  std::string nameDetector_;
-  int nTimes_, verbosity_;
+  const std::string nameDetector_;
+  const int nTimes_, verbosity_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcal_;
   unsigned int layers_;
 
 public:
@@ -41,26 +36,19 @@ public:
   void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
   void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
   virtual void runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
-  int simHitsEndjob(const std::vector<MonitorElement *> &hcalMEs);
+  int simHitsEndjob(const std::vector<MonitorElement *> &hgcalMEs);
 };
 
 HGCalSimHitsClient::HGCalSimHitsClient(const edm::ParameterSet &iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
       nTimes_(iConfig.getParameter<int>("TimeSlices")),
-      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)) {}
+      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
+      tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})) {}
 
 void HGCalSimHitsClient::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
-  if (nameDetector_ == "HCal") {
-    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-    iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-    const HcalDDDRecConstants *hcons = &(*pHRNDC);
-    layers_ = hcons->getMaxDepth(1);
-  } else {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
-    const HGCalDDDConstants &hgcons = (*pHGDC);
-    layers_ = hgcons.layers(false);
-  }
+  const HGCalDDDConstants *hgcons = &iSetup.getData(tok_hgcal_);
+  layers_ = hgcons->layers(true);
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << "Initialize HGCalSimHitsClient for " << nameDetector_ << " : " << layers_;
 }

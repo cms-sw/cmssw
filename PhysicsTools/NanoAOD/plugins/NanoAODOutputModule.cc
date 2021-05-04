@@ -11,15 +11,17 @@
 //
 
 // system include files
-#include <string>
-#include "TFile.h"
-#include "TTree.h"
-#include "TROOT.h"
-#include "TObjString.h"
+#include <algorithm>
+#include <memory>
+
 #include "Compression.h"
+#include "TFile.h"
+#include "TObjString.h"
+#include "TROOT.h"
+#include "TTree.h"
+#include <string>
 
 // user include files
-#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
@@ -38,6 +40,7 @@
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
 #include "PhysicsTools/NanoAOD/plugins/TableOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/TriggerOutputBranches.h"
+#include "PhysicsTools/NanoAOD/plugins/EventStringOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/SummaryTableOutputBranches.h"
 
 #include <iostream>
@@ -118,8 +121,11 @@ private:
 
   std::vector<TableOutputBranches> m_tables;
   std::vector<TriggerOutputBranches> m_triggers;
+  bool m_triggers_areSorted = false;
+  std::vector<EventStringOutputBranches> m_evstrings;
 
   std::vector<SummaryTableOutputBranches> m_runTables;
+  std::vector<SummaryTableOutputBranches> m_lumiTables;
 
   std::vector<std::pair<std::string, edm::EDGetToken>> m_nanoMetadata;
 };
@@ -193,8 +199,21 @@ void NanoAODOutputModule::write(edm::EventForOutput const& iEvent) {
     for (auto& t : m_tables)
       t.fill(iEvent, *m_tree, extensions);
   }
+  if (!m_triggers_areSorted) {  // sort triggers/flags in inverse processHistory order, to save without any special label the most recent ones
+    std::vector<std::string> pnames;
+    for (auto& p : iEvent.processHistory())
+      pnames.push_back(p.processName());
+    std::sort(m_triggers.begin(), m_triggers.end(), [pnames](TriggerOutputBranches& a, TriggerOutputBranches& b) {
+      return ((std::find(pnames.begin(), pnames.end(), a.processName()) - pnames.begin()) >
+              (std::find(pnames.begin(), pnames.end(), b.processName()) - pnames.begin()));
+    });
+    m_triggers_areSorted = true;
+  }
   // fill triggers
   for (auto& t : m_triggers)
+    t.fill(iEvent, *m_tree);
+  // fill event branches
+  for (auto& t : m_evstrings)
     t.fill(iEvent, *m_tree);
   m_tree->Fill();
 
@@ -206,6 +225,10 @@ void NanoAODOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
   jr->reportLumiSection(m_jrToken, iLumi.id().run(), iLumi.id().value());
 
   m_commonLumiBranches.fill(iLumi.id());
+
+  for (auto& t : m_lumiTables)
+    t.fill(iLumi, *m_lumiTree);
+
   m_lumiTree->Fill();
 
   m_processHistoryRegistry.registerProcessHistory(iLumi.processHistory());
@@ -266,15 +289,32 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
   /* Setup file structure here */
   m_tables.clear();
   m_triggers.clear();
+  m_triggers_areSorted = false;
+  m_evstrings.clear();
   m_runTables.clear();
+  m_lumiTables.clear();
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InEvent]) {
     if (keep.first->className() == "nanoaod::FlatTable")
       m_tables.emplace_back(keep.first, keep.second);
     else if (keep.first->className() == "edm::TriggerResults") {
       m_triggers.emplace_back(keep.first, keep.second);
+    } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&
+               keep.first->productInstanceName() == "genModel") {  // friendlyClassName == "String"
+      m_evstrings.emplace_back(keep.first, keep.second, true);     // update only at lumiBlock transitions
     } else
       throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className());
+  }
+
+  for (const auto& keep : keeps[edm::InLumi]) {
+    if (keep.first->className() == "nanoaod::MergeableCounterTable")
+      m_lumiTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
+    else if (keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
+      m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
+    else
+      throw cms::Exception(
+          "Configuration",
+          "NanoAODOutputModule cannot handle class " + keep.first->className() + " in LuminosityBlock branch");
   }
 
   for (const auto& keep : keeps[edm::InRun]) {
@@ -288,23 +328,23 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
   }
 
   // create the trees
-  m_tree.reset(new TTree("Events", "Events"));
+  m_tree = std::make_unique<TTree>("Events", "Events");
   m_tree->SetAutoSave(0);
   m_tree->SetAutoFlush(0);
   m_commonBranches.branch(*m_tree);
 
-  m_lumiTree.reset(new TTree("LuminosityBlocks", "LuminosityBlocks"));
+  m_lumiTree = std::make_unique<TTree>("LuminosityBlocks", "LuminosityBlocks");
   m_lumiTree->SetAutoSave(0);
   m_commonLumiBranches.branch(*m_lumiTree);
 
-  m_runTree.reset(new TTree("Runs", "Runs"));
+  m_runTree = std::make_unique<TTree>("Runs", "Runs");
   m_runTree->SetAutoSave(0);
   m_commonRunBranches.branch(*m_runTree);
 
   if (m_writeProvenance) {
-    m_metaDataTree.reset(new TTree(edm::poolNames::metaDataTreeName().c_str(), "Job metadata"));
+    m_metaDataTree = std::make_unique<TTree>(edm::poolNames::metaDataTreeName().c_str(), "Job metadata");
     m_metaDataTree->SetAutoSave(0);
-    m_parameterSetsTree.reset(new TTree(edm::poolNames::parameterSetsTreeName().c_str(), "Parameter sets"));
+    m_parameterSetsTree = std::make_unique<TTree>(edm::poolNames::parameterSetsTreeName().c_str(), "Parameter sets");
     m_parameterSetsTree->SetAutoSave(0);
   }
 }
@@ -353,9 +393,10 @@ void NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
   const std::vector<std::string> keep = {"drop *",
                                          "keep nanoaodFlatTable_*Table_*_*",
                                          "keep edmTriggerResults_*_*_*",
+                                         "keep String_*_genModel_*",
                                          "keep nanoaodMergeableCounterTable_*Table_*_*",
                                          "keep nanoaodUniqueString_nanoMetadata_*_*"};
-  edm::OutputModule::fillDescription(desc, keep);
+  edm::one::OutputModule<>::fillDescription(desc, keep);
 
   //Used by Workflow management for their own meta data
   edm::ParameterSetDescription dataSet;

@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "CalibMuon/CSCCalibration/interface/CSCIndexerBase.h"
 #include "CalibMuon/CSCCalibration/interface/CSCIndexerRecord.h"
@@ -33,7 +34,10 @@ public:
         dashedLine_(std::string(dashedLineWidth_, '-')),
         myName_("CSCRecoBadChannelsAnalyzer"),
         readBadChannels_(ps.getParameter<bool>("readBadChannels")),
-        recoConditions_(new CSCRecoConditions(ps)) {}
+        recoConditions_(new CSCRecoConditions(ps, consumesCollector())),
+        indexerToken_(esConsumes<CSCIndexerBase, CSCIndexerRecord>()),
+        mapperToken_(esConsumes<CSCChannelMapperBase, CSCChannelMapperRecord>()),
+        geometryToken_(esConsumes<CSCGeometry, MuonGeometryRecord>()) {}
 
   ~CSCRecoBadChannelsAnalyzer() override { delete recoConditions_; }
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
@@ -49,6 +53,9 @@ private:
 
   bool readBadChannels_;
   CSCRecoConditions* recoConditions_;
+  edm::ESGetToken<CSCIndexerBase, CSCIndexerRecord> indexerToken_;
+  edm::ESGetToken<CSCChannelMapperBase, CSCChannelMapperRecord> mapperToken_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geometryToken_;
 };
 
 void CSCRecoBadChannelsAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& evsetup) {
@@ -60,19 +67,16 @@ void CSCRecoBadChannelsAnalyzer::analyze(const edm::Event& ev, const edm::EventS
   edm::LogVerbatim("CSCBadChannels") << "RUN# " << ev.id().run();
   edm::LogVerbatim("CSCBadChannels") << "EVENT# " << ev.id().event();
 
-  edm::ESHandle<CSCIndexerBase> theIndexer;
-  evsetup.get<CSCIndexerRecord>().get(theIndexer);
+  edm::ESHandle<CSCIndexerBase> theIndexer = evsetup.getHandle(indexerToken_);
 
   edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze sees indexer " << theIndexer->name()
                                      << " in Event Setup";
 
-  edm::ESHandle<CSCChannelMapperBase> theMapper;
-  evsetup.get<CSCChannelMapperRecord>().get(theMapper);
+  edm::ESHandle<CSCChannelMapperBase> theMapper = evsetup.getHandle(mapperToken_);
 
   edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze sees mapper " << theMapper->name() << " in Event Setup";
 
-  edm::ESHandle<CSCGeometry> theGeometry;
-  evsetup.get<MuonGeometryRecord>().get(theGeometry);
+  edm::ESHandle<CSCGeometry> theGeometry = evsetup.getHandle(geometryToken_);
 
   edm::LogVerbatim("CSCBadChannels") << " Geometry node for CSCGeom is  " << &(*theGeometry);
   edm::LogVerbatim("CSCBadChannels") << " There are " << theGeometry->dets().size() << " dets";

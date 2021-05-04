@@ -261,15 +261,17 @@ void TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID,
   // Save the random numbers for the last event
   // This string gets overwritten on each event
   // and printed at endStream
-  std::ostringstream ss;
-  ss << moduleDescription().moduleLabel() << " ";
-  ss << engine.name() << " ";
-  ss << "Last event random numbers ";
-  ss << randomNumberEvent0_ << " ";
-  ss << randomNumberEvent1_ << " ";
-  ss << randomNumberEvent2_ << " ";
-  ss << randomNumberEvent3_ << "\n";
-  cache->lastEventRandomNumbers_ = ss.str();
+  {
+    std::ostringstream ss;
+    ss << moduleDescription().moduleLabel() << " ";
+    ss << engine.name() << " ";
+    ss << "Last event random numbers ";
+    ss << randomNumberEvent0_ << " ";
+    ss << randomNumberEvent1_ << " ";
+    ss << randomNumberEvent2_ << " ";
+    ss << randomNumberEvent3_ << "\n";
+    cache->lastEventRandomNumbers_ = ss.str();
+  }
 
   // Print the numbers to a file for each event
   if (nStreams_ > 1) {
@@ -375,6 +377,8 @@ std::shared_ptr<TestRandomNumberServiceLumiCache> TestRandomNumberServiceGlobal:
 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine& engine = rng->getEngine(lumi.index());
+  std::unique_ptr<CLHEP::HepRandomEngine> engineClone = rng->cloneEngine(lumi.index());
+
   double x1 = engine.flat();
   double x2 = engine.flat();
 
@@ -385,6 +389,14 @@ std::shared_ptr<TestRandomNumberServiceLumiCache> TestRandomNumberServiceGlobal:
         << lumiCache->referenceEngine_->name() << " seed0= " << seed0 << " nStream= " << nStreams_;
   }
 
+  double z1 = engineClone->flat();
+  double z2 = engineClone->flat();
+  if (x1 != z1 || x2 != z2 || engine.getSeed() != engineClone->getSeed()) {
+    throw cms::Exception("TestRandomNumberService")
+        << "TestRandomNumberServiceGlobal::globalBeginLuminosityBlock:  test of cloned engine failed "
+        << " x1= " << x1 << " z1= " << z1 << " x2= " << x2 << " z2= " << z2 << " " << engine.name() << " "
+        << engineClone->name() << " seed0= " << seed0 << " nStream= " << nStreams_;
+  }
   return lumiCache;
 }
 

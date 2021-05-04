@@ -26,15 +26,14 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         HGCSim = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-    ),
-    categories = cms.untracked.vstring('HGCSim'),
-    destinations = cms.untracked.vstring('cout','cerr')
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 # Input source
@@ -95,6 +94,8 @@ process.VtxSmeared.MeanZ = -3600.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalTBAnalyzer.doDigis = False
 process.HGCalTBAnalyzer.doRecHits = False
+process.g4SimHits.StackingAction.TrackNeutrino = True
+
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

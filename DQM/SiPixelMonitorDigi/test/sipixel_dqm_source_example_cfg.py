@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SiPixelMonitorDigiProcess")
 ##----## Geometry and other global parameters:
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")

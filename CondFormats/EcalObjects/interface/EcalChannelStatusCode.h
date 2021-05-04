@@ -8,7 +8,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 /**
    

@@ -191,7 +191,7 @@ void RawToDigiConverter::run(const VFATFrameCollection &input,
     // calculate ids
     TotemRPDetId chipId(record.info->symbolicID.symbolicID);
     uint8_t chipPosition = chipId.chip();
-    TotemRPDetId detId = chipId.getPlaneId();
+    TotemRPDetId detId = chipId.planeId();
 
     // update chipPosition in status
     record.status.setChipPosition(chipPosition);
@@ -220,7 +220,7 @@ void RawToDigiConverter::run(const VFATFrameCollection &input,
         // skip masked channels
         if (!anMa.fullMask && anMa.maskedChannels.find(ch) == anMa.maskedChannels.end()) {
           DetSet<TotemRPDigi> &digiDetSet = rpData.find_or_insert(detId);
-          digiDetSet.push_back(TotemRPDigi(offset + ch));
+          digiDetSet.emplace_back(offset + ch);
         }
       }
     }

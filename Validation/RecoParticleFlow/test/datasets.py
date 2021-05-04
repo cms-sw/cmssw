@@ -28,16 +28,16 @@ LOG_MODULE_NAME = logging.getLogger(__name__)
 class Dataset:
 
     """Datatype that represents a DAS dataset
-    
+
     Attributes:
         global_file_prefix (string): The ROOT TFile prefix that allows to open an LFN (/store/...)
         name (string): The DAS name of the dataset
         process (string): The nickname for the physics process that this dataset belongs to
     """
-    
+
     def __init__(self, name, process, global_file_prefix, cache_location, use_cache, tmpdir):
         """Summary
-        
+
         Args:
             name (string): The DAS name of the dataset
             process (string): The nickname for the physics process that this dataset belongs to
@@ -56,7 +56,7 @@ class Dataset:
 
     def __repr__(self):
         """
-        
+
         Returns:
             string: The string representation of the Dataset
         """
@@ -65,7 +65,7 @@ class Dataset:
 
     def escape_name(self):
         """Removes any slashes and other characters from the name such that it can be used as a filename
-        
+
         Returns:
             string: The DAS name usable as a filename
         """
@@ -76,19 +76,20 @@ class Dataset:
 
     def get_das_cache_filename(self):
         """Summary
-        
+
         Returns:
             TYPE: Description
         """
+
         return os.path.join(self.tmpdir, "das_cache", self.process + ".txt")
         #return os.path.join(self.tmpdir, "das_cache", self.process + ".txt", self.escape_name() + ".txt")
-    
+
     def get_filenames(self):
         """Summary
-        
+
         Args:
             njob (TYPE): Description
-        
+
         Returns:
             TYPE: Description
         """
@@ -96,27 +97,27 @@ class Dataset:
         with open(self.get_das_cache_filename(), "r") as fi:
             ret = [self.global_file_prefix + li.strip() for li in fi.readlines()]
         return ret
- 
+
     def cache_das_filenames(self):
         """Summary
-        
+
         Returns:
             TYPE: Description
         """
         LOG_MODULE_NAME.info("caching dataset {0}".format(self.name))
-        ret = subprocess.check_output('dasgoclient -dasmaps /tmp --query="file dataset={0}" --limit=0'.format(self.name), shell=True)
+        ret = subprocess.check_output('dasgoclient --query="file dataset={0}" --limit=0'.format(self.name), shell=True)
 
         target_dir = os.path.dirname(self.get_das_cache_filename())
         if not os.path.exists(target_dir):
             os.makedirs(target_dir)
-        
+
         nfiles = 0
         with open(self.get_das_cache_filename(), "w") as fi:
             for line in ret.split("\n"):
                 if line.endswith(".root"):
                     fi.write(self.global_file_prefix + line + "\n")
                     nfiles += 1
-        
+
         LOG_MODULE_NAME.info("retrieved {0} files from DAS".format(nfiles))
 
         return
@@ -128,12 +129,11 @@ if __name__ == "__main__":
     #prefix = "root://xrootd-cms.infn.it//"
     tmpdir = "tmp"
     datasets = [
-        Dataset("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1/GEN-SIM-DIGI-RAW", "QCD_noPU", prefix, None, False, tmpdir),
-        Dataset("/RelValQCD_FlatPt_15_3000HS_13/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/GEN-SIM-DIGI-RAW", "QCD_PU", prefix, None, False, tmpdir),
-        Dataset("/RelValZMM_13/CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1/GEN-SIM-DIGI-RAW", "ZMM", prefix, None, False, tmpdir),
-        Dataset("/RelValMinBias_13/CMSSW_10_6_0-106X_upgrade2018_design_v3-v1/GEN-SIM-DIGI-RAW", "MinBias", prefix, None, False, tmpdir),
-        Dataset("/RelValNuGun/CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1/GEN-SIM-DIGI-RAW", "NuGun_PU", prefix, None, False, tmpdir)
-    ]
-    
+        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_3_0_pre1-113X_mcRun3_2021_realistic_v1-v3/GEN-SIM-DIGI-RAW", "QCD_noPU", prefix, None, False, tmpdir),
+        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "QCD_PU", prefix, None, False, tmpdir),
+        Dataset("/RelValZEE_14/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZEE_PU", prefix, None, False, tmpdir),
+        Dataset("/RelValZMM_14/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZMM_PU", prefix, None, False, tmpdir),
+        Dataset("/RelValTenTau_15_500/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "TenTau_PU", prefix, None, False, tmpdir),
+        Dataset("/RelValNuGun/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "NuGun_PU", prefix, None, False, tmpdir)]
     for ds in datasets:
         ds.cache_das_filenames()

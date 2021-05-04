@@ -7,6 +7,7 @@
 #include "RecoMuon/TrackerSeedGenerator/plugins/TSGForOIFromL2.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <memory>
 
@@ -347,7 +348,7 @@ void TSGForOIFromL2::makeSeedsWithoutHits(const GeometricSearchDet& layer,
       dets.front().second.rescaleError(errorSF);
       PTrajectoryStateOnDet const& ptsod =
           trajectoryStateTransform::persistentState(tsosOnLayer, detOnLayer->geographicalId().rawId());
-      TrajectorySeed::recHitContainer rHC;
+      TrajectorySeed::RecHitContainer rHC;
       out.push_back(TrajectorySeed(ptsod, rHC, oppositeToMomentum));
       LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsWithoutHits: TSOS (Hitless) done " << std::endl;
       hitlessSeedsMade++;
@@ -416,9 +417,9 @@ void TSGForOIFromL2::makeSeedsFromHits(const GeometricSearchDet& layer,
     seedHits.push_back(*it->recHit()->hit());
     PTrajectoryStateOnDet const& pstate =
         trajectoryStateTransform::persistentState(updatedTSOS, it->recHit()->geographicalId().rawId());
-    TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
     LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: Number of seedHits: " << seedHits.size()
                                << std::endl;
+    TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
     out.push_back(seed);
     found++;
     numSeedsMade++;

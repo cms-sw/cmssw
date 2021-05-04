@@ -27,9 +27,6 @@
 
 #include <vector>
 
-using namespace std;
-using namespace reco;
-
 class HLTMuonTrackSelector : public edm::global::EDProducer<> {
 public:
   explicit HLTMuonTrackSelector(const edm::ParameterSet &);
@@ -45,7 +42,7 @@ private:
   TrackCollectionCloner collectionCloner;
   const TrackCollectionCloner::Tokens collectionClonerTokens;
 
-  const edm::EDGetTokenT<vector<reco::Muon> > token_muon;
+  const edm::EDGetTokenT<std::vector<reco::Muon> > token_muon;
   const edm::EDGetTokenT<MVACollection> token_originalMVAVals;
   const bool flag_copyMVA;
 };

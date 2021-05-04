@@ -1,7 +1,8 @@
-<use   name="boost"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ParameterSetReader"/>
-<bin   file="edmConfigHash.cpp">
+<use name="boost"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ParameterSetReader"/>
+<bin file="edmConfigHash.cpp">
 </bin>
-<bin   file="edmParameterSetDump.cpp">
+
+<bin file="edmParameterSetDump.cpp">
 </bin>

@@ -15,12 +15,14 @@
 // C++ headers
 #include <vector>
 #include <string>
+#include <optional>
 
 // CMSSW headers
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
@@ -29,16 +31,17 @@ namespace edm {
   class ConfigurationDescriptions;
   class TriggerResults;
 }  // namespace edm
+
+class AlCaRecoTriggerBits;
 class AlCaRecoTriggerBitsRcd;
 
 //
 // class declaration
 //
 
-class HLTHighLevel : public edm::EDFilter {
+class HLTHighLevel : public edm::stream::EDFilter<> {
 public:
   explicit HLTHighLevel(const edm::ParameterSet &);
-  ~HLTHighLevel() override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   bool filter(edm::Event &, const edm::EventSetup &) override;
@@ -75,7 +78,9 @@ private:
   /// not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
   const std::string eventSetupPathsKey_;
   /// Watcher to be created and used if 'eventSetupPathsKey_' non empty:
-  edm::ESWatcher<AlCaRecoTriggerBitsRcd> *watchAlCaRecoTriggerBitsRcd_;
+  std::optional<edm::ESWatcher<AlCaRecoTriggerBitsRcd>> watchAlCaRecoTriggerBitsRcd_;
+  /// ESGetToken to read AlCaRecoTriggerBits
+  edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> alcaRecotriggerBitsToken_;
 
   /// input patterns that will be expanded into trigger names
   std::vector<std::string> HLTPatterns_;

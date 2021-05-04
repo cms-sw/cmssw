@@ -1,20 +1,7 @@
-/**
- * Monte Carlo studies for cathode LCTs.
- *
- * Slava Valuev  May 26, 2004
- * Porting from ORCA by S. Valuev in September 2006.
- *
- *
- */
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/OffsetRadialStripTopology.h"
-
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/plugins/CSCCathodeLCTAnalyzer.h"
 
 using namespace std;
@@ -66,9 +53,9 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(const CSCCLCTDigi& c
   // The list of ComparatorDigis is stored in a class called CSCLayerInfo which
   // contains the layerId's of the stored ComparatorDigis as well as the actual
   // digis themselves.
-  int hfstripDigis[CSCConstants::NUM_HALF_STRIPS];
-  int time[CSCConstants::MAX_NUM_STRIPS], comp[CSCConstants::MAX_NUM_STRIPS];
-  int digiNum[CSCConstants::MAX_NUM_STRIPS];
+  int hfstripDigis[CSCConstants::MAX_NUM_HALF_STRIPS_RUN1_TRIGGER];
+  int time[CSCConstants::MAX_NUM_STRIPS_RUN1], comp[CSCConstants::MAX_NUM_STRIPS_RUN1];
+  int digiNum[CSCConstants::MAX_NUM_STRIPS_RUN1];
   int digiId = -999;
   CSCCathodeLayerInfo tempInfo;
   vector<CSCCathodeLayerInfo> vectInfo;
@@ -104,10 +91,10 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(const CSCCLCTDigi& c
     // @ Switch to maps eventually
     vector<CSCComparatorDigi> digiMap;
     int digi_num = 0;
-    for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS; i_hstrip++) {
+    for (int i_hstrip = 0; i_hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN1_TRIGGER; i_hstrip++) {
       hfstripDigis[i_hstrip] = -999;
     }
-    for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
+    for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS_RUN1; i_strip++) {
       time[i_strip] = -999;
       comp[i_strip] = 0;
       digiNum[i_strip] = -999;
@@ -133,22 +120,22 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(const CSCCLCTDigi& c
     }
 
     // Loop over all the strips in a pattern.
-    int max_pattern_strips, layer, strip;
-    max_pattern_strips = CSCConstants::MAX_HALFSTRIPS_IN_PATTERN;
-    for (int i_strip = 0; i_strip < max_pattern_strips; i_strip++) {
-      layer = CSCCathodeLCTProcessor::pattern2007[clct_pattern][i_strip];
-      if (layer == i_layer) {
-        strip = clct_keystrip + key_stagger + CSCCathodeLCTProcessor::pattern2007_offset[i_strip];
-        if (strip >= 0 && strip < CSCConstants::NUM_HALF_STRIPS) {
+    // FIXME !!!
+    int strip;
+    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+      for (int i_strip = 0; i_strip < CSCConstants::CLCT_PATTERN_WIDTH; i_strip++) {
+        strip = clct_keystrip + key_stagger + CSCPatternBank::clct_pattern_offset_[i_strip];
+        if (strip >= 0 && strip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN1_TRIGGER) {
           digiId = hfstripDigis[strip];
           // halfstripDigis contains the digi numbers
           // that were carried through the different transformations
-          // to keystrip. -999 means there was no Digi.
+          // to keystrip. 0 means there was no Digi.
           if (digiId >= 0) {
             tempInfo.setId(layerId);                 // store the layer of this object
             tempInfo.addComponent(digiMap[digiId]);  // and the RecDigi
-            if (debug)
+            if (debug) {
               LogTrace("lctDigis") << " Digi on CLCT: strip/comp/time " << digiMap[digiId];
+            }
           }
         }
       }
@@ -166,10 +153,10 @@ int CSCCathodeLCTAnalyzer::preselectDigis(const int clct_bx,
                                           const CSCDetId& layerId,
                                           const CSCComparatorDigiCollection* compdc,
                                           vector<CSCComparatorDigi>& digiMap,
-                                          int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],
-                                          int time[CSCConstants::MAX_NUM_STRIPS],
-                                          int comp[CSCConstants::MAX_NUM_STRIPS],
-                                          int digiNum[CSCConstants::MAX_NUM_STRIPS]) {
+                                          int hfstripDigis[CSCConstants::MAX_NUM_HALF_STRIPS_RUN1_TRIGGER],
+                                          int time[CSCConstants::MAX_NUM_STRIPS_RUN1],
+                                          int comp[CSCConstants::MAX_NUM_STRIPS_RUN1],
+                                          int digiNum[CSCConstants::MAX_NUM_STRIPS_RUN1]) {
   // Preselection of Digis: right layer and bx.
   int digi_num = 0;
 
@@ -379,9 +366,9 @@ int CSCCathodeLCTAnalyzer::nearestHS(const vector<CSCCathodeLayerInfo>& allLayer
     // Should be in the interval [0-MAX_STRIPS).  I see (rarely) cases when
     // strip = nearestStrip = MAX_STRIPS; do not know how to handle them.
     int nearestStrip = static_cast<int>(strip);
-    if (nearestStrip < 0 || nearestStrip >= CSCConstants::MAX_NUM_STRIPS) {
+    if (nearestStrip < 0 || nearestStrip >= CSCConstants::MAX_NUM_STRIPS_RUN1) {
       edm::LogWarning("L1CSCTPEmulatorWrongInput")
-          << "+++ Warning: nearest strip, " << nearestStrip << ", is not in [0-" << CSCConstants::MAX_NUM_STRIPS
+          << "+++ Warning: nearest strip, " << nearestStrip << ", is not in [0-" << CSCConstants::MAX_NUM_STRIPS_RUN1
           << ") interval; strip = " << strip << " +++\n";
     }
     // Left/right half of the strip.
@@ -413,9 +400,9 @@ void CSCCathodeLCTAnalyzer::setGeometry(const CSCGeometry* geom) { geom_ = geom;
 
 double CSCCathodeLCTAnalyzer::getStripPhi(const CSCDetId& layerId, const float strip) {
   // Returns phi position of a given strip.
-  if (strip < 0. || strip >= CSCConstants::MAX_NUM_STRIPS) {
-    edm::LogWarning("L1CSCTPEmulatorWrongInput")
-        << "+++ Warning: strip, " << strip << ", is not in [0-" << CSCConstants::MAX_NUM_STRIPS << ") interval +++\n";
+  if (strip < 0. || strip >= CSCConstants::MAX_NUM_STRIPS_RUN1) {
+    edm::LogWarning("L1CSCTPEmulatorWrongInput") << "+++ Warning: strip, " << strip << ", is not in [0-"
+                                                 << CSCConstants::MAX_NUM_STRIPS_RUN1 << ") interval +++\n";
   }
 
   const CSCLayer* csclayer = geom_->layer(layerId);

@@ -2,6 +2,7 @@
 #define RecoLocalCalo_HGCalRecProducers_HGCalClusteringAlgoBase_h
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -48,7 +49,8 @@ class HGCalClusteringAlgoBase {
 public:
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 
-  HGCalClusteringAlgoBase(VerbosityLevel v, reco::CaloCluster::AlgoId algo) : verbosity_(v), algoId_(algo){};
+  HGCalClusteringAlgoBase(VerbosityLevel v, reco::CaloCluster::AlgoId algo, edm::ConsumesCollector iC)
+      : verbosity_(v), algoId_(algo), caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
   virtual ~HGCalClusteringAlgoBase() {}
 
   virtual void populate(const HGCRecHitCollection &hits) = 0;
@@ -59,16 +61,20 @@ public:
   virtual void getEventSetupPerAlgorithm(const edm::EventSetup &es) {}
 
   inline void getEventSetup(const edm::EventSetup &es) {
-    rhtools_.getEventSetup(es);
-    maxlayer_ = rhtools_.lastLayerBH();
-    lastLayerEE_ = rhtools_.lastLayerEE();
+    edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
+    rhtools_.setGeometry(*geom);
+    maxlayer_ = rhtools_.lastLayer(isNose_);
+    lastLayerEE_ = rhtools_.lastLayerEE(isNose_);
     lastLayerFH_ = rhtools_.lastLayerFH();
     firstLayerBH_ = rhtools_.firstLayerBH();
     scintMaxIphi_ = rhtools_.getScintMaxIphi();
     getEventSetupPerAlgorithm(es);
   }
   inline void setVerbosity(VerbosityLevel the_verbosity) { verbosity_ = the_verbosity; }
-  inline void setAlgoId(reco::CaloCluster::AlgoId algo) { algoId_ = algo; }
+  inline void setAlgoId(reco::CaloCluster::AlgoId algo, bool isNose = false) {
+    algoId_ = algo;
+    isNose_ = isNose;
+  }
 
   //max number of layers
   unsigned int maxlayer_;
@@ -77,6 +83,7 @@ public:
   unsigned int lastLayerFH_;
   unsigned int firstLayerBH_;
   int scintMaxIphi_;
+  bool isNose_;
 
 protected:
   // The verbosity level
@@ -89,6 +96,8 @@ protected:
 
   // The algo id
   reco::CaloCluster::AlgoId algoId_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 };
 
 #endif

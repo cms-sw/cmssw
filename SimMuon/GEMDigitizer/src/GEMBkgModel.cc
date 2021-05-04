@@ -1,6 +1,6 @@
 #include "SimMuon/GEMDigitizer/interface/GEMBkgModel.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CommonTopologies/interface/GEMStripTopology.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -50,7 +50,7 @@ void GEMBkgModel::simulate(const GEMEtaPartition* roll,
   if (gemId.region() == 0) {
     throw cms::Exception("Geometry") << "GEMBkgModel::simulate() - this GEM id is from barrel, which cannot happen.";
   }
-  const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  const GEMStripTopology* top_(dynamic_cast<const GEMStripTopology*>(&(roll->topology())));
   const float striplength(top_->stripLength());
   trStripArea = (roll->pitch()) * striplength;
   trArea = trStripArea * nstrips;

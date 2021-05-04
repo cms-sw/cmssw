@@ -1,10 +1,12 @@
-#include <cuda_runtime.h>
-#include <cuda.h>
-
+#include <cassert>
 #include <iostream>
-#include <assert.h>
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 __global__ void test_gen_detid(DetId *id) {
   DetId did;
@@ -63,17 +65,13 @@ void test_hcal_detid() {
 }
 
 int main(int argc, char **argv) {
-  int nDevices;
-  cudaGetDeviceCount(&nDevices);
-  std::cout << "nDevices = " << nDevices << std::endl;
+  cms::cudatest::requireDevices();
 
   // test det id functionality
-  if (nDevices > 0)
-    test_detid();
+  test_detid();
 
   // test hcal det ids
-  if (nDevices > 0)
-    test_hcal_detid();
+  test_hcal_detid();
 
   return 0;
 }

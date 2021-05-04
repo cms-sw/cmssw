@@ -280,7 +280,7 @@ namespace edm {
     if (numberOfEvents() == 0 || !unsortedEventNumbers().empty()) {
       return;
     }
-    unsortedEventNumbers().reserve(numberOfEvents());
+    unsortedEventNumbersMutable().reserve(numberOfEvents());
 
     // The main purpose for the existence of the unsortedEventNumbers
     // vector is that it can easily be filled by reading through
@@ -289,21 +289,21 @@ namespace edm {
     // instead of using getEventNumberOfEntry directly and reading
     // the branch in a different order.
     for (std::vector<EventNumber_t>::size_type entry = 0U; entry < numberOfEvents(); ++entry) {
-      unsortedEventNumbers().push_back(getEventNumberOfEntry(entry));
+      unsortedEventNumbersMutable().push_back(getEventNumberOfEntry(entry));
     }
   }
 
   // We are closing the input file, but we need to keep event numbers.
   // We can delete the other transient collections by using the swap trick.
 
-  void IndexIntoFile::inputFileClosed() const {
+  void IndexIntoFile::inputFileClosed() {
     std::vector<EventEntry>().swap(eventEntries());
     std::vector<RunOrLumiIndexes>().swap(runOrLumiIndexes());
     std::vector<EventNumber_t>().swap(unsortedEventNumbers());
     resetEventFinder();
   }
 
-  void IndexIntoFile::doneFileInitialization() const { std::vector<EventNumber_t>().swap(unsortedEventNumbers()); }
+  void IndexIntoFile::doneFileInitialization() { std::vector<EventNumber_t>().swap(unsortedEventNumbers()); }
 
   void IndexIntoFile::reduceProcessHistoryIDs(ProcessHistoryRegistry const& processHistoryRegistry) {
     std::vector<ProcessHistoryID> reducedPHIDs;

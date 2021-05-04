@@ -1,3 +1,3 @@
-from Geometry.EcalAlgo.EcalEndcapGeometry_cfi import *
-from Geometry.EcalAlgo.EcalPreshowerGeometry_cfi import *
-from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
+from Geometry.EcalAlgo.EcalEndcapGeometry_cfi import EcalEndcapGeometryEP
+from Geometry.EcalAlgo.EcalPreshowerGeometry_cfi import EcalPreshowerGeometryEP
+from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import EcalBarrelGeometryEP

@@ -32,7 +32,7 @@
 #include "DataFormats/PatCandidates/interface/Conversion.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include <vector>

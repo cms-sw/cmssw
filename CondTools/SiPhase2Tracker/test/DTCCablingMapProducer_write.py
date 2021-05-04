@@ -30,13 +30,17 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.otdtccablingmap_producer = cms.EDAnalyzer("DTCCablingMapProducer",
     record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
-    generate_fake_valid_gbtlink_and_elinkid = cms.bool(True),
+    #dummy_fill_mode = cms.string("DUMMY_FILL_DISABLED"),
+    #dummy_fill_mode = cms.string("DUMMY_FILL_ELINK_ID"),
     modulesToDTCCablingCSVFileNames = cms.vstring(
-      "CondTools/SiPhase2Tracker/data/TrackerModuleToDTCCablingMap__OT616_200_IT613__T14__OTOnly.csv"
+      "CondTools/SiPhase2Tracker/TrackerDetToDTCELinkCablingMap__OT614_200_IT404_layer2_10G__T6__OTOnly.csv"
     ),
-    csvFormat_ncolumns = cms.uint32( 2),
-    csvFormat_idetid   = cms.uint32( 0),
-    csvFormat_idtcid   = cms.uint32( 1),
+    dummy_fill_mode = cms.string("DUMMY_FILL_ELINK_ID_AND_GBT_ID"),
+    csvFormat_ncolumns   = cms.uint32( 2),
+    csvFormat_idetid     = cms.uint32( 0),
+    csvFormat_idtcid     = cms.uint32( 1),
+    csvFormat_igbtlinkid = cms.uint32( 1),
+    csvFormat_ielinkid   = cms.uint32( 1),
     verbosity = cms.int32(0),
     #loggingOn= cms.untracked.bool(True),
     #SinceAppendMode=cms.bool(True),

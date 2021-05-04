@@ -39,7 +39,6 @@ private:
   void bookHistograms(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &) override;
   void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-  void endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
   //! Input from configuration file
   edm::ParameterSet _pset;

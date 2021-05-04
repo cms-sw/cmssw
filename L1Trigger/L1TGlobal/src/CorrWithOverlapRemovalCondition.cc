@@ -632,7 +632,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             et0Phy = 0.5 * (binEdges.second + binEdges.first);
             lutObj0 = "TAU";
           } break;
-          default: { } break; }  //end switch on calo type.
+          default: {
+          } break;
+        }  //end switch on calo type.
 
         phiORIndex0 = phiIndex0;
         etaORIndex0 = etaIndex0;
@@ -880,7 +882,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               eta2Phy = 0.5 * (binEdges.second + binEdges.first);
               lutObj2 = "TAU";
             } break;
-            default: { } break; }  //end switch on calo type.
+            default: {
+            } break;
+          }  //end switch on calo type.
 
           //If needed convert calo scales to muon scales for comparison
           if (convertCaloScales) {
@@ -1279,7 +1283,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               et1Phy = 0.5 * (binEdges.second + binEdges.first);
               lutObj1 = "TAU";
             } break;
-            default: { } break; }  //end switch on calo type.
+            default: {
+            } break;
+          }  //end switch on calo type.
 
           phiORIndex1 = phiIndex1;
           etaORIndex1 = etaIndex1;
@@ -1520,7 +1526,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                 eta2Phy = 0.5 * (binEdges.second + binEdges.first);
                 lutObj2 = "TAU";
               } break;
-              default: { } break; }  //end switch on calo type.
+              default: {
+              } break;
+            }  //end switch on calo type.
 
             //If needed convert calo scales to muon scales for comparison
             if (convertCaloScales) {

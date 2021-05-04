@@ -18,6 +18,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <memory>
 
 // FFTJet headers
 #include "fftjet/FrequencyKernelConvolver.hh"
@@ -139,7 +140,7 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
   checkConfig(energyFlow, "invalid discretization grid");
 
   // Copy of the grid which will be used for convolutions
-  convolvedFlow = std::unique_ptr<fftjet::Grid2d<fftjetcms::Real>>(new fftjet::Grid2d<fftjetcms::Real>(*energyFlow));
+  convolvedFlow = std::make_unique<fftjet::Grid2d<fftjetcms::Real>>(*energyFlow);
 
   // Make sure the size of flattening factors is appropriate
   if (!etaFlatteningFactors.empty()) {
@@ -161,8 +162,7 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
   if (minScale <= 0.0 || maxScale < minScale || nScales == 0U)
     throw cms::Exception("FFTJetBadConfig") << "invalid filter scales" << std::endl;
 
-  filterScales =
-      std::unique_ptr<fftjet::EquidistantInLogSpace>(new fftjet::EquidistantInLogSpace(minScale, maxScale, nScales));
+  filterScales = std::make_unique<fftjet::EquidistantInLogSpace>(minScale, maxScale, nScales);
 
   percentileData.resize(nScales * nPercentiles);
 
@@ -186,7 +186,7 @@ void FFTJetPileupProcessor::buildKernelConvolver(const edm::ParameterSet& ps) {
   kernelEtaScale *= (2.0 * M_PI / (energyFlow->etaMax() - energyFlow->etaMin()));
 
   // Build the FFT engine
-  engine = std::unique_ptr<MyFFTEngine>(new MyFFTEngine(energyFlow->nEta(), energyFlow->nPhi()));
+  engine = std::make_unique<MyFFTEngine>(energyFlow->nEta(), energyFlow->nPhi());
 
   // 2d kernel
   kernel2d = std::unique_ptr<fftjet::AbsFrequencyKernel>(
@@ -327,7 +327,7 @@ void FFTJetPileupProcessor::endJob() {}
 void FFTJetPileupProcessor::loadFlatteningFactors(const edm::EventSetup& iSetup) {
   edm::ESHandle<FFTJetLookupTableSequence> h;
   StaticFFTJetLookupTableSequenceLoader::instance().load(iSetup, flatteningTableRecord, h);
-  boost::shared_ptr<npstat::StorableMultivariateFunctor> f = (*h)[flatteningTableCategory][flatteningTableName];
+  std::shared_ptr<npstat::StorableMultivariateFunctor> f = (*h)[flatteningTableCategory][flatteningTableName];
 
   // Fill out the table of flattening factors as a function of eta
   const unsigned nEta = energyFlow->nEta();

@@ -34,8 +34,6 @@ L1TdeStage2CaloLayer1::L1TdeStage2CaloLayer1(const edm::ParameterSet& ps)
 
 L1TdeStage2CaloLayer1::~L1TdeStage2CaloLayer1() {}
 
-void L1TdeStage2CaloLayer1::dqmBeginRun(const edm::Run&, const edm::EventSetup&) {}
-
 void L1TdeStage2CaloLayer1::analyze(const edm::Event& event, const edm::EventSetup& es) {
   edm::Handle<CaloTowerBxCollection> dataTowers;
   event.getByToken(dataSource_, dataTowers);
@@ -174,7 +172,7 @@ void L1TdeStage2CaloLayer1::analyze(const edm::Event& event, const edm::EventSet
     dataEmulNumerator_[TowerCountMismatch] += 1;
 
   for (size_t i = 0; i < NSummaryColumns; ++i) {
-    dataEmulSummary_->getTH1F()->SetBinContent(1 + i, dataEmulNumerator_[i] / dataEmulDenominator_);
+    dataEmulSummary_->setBinContent(1 + i, dataEmulNumerator_[i] / dataEmulDenominator_);
   }
   // GetEntries() increments every SetBinContent() call
   dataEmulSummary_->getTH1F()->SetEntries(dataEmulDenominator_);
@@ -202,7 +200,7 @@ void L1TdeStage2CaloLayer1::updateMismatch(const edm::Event& e, int mismatchType
 void L1TdeStage2CaloLayer1::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {
   // Ugly way to loop backwards through the last 20 mismatches
   for (size_t ibin = 1, imatch = lastMismatchIndex_; ibin <= 20; ibin++, imatch = (imatch + 19) % 20) {
-    last20Mismatches_->getTH2F()->GetYaxis()->SetBinLabel(ibin, last20MismatchArray_.at(imatch).first.c_str());
+    last20Mismatches_->setBinLabel(ibin, last20MismatchArray_.at(imatch).first, /* axis */ 2);
     for (int itype = 0; itype < 4; ++itype) {
       int binContent = (last20MismatchArray_.at(imatch).second >> itype) & 1;
       last20Mismatches_->setBinContent(itype + 1, ibin, binContent);
@@ -213,9 +211,9 @@ void L1TdeStage2CaloLayer1::beginLuminosityBlock(const edm::LuminosityBlock&, co
 void L1TdeStage2CaloLayer1::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&) {
   auto id = static_cast<double>(lumi.id().luminosityBlock());  // uint64_t
   // Simple way to embed current lumi to auto-scale axis limits in render plugin
-  etMismatchByLumi_->getTH1F()->SetBinContent(0, id);
-  erMismatchByLumi_->getTH1F()->SetBinContent(0, id);
-  fbMismatchByLumi_->getTH1F()->SetBinContent(0, id);
+  etMismatchByLumi_->setBinContent(0, id);
+  erMismatchByLumi_->setBinContent(0, id);
+  fbMismatchByLumi_->setBinContent(0, id);
 }
 
 void L1TdeStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) {
@@ -241,11 +239,11 @@ void L1TdeStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker, const edm
                                     NSummaryColumns,
                                     0.,
                                     double(NSummaryColumns));
-  dataEmulSummary_->getTH1F()->GetYaxis()->SetTitle("Fraction events with mismatch");
-  dataEmulSummary_->getTH1F()->GetXaxis()->SetBinLabel(1 + EtMismatch, "Et");
-  dataEmulSummary_->getTH1F()->GetXaxis()->SetBinLabel(1 + ErMismatch, "Et ratio");
-  dataEmulSummary_->getTH1F()->GetXaxis()->SetBinLabel(1 + FbMismatch, "Feature bit");
-  dataEmulSummary_->getTH1F()->GetXaxis()->SetBinLabel(1 + TowerCountMismatch, "CaloTower readout");
+  dataEmulSummary_->setAxisTitle("Fraction events with mismatch", /* axis */ 2);
+  dataEmulSummary_->setBinLabel(1 + EtMismatch, "Et");
+  dataEmulSummary_->setBinLabel(1 + ErMismatch, "Et ratio");
+  dataEmulSummary_->setBinLabel(1 + FbMismatch, "Feature bit");
+  dataEmulSummary_->setBinLabel(1 + TowerCountMismatch, "CaloTower readout");
   mismatchesPerBxMod9_ = ibooker.book1D(
       "mismatchesPerBxMod9", "CaloLayer1 data-emulator mismatch per bx%9;Bunch crossing mod 9;Counts", 9, -0.5, 8.5);
 
@@ -294,12 +292,12 @@ void L1TdeStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker, const edm
 
   last20Mismatches_ =
       ibooker.book2D("last20Mismatches", "Log of last 20 mismatches (use json tool to copy/paste)", 4, 0, 4, 20, 0, 20);
-  last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(1, "Et Mismatch");
-  last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(2, "Et ratio Mismatch");
-  last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(3, "Feature bit Mismatch");
-  last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(4, "-");
+  last20Mismatches_->setBinLabel(1, "Et Mismatch");
+  last20Mismatches_->setBinLabel(2, "Et ratio Mismatch");
+  last20Mismatches_->setBinLabel(3, "Feature bit Mismatch");
+  last20Mismatches_->setBinLabel(4, "-");
   for (size_t i = 0; i < last20MismatchArray_.size(); ++i)
     last20MismatchArray_[i] = {"-" + std::to_string(i), 0};
   for (size_t i = 1; i <= 20; ++i)
-    last20Mismatches_->getTH2F()->GetYaxis()->SetBinLabel(i, ("-" + std::to_string(i)).c_str());
+    last20Mismatches_->setBinLabel(i, "-" + std::to_string(i), /* axis */ 2);
 }

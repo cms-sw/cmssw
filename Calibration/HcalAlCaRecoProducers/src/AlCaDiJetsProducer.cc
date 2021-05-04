@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -97,7 +96,7 @@ AlCaDiJetsProducer::~AlCaDiJetsProducer() {}
 void AlCaDiJetsProducer::beginJob() {}
 
 void AlCaDiJetsProducer::endJob() {
-  edm::LogInfo("AlcaDiJets") << "Accepts " << nSelect_ << " events from a total of " << nAll_ << " events";
+  edm::LogVerbatim("AlcaDiJets") << "Accepts " << nSelect_ << " events from a total of " << nAll_ << " events";
 }
 
 bool AlCaDiJetsProducer::select(reco::PFJetCollection jt) {

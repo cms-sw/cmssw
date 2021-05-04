@@ -3,6 +3,9 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include <vector>
+#include <cstdint>
+
 /*
 \class HcalLUTCorr
 \author Radek Ofierzynski

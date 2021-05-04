@@ -7,7 +7,6 @@
 #include <iostream>
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimTracker/Common/interface/SimHitInfoForLinks.h"
@@ -15,10 +14,17 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "CalibTracker/Records/interface/SiPixelFEDChannelContainerESProducerRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelStatusScenarioProbabilityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "boost/multi_array.hpp"
 
 typedef boost::multi_array<float, 2> array_2d;
@@ -29,11 +35,6 @@ typedef boost::multi_array<float, 2> array_2d;
 namespace CLHEP {
   class HepRandomEngine;
 }
-
-namespace edm {
-  class EventSetup;
-  class ParameterSet;
-}  // namespace edm
 
 class DetId;
 class GaussianTailNoiseGenerator;
@@ -50,10 +51,11 @@ class TrackerGeometry;
 class TrackerTopology;
 class SiPixelFEDChannelContainer;
 class SiPixelQualityProbabilities;
+class SiPixelChargeReweightingAlgorithm;
 
 class SiPixelDigitizerAlgorithm {
 public:
-  SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf);
+  SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   ~SiPixelDigitizerAlgorithm();
 
   // initialization that cannot be done in the constructor
@@ -90,28 +92,6 @@ public:
   typedef std::unordered_map<std::string, PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
   const PixelFEDChannelCollectionMap* quality_map;
 
-private:
-  //Accessing Lorentz angle from DB:
-  edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
-
-  //Accessing Dead pixel modules from DB:
-  std::string siPixelQualityLabel;
-  edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
-
-  //Accessing Map and Geom:
-  edm::ESHandle<SiPixelFedCablingMap> map_;
-  edm::ESHandle<TrackerGeometry> geom_;
-
-  // Get Dynamic Inefficiency scale factors from DB
-  edm::ESHandle<SiPixelDynamicInefficiency> SiPixelDynamicInefficiency_;
-
-  // For BadFEDChannel simulation
-  edm::ESHandle<SiPixelQualityProbabilities> scenarioProbabilityHandle;
-  edm::ESHandle<PixelFEDChannelCollectionMap> PixelFEDChannelCollectionMapHandle;
-  // Define internal classes
-
-  // definition class
-  //
   class Amplitude {
   public:
     Amplitude() : _amp(0.0) {}
@@ -164,6 +144,36 @@ private:
     std::vector<float> _frac;
     std::vector<SimHitInfoForLinks> _hitInfos;
   };  // end class Amplitude
+
+private:
+  //Accessing Lorentz angle from DB:
+  edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleSimRcd> SiPixelLorentzAngleToken_;
+  const SiPixelLorentzAngle* SiPixelLorentzAngle_ = nullptr;
+
+  //Accessing Dead pixel modules from DB:
+  edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> SiPixelBadModuleToken_;
+  const SiPixelQuality* SiPixelBadModule_ = nullptr;
+
+  //Accessing Map and Geom:
+  const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> mapToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const SiPixelFedCablingMap* map_ = nullptr;
+  const TrackerGeometry* geom_ = nullptr;
+
+  // Get Dynamic Inefficiency scale factors from DB
+  edm::ESGetToken<SiPixelDynamicInefficiency, SiPixelDynamicInefficiencyRcd> SiPixelDynamicInefficiencyToken_;
+  edm::ESGetToken<SiPixelDynamicInefficiency, SiPixelDynamicInefficiencyRcd> SiPixelDynamicInefficiencyToken50ns_;
+  const SiPixelDynamicInefficiency* SiPixelDynamicInefficiency_ = nullptr;
+
+  // For BadFEDChannel simulation
+  edm::ESGetToken<SiPixelQualityProbabilities, SiPixelStatusScenarioProbabilityRcd> scenarioProbabilityToken_;
+  edm::ESGetToken<PixelFEDChannelCollectionMap, SiPixelFEDChannelContainerESProducerRcd>
+      PixelFEDChannelCollectionMapToken_;
+  const SiPixelQualityProbabilities* scenarioProbability_ = nullptr;
+  // Define internal classes
+
+  // definition class
+  //
 
   // Define a class to hold the calibration parameters per pixel
   // Internal
@@ -272,7 +282,7 @@ private:
     // constants for ROC level simulation for Phase1
     enum shiftEnumerator { FPixRocIdShift = 3, BPixRocIdShift = 6 };
     static const int rocIdMaskBits = 0x1F;
-    void init_from_db(const edm::ESHandle<TrackerGeometry>&, const edm::ESHandle<SiPixelDynamicInefficiency>&);
+    void init_from_db(const TrackerGeometry*, const SiPixelDynamicInefficiency*);
     bool matches(const DetId&, const DetId&, const std::vector<uint32_t>&);
     std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_;
   };
@@ -311,17 +321,7 @@ private:
 
   const Parameters DeadModules;
 
-  // Variables and objects for the charge reweighting using 2D templates
-  SiPixelTemplate2D templ2D;
-  std::vector<bool> xdouble;
-  std::vector<bool> ydouble;
-  std::vector<float> track;
-  int IDnum, IDden;
-
-  std::vector<SiPixelTemplateStore2D> templateStores_;
-
-  const SiPixel2DTemplateDBObject* dbobject_den;
-  const SiPixel2DTemplateDBObject* dbobject_num;
+  std::unique_ptr<SiPixelChargeReweightingAlgorithm> TheNewSiPixelChargeReweightingAlgorithmClass;
 
 private:
   // Variables
@@ -395,8 +395,6 @@ private:
   // pixel aging
   const bool AddPixelAging;
   const bool UseReweighting;
-  const bool PrintClusters;
-  const bool PrintTemplates;
 
   // The PDTable
   //HepPDTable *particleTable;
@@ -464,20 +462,6 @@ private:
   void module_killing_conf(
       uint32_t detID);  // remove dead modules using the list in the configuration file PixelDigi_cfi.py
   void module_killing_DB(uint32_t detID);  // remove dead modules uisng the list in the DB
-
-  // methods for charge reweighting in irradiated sensors
-  int PixelTempRewgt2D(int id_gen, int id_rewgt, array_2d& cluster);
-  bool hitSignalReweight(const PSimHit& hit,
-                         std::map<int, float, std::less<int> >& hit_signal,
-                         const size_t hitIndex,
-                         const unsigned int tofBin,
-                         const PixelTopology* topol,
-                         uint32_t detID,
-                         signal_map_type& theSignal,
-                         unsigned short int processType);
-  void printCluster(array_2d& cluster);
-  void printCluster(float arr[BXM2][BYM2]);
-  void printCluster(float arr[TXSIZE][TYSIZE]);
 
   PixelEfficiencies pixelEfficiencies_;
   const PixelAging pixelAging_;

@@ -5,5 +5,5 @@ from DQMOffline.Trigger.SiPixel_OfflineMonitoring_TrackCluster_cff import *
 
 sipixelMonitorHLTsequence = cms.Sequence(
     hltSiPixelPhase1ClustersAnalyzer
-    + hltSiPixelPhase1TrackClustersAnalyzer
+    #+ hltSiPixelPhase1TrackClustersAnalyzer
 )    

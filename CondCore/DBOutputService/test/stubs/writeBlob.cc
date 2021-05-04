@@ -2,13 +2,11 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 
-#include <boost/random/linear_congruential.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/variate_generator.hpp>
+#include <random>
 
 #include "writeBlob.h"
 
-typedef boost::minstd_rand base_generator_type;
+typedef std::minstd_rand base_generator_type;
 writeBlob::writeBlob(const edm::ParameterSet& iConfig) : m_StripRecordName("mySiStripNoisesRcd") {}
 
 writeBlob::~writeBlob() { std::cout << "writeBlob::writeBlob" << std::endl; }
@@ -16,9 +14,11 @@ writeBlob::~writeBlob() { std::cout << "writeBlob::writeBlob" << std::endl; }
 void writeBlob::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   std::cout << "writeBlob::analyze " << std::endl;
   base_generator_type rng(42u);
-  boost::uniform_real<> uni_dist(0, 1);
-  boost::variate_generator<base_generator_type&, boost::uniform_real<> > uni(rng, uni_dist);
+  std::uniform_real_distribution<> uni_dist(0.0, 1.0);
+  auto uni = [&]() { return uni_dist(rng); };
+
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
+
   if (!mydbservice.isAvailable()) {
     std::cout << "db service unavailable" << std::endl;
     return;

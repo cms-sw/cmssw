@@ -2,6 +2,7 @@
 #include <iostream>
 
 HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp,
+                                         bool use1ts,
                                          int levelHB,
                                          int levelHE,
                                          int levelHO,
@@ -11,6 +12,7 @@ HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp,
                                          std::pair<int, int> HOsearchTS,
                                          std::pair<int, int> HFsearchTS)
     : HcalZeroSuppressionAlgo(mp),
+      use1ts_(use1ts),
       thresholdHB_(levelHB),
       thresholdHE_(levelHE),
       thresholdHO_(levelHO),
@@ -23,11 +25,13 @@ HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp,
 }
 
 HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp,
+                                         bool use1ts,
                                          std::pair<int, int> HBsearchTS,
                                          std::pair<int, int> HEsearchTS,
                                          std::pair<int, int> HOsearchTS,
                                          std::pair<int, int> HFsearchTS)
     : HcalZeroSuppressionAlgo(mp),
+      use1ts_(use1ts),
       HBsearchTS_(HBsearchTS),
       HEsearchTS_(HEsearchTS),
       HOsearchTS_(HOsearchTS),
@@ -79,9 +83,12 @@ bool HcalZSAlgoRealistic::keepMe<QIE11DataFrame>(
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
 
-  // determine the sum of 2 timeslices
+  // sum of 2 timeslices or just single one
   for (int i = start; i < finish; i++) {
-    if ((inp[i].adc() + inp[i + 1].adc()) >= threshold)
+    int sum = inp[i].adc();
+    if (!use1ts_)
+      sum += inp[i + 1].adc();
+    if (sum >= threshold)
       return true;
   }
   return false;

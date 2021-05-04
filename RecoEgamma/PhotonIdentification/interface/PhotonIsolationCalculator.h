@@ -5,13 +5,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-#include <string>
+#include <vector>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class PhotonIsolationCalculator {

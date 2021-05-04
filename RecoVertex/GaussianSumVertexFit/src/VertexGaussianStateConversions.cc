@@ -2,7 +2,6 @@
 
 #include "RecoVertex/GaussianSumVertexFit/interface/BasicMultiVertexState.h"
 #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
-#include "boost/shared_ptr.hpp"
 
 namespace GaussianStateConversions {
 

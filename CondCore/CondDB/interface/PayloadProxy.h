@@ -1,8 +1,14 @@
 #ifndef CondCore_CondDB_PayloadProxy_h
 #define CondCore_CondDB_PayloadProxy_h
 
+#include "CondCore/CondDB/interface/Exception.h"
+#include "CondCore/CondDB/interface/IOVProxy.h"
 #include "CondCore/CondDB/interface/Session.h"
-#include "CondCore/CondDB/interface/Time.h"
+#include "CondCore/CondDB/interface/Types.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace cond {
 
@@ -21,57 +27,48 @@ namespace cond {
     class BasePayloadProxy {
     public:
       //
-      BasePayloadProxy();
-
-      void setUp(Session dbSession);
-
-      void loadTag(const std::string& tag);
-
-      void loadTag(const std::string& tag, const boost::posix_time::ptime& snapshotTime);
-
-      void reload();
+      BasePayloadProxy(Iov_t const* mostRecentCurrentIov,
+                       Session const* mostRecentSession,
+                       std::shared_ptr<std::vector<Iov_t>> const* mostRecentRequests);
 
       virtual ~BasePayloadProxy();
 
       virtual void make() = 0;
 
-      virtual void invalidateCache() = 0;
-
-      // current cached object token
-      const Hash& payloadId() const { return m_currentIov.payloadId; }
-
-      // this one had the loading in a separate function in the previous impl
-      ValidityInterval setIntervalFor(Time_t target, bool loadPayload = false);
-
       bool isValid() const;
-
-      TimeType timeType() const { return m_iovProxy.timeType(); }
 
       virtual void loadMore(CondGetter const&) {}
 
-      IOVProxy iov();
-
-      const std::vector<Iov_t>& requests() const { return m_requests; }
+      void initializeForNewIOV();
 
     private:
       virtual void loadPayload() = 0;
 
     protected:
-      IOVProxy m_iovProxy;
-      Iov_t m_currentIov;
+      Iov_t m_iovAtInitialization;
       Session m_session;
-      std::vector<Iov_t> m_requests;
+      std::shared_ptr<std::vector<Iov_t>> m_requests;
+
+      Iov_t const* m_mostRecentCurrentIov;
+      Session const* m_mostRecentSession;
+      std::shared_ptr<std::vector<Iov_t>> const* m_mostRecentRequests;
     };
 
     /* proxy to the payload valid at a given time...
-       
+
     */
     template <typename DataT>
     class PayloadProxy : public BasePayloadProxy {
     public:
-      explicit PayloadProxy(const char* source = nullptr) : BasePayloadProxy() {}
+      explicit PayloadProxy(Iov_t const* mostRecentCurrentIov,
+                            Session const* mostRecentSession,
+                            std::shared_ptr<std::vector<Iov_t>> const* mostRecentRequests,
+                            const char* source = nullptr)
+          : BasePayloadProxy(mostRecentCurrentIov, mostRecentSession, mostRecentRequests) {}
 
       ~PayloadProxy() override {}
+
+      void initKeyList(PayloadProxy const&) {}
 
       // dereference
       const DataT& operator()() const {
@@ -83,7 +80,7 @@ namespace cond {
 
       void make() override {
         if (isValid()) {
-          if (m_currentIov.payloadId == m_currentPayloadId)
+          if (m_iovAtInitialization.payloadId == m_currentPayloadId)
             return;
           m_session.transaction().start(true);
           loadPayload();
@@ -91,30 +88,18 @@ namespace cond {
         }
       }
 
-      virtual void invalidateTransientCache() {
-        m_data.reset();
-        m_currentPayloadId.clear();
-      }
-
-      void invalidateCache() override {
-        m_data.reset();
-        m_currentPayloadId.clear();
-        m_currentIov.clear();
-        m_requests.clear();
-      }
-
     protected:
       void loadPayload() override {
-        if (m_currentIov.payloadId.empty()) {
+        if (m_iovAtInitialization.payloadId.empty()) {
           throwException("Can't load payload: no valid IOV found.", "PayloadProxy::loadPayload");
         }
-        m_data = m_session.fetchPayload<DataT>(m_currentIov.payloadId);
-        m_currentPayloadId = m_currentIov.payloadId;
-        m_requests.push_back(m_currentIov);
+        m_data = m_session.fetchPayload<DataT>(m_iovAtInitialization.payloadId);
+        m_currentPayloadId = m_iovAtInitialization.payloadId;
+        m_requests->push_back(m_iovAtInitialization);
       }
 
     private:
-      std::shared_ptr<DataT> m_data;
+      std::unique_ptr<DataT> m_data;
       Hash m_currentPayloadId;
     };
 

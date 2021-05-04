@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include "Rtypes.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"

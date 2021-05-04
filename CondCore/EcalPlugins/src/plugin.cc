@@ -6,8 +6,6 @@
  *
  */
 
-// #include "CondCore/PluginSystem/interface/registration_macros.h"
-
 #include "CondCore/ESSources/interface/registration_macros.h"
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
@@ -58,6 +56,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosMCRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
@@ -65,7 +64,6 @@
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 
-// #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
@@ -110,6 +108,15 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalTPGOddWeightGroup.h"
+#include "CondFormats/DataRecord/interface/EcalTPGOddWeightGroupRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTPGOddWeightIdMap.h"
+#include "CondFormats/DataRecord/interface/EcalTPGOddWeightIdMapRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTPGTPMode.h"
+#include "CondFormats/DataRecord/interface/EcalTPGTPModeRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 
@@ -153,10 +160,20 @@
 #include "CondFormats/DataRecord/interface/EcalPulseCovariancesRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPulseSymmCovariances.h"
 #include "CondFormats/DataRecord/interface/EcalPulseSymmCovariancesRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalPFSeedingThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFSeedingThresholdsRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 #include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
+#include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
 
 REGISTER_PLUGIN(EcalPedestalsRcd, EcalCondObjectContainer<EcalPedestal>);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd, EcalCondObjectContainer<EcalXtalGroupId>);
@@ -172,10 +189,11 @@ REGISTER_PLUGIN(EcalIntercalibErrorsRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalADCToGeVConstantRcd, EcalADCToGeVConstant);
 REGISTER_PLUGIN(EcalLaserAlphasRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRcd, EcalLaserAPDPNRatios);
+REGISTER_PLUGIN(EcalLaserAPDPNRatiosMCRcd, EcalLaserAPDPNRatios);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRefRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalChannelStatusRcd, EcalCondObjectContainer<EcalChannelStatusCode>);
 REGISTER_PLUGIN(EcalPFRecHitThresholdsRcd, EcalCondObjectContainer<float>);
-
+REGISTER_PLUGIN(EcalPFSeedingThresholdsRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalClusterCrackCorrParametersRcd, EcalFunParams);
 REGISTER_PLUGIN(EcalClusterLocalContCorrParametersRcd, EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyUncertaintyParametersRcd, EcalFunParams);
@@ -198,6 +216,11 @@ REGISTER_PLUGIN(EcalTPGPhysicsConstRcd, EcalTPGPhysicsConst);
 REGISTER_PLUGIN(EcalTPGSlidingWindowRcd, EcalTPGSlidingWindow);
 REGISTER_PLUGIN(EcalTPGWeightGroupRcd, EcalTPGWeightGroup);
 REGISTER_PLUGIN(EcalTPGWeightIdMapRcd, EcalTPGWeightIdMap);
+REGISTER_PLUGIN(EcalTPGOddWeightGroupRcd, EcalTPGOddWeightGroup);
+REGISTER_PLUGIN(EcalTPGOddWeightIdMapRcd, EcalTPGOddWeightIdMap);
+
+REGISTER_PLUGIN(EcalTPGTPModeRcd, EcalTPGTPMode);
+
 REGISTER_PLUGIN(EcalTPGCrystalStatusRcd, EcalCondObjectContainer<EcalTPGCrystalStatusCode>);
 REGISTER_PLUGIN(EcalTPGTowerStatusRcd, EcalTPGTowerStatus);
 REGISTER_PLUGIN(EcalTPGStripStatusRcd, EcalTPGStripStatus);
@@ -218,3 +241,6 @@ REGISTER_PLUGIN(EcalSamplesCorrelationRcd, EcalSamplesCorrelation);
 REGISTER_PLUGIN(EcalPulseShapesRcd, EcalCondObjectContainer<EcalPulseShape>);
 REGISTER_PLUGIN(EcalPulseCovariancesRcd, EcalCondObjectContainer<EcalPulseCovariance>);
 REGISTER_PLUGIN(EcalPulseSymmCovariancesRcd, EcalCondObjectContainer<EcalPulseSymmCovariance>);
+
+REGISTER_PLUGIN(EcalMustacheSCParametersRcd, EcalMustacheSCParameters);
+REGISTER_PLUGIN(EcalSCDynamicDPhiParametersRcd, EcalSCDynamicDPhiParameters);

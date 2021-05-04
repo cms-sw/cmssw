@@ -59,7 +59,7 @@ fi
 # DIGI comes next
 if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII.root ; then
   cmsDriver.py step2   \
--s DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:@fake2  \
+-s DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:@fake2  \
 --conditions auto:phase2_realistic \
 -n -1  \
 --era Phase2C2  \
@@ -83,7 +83,6 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseII.root ; then
 -s RAW2DIGI,L1Reco,RECO,VALIDATION:@phase2Validation,DQM:@phase2 \
 --conditions auto:phase2_realistic \
 -n -1  \
---runUnscheduled \
 --era Phase2C2  \
 --eventcontent FEVTDEBUGHLT,DQM  \
 --datatier GEN-SIM-RECO,DQMIO  \
@@ -136,7 +135,7 @@ fi
 
 for t in BeamPipe Tracker Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=${geometry} label=$t >& /dev/null &
+    python runP_Tracker.py geom=${geometry} label=$t >& /dev/null &
   fi
 done
 

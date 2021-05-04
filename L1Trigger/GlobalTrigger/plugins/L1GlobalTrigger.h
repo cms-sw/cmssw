@@ -23,8 +23,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
@@ -38,6 +36,31 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
+
+#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
+
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
+
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoTechTrigRcd.h"
+
+#include <cstdint>
 
 // forward classes
 class L1GlobalTriggerPSB;
@@ -111,8 +134,8 @@ private:
   int m_totalBxInEvent;
 
   ///    active boards in L1 GT DAQ record and in L1 GT EVM record
-  boost::uint16_t m_activeBoardsGtDaq;
-  boost::uint16_t m_activeBoardsGtEvm;
+  uint16_t m_activeBoardsGtDaq;
+  uint16_t m_activeBoardsGtEvm;
 
   /// length of BST record (in bytes) from event setup
   unsigned int m_bstLengthBytes;
@@ -229,6 +252,17 @@ private:
   /// verbosity level
   const int m_verbosity;
   const bool m_isDebugEnabled;
+
+  /// EventSetup Tokens
+  edm::ESGetToken<L1GtStableParameters, L1GtStableParametersRcd> m_l1GtStableParToken;
+  edm::ESGetToken<L1GtParameters, L1GtParametersRcd> m_l1GtParToken;
+  edm::ESGetToken<L1GtBoardMaps, L1GtBoardMapsRcd> m_l1GtBMToken;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> m_l1GtPfAlgoToken;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> m_l1GtPfTechToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> m_l1GtTmAlgoToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> m_l1GtTmTechToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoAlgoTrigRcd> m_l1GtTmVetoAlgoToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoTechTrigRcd> m_l1GtTmVetoTechToken;
 };
 
 #endif /*GlobalTrigger_L1GlobalTrigger_h*/

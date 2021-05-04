@@ -92,39 +92,39 @@ void CaloTowerAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
   hCT_Nevents = ibooker.book1D("METTask_CT_Nevents", "", 1, 0, 1);
   //--Data integrated over all events and stored by CaloTower(ieta,iphi)
   hCT_et_ieta_iphi = ibooker.book2D("METTask_CT_et_ieta_iphi", "", 83, -41, 42, 72, 1, 73);
-  hCT_et_ieta_iphi->getTH2F()->SetOption("colz");
+  hCT_et_ieta_iphi->setOption("colz");
   hCT_et_ieta_iphi->setAxisTitle("ieta", 1);
   hCT_et_ieta_iphi->setAxisTitle("ephi", 2);
 
   hCT_emEt_ieta_iphi = ibooker.book2D("METTask_CT_emEt_ieta_iphi", "", 83, -41, 42, 72, 1, 73);
-  hCT_emEt_ieta_iphi->getTH2F()->SetOption("colz");
+  hCT_emEt_ieta_iphi->setOption("colz");
   hCT_emEt_ieta_iphi->setAxisTitle("ieta", 1);
   hCT_emEt_ieta_iphi->setAxisTitle("ephi", 2);
   hCT_hadEt_ieta_iphi = ibooker.book2D("METTask_CT_hadEt_ieta_iphi", "", 83, -41, 42, 72, 1, 73);
-  hCT_hadEt_ieta_iphi->getTH2F()->SetOption("colz");
+  hCT_hadEt_ieta_iphi->setOption("colz");
   hCT_hadEt_ieta_iphi->setAxisTitle("ieta", 1);
   hCT_hadEt_ieta_iphi->setAxisTitle("ephi", 2);
   hCT_outerEt_ieta_iphi = ibooker.book2D("METTask_CT_outerEt_ieta_iphi", "", 83, -41, 42, 72, 1, 73);
-  hCT_outerEt_ieta_iphi->getTH2F()->SetOption("colz");
+  hCT_outerEt_ieta_iphi->setOption("colz");
   hCT_outerEt_ieta_iphi->setAxisTitle("ieta", 1);
   hCT_outerEt_ieta_iphi->setAxisTitle("ephi", 2);
   hCT_Occ_ieta_iphi = ibooker.book2D("METTask_CT_Occ_ieta_iphi", "", 83, -41, 42, 72, 1, 73);
-  hCT_Occ_ieta_iphi->getTH2F()->SetOption("colz");
+  hCT_Occ_ieta_iphi->setOption("colz");
   hCT_Occ_ieta_iphi->setAxisTitle("ieta", 1);
   hCT_Occ_ieta_iphi->setAxisTitle("ephi", 2);
 
   hCT_Occ_EM_Et_ieta_iphi = ibooker.book2D("METTask_CT_Occ_EM_Et_ieta_iphi", "", 83, -41, 42, 72, 1, 73);
-  hCT_Occ_EM_Et_ieta_iphi->getTH2F()->SetOption("colz");
+  hCT_Occ_EM_Et_ieta_iphi->setOption("colz");
   hCT_Occ_EM_Et_ieta_iphi->setAxisTitle("ieta", 1);
   hCT_Occ_EM_Et_ieta_iphi->setAxisTitle("ephi", 2);
 
   hCT_Occ_HAD_Et_ieta_iphi = ibooker.book2D("METTask_CT_Occ_HAD_Et_ieta_iphi", "", 83, -41, 42, 72, 1, 73);
-  hCT_Occ_HAD_Et_ieta_iphi->getTH2F()->SetOption("colz");
+  hCT_Occ_HAD_Et_ieta_iphi->setOption("colz");
   hCT_Occ_HAD_Et_ieta_iphi->setAxisTitle("ieta", 1);
   hCT_Occ_HAD_Et_ieta_iphi->setAxisTitle("ephi", 2);
 
   hCT_Occ_Outer_Et_ieta_iphi = ibooker.book2D("METTask_CT_Occ_Outer_Et_ieta_iphi", "", 83, -41, 42, 72, 1, 73);
-  hCT_Occ_Outer_Et_ieta_iphi->getTH2F()->SetOption("colz");
+  hCT_Occ_Outer_Et_ieta_iphi->setOption("colz");
   hCT_Occ_Outer_Et_ieta_iphi->setAxisTitle("ieta", 1);
   hCT_Occ_Outer_Et_ieta_iphi->setAxisTitle("ephi", 2);
 

@@ -77,8 +77,6 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
-
 //
 //
 #include "TFile.h"
@@ -1234,7 +1232,7 @@ void TkConvValidator::dqmBeginRun(edm::Run const& r, edm::EventSetup const& theE
   thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
 }
 
-void TkConvValidator::endRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
+void TkConvValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
   delete thePhotonMCTruthFinder_;
 }
 
@@ -1355,8 +1353,6 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   //e.getByToken(genjets_Token_, GenJetsHandle);
   //const reco::GenJetCollection &genJetCollection = *(GenJetsHandle.product());
 
-  ConversionHitChecker hitChecker;
-
   // ################  SIM to RECO ######################### //
   std::map<const reco::Track*, TrackingParticleRef> myAss;
   std::map<const reco::Track*, TrackingParticleRef>::const_iterator itAss;
@@ -1408,7 +1404,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       theConvTP_.clear();
       //      std::cout << " TkConvValidator TrackingParticles   TrackingParticleCollection size "<<  trackingParticles.size() <<  "\n";
       //duplicated TP collections for two associations
-      for (const TrackingParticleRef tp : tpForEfficiency) {
+      for (const TrackingParticleRef& tp : tpForEfficiency) {
         if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
             fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
           theConvTP_.push_back(tp);
@@ -1645,12 +1641,11 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     const reco::Track refTk1 = aConv.conversionVertex().refittedTracks().front();
     const reco::Track refTk2 = aConv.conversionVertex().refittedTracks().back();
 
-    //TODO replace it with phi at vertex
-    float dPhiTracksAtVtx = aConv.dPhiTracksAtVtx();
+    float dPhiTracksAtVtx;
     // override with the phi calculated at the vertex
     math::XYZVector p1AtVtx = recalculateMomentumAtFittedVertex((*theMF_), *trackerGeom, tk1, aConv.conversionVertex());
     math::XYZVector p2AtVtx = recalculateMomentumAtFittedVertex((*theMF_), *trackerGeom, tk2, aConv.conversionVertex());
-    if (sqrt(p1AtVtx.perp2()) > sqrt(p2AtVtx.perp2()))
+    if (p1AtVtx.perp2() > p2AtVtx.perp2())
       dPhiTracksAtVtx = p1AtVtx.phi() - p2AtVtx.phi();
     else
       dPhiTracksAtVtx = p2AtVtx.phi() - p1AtVtx.phi();
@@ -1853,7 +1848,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     }
 
     bool associated = false;
-    float mcConvPt_ = -99999999;
+    float mcConvPt_ = -99999999.0;
     //    float mcPhi= 0; // unused
     float simPV_Z = 0;
     for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
@@ -1887,7 +1882,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
         continue;
 
       theConvTP_.clear();
-      for (const TrackingParticleRef tp : tpForFakeRate) {
+      for (const TrackingParticleRef& tp : tpForFakeRate) {
         if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
             fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
           theConvTP_.push_back(tp);
@@ -1976,7 +1971,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
           continue;
 
         theConvTP_.clear();
-        for (TrackingParticleRef tp : tpForFakeRate) {
+        for (const TrackingParticleRef& tp : tpForFakeRate) {
           if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
               fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
             theConvTP_.push_back(tp);

@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
     //     emptying the buffers.
     std::shared_ptr<edm::Presence> theMessageServicePresence;
     theMessageServicePresence =
-        std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
+        std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("SingleThreadMSPresence").release());
 
     // C.  Manufacture a configuration and establish it.
     std::string config =

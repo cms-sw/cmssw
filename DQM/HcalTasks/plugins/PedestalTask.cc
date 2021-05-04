@@ -922,11 +922,12 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _xPedEntries1LS.reset();
 }
 
-/* virtual */ void PedestalTask::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::beginLuminosityBlock(lb, es);
+std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                         edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void PedestalTask::endRun(edm::Run const& r, edm::EventSetup const&) {
+/* virtual */ void PedestalTask::dqmEndRun(edm::Run const& r, edm::EventSetup const&) {
   if (_ptype == fLocal) {
     if (r.runAuxiliary().run() == 1)
       return;
@@ -936,12 +937,17 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
     return;
 }
 
-/* virtual */ void PedestalTask::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void PedestalTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  auto lumiCache = luminosityBlockCache(lb.index());
+  _currentLS = lumiCache->currentLS;
+  _xQuality.reset();
+  _xQuality = lumiCache->xQuality;
+
   if (_ptype == fLocal)
     return;
   this->_dump();
 
-  DQTask::endLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 /* virtual */ void PedestalTask::_process(edm::Event const& e, edm::EventSetup const& es) {
@@ -955,6 +961,9 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _logger.dqmthrow("Collection QIE10DigiCollection isn't available" + _tagQIE10.label() + " " + _tagQIE10.instance());
   if (!e.getByToken(_tokQIE11, c_QIE11))
     _logger.dqmthrow("Collection QIE11DigiCollection isn't available" + _tagQIE11.label() + " " + _tagQIE11.instance());
+
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
 
   int nHB(0), nHE(0), nHO(0), nHF(0);
   for (QIE11DigiCollection::const_iterator it = c_QIE11->begin(); it != c_QIE11->end(); ++it) {

@@ -46,6 +46,20 @@ dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
     calibrationPath = cms.string(""),
 )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+
+# explicit python dependency
+import FastSimulation.SimplifiedGeometryPropagator.FastTrackDeDxProducer_cfi
+
+# do this before defining dedxPixelHarmonic2 so it automatically comes out right
+fastSim.toReplaceWith(dedxHarmonic2,
+    FastSimulation.SimplifiedGeometryPropagator.FastTrackDeDxProducer_cfi.FastTrackDeDxProducer.clone(
+        ShapeTest = False,
+        simHit2RecHitMap = "fastMatchedTrackerRecHits:simHit2RecHitMap",
+        simHits = "fastSimProducer:TrackerHits",
+    )
+)
+
 dedxPixelHarmonic2 = dedxHarmonic2.clone(UseStrip = False, UsePixel = True)
 
 dedxPixelAndStripHarmonic2T085 = dedxHarmonic2.clone(
@@ -55,26 +69,21 @@ dedxPixelAndStripHarmonic2T085 = dedxHarmonic2.clone(
         exponent  = -2.0, # Harmonic02
 )
 
-dedxTruncated40 = dedxHarmonic2.clone()
-dedxTruncated40.estimator =  cms.string('truncated')
+dedxTruncated40 = dedxHarmonic2.clone(estimator = 'truncated')
 
-dedxMedian  = dedxHarmonic2.clone()
-dedxMedian.estimator =  cms.string('median')
+dedxMedian = dedxHarmonic2.clone(estimator = 'median')
 
-dedxUnbinned = dedxHarmonic2.clone()
-dedxUnbinned.estimator =  cms.string('unbinnedFit')
+dedxUnbinned = dedxHarmonic2.clone(estimator = 'unbinnedFit')
 
-dedxDiscrimProd =  dedxHarmonic2.clone()
-dedxDiscrimProd.estimator = cms.string('productDiscrim')
+dedxDiscrimProd =  dedxHarmonic2.clone(estimator = 'productDiscrim')
 
-dedxDiscrimBTag         = dedxHarmonic2.clone()
-dedxDiscrimBTag.estimator = cms.string('btagDiscrim')
+dedxDiscrimBTag = dedxHarmonic2.clone(estimator = 'btagDiscrim')
 
-dedxDiscrimSmi         = dedxHarmonic2.clone()
-dedxDiscrimSmi.estimator = cms.string('smirnovDiscrim')
+dedxDiscrimSmi  = dedxHarmonic2.clone(estimator = 'smirnovDiscrim')
 
-dedxDiscrimASmi         = dedxHarmonic2.clone()
-dedxDiscrimASmi.estimator = cms.string('asmirnovDiscrim')
+dedxDiscrimASmi = dedxHarmonic2.clone(estimator = 'asmirnovDiscrim')
 
 doAlldEdXEstimatorsTask = cms.Task(dedxTruncated40 , dedxHarmonic2 , dedxPixelHarmonic2 , dedxPixelAndStripHarmonic2T085 , dedxHitInfo)
 doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)
+
+fastSim.toReplaceWith(doAlldEdXEstimatorsTask, cms.Task(dedxHarmonic2, dedxPixelHarmonic2))

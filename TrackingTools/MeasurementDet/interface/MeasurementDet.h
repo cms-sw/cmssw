@@ -8,8 +8,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class TrajectoryStateOnSurface;
 class Propagator;
 class MeasurementEstimator;

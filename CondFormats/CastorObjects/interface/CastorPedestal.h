@@ -11,8 +11,7 @@ $Revision: 1.8 $
 Adapted for CASTOR by L. Mundim (26/03/2009)
 */
 #include "CondFormats/Serialization/interface/Serializable.h"
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class CastorPedestal {
 public:

@@ -30,14 +30,20 @@ namespace dqm {
     void initRun() const override;
     void saveLumi(const FileParameters& fp) const override;
     void saveRun(const FileParameters& fp) const override;
+    void savePB(DQMStore* store, std::string const& filename, int run, int lumi) const;
 
     bool fakeFilterUnitMode_;
     std::string streamLabel_;
+    std::string tag_;
     mutable std::string transferDestination_;
     mutable std::string mergeType_;
 
   public:
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  private:
+    int getMaxCompressedSize(int bufferSize) const;
+    ulong compressME(const TBufferFile& buffer, int maxOutputSize, char* compression_output) const;
   };
 
 }  // namespace dqm

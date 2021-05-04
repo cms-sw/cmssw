@@ -10,12 +10,13 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include "tbb/global_control.h"
 #include "FWCore/Framework/interface/limited/EDFilter.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -39,6 +40,25 @@ namespace {
 
   const edm::ParameterSet s_pset = makePSet();
 }  // namespace
+
+namespace {
+  struct ShadowStreamID {
+    constexpr ShadowStreamID() : value(0) {}
+    unsigned int value;
+  };
+
+  union IDUnion {
+    IDUnion() : m_shadow() {}
+    ShadowStreamID m_shadow;
+    edm::StreamID m_id;
+  };
+}  // namespace
+static edm::StreamID makeID() {
+  IDUnion u;
+  assert(u.m_id.value() == 0);
+  return u.m_id;
+}
+static const edm::StreamID s_streamID0 = makeID();
 
 class testLimitedFilter : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testLimitedFilter);
@@ -113,6 +133,20 @@ private:
 
   template <typename T>
   void testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect);
+
+  template <typename Traits, typename Info>
+  void doWork(edm::Worker* iBase, Info const& info, edm::ParentContext const& iContext) {
+    edm::FinalWaitingTask task;
+    tbb::task_group group;
+    edm::ServiceToken token;
+    iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
+    do {
+      group.wait();
+    } while (not task.done());
+    if (auto e = task.exceptionPtr()) {
+      std::rethrow_exception(*e);
+    }
+  }
 
   class BasicProd : public edm::limited::EDFilter<> {
   public:
@@ -357,25 +391,6 @@ private:
   };
 };
 
-namespace {
-  struct ShadowStreamID {
-    constexpr ShadowStreamID() : value(0) {}
-    unsigned int value;
-  };
-
-  union IDUnion {
-    IDUnion() : m_shadow() {}
-    ShadowStreamID m_shadow;
-    edm::StreamID m_id;
-  };
-}  // namespace
-static edm::StreamID makeID() {
-  IDUnion u;
-  assert(u.m_id.value() == 0);
-  return u.m_id;
-}
-static const edm::StreamID s_streamID0 = makeID();
-
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testLimitedFilter);
 
@@ -400,8 +415,7 @@ testLimitedFilter::testLimitedFilter()
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
   m_ep.reset(new edm::EventPrincipal(m_prodReg, m_idHelper, m_associationsHelper, m_procConfig, nullptr));
-  edm::ProcessHistoryRegistry phr;
-  m_ep->fillEventPrincipal(eventAux, phr);
+  m_ep->fillEventPrincipal(eventAux, nullptr);
   m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);
 
@@ -414,23 +428,27 @@ testLimitedFilter::testLimitedFilter()
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp, *m_es, s_streamID0, nullParentContext, nullptr);
+    edm::RunTransitionInfo info(*m_rp, *m_es);
+    doWork<Traits>(iBase, info, nullParentContext);
   };
   m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp, *m_es, s_streamID0, nullParentContext, nullptr);
+    edm::RunTransitionInfo info(*m_rp, *m_es);
+    doWork<Traits>(iBase, info, nullParentContext);
   };
 
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp, *m_es, s_streamID0, nullParentContext, nullptr);
+    edm::LumiTransitionInfo info(*m_lbp, *m_es);
+    doWork<Traits>(iBase, info, nullParentContext);
   };
   m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp, *m_es, s_streamID0, nullParentContext, nullptr);
+    edm::LumiTransitionInfo info(*m_lbp, *m_es);
+    doWork<Traits>(iBase, info, nullParentContext);
   };
 
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
@@ -438,29 +456,34 @@ testLimitedFilter::testLimitedFilter()
     edm::StreamContext streamContext(s_streamID0, nullptr);
     edm::ParentContext nullParentContext(&streamContext);
     iBase->setActivityRegistry(m_actReg);
-    iBase->doWork<Traits>(*m_ep, *m_es, s_streamID0, nullParentContext, nullptr);
+    edm::EventTransitionInfo info(*m_ep, *m_es);
+    doWork<Traits>(iBase, info, nullParentContext);
   };
 
   m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp, *m_es, s_streamID0, nullParentContext, nullptr);
+    edm::LumiTransitionInfo info(*m_lbp, *m_es);
+    doWork<Traits>(iBase, info, nullParentContext);
   };
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp, *m_es, s_streamID0, nullParentContext, nullptr);
+    edm::LumiTransitionInfo info(*m_lbp, *m_es);
+    doWork<Traits>(iBase, info, nullParentContext);
   };
 
   m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp, *m_es, s_streamID0, nullParentContext, nullptr);
+    edm::RunTransitionInfo info(*m_rp, *m_es);
+    doWork<Traits>(iBase, info, nullParentContext);
   };
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp, *m_es, s_streamID0, nullParentContext, nullptr);
+    edm::RunTransitionInfo info(*m_rp, *m_es);
+    doWork<Traits>(iBase, info, nullParentContext);
   };
 
   m_transToFunc[Trans::kEndStream] = [](edm::Worker* iBase) {
@@ -491,6 +514,8 @@ namespace {
 
 template <typename T>
 void testLimitedFilter::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
+  tbb::global_control control(tbb::global_control::max_allowed_parallelism, 1);
+
   edm::maker::ModuleHolderT<edm::limited::EDFilterBase> h(iMod, nullptr);
   h.preallocate(edm::PreallocationConfiguration{});
   edm::WorkerT<edm::limited::EDFilterBase> w{iMod, m_desc, nullptr};

@@ -25,13 +25,13 @@ class BPHRecoCandidate;
 class CheckBPHWriteDecay : public BPHAnalyzerWrapper<BPHModuleWrapper::one_analyzer> {
 public:
   explicit CheckBPHWriteDecay(const edm::ParameterSet& ps);
-  virtual ~CheckBPHWriteDecay();
+  ~CheckBPHWriteDecay() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  void endJob() override;
 
 private:
   std::ostream* osPtr;
@@ -39,9 +39,9 @@ private:
   unsigned int evtNumber;
 
   std::vector<std::string> candsLabel;
-  std::vector<BPHTokenWrapper<std::vector<pat::CompositeCandidate> > > candsToken;
+  std::vector<BPHTokenWrapper<std::vector<pat::CompositeCandidate>>> candsToken;
 
-  typedef edm::Ref<std::vector<reco::Vertex> > vertex_ref;
+  typedef edm::Ref<std::vector<reco::Vertex>> vertex_ref;
   typedef edm::Ref<pat::CompositeCandidateCollection> compcc_ref;
 
   static void dump(std::ostream& os, const pat::CompositeCandidate& cand);

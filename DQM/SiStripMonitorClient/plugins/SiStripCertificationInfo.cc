@@ -7,17 +7,9 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "SiStripCertificationInfo.h"
 
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 //Run Info
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
 #include <iostream>
@@ -27,24 +19,23 @@
 #include <sstream>
 #include <cmath>
 
-SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const&) {}
+SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const&) {
+  consumes<DQMToken, edm::InRun>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserRun"));
+  consumes<DQMToken, edm::InLumi>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserLumi"));
+  detCablingToken_ = esConsumes<edm::Transition::BeginRun>();
+  tTopoToken_ = esConsumes<edm::Transition::EndRun>();
+  runInfoToken_ = esConsumes<edm::Transition::BeginRun>();
+}
 
 void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo("SiStripCertificationInfo") << "SiStripCertificationInfo:: Begining of Run";
-  unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
-  if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;
-  }
-  eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
+  detCabling_ = &eSetup.getData(detCablingToken_);
 
   constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
   constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
 
-  if (auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-
-    if (sumFED.isValid()) {
+  if (eSetup.tryToGet<RunInfoRcd>()) {
+    if (auto sumFED = eSetup.getHandle(runInfoToken_)) {
       for (auto const fedID : sumFED->m_fed_in) {
         if (fedID >= siStripFedIdMin && fedID <= siStripFedIdMax)
           ++nFEDConnected_;
@@ -175,9 +166,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(DQMStore& dqm_store, 
   }
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const auto tTopo = &eSetup.getData(tTopoToken_);
 
   resetSiStripCertificationMEs(dqm_store);
   std::string mdir = "MechanicalView";
@@ -235,7 +224,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(DQMStore& dqm_store, 
     if (ndet_subdet > 0)
       fraction_subdet = 1 - ((nfaulty_subdet * 1.0) / ndet_subdet);
     // Check S/N status flag and use the minimum between the two
-    std::string full_path = mechanical_dir.substr(0, mechanical_dir.find_last_of("/")) +
+    std::string full_path = mechanical_dir.substr(0, mechanical_dir.find_last_of('/')) +
                             "/EventInfo/reportSummaryContents/SiStrip_SToNFlag_" + name;
     MonitorElement* me_ston = dqm_store.get(full_path);
     me->Reset();

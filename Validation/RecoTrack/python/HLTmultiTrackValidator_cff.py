@@ -19,9 +19,12 @@ hltTrackValidator = hltMultiTrackValidator.clone(
     ]
 )
 
-hltMultiTrackValidation = cms.Sequence(
+hltMultiTrackValidationTask = cms.Task(
     hltTPClusterProducer
-    + trackingParticleNumberOfLayersProducer
-    + hltTrackAssociatorByHits
-    + hltTrackValidator
+    , trackingParticleNumberOfLayersProducer
+    , hltTrackAssociatorByHits
+)
+hltMultiTrackValidation = cms.Sequence(
+    hltTrackValidator,
+    hltMultiTrackValidationTask
 )

@@ -21,7 +21,7 @@ OutALCARECOEcalUncalElectron.outputCommands += cms.untracked.vstring(
     'keep reco*Clusters_pfElectronTranslator_*_*',
     'drop TrajectorysToOnerecoGsfTracksAssociation_electronGsfTracks_*_*',
     'drop TrajectorysToOnerecoGsfTracksAssociation_uncleanedOnlyElectronGsfTracks_*_*',
-    'drop recoGsfElectronsrecoGsfElectronrecoGsfElectronsrecoGsfElectronedmrefhelperFindUsingAdvanceedmRefedmValueMap_gedGsfElectronsTmp_*_*',
+    'drop recoGsfElectrons*edmRefedmValueMap_gedGsfElectronValueMapsTmp_*_*',
     'drop recoConversions_conversions_uncleanedConversions_*',
     'drop recoGsfElectrons_gedGsfElectronsTmp_*_*',
     'drop recoGsfTracks_uncleanedOnlyElectronGsfTracks_*_*',

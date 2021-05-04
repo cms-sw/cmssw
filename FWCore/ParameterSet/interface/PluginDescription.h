@@ -87,6 +87,7 @@ Each user plugin must define a static member function:
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // user include files
 #include <string>
@@ -153,18 +154,16 @@ namespace edm {
       using CreatedType = PluginDescriptionAdaptorBase<typename T::CreatedType>;
       using Factory = edmplugin::PluginFactory<CreatedType*()>;
 
-      std::stringstream ss;
-      ss << dfh.section() << "." << dfh.counter();
-      std::string newSection = ss.str();
+      {
+        std::stringstream ss;
+        ss << dfh.section() << "." << dfh.counter();
+        std::string newSection = ss.str();
 
-      printSpaces(os, indentation);
-      os << "Section " << newSection << " " << Factory::get()->category() << " Plugins description:\n";
-      if (!dfh.brief())
-        os << "\n";
-
-      DocFormatHelper new_dfh(dfh);
-      new_dfh.init();
-      new_dfh.setSection(newSection);
+        printSpaces(os, indentation);
+        os << "Section " << newSection << " " << Factory::get()->category() << " Plugins description:\n";
+        if (!dfh.brief())
+          os << "\n";
+      }
 
       //loop over all possible plugins
       unsigned int pluginCount = 0;
@@ -247,7 +246,8 @@ namespace edm {
     }
 
     // ---------- member data --------------------------------
-    mutable std::shared_ptr<ParameterSetDescription> cache_;
+    //Validation of plugins is only done on one thread at a time
+    CMS_SA_ALLOW mutable std::shared_ptr<ParameterSetDescription> cache_;
     std::string typeLabel_;
     std::string defaultType_;
     bool typeLabelIsTracked_;

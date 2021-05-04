@@ -109,7 +109,7 @@ bool HLTJetTagWithMatching<T>::hltFilter(edm::Event& event,
   auto const& dependent = handle->keyProduct();
   if (not dependent.isNull() and not dependent.hasCache()) {
     // only an empty AssociationVector can have a invalid dependent collection
-    edm::Provenance const& dependent_provenance = event.getProvenance(dependent.id());
+    edm::StableProvenance const& dependent_provenance = event.getStableProvenance(dependent.id());
     if (dependent_provenance.branchDescription().dropped())
       // FIXME the error message should be made prettier
       throw edm::Exception(edm::errors::ProductNotFound)

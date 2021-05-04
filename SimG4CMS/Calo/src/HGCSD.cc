@@ -24,9 +24,10 @@
 #include "G4VProcess.hh"
 #include "G4Trap.hh"
 
-#include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
+#include <memory>
 
 //#define EDM_ML_DEBUG
 //#define plotDebug
@@ -105,8 +106,8 @@ double HGCSD::getEnergyDeposit(const G4Step* aStep) {
   G4LogicalVolume* lv = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
   edm::LogVerbatim("HGCSim") << "HGCSD: Hit from standard path from " << lv->GetName() << " for Track "
                              << aStep->GetTrack()->GetTrackID() << " ("
-                             << aStep->GetTrack()->GetDefinition()->GetParticleName() << ") R = " << r << " Z = " << z
-                             << " slope = " << r / z << ":" << slopeMin_;
+                             << aStep->GetTrack()->GetDefinition()->GetParticleName() << ":" << parCode << ") R = " << r
+                             << " Z = " << z << " slope = " << r / z << ":" << slopeMin_;
 #endif
 
   // Apply fiductial volume
@@ -170,12 +171,14 @@ uint32_t HGCSD::setDetUnitId(const G4Step* aStep) {
     cell = touch->GetReplicaNumber(0);
   }
 #ifdef EDM_ML_DEBUG
+  const G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
   edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth() << " name " << touch->GetVolume(0)->GetName()
                              << ":" << touch->GetReplicaNumber(0) << "   " << touch->GetVolume(1)->GetName() << ":"
                              << touch->GetReplicaNumber(1) << "   " << touch->GetVolume(2)->GetName() << ":"
-                             << touch->GetReplicaNumber(2) << "   "
-                             << " layer:module:cell " << layer << ":" << module << ":" << cell << " Material "
-                             << mat->GetName() << ":" << aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
+                             << touch->GetReplicaNumber(2) << "    layer:module:cell " << layer << ":" << module << ":"
+                             << cell << " Material " << mat->GetName() << ":" << mat->GetRadlen();
+//for (int k = 0; k< touch->GetHistoryDepth(); ++k)
+//  edm::LogVerbatim("HGCSim") << "Level [" << k << "] " << touch->GetVolume(k)->GetName() << ":" << touch->GetReplicaNumber(k);
 #endif
   // The following statement should be examined later before elimination
   // VI: this is likely a check if media is vacuum - not needed
@@ -187,8 +190,10 @@ uint32_t HGCSD::setDetUnitId(const G4Step* aStep) {
     int det, z, lay, wafer, type, ic;
     HGCalTestNumbering::unpackHexagonIndex(id, det, z, lay, wafer, type, ic);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "ID " << std::hex << id << std::dec << " Decode " << det << ":" << z << ":" << lay
-                               << ":" << wafer << ":" << type << ":" << ic;
+    edm::LogVerbatim("HGCSim") << "ID " << std::hex << id << std::dec << " Input " << subdet << ":" << layer << ":"
+                               << module << ":" << cell << ":" << iz << localpos.x() << ":" << localpos.y()
+                               << " Decode " << det << ":" << z << ":" << lay << ":" << wafer << ":" << type << ":"
+                               << ic;
 #endif
     if (mouseBite_->exclude(hitPoint, z, wafer, 0))
       id = 0;
@@ -205,9 +210,9 @@ void HGCSD::update(const BeginOfJob* job) {
     geom_mode_ = hgcons->geomMode();
     slopeMin_ = hgcons->minSlope();
     levelT_ = hgcons->levelTop();
-    numberingScheme_.reset(new HGCNumberingScheme(*hgcons, nameX_));
+    numberingScheme_ = std::make_unique<HGCNumberingScheme>(*hgcons, nameX_);
     if (rejectMB_)
-      mouseBite_.reset(new HGCMouseBite(*hgcons, angles_, mouseBiteCut_, waferRot_));
+      mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons, angles_, mouseBiteCut_, waferRot_);
   } else {
     edm::LogError("HGCSim") << "HCalSD : Cannot find HGCalDDDConstants for " << nameX_;
     throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";

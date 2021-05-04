@@ -24,6 +24,30 @@ namespace {
 
 using namespace std;
 
+void CosmicTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const {
+  const math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
+
+  assert(mask.size() == tracks.size());
+  int i = -1;
+  for (auto const& track : tracks) {
+    i++;
+    if (mask[i])
+      continue;
+
+    if (track.pt() < ptMin()) {
+      continue;
+    }
+    if (std::abs(track.dxy(regOrigin)) > originRBound()) {
+      continue;
+    }
+    if (std::abs(track.dz(regOrigin)) > originZBound()) {
+      continue;
+    }
+
+    mask[i] = true;
+  }
+}
+
 TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::EventSetup& es,
                                                 const SeedingLayerSetsHits::SeedingLayer& layer) const {
   TrackingRegion::Hits result;

@@ -337,7 +337,7 @@ reco::SoftLeptonTagInfo SoftLepton::tag(const edm::RefToBase<reco::Jet> &jet,
 GlobalVector SoftLepton::refineJetAxis(const edm::RefToBase<reco::Jet> &jet,
                                        const reco::TrackRefVector &tracks,
                                        const reco::TrackBaseRef &exclude /* = reco::TrackBaseRef() */
-                                       ) const {
+) const {
   math::XYZVector axis = jet->momentum();
 
   if (m_refineJetAxis == AXIS_CHARGED_AVERAGE or m_refineJetAxis == AXIS_CHARGED_AVERAGE_NOLEPTON) {

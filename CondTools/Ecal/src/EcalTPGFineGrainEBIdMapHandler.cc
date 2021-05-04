@@ -50,7 +50,7 @@ void popcon::EcalTPGFineGrainEBIdMapHandler::getNewObjects() {
   }
 
   unsigned int max_since = 0;
-  max_since = static_cast<unsigned int>(tagInfo().lastInterval.first);
+  max_since = static_cast<unsigned int>(tagInfo().lastInterval.since);
   edm::LogInfo("EcalTPGFineGrainEBIdMapHandler") << "max_since : " << max_since;
   Ref fgrIdMap_db = lastPayload();
 

@@ -131,11 +131,12 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
   //---------------
 
   if (simulateCalorimetry) {
-    myCalorimetry.reset(new CalorimetryManager(nullptr,
-                                               iConfig.getParameter<edm::ParameterSet>("Calorimetry"),
-                                               iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
-                                               iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
-                                               iConfig.getParameter<edm::ParameterSet>("GFlash")));
+    myCalorimetry =
+        std::make_unique<CalorimetryManager>(nullptr,
+                                             iConfig.getParameter<edm::ParameterSet>("Calorimetry"),
+                                             iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
+                                             iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
+                                             iConfig.getParameter<edm::ParameterSet>("GFlash"));
   }
 
   //----------------
@@ -147,7 +148,7 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
   produces<edm::SimVertexContainer>();
   // products of interaction models, i.e. simHits
   for (auto& interactionModel : interactionModels_) {
-    interactionModel->registerProducts(*this);
+    interactionModel->registerProducts(producesCollector());
   }
   produces<edm::PCaloHitContainer>("EcalHitsEB");
   produces<edm::PCaloHitContainer>("EcalHitsEE");

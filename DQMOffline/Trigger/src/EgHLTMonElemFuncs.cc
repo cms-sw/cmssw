@@ -909,7 +909,7 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>&
                                          const std::vector<std::string>& filterNames,
                                          int cutMask,
                                          const BinData& bins) {
-  for (auto trigName : filterNames) {
+  for (const auto& trigName : filterNames) {
     //  float etCutValue = trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
@@ -1089,7 +1089,7 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>&
                                          const std::vector<std::string>& filterNames,
                                          int cutMask,
                                          const BinData& bins) {
-  for (auto trigName : filterNames) {
+  for (const auto& trigName : filterNames) {
     //float etCutValue = trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;

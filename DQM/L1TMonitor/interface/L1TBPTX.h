@@ -33,7 +33,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include <TString.h>
 
@@ -66,7 +66,7 @@ private:
   std::map<std::pair<int, int>, double> m_lsTechRate;
 };
 
-class L1TBPTX : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class L1TBPTX : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   enum BeamMode {
     NOMODE = 1,

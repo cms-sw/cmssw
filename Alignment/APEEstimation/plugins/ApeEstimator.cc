@@ -72,7 +72,7 @@
 //added by Ajay 6Nov 2014
 //.......................
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 
@@ -111,7 +111,6 @@
 /////////
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -181,8 +180,12 @@ private:
 
   // ----------member data ---------------------------
   const edm::ParameterSet parameterSet_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleDepRcd> lorentzAngleToken_;
+
   std::map<unsigned int, TrackerSectorStruct> m_tkSector_;
   TrackerDetectorStruct tkDetector_;
+  SiStripClusterInfo siStripClusterInfo_;
 
   edm::EDGetTokenT<TrajTrackAssociationCollection> tjTagToken_;
   edm::EDGetTokenT<reco::BeamSpot> offlinebeamSpot_;
@@ -218,6 +221,9 @@ private:
 //
 ApeEstimator::ApeEstimator(const edm::ParameterSet& iConfig)
     : parameterSet_(iConfig),
+      magFieldToken_(esConsumes()),
+      lorentzAngleToken_(esConsumes()),
+      siStripClusterInfo_(consumesCollector(), std::string("")),
       tjTagToken_(
           consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
       offlinebeamSpot_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
@@ -1619,29 +1625,31 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
     }
     const SiStripCluster& stripCluster(*clusterPtr);
 
-    const SiStripClusterInfo clusterInfo = SiStripClusterInfo(stripCluster, iSetup, rawId, std::string(""));
+    siStripClusterInfo_.setCluster(stripCluster, rawId);
 
-    const std::vector<uint8_t>::const_iterator stripChargeL(clusterInfo.stripCharges().begin());
-    const std::vector<uint8_t>::const_iterator stripChargeR(--(clusterInfo.stripCharges().end()));
+    auto stripChargeL = siStripClusterInfo_.stripCharges().begin();
+    auto stripChargeR = siStripClusterInfo_.stripCharges().end() - 1;
     const std::pair<uint16_t, uint16_t> stripChargeLR = std::make_pair(*stripChargeL, *stripChargeR);
 
-    hitParams.chargeStrip = clusterInfo.charge();
-    hitParams.widthX = clusterInfo.width();
-    hitParams.baryStripX = clusterInfo.baryStrip() + 1.;
-    hitParams.isModuleUsable = clusterInfo.IsModuleUsable();
-    hitParams.maxStrip = clusterInfo.maxStrip() + 1;
+    hitParams.chargeStrip = siStripClusterInfo_.charge();
+    hitParams.widthX = siStripClusterInfo_.width();
+    hitParams.baryStripX = siStripClusterInfo_.baryStrip() + 1.;
+    hitParams.isModuleUsable = siStripClusterInfo_.IsModuleUsable();
+    hitParams.maxStrip = siStripClusterInfo_.maxStrip() + 1;
     hitParams.maxStripInv = m_tkTreeVar_[rawId].nStrips - hitParams.maxStrip + 1;
-    hitParams.maxCharge = clusterInfo.maxCharge();
-    hitParams.maxIndex = clusterInfo.maxIndex();
+    hitParams.maxCharge = siStripClusterInfo_.maxCharge();
+    hitParams.maxIndex = siStripClusterInfo_.maxIndex();
     hitParams.chargeOnEdges =
         static_cast<float>(stripChargeLR.first + stripChargeLR.second) / static_cast<float>(hitParams.chargeStrip);
     hitParams.chargeAsymmetry = static_cast<float>(stripChargeLR.first - stripChargeLR.second) /
                                 static_cast<float>(stripChargeLR.first + stripChargeLR.second);
-    hitParams.chargeLRplus = static_cast<float>(clusterInfo.chargeLR().first + clusterInfo.chargeLR().second) /
-                             static_cast<float>(hitParams.chargeStrip);
-    hitParams.chargeLRminus = static_cast<float>(clusterInfo.chargeLR().first - clusterInfo.chargeLR().second) /
-                              static_cast<float>(hitParams.chargeStrip);
-    hitParams.sOverN = clusterInfo.signalOverNoise();
+    hitParams.chargeLRplus =
+        static_cast<float>(siStripClusterInfo_.chargeLR().first + siStripClusterInfo_.chargeLR().second) /
+        static_cast<float>(hitParams.chargeStrip);
+    hitParams.chargeLRminus =
+        static_cast<float>(siStripClusterInfo_.chargeLR().first - siStripClusterInfo_.chargeLR().second) /
+        static_cast<float>(hitParams.chargeStrip);
+    hitParams.sOverN = siStripClusterInfo_.signalOverNoise();
 
     // Calculate projection length corrected by drift
     if (!hit.detUnit()) {
@@ -1654,16 +1662,11 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
       return hitParams;
     }
 
-    edm::ESHandle<MagneticField> magFieldHandle;
-    iSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-
-    edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
-    iSetup.get<SiStripLorentzAngleDepRcd>().get(lorentzAngleHandle);  //MODIFIED BY LOIC QUERTENMONT
+    const MagneticField* magField = &iSetup.getData(magFieldToken_);
+    const SiStripLorentzAngle* lorentzAngle = &iSetup.getData(lorentzAngleToken_);
 
     const StripGeomDetUnit* stripDet = (const StripGeomDetUnit*)(&detUnit);
-    const MagneticField* magField(magFieldHandle.product());
     LocalVector bField = (stripDet->surface()).toLocal(magField->inTesla(stripDet->surface().position()));
-    const SiStripLorentzAngle* lorentzAngle(lorentzAngleHandle.product());
     float tanLorentzAnglePerTesla = lorentzAngle->getLorentzAngle(stripDet->geographicalId().rawId());
 
     float dirX = -tanLorentzAnglePerTesla * bField.y();
@@ -2568,14 +2571,14 @@ bool ApeEstimator::isHit2D(const TrackingRecHit& hit) const {
           const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
           return (this->isHit2D(pH->originalHit()));  // depends on original...
         } else {
-          edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
-                                      << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
-                                      << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
+          edm::LogError("UnknownType") << "@SUB=ApeEstimator::isHit2D"
+                                       << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
+                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
         }
       }
     } else {  // not tracker??
-      edm::LogWarning("DetectorMismatch") << "@SUB=AlignmentTrackSelector::isHit2D"
+      edm::LogWarning("DetectorMismatch") << "@SUB=ApeEstimator::isHit2D"
                                           << "Hit not in tracker with 'official' dimension >=2.";
       return true;  // dimension() >= 2 so accept that...
     }
@@ -2601,6 +2604,8 @@ void ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
   iEvent.getByToken(tjTagToken_, m_TrajTracksMap);
+
+  siStripClusterInfo_.initEvent(iSetup);
 
   if (analyzerMode_)
     tkDetector_.TrkSize->Fill(m_TrajTracksMap->size());

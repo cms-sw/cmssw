@@ -1,37 +1,33 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimG4CMS/Calo/interface/CaloHitID.h"
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include <TH1F.h>
 
-#include <boost/format.hpp>
-#include <algorithm>
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <map>
-#include <string>
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimG4CMS/Calo/interface/CaloHitID.h"
 
 class HitParentTest : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
@@ -256,8 +252,8 @@ void HitParentTest::endJob() {
                                     << "(pid/frequency):";
   for (unsigned i = 0; i < sorted_pids.size(); ++i) {
     int pid = sorted_pids[i];
-    edm::LogVerbatim("HitParentTest") << "  pid " << boost::format("%6d") % pid << ": count "
-                                      << boost::format("%6d") % particle_type_count[pid];
+    edm::LogVerbatim("HitParentTest") << "  pid " << std::setw(6) << pid << ": count " << std::setw(6)
+                                      << particle_type_count[pid];
   }
 }
 

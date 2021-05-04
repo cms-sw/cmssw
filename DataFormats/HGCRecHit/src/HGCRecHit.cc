@@ -9,8 +9,9 @@
 
 HGCRecHit::HGCRecHit() : CaloRecHit(), flagBits_(0) {}
 
-HGCRecHit::HGCRecHit(const DetId& id, float energy, float time, uint32_t flags, uint32_t flagBits)
-    : CaloRecHit(id, energy, time, flags), flagBits_(flagBits) {}
+HGCRecHit::HGCRecHit(
+    const DetId& id, float energy, float time, uint32_t flags, uint32_t flagBits, uint8_t son, float timeError)
+    : CaloRecHit(id, energy, time, flags), flagBits_(flagBits), signalOverSigmaNoise_(son), timeError_(timeError) {}
 
 float HGCRecHit::chi2() const {
   uint32_t rawChi2 = 0x7F & (flags() >> 4);
@@ -70,25 +71,12 @@ void HGCRecHit::setSignalOverSigmaNoise(float sOverNoise) {
 
 float HGCRecHit::signalOverSigmaNoise() const { return (float)signalOverSigmaNoise_ * 0.125f; }
 
-void HGCRecHit::setTimeError(uint8_t timeErrBits) {
-  // take the bits and put them in the right spot
-  setAux((~0xFF & aux()) | timeErrBits);
+void HGCRecHit::setTimeError(float timeErr) {
+  //expected resolution on single cell for that given S/N
+  timeError_ = timeErr;
 }
 
-float HGCRecHit::timeError() const {
-  uint32_t timeErrorBits = 0xFF & aux();
-  // all bits off --> time reco bailed out (return negative value)
-  if ((0xFF & timeErrorBits) == 0x00)
-    return -1;
-  // all bits on  --> time error over 5 ns (return large value)
-  if ((0xFF & timeErrorBits) == 0xFF)
-    return 10000;
-
-  float LSB = 1.26008;
-  uint8_t exponent = timeErrorBits >> 5;
-  uint8_t significand = timeErrorBits & ~(0x7 << 5);
-  return pow(2., exponent) * significand * LSB / 1000.f;
-}
+float HGCRecHit::timeError() const { return timeError_; }
 
 bool HGCRecHit::isTimeValid() const {
   if (timeError() <= 0)

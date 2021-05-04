@@ -39,16 +39,16 @@ public:
 
     virtual ~FittedRecHit() {}
 
-    inline const TVector3 &getGlobalCoordinates() const { return space_point_on_det_; }
+    inline const TVector3 &globalCoordinates() const { return space_point_on_det_; }
     inline void setGlobalCoordinates(const TVector3 &space_point_on_det) { space_point_on_det_ = space_point_on_det; }
 
-    inline double getResidual() const { return residual_; }
+    inline double residual() const { return residual_; }
     inline void setResidual(double residual) { residual_ = residual; }
 
-    inline double getPull() const { return pull_; }
+    inline double pull() const { return pull_; }
     inline void setPull(double pull) { pull_ = pull; }
 
-    inline double getPullNormalization() const { return residual_ / pull_; }
+    inline double pullNormalization() const { return residual_ / pull_; }
 
   private:
     TVector3 space_point_on_det_;  ///< mm
@@ -72,55 +72,55 @@ public:
 
   virtual ~TotemRPLocalTrack() {}
 
-  inline const edm::DetSetVector<FittedRecHit> &getHits() const { return track_hits_vector_; }
+  inline const edm::DetSetVector<FittedRecHit> &hits() const { return track_hits_vector_; }
   inline void addHit(unsigned int detId, const FittedRecHit &hit) {
     track_hits_vector_.find_or_insert(detId).push_back(hit);
   }
 
-  inline double getX0() const { return track_params_vector_[0]; }
-  inline double getX0Sigma() const { return sqrt(CovarianceMatrixElement(0, 0)); }
-  inline double getX0Variance() const { return CovarianceMatrixElement(0, 0); }
+  inline double x0() const { return track_params_vector_[0]; }
+  inline double x0Sigma() const { return sqrt(CovarianceMatrixElement(0, 0)); }
+  inline double x0Variance() const { return CovarianceMatrixElement(0, 0); }
 
-  inline double getY0() const { return track_params_vector_[1]; }
-  inline double getY0Sigma() const { return sqrt(CovarianceMatrixElement(1, 1)); }
-  inline double getY0Variance() const { return CovarianceMatrixElement(1, 1); }
+  inline double y0() const { return track_params_vector_[1]; }
+  inline double y0Sigma() const { return sqrt(CovarianceMatrixElement(1, 1)); }
+  inline double y0Variance() const { return CovarianceMatrixElement(1, 1); }
 
-  inline double getZ0() const { return z0_; }
+  inline double z0() const { return z0_; }
   inline void setZ0(double z0) { z0_ = z0; }
 
-  inline double getTx() const { return track_params_vector_[2]; }
-  inline double getTxSigma() const { return sqrt(CovarianceMatrixElement(2, 2)); }
+  inline double tx() const { return track_params_vector_[2]; }
+  inline double txSigma() const { return sqrt(CovarianceMatrixElement(2, 2)); }
 
-  inline double getTy() const { return track_params_vector_[3]; }
-  inline double getTySigma() const { return sqrt(CovarianceMatrixElement(3, 3)); }
+  inline double ty() const { return track_params_vector_[3]; }
+  inline double tySigma() const { return sqrt(CovarianceMatrixElement(3, 3)); }
 
-  inline TVector3 getDirectionVector() const {
-    TVector3 vect(getTx(), getTy(), 1);
+  inline TVector3 directionVector() const {
+    TVector3 vect(tx(), ty(), 1);
     vect.SetMag(1.0);
     return vect;
   }
 
-  TVectorD getParameterVector() const;
+  TVectorD parameterVector() const;
   void setParameterVector(const TVectorD &track_params_vector);
 
-  TMatrixD getCovarianceMatrix() const;
+  TMatrixD covarianceMatrix() const;
   void setCovarianceMatrix(const TMatrixD &par_covariance_matrix);
 
-  inline double getChiSquared() const { return chiSquared_; }
+  inline double chiSquared() const { return chiSquared_; }
   inline void setChiSquared(double &chiSquared) { chiSquared_ = chiSquared; }
 
-  inline double getChiSquaredOverNDF() const { return chiSquared_ / (track_hits_vector_.size() - 4); }
+  inline double chiSquaredOverNDF() const { return chiSquared_ / (track_hits_vector_.size() - 4); }
 
-  inline unsigned short getNumberOfPointsUsedForFit() const { return track_hits_vector_.size(); }
+  inline unsigned short numberOfPointsUsedForFit() const { return track_hits_vector_.size(); }
 
   /// returns (x, y) vector
-  inline TVector2 getTrackPoint(double z) const {
+  inline TVector2 trackPoint(double z) const {
     double delta_z = z - z0_;
     return TVector2(track_params_vector_[0] + track_params_vector_[2] * delta_z,
                     track_params_vector_[1] + track_params_vector_[3] * delta_z);
   }
 
-  inline TVector3 getTrackCentrePoint() { return TVector3(track_params_vector_[0], track_params_vector_[1], z0_); }
+  inline TVector3 trackCentrePoint() { return TVector3(track_params_vector_[0], track_params_vector_[1], z0_); }
 
   TMatrixD trackPointInterpolationCovariance(double z) const;
 

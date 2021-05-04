@@ -1,4 +1,4 @@
-<bin name="test2026Geometry" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS="/bin/bash Configuration/Geometry/test runtests.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<environment>
+  <test name="test2026Geometry" command="python ${LOCALTOP}/src/Configuration/Geometry/scripts/generate2026Geometry.py -t"/>
+  <test name="test2021Geometry" command="python ${LOCALTOP}/src/Configuration/Geometry/scripts/generate2021Geometry.py -t"/>
+</environment>

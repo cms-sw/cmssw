@@ -36,7 +36,7 @@ void L1TCaloStage2ParamsWriter::analyze(const edm::Event& iEvent, const edm::Eve
   else
     evSetup.get<L1TCaloParamsRcd>().get(handle1);
 
-  boost::shared_ptr<l1t::CaloParams> ptr1(new l1t::CaloParams(*(handle1.product())));
+  std::shared_ptr<l1t::CaloParams> ptr1(new l1t::CaloParams(*(handle1.product())));
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {

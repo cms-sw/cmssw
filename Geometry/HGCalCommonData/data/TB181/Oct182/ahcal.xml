@@ -106,28 +106,32 @@
   <Algorithm name="hgcal:DDAHcalModuleAlgo">
     <rParent name="hgcal:HGCalAH"/>
     <String name="TileName" value="ahcal:AHcalTileSensitive"/>
-    <Vector name="MaterialNames" type="string" nEntries="9">
+    <Vector name="MaterialNames" type="string" nEntries="10">
       ahcal:Steel235, materials:Air, ahcal:Steel235, ahcal:CFM, ahcal:PCB, 
-      ahcal:Polystyrole, ahcal:Polystyrene, ahcal:Steel235, ahcal:Steel235</Vector>
-    <Vector name="VolumeNames" type="string" nEntries="9">
-      AHcalRadiator, AHcalAirGap, AHcalCassette, AHcalCable, AHcalPCB,
-      AHcalFoil, AHcalActive, AHcalAbsorber, AHcalAbsorberLastCover</Vector>
-    <Vector name="Thickness" type="numeric" nEntries="9">
+      ahcal:Polystyrole, ahcal:Polystyrene, ahcal:Steel235, ahcal:Steel235, 
+      materials:Air</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="10">
+      AHcalRadiator, AHcalAirGa1p, AHcalCassette, AHcalCable, AHcalPCB,
+      AHcalFoil, AHcalActive, AHcalAbsorber, AHcalAbsorberLastCover,
+      AHcalAirGap2</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="10">
       [ahcal:radiatorThick], [ahcal:airgapThick], [ahcal:cassetteThick], 
       [ahcal:cableThick], [ahcal:pcbThick], [ahcal:foilThick], 
-      [ahcal:scintThick], [ahcal:absorberThick], 5.0*mm</Vector>
+      [ahcal:scintThick], [ahcal:absorberThick], 5.0*mm,
+      9.0*mm</Vector>
     <Vector name="Layers" type="numeric" nEntries="22"> 
       20, 20, 20, 20, 20, 
       20, 20, 20, 20, 20, 
       20, 20, 20, 20, 20, 
-      20, 20, 20, 20, 4,
-      12, 3</Vector>
+      20, 20, 20, 20, 4, 
+      12, 3
+    </Vector>
     <Vector name="LayerThick" type="numeric" nEntries="22"> 
       52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 
       52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 
       52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 
-      52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 36.97*mm,
-      44.685*mm, 23.485*mm
+      52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 52.4*mm, 
+      44.685*mm, 43.4*mm
       </Vector>
     <Vector name="LayerType" type="numeric" nEntries="399"> 
       7, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1,
@@ -149,9 +153,9 @@
       0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
       0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
       0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 2, 3, 4, 5, 6, 5, 2, 1, 
-      0, 1, 0, 1, 
+      0, 9, 0, 9, 
       0, 1, 2, 3, 4, 5, 6, 5, 2, 1,  0, 1, 
-      0, 1, 8
+      0, 9, 0
     </Vector>
     <Vector name="LayerSense" type="numeric" nEntries="399">
       0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0,

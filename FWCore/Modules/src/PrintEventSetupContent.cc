@@ -121,7 +121,7 @@ namespace edm {
         if (compact_) {
           for (Data::iterator itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata) {
             if (not msg)
-              msg.reset(new LogSystem("ESContent"));
+              msg = std::make_unique<LogSystem>("ESContent");
             else
               *msg << '\n';
             *msg << "ESContent> "
@@ -134,7 +134,7 @@ namespace edm {
           }
         } else {
           if (not msg) {
-            msg.reset(new LogSystem("ESContent"));
+            msg = std::make_unique<LogSystem>("ESContent");
             *msg << "Changed Record"
                  << "\n  "
                  << "<datatype>"

@@ -141,6 +141,7 @@ private:
                       int ieta,
                       int iphi);
   void TrackMap(unsigned int trkIndex, std::vector<spr::propagatedTrackDirection>& trkDirs, double dR);
+  double eThreshold(const DetId& id, double eta) const;
 
   l1t::L1TGlobalUtil* l1GtUtils_;
   edm::Service<TFileService> fs;
@@ -160,6 +161,7 @@ private:
   const bool unCorrect_, collapseDepth_;
   const double hitEthrEB_, hitEthrEE0_, hitEthrEE1_;
   const double hitEthrEE2_, hitEthrEE3_;
+  const double hitEthrEELo_, hitEthrEEHi_;
   const edm::InputTag triggerEvent_, theTriggerResultsLabel_;
   const std::string labelGenTrack_, labelRecVtx_, labelEB_;
   const std::string labelEE_, labelHBHE_, labelTower_, l1TrigName_;
@@ -242,6 +244,8 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       hitEthrEE1_(iConfig.getParameter<double>("EEHitEnergyThreshold1")),
       hitEthrEE2_(iConfig.getParameter<double>("EEHitEnergyThreshold2")),
       hitEthrEE3_(iConfig.getParameter<double>("EEHitEnergyThreshold3")),
+      hitEthrEELo_(iConfig.getParameter<double>("EEHitEnergyThresholdLow")),
+      hitEthrEEHi_(iConfig.getParameter<double>("EEHitEnergyThresholdHigh")),
       triggerEvent_(iConfig.getParameter<edm::InputTag>("labelTriggerEvent")),
       theTriggerResultsLabel_(iConfig.getParameter<edm::InputTag>("labelTriggerResult")),
       labelGenTrack_(iConfig.getParameter<std::string>("labelTrack")),
@@ -254,7 +258,7 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       matrixECAL_(iConfig.getUntrackedParameter<int>("matrixECAL", 5)),
       matrixHCAL_(iConfig.getUntrackedParameter<int>("matrixHCAL", 3)),
       mapR_(iConfig.getUntrackedParameter<double>("mapRadius", 34.98)),
-      get2Ddist_(iConfig.getUntrackedParameter<double>("get2Ddist", false)),
+      get2Ddist_(iConfig.getUntrackedParameter<bool>("get2Ddist", false)),
       nRun_(0),
       nLow_(0),
       nHigh_(0),
@@ -863,7 +867,7 @@ void HcalIsoTrackStudy::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<int>("maxInMiss", 0);
   desc.add<int>("maxOutMiss", 0);
   // Minimum momentum of selected isolated track and signal zone
-  desc.add<double>("minimumTrackP", 20.0);
+  desc.add<double>("minimumTrackP", 10.0);
   desc.add<double>("coneRadius", 34.98);
   // signal zone in ECAL and MIP energy cutoff
   desc.add<double>("coneRadiusMIP", 14.0);
@@ -879,6 +883,8 @@ void HcalIsoTrackStudy::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<double>("EEHitEnergyThreshold1", 68.7950);
   desc.add<double>("EEHitEnergyThreshold2", -38.1483);
   desc.add<double>("EEHitEnergyThreshold3", 7.04303);
+  desc.add<double>("EEHitEnergyThresholdLow", 0.08);
+  desc.add<double>("EEHitEnergyThresholdHigh", 0.30);
   // prescale factors
   desc.add<double>("momentumLow", 40.0);
   desc.add<double>("momentumHigh", 60.0);
@@ -1009,10 +1015,7 @@ std::array<int, 3> HcalIsoTrackStudy::fillTree(std::vector<math::XYZTLorentzVect
       for (unsigned int k = 0; k < eIds.size(); ++k) {
         const GlobalPoint& pos = geo->getPosition(eIds[k]);
         double eta = std::abs(pos.eta());
-        double eThr = (eIds[k].subdetId() == EcalBarrel)
-                          ? hitEthrEB_
-                          : (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-        if (eHit[k] > eThr)
+        if (eHit[k] > eThreshold(eIds[k], eta))
           eEcal += eHit[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1446,6 +1449,18 @@ void HcalIsoTrackStudy::TrackMap(unsigned int trkIndex,
       }
     }
   }
+}
+
+double HcalIsoTrackStudy::eThreshold(const DetId& id, double eta) const {
+  double eThr(hitEthrEB_);
+  if (id.subdetId() != EcalBarrel) {
+    eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+    if (eThr < hitEthrEELo_)
+      eThr = hitEthrEELo_;
+    else if (eThr > hitEthrEEHi_)
+      eThr = hitEthrEEHi_;
+  }
+  return eThr;
 }
 
 //define this as a plug-in

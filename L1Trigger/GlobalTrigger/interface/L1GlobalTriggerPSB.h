@@ -19,7 +19,6 @@
  */
 
 // system include files
-#include <boost/cstdint.hpp>
 #include <vector>
 
 // user include files
@@ -36,6 +35,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include <cstdint>
 
 // forward declarations
 class L1GctCand;
@@ -126,7 +126,7 @@ public:
 
   /// fill the content of active PSB boards
   void fillPsbBlock(edm::Event &iEvent,
-                    const boost::uint16_t &activeBoardsGtDaq,
+                    const uint16_t &activeBoardsGtDaq,
                     const int recordLength0,
                     const int recordLength1,
                     const unsigned int altNrBxBoardDaq,

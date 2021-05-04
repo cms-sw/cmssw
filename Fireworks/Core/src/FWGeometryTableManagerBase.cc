@@ -14,7 +14,7 @@
 
 // user include files
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 #include <stack>
 #ifdef PERFTOOL_GEO_TABLE
 #include <google/profiler.h>
@@ -31,7 +31,7 @@
 #include "TGeoShape.h"
 #include "TGeoBBox.h"
 #include "TGeoMatrix.h"
-
+#include "TVirtualX.h"
 #include "TGFrame.h"
 #include "TEveUtil.h"
 #include "boost/lexical_cast.hpp"

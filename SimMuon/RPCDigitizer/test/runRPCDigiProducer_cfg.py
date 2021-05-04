@@ -23,7 +23,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 # process = customize_digi_addGEM_muon_only(process)                                            # Digi only Muon Detectors
 # process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 # process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
-# process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+# process.load('Configuration.StandardSequences.MagneticField_cff')
 ############################
 
 ### 2023 Geometry w/o ME0 ###
@@ -35,7 +35,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 # process = customize_digi_addGEM_muon_only(process)                                            # Digi only Muon Detectors
 # process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
 # process.load('Configuration.Geometry.GeometryExtended2023_cff')
-# process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+# process.load('Configuration.StandardSequences.MagneticField_cff')
 #############################
 
 ### 2021 Geometry w/ GEM ###
@@ -55,7 +55,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 # process = customize_digi_addGEM_muon_only(process)                                  # Digi only Muon Detectors
 # process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 # process.load('Configuration.Geometry.GeometryExtended2021_cff')
-# process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+# process.load('Configuration.StandardSequences.MagneticField_cff')
 ############################
 
 ### Run 2 Geometry ###
@@ -65,7 +65,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 # process = customize_digi_muon_only(process)                                 # Digi only Muon Detectors
 # process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 # process.load('Configuration.Geometry.GeometryExtended2015_cff')
-# process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+# process.load('Configuration.StandardSequences.MagneticField_cff')
 ######################
 
 ### Run 1 Geometry ###
@@ -74,7 +74,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
 from SimMuon.RPCDigitizer.customizeRPCDigi import customize_digi_muon_only  # Customize for CSC + DT + RPC
 process = customize_digi_muon_only(process)                                 # Digi only Muon Detectors
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 ######################
 
 
@@ -124,19 +124,11 @@ process.maxEvents = cms.untracked.PSet(
 ### that can be activated independently
 ################################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-## process.MessageLogger.categories.append("RPCGeometry")
-process.MessageLogger.categories.append("RPCDigiProducer")
-## process.MessageLogger.categories.append("RPCSimSetup")
-## process.MessageLogger.categories.append("RPCSimSetupClsLoopDetails")
-## process.MessageLogger.categories.append("RPCSimSetupNoiseLoopDetails")
-## process.MessageLogger.categories.append("RPCSimSetupChecks")
-process.MessageLogger.categories.append("RPCSynchronizer")
-process.MessageLogger.categories.append("RPCDigitizer")
-process.MessageLogger.categories.append("RPCSimAsymmetricCls")
-## process.MessageLogger.categories.append("RPCSimAverageNoiseEffCls")
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.junk = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
     default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),

@@ -300,7 +300,6 @@
   <class name="L1CaloGeometry" class_version="L1CaloGeometry_V01">
     <field name="m_gctEtaBinBoundaries" mapping="blob" />
   </class>
-  <enum name="L1GtBoard" />
   <enum name="L1GtPsbQuad" />
   <class name="std::vector<L1TUtmAlgorithm>"/>
   <class name="std::map<std::string, L1TUtmAlgorithm>"/>
@@ -359,6 +358,13 @@
    <field name="exp_doubles_" mapping="blob" />
   </class>
 
+  <class name="L1TGlobalPrescalesVetosFract">
+   <field name="prescale_table_" mapping="blob" />
+   <field name="bxmask_map_" mapping="blob" />
+   <field name="veto_" mapping="blob" />
+   <field name="exp_ints_" mapping="blob" />
+   <field name="exp_doubles_" mapping="blob" />
+  </class>
 
 
 </lcgdict>

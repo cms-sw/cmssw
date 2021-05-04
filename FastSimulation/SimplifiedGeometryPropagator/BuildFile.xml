@@ -2,44 +2,21 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/PluginManager"/>
-
-<use name="TrackingTools/DetLayers"/>
-<use name="TrackingTools/TrajectoryState"/>
-<use name="TrackingTools/GeomPropagators"/>
-
-<use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/GeometryVector"/>
-<use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>
-<use name="SimDataFormats/EncodedEventId"/>
-
-<use name="Geometry/CommonDetUnit"/>
-<use name="Geometry/Records"/>
-<use name="Geometry/CaloGeometry"/>
-
-<use name="CondFormats/External"/>
 <use name="DataFormats/Math"/>
-
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
-
-<use name="FastSimulation/TrajectoryManager"/>
-<use name="FastSimulation/Calorimetry"/>
-<use name="FastSimulation/CaloGeometryTools"/>
-<use name="FastSimulation/ShowerDevelopment"/>
-
 <use name="RecoTracker/Record"/>
 <use name="RecoTracker/TkDetLayers"/>
-
 <use name="FWCore/ServiceRegistry"/>
 <use name="GeneratorInterface/Pythia8Interface"/>
 <use name="pythia8"/>
-
 <use name="HepPDT"/>
 <use name="clhep"/>
 <use name="rootcore"/>
-
+<use name="geant4core"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

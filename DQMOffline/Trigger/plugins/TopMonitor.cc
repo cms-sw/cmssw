@@ -1,31 +1,256 @@
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DQMOffline/Trigger/plugins/TopMonitor.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+#include <string>
+#include <vector>
+#include <memory>
+#include <map>
+
+class TopMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
+public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
+  TopMonitor(const edm::ParameterSet&);
+  ~TopMonitor() throw() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+
+  struct JetRefCompare {
+    inline bool operator()(const edm::RefToBase<reco::Jet>& j1, const edm::RefToBase<reco::Jet>& j2) const {
+      return (j1.id() < j2.id()) || ((j1.id() == j2.id()) && (j1.key() < j2.key()));
+    }
+  };
+  typedef std::map<edm::RefToBase<reco::Jet>, float, JetRefCompare> JetTagMap;
+
+private:
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
+
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muoToken_;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron> > eleToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > elecIDToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> phoToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
+  std::vector<edm::EDGetTokenT<reco::JetTagCollection> > jetTagTokens_;
+  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
+
+  struct PVcut {
+    double dxy;
+    double dz;
+  };
+
+  MEbinning met_binning_;
+  MEbinning ls_binning_;
+  MEbinning phi_binning_;
+  MEbinning pt_binning_;
+  MEbinning eta_binning_;
+  MEbinning HT_binning_;
+  MEbinning DR_binning_;
+  MEbinning csv_binning_;
+  MEbinning invMass_mumu_binning_;
+  MEbinning MHT_binning_;
+
+  std::vector<double> met_variable_binning_;
+  std::vector<double> HT_variable_binning_;
+  std::vector<double> jetPt_variable_binning_;
+  std::vector<double> muPt_variable_binning_;
+  std::vector<double> elePt_variable_binning_;
+  std::vector<double> jetEta_variable_binning_;
+  std::vector<double> muEta_variable_binning_;
+  std::vector<double> eleEta_variable_binning_;
+  std::vector<double> invMass_mumu_variable_binning_;
+  std::vector<double> MHT_variable_binning_;
+
+  std::vector<double> HT_variable_binning_2D_;
+  std::vector<double> jetPt_variable_binning_2D_;
+  std::vector<double> muPt_variable_binning_2D_;
+  std::vector<double> elePt_variable_binning_2D_;
+  std::vector<double> phoPt_variable_binning_2D_;
+  std::vector<double> jetEta_variable_binning_2D_;
+  std::vector<double> muEta_variable_binning_2D_;
+  std::vector<double> eleEta_variable_binning_2D_;
+  std::vector<double> phoEta_variable_binning_2D_;
+  std::vector<double> phi_variable_binning_2D_;
+
+  ObjME metME_;
+  ObjME metME_variableBinning_;
+  ObjME metVsLS_;
+  ObjME metPhiME_;
+
+  ObjME jetVsLS_;
+  ObjME muVsLS_;
+  ObjME eleVsLS_;
+  ObjME phoVsLS_;
+  ObjME bjetVsLS_;
+  ObjME htVsLS_;
+
+  ObjME jetEtaPhi_HEP17_;  // for HEP17 monitoring
+
+  ObjME jetMulti_;
+  ObjME eleMulti_;
+  ObjME muMulti_;
+  ObjME phoMulti_;
+  ObjME bjetMulti_;
+
+  ObjME elePt_jetPt_;
+  ObjME elePt_eventHT_;
+
+  ObjME ele1Pt_ele2Pt_;
+  ObjME ele1Eta_ele2Eta_;
+  ObjME mu1Pt_mu2Pt_;
+  ObjME mu1Eta_mu2Eta_;
+  ObjME elePt_muPt_;
+  ObjME eleEta_muEta_;
+  ObjME invMass_mumu_;
+  ObjME eventMHT_;
+  ObjME invMass_mumu_variableBinning_;
+  ObjME eventMHT_variableBinning_;
+  ObjME muPt_phoPt_;
+  ObjME muEta_phoEta_;
+
+  ObjME DeltaR_jet_Mu_;
+
+  ObjME eventHT_;
+  ObjME eventHT_variableBinning_;
+
+  std::vector<ObjME> muPhi_;
+  std::vector<ObjME> muEta_;
+  std::vector<ObjME> muPt_;
+
+  std::vector<ObjME> elePhi_;
+  std::vector<ObjME> eleEta_;
+  std::vector<ObjME> elePt_;
+
+  std::vector<ObjME> jetPhi_;
+  std::vector<ObjME> jetEta_;
+  std::vector<ObjME> jetPt_;
+
+  std::vector<ObjME> phoPhi_;
+  std::vector<ObjME> phoEta_;
+  std::vector<ObjME> phoPt_;
+
+  std::vector<ObjME> bjetPhi_;
+  std::vector<ObjME> bjetEta_;
+  std::vector<ObjME> bjetPt_;
+  std::vector<ObjME> bjetCSV_;
+  std::vector<ObjME> muPt_variableBinning_;
+  std::vector<ObjME> elePt_variableBinning_;
+  std::vector<ObjME> jetPt_variableBinning_;
+  std::vector<ObjME> bjetPt_variableBinning_;
+
+  std::vector<ObjME> muEta_variableBinning_;
+  std::vector<ObjME> eleEta_variableBinning_;
+  std::vector<ObjME> jetEta_variableBinning_;
+  std::vector<ObjME> bjetEta_variableBinning_;
+
+  // 2D distributions
+  std::vector<ObjME> jetPtEta_;
+  std::vector<ObjME> jetEtaPhi_;
+
+  std::vector<ObjME> elePtEta_;
+  std::vector<ObjME> eleEtaPhi_;
+
+  std::vector<ObjME> muPtEta_;
+  std::vector<ObjME> muEtaPhi_;
+
+  std::vector<ObjME> phoPtEta_;
+  std::vector<ObjME> phoEtaPhi_;
+
+  std::vector<ObjME> bjetPtEta_;
+  std::vector<ObjME> bjetEtaPhi_;
+  std::vector<ObjME> bjetCSVHT_;
+
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+
+  StringCutObjectSelector<reco::MET, true> metSelection_;
+  StringCutObjectSelector<reco::PFJet, true> jetSelection_;
+  StringCutObjectSelector<reco::GsfElectron, true> eleSelection_;
+  StringCutObjectSelector<reco::Muon, true> muoSelection_;
+  StringCutObjectSelector<reco::Photon, true> phoSelection_;
+  StringCutObjectSelector<reco::PFJet, true> HTdefinition_;
+
+  StringCutObjectSelector<reco::Vertex, true> vtxSelection_;
+
+  StringCutObjectSelector<reco::Jet, true> bjetSelection_;
+
+  unsigned int njets_;
+  unsigned int nelectrons_;
+  unsigned int nmuons_;
+  unsigned int nphotons_;
+  double leptJetDeltaRmin_;
+  double bJetMuDeltaRmax_;
+  double bJetDeltaEtaMax_;
+  double HTcut_;
+  unsigned int nbjets_;
+  double workingpoint_;
+  std::string btagalgoName_;
+  PVcut lepPVcuts_;
+  bool applyLeptonPVcuts_;
+
+  bool applyMETcut_ = false;
+
+  double invMassUppercut_;
+  double invMassLowercut_;
+  bool opsign_;
+  StringCutObjectSelector<reco::PFJet, true> MHTdefinition_;
+  double MHTcut_;
+
+  bool invMassCutInAllMuPairs_;
+
+  bool enablePhotonPlot_;
+  bool enableMETPlot_;
+};
 
 TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
       requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
       hltPathsAreValid_(false),
-      metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
-      jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
+      vtxToken_(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+      muoToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       eleToken_(mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons"))),
       elecIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elecID"))),
-      muoToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       phoToken_(mayConsume<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
-      jetTagToken_(mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagalgo"))),
-      jetbbTagToken_(mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("bbtagalgo"))),
-      vtxToken_(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+      jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
+      jetTagTokens_(
+          edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("btagAlgos"),
+                                [this](edm::InputTag const& tag) { return mayConsume<reco::JetTagCollection>(tag); })),
+      metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       met_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("metPSet"))),
       ls_binning_(
@@ -108,7 +333,7 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       HTcut_(iConfig.getParameter<double>("HTcut")),
       nbjets_(iConfig.getParameter<unsigned int>("nbjets")),
       workingpoint_(iConfig.getParameter<double>("workingpoint")),
-      usePVcuts_(iConfig.getParameter<bool>("applyleptonPVcuts")),
+      applyLeptonPVcuts_(iConfig.getParameter<bool>("applyLeptonPVcuts")),
       invMassUppercut_(iConfig.getParameter<double>("invMassUppercut")),
       invMassLowercut_(iConfig.getParameter<double>("invMassLowercut")),
       opsign_(iConfig.getParameter<bool>("oppositeSignMuons")),
@@ -116,14 +341,7 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       MHTcut_(iConfig.getParameter<double>("MHTcut")),
       invMassCutInAllMuPairs_(iConfig.getParameter<bool>("invMassCutInAllMuPairs")),
       enablePhotonPlot_(iConfig.getParameter<bool>("enablePhotonPlot")),
-      enableMETplot_(iConfig.getParameter<bool>("enableMETplot")) {
-  std::string metcut_str = iConfig.getParameter<std::string>("metSelection");
-  metcut_str.erase(std::remove(metcut_str.begin(), metcut_str.end(), ' '), metcut_str.end());
-  if (metcut_str != "pt>0")
-    applyMETcut_ = true;
-
-  btagalgoName_ = (iConfig.getParameter<edm::InputTag>("btagalgo")).label();
-
+      enableMETPlot_(iConfig.getParameter<bool>("enableMETPlot")) {
   ObjME empty;
 
   muPhi_ = std::vector<ObjME>(nmuons_, empty);
@@ -186,12 +404,13 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
     den_genTriggerEventFlag_->initRun(iRun, iSetup);
 
-  // check if each of the HLT paths specified in numerator and denominator
-  // has a valid match in the HLT Menu; if not, skip creation of DQM outputs
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
                        den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
                        den_genTriggerEventFlag_->allHLTPathsAreValid());
 
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
     return;
   }
@@ -201,7 +420,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
 
-  if (applyMETcut_ || enableMETplot_) {
+  if (enableMETPlot_) {
     histname = "met";
     histtitle = "PFMET";
     bookME(ibooker, metME_, histname, histtitle, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax);
@@ -710,42 +929,46 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     return;
   }
 
-  mll = -2;
-  sign = 0;
   // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
+  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)) {
     return;
+  }
 
-  //Suvankar
   edm::Handle<reco::VertexCollection> primaryVertices;
   iEvent.getByToken(vtxToken_, primaryVertices);
   //Primary Vertex selection
   const reco::Vertex* pv = nullptr;
   for (auto const& v : *primaryVertices) {
-    if (!vtxSelection_(v))
+    if (!vtxSelection_(v)) {
       continue;
+    }
     pv = &v;
     break;
   }
-  if (usePVcuts_ && pv == nullptr)
+  if (applyLeptonPVcuts_ && (pv == nullptr)) {
+    edm::LogWarning("TopMonitor") << "Invalid handle to reco::VertexCollection, event will be skipped";
     return;
+  }
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken(metToken_, metHandle);
-  if (!metHandle.isValid() && (applyMETcut_ || enableMETplot_)) {
+  if ((not metHandle.isValid()) && enableMETPlot_) {
     edm::LogWarning("TopMonitor") << "MET handle not valid \n";
     return;
   }
 
-  float met = 0;
-  float phi = 0;
+  double met_pt(-99.);
+  double met_phi(-99.);
 
-  if (applyMETcut_ || enableMETplot_) {
-    reco::PFMET pfmet = metHandle->front();
-    if (!metSelection_(pfmet))
+  if (enableMETPlot_) {
+    const reco::PFMET& pfmet = metHandle->front();
+
+    if (!metSelection_(pfmet)) {
       return;
-    met = pfmet.pt();
-    phi = pfmet.phi();
+    }
+
+    met_pt = pfmet.pt();
+    met_phi = pfmet.phi();
   }
 
   edm::Handle<edm::View<reco::GsfElectron> > eleHandle;
@@ -755,7 +978,6 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     return;
   }
 
-  //ATHER
   edm::Handle<edm::ValueMap<bool> > eleIDHandle;
   iEvent.getByToken(elecIDToken_, eleIDHandle);
   if (!eleIDHandle.isValid() && nelectrons_ > 0) {
@@ -765,21 +987,29 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   std::vector<reco::GsfElectron> electrons;
   if (nelectrons_ > 0) {
-    if (eleHandle->size() < nelectrons_)
+    if (eleHandle->size() < nelectrons_) {
       return;
+    }
+
     for (size_t index = 0; index < eleHandle->size(); index++) {
       const auto e = eleHandle->at(index);
       const auto el = eleHandle->ptrAt(index);
+
       bool pass_id = (*eleIDHandle)[el];
-      if (eleSelection_(e) && pass_id)
+
+      if (eleSelection_(e) && pass_id) {
         electrons.push_back(e);
-      //Suvankar
-      if (usePVcuts_ && (std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy ||
-                         std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz))
+      }
+
+      if (applyLeptonPVcuts_ && ((std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy) ||
+                                 (std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz))) {
         continue;
+      }
     }
-    if (electrons.size() < nelectrons_)
+
+    if (electrons.size() < nelectrons_) {
       return;
+    }
   }
 
   edm::Handle<reco::MuonCollection> muoHandle;
@@ -788,53 +1018,62 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     edm::LogWarning("TopMonitor") << "Muon handle not valid \n";
     return;
   }
-  if (muoHandle->size() < nmuons_)
+
+  if (muoHandle->size() < nmuons_) {
     return;
+  }
+
   std::vector<reco::Muon> muons;
   if (nmuons_ > 0) {
     for (auto const& m : *muoHandle) {
-      if (muoSelection_(m))
+      if (muoSelection_(m)) {
         muons.push_back(m);
-      //Suvankar
-      if (usePVcuts_ && (std::fabs(m.muonBestTrack()->dxy(pv->position())) >= lepPVcuts_.dxy ||
-                         std::fabs(m.muonBestTrack()->dz(pv->position())) >= lepPVcuts_.dz))
-        continue;
-    }
-    if (muons.size() < nmuons_)
-      return;
-  }
-  //george
+      }
 
+      if (applyLeptonPVcuts_ && ((std::fabs(m.muonBestTrack()->dxy(pv->position())) >= lepPVcuts_.dxy) ||
+                                 (std::fabs(m.muonBestTrack()->dz(pv->position())) >= lepPVcuts_.dz))) {
+        continue;
+      }
+    }
+
+    if (muons.size() < nmuons_) {
+      return;
+    }
+  }
+
+  double mll(-2);
   if (nmuons_ > 1) {
     mll = (muons[0].p4() + muons[1].p4()).M();
-    sign = muons[0].charge() * muons[1].charge();
+
+    if ((invMassUppercut_ > -1) && (invMassLowercut_ > -1) && ((mll > invMassUppercut_) || (mll < invMassLowercut_))) {
+      return;
+    }
+    if (opsign_ && (muons[0].charge() == muons[1].charge())) {
+      return;
+    }
   }
-  if (nmuons_ > 1 && invMassUppercut_ > -1 && invMassLowercut_ > -1 &&
-      (mll > invMassUppercut_ || mll < invMassLowercut_))
-    return;
-  if (nmuons_ > 1 && opsign_ && sign == 1)
-    return;
 
-  //cout<<" mll="<<mll<<"  invMasscut_="<<invMasscut_<<endl;
-
-  //Menglei
   edm::Handle<reco::PhotonCollection> phoHandle;
   iEvent.getByToken(phoToken_, phoHandle);
   if (!phoHandle.isValid()) {
     edm::LogWarning("TopMonitor") << "Photon handle not valid \n";
     return;
   }
-  if (phoHandle->size() < nphotons_)
+  if (phoHandle->size() < nphotons_) {
     return;
+  }
+
   std::vector<reco::Photon> photons;
   for (auto const& p : *phoHandle) {
-    if (phoSelection_(p))
+    if (phoSelection_(p)) {
       photons.push_back(p);
+    }
   }
-  if (photons.size() < nphotons_)
+  if (photons.size() < nphotons_) {
     return;
+  }
 
-  double eventHT = 0.;
+  double eventHT(0.);
   math::XYZTLorentzVector eventMHT(0., 0., 0., 0.);
 
   edm::Handle<reco::PFJetCollection> jetHandle;
@@ -883,14 +1122,17 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       return;
   }
 
-  if (eventHT < HTcut_)
+  if (eventHT < HTcut_) {
     return;
-  if (MHTcut_ > 0 && eventMHT.pt() < MHTcut_)
+  }
+
+  if ((MHTcut_ > 0) && (eventMHT.pt() < MHTcut_)) {
     return;
+  }
 
   bool allpairs = false;
   if (nmuons_ > 2) {
-    float mumu_mass;
+    double mumu_mass;
     for (unsigned int idx = 0; idx < muons.size(); idx++) {
       for (unsigned int idx2 = idx + 1; idx2 < muons.size(); idx2++) {
         //compute inv mass of two different leptons
@@ -901,43 +1143,59 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
   }
   //cut only if enabled and the event has a pair that failed the mll range
-  if (allpairs && invMassCutInAllMuPairs_)
-    return;
-
-  // Marina
-  edm::Handle<reco::JetTagCollection> bjetHandle;
-  iEvent.getByToken(jetTagToken_, bjetHandle);
-  if (!bjetHandle.isValid() && nbjets_ > 0) {
-    edm::LogWarning("TopMonitor") << "B-Jet handle not valid \n";
-    return;
-  }
-  edm::Handle<reco::JetTagCollection> bbjetHandle;
-  iEvent.getByToken(jetbbTagToken_, bbjetHandle);
-  if (!bbjetHandle.isValid() && nbjets_ > 0) {
-    edm::LogWarning("TopMonitor") << "BB-Jet handle not valid \n";
+  if (allpairs && invMassCutInAllMuPairs_) {
     return;
   }
 
   JetTagMap bjets;
+
   if (nbjets_ > 0) {
-    const reco::JetTagCollection& bTags = *(bjetHandle.product());
-    const reco::JetTagCollection& bbTags = *(bbjetHandle.product());
-    if (bTags.size() < nbjets_)
-      return;
-    for (unsigned int i = 0; i != bTags.size(); ++i) {
-      // Apply Selections
-      if (!bjetSelection_(*dynamic_cast<const reco::Jet*>(bTags[i].first.get())))
-        continue;
-      double bdisc = (btagalgoName_ == "pfDeepCSVJetTags") ? (bTags[i].second + bbTags[i].second)
-                                                           : bTags[i].second;  //probb + probbb
-      //std::cout<<folderName_<<" "<<btagalgoName_<<" "<<bTags[i].second<<" "<<bbTags[i].second<<" "<<bdisc<<std::endl;
-      if (bdisc < workingpoint_)
-        continue;
-      // Fill JetTag Map
-      bjets.insert(JetTagMap::value_type(bTags[i].first, bdisc));
+    // map of Jet,btagValues (for all jets passing bJetSelection_)
+    //  - btagValue of each jet is calculated as sum of values from InputTags in jetTagTokens_
+    JetTagMap allJetBTagVals;
+
+    for (const auto& jetTagToken : jetTagTokens_) {
+      edm::Handle<reco::JetTagCollection> bjetHandle;
+      iEvent.getByToken(jetTagToken, bjetHandle);
+      if (not bjetHandle.isValid()) {
+        edm::LogWarning("TopMonitor") << "B-Jet handle not valid, will skip event \n";
+        return;
+      }
+
+      const reco::JetTagCollection& bTags = *(bjetHandle.product());
+
+      for (const auto& i_jetTag : bTags) {
+        const auto& jetRef = i_jetTag.first;
+
+        if (not bjetSelection_(*dynamic_cast<const reco::Jet*>(jetRef.get()))) {
+          continue;
+        }
+
+        const auto btagVal = i_jetTag.second;
+
+        if (not std::isfinite(btagVal)) {
+          continue;
+        }
+
+        if (allJetBTagVals.find(jetRef) != allJetBTagVals.end()) {
+          allJetBTagVals.at(jetRef) += btagVal;
+        } else {
+          allJetBTagVals.insert(JetTagMap::value_type(jetRef, btagVal));
+        }
+      }
     }
-    if (bjets.size() < nbjets_)
+
+    for (const auto& jetBTagVal : allJetBTagVals) {
+      if (jetBTagVal.second < workingpoint_) {
+        continue;
+      }
+
+      bjets.insert(JetTagMap::value_type(jetBTagVal.first, jetBTagVal.second));
+    }
+
+    if (bjets.size() < nbjets_) {
       return;
+    }
   }
 
   if (nbjets_ > 1) {
@@ -964,79 +1222,81 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       return;
   }
 
-  int ls = iEvent.id().luminosityBlock();
+  const int ls = iEvent.id().luminosityBlock();
 
-  // filling histograms (denominator)
-  if (applyMETcut_ || enableMETplot_) {
-    metME_.denominator->Fill(met);
-    metME_variableBinning_.denominator->Fill(met);
-    metPhiME_.denominator->Fill(phi);
-    metVsLS_.denominator->Fill(ls, met);
+  // numerator condition
+  const bool trg_passed = (num_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->accept(iEvent, iSetup));
+
+  if (enableMETPlot_) {
+    metME_.fill(trg_passed, met_pt);
+    metME_variableBinning_.fill(trg_passed, met_pt);
+    metPhiME_.fill(trg_passed, met_phi);
+    metVsLS_.fill(trg_passed, ls, met_pt);
   }
   if (HTcut_ > 0) {
-    eventHT_.denominator->Fill(eventHT);
-    eventHT_variableBinning_.denominator->Fill(eventHT);
-    htVsLS_.denominator->Fill(ls, eventHT);
+    eventHT_.fill(trg_passed, eventHT);
+    eventHT_variableBinning_.fill(trg_passed, eventHT);
+    htVsLS_.fill(trg_passed, ls, eventHT);
   }
   //george
   if (MHTcut_ > 0) {
-    eventMHT_.denominator->Fill(eventMHT.pt());
-    eventMHT_variableBinning_.denominator->Fill(eventMHT.pt());
+    eventMHT_.fill(trg_passed, eventMHT.pt());
+    eventMHT_variableBinning_.fill(trg_passed, eventMHT.pt());
   }
 
   if (njets_ > 0) {
-    jetMulti_.denominator->Fill(jets.size());
-    jetEtaPhi_HEP17_.denominator->Fill(jets.at(0).eta(), jets.at(0).phi());  // for HEP17 monitorning
-    jetVsLS_.denominator->Fill(ls, jets.at(0).pt());
+    jetMulti_.fill(trg_passed, jets.size());
+    jetEtaPhi_HEP17_.fill(trg_passed, jets.at(0).eta(), jets.at(0).phi());  // for HEP17 monitorning
+    jetVsLS_.fill(trg_passed, ls, jets.at(0).pt());
   }
 
   if (enablePhotonPlot_) {
-    phoMulti_.denominator->Fill(photons.size());
+    phoMulti_.fill(trg_passed, photons.size());
   }
 
   // Marina
   if (nbjets_ > 0) {
-    bjetMulti_.denominator->Fill(bjets.size());
-    bjetVsLS_.denominator->Fill(ls, bjets.begin()->first->pt());
+    bjetMulti_.fill(trg_passed, bjets.size());
+    bjetVsLS_.fill(trg_passed, ls, bjets.begin()->first->pt());
   }
 
   if (nmuons_ > 0) {
-    muMulti_.denominator->Fill(muons.size());
-    muVsLS_.denominator->Fill(ls, muons.at(0).pt());
+    muMulti_.fill(trg_passed, muons.size());
+    muVsLS_.fill(trg_passed, ls, muons.at(0).pt());
     if (nmuons_ > 1) {
-      mu1Pt_mu2Pt_.denominator->Fill(muons.at(0).pt(), muons.at(1).pt());
-      mu1Eta_mu2Eta_.denominator->Fill(muons.at(0).eta(), muons.at(1).eta());
-      invMass_mumu_.denominator->Fill(mll);
-      invMass_mumu_variableBinning_.denominator->Fill(mll);
+      mu1Pt_mu2Pt_.fill(trg_passed, muons.at(0).pt(), muons.at(1).pt());
+      mu1Eta_mu2Eta_.fill(trg_passed, muons.at(0).eta(), muons.at(1).eta());
+      invMass_mumu_.fill(trg_passed, mll);
+      invMass_mumu_variableBinning_.fill(trg_passed, mll);
     }
     if (njets_ > 0) {
-      DeltaR_jet_Mu_.denominator->Fill(deltaR(jets.at(0), muons.at(0)));
+      DeltaR_jet_Mu_.fill(trg_passed, deltaR(jets.at(0), muons.at(0)));
     }
   }
 
   if (nelectrons_ > 0) {
-    eleMulti_.denominator->Fill(electrons.size());
-    eleVsLS_.denominator->Fill(ls, electrons.at(0).pt());
+    eleMulti_.fill(trg_passed, electrons.size());
+    eleVsLS_.fill(trg_passed, ls, electrons.at(0).pt());
     if (HTcut_ > 0)
-      elePt_eventHT_.denominator->Fill(electrons.at(0).pt(), eventHT);
+      elePt_eventHT_.fill(trg_passed, electrons.at(0).pt(), eventHT);
     if (njets_ > 0)
-      elePt_jetPt_.denominator->Fill(electrons.at(0).pt(), jets.at(0).pt());
+      elePt_jetPt_.fill(trg_passed, electrons.at(0).pt(), jets.at(0).pt());
     if (nmuons_ > 0) {
-      elePt_muPt_.denominator->Fill(electrons.at(0).pt(), muons.at(0).pt());
-      eleEta_muEta_.denominator->Fill(electrons.at(0).eta(), muons.at(0).eta());
+      elePt_muPt_.fill(trg_passed, electrons.at(0).pt(), muons.at(0).pt());
+      eleEta_muEta_.fill(trg_passed, electrons.at(0).eta(), muons.at(0).eta());
     }
     if (nelectrons_ > 1) {
-      ele1Pt_ele2Pt_.denominator->Fill(electrons.at(0).pt(), electrons.at(1).pt());
-      ele1Eta_ele2Eta_.denominator->Fill(electrons.at(0).eta(), electrons.at(1).eta());
+      ele1Pt_ele2Pt_.fill(trg_passed, electrons.at(0).pt(), electrons.at(1).pt());
+      ele1Eta_ele2Eta_.fill(trg_passed, electrons.at(0).eta(), electrons.at(1).eta());
     }
   }
 
   if (enablePhotonPlot_) {
     if (nphotons_ > 0) {
-      phoVsLS_.denominator->Fill(ls, photons.at(0).pt());
+      phoVsLS_.fill(trg_passed, ls, photons.at(0).pt());
       if (nmuons_ > 0) {
-        muPt_phoPt_.denominator->Fill(muons.at(0).pt(), photons.at(0).pt());
-        muEta_phoEta_.denominator->Fill(muons.at(0).eta(), photons.at(0).eta());
+        muPt_phoPt_.fill(trg_passed, muons.at(0).pt(), photons.at(0).pt());
+        muEta_phoEta_.fill(trg_passed, muons.at(0).eta(), photons.at(0).eta());
       }
     }
   }
@@ -1044,48 +1304,48 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   for (unsigned int iMu = 0; iMu < muons.size(); ++iMu) {
     if (iMu >= nmuons_)
       break;
-    muPhi_.at(iMu).denominator->Fill(muons.at(iMu).phi());
-    muEta_.at(iMu).denominator->Fill(muons.at(iMu).eta());
-    muPt_.at(iMu).denominator->Fill(muons.at(iMu).pt());
-    muEta_variableBinning_.at(iMu).denominator->Fill(muons.at(iMu).eta());
-    muPt_variableBinning_.at(iMu).denominator->Fill(muons.at(iMu).pt());
-    muPtEta_.at(iMu).denominator->Fill(muons.at(iMu).pt(), muons.at(iMu).eta());
-    muEtaPhi_.at(iMu).denominator->Fill(muons.at(iMu).eta(), muons.at(iMu).phi());
+    muPhi_.at(iMu).fill(trg_passed, muons.at(iMu).phi());
+    muEta_.at(iMu).fill(trg_passed, muons.at(iMu).eta());
+    muPt_.at(iMu).fill(trg_passed, muons.at(iMu).pt());
+    muEta_variableBinning_.at(iMu).fill(trg_passed, muons.at(iMu).eta());
+    muPt_variableBinning_.at(iMu).fill(trg_passed, muons.at(iMu).pt());
+    muPtEta_.at(iMu).fill(trg_passed, muons.at(iMu).pt(), muons.at(iMu).eta());
+    muEtaPhi_.at(iMu).fill(trg_passed, muons.at(iMu).eta(), muons.at(iMu).phi());
   }
   for (unsigned int iEle = 0; iEle < electrons.size(); ++iEle) {
     if (iEle >= nelectrons_)
       break;
-    elePhi_.at(iEle).denominator->Fill(electrons.at(iEle).phi());
-    eleEta_.at(iEle).denominator->Fill(electrons.at(iEle).eta());
-    elePt_.at(iEle).denominator->Fill(electrons.at(iEle).pt());
-    eleEta_variableBinning_.at(iEle).denominator->Fill(electrons.at(iEle).eta());
-    elePt_variableBinning_.at(iEle).denominator->Fill(electrons.at(iEle).pt());
-    elePtEta_.at(iEle).denominator->Fill(electrons.at(iEle).pt(), electrons.at(iEle).eta());
-    eleEtaPhi_.at(iEle).denominator->Fill(electrons.at(iEle).eta(), electrons.at(iEle).phi());
+    elePhi_.at(iEle).fill(trg_passed, electrons.at(iEle).phi());
+    eleEta_.at(iEle).fill(trg_passed, electrons.at(iEle).eta());
+    elePt_.at(iEle).fill(trg_passed, electrons.at(iEle).pt());
+    eleEta_variableBinning_.at(iEle).fill(trg_passed, electrons.at(iEle).eta());
+    elePt_variableBinning_.at(iEle).fill(trg_passed, electrons.at(iEle).pt());
+    elePtEta_.at(iEle).fill(trg_passed, electrons.at(iEle).pt(), electrons.at(iEle).eta());
+    eleEtaPhi_.at(iEle).fill(trg_passed, electrons.at(iEle).eta(), electrons.at(iEle).phi());
   }
   //Menglei
   if (enablePhotonPlot_) {
     for (unsigned int iPho = 0; iPho < photons.size(); ++iPho) {
       if (iPho >= nphotons_)
         break;
-      phoPhi_[iPho].denominator->Fill(photons[iPho].phi());
-      phoEta_[iPho].denominator->Fill(photons[iPho].eta());
-      phoPt_[iPho].denominator->Fill(photons[iPho].pt());
-      phoPtEta_[iPho].denominator->Fill(photons[iPho].pt(), photons[iPho].eta());
-      phoEtaPhi_[iPho].denominator->Fill(photons[iPho].eta(), photons[iPho].phi());
+      phoPhi_[iPho].fill(trg_passed, photons[iPho].phi());
+      phoEta_[iPho].fill(trg_passed, photons[iPho].eta());
+      phoPt_[iPho].fill(trg_passed, photons[iPho].pt());
+      phoPtEta_[iPho].fill(trg_passed, photons[iPho].pt(), photons[iPho].eta());
+      phoEtaPhi_[iPho].fill(trg_passed, photons[iPho].eta(), photons[iPho].phi());
     }
   }
 
   for (unsigned int iJet = 0; iJet < jets.size(); ++iJet) {
     if (iJet >= njets_)
       break;
-    jetPhi_.at(iJet).denominator->Fill(jets.at(iJet).phi());
-    jetEta_.at(iJet).denominator->Fill(jets.at(iJet).eta());
-    jetPt_.at(iJet).denominator->Fill(jets.at(iJet).pt());
-    jetEta_variableBinning_.at(iJet).denominator->Fill(jets.at(iJet).eta());
-    jetPt_variableBinning_.at(iJet).denominator->Fill(jets.at(iJet).pt());
-    jetPtEta_.at(iJet).denominator->Fill(jets.at(iJet).pt(), jets.at(iJet).eta());
-    jetEtaPhi_.at(iJet).denominator->Fill(jets.at(iJet).eta(), jets.at(iJet).phi());
+    jetPhi_.at(iJet).fill(trg_passed, jets.at(iJet).phi());
+    jetEta_.at(iJet).fill(trg_passed, jets.at(iJet).eta());
+    jetPt_.at(iJet).fill(trg_passed, jets.at(iJet).pt());
+    jetEta_variableBinning_.at(iJet).fill(trg_passed, jets.at(iJet).eta());
+    jetPt_variableBinning_.at(iJet).fill(trg_passed, jets.at(iJet).pt());
+    jetPtEta_.at(iJet).fill(trg_passed, jets.at(iJet).pt(), jets.at(iJet).eta());
+    jetEtaPhi_.at(iJet).fill(trg_passed, jets.at(iJet).eta(), jets.at(iJet).phi());
   }
 
   // Marina
@@ -1094,166 +1354,17 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     if (iBJet >= nbjets_)
       break;
 
-    bjetPhi_.at(iBJet).denominator->Fill(bjet.first->phi());
-    bjetEta_.at(iBJet).denominator->Fill(bjet.first->eta());
-    bjetPt_.at(iBJet).denominator->Fill(bjet.first->pt());
-    bjetCSV_.at(iBJet).denominator->Fill(std::fmax(0.0, bjet.second));
-    bjetEta_variableBinning_.at(iBJet).denominator->Fill(bjet.first->eta());
-    bjetPt_variableBinning_.at(iBJet).denominator->Fill(bjet.first->pt());
-    bjetPtEta_.at(iBJet).denominator->Fill(bjet.first->pt(), bjet.first->eta());
-    bjetEtaPhi_.at(iBJet).denominator->Fill(bjet.first->eta(), bjet.first->phi());
-    bjetCSVHT_.at(iBJet).denominator->Fill(std::fmax(0.0, bjet.second), eventHT);
+    bjetPhi_.at(iBJet).fill(trg_passed, bjet.first->phi());
+    bjetEta_.at(iBJet).fill(trg_passed, bjet.first->eta());
+    bjetPt_.at(iBJet).fill(trg_passed, bjet.first->pt());
+    bjetCSV_.at(iBJet).fill(trg_passed, std::fmax(0.0, bjet.second));
+    bjetEta_variableBinning_.at(iBJet).fill(trg_passed, bjet.first->eta());
+    bjetPt_variableBinning_.at(iBJet).fill(trg_passed, bjet.first->pt());
+    bjetPtEta_.at(iBJet).fill(trg_passed, bjet.first->pt(), bjet.first->eta());
+    bjetEtaPhi_.at(iBJet).fill(trg_passed, bjet.first->eta(), bjet.first->phi());
+    bjetCSVHT_.at(iBJet).fill(trg_passed, std::fmax(0.0, bjet.second), eventHT);
 
     iBJet++;
-  }
-
-  // applying selection for numerator
-  if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
-    return;
-
-  // filling histograms (num_genTriggerEventFlag_)
-
-  if (applyMETcut_ > 0 || enableMETplot_) {
-    metME_.numerator->Fill(met);
-    metME_variableBinning_.numerator->Fill(met);
-    metPhiME_.numerator->Fill(phi);
-    metVsLS_.numerator->Fill(ls, met);
-  }
-
-  if (HTcut_ > 0) {
-    htVsLS_.numerator->Fill(ls, eventHT);
-    eventHT_.numerator->Fill(eventHT);
-    eventHT_variableBinning_.numerator->Fill(eventHT);
-  }
-
-  if (MHTcut_ > 0) {
-    eventMHT_.numerator->Fill(eventMHT.pt());
-    eventMHT_variableBinning_.numerator->Fill(eventMHT.pt());
-  }
-
-  if (nmuons_ > 0) {
-    muMulti_.numerator->Fill(muons.size());
-    muVsLS_.numerator->Fill(ls, muons.at(0).pt());
-    if (nmuons_ > 1) {
-      mu1Pt_mu2Pt_.numerator->Fill(muons.at(0).pt(), muons.at(1).pt());
-      mu1Eta_mu2Eta_.numerator->Fill(muons.at(0).eta(), muons.at(1).eta());
-      invMass_mumu_.numerator->Fill(mll);
-      invMass_mumu_variableBinning_.numerator->Fill(mll);
-    }
-    if (njets_ > 0) {
-      DeltaR_jet_Mu_.numerator->Fill(deltaR(jets.at(0), muons.at(0)));
-    }
-  }
-  if (njets_ > 0) {
-    jetMulti_.numerator->Fill(jets.size());
-    jetVsLS_.numerator->Fill(ls, jets.at(0).pt());
-    jetEtaPhi_HEP17_.numerator->Fill(jets.at(0).eta(), jets.at(0).phi());  // for HEP17 monitorning
-  }
-
-  if (nelectrons_ > 0) {
-    eleMulti_.numerator->Fill(electrons.size());
-    eleVsLS_.numerator->Fill(ls, electrons.at(0).pt());
-    if (HTcut_ > 0)
-      elePt_eventHT_.numerator->Fill(electrons.at(0).pt(), eventHT);
-    if (njets_ > 0)
-      elePt_jetPt_.numerator->Fill(electrons.at(0).pt(), jets.at(0).pt());
-    if (nmuons_ > 0) {
-      elePt_muPt_.numerator->Fill(electrons.at(0).pt(), muons.at(0).pt());
-      eleEta_muEta_.numerator->Fill(electrons.at(0).eta(), muons.at(0).eta());
-    }
-    if (nelectrons_ > 1) {
-      ele1Pt_ele2Pt_.numerator->Fill(electrons.at(0).pt(), electrons.at(1).pt());
-      ele1Eta_ele2Eta_.numerator->Fill(electrons.at(0).eta(), electrons.at(1).eta());
-    }
-  }
-
-  //Menglei
-  if (enablePhotonPlot_) {
-    if (nphotons_ > 0) {
-      phoVsLS_.numerator->Fill(ls, photons.at(0).pt());
-      if (nmuons_ > 0) {
-        muPt_phoPt_.numerator->Fill(muons.at(0).pt(), photons.at(0).pt());
-        muEta_phoEta_.numerator->Fill(muons.at(0).eta(), photons.at(0).eta());
-      }
-    }
-  }
-
-  // Marina
-  if (nbjets_ > 0) {
-    bjetMulti_.numerator->Fill(bjets.size());
-    bjetVsLS_.numerator->Fill(ls, bjets.begin()->first->pt());
-  }
-
-  //Menglei
-  if (enablePhotonPlot_) {
-    phoMulti_.numerator->Fill(photons.size());
-  }
-
-  for (unsigned int iMu = 0; iMu < muons.size(); ++iMu) {
-    if (iMu >= nmuons_)
-      break;
-
-    muPhi_.at(iMu).numerator->Fill(muons.at(iMu).phi());
-    muEta_.at(iMu).numerator->Fill(muons.at(iMu).eta());
-    muPt_.at(iMu).numerator->Fill(muons.at(iMu).pt());
-    muEta_variableBinning_.at(iMu).numerator->Fill(muons.at(iMu).eta());
-    muPt_variableBinning_.at(iMu).numerator->Fill(muons.at(iMu).pt());
-    muPtEta_.at(iMu).numerator->Fill(muons.at(iMu).pt(), muons.at(iMu).eta());
-    muEtaPhi_.at(iMu).numerator->Fill(muons.at(iMu).eta(), muons.at(iMu).phi());
-  }
-  for (unsigned int iEle = 0; iEle < electrons.size(); ++iEle) {
-    if (iEle >= nelectrons_)
-      break;
-    elePhi_.at(iEle).numerator->Fill(electrons.at(iEle).phi());
-    eleEta_.at(iEle).numerator->Fill(electrons.at(iEle).eta());
-    elePt_.at(iEle).numerator->Fill(electrons.at(iEle).pt());
-    eleEta_variableBinning_.at(iEle).numerator->Fill(electrons.at(iEle).eta());
-    elePt_variableBinning_.at(iEle).numerator->Fill(electrons.at(iEle).pt());
-    elePtEta_.at(iEle).numerator->Fill(electrons.at(iEle).pt(), electrons.at(iEle).eta());
-    eleEtaPhi_.at(iEle).numerator->Fill(electrons.at(iEle).eta(), electrons.at(iEle).phi());
-  }
-
-  //Menglei
-  if (enablePhotonPlot_) {
-    for (unsigned int iPho = 0; iPho < photons.size(); ++iPho) {
-      if (iPho >= nphotons_)
-        break;
-      phoPhi_[iPho].numerator->Fill(photons[iPho].phi());
-      phoEta_[iPho].numerator->Fill(photons[iPho].eta());
-      phoPt_[iPho].numerator->Fill(photons[iPho].pt());
-      phoPtEta_[iPho].numerator->Fill(photons[iPho].pt(), photons[iPho].eta());
-      phoEtaPhi_[iPho].numerator->Fill(photons[iPho].eta(), photons[iPho].phi());
-    }
-  }
-
-  for (unsigned int iJet = 0; iJet < jets.size(); ++iJet) {
-    if (iJet >= njets_)
-      break;
-    jetPhi_.at(iJet).numerator->Fill(jets.at(iJet).phi());
-    jetEta_.at(iJet).numerator->Fill(jets.at(iJet).eta());
-    jetPt_.at(iJet).numerator->Fill(jets.at(iJet).pt());
-    jetEta_variableBinning_.at(iJet).numerator->Fill(jets.at(iJet).eta());
-    jetPt_variableBinning_.at(iJet).numerator->Fill(jets.at(iJet).pt());
-    jetPtEta_.at(iJet).numerator->Fill(jets.at(iJet).pt(), jets.at(iJet).eta());
-    jetEtaPhi_.at(iJet).numerator->Fill(jets.at(iJet).eta(), jets.at(iJet).phi());
-  }
-
-  // Marina
-  unsigned int j = 0;
-  for (auto& bjet : bjets) {
-    if (j >= nbjets_)
-      break;
-    bjetPhi_.at(j).numerator->Fill(bjet.first->phi());
-    bjetEta_.at(j).numerator->Fill(bjet.first->eta());
-    bjetPt_.at(j).numerator->Fill(bjet.first->pt());
-    bjetCSV_.at(j).numerator->Fill(std::fmax(0.0, bjet.second));
-    bjetEta_variableBinning_.at(j).numerator->Fill(bjet.first->eta());
-    bjetPt_variableBinning_.at(j).numerator->Fill(bjet.first->pt());
-    bjetPtEta_.at(j).numerator->Fill(bjet.first->pt(), bjet.first->eta());
-    bjetEtaPhi_.at(j).numerator->Fill(bjet.first->eta(), bjet.first->phi());
-    bjetCSVHT_.at(j).numerator->Fill(std::fmax(0.0, bjet.second), eventHT);
-
-    j++;
   }
 }
 
@@ -1261,18 +1372,18 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/TOP");
 
-  desc.add<bool>("requireValidHLTPaths", false);
+  desc.add<bool>("requireValidHLTPaths", true);
 
-  desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
-  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
   desc.add<edm::InputTag>("elecID", edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight"));
-  desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<edm::InputTag>("photons", edm::InputTag("photons"));
-  desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<std::vector<edm::InputTag> >(
+      "btagAlgos", {edm::InputTag("pfDeepCSVJetTags:probb"), edm::InputTag("pfDeepCSVJetTags:probbb")});
+  desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
 
-  desc.add<edm::InputTag>("btagalgo", edm::InputTag("pfCombinedSecondaryVertexV2BJetTags"));
-  desc.add<edm::InputTag>("bbtagalgo", edm::InputTag("pfDeepCSVJetTags:probbb"));
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
@@ -1291,8 +1402,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<double>("HTcut", 0);
 
   desc.add<unsigned int>("nbjets", 0);
-  desc.add<double>("workingpoint", 0.4941);  // medium DeepCSV
-  desc.add<bool>("applyleptonPVcuts", false);
+  desc.add<double>("workingpoint", 0.4941);  // DeepCSV Medium wp
+  desc.add<bool>("applyLeptonPVcuts", false);
   desc.add<double>("invMassUppercut", -1.0);
   desc.add<double>("invMassLowercut", -1.0);
   desc.add<bool>("oppositeSignMuons", false);
@@ -1300,7 +1411,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<double>("MHTcut", -1);
   desc.add<bool>("invMassCutInAllMuPairs", false);
   desc.add<bool>("enablePhotonPlot", false);
-  desc.add<bool>("enableMETplot", false);
+  desc.add<bool>("enableMETPlot", false);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");

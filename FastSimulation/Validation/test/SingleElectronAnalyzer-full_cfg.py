@@ -68,6 +68,7 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
 process.Timing = cms.Service("Timing")
 
 process.p1 = cms.Path(process.gsfElectronAnalysis)
-process.MessageLogger.destinations = ['detailedInfo.txt']
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.detailedInfo = dict(extension='txt')
 
 

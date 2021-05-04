@@ -9,7 +9,7 @@ using namespace cms;
 using namespace cms_units::operators;
 
 namespace {
-  long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
+  long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
     DDNamespace ns(ctxt, e, true);
     DDAlgoArguments args(ctxt, e);
     Volume mother = ns.volume(args.parentName());
@@ -102,8 +102,9 @@ namespace {
 
       // Positions child with respect to parent
       mother.placeVolume(child, copy, Transform3D(globalRotMatrix, tran));
-      LogDebug("TrackerGeom") << "DDTrackerRingAlgo test " << child << " number " << copy << " positioned in " << mother
-                              << " at " << tran << " with " << globalRotMatrix;
+      LogDebug("TrackerGeom") << "DDTrackerRingAlgo test " << child.data()->GetName() << " number " << copy
+                              << " positioned in " << mother.data()->GetName() << " at " << tran << " with "
+                              << globalRotMatrix;
 
       copy += incrCopyNo;
       phi += delta;

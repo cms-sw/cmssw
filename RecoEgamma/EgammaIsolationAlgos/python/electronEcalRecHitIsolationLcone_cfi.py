@@ -2,10 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 electronEcalRecHitIsolationLcone = cms.EDProducer("EgammaEcalRecHitIsolationProducer",
 
-    ecalBarrelRecHitProducer = cms.InputTag("ecalRecHit"),
-    ecalBarrelRecHitCollection = cms.InputTag("EcalRecHitsEB"),
-    ecalEndcapRecHitProducer = cms.InputTag("ecalRecHit"),
-    ecalEndcapRecHitCollection = cms.InputTag("EcalRecHitsEE"),
+    ecalBarrelRecHitCollection = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    ecalEndcapRecHitCollection = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
 
     #useNumCrystals = cms.bool(False),
     #intRadiusBarrel = cms.double(0.045),

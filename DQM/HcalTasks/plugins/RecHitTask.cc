@@ -454,9 +454,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   //	book some mes...
   ib.setCurrentFolder(_subsystem + "/" + _name);
+  auto scope = DQMStore::IBooker::UseLumiScope(ib);
   meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
   _unknownIdsPresent = false;
-  meUnknownIds1LS->setLumiFlag();
 }
 
 /* virtual */ void RecHitTask::_resetMonitors(hcaldqm::UpdateFreq uf) {
@@ -492,6 +492,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   //	extract some info per event
   int bx = e.bunchCrossing();
+
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
 
   //  To fill histograms outside of the loop, you need to determine if there were
   //  any valid det ids first
@@ -860,13 +863,17 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void RecHitTask::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::beginLuminosityBlock(lb, es);
+std::shared_ptr<hcaldqm::Cache> RecHitTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                       edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void RecHitTask::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void RecHitTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   if (_ptype != fOnline)
     return;
+
+  auto lumiCache = luminosityBlockCache(lb.index());
+  _currentLS = lumiCache->currentLS;
 
   //
   //	GENERATE STATUS ONLY FOR ONLINE
@@ -934,7 +941,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   //	in the end always do the DQTask::endLumi
-  DQTask::endLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(RecHitTask);

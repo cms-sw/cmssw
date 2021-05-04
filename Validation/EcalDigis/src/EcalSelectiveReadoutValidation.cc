@@ -848,7 +848,7 @@ void EcalSelectiveReadoutValidation::dqmBeginRun(edm::Run const& r, edm::EventSe
   initAsciiFile();
 }
 
-void EcalSelectiveReadoutValidation::endRun(const edm::Run& r, const edm::EventSetup& es) {
+void EcalSelectiveReadoutValidation::dqmEndRun(const edm::Run& r, const edm::EventSetup& es) {
   meL1aRate_->Fill(getL1aRate());
 }
 
@@ -857,7 +857,10 @@ void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                                     edm::EventSetup const&) {
   ibooker.setCurrentFolder("EcalDigisV/SelectiveReadout");
 
-  meL1aRate_ = bookFloat(ibooker, "l1aRate_");
+  {
+    auto scope = DQMStore::IBooker::UseRunScope(ibooker);
+    meL1aRate_ = bookFloat(ibooker, "l1aRate_");
+  }
 
   meDccVol_ = bookProfile(ibooker,
                           "hDccVol",  //"EcalDccEventSizeComputed",

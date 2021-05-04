@@ -182,20 +182,6 @@ bool EwkMuLumiMonitorDQM::IsMuMatchedToHLTMu(const reco::Muon& mu,
   return (nPass > 0);
 }
 
-void EwkMuLumiMonitorDQM::endRun(const Run& r, const EventSetup&) {
-  LogVerbatim("") << "\n>>>>>> Z/W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
-  LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
-  LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
-
-  LogVerbatim("") << "Passing HLT criteria:           " << nhlt << " [events] ";
-  LogVerbatim("") << "Passing 2 HLT match criteria:           " << n2hlt << " [events] ";
-  LogVerbatim("") << "Passing 1 HLT match criteria:           " << n1hlt << " [events] ";
-  LogVerbatim("") << "Passing Not Iso criteria:           " << nNotIso << " [events] ";
-  LogVerbatim("") << "Passing GlbSta criteria:           " << nGlbSta << " [events] ";
-  LogVerbatim("") << "Passing W criteria:           " << nTMass << " [events] ";
-  LogVerbatim("") << ">>>>>> Z/W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
-}
-
 void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
   nall++;
   bool hlt_sel = false;

@@ -1,7 +1,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2016.h"
 
-#include <cassert>
 #include <iostream>
 #include <sstream>
 
@@ -13,9 +12,7 @@ const PtAssignmentEngineAux2016& PtAssignmentEngine2016::aux() const {
 float PtAssignmentEngine2016::scale_pt(const float pt, const int mode) const {
   // Scaling to achieve 90% efficency at any given L1 pT threshold
   // For 2016, was a flat scaling factor of 1.4
-
   float pt_scale = 1.4;
-
   return pt_scale;
 }
 
@@ -641,10 +638,7 @@ float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) const {
     if (mv != -999) {
       int v = variables.at(mv);
       if (!(mode_inv == 13 && i == 3)) {  // somehow this uses CSCID1
-        if (not(v != -999)) {
-          edm::LogError("L1T") << "v = " << v;
-          return -1;
-        }
+        emtf_assert(v != -999);
       }
       tree_data.push_back(v);
     } else {
@@ -694,7 +688,7 @@ float PtAssignmentEngine2016::calculate_pt_xml(const address_t& address) const {
     pt = (tmp_pt == 0) ? tmp_pt : 1.0 / tmp_pt;
   }
 
-  assert(pt > 0);
+  emtf_assert(pt > 0);
   return pt;
 }
 

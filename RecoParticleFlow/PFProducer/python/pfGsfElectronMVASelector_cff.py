@@ -7,11 +7,9 @@ electronsWithPresel = cms.EDFilter("GsfElectronSelector",
                                    cut = cms.string("pt > 5 && ecalDrivenSeed && passingCutBasedPreselection"),
                                    )
 
-mvaElectrons.electronTag = cms.InputTag('electronsWithPresel')
+mvaElectrons.electronTag = 'electronsWithPresel'
 
-pfGsfElectronMVASelectionSequence = cms.Sequence(
-    cms.ignore(electronsWithPresel)+
-    mvaElectrons
-    )
-
-
+pfGsfElectronMVASelectionTask = cms.Task(
+               electronsWithPresel,
+               mvaElectrons    )
+pfGsfElectronMVASelectionSequence = cms.Sequence(pfGsfElectronMVASelectionTask)

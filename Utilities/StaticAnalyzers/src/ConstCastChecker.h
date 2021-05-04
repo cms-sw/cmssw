@@ -17,7 +17,7 @@ namespace clangcms {
 
   class ConstCastChecker : public clang::ento::Checker<clang::ento::check::PreStmt<clang::CXXConstCastExpr> > {
   public:
-    CMS_THREAD_SAFE mutable std::unique_ptr<clang::ento::BugType> BT;
+    CMS_SA_ALLOW mutable std::unique_ptr<clang::ento::BugType> BT;
     void checkPreStmt(const clang::CXXConstCastExpr *CE, clang::ento::CheckerContext &C) const;
 
   private:

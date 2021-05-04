@@ -13,6 +13,10 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
+#include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 
 //#include "FWCore/Framework/interface/Run.h"
 
@@ -20,20 +24,21 @@ class CastorDigiMonitor {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
-  CastorDigiMonitor(const edm::ParameterSet &ps);
+  CastorDigiMonitor(const edm::ParameterSet &ps, edm::ConsumesCollector &&);
   ~CastorDigiMonitor();
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, const edm::EventSetup &);
   void processEvent(edm::Event const &event,
                     const CastorDigiCollection &cast,
                     const edm::TriggerResults &trig,
                     const CastorDbService &cond);
   void endRun();
-  void getDbData(const edm::EventSetup &iSetup);
+  void getDbData(const edm::EventSetup &);
   int ModSecToIndex(int module, int sector);
   void fillTrigRes(edm::Event const &event, const edm::TriggerResults &TrigResults, double Etot);
 
 private:
+  edm::ESGetToken<CastorChannelQuality, CastorChannelQualityRcd> castorChannelQualityToken_;
   std::string subsystemname_;
   int fVerbosity;
   int ievt_;

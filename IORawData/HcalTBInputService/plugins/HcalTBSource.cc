@@ -117,9 +117,9 @@ bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::Event
       m_file = nullptr;
       m_tree = nullptr;
     }
-    if (m_fileCounter >= int(fileNames().size()))
+    if (m_fileCounter >= int(fileNames(0).size()))
       return false;  // nothing good
-    openFile(fileNames()[m_fileCounter]);
+    openFile(fileNames(0)[m_fileCounter]);
     is_new = true;
   }
 

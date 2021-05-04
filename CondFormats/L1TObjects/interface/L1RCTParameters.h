@@ -21,7 +21,6 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 #include <ostream>
 

@@ -5,6 +5,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalTag.h"
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometryVector/interface/Vector3DBase.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /**
  * This class builds a TrajectoryStateClosestToPoint given an original 

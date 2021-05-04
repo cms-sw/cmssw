@@ -24,6 +24,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -163,6 +164,7 @@ namespace reco {
     edm::InputTag IT_SA;
 
     // TOKENS
+    edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeometry_token;
     edm::EDGetTokenT<reco::MuonCollection> cosmicmuon_token_;
     edm::EDGetTokenT<reco::MuonTimeExtraMap> csctimemap_token_;
     edm::EDGetTokenT<reco::MuonCollection> muon_token_;

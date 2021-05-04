@@ -6,7 +6,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-//#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -18,33 +18,30 @@
 #include <string>
 
 // needed to compute the efficiency
-
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include <RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h>
-
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-
 //-----------------------------------------------------------------------------------
 TrackEfficiencyMonitor::TrackEfficiencyMonitor(const edm::ParameterSet& iConfig)
+    : ttbToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      propToken_(esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
+      navToken_(esConsumes(edm::ESInputTag("", "CosmicNavigationSchool"))),
+      gstToken_(esConsumes()),
+      mfToken_(esConsumes()),
+      mtToken_(esConsumes())
 //-----------------------------------------------------------------------------------
 {
   dqmStore_ = edm::Service<DQMStore>().operator->();
@@ -273,35 +270,26 @@ void TrackEfficiencyMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::beginJob(void)
-//-----------------------------------------------------------------------------------
-{}
-
-//-----------------------------------------------------------------------------------
 void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //-----------------------------------------------------------------------------------
 {
-  edm::Handle<reco::TrackCollection> tkTracks;
-  iEvent.getByToken(theTKTracksToken_, tkTracks);
-  edm::Handle<reco::TrackCollection> staTracks;
-  iEvent.getByToken(theSTATracksToken_, staTracks);
-  edm::ESHandle<NavigationSchool> nav;
-  iSetup.get<NavigationSchoolRecord>().get("CosmicNavigationSchool", nav);
-  iSetup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+  edm::Handle<reco::TrackCollection> tkTracks = iEvent.getHandle(theTKTracksToken_);
+  edm::Handle<reco::TrackCollection> staTracks = iEvent.getHandle(theSTATracksToken_);
 
   //initialize values
   failedToPropagate = 0;
   nCompatibleLayers = 0;
   findDetLayer = false;
 
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theTTrackBuilder);
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", thePropagator);
-  iSetup.get<IdealMagneticFieldRecord>().get(bField);
-  iSetup.get<TrackerRecoGeometryRecord>().get(theTracker);
+  const NavigationSchool& nav = iSetup.getData(navToken_);
+  measurementTracker = &iSetup.getData(mtToken_);
+  theTTrackBuilder = &iSetup.getData(ttbToken_);
+  thePropagator = &iSetup.getData(propToken_);
+  bField = &iSetup.getData(mfToken_);
+  theTracker = &iSetup.getData(gstToken_);
   theNavigation = new DirectTrackerNavigation(theTracker);
 
-  edm::Handle<edm::View<reco::Muon> > muons;
-  iEvent.getByToken(muonToken_, muons);
+  edm::Handle<edm::View<reco::Muon> > muons = iEvent.getHandle(muonToken_);
   if (!muons.isValid())
     return;
   for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
@@ -352,10 +340,10 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
       }
 
       if (isGoodMuon)
-        testTrackerTracks(tkTracks, staTracks, *nav.product());
+        testTrackerTracks(tkTracks, staTracks, nav);
 
     } else if (staTracks->size() == 1 || staTracks->size() == 2)
-      testTrackerTracks(tkTracks, staTracks, *nav.product());
+      testTrackerTracks(tkTracks, staTracks, nav);
   }
 
   if (!trackEfficiency_ && tkTracks->size() == 1) {
@@ -364,20 +352,6 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
   }
 
   delete theNavigation;
-}
-
-//-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::endJob(void)
-//-----------------------------------------------------------------------------------
-{
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if (outputMEsInRootFile) {
-    //dqmStore_->showDirStructure();
-    dqmStore_->save(outputFileName);
-  }
-
-  //if ( theNavigation ) delete theNavigation;
 }
 
 //-----------------------------------------------------------------------------------
@@ -587,7 +561,7 @@ bool TrackEfficiencyMonitor::trackerAcceptance(TrajectoryStateOnSurface theTSOS,
   //Propagator*  theTmpPropagator = new SteppingHelixPropagator(&*bField,anyDirection);
 
   //Propagator*  theTmpPropagator = &*thePropagator;
-  Propagator* theTmpPropagator = &*thePropagator->clone();
+  Propagator* theTmpPropagator = thePropagator->clone();
 
   if (theTSOS.globalPosition().y() < 0)
     theTmpPropagator->setPropagationDirection(oppositeToMomentum);
@@ -629,7 +603,7 @@ int TrackEfficiencyMonitor::compatibleLayers(const NavigationSchool& navigationS
   // check the number of compatible layers
   //---------------------------------------------------
 
-  std::vector<const BarrelDetLayer*> barrelTOBLayers = measurementTrackerHandle->geometricSearchTracker()->tobLayers();
+  std::vector<const BarrelDetLayer*> barrelTOBLayers = measurementTracker->geometricSearchTracker()->tobLayers();
 
   unsigned int layers = 0;
   for (unsigned int k = 0; k < barrelTOBLayers.size(); k++) {
@@ -637,7 +611,7 @@ int TrackEfficiencyMonitor::compatibleLayers(const NavigationSchool& navigationS
 
     //Propagator*  theTmpPropagator = new SteppingHelixPropagator(&*bField,anyDirection);
 
-    Propagator* theTmpPropagator = &*thePropagator->clone();
+    Propagator* theTmpPropagator = thePropagator->clone();
     theTmpPropagator->setPropagationDirection(alongMomentum);
 
     TrajectoryStateOnSurface startTSOS = theTmpPropagator->propagate(*theTSOS.freeState(), firstLay->surface());
@@ -697,7 +671,7 @@ std::pair<TrajectoryStateOnSurface, const DetLayer*> TrackEfficiencyMonitor::fin
 {
   //Propagator*  theTmpPropagator = new SteppingHelixPropagator(&*bField,anyDirection);
 
-  Propagator* theTmpPropagator = &*thePropagator->clone();
+  Propagator* theTmpPropagator = thePropagator->clone();
   theTmpPropagator->setPropagationDirection(alongMomentum);
 
   std::vector<const DetLayer*>::const_iterator itl;

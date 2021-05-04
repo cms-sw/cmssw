@@ -8,7 +8,6 @@
 
 #include "GeneratorInterface/RivetInterface/interface/DQMRivetClient.h"
 
-#include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -26,8 +25,6 @@ using namespace std;
 using namespace edm;
 
 typedef DQMRivetClient::MonitorElement ME;
-
-TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
 
 DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
   typedef std::vector<edm::ParameterSet> VPSet;
@@ -55,7 +52,7 @@ DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
       continue;
     }
 
-    DQMGenericClient::NormOption opt;
+    NormOption opt;
     opt.name = args[0];
     opt.normHistName = args.size() == 2 ? args[1] : args[0];
 
@@ -64,7 +61,7 @@ DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
 
   VPSet normSets = pset.getUntrackedParameter<VPSet>("normalizationToIntegralSets", VPSet());
   for (VPSet::const_iterator normSet = normSets.begin(); normSet != normSets.end(); ++normSet) {
-    DQMGenericClient::NormOption opt;
+    NormOption opt;
     opt.name = normSet->getUntrackedParameter<string>("name");
     opt.normHistName = normSet->getUntrackedParameter<string>("normalizedTo", opt.name);
 
@@ -162,8 +159,7 @@ void DQMRivetClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   for (set<string>::const_iterator iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
     const string& dirName = *iSubDir;
-    for (vector<DQMGenericClient::NormOption>::const_iterator normOption = normOptions_.begin();
-         normOption != normOptions_.end();
+    for (vector<NormOption>::const_iterator normOption = normOptions_.begin(); normOption != normOptions_.end();
          ++normOption) {
       normalizeToIntegral(dirName, normOption->name, normOption->normHistName);
     }
@@ -194,7 +190,7 @@ void DQMRivetClient::endJob() {
   // Update 2009-09-23
   // Migrated all code from here to endRun
 
-  LogTrace("DQMRivetClient") << "inside of DQMGenericClient::endJob()" << endl;
+  LogTrace("DQMRivetClient") << "inside of ::endJob()" << endl;
 }
 
 void DQMRivetClient::normalizeToIntegral(const std::string& startDir,

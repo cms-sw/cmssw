@@ -7,7 +7,9 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShape.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 /** \class HcalPulseShapes
   *  
@@ -21,7 +23,9 @@ namespace CLHEP {
 class HcalPulseShapes {
 public:
   typedef HcalPulseShape Shape;
+  // Default constructor is for callers that do not call beginRun(EventSetup)
   HcalPulseShapes();
+  explicit HcalPulseShapes(edm::ConsumesCollector iC);
   ~HcalPulseShapes();
   // only needed if you'll be getting shapes by DetId
   void beginRun(edm::EventSetup const& es);
@@ -59,7 +63,7 @@ public:
     for (unsigned i = 0; i < 2 * nbin - 1; ++i) {
       for (unsigned j = 0; j < std::min(i + 1, nbin); ++j) {
         double tmp = f1(j) * f2(i - j);
-        if (std::isnan(tmp) or std::isinf(tmp))
+        if (edm::isNotFinite(tmp))
           continue;
         result[i] += tmp;
       }
@@ -106,11 +110,13 @@ private:
   const HcalPulseShape& computeSiPMShapeHE206();
   void computeSiPMShapeData2017();
   void computeSiPMShapeData2018();
+  void computeSiPMShapeMCRecoRun3();
   Shape hpdShape_, hfShape_, siPMShapeHO_;
-  Shape siPMShapeData2017_, siPMShapeData2018_;
+  Shape siPMShapeData2017_, siPMShapeData2018_, siPMShapeMCRecoRun3_;
   Shape hpdShape_v2, hpdShapeMC_v2;
   Shape hpdShape_v3, hpdShapeMC_v3;
   Shape hpdBV30Shape_v2, hpdBV30ShapeMC_v2;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> theDbServiceToken;
   const HcalDbService* theDbService;
   typedef std::map<int, const Shape*> ShapeMap;
   ShapeMap theShapes;

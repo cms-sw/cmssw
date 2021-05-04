@@ -1,9 +1,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
-#include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <algorithm>
 #include <iostream>
@@ -116,11 +114,11 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     // setup KDtree if requested
     const bool useKDTree = conf.getParameter<bool>("useKDTree");
     if (useKDTree) {
-      kdtrees_.emplace_back(KDTreeLinkerFactory::get()->create(pfx_kdtree + linkerName));
+      kdtrees_.emplace_back(KDTreeLinkerFactory::get()->create(pfx_kdtree + linkerName, conf));
       kdtrees_.back()->setTargetType(std::min(type1, type2));
       kdtrees_.back()->setFieldType(std::max(type1, type2));
-    }
-  }
+    }  // useKDTree
+  }    // loop over confs
 }
 
 void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs, edm::ConsumesCollector& sumes) {
@@ -151,8 +149,8 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   QuickUnion qu(elements_.size());
   const auto elem_size = elements_.size();
   for (unsigned i = 0; i < elem_size; ++i) {
-    for (unsigned j = 0; j < elem_size; ++j) {
-      if (qu.connected(i, j) || j == i)
+    for (unsigned j = i + 1; j < elem_size; ++j) {
+      if (qu.connected(i, j))
         continue;
       if (!linkTests_[linkTestSquare_[elements_[i]->type()][elements_[j]->type()]]) {
         j = ranges_[elements_[j]->type()].second;

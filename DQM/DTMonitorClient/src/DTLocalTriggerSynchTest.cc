@@ -40,7 +40,6 @@ using namespace std;
 DTLocalTriggerSynchTest::DTLocalTriggerSynchTest(const edm::ParameterSet& ps) {
   setConfig(ps, "DTLocalTriggerSynch");
   baseFolderTM = "DT/90-LocalTriggerSynch/";
-  baseFolderDDU = "DT/90-LocalTriggerSynch/";
 
   bookingdone = false;
 }
@@ -151,7 +150,7 @@ void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
                             << endl;
 
     DTTPGParameters* delayMap = new DTTPGParameters();
-    hwSource = parameters.getParameter<bool>("dbFromTM") ? "TM" : "DDU";
+    hwSource = "TM";
     std::vector<const DTChamber*>::const_iterator chambIt = muonGeom->chambers().begin();
     std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
     for (; chambIt != chambEnd; ++chambIt) {
@@ -214,8 +213,7 @@ float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter& igetter, DTCham
   stringstream sector;
   sector << chId.sector();
 
-  string folderName =
-      topFolder(hwSource == "TM") + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/";
+  string folderName = topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/";
 
   string histoname =
       sourceFolder + folderName + meType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
@@ -243,10 +241,9 @@ void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker& ibooker,
   sector << chambId.sector();
 
   string fullType = fullName(htype);
-  bool isTM = hwSource == "TM";
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  string folder = topFolder(isTM) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
+  string folder = topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
   if (!subfolder.empty()) {
     folder += "7" + subfolder;
   }

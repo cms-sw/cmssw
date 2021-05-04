@@ -7,9 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -33,6 +31,8 @@ PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm:
   inputs_ = regPSet.getParameter<std::vector<edm::InputTag> >("inputs");
   dPhi_ = regPSet.getParameter<std::vector<double> >("deltaPhi");
   maxZ_ = regPSet.getParameter<std::vector<double> >("maxZ");
+  trackerGeomToken_ = iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  cablingMapToken_ = iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>();
 
   tBeamSpot = iC.consumes<reco::BeamSpot>(beamSpotTag_);
   for (unsigned int t = 0; t < inputs_.size(); t++)
@@ -77,13 +77,11 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es) {
   // initialize cabling map or update it if necessary
   // and re-cache modules information
   if (watcherSiPixelFedCablingMap_.check(es)) {
-    edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-    es.get<SiPixelFedCablingMapRcd>().get(cablingMap);
+    edm::ESHandle<SiPixelFedCablingMap> cablingMap = es.getHandle(cablingMapToken_);
     cabling_ = cablingMap->cablingTree();
 
-    edm::ESHandle<TrackerGeometry> geom;
     // get the TrackerGeom
-    es.get<TrackerDigiGeometryRecord>().get(geom);
+    edm::ESHandle<TrackerGeometry> geom = es.getHandle(trackerGeomToken_);
 
     // switch on the phase1
     unsigned int fedMin = FEDNumbering::MINSiPixelFEDID;  // phase0

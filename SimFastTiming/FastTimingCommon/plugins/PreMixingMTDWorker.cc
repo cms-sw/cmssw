@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
@@ -18,15 +18,13 @@
 
 class PreMixingMTDWorker : public PreMixingWorker {
 public:
-  PreMixingMTDWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
+  PreMixingMTDWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
   ~PreMixingMTDWorker() override = default;
 
   PreMixingMTDWorker(const PreMixingMTDWorker&) = delete;
   PreMixingMTDWorker& operator=(const PreMixingMTDWorker&) = delete;
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& ES) override;
-  void endRun() override;
-  void initializeEvent(const edm::Event& e, const edm::EventSetup& ES) override {}
+  void initializeEvent(const edm::Event& e, const edm::EventSetup& ES) override;
   void addSignals(const edm::Event& e, const edm::EventSetup& ES) override;
   void addPileups(const PileUpEventPrincipal&, const edm::EventSetup& ES) override;
   void put(edm::Event& e, const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) override;
@@ -40,15 +38,16 @@ private:
 };
 
 PreMixingMTDWorker::PreMixingMTDWorker(const edm::ParameterSet& ps,
-                                       edm::ProducerBase& producer,
+                                       edm::ProducesCollector producesCollector,
                                        edm::ConsumesCollector&& iC)
     : signalToken_(iC.consumes<PMTDSimAccumulator>(ps.getParameter<edm::InputTag>("digiTagSig"))),
       pileInputTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
-      digitizer_(MTDDigitizerFactory::get()->create(ps.getParameter<std::string>("digitizerName"), ps, iC, producer)) {}
+      digitizer_(MTDDigitizerFactory::get()->create(
+          ps.getParameter<std::string>("digitizerName"), ps, producesCollector, iC)) {}
 
-void PreMixingMTDWorker::beginRun(const edm::Run& run, const edm::EventSetup& ES) { digitizer_->beginRun(ES); }
-
-void PreMixingMTDWorker::endRun() { digitizer_->endRun(); }
+void PreMixingMTDWorker::initializeEvent(const edm::Event& e, const edm::EventSetup& ES) {
+  digitizer_->initializeEvent(e, ES);
+}
 
 void PreMixingMTDWorker::addSignals(const edm::Event& e, const edm::EventSetup& ES) {
   edm::Handle<PMTDSimAccumulator> handle;

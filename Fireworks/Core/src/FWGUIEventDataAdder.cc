@@ -13,7 +13,7 @@
 // system include files
 #include <iostream>
 #include <sigc++/signal.h>
-#include <boost/bind.hpp>
+#include <functional>
 #include <algorithm>
 #include <cctype>
 #include <string>
@@ -321,7 +321,7 @@ FWGUIEventDataAdder::FWGUIEventDataAdder(UInt_t iWidth,
                                          TGFrame *iParent,
                                          FWJobMetadataManager *iMetadataManager)
     : m_manager(iManager), m_metadataManager(iMetadataManager), m_parentFrame(iParent) {
-  m_metadataManager->metadataChanged_.connect(boost::bind(&FWGUIEventDataAdder::metadataUpdatedSlot, this));
+  m_metadataManager->metadataChanged_.connect(std::bind(&FWGUIEventDataAdder::metadataUpdatedSlot, this));
   createWindow();
 }
 
@@ -443,7 +443,8 @@ void FWGUIEventDataAdder::updateFilterString(const char *str) {
 
 void FWGUIEventDataAdder::createWindow() {
   m_tableManager = new DataAdderTableManager(m_metadataManager);
-  m_tableManager->indexSelected_.connect(boost::bind(&FWGUIEventDataAdder::newIndexSelected, this, _1));
+  m_tableManager->indexSelected_.connect(
+      std::bind(&FWGUIEventDataAdder::newIndexSelected, this, std::placeholders::_1));
 
   m_frame = new TGTransientFrame(gClient->GetDefaultRoot(), m_parentFrame, 600, 400);
   m_frame->Connect("CloseWindow()", "FWGUIEventDataAdder", this, "windowIsClosing()");

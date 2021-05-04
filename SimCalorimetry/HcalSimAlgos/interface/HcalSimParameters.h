@@ -40,7 +40,8 @@ public:
 
   int pixels(const DetId& detId) const;
   bool doSiPMSmearing() const { return theSiPMSmearing; }
-
+  int delayQIE() const { return delayQIE_; }
+  double threshold_currentTDC() const { return threshold_currentTDC_; }
   double sipmTau() const { return theSiPMTau; }
   double sipmDarkCurrentuA(const DetId& detId) const;
   double sipmCrossTalk(const DetId& detId) const;
@@ -59,6 +60,8 @@ private:
   bool doTimeSmear_;
   HcalTimeSmearSettings theSmearSettings;
   double theSiPMTau;
+  double threshold_currentTDC_;
+  int delayQIE_;
 };
 
 #endif

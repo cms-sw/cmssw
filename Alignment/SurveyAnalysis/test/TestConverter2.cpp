@@ -31,7 +31,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include <boost/cstdint.hpp>
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"

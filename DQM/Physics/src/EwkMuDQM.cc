@@ -240,8 +240,6 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::
   phEta_ = ibooker.book1D("phEta", chtitle, 100, -2.5, 2.5);
 }
 
-void EwkMuDQM::endRun(const Run& r, const EventSetup& iSet) {}
-
 void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   // Muon collection
   Handle<View<Muon> > muonCollection;

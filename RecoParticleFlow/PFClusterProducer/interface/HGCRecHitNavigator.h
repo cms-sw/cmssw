@@ -59,13 +59,13 @@ public:
     }
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) override {
+  void init(const edm::EventSetup& iSetup) override {
     if (nullptr != eeNav_)
-      eeNav_->beginEvent(iSetup);
+      eeNav_->init(iSetup);
     if (nullptr != hefNav_)
-      hefNav_->beginEvent(iSetup);
+      hefNav_->init(iSetup);
     if (nullptr != hebNav_)
-      hebNav_->beginEvent(iSetup);
+      hebNav_->init(iSetup);
   }
 
   void associateNeighbours(reco::PFRecHit& hit,

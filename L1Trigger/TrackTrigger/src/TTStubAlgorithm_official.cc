@@ -16,16 +16,16 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
     bool& aConfirmation,
     int& aDisplacement,
     int& anOffset,
-    float& anROffset,
     float& anHardBend,
     const TTStub<Ref_Phase2TrackerDigi_>& aTTStub) const {
   /// Calculate average coordinates col/row for inner/outer Cluster
   // These are already corrected for being at the center of each pixel
-  MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
-  MeasurementPoint mp1 = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
+  MeasurementPoint mp0 = aTTStub.clusterRef(0)->findAverageLocalCoordinates();
+  MeasurementPoint mp1 = aTTStub.clusterRef(1)->findAverageLocalCoordinates();
+
+  bool isPS = aTTStub.moduleTypePS();  // get it from the stub now
 
   /// Get the module position in global coordinates
-  bool isPS = (theTrackerGeom_->getDetectorType(aTTStub.getDetId()) == TrackerGeometry::ModuleType::Ph2PSP);
   // TODO temporary: should use a method from the topology
   DetId stDetId(aTTStub.getDetId());
   const GeomDetUnit* det0 = theTrackerGeom_->idToDetUnit(stDetId + 1);
@@ -122,7 +122,6 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
     aConfirmation = true;
     aDisplacement = dispI;                                                     /// In HALF-STRIP units!
     anOffset = offsetI;                                                        /// In HALF-STRIP units!
-    anROffset = static_cast<float>(offsetD);                                   /// In HALF-STRIP units!
     anHardBend = this->degradeBend(isPS, window, (aDisplacement - anOffset));  // In strips units
   }                                                                            /// End of stub is accepted
 }

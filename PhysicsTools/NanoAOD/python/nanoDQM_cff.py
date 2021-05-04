@@ -75,7 +75,8 @@ nanoDQMMC.vplots.Tau.sels.Prompt = cms.string("genPartFlav == 5")
 nanoDQMMC.vplots.Jet.sels.Prompt = cms.string("genJetIdx != 1")
 nanoDQMMC.vplots.Jet.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavour == 5")
 
-nanoDQMQTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+nanoDQMQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('PhysicsTools/NanoAOD/test/dqmQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     testInEventloop = cms.untracked.bool(False),

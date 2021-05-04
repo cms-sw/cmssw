@@ -14,9 +14,9 @@ lowPtGsfElectronSeeds = cms.EDProducer(
     EERecHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     rho = cms.InputTag('fixedGridRhoFastjetAllTmp'),
     BeamSpot = cms.InputTag("offlineBeamSpot"),
-    Fitter = cms.string('GsfTrajectoryFitter_forPreId'),
-    Smoother = cms.string('GsfTrajectorySmoother_forPreId'),
-    TTRHBuilder = cms.string('WithAngleAndTemplate'),
+    Fitter = cms.ESInputTag("", 'GsfTrajectoryFitter_forPreId'),
+    Smoother = cms.ESInputTag("", 'GsfTrajectorySmoother_forPreId'),
+    TTRHBuilder = cms.ESInputTag("", 'WithAngleAndTemplate'),
     ModelNames = cms.vstring([
             'unbiased',
             'ptbiased',
@@ -34,20 +34,19 @@ lowPtGsfElectronSeeds = cms.EDProducer(
 
 # Modifiers for FastSim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-lowPtGsfElectronSeedsTmp = lowPtGsfElectronSeeds.clone(tracks = cms.InputTag("generalTracksBeforeMixing"))
+lowPtGsfElectronSeedsTmp = lowPtGsfElectronSeeds.clone(tracks = "generalTracksBeforeMixing")
 import FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi
-_fastSim_lowPtGsfElectronSeeds = FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi.fixedTrackerDrivenElectronSeeds.clone()
-_fastSim_lowPtGsfElectronSeeds.seedCollection = cms.InputTag("lowPtGsfElectronSeedsTmp","")
-_fastSim_lowPtGsfElectronSeeds.idCollection = cms.VInputTag("lowPtGsfElectronSeedsTmp","lowPtGsfElectronSeedsTmp:HCAL")
-_fastSim_lowPtGsfElectronSeeds.PreIdLabel = cms.vstring("","HCAL")
-_fastSim_lowPtGsfElectronSeeds.PreGsfLabel = cms.string("")
+_fastSim_lowPtGsfElectronSeeds = FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi.fixedTrackerDrivenElectronSeeds.clone(
+    seedCollection = "lowPtGsfElectronSeedsTmp:",
+    idCollection   = ["lowPtGsfElectronSeedsTmp","lowPtGsfElectronSeedsTmp:HCAL"],
+    PreIdLabel     = ["","HCAL"],
+    PreGsfLabel    = ""
+)
 fastSim.toReplaceWith(lowPtGsfElectronSeeds,_fastSim_lowPtGsfElectronSeeds)
-
-# Modifiers for Phase2
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(lowPtGsfElectronSeeds, TTRHBuilder  = 'WithTrackAngle')
 
 # Modifiers for BParking
 from Configuration.Eras.Modifier_bParking_cff import bParking
-bParking.toModify(lowPtGsfElectronSeeds, ModelThresholds = thresholds("VL") )
-bParking.toModify(lowPtGsfElectronSeeds, MinPtThreshold = 0.5)
+bParking.toModify(lowPtGsfElectronSeeds, 
+    ModelThresholds = thresholds("VL"), 
+    MinPtThreshold = 0.5
+)

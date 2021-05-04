@@ -23,9 +23,7 @@ CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet &ps) {
 
 CastorRecHitMonitor::~CastorRecHitMonitor() {}
 
-void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
-                                         const edm::Run &iRun,
-                                         const edm::EventSetup &iSetup) {
+void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun) {
   char s[60];
   if (fVerbosity > 0)
     std::cout << "CastorRecHitMonitor::bookHistograms" << std::endl;
@@ -46,9 +44,9 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
 
   sprintf(s, "Castor Energy by Sectors #Phi");
   h2RHvsSec = ibooker.book2D(s, s, N_Sec, xSec, nySec, ySec);
-  h2RHvsSec->getTH2F()->GetXaxis()->SetTitle("sector #Phi");
-  h2RHvsSec->getTH2F()->GetYaxis()->SetTitle("RecHit / GeV");
-  h2RHvsSec->getTH2F()->SetOption("colz");
+  h2RHvsSec->setAxisTitle("sector #Phi");
+  h2RHvsSec->setAxisTitle("RecHit / GeV", /* axis */ 2);
+  h2RHvsSec->setOption("colz");
 
   const int nxCh = 224;
   const int nyE = 18;
@@ -65,11 +63,11 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
 
   string st = "Castor Cell Energy Map (cell-wise)";
   h2RHchan = ibooker.book2D(st, st + ";moduleZ*16 + sector #Phi;RecHit / GeV", nxCh, xCh, nyE, yErh);
-  h2RHchan->getTH2F()->SetOption("colz");
+  h2RHchan->setOption("colz");
 
   sprintf(s, "Castor Cell Energy");
   hallchan = ibooker.book1D(s, s, nyE, yErh);
-  hallchan->getTH1F()->GetXaxis()->SetTitle("GeV");
+  hallchan->setAxisTitle("GeV");
 
   st = "Castor cell avr Energy per event Map Z-Phi";
   h2RHoccmap = ibooker.bookProfile2D(st, st + ";module Z;sector Phi", 14, 0, 14, 16, 0, 16, 0., 1.e10, "");
@@ -77,16 +75,16 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
 
   sprintf(s, "CastorRecHitEntriesMap");
   h2RHentriesMap = ibooker.book2D(s, s, 14, 0, 14, 16, 0, 16);
-  h2RHentriesMap->getTH2F()->GetXaxis()->SetTitle("moduleZ");
-  h2RHentriesMap->getTH2F()->GetYaxis()->SetTitle("sector #Phi");
-  h2RHentriesMap->getTH2F()->SetOption("colz");
+  h2RHentriesMap->setAxisTitle("moduleZ");
+  h2RHentriesMap->setAxisTitle("sector #Phi", /* axis */ 2);
+  h2RHentriesMap->setOption("colz");
 
   sprintf(s, "CastorRecHitTime");
   hRHtime = ibooker.book1D(s, s, 301, -101., 200.);
 
   sprintf(s, "CASTORTowerDepth");
   hTowerDepth = ibooker.book1D(s, s, 130, -15500., -14200.);
-  hTowerDepth->getTH1F()->GetXaxis()->SetTitle("mm");
+  hTowerDepth->setAxisTitle("mm");
 
   sprintf(s, "CASTORTowerMultiplicity");
   hTowerMultipl = ibooker.book1D(s, s, 20, 0., 20.);
@@ -112,13 +110,13 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
 
   sprintf(s, "CASTORTowerEMvsEhad");
   h2TowerEMhad = ibooker.book2D(s, s, NEtow, EhadTow, NEtow, EMTow);
-  h2TowerEMhad->getTH2F()->GetXaxis()->SetTitle("Ehad / GeV");
-  h2TowerEMhad->getTH2F()->GetYaxis()->SetTitle("EM / GeV");
-  h2TowerEMhad->getTH2F()->SetOption("colz");
+  h2TowerEMhad->setAxisTitle("Ehad / GeV");
+  h2TowerEMhad->setAxisTitle("EM / GeV", /* axis */ 2);
+  h2TowerEMhad->setOption("colz");
 
   sprintf(s, "CASTORTowerTotalEnergy");
   hTowerE = ibooker.book1D(s, s, NEtow + 1, ETower);
-  hTowerE->getTH1F()->GetXaxis()->SetTitle("GeV");
+  hTowerE->setAxisTitle("GeV");
 
   sprintf(s, "CASTORJetsMultiplicity");
   hJetsMultipl = ibooker.book1D(s, s, 16, 0., 16.);

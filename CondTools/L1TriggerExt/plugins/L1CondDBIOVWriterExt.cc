@@ -113,7 +113,7 @@ void L1CondDBIOVWriterExt::analyze(const edm::Event& iEvent, const edm::EventSet
       std::string recordType = itr->first;
       std::string objectKey = itr->second;
 
-      std::string recordName(recordType, 0, recordType.find_first_of("@"));
+      std::string recordName(recordType, 0, recordType.find_first_of('@'));
 
       if (logRecords) {
         // Replace spaces in key with ?s.  Do reverse substitution when

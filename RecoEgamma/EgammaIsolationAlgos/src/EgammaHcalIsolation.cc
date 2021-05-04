@@ -17,7 +17,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 using namespace std;

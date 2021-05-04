@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLayerBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerStringBuilder.h"
@@ -12,13 +13,17 @@
 #include <vector>
 #include <bitset>
 
-void CmsTrackerLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, const std::string s) {
-  CmsTrackerStringBuilder theCmsTrackerStringBuilder;
-  CmsTrackerRodBuilder theCmsTrackerRodBuilder;
-  CmsTrackerLadderBuilder theCmsTrackerLadderBuilder;
+template <class FilteredView>
+void CmsTrackerLayerBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsTrackerStringBuilder<FilteredView> theCmsTrackerStringBuilder;
+  CmsTrackerRodBuilder<FilteredView> theCmsTrackerRodBuilder;
+  CmsTrackerLadderBuilder<FilteredView> theCmsTrackerLadderBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::strng:
       theCmsTrackerStringBuilder.build(fv, subdet, s);
       break;
@@ -29,13 +34,14 @@ void CmsTrackerLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
       theCmsTrackerLadderBuilder.build(fv, subdet, s);
       break;
     default:
-      edm::LogError("CmsTrackerLayerBuilder")
-          << " ERROR - I was expecting a String, Rod or Ladder, I got a " << ExtractStringFromDDD::getString(s, &fv);
+      edm::LogError("CmsTrackerLayerBuilder") << " ERROR - I was expecting a String, Rod or Ladder, I got a "
+                                              << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerLayerBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   // TIB
@@ -86,10 +92,10 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
       }
     }
 
-    trackerStablePhiSort(extneg.begin(), extneg.end(), getPhi);
-    trackerStablePhiSort(extpos.begin(), extpos.end(), getPhi);
-    trackerStablePhiSort(intneg.begin(), intneg.end(), getPhi);
-    trackerStablePhiSort(intpos.begin(), intpos.end(), getPhi);
+    trackerStablePhiSort(extneg.begin(), extneg.end(), CmsTrackerLevelBuilderHelper::getPhi);
+    trackerStablePhiSort(extpos.begin(), extpos.end(), CmsTrackerLevelBuilderHelper::getPhi);
+    trackerStablePhiSort(intneg.begin(), intneg.end(), CmsTrackerLevelBuilderHelper::getPhi);
+    trackerStablePhiSort(intpos.begin(), intpos.end(), CmsTrackerLevelBuilderHelper::getPhi);
 
     for (uint32_t i = 0; i < intneg.size(); i++) {
       uint32_t temp = i + 1;
@@ -140,8 +146,8 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
       }
     }
 
-    trackerStablePhiSort(neg.begin(), neg.end(), getPhi);
-    trackerStablePhiSort(pos.begin(), pos.end(), getPhi);
+    trackerStablePhiSort(neg.begin(), neg.end(), CmsTrackerLevelBuilderHelper::getPhi);
+    trackerStablePhiSort(pos.begin(), pos.end(), CmsTrackerLevelBuilderHelper::getPhi);
 
     for (uint32_t i = 0; i < neg.size(); i++) {
       uint32_t temp = i + 1;
@@ -160,7 +166,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
     det->addComponents(pos);
 
   } else if (det->components().front()->type() == GeometricDet::ladder) {
-    trackerStablePhiSort(comp.begin(), comp.end(), getPhi);
+    trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhi);
 
     for (uint32_t i = 0; i < comp.size(); i++) {
       det->component(i)->setGeographicalID(DetId(i + 1));
@@ -171,3 +177,6 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
         << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
   }
 }
+
+template class CmsTrackerLayerBuilder<DDFilteredView>;
+template class CmsTrackerLayerBuilder<cms::DDFilteredView>;

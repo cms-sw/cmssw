@@ -4,7 +4,6 @@
 //
 #include "CondCore/CondDB/src/DbCore.h"
 //
-#include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <boost/bind.hpp>
 #include <memory>
@@ -54,16 +53,17 @@ namespace cond {
       persistency::TransactionScope ssc(sourceSession.transaction());
       ssc.start();
       std::cout << "    Loading source iov..." << std::endl;
-      persistency::IOVProxy p = sourceSession.readIov(sourceTag, true);
-      if (p.loadedSize() == 0) {
+      persistency::IOVProxy p = sourceSession.readIov(sourceTag);
+      auto iovs = p.selectAll();
+      if (iovs.size() == 0) {
         std::cout << "    Tag contains 0 iovs." << std::endl;
         return 0;
       } else {
-        std::cout << "    Iov size:" << p.loadedSize() << " timeType:" << p.timeType() << " payloadObjectType=\""
-                  << p.payloadObjectType() << "\"" << std::endl;
+        std::cout << "    Iov size:" << iovs.size() << " timeType:" << p.tagInfo().timeType << " payloadObjectType=\""
+                  << p.tagInfo().payloadType << "\"" << std::endl;
       }
-      if ((*p.begin()).since > begin)
-        begin = (*p.begin()).since;
+      if ((*iovs.begin()).since > begin)
+        begin = (*iovs.begin()).since;
       if (end < begin) {
         std::cout << "    No Iov in the selected range." << std::endl;
         return 0;
@@ -84,13 +84,14 @@ namespace cond {
         if (!description.empty())
           std::cout << "   INFO. Destination Tag " << destTag
                     << " already exists. Provided description will be ignored." << std::endl;
-        if (editor.timeType() != p.timeType())
+        if (editor.timeType() != p.tagInfo().timeType)
           throwException("TimeType of the destination tag does not match with the source tag timeType.", "importIovs");
-        if (editor.payloadType() != p.payloadObjectType())
+        if (editor.payloadType() != p.tagInfo().payloadType)
           throwException("PayloadType of the destination tag does not match with the source tag payloadType.",
                          "importIovs");
       } else {
-        editor = destSession.createIov(p.payloadObjectType(), destTag, p.timeType(), p.synchronizationType());
+        editor = destSession.createIov(
+            p.tagInfo().payloadType, destTag, p.tagInfo().timeType, p.tagInfo().synchronizationType);
         if (description.empty())
           editor.setDescription("Created copying tag " + sourceTag + " from " + sourceSession.connectionString());
         else
@@ -99,9 +100,9 @@ namespace cond {
       size_t niovs = 0;
       std::set<cond::Hash> pids;
       std::set<cond::Time_t> sinces;
-      auto iiov = p.find(begin);
+      auto iiov = iovs.find(begin);
       cond::Time_t newSince = begin;
-      while (iiov != p.end()) {
+      while (iiov != iovs.end()) {
         // skip duplicated sinces
         if (sinces.find(newSince) != sinces.end()) {
           std::cout << "    WARNING. Skipping duplicated since=" << newSince << std::endl;
@@ -114,8 +115,9 @@ namespace cond {
         bool skip = false;
         if (exists) {
           // don't insert if the same entry is already there...
-          auto ie = dp.find(newSince);
-          if (ie != dp.end()) {
+          auto diovs = dp.selectAll();
+          auto ie = diovs.find(newSince);
+          if (ie != diovs.end()) {
             if (((*ie).since == newSince) && ((*ie).payloadId == usedIov.payloadId)) {
               skip = true;
             }
@@ -129,7 +131,7 @@ namespace cond {
             std::cout << "    Total of iov inserted: " << niovs << " payloads: " << pids.size() << std::endl;
         }
         iiov++;
-        if (iiov == p.end() || (*iiov).since > end) {
+        if (iiov == iovs.end() || (*iiov).since > end) {
           break;
         } else {
           newSince = (*iiov).since;
@@ -137,11 +139,10 @@ namespace cond {
       }
       if (exists && override) {
         std::cout << "    Adding overlying iovs..." << std::endl;
-        persistency::IOVProxy dp;
-        dp = destSession.iovProxy();
-        dp.loadRange(destTag, begin, end);
+        persistency::IOVProxy dp = destSession.readIov(destTag);
+        auto diovs = dp.selectRange(begin, end);
         std::set<cond::Time_t> extraSinces;
-        for (auto iov : dp) {
+        for (const auto& iov : diovs) {
           auto siov = p.getInterval(iov.since);
           if (siov.since != iov.since) {
             if (extraSinces.find(iov.since) == extraSinces.end()) {
@@ -171,17 +172,18 @@ namespace cond {
       persistency::TransactionScope ssc(session.transaction());
       ssc.start(false);
       std::cout << "    Loading source iov..." << std::endl;
-      persistency::IOVProxy p = session.readIov(sourceTag, true);
-      if (p.loadedSize() == 0) {
+      persistency::IOVProxy p = session.readIov(sourceTag);
+      auto iovs = p.selectAll();
+      if (iovs.size() == 0) {
         std::cout << "    Tag contains 0 iovs." << std::endl;
         return false;
       } else {
-        std::cout << "    Iov size:" << p.loadedSize() << " timeType:" << p.timeType() << " payloadObjectType=\""
-                  << p.payloadObjectType() << "\"" << std::endl;
+        std::cout << "    Iov size:" << iovs.size() << " timeType:" << p.tagInfo().timeType << " payloadObjectType=\""
+                  << p.tagInfo().payloadType << "\"" << std::endl;
       }
 
-      auto iiov = p.find(sourceSince);
-      if (iiov == p.end()) {
+      auto iiov = iovs.find(sourceSince);
+      if (iiov == iovs.end()) {
         std::cout << "ERROR: No Iov valid found for target time " << sourceSince << std::endl;
         return false;
       }
@@ -192,13 +194,14 @@ namespace cond {
           std::cout << "   INFO. Destination Tag " << destTag
                     << " already exists. Provided description will be ignored." << std::endl;
         editor = session.editIov(destTag);
-        if (editor.timeType() != p.timeType())
+        if (editor.timeType() != p.tagInfo().timeType)
           throwException("TimeType of the destination tag does not match with the source tag timeType.", "importIovs");
-        if (editor.payloadType() != p.payloadObjectType())
+        if (editor.payloadType() != p.tagInfo().payloadType)
           throwException("PayloadType of the destination tag does not match with the source tag payloadType.",
                          "importIovs");
       } else {
-        editor = session.createIov(p.payloadObjectType(), destTag, p.timeType(), p.synchronizationType());
+        editor =
+            session.createIov(p.tagInfo().payloadType, destTag, p.tagInfo().timeType, p.tagInfo().synchronizationType);
         if (description.empty())
           editor.setDescription("Created copying iovs from tag " + sourceTag);
         else

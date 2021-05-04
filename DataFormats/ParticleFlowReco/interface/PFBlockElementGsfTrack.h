@@ -15,7 +15,7 @@ namespace reco {
   /// \brief Track Element.
   ///
   /// this class contains a reference to a PFRecTrack
-  class PFBlockElementGsfTrack : public PFBlockElement {
+  class PFBlockElementGsfTrack final : public PFBlockElement {
   public:
     PFBlockElementGsfTrack() {}
 
@@ -38,7 +38,9 @@ namespace reco {
         trackType_ = trackType_ ^ (1 << trType);
     }
 
-    bool isSecondary() const override { return trackType(T_FROM_GAMMACONV); }
+    static constexpr unsigned int kSecondaryMask = 1 << T_FROM_GAMMACONV;
+
+    bool isSecondary() const override { return trackType_ & kSecondaryMask; }
 
     /// \return reference to the corresponding PFGsfRecTrack
     const GsfPFRecTrackRef& GsftrackRefPF() const { return GsftrackRefPF_; }

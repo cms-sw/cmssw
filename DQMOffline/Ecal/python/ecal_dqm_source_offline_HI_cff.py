@@ -30,6 +30,8 @@ ecal_dqm_source_offline = cms.Sequence(
     ecalMultiftAnalyzer
 )
 
+ecalMonitorTask.workerParameters.TrigPrimTask.params.runOnEmul = False
+ecalMonitorTask.collectionTags.Source = 'rawDataMapperByLabel'
 ecalMonitorTask.collectionTags.EBBasicCluster = 'islandBasicClusters:islandBarrelBasicClusters'
 ecalMonitorTask.collectionTags.EEBasicCluster = 'islandBasicClusters:islandEndcapBasicClusters'
 ecalMonitorTask.collectionTags.EBSuperCluster = 'correctedIslandBarrelSuperClusters'

@@ -55,7 +55,7 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet &pset) {
   local_ = pset.getUntrackedParameter<bool>("local", false);
 }
 
-void DTSegment2DSLPhiQuality::bookHistograms(DQMStore::ConcurrentBooker &booker,
+void DTSegment2DSLPhiQuality::bookHistograms(DQMStore::IBooker &booker,
                                              edm::Run const &run,
                                              edm::EventSetup const &setup,
                                              Histograms &histograms) const {

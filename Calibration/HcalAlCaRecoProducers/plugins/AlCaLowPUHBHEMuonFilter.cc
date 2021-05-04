@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -76,6 +75,8 @@ private:
   edm::EDGetTokenT<trigger::TriggerEvent> tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
   edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
 };
 
 //
@@ -100,15 +101,20 @@ AlCaLowPUHBHEMuonFilter::AlCaLowPUHBHEMuonFilter(edm::ParameterSet const& iConfi
   pfIsoCut_ = iConfig.getParameter<double>("pfIsolationCut");
   minimumMuonpT_ = iConfig.getParameter<double>("minimumMuonpT");
   minimumMuoneta_ = iConfig.getParameter<double>("minimumMuoneta");
+
   // define tokens for access
   tok_trigRes_ = consumes<edm::TriggerResults>(triggerResults_);
   tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
-  edm::LogInfo("LowPUHBHEMuon") << "Parameters read from config file \n"
-                                << "Process " << processName_ << "  PF Isolation Cuts " << pfIsoCut_
-                                << " minimum Muon pT cut " << minimumMuonpT_ << " minimum Muon eta cut "
-                                << minimumMuoneta_;
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+
+  edm::LogVerbatim("LowPUHBHEMuon") << "Parameters read from config file \n"
+                                    << "Process " << processName_ << "  PF Isolation Cuts " << pfIsoCut_
+                                    << " minimum Muon pT cut " << minimumMuonpT_ << " minimum Muon eta cut "
+                                    << minimumMuoneta_;
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
-    edm::LogInfo("LowPUHBHEMuon") << "Trigger[" << k << "] " << trigNames_[k];
+    edm::LogVerbatim("LowPUHBHEMuon") << "Trigger[" << k << "] " << trigNames_[k];
 }  // AlCaLowPUHBHEMuonFilter::AlCaLowPUHBHEMuonFilter  constructor
 
 AlCaLowPUHBHEMuonFilter::~AlCaLowPUHBHEMuonFilter() {}
@@ -122,9 +128,9 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
   bool accept(false);
   ++nAll_;
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Run " << iEvent.id().run() << " Event "
-                                << iEvent.id().event() << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
-                                << iEvent.bunchCrossing();
+  edm::LogVerbatim("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Run " << iEvent.id().run() << " Event "
+                                    << iEvent.id().event() << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
+                                    << iEvent.bunchCrossing();
 #endif
   //Step1: Find if the event passes one of the chosen triggers
   /////////////////////////////TriggerResults
@@ -137,43 +143,41 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
     const std::vector<std::string>& triggerNames_ = triggerNames.triggerNames();
     for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
       int hlt = triggerResults->accept(iHLT);
-      //std::cout << "trigger names: "<<iHLT<<" "<<triggerNames_[iHLT]<<std::endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("LowPUHBHEMuonX") << "trigger names: " << iHLT << " " << triggerNames_[iHLT];
+#endif
       for (auto const& trigName : trigNames_) {
         if (triggerNames_[iHLT].find(trigName) != std::string::npos) {
-          //std::cout << "find trigger names: "<<trigName <<std::endl;
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("LowPUHBHEMuonX") << "find trigger names: " << trigName;
+#endif
           if (hlt > 0)
             ok = true;
 #ifdef EDM_ML_DEBUG
-          edm::LogInfo("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Trigger " << triggerNames_[iHLT] << " Flag " << hlt
-                                        << ":" << ok;
+          edm::LogVerbatim("LowPUHBHEMuon")
+              << "AlCaLowPUHBHEMuonFilter::Trigger " << triggerNames_[iHLT] << " Flag " << hlt << ":" << ok;
 #endif
         }
       }
     }
     if (ok) {
       //Step2: Get geometry/B-field information
-      //Get magnetic field
-      edm::ESHandle<MagneticField> bFieldH;
-      iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-      const MagneticField* bField = bFieldH.product();
-      // get handles to calogeometry
-      edm::ESHandle<CaloGeometry> pG;
-      iSetup.get<CaloGeometryRecord>().get(pG);
-      const CaloGeometry* geo = pG.product();
+      const MagneticField* bField = &(iSetup.getData(tok_magField_));
+      const CaloGeometry* geo = &(iSetup.getData(tok_geom_));
 
       // Relevant blocks from iEvent
       edm::Handle<reco::MuonCollection> _Muon;
       iEvent.getByToken(tok_Muon_, _Muon);
 #ifdef EDM_ML_DEBUG
-      edm::LogInfo("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon Handle " << _Muon.isValid();
+      edm::LogVerbatim("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon Handle " << _Muon.isValid();
 #endif
       if (_Muon.isValid()) {
         for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
 #ifdef EDM_ML_DEBUG
-          edm::LogInfo("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
-                                        << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "
-                                        << RecMuon->outerTrack().isNonnull() << " globalTrack "
-                                        << RecMuon->globalTrack().isNonnull();
+          edm::LogVerbatim("LowPUHBHEMuon")
+              << "AlCaLowPUHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull() << " innerTrack "
+              << RecMuon->innerTrack().isNonnull() << " outerTrack " << RecMuon->outerTrack().isNonnull()
+              << " globalTrack " << RecMuon->globalTrack().isNonnull();
 #endif
           if ((RecMuon->pt() < minimumMuonpT_) || fabs(RecMuon->eta() < minimumMuoneta_))
             continue;
@@ -182,7 +186,7 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
             const reco::Track* pTrack = (RecMuon->innerTrack()).get();
             spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
 #ifdef EDM_ML_DEBUG
-            edm::LogInfo("LowPUHBHEMuon")
+            edm::LogVerbatim("LowPUHBHEMuon")
                 << "AlCaLowPUHBHEMuonFilter::Propagate: ECAL " << trackID.okECAL << " to HCAL " << trackID.okHCAL;
 #endif
             double isolR04 =
@@ -216,20 +220,20 @@ void AlCaLowPUHBHEMuonFilter::endStream() {
 }
 
 void AlCaLowPUHBHEMuonFilter::globalEndJob(const AlCaLowPUHBHEMuons::Counters* count) {
-  edm::LogInfo("LowPUHBHEMuon") << "Selects " << count->nGood_ << " good events out of " << count->nAll_
-                                << " total # of events";
+  edm::LogVerbatim("LowPUHBHEMuon") << "Selects " << count->nGood_ << " good events out of " << count->nAll_
+                                    << " total # of events";
 }
 
 // ------------ method called when starting to processes a run  ------------
 void AlCaLowPUHBHEMuonFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
   bool flag = hltConfig_.init(iRun, iSetup, processName_, changed);
-  edm::LogInfo("LowPUHBHEMuon") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init " << flag;
+  edm::LogVerbatim("LowPUHBHEMuon") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init " << flag;
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void AlCaLowPUHBHEMuonFilter::endRun(edm::Run const& iRun, edm::EventSetup const&) {
-  edm::LogInfo("LowPUHBHEMuon") << "endRun[" << nRun_ << "] " << iRun.run();
+  edm::LogVerbatim("LowPUHBHEMuon") << "endRun[" << nRun_ << "] " << iRun.run();
   nRun_++;
 }
 

@@ -226,7 +226,7 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::PUSubMETCandInfo>& lept
 std::unique_ptr<float[]> PFMETAlgorithmMVA::createFloatVector(std::vector<std::string> variableNames) {
   std::unique_ptr<float[]> floatVector(new float[variableNames.size()]);
   int i = 0;
-  for (auto variableName : variableNames) {
+  for (const auto& variableName : variableNames) {
     floatVector[i++] = var_[variableName];
   }
   return floatVector;
@@ -286,7 +286,7 @@ const float PFMETAlgorithmMVA::GetResponse(const GBRForest* Reader, std::vector<
 //-------------------------------------------------------------------------------
 void PFMETAlgorithmMVA::print(std::ostream& stream) const {
   stream << "<PFMETAlgorithmMVA::print>:" << std::endl;
-  for (auto entry : var_)
+  for (const auto& entry : var_)
     stream << entry.first << " = " << entry.second << std::endl;
   stream << " covU1 = " << mvaOutputCovU1_ << ", covU2 = " << mvaOutputCovU2_ << std::endl;
   stream << " sum(leptons): Pt = " << sqrt(sumLeptonPx_ * sumLeptonPx_ + sumLeptonPy_ * sumLeptonPy_) << ","

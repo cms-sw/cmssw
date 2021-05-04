@@ -68,9 +68,9 @@ process.TFileService.fileName = cms.string('l1tCalo_2016_histos.root')
 
 
 # enable debug message logging for our modules
-#process.MessageLogger.categories.append('L1TCaloEvents')
-#process.MessageLogger.categories.append('L1TGlobalEvents')
-#process.MessageLogger.categories.append('l1t|Global')
+#
+#
+#
 process.MessageLogger.debugModules = cms.untracked.vstring('simGlobalStage2Digis')
 process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 

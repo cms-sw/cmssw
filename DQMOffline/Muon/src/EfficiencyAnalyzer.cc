@@ -29,8 +29,6 @@ using namespace edm;
 EfficiencyAnalyzer::EfficiencyAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
 
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-
   // DATA
   theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >(parameters.getParameter<edm::InputTag>("MuonCollection"));
   theTrackCollectionLabel_ = consumes<reco::TrackCollection>(parameters.getParameter<edm::InputTag>("TrackCollection"));
@@ -60,7 +58,7 @@ EfficiencyAnalyzer::EfficiencyAnalyzer(const edm::ParameterSet& pSet) {
   theFolder = parameters.getParameter<string>("folder");
 }
 
-EfficiencyAnalyzer::~EfficiencyAnalyzer() { delete theService; }
+EfficiencyAnalyzer::~EfficiencyAnalyzer() {}
 
 void EfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
                                         edm::Run const& /*iRun*/,
@@ -159,7 +157,6 @@ void EfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
 
 void EfficiencyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogTrace(metname) << "[EfficiencyAnalyzer] Analyze the mu in different eta regions";
-  theService->update(iSetup);
   // ==========================================================
   // BEGIN READ DATA:
   // Muon information

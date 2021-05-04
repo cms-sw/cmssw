@@ -27,10 +27,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
-#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 
 // MC data
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -315,6 +312,8 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   pretrigs_e_token_ = consumes<CSCCLCTPreTriggerDigiCollection>(edm::InputTag(lctProducerEmul_));
   lcts_tmb_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_));
   lcts_mpc_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_, "MPCSORTED"));
+  cscGeomToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
+  pBadToken_ = esConsumes<CSCBadChambers, CSCBadChambersRcd>();
 
   consumesMany<edm::HepMCProduct>();
   resultsFileNamesPrefix_ = conf.getUntrackedParameter<string>("resultsFileNamesPrefix", "");
@@ -372,15 +371,13 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev, const edm::EventS
 
   // Find the geometry for this event & cache it.  Needed in LCTAnalyzer
   // modules.
-  edm::ESHandle<CSCGeometry> cscGeom;
-  setup.get<MuonGeometryRecord>().get(cscGeom);
+  edm::ESHandle<CSCGeometry> cscGeom = setup.getHandle(cscGeomToken_);
   geom_ = &*cscGeom;
 
   // Find conditions data for bad chambers & cache it.  Needed for efficiency
   // calculations.
   if (checkBadChambers_) {
-    edm::ESHandle<CSCBadChambers> pBad;
-    setup.get<CSCBadChambersRcd>().get(pBad);
+    edm::ESHandle<CSCBadChambers> pBad = setup.getHandle(pBadToken_);
     badChambers_ = pBad.product();
   }
 
@@ -1703,7 +1700,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(const CSCCLCTDigiCollection* clcts
           std::vector<bool> bookedclctV_emul;
           for (auto digiIt = erange.first; digiIt != erange.second; digiIt++) {
             if ((*digiIt).isValid()) {
-              for (auto pclct : clctV_emul) {
+              for (const auto& pclct : clctV_emul) {
                 if (digiIt->getBX() != pclct.getBX() and abs(digiIt->getBX() - pclct.getBX()) < 5)
                   LogTrace("CSCTriggerPrimitivesReader")
                       << "Two CLCTs very close in timing!!! Special event: first clct " << pclct << " second clct "

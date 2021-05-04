@@ -8,7 +8,6 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -19,6 +18,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -58,6 +58,13 @@ private:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testEventGetRefBeforePut);
 
+namespace {
+  class TestProducer : public edm::ProducerBase {
+  public:
+    TestProducer(std::string const& productInstanceName) { produces<edmtest::IntProduct>(productInstanceName); }
+  };
+}  // namespace
+
 void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   auto preg = std::make_unique<edm::ProductRegistry>();
   preg->setFrozen();
@@ -78,8 +85,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(
       pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_, edm::StreamID::invalidStreamID());
-  edm::ProcessHistoryRegistry phr;
-  ep.fillEventPrincipal(eventAux, phr);
+  ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
   try {
     edm::ParameterSet pset;
@@ -173,8 +179,7 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(
       pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_, edm::StreamID::invalidStreamID());
-  edm::ProcessHistoryRegistry phr;
-  ep.fillEventPrincipal(eventAux, phr);
+  ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
 
   edm::RefProd<edmtest::IntProduct> refToProd;
@@ -182,8 +187,7 @@ void testEventGetRefBeforePut::getRefTest() {
     edm::ModuleDescription modDesc("Blah", label, pcPtr.get());
 
     edm::Event event(ep, modDesc, nullptr);
-    edm::ProducerBase prod;
-    prod.produces<edmtest::IntProduct>(productInstanceName);
+    TestProducer prod(productInstanceName);
     const_cast<std::vector<edm::ProductResolverIndex>&>(prod.putTokenIndexToProductResolverIndex()).push_back(0);
     event.setProducer(&prod, nullptr);
     auto pr = std::make_unique<edmtest::IntProduct>();

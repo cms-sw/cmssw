@@ -40,11 +40,14 @@ genLeptons_seq = cms.Sequence(genParticlesShortList*genParticlesMuons*genParticl
 analyzeGenLeptons_seq = cms.Sequence(analyzeGenMuons*analyzeGenElecs*analyzeGenNtrns)
 TTbarfull_seq = cms.Sequence(TTbarAnalyzeSpinCorr*analyzeTopKinematics*genLeptons_seq*analyzeGenLeptons_seq*analyzeGenJets)
 bphysics = cms.Sequence(JPsiMuMuValidation*LambdabPiPiMuMuValidation*LambdaSpectrum*PsiSpectrum)
+higgsvalidation_seq = cms.Sequence(higgsValidation)
 # master sequences for different processes/topologies validation
 
 genvalid = cms.Sequence(basicGenTest_seq)
 genvalid_qcd = cms.Sequence(basicGenTest_seq+mbueAndqcdValidation_seq)
 genvalid_dy = cms.Sequence(basicGenTest_seq+mbueAndqcdValidation_seq+drellYanValidation_seq+tauValidation_seq)
 genvalid_w = cms.Sequence(basicGenTest_seq+mbueAndqcdValidation_seq+wValidation_seq+tauValidation_seq)
+genvalid_top = cms.Sequence(basicGenTest_seq+mbueAndqcdValidation_seq+TTbarfull_seq)
+genvalid_higgs = cms.Sequence(basicGenTest_seq+mbueAndqcdValidation_seq+higgsvalidation_seq)
 genvalid_all = cms.Sequence(basicGenTest_seq+mbueAndqcdValidation_seq+drellYanValidation_seq+wValidation_seq+tauValidation_seq+TTbarfull_seq+higgsValidation+bphysics)
 genvalid_all_and_dup_check = cms.Sequence(duplicationChecker_seq+genvalid_all)

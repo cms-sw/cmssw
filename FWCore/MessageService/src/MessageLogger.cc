@@ -9,68 +9,6 @@
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
 //
-// Change log
-//
-// 1  mf  5/12/06	In ctor, MessageDrop::debugEnabled is set to a
-//			sensible value in case action happens before modules
-//			are entered.  If any modules enable debugs, such
-//			LogDebug messages are not immediately discarded
-//			(though they might be filtered at the server side).
-//
-// 2  mf  5/27/06	In preEventProcessing, change the syntax for
-//			runEvent from 1/23 to Run: 1 Event: 23
-//
-// 3 mf   6/27/06	PreModuleConstruction and PreSourceConstruction get
-//			correct module name
-//
-// 4 mf   6/27/06	Between events the run/event is previous one
-//
-// 5  mf  3/30/07	Support for --jobreport option
-//
-// 6 mf   6/6/07	Remove the catches for forgiveness of tracked
-//			parameters
-//
-// 7 mf   6/19/07	Support for --jobreport option
-//
-// 8 wmtan 6/25/07	Enable suppression for sources, just as for modules
-//
-// 9 mf   7/25/07	Modify names of the MessageLoggerQ methods, eg MLqLOG
-//
-//10 mf   6/18/07	Insert into the PostEndJob a possible SummarizeInJobReport
-//
-//11 mf   3/18/09	Fix wrong-sense test establishing anyDebugEnabled_
-//
-//12 mf   5/19/09	MessageService PSet Validation
-//
-//13 mf   5/26/09	Get parameters without throwing since validation
-//			will point out any problems and throw at that point
-//
-//14 mf   7/1/09	Establish module name and set up enables/suppresses
-//			for all possible calls supplying module descriptor
-//
-//14 mf   7/1/09	Establish pseudo-module name and set up
-//			enables/suppresses for other calls from framework
-//15 mf   9/8/09	Clean up erroneous assignments of some callbacks
-//			for specific watch routines (eg PreXYZ called postXYZ)
-//
-//16 mf   9/8/09	Eliminate caching by descriptor address during ctor
-//			phases (since addresses are not yet permanent then)
-//
-//17 mf   11/2/10	Move preparation of module out to MessageDrop methods
-//   crj		which will only be called if a message is actually
-//			issued.  Caching of the work is done within MessageDrop
-//			so that case of many messages in a module is still fast.
-//
-//18 mf	  11/2/10	Eliminated curr_module, since it was only being used
-//			as a local variable for preparation of name (never
-//			used to transfer info between functions) and change
-//			17 obviates its need.
-//
-// 19 mf 11/30/10	Add a messageDrop->snapshot() when establishing
-//    crj		module ctors, to cure bug 75836.
-//
-// 20 fwyzard 7/06/11   Add support fro dropping LogError messages
-//                      on a per-module basis (needed at HLT)
 
 // system include files
 // user include files
@@ -78,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageService/interface/MessageLogger.h"
-#include "FWCore/MessageService/interface/MessageServicePSetValidation.h"
+#include "FWCore/MessageService/src/MessageServicePSetValidation.h"
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -97,23 +35,62 @@
 
 #include <sstream>
 #include <limits>
+#include <algorithm>
+#include <type_traits>
+#include <cstring>
+#include <charconv>
+#include <cassert>
 
 using namespace edm;
 using namespace edm::service;
+using namespace edm::messagelogger;
 
 namespace {
-  char const* const s_globalTransitionNames[] = {
-      "@beginJob", "@beginRun", "@beginLumi", "@endLumi", "@endRun", "@endJob", "@writeRun", "@writeLumi"};
+  constexpr std::array<char const*, 12> s_globalTransitionNames = {{"@beginJob",
+                                                                    "@beginProcessBlock",
+                                                                    "@accessInputProcessBlock",
+                                                                    "@beginRun",
+                                                                    "@beginLumi",
+                                                                    "@endLumi",
+                                                                    "@endRun",
+                                                                    "@kEndProcessBlock",
+                                                                    "@endJob",
+                                                                    "@writeProcessBlock",
+                                                                    "@writeRun",
+                                                                    "@writeLumi"}};
 
-  char const* const s_streamTransitionNames[] = {
-      "@beginStream",
-      "@streamBeginRun",
-      "@streamBeginLumi",
-      "",  //event
-      "@streamEndLumi",
-      "@streamEndRun",
-      "@endStream",
-  };
+  constexpr std::array<char const*, 7> s_streamTransitionNames = {{"@beginStream",
+                                                                   "@streamBeginRun",
+                                                                   "@streamBeginLumi",
+                                                                   "",  //event
+                                                                   "@streamEndLumi",
+                                                                   "@streamEndRun",
+                                                                   "@endStream"}};
+
+  char* fill_buffer(char* p, char*) { return p; }
+
+  template <typename T, typename... U>
+  char* fill_buffer(char* first, char* last, T value, U... u) {
+    if constexpr (std::is_arithmetic<T>::value) {
+      auto v = std::to_chars(first, last, value);
+      assert(v.ec == std::errc{});
+      return fill_buffer(v.ptr, last, std::forward<U>(u)...);
+    } else {
+      auto l = strlen(value);
+      assert(first + l < last);
+      std::copy(value, value + l, first);
+      return fill_buffer(first + l, last, std::forward<U>(u)...);
+    }
+  }
+
+  template <typename... T>
+  std::string_view fill_buffer(std::array<char, 64>& buffer, T... t) {
+    auto e = fill_buffer(buffer.begin(), buffer.end(), std::forward<T>(t)...);
+    assert(e < buffer.end());
+    *e = 0;
+    return std::string_view(buffer.begin(), e - buffer.begin() + 1);
+  }
+
 }  // namespace
 
 namespace edm {
@@ -151,6 +128,7 @@ namespace edm {
       vString debugModules;
       vString suppressDebug;
       vString suppressInfo;
+      vString suppressFwkInfo;
       vString suppressWarning;
       vString suppressError;  // change log 20
 
@@ -165,6 +143,8 @@ namespace edm {
         suppressDebug = iPS.getUntrackedParameter<vString>("suppressDebug", empty_vString);
 
         suppressInfo = iPS.getUntrackedParameter<vString>("suppressInfo", empty_vString);
+
+        suppressFwkInfo = iPS.getUntrackedParameter<vString>("suppressFwkInfo", empty_vString);
 
         suppressWarning = iPS.getUntrackedParameter<vString>("suppressWarning", empty_vString);
 
@@ -182,6 +162,10 @@ namespace edm {
 
       for (vString::const_iterator it = suppressInfo.begin(); it != suppressInfo.end(); ++it) {
         suppression_levels_[*it] = ELseverityLevel::ELsev_info;
+      }
+
+      for (vString::const_iterator it = suppressFwkInfo.begin(); it != suppressFwkInfo.end(); ++it) {
+        suppression_levels_[*it] = ELseverityLevel::ELsev_fwkInfo;
       }
 
       for (vString::const_iterator it = suppressWarning.begin(); it != suppressWarning.end(); ++it) {
@@ -233,6 +217,7 @@ namespace edm {
       });
 
       iRegistry.watchPostBeginJob(this, &MessageLogger::postBeginJob);
+      iRegistry.watchPreEndJob(this, &MessageLogger::preEndJob);
       iRegistry.watchPostEndJob(this, &MessageLogger::postEndJob);
       iRegistry.watchJobFailure(this, &MessageLogger::jobFailure);  // change log 14
 
@@ -243,6 +228,9 @@ namespace edm {
       iRegistry.watchPreSourceConstruction(this, &MessageLogger::preSourceConstruction);
       iRegistry.watchPostSourceConstruction(this, &MessageLogger::postSourceConstruction);
       // change log 3
+
+      iRegistry.watchPreModuleDestruction(this, &MessageLogger::preModuleDestruction);
+      iRegistry.watchPostModuleDestruction(this, &MessageLogger::postModuleDestruction);
 
       iRegistry.watchPreModuleEvent(this, &MessageLogger::preModuleEvent);
       iRegistry.watchPostModuleEvent(this, &MessageLogger::postModuleEvent);
@@ -283,6 +271,13 @@ namespace edm {
       iRegistry.watchPreModuleStreamEndLumi(this, &MessageLogger::preModuleStreamEndLumi);
       iRegistry.watchPostModuleStreamEndLumi(this, &MessageLogger::postModuleStreamEndLumi);
 
+      iRegistry.watchPreModuleBeginProcessBlock(this, &MessageLogger::preModuleBeginProcessBlock);
+      iRegistry.watchPostModuleBeginProcessBlock(this, &MessageLogger::postModuleBeginProcessBlock);
+      iRegistry.watchPreModuleAccessInputProcessBlock(this, &MessageLogger::preModuleAccessInputProcessBlock);
+      iRegistry.watchPostModuleAccessInputProcessBlock(this, &MessageLogger::postModuleAccessInputProcessBlock);
+      iRegistry.watchPreModuleEndProcessBlock(this, &MessageLogger::preModuleEndProcessBlock);
+      iRegistry.watchPostModuleEndProcessBlock(this, &MessageLogger::postModuleEndProcessBlock);
+
       iRegistry.watchPreModuleGlobalBeginRun(this, &MessageLogger::preModuleGlobalBeginRun);
       iRegistry.watchPostModuleGlobalBeginRun(this, &MessageLogger::postModuleGlobalBeginRun);
       iRegistry.watchPreModuleGlobalEndRun(this, &MessageLogger::preModuleGlobalEndRun);
@@ -303,6 +298,13 @@ namespace edm {
       iRegistry.watchPostStreamBeginLumi(this, &MessageLogger::postStreamBeginLumi);
       iRegistry.watchPreStreamEndLumi(this, &MessageLogger::preStreamEndLumi);
       iRegistry.watchPostStreamEndLumi(this, &MessageLogger::postStreamEndLumi);
+
+      iRegistry.watchPreBeginProcessBlock(this, &MessageLogger::preBeginProcessBlock);
+      iRegistry.watchPostBeginProcessBlock(this, &MessageLogger::postBeginProcessBlock);
+      iRegistry.watchPreAccessInputProcessBlock(this, &MessageLogger::preAccessInputProcessBlock);
+      iRegistry.watchPostAccessInputProcessBlock(this, &MessageLogger::postAccessInputProcessBlock);
+      iRegistry.watchPreEndProcessBlock(this, &MessageLogger::preEndProcessBlock);
+      iRegistry.watchPostEndProcessBlock(this, &MessageLogger::postEndProcessBlock);
 
       iRegistry.watchPreGlobalBeginRun(this, &MessageLogger::preGlobalBeginRun);
       iRegistry.watchPostGlobalBeginRun(this, &MessageLogger::postGlobalBeginRun);
@@ -350,10 +352,12 @@ namespace edm {
       if (it != suppression_levels_.end()) {
         messageDrop->debugEnabled = messageDrop->debugEnabled && (it->second < ELseverityLevel::ELsev_success);
         messageDrop->infoEnabled = (it->second < ELseverityLevel::ELsev_info);
+        messageDrop->fwkInfoEnabled = (it->second < ELseverityLevel::ELsev_fwkInfo);
         messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning);
         messageDrop->errorEnabled = (it->second < ELseverityLevel::ELsev_error);
       } else {
         messageDrop->infoEnabled = true;
+        messageDrop->fwkInfoEnabled = true;
         messageDrop->warningEnabled = true;
         messageDrop->errorEnabled = true;
       }
@@ -368,7 +372,7 @@ namespace edm {
       // std::cerr << "establishModule( " << desc.moduleName() << ")\n";
       // Change Log 17
       auto const desc = mod.moduleDescription();
-      messageDrop->runEvent = transitionInfoCache_[transitionIndex];
+      messageDrop->runEvent = transitionInfoCache_[transitionIndex].begin();
       messageDrop->setModuleWithPhase(desc->moduleName(), desc->moduleLabel(), desc->id(), whichPhase);
       messageDrop->streamID = transitionIndex;
       if (transitionIndex >= lumiInfoBegin_) {
@@ -389,10 +393,12 @@ namespace edm {
       if (it != suppression_levels_.end()) {
         messageDrop->debugEnabled = messageDrop->debugEnabled && (it->second < ELseverityLevel::ELsev_success);
         messageDrop->infoEnabled = (it->second < ELseverityLevel::ELsev_info);
+        messageDrop->fwkInfoEnabled = (it->second < ELseverityLevel::ELsev_fwkInfo);
         messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning);
         messageDrop->errorEnabled = (it->second < ELseverityLevel::ELsev_error);
       } else {
         messageDrop->infoEnabled = true;
+        messageDrop->fwkInfoEnabled = true;
         messageDrop->warningEnabled = true;
         messageDrop->errorEnabled = true;
       }
@@ -464,10 +470,12 @@ namespace edm {
       if (it != suppression_levels_.end()) {
         messageDrop->debugEnabled = messageDrop->debugEnabled && (it->second < ELseverityLevel::ELsev_success);
         messageDrop->infoEnabled = (it->second < ELseverityLevel::ELsev_info);
+        messageDrop->fwkInfoEnabled = (it->second < ELseverityLevel::ELsev_fwkInfo);
         messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning);
         messageDrop->errorEnabled = (it->second < ELseverityLevel::ELsev_error);
       } else {
         messageDrop->infoEnabled = true;
+        messageDrop->fwkInfoEnabled = true;
         messageDrop->warningEnabled = true;
         messageDrop->errorEnabled = true;
       }
@@ -490,10 +498,15 @@ namespace edm {
       }
       establishModule(desc, "@ctor");  // ChangeLog 16
     }
-    void MessageLogger::postModuleConstruction(
-        const ModuleDescription&
-            iDescription) {  //it is now guaranteed that this will be called even if the module throws
+    //it is now guaranteed that this will be called even if the module throws
+    void MessageLogger::postModuleConstruction(const ModuleDescription& iDescription) {
       unEstablishModule(iDescription, "AfterModConstruction");
+    }
+
+    void MessageLogger::preModuleDestruction(const ModuleDescription& desc) { establishModule(desc, "@dtor"); }
+    //it is guaranteed that this will be called even if the module throws
+    void MessageLogger::postModuleDestruction(const ModuleDescription& iDescription) {
+      unEstablishModule(iDescription, "AfterModDestruction");
     }
 
     void MessageLogger::preModuleBeginJob(const ModuleDescription& desc) {
@@ -580,6 +593,37 @@ namespace edm {
     }
 
     //Global
+
+    void MessageLogger::preModuleBeginProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      establishModule(desc, "@beginProcessBlock");
+    }
+
+    void MessageLogger::postModuleBeginProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      unEstablishModule(desc, "After module BeginProcessBlock");
+    }
+
+    void MessageLogger::preModuleAccessInputProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      establishModule(desc, "@accessInputProcessBlock");
+    }
+
+    void MessageLogger::postModuleAccessInputProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      unEstablishModule(desc, "After module AccessInputProcessBlock");
+    }
+
+    void MessageLogger::preModuleEndProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      establishModule(desc, "@endProcessBlock");
+    }
+
+    void MessageLogger::postModuleEndProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      unEstablishModule(desc, "After module EndProcessBlock");
+    }
+
     void MessageLogger::preModuleGlobalBeginRun(GlobalContext const& context, ModuleCallingContext const& mod) {
       establishModule(runInfoBegin_ + context.runIndex().value(),
                       mod,
@@ -642,7 +686,10 @@ namespace edm {
       MessageDrop::instance()->setSinglet("AfterBeginJob");  // Change Log 17
     }
 
-    void MessageLogger::preSourceEvent(StreamID) { establish("source"); }
+    void MessageLogger::preSourceEvent(StreamID) {
+      establish("source");
+      MessageDrop::instance()->runEvent = "PreSource";
+    }
     void MessageLogger::postSourceEvent(StreamID) {
       unEstablish("AfterSource");
       MessageDrop::instance()->runEvent = "AfterSource";
@@ -655,12 +702,11 @@ namespace edm {
     void MessageLogger::postFile(std::string const&, bool) { unEstablish("AfterFile"); }
 
     void MessageLogger::preEvent(StreamContext const& iContext) {
-      std::ostringstream ost;
-      auto const& id = iContext.eventID();
-      ost << "Run: " << id.run() << " Event: " << id.event();  // change log 2
       assert(iContext.streamID().value() < transitionInfoCache_.size());
-      transitionInfoCache_[iContext.streamID().value()] = ost.str();
-      edm::MessageDrop::instance()->runEvent = ost.str();
+      auto& buffer = transitionInfoCache_[iContext.streamID().value()];
+      auto const& id = iContext.eventID();
+      auto v = fill_buffer(buffer, "Run: ", id.run(), " Event: ", id.event());
+      edm::MessageDrop::instance()->runEvent = v;
       edm::MessageDrop::instance()->setSinglet("PreEventProcessing");  // changelog 17
           // Note - module name had not been set here  Similarly in other places where
           // RunEvent carries the new information; we add setSinglet for module name.
@@ -673,11 +719,10 @@ namespace edm {
 
     void MessageLogger::preStreamBeginRun(StreamContext const& iContext)  // change log 14
     {
-      std::ostringstream ost;
-      ost << "Run: " << iContext.eventID().run() << " Stream: " << iContext.streamID().value();
-      ;
-      transitionInfoCache_[iContext.streamID().value()] = ost.str();
-      edm::MessageDrop::instance()->runEvent = ost.str();
+      auto& buffer = transitionInfoCache_[iContext.streamID().value()];
+      auto v = fill_buffer(buffer, "Run: ", iContext.eventID().run(), " Stream: ", iContext.streamID().value());
+
+      edm::MessageDrop::instance()->runEvent = v;
       edm::MessageDrop::instance()->setSinglet("PreStreamBeginRun");  // changelog 17
     }
     void MessageLogger::postStreamBeginRun(StreamContext const&) {
@@ -687,11 +732,10 @@ namespace edm {
     }
 
     void MessageLogger::preStreamEndRun(StreamContext const& iContext) {
-      std::ostringstream ost;
-      ost << "End Run: " << iContext.eventID().run() << " Stream: " << iContext.streamID().value();
-      ;
-      transitionInfoCache_[iContext.streamID().value()] = ost.str();
-      edm::MessageDrop::instance()->runEvent = ost.str();
+      auto& buffer = transitionInfoCache_[iContext.streamID().value()];
+      auto v = fill_buffer(buffer, "End Run: ", iContext.eventID().run(), " Stream: ", iContext.streamID().value());
+
+      edm::MessageDrop::instance()->runEvent = v;
       edm::MessageDrop::instance()->setSinglet("PreStreamEndRun");  // changelog 17
     }
 
@@ -701,11 +745,11 @@ namespace edm {
     }
 
     void MessageLogger::preStreamBeginLumi(StreamContext const& iContext) {
-      std::ostringstream ost;
+      auto& buffer = transitionInfoCache_[iContext.streamID().value()];
       auto const& id = iContext.eventID();
-      ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock() << " Stream: " << iContext.streamID().value();
-      transitionInfoCache_[iContext.streamID().value()] = ost.str();
-      edm::MessageDrop::instance()->runEvent = ost.str();
+      auto v = fill_buffer(
+          buffer, "Run: ", id.run(), " Lumi: ", id.luminosityBlock(), " Stream: ", iContext.streamID().value());
+      edm::MessageDrop::instance()->runEvent = v;
       edm::MessageDrop::instance()->setSinglet("PreStreamBeginLumi");  // changelog 17
     }
 
@@ -715,12 +759,12 @@ namespace edm {
     }
 
     void MessageLogger::preStreamEndLumi(StreamContext const& iContext) {
-      std::ostringstream ost;
+      auto& buffer = transitionInfoCache_[iContext.streamID().value()];
       auto const& id = iContext.eventID();
-      ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock() << " Stream: " << iContext.streamID().value();
-      ;
-      transitionInfoCache_[iContext.streamID().value()] = ost.str();
-      edm::MessageDrop::instance()->runEvent = ost.str();
+      auto v = fill_buffer(
+          buffer, "Run: ", id.run(), " Lumi: ", id.luminosityBlock(), " Stream: ", iContext.streamID().value());
+
+      edm::MessageDrop::instance()->runEvent = v;
       edm::MessageDrop::instance()->setSinglet("PreStreamEndLumi");  // changelog 17
     }
     void MessageLogger::postStreamEndLumi(StreamContext const&) {
@@ -728,12 +772,38 @@ namespace edm {
       edm::MessageDrop::instance()->setSinglet("PostStreamEndLumi");  // changelog 17
     }
 
+    void MessageLogger::preBeginProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->runEvent = "pre-events";
+      edm::MessageDrop::instance()->setSinglet("BeginProcessBlock");
+    }
+
+    void MessageLogger::postBeginProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->setSinglet("After BeginProcessBlock");
+    }
+
+    void MessageLogger::preAccessInputProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->runEvent = "pre-events";
+      edm::MessageDrop::instance()->setSinglet("AccessInputProcessBlock");
+    }
+
+    void MessageLogger::postAccessInputProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->setSinglet("After AccessInputProcessBlock");
+    }
+
+    void MessageLogger::preEndProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->runEvent = "post-events";
+      edm::MessageDrop::instance()->setSinglet("EndProcessBlock");
+    }
+
+    void MessageLogger::postEndProcessBlock(GlobalContext const& gc) {
+      edm::MessageDrop::instance()->setSinglet("After EndProcessBlock");
+    }
+
     void MessageLogger::preGlobalBeginRun(GlobalContext const& iContext)  // change log 14
     {
-      std::ostringstream ost;
-      ost << "Run: " << iContext.luminosityBlockID().run();
-      transitionInfoCache_[runInfoBegin_ + iContext.runIndex()] = ost.str();
-      edm::MessageDrop::instance()->runEvent = ost.str();
+      auto& buffer = transitionInfoCache_[runInfoBegin_ + iContext.runIndex()];
+      auto v = fill_buffer(buffer, "Run: ", iContext.luminosityBlockID().run());
+      edm::MessageDrop::instance()->runEvent = v;
       edm::MessageDrop::instance()->setSinglet("PreGlobalBeginRun");  // changelog 17
     }
     void MessageLogger::postGlobalBeginRun(GlobalContext const&) {
@@ -745,7 +815,7 @@ namespace edm {
     void MessageLogger::prePathEvent(StreamContext const& stream, PathContext const& iPath)  // change log 14
     {
       auto messageDrop = edm::MessageDrop::instance();
-      messageDrop->runEvent = transitionInfoCache_[stream.streamID().value()];
+      messageDrop->runEvent = transitionInfoCache_[stream.streamID().value()].begin();
       messageDrop->setPath("PreProcPath ", iPath.pathName());
       // change log 17
     }
@@ -755,10 +825,9 @@ namespace edm {
     }
 
     void MessageLogger::preGlobalEndRun(GlobalContext const& iContext) {
-      std::ostringstream ost;
-      ost << "End Run: " << iContext.luminosityBlockID().run();
-      transitionInfoCache_[runInfoBegin_ + iContext.runIndex()] = ost.str();
-      edm::MessageDrop::instance()->runEvent = ost.str();
+      auto& buffer = transitionInfoCache_[runInfoBegin_ + iContext.runIndex()];
+      auto v = fill_buffer(buffer, "End Run: ", iContext.luminosityBlockID().run());
+      edm::MessageDrop::instance()->runEvent = v;
       edm::MessageDrop::instance()->setSinglet("PreGlobalEndRun");  // changelog 17
     }
 
@@ -768,11 +837,10 @@ namespace edm {
     }
 
     void MessageLogger::preGlobalBeginLumi(GlobalContext const& iContext) {
-      std::ostringstream ost;
+      auto& buffer = transitionInfoCache_[lumiInfoBegin_ + iContext.luminosityBlockIndex()];
       auto const& id = iContext.luminosityBlockID();
-      ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock();
-      transitionInfoCache_[lumiInfoBegin_ + iContext.luminosityBlockIndex()] = ost.str();
-      edm::MessageDrop::instance()->runEvent = ost.str();
+      auto v = fill_buffer(buffer, "Run: ", id.run(), " Lumi: ", id.luminosityBlock());
+      edm::MessageDrop::instance()->runEvent = v;
       edm::MessageDrop::instance()->setSinglet("PreGlobalBeginLumi");  // changelog 17
     }
 
@@ -782,16 +850,20 @@ namespace edm {
     }
 
     void MessageLogger::preGlobalEndLumi(GlobalContext const& iContext) {
-      std::ostringstream ost;
+      auto& buffer = transitionInfoCache_[lumiInfoBegin_ + iContext.luminosityBlockIndex()];
       auto const& id = iContext.luminosityBlockID();
-      ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock();
-      transitionInfoCache_[lumiInfoBegin_ + iContext.luminosityBlockIndex()] = ost.str();
-      edm::MessageDrop::instance()->runEvent = ost.str();
+      auto v = fill_buffer(buffer, "Run: ", id.run(), " Lumi: ", id.luminosityBlock());
+      edm::MessageDrop::instance()->runEvent = v;
       edm::MessageDrop::instance()->setSinglet("PreGlobalEndLumi");  // changelog 17
     }
     void MessageLogger::postGlobalEndLumi(GlobalContext const&) {
       edm::MessageDrop::instance()->runEvent = "PostGlobalEndLumi";
       edm::MessageDrop::instance()->setSinglet("PostGlobalEndLumi");  // changelog 17
+    }
+
+    void MessageLogger::preEndJob() {
+      edm::MessageDrop::instance()->runEvent = "EndJob";
+      edm::MessageDrop::instance()->setSinglet("EndJob");  // changelog
     }
 
     void MessageLogger::postEndJob() {

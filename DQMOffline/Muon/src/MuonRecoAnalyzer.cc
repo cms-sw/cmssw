@@ -21,8 +21,10 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   // Input booleans
   IsminiAOD = parameters.getParameter<bool>("IsminiAOD");
   doMVA = parameters.getParameter<bool>("doMVA");
+  useGEM = parameters.getUntrackedParameter<bool>("useGEM");
+  maxGEMhitsSoftMuonMVA = parameters.getUntrackedParameter<int>("maxGEMhitsSoftMuonMVA");
+
   // the services:
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >(parameters.getParameter<edm::InputTag>("MuonCollection"));
   theVertexLabel_ = consumes<reco::VertexCollection>(pSet.getParameter<InputTag>("inputTagVertex"));
   theBeamSpotLabel_ = consumes<reco::BeamSpot>(pSet.getParameter<InputTag>("inputTagBeamSpot"));
@@ -60,7 +62,7 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   theFolder = parameters.getParameter<string>("folder");
 }
 
-MuonRecoAnalyzer::~MuonRecoAnalyzer() { delete theService; }
+MuonRecoAnalyzer::~MuonRecoAnalyzer() {}
 void MuonRecoAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
                                       edm::Run const& /*iRun*/,
                                       edm::EventSetup const& /* iSetup */) {
@@ -313,6 +315,13 @@ void MuonRecoAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   trkRelChi2SoftMuonMVA = ibooker.book1D("trkRelChi2SoftMuonMVA", "trkRelChi2", 50, 0, 1.2);
   vDThitsSoftMuonMVA = ibooker.book1D("vDThitsSoftMuonMVA", "vDThits", 50, 0, 50);
   vCSChitsSoftMuonMVA = ibooker.book1D("vCSChitsSoftMuonMVA", "vCSChits", 50, 0, 50);
+  if (useGEM) {
+    vGEMhitsSoftMuonMVA =
+        ibooker.book1D("vGEMhitsSoftMuonMVA", "vGEMhits", maxGEMhitsSoftMuonMVA, 0, maxGEMhitsSoftMuonMVA);
+    vGEMhitsSoftMuonMVA->setXTitle("Number of Valid GEM Hits of Global Muon");
+  } else {
+    vGEMhitsSoftMuonMVA = nullptr;
+  }
   timeAtIpInOutSoftMuonMVA = ibooker.book1D("timeAtIpInOutSoftMuonMVA", "timeAtIpInOut", 50, -10.0, 10.0);
   timeAtIpInOutErrSoftMuonMVA = ibooker.book1D("timeAtIpInOutErrSoftMuonMVA", "timeAtIpInOutErr", 50, 0, 3.5);
   getMuonHitsPerStationSoftMuonMVA =
@@ -575,7 +584,6 @@ void MuonRecoAnalyzer::GetRes(reco::TrackRef t1, reco::TrackRef t2, string par, 
 
 void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogTrace(metname) << "[MuonRecoAnalyzer] Analyze the mu";
-  theService->update(iSetup);
 
   // Take the muon container
   edm::Handle<edm::View<reco::Muon> > muons;
@@ -707,6 +715,9 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       trkRelChi2SoftMuonMVA->Fill(muonQuality.trkRelChi2);
       vDThitsSoftMuonMVA->Fill(gHits.numberOfValidMuonDTHits());
       vCSChitsSoftMuonMVA->Fill(gHits.numberOfValidMuonCSCHits());
+      if (useGEM) {
+        vGEMhitsSoftMuonMVA->Fill(gHits.numberOfValidMuonGEMHits());
+      }
       timeAtIpInOutSoftMuonMVA->Fill(muon->time().timeAtIpInOut);
       timeAtIpInOutErrSoftMuonMVA->Fill(muon->time().timeAtIpInOutErr);
       //getMuonHitsPerStationSoftMuonMVA->Fill(gTrack);

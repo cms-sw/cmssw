@@ -220,13 +220,13 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event &iEvent, const edm::EventS
   // process tracks
   map<unsigned int, bool> trackPresent;
   for (const auto &trk : *hTracks) {
-    CTPPSDetId rpId(trk.getRPId());
+    CTPPSDetId rpId(trk.rpId());
     unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
     trackPresent[rpDecId] = true;
   }
 
   // update plots
-  for (const auto rpIds : singleArmConfigurations) {
+  for (const auto &rpIds : singleArmConfigurations) {
     bool acc = true;
     signed int arm = -1;
     for (const auto rpId : rpIds) {
@@ -242,7 +242,7 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event &iEvent, const edm::EventS
     singleArmPlots[rpIds].fill(xi, acc);
   }
 
-  for (const auto rpIds : doubleArmConfigurations) {
+  for (const auto &rpIds : doubleArmConfigurations) {
     bool acc = true;
     for (const auto rpId : rpIds)
       acc &= trackPresent[rpId];

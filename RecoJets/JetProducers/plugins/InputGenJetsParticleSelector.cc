@@ -198,6 +198,7 @@ InputGenJetsParticleSelector::ResonanceState InputGenJetsParticleSelector::fromR
           return kDirect;
         if (!isExcludedFromResonance(id))
           break;
+        [[fallthrough]];
       case kIndirect:
         return kIndirect;
     }

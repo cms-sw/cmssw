@@ -1,6 +1,6 @@
 #include "PhysicsTools/PatExamples/interface/PatMuonAnalyzer.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
-#include "PhysicsTools/UtilAlgos/interface/FWLiteAnalyzerWrapper.h"
+#include "PhysicsTools/FWLite/interface/FWLiteAnalyzerWrapper.h"
 
 typedef fwlite::AnalyzerWrapper<PatMuonAnalyzer> PatMuonFWLiteAnalyzer;
 

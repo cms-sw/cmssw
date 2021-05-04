@@ -74,7 +74,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig) : Virtu
   nFilt_ = iConfig.getParameter<int>("nFilt");
   useDynamicFiltering_ = iConfig.getParameter<bool>("useDynamicFiltering");
   if (useDynamicFiltering_)
-    rFiltDynamic_ = DynamicRfiltPtr(new DynamicRfilt(rFilt_, rFiltFactor_));
+    rFiltDynamic_ = std::make_shared<DynamicRfilt>(rFilt_, rFiltFactor_);
   rFiltFactor_ = iConfig.getParameter<double>("rFiltFactor");
 
   useTrimming_ = iConfig.getParameter<bool>("useTrimming");
@@ -83,7 +83,6 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig) : Virtu
   usePruning_ = iConfig.getParameter<bool>("usePruning");
   zCut_ = iConfig.getParameter<double>("zcut");
   RcutFactor_ = iConfig.getParameter<double>("rcut_factor");
-  nFilt_ = iConfig.getParameter<int>("nFilt");
   useKtPruning_ = iConfig.getParameter<bool>("useKtPruning");
 
   useCMSBoostedTauSeedingAlgorithm_ = iConfig.getParameter<bool>("useCMSBoostedTauSeedingAlgorithm");
@@ -355,7 +354,7 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
   */
 
   if (!doAreaFastjet_ && !doRhoFastjet_) {
-    fjClusterSeq_ = ClusterSequencePtr(new fastjet::ClusterSequence(fjInputs_, *fjJetDefinition_));
+    fjClusterSeq_ = std::make_shared<fastjet::ClusterSequence>(fjInputs_, *fjJetDefinition_);
   } else if (voronoiRfact_ <= 0) {
     fjClusterSeq_ =
         ClusterSequencePtr(new fastjet::ClusterSequenceArea(fjInputs_, *fjJetDefinition_, *fjAreaDefinition_));
@@ -377,8 +376,8 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
     unique_ptr<fastjet::JetMedianBackgroundEstimator> bge_rho;
     if (useConstituentSubtraction_) {
       fastjet::Selector rho_range = fastjet::SelectorAbsRapMax(csRho_EtaMax_);
-      bge_rho = unique_ptr<fastjet::JetMedianBackgroundEstimator>(new fastjet::JetMedianBackgroundEstimator(
-          rho_range, fastjet::JetDefinition(fastjet::kt_algorithm, csRParam_), *fjAreaDefinition_));
+      bge_rho = std::make_unique<fastjet::JetMedianBackgroundEstimator>(
+          rho_range, fastjet::JetDefinition(fastjet::kt_algorithm, csRParam_), *fjAreaDefinition_);
       bge_rho->set_particles(fjInputs_);
       fastjet::contrib::ConstituentSubtractor* constituentSubtractor =
           new fastjet::contrib::ConstituentSubtractor(bge_rho.get());
@@ -429,10 +428,9 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
     unique_ptr<fastjet::Subtractor> subtractor;
     unique_ptr<fastjet::GridMedianBackgroundEstimator> bge_rho_grid;
     if (correctShape_) {
-      bge_rho_grid = unique_ptr<fastjet::GridMedianBackgroundEstimator>(
-          new fastjet::GridMedianBackgroundEstimator(gridMaxRapidity_, gridSpacing_));
+      bge_rho_grid = std::make_unique<fastjet::GridMedianBackgroundEstimator>(gridMaxRapidity_, gridSpacing_);
       bge_rho_grid->set_particles(fjInputs_);
-      subtractor = unique_ptr<fastjet::Subtractor>(new fastjet::Subtractor(bge_rho_grid.get()));
+      subtractor = std::make_unique<fastjet::Subtractor>(bge_rho_grid.get());
       subtractor->set_use_rho_m();
       //subtractor->use_common_bge_for_rho_and_rhom(true);
     }

@@ -22,7 +22,9 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     covariancePackingSchemas = cms.vint32(8,264,520,776,0),   # more accurate schema +0.6kb/ev
     pfCandidateTypesForHcalDepth = cms.vint32(),
     storeHcalDepthEndcapOnly = cms.bool(False), # switch to store info only for endcap 
-    storeTiming = cms.bool(False)
+    storeTiming = cms.bool(False),
+    timeMap = cms.InputTag(""),
+    timeMapErr = cms.InputTag("")
 )
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
@@ -47,3 +49,10 @@ run3_common.toModify(packedPFCandidates,
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(packedPFCandidates, storeTiming = cms.bool(True))
 
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(packedPFCandidates, PuppiSrc = "", PuppiNoLepSrc = "")
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toModify(packedPFCandidates,
+                                    inputCollection = "cleanedParticleFlow",
+                                    chargedHadronIsolation = ""
+                                )

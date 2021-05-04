@@ -20,6 +20,12 @@
   <class name="vector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
   <class name="vector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
   <class name="vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
-
+  <class name="TTTrack_TrackWord"/>
+  <class name="std::vector<TTTrack_TrackWord>"/>
+  <class name="edm::Wrapper<std::vector<TTTrack_TrackWord> >"/>
+  <class name="edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" /> 
+  <class name="TTDTC"/>
+  <class name="edm::Wrapper<TTDTC>"/>
+  <class name="TTDTC::Streams"/>
 </lcgdict>
 

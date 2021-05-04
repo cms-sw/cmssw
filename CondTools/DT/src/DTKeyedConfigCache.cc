@@ -19,9 +19,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
-#include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
 #include "CondCore/CondDB/interface/KeyList.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <memory>
 //-------------------
@@ -41,7 +39,7 @@ DTKeyedConfigCache::DTKeyedConfigCache() : cachedBrickNumber(0), cachedStringNum
 //--------------
 DTKeyedConfigCache::~DTKeyedConfigCache() { purge(); }
 
-int DTKeyedConfigCache::get(const DTKeyedConfigListRcd& keyRecord, int cfgId, const DTKeyedConfig*& obj) {
+int DTKeyedConfigCache::get(const cond::persistency::KeyList& keyList, int cfgId, const DTKeyedConfig*& obj) {
   bool cacheFound = false;
   int cacheAge = 999999999;
   std::map<int, counted_brick>::iterator cache_iter = brickMap.begin();
@@ -77,26 +75,10 @@ int DTKeyedConfigCache::get(const DTKeyedConfigListRcd& keyRecord, int cfgId, co
     }
   }
 
-  // get dummy brick list
-  edm::ESHandle<cond::persistency::KeyList> klh;
-  keyRecord.get(klh);
-  cond::persistency::KeyList const& kl = *klh.product();
-  // This const_cast and usage of KeyList is a problem
-  // that will need to be addressed in the future.
-  // I'm not fixing now, because I want to finish what I am
-  // fixing. One thing at a time. (This was already in the
-  // the code I copied to make this file)
-  cond::persistency::KeyList* keyList = const_cast<cond::persistency::KeyList*>(&kl);
-  if (keyList == nullptr)
-    return 999;
-
-  std::vector<unsigned long long> checkedKeys;
   std::shared_ptr<DTKeyedConfig> kBrick;
-  checkedKeys.push_back(cfgId);
   bool brickFound = false;
   try {
-    keyList->load(checkedKeys);
-    kBrick = keyList->get<DTKeyedConfig>(0);
+    kBrick = keyList.getUsingKey<DTKeyedConfig>(cfgId);
     if (kBrick.get())
       brickFound = (kBrick->getId() == cfgId);
   } catch (std::exception const& e) {
@@ -130,9 +112,9 @@ int DTKeyedConfigCache::get(const DTKeyedConfigListRcd& keyRecord, int cfgId, co
   return 999;
 }
 
-void DTKeyedConfigCache::getData(const DTKeyedConfigListRcd& keyRecord, int cfgId, std::vector<std::string>& list) {
+void DTKeyedConfigCache::getData(const cond::persistency::KeyList& keyList, int cfgId, std::vector<std::string>& list) {
   const DTKeyedConfig* obj = nullptr;
-  get(keyRecord, cfgId, obj);
+  get(keyList, cfgId, obj);
   if (obj == nullptr)
     return;
   DTKeyedConfig::data_iterator d_iter = obj->dataBegin();
@@ -142,7 +124,7 @@ void DTKeyedConfigCache::getData(const DTKeyedConfigListRcd& keyRecord, int cfgI
   DTKeyedConfig::link_iterator l_iter = obj->linkBegin();
   DTKeyedConfig::link_iterator l_iend = obj->linkEnd();
   while (l_iter != l_iend)
-    getData(keyRecord, *l_iter++, list);
+    getData(keyList, *l_iter++, list);
   return;
 }
 

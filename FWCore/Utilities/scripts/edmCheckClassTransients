@@ -1,4 +1,5 @@
 #!  /usr/bin/env python
+from __future__ import print_function
 import string
 import re
 import collections 
@@ -29,14 +30,14 @@ class RMParser(object):
             if re.search("^struct",line): cname = re.sub("struct ","",line)
             for key in classtransients.keys():
                if re.search(r'^%s<' % key, cname):
-                   n_name = string.join(line.split())
+                   n_name = " ".join(line.split())
                    self.cnames[key].append(n_name)
           f.close()
 
 def checkTrans(templname,name):
     c = ROOT.TClass.GetClass(name)
     if not c:
-        print "Info: Could no load dictionary for class '"+name+"' because of typedef(s) in the name."
+        print ("Info: Could no load dictionary for class '"+name+"' because of typedef(s) in the name.")
         return 0
     nerrs=0
     for trans in classtransients[templname]:
@@ -44,7 +45,7 @@ def checkTrans(templname,name):
       retval = False
       if tdm : retval = tdm.IsPersistent()
       if retval == True : 
-          print "Error: field='"+trans+"' must be labeled transient=\"true\" in classes_def.xml for "+name+" or the equivalent class name with typedefs."
+          print ("Error: field='"+trans+"' must be labeled transient=\"true\" in classes_def.xml for "+name+" or the equivalent class name with typedefs.")
           nerrs+=1
     return nerrs
 
@@ -66,7 +67,7 @@ ROOT.PyConfig.DisableRootLogon = True
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine(".autodict")
 if options.library is None:
-    print "Transient member check requires a specific library"
+    print ("Transient member check requires a specific library")
 else:
     if ROOT.gSystem.Load(options.library) < 0 :
         raise RuntimeError("failed to load library '"+options.library+"'")
@@ -79,6 +80,6 @@ for key in p.cnames.keys():
         nerrs += checkTrans(key,value)
 
 if nerrs > 0 : 
-    print "Error: edm template class member must be labeled transient=\"true\" in classes_def.xml. Check log for specific template and member name."
+    print ("Error: edm template class member must be labeled transient=\"true\" in classes_def.xml. Check log for specific template and member name.")
     import sys
     sys.exit(1)

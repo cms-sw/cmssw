@@ -47,7 +47,7 @@ namespace fireworks {
             FWJobMetadataManager* iJMDM);
     virtual ~Context();
 
-    void setGeom(const FWGeometry* x) { m_geom = x; }
+    void setGeom(FWGeometry* x) { m_geom = x; }
 
     // ---------- const member functions ---------------------
     FWModelChangeManager* modelChangeManager() const { return m_changeManager; }
@@ -69,7 +69,7 @@ namespace fireworks {
     TEveCaloDataHist* getCaloData() const { return m_caloData; }
     TEveCaloDataVec* getCaloDataHF() const { return m_caloDataHF; }
 
-    const FWGeometry* getGeom() const { return m_geom; }
+    FWGeometry* getGeom() const { return m_geom; }
 
     CmsShowCommon* commonPrefs() const;
 
@@ -109,7 +109,7 @@ namespace fireworks {
     FWColorManager* m_colorManager;
     FWJobMetadataManager* m_metadataManager;
 
-    const FWGeometry* m_geom;
+    FWGeometry* m_geom;
 
     TEveTrackPropagator* m_propagator;
     TEveTrackPropagator* m_trackerPropagator;

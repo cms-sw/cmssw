@@ -8,14 +8,14 @@ class TrackAndGSFLinker : public BlockElementLinkerBase {
 public:
   TrackAndGSFLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
-        _useKDTree(conf.getParameter<bool>("useKDTree")),
-        _useConvertedBrems(conf.getParameter<bool>("useConvertedBrems")),
-        _debug(conf.getUntrackedParameter<bool>("debug", false)) {}
+        useKDTree_(conf.getParameter<bool>("useKDTree")),
+        useConvertedBrems_(conf.getParameter<bool>("useConvertedBrems")),
+        debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree, _useConvertedBrems, _debug;
+  bool useKDTree_, useConvertedBrems_, debug_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndGSFLinker, "TrackAndGSFLinker");
@@ -46,7 +46,7 @@ double TrackAndGSFLinker::testLink(const reco::PFBlockElement* elem1, const reco
   }
 
   //override for converted brems
-  if (_useConvertedBrems) {
+  if (useConvertedBrems_) {
     if (tkelem->isLinkedToDisplacedVertex()) {
       const std::vector<reco::PFRecTrackRef>& convbrems = gsfref->convBremPFRecTrackRef();
       for (const auto& convbrem : convbrems) {

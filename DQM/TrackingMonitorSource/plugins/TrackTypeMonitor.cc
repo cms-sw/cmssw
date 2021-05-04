@@ -16,7 +16,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
 #include "DQM/TrackingMonitorSource/interface/TrackTypeMonitor.h"
 
 #include "TFile.h"

@@ -19,19 +19,16 @@ from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
-# pixelCPE
-from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 
 import RecoTracker.TrackProducer.TrackProducer_cfi
 
 # include TrackProducer and clone with new module label
-cosmictrackfinderCosmics = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-
-cosmictrackfinderCosmics.src = 'cosmicCandidateFinderP5'
-cosmictrackfinderCosmics.TTRHBuilder = 'WithTrackAngle'
-cosmictrackfinderCosmics.AlgorithmName = 'cosmic'
-cosmictrackfinderCosmics.Fitter = 'RKFittingSmoother'
-cosmictrackfinderCosmics.TrajectoryInEvent = True
-
+cosmictrackfinderCosmics = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src               = 'cosmicCandidateFinderP5',
+    TTRHBuilder       = 'WithTrackAngle',
+    AlgorithmName     = 'cosmic',
+    Fitter            = 'RKFittingSmoother',
+    TrajectoryInEvent = True
+)

@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("READ")
 
 process.source = cms.Source("DQMRootSource",
+                            reScope = cms.untracked.string(""),
                             fileNames = cms.untracked.vstring("file:dqm_lumi_only.root"))
 
 seq = cms.untracked.VEventID()
@@ -23,6 +24,6 @@ process.check = cms.EDAnalyzer("RunLumiEventChecker",
 
 process.e = cms.EndPath(process.check)
 
-process.add_(cms.Service("DQMStore", forceResetOnBeginLumi = cms.untracked.bool(True)))
+process.add_(cms.Service("DQMStore"))
 #process.add_(cms.Service("Tracer"))
 

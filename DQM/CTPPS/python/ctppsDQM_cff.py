@@ -15,30 +15,64 @@ from DQM.CTPPS.elasticPlotDQMSource_cfi import *
 
 from DQM.CTPPS.ctppsCommonDQMSource_cfi import *
 
-ctppsDQM = cms.Sequence()
-ctppsDQMElastic = cms.Sequence()
-_ctppsDQM = ctppsDQM.copy()
-_ctppsDQMElastic = ctppsDQMElastic.copy()
-
-_ctppsDQM = cms.Sequence(
-    totemDAQTriggerDQMSource
-    + (totemRPDQMSource * totemRPDQMHarvester)
-    + ctppsDiamondDQMSource
-    + totemTimingDQMSource
-    + ctppsPixelDQMSource
-    + ctppsCommonDQMSource
+# sequences used by the online DQM in normal running
+ctppsCommonDQMSourceOnline = ctppsCommonDQMSource.clone(
+  makeProtonRecoPlots = False
 )
 
-_ctppsDQMElastic = cms.Sequence(
-    totemDAQTriggerDQMSource
-    + (totemRPDQMSource * totemRPDQMHarvester)
-    + ctppsDiamondDQMSource
-    + totemTimingDQMSource
-    + ctppsPixelDQMSource
-    + ctppsCommonDQMSource
-    + elasticPlotDQMSource
+_ctppsDQMOnlineSource = cms.Sequence(
+  ctppsPixelDQMSource
+  + ctppsDiamondDQMSource
+  + totemTimingDQMSource
+  + ctppsCommonDQMSourceOnline
 )
 
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-ctpps_2016.toReplaceWith(ctppsDQM, _ctppsDQM)
-ctpps_2016.toReplaceWith(ctppsDQMElastic, _ctppsDQMElastic)
+_ctppsDQMOnlineHarvest = cms.Sequence(
+)
+
+# sequences used by the online DQM in calibration mode
+_ctppsDQMCalibrationSource = cms.Sequence(
+  totemRPDQMSource
+  + ctppsPixelDQMSource
+  + ctppsDiamondDQMSource
+  + totemTimingDQMSource
+  + ctppsCommonDQMSourceOnline
+  + elasticPlotDQMSource
+)
+
+_ctppsDQMCalibrationHarvest = cms.Sequence(
+  totemRPDQMHarvester
+)
+
+# sequences used by the offline DQM
+ctppsCommonDQMSourceOffline = ctppsCommonDQMSource.clone(
+  makeProtonRecoPlots = True
+)
+
+_ctppsDQMOfflineSource = cms.Sequence(
+  ctppsPixelDQMOfflineSource
+  + ctppsDiamondDQMSource
+  + totemTimingDQMSource
+  + ctppsCommonDQMSourceOffline
+)
+
+_ctppsDQMOfflineHarvest = cms.Sequence(
+)
+
+# the actually used sequences must be empty for pre-PPS data
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
+
+ctppsDQMOnlineSource = cms.Sequence()
+ctppsDQMOnlineHarvest = cms.Sequence()
+ctpps.toReplaceWith(ctppsDQMOnlineSource, _ctppsDQMOnlineSource)
+ctpps.toReplaceWith(ctppsDQMOnlineHarvest, _ctppsDQMOnlineHarvest)
+
+ctppsDQMCalibrationSource = cms.Sequence()
+ctppsDQMCalibrationHarvest = cms.Sequence()
+ctpps.toReplaceWith(ctppsDQMCalibrationSource, _ctppsDQMCalibrationSource)
+ctpps.toReplaceWith(ctppsDQMCalibrationHarvest, _ctppsDQMCalibrationHarvest)
+
+ctppsDQMOfflineSource = cms.Sequence()
+ctppsDQMOfflineHarvest = cms.Sequence()
+ctpps.toReplaceWith(ctppsDQMOfflineSource, _ctppsDQMOfflineSource)
+ctpps.toReplaceWith(ctppsDQMOfflineHarvest, _ctppsDQMOfflineHarvest)

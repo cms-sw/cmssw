@@ -1,9 +1,8 @@
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-<use   name="FWCore/ParameterSet"/>
-<use   name="geant4core"/>
-<use   name="heppdt"/>
-<use   name="boost"/>
-<use   name="sigcpp"/>
-<use   name="expat"/>
+<use name="FWCore/ParameterSet"/>
+<use name="geant4core"/>
+<use name="heppdt"/>
+<use name="boost"/>
+<use name="expat"/>

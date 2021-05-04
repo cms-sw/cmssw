@@ -13,8 +13,8 @@ from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 ## An example where the jet energy correction are updated to the current GlobalTag
 ## and a userFloat containing the previous mass of the jet and an additional
 ## b-tag discriminator are added
-from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSSoftDropMass
-process.oldJetMass = ak8PFJetsCHSSoftDropMass.clone(
+from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppiSoftDropMass
+process.oldJetMass = ak8PFJetsPuppiSoftDropMass.clone(
   src = cms.InputTag("slimmedJets"),
   matched = cms.InputTag("slimmedJets") )
 patAlgosToolsTask.add(process.oldJetMass)

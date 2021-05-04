@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -19,7 +20,6 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/GEMDigiSimLink/interface/ME0DigiSimLink.h"
 
 #include "SimMuon/GEMDigitizer/interface/ME0DigiModelFactory.h"
@@ -39,8 +39,6 @@ namespace CLHEP {
 
 class ME0DigiProducer : public edm::stream::EDProducer<> {
 public:
-  typedef edm::DetSetVector<StripDigiSimLink> StripDigiSimLinks;
-
   typedef edm::DetSetVector<ME0DigiSimLink> ME0DigiSimLinks;
 
   explicit ME0DigiProducer(const edm::ParameterSet& ps);
@@ -54,6 +52,7 @@ public:
 private:
   //Name of Collection used for create the XF
   edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geom_token_;
 
   std::unique_ptr<ME0DigiModel> ME0DigiModel_;
 };
@@ -62,7 +61,6 @@ ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
     : ME0DigiModel_{
           ME0DigiModelFactory::get()->create("ME0" + ps.getParameter<std::string>("digiModelString") + "Model", ps)} {
   produces<ME0DigiCollection>();
-  produces<StripDigiSimLinks>("ME0");
   produces<ME0DigiSimLinks>("ME0");
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -78,13 +76,13 @@ ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
 
   cf_token = consumes<CrossingFrame<PSimHit> >(edm::InputTag(mix_, collection_));
+  geom_token_ = esConsumes<ME0Geometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 ME0DigiProducer::~ME0DigiProducer() = default;
 
 void ME0DigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<ME0Geometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<ME0Geometry> hGeom = eventSetup.getHandle(geom_token_);
   ME0DigiModel_->setGeometry(&*hGeom);
   ME0DigiModel_->setup();
 }
@@ -100,7 +98,6 @@ void ME0DigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   // Create empty output
   auto digis = std::make_unique<ME0DigiCollection>();
-  auto stripDigiSimLinks = std::make_unique<StripDigiSimLinks>();
   auto me0DigiSimLinks = std::make_unique<ME0DigiSimLinks>();
 
   // arrange the hits by eta partition
@@ -122,13 +119,11 @@ void ME0DigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
     ME0DigiModel_->simulateSignal(roll, simHits, engine);
     ME0DigiModel_->simulateNoise(roll, engine);
     ME0DigiModel_->fillDigis(rawId, *digis);
-    (*stripDigiSimLinks).insert(ME0DigiModel_->stripDigiSimLinks());
     (*me0DigiSimLinks).insert(ME0DigiModel_->me0DigiSimLinks());
   }
 
   // store them in the event
   e.put(std::move(digis));
-  e.put(std::move(stripDigiSimLinks), "ME0");
   e.put(std::move(me0DigiSimLinks), "ME0");
 }
 

@@ -24,10 +24,6 @@ SUSY_HLT_InclusiveHT::~SUSY_HLT_InclusiveHT() {
   edm::LogInfo("SUSY_HLT_InclusiveHT") << "Destructor SUSY_HLT_InclusiveHT::~SUSY_HLT_InclusiveHT " << std::endl;
 }
 
-void SUSY_HLT_InclusiveHT::dqmBeginRun(edm::Run const &, edm::EventSetup const &) {
-  edm::LogInfo("SUSY_HLT_InclusiveHT") << "SUSY_HLT_InclusiveHT::beginRun" << std::endl;
-}
-
 void SUSY_HLT_InclusiveHT::bookHistograms(DQMStore::IBooker &ibooker_, edm::Run const &, edm::EventSetup const &) {
   edm::LogInfo("SUSY_HLT_InclusiveHT") << "SUSY_HLT_InclusiveHT::bookHistograms" << std::endl;
   // book at beginRun
@@ -167,10 +163,6 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const &e, edm::EventSetup const &e
     h_pfMetTurnOn_den->Fill(pfMETCollection->begin()->et());
     h_pfHTTurnOn_den->Fill(pfHT);
   }
-}
-
-void SUSY_HLT_InclusiveHT::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_InclusiveHT") << "SUSY_HLT_InclusiveHT::endRun" << std::endl;
 }
 
 void SUSY_HLT_InclusiveHT::bookHistos(DQMStore::IBooker &ibooker_) {

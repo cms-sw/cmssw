@@ -63,8 +63,8 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
   readEBEEParams_(eleProtectionsForBadHcal, "eInvPInv", badHcal_eInvPInv_);
   readEBEEParams_(eleProtectionsForBadHcal, "dEta", badHcal_dEta_);
   readEBEEParams_(eleProtectionsForBadHcal, "dPhi", badHcal_dPhi_);
-
   badHcal_eleEnable_ = eleProtectionsForBadHcal.getParameter<bool>("enableProtections");
+
   badHcal_phoTrkSolidConeIso_offs_ = phoProtectionsForBadHcal.getParameter<double>("solidConeTrkIsoOffset");
   badHcal_phoTrkSolidConeIso_slope_ = phoProtectionsForBadHcal.getParameter<double>("solidConeTrkIsoSlope");
   badHcal_phoEnable_ = phoProtectionsForBadHcal.getParameter<bool>("enableProtections");
@@ -168,11 +168,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
 }
 
 bool PFEGammaFilters::isElectron(const reco::GsfElectron& electron) const {
-  unsigned int nmisshits = electron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-  if (nmisshits > ele_missinghits_)
-    return false;
-
-  return true;
+  return electron.gsfTrack()->missingInnerHits() <= ele_missinghits_;
 }
 
 bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
@@ -236,7 +232,6 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
       bool goodTrack = PFTrackAlgoTools::isGoodForEGM(trackref->algo());
       // iter0, iter1, iter2, iter3 = Algo < 3
       // algo 4,5,6,7
-      int nexhits = trackref->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
       bool trackIsFromPrimaryVertex = false;
       for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end();
@@ -248,7 +243,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
       }
 
       // probably we could now remove the algo request??
-      if (goodTrack && nexhits == 0 && trackIsFromPrimaryVertex) {
+      if (goodTrack && trackref->missingInnerHits() == 0 && trackIsFromPrimaryVertex) {
         float p_trk = trackref->p();
         SumExtraKfP += p_trk;
         iextratrack++;
@@ -261,16 +256,16 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
         }
         if (debugSafeForJetMET)
           cout << " The ecalGsf cluster is not isolated: >0 KF extra with algo < 3"
-               << " Algo " << trackref->algo() << " nexhits " << nexhits << " trackIsFromPrimaryVertex "
-               << trackIsFromPrimaryVertex << endl;
+               << " Algo " << trackref->algo() << " trackref->missingInnerHits() " << trackref->missingInnerHits()
+               << " trackIsFromPrimaryVertex " << trackIsFromPrimaryVertex << endl;
         if (debugSafeForJetMET)
           cout << " My track PT " << trackref->pt() << endl;
 
       } else {
         if (debugSafeForJetMET)
           cout << " Tracks from PU "
-               << " Algo " << trackref->algo() << " nexhits " << nexhits << " trackIsFromPrimaryVertex "
-               << trackIsFromPrimaryVertex << endl;
+               << " Algo " << trackref->algo() << " trackref->missingInnerHits() " << trackref->missingInnerHits()
+               << " trackIsFromPrimaryVertex " << trackIsFromPrimaryVertex << endl;
         if (debugSafeForJetMET)
           cout << " My track PT " << trackref->pt() << endl;
       }
@@ -403,4 +398,65 @@ bool PFEGammaFilters::passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron&
       return passMVA;
   } else
     return passCutBased || passMVA;
+}
+
+void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  // Electron selection cuts
+  iDesc.add<double>("electron_iso_pt", 10.0);
+  iDesc.add<double>("electron_iso_mva_barrel", -0.1875);
+  iDesc.add<double>("electron_iso_mva_endcap", -0.1075);
+  iDesc.add<double>("electron_iso_combIso_barrel", 10.0);
+  iDesc.add<double>("electron_iso_combIso_endcap", 10.0);
+  iDesc.add<double>("electron_noniso_mvaCut", -0.1);
+  iDesc.add<unsigned int>("electron_missinghits", 1);
+  iDesc.add<double>("electron_ecalDrivenHademPreselCut", 0.15);
+  iDesc.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<double>("maxNtracks", 3.0)->setComment("Max tracks pointing at Ele cluster");
+    psd.add<double>("maxHcalE", 10.0);
+    psd.add<double>("maxTrackPOverEele", 1.0);
+    psd.add<double>("maxE", 50.0)->setComment("Above this maxE, consider dphi(SC,track) cut");
+    psd.add<double>("maxEleHcalEOverEcalE", 0.1);
+    psd.add<double>("maxEcalEOverPRes", 0.2);
+    psd.add<double>("maxEeleOverPoutRes", 0.5);
+    psd.add<double>("maxHcalEOverP", 1.0);
+    psd.add<double>("maxHcalEOverEcalE", 0.1);
+    psd.add<double>("maxEcalEOverP_1", 0.5)->setComment("E(SC)/P cut - pion rejection");
+    psd.add<double>("maxEcalEOverP_2", 0.2)->setComment("E(SC)/P cut - weird ele rejection");
+    psd.add<double>("maxEeleOverPout", 0.2);
+    psd.add<double>("maxDPhiIN", 0.1)->setComment("Above this dphi(SC,track) and maxE, considered not safe");
+    iDesc.add<edm::ParameterSetDescription>("electron_protectionsForJetMET", psd);
+  }
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<bool>("enableProtections", true);
+    psd.add<std::vector<double>>("full5x5_sigmaIetaIeta",  // EB, EE; 94Xv2 cut-based medium id
+                                 {0.0106, 0.0387});
+    psd.add<std::vector<double>>("eInvPInv", {0.184, 0.0721});
+    psd.add<std::vector<double>>("dEta",  // relax factor 2 to be safer against misalignment
+                                 {0.0032 * 2, 0.00632 * 2});
+    psd.add<std::vector<double>>("dPhi", {0.0547, 0.0394});
+    iDesc.add<edm::ParameterSetDescription>("electron_protectionsForBadHcal", psd);
+  }
+
+  // Photon selection cuts
+  iDesc.add<double>("photon_MinEt", 10.0);
+  iDesc.add<double>("photon_combIso", 10.0);
+  iDesc.add<double>("photon_HoE", 0.05);
+  iDesc.add<double>("photon_SigmaiEtaiEta_barrel", 0.0125);
+  iDesc.add<double>("photon_SigmaiEtaiEta_endcap", 0.034);
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<double>("sumPtTrackIso", 4.0);
+    psd.add<double>("sumPtTrackIsoSlope", 0.001);
+    iDesc.add<edm::ParameterSetDescription>("photon_protectionsForJetMET", psd);
+  }
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<double>("solidConeTrkIsoSlope", 0.3);
+    psd.add<bool>("enableProtections", true);
+    psd.add<double>("solidConeTrkIsoOffset", 10.0);
+    iDesc.add<edm::ParameterSetDescription>("photon_protectionsForBadHcal", psd);
+  }
 }

@@ -2,6 +2,8 @@
 
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -9,14 +11,17 @@ namespace edm {
 
   std::string const LuminosityBlock::emptyString_;
 
+  LuminosityBlock::LuminosityBlock(LumiTransitionInfo const& info,
+                                   ModuleDescription const& md,
+                                   ModuleCallingContext const* mcc,
+                                   bool isAtEnd)
+      : LuminosityBlock(info.principal(), md, mcc, isAtEnd) {}
+
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                    ModuleDescription const& md,
                                    ModuleCallingContext const* moduleCallingContext,
                                    bool isAtEnd)
-      : provRecorder_(lbp, md, isAtEnd),
-        aux_(lbp.aux()),
-        run_(new Run(lbp.runPrincipal(), md, moduleCallingContext, false)),
-        moduleCallingContext_(moduleCallingContext) {}
+      : provRecorder_(lbp, md, isAtEnd), aux_(lbp.aux()), run_(), moduleCallingContext_(moduleCallingContext) {}
 
   LuminosityBlock::~LuminosityBlock() {}
 
@@ -29,13 +34,22 @@ namespace edm {
   void LuminosityBlock::setConsumer(EDConsumerBase const* iConsumer) {
     provRecorder_.setConsumer(iConsumer);
     if (run_) {
-      const_cast<Run*>(run_.get())->setConsumer(iConsumer);
+      run_->setConsumer(iConsumer);
     }
   }
 
   void LuminosityBlock::setSharedResourcesAcquirer(SharedResourcesAcquirer* iResourceAcquirer) {
     provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
-    const_cast<Run*>(run_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
+    if (run_) {
+      run_->setSharedResourcesAcquirer(iResourceAcquirer);
+    }
+  }
+
+  void LuminosityBlock::fillRun() const {
+    run_.emplace(
+        luminosityBlockPrincipal().runPrincipal(), provRecorder_.moduleDescription(), moduleCallingContext_, false);
+    run_->setSharedResourcesAcquirer(provRecorder_.getSharedResourcesAcquirer());
+    run_->setConsumer(provRecorder_.getConsumer());
   }
 
   void LuminosityBlock::setProducer(ProducerBase const* iProducer) {
@@ -48,8 +62,12 @@ namespace edm {
     return dynamic_cast<LuminosityBlockPrincipal const&>(provRecorder_.principal());
   }
 
-  Provenance LuminosityBlock::getProvenance(BranchID const& bid) const {
-    return luminosityBlockPrincipal().getProvenance(bid, moduleCallingContext_);
+  Provenance const& LuminosityBlock::getProvenance(BranchID const& bid) const {
+    return luminosityBlockPrincipal().getProvenance(bid);
+  }
+
+  StableProvenance const& LuminosityBlock::getStableProvenance(BranchID const& bid) const {
+    return luminosityBlockPrincipal().getStableProvenance(bid);
   }
 
   void LuminosityBlock::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
@@ -75,7 +93,7 @@ namespace edm {
         auto resolver = p.getProductResolverByIndex(index);
         if (not resolver->productResolved() and isEndTransition(provRecorder_.transition()) ==
                                                     resolver->branchDescription().availableOnlyAtEndTransition()) {
-          resolver->putProduct(std::unique_ptr<WrapperBase>());
+          dynamic_cast<ProductPutterBase const*>(resolver)->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
     }

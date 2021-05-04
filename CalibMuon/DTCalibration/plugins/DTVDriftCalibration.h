@@ -51,6 +51,8 @@ private:
   // The class containing TMax information
   typedef DTTMax::TMax TMax;
 
+  dtcalibration::Histograms histograms_;
+
   // class to create/manage histos for each partition (SL)
   class cellInfo {
   public:
@@ -70,6 +72,7 @@ private:
     hTMaxCell* histos;
   };
 
+  TH1F* hChi2;
   h2DSegm* h2DSegmRZ;
   h2DSegm* h2DSegmRPhi;
   h4DSegm* h4DSegmAllCh;

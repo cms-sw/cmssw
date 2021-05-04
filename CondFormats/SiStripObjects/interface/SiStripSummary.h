@@ -6,8 +6,8 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <boost/cstdint.hpp>
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cstdint>
 
 /**
  @class SiStripSummary

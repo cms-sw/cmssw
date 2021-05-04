@@ -30,7 +30,6 @@
 #include <vector>
 #include <algorithm>
 #include <map>
-#include <boost/cstdint.hpp>
 
 class DetId;
 

@@ -24,7 +24,7 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include <Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h>
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include <TROOT.h>
@@ -186,10 +186,10 @@ namespace analyzer {
     const TransientTrackingRecHitBuilder *RHBuilder;
     const KFTrajectorySmoother *theSmoother;
     const KFTrajectoryFitter *theFitter;
-    const TrackerGeometry *tracker;
-    const MagneticField *magfield;
     TrajectoryStateTransform tsTransform;
     edm::EDGetTokenT<TrajTrackAssociationCollection> t_trajTrack;
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   };
 }  // namespace analyzer
 

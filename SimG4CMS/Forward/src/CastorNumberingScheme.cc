@@ -28,7 +28,6 @@ CastorNumberingScheme::CastorNumberingScheme()
       lvC3HF(nullptr),
       lvC4EF(nullptr),
       lvC4HF(nullptr) {
-  edm::LogInfo("ForwardSim") << "Creating CastorNumberingScheme";
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<lvp>::const_iterator lvcite;
   for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
@@ -64,6 +63,7 @@ CastorNumberingScheme::CastorNumberingScheme()
       lvC4HF = (*lvcite);
   }
 #ifdef castornumschemedebug
+  edm::LogVerbatim("ForwardSim") << "Creating CastorNumberingScheme";
   LogDebug("ForwardSim") << "CastorNumberingScheme:: LogicalVolume pointers\n"
                          << lvCASTFar << " for CASTFar; " << lvCASTNear << " for CASTNear; " << lvCAST << " for CAST; "
                          << lvCAES << " for CAES; " << lvCEDS << " for CEDS; " << lvCAHS << " for CAHS; " << lvCHDS

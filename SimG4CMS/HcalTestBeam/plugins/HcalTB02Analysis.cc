@@ -77,7 +77,7 @@ private:
 
 private:
   // Private Tuples
-  HcalTB02Histo* histo;
+  std::unique_ptr<HcalTB02Histo> histo;
 
   // to read from parameter set
   bool hcalOnly;
@@ -113,13 +113,10 @@ HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p) {
                             << "BeginOfJob/BeginOfEvent/EndOfEvent with "
                             << "Parameter values:\n \thcalOnly = " << hcalOnly;
 
-  histo = new HcalTB02Histo(m_Anal);
+  histo = std::make_unique<HcalTB02Histo>(m_Anal);
 }
 
-HcalTB02Analysis::~HcalTB02Analysis() {
-  finish();
-  delete histo;
-}
+HcalTB02Analysis::~HcalTB02Analysis() { finish(); }
 
 //
 // member functions
@@ -182,7 +179,7 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
   int scintID = 0, xtalID = 0;
 
   // HCAL
-  HcalTB02HcalNumberingScheme* org = new HcalTB02HcalNumberingScheme();
+  std::unique_ptr<HcalTB02HcalNumberingScheme> org(new HcalTB02HcalNumberingScheme());
 
   if (HCHCid >= 0 && theHCHC != nullptr) {
     for (ihit = 0; ihit < nentries; ihit++) {
@@ -392,8 +389,6 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
     std::cout << " Event " << iEvt << std::endl;
   else if ((iEvt < 10000) && (iEvt % 1000 == 0))
     std::cout << " Event " << iEvt << std::endl;
-
-  delete org;
 }
 
 void HcalTB02Analysis::fillEvent(HcalTB02HistoClass& product) {

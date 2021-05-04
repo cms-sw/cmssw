@@ -34,6 +34,9 @@ process.emptyESSourceA1 = cms.ESSource("EmptyESSource",
 
 process.emptyESSourceZ = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordZ"),
+    #NOTE: although there is no IOV boundary at 2 a later
+    # SubProcess will add a boundary there. This will induce
+    # the framework to add one here even for this Process
     firstValid = cms.vuint32(1,3,5,7,9),
     iovIsRunNotTime = cms.bool(True)
 )
@@ -47,11 +50,14 @@ process.esTestProducerA1 = cms.ESProducer("ESTestProducerA",
 process.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(1,2,3,4,5,6,7,8,9,10)
+    runsToGetDataFor = cms.vint32(1,2,3,4,5,6,7,8,9,10),
+    expectedValues=cms.untracked.vint32(1,2,3,4,5,6,7,8,9,9)
 )
 
 process.esTestAnalyzerAZ = cms.EDAnalyzer("ESTestAnalyzerAZ",
-    runsToGetDataFor = cms.vint32(1,2,3,4,5,6,7,8,9,10)
+    runsToGetDataFor = cms.vint32(1,2,3,4,5,6,7,8,9,10),
+    expectedValuesA=cms.untracked.vint32(1,2,3,4,5,6,7,8,9,9),
+    expectedValuesZ=cms.untracked.vint32(1,2,3,3,4,4,5,5,6,6)
 )
 
 process.path1 = cms.Path(process.esTestAnalyzerA*process.esTestAnalyzerAZ)
@@ -107,7 +113,9 @@ process1.esTestProducerA1 = cms.ESProducer("ESTestProducerA",
 process1.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process1.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(1,3,4,5,6,7,8,9,10)
+    runsToGetDataFor = cms.vint32(1,3,4,5,6,7,8,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(1,3,4,5,6,7,8,9,9)
 )
 
 process1.path1 = cms.Path(process1.esTestAnalyzerA)
@@ -149,7 +157,9 @@ process2.esTestProducerA1 = cms.ESProducer("ESTestProducerA",
 process2.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process2.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(1,3,4,5,6,7,8,9,10)
+    runsToGetDataFor = cms.vint32(1,3,4,5,6,7,8,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(1,3,4,5,6,7,8,9,9)
 )
 
 process2.path1 = cms.Path(process2.esTestAnalyzerA)
@@ -191,7 +201,9 @@ process3.esTestProducerA1 = cms.ESProducer("ESTestProducerA",
 process3.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process3.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(1,2,4,5,6,7,8,9,10)
+    runsToGetDataFor = cms.vint32(1,2,4,5,6,7,8,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(1,2,4,5,6,7,8,9,9)
 )
 
 process3.path1 = cms.Path(process3.esTestAnalyzerA)
@@ -219,6 +231,9 @@ process4.emptyESSourceA1 = cms.ESSource("EmptyESSource",
 
 process4.emptyESSourceZ = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordZ"),
+    #NOTE: although there is no IOV boundary at 2 a later
+    # SubProcess will add a boundary there. This will induce
+    # the framework to add one here even for this Process
     firstValid = cms.vuint32(1,3,5,7,9),
     iovIsRunNotTime = cms.bool(True)
 )
@@ -236,11 +251,16 @@ process4.esTestProducerA2 = cms.ESProducer("ESTestProducerA",
 process4.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process4.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(1,2,3,6,7,8,9,10)
+    runsToGetDataFor = cms.vint32(1,2,3,6,7,8,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(1,2,3,6,7,8,9,9)
 )
 
 process4.esTestAnalyzerAZ = cms.EDAnalyzer("ESTestAnalyzerAZ",
-    runsToGetDataFor = cms.vint32(3,4,5,6,7,8,9,10)
+    runsToGetDataFor = cms.vint32(3,4,5,6,7,8,9,10),
+    #NOTE: This module does NOT do prefetching
+    expectedValuesA=cms.untracked.vint32(1,2,3,4,5,6,7,7),
+    expectedValuesZ=cms.untracked.vint32(1,1,2,2,3,3,4,4)
 )
 
 process4.path1 = cms.Path(process4.esTestAnalyzerA*process4.esTestAnalyzerAZ)
@@ -284,11 +304,16 @@ process5.esTestProducerA2 = cms.ESProducer("ESTestProducerA",
 process5.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process5.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(1,2,3,7,8,9,10)
+    runsToGetDataFor = cms.vint32(1,2,3,7,8,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(1,2,3,7,8,9,9)
 )
 
 process5.esTestAnalyzerAZ = cms.EDAnalyzer("ESTestAnalyzerAZ",
-    runsToGetDataFor = cms.vint32(5,6,7,8,9,10)
+    runsToGetDataFor = cms.vint32(5,6,7,8,9,10),
+    #NOTE: This module does NOT do prefetching
+    expectedValuesA=cms.untracked.vint32(3,4,5,6,7,7),
+    expectedValuesZ=cms.untracked.vint32(2,2,3,3,4,4)
 )
 
 process5.path1 = cms.Path(process5.esTestAnalyzerA*process5.esTestAnalyzerAZ)
@@ -323,7 +348,10 @@ process6.esTestProducerA = cms.ESProducer("ESTestProducerA")
 process6.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process6.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(1,2,3,4,5,6,8,9,10)
+    runsToGetDataFor = cms.vint32(1,2,3,4,5,6,8,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(1,2,3,4,5,6,8,9,9)
+
 )
 
 process6.path1 = cms.Path(process6.esTestAnalyzerA)
@@ -363,7 +391,9 @@ process7.esTestProducerA1 = cms.ESProducer("ESTestProducerA",
 process7.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process7.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(1,2,3,4,5,6,7,9,10)
+    runsToGetDataFor = cms.vint32(1,2,3,4,5,6,7,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(1,2,3,4,5,6,7,9,9)
 )
 
 process7.path1 = cms.Path(process7.esTestAnalyzerA)
@@ -405,7 +435,9 @@ process8.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 
 process8.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(5,6,7,8,9,10)
+    runsToGetDataFor = cms.vint32(5,6,7,8,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(5,6,7,8,9,9)
 )
 
 process8.path1 = cms.Path(process8.esTestAnalyzerA)
@@ -438,7 +470,10 @@ process9.esTestProducerA1 = cms.ESProducer("ESTestProducerA",
 process9.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process9.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(6,7,8,9,10)
+    runsToGetDataFor = cms.vint32(6,7,8,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(6,7,8,9,9)
+
 )
 
 process9.path1 = cms.Path(process9.esTestAnalyzerA)
@@ -483,7 +518,9 @@ process10.esTestProducerA1 = cms.ESProducer("ESTestProducerA",
 process10.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process10.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(7,8,9,10)
+    runsToGetDataFor = cms.vint32(7,8,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(7,8,9,9)
 )
 
 process10.path1 = cms.Path(process10.esTestAnalyzerA)
@@ -522,7 +559,10 @@ process11.esTestProducerA1 = cms.ESProducer("ESTestProducerA",
 process11.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process11.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(8,9,10)
+    runsToGetDataFor = cms.vint32(8,9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(8,9,9)
+
 )
 
 process11.path1 = cms.Path(process11.esTestAnalyzerA)
@@ -564,7 +604,9 @@ process12.esTestProducerA1 = cms.ESProducer("ESTestProducerA",
 process12.esTestProducerAZ = cms.ESProducer("ESTestProducerAZ")
 
 process12.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
-    runsToGetDataFor = cms.vint32(9,10)
+    runsToGetDataFor = cms.vint32(9,10),
+    #NOTE: prefetching will still cause the data to be gotten even if the module does not do a get
+    expectedValues=cms.untracked.vint32(9,9)
 )
 
 process12.path1 = cms.Path(process12.esTestAnalyzerA)

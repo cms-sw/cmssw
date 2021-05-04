@@ -29,8 +29,6 @@
 #include <xercesc/dom/DOMNodeList.hpp>
 #include <xercesc/dom/DOMElement.hpp>
 
-#include <boost/shared_ptr.hpp>
-
 #include "CSCDQM_Exception.h"
 #include "CSCDQM_Logger.h"
 #include "CSCDQM_Utility.h"

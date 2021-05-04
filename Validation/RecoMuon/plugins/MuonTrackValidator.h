@@ -11,7 +11,7 @@
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBase {
@@ -137,7 +137,7 @@ public:
   /// Method called once per event
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   /// Method called at the end of the event loop
-  //   void endRun(edm::Run const&, edm::EventSetup const&) override;
+  //   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
   void bookHistograms(DQMEDAnalyzer::DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:

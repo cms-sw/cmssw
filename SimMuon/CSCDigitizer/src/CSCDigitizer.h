@@ -20,7 +20,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include <boost/utility.hpp>
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
@@ -38,14 +37,16 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class CSCDigitizer : public boost::noncopyable {
+class CSCDigitizer {
 public:
   typedef edm::DetSetVector<StripDigiSimLink> DigiSimLinks;
 
+  ~CSCDigitizer();
+  CSCDigitizer(const CSCDigitizer &) = delete;
+  CSCDigitizer &operator=(const CSCDigitizer &) = delete;
+
   /// configurable parameters
   explicit CSCDigitizer(const edm::ParameterSet &p);
-
-  ~CSCDigitizer();
 
   /**  digitize
    */

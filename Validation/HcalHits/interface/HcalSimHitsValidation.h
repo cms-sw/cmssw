@@ -1,8 +1,7 @@
 #ifndef HcalSimHitsValidation_H
 #define HcalSimHitsValidation_H
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,6 +26,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -38,7 +39,7 @@
 #include <utility>
 #include <vector>
 
-class HcalSimHitsValidation : public DQMEDAnalyzer {
+class HcalSimHitsValidation : public DQMOneEDAnalyzer<> {
 public:
   HcalSimHitsValidation(edm::ParameterSet const &conf);
   ~HcalSimHitsValidation() override;
@@ -60,8 +61,11 @@ private:
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_ecalEB_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_ecalEE_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
-  const HcalDDDRecConstants *hcons;
+  const HcalDDDRecConstants *hcons_;
+  const CaloGeometry *geometry_;
   int maxDepthHB_, maxDepthHE_;
   int maxDepthHO_, maxDepthHF_;
 
@@ -99,8 +103,6 @@ private:
   std::vector<MonitorElement *> meSimHitsEnergyHE;
   MonitorElement *meSimHitsEnergyHO;
   std::vector<MonitorElement *> meSimHitsEnergyHF;
-
-  edm::ESHandle<CaloGeometry> geometry;
 
   // counter
   int nevtot;

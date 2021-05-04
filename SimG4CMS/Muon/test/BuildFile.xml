@@ -1,0 +1,9 @@
+<use name="DataFormats/MuonDetId"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="SimDataFormats/TrackingHit"/>
+
+<library file="*.cc" name="SimG4CMSMuonTest">
+  <flags EDM_PLUGIN="1"/>
+</library>

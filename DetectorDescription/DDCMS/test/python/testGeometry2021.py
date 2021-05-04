@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-geometry-2021.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
                                             appendToDataLabel = cms.string('CMS')
                                             )
 
@@ -31,6 +31,9 @@ process.testDump = cms.EDAnalyzer("DDTestDumpFile",
 process.testGeoIter = cms.EDAnalyzer("DDTestDumpGeometry",
                                      DDDetector = cms.ESInputTag('','CMS')
                                      )
+
+process.Timing = cms.Service("Timing")
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
 
 process.p = cms.Path(
     process.test

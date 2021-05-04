@@ -9,18 +9,17 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 using namespace std;
 using namespace edm;
 using namespace reco;
-PFTrackProducer::PFTrackProducer(const ParameterSet& iConfig) : pfTransformer_() {
+PFTrackProducer::PFTrackProducer(const ParameterSet& iConfig)
+    : transientTrackToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()),
+      pfTransformer_() {
   produces<reco::PFRecTrackCollection>();
 
   std::vector<InputTag> tags = iConfig.getParameter<vector<InputTag> >("TkColList");
@@ -77,9 +76,8 @@ void PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     dummy = reco::Vertex(p, e, 0, 0, 0);
   }
 
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  TransientTrackBuilder thebuilder = *(builder.product());
+  //setup transient track builder
+  TransientTrackBuilder const& thebuilder = iSetup.getData(transientTrackToken_);
 
   // read muon collection
   Handle<reco::MuonCollection> recMuons;
@@ -202,9 +200,8 @@ void PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void PFTrackProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-  pfTransformer_.reset(new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0)))));
+  auto const& magneticField = iSetup.getData(magneticFieldToken_);
+  pfTransformer_ = std::make_unique<PFTrackTransformer>(math::XYZVector(magneticField.inTesla(GlobalPoint(0, 0, 0))));
   if (!trajinev_)
     pfTransformer_->OnlyProp();
 }

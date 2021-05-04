@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
     <!-- ####### Constants common to all DTBX stations -->
-    <ConstantsSection label="mbCommon.xml">
+    <ConstantsSection label="mbCommon.xml" eval="true">
         <!--- #### Constants for all DT superlayers -->
         <Constant name="MBHeight_With2RPC" value="362./2.*mm"/>
         <Constant name="MBHeight_With1RPC" value="326./2.*mm"/>

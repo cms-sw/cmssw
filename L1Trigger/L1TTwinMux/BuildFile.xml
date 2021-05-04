@@ -1,0 +1,9 @@
+<use name="DataFormats/L1DTTrackFinder"/>
+<use name="Geometry/RPCGeometry"/>
+<use name="FWCore/Framework"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="DataFormats/RPCDigi"/>
+<export>
+  <lib name="1"/>
+</export>

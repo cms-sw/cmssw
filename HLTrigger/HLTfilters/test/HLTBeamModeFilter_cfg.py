@@ -94,9 +94,8 @@ else :
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['gtEvmDigis', 'hltBeamModeFilter']
-process.MessageLogger.categories.append('L1GlobalTriggerEvmRawToDigi')
-process.MessageLogger.categories.append('HLTBeamModeFilter')
-#process.MessageLogger.destinations = ['cerr']
+process.MessageLogger.L1GlobalTriggerEvmRawToDigi=dict()
+process.MessageLogger.HLTBeamModeFilter=dict()
 
 process.MessageLogger.cerr.threshold = 'DEBUG'
 #process.MessageLogger.cerr.threshold = 'INFO'

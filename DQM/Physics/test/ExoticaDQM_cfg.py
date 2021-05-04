@@ -28,4 +28,4 @@ process.source = cms.Source(
 process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
 
 process.p = cms.Path( process.ExoticaDQM + process.dqmSaver)
-#process.p = cms.Path( process.ak4PFCHSL1FastL2L3CorrectorChain + process.ExoticaDQM + process.dqmSaver)
+#process.p = cms.Path( process.dqmAk4PFCHSL1FastL2L3CorrectorChain + process.ExoticaDQM + process.dqmSaver)

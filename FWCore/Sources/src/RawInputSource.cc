@@ -7,7 +7,9 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
@@ -47,7 +49,8 @@ namespace edm {
   }
 
   void RawInputSource::makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary) {
-    eventPrincipal.fillEventPrincipal(eventAuxiliary, processHistoryRegistry());
+    auto history = processHistoryRegistry().getMapped(eventAuxiliary.processHistoryID());
+    eventPrincipal.fillEventPrincipal(eventAuxiliary, history);
   }
 
   InputSource::ItemType RawInputSource::getNextItemType() {
@@ -71,11 +74,16 @@ namespace edm {
       resetRunAuxiliary(newRun());
       resetLuminosityBlockAuxiliary(newLumi());
     }
-    bool another = checkNextEvent();
-    if (!another || (!newLumi() && !eventCached())) {
+    Next another = checkNext();
+    if (another == Next::kStop) {
       return IsStop;
-    } else if (inputFileTransitionsEachEvent_) {
+    } else if (another == Next::kEvent and inputFileTransitionsEachEvent_) {
       fakeInputFileTransition_ = true;
+      return IsFile;
+    } else if (another == Next::kFile) {
+      setNewRun();
+      setNewLumi();
+      resetEventCached();
       return IsFile;
     }
     if (newRun()) {
@@ -103,14 +111,15 @@ namespace edm {
   void RawInputSource::closeFile_() {
     if (!fakeInputFileTransition_) {
       genuineCloseFile();
-    } else {
-      // Do nothing because we returned a fake input file transition
-      // value from getNextItemType which resulted in this call
-      // to closeFile_.
-
-      // Reset the flag because the next call to closeFile_ might
-      // be real.
-      fakeInputFileTransition_ = false;
     }
   }
+
+  std::unique_ptr<edm::FileBlock> RawInputSource::readFile_() {
+    if (!fakeInputFileTransition_) {
+      genuineReadFile();
+    }
+    fakeInputFileTransition_ = false;
+    return std::make_unique<FileBlock>();
+  }
+
 }  // namespace edm

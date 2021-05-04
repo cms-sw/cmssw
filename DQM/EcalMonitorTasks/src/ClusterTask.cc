@@ -74,7 +74,7 @@ namespace ecaldqm {
     _dependencies.push_back(Dependency(kEESuperCluster, kEERecHit));
   }
 
-  void ClusterTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es) {
+  void ClusterTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es, bool const&, bool&) {
     if (!doExtra_)
       return;
 
@@ -173,9 +173,9 @@ namespace ecaldqm {
     for (unsigned iT(0); iT != nTriggerTypes; ++iT) {
       if (!triggered_[iT])
         continue;
-      meTriggers.fill(iT + 0.5);
+      meTriggers.fill(getEcalDQMSetupObjects(), iT + 0.5);
       if (triggered_.count() == 1)
-        meExclusiveTriggers.fill(iT + 0.5);
+        meExclusiveTriggers.fill(getEcalDQMSetupObjects(), iT + 0.5);
     }
   }
 
@@ -248,7 +248,7 @@ namespace ecaldqm {
       if (id.null()) {
         GlobalPoint gp(position.x(), position.y(), position.z());
         CaloSubdetectorGeometry const* subgeom(
-            getGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
+            GetGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
 
         id = subgeom->getClosestCell(gp);
       }
@@ -264,26 +264,26 @@ namespace ecaldqm {
       if (subdet == EcalEndcap && position.z() < 0.)
         subdet = -EcalEndcap;
 
-      meBCE.fill(id, energy);
+      meBCE.fill(getEcalDQMSetupObjects(), id, energy);
 
-      meBCEMap.fill(id, energy);
-      meBCEMapProjEta.fill(posEta, energy);
-      meBCEMapProjPhi.fill(subdet, posPhi, energy);
-      meBCEtMapProjEta.fill(posEta, et);
-      meBCEtMapProjPhi.fill(subdet, posPhi, et);
+      meBCEMap.fill(getEcalDQMSetupObjects(), id, energy);
+      meBCEMapProjEta.fill(getEcalDQMSetupObjects(), posEta, energy);
+      meBCEMapProjPhi.fill(getEcalDQMSetupObjects(), subdet, posPhi, energy);
+      meBCEtMapProjEta.fill(getEcalDQMSetupObjects(), posEta, et);
+      meBCEtMapProjPhi.fill(getEcalDQMSetupObjects(), subdet, posPhi, et);
 
-      meBCOccupancy.fill(id);
-      meBCOccupancyProjEta.fill(posEta);
-      meBCOccupancyProjPhi.fill(subdet, posPhi);
+      meBCOccupancy.fill(getEcalDQMSetupObjects(), id);
+      meBCOccupancyProjEta.fill(getEcalDQMSetupObjects(), posEta);
+      meBCOccupancyProjPhi.fill(getEcalDQMSetupObjects(), subdet, posPhi);
 
       float size(bcItr->size());
 
-      meBCSize.fill(id, size);
-      meTrendBCSize.fill(id, double(timestamp_.iLumi), size);
+      meBCSize.fill(getEcalDQMSetupObjects(), id, size);
+      meTrendBCSize.fill(getEcalDQMSetupObjects(), id, double(timestamp_.iLumi), size);
 
-      meBCSizeMap.fill(id, size);
-      meBCSizeMapProjEta.fill(posEta, size);
-      meBCSizeMapProjPhi.fill(subdet, posPhi, size);
+      meBCSizeMap.fill(getEcalDQMSetupObjects(), id, size);
+      meBCSizeMapProjEta.fill(getEcalDQMSetupObjects(), posEta, size);
+      meBCSizeMapProjPhi.fill(getEcalDQMSetupObjects(), subdet, posPhi, size);
 
       int zside(position.z() > 0 ? 1 : 0);
       nBC[zside]++;
@@ -304,12 +304,12 @@ namespace ecaldqm {
     }
 
     if (isBarrel) {
-      meBCNum.fill(EcalBarrel, nBC[0] + nBC[1]);
-      meTrendNBC.fill(EcalBarrel, double(timestamp_.iLumi), nBC[0] + nBC[1]);
+      meBCNum.fill(getEcalDQMSetupObjects(), EcalBarrel, nBC[0] + nBC[1]);
+      meTrendNBC.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), nBC[0] + nBC[1]);
     } else {
-      meBCNum.fill(-EcalEndcap, nBC[0]);
-      meBCNum.fill(EcalEndcap, nBC[1]);
-      meTrendNBC.fill(EcalEndcap, double(timestamp_.iLumi), nBC[0] + nBC[1]);
+      meBCNum.fill(getEcalDQMSetupObjects(), -EcalEndcap, nBC[0]);
+      meBCNum.fill(getEcalDQMSetupObjects(), EcalEndcap, nBC[1]);
+      meTrendNBC.fill(getEcalDQMSetupObjects(), EcalEndcap, double(timestamp_.iLumi), nBC[0] + nBC[1]);
     }
 
     //     if(ievt_ % massCalcPrescale_ != 0) return;
@@ -366,6 +366,8 @@ namespace ecaldqm {
 
     MESet& meSCE(MEs_.at("SCE"));
     MESet& meSCELow(MEs_.at("SCELow"));
+    MESet& meSCRawE(MEs_.at("SCRawE"));
+    MESet& meSCRawELow(MEs_.at("SCRawELow"));
     MESet& meSCNBCs(MEs_.at("SCNBCs"));
     MESet& meSCNcrystals(MEs_.at("SCNcrystals"));
     MESet& meTrendSCSize(MEs_.at("TrendSCSize"));
@@ -374,6 +376,9 @@ namespace ecaldqm {
     MESet& meSCSeedOccupancy(MEs_.at("SCSeedOccupancy"));
     MESet& meSingleCrystalCluster(MEs_.at("SingleCrystalCluster"));
     MESet& meSCR9(MEs_.at("SCR9"));
+    MESet& meSCR9Raw(MEs_.at("SCR9Raw"));
+    MESet& meSCR9Full(MEs_.at("SCR9Full"));
+    MESet& meSCR9FullRaw(MEs_.at("SCR9FullRaw"));
 
     MESet* meSCSizeVsEnergy(doExtra_ ? &MEs_.at("SCSizeVsEnergy") : nullptr);
     MESet* meSCSeedOccupancyHighE(doExtra_ ? &MEs_.at("SCSeedOccupancyHighE") : nullptr);
@@ -399,7 +404,7 @@ namespace ecaldqm {
         GlobalPoint gp(position.x(), position.y(), position.z());
 
         CaloSubdetectorGeometry const* subgeom(
-            getGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
+            GetGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
 
         seedId = subgeom->getClosestCell(gp);
       }
@@ -414,31 +419,40 @@ namespace ecaldqm {
       ++nSC;
 
       float energy(scItr->energy());
+      float rawEnergy(scItr->rawEnergy());
       float size(scItr->size());
 
-      meSCE.fill(seedId, energy);
-      meSCELow.fill(seedId, energy);
+      meSCE.fill(getEcalDQMSetupObjects(), seedId, energy);
+      meSCELow.fill(getEcalDQMSetupObjects(), seedId, energy);
 
-      meSCNBCs.fill(seedId, scItr->clustersSize());
-      meSCNcrystals.fill(seedId, size);
+      meSCRawE.fill(getEcalDQMSetupObjects(), seedId, rawEnergy);
+      meSCRawELow.fill(getEcalDQMSetupObjects(), seedId, rawEnergy);
+
+      meSCNBCs.fill(getEcalDQMSetupObjects(), seedId, scItr->clustersSize());
+      meSCNcrystals.fill(getEcalDQMSetupObjects(), seedId, size);
 
       if (doExtra_)
-        meSCSizeVsEnergy->fill(subdet, energy, size);
+        meSCSizeVsEnergy->fill(getEcalDQMSetupObjects(), subdet, energy, size);
 
-      meTrendSCSize.fill(seedId, double(timestamp_.iLumi), size);
+      meTrendSCSize.fill(getEcalDQMSetupObjects(), seedId, double(timestamp_.iLumi), size);
 
-      meSCSeedEnergy.fill(seedId, seedItr->energy());
-      meSCClusterVsSeed.fill(seedId, seedItr->energy(), energy);
+      meSCSeedEnergy.fill(getEcalDQMSetupObjects(), seedId, seedItr->energy());
+      meSCClusterVsSeed.fill(getEcalDQMSetupObjects(), seedId, seedItr->energy(), energy);
 
-      meSCSeedOccupancy.fill(seedId);
+      meSCSeedOccupancy.fill(getEcalDQMSetupObjects(), seedId);
       if (doExtra_ && energy > energyThreshold_)
-        meSCSeedOccupancyHighE->fill(seedId);
+        meSCSeedOccupancyHighE->fill(getEcalDQMSetupObjects(), seedId);
 
       if (scItr->size() == 1)
-        meSingleCrystalCluster.fill(seedId);
+        meSingleCrystalCluster.fill(getEcalDQMSetupObjects(), seedId);
 
-      float e3x3(EcalClusterTools::e3x3(*scItr->seed(), hits, getTopology()));
-      meSCR9.fill(seedId, e3x3 / energy);
+      float e3x3(EcalClusterTools::e3x3(*scItr->seed(), hits, GetTopology()));
+      float e3x3Full(noZS::EcalClusterTools::e3x3(*scItr->seed(), hits, GetTopology()));
+
+      meSCR9.fill(getEcalDQMSetupObjects(), seedId, e3x3 / energy);
+      meSCR9Raw.fill(getEcalDQMSetupObjects(), seedId, e3x3 / rawEnergy);
+      meSCR9Full.fill(getEcalDQMSetupObjects(), seedId, e3x3Full / energy);
+      meSCR9FullRaw.fill(getEcalDQMSetupObjects(), seedId, e3x3Full / rawEnergy);
 
       if (doExtra_) {
         for (unsigned iT(0); iT != nTriggerTypes; ++iT) {
@@ -446,29 +460,29 @@ namespace ecaldqm {
             continue;
 
           static_cast<MESetMulti*>(meSCSeedOccupancyTrig)->use(trigTypeToME_[iT]);
-          meSCSeedOccupancyTrig->fill(seedId);
+          meSCSeedOccupancyTrig->fill(getEcalDQMSetupObjects(), seedId);
 
           // exclusive
           if (triggered_.count() == 1) {
             static_cast<MESetMulti*>(meSCSeedTimeTrigEx)->use(trigTypeToME_[iT]);
             static_cast<MESetMulti*>(meSCSeedTimeMapTrigEx)->use(trigTypeToME_[iT]);
-            meSCSeedTimeTrigEx->fill(subdet, seedItr->time());
-            meSCSeedTimeMapTrigEx->fill(seedId, seedItr->time());
+            meSCSeedTimeTrigEx->fill(getEcalDQMSetupObjects(), subdet, seedItr->time());
+            meSCSeedTimeMapTrigEx->fill(getEcalDQMSetupObjects(), seedId, seedItr->time());
           }
         }
 
-        meSCOccupancyProjEta->fill(subdet, scItr->eta());
-        meSCOccupancyProjPhi->fill(subdet, phi(scItr->phi()));
+        meSCOccupancyProjEta->fill(getEcalDQMSetupObjects(), subdet, scItr->eta());
+        meSCOccupancyProjPhi->fill(getEcalDQMSetupObjects(), subdet, phi(scItr->phi()));
 
         if (isBarrel) {
           float e1(EcalClusterTools::eMax(*scItr, ebHits_));
           if (e1 > swissCrossMaxThreshold_) {
-            float e4(EcalClusterTools::eTop(*scItr, ebHits_, getTopology()) +
-                     EcalClusterTools::eRight(*scItr, ebHits_, getTopology()) +
-                     EcalClusterTools::eBottom(*scItr, ebHits_, getTopology()) +
-                     EcalClusterTools::eLeft(*scItr, ebHits_, getTopology()));
+            float e4(EcalClusterTools::eTop(*scItr, ebHits_, GetTopology()) +
+                     EcalClusterTools::eRight(*scItr, ebHits_, GetTopology()) +
+                     EcalClusterTools::eBottom(*scItr, ebHits_, GetTopology()) +
+                     EcalClusterTools::eLeft(*scItr, ebHits_, GetTopology()));
 
-            meSCSwissCross->fill(1. - e4 / e1);
+            meSCSwissCross->fill(getEcalDQMSetupObjects(), 1. - e4 / e1);
           }
         }
       }
@@ -485,8 +499,8 @@ namespace ecaldqm {
       //       }
     }
 
-    MEs_.at("SCNum").fill(subdet, nSC);
-    MEs_.at("TrendNSC").fill(subdet, double(timestamp_.iLumi), nSC);
+    MEs_.at("SCNum").fill(getEcalDQMSetupObjects(), subdet, nSC);
+    MEs_.at("TrendNSC").fill(getEcalDQMSetupObjects(), subdet, double(timestamp_.iLumi), nSC);
 
     //     if(ievt_ % massCalcPrescale_ != 0) return;
 

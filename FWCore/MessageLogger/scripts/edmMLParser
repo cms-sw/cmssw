@@ -1,0 +1,103 @@
+#! /usr/bin/env python
+
+from __future__ import print_function
+
+def manipulate_log(logfile_name,category_names,printBeginEvent,printMessageLabel,verbosityLevel):
+
+    # open file and read it 
+    logfile=open(logfile_name,'r')
+
+    writeOut = False
+
+    for line in logfile:
+
+        # real line a split content
+        line = line[:-1] # no \n
+        line_content_list = line.split(' ')
+
+        # select interesting fields
+        identifier = line_content_list[0]
+        if len(line_content_list) > 1 :
+            category = line_content_list[1]
+
+        # end of message record
+        if writeOut == True and identifier != '%MSG' :
+            print(line)
+
+        # begin of message record
+        if identifier.find('%MSG') != -1 :
+            if identifier == '%MSG' :
+               writeOut = False
+            else :
+               isCategory = False
+               if len(category_names) == 1 and category_names[0] == '':
+                   isCategory = True
+               else:
+                   for value in category_names :
+                       if value+":" == category :
+                           isCategory = True
+               if isCategory == True:
+                   if verbosityLevel == '' :
+                       writeOut = True
+                   elif identifier == '%MSG-'+verbosityLevel :
+                       writeOut = True
+               if printMessageLabel and writeOut :
+                   print(line)
+
+        # begin event record
+        if printBeginEvent and identifier == 'Begin' and category == 'processing' :
+            print(line)
+
+    logfile.close()
+
+#################################################################################################    
+
+if __name__ == '__main__':
+
+    import argparse
+    import os
+
+    # Here we define an option parser to handle commandline options..
+    parser = argparse.ArgumentParser(description='edmMLParser <options> <input file>')
+    parser.add_argument('logfile_name',
+                        metavar='file',
+                        help='input file name')
+
+    parser.add_argument('-c', '--category',
+                        help='List of MessageLogger categories to be searched, separated by ","',
+                        default='',
+                        dest='category_name')
+
+    parser.add_argument('-b', '--print-begin-event',
+                        help='Print the begin event record',
+                        action='store_true',
+                        dest='printBeginEvent')
+
+    parser.add_argument('-m', '--print-message-label',
+                        help='Print the MessageLogger label for the selected message',
+                        action='store_true',
+                        dest='printMessageLabel')
+
+    allowedVerbosityLevels = ['!','i','w','e']
+
+    parser.add_argument('-v', '--select-verbosity-level',
+                        help='Select a particular verbosity level for the chosen category, possible values are: '+''.join(allowedVerbosityLevels),
+                        default='',
+                        dest='verbosityLevel')
+
+    args = parser.parse_args()
+
+    # Now some fault control..If an error is found we raise an exception
+    if args.logfile_name=='':
+        raise Exception('Please select a file name and a MessageLogger category!')
+
+    if not os.path.exists(args.logfile_name):
+        raise Exception('File to be parsed not present!')
+
+    if args.verbosityLevel != '' and args.verbosityLevel not in allowedVerbosityLevels :
+        raise Exception('Selected verbosity level not supported')
+
+    category_names = args.category_name.split(',')
+
+    #launch the function!
+    manipulate_log(args.logfile_name,category_names,args.printBeginEvent,args.printMessageLabel,args.verbosityLevel)

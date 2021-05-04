@@ -1,0 +1,12 @@
+<site-local-config>
+<site name="DUMMY">
+  <calib-data>
+    <frontier-connect>
+      <proxy url="http://cmsfrontier.dummy.foo:3128"/>
+    </frontier-connect>
+    <local-connect>
+      <connectString prefix="Test:Prefix" suffix="Test.Suffix"/>
+    </local-connect>
+  </calib-data>
+</site>
+</site-local-config>

@@ -8,10 +8,11 @@
 /**
  * Class which builds Pixel Ladders
  */
-class CmsTrackerLadderBuilder : public CmsTrackerLevelBuilder {
+template <class FilteredView>
+class CmsTrackerLadderBuilder : public CmsTrackerLevelBuilder<FilteredView> {
 private:
-  void sortNS(DDFilteredView&, GeometricDet*) override;
-  void buildComponent(DDFilteredView&, GeometricDet*, std::string) override;
+  void sortNS(FilteredView&, GeometricDet*) override;
+  void buildComponent(FilteredView&, GeometricDet*, const std::string&) override;
 };
 
 #endif

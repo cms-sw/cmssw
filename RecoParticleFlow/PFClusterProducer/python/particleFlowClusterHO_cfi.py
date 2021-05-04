@@ -49,7 +49,7 @@ _positionCalcHO_cross_nodepth = cms.PSet(
 )
 
 _positionCalcHO_all_nodepth = _positionCalcHO_cross_nodepth.clone(
-    posCalcNCrystals = cms.int32(-1)
+    posCalcNCrystals = -1
 )
 
 #pf clusters
@@ -78,6 +78,7 @@ particleFlowClusterHO = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHO"),
     recHitCleaners = cms.VPSet(),
+    seedCleaners  = cms.VPSet(),
     seedFinder = _localMaxSeeds_HO,
     initialClusteringStep = _topoClusterizer_HO,
     pfClusterBuilder = _pfClusterizer_HO,

@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "CommonTools/ParticleFlow/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/ValidHandle.h"
@@ -13,8 +13,34 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "RecoEgamma/EgammaElectronProducers/plugins/LowPtGsfElectronSCProducer.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 #include <iostream>
+
+class LowPtGsfElectronSCProducer : public edm::stream::EDProducer<> {
+public:
+  explicit LowPtGsfElectronSCProducer(const edm::ParameterSet&);
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+private:
+  reco::PFClusterRef closestCluster(const reco::PFTrajectoryPoint& point,
+                                    const edm::Handle<reco::PFClusterCollection>& clusters,
+                                    std::vector<int>& matched);
+
+  const edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracks_;
+  const edm::EDGetTokenT<reco::PFClusterCollection> ecalClusters_;
+  const double dr2_;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -29,11 +55,7 @@ LowPtGsfElectronSCProducer::LowPtGsfElectronSCProducer(const edm::ParameterSet& 
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-LowPtGsfElectronSCProducer::~LowPtGsfElectronSCProducer() {}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-void LowPtGsfElectronSCProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+void LowPtGsfElectronSCProducer::produce(edm::Event& event, const edm::EventSetup&) {
   // Input GsfPFRecTracks collection
   auto gsfPfRecTracks = edm::makeValid(event.getHandle(gsfPfRecTracks_));
 

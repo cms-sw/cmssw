@@ -1,6 +1,5 @@
-#ifndef MuonRecoAnalyzer_H
-#define MuonRecoAnalyzer_H
-
+#ifndef DQMOffline_Muon_MuonRecoAnalyzer_h
+#define DQMOffline_Muon_MuonRecoAnalyzer_h
 /** \class MuRecoAnalyzer
  *
  *  DQM monitoring source for muon reco track
@@ -19,8 +18,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -51,7 +48,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  MuonServiceProxy* theService;
   edm::ParameterSet parameters;
 
   edm::EDGetTokenT<edm::View<reco::Muon> > theMuonCollectionLabel_;
@@ -62,6 +58,8 @@ private:
   // Switch for verbosity
   std::string metname;
   bool doMVA;
+  bool useGEM;
+  int maxGEMhitsSoftMuonMVA;
 
   //histo binning parameters
   int etaBin;
@@ -150,6 +148,7 @@ private:
   MonitorElement* trkRelChi2SoftMuonMVA;
   MonitorElement* vDThitsSoftMuonMVA;
   MonitorElement* vCSChitsSoftMuonMVA;
+  MonitorElement* vGEMhitsSoftMuonMVA;
   MonitorElement* timeAtIpInOutSoftMuonMVA;
   MonitorElement* timeAtIpInOutErrSoftMuonMVA;
   MonitorElement* getMuonHitsPerStationSoftMuonMVA;
@@ -190,4 +189,4 @@ private:
   bool IsminiAOD;
   std::string theFolder;
 };
-#endif
+#endif  // DQMOffline_Muon_MuonRecoAnalyzer_h

@@ -13,17 +13,19 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ### before issuing the scram command above
 ###############################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-# process.MessageLogger.categories.append("ME0GeometryESModule")
-# process.MessageLogger.categories.append("ME0GeometryBuilderFromDDD")
-# process.MessageLogger.categories.append("ME0NumberingScheme")
+# 
+# 
+# 
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.junk = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
     default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
     # ME0GeometryESModule           = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    # ME0GeometryBuilderFromDDD   = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    # ME0GeometryBuilder   = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
     # ME0NumberingScheme          = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
 )
 

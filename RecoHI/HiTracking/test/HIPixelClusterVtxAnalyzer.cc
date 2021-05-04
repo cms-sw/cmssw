@@ -1,15 +1,15 @@
-#include "HIPixelClusterVtxAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -26,6 +26,34 @@
 #include <vector>
 #include <algorithm>
 
+// ROOT includes
+#include <TH1.h>
+
+class HIPixelClusterVtxAnalyzer : public edm::EDAnalyzer {
+public:
+  explicit HIPixelClusterVtxAnalyzer(const edm::ParameterSet &ps);
+
+private:
+  struct VertexHit {
+    float z;
+    float r;
+    float w;
+  };
+
+  virtual void analyze(const edm::Event &ev, const edm::EventSetup &es);
+  int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
+
+  edm::EDGetTokenT<SiPixelRecHitCollection> srcPixels_;  //pixel rec hits
+
+  double minZ_;
+  double maxZ_;
+  double zStep_;
+
+  edm::Service<TFileService> fs;
+  int maxHists_;
+  int counter;
+};
+
 /*****************************************************************************/
 HIPixelClusterVtxAnalyzer::HIPixelClusterVtxAnalyzer(const edm::ParameterSet &ps)
     : srcPixels_(consumes<SiPixelRecHitCollection>(ps.getParameter<edm::InputTag>("pixelRecHits"))),
@@ -37,11 +65,6 @@ HIPixelClusterVtxAnalyzer::HIPixelClusterVtxAnalyzer(const edm::ParameterSet &ps
 
 {
   // Constructor
-}
-
-/*****************************************************************************/
-HIPixelClusterVtxAnalyzer::~HIPixelClusterVtxAnalyzer() {
-  // Destructor
 }
 
 /*****************************************************************************/
@@ -57,9 +80,6 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event &ev, const edm::EventSe
                                      (int)((maxZ_ - minZ_) / zStep_),
                                      minZ_,
                                      maxZ_);
-
-  // new vertex collection
-  auto vertices = std::make_unique<reco::VertexCollection>();
 
   // get pixel rechits
   edm::Handle<SiPixelRecHitCollection> hRecHits;
@@ -77,19 +97,17 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event &ev, const edm::EventSe
 
     // loop over pixel rechits
     std::vector<VertexHit> vhits;
-    for (SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), end = hits->data().end();
-         hit != end;
-         ++hit) {
-      if (!hit->isValid())
+    for (auto const &hit : hits->data()) {
+      if (!hit.isValid())
         continue;
-      DetId id(hit->geographicalId());
+      DetId id(hit.geographicalId());
       if (id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit *>(tgeo->idToDet(id));
       if (1) {
         const RectangularPixelTopology *pixTopo =
             static_cast<const RectangularPixelTopology *>(&(pgdu->specificTopology()));
-        std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
+        std::vector<SiPixelCluster::Pixel> pixels(hit.cluster()->pixels());
         bool pixelOnEdge = false;
         for (std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end();
              ++pixel) {
@@ -104,12 +122,12 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event &ev, const edm::EventSe
           continue;
       }
 
-      LocalPoint lpos = LocalPoint(hit->localPosition().x(), hit->localPosition().y(), hit->localPosition().z());
+      LocalPoint lpos = LocalPoint(hit.localPosition().x(), hit.localPosition().y(), hit.localPosition().z());
       GlobalPoint gpos = pgdu->toGlobal(lpos);
       VertexHit vh;
       vh.z = gpos.z();
       vh.r = gpos.perp();
-      vh.w = hit->cluster()->sizeY();
+      vh.w = hit.cluster()->sizeY();
       vhits.push_back(vh);
     }
 
@@ -152,3 +170,6 @@ int HIPixelClusterVtxAnalyzer::getContainedHits(const std::vector<VertexHit> &hi
   }
   return n;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HIPixelClusterVtxAnalyzer);

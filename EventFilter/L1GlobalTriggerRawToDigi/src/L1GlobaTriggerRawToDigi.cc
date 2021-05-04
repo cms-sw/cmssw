@@ -49,16 +49,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
-
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
 // constructor(s)
 L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet)
@@ -75,6 +67,11 @@ L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet
       // mask for active boards
       m_activeBoardsMaskGt(pSet.getParameter<unsigned int>("ActiveBoardsMask")),
 
+      // EventSetup Tokens
+      m_trigScalesToken(esConsumes<L1MuTriggerScales, L1MuTriggerScalesRcd>()),
+      m_trigPtScaleToken(esConsumes<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd>()),
+      m_l1GtBMToken(esConsumes<L1GtBoardMaps, L1GtBoardMapsRcd>()),
+
       // number of bunch crossing to be unpacked
       m_unpackBxInEvent(pSet.getParameter<int>("UnpackBxInEvent")),
 
@@ -88,6 +85,7 @@ L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet
       m_recordLength1(0),
 
       m_totalBxInEvent(0),
+
       m_verbosity(pSet.getUntrackedParameter<int>("Verbosity", 0)),
 
       m_isDebugEnabled(edm::isDebugEnabled())
@@ -173,17 +171,14 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
   // get records from EventSetup
 
   //  muon trigger scales
-  edm::ESHandle<L1MuTriggerScales> trigscales_h;
-  evSetup.get<L1MuTriggerScalesRcd>().get(trigscales_h);
+  edm::ESHandle<L1MuTriggerScales> trigscales_h = evSetup.getHandle(m_trigScalesToken);
   m_TriggerScales = trigscales_h.product();
 
-  edm::ESHandle<L1MuTriggerPtScale> trigptscale_h;
-  evSetup.get<L1MuTriggerPtScaleRcd>().get(trigptscale_h);
+  edm::ESHandle<L1MuTriggerPtScale> trigptscale_h = evSetup.getHandle(m_trigPtScaleToken);
   m_TriggerPtScale = trigptscale_h.product();
 
   //  board maps
-  edm::ESHandle<L1GtBoardMaps> l1GtBM;
-  evSetup.get<L1GtBoardMapsRcd>().get(l1GtBM);
+  edm::ESHandle<L1GtBoardMaps> l1GtBM = evSetup.getHandle(m_l1GtBMToken);
 
   const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
   int boardMapsSize = boardMaps.size();

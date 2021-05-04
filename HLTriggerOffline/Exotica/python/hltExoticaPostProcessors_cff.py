@@ -141,6 +141,7 @@ hltExoticaPostProcessors = cms.Sequence(
     hltExoticaPostMonojetBackup +
     hltExoticaPostPureMET +
     hltExoticaPostMETplusTrack +
+    hltExoticaPostSingleMuon +
     hltExoticaEleMu +
     hltExoticaPhotonMET +
     hltExoticaHTDisplacedJets +

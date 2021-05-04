@@ -12,10 +12,9 @@ Modified for CASTOR by L. Mundim
 */
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <boost/cstdint.hpp>
-
 #include <vector>
 #include <algorithm>
+#include <cstdint>
 
 class CastorQIEShape;
 

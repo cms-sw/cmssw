@@ -11,7 +11,8 @@ public:
   HcalDcsMapPopConAnalyzer(const edm::ParameterSet& pset)
       : popcon::PopConAnalyzer<HcalDcsMapHandler>(pset),
         m_populator(pset),
-        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        m_tok(esConsumes<HcalDcsMap, HcalDcsMapRcd>()) {}
 
 private:
   void endJob() override {
@@ -22,9 +23,7 @@ private:
   void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
-    edm::ESHandle<HcalDcsMap> objecthandle;
-    esetup.get<HcalDcsMapRcd>().get(objecthandle);
-    myDBObject = new HcalDcsMap(*objecthandle.product());
+    myDBObject = new HcalDcsMap(esetup.getData(m_tok));
   }
 
   void write() { m_populator.write(m_source); }
@@ -32,6 +31,7 @@ private:
 private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
+  edm::ESGetToken<HcalDcsMap, HcalDcsMapRcd> m_tok;
 
   HcalDcsMap* myDBObject;
 };

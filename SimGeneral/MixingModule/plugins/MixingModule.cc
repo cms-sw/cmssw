@@ -72,6 +72,11 @@ namespace edm {
       wrapLongTimes_ = ps_mix.getParameter<bool>("WrapLongTimes");
     }
 
+    skipSignal_ = false;
+    if (ps_mix.exists("skipSignal")) {
+      skipSignal_ = ps_mix.getParameter<bool>("skipSignal");
+    }
+
     ParameterSet ps = ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
     for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
@@ -274,7 +279,7 @@ namespace edm {
         consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCProductLabel"));
       }
       std::unique_ptr<DigiAccumulatorMixMod> accumulator = std::unique_ptr<DigiAccumulatorMixMod>(
-          DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
+          DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, producesCollector(), iC));
       // Create appropriate DigiAccumulator
       if (accumulator.get() != nullptr) {
         digiAccumulators_.push_back(accumulator.release());
@@ -283,6 +288,7 @@ namespace edm {
   }
 
   void MixingModule::reload(const edm::EventSetup& setup) {
+    // TODO for esConsumes migration: assume for now this function is mostly unused
     //change the basic parameters.
     edm::ESHandle<MixingModuleConfig> config;
     setup.get<MixingRcd>().get(config);
@@ -312,14 +318,14 @@ namespace edm {
   void MixingModule::checkSignal(const edm::Event& e) {
     if (adjusters_.empty()) {
       for (auto const& adjuster : adjustersObjects_) {
-        if (adjuster->checkSignal(e)) {
+        if (skipSignal_ or adjuster->checkSignal(e)) {
           adjusters_.push_back(adjuster);
         }
       }
     }
     if (workers_.empty()) {
       for (auto const& worker : workersObjects_) {
-        if (worker->checkSignal(e)) {
+        if (skipSignal_ or worker->checkSignal(e)) {
           workers_.push_back(worker);
         }
       }
@@ -351,6 +357,10 @@ namespace edm {
   }
 
   void MixingModule::addSignals(const edm::Event& e, const edm::EventSetup& setup) {
+    if (skipSignal_) {
+      return;
+    }
+
     LogDebug("MixingModule") << "===============> adding signals for " << e.id();
 
     accumulateEvent(e, setup);
@@ -603,8 +613,8 @@ namespace edm {
 
     std::unique_ptr<PileupMixingContent> PileupMixing_;
 
-    PileupMixing_ = std::unique_ptr<PileupMixingContent>(new PileupMixingContent(
-        bunchCrossingList, numInteractionList, TrueInteractionList, eventInfoList, bunchSpace_));
+    PileupMixing_ = std::make_unique<PileupMixingContent>(
+        bunchCrossingList, numInteractionList, TrueInteractionList, eventInfoList, bunchSpace_);
 
     e.put(std::move(PileupMixing_));
 

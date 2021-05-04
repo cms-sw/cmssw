@@ -21,15 +21,17 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('MaterialBudget'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        MaterialBudget = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        MaterialBudget = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
+        enable = cms.untracked.bool(True)
     )
 )
 
@@ -48,6 +50,7 @@ process.TFileService = cms.Service("TFileService",
 
 process.p1 = cms.Path(process.g4SimHits)
 process.g4SimHits.UseMagneticField = False
+process.g4SimHits.StackingAction.TrackNeutrino = True
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False

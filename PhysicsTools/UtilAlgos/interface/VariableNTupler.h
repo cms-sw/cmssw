@@ -2,15 +2,13 @@
 #define VariableNtupler_NTupler_H
 
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
-//#include "PhysicsTools/UtilAlgos/interface/UpdaterService.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-#include <FWCore/Framework/interface/ProducerBase.h>
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
-//#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TTree.h"
 #include "TBranch.h"
@@ -50,7 +48,7 @@ public:
     }
   }
 
-  uint registerleaves(edm::ProducerBase* producer) override {
+  uint registerleaves(edm::ProducesCollector producesCollector) override {
     uint nLeaves = 0;
     if (useTFileService_) {
       //loop the leaves registered
@@ -89,7 +87,7 @@ public:
         nLeaves++;
         std::string lName(i->first);
         std::replace(lName.begin(), lName.end(), '_', '0');
-        producer->produces<double>(lName).setBranchAlias(i->first);
+        producesCollector.produces<double>(lName).setBranchAlias(i->first);
       }
     }
     return nLeaves;

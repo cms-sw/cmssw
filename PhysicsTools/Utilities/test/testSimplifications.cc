@@ -2,8 +2,7 @@
 #include "PhysicsTools/Utilities/interface/Simplify.h"
 #include "PhysicsTools/Utilities/interface/Fraction.h"
 #include "PhysicsTools/Utilities/interface/Variables.h"
-#include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
+#include <type_traits>
 
 class testSimplifications : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testSimplifications);
@@ -20,7 +19,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testSimplifications);
 
 void testSimplifications::checkAll() {
   using namespace funct;
-  using namespace boost;
+  using namespace std;
   static_assert((is_same<Sum<Numerical<2>, Numerical<3> >::type, Numerical<5> >::value));
 
   static_assert((is_same<Difference<Numerical<2>, Numerical<3> >::type, Numerical<-1> >::value));

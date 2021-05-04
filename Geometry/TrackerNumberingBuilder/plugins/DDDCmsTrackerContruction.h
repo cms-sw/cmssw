@@ -10,16 +10,19 @@
 class GeometricDet;
 class DDCompactView;
 
+namespace cms {
+  class DDCompactView;
+}
+
 /**
  * High level class to build a tracker. It will only build subdets,
  * then call subdet builders
  */
 
-class DDDCmsTrackerContruction {
-public:
-  DDDCmsTrackerContruction() = delete;
-  ///takes ownership of detidShifts
-  static std::unique_ptr<GeometricDet> construct(DDCompactView const& cpv, std::vector<int> const& detidShifts);
-};
+namespace DDDCmsTrackerContruction {
+  std::unique_ptr<GeometricDet> construct(DDCompactView const& cpv, std::vector<int> const& detidShifts);
+  std::unique_ptr<GeometricDet> construct(cms::DDCompactView const& cpv, std::vector<int> const& detidShifts);
+  void printAllTrackerGeometricDets(const GeometricDet* tracker);
+};  // namespace DDDCmsTrackerContruction
 
 #endif

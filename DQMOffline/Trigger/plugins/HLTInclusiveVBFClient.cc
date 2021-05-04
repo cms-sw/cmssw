@@ -18,12 +18,6 @@ HLTInclusiveVBFClient::HLTInclusiveVBFClient(const edm::ParameterSet& iConfig) :
   }
 
   //
-  if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-    if (dbe_)
-      dbe_->setVerbose(0);
-  }
-
-  //
   debug_ = false;
   verbose_ = false;
 
@@ -43,8 +37,6 @@ HLTInclusiveVBFClient::HLTInclusiveVBFClient(const edm::ParameterSet& iConfig) :
 
 HLTInclusiveVBFClient::~HLTInclusiveVBFClient() = default;
 
-void HLTInclusiveVBFClient::beginJob() {}
-
 void HLTInclusiveVBFClient::beginRun(const edm::Run& r, const edm::EventSetup& context) {}
 
 void HLTInclusiveVBFClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
@@ -54,8 +46,6 @@ void HLTInclusiveVBFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiS
 }
 
 void HLTInclusiveVBFClient::endRun(const edm::Run& r, const edm::EventSetup& context) {}
-
-void HLTInclusiveVBFClient::endJob() {}
 
 void HLTInclusiveVBFClient::runClient_() {
   if (!dbe_)

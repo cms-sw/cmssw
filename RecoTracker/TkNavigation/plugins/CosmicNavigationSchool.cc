@@ -3,6 +3,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include <vector>
 
@@ -343,9 +344,9 @@ public:
   SkippingLayerCosmicNavigationSchoolESProducer(const edm::ParameterSet& iConfig) : config_(iConfig) {
     //the following line is needed to tell the framework what
     // data is being produced
-    setWhatProduced(this, iConfig.getParameter<std::string>("ComponentName"))
-        .setConsumes(magFieldToken_)
-        .setConsumes(geometricSearchTrackerToken_);
+    auto cc = setWhatProduced(this, iConfig.getParameter<std::string>("ComponentName"));
+    magFieldToken_ = cc.consumes();
+    geometricSearchTrackerToken_ = cc.consumes();
   }
 
   using ReturnType = std::unique_ptr<NavigationSchool>;

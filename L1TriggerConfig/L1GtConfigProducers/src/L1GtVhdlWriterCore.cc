@@ -729,8 +729,7 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector<std::map<int, std::stri
       algorithmsChip2[pin] = logicalExpr;
       if (debugMode_)
         algorithmsChip2[pin] += ("-- " + logicalExprCopy);
-    } else
-      ;
+    }
 
     algoIter++;
   }

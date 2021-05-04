@@ -2,9 +2,8 @@
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -30,7 +29,7 @@ ShallowSimTracksProducer::ShallowSimTracksProducer(const edm::ParameterSet& conf
   produces<std::vector<double>>(Prefix + "vz" + Suffix);
 }
 
-void ShallowSimTracksProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+void ShallowSimTracksProducer::produce(edm::Event& event, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<reco::Track>> tracks;
   event.getByToken(tracks_token_, tracks);
   edm::Handle<TrackingParticleCollection> trackingParticles;

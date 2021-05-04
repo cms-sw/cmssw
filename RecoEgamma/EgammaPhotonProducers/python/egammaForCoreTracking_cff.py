@@ -7,9 +7,9 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECAL_cfi import par
 #cant use the regression as requires #vertices and we cant use tracking info
 #also require it to be above 20 GeV as we only want E/gammas Et>20 and H/E <0.2
 particleFlowSuperClusterECALForTrk = _particleFlowSuperClusterECAL.clone(
-     useRegression = cms.bool(False),
+     useRegression = False,
      regressionConfig = cms.PSet(),
-     thresh_SCEt = cms.double(20.0)
+     thresh_SCEt = 20.0
 )
 
 egammasForTrk = cms.EDProducer( "EgammaHLTRecoEcalCandidateProducers",

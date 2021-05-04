@@ -61,7 +61,7 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
   std::string stitle;
   std::vector<MonitorElement*> vME;
   std::vector<std::string> MEStrings = iget_.getMEs();
-  std::for_each(MEStrings.begin(), MEStrings.end(), [&](auto& s) { s.insert(0, offsetDir.c_str()); });
+  std::for_each(MEStrings.begin(), MEStrings.end(), [&](auto& s) { s.insert(0, offsetDir); });
 
   // temporary ME and root objects
   MonitorElement* mtmp;

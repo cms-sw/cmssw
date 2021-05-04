@@ -42,7 +42,7 @@ def _modifyPixelDigitizerForRun3( digitizer ):
 
     digitizer.ThresholdInElectrons_FPix = cms.double(1600.0)
     digitizer.ThresholdInElectrons_BPix = cms.double(1600.0)
-    digitizer.ThresholdInElectrons_BPix_L1 = cms.double(1300.0)
+    digitizer.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
     digitizer.ThresholdInElectrons_BPix_L2 = cms.double(1600.0)
 
 SiPixelSimBlock = cms.PSet(

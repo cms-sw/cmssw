@@ -15,57 +15,57 @@ from L1Trigger.HardwareValidation.L1Comparator_cfi import *
 from L1Trigger.HardwareValidation.L1ComparatorforStage1_cfi import *
 
 # subsystem sequences
-deEcal = cms.Sequence(valEcalTriggerPrimitiveDigis)
-deHcal = cms.Sequence(valHcalTriggerPrimitiveDigis)
-deRct = cms.Sequence(valRctDigis)
-deGct = cms.Sequence(valGctDigis)
-deStage1Layer2 = cms.Sequence(
+deEcal = cms.Task(valEcalTriggerPrimitiveDigis)
+deHcal = cms.Task(valHcalTriggerPrimitiveDigis)
+deRct = cms.Task(valRctDigis)
+deGct = cms.Task(valGctDigis)
+deStage1Layer2 = cms.Task(
     valRctUpgradeFormatDigis
-    *valCaloStage1Digis
-    #*simCaloStage1FinalDigis
-    *valCaloStage1LegacyFormatDigis
+    ,valCaloStage1Digis
+    #,simCaloStage1FinalDigis
+    ,valCaloStage1LegacyFormatDigis
     )
-deDt = cms.Sequence(valDtTriggerPrimitiveDigis)
-deCsc = cms.Sequence(valCscTriggerPrimitiveDigis)
-deCsctfTracks = cms.Sequence(valCsctfTrackDigis)
-deDttf = cms.Sequence(valDttfDigis)
-deCsctf = cms.Sequence(valCsctfDigis)
-deRpc = cms.Sequence(valRpcTriggerDigis)
-deGmt = cms.Sequence(valGmtDigis)
-deGt = cms.Sequence(valGtDigis)
-deStage1Gt = cms.Sequence(valStage1GtDigis)
+deDt = cms.Task(valDtTriggerPrimitiveDigis)
+deCsc = cms.Task(valCscTriggerPrimitiveDigis)
+deCsctfTracks = cms.Task(valCsctfTrackDigis)
+deDttf = cms.Task(valDttfDigis)
+deCsctf = cms.Task(valCsctfDigis)
+deRpc = cms.Task(valRpcTriggerDigis)
+deGmt = cms.Task(valGmtDigis)
+deGt = cms.Task(valGtDigis)
+deStage1Gt = cms.Task(valStage1GtDigis)
 
 # the sequence
-L1HardwareValidation = cms.Sequence(
-                                deEcal+
-                                deHcal+
-                                deRct+
-                                deGct+
-                                deDt+
-                                deCsc+
-                                deCsctfTracks +
-                                deDttf+
-                                deCsctf+
-                                deRpc+
-                                deGmt+
-                                deGt*
+L1HardwareValidationTask = cms.Task(
+                                deEcal,
+                                deHcal,
+                                deRct,
+                                deGct,
+                                deDt,
+                                deCsc,
+                                deCsctfTracks ,
+                                deDttf,
+                                deCsctf,
+                                deRpc,
+                                deGmt,
+                                deGt,
                                 l1compare)
+L1HardwareValidation = cms.Sequence(L1HardwareValidationTask)
 
-L1HardwareValidationforStage1 = cms.Sequence(
-                                deEcal+
-                                deHcal+
-                                deRct+
-                                deStage1Layer2+
-                                deGct+
-                                deDt+
-                                deCsc+
-                                deCsctfTracks +
-                                deDttf+
-                                deCsctf+
-                                deRpc+
-                                deGmt+
-                                deStage1Gt*
+L1HardwareValidationforStage1Task = cms.Task(
+                                deEcal,
+                                deHcal,
+                                deRct,
+                                deStage1Layer2,
+                                deGct,
+                                deDt,
+                                deCsc,
+                                deCsctfTracks ,
+                                deDttf,
+                                deCsctf,
+                                deRpc,
+                                deGmt,
+                                deStage1Gt,
                                 l1compareforstage1)
-
-
+L1HardwareValidationforStage1 = cms.Sequence(L1HardwareValidationforStage1Task)
 

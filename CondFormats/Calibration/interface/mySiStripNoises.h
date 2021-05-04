@@ -5,8 +5,8 @@
 
 #include <vector>
 #include <map>
+#include <cstdint>
 //#include<iostream>
-#include <boost/cstdint.hpp>
 
 //typedef float SiStripNoise;
 //typedef bool  SiStripDisable;

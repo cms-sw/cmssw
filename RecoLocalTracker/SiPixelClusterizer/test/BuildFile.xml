@@ -2,7 +2,6 @@
 <use name="clhep"/>
 <use name="root"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="CondFormats/L1TObjects"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/L1GlobalTrigger"/>
@@ -10,7 +9,7 @@
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/PluginManager"/>
+<use name="FWCore/Utilities"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="L1Trigger/GlobalTriggerAnalyzer"/>
@@ -22,12 +21,38 @@
 <library file="ReadPixClusters.cc" name="ReadPixClusters">
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="TestClusters.cc" name="TestClusters">
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="TestWithTracks.cc" name="TestWithTracks">
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="Triplet.cc" name="Triplet">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin file="gpuClustering_t.cu" name="gpuClustering_t">
+  <use name="cuda"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="gpuClustering_t.cu" name="gpuClustering_debug">
+  <use name="cuda"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+  <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+</bin>
+
+<bin file="cpuClustering_t.cpp" name="cpuClustering_t">
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="cpuClustering_t.cpp" name="cpuClustering_debug">
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+</bin>

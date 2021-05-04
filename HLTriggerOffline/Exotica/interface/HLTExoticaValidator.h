@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaSubAnalysis.h"
@@ -34,7 +34,7 @@ struct EVTColContainer;
 /// of one single analysis. Each of those, in turn, books a
 /// vector if HLTExoticaPlotters to make plots for each
 /// HLT path
-class HLTExoticaValidator : public DQMEDAnalyzer {
+class HLTExoticaValidator : public DQMOneEDAnalyzer<> {
 public:
   /// Constructor and destructor
   HLTExoticaValidator(const edm::ParameterSet &);
@@ -50,7 +50,7 @@ private:
   void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
   /// Method called for each event.
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-  void endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
+  void dqmEndRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
   void endJob() override;
 
   /// Copy (to be modified) of the input ParameterSet from configuration file.

@@ -1,38 +1,13 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-
-#include <algorithm>
 #include <iostream>
+#include <algorithm>
 
-//#define EDM_ML_DEBUG
-
-EgammaHadTower::EgammaHadTower(const edm::EventSetup& es, HoeMode mode) : mode_(mode) {
-  edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
-  es.get<CaloGeometryRecord>().get(ctmaph);
-  towerMap_ = &(*ctmaph);
-  NMaxClusters_ = 4;
-
-  edm::ESHandle<HcalChannelQuality> hQuality;
-  es.get<HcalChannelQualityRcd>().get("withTopo", hQuality);
-  hcalQuality_ = hQuality.product();
-
-  edm::ESHandle<HcalTopology> hcalTopology;
-  es.get<HcalRecNumberingRecord>().get(hcalTopology);
-  hcalTopology_ = hcalTopology.product();
-}
-
-CaloTowerDetId EgammaHadTower::towerOf(const reco::CaloCluster& cluster) const {
+CaloTowerDetId egamma::towerOf(const reco::CaloCluster& cluster, CaloTowerConstituentsMap const& towerMap) {
   DetId detid = cluster.seed();
   if (detid.det() != DetId::Ecal) {
     // Basic clusters of hybrid super-cluster do not have the seed set; take the first DetId instead
@@ -43,38 +18,38 @@ CaloTowerDetId EgammaHadTower::towerOf(const reco::CaloCluster& cluster) const {
       return tower;
     }
   }
-  CaloTowerDetId id(towerMap_->towerOf(detid));
+  CaloTowerDetId id(towerMap.towerOf(detid));
   return id;
 }
 
-std::vector<CaloTowerDetId> EgammaHadTower::towersOf(const reco::SuperCluster& sc) const {
+std::vector<CaloTowerDetId> egamma::towersOf(const reco::SuperCluster& sc,
+                                             CaloTowerConstituentsMap const& towerMap,
+                                             HoeMode mode) {
+  constexpr unsigned int nMaxClusters = 4;
+
   std::vector<CaloTowerDetId> towers;
   std::vector<reco::CaloClusterPtr> orderedClusters;
 
   // in this mode, check only the tower behind the seed
-  if (mode_ == SingleTower) {
-    towers.push_back(towerOf(*sc.seed()));
+  if (mode == HoeMode::SingleTower) {
+    towers.push_back(towerOf(*sc.seed(), towerMap));
   }
 
   // in this mode check the towers behind each basic cluster
-  if (mode_ == TowersBehindCluster) {
+  if (mode == HoeMode::TowersBehindCluster) {
     // Loop on the basic clusters
-    reco::CaloCluster_iterator it = sc.clustersBegin();
-    reco::CaloCluster_iterator itend = sc.clustersEnd();
-
-    for (; it != itend; ++it) {
+    for (auto it = sc.clustersBegin(); it != sc.clustersEnd(); ++it) {
       orderedClusters.push_back(*it);
     }
-    std::sort(orderedClusters.begin(), orderedClusters.end(), ClusterGreaterThan);
+    std::sort(orderedClusters.begin(), orderedClusters.end(), [](auto& c1, auto& c2) { return (*c1 > *c2); });
     unsigned nclusters = orderedClusters.size();
-    for (unsigned iclus = 0; iclus < nclusters && iclus < NMaxClusters_; ++iclus) {
+    for (unsigned iclus = 0; iclus < nclusters && iclus < nMaxClusters; ++iclus) {
       // Get the tower
-      CaloTowerDetId id = towerOf(*(orderedClusters[iclus]));
+      CaloTowerDetId id = towerOf(*(orderedClusters[iclus]), towerMap);
 #ifdef EDM_ML_DEBUG
       std::cout << "CaloTowerId " << id << std::endl;
 #endif
-      std::vector<CaloTowerDetId>::const_iterator itcheck = find(towers.begin(), towers.end(), id);
-      if (itcheck == towers.end()) {
+      if (std::find(towers.begin(), towers.end(), id) == towers.end()) {
         towers.push_back(id);
       }
     }
@@ -95,33 +70,30 @@ std::vector<CaloTowerDetId> EgammaHadTower::towersOf(const reco::SuperCluster& s
   return towers;
 }
 
-double EgammaHadTower::getDepth1HcalESum(const std::vector<CaloTowerDetId>& towers) const {
+double egamma::depth1HcalESum(const std::vector<CaloTowerDetId>& towers, CaloTowerCollection const& towerCollection) {
   double esum = 0.;
-  CaloTowerCollection::const_iterator trItr = towerCollection_->begin();
-  CaloTowerCollection::const_iterator trItrEnd = towerCollection_->end();
-  for (; trItr != trItrEnd; ++trItr) {
-    std::vector<CaloTowerDetId>::const_iterator itcheck = find(towers.begin(), towers.end(), trItr->id());
-    if (itcheck != towers.end()) {
-      esum += trItr->ietaAbs() < 18 || trItr->ietaAbs() > 29 ? trItr->hadEnergy() : trItr->hadEnergyHeInnerLayer();
+  for (auto const& tower : towerCollection) {
+    if (std::find(towers.begin(), towers.end(), tower.id()) != towers.end()) {
+      esum += tower.ietaAbs() < 18 || tower.ietaAbs() > 29 ? tower.hadEnergy() : tower.hadEnergyHeInnerLayer();
     }
   }
   return esum;
 }
 
-double EgammaHadTower::getDepth2HcalESum(const std::vector<CaloTowerDetId>& towers) const {
+double egamma::depth2HcalESum(const std::vector<CaloTowerDetId>& towers, CaloTowerCollection const& towerCollection) {
   double esum = 0.;
-  CaloTowerCollection::const_iterator trItr = towerCollection_->begin();
-  CaloTowerCollection::const_iterator trItrEnd = towerCollection_->end();
-  for (; trItr != trItrEnd; ++trItr) {
-    std::vector<CaloTowerDetId>::const_iterator itcheck = find(towers.begin(), towers.end(), trItr->id());
-    if (itcheck != towers.end()) {
-      esum += trItr->hadEnergyHeOuterLayer();
+  for (auto const& tower : towerCollection) {
+    if (std::find(towers.begin(), towers.end(), tower.id()) != towers.end()) {
+      esum += tower.hadEnergyHeOuterLayer();
     }
   }
   return esum;
 }
 
-bool EgammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers) const {
+bool egamma::hasActiveHcal(const std::vector<CaloTowerDetId>& towers,
+                           CaloTowerConstituentsMap const& towerMap,
+                           const HcalChannelQuality& hcalQuality,
+                           HcalTopology const& hcalTopology) {
   bool active = false;
   int statusMask = ((1 << HcalChannelStatus::HcalCellOff) | (1 << HcalChannelStatus::HcalCellMask) |
                     (1 << HcalChannelStatus::HcalCellDead));
@@ -131,7 +103,7 @@ bool EgammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers) co
 #endif
   for (auto towerid : towers) {
     unsigned int ngood = 0, nbad = 0;
-    for (DetId id : towerMap_->constituentsOf(towerid)) {
+    for (DetId id : towerMap.constituentsOf(towerid)) {
       if (id.det() != DetId::Hcal) {
         continue;
       }
@@ -146,7 +118,7 @@ bool EgammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers) co
       // Sunanda's fix for 2017 Plan1
       // and removed protection
       int status =
-          hcalQuality_->getValues((DetId)(hcalTopology_->idFront(HcalDetId(id))), /*throwOnFail=*/true)->getValue();
+          hcalQuality.getValues((DetId)(hcalTopology.idFront(HcalDetId(id))), /*throwOnFail=*/true)->getValue();
 
 #ifdef EDM_ML_DEBUG
       std::cout << "channels status = " << std::hex << status << std::dec << "  int value = " << status << std::endl;
@@ -170,15 +142,3 @@ bool EgammaHadTower::hasActiveHcal(const std::vector<CaloTowerDetId>& towers) co
   }
   return active;
 }
-
-double EgammaHadTower::getDepth1HcalESum(const reco::SuperCluster& sc) const { return getDepth1HcalESum(towersOf(sc)); }
-
-double EgammaHadTower::getDepth2HcalESum(const reco::SuperCluster& sc) const { return getDepth2HcalESum(towersOf(sc)); }
-
-void EgammaHadTower::setTowerCollection(const CaloTowerCollection* towerCollection) {
-  towerCollection_ = towerCollection;
-}
-
-bool EgammaHadTower::hasActiveHcal(const reco::SuperCluster& sc) const { return hasActiveHcal(towersOf(sc)); }
-
-bool ClusterGreaterThan(const reco::CaloClusterPtr& c1, const reco::CaloClusterPtr& c2) { return (*c1 > *c2); }

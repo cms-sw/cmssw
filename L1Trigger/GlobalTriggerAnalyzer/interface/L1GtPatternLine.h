@@ -18,7 +18,7 @@
 
 #include <string>
 #include <map>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 /** A class representing the contents of one line in a pattern file. 
     The contents are represented as (name, value) pairs. Column ids
@@ -32,13 +32,13 @@ public:
                     consists of prefix + the lowest free number (starting at 1)
       @param value  The actual data content of the column.
   */
-  void push(const std::string& prefix, boost::uint32_t value);
+  void push(const std::string& prefix, uint32_t value);
 
   /** Manipulate an existing value. 
       @param name  the name (prefix + no) of the column to set. Do not use _h or _l values here!
       @param value the new value for the column.
   */
-  void set(const std::string& name, boost::uint32_t value);
+  void set(const std::string& name, uint32_t value);
 
   /** Debug dump of contents */
   void print(std::ostream& out) const;
@@ -56,10 +56,10 @@ public:
   std::string name(const std::string& prefix, unsigned int i) const;
 
   /** Accessor. @see has*/
-  boost::uint32_t get(const std::string& name) const;
+  uint32_t get(const std::string& name) const;
 
 private:
-  typedef std::map<std::string, boost::uint32_t> ColumnMap;
+  typedef std::map<std::string, uint32_t> ColumnMap;
   ColumnMap m_columns;
 };
 

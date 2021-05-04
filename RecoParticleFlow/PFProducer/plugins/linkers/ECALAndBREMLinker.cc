@@ -8,13 +8,13 @@ class ECALAndBREMLinker : public BlockElementLinkerBase {
 public:
   ECALAndBREMLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
-        _useKDTree(conf.getParameter<bool>("useKDTree")),
-        _debug(conf.getUntrackedParameter<bool>("debug", false)) {}
+        useKDTree_(conf.getParameter<bool>("useKDTree")),
+        debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree, _debug;
+  bool useKDTree_, debug_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, ECALAndBREMLinker, "ECALAndBREMLinker");
@@ -35,7 +35,7 @@ double ECALAndBREMLinker::testLink(const reco::PFBlockElement* elem1, const reco
   const reco::PFRecTrack& track = bremelem->trackPF();
   const reco::PFTrajectoryPoint& tkAtECAL = track.extrapolatedPoint(ECALShowerMax);
   if (tkAtECAL.isValid()) {
-    dist = LinkByRecHit::testTrackAndClusterByRecHit(track, *clusterref, true, _debug);
+    dist = LinkByRecHit::testTrackAndClusterByRecHit(track, *clusterref, true, debug_);
   }
   return dist;
 }

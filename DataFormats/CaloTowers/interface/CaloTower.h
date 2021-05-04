@@ -79,11 +79,7 @@ public:
   // setters
   void addConstituent(DetId id) { constituents_.push_back(id); }
   void addConstituents(const std::vector<DetId>& ids);
-#ifdef __ROOTCLING__
-  void setConstituents(const std::vector<DetId>& ids) { constituents_ = ids; }
-#else
   void setConstituents(std::vector<DetId>&& ids) { constituents_ = std::move(ids); }
-#endif
   void setEcalTime(int t) { ecalTime_ = t; };
   void setHcalTime(int t) { hcalTime_ = t; };
   void setHcalSubdet(int lastHB, int lastHE, int lastHF, int lastHO) {

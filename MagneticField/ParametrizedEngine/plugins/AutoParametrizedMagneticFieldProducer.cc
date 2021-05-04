@@ -47,7 +47,7 @@ AutoParametrizedMagneticFieldProducer::AutoParametrizedMagneticFieldProducer(con
 {
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
   if (currentOverride_ < 0) {
-    cc.setConsumes(runInfoToken_);
+    runInfoToken_ = cc.consumes();
   }
 }
 
@@ -63,8 +63,7 @@ std::unique_ptr<MagneticField> AutoParametrizedMagneticFieldProducer::produce(co
   }
   float cnc = closerNominaCurrent(current);
 
-  edm::LogInfo("MagneticField|AutoParametrizedMagneticField")
-      << "Current: " << current << message << "; using map for: " << cnc;
+  edm::LogInfo("MagneticField") << "Current: " << current << message << "; using map for: " << cnc;
 
   vector<double> parameters;
 

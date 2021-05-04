@@ -12,7 +12,7 @@
 
 // system include files
 
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 #include "TEveManager.h"
@@ -84,7 +84,7 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) : FWViewManagerBase() 
   std::transform(available.begin(),
                  available.end(),
                  std::inserter(builders, builders.begin()),
-                 boost::bind(&edmplugin::PluginInfo::name_, _1));
+                 std::bind(&edmplugin::PluginInfo::name_, std::placeholders::_1));
 
   if (edmplugin::PluginManager::get()->categoryToInfos().end() !=
       edmplugin::PluginManager::get()->categoryToInfos().find(FWProxyBuilderFactory::get()->category())) {
@@ -93,7 +93,7 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) : FWViewManagerBase() 
     std::transform(available.begin(),
                    available.end(),
                    std::inserter(builders, builders.begin()),
-                   boost::bind(&edmplugin::PluginInfo::name_, _1));
+                   std::bind(&edmplugin::PluginInfo::name_, std::placeholders::_1));
   }
 
   for (std::set<std::string>::iterator it = builders.begin(), itEnd = builders.end(); it != itEnd; ++it) {
@@ -110,7 +110,8 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) : FWViewManagerBase() 
   m_views.resize(FWViewType::kTypeSize);
 
   // view construction called via GUI mng
-  FWGUIManager::ViewBuildFunctor f = boost::bind(&FWEveViewManager::buildView, this, _1, _2);
+  FWGUIManager::ViewBuildFunctor f =
+      std::bind(&FWEveViewManager::buildView, this, std::placeholders::_1, std::placeholders::_2);
   for (int i = 0; i < FWViewType::kTypeSize; i++) {
     if (i == FWViewType::kTable || i == FWViewType::kTableHLT || i == FWViewType::kTableL1)
       continue;
@@ -220,9 +221,9 @@ void FWEveViewManager::newItem(const FWEventItem* iItem) {
     // printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
 
     builder->setItem(iItem);
-    iItem->changed_.connect(boost::bind(&FWEveViewManager::modelChanges, this, _1));
-    iItem->goingToBeDestroyed_.connect(boost::bind(&FWEveViewManager::removeItem, this, _1));
-    iItem->itemChanged_.connect(boost::bind(&FWEveViewManager::itemChanged, this, _1));
+    iItem->changed_.connect(std::bind(&FWEveViewManager::modelChanges, this, std::placeholders::_1));
+    iItem->goingToBeDestroyed_.connect(std::bind(&FWEveViewManager::removeItem, this, std::placeholders::_1));
+    iItem->itemChanged_.connect(std::bind(&FWEveViewManager::itemChanged, this, std::placeholders::_1));
 
     // 3.
     // This calud be opaque to the user. I would pass a reference to the m_interactionLists to
@@ -359,7 +360,7 @@ FWEveView* FWEveViewManager::finishViewCreate(std::shared_ptr<FWEveView> view) {
     }
   }
 
-  view->beingDestroyed_.connect(boost::bind(&FWEveViewManager::beingDestroyed, this, _1));
+  view->beingDestroyed_.connect(std::bind(&FWEveViewManager::beingDestroyed, this, std::placeholders::_1));
 
   view->setupEnergyScale();  // notify PB for energy scale
 
@@ -505,8 +506,8 @@ void FWEveViewManager::removeItem(const FWEventItem* item) {
 void FWEveViewManager::setContext(const fireworks::Context* x) {
   FWViewManagerBase::setContext(x);
   x->commonPrefs()->getEnergyScale()->parameterChanged_.connect(
-      boost::bind(&FWEveViewManager::globalEnergyScaleChanged, this));
-  x->commonPrefs()->eventCenterChanged_.connect(boost::bind(&FWEveViewManager::eventCenterChanged, this));
+      std::bind(&FWEveViewManager::globalEnergyScaleChanged, this));
+  x->commonPrefs()->eventCenterChanged_.connect(std::bind(&FWEveViewManager::eventCenterChanged, this));
 }
 
 void FWEveViewManager::globalEnergyScaleChanged() {

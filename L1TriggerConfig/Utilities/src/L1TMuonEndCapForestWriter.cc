@@ -37,7 +37,7 @@ void L1TMuonEndCapForestWriter::analyze(const edm::Event& iEvent, const edm::Eve
   //    else
   evSetup.get<L1TMuonEndCapForestRcd>().get(handle1);
 
-  boost::shared_ptr<L1TMuonEndCapForest> ptr1(new L1TMuonEndCapForest(*(handle1.product())));
+  std::shared_ptr<L1TMuonEndCapForest> ptr1(new L1TMuonEndCapForest(*(handle1.product())));
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {

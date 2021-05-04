@@ -2,8 +2,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
-#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
@@ -16,7 +14,8 @@ CastorDigiToRaw::CastorDigiToRaw(edm::ParameterSet const& conf)
     : castorTag_(conf.getParameter<edm::InputTag>("CASTOR")),
       usingctdc_(conf.getParameter<bool>("CastorCtdc")),
       tok_input_(consumes<CastorDigiCollection>(castorTag_)),
-      tok_put_(produces<FEDRawDataCollection>()) {}
+      tok_put_(produces<FEDRawDataCollection>()),
+      tok_pSetup_(esConsumes<CastorDbService, CastorDbRecord>()) {}
 
 // Functions that gets called by framework every event
 void CastorDigiToRaw::produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const {
@@ -29,8 +28,7 @@ void CastorDigiToRaw::produce(edm::StreamID, edm::Event& e, const edm::EventSetu
     colls.castorCont = castor.product();
   }
   // get the mapping
-  edm::ESHandle<CastorDbService> pSetup;
-  es.get<CastorDbRecord>().get(pSetup);
+  edm::ESHandle<CastorDbService> pSetup = es.getHandle(tok_pSetup_);
   const CastorElectronicsMap* readoutMap = pSetup->getCastorMapping();
   // Step B: Create empty output
   FEDRawDataCollection raw;

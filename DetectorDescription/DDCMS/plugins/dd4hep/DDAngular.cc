@@ -20,7 +20,7 @@ namespace {
   }
 }  // namespace
 
-static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
+static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   DDAlgoArguments args(ctxt, e);
 
@@ -34,8 +34,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   vector<double> rotateSolid = args.value<vector<double> >("RotateSolid");
   Volume mother = ns.volume(args.parentName());
   string childName = args.value<string>("ChildName");
-  if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+  childName = ns.prepend(childName);
   Volume child = ns.volume(childName);
 
   double delta = 0e0;
@@ -61,10 +60,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
                             << "\t  currently it appears " << sz << " times!\n";
   }
   for (unsigned int i = 0; i < sz; i += 3) {
-    if ((i > 180._deg) || (i < 0._deg)) {
+    const double thetaValue = rotateSolid[i];
+    if ((thetaValue > 180._deg) || (thetaValue < 0._deg)) {
       LogDebug("DDAlgorithm") << "\trotateSolid \'theta\' must be in range [0,180*deg]\n"
-                              << "\t  currently it is " << convertRadToDeg(i) << "*deg in rotateSolid[" << double(i)
-                              << "]!\n";
+                              << "\t  currently it is " << convertRadToDeg(thetaValue) << "*deg in rotateSolid["
+                              << double(i) << "]!\n";
     }
     DDAxisAngle temp(fUnitVector(rotateSolid[i], rotateSolid[i + 1]), rotateSolid[i + 2]);
     LogDebug("DDAlgorithm") << "  rotsolid[" << i << "] axis=" << temp.Axis()

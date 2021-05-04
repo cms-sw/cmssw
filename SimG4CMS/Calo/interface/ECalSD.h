@@ -12,11 +12,10 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "CondFormats/GeometryObjects/interface/EcalSimulationParameters.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4String.hh"
 #ifdef plotDebug
 #include <TH2F.h>
 #endif
@@ -42,20 +41,20 @@ protected:
   double getEnergyDeposit(const G4Step *) override;
   int getTrackID(const G4Track *) override;
   uint16_t getDepth(const G4Step *) override;
+  double EnergyCorrected(const G4Step &, const G4Track *) override;
 
 private:
-  void initMap(const G4String &, const edm::EventSetup &);
+  void initMap();
   uint16_t getRadiationLength(const G4StepPoint *hitPoint, const G4LogicalVolume *lv);
   uint16_t getLayerIDForTimeSim();
   double curve_LY(const G4LogicalVolume *);
 
   void getBaseNumber(const G4Step *);
   double getBirkL3(const G4Step *);
-
-  std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &);
-  std::vector<std::string> getStringArray(const std::string &, const DDsvalues_type &);
+  bool isXtal(const G4LogicalVolume *);
 
   // initialised before run
+  const EcalSimulationParameters *ecalSimParameters_;
   EcalNumberingScheme *numberingScheme_;
   bool useWeight, storeTrack, storeRL, storeLayerTimeSim;
   bool useBirk, useBirkL3;

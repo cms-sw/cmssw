@@ -47,11 +47,13 @@
 // DB
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
 #include "CondFormats/DataRecord/interface/CTPPSPixelAnalysisMaskRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelGainCalibrations.h"
-#include "RecoCTPPS/PixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
+#include "CondFormats/DataRecord/interface/CTPPSPixelGainCalibrationsRcd.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
 
+#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
+#include "CondFormats/DataRecord/interface/PPSPixelTopologyRcd.h"
 // user include files
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -95,12 +97,13 @@ private:
   CLHEP::HepRandomEngine* rndEngine_ = nullptr;
   int verbosity_;
 
-  CTPPSPixelGainCalibrationDBService theGainCalibrationDB;
-
   edm::EDGetTokenT<CrossingFrame<PSimHit>> tokenCrossingFramePPSPixel;
+  edm::ESGetToken<CTPPSPixelGainCalibrations, CTPPSPixelGainCalibrationsRcd> gainCalibESToken_;
+  edm::ESGetToken<PPSPixelTopology, PPSPixelTopologyRcd> thePixelTopologyToken_;
 };
 
-CTPPSPixelDigiProducer::CTPPSPixelDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
+CTPPSPixelDigiProducer::CTPPSPixelDigiProducer(const edm::ParameterSet& conf)
+    : conf_(conf), gainCalibESToken_(esConsumes()), thePixelTopologyToken_(esConsumes()) {
   produces<edm::DetSetVector<CTPPSPixelDigi>>();
 
   // register data to consume
@@ -151,24 +154,18 @@ void CTPPSPixelDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<double>("RPixDeadPixelProbability", 0.001);
   desc.add<bool>("RPixDeadPixelSimulationOn", true);
 
-  // CTPPSPixelSimTopology
-  desc.add<double>("RPixActiveEdgeSmearing", 0.020);
-  desc.add<double>("RPixActiveEdgePosition", 0.150);
-
   desc.add<std::string>("mixLabel", "mix");
   desc.add<std::string>("InputCollection", "g4SimHitsCTPPSPixelHits");
   descriptions.add("RPixDetDigitizer", desc);
 }
 
-//
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
 void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
   if (!rndEngine_) {
-    Service<RandomNumberGenerator> rng;
+    edm::Service<edm::RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration")
           << "This class requires the RandomNumberGeneratorService\n"
@@ -179,7 +176,8 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   // get calibration DB
-  theGainCalibrationDB.getDB(iEvent, iSetup);
+  const auto& gainCalibration = iSetup.getData(gainCalibESToken_);
+  const auto& thePixelTopology = iSetup.getData(thePixelTopologyToken_);
 
   // Step A: Get Inputs
   edm::Handle<CrossingFrame<PSimHit>> cf;
@@ -187,20 +185,19 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(tokenCrossingFramePPSPixel, cf);
 
   if (verbosity_) {
-    edm::LogInfo("PPSPixelDigiProducer") << "\n\n=================== Starting SimHit access"
-                                         << "  ===================";
+    edm::LogInfo("PPS") << "PixelDigiProducer \n\n=================== Starting SimHit access"
+                        << "  ===================";
 
     MixCollection<PSimHit> col{cf.product(), std::pair(-0, 0)};
-    edm::LogInfo("PPSPixelDigiProducer") << col;
     MixCollection<PSimHit>::iterator cfi;
     int count = 0;
     for (cfi = col.begin(); cfi != col.end(); cfi++) {
-      edm::LogInfo("PPSPixelDigiProducer")
-          << " Hit " << count << " has tof " << cfi->timeOfFlight() << " trackid " << cfi->trackId() << " bunchcr "
-          << cfi.bunch() << " trigger " << cfi.getTrigger()
-          << ", from EncodedEventId: " << cfi->eventId().bunchCrossing() << " " << cfi->eventId().event()
-          << " bcr from MixCol " << cfi.bunch();
-      edm::LogInfo("PPSPixelDigiProducer") << " Hit: " << (*cfi) << "  " << cfi->exitPoint();
+      edm::LogInfo("PPS") << "PixelDigiProducer"
+                          << " Hit " << count << " has tof " << cfi->timeOfFlight() << " trackid " << cfi->trackId()
+                          << " bunchcr " << cfi.bunch() << " trigger " << cfi.getTrigger()
+                          << ", from EncodedEventId: " << cfi->eventId().bunchCrossing() << " "
+                          << cfi->eventId().event() << " bcr from MixCol " << cfi.bunch();
+      edm::LogInfo("PPS") << " PixelDigiProducer Hit: " << (*cfi) << "  " << cfi->exitPoint();
       count++;
     }
   }
@@ -208,7 +205,7 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   MixCollection<PSimHit> allRPixHits{cf.product(), std::pair(0, 0)};
 
   if (verbosity_)
-    edm::LogInfo("PPSPixelDigiProducer") << "Input MixCollection size = " << allRPixHits.size();
+    edm::LogInfo("PPS") << "PixelDigiProducer Input MixCollection size = " << allRPixHits.size();
 
   //Loop on PSimHit
   simhit_map SimHitMap;
@@ -228,16 +225,15 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     edm::DetSet<CTPPSPixelDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] = std::unique_ptr<RPixDetDigitizer>(
-          new RPixDetDigitizer(conf_, *rndEngine_, it->first, iSetup));  //a digitizer for eny detector
+      theAlgoMap[it->first] = std::make_unique<RPixDetDigitizer>(
+          conf_, *rndEngine_, it->first, thePixelTopology);  //a digitizer for any detector
     }
 
     std::vector<int> input_links;
     std::vector<std::vector<std::pair<int, double>>> output_digi_links;  // links to simhits
 
-    (theAlgoMap.find(it->first)->second)
-        ->run(
-            SimHitMap[it->first], input_links, digi_collector.data, output_digi_links, theGainCalibrationDB.getCalibs());
+    theAlgoMap.at(it->first)->run(
+        SimHitMap[it->first], input_links, digi_collector.data, output_digi_links, &gainCalibration, &thePixelTopology);
 
     if (!digi_collector.data.empty()) {
       theDigiVector.push_back(digi_collector);
@@ -247,7 +243,7 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::unique_ptr<edm::DetSetVector<CTPPSPixelDigi>> digi_output(new edm::DetSetVector<CTPPSPixelDigi>(theDigiVector));
 
   if (verbosity_) {
-    edm::LogInfo("PPSPixelDigiProducer") << "digi_output->size()=" << digi_output->size();
+    edm::LogInfo("PPS") << "PixelDigiProducer digi_output->size()=" << digi_output->size();
   }
 
   iEvent.put(std::move(digi_output));

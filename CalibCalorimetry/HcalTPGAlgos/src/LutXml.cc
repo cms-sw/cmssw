@@ -29,6 +29,7 @@ using namespace std;
 XERCES_CPP_NAMESPACE_USE
 
 LutXml::Config::_Config() {
+  infotype = "LUT";
   ieta = -1000;
   iphi = -1000;
   depth = -1;
@@ -48,6 +49,7 @@ LutXml::Config::_Config() {
   formatrevision = "default_revision";
   targetfirmware = "default_revision";
   generalizedindex = -1;
+  weight = -1;
 }
 
 LutXml::LutXml() : XMLDOMBlock("CFGBrickSet", 1) { init(); }
@@ -81,6 +83,7 @@ void LutXml::addLut(LutXml::Config &_config, XMLDOMBlock *checksums_xml) {
   brickElem = document->createElement(XMLProcessor::_toXMLCh("CFGBrick"));
   rootElem->appendChild(brickElem);
 
+  addParameter("INFOTYPE", "string", _config.infotype);
   addParameter("CREATIONTAG", "string", _config.creationtag);
   addParameter("CREATIONSTAMP", "string", _config.creationstamp);
   addParameter("FORMATREVISION", "string", _config.formatrevision);
@@ -109,6 +112,7 @@ void LutXml::addLut(LutXml::Config &_config, XMLDOMBlock *checksums_xml) {
     addParameter("LUT_TYPE", "int", _config.lut_type);
     addParameter("SLB", "int", _config.fiber);
     addParameter("SLBCHAN", "int", _config.fiberchan);
+    addParameter("WEIGHT", "int", _config.weight);
     addData(to_string(_config.lut.size()), "hex", _config.lut);
   } else if (_config.lut_type == 5) {  // channel masks
     addParameter("MASK_TYPE", "string", "TRIGGERCHANMASK");
@@ -296,37 +300,28 @@ int LutXml::test_access(std::string filename) {
   return 0;
 }
 
-HcalSubdetector LutXml::subdet_from_crate(int crate_, int eta, int depth) {
-  HcalSubdetector result;
-  // HBHE: 0,1,4,5,10,11,14,15,17
-  // HF: 2,9,12
-  // HO: 3,6,7,13
+HcalSubdetector LutXml::subdet_from_crate(int crate_, int slot, int fiber) {
+  // HBHE: 0,1,4,5,10,11,14,15,17 (+20)
+  // HF: 2,9,12  (+20)
+  // HO: 3,6,7,13,18  (+20)
   int crate = crate_ < 20 ? crate_ : crate_ - 20;
-
   if (crate == 2 || crate == 9 || crate == 12)
-    result = HcalForward;
-  else if (crate == 3 || crate == 6 || crate == 7 || crate == 13)
-    result = HcalOuter;
+    return HcalForward;
+  else if (crate == 3 || crate == 6 || crate == 7 || crate == 13 || crate == 18)
+    return HcalOuter;
   else if (crate == 0 || crate == 1 || crate == 4 || crate == 5 || crate == 10 || crate == 11 || crate == 14 ||
            crate == 15 || crate == 17) {
-    if (eta < 16)
-      result = HcalBarrel;
-    else if (eta > 16)
-      result = HcalEndcap;
-    else if (eta == 16 && depth < 3)
-      result = HcalBarrel;
-    else if (eta == 16 && depth >= 3)
-      result = HcalEndcap;
-    else {
-      edm::LogError("LutXml") << "Impossible to determine HCAL subdetector!!!";
-      exit(-1);
-    }
-  } else {
-    edm::LogError("LutXml") << "Impossible to determine HCAL subdetector!!!";
-    exit(-1);
+    if (slot % 3 == 1)
+      return HcalBarrel;
+    else if (slot % 3 == 0)
+      return HcalEndcap;
+    else if (fiber < 12)
+      return HcalBarrel;
+    else
+      return HcalEndcap;
   }
-
-  return result;
+  edm::LogWarning("LutXml::subdet_from_crate") << "crate " << crate_ << " is not accounted for";
+  return HcalEmpty;
 }
 
 int LutXml::a_to_i(char *inbuf) {
@@ -357,6 +352,8 @@ int LutXml::create_lut_map(void) {
       int iphi = -99;
       int depth = -99;
       int crate = -99;
+      int slot = -99;
+      int fiber = -99;
       int lut_type = -99;
       int slb = -99;
       HcalSubdetector subdet;
@@ -371,12 +368,16 @@ int LutXml::create_lut_map(void) {
           depth = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
         if (strcmp(aName, "CRATE") == 0)
           crate = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
+        if (strcmp(aName, "SLOT") == 0)
+          slot = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
+        if (strcmp(aName, "FIBER") == 0)
+          fiber = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
         if (strcmp(aName, "LUT_TYPE") == 0)
           lut_type = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
         if (strcmp(aName, "SLB") == 0)
           slb = a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
       }
-      subdet = subdet_from_crate(crate, abs(ieta), depth);
+      subdet = subdet_from_crate(crate, slot, fiber);
       DOMElement *_data = (DOMElement *)(aBrick->getElementsByTagName(XMLString::transcode("Data"))->item(0));
       char *_str = XMLString::transcode(_data->getFirstChild()->getNodeValue());
 

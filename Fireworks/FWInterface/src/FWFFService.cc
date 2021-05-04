@@ -1,5 +1,6 @@
+#include <functional>
 #include <iostream>
-#include "boost/bind.hpp"
+
 #include "Fireworks/FWInterface/interface/FWFFService.h"
 #include "Fireworks/FWInterface/src/FWFFNavigator.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataManager.h"
@@ -117,8 +118,8 @@ FWFFService::FWFFService(edm::ParameterSet const& ps, edm::ActivityRegistry& ar)
   // in the release area then in the local directory.  It is also possible to
   // override those locations by using the displayConfigurationFilename and
   // geometryFilename in the parameterset.
-  const char* releaseBase = getenv("CMSSW_RELEASE_BASE");
-  const char* workarea = getenv("CMSSW_BASE");
+  const char* releaseBase = std::getenv("CMSSW_RELEASE_BASE");
+  const char* workarea = std::getenv("CMSSW_BASE");
   std::string displayConfigRelFilename = "/src/Fireworks/FWInterface/macros/ffw.fwc";
   std::string geometryRelFilename = "/src/Fireworks/FWInterface/data/cmsGeom10.root";
 
@@ -144,7 +145,7 @@ FWFFService::FWFFService(edm::ParameterSet const& ps, edm::ActivityRegistry& ar)
   CmsShowTaskExecutor::TaskFunctor f;
 
   if (!geometryFilename.empty()) {
-    f = boost::bind(&CmsShowMainBase::loadGeometry, this);
+    f = std::bind(&CmsShowMainBase::loadGeometry, this);
     startupTasks()->addTask(f);
   }
 
@@ -177,7 +178,7 @@ void FWFFService::postBeginJob() {
   // be responsible for returning the control to CMSSW.
   assert(m_Rint);
   CmsShowTaskExecutor::TaskFunctor f;
-  f = boost::bind(&TApplication::Terminate, m_Rint, 0);
+  f = std::bind(&TApplication::Terminate, m_Rint, 0);
   startupTasks()->addTask(f);
   // FIXME: do we really need to delay tasks like this?
   startupTasks()->startDoingTasks();

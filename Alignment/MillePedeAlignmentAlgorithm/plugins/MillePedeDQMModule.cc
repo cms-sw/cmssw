@@ -13,25 +13,26 @@
 #include "TH1F.h"
 
 /*** Core framework functionality ***/
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-/*** Geometry ***/
-#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
-/*** Thresholds from DB ***/
-#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
+/*** Necessary Framework infrastructure ***/
+#include "FWCore/Framework/interface/ProcessBlock.h"
+#include "DataFormats/Alignment/interface/AlignmentToken.h"
 
 MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
-    : mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")) {}
+    : tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      gDetToken_(esConsumes<edm::Transition::BeginRun>()),
+      ptpToken_(esConsumes<edm::Transition::BeginRun>()),
+      aliThrToken_(esConsumes<edm::Transition::BeginRun>()),
+      mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")) {
+  consumes<AlignmentToken, edm::InProcess>(config.getParameter<edm::InputTag>("alignmentTokenSrc"));
+}
 
 MillePedeDQMModule ::~MillePedeDQMModule() {}
 
@@ -52,6 +53,10 @@ void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
   h_zPos = booker.book1D("Zpos", "Alignment fit #DeltaZ;;#mum", 36, 0., 36.);
   h_zRot = booker.book1D("Zrot", "Alignment fit #Delta#theta_{Z};;#murad", 36, 0., 36.);
 
+  statusResults = booker.book2D("statusResults", "Status of SiPixelAli PCL workflow;;", 6, 0., 6., 1, 0., 1.);
+  binariesAvalaible = booker.bookInt("BinariesFound");
+  exitCode = booker.bookString("PedeExitCode", "");
+
   booker.cd();
 }
 
@@ -64,6 +69,11 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
                                        << "Try to read MillePede results before initializing MillePedeFileReader";
   }
   fillExpertHistos();
+  fillStatusHisto(statusResults);
+  binariesAvalaible->Fill(mpReader_->binariesAmount());
+  auto theResults = mpReader_->getResults();
+  std::string exitCodeStr = theResults.getExitMessage();
+  exitCode->Fill(exitCodeStr);
 }
 
 //=============================================================================
@@ -74,25 +84,20 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
   if (!setupChanged(setup))
     return;
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  setup.get<TrackerTopologyRcd>().get(tTopo);
-  edm::ESHandle<GeometricDet> geometricDet;
-  setup.get<IdealGeometryRecord>().get(geometricDet);
-  edm::ESHandle<PTrackerParameters> ptp;
-  setup.get<PTrackerParametersRcd>().get(ptp);
+  const TrackerTopology* const tTopo = &setup.getData(tTopoToken_);
+  const GeometricDet* geometricDet = &setup.getData(gDetToken_);
+  const PTrackerParameters* ptp = &setup.getData(ptpToken_);
 
   // take the thresholds from DB
-  edm::ESHandle<AlignPCLThresholds> thresholdHandle;
-  setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
-  auto thresholds_ = thresholdHandle.product();
+  const auto& thresholds_ = &setup.getData(aliThrToken_);
 
   auto myThresholds = std::make_shared<AlignPCLThresholds>();
   myThresholds->setAlignPCLThresholds(thresholds_->getNrecords(), thresholds_->getThreshold_Map());
 
   TrackerGeomBuilderFromGeometricDet builder;
 
-  const auto trackerGeometry = builder.build(&(*geometricDet), *ptp, &(*tTopo));
-  tracker_ = std::make_unique<AlignableTracker>(trackerGeometry, &(*tTopo));
+  const auto trackerGeometry = builder.build(geometricDet, *ptp, tTopo);
+  tracker_ = std::make_unique<AlignableTracker>(trackerGeometry, tTopo);
 
   const std::string labelerPlugin{"PedeLabeler"};
   edm::ParameterSet labelerConfig{};
@@ -104,6 +109,24 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
 
   mpReader_ = std::make_unique<MillePedeFileReader>(
       mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholds>(myThresholds));
+}
+
+void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {
+  TH2F* histo_status = statusHisto->getTH2F();
+  auto theResults = mpReader_->getResults();
+  theResults.print();
+  histo_status->SetBinContent(1, 1, theResults.getDBUpdated());
+  histo_status->GetXaxis()->SetBinLabel(1, "DB updated");
+  histo_status->SetBinContent(2, 1, theResults.exceedsCutoffs());
+  histo_status->GetXaxis()->SetBinLabel(2, "significant movement");
+  histo_status->SetBinContent(3, 1, theResults.getDBVetoed());
+  histo_status->GetXaxis()->SetBinLabel(3, "DB update vetoed");
+  histo_status->SetBinContent(4, 1, !theResults.exceedsThresholds());
+  histo_status->GetXaxis()->SetBinLabel(4, "within max movement");
+  histo_status->SetBinContent(5, 1, !theResults.exceedsMaxError());
+  histo_status->GetXaxis()->SetBinLabel(5, "within max error");
+  histo_status->SetBinContent(6, 1, !theResults.belowSignificance());
+  histo_status->GetXaxis()->SetBinLabel(6, "above significance");
 }
 
 void MillePedeDQMModule ::fillExpertHistos() {

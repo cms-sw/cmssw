@@ -46,8 +46,12 @@ namespace edm {
         commonProcessParameterSet_(fillCommonProcessParameterSet()),
         processParameterSet_() {
     // Add the products to the product registry
-    productRegistry.copyProduct(eventProductBranchDescription_);
-    productRegistry.copyProduct(runProductBranchDescription_);
+    auto ep = eventProductBranchDescription_;
+    ep.setIsProvenanceSetOnRead();
+    productRegistry.copyProduct(ep);
+    auto rp = runProductBranchDescription_;
+    rp.setIsProvenanceSetOnRead();
+    productRegistry.copyProduct(rp);
   }
 
   ParameterSet LHEProvenanceHelper::fillCommonProcessParameterSet() {

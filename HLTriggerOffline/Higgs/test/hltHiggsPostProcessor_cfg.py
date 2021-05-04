@@ -32,4 +32,3 @@ process.schedule = cms.Schedule(process.edmtome_path,
                                 process.postprocessor_path,
                                 process.dqmsave_path)
 
-process.DQMStore.referenceFileName = ''

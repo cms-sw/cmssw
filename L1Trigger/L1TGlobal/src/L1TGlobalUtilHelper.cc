@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 l1t::L1TGlobalUtilHelper::L1TGlobalUtilHelper(edm::ParameterSet const& pset, edm::ConsumesCollector& iC)
-    : m_consumesCollector(std::move(iC)),
+    : m_consumesCollector(iC),
       m_l1tAlgBlkInputTag(pset.getParameter<edm::InputTag>("l1tAlgBlkInputTag")),
       m_l1tExtBlkInputTag(pset.getParameter<edm::InputTag>("l1tExtBlkInputTag")),
       m_findL1TAlgBlk(false),

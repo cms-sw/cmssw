@@ -33,6 +33,10 @@ public:
    */
   BPHParticleEtaSelect(double eta) : etaMax(eta) {}
 
+  // deleted copy constructor and assignment operator
+  BPHParticleEtaSelect(const BPHParticleEtaSelect& x) = delete;
+  BPHParticleEtaSelect& operator=(const BPHParticleEtaSelect& x) = delete;
+
   /** Destructor
    */
   ~BPHParticleEtaSelect() override {}
@@ -40,7 +44,7 @@ public:
   /** Operations
    */
   /// select particle
-  bool accept(const reco::Candidate& cand) const override { return (fabs(cand.p4().eta()) < etaMax); }
+  bool accept(const reco::Candidate& cand) const override { return (fabs(cand.p4().eta()) <= etaMax); }
 
   /// set eta max
   void setEtaMax(double eta) {
@@ -52,10 +56,6 @@ public:
   double getEtaMax() const { return etaMax; }
 
 private:
-  // private copy and assigment constructors
-  BPHParticleEtaSelect(const BPHParticleEtaSelect& x) = delete;
-  BPHParticleEtaSelect& operator=(const BPHParticleEtaSelect& x) = delete;
-
   double etaMax;
 };
 

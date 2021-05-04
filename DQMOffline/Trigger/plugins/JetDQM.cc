@@ -1,5 +1,5 @@
 #include "DQMOffline/Trigger/plugins/JetDQM.h"
-#include "DataFormats/Math/interface/deltaR.h"
+//#include "DataFormats/Math/interface/deltaR.h"
 
 JetDQM::JetDQM() = default;
 
@@ -14,7 +14,6 @@ void JetDQM::initialise(const edm::ParameterSet& iConfig) {
       iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jet2ptBinning");
   mjj_variable_binning_ =
       iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("mjjBinning");
-
   jeteta_binning_ =
       getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetetaPSet"));
   detajj_binning_ =
@@ -130,7 +129,7 @@ void JetDQM::bookHistograms(DQMStore::IBooker& ibooker) {
 
 void JetDQM::fillHistograms(const std::vector<reco::PFJet>& jets,
                             const reco::PFMET& pfmet,
-                            const int& ls,
+                            const int ls,
                             const bool passCond) {
   // filling histograms (denominator)
   if (!jets.empty()) {

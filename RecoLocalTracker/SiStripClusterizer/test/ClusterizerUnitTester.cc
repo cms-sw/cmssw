@@ -8,28 +8,35 @@
 #include <iostream>
 #include <sstream>
 
-void ClusterizerUnitTester::analyze(const edm::Event&, const edm::EventSetup& es) {
-  detId = 0;
-  for (iter_t group = testGroups.begin(); group < testGroups.end(); group++) {
-    clusterizer = StripClusterizerAlgorithmFactory::create(group->getParameter<PSet>("ClusterizerParameters"));
-    clusterizer->initialize(es);
-    testTheGroup(*group);
+ClusterizerUnitTester::ClusterizerUnitTester(const PSet& conf)
+    : testGroups(conf.getParameter<VPSet>("ClusterizerTestGroups")) {
+  for (const auto& group : testGroups) {
+    clusterizers.push_back(StripClusterizerAlgorithmFactory::create(consumesCollector(),
+                                                                    group.getParameter<PSet>("ClusterizerParameters")));
   }
 }
 
-void ClusterizerUnitTester::testTheGroup(const PSet& group) {
+void ClusterizerUnitTester::analyze(const edm::Event&, const edm::EventSetup& es) {
+  detId = 0;
+  for (std::size_t i = 0; i != testGroups.size(); ++i) {
+    clusterizers[i]->initialize(es);
+    testTheGroup(testGroups[i], clusterizers[i].get());
+  }
+}
+
+void ClusterizerUnitTester::testTheGroup(const PSet& group, const StripClusterizerAlgorithm* clusterizer) {
   std::string label = group.getParameter<std::string>("Label");
   PSet params = group.getParameter<PSet>("ClusterizerParameters");
   VPSet tests = group.getParameter<VPSet>("Tests");
 
   std::cout << "\nTesting group: \"" << label << "\"\n               " << params << std::endl;
-  for (iter_t test = tests.begin(); test < tests.end(); test++) {
-    runTheTest(*test);
+  for (const auto& test : tests) {
+    runTheTest(test, clusterizer);
     detId++;
   }
 }
 
-void ClusterizerUnitTester::runTheTest(const PSet& test) {
+void ClusterizerUnitTester::runTheTest(const PSet& test, const StripClusterizerAlgorithm* clusterizer) {
   std::string label = test.getParameter<std::string>("Label");
   VPSet clusterset = test.getParameter<VPSet>("Clusters");
   VPSet digiset = test.getParameter<VPSet>("Digis");

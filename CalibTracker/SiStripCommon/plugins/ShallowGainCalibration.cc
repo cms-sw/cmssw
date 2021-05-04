@@ -1,6 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowGainCalibration.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "ShallowGainCalibration.h"
 
 using namespace edm;
 using namespace reco;
@@ -9,6 +7,9 @@ using namespace std;
 ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
     : tracks_token_(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("Tracks"))),
       association_token_(consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("Tracks"))),
+      trackerGeometry_token_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      gain_token_(esConsumes<SiStripGain, SiStripGainRcd>()),
+      tkGeom_token_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       Suffix(iConfig.getParameter<std::string>("Suffix")),
       Prefix(iConfig.getParameter<std::string>("Prefix")) {
   produces<std::vector<int>>(Prefix + "trackindex" + Suffix);
@@ -51,11 +52,8 @@ void ShallowGainCalibration::produce(edm::Event& iEvent, const edm::EventSetup& 
   auto gainused = std::make_unique<std::vector<double>>();
   auto gainusedTick = std::make_unique<std::vector<double>>();
 
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-  m_tracker = &(*theTrackerGeometry);
-  edm::ESHandle<SiStripGain> gainHandle;
-  iSetup.get<SiStripGainRcd>().get(gainHandle);
+  m_tracker = &iSetup.getData(trackerGeometry_token_);
+  edm::ESHandle<SiStripGain> gainHandle = iSetup.getHandle(gain_token_);
   edm::Handle<edm::View<reco::Track>> tracks;
   iEvent.getByToken(tracks_token_, tracks);
   edm::Handle<TrajTrackAssociationCollection> associations;
@@ -201,7 +199,7 @@ void ShallowGainCalibration::produce(edm::Event& iEvent, const edm::EventSetup& 
         nstrips->push_back(NStrips);
         saturation->push_back(Saturation);
         overlapping->push_back(Overlapping);
-        farfromedge->push_back(StripCluster ? IsFarFromBorder(&trajState, DetId, &iSetup) : true);
+        farfromedge->push_back(StripCluster ? isFarFromBorder(&trajState, DetId, &iSetup) : true);
         charge->push_back(Charge);
         path->push_back(Path);
 #ifdef ExtendedCALIBTree
@@ -233,74 +231,17 @@ void ShallowGainCalibration::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.put(std::move(gainusedTick), Prefix + "gainusedTick" + Suffix);
 }
 
-/*
-void ShallowGainCalibration::beginJob(const edm::EventSetup& iSetup)
-{
-   printf("Befin JOB\n");
-
-   edm::ESHandle<TrackerGeometry> tkGeom;
-   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-   vector<GeomDet*> Det = tkGeom->dets();
-
-   edm::ESHandle<SiStripGain> gainHandle;
-   iSetup.get<SiStripGainRcd>().get(gainHandle);
-   if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
-
-   for(unsigned int i=0;i<Det.size();i++){
-      DetId  Detid  = Det[i]->geographicalId();
-      int    SubDet = Detid.subdetId();
-
-      if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
-          SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
-
-          StripGeomDetUnit* DetUnit     = dynamic_cast<StripGeomDetUnit*> (Det[i]);
-          if(!DetUnit)continue;
-
-          const StripTopology& Topo     = DetUnit->specificTopology();
-          unsigned int         NAPV     = Topo.nstrips()/128;
-   
-          for(unsigned int j=0;j<NAPV;j++){
-                stAPVGain* APV = new stAPVGain;
-                APV->DetId         = Detid.rawId();
-                APV->APVId         = j;
-                APV->PreviousGain  = 1;
-
-                APVsCollOrdered.push_back(APV);
-                APVsColl[(APV->DetId<<3) | APV->APVId] = APV;
-          }
-      }
-   }
-}
-
-
-void ShallowGainCalibration::beginRun(edm::Run &, const edm::EventSetup &iSetup){
-    printf("BEFIN RUN\n");
-
-    edm::ESHandle<SiStripGain> gainHandle;
-    iSetup.get<SiStripGainRcd>().get(gainHandle);
-    if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
-
-    for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
-       stAPVGain* APV = *it;
-       SiStripApvGain::Range detGainRange = gainHandle->getRange(APV->DetId);
-       APV->PreviousGain = *(detGainRange.first + APV->APVId);
-    }
-}
-*/
-
-bool ShallowGainCalibration::IsFarFromBorder(TrajectoryStateOnSurface* trajState,
+bool ShallowGainCalibration::isFarFromBorder(TrajectoryStateOnSurface* trajState,
                                              const uint32_t detid,
                                              const edm::EventSetup* iSetup) {
-  edm::ESHandle<TrackerGeometry> tkGeom;
-  iSetup->get<TrackerDigiGeometryRecord>().get(tkGeom);
+  edm::ESHandle<TrackerGeometry> tkGeom = iSetup->getHandle(tkGeom_token_);
 
   LocalPoint HitLocalPos = trajState->localPosition();
   LocalError HitLocalError = trajState->localError().positionError();
 
   const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
   if (dynamic_cast<const StripGeomDetUnit*>(it) == nullptr && dynamic_cast<const PixelGeomDetUnit*>(it) == nullptr) {
-    std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
-    return false;
+    throw cms::Exception("Logic Error") << "\t\t this detID doesn't seem to belong to the Tracker";
   }
 
   const BoundPlane plane = it->surface();
@@ -336,9 +277,7 @@ double ShallowGainCalibration::thickness(DetId id) {
     bool isPixel = dynamic_cast<const PixelGeomDetUnit*>(it) != nullptr;
     bool isStrip = dynamic_cast<const StripGeomDetUnit*>(it) != nullptr;
     if (!isPixel && !isStrip) {
-      //FIXME throw exception
-      edm::LogWarning("DeDxHitsProducer") << "\t\t this detID doesn't seem to belong to the Tracker";
-      detThickness = 1.;
+      throw cms::Exception("Logic Error") << "\t\t this detID doesn't seem to belong to the Tracker";
     } else {
       detThickness = it->surface().bounds().thickness();
     }

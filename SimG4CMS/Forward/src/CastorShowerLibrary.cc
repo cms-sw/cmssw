@@ -23,15 +23,15 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "TBranchObject.h"
+#include "TBranch.h"
 
 //#define DebugLog
 
 CastorShowerLibrary::CastorShowerLibrary(const std::string& name, edm::ParameterSet const& p)
     : hf(nullptr),
-      evtInfo(nullptr),
       emBranch(nullptr),
       hadBranch(nullptr),
+      verbose(false),
       nMomBin(0),
       totEvents(0),
       evtPerBin(0),
@@ -77,7 +77,7 @@ void CastorShowerLibrary::initFile(edm::ParameterSet const& p) {
   verbose = m_CS.getUntrackedParameter<bool>("Verbosity", false);
 
   // Open TFile
-  if (pTreeName.find(".") == 0)
+  if (pTreeName.find('.') == 0)
     pTreeName.erase(0, 2);
   const char* nTree = pTreeName.c_str();
   hf = TFile::Open(nTree);
@@ -87,13 +87,13 @@ void CastorShowerLibrary::initFile(edm::ParameterSet const& p) {
     edm::LogError("CastorShower") << "CastorShowerLibrary: opening " << nTree << " failed";
     throw cms::Exception("Unknown", "CastorShowerLibrary") << "Opening of " << pTreeName << " fails\n";
   } else {
-    edm::LogInfo("CastorShower") << "CastorShowerLibrary: opening " << nTree << " successfully";
+    edm::LogVerbatim("CastorShower") << "CastorShowerLibrary: opening " << nTree << " successfully";
   }
 
-  // Check for the TBranch holding EventInfo in "Events" TTree
-  TTree* event = (TTree*)hf->Get("CastorCherenkovPhotons");
+  // Check for the TBranch holding EventVerbatim in "Events" TTree
+  TTree* event = hf->Get<TTree>("CastorCherenkovPhotons");
   if (event) {
-    evtInfo = (TBranchObject*)event->GetBranch(branchEvInfo.c_str());
+    auto evtInfo = event->GetBranch(branchEvInfo.c_str());
     if (evtInfo) {
       loadEventInfo(evtInfo);
     } else {
@@ -107,20 +107,20 @@ void CastorShowerLibrary::initFile(edm::ParameterSet const& p) {
   }
 
   // Get EM and HAD Branchs
-  emBranch = (TBranchObject*)event->GetBranch(branchEM.c_str());
+  emBranch = event->GetBranch(branchEM.c_str());
   if (verbose)
     emBranch->Print();
-  hadBranch = (TBranchObject*)event->GetBranch(branchHAD.c_str());
+  hadBranch = event->GetBranch(branchHAD.c_str());
   if (verbose)
     hadBranch->Print();
-  edm::LogInfo("CastorShower") << "CastorShowerLibrary: Branch " << branchEM << " has " << emBranch->GetEntries()
-                               << " entries and Branch " << branchHAD << " has " << hadBranch->GetEntries()
-                               << " entries";
+  edm::LogVerbatim("CastorShower") << "CastorShowerLibrary: Branch " << branchEM << " has " << emBranch->GetEntries()
+                                   << " entries and Branch " << branchHAD << " has " << hadBranch->GetEntries()
+                                   << " entries";
 }
 
 //=============================================================================================
 
-void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
+void CastorShowerLibrary::loadEventInfo(TBranch* branch) {
   //////////////////////////////////////////////////////////
   //
   //  Get EventInfo from the "TBranch* branch" of Root file
@@ -130,7 +130,8 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
   //
   //////////////////////////////////////////////////////////
 
-  eventInfo = new CastorShowerLibraryInfo();
+  CastorShowerLibraryInfo tempInfo;
+  auto* eventInfo = &tempInfo;
   branch->SetAddress(&eventInfo);
   branch->GetEntry(0);
   // Initialize shower library general parameters
@@ -151,22 +152,38 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
     SLenergies[i] *= CLHEP::GeV;
   }
 
-  edm::LogInfo("CastorShower") << " CastorShowerLibrary::loadEventInfo : "
-                               << "\n \n Total number of events     :  " << totEvents
-                               << "\n   Number of bins  (E)       :  " << nBinsE
-                               << "\n   Number of events/bin (E)  :  " << nEvtPerBinE
-                               << "\n   Number of bins  (Eta)       :  " << nBinsEta
-                               << "\n   Number of events/bin (Eta)  :  " << nEvtPerBinEta
-                               << "\n   Number of bins  (Phi)       :  " << nBinsPhi
-                               << "\n   Number of events/bin (Phi)  :  " << nEvtPerBinPhi << "\n";
+  edm::LogVerbatim("CastorShower") << " CastorShowerLibrary::loadEventInfo : "
+                                   << "\n \n Total number of events     :  " << totEvents
+                                   << "\n   Number of bins  (E)       :  " << nBinsE
+                                   << "\n   Number of events/bin (E)  :  " << nEvtPerBinE
+                                   << "\n   Number of bins  (Eta)       :  " << nBinsEta
+                                   << "\n   Number of events/bin (Eta)  :  " << nEvtPerBinEta
+                                   << "\n   Number of bins  (Phi)       :  " << nBinsPhi
+                                   << "\n   Number of events/bin (Phi)  :  " << nEvtPerBinPhi << "\n";
 
-  for (unsigned int i = 0; i < nBinsE; i++)
-    edm::LogInfo("CastorShower") << "CastorShowerLibrary: SLenergies[" << i << "] = " << SLenergies[i] / CLHEP::GeV
-                                 << " GeV";
-  for (unsigned int i = 0; i < nBinsEta; i++)
-    edm::LogInfo("CastorShower") << "CastorShowerLibrary: SLetas[" << i << "] = " << SLetas[i];
-  for (unsigned int i = 0; i < nBinsPhi; i++)
-    edm::LogInfo("CastorShower") << "CastorShowerLibrary: SLphis[" << i << "] = " << SLphis[i] << " rad";
+  std::stringstream ss1;
+  ss1 << "CastorShowerLibrary: energies in GeV:\n";
+  for (unsigned int i = 0; i < nBinsE; ++i) {
+    if (i > 0 && i / 10 * 10 == i) {
+      ss1 << "\n";
+    }
+    ss1 << " " << SLenergies[i] / CLHEP::GeV;
+  }
+  ss1 << "\nCastorShowerLibrary: etas:\n";
+  for (unsigned int i = 0; i < nBinsEta; ++i) {
+    if (i > 0 && i / 10 * 10 == i) {
+      ss1 << "\n";
+    }
+    ss1 << " " << SLetas[i];
+  }
+  ss1 << "\nCastorShowerLibrary: phis:\n";
+  for (unsigned int i = 0; i < nBinsPhi; ++i) {
+    if (i > 0 && i / 10 * 10 == i) {
+      ss1 << "\n";
+    }
+    ss1 << " " << SLphis[i];
+  }
+  edm::LogVerbatim("CastorShower") << ss1.str();
 }
 
 //=============================================================================================
@@ -199,18 +216,17 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(const G4Step* aStep, bool& 
   // "showerEvent" instance of class CastorShowerEvent
 
   if (isEM) {
-    select(0, pin, etain, phiin);
+    hit = select(0, pin, etain, phiin);
   } else {
-    select(1, pin, etain, phiin);
+    hit = select(1, pin, etain, phiin);
   }
 
-  hit = (*showerEvent);
   return hit;
 }
 
 //=============================================================================================
 
-void CastorShowerLibrary::getRecord(int type, int record) {
+CastorShowerEvent CastorShowerLibrary::getRecord(int type, int record) {
   //////////////////////////////////////////////////////////////
   //
   //  Retrieve event # "record" from the library and stores it
@@ -226,7 +242,8 @@ void CastorShowerLibrary::getRecord(int type, int record) {
   LogDebug("CastorShower") << "CastorShowerLibrary::getRecord: ";
 #endif
   int nrc = record;
-  showerEvent = new CastorShowerEvent();
+  CastorShowerEvent retValue;
+  CastorShowerEvent* showerEvent = &retValue;
   if (type > 0) {
     hadBranch->SetAddress(&showerEvent);
     hadBranch->GetEntry(nrc);
@@ -241,11 +258,12 @@ void CastorShowerLibrary::getRecord(int type, int record) {
                            << nHit << " CastorShowerHits";
 
 #endif
+  return retValue;
 }
 
 //=======================================================================================
 
-void CastorShowerLibrary::select(int type, double pin, double etain, double phiin) {
+CastorShowerEvent CastorShowerLibrary::select(int type, double pin, double etain, double phiin) {
   ////////////////////////////////////////////////////////
   //
   //  Selects an event from the library based on
@@ -270,9 +288,9 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
   int ieta = FindEtaBin(etain);
 #ifdef DebugLog
   if (verbose)
-    edm::LogInfo("CastorShower") << " ienergy = " << ienergy;
+    edm::LogVerbatim("CastorShower") << " ienergy = " << ienergy;
   if (verbose)
-    edm::LogInfo("CastorShower") << " ieta = " << ieta;
+    edm::LogVerbatim("CastorShower") << " ieta = " << ieta;
 #endif
 
   int iphi;
@@ -289,7 +307,7 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
   }
 #ifdef DebugLog
   if (verbose)
-    edm::LogInfo("CastorShower") << " iphi = " << iphi;
+    edm::LogVerbatim("CastorShower") << " iphi = " << iphi;
 #endif
   if (ienergy == -1)
     ienergy = 0;  // if pin < first bin, choose an event in the first one
@@ -301,11 +319,11 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
     irec = int(nEvtPerBinE * (ienergy + r));
 
 #ifdef DebugLog
-  edm::LogInfo("CastorShower") << "CastorShowerLibrary:: Select record " << irec << " of type " << type;
+  edm::LogVerbatim("CastorShower") << "CastorShowerLibrary:: Select record " << irec << " of type " << type;
 #endif
 
   //  Retrieve record number "irec" from the library
-  getRecord(type, irec);
+  return getRecord(type, irec);
 }
 
 //=======================================================================================

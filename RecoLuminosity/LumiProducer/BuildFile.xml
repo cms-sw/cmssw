@@ -3,9 +3,8 @@
 <use name="FWCore/ParameterSet"/>
 <use name="CoralBase"/>
 <use name="RelationalAccess"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
-<use name="Utilities/Xerces"/>
+<use name="stdcxx-fs"/>
 <export>
-   <lib name="1"/>
+  <lib name="1"/>
 </export>

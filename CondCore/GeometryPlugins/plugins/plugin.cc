@@ -26,9 +26,6 @@
 #include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "Geometry/Records/interface/ME0RecoGeometryRcd.h"
 
-#include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
-#include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
-
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
@@ -38,9 +35,11 @@
 #include "CondFormats/GeometryObjects/interface/PHGCalParameters.h"
 #include "Geometry/Records/interface/PHGCalParametersRcd.h"
 
+#include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
+#include "Geometry/Records/interface/VeryForwardIdealGeometryRecord.h"
+
 REGISTER_PLUGIN(GeometryFileRcd, FileBlob);
 REGISTER_PLUGIN(IdealGeometryRecord, PGeometricDet);
-REGISTER_PLUGIN(PGeometricDetExtraRcd, PGeometricDetExtra);
 REGISTER_PLUGIN(PTrackerParametersRcd, PTrackerParameters);
 REGISTER_PLUGIN(PEcalBarrelRcd, PCaloGeometry);
 REGISTER_PLUGIN(PEcalEndcapRcd, PCaloGeometry);
@@ -53,6 +52,7 @@ REGISTER_PLUGIN(PCaloTowerRcd, PCaloGeometry);
 REGISTER_PLUGIN(PZdcRcd, PCaloGeometry);
 REGISTER_PLUGIN(PCastorRcd, PCaloGeometry);
 REGISTER_PLUGIN(CSCRecoDigiParametersRcd, CSCRecoDigiParameters);
+REGISTER_PLUGIN(VeryForwardIdealGeometryRecord, PDetGeomDesc);
 REGISTER_PLUGIN(CSCRecoGeometryRcd, RecoIdealGeometry);
 REGISTER_PLUGIN(DTRecoGeometryRcd, RecoIdealGeometry);
 REGISTER_PLUGIN(RPCRecoGeometryRcd, RecoIdealGeometry);

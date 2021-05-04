@@ -6,7 +6,7 @@
  *
  */
 
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondFormats/GEMObjects/interface/GEMELMap.h"
 #include "CondFormats/DataRecord/interface/GEMELMapRcd.h"
 #include "CondFormats/GEMObjects/interface/GEMeMap.h"

@@ -245,7 +245,8 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
     if (id.ietaAbs() > lastHBRing_ && id.ietaAbs() < firstHFRing_)
       return false;
   }
-  if (id.version() == 0) {
+  // Version 2 TPs should be for HBHE when using 1TS filter scheme
+  if (id.version() == 0 or id.version() == 2) {
     if (id.ietaAbs() > 28) {
       if (triggerMode_ >= HcalTopologyMode::TriggerMode_2017)
         return false;
@@ -265,8 +266,8 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
       return false;
     if (id.ietaAbs() > 39 && ((id.iphi() % 4) != 3))
       return false;
-  } else if (id.version() > 1) {
-    // only versions 0 and 1 are supported
+  } else if (id.version() > 2) {
+    // only versions 0, 1, and 2 are supported
     return false;
   }
 
@@ -753,9 +754,9 @@ int HcalTopology::incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
   else if (aieta == firstHEQuadPhiRing() - 1 && ((id.iphi() + 1) % 4) != 0)
     neighbors[0] =
         HcalDetId(id.subdet(), (aieta + 1) * id.zside(), ((id.iphi() == 1) ? (71) : (id.iphi() - 2)), id.depth());
-  else if (aieta == lastHBRing())
+  else if (aieta == lastHBRing() && id.subdet() == HcalBarrel)
     neighbors[0] = HcalDetId(HcalEndcap, (aieta + 1) * id.zside(), id.iphi(), 1);
-  else if (aieta == lastHERing())
+  else if (aieta == lastHERing() && id.subdet() == HcalEndcap)
     neighbors[0] = HcalDetId(HcalForward, etaHE2HF_ * id.zside(), id.iphi(), 1);
   else
     neighbors[0] = HcalDetId(id.subdet(), (aieta + 1) * id.zside(), id.iphi(), id.depth());
@@ -765,7 +766,7 @@ int HcalTopology::incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
   return n;
 }
 
-/** Decreasing in |ieta|, there are be two neighbors of 40 and 21*/
+/** Decreasing in |ieta|, there are two neighbors of 40 and 21*/
 int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
   int n = 1;
   int aieta = id.ietaAbs();
@@ -790,9 +791,9 @@ int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
       neighbors[1] = HcalDetId(id.subdet(), (aieta - 1) * id.zside(), id.iphi() + 2, id.depth());
   } else if (aieta == 1) {
     neighbors[0] = HcalDetId(id.subdet(), -aieta * id.zside(), id.iphi(), id.depth());
-  } else if (aieta == firstHERing()) {
+  } else if (aieta == firstHERing() && id.subdet() == HcalEndcap) {
     neighbors[0] = HcalDetId(HcalBarrel, (aieta - 1) * id.zside(), id.iphi(), 1);
-  } else if (aieta == firstHFRing()) {
+  } else if (aieta == firstHFRing() && id.subdet() == HcalForward) {
     neighbors[0] = HcalDetId(HcalEndcap, etaHF2HE_ * id.zside(), id.iphi(), 1);
   } else
     neighbors[0] = HcalDetId(id.subdet(), (aieta - 1) * id.zside(), id.iphi(), id.depth());

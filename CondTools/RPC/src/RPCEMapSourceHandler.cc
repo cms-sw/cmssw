@@ -23,7 +23,7 @@ void popcon::RPCEMapSourceHandler::getNewObjects() {
   if (m_validate == 1 && tagInfo().size > 0) {
     std::cout << " Validation was requested, so will check present contents" << std::endl;
     std::cout << "Name of tag : " << tagInfo().name << ", tag size : " << tagInfo().size << ", last object valid since "
-              << tagInfo().lastInterval.first << std::endl;
+              << tagInfo().lastInterval.since << std::endl;
     payload = lastPayload();
   }
 

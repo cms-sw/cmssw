@@ -1,4 +1,11 @@
-<use   name="SimCalorimetry/EcalEBTrigPrimProducers"/>
-<library   file="*.cc" name="SimCalorimetryEcalEBTrigPrimProducersPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="SimCalorimetry/EcalEBTrigPrimAlgos"/>
+<use name="DataFormats/EcalDigi"/>
+<use name="DataFormats/EcalRecHit"/>
+<use name="CalibCalorimetry/EcalTPGTools"/>
+<use name="CondFormats/DataRecord"/>
+<library file="*.cc" name="SimCalorimetryEcalEBTrigPrimProducersPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

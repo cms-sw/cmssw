@@ -23,8 +23,6 @@
 #include <string>
 #include <iosfwd>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 
 //   base class

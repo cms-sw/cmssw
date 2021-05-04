@@ -12,6 +12,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannel.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 class EcalTools {
@@ -27,7 +28,7 @@ public:
       if the channel is next to a dead one, using bit 12 of the
       channel status word
    */
-  static bool isNextToDead(const DetId& id, const edm::EventSetup& es);
+  static bool isNextToDead(const DetId& id, const EcalNextToDeadChannel& es);
 
   /// same as isNextToDead, but will use information from the neighbour
   /** Looks at neighbours in 3x3 and returns true if one of them has

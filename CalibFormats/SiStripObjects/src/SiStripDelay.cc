@@ -24,7 +24,7 @@ void SiStripDelay::fillNewDelay(const SiStripBaseDelay &baseDelay,
 }
 
 float SiStripDelay::getDelay(const uint32_t detId) const {
-  boost::unordered_map<uint32_t, double>::const_iterator it = delays_.find(detId);
+  std::unordered_map<uint32_t, double>::const_iterator it = delays_.find(detId);
   if (it != delays_.end()) {
     return it->second;
   }
@@ -92,7 +92,7 @@ bool SiStripDelay::makeDelay() {
     for (; detIdIt != detIds.end(); ++detIdIt) {
       // The same detIds should be in both maps, if not don't rely on the
       // default initialization
-      boost::unordered_map<uint32_t, double>::iterator delayIt = delays_.find(*detIdIt);
+      std::unordered_map<uint32_t, double>::iterator delayIt = delays_.find(*detIdIt);
       if (delayIt != delays_.end()) {
         delays_[*detIdIt] += (*it)->delay(*detIdIt) * sumSign;
       } else {
@@ -116,7 +116,7 @@ void SiStripDelay::clear() {
 }
 
 void SiStripDelay::printDebug(std::stringstream &ss, const TrackerTopology * /*trackerTopo*/) const {
-  boost::unordered_map<uint32_t, double>::const_iterator it = delays_.begin();
+  std::unordered_map<uint32_t, double>::const_iterator it = delays_.begin();
   for (; it != delays_.end(); ++it) {
     ss << "detId = " << it->first << " delay = " << it->second << std::endl;
   }
@@ -124,7 +124,7 @@ void SiStripDelay::printDebug(std::stringstream &ss, const TrackerTopology * /*t
 
 void SiStripDelay::printSummary(std::stringstream &ss, const TrackerTopology *trackerTopo) const {
   SiStripDetSummary summaryDelays{trackerTopo};
-  boost::unordered_map<uint32_t, double>::const_iterator it = delays_.begin();
+  std::unordered_map<uint32_t, double>::const_iterator it = delays_.begin();
   for (; it != delays_.end(); ++it) {
     summaryDelays.add(it->first, it->second);
   }

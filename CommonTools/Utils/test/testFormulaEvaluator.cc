@@ -586,6 +586,215 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
   }
 
   {
+    reco::FormulaEvaluator f("cos(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::cos(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::Cos(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::Cos(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("sin(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::sin(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::Sin(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::Sin(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("tan(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::tan(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::Tan(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::Tan(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("acos(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::acos(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::ACos(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ACos(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("asin(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::asin(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::ASin(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ASin(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("atan(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::atan(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::ATan(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ATan(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("atan2(-0.5, 0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::atan2(-0.5, 0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::ATan2(-0.5, 0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ATan2(-0.5, 0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("cosh(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::cosh(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::CosH(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::CosH(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("sinh(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::sinh(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::SinH(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::SinH(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("tanh(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::tanh(0.5));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::TanH(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::TanH(0.5));
+  }
+
+  // std::acosh and std::atanh are using delta fabs instead of equality because gcc compute the value differently at compile time.
+  {
+    reco::FormulaEvaluator f("acosh(2.0)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::acosh(2.0)) < 1e-9);
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::ACosH(2.0)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ACosH(2.0));
+  }
+
+  {
+    reco::FormulaEvaluator f("asinh(2.0)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::asinh(2.0));
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::ASinH(2.0)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ASinH(2.0));
+  }
+
+  {
+    reco::FormulaEvaluator f("atanh(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::atanh(0.5)) < 1e-9);
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::ATanH(0.5)");
+
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ATanH(0.5));
+  }
+
+  {
     reco::FormulaEvaluator f("max(max(5,3),2)");
 
     std::vector<double> emptyV;

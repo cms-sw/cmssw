@@ -140,9 +140,8 @@ void TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       std::vector<const FastTrackerRecHit*> selectedRecHits;
 
       // add the seed hits
-      TrajectorySeed::range seedHitRange = seed.recHits();  //Hits in a seed
-      for (TrajectorySeed::const_iterator ihit = seedHitRange.first; ihit != seedHitRange.second; ++ihit) {
-        selectedRecHits.push_back(static_cast<const FastTrackerRecHit*>(&*ihit));
+      for (auto const& recHit : seed.recHits()) {
+        selectedRecHits.push_back(static_cast<const FastTrackerRecHit*>(&recHit));
       }
 
       // prepare to skip seed hits

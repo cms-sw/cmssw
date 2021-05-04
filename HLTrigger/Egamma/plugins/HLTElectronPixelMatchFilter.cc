@@ -62,20 +62,20 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
 HLTElectronPixelMatchFilter::~HLTElectronPixelMatchFilter() = default;
 
 float HLTElectronPixelMatchFilter::calDPhi1Sq(reco::ElectronSeedCollection::const_iterator seed, int charge) const {
-  const float dPhi1Const = seed->subDet1() == 1 ? seed->subDet2() == 1 ? sPhi1B_ : sPhi1I_ : sPhi1F_;
-  float dPhi1 = charge < 0 ? seed->dPhi1() / dPhi1Const : seed->dPhi1Pos() / dPhi1Const;
+  const float dPhi1Const = seed->subDet(0) == 1 ? seed->subDet(1) == 1 ? sPhi1B_ : sPhi1I_ : sPhi1F_;
+  float dPhi1 = charge < 0 ? seed->dPhiNeg(0) / dPhi1Const : seed->dPhiPos(0) / dPhi1Const;
   return dPhi1 * dPhi1;
 }
 
 float HLTElectronPixelMatchFilter::calDPhi2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge) const {
-  const float dPhi2Const = seed->subDet1() == 1 ? seed->subDet2() == 1 ? sPhi2B_ : sPhi2I_ : sPhi2F_;
-  float dPhi2 = charge < 0 ? seed->dPhi2() / dPhi2Const : seed->dPhi2Pos() / dPhi2Const;
+  const float dPhi2Const = seed->subDet(0) == 1 ? seed->subDet(1) == 1 ? sPhi2B_ : sPhi2I_ : sPhi2F_;
+  float dPhi2 = charge < 0 ? seed->dPhiNeg(1) / dPhi2Const : seed->dPhiPos(1) / dPhi2Const;
   return dPhi2 * dPhi2;
 }
 
 float HLTElectronPixelMatchFilter::calDZ2Sq(reco::ElectronSeedCollection::const_iterator seed, int charge) const {
-  const float dRZ2Const = seed->subDet1() == 1 ? seed->subDet2() == 1 ? sZ2B_ : sR2I_ : sR2F_;
-  float dRZ2 = charge < 0 ? seed->dRz2() / dRZ2Const : seed->dRz2Pos() / dRZ2Const;
+  const float dRZ2Const = seed->subDet(0) == 1 ? seed->subDet(1) == 1 ? sZ2B_ : sR2I_ : sR2F_;
+  float dRZ2 = charge < 0 ? seed->dRZNeg(1) / dRZ2Const : seed->dRZPos(1) / dRZ2Const;
   return dRZ2 * dRZ2;
 }
 
@@ -170,7 +170,7 @@ int HLTElectronPixelMatchFilter::getNrOfMatches(edm::Handle<reco::ElectronSeedCo
         float s2Pos = calDPhi1Sq(seedIt, 1) + calDPhi2Sq(seedIt, 1) + calDZ2Sq(seedIt, 1);
 
         const float s2Thres =
-            seedIt->subDet1() == 1 ? seedIt->subDet2() == 1 ? s2BarrelThres_ : s2InterThres_ : s2ForwardThres_;
+            seedIt->subDet(0) == 1 ? seedIt->subDet(1) == 1 ? s2BarrelThres_ : s2InterThres_ : s2ForwardThres_;
         if (s2Neg < s2Thres || s2Pos < s2Thres)
           nrMatch++;
       } else

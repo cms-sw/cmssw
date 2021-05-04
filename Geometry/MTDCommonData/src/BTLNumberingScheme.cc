@@ -48,7 +48,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   uint32_t pos = modName.find("Positive");
 
   const uint32_t zside = (pos <= strlen(modName.c_str()) ? 1 : 0);
-  std::string baseName = modName.substr(modName.find(":") + 1);
+  std::string baseName = modName.substr(modName.find(':') + 1);
 
   // trick to accomodate both 54, 42 and 48 modules designs
   const int modtyp(
@@ -90,12 +90,12 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   // all inputs are fine. Go ahead and decode
 
   BTLDetId thisBTLdetid(zside, rodCopy, modCopy, modtyp, crystal);
-  const int32_t intindex = thisBTLdetid.rawId();
+  const uint32_t intindex = thisBTLdetid.rawId();
 
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "BTL Numbering scheme: "
                           << " rod = " << rodCopy << " zside = " << zside << " module = " << modCopy
-                          << " modtyp = " << modtyp << " crystal = " << crystal << " Raw Id = " << intindex
+                          << " modtyp = " << modtyp << " crystal = " << crystal << " Raw Id = " << intindex << "\n"
                           << thisBTLdetid;
 #endif
 

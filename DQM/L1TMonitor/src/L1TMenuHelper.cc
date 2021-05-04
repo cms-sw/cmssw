@@ -35,14 +35,10 @@ using namespace std;
 //-------------------------------------------------------------------------------------
 //
 //-------------------------------------------------------------------------------------
-L1TMenuHelper::L1TMenuHelper(const edm::EventSetup& iSetup) {
-  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
-  iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
-
-  const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
-
-  m_l1GtMenu = menuRcd.product();                                    // Getting the menu
-  m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());  // Retriving the list of prescale sets
+L1TMenuHelper::L1TMenuHelper(const edm::EventSetup& iSetup, const Tokens& tokens) {
+  m_l1GtMenu = &iSetup.getData(tokens.menu);  // Getting the menu
+  m_prescaleFactorsAlgoTrig =
+      &(iSetup.getData(tokens.l1GtPfAlgo).gtPrescaleFactors());  // Retriving the list of prescale sets
 }
 
 //-------------------------------------------------------------------------------------

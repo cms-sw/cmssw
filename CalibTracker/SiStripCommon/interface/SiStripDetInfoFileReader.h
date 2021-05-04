@@ -23,9 +23,9 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <boost/cstdint.hpp>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <cstdint>
 
 class SiStripDetInfoFileReader {
 public:

@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <DDDefinition>
+
   <debug>
+<!-- 
     <debug_shapes/>
     <debug_includes/>
     <debug_rotations/>
@@ -10,10 +12,11 @@
     <debug_materials/>
     <debug_namespaces/>
     <debug_placements/>
-    <debug_algorithms/>
     <debug_materials/>
     <debug_visattr/>
     <debug_specpars/>
+    <debug_algorithms/>
+-->
   </debug>
   
   <open_geometry/>
@@ -30,7 +33,7 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2021/v1/materials.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms/2021/v1/cms.xml'/>
@@ -48,6 +51,7 @@
     <Include ref='Geometry/CMSCommonData/data/cavern/2017/v2/cavern.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/trackermaterial.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ectkcable.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eregalgo/2017/v1/eregalgo.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebalgo/2021/v1/ebalgo.xml'/>
@@ -61,13 +65,6 @@
     <Include ref='Geometry/EcalCommonData/data/eefixed.xml'/>
     <Include ref='Geometry/EcalCommonData/data/escon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/esalgo/2021/v1/esalgo.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/trackermaterial.xml'/>
+    <Include ref='Geometry/EcalSimData/data/ecalsens.xml'/>
   </IncludeSection>
-  
-  <PosPartSection label="">
-    <PosPart copyNumber="1">
-      <rParent name=":world_volume"/>
-      <rChild name="cms:OCMS"/>
-    </PosPart>
-  </PosPartSection>
 </DDDefinition>

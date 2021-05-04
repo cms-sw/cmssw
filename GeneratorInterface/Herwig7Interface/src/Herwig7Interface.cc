@@ -14,9 +14,6 @@
 
 #include <algorithm>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/filesystem.hpp>
-
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
 #include <HepMC/IO_GenEvent.h>
@@ -92,7 +89,7 @@ void Herwig7Interface::initRepository(const edm::ParameterSet &pset) {
   while (!runModeTemp.empty()) {
     // Split first part of List
     std::string choice;
-    size_t pos = runModeTemp.find(",");
+    size_t pos = runModeTemp.find(',');
     if (std::string::npos == pos)
       choice = runModeTemp;
     else

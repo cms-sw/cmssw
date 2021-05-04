@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
+
 #include "TFormula.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
@@ -65,7 +65,7 @@ protected:
 
   bool isOk(const BinningPointByMap& p, unsigned int&) const;
 
-  const boost::shared_ptr<TFormula>& getFormula(PerformanceResult::ResultType, const BinningPointByMap&) const;
+  const std::shared_ptr<TFormula>& getFormula(PerformanceResult::ResultType, const BinningPointByMap&) const;
 
   //
   // now this is a vector, since we can have different rectangular regions in the same object
@@ -82,7 +82,7 @@ protected:
   //
 
   // the compiled functions
-  std::vector<std::vector<boost::shared_ptr<TFormula> > > compiledFormulas_ COND_TRANSIENT;
+  std::vector<std::vector<std::shared_ptr<TFormula> > > compiledFormulas_ COND_TRANSIENT;
   ;
 
   COND_SERIALIZABLE;

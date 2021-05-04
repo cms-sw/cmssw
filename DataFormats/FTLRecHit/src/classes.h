@@ -17,4 +17,3 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FTLRecHit/interface/FTLRecHitComparison.h"
-#include "boost/cstdint.hpp"

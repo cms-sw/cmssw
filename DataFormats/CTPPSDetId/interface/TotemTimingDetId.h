@@ -61,7 +61,7 @@ public:
 
   //-------------------- id getters for higher-level objects --------------------
 
-  TotemTimingDetId getPlaneId() const { return TotemTimingDetId(rawId() & (~lowMaskPlane)); }
+  TotemTimingDetId planeId() const { return TotemTimingDetId(rawId() & (~lowMaskPlane)); }
 
   //-------------------- name methods --------------------
 

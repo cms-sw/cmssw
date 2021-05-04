@@ -14,8 +14,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,7 +21,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
@@ -31,9 +28,11 @@
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 
 #include <TString.h>
 
@@ -45,7 +44,7 @@
 // class declaration
 //
 
-class L1TRate : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class L1TRate : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   L1TRate(const edm::ParameterSet& ps);  // Constructor
   ~L1TRate() override;                   // Destructor
@@ -55,7 +54,7 @@ protected:
   //void beginJob();                                                   // BeginJob
   //void endJob  ();                                                   // EndJob
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
-  //void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
+  //void dqmEndRun  (const edm::Run& run, const edm::EventSetup& iSetup);
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
@@ -97,6 +96,9 @@ private:
   edm::EDGetTokenT<LumiScalersCollection> m_scalersSource_colLScal;                 // Where to get L1 Scalers
   edm::EDGetTokenT<Level1TriggerScalersCollection> m_scalersSource_triggerScalers;  // Where to get L1 Scalers
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputTag;             // Where to get L1 GT Data DAQ
+  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_menuToken;
+  const edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> m_l1GtPfAlgoToken;
+  L1TMenuHelper::Tokens m_helperTokens;
 
   // ParameterSet
   edm::ParameterSet m_parameters;

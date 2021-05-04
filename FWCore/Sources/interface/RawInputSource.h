@@ -20,9 +20,12 @@ namespace edm {
     ~RawInputSource() override;
     static void fillDescription(ParameterSetDescription& description);
 
+    //Next::kFile is only needed if the ProductRegistry must be updated
+    enum class Next { kEvent, kFile, kStop };
+
   protected:
     void makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary);
-    virtual bool checkNextEvent() = 0;
+    virtual Next checkNext() = 0;
     virtual void read(EventPrincipal& eventPrincipal) = 0;
     void setInputFileTransitionsEachEvent() { inputFileTransitionsEachEvent_ = true; }
 
@@ -34,7 +37,9 @@ namespace edm {
     void rewind_() override;
     ItemType getNextItemType() override;
     void closeFile_() final;
+    std::unique_ptr<FileBlock> readFile_() final;
     virtual void genuineCloseFile() {}
+    virtual void genuineReadFile() {}
 
     bool inputFileTransitionsEachEvent_;
     bool fakeInputFileTransition_;

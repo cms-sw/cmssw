@@ -40,3 +40,12 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
     useRho = cms.bool(True),
     rho = cms.InputTag('fixedGridRhoFastjetAll'),
 )
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(patJetCorrFactors,
+                                           useNPV = False,
+                                           useRho = False,
+                                           levels = ['L2Relative','L3Absolute'],
+                                           payload = "AK4PF",
+                                           src = "akCs4PFJets",
+                                       )

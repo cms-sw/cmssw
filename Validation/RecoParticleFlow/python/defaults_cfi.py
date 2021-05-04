@@ -41,8 +41,8 @@ eHighOffset = 1000
 Defined in PFCandidate.cc
 ParticleTypes (use absolute value)
 211 h,       // charged hadron
-11  e,       // electron 
-13  mu,      // muon 
+11  e,       // electron
+13  mu,      // muon
 22  gamma,   // photon
 130 h0,      // neutral hadron
 1   h_HF,        // HF tower identified as a hadron
@@ -54,6 +54,9 @@ candidateDict = {211:"chm", 11:"lep", 13:"lep", 22:"ne", 130:"nh", 1:"hfh", 2:"h
 #our particle types (note chu = unmatched charged hadrons)
 candidateType = ["chm", "chu", "nh", "ne", "hfh", "hfe", "lep"]
 
+# map reco::PFCandidate::pdgId() to particle type for PFCand
+pdgIDDict = {211: "chargedHadron", 11:"electron", 13:"muon", 22:"photon", 130:"neutralHadron", 1:"HF_hadron", 2: "HF_EM_particle"}
+
 offsetPlotBaseName = 'p_offset_eta'
 offsetDir = 'ParticleFlow/Offset/'
 offsetR = 0.4
@@ -62,4 +65,3 @@ offsetVariableType = ["npv", "mu"]
 
 def offset_name( var, ivar, itype ) :
     return "{0}_{1}{2}_{3}".format( offsetPlotBaseName, var, ivar, itype )
-

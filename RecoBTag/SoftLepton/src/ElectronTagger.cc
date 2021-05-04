@@ -1,4 +1,6 @@
 #include <limits>
+#include <memory>
+
 #include <random>
 
 #include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
@@ -12,10 +14,8 @@
 
 ElectronTagger::Tokens::Tokens(const edm::ParameterSet& cfg, edm::ESConsumesCollector&& cc) {
   if (cfg.getParameter<bool>("useCondDB")) {
-    cc.setConsumes(
-        gbrForest_,
-        edm::ESInputTag{
-            "", cfg.existsAs<std::string>("gbrForestLabel") ? cfg.getParameter<std::string>("gbrForestLabel") : ""});
+    gbrForest_ = cc.consumes(edm::ESInputTag{
+        "", cfg.existsAs<std::string>("gbrForestLabel") ? cfg.getParameter<std::string>("gbrForestLabel") : ""});
   }
 }
 
@@ -25,9 +25,9 @@ ElectronTagger::ElectronTagger(const edm::ParameterSet& cfg, Tokens tokens)
                                                                : edm::FileInPath()),
       m_useGBRForest(cfg.existsAs<bool>("useGBRForest") ? cfg.getParameter<bool>("useGBRForest") : false),
       m_useAdaBoost(cfg.existsAs<bool>("useAdaBoost") ? cfg.getParameter<bool>("useAdaBoost") : false),
-      m_tokens{std::move(tokens)} {
+      m_tokens{tokens} {
   uses("seTagInfos");
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 void ElectronTagger::initialize(const JetTagComputerRecord& record) {

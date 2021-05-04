@@ -11,6 +11,7 @@
 #include "DetectorDescription/Core/interface/DDValuePair.h"
 #include "tbb/concurrent_unordered_map.h"
 #include "tbb/concurrent_vector.h"
+#include "FWCore/Utilities/interface/zero_allocator.h"
 
 /** A DDValue std::maps a std::vector of DDValuePair (std::string,double) to a name. Names of DDValues are stored
  transiently. Furthermore, an ID is assigned std::mapping to the name.
@@ -107,7 +108,7 @@ private:
 
   void init(const std::string&);
 
-  using Names = tbb::concurrent_vector<StringHolder, tbb::zero_allocator<StringHolder>>;
+  using Names = tbb::concurrent_vector<StringHolder, edm::zero_allocator<StringHolder>>;
   static Names& names();
   static Names initializeNames();
 

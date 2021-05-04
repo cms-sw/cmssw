@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 
-Toy edm::stream::EDFilter modules of 
+Toy edm::stream::EDFilter modules of
 edm::*Cache templates and edm::*Producer classes
 for testing purposes only.
 
@@ -19,6 +19,7 @@ for testing purposes only.
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -35,9 +36,17 @@ namespace edmtest {
         mutable std::atomic<unsigned int> lumi;
       };
 
+      struct TestGlobalCacheFil {
+        CMS_THREAD_SAFE mutable edm::EDPutTokenT<unsigned int> token_;
+        CMS_THREAD_SAFE mutable edm::EDGetTokenT<unsigned int> getTokenBegin_;
+        CMS_THREAD_SAFE mutable edm::EDGetTokenT<unsigned int> getTokenEnd_;
+        unsigned int trans_{0};
+        CMS_THREAD_SAFE mutable std::atomic<unsigned int> m_count{0};
+      };
     }  // namespace cache
 
     using Cache = cache::Cache;
+    using TestGlobalCacheFil = cache::TestGlobalCacheFil;
 
     class GlobalIntFilter : public edm::stream::EDFilter<edm::GlobalCache<Cache>> {
     public:
@@ -54,6 +63,13 @@ namespace edmtest {
         trans_ = p.getParameter<int>("transitions");
         cvalue_ = p.getParameter<int>("cachevalue");
         produces<unsigned int>();
+      }
+
+      static void globalBeginJob(Cache* iGlobal) {
+        ++m_count;
+        if (iGlobal->value != 0) {
+          throw cms::Exception("cache value") << iGlobal->value << " but it was supposed to be 0";
+        }
       }
 
       bool filter(edm::Event&, edm::EventSetup const&) override {
@@ -421,6 +437,223 @@ namespace edmtest {
       }
     };
 
+    class ProcessBlockIntFilter
+        : public edm::stream::EDFilter<edm::WatchProcessBlock, edm::GlobalCache<TestGlobalCacheFil>> {
+    public:
+      explicit ProcessBlockIntFilter(edm::ParameterSet const& pset, TestGlobalCacheFil const* testGlobalCache) {
+        produces<unsigned int>();
+
+        {
+          auto tag = pset.getParameter<edm::InputTag>("consumesBeginProcessBlock");
+          if (not tag.label().empty()) {
+            testGlobalCache->getTokenBegin_ = consumes<unsigned int, edm::InProcess>(tag);
+          }
+        }
+        {
+          auto tag = pset.getParameter<edm::InputTag>("consumesEndProcessBlock");
+          if (not tag.label().empty()) {
+            testGlobalCache->getTokenEnd_ = consumes<unsigned int, edm::InProcess>(tag);
+          }
+        }
+      }
+
+      static std::unique_ptr<TestGlobalCacheFil> initializeGlobalCache(edm::ParameterSet const& pset) {
+        auto testGlobalCache = std::make_unique<TestGlobalCacheFil>();
+        testGlobalCache->trans_ = pset.getParameter<int>("transitions");
+        return testGlobalCache;
+      }
+
+      static void beginProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheFil* testGlobalCache) {
+        if (testGlobalCache->m_count != 0) {
+          throw cms::Exception("transitions") << "ProcessBlockIntFilter::begin transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << 0;
+        }
+        ++testGlobalCache->m_count;
+        const unsigned int valueToGet = 71;
+        if (not testGlobalCache->getTokenBegin_.isUninitialized()) {
+          if (processBlock.get(testGlobalCache->getTokenBegin_) != valueToGet) {
+            throw cms::Exception("BadValue")
+                << "expected " << valueToGet << " but got " << processBlock.get(testGlobalCache->getTokenBegin_);
+          }
+        }
+      }
+
+      static std::shared_ptr<Cache> accessInputProcessBlock(edm::ProcessBlock const&, TestGlobalCacheFil*) {
+        return std::make_shared<Cache>();
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        TestGlobalCacheFil const* testGlobalCache = globalCache();
+        if (testGlobalCache->m_count < 1u) {
+          throw cms::Exception("out of sequence") << "produce before beginProcessBlock " << testGlobalCache->m_count;
+        }
+        ++testGlobalCache->m_count;
+        return true;
+      }
+
+      static void endProcessBlock(edm::ProcessBlock const& processBlock, TestGlobalCacheFil* testGlobalCache) {
+        ++testGlobalCache->m_count;
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions") << "ProcessBlockIntFilter::end transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+        {
+          const unsigned int valueToGet = 71;
+          if (not testGlobalCache->getTokenBegin_.isUninitialized()) {
+            if (processBlock.get(testGlobalCache->getTokenBegin_) != valueToGet) {
+              throw cms::Exception("BadValue")
+                  << "expected " << valueToGet << " but got " << processBlock.get(testGlobalCache->getTokenBegin_);
+            }
+          }
+        }
+        {
+          const unsigned int valueToGet = 81;
+          if (not testGlobalCache->getTokenEnd_.isUninitialized()) {
+            if (processBlock.get(testGlobalCache->getTokenEnd_) != valueToGet) {
+              throw cms::Exception("BadValue")
+                  << "expected " << valueToGet << " but got " << processBlock.get(testGlobalCache->getTokenEnd_);
+            }
+          }
+        }
+      }
+
+      static void globalEndJob(TestGlobalCacheFil* testGlobalCache) {
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions") << "ProcessBlockIntFilter transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+      }
+
+      ~ProcessBlockIntFilter() {
+        TestGlobalCacheFil const* testGlobalCache = globalCache();
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions") << "ProcessBlockIntFilter transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+      }
+    };
+
+    class TestBeginProcessBlockFilter
+        : public edm::stream::EDFilter<edm::BeginProcessBlockProducer, edm::GlobalCache<TestGlobalCacheFil>> {
+    public:
+      explicit TestBeginProcessBlockFilter(edm::ParameterSet const& pset, TestGlobalCacheFil const* testGlobalCache) {
+        testGlobalCache->token_ = produces<unsigned int, edm::Transition::BeginProcessBlock>("begin");
+        produces<unsigned int>();
+
+        auto tag = pset.getParameter<edm::InputTag>("consumesBeginProcessBlock");
+        if (not tag.label().empty()) {
+          testGlobalCache->getTokenBegin_ = consumes<unsigned int, edm::InProcess>(tag);
+        }
+      }
+
+      static std::unique_ptr<TestGlobalCacheFil> initializeGlobalCache(edm::ParameterSet const& pset) {
+        auto testGlobalCache = std::make_unique<TestGlobalCacheFil>();
+        testGlobalCache->trans_ = pset.getParameter<int>("transitions");
+        return testGlobalCache;
+      }
+
+      static void beginProcessBlockProduce(edm::ProcessBlock& processBlock, TestGlobalCacheFil const* testGlobalCache) {
+        if (testGlobalCache->m_count != 0) {
+          throw cms::Exception("transitions") << "TestBeginProcessBlockFilter transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << 0;
+        }
+        ++testGlobalCache->m_count;
+
+        const unsigned int valueToPutAndGet = 71;
+        processBlock.emplace(testGlobalCache->token_, valueToPutAndGet);
+
+        if (not testGlobalCache->getTokenBegin_.isUninitialized()) {
+          if (processBlock.get(testGlobalCache->getTokenBegin_) != valueToPutAndGet) {
+            throw cms::Exception("BadValue")
+                << "expected " << valueToPutAndGet << " but got " << processBlock.get(testGlobalCache->getTokenBegin_);
+          }
+        }
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        TestGlobalCacheFil const* testGlobalCache = globalCache();
+        if (testGlobalCache->m_count < 1u) {
+          throw cms::Exception("out of sequence")
+              << "produce before beginProcessBlockProduce " << testGlobalCache->m_count;
+        }
+        ++testGlobalCache->m_count;
+        return true;
+      }
+
+      static void globalEndJob(TestGlobalCacheFil* testGlobalCache) {
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions") << "TestBeginProcessBlockFilter transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+      }
+
+      ~TestBeginProcessBlockFilter() {
+        TestGlobalCacheFil const* testGlobalCache = globalCache();
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions") << "TestBeginProcessBlockFilter transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+      }
+    };
+
+    class TestEndProcessBlockFilter
+        : public edm::stream::EDFilter<edm::EndProcessBlockProducer, edm::GlobalCache<TestGlobalCacheFil>> {
+    public:
+      explicit TestEndProcessBlockFilter(edm::ParameterSet const& pset, TestGlobalCacheFil const* testGlobalCache) {
+        testGlobalCache->token_ = produces<unsigned int, edm::Transition::EndProcessBlock>("end");
+        produces<unsigned int>();
+
+        auto tag = pset.getParameter<edm::InputTag>("consumesEndProcessBlock");
+        if (not tag.label().empty()) {
+          testGlobalCache->getTokenEnd_ = consumes<unsigned int, edm::InProcess>(tag);
+        }
+      }
+
+      static std::unique_ptr<TestGlobalCacheFil> initializeGlobalCache(edm::ParameterSet const& pset) {
+        auto testGlobalCache = std::make_unique<TestGlobalCacheFil>();
+        testGlobalCache->trans_ = pset.getParameter<int>("transitions");
+        return testGlobalCache;
+      }
+
+      bool filter(edm::Event&, edm::EventSetup const&) override {
+        TestGlobalCacheFil const* testGlobalCache = globalCache();
+        ++testGlobalCache->m_count;
+        return true;
+      }
+
+      static void endProcessBlockProduce(edm::ProcessBlock& processBlock, TestGlobalCacheFil const* testGlobalCache) {
+        ++testGlobalCache->m_count;
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions") << "TestEndProcessBlockFilter transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+
+        const unsigned int valueToPutAndGet = 81;
+        processBlock.emplace(testGlobalCache->token_, valueToPutAndGet);
+        if (not testGlobalCache->getTokenEnd_.isUninitialized()) {
+          if (processBlock.get(testGlobalCache->getTokenEnd_) != valueToPutAndGet) {
+            throw cms::Exception("BadValue")
+                << "expected " << valueToPutAndGet << " but got " << processBlock.get(testGlobalCache->getTokenEnd_);
+          }
+        }
+      }
+
+      static void globalEndJob(TestGlobalCacheFil* testGlobalCache) {
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions") << "TestEndProcessBlockFilter transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+      }
+
+      ~TestEndProcessBlockFilter() {
+        TestGlobalCacheFil const* testGlobalCache = globalCache();
+        if (testGlobalCache->m_count != testGlobalCache->trans_) {
+          throw cms::Exception("transitions") << "~TestEndProcessBlockFilter transitions " << testGlobalCache->m_count
+                                              << " but it was supposed to be " << testGlobalCache->trans_;
+        }
+      }
+    };
+
     class TestBeginRunFilter : public edm::stream::EDFilter<edm::RunCache<Cache>, edm::BeginRunProducer> {
     public:
       static std::atomic<unsigned int> m_count;
@@ -712,6 +945,9 @@ DEFINE_FWK_MODULE(edmtest::stream::RunIntFilter);
 DEFINE_FWK_MODULE(edmtest::stream::LumiIntFilter);
 DEFINE_FWK_MODULE(edmtest::stream::RunSummaryIntFilter);
 DEFINE_FWK_MODULE(edmtest::stream::LumiSummaryIntFilter);
+DEFINE_FWK_MODULE(edmtest::stream::ProcessBlockIntFilter);
+DEFINE_FWK_MODULE(edmtest::stream::TestBeginProcessBlockFilter);
+DEFINE_FWK_MODULE(edmtest::stream::TestEndProcessBlockFilter);
 DEFINE_FWK_MODULE(edmtest::stream::TestBeginRunFilter);
 DEFINE_FWK_MODULE(edmtest::stream::TestEndRunFilter);
 DEFINE_FWK_MODULE(edmtest::stream::TestBeginLumiBlockFilter);

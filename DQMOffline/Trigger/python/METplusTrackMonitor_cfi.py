@@ -66,5 +66,4 @@ hltMETplusTrackMonitoring.denGenericTriggerEventPSet.dcsPartitions  = cms.vint32
 hltMETplusTrackMonitoring.denGenericTriggerEventPSet.andOrDcs       = cms.bool( False )
 hltMETplusTrackMonitoring.denGenericTriggerEventPSet.errorReplyDcs  = cms.bool( True )
 hltMETplusTrackMonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
-hltMETplusTrackMonitoring.denGenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_IsoMu27_v*", "HLT_IsoTkMu27_v*")
-
+hltMETplusTrackMonitoring.denGenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_IsoMu27_v*")

@@ -185,10 +185,3 @@ void TrackingTruthValid::analyze(const edm::Event &event, const edm::EventSetup 
   }  // End loop over TrackingVertex
   */
 }
-
-void TrackingTruthValid::endJob() {
-  // Only in standalone mode save local root file
-  if (runStandalone && !outputFile.empty() && dbe_) {
-    dbe_->save(outputFile);
-  }
-}

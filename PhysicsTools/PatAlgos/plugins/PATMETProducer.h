@@ -45,9 +45,9 @@ namespace pat {
   private:
     // configurables
     edm::InputTag metSrc_;
-    edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+    edm::EDGetTokenT<edm::View<reco::MET>> metToken_;
     bool addGenMET_;
-    edm::EDGetTokenT<edm::View<reco::GenMET> > genMETToken_;
+    edm::EDGetTokenT<edm::View<reco::GenMET>> genMETToken_;
     bool addResolutions_;
     pat::helper::KinResolutionsLoader resolutionLoader_;
     bool addMuonCorr_;
@@ -64,15 +64,19 @@ namespace pat {
     //MET Significance
     bool calculateMETSignificance_;
     metsig::METSignificance* metSigAlgo_;
-    edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
-    edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandToken_;
-    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+    edm::EDGetTokenT<edm::View<reco::Jet>> jetToken_;
+    edm::EDGetTokenT<edm::View<reco::Candidate>> pfCandToken_;
+    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>> lepTokens_;
     edm::EDGetTokenT<double> rhoToken_;
     std::string jetResPtType_;
     std::string jetResPhiType_;
     std::string jetSFType_;
+    edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
 
-    const reco::METCovMatrix getMETCovMatrix(const edm::Event& event, const edm::EventSetup& iSetup) const;
+    const reco::METCovMatrix getMETCovMatrix(const edm::Event& event,
+                                             const edm::EventSetup& iSetup,
+                                             const reco::MET& met,
+                                             double& sumPtUnclustered) const;
   };
 
 }  // namespace pat

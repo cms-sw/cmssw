@@ -3,9 +3,9 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <boost/cstdint.hpp>
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
 #include <string>
+#include <cstdint>
 
 /** \class TriggerBoardSpec
  * RPC Trigger Board specification for readout decoding

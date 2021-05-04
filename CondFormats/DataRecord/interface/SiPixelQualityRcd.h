@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 #include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 //#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
@@ -12,6 +12,6 @@ class SiPixelDetVOffRcd : public edm::eventsetup::EventSetupRecordImplementation
 
 class SiPixelQualityRcd : public edm::eventsetup::DependentRecordImplementation<
                               SiPixelQualityRcd,
-                              boost::mpl::vector<SiPixelQualityFromDbRcd, SiPixelDetVOffRcd> > {};
+                              edm::mpl::Vector<SiPixelQualityFromDbRcd, SiPixelDetVOffRcd> > {};
 
 #endif

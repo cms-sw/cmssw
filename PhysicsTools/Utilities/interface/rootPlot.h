@@ -673,7 +673,7 @@ namespace root {
             F& f,
             double min,
             double max,
-            const std::vector<boost::shared_ptr<double> >& p,
+            const std::vector<std::shared_ptr<double> >& p,
             Color_t lineColor = kRed,
             Width_t lineWidth = 1,
             Style_t lineStyle = kDashed,

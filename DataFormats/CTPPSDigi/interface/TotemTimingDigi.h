@@ -35,38 +35,38 @@ public:
   /// Return digi values number
 
   /// Hardware Id formatted as: bits 0-3 Channel Id, bit 4 Sampic Id, bits 5-7 Digitizer Board Id
-  inline unsigned int getHardwareId() const { return hwId_; }
+  inline unsigned int hardwareId() const { return hwId_; }
 
-  inline unsigned int getHardwareBoardId() const { return (hwId_ & 0xE0) >> 5; }
+  inline unsigned int hardwareBoardId() const { return (hwId_ & 0xE0) >> 5; }
 
-  inline unsigned int getHardwareSampicId() const { return (hwId_ & 0x10) >> 4; }
+  inline unsigned int hardwareSampicId() const { return (hwId_ & 0x10) >> 4; }
 
-  inline unsigned int getHardwareChannelId() const { return (hwId_ & 0x0F); }
+  inline unsigned int hardwareChannelId() const { return (hwId_ & 0x0F); }
 
-  inline unsigned int getFPGATimestamp() const { return fpgaTimestamp_; }
+  inline unsigned int fpgaTimestamp() const { return fpgaTimestamp_; }
 
-  inline unsigned int getTimestampA() const { return timestampA_; }
+  inline unsigned int timestampA() const { return timestampA_; }
 
-  inline unsigned int getTimestampB() const { return timestampB_; }
+  inline unsigned int timestampB() const { return timestampB_; }
 
-  inline unsigned int getCellInfo() const { return cellInfo_; }
+  inline unsigned int cellInfo() const { return cellInfo_; }
 
-  inline std::vector<uint8_t> getSamples() const { return samples_; }
+  inline std::vector<uint8_t> samples() const { return samples_; }
 
-  inline std::vector<uint8_t>::const_iterator getSamplesBegin() const { return samples_.cbegin(); }
+  inline std::vector<uint8_t>::const_iterator samplesBegin() const { return samples_.cbegin(); }
 
-  inline std::vector<uint8_t>::const_iterator getSamplesEnd() const { return samples_.cend(); }
+  inline std::vector<uint8_t>::const_iterator samplesEnd() const { return samples_.cend(); }
 
-  inline unsigned int getNumberOfSamples() const { return samples_.size(); }
+  inline unsigned int numberOfSamples() const { return samples_.size(); }
 
-  inline int getSampleAt(const unsigned int i) const {
+  inline int sampleAt(const unsigned int i) const {
     int sampleValue = -1;
     if (i < samples_.size())
       sampleValue = (int)samples_.at(i);
     return sampleValue;
   }
 
-  inline TotemTimingEventInfo getEventInfo() const { return totemTimingEventInfo_; }
+  inline TotemTimingEventInfo eventInfo() const { return totemTimingEventInfo_; }
 
   /// Set digi values
   /// Hardware Id formatted as: bits 0-3 Channel Id, bit 4 Sampic Id, bits 5-7 Digitizer Board Id
@@ -123,22 +123,21 @@ private:
 #include <iostream>
 
 inline bool operator<(const TotemTimingDigi& one, const TotemTimingDigi& other) {
-  if (one.getEventInfo() < other.getEventInfo())
+  if (one.eventInfo() < other.eventInfo())
     return true;
-  if (one.getHardwareId() < other.getHardwareId())
+  if (one.hardwareId() < other.hardwareId())
     return true;
   return false;
 }
 
 inline std::ostream& operator<<(std::ostream& os, const TotemTimingDigi& digi) {
   return os << "TotemTimingDigi:"
-            << "\nHardwareId:\t" << std::hex << digi.getHardwareId() << "\nDB: " << std::dec
-            << digi.getHardwareBoardId() << "\tSampic: " << digi.getHardwareSampicId()
-            << "\tChannel: " << digi.getHardwareChannelId() << "\nFPGATimestamp:\t" << std::dec
-            << digi.getFPGATimestamp() << "\nTimestampA:\t" << std::dec << digi.getTimestampA() << "\nTimestampB:\t"
-            << std::dec << digi.getTimestampB() << "\nCellInfo:\t" << std::hex << digi.getCellInfo()
-            << "\nNumberOfSamples:\t" << std::dec << digi.getNumberOfSamples() << std::endl
-            << digi.getEventInfo() << std::endl;
+            << "\nHardwareId:\t" << std::hex << digi.hardwareId() << "\nDB: " << std::dec << digi.hardwareBoardId()
+            << "\tSampic: " << digi.hardwareSampicId() << "\tChannel: " << digi.hardwareChannelId()
+            << "\nFPGATimestamp:\t" << std::dec << digi.fpgaTimestamp() << "\nTimestampA:\t" << std::dec
+            << digi.timestampA() << "\nTimestampB:\t" << std::dec << digi.timestampB() << "\nCellInfo:\t" << std::hex
+            << digi.cellInfo() << "\nNumberOfSamples:\t" << std::dec << digi.numberOfSamples() << std::endl
+            << digi.eventInfo() << std::endl;
 }
 
 #endif

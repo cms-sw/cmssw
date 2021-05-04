@@ -7,6 +7,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/TCDS/interface/TCDSRaw.h"
 
 #include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 
@@ -35,9 +36,13 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
       meansize(pset.getUntrackedParameter<unsigned int>("meanSize", 1024)),
       width(pset.getUntrackedParameter<unsigned int>("width", 1024)),
       injected_errors_per_million_events(pset.getUntrackedParameter<unsigned int>("injectErrPpm", 0)),
+      tcdsFEDID_(pset.getUntrackedParameter<unsigned int>("tcdsFEDID", 1024)),
       modulo_error_events(injected_errors_per_million_events ? 1000000 / injected_errors_per_million_events
                                                              : 0xffffffff) {
   // mean = pset.getParameter<float>("mean");
+  if (tcdsFEDID_ < FEDNumbering::MINTCDSuTCAFEDID)
+    throw cms::Exception("DaqFakeReader::DaqFakeReader")
+        << " TCDS FED ID lower than " << FEDNumbering::MINTCDSuTCAFEDID;
   produces<FEDRawDataCollection>();
 }
 
@@ -53,6 +58,7 @@ int DaqFakeReader::fillRawData(Event& e, FEDRawDataCollection*& data) {
   // a null pointer is passed, need to allocate the fed collection
   data = new FEDRawDataCollection();
   EventID eID = e.id();
+  auto ls = e.luminosityBlock();
 
   if (!empty_events) {
     // Fill the EventID
@@ -69,8 +75,7 @@ int DaqFakeReader::fillRawData(Event& e, FEDRawDataCollection*& data) {
 
     timeval now;
     gettimeofday(&now, nullptr);
-    fillGTPFED(eID, *data, &now);
-    //TODO: write fake TCDS FED filler
+    fillTCDSFED(eID, *data, ls, &now);
   }
   return 1;
 }
@@ -116,39 +121,43 @@ void DaqFakeReader::fillFEDs(
   }
 }
 
-void DaqFakeReader::fillGTPFED(EventID& eID, FEDRawDataCollection& data, timeval* now) {
-  uint32_t fedId = FEDNumbering::MINTriggerGTPFEDID;
+void DaqFakeReader::fillTCDSFED(EventID& eID, FEDRawDataCollection& data, uint32_t ls, timeval* now) {
+  uint32_t fedId = tcdsFEDID_;
   FEDRawData& feddata = data.FEDData(fedId);
-  uint32_t size = evf::evtn::SLINK_WORD_SIZE * 37 - 16;  //BST52_3BX
+  uint32_t size = sizeof(tcds::Raw_v1);
   feddata.resize(size + 16);
+
+  uint64_t orbitnr = 0;
+  uint16_t bxid = 0;
 
   FEDHeader::set(feddata.data(),
                  1,            // Trigger type
                  eID.event(),  // LV1_id (24 bits)
-                 0,            // BX_id
+                 bxid,         // BX_id
                  fedId);       // source_id
 
-  int crc = 0;  // FIXME : get CRC
+  tcds::Raw_v1* tcds = reinterpret_cast<tcds::Raw_v1*>(feddata.data() + FEDHeader::length);
+  tcds::BST_v1* bst = const_cast<tcds::BST_v1*>(&tcds->bst);
+  tcds::Header_v1* header = const_cast<tcds::Header_v1*>(&tcds->header);
+
+  const_cast<uint32_t&>(bst->gpstimehigh) = now->tv_sec;
+  const_cast<uint32_t&>(bst->gpstimelow) = now->tv_usec;
+  const_cast<uint16_t&>(bst->lhcFillHigh) = 0;
+  const_cast<uint16_t&>(bst->lhcFillLow) = 0;
+
+  const_cast<uint32_t&>(header->orbitHigh) = orbitnr & 0xffff00;
+  const_cast<uint16_t&>(header->orbitLow) = orbitnr & 0xff;
+  const_cast<uint16_t&>(header->bxid) = bxid;
+
+  const_cast<uint64_t&>(header->eventNumber) = eID.event();
+  const_cast<uint32_t&>(header->lumiSection) = ls;
+
+  int crc = 0;  // only full event crc32c checked in HLT, not FED CRC16
   FEDTrailer::set(feddata.data() + 8 + size,
                   size / 8 + 2,  // in 64 bit words!!!
                   crc,
                   0,   // Evt_stat
                   0);  // TTS bits
-
-  unsigned char* pOffset = feddata.data() + FEDHeader::length;
-  //fill in event ID
-  *((uint32_t*)(pOffset + evf::evtn::EVM_BOARDID_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2)) =
-      evf::evtn::EVM_BOARDID_VALUE << evf::evtn::EVM_BOARDID_SHIFT;
-  *((uint32_t*)(pOffset + FEDHeader::length +
-                (9 * 2 + evf::evtn::EVM_TCS_TRIGNR_OFFSET) * evf::evtn::SLINK_WORD_SIZE / 2)) = eID.event();
-  //fill in timestamp
-  *((uint32_t*)(pOffset + evf::evtn::EVM_GTFE_BSTGPS_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2)) = now->tv_sec;
-  *((uint32_t*)(pOffset + FEDHeader::length + evf::evtn::EVM_GTFE_BSTGPS_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2 +
-                evf::evtn::SLINK_HALFWORD_SIZE)) = now->tv_usec;
-
-  //*( (uint16_t*) (pOffset + (evtn::EVM_GTFE_BLOCK*2 + evtn::EVM_TCS_LSBLNR_OFFSET)*evtn::SLINK_HALFWORD_SIZE)) = (unsigned short)fakeLs_-1;
-
-  //we could also generate lumiblock, bcr, orbit,... but they are not currently used by the FRD input source
 }
 
 void DaqFakeReader::beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE) {

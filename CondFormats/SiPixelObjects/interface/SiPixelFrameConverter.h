@@ -7,10 +7,10 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class SiPixelFrameConverter {
 public:

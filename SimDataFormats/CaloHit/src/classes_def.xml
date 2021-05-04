@@ -28,7 +28,9 @@
   <class name="edm::Wrapper<HFShowerLibraryEventInfo>" />
   <class name="edm::Wrapper<std::vector<HFShowerLibraryEventInfo> >"/>
   <typedef name="CastorShowerEvent::Point" />
-  <class name="PassiveHit" ClassVersion="13">
+  <class name="PassiveHit" ClassVersion="15">
+   <version ClassVersion="15" checksum="3886063447"/>
+   <version ClassVersion="14" checksum="3344618767"/>
    <version ClassVersion="13" checksum="1735297430"/>
    <version ClassVersion="12" checksum="1168914655"/>
    <version ClassVersion="11" checksum="2866279991"/>

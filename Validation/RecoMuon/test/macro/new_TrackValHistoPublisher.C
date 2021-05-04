@@ -280,6 +280,8 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     maxy[0]= 1.09;
     maxy[1]= 0.;
 
+    norm[1] = -1;
+
     Plot4Histograms(newDir + "/eff_pu",
 		    rdir, sdir, 
 		    rcollname, scollname,
@@ -303,7 +305,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
 
     norm[0]= 0.;
     norm[1]= 0.;
-    norm[2]= 0.;
+    norm[2]= -1.;
 
     logy[0]=true;
     logy[1]=false;
@@ -625,7 +627,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
   // efficiency and fake rate Vs PU
   plotOptReset(logx,logy,doKolmo,norm,minx,maxx,miny,maxy,drawopt,plots,titles);
   plots[0]="effic_vs_pu"    ; titles[0]="Efficiency vs n.PU interactions";
-  plots[1]="fakerate_vs_pu" ; titles[1]="Fake rate vs  n.PU interactions" ;
+  plots[1]="fakerate_vs_pu" ; titles[1]="Fake rate vs n.PU interactions" ;
   
   //maxx[0]= 100.;
   //maxx[1]= 100.;
@@ -635,6 +637,8 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
   
   maxy[0]= 1.09;
   maxy[1]= 0.;
+
+  norm[1] = -1;
   
   PlotNHistograms(dir_MABH_vs_TABH + "/eff_pu",
 		  sdir, sdir,

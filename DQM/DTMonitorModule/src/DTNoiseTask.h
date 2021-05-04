@@ -7,7 +7,7 @@
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -34,7 +34,7 @@ namespace edm {
 class DTGeometry;
 
 //-class DTNoiseTask : public edm::EDAnalyzer {
-class DTNoiseTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTNoiseTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTNoiseTask(const edm::ParameterSet& ps);

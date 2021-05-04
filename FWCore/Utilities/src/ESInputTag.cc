@@ -23,8 +23,8 @@ using namespace edm;
 
 ESInputTag::ESInputTag() = default;
 
-ESInputTag::ESInputTag(const std::string& moduleLabel, const std::string& dataLabel)
-    : module_(moduleLabel), data_(dataLabel) {}
+ESInputTag::ESInputTag(std::string moduleLabel, std::string dataLabel)
+    : module_(std::move(moduleLabel)), data_(std::move(dataLabel)) {}
 
 ESInputTag::ESInputTag(const std::string& iEncodedValue) {
   // string is delimited by colons

@@ -1,0 +1,11 @@
+<environment>
+  <test name="TestHeterogeneousCoreSonicCoreProducer" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicCore/test/sonicTest_cfg.py moduleType=Producer"/>
+  <test name="TestHeterogeneousCoreSonicCoreFilter" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicCore/test/sonicTest_cfg.py moduleType=Filter"/>
+  <test name="TestHeterogeneousCoreSonicCoreOneAnalyzer" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicCore/test/sonicTestAna_cfg.py"/>
+  <library file="SonicDummyProducer.cc,SonicDummyFilter.cc,SonicDummyOneAnalyzer.cc" name="HeterogeneousCoreSonicCoreTest">
+    <flags EDM_PLUGIN="1"/>
+    <use name="HeterogeneousCore/SonicCore"/>
+    <use name="DataFormats/TestObjects"/>
+  </library>
+
+</environment>

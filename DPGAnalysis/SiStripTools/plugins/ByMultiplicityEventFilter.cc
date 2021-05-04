@@ -100,7 +100,7 @@ bool ByMultiplicityEventFilter<T>::filter(edm::Event& iEvent, const edm::EventSe
   m_multiplicities.getEvent(iEvent, iSetup);
 
   bool value = m_selector(m_multiplicities);
-  iEvent.put(std::unique_ptr<bool>(new bool(value)));
+  iEvent.put(std::make_unique<bool>(value));
 
   if (m_taggedMode)
     return m_forcedValue;

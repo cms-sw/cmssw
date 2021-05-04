@@ -1,5 +1,6 @@
 #ifndef CurvilinearLorentzForce_H
 #define CurvilinearLorentzForce_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "RKDerivative.h"

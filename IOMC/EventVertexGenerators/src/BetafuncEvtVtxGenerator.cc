@@ -28,9 +28,6 @@ ________________________________________________________________________
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 
-#include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
-#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
-
 #include <iostream>
 
 BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGenerator(p), boost_(4, 4) {
@@ -50,6 +47,9 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet& p) : B
                                             << "Illegal resolution in Z (SigmaZ is negative)";
     }
   }
+  if (readDB_) {
+    beamToken_ = esConsumes<SimBeamSpotObjects, SimBeamSpotObjectsRcd, edm::Transition::BeginLuminosityBlock>();
+  }
 }
 
 BetafuncEvtVtxGenerator::~BetafuncEvtVtxGenerator() {}
@@ -57,12 +57,10 @@ BetafuncEvtVtxGenerator::~BetafuncEvtVtxGenerator() {}
 void BetafuncEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& iEventSetup) {
   update(iEventSetup);
 }
-void BetafuncEvtVtxGenerator::beginRun(const edm::Run&, const edm::EventSetup& iEventSetup) { update(iEventSetup); }
 
 void BetafuncEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   if (readDB_ && parameterWatcher_.check(iEventSetup)) {
-    edm::ESHandle<SimBeamSpotObjects> beamhandle;
-    iEventSetup.get<SimBeamSpotObjectsRcd>().get(beamhandle);
+    edm::ESHandle<SimBeamSpotObjects> beamhandle = iEventSetup.getHandle(beamToken_);
 
     fX0 = beamhandle->fX0;
     fY0 = beamhandle->fY0;

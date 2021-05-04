@@ -32,6 +32,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/KalmanUpdators/interface/EtaPhiMeasurementEstimator.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <iostream>
 #include <algorithm>
@@ -46,6 +47,37 @@ namespace {
 
 using namespace PixelRecoUtilities;
 using namespace std;
+
+void RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const {
+  const math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
+  auto phi0 = phiDirection() + 0.5 * (phiMargin().right() - phiMargin().left());
+  auto dphi = 0.5 * (phiMargin().right() + phiMargin().left());
+
+  assert(mask.size() == tracks.size());
+  int i = -1;
+  for (auto const& track : tracks) {
+    i++;
+    if (mask[i])
+      continue;
+
+    if (track.pt() < ptMin()) {
+      continue;
+    }
+    if (!etaRange().inside(track.eta())) {
+      continue;
+    }
+    if (std::abs(proxim(track.phi(), phi0) - phi0) > dphi) {
+      continue;
+    }
+    if (std::abs(track.dxy(regOrigin)) > originRBound()) {
+      continue;
+    }
+    if (std::abs(track.dz(regOrigin)) > originZBound()) {
+      continue;
+    }
+    mask[i] = true;
+  }
+}
 
 RectangularEtaPhiTrackingRegion::UseMeasurementTracker RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(
     const std::string& name) {
@@ -68,10 +100,10 @@ void RectangularEtaPhiTrackingRegion::initEtaRange(const GlobalVector& dir, cons
   theMeanLambda = std::sinh(theEtaRange.mean());
 }
 
-HitRZCompatibility* RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* layer,
-                                                                const Hit& outerHit,
-                                                                const edm::EventSetup& iSetup,
-                                                                const DetLayer* outerlayer) const {
+std::unique_ptr<HitRZCompatibility> RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* layer,
+                                                                                const Hit& outerHit,
+                                                                                const edm::EventSetup& iSetup,
+                                                                                const DetLayer* outerlayer) const {
   bool isBarrel = (layer->location() == GeomDetEnumerators::barrel);
   GlobalPoint ohit = outerHit->globalPosition();
   float outerred_r = std::sqrt(sqr(ohit.x() - origin().x()) + sqr(ohit.y() - origin().y()));
@@ -87,7 +119,7 @@ HitRZCompatibility* RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* 
                                              : (outer.z() - zMinOrigin) / (outer.r() + originRBound());
     float cotRight = std::max(vcotMin, theLambdaRange.min());
     float cotLeft = std::min(vcotMax, theLambdaRange.max());
-    return new HitEtaCheck(isBarrel, outer, cotLeft, cotRight);
+    return std::make_unique<HitEtaCheck>(isBarrel, outer, cotLeft, cotRight);
   }
 
   float outerZscatt = 0;
@@ -129,11 +161,11 @@ HitRZCompatibility* RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* 
   if (isBarrel) {
     auto sinThetaInv = std::sqrt(1.f + sqr(cotTheta));
     auto corr = innerScatt * sinThetaInv;
-    return new HitZCheck(rzConstraint, HitZCheck::Margin(corr, corr));
+    return std::make_unique<HitZCheck>(rzConstraint, HitZCheck::Margin(corr, corr));
   } else {
     auto cosThetaInv = std::sqrt(1.f + sqr(1.f / cotTheta));
     auto corr = innerScatt * cosThetaInv;
-    return new HitRCheck(rzConstraint, HitRCheck::Margin(corr, corr));
+    return std::make_unique<HitRCheck>(rzConstraint, HitRCheck::Margin(corr, corr));
   }
 }
 
@@ -342,18 +374,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
 
     LayerMeasurements lm(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
 
-    LayerMeasurements::SimpleHitContainer hits;
-    lm.recHits(hits, *detLayer, tsos, prop, *findDetAndHits);
-    /*
-    {  // old code
-      vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, *findDetAndHits);
-      auto n=0UL;
-      for (auto const & im : meas) 
-	if(im.recHit()->isValid()) ++n;
-      assert(n==hits.size());
-      // std::cout << "old/new " << n <<'/'<<hits.size() << std::endl;      
-    }
-    */
+    auto hits = lm.recHits(*detLayer, tsos, prop, *findDetAndHits);
 
     result.reserve(hits.size());
     for (auto h : hits) {
@@ -380,7 +401,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
       result.reserve(layerHits.size());
       for (auto&& ih : layerHits) {
         if (hitComp(*ih))
-          result.emplace_back(std::move(ih));
+          result.emplace_back(ih);
       }
 
     } else {
@@ -394,7 +415,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
       result.reserve(layerHits.size());
       for (auto&& ih : layerHits) {
         if (hitComp(*ih))
-          result.emplace_back(std::move(ih));
+          result.emplace_back(ih);
       }
     }
   }

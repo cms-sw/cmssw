@@ -16,6 +16,8 @@ def getHGCalDigitizer(process,section):
             return process.mix.digitizers.hgchefrontDigitizer
         elif section == 'BH' and hasattr(process.mix.digitizers,'hgchebackDigitizer'):
             return process.mix.digitizers.hgchebackDigitizer
+        elif section == 'HFNose' and hasattr(process.mix.digitizers,'hfnoseDigitizer'):
+            return process.mix.digitizers.hfnoseDigitizer
     return None
 
 # change assumptions about lumi rate
@@ -59,9 +61,19 @@ def ageHF(process,turnon):
         process.es_hardcode.HFRecalibration = cms.bool(turnon)
     return process
 
-def agedHGCal(process):
+def agedHFNose(process,algo=0):
+    from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HFNose_setEndOfLifeNoise
+    process = HFNose_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=algo)
+    return process
+
+def agedHGCal(process,algo=0):
     from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCal_setEndOfLifeNoise
-    process = HGCal_setEndOfLifeNoise(process)
+    process = HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=algo)
+    return process
+
+def realisticHGCalStartup(process):
+    from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCal_setRealisticStartupNoise
+    process = HGCal_setRealisticStartupNoise(process)
     return process
 
 # needs lumi to set proper ZS thresholds (tbd)
@@ -241,6 +253,7 @@ def customise_aging_3000(process):
     process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,3000,5.0e34)
     process=agedHGCal(process)
+    process=agedHFNose(process)
     return process
 
 def customise_aging_3000_ultimate(process):
@@ -248,6 +261,7 @@ def customise_aging_3000_ultimate(process):
     process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,3000,7.5e34)
     process=agedHGCal(process)
+    process=agedHFNose(process)
     return process
 
 def customise_aging_4500_ultimate(process):
@@ -255,4 +269,5 @@ def customise_aging_4500_ultimate(process):
     process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,4500,7.5e34)
     process=agedHGCal(process)
+    process=agedHFNose(process)
     return process

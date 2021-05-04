@@ -1,63 +1,29 @@
+//--------------------------------------------------------------------
+//
+// 15.04.2021 V.Ivanchenko Hadron inelastic physics based on
+//                         QGSP_FTFP_BERT of CMS migrated to Geant4 10.7
+//
+//--------------------------------------------------------------------
+
 #ifndef SimG4Core_PhysicsLists_HadronPhysicsQGSPCMS_FTFP_BERT_h
 #define SimG4Core_PhysicsLists_HadronPhysicsQGSPCMS_FTFP_BERT_h 1
 
 #include "globals.hh"
 #include "G4ios.hh"
 
-#include "G4VPhysicsConstructor.hh"
+#include "G4HadronPhysicsQGSP_BERT.hh"
 
-#include "G4PiKBuilder.hh"
-#include "G4FTFPPiKBuilder.hh"
-#include "G4QGSPPiKBuilder.hh"
-#include "G4BertiniPiKBuilder.hh"
-
-#include "G4ProtonBuilder.hh"
-#include "G4FTFPProtonBuilder.hh"
-#include "G4QGSPProtonBuilder.hh"
-#include "G4BertiniProtonBuilder.hh"
-
-#include "G4NeutronBuilder.hh"
-#include "G4FTFPNeutronBuilder.hh"
-#include "G4QGSPNeutronBuilder.hh"
-#include "G4BertiniNeutronBuilder.hh"
-
-#include "G4HyperonFTFPBuilder.hh"
-#include "G4AntiBarionBuilder.hh"
-#include "G4FTFPAntiBarionBuilder.hh"
-
-class HadronPhysicsQGSPCMS_FTFP_BERT : public G4VPhysicsConstructor {
+class HadronPhysicsQGSPCMS_FTFP_BERT : public G4HadronPhysicsQGSP_BERT {
 public:
-  HadronPhysicsQGSPCMS_FTFP_BERT(G4int verbose);
+  explicit HadronPhysicsQGSPCMS_FTFP_BERT(G4int verbose);
+  explicit HadronPhysicsQGSPCMS_FTFP_BERT(G4double e1, G4double e2, G4double e3, G4double e4, G4double e5);
   ~HadronPhysicsQGSPCMS_FTFP_BERT() override;
 
-  void ConstructParticle() override;
   void ConstructProcess() override;
 
-private:
-  void CreateModels();
-
-  struct ThreadPrivate {
-    G4NeutronBuilder *theNeutrons;
-    G4FTFPNeutronBuilder *theFTFPNeutron;
-    G4QGSPNeutronBuilder *theQGSPNeutron;
-    G4BertiniNeutronBuilder *theBertiniNeutron;
-
-    G4PiKBuilder *thePiK;
-    G4FTFPPiKBuilder *theFTFPPiK;
-    G4QGSPPiKBuilder *theQGSPPiK;
-    G4BertiniPiKBuilder *theBertiniPiK;
-
-    G4ProtonBuilder *thePro;
-    G4FTFPProtonBuilder *theFTFPPro;
-    G4QGSPProtonBuilder *theQGSPPro;
-    G4BertiniProtonBuilder *theBertiniPro;
-
-    G4HyperonFTFPBuilder *theHyperon;
-
-    G4AntiBarionBuilder *theAntiBaryon;
-    G4FTFPAntiBarionBuilder *theFTFPAntiBaryon;
-  };
-  static G4ThreadLocal ThreadPrivate *tpdata;
+  // copy constructor and hide assignment operator
+  HadronPhysicsQGSPCMS_FTFP_BERT(HadronPhysicsQGSPCMS_FTFP_BERT &) = delete;
+  HadronPhysicsQGSPCMS_FTFP_BERT &operator=(const HadronPhysicsQGSPCMS_FTFP_BERT &right) = delete;
 };
 
 #endif

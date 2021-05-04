@@ -72,19 +72,13 @@ run3_common.toModify( theDigitizers, castor = None )
 
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing.toModify( theDigitizers,
                         ecalTime = ecalTimeDigitizer.clone() )
 
-from SimFastTiming.Configuration.SimFastTiming_cff import fastTimeDigitizer
-phase2_timing_layer.toModify( theDigitizers,
-                        fastTimingLayer = fastTimeDigitizer.clone() )
-
 from SimFastTiming.Configuration.SimFastTiming_cff import mtdDigitizer
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify( theDigitizers,
-                                                               fastTimingLayer = mtdDigitizer.clone() )
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify( theDigitizers,
+                              fastTimingLayer = mtdDigitizer.clone() )
 
 premix_stage2.toModify(theDigitizers,
     ecal = None,
@@ -98,7 +92,7 @@ premix_stage2.toModify(theDigitizers,
 (premix_stage2 & phase2_hfnose).toModify(theDigitizers,
     hfnoseDigitizer = dict(premixStage1 = True),
 )
-(premix_stage2 & (phase2_timing_layer_tile | phase2_timing_layer_bar)).toModify(theDigitizers,
+(premix_stage2 & phase2_timing_layer).toModify(theDigitizers,
     fastTimingLayer = dict(
         barrelDigitizer = dict(premixStage1 = True),
         endcapDigitizer = dict(premixStage1 = True)
@@ -108,7 +102,8 @@ premix_stage2.toModify(theDigitizers,
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
 
-phase2_hgcal.toModify( theDigitizersValid,
+from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
+(run3_ecalclustering | phase2_hgcal).toModify( theDigitizersValid,
                        calotruth = cms.PSet( caloParticles ) ) # Doesn't HGCal need these also without validation?
 (premix_stage2 & phase2_hgcal).toModify(theDigitizersValid, calotruth = dict(premixStage1 = True))
 

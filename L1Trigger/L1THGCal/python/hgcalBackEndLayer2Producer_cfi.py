@@ -1,14 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
-import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
-import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam
-
 from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_drnn_cone, \
                                                     egamma_identification_drnn_dbscan, \
                                                     egamma_identification_histomax
 
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
+from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 
 
 binSums = cms.vuint32(13,               # 0
@@ -46,6 +44,20 @@ neighbour_weights_2ndOrder = cms.vdouble(-0.25, 0.5, -0.25,
                                          -0.25, 0.5, -0.25)
 
 
+seed_smoothing_ecal = cms.vdouble(
+        1., 1., 1.,
+        1., 1.1, 1.,
+        1., 1., 1.,
+        )
+seed_smoothing_hcal = cms.vdouble(
+        1., 1., 1., 1., 1.,
+        1., 1., 1., 1., 1.,
+        1., 1., 2., 1., 1.,
+        1., 1., 1., 1., 1.,
+        1., 1., 1., 1., 1.,
+        )
+
+
 distance_C3d_params = cms.PSet(type_multicluster=cms.string('dRC3d'),
                                dR_multicluster=cms.double(0.01),
                                minPt_multicluster=cms.double(0.5),  # minimum pt of the multicluster (GeV)
@@ -63,54 +75,98 @@ dbscan_C3d_params = cms.PSet(type_multicluster=cms.string('DBSCANC3d'),
                              EGIdentification=egamma_identification_drnn_dbscan.clone())
 
 
-histoMax_C3d_params = cms.PSet(type_multicluster=cms.string('HistoMaxC3d'),
-                               dR_multicluster=cms.double(0.03),
+histoMax_C3d_seeding_params = cms.PSet(type_histoalgo=cms.string('HistoMaxC3d'),
+                               nBins_X1_histo_multicluster=cms.uint32(42), # bin size of about 0.012
+                               nBins_X2_histo_multicluster=cms.uint32(216), # bin size of about 0.029
+                               binSumsHisto=binSums,
+                               kROverZMin=cms.double(0.076),
+                               kROverZMax=cms.double(0.58),
+                               threshold_histo_multicluster=cms.double(10.),
+                               neighbour_weights=neighbour_weights_1stOrder,
+                               seed_position=cms.string("TCWeighted"),#BinCentre, TCWeighted
+                               seeding_space=cms.string("RPhi"),# RPhi, XY
+                               seed_smoothing_ecal=seed_smoothing_ecal,
+                               seed_smoothing_hcal=seed_smoothing_hcal,
+                              )
+
+histoMax_C3d_clustering_params = cms.PSet(dR_multicluster=cms.double(0.03),
                                dR_multicluster_byLayer_coefficientA=cms.vdouble(),
                                dR_multicluster_byLayer_coefficientB=cms.vdouble(),
                                shape_threshold=cms.double(1.),
+                               shape_distance=cms.double(0.015),
                                minPt_multicluster=cms.double(0.5),  # minimum pt of the multicluster (GeV)
-                               nBins_R_histo_multicluster=cms.uint32(42), # bin size of about 0.012
-                               nBins_Phi_histo_multicluster=cms.uint32(216), # bin size of about 0.029
-                               binSumsHisto=binSums,
-                               threshold_histo_multicluster=cms.double(10.),
                                cluster_association=cms.string("NearestNeighbour"),
                                EGIdentification=egamma_identification_histomax.clone(),
-                               neighbour_weights=neighbour_weights_1stOrder,
-                               seed_position=cms.string("BinCentre"),#BinCentre, TCWeighted
                                )
-# V9 samples have a different defintiion of the dEdx calibrations. To account for it
-# we reascale the thresholds of the clustering seeds
+
+
+# V9 samples have a different definition of the dEdx calibrations. To account for it
+# we rescale the thresholds of the clustering seeds
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
 # for more details)
-phase2_hgcalV9.toModify(histoMax_C3d_params,
+phase2_hgcalV10.toModify(histoMax_C3d_seeding_params,
                         threshold_histo_multicluster=7.5,  # MipT
                         )
 
 
-histoMaxVariableDR_C3d_params = histoMax_C3d_params.clone(
+histoMaxVariableDR_C3d_params = histoMax_C3d_clustering_params.clone(
         dR_multicluster = cms.double(0.),
         dR_multicluster_byLayer_coefficientA = cms.vdouble(dr_layerbylayer),
         dR_multicluster_byLayer_coefficientB = cms.vdouble([0]*(MAX_LAYERS+1))
         )
 
 
-histoSecondaryMax_C3d_params = histoMax_C3d_params.clone(
-        type_multicluster = cms.string('HistoSecondaryMaxC3d')
+histoSecondaryMax_C3d_params = histoMax_C3d_seeding_params.clone(
+        type_histoalgo = cms.string('HistoSecondaryMaxC3d')
+        )
+
+histoMaxXYVariableDR_C3d_params = histoMax_C3d_seeding_params.clone(
+        seeding_space=cms.string("XY"),
+        nBins_X1_histo_multicluster=cms.uint32(192),
+        nBins_X2_histo_multicluster=cms.uint32(192)
+        )
+
+histoInterpolatedMax_C3d_params = histoMax_C3d_seeding_params.clone(
+        type_histoalgo = cms.string('HistoInterpolatedMaxC3d')
         )
 
 
-histoInterpolatedMax_C3d_params = histoMax_C3d_params.clone(
-        type_multicluster = cms.string('HistoInterpolatedMaxC3d')
+histoThreshold_C3d_params = histoMax_C3d_seeding_params.clone(
+        type_histoalgo = cms.string('HistoThresholdC3d')
         )
 
 
-histoThreshold_C3d_params = histoMax_C3d_params.clone(
-        type_multicluster = cms.string('HistoThresholdC3d')
+histoMax_C3d_params = cms.PSet(
+        type_multicluster=cms.string('Histo'),
+        histoMax_C3d_clustering_parameters = histoMaxVariableDR_C3d_params.clone(),
+        histoMax_C3d_seeding_parameters = histoMax_C3d_seeding_params.clone(),
         )
 
+
+energy_interpretations_em = cms.PSet(type = cms.string('HGCalTriggerClusterInterpretationEM'),
+                                     layer_containment_corrs = cms.vdouble(0., 0.0, 1.38, 0.97, 1.11, 0.92, 1.06, 1.01, 1.06, 0.89, 1.0, 1.06, 0.89, 1.62, 1.83),
+                                     scale_correction_coeff = cms.vdouble(53.94, -27.15),
+                                     dr_bylayer = cms.vdouble([0.015]*15)
+                                     )
+
+phase2_hgcalV10.toModify(
+        energy_interpretations_em,
+        layer_containment_corrs=cms.vdouble(0., 0.0, 1.73, 0.97, 1.08, 1.1, 1.01, 0.96, 1.18, 0.98, 1.05, 0.99, 0.89, 1.75, 2.0),
+        scale_correction_coeff=cms.vdouble(53.92, -27.53),
+        )
+
+phase2_hgcalV11.toModify(
+        energy_interpretations_em,
+        layer_containment_corrs=cms.vdouble(0., 0.0, 1.28, 1.09, 1.0, 1.07, 1.09, 1.04, 1.0, 1.09, 1.07, 1.03, 0.93, 1.4, 1.89),
+        scale_correction_coeff=cms.vdouble(52.99, -24.96),
+        )
+
+
+energy_interpretations = cms.VPSet(energy_interpretations_em)
 
 be_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendLayer2Processor3DClustering'),
-                   C3d_parameters = histoMaxVariableDR_C3d_params.clone()
+                   C3d_parameters = histoMax_C3d_params.clone(),
+                   energy_interpretations = energy_interpretations
                    )
 
 hgcalBackEndLayer2Producer = cms.EDProducer(
@@ -118,3 +174,19 @@ hgcalBackEndLayer2Producer = cms.EDProducer(
     InputCluster = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering'),
     ProcessorParameters = be_proc.clone()
     )
+
+
+hgcalBackEndLayer2ProducerHFNose = hgcalBackEndLayer2Producer.clone(
+    InputCluster = cms.InputTag('hgcalBackEndLayer1ProducerHFNose:HGCalBackendLayer1Processor2DClustering'),
+    ProcessorParameters = dict(
+        C3d_parameters = dict(
+            histoMax_C3d_seeding_parameters = dict(
+                ## note in #Phi same bin size for HGCAL and HFNose
+                nBins_X1_histo_multicluster = 4, # R bin size: 5 FullModules * 8 TP
+                binSumsHisto = cms.vuint32(13,11,9,9),
+                kROverZMin = 0.025,
+                kROverZMax = 0.1
+            )
+        )
+    )
+)

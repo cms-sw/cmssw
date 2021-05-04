@@ -81,12 +81,29 @@ TrackingMaterialProducer::TrackingMaterialProducer(const edm::ParameterSet& iPSe
   edm::ParameterSet config = iPSet.getParameter<edm::ParameterSet>("TrackingMaterialProducer");
   m_selectedNames = config.getParameter<std::vector<std::string> >("SelectedVolumes");
   m_primaryTracks = config.getParameter<bool>("PrimaryTracksOnly");
+  m_txtOutFile = config.getUntrackedParameter<std::string>("txtOutFile");
+  m_hgcalzfront = config.getParameter<double>("hgcalzfront");
   m_tracks = nullptr;
+  m_track_volume = nullptr;
 
   produces<std::vector<MaterialAccountingTrack> >();
   output_file_ = new TFile("radLen_vs_eta_fromProducer.root", "RECREATE");
   output_file_->cd();
   radLen_vs_eta_ = new TProfile("radLen", "radLen", 250., -5., 5., 0, 10.);
+
+  //Check if HGCal volumes are selected
+  isHGCal = false;
+  if (std::find(m_selectedNames.begin(), m_selectedNames.end(), "HGCal") != m_selectedNames.end()) {
+    isHGCal = true;
+  }
+  //Check if HFNose volumes are selected
+  isHFNose = false;
+  if (std::find(m_selectedNames.begin(), m_selectedNames.end(), "HFNose") != m_selectedNames.end()) {
+    isHFNose = true;
+  }
+  if (isHGCal or isHFNose) {
+    outVolumeZpositionTxt.open(m_txtOutFile.c_str(), std::ios::out);
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -124,11 +141,45 @@ void TrackingMaterialProducer::update(const BeginOfEvent* event) {
 //-------------------------------------------------------------------------
 void TrackingMaterialProducer::update(const BeginOfTrack* event) {
   m_track.reset();
+  m_track_volume = nullptr;
 
   // prevent secondary tracks from propagating
   G4Track* track = const_cast<G4Track*>((*event)());
   if (m_primaryTracks and track->GetParentID() != 0) {
     track->SetTrackStatus(fStopAndKill);
+  }
+
+  //For the HGCal case:
+  //In the beginning of each track, the track will first hit SS and it will
+  //save the upper z volume boundary. So, the low boundary of the first SS
+  //volume is never saved. So, here we give the low boundary hardcoded.
+  //This can be found by running
+  //Geometry/HGCalCommonData/test/testHGCalParameters_cfg.py
+  //on the geometry under study and looking for zFront print out.
+  if (isHGCal && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > outerHGCalEta &&
+      fabs(track->GetMomentum().eta()) < innerHGCalEta) {
+    if (track->GetMomentum().eta() > 0.) {
+      outVolumeZpositionTxt << "StainlessSteel " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
+                            << std::endl;
+    } else if (track->GetMomentum().eta() <= 0.) {
+      outVolumeZpositionTxt << "StainlessSteel " << -m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
+                            << std::endl;
+    }
+  }
+
+  //For the HFnose case:
+  //restrict the outher radius to eta 3.3 since there is HGCAL shadowing
+  //restrict the innner radius to eta 4 since it's non projective
+
+  if (isHFNose && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > outerHFnoseEta &&
+      fabs(track->GetMomentum().eta()) < innerHFnoseEta) {
+    if (track->GetMomentum().eta() > 0.) {
+      outVolumeZpositionTxt << "Polyethylene " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
+                            << std::endl;
+    } else if (track->GetMomentum().eta() <= 0.) {
+      outVolumeZpositionTxt << "Polyethylene " << -m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
+                            << std::endl;
+    }
   }
 }
 
@@ -164,6 +215,36 @@ void TrackingMaterialProducer::update(const G4Step* step) {
   G4ThreeVector globalPosPost = step->GetPostStepPoint()->GetPosition();
   GlobalPoint globalPositionIn(globalPosPre.x() / cm, globalPosPre.y() / cm, globalPosPre.z() / cm);      // mm -> cm
   GlobalPoint globalPositionOut(globalPosPost.x() / cm, globalPosPost.y() / cm, globalPosPost.z() / cm);  // mm -> cm
+
+  G4StepPoint* prePoint = step->GetPreStepPoint();
+  G4StepPoint* postPoint = step->GetPostStepPoint();
+  const CLHEP::Hep3Vector& postPos = postPoint->GetPosition();
+  //Go below only in HGCal case
+  if (isHGCal or isHFNose) {
+    //A step never spans across boundaries: geometry or physics define the end points
+    //If the step is limited by a boundary, the post-step point stands on the
+    //boundary and it logically belongs to the next volume.
+    if (postPoint->GetStepStatus() == fGeomBoundary && fabs(postPoint->GetMomentum().eta()) > outerHGCalEta &&
+        fabs(postPoint->GetMomentum().eta()) < innerHGCalEta) {
+      //Post point position is the low z edge of the new volume, or the upper for the prepoint volume.
+      //So, premat - postz - posteta - postR - premattotalenergylossEtable - premattotalenergylossEfull
+      //Observe the two zeros at the end which in the past where set to emCalculator.GetDEDX and
+      //emCalculator.ComputeTotalDEDX but decided not to be used. Will save the structure though for the script.
+      outVolumeZpositionTxt << prePoint->GetMaterial()->GetName() << " " << postPos.z() << " "
+                            << postPoint->GetMomentum().eta() << " "
+                            << sqrt(postPos.x() * postPos.x() + postPos.y() * postPos.y()) << " " << 0 << " " << 0
+                            << std::endl;
+    }
+
+    if (postPoint->GetStepStatus() == fGeomBoundary && fabs(postPoint->GetMomentum().eta()) > outerHFnoseEta &&
+        fabs(postPoint->GetMomentum().eta()) < innerHFnoseEta) {
+      outVolumeZpositionTxt << prePoint->GetMaterial()->GetName() << " " << postPos.z() << " "
+                            << postPoint->GetMomentum().eta() << " "
+                            << sqrt(postPos.x() * postPos.x() + postPos.y() * postPos.y()) << " " << 0 << " " << 0
+                            << std::endl;
+    }
+
+  }  //end of isHGCal  or HFnose if
 
   // check for a sensitive detector
   bool enter_sensitive = false;
@@ -202,12 +283,25 @@ void TrackingMaterialProducer::update(const G4Step* step) {
   }
 
   // update track accounting
-  if (enter_sensitive)
-    m_track.enterDetector(sensitive, position, cosThetaPre);
+  if (enter_sensitive) {
+    if (m_track_volume != nullptr) {
+      edm::LogWarning("TrackingMaterialProducer") << "Entering volume " << sensitive << " while inside volume "
+                                                  << m_track_volume << ". Something is inconsistent";
+      m_track.reset();
+    }
+    m_track_volume = sensitive;
+    m_track.enterDetector(position, cosThetaPre);
+  }
   m_track.step(MaterialAccountingStep(length, radiationLengths, energyLoss, globalPositionIn, globalPositionOut));
-  if (leave_sensitive)
-    m_track.leaveDetector(sensitive, cosThetaPost);
-
+  if (leave_sensitive) {
+    if (m_track_volume != sensitive) {
+      edm::LogWarning("TrackingMaterialProducer") << "Leaving volume " << sensitive << " while inside volume "
+                                                  << m_track_volume << ". Something is inconsistent";
+      m_track.reset();
+    } else
+      m_track.leaveDetector(cosThetaPost);
+    m_track_volume = nullptr;
+  }
   if (sensitive)
     LogInfo("TrackingMaterialProducer") << "Track was near sensitive     volume " << sensitive->GetName() << std::endl;
   else

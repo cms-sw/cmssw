@@ -1,7 +1,6 @@
 #include "PreMixingPileupCopy.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -11,18 +10,18 @@
 
 namespace edm {
   PreMixingPileupCopy::PreMixingPileupCopy(const edm::ParameterSet& ps,
-                                           edm::ProducerBase& producer,
+                                           edm::ProducesCollector producesCollector,
                                            edm::ConsumesCollector&& iC)
       : pileupInfoInputTag_(ps.getParameter<edm::InputTag>("PileupInfoInputTag")),
         bunchSpacingInputTag_(ps.getParameter<edm::InputTag>("BunchSpacingInputTag")),
         cfPlaybackInputTag_(ps.getParameter<edm::InputTag>("CFPlaybackInputTag")),
         genPUProtonsInputTags_(ps.getParameter<std::vector<edm::InputTag>>("GenPUProtonsInputTags")) {
-    producer.produces<std::vector<PileupSummaryInfo>>();
-    producer.produces<int>("bunchSpacing");
-    producer.produces<CrossingFramePlaybackInfoNew>();
+    producesCollector.produces<std::vector<PileupSummaryInfo>>();
+    producesCollector.produces<int>("bunchSpacing");
+    producesCollector.produces<CrossingFramePlaybackInfoNew>();
 
     for (const auto& tag : genPUProtonsInputTags_) {
-      producer.produces<std::vector<reco::GenParticle>>(tag.label());
+      producesCollector.produces<std::vector<reco::GenParticle>>(tag.label());
     }
   }
 

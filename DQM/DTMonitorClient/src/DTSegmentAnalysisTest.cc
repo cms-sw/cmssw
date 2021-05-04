@@ -42,30 +42,32 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps) {
 
   // get the cfi parameters
   detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis", false);
-  normalizeHistoPlots = parameters.getUntrackedParameter<bool>("normalizeHistoPlots", false);
   runOnline = parameters.getUntrackedParameter<bool>("runOnline", true);
   // top folder for the histograms in DQMStore
   topHistoFolder = ps.getUntrackedParameter<string>("topHistoFolder", "DT/02-Segments");
-  // hlt DQM mode
-
-  hltDQMMode = ps.getUntrackedParameter<bool>("hltDQMMode", false);
   nMinEvts = ps.getUntrackedParameter<int>("nEventsCert", 5000);
   maxPhiHit = ps.getUntrackedParameter<int>("maxPhiHit", 7);
   maxPhiZHit = ps.getUntrackedParameter<int>("maxPhiZHit", 11);
 
-  nevents = 0;
+  nLSs = 0;
 
   bookingdone = false;
 }
 
 DTSegmentAnalysisTest::~DTSegmentAnalysisTest() {
-  LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "DTSegmentAnalysisTest: analyzed " << nevents << " events";
+  LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "DTSegmentAnalysisTest: analyzed " << nLSs << " LS";
 }
 
 void DTSegmentAnalysisTest::beginRun(const Run& run, const EventSetup& context) {
   LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: BeginRun";
 
   context.get<MuonGeometryRecord>().get(muonGeom);
+}
+
+void DTSegmentAnalysisTest::dqmBeginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const&) {
+  nLSs++;
+  LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
+      << "DTSegmentAnalysisTest: analyzing LS" << lumiSeg.id().luminosityBlock() << " of " << nLSs << endl;
 }
 
 void DTSegmentAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
@@ -90,47 +92,12 @@ void DTSegmentAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   }
 }
 
-void DTSegmentAnalysisTest::endRun(Run const& run, EventSetup const& context) {}
-
 void DTSegmentAnalysisTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   if (!runOnline) {
     LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
         << "[DTSegmentAnalysisTest]: endJob. Client called in offline mode , perform DQM client operation";
 
     performClientDiagnostic(igetter);
-  }
-
-  if (normalizeHistoPlots) {
-    LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
-    MonitorElement* hNevtPerLS = nullptr;
-
-    if (hltDQMMode)
-      hNevtPerLS = igetter.get(topHistoFolder + "/NevtPerLS");
-    else
-      hNevtPerLS = igetter.get("DT/EventInfo/NevtPerLS");
-
-    if (hNevtPerLS != nullptr) {
-      for (int wheel = -2; wheel != 3; ++wheel) {       // loop over wheels
-        for (int sector = 1; sector <= 12; ++sector) {  // loop over sectors
-          stringstream wheelstr;
-          wheelstr << wheel;
-          stringstream sectorstr;
-          sectorstr << sector;
-          string sectorHistoName = topHistoFolder + "/Wheel" + wheelstr.str() + "/Sector" + sectorstr.str() +
-                                   "/NSegmPerEvent_W" + wheelstr.str() + "_Sec" + sectorstr.str();
-
-          //FR get the histo from here (igetter available!) ...
-          MonitorElement* histoGot = igetter.get(sectorHistoName);
-
-          //FR ...and just make with it a DTTimeEvolutionHisto
-          DTTimeEvolutionHisto hNSegmPerLS(histoGot);
-
-          hNSegmPerLS.normalizeTo(hNevtPerLS);
-        }
-      }
-    } else {
-      LogError("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Histo NevtPerLS not found!" << endl;
-    }
   }
 }
 

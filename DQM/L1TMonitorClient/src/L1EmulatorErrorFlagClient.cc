@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "TRandom.h"
 #include <TF1.h>
@@ -71,10 +70,6 @@ void L1EmulatorErrorFlagClient::initialize() {
 
 void L1EmulatorErrorFlagClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   ibooker.setCurrentFolder("L1TEMU/EventInfo");
-
-  if ((m_meSummaryErrorFlagMap = igetter.get("L1TEMU/EventInfo/summaryErrorFlagMap"))) {
-    igetter.removeElement(m_meSummaryErrorFlagMap->getName());
-  }
 
   // define a histogram
   m_meSummaryErrorFlagMap =

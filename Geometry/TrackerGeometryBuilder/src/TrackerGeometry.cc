@@ -94,7 +94,7 @@ TrackerGeometry::TrackerGeometry(GeometricDet const* gd) : theTrackerDet(gd) {
     LogDebug("ThicknessAndType") << det->geographicalId() << " " << det->name() << " " << det->bounds()->thickness();
   }
   LogDebug("DetTypeList") << " Content of DetTypetList : size " << theDetTypetList.size();
-  for (auto iVal : theDetTypetList) {
+  for (const auto& iVal : theDetTypetList) {
     LogDebug("DetTypeList") << " DetId " << std::get<0>(iVal) << " Type "
                             << static_cast<std::underlying_type<TrackerGeometry::ModuleType>::type>(std::get<1>(iVal))
                             << " Thickness " << std::get<2>(iVal);
@@ -226,7 +226,7 @@ bool TrackerGeometry::isThere(GeomDetEnumerators::SubDetector subdet) const {
 
 void TrackerGeometry::fillTestMap(const GeometricDet* gd) {
   const std::string& temp = gd->name();
-  std::string name = temp.substr(temp.find(":") + 1);
+  std::string name = temp.substr(temp.find(':') + 1);
   DetId detid = gd->geographicalId();
   float thickness = gd->bounds()->thickness();
   std::string nameTag;
@@ -245,17 +245,16 @@ void TrackerGeometry::fillTestMap(const GeometricDet* gd) {
 }
 
 TrackerGeometry::ModuleType TrackerGeometry::getDetectorType(DetId detid) const {
-  for (auto iVal : theDetTypetList) {
+  for (const auto& iVal : theDetTypetList) {
     DetId detid_max = std::get<0>(iVal);
-    TrackerGeometry::ModuleType mtype = std::get<1>(iVal);
     if (detid.rawId() <= detid_max.rawId())
-      return mtype;
+      return std::get<1>(iVal);
   }
   return TrackerGeometry::ModuleType::UNKNOWN;
 }
 
 float TrackerGeometry::getDetectorThickness(DetId detid) const {
-  for (auto iVal : theDetTypetList) {
+  for (const auto& iVal : theDetTypetList) {
     DetId detid_max = std::get<0>(iVal);
     if (detid.rawId() <= detid_max.rawId())
       return std::get<2>(iVal);
@@ -264,48 +263,78 @@ float TrackerGeometry::getDetectorThickness(DetId detid) const {
 }
 
 TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name) const {
+  // IT
   if (name.find("Pixel") != std::string::npos) {
+    // Phase 1
     if (name.find("BarrelActive") != std::string::npos)
       return ModuleType::Ph1PXB;
     else if (name.find("ForwardSensor") != std::string::npos)
       return ModuleType::Ph1PXF;
-    else if (name.find("BModule") != std::string::npos && name.find("InnerPixelActive") != std::string::npos)
-      return ModuleType::Ph2PXB;
-    else if (name.find("EModule") != std::string::npos && name.find("InnerPixelActive") != std::string::npos)
-      return ModuleType::Ph2PXF;
-  } else if (name.find("TIB") != std::string::npos) {
-    if (name.find("0") != std::string::npos)
+
+    // Phase 2
+    // barrel
+    else if (name.find("BModule") != std::string::npos) {
+      if (name.find("InnerPixelActive") != std::string::npos) {
+        return ModuleType::Ph2PXB;
+      } else if (name.find("InnerPixel3DActive") != std::string::npos) {
+        return ModuleType::Ph2PXB3D;
+      }
+    }
+    // forward
+    else if (name.find("EModule") != std::string::npos) {
+      if (name.find("InnerPixelActive") != std::string::npos) {
+        return ModuleType::Ph2PXF;
+      } else if (name.find("InnerPixel3DActive") != std::string::npos) {
+        return ModuleType::Ph2PXF3D;
+      }
+    }
+  }
+
+  // TIB
+  else if (name.find("TIB") != std::string::npos) {
+    if (name.find('0') != std::string::npos)
       return ModuleType::IB1;
     else
       return ModuleType::IB2;
-  } else if (name.find("TOB") != std::string::npos) {
-    if (name.find("0") != std::string::npos)
+  }
+
+  // TOB
+  else if (name.find("TOB") != std::string::npos) {
+    if (name.find('0') != std::string::npos)
       return ModuleType::OB1;
     else
       return ModuleType::OB2;
-  } else if (name.find("TID") != std::string::npos) {
-    if (name.find("0") != std::string::npos)
+  }
+
+  // TID
+  else if (name.find("TID") != std::string::npos) {
+    if (name.find('0') != std::string::npos)
       return ModuleType::W1A;
-    else if (name.find("1") != std::string::npos)
+    else if (name.find('1') != std::string::npos)
       return ModuleType::W2A;
-    else if (name.find("2") != std::string::npos)
+    else if (name.find('2') != std::string::npos)
       return ModuleType::W3A;
-  } else if (name.find("TEC") != std::string::npos) {
-    if (name.find("0") != std::string::npos)
+  }
+
+  // TEC
+  else if (name.find("TEC") != std::string::npos) {
+    if (name.find('0') != std::string::npos)
       return ModuleType::W1B;
-    else if (name.find("1") != std::string::npos)
+    else if (name.find('1') != std::string::npos)
       return ModuleType::W2B;
-    else if (name.find("2") != std::string::npos)
+    else if (name.find('2') != std::string::npos)
       return ModuleType::W3B;
-    else if (name.find("3") != std::string::npos)
+    else if (name.find('3') != std::string::npos)
       return ModuleType::W4;
-    else if (name.find("4") != std::string::npos)
+    else if (name.find('4') != std::string::npos)
       return ModuleType::W5;
-    else if (name.find("5") != std::string::npos)
+    else if (name.find('5') != std::string::npos)
       return ModuleType::W6;
-    else if (name.find("6") != std::string::npos)
+    else if (name.find('6') != std::string::npos)
       return ModuleType::W7;
   }
+
+  // Phase 2 OT
   if (name.find("BModule") != std::string::npos || name.find("EModule") != std::string::npos) {
     if (name.find("PSMacroPixel") != std::string::npos)
       return ModuleType::Ph2PSP;
@@ -314,5 +343,6 @@ TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name)
     else if (name.find("2S") != std::string::npos)
       return ModuleType::Ph2SS;
   }
+
   return ModuleType::UNKNOWN;
 }

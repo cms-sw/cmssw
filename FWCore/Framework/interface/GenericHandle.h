@@ -107,7 +107,7 @@ namespace edm {
       whyFailedFactory_ = nullptr;
     }
 
-    void setWhyFailedFactory(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed) {
+    void setWhyFailedFactory(std::shared_ptr<HandleExceptionFactory const> const& iWhyFailed) {
       whyFailedFactory_ = iWhyFailed;
     }
 
@@ -115,7 +115,7 @@ namespace edm {
     TypeWithDict type_;
     ObjectWithDict prod_;
     Provenance const* prov_;
-    std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
+    std::shared_ptr<HandleExceptionFactory const> whyFailedFactory_;
   };
 
   typedef Handle<GenericObject> GenericHandle;
@@ -125,12 +125,16 @@ namespace edm {
 
   ///Specialize the Event's getByLabel method to work with a Handle<GenericObject>
   template <>
-  bool edm::Event::getByLabel<GenericObject>(std::string const& label,
-                                             std::string const& productInstanceName,
-                                             Handle<GenericObject>& result) const;
+  bool Event::getByLabel<GenericObject>(std::string const& label,
+                                        std::string const& productInstanceName,
+                                        Handle<GenericObject>& result) const;
 
   template <>
-  bool edm::Event::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const;
+  bool Event::getByLabel<GenericObject>(InputTag const& tag, Handle<GenericObject>& result) const;
+
+  ///Specialize the Event's getByToken method to work with a Handle<GenericObject>
+  template <>
+  bool Event::getByToken<GenericObject>(EDGetToken token, Handle<GenericObject>& result) const;
 
 }  // namespace edm
 #endif

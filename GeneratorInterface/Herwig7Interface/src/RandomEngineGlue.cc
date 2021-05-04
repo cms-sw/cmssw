@@ -43,7 +43,7 @@ void RandomEngineGlue::setSeed(long seed) {
 void RandomEngineGlue::doinit() noexcept(false) {
   RandomGenerator::doinit();
 
-  boost::shared_ptr<Proxy> proxy = Proxy::find(proxyID);
+  std::shared_ptr<Proxy> proxy = Proxy::find(proxyID);
   if (!proxy)
     throw InitException();
 

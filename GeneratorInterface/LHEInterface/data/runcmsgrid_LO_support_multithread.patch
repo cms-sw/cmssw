@@ -1,0 +1,101 @@
+--- runcmsgrid.sh	2020-05-01 03:27:51.000000001 +0200
++++ runcmsgrid.sh	2020-05-02 10:46:24.000000001 +0200
+@@ -48,1 +48,25 @@
++# test if the current file system allow setting folder permission to read-only.
++succ_setreadonly=true
++mkdir testpermit
++if fs listacl &>/dev/null; then
++    # AFS system detected. Use "fs sa" rather than "chmod" to set permission
++    echo "[MT] AFS system detected"
++    fs sa -dir testpermit -acl ${USER} read
++    if touch testpermit/newfile &>/dev/null; then succ_setreadonly=false; fi
++    fs sa -dir testpermit -acl ${USER} all
++else
++    chmod -w testpermit
++    if touch testpermit/newfile &>/dev/null; then succ_setreadonly=false; fi
++    chmod +w testpermit
++fi
++rm -r testpermit
++if [ $succ_setreadonly = false ]; then
++    echo "[MT] Warning: failed to set a folder to read-only mode with the current file system. Will use the normal mode and run with single core instead. Note that the script only works under directories in ordinary Unix file system or AFS system, while you are probably using other systems, e.g. EOS. This should NOT happen in a CRAB job. Please report the error if you see this in a CRAB job."
++fi
++
++if fs listacl &>/dev/null; then
++    fs sa -dir madevent -acl ${USER} all
++else
++    chmod +w madevent
++fi
+ #make sure lhapdf points to local cmssw installation area
+@@ -59,3 +83,15 @@
++function event_generate_per_thread () {
++
++# number of event to generate and seed in this thread
++thd=${1}
++nevt=${2}
++rnum=${3}
++
++if [ -d thread${thd} ]; then
++    rm -r thread${thd}
++fi
++mkdir thread${thd}
++cd thread${thd}
+ #########################################
+ # FORCE IT TO PRODUCE EXACTLY THE REQUIRED NUMBER OF EVENTS
+ #########################################
+@@ -98,1 +134,1 @@
+-  ./run.sh $submitting_event $run_random_seed
++  ../process/run.sh $submitting_event $run_random_seed
+@@ -124,3 +160,53 @@
++cd $LHEWORKDIR
++
++} ### end of function
++
++
++if [ $succ_setreadonly = false ] || [ $ncpu -eq 1 ] || [ $nevt -lt $ncpu ]; then
++    echo "[MT] Use normal mode and run on single core"
++    cd $LHEWORKDIR
++    event_generate_per_thread 0 $nevt $rnum
++    mv thread0/events.lhe.gz process/
++    rm -r thread0
++    cd process
++else
++    echo "[MT] Activate multi-threading for event generation -- will use $ncpu cores"
++    nevt_ave=$(( $nevt / $ncpu ))
++    for i in `seq 0 $(( $ncpu-2 ))`; do
++        nevt_per_thread[$i]=$nevt_ave
++    done
++    nevt_per_thread[$(( $ncpu-1 ))]=$(( $nevt - ($ncpu-1)*$nevt_ave ))
++
++    cd $LHEWORKDIR
++
++    # make the gridpack directory read-only to enable the multi-threading feature
++    if fs listacl &>/dev/null; then
++        fs sa -dir process/madevent -acl ${USER} read
++    else
++        chmod -w process/madevent
++    fi
++    
++    # when interrupt, resume write access and kill ALL multi-thread event generation commands
++    trap "cd $LHEWORKDIR; if fs listacl &>/dev/null; then fs sa -dir process/madevent -acl ${USER} all; else chmod +w process/madevent; fi; kill 0" SIGINT SIGTERM EXIT
++    for i in `seq 0 $(( $ncpu-1 ))`; do
++        event_generate_per_thread $i ${nevt_per_thread[$i]} $((rnum+10*$i)) | sed -e "s/^/[Thread $i] /" &
++    done; wait
++    trap - SIGINT SIGTERM EXIT # resume
++
++    if fs listacl &>/dev/null; then
++        fs sa -dir process/madevent -acl ${USER} all
++    else
++        chmod +w process/madevent
++    fi
++    cd process
++
++    # merge files produced in different threads
++    cp /cvmfs/cms.cern.ch/phys_generator/gridpacks/lhe_merger/merge.pl ./
++    chmod 755 merge.pl
++    ./merge.pl ../thread*/events.lhe.gz events.lhe.gz banner.txt
++    rm -r ../thread* banner.txt;
++fi
++
+ #########################################
+ #########################################
+ #########################################

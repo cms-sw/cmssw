@@ -20,8 +20,8 @@ void RunInfoHandler::getNewObjects() {
   edm::LogInfo("RunInfoHandler") << "["
                                  << "RunInfoHandler::" << __func__ << "]:" << m_name << ": "
                                  << "Destination Tag Info: name " << tagInfo().name << ", size " << tagInfo().size
-                                 << ", last object valid since " << tagInfo().lastInterval.first << ", hash "
-                                 << tagInfo().lastPayloadToken << std::endl;
+                                 << ", last object valid since " << tagInfo().lastInterval.since << ", hash "
+                                 << tagInfo().lastInterval.payloadId << std::endl;
   edm::LogInfo("RunInfoHandler") << "["
                                  << "RunInfoHandler::" << __func__ << "]:" << m_name
                                  << ": runnumber/first since = " << m_since << std::endl;
@@ -30,11 +30,11 @@ void RunInfoHandler::getNewObjects() {
   //if the new run number is smaller than or equal to the latest IOV, exit.
   //This is needed as now the IOV Editor does not always protect for insertions:
   //ANY and VALIDATION sychronizations are allowed to write in the past.
-  if (tagInfo().size > 0 && tagInfo().lastInterval.first >= m_since) {
+  if (tagInfo().size > 0 && tagInfo().lastInterval.since >= m_since) {
     edm::LogWarning("RunInfoHandler") << "["
                                       << "RunInfoHandler::" << __func__ << "]:" << m_name << ": "
-                                      << "last IOV " << tagInfo().lastInterval.first
-                                      << (tagInfo().lastInterval.first == m_since ? " is equal to" : " is larger than")
+                                      << "last IOV " << tagInfo().lastInterval.since
+                                      << (tagInfo().lastInterval.since == m_since ? " is equal to" : " is larger than")
                                       << " the run proposed for insertion " << m_since << ". No transfer needed."
                                       << std::endl;
     return;
@@ -44,11 +44,11 @@ void RunInfoHandler::getNewObjects() {
 
   //fill with null runinfo if empty run are found beetween the two last valid ones
   size_t n_empty_run = 0;
-  if (tagInfo().size > 0 && (tagInfo().lastInterval.first + 1) < m_since) {
-    n_empty_run = m_since - tagInfo().lastInterval.first - 1;
+  if (tagInfo().size > 0 && (tagInfo().lastInterval.since + 1) < m_since) {
+    n_empty_run = m_since - tagInfo().lastInterval.since - 1;
     edm::LogInfo("RunInfoHandler") << "["
                                    << "RunInfoHandler::" << __func__ << "]:" << m_name << ": "
-                                   << "entering fake run from " << tagInfo().lastInterval.first + 1 << " to "
+                                   << "entering fake run from " << tagInfo().lastInterval.since + 1 << " to "
                                    << m_since - 1 << std::endl;
   }
   std::ostringstream ss;
@@ -58,8 +58,8 @@ void RunInfoHandler::getNewObjects() {
     ss << "fake run number: " << 1 << ", ";
   }
   if (n_empty_run != 0) {
-    m_to_transfer.push_back(std::make_pair((RunInfo*)(r->Fake_RunInfo()), tagInfo().lastInterval.first + 1));
-    ss << "fake run number: " << tagInfo().lastInterval.first + 1 << ", ";
+    m_to_transfer.push_back(std::make_pair((RunInfo*)(r->Fake_RunInfo()), tagInfo().lastInterval.since + 1));
+    ss << "fake run number: " << tagInfo().lastInterval.since + 1 << ", ";
   }
 
   //reading from omds

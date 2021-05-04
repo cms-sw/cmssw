@@ -71,9 +71,27 @@ namespace geant_units {
     }
 
     template <class NumType>
+    inline constexpr NumType convertCm2ToMm2(NumType centimeters)  // Centimeters^2 -> Milliimeters^2
+    {
+      return (centimeters * 100.);
+    }
+
+    template <class NumType>
     inline constexpr NumType convertMm3ToM3(NumType mm3)  // Cubic millimeters -> cubic meters
     {
       return (mm3 / 1.e9);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertMeVToGeV(NumType mev)  // MeV -> GeV
+    {
+      return (mev * 0.001);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertGeVToMeV(NumType gev)  // GeV -> MeV
+    {
+      return (gev * 1000.);
     }
 
     // Convert Geant units to desired units

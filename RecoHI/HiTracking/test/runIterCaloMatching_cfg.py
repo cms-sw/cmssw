@@ -102,7 +102,7 @@ process.load('CmsHi.JetAnalysis.ExtraPfReco_cff')
 if rawORreco:
     process.rechits = cms.Sequence(process.siPixelRecHits * process.siStripMatchedRecHits)
     process.hiTrackReco = cms.Sequence(process.rechits * process.heavyIonTracking)
-
+    process.muonRecoPbPb = cms.Sequence(muonRecoPbPbTask)
     
     process.reco_extra =  cms.Path(
         #process.centralityFilter

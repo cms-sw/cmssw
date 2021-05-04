@@ -32,15 +32,9 @@ void HiBasicGenTest::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
 
     b[ibin] = ibooker.book1D(Form("b%d", ibin), ";b[fm];events", 100, 0.0, 20.0);
     dnchdphi[ibin] = ibooker.book1D(Form("dnchdphi%d", ibin), ";#phi;dN^{ch}/d#phi", 100, -3.2, 3.2);
-
-    ibooker.tag(dnchdeta[ibin], 1 + ibin * 4);
-    ibooker.tag(dnchdpt[ibin], 2 + ibin * 4);
-    ibooker.tag(b[ibin], 3 + ibin * 4);
-    ibooker.tag(dnchdphi[ibin], 4 + ibin * 4);
   }
 
   rp = ibooker.book1D("phi0", ";#phi_{RP};events", 100, -3.2, 3.2);
-  ibooker.tag(rp, 13);
 }
 
 void HiBasicGenTest::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) { iSetup.getData(pdt); }

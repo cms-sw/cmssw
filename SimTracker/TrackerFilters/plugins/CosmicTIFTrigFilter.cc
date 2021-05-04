@@ -1,11 +1,10 @@
 // livio.fano@cern.ch
 
+#include "CosmicTIFTrigFilter.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "SimTracker/TrackerFilters/interface/CosmicTIFTrigFilter.h"
-//#include "MagneticField/Engine/interface/MagneticField.h"
-//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "HepMC/GenVertex.h"
 #include <map>
 #include <vector>

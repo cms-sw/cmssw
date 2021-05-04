@@ -8,7 +8,6 @@ from __future__ import print_function
 from builtins import range
 import re
 import ROOT
-import exceptions
 import six
 import sys
 ### define tab completion
@@ -174,7 +173,7 @@ class EventBranch(object):
         return self._buffer
 
 
-class cmserror(exceptions.Exception):
+class cmserror(Exception):
     def __init__(self, message):
           length = len(message)+7   #7=len("ERROR: ")
           print("="*length)

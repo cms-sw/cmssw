@@ -13,16 +13,17 @@ public:
   void select(unsigned nLinks,
               unsigned nWafers,
               const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,
-              std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput);
+              std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput,
+              std::vector<l1t::HGCalTriggerCell>& trigCellVecNotSelected);
 
   void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
 
 private:
   std::vector<unsigned> nData_;
-  static constexpr unsigned kNDataSize_ = 64;
-  static constexpr uint32_t kWaferOffset_ = 3;
+  static constexpr unsigned kNDataSize_ = 128;
+  static constexpr uint32_t kWaferOffset_ = 4;
   static constexpr uint32_t kWaferMask_ = 0x7;
-  static constexpr uint32_t kLinkMask_ = 0x7;
+  static constexpr uint32_t kLinkMask_ = 0xF;
 
   HGCalTriggerTools triggerTools_;
 };

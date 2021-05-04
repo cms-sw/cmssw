@@ -6,11 +6,14 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-class TrackerMap;
-class TkHistoMap;
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 class SiStripDetInfoFileReader;
 class SiStripFedCabling;
 
@@ -44,6 +47,11 @@ private:
   std::unique_ptr<TkHistoMap> tkhisto;
   bool addBadCompFromFedErr_;
   float fedErrCutoff_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESWatcher<SiStripQualityRcd> stripQualityWatcher_;
   const TrackerTopology* tTopo_;
   const SiStripFedCabling* fedCabling_;
   const SiStripQuality* siStripQuality_;

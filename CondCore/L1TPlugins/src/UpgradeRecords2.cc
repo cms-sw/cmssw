@@ -1,6 +1,6 @@
 #include "CondCore/ESSources/interface/registration_macros.h"
 
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"  // Temporary copy to avoid crashes - AWB 28.08.17
+#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd_deprecated.h"  // Temporary copy to avoid crashes - AWB 28.08.17
 // Required to satisfy current convention for "Record" in "Global Tag Entries"
 // https://cms-conddb-prod.cern.ch/cmsDbBrowser/search/Prod/L1TMuonEndCapParams
 

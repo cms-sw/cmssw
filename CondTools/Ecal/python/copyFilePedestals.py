@@ -17,7 +17,8 @@ process.source = cms.Source("EmptyIOVSource",
   interval = cms.uint64(1)
 )
 
-db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+db_reader_account = 'CMS_ECAL_R'
+db_service,db_user,db_pwd = auth.get_db_credentials( db_reader_account )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   process.CondDB,

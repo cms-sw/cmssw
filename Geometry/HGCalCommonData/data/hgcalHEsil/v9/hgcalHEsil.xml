@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-<PosPartSection label="hgcalHEsil.xml">
+<PosPartSection label="hgcalHEsil.xml" eval="true">
   <Algorithm name="hgcal:DDHGCalEEAlgo">
     <rParent name="hgcal:HGCalHEsil"/>
     <Vector name="WaferNames" type="string" nEntries="6">
@@ -46,6 +46,7 @@
       0, 0, 0, 0, 0, 0, 0, 0</Vector>
     <Numeric name="FirstLayer"       value="1"/>
     <Numeric name="AbsorberMode"     value="0"/>
+    <Numeric name="SensitiveMode"    value="0"/>
     <Numeric name="zMinBlock"        value="[hgcal:zMinHEsil]"/>
     <Vector name="rad100to200" type="numeric" nEntries="5">
       [hgcal:rad100200P0], [hgcal:rad100200P1], [hgcal:rad100200P2],

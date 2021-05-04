@@ -26,8 +26,8 @@
  */
 
 #include "CondFormats/SiStripObjects/interface/SiStripBaseDelay.h"
-#include <boost/unordered_map.hpp>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 class SiStripDelay {
@@ -82,7 +82,7 @@ private:
   std::vector<const SiStripBaseDelay *> baseDelayVector_;
   std::vector<int> sumSignVector_;
   std::vector<std::pair<std::string, std::string>> recordLabelPair_;
-  boost::unordered_map<uint32_t, double> delays_;
+  std::unordered_map<uint32_t, double> delays_;
 };
 
 #endif

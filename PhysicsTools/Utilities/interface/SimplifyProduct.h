@@ -5,7 +5,6 @@
 #include "PhysicsTools/Utilities/interface/Fraction.h"
 #include "PhysicsTools/Utilities/interface/DecomposePower.h"
 #include "PhysicsTools/Utilities/interface/ParametricTrait.h"
-#include <boost/mpl/if.hpp>
 #include <type_traits>
 
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
@@ -178,7 +177,7 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return f; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return g; }
-      enum { value = not::std::is_same<AB, base>::value };
+      enum { value = not ::std::is_same<AB, base>::value };
     };
     struct prod2 {
       typedef G A;
@@ -189,10 +188,12 @@ namespace funct {
       inline static const A& a(const F& f, const G& g, const H& h) { return g; }
       inline static const B& b(const F& f, const G& g, const H& h) { return h; }
       inline static const C& c(const F& f, const G& g, const H& h) { return f; }
-      enum { value = not::std::is_same<AB, base>::value };
+      enum { value = not ::std::is_same<AB, base>::value };
     };
 
-    typedef typename ::boost::mpl::if_<prod1, prod1, typename ::boost::mpl::if_<prod2, prod2, prod0>::type>::type prod;
+    typedef
+        typename std::conditional<prod1::value, prod1, typename std::conditional<prod2::value, prod2, prod0>::type>::type
+            prod;
     typedef typename AuxProduct<prod>::type type;
     inline static type combine(const ProductStruct<F, G>& fg, const H& h) {
       const F& f = fg._1;

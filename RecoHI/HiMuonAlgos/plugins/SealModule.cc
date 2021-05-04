@@ -1,4 +1,3 @@
-//#include "CondCore/PluginSystem/interface/registration_macros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"

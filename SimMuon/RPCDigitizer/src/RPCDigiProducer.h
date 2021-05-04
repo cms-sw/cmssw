@@ -6,9 +6,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCClusterSize.h"
@@ -42,6 +44,11 @@ private:
 
   //Token for accessing data
   edm::EDGetTokenT<CrossingFrame<PSimHit>> crossingFrameToken;
+
+  //EventSetup Tokens
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> geomToken;
+  edm::ESGetToken<RPCStripNoises, RPCStripNoisesRcd> noiseToken;
+  edm::ESGetToken<RPCClusterSize, RPCClusterSizeRcd> clsToken;
 };
 
 #endif

@@ -85,7 +85,9 @@ public:
 
   ///Is this a valid cell id
   bool valid(const DetId& id) const override;
+  bool valid(const DetId& id, int cornerMin) const;
   bool validHashIndex(uint32_t ix) const { return (ix < kSizeForDenseIndexing); }
+  bool validModule(const DetId& id, int cornerMin) const;
 
   unsigned int totalModules() const { return kSizeForDenseIndexing; }
   unsigned int totalGeomModules() const { return (unsigned int)(2 * kHGeomHalf_); }
@@ -119,6 +121,18 @@ public:
     return (((det_ == DetId::Forward) && (subdet_ == ForwardSubdetector::HFNose)) ? true : false);
   }
 
+  bool tileTrapezoid() const {
+    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) ||
+            (mode_ == HGCalGeometryMode::TrapezoidModule));
+  }
+  bool waferHexagon6() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull));
+  }
+  bool waferHexagon8() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) ||
+            (mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module));
+  }
+
 private:
   /// add DetId of Scintillator and Silicon type if valid
   void addHGCSCintillatorId(std::vector<DetId>& ids, int zside, int type, int lay, int iradius, int iphi) const;
@@ -139,7 +153,7 @@ private:
   ForwardSubdetector subdet_;
   int sectors_, layers_, cells_, types_;
   int firstLay_, cellMax_, waferOff_, waferMax_;
-  int kHGhalf_, kHGeomHalf_;
+  int kHGhalf_, kHGeomHalf_, kHGhalfType_;
   unsigned int kSizeForDenseIndexing;
 };
 

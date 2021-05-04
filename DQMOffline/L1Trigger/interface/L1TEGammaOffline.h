@@ -12,7 +12,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 //DQM
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/L1Trigger/interface/HistDefinition.h"
 
@@ -35,7 +35,7 @@
 // stage2 collections:
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
-class L1TEGammaOffline : public DQMEDAnalyzer {
+class L1TEGammaOffline : public DQMOneEDAnalyzer<> {
 public:
   L1TEGammaOffline(const edm::ParameterSet& ps);
   ~L1TEGammaOffline() override;
@@ -48,8 +48,7 @@ protected:
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-  void endJob() override;
+  void dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
 private:
   bool passesLooseEleId(reco::GsfElectron const& electron) const;

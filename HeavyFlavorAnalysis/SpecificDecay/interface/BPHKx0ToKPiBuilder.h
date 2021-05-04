@@ -12,6 +12,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToTkpTknSymChargeBuilder.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -19,13 +20,9 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
 #include "FWCore/Framework/interface/Event.h"
-
-class BPHParticlePtSelect;
-class BPHParticleEtaSelect;
-class BPHChi2Select;
-class BPHMassSelect;
 
 //---------------
 // C++ Headers --
@@ -37,61 +34,60 @@ class BPHMassSelect;
 //              -- Class Interface --
 //              ---------------------
 
-class BPHKx0ToKPiBuilder {
+class BPHKx0ToKPiBuilder : public BPHDecayToTkpTknSymChargeBuilder {
 public:
   /** Constructor
    */
   BPHKx0ToKPiBuilder(const edm::EventSetup& es,
                      const BPHRecoBuilder::BPHGenericCollection* posCollection,
-                     const BPHRecoBuilder::BPHGenericCollection* negCollection);
+                     const BPHRecoBuilder::BPHGenericCollection* negCollection)
+      : BPHDecayToTkpTknSymChargeBuilder(es,
+                                         "Kaon",
+                                         BPHParticleMasses::pionMass,
+                                         BPHParticleMasses::pionMass,
+                                         "Pion",
+                                         BPHParticleMasses::kaonMass,
+                                         BPHParticleMasses::kaonMSigma,
+                                         posCollection,
+                                         negCollection,
+                                         BPHParticleMasses::kx0Mass) {
+    setTrk1PtMin(0.7);
+    setTrk2PtMin(0.7);
+    setTrk1EtaMax(10.0);
+    setTrk2EtaMax(10.0);
+    setMassRange(0.75, 1.05);
+    setProbMin(0.0);
+  }
 
-  /** Destructor
-   */
-  virtual ~BPHKx0ToKPiBuilder();
-
-  /** Operations
-   */
-  /// build Phi candidates
-  std::vector<BPHPlusMinusConstCandPtr> build();
-
-  /// set cuts
-  void setPtMin(double pt);
-  void setEtaMax(double eta);
-  void setMassMin(double m);
-  void setMassMax(double m);
-  void setProbMin(double p);
-  void setConstr(double mass, double sigma);
-
-  /// get current cuts
-  double getPtMin() const;
-  double getEtaMax() const;
-  double getMassMin() const;
-  double getMassMax() const;
-  double getProbMin() const;
-  double getConstrMass() const;
-  double getConstrSigma() const;
-
-private:
-  // private copy and assigment constructors
+  // deleted copy constructor and assignment operator
   BPHKx0ToKPiBuilder(const BPHKx0ToKPiBuilder& x) = delete;
   BPHKx0ToKPiBuilder& operator=(const BPHKx0ToKPiBuilder& x) = delete;
 
-  std::string kaonName;
-  std::string pionName;
+  /** Destructor
+   */
+  ~BPHKx0ToKPiBuilder() override {}
 
-  const edm::EventSetup* evSetup;
-  const BPHRecoBuilder::BPHGenericCollection* pCollection;
-  const BPHRecoBuilder::BPHGenericCollection* nCollection;
+  /** Operations
+   */
+  /// set cuts
+  void setPiPtMin(double pt) { setTrk1PtMin(pt); }
+  void setPiEtaMax(double eta) { setTrk1EtaMax(eta); }
+  void setKPtMin(double pt) { setTrk2PtMin(pt); }
+  void setKEtaMax(double eta) { setTrk2EtaMax(eta); }
+  void setPtMin(double pt) {
+    setTrk1PtMin(pt);
+    setTrk2PtMin(pt);
+  }
+  void setEtaMax(double eta) {
+    setTrk1EtaMax(eta);
+    setTrk2EtaMax(eta);
+  }
 
-  BPHParticlePtSelect* ptSel;
-  BPHParticleEtaSelect* etaSel;
-  BPHMassSelect* massSel;
-  BPHChi2Select* chi2Sel;
-  double cMass;
-  double cSigma;
-  bool updated;
-
-  std::vector<BPHPlusMinusConstCandPtr> kx0List;
+  /// get current cuts
+  double getPiPtMin() const { return getTrk1PtMin(); }
+  double getPiEtaMax() const { return getTrk1EtaMax(); }
+  double getKPtMin() const { return getTrk2PtMin(); }
+  double getKEtaMax() const { return getTrk2EtaMax(); }
 };
 
 #endif

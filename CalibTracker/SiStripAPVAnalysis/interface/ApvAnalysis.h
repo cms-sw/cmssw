@@ -10,7 +10,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "boost/cstdint.hpp"
 
 //#define DEBUG_INSTANCE_COUNTING
 

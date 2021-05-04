@@ -1,11 +1,11 @@
-#ifndef Framework_ESProducer_h
-#define Framework_ESProducer_h
+#ifndef FWCore_Framework_ESProducer_h
+#define FWCore_Framework_ESProducer_h
 // -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESProducer
 //
-/**\class ESProducer ESProducer.h FWCore/Framework/interface/ESProducer.h
+/**\class edm::ESProducer
 
  Description: An EventSetup algorithmic Provider that encapsulates the algorithm as a member method
 
@@ -71,9 +71,11 @@ Example: two algorithms each creating only one objects
 // system include files
 #include <memory>
 #include <string>
+#include <optional>
 
 // user include files
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
+#include "FWCore/Framework/interface/es_impl/MayConsumeChooserBase.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h"
 
@@ -82,6 +84,8 @@ Example: two algorithms each creating only one objects
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Framework/interface/eventsetup_dependsOn.h"
 #include "FWCore/Framework/interface/es_Label.h"
+
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 // forward declarations
 namespace edm {
@@ -96,16 +100,14 @@ namespace edm {
       return iDec;
     }
   }  // namespace eventsetup
+
   class ESProducer : public ESProxyFactoryProducer {
   public:
     ESProducer();
     ~ESProducer() noexcept(false) override;
+    ESProducer(const ESProducer&) = delete;                   // stop default
+    ESProducer const& operator=(const ESProducer&) = delete;  // stop default
 
-    // ---------- const member functions ---------------------
-
-    // ---------- static member functions --------------------
-
-    // ---------- member functions ---------------------------
     void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
     ESProxyIndex const* getTokenIndices(unsigned int iIndex) const {
       if (itemsToGetFromRecords_.empty()) {
@@ -114,8 +116,45 @@ namespace edm {
       return (itemsToGetFromRecords_[iIndex].empty()) ? static_cast<ESProxyIndex const*>(nullptr)
                                                       : &(itemsToGetFromRecords_[iIndex].front());
     }
+    ESRecordIndex const* getTokenRecordIndices(unsigned int iIndex) const {
+      if (recordsUsedDuringGet_.empty()) {
+        return nullptr;
+      }
+      return (recordsUsedDuringGet_[iIndex].empty()) ? static_cast<ESRecordIndex const*>(nullptr)
+                                                     : &(recordsUsedDuringGet_[iIndex].front());
+    }
+    size_t numberOfTokenIndices(unsigned int iIndex) const {
+      if (itemsToGetFromRecords_.empty()) {
+        return 0;
+      }
+      return itemsToGetFromRecords_[iIndex].size();
+    }
+
+    bool hasMayConsumes() const noexcept { return hasMayConsumes_; }
+
+    template <typename Record>
+    std::optional<std::vector<ESProxyIndex>> updateFromMayConsumes(unsigned int iIndex, const Record& iRecord) const {
+      if (not hasMayConsumes()) {
+        return {};
+      }
+      std::vector<ESProxyIndex> ret = itemsToGetFromRecords_[iIndex];
+      auto const info = consumesInfos_[iIndex].get();
+      for (size_t i = 0; i < info->size(); ++i) {
+        auto chooserBase = (*info)[i].chooser_.get();
+        if (chooserBase) {
+          auto chooser = static_cast<eventsetup::impl::MayConsumeChooserBase<Record>*>(chooserBase);
+          ret[i] = chooser->makeChoice(iRecord);
+        }
+      }
+      return ret;
+    }
+
+    SerialTaskQueueChain& queue() { return acquirer_.serialQueueChain(); }
 
   protected:
+    /** Specify the names of the shared resources used by this ESProducer */
+    void usesResources(std::vector<std::string> const&);
+
     /** \param iThis the 'this' pointer to an inheriting class instance
         The method determines the Record argument and return value of the 'produce'
         method in order to do the registration with the EventSetup
@@ -159,10 +198,14 @@ namespace edm {
                                                   const TArg& iDec,
                                                   const es::Label& iLabel = {}) {
       const auto id = consumesInfos_.size();
-      auto callback = std::make_shared<
-          eventsetup::Callback<T, TReturn, TRecord, typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t>>(
+      using DecoratorType = typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t;
+      using CallbackType = eventsetup::Callback<T, TReturn, TRecord, DecoratorType>;
+      unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
+      auto temp = std::make_shared<CallbackType>(
           iThis, iMethod, id, createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec));
-      registerProducts(callback,
+      auto callback =
+          std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
+      registerProducts(std::move(callback),
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type*>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
@@ -170,33 +213,36 @@ namespace edm {
       return ESConsumesCollectorT<TRecord>(consumesInfos_.back().get(), id);
     }
 
-    ESProducer(const ESProducer&) = delete;                   // stop default
-    ESProducer const& operator=(const ESProducer&) = delete;  // stop default
-
   private:
     template <typename CallbackT, typename TList, typename TRecord>
-    void registerProducts(std::shared_ptr<CallbackT> iCallback,
+    void registerProducts(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>> iCallback,
                           const TList*,
                           const TRecord* iRecord,
                           const es::Label& iLabel) {
       registerProduct(iCallback, static_cast<const typename TList::tail_type*>(nullptr), iRecord, iLabel);
-      registerProducts(iCallback, static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
+      registerProducts(std::move(iCallback), static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
     }
 
-    template <typename T, typename TRecord>
-    void registerProducts(std::shared_ptr<T>, const eventsetup::produce::Null*, const TRecord*, const es::Label&) {
+    template <typename CallbackT, typename TRecord>
+    void registerProducts(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>>,
+                          const eventsetup::produce::Null*,
+                          const TRecord*,
+                          const es::Label&) {
       //do nothing
     }
 
-    template <typename T, typename TProduct, typename TRecord>
-    void registerProduct(std::shared_ptr<T> iCallback, const TProduct*, const TRecord*, const es::Label& iLabel) {
-      typedef eventsetup::CallbackProxy<T, TRecord, TProduct> ProxyType;
-      typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T>> FactoryType;
-      registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.default_);
+    template <typename CallbackT, typename TProduct, typename TRecord>
+    void registerProduct(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>> iCallback,
+                         const TProduct*,
+                         const TRecord*,
+                         const es::Label& iLabel) {
+      using ProxyType = eventsetup::CallbackProxy<CallbackT, TRecord, TProduct>;
+      using FactoryType = eventsetup::ProxyArgumentFactoryTemplate<ProxyType, CallbackT>;
+      registerFactory(std::make_unique<FactoryType>(std::move(iCallback)), iLabel.default_);
     }
 
-    template <typename T, typename TProduct, typename TRecord, int IIndex>
-    void registerProduct(std::shared_ptr<T> iCallback,
+    template <typename CallbackT, typename TProduct, typename TRecord, int IIndex>
+    void registerProduct(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>> iCallback,
                          const es::L<TProduct, IIndex>*,
                          const TRecord*,
                          const es::Label& iLabel) {
@@ -206,9 +252,9 @@ namespace edm {
                              IIndex,
                              " was never assigned a name in the 'setWhatProduced' method");
       }
-      typedef eventsetup::CallbackProxy<T, TRecord, es::L<TProduct, IIndex>> ProxyType;
-      typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T>> FactoryType;
-      registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.labels_[IIndex]);
+      using ProxyType = eventsetup::CallbackProxy<CallbackT, TRecord, es::L<TProduct, IIndex>>;
+      using FactoryType = eventsetup::ProxyArgumentFactoryTemplate<ProxyType, CallbackT>;
+      registerFactory(std::make_unique<FactoryType>(std::move(iCallback)), iLabel.labels_[IIndex]);
     }
 
     std::vector<std::unique_ptr<ESConsumesInfo>> consumesInfos_;
@@ -216,6 +262,10 @@ namespace edm {
     //need another structure to say which record to get the data from in
     // order to make prefetching work
     std::vector<std::vector<ESRecordIndex>> recordsUsedDuringGet_;
+
+    SharedResourcesAcquirer acquirer_;
+    std::unique_ptr<std::vector<std::string>> sharedResourceNames_;
+    bool hasMayConsumes_ = false;
   };
 }  // namespace edm
 #endif

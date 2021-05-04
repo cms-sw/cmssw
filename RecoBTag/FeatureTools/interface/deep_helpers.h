@@ -74,5 +74,33 @@ namespace btagbtvdeep {
   float vtx_ass_from_pfcand(const reco::PFCandidate &pfcand, int pv_ass_quality, const reco::VertexRef &pv);
   float quality_from_pfcand(const reco::PFCandidate &pfcand);
   float lost_inner_hits_from_pfcand(const reco::PFCandidate &pfcand);
+
+  // struct to hold preprocessing parameters
+  struct PreprocessParams {
+    struct VarInfo {
+      VarInfo() {}
+      VarInfo(float median, float norm_factor, float replace_inf_value, float lower_bound, float upper_bound, float pad)
+          : center(median),
+            norm_factor(norm_factor),
+            replace_inf_value(replace_inf_value),
+            lower_bound(lower_bound),
+            upper_bound(upper_bound),
+            pad(pad) {}
+      float center = 0;
+      float norm_factor = 1;
+      float replace_inf_value = 0;
+      float lower_bound = -5;
+      float upper_bound = 5;
+      float pad = 0;
+    };
+
+    unsigned min_length = 0;
+    unsigned max_length = 0;
+    std::vector<std::string> var_names;
+    std::unordered_map<std::string, VarInfo> var_info_map;
+
+    VarInfo info(const std::string &name) const { return var_info_map.at(name); }
+  };
+
 }  // namespace btagbtvdeep
 #endif  //RecoBTag_FeatureTools_deep_helpers_h

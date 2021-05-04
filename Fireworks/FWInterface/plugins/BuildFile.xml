@@ -1,16 +1,11 @@
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/Framework"/>
 <use name="Fireworks/FWInterface"/>
-<use name="CondFormats/DataRecord"/>
-<use name="CondFormats/RunInfo"/>
- <use name="SimDataFormats/Track"/>
- <use name="SimDataFormats/TrackingHit"/>
- <use name="SimDataFormats/CaloHit"/>
- <use name="SimDataFormats/Vertex"/>
- <use name="SimDataFormats/TrackingAnalysis"/>
- <use name="SimGeneral/TrackingAnalysis"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimGeneral/TrackingAnalysis"/>
+<use name="TrackingTools/PatternTools"/>
 <use name="rootcore"/>
-<lib name="Geom"/>
-<lib name="Eve"/>
-
+<use name="rootgeom"/>
+<use name="rooteve"/>
 <library name="FireworksFWInterfacePlugin" file="*.cc"/>

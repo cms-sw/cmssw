@@ -17,7 +17,7 @@ process.load("HLTrigger.special.hltDynamicPrescaler_cfi")
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults' )
 )
-process.MessageLogger.categories.append('HLTrigReport')
+process.MessageLogger.HLTrigReport=dict()
 
 process.path = cms.Path(process.hltDynamicPrescaler)
 process.info = cms.EndPath(process.hltTrigReport)

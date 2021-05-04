@@ -16,7 +16,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -118,18 +118,6 @@ bool SiPixelQuality::IsRocBad(const uint32_t& detid, const short& rocNb) const {
   if (iter != disabledModules.end() && iter->DetID == detid) {
     return ((iter->BadRocs >> rocNb) & 0x1);
   }
-  return false;
-}
-
-bool SiPixelQuality::IsAreaBad(uint32_t detid,
-                               sipixelobjects::GlobalPixel global,
-                               const edm::EventSetup& es,
-                               const SiPixelFedCabling* map) const {
-  SiPixelFrameReverter reverter(es, map);
-  int rocfromarea = -1;
-  rocfromarea = reverter.findRocInDet(detid, global);
-
-  return SiPixelQuality::IsRocBad(detid, rocfromarea);
   return false;
 }
 

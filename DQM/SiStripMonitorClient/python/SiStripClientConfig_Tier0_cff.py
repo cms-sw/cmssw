@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #  SiStripOfflineDQM (for Tier0 Harvesting Step) ####
-siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
+siStripOfflineAnalyser = cms.EDProducer("SiStripOfflineDQM",
     GlobalStatusFilling      = cms.untracked.int32(2),
     CreateSummary            = cms.untracked.bool(False),
     SummaryConfigPath        = cms.untracked.string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml"),
@@ -31,16 +31,17 @@ siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
                )           
 )
 
-siStripQTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+siStripQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_tier0.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(siStripQTester,
-                       qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_tier0_heavyions.xml')
-                       )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(siStripQTester,
+                  qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_tier0_heavyions.xml')
+)
 
 from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import siStripQualityESProducer 
 mergedSiStripQualityProducer = siStripQualityESProducer.clone(

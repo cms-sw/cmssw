@@ -340,7 +340,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
     const EcalRecHitCollection *eeRecHits = RecHitsEE.product();
 
     reco::BasicCluster const &seedCluster(*itSC->seed());
-    std::vector<float> cov = EcalClusterTools::localCovariances(seedCluster, eeRecHits, p_topology);
+    const auto &cov = EcalClusterTools::localCovariances(seedCluster, eeRecHits, p_topology);
     float sigmaIetaIeta = std::sqrt(cov[0]);
     float sigmaIetaIphi = cov[1];
 
@@ -383,7 +383,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
     const EcalRecHitCollection *ebRecHits = RecHitsEB.product();
 
     reco::BasicCluster const &seedCluster(*itSC->seed());
-    std::vector<float> cov = EcalClusterTools::localCovariances(seedCluster, ebRecHits, p_topology);
+    const auto &cov = EcalClusterTools::localCovariances(seedCluster, ebRecHits, p_topology);
     float sigmaIetaIeta = std::sqrt(cov[0]);
     float sigmaIetaIphi = cov[1];
 

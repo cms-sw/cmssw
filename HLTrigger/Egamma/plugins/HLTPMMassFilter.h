@@ -9,48 +9,25 @@
  *  Date: February 21, 2007
  */
 
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
-
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Math/interface/Point3D.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
 
-// TEST
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "TFile.h"
-#include "TDirectory.h"
-#include "TH1F.h"
-#include "TH2F.h"
 #include "TLorentzVector.h"
-#include "TVector3.h"
-
-//
-// class declaration
-//
 
 class HLTPMMassFilter : public HLTFilter {
 public:
@@ -62,7 +39,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  TLorentzVector approxMomAtVtx(const MagneticField* magField,
+  TLorentzVector approxMomAtVtx(const MagneticField& magField,
                                 const GlobalPoint& xvert,
                                 const reco::SuperClusterRef sc,
                                 int charge) const;
@@ -79,6 +56,8 @@ private:
   bool isElectron1_;
   bool isElectron2_;
   edm::InputTag l1EGTag_;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> const magFieldToken_;
 };
 
 #endif  //HLTPMMassFilter_h

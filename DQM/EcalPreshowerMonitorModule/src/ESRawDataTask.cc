@@ -75,8 +75,6 @@ void ESRawDataTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, Event
   meOrbitNumberDiff_->setAxisTitle("Num of Events", 2);
 }
 
-void ESRawDataTask::endJob(void) { LogInfo("ESRawDataTask") << "analyzed " << ievt_ << " events"; }
-
 void ESRawDataTask::analyze(const Event& e, const EventSetup& c) {
   ievt_++;
   runNum_ = e.id().run();

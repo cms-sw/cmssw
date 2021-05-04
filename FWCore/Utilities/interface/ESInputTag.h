@@ -87,7 +87,7 @@ namespace edm {
   class ESInputTag {
   public:
     explicit ESInputTag();
-    explicit ESInputTag(const std::string& iModuleLabel, const std::string& iDataLabel);
+    explicit ESInputTag(std::string iModuleLabel, std::string iDataLabel);
     explicit ESInputTag(const std::string& iEncodedValue);
 
     // ---------- const member functions ---------------------

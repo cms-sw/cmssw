@@ -28,7 +28,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -64,13 +64,16 @@ private:
   const HcalTopology* theHcalTopology_;
 
   //hcal severity ES
-  edm::ESHandle<HcalChannelQuality> theHcalChStatus;
-  edm::ESHandle<HcalSeverityLevelComputer> theHcalSevLvlComputer;
+  const HcalChannelQuality* theHcalChStatus;
+  const HcalSeverityLevelComputer* theHcalSevLvlComputer;
   std::set<DetId> toBeKept;
   template <typename CollectionType>
   void skim(const edm::Handle<CollectionType>& input, CollectionType& output, int severityThreshold = 0) const;
 
-  // ----------member data ---------------------------
+  // ES tokens
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> qualToken_;
+  edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> sevToken_;
 };
 
 template <class CollectionType>
@@ -115,11 +118,13 @@ void HcalHitSelection::skim(const edm::Handle<CollectionType>& input,
 //
 // constructors and destructor
 //
-HcalHitSelection::HcalHitSelection(const edm::ParameterSet& iConfig) {
-  hbheTag = iConfig.getParameter<edm::InputTag>("hbheTag");
-  hfTag = iConfig.getParameter<edm::InputTag>("hfTag");
-  hoTag = iConfig.getParameter<edm::InputTag>("hoTag");
-
+HcalHitSelection::HcalHitSelection(const edm::ParameterSet& iConfig)
+    : hbheTag(iConfig.getParameter<edm::InputTag>("hbheTag")),
+      hoTag(iConfig.getParameter<edm::InputTag>("hoTag")),
+      hfTag(iConfig.getParameter<edm::InputTag>("hfTag")),
+      theHcalTopology_(nullptr),
+      theHcalChStatus(nullptr),
+      theHcalSevLvlComputer(nullptr) {
   // register for data access
   tok_hbhe_ = consumes<HBHERecHitCollection>(hbheTag);
   tok_hf_ = consumes<HFRecHitCollection>(hfTag);
@@ -136,6 +141,11 @@ HcalHitSelection::HcalHitSelection(const edm::ParameterSet& iConfig) {
   produces<HBHERecHitCollection>(hbheTag.label());
   produces<HFRecHitCollection>(hfTag.label());
   produces<HORecHitCollection>(hoTag.label());
+
+  // ES tokens
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  qualToken_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
+  sevToken_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
 }
 
 HcalHitSelection::~HcalHitSelection() {
@@ -149,11 +159,9 @@ HcalHitSelection::~HcalHitSelection() {
 
 // ------------ method called to produce the data  ------------
 void HcalHitSelection::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<HcalChannelQualityRcd>().get("withTopo", theHcalChStatus);
-  iSetup.get<HcalSeverityLevelComputerRcd>().get(theHcalSevLvlComputer);
-  edm::ESHandle<HcalTopology> topo;
-  iSetup.get<HcalRecNumberingRecord>().get(topo);
-  theHcalTopology_ = topo.product();
+  theHcalChStatus = &iSetup.getData(qualToken_);
+  theHcalSevLvlComputer = &iSetup.getData(sevToken_);
+  theHcalTopology_ = &iSetup.getData(htopoToken_);
 
   edm::Handle<HBHERecHitCollection> hbhe;
   edm::Handle<HFRecHitCollection> hf;

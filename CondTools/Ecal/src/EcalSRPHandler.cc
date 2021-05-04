@@ -54,7 +54,7 @@ void popcon::EcalSRPHandler::getNewObjects() {
   unsigned long long max_since = 1;
 
   // this is the last inserted run
-  max_since = tagInfo().lastInterval.first;
+  max_since = tagInfo().lastInterval.since;
 
   // this is the last object in the DB
   Ref srp_db = lastPayload();
@@ -171,7 +171,9 @@ void popcon::EcalSRPHandler::getNewObjects() {
       it = dataset.begin();
       RunConfigDat dat = it->second;
       myconfig_tag = dat.getConfigTag();
-      if (myconfig_tag.substr(0, 15) == "ZeroSuppression") {
+      //      if (myconfig_tag.substr(0, 15) == "ZeroSuppression") {
+      if (myconfig_tag.substr(0, 15) == "ZeroSuppression" || myconfig_tag.substr(0, 11) == "FullReadout" ||
+          myconfig_tag.substr(0, 11) == "AlmostEmpty") {
         if (m_debug)
           fout << " run " << irun << " tag " << myconfig_tag << " giving up " << std::endl;
         continue;
@@ -370,6 +372,7 @@ void popcon::EcalSRPHandler::getNewObjects() {
                 sr->dccNormalizedWeights_.push_back(dccwRowEE);
               } else {  // no difference keep only one
                 std::vector<float> dccwRow;
+                dccwRow.reserve(6);
                 for (int ich = 0; ich < 6; ich++) {
                   dccwRow.push_back(my_dccw[0][ich]);
                 }

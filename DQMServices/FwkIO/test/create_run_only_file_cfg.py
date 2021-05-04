@@ -13,7 +13,7 @@ for i in range(0,10):
                                        title=cms.untracked.string("Foo"+str(i)),
                                        value=cms.untracked.double(i)))
 
-process.filler = cms.EDAnalyzer("DummyFillDQMStore",
+process.filler = cms.EDProducer("DummyFillDQMStore",
                                 elements=cms.untracked.VPSet(*elements),
                                 fillRuns = cms.untracked.bool(True),
                                 fillLumis = cms.untracked.bool(False))
@@ -27,5 +27,5 @@ process.o = cms.EndPath(process.out)
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
-process.add_(cms.Service("DQMStore", forceResetOnBeginRun = cms.untracked.bool(True)))
+process.add_(cms.Service("DQMStore"))
 

@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="MkFitInputWrapper" persistent="false"/>
+  <class name="edm::Wrapper<MkFitInputWrapper>" persistent="false"/>
+
+  <class name="MkFitOutputWrapper" persistent="false"/>
+  <class name="edm::Wrapper<MkFitOutputWrapper>" persistent="false"/>
+</lcgdict>

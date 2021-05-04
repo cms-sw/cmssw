@@ -27,8 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 //              ---------------------
 //              -- Class Interface --

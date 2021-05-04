@@ -1,12 +1,10 @@
 #ifndef __ElectronIdentification_SoftElectronMVAEstimator_H__
 #define __ElectronIdentification_SoftElectronMVAEstimator_H__
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 
 #include <memory>
 #include <string>

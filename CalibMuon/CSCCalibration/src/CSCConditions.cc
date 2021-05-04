@@ -1,9 +1,6 @@
 
 #include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
 
-#include "CalibMuon/CSCCalibration/interface/CSCChannelMapperRecord.h"
-#include "CalibMuon/CSCCalibration/interface/CSCIndexerRecord.h"
-
 #include "CalibMuon/CSCCalibration/interface/CSCChannelMapperBase.h"
 #include "CalibMuon/CSCCalibration/interface/CSCIndexerBase.h"
 
@@ -14,13 +11,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/DataRecord/interface/CSCChamberTimeCorrectionsRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBChipSpeedCorrectionRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBGasGainCorrectionRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
-
 #include "CondFormats/CSCObjects/interface/CSCChamberTimeCorrections.h"
 #include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
@@ -28,13 +18,11 @@
 #include "CondFormats/CSCObjects/interface/CSCDBGasGainCorrection.h"
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 
-#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
-
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
 #include "CondFormats/CSCObjects/interface/CSCBadWires.h"
 
-CSCConditions::CSCConditions(const edm::ParameterSet &ps)
+CSCConditions::CSCConditions(const edm::ParameterSet &ps, edm::ConsumesCollector cc)
     : theGains(),
       theCrosstalk(),
       thePedestals(),
@@ -59,37 +47,57 @@ CSCConditions::CSCConditions(const edm::ParameterSet &ps)
   readBadChambers_ = ps.getParameter<bool>("readBadChambers");
   useTimingCorrections_ = ps.getParameter<bool>("CSCUseTimingCorrections");
   useGasGainCorrections_ = ps.getParameter<bool>("CSCUseGasGainCorrections");
+  indexerToken_ = cc.esConsumes<CSCIndexerBase, CSCIndexerRecord>();
+  mapperToken_ = cc.esConsumes<CSCChannelMapperBase, CSCChannelMapperRecord>();
+  gainsToken_ = cc.esConsumes<CSCDBGains, CSCDBGainsRcd>();
+  crosstalkToken_ = cc.esConsumes<CSCDBCrosstalk, CSCDBCrosstalkRcd>();
+  pedestalsToken_ = cc.esConsumes<CSCDBPedestals, CSCDBPedestalsRcd>();
+  noiseMatrixToken_ = cc.esConsumes<CSCDBNoiseMatrix, CSCDBNoiseMatrixRcd>();
+  if (useTimingCorrections()) {
+    chipCorrectionsToken_ = cc.esConsumes<CSCDBChipSpeedCorrection, CSCDBChipSpeedCorrectionRcd>();
+    chamberTimingCorrectionsToken_ = cc.esConsumes<CSCChamberTimeCorrections, CSCChamberTimeCorrectionsRcd>();
+  }
+  if (readBadChannels()) {
+    badStripsToken_ = cc.esConsumes<CSCBadStrips, CSCBadStripsRcd>();
+    badWiresToken_ = cc.esConsumes<CSCBadWires, CSCBadWiresRcd>();
+  }
+  if (readBadChambers()) {
+    badChambersToken_ = cc.esConsumes<CSCBadChambers, CSCBadChambersRcd>();
+  }
+  if (useGasGainCorrections()) {
+    gasGainCorrectionsToken_ = cc.esConsumes<CSCDBGasGainCorrection, CSCDBGasGainCorrectionRcd>();
+  }
 }
 
 CSCConditions::~CSCConditions() {}
 
 void CSCConditions::initializeEvent(const edm::EventSetup &es) {
   // Algorithms
-  es.get<CSCIndexerRecord>().get(indexer_);
-  es.get<CSCChannelMapperRecord>().get(mapper_);
+  indexer_ = es.getHandle(indexerToken_);
+  mapper_ = es.getHandle(mapperToken_);
 
   // Strip gains
-  es.get<CSCDBGainsRcd>().get(theGains);
+  theGains = es.getHandle(gainsToken_);
   // Strip X-talk
-  es.get<CSCDBCrosstalkRcd>().get(theCrosstalk);
+  theCrosstalk = es.getHandle(crosstalkToken_);
   // Strip pedestals
-  es.get<CSCDBPedestalsRcd>().get(thePedestals);
+  thePedestals = es.getHandle(pedestalsToken_);
   // Strip autocorrelation noise matrix
-  es.get<CSCDBNoiseMatrixRcd>().get(theNoiseMatrix);
+  theNoiseMatrix = es.getHandle(noiseMatrixToken_);
 
   if (useTimingCorrections()) {
     // Buckeye chip speeds
-    es.get<CSCDBChipSpeedCorrectionRcd>().get(theChipCorrections);
+    theChipCorrections = es.getHandle(chipCorrectionsToken_);
     // Cable lengths from chambers to peripheral crate and additional chamber
     // level timing correction
-    es.get<CSCChamberTimeCorrectionsRcd>().get(theChamberTimingCorrections);
+    theChamberTimingCorrections = es.getHandle(chamberTimingCorrectionsToken_);
   }
 
   if (readBadChannels()) {
     // Bad strip channels
-    es.get<CSCBadStripsRcd>().get(theBadStrips);
+    theBadStrips = es.getHandle(badStripsToken_);
     // Bad wiregroup channels
-    es.get<CSCBadWiresRcd>().get(theBadWires);
+    theBadWires = es.getHandle(badWiresToken_);
 
     //@@    if( badStripsWatcher_.check( es ) ) {
     //      fillBadStripWords();
@@ -106,11 +114,11 @@ void CSCConditions::initializeEvent(const edm::EventSetup &es) {
 
   if (readBadChambers()) {
     // Entire bad chambers
-    es.get<CSCBadChambersRcd>().get(theBadChambers);
+    theBadChambers = es.getHandle(badChambersToken_);
   }
 
   if (useGasGainCorrections()) {
-    es.get<CSCDBGasGainCorrectionRcd>().get(theGasGainCorrections);
+    theGasGainCorrections = es.getHandle(gasGainCorrectionsToken_);
   }
 
   //  print();

@@ -1,6 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalDQMCollectionTags = cms.untracked.PSet(
+# Dec 2019: ecalDQMCollectionTags was changed from an untracked PSet to a tracked PSet.
+# The reason is that this PSet is part of the offline DQM configuration for both pp
+# and HI runs. For HI runs, there is a function in the the config builder that
+# replaces all inputTags named "rawDataCollector" to "rawDataMapperByLabel", which
+# is necessary for HI runs. As of Dec 2019, this function was called "MassReplaceInputTag".
+# This only works if the collection tags below are part of a tracked PSet.
+
+ecalDQMCollectionTags = cms.PSet(
     Source = cms.untracked.InputTag("rawDataCollector"),
     EcalRawData = cms.untracked.InputTag("ecalDigis"),
     EBGainErrors = cms.untracked.InputTag("ecalDigis", "EcalIntegrityGainErrors"),

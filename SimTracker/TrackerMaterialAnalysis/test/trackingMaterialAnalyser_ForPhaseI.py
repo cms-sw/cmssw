@@ -11,17 +11,17 @@ readGeometryFromDB = False
 # material-budget grouping into the DDD of the detector. So we need to read the
 # geometry using the XMLIdealGeometryRecord.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 else:
 # GlobalTag and geometry via it
-  process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-  from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+  process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+  from Configuration.AlCa.GlobalTag import GlobalTag
+  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # Add our custom detector grouping to DDD
-process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI.xml'])
+process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI/v1/trackingMaterialGroups_ForPhaseI.xml'])
 
 # Analyze and plot the tracking material
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_ForPhaseI_cff")
@@ -46,24 +46,22 @@ def customizeMessageLogger(process):
     #    label for all defined python modules
     process.MessageLogger.debugModules.extend(['*'])
     # 2. Define destination and its default logging properties
-    destination = 'debugTrackingMaterialAnalyzer'
     how_to_debug = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
                                       DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
                                       default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
                                       )
     # 3. Attach destination and its logging properties to the main process
-    process.MessageLogger.destinations.extend([destination])
-    process.MessageLogger._Parameterizable__addParameter(destination, how_to_debug)
+    process.MessageLogger.files.debugTrackingMaterialAnalyzer = how_to_debug
     # 4. Define and extend the categories we would like to monitor
     log_debug_categories = ['TrackingMaterialAnalyser', 'MaterialAccountingGroup']
-    process.MessageLogger.categories.extend(log_debug_categories)
+    
 
     # 5. Extend the configuration of the configured destination so that it
     #    will trace all messages coming from the list of specified
     #    categories.
     unlimit_debug = cms.untracked.PSet(limit = cms.untracked.int32(-1))
     for val in log_debug_categories:
-        process.MessageLogger.debugTrackingMaterialAnalyzer._Parameterizable__addParameter(val, unlimit_debug)
+        setattr(process.MessageLogger.files.debugTrackingMaterialAnalyzer,val, unlimit_debug)
 
     return process
 

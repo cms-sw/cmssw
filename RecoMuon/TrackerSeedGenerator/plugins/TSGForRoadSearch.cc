@@ -1,7 +1,6 @@
 #include "RecoMuon/TrackerSeedGenerator/plugins/TSGForRoadSearch.h"
 
 #include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
-//#include <RecoTracker/Record/interface/TrackerRecoGeometryRecord.h>
 #include <RecoTracker/Record/interface/CkfComponentsRecord.h>
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 #include <TrackingTools/Records/interface/TrackingComponentsRecord.h>
@@ -15,7 +14,6 @@
 
 #include <RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h>
 
-#include "RecoTracker/MeasurementDet/interface/StartingLayerFinder.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -426,6 +424,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track &muon, std::vector<Trajecto
             edm::LogWarning(theCategory) << "ran out of layers to find a seed: no seed.";
             return;
           }
+          break;
         }
         case GeomDetEnumerators::PixelBarrel: {
           edm::LogError(theCategory)
@@ -487,7 +486,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
       for (std::vector<TrajectoryMeasurement>::iterator Mit = tmp.begin(); Mit != tmp.end(); ++Mit) {
         TrajectoryStateOnSurface predState(Mit->predictedState());
         TrajectoryMeasurement::ConstRecHitPointer hit = Mit->recHit();
-        TrajectorySeed::recHitContainer rhContainer;
+        TrajectorySeed::RecHitContainer rhContainer;
         if (theCopyMuonRecHit) {
           LogDebug(theCategory) << "copying (" << muon.recHitsSize() << ") muon recHits";
           //copy the muon rechit into the seed
@@ -535,7 +534,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
                           << compatible.front().second
                           << "on detector: " << compatible.front().first->geographicalId().rawId();
 
-    TrajectorySeed::recHitContainer rhContainer;
+    TrajectorySeed::RecHitContainer rhContainer;
     if (theCopyMuonRecHit) {
       LogDebug(theCategory) << "copying (" << muon.recHitsSize() << ") muon recHits";
       //copy the muon rechit into the seed

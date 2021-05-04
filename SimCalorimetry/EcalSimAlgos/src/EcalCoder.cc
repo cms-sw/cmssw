@@ -3,6 +3,7 @@
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.icc"
 
 #include <iostream>
 

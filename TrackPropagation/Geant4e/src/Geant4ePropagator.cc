@@ -36,12 +36,16 @@
 
 /** Constructor.
  */
-Geant4ePropagator::Geant4ePropagator(const MagneticField *field, std::string particleName, PropagationDirection dir)
+Geant4ePropagator::Geant4ePropagator(const MagneticField *field,
+                                     std::string particleName,
+                                     PropagationDirection dir,
+                                     double plimit)
     : Propagator(dir),
       theField(field),
       theParticleName(particleName),
       theG4eManager(G4ErrorPropagatorManager::GetErrorPropagatorManager()),
-      theG4eData(G4ErrorPropagatorData::GetErrorPropagatorData()) {
+      theG4eData(G4ErrorPropagatorData::GetErrorPropagatorData()),
+      plimit_(plimit) {
   LogDebug("Geant4e") << "Geant4e Propagator initialized";
 
   // has to be called here, doing it later will not load the G4 physics list
@@ -72,7 +76,7 @@ void Geant4ePropagator::ensureGeant4eIsInitilized(bool forceInit) const {
   if ((G4ErrorPropagatorData::GetErrorPropagatorData()->GetState() == G4ErrorState_PreInit) || forceInit) {
     LogDebug("Geant4e") << "Initializing G4 propagator" << std::endl;
 
-    G4UImanager::GetUIpointer()->ApplyCommand("/exerror/setField -10. kilogauss");
+    //G4UImanager::GetUIpointer()->ApplyCommand("/exerror/setField -10. kilogauss");
 
     theG4eManager->InitGeant4e();
 
@@ -85,10 +89,7 @@ void Geant4ePropagator::ensureGeant4eIsInitilized(bool forceInit) const {
     LogDebug("Geant4e") << "G4 not in preinit state: " << G4ErrorPropagatorData::GetErrorPropagatorData()->GetState()
                         << std::endl;
   }
-
-  // example code uses
-  // G4UImanager::GetUIpointer()->ApplyCommand("/geant4e/limits/stepLength 100
-  // mm");
+  // define 10 mm step limit for propagator
   G4UImanager::GetUIpointer()->ApplyCommand("/geant4e/limits/stepLength 10.0 mm");
 }
 
@@ -161,6 +162,8 @@ bool Geant4ePropagator::configureAnyPropagation(G4ErrorMode &mode,
                                                 Plane const &pDest,
                                                 GlobalPoint const &cmsInitPos,
                                                 GlobalVector const &cmsInitMom) const {
+  if (cmsInitMom.mag() < plimit_)
+    return false;
   if (pDest.localZ(cmsInitPos) * pDest.localZ(cmsInitMom) < 0) {
     mode = G4ErrorMode_PropForwards;
     LogDebug("Geant4e") << "G4e -  Propagator mode is \'forwards\' indirect "
@@ -181,6 +184,8 @@ bool Geant4ePropagator::configureAnyPropagation(G4ErrorMode &mode,
                                                 Cylinder const &pDest,
                                                 GlobalPoint const &cmsInitPos,
                                                 GlobalVector const &cmsInitMom) const {
+  if (cmsInitMom.mag() < plimit_)
+    return false;
   //------------------------------------
   // For cylinder assume outside is backwards, inside is along
   // General use for particles from collisions
@@ -204,6 +209,8 @@ bool Geant4ePropagator::configurePropagation(G4ErrorMode &mode,
                                              SurfaceType const &pDest,
                                              GlobalPoint const &cmsInitPos,
                                              GlobalVector const &cmsInitMom) const {
+  if (cmsInitMom.mag() < plimit_)
+    return false;
   if (propagationDirection() == oppositeToMomentum) {
     mode = G4ErrorMode_PropBackwards;
     LogDebug("Geant4e") << "G4e -  Propagator mode is \'backwards\' " << std::endl;
@@ -461,7 +468,7 @@ void Geant4ePropagator::debugReportTrackState(std::string const &currentContext,
                                               GlobalVector const &cmsInitMom,
                                               CLHEP::Hep3Vector const &g4InitMom,
                                               const SurfaceType &pDest) const {
-  LogDebug("Geant4e") << "G3 -- Current Context: " << currentContext;
+  LogDebug("Geant4e") << "G4e - Current Context: " << currentContext;
   LogDebug("Geant4e") << "G4e -  CMS point position:" << cmsInitPos << "cm\n"
                       << "G4e -              (Ro, eta, phi): (" << cmsInitPos.perp() << " cm, " << cmsInitPos.eta()
                       << ", " << cmsInitPos.phi().degrees() << " deg)\n"

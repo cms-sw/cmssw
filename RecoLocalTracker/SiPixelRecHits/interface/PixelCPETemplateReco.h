@@ -5,7 +5,7 @@
 
 // Already in the base class
 //#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 //#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 //#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 //#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
@@ -63,7 +63,7 @@ public:
   static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
-  ClusterParam *createClusterParam(const SiPixelCluster &cl) const override;
+  std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster &cl) const override;
 
   // We only need to implement measurementPosition, since localPosition() from
   // PixelCPEBase will call it and do the transformation

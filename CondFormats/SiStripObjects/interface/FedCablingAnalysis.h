@@ -3,10 +3,10 @@
 
 #include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include <boost/cstdint.hpp>
 #include <sstream>
 #include <vector>
 #include <map>
+#include <cstdint>
 
 /** 
    @class FedCablingAnalysis

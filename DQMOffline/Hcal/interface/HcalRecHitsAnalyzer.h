@@ -2,7 +2,6 @@
 #define _DQMOFFLINE_HCAL_HCALRECHITSANALYZER_H_
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -11,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -28,7 +28,10 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include <algorithm>
@@ -57,11 +60,11 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
 public:
   HcalRecHitsAnalyzer(edm::ParameterSet const &conf);
 
-  void analyze(edm::Event const &ev, edm::EventSetup const &c) override;
+  void analyze(edm::Event const &ev, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  // virtual void beginRun(edm::Run const& run, edm::EventSetup const& c)
+  // virtual void beginRun(edm::Run const& run, edm::EventSetup const&)
   // override;
-  void dqmBeginRun(const edm::Run &run, const edm::EventSetup &c) override;
+  void dqmBeginRun(const edm::Run &run, const edm::EventSetup &) override;
 
 private:
   virtual void fillRecHitsTmp(int subdet_, edm::Event const &ev);
@@ -80,7 +83,6 @@ private:
   std::string mc_;
   bool famos_;
 
-  const HcalDDDRecConstants *hcons;
   int maxDepthHB_, maxDepthHE_, maxDepthHO_, maxDepthHF_, maxDepthAll_;
 
   int nChannels_[5];  // 0:any, 1:HB, 2:HE
@@ -98,6 +100,13 @@ private:
   edm::EDGetTokenT<EBRecHitCollection> tok_EB_;
   edm::EDGetTokenT<EERecHitCollection> tok_EE_;
 
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> hcalDDDRecConstantsToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryRunToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryEventToken_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalTopologyToken_;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalChannelQualityToken_;
+  edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> hcalSeverityLevelComputerToken_;
+
   // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
   int subdet_;
 
@@ -107,11 +116,11 @@ private:
   int imc;
 
   // Hcal topology
-  const HcalTopology *theHcalTopology;
+  const HcalTopology *theHcalTopology = nullptr;
   // for checking the status of ECAL and HCAL channels stored in the DB
-  const HcalChannelQuality *theHcalChStatus;
+  const HcalChannelQuality *theHcalChStatus = nullptr;
   // calculator of severety level for HCAL
-  const HcalSeverityLevelComputer *theHcalSevLvlComputer;
+  const HcalSeverityLevelComputer *theHcalSevLvlComputer = nullptr;
   int hcalSevLvl(const CaloRecHit *hit);
 
   std::vector<int> hcalHBSevLvlVec, hcalHESevLvlVec, hcalHFSevLvlVec, hcalHOSevLvlVec;
@@ -180,6 +189,7 @@ private:
 
   // energy of rechits
   MonitorElement *meRecHitsEnergyHB;
+  MonitorElement *meRecHitsCleanedEnergyHB;
   MonitorElement *meRecHitsEnergyHBM0;
   MonitorElement *meRecHitsEnergyHBM3;
   MonitorElement *meRecHitsEnergyM2vM0HB;
@@ -188,6 +198,7 @@ private:
   MonitorElement *meRecHitsM2Chi2HB;
 
   MonitorElement *meRecHitsEnergyHE;
+  MonitorElement *meRecHitsCleanedEnergyHE;
   MonitorElement *meRecHitsEnergyHEM0;
   MonitorElement *meRecHitsEnergyHEM3;
   std::vector<MonitorElement *> meRecHitsEnergyHEP17;
@@ -199,8 +210,10 @@ private:
   MonitorElement *meRecHitsM2Chi2HE;
 
   MonitorElement *meRecHitsEnergyHO;
+  MonitorElement *meRecHitsCleanedEnergyHO;
 
   MonitorElement *meRecHitsEnergyHF;
+  MonitorElement *meRecHitsCleanedEnergyHF;
 
   MonitorElement *meTE_Low_HB;
   MonitorElement *meTE_HB;
@@ -254,7 +267,7 @@ private:
   MonitorElement *meNumEcalRecHitsConeHB;
   MonitorElement *meNumEcalRecHitsConeHE;
 
-  edm::ESHandle<CaloGeometry> geometry;
+  CaloGeometry const *geometry = nullptr;
 
   // Status word histos
   MonitorElement *RecHit_StatusWord_HB;
@@ -288,6 +301,7 @@ private:
   std::vector<double> cz;
   std::vector<uint32_t> cstwd;
   std::vector<uint32_t> cauxstwd;
+  std::vector<int> csevlev;
 
   // counter
   int nevtot;

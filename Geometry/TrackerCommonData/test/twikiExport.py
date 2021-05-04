@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import optparse
-import ConfigParser
+import configparser as ConfigParser
 
 from os.path import expandvars
 

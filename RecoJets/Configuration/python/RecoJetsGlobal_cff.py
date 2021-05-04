@@ -23,7 +23,7 @@ from RecoHI.HiJetAlgos.hiFJGridEmptyAreaCalculator_cff import hiFJGridEmptyAreaC
 from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import kt4PFJetsForRho
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoHI.HiCentralityAlgos.pACentrality_cfi import pACentrality
 pA_2016.toModify(pACentrality, producePixelTracks = False)
 
@@ -34,8 +34,10 @@ _jetHighLevelReco_pATask.add(hiFJGridEmptyAreaCalculator)
 _jetHighLevelReco_pATask.add(pACentrality)
 pA_2016.toReplaceWith(jetHighLevelRecoTask, _jetHighLevelReco_pATask)
 
-_jetGlobalReco_HI = cms.Sequence(recoJetsHI*recoJetIds)
-_jetHighLevelReco_HI = cms.Sequence(recoPFJetsHI*jetCorrectorsForReco*recoJetAssociations)
+_jetGlobalReco_HITask = cms.Task(recoJetsHITask,recoJetIdsTask)
+_jetGlobalReco_HI = cms.Sequence(_jetGlobalReco_HITask)
+_jetHighLevelReco_HITask = cms.Task(recoPFJetsHITask,jetCorrectorsForRecoTask,recoJetAssociationsTask)
+_jetHighLevelReco_HI = cms.Sequence(_jetHighLevelReco_HITask)
 
-pp_on_AA_2018.toReplaceWith(jetGlobalReco,_jetGlobalReco_HI)
-pp_on_AA_2018.toReplaceWith(jetHighLevelReco,_jetHighLevelReco_HI)
+pp_on_AA.toReplaceWith(jetGlobalRecoTask,_jetGlobalReco_HITask)
+pp_on_AA.toReplaceWith(jetHighLevelRecoTask,_jetHighLevelReco_HITask)

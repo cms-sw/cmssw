@@ -90,7 +90,7 @@ process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load("DQMServices.Core.DQMStore_cfg")
 
 # SiStrip Offline DQM Client
-process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
+process.siStripOfflineAnalyser = cms.EDProducer("SiStripOfflineDQM",
        GlobalStatusFilling      = cms.untracked.int32(-1),
 #        GlobalStatusFilling      = cms.untracked.int32(2),
         SummaryCreationFrequency  = cms.untracked.int32(-1),                                              

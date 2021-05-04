@@ -3,14 +3,16 @@
 
 #include "xercesc/util/XercesDefs.hpp"
 
+#include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
+
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
@@ -21,7 +23,6 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFSorter.h"
 #include "L1Trigger/L1TMuonOverlap/interface/GhostBuster.h"
 
-class L1TMuonOverlapParams;
 class OMTFProcessor;
 class OMTFConfiguration;
 class OMTFConfigMaker;
@@ -35,9 +36,7 @@ namespace XERCES_CPP_NAMESPACE {
 
 class OMTFReconstruction {
 public:
-  OMTFReconstruction();
-
-  OMTFReconstruction(const edm::ParameterSet &);
+  OMTFReconstruction(const edm::ParameterSet &, edm::ConsumesCollector &&);
 
   ~OMTFReconstruction();
 
@@ -45,7 +44,7 @@ public:
 
   void endJob();
 
-  void beginRun(edm::Run const &run, edm::EventSetup const &iSetup);
+  void beginRun(edm::Run const &, edm::EventSetup const &);
 
   std::unique_ptr<l1t::RegionalMuonCandBxCollection> reconstruct(const edm::Event &, const edm::EventSetup &);
 
@@ -56,6 +55,8 @@ private:
   edm::Handle<L1MuDTChambThContainer> dtThDigis;
   edm::Handle<CSCCorrelatedLCTDigiCollection> cscDigis;
   edm::Handle<RPCDigiCollection> rpcDigis;
+
+  edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd> l1TMuonOverlapParamsToken_;
 
   void loadAndFilterDigis(const edm::Event &);
 

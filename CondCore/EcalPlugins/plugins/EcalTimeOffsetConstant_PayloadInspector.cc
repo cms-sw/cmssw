@@ -106,17 +106,15 @@ namespace {
             align = new TH2F("Ecal Time Offset Constant [ns]", "EB          EE", 2, 0, 2, NbRows, 0, NbRows);
 
           EcalTimeOffsetConstant it = (*payload);
-          double row = NbRows - 0.5;
 
           if (irun == 0) {
             val[0] = it.getEBValue();
             val[1] = it.getEEValue();
 
           } else {
+            double row = NbRows - 0.5;
             align->Fill(0.5, row, it.getEBValue() - val[0]);
             align->Fill(1.5, row, it.getEEValue() - val[1]);
-
-            row = row - 1.;
           }
 
         }  //  if payload.get()
