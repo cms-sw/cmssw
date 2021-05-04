@@ -4,4 +4,8 @@ from ..modules.hltTriggerType_cfi import *
 from ..sequences.HLTBeamSpot_cfi import *
 from ..sequences.HLTL1UnpackerSequence_cfi import *
 
-HLTBeginSequence = cms.Sequence(hltTriggerType+HLTL1UnpackerSequence+HLTBeamSpot)
+HLTBeginSequence = cms.Sequence(
+    hltTriggerType +
+    HLTL1UnpackerSequence +
+    HLTBeamSpot
+)

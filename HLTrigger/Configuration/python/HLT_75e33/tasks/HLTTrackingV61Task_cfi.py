@@ -32,4 +32,36 @@ from ..modules.siPixelClusterShapeCache_cfi import *
 from ..modules.siPixelRecHits_cfi import *
 from ..modules.trackerClusterCheck_cfi import *
 
-HLTTrackingV61Task = cms.Task(MeasurementTrackerEvent, generalTracks, highPtTripletStepClusters, highPtTripletStepHitDoublets, highPtTripletStepHitTriplets, highPtTripletStepSeedLayers, highPtTripletStepSeeds, highPtTripletStepTrackCandidates, highPtTripletStepTrackCutClassifier, highPtTripletStepTrackSelectionHighPurity, highPtTripletStepTrackingRegions, highPtTripletStepTracks, initialStepSeeds, initialStepTrackCandidates, initialStepTrackCutClassifier, initialStepTrackSelectionHighPurity, initialStepTracks, offlineBeamSpot, pixelFitterByHelixProjections, pixelTrackFilterByKinematics, pixelTracks, pixelTracksHitDoublets, pixelTracksHitSeeds, pixelTracksSeedLayers, pixelTracksTrackingRegions, pixelVertices, siPhase2Clusters, siPixelClusterShapeCache, siPixelClusters, siPixelRecHits, trackerClusterCheck)
+HLTTrackingV61Task = cms.Task(
+    MeasurementTrackerEvent,
+    generalTracks,
+    highPtTripletStepClusters,
+    highPtTripletStepHitDoublets,
+    highPtTripletStepHitTriplets,
+    highPtTripletStepSeedLayers,
+    highPtTripletStepSeeds,
+    highPtTripletStepTrackCandidates,
+    highPtTripletStepTrackCutClassifier,
+    highPtTripletStepTrackSelectionHighPurity,
+    highPtTripletStepTrackingRegions,
+    highPtTripletStepTracks,
+    initialStepSeeds,
+    initialStepTrackCandidates,
+    initialStepTrackCutClassifier,
+    initialStepTrackSelectionHighPurity,
+    initialStepTracks,
+    offlineBeamSpot,
+    pixelFitterByHelixProjections,
+    pixelTrackFilterByKinematics,
+    pixelTracks,
+    pixelTracksHitDoublets,
+    pixelTracksHitSeeds,
+    pixelTracksSeedLayers,
+    pixelTracksTrackingRegions,
+    pixelVertices,
+    siPhase2Clusters,
+    siPixelClusterShapeCache,
+    siPixelClusters,
+    siPixelRecHits,
+    trackerClusterCheck
+)

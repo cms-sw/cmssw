@@ -12,4 +12,16 @@ from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaL1Seeded_cfi import *
 from ..tasks.HLTPhoton100OpenL1SeededTask_cfi import *
 
-HLTPhoton100OpenL1SeededSequence = cms.Sequence(HLTL1Sequence+HLTDoFullUnpackingEgammaEcalL1SeededSequence+HLTPFClusteringForEgammaL1Seeded+HLTHgcalTiclPFClusteringForEgammaL1Seeded+hltEgammaCandidatesWrapperL1Seeded+hltEG100EtL1SeededFilter+hltPhoton100HgcalHEL1SeededFilter+HLTDoLocalHcalSequence+HLTFastJetForEgamma+hltPhoton100HEL1SeededFilter, HLTPhoton100OpenL1SeededTask)
+HLTPhoton100OpenL1SeededSequence = cms.Sequence(
+    HLTL1Sequence +
+    HLTDoFullUnpackingEgammaEcalL1SeededSequence +
+    HLTPFClusteringForEgammaL1Seeded +
+    HLTHgcalTiclPFClusteringForEgammaL1Seeded +
+    hltEgammaCandidatesWrapperL1Seeded +
+    hltEG100EtL1SeededFilter +
+    hltPhoton100HgcalHEL1SeededFilter +
+    HLTDoLocalHcalSequence +
+    HLTFastJetForEgamma +
+    hltPhoton100HEL1SeededFilter,
+    HLTPhoton100OpenL1SeededTask
+)

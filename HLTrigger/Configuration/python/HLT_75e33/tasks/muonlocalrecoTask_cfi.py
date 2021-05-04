@@ -6,4 +6,10 @@ from ..tasks.dtlocalrecoTask_cfi import *
 from ..tasks.gemLocalRecoTask_cfi import *
 from ..tasks.me0LocalRecoTask_cfi import *
 
-muonlocalrecoTask = cms.Task(csclocalrecoTask, dtlocalrecoTask, gemLocalRecoTask, me0LocalRecoTask, rpcRecHits)
+muonlocalrecoTask = cms.Task(
+    csclocalrecoTask,
+    dtlocalrecoTask,
+    gemLocalRecoTask,
+    me0LocalRecoTask,
+    rpcRecHits
+)

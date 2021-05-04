@@ -10,4 +10,14 @@ from ..modules.hltEgammaHGCALIDVarsL1Seeded_cfi import *
 from ..modules.hltEgammaHGCalLayerClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHoverEL1Seeded_cfi import *
 
-HLTDoubleEle2312IsoL1SeededTask = cms.Task(hltEgammaCandidatesL1Seeded, hltEgammaClusterShapeL1Seeded, hltEgammaEcalPFClusterIsoL1Seeded, hltEgammaEleGsfTrackIsoV6L1Seeded, hltEgammaEleL1TrkIsoL1Seeded, hltEgammaHGCALIDVarsL1Seeded, hltEgammaHGCalLayerClusterIsoL1Seeded, hltEgammaHcalPFClusterIsoL1Seeded, hltEgammaHoverEL1Seeded)
+HLTDoubleEle2312IsoL1SeededTask = cms.Task(
+    hltEgammaCandidatesL1Seeded,
+    hltEgammaClusterShapeL1Seeded,
+    hltEgammaEcalPFClusterIsoL1Seeded,
+    hltEgammaEleGsfTrackIsoV6L1Seeded,
+    hltEgammaEleL1TrkIsoL1Seeded,
+    hltEgammaHGCALIDVarsL1Seeded,
+    hltEgammaHGCalLayerClusterIsoL1Seeded,
+    hltEgammaHcalPFClusterIsoL1Seeded,
+    hltEgammaHoverEL1Seeded
+)

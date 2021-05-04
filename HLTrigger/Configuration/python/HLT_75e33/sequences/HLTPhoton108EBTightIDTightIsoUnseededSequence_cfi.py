@@ -16,4 +16,20 @@ from ..sequences.HLTPFClusteringForEgammaUnseeded_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgamma_cfi import *
 from ..tasks.HLTPhoton108EBTightIDTightIsoUnseededTask_cfi import *
 
-HLTPhoton108EBTightIDTightIsoUnseededSequence = cms.Sequence(HLTL1Sequence+hltEGL1SeedsForSinglePhotonIsolatedFilter+HLTDoFullUnpackingEgammaEcalSequence+HLTPFClusteringForEgammaUnseeded+HLTHgcalTiclPFClusteringForEgammaUnseeded+hltEgammaCandidatesWrapperUnseeded+hltEG108EtUnseededFilter+hltPhoton108EBTightIDTightIsoClusterShapeUnseededFilter+HLTDoLocalHcalSequence+HLTFastJetForEgamma+hltPhoton108EBTightIDTightIsoHEUnseededFilter+hltPhoton108EBTightIDTightIsoEcalIsoUnseededFilter+HLTPFHcalClusteringForEgamma+hltPhoton108EBTightIDTightIsoHcalIsoUnseededFilter, HLTPhoton108EBTightIDTightIsoUnseededTask)
+HLTPhoton108EBTightIDTightIsoUnseededSequence = cms.Sequence(
+    HLTL1Sequence +
+    hltEGL1SeedsForSinglePhotonIsolatedFilter +
+    HLTDoFullUnpackingEgammaEcalSequence +
+    HLTPFClusteringForEgammaUnseeded +
+    HLTHgcalTiclPFClusteringForEgammaUnseeded +
+    hltEgammaCandidatesWrapperUnseeded +
+    hltEG108EtUnseededFilter +
+    hltPhoton108EBTightIDTightIsoClusterShapeUnseededFilter +
+    HLTDoLocalHcalSequence +
+    HLTFastJetForEgamma +
+    hltPhoton108EBTightIDTightIsoHEUnseededFilter +
+    hltPhoton108EBTightIDTightIsoEcalIsoUnseededFilter +
+    HLTPFHcalClusteringForEgamma +
+    hltPhoton108EBTightIDTightIsoHcalIsoUnseededFilter,
+    HLTPhoton108EBTightIDTightIsoUnseededTask
+)

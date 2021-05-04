@@ -8,4 +8,12 @@ from ..modules.hltEgammaHGCALIDVarsUnseeded_cfi import *
 from ..modules.hltEgammaHGCalLayerClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHoverEUnseeded_cfi import *
 
-HLTDiphoton3023IsoCaloIdUnseededTask = cms.Task(hltEgammaCandidatesUnseeded, hltEgammaClusterShapeUnseeded, hltEgammaEcalPFClusterIsoUnseeded, hltEgammaHGCALIDVarsUnseeded, hltEgammaHGCalLayerClusterIsoUnseeded, hltEgammaHcalPFClusterIsoUnseeded, hltEgammaHoverEUnseeded)
+HLTDiphoton3023IsoCaloIdUnseededTask = cms.Task(
+    hltEgammaCandidatesUnseeded,
+    hltEgammaClusterShapeUnseeded,
+    hltEgammaEcalPFClusterIsoUnseeded,
+    hltEgammaHGCALIDVarsUnseeded,
+    hltEgammaHGCalLayerClusterIsoUnseeded,
+    hltEgammaHcalPFClusterIsoUnseeded,
+    hltEgammaHoverEUnseeded
+)

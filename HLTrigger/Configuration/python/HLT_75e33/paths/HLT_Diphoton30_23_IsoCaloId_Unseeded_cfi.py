@@ -5,4 +5,9 @@ from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTDiphoton3023IsoCaloIdUnseededSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 
-HLT_Diphoton30_23_IsoCaloId_Unseeded = cms.Path(HLTBeginSequence+hltPreDiphoton3023IsoCaloIdUnseeded+HLTDiphoton3023IsoCaloIdUnseededSequence+HLTEndSequence)
+HLT_Diphoton30_23_IsoCaloId_Unseeded = cms.Path(
+    HLTBeginSequence +
+    hltPreDiphoton3023IsoCaloIdUnseeded +
+    HLTDiphoton3023IsoCaloIdUnseededSequence +
+    HLTEndSequence
+)

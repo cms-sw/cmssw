@@ -32,4 +32,36 @@ from ..sequences.HLTPFHcalClusteringForEgamma_cfi import *
 from ..sequences.HLTTrackingV61Sequence_cfi import *
 from ..tasks.HLTEle5WP70OpenL1SeededTask_cfi import *
 
-HLTEle5WP70OpenL1SeededSequence = cms.Sequence(HLTL1Sequence+HLTDoFullUnpackingEgammaEcalL1SeededSequence+HLTPFClusteringForEgammaL1Seeded+HLTHgcalTiclPFClusteringForEgammaL1Seeded+hltEgammaCandidatesWrapperL1Seeded+hltEG5EtL1SeededFilter+hltEle5WP70ClusterShapeL1SeededFilter+hltEle5WP70ClusterShapeSigmavvL1SeededFilter+hltEle5WP70ClusterShapeSigmawwL1SeededFilter+hltEle5WP70HgcalHEL1SeededFilter+HLTDoLocalHcalSequence+HLTFastJetForEgamma+hltEle5WP70HEL1SeededFilter+hltEle5WP70EcalIsoL1SeededFilter+hltEle5WP70HgcalIsoL1SeededFilter+HLTPFHcalClusteringForEgamma+hltEle5WP70HcalIsoL1SeededFilter+HLTElePixelMatchL1SeededSequence+hltEle5WP70PixelMatchL1SeededFilter+hltEle5WP70PMS2L1SeededFilter+HLTGsfElectronL1SeededSequence+hltEle5WP70GsfOneOEMinusOneOPL1SeededFilter+hltEle5WP70GsfDetaL1SeededFilter+hltEle5WP70GsfDphiL1SeededFilter+hltEle5WP70BestGsfNLayerITL1SeededFilter+hltEle5WP70BestGsfChi2L1SeededFilter+hltEle5DphiL1SeededFilter+hltEle5WP70GsfTrackIsoFromL1TracksL1SeededFilter+HLTTrackingV61Sequence+hltEle5WP70GsfTrackIsoL1SeededFilter, HLTEle5WP70OpenL1SeededTask)
+HLTEle5WP70OpenL1SeededSequence = cms.Sequence(
+    HLTL1Sequence +
+    HLTDoFullUnpackingEgammaEcalL1SeededSequence +
+    HLTPFClusteringForEgammaL1Seeded +
+    HLTHgcalTiclPFClusteringForEgammaL1Seeded +
+    hltEgammaCandidatesWrapperL1Seeded +
+    hltEG5EtL1SeededFilter +
+    hltEle5WP70ClusterShapeL1SeededFilter +
+    hltEle5WP70ClusterShapeSigmavvL1SeededFilter +
+    hltEle5WP70ClusterShapeSigmawwL1SeededFilter +
+    hltEle5WP70HgcalHEL1SeededFilter +
+    HLTDoLocalHcalSequence +
+    HLTFastJetForEgamma +
+    hltEle5WP70HEL1SeededFilter +
+    hltEle5WP70EcalIsoL1SeededFilter +
+    hltEle5WP70HgcalIsoL1SeededFilter +
+    HLTPFHcalClusteringForEgamma +
+    hltEle5WP70HcalIsoL1SeededFilter +
+    HLTElePixelMatchL1SeededSequence +
+    hltEle5WP70PixelMatchL1SeededFilter +
+    hltEle5WP70PMS2L1SeededFilter +
+    HLTGsfElectronL1SeededSequence +
+    hltEle5WP70GsfOneOEMinusOneOPL1SeededFilter +
+    hltEle5WP70GsfDetaL1SeededFilter +
+    hltEle5WP70GsfDphiL1SeededFilter +
+    hltEle5WP70BestGsfNLayerITL1SeededFilter +
+    hltEle5WP70BestGsfChi2L1SeededFilter +
+    hltEle5DphiL1SeededFilter +
+    hltEle5WP70GsfTrackIsoFromL1TracksL1SeededFilter +
+    HLTTrackingV61Sequence +
+    hltEle5WP70GsfTrackIsoL1SeededFilter,
+    HLTEle5WP70OpenL1SeededTask
+)

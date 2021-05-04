@@ -9,4 +9,13 @@ from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
 
-HLT_PFPuppiHT1070 = cms.Path(HLTBeginSequence+l1tPFPuppiHT+l1tPFPuppiHT450off+HLTParticleFlowSequence+HLTAK4PFPuppiJetsReconstruction+hltPFPuppiHT+hltPFPuppiHT1070+HLTEndSequence)
+HLT_PFPuppiHT1070 = cms.Path(
+    HLTBeginSequence +
+    l1tPFPuppiHT +
+    l1tPFPuppiHT450off +
+    HLTParticleFlowSequence +
+    HLTAK4PFPuppiJetsReconstruction +
+    hltPFPuppiHT +
+    hltPFPuppiHT1070 +
+    HLTEndSequence
+)

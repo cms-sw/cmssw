@@ -6,4 +6,10 @@ from ..modules.initialStepTrackCutClassifier_cfi import *
 from ..modules.initialStepTracks_cfi import *
 from ..modules.initialStepTrackSelectionHighPurity_cfi import *
 
-initialStepTask = cms.Task(initialStepSeeds, initialStepTrackCandidates, initialStepTrackCutClassifier, initialStepTrackSelectionHighPurity, initialStepTracks)
+initialStepTask = cms.Task(
+    initialStepSeeds,
+    initialStepTrackCandidates,
+    initialStepTrackCutClassifier,
+    initialStepTrackSelectionHighPurity,
+    initialStepTracks
+)

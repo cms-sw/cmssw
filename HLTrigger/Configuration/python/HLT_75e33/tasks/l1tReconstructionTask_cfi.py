@@ -36,4 +36,40 @@ from ..modules.simMuonGEMPadDigis_cfi import *
 from ..modules.simOmtfDigis_cfi import *
 from ..modules.simTwinMuxDigis_cfi import *
 
-l1tReconstructionTask = cms.Task(L1EGammaClusterEmuProducer, L1TkElectronsEllipticMatchCrystal, L1TkElectronsEllipticMatchHGC, L1TkMuons, L1TkPhotonsCrystal, L1TkPhotonsHGC, L1TkPrimaryVertex, l1EGammaEEProducer, l1NNTauProducerPuppi, l1PFMetPuppi, l1pfCandidates, l1pfProducerBarrel, l1pfProducerHF, l1pfProducerHGCal, l1pfProducerHGCalNoTK, l1tSlwPFPuppiJets, l1tSlwPFPuppiJetsCorrected, pfClustersFromCombinedCaloHCal, pfClustersFromCombinedCaloHF, pfClustersFromHGC3DClusters, pfClustersFromL1EGClusters, pfTracksFromL1TracksBarrel, pfTracksFromL1TracksHGCal, simCaloStage2Layer1Digis, simCscTriggerPrimitiveDigis, simDtTriggerPrimitiveDigis, simEmtfDigis, simGmtCaloSumDigis, simGmtStage2Digis, simKBmtfDigis, simKBmtfStubs, simMuonGEMPadDigiClusters, simMuonGEMPadDigis, simOmtfDigis, simTwinMuxDigis)
+l1tReconstructionTask = cms.Task(
+    L1EGammaClusterEmuProducer,
+    L1TkElectronsEllipticMatchCrystal,
+    L1TkElectronsEllipticMatchHGC,
+    L1TkMuons,
+    L1TkPhotonsCrystal,
+    L1TkPhotonsHGC,
+    L1TkPrimaryVertex,
+    l1EGammaEEProducer,
+    l1NNTauProducerPuppi,
+    l1PFMetPuppi,
+    l1pfCandidates,
+    l1pfProducerBarrel,
+    l1pfProducerHF,
+    l1pfProducerHGCal,
+    l1pfProducerHGCalNoTK,
+    l1tSlwPFPuppiJets,
+    l1tSlwPFPuppiJetsCorrected,
+    pfClustersFromCombinedCaloHCal,
+    pfClustersFromCombinedCaloHF,
+    pfClustersFromHGC3DClusters,
+    pfClustersFromL1EGClusters,
+    pfTracksFromL1TracksBarrel,
+    pfTracksFromL1TracksHGCal,
+    simCaloStage2Layer1Digis,
+    simCscTriggerPrimitiveDigis,
+    simDtTriggerPrimitiveDigis,
+    simEmtfDigis,
+    simGmtCaloSumDigis,
+    simGmtStage2Digis,
+    simKBmtfDigis,
+    simKBmtfStubs,
+    simMuonGEMPadDigiClusters,
+    simMuonGEMPadDigis,
+    simOmtfDigis,
+    simTwinMuxDigis
+)

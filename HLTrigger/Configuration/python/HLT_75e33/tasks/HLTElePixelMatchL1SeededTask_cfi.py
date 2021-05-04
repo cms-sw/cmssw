@@ -16,4 +16,20 @@ from ..modules.hltPixelLayerPairsL1Seeded_cfi import *
 from ..modules.hltPixelLayerTriplets_cfi import *
 from ..modules.MeasurementTrackerEvent_cfi import *
 
-HLTElePixelMatchL1SeededTask = cms.Task(MeasurementTrackerEvent, hltEgammaElectronPixelSeedsL1Seeded, hltEgammaHoverEL1Seeded, hltEgammaPixelMatchVarsL1Seeded, hltEgammaSuperClustersToPixelMatchL1Seeded, hltElePixelHitDoubletsForTripletsL1Seeded, hltElePixelHitDoubletsL1Seeded, hltElePixelHitTripletsClusterRemoverL1Seeded, hltElePixelHitTripletsL1Seeded, hltElePixelSeedsCombinedL1Seeded, hltElePixelSeedsDoubletsL1Seeded, hltElePixelSeedsTripletsL1Seeded, hltEleSeedsTrackingRegionsL1Seeded, hltPixelLayerPairsL1Seeded, hltPixelLayerTriplets)
+HLTElePixelMatchL1SeededTask = cms.Task(
+    MeasurementTrackerEvent,
+    hltEgammaElectronPixelSeedsL1Seeded,
+    hltEgammaHoverEL1Seeded,
+    hltEgammaPixelMatchVarsL1Seeded,
+    hltEgammaSuperClustersToPixelMatchL1Seeded,
+    hltElePixelHitDoubletsForTripletsL1Seeded,
+    hltElePixelHitDoubletsL1Seeded,
+    hltElePixelHitTripletsClusterRemoverL1Seeded,
+    hltElePixelHitTripletsL1Seeded,
+    hltElePixelSeedsCombinedL1Seeded,
+    hltElePixelSeedsDoubletsL1Seeded,
+    hltElePixelSeedsTripletsL1Seeded,
+    hltEleSeedsTrackingRegionsL1Seeded,
+    hltPixelLayerPairsL1Seeded,
+    hltPixelLayerTriplets
+)

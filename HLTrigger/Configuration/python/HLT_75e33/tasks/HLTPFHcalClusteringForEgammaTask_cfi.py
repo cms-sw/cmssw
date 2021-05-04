@@ -5,4 +5,9 @@ from ..modules.hltParticleFlowClusterHCALForEgamma_cfi import *
 from ..modules.hltParticleFlowRecHitHBHEForEgamma_cfi import *
 from ..modules.hltRegionalTowerForEgamma_cfi import *
 
-HLTPFHcalClusteringForEgammaTask = cms.Task(hltParticleFlowClusterHBHEForEgamma, hltParticleFlowClusterHCALForEgamma, hltParticleFlowRecHitHBHEForEgamma, hltRegionalTowerForEgamma)
+HLTPFHcalClusteringForEgammaTask = cms.Task(
+    hltParticleFlowClusterHBHEForEgamma,
+    hltParticleFlowClusterHCALForEgamma,
+    hltParticleFlowRecHitHBHEForEgamma,
+    hltRegionalTowerForEgamma
+)

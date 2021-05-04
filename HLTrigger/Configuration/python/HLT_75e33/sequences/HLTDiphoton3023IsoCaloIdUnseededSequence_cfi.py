@@ -21,4 +21,25 @@ from ..sequences.HLTPFClusteringForEgammaUnseeded_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgamma_cfi import *
 from ..tasks.HLTDiphoton3023IsoCaloIdUnseededTask_cfi import *
 
-HLTDiphoton3023IsoCaloIdUnseededSequence = cms.Sequence(HLTL1Sequence+hltEGL1SeedsForDoublePhotonIsolatedFilter+HLTDoFullUnpackingEgammaEcalSequence+HLTPFClusteringForEgammaUnseeded+HLTHgcalTiclPFClusteringForEgammaUnseeded+hltEgammaCandidatesWrapperUnseeded+hltEG30EtUnseededFilter+hltDiEG23EtUnseededFilter+hltDiEG3023IsoCaloIdClusterShapeUnseededFilter+hltDiEG3023IsoCaloIdClusterShapeSigmavvUnseededFilter+hltDiEG3023IsoCaloIdClusterShapeSigmawwUnseededFilter+hltDiEG3023IsoCaloIdHgcalHEUnseededFilter+HLTDoLocalHcalSequence+HLTFastJetForEgamma+hltDiEG3023IsoCaloIdHEUnseededFilter+hltDiEG3023IsoCaloIdEcalIsoUnseededFilter+hltDiEG3023IsoCaloIdHgcalIsoUnseededFilter+HLTPFHcalClusteringForEgamma+hltDiEG3023IsoCaloIdHcalIsoUnseededFilter, HLTDiphoton3023IsoCaloIdUnseededTask)
+HLTDiphoton3023IsoCaloIdUnseededSequence = cms.Sequence(
+    HLTL1Sequence +
+    hltEGL1SeedsForDoublePhotonIsolatedFilter +
+    HLTDoFullUnpackingEgammaEcalSequence +
+    HLTPFClusteringForEgammaUnseeded +
+    HLTHgcalTiclPFClusteringForEgammaUnseeded +
+    hltEgammaCandidatesWrapperUnseeded +
+    hltEG30EtUnseededFilter +
+    hltDiEG23EtUnseededFilter +
+    hltDiEG3023IsoCaloIdClusterShapeUnseededFilter +
+    hltDiEG3023IsoCaloIdClusterShapeSigmavvUnseededFilter +
+    hltDiEG3023IsoCaloIdClusterShapeSigmawwUnseededFilter +
+    hltDiEG3023IsoCaloIdHgcalHEUnseededFilter +
+    HLTDoLocalHcalSequence +
+    HLTFastJetForEgamma +
+    hltDiEG3023IsoCaloIdHEUnseededFilter +
+    hltDiEG3023IsoCaloIdEcalIsoUnseededFilter +
+    hltDiEG3023IsoCaloIdHgcalIsoUnseededFilter +
+    HLTPFHcalClusteringForEgamma +
+    hltDiEG3023IsoCaloIdHcalIsoUnseededFilter,
+    HLTDiphoton3023IsoCaloIdUnseededTask
+)

@@ -9,4 +9,13 @@ from ..modules.hltParticleFlowRecHitPSL1Seeded_cfi import *
 from ..modules.hltParticleFlowSuperClusterECALL1Seeded_cfi import *
 from ..modules.hltRechitInRegionsECAL_cfi import *
 
-HLTPFClusteringForEgammaL1SeededTask = cms.Task(hltL1TEGammaFilteredCollectionProducer, hltParticleFlowClusterECALL1Seeded, hltParticleFlowClusterECALUncorrectedL1Seeded, hltParticleFlowClusterPSL1Seeded, hltParticleFlowRecHitECALL1Seeded, hltParticleFlowRecHitPSL1Seeded, hltParticleFlowSuperClusterECALL1Seeded, hltRechitInRegionsECAL)
+HLTPFClusteringForEgammaL1SeededTask = cms.Task(
+    hltL1TEGammaFilteredCollectionProducer,
+    hltParticleFlowClusterECALL1Seeded,
+    hltParticleFlowClusterECALUncorrectedL1Seeded,
+    hltParticleFlowClusterPSL1Seeded,
+    hltParticleFlowRecHitECALL1Seeded,
+    hltParticleFlowRecHitPSL1Seeded,
+    hltParticleFlowSuperClusterECALL1Seeded,
+    hltRechitInRegionsECAL
+)

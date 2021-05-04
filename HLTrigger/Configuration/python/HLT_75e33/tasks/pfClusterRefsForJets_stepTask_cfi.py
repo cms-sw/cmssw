@@ -17,4 +17,21 @@ from ..modules.pfClusterRefsForJetsHF_cfi import *
 from ..modules.pfClusterRefsForJetsHGCAL_cfi import *
 from ..modules.pfClusterRefsForJetsHO_cfi import *
 
-pfClusterRefsForJets_stepTask = cms.Task(particleFlowClusterECAL, particleFlowClusterECALUncorrected, particleFlowClusterHBHE, particleFlowClusterHCAL, particleFlowClusterHF, particleFlowClusterHO, particleFlowRecHitECAL, particleFlowRecHitHBHE, particleFlowRecHitHF, particleFlowRecHitHO, pfClusterRefsForJets, pfClusterRefsForJetsECAL, pfClusterRefsForJetsHCAL, pfClusterRefsForJetsHF, pfClusterRefsForJetsHGCAL, pfClusterRefsForJetsHO)
+pfClusterRefsForJets_stepTask = cms.Task(
+    particleFlowClusterECAL,
+    particleFlowClusterECALUncorrected,
+    particleFlowClusterHBHE,
+    particleFlowClusterHCAL,
+    particleFlowClusterHF,
+    particleFlowClusterHO,
+    particleFlowRecHitECAL,
+    particleFlowRecHitHBHE,
+    particleFlowRecHitHF,
+    particleFlowRecHitHO,
+    pfClusterRefsForJets,
+    pfClusterRefsForJetsECAL,
+    pfClusterRefsForJetsHCAL,
+    pfClusterRefsForJetsHF,
+    pfClusterRefsForJetsHGCAL,
+    pfClusterRefsForJetsHO
+)

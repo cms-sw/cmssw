@@ -5,4 +5,9 @@ from ..tasks.calolocalrecoTask_cfi import *
 from ..tasks.muonlocalrecoTask_cfi import *
 from ..tasks.trackerlocalrecoTask_cfi import *
 
-localrecoTask = cms.Task(bunchSpacingProducer, calolocalrecoTask, muonlocalrecoTask, trackerlocalrecoTask)
+localrecoTask = cms.Task(
+    bunchSpacingProducer,
+    calolocalrecoTask,
+    muonlocalrecoTask,
+    trackerlocalrecoTask
+)

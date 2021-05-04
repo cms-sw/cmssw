@@ -10,4 +10,14 @@ from ..modules.hltEcalRecHitL1Seeded_cfi import *
 from ..modules.hltEcalUncalibRecHitL1Seeded_cfi import *
 from ..modules.hltL1TEGammaFilteredCollectionProducer_cfi import *
 
-HLTDoFullUnpackingEgammaEcalL1SeededTask = cms.Task(bunchSpacingProducer, hltEcalBarrelDigisInRegions, hltEcalDetIdToBeRecovered, hltEcalDigis, hltEcalPreshowerDigis, hltEcalPreshowerRecHit, hltEcalRecHitL1Seeded, hltEcalUncalibRecHitL1Seeded, hltL1TEGammaFilteredCollectionProducer)
+HLTDoFullUnpackingEgammaEcalL1SeededTask = cms.Task(
+    bunchSpacingProducer,
+    hltEcalBarrelDigisInRegions,
+    hltEcalDetIdToBeRecovered,
+    hltEcalDigis,
+    hltEcalPreshowerDigis,
+    hltEcalPreshowerRecHit,
+    hltEcalRecHitL1Seeded,
+    hltEcalUncalibRecHitL1Seeded,
+    hltL1TEGammaFilteredCollectionProducer
+)

@@ -18,4 +18,22 @@ from ..sequences.HLTBtagDeepCSVSequencePFPuppiModEta2p4_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
 
-HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepCSV_2p4 = cms.Path(HLTBeginSequence+l1tPFPuppiHT+l1tPFPuppiHT400offMaxEta2p4+l1t1PFPuppiJet70offMaxEta2p4+l1t2PFPuppiJet55offMaxEta2p4+l1t4PFPuppiJet40offMaxEta2p4+l1t4PFPuppiJet25OnlineMaxEta2p4+HLTParticleFlowSequence+HLTAK4PFPuppiJetsReconstruction+hltPFPuppiCentralJetQuad30MaxEta2p4+hlt1PFPuppiCentralJet70MaxEta2p4+hlt2PFPuppiCentralJet40MaxEta2p4+hltHtMhtPFPuppiCentralJetsQuadC30MaxEta2p4+hltPFPuppiCentralJetsQuad30HT200MaxEta2p4+HLTBtagDeepCSVSequencePFPuppiModEta2p4+hltBTagPFPuppiDeepCSV0p38Eta2p4TripleEta2p4+HLTEndSequence)
+HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepCSV_2p4 = cms.Path(
+    HLTBeginSequence +
+    l1tPFPuppiHT +
+    l1tPFPuppiHT400offMaxEta2p4 +
+    l1t1PFPuppiJet70offMaxEta2p4 +
+    l1t2PFPuppiJet55offMaxEta2p4 +
+    l1t4PFPuppiJet40offMaxEta2p4 +
+    l1t4PFPuppiJet25OnlineMaxEta2p4 +
+    HLTParticleFlowSequence +
+    HLTAK4PFPuppiJetsReconstruction +
+    hltPFPuppiCentralJetQuad30MaxEta2p4 +
+    hlt1PFPuppiCentralJet70MaxEta2p4 +
+    hlt2PFPuppiCentralJet40MaxEta2p4 +
+    hltHtMhtPFPuppiCentralJetsQuadC30MaxEta2p4 +
+    hltPFPuppiCentralJetsQuad30HT200MaxEta2p4 +
+    HLTBtagDeepCSVSequencePFPuppiModEta2p4 +
+    hltBTagPFPuppiDeepCSV0p38Eta2p4TripleEta2p4 +
+    HLTEndSequence
+)

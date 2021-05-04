@@ -17,4 +17,21 @@ from ..modules.ticlMultiClustersFromTrackstersMergeL1Seeded_cfi import *
 from ..modules.ticlSeedingL1_cfi import *
 from ..modules.ticlTrackstersEML1_cfi import *
 
-HLTHgcalTiclPFClusteringForEgammaL1SeededTask = cms.Task(HGCalRecHitL1Seeded, HGCalUncalibRecHitL1Seeded, filteredLayerClustersEML1Seeded, hgcalDigis, hgcalDigisL1Seeded, hgcalLayerClustersL1Seeded, hltL1TEGammaHGCFilteredCollectionProducer, hltRechitInRegionsHGCAL, offlineBeamSpot, particleFlowClusterHGCalFromTICLL1Seeded, particleFlowRecHitHGCL1Seeded, particleFlowSuperClusterHGCalFromTICLL1Seeded, ticlLayerTileProducerL1Seeded, ticlMultiClustersFromTrackstersMergeL1Seeded, ticlSeedingL1, ticlTrackstersEML1)
+HLTHgcalTiclPFClusteringForEgammaL1SeededTask = cms.Task(
+    HGCalRecHitL1Seeded,
+    HGCalUncalibRecHitL1Seeded,
+    filteredLayerClustersEML1Seeded,
+    hgcalDigis,
+    hgcalDigisL1Seeded,
+    hgcalLayerClustersL1Seeded,
+    hltL1TEGammaHGCFilteredCollectionProducer,
+    hltRechitInRegionsHGCAL,
+    offlineBeamSpot,
+    particleFlowClusterHGCalFromTICLL1Seeded,
+    particleFlowRecHitHGCL1Seeded,
+    particleFlowSuperClusterHGCalFromTICLL1Seeded,
+    ticlLayerTileProducerL1Seeded,
+    ticlMultiClustersFromTrackstersMergeL1Seeded,
+    ticlSeedingL1,
+    ticlTrackstersEML1
+)

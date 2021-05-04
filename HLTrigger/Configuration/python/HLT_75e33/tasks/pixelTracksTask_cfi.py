@@ -8,4 +8,12 @@ from ..modules.pixelTracksHitSeeds_cfi import *
 from ..modules.pixelTracksSeedLayers_cfi import *
 from ..modules.pixelTracksTrackingRegions_cfi import *
 
-pixelTracksTask = cms.Task(pixelFitterByHelixProjections, pixelTrackFilterByKinematics, pixelTracks, pixelTracksHitDoublets, pixelTracksHitSeeds, pixelTracksSeedLayers, pixelTracksTrackingRegions)
+pixelTracksTask = cms.Task(
+    pixelFitterByHelixProjections,
+    pixelTrackFilterByKinematics,
+    pixelTracks,
+    pixelTracksHitDoublets,
+    pixelTracksHitSeeds,
+    pixelTracksSeedLayers,
+    pixelTracksTrackingRegions
+)

@@ -6,4 +6,10 @@ from ..modules.hltEgammaEcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHoverEUnseeded_cfi import *
 
-HLTPhoton108EBTightIDTightIsoUnseededTask = cms.Task(hltEgammaCandidatesUnseeded, hltEgammaClusterShapeUnseeded, hltEgammaEcalPFClusterIsoUnseeded, hltEgammaHcalPFClusterIsoUnseeded, hltEgammaHoverEUnseeded)
+HLTPhoton108EBTightIDTightIsoUnseededTask = cms.Task(
+    hltEgammaCandidatesUnseeded,
+    hltEgammaClusterShapeUnseeded,
+    hltEgammaEcalPFClusterIsoUnseeded,
+    hltEgammaHcalPFClusterIsoUnseeded,
+    hltEgammaHoverEUnseeded
+)

@@ -6,4 +6,10 @@ from ..modules.particleFlowClusterHF_cfi import *
 from ..modules.particleFlowRecHitHBHE_cfi import *
 from ..modules.particleFlowRecHitHF_cfi import *
 
-pfClusteringHBHEHFTask = cms.Task(particleFlowClusterHBHE, particleFlowClusterHCAL, particleFlowClusterHF, particleFlowRecHitHBHE, particleFlowRecHitHF)
+pfClusteringHBHEHFTask = cms.Task(
+    particleFlowClusterHBHE,
+    particleFlowClusterHCAL,
+    particleFlowClusterHF,
+    particleFlowRecHitHBHE,
+    particleFlowRecHitHF
+)

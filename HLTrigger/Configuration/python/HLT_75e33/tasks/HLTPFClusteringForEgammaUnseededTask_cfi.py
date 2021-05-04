@@ -7,4 +7,11 @@ from ..modules.hltParticleFlowRecHitECALUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitPSUnseeded_cfi import *
 from ..modules.hltParticleFlowSuperClusterECALUnseeded_cfi import *
 
-HLTPFClusteringForEgammaUnseededTask = cms.Task(hltParticleFlowClusterECALUncorrectedUnseeded, hltParticleFlowClusterECALUnseeded, hltParticleFlowClusterPSUnseeded, hltParticleFlowRecHitECALUnseeded, hltParticleFlowRecHitPSUnseeded, hltParticleFlowSuperClusterECALUnseeded)
+HLTPFClusteringForEgammaUnseededTask = cms.Task(
+    hltParticleFlowClusterECALUncorrectedUnseeded,
+    hltParticleFlowClusterECALUnseeded,
+    hltParticleFlowClusterPSUnseeded,
+    hltParticleFlowRecHitECALUnseeded,
+    hltParticleFlowRecHitPSUnseeded,
+    hltParticleFlowSuperClusterECALUnseeded
+)
