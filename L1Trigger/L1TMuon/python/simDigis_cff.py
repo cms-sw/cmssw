@@ -77,6 +77,7 @@ from L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi import *
 from L1Trigger.L1TMuonBarrel.simKBmtfStubs_cfi import *
 from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import *
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
+from L1Trigger.L1TMuonEndCap.simEmtfShowers_cfi import *
 from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *
 from L1Trigger.L1TMuon.simGmtCaloSumDigis_cfi import *
 from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
