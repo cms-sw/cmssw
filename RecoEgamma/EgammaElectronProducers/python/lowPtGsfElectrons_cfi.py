@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaTools.regressionModifier_cfi import regressionModifier106XUL
 
-_lowPtRegressionModifier = regressionModifier106XUL.clone(
+lowPtRegressionModifier = regressionModifier106XUL.clone(
     modifierName = 'EGRegressionModifierV3',
     rhoTag = 'fixedGridRhoFastjetAll',
     eleRegs = dict(
@@ -42,7 +42,7 @@ _lowPtRegressionModifier = regressionModifier106XUL.clone(
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronFinalizer_cfi import lowPtGsfElectronFinalizer
 lowPtGsfElectrons = lowPtGsfElectronFinalizer.clone(
     previousGsfElectronsTag = "lowPtGsfElectronsPreRegression",
-    regressionConfig = _lowPtRegressionModifier,
+    regressionConfig = lowPtRegressionModifier,
 )
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
