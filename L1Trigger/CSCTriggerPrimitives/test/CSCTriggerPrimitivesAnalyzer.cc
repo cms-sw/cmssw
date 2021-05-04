@@ -35,27 +35,27 @@
 class CSCTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
-  explicit CSCTriggerPrimitivesAnalyzer(const edm::ParameterSet& conf);
+  explicit CSCTriggerPrimitivesAnalyzer(const edm::ParameterSet &conf);
 
   /// Destructor
   ~CSCTriggerPrimitivesAnalyzer() override {}
 
   /// Does the job
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &setup) override;
 
   /// Write to ROOT file, make plots, etc.
   void endJob() override;
 
 private:
-  void makePlot(TH1F* dataMon,
-                TH1F* emulMon,
-                TH1F* diffMon,
+  void makePlot(TH1F *dataMon,
+                TH1F *emulMon,
+                TH1F *diffMon,
                 TString lcts,
                 TString lct,
                 TString var,
                 TString chamber,
-                TPostScript* ps,
-                TCanvas* c1) const;
+                TPostScript *ps,
+                TCanvas *c1) const;
 
   // plots of data vs emulator
   std::string rootFileName_;
