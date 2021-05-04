@@ -35,6 +35,7 @@ gsfElectronProducer = cms.EDProducer('GsfElectronProducer',
   recHitEThresholdHB = egammaHBHERecHit.recHitEThresholdHB,
   recHitEThresholdHE = egammaHBHERecHit.recHitEThresholdHE,
   maxHcalRecHitSeverity = egammaHBHERecHit.maxHcalRecHitSeverity,
+  hcalRun2EffDepth = cms.bool(False),
   trkIsol03Cfg = cms.PSet(
     barrelCuts = cms.PSet(
       minPt = cms.double(1),

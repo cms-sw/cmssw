@@ -170,6 +170,7 @@ private:
   // additional configuration and helpers
   std::unique_ptr<ElectronHcalHelper> hcalHelperCone_;
   std::unique_ptr<ElectronHcalHelper> hcalHelperBc_;
+  bool hcalRun2EffDepth_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -301,6 +302,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
 
   hcalHelperCone_ = std::make_unique<ElectronHcalHelper>(cfgCone, consumesCollector());
   hcalHelperBc_ = std::make_unique<ElectronHcalHelper>(cfgBc, consumesCollector());
+
+  hcalRun2EffDepth_ = config.getParameter<bool>("hcalRun2EffDepth");
 
   //AA
 
@@ -501,6 +504,12 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
 
   // put the product in the event
   edm::LogInfo("GEDPhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
+
+  // go back to run2-like 2 effective depths if desired - depth 1 is the normal depth 1, depth 2 is the sum over the rest
+  if (hcalRun2EffDepth_) {
+    for (auto &pho : *outputPhotonCollection_p)
+      pho.hcalToRun2EffDepth();
+  }
   const auto photonOrphHandle = theEvent.put(std::move(outputPhotonCollection_p), photonCollection_);
 
   if (!recoStep_.isFinal() && not pfEgammaCandidates_.isUninitialized()) {
