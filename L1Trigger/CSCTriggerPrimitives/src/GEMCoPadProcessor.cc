@@ -8,7 +8,8 @@
 // Constructors --
 //----------------
 
-GEMCoPadProcessor::GEMCoPadProcessor(int region, unsigned station, unsigned chamber, const edm::ParameterSet& copad, const edm::ParameterSet& luts)
+GEMCoPadProcessor::GEMCoPadProcessor(
+    int region, unsigned station, unsigned chamber, const edm::ParameterSet& copad, const edm::ParameterSet& luts)
     : theRegion(region), theStation(station), theChamber(chamber) {
   isEven_ = theChamber % 2 == 0;
   maxDeltaPad_ = copad.getParameter<unsigned int>("maxDeltaPad");
@@ -260,7 +261,6 @@ void GEMCoPadProcessor::addSingleClusters(const GEMPadDigiClusterCollection* in_
 void GEMCoPadProcessor::doCoordinateConversion() {
   // loop on clusters
   for (auto& cluster : clusters_) {
-
     // starting coordinates
     const int layer1_first_pad = cluster.layer1_pad();
     const int layer2_first_pad = cluster.layer2_pad();
@@ -347,7 +347,6 @@ void GEMCoPadProcessor::doCoordinateConversion() {
       cluster.set_layer1_middle_hs_me1a(layer1_middle_hs_me1a);
       cluster.set_layer2_middle_hs_me1a(layer2_middle_hs_me1a);
     }
-
 
     // calculate the 1/8-strips
     int layer1_pad_to_first_es = -1;
