@@ -45,6 +45,5 @@ hltL2MuonIsolationsCR = _mod.hltL2MuonIsolations.clone(
       RhoSrc = 'hltKT6CaloJets:rho',
       RhoMax = 9.9999999E7,
     ),
-#    OutputMuIsoDeposits = cms.bool(True),
     ExtractorPSet = dict()
 )

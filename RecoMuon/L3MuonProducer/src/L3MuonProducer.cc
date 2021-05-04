@@ -265,7 +265,6 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
       psd1.add<double>("EtaR_UpperLimit_Par1", 0.25);
       psd1.add<double>("EtaR_UpperLimit_Par2", 0.15);
       psd1.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
-      psd1.add<double>("EscapePt", 3.0);
       psd1.add<bool>("Pt_fixed", false);
       psd0.add<edm::ParameterSetDescription>("MuonTrackingRegionBuilder", psd1);
     }
