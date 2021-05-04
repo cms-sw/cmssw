@@ -146,6 +146,7 @@ for plot in _fatjet_plots_nom:
 ## MC
 nanoDQMMC = nanoDQM.clone()
 nanoDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")
+nanoDQMMC.vplots.LowPtElectron.sels.Prompt = cms.string("genPartFlav == 1")
 nanoDQMMC.vplots.Muon.sels.Prompt = cms.string("genPartFlav == 1")
 nanoDQMMC.vplots.Photon.sels.Prompt = cms.string("genPartFlav == 1")
 nanoDQMMC.vplots.Tau.sels.Prompt = cms.string("genPartFlav == 5")

@@ -13,6 +13,10 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="CommonTools/Utils"/>
+<use   name="CommonTools/Statistics"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/TrackReco"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -179,18 +179,21 @@ bool GsfElectron::ecalDriven() const
 void GsfElectron::setCorrectedEcalEnergyError( float energyError )
  { corrections_.correctedEcalEnergyError = energyError ; }
 
-void GsfElectron::setCorrectedEcalEnergy( float newEnergy )
- {
-  math::XYZTLorentzVectorD momentum = p4() ;
-  momentum *= newEnergy/momentum.e() ;
-  setP4(momentum) ;
-  showerShape_.hcalDepth1OverEcal *= corrections_.correctedEcalEnergy/newEnergy ;
-  showerShape_.hcalDepth2OverEcal *= corrections_.correctedEcalEnergy/newEnergy ;
-  trackClusterMatching_.eSuperClusterOverP *= newEnergy/corrections_.correctedEcalEnergy ;
-  corrections_.correctedEcalEnergyError *= newEnergy/corrections_.correctedEcalEnergy ;
-  corrections_.correctedEcalEnergy = newEnergy ;
-  corrections_.isEcalEnergyCorrected = true ;
- }
+void GsfElectron::setCorrectedEcalEnergy(float newEnergy) { setCorrectedEcalEnergy(newEnergy, true); }
+
+void GsfElectron::setCorrectedEcalEnergy(float newEnergy, bool rescaleDependentValues) {
+  math::XYZTLorentzVectorD momentum = p4();
+  momentum *= newEnergy / momentum.e();
+  setP4(momentum);
+  if (corrections_.correctedEcalEnergy > 0. && rescaleDependentValues) {
+    showerShape_.hcalDepth1OverEcal *= corrections_.correctedEcalEnergy / newEnergy;
+    showerShape_.hcalDepth2OverEcal *= corrections_.correctedEcalEnergy / newEnergy;
+    trackClusterMatching_.eSuperClusterOverP *= newEnergy / corrections_.correctedEcalEnergy;
+    corrections_.correctedEcalEnergyError *= newEnergy / corrections_.correctedEcalEnergy;
+  }
+  corrections_.correctedEcalEnergy = newEnergy;
+  corrections_.isEcalEnergyCorrected = true;
+}
 
 void GsfElectron::setTrackMomentumError( float trackErr )
  { corrections_.trackMomentumError = trackErr ; }

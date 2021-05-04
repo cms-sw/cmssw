@@ -112,6 +112,53 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('dEsigmaDown', 'dEsigmaDown', 100, -0.1, 0.1, '#Delta E sigmaDown'),
             )
         ),
+
+        LowPtElectron = cms.PSet(
+            sels = cms.PSet(
+                Good = cms.string('pt > 1. && ID > 5.')
+            ),
+            plots = cms.VPSet(
+                #
+                Count1D('_size', 8, -0.5, 7.5, 'slimmedLowPtElectrons after basic selection'),
+                # CandVars
+                Plot1D('charge', 'charge', 3, -1.5, 1.5, 'electric charge'),
+                Plot1D('eta', 'eta', 20, -3., 3., 'eta'),
+                NoPlot('mass'),
+                Plot1D('pdgId', 'pdgId', 101, -50.5, 50.5, 'PDG code assigned by the event reconstruction (not by MC truth)'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('pt', 'pt', 40, 0., 20., 'pt (corrected)'),
+                # BDT scores and WPs
+                Plot1D('embeddedID', 'embeddedID', 40, -10., 10., 'Embedded ID, BDT (raw) score'),
+                Plot1D('ID', 'ID', 40, -10., 10., 'ID, BDT (raw) score'),
+                Plot1D('unbiased', 'unbiased', 40, -10., 10., 'ElectronSeed, pT- and dxy- agnostic BDT (raw) score'),
+                Plot1D('ptbiased', 'ptbiased', 40, -10., 10., 'ElectronSeed, pT- and dxy- dependent BDT (raw) score'),
+                # Isolation
+                Plot1D('miniPFRelIso_chg', 'miniPFRelIso_chg', 20, 0, 2, 'mini PF relative isolation, charged component'),
+                Plot1D('miniPFRelIso_all', 'miniPFRelIso_all', 20, 0, 2, 'mini PF relative isolation, total (with scaled rho*EA PU corrections)'),
+                # Conversions
+                Plot1D('convVeto', 'convVeto', 2, -0.5, 1.5, 'pass conversion veto'),
+                Plot1D('convWP', 'convWP', 8, -0.5, 7.5, 'conversion flag bit map: 1=Veto, 2=Loose, 3=Tight'),
+                Plot1D('convVtxRadius', 'convVtxRadius', 40, 0., 20.0, 'conversion vertex radius (cm)'),
+                # Tracking
+                Plot1D('lostHits', 'lostHits', 4, -0.5, 3.5, 'number of missing inner hits'),
+                # Cluster-related
+                Plot1D('energyErr', 'energyErr', 40, 0., 20., 'energy error of the cluster from regression'),
+                Plot1D('deltaEtaSC', 'deltaEtaSC', 20, -0.2, 0.2, 'delta eta (SC,ele) with sign'),
+                Plot1D('r9', 'r9', 20, 0, 1.1, 'R9 of the supercluster, calculated with full 5x5 region'),
+                Plot1D('sieie', 'sieie', 20, 0, 0.05, 'sigma_IetaIeta of the supercluster, calculated with full 5x5 region'),
+                Plot1D('eInvMinusPInv', 'eInvMinusPInv', 20, -0.1, 0.1, '1/E_SC - 1/p_trk'),
+                Plot1D('scEtOverPt', 'scEtOverPt', 20, -0.5, 0.5, '(supercluster transverse energy)/pt - 1'),
+                Plot1D('hoe', 'hoe', 20, 0, 0.6, 'H over E'),
+                # Displacement
+                Plot1D('dxy', 'dxy', 20, -0.1, 0.1, 'dxy (with sign) wrt first PV, in cm'),
+                Plot1D('dz', 'dz', 20, -0.3, 0.3, 'dz (with sign) wrt first PV, in cm'),
+                Plot1D('dxyErr', 'dxyErr', 20, 0., 0.2, 'dxy uncertainty, in cm'),
+                Plot1D('dzErr', 'dzErr', 20, 0., 0.2, 'dz uncertainty, in cm'),
+                Plot1D('ip3d', 'ip3d', 20, 0., 0.2, '3D impact parameter wrt first PV, in cm'),
+                Plot1D('sip3d', 'sip3d', 20, 0., 20., '3D impact parameter significance wrt first PV, in cm'),
+            ),
+        ),
+
         FatJet = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(

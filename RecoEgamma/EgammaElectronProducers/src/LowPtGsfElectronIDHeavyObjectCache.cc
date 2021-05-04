@@ -44,11 +44,11 @@ namespace lowptgsfeleid {
   
   ////////////////////////////////////////////////////////////////////////////////
   //
-  void Features::set( const reco::GsfElectronRef& ele, double rho ) {
+  void Features::set( const reco::GsfElectron& ele, double rho ) {
 
     // KF tracks
-    if ( ele->core().isNonnull() ) {
-      reco::TrackRef trk = ele->core()->ctfTrack(); //@@ is this what we want?!
+    if ( ele.core().isNonnull() ) {
+      reco::TrackRef trk = ele.core()->ctfTrack(); //@@ is this what we want?!
       if ( trk.isNonnull() ) {
 	trk_p_ = float(trk->p());
 	trk_nhits_ = float(trk->found());
@@ -57,8 +57,8 @@ namespace lowptgsfeleid {
     }
 
     // GSF tracks
-    if ( ele->core().isNonnull() ) {
-      reco::GsfTrackRef gsf = ele->core()->gsfTrack();
+    if ( ele.core().isNonnull() ) {
+      reco::GsfTrackRef gsf = ele.core()->gsfTrack();
       if ( gsf.isNonnull() ) {
 	gsf_nhits_ = gsf->found();
 	gsf_chi2red_ = gsf->normalizedChi2();
@@ -66,8 +66,8 @@ namespace lowptgsfeleid {
     }
 
     // Super clusters
-    if ( ele->core().isNonnull() ) {
-      reco::SuperClusterRef sc = ele->core()->superCluster();
+    if ( ele.core().isNonnull() ) {
+      reco::SuperClusterRef sc = ele.core()->superCluster();
       if ( sc.isNonnull() ) {
 	sc_E_ = sc->energy();
 	sc_eta_ = sc->eta();
@@ -77,29 +77,23 @@ namespace lowptgsfeleid {
     }
 
     // Track-cluster matching
-    if ( ele.isNonnull() ) {
-      match_seed_dEta_ = ele->deltaEtaSeedClusterTrackAtCalo();
-      match_eclu_EoverP_ = (1./ele->ecalEnergy()) - (1./ele->p());
-      match_SC_EoverP_ = ele->eSuperClusterOverP();
-      match_SC_dEta_ = ele->deltaEtaSuperClusterTrackAtVtx();
-      match_SC_dPhi_ = ele->deltaPhiSuperClusterTrackAtVtx();
-    }      
+    match_seed_dEta_ = ele.deltaEtaSeedClusterTrackAtCalo();
+    match_eclu_EoverP_ = (1./ele.ecalEnergy()) - (1./ele.p());
+    match_SC_EoverP_ = ele.eSuperClusterOverP();
+    match_SC_dEta_ = ele.deltaEtaSuperClusterTrackAtVtx();
+    match_SC_dPhi_ = ele.deltaPhiSuperClusterTrackAtVtx();
 
     // Shower shape vars
-    if ( ele.isNonnull() ) {
-      shape_full5x5_sigmaIetaIeta_ = ele->full5x5_sigmaIetaIeta();
-      shape_full5x5_sigmaIphiIphi_ = ele->full5x5_sigmaIphiIphi();
-      shape_full5x5_HoverE_    = ele->full5x5_hcalOverEcal();
-      shape_full5x5_r9_ = ele->full5x5_r9();
-      shape_full5x5_circularity_   = 1. - ele->full5x5_e1x5() / ele->full5x5_e5x5();
-    }
+    shape_full5x5_sigmaIetaIeta_ = ele.full5x5_sigmaIetaIeta();
+    shape_full5x5_sigmaIphiIphi_ = ele.full5x5_sigmaIphiIphi();
+    shape_full5x5_HoverE_    = ele.full5x5_hcalOverEcal();
+    shape_full5x5_r9_ = ele.full5x5_r9();
+    shape_full5x5_circularity_   = 1. - ele.full5x5_e1x5() / ele.full5x5_e5x5();
 
     // Misc
     rho_ = rho;
-    if ( ele.isNonnull() ) {
-      brem_frac_ = ele->fbrem();
-      ele_pt_ = ele->pt();
-    }
+    brem_frac_ = ele.fbrem();
+    ele_pt_ = ele.pt();
     
   };
 
