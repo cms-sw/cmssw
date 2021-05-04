@@ -22,6 +22,7 @@ L2Muons = _mod.L2MuonProducer.clone(
         # above seed position
         SeedPropagator = 'SteppingHelixPropagatorL2Any',
         # where you want the seed (in,out)
+        SeedPosition = 'in',
         BWFilterParameters = dict(
             DTRecSegmentLabel = "dt4DSegments",
             MuonTrajectoryUpdatorParameters = dict(
