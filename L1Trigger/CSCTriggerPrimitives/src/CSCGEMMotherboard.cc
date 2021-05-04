@@ -16,10 +16,7 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
   // super chamber has layer=0!
   gemId = GEMDetId(theRegion, 1, theStation, 0, theChamber, 0).rawId();
 
-  const edm::ParameterSet gemcscluts(conf.getParameter<edm::ParameterSet>("gemcscParams"));
-  const edm::ParameterSet coPadParams(station == 1 ? conf.getParameter<edm::ParameterSet>("copadParamGE11")
-                                                   : conf.getParameter<edm::ParameterSet>("copadParamGE21"));
-  coPadProcessor = std::make_unique<GEMCoPadProcessor>(theRegion, theStation, theChamber, coPadParams, gemcscluts);
+  coPadProcessor = std::make_unique<GEMCoPadProcessor>(theRegion, theStation, theChamber, conf);
 
   maxDeltaPadL1_ = (theParity ? tmbParams_.getParameter<int>("maxDeltaPadL1Even")
                               : tmbParams_.getParameter<int>("maxDeltaPadL1Odd"));

@@ -19,8 +19,7 @@
 class GEMCoPadProcessor {
 public:
   /** Normal constructor. */
-  GEMCoPadProcessor(
-      int region, unsigned station, unsigned chamber, const edm::ParameterSet& copad, const edm::ParameterSet& luts);
+  GEMCoPadProcessor(int region, unsigned station, unsigned chamber, const edm::ParameterSet& conf);
 
   /** Clear copad vector */
   void clear();

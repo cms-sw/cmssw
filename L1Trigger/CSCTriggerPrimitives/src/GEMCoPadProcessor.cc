@@ -8,9 +8,12 @@
 // Constructors --
 //----------------
 
-GEMCoPadProcessor::GEMCoPadProcessor(
-    int region, unsigned station, unsigned chamber, const edm::ParameterSet& copad, const edm::ParameterSet& luts)
+GEMCoPadProcessor::GEMCoPadProcessor(int region, unsigned station, unsigned chamber, const edm::ParameterSet& conf)
     : theRegion(region), theStation(station), theChamber(chamber) {
+  const edm::ParameterSet luts(conf.getParameter<edm::ParameterSet>("gemcscParams"));
+  const edm::ParameterSet copad(station == 1 ? conf.getParameter<edm::ParameterSet>("copadParamGE11")
+                                             : conf.getParameter<edm::ParameterSet>("copadParamGE21"));
+
   isEven_ = theChamber % 2 == 0;
   maxDeltaPad_ = copad.getParameter<unsigned int>("maxDeltaPad");
   maxDeltaRoll_ = copad.getParameter<unsigned int>("maxDeltaRoll");
@@ -64,7 +67,10 @@ GEMCoPadProcessor::GEMCoPadProcessor(
   GEMCSCLUT_roll_l2_max_wg_ME21_odd_ = std::make_unique<CSCLUTReader>(rollToMaxWgME21Files_[3]);
 }
 
-void GEMCoPadProcessor::clear() { gemCoPadV.clear(); }
+void GEMCoPadProcessor::clear() {
+  gemCoPadV.clear();
+  clusters_.clear();
+}
 
 std::vector<GEMCoPadDigi> GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads) {
   clear();
@@ -218,9 +224,6 @@ void GEMCoPadProcessor::addCoincidenceClusters(const GEMPadDigiClusterCollection
 }
 
 void GEMCoPadProcessor::addSingleClusters(const GEMPadDigiClusterCollection* in_clusters) {
-  // first get the collection of coincidences
-  const std::vector<GEMInternalCluster> coincidences = clusters_;
-
   // now start add single clusters
   for (auto det_range = in_clusters->begin(); det_range != in_clusters->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
@@ -244,9 +247,9 @@ void GEMCoPadProcessor::addSingleClusters(const GEMPadDigiClusterCollection* in_
         continue;
 
       // ignore clusters already contained in a coincidence cluster
-      if (std::find_if(std::begin(coincidences), std::end(coincidences), [p](const GEMInternalCluster& q) {
+      if (std::find_if(std::begin(clusters_), std::end(clusters_), [p](const GEMInternalCluster& q) {
             return q.has_cluster(*p);
-          }) != std::end(coincidences))
+          }) != std::end(clusters_))
         continue;
 
       // put the single clusters into the collection
