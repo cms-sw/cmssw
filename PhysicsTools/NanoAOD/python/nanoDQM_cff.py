@@ -43,6 +43,12 @@ _tauPlotsPreV9.extend([
                 Plot1D('rawMVAoldDM2017v2', 'rawMVAoldDM2017v2', 20, -1, 1, 'byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2017v2)'),
                 Plot1D('rawMVAoldDMdR032017v2', 'rawMVAoldDMdR032017v2', 20, -1, 1, 'byIsolationMVArun2v1DBdR03oldDMwLT raw output discriminator (2017v2)')
 ])
+from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
+from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
 (run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(nanoDQM.vplots.Tau, plots = _tauPlotsPreV9)
 
 _METFixEE2017_DQMentry = nanoDQM.vplots.MET.clone()
@@ -51,8 +57,6 @@ for plot in _METFixEE2017_DQMentry.plots:
     if plot.name.value().find("fiducial")>-1: continue
     _METFixEE2017_plots.append(plot)
 _METFixEE2017_DQMentry.plots = _METFixEE2017_plots
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
     modifier.toModify(nanoDQM.vplots, METFixEE2017 = _METFixEE2017_DQMentry)
 
@@ -80,7 +84,6 @@ _Flag_plots_80x = copy.deepcopy(nanoDQM.vplots.Flag.plots)
 _Flag_plots_80x.append(Plot1D('BadGlobalMuon', 'BadGlobalMuon', 2, -0.5, 1.5, 'Bad muon flag'))
 _Flag_plots_80x.append(Plot1D('CloneGlobalMuon', 'CloneGlobalMuon', 2, -0.5, 1.5, 'Clone muon flag'))
 
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify(nanoDQM.vplots.Electron, plots = _Electron_plots_2016)
     modifier.toModify(nanoDQM.vplots.Photon, plots = _Photon_plots_2016)
