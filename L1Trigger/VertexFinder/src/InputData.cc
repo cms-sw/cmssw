@@ -145,7 +145,7 @@ namespace l1tVertexFinder {
       }
     }
 
-    for (Vertex vertex : vertices_) {
+    for (const Vertex& vertex : vertices_) {
       if (vertex.numTracks() >= settings.vx_minTracks())
         recoVertices_.push_back(vertex);
     }

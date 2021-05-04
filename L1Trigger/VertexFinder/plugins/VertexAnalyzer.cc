@@ -589,7 +589,7 @@ namespace l1tVertexFinder {
         }
 
         edm::LogInfo("VertexAnalyzer") << "analyzer::** TRUE TRACKS in PV **";
-        for (TP track : TruePrimaryVertex.tracks()) {
+        for (const TP& track : TruePrimaryVertex.tracks()) {
           edm::LogInfo("VertexAnalyzer") << "analyzer::index " << getIndex(inputData.getTPs(), track) << " pT "
                                          << track->pt() << " phi0 " << track->phi() << " z0 " << track->z0()
                                          << " status " << track.physicsCollision();
