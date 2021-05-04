@@ -7,7 +7,7 @@ namespace l1tVertexFinder {
     pT_ = 0.;
     z0_ = 0.;
     float z0square = 0.;
-    for (TP track : tracks_) {
+    for (const TP& track : tracks_) {
       pT_ += track->pt();
       z0_ += track->z0();
       z0square += track->z0() * track->z0();

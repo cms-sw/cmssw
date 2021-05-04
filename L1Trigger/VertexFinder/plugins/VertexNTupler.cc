@@ -1,4 +1,5 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TObjString.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"

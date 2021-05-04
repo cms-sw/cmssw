@@ -11,7 +11,7 @@ namespace l1tVertexFinder {
 
     return getPrimaryVertex(aVertexCollection, [](const Tracks_t& tracks) -> float {
       float sumPt = 0.0;
-      for (auto t : tracks)
+      for (const auto& t : tracks)
         sumPt += t->momentum().transverse();
       return sumPt;
     });

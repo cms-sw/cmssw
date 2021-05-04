@@ -195,7 +195,7 @@ namespace l1tVertexFinder {
     bool start = true;
     FitTrackCollection discardedTracks, acceptedTracks;
     iterations_ = 0;
-    for (const L1Track track : fitTracks_) {
+    for (const L1Track& track : fitTracks_) {
       acceptedTracks.push_back(track);
     }
 
@@ -210,7 +210,7 @@ namespace l1tVertexFinder {
           edm::LogInfo("VertexFinder") << "PVR::AcceptedTracks " << acceptedTracks.size();
 
         float z0start = 0;
-        for (const L1Track track : acceptedTracks) {
+        for (const L1Track& track : acceptedTracks) {
           z0start += track.z0();
           iterations_++;
         }
@@ -243,7 +243,7 @@ namespace l1tVertexFinder {
 
       if (acceptedTracks.size() >= settings_->vx_minTracks()) {
         RecoVertex vertex;
-        for (const L1Track track : acceptedTracks) {
+        for (const L1Track& track : acceptedTracks) {
           vertex.insert(&track);
         }
         vertex.computeParameters(
@@ -262,7 +262,7 @@ namespace l1tVertexFinder {
     iterations_ = 0;
     FitTrackCollection discardedTracks, acceptedTracks, discardedTracks2;
 
-    for (const L1Track track : fitTracks_) {
+    for (const L1Track& track : fitTracks_) {
       discardedTracks.push_back(track);
     }
 
@@ -283,7 +283,7 @@ namespace l1tVertexFinder {
           // Calculate chi2 of new vertex
           float chi2 = 0.;
           float dof = 0.;
-          for (const L1Track accTrack : acceptedTracks) {
+          for (const L1Track& accTrack : acceptedTracks) {
             iterations_++;
             float Residual = accTrack.z0() - z0vertex;
             if (std::abs(accTrack.eta()) < 1.2)
@@ -309,7 +309,7 @@ namespace l1tVertexFinder {
 
       if (acceptedTracks.size() >= settings_->vx_minTracks()) {
         RecoVertex vertex;
-        for (const L1Track track : acceptedTracks) {
+        for (const L1Track& track : acceptedTracks) {
           vertex.insert(&track);
         }
         vertex.computeParameters(
@@ -330,7 +330,7 @@ namespace l1tVertexFinder {
     RecoVertex vertex;
     bool first = true;
     float z = 99.;
-    for (const L1Track track : fitTracks_) {
+    for (const L1Track& track : fitTracks_) {
       if (track.pt() < 50.) {
         if (first) {
           first = false;
@@ -367,7 +367,7 @@ namespace l1tVertexFinder {
         vertices_[i].clear();
       }
 
-      for (const L1Track track : fitTracks_) {
+      for (const L1Track& track : fitTracks_) {
         float distance = 9999;
         if (iterations == settings_->vx_kmeans_iterations() - 3)
           distance = settings_->vx_distance() * 2;
@@ -424,7 +424,7 @@ namespace l1tVertexFinder {
     for (float z = settings_->vx_histogram_min(); z < settings_->vx_histogram_max();
          z += settings_->vx_histogram_binwidth()) {
       RecoVertex vertex;
-      for (const L1Track track : fitTracks_) {
+      for (const L1Track& track : fitTracks_) {
         if (std::abs(z - track.z0()) < settings_->vx_width()) {
           vertex.insert(&track);
         }
@@ -468,7 +468,7 @@ namespace l1tVertexFinder {
 
       // Get pointers to stubs associated to the L1 track
       const auto& theStubs = track.getTTTrackPtr()->getStubRefs();
-      if (theStubs.size() == 0) {
+      if (theStubs.empty()) {
         edm::LogWarning("VertexFinder") << "FastHisto::Could not retrieve the vector of stubs.";
         continue;
       }
