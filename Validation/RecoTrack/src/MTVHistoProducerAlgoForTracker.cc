@@ -1855,6 +1855,9 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(
         histograms.h_simul_dzpvcut[count]->Fill(0);
 
       if (isMatched) {
+	histograms.h_assocdzpv[count]->Fill(dzPVSim);
+        histograms.h_assocdzpvzoomed[count]->Fill(dzPVSim);
+
         if (doDzPVcutPlots_) {
           histograms.h_simul2_dzpvcut[count]->Fill(0);
 
