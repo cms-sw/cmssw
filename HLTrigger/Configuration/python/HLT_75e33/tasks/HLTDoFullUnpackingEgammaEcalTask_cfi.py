@@ -8,4 +8,12 @@ from ..modules.hltEcalPreshowerRecHit_cfi import *
 from ..modules.hltEcalRecHit_cfi import *
 from ..modules.hltEcalUncalibRecHit_cfi import *
 
-HLTDoFullUnpackingEgammaEcalTask = cms.Task(bunchSpacingProducer, hltEcalDetIdToBeRecovered, hltEcalDigis, hltEcalPreshowerDigis, hltEcalPreshowerRecHit, hltEcalRecHit, hltEcalUncalibRecHit)
+HLTDoFullUnpackingEgammaEcalTask = cms.Task(
+    bunchSpacingProducer,
+    hltEcalDetIdToBeRecovered,
+    hltEcalDigis,
+    hltEcalPreshowerDigis,
+    hltEcalPreshowerRecHit,
+    hltEcalRecHit,
+    hltEcalUncalibRecHit
+)

@@ -13,4 +13,17 @@ from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseeded_cfi import *
 from ..tasks.HLTPhoton187UnseededTask_cfi import *
 
-HLTPhoton187UnseededSequence = cms.Sequence(HLTL1Sequence+L1TkEmSingle51Filter+HLTDoFullUnpackingEgammaEcalSequence+HLTPFClusteringForEgammaUnseeded+HLTHgcalTiclPFClusteringForEgammaUnseeded+hltEgammaCandidatesWrapperUnseeded+hltEG187EtUnseededFilter+hltPhoton187HgcalHEUnseededFilter+HLTDoLocalHcalSequence+HLTFastJetForEgamma+hltPhoton187HEUnseededFilter, HLTPhoton187UnseededTask)
+HLTPhoton187UnseededSequence = cms.Sequence(
+    HLTL1Sequence +
+    L1TkEmSingle51Filter +
+    HLTDoFullUnpackingEgammaEcalSequence +
+    HLTPFClusteringForEgammaUnseeded +
+    HLTHgcalTiclPFClusteringForEgammaUnseeded +
+    hltEgammaCandidatesWrapperUnseeded +
+    hltEG187EtUnseededFilter +
+    hltPhoton187HgcalHEUnseededFilter +
+    HLTDoLocalHcalSequence +
+    HLTFastJetForEgamma +
+    hltPhoton187HEUnseededFilter,
+    HLTPhoton187UnseededTask
+)

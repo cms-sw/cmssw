@@ -13,4 +13,17 @@ from ..modules.hltPFPuppiJetForBtagEta2p4_cfi import *
 from ..modules.hltPFPuppiJetForBtagSelectorEta2p4_cfi import *
 from ..modules.hltPrimaryVertexAssociationModEta2p4_cfi import *
 
-HLTBtagDeepFlavourSequencePFPuppiModEta2p4 = cms.Sequence(hltPFPuppiJetForBtagSelectorEta2p4+hltPFPuppiJetForBtagEta2p4+hltDeepBLifetimeTagInfosPFPuppiModEta2p4+hltDeepInclusiveVertexFinderPF+hltDeepInclusiveSecondaryVerticesPF+hltDeepTrackVertexArbitratorPF+hltDeepInclusiveMergedVerticesPF+hltDeepSecondaryVertexTagInfosPFPuppiModEta2p4+hltPrimaryVertexAssociationModEta2p4+hltDeepCombinedSecondaryVertexBJetTagsInfosPuppiModEta2p4+hltPfDeepFlavourTagInfosModEta2p4+hltPfDeepFlavourJetTagsModEta2p4)
+HLTBtagDeepFlavourSequencePFPuppiModEta2p4 = cms.Sequence(
+    hltPFPuppiJetForBtagSelectorEta2p4 +
+    hltPFPuppiJetForBtagEta2p4 +
+    hltDeepBLifetimeTagInfosPFPuppiModEta2p4 +
+    hltDeepInclusiveVertexFinderPF +
+    hltDeepInclusiveSecondaryVerticesPF +
+    hltDeepTrackVertexArbitratorPF +
+    hltDeepInclusiveMergedVerticesPF +
+    hltDeepSecondaryVertexTagInfosPFPuppiModEta2p4 +
+    hltPrimaryVertexAssociationModEta2p4 +
+    hltDeepCombinedSecondaryVertexBJetTagsInfosPuppiModEta2p4 +
+    hltPfDeepFlavourTagInfosModEta2p4 +
+    hltPfDeepFlavourJetTagsModEta2p4
+)

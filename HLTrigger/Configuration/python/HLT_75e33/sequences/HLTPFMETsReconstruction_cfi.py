@@ -8,4 +8,12 @@ from ..modules.hltPFMETJetCorrectorL3_cfi import *
 from ..modules.hltPFMETTypeOne_cfi import *
 from ..modules.hltPFMETTypeOneCorrector_cfi import *
 
-HLTPFMETsReconstruction = cms.Sequence(hltPFMET+hltPFMETJetCorrectorL1+hltPFMETJetCorrectorL2+hltPFMETJetCorrectorL3+hltPFMETJetCorrector+hltPFMETTypeOneCorrector+hltPFMETTypeOne)
+HLTPFMETsReconstruction = cms.Sequence(
+    hltPFMET +
+    hltPFMETJetCorrectorL1 +
+    hltPFMETJetCorrectorL2 +
+    hltPFMETJetCorrectorL3 +
+    hltPFMETJetCorrector +
+    hltPFMETTypeOneCorrector +
+    hltPFMETTypeOne
+)

@@ -15,4 +15,18 @@ from ..sequences.HLTPFClusteringForEgammaUnseeded_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgamma_cfi import *
 from ..tasks.HLTPhoton100EBTightIDTightIsoOpenUnseededTask_cfi import *
 
-HLTPhoton100EBTightIDTightIsoOpenUnseededSequence = cms.Sequence(HLTL1Sequence+HLTDoFullUnpackingEgammaEcalSequence+HLTPFClusteringForEgammaUnseeded+HLTHgcalTiclPFClusteringForEgammaUnseeded+hltEgammaCandidatesWrapperUnseeded+hltEG100EtUnseededFilter+cms.ignore(hltPhoton100EBTightIDTightIsoClusterShapeUnseededFilter)+HLTDoLocalHcalSequence+HLTFastJetForEgamma+cms.ignore(hltPhoton100EBTightIDTightIsoHEUnseededFilter)+cms.ignore(hltPhoton100EBTightIDTightIsoEcalIsoUnseededFilter)+HLTPFHcalClusteringForEgamma+cms.ignore(hltPhoton100EBTightIDTightIsoHcalIsoUnseededFilter), HLTPhoton100EBTightIDTightIsoOpenUnseededTask)
+HLTPhoton100EBTightIDTightIsoOpenUnseededSequence = cms.Sequence(
+    HLTL1Sequence +
+    HLTDoFullUnpackingEgammaEcalSequence +
+    HLTPFClusteringForEgammaUnseeded +
+    HLTHgcalTiclPFClusteringForEgammaUnseeded +
+    hltEgammaCandidatesWrapperUnseeded +
+    hltEG100EtUnseededFilter +
+    cms.ignore(hltPhoton100EBTightIDTightIsoClusterShapeUnseededFilter) +
+    HLTDoLocalHcalSequence +
+    HLTFastJetForEgamma +
+    cms.ignore(hltPhoton100EBTightIDTightIsoHEUnseededFilter) +
+    cms.ignore(hltPhoton100EBTightIDTightIsoEcalIsoUnseededFilter) +
+    HLTPFHcalClusteringForEgamma +
+    cms.ignore(hltPhoton100EBTightIDTightIsoHcalIsoUnseededFilter),
+    HLTPhoton100EBTightIDTightIsoOpenUnseededTask)

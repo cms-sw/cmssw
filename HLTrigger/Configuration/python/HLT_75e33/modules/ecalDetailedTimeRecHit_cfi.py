@@ -10,7 +10,6 @@ ecalDetailedTimeRecHit = cms.EDProducer("EcalDetailedTimeRecHitProducer",
     EETimeDigiCollection = cms.InputTag("mix","EETimeDigi"),
     EETimeLayer = cms.int32(3),
     correctForVertexZPosition = cms.bool(False),
-    recoVertex = cms.InputTag("offlinePrimaryVerticesWithBS"),
     simVertex = cms.InputTag("g4SimHits"),
     useMCTruthVertex = cms.bool(False)
 )

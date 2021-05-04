@@ -4,4 +4,8 @@ from ..modules.hltEgammaCandidatesL1Seeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsL1Seeded_cfi import *
 from ..modules.hltEgammaHoverEL1Seeded_cfi import *
 
-HLTPhoton187L1SeededTask = cms.Task(hltEgammaCandidatesL1Seeded, hltEgammaHGCALIDVarsL1Seeded, hltEgammaHoverEL1Seeded)
+HLTPhoton187L1SeededTask = cms.Task(
+    hltEgammaCandidatesL1Seeded,
+    hltEgammaHGCALIDVarsL1Seeded,
+    hltEgammaHoverEL1Seeded
+)

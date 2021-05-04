@@ -6,4 +6,10 @@ from ..modules.hltEgammaGsfElectronsUnseeded_cfi import *
 from ..modules.hltEgammaGsfTracksUnseeded_cfi import *
 from ..modules.hltEgammaGsfTrackVarsUnseeded_cfi import *
 
-HLTGsfElectronUnseededTask = cms.Task(hltEgammaBestGsfTrackVarsUnseeded, hltEgammaCkfTrackCandidatesForGSFUnseeded, hltEgammaGsfElectronsUnseeded, hltEgammaGsfTrackVarsUnseeded, hltEgammaGsfTracksUnseeded)
+HLTGsfElectronUnseededTask = cms.Task(
+    hltEgammaBestGsfTrackVarsUnseeded,
+    hltEgammaCkfTrackCandidatesForGSFUnseeded,
+    hltEgammaGsfElectronsUnseeded,
+    hltEgammaGsfTrackVarsUnseeded,
+    hltEgammaGsfTracksUnseeded
+)

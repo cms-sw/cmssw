@@ -489,7 +489,6 @@ process.load("HLT_75e33/paths/L1T_TkIsoEle28_cfi")
 process.load("HLT_75e33/paths/L1T_TkIsoEm22TkIsoEm12_cfi")
 process.load("HLT_75e33/paths/L1T_TkIsoEm36_cfi")
 process.load("HLT_75e33/paths/L1T_TripleTkMuon_5_3_3_cfi")
-process.load("HLT_75e33/paths/L1simulation_step_cfi")
 process.load("HLT_75e33/paths/MC_BTV_cfi")
 process.load("HLT_75e33/paths/MC_Ele5_Open_L1Seeded_cfi")
 process.load("HLT_75e33/paths/MC_Ele5_Open_Unseeded_cfi")
@@ -598,10 +597,7 @@ process.load("HLT_75e33/services/SimpleMemoryCheck_cfi")
 process.load("HLT_75e33/services/Timing_cfi")
 
 process.schedule = cms.Schedule(*[
-    # simulation of the Trigger Primitivs and (Phase 1) Level 1 Trigger
-    process.L1simulation_step,
-
-    # Phase 2 L1T objects
+    # simulation of the Trigger Primitivs and Level 1 Trigger
     process.l1tReconstructionPath,
 
     # Jets/MET L1T paths

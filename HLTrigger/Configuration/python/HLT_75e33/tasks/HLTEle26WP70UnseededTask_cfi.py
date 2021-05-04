@@ -10,4 +10,14 @@ from ..modules.hltEgammaHGCALIDVarsUnseeded_cfi import *
 from ..modules.hltEgammaHGCalLayerClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHoverEUnseeded_cfi import *
 
-HLTEle26WP70UnseededTask = cms.Task(hltEgammaCandidatesUnseeded, hltEgammaClusterShapeUnseeded, hltEgammaEcalPFClusterIsoUnseeded, hltEgammaEleGsfTrackIsoV6Unseeded, hltEgammaEleL1TrkIsoUnseeded, hltEgammaHGCALIDVarsUnseeded, hltEgammaHGCalLayerClusterIsoUnseeded, hltEgammaHcalPFClusterIsoUnseeded, hltEgammaHoverEUnseeded)
+HLTEle26WP70UnseededTask = cms.Task(
+    hltEgammaCandidatesUnseeded,
+    hltEgammaClusterShapeUnseeded,
+    hltEgammaEcalPFClusterIsoUnseeded,
+    hltEgammaEleGsfTrackIsoV6Unseeded,
+    hltEgammaEleL1TrkIsoUnseeded,
+    hltEgammaHGCALIDVarsUnseeded,
+    hltEgammaHGCalLayerClusterIsoUnseeded,
+    hltEgammaHcalPFClusterIsoUnseeded,
+    hltEgammaHoverEUnseeded
+)

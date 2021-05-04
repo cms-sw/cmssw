@@ -7,4 +7,11 @@ from ..modules.highPtTripletStepSeedLayers_cfi import *
 from ..modules.highPtTripletStepSeeds_cfi import *
 from ..modules.highPtTripletStepTrackingRegions_cfi import *
 
-highPtTripletStepSeedingTask = cms.Task(highPtTripletStepClusters, highPtTripletStepHitDoublets, highPtTripletStepHitTriplets, highPtTripletStepSeedLayers, highPtTripletStepSeeds, highPtTripletStepTrackingRegions)
+highPtTripletStepSeedingTask = cms.Task(
+    highPtTripletStepClusters,
+    highPtTripletStepHitDoublets,
+    highPtTripletStepHitTriplets,
+    highPtTripletStepSeedLayers,
+    highPtTripletStepSeeds,
+    highPtTripletStepTrackingRegions
+)

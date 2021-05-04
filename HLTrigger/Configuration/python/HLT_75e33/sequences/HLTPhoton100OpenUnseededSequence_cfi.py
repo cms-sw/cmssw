@@ -12,4 +12,16 @@ from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseeded_cfi import *
 from ..tasks.HLTPhoton100OpenUnseededTask_cfi import *
 
-HLTPhoton100OpenUnseededSequence = cms.Sequence(HLTL1Sequence+HLTDoFullUnpackingEgammaEcalL1SeededSequence+HLTPFClusteringForEgammaUnseeded+HLTHgcalTiclPFClusteringForEgammaUnseeded+hltEgammaCandidatesWrapperUnseeded+hltEG100EtUnseededFilter+cms.ignore(hltPhoton100HgcalHEUnseededFilter)+HLTDoLocalHcalSequence+HLTFastJetForEgamma+cms.ignore(hltPhoton100HEUnseededFilter), HLTPhoton100OpenUnseededTask)
+HLTPhoton100OpenUnseededSequence = cms.Sequence(
+    HLTL1Sequence +
+    HLTDoFullUnpackingEgammaEcalL1SeededSequence +
+    HLTPFClusteringForEgammaUnseeded +
+    HLTHgcalTiclPFClusteringForEgammaUnseeded +
+    hltEgammaCandidatesWrapperUnseeded +
+    hltEG100EtUnseededFilter +
+    cms.ignore(hltPhoton100HgcalHEUnseededFilter) +
+    HLTDoLocalHcalSequence +
+    HLTFastJetForEgamma +
+    cms.ignore(hltPhoton100HEUnseededFilter),
+    HLTPhoton100OpenUnseededTask
+)

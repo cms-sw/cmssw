@@ -17,4 +17,21 @@ from ..modules.particleFlowPtrs_cfi import *
 from ..modules.pfNoPileUpJME_cfi import *
 from ..modules.pfPileUpJME_cfi import *
 
-HLTPFJetsCHSReconstruction = cms.Sequence(particleFlowPtrs+goodOfflinePrimaryVertices+pfPileUpJME+pfNoPileUpJME+hltAK4PFCHSJets+hltAK4PFCHSJetCorrectorL1+hltAK4PFCHSJetCorrectorL2+hltAK4PFCHSJetCorrectorL3+hltAK4PFCHSJetCorrector+hltAK4PFCHSJetsCorrected+hltAK8PFCHSJets+hltAK8PFCHSJetCorrectorL1+hltAK8PFCHSJetCorrectorL2+hltAK8PFCHSJetCorrectorL3+hltAK8PFCHSJetCorrector+hltAK8PFCHSJetsCorrected)
+HLTPFJetsCHSReconstruction = cms.Sequence(
+    particleFlowPtrs +
+    goodOfflinePrimaryVertices +
+    pfPileUpJME +
+    pfNoPileUpJME +
+    hltAK4PFCHSJets +
+    hltAK4PFCHSJetCorrectorL1 +
+    hltAK4PFCHSJetCorrectorL2 +
+    hltAK4PFCHSJetCorrectorL3 +
+    hltAK4PFCHSJetCorrector +
+    hltAK4PFCHSJetsCorrected +
+    hltAK8PFCHSJets +
+    hltAK8PFCHSJetCorrectorL1 +
+    hltAK8PFCHSJetCorrectorL2 +
+    hltAK8PFCHSJetCorrectorL3 +
+    hltAK8PFCHSJetCorrector +
+    hltAK8PFCHSJetsCorrected
+)

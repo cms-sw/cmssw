@@ -18,4 +18,22 @@ from ..modules.ticlSeedingGlobal_cfi import *
 from ..modules.ticlTrackstersEMForEgamma_cfi import *
 from ..modules.ticlTrackstersHADForEgamma_cfi import *
 
-HLTHgcalTiclPFClusteringForEgammaUnseededTask = cms.Task(HGCalRecHit, HGCalUncalibRecHit, filteredLayerClustersEMForEgamma, filteredLayerClustersHADForEgamma, hgcalDigis, hgcalLayerClusters, offlineBeamSpot, particleFlowClusterHGCalFromTICLHAD, particleFlowClusterHGCalFromTICLUnseeded, particleFlowRecHitHGC, particleFlowSuperClusterHGCalFromTICLUnseeded, ticlLayerTileProducer, ticlMultiClustersFromTrackstersEMForEgamma, ticlMultiClustersFromTrackstersHADForEgamma, ticlSeedingGlobal, ticlTrackstersEMForEgamma, ticlTrackstersHADForEgamma)
+HLTHgcalTiclPFClusteringForEgammaUnseededTask = cms.Task(
+    HGCalRecHit,
+    HGCalUncalibRecHit,
+    filteredLayerClustersEMForEgamma,
+    filteredLayerClustersHADForEgamma,
+    hgcalDigis,
+    hgcalLayerClusters,
+    offlineBeamSpot,
+    particleFlowClusterHGCalFromTICLHAD,
+    particleFlowClusterHGCalFromTICLUnseeded,
+    particleFlowRecHitHGC,
+    particleFlowSuperClusterHGCalFromTICLUnseeded,
+    ticlLayerTileProducer,
+    ticlMultiClustersFromTrackstersEMForEgamma,
+    ticlMultiClustersFromTrackstersHADForEgamma,
+    ticlSeedingGlobal,
+    ticlTrackstersEMForEgamma,
+    ticlTrackstersHADForEgamma
+)

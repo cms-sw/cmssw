@@ -18,4 +18,22 @@ from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseeded_cfi import *
 from ..tasks.HLTDoubleEle25CaloIdLPMS2UnseededTask_cfi import *
 
-HLTDoubleEle25CaloIdLPMS2UnseededSequence = cms.Sequence(HLTL1Sequence+hltEGL1SeedsForDoubleEleNonIsolatedFilter+HLTDoFullUnpackingEgammaEcalSequence+HLTPFClusteringForEgammaUnseeded+HLTHgcalTiclPFClusteringForEgammaUnseeded+hltEgammaCandidatesWrapperUnseeded+hltDiEG25EtUnseededFilter+hltDiEG25CaloIdLClusterShapeUnseededFilter+hltDiEG25CaloIdLClusterShapeSigmavvUnseededFilter+hltDiEG25CaloIdLHgcalHEUnseededFilter+HLTDoLocalHcalSequence+HLTFastJetForEgamma+hltDiEG25CaloIdLHEUnseededFilter+HLTElePixelMatchUnseededSequence+hltDiEle25CaloIdLPixelMatchUnseededFilter+hltDiEle25CaloIdLPMS2UnseededFilter, HLTDoubleEle25CaloIdLPMS2UnseededTask)
+HLTDoubleEle25CaloIdLPMS2UnseededSequence = cms.Sequence(
+    HLTL1Sequence +
+    hltEGL1SeedsForDoubleEleNonIsolatedFilter +
+    HLTDoFullUnpackingEgammaEcalSequence +
+    HLTPFClusteringForEgammaUnseeded +
+    HLTHgcalTiclPFClusteringForEgammaUnseeded +
+    hltEgammaCandidatesWrapperUnseeded +
+    hltDiEG25EtUnseededFilter +
+    hltDiEG25CaloIdLClusterShapeUnseededFilter +
+    hltDiEG25CaloIdLClusterShapeSigmavvUnseededFilter +
+    hltDiEG25CaloIdLHgcalHEUnseededFilter +
+    HLTDoLocalHcalSequence +
+    HLTFastJetForEgamma +
+    hltDiEG25CaloIdLHEUnseededFilter +
+    HLTElePixelMatchUnseededSequence +
+    hltDiEle25CaloIdLPixelMatchUnseededFilter +
+    hltDiEle25CaloIdLPMS2UnseededFilter,
+    HLTDoubleEle25CaloIdLPMS2UnseededTask
+)

@@ -32,4 +32,36 @@ from ..sequences.HLTPFHcalClusteringForEgamma_cfi import *
 from ..sequences.HLTTrackingV61Sequence_cfi import *
 from ..tasks.HLTEle32WPTightUnseededTask_cfi import *
 
-HLTEle32WPTightUnseededSequence = cms.Sequence(HLTL1Sequence+hltEGL1SeedsForSingleEleIsolatedFilter+HLTDoFullUnpackingEgammaEcalSequence+HLTPFClusteringForEgammaUnseeded+HLTHgcalTiclPFClusteringForEgammaUnseeded+hltEgammaCandidatesWrapperUnseeded+hltEG32EtUnseededFilter+hltEle32WPTightClusterShapeUnseededFilter+hltEle32WPTightClusterShapeSigmavvUnseededFilter+hltEle32WPTightClusterShapeSigmawwUnseededFilter+hltEle32WPTightHgcalHEUnseededFilter+HLTDoLocalHcalSequence+HLTFastJetForEgamma+hltEle32WPTightHEUnseededFilter+hltEle32WPTightEcalIsoUnseededFilter+hltEle32WPTightHgcalIsoUnseededFilter+HLTPFHcalClusteringForEgamma+hltEle32WPTightHcalIsoUnseededFilter+HLTElePixelMatchUnseededSequence+hltEle32WPTightPixelMatchUnseededFilter+hltEle32WPTightPMS2UnseededFilter+HLTGsfElectronUnseededSequence+hltEle32WPTightGsfOneOEMinusOneOPUnseededFilter+hltEle32WPTightGsfDetaUnseededFilter+hltEle32WPTightGsfDphiUnseededFilter+hltEle32WPTightBestGsfNLayerITUnseededFilter+hltEle32WPTightBestGsfChi2UnseededFilter+hltEle32WPTightGsfTrackIsoFromL1TracksUnseededFilter+HLTTrackingV61Sequence+hltEle32WPTightGsfTrackIsoUnseededFilter, HLTEle32WPTightUnseededTask)
+HLTEle32WPTightUnseededSequence = cms.Sequence(
+    HLTL1Sequence +
+    hltEGL1SeedsForSingleEleIsolatedFilter +
+    HLTDoFullUnpackingEgammaEcalSequence +
+    HLTPFClusteringForEgammaUnseeded +
+    HLTHgcalTiclPFClusteringForEgammaUnseeded +
+    hltEgammaCandidatesWrapperUnseeded +
+    hltEG32EtUnseededFilter +
+    hltEle32WPTightClusterShapeUnseededFilter +
+    hltEle32WPTightClusterShapeSigmavvUnseededFilter +
+    hltEle32WPTightClusterShapeSigmawwUnseededFilter +
+    hltEle32WPTightHgcalHEUnseededFilter +
+    HLTDoLocalHcalSequence +
+    HLTFastJetForEgamma +
+    hltEle32WPTightHEUnseededFilter +
+    hltEle32WPTightEcalIsoUnseededFilter +
+    hltEle32WPTightHgcalIsoUnseededFilter +
+    HLTPFHcalClusteringForEgamma +
+    hltEle32WPTightHcalIsoUnseededFilter +
+    HLTElePixelMatchUnseededSequence +
+    hltEle32WPTightPixelMatchUnseededFilter +
+    hltEle32WPTightPMS2UnseededFilter +
+    HLTGsfElectronUnseededSequence +
+    hltEle32WPTightGsfOneOEMinusOneOPUnseededFilter +
+    hltEle32WPTightGsfDetaUnseededFilter +
+    hltEle32WPTightGsfDphiUnseededFilter +
+    hltEle32WPTightBestGsfNLayerITUnseededFilter +
+    hltEle32WPTightBestGsfChi2UnseededFilter +
+    hltEle32WPTightGsfTrackIsoFromL1TracksUnseededFilter +
+    HLTTrackingV61Sequence +
+    hltEle32WPTightGsfTrackIsoUnseededFilter,
+    HLTEle32WPTightUnseededTask
+)

@@ -5,4 +5,9 @@ from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEle5OpenL1SeededSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 
-MC_Ele5_Open_L1Seeded = cms.Path(HLTBeginSequence+hltPreEle5OpenL1Seeded+HLTEle5OpenL1SeededSequence+HLTEndSequence)
+MC_Ele5_Open_L1Seeded = cms.Path(
+    HLTBeginSequence +
+    hltPreEle5OpenL1Seeded +
+    HLTEle5OpenL1SeededSequence +
+    HLTEndSequence
+)

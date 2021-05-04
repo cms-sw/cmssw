@@ -20,4 +20,25 @@ from ..modules.hltPFPuppiMETv0_cfi import *
 from ..modules.hltPFPuppiNoLep_cfi import *
 from ..modules.hltPixelClustersMultiplicity_cfi import *
 
-HLTPFPuppiJMEReconstruction = cms.Sequence(hltPixelClustersMultiplicity+hltPFPuppiNoLep+hltPFPuppiMET+hltPixelClustersMultiplicity+hltPFPuppi+hltPFPuppiMETv0+hltAK4PFPuppiJets+hltAK4PFPuppiJetCorrectorL1+hltAK4PFPuppiJetCorrectorL2+hltAK4PFPuppiJetCorrectorL3+hltAK4PFPuppiJetCorrector+hltAK4PFPuppiJetsCorrected+hltPFPuppiMETTypeOneCorrector+hltPFPuppiMETTypeOne+hltAK8PFPuppiJets+hltAK8PFPuppiJetCorrectorL1+hltAK8PFPuppiJetCorrectorL2+hltAK8PFPuppiJetCorrectorL3+hltAK8PFPuppiJetCorrector+hltAK8PFPuppiJetsCorrected)
+HLTPFPuppiJMEReconstruction = cms.Sequence(
+    hltPixelClustersMultiplicity +
+    hltPFPuppiNoLep +
+    hltPFPuppiMET +
+    hltPixelClustersMultiplicity +
+    hltPFPuppi +
+    hltPFPuppiMETv0 +
+    hltAK4PFPuppiJets +
+    hltAK4PFPuppiJetCorrectorL1 +
+    hltAK4PFPuppiJetCorrectorL2 +
+    hltAK4PFPuppiJetCorrectorL3 +
+    hltAK4PFPuppiJetCorrector +
+    hltAK4PFPuppiJetsCorrected +
+    hltPFPuppiMETTypeOneCorrector +
+    hltPFPuppiMETTypeOne +
+    hltAK8PFPuppiJets +
+    hltAK8PFPuppiJetCorrectorL1 +
+    hltAK8PFPuppiJetCorrectorL2 +
+    hltAK8PFPuppiJetCorrectorL3 +
+    hltAK8PFPuppiJetCorrector +
+    hltAK8PFPuppiJetsCorrected
+)

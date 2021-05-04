@@ -6,4 +6,10 @@ from ..modules.hltHfprereco_cfi import *
 from ..modules.hltHfreco_cfi import *
 from ..modules.hltHoreco_cfi import *
 
-HLTDoLocalHcalTask = cms.Task(hltHbhereco, hltHcalDigis, hltHfprereco, hltHfreco, hltHoreco)
+HLTDoLocalHcalTask = cms.Task(
+    hltHbhereco,
+    hltHcalDigis,
+    hltHfprereco,
+    hltHfreco,
+    hltHoreco
+)

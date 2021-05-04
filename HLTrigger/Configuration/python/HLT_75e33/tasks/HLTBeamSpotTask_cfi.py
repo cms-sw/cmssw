@@ -4,4 +4,8 @@ from ..modules.hltOnlineBeamSpot_cfi import *
 from ..modules.hltScalersRawToDigi_cfi import *
 from ..modules.offlineBeamSpot_cfi import *
 
-HLTBeamSpotTask = cms.Task(hltOnlineBeamSpot, hltScalersRawToDigi, offlineBeamSpot)
+HLTBeamSpotTask = cms.Task(
+    hltOnlineBeamSpot,
+    hltScalersRawToDigi,
+    offlineBeamSpot
+)

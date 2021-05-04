@@ -7,4 +7,11 @@ from ..modules.particleFlowTmp_cfi import *
 from ..modules.particleFlowTmpBarrel_cfi import *
 from ..modules.pfTrack_cfi import *
 
-particleFlowRecoTask = cms.Task(fixedGridRhoFastjetAllTmp, hgcalTrackCollection, particleFlowBlock, particleFlowTmp, particleFlowTmpBarrel, pfTrack)
+particleFlowRecoTask = cms.Task(
+    fixedGridRhoFastjetAllTmp,
+    hgcalTrackCollection,
+    particleFlowBlock,
+    particleFlowTmp,
+    particleFlowTmpBarrel,
+    pfTrack
+)
