@@ -50,420 +50,466 @@
 #include <iostream>
 #include <fstream>
 
-void noseRecHitPlots(std::string fname="hfnRecHitD31tt.root", 
-		     std::string dirnm="hfnoseRecHitStudy", 
-		     std::string tag="HFNose", bool save=false) {
-
-  int  nums[2] = {5,2};
-  int  layers(8);
-  std::string name1[5] = {"Energy_Layer", "HitOccupancy_Minus_layer", 
-			  "HitOccupaancy_Plus_layer", "EtaPhi_Minus_Layer", 
-			  "EtaPhi_Plus_Layer"};
+void noseRecHitPlots(std::string fname = "hfnRecHitD31tt.root",
+                     std::string dirnm = "hfnoseRecHitStudy",
+                     std::string tag = "HFNose",
+                     bool save = false) {
+  int nums[2] = {5, 2};
+  int layers(8);
+  std::string name1[5] = {
+      "Energy_Layer", "HitOccupancy_Minus_layer", "HitOccupaancy_Plus_layer", "EtaPhi_Minus_Layer", "EtaPhi_Plus_Layer"};
   std::string name2[2] = {"EtaPhi", "RZ"};
-  std::string detName  = "HGCalHFNoseSensitive";
-  int         type1[5] = {1, 1, 1, 2, 2};
-  int         rebin[5] = {10,1, 1, 1, 1};
-  int         type2[2] = {2, 2};
+  std::string detName = "HGCalHFNoseSensitive";
+  int type1[5] = {1, 1, 1, 2, 2};
+  int rebin[5] = {10, 1, 1, 1, 1};
+  int type2[2] = {2, 2};
   std::string xtitl1[5] = {"Energy (GeV)", "Hits", "Hits", "#eta", "#eta"};
   std::string ytitl1[5] = {" ", " ", " ", "#phi", "#phi"};
   std::string xtitl2[2] = {"#eta", "z (cm)"};
   std::string ytitl2[2] = {"#phi", "R (cm)"};
 
-  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
-  gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
   gStyle->SetOptStat(111110);
-  TFile      *file = new TFile(fname.c_str());
+  TFile *file = new TFile(fname.c_str());
   if (file) {
-    TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
+    TDirectory *dir = (TDirectory *)file->FindObjectAny(dirnm.c_str());
     char name[100], title[100];
-    for (int i1 = 0; i1<2; ++i1) {
-      int kk = (i1==0) ? layers : 1;
-      for (int i2=0; i2<nums[i1]; ++i2) {
-	for (int k=0; k<kk; ++k) {
-	  int type(0);
-	  if (i1 == 0) {
-	    sprintf (name, "%s_%d", name1[i2].c_str(), k+1);
-	    sprintf (title, "%s (Layer %d)", tag.c_str(), k+1);
-	    type = type1[i2];
-	  } else {
-	    sprintf (name, "%s_%s", name2[i2].c_str(), detName.c_str());
-	    sprintf (title, "Simulation of %s", tag.c_str());
-	    type = type2[i2];
-	  }
-	  TH1D* hist1(nullptr);
-	  TH2D* hist2(nullptr);
-	  if (type == 1) hist1 = (TH1D*)dir->FindObjectAny(name);
-	  else           hist2 = (TH2D*)dir->FindObjectAny(name);
-	  if ((hist1 != nullptr) || (hist2 != nullptr)) {
-	    TCanvas *pad = new TCanvas(name,name,500,500);
-	    pad->SetRightMargin(0.10); pad->SetTopMargin(0.10);
-	    if (type == 1) {
-	      if (i1 == 0) {
-		hist1->GetYaxis()->SetTitle(ytitl1[i2].c_str());
-		hist1->GetXaxis()->SetTitle(xtitl1[i2].c_str());
-		hist1->Rebin(rebin[i2]);
-	      } else {
-		hist1->GetYaxis()->SetTitle(ytitl2[i2].c_str());
-		hist1->GetXaxis()->SetTitle(xtitl2[i2].c_str());
-	      }
-	      hist1->SetTitle(title); 
-	      hist1->GetYaxis()->SetTitleOffset(1.2); 
-	      pad->SetLogy();
-	      hist1->Draw();
-	    } else {
-	      if (i1 == 0) {
-		hist2->GetYaxis()->SetTitle(ytitl1[i2].c_str());
-		hist2->GetXaxis()->SetTitle(xtitl1[i2].c_str());
-	      } else {
-		hist2->GetYaxis()->SetTitle(ytitl2[i2].c_str());
-		hist2->GetXaxis()->SetTitle(xtitl2[i2].c_str());
-	      }
-	      hist2->GetYaxis()->SetTitleOffset(1.2); 
-	      hist2->SetMarkerStyle(20); hist2->SetMarkerSize(0.1);
-	      hist2->SetTitle(title); 
-	      hist2->Draw();
-	    }
-	    pad->Update();
-	    TPaveStats* st1 = ((hist1 != nullptr) ?
-			       ((TPaveStats*)hist1->GetListOfFunctions()->FindObject("stats")) :
-			       ((TPaveStats*)hist2->GetListOfFunctions()->FindObject("stats")));
-	    if (st1 != NULL) {
-	      st1->SetY1NDC(0.70); st1->SetY2NDC(0.90);
-	      st1->SetX1NDC(0.65); st1->SetX2NDC(0.90);
-	    }
-	    pad->Modified(); pad->Update();
-	    if (save) {
-	      sprintf (name, "c_%s%s.jpg", tag.c_str(), pad->GetName());
-	      pad->Print(name);
-	    }
-	  }
-	}
+    for (int i1 = 0; i1 < 2; ++i1) {
+      int kk = (i1 == 0) ? layers : 1;
+      for (int i2 = 0; i2 < nums[i1]; ++i2) {
+        for (int k = 0; k < kk; ++k) {
+          int type(0);
+          if (i1 == 0) {
+            sprintf(name, "%s_%d", name1[i2].c_str(), k + 1);
+            sprintf(title, "%s (Layer %d)", tag.c_str(), k + 1);
+            type = type1[i2];
+          } else {
+            sprintf(name, "%s_%s", name2[i2].c_str(), detName.c_str());
+            sprintf(title, "Simulation of %s", tag.c_str());
+            type = type2[i2];
+          }
+          TH1D *hist1(nullptr);
+          TH2D *hist2(nullptr);
+          if (type == 1)
+            hist1 = (TH1D *)dir->FindObjectAny(name);
+          else
+            hist2 = (TH2D *)dir->FindObjectAny(name);
+          if ((hist1 != nullptr) || (hist2 != nullptr)) {
+            TCanvas *pad = new TCanvas(name, name, 500, 500);
+            pad->SetRightMargin(0.10);
+            pad->SetTopMargin(0.10);
+            if (type == 1) {
+              if (i1 == 0) {
+                hist1->GetYaxis()->SetTitle(ytitl1[i2].c_str());
+                hist1->GetXaxis()->SetTitle(xtitl1[i2].c_str());
+                hist1->Rebin(rebin[i2]);
+              } else {
+                hist1->GetYaxis()->SetTitle(ytitl2[i2].c_str());
+                hist1->GetXaxis()->SetTitle(xtitl2[i2].c_str());
+              }
+              hist1->SetTitle(title);
+              hist1->GetYaxis()->SetTitleOffset(1.2);
+              pad->SetLogy();
+              hist1->Draw();
+            } else {
+              if (i1 == 0) {
+                hist2->GetYaxis()->SetTitle(ytitl1[i2].c_str());
+                hist2->GetXaxis()->SetTitle(xtitl1[i2].c_str());
+              } else {
+                hist2->GetYaxis()->SetTitle(ytitl2[i2].c_str());
+                hist2->GetXaxis()->SetTitle(xtitl2[i2].c_str());
+              }
+              hist2->GetYaxis()->SetTitleOffset(1.2);
+              hist2->SetMarkerStyle(20);
+              hist2->SetMarkerSize(0.1);
+              hist2->SetTitle(title);
+              hist2->Draw();
+            }
+            pad->Update();
+            TPaveStats *st1 = ((hist1 != nullptr) ? ((TPaveStats *)hist1->GetListOfFunctions()->FindObject("stats"))
+                                                  : ((TPaveStats *)hist2->GetListOfFunctions()->FindObject("stats")));
+            if (st1 != NULL) {
+              st1->SetY1NDC(0.70);
+              st1->SetY2NDC(0.90);
+              st1->SetX1NDC(0.65);
+              st1->SetX2NDC(0.90);
+            }
+            pad->Modified();
+            pad->Update();
+            if (save) {
+              sprintf(name, "c_%s%s.jpg", tag.c_str(), pad->GetName());
+              pad->Print(name);
+            }
+          }
+        }
       }
     }
   }
 }
 
-void hgcalStudyPlots(std::string fname="roots/hgcSimHitD83tt.root", 
-		     int type=0,  std::string tag="SimHitD83", 
-		     std::string dtype="ttbar D83", bool save=false, 
-		     bool debug=false) {
+void hgcalStudyPlots(std::string fname = "roots/hgcSimHitD83tt.root",
+                     int type = 0,
+                     std::string tag = "SimHitD83",
+                     std::string dtype = "ttbar D83",
+                     bool save = false,
+                     bool debug = false) {
   int ndir[3] = {1, 3, 3};
   std::string dirnm[3][3] = {{"hgcalSimHitStudy", "", ""},
-			     {"hgcalDigiStudyEE", "hgcalDigiStudyHEF", "hgcalDigiStudyHEB"}, 
-			     {"hgcalRecHitStudyEE", "hgcalRecHitStudyFH", "hgcalRecHitStudyBH"}};
-  std::string name0[4] = {"HGCal EE", "HGCal HE Silicon", 
-			  "HGCal HE Scintillator", "HGCal"}; 
-  int nname[3] = {4,1,1};
-  std::string name1[4] = {"HGCalEESensitive", "HGCalHESiliconSensitive", 
-			  "HGCalHEScintillatorSensitive", "AllDetectors"}; 
+                             {"hgcalDigiStudyEE", "hgcalDigiStudyHEF", "hgcalDigiStudyHEB"},
+                             {"hgcalRecHitStudyEE", "hgcalRecHitStudyFH", "hgcalRecHitStudyBH"}};
+  std::string name0[4] = {"HGCal EE", "HGCal HE Silicon", "HGCal HE Scintillator", "HGCal"};
+  int nname[3] = {4, 1, 1};
+  std::string name1[4] = {
+      "HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive", "AllDetectors"};
   int nhist[3] = {4, 2, 2};
   int nhtype[3][4] = {{1, 1, 2, 2}, {1, 2, 0, 0}, {2, 2, 0, 0}};
-  int yax[3][4]    = {{1, 1, 0, 0}, {1, 0, 0, 0}, {0, 0, 0, 0}};
-  std::string name2[3][4] = {{"E_", "T_", "RZ_", "EtaPhi_"},
-			     {"Charge_", "RZ_", " ", " "},
-			     {"RZ_", "EtaPhi_", " ", " "}};
-  std::string xtitl[3][4] = {{"Energy (GeV)", "Time (ns)", "Z (mm)", "#phi"},
-			     {"Charge", "Z (cm)", " ", " "},
-			     {"Z (cm)", "#phi", " ", " "}};
-  std::string ytitl[3][4] = {{"Hits", "Hits", "R (mm)", "#eta"},
-			     {"Hits", "R (cm)", " ", " "}, 
-			     {"R (cm)", "#eta", " ", " "}};
-  double xmax[3][4] = {{0.2, 20.0, -1, -1}, 
-		       {25.0, -1, -1, -1}, 
-		       {-1, -1, -1, -1}};
+  int yax[3][4] = {{1, 1, 0, 0}, {1, 0, 0, 0}, {0, 0, 0, 0}};
+  std::string name2[3][4] = {
+      {"E_", "T_", "RZ_", "EtaPhi_"}, {"Charge_", "RZ_", " ", " "}, {"RZ_", "EtaPhi_", " ", " "}};
+  std::string xtitl[3][4] = {
+      {"Energy (GeV)", "Time (ns)", "Z (mm)", "#phi"}, {"Charge", "Z (cm)", " ", " "}, {"Z (cm)", "#phi", " ", " "}};
+  std::string ytitl[3][4] = {
+      {"Hits", "Hits", "R (mm)", "#eta"}, {"Hits", "R (cm)", " ", " "}, {"R (cm)", "#eta", " ", " "}};
+  double xmax[3][4] = {{0.2, 20.0, -1, -1}, {25.0, -1, -1, -1}, {-1, -1, -1, -1}};
 
-  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
-  gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
   gStyle->SetOptStat(111110);
-  if (debug) 
-    std::cout << "File " << fname << " Type " << type << ":" << name0[type]
-	      << " Tags " << tag << " : " << dtype << " Save " << save << "\n";
-  TFile      *file = new TFile(fname.c_str());
+  if (debug)
+    std::cout << "File " << fname << " Type " << type << ":" << name0[type] << " Tags " << tag << " : " << dtype
+              << " Save " << save << "\n";
+  TFile *file = new TFile(fname.c_str());
   if (file) {
-    for (int it=0; it<ndir[type]; ++it) {
+    for (int it = 0; it < ndir[type]; ++it) {
       char dirx[100];
-      sprintf (dirx, "%s", dirnm[type][it].c_str());
-      TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirx);
-      if (debug) std::cout << "Directory " << dirx << " : " << dir << std::endl;
+      sprintf(dirx, "%s", dirnm[type][it].c_str());
+      TDirectory *dir = (TDirectory *)file->FindObjectAny(dirx);
+      if (debug)
+        std::cout << "Directory " << dirx << " : " << dir << std::endl;
       if (dir) {
-	for (int in=0; in<nname[type]; ++in) {
-	  for (int ih=0; ih<nhist[type]; ++ih) {
-	    char hname[100];
-	    if (type == 0) {
-	      sprintf(hname, "%s%s", name2[type][ih].c_str(),name1[in].c_str());
-	    } else {
-	      sprintf(hname, "%s%s", name2[type][ih].c_str(),name1[it].c_str());
-	    }
-	    TH1D* hist1(nullptr);
-	    TH2D* hist2(nullptr);
-	    if (nhtype[type][ih] == 1) hist1 = (TH1D*)dir->FindObjectAny(hname);
-	    else                       hist2 = (TH2D*)dir->FindObjectAny(hname);
-	    if (debug) 
-	      std::cout << "Hist " << hname  << " : " << hist1 << " : " << hist2
-			<< " Xtitle " << xtitl[type][ih] << " Ytitle " 
-			<< ytitl[type][ih] << " xmax " << xmax[type][ih] 
-			<< " Type " << nhtype[type][ih] << " yscale "
-			<< yax[type][ih] << std::endl;
-	    if ((hist1 != nullptr) || (hist2 != nullptr)) {
-	      char name[100], title[100];
-	      sprintf (name, "%s%s", hname, tag.c_str());
-	      TCanvas *pad = new TCanvas(name,name,500,500);
-	      pad->SetRightMargin(0.10); pad->SetTopMargin(0.10);
-	      if (type == 0)
-		sprintf(title, "%s (%s)", name0[in].c_str(), dtype.c_str());
-	      else 
-		sprintf(title, "%s (%s)", name0[it].c_str(), dtype.c_str());
-	      if (debug) std::cout << "Pad " << name << " : " << pad << "\n";
-	      if (nhtype[type][ih] == 1) {
-		hist1->GetYaxis()->SetTitle(ytitl[type][ih].c_str());
-		hist1->GetXaxis()->SetTitle(xtitl[type][ih].c_str());
-		if (xmax[type][ih] > 0) 
-		  hist1->GetXaxis()->SetRangeUser(0,xmax[type][ih]);
-		if (yax[type][ih] > 0) pad->SetLogy();
-		hist1->SetTitle(title); 
-		hist1->GetYaxis()->SetTitleOffset(1.2); 
-		hist1->Draw();
-	      } else {
-		hist2->GetYaxis()->SetTitle(ytitl[type][ih].c_str());
-		hist2->GetXaxis()->SetTitle(xtitl[type][ih].c_str());
-		hist2->GetYaxis()->SetTitleOffset(1.2); 
-		hist2->SetMarkerStyle(20); hist2->SetMarkerSize(0.1);
-		hist2->SetTitle(title); 
-		hist2->Draw();
-	      }
-	      pad->Update();
-	      TPaveStats* st1 = ((hist1 != nullptr) ?
-				 ((TPaveStats*)hist1->GetListOfFunctions()->FindObject("stats")) :
-				 ((TPaveStats*)hist2->GetListOfFunctions()->FindObject("stats")));
-	      if (st1 != NULL) {
-		st1->SetY1NDC(0.70); st1->SetY2NDC(0.90);
-		st1->SetX1NDC(0.65); st1->SetX2NDC(0.90);
-	      }
-	      pad->Modified(); pad->Update();
-	      if (save) {
-		sprintf (name, "c_%s.jpg", pad->GetName());
-		pad->Print(name);
-	      }
-	    }
-	  }
-	}
+        for (int in = 0; in < nname[type]; ++in) {
+          for (int ih = 0; ih < nhist[type]; ++ih) {
+            char hname[100];
+            if (type == 0) {
+              sprintf(hname, "%s%s", name2[type][ih].c_str(), name1[in].c_str());
+            } else {
+              sprintf(hname, "%s%s", name2[type][ih].c_str(), name1[it].c_str());
+            }
+            TH1D *hist1(nullptr);
+            TH2D *hist2(nullptr);
+            if (nhtype[type][ih] == 1)
+              hist1 = (TH1D *)dir->FindObjectAny(hname);
+            else
+              hist2 = (TH2D *)dir->FindObjectAny(hname);
+            if (debug)
+              std::cout << "Hist " << hname << " : " << hist1 << " : " << hist2 << " Xtitle " << xtitl[type][ih]
+                        << " Ytitle " << ytitl[type][ih] << " xmax " << xmax[type][ih] << " Type " << nhtype[type][ih]
+                        << " yscale " << yax[type][ih] << std::endl;
+            if ((hist1 != nullptr) || (hist2 != nullptr)) {
+              char name[100], title[100];
+              sprintf(name, "%s%s", hname, tag.c_str());
+              TCanvas *pad = new TCanvas(name, name, 500, 500);
+              pad->SetRightMargin(0.10);
+              pad->SetTopMargin(0.10);
+              if (type == 0)
+                sprintf(title, "%s (%s)", name0[in].c_str(), dtype.c_str());
+              else
+                sprintf(title, "%s (%s)", name0[it].c_str(), dtype.c_str());
+              if (debug)
+                std::cout << "Pad " << name << " : " << pad << "\n";
+              if (nhtype[type][ih] == 1) {
+                hist1->GetYaxis()->SetTitle(ytitl[type][ih].c_str());
+                hist1->GetXaxis()->SetTitle(xtitl[type][ih].c_str());
+                if (xmax[type][ih] > 0)
+                  hist1->GetXaxis()->SetRangeUser(0, xmax[type][ih]);
+                if (yax[type][ih] > 0)
+                  pad->SetLogy();
+                hist1->SetTitle(title);
+                hist1->GetYaxis()->SetTitleOffset(1.2);
+                hist1->Draw();
+              } else {
+                hist2->GetYaxis()->SetTitle(ytitl[type][ih].c_str());
+                hist2->GetXaxis()->SetTitle(xtitl[type][ih].c_str());
+                hist2->GetYaxis()->SetTitleOffset(1.2);
+                hist2->SetMarkerStyle(20);
+                hist2->SetMarkerSize(0.1);
+                hist2->SetTitle(title);
+                hist2->Draw();
+              }
+              pad->Update();
+              TPaveStats *st1 = ((hist1 != nullptr) ? ((TPaveStats *)hist1->GetListOfFunctions()->FindObject("stats"))
+                                                    : ((TPaveStats *)hist2->GetListOfFunctions()->FindObject("stats")));
+              if (st1 != NULL) {
+                st1->SetY1NDC(0.70);
+                st1->SetY2NDC(0.90);
+                st1->SetX1NDC(0.65);
+                st1->SetX2NDC(0.90);
+              }
+              pad->Modified();
+              pad->Update();
+              if (save) {
+                sprintf(name, "c_%s.jpg", pad->GetName());
+                pad->Print(name);
+              }
+            }
+          }
+        }
       }
     }
   }
 }
 
-void hgcalGeomCheckPlots(std::string fname="roots/hgcGeomCheckD83.root", 
-			 std::string tag="GeomChkD83", 
-			 std::string dtype="#mu D83",
-			 bool save=false, bool debug=false) {
+void hgcalGeomCheckPlots(std::string fname = "roots/hgcGeomCheckD83.root",
+                         std::string tag = "GeomChkD83",
+                         std::string dtype = "#mu D83",
+                         bool save = false,
+                         bool debug = false) {
   std::string dirnm = "hgcGeomCheck";
-  std::string name0[3] = {"HGCal EE", "HGCal HE Silicon", 
-			  "HGCal HE Scintillator"}; 
+  std::string name0[3] = {"HGCal EE", "HGCal HE Silicon", "HGCal HE Scintillator"};
   int nhist = 3;
   int nhtype = 3;
-  std::string name2[9] = {"heerVsLayer", "heezVsLayer", "heedzVsZ",
-			  "hefrVsLayer", "hefzVsLayer", "hefdzVsZ",
-			  "hebrVsLayer", "hebzVsLayer", "hebdzVsZ"};
-  std::string xtitl[9] = {"Layer", "Layer", "#Delta Z (cm)",
-			  "Layer", "Layer", "#Delta Z (cm)",
-			  "Layer", "Layer", "#Delta Z (cm)"};
-  std::string ytitl[9] = {"R (cm)", "Z (cm)", "Z (cm)",
-			  "R (cm)", "Z (cm)", "Z (cm)",
-			  "R (cm)", "Z (cm)", "Z (cm)"};
+  std::string name2[9] = {"heerVsLayer",
+                          "heezVsLayer",
+                          "heedzVsZ",
+                          "hefrVsLayer",
+                          "hefzVsLayer",
+                          "hefdzVsZ",
+                          "hebrVsLayer",
+                          "hebzVsLayer",
+                          "hebdzVsZ"};
+  std::string xtitl[9] = {
+      "Layer", "Layer", "#Delta Z (cm)", "Layer", "Layer", "#Delta Z (cm)", "Layer", "Layer", "#Delta Z (cm)"};
+  std::string ytitl[9] = {"R (cm)", "Z (cm)", "Z (cm)", "R (cm)", "Z (cm)", "Z (cm)", "R (cm)", "Z (cm)", "Z (cm)"};
 
-  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
-  gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
   gStyle->SetOptStat(111110);
-  if (debug) 
-    std::cout << "File " << fname << " Tags " << tag << " : " << dtype 
-	      << " Save " << save << "\n";
+  if (debug)
+    std::cout << "File " << fname << " Tags " << tag << " : " << dtype << " Save " << save << "\n";
   TFile *file = new TFile(fname.c_str());
   if (file) {
     char dirx[100];
-    sprintf (dirx, "%s", dirnm.c_str());
-    TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirx);
-    if (debug) std::cout << "Directory " << dirx << " : " << dir << std::endl;
+    sprintf(dirx, "%s", dirnm.c_str());
+    TDirectory *dir = (TDirectory *)file->FindObjectAny(dirx);
+    if (debug)
+      std::cout << "Directory " << dirx << " : " << dir << std::endl;
     if (dir) {
-      for (int in=0; in<nhtype; ++in) {
-	for (int ih=0; ih<nhist; ++ih) {
-	  char hname[100];
-	  int inh = in * nhist + ih;
-	  sprintf(hname, "%s", name2[inh].c_str());
-	  TH2D* hist =  (TH2D*)dir->FindObjectAny(hname);
-	  if (debug) std::cout << "Hist " << hname  << " : " << hist
-			       << " Xtitle " << xtitl[inh] << " Ytitle " 
-			       << ytitl[inh] << std::endl;
-	  if (hist != nullptr) {
-	    char name[100], title[100];
-	    sprintf (name, "%s%s", hname, tag.c_str());
-	    TCanvas *pad = new TCanvas(name,name,500,500);
-	    pad->SetRightMargin(0.10); pad->SetTopMargin(0.10);
-	    sprintf(title, "%s (%s)", name0[in].c_str(), dtype.c_str());
-	    if (debug) std::cout << "Pad " << name << " : " << pad << "\n";
-	    hist->GetYaxis()->SetTitle(ytitl[inh].c_str());
-	    hist->GetXaxis()->SetTitle(xtitl[inh].c_str());
-	    hist->SetTitle(title); 
-	    hist->GetYaxis()->SetTitleOffset(1.2); 
-	    hist->Draw();
-	    pad->Update();
-	    TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
-	    if (st1 != NULL) {
-	      st1->SetY1NDC(0.70); st1->SetY2NDC(0.90);
-	      st1->SetX1NDC(0.65); st1->SetX2NDC(0.90);
-	    }
-	    pad->Modified(); pad->Update();
-	    if (save) {
-	      sprintf (name, "c_%s.jpg", pad->GetName());
-	      pad->Print(name);
-	    }
-	  }
-	}
+      for (int in = 0; in < nhtype; ++in) {
+        for (int ih = 0; ih < nhist; ++ih) {
+          char hname[100];
+          int inh = in * nhist + ih;
+          sprintf(hname, "%s", name2[inh].c_str());
+          TH2D *hist = (TH2D *)dir->FindObjectAny(hname);
+          if (debug)
+            std::cout << "Hist " << hname << " : " << hist << " Xtitle " << xtitl[inh] << " Ytitle " << ytitl[inh]
+                      << std::endl;
+          if (hist != nullptr) {
+            char name[100], title[100];
+            sprintf(name, "%s%s", hname, tag.c_str());
+            TCanvas *pad = new TCanvas(name, name, 500, 500);
+            pad->SetRightMargin(0.10);
+            pad->SetTopMargin(0.10);
+            sprintf(title, "%s (%s)", name0[in].c_str(), dtype.c_str());
+            if (debug)
+              std::cout << "Pad " << name << " : " << pad << "\n";
+            hist->GetYaxis()->SetTitle(ytitl[inh].c_str());
+            hist->GetXaxis()->SetTitle(xtitl[inh].c_str());
+            hist->SetTitle(title);
+            hist->GetYaxis()->SetTitleOffset(1.2);
+            hist->Draw();
+            pad->Update();
+            TPaveStats *st1 = (TPaveStats *)hist->GetListOfFunctions()->FindObject("stats");
+            if (st1 != NULL) {
+              st1->SetY1NDC(0.70);
+              st1->SetY2NDC(0.90);
+              st1->SetX1NDC(0.65);
+              st1->SetX2NDC(0.90);
+            }
+            pad->Modified();
+            pad->Update();
+            if (save) {
+              sprintf(name, "c_%s.jpg", pad->GetName());
+              pad->Print(name);
+            }
+          }
+        }
       }
     }
   }
 }
 
-void hgcalBHValidPlots(std::string fname="roots/hgcBHValidD83.root", 
-		       std::string tag="BHValidD83", 
-		       std::string dtype="#mu D83",
-		       bool save=false, bool debug=false) {
+void hgcalBHValidPlots(std::string fname = "roots/hgcBHValidD83.root",
+                       std::string tag = "BHValidD83",
+                       std::string dtype = "#mu D83",
+                       bool save = false,
+                       bool debug = false) {
   std::string dirnm = "hgcalBHAnalysis";
   std::string name0 = "HGCal HE Scintillator";
   int nhist = 9;
-  std::string name2[9] = {"SimHitEn1", "SimHitEn2", "SimHitLong",
-			  "SimHitOccup", "SimHitOccu3", "SimHitTime",
-			  "DigiLong", "DigiOccup", "DigiOccu3"};
-  std::string xtitl[9] = {"SimHit Energy (GeV)", "SimHit Energy (GeV)",
-			  "SimHit Layer #", "SimHit i#eta", "SimHit i#eta",
-			  "Digi Layer #", "Digi i#eta", "Digi i#eta"};
-  std::string ytitl[9] = {"Hits", "Hits", "Energy Sum (GeV)", "i#phi",
-			  "Layer #", "Digi Sum", "i#phi", "Layer #"};
+  std::string name2[9] = {"SimHitEn1",
+                          "SimHitEn2",
+                          "SimHitLong",
+                          "SimHitOccup",
+                          "SimHitOccu3",
+                          "SimHitTime",
+                          "DigiLong",
+                          "DigiOccup",
+                          "DigiOccu3"};
+  std::string xtitl[9] = {"SimHit Energy (GeV)",
+                          "SimHit Energy (GeV)",
+                          "SimHit Layer #",
+                          "SimHit i#eta",
+                          "SimHit i#eta",
+                          "Digi Layer #",
+                          "Digi i#eta",
+                          "Digi i#eta"};
+  std::string ytitl[9] = {"Hits", "Hits", "Energy Sum (GeV)", "i#phi", "Layer #", "Digi Sum", "i#phi", "Layer #"};
   double xmax[9] = {0.05, 0.20, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0};
   int ihty[9] = {1, 1, 1, 2, 2, 1, 1, 2, 2};
   int iaxty[9] = {1, 1, 0, 0, 0, 1, 0, 0, 0};
   int ibin[10] = {0, 0, 0, 0, 0, 10, 0, 0, 0};
-  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
-  gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
   gStyle->SetOptStat(111110);
-  if (debug) 
-    std::cout << "File " << fname << " Tags " << tag << " : " << dtype 
-	      << " Save " << save << "\n";
+  if (debug)
+    std::cout << "File " << fname << " Tags " << tag << " : " << dtype << " Save " << save << "\n";
   TFile *file = new TFile(fname.c_str());
   if (file) {
     char dirx[100];
-    sprintf (dirx, "%s", dirnm.c_str());
-    TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirx);
-    if (debug) std::cout << "Directory " << dirx << " : " << dir << std::endl;
+    sprintf(dirx, "%s", dirnm.c_str());
+    TDirectory *dir = (TDirectory *)file->FindObjectAny(dirx);
+    if (debug)
+      std::cout << "Directory " << dirx << " : " << dir << std::endl;
     if (dir) {
-      for (int ih=0; ih<nhist; ++ih) {
-	char hname[100];
-	sprintf(hname, "%s", name2[ih].c_str());
-	TH1D* hist1(nullptr);
-	TH2D* hist2(nullptr);
-	if (ihty[ih] <= 1) 
-	  hist1 = (TH1D*)dir->FindObjectAny(hname);
-	else
-	  hist2 = (TH2D*)dir->FindObjectAny(hname);
-	if (debug) std::cout << "Hist " << hname  << " : " << hist1 << ":"
-			     << hist2 << " Xtitle " << xtitl[ih] << " Ytitle " 
-			     << ytitl[ih] << " xmax " << xmax[ih]
-			     << " iaxty " << iaxty[ih] << " ibin "
-			     << ibin[ih] << std::endl;
-	if ((hist1 != nullptr) || (hist2 != nullptr)) {
-	  char name[100], title[100];
-	  sprintf (name, "%s%s", hname, tag.c_str());
-	  TCanvas *pad = new TCanvas(name,name,500,500);
-	  pad->SetRightMargin(0.10); pad->SetTopMargin(0.10);
-	  sprintf(title, "%s (%s)", name0.c_str(), dtype.c_str());
-	  if (debug) std::cout << "Pad " << name << " : " << pad << "\n";
-	  if (hist1 != nullptr) {
-	    hist1->GetYaxis()->SetTitle(ytitl[ih].c_str());
-	    hist1->GetXaxis()->SetTitle(xtitl[ih].c_str());
-	    hist1->SetTitle(title); 
-	    if (xmax[ih] > 0)
-	      hist1->GetXaxis()->SetRangeUser(0, xmax[ih]);
-	    if (iaxty[ih] > 0)
-	      pad->SetLogy();
-	    if (ibin[ih] > 0)
-	      hist1->Rebin(ibin[ih]);
-	    hist1->GetYaxis()->SetTitleOffset(1.2); 
-	    hist1->Draw();
-	  } else {
-	    hist2->GetYaxis()->SetTitle(ytitl[ih].c_str());
-	    hist2->GetXaxis()->SetTitle(xtitl[ih].c_str());
-	    hist2->SetTitle(title); 
-	    hist2->GetYaxis()->SetTitleOffset(1.2); 
-	    hist2->Draw();
-	  }
-	  pad->Update();
-	  TPaveStats* st1 = ((hist1 != nullptr) ?
-			     ((TPaveStats*)hist1->GetListOfFunctions()->FindObject("stats")) :
-			     ((TPaveStats*)hist2->GetListOfFunctions()->FindObject("stats")));
-	  if (st1 != NULL) {
-	    st1->SetY1NDC(0.70); st1->SetY2NDC(0.90);
-	    st1->SetX1NDC(0.65); st1->SetX2NDC(0.90);
-	  }
-	  pad->Modified(); pad->Update();
-	  if (save) {
-	    sprintf (name, "c_%s.jpg", pad->GetName());
-	    pad->Print(name);
-	  }
-	}
+      for (int ih = 0; ih < nhist; ++ih) {
+        char hname[100];
+        sprintf(hname, "%s", name2[ih].c_str());
+        TH1D *hist1(nullptr);
+        TH2D *hist2(nullptr);
+        if (ihty[ih] <= 1)
+          hist1 = (TH1D *)dir->FindObjectAny(hname);
+        else
+          hist2 = (TH2D *)dir->FindObjectAny(hname);
+        if (debug)
+          std::cout << "Hist " << hname << " : " << hist1 << ":" << hist2 << " Xtitle " << xtitl[ih] << " Ytitle "
+                    << ytitl[ih] << " xmax " << xmax[ih] << " iaxty " << iaxty[ih] << " ibin " << ibin[ih] << std::endl;
+        if ((hist1 != nullptr) || (hist2 != nullptr)) {
+          char name[100], title[100];
+          sprintf(name, "%s%s", hname, tag.c_str());
+          TCanvas *pad = new TCanvas(name, name, 500, 500);
+          pad->SetRightMargin(0.10);
+          pad->SetTopMargin(0.10);
+          sprintf(title, "%s (%s)", name0.c_str(), dtype.c_str());
+          if (debug)
+            std::cout << "Pad " << name << " : " << pad << "\n";
+          if (hist1 != nullptr) {
+            hist1->GetYaxis()->SetTitle(ytitl[ih].c_str());
+            hist1->GetXaxis()->SetTitle(xtitl[ih].c_str());
+            hist1->SetTitle(title);
+            if (xmax[ih] > 0)
+              hist1->GetXaxis()->SetRangeUser(0, xmax[ih]);
+            if (iaxty[ih] > 0)
+              pad->SetLogy();
+            if (ibin[ih] > 0)
+              hist1->Rebin(ibin[ih]);
+            hist1->GetYaxis()->SetTitleOffset(1.2);
+            hist1->Draw();
+          } else {
+            hist2->GetYaxis()->SetTitle(ytitl[ih].c_str());
+            hist2->GetXaxis()->SetTitle(xtitl[ih].c_str());
+            hist2->SetTitle(title);
+            hist2->GetYaxis()->SetTitleOffset(1.2);
+            hist2->Draw();
+          }
+          pad->Update();
+          TPaveStats *st1 = ((hist1 != nullptr) ? ((TPaveStats *)hist1->GetListOfFunctions()->FindObject("stats"))
+                                                : ((TPaveStats *)hist2->GetListOfFunctions()->FindObject("stats")));
+          if (st1 != NULL) {
+            st1->SetY1NDC(0.70);
+            st1->SetY2NDC(0.90);
+            st1->SetX1NDC(0.65);
+            st1->SetX2NDC(0.90);
+          }
+          pad->Modified();
+          pad->Update();
+          if (save) {
+            sprintf(name, "c_%s.jpg", pad->GetName());
+            pad->Print(name);
+          }
+        }
       }
     }
   }
 }
 
-void ehcalPlots(std::string fname="ecalHitdd4hep.root", 
-		std::string dirnm="EcalSimHitStudy",
-		std::string tag="DD4Hep", 
-		int dets=2, bool save=false, bool debug=false) {
+void ehcalPlots(std::string fname = "ecalHitdd4hep.root",
+                std::string dirnm = "EcalSimHitStudy",
+                std::string tag = "DD4Hep",
+                int dets = 2,
+                bool save = false,
+                bool debug = false) {
   const int nh = 2;
   std::string name[nh] = {"poszp", "poszn"};
-  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
-  gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
   gStyle->SetOptStat(10);
-  if (debug) 
-    std::cout << "File " << fname << " Tag " << tag << " Detectors " << dets 
-	      << " Save " << save << "\n";
+  if (debug)
+    std::cout << "File " << fname << " Tag " << tag << " Detectors " << dets << " Save " << save << "\n";
   TFile *file = new TFile(fname.c_str());
   if (file) {
-    TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
-    if (debug) std::cout << "Directory " << dirnm << " : " << dir << std::endl;
+    TDirectory *dir = (TDirectory *)file->FindObjectAny(dirnm.c_str());
+    if (debug)
+      std::cout << "Directory " << dirnm << " : " << dir << std::endl;
     if (dir) {
-      for (int id=0; id<dets; ++id) {
-	for (int ih=0; ih<nh; ++ih) {
-	  char hname[100];
-	  sprintf(hname, "%s%d", name[ih].c_str(), id);
-	  TH2D* hist = (TH2D*)(dir->FindObjectAny(hname));
-	  if (debug) std::cout << "Hist " << hname  << " : " << hist << ":"
-			       << hist->GetTitle() << " Xtitle " 
-			       << hist->GetXaxis()->GetTitle() << " Ytitle " 
-			       << hist->GetYaxis()->GetTitle() << std::endl;
-	  if (hist != nullptr) {
-	    char cname[100], title[100];
-	    sprintf (cname, "%s%s", hname, tag.c_str());
-	    TCanvas *pad = new TCanvas(cname, cname, 500, 500);
-	    pad->SetRightMargin(0.10); pad->SetTopMargin(0.10);
-	    sprintf(title, "%s (%s)", hist->GetTitle(), tag.c_str());
-	    if (debug) std::cout << "Pad " << cname << " : " << pad << "\n";
-	    hist->SetTitle(title); 
-	    hist->SetMarkerStyle(20); hist->SetMarkerSize(0.1);
-	    hist->GetYaxis()->SetTitleOffset(1.3); 
-	    hist->Draw();
-	    pad->Update();
-	    TPaveStats* st1 = ((TPaveStats*)hist->GetListOfFunctions()->FindObject("stats"));
-	    if (st1 != NULL) {
-	      st1->SetY1NDC(0.85); st1->SetY2NDC(0.90);
-	      st1->SetX1NDC(0.70); st1->SetX2NDC(0.90);
-	    }
-	    pad->Modified(); pad->Update();
-	    if (save) {
-	      sprintf (cname, "c_%s.jpg", pad->GetName());
-	      pad->Print(cname);
-	    }
-	  }
-	}
+      for (int id = 0; id < dets; ++id) {
+        for (int ih = 0; ih < nh; ++ih) {
+          char hname[100];
+          sprintf(hname, "%s%d", name[ih].c_str(), id);
+          TH2D *hist = (TH2D *)(dir->FindObjectAny(hname));
+          if (debug)
+            std::cout << "Hist " << hname << " : " << hist << ":" << hist->GetTitle() << " Xtitle "
+                      << hist->GetXaxis()->GetTitle() << " Ytitle " << hist->GetYaxis()->GetTitle() << std::endl;
+          if (hist != nullptr) {
+            char cname[100], title[100];
+            sprintf(cname, "%s%s", hname, tag.c_str());
+            TCanvas *pad = new TCanvas(cname, cname, 500, 500);
+            pad->SetRightMargin(0.10);
+            pad->SetTopMargin(0.10);
+            sprintf(title, "%s (%s)", hist->GetTitle(), tag.c_str());
+            if (debug)
+              std::cout << "Pad " << cname << " : " << pad << "\n";
+            hist->SetTitle(title);
+            hist->SetMarkerStyle(20);
+            hist->SetMarkerSize(0.1);
+            hist->GetYaxis()->SetTitleOffset(1.3);
+            hist->Draw();
+            pad->Update();
+            TPaveStats *st1 = ((TPaveStats *)hist->GetListOfFunctions()->FindObject("stats"));
+            if (st1 != NULL) {
+              st1->SetY1NDC(0.85);
+              st1->SetY2NDC(0.90);
+              st1->SetX1NDC(0.70);
+              st1->SetX2NDC(0.90);
+            }
+            pad->Modified();
+            pad->Update();
+            if (save) {
+              sprintf(cname, "c_%s.jpg", pad->GetName());
+              pad->Print(cname);
+            }
+          }
+        }
       }
     }
   }
@@ -471,123 +517,125 @@ void ehcalPlots(std::string fname="ecalHitdd4hep.root",
 
 class hgcHits {
 public:
-  TTree                     *fChain;
-  Int_t                      fCurrent;
+  TTree *fChain;
+  Int_t fCurrent;
 
 private:
   // Declaration of leaf types
-  std::vector<float>        *heeRecX;
-  std::vector<float>        *heeRecY;
-  std::vector<float>        *heeRecZ;
-  std::vector<float>        *heeRecEnergy;
-  std::vector<float>        *hefRecX;
-  std::vector<float>        *hefRecY;
-  std::vector<float>        *hefRecZ;
-  std::vector<float>        *hefRecEnergy;
-  std::vector<float>        *hebRecX;
-  std::vector<float>        *hebRecY;
-  std::vector<float>        *hebRecZ;
-  std::vector<float>        *hebRecEta;
-  std::vector<float>        *hebRecPhi;
-  std::vector<float>        *hebRecEnergy;
-  std::vector<float>        *heeSimX;
-  std::vector<float>        *heeSimY;
-  std::vector<float>        *heeSimZ;
-  std::vector<float>        *heeSimEnergy;
-  std::vector<float>        *hefSimX;
-  std::vector<float>        *hefSimY;
-  std::vector<float>        *hefSimZ;
-  std::vector<float>        *hefSimEnergy;
-  std::vector<float>        *hebSimX;
-  std::vector<float>        *hebSimY;
-  std::vector<float>        *hebSimZ;
-  std::vector<float>        *hebSimEta;
-  std::vector<float>        *hebSimPhi;
-  std::vector<float>        *hebSimEnergy;
+  std::vector<float> *heeRecX;
+  std::vector<float> *heeRecY;
+  std::vector<float> *heeRecZ;
+  std::vector<float> *heeRecEnergy;
+  std::vector<float> *hefRecX;
+  std::vector<float> *hefRecY;
+  std::vector<float> *hefRecZ;
+  std::vector<float> *hefRecEnergy;
+  std::vector<float> *hebRecX;
+  std::vector<float> *hebRecY;
+  std::vector<float> *hebRecZ;
+  std::vector<float> *hebRecEta;
+  std::vector<float> *hebRecPhi;
+  std::vector<float> *hebRecEnergy;
+  std::vector<float> *heeSimX;
+  std::vector<float> *heeSimY;
+  std::vector<float> *heeSimZ;
+  std::vector<float> *heeSimEnergy;
+  std::vector<float> *hefSimX;
+  std::vector<float> *hefSimY;
+  std::vector<float> *hefSimZ;
+  std::vector<float> *hefSimEnergy;
+  std::vector<float> *hebSimX;
+  std::vector<float> *hebSimY;
+  std::vector<float> *hebSimZ;
+  std::vector<float> *hebSimEta;
+  std::vector<float> *hebSimPhi;
+  std::vector<float> *hebSimEnergy;
   std::vector<unsigned int> *heeDetID;
   std::vector<unsigned int> *hefDetID;
   std::vector<unsigned int> *hebDetID;
-  
+
   // List of branches
-  TBranch                   *b_heeRecX;
-  TBranch                   *b_heeRecY;
-  TBranch                   *b_heeRecZ;
-  TBranch                   *b_heeRecEnergy;
-  TBranch                   *b_hefRecX;
-  TBranch                   *b_hefRecY;
-  TBranch                   *b_hefRecZ;
-  TBranch                   *b_hefRecEnergy;
-  TBranch                   *b_hebRecX;
-  TBranch                   *b_hebRecY;
-  TBranch                   *b_hebRecZ;
-  TBranch                   *b_hebRecEta;
-  TBranch                   *b_hebRecPhi;
-  TBranch                   *b_hebRecEnergy;
-  TBranch                   *b_heeSimX;
-  TBranch                   *b_heeSimY;
-  TBranch                   *b_heeSimZ;
-  TBranch                   *b_heeSimEnergy;
-  TBranch                   *b_hefSimX;
-  TBranch                   *b_hefSimY;
-  TBranch                   *b_hefSimZ;
-  TBranch                   *b_hefSimEnergy;
-  TBranch                   *b_hebSimX;
-  TBranch                   *b_hebSimY;
-  TBranch                   *b_hebSimZ;
-  TBranch                   *b_hebSimEta;
-  TBranch                   *b_hebSimPhi;
-  TBranch                   *b_hebSimEnergy;
-  TBranch                   *b_heeDetID;
-  TBranch                   *b_hefDetID;
-  TBranch                   *b_hebDetID;
+  TBranch *b_heeRecX;
+  TBranch *b_heeRecY;
+  TBranch *b_heeRecZ;
+  TBranch *b_heeRecEnergy;
+  TBranch *b_hefRecX;
+  TBranch *b_hefRecY;
+  TBranch *b_hefRecZ;
+  TBranch *b_hefRecEnergy;
+  TBranch *b_hebRecX;
+  TBranch *b_hebRecY;
+  TBranch *b_hebRecZ;
+  TBranch *b_hebRecEta;
+  TBranch *b_hebRecPhi;
+  TBranch *b_hebRecEnergy;
+  TBranch *b_heeSimX;
+  TBranch *b_heeSimY;
+  TBranch *b_heeSimZ;
+  TBranch *b_heeSimEnergy;
+  TBranch *b_hefSimX;
+  TBranch *b_hefSimY;
+  TBranch *b_hefSimZ;
+  TBranch *b_hefSimEnergy;
+  TBranch *b_hebSimX;
+  TBranch *b_hebSimY;
+  TBranch *b_hebSimZ;
+  TBranch *b_hebSimEta;
+  TBranch *b_hebSimPhi;
+  TBranch *b_hebSimEnergy;
+  TBranch *b_heeDetID;
+  TBranch *b_hefDetID;
+  TBranch *b_hebDetID;
 
 public:
-  hgcHits(const char* infile);
+  hgcHits(const char *infile);
   virtual ~hgcHits();
-  virtual Int_t    Cut(Long64_t entry);
-  virtual Int_t    GetEntry(Long64_t entry);
+  virtual Int_t Cut(Long64_t entry);
+  virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree);
-  virtual void     Loop();
-  virtual Bool_t   Notify();
-  virtual void     Show(Long64_t entry = -1);
-  
+  virtual void Init(TTree *tree);
+  virtual void Loop();
+  virtual Bool_t Notify();
+  virtual void Show(Long64_t entry = -1);
+
   void bookHistograms();
-  void saveHistos(const char* outfile);
+  void saveHistos(const char *outfile);
+
 private:
 };
 
-				
-				
-				hgcHits::
-				hgcHits::hgcHits(const char* infile) {
-  TFile      *file = new TFile(infile);
-  TDirectory *dir  = (TDirectory*)(file->FindObjectAny("hgcHitAnalysis"));
-  TTree      *tree = (TTree*)(dir->FindObjectAny("hgcHits"));
-  std::cout << "Attaches tree hgcHits at " << tree << " in file " << infile
-            << std::endl;
+hgcHits::hgcHits::hgcHits(const char *infile) {
+  TFile *file = new TFile(infile);
+  TDirectory *dir = (TDirectory *)(file->FindObjectAny("hgcHitAnalysis"));
+  TTree *tree = (TTree *)(dir->FindObjectAny("hgcHits"));
+  std::cout << "Attaches tree hgcHits at " << tree << " in file " << infile << std::endl;
   bookHistograms();
   Init(tree);
 }
 
-				hgcHits::~hgcHits() {
-  if (!fChain) return;
+hgcHits::~hgcHits() {
+  if (!fChain)
+    return;
   delete fChain->GetCurrentFile();
 }
 
 Int_t hgcHits::GetEntry(Long64_t entry) {
   // Read contents of entry.
-  if (!fChain) return 0;
+  if (!fChain)
+    return 0;
   return fChain->GetEntry(entry);
 }
 
 Long64_t hgcHits::LoadTree(Long64_t entry) {
   // Set the environment to read one entry
-  if (!fChain) return -5;
+  if (!fChain)
+    return -5;
   Long64_t centry = fChain->LoadTree(entry);
-  if (centry < 0) return centry;
-  if (!fChain->InheritsFrom(TChain::Class()))  return centry;
-  TChain *chain = (TChain*)fChain;
+  if (centry < 0)
+    return centry;
+  if (!fChain->InheritsFrom(TChain::Class()))
+    return centry;
+  TChain *chain = (TChain *)fChain;
   if (chain->GetTreeNumber() != fCurrent) {
     fCurrent = chain->GetTreeNumber();
     Notify();
@@ -637,7 +685,8 @@ void hgcHits::Init(TTree *tree) {
   hefDetID = 0;
   hebDetID = 0;
   // Set branch addresses and branch pointers
-  if (!tree) return;
+  if (!tree)
+    return;
   fChain = tree;
   fCurrent = -1;
   fChain->SetMakeClass(1);
@@ -689,7 +738,8 @@ Bool_t hgcHits::Notify() {
 void hgcHits::Show(Long64_t entry) {
   // Print contents of entry.
   // If entry is not specified, print current entry
-  if (!fChain) return;
+  if (!fChain)
+    return;
   fChain->Show(entry);
 }
 
@@ -724,22 +774,22 @@ void hgcHits::Loop() {
   // METHOD2: replace line
   //    fChain->GetEntry(jentry);       //read all branches
   //by  b_branchname->GetEntry(ientry); //read only this branch
-  if (fChain == 0) return;
+  if (fChain == 0)
+    return;
 
   Long64_t nentries = fChain->GetEntriesFast();
 
   Long64_t nbytes = 0, nb = 0;
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+  for (Long64_t jentry = 0; jentry < nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0) break;
-    nb = fChain->GetEntry(jentry);   nbytes += nb;
+    if (ientry < 0)
+      break;
+    nb = fChain->GetEntry(jentry);
+    nbytes += nb;
     // if (Cut(ientry) < 0) continue;
   }
 }
 
-void hgcHits::bookHistograms() {
-}
+void hgcHits::bookHistograms() {}
 
-void hgcHits::saveHistos(const char*) {
-}
-
+void hgcHits::saveHistos(const char *) {}
