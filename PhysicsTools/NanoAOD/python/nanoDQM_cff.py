@@ -21,8 +21,10 @@ from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_
 run2_miniAOD_80XLegacy.toModify(nanoDQM,
                                      vplots = _vplots80X
 )
-_tauPlotsPreV9 = nanoDQM.vplots.Tau.plots.Clone()
-_tauPlotsPreV9.idDecayModeOldDMs = None
+_tauPlotsPreV9 = cms.VPSet()
+for plot in nanoDQM.vplots.Tau.plots:
+    if plot.name.value()!="idDecayModeOldDMs":
+        _tauPlotsPreV9.append(plot)
 _tauPlotsPreV9.extend([
                 Plot1D('idDecayMode', 'idDecayMode', 2, -0.5, 1.5, "tauID('decayModeFinding')"),
                 Plot1D('idDecayModeNewDMs', 'idDecayModeNewDMs', 2, -0.5, 1.5, "tauID('decayModeFindingNewDMs')"),
