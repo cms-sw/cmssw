@@ -46,7 +46,7 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 
   // ignore unphysical ALCT-CLCT matches
   ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
-  const edm::ParameterSet me11luts(tmbParams_.getParameter<edm::ParameterSet>("wgCrossHsME11Params"));
+  const edm::ParameterSet me11luts(conf.getParameter<edm::ParameterSet>("wgCrossHsME11Params"));
   cscOverlap_ = std::make_unique<CSCALCTCrossCLCT>(endcap, station, theRing, gangedME1a_, me11luts);
 }
 
