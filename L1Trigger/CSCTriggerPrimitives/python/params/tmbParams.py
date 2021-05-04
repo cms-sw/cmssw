@@ -62,7 +62,6 @@ tmbPhase2 = tmbPhase1.clone(
     ignoreAlctCrossClct = cms.bool(True),
 
     ## run in debug mode
-    debugLUTs = cms.bool(False),
     debugMatching = cms.bool(False),
 )
 
