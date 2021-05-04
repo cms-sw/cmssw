@@ -50,58 +50,12 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) {
   dqm_tag_.push_back("IsoMuon0T");   // statistic collection from Isolated Muon @ 0 T
   dqm_tag_.push_back("Harvest");     // statistic collection: Harvest
 
-  // configure token for gathering the ntuple variables
-  edm::ParameterSet swhallowgain_pset = iConfig.getUntrackedParameter<edm::ParameterSet>("gain");
-
-  std::string label = swhallowgain_pset.getUntrackedParameter<std::string>("label");
-  CalibPrefix_ = swhallowgain_pset.getUntrackedParameter<std::string>("prefix");
-  CalibSuffix_ = swhallowgain_pset.getUntrackedParameter<std::string>("suffix");
-
-  trackindex_token_ = consumes<std::vector<int>>(edm::InputTag(label, CalibPrefix_ + "trackindex" + CalibSuffix_));
-  rawid_token_ = consumes<std::vector<unsigned int>>(edm::InputTag(label, CalibPrefix_ + "rawid" + CalibSuffix_));
-  localdirx_token_ = consumes<std::vector<double>>(edm::InputTag(label, CalibPrefix_ + "localdirx" + CalibSuffix_));
-  localdiry_token_ = consumes<std::vector<double>>(edm::InputTag(label, CalibPrefix_ + "localdiry" + CalibSuffix_));
-  localdirz_token_ = consumes<std::vector<double>>(edm::InputTag(label, CalibPrefix_ + "localdirz" + CalibSuffix_));
-  firststrip_token_ =
-      consumes<std::vector<unsigned short>>(edm::InputTag(label, CalibPrefix_ + "firststrip" + CalibSuffix_));
-  nstrips_token_ = consumes<std::vector<unsigned short>>(edm::InputTag(label, CalibPrefix_ + "nstrips" + CalibSuffix_));
-  saturation_token_ = consumes<std::vector<bool>>(edm::InputTag(label, CalibPrefix_ + "saturation" + CalibSuffix_));
-  overlapping_token_ = consumes<std::vector<bool>>(edm::InputTag(label, CalibPrefix_ + "overlapping" + CalibSuffix_));
-  farfromedge_token_ = consumes<std::vector<bool>>(edm::InputTag(label, CalibPrefix_ + "farfromedge" + CalibSuffix_));
-  charge_token_ = consumes<std::vector<unsigned int>>(edm::InputTag(label, CalibPrefix_ + "charge" + CalibSuffix_));
-  path_token_ = consumes<std::vector<double>>(edm::InputTag(label, CalibPrefix_ + "path" + CalibSuffix_));
-#ifdef ExtendedCALIBTree
-  chargeoverpath_token_ =
-      consumes<std::vector<double>>(edm::InputTag(label, CalibPrefix_ + "chargeoverpath" + CalibSuffix_));
-#endif
-  amplitude_token_ =
-      consumes<std::vector<unsigned char>>(edm::InputTag(label, CalibPrefix_ + "amplitude" + CalibSuffix_));
-  gainused_token_ = consumes<std::vector<double>>(edm::InputTag(label, CalibPrefix_ + "gainused" + CalibSuffix_));
-  gainusedTick_token_ =
-      consumes<std::vector<double>>(edm::InputTag(label, CalibPrefix_ + "gainusedTick" + CalibSuffix_));
-
-  edm::ParameterSet evtinfo_pset = iConfig.getUntrackedParameter<edm::ParameterSet>("evtinfo");
-  label = evtinfo_pset.getUntrackedParameter<std::string>("label");
-  EventPrefix_ = evtinfo_pset.getUntrackedParameter<std::string>("prefix");
-  EventSuffix_ = evtinfo_pset.getUntrackedParameter<std::string>("suffix");
-  TrigTech_token_ = consumes<std::vector<bool>>(edm::InputTag(label, EventPrefix_ + "TrigTech" + EventSuffix_));
-
-  edm::ParameterSet track_pset = iConfig.getUntrackedParameter<edm::ParameterSet>("tracks");
-  label = track_pset.getUntrackedParameter<std::string>("label");
-  TrackPrefix_ = track_pset.getUntrackedParameter<std::string>("prefix");
-  TrackSuffix_ = track_pset.getUntrackedParameter<std::string>("suffix");
-
-  trackchi2ndof_token_ = consumes<std::vector<double>>(edm::InputTag(label, TrackPrefix_ + "chi2ndof" + TrackSuffix_));
-  trackp_token_ = consumes<std::vector<float>>(edm::InputTag(label, TrackPrefix_ + "momentum" + TrackSuffix_));
-  trackpt_token_ = consumes<std::vector<float>>(edm::InputTag(label, TrackPrefix_ + "pt" + TrackSuffix_));
-  tracketa_token_ = consumes<std::vector<double>>(edm::InputTag(label, TrackPrefix_ + "eta" + TrackSuffix_));
-  trackphi_token_ = consumes<std::vector<double>>(edm::InputTag(label, TrackPrefix_ + "phi" + TrackSuffix_));
-  trackhitsvalid_token_ =
-      consumes<std::vector<unsigned int>>(edm::InputTag(label, TrackPrefix_ + "hitsvalid" + TrackSuffix_));
-  trackalgo_token_ = consumes<std::vector<int>>(edm::InputTag(label, TrackPrefix_ + "algo" + TrackSuffix_));
+  m_tracks_token = consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("tracks"));
+  m_association_token = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
 
   tTopoToken_ = esConsumes();
-  tkGeomToken_ = esConsumes<edm::Transition::BeginRun>();
+  tkGeomTokenBR_ = esConsumes<edm::Transition::BeginRun>();
+  tkGeomToken_ = esConsumes<>();
   gainToken_ = esConsumes<edm::Transition::BeginRun>();
   qualityToken_ = esConsumes<edm::Transition::BeginRun>();
 }
@@ -114,7 +68,7 @@ void SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run,
   static constexpr float defaultGainTick = 690. / 640.;
 
   // fills the APV collections at each begin run
-  const TrackerGeometry* bareTkGeomPtr = &iSetup.getData(tkGeomToken_);
+  const TrackerGeometry* bareTkGeomPtr = &iSetup.getData(tkGeomTokenBR_);
   checkBookAPVColls(bareTkGeomPtr, histograms);
 
   const auto gainHandle = iSetup.getHandle(gainToken_);
@@ -157,6 +111,63 @@ void SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run,
   }
 }
 
+namespace {
+  struct HitCluster {
+    uint32_t det;
+    const SiStripCluster* strip;
+    const SiPixelCluster* pixel;
+    HitCluster(uint32_t detId, const SiStripCluster* strip, const SiPixelCluster* pixel)
+        : det(detId), strip(strip), pixel(pixel) {}
+  };
+  std::vector<HitCluster> getClusters(const TrackingRecHit* hit) {
+    const auto simple1d = dynamic_cast<const SiStripRecHit1D*>(hit);
+    const auto simple = dynamic_cast<const SiStripRecHit2D*>(hit);
+    const auto matched = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+    const auto pixel = dynamic_cast<const SiPixelRecHit*>(hit);
+    std::vector<HitCluster> clusters;
+    if (matched) {
+      clusters.emplace_back(matched->monoId(), &matched->monoCluster(), nullptr);
+      clusters.emplace_back(matched->stereoId(), &matched->stereoCluster(), nullptr);
+    } else if (simple) {
+      clusters.emplace_back(simple->geographicalId().rawId(), simple->cluster().get(), nullptr);
+    } else if (simple1d) {
+      clusters.emplace_back(simple1d->geographicalId().rawId(), simple1d->cluster().get(), nullptr);
+    } else if (pixel) {
+      clusters.emplace_back(pixel->geographicalId().rawId(), nullptr, pixel->cluster().get());
+    }
+    return clusters;
+  }
+
+  bool isFarFromBorder(const TrajectoryStateOnSurface& trajState, uint32_t detId, const TrackerGeometry* tGeom) {
+    const auto gdu = tGeom->idToDetUnit(detId);
+    if ((!dynamic_cast<const StripGeomDetUnit*>(gdu)) && (!dynamic_cast<const PixelGeomDetUnit*>(gdu))) {
+      edm::LogWarning("SiStripGainCalibTableProducer")
+          << "DetId " << detId << " does not seem to belong to the tracker";
+      return false;
+    }
+    const auto plane = gdu->surface();
+    const auto trapBounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&plane.bounds());
+    const auto rectBounds = dynamic_cast<const RectangularPlaneBounds*>(&plane.bounds());
+
+    static constexpr double distFromBorder = 1.0;
+    double halfLength = 0.;
+    if (trapBounds) {
+      halfLength = trapBounds->parameters()[3];
+    } else if (rectBounds) {
+      halfLength = .5 * gdu->surface().bounds().length();
+    } else {
+      return false;
+    }
+
+    const auto pos = trajState.localPosition();
+    const auto posError = trajState.localError().positionError();
+    if (std::abs(pos.y()) + posError.yy() >= (halfLength - distFromBorder))
+      return false;
+
+    return true;
+  }
+}  // namespace
+
 //********************************************************************************//
 // ------------ method called for each event  ------------
 void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
@@ -170,88 +181,13 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
   edm::LogInfo("SiStripGainsPCLWorker") << "Processing run " << runnumber << " and event " << eventnumber << std::endl;
 
   const TrackerTopology* topo = &iSetup.getData(tTopoToken_);
+  const TrackerGeometry* tGeom = &iSetup.getData(tkGeomToken_);
 
-  // *****************************
-  // * Event data handles
-  // *****************************
-
-  //Event data
-
-  // Track data
-  Handle<const std::vector<double>> handle01;
-  iEvent.getByToken(trackchi2ndof_token_, handle01);
-  auto trackchi2ndof = handle01.product();
-
-  Handle<const std::vector<float>> handle02;
-  iEvent.getByToken(trackp_token_, handle02);
-  auto trackp = handle02.product();
-
-  Handle<const std::vector<double>> handle03;
-  iEvent.getByToken(tracketa_token_, handle03);
-  auto tracketa = handle03.product();
-
-  Handle<const std::vector<unsigned int>> handle04;
-  iEvent.getByToken(trackhitsvalid_token_, handle04);
-  auto trackhitsvalid = handle04.product();
-
-  Handle<const std::vector<int>> handle05;
-  iEvent.getByToken(trackalgo_token_, handle05);
-  auto trackalgo = handle05.product();
-
-  // CalibTree data
-  Handle<const std::vector<int>> handle06;
-  iEvent.getByToken(trackindex_token_, handle06);
-  auto trackindex = handle06.product();
-
-  Handle<const std::vector<unsigned int>> handle07;
-  iEvent.getByToken(rawid_token_, handle07);
-  auto rawid = handle07.product();
-
-  Handle<const std::vector<unsigned short>> handle08;
-  iEvent.getByToken(firststrip_token_, handle08);
-  auto firststrip = handle08.product();
-
-  Handle<const std::vector<unsigned short>> handle09;
-  iEvent.getByToken(nstrips_token_, handle09);
-  auto nstrips = handle09.product();
-
-  Handle<const std::vector<bool>> handle10;
-  iEvent.getByToken(saturation_token_, handle10);
-  auto saturation = handle10.product();
-
-  Handle<const std::vector<bool>> handle11;
-  iEvent.getByToken(overlapping_token_, handle11);
-  auto overlapping = handle11.product();
-
-  Handle<const std::vector<bool>> handle12;
-  iEvent.getByToken(farfromedge_token_, handle12);
-  auto farfromedge = handle12.product();
-
-  Handle<const std::vector<unsigned int>> handle13;
-  iEvent.getByToken(charge_token_, handle13);
-  auto charge = handle13.product();
-
-  Handle<const std::vector<double>> handle14;
-  iEvent.getByToken(path_token_, handle14);
-  auto path = handle14.product();
-
-#ifdef ExtendedCALIBTree
-  Handle<const std::vector<double>> handle15;
-  iEvent.getByToken(chargeoverpath_token_, handle15);
-  auto chargeoverpath = handle15.product();
-#endif
-
-  Handle<const std::vector<unsigned char>> handle16;
-  iEvent.getByToken(amplitude_token_, handle16);
-  auto amplitude = handle16.product();
-
-  Handle<const std::vector<double>> handle17;
-  iEvent.getByToken(gainused_token_, handle17);
-  auto gainused = handle17.product();
-
-  Handle<const std::vector<double>> handle18;
-  iEvent.getByToken(gainusedTick_token_, handle18);
-  auto gainusedTick = handle18.product();
+  // Event data handles
+  edm::Handle<edm::View<reco::Track>> tracks;
+  iEvent.getByToken(m_tracks_token, tracks);
+  edm::Handle<TrajTrackAssociationCollection> trajTrackAssociations;
+  iEvent.getByToken(m_association_token, trajTrackAssociations);
 
   for (const auto& elem : theTopologyMap) {
     LogDebug("SiStripGainsPCLWorker") << elem.first << " - " << elem.second.m_string << " "
@@ -263,166 +199,187 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
 
   int elepos = statCollectionFromMode(m_calibrationMode.c_str());
 
-  histograms.EventStats->Fill(0., 0., 1);
-  histograms.EventStats->Fill(1., 0., trackp->size());
-  histograms.EventStats->Fill(2., 0., charge->size());
+  std::size_t nStoredClusters{0};
+  for (const auto& assoc : *trajTrackAssociations) {
+    const auto traj = assoc.key.get();
+    const auto track = assoc.val.get();
 
-  unsigned int FirstAmplitude = 0;
-  for (unsigned int i = 0; i < charge->size(); i++) {
-    FirstAmplitude += (*nstrips)[i];
-    int TI = (*trackindex)[i];
-
-    if ((*tracketa)[TI] < MinTrackEta)
-      continue;
-    if ((*tracketa)[TI] > MaxTrackEta)
-      continue;
-    if ((*trackp)[TI] < MinTrackMomentum)
-      continue;
-    if ((*trackp)[TI] > MaxTrackMomentum)
-      continue;
-    if ((*trackhitsvalid)[TI] < MinTrackHits)
-      continue;
-    if ((*trackchi2ndof)[TI] > MaxTrackChiOverNdf)
-      continue;
-    if ((*trackalgo)[TI] > MaxTrackingIteration)
+    if ((track->eta() < MinTrackEta) || (track->eta() > MaxTrackEta) || (track->p() < MinTrackMomentum) ||
+        (track->p() > MaxTrackMomentum) || (track->numberOfValidHits() < MinTrackHits) ||
+        ((track->chi2() / track->ndof()) > MaxTrackChiOverNdf) || (track->algo() > MaxTrackingIteration))
       continue;
 
-    std::shared_ptr<stAPVGain> APV = histograms.APVsColl.at(
-        ((*rawid)[i] << 4) |
-        ((*firststrip)[i] /
-         128));  //works for both strip and pixel thanks to firstStrip encoding for pixel in the calibTree
-
-    if (APV->SubDet > 2 && (*farfromedge)[i] == false)
-      continue;
-    if (APV->SubDet > 2 && (*overlapping)[i] == true)
-      continue;
-    if (APV->SubDet > 2 && (*saturation)[i] && !AllowSaturation)
-      continue;
-    if (APV->SubDet > 2 && (*nstrips)[i] > MaxNrStrips)
-      continue;
-
-    int Charge = 0;
-    if (APV->SubDet > 2 && (useCalibration || !FirstSetOfConstants)) {
-      bool Saturation = false;
-      for (unsigned int s = 0; s < (*nstrips)[i]; s++) {
-        int StripCharge = (*amplitude)[FirstAmplitude - (*nstrips)[i] + s];
-        if (useCalibration && !FirstSetOfConstants) {
-          StripCharge = (int)(StripCharge * (APV->PreviousGain / APV->CalibGain));
-        } else if (useCalibration) {
-          StripCharge = (int)(StripCharge / APV->CalibGain);
-        } else if (!FirstSetOfConstants) {
-          StripCharge = (int)(StripCharge * APV->PreviousGain);
-        }
-        if (StripCharge > 1024) {
-          StripCharge = 255;
-          Saturation = true;
-        } else if (StripCharge > 254) {
-          StripCharge = 254;
-          Saturation = true;
-        }
-        Charge += StripCharge;
-      }
-      if (Saturation && !AllowSaturation)
+    int iCluster{-1};
+    for (const auto& meas : traj->measurements()) {
+      const auto& trajState = meas.updatedState();
+      if (!trajState.isValid())
         continue;
-    } else if (APV->SubDet > 2) {
-      Charge = (*charge)[i];
-    } else {
-      Charge = (*charge)[i] / 265.0;  //expected scale factor between pixel and strip charge
-    }
 
-    double ClusterChargeOverPath = ((double)Charge) / (*path)[i];
-    if (APV->SubDet > 2) {
-      if (Validation) {
-        ClusterChargeOverPath /= (*gainused)[i];
+      // there can be 2 (stereo module), 1 (no stereo module), or 0 (no pixel or strip hit) clusters
+      auto clusters = getClusters(meas.recHit()->hit());
+      for (const auto hitCluster : clusters) {
+        ++iCluster;
+        bool saturation = false;
+        bool overlapping = false;
+        unsigned int charge = 0;
+        int firstStrip = 0;
+        unsigned int nStrips = 0;
+        if (hitCluster.strip) {
+          const auto& ampls = hitCluster.strip->amplitudes();
+          firstStrip = hitCluster.strip->firstStrip();
+          nStrips = ampls.size();
+          charge = hitCluster.strip->charge();
+          saturation = std::any_of(ampls.begin(), ampls.end(), [](uint8_t amp) { return amp >= 254; });
+
+          overlapping = (((firstStrip % 128) == 0) || ((firstStrip / 128) != ((firstStrip + int(nStrips)) / 128)));
+        } else if (hitCluster.pixel) {
+          const auto& ampls = hitCluster.pixel->pixelADC();
+          const int firstRow = hitCluster.pixel->minPixelRow();
+          const int firstCol = hitCluster.pixel->minPixelCol();
+          firstStrip = ((firstRow / 80) << 3 | (firstCol / 52)) * 128;  //Hack to save the APVId
+          nStrips = 0;
+          for (const auto amp : ampls) {
+            charge += amp;
+            if (amp >= 254)
+              saturation = true;
+          }
+        }
+        // works for both strip and pixel thanks to firstStrip encoding for pixel above, as in the calibTree
+        std::shared_ptr<stAPVGain> APV = histograms.APVsColl.at((hitCluster.det << 4) | (firstStrip / 128));
+
+        const auto farFromEdge = (hitCluster.strip ? isFarFromBorder(trajState, hitCluster.det, tGeom) : true);
+        if ((APV->SubDet > 2) &&
+            ((!farFromEdge) || overlapping || (saturation && !AllowSaturation) || (nStrips > MaxNrStrips)))
+          continue;
+
+        int clusterCharge = 0;
+        if (APV->SubDet > 2) {  // strip
+          if (useCalibration || !FirstSetOfConstants) {
+            saturation = false;
+            for (const auto origCharge : hitCluster.strip->amplitudes()) {
+              int stripCharge;
+              if (useCalibration) {
+                if (FirstSetOfConstants) {
+                  stripCharge = int(origCharge / APV->CalibGain);
+                } else {
+                  stripCharge = int(origCharge * (APV->PreviousGain / APV->CalibGain));
+                }
+              } else {
+                if (FirstSetOfConstants) {
+                  stripCharge = origCharge;
+                } else {
+                  stripCharge = int(origCharge * APV->PreviousGain);
+                }
+              }
+              if (stripCharge > 1024) {
+                stripCharge = 255;
+                saturation = true;
+              } else if (stripCharge > 254) {
+                stripCharge = 254;
+                saturation = true;
+              }
+              clusterCharge += stripCharge;
+            }
+            if (saturation && !AllowSaturation)
+              continue;
+          } else {
+            clusterCharge = charge;
+          }
+        } else {                           // pixel
+          clusterCharge = charge / 265.0;  //expected scale factor between pixel and strip charge
+        }
+
+        const auto trackDir = trajState.localDirection();
+        const auto path = (10. * APV->Thickness) / std::abs(trackDir.z() / trackDir.mag());
+        double ClusterChargeOverPath = ((double)clusterCharge) / path;
+        if (APV->SubDet > 2) {
+          if (Validation) {
+            ClusterChargeOverPath /= APV->PreviousGain;
+          }
+          if (OldGainRemoving) {
+            ClusterChargeOverPath *= APV->PreviousGain;
+          }
+        } else {
+          // keep processing of pixel cluster charge until here
+          continue;
+        }
+        ++nStoredClusters;
+
+        // real histogram for calibration
+        histograms.Charge_Vs_Index[elepos]->Fill(APV->Index, ClusterChargeOverPath);
+        LogDebug("SiStripGainsPCLWorker")
+            << " for mode " << m_calibrationMode << "\n"
+            << " i " << iCluster << " useCalibration " << useCalibration << " FirstSetOfConstants "
+            << FirstSetOfConstants << " APV->PreviousGain " << APV->PreviousGain << " APV->CalibGain " << APV->CalibGain
+            << " APV->DetId " << APV->DetId << " APV->Index " << APV->Index << " Charge " << clusterCharge << " Path "
+            << path << " ClusterChargeOverPath " << ClusterChargeOverPath << std::endl;
+
+        // Fill monitoring histograms
+        int mCharge1 = 0;
+        for (const auto sCharge : hitCluster.strip->amplitudes()) {
+          if (sCharge > 254) {
+            mCharge1 += 254;
+          } else {
+            mCharge1 += sCharge;
+          }
+        }
+        // Revome gains for monitoring
+        int mCharge2 = mCharge1 * APV->PreviousGain;                          // remove G2
+        int mCharge3 = mCharge1 * APV->PreviousGainTick;                      // remove G1
+        int mCharge4 = mCharge1 * APV->PreviousGain * APV->PreviousGainTick;  // remove G1 and G2
+
+        LogDebug("SiStripGainsPCLWorker") << " full charge " << mCharge1 << " remove G2 " << mCharge2 << " remove G1 "
+                                          << mCharge3 << " remove G1*G2 " << mCharge4 << std::endl;
+
+        auto indices = APVGain::FetchIndices(theTopologyMap, hitCluster.det, topo);
+
+        for (auto m : indices)
+          histograms.Charge_1[elepos][m]->Fill(((double)mCharge1) / path);
+        for (auto m : indices)
+          histograms.Charge_2[elepos][m]->Fill(((double)mCharge2) / path);
+        for (auto m : indices)
+          histograms.Charge_3[elepos][m]->Fill(((double)mCharge3) / path);
+        for (auto m : indices)
+          histograms.Charge_4[elepos][m]->Fill(((double)mCharge4) / path);
+
+        if (APV->SubDet == StripSubdetector::TIB) {
+          histograms.Charge_Vs_PathlengthTIB[elepos]->Fill(path, clusterCharge);  // TIB
+
+        } else if (APV->SubDet == StripSubdetector::TOB) {
+          histograms.Charge_Vs_PathlengthTOB[elepos]->Fill(path, clusterCharge);  // TOB
+
+        } else if (APV->SubDet == StripSubdetector::TID) {
+          if (APV->Eta < 0) {
+            histograms.Charge_Vs_PathlengthTIDM[elepos]->Fill(path, clusterCharge);
+          }  // TID minus
+          else if (APV->Eta > 0) {
+            histograms.Charge_Vs_PathlengthTIDP[elepos]->Fill(path, clusterCharge);
+          }  // TID plus
+
+        } else if (APV->SubDet == StripSubdetector::TEC) {
+          if (APV->Eta < 0) {
+            if (APV->Thickness < 0.04) {
+              histograms.Charge_Vs_PathlengthTECM1[elepos]->Fill(path, clusterCharge);
+            }  // TEC minus, type 1
+            else if (APV->Thickness > 0.04) {
+              histograms.Charge_Vs_PathlengthTECM2[elepos]->Fill(path, clusterCharge);
+            }  // TEC minus, type 2
+          } else if (APV->Eta > 0) {
+            if (APV->Thickness < 0.04) {
+              histograms.Charge_Vs_PathlengthTECP1[elepos]->Fill(path, clusterCharge);
+            }  // TEC plus, type 1
+            else if (APV->Thickness > 0.04) {
+              histograms.Charge_Vs_PathlengthTECP2[elepos]->Fill(path, clusterCharge);
+            }  // TEC plus, type 2
+          }
+        }
       }
-      if (OldGainRemoving) {
-        ClusterChargeOverPath *= (*gainused)[i];
-      }
     }
+  }
 
-    // keep processing of pixel cluster charge until here
-    if (APV->SubDet <= 2)
-      continue;
-
-    // real histogram for calibration
-    histograms.Charge_Vs_Index[elepos]->Fill(APV->Index, ClusterChargeOverPath);
-    LogDebug("SiStripGainsPCLWorker") << " for mode " << m_calibrationMode << "\n"
-                                      << " i " << i << " useCalibration " << useCalibration << " FirstSetOfConstants "
-                                      << FirstSetOfConstants << " APV->PreviousGain " << APV->PreviousGain
-                                      << " APV->CalibGain " << APV->CalibGain << " APV->DetId " << APV->DetId
-                                      << " APV->Index " << APV->Index << " Charge " << Charge << " Path " << (*path)[i]
-                                      << " ClusterChargeOverPath " << ClusterChargeOverPath << std::endl;
-
-    // Fill monitoring histograms
-    int mCharge1 = 0;
-    int mCharge2 = 0;
-    int mCharge3 = 0;
-    int mCharge4 = 0;
-    if (APV->SubDet > 2) {
-      for (unsigned int s = 0; s < (*nstrips)[i]; s++) {
-        int StripCharge = (*amplitude)[FirstAmplitude - (*nstrips)[i] + s];
-        if (StripCharge > 1024)
-          StripCharge = 255;
-        else if (StripCharge > 254)
-          StripCharge = 254;
-        mCharge1 += StripCharge;
-        mCharge2 += StripCharge;
-        mCharge3 += StripCharge;
-        mCharge4 += StripCharge;
-      }
-      // Revome gains for monitoring
-      mCharge2 *= (*gainused)[i];                         // remove G2
-      mCharge3 *= (*gainusedTick)[i];                     // remove G1
-      mCharge4 *= ((*gainused)[i] * (*gainusedTick)[i]);  // remove G1 and G2
-    }
-
-    LogDebug("SiStripGainsPCLWorker") << " full charge " << mCharge1 << " remove G2 " << mCharge2 << " remove G1 "
-                                      << mCharge3 << " remove G1*G2 " << mCharge4 << std::endl;
-
-    auto indices = APVGain::FetchIndices(theTopologyMap, (*rawid)[i], topo);
-
-    for (auto m : indices)
-      histograms.Charge_1[elepos][m]->Fill(((double)mCharge1) / (*path)[i]);
-    for (auto m : indices)
-      histograms.Charge_2[elepos][m]->Fill(((double)mCharge2) / (*path)[i]);
-    for (auto m : indices)
-      histograms.Charge_3[elepos][m]->Fill(((double)mCharge3) / (*path)[i]);
-    for (auto m : indices)
-      histograms.Charge_4[elepos][m]->Fill(((double)mCharge4) / (*path)[i]);
-
-    if (APV->SubDet == StripSubdetector::TIB) {
-      histograms.Charge_Vs_PathlengthTIB[elepos]->Fill((*path)[i], Charge);  // TIB
-
-    } else if (APV->SubDet == StripSubdetector::TOB) {
-      histograms.Charge_Vs_PathlengthTOB[elepos]->Fill((*path)[i], Charge);  // TOB
-
-    } else if (APV->SubDet == StripSubdetector::TID) {
-      if (APV->Eta < 0) {
-        histograms.Charge_Vs_PathlengthTIDM[elepos]->Fill((*path)[i], Charge);
-      }  // TID minus
-      else if (APV->Eta > 0) {
-        histograms.Charge_Vs_PathlengthTIDP[elepos]->Fill((*path)[i], Charge);
-      }  // TID plus
-
-    } else if (APV->SubDet == StripSubdetector::TEC) {
-      if (APV->Eta < 0) {
-        if (APV->Thickness < 0.04) {
-          histograms.Charge_Vs_PathlengthTECM1[elepos]->Fill((*path)[i], Charge);
-        }  // TEC minus, type 1
-        else if (APV->Thickness > 0.04) {
-          histograms.Charge_Vs_PathlengthTECM2[elepos]->Fill((*path)[i], Charge);
-        }  // TEC minus, type 2
-      } else if (APV->Eta > 0) {
-        if (APV->Thickness < 0.04) {
-          histograms.Charge_Vs_PathlengthTECP1[elepos]->Fill((*path)[i], Charge);
-        }  // TEC plus, type 1
-        else if (APV->Thickness > 0.04) {
-          histograms.Charge_Vs_PathlengthTECP2[elepos]->Fill((*path)[i], Charge);
-        }  // TEC plus, type 2
-      }
-    }
-
-  }  // END OF ON-CLUSTER LOOP
+  histograms.EventStats->Fill(0., 0., 1);
+  histograms.EventStats->Fill(1., 0., tracks->size());
+  histograms.EventStats->Fill(2., 0., nStoredClusters);
 
   //LogDebug("SiStripGainsPCLWorker")<<" for mode"<< m_calibrationMode
   //				   <<" entries in histogram:"<< histograms.Charge_Vs_Index[elepos].getEntries()
