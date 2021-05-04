@@ -98,6 +98,8 @@ private:
   const GsfElectronAlgo::CutsConfiguration cutsCfg_;
   ElectronHcalHelper::Configuration hcalCfg_, hcalCfgBc_;
 
+  bool hcalRun2EffDepth_;
+
   bool isPreselected(reco::GsfElectron const& ele) const;
   void setAmbiguityData(reco::GsfElectronCollection& electrons,
                         edm::Event const& event,
@@ -157,6 +159,7 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<std::vector<double>>("recHitEThresholdHB", {0., 0., 0., 0.});
   desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
   desc.add<int>("maxHcalRecHitSeverity", 999999);
+  desc.add<bool>("hcalRun2EffDepth", false);
 
   // Isolation algos configuration
   desc.add("trkIsol03Cfg", EleTkIsolFromCands::pSetDescript());
@@ -355,6 +358,8 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   hcalCfgBc_.maxSeverityHB = cfg.getParameter<int>("maxHcalRecHitSeverity");
   hcalCfgBc_.eThresHE = cfg.getParameter<std::array<double, 7>>("recHitEThresholdHE");
   hcalCfgBc_.maxSeverityHE = hcalCfgBc_.maxSeverityHB;
+
+  hcalRun2EffDepth_ = cfg.getParameter<bool>("hcalRun2EffDepth");
 
   // Ecal rec hits configuration
   GsfElectronAlgo::EcalRecHitsConfiguration recHitsCfg;
@@ -600,6 +605,11 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     electrons.erase(std::remove_if(electrons.begin(), electrons.end(), std::mem_fn(&reco::GsfElectron::ambiguous)),
                     electrons.end());
     logElectrons(electrons, event, "GsfElectronAlgo Info (after amb. solving)");
+  }
+  // go back to run2-like 2 effective depths if desired - depth 1 is the normal depth 1, depth 2 is the sum over the rest
+  if (hcalRun2EffDepth_) {
+    for (auto &ele : electrons)
+      ele.hcalToRun2EffDepth();
   }
   // final filling
   event.emplace(electronPutToken_, std::move(electrons));

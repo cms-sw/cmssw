@@ -239,3 +239,36 @@ float GsfElectron::p4Error(P4Kind kind) const {
       throw cms::Exception("GsfElectron") << "unexpected p4 kind: " << kind;
   }
 }
+
+void GsfElectron::hcalToRun2EffDepth() {
+  auto &ss1 = showerShape_;
+  auto &ss2 = full5x5_showerShape_;
+  auto &iv1 = dr03_;
+  auto &iv2 = dr04_;
+
+  for (uint id = 2u; id < ss1.hcalOverEcal.size(); ++id) {
+    ss1.hcalOverEcal[1] += ss1.hcalOverEcal[id];
+    ss1.hcalOverEcalBc[1] += ss1.hcalOverEcalBc[id];
+
+    ss1.hcalOverEcal[id] = 0.f;
+    ss1.hcalOverEcalBc[id] = 0.f;
+
+    ss2.hcalOverEcal[1] += ss2.hcalOverEcal[id];
+    ss2.hcalOverEcalBc[1] += ss2.hcalOverEcalBc[id];
+
+    ss2.hcalOverEcal[id] = 0.f;
+    ss2.hcalOverEcalBc[id] = 0.f;
+
+    iv1.hcalRecHitSumEt[1] += iv1.hcalRecHitSumEt[id];
+    iv1.hcalRecHitSumEtBc[1] += iv1.hcalRecHitSumEtBc[id];
+
+    iv1.hcalRecHitSumEt[id] = 0.f;
+    iv1.hcalRecHitSumEtBc[id] = 0.f;
+
+    iv2.hcalRecHitSumEt[1] += iv2.hcalRecHitSumEt[id];
+    iv2.hcalRecHitSumEtBc[1] += iv2.hcalRecHitSumEtBc[id];
+
+    iv2.hcalRecHitSumEt[id] = 0.f;
+    iv2.hcalRecHitSumEtBc[id] = 0.f;
+  }
+}

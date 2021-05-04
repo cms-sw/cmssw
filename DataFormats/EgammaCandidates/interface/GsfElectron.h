@@ -549,6 +549,9 @@ namespace reco {
     const IsolationVariables &isolationVariables03() const { return dr03_; }
     const IsolationVariables &isolationVariables04() const { return dr04_; }
 
+    // go back to run2-like 2 effective depths if desired - depth 1 is the normal depth 1, depth 2 is the sum over the rest
+    void hcalToRun2EffDepth();
+
   private:
     // attributes
     IsolationVariables dr03_;

@@ -506,6 +506,9 @@ namespace reco {
     // setters
     void setPflowIDVariables(const PflowIDVariables& pfid) { pfID_ = pfid; }
 
+    // go back to run2-like 2 effective depths if desired - depth 1 is the normal depth 1, depth 2 is the sum over the rest
+    void hcalToRun2EffDepth();
+
   private:
     /// check overlap with another candidate
     bool overlap(const Candidate&) const override;

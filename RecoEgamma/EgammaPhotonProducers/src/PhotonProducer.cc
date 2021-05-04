@@ -104,6 +104,7 @@ private:
   // additional configuration and helpers
   std::unique_ptr<ElectronHcalHelper> hcalHelperCone_;
   std::unique_ptr<ElectronHcalHelper> hcalHelperBc_;
+  bool hcalRun2EffDepth_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -179,6 +180,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
 
   hcalHelperCone_ = std::make_unique<ElectronHcalHelper>(cfgCone, consumesCollector());
   hcalHelperBc_ = std::make_unique<ElectronHcalHelper>(cfgBc, consumesCollector());
+
+  hcalRun2EffDepth_ = config.getParameter<bool>("hcalRun2EffDepth");
 
   //AA
 
@@ -316,6 +319,13 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(), outputPhotonCollection.end());
+
+  // go back to run2-like 2 effective depths if desired - depth 1 is the normal depth 1, depth 2 is the sum over the rest
+  if (hcalRun2EffDepth_) {
+    for (auto &pho : *outputPhotonCollection_p)
+      pho.hcalToRun2EffDepth();
+  }
+
   theEvent.put(std::move(outputPhotonCollection_p), PhotonCollection_);
 }
 
