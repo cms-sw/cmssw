@@ -8,7 +8,7 @@
 // Constructors --
 //----------------
 
-GEMCoPadProcessor::GEMCoPadProcessor(unsigned region, unsigned station, unsigned chamber, const edm::ParameterSet& copad)
+GEMCoPadProcessor::GEMCoPadProcessor(int region, unsigned station, unsigned chamber, const edm::ParameterSet& copad, const edm::ParameterSet& luts)
     : theRegion(region), theStation(station), theChamber(chamber) {
   // Verbosity level, set to 0 (no print) by default.
   infoV = copad.getParameter<unsigned int>("verbosity");
