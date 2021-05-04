@@ -38,4 +38,3 @@ TTTracksFromExtendedTrackletEmulation = TTTracksFromTrackletEmulation.clone(
                                                TrackQuality =cms.bool(False),
                                                TrackQualityPSet = cms.PSet(TrackQualityParams)
     )
-
