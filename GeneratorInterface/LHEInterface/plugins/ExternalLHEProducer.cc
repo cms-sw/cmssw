@@ -330,7 +330,7 @@ void ExternalLHEProducer::beginRun(edm::Run const& run, edm::EventSetup const& e
 // ------------ method called when ending the processing of a run  ------------
 void ExternalLHEProducer::endRun(edm::Run const& run, edm::EventSetup const& es) {
   nextEvent();
-  if (partonLevel) {
+  if (partonLevel_) {
     // VALIDATION_RUN env variable allows to finish event processing early without errors by sending SIGINT
     if (getenv("VALIDATION_RUN") != NULL) {
       edm::LogWarning("ExternalLHEProducer")
