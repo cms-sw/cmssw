@@ -31,7 +31,6 @@ CSCGEMMotherboardME11::CSCGEMMotherboardME11(unsigned endcap,
 
   // set LUTs
   tmbLUT_ = std::make_unique<CSCGEMMotherboardLUTME11>();
-  cscTmbLUT_ = std::make_unique<CSCMotherboardLUTME11>();
 }
 
 CSCGEMMotherboardME11::~CSCGEMMotherboardME11() {}
@@ -482,14 +481,6 @@ void CSCGEMMotherboardME11::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& LCTs,
       LCTs.push_back(p);
     }
   }
-}
-
-bool CSCGEMMotherboardME11::doesALCTCrossCLCT(const CSCALCTDigi& a, const CSCCLCTDigi& c) const {
-  return cscTmbLUT_->doesALCTCrossCLCT(a, c, theEndcap, gangedME1a_);
-}
-
-bool CSCGEMMotherboardME11::doesWiregroupCrossStrip(int key_wg, int key_strip) const {
-  return cscTmbLUT_->doesWiregroupCrossStrip(key_wg, key_strip, theEndcap, gangedME1a_);
 }
 
 void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
