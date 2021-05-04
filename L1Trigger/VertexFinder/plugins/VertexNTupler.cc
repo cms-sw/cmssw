@@ -477,8 +477,6 @@ namespace l1tVertexFinder {
       }
     }
 
-    const Vertex& TruePrimaryVertex = inputData.getPrimaryVertex();
-
     // create a map for associating fat reco tracks with their underlying
     // TTTrack pointers
     std::map<std::string, std::map<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const L1TrackTruthMatched*>>
