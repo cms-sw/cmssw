@@ -19,7 +19,6 @@ process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 # Pixel RawToDigi conversion
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.InputLabel = "source"
-process.siPixelDigis.Timing = False
 process.siPixelDigis.IncludeErrors = True
 
 process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi")
