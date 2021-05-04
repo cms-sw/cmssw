@@ -28,8 +28,10 @@ public:
   int layer1_size() const { return layer1_size_; }
   int layer2_pad() const { return layer2_pad_; }
   int layer2_size() const { return layer2_size_; }
-  int min_wg() const { return min_wg_; }
-  int max_wg() const { return max_wg_; }
+  int layer1_min_wg() const { return layer1_min_wg_; }
+  int layer1_max_wg() const { return layer1_max_wg_; }
+  int layer2_min_wg() const { return layer2_min_wg_; }
+  int layer2_max_wg() const { return layer2_max_wg_; }
   bool isCoincidence() const { return isCoincidence_; }
 
   // first and last 1/2-strips
@@ -103,8 +105,10 @@ public:
   void set_layer2_middle_es_me1a(const int es) { layer2_middle_es_me1a_ = es; }
 
   // set the corresponding wiregroup numbers
-  void set_min_wg(const int wg) { min_wg_ = wg; }
-  void set_max_wg(const int wg) { max_wg_ = wg; }
+  void set_layer1_min_wg(const int wg) { layer1_min_wg_ = wg; }
+  void set_layer1_max_wg(const int wg) { layer1_max_wg_ = wg; }
+  void set_layer2_min_wg(const int wg) { layer2_min_wg_ = wg; }
+  void set_layer2_max_wg(const int wg) { layer2_max_wg_ = wg; }
 
   bool has_cluster(const GEMPadDigiCluster& cluster) const;
 
@@ -172,8 +176,10 @@ private:
   int layer2_middle_es_me1a_;
 
   // corresponding min and max wiregroup
-  int min_wg_;
-  int max_wg_;
+  int layer1_min_wg_;
+  int layer1_max_wg_;
+  int layer2_min_wg_;
+  int layer2_max_wg_;
 
   // flag to signal if it is a coincidence
   bool isCoincidence_;

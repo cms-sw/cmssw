@@ -32,8 +32,10 @@ GEMInternalCluster::GEMInternalCluster(const GEMDetId& id,
   layer1_last_es_me1a_ = -1;
   layer2_first_es_me1a_ = -1;
   layer2_last_es_me1a_ = -1;
-  min_wg_ = -1;
-  max_wg_ = -1;
+  layer1_min_wg_ = -1;
+  layer1_max_wg_ = -1;
+  layer2_min_wg_ = -1;
+  layer2_max_wg_ = -1;
 }
 
 bool GEMInternalCluster::has_cluster(const GEMPadDigiCluster& cluster) const {
