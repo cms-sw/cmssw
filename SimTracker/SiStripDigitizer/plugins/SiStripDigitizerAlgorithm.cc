@@ -67,7 +67,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
       theSiPileUpSignals(new SiPileUpSignals()),
       theSiNoiseAdder(new SiGaussianTailNoiseAdder(theThreshold)),
       theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, PreMixing_)),
-      theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
+      theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo, &iC)),
       APVProbabilityFile(conf.getParameter<edm::FileInPath>("APVProbabilityFile")),
       includeAPVSimulation_(conf.getParameter<bool>("includeAPVSimulation")),
       apv_maxResponse_(conf.getParameter<double>("apv_maxResponse")),

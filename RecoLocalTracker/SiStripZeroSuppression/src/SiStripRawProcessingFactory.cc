@@ -19,7 +19,7 @@ std::unique_ptr<SiStripRawProcessingAlgorithms> SiStripRawProcessingFactory::cre
       new SiStripRawProcessingAlgorithms(iC,
                                          create_SubtractorPed(conf, iC),
                                          create_SubtractorCMN(conf, iC),
-                                         create_Suppressor(conf),
+                                         create_Suppressor(conf, iC),
                                          create_Restorer(conf, iC),
                                          conf.getParameter<bool>("doAPVRestore"),
                                          conf.getParameter<bool>("useCMMeanMap")));
@@ -61,8 +61,8 @@ std::unique_ptr<SiStripCommonModeNoiseSubtractor> SiStripRawProcessingFactory::c
   return std::unique_ptr<SiStripCommonModeNoiseSubtractor>(new MedianCMNSubtractor());
 }
 
-std::unique_ptr<SiStripFedZeroSuppression> SiStripRawProcessingFactory::create_Suppressor(
-    const edm::ParameterSet& conf) {
+std::unique_ptr<SiStripFedZeroSuppression> SiStripRawProcessingFactory::create_Suppressor(const edm::ParameterSet& conf,
+                                                                                          edm::ConsumesCollector iC) {
   const uint32_t mode = conf.getParameter<uint32_t>("SiStripFedZeroSuppressionMode");
   const bool trunc = conf.getParameter<bool>("TruncateInSuppressor");
   const bool trunc10bits = conf.getParameter<bool>("Use10bitsTruncation");
@@ -71,11 +71,11 @@ std::unique_ptr<SiStripFedZeroSuppression> SiStripRawProcessingFactory::create_S
     case 2:
     case 3:
     case 4:
-      return std::make_unique<SiStripFedZeroSuppression>(mode, trunc, trunc10bits);
+      return std::make_unique<SiStripFedZeroSuppression>(mode, &iC, trunc, trunc10bits);
     default:
       edm::LogError("SiStripRawProcessingFactory::createSuppressor")
           << "Unregistered mode: " << mode << ". Use one of {1,2,3,4}.";
-      return std::make_unique<SiStripFedZeroSuppression>(4, true, trunc10bits);
+      return std::make_unique<SiStripFedZeroSuppression>(4, &iC, true, trunc10bits);
   }
 }
 

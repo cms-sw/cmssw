@@ -52,7 +52,7 @@ DigiSimLinkAlgorithm::DigiSimLinkAlgorithm(const edm::ParameterSet& conf) : conf
   theDigiSimLinkPileUpSignals = new DigiSimLinkPileUpSignals();
   theSiNoiseAdder = new SiGaussianTailNoiseAdder(theThreshold);
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC, PreMixing_);
-  theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
+  theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo, nullptr);
 }
 
 DigiSimLinkAlgorithm::~DigiSimLinkAlgorithm() {

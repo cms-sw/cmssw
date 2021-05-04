@@ -16,7 +16,7 @@ class SiStripRawProcessingFactory {
 public:
   static std::unique_ptr<SiStripRawProcessingAlgorithms> create(const edm::ParameterSet&, edm::ConsumesCollector);
 
-  static std::unique_ptr<SiStripFedZeroSuppression> create_Suppressor(const edm::ParameterSet&);
+  static std::unique_ptr<SiStripFedZeroSuppression> create_Suppressor(const edm::ParameterSet&, edm::ConsumesCollector);
   static std::unique_ptr<SiStripPedestalsSubtractor> create_SubtractorPed(const edm::ParameterSet&,
                                                                           edm::ConsumesCollector);
   static std::unique_ptr<SiStripCommonModeNoiseSubtractor> create_SubtractorCMN(const edm::ParameterSet&,
