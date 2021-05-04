@@ -1173,7 +1173,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   iEvent.put(std::move(L1EGXtalClusters));
   iEvent.put(std::move(L1EGammas));
-  iEvent.put(std::move(L1CaloTowers),"L1CaloTowerCollection");
+  iEvent.put(std::move(L1CaloTowers), "L1CaloTowerCollection");
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
