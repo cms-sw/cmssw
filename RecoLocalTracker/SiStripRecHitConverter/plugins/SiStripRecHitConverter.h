@@ -10,9 +10,12 @@ public:
   explicit SiStripRecHitConverter(const edm::ParameterSet&);
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   SiStripRecHitConverterAlgorithm recHitConverterAlgorithm;
   std::string matchedRecHitsTag, rphiRecHitsTag, stereoRecHitsTag;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterProducer;
+  bool doMatching;
 };
 #endif

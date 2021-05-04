@@ -2,6 +2,7 @@
 #define DataFormats_HcalRecHit_HBHEChannelInfo_h_
 
 #include <cfloat>
+#include <iostream>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
@@ -27,6 +28,7 @@ public:
         darkCurrent_{0},
         fcByPE_{0},
         lambda_{0},
+        noisecorr_{0},
         riseTime_{0.f},
         adc_{0},
         dFcPerADC_{0.f},
@@ -50,6 +52,7 @@ public:
         darkCurrent_{0},
         fcByPE_{0},
         lambda_{0},
+        noisecorr_{0},
         riseTime_{0.f},
         adc_{0},
         dFcPerADC_{0.f},
@@ -72,6 +75,7 @@ public:
     darkCurrent_ = 0;
     fcByPE_ = 0;
     lambda_ = 0, dropped_ = true;
+    noisecorr_ = 0;
     hasLinkError_ = false;
     hasCapidError_ = false;
   }
@@ -84,6 +88,7 @@ public:
                                 const double darkCurrent,
                                 const double fcByPE,
                                 const double lambda,
+                                const double noisecorr,
                                 const bool linkError,
                                 const bool capidError,
                                 const bool dropThisChannel) {
@@ -95,6 +100,7 @@ public:
     darkCurrent_ = darkCurrent;
     fcByPE_ = fcByPE;
     lambda_ = lambda, dropped_ = dropThisChannel;
+    noisecorr_ = noisecorr;
     hasLinkError_ = linkError;
     hasCapidError_ = capidError;
   }
@@ -135,6 +141,7 @@ public:
   constexpr double darkCurrent() const { return darkCurrent_; }
   constexpr double fcByPE() const { return fcByPE_; }
   constexpr double lambda() const { return lambda_; }
+  constexpr double noisecorr() const { return noisecorr_; }
   constexpr bool isDropped() const { return dropped_; }
   constexpr bool hasLinkError() const { return hasLinkError_; }
   constexpr bool hasCapidError() const { return hasCapidError_; }
@@ -253,6 +260,7 @@ private:
   double darkCurrent_;
   double fcByPE_;
   double lambda_;
+  double noisecorr_;
 
   // Signal rise time from TDC in ns (if provided)
   float riseTime_[MAXSAMPLES];
@@ -290,5 +298,7 @@ private:
   bool hasLinkError_;
   bool hasCapidError_;
 };
+
+std::ostream& operator<<(std::ostream& s, const HBHEChannelInfo& inf);
 
 #endif  // DataFormats_HcalRecHit_HBHEChannelInfo_h_

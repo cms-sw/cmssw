@@ -1,0 +1,20 @@
+Just to keep track of the fast evolving quality definition
+#########################################################
+DT quality code
+---------------
+1, 2: 3-hit in a single SL
+3, 4: 4-hit in a single SL (3 means that there are other TP in this SL, 4 that it is the only one)
+5: 3-hit in a single SL + 1 or 2 hits in the other SL
+6: 3-hit in both SL
+7: 4-hit in a single SL + 1 or 2 hits in the other SL
+8: 4-hit in a SL + 3-hit in the other SL
+9: 4-hit in both SL
+
+RPC Flag (tells how RPC was used) #FIXME being implemented, not everything available yet
+---------------------------------
+0: segment that could not be matched to any RPC cluster (or 'useRPC' option is set to false)
+1: RPC used to overwrite TP timing info (both t0 and BX)
+2: RPC only segment
+3: RPC single hit not associated to any DT segment
+4: RPC used to confirm the presence of the TP, but not used to recompute any of its quantities
+5: RPC single hit associated with a DT segment (only kept if 'storeAllRPCHits' is set to True, which not the default)

@@ -1,6 +1,5 @@
 //
 //
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
@@ -42,4 +41,3 @@
 #include "Math/Polar3D.h"
 #include "Math/CylindricalEta3D.h"
 #include "Math/PxPyPzE4D.h"
-#include <boost/cstdint.hpp>

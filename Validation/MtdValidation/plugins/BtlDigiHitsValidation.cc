@@ -33,6 +33,8 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
+
 class BtlDigiHitsValidation : public DQMEDAnalyzer {
 public:
   explicit BtlDigiHitsValidation(const edm::ParameterSet&);
@@ -48,8 +50,12 @@ private:
   // ------------ member data ------------
 
   const std::string folder_;
+  const bool LocalPosDebug_;
 
   edm::EDGetTokenT<BTLDigiCollection> btlDigiHitsToken_;
+
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
 
   // --- histograms declaration
 
@@ -59,6 +65,12 @@ private:
   MonitorElement* meHitTime_[2];
 
   MonitorElement* meOccupancy_[2];
+
+  //local position monitoring
+  MonitorElement* meLocalOccupancy_[2];
+  MonitorElement* meHitXlocal_[2];
+  MonitorElement* meHitYlocal_[2];
+  MonitorElement* meHitZlocal_[2];
 
   MonitorElement* meHitX_[2];
   MonitorElement* meHitY_[2];
@@ -77,8 +89,11 @@ private:
 
 // ------------ constructor and destructor --------------
 BtlDigiHitsValidation::BtlDigiHitsValidation(const edm::ParameterSet& iConfig)
-    : folder_(iConfig.getParameter<std::string>("folder")) {
+    : folder_(iConfig.getParameter<std::string>("folder")),
+      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")) {
   btlDigiHitsToken_ = consumes<BTLDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
 
 BtlDigiHitsValidation::~BtlDigiHitsValidation() {}
@@ -87,12 +102,10 @@ BtlDigiHitsValidation::~BtlDigiHitsValidation() {}
 void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<MTDGeometry> geometryHandle;
-  iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
+  auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  edm::ESHandle<MTDTopology> topologyHandle;
-  iSetup.get<MTDTopologyRcd>().get(topologyHandle);
+  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
 
   auto btlDigiHitsHandle = makeValid(iEvent.getHandle(btlDigiHitsToken_));
@@ -103,7 +116,7 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   for (const auto& dataFrame : *btlDigiHitsHandle) {
     BTLDetId detId = dataFrame.id();
-    DetId geoId = detId.geographicalId(static_cast<BTLDetId::CrysLayout>(topology->getMTDTopologyMode()));
+    DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr)
       throw cms::Exception("BtlDigiHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
@@ -129,6 +142,13 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
       meHitTime_[iside]->Fill(tdc[iside]);
 
       meOccupancy_[iside]->Fill(global_point.z(), global_point.phi());
+
+      if (LocalPosDebug_) {
+        meLocalOccupancy_[iside]->Fill(local_point.x(), local_point.y());
+        meHitXlocal_[iside]->Fill(local_point.x());
+        meHitYlocal_[iside]->Fill(local_point.y());
+        meHitZlocal_[iside]->Fill(local_point.z());
+      }
 
       meHitX_[iside]->Fill(global_point.x());
       meHitY_[iside]->Fill(global_point.y());
@@ -161,7 +181,6 @@ void BtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                            edm::Run const& run,
                                            edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
-
   // --- histograms booking
 
   meNhits_[0] = ibook.book1D("BtlNhitsL", "Number of BTL DIGI hits (L);log_{10}(N_{DIGI})", 100, 0., 5.25);
@@ -171,7 +190,6 @@ void BtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitCharge_[1] = ibook.book1D("BtlHitChargeR", "BTL DIGI hits charge (R);Q_{DIGI} [ADC counts]", 100, 0., 1024.);
   meHitTime_[0] = ibook.book1D("BtlHitTimeL", "BTL DIGI hits ToA (L);ToA_{DIGI} [TDC counts]", 100, 0., 1024.);
   meHitTime_[1] = ibook.book1D("BtlHitTimeR", "BTL DIGI hits ToA (R);ToA_{DIGI} [TDC counts]", 100, 0., 1024.);
-
   meOccupancy_[0] = ibook.book2D("BtlOccupancyL",
                                  "BTL DIGI hits occupancy (L);Z_{DIGI} [cm]; #phi_{DIGI} [rad]",
                                  65,
@@ -188,6 +206,24 @@ void BtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                  126,
                                  -3.15,
                                  3.15);
+  if (LocalPosDebug_) {
+    meLocalOccupancy_[0] = ibook.book2D("BtlLocalOccupancyL",
+                                        "BTL DIGI hits local occupancy (L);X_{DIGI} [cm]; Y_{DIGI} [cm]",
+                                        100,
+                                        -10.,
+                                        10,
+                                        60,
+                                        -3.,
+                                        3.);
+    meLocalOccupancy_[1] = ibook.book2D(
+        "BtlLocalOccupancyR", "BTL DIGI hits occupancy (R);X_{DIGI} [cm]; Y_{DIGI} [cm]", 100, -10., 10., 60, -3., 3.);
+    meHitXlocal_[0] = ibook.book1D("BtlHitXlocalL", "BTL DIGI local X (L);X_{DIGI}^{LOC} [cm]", 100, -10., 10.);
+    meHitXlocal_[1] = ibook.book1D("BtlHitXlocalR", "BTL DIGI local X (R);X_{DIGI}^{LOC} [cm]", 100, -10., 10.);
+    meHitYlocal_[0] = ibook.book1D("BtlHitYlocalL", "BTL DIGI local Y (L);Y_{DIGI}^{LOC} [cm]", 60, -3., 3.);
+    meHitYlocal_[1] = ibook.book1D("BtlHitYlocalR", "BTL DIGI local Y (R);Y_{DIGI}^{LOC} [cm]", 60, -3., 3.);
+    meHitZlocal_[0] = ibook.book1D("BtlHitZlocalL", "BTL DIGI local z (L);z_{DIGI}^{LOC} [cm]", 10, -1, 1);
+    meHitZlocal_[1] = ibook.book1D("BtlHitZlocalR", "BTL DIGI local z (R);z_{DIGI}^{LOC} [cm]", 10, -1, 1);
+  }
 
   meHitX_[0] = ibook.book1D("BtlHitXL", "BTL DIGI hits X (L);X_{DIGI} [cm]", 60, -120., 120.);
   meHitX_[1] = ibook.book1D("BtlHitXR", "BTL DIGI hits X (R);X_{DIGI} [cm]", 60, -120., 120.);
@@ -256,6 +292,7 @@ void BtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& des
 
   desc.add<std::string>("folder", "MTD/BTL/DigiHits");
   desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "FTLBarrel"));
+  desc.add<bool>("LocalPositionDebug", false);
 
   descriptions.add("btlDigiHitsDefault", desc);
 }

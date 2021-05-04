@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
+#include <functional>
 #include "TGMenu.h"
 
 // user include files
@@ -38,7 +38,7 @@ CSGContinuousAction::CSGContinuousAction(CSGActionSupervisor* iSupervisor, const
       m_runningDownPic(nullptr),
       m_button(nullptr),
       m_isRunning(false) {
-  activated.connect(boost::bind(&CSGContinuousAction::switchMode, this));
+  activated.connect(std::bind(&CSGContinuousAction::switchMode, this));
 }
 
 void CSGContinuousAction::createCustomIconsButton(TGCompositeFrame* p,

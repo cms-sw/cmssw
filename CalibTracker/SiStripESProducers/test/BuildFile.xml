@@ -1,21 +1,21 @@
-<use   name="boost"/>
-<use   name="root"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="Geometry/Records"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/SiStripObjects"/>
-<use   name="CalibFormats/SiStripObjects"/>
-<use   name="CalibTracker/SiStripCommon"/>
-<use   name="CalibTracker/Records"/>
-<library   file="*.cc" name="testCalibTrackerSiStripESProducers">
-  <flags   EDM_PLUGIN="1"/>
+<use name="boost"/>
+<use name="root"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="CalibFormats/SiStripObjects"/>
+<use name="CalibTracker/SiStripCommon"/>
+<use name="CalibTracker/Records"/>
+<library file="*.cc" name="testCalibTrackerSiStripESProducers">
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <environment>
-  <bin   file="testCalibTrackerSiStripESProducersByHand.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash CalibTracker/SiStripESProducers/test/python testBadComponents_byHand.sh"/>
-    <use   name="FWCore/Utilities"/>
+  <bin file="testCalibTrackerSiStripESProducersByHand.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash CalibTracker/SiStripESProducers/test/python testBadComponents_byHand.sh"/>
+    <use name="FWCore/Utilities"/>
   </bin>
+
 </environment>

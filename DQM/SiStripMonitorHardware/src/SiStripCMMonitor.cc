@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -72,10 +72,8 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-
   //update the cabling if necessary
-  void updateCabling(const edm::EventSetup& eventSetup);
+  void updateCabling(const SiStripFedCablingRcd& cablingRcd);
 
   void fillMaps(uint32_t aDetId, unsigned short aChInModule, std::pair<uint16_t, uint16_t> aMedians);
 
@@ -94,8 +92,12 @@ private:
   //print debug messages when problems are found: 1=error debug, 2=light debug, 3=full debug
   unsigned int printDebug_;
   //FED cabling
-  uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
+
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
 
   //add parameter to save computing time if TkHistoMap are not filled
   bool doTkHistoMap_;
@@ -123,9 +125,10 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
       fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber", false)),
       fillWithLocalEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithLocalEventNumber", false)),
       printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages", 1)),
-      cablingCacheId_(0)
-
-{
+      fedCablingWatcher_(this, &SiStripCMMonitorPlugin::updateCabling),
+      fedCablingToken_(esConsumes<>()),
+      tTopoToken_(esConsumes<>()),
+      tkDetMapToken_(esConsumes<edm::Transition::BeginRun>()) {
   rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
   //print config to debug log
   std::ostringstream debugStream;
@@ -171,29 +174,21 @@ void SiStripCMMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
                                             const edm::EventSetup& eSetup) {
   ibooker.setCurrentFolder(folderName_);
 
-  edm::ESHandle<TkDetMap> tkDetMapHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-  const TkDetMap* tkDetMap = tkDetMapHandle.product();
-
+  const auto tkDetMap = &eSetup.getData(tkDetMapToken_);
   cmHists_.bookTopLevelHistograms(ibooker, tkDetMap);
 
   if (fillAllDetailedHistograms_)
     cmHists_.bookAllFEDHistograms(ibooker);
 }
 
-void SiStripCMMonitorPlugin::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 // ------------ method called to for each event  ------------
 void SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const auto tTopo = &iSetup.getData(tTopoToken_);
+
+  fedCablingWatcher_.check(iSetup);
 
   //static bool firstEvent = true;
   //static bool isBeingFilled = false;
-  //update cabling
-  updateCabling(iSetup);
 
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
@@ -224,7 +219,13 @@ void SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventS
       continue;
     } else {
       //need to construct full object to go any further
-      buffer.reset(new sistrip::FEDBuffer(fedData.data(), fedData.size(), true));
+      const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData, true);
+      if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
+        throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
+      }
+      auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData, true);
+      tmp_buffer->findChannels();
+      buffer = std::move(tmp_buffer);  // const now
       bool channelLengthsOK = buffer->checkChannelLengthsMatchBufferLength();
       bool channelPacketCodesOK = buffer->checkChannelPacketCodes();
       bool feLengthsOK = buffer->checkFEUnitLengths();
@@ -416,14 +417,8 @@ SiStripCMMonitorPlugin::endJob()
 
 }
 */
-void SiStripCMMonitorPlugin::updateCabling(const edm::EventSetup& eventSetup) {
-  uint32_t currentCacheId = eventSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
-  if (cablingCacheId_ != currentCacheId) {
-    edm::ESHandle<SiStripFedCabling> cablingHandle;
-    eventSetup.get<SiStripFedCablingRcd>().get(cablingHandle);
-    cabling_ = cablingHandle.product();
-    cablingCacheId_ = currentCacheId;
-  }
+void SiStripCMMonitorPlugin::updateCabling(const SiStripFedCablingRcd& cablingRcd) {
+  cabling_ = &cablingRcd.get(fedCablingToken_);
 }
 
 void SiStripCMMonitorPlugin::fillMaps(uint32_t aDetId,

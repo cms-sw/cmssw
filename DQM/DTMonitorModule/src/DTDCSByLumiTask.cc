@@ -14,24 +14,25 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
-
-#include "CondFormats/DataRecord/interface/DTHVStatusRcd.h"
-#include "CondFormats/DTObjects/interface/DTHVStatus.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/EventSetupRecord.h>
 #include <FWCore/Framework/interface/EventSetupRecordKey.h>
+#include "FWCore/Utilities/interface/Transition.h"
+
 #include <iostream>
 
 using namespace edm;
 using namespace std;
 
-DTDCSByLumiTask::DTDCSByLumiTask(const edm::ParameterSet& ps) : theEvents(0), theLumis(0) {
+DTDCSByLumiTask::DTDCSByLumiTask(const edm::ParameterSet& ps)
+    : theEvents(0),
+      theLumis(0),
+      dtGeometryToken_(esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>()),
+      dtHVStatusToken_(esConsumes<DTHVStatus, DTHVStatusRcd, edm::Transition::EndLuminosityBlock>()) {
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask") << "[DTDCSByLumiTask]: Constructor" << endl;
 
   // If needed put getParameter here
@@ -46,7 +47,7 @@ DTDCSByLumiTask::~DTDCSByLumiTask() {
 void DTDCSByLumiTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask") << "[DTDCSByLumiTask]: begin run" << endl;
 
-  context.get<MuonGeometryRecord>().get(theDTGeom);
+  theDTGeom = context.getHandle(dtGeometryToken_);
 
   DTHVRecordFound = true;
 
@@ -64,7 +65,7 @@ void DTDCSByLumiTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& co
   }
 }
 
-void DTDCSByLumiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& context) {
+void DTDCSByLumiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
   // Book bylumi histo (# of bins as reduced as possible)
   ibooker.setCurrentFolder(topFolder());
 
@@ -72,15 +73,17 @@ void DTDCSByLumiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     stringstream wheel_str;
     wheel_str << wheel;
 
-    MonitorElement* ME =
-        ibooker.book1D("hActiveUnits" + wheel_str.str(), "Active Untis x LS Wh" + wheel_str.str(), 2, 0.5, 2.5);
-    ME->setLumiFlag();  // Set LumiFlag in order to save histo every LS
-
-    hActiveUnits.push_back(ME);
+    {
+      // Set Lumi scope in order to save histo every LS
+      auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+      MonitorElement* ME =
+          ibooker.book1D("hActiveUnits" + wheel_str.str(), "Active Untis x LS Wh" + wheel_str.str(), 2, 0.5, 2.5);
+      hActiveUnits.push_back(ME);
+    }
   }
 }
 
-void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+void DTDCSByLumiTask::dqmBeginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const&) {
   theLumis++;
 
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
@@ -92,9 +95,11 @@ void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Event
   }
 }
 
-void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
-  if (DTHVRecordFound)
-    context.get<DTHVStatusRcd>().get(hvStatus);
+void DTDCSByLumiTask::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
+  const DTHVStatus* dtHVStatus = nullptr;
+  if (DTHVRecordFound) {
+    dtHVStatus = &context.getData(dtHVStatusToken_);
+  }
 
   vector<const DTLayer*>::const_iterator layersIt = theDTGeom->layers().begin();
   vector<const DTLayer*>::const_iterator layersEnd = theDTGeom->layers().end();
@@ -103,7 +108,6 @@ void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, co
     int wheel = (*layersIt)->id().wheel();
 
     int nWiresLayer = (*layersIt)->specificTopology().channels();
-
     hActiveUnits[wheel + 2]->Fill(1, nWiresLayer);  // CB first bin is # of layers
     int nActiveWires = nWiresLayer;
 
@@ -118,11 +122,11 @@ void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, co
     // wires list
 
     if (DTHVRecordFound) {
-      if (!hvStatus->get((*layersIt)->id(), 0, first, last, flagA, flagC, flagS) && (flagA || flagC || flagS)) {
+      if (!dtHVStatus->get((*layersIt)->id(), 0, first, last, flagA, flagC, flagS) && (flagA || flagC || flagS)) {
         nActiveWires -= (last - first + 1);
       }
 
-      if (!hvStatus->get((*layersIt)->id(), 1, first, last, flagA, flagC, flagS) && (flagA || flagC || flagS)) {
+      if (!dtHVStatus->get((*layersIt)->id(), 1, first, last, flagA, flagC, flagS) && (flagA || flagC || flagS)) {
         nActiveWires -= (last - first + 1);
       }
     } else {
@@ -133,7 +137,7 @@ void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, co
   }
 }
 
-void DTDCSByLumiTask::analyze(const edm::Event& event, const edm::EventSetup& c) { theEvents++; }
+void DTDCSByLumiTask::analyze(const edm::Event&, const edm::EventSetup&) { theEvents++; }
 
 string DTDCSByLumiTask::topFolder() const { return string("DT/EventInfo/DCSContents"); }
 

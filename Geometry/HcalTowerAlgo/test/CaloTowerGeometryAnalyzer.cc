@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -42,12 +41,14 @@ public:
 private:
   std::string m_fname;
   double m_epsilon;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 };
 
 CaloTowerGeometryAnalyzer::CaloTowerGeometryAnalyzer(const edm::ParameterSet& iConfig)
     : m_fname("CaloTower.cells"), m_epsilon(0.004) {
   m_fname = iConfig.getParameter<std::string>("FileName");
   m_epsilon = iConfig.getParameter<double>("Epsilon");
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
 
 CaloTowerGeometryAnalyzer::~CaloTowerGeometryAnalyzer(void) {}
@@ -56,9 +57,7 @@ void CaloTowerGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm:
   std::fstream fAll(std::string(m_fname + ".all").c_str(), std::ios_base::out);
   std::fstream f(std::string(m_fname + ".diff").c_str(), std::ios_base::out);
 
-  edm::ESHandle<CaloGeometry> caloGeomHandle;
-  iSetup.get<CaloGeometryRecord>().get(caloGeomHandle);
-  const CaloGeometry* caloGeom = caloGeomHandle.product();
+  const CaloGeometry* caloGeom = &iSetup.getData(tok_geom_);
 
   const std::vector<DetId>& dha(caloGeom->getSubdetectorGeometry(DetId::Hcal, 1)->getValidDetIds());
 

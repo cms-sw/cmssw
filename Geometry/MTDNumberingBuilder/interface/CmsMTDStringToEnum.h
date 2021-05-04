@@ -9,21 +9,19 @@
  */
 class CmsMTDStringToEnum {
 public:
-  typedef std::map<std::string, GeometricTimingDet::GeometricTimingEnumType> MapEnumType;
-  typedef std::map<GeometricTimingDet::GeometricTimingEnumType, std::string> ReverseMapEnumType;
+  static constexpr size_t kModStrLen = 7;
+
+  using MapEnumType = std::map<std::string, GeometricTimingDet::GeometricTimingEnumType>;
 
   GeometricTimingDet::GeometricTimingEnumType type(std::string const&) const;
-  std::string const& name(GeometricTimingDet::GeometricTimingEnumType) const;
 
 private:
-  static MapEnumType const& map() { return m_impl._map; }
-  static ReverseMapEnumType const& reverseMap() { return m_impl._reverseMap; }
+  static MapEnumType const& map() { return m_impl.map_; }
 
   // a quick fix
   struct Impl {
     Impl();
-    MapEnumType _map;
-    ReverseMapEnumType _reverseMap;
+    MapEnumType map_;
   };
 
   static const Impl m_impl;

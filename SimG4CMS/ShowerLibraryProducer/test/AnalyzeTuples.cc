@@ -1,7 +1,77 @@
+// -*- C++ -*-
+//
+// Package:    AnalyzeTuples
+// Class:      AnalyzeTuples
+//
 
-#include "AnalyzeTuples.h"
+/**\class AnalyzeTuples AnalyzeTuples.cc Analysis/AnalyzeTuples/src/AnalyzeTuples.cc
+
+Description: <one line class summary>
+
+Implementation:
+<Notes on implementation>
+*/
+//
+// Original Author: Taylan Yetkin
+// Created: Tue Feb 10 08:43:07 CST 2009
+//
+//
+
+#include <memory>
+#include <vector>
+#include <string>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
+#include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranch.h"
+#include "TH1F.h"
+#include "TH1I.h"
+
+#define EDM_ML_DEBUG
+
+class AnalyzeTuples : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit AnalyzeTuples(const edm::ParameterSet&);
+  ~AnalyzeTuples() override;
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void loadEventInfo(TBranch*);
+  void getRecord(int type, int record);
+  TFile* hf;
+  TBranch *emBranch, *hadBranch;
+
+  int nMomBin, totEvents, evtPerBin;
+  float libVers, listVersion;
+  std::vector<double> pmom;
+  std::vector<HFShowerPhoton> photon;
+
+  edm::Service<TFileService> fs;
+  TH1I* hNPELongElec[12];
+  TH1I* hNPEShortElec[12];
+  TH1I* hNPELongPion[12];
+  TH1I* hNPEShortPion[12];
+};
 
 AnalyzeTuples::AnalyzeTuples(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
+
   std::cout << "analyzetuples a buraya girdi" << std::endl;
   edm::ParameterSet m_HS = iConfig.getParameter<edm::ParameterSet>("HFShowerLibrary");
   edm::FileInPath fp = m_HS.getParameter<edm::FileInPath>("FileName");
@@ -150,12 +220,12 @@ void AnalyzeTuples::getRecord(int type, int record) {
     emBranch->SetAddress(&photon);
     emBranch->GetEntry(nrc);
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   int nPhoton = photon.size();
-  LogDebug("HFShower") << "HFShowerLibrary::getRecord: Record " << record << " of type " << type << " with " << nPhoton
-                       << " photons";
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary::getRecord: Record " << record << " of type " << type << " with "
+                               << nPhoton << " photons";
   for (int j = 0; j < nPhoton; j++)
-    LogDebug("HFShower") << "Photon " << j << " " << photon[j];
+    edm::LogVerbatim("HFShower") << "Photon " << j << " " << photon[j];
 #endif
 }
 

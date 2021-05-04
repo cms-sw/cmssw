@@ -6,11 +6,8 @@
 
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainRandomCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -21,7 +18,7 @@ using namespace cms;
 using namespace std;
 
 SiStripGainRandomCalculator::SiStripGainRandomCalculator(const edm::ParameterSet& iConfig)
-    : ConditionDBWriter<SiStripApvGain>(iConfig), m_cacheID_(0) {
+    : ConditionDBWriter<SiStripApvGain>(iConfig) {
   edm::LogInfo("SiStripGainRandomCalculator::SiStripGainRandomCalculator");
 
   //   std::string Mode=iConfig.getParameter<std::string>("Mode");
@@ -35,6 +32,8 @@ SiStripGainRandomCalculator::SiStripGainRandomCalculator(const edm::ParameterSet
   sigmaGain_ = iConfig.getParameter<double>("SigmaGain");
   minimumPosValue_ = iConfig.getParameter<double>("MinPositiveGain");
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
+
+  tkGeomToken_ = esConsumes();
 }
 
 SiStripGainRandomCalculator::~SiStripGainRandomCalculator() {
@@ -42,21 +41,15 @@ SiStripGainRandomCalculator::~SiStripGainRandomCalculator() {
 }
 
 void SiStripGainRandomCalculator::algoAnalyze(const edm::Event& event, const edm::EventSetup& iSetup) {
-  unsigned long long cacheID = iSetup.get<TrackerDigiGeometryRecord>().cacheIdentifier();
-
-  if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;
-
-    edm::ESHandle<TrackerGeometry> pDD;
-
-    iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  if (tkDigiGeomRcdWatcher_.check(iSetup)) {
+    const auto& dd = iSetup.getData(tkGeomToken_);
     edm::LogInfo("SiStripGainRandomCalculator::algoAnalyze - got new geometry  ") << std::endl;
 
     detid_apvs_.clear();
 
-    edm::LogInfo("SiStripGainCalculator") << " There are " << pDD->detUnits().size() << " detectors" << std::endl;
+    edm::LogInfo("SiStripGainCalculator") << " There are " << dd.detUnits().size() << " detectors" << std::endl;
 
-    for (const auto& it : pDD->detUnits()) {
+    for (const auto& it : dd.detUnits()) {
       if (dynamic_cast<const StripGeomDetUnit*>(it) != nullptr) {
         uint32_t detid = (it->geographicalId()).rawId();
         const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>(it)->specificTopology();

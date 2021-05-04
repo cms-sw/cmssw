@@ -1,6 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
-#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
+#include "EventFilter/CSCRawToDigi/interface/cscPackerCompare.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2006.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2007.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2007_rev0x50c3.h"
@@ -20,12 +20,12 @@ std::atomic<bool> CSCTMBHeader::debug{false};
 CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision)
     : theHeaderFormat(), theFirmwareVersion(firmwareVersion) {
   if (firmwareVersion == 2013) {
-    theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013());
+    theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013());
   } else if (firmwareVersion == 2006) {
-    theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006());
+    theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006());
   } else if (firmwareVersion == 2007) {
     /* Checks for TMB2007 firmware revisions ranges to detect data format
-       * rev.0x50c3 - first revision with changed format 
+       * rev.0x50c3 - first revision with changed format
        * rev.0x42D5 - oldest known from 06/21/2007
        * There is 4-bits year value rollover in revision number (0 in 2016)
        */
@@ -33,12 +33,12 @@ CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision)
       // if (firmwareRevision >= 0x7a76) // First OTMB firmware revision with 2013 format
       /* Revisions > 0x6000 - OTMB firmwares, < 0x42D5 - new TMB revisions in 2016 */
       if ((firmwareRevision >= 0x6000) || (firmwareRevision < 0x42D5)) {
-        theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013());
+        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013());
       } else {
-        theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3());
+        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3());
       }
     } else {
-      theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007());
+      theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007());
     }
   } else {
     edm::LogError("CSCTMBHeader|CSCRawToDigi") << "failed to determine TMB firmware version!!";
@@ -53,9 +53,9 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short *buf) : theHeaderFormat() {
   ///first determine the format
   if (buf[0] == 0xDB0C) {
     theFirmwareVersion = 2007;
-    theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007(buf));
+    theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007(buf));
     /* Checks for TMB2007 firmware revisions ranges to detect data format
-       * rev.0x50c3 - first revision with changed format 
+       * rev.0x50c3 - first revision with changed format
        * rev.0x42D5 - oldest known from 06/21/2007
        * There is 4-bits year value rollover in revision number (0 in 2016)
        */
@@ -64,15 +64,15 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short *buf) : theHeaderFormat() {
       /* Revisions > 0x6000 - OTMB firmwares, < 0x42D5 - new TMB revisions in 2016 */
       if ((theHeaderFormat->firmwareRevision() >= 0x6000) || (theHeaderFormat->firmwareRevision() < 0x42D5)) {
         theFirmwareVersion = 2013;
-        theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013(buf));
+        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013(buf));
       } else {
-        theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3(buf));
+        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3(buf));
       }
     }
 
   } else if (buf[0] == 0x6B0C) {
     theFirmwareVersion = 2006;
-    theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006(buf));
+    theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006(buf));
   } else {
     edm::LogError("CSCTMBHeader|CSCRawToDigi") << "failed to determine TMB firmware version!!";
   }
@@ -128,6 +128,11 @@ void CSCTMBHeader::add(const std::vector<CSCCorrelatedLCTDigi> &digis) {
     addCorrelatedLCT1(digis[1]);
 }
 
+void CSCTMBHeader::add(const std::vector<CSCShowerDigi> &digis) {
+  if (!digis.empty())
+    theHeaderFormat->addShower(digis[0]);
+}
+
 CSCTMBHeader2007 CSCTMBHeader::tmbHeader2007() const {
   CSCTMBHeader2007 *result = dynamic_cast<CSCTMBHeader2007 *>(theHeaderFormat.get());
   if (result == nullptr) {
@@ -160,7 +165,7 @@ CSCTMBHeader2006 CSCTMBHeader::tmbHeader2006() const {
   return *result;
 }
 
-void CSCTMBHeader::selfTest() {
+void CSCTMBHeader::selfTest(int firmwareVersion, int firmwareRevision) {
   constexpr bool debug = false;
 
   // tests packing and unpacking
@@ -174,14 +179,14 @@ void CSCTMBHeader::selfTest() {
       // In 2007 firmware, there are no distrips, so the 4th argument (strip
       // type) should always be set to 1 (halfstrips).
       CSCCLCTDigi clct0(1, 1, 4, 1, 0, 30, 4, 2, 1);  // valid for 2007
-      CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 1, 2, 2);
+      CSCCLCTDigi clct1(1, 1, 3, 1, 1, 31, 1, 2, 2);
 
       // BX of LCT (8th argument) is 1-bit word (the least-significant bit
       // of ALCT's bx).
       CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0);
       CSCCorrelatedLCTDigi lct1(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0);
 
-      CSCTMBHeader tmbHeader(2007, 0x50c3);
+      CSCTMBHeader tmbHeader(firmwareVersion, firmwareRevision);
       tmbHeader.addCLCT0(clct0);
       tmbHeader.addCLCT1(clct1);
       tmbHeader.addCorrelatedLCT0(lct0);

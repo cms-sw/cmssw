@@ -120,9 +120,9 @@ process.add_(cms.Service("Timing", summaryOnly = cms.untracked.bool(True)))
 # The following two lines reduce the clutter of repeated printouts
 # of the same exception message.
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cerr']
-process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+
+process.MessageLogger.cerr.enableStatistics = False
+
 process.MessageLogger.cerr.FwkReport.reportEvery = 50000
 process.MessageLogger.cerr.threshold = 'WARNING'
 """)
@@ -142,7 +142,7 @@ for m,c in six.iteritems(consumesParser._consumesForModule):
     elif not c:
         print("process.%s = cms.EDProducer('IntProducer', ivalue = cms.int32(1))"%m)
     else:
-        print("process.%s = cms.EDProducer('AddIntsProducer', labels = cms.vstring(*[%s]))"%(m,",".join(["'%s'"%i for i in (n for n in c if n != 'TriggerResults')])))
+        print("process.%s = cms.EDProducer('AddIntsProducer', labels = cms.VInputTag(*[%s]))"%(m,",".join(["'%s'"%i for i in (n for n in c if n != 'TriggerResults')])))
     allModules.add(m)
     for o  in c:
         allModules.add(o)

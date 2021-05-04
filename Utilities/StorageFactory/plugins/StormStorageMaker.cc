@@ -13,7 +13,7 @@ class StormStorageMaker : public StorageMaker {
   /* getTURL: Executes a prepare to get script and extracts the physical file path */
   std::string getTURL(const std::string &surl) const {
     std::string client;
-    if (char *p = getenv("CMS_STORM_PTG_CLIENT"))
+    if (char *p = std::getenv("CMS_STORM_PTG_CLIENT"))
       client = p;
     else
       throw cms::Exception("StormStorageMaker") << "$CMS_STORM_PTG_CLIENT has no value";
@@ -41,7 +41,7 @@ class StormStorageMaker : public StorageMaker {
       throw cms::Exception("StormStorageMaker") << "no turl found in command '" << comm << "' output:\n" << output;
 
     start += 9;
-    std::string turl(output, start, output.find_first_of("\n", start) - start);
+    std::string turl(output, start, output.find_first_of('\n', start) - start);
     LogDebug("StormStorageMaker") << "file to open: " << turl << std::endl;
     return turl;
   }

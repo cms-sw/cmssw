@@ -116,8 +116,8 @@ public:
   }
 
   bool isItBigPixelInY(const int iybin) const override {
-    if
-      UNLIKELY(m_upgradeGeometry) return false;
+    if UNLIKELY (m_upgradeGeometry)
+      return false;
     else {
       int iybin0 = iybin % 52;
       return ((iybin0 == 0) | (iybin0 == 51));

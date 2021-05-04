@@ -15,21 +15,19 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 InterestingEcalDetIdProducer::InterestingEcalDetIdProducer(const edm::ParameterSet& iConfig) {
   inputCollection_ = iConfig.getParameter<edm::InputTag>("inputCollection");
   produces<DetIdCollection>();
   muonToken_ = consumes<reco::MuonCollection>(inputCollection_);
+  caloTopoToken_ = esConsumes<CaloTopology, CaloTopologyRecord, edm::Transition::BeginRun>();
 }
 
 InterestingEcalDetIdProducer::~InterestingEcalDetIdProducer() {}
 
 void InterestingEcalDetIdProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
+  edm::ESHandle<CaloTopology> theCaloTopology = iSetup.getHandle(caloTopoToken_);
   caloTopology_ = &(*theCaloTopology);
 }
 

@@ -17,7 +17,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -76,7 +76,7 @@ void Phase2TrackerClusterizer::produce(edm::Event& event, const edm::EventSetup&
   auto outputClusters = std::make_unique<Phase2TrackerCluster1DCollectionNew>();
 
   // Go over all the modules
-  for (auto DSViter : *digis) {
+  for (const auto& DSViter : *digis) {
     DetId detId(DSViter.detId());
 
     Phase2TrackerCluster1DCollectionNew::FastFiller clusters(*outputClusters, DSViter.detId());

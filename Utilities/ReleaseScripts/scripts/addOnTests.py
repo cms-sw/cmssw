@@ -194,7 +194,7 @@ class StandardTester(object):
             os.system(cmd)
 
         import pickle
-        pickle.dump(self.commands, open('logs/addOnTests.pkl', 'w') )
+        pickle.dump(self.commands, open('logs/addOnTests.pkl', 'wb'), protocol=2)
 
         os.chdir(actDir)
 

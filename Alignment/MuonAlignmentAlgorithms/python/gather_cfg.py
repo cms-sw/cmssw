@@ -105,7 +105,7 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi")
 
 #add TrackDetectorAssociator lookup maps to the EventSetup
 process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff") 

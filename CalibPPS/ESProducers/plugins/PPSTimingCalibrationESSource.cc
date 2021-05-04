@@ -21,7 +21,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
+#include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 
 #include <boost/property_tree/json_parser.hpp>

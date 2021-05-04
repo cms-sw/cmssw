@@ -4,14 +4,14 @@
 #include <string>
 
 class GeometricDet;
-class DDFilteredView;
 
 /**
  * Abstract Class to construct a Tracker SubDet
  */
+template <class FilteredView>
 class CmsTrackerAbstractConstruction {
 public:
   virtual ~CmsTrackerAbstractConstruction() = default;
-  virtual void build(DDFilteredView&, GeometricDet*, std::string) = 0;
+  virtual void build(FilteredView &, GeometricDet *, const std::string &) = 0;
 };
 #endif

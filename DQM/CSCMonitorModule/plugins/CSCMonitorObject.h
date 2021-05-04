@@ -117,7 +117,7 @@ public:
     me->getTH1()->SetMaximum(d);
   }
 
-  const TObject *getRefRootObject(void) const override { return me->getRefRootObject(); }
+  const TObject *getRefRootObject(void) const override { return nullptr; }
 
   const double GetBinError(const int bin) override {
     cscdqm::LockType lock(mutex);

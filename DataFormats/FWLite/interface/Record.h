@@ -28,6 +28,7 @@
 // user include files
 #include "DataFormats/FWLite/interface/IOVSyncValue.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 class TTree;
@@ -78,7 +79,8 @@ namespace fwlite {
     IOVSyncValue m_start;
     IOVSyncValue m_end;
 
-    mutable std::map<std::pair<edm::TypeID, std::string>, std::pair<TBranch*, void*>> m_branches;
+    //This class is not inteded to be used across different threads
+    CMS_SA_ALLOW mutable std::map<std::pair<edm::TypeID, std::string>, std::pair<TBranch*, void*>> m_branches;
   };
 
   template <typename HANDLE>

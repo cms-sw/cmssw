@@ -485,13 +485,13 @@ namespace {
   struct VerifyAlgos {
     VerifyAlgos(std::vector<DSTV::data_type const *> &iv) : n(0), v(iv) {}
 
-    void operator()(DSTV::data_type const &d) const {
+    void operator()(DSTV::data_type const &d) {
       CPPUNIT_ASSERT(d == *v[n]);
       CPPUNIT_ASSERT(&d == v[n]);
       ++n;
     }
 
-    mutable int n;
+    int n;
     std::vector<DSTV::data_type const *> const &v;
   };
 
@@ -532,16 +532,11 @@ void TestDetSet::algorithm() {
   edmNew::foreachDetSetObject(detsets, acc(3), va);
 }
 
-#include <boost/assign/std/vector.hpp>
-// for operator =+
-using namespace boost::assign;
-
 void TestDetSet::onDemand() {
   auto pg = std::make_shared<Getter>(this);
   Getter &g = *pg;
   assert(!g.aborted);
-  std::vector<unsigned int> v;
-  v += 21, 23, 25, 27, 1020;
+  std::vector<unsigned int> v = {21, 23, 25, 27, 1020};
   DSTV detsets(pg, v, 2);
   CPPUNIT_ASSERT(g.ntot == 0);
   CPPUNIT_ASSERT(detsets.onDemand());

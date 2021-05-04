@@ -33,9 +33,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMDefinitions.h"
 
 #include <TH2F.h>
 #include "TROOT.h"
@@ -299,11 +297,6 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
 
   ibooker.setCurrentFolder(dirEventInfo);
 
-  // remove m_meReportSummary if it exists
-  if ((m_meReportSummary = igetter.get(dirEventInfo + "/reportSummary"))) {
-    igetter.removeElement(m_meReportSummary->getName());
-  }
-
   // ...and book it again
   m_meReportSummary = ibooker.bookFloat("reportSummary");
 
@@ -361,10 +354,6 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
   }
 
   ibooker.setCurrentFolder(dirEventInfo);
-
-  if ((m_meReportSummaryMap = igetter.get(dirEventInfo + "/reportSummaryMap"))) {
-    igetter.removeElement(m_meReportSummaryMap->getName());
-  }
 
   // define a histogram with two bins on X and maximum of m_nrL1Systems, m_nrL1Objects on Y
 

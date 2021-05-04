@@ -93,14 +93,14 @@ void TotemDAQTriggerDQMSource::analyze(edm::Event const &event, edm::EventSetup 
   // DAQ plots
   if (daqValid) {
     for (auto &it1 : *fedInfo) {
-      daq_event_bx_diff->Fill(it1.getBX() - event.bunchCrossing());
-      daq_event_bx_diff_vs_fed->Fill(it1.getFEDId(), it1.getBX() - event.bunchCrossing());
+      daq_event_bx_diff->Fill(it1.bx() - event.bunchCrossing());
+      daq_event_bx_diff_vs_fed->Fill(it1.fedId(), it1.bx() - event.bunchCrossing());
 
       for (auto &it2 : *fedInfo) {
-        if (it2.getFEDId() <= it1.getFEDId())
+        if (it2.fedId() <= it1.fedId())
           continue;
 
-        daq_bx_diff->Fill(it2.getBX() - it1.getBX());
+        daq_bx_diff->Fill(it2.bx() - it1.bx());
       }
     }
   }

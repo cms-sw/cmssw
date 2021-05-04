@@ -12,4 +12,4 @@ hltMVAJetPuIdCalculator = cms.EDProducer('MVAJetPuIdProducer',
 				      applyJec = cms.bool(False),
 				      inputIsCorrected = cms.bool(True),
 		)
-hltMVAJetPuIdEvaluator = hltMVAJetPuIdCalculator.clone( jetids = cms.InputTag("pileupJetIdCalculator") )
+hltMVAJetPuIdEvaluator = hltMVAJetPuIdCalculator.clone( jetids = "pileupJetIdCalculator" )

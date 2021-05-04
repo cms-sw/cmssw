@@ -1,6 +1,8 @@
 #ifndef HCALSIMPLERECONSTRUCTOR_H
 #define HCALSIMPLERECONSTRUCTOR_H 1
 
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -8,6 +10,7 @@
 #include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -22,6 +25,10 @@ namespace edm {
     \author J. Mans - Minnesota
     */
 class HcalTopology;
+class HcalRecNumberingRecord;
+class HcalRecoParamsRcd;
+class HcalDbService;
+class HcalDbRecord;
 
 class HcalSimpleReconstructor : public edm::stream::EDProducer<> {
 public:
@@ -53,8 +60,12 @@ private:
   int samplesToAdd_;
   bool tsFromDB_;
 
-  HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB
-  HcalTopology* theTopology;
+  std::unique_ptr<HcalRecoParams> paramTS_;  // firstSample & sampleToAdd from DB
+
+  // ES tokens
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalRecoParams, HcalRecoParamsRcd> paramsToken_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
 };
 
 #endif

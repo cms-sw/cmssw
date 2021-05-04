@@ -1,17 +1,25 @@
 from __future__ import print_function
-import re,os
+import re, os, sys
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.GetScenario import getScenario
 
 """
 Example configuration for online reconstruction meant for visualization clients.
 """
-from DQM.Integration.config.inputsource_cfi import options,runType,source
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
+
+if unitTest:
+    from DQM.Integration.config.unittestinputsource_cfi import options, runType, source
+else:
+    from DQM.Integration.config.inputsource_cfi import options, runType, source
 
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','hi_run':'HeavyIons'}
 #scenarios = {'pp_run': 'ppEra_Run2_2016','pp_run_stage1': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','cosmic_run_stage1':'cosmicsEra_Run2_2016','hi_run':'HeavyIonsEra_Run2_HI'}
-scenarios = {'pp_run': 'ppEra_Run2_2018','cosmic_run':'cosmicsEra_Run2_2018','hi_run':'ppEra_Run2_2018_pp_on_AA'}
+scenarios = {'pp_run': 'ppEra_Run3','cosmic_run':'cosmicsEra_Run3','hi_run':'ppEra_Run2_2016_pA'}
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()
@@ -20,7 +28,6 @@ if not runType.getRunTypeName() in scenarios.keys():
 scenarioName = scenarios[runType.getRunTypeName()]
 
 print("Using scenario:",scenarioName)
-
 
 try:
     scenario = getScenario(scenarioName)
@@ -50,16 +57,24 @@ rawDataMapperByLabel.rawCollectionList = [cms.InputTag("rawDataRepacker")]
 
 process = scenario.visualizationProcessing(writeTiers=['FEVT'], **kwds)
 
-process.source = source
-process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
-process.source.skipFirstLumis                = cms.untracked.bool(True)
-process.source.minEventsPerLumi              = cms.untracked.int32(0)
-process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
-process.source.streamLabel                   = cms.untracked.string('streamDQMEventDisplay')
+if unitTest:
+    process.__dict__['_Process__name'] = "RECONEW"
 
-m = re.search(r"\((\w+)\)", str(source.runNumber))
-runno = str(m.group(1))
-outDir= '/fff/BU0/output/EvD/run'+runno+'/streamEvDOutput2'
+process.source = source
+
+if not unitTest:
+    process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
+    process.source.skipFirstLumis                = cms.untracked.bool(True)
+    process.source.minEventsPerLumi              = cms.untracked.int32(0)
+    process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
+    process.source.streamLabel                   = cms.untracked.string('streamDQMEventDisplay')
+
+    m = re.search(r"\((\w+)\)", str(source.runNumber))
+    runno = str(m.group(1))
+    outDir= '/fff/BU0/output/EvD/run'+runno+'/streamEvDOutput2'
+else:
+    runno = options.runNumber
+    outDir = "./upload"
 
 #create output directory
 try:
@@ -81,7 +96,6 @@ oldo = process._Process__outputmodules["FEVToutput"]
 del process._Process__outputmodules["FEVToutput"]
 
 process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
-    SelectEvents = oldo.SelectEvents,
     splitLevel = oldo.splitLevel,
     outputCommands = oldo.outputCommands,
     fileName = oldo.fileName,
@@ -91,6 +105,9 @@ process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
     # output path must exist!
     outputPath = cms.untracked.string(outDir),
 )
+
+if hasattr(oldo, 'SelectEvents'):
+    process.FEVToutput.SelectEvents = oldo.SelectEvents
 
 process.DQMMonitoringService = cms.Service("DQMMonitoringService")
 

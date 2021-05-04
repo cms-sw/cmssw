@@ -5,6 +5,7 @@
  <class name="edmtest::IntProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="4286676158"/>
  </class>
+ <class name="std::pair<edmtest::IntProduct, edm::RandomNumberGeneratorState>"/>
  <class name="edmtest::UInt64Product" ClassVersion="11">
   <version ClassVersion="11" checksum="3240540910"/>
   <version ClassVersion="10" checksum="380152127"/>
@@ -135,6 +136,16 @@
  <class name="edm::Wrapper<edmtest::ThingWithIsEqual>"/>
  <class name="edm::Wrapper<std::vector<edmtest::Thing> >"/>
  <class name="edm::Wrapper<std::vector<edmtest::OtherThing> >"/>
+
+ <class name="edmNew::DetSetVector<edmtest::Thing>"/>
+ <class name="edm::Ref<edmNew::DetSetVector<edmtest::Thing>, edmtest::Thing, edmNew::DetSetVector<edmtest::Thing>::FindForDetSetVector>"/>
+ <class name="edm::RefVector<edmNew::DetSetVector<edmtest::Thing>, edmtest::Thing, edmNew::DetSetVector<edmtest::Thing>::FindForDetSetVector>"/>
+ <class name="edm::Wrapper<edmNew::DetSetVector<edmtest::Thing> >"/>
+ <class name="edmtest::TrackOfDSVThings" ClassVersion="3">
+  <version ClassVersion="3" checksum="635556054"/>
+ </class>
+ <class name="std::vector<edmtest::TrackOfDSVThings>"/>
+ <class name="edm::Wrapper<std::vector<edmtest::TrackOfDSVThings> >"/>
 
  <class name="edmtestprod::Simple" ClassVersion="10">
   <version ClassVersion="10" checksum="2751437416"/>

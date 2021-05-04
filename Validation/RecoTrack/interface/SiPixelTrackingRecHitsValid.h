@@ -10,11 +10,8 @@
 #define Validation_RecoTrack_SiPixelTrackingRecHitsValid_h
 
 //DQM services for histogram
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -51,21 +48,21 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 
 #include <string>
 
 class TTree;
 class TFile;
 
-class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer {
+class SiPixelTrackingRecHitsValid : public DQMOneEDAnalyzer<> {
 public:
   explicit SiPixelTrackingRecHitsValid(const edm::ParameterSet& conf);
 
@@ -82,6 +79,9 @@ public:
                                                 const BoundPlane& plane);
 
 private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoEsToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomEsToken_;
+
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   //TrackLocalAngle *anglefinder_;
   DQMStore* dbe_;

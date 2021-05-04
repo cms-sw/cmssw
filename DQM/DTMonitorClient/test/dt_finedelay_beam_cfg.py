@@ -57,7 +57,6 @@ process.dtFineDelayCorr.oldDelaysInputFile = cms.string("dtOldFineDelays.txt")
 process.dtFineDelayCorr.writeDB = cms.bool(False)
 process.dtFineDelayCorr.outputFile = cms.string("dtFineDelaysNew.txt")
 process.dtFineDelayCorr.t0MeanHistoTag  = cms.string("TrackCrossingTimeAll")
-process.dtFineDelayCorr.hwSource = cms.string("DDU")
 process.dtFineDelayCorr.minEntries = cms.untracked.int32(100)
 
 

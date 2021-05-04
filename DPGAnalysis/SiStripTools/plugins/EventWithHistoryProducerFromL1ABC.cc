@@ -34,9 +34,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
+#include "DataFormats/TCDS/interface/TCDSRecord.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 //
-// class decleration
+// class declarations
 //
 
 class EventWithHistoryProducerFromL1ABC : public edm::stream::EDProducer<> {
@@ -52,7 +53,9 @@ private:
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<L1AcceptBunchCrossingCollection> _l1abccollectionToken;
+  edm::EDGetTokenT<TCDSRecord> _tcdsRecordToken;
   const bool _forceNoOffset;
+  const bool _forceSCAL;
   std::map<edm::EventNumber_t, long long> _offsets;
   long long _curroffset;
   edm::EventNumber_t _curroffevent;
@@ -72,7 +75,9 @@ private:
 EventWithHistoryProducerFromL1ABC::EventWithHistoryProducerFromL1ABC(const edm::ParameterSet& iConfig)
     : _l1abccollectionToken(
           mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
+      _tcdsRecordToken(mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
       _forceNoOffset(iConfig.getUntrackedParameter<bool>("forceNoOffset", false)),
+      _forceSCAL(iConfig.getParameter<bool>("forceSCAL")),
       _offsets(),
       _curroffset(0),
       _curroffevent(0) {
@@ -104,21 +109,36 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
   } else {
     Handle<L1AcceptBunchCrossingCollection> pIn;
     iEvent.getByToken(_l1abccollectionToken, pIn);
+    Handle<TCDSRecord> tcds_pIn;
+    iEvent.getByToken(_tcdsRecordToken, tcds_pIn);
+    bool useTCDS(tcds_pIn.isValid() && !_forceSCAL);
 
+    const auto* tcdsRecord = useTCDS ? tcds_pIn.product() : nullptr;
     // offset computation
 
     long long orbitoffset = 0;
     int bxoffset = 0;
-    if (!_forceNoOffset) {
-      for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
-        if (l1abc->l1AcceptOffset() == 0) {
-          orbitoffset = (long long)l1abc->orbitNumber() - (long long)iEvent.orbitNumber();
-          bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
+
+    if (useTCDS) {
+      if (!_forceNoOffset) {
+        if (tcdsRecord->getL1aHistoryEntry(0).getIndex() == 0) {
+          orbitoffset = (long long)tcdsRecord->getOrbitNr() - (long long)iEvent.orbitNumber();
+          bxoffset = tcdsRecord->getBXID() - iEvent.bunchCrossing();
+        }
+      }
+    } else {
+      if (!_forceNoOffset) {
+        for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
+          if (l1abc->l1AcceptOffset() == 0) {
+            orbitoffset = (long long)l1abc->orbitNumber() - (long long)iEvent.orbitNumber();
+            bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
+          }
         }
       }
     }
 
-    std::unique_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent, *pIn, orbitoffset, bxoffset));
+    std::unique_ptr<EventWithHistory> pOut(useTCDS ? new EventWithHistory(iEvent, *tcdsRecord, orbitoffset, bxoffset)
+                                                   : new EventWithHistory(iEvent, *pIn, orbitoffset, bxoffset));
     iEvent.put(std::move(pOut));
 
     // monitor offset
@@ -135,8 +155,12 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
           edm::LogInfo("AbsoluteBXOffsetChanged")
               << "Absolute BX offset changed from " << _curroffset << " to " << absbxoffset << " at orbit "
               << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();
-          for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
-            edm::LogVerbatim("AbsoluteBXOffsetChanged") << *l1abc;
+          if (useTCDS) {
+            edm::LogVerbatim("AbsoluteBXOffsetChanged") << *tcdsRecord;  // Not sure about this
+          } else {
+            for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
+              edm::LogVerbatim("AbsoluteBXOffsetChanged") << *l1abc;
+            }
           }
         }
 

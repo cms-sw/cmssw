@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <SolidSection label="caloBase.xml">
+  <Polycone name="CALO" startPhi="0*deg" deltaPhi="360*deg" >
+   <ZSection z="-[cms:CalorBeamZ2]"  rMin="[cms:CalorBeamR2]"  rMax="[cms:CalorMuonR]" />
+   <ZSection z="-[cms:CalorBeamZ1]"  rMin="[cms:CalorBeamR1]"  rMax="[cms:CalorMuonR]" />
+   <ZSection z="-[cms:TrackBeamZ2]"  rMin="[cms:TrackBeamR2]"  rMax="[cms:CalorMuonR]" />
+   <ZSection z="-[cms:TrackBeamZ2]"  rMin="[cms:TrackCalorR]"  rMax="[cms:CalorMuonR]" />
+   <ZSection z="[cms:TrackBeamZ2]"   rMin="[cms:TrackCalorR]"  rMax="[cms:CalorMuonR]" />
+   <ZSection z="[cms:TrackBeamZ2]"   rMin="[cms:TrackBeamR2]"  rMax="[cms:CalorMuonR]" />
+   <ZSection z="[cms:CalorBeamZ1]"   rMin="[cms:CalorBeamR1]"  rMax="[cms:CalorMuonR]" />
+   <ZSection z="[cms:CalorBeamZ2]"   rMin="[cms:CalorBeamR2]"  rMax="[cms:CalorMuonR]" />
+  </Polycone> 
+ </SolidSection>
+
+ <LogicalPartSection label="caloBase.xml">
+  <LogicalPart name="CALO" category="unspecified">
+    <rSolid name="CALO"/>
+    <rMaterial name="materials:Air"/>
+   </LogicalPart>
+ </LogicalPartSection>
+
+ <PosPartSection label="caloBase.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="caloBase:CALO"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+ </PosPartSection>
+</DDDefinition>

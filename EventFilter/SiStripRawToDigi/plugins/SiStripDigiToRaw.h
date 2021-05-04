@@ -6,11 +6,12 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "boost/cstdint.hpp"
+#include "FWCore/Utilities/interface/Visibility.h"
 #include <string>
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferGenerator.h"
 #include "WarningSummary.h"
+#include <cstdint>
 
 class SiStripFedCabling;
 class FEDRawDataCollection;

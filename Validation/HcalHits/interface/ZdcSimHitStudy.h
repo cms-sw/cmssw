@@ -30,7 +30,6 @@
 #define SimG4CMS_ZdcSimHitStudy_H
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -61,7 +60,6 @@ public:
   ~ZdcSimHitStudy() override;
 
 protected:
-  void endRun(const edm::Run &run, const edm::EventSetup &c) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;

@@ -36,7 +36,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
@@ -121,17 +121,12 @@ public:
   };
 
   //constructor
-  PFEGammaAlgo(const PFEGConfigInfo&, GBRForests const& gbrForests);
-
-  void setEEtoPSAssociation(EEtoPSAssociation const& eetops) { eetops_ = &eetops; }
-
-  void setAlphaGamma_ESplanes_fromDB(const ESEEIntercalibConstants* esEEInterCalib) {
-    thePFEnergyCalibration_.initAlphaGamma_ESplanes_fromDB(esEEInterCalib);
-  }
-
-  void setESChannelStatus(const ESChannelStatus* channelStatus) { channelStatus_ = channelStatus; }
-
-  void setPrimaryVertex(reco::Vertex const& primaryVertex) { primaryVertex_ = &primaryVertex; }
+  PFEGammaAlgo(const PFEGConfigInfo&,
+               GBRForests const& gbrForests,
+               EEtoPSAssociation const& eetops,
+               ESEEIntercalibConstants const& esEEInterCalib,
+               ESChannelStatus const& channelStatus,
+               reco::Vertex const& primaryVertex);
 
   // this runs the functions below
   EgammaObjects operator()(const reco::PFBlockRef& block);
@@ -145,7 +140,7 @@ private:
 
   // useful pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
-  reco::PFCluster::EEtoPSAssociation const* eetops_;
+  reco::PFCluster::EEtoPSAssociation const& eetops_;
   reco::PFBlockRef _currentblock;
   reco::PFBlock::LinkData _currentlinks;
   // keep a map of pf indices to the splayed block for convenience
@@ -223,10 +218,10 @@ private:
 
   bool isPrimaryTrack(const reco::PFBlockElementTrack& KfEl, const reco::PFBlockElementGsfTrack& GsfEl);
 
-  const PFEGConfigInfo cfg_;
-  reco::Vertex const* primaryVertex_;
+  PFEGConfigInfo const& cfg_;
+  reco::Vertex const& primaryVertex_;
 
-  const ESChannelStatus* channelStatus_;
+  ESChannelStatus const& channelStatus_;
 
   float evaluateSingleLegMVA(const reco::PFBlockRef& blockref, const reco::Vertex& primaryVtx, unsigned int trackIndex);
 };

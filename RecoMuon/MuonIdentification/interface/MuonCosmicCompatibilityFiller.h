@@ -22,6 +22,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -29,6 +30,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 namespace edm {
   class ParameterSet;
@@ -36,7 +39,6 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 class GlobalMuonRefitter;
-class MuonServiceProxy;
 
 class MuonCosmicCompatibilityFiller {
 public:
@@ -85,8 +87,7 @@ private:
   std::vector<edm::EDGetTokenT<reco::TrackCollection> > trackTokens_;
   edm::EDGetTokenT<reco::MuonCollection> cosmicToken_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-
-  MuonServiceProxy* service_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
 
   double maxdxyLoose_;
   double maxdzLoose_;

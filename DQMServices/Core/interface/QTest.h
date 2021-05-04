@@ -13,48 +13,8 @@
 
 //#include "DQMServices/Core/interface/DQMStore.h"
 
-class Comp2RefChi2;
-using Comp2RefChi2ROOT = Comp2RefChi2;
-class Comp2Ref2DChi2;
-using Comp2Ref2DChi2ROOT = Comp2Ref2DChi2;
-class Comp2RefKolmogorov;
-using Comp2RefKolmogorovROOT = Comp2RefKolmogorov;
-class Comp2RefEqualH;
-using Comp2RefEqualHROOT = Comp2RefEqualH;
-class ContentsXRange;
-using ContentsXRangeROOT = ContentsXRange;
-class ContentsYRange;
-using ContentsYRangeROOT = ContentsYRange;
-class NoisyChannel;
-using NoisyChannelROOT = NoisyChannel;
-class ContentSigma;
-using ContentSigmaROOT = ContentSigma;
-class DeadChannel;
-using DeadChannelROOT = DeadChannel;
-class ContentsWithinExpected;
-using ContentsWithinExpectedROOT = ContentsWithinExpected;
-class MeanWithinExpected;
-using MeanWithinExpectedROOT = MeanWithinExpected;
-//class AllContentWithinFixedRange;	typedef AllContentWithinFixedRange RuleAllContentWithinFixedRange; typedef AllContentWithinFixedRange AllContentWithinFixedRangeROOT;
-//class AllContentWithinFloatingRange;	typedef AllContentWithinFloatingRange RuleAllContentWithinFloatingRange;	typedef AllContentWithinFloatingRange AllContentWithinFloatingRangeROOT;
-class FlatOccupancy1d;
-using RuleFlatOccupancy1d = FlatOccupancy1d;
-using FlatOccupancy1dROOT = FlatOccupancy1d;
-class FixedFlatOccupancy1d;
-using RuleFixedFlatOccupancy1d = FixedFlatOccupancy1d;
-using FixedFlatOccupancy1dROOT = FixedFlatOccupancy1d;
-class CSC01;
-using RuleCSC01 = CSC01;
-using CSC01ROOT = CSC01;
-class AllContentAlongDiagonal;
-using RuleAllContentAlongDiagonal = AllContentAlongDiagonal;
-using AllContentAlongDiagonalROOT = AllContentAlongDiagonal;
-class CompareToMedian;
-using CompareToMedianROOT = CompareToMedian;
-class CompareLastFilledBin;
-using CompareLastFilledBinROOT = CompareLastFilledBin;
-class CheckVariance;
-using CheckVarianceROOT = CheckVariance;
+using DQMChannel = MonitorElementData::QReport::DQMChannel;
+using QReport = MonitorElementData::QReport;
 
 /** Base class for quality tests run on Monitoring Elements;
 
@@ -72,8 +32,8 @@ class QCriterion {
   /// (class should be created by DQMStore class)
 
 public:
-  typedef dqm::impl::MonitorElement MonitorElement;
-  /// get test status (see Core/interface/DQMDefinitions.h)
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  /// get test status
   int getStatus() const { return status_; }
   /// get message attached to test
   std::string getMessage() const { return message_; }
@@ -88,7 +48,6 @@ public:
   /// (not relevant for all quality tests!)
   virtual std::vector<DQMChannel> getBadChannels() const { return std::vector<DQMChannel>(); }
 
-protected:
   QCriterion(std::string qtname) {
     qtname_ = std::move(qtname);
     init();
@@ -98,12 +57,11 @@ protected:
 
   virtual ~QCriterion() = default;
 
-  virtual float runTest(const MonitorElement *me);
-  /// set algorithm name
-  void setAlgoName(std::string name) { algoName_ = std::move(name); }
+  /// default "probability" values for setting warnings & errors when running tests
+  static const float WARNING_PROB_THRESHOLD;
+  static const float ERROR_PROB_THRESHOLD;
 
   float runTest(const MonitorElement *me, QReport &qr, DQMNet::QValue &qv) {
-    assert(qr.qcriterion_ == this);
     assert(qv.qtname == qtname_);
 
     prob_ = runTest(me);  // this runTest goes to SimpleTest derivates
@@ -128,10 +86,16 @@ protected:
     qv.qtname = qtname_;
     qv.algorithm = algoName_;
     qv.qtresult = prob_;
-    qr.badChannels_ = getBadChannels();
+    qr.setBadChannels(getBadChannels());
 
     return prob_;
   }
+
+protected:
+  /// set algorithm name
+  void setAlgoName(std::string name) { algoName_ = std::move(name); }
+
+  virtual float runTest(const MonitorElement *me);
 
   /// set message after test has run
   virtual void setMessage() = 0;
@@ -146,13 +110,8 @@ protected:
   int verbose_;
 
 private:
-  /// default "probability" values for setting warnings & errors when running tests
-  static const float WARNING_PROB_THRESHOLD;
-  static const float ERROR_PROB_THRESHOLD;
-
-  /// for creating and deleting class instances
-  friend class dqm::impl::DQMStore;
   /// for running the test
+  friend class dqm::legacy::MonitorElement;
   friend class dqm::impl::MonitorElement;
 };
 
@@ -184,67 +143,6 @@ protected:
 //===============================================================//
 //========= Classes for particular QUALITY TESTS ================//
 //===============================================================//
-
-//===================== Comp2RefEqualH ===================//
-//== Algorithm for comparing equality of histograms ==//
-class Comp2RefEqualH : public SimpleTest {
-public:
-  Comp2RefEqualH(const std::string &name) : SimpleTest(name, true) { setAlgoName(getAlgoName()); }
-  static std::string getAlgoName() { return "Comp2RefEqualH"; }
-  float runTest(const MonitorElement *me) override;
-};
-
-//===================== Comp2RefChi2 ===================//
-// comparison to reference using the  chi^2 algorithm
-class Comp2RefChi2 : public SimpleTest {
-public:
-  Comp2RefChi2(const std::string &name) : SimpleTest(name) { setAlgoName(getAlgoName()); }
-  static std::string getAlgoName() { return "Comp2RefChi2"; }
-  float runTest(const MonitorElement *me) override;
-
-protected:
-  void setMessage() override {
-    std::ostringstream message;
-    message << "chi2/Ndof = " << chi2_ << "/" << Ndof_ << ", minimum needed statistics = " << minEntries_
-            << " warning threshold = " << this->warningProb_ << " error threshold = " << this->errorProb_;
-    message_ = message.str();
-  }
-
-  // # of degrees of freedom and chi^2 for test
-  int Ndof_;
-  double chi2_;
-};
-
-//===================== Comp2Ref2DChi2 =================//
-// comparison to reference using the 2D chi^2 algorithm
-class Comp2Ref2DChi2 : public SimpleTest {
-public:
-  Comp2Ref2DChi2(const std::string &name) : SimpleTest(name) { setAlgoName(getAlgoName()); }
-  static std::string getAlgoName() { return "Comp2Ref2DChi2"; }
-  float runTest(const MonitorElement *me) override;
-
-protected:
-  void setMessage() override {
-    std::ostringstream message;
-    message << "chi2/Ndof = " << chi2_ << "/" << Ndof_ << ", minimum needed statistics = " << minEntries_
-            << " warning threshold = " << this->warningProb_ << " error threshold = " << this->errorProb_;
-    message_ = message.str();
-  }
-
-  // # of degrees of freedom and chi^2 for test
-  int Ndof_;
-  double chi2_;
-};
-
-//===================== Comp2RefKolmogorov ===================//
-/// Comparison to reference using the  Kolmogorov algorithm
-class Comp2RefKolmogorov : public SimpleTest {
-public:
-  Comp2RefKolmogorov(const std::string &name) : SimpleTest(name) { setAlgoName(getAlgoName()); }
-  static std::string getAlgoName() { return "Comp2RefKolmogorov"; }
-
-  float runTest(const MonitorElement *me) override;
-};
 
 //==================== ContentsXRange =========================//
 //== Check that histogram contents are between [Xmin, Xmax] ==//

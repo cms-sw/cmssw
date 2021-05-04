@@ -2,7 +2,6 @@
 #define HCALSIMPLERECALGO_H 1
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -35,7 +34,7 @@
 class HcalSimpleRecAlgo {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
-  HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForContainment, float fixedPhaseNs);
+  HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForContainment, float fixedPhaseNs, edm::ConsumesCollector iC);
 
   void beginRun(edm::EventSetup const& es);
   void endRun();
@@ -50,8 +49,8 @@ public:
   void setLeakCorrection();
 
   // set OOT pileup corrections
-  void setHFPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
-  void setHOPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
+  void setHFPileupCorrection(std::shared_ptr<AbsOOTPileupCorrection> corr);
+  void setHOPileupCorrection(std::shared_ptr<AbsOOTPileupCorrection> corr);
 
   // Set bunch crossing information.
   // This object will not manage the pointer.
@@ -74,15 +73,16 @@ private:
   bool correctForTimeslew_;
   bool correctForPulse_;
   float phaseNS_;
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> delayToken_;
   std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
   int runnum_;  // data run numer
   bool setLeakCorrection_;
   int pileupCleaningID_;
   const BunchXParameter* bunchCrossingInfo_;
   unsigned lenBunchCrossingInfo_;
-  boost::shared_ptr<AbsOOTPileupCorrection> hbhePileupCorr_;
-  boost::shared_ptr<AbsOOTPileupCorrection> hfPileupCorr_;
-  boost::shared_ptr<AbsOOTPileupCorrection> hoPileupCorr_;
+  std::shared_ptr<AbsOOTPileupCorrection> hbhePileupCorr_;
+  std::shared_ptr<AbsOOTPileupCorrection> hfPileupCorr_;
+  std::shared_ptr<AbsOOTPileupCorrection> hoPileupCorr_;
 
   HcalPulseShapes theHcalPulseShapes_;
 

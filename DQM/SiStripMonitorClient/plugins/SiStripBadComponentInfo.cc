@@ -23,7 +23,12 @@
 // -- Contructor
 //
 SiStripBadComponentInfo::SiStripBadComponentInfo(edm::ParameterSet const& pSet)
-    : bookedStatus_(false), nSubSystem_(6), qualityLabel_(pSet.getParameter<std::string>("StripQualityLabel")) {
+    : bookedStatus_(false),
+      nSubSystem_(6),
+      qualityToken_(esConsumes<edm::Transition::EndRun>(
+          edm::ESInputTag{"", pSet.getParameter<std::string>("StripQualityLabel")})),
+      tTopoToken_(esConsumes<edm::Transition::EndRun>()),
+      fedCablingToken_(esConsumes<edm::Transition::EndRun>()) {
   addBadCompFromFedErr_ = pSet.getUntrackedParameter<bool>("AddBadComponentsFromFedErrors", false);
   fedErrCutoff_ = float(pSet.getUntrackedParameter<double>("FedErrorBadComponentsCutoff", 0.8));
   // Create MessageSender
@@ -41,12 +46,12 @@ void SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup) 
   LogDebug("SiStripBadComponentInfo") << "SiStripBadComponentInfo:: Begining of Run";
 
   // Retrieve tracker topology from geometry
-  eSetup.get<TrackerTopologyRcd>().get(tTopo_);
-  eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
+  tTopo_ = &eSetup.getData(tTopoToken_);
+  fedCabling_ = &eSetup.getData(fedCablingToken_);
+  siStripQuality_ = &eSetup.getData(qualityToken_);
 
-  eSetup.get<SiStripQualityRcd>().get(qualityLabel_, siStripQuality_);
   if (!addBadCompFromFedErr_) {
-    fillBadComponentMaps(siStripQuality_.product());
+    fillBadComponentMaps(siStripQuality_);
   }
 }
 

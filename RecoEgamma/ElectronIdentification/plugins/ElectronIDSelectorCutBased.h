@@ -8,10 +8,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
-#include "RecoEgamma/ElectronIdentification/interface/PTDRElectronID.h"
-#include "RecoEgamma/ElectronIdentification/interface/ClassBasedElectronID.h"
-#include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
+
+#include "ClassBasedElectronID.h"
+#include "CutBasedElectronID.h"
+#include "ElectronIDAlgo.h"
+#include "PTDRElectronID.h"
 
 class ElectronIDSelectorCutBased {
 public:

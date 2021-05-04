@@ -21,8 +21,6 @@
 #include <iostream>
 #include <memory>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 //#include
 //"DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -48,28 +46,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
-
-#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
-
-#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoTechTrigRcd.h"
-
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFDL.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
@@ -83,6 +59,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cstdint>
 
 // constructors
 
@@ -107,9 +84,16 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet &parSet)
       m_technicalTriggersUnmasked(parSet.getParameter<bool>("TechnicalTriggersUnmasked")),
       m_technicalTriggersVetoUnmasked(parSet.getParameter<bool>("TechnicalTriggersVetoUnmasked")),
       m_verbosity(parSet.getUntrackedParameter<int>("Verbosity", 0)),
-      m_isDebugEnabled(edm::isDebugEnabled())
-
-{
+      m_isDebugEnabled(edm::isDebugEnabled()),
+      m_l1GtStableParToken(esConsumes<L1GtStableParameters, L1GtStableParametersRcd>()),
+      m_l1GtParToken(esConsumes<L1GtParameters, L1GtParametersRcd>()),
+      m_l1GtBMToken(esConsumes<L1GtBoardMaps, L1GtBoardMapsRcd>()),
+      m_l1GtPfAlgoToken(esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd>()),
+      m_l1GtPfTechToken(esConsumes<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd>()),
+      m_l1GtTmAlgoToken(esConsumes<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd>()),
+      m_l1GtTmTechToken(esConsumes<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd>()),
+      m_l1GtTmVetoAlgoToken(esConsumes<L1GtTriggerMask, L1GtTriggerMaskVetoAlgoTrigRcd>()),
+      m_l1GtTmVetoTechToken(esConsumes<L1GtTriggerMask, L1GtTriggerMaskVetoTechTrigRcd>()) {
   if (m_verbosity) {
     LogDebug("L1GlobalTrigger") << std::endl;
 
@@ -264,8 +248,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   unsigned long long l1GtStableParCacheID = evSetup.get<L1GtStableParametersRcd>().cacheIdentifier();
 
   if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
-    edm::ESHandle<L1GtStableParameters> l1GtStablePar;
-    evSetup.get<L1GtStableParametersRcd>().get(l1GtStablePar);
+    edm::ESHandle<L1GtStableParameters> l1GtStablePar = evSetup.getHandle(m_l1GtStableParToken);
     m_l1GtStablePar = l1GtStablePar.product();
 
     // number of physics triggers
@@ -310,8 +293,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   unsigned long long l1GtParCacheID = evSetup.get<L1GtParametersRcd>().cacheIdentifier();
 
   if (m_l1GtParCacheID != l1GtParCacheID) {
-    edm::ESHandle<L1GtParameters> l1GtPar;
-    evSetup.get<L1GtParametersRcd>().get(l1GtPar);
+    edm::ESHandle<L1GtParameters> l1GtPar = evSetup.getHandle(m_l1GtParToken);
     m_l1GtPar = l1GtPar.product();
 
     //    total number of Bx's in the event coming from EventSetup
@@ -369,8 +351,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   unsigned long long l1GtBMCacheID = evSetup.get<L1GtBoardMapsRcd>().cacheIdentifier();
 
   if (m_l1GtBMCacheID != l1GtBMCacheID) {
-    edm::ESHandle<L1GtBoardMaps> l1GtBM;
-    evSetup.get<L1GtBoardMapsRcd>().get(l1GtBM);
+    edm::ESHandle<L1GtBoardMaps> l1GtBM = evSetup.getHandle(m_l1GtBMToken);
     m_l1GtBM = l1GtBM.product();
 
     m_l1GtBMCacheID = l1GtBMCacheID;
@@ -385,8 +366,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-    evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
+    edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo = evSetup.getHandle(m_l1GtPfAlgoToken);
     m_l1GtPfAlgo = l1GtPfAlgo.product();
 
     m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
@@ -397,8 +377,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   unsigned long long l1GtPfTechCacheID = evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtPfTechCacheID != l1GtPfTechCacheID) {
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfTech;
-    evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
+    edm::ESHandle<L1GtPrescaleFactors> l1GtPfTech = evSetup.getHandle(m_l1GtPfTechToken);
     m_l1GtPfTech = l1GtPfTech.product();
 
     m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
@@ -412,8 +391,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   unsigned long long l1GtTmAlgoCacheID = evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-    evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
+    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo = evSetup.getHandle(m_l1GtTmAlgoToken);
     m_l1GtTmAlgo = l1GtTmAlgo.product();
 
     m_triggerMaskAlgoTrig = m_l1GtTmAlgo->gtTriggerMask();
@@ -424,8 +402,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   unsigned long long l1GtTmTechCacheID = evSetup.get<L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
-    evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
+    edm::ESHandle<L1GtTriggerMask> l1GtTmTech = evSetup.getHandle(m_l1GtTmTechToken);
     m_l1GtTmTech = l1GtTmTech.product();
 
     m_triggerMaskTechTrig = m_l1GtTmTech->gtTriggerMask();
@@ -436,8 +413,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   unsigned long long l1GtTmVetoAlgoCacheID = evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmVetoAlgoCacheID != l1GtTmVetoAlgoCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoAlgo;
-    evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().get(l1GtTmVetoAlgo);
+    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoAlgo = evSetup.getHandle(m_l1GtTmVetoAlgoToken);
     m_l1GtTmVetoAlgo = l1GtTmVetoAlgo.product();
 
     m_triggerMaskVetoAlgoTrig = m_l1GtTmVetoAlgo->gtTriggerMask();
@@ -448,8 +424,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   unsigned long long l1GtTmVetoTechCacheID = evSetup.get<L1GtTriggerMaskVetoTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmVetoTechCacheID != l1GtTmVetoTechCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoTech;
-    evSetup.get<L1GtTriggerMaskVetoTechTrigRcd>().get(l1GtTmVetoTech);
+    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoTech = evSetup.getHandle(m_l1GtTmVetoTechToken);
     m_l1GtTmVetoTech = l1GtTmVetoTech.product();
 
     m_triggerMaskVetoTechTrig = m_l1GtTmVetoTech->gtTriggerMask();
@@ -646,9 +621,9 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   // fill in emulator the same bunch crossing (12 bits - hardwired number of
   // bits...) and the same local bunch crossing for all boards
   int bxCross = iEvent.bunchCrossing();
-  boost::uint16_t bxCrossHw = 0;
+  uint16_t bxCrossHw = 0;
   if ((bxCross & 0xFFF) == bxCross) {
-    bxCrossHw = static_cast<boost::uint16_t>(bxCross);
+    bxCrossHw = static_cast<uint16_t>(bxCross);
   } else {
     bxCrossHw = 0;  // Bx number too large, set to 0!
     if (m_verbosity) {
@@ -679,11 +654,11 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
 
               gtfeWordValue.setBoardId(itBoard->gtBoardId());
 
-              // cast int to boost::uint16_t
+              // cast int to uint16_t
               // there are normally 3 or 5 BxInEvent
-              gtfeWordValue.setRecordLength(static_cast<boost::uint16_t>(recordLength0));
+              gtfeWordValue.setRecordLength(static_cast<uint16_t>(recordLength0));
 
-              gtfeWordValue.setRecordLength1(static_cast<boost::uint16_t>(recordLength1));
+              gtfeWordValue.setRecordLength1(static_cast<uint16_t>(recordLength1));
 
               // bunch crossing
               gtfeWordValue.setBxNr(bxCrossHw);
@@ -692,12 +667,12 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
               gtfeWordValue.setActiveBoards(m_activeBoardsGtDaq);
 
               // set alternative for number of BX per board
-              gtfeWordValue.setAltNrBxBoard(static_cast<boost::uint16_t>(m_alternativeNrBxBoardDaq));
+              gtfeWordValue.setAltNrBxBoard(static_cast<uint16_t>(m_alternativeNrBxBoardDaq));
 
               // set the TOTAL_TRIGNR as read from iEvent
               // TODO check again - PTC stuff
 
-              gtfeWordValue.setTotalTriggerNr(static_cast<boost::uint32_t>(iEvent.id().event()));
+              gtfeWordValue.setTotalTriggerNr(static_cast<uint32_t>(iEvent.id().event()));
 
               // ** fill L1GtfeWord in GT DAQ record
 
@@ -768,11 +743,11 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
 
               gtfeWordValue.setBoardId(itBoard->gtBoardId());
 
-              // cast int to boost::uint16_t
+              // cast int to uint16_t
               // there are normally 3 or 5 BxInEvent
-              gtfeWordValue.setRecordLength(static_cast<boost::uint16_t>(recordLength0));
+              gtfeWordValue.setRecordLength(static_cast<uint16_t>(recordLength0));
 
-              gtfeWordValue.setRecordLength1(static_cast<boost::uint16_t>(recordLength1));
+              gtfeWordValue.setRecordLength1(static_cast<uint16_t>(recordLength1));
 
               // bunch crossing
               gtfeWordValue.setBxNr(bxCrossHw);
@@ -781,12 +756,12 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
               gtfeWordValue.setActiveBoards(m_activeBoardsGtEvm);
 
               // set alternative for number of BX per board
-              gtfeWordValue.setAltNrBxBoard(static_cast<boost::uint16_t>(m_alternativeNrBxBoardEvm));
+              gtfeWordValue.setAltNrBxBoard(static_cast<uint16_t>(m_alternativeNrBxBoardEvm));
 
               // set the TOTAL_TRIGNR as read from iEvent
               // TODO check again - PTC stuff
 
-              gtfeWordValue.setTotalTriggerNr(static_cast<boost::uint32_t>(iEvent.id().event()));
+              gtfeWordValue.setTotalTriggerNr(static_cast<uint32_t>(iEvent.id().event()));
 
               // set the GPS time to the value read from Timestamp
               edm::TimeValue_t evTime = iEvent.time().value();
@@ -799,7 +774,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
               //<< std::dec << std::endl;
 
               // source of BST message: DDDD simulated data
-              boost::uint16_t bstSourceVal = 0xDDDD;
+              uint16_t bstSourceVal = 0xDDDD;
               gtfeWordValue.setBstSource(bstSourceVal);
 
               // ** fill L1GtfeWord in GT EVM record
@@ -821,17 +796,17 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
               // bunch crossing
               tcsWordValue.setBxNr(bxCrossHw);
 
-              boost::uint16_t trigType = 0x5;  // 0101 simulated event
+              uint16_t trigType = 0x5;  // 0101 simulated event
               tcsWordValue.setTriggerType(trigType);
 
               // luminosity segment number
-              tcsWordValue.setLuminositySegmentNr(static_cast<boost::uint16_t>(iEvent.luminosityBlock()));
+              tcsWordValue.setLuminositySegmentNr(static_cast<uint16_t>(iEvent.luminosityBlock()));
 
               // set the Event_Nr as read from iEvent
-              tcsWordValue.setEventNr(static_cast<boost::uint32_t>(iEvent.id().event()));
+              tcsWordValue.setEventNr(static_cast<uint32_t>(iEvent.id().event()));
 
               // orbit number
-              tcsWordValue.setOrbitNr(static_cast<boost::uint64_t>(iEvent.orbitNumber()));
+              tcsWordValue.setOrbitNr(static_cast<uint64_t>(iEvent.orbitNumber()));
 
               // ** fill L1TcsWord in the EVM record
 

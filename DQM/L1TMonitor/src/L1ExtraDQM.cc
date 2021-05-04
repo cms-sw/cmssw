@@ -679,7 +679,7 @@ void L1ExtraDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetu
   }
 }
 
-void L1ExtraDQM::endRun(const edm::Run& run, const edm::EventSetup& evSetup) {
+void L1ExtraDQM::dqmEndRun(const edm::Run& run, const edm::EventSetup& evSetup) {
   // delete if event setup has changed only FIXME
 
   for (std::vector<L1ExtraMonElement<l1extra::L1MuonParticleCollection>*>::iterator iterME =

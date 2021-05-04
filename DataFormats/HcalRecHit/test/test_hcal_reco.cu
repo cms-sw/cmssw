@@ -10,6 +10,7 @@
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HFQIE10Info.h"
 #include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 template <typename T>
 __global__ void kernel_test_hcal_rechits(T *other) {
@@ -22,7 +23,7 @@ __global__ void kernel_test_hcal_hfqie10info() { HFQIE10Info info; }
 
 __global__ void kernel_test_hcal_hbhechinfo(HBHEChannelInfo *other) {
   HBHEChannelInfo info{true, true};
-  info.setChannelInfo(HcalDetId{0}, 10, 10, 10, 1, 2.0, 2.0, 2.0, false, false, false);
+  info.setChannelInfo(HcalDetId{0}, 10, 10, 10, 1, 2.0, 2.0, 2.0, 0.0, false, false, false);
   other->setChannelInfo(info.id(),
                         info.recoShape(),
                         info.nSamples(),
@@ -31,6 +32,7 @@ __global__ void kernel_test_hcal_hbhechinfo(HBHEChannelInfo *other) {
                         info.darkCurrent(),
                         info.fcByPE(),
                         info.lambda(),
+                        info.noisecorr(),
                         info.hasLinkError(),
                         info.hasCapidError(),
                         info.isDropped());
@@ -84,7 +86,7 @@ void test_hcal_hbhechinfo() {
   };
 
   HBHEChannelInfo h_info, h_info_test{true, true};
-  h_info_test.setChannelInfo(HcalDetId{0}, 10, 10, 10, 1, 2.0, 2.0, 2.0, false, false, false);
+  h_info_test.setChannelInfo(HcalDetId{0}, 10, 10, 10, 1, 2.0, 2.0, 2.0, 0.0, false, false, false);
   HBHEChannelInfo *d_info;
 
   cudaMalloc((void **)&d_info, sizeof(HBHEChannelInfo));
@@ -102,6 +104,7 @@ void test_hcal_hbhechinfo() {
   assert(h_info.darkCurrent() == h_info_test.darkCurrent());
   assert(h_info.fcByPE() == h_info_test.fcByPE());
   assert(h_info.lambda() == h_info_test.lambda());
+  assert(h_info.noisecorr() == h_info_test.noisecorr());
   assert(h_info.hasLinkError() == h_info_test.hasLinkError());
   assert(h_info.hasCapidError() == h_info_test.hasCapidError());
 
@@ -109,18 +112,13 @@ void test_hcal_hbhechinfo() {
 }
 
 int main(int argc, char **argv) {
-  int nDevices;
-  cudaGetDeviceCount(&nDevices);
-  std::cout << "nDevices = " << nDevices << std::endl;
+  cms::cudatest::requireDevices();
 
-  if (nDevices > 0) {
-    test_hcal_rechits<HBHERecHit>();
-    test_hcal_rechits<HFRecHit>();
-    test_hcal_rechits<HORecHit>();
-    test_hcal_hbhechinfo();
+  test_hcal_rechits<HBHERecHit>();
+  test_hcal_rechits<HFRecHit>();
+  test_hcal_rechits<HORecHit>();
+  test_hcal_hbhechinfo();
 
-    std::cout << "all good" << std::endl;
-  }
-
+  std::cout << "all good" << std::endl;
   return 0;
 }

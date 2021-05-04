@@ -55,7 +55,7 @@ process.dqmSaver.workflow = "/HLT/FSQ/All"
 process.p = cms.Path(process.fsqHLTOfflineSource*process.fsqClient *process.dqmEnv*process.dqmSaver)
 #process.p = cms.Path(process.fsqHLTOfflineSourceSequence*process.fsqClient *process.dqmEnv*process.dqmSaver)
 #process.MessageLogger.threshold = cms.untracked.string( "INFO" )
-#process.MessageLogger.categories.append("FSQDiJetAve")
+#
 '''
 process.load("DQMOffline.Trigger.DQMOffline_Trigger_cff")
 process.load("DQMOffline.Trigger.FSQHLTOfflineClient_cfi")

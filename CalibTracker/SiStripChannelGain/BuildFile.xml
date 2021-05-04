@@ -1,12 +1,9 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DQMServices/Core"/>
-<use name="CalibTracker/SiStripCommon"/>
 <use name="CalibFormats/SiStripObjects"/>
 <use name="CalibTracker/Records"/>
 <use name="CondFormats/SiStripObjects"/>
-<use name="CondFormats/RunInfo"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/TrackerCommon"/>
@@ -15,9 +12,6 @@
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrackerRecHit2D"/>
-<use name="DataFormats/TrajectorySeed"/>
-<use name="DataFormats/MuonReco"/>
-<use name="RecoTracker/DeDx"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/Records"/>
@@ -27,8 +21,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
-<use name="CommonTools/UtilAlgos"/>
 <use name="CondCore/DBOutputService"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

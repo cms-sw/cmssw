@@ -6,6 +6,8 @@ hltTauDQMofflineProcess = "HLT"
 TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
                     PFTaus = cms.untracked.PSet(
+                            PFTauDiscriminatorContainers  = cms.untracked.VInputTag(),
+                            PFTauDiscriminatorContainerWPs  = cms.untracked.vstring(),
                             PFTauDiscriminators = cms.untracked.VInputTag(
                                     cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
                                     cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
@@ -72,11 +74,14 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                   )
 
 #----------------------------------MONITORS--------------------------------------------------------------------------
+kEverything = 0
+kVital      = 1
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltTauOfflineMonitor_PFTaus = DQMEDAnalyzer('HLTTauDQMOfflineSource',
     HLTProcessName = cms.untracked.string(hltTauDQMofflineProcess),
     DQMBaseFolder = cms.untracked.string("HLT/TAU/PFTaus"),
+    PlotLevel = cms.untracked.int32(kVital),
     TriggerResultsSrc = cms.untracked.InputTag("TriggerResults", "", hltTauDQMofflineProcess),
     TriggerEventSrc = cms.untracked.InputTag("hltTriggerSummaryAOD", "", hltTauDQMofflineProcess),
     L1Plotter = cms.untracked.PSet(

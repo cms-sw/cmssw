@@ -1,10 +1,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 
-#include <cassert>
 #include <iostream>
 #include <sstream>
-
-#include "helper.h"  // assert_no_abort
 
 PtAssignmentEngine::PtAssignmentEngine()
     : allowedModes_({3, 5, 9, 6, 10, 12, 7, 11, 13, 14, 15}), forests_(), ptlut_reader_(), ptLUTVersion_(0xFFFFFFFF) {}
@@ -56,11 +53,8 @@ void PtAssignmentEngine::load(int pt_lut_version, const L1TMuonEndCapForest* pay
     // std::cout << "  * ptLUTVersion_ = " << ptLUTVersion_ << std::endl;
     forests_.at(mode).getTree(0)->setBoostWeight(boostWeight_);
 
-    if (not(boostWeight_ == 0 || ptLUTVersion_ >= 6))  // Check that XMLs and pT LUT version are consistent
-    {
-      edm::LogError("L1T") << "boostWeight_ = " << boostWeight_ << ", ptLUTVersion_ = " << ptLUTVersion_;
-      return;
-    }
+    emtf_assert(boostWeight_ == 0 || ptLUTVersion_ >= 6);  // Check that XMLs and pT LUT version are consistent
+
     // Will catch user trying to run with Global Tag settings on 2017 data, rather than fakeEmtfParams. - AWB 08.06.17
 
     // // Code below can be used to save out trees in XML format

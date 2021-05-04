@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexCandidateFinder.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -23,10 +25,8 @@ PFDisplacedVertexCandidateFinder::PFDisplacedVertexCandidateFinder()
       magField_(nullptr) {}
 
 PFDisplacedVertexCandidateFinder::~PFDisplacedVertexCandidateFinder() {
-#ifdef PFLOW_DEBUG
-  if (debug_)
-    cout << "~PFDisplacedVertexCandidateFinder - number of remaining elements: " << eventTracks_.size() << endl;
-#endif
+  LogDebug("PFDisplacedVertexCandidateFinder")
+      << "~PFDisplacedVertexCandidateFinder - number of remaining elements: " << eventTracks_.size();
 }
 
 void PFDisplacedVertexCandidateFinder::setPrimaryVertex(edm::Handle<reco::VertexCollection> mainVertexHandle,
@@ -73,19 +73,19 @@ void PFDisplacedVertexCandidateFinder::setInput(const edm::Handle<TrackCollectio
       eventTrackTrajectories_[i] = getGlobalTrajectoryParameters(trk);
     }
   }
+  track_table_ = edm::soa::PtEtaPhiTable{*trackh};
 }
 
 // -------- Main function which find vertices -------- //
 
 void PFDisplacedVertexCandidateFinder::findDisplacedVertexCandidates() {
-  if (debug_)
-    cout << "========= Start Finding Displaced Vertex Candidates =========" << endl;
+  LogDebug("PFDisplacedVertexCandidateFinder") << "========= Start Finding Displaced Vertex Candidates =========";
 
   // The vertexCandidates have not been passed to the event, and need to be cleared
   if (vertexCandidates_.get())
     vertexCandidates_->clear();
   else
-    vertexCandidates_.reset(new PFDisplacedVertexCandidateCollection);
+    vertexCandidates_ = std::make_unique<PFDisplacedVertexCandidateCollection>();
 
   vertexCandidates_->reserve(vertexCandidatesSize_);
   for (IE ie = eventTracks_.begin(); ie != eventTracks_.end();) {
@@ -95,6 +95,7 @@ void PFDisplacedVertexCandidateFinder::findDisplacedVertexCandidates() {
     PFDisplacedVertexCandidate tempVertexCandidate;
 
     ie = associate(eventTracks_.end(), ie, tempVertexCandidate);
+    LogDebug("PFDisplacedVertexCandidateFinder") << "elements=" << tempVertexCandidate.elements().size();
 
     // Build remaining links in current block
     if (tempVertexCandidate.isValid()) {
@@ -103,57 +104,47 @@ void PFDisplacedVertexCandidateFinder::findDisplacedVertexCandidates() {
     }
   }
 
-  if (debug_)
-    cout << "========= End Finding Displaced Vertex Candidates =========" << endl;
+  LogDebug("PFDisplacedVertexCandidateFinder") << "========= End Finding Displaced Vertex Candidates =========";
 }
 
 PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate(
     IE last, IE next, PFDisplacedVertexCandidate& tempVertexCandidate) {
-#ifdef PFLOW_DEBUG
-  if (debug_)
-    cout << "== Start the association procedure ==" << endl;
-#endif
+  LogDebug("PFDisplacedVertexCandidateFinder") << "== Start the association procedure ==";
 
   if (last != eventTracks_.end()) {
     double dist = -1;
-    GlobalPoint P(0, 0, 0);
+    GlobalPoint crossingPoint(0, 0, 0);
     PFDisplacedVertexCandidate::VertexLinkTest linktest;
-    link((*last), (*next), dist, P, linktest);
+    link(*last, *next, dist, crossingPoint, linktest);
 
     if (dist < -0.5) {
-#ifdef PFLOW_DEBUG
-      if (debug_)
-        cout << "link failed" << endl;
-#endif
+      LogDebug("PFDisplacedVertexCandidateFinder") << "link failed";
+
       return ++next;  // association failed
     } else {
       // add next element to the current pflowblock
+      LogDebug("PFDisplacedVertexCandidateFinder")
+          << "adding element " << (*next).key() << " to PFDisplacedVertexCandidate with "
+          << tempVertexCandidate.elements().size() << " elements";
       tempVertexCandidate.addElement((*next));
       trackMask_[(*next).key()] = false;
-#ifdef PFLOW_DEBUG
-      if (debug_)
-        cout << "link parameters "
-             << " *next = " << (*next).key() << " *last = " << (*last).key() << "  dist = " << dist
-             << " P.x = " << P.x() << " P.y = " << P.y() << " P.z = " << P.z() << endl;
-#endif
+
+      LogDebug("PFDisplacedVertexCandidateFinder")
+          << "link parameters "
+          << " *next = " << (*next).key() << " *last = " << (*last).key() << "  dist = " << crossingPoint
+          << " P.x = " << crossingPoint.x() << " P.y = " << crossingPoint.y() << " P.z = " << crossingPoint.z();
     }
   } else {
     // add next element to this eflowblock
-#ifdef PFLOW_DEBUG
-    if (debug_)
-      cout << "adding to block element " << (*next).key() << endl;
-#endif
+    LogDebug("PFDisplacedVertexCandidateFinder") << "adding to block element " << (*next).key();
     tempVertexCandidate.addElement((*next));
     trackMask_[(*next).key()] = false;
   }
 
   // recursive call: associate next and other unused elements
-#ifdef PFLOW_DEBUG
-  if (debug_) {
-    for (unsigned i = 0; i < trackMask_.size(); i++)
-      cout << " Mask[" << i << "] = " << trackMask_[i];
-    cout << "" << endl;
-  }
+#ifdef EDM_ML_DEBUG
+  for (unsigned i = 0; i < trackMask_.size(); i++)
+    LogTrace("PFDisplacedVertexCandidateFinder") << " Mask[" << i << "] = " << trackMask_[i];
 #endif
 
   for (IE ie = eventTracks_.begin(); ie != eventTracks_.end();) {
@@ -168,25 +159,15 @@ PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate
       continue;
     }
 
-#ifdef PFLOW_DEBUG
-    if (debug_)
-      cout << "calling associate " << (*next).key() << " & " << (*ie).key() << endl;
-#endif
+    LogDebug("PFDisplacedVertexCandidateFinder") << "calling associate " << (*next).key() << " & " << (*ie).key();
     ie = associate(next, ie, tempVertexCandidate);
   }
 
-#ifdef PFLOW_DEBUG
-  if (debug_) {
-    cout << "**** removing element " << endl;
-  }
-#endif
+  LogDebug("PFDisplacedVertexCandidateFinder") << "**** removing element ";
 
   IE iteratorToNextFreeElement = eventTracks_.erase(next);
 
-#ifdef PFLOW_DEBUG
-  if (debug_)
-    cout << "== End the association procedure ==" << endl;
-#endif
+  LogDebug("PFDisplacedVertexCandidateFinder") << "== End the association procedure ==";
 
   return iteratorToNextFreeElement;
 }
@@ -194,26 +175,37 @@ PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate
 void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
                                             const TrackBaseRef& el2,
                                             double& dist,
-                                            GlobalPoint& P,
+                                            GlobalPoint& crossingPoint,
                                             PFDisplacedVertexCandidate::VertexLinkTest& vertexLinkTest) {
-  if (fabs(el1->eta() - el2->eta()) > 1) {
+  using namespace edm::soa::col;
+  const auto iel1 = el1.key();
+  const auto iel2 = el2.key();
+  const auto pt1 = track_table_.get<Pt>(iel1);
+  const auto pt2 = track_table_.get<Pt>(iel2);
+  const auto eta1 = track_table_.get<Eta>(iel1);
+  const auto eta2 = track_table_.get<Eta>(iel2);
+  const auto phi1 = track_table_.get<Phi>(iel1);
+  const auto phi2 = track_table_.get<Phi>(iel2);
+
+  if (std::abs(eta1 - eta2) > 1) {
     dist = -1;
     return;
   }
-  if (el1->pt() > 2 && el2->pt() > 2 && fabs(el1->phi() - el2->phi()) > 1) {
+  if (pt1 > 2 && pt2 > 2 && std::abs(phi1 - phi2) > 1) {
     dist = -1;
     return;
   }
 
-  const GlobalTrajectoryParameters& gt1 = eventTrackTrajectories_[el1.key()];
-  const GlobalTrajectoryParameters& gt2 = eventTrackTrajectories_[el2.key()];
+  const GlobalTrajectoryParameters& gt1 = eventTrackTrajectories_[iel1];
+  const GlobalTrajectoryParameters& gt2 = eventTrackTrajectories_[iel2];
 
   // Closest approach
   theMinimum_.calculate(gt1, gt2);
 
   // Fill the parameters
   dist = theMinimum_.distance();
-  P = theMinimum_.crossingPoint();
+  LogDebug("PFDisplacedVertexCandidateFinder") << "link iel1=" << iel1 << " iel2=" << iel2 << " dist=" << dist;
+  crossingPoint = theMinimum_.crossingPoint();
 
   vertexLinkTest = PFDisplacedVertexCandidate::LINKTEST_DCA;  //rechit by default
 
@@ -224,7 +216,7 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
   }
 
   // Check if the closses approach point is too close to the primary vertex/beam pipe
-  double rho2 = P.x() * P.x() + P.y() * P.y();
+  double rho2 = crossingPoint.x() * crossingPoint.x() + crossingPoint.y() * crossingPoint.y();
 
   if (rho2 < primaryVertexCut2_) {
     dist = -1;
@@ -240,7 +232,7 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
     dist = -1;
     return;
   }
-  if (fabs(P.z()) > tec_z_limit) {
+  if (std::abs(crossingPoint.z()) > tec_z_limit) {
     dist = -1;
     return;
   }
@@ -286,19 +278,16 @@ void PFDisplacedVertexCandidateFinder::packLinks(PFDisplacedVertexCandidate& ver
         continue;
 
       double dist = -1;
-      GlobalPoint P(0, 0, 0);
+      GlobalPoint crossingPoint(0, 0, 0);
       PFDisplacedVertexCandidate::VertexLinkTest linktest;
 
-      link(els[i1], els[i2], dist, P, linktest);
-
-#ifdef PFLOW_DEBUG
-      if (debug_)
-        cout << "Setting link between elements " << i1 << " key " << els[i1].key() << " and " << i2 << " key "
-             << els[i2].key() << " of dist =" << dist << " computed from link test " << linktest << endl;
-#endif
+      link(els[i1], els[i2], dist, crossingPoint, linktest);
+      LogDebug("PFDisplacedVertexCandidateFinder")
+          << "Setting link between elements " << i1 << " key " << els[i1].key() << " and " << i2 << " key "
+          << els[i2].key() << " of dist =" << dist << " computed from link test " << linktest;
 
       if (dist > -0.5)
-        vertexCandidate.setLink(i1, i2, dist, P, linktest);
+        vertexCandidate.setLink(i1, i2, dist, crossingPoint, linktest);
     }
   }
 }
@@ -325,17 +314,15 @@ bool PFDisplacedVertexCandidateFinder::goodPtResolution(const TrackBaseRef& trac
 
   double pt_error = dpt / pt * 100;
 
-  if (debug_)
-    cout << " PFDisplacedVertexFinder: PFrecTrack->Track Pt= " << pt << " dPt/Pt = " << pt_error
-         << "% nChi2 = " << nChi2 << endl;
+  LogDebug("PFDisplacedVertexCandidateFinder")
+      << " PFDisplacedVertexFinder: PFrecTrack->Track Pt= " << pt << " dPt/Pt = " << pt_error << "% nChi2 = " << nChi2;
   if (nChi2 > nChi2_max_ || pt < pt_min_) {
-    if (debug_)
-      cout << " PFBlockAlgo: skip badly measured or low pt track"
-           << " nChi2_cut = " << 5 << " pt_cut = " << 0.2 << endl;
+    LogDebug("PFDisplacedVertexCandidateFinder") << " PFBlockAlgo: skip badly measured or low pt track"
+                                                 << " nChi2_cut = " << 5 << " pt_cut = " << 0.2;
     return false;
   }
   //  cout << "dxy = " << dxy << endl;
-  if (fabs(dxy) < dxy_ && pt < pt_min_prim_)
+  if (std::abs(dxy) < dxy_ && pt < pt_min_prim_)
     return false;
   //  if (fabs(dxy) < 0.2 && pt < 0.8) return false;
 
@@ -353,7 +340,7 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
 
   out << " Tracks selection based on " << std::endl;
   out << " pvtx_ = " << a.pvtx_ << std::endl;
-  out << " fabs(dxy) < " << a.dxy_ << " and pt < " << a.pt_min_prim_ << std::endl;
+  out << " std::abs(dxy) < " << a.dxy_ << " and pt < " << a.pt_min_prim_ << std::endl;
   out << " nChi2 < " << a.nChi2_max_ << " and pt < " << a.pt_min_ << std::endl;
 
   out << endl;

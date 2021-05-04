@@ -14,7 +14,7 @@ import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
 TrackMon_ckf 					   = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
 TrackMon_ckf.TKTrackCollection                     = 'generalTracks'#ctfWithMaterialTracksBeamHaloMuon'#rsWithMaterialTracksP5'#muons'#globalCosmicMuons'#ctfWithMaterialTracksP5'
 TrackMon_ckf.AlgoName                              = 'CKFTk'
-TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters'
+TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters/TrackEfficiency'
 
 # Clone for RS Tracks
 #import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
@@ -266,7 +266,10 @@ for _step, _pset in six.iteritems(seedMonitoring):
     )
     locals()['TrackSeedMon'+str(_step)] = _mod
     _mod.TrackProducer = cms.InputTag("generalTracks")
-    _mod.FolderName    = cms.string("Tracking/TrackParameters/generalTracks")
+    _mod.FolderName = cms.string("Tracking/TrackParameters/generalTracks/SeedMon/"+str(_step))
+    _mod.doPUmonitoring = cms.bool(False)
+    _mod.doLumiAnalysis = cms.bool(False)
+    _mod.doPlotsVsGoodPVtx = cms.bool(False)
     _mod.SeedProducer  = _pset.seedInputTag
     _mod.TCProducer    = _pset.trackCandInputTag
     _mod.AlgoName      = cms.string( str(_step) )
@@ -345,6 +348,8 @@ trackingDQMgoodOfflinePrimaryVertices = goodOfflinePrimaryVertices.clone()
 
 # import PV resolution
 from DQM.TrackingMonitor.primaryVertexResolution_cfi import *
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(primaryVertexResolution, forceSCAL = False)
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
 # dEdx monitoring

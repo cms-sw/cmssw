@@ -3,7 +3,6 @@
 
 #include "SimG4CMS/Forward/interface/TimingSD.h"
 
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/MTDCommonData/interface/MTDNumberingScheme.h"
 #include "Geometry/MTDCommonData/interface/MTDBaseNumber.h"
 
@@ -28,7 +27,6 @@ public:
   uint32_t setDetUnitId(const G4Step *) override;
 
 private:
-  std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &);
   void setNumberingScheme(MTDNumberingScheme *);
   void getBaseNumber(const G4Step *);
 

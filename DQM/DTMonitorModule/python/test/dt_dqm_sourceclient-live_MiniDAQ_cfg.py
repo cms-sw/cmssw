@@ -12,7 +12,6 @@ process.load("DQM.DTMonitorModule.test.inputsource_MiniDAQ_cfi")
 #### DQM Environment
 #----------------------------
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.referenceFileName = "/dtdata/dqmdata/global/dt_reference.root"
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 

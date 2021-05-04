@@ -39,6 +39,8 @@ namespace edm {
   class OutputModuleCommunicator {
   public:
     OutputModuleCommunicator() = default;
+    OutputModuleCommunicator(const OutputModuleCommunicator&) = delete;
+    OutputModuleCommunicator& operator=(const OutputModuleCommunicator&) = delete;
     virtual ~OutputModuleCommunicator();
 
     virtual void closeFile() = 0;
@@ -51,14 +53,19 @@ namespace edm {
 
     virtual void openFile(FileBlock const& fb) = 0;
 
+    virtual void writeProcessBlockAsync(WaitingTaskHolder iTask,
+                                        ProcessBlockPrincipal const&,
+                                        ProcessContext const*,
+                                        ActivityRegistry*) = 0;
+
     virtual void writeRunAsync(WaitingTaskHolder iTask,
-                               RunPrincipal const& rp,
+                               RunPrincipal const&,
                                ProcessContext const*,
                                ActivityRegistry*,
                                MergeableRunProductMetadata const*) = 0;
 
     virtual void writeLumiAsync(WaitingTaskHolder iTask,
-                                LuminosityBlockPrincipal const& lbp,
+                                LuminosityBlockPrincipal const&,
                                 ProcessContext const*,
                                 ActivityRegistry*) = 0;
 
@@ -78,10 +85,6 @@ namespace edm {
     virtual ModuleDescription const& description() const = 0;
 
   private:
-    OutputModuleCommunicator(const OutputModuleCommunicator&) = delete;  // stop default
-
-    const OutputModuleCommunicator& operator=(const OutputModuleCommunicator&) = delete;  // stop default
-
     // ---------- member data --------------------------------
   };
 }  // namespace edm

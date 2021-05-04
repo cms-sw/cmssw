@@ -22,10 +22,6 @@ SUSY_HLT_Razor::~SUSY_HLT_Razor() {
   edm::LogInfo("SUSY_HLT_Razor") << "Destructor SUSY_HLT_Razor::~SUSY_HLT_Razor " << std::endl;
 }
 
-void SUSY_HLT_Razor::dqmBeginRun(edm::Run const &, edm::EventSetup const &) {
-  edm::LogInfo("SUSY_HLT_Razor") << "SUSY_HLT_Razor::beginRun" << std::endl;
-}
-
 void SUSY_HLT_Razor::bookHistograms(DQMStore::IBooker &ibooker_, edm::Run const &, edm::EventSetup const &) {
   edm::LogInfo("SUSY_HLT_Razor") << "SUSY_HLT_Razor::bookHistograms" << std::endl;
   // book at beginRun
@@ -216,10 +212,6 @@ void SUSY_HLT_Razor::analyze(edm::Event const &e, edm::EventSetup const &eSetup)
     h_calo_mr_vs_mr->Fill(MR, caloMR);
     h_calo_rsq_vs_rsq->Fill(Rsq, caloRsq);
   }
-}
-
-void SUSY_HLT_Razor::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_Razor") << "SUSY_HLT_Razor::endRun" << std::endl;
 }
 
 void SUSY_HLT_Razor::bookHistos(DQMStore::IBooker &ibooker_) {

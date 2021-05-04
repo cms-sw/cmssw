@@ -21,8 +21,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 
@@ -32,8 +32,6 @@
 
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
-
-#include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"

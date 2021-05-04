@@ -8,7 +8,7 @@ using namespace dd4hep;
 using namespace cms;
 using namespace cms_units::operators;
 
-static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
+static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   DDAlgoArguments args(ctxt, e);
   vector<string> sectorNumber = args.vecStr("SectorNumber");          // Id. Number of the sectors
@@ -62,7 +62,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     rout = sectorRout;
     startphi = sectorStartPhi[i];
     deltaphi = 0.5 * (widthphi - sectorDeltaPhi_B);
-    solid = ns.addSolid(name, Tube(rin, rout, dz, startphi, deltaphi));
+    solid = ns.addSolid(name, Tube(rin, rout, dz, startphi, startphi + deltaphi));
     LogDebug("TOBGeom") << solid.name() << " Tubs made of " << sectorMaterial_A[i] << " from "
                         << convertRadToDeg(startphi) << " to " << convertRadToDeg((startphi + deltaphi)) << " with Rin "
                         << rin << " Rout " << rout << " ZHalf " << dz;
@@ -75,7 +75,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     name = "TOBAxService_" + sectorNumber[i] + "B";
     startphi += deltaphi;
     deltaphi = sectorDeltaPhi_B;
-    solid = ns.addSolid(name, Tube(rin, rout, dz, startphi, deltaphi));
+    solid = ns.addSolid(name, Tube(rin, rout, dz, startphi, startphi + deltaphi));
     LogDebug("TOBGeom") << solid.name() << " Tubs made of " << sectorMaterial_B[i] << " from "
                         << convertRadToDeg(startphi) << " to " << convertRadToDeg((startphi + deltaphi)) << " with Rin "
                         << rin << " Rout " << rout << " ZHalf " << dz;
@@ -89,7 +89,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     name = "TOBAxService_" + sectorNumber[i] + "C";
     startphi += deltaphi;
     deltaphi = 0.5 * (widthphi - sectorDeltaPhi_B);
-    solid = ns.addSolid(name, Tube(rin, rout, dz, startphi, deltaphi));
+    solid = ns.addSolid(name, Tube(rin, rout, dz, startphi, startphi + deltaphi));
     LogDebug("TOBGeom") << solid.name() << " Tubs made of " << sectorMaterial_C[i] << " from "
                         << convertRadToDeg(startphi) << " to " << convertRadToDeg((startphi + deltaphi)) << " with Rin "
                         << rin << " Rout " << rout << " ZHalf " << dz;

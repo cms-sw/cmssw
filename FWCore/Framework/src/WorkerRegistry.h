@@ -50,6 +50,14 @@ namespace edm {
         create it
         @note Workers are owned by this class, do not delete them*/
     Worker* getWorker(WorkerParams const& p, std::string const& moduleLabel);
+
+    /// Retrieve particular instance of the worker without creating it
+    /// If one doesn't exist, returns nullptr
+    Worker const* get(std::string const& moduleLabel) const;
+
+    /// Deletes the module of the Worker, but the Worker continues to exist.
+    void deleteModule(std::string const& moduleLabel);
+
     void clear();
 
   private:

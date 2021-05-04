@@ -2,7 +2,6 @@
 #define _Tracker_TrajectorySmoother_H_
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class TkCloner;
 

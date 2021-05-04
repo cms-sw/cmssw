@@ -1,20 +1,19 @@
-#include <L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCFrontRearLUT.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 
-#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
+#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
 #include <cmath>
-#include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h>
 
 lclphidat CSCSectorReceiverMiniLUT::calcLocalPhiMini(unsigned theadd, const bool gangedME1a) {
   // This method is ripped from CSCSectorReceverLUT.cc with minor changes
@@ -25,7 +24,7 @@ lclphidat CSCSectorReceiverMiniLUT::calcLocalPhiMini(unsigned theadd, const bool
   unsigned short int pattern = ((theadd >> 8) & 0xf);
   unsigned short int strip = (theadd & 0xff);
 
-  if (strip < 2 * (CSCConstants::MAX_NUM_STRIPS * 7 / 5) &&
+  if (strip < 2 * (CSCConstants::MAX_NUM_STRIPS_RUN1 * 7 / 5) &&
       pattern <
           CSCConstants::
               NUM_CLCT_PATTERNS) {  // MDG, DA and RW, for ME1 we have 7CFEBs and not just 5, so the num_strips can go up to 16 * 7 but only for ME1
@@ -34,7 +33,7 @@ lclphidat CSCSectorReceiverMiniLUT::calcLocalPhiMini(unsigned theadd, const bool
     //DA and MDG, rescale range of local phi so ME1/1b fits in 0-511
   } else
     edm::LogWarning("CSCSectorReceiverMiniLUT") << "+++ Value of strip, " << strip << ", exceeds max allowed, "
-                                                << 2 * CSCConstants::MAX_NUM_STRIPS - 1 << " +++\n";
+                                                << 2 * CSCConstants::MAX_NUM_STRIPS_RUN1 - 1 << " +++\n";
 
   if (data.phi_local >= maxPhiL)
     edm::LogWarning("CSCSectorReceiverMiniLUT")
@@ -73,7 +72,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
 
   int eta_temp = 999, eta_min = 999, eta_max = 999;
 
-  if ((tcscid > 0) && (tcscid <= 12) && (WG < CSCConstants::MAX_NUM_WIRES)) {
+  if ((tcscid > 0) && (tcscid <= 12) && (WG < CSCConstants::MAX_NUM_WIREGROUPS)) {
     unsigned short int cscid = (tcscid > 9) ? tcscid - 9 : tcscid;
     if (station == 1) {
       unsigned short int lclPhip = 0;
@@ -114,7 +113,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
   } else {
     edm::LogWarning("CSCSectorReceiverMiniLUT")
         << "+++ Value of cscid, " << tcscid << ", is out of bounds, [1, 9] -- or --"
-        << " Value of wire group, " << WG << ", exceeds max allowed, " << CSCConstants::MAX_NUM_WIRES << " +++\n";
+        << " Value of wire group, " << WG << ", exceeds max allowed, " << CSCConstants::MAX_NUM_WIREGROUPS << " +++\n";
   }
 
   // protect from negative numbers.  If the value of eta_temp is <0, set global eta to the minimum value
@@ -159,7 +158,7 @@ global_phi_data CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(unsigned short end
 
   // 12/11/09
   // GP et DA: how to identify the strip number and isolate and shift the localPhi value
-  const double binPhiL = static_cast<double>(maxPhiL) / (2 * CSCConstants::MAX_NUM_STRIPS);
+  const double binPhiL = static_cast<double>(maxPhiL) / (2 * CSCConstants::MAX_NUM_STRIPS_RUN1);
 
   int strip = static_cast<int>(lclPhi / binPhiL);
   if (station == 1 && (cscid <= 3) &&

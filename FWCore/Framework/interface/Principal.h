@@ -26,6 +26,7 @@ pointer to a ProductResolver, when queried.
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -43,12 +44,9 @@ namespace edm {
   class HistoryAppender;
   class MergeableRunProductMetadata;
   class ModuleCallingContext;
-  class ProcessHistoryRegistry;
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class SharedResourcesAcquirer;
-  class InputProductResolver;
-  class WaitingTask;
   class UnscheduledConfigurator;
 
   struct FilledProductPtr {
@@ -81,7 +79,9 @@ namespace edm {
 
     void adjustIndexesAfterProductRegistryAddition();
 
-    void fillPrincipal(ProcessHistoryID const& hist, ProcessHistoryRegistry const& phr, DelayedReader* reader);
+    void fillPrincipal(DelayedReader* reader);
+    void fillPrincipal(ProcessHistoryID const& hist, ProcessHistory const* phr, DelayedReader* reader);
+    void fillPrincipal(std::string const& processNameOfBlock, DelayedReader* reader);
 
     void clearPrincipal();
 
@@ -125,7 +125,7 @@ namespace edm {
                            SharedResourcesAcquirer* sra,
                            ModuleCallingContext const* mcc) const;
 
-    void prefetchAsync(WaitingTask* waitTask,
+    void prefetchAsync(WaitingTaskHolder waitTask,
                        ProductResolverIndex index,
                        bool skipCurrentProcess,
                        ServiceToken const& token,
@@ -171,7 +171,8 @@ namespace edm {
       return boost::make_filter_iterator<FilledProductPtr>(productResolvers_.end(), productResolvers_.end());
     }
 
-    Provenance getProvenance(BranchID const& bid, ModuleCallingContext const* mcc) const;
+    Provenance const& getProvenance(BranchID const& bid) const;
+    StableProvenance const& getStableProvenance(BranchID const& bid) const;
 
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
@@ -207,7 +208,7 @@ namespace edm {
     ProductResolverBase const* getExistingProduct(BranchID const& branchID) const;
     ProductResolverBase const* getExistingProduct(ProductResolverBase const& phb) const;
 
-    void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
+    void put_(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     //F must take an argument of type ProductResolverBase*
     template <typename F>
@@ -218,9 +219,13 @@ namespace edm {
     }
 
   private:
+    //called by adjustIndexesAfterProductRegistryAddition only if an index actually changed
+    virtual void changedIndexes_() {}
+
     void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addSourceProduct(std::shared_ptr<BranchDescription const> bd);
-    void addInputProduct(std::shared_ptr<BranchDescription const> bd);
+    void addDelayedReaderInputProduct(std::shared_ptr<BranchDescription const> bd);
+    void addPutOnReadInputProduct(std::shared_ptr<BranchDescription const> bd);
     void addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addAliasedProduct(std::shared_ptr<BranchDescription const> bd);
     void addSwitchProducerProduct(std::shared_ptr<BranchDescription const> bd);
@@ -228,10 +233,14 @@ namespace edm {
     void addParentProcessProduct(std::shared_ptr<BranchDescription const> bd);
 
     WrapperBase const* getIt(ProductID const&) const override;
-    WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
+    std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
+                                                                                  unsigned int) const override;
     void getThinnedProducts(ProductID const&,
                             std::vector<WrapperBase const*>&,
                             std::vector<unsigned int>&) const override;
+    OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
+                                         unsigned int key,
+                                         ProductID const& thinned) const override;
 
     void findProducts(std::vector<ProductResolverBase const*> const& holders,
                       TypeID const& typeID,
@@ -255,7 +264,7 @@ namespace edm {
                                           SharedResourcesAcquirer* sra,
                                           ModuleCallingContext const* mcc) const;
 
-    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;
+    void put_(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;
 
     std::shared_ptr<ProcessHistory const> processHistoryPtr_;
 

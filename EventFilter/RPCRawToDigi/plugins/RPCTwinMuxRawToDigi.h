@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "CondFormats/DataRecord/interface/RPCTwinMuxLinkMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCLBLinkMap.h"
@@ -16,6 +17,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
+#include "CondFormats/DataRecord/interface/RPCLBLinkMapRcd.h"
 
 #include "EventFilter/RPCRawToDigi/interface/RPCTwinMuxRecord.h"
 
@@ -88,6 +90,9 @@ protected:
   std::vector<int> feds_;
   edm::ESHandle<RPCAMCLinkMap> es_tm_link_map_;
   edm::ESHandle<RPCLBLinkMap> es_lb_link_map_;
+  edm::ESGetToken<RPCAMCLinkMap, RPCTwinMuxLinkMapRcd> es_tm_link_map_br_token_;
+  edm::ESGetToken<RPCAMCLinkMap, RPCTwinMuxLinkMapRcd> es_tm_link_map_token_;
+  edm::ESGetToken<RPCLBLinkMap, RPCLBLinkMapRcd> es_lb_link_map_token_;
 };
 
 #endif  // EventFilter_RPCRawToDigi_RPCTwinMuxRawToDigi_h

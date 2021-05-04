@@ -61,7 +61,6 @@ public:
 
   // Operations
 
-  void beginJob() override;
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
   void tracksAnalysis(const edm::Event &event,
                       const edm::EventSetup &eventSetup,
@@ -70,8 +69,6 @@ public:
                      const edm::EventSetup &eventSetup,
                      edm::Handle<edm::SimTrackContainer> simTracks);
 
-  using DQMEDAnalyzer::endRun;
-  void endRun(DQMStore::IBooker &ibooker);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 protected:

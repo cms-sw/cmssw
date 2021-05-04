@@ -3,7 +3,6 @@
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -73,7 +72,9 @@ private:
   std::ostringstream html_out_;
 
   edm::EDGetTokenT<FEDRawDataCollection> inputSourceToken_;
-  edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
+  SiPixelFedCablingMap theCablingMap;
+
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 };
 
 #endif

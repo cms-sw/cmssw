@@ -30,10 +30,11 @@ using Density = hgcal_clustering::Density;
 
 class HGCalImagingAlgo : public HGCalClusteringAlgoBase {
 public:
-  HGCalImagingAlgo(const edm::ParameterSet &ps)
+  HGCalImagingAlgo(const edm::ParameterSet &ps, edm::ConsumesCollector iC)
       : HGCalClusteringAlgoBase(
             (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity", 3),
-            reco::CaloCluster::undefined),
+            reco::CaloCluster::undefined,
+            iC),
         thresholdW0_(ps.getParameter<std::vector<double>>("thresholdW0")),
         positionDeltaRho_c_(ps.getParameter<std::vector<double>>("positionDeltaRho_c")),
         vecDeltas_(ps.getParameter<std::vector<double>>("deltac")),
@@ -65,9 +66,12 @@ public:
   // use this if you want to reuse the same cluster object but don't want to accumulate clusters (hardly useful?)
   void reset() override {
     clusters_v_.clear();
+    clusters_v_.shrink_to_fit();
     layerClustersPerLayer_.clear();
+    layerClustersPerLayer_.shrink_to_fit();
     for (auto &it : points_) {
       it.clear();
+      it.shrink_to_fit();
       std::vector<KDNode>().swap(it);
     }
     for (unsigned int i = 0; i < minpos_.size(); i++) {
@@ -104,6 +108,7 @@ public:
     iDesc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
     edm::ParameterSetDescription descNestedNoiseMIP;
     descNestedNoiseMIP.add<bool>("scaleByDose", false);
+    descNestedNoiseMIP.add<double>("scaleByDoseFactor", 1.);
     iDesc.add<edm::ParameterSetDescription>("scaleByDose", descNestedNoiseMIP);
     descNestedNoiseMIP.add<std::string>("doseMap", "");
     iDesc.add<edm::ParameterSetDescription>("doseMap", descNestedNoiseMIP);

@@ -52,7 +52,7 @@ void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm:
       std::cout << "Map info" << std::endl;
     std::map<unsigned int, short> templMap = dbobject.getTemplateIDs();
     for (std::map<unsigned int, short>::const_iterator it = templMap.begin(); it != templMap.end(); ++it) {
-      if (tempMapId.size() == 0)
+      if (tempMapId.empty())
         tempMapId.push_back(it->second);
       for (unsigned int i = 0; i < tempMapId.size(); ++i) {
         if (tempMapId[i] == it->second)

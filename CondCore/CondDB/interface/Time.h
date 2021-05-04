@@ -52,6 +52,8 @@ namespace cond {
 
     Time_t tillTimeFromNextSince(Time_t nextSince, TimeType timeType);
 
+    Time_t lumiTime(unsigned int run, unsigned int lumiId);
+
     // conversion from framework types
     edm::IOVSyncValue toIOVSyncValue(cond::Time_t time, TimeType timetype, bool startOrStop);
 

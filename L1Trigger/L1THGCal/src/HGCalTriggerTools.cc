@@ -2,13 +2,15 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseTriggerDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -37,6 +39,9 @@ void HGCalTriggerTools::eventSetup(const edm::EventSetup& es) {
 
   eeLayers_ = geom_->eeTopology().dddConstants().layers(true);
   fhLayers_ = geom_->fhTopology().dddConstants().layers(true);
+  if (geom_->isWithNoseGeometry())
+    noseLayers_ = geom_->noseTopology().dddConstants().layers(true);
+
   if (geom_->isV9Geometry()) {
     bhLayers_ = geom_->hscTopology().dddConstants().layers(true);
     totalLayers_ = eeLayers_ + fhLayers_;
@@ -69,6 +74,9 @@ unsigned HGCalTriggerTools::layers(ForwardSubdetector type) const {
     case ForwardSubdetector::HGCHEB:
       layers = bhLayers_;
       break;
+    case ForwardSubdetector::HFNose:
+      layers = noseLayers_;
+      break;
     case ForwardSubdetector::ForwardEmpty:
       layers = totalLayers_;
       break;
@@ -90,6 +98,7 @@ unsigned HGCalTriggerTools::layers(DetId::Detector type) const {
     case DetId::HGCalHSc:
       layers = bhLayers_;
       break;
+    // FIXME: to do HFNose
     case DetId::Forward:
       layers = totalLayers_;
       break;
@@ -101,14 +110,21 @@ unsigned HGCalTriggerTools::layers(DetId::Detector type) const {
 
 unsigned HGCalTriggerTools::layer(const DetId& id) const {
   unsigned int layer = std::numeric_limits<unsigned int>::max();
-  if (id.det() == DetId::Forward) {
+  if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose) {
     layer = HGCalDetId(id).layer();
+  } else if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
+    layer = HFNoseDetId(id).layer();
   } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
     layer = HcalDetId(id).depth();
   } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
     layer = HGCSiliconDetId(id).layer();
-  } else if (id.det() == DetId::HGCalTrigger) {
+  } else if (id.det() == DetId::HGCalTrigger &&
+             (HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger ||
+              HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger)) {
     layer = HGCalTriggerDetId(id).layer();
+  } else if (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger) {
+    layer = HFNoseTriggerDetId(id).layer();
   } else if (id.det() == DetId::HGCalHSc) {
     layer = HGCScintillatorDetId(id).layer();
   }
@@ -117,7 +133,10 @@ unsigned HGCalTriggerTools::layer(const DetId& id) const {
 
 unsigned HGCalTriggerTools::layerWithOffset(const DetId& id) const {
   unsigned int l = layer(id);
-  if (isHad(id) && isSilicon(id)) {
+
+  if (isNose(id)) {
+    l = layer(id);  // no offset for HFnose
+  } else if (isHad(id) && isSilicon(id)) {
     l += eeLayers_;
   } else if (isHad(id) && isScintillator(id)) {
     if (geom_->isV9Geometry())
@@ -125,19 +144,38 @@ unsigned HGCalTriggerTools::layerWithOffset(const DetId& id) const {
     else
       l += eeLayers_ + fhLayers_;
   }
+
   return l;
 }
 
 bool HGCalTriggerTools::isEm(const DetId& id) const {
   bool em = false;
-  if (id.det() == DetId::Forward) {
+
+  if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose) {
     em = (id.subdetId() == HGCEE);
+  } else if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
+    em = HFNoseDetId(id).isEE();
   } else if (id.det() == DetId::HGCalEE) {
     em = true;
-  } else if (id.det() == DetId::HGCalTrigger) {
-    em = (HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger);
+  } else if (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger) {
+    em = true;
+  } else if (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger) {
+    em = HFNoseTriggerDetId(id).isEE();
   }
   return em;
+}
+
+bool HGCalTriggerTools::isNose(const DetId& id) const {
+  bool nose = false;
+  if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
+    nose = true;
+  } else if (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger) {
+    nose = true;
+  }
+  return nose;
 }
 
 bool HGCalTriggerTools::isSilicon(const DetId& id) const {
@@ -146,22 +184,46 @@ bool HGCalTriggerTools::isSilicon(const DetId& id) const {
     silicon = (id.subdetId() != HGCHEB);
   } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
     silicon = true;
-  } else if (id.det() == DetId::HGCalTrigger) {
-    silicon = (HGCalTriggerDetId(id).subdet() != HGCalTriggerSubdetector::HGCalHScTrigger);
+  } else if (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger) {
+    silicon = true;
+  } else if (id.det() == DetId::HGCalTrigger &&
+             (HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger ||
+              HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger)) {
+    silicon = true;
   }
   return silicon;
 }
 
+HGCalTriggerTools::SubDetectorType HGCalTriggerTools::getSubDetectorType(const DetId& id) const {
+  SubDetectorType subdet;
+  if (!isScintillator(id)) {
+    if (isEm(id))
+      subdet = HGCalTriggerTools::hgcal_silicon_CEE;
+    else
+      subdet = HGCalTriggerTools::hgcal_silicon_CEH;
+  } else
+    subdet = HGCalTriggerTools::hgcal_scintillator;
+  return subdet;
+}
+
 int HGCalTriggerTools::zside(const DetId& id) const {
   int zside = 0;
-  if (id.det() == DetId::Forward) {
+  if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose) {
     zside = HGCalDetId(id).zside();
+  } else if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
+    zside = HFNoseDetId(id).zside();
   } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
     zside = HcalDetId(id).zside();
   } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
     zside = HGCSiliconDetId(id).zside();
-  } else if (id.det() == DetId::HGCalTrigger) {
+  } else if (id.det() == DetId::HGCalTrigger &&
+             (HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger ||
+              HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger)) {
     zside = HGCalTriggerDetId(id).zside();
+  } else if (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger) {
+    zside = HFNoseTriggerDetId(id).zside();
   } else if (id.det() == DetId::HGCalHSc) {
     zside = HGCScintillatorDetId(id).zside();
   }
@@ -170,12 +232,12 @@ int HGCalTriggerTools::zside(const DetId& id) const {
 
 int HGCalTriggerTools::thicknessIndex(const DetId& id, bool tc) const {
   if (isScintillator(id)) {
-    throw cms::Exception("IncompatibleDetId") << "Trying to get the sensor thickness of a scintillator detid";
+    return kScintillatorPseudoThicknessIndex_;
   }
   unsigned det = id.det();
   int thickness = 0;
   // For the v8 detid scheme
-  if (det == DetId::Forward) {
+  if (det == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose) {
     if (!tc)
       thickness = sensorCellThicknessV8(id);
     else {
@@ -203,8 +265,15 @@ int HGCalTriggerTools::thicknessIndex(const DetId& id, bool tc) const {
   // For the v9 detid scheme
   else if (det == DetId::HGCalEE || det == DetId::HGCalHSi) {
     thickness = HGCSiliconDetId(id).type();
-  } else if (det == DetId::HGCalTrigger) {
+  } else if (det == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
+    thickness = HFNoseDetId(id).type();
+  } else if (id.det() == DetId::HGCalTrigger &&
+             (HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger ||
+              HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger)) {
     thickness = HGCalTriggerDetId(id).type();
+  } else if (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger) {
+    thickness = HFNoseTriggerDetId(id).type();
   }
   return thickness;
 }
@@ -250,6 +319,7 @@ float HGCalTriggerTools::getLayerZ(const unsigned& layerWithOffset) const {
     subdet = HcalSubdetector::HcalEndcap;
     offset = lastLayerFH();
   }
+  // note for HFnose offset is always zero since we have less layers than HGCEE
   return getLayerZ(subdet, layerWithOffset - offset);
 }
 
@@ -259,6 +329,8 @@ float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) con
     layerGlobalZ = geom_->eeTopology().dddConstants().waferZ(layer, true);
   } else if ((subdet == ForwardSubdetector::HGCHEF) || (subdet == DetId::HGCalHSi)) {
     layerGlobalZ = geom_->fhTopology().dddConstants().waferZ(layer, true);
+  } else if (subdet == ForwardSubdetector::HFNose) {
+    layerGlobalZ = geom_->noseTopology().dddConstants().waferZ(layer, true);
   } else if ((subdet == HcalSubdetector::HcalEndcap) || (subdet == ForwardSubdetector::HGCHEB) ||
              (subdet == DetId::HGCalHSc)) {
     if (geom_->isV9Geometry()) {
@@ -275,8 +347,7 @@ DetId HGCalTriggerTools::simToReco(const DetId& simid, const HGCalTopology& topo
   DetId recoid(0);
   const auto& dddConst = topo.dddConstants();
   // V9
-  if (dddConst.geomMode() == HGCalGeometryMode::Hexagon8 || dddConst.geomMode() == HGCalGeometryMode::Hexagon8Full ||
-      dddConst.geomMode() == HGCalGeometryMode::Trapezoid) {
+  if (dddConst.waferHexagon8() || dddConst.tileTrapezoid()) {
     recoid = simid;
   }
   // V8
@@ -284,8 +355,8 @@ DetId HGCalTriggerTools::simToReco(const DetId& simid, const HGCalTopology& topo
     int subdet(simid.subdetId());
     int layer = 0, cell = 0, sec = 0, subsec = 0, zp = 0;
     HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell);
-    //sec is wafer and subsec is celltype
-    //skip this hit if after ganging it is not valid
+    // sec is wafer and subsec is celltype
+    // skip this hit if after ganging it is not valid
     auto recoLayerCell = dddConst.simToReco(cell, layer, sec, topo.detectorType());
     cell = recoLayerCell.first;
     layer = recoLayerCell.second;

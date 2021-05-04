@@ -1,7 +1,6 @@
+#include <cstdint>
 #ifndef DaqSource_DTFileReaderHelpers_h
 #define DaqSource_DTFileReaderHelpers_h
-
-#include <boost/cstdint.hpp>
 
 template <class T>
 char* dataPointer(const T* ptr) {

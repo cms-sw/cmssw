@@ -8,6 +8,9 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalMulticlusteringImpl.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalHistoSeedingImpl.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalHistoClusteringImpl.h"
+#include "L1Trigger/L1THGCal/interface/backend/HGCalTriggerClusterInterpreterBase.h"
+
+#include <utility>
 
 class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2ProcessorBase {
 public:
@@ -19,18 +22,26 @@ public:
     } else if (typeMulticluster == "DBSCANC3d") {
       multiclusteringAlgoType_ = DBSCANC3d;
       multiclustering_ = std::make_unique<HGCalMulticlusteringImpl>(conf.getParameterSet("C3d_parameters"));
-    } else if (typeMulticluster.find("Histo") != std::string::npos) {
+    } else if (typeMulticluster == "Histo") {
       multiclusteringAlgoType_ = HistoC3d;
-      multiclusteringHistoSeeding_ = std::make_unique<HGCalHistoSeedingImpl>(conf.getParameterSet("C3d_parameters"));
-      multiclusteringHistoClustering_ =
-          std::make_unique<HGCalHistoClusteringImpl>(conf.getParameterSet("C3d_parameters"));
+      multiclusteringHistoSeeding_ = std::make_unique<HGCalHistoSeedingImpl>(
+          conf.getParameterSet("C3d_parameters").getParameterSet("histoMax_C3d_seeding_parameters"));
+      multiclusteringHistoClustering_ = std::make_unique<HGCalHistoClusteringImpl>(
+          conf.getParameterSet("C3d_parameters").getParameterSet("histoMax_C3d_clustering_parameters"));
     } else {
       throw cms::Exception("HGCTriggerParameterError") << "Unknown Multiclustering type '" << typeMulticluster << "'";
+    }
+
+    for (const auto& interpretationPset : conf.getParameter<std::vector<edm::ParameterSet>>("energy_interpretations")) {
+      std::unique_ptr<HGCalTriggerClusterInterpreterBase> interpreter{
+          HGCalTriggerClusterInterpreterFactory::get()->create(interpretationPset.getParameter<std::string>("type"))};
+      interpreter->initialize(interpretationPset);
+      energy_interpreters_.push_back(std::move(interpreter));
     }
   }
 
   void run(const edm::Handle<l1t::HGCalClusterBxCollection>& collHandle,
-           l1t::HGCalMulticlusterBxCollection& collCluster3D,
+           std::pair<l1t::HGCalMulticlusterBxCollection, l1t::HGCalClusterBxCollection>& be_output,
            const edm::EventSetup& es) override {
     es.get<CaloGeometryRecord>().get("", triggerGeometry_);
     if (multiclustering_)
@@ -39,6 +50,9 @@ public:
       multiclusteringHistoSeeding_->eventSetup(es);
     if (multiclusteringHistoClustering_)
       multiclusteringHistoClustering_->eventSetup(es);
+
+    auto& collCluster3D = be_output.first;
+    auto& rejectedClusters = be_output.second;
 
     /* create a persistent vector of pointers to the trigger-cells */
     std::vector<edm::Ptr<l1t::HGCalCluster>> clustersPtrs;
@@ -61,11 +75,17 @@ public:
       case HistoC3d:
         multiclusteringHistoSeeding_->findHistoSeeds(clustersPtrs, seedPositionsEnergy);
         multiclusteringHistoClustering_->clusterizeHisto(
-            clustersPtrs, seedPositionsEnergy, *triggerGeometry_, collCluster3D);
+            clustersPtrs, seedPositionsEnergy, *triggerGeometry_, collCluster3D, rejectedClusters);
         break;
       default:
         // Should not happen, clustering type checked in constructor
         break;
+    }
+
+    // Call all the energy interpretation modules on the cluster collection
+    for (const auto& interpreter : energy_interpreters_) {
+      interpreter->eventSetup(es);
+      interpreter->interpret(collCluster3D);
     }
   }
 
@@ -81,6 +101,8 @@ private:
 
   /* algorithm type */
   MulticlusterType multiclusteringAlgoType_;
+
+  std::vector<std::unique_ptr<HGCalTriggerClusterInterpreterBase>> energy_interpreters_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalBackendLayer2Factory,

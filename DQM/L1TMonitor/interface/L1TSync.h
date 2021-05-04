@@ -14,8 +14,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,16 +21,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 #include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
 //DataFormats
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
@@ -43,7 +41,7 @@
 #include <string>
 #include <vector>
 
-class L1TSync : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class L1TSync : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   enum BeamMode {
     NOMODE = 1,
@@ -135,6 +133,8 @@ private:
   // Input tags
   edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEvmSource;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputTag;
+  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_menuToken;
+  L1TMenuHelper::Tokens m_helperTokens;
 
   L1GtUtils m_l1GtUtils;
 };

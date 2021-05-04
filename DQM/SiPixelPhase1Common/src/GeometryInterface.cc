@@ -12,25 +12,15 @@
 // general plotting helpers
 #include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 
-// edm stuff
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 // Tracker Geometry/Topology  stuff
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 
 // Pixel names
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 
 // C++ stuff
 #include <cassert>
@@ -41,27 +31,61 @@
 
 const GeometryInterface::Value GeometryInterface::UNDEFINED = 999999999.9f;
 
+GeometryInterface::GeometryInterface(const edm::ParameterSet& conf,
+                                     edm::ConsumesCollector&& iC,
+                                     edm::Transition transition)
+    : iConfig(conf), cablingMapLabel_{conf.getParameter<std::string>("CablingMapLabel")} {
+  if (transition == edm::Transition::BeginRun) {
+    trackerGeometryToken_ = iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
+    trackerTopologyToken_ = iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+    siPixelFedCablingMapToken_ =
+        iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginRun>();
+    if (!cablingMapLabel_.empty()) {
+      labeledSiPixelFedCablingMapToken_ =
+          iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginRun>(
+              edm::ESInputTag("", cablingMapLabel_));
+    }
+  } else {
+    trackerGeometryToken_ =
+        iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::EndLuminosityBlock>();
+    trackerTopologyToken_ = iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::EndLuminosityBlock>();
+    siPixelFedCablingMapToken_ =
+        iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::EndLuminosityBlock>();
+    if (!cablingMapLabel_.empty()) {
+      labeledSiPixelFedCablingMapToken_ =
+          iC.esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::EndLuminosityBlock>(
+              edm::ESInputTag("", cablingMapLabel_));
+    }
+  }
+}
+
 void GeometryInterface::load(edm::EventSetup const& iSetup) {
+  const TrackerGeometry& trackerGeometry = iSetup.getData(trackerGeometryToken_);
+  const TrackerTopology& trackerTopology = iSetup.getData(trackerTopologyToken_);
+  const SiPixelFedCablingMap& siPixelFedCablingMap = iSetup.getData(siPixelFedCablingMapToken_);
+
+  const SiPixelFedCablingMap* labeledSiPixelFedCablingMap = &siPixelFedCablingMap;
+  if (!cablingMapLabel_.empty()) {
+    labeledSiPixelFedCablingMap = &iSetup.getData(labeledSiPixelFedCablingMapToken_);
+  }
+
   //loadFromAlignment(iSetup, iConfig);
-  loadFromTopology(iSetup, iConfig);
-  loadTimebased(iSetup, iConfig);
-  loadModuleLevel(iSetup, iConfig);
-  loadFEDCabling(iSetup, iConfig);
-  loadFromSiPixelCoordinates(iSetup, iConfig);
+  loadFromTopology(trackerGeometry, trackerTopology, iConfig);
+  loadTimebased(iConfig);
+  loadModuleLevel(iConfig);
+  loadFEDCabling(labeledSiPixelFedCablingMap);
+  loadFromSiPixelCoordinates(trackerGeometry, trackerTopology, siPixelFedCablingMap, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
-  for (auto e : ids)
+  for (const auto& e : ids)
     log << "+++ column: " << e.first << " ok " << bool(extractors[e.second]) << " min " << min_value[e.second]
         << " max " << max_value[e.second] << "\n";
   is_loaded = true;
 }
 
-void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
-  // Get a Topology
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-  assert(trackerTopologyHandle.isValid());
-
+void GeometryInterface::loadFromTopology(const TrackerGeometry& trackerGeometry,
+                                         const TrackerTopology& trackerTopology,
+                                         const edm::ParameterSet& iConfig) {
   std::vector<ID> geomquantities;
 
   struct TTField {
@@ -75,7 +99,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     };
   };
 
-  const TrackerTopology* tt = trackerTopologyHandle.operator->();
+  const TrackerTopology* tt = &trackerTopology;
 
   std::vector<std::pair<std::string, TTField>> namedPartitions{
       {"PXEndcap", {tt, TrackerTopology::PFSide}},
@@ -132,13 +156,8 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   int phase = iConfig.getParameter<int>("upgradePhase");
   bool isUpgrade = phase == 1;
 
-  // Get a Geometry
-  edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-  assert(trackerGeometryHandle.isValid());
-
   // Now traverse the detector and collect whatever we need.
-  auto detids = trackerGeometryHandle->detIds();
+  auto detids = trackerGeometry.detIds();
   for (DetId id : detids) {
     if (id.subdetId() != PixelSubdetector::PixelBarrel && id.subdetId() != PixelSubdetector::PixelEndcap)
       continue;
@@ -157,7 +176,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 
     // we record each module 4 times, one for each corner, so we also get ROCs
     // in booking (at least for the ranges)
-    const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometryHandle->idToDetUnit(id));
+    const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry.idToDetUnit(id));
     assert(detUnit);
     const PixelTopology* topo = &detUnit->specificTopology();
     iq.row = 0;
@@ -175,7 +194,10 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   }
 }
 
-void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+void GeometryInterface::loadFromSiPixelCoordinates(const TrackerGeometry& trackerGeometry,
+                                                   const TrackerTopology& trackerTopology,
+                                                   const SiPixelFedCablingMap& siPixelFedCablingMap,
+                                                   const edm::ParameterSet& iConfig) {
   // TODO: SiPixelCoordinates has a large overlap with theis GeometryInterface
   // in general.
   // Rough convention is to use own code for things that are easy and fast to
@@ -191,7 +213,7 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
   // note that we should reeinit for each event. But this probably won't explode
   // thanks to the massive memoization in SiPixelCoordinates which is completely
   // initialized while booking.
-  coord->init(iSetup);
+  coord->init(&trackerTopology, &trackerGeometry, &siPixelFedCablingMap);
 
   // SiPixelCoordinates uses a different convention for UNDEFINED:
   auto from_coord = [](double in) { return (in == -9999.0) ? UNDEFINED : Value(in); };
@@ -203,47 +225,49 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
 
   // Quadrant names.
   auto pxbarrel = extractors[intern("PXBarrel")];
-  addExtractor(intern("HalfCylinder"),
-               [coord, pxbarrel](InterestingQuantities const& iq) {
-                 if (pxbarrel(iq) != UNDEFINED)
-                   return UNDEFINED;
-                 int quadrant = coord->quadrant(iq.sourceModule);
-                 switch (quadrant) {
-                   case 1:
-                     return Value(12);  // mO
-                   case 2:
-                     return Value(11);  // mI
-                   case 3:
-                     return Value(22);  // pO
-                   case 4:
-                     return Value(21);  // pI
-                   default:
-                     return UNDEFINED;
-                 }
-               },
-               0,
-               0  // N/A
+  addExtractor(
+      intern("HalfCylinder"),
+      [coord, pxbarrel](InterestingQuantities const& iq) {
+        if (pxbarrel(iq) != UNDEFINED)
+          return UNDEFINED;
+        int quadrant = coord->quadrant(iq.sourceModule);
+        switch (quadrant) {
+          case 1:
+            return Value(12);  // mO
+          case 2:
+            return Value(11);  // mI
+          case 3:
+            return Value(22);  // pO
+          case 4:
+            return Value(21);  // pI
+          default:
+            return UNDEFINED;
+        }
+      },
+      0,
+      0  // N/A
   );
-  addExtractor(intern("Shell"),
-               [coord, pxbarrel](InterestingQuantities const& iq) {
-                 if (pxbarrel(iq) == UNDEFINED)
-                   return UNDEFINED;
-                 int quadrant = coord->quadrant(iq.sourceModule);
-                 switch (quadrant) {
-                   case 1:
-                     return Value(12);  // mO
-                   case 2:
-                     return Value(11);  // mI
-                   case 3:
-                     return Value(22);  // pO
-                   case 4:
-                     return Value(21);  // pI
-                   default:
-                     return UNDEFINED;
-                 }
-               },
-               0,
-               0  // N/A
+  addExtractor(
+      intern("Shell"),
+      [coord, pxbarrel](InterestingQuantities const& iq) {
+        if (pxbarrel(iq) == UNDEFINED)
+          return UNDEFINED;
+        int quadrant = coord->quadrant(iq.sourceModule);
+        switch (quadrant) {
+          case 1:
+            return Value(12);  // mO
+          case 2:
+            return Value(11);  // mI
+          case 3:
+            return Value(22);  // pO
+          case 4:
+            return Value(21);  // pI
+          default:
+            return UNDEFINED;
+        }
+      },
+      0,
+      0  // N/A
   );
 
   // Online Numbering.
@@ -361,73 +385,75 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
   });
 }
 
-void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+void GeometryInterface::loadTimebased(const edm::ParameterSet& iConfig) {
   // extractors for quantities that are roughly time-based. We cannot book plots based on these; they have to
   // be grouped away in step1.
-  addExtractor(intern("Lumisection"),
-               [](InterestingQuantities const& iq) {
-                 if (!iq.sourceEvent)
-                   return UNDEFINED;
-                 return Value(iq.sourceEvent->luminosityBlock());
-               },
-               1,
-               iConfig.getParameter<int>("max_lumisection"));
+  addExtractor(
+      intern("Lumisection"),
+      [](InterestingQuantities const& iq) {
+        if (!iq.sourceEvent)
+          return UNDEFINED;
+        return Value(iq.sourceEvent->luminosityBlock());
+      },
+      1,
+      iConfig.getParameter<int>("max_lumisection"));
 
   int onlineblock = iConfig.getParameter<int>("onlineblock");
   int n_onlineblocks = iConfig.getParameter<int>("n_onlineblocks");
-  addExtractor(intern("OnlineBlock"),
-               [onlineblock](InterestingQuantities const& iq) {
-                 if (!iq.sourceEvent)
-                   return UNDEFINED;
-                 return Value(onlineblock + iq.sourceEvent->luminosityBlock() / onlineblock);
-               },
-               // note: this range is not visible anywhere (if the RenderPlugin does its job),
-               // but the strange range allows the RenderPlugin to know the block size.
-               onlineblock,
-               onlineblock + n_onlineblocks - 1);
+  addExtractor(
+      intern("OnlineBlock"),
+      [onlineblock](InterestingQuantities const& iq) {
+        if (!iq.sourceEvent)
+          return UNDEFINED;
+        return Value(onlineblock + iq.sourceEvent->luminosityBlock() / onlineblock);
+      },
+      // note: this range is not visible anywhere (if the RenderPlugin does its job),
+      // but the strange range allows the RenderPlugin to know the block size.
+      onlineblock,
+      onlineblock + n_onlineblocks - 1);
 
   int lumiblock = iConfig.getParameter<int>("lumiblock");
-  addExtractor(intern("LumiBlock"),
-               [lumiblock](InterestingQuantities const& iq) {
-                 if (!iq.sourceEvent)
-                   return UNDEFINED;
-                 // The '-1' is for making 1-10 the same block rather than 0-9
-                 // The '+0.5' makes the block span an integer range rather n.5-m.5
-                 return Value(((iq.sourceEvent->luminosityBlock() - 1) / lumiblock) + 0.5);
-               },
-               -0.5,
-               iConfig.getParameter<int>("max_lumisection") / lumiblock);
+  addExtractor(
+      intern("LumiBlock"),
+      [lumiblock](InterestingQuantities const& iq) {
+        if (!iq.sourceEvent)
+          return UNDEFINED;
+        // The '-1' is for making 1-10 the same block rather than 0-9
+        // The '+0.5' makes the block span an integer range rather n.5-m.5
+        return Value(((iq.sourceEvent->luminosityBlock() - 1) / lumiblock) + 0.5);
+      },
+      -0.5,
+      iConfig.getParameter<int>("max_lumisection") / lumiblock);
 
-  addExtractor(intern("BX"),
-               [](InterestingQuantities const& iq) {
-                 if (!iq.sourceEvent)
-                   return UNDEFINED;
-                 return Value(iq.sourceEvent->bunchCrossing());
-               },
-               1,
-               iConfig.getParameter<int>("max_bunchcrossing"));
+  addExtractor(
+      intern("BX"),
+      [](InterestingQuantities const& iq) {
+        if (!iq.sourceEvent)
+          return UNDEFINED;
+        return Value(iq.sourceEvent->bunchCrossing());
+      },
+      1,
+      iConfig.getParameter<int>("max_bunchcrossing"));
 }
 
-void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+void GeometryInterface::loadModuleLevel(const edm::ParameterSet& iConfig) {
   // stuff that is within modules. Might require some phase0/phase1/strip switching later
-  addExtractor(intern("row"),
-               [](InterestingQuantities const& iq) { return Value(iq.row); },
-               0,
-               iConfig.getParameter<int>("module_rows") - 1);
-  addExtractor(intern("col"),
-               [](InterestingQuantities const& iq) { return Value(iq.col); },
-               0,
-               iConfig.getParameter<int>("module_cols") - 1);
+  addExtractor(
+      intern("row"),
+      [](InterestingQuantities const& iq) { return Value(iq.row); },
+      0,
+      iConfig.getParameter<int>("module_rows") - 1);
+  addExtractor(
+      intern("col"),
+      [](InterestingQuantities const& iq) { return Value(iq.col); },
+      0,
+      iConfig.getParameter<int>("module_cols") - 1);
 }
 
-void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
-  auto cablingMapLabel = iConfig.getParameter<std::string>("CablingMapLabel");
-  edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel, theCablingMap);
-
+void GeometryInterface::loadFEDCabling(const SiPixelFedCablingMap* labeledSiPixelFedCablingMap) {
   std::shared_ptr<SiPixelFrameReverter> siPixelFrameReverter =
       // I think passing the bare pointer here is safe, but who knows...
-      std::make_shared<SiPixelFrameReverter>(iSetup, theCablingMap.operator->());
+      std::make_shared<SiPixelFrameReverter>(labeledSiPixelFedCablingMap);
 
   addExtractor(intern("FED"), [siPixelFrameReverter](InterestingQuantities const& iq) {
     if (iq.sourceModule == 0xFFFFFFFF)

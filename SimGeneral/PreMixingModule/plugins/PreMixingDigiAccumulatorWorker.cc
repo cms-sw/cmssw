@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
@@ -13,9 +13,11 @@
 
 class PreMixingDigiAccumulatorWorker : public PreMixingWorker {
 public:
-  PreMixingDigiAccumulatorWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC)
+  PreMixingDigiAccumulatorWorker(const edm::ParameterSet& ps,
+                                 edm::ProducesCollector producesCollector,
+                                 edm::ConsumesCollector&& iC)
       : accumulator_(edm::DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(
-            ps.getParameter<edm::ParameterSet>("accumulator"), producer, iC)) {}
+            ps.getParameter<edm::ParameterSet>("accumulator"), producesCollector, iC)) {}
   ~PreMixingDigiAccumulatorWorker() override = default;
 
   void initializeEvent(const edm::Event& e, const edm::EventSetup& ES) override {

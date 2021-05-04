@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 from SimG4Core.GFlash.cmsExtendedGeometryGFlashXML_cfi import *
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 #  Tracking Geometry
-from Geometry.CommonDetUnit.globalTrackingGeometryDB_cfi import *
+from Geometry.CommonTopologies.globalTrackingGeometryDB_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *

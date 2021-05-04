@@ -42,10 +42,10 @@ RPCAMCLinkMapHandler::~RPCAMCLinkMapHandler() {}
 
 void RPCAMCLinkMapHandler::getNewObjects() {
   edm::LogInfo("RPCAMCLinkMapHandler") << "getNewObjects";
-  cond::TagInfo const& tag_info = tagInfo();
-  if (since_run_ < tag_info.lastInterval.first) {
+  cond::TagInfo_t const& tag_info = tagInfo();
+  if (since_run_ < tag_info.lastInterval.since) {
     throw cms::Exception("RPCAMCLinkMapHandler") << "Refuse to create RPCAMCLinkMap for run " << since_run_
-                                                 << ", older than most recent tag" << tag_info.lastInterval.first;
+                                                 << ", older than most recent tag" << tag_info.lastInterval.since;
   }
 
   std::string amc_name, link_name;

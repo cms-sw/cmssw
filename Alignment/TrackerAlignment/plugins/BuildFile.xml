@@ -1,54 +1,52 @@
-<use   name="FWCore/Framework"/>
-
-<library name="AlignmentTrackerMisalignmentPlugin" file="*Misalign*.cc" >
-  <use name="Alignment/TrackerAlignment" />
-  <use name="CalibFormats/SiStripObjects" />
-  <use name="CalibTracker/Records" />
-  <use name="CondCore/DBOutputService" />
-  <use name="CondFormats/Alignment" />
-  <use name="CondFormats/AlignmentRecord" />
-  <use name="CondFormats/DataRecord" />
-  <use name="CondFormats/GeometryObjects" />
-  <use name="CondFormats/SiPixelObjects" />
-  <use name="DataFormats/TrackerCommon" />
-  <use name="FWCore/ParameterSet" />
-  <use name="FWCore/ServiceRegistry" />
-  <use name="Geometry/Records" />
-  <use name="Geometry/TrackerGeometryBuilder" />
-  <flags EDM_PLUGIN="1" />
-</library>
-
-<library   name="AlignmentTrackerAlignmentSkimPlugin" file="AlignmentPrescaler.cc,TkAlCaSkimTreeMerger.cc,TkAlCaOverlapTagger.cc">
-  <use   name="DataFormats/TrackerRecHit2D"/>
-  <use   name="DataFormats/Alignment"/>
-  <use   name="RecoTracker/TransientTrackingRecHit"/>
-  <use   name="Utilities/General"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-
-<library file="TrackerTreeGenerator.cc" name="AlignmentTrackerTreeGeneratorPlugins">
-  <use   name="Alignment/TrackerAlignment"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="CommonTools/UtilAlgos"/>
-  <use   name="CommonTools/Utils"/>
-  <use   name="CondFormats/GeometryObjects"/>
-  <use   name="DataFormats/DetId"/>
-  <use   name="DataFormats/SiPixelDetId"/>
-  <use   name="DataFormats/SiStripDetId"/>
-  <use   name="DataFormats/GeometryVector"/>
-  <use   name="DataFormats/GeometrySurface"/>
-  <use   name="DataFormats/Math"/>
-  <use   name="Geometry/Records"/>
-  <use   name="Geometry/TrackerNumberingBuilder"/>
-  <use   name="Geometry/TrackerGeometryBuilder"/>
-  <use   name="Geometry/CommonDetUnit"/>
-  <use   name="Geometry/CommonTopologies"/>
-  <use   name="root"/>
+<use name="FWCore/Framework"/>
+<library name="AlignmentTrackerMisalignmentPlugin" file="*Misalign*.cc">
+  <use name="Alignment/TrackerAlignment"/>
+  <use name="CalibFormats/SiStripObjects"/>
+  <use name="CalibTracker/Records"/>
+  <use name="CondCore/DBOutputService"/>
+  <use name="CondFormats/Alignment"/>
+  <use name="CondFormats/AlignmentRecord"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/GeometryObjects"/>
+  <use name="CondFormats/SiPixelObjects"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library name="AlignmentTrackerAlignmentRecordGeneratorPlugins"
-	 file="CreateTrackerAlignmentRcds.cc">
+<library name="AlignmentTrackerAlignmentSkimPlugin" file="AlignmentPrescaler.cc,TkAlCaSkimTreeMerger.cc,TkAlCaOverlapTagger.cc">
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="DataFormats/Alignment"/>
+  <use name="RecoTracker/TransientTrackingRecHit"/>
+  <use name="Utilities/General"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TrackerTreeGenerator.cc" name="AlignmentTrackerTreeGeneratorPlugins">
+  <use name="Alignment/TrackerAlignment"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="CommonTools/Utils"/>
+  <use name="CondFormats/GeometryObjects"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/SiPixelDetId"/>
+  <use name="DataFormats/SiStripDetId"/>
+  <use name="DataFormats/GeometryVector"/>
+  <use name="DataFormats/GeometrySurface"/>
+  <use name="DataFormats/Math"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerNumberingBuilder"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="root"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library name="AlignmentTrackerAlignmentRecordGeneratorPlugins" file="CreateTrackerAlignmentRcds.cc">
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
@@ -57,29 +55,29 @@
   <use name="CondCore/DBOutputService"/>
   <use name="CondFormats/GeometryObjects"/>
   <use name="CondFormats/Alignment"/>
-  <use name="DataFormats/TrackerCommon" />
+  <use name="DataFormats/TrackerCommon"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
   <use name="CLHEP"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="CosmicRateAnalyzer.cc" name="AlignmentCosmicRateAnalyzerPlugins">
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="CommonTools/UtilAlgos"/>
-  <use   name="DataFormats/DetId"/>
-  <use   name="DataFormats/SiPixelDetId"/>
-  <use   name="DataFormats/SiStripDetId"/>
-  <use   name="DataFormats/SiStripCluster"/>
-  <use   name="DataFormats/MuonReco"/>
-  <use   name="CondFormats/DataRecord"/>
-  <use   name="CondFormats/SiStripObjects"/>
-  <use   name="MagneticField/Engine"/>
-  <use   name="MagneticField/Records"/>
-  <use   name="DataFormats/Common"/>
-  <use   name="DataFormats/RecoCandidate"/>
-  <use   name="DataFormats/TrackReco"/>
-  <use   name="Geometry/TrackerNumberingBuilder"/>
-  <use   name="root"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/SiPixelDetId"/>
+  <use name="DataFormats/SiStripDetId"/>
+  <use name="DataFormats/SiStripCluster"/>
+  <use name="DataFormats/MuonReco"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/SiStripObjects"/>
+  <use name="MagneticField/Engine"/>
+  <use name="MagneticField/Records"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="Geometry/TrackerNumberingBuilder"/>
+  <use name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>

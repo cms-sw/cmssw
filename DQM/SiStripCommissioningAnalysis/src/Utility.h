@@ -2,9 +2,9 @@
 #define DQM_SiStripCommissioningAnalysis_Utility_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include <boost/cstdint.hpp>
 #include <vector>
 #include <cmath>
+#include <cstdint>
 
 namespace sistrip {
 

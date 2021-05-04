@@ -4,42 +4,54 @@
 #include "DD4hep/Detector.h"
 
 #include <string>
-#include "tbb/concurrent_unordered_map.h"
-#include "tbb/concurrent_vector.h"
-#include "tbb/concurrent_queue.h"
+#include <variant>
+#include <unordered_map>
+#include <vector>
 
 namespace cms {
 
   class DDParsingContext {
   public:
-    DDParsingContext(dd4hep::Detector* det) : description(det) {}
+    DDParsingContext(dd4hep::Detector& det) : description(det) {
+      assemblies.reserve(100);
+      rotations.reserve(3000);
+      shapes.reserve(4000);
+      volumes.reserve(3000);
+      unresolvedMaterials.reserve(300);
+      unresolvedVectors.reserve(300);
+      unresolvedShapes.reserve(1000);
 
-    ~DDParsingContext() {
-      rotations.clear();
-      shapes.clear();
-      volumes.clear();
-      disabledAlgs.clear();
-      namespaces.clear();
-    };
-
-    bool const ns(std::string& result) {
-      std::string res;
-      if (namespaces.try_pop(res)) {
-        result = res;
-        namespaces.emplace(res);
-        return true;
-      }
-      return false;
+      namespaces.emplace_back("");
     }
 
-    std::atomic<dd4hep::Detector*> description;
-    tbb::concurrent_unordered_map<std::string, dd4hep::Rotation3D> rotations;
-    tbb::concurrent_unordered_map<std::string, dd4hep::Solid> shapes;
-    tbb::concurrent_unordered_map<std::string, dd4hep::Volume> volumes;
-    tbb::concurrent_vector<std::string> disabledAlgs;
-    tbb::concurrent_queue<std::string> namespaces;
+    DDParsingContext() = delete;
+    DDParsingContext(const DDParsingContext&) = delete;
+    DDParsingContext& operator=(const DDParsingContext&) = delete;
 
-    bool geo_inited = false;
+    ~DDParsingContext() = default;
+
+    const std::string& ns() const { return namespaces.back(); }
+
+    template <class TYPE>
+    struct BooleanShape {
+      BooleanShape(const std::string& aName, const std::string& bName, dd4hep::Transform3D t)
+          : firstSolidName(aName), secondSolidName(bName), transform(t) {}
+
+      const std::string firstSolidName;
+      const std::string secondSolidName;
+      dd4hep::Transform3D transform;
+
+      dd4hep::Solid make(dd4hep::Solid firstSolid, dd4hep::Solid secondSolid) {
+        return TYPE(firstSolid, secondSolid, transform);
+      }
+    };
+
+    struct CompositeMaterial {
+      CompositeMaterial(const std::string& n, double f) : name(n), fraction(f) {}
+
+      const std::string name;
+      double fraction;
+    };
 
     // Debug flags
     bool debug_includes = false;
@@ -50,9 +62,24 @@ namespace cms {
     bool debug_volumes = false;
     bool debug_placements = false;
     bool debug_namespaces = false;
-    bool debug_visattr = false;
     bool debug_algorithms = false;
     bool debug_specpars = false;
+
+    dd4hep::Detector& description;
+
+    std::unordered_map<std::string, dd4hep::Assembly> assemblies;
+    std::unordered_map<std::string, dd4hep::Rotation3D> rotations;
+    std::unordered_map<std::string, dd4hep::Solid> shapes;
+    std::unordered_map<std::string, dd4hep::Volume> volumes;
+    std::vector<std::string> namespaces;
+
+    std::unordered_map<std::string, std::vector<CompositeMaterial>> unresolvedMaterials;
+    std::unordered_map<std::string, std::vector<std::string>> unresolvedVectors;
+    std::unordered_map<std::string,
+                       std::variant<BooleanShape<dd4hep::UnionSolid>,
+                                    BooleanShape<dd4hep::SubtractionSolid>,
+                                    BooleanShape<dd4hep::IntersectionSolid>>>
+        unresolvedShapes;
   };
 }  // namespace cms
 

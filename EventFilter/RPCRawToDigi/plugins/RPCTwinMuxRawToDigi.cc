@@ -12,7 +12,6 @@
 #include "FWCore/Utilities/interface/CRC16.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "CondFormats/DataRecord/interface/RPCLBLinkMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCAMCLink.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -25,7 +24,10 @@ RPCTwinMuxRawToDigi::RPCTwinMuxRawToDigi(edm::ParameterSet const &config)
     : calculate_crc_(config.getParameter<bool>("calculateCRC")),
       fill_counters_(config.getParameter<bool>("fillCounters")),
       bx_min_(config.getParameter<int>("bxMin")),
-      bx_max_(config.getParameter<int>("bxMax")) {
+      bx_max_(config.getParameter<int>("bxMax")),
+      es_tm_link_map_br_token_(esConsumes<RPCAMCLinkMap, RPCTwinMuxLinkMapRcd, edm::Transition::BeginRun>()),
+      es_tm_link_map_token_(esConsumes<RPCAMCLinkMap, RPCTwinMuxLinkMapRcd>()),
+      es_lb_link_map_token_(esConsumes<RPCLBLinkMap, RPCLBLinkMapRcd>()) {
   produces<RPCDigiCollection>();
   if (fill_counters_) {
     produces<RPCAMCLinkCounters>();
@@ -55,9 +57,9 @@ void RPCTwinMuxRawToDigi::fillDescriptions(edm::ConfigurationDescriptions &descs
 
 void RPCTwinMuxRawToDigi::beginRun(edm::Run const &run, edm::EventSetup const &setup) {
   if (es_tm_link_map_watcher_.check(setup)) {
-    setup.get<RPCTwinMuxLinkMapRcd>().get(es_tm_link_map_);
+    auto link_map = setup.getHandle(es_tm_link_map_br_token_);
     std::set<int> feds;
-    for (auto const &tm_link : es_tm_link_map_->getMap()) {
+    for (auto const &tm_link : link_map->getMap()) {
       feds.insert(tm_link.first.getFED());
     }
     feds_.assign(feds.begin(), feds.end());
@@ -66,8 +68,8 @@ void RPCTwinMuxRawToDigi::beginRun(edm::Run const &run, edm::EventSetup const &s
 
 void RPCTwinMuxRawToDigi::produce(edm::Event &event, edm::EventSetup const &setup) {
   // Get EventSetup Electronics Maps
-  setup.get<RPCTwinMuxLinkMapRcd>().get(es_tm_link_map_);
-  setup.get<RPCLBLinkMapRcd>().get(es_lb_link_map_);
+  es_tm_link_map_ = setup.getHandle(es_tm_link_map_token_);
+  es_lb_link_map_ = setup.getHandle(es_lb_link_map_token_);
 
   // Get RAW Data
   edm::Handle<FEDRawDataCollection> raw_data_collection;

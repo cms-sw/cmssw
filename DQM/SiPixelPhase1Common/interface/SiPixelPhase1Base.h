@@ -15,17 +15,21 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DQM/SiPixelPhase1Common/interface/HistogramManager.h"
 
+#include <utility>
 #include <vector>
 
 // used as a mixin for Analyzer and Harvester.
 class HistogramManagerHolder {
 public:
-  HistogramManagerHolder(const edm::ParameterSet& iConfig)
-      : geometryInterface(iConfig.getParameter<edm::ParameterSet>("geometry")) {
+  HistogramManagerHolder(const edm::ParameterSet& iConfig,
+                         edm::ConsumesCollector&& iC,
+                         edm::Transition transition = edm::Transition::BeginRun)
+      : geometryInterface(iConfig.getParameter<edm::ParameterSet>("geometry"), std::move(iC), transition) {
     auto histograms = iConfig.getParameter<edm::VParameterSet>("histograms");
     for (auto histoconf : histograms) {
       histo.emplace_back(HistogramManager(histoconf, geometryInterface));
@@ -44,17 +48,17 @@ public:
   SiPixelPhase1Base(const edm::ParameterSet& iConfig);
 
   // You should analyze something, and call histoman.fill(...). Setting to pure virtual function
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override = 0;
+  void analyze(edm::Event const& e, edm::EventSetup const&) override = 0;
 
   // This booking is usually fine.
   // Also used to store the required triggers
-  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& iSetup) override;
+  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const&) override;
 
   ~SiPixelPhase1Base() override{};
 
 protected:
   // Returns a value of whether the trigger stored at position "trgidx" is properly fired.
-  bool checktrigger(const edm::Event& iEvent, const edm::EventSetup& iSetup, const unsigned trgidx) const;
+  bool checktrigger(const edm::Event& iEvent, const edm::EventSetup&, const unsigned trgidx) const;
 
   // must match order in TriggerEventFlag_cfi.py
   enum { DCS };
@@ -71,12 +75,13 @@ private:
 // For custom harvesting, you have to derive from this.
 class SiPixelPhase1Harvester : public DQMEDHarvester, public HistogramManagerHolder {
 public:
-  SiPixelPhase1Harvester(const edm::ParameterSet& iConfig) : DQMEDHarvester(), HistogramManagerHolder(iConfig){};
+  SiPixelPhase1Harvester(const edm::ParameterSet& iConfig)
+      : DQMEDHarvester(), HistogramManagerHolder(iConfig, consumesCollector(), edm::Transition::EndLuminosityBlock){};
 
   void dqmEndLuminosityBlock(DQMStore::IBooker& iBooker,
                              DQMStore::IGetter& iGetter,
                              edm::LuminosityBlock const& lumiBlock,
-                             edm::EventSetup const& eSetup) override;
+                             edm::EventSetup const&) override;
   void dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) override;
 };
 #endif

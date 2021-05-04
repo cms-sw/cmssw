@@ -1,12 +1,20 @@
 
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-
+#include "FWCore/Concurrency/interface/include_first_syncWait.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
+#include "tbb/global_control.h"
 
 namespace edm {
   namespace {
@@ -153,10 +161,7 @@ namespace edm {
     }
   }
 
-  bool Worker::shouldRethrowException(std::exception_ptr iPtr,
-                                      ParentContext const& parentContext,
-                                      bool isEvent,
-                                      TransitionIDValueBase const& iID) const {
+  bool Worker::shouldRethrowException(std::exception_ptr iPtr, ParentContext const& parentContext, bool isEvent) const {
     // NOTE: the warning printed as a result of ignoring or failing
     // a module will only be printed during the full true processing
     // pass of this module
@@ -175,7 +180,7 @@ namespace edm {
         return true;
       }
 
-      ModuleCallingContext tempContext(&description(), ModuleCallingContext::State::kInvalid, parentContext, nullptr);
+      ModuleCallingContext tempContext(description(), ModuleCallingContext::State::kInvalid, parentContext, nullptr);
 
       // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
       // as IgnoreCompletely, so any subsequent OutputModules are still run.
@@ -196,67 +201,40 @@ namespace edm {
     return true;
   }
 
-  void Worker::prefetchAsync(WaitingTask* iTask,
-                             ServiceToken const& token,
-                             ParentContext const& parentContext,
-                             Principal const& iPrincipal) {
-    // Prefetch products the module declares it consumes (not including the products it maybe consumes)
-    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
-
-    moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
-
-    if (iPrincipal.branchType() == InEvent) {
-      actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
-    }
-
-    //Need to be sure the ref count isn't set to 0 immediately
-    iTask->increment_ref_count();
-    for (auto const& item : items) {
-      ProductResolverIndex productResolverIndex = item.productResolverIndex();
-      bool skipCurrentProcess = item.skipCurrentProcess();
-      if (productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
-      }
-    }
-
-    if (iPrincipal.branchType() == InEvent) {
-      preActionBeforeRunEventAsync(iTask, moduleCallingContext_, iPrincipal);
-    }
-
-    if (0 == iTask->decrement_ref_count()) {
-      //if everything finishes before we leave this routine, we need to launch the task
-      tbb::task::spawn(*iTask);
-    }
-  }
-
-  void Worker::prePrefetchSelectionAsync(WaitingTask* successTask,
+  void Worker::prePrefetchSelectionAsync(tbb::task_group& group,
+                                         WaitingTask* successTask,
                                          ServiceToken const& token,
                                          StreamID id,
                                          EventPrincipal const* iPrincipal) {
     successTask->increment_ref_count();
 
-    auto choiceTask = edm::make_waiting_task(
-        tbb::task::allocate_root(), [id, successTask, iPrincipal, this, token](std::exception_ptr const*) {
-          ServiceRegistry::Operate guard(token);
-          try {
+    ServiceWeakToken weakToken = token;
+    auto choiceTask =
+        edm::make_waiting_task([id, successTask, iPrincipal, this, weakToken, &group](std::exception_ptr const*) {
+          ServiceRegistry::Operate guard(weakToken.lock());
+          // There is no reasonable place to rethrow, and implDoPrePrefetchSelection() should not throw in the first place.
+          CMS_SA_ALLOW try {
             if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
               timesRun_.fetch_add(1, std::memory_order_relaxed);
               setPassed<true>();
               waitingTasks_.doneWaiting(nullptr);
               //TBB requires that destroyed tasks have count 0
               if (0 == successTask->decrement_ref_count()) {
-                tbb::task::destroy(*successTask);
+                TaskSentry s(successTask);
               }
               return;
             }
           } catch (...) {
           }
           if (0 == successTask->decrement_ref_count()) {
-            tbb::task::spawn(*successTask);
+            group.run([successTask]() {
+              TaskSentry s(successTask);
+              successTask->execute();
+            });
           }
         });
 
-    WaitingTaskHolder choiceHolder{choiceTask};
+    WaitingTaskHolder choiceHolder{group, choiceTask};
 
     std::vector<ProductResolverIndexAndSkipBit> items;
     itemsToGetForSelection(items);
@@ -265,10 +243,95 @@ namespace edm {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
       if (productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal->prefetchAsync(choiceTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+        iPrincipal->prefetchAsync(
+            choiceHolder, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
       }
     }
     choiceHolder.doneWaiting(std::exception_ptr{});
+  }
+
+  void Worker::esPrefetchAsync(WaitingTaskHolder iTask,
+                               EventSetupImpl const& iImpl,
+                               Transition iTrans,
+                               ServiceToken const& iToken) {
+    if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
+      return;
+    }
+    auto const& recs = esRecordsToGetFrom(iTrans);
+    auto const& items = esItemsToGetFrom(iTrans);
+
+    assert(items.size() == recs.size());
+    if (items.empty()) {
+      return;
+    }
+
+    //Thread case of 1 thread special. The master thread is doing a wait_for_all on the
+    // default tbb arena. It will not process any tasks on the es arena. We need to add a
+    // task that will synchronously do a wait_for_all in the es arena to be sure prefetching
+    // will work.
+
+    if UNLIKELY (tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism) == 1) {
+      auto taskGroup = iTask.group();
+      ServiceWeakToken weakToken = iToken;
+      taskGroup->run([this, task = std::move(iTask), iTrans, &iImpl, weakToken]() {
+        std::exception_ptr exceptPtr{};
+        iImpl.taskArena()->execute([this, iTrans, &iImpl, weakToken, &exceptPtr]() {
+          exceptPtr = syncWait([&](WaitingTaskHolder&& iHolder) {
+            auto const& recs = esRecordsToGetFrom(iTrans);
+            auto const& items = esItemsToGetFrom(iTrans);
+            auto hWaitTask = std::move(iHolder);
+            auto token = weakToken.lock();
+            for (size_t i = 0; i != items.size(); ++i) {
+              if (recs[i] != ESRecordIndex{}) {
+                auto rec = iImpl.findImpl(recs[i]);
+                if (rec) {
+                  rec->prefetchAsync(hWaitTask, items[i], &iImpl, token, ESParentContext(&moduleCallingContext_));
+                }
+              }
+            }
+          });  //syncWait
+        });    //esTaskArena().execute
+        //note use of a copy gets around declaring the lambda as mutable
+        auto tempTask = task;
+        tempTask.doneWaiting(exceptPtr);
+      });  //group.run
+    } else {
+      auto group = iTask.group();
+      //We need iTask to run in the default arena since it is not an ES task
+      auto task = make_waiting_task(
+          [holder = WaitingTaskWithArenaHolder(std::move(iTask))](std::exception_ptr const* iExcept) mutable {
+            if (iExcept) {
+              holder.doneWaiting(*iExcept);
+            } else {
+              holder.doneWaiting(std::exception_ptr{});
+            }
+          });
+
+      WaitingTaskHolder tempH(*group, task);
+      iImpl.taskArena()->execute([&]() {
+        for (size_t i = 0; i != items.size(); ++i) {
+          if (recs[i] != ESRecordIndex{}) {
+            auto rec = iImpl.findImpl(recs[i]);
+            if (rec) {
+              rec->prefetchAsync(tempH, items[i], &iImpl, iToken, ESParentContext(&moduleCallingContext_));
+            }
+          }
+        }
+      });
+    }
+  }
+
+  void Worker::edPrefetchAsync(WaitingTaskHolder iTask, ServiceToken const& token, Principal const& iPrincipal) const {
+    // Prefetch products the module declares it consumes
+    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
+
+    for (auto const& item : items) {
+      ProductResolverIndex productResolverIndex = item.productResolverIndex();
+      bool skipCurrentProcess = item.skipCurrentProcess();
+      if (productResolverIndex != ProductResolverIndexAmbiguous) {
+        iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+      }
+    }
   }
 
   void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) { earlyDeleteHelper_ = iHelper; }
@@ -284,13 +347,14 @@ namespace edm {
   void Worker::beginJob() {
     try {
       convertException::wrap([&]() {
-        ModuleBeginJobSignalSentry cpp(actReg_.get(), description());
+        ModuleBeginJobSignalSentry cpp(actReg_.get(), *description());
         implBeginJob();
       });
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling beginJob for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
+      ost << "Calling beginJob for module " << description()->moduleName() << "/'" << description()->moduleLabel()
+          << "'";
       ex.addContext(ost.str());
       throw;
     }
@@ -299,13 +363,15 @@ namespace edm {
   void Worker::endJob() {
     try {
       convertException::wrap([&]() {
-        ModuleEndJobSignalSentry cpp(actReg_.get(), description());
+        ModuleDescription const* desc = description();
+        assert(desc != nullptr);
+        ModuleEndJobSignalSentry cpp(actReg_.get(), *desc);
         implEndJob();
       });
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling endJob for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
+      ost << "Calling endJob for module " << description()->moduleName() << "/'" << description()->moduleLabel() << "'";
       ex.addContext(ost.str());
       throw;
     }
@@ -328,7 +394,7 @@ namespace edm {
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling beginStream for module " << description().moduleName() << "/'" << description().moduleLabel()
+      ost << "Calling beginStream for module " << description()->moduleName() << "/'" << description()->moduleLabel()
           << "'";
       ex.addContext(ost.str());
       throw;
@@ -352,14 +418,26 @@ namespace edm {
     } catch (cms::Exception& ex) {
       state_ = Exception;
       std::ostringstream ost;
-      ost << "Calling endStream for module " << description().moduleName() << "/'" << description().moduleLabel()
+      ost << "Calling endStream for module " << description()->moduleName() << "/'" << description()->moduleLabel()
           << "'";
       ex.addContext(ost.str());
       throw;
     }
   }
 
-  void Worker::skipOnPath() {
+  void Worker::registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) {
+    try {
+      implRegisterThinnedAssociations(registry, helper);
+    } catch (cms::Exception& ex) {
+      ex.addContext("Calling registerThinnedAssociations() for module " + description()->moduleLabel());
+      throw ex;
+    }
+  }
+
+  void Worker::skipOnPath(EventPrincipal const& iEvent) {
+    if (earlyDeleteHelper_) {
+      earlyDeleteHelper_->pathFinished(iEvent);
+    }
     if (0 == --numberOfPathsLeftToRun_) {
       waitingTasks_.doneWaiting(cached_exception_);
     }
@@ -371,17 +449,15 @@ namespace edm {
     }
   }
 
-  void Worker::runAcquire(EventPrincipal const& ep,
-                          EventSetupImpl const& es,
+  void Worker::runAcquire(EventTransitionInfo const& info,
                           ParentContext const& parentContext,
                           WaitingTaskWithArenaHolder& holder) {
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     try {
-      convertException::wrap([&]() { this->implDoAcquire(ep, es, &moduleCallingContext_, holder); });
+      convertException::wrap([&]() { this->implDoAcquire(info, &moduleCallingContext_, holder); });
     } catch (cms::Exception& ex) {
       exceptionContext(ex, &moduleCallingContext_);
-      TransitionIDValue<EventPrincipal> idValue(ep);
-      if (shouldRethrowException(std::current_exception(), parentContext, true, idValue)) {
+      if (shouldRethrowException(std::current_exception(), parentContext, true)) {
         timesRun_.fetch_add(1, std::memory_order_relaxed);
         throw;
       }
@@ -389,22 +465,21 @@ namespace edm {
   }
 
   void Worker::runAcquireAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
-                                            EventPrincipal const& ep,
-                                            EventSetupImpl const& es,
+                                            EventTransitionInfo const& eventTransitionInfo,
                                             ParentContext const& parentContext,
                                             WaitingTaskWithArenaHolder holder) {
     ranAcquireWithoutException_ = false;
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
       assert(*iEPtr);
-      TransitionIDValue<EventPrincipal> idValue(ep);
-      if (shouldRethrowException(*iEPtr, parentContext, true, idValue)) {
+      if (shouldRethrowException(*iEPtr, parentContext, true)) {
         exceptionPtr = *iEPtr;
       }
       moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
     } else {
-      try {
-        runAcquire(ep, es, parentContext, holder);
+      // Caught exception is propagated via WaitingTaskWithArenaHolder
+      CMS_SA_ALLOW try {
+        runAcquire(eventTransitionInfo, parentContext, holder);
         ranAcquireWithoutException_ = true;
       } catch (...) {
         exceptionPtr = std::current_exception();
@@ -429,20 +504,16 @@ namespace edm {
   }
 
   Worker::HandleExternalWorkExceptionTask::HandleExternalWorkExceptionTask(Worker* worker,
+                                                                           tbb::task_group* group,
                                                                            WaitingTask* runModuleTask,
                                                                            ParentContext const& parentContext)
-      : m_worker(worker), m_runModuleTask(runModuleTask), m_parentContext(parentContext) {}
+      : m_worker(worker), m_runModuleTask(runModuleTask), m_group(group), m_parentContext(parentContext) {}
 
-  tbb::task* Worker::HandleExternalWorkExceptionTask::execute() {
+  void Worker::HandleExternalWorkExceptionTask::execute() {
     auto excptr = exceptionPtr();
+    WaitingTaskHolder holder(*m_group, m_runModuleTask);
     if (excptr) {
-      // increment the ref count so the holder will not spawn it
-      m_runModuleTask->set_ref_count(1);
-      WaitingTaskHolder holder(m_runModuleTask);
       holder.doneWaiting(m_worker->handleExternalWorkException(excptr, m_parentContext));
     }
-    m_runModuleTask->set_ref_count(0);
-    // Depend on TBB Scheduler Bypass to run the next task
-    return m_runModuleTask;
   }
 }  // namespace edm

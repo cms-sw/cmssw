@@ -1,9 +1,9 @@
 #ifndef TkNavigation_SymmetricLayerFinder_H
 #define TkNavigation_SymmetricLayerFinder_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include <vector>
 #include <map>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class DetLayer;
 class BarrelDetLayer;

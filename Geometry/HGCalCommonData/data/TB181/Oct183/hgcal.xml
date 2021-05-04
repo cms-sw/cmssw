@@ -4,7 +4,7 @@
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="rmin"          value="0.0*fm"/>
   <Constant name="rmax"          value="52.0*cm"/>
-  <Constant name="zCaloFront"    value="2500*cm"/>
+  <Constant name="zCaloFront"    value="[cms:zCaloFront]"/>
   <Constant name="rminEE"        value="0.0*fm"/>
   <Constant name="rmaxEE"        value="8.0*cm"/>
   <Constant name="rmaxEEF"       value="9.5*cm"/>
@@ -35,7 +35,7 @@
   <Constant name="thAbsEE"       value="1.2*mm"/>
   <Constant name="thAbsEE48To63" value="0.55*mm"/>
   <Constant name="thAbsEE52To70" value="0.61*mm"/>
-  <Constant name="thAbsEE59To62" value="0.61*mm"/>
+  <Constant name="thAbsEE59To62" value="0.60*mm"/>
   <Constant name="thAbsEE68To74" value="0.71*mm"/>
   <Constant name="thAbsCuEE"     value="1.2*mm"/>
   <Constant name="thAbsHE"       value="1.2*mm"/>

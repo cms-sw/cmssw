@@ -80,11 +80,6 @@ void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMSto
   if (m_dqm_merge and folders.size() > 1) {
     std::string summary_folder = m_dqm_path + "/Summary";
     booker.setCurrentFolder(summary_folder);
-    // drop the summary histograms, if they exist
-    if (getter.get(summary_folder + "/throughput_sourced"))
-      getter.removeElement(summary_folder, "throughput_sourced", true);
-    if (getter.get(summary_folder + "/throughput_retired"))
-      getter.removeElement(summary_folder, "throughput_retired", true);
     // clone the first set of histograms
     auto folder = folders.begin();
     TH1F *sourced =
@@ -106,9 +101,6 @@ void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMSto
     unsigned int nbins = sourced->GetXaxis()->GetNbins();
     double range = sourced->GetXaxis()->GetXmax();
 
-    // drop .../concurrent, if it exists
-    if (getter.get(folder + "/concurrent"))
-      getter.removeElement(folder, "concurrent", true);
     // (re)book and fill .../concurrent
     TH1F *concurrent = booker.book1D("concurrent", "Concurrent events being processed", nbins, 0., range)->getTH1F();
     double sum = 0;
@@ -128,9 +120,6 @@ void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMSto
     avg_max = std::ceil(avg_max + width * 0.2);
     width = avg_max - avg_min;
 
-    // drop .../average_sourced, if it exists
-    if (getter.get(folder + "/average_sourced"))
-      getter.removeElement(folder, "average_sourced", true);
     // define the range for .../average_sourced
     uint64_t first = sourced->FindFirstBinAbove(0.);
     uint64_t last = sourced->FindLastBinAbove(0.);
@@ -140,9 +129,6 @@ void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMSto
     for (unsigned int i = first; i <= last; ++i)
       average->Fill(sourced->GetBinContent(i));
 
-    // drop .../average_retired, if it exists
-    if (getter.get(folder + "/average_retired"))
-      getter.removeElement(folder, "average_retired", true);
     // define the range for .../average_retired
     first = retired->FindFirstBinAbove(0.);
     last = retired->FindLastBinAbove(0.);

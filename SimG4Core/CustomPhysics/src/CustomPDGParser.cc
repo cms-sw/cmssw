@@ -1,11 +1,5 @@
 #include <SimG4Core/CustomPhysics/interface/CustomPDGParser.h>
-//#include<iostream>
 #include <cstdlib>
-
-/*CustomPDGParser::CustomPDGParser(int pdgCode) : m_pdgCode(pdgCode)
-{
-
-}*/
 
 bool CustomPDGParser::s_isRHadron(int pdg) {
   int pdgAbs = abs(pdg);
@@ -39,7 +33,7 @@ bool CustomPDGParser::s_isRGlueball(int pdg) {
 
 bool CustomPDGParser::s_isDphoton(int pdg) {
   int pdgAbs = abs(pdg);
-  return (pdgAbs == 1072000);
+  return (pdgAbs == 1072000) || (pdgAbs == 1023);
 }
 
 bool CustomPDGParser::s_isRMeson(int pdg) {
@@ -62,6 +56,11 @@ bool CustomPDGParser::s_isChargino(int pdg) {
   return (pdgAbs == 1000024);
 }
 
+bool CustomPDGParser::s_isSIMP(int pdg) {
+  int pdgAbs = abs(pdg);
+  return (pdgAbs == 9000006);
+}
+
 double CustomPDGParser::s_charge(int pdg) {
   float charge = 0, sign = 1;
   int pdgAbs = abs(pdg);
@@ -81,6 +80,9 @@ double CustomPDGParser::s_charge(int pdg) {
   }
   if (s_isChargino(pdg)) {
     return sign;
+  }
+  if (s_isSIMP(pdg)) {
+    return 0;
   }
   if (s_isRMeson(pdg)) {
     std::vector<int> quarks = s_containedQuarks(pdg);

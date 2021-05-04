@@ -1,0 +1,10 @@
+<library   file="*.cc" name="L1TrackTriggerPlugins">
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/Records"/>
+<use   name="L1Trigger/L1TTrackMatch"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="DataFormats/L1TrackTrigger"/>
+<use   name="hepmc"/>
+<use   name="root"/>
+<flags   EDM_PLUGIN="1"/>
+</library>

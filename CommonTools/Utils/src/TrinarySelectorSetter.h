@@ -14,7 +14,6 @@
 #include "CommonTools/Utils/src/ComparisonStack.h"
 #include "CommonTools/Utils/src/ExpressionStack.h"
 #include "CommonTools/Utils/src/TrinarySelector.h"
-#include <boost/shared_ptr.hpp>
 
 namespace reco {
   namespace parser {
@@ -24,15 +23,15 @@ namespace reco {
           : selStack_(selStack), cmpStack_(cmpStack), expStack_(expStack) {}
 
       void operator()(const char*, const char*) const {
-        boost::shared_ptr<ExpressionBase> rhs = expStack_.back();
+        std::shared_ptr<ExpressionBase> rhs = expStack_.back();
         expStack_.pop_back();
-        boost::shared_ptr<ExpressionBase> mid = expStack_.back();
+        std::shared_ptr<ExpressionBase> mid = expStack_.back();
         expStack_.pop_back();
-        boost::shared_ptr<ExpressionBase> lhs = expStack_.back();
+        std::shared_ptr<ExpressionBase> lhs = expStack_.back();
         expStack_.pop_back();
-        boost::shared_ptr<ComparisonBase> comp2 = cmpStack_.back();
+        std::shared_ptr<ComparisonBase> comp2 = cmpStack_.back();
         cmpStack_.pop_back();
-        boost::shared_ptr<ComparisonBase> comp1 = cmpStack_.back();
+        std::shared_ptr<ComparisonBase> comp1 = cmpStack_.back();
         cmpStack_.pop_back();
 #ifdef BOOST_SPIRIT_DEBUG
         BOOST_SPIRIT_DEBUG_OUT << "pushing trinary selector" << std::endl;

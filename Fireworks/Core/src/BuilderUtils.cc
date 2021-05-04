@@ -12,6 +12,7 @@
 #include "TEveStraightLineSet.h"
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 
 #include <cmath>
 #include <ctime>

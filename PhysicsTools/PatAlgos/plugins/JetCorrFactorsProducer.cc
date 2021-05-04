@@ -1,6 +1,8 @@
-#include <vector>
-#include <string>
+#include <memory>
+
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -163,10 +165,12 @@ float JetCorrFactorsProducer::evaluate(edm::View<reco::Jet>::const_iterator& jet
   if (patjet) {
     corrector->setJetEta(patjet->correctedP4(0).eta());
     corrector->setJetPt(patjet->correctedP4(0).pt());
+    corrector->setJetPhi(patjet->correctedP4(0).phi());
     corrector->setJetE(patjet->correctedP4(0).energy());
   } else {
     corrector->setJetEta(jet->eta());
     corrector->setJetPt(jet->pt());
+    corrector->setJetPhi(jet->phi());
     corrector->setJetE(jet->energy());
   }
   if (emf_ && dynamic_cast<const reco::CaloJet*>(&*jet)) {
@@ -199,11 +203,11 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
     setup.get<JetCorrectionsRecord>().get(payload(), parameters);
     // initialize jet correctors
     for (FlavorCorrLevelMap::const_iterator flavor = levels_.begin(); flavor != levels_.end(); ++flavor) {
-      correctors_[flavor->first].reset(new FactorizedJetCorrector(params(*parameters, flavor->second)));
+      correctors_[flavor->first] = std::make_unique<FactorizedJetCorrector>(params(*parameters, flavor->second));
     }
     // initialize extra jet corrector for jpt if needed
     if (!extraJPTOffset_.empty()) {
-      extraJPTOffsetCorrector_.reset(new FactorizedJetCorrector(params(*parameters, extraJPTOffset_)));
+      extraJPTOffsetCorrector_ = std::make_unique<FactorizedJetCorrector>(params(*parameters, extraJPTOffset_));
     }
     cacheId_ = rec.cacheIdentifier();
   }
@@ -272,7 +276,7 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
       // factors, which might be flavor dependent or not. In the default configuration
       // the CorrectionFactor will look like this: 'Uncorrected': 1 ; 'L2Relative': x ;
       // 'L3Absolute': x ; 'L5Flavor': v, x, y, z ; 'L7Parton': v, x, y, z
-      jec.push_back(std::make_pair((corrLevel->second[idx]).substr(0, (corrLevel->second[idx]).find("_")), factors));
+      jec.push_back(std::make_pair((corrLevel->second[idx]).substr(0, (corrLevel->second[idx]).find('_')), factors));
     }
     // create the actual object with the scale factors we want the valuemap to refer to
     // label_ corresponds to the label of the module instance

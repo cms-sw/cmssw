@@ -9,7 +9,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -20,12 +19,9 @@
 #include "DQM/TrackingMonitor/interface/VertexMonitor.h"
 #include "DQM/TrackingMonitor/interface/TrackingMonitor.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -106,17 +102,20 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
       doTrackerSpecific_(iConfig.getParameter<bool>("doTrackerSpecific")),
       doLumiAnalysis(iConfig.getParameter<bool>("doLumiAnalysis")),
       doProfilesVsLS_(iConfig.getParameter<bool>("doProfilesVsLS")),
+      doAllSeedPlots(iConfig.getParameter<bool>("doSeedParameterHistos")),
       doAllPlots(iConfig.getParameter<bool>("doAllPlots")),
       doGeneralPropertiesPlots_(iConfig.getParameter<bool>("doGeneralPropertiesPlots")),
       doHitPropertiesPlots_(iConfig.getParameter<bool>("doHitPropertiesPlots")),
+      doTkCandPlots(iConfig.getParameter<bool>("doTrackCandHistos")),
       doPUmonitoring_(iConfig.getParameter<bool>("doPUmonitoring")),
       genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this)),
       numSelection_(iConfig.getParameter<std::string>("numCut")),
       denSelection_(iConfig.getParameter<std::string>("denCut")),
-      pvNDOF_(iConfig.getParameter<int>("pvNDOF")) {
+      pvNDOF_(iConfig.getParameter<int>("pvNDOF")),
+      forceSCAL_(iConfig.getParameter<bool>("forceSCAL")) {
   edm::ConsumesCollector c{consumesCollector()};
-  theTrackAnalyzer = new TrackAnalyzer(iConfig, c);
+  theTrackAnalyzer = new tadqm::TrackAnalyzer(iConfig, c);
 
   // input tags for collections from the configuration
   bsSrc_ = iConfig.getParameter<edm::InputTag>("beamSpot");
@@ -125,6 +124,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   pvSrcToken_ = mayConsume<reco::VertexCollection>(pvSrc_);
 
   lumiscalersToken_ = consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("scal"));
+  metaDataToken_ = consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("metadata"));
 
   edm::InputTag alltrackProducer = iConfig.getParameter<edm::InputTag>("allTrackProducer");
   edm::InputTag trackProducer = iConfig.getParameter<edm::InputTag>("TrackProducer");
@@ -174,6 +174,20 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   edm::InputTag pixelClusterInputTag_ = iConfig.getParameter<edm::InputTag>("pixelCluster");
   stripClustersToken_ = mayConsume<edmNew::DetSetVector<SiStripCluster> >(stripClusterInputTag_);
   pixelClustersToken_ = mayConsume<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterInputTag_);
+
+  runTrackBuildingAnalyzerForSeed =
+      (doAllSeedPlots || iConfig.getParameter<bool>("doSeedPTHisto") || iConfig.getParameter<bool>("doSeedETAHisto") ||
+       iConfig.getParameter<bool>("doSeedPHIHisto") || iConfig.getParameter<bool>("doSeedPHIVsETAHisto") ||
+       iConfig.getParameter<bool>("doSeedThetaHisto") || iConfig.getParameter<bool>("doSeedQHisto") ||
+       iConfig.getParameter<bool>("doSeedDxyHisto") || iConfig.getParameter<bool>("doSeedDzHisto") ||
+       iConfig.getParameter<bool>("doSeedNRecHitsHisto") || iConfig.getParameter<bool>("doSeedNVsPhiProf") ||
+       iConfig.getParameter<bool>("doSeedNVsEtaProf"));
+
+  if (doTkCandPlots || doAllSeedPlots || runTrackBuildingAnalyzerForSeed) {
+    magneticFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+    transientTrackingRecHitBuilderToken_ =
+        esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", builderName));
+  }
 
   doFractionPlot_ = true;
   if (alltrackProducer.label() == trackProducer.label())
@@ -256,6 +270,10 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   double TKNoSeedMin = conf->getParameter<double>("TkSeedSizeMin");
   double TKNoSeedMax = conf->getParameter<double>("TkSeedSizeMax");
 
+  //int RecHitBin = conf->getParameter<int>("RecHitBin");
+  double RecHitMin = conf->getParameter<double>("RecHitMin");
+  double RecHitMax = conf->getParameter<double>("RecHitMax");
+
   int MeanHitBin = conf->getParameter<int>("MeanHitBin");
   double MeanHitMin = conf->getParameter<double>("MeanHitMin");
   double MeanHitMax = conf->getParameter<double>("MeanHitMax");
@@ -285,19 +303,19 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
     histname = "NumberOfTracks_" + CategoryName;
     // MODIFY by Mia in order to cope w/ high multiplicity
-    NumberOfTracks = ibooker.book1D(histname, histname, 3 * TKNoBin, TKNoMin, (TKNoMax + 0.5) * 3. - 0.5);
+    NumberOfTracks = ibooker.book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
     NumberOfTracks->setAxisTitle("Number of Tracks per Event", 1);
     NumberOfTracks->setAxisTitle("Number of Events", 2);
 
     if (Folder == "Tr") {
       histname = "NumberOfTracks_PUvtx_" + CategoryName;
-      NumberOfTracks_PUvtx = ibooker.book1D(histname, histname, 3 * TKNoBin, TKNoMin, (TKNoMax + 0.5) * 3. - 0.5);
+      NumberOfTracks_PUvtx = ibooker.book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
       NumberOfTracks_PUvtx->setAxisTitle("Number of Tracks per Event (matched a PU vertex)", 1);
       NumberOfTracks_PUvtx->setAxisTitle("Number of Events", 2);
 
       histname = "NumberofTracks_Hardvtx_" + CategoryName;
       NumberofTracks_Hardvtx =
-          ibooker.book1D(histname, histname, TKNoBin / 10, TKNoMin, (TKNoMax / 10 + 0.5) * 3. - 0.5);
+          ibooker.book1D(histname, histname, TKNoBin / 10, TKNoMin, ((TKNoMax - TKNoMin) / 10) - 0.5);
       NumberofTracks_Hardvtx->setAxisTitle("Number of Tracks per Event (matched main vertex)", 1);
       NumberofTracks_Hardvtx->setAxisTitle("Number of Events", 2);
 
@@ -330,9 +348,10 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   if (doLumiAnalysis) {
     // add by Mia in order to deal with LS transitions
     ibooker.setCurrentFolder(MEFolderName + "/LSanalysis");
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
 
     histname = "NumberOfTracks_lumiFlag_" + CategoryName;
-    NumberOfTracks_lumiFlag = ibooker.book1D(histname, histname, 3 * TKNoBin, TKNoMin, (TKNoMax + 0.5) * 3. - 0.5);
+    NumberOfTracks_lumiFlag = ibooker.book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
     NumberOfTracks_lumiFlag->setAxisTitle("Number of Tracks per Event", 1);
     NumberOfTracks_lumiFlag->setAxisTitle("Number of Events", 2);
   }
@@ -344,13 +363,14 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     ibooker.setCurrentFolder(MEFolderName + "/GeneralProperties");
 
     histname = "NumberOfTracksVsLS_" + CategoryName;
-    NumberOfTracksVsLS = ibooker.bookProfile(histname, histname, LSBin, LSMin, LSMax, TKNoMin, TKNoMax * 3., "");
+    NumberOfTracksVsLS = ibooker.bookProfile(histname, histname, LSBin, LSMin, LSMax, TKNoMin, TKNoMax, "");
     NumberOfTracksVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
     NumberOfTracksVsLS->setAxisTitle("#Lumi section", 1);
     NumberOfTracksVsLS->setAxisTitle("Number of  Tracks", 2);
 
     histname = "NumberOfRecHitsPerTrackVsLS_" + CategoryName;
-    NumberOfRecHitsPerTrackVsLS = ibooker.bookProfile(histname, histname, LSBin, LSMin, LSMax, 0., 200., "");
+    NumberOfRecHitsPerTrackVsLS =
+        ibooker.bookProfile(histname, histname, LSBin, LSMin, LSMax, RecHitMin, RecHitMax * 5, "");
     NumberOfRecHitsPerTrackVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
     NumberOfRecHitsPerTrackVsLS->setAxisTitle("#Lumi section", 1);
     NumberOfRecHitsPerTrackVsLS->setAxisTitle("Mean number of Valid RecHits per track", 2);
@@ -361,8 +381,10 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberEventsOfVsLS->setAxisTitle("#Lumi section", 1);
     NumberEventsOfVsLS->setAxisTitle("Number of events", 2);
 
-    double GoodPVtxMin = conf->getParameter<double>("GoodPVtxMin");
-    double GoodPVtxMax = conf->getParameter<double>("GoodPVtxMax");
+    edm::ParameterSet ParametersGoodPVtx = conf->getParameter<edm::ParameterSet>("GoodPVtx");
+
+    double GoodPVtxMin = ParametersGoodPVtx.getParameter<double>("GoodPVtxMin");
+    double GoodPVtxMax = ParametersGoodPVtx.getParameter<double>("GoodPVtxMax");
 
     histname = "NumberOfGoodPVtxVsLS_" + CategoryName;
     NumberOfGoodPVtxVsLS =
@@ -402,7 +424,8 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
       NumberOfTracksVsBX->setAxisTitle("Number of  Tracks", 2);
 
       histname = "NumberOfRecHitsPerTrackVsBX_" + CategoryName;
-      NumberOfRecHitsPerTrackVsBX = ibooker.bookProfile(histname, histname, BXBin, BXMin, BXMax, 0., 200., "");
+      NumberOfRecHitsPerTrackVsBX =
+          ibooker.bookProfile(histname, histname, BXBin, BXMin, BXMax, RecHitMin, RecHitMax * 5, "");
       NumberOfRecHitsPerTrackVsBX->setAxisTitle("BX", 1);
       NumberOfRecHitsPerTrackVsBX->setAxisTitle("Mean number of Valid RecHits per track", 2);
 
@@ -503,7 +526,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberEventsOfVsLUMI->setAxisTitle("Number of events", 2);
 
     histname = "NumberOfTracksVsLUMI";
-    NumberOfTracksVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, 0., 2000., "");
+    NumberOfTracksVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, TKNoMin, TKNoMax * 3, "");
     NumberOfTracksVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
     NumberOfTracksVsLUMI->setAxisTitle("Mean number of vertices", 2);
 
@@ -515,7 +538,8 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     }
 
     histname = "NumberOfRecHitsPerTrackVsLUMI";
-    NumberOfRecHitsPerTrackVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, 0., 200., "");
+    NumberOfRecHitsPerTrackVsLUMI =
+        ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, RecHitMin, RecHitMax * 5, "");
     NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
     NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("Mean number of vertices", 2);
 
@@ -565,26 +589,21 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfTracksVsBXlumi->setAxisTitle("Mean number of Tracks", 2);
   }
 
-  theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  if (doLumiAnalysis) {
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+    theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  } else {
+    theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  }
 
   // book the Seed Property histograms
   // ---------------------------------------------------------------------------------//
 
   ibooker.setCurrentFolder(MEFolderName + "/TrackBuilding");
 
-  doAllSeedPlots = conf->getParameter<bool>("doSeedParameterHistos");
   doSeedNumberPlot = conf->getParameter<bool>("doSeedNumberHisto");
   doSeedLumiAnalysis_ = conf->getParameter<bool>("doSeedLumiAnalysis");
   doSeedVsClusterPlot = conf->getParameter<bool>("doSeedVsClusterHisto");
-  //    if (doAllPlots) doAllSeedPlots=true;
-
-  runTrackBuildingAnalyzerForSeed =
-      (doAllSeedPlots || conf->getParameter<bool>("doSeedPTHisto") || conf->getParameter<bool>("doSeedETAHisto") ||
-       conf->getParameter<bool>("doSeedPHIHisto") || conf->getParameter<bool>("doSeedPHIVsETAHisto") ||
-       conf->getParameter<bool>("doSeedThetaHisto") || conf->getParameter<bool>("doSeedQHisto") ||
-       conf->getParameter<bool>("doSeedDxyHisto") || conf->getParameter<bool>("doSeedDzHisto") ||
-       conf->getParameter<bool>("doSeedNRecHitsHisto") || conf->getParameter<bool>("doSeedNVsPhiProf") ||
-       conf->getParameter<bool>("doSeedNVsEtaProf"));
 
   edm::InputTag seedProducer = conf->getParameter<edm::InputTag>("SeedProducer");
 
@@ -597,6 +616,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
     if (doSeedLumiAnalysis_) {
       ibooker.setCurrentFolder(MEFolderName + "/LSanalysis");
+      auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
       histname = "NumberOfSeeds_lumiFlag_" + seedProducer.label() + "_" + CategoryName;
       NumberOfSeeds_lumiFlag = ibooker.book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
       NumberOfSeeds_lumiFlag->setAxisTitle("Number of Seeds per Event", 1);
@@ -646,9 +666,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfTrackingRegions->setAxisTitle("Number of Events", 2);
   }
 
-  doTkCandPlots = conf->getParameter<bool>("doTrackCandHistos");
-  //    if (doAllPlots) doTkCandPlots=true;
-
   if (doTkCandPlots) {
     ibooker.setCurrentFolder(MEFolderName + "/TrackBuilding");
 
@@ -667,17 +684,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
   theTrackBuildingAnalyzer->initHisto(ibooker, *conf);
 
-  if (doLumiAnalysis) {
-    if (NumberOfTracks_lumiFlag)
-      NumberOfTracks_lumiFlag->setLumiFlag();
-    theTrackAnalyzer->setLumiFlag();
-  }
-
-  if (doAllSeedPlots || doSeedNumberPlot) {
-    if (doSeedLumiAnalysis_)
-      NumberOfSeeds_lumiFlag->setLumiFlag();
-  }
-
   if (doTrackerSpecific_ || doAllPlots) {
     ClusterLabels = conf->getParameter<std::vector<std::string> >("ClusterLabels");
 
@@ -692,9 +698,10 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     double NClusPxMin = conf->getParameter<double>("NClusPxMin");
     double NClusPxMax = conf->getParameter<double>("NClusPxMax");
 
-    int NTrk2DBin = conf->getParameter<int>("NTrk2DBin");
-    double NTrk2DMin = conf->getParameter<double>("NTrk2DMin");
-    double NTrk2DMax = conf->getParameter<double>("NTrk2DMax");
+    edm::ParameterSet ParametersNTrk2D = conf->getParameter<edm::ParameterSet>("NTrk2D");
+    int NTrk2DBin = ParametersNTrk2D.getParameter<int>("NTrk2DBin");
+    double NTrk2DMin = ParametersNTrk2D.getParameter<double>("NTrk2DMin");
+    double NTrk2DMax = ParametersNTrk2D.getParameter<double>("NTrk2DMax");
 
     setMaxMinBin(
         histoMin, histoMax, histoBin, NClusStrMin, NClusStrMax, NClusStrBin, NClusPxMin, NClusPxMax, NClusPxBin);
@@ -729,20 +736,6 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 }
 */
 
-// - BeginLumi
-// ---------------------------------------------------------------------------------//
-void TrackingMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eSetup) {
-  if (doLumiAnalysis) {
-    if (NumberOfTracks_lumiFlag)
-      NumberOfTracks_lumiFlag->Reset();
-    theTrackAnalyzer->doReset();
-  }
-  if (doAllSeedPlots || doSeedNumberPlot) {
-    if (doSeedLumiAnalysis_)
-      NumberOfSeeds_lumiFlag->Reset();
-  }
-}
-
 // -- Analyse
 // ---------------------------------------------------------------------------------//
 void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -753,13 +746,17 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   MEFolderName = conf->getParameter<std::string>("FolderName");
   std::string Folder = MEFolderName.substr(0, 2);
   float lumi = -1.;
-  edm::Handle<LumiScalersCollection> lumiScalers;
-  iEvent.getByToken(lumiscalersToken_, lumiScalers);
-  if (lumiScalers.isValid() && !lumiScalers->empty()) {
-    LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
-    lumi = scalit->instantLumi();
-  } else
-    lumi = -1.;
+  if (forceSCAL_) {
+    edm::Handle<LumiScalersCollection> lumiScalers = iEvent.getHandle(lumiscalersToken_);
+    if (lumiScalers.isValid() && !lumiScalers->empty()) {
+      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      lumi = scalit->instantLumi();
+    }
+  } else {
+    edm::Handle<OnlineLuminosityRecord> metaData = iEvent.getHandle(metaDataToken_);
+    if (metaData.isValid())
+      lumi = metaData->instLumi();
+  }
 
   if (doPlotsVsLUMI_ || doAllPlots)
     NumberEventsOfVsLUMI->Fill(lumi);
@@ -773,12 +770,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     NumberEventsOfVsBX->Fill(bx);
 
   // get the track collection
-  edm::Handle<edm::View<reco::Track> > trackHandle;
-  iEvent.getByToken(trackToken_, trackHandle);
+  edm::Handle<edm::View<reco::Track> > trackHandle = iEvent.getHandle(trackToken_);
 
   int numberOfTracks_den = 0;
-  edm::Handle<edm::View<reco::Track> > allTrackHandle;
-  iEvent.getByToken(allTrackToken_, allTrackHandle);
+  edm::Handle<edm::View<reco::Track> > allTrackHandle = iEvent.getHandle(allTrackToken_);
   if (allTrackHandle.isValid()) {
     for (edm::View<reco::Track>::const_iterator track = allTrackHandle->begin(); track != allTrackHandle->end();
          ++track) {
@@ -787,8 +782,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     }
   }
 
-  edm::Handle<reco::VertexCollection> pvHandle;
-  iEvent.getByToken(pvSrcToken_, pvHandle);
+  edm::Handle<reco::VertexCollection> pvHandle = iEvent.getHandle(pvSrcToken_);
   reco::Vertex const* pv0 = nullptr;
   if (pvHandle.isValid()) {
     pv0 = &pvHandle->front();
@@ -892,30 +886,26 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     // fill the TrackCandidate info
     if (doTkCandPlots) {
       // magnetic field
-      edm::ESHandle<MagneticField> theMF;
-      iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+      MagneticField const& theMF = iSetup.getData(magneticFieldToken_);
 
       // get the candidate collection
-      edm::Handle<TrackCandidateCollection> theTCHandle;
-      iEvent.getByToken(trackCandidateToken_, theTCHandle);
+      edm::Handle<TrackCandidateCollection> theTCHandle = iEvent.getHandle(trackCandidateToken_);
       const TrackCandidateCollection& theTCCollection = *theTCHandle;
 
       if (theTCHandle.isValid()) {
         // get the beam spot
-        edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-        iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle);
+        edm::Handle<reco::BeamSpot> recoBeamSpotHandle = iEvent.getHandle(bsSrcToken_);
         const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
         NumberOfTrackCandidates->Fill(theTCCollection.size());
 
         // get the seed collection
-        edm::Handle<edm::View<TrajectorySeed> > seedHandle;
-        iEvent.getByToken(seedToken_, seedHandle);
+        edm::Handle<edm::View<TrajectorySeed> > seedHandle = iEvent.getHandle(seedToken_);
         const edm::View<TrajectorySeed>& seedCollection = *seedHandle;
         if (seedHandle.isValid() && !seedCollection.empty())
           FractionCandidatesOverSeeds->Fill(double(theTCCollection.size()) / double(seedCollection.size()));
 
-        iSetup.get<TransientRecHitRecord>().get(builderName, theTTRHBuilder);
+        TransientTrackingRecHitBuilder const& theTTRHBuilder = iSetup.getData(transientTrackingRecHitBuilderToken_);
         for (TrackCandidateCollection::const_iterator cand = theTCCollection.begin(); cand != theTCCollection.end();
              ++cand) {
           theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *cand, bs, theMF, theTTRHBuilder);
@@ -929,15 +919,13 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         std::vector<const MVACollection*> mvaCollections;
         std::vector<const QualityMaskCollection*> qualityMaskCollections;
 
-        edm::Handle<edm::View<reco::Track> > htracks;
-        iEvent.getByToken(mvaTrackToken_, htracks);
+        edm::Handle<edm::View<reco::Track> > htracks = iEvent.getHandle(mvaTrackToken_);
 
         edm::Handle<MVACollection> hmva;
         edm::Handle<QualityMaskCollection> hqual;
         for (const auto& tokenTpl : mvaQualityTokens_) {
-          iEvent.getByToken(std::get<0>(tokenTpl), hmva);
-          iEvent.getByToken(std::get<1>(tokenTpl), hqual);
-
+          hmva = iEvent.getHandle(std::get<0>(tokenTpl));
+          hqual = iEvent.getHandle(std::get<1>(tokenTpl));
           mvaCollections.push_back(hmva.product());
           qualityMaskCollections.push_back(hqual.product());
         }
@@ -949,8 +937,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     if (doAllSeedPlots || doSeedNumberPlot || doSeedVsClusterPlot || runTrackBuildingAnalyzerForSeed) {
       // get the seed collection
-      edm::Handle<edm::View<TrajectorySeed> > seedHandle;
-      iEvent.getByToken(seedToken_, seedHandle);
+      edm::Handle<edm::View<TrajectorySeed> > seedHandle = iEvent.getHandle(seedToken_);
 
       // fill the seed info
       if (seedHandle.isValid()) {
@@ -971,22 +958,19 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
 
         if (doAllSeedPlots || runTrackBuildingAnalyzerForSeed) {
-          edm::Handle<std::vector<SeedStopInfo> > stopHandle;
-          iEvent.getByToken(seedStopInfoToken_, stopHandle);
+          edm::Handle<std::vector<SeedStopInfo> > stopHandle = iEvent.getHandle(seedStopInfoToken_);
           const auto& seedStopInfo = *stopHandle;
 
           if (seedStopInfo.size() == seedCollection.size()) {
             //here duplication of mag field and be informations is needed to allow seed and track cand histos to be independent
             // magnetic field
-            edm::ESHandle<MagneticField> theMF;
-            iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+            MagneticField const& theMF = iSetup.getData(magneticFieldToken_);
 
             // get the beam spot
-            edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-            iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle);
+            edm::Handle<reco::BeamSpot> recoBeamSpotHandle = iEvent.getHandle(bsSrcToken_);
             const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
-            iSetup.get<TransientRecHitRecord>().get(builderName, theTTRHBuilder);
+            TransientTrackingRecHitBuilder const& theTTRHBuilder = iSetup.getData(transientTrackingRecHitBuilderToken_);
             for (size_t i = 0; i < seedCollection.size(); ++i) {
               theTrackBuildingAnalyzer->analyze(
                   iEvent, iSetup, seedCollection[i], seedStopInfo[i], bs, theMF, theTTRHBuilder);
@@ -1007,15 +991,13 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     // plots for tracking regions
     if (doRegionPlots) {
       if (!regionToken_.isUninitialized()) {
-        edm::Handle<edm::OwnVector<TrackingRegion> > hregions;
-        iEvent.getByToken(regionToken_, hregions);
+        edm::Handle<edm::OwnVector<TrackingRegion> > hregions = iEvent.getHandle(regionToken_);
         const auto& regions = *hregions;
         NumberOfTrackingRegions->Fill(regions.size());
 
         theTrackBuildingAnalyzer->analyze(regions);
       } else if (!regionLayerSetsToken_.isUninitialized()) {
-        edm::Handle<TrackingRegionsSeedingLayerSets> hregions;
-        iEvent.getByToken(regionLayerSetsToken_, hregions);
+        edm::Handle<TrackingRegionsSeedingLayerSets> hregions = iEvent.getHandle(regionLayerSetsToken_);
         const auto& regions = *hregions;
         NumberOfTrackingRegions->Fill(regions.regionsSize());
 
@@ -1023,8 +1005,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
 
       if (doRegionCandidatePlots) {
-        edm::Handle<reco::CandidateView> hcandidates;
-        iEvent.getByToken(regionCandidateToken_, hcandidates);
+        edm::Handle<reco::CandidateView> hcandidates = iEvent.getHandle(regionCandidateToken_);
         theTrackBuildingAnalyzer->analyze(*hcandidates);
       }
     }
@@ -1118,8 +1099,6 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   }  // trackHandle is valid
 }
 
-void TrackingMonitor::endRun(const edm::Run&, const edm::EventSetup&) {}
-
 void TrackingMonitor::setMaxMinBin(std::vector<double>& arrayMin,
                                    std::vector<double>& arrayMax,
                                    std::vector<int>& arrayBin,
@@ -1160,10 +1139,8 @@ void TrackingMonitor::setNclus(const edm::Event& iEvent, std::vector<int>& array
   int ncluster_pix = -1;
   int ncluster_strip = -1;
 
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > strip_clusters;
-  iEvent.getByToken(stripClustersToken_, strip_clusters);
-  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixel_clusters;
-  iEvent.getByToken(pixelClustersToken_, pixel_clusters);
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > strip_clusters = iEvent.getHandle(stripClustersToken_);
+  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixel_clusters = iEvent.getHandle(pixelClustersToken_);
 
   if (strip_clusters.isValid() && pixel_clusters.isValid()) {
     ncluster_pix = (*pixel_clusters).dataSize();

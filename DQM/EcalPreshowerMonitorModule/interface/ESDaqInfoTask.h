@@ -35,15 +35,10 @@ protected:
   /// Reset
   void reset(void);
 
-  /// Cleanup
-  void cleanup(void);
-
 private:
   DQMStore* dqmStore_;
 
   std::string prefixME_;
-
-  bool enableCleanup_;
 
   bool mergeRuns_;
 

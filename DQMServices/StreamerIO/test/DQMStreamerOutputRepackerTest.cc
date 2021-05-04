@@ -1,49 +1,46 @@
-#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
-
-#include <zlib.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/format.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-
 #include <iomanip>
+#include <filesystem>
 #include <memory>
 #include <sstream>
+
+#include <zlib.h>
+#include <fmt/printf.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
-
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
+#include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
 
 namespace dqmservices {
 
   class DQMStreamerOutputRepackerTest : public edm::StreamerOutputModuleBase {
   public:
     explicit DQMStreamerOutputRepackerTest(edm::ParameterSet const& ps);
-    virtual ~DQMStreamerOutputRepackerTest();
+    ~DQMStreamerOutputRepackerTest() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void start() override;
-    virtual void stop() override;
-    virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
-    virtual void doOutputEvent(EventMsgBuilder const& msg) override;
+    void start() override;
+    void stop() override;
+    void doOutputHeader(InitMsgBuilder const& init_message) override;
+    void doOutputEvent(EventMsgBuilder const& msg) override;
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override{};
-    virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override{};
+    void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override{};
+    void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override{};
 
   private:
     void openFile_(uint32_t run, uint32_t lumi);
@@ -84,12 +81,12 @@ namespace dqmservices {
 
     eventsProcessedFile_ = 0;
 
-    currentFileBase_ = str(boost::format("run%06d_ls%04d_stream%s_local") % run % lumi % streamLabel_);
+    currentFileBase_ = fmt::sprintf("run%06d_ls%04d_stream%s_local", run, lumi, streamLabel_);
 
-    boost::filesystem::path p = outputPath_;
-    p /= str(boost::format("run%06d") % run);
+    std::filesystem::path p = outputPath_;
+    p /= fmt::sprintf("run%06d", run);
 
-    boost::filesystem::create_directories(p);
+    std::filesystem::create_directories(p);
 
     currentFilePath_ = (p / currentFileBase_).string() + ".dat";
     currentJsonPath_ = (p / currentFileBase_).string() + ".jsn";
@@ -110,7 +107,7 @@ namespace dqmservices {
 
   void DQMStreamerOutputRepackerTest::closeFile() {
     edm::LogAbsolute("DQMStreamerOutputRepackerTest") << "Writing json: " << currentJsonPath_;
-    size_t fsize = boost::filesystem::file_size(currentFilePath_);
+    size_t fsize = std::filesystem::file_size(currentFilePath_);
 
     using namespace boost::property_tree;
     ptree pt;

@@ -1,56 +1,109 @@
+//
+// Package:         RecoEgamma/ElectronTrackSeed
+// Class:           ElectronSeedAnalyzer
+//
 
-// user include files
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoEgamma/Examples/plugins/ElectronSeedAnalyzer.h"
-
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+//
+// Original Author:  Ursula Berthon, Claude Charlot
+//         Created:  Mon Mar 27 13:22:06 CEST 2006
+//
+//
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
+
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/SimpleVector.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-#include <iostream>
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH1I.h"
 #include "TTree.h"
+
+#include <iostream>
+
+class ElectronSeedAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit ElectronSeedAnalyzer(const edm::ParameterSet &conf);
+  ~ElectronSeedAnalyzer() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginJob() override;
+  void endJob() override;
+
+private:
+  TrajectoryStateTransform transformer_;
+
+  TFile *histfile_;
+  TTree *tree_;
+  float mcEnergy[10], mcEta[10], mcPhi[10], mcPt[10], mcQ[10];
+  float superclusterEnergy[10], superclusterEta[10], superclusterPhi[10], superclusterEt[10];
+  float seedMomentum[10], seedEta[10], seedPhi[10], seedPt[10], seedQ[10];
+  int seedSubdet1[10], seedSubdet2[10];
+  int seedLayer1[10], seedLayer2[10];
+  int seedSide1[10], seedSide2[10];
+  float seedDphi1[10], seedDrz1[10], seedDphi2[10], seedDrz2[10];
+  float seedPhi1[10], seedRz1[10], seedPhi2[10], seedRz2[10];
+  TH1F *histeMC_;
+  TH1F *histeMCmatched_;
+  TH1F *histecaldriveneMCmatched_;
+  TH1F *histtrackerdriveneMCmatched_;
+  TH1F *histp_;
+  TH1F *histeclu_;
+  TH1F *histpt_;
+  TH1F *histptMC_;
+  TH1F *histptMCmatched_;
+  TH1F *histecaldrivenptMCmatched_;
+  TH1F *histtrackerdrivenptMCmatched_;
+  TH1F *histetclu_;
+  TH1F *histeffpt_;
+  TH1F *histeta_;
+  TH1F *histetaMC_;
+  TH1F *histetaMCmatched_;
+  TH1F *histecaldrivenetaMCmatched_;
+  TH1F *histtrackerdrivenetaMCmatched_;
+  TH1F *histetaclu_;
+  TH1F *histeffeta_;
+  TH1F *histq_;
+  TH1F *histeoverp_;
+  TH1I *histnrseeds_;
+  TH1I *histnbseeds_;
+  TH1I *histnbclus_;
+
+  edm::InputTag inputCollection_;
+  edm::InputTag beamSpot_;
+  //  std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_;
+  //  std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ElectronSeedAnalyzer);
 
 using namespace std;
 using namespace reco;
@@ -191,11 +244,6 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
-  // rereads the seeds for test purposes
-  typedef edm::OwnVector<TrackingRecHit> recHitContainer;
-  typedef recHitContainer::const_iterator const_iterator;
-  typedef std::pair<const_iterator, const_iterator> range;
-
   // get beam spot
   edm::Handle<reco::BeamSpot> theBeamSpot;
   e.getByLabel(beamSpot_, theBeamSpot);
@@ -217,12 +265,12 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
 
   for (ElectronSeedCollection::const_iterator MyS = (*elSeeds).begin(); MyS != (*elSeeds).end(); ++MyS) {
     LogDebug("") << "\nSeed nr " << is << ": ";
-    range r = (*MyS).recHits();
+    const TrajectorySeed::RecHitRange r = MyS->recHits();
     LogDebug("") << " Number of RecHits= " << (*MyS).nHits();
     const GeomDet *det1 = nullptr;
     const GeomDet *det2 = nullptr;
 
-    TrajectorySeed::const_iterator it = r.first;
+    auto it = r.begin();
     DetId id1 = (*it).geographicalId();
     det1 = pDD->idToDet(id1);
     LogDebug("") << " First hit local x,y,z " << (*it).localPosition() << " det " << id1.det() << " subdet "
@@ -241,8 +289,9 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
 
     // state on last det
     const GeomDet *det = nullptr;
-    for (TrackingRecHitCollection::const_iterator rhits = r.first; rhits != r.second; rhits++)
-      det = pDD->idToDet(((*rhits)).geographicalId());
+    for (auto const &recHit : r) {
+      det = pDD->idToDet(recHit.geographicalId());
+    }
     TrajectoryStateOnSurface t =
         trajectoryStateTransform::transientState((*MyS).startingState(), &(det->surface()), &(*theMagField));
 
@@ -272,7 +321,7 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
     GlobalPoint vprim(theBeamSpot->position().x(), theBeamSpot->position().y(), theBeamSpot->position().z());
     float energy = theClus->energy();
 
-    FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, xmeas, vprim, energy, charge);
+    auto fts = trackingTools::ftsFromVertexToPoint(*theMagField, xmeas, vprim, energy, charge);
     //std::cout << "[PixelHitMatcher::compatibleSeeds] fts position, momentum " <<
     // fts.parameters().position() << " " << fts.parameters().momentum() << std::endl;
 
@@ -283,7 +332,7 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
     // TrajectorySeed::range r=(*seeds)[i].recHits();
 
     // first Hit
-    it = r.first;
+    it = r.begin();
     DetId id = (*it).geographicalId();
     const GeomDet *geomdet = pDD->idToDet((*it).geographicalId());
     LocalPoint lp = (*it).localPosition();
@@ -330,7 +379,7 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
 
       GlobalPoint vertexPred(vprim.x(), vprim.y(), zVertexPred);
 
-      FreeTrajectoryState fts2 = FTSFromVertexToPointFactory::get(*theMagField, hitPos, vertexPred, energy, charge);
+      auto fts2 = trackingTools::ftsFromVertexToPoint(*theMagField, hitPos, vertexPred, energy, charge);
       tsos2 = prop2ndLayer->propagate(fts2, geomdet2->surface());
 
       if (tsos2.isValid()) {
@@ -454,10 +503,10 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
           reco::ElectronSeed bestElectronSeed;
           for (ElectronSeedCollection::const_iterator gsfIter = (*elSeeds).begin(); gsfIter != (*elSeeds).end();
                ++gsfIter) {
-            range r = gsfIter->recHits();
             const GeomDet *det = nullptr;
-            for (TrackingRecHitCollection::const_iterator rhits = r.first; rhits != r.second; rhits++)
-              det = pDD->idToDet(((*rhits)).geographicalId());
+            for (auto const &recHit : gsfIter->recHits()) {
+              det = pDD->idToDet(recHit.geographicalId());
+            }
             TrajectoryStateOnSurface t =
                 trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
 
@@ -503,10 +552,10 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
           // find best matched seed
           for (ElectronSeedCollection::const_iterator gsfIter = (*elSeeds).begin(); gsfIter != (*elSeeds).end();
                ++gsfIter) {
-            range r = gsfIter->recHits();
             const GeomDet *det = nullptr;
-            for (TrackingRecHitCollection::const_iterator rhits = r.first; rhits != r.second; rhits++)
-              det = pDD->idToDet(((*rhits)).geographicalId());
+            for (auto const &recHit : gsfIter->recHits()) {
+              det = pDD->idToDet(recHit.geographicalId());
+            }
             TrajectoryStateOnSurface t =
                 trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
 
@@ -547,10 +596,10 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
           // find best matched seed
           for (ElectronSeedCollection::const_iterator gsfIter = (*elSeeds).begin(); gsfIter != (*elSeeds).end();
                ++gsfIter) {
-            range r = gsfIter->recHits();
             const GeomDet *det = nullptr;
-            for (TrackingRecHitCollection::const_iterator rhits = r.first; rhits != r.second; rhits++)
-              det = pDD->idToDet(((*rhits)).geographicalId());
+            for (auto const &recHit : gsfIter->recHits()) {
+              det = pDD->idToDet(recHit.geographicalId());
+            }
             TrajectoryStateOnSurface t =
                 trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
 

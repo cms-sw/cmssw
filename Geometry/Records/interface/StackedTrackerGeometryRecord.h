@@ -15,11 +15,11 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class StackedTrackerGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<StackedTrackerGeometryRecord,
-                                                            boost::mpl::vector<TrackerDigiGeometryRecord> > {};
+                                                            edm::mpl::Vector<TrackerDigiGeometryRecord> > {};
 
 #endif
 

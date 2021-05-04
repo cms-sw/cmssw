@@ -1,5 +1,5 @@
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/MCTruth/plugins/MuonAssociatorEDProducer.h"
 #include <memory>
@@ -114,8 +114,8 @@ void MuonAssociatorEDProducer::produce(edm::Event &event, const edm::EventSetup 
     reco::SimToRecoCollection simRecColl =
         associatorByHits->associateSimToReco(trackCollection, TPCollection, &event, &setup);
 
-    rts.reset(new reco::RecoToSimCollection(recSimColl));
-    str.reset(new reco::SimToRecoCollection(simRecColl));
+    rts = std::make_unique<reco::RecoToSimCollection>(recSimColl);
+    str = std::make_unique<reco::SimToRecoCollection>(simRecColl);
 
     event.put(std::move(rts));
     event.put(std::move(str));

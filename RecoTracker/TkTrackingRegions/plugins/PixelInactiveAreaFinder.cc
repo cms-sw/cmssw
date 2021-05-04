@@ -119,7 +119,7 @@ namespace {
     Stream ss;
     for (auto const& spansLayers : spansLayerSets) {
       ss << "Overlapping detGroups:\n";
-      for (auto const cspan : spansLayers.first) {
+      for (auto const& cspan : spansLayers.first) {
         detGroupSpanInfo(cspan, ss);
         ss << std::endl;
       }
@@ -391,7 +391,7 @@ PixelInactiveAreaFinder::InactiveAreas::areasAndLayerSets(const GlobalPoint& poi
                        outerSpan.phiSpan.second,
                        outerSpan.zSpan.first,
                        outerSpan.zSpan.second);
-    ret.emplace_back(std::move(areas), std::move(item.second));
+    ret.emplace_back(areas, std::move(item.second));
   }
 
   return ret;

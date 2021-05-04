@@ -106,13 +106,13 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet &ps)
   std::string algodir2 = "/AlgoBits";
   dbe_->setCurrentFolder(folderName_ + algodir2);
 
-  char metitle1[40];  // histo name
-  char mename1[40];   // ME name
+  char metitle1[64];  // histo name
+  char mename1[64];   // ME name
   for (int k = 0; k < kNumAlgoHistos; k++) {
     int npath_low = kPerHisto * k;
     int npath_high = kPerHisto * (k + 1) - 1;
-    snprintf(mename1, 40, "L1AlgoBits_%0d", k);
-    snprintf(metitle1, 40, "L1 rates - Algo Bits %d to %d", npath_low, npath_high);
+    snprintf(mename1, 64, "L1AlgoBits_%0d", k);
+    snprintf(metitle1, 64, "L1 rates - Algo Bits %d to %d", npath_low, npath_high);
     l1AlgoCurrentRatePerAlgo_[k] = dbe_->book1D(mename1, metitle1, kPerHisto, -0.5 + npath_low, npath_high + 0.5);
   }
 
@@ -121,13 +121,13 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet &ps)
   std::string techdir2 = "/TechBits";
   dbe_->setCurrentFolder(folderName_ + techdir2);
 
-  char metitle2[40];  // histo name
-  char mename2[40];   // ME name
+  char metitle2[64];  // histo name
+  char mename2[64];   // ME name
   for (int k = 0; k < kNumTTHistos; k++) {
     int npath_low = kPerHisto * k;
     int npath_high = kPerHisto * (k + 1) - 1;
-    snprintf(mename2, 40, "L1TechBits_%0d", k);
-    snprintf(metitle2, 40, "L1 rates - Tech. Trig. Bits %d to %d", npath_low, npath_high);
+    snprintf(mename2, 64, "L1TechBits_%0d", k);
+    snprintf(metitle2, 64, "L1 rates - Tech. Trig. Bits %d to %d", npath_low, npath_high);
     l1TechTrigCurrentRatePerAlgo_[k] = dbe_->book1D(mename2, metitle2, kPerHisto, -0.5 + npath_low, npath_high + 0.5);
   }
 

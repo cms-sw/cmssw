@@ -21,7 +21,7 @@ process.source = cms.Source("PoolSource",
 # MessageLogger
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.categories = cms.untracked.vstring('testAssociatorRecoMuon', 'muonAssociatorByHitsHelper')
+process.MessageLogger.muonAssociatorByHitsHelper = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(True),
     threshold = cms.untracked.string('INFO'),
@@ -29,7 +29,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
     testAssociatorRecoMuon = cms.untracked.PSet(limit = cms.untracked.int32(10000000))
 )
-process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
+process.MessageLogger.cerr = cms.untracked.PSet(enable = cms.untracked.bool(False))
 
 # Mixing Module
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")

@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -93,6 +94,7 @@ private:
   edm::EDGetTokenT<Product> token_secondaryVertex;
   edm::EDGetTokenT<InputContainer> token_tracks;
   edm::EDGetTokenT<reco::BeamSpot> token_beamSpot;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> token_trackBuilder;
   std::unique_ptr<TrackVertexArbitration<VTX> > theArbitrator;
 };
 
@@ -102,6 +104,8 @@ TemplatedVertexArbitrator<InputContainer, VTX>::TemplatedVertexArbitrator(const 
   token_secondaryVertex = consumes<Product>(params.getParameter<edm::InputTag>("secondaryVertices"));
   token_beamSpot = consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"));
   token_tracks = consumes<InputContainer>(params.getParameter<edm::InputTag>("tracks"));
+  token_trackBuilder =
+      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
   produces<Product>();
   theArbitrator.reset(new TrackVertexArbitration<VTX>(params));
 }
@@ -124,8 +128,7 @@ void TemplatedVertexArbitrator<InputContainer, VTX>::produce(edm::Event &event, 
     edm::Handle<InputContainer> tracks;
     event.getByToken(token_tracks, tracks);
 
-    edm::ESHandle<TransientTrackBuilder> trackBuilder;
-    es.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+    edm::ESHandle<TransientTrackBuilder> trackBuilder = es.getHandle(token_trackBuilder);
 
     edm::Handle<BeamSpot> beamSpot;
     event.getByToken(token_beamSpot, beamSpot);

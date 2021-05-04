@@ -82,13 +82,14 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet, HcalDDDGeometry* geom) 
 #ifdef EDM_ML_DEBUG
     std::cout << "HcalDDDGeometryLoader: Subdet " << subdet << " side " << iside << " eta " << etaRing << " depth "
               << depthBin << " with " << phis.size() << "modules:" << std::endl;
+    size_t i(0);
 #endif
     geom->increaseReserve(phis.size());
     for (auto& phi : phis) {
 #ifdef EDM_ML_DEBUG
-      std::cout << "HcalDDDGeometryLoader::fill Cell " << i << " eta " << iside * etaRing << " phi " << phis[k].first
-                << "(" << phis[k].second / CLHEP::deg << ", " << dphi / CLHEP::deg << ") depth " << depthBin
-                << std::endl;
+      std::cout << "HcalDDDGeometryLoader::fill Cell " << i << " eta " << iside * etaRing << " phi " << phi.first << "("
+                << phi.second / CLHEP::deg << ", " << dphi / CLHEP::deg << ") depth " << depthBin << std::endl;
+      i++;
 #endif
       HcalDetId id(subdet, iside * etaRing, phi.first, depthBin);
       hcalIds.emplace_back(id);

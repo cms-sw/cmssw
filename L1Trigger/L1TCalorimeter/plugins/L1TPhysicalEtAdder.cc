@@ -1,11 +1,6 @@
 #include "L1Trigger/L1TCalorimeter/plugins/L1TPhysicalEtAdder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
-
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -97,6 +92,9 @@ L1TPhysicalEtAdder::L1TPhysicalEtAdder(const edm::ParameterSet& ps) {
   EtSumToken_ = consumes<EtSumBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
   HfSumsToken_ = consumes<CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputHFSumsCollection"));
   HfCountsToken_ = consumes<CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputHFCountsCollection"));
+  emScaleToken_ = esConsumes<L1CaloEtScale, L1EmEtScaleRcd>();
+  jetScaleToken_ = esConsumes<L1CaloEtScale, L1JetEtScaleRcd>();
+  htMissScaleToken_ = esConsumes<L1CaloEtScale, L1HtMissScaleRcd>();
 }
 
 L1TPhysicalEtAdder::~L1TPhysicalEtAdder() {}
@@ -132,14 +130,11 @@ void L1TPhysicalEtAdder::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   iEvent.getByToken(HfCountsToken_, old_hfcounts);
 
   //get the proper scales for conversion to physical et
-  edm::ESHandle<L1CaloEtScale> emScale;
-  iSetup.get<L1EmEtScaleRcd>().get(emScale);
+  edm::ESHandle<L1CaloEtScale> emScale = iSetup.getHandle(emScaleToken_);
 
-  edm::ESHandle<L1CaloEtScale> jetScale;
-  iSetup.get<L1JetEtScaleRcd>().get(jetScale);
+  edm::ESHandle<L1CaloEtScale> jetScale = iSetup.getHandle(jetScaleToken_);
 
-  edm::ESHandle<L1CaloEtScale> htMissScale;
-  iSetup.get<L1HtMissScaleRcd>().get(htMissScale);
+  edm::ESHandle<L1CaloEtScale> htMissScale = iSetup.getHandle(htMissScaleToken_);
 
   int firstBX = old_egammas->getFirstBX();
   int lastBX = old_egammas->getLastBX();

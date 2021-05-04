@@ -22,6 +22,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <array>
 
 // ----------------------------------------------------------------------
 // contents
@@ -33,11 +34,20 @@ namespace edm {
   class ModuleDescription;
   typedef std::vector<ParameterSet> VParameterSet;
 
+  template <typename T>
+  struct ParameterTypeTraits {
+    //When specializing the template, include the following in the struct:
+    //
+    // using GetType = <underlying parameter type to get from the ParameterSet>;
+    //
+    // //Function to convert the parameter type into the requested type
+    // static T convert(GetType, std::string const&);
+  };
+
   class ParameterSet {
   public:
     template <typename T>
     friend class ParameterDescription;
-    enum Bool { False = 0, True = 1, Unknown = 2 };
 
     // default-construct
     ParameterSet();
@@ -289,7 +299,47 @@ namespace edm {
 
   ParameterSet const& getProcessParameterSetContainingModule(ModuleDescription const& moduleDescription);
 
+  template <typename T>
+  inline T ParameterSet::getParameter(std::string const& name) const {
+    using GetType = typename ParameterTypeTraits<T>::GetType;
+    return ParameterTypeTraits<T>::convert(getParameter<GetType>(name), name);
+  }
+
+  template <typename T>
+  inline T ParameterSet::getParameter(const char* name) const {
+    using GetType = typename ParameterTypeTraits<T>::GetType;
+    return ParameterTypeTraits<T>::convert(getParameter<GetType>(name), name);
+  }
   // specializations
+  // ----------------------------------------------------------------------
+  namespace pset::exceptions {
+    void throwWrongNumberOfElements(std::string const& iParameterName, size_t iExpected, size_t iGot);
+  }
+  //Read an std::array from an std::vector
+  template <typename T, std::size_t N>
+  struct ParameterTypeTraits<std::array<T, N>> {
+    using GetType = std::vector<T>;
+    static std::array<T, N> convert(std::vector<T> iVec, std::string const& iName) {
+      if (iVec.size() != N) {
+        pset::exceptions::throwWrongNumberOfElements(iName, N, iVec.size());
+      }
+      std::array<T, N> a;
+      std::copy_n(std::make_move_iterator(iVec.begin()), N, a.begin());
+      return a;
+    }
+  };
+  // read an std::vector<std::pair<std::string, T>> from std::vector<PSet>
+  template <typename T>
+  struct ParameterTypeTraits<std::vector<std::pair<std::string, T>>> {
+    using GetType = std::vector<edm::ParameterSet>;
+    static auto convert(std::vector<edm::ParameterSet> vpset, std::string const& iName) {
+      std::vector<std::pair<std::string, T>> ret(vpset.size());
+      std::transform(vpset.begin(), vpset.end(), ret.begin(), [](edm::ParameterSet const& pset) {
+        return std::pair(pset.getParameter<std::string>("key"), pset.getParameter<T>("value"));
+      });
+      return ret;
+    }
+  };
   // ----------------------------------------------------------------------
 
   template <>
@@ -302,7 +352,7 @@ namespace edm {
   int ParameterSet::getParameter<int>(std::string const& name) const;
 
   template <>
-  std::vector<int> ParameterSet::getParameter<std::vector<int> >(std::string const& name) const;
+  std::vector<int> ParameterSet::getParameter<std::vector<int>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // Int64, vInt64
@@ -311,7 +361,7 @@ namespace edm {
   long long ParameterSet::getParameter<long long>(std::string const& name) const;
 
   template <>
-  std::vector<long long> ParameterSet::getParameter<std::vector<long long> >(std::string const& name) const;
+  std::vector<long long> ParameterSet::getParameter<std::vector<long long>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // Uint32, vUint32
@@ -320,7 +370,7 @@ namespace edm {
   unsigned int ParameterSet::getParameter<unsigned int>(std::string const& name) const;
 
   template <>
-  std::vector<unsigned int> ParameterSet::getParameter<std::vector<unsigned int> >(std::string const& name) const;
+  std::vector<unsigned int> ParameterSet::getParameter<std::vector<unsigned int>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // Uint64, vUint64
@@ -329,7 +379,7 @@ namespace edm {
   unsigned long long ParameterSet::getParameter<unsigned long long>(std::string const& name) const;
 
   template <>
-  std::vector<unsigned long long> ParameterSet::getParameter<std::vector<unsigned long long> >(
+  std::vector<unsigned long long> ParameterSet::getParameter<std::vector<unsigned long long>>(
       std::string const& name) const;
 
   // ----------------------------------------------------------------------
@@ -339,7 +389,7 @@ namespace edm {
   double ParameterSet::getParameter<double>(std::string const& name) const;
 
   template <>
-  std::vector<double> ParameterSet::getParameter<std::vector<double> >(std::string const& name) const;
+  std::vector<double> ParameterSet::getParameter<std::vector<double>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // String, vString
@@ -348,7 +398,7 @@ namespace edm {
   std::string ParameterSet::getParameter<std::string>(std::string const& name) const;
 
   template <>
-  std::vector<std::string> ParameterSet::getParameter<std::vector<std::string> >(std::string const& name) const;
+  std::vector<std::string> ParameterSet::getParameter<std::vector<std::string>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // FileInPath
@@ -371,7 +421,7 @@ namespace edm {
   // VInputTag
 
   template <>
-  std::vector<InputTag> ParameterSet::getParameter<std::vector<InputTag> >(std::string const& name) const;
+  std::vector<InputTag> ParameterSet::getParameter<std::vector<InputTag>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // ESInputTag
@@ -383,7 +433,7 @@ namespace edm {
   // VESInputTag
 
   template <>
-  std::vector<ESInputTag> ParameterSet::getParameter<std::vector<ESInputTag> >(std::string const& name) const;
+  std::vector<ESInputTag> ParameterSet::getParameter<std::vector<ESInputTag>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // EventID
@@ -395,7 +445,7 @@ namespace edm {
   // VEventID
 
   template <>
-  std::vector<EventID> ParameterSet::getParameter<std::vector<EventID> >(std::string const& name) const;
+  std::vector<EventID> ParameterSet::getParameter<std::vector<EventID>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // LuminosityBlockID
@@ -407,7 +457,7 @@ namespace edm {
   // VLuminosityBlockID
 
   template <>
-  std::vector<LuminosityBlockID> ParameterSet::getParameter<std::vector<LuminosityBlockID> >(
+  std::vector<LuminosityBlockID> ParameterSet::getParameter<std::vector<LuminosityBlockID>>(
       std::string const& name) const;
 
   // ----------------------------------------------------------------------
@@ -420,7 +470,7 @@ namespace edm {
   // VEventRange
 
   template <>
-  std::vector<EventRange> ParameterSet::getParameter<std::vector<EventRange> >(std::string const& name) const;
+  std::vector<EventRange> ParameterSet::getParameter<std::vector<EventRange>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // LuminosityBlockRange
@@ -432,7 +482,7 @@ namespace edm {
   // VLuminosityBlockRange
 
   template <>
-  std::vector<LuminosityBlockRange> ParameterSet::getParameter<std::vector<LuminosityBlockRange> >(
+  std::vector<LuminosityBlockRange> ParameterSet::getParameter<std::vector<LuminosityBlockRange>>(
       std::string const& name) const;
 
   // ----------------------------------------------------------------------
@@ -489,11 +539,11 @@ namespace edm {
   int ParameterSet::getUntrackedParameter<int>(std::string const& name) const;
 
   template <>
-  std::vector<int> ParameterSet::getUntrackedParameter<std::vector<int> >(std::string const& name,
-                                                                          std::vector<int> const& defaultValue) const;
+  std::vector<int> ParameterSet::getUntrackedParameter<std::vector<int>>(std::string const& name,
+                                                                         std::vector<int> const& defaultValue) const;
 
   template <>
-  std::vector<int> ParameterSet::getUntrackedParameter<std::vector<int> >(std::string const& name) const;
+  std::vector<int> ParameterSet::getUntrackedParameter<std::vector<int>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // Uint32, vUint32
@@ -506,11 +556,11 @@ namespace edm {
   unsigned int ParameterSet::getUntrackedParameter<unsigned int>(std::string const& name) const;
 
   template <>
-  std::vector<unsigned int> ParameterSet::getUntrackedParameter<std::vector<unsigned int> >(
+  std::vector<unsigned int> ParameterSet::getUntrackedParameter<std::vector<unsigned int>>(
       std::string const& name, std::vector<unsigned int> const& defaultValue) const;
 
   template <>
-  std::vector<unsigned int> ParameterSet::getUntrackedParameter<std::vector<unsigned int> >(
+  std::vector<unsigned int> ParameterSet::getUntrackedParameter<std::vector<unsigned int>>(
       std::string const& name) const;
 
   // ----------------------------------------------------------------------
@@ -524,11 +574,11 @@ namespace edm {
   unsigned long long ParameterSet::getUntrackedParameter<unsigned long long>(std::string const& name) const;
 
   template <>
-  std::vector<unsigned long long> ParameterSet::getUntrackedParameter<std::vector<unsigned long long> >(
+  std::vector<unsigned long long> ParameterSet::getUntrackedParameter<std::vector<unsigned long long>>(
       std::string const& name, std::vector<unsigned long long> const& defaultValue) const;
 
   template <>
-  std::vector<unsigned long long> ParameterSet::getUntrackedParameter<std::vector<unsigned long long> >(
+  std::vector<unsigned long long> ParameterSet::getUntrackedParameter<std::vector<unsigned long long>>(
       std::string const& name) const;
 
   // ----------------------------------------------------------------------
@@ -542,11 +592,11 @@ namespace edm {
   long long ParameterSet::getUntrackedParameter<long long>(std::string const& name) const;
 
   template <>
-  std::vector<long long> ParameterSet::getUntrackedParameter<std::vector<long long> >(
+  std::vector<long long> ParameterSet::getUntrackedParameter<std::vector<long long>>(
       std::string const& name, std::vector<long long> const& defaultValue) const;
 
   template <>
-  std::vector<long long> ParameterSet::getUntrackedParameter<std::vector<long long> >(std::string const& name) const;
+  std::vector<long long> ParameterSet::getUntrackedParameter<std::vector<long long>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // Double, vDouble
@@ -558,11 +608,11 @@ namespace edm {
   double ParameterSet::getUntrackedParameter<double>(std::string const& name) const;
 
   template <>
-  std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double> >(
+  std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double>>(
       std::string const& name, std::vector<double> const& defaultValue) const;
 
   template <>
-  std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double> >(std::string const& name) const;
+  std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // String, vString
@@ -575,11 +625,11 @@ namespace edm {
   std::string ParameterSet::getUntrackedParameter<std::string>(std::string const& name) const;
 
   template <>
-  std::vector<std::string> ParameterSet::getUntrackedParameter<std::vector<std::string> >(
+  std::vector<std::string> ParameterSet::getUntrackedParameter<std::vector<std::string>>(
       std::string const& name, std::vector<std::string> const& defaultValue) const;
 
   template <>
-  std::vector<std::string> ParameterSet::getUntrackedParameter<std::vector<std::string> >(std::string const& name) const;
+  std::vector<std::string> ParameterSet::getUntrackedParameter<std::vector<std::string>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   //  FileInPath
@@ -601,11 +651,11 @@ namespace edm {
   InputTag ParameterSet::getUntrackedParameter<InputTag>(std::string const& name) const;
 
   template <>
-  std::vector<InputTag> ParameterSet::getUntrackedParameter<std::vector<InputTag> >(
+  std::vector<InputTag> ParameterSet::getUntrackedParameter<std::vector<InputTag>>(
       std::string const& name, std::vector<InputTag> const& defaultValue) const;
 
   template <>
-  std::vector<InputTag> ParameterSet::getUntrackedParameter<std::vector<InputTag> >(std::string const& name) const;
+  std::vector<InputTag> ParameterSet::getUntrackedParameter<std::vector<InputTag>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // EventID, VEventID
@@ -617,10 +667,10 @@ namespace edm {
   EventID ParameterSet::getUntrackedParameter<EventID>(std::string const& name) const;
 
   template <>
-  std::vector<EventID> ParameterSet::getUntrackedParameter<std::vector<EventID> >(
+  std::vector<EventID> ParameterSet::getUntrackedParameter<std::vector<EventID>>(
       std::string const& name, std::vector<EventID> const& defaultValue) const;
   template <>
-  std::vector<EventID> ParameterSet::getUntrackedParameter<std::vector<EventID> >(std::string const& name) const;
+  std::vector<EventID> ParameterSet::getUntrackedParameter<std::vector<EventID>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // LuminosityBlockID, VLuminosityBlockID
@@ -633,10 +683,10 @@ namespace edm {
   LuminosityBlockID ParameterSet::getUntrackedParameter<LuminosityBlockID>(std::string const& name) const;
 
   template <>
-  std::vector<LuminosityBlockID> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(
+  std::vector<LuminosityBlockID> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID>>(
       std::string const& name, std::vector<LuminosityBlockID> const& defaultValue) const;
   template <>
-  std::vector<LuminosityBlockID> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(
+  std::vector<LuminosityBlockID> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID>>(
       std::string const& name) const;
 
   // ----------------------------------------------------------------------
@@ -650,10 +700,10 @@ namespace edm {
   EventRange ParameterSet::getUntrackedParameter<EventRange>(std::string const& name) const;
 
   template <>
-  std::vector<EventRange> ParameterSet::getUntrackedParameter<std::vector<EventRange> >(
+  std::vector<EventRange> ParameterSet::getUntrackedParameter<std::vector<EventRange>>(
       std::string const& name, std::vector<EventRange> const& defaultValue) const;
   template <>
-  std::vector<EventRange> ParameterSet::getUntrackedParameter<std::vector<EventRange> >(std::string const& name) const;
+  std::vector<EventRange> ParameterSet::getUntrackedParameter<std::vector<EventRange>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
   // LuminosityBlockRange, VLuminosityBlockRange
@@ -666,10 +716,10 @@ namespace edm {
   LuminosityBlockRange ParameterSet::getUntrackedParameter<LuminosityBlockRange>(std::string const& name) const;
 
   template <>
-  std::vector<LuminosityBlockRange> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockRange> >(
+  std::vector<LuminosityBlockRange> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockRange>>(
       std::string const& name, std::vector<LuminosityBlockRange> const& defaultValue) const;
   template <>
-  std::vector<LuminosityBlockRange> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockRange> >(
+  std::vector<LuminosityBlockRange> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockRange>>(
       std::string const& name) const;
 
   // specializations
@@ -686,7 +736,7 @@ namespace edm {
   int ParameterSet::getParameter<int>(char const* name) const;
 
   template <>
-  std::vector<int> ParameterSet::getParameter<std::vector<int> >(char const* name) const;
+  std::vector<int> ParameterSet::getParameter<std::vector<int>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // Int64, vInt64
@@ -695,7 +745,7 @@ namespace edm {
   long long ParameterSet::getParameter<long long>(char const* name) const;
 
   template <>
-  std::vector<long long> ParameterSet::getParameter<std::vector<long long> >(char const* name) const;
+  std::vector<long long> ParameterSet::getParameter<std::vector<long long>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // Uint32, vUint32
@@ -704,7 +754,7 @@ namespace edm {
   unsigned int ParameterSet::getParameter<unsigned int>(char const* name) const;
 
   template <>
-  std::vector<unsigned int> ParameterSet::getParameter<std::vector<unsigned int> >(char const* name) const;
+  std::vector<unsigned int> ParameterSet::getParameter<std::vector<unsigned int>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // Uint64, vUint64
@@ -713,7 +763,7 @@ namespace edm {
   unsigned long long ParameterSet::getParameter<unsigned long long>(char const* name) const;
 
   template <>
-  std::vector<unsigned long long> ParameterSet::getParameter<std::vector<unsigned long long> >(char const* name) const;
+  std::vector<unsigned long long> ParameterSet::getParameter<std::vector<unsigned long long>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // Double, vDouble
@@ -722,7 +772,7 @@ namespace edm {
   double ParameterSet::getParameter<double>(char const* name) const;
 
   template <>
-  std::vector<double> ParameterSet::getParameter<std::vector<double> >(char const* name) const;
+  std::vector<double> ParameterSet::getParameter<std::vector<double>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // String, vString
@@ -731,7 +781,7 @@ namespace edm {
   std::string ParameterSet::getParameter<std::string>(char const* name) const;
 
   template <>
-  std::vector<std::string> ParameterSet::getParameter<std::vector<std::string> >(char const* name) const;
+  std::vector<std::string> ParameterSet::getParameter<std::vector<std::string>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // FileInPath
@@ -749,7 +799,19 @@ namespace edm {
   // VInputTag
 
   template <>
-  std::vector<InputTag> ParameterSet::getParameter<std::vector<InputTag> >(char const* name) const;
+  std::vector<InputTag> ParameterSet::getParameter<std::vector<InputTag>>(char const* name) const;
+
+  // ----------------------------------------------------------------------
+  // ESInputTag
+
+  template <>
+  ESInputTag ParameterSet::getParameter<ESInputTag>(char const* name) const;
+
+  // ----------------------------------------------------------------------
+  // VESInputTag
+
+  template <>
+  std::vector<ESInputTag> ParameterSet::getParameter<std::vector<ESInputTag>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // EventID
@@ -761,7 +823,7 @@ namespace edm {
   // VEventID
 
   template <>
-  std::vector<EventID> ParameterSet::getParameter<std::vector<EventID> >(char const* name) const;
+  std::vector<EventID> ParameterSet::getParameter<std::vector<EventID>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // LuminosityBlockID
@@ -773,7 +835,7 @@ namespace edm {
   // VLuminosityBlockID
 
   template <>
-  std::vector<LuminosityBlockID> ParameterSet::getParameter<std::vector<LuminosityBlockID> >(char const* name) const;
+  std::vector<LuminosityBlockID> ParameterSet::getParameter<std::vector<LuminosityBlockID>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // EventRange
@@ -785,7 +847,7 @@ namespace edm {
   // VEventRange
 
   template <>
-  std::vector<EventRange> ParameterSet::getParameter<std::vector<EventRange> >(char const* name) const;
+  std::vector<EventRange> ParameterSet::getParameter<std::vector<EventRange>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // LuminosityBlockRange
@@ -797,7 +859,7 @@ namespace edm {
   // VLuminosityBlockRange
 
   template <>
-  std::vector<LuminosityBlockRange> ParameterSet::getParameter<std::vector<LuminosityBlockRange> >(
+  std::vector<LuminosityBlockRange> ParameterSet::getParameter<std::vector<LuminosityBlockRange>>(
       char const* name) const;
 
   // ----------------------------------------------------------------------
@@ -830,11 +892,11 @@ namespace edm {
   int ParameterSet::getUntrackedParameter<int>(char const* name) const;
 
   template <>
-  std::vector<int> ParameterSet::getUntrackedParameter<std::vector<int> >(char const* name,
-                                                                          std::vector<int> const& defaultValue) const;
+  std::vector<int> ParameterSet::getUntrackedParameter<std::vector<int>>(char const* name,
+                                                                         std::vector<int> const& defaultValue) const;
 
   template <>
-  std::vector<int> ParameterSet::getUntrackedParameter<std::vector<int> >(char const* name) const;
+  std::vector<int> ParameterSet::getUntrackedParameter<std::vector<int>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // Uint32, vUint32
@@ -847,11 +909,11 @@ namespace edm {
   unsigned int ParameterSet::getUntrackedParameter<unsigned int>(char const* name) const;
 
   template <>
-  std::vector<unsigned int> ParameterSet::getUntrackedParameter<std::vector<unsigned int> >(
+  std::vector<unsigned int> ParameterSet::getUntrackedParameter<std::vector<unsigned int>>(
       char const* name, std::vector<unsigned int> const& defaultValue) const;
 
   template <>
-  std::vector<unsigned int> ParameterSet::getUntrackedParameter<std::vector<unsigned int> >(char const* name) const;
+  std::vector<unsigned int> ParameterSet::getUntrackedParameter<std::vector<unsigned int>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // Uint64, vUint64
@@ -864,11 +926,11 @@ namespace edm {
   unsigned long long ParameterSet::getUntrackedParameter<unsigned long long>(char const* name) const;
 
   template <>
-  std::vector<unsigned long long> ParameterSet::getUntrackedParameter<std::vector<unsigned long long> >(
+  std::vector<unsigned long long> ParameterSet::getUntrackedParameter<std::vector<unsigned long long>>(
       char const* name, std::vector<unsigned long long> const& defaultValue) const;
 
   template <>
-  std::vector<unsigned long long> ParameterSet::getUntrackedParameter<std::vector<unsigned long long> >(
+  std::vector<unsigned long long> ParameterSet::getUntrackedParameter<std::vector<unsigned long long>>(
       char const* name) const;
 
   // ----------------------------------------------------------------------
@@ -881,11 +943,11 @@ namespace edm {
   long long ParameterSet::getUntrackedParameter<long long>(char const* name) const;
 
   template <>
-  std::vector<long long> ParameterSet::getUntrackedParameter<std::vector<long long> >(
+  std::vector<long long> ParameterSet::getUntrackedParameter<std::vector<long long>>(
       char const* name, std::vector<long long> const& defaultValue) const;
 
   template <>
-  std::vector<long long> ParameterSet::getUntrackedParameter<std::vector<long long> >(char const* name) const;
+  std::vector<long long> ParameterSet::getUntrackedParameter<std::vector<long long>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // Double, vDouble
@@ -897,11 +959,11 @@ namespace edm {
   double ParameterSet::getUntrackedParameter<double>(char const* name) const;
 
   template <>
-  std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double> >(
+  std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double>>(
       char const* name, std::vector<double> const& defaultValue) const;
 
   template <>
-  std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double> >(char const* name) const;
+  std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // String, vString
@@ -913,11 +975,11 @@ namespace edm {
   std::string ParameterSet::getUntrackedParameter<std::string>(char const* name) const;
 
   template <>
-  std::vector<std::string> ParameterSet::getUntrackedParameter<std::vector<std::string> >(
+  std::vector<std::string> ParameterSet::getUntrackedParameter<std::vector<std::string>>(
       char const* name, std::vector<std::string> const& defaultValue) const;
 
   template <>
-  std::vector<std::string> ParameterSet::getUntrackedParameter<std::vector<std::string> >(char const* name) const;
+  std::vector<std::string> ParameterSet::getUntrackedParameter<std::vector<std::string>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   //  FileInPath
@@ -938,11 +1000,11 @@ namespace edm {
   InputTag ParameterSet::getUntrackedParameter<InputTag>(char const* name) const;
 
   template <>
-  std::vector<InputTag> ParameterSet::getUntrackedParameter<std::vector<InputTag> >(
+  std::vector<InputTag> ParameterSet::getUntrackedParameter<std::vector<InputTag>>(
       char const* name, std::vector<InputTag> const& defaultValue) const;
 
   template <>
-  std::vector<InputTag> ParameterSet::getUntrackedParameter<std::vector<InputTag> >(char const* name) const;
+  std::vector<InputTag> ParameterSet::getUntrackedParameter<std::vector<InputTag>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // EventID, VEventID
@@ -954,10 +1016,10 @@ namespace edm {
   EventID ParameterSet::getUntrackedParameter<EventID>(char const* name) const;
 
   template <>
-  std::vector<EventID> ParameterSet::getUntrackedParameter<std::vector<EventID> >(
+  std::vector<EventID> ParameterSet::getUntrackedParameter<std::vector<EventID>>(
       char const* name, std::vector<EventID> const& defaultValue) const;
   template <>
-  std::vector<EventID> ParameterSet::getUntrackedParameter<std::vector<EventID> >(char const* name) const;
+  std::vector<EventID> ParameterSet::getUntrackedParameter<std::vector<EventID>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // LuminosityBlockID, VLuminosityBlockID
@@ -970,10 +1032,10 @@ namespace edm {
   LuminosityBlockID ParameterSet::getUntrackedParameter<LuminosityBlockID>(char const* name) const;
 
   template <>
-  std::vector<LuminosityBlockID> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(
+  std::vector<LuminosityBlockID> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID>>(
       char const* name, std::vector<LuminosityBlockID> const& defaultValue) const;
   template <>
-  std::vector<LuminosityBlockID> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(
+  std::vector<LuminosityBlockID> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID>>(
       char const* name) const;
 
   // ----------------------------------------------------------------------
@@ -986,10 +1048,10 @@ namespace edm {
   EventRange ParameterSet::getUntrackedParameter<EventRange>(char const* name) const;
 
   template <>
-  std::vector<EventRange> ParameterSet::getUntrackedParameter<std::vector<EventRange> >(
+  std::vector<EventRange> ParameterSet::getUntrackedParameter<std::vector<EventRange>>(
       char const* name, std::vector<EventRange> const& defaultValue) const;
   template <>
-  std::vector<EventRange> ParameterSet::getUntrackedParameter<std::vector<EventRange> >(char const* name) const;
+  std::vector<EventRange> ParameterSet::getUntrackedParameter<std::vector<EventRange>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // LuminosityBlockRange, VLuminosityBlockRange
@@ -1002,10 +1064,10 @@ namespace edm {
   LuminosityBlockRange ParameterSet::getUntrackedParameter<LuminosityBlockRange>(char const* name) const;
 
   template <>
-  std::vector<LuminosityBlockRange> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockRange> >(
+  std::vector<LuminosityBlockRange> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockRange>>(
       char const* name, std::vector<LuminosityBlockRange> const& defaultValue) const;
   template <>
-  std::vector<LuminosityBlockRange> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockRange> >(
+  std::vector<LuminosityBlockRange> ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockRange>>(
       char const* name) const;
 
   // ----------------------------------------------------------------------
@@ -1044,8 +1106,5 @@ namespace edm {
 
   template <>
   std::vector<std::string> ParameterSet::getParameterNamesForType<VParameterSet>(bool trackiness) const;
-
-  ParameterSet::Bool operator&&(ParameterSet::Bool a, ParameterSet::Bool b);
-
 }  // namespace edm
 #endif

@@ -67,7 +67,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/DTMonitorClient/test/QualityTests_ttrig.xml')
 )
@@ -76,10 +77,8 @@ process.load("DQM.DTMonitorClient.dtResolutionTestFinalCalib_cfi")
 process.modulo=process.resolutionTest.clone()
 
 process.source.processingMode = "RunsAndLumis"
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/Muon/Dt/Test1'
-process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 

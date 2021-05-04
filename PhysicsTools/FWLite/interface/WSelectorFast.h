@@ -13,60 +13,57 @@
    independent from the event loop in FWLite or full framework.
 */
 
-
-class WSelector : public EventSelector {
-
+class WSelectorFast : public EventSelector {
 public:
   /// constructor
-  WSelector(edm::ParameterSet const& params) :
-    muonSrc_(params.getParameter<edm::InputTag>("muonSrc")),
-    metSrc_ (params.getParameter<edm::InputTag>("metSrc")) 
-  {
+  WSelectorFast(edm::ParameterSet const& params)
+      : muonSrc_(params.getParameter<edm::InputTag>("muonSrc")), metSrc_(params.getParameter<edm::InputTag>("metSrc")) {
     double muonPtMin = params.getParameter<double>("muonPtMin");
-    double metMin    = params.getParameter<double>("metMin");
-    push_back("Muon Pt", muonPtMin );
-    push_back("MET"    , metMin    );
-    set("Muon Pt"); set("MET");
-    wMuon_ = 0; met_ = 0;
-    if ( params.exists("cutsToIgnore") ){
-      setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
+    double metMin = params.getParameter<double>("metMin");
+    push_back("Muon Pt", muonPtMin);
+    push_back("MET", metMin);
+    set("Muon Pt");
+    set("MET");
+    wMuon_ = 0;
+    met_ = 0;
+    if (params.exists("cutsToIgnore")) {
+      setIgnoredCuts(params.getParameter<std::vector<std::string> >("cutsToIgnore"));
     }
     retInternal_ = getBitTemplate();
   }
   /// destructor
-  virtual ~WSelector() {}
+  virtual ~WSelectorFast() {}
   /// return muon candidate of W boson
-  pat::Muon const& wMuon() const { return *wMuon_;}
+  pat::Muon const& wMuon() const { return *wMuon_; }
   /// return MET of W boson
-  pat::MET  const& met()   const { return *met_;  }
+  pat::MET const& met() const { return *met_; }
 
   /// here is where the selection occurs
-  virtual bool operator()( edm::EventBase const & event, pat::strbitset & ret){
+  virtual bool operator()(edm::EventBase const& event, pat::strbitset& ret) {
     ret.set(false);
     // Handle to the muon collection
-    edm::Handle<std::vector<pat::Muon> > muons;    
+    edm::Handle<std::vector<pat::Muon> > muons;
     // Handle to the MET collection
     edm::Handle<std::vector<pat::MET> > met;
     // get the objects from the event
     bool gotMuons = event.getByLabel(muonSrc_, muons);
-    bool gotMET   = event.getByLabel(metSrc_, met   );
+    bool gotMET = event.getByLabel(metSrc_, met);
     // get the MET, require to be > minimum
-    if( gotMET ){
+    if (gotMET) {
       met_ = &met->at(0);
-      if( met_->pt() > cut(metIndex_, double()) || ignoreCut(metIndex_) ) 
-	passCut(ret, metIndex_);
+      if (met_->pt() > cut(metIndex_, double()) || ignoreCut(metIndex_))
+        passCut(ret, metIndex_);
     }
     // get the highest pt muon, require to have pt > minimum
-    if( gotMuons ){
-      if( !ignoreCut(muonPtIndex_) ){
-	if( muons->size() > 0 ){
-	  wMuon_ = &muons->at(0);
-	  if ( wMuon_->pt() > cut(muonPtIndex_, double()) || ignoreCut(muonPtIndex_) ) 
-	    passCut(ret, muonPtIndex_);
-	}
-      } 
-      else{
-	passCut( ret, muonPtIndex_);
+    if (gotMuons) {
+      if (!ignoreCut(muonPtIndex_)) {
+        if (muons->size() > 0) {
+          wMuon_ = &muons->at(0);
+          if (wMuon_->pt() > cut(muonPtIndex_, double()) || ignoreCut(muonPtIndex_))
+            passCut(ret, muonPtIndex_);
+        }
+      } else {
+        passCut(ret, muonPtIndex_);
       }
     }
     setIgnored(ret);
@@ -87,4 +84,4 @@ protected:
   /// index for MET cut
   index_type metIndex_;
 };
-#endif // PhysicsTools_FWLite_WSelectorFast_h
+#endif  // PhysicsTools_FWLite_WSelectorFast_h

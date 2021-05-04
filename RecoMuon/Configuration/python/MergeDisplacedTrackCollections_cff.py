@@ -8,54 +8,51 @@ from  RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 
 from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import Chi2MeasurementEstimator as _Chi2MeasurementEstimator
 duplicateDisplaceTrackCandidatesChi2Est = _Chi2MeasurementEstimator.clone(
-    ComponentName = "duplicateDisplacedTrackCandidatesChi2Est",
-    MaxChi2 = 100,
+    ComponentName = 'duplicateDisplacedTrackCandidatesChi2Est',
+    MaxChi2 = 100
 )
 
 #for displaced global muons                                      
 duplicateDisplacedTrackCandidates = DuplicateTrackMerger.clone(
-    source=cms.InputTag("preDuplicateMergingDisplacedTracks"),
-    useInnermostState  = cms.bool(True),
-    ttrhBuilderName    = cms.string("WithAngleAndTemplate"),
-    chi2EstimatorName = "duplicateDisplacedTrackCandidatesChi2Est"
-    )
+    source='preDuplicateMergingDisplacedTracks',
+    useInnermostState  = True,
+    ttrhBuilderName    = 'WithAngleAndTemplate',
+    chi2EstimatorName = 'duplicateDisplacedTrackCandidatesChi2Est'
+)
+
 #for displaced global muons
 mergedDuplicateDisplacedTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    src = cms.InputTag("duplicateDisplacedTrackCandidates","candidates"),
-    )
-
+    src = 'duplicateDisplacedTrackCandidates:candidates'
+)
 
 #for displaced global muons
 from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cff import *
-duplicateDisplacedTrackClassifier = TrackCutClassifier.clone()
-duplicateDisplacedTrackClassifier.src='mergedDuplicateDisplacedTracks'
-duplicateDisplacedTrackClassifier.mva.minPixelHits = [0,0,0]
-duplicateDisplacedTrackClassifier.mva.maxChi2 = [9999.,9999.,9999.]
-duplicateDisplacedTrackClassifier.mva.maxChi2n = [9999.,9999.,9999.]
-duplicateDisplacedTrackClassifier.mva.minLayers = [0,0,0]
-duplicateDisplacedTrackClassifier.mva.min3DLayers = [0,0,0]
-duplicateDisplacedTrackClassifier.mva.maxLostLayers = [99,99,99]
-
+duplicateDisplacedTrackClassifier = TrackCutClassifier.clone(
+    src = 'mergedDuplicateDisplacedTracks',
+    mva = dict(
+	minPixelHits = [0,0,0],
+	maxChi2 = [9999.,9999.,9999.],
+	maxChi2n = [9999.,9999.,9999.],
+	minLayers = [0,0,0],
+	min3DLayers = [0,0,0],
+	maxLostLayers = [99,99,99])
+)
 
 #for displaced global muons
 displacedTracks = DuplicateListMerger.clone(
-    originalSource = cms.InputTag("preDuplicateMergingDisplacedTracks"),
-    originalMVAVals = cms.InputTag("preDuplicateMergingDisplacedTracks","MVAValues"),
-    mergedSource = cms.InputTag("mergedDuplicateDisplacedTracks"),
-    mergedMVAVals = cms.InputTag("duplicateDisplacedTrackClassifier","MVAValues"),
-    candidateSource = cms.InputTag("duplicateDisplacedTrackCandidates","candidates"),
-    candidateComponents = cms.InputTag("duplicateDisplacedTrackCandidates","candidateMap")
-    )
+    originalSource      = 'preDuplicateMergingDisplacedTracks',
+    originalMVAVals     = 'preDuplicateMergingDisplacedTracks:MVAValues',
+    mergedSource        = 'mergedDuplicateDisplacedTracks',
+    mergedMVAVals       = 'duplicateDisplacedTrackClassifier:MVAValues',
+    candidateSource     = 'duplicateDisplacedTrackCandidates:candidates',
+    candidateComponents = 'duplicateDisplacedTrackCandidates:candidateMap'
+)
+
 #for displaced global muons
 displacedTracksTask = cms.Task(
     duplicateDisplacedTrackCandidates,
     mergedDuplicateDisplacedTracks,
     duplicateDisplacedTrackClassifier,
     displacedTracks
-    )
+)
 displacedTracksSequence = cms.Sequence(displacedTracksTask)
-
-# This customization will be removed once we get the templates for
-# phase2 pixel
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(duplicateDisplacedTrackCandidates, ttrhBuilderName = "WithTrackAngle") # FIXME

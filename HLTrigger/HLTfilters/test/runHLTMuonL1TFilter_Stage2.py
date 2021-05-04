@@ -28,9 +28,21 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-            destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
-            detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
-            debugModules = cms.untracked.vstring( 'hltL1sL1SingleMuBeamHalo', 'hltL1fL1SingleMuBeamHaloFiltered0' )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring(
+        'hltL1sL1SingleMuBeamHalo', 
+        'hltL1fL1SingleMuBeamHaloFiltered0'
+    ),
+    files = cms.untracked.PSet(
+        critical = cms.untracked.PSet(
+
+        ),
+        detailedInfo = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        )
+    )
 )
 
 #

@@ -24,14 +24,146 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoEgamma/EgammaElectronProducers/plugins/LowPtGsfElectronSeedProducer.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TMath.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PreId.h"
+#include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+
+#include "LowPtGsfElectronSeedHeavyObjectCache.h"
+
+class LowPtGsfElectronSeedProducer final
+    : public edm::stream::EDProducer<edm::GlobalCache<lowptgsfeleseed::HeavyObjectCache> > {
+public:
+  using TrackIndxMap = std::unordered_map<reco::TrackRef::key_type, size_t>;
+  explicit LowPtGsfElectronSeedProducer(const edm::ParameterSet&, const lowptgsfeleseed::HeavyObjectCache*);
+
+  static std::unique_ptr<lowptgsfeleseed::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
+    return std::make_unique<lowptgsfeleseed::HeavyObjectCache>(lowptgsfeleseed::HeavyObjectCache(conf));
+  }
+
+  static void globalEndJob(lowptgsfeleseed::HeavyObjectCache const*) {}
+
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+private:  // member functions
+  template <typename T>
+  void loop(const edm::Handle<std::vector<T> >& handle,
+            edm::Handle<reco::PFClusterCollection>& hcalClusters,
+            reco::ElectronSeedCollection& seeds,
+            reco::PreIdCollection& ecalPreIds,
+            reco::PreIdCollection& hcalPreIds,
+            TrackIndxMap& trksToPreIdIndx,
+            edm::Event&,
+            const edm::EventSetup&);
+
+  // Overloaded methods to retrieve reco::TrackRef
+
+  reco::TrackRef getBaseRef(edm::Handle<std::vector<reco::Track> > handle, int idx) const;
+  reco::TrackRef getBaseRef(edm::Handle<std::vector<reco::PFRecTrack> > handle, int idx) const;
+
+  // Overloaded methods to populate PreIds (using PF or KF tracks)
+
+  void propagateTrackToCalo(const reco::PFRecTrackRef& pfTrackRef,
+                            const edm::Handle<reco::PFClusterCollection>& ecalClusters,
+                            const edm::Handle<reco::PFClusterCollection>& hcalClusters,
+                            std::vector<int>& matchedEcalClusters,
+                            std::vector<int>& matchedHcalClusters,
+                            reco::PreId& ecalPreId,
+                            reco::PreId& hcalPreId);
+
+  void propagateTrackToCalo(const reco::PFRecTrackRef& pfTrackRef,
+                            const edm::Handle<reco::PFClusterCollection>& clusters,
+                            std::vector<int>& matchedClusters,
+                            reco::PreId& preId,
+                            bool ecal);
+
+  void propagateTrackToCalo(const reco::TrackRef& pfTrack,
+                            const edm::Handle<reco::PFClusterCollection>& ecalClusters,
+                            const edm::Handle<reco::PFClusterCollection>& hcalClusters,
+                            std::vector<int>& matchedEcalClusters,
+                            std::vector<int>& matchedHcalClusters,
+                            reco::PreId& ecalPreId,
+                            reco::PreId& hcalPreId);
+  template <typename CollType>
+  void fillPreIdRefValueMap(edm::Handle<CollType> tracksHandle,
+                            const TrackIndxMap& trksToPreIdIndx,
+                            const edm::OrphanHandle<reco::PreIdCollection>& preIdHandle,
+                            edm::ValueMap<reco::PreIdRef>::Filler& filler);
+
+  // Overloaded methods to evaluate BDTs (using PF or KF tracks)
+
+  bool decision(const reco::PFRecTrackRef& pfTrackRef,
+                reco::PreId& ecal,
+                reco::PreId& hcal,
+                double rho,
+                const reco::BeamSpot& spot,
+                noZS::EcalClusterLazyTools& ecalTools);
+
+  bool decision(const reco::TrackRef& kfTrackRef,
+                reco::PreId& ecal,
+                reco::PreId& hcal,
+                double rho,
+                const reco::BeamSpot& spot,
+                noZS::EcalClusterLazyTools& ecalTools);
+
+  // Perform lightweight GSF tracking
+  bool lightGsfTracking(reco::PreId&, const reco::TrackRef&, const reco::ElectronSeed&);
+
+private:  // member data
+  edm::ESHandle<MagneticField> field_;
+  std::unique_ptr<TrajectoryFitter> fitterPtr_;
+  std::unique_ptr<TrajectorySmoother> smootherPtr_;
+  edm::EDGetTokenT<reco::TrackCollection> kfTracks_;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> pfTracks_;
+  const edm::EDGetTokenT<reco::PFClusterCollection> ecalClusters_;
+  edm::EDGetTokenT<reco::PFClusterCollection> hcalClusters_;
+  const edm::EDGetTokenT<EcalRecHitCollection> ebRecHits_;
+  const edm::EDGetTokenT<EcalRecHitCollection> eeRecHits_;
+  const edm::EDGetTokenT<double> rho_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
+
+  const edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> trajectoryFitterToken_;
+  const edm::ESGetToken<TrajectorySmoother, TrajectoryFitter::Record> trajectorySmootherToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> builderToken_;
+  const noZS::EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+
+  const bool passThrough_;
+  const bool usePfTracks_;
+  const double minPtThreshold_;
+  const double maxPtThreshold_;
+
+  // pow( sinh(1.65), 2. )
+  static constexpr double boundary_ = 2.50746495928 * 2.50746495928;
+  // pow( ele_mass, 2. )
+  static constexpr double mass_ = 0.000511 * 0.000511;
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -42,34 +174,31 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer(const edm::ParameterS
       smootherPtr_(),
       kfTracks_(),
       pfTracks_(),
-      ecalClusters_{consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("ecalClusters"))},
+      ecalClusters_{consumes(conf.getParameter<edm::InputTag>("ecalClusters"))},
       hcalClusters_(),
-      ebRecHits_{consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBRecHits"))},
-      eeRecHits_{consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EERecHits"))},
-      rho_(consumes<double>(conf.getParameter<edm::InputTag>("rho"))),
-      beamSpot_(consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BeamSpot"))),
-      fitter_(conf.getParameter<std::string>("Fitter")),
-      smoother_(conf.getParameter<std::string>("Smoother")),
-      builder_(conf.getParameter<std::string>("TTRHBuilder")),
+      ebRecHits_{consumes(conf.getParameter<edm::InputTag>("EBRecHits"))},
+      eeRecHits_{consumes(conf.getParameter<edm::InputTag>("EERecHits"))},
+      rho_(consumes(conf.getParameter<edm::InputTag>("rho"))),
+      beamSpot_(consumes(conf.getParameter<edm::InputTag>("BeamSpot"))),
+      trajectoryFitterToken_{esConsumes(conf.getParameter<edm::ESInputTag>("Fitter"))},
+      trajectorySmootherToken_{esConsumes(conf.getParameter<edm::ESInputTag>("Smoother"))},
+      builderToken_{esConsumes(conf.getParameter<edm::ESInputTag>("TTRHBuilder"))},
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       passThrough_(conf.getParameter<bool>("PassThrough")),
       usePfTracks_(conf.getParameter<bool>("UsePfTracks")),
       minPtThreshold_(conf.getParameter<double>("MinPtThreshold")),
       maxPtThreshold_(conf.getParameter<double>("MaxPtThreshold")) {
   if (usePfTracks_) {
-    pfTracks_ = consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("pfTracks"));
-    hcalClusters_ = consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("hcalClusters"));
+    pfTracks_ = consumes(conf.getParameter<edm::InputTag>("pfTracks"));
+    hcalClusters_ = consumes(conf.getParameter<edm::InputTag>("hcalClusters"));
   }
-  kfTracks_ = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"));
+  kfTracks_ = consumes(conf.getParameter<edm::InputTag>("tracks"));
 
   produces<reco::ElectronSeedCollection>();
   produces<reco::PreIdCollection>();
   produces<reco::PreIdCollection>("HCAL");
   produces<edm::ValueMap<reco::PreIdRef> >();  // indexed by edm::Ref<ElectronSeed>.index()
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//
-LowPtGsfElectronSeedProducer::~LowPtGsfElectronSeedProducer() {}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -166,36 +295,27 @@ void LowPtGsfElectronSeedProducer::loop(const edm::Handle<std::vector<T> >& hand
                                         edm::Event& event,
                                         const edm::EventSetup& setup) {
   // Pileup
-  edm::Handle<double> rho;
-  event.getByToken(rho_, rho);
+  auto const& rho = event.get(rho_);
 
   // Beam spot
-  edm::Handle<reco::BeamSpot> spot;
-  event.getByToken(beamSpot_, spot);
+  auto const& spot = event.get(beamSpot_);
 
   // Track fitter
-  edm::ESHandle<TrajectoryFitter> fitter;
-  setup.get<TrajectoryFitter::Record>().get(fitter_, fitter);
-  fitterPtr_ = fitter->clone();
+  fitterPtr_ = setup.getData(trajectoryFitterToken_).clone();
 
   // Track smoother
-  edm::ESHandle<TrajectorySmoother> smoother;
-  setup.get<TrajectoryFitter::Record>().get(smoother_, smoother);
-  smootherPtr_.reset(smoother->clone());
+  smootherPtr_.reset(setup.getData(trajectorySmootherToken_).clone());
 
   // RecHit cloner
-  edm::ESHandle<TransientTrackingRecHitBuilder> builder;
-  setup.get<TransientRecHitRecord>().get(builder_, builder);
-  TkClonerImpl hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(builder.product())->cloner();
+  TkClonerImpl hitCloner = static_cast<TkTransientTrackingRecHitBuilder const&>(setup.getData(builderToken_)).cloner();
   fitterPtr_->setHitCloner(&hitCloner);
   smootherPtr_->setHitCloner(&hitCloner);
 
   // ECAL clusters
-  edm::Handle<reco::PFClusterCollection> ecalClusters;
-  event.getByToken(ecalClusters_, ecalClusters);
+  auto ecalClusters = event.getHandle(ecalClusters_);
 
   // Utility to access to shower shape vars
-  noZS::EcalClusterLazyTools ecalTools(event, setup, ebRecHits_, eeRecHits_);
+  noZS::EcalClusterLazyTools ecalTools(event, ecalClusterToolsESGetTokens_.get(setup), ebRecHits_, eeRecHits_);
 
   // Ensure each cluster is only matched once to a track
   std::vector<int> matchedEcalClusters;
@@ -220,6 +340,9 @@ void LowPtGsfElectronSeedProducer::loop(const edm::Handle<std::vector<T> >& hand
 
     // Create ElectronSeed
     reco::ElectronSeed seed(*(trackRef->seedRef()));
+    if (seed.nHits() == 0) {  //if DeepCore is used in jetCore iteration the seed are hitless, in case skip
+      continue;
+    }
     seed.setCtfTrack(trackRef);
 
     // Create PreIds
@@ -236,10 +359,10 @@ void LowPtGsfElectronSeedProducer::loop(const edm::Handle<std::vector<T> >& hand
         templatedRef, ecalClusters, hcalClusters, matchedEcalClusters, matchedHcalClusters, ecalPreId, hcalPreId);
 
     // Add variables related to GSF tracks to PreId
-    lightGsfTracking(ecalPreId, trackRef, seed, setup);
+    lightGsfTracking(ecalPreId, trackRef, seed);
 
     // Decision based on BDT
-    bool result = decision(templatedRef, ecalPreId, hcalPreId, *rho, *spot, ecalTools);
+    bool result = decision(templatedRef, ecalPreId, hcalPreId, rho, spot, ecalTools);
 
     // If fails BDT, do not store seed
     if (!result) {
@@ -436,8 +559,7 @@ void LowPtGsfElectronSeedProducer::propagateTrackToCalo(
 // Original implementation for "lightweight" GSF tracking
 bool LowPtGsfElectronSeedProducer::lightGsfTracking(reco::PreId& preId,
                                                     const reco::TrackRef& trackRef,
-                                                    const reco::ElectronSeed& seed,
-                                                    const edm::EventSetup& setup) {
+                                                    const reco::ElectronSeed& seed) {
   Trajectory::ConstRecHitContainer hits;
   for (unsigned int ihit = 0; ihit < trackRef->recHitsSize(); ++ihit) {
     hits.push_back(trackRef->recHit(ihit)->cloneSH());
@@ -531,12 +653,12 @@ void LowPtGsfElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("EERecHits", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
   desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllTmp"));
   desc.add<edm::InputTag>("BeamSpot", edm::InputTag("offlineBeamSpot"));
-  desc.add<std::string>("Fitter", "GsfTrajectoryFitter_forPreId");
-  desc.add<std::string>("Smoother", "GsfTrajectorySmoother_forPreId");
-  desc.add<std::string>("TTRHBuilder", "WithAngleAndTemplate");
-  desc.add<std::vector<std::string> >("ModelNames", std::vector<std::string>());
-  desc.add<std::vector<std::string> >("ModelWeights", std::vector<std::string>());
-  desc.add<std::vector<double> >("ModelThresholds", std::vector<double>());
+  desc.add<edm::ESInputTag>("Fitter", edm::ESInputTag{"", "GsfTrajectoryFitter_forPreId"});
+  desc.add<edm::ESInputTag>("Smoother", edm::ESInputTag{"", "GsfTrajectorySmoother_forPreId"});
+  desc.add<edm::ESInputTag>("TTRHBuilder", edm::ESInputTag{"", "WithAngleAndTemplate"});
+  desc.add<std::vector<std::string> >("ModelNames", {});
+  desc.add<std::vector<std::string> >("ModelWeights", {});
+  desc.add<std::vector<double> >("ModelThresholds", {});
   desc.add<bool>("PassThrough", false);
   desc.add<bool>("UsePfTracks", true);
   desc.add<double>("MinPtThreshold", 1.0);

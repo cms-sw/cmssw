@@ -1,10 +1,9 @@
 #ifndef L1GCTLUT_H_
 #define L1GCTLUT_H_
 
-#include <boost/cstdint.hpp>  //for uint16_t
-
 #include <iomanip>
 #include <sstream>
+#include <cstdint>
 
 /*!
  * \author Greg Heath

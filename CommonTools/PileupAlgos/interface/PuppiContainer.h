@@ -2,28 +2,25 @@
 #define COMMONTOOLS_PUPPI_PUPPICONTAINER_H_
 
 #include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
-#include "CommonTools/PileupAlgos/interface/RecoObj.h"
 #include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
+#include "CommonTools/PileupAlgos/interface/RecoObj.h"
 
 class PuppiContainer {
 public:
   PuppiContainer(const edm::ParameterSet &iConfig);
   ~PuppiContainer();
   void initialize(const std::vector<RecoObj> &iRecoObjects);
-  void setNPV(int iNPV) { fNPV = iNPV; }
+  void setPUProxy(double const iPUProxy) { fPUProxy = iPUProxy; }
 
   std::vector<PuppiCandidate> const &pfParticles() const { return fPFParticles; }
-  std::vector<PuppiCandidate> const &pvParticles() const { return fChargedPV; }
   std::vector<double> const &puppiWeights();
   const std::vector<double> &puppiRawAlphas() { return fRawAlphas; }
   const std::vector<double> &puppiAlphas() { return fVals; }
   // const std::vector<double> puppiAlpha   () {return fAlpha;}
   const std::vector<double> &puppiAlphasMed() { return fAlphaMed; }
   const std::vector<double> &puppiAlphasRMS() { return fAlphaRMS; }
-  const std::vector<int> &recoToPup() const { return fRecoToPup; }
 
   int puppiNAlgos() { return fNAlgos; }
-  std::vector<PuppiCandidate> const &puppiParticles() const { return fPupParticles; }
 
 protected:
   double goodVar(PuppiCandidate const &iPart, std::vector<PuppiCandidate> const &iParts, int iOpt, const double iRCone);
@@ -45,14 +42,13 @@ protected:
   bool fPuppiDiagnostics;
   const std::vector<RecoObj> *fRecoParticles;
   std::vector<PuppiCandidate> fPFParticles;
-  std::vector<PuppiCandidate> fChargedPV;
-  std::vector<PuppiCandidate> fPupParticles;
+  std::vector<PuppiCandidate> fPFParticlesForVar;
+  std::vector<PuppiCandidate> fPFParticlesForVarChargedPV;
   std::vector<double> fWeights;
   std::vector<double> fVals;
   std::vector<double> fRawAlphas;
   std::vector<double> fAlphaMed;
   std::vector<double> fAlphaRMS;
-  std::vector<int> fRecoToPup;
 
   bool fApplyCHS;
   bool fInvert;
@@ -60,10 +56,12 @@ protected:
   double fNeutralMinPt;
   double fNeutralSlope;
   double fPuppiWeightCut;
-  double fPtMax;
+  double fPtMaxPhotons;
+  double fEtaMaxPhotons;
+  double fPtMaxNeutrals;
+  double fPtMaxNeutralsStartSlope;
   int fNAlgos;
-  int fNPV;
-  double fPVFrac;
+  double fPUProxy;
   std::vector<PuppiAlgo> fPuppiAlgo;
 };
 #endif

@@ -23,23 +23,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
-#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
-#include <boost/cstdint.hpp>
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include <cstdint>
 
 class SiPixelDigiModule {
 public:
@@ -59,7 +45,7 @@ public:
 
   /// Book histograms
   void book(const edm::ParameterSet& iConfig,
-            const edm::EventSetup& iSetup,
+            const TrackerTopology* pTT,
             DQMStore::IBooker& iBooker,
             int type = 0,
             bool twoD = true,
@@ -74,7 +60,7 @@ public:
   //           bool twoD=true, bool reducedSet=false, bool twoDimModOn = true, bool twoDimOnlyLayDisk = false,
   //           int &nDigisA, int &nDigisB);
   int fill(const edm::DetSetVector<PixelDigi>& input,
-           const edm::EventSetup& iSetup,
+           const TrackerTopology* pTT,
            MonitorElement* combBarrel,
            MonitorElement* chanBarrel,
            std::vector<MonitorElement*>& chanBarrelL,

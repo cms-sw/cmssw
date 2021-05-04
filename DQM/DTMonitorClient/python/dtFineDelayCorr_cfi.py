@@ -6,7 +6,7 @@ dtFineDelayCorr = cms.EDAnalyzer("DTFineDelayCorr",
     # run in online environment
     runOnline = cms.untracked.bool(True),
     # kind of trigger data processed by DTLocalTriggerTask
-    hwSources = cms.untracked.vstring('TM','DDU'),
+    hwSources = cms.untracked.vstring('TM'),
     # false if DTLocalTriggerTask used LTC digis
     localrun = cms.untracked.bool(True),                         
     # root folder for booking of histograms
@@ -22,8 +22,8 @@ dtFineDelayCorr = cms.EDAnalyzer("DTFineDelayCorr",
     outputFile = cms.string("dtFineDelaysNew.txt"),
     # Tag for the t0Mean Histograms
     t0MeanHistoTag  = cms.string("TrackCrossingTimeAll"),
-    # Hardware Source (DDU or TM)
-    hwSource = cms.string("DDU"),
+    # Hardware Source (TM)
+    hwSource = cms.string("TM"),
     # Choose to use Hist Mean or Gaussian Fit Mean
     gaussMean = cms.bool(False),
     # Require Minimum Number Of Entries in the t0Mean Histogram
@@ -35,7 +35,4 @@ dtFineDelayCorr = cms.EDAnalyzer("DTFineDelayCorr",
                                     
 )
 
-
-from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify( dtFineDelayCorr, hwSources = cms.untracked.vstring('TM'))
 

@@ -6,8 +6,8 @@ process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.ForwardCommonData.testHFNoseXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff")
-process.load("Geometry.HcalCommonData.hcalParameters_cfi")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi")
@@ -22,9 +22,9 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
-    process.MessageLogger.categories.append('HFNSim')
-    process.MessageLogger.categories.append('HGCalValidation')
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HFNSim=dict()
+    process.MessageLogger.HGCalValidation=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

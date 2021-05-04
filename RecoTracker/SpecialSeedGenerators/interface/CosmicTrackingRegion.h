@@ -83,18 +83,22 @@ public:
 
   TrackingRegion::Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
-  HitRZCompatibility* checkRZ(const DetLayer* layer,
-                              const Hit& outerHit,
-                              const edm::EventSetup& iSetup,
-                              const DetLayer* outerlayer = nullptr,
-                              float lr = 0,
-                              float gz = 0,
-                              float dr = 0,
-                              float dz = 0) const override {
+  std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
+                                              const Hit& outerHit,
+                                              const edm::EventSetup& iSetup,
+                                              const DetLayer* outerlayer = nullptr,
+                                              float lr = 0,
+                                              float gz = 0,
+                                              float dr = 0,
+                                              float dz = 0) const override {
     return nullptr;
   }
 
-  CosmicTrackingRegion* clone() const override { return new CosmicTrackingRegion(*this); }
+  /// Set the elements of the mask corresponding to the tracks that are compatable with the region.
+  /// Does not reset the elements corresponding to the tracks that are not compatible.
+  void checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const override;
+
+  std::unique_ptr<TrackingRegion> clone() const override { return std::make_unique<CosmicTrackingRegion>(*this); }
 
   std::string name() const override { return "CosmicTrackingRegion"; }
 

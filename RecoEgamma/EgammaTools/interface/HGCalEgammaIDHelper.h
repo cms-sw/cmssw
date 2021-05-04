@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -71,6 +72,7 @@ private:
   edm::InputTag eeRecHitInputTag_;
   edm::InputTag fhRecHitInputTag_;
   edm::InputTag bhRecHitInputTag_;
+  edm::InputTag hitMapInputTag_;
 
   std::vector<double> dEdXWeights_;
   hgcal::EGammaPCAHelper pcaHelper_;
@@ -78,6 +80,8 @@ private:
   edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
+  edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
   hgcal::RecHitTools recHitTools_;
   bool debug_;
 };

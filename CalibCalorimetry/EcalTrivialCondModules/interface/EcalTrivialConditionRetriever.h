@@ -113,6 +113,7 @@
 #include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
 #include "SimG4CMS/Calo/interface/EvolutionECAL.h"
 
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 // forward declarations
 
 namespace edm {

@@ -5,6 +5,8 @@
 #include <vector>
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 
@@ -42,6 +44,7 @@ private:
   edm::EDGetTokenT<EventWithHistory> m_historyToken;
   std::string m_partition;
   edm::EDGetTokenT<APVCyclePhaseCollection> m_APVPhaseToken;
+  edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> m_apvLatencyToken;
   std::vector<int> m_apvmodes;
   std::vector<int> m_dbxrange;
   std::vector<int> m_dbxrangelat;

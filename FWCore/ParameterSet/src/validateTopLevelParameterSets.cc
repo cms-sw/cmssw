@@ -2,6 +2,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ThreadsInfo.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -19,6 +20,19 @@ namespace edm {
     description.addUntracked<unsigned int>("numberOfConcurrentRuns", 1);
     description.addUntracked<unsigned int>("numberOfConcurrentLuminosityBlocks", 1)
         ->setComment("If zero, then set the same as the number of runs");
+
+    edm::ParameterSetDescription eventSetupDescription;
+    eventSetupDescription.addUntracked<unsigned int>("numberOfConcurrentIOVs", 1)
+        ->setComment(
+            "If zero, set to 1. Can be overridden by hard coded static in record C++ definition or by "
+            "forceNumberOfConcurrentIOVs");
+    edm::ParameterSetDescription nestedDescription;
+    nestedDescription.addWildcardUntracked<unsigned int>("*")->setComment(
+        "Parameter names should be record names and the values are the number of concurrent IOVS for each record."
+        " Overrides all other methods of setting number of concurrent IOVs.");
+    eventSetupDescription.addUntracked<edm::ParameterSetDescription>("forceNumberOfConcurrentIOVs", nestedDescription);
+    description.addUntracked<edm::ParameterSetDescription>("eventSetup", eventSetupDescription);
+
     description.addUntracked<bool>("wantSummary", false)
         ->setComment("Set true to print a report on the trigger decisions and timing of modules");
     description.addUntracked<std::string>("fileMode", "FULLMERGE")
@@ -27,6 +41,10 @@ namespace edm {
     description.addUntracked<bool>("throwIfIllegalParameter", true)
         ->setComment("Set false to disable exception throws when configuration validation detects illegal parameters");
     description.addUntracked<bool>("printDependencies", false)->setComment("Print data dependencies between modules");
+    description.addUntracked<bool>("deleteNonConsumedUnscheduledModules", true)
+        ->setComment(
+            "Delete modules that are unscheduled, i.e. only in Tasks, whose products are not consumed by any other "
+            "otherwise-running module");
 
     // No default for this one because the parameter value is
     // actually used in the main function in cmsRun.cpp before

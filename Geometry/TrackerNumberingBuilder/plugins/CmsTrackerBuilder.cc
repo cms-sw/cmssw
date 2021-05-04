@@ -1,5 +1,4 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerBuilder.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -11,15 +10,17 @@
 
 #include <bitset>
 
-CmsTrackerBuilder::CmsTrackerBuilder() {}
+template <class FilteredView>
+void CmsTrackerBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsTrackerSubStrctBuilder<FilteredView> theCmsTrackerSubStrctBuilder;
+  CmsTrackerPixelPhase1EndcapBuilder<FilteredView> theCmsTrackerPixelPhase1EndcapBuilder;
+  CmsTrackerPixelPhase2EndcapBuilder<FilteredView> theCmsTrackerPixelPhase2EndcapBuilder;
 
-void CmsTrackerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerSubStrctBuilder theCmsTrackerSubStrctBuilder;
-  CmsTrackerPixelPhase1EndcapBuilder theCmsTrackerPixelPhase1EndcapBuilder;
-  CmsTrackerPixelPhase2EndcapBuilder theCmsTrackerPixelPhase2EndcapBuilder;
-
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::PixelBarrel:
       theCmsTrackerSubStrctBuilder.build(fv, subdet, s);
       break;
@@ -58,15 +59,16 @@ void CmsTrackerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std:
       break;
     default:
       edm::LogError("CmsTrackerBuilder") << " ERROR - I was expecting a SubDet, I got a "
-                                         << ExtractStringFromDDD::getString(s, &fv);
+                                         << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
 
   g->addComponent(subdet);
 }
 
-void CmsTrackerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerBuilder<FilteredView>::sortNS(FilteredView&, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
-  std::stable_sort(comp.begin(), comp.end(), subDetByType);
+  std::stable_sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::subDetByType);
 
   for (uint32_t i = 0; i < comp.size(); i++) {
     uint32_t temp = comp[i]->type();
@@ -75,3 +77,6 @@ void CmsTrackerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
         100);  // it relies on the fact that the GeometricDet::GDEnumType enumerators used to identify the subdetectors in the upgrade geometries are equal to the ones of the present detector + n*100
   }
 }
+
+template class CmsTrackerBuilder<DDFilteredView>;
+template class CmsTrackerBuilder<cms::DDFilteredView>;

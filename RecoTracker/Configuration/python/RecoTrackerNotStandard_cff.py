@@ -18,10 +18,24 @@ from RecoTracker.CkfPattern.CkfTrackCandidatesCombinedSeeds_cff import *
 from RecoTracker.TrackProducer.CTFNoOverlaps_cff import *
 from RecoTracker.TrackProducer.CTFPixelLess_cff import *
 from RecoTracker.TrackProducer.CTFCombinedSeeds_cff import *
-ctfTracksNoOverlaps = cms.Sequence(ckfTrackCandidatesNoOverlaps*ctfNoOverlaps)
-ctfTracksPixelLess = cms.Sequence(pixelLessLayerPairs4PixelLessTracking*globalPixelLessSeeds*ckfTrackCandidatesPixelLess*ctfPixelLess)
-ctfTracksCombinedSeeds = cms.Sequence(MixedLayerPairs*globalSeedsFromPairsWithVertices*PixelLayerTriplets*globalSeedsFromTriplets*globalCombinedSeeds*ckfTrackCandidatesCombinedSeeds*ctfCombinedSeeds)
 
+ctfTracksNoOverlapsTask = cms.Task(ckfTrackCandidatesNoOverlaps, ctfNoOverlaps)
+ctfTracksNoOverlaps = cms.Sequence(ctfTracksNoOverlapsTask)
+
+ctfTracksPixelLessTask = cms.Task(pixelLessLayerPairs4PixelLessTracking, 
+                                       globalPixelLessSeeds, 
+                                       ckfTrackCandidatesPixelLess, 
+                                       ctfPixelLess)
+ctfTracksPixelLess = cms.Sequence(ctfTracksPixelLessTask)
+
+ctfTracksCombinedSeedsTask = cms.Task(MixedLayerPairs, 
+                                       globalSeedsFromPairsWithVertices, 
+                                       PixelLayerTriplets, 
+                                       globalSeedsFromTriplets, 
+                                       globalCombinedSeeds, 
+                                       ckfTrackCandidatesCombinedSeeds,
+                                       ctfCombinedSeeds)
+ctfTracksCombinedSeeds = cms.Sequence(ctfTracksCombinedSeedsTask)
 #
 # Regional reconstruction for cosmics
 #
@@ -31,13 +45,17 @@ from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsRegio
 # Ckf pattern
 import RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff
 regionalCosmicCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff.ckfTrackCandidatesP5.clone(
-    src = cms.InputTag( "regionalCosmicTrackerSeeds" ),
+    src = "regionalCosmicTrackerSeeds",
 )
 
 # Track producer
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
 regionalCosmicTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
-    src = cms.InputTag( "regionalCosmicCkfTrackCandidates" ),
+    src = "regionalCosmicCkfTrackCandidates",
 )
 # Final Sequence
-regionalCosmicTracksSeq = cms.Sequence( regionalCosmicTrackerSeedingLayers * regionalCosmicTrackerSeeds * regionalCosmicCkfTrackCandidates * regionalCosmicTracks )
+regionalCosmicTracksTask = cms.Task(regionalCosmicTrackerSeedingLayers,
+                                             regionalCosmicTrackerSeeds,
+                                             regionalCosmicCkfTrackCandidates,
+                                             regionalCosmicTracks )
+regionalCosmicTracksSeq = cms.Sequence(regionalCosmicTracksTask)

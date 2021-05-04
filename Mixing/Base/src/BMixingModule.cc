@@ -17,6 +17,8 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include <iostream>
+#include <memory>
+
 const unsigned int edm::BMixingModule::maxNbSources_ = 4;
 
 namespace {
@@ -226,7 +228,7 @@ namespace edm {
   }  // namespace MixingCache
 
   std::unique_ptr<MixingCache::Config> BMixingModule::initializeGlobalCache(edm::ParameterSet const& pset) {
-    return std::unique_ptr<MixingCache::Config>(new MixingCache::Config(pset, maxNbSources_));
+    return std::make_unique<MixingCache::Config>(pset, maxNbSources_);
   }
 
   // update method call at begin run/lumi to reload the mixing configuration

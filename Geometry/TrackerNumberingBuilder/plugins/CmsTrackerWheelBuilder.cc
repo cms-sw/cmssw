@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerWheelBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -11,12 +12,16 @@
 #include <vector>
 #include <bitset>
 
-void CmsTrackerWheelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerRingBuilder theCmsTrackerRingBuilder;
-  CmsTrackerPetalBuilder theCmsTrackerPetalBuilder;
+template <class FilteredView>
+void CmsTrackerWheelBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsTrackerRingBuilder<FilteredView> theCmsTrackerRingBuilder;
+  CmsTrackerPetalBuilder<FilteredView> theCmsTrackerPetalBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::ring:
       theCmsTrackerRingBuilder.build(fv, subdet, s);
       break;
@@ -24,13 +29,14 @@ void CmsTrackerWheelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
       theCmsTrackerPetalBuilder.build(fv, subdet, s);
       break;
     default:
-      edm::LogError("CmsTrackerWheelBuilder")
-          << " ERROR - I was expecting a Ring or Petal, I got a " << ExtractStringFromDDD::getString(s, &fv);
+      edm::LogError("CmsTrackerWheelBuilder") << " ERROR - I was expecting a Ring or Petal, I got a "
+                                              << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerWheelBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (!comp.empty()) {
@@ -47,8 +53,8 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
         }
       }
 
-      trackerStablePhiSort(compfw.begin(), compfw.end(), getPhiModule);
-      trackerStablePhiSort(compbw.begin(), compbw.end(), getPhiModule);
+      trackerStablePhiSort(compfw.begin(), compfw.end(), CmsTrackerLevelBuilderHelper::getPhiModule);
+      trackerStablePhiSort(compbw.begin(), compbw.end(), CmsTrackerLevelBuilderHelper::getPhiModule);
 
       //
       // TEC
@@ -71,7 +77,7 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
       det->addComponents(compbw);
 
     } else {
-      std::stable_sort(comp.begin(), comp.end(), isLessRModule);
+      std::stable_sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessRModule);
 
       // TID
       // Disk Number: 2 bits [1,2,3]
@@ -83,3 +89,6 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
     edm::LogError("CmsTrackerWheelBuilder") << "Where are the Petals or Rings?";
   }
 }
+
+template class CmsTrackerWheelBuilder<DDFilteredView>;
+template class CmsTrackerWheelBuilder<cms::DDFilteredView>;

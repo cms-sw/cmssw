@@ -177,6 +177,10 @@ SiPixelPhase1DigisOccupancy = DefaultHistoReadout.clone(
   )
 )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(SiPixelPhase1ClustersNdigisInclusive, range_max = 150000, range_nbins=150)
+
+
 # This has to match the order of the names in the C++ enum.
 SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisADC,

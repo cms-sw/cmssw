@@ -17,6 +17,15 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 
 namespace edm {
+  void LuminosityBlockProcessingStatus::resetResources() {
+    endIOVWaitingTasks_.doneWaiting(std::exception_ptr{});
+    for (auto& iter : eventSetupImpls_) {
+      iter.reset();
+    }
+    resumeGlobalLumiQueue();
+    run_.reset();
+  }
+
   void LuminosityBlockProcessingStatus::setEndTime() {
     if (2 != endTimeSetStatus_) {
       //not already set

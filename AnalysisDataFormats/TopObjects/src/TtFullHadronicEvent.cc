@@ -2,6 +2,9 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadEvtPartons.h"
 
+#include "printParticle.h"
+using ttevent::printParticle;
+
 // print info via MessageLogger
 void TtFullHadronicEvent::print(const int verbosity) const {
   if (verbosity % 10 <= 0)

@@ -1,13 +1,10 @@
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoParticleFlow/PFProducer/interface/PFBlockElementSCEqual.h"
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # In order to produce everything that you need in one go, use the command:
 #
 # for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=XYZ label=$t >& /dev/null &; done
@@ -6,6 +7,8 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 import sys, re
+
+from FWCore.PythonFramework.CmsRun import CmsRun
 
 process = cms.Process("PROD")
 
@@ -45,9 +48,9 @@ options.parseArguments()
 # Option validation
 
 if options.label not in _ALLOWED_LABELS:
-    print "\n*** Error, '%s' not registered as a valid components to monitor." % options.label
-    print "Allowed components:", _ALLOWED_LABELS
-    print
+    print("\n*** Error, '%s' not registered as a valid components to monitor." % options.label)
+    print("Allowed components:", _ALLOWED_LABELS)
+    print()
     raise RuntimeError("Unknown label")
 
 _components = _LABELS2COMPS[options.label]
@@ -78,7 +81,17 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+'''
+process.Timing = cms.Service("Timing")
 
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+  ignoreTotal          = cms.untracked.int32(1),
+  oncePerEventMode     = cms.untracked.bool(True),
+  moduleMemorySummary  = cms.untracked.bool(True),
+  showMallocInfo       = cms.untracked.bool(True),
+  monitorPssAndPrivate = cms.untracked.bool(True),
+)
+'''
 process.p1 = cms.Path(process.g4SimHits)
 process.g4SimHits.StackingAction.TrackNeutrino = cms.bool(True)
 process.g4SimHits.UseMagneticField = False
@@ -121,3 +134,9 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 
      )
 ))
+
+
+cmsRun = CmsRun(process)
+cmsRun.run()
+
+

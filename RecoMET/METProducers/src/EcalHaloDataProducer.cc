@@ -12,7 +12,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-EcalHaloDataProducer::EcalHaloDataProducer(const edm::ParameterSet& iConfig) {
+EcalHaloDataProducer::EcalHaloDataProducer(const edm::ParameterSet& iConfig) : EcalAlgo(consumesCollector()) {
   //RecHit Level
   IT_EBRecHit = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
   IT_EERecHit = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
@@ -43,14 +43,14 @@ EcalHaloDataProducer::EcalHaloDataProducer(const edm::ParameterSet& iConfig) {
   hbherechit_token_ = consumes<HBHERecHitCollection>(IT_HBHERecHit);
   supercluster_token_ = consumes<reco::SuperClusterCollection>(IT_SuperCluster);
   photon_token_ = consumes<reco::PhotonCollection>(IT_Photon);
+  calogeometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   produces<EcalHaloData>();
 }
 
 void EcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //Get CaloGeometry
-  edm::ESHandle<CaloGeometry> TheCaloGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCaloGeometry);
+  edm::ESHandle<CaloGeometry> TheCaloGeometry = iSetup.getHandle(calogeometry_token_);
 
   //Get  EB RecHits
   edm::Handle<EBRecHitCollection> TheEBRecHits;
@@ -82,7 +82,6 @@ void EcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByToken(photon_token_, ThePhotons);
 
   //Run the EcalHaloAlgo to reconstruct the EcalHaloData object
-  EcalHaloAlgo EcalAlgo;
   EcalAlgo.SetRoundnessCut(RoundnessCut);
   EcalAlgo.SetAngleCut(AngleCut);
   EcalAlgo.SetRecHitEnergyThresholds(EBRecHitEnergyThreshold, EERecHitEnergyThreshold, ESRecHitEnergyThreshold);

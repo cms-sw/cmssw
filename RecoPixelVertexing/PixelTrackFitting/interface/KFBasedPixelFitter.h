@@ -2,10 +2,10 @@
 #define KFBasedPixelFitter_H
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include <vector>
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
+
+#include <vector>
 
 namespace edm {
   class EventSetup;

@@ -1,5 +1,5 @@
-#ifndef CSCDCCExaminer_h
-#define CSCDCCExaminer_h
+#ifndef EventFilter_CSCRawToDigi_CSCDCCExaminer_h
+#define EventFilter_CSCRawToDigi_CSCDCCExaminer_h
 #include <set>
 #include <map>
 #include <vector>

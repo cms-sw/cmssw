@@ -44,7 +44,8 @@ namespace edm {
 
   class Run : public RunBase {
   public:
-    Run(RunPrincipal const& rp, ModuleDescription const& md, ModuleCallingContext const*, bool isAtEnd);
+    Run(RunTransitionInfo const&, ModuleDescription const&, ModuleCallingContext const*, bool isAtEnd);
+    Run(RunPrincipal const&, ModuleDescription const&, ModuleCallingContext const*, bool isAtEnd);
     ~Run() override;
 
     //Used in conjunction with EDGetToken
@@ -126,7 +127,9 @@ namespace edm {
     template <typename PROD, typename... Args>
     void emplace(EDPutToken token, Args&&... args);
 
-    Provenance getProvenance(BranchID const& theID) const;
+    Provenance const& getProvenance(BranchID const& theID) const;
+
+    StableProvenance const& getStableProvenance(BranchID const& theID) const;
 
     void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
@@ -214,7 +217,7 @@ namespace edm {
 
   template <typename PROD>
   void Run::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, provRecorder_.productInstanceLabel(token));
     }

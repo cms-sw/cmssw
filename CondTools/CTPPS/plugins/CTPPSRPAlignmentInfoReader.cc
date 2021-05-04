@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/CondDB/interface/Time.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 #include "CondFormats/AlignmentRecord/interface/CTPPSRPAlignmentCorrectionsDataRcd.h"
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"

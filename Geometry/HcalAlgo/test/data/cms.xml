@@ -85,16 +85,6 @@
   <ZSection z="[TrackBeamZ1]"   rMin="[TrackBeamR1]"  rMax="[TrackCalorR]" />
   <ZSection z="[TrackBeamZ2]"   rMin="[TrackBeamR2]"  rMax="[TrackCalorR]" />
  </Polycone> 
- <Polycone name="CALO" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="-[CalorBeamZ2]"  rMin="[CalorBeamR2]"  rMax="[CalorMuonR]" />
-  <ZSection z="-[CalorBeamZ1]"  rMin="[CalorBeamR1]"  rMax="[CalorMuonR]" />
-  <ZSection z="-[TrackBeamZ2]"  rMin="[TrackBeamR2]"  rMax="[CalorMuonR]" />
-  <ZSection z="-[TrackBeamZ2]"  rMin="[TrackCalorR]"  rMax="[CalorMuonR]" />
-  <ZSection z="[TrackBeamZ2]"   rMin="[TrackCalorR]"  rMax="[CalorMuonR]" />
-  <ZSection z="[TrackBeamZ2]"   rMin="[TrackBeamR2]"  rMax="[CalorMuonR]" />
-  <ZSection z="[CalorBeamZ1]"   rMin="[CalorBeamR1]"  rMax="[CalorMuonR]" />
-  <ZSection z="[CalorBeamZ2]"   rMin="[CalorBeamR2]"  rMax="[CalorMuonR]" />
- </Polycone> 
  <Polycone name="MUON" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="-[MuonBeamZ2]"  rMin="[TotemMuonR2]" rMax="[CMSR1]" />
   <ZSection z="-[TotemMuonZ1]" rMin="[TotemMuonR2]" rMax="[CMSR1]" />
@@ -126,10 +116,6 @@
   <rSolid name="TRAK"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
- <LogicalPart name="CALO" category="unspecified">
-  <rSolid name="CALO"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
  <LogicalPart name="MUON" category="unspecified">
   <rSolid name="MUON"/>
   <rMaterial name="materials:Air"/>
@@ -145,11 +131,6 @@
  <PosPart copyNumber="1">
    <rParent name="cms:CMSE"/>
    <rChild name="cms:TRAK"/>
-  <rRotation name="rotations:000D"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="cms:CMSE"/>
-   <rChild name="cms:CALO"/>
   <rRotation name="rotations:000D"/>
  </PosPart>
  <PosPart copyNumber="1">

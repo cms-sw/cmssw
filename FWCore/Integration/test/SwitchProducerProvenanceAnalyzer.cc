@@ -30,8 +30,8 @@ namespace edmtest {
   };
 
   SwitchProducerProvenanceAnalyzer::SwitchProducerProvenanceAnalyzer(edm::ParameterSet const& iConfig)
-      : inputToken1_(consumes<IntProduct>(iConfig.getParameter<edm::InputTag>("src1"))),
-        inputToken2_(consumes<IntProduct>(iConfig.getParameter<edm::InputTag>("src2"))),
+      : inputToken1_(consumes(iConfig.getParameter<edm::InputTag>("src1"))),
+        inputToken2_(consumes(iConfig.getParameter<edm::InputTag>("src2"))),
         producerPrefix_(iConfig.getParameter<std::string>("producerPrefix")),
         aliasMode_(iConfig.getParameter<bool>("aliasMode")) {}
 
@@ -55,8 +55,7 @@ namespace edmtest {
     assert(provenance != nullptr);
     auto const* productProvenance = provenance->productProvenance();
     assert(productProvenance != nullptr);
-    auto const* processHistory = provenance->processHistoryPtr();
-    assert(processHistory != nullptr);
+    auto const& processHistory = iEvent.processHistory();
 
     edm::pset::Registry const* psetRegistry = edm::pset::Registry::instance();
     assert(psetRegistry != nullptr);
@@ -67,7 +66,7 @@ namespace edmtest {
     assert(productProvenance->branchID() == provenance->branchID());
 
     // Check that the provenance of the Switch itself is recorded correctly
-    for (edm::ProcessConfiguration const& pc : *processHistory) {
+    for (edm::ProcessConfiguration const& pc : processHistory) {
       if (pc.processName() == provenance->processName()) {
         edm::ParameterSetID const& psetID = pc.parameterSetID();
         edm::ParameterSet const* processPSet = psetRegistry->getMapped(psetID);

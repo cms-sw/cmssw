@@ -37,7 +37,6 @@ public:
   ~BPhysicsValidation() override;
 
   void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) override;
   void analyze(edm::Event const &, edm::EventSetup const &) override;
 
 private:

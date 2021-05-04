@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtUtils
- * 
- * 
+ *
+ *
  * Description: various methods for L1 GT, to be called in an EDM analyzer, producer or filter.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  *
  */
 
@@ -21,13 +21,31 @@
 #include <utility>
 
 // user include files
+#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoTechTrigRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
@@ -47,10 +65,26 @@ class L1GlobalTriggerRecord;
 
 class L1GtUtils {
 public:
-  // Using this constructor will require InputTags to be specified in the configuration
-  L1GtUtils(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC, bool useL1GtTriggerMenuLite);
+  // Use this enum to tell the EventSetup whether it should prefetch
+  // data when processing beginRun or an Event or both. (This
+  // depends on when retrieveL1EventSetup is called which can
+  // be a direct call or also indirectly through a call to one
+  // or both versions of getL1GtRunCache. Also note that getL1GtRunCache
+  // has an argument that disables EventSetup calls and if the Run
+  // version of the function is called then the Event version of the
+  // function does not get EventSetup data)
+  enum class UseEventSetupIn { Run, Event, RunAndEvent, Nothing };
 
-  L1GtUtils(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, bool useL1GtTriggerMenuLite);
+  // Using this constructor will require InputTags to be specified in the configuration
+  L1GtUtils(edm::ParameterSet const& pset,
+            edm::ConsumesCollector&& iC,
+            bool useL1GtTriggerMenuLite,
+            UseEventSetupIn use = UseEventSetupIn::Run);
+
+  L1GtUtils(edm::ParameterSet const& pset,
+            edm::ConsumesCollector& iC,
+            bool useL1GtTriggerMenuLite,
+            UseEventSetupIn use = UseEventSetupIn::Run);
 
   // Using this constructor will cause it to look for valid InputTags in
   // the following ways in the specified order until they are found.
@@ -58,10 +92,18 @@ public:
   //   2. Search all products from the preferred input tags for the required type
   //   3. Search all products from any other process for the required type
   template <typename T>
-  L1GtUtils(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC, bool useL1GtTriggerMenuLite, T& module);
+  L1GtUtils(edm::ParameterSet const& pset,
+            edm::ConsumesCollector&& iC,
+            bool useL1GtTriggerMenuLite,
+            T& module,
+            UseEventSetupIn use = UseEventSetupIn::Run);
 
   template <typename T>
-  L1GtUtils(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, bool useL1GtTriggerMenuLite, T& module);
+  L1GtUtils(edm::ParameterSet const& pset,
+            edm::ConsumesCollector& iC,
+            bool useL1GtTriggerMenuLite,
+            T& module,
+            UseEventSetupIn use = UseEventSetupIn::Run);
 
   // Using this constructor will cause it to look for valid InputTags in
   // the following ways in the specified order until they are found.
@@ -76,7 +118,8 @@ public:
             T& module,
             edm::InputTag const& l1GtRecordInputTag,
             edm::InputTag const& l1GtReadoutRecordInputTag,
-            edm::InputTag const& l1GtTriggerMenuLiteInputTag);
+            edm::InputTag const& l1GtTriggerMenuLiteInputTag,
+            UseEventSetupIn use = UseEventSetupIn::Run);
 
   template <typename T>
   L1GtUtils(edm::ParameterSet const& pset,
@@ -85,7 +128,8 @@ public:
             T& module,
             edm::InputTag const& l1GtRecordInputTag,
             edm::InputTag const& l1GtReadoutRecordInputTag,
-            edm::InputTag const& l1GtTriggerMenuLiteInputTag);
+            edm::InputTag const& l1GtTriggerMenuLiteInputTag,
+            UseEventSetupIn use = UseEventSetupIn::Run);
 
   /// destructor
   virtual ~L1GtUtils();
@@ -97,8 +141,8 @@ public:
 
   /**
      * \class L1GtUtils
-     * 
-     * 
+     *
+     *
      * Description: return L1 trigger results for a logical expression.
      *
      * Implementation:
@@ -106,7 +150,7 @@ public:
      *    Mixture of algorithm and technical triggers in the logical expression is allowed only if
      *    trigger names or aliases are used. Mixing bit numbers and names or aliases is not supported.
      *    If the expression has bit numbers, they are assumed to be technical triggers.
-     *    
+     *
      * \author: Vasile Mihai Ghete - HEPHY Vienna
      *      *
      */
@@ -203,7 +247,7 @@ public:
   const std::string triggerCategory(const TriggerCategory&) const;
 
   /// retrieve all the relevant L1 trigger event setup records and cache them to improve the speed
-  void retrieveL1EventSetup(const edm::EventSetup&);
+  void retrieveL1EventSetup(const edm::EventSetup&, bool isRun = true);
 
   /// retrieve L1GtTriggerMenuLite (per run product) and cache it to improve the speed
 
@@ -339,7 +383,7 @@ private:
                         int& errorCode) const;
 
 private:
-  L1GtUtils();
+  L1GtUtils(edm::ConsumesCollector&, UseEventSetupIn);
 
   /// event setup cached stuff
 
@@ -427,15 +471,43 @@ private:
   bool m_retrieveL1GtTriggerMenuLite;
 
   std::unique_ptr<L1GtUtilsHelper> m_l1GtUtilsHelper;
+
+  // beginRun EventSetup tokens
+  edm::ESGetToken<L1GtStableParameters, L1GtStableParametersRcd> m_L1GtStableParametersRunToken;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> m_L1GtPrescaleFactorsAlgoTrigRunToken;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> m_L1GtPrescaleFactorsTechTrigRunToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> m_L1GtTriggerMaskAlgoTrigRunToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> m_L1GtTriggerMaskTechTrigRunToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoAlgoTrigRcd> m_L1GtTriggerMaskVetoAlgoTrigRunToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoTechTrigRcd> m_L1GtTriggerMaskVetoTechTrigRunToken;
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_L1GtTriggerMenuRunToken;
+
+  // event transition EventSetup tokens (same as run tokens except a different name)
+  edm::ESGetToken<L1GtStableParameters, L1GtStableParametersRcd> m_L1GtStableParametersEventToken;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> m_L1GtPrescaleFactorsAlgoTrigEventToken;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> m_L1GtPrescaleFactorsTechTrigEventToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> m_L1GtTriggerMaskAlgoTrigEventToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> m_L1GtTriggerMaskTechTrigEventToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoAlgoTrigRcd> m_L1GtTriggerMaskVetoAlgoTrigEventToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoTechTrigRcd> m_L1GtTriggerMaskVetoTechTrigEventToken;
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_L1GtTriggerMenuEventToken;
 };
 
 template <typename T>
-L1GtUtils::L1GtUtils(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC, bool useL1GtTriggerMenuLite, T& module)
-    : L1GtUtils(pset, iC, useL1GtTriggerMenuLite, module) {}
+L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
+                     edm::ConsumesCollector&& iC,
+                     bool useL1GtTriggerMenuLite,
+                     T& module,
+                     UseEventSetupIn useEventSetupIn)
+    : L1GtUtils(pset, iC, useL1GtTriggerMenuLite, module, useEventSetupIn) {}
 
 template <typename T>
-L1GtUtils::L1GtUtils(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, bool useL1GtTriggerMenuLite, T& module)
-    : L1GtUtils() {
+L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
+                     edm::ConsumesCollector& iC,
+                     bool useL1GtTriggerMenuLite,
+                     T& module,
+                     UseEventSetupIn useEventSetupIn)
+    : L1GtUtils(iC, useEventSetupIn) {
   m_l1GtUtilsHelper.reset(new L1GtUtilsHelper(pset, iC, useL1GtTriggerMenuLite, module));
 }
 
@@ -446,14 +518,16 @@ L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
                      T& module,
                      edm::InputTag const& l1GtRecordInputTag,
                      edm::InputTag const& l1GtReadoutRecordInputTag,
-                     edm::InputTag const& l1GtTriggerMenuLiteInputTag)
+                     edm::InputTag const& l1GtTriggerMenuLiteInputTag,
+                     UseEventSetupIn useEventSetupIn)
     : L1GtUtils(pset,
                 iC,
                 useL1GtTriggerMenuLite,
                 module,
                 l1GtRecordInputTag,
                 l1GtReadoutRecordInputTag,
-                l1GtTriggerMenuLiteInputTag) {}
+                l1GtTriggerMenuLiteInputTag,
+                useEventSetupIn) {}
 
 template <typename T>
 L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
@@ -462,8 +536,9 @@ L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
                      T& module,
                      edm::InputTag const& l1GtRecordInputTag,
                      edm::InputTag const& l1GtReadoutRecordInputTag,
-                     edm::InputTag const& l1GtTriggerMenuLiteInputTag)
-    : L1GtUtils() {
+                     edm::InputTag const& l1GtTriggerMenuLiteInputTag,
+                     UseEventSetupIn useEventSetupIn)
+    : L1GtUtils(iC, useEventSetupIn) {
   m_l1GtUtilsHelper.reset(new L1GtUtilsHelper(pset,
                                               iC,
                                               useL1GtTriggerMenuLite,

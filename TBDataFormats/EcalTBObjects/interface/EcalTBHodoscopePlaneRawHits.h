@@ -3,7 +3,6 @@
 
 #include <ostream>
 #include <vector>
-#include <boost/cstdint.hpp>
 
 /** \class EcalTBHodoscopePlaneRawHits
  *  Simple container for rawHits 

@@ -2,8 +2,10 @@
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
+
 #include "TRandom3.h"
 
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
@@ -27,9 +29,11 @@
 using namespace edm;
 
 EcalTrivialConditionRetriever::EcalTrivialConditionRetriever(const edm::ParameterSet& ps) {
-  std::string path = "CalibCalorimetry/EcalTrivialCondModules/data/";
+  std::string dataPath_ =
+      ps.getUntrackedParameter<std::string>("dataPath", "CalibCalorimetry/EcalTrivialCondModules/data/");
+  //  std::string dataPath_ = "CalibCalorimetry/EcalTrivialCondModules/data_test/";
 
-  /*since CMSSW_10_6_0, this path points to https://github.com/cms-data/CalibCalorimetry-EcalTrivialCondModules  (extra package). 
+  /*since CMSSW_10_6_0, this dataPath_ points to https://github.com/cms-data/CalibCalorimetry-EcalTrivialCondModules  (extra package). 
 To modify the default values :
 $ git clone https://github.com/cms-data/CalibCalorimetry-EcalTrivialCondModules.git
 $ cd CalibCalorimetry-EcalTrivialCondModules
@@ -38,9 +42,9 @@ $ git commit -a
 $ git remote add ModifyCalibCalorimetryExtraPackage  git@github.com:yourName/CalibCalorimetry-EcalTrivialCondModules
 $ git push ModifyCalibCalorimetryExtraPackage master:building-calibCalorimetry-extra-package
 
-other solution : change this path name to work directly in afs, ex. :
+other solution : change this dataPath name to work directly in afs, ex. :
 
-  std::string path="CalibCalorimetry/EcalTrivialCondModules/data_test/";
+  std::string dataPath_="CalibCalorimetry/EcalTrivialCondModules/data_test/";
 
  */
 
@@ -176,18 +180,18 @@ other solution : change this path name to work directly in afs, ex. :
 
   weightType = str.str();
 
-  amplWeightsFile_ = ps.getUntrackedParameter<std::string>("amplWeightsFile", path + "ampWeights" + weightType);
+  amplWeightsFile_ = ps.getUntrackedParameter<std::string>("amplWeightsFile", dataPath_ + "ampWeights" + weightType);
   amplWeightsAftFile_ =
-      ps.getUntrackedParameter<std::string>("amplWeightsAftFile", path + "ampWeightsAfterGainSwitch" + weightType);
-  pedWeightsFile_ = ps.getUntrackedParameter<std::string>("pedWeightsFile", path + "pedWeights" + weightType);
+      ps.getUntrackedParameter<std::string>("amplWeightsAftFile", dataPath_ + "ampWeightsAfterGainSwitch" + weightType);
+  pedWeightsFile_ = ps.getUntrackedParameter<std::string>("pedWeightsFile", dataPath_ + "pedWeights" + weightType);
   pedWeightsAftFile_ =
-      ps.getUntrackedParameter<std::string>("pedWeightsAftFile", path + "pedWeightsAfterGainSwitch" + weightType);
-  jittWeightsFile_ = ps.getUntrackedParameter<std::string>("jittWeightsFile", path + "timeWeights" + weightType);
-  jittWeightsAftFile_ =
-      ps.getUntrackedParameter<std::string>("jittWeightsAftFile", path + "timeWeightsAfterGainSwitch" + weightType);
-  chi2MatrixFile_ = ps.getUntrackedParameter<std::string>("chi2MatrixFile", path + "chi2Matrix" + weightType);
+      ps.getUntrackedParameter<std::string>("pedWeightsAftFile", dataPath_ + "pedWeightsAfterGainSwitch" + weightType);
+  jittWeightsFile_ = ps.getUntrackedParameter<std::string>("jittWeightsFile", dataPath_ + "timeWeights" + weightType);
+  jittWeightsAftFile_ = ps.getUntrackedParameter<std::string>("jittWeightsAftFile",
+                                                              dataPath_ + "timeWeightsAfterGainSwitch" + weightType);
+  chi2MatrixFile_ = ps.getUntrackedParameter<std::string>("chi2MatrixFile", dataPath_ + "chi2Matrix" + weightType);
   chi2MatrixAftFile_ =
-      ps.getUntrackedParameter<std::string>("chi2MatrixAftFile", path + "chi2MatrixAfterGainSwitch" + weightType);
+      ps.getUntrackedParameter<std::string>("chi2MatrixAftFile", dataPath_ + "chi2MatrixAfterGainSwitch" + weightType);
 
   amplWeights_.resize(nTDCbins_);
   amplWeightsAft_.resize(nTDCbins_);
@@ -221,17 +225,17 @@ other solution : change this path name to work directly in afs, ex. :
   // Alignment from file
   getEBAlignmentFromFile_ = ps.getUntrackedParameter<bool>("getEBAlignmentFromFile", false);
   if (getEBAlignmentFromFile_) {
-    EBAlignmentFile_ = ps.getUntrackedParameter<std::string>("EBAlignmentFile", path + "EBAlignment.txt");
+    EBAlignmentFile_ = ps.getUntrackedParameter<std::string>("EBAlignmentFile", dataPath_ + "EBAlignment.txt");
   }
 
   getEEAlignmentFromFile_ = ps.getUntrackedParameter<bool>("getEEAlignmentFromFile", false);
   if (getEEAlignmentFromFile_) {
-    EEAlignmentFile_ = ps.getUntrackedParameter<std::string>("EEAlignmentFile", path + "EEAlignment.txt");
+    EEAlignmentFile_ = ps.getUntrackedParameter<std::string>("EEAlignmentFile", dataPath_ + "EEAlignment.txt");
   }
 
   getESAlignmentFromFile_ = ps.getUntrackedParameter<bool>("getESAlignmentFromFile", false);
   if (getESAlignmentFromFile_)
-    ESAlignmentFile_ = ps.getUntrackedParameter<std::string>("ESAlignmentFile", path + "ESAlignment.txt");
+    ESAlignmentFile_ = ps.getUntrackedParameter<std::string>("ESAlignmentFile", dataPath_ + "ESAlignment.txt");
 
   verbose_ = ps.getUntrackedParameter<int>("verbose", 0);
 
@@ -352,8 +356,8 @@ other solution : change this path name to work directly in afs, ex. :
   producedEcalPFRecHitThresholds_ = ps.getUntrackedParameter<bool>("producedEcalPFRecHitThresholds", false);
 
   // new for PFRecHit Thresholds
-  pfRecHitFile_ = ps.getUntrackedParameter<std::string>("pFRecHitFile", path + "EB_thresholds_-1.txt");
-  pfRecHitFileEE_ = ps.getUntrackedParameter<std::string>("pFRecHitFileEE", path + "EE_thresholds_-1.txt");
+  pfRecHitFile_ = ps.getUntrackedParameter<std::string>("pFRecHitFile", dataPath_ + "EB_product_TL235.txt");
+  pfRecHitFileEE_ = ps.getUntrackedParameter<std::string>("pFRecHitFileEE", dataPath_ + "EE_product_TL235.txt");
 
   if (producedEcalPFRecHitThresholds_) {  // user asks to produce constants
     if (!pfRecHitFile_.empty()) {         // if file provided read constants
@@ -412,17 +416,17 @@ other solution : change this path name to work directly in afs, ex. :
     edm::LogInfo(" getLaserAlphaFromTypeEE_ ") << getLaserAlphaFromTypeEE_;
     if (getLaserAlphaFromFileEB_) {
       EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>(
-          "EBLaserAlphaFile", path + "EBLaserAlpha.txt");  // file is used to read the alphas
+          "EBLaserAlphaFile", dataPath_ + "EBLaserAlpha.txt");  // file is used to read the alphas
     }
     if (getLaserAlphaFromFileEE_) {
       EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>(
-          "EELaserAlphaFile", path + "EELaserAlpha.txt");  // file is used to read the alphas
+          "EELaserAlphaFile", dataPath_ + "EELaserAlpha.txt");  // file is used to read the alphas
     }
     if (getLaserAlphaFromTypeEB_) {
       laserAlphaMeanEBR_ = ps.getUntrackedParameter<double>("laserAlphaMeanEBR", 1.55);  // alpha russian crystals in EB
       laserAlphaMeanEBC_ = ps.getUntrackedParameter<double>("laserAlphaMeanEBC", 1.00);  // alpha chinese crystals in EB
       EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>(
-          "EBLaserAlphaFile", path + "EBLaserAlpha.txt");  // file to find out which one is russian/chinese
+          "EBLaserAlphaFile", dataPath_ + "EBLaserAlpha.txt");  // file to find out which one is russian/chinese
     }
     if (getLaserAlphaFromTypeEE_) {
       laserAlphaMeanEEC_higheta_ = ps.getUntrackedParameter<double>("laserAlphaMeanEEC_higheta",
@@ -432,9 +436,10 @@ other solution : change this path name to work directly in afs, ex. :
       laserAlphaMeanEER_ = ps.getUntrackedParameter<double>("laserAlphaMeanEER", 1.16);  // alpha russian crystals in EE
       laserAlphaMeanEEC_ = ps.getUntrackedParameter<double>("laserAlphaMeanEEC", 1.00);  // alpha chinese crystals in EE
       EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>(
-          "EELaserAlphaFile", path + "EELaserAlpha.txt");  // file is used to find out which one is russian or chinese
+          "EELaserAlphaFile",
+          dataPath_ + "EELaserAlpha.txt");  // file is used to find out which one is russian or chinese
       EELaserAlphaFile2_ = ps.getUntrackedParameter<std::string>(
-          "EELaserAlphaFile2", path + "EELaserAlpha2.txt");  // file is used to read the alphas
+          "EELaserAlphaFile2", dataPath_ + "EELaserAlpha2.txt");  // file is used to read the alphas
     }
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef);
     findingRecord<EcalLaserAPDPNRatiosRefRcd>();
@@ -2861,9 +2866,10 @@ std::unique_ptr<EcalPFRecHitThresholds> EcalTrivialConditionRetriever::getPFRecH
       edm::LogInfo("EB ") << std::dec << eta << "/" << std::dec << phi << "/" << std::dec << zeta
                           << " thresh: " << thresh;
     nxt = nxt + 1;
-
-    EBDetId ebid(eta, phi);
-    ical->setValue(ebid, thresh);
+    if (EBDetId::validDetId(eta, phi)) {
+      EBDetId ebid(eta, phi);
+      ical->setValue(ebid.rawId(), thresh);
+    }
   }
   PFRecHitsFile.close();
   // fclose(inpFile);
@@ -2901,14 +2907,13 @@ std::unique_ptr<EcalPFRecHitThresholds> EcalTrivialConditionRetriever::getPFRecH
     }
 
     if (ix == 50)
-      edm::LogInfo("EE ") << std::dec << ix << "/" << std::dec << iy << "/" << std::dec << iz << " thresh: " << thresh
-                          << " eta=" << eta;
-
-    EEDetId eeid(ix, iy, iz);
-    ical->setValue(eeid, thresh);
+      edm::LogInfo("EE ") << std::dec << ix << "/" << std::dec << iy << "/" << std::dec << iz << " thresh: " << thresh;
+    if (EEDetId::validDetId(ix, iy, iz)) {
+      EEDetId eeid(ix, iy, iz);
+      ical->setValue(eeid.rawId(), thresh);
+    }
     nxt = nxt + 1;
   }
-
   PFRecHitsFileEE.close();
   //  fclose(inpFileEE);
   edm::LogInfo("Read number of EE crystals: ") << nxt;
@@ -3434,7 +3439,7 @@ std::unique_ptr<Alignments> EcalTrivialConditionRetriever::produceEcalAlignmentE
 }
 
 std::unique_ptr<EcalSampleMask> EcalTrivialConditionRetriever::produceEcalSampleMask(const EcalSampleMaskRcd&) {
-  return std::unique_ptr<EcalSampleMask>(new EcalSampleMask(sampleMaskEB_, sampleMaskEE_));
+  return std::make_unique<EcalSampleMask>(sampleMaskEB_, sampleMaskEE_);
 }
 
 std::unique_ptr<EcalTimeBiasCorrections> EcalTrivialConditionRetriever::produceEcalTimeBiasCorrections(

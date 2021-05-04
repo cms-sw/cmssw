@@ -26,8 +26,8 @@ void L1TriggerScalerHandler::getNewObjects() {
                                          <<
       //check whats already inside of database
       "got offlineInfo" << tagInfo().name << ", size " << tagInfo().size << ", last object valid since "
-                                         << tagInfo().lastInterval.first << " token " << tagInfo().lastPayloadToken
-                                         << std::endl;
+                                         << tagInfo().lastInterval.since << " token "
+                                         << tagInfo().lastInterval.payloadId << std::endl;
 
   if (tagInfo().size > 0) {
     Ref payload = lastPayload();

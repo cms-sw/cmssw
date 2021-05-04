@@ -15,7 +15,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 namespace reco {
@@ -24,7 +24,7 @@ namespace reco {
   class BeamSpot;
 }  // namespace reco
 
-class EwkElecDQM : public DQMEDAnalyzer {
+class EwkElecDQM : public DQMOneEDAnalyzer<> {
 public:
   EwkElecDQM(const edm::ParameterSet&);
 
@@ -33,7 +33,7 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
 
   double calcDeltaPhi(double phi1, double phi2);
 

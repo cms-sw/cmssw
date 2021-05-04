@@ -1,305 +1,11 @@
+#include <memory>
+
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "SessionImpl.h"
 
 namespace cond {
 
   namespace persistency {
-
-    // implementation details...
-    // only hosting data in this case
-    class IOVProxyData {
-    public:
-      IOVProxyData() : iovSequence() {}
-
-      // tag data
-      std::string tag;
-      boost::posix_time::ptime snapshotTime;
-      cond::TimeType timeType;
-      std::string payloadType;
-      cond::SynchronizationType synchronizationType;
-      cond::Time_t endOfValidity;
-      cond::Time_t lastValidatedTime;
-      // iov data
-      cond::Time_t groupLowerIov = cond::time::MAX_VAL;
-      cond::Time_t groupHigherIov = cond::time::MIN_VAL;
-      std::vector<cond::Time_t> sinceGroups;
-      IOVProxy::IOVContainer iovSequence;
-      bool full = false;
-      bool range = false;
-      size_t numberOfQueries = 0;
-    };
-
-    IOVProxy::Iterator::Iterator()
-        : m_current(),
-          m_end(),
-          m_timeType(cond::invalid),
-          m_lastTill(cond::time::MIN_VAL),
-          m_endOfValidity(cond::time::MAX_VAL) {}
-
-    IOVProxy::Iterator::Iterator(IOVContainer::const_iterator current,
-                                 IOVContainer::const_iterator end,
-                                 cond::TimeType timeType,
-                                 cond::Time_t lastTill,
-                                 cond::Time_t endOfValidity)
-        : m_current(current), m_end(end), m_timeType(timeType), m_lastTill(lastTill), m_endOfValidity(endOfValidity) {}
-
-    IOVProxy::Iterator::Iterator(const Iterator& rhs)
-        : m_current(rhs.m_current),
-          m_end(rhs.m_end),
-          m_timeType(rhs.m_timeType),
-          m_lastTill(rhs.m_lastTill),
-          m_endOfValidity(rhs.m_endOfValidity) {}
-
-    IOVProxy::Iterator& IOVProxy::Iterator::operator=(const Iterator& rhs) {
-      if (this != &rhs) {
-        m_current = rhs.m_current;
-        m_end = rhs.m_end;
-        m_timeType = rhs.m_timeType;
-        m_lastTill = rhs.m_lastTill;
-        m_endOfValidity = rhs.m_endOfValidity;
-      }
-      return *this;
-    }
-
-    cond::Iov_t IOVProxy::Iterator::operator*() {
-      cond::Iov_t retVal;
-      retVal.since = std::get<0>(*m_current);
-      auto next = m_current;
-      next++;
-
-      // default is the end of validity when set...
-      retVal.till = m_endOfValidity;
-      // for the till, the next element has to be verified!
-      if (next != m_end) {
-        // the till has to be calculated according to the time type ( because of the packing for some types )
-        retVal.till = cond::time::tillTimeFromNextSince(std::get<0>(*next), m_timeType);
-      } else {
-        retVal.till = m_lastTill;
-      }
-      retVal.payloadId = std::get<1>(*m_current);
-      return retVal;
-    }
-
-    IOVProxy::Iterator& IOVProxy::Iterator::operator++() {
-      m_current++;
-      return *this;
-    }
-
-    IOVProxy::Iterator IOVProxy::Iterator::operator++(int) {
-      Iterator tmp(*this);
-      operator++();
-      return tmp;
-    }
-
-    bool IOVProxy::Iterator::operator==(const Iterator& rhs) const {
-      if (m_current != rhs.m_current)
-        return false;
-      if (m_end != rhs.m_end)
-        return false;
-      return true;
-    }
-
-    bool IOVProxy::Iterator::operator!=(const Iterator& rhs) const { return !operator==(rhs); }
-
-    IOVProxy::IOVProxy() : m_data(), m_session() {}
-
-    IOVProxy::IOVProxy(const std::shared_ptr<SessionImpl>& session) : m_data(new IOVProxyData), m_session(session) {}
-
-    IOVProxy::IOVProxy(const IOVProxy& rhs) : m_data(rhs.m_data), m_session(rhs.m_session) {}
-
-    IOVProxy& IOVProxy::operator=(const IOVProxy& rhs) {
-      m_data = rhs.m_data;
-      m_session = rhs.m_session;
-      return *this;
-    }
-
-    void IOVProxy::load(const std::string& tag, bool full) {
-      boost::posix_time::ptime notime;
-      load(tag, notime, full);
-    }
-
-    void IOVProxy::load(const std::string& tag, const boost::posix_time::ptime& snapshotTime, bool full) {
-      if (!m_data.get())
-        return;
-
-      // clear
-      reset();
-
-      checkTransaction("IOVProxy::load");
-
-      std::string dummy;
-      if (!m_session->iovSchema().tagTable().select(tag,
-                                                    m_data->timeType,
-                                                    m_data->payloadType,
-                                                    m_data->synchronizationType,
-                                                    m_data->endOfValidity,
-                                                    dummy,
-                                                    m_data->lastValidatedTime)) {
-        throwException("Tag \"" + tag + "\" has not been found in the database.", "IOVProxy::load");
-      }
-      m_data->tag = tag;
-
-      // now get the iov sequence when required
-      if (full) {
-        // load the full iov sequence in this case!
-        m_data->groupLowerIov = cond::time::MIN_VAL;
-        m_data->groupHigherIov = cond::time::MAX_VAL;
-        m_session->iovSchema().iovTable().select(
-            m_data->tag, m_data->groupLowerIov, m_data->groupHigherIov, snapshotTime, m_data->iovSequence);
-        m_data->full = true;
-      } else {
-        m_session->iovSchema().iovTable().getGroups(
-            m_data->tag, snapshotTime, cond::time::sinceGroupSize(m_data->timeType), m_data->sinceGroups);
-        m_data->full = false;
-      }
-      m_data->range = false;
-      m_data->snapshotTime = snapshotTime;
-    }
-
-    void IOVProxy::loadRange(const std::string& tag, const cond::Time_t& begin, const cond::Time_t& end) {
-      boost::posix_time::ptime no_time;
-      loadRange(tag, begin, end, no_time);
-    }
-
-    void IOVProxy::loadRange(const std::string& tag,
-                             const cond::Time_t& begin,
-                             const cond::Time_t& end,
-                             const boost::posix_time::ptime& snapshotTime) {
-      if (!m_data.get())
-        return;
-
-      // clear
-      reset();
-
-      checkTransaction("IOVProxy::loadRange");
-
-      std::string dummy;
-      if (!m_session->iovSchema().tagTable().select(tag,
-                                                    m_data->timeType,
-                                                    m_data->payloadType,
-                                                    m_data->synchronizationType,
-                                                    m_data->endOfValidity,
-                                                    dummy,
-                                                    m_data->lastValidatedTime)) {
-        throwException("Tag \"" + tag + "\" has not been found in the database " + m_session->connectionString,
-                       "IOVProxy::loadRange");
-      }
-      m_data->tag = tag;
-
-      m_session->iovSchema().iovTable().getRange(m_data->tag, begin, end, snapshotTime, m_data->iovSequence);
-
-      m_data->full = false;
-      m_data->range = true;
-      m_data->groupLowerIov = begin;
-      m_data->groupHigherIov = end;
-    }
-
-    void IOVProxy::reload() {
-      if (m_data.get() && !m_data->tag.empty()) {
-        if (m_data->range)
-          loadRange(m_data->tag, m_data->groupLowerIov, m_data->groupHigherIov, m_data->snapshotTime);
-        else
-          load(m_data->tag, m_data->snapshotTime, m_data->full);
-      }
-    }
-
-    void IOVProxy::reset() {
-      if (m_data.get()) {
-        m_data->groupLowerIov = cond::time::MAX_VAL;
-        m_data->groupHigherIov = cond::time::MIN_VAL;
-        m_data->sinceGroups.clear();
-        m_data->iovSequence.clear();
-        m_data->numberOfQueries = 0;
-        m_data->full = false;
-        m_data->range = false;
-      }
-    }
-
-    std::string IOVProxy::tag() const { return m_data.get() ? m_data->tag : std::string(""); }
-
-    cond::TimeType IOVProxy::timeType() const { return m_data.get() ? m_data->timeType : cond::invalid; }
-
-    std::string IOVProxy::payloadObjectType() const { return m_data.get() ? m_data->payloadType : std::string(""); }
-
-    cond::SynchronizationType IOVProxy::synchronizationType() const {
-      return m_data.get() ? m_data->synchronizationType : cond::SYNCH_ANY;
-    }
-
-    cond::Time_t IOVProxy::endOfValidity() const { return m_data.get() ? m_data->endOfValidity : cond::time::MIN_VAL; }
-
-    cond::Time_t IOVProxy::lastValidatedTime() const {
-      return m_data.get() ? m_data->lastValidatedTime : cond::time::MIN_VAL;
-    }
-
-    std::tuple<std::string, boost::posix_time::ptime, boost::posix_time::ptime> IOVProxy::getMetadata() const {
-      if (!m_data.get())
-        throwException("No tag has been loaded.", "IOVProxy::getMetadata()");
-      checkTransaction("IOVProxy::getMetadata");
-      std::tuple<std::string, boost::posix_time::ptime, boost::posix_time::ptime> ret;
-      if (!m_session->iovSchema().tagTable().getMetadata(
-              m_data->tag, std::get<0>(ret), std::get<1>(ret), std::get<2>(ret))) {
-        throwException("Metadata for tag \"" + m_data->tag + "\" have not been found in the database.",
-                       "IOVProxy::getMetadata()");
-      }
-      return ret;
-    }
-
-    bool IOVProxy::isEmpty() const {
-      return m_data.get() ? (m_data->sinceGroups.empty() && m_data->iovSequence.empty()) : true;
-    }
-
-    void IOVProxy::checkTransaction(const std::string& ctx) const {
-      if (!m_session.get())
-        throwException("The session is not active.", ctx);
-      if (!m_session->isTransactionActive(false))
-        throwException("The transaction is not active.", ctx);
-    }
-
-    void IOVProxy::fetchSequence(cond::Time_t lowerGroup, cond::Time_t higherGroup) {
-      m_data->iovSequence.clear();
-      m_session->iovSchema().iovTable().select(
-          m_data->tag, lowerGroup, higherGroup, m_data->snapshotTime, m_data->iovSequence);
-
-      if (m_data->iovSequence.empty()) {
-        m_data->groupLowerIov = cond::time::MAX_VAL;
-        m_data->groupHigherIov = cond::time::MIN_VAL;
-      } else {
-        if (lowerGroup > cond::time::MIN_VAL) {
-          m_data->groupLowerIov = std::get<0>(m_data->iovSequence.front());
-        } else {
-          m_data->groupLowerIov = cond::time::MIN_VAL;
-        }
-        if (higherGroup < cond::time::MAX_VAL) {
-          m_data->groupHigherIov = higherGroup - 1;
-        } else {
-          m_data->groupHigherIov = cond::time::MAX_VAL;
-        }
-      }
-
-      m_data->numberOfQueries++;
-    }
-
-    IOVProxy::Iterator IOVProxy::begin() const {
-      if (m_data.get()) {
-        return Iterator(m_data->iovSequence.begin(),
-                        m_data->iovSequence.end(),
-                        m_data->timeType,
-                        m_data->groupHigherIov,
-                        m_data->endOfValidity);
-      }
-      return Iterator();
-    }
-
-    IOVProxy::Iterator IOVProxy::end() const {
-      if (m_data.get()) {
-        return Iterator(m_data->iovSequence.end(),
-                        m_data->iovSequence.end(),
-                        m_data->timeType,
-                        m_data->groupHigherIov,
-                        m_data->endOfValidity);
-      }
-      return Iterator();
-    }
 
     // comparison functor for iov tuples: Time_t only and Time_t,string
     struct IOVComp {
@@ -319,8 +25,308 @@ namespace cond {
       return (p != container.begin()) ? p - 1 : container.end();
     }
 
-    IOVProxy::Iterator IOVProxy::find(cond::Time_t time) {
-      checkTransaction("IOVProxy::find");
+    IOVArray::Iterator::Iterator() : m_current(), m_parent(nullptr) {}
+
+    IOVArray::Iterator::Iterator(IOVContainer::const_iterator current, const IOVArray* parent)
+        : m_current(current), m_parent(parent) {}
+
+    IOVArray::Iterator::Iterator(const Iterator& rhs) : m_current(rhs.m_current), m_parent(rhs.m_parent) {}
+
+    IOVArray::Iterator& IOVArray::Iterator::operator=(const Iterator& rhs) {
+      if (this != &rhs) {
+        m_current = rhs.m_current;
+        m_parent = rhs.m_parent;
+      }
+      return *this;
+    }
+
+    cond::Iov_t IOVArray::Iterator::operator*() {
+      cond::Iov_t retVal;
+      retVal.since = std::get<0>(*m_current);
+      auto next = m_current;
+      next++;
+
+      // default is the end of validity when set...
+      retVal.till = m_parent->m_tagInfo.endOfValidity;
+      retVal.till = cond::time::tillTimeFromNextSince(std::get<0>(*next), m_parent->m_tagInfo.timeType);
+      retVal.payloadId = std::get<1>(*m_current);
+      return retVal;
+    }
+
+    IOVArray::Iterator& IOVArray::Iterator::operator++() {
+      m_current++;
+      return *this;
+    }
+
+    IOVArray::Iterator IOVArray::Iterator::operator++(int) {
+      Iterator tmp(*this);
+      operator++();
+      return tmp;
+    }
+
+    bool IOVArray::Iterator::operator==(const Iterator& rhs) const {
+      if (m_current != rhs.m_current)
+        return false;
+      if (m_parent != rhs.m_parent)
+        return false;
+      return true;
+    }
+
+    bool IOVArray::Iterator::operator!=(const Iterator& rhs) const { return !operator==(rhs); }
+
+    IOVArray::IOVArray() : m_array(new IOVContainer) {}
+
+    IOVArray::IOVArray(const IOVArray& rhs) : m_array(), m_tagInfo(rhs.m_tagInfo) {
+      m_array = std::make_unique<IOVContainer>(*rhs.m_array);
+    }
+
+    IOVArray& IOVArray::operator=(const IOVArray& rhs) {
+      m_array = std::make_unique<IOVContainer>(*rhs.m_array);
+      m_tagInfo = rhs.m_tagInfo;
+      return *this;
+    }
+
+    const cond::Tag_t& IOVArray::tagInfo() const { return m_tagInfo; }
+
+    IOVArray::Iterator IOVArray::begin() const { return Iterator(m_array->begin(), this); }
+
+    IOVArray::Iterator IOVArray::end() const { return Iterator(m_array->end(), this); }
+
+    IOVArray::Iterator IOVArray::find(cond::Time_t time) const { return Iterator(search(time, *m_array), this); }
+
+    size_t IOVArray::size() const { return m_array->size(); }
+
+    // returns true if at least one IOV is in the sequence.
+    bool IOVArray::isEmpty() const { return m_array->empty(); }
+
+    // implementation details...
+    // only hosting data in this case
+    class IOVProxyData {
+    public:
+      IOVProxyData() : iovSequence() {}
+
+      // tag data
+      cond::Tag_t tagInfo;
+      // iov data
+      boost::posix_time::ptime snapshotTime;
+      cond::Time_t groupLowerIov = cond::time::MAX_VAL;
+      cond::Time_t groupHigherIov = cond::time::MIN_VAL;
+      bool cacheInitialized = false;
+      std::vector<cond::Time_t> sinceGroups;
+      IOVContainer iovSequence;
+      // monitoring data
+      size_t numberOfQueries = 0;
+    };
+
+    IOVProxy::IOVProxy() : m_data(), m_session() {}
+
+    IOVProxy::IOVProxy(const std::shared_ptr<SessionImpl>& session) : m_data(new IOVProxyData), m_session(session) {}
+
+    IOVProxy::IOVProxy(const IOVProxy& rhs) : m_data(rhs.m_data), m_session(rhs.m_session) {}
+
+    IOVProxy& IOVProxy::operator=(const IOVProxy& rhs) {
+      m_data = rhs.m_data;
+      m_session = rhs.m_session;
+      return *this;
+    }
+
+    void IOVProxy::load(const std::string& tagName) {
+      boost::posix_time::ptime notime;
+      load(tagName, notime);
+    }
+
+    void IOVProxy::load(const std::string& tagName, const boost::posix_time::ptime& snapshotTime) {
+      if (!m_data.get())
+        return;
+
+      // clear
+      reset();
+
+      checkTransaction("IOVProxyNew::load");
+
+      int dummy;
+      if (!m_session->iovSchema().tagTable().select(tagName,
+                                                    m_data->tagInfo.timeType,
+                                                    m_data->tagInfo.payloadType,
+                                                    m_data->tagInfo.synchronizationType,
+                                                    m_data->tagInfo.endOfValidity,
+                                                    m_data->tagInfo.lastValidatedTime,
+                                                    dummy)) {
+        throwException("Tag \"" + tagName + "\" has not been found in the database.", "IOVProxy::load");
+      }
+      m_data->tagInfo.name = tagName;
+      m_data->snapshotTime = snapshotTime;
+    }
+
+    void IOVProxy::loadGroups() {
+      //if( !m_data.get() ) return;
+
+      // clear
+      resetIOVCache();
+
+      //checkTransaction( "IOVProxyNew::load" );
+      m_session->iovSchema().iovTable().getGroups(m_data->tagInfo.name,
+                                                  m_data->snapshotTime,
+                                                  cond::time::sinceGroupSize(m_data->tagInfo.timeType),
+                                                  m_data->sinceGroups);
+      m_data->cacheInitialized = true;
+    }
+
+    IOVArray IOVProxy::selectAll() {
+      boost::posix_time::ptime no_time;
+      return selectAll(no_time);
+    }
+
+    IOVArray IOVProxy::selectAll(const boost::posix_time::ptime& snapshottime) {
+      if (!m_data.get())
+        throwException("No tag has been loaded.", "IOVProxy::selectAll");
+      checkTransaction("IOVProxy::selectAll");
+      IOVArray ret;
+      ret.m_tagInfo = m_data->tagInfo;
+      m_session->iovSchema().iovTable().select(
+          m_data->tagInfo.name, cond::time::MIN_VAL, cond::time::MAX_VAL, snapshottime, *ret.m_array);
+      return ret;
+    }
+
+    IOVArray IOVProxy::selectRange(const cond::Time_t& begin, const cond::Time_t& end) {
+      boost::posix_time::ptime no_time;
+      return selectRange(begin, end, no_time);
+    }
+
+    IOVArray IOVProxy::selectRange(const cond::Time_t& begin,
+                                   const cond::Time_t& end,
+                                   const boost::posix_time::ptime& snapshotTime) {
+      if (!m_data.get())
+        throwException("No tag has been loaded.", "IOVProxy::selectRange");
+
+      checkTransaction("IOVProxy::selectRange");
+
+      IOVArray ret;
+      ret.m_tagInfo = m_data->tagInfo;
+      m_session->iovSchema().iovTable().getRange(m_data->tagInfo.name, begin, end, snapshotTime, *ret.m_array);
+      return ret;
+    }
+
+    bool IOVProxy::selectRange(const cond::Time_t& begin, const cond::Time_t& end, IOVContainer& destination) {
+      if (!m_data.get())
+        throwException("No tag has been loaded.", "IOVProxy::selectRange");
+
+      checkTransaction("IOVProxy::selectRange");
+
+      boost::posix_time::ptime no_time;
+      size_t prevSize = destination.size();
+      m_session->iovSchema().iovTable().getRange(m_data->tagInfo.name, begin, end, no_time, destination);
+      size_t niov = destination.size() - prevSize;
+      return niov > 0;
+    }
+
+    //void IOVProxy::reload(){
+    //  if(m_data.get() && !m_data->tagInfo.empty()) {
+    //	if(m_data->range) loadRange( m_data->tag,  m_data->groupLowerIov, m_data->groupHigherIov, m_data->snapshotTime );
+    //	else load( m_data->tag, m_data->snapshotTime, m_data->full );
+    //  }
+    //}
+
+    void IOVProxy::resetIOVCache() {
+      if (m_data.get()) {
+        m_data->groupLowerIov = cond::time::MAX_VAL;
+        m_data->groupHigherIov = cond::time::MIN_VAL;
+        m_data->sinceGroups.clear();
+        m_data->iovSequence.clear();
+        m_data->numberOfQueries = 0;
+      }
+    }
+
+    void IOVProxy::reset() {
+      if (m_data.get()) {
+        m_data->tagInfo.clear();
+      }
+      resetIOVCache();
+    }
+
+    cond::Tag_t IOVProxy::tagInfo() const { return m_data.get() ? m_data->tagInfo : cond::Tag_t(); }
+
+    void setTillToLastIov(cond::Iov_t& target, cond::Time_t endOfValidity) {
+      if (endOfValidity < cond::time::MAX_VAL) {
+        if (target.since >= endOfValidity) {
+          target.clear();
+        } else {
+          target.till = endOfValidity;
+        }
+      } else {
+        target.till = cond::time::MAX_VAL;
+      }
+    }
+
+    cond::TagInfo_t IOVProxy::iovSequenceInfo() const {
+      if (!m_data.get())
+        throwException("No tag has been loaded.", "IOVProxy::iovSequenceInfo");
+      checkTransaction("IOVProxy::iovSequenceInfo");
+      cond::TagInfo_t ret;
+      m_session->iovSchema().iovTable().getSize(m_data->tagInfo.name, m_data->snapshotTime, ret.size);
+      cond::Iov_t last;
+      bool ok = m_session->iovSchema().iovTable().getLastIov(
+          m_data->tagInfo.name, m_data->snapshotTime, ret.lastInterval.since, ret.lastInterval.payloadId);
+      if (ok) {
+        setTillToLastIov(ret.lastInterval, m_data->tagInfo.endOfValidity);
+      }
+      return ret;
+    }
+
+    std::tuple<std::string, boost::posix_time::ptime, boost::posix_time::ptime> IOVProxy::getMetadata() const {
+      if (!m_data.get())
+        throwException("No tag has been loaded.", "IOVProxy::getMetadata");
+      checkTransaction("IOVProxy::getMetadata");
+      std::tuple<std::string, boost::posix_time::ptime, boost::posix_time::ptime> ret;
+      if (!m_session->iovSchema().tagTable().getMetadata(
+              m_data->tagInfo.name, std::get<0>(ret), std::get<1>(ret), std::get<2>(ret))) {
+        throwException("Metadata for tag \"" + m_data->tagInfo.name + "\" have not been found in the database.",
+                       "IOVProxy::getMetadata");
+      }
+      return ret;
+    }
+
+    void IOVProxy::checkTransaction(const std::string& ctx) const {
+      if (!m_session.get())
+        throwException("The session is not active.", ctx);
+      if (!m_session->isTransactionActive(false))
+        throwException("The transaction is not active.", ctx);
+    }
+
+    void IOVProxy::fetchSequence(cond::Time_t lowerGroup, cond::Time_t higherGroup) {
+      m_data->iovSequence.clear();
+      m_session->iovSchema().iovTable().select(
+          m_data->tagInfo.name, lowerGroup, higherGroup, m_data->snapshotTime, m_data->iovSequence);
+
+      if (m_data->iovSequence.empty()) {
+        m_data->groupLowerIov = cond::time::MAX_VAL;
+        m_data->groupHigherIov = cond::time::MIN_VAL;
+      } else {
+        if (lowerGroup > cond::time::MIN_VAL) {
+          m_data->groupLowerIov = std::get<0>(m_data->iovSequence.front());
+        } else {
+          m_data->groupLowerIov = cond::time::MIN_VAL;
+        }
+        m_data->groupHigherIov = std::get<0>(m_data->iovSequence.back());
+        if (higherGroup < cond::time::MAX_VAL) {
+          m_data->groupHigherIov = cond::time::tillTimeFromNextSince(higherGroup, m_data->tagInfo.timeType);
+        } else {
+          m_data->groupHigherIov = cond::time::MAX_VAL;
+        }
+      }
+
+      m_data->numberOfQueries++;
+    }
+
+    cond::Iov_t IOVProxy::getInterval(cond::Time_t time) { return getInterval(time, cond::time::MAX_VAL); }
+
+    cond::Iov_t IOVProxy::getInterval(cond::Time_t time, cond::Time_t defaultIovSize) {
+      if (!m_data.get())
+        throwException("No tag has been loaded.", "IOVProxy::getInterval");
+      checkTransaction("IOVProxy::getInterval");
+      if (!m_data->cacheInitialized)
+        loadGroups();
+      cond::Iov_t retVal;
       // organize iovs in pages...
       // first check the available iov cache:
       if (m_data->groupLowerIov == cond::time::MAX_VAL ||  // case 0 : empty cache ( the first request )
@@ -331,7 +337,7 @@ namespace cond {
         auto iGLow = search(time, m_data->sinceGroups);
         if (iGLow == m_data->sinceGroups.end()) {
           // no suitable group=no iov at all! exiting...
-          return end();
+          return retVal;
         }
         auto iGHigh = iGLow;
         cond::Time_t lowG = *iGLow;
@@ -346,25 +352,49 @@ namespace cond {
 
       // the current iov set is a good one...
       auto iIov = search(time, m_data->iovSequence);
-      return Iterator(iIov, m_data->iovSequence.end(), m_data->timeType, m_data->groupHigherIov, m_data->endOfValidity);
-    }
-
-    cond::Iov_t IOVProxy::getInterval(cond::Time_t time) {
-      Iterator valid = find(time);
-      if (valid == end()) {
-        throwException("Can't find a valid interval for the specified time.", "IOVProxy::getInterval");
+      if (iIov == m_data->iovSequence.end()) {
+        return retVal;
       }
-      return *valid;
+
+      retVal.since = std::get<0>(*iIov);
+      auto next = iIov;
+      next++;
+
+      // default is the end of validity when set...
+      retVal.till = m_data->tagInfo.endOfValidity;
+      // for the till, the next element of the sequence has to be looked up
+      cond::Time_t tillVal;
+      if (next != m_data->iovSequence.end()) {
+        tillVal = cond::time::tillTimeFromNextSince(std::get<0>(*next), m_data->tagInfo.timeType);
+      } else {
+        tillVal = m_data->groupHigherIov;
+      }
+      if (tillVal < retVal.till)
+        retVal.till = tillVal;
+      //
+      retVal.payloadId = std::get<1>(*iIov);
+      if (retVal.till == cond::time::MAX_VAL && defaultIovSize != cond::time::MAX_VAL) {
+        if (defaultIovSize == 0) {
+          // ???? why?
+          retVal.clear();
+        } else {
+          retVal.since = time;
+          retVal.till = retVal.since + defaultIovSize - 1;
+          if (time > retVal.till)
+            retVal.till = time;
+        }
+      }
+      return retVal;
     }
 
     cond::Iov_t IOVProxy::getLast() {
       checkTransaction("IOVProxy::getLast");
       cond::Iov_t ret;
-      bool ok =
-          m_session->iovSchema().iovTable().getLastIov(m_data->tag, m_data->snapshotTime, ret.since, ret.payloadId);
-
-      if (ok)
-        ret.till = cond::time::MAX_VAL;
+      bool ok = m_session->iovSchema().iovTable().getLastIov(
+          m_data->tagInfo.name, m_data->snapshotTime, ret.since, ret.payloadId);
+      if (ok) {
+        setTillToLastIov(ret, m_data->tagInfo.endOfValidity);
+      }
       return ret;
     }
 
@@ -373,7 +403,7 @@ namespace cond {
     int IOVProxy::sequenceSize() const {
       checkTransaction("IOVProxy::sequenceSize");
       size_t ret = 0;
-      m_session->iovSchema().iovTable().getSize(m_data->tag, m_data->snapshotTime, ret);
+      m_session->iovSchema().iovTable().getSize(m_data->tagInfo.name, m_data->snapshotTime, ret);
 
       return ret;
     }

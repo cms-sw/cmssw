@@ -16,8 +16,10 @@
 
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCLayerInfo.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 
 typedef CSCLayerInfo<CSCComparatorDigi> CSCCathodeLayerInfo;
 
@@ -65,10 +67,10 @@ private:
                      const CSCDetId& layerId,
                      const CSCComparatorDigiCollection* compdc,
                      std::vector<CSCComparatorDigi>& digiMap,
-                     int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],
-                     int time[CSCConstants::MAX_NUM_STRIPS],
-                     int comp[CSCConstants::MAX_NUM_STRIPS],
-                     int digiNum[CSCConstants::MAX_NUM_STRIPS]);
+                     int hfstripDigis[CSCConstants::MAX_NUM_HALF_STRIPS_RUN1_TRIGGER],
+                     int time[CSCConstants::MAX_NUM_STRIPS_RUN1],
+                     int comp[CSCConstants::MAX_NUM_STRIPS_RUN1],
+                     int digiNum[CSCConstants::MAX_NUM_STRIPS_RUN1]);
 
   /* Find SimHits closest to each ComparatorDigi on CLCT. */
   void digiSimHitAssociator(CSCCathodeLayerInfo& info, const edm::PSimHitContainer* allSimHits);

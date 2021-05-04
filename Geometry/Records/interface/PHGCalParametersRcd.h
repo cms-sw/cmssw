@@ -4,10 +4,10 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class PHGCalParametersRcd
-    : public edm::eventsetup::DependentRecordImplementation<PHGCalParametersRcd,
-                                                            boost::mpl::vector<IdealGeometryRecord> > {};
+    : public edm::eventsetup::DependentRecordImplementation<PHGCalParametersRcd, edm::mpl::Vector<IdealGeometryRecord> > {
+};
 
 #endif  // PHGCalParameters_H

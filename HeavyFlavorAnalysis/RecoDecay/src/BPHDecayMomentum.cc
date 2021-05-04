@@ -14,14 +14,12 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
-#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAddFourMomenta.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //---------------
 // C++ Headers --
 //---------------
-#include <iostream>
-
 using namespace std;
 
 //-------------------
@@ -96,7 +94,7 @@ const vector<BPHRecoConstCandPtr>& BPHDecayMomentum::daughComp() const {
 const reco::Candidate* BPHDecayMomentum::getDaug(const string& name) const {
   // return a simple particle from the name
   // return null pointer if not found
-  string::size_type pos = name.find("/");
+  string::size_type pos = name.find('/');
   if (pos != string::npos) {
     const BPHRecoCandidate* comp = getComp(name.substr(0, pos)).get();
     return (comp == nullptr ? nullptr : comp->getDaug(name.substr(pos + 1)));
@@ -108,7 +106,7 @@ const reco::Candidate* BPHDecayMomentum::getDaug(const string& name) const {
 BPHRecoConstCandPtr BPHDecayMomentum::getComp(const string& name) const {
   // return a previously reconstructed particle from the name
   // return null pointer if not found
-  string::size_type pos = name.find("/");
+  string::size_type pos = name.find('/');
   if (pos != string::npos) {
     const BPHRecoCandidate* comp = getComp(name.substr(0, pos)).get();
     return (comp == nullptr ? nullptr : comp->getComp(name.substr(pos + 1)));

@@ -10,17 +10,27 @@ process = cms.Process("Reader")
 
 # Use this to have also debug info (WARNING: the resulting file is > 200MB.
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring("*"),
+    PedestalsReaderDebug = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG')
+    ),
     PedestalsReaderSummary = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    PedestalsReaderDebug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('NoisesReaderSummary', 'NoisesReaderDebug')
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        NoisesReaderDebug = cms.untracked.PSet(
+
+        ),
+        NoisesReaderSummary = cms.untracked.PSet(
+
+        )
+    )
 )
 
 #process.MessageLogger = cms.Service("MessageLogger",

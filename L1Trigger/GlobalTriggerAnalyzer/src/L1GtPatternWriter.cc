@@ -114,8 +114,8 @@ L1GtPatternWriter::~L1GtPatternWriter() { close(); }
 
 uint32_t L1GtPatternWriter::mask(uint32_t length) {
   if (length < 32) {
-    return ~((~0) << length);
+    return ~((~0U) << length);
   } else {
-    return ~0;
+    return ~0U;
   }
 }

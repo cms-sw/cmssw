@@ -19,7 +19,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -41,7 +41,7 @@ typedef std::array<std::array<std::array<int, 13>, 5>, 6> DTArr3int;
 typedef std::array<std::array<std::array<int, 15>, 5>, 6> DTArr3bool;
 typedef std::array<std::array<std::array<const L1MuDTChambPhDigi*, 15>, 5>, 6> DTArr3Digi;
 
-class DTLocalTriggerLutTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTLocalTriggerLutTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   friend class DTMonitorModule;
 
 public:

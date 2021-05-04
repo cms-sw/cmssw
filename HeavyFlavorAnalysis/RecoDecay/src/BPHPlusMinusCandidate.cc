@@ -18,14 +18,12 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAddFourMomenta.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //---------------
 // C++ Headers --
 //---------------
-#include <iostream>
-#include <cmath>
 
 using namespace std;
 
@@ -62,20 +60,26 @@ void BPHPlusMinusCandidate::add(const string& name, const reco::Candidate* daug,
 void BPHPlusMinusCandidate::add(
     const string& name, const reco::Candidate* daug, const string& searchList, double mass, double sigma) {
   const vector<const reco::Candidate*>& dL = daughters();
+  bool accept = false;
   switch (dL.size()) {
-    case 2:
-      edm::LogPrint("TooManyParticles") << "BPHPlusMinusCandidate::add: "
-                                        << "complete, add rejected";
-      return;
+    case 0:
+      accept = true;
+      break;
     case 1:
       if ((daug->charge() * dL.front()->charge()) > 0) {
         edm::LogPrint("TooManyParticles") << "BPHPlusMinusCandidate::add: "
                                           << "already containing same sign particle, add rejected";
         return;
       }
-    case 0:
-      addK(name, daug, searchList, mass, sigma);
+      accept = true;
+      break;
+    default:
+      edm::LogPrint("TooManyParticles") << "BPHPlusMinusCandidate::add: "
+                                        << "complete, add rejected";
+      return;
   }
+  if (accept)
+    addK(name, daug, searchList, mass, sigma);
   return;
 }
 
@@ -97,6 +101,14 @@ vector<BPHPlusMinusConstCandPtr> BPHPlusMinusCandidate::build(
   builder.filter(nNeg, tkNeg);
   fill<BPHPlusMinusCandidate>(cList, builder, mass, msig);
   return cList;
+}
+
+/// clone object, cloning daughters as well up to required depth
+/// level = -1 to clone all levels
+BPHRecoCandidate* BPHPlusMinusCandidate::clone(int level) const {
+  BPHPlusMinusCandidate* ptr = new BPHPlusMinusCandidate(getEventSetup());
+  fill(ptr, level);
+  return ptr;
 }
 
 const pat::CompositeCandidate& BPHPlusMinusCandidate::composite() const {

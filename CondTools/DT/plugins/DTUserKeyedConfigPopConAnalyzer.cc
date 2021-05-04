@@ -20,13 +20,12 @@ public:
     s.get<DTKeyedConfigListRcd>().get(klh);
     std::cout << "got context" << std::endl;
     cond::persistency::KeyList const& kl = *klh.product();
-    cond::persistency::KeyList* list = const_cast<cond::persistency::KeyList*>(&kl);
-    for (size_t i = 0; i < list->size(); i++) {
-      std::shared_ptr<DTKeyedConfig> kentry = list->get<DTKeyedConfig>(i);
+    for (size_t i = 0; i < kl.size(); i++) {
+      std::shared_ptr<DTKeyedConfig> kentry = kl.getUsingIndex<DTKeyedConfig>(i);
       if (kentry.get())
         std::cout << kentry->getId() << std::endl;
     }
-    DTUserKeyedConfigHandler::setList(list);
+    source().setList(&kl);
   }
 
 private:

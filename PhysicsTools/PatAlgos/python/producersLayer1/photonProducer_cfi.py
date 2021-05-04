@@ -70,5 +70,7 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
 
     # PFClusterIso
     addPFClusterIso = cms.bool(False),
+    ecalPFClusterIsoMap = cms.InputTag(""),
+    hcalPFClusterIsoMap = cms.InputTag(""),
     addPuppiIsolation = cms.bool(False)
 )

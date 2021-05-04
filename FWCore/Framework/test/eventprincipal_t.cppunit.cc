@@ -13,7 +13,6 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -187,8 +186,7 @@ void test_ep::setUp() {
                                           *process,
                                           &historyAppender_,
                                           edm::StreamID::invalidStreamID()));
-    edm::ProcessHistoryRegistry phr;
-    pEvent_->fillEventPrincipal(eventAux, phr);
+    pEvent_->fillEventPrincipal(eventAux, nullptr);
     pEvent_->setLuminosityBlockPrincipal(lbp_.get());
     pEvent_->put(branchFromRegistry, std::move(product), prov);
   }
@@ -253,5 +251,5 @@ void test_ep::failgetbyInvalidIdTest() {
 
 void test_ep::failgetProvenanceTest() {
   edm::BranchID id;
-  CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id, nullptr), edm::Exception);
+  CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id), edm::Exception);
 }

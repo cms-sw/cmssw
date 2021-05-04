@@ -8,6 +8,7 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -31,7 +32,8 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
                                                 : edm::ParameterSet(),
                 consumesCollector(),
                 false),
-      useUserData_(iConfig.exists("userData")) {
+      useUserData_(iConfig.exists("userData")),
+      posAtECalEntranceComputer_(consumesCollector()) {
   firstOccurence_ = true;
   // initialize the configurables
   baseTauToken_ = consumes<edm::View<reco::BaseTau>>(iConfig.getParameter<edm::InputTag>("tauSource"));
@@ -79,16 +81,38 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
   if (addTauID_) {
     // read the different tau ID names
     edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
-    std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
-    for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-      tauIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+    std::vector<std::string> names = idps.getParameterNamesForType<edm::ParameterSet>();
+    std::map<std::string, IDContainerData> idContainerMap;
+    for (auto const& name : names) {
+      auto const& idp = idps.getParameter<edm::ParameterSet>(name);
+      std::string prov_cfg_label = idp.getParameter<std::string>("provenanceConfigLabel");
+      std::string prov_ID_label = idp.getParameter<std::string>("idLabel");
+      edm::InputTag tag = idp.getParameter<edm::InputTag>("inputTag");
+      if (prov_cfg_label.empty()) {
+        tauIDSrcs_.push_back(NameTag(name, tag));
+      } else {
+        if (prov_cfg_label != "rawValues" && prov_cfg_label != "workingPoints" && prov_cfg_label != "IDdefinitions" &&
+            prov_cfg_label != "IDWPdefinitions" && prov_cfg_label != "direct_rawValues" &&
+            prov_cfg_label != "direct_workingPoints")
+          throw cms::Exception("Configuration")
+              << "PATTauProducer: Parameter 'provenanceConfigLabel' does only accept 'rawValues', 'workingPoints', "
+                 "'IDdefinitions', 'IDWPdefinitions', 'direct_rawValues', 'direct_workingPoints'\n";
+        std::map<std::string, IDContainerData>::iterator it;
+        it = idContainerMap.insert({tag.label() + tag.instance(), {tag, std::vector<NameWPIdx>()}}).first;
+        it->second.second.push_back(NameWPIdx(name, WPIdx(WPCfg(prov_cfg_label, prov_ID_label), -99)));
+      }
     }
     // but in any case at least once
-    if (tauIDSrcs_.empty())
+    if (tauIDSrcs_.empty() && idContainerMap.empty())
       throw cms::Exception("Configuration") << "PATTauProducer: id addTauID is true, you must specify either:\n"
                                             << "\tPSet tauIDSources = { \n"
                                             << "\t\tInputTag <someName> = <someTag>   // as many as you want \n "
                                             << "\t}\n";
+
+    for (auto const& mapEntry : idContainerMap) {
+      tauIDSrcContainers_.push_back(mapEntry.second.second);
+      pfTauIDContainerTokens_.push_back(mayConsume<reco::TauDiscriminatorContainer>(mapEntry.second.first));
+    }
   }
   pfTauIDTokens_ = edm::vector_transform(
       tauIDSrcs_, [this](NameTag const& tag) { return mayConsume<reco::PFTauDiscriminator>(tag.second); });
@@ -167,6 +191,8 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     iEvent.put(std::move(patTaus));
     return;
   }
+
+  posAtECalEntranceComputer_.beginEvent(iSetup);
 
   if (isolator_.enabled())
     isolator_.beginEvent(iEvent, iSetup);
@@ -340,17 +366,83 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     // prepare ID extraction
     if (addTauID_) {
+      size_t numberPlainTauIds = tauIDSrcs_.size();
+      size_t numberTauIds = numberPlainTauIds;
+      for (auto const& it : tauIDSrcContainers_) {
+        numberTauIds += it.size();
+      }
+      // if ID containers exist, product incices need to be retrieved from provenanceConfigLabel.
+      // This is done if config history changes, in particular for the first event.
+      if (numberPlainTauIds != numberTauIds && phID_ != iEvent.processHistoryID()) {
+        phID_ = iEvent.processHistoryID();
+        for (size_t idx = 0; idx < tauIDSrcContainers_.size(); ++idx) {
+          auto pfTauIdDiscr = iEvent.getHandle(pfTauIDContainerTokens_[idx]);
+          if (!pfTauIdDiscr.isValid())
+            continue;  // missing IDs will be skipped lateron or crash there depending on skipMissingTauID_
+          const edm::Provenance* prov = pfTauIdDiscr.provenance();
+          for (NameWPIdx& idcfg : tauIDSrcContainers_[idx]) {
+            std::string prov_cfg_label = idcfg.second.first.first;
+            std::string prov_ID_label = idcfg.second.first.second;
+            bool found = false;
+            if (prov_cfg_label == "rawValues" || prov_cfg_label == "workingPoints") {
+              const std::vector<std::string> psetsFromProvenance =
+                  edm::parameterSet(prov->stable(), iEvent.processHistory())
+                      .getParameter<std::vector<std::string>>(prov_cfg_label);
+              for (size_t i = 0; i < psetsFromProvenance.size(); ++i) {
+                if (psetsFromProvenance[i] == prov_ID_label) {
+                  // using negative indices for raw values
+                  if (prov_cfg_label == "rawValues")
+                    idcfg.second.second = -1 - i;
+                  else
+                    idcfg.second.second = i;
+                  found = true;
+                }
+              }
+            } else if (prov_cfg_label == "IDdefinitions" || prov_cfg_label == "IDWPdefinitions") {
+              const std::vector<edm::ParameterSet> psetsFromProvenance =
+                  edm::parameterSet(prov->stable(), iEvent.processHistory())
+                      .getParameter<std::vector<edm::ParameterSet>>(prov_cfg_label);
+              for (size_t i = 0; i < psetsFromProvenance.size(); ++i) {
+                if (psetsFromProvenance[i].getParameter<std::string>("IDname") == prov_ID_label) {
+                  // using negative indices for raw values
+                  if (prov_cfg_label == "IDdefinitions")
+                    idcfg.second.second = -1 - i;
+                  else
+                    idcfg.second.second = i;
+                  found = true;
+                }
+              }
+            } else {
+              // checked prov_cfg_label before, so it must be a direct access via indices
+              try {
+                int i = std::stoi(prov_ID_label);
+                if (prov_cfg_label == "direct_rawValues")
+                  idcfg.second.second = -1 - i;
+                else
+                  idcfg.second.second = i;
+                found = true;
+              } catch (std::invalid_argument const& e) {
+                throw cms::Exception("Configuration") << "PATTauProducer: Direct access to ID container requested, so "
+                                                         "argument of 'idLabel' must be convertable to int!\n";
+              }
+            }
+            if (!found) {
+              throw cms::Exception("Configuration") << "PATTauProducer: Requested working point '" << prov_ID_label
+                                                    << "' for ID '" << idcfg.first << "' not found!\n";
+            }
+          }
+        }
+      }
       std::string missingDiscriminators;
-      std::vector<pat::Tau::IdPair> ids(tauIDSrcs_.size());
+      std::vector<pat::Tau::IdPair> ids(numberTauIds);
       auto const& tausDeref = *tausRef;
-      for (size_t i = 0; i < tauIDSrcs_.size(); ++i) {
-        if (typeid(tausDeref) == typeid(reco::PFTau)) {
+      if (typeid(tausDeref) == typeid(reco::PFTau)) {
+        edm::Handle<reco::PFTauCollection> pfTauCollection;
+        iEvent.getByToken(pfTauToken_, pfTauCollection);
+        for (size_t i = 0; i < numberPlainTauIds; ++i) {
           //std::cout << "filling PFTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
-          edm::Handle<reco::PFTauCollection> pfTauCollection;
-          iEvent.getByToken(pfTauToken_, pfTauCollection);
 
-          edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
-          iEvent.getByToken(pfTauIDTokens_[i], pfTauIdDiscr);
+          auto pfTauIdDiscr = iEvent.getHandle(pfTauIDTokens_[i]);
 
           if (skipMissingTauID_ && !pfTauIdDiscr.isValid()) {
             if (!missingDiscriminators.empty()) {
@@ -361,10 +453,28 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
           }
           ids[i].first = tauIDSrcs_[i].first;
           ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
-        } else {
-          throw cms::Exception("Type Mismatch")
-              << "PATTauProducer: unsupported datatype '" << typeid(tausDeref).name() << "' for tauSource\n";
         }
+        for (size_t i = 0; i < tauIDSrcContainers_.size(); ++i) {
+          auto pfTauIdDiscr = iEvent.getHandle(pfTauIDContainerTokens_[i]);
+          if (skipMissingTauID_ && !pfTauIdDiscr.isValid()) {
+            for (auto const& it : tauIDSrcContainers_[i]) {
+              if (!missingDiscriminators.empty()) {
+                missingDiscriminators += ", ";
+              }
+              missingDiscriminators += it.first;
+            }
+            continue;
+          }
+          for (size_t j = 0; j < tauIDSrcContainers_[i].size(); ++j) {
+            ids[numberPlainTauIds + j].first = tauIDSrcContainers_[i][j].first;
+            ids[numberPlainTauIds + j].second = getTauIdDiscriminatorFromContainer(
+                pfTauCollection, idx, pfTauIdDiscr, tauIDSrcContainers_[i][j].second.second);
+          }
+          numberPlainTauIds += tauIDSrcContainers_[i].size();
+        }
+      } else {
+        throw cms::Exception("Type Mismatch")
+            << "PATTauProducer: unsupported datatype '" << typeid(tausDeref).name() << "' for tauSource\n";
       }
       if (!missingDiscriminators.empty() && firstOccurence_) {
         edm::LogWarning("DataSource") << "The following tau discriminators have not been found in the event:\n"
@@ -401,39 +511,54 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       float leadChargedCandEtaAtEcalEntrance = -99;
       const std::vector<reco::CandidatePtr>& signalCands = pfTauRef->signalCands();
       for (const auto& it : signalCands) {
-        const reco::PFCandidate* icand = dynamic_cast<const reco::PFCandidate*>(it.get());
-        if (icand != nullptr) {
-          ecalEnergy += icand->ecalEnergy();
-          hcalEnergy += icand->hcalEnergy();
-          sumPhiTimesEnergy += icand->positionAtECALEntrance().phi() * icand->energy();
-          sumEtaTimesEnergy += icand->positionAtECALEntrance().eta() * icand->energy();
-          sumEnergy += icand->energy();
+        const reco::PFCandidate* ipfcand = dynamic_cast<const reco::PFCandidate*>(it.get());
+        if (ipfcand != nullptr) {
+          ecalEnergy += ipfcand->ecalEnergy();
+          hcalEnergy += ipfcand->hcalEnergy();
+          sumPhiTimesEnergy += ipfcand->positionAtECALEntrance().phi() * ipfcand->energy();
+          sumEtaTimesEnergy += ipfcand->positionAtECALEntrance().eta() * ipfcand->energy();
+          sumEnergy += ipfcand->energy();
           const reco::Track* track = nullptr;
-          if (icand->trackRef().isNonnull())
-            track = icand->trackRef().get();
-          else if (icand->muonRef().isNonnull() && icand->muonRef()->innerTrack().isNonnull())
-            track = icand->muonRef()->innerTrack().get();
-          else if (icand->muonRef().isNonnull() && icand->muonRef()->globalTrack().isNonnull())
-            track = icand->muonRef()->globalTrack().get();
-          else if (icand->muonRef().isNonnull() && icand->muonRef()->outerTrack().isNonnull())
-            track = icand->muonRef()->outerTrack().get();
-          else if (icand->gsfTrackRef().isNonnull())
-            track = icand->gsfTrackRef().get();
+          if (ipfcand->trackRef().isNonnull())
+            track = ipfcand->trackRef().get();
+          else if (ipfcand->muonRef().isNonnull() && ipfcand->muonRef()->innerTrack().isNonnull())
+            track = ipfcand->muonRef()->innerTrack().get();
+          else if (ipfcand->muonRef().isNonnull() && ipfcand->muonRef()->globalTrack().isNonnull())
+            track = ipfcand->muonRef()->globalTrack().get();
+          else if (ipfcand->muonRef().isNonnull() && ipfcand->muonRef()->outerTrack().isNonnull())
+            track = ipfcand->muonRef()->outerTrack().get();
+          else if (ipfcand->gsfTrackRef().isNonnull())
+            track = ipfcand->gsfTrackRef().get();
           if (track) {
             if (track->pt() > leadChargedCandPt) {
-              leadChargedCandEtaAtEcalEntrance = icand->positionAtECALEntrance().eta();
+              leadChargedCandEtaAtEcalEntrance = ipfcand->positionAtECALEntrance().eta();
               leadChargedCandPt = track->pt();
             }
           }
         } else {
-          // TauReco@MiniAOD: individual ECAL and HCAL energies currently not available for PackedCandidates
-          // (see above implementation for PFCandidates).
-          // Should be added if available, as well as on-the-fly computation of position at ECAL entrance
-          sumEnergy += it->energy();
-          const reco::Track* track = it->bestTrack();
-          if (track != nullptr) {
-            if (track->pt() > leadChargedCandPt) {
-              leadChargedCandPt = track->pt();
+          // TauReco@MiniAOD: individual ECAL and HCAL energies recovered from fractions,
+          // and position at ECAL entrance computed on-the-fly
+          const pat::PackedCandidate* ipatcand = dynamic_cast<const pat::PackedCandidate*>(it.get());
+          if (ipatcand != nullptr) {
+            ecalEnergy += ipatcand->caloFraction() * ipatcand->energy() * (1. - ipatcand->hcalFraction());
+            hcalEnergy += ipatcand->caloFraction() * ipatcand->energy() * ipatcand->hcalFraction();
+            double posAtECal_phi = ipatcand->phi();
+            double posAtECal_eta = ipatcand->eta();
+            bool success = false;
+            reco::Candidate::Point posAtECalEntrance = posAtECalEntranceComputer_(ipatcand, success);
+            if (success) {
+              posAtECal_phi = posAtECalEntrance.phi();
+              posAtECal_eta = posAtECalEntrance.eta();
+            }
+            sumPhiTimesEnergy += posAtECal_phi * ipatcand->energy();
+            sumEtaTimesEnergy += posAtECal_eta * ipatcand->energy();
+            sumEnergy += ipatcand->energy();
+            const reco::Track* track = ipatcand->bestTrack();
+            if (track != nullptr) {
+              if (track->pt() > leadChargedCandPt) {
+                leadChargedCandEtaAtEcalEntrance = posAtECal_eta;
+                leadChargedCandPt = track->pt();
+              }
             }
           }
         }
@@ -479,10 +604,34 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         } else {
           const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(leadingPFCharged.get());
           if (packedCandPtr != nullptr) {
-            // TauReco@MiniAOD: Update code below if ecal/hcal energies are available.
-            const reco::Track* track = packedCandPtr->hasTrackDetails() ? &packedCandPtr->pseudoTrack() : nullptr;
+            // TauReco@MiniAOD: individual ECAL and HCAL energies recovered from fractions,
+            // and position at ECAL entrance computed on-the-fly
+            ecalEnergyLeadChargedHadrCand =
+                packedCandPtr->caloFraction() * packedCandPtr->energy() * (1. - packedCandPtr->hcalFraction());
+            hcalEnergyLeadChargedHadrCand =
+                packedCandPtr->caloFraction() * packedCandPtr->energy() * packedCandPtr->hcalFraction();
+            const reco::Track* track = packedCandPtr->bestTrack();
             if (track != nullptr) {
               leadingTrackNormChi2 = track->normalizedChi2();
+              for (const auto& isoCand : pfTauRef->isolationCands()) {
+                //can safely use static_cast as it is ensured that this PFTau is
+                //built with packedCands as its leadingCanidate
+                const pat::PackedCandidate* isoPackedCand = static_cast<const pat::PackedCandidate*>(isoCand.get());
+                myHCALenergy += isoPackedCand->caloFraction() * isoPackedCand->energy() * isoPackedCand->hcalFraction();
+                myECALenergy +=
+                    isoPackedCand->caloFraction() * isoPackedCand->energy() * (1. - isoPackedCand->hcalFraction());
+              }
+              for (const auto& signalCand : pfTauRef->signalCands()) {
+                //can safely use static_cast as it is ensured that this PFTau is
+                //built with packedCands as its leadingCanidate
+                const pat::PackedCandidate* sigPackedCand = static_cast<const pat::PackedCandidate*>(signalCand.get());
+                myHCALenergy += sigPackedCand->caloFraction() * sigPackedCand->energy() * sigPackedCand->hcalFraction();
+                myECALenergy +=
+                    sigPackedCand->caloFraction() * sigPackedCand->energy() * (1. - sigPackedCand->hcalFraction());
+              }
+              if (myHCALenergy + myECALenergy != 0.) {
+                emFraction = myECALenergy / (myHCALenergy + myECALenergy);
+              }
             }
           }
         }
@@ -558,6 +707,24 @@ float PATTauProducer::getTauIdDiscriminator(const edm::Handle<TauCollectionType>
                                             const edm::Handle<TauDiscrType>& tauIdDiscr) {
   edm::Ref<TauCollectionType> tauRef(tauCollection, tauIdx);
   return (*tauIdDiscr)[tauRef];
+}
+float PATTauProducer::getTauIdDiscriminatorFromContainer(const edm::Handle<reco::PFTauCollection>& tauCollection,
+                                                         size_t tauIdx,
+                                                         const edm::Handle<reco::TauDiscriminatorContainer>& tauIdDiscr,
+                                                         int wpIdx) {
+  edm::Ref<reco::PFTauCollection> tauRef(tauCollection, tauIdx);
+  if (wpIdx < 0) {
+    //Only 0th component filled with default value if prediscriminor in RecoTauDiscriminator failed.
+    if ((*tauIdDiscr)[tauRef].rawValues.size() == 1)
+      return (*tauIdDiscr)[tauRef].rawValues.at(0);
+    //uses negative indices to access rawValues. In most cases only one rawValue at wpIdx=-1 exists.
+    return (*tauIdDiscr)[tauRef].rawValues.at(-1 - wpIdx);
+  } else {
+    //WP vector not filled if prediscriminor in RecoTauDiscriminator failed. Set PAT output to false in this case
+    if ((*tauIdDiscr)[tauRef].workingPoints.empty())
+      return 0.0;
+    return (*tauIdDiscr)[tauRef].workingPoints.at(wpIdx);
+  }
 }
 
 // ParameterSet description for module

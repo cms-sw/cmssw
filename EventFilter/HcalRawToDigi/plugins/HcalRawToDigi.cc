@@ -5,8 +5,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <unordered_set>
@@ -35,6 +33,9 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf)
       expectedOrbitMessageTime_(conf.getUntrackedParameter<int>("ExpectedOrbitMessageTime", -1)) {
   electronicsMapLabel_ = conf.getParameter<std::string>("ElectronicsMap");
   tok_data_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("InputLabel"));
+  tok_dbService_ = esConsumes<HcalDbService, HcalDbRecord>();
+  tok_electronicsMap_ =
+      esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(edm::ESInputTag("", electronicsMapLabel_));
 
   if (fedUnpackList_.empty()) {
     // VME range for back-compatibility
@@ -175,10 +176,8 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<FEDRawDataCollection> rawraw;
   e.getByToken(tok_data_, rawraw);
   // get the mapping
-  edm::ESHandle<HcalDbService> pSetup;
-  es.get<HcalDbRecord>().get(pSetup);
-  edm::ESHandle<HcalElectronicsMap> item;
-  es.get<HcalElectronicsMapRcd>().get(electronicsMapLabel_, item);
+  edm::ESHandle<HcalDbService> pSetup = es.getHandle(tok_dbService_);
+  edm::ESHandle<HcalElectronicsMap> item = es.getHandle(tok_electronicsMap_);
   const HcalElectronicsMap* readoutMap = item.product();
   filter_.setConditions(pSetup.product());
 

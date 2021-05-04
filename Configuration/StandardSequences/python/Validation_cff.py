@@ -30,12 +30,15 @@ from Validation.EventGenerator.BasicGenValidation_cff import *
 from Validation.RecoParticleFlow.miniAODValidation_cff import *
 from Validation.RecoEgamma.photonMiniAODValidationSequence_cff import *
 from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
+from Validation.RecoTau.RecoTauValidation_cff import *
 
 prevalidationNoHLT = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * metPreValidSeq * jetPreValidSeq )
 prevalidation = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
-prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence * egammaValidationMiniAOD)
+prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence 
+                                    * photonMiniAODValidationSequence * egammaValidationMiniAOD
+                                    * produceDenoms)
 
 _prevalidation_fastsim = prevalidation.copy()
 for _entry in [hltassociation]:
@@ -63,7 +66,7 @@ validationLiteTracking = cms.Sequence( validation )
 validationLiteTracking.replace(globalValidation,globalValidationLiteTracking)
 validationLiteTracking.remove(condDataValidation)
 
-validationMiniAOD = cms.Sequence(type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * JetValidationMiniAOD * METValidationMiniAOD)
+validationMiniAOD = cms.Sequence(type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * JetValidationMiniAOD * METValidationMiniAOD * tauValidationSequenceMiniAOD)
 
 prevalidation_preprod = cms.Sequence( preprodPrevalidation )
 

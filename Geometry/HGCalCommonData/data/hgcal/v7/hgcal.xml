@@ -4,15 +4,19 @@
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="slope2"      value="tan(19.3*deg)"/>
   <Constant name="slope3"      value="tan(53.0*deg)"/>
+  <Constant name="d1"          value="0.1*cm"/>
+  <Constant name="d2"          value="0.3*cm"/>
+  <Constant name="d3"          value="1.9*cm"/>
+  <Constant name="d4"          value="2.1*cm"/>
+  <Constant name="d5"          value="2.7*cm"/>
+  <Constant name="d6"          value="([d5]-[d4])"/>
   <Constant name="z1Beam"      value="2412.7*mm"/>
   <Constant name="zHGCal10"    value="2990.0*mm"/>
   <Constant name="zHGCal1"     value="3170.0*mm"/>
-  <Constant name="rMaxHGCal10" value="29.5*cm"/>
   <Constant name="rMaxHGCal1"  value="1534.5*mm"/>
   <Constant name="zHGCal2"     value="3898.2*mm"/>
   <Constant name="WaferW"      value="123.7*mm"/>
   <Constant name="rMinHGCal1"  value="([etaMax:slope]*[zHGCal1]-[WaferW]*tan(30.0*deg))"/>
-  <Constant name="rMaxHGCal10" value="([rMinHGCal1]-[d4])"/>
   <Constant name="slope1"      value="[rMinHGCal1]/[zHGCal1]"/>
   <Constant name="rMaxHGCal2"  value="([rMaxHGCal1]+(([zHGCal2]-[zHGCal1])*[slope2]))"/>
   <Constant name="zHGCal3"     value="4180.4*mm"/>
@@ -44,12 +48,6 @@
   <Constant name="rMapHEMin"   value="[rMaxHEMin]*[factor1]"/>
   <Constant name="rMapHGCal2"  value="[rMaxHGCal2]*[factor1]"/>
   <Constant name="rMapHGCal3"  value="[rMaxHGCal3]*[factor2]"/>
-  <Constant name="d1"          value="0.1*cm"/>
-  <Constant name="d2"          value="0.3*cm"/>
-  <Constant name="d3"          value="1.9*cm"/>
-  <Constant name="d4"          value="2.1*cm"/>
-  <Constant name="d5"          value="2.7*cm"/>
-  <Constant name="d6"          value="([d5]-[d4])"/>
   <Constant name="rMaxHGCal10" value="([rMinHGCal1]-[d4])"/>
 </ConstantsSection>
 

@@ -5,19 +5,33 @@
 #include <array>
 #include <cstdint>
 
-namespace ticl::constants {
-  constexpr float minEta = 1.5f;
-  constexpr float maxEta = 3.2f;
-  constexpr int nEtaBins = 34;
-  constexpr int nPhiBins = 126;
-  constexpr int nLayers = 104;
-}  // namespace ticl::constants
+namespace ticl {
+  struct TileConstants {
+    static constexpr float minEta = 1.5f;
+    static constexpr float maxEta = 3.2f;
+    static constexpr int nEtaBins = 34;
+    static constexpr int nPhiBins = 126;
+    static constexpr int nLayers = 104;
+    static constexpr int iterations = 4;
+    static constexpr int nBins = nEtaBins * nPhiBins;
+    static constexpr int type = 0;
+  };
 
-class TICLLayerTile;
+  struct TileConstantsHFNose {
+    static constexpr float minEta = 3.0f;
+    static constexpr float maxEta = 4.2f;
+    static constexpr int nEtaBins = 24;
+    static constexpr int nPhiBins = 126;
+    static constexpr int nLayers = 16;  // 8x2
+    static constexpr int iterations = 4;
+    static constexpr int nBins = nEtaBins * nPhiBins;
+    static constexpr int type = 1;
+  };
+
+}  // namespace ticl
+
 namespace ticl {
   typedef std::vector<std::pair<unsigned int, float> > HgcalClusterFilterMask;
-  typedef std::array<std::vector<unsigned int>, constants::nEtaBins * constants::nPhiBins> Tile;
-  typedef std::array<TICLLayerTile, ticl::constants::nLayers> Tiles;
 }  // namespace ticl
 
 #endif  // DataFormats_HGCalReco_Common_h

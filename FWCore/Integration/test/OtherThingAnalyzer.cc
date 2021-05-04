@@ -208,18 +208,19 @@ namespace edmtest {
           throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze")
               << "VECTOR ITEM 1 " << i << " has incorrect value " << tcv1.a << '\n';
         }
-        for (edm::RefVector<ThingCollection>::iterator it = otherThing.refVec.begin(), itEnd = otherThing.refVec.end();
-             it != itEnd;
-             ++it) {
-          edm::Ref<ThingCollection> tcol = *it;
-          Thing const& ti = **it;
-          int const& xi = (*it)->a;
+        for (edm::RefVector<ThingCollection>::iterator iterRefVector = otherThing.refVec.begin(),
+                                                       iterRefVectorEnd = otherThing.refVec.end();
+             iterRefVector != iterRefVectorEnd;
+             ++iterRefVector) {
+          edm::Ref<ThingCollection> tcol = *iterRefVector;
+          Thing const& ti = **iterRefVector;
+          int const& xi = (*iterRefVector)->a;
           if (xi != ti.a) {
             throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze")
                 << "iterator item " << ti.a << " " << xi << '\n';
-          } else if (it == otherThing.refVec.begin() && xi != i) {
+          } else if (iterRefVector == otherThing.refVec.begin() && xi != i) {
             throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "iterator item 0" << xi << '\n';
-          } else if (it != otherThing.refVec.begin() && xi != 19 - i) {
+          } else if (iterRefVector != otherThing.refVec.begin() && xi != 19 - i) {
             throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "iterator item 1" << xi << '\n';
           }
         }
@@ -285,18 +286,19 @@ namespace edmtest {
           throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze")
               << "VECTOR ITEM 1 " << i << " has incorrect value " << tcv1.a << '\n';
         }
-        for (edm::PtrVector<Thing>::const_iterator it = otherThing.ptrVec.begin(), itEnd = otherThing.ptrVec.end();
-             it != itEnd;
-             ++it) {
-          edm::Ptr<Thing> tcol = *it;
-          Thing const& ti = **it;
-          int const& xi = (*it)->a;
+        for (edm::PtrVector<Thing>::const_iterator iterPtrVec = otherThing.ptrVec.begin(),
+                                                   iterPtrVecEnd = otherThing.ptrVec.end();
+             iterPtrVec != iterPtrVecEnd;
+             ++iterPtrVec) {
+          edm::Ptr<Thing> tcol = *iterPtrVec;
+          Thing const& ti = **iterPtrVec;
+          int const& xi = (*iterPtrVec)->a;
           if (xi != ti.a) {
             throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze")
                 << "iterator item " << ti.a << " " << xi << '\n';
-          } else if (it == otherThing.ptrVec.begin() && xi != i) {
+          } else if (iterPtrVec == otherThing.ptrVec.begin() && xi != i) {
             throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "iterator item 0" << xi << '\n';
-          } else if (it != otherThing.ptrVec.begin() && xi != 19 - i) {
+          } else if (iterPtrVec != otherThing.ptrVec.begin() && xi != 19 - i) {
             throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "iterator item 1" << xi << '\n';
           }
         }

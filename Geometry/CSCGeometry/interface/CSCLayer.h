@@ -18,8 +18,8 @@
 #include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 #include <DataFormats/GeometrySurface/interface/BoundPlane.h>
 
-//#include <boost/shared_ptr.hpp>
-//typedef boost::shared_ptr<CSCChamber> Pointer2Chamber;
+//>
+//typedef std::shared_ptr<CSCChamber> Pointer2Chamber;
 
 class CSCLayer : public GeomDetUnit {
 public:

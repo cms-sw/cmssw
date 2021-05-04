@@ -21,10 +21,8 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
 // Geometry
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
@@ -52,6 +50,9 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps) {
   // Parameters to identify the hit collections
   barrelRecHits_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("barrelHits"));
   endcapRecHits_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("endcapHits"));
+
+  //EventSetup Token for CaloGeometry
+  caloGeometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   // The names of the produced cluster collections
   barrelClusterCollection_ = ps.getParameter<std::string>("barrelClusterCollection");
@@ -165,8 +166,7 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event& evt,
   const EcalRecHitCollection* hitCollection_p = getCollection(evt, token);
 
   // get the geometry and topology from the event setup:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  edm::ESHandle<CaloGeometry> geoHandle = es.getHandle(caloGeometryToken_);
 
   const CaloSubdetectorGeometry* geometry_p;
   std::unique_ptr<CaloSubdetectorTopology> topology_p;

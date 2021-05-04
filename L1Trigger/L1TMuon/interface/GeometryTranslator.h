@@ -15,24 +15,27 @@
 // Some pieces of code lifted from: Matt Carver & Bobby Scurlock (UF)
 //
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <memory>
 
-// forwards
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+// Forward declarations
 namespace edm {
   class EventSetup;
 }
 
-class ME0Geometry;
-class GEMGeometry;
-class RPCGeometry;
+class DTGeometry;
 class CSCGeometry;
 class CSCLayer;
-class DTGeometry;
+class RPCGeometry;
+class GEMGeometry;
+class ME0Geometry;
 class MagneticField;
 
 namespace L1TMuon {
+
+  // Forward declaration
   class TriggerPrimitive;
 
   class GeometryTranslator {
@@ -48,25 +51,29 @@ namespace L1TMuon {
 
     void checkAndUpdateGeometry(const edm::EventSetup&);
 
-    const ME0Geometry& getME0Geometry() const { return *_geome0; }
-    const GEMGeometry& getGEMGeometry() const { return *_geogem; }
-    const RPCGeometry& getRPCGeometry() const { return *_georpc; }
-    const CSCGeometry& getCSCGeometry() const { return *_geocsc; }
     const DTGeometry& getDTGeometry() const { return *_geodt; }
+    const CSCGeometry& getCSCGeometry() const { return *_geocsc; }
+    const RPCGeometry& getRPCGeometry() const { return *_georpc; }
+    const GEMGeometry& getGEMGeometry() const { return *_geogem; }
+    const ME0Geometry& getME0Geometry() const { return *_geome0; }
 
     const MagneticField& getMagneticField() const { return *_magfield; }
 
   private:
-    // pointers to the current geometry records
     unsigned long long _geom_cache_id;
-    edm::ESHandle<ME0Geometry> _geome0;
-    edm::ESHandle<GEMGeometry> _geogem;
-    edm::ESHandle<RPCGeometry> _georpc;
-    edm::ESHandle<CSCGeometry> _geocsc;
     edm::ESHandle<DTGeometry> _geodt;
+    edm::ESHandle<CSCGeometry> _geocsc;
+    edm::ESHandle<RPCGeometry> _georpc;
+    edm::ESHandle<GEMGeometry> _geogem;
+    edm::ESHandle<ME0Geometry> _geome0;
 
     unsigned long long _magfield_cache_id;
     edm::ESHandle<MagneticField> _magfield;
+
+    GlobalPoint getME0SpecificPoint(const TriggerPrimitive&) const;
+    double calcME0SpecificEta(const TriggerPrimitive&) const;
+    double calcME0SpecificPhi(const TriggerPrimitive&) const;
+    double calcME0SpecificBend(const TriggerPrimitive&) const;
 
     GlobalPoint getGEMSpecificPoint(const TriggerPrimitive&) const;
     double calcGEMSpecificEta(const TriggerPrimitive&) const;
@@ -89,6 +96,7 @@ namespace L1TMuon {
     double calcDTSpecificPhi(const TriggerPrimitive&) const;
     double calcDTSpecificBend(const TriggerPrimitive&) const;
   };
+
 }  // namespace L1TMuon
 
 #endif

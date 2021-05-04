@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
+#include <functional>
 #include <iostream>
 // user include files
 
@@ -69,10 +69,10 @@ CmsShowCommon::CmsShowCommon(fireworks::Context* c)
         new FWLongParameter(this, name, long(colorManager()->geomColor(FWGeomColorIndex(i))), 1000l, 1100l);
   }
 
-  m_trackBreak.changed_.connect(boost::bind(&CmsShowCommon::setTrackBreakMode, this));
+  m_trackBreak.changed_.connect(std::bind(&CmsShowCommon::setTrackBreakMode, this));
   m_palette.set(m_context->colorManager()->getPalette());
-  m_drawBreakPoints.changed_.connect(boost::bind(&CmsShowCommon::setDrawBreakMarkers, this));
-  m_gamma.changed_.connect(boost::bind(&CmsShowCommon::setGamma, this));
+  m_drawBreakPoints.changed_.connect(std::bind(&CmsShowCommon::setDrawBreakMarkers, this));
+  m_gamma.changed_.connect(std::bind(&CmsShowCommon::setGamma, this));
 
   m_lightColorSet.StdLightBackground();
   m_darkColorSet.StdDarkBackground();

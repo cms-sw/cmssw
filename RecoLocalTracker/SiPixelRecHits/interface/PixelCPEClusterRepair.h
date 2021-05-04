@@ -5,7 +5,7 @@
 
 // Already in the base class
 //#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 //#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 //#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 //#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
@@ -64,7 +64,7 @@ public:
   static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
-  ClusterParam *createClusterParam(const SiPixelCluster &cl) const override;
+  std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster &cl) const override;
 
   // Calculate local position.  (Calls TemplateReco)
   LocalPoint localPosition(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;

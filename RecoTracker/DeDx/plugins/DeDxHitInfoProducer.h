@@ -10,10 +10,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
@@ -73,6 +74,7 @@ private:
   unsigned int m_off;
 
   edm::ESHandle<TrackerGeometry> tkGeom;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_tkGeomToken;
 
   uint64_t xorshift128p(uint64_t state[2]) {
     uint64_t x = state[0];

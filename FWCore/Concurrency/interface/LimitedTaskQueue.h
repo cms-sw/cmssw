@@ -30,6 +30,7 @@
 #include <memory>
 
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // user include files
 
@@ -38,6 +39,8 @@ namespace edm {
   class LimitedTaskQueue {
   public:
     LimitedTaskQueue(unsigned int iLimit) : m_queues{iLimit} {}
+    LimitedTaskQueue(const LimitedTaskQueue&) = delete;
+    const LimitedTaskQueue& operator=(const LimitedTaskQueue&) = delete;
 
     // ---------- member functions ---------------------------
 
@@ -49,18 +52,7 @@ namespace edm {
        * \param[in] iAction Must be a functor that takes no arguments and return no values.
        */
     template <typename T>
-    void push(T&& iAction);
-
-    /// synchronously pushes functor iAction into queue
-    /**
-       * The function will wait until iAction has completed before returning.
-       * If another task is already running on the queue, the system is allowed
-       * to find another TBB task to execute while waiting for the iAction to finish.
-       * In that way the core is not idled while waiting.
-       * \param[in] iAction Must be a functor that takes no arguments and return no values.
-       */
-    template <typename T>
-    void pushAndWait(T&& iAction);
+    void push(tbb::task_group& iGroup, T&& iAction);
 
     class Resumer {
     public:
@@ -110,23 +102,20 @@ namespace edm {
        Using this function will decrease the allowed concurrency limit by 1.
        */
     template <typename T>
-    void pushAndPause(T&& iAction);
+    void pushAndPause(tbb::task_group& iGroup, T&& iAction);
 
     unsigned int concurrencyLimit() const { return m_queues.size(); }
 
   private:
-    LimitedTaskQueue(const LimitedTaskQueue&) = delete;
-    const LimitedTaskQueue& operator=(const LimitedTaskQueue&) = delete;
-
     // ---------- member data --------------------------------
     std::vector<SerialTaskQueue> m_queues;
   };
 
   template <typename T>
-  void LimitedTaskQueue::push(T&& iAction) {
+  void LimitedTaskQueue::push(tbb::task_group& iGroup, T&& iAction) {
     auto set_to_run = std::make_shared<std::atomic<bool>>(false);
     for (auto& q : m_queues) {
-      q.push([set_to_run, iAction]() mutable {
+      q.push(iGroup, [set_to_run, iAction]() mutable {
         bool expected = false;
         if (set_to_run->compare_exchange_strong(expected, true)) {
           iAction();
@@ -136,31 +125,10 @@ namespace edm {
   }
 
   template <typename T>
-  void LimitedTaskQueue::pushAndWait(T&& iAction) {
-    tbb::empty_task* waitTask = new (tbb::task::allocate_root()) tbb::empty_task;
-    waitTask->set_ref_count(2);
+  void LimitedTaskQueue::pushAndPause(tbb::task_group& iGroup, T&& iAction) {
     auto set_to_run = std::make_shared<std::atomic<bool>>(false);
     for (auto& q : m_queues) {
-      q.push([set_to_run, waitTask, iAction]() mutable {
-        bool expected = false;
-        if (set_to_run->compare_exchange_strong(expected, true)) {
-          try {
-            iAction();
-          } catch (...) {
-          }
-          waitTask->decrement_ref_count();
-        }
-      });
-    }
-    waitTask->wait_for_all();
-    tbb::task::destroy(*waitTask);
-  }
-
-  template <typename T>
-  void LimitedTaskQueue::pushAndPause(T&& iAction) {
-    auto set_to_run = std::make_shared<std::atomic<bool>>(false);
-    for (auto& q : m_queues) {
-      q.push([&q, set_to_run, iAction]() mutable {
+      q.push(iGroup, [&q, set_to_run, iAction]() mutable {
         bool expected = false;
         if (set_to_run->compare_exchange_strong(expected, true)) {
           q.pause();

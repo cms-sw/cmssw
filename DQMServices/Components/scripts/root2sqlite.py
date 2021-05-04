@@ -109,10 +109,10 @@ def save_keyvalue(dictionary, name):
     insert = "INSERT INTO %s(key, value) VALUES (?,?);" % name
     print(insert)
     db.executemany(insert, data)
+    db.commit()
 
 
 for name, obj, rtype in read_objects_root(f):
-  print(name, obj, rtype)
   if rtype == "TTree":
     treetotable(obj, name)
   else:

@@ -138,6 +138,7 @@ namespace cmsutils {
       cp.m_size = 0;
     }
 
+    bqueue &operator=(bqueue<T> const &) = default;
     bqueue &operator=(bqueue<T> &&cp) noexcept {
       using std::swap;
       swap(m_size, cp.m_size);

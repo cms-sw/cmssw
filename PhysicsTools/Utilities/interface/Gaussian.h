@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_Utilities_Gaussian_h
 #define PhysicsTools_Utilities_Gaussian_h
 #include "PhysicsTools/Utilities/interface/Parameter.h"
-#include <boost/shared_ptr.hpp>
+
 #include <cmath>
 
 namespace funct {
@@ -10,7 +10,7 @@ namespace funct {
 
   struct Gaussian {
     Gaussian(const Parameter& m, const Parameter& s) : mean(m.ptr()), sigma(s.ptr()) {}
-    Gaussian(boost::shared_ptr<double> m, boost::shared_ptr<double> s) : mean(m), sigma(s) {}
+    Gaussian(std::shared_ptr<double> m, std::shared_ptr<double> s) : mean(m), sigma(s) {}
     Gaussian(double m, double s) : mean(new double(m)), sigma(new double(s)) {}
     double operator()(double x) const {
       double z = (x - *mean) / *sigma;
@@ -18,7 +18,7 @@ namespace funct {
         return 0;
       return oneOverSqrtTwoPi / *sigma * exp(-z * z / 2);
     }
-    boost::shared_ptr<double> mean, sigma;
+    std::shared_ptr<double> mean, sigma;
   };
 
 }  // namespace funct

@@ -1,9 +1,11 @@
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
+#include <DD4hep/DD4hepUnits.h>
 
 #include <cfloat>
 #include <vector>
@@ -72,7 +74,7 @@ GeometricTimingDet::GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumTy
       phi_(trans_.Phi()),
       rho_(trans_.Rho()),
       rot_(fv->rotation()),
-      shape_(fv->shape()),
+      shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, fv->shape())),
       ddname_(fv->name()),
       type_(type),
       params_(fv->parameters()),
@@ -86,6 +88,32 @@ GeometricTimingDet::GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumTy
       siliconAPVNum_(getDouble("SiliconAPVNumber", *fv)) {
   const DDFilteredView::nav_type& nt = fv->navPos();
   ddd_ = nav_type(nt.begin(), nt.end());
+}
+
+GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingEnumType type)
+    : trans_(fv->translation() / dd4hep::mm),
+      rot_(fv->rotation()),
+      shape_(fv->shape()),
+      ddname_(fv->name()),
+      type_(type),
+      params_(fv->parameters()),
+      radLength_(fv->get<double>("TrackerRadLength")),
+      xi_(fv->get<double>("TrackerXi")),
+      pixROCRows_(fv->get<double>("PixelROCRows")),
+      pixROCCols_(fv->get<double>("PixelROCCols")),
+      pixROCx_(fv->get<double>("PixelROC_X")),
+      pixROCy_(fv->get<double>("PixelROC_Y")),
+      stereo_(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
+      siliconAPVNum_(fv->get<double>("SiliconAPVNumber")) {
+  phi_ = trans_.Phi();
+  rho_ = trans_.Rho();
+  for (size_t pit = 0; pit < params_.size(); pit++) {
+    params_[pit] = params_[pit] / dd4hep::mm;
+  }
+  //
+  // Not navPos(), as not properly working for DD4hep and not used
+  //
+  ddd_ = nav_type(fv->copyNos().size(), 0);
 }
 
 // PGeometricTimingDet is persistent version... make it... then come back here and make the
@@ -103,7 +131,7 @@ GeometricTimingDet::GeometricTimingDet(const PGeometricTimingDet::Item& onePGD, 
            onePGD.a31_,
            onePGD.a32_,
            onePGD.a33_),
-      shape_(static_cast<DDSolidShape>(onePGD.shape_)),
+      shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, static_cast<LegacySolidShape>(onePGD.shape_))),
       ddd_(),
       ddname_(onePGD.name_),  //, "fromdb");
       type_(type),
@@ -201,7 +229,9 @@ void GeometricTimingDet::deleteComponents() {
 }
 
 GeometricTimingDet::Position GeometricTimingDet::positionBounds() const {
-  Position pos(float(trans_.x() / cm), float(trans_.y() / cm), float(trans_.z() / cm));
+  Position pos(geant_units::operators::convertMmToCm(trans_.x()),
+               geant_units::operators::convertMmToCm(trans_.y()),
+               geant_units::operators::convertMmToCm(trans_.z()));
   return pos;
 }
 

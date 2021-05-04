@@ -8,13 +8,13 @@ class TrackAndHOLinker : public BlockElementLinkerBase {
 public:
   TrackAndHOLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
-        _useKDTree(conf.getParameter<bool>("useKDTree")),
-        _debug(conf.getUntrackedParameter<bool>("debug", false)) {}
+        useKDTree_(conf.getParameter<bool>("useKDTree")),
+        debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree, _debug;
+  bool useKDTree_, debug_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndHOLinker, "TrackAndHOLinker");
@@ -37,7 +37,7 @@ double TrackAndHOLinker::testLink(const reco::PFBlockElement* elem1, const reco:
     throw cms::Exception("BadClusterRefs") << "PFBlockElementCluster's refs are null!";
   }
   if (tkelem->trackRef()->pt() > 3.00001 && tkref->extrapolatedPoint(HOLayer).isValid()) {
-    dist = LinkByRecHit::testTrackAndClusterByRecHit(*tkref, *horef, false, _debug);
+    dist = LinkByRecHit::testTrackAndClusterByRecHit(*tkref, *horef, false, debug_);
   } else {
     dist = -1.;
   }

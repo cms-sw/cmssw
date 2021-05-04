@@ -94,7 +94,6 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
   vector<hltPlot*> plotList;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -790,11 +789,6 @@ void HLTObjectMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& 
 }
 
 // ------------ method called when ending the processing of a run  ------------
-
-void HLTObjectMonitor::endRun(edm::Run const&, edm::EventSetup const&) {
-  if (debugPrint)
-    std::cout << "Calling endRun. " << std::endl;
-}
 
 void HLTObjectMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
   ////////////////////////////////

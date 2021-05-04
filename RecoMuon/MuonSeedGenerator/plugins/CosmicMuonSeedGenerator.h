@@ -10,10 +10,15 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <vector>
 
@@ -121,6 +126,8 @@ private:
   bool theForcePointDownFlag;
   edm::ESHandle<MuonDetLayerGeometry> theMuonLayers;
   edm::ESHandle<MagneticField> theField;
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonLayersToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken;
 
   std::map<std::string, float> theParameters;
 

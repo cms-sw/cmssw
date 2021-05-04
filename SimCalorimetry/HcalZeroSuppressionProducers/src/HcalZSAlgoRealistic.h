@@ -10,16 +10,20 @@
  * (start) sample. If any of the sums are greater then the threshold, keep the
  * event.
  *
- * \author S. Sengupta - Minnesota
+ * For Run3 and Run4 HB and HE only 1TS is used 
+ *
+ *
  */
 class HcalZSAlgoRealistic : public HcalZeroSuppressionAlgo {
 public:
   HcalZSAlgoRealistic(bool markAndPass,
+                      bool use1ts,
                       std::pair<int, int> HBsearchTS,
                       std::pair<int, int> HEsearchTS,
                       std::pair<int, int> HOsearchTS,
                       std::pair<int, int> HFsearchTS);
   HcalZSAlgoRealistic(bool markAndPass,
+                      bool use1ts,
                       int levelHB,
                       int levelHE,
                       int levelHO,
@@ -40,7 +44,7 @@ protected:
   bool shouldKeep(const QIE11DataFrame &digi) const override;
 
 private:
-  bool usingDBvalues;
+  bool usingDBvalues, use1ts_;
   int thresholdHB_, thresholdHE_, thresholdHO_, thresholdHF_;
   std::pair<int, int> HBsearchTS_, HEsearchTS_, HOsearchTS_, HFsearchTS_;
   template <class Digi>

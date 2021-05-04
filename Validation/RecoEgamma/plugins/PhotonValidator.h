@@ -24,12 +24,11 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-//#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 //
 #include <map>
@@ -55,7 +54,7 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
-class PhotonValidator : public DQMEDAnalyzer {
+class PhotonValidator : public DQMOneEDAnalyzer<> {
 public:
   //
   explicit PhotonValidator(const edm::ParameterSet&);
@@ -64,7 +63,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void beginJob();
   void dqmBeginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) override;
-  void endRun(edm::Run const& r, edm::EventSetup const& es) override;
+  void dqmEndRun(edm::Run const& r, edm::EventSetup const& es) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:

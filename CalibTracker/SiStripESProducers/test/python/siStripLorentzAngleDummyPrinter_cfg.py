@@ -9,17 +9,21 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Reader")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring("*"),
-    LorentzAngleReaderSummary = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    LorentzAngleReaderDebug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('LorentzAngleReaderSummary', 'LorentzAngleReaderDebug')
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        LorentzAngleReaderDebug = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        LorentzAngleReaderSummary = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
 

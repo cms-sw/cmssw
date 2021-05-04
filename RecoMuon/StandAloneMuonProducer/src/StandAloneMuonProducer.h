@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include <memory>
 
 namespace edm {
   class ParameterSet;
@@ -42,10 +43,10 @@ private:
   edm::InputTag theSeedCollectionLabel;
 
   /// the track finder
-  MuonTrackFinder* theTrackFinder;  //It isn't the same as in ORCA
+  std::unique_ptr<MuonTrackFinder> theTrackFinder;  //It isn't the same as in ORCA
 
   /// the event setup proxy, it takes care the services update
-  MuonServiceProxy* theService;
+  std::unique_ptr<MuonServiceProxy> theService;
 
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken;
 

@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -24,8 +25,8 @@
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
 #include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
@@ -51,6 +52,8 @@ private:
   std::vector<unsigned int> fedIds;
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
+  edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> totemMappingToken;
+  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> analysisMaskToken;
 
   pps::RawDataUnpacker rawDataUnpacker;
   RawToDigiConverter rawToDigiConverter;
@@ -119,6 +122,9 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
 
   // conversion status
   produces<DetSetVector<TotemVFATStatus>>(subSystemName);
+
+  totemMappingToken = esConsumes<TotemDAQMapping, TotemReadoutRcd>(ESInputTag("", subSystemName));
+  analysisMaskToken = esConsumes<TotemAnalysisMask, TotemReadoutRcd>(ESInputTag("", subSystemName));
 }
 
 TotemVFATRawToDigi::~TotemVFATRawToDigi() {}
@@ -137,12 +143,10 @@ void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
 template <typename DigiType>
 void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   // get DAQ mapping
-  ESHandle<TotemDAQMapping> mapping;
-  es.get<TotemReadoutRcd>().get(subSystemName, mapping);
+  ESHandle<TotemDAQMapping> mapping = es.getHandle(totemMappingToken);
 
   // get analysis mask to mask channels
-  ESHandle<TotemAnalysisMask> analysisMask;
-  es.get<TotemReadoutRcd>().get(subSystemName, analysisMask);
+  ESHandle<TotemAnalysisMask> analysisMask = es.getHandle(analysisMaskToken);
 
   // raw data handle
   edm::Handle<FEDRawDataCollection> rawData;

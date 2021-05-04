@@ -29,7 +29,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -97,6 +96,10 @@ private:
 
   edm::ParameterSet pset_;
   std::vector<TrackerMap*> tkmap_;
+
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
 };
 
 //
@@ -113,7 +116,10 @@ BuildTrackerMapPlugin::BuildTrackerMapPlugin(const edm::ParameterSet& iConfig)
       tkHistoMapNameVec_(iConfig.getUntrackedParameter<std::vector<std::string>>("TkHistoMapNameVec")),
       minVal_(iConfig.getUntrackedParameter<std::vector<double>>("MinValueVec")),
       maxVal_(iConfig.getUntrackedParameter<std::vector<double>>("MaxValueVec")),
-      pset_(iConfig.getParameter<edm::ParameterSet>("TkmapParameters")) {
+      pset_(iConfig.getParameter<edm::ParameterSet>("TkmapParameters")),
+      fedCablingToken_(esConsumes<>()),
+      tTopoToken_(esConsumes<>()),
+      tkDetMapToken_(esConsumes<>()) {
   //   for (unsigned int i(0); i<34; i++){
   //     if (i<4) histName_[i] << "TIB/layer_" << i+1 << "/" << tkDetMapName_ << "_TIB_L" << i+1;
   //     else if (i<7)  histName_[i] << "TID/side_1/wheel_" << i-3 << "/" << tkDetMapName_ << "_TIDM_D" << i-3;
@@ -147,13 +153,12 @@ void BuildTrackerMapPlugin::read(bool aMechView,
   std::string dirName = folderName_;
   if (dirName.empty()) {
     dirName += "Run ";
-    dirName += aFile.substr(aFile.find_last_of("_") + 5, 6);
+    dirName += aFile.substr(aFile.find_last_of('_') + 5, 6);
     dirName += "/SiStrip/Run summary";
     std::cout << " -- DirName = " << dirName << std::endl;
   }
 
   //lDqmStore->setCurrentFolder(dirName);
-  //lDqmStore->showDirStructure();
 
   unsigned int nFailTot = 0;
   unsigned int nTotTot = 0;
@@ -287,25 +292,18 @@ void BuildTrackerMapPlugin::read(bool aMechView,
 void BuildTrackerMapPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   static bool firstEvent = true;
 
-  edm::ESHandle<SiStripFedCabling> fedcabling;
-  iSetup.get<SiStripFedCablingRcd>().get(fedcabling);
-
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
   if (tkHistoMapVec_.empty() && (!tkHistoMapNameVec_.empty())) {
-    edm::ESHandle<TkDetMap> tkDetMapHandle;
-    iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-    const TkDetMap* tkDetMap = tkDetMapHandle.product();
+    const auto tkDetMap = &iSetup.getData(tkDetMapToken_);
     read(mechanicalView_, fileName_, tkDetMap, tkHistoMapVec_, isValidMap_);
     if (doDiff_)
       read(mechanicalView_, fileNameDiff_, tkDetMap, tkHistoMapVecDiff_, isValidMapDiff_);
   }
 
   if (firstEvent) {
+    const auto fedcabling = &iSetup.getData(fedCablingToken_);
+    const auto tTopo = &iSetup.getData(tTopoToken_);
     for (unsigned int i(0); i < tkHistoMapNameVec_.size(); i++) {
-      tkmap_.push_back(new TrackerMap(pset_, &(*fedcabling), tTopo));
+      tkmap_.push_back(new TrackerMap(pset_, fedcabling, tTopo));
     }
   }
 

@@ -20,16 +20,11 @@
 #include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 // Geometry
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/HybridClusterProducer.h"
@@ -39,6 +34,8 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps) {
   basicclusterCollection_ = ps.getParameter<std::string>("basicclusterCollection");
   superclusterCollection_ = ps.getParameter<std::string>("superclusterCollection");
   hitsToken_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("recHitsCollection"));
+  geoToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  sevLvToken_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
 
   //Setup for core tools objects.
   edm::ParameterSet posCalcParameters = ps.getParameter<edm::ParameterSet>("posCalcParameters");
@@ -96,14 +93,12 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   const EcalRecHitCollection* hit_collection = rhcHandle.product();
 
   // get the collection geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  edm::ESHandle<CaloGeometry> geoHandle = es.getHandle(geoToken_);
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry* geometry_p;
   std::unique_ptr<const CaloSubdetectorTopology> topology;
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
-  es.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
+  edm::ESHandle<EcalSeverityLevelAlgo> sevLv = es.getHandle(sevLvToken_);
 
   geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   topology = std::make_unique<EcalBarrelTopology>(*geoHandle);

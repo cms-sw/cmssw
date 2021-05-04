@@ -11,6 +11,7 @@
 #include "RecoMuon/MuonIdentification/plugins/MuonSelectionTypeValueMapProducer.h"
 #include "RecoMuon/MuonIdentification/plugins/InterestingEcalDetIdProducer.h"
 #include "RecoMuon/MuonIdentification/plugins/MuonIDFilterProducerForHLT.h"
+#include "RecoMuon/MuonIdentification/plugins/MuonReducedTrackExtraProducer.h"
 
 DEFINE_FWK_MODULE(MuonIdProducer);
 DEFINE_FWK_MODULE(MuonLinksProducer);
@@ -21,6 +22,7 @@ DEFINE_FWK_MODULE(MuonTimingProducer);
 DEFINE_FWK_MODULE(MuonSelectionTypeValueMapProducer);
 DEFINE_FWK_MODULE(InterestingEcalDetIdProducer);
 DEFINE_FWK_MODULE(MuonIDFilterProducerForHLT);
+DEFINE_FWK_MODULE(MuonReducedTrackExtraProducer);
 
 // For the VID framework
 #include "PhysicsTools/SelectorUtils/interface/VersionedIdProducer.h"

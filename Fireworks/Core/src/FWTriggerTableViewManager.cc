@@ -13,7 +13,7 @@
 // system include files
 #include <cassert>
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 
@@ -28,7 +28,7 @@
 
 FWTriggerTableViewManager::FWTriggerTableViewManager(FWGUIManager* iGUIMgr) : FWViewManagerBase() {
   FWGUIManager::ViewBuildFunctor f;
-  f = boost::bind(&FWTriggerTableViewManager::buildView, this, _1, _2);
+  f = std::bind(&FWTriggerTableViewManager::buildView, this, std::placeholders::_1, std::placeholders::_2);
   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kTableHLT), f);
   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kTableL1), f);
 }
@@ -47,7 +47,7 @@ class FWViewBase* FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent, 
 
   view->setBackgroundColor(colorManager().background());
   m_views.push_back(std::shared_ptr<FWTriggerTableView>(view));
-  view->beingDestroyed_.connect(boost::bind(&FWTriggerTableViewManager::beingDestroyed, this, _1));
+  view->beingDestroyed_.connect(std::bind(&FWTriggerTableViewManager::beingDestroyed, this, std::placeholders::_1));
   return view.get();
 }
 

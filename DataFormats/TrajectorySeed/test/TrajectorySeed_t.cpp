@@ -7,7 +7,7 @@ int main() {
   typedef std::vector<TrajectorySeed> TV;
 
   // absurd: just for test
-  TrajectorySeed::recHitContainer c;
+  TrajectorySeed::RecHitContainer c;
   c.reserve(1000);
   for (int i = 0; i != 100; ++i)
     c.push_back(new SiStripMatchedRecHit2D);

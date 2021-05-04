@@ -1,9 +1,26 @@
 #!/bin/bash
 
+dumpHelpAndExit(){
+cat << EOF
+
+examples:
+    ./genLUT.sh dumpAll card=cardPhysics.sh
+    ./genLUT.sh generate card=cardPhysics.sh
+    ./genLUT.sh diff conditions/newtag/newtag.xml conditions/oldtag/oldtag.xml
+    ./genLUT.sh validate card=cardPhysics.sh
+
+EOF
+exit 0
+}
+
 FullPath=`pwd -P`
 BaseDir=${FullPath#${CMSSW_BASE}/src/}
 CondDir=conditions
 templatefile=template.py
+
+inputConditions=(ElectronicsMap LutMetadata LUTCorrs QIETypes QIEData SiPMParameters TPParameters TPChannelParameters ChannelQuality Gains Pedestals RespCorrs L1TriggerObjects)
+
+
 
 CheckParameter(){
     if [[ -z ${!1} ]]
@@ -26,11 +43,6 @@ CheckFile(){
 ###
 
 cmd=$1
-if [[ -z $cmd ]]
-then
-    echo "ERROR: no command provided"
-    exit 1
-fi
 
 echo ">>>>>>>>>>>>>>>>> genLUT::$cmd <<<<<<<<<<<<<<<<<<<<<"
 for var in "$@"
@@ -49,11 +61,11 @@ done
 ### Run
 ###
 
-if [[ "$cmd" == "dump" ]]
-then
+
+dump(){
     CheckParameter record 
-    CheckParameter run
-    CheckParameter GT
+    CheckParameter Run
+    CheckParameter GlobalTag
 
     dumpCmd="cmsRun $CMSSW_RELEASE_BASE/src/CondTools/Hcal/test/runDumpHcalCond_cfg.py geometry=DB prefix="""
 
@@ -64,46 +76,59 @@ then
 
     if [ ! -z $tag ]
     then
-	if ! $dumpCmd dumplist=$record run=$run globaltag=$GT  frontierloc=$frontier frontierlist=Hcal${record}Rcd:$tag  
+	if ! $dumpCmd dumplist=$record run=$Run globaltag=$GlobalTag  frontierloc=$frontier frontierlist=Hcal${record}Rcd:$tag  
 	then
 	    exit 1
 	fi
     else 
-	if ! $dumpCmd dumplist=$record run=$run globaltag=$GT 
+	if ! $dumpCmd dumplist=$record run=$Run globaltag=$GlobalTag 
 	then
 	    exit 1
 	fi
     fi
 
     mkdir -p $CondDir/$record
-    mv ${record}_Run$run.txt $CondDir/$record/.
+    mv ${record}_Run$Run.txt $CondDir/$record/.
+}
 
+if [[ "$cmd" == "dump" ]]
+then
+    dump 
+
+elif [[ "$cmd" == "dumpAll" ]]
+then
+    CheckParameter card
+    CheckFile $card
+    source $card
+    for i in ${inputConditions[@]}; do
+	record=$i
+	tag=${!i}
+	dump 
+    done
 
 
 elif [[ "$cmd" == "generate" ]]
 then
-    CheckParameter tag 
-    CheckParameter GT
-    CheckParameter run 
-    CheckParameter HO_master_file 
-    CheckParameter comment
+    CheckParameter card
+    CheckFile $card
+    source $card
 
-    CheckFile $HO_master_file
+    CheckFile $HOAsciiInput
 
-    rm -rf $CondDir/$tag
+    rm -rf $CondDir/$Tag
 
     echo "genLUT.sh::generate: Preparing the configuration file..."
 
-    sed -e "s#__LUTtag__#$tag#g" \
-    -e "s#__RUN__#$run#g" \
+    sed -e "s#__LUTtag__#$Tag#g" \
+    -e "s#__RUN__#$Run#g" \
     -e "s#__CONDDIR__#$BaseDir/$CondDir#g" \
-    -e "s#__GlobalTag__#$GT#g" \
-    -e "s#__HO_master_file__#$HO_master_file#g" \
-    $templatefile > $tag.py
+    -e "s#__GlobalTag__#$GlobalTag#g" \
+    -e "s#__HO_master_file__#$HOAsciiInput#g" \
+    $templatefile > $Tag.py
 
     echo "genLUT.sh::generate: Running..."
 
-    if ! cmsRun $tag.py
+    if ! cmsRun $Tag.py
     then
 	echo "ERROR: LUT Generation has failed. Exiting..." 
 	exit 1
@@ -111,15 +136,15 @@ then
 
     echo "genLUT.sh::generate: Wrapping up..."
 
-    for file in $tag*.xml; do mv $file $file.dat; done
+    for file in $Tag*.xml; do mv $file $file.dat; done
 
     echo "-------------------"
     echo "-------------------"
     echo "Creating LUT Loader..."
     echo 
     timestamp=$(date +%s)
-    flist=$(ls $tag*_[0-9]*.xml.dat | xargs)
-    if ! hcalLUT create-lut-loader outputFile="$flist" tag="$tag" storePrepend="$comment"
+    flist=$(ls $Tag*_[0-9]*.xml.dat | xargs)
+    if ! hcalLUT create-lut-loader outputFile="$flist" tag="$Tag" storePrepend="$description"
     then
 	echo "ERROR: LUT loader generation has failed. Exiting..."
 	exit 1
@@ -130,32 +155,68 @@ then
     echo "-------------------"
     echo
 
-    zip -j $tag.zip *$tag*.{xml,dat}
+    zip -j $Tag.zip *$Tag*.{xml,dat}
 
-    mkdir -p $CondDir/$tag
-    mkdir -p $CondDir/$tag/Deploy
-    mv $tag.zip $tag.py Gen_L1TriggerObjects_$tag.txt $CondDir/$tag/Deploy
+    mkdir -p $CondDir/$Tag
+    mkdir -p $CondDir/$Tag/Deploy
+    mv $Tag.zip $Tag.py Gen_L1TriggerObjects_$Tag.txt $CondDir/$Tag/Deploy
 
-    mkdir -p $CondDir/$tag/Debug
-    hcalLUT merge storePrepend="$flist" outputFile=$CondDir/$tag/${tag}.xml
-    mv *$tag*.{xml,dat} $CondDir/$tag/Debug
+    mkdir -p $CondDir/$Tag/Debug
+    hcalLUT merge storePrepend="$flist" outputFile=$CondDir/$Tag/${Tag}.xml
+    mv *$Tag*.{xml,dat} $CondDir/$Tag/Debug
 
+    echo "-------------------"
+    echo "-------------------"
+    echo "Creating Trigger Key..."
+    echo 
 
+    HcalInput=( "${inputConditions[@]/#/Hcal}" )
+    declare -A tagMap
+    eval $(conddb list $GlobalTag | grep -E "$(export IFS="|"; echo "${HcalInput[*]}")" | \
+	awk '{if($2=="-" || $2=="effective") if(!($1~/^HcalPed/ && $2=="-")) print "tagMap["$1"]="$3}')
+
+    individualInputTags=""
+    for i in ${inputConditions[@]}; do
+	t=$i
+	v=${!t}
+	if [[ -z $v ]]; then
+	    v=${tagMap[Hcal${i}Rcd]}
+	fi
+	individualInputTags="""$individualInputTags
+    <Parameter type=\"string\" name=\"$t\">$v</Parameter>"""
+    done
+
+    dd=$(date +"%Y-%m-%d %H:%M:%S")
+    echo """<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>
+<CFGBrickSet>
+<CFGBrick>
+    <Parameter type=\"string\" name=\"INFOTYPE\">TRIGGERKEY</Parameter>
+    <Parameter type=\"string\" name=\"CREATIONSTAMP\">$dd</Parameter>
+    <Parameter type=\"string\" name=\"CREATIONTAG\">$Tag</Parameter> 
+    <Parameter type=\"string\" name=\"HCAL_LUT_TAG\">$Tag</Parameter>  
+    <Parameter type=\"boolean\" name=\"applyO2O\">$applyO2O</Parameter>  
+    <Parameter type=\"string\" name=\"CMSSW\">$CMSSW_VERSION</Parameter> 
+    <Parameter type=\"string\" name=\"InputRun\">$Run</Parameter> 
+    <Parameter type=\"string\" name=\"GlobalTag\">$GlobalTag</Parameter>$individualInputTags 
+    <Data elements=\"1\">1</Data> 
+</CFGBrick>
+</CFGBrickSet>""" > $CondDir/$Tag/tk_$Tag.xml
+    
 elif [[ "$cmd" == "validate" ]]
 then
-    CheckParameter GT
-    CheckParameter run 
-    CheckParameter tags 
-    CheckParameter pedestals
-    CheckParameter gains 
-    CheckParameter respcorrs
-    CheckParameter quality
+    CheckParameter card
+    CheckFile $card
+    source $card
 
-    ptags=(${tags//,/ })
-    mkdir -p $CondDir/${ptags[1]}/Figures
-    cmsRun PlotLUT.py globaltag=$GT run=$run \
-	inputDir=$BaseDir/$CondDir plotsDir=$CondDir/${ptags[1]}/Figures/ \
-	tags=$tags gains=$gains respcorrs=$respcorrs pedestals=$pedestals quality=$quality 
+    echo "Comparing input and re-generated L1TriggerObjects files"
+    diff $CondDir/L1TriggerObjects/L1TriggerObjects_Run$Run.txt $CondDir/$Tag/Deploy/Gen_L1TriggerObjects_$Tag.txt 
+
+    #parse LUT xml file and check that changes are consistent with changes in input conditions
+    runs=$OldRun,$Run
+    mkdir -p $CondDir/$Tag/Figures
+    cmsRun PlotLUT.py globaltag=$GlobalTag run=$Run \
+	inputDir=$BaseDir/$CondDir plotsDir=$CondDir/$Tag/Figures/ \
+	tags=$OldTag,$Tag gains=$runs respcorrs=$runs pedestals=$runs quality=$runs 
 
 elif [ "$cmd" == "upload" ]
 then
@@ -188,14 +249,8 @@ then
 
     hcalLUT diff inputFiles=$BaseDir/$2,$BaseDir/$3 section=$verbosity
 
-
-
-##
-## Unknown command
-##
 else
-    echo "Unknown command"
-    exit 1;
+    dumpHelpAndExit
 fi
 
 

@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,12 +34,11 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
-class AlCaElectronTracksReducer : public edm::EDProducer {
+class AlCaElectronTracksReducer : public edm::global::EDProducer<> {
 public:
   explicit AlCaElectronTracksReducer(const edm::ParameterSet &);
-  ~AlCaElectronTracksReducer() override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
 private:
   // ----------member data ---------------------------

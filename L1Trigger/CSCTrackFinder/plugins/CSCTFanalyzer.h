@@ -7,8 +7,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -16,6 +18,7 @@
 class CSCTFanalyzer : public edm::EDAnalyzer {
 private:
   edm::InputTag lctProducer, mbProducer, dataTrackProducer, emulTrackProducer;
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> scalesToken;
   TTree* tree;
   TFile* file;
   int nDataMuons, nEmulMuons, verbose;

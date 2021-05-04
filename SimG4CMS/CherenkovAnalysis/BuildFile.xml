@@ -1,15 +1,11 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="SimG4Core/SensitiveDetector"/>
-<use   name="SimG4Core/Notification"/>
-<use   name="SimG4CMS/Calo"/>
-<use   name="DataFormats/Math"/>
-<use   name="SimDataFormats/SimHitMaker"/>
-<use   name="SimDataFormats/CaloHit"/>
-<use   name="DetectorDescription/Core"/>
-<use   name="geant4core"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="SimG4Core/Notification"/>
+<use name="SimG4CMS/Calo"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="geant4core"/>
+<use name="dd4hep"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

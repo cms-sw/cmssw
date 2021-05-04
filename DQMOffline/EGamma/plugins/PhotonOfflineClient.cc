@@ -91,10 +91,6 @@ void PhotonOfflineClient::runClient(DQMStore::IBooker& iBooker, DQMStore::IGette
   histo_index_invMass_ = iGetter.get("Egamma/" + analyzerName_ + "/numberOfHistogramsInInvMassFolder")->getIntValue();
 
   iGetter.setCurrentFolder("Egamma/" + analyzerName_ + "/");
-  iGetter.removeElement("numberOfHistogramsInPhotonsFolder");
-  iGetter.removeElement("numberOfHistogramsInConversionsFolder");
-  iGetter.removeElement("numberOfHistogramsInEfficiencyFolder");
-  iGetter.removeElement("numberOfHistogramsInInvMassFolder");
 
   string AllPath = "Egamma/" + analyzerName_ + "/AllPhotons/";
   string IsoPath = "Egamma/" + analyzerName_ + "/GoodCandidatePhotons/";
@@ -296,20 +292,6 @@ void PhotonOfflineClient::runClient(DQMStore::IBooker& iBooker, DQMStore::IGette
 
   iGetter.setCurrentFolder(EffPath);
 
-  iGetter.removeElement("phoEtaPreHLT");
-  iGetter.removeElement("phoEtPreHLT");
-  iGetter.removeElement("phoEtaPostHLT");
-  iGetter.removeElement("phoEtPostHLT");
-  iGetter.removeElement("phoEtaLoose");
-  iGetter.removeElement("phoEtaTight");
-  iGetter.removeElement("phoEtLoose");
-  iGetter.removeElement("phoEtTight");
-  iGetter.removeElement("phoEtaVertex");
-  iGetter.removeElement("convEtaLoose");
-  iGetter.removeElement("convEtaTight");
-  iGetter.removeElement("convEtLoose");
-  iGetter.removeElement("convEtTight");
-
   for (uint type = 0; type != types_.size(); ++type) {
     for (int cut = 0; cut != numberOfSteps_; ++cut) {
       currentFolder_.str("");
@@ -365,10 +347,6 @@ void PhotonOfflineClient::runClient(DQMStore::IBooker& iBooker, DQMStore::IGette
       dividePlots(dividend, numerator, denominator);
 
       iGetter.setCurrentFolder(currentFolder_.str() + "Conversions/");
-      iGetter.removeElement("phoConvEtaForEfficiency");
-      iGetter.removeElement("phoConvPhiForEfficiencyAllEcal");
-      iGetter.removeElement("phoConvPhiForEfficiencyBarrel");
-      iGetter.removeElement("phoConvPhiForEfficiencyEndcaps");
     }
   }
 

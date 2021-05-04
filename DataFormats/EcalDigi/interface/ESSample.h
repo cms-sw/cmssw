@@ -2,7 +2,7 @@
 #define DIGIECAL_ESSAMPLE_H
 
 #include <ostream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class ESSample {
 public:

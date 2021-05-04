@@ -77,8 +77,8 @@
 #define SC_TRIGGERDLY_SHIFT 12
 #define SC_BXC_MASK 0xFFF
 
-#include <boost/cstdint.hpp>
 #include <iostream>
+#include <cstdint>
 
 /** \class DTROSWordType
  *  Enumeration of DT Read Out Sector (ROS) word types.

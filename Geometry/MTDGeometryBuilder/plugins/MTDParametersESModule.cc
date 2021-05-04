@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDParametersFromDD.h"
@@ -25,25 +26,37 @@ public:
 
 private:
   MTDParametersFromDD builder;
-  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
+
+  const bool fromDD4hep_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddCompactToken_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
 };
 
 MTDParametersESModule::MTDParametersESModule(const edm::ParameterSet& pset)
-    : compactViewToken_{setWhatProduced(this).consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag())} {
-  edm::LogInfo("TRACKER") << "MTDParametersESModule::MTDParametersESModule";
+    : fromDD4hep_(pset.getParameter<bool>("fromDD4hep")) {
+  auto cc = setWhatProduced(this);
+  if (!fromDD4hep_) {
+    ddCompactToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  } else {
+    dd4hepToken_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  }
 }
 
 void MTDParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<bool>("fromDD4hep", false);
   descriptions.add("mtdParameters", desc);
 }
 
 MTDParametersESModule::ReturnType MTDParametersESModule::produce(const PMTDParametersRcd& iRecord) {
-  edm::LogInfo("MTDParametersESModule") << "MTDParametersESModule::produce(const PMTDParametersRcd& iRecord)"
-                                        << std::endl;
-  auto cpv = iRecord.getTransientHandle(compactViewToken_);
   auto ptp = std::make_unique<PMTDParameters>();
-  builder.build(cpv.product(), *ptp);
+  if (!fromDD4hep_) {
+    auto cpv = iRecord.getTransientHandle(ddCompactToken_);
+    builder.build(cpv.product(), *ptp);
+  } else {
+    auto cpv = iRecord.getTransientHandle(dd4hepToken_);
+    builder.build(cpv.product(), *ptp);
+  }
 
   return ptp;
 }

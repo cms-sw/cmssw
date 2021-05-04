@@ -39,11 +39,11 @@
 class SiPixelCalibConfigurationObjectMaker : public edm::EDAnalyzer {
 public:
   explicit SiPixelCalibConfigurationObjectMaker(const edm::ParameterSet&);
-  ~SiPixelCalibConfigurationObjectMaker();
+  ~SiPixelCalibConfigurationObjectMaker() override;
 
-  virtual void beginJob() { ; }
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() { ; }
+  void beginJob() override { ; }
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override { ; }
 
 private:
   // ----------member data ---------------------------

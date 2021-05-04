@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# This config was generated automatically using generate2026Geometry.py
-# If you notice a mistake, please update the generating script, not just this config
-
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
         'Geometry/CMSCommonData/data/materials.xml',
@@ -70,7 +67,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/mb2/2015/v1/mb2.xml',
         'Geometry/MuonCommonData/data/mb3/2015/v1/mb3.xml',
         'Geometry/MuonCommonData/data/mb4/2015/v1/mb4.xml',
-        'Geometry/MuonCommonData/data/design/muonYoke.xml',
+        'Geometry/MuonCommonData/data/muonYoke/2021/v2/muonYoke.xml',
         'Geometry/MuonCommonData/data/mf/2026/v2/mf.xml',
         'Geometry/MuonCommonData/data/rpcf/2026/v1/rpcf.xml',
         'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',

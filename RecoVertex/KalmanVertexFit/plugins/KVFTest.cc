@@ -6,23 +6,20 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include <iostream>
+#include <memory>
 
 using namespace reco;
 using namespace edm;
 using namespace std;
 
-KVFTest::KVFTest(const edm::ParameterSet& iConfig) : theConfig(iConfig) {
+KVFTest::KVFTest(const edm::ParameterSet& iConfig)
+    : estoken_MF(esConsumes()),
+      estoken_TTB(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      theConfig(iConfig) {
   token_tracks = consumes<TrackCollection>(iConfig.getParameter<string>("TrackLabel"));
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
   kvfPSet = iConfig.getParameter<edm::ParameterSet>("KVFParameters");
@@ -50,9 +47,7 @@ void KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(token_associatorForParamAtPca, associatorForParamAtPca);
 
   if (not tree) {
-    edm::ESHandle<MagneticField> magField;
-    iSetup.get<IdealMagneticFieldRecord>().get(magField);
-    tree.reset(new SimpleVertexTree("VertexFitter", magField.product()));
+    tree = std::make_unique<SimpleVertexTree>("VertexFitter", &iSetup.getData(estoken_MF));
   }
 
   edm::LogInfo("RecoVertex/KVFTest") << "Reconstructing event number: " << iEvent.id() << "\n";
@@ -66,15 +61,14 @@ void KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   } else {
     edm::LogInfo("RecoVertex/KVFTest") << "Found: " << (*tks).size() << " reconstructed tracks"
                                        << "\n";
-    std::cout << "got " << (*tks).size() << " tracks " << std::endl;
+    edm::LogPrint("RecoVertex/KVFTest") << "got " << (*tks).size() << " tracks " << std::endl;
 
     // Transform Track to TransientTrack
 
     //get the builder:
-    edm::ESHandle<TransientTrackBuilder> theB;
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+    const auto& theB = &iSetup.getData(estoken_TTB);
     //do the conversion:
-    std::vector<TransientTrack> t_tks = (*theB).build(tks);
+    std::vector<TransientTrack> t_tks = theB->build(tks);
 
     edm::LogInfo("RecoVertex/KVFTest") << "Found: " << t_tks.size() << " reconstructed tracks"
                                        << "\n";
@@ -85,7 +79,7 @@ void KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       KalmanVertexFitter kvf(true);
       TransientVertex tv = kvf.vertex(t_tks);
 
-      std::cout << "Position: " << Vertex::Point(tv.position()) << "\n";
+      edm::LogPrint("RecoVertex/KVFTest") << "Position: " << Vertex::Point(tv.position()) << "\n";
 
       // For the analysis: compare to your SimVertex
       TrackingVertex sv = getSimVertex(iEvent);

@@ -19,8 +19,8 @@ Flag parameters stored are:
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <boost/cstdint.hpp>
 #include <vector>
+#include <cstdint>
 
 class HcalFlagHFDigiTimeParam {
   // Default constructor sets parameters according to 6-TS digis

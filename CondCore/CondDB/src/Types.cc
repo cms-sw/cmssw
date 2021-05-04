@@ -18,9 +18,10 @@ namespace cond {
   bool Iov_t::isValidFor(Time_t target) const { return target >= since && target <= till; }
 
   void Tag_t::clear() {
-    tag.clear();
+    name.clear();
     payloadType.clear();
     timeType = invalid;
+    synchronizationType = SYNCH_ANY;
     endOfValidity = time::MIN_VAL;
     lastValidatedTime = time::MIN_VAL;
   }

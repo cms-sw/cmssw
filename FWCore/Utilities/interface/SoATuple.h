@@ -87,6 +87,7 @@ Explicitly aligned types and defaultly aligned types can be freely mixed in any 
 #include <algorithm>
 #include <tuple>
 #include <cassert>
+#include <utility>
 
 // user include files
 #include "FWCore/Utilities/interface/SoATupleHelper.h"
@@ -132,6 +133,12 @@ namespace edm {
 
     const SoATuple<Args...>& operator=(const SoATuple<Args...>& iRHS) {
       SoATuple<Args...> temp(iRHS);
+      this->swap(temp);
+      return *this;
+    }
+
+    SoATuple<Args...>& operator=(SoATuple<Args...>&& iRHS) {
+      SoATuple<Args...> temp(std::move(iRHS));
       this->swap(temp);
       return *this;
     }

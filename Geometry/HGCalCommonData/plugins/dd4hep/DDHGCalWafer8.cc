@@ -7,30 +7,30 @@
 
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
 
-static long algorithm(dd4hep::Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   std::string motherName = args.parentName();
-  auto waferSize = args.value<double>("WaferSize");
-  auto waferT = args.value<double>("WaferThick");
-  auto waferSepar = args.value<double>("SensorSeparation");
-  auto nCells = args.value<int>("NCells");
-  auto cellType = args.value<int>("CellType");
-  auto material = args.value<std::string>("Material");
-  auto cellNames = args.value<std::vector<std::string>>("CellNames");
+  const auto& waferSize = args.value<double>("WaferSize");
+  const auto& waferT = args.value<double>("WaferThick");
+  const auto& waferSepar = args.value<double>("SensorSeparation");
+  const auto& nCells = args.value<int>("NCells");
+  const auto& cellType = args.value<int>("CellType");
+  const auto& material = args.value<std::string>("Material");
+  const auto& cellNames = args.value<std::vector<std::string>>("CellNames");
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Wafer 2r " << waferSize << " T " << waferT << " Half Separation "
-                                << waferSepar << " Cells/Wafer " << nCells << " Cell Type " << cellType << " Material "
-                                << material << " Names " << motherName << " NameSpace " << ns.name() << " # of cells "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Wafer 2r " << cms::convert2mm(waferSize) << " T "
+                                << cms::convert2mm(waferT) << " Half Separation " << cms::convert2mm(waferSepar)
+                                << " Cells/Wafer " << nCells << " Cell Type " << cellType << " Material " << material
+                                << " Names " << motherName << " NameSpace " << ns.name() << " # of cells "
                                 << cellNames.size();
   for (unsigned int k = 0; k < cellNames.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Cell[" << k << "] " << cellNames[k];
@@ -56,11 +56,12 @@ static long algorithm(dd4hep::Detector& /* description */,
   ns.addVolumeNS(glog);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: " << solid.name() << " extruded polygon made of " << material
-                                << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
-                                << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
-                                << " and " << xM.size() << " edges";
+                                << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":" << cms::convert2mm(zx[0]) << ":"
+                                << cms::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) "
+                                << cms::convert2mm(zw[1]) << ":" << cms::convert2mm(zx[1]) << ":"
+                                << cms::convert2mm(zy[1]) << ":" << scale[1] << " and " << xM.size() << " edges";
   for (unsigned int k = 0; k < xM.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << xM[k] << ":" << yM[k];
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xM[k]) << ":" << cms::convert2mm(yM[k]);
 #endif
 
   dd4hep::Rotation3D rotation;
@@ -102,11 +103,12 @@ static long algorithm(dd4hep::Detector& /* description */,
         else if (v == 0)
           cell = 6;
         dd4hep::Position tran(xp, yp, 0);
-        int copy = (cellType * 100 + v) * 100 + u;
+        int copy = HGCalTypes::packCellTypeUV(cellType, u, v);
         glog.placeVolume(ns.volume(cellNames[cell]), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: " << cellNames[cell] << " number " << copy << " position in "
-                                      << glog.name() << " at " << tran << " with " << rotation;
+                                      << glog.name() << " at (" << cms::convert2mm(xp) << ", " << cms::convert2mm(yp)
+                                      << ",0)  with no rotation";
 #endif
       }
     }
@@ -115,7 +117,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   edm::LogVerbatim("HGCalGeom") << "\nDDHGCalWafer8::Counter : " << counter << "\n===============================\n";
 #endif
 
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

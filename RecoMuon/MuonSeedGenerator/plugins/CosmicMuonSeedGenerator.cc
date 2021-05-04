@@ -13,8 +13,6 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -22,9 +20,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -88,6 +83,8 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset) 
                                                   false,
                                                   false,
                                                   false);
+  muonLayersToken = esConsumes<MuonDetLayerGeometry, MuonRecoGeometryRecord>();
+  magFieldToken = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
 // Destructor
@@ -98,7 +95,7 @@ CosmicMuonSeedGenerator::~CosmicMuonSeedGenerator() {
 
 // reconstruct muon's seeds
 void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup) {
-  eSetup.get<IdealMagneticFieldRecord>().get(theField);
+  theField = eSetup.getHandle(magFieldToken);
 
   auto output = std::make_unique<TrajectorySeedCollection>();
 
@@ -107,7 +104,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
   // Muon Geometry - DT, CSC and RPC
-  eSetup.get<MuonRecoGeometryRecord>().get(theMuonLayers);
+  theMuonLayers = eSetup.getHandle(muonLayersToken);
 
   // get the DT layers
   vector<const DetLayer*> dtLayers = theMuonLayers->allDTLayers();

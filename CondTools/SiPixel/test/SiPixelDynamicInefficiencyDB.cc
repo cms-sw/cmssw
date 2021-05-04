@@ -5,7 +5,7 @@
 #include <limits>
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondTools/SiPixel/test/SiPixelDynamicInefficiencyDB.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 

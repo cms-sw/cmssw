@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -26,8 +25,9 @@
 #include "Randomize.hh"
 
 #include <cmath>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <memory>
 
 HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
     : addTower_(3), tuples_(nullptr), hcons_(nullptr), org_(nullptr) {
@@ -57,7 +57,7 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
                               << nTower_ << " towers";
 
   // qie
-  myqie_.reset(new HcalQie(p));
+  myqie_ = std::make_unique<HcalQie>(p);
 }
 
 HcalTestAnalysis::~HcalTestAnalysis() {
@@ -141,10 +141,10 @@ void HcalTestAnalysis::update(const BeginOfJob* job) {
   (*job)()->get<HcalSimNumberingRecord>().get(hdc);
   hcons_ = hdc.product();
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD for " << names_[0];
-  numberingFromDDD_.reset(new HcalNumberingFromDDD(hcons_));
+  numberingFromDDD_ = std::make_unique<HcalNumberingFromDDD>(hcons_);
 
   // Ntuples
-  tuplesManager_.reset(new HcalTestHistoManager(fileName_));
+  tuplesManager_ = std::make_unique<HcalTestHistoManager>(fileName_);
 
   // Numbering scheme
   org_ = new HcalTestNumberingScheme(false);
@@ -326,8 +326,9 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
   CaloG4HitCollection* theHCHC = (CaloG4HitCollection*)allHC->GetHC(HCHCid);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names_[0] << " of ID " << HCHCid
                               << " is obtained at " << theHCHC;
+  int hchc_entries = theHCHC->entries();
   if (HCHCid >= 0 && theHCHC != nullptr) {
-    for (j = 0; j < theHCHC->entries(); j++) {
+    for (j = 0; j < hchc_entries; j++) {
       CaloG4Hit* aHit = (*theHCHC)[j];
 
       double e = aHit->getEnergyDeposit() / GeV;
@@ -372,8 +373,9 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
   CaloG4HitCollection* theEBHC = (CaloG4HitCollection*)allHC->GetHC(EBHCid);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names_[1] << " of ID " << EBHCid
                               << " is obtained at " << theEBHC;
+  int ebhc_entries = theEBHC->entries();
   if (EBHCid >= 0 && theEBHC != nullptr) {
-    for (j = 0; j < theEBHC->entries(); j++) {
+    for (j = 0; j < ebhc_entries; j++) {
       CaloG4Hit* aHit = (*theEBHC)[j];
 
       double e = aHit->getEnergyDeposit() / GeV;
@@ -408,8 +410,9 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
   CaloG4HitCollection* theEEHC = (CaloG4HitCollection*)allHC->GetHC(EEHCid);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names_[2] << " of ID " << EEHCid
                               << " is obtained at " << theEEHC;
+  int eehc_entries = theEEHC->entries();
   if (EEHCid >= 0 && theEEHC != nullptr) {
-    for (j = 0; j < theEEHC->entries(); j++) {
+    for (j = 0; j < eehc_entries; j++) {
       CaloG4Hit* aHit = (*theEEHC)[j];
 
       double e = aHit->getEnergyDeposit() / GeV;

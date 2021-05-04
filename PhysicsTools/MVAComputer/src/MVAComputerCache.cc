@@ -19,7 +19,7 @@ namespace PhysicsTools {
       return false;
 
     if (computer) {
-      this->computer.reset(new MVAComputer(computer));
+      this->computer = std::make_unique<MVAComputer>(computer);
       computerCacheId = computer->getCacheId();
     } else {
       this->computer.reset();

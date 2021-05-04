@@ -1,10 +1,11 @@
 // Authors: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 03/2019
 
-#ifndef RecoLocalCalo_HGCalRecAlgos_HGCalLayerTiles
-#define RecoLocalCalo_HGCalRecAlgos_HGCalLayerTiles
+#ifndef RecoLocalCalo_HGCalRecProducers_HGCalLayerTiles_h
+#define RecoLocalCalo_HGCalRecProducers_HGCalLayerTiles_h
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HFNoseTilesConstants.h"
 
 #include <vector>
 #include <array>
@@ -12,7 +13,8 @@
 #include <algorithm>
 #include <cassert>
 
-class HGCalLayerTiles {
+template <typename T>
+class HGCalLayerTilesT {
 public:
   void fill(const std::vector<float>& x,
             const std::vector<float>& y,
@@ -37,56 +39,54 @@ public:
   }
 
   int getXBin(float x) const {
-    constexpr float xRange = hgcaltilesconstants::maxX - hgcaltilesconstants::minX;
+    constexpr float xRange = T::maxX - T::minX;
     static_assert(xRange >= 0.);
-    constexpr float r = hgcaltilesconstants::nColumns / xRange;
-    int xBin = (x - hgcaltilesconstants::minX) * r;
-    xBin = std::clamp(xBin, 0, hgcaltilesconstants::nColumns);
+    constexpr float r = T::nColumns / xRange;
+    int xBin = (x - T::minX) * r;
+    xBin = std::clamp(xBin, 0, T::nColumns - 1);
     return xBin;
   }
 
   int getYBin(float y) const {
-    constexpr float yRange = hgcaltilesconstants::maxY - hgcaltilesconstants::minY;
+    constexpr float yRange = T::maxY - T::minY;
     static_assert(yRange >= 0.);
-    constexpr float r = hgcaltilesconstants::nRows / yRange;
-    int yBin = (y - hgcaltilesconstants::minY) * r;
-    yBin = std::clamp(yBin, 0, hgcaltilesconstants::nRows);
+    constexpr float r = T::nRows / yRange;
+    int yBin = (y - T::minY) * r;
+    yBin = std::clamp(yBin, 0, T::nRows - 1);
     return yBin;
   }
 
   int getEtaBin(float eta) const {
-    constexpr float etaRange = hgcaltilesconstants::maxEta - hgcaltilesconstants::minEta;
+    constexpr float etaRange = T::maxEta - T::minEta;
     static_assert(etaRange >= 0.);
-    constexpr float r = hgcaltilesconstants::nColumnsEta / etaRange;
-    int etaBin = (eta - hgcaltilesconstants::minEta) * r;
-    etaBin = std::clamp(etaBin, 0, hgcaltilesconstants::nColumnsEta);
+    constexpr float r = T::nColumnsEta / etaRange;
+    int etaBin = (eta - T::minEta) * r;
+    etaBin = std::clamp(etaBin, 0, T::nColumnsEta - 1);
     return etaBin;
   }
 
   int getPhiBin(float phi) const {
-    constexpr float phiRange = hgcaltilesconstants::maxPhi - hgcaltilesconstants::minPhi;
+    constexpr float phiRange = T::maxPhi - T::minPhi;
     static_assert(phiRange >= 0.);
-    constexpr float r = hgcaltilesconstants::nRowsPhi / phiRange;
-    int phiBin = (phi - hgcaltilesconstants::minPhi) * r;
-    phiBin = std::clamp(phiBin, 0, hgcaltilesconstants::nRowsPhi);
+    constexpr float r = T::nRowsPhi / phiRange;
+    int phiBin = (phi - T::minPhi) * r;
+    phiBin = std::clamp(phiBin, 0, T::nRowsPhi - 1);
     return phiBin;
   }
 
   int mPiPhiBin = getPhiBin(-M_PI);
   int pPiPhiBin = getPhiBin(M_PI);
 
-  int getGlobalBin(float x, float y) const { return getXBin(x) + getYBin(y) * hgcaltilesconstants::nColumns; }
+  int getGlobalBin(float x, float y) const { return getXBin(x) + getYBin(y) * T::nColumns; }
 
-  int getGlobalBinByBin(int xBin, int yBin) const { return xBin + yBin * hgcaltilesconstants::nColumns; }
+  int getGlobalBinByBin(int xBin, int yBin) const { return xBin + yBin * T::nColumns; }
 
   int getGlobalBinEtaPhi(float eta, float phi) const {
-    return hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows + getEtaBin(eta) +
-           getPhiBin(phi) * hgcaltilesconstants::nColumnsEta;
+    return T::nColumns * T::nRows + getEtaBin(eta) + getPhiBin(phi) * T::nColumnsEta;
   }
 
   int getGlobalBinByBinEtaPhi(int etaBin, int phiBin) const {
-    return hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows + etaBin +
-           phiBin * hgcaltilesconstants::nColumnsEta;
+    return T::nColumns * T::nRows + etaBin + phiBin * T::nColumnsEta;
   }
 
   std::array<int, 4> searchBox(float xMin, float xMax, float yMin, float yMax) const {
@@ -113,7 +113,9 @@ public:
   const std::vector<int>& operator[](int globalBinId) const { return tiles_[globalBinId]; }
 
 private:
-  std::array<std::vector<int>, hgcaltilesconstants::nTiles> tiles_;
+  std::array<std::vector<int>, T::nTiles> tiles_;
 };
 
+using HGCalLayerTiles = HGCalLayerTilesT<HGCalTilesConstants>;
+using HFNoseLayerTiles = HGCalLayerTilesT<HFNoseTilesConstants>;
 #endif

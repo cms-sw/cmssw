@@ -41,8 +41,8 @@ private:
   L1RpcTBMuonsVec m_PacsMuonsVec;
 
   //typedef std::vector<RPCPac*> PACsVec; // PACs in single tower
-  typedef std::vector<boost::shared_ptr<RPCPac> > PACsVec;  // PACs in single tower
-  typedef std::map<int, PACsVec> PACsAll;                   // Holds pacs for all towers covered by tb
+  typedef std::vector<std::shared_ptr<RPCPac> > PACsVec;  // PACs in single tower
+  typedef std::map<int, PACsVec> PACsAll;                 // Holds pacs for all towers covered by tb
 
   PACsAll m_pacs;
 };

@@ -7,8 +7,6 @@
 #include <memory>
 #include <vector>
 
-#include <boost/utility.hpp>
-
 #include "QualityMetric.h"
 
 namespace XrdCl {
@@ -22,8 +20,11 @@ namespace XrdAdaptor {
   class XrdSiteStatistics;
   class XrdStatisticsService;
 
-  class Source : public std::enable_shared_from_this<Source>, boost::noncopyable {
+  class Source : public std::enable_shared_from_this<Source> {
   public:
+    Source(const Source &) = delete;
+    Source &operator=(const Source &) = delete;
+
     Source(timespec now, std::unique_ptr<XrdCl::File> fileHandle, const std::string &exclude);
 
     ~Source();

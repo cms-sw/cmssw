@@ -11,8 +11,7 @@ $Revision: 1.5 $
 */
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class HcalGain {
 public:

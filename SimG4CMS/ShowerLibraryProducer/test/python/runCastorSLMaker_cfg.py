@@ -29,18 +29,12 @@ process.load("SimG4CMS.Forward.castorGeometryXML_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout')
-#    categories = cms.untracked.vstring('ForwardSim'),
-#    debugModules = cms.untracked.vstring('*'),
-#    cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
-#        DEBUG = cms.untracked.PSet(
-#            limit = cms.untracked.int32(0)
-#        ),
-#        ForwardSim = cms.untracked.PSet(
-#            limit = cms.untracked.int32(0)
-#        )
-#    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",

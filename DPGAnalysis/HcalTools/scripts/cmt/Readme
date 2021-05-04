@@ -1,0 +1,100 @@
+see description in ROC instruction:
+https://twiki.cern.ch/twiki/bin/view/CMS/OfflineHcalShift#using_GitHub_branch_CMSSW_10_4_X
+
+soc7   CMSSW_10_4_X_cmt_10
+
+
+ssh lxplus
+cd soc7
+setenv SCRAM_ARCH slc6_amd64_gcc700 
+cmsenv
+voms-proxy-init -voms cms -rfc 
+
+emacs runlist_test &
+emacs a.py.end a.py.beg batchjobs120.csh checkoutput120.csh file_lists.csh runlist_test Readme mkcfg_new120.csh run_batch120.csh &
+emacs RemoteMonitoringGLOBALTest.cc RemoteMonitoringMAP_GlobalTest.cc zadcampltest.cc ../../src/VeRawAnalyzer.cc
+
+---------------------------------------------------------------------------------------to run in batches:
+./run_batch120.csh runlist_test
+bjobs
+
+
+
+-------------------------------------------
+------------------------------------------------------------------------------------------------- to find dataset:
+311668 312101
+ You have to have correct permissions for GRID and DAS access !!! Use:
+                         voms-proxy-init -voms cms -rfc 
+Use DBS to clarify dataset=/ZeroBias/Run2017B-v1/RAW in file_lists.csh as for instance for run 297169
+https://cmsweb.cern.ch/das/request?view=list&limit=150&instance=prod%2Fglobal&input=dataset+run%3D283884
+by command: dataset run=297169
+Result is: Dataset: /ZeroBias/Run2017B-v1/RAW
+emacs file_lists.csh &
+------------------------------------------------------------------------------------------------- compilation of VeRawAnalyzer.cc:
+cd ../../src/
+scram b
+cd -
+---------------------------------------------------------------------------------------
+// no batches , but only to create dir. w/ PYTHONs (for future interactive running):
+./mkcfg_new120.csh runlist_test
+--------------------------------------------------------------------------------------- future treatment of root files:
+./checkoutput120.csh PYTHON_runlist_test longruns
+./glu_runs_fromfile.csh longruns runlist_test
+
+---------------------------------------------------------------------------------------
+
+eoscp Global_297169.root 
+/eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos/Global_297169.root
+
+eos ls -l /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/histos/
+
+./index_toAddOnlyNewRuns_EOS.sh runlist_test
+eoscp OLDindex.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/OLDindex.html
+eoscp index_draft.html /eos/cms/store/group/dpg_hcal/comm_hcal/www/HcalRemoteMonitoring/CMT/index.html
+
+---------------------------------------------------------------------------------------
+./compile.csh RemoteMonitoringGLOBAL.cc
+./compile.csh RemoteMonitoringMAP_Global.cc 
+
+./CMT_EOS.sh runlist_test
+./GlobalRMT_EOS.sh runlist_test
+---------------------------------------------------------------------------------------
+========================================================================================================= new CMT with 10_4_X:
+see Global Tag:
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions
+
+cosmica 311668 312101 run HCAL vklyuchen
+
+file dataset=/ZeroBias/Run2016H-v1/RAW
+run file=/ZeroBias/Run2016H/v1/RAW
+file run=311668
+dataset run=311668
+Dataset: /MinimumBias/Commissioning2018-v1/RAW
+Dataset: /Cosmics/Commissioning2018-v1/RAW
+https://cmswbmoffshift.web.cern.ch/cmswbmoffshift/runregistry_offline/#
+
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions#Global_Tags_for_Data_Taking
+
+echo $SCRAM_ARCH
+slc6_amd64_gcc700
+-----------------------------------------------------------firefox  !!!!  tests !!!
+----------------------------------------------------------1111
+on lxplus:
+./compile.csh RemoteMonitoringGLOBALTest.cc
+./RemoteMonitoringGLOBALTest.cc.exe Global_312101.root  
+or (./RemoteMonitoringMAP_GlobalFromRDM.cc.exe Global_312101.root Global_312101.root  )
+on local PC:
+firefox LumiList.html
+rm *html *.png
+---------------------------------------------------------2222
+./compile.csh RemoteMonitoringMAP_GlobalTest.cc
+./RemoteMonitoringMAP_GlobalTest.cc.exe Global_312101.root Global_312101.root
+on local PC:
+firefox MAP.html
+rm *html *.png
+
+============================================================================== workable area:
+./compile.csh RemoteMonitoringGLOBALTest.cc
+./compile.csh RemoteMonitoringMAP_GlobalTest.cc
+./compile.csh RemoteMonitoringGLOBAL.cc
+./compile.csh RemoteMonitoringMAP_Global.cc

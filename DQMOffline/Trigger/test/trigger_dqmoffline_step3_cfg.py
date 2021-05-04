@@ -28,11 +28,9 @@ process.source = cms.Source("PoolSource",
 
 process.source.processingMode = "RunsAndLumis"
 
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/StreamExpress/BeamCommissioning09-v8/DQMOffline'
 
-process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 

@@ -9,6 +9,7 @@
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -21,14 +22,15 @@
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -69,14 +71,13 @@ namespace {
 namespace reco {
   namespace tau {
 
-    class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProducerBase {
+    class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationContainerProducerBase {
     public:
       explicit PFRecoTauDiscriminationByMVAIsolationRun2(const edm::ParameterSet& cfg)
-          : PFTauDiscriminationProducerBase(cfg),
+          : PFTauDiscriminationContainerProducerBase(cfg),
             moduleLabel_(cfg.getParameter<std::string>("@module_label")),
             mvaReader_(nullptr),
-            mvaInput_(nullptr),
-            category_output_() {
+            mvaInput_(nullptr) {
         mvaName_ = cfg.getParameter<std::string>("mvaName");
         loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
         if (!loadMVAfromDB_) {
@@ -120,26 +121,16 @@ namespace reco {
         TauTransverseImpactParameters_token =
             consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
 
-        ChargedIsoPtSum_token =
-            consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcChargedIsoPtSum"));
-        NeutralIsoPtSum_token =
-            consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcNeutralIsoPtSum"));
-        PUcorrPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPUcorrPtSum"));
-        PhotonPtSumOutsideSignalCone_token =
-            consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPhotonPtSumOutsideSignalCone"));
-        FootprintCorrection_token =
-            consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcFootprintCorrection"));
+        basicTauDiscriminators_token =
+            consumes<reco::TauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
+        input_id_name_suffix_ = cfg.getParameter<std::string>("inputIDNameSuffix");
 
         verbosity_ = cfg.getParameter<int>("verbosity");
-
-        produces<PFTauDiscriminator>("category");
       }
 
       void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-      double discriminate(const PFTauRef&) const override;
-
-      void endEvent(edm::Event&) override;
+      reco::SingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
 
       ~PFRecoTauDiscriminationByMVAIsolationRun2() override {
         if (!loadMVAfromDB_)
@@ -162,24 +153,22 @@ namespace reco {
       int mvaOpt_;
       float* mvaInput_;
 
-      typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> >
+      typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>
           PFTauTIPAssociationByRef;
       edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
       edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
 
-      edm::EDGetTokenT<reco::PFTauDiscriminator> ChargedIsoPtSum_token;
-      edm::Handle<reco::PFTauDiscriminator> chargedIsoPtSums_;
-      edm::EDGetTokenT<reco::PFTauDiscriminator> NeutralIsoPtSum_token;
-      edm::Handle<reco::PFTauDiscriminator> neutralIsoPtSums_;
-      edm::EDGetTokenT<reco::PFTauDiscriminator> PUcorrPtSum_token;
-      edm::Handle<reco::PFTauDiscriminator> puCorrPtSums_;
-      edm::EDGetTokenT<reco::PFTauDiscriminator> PhotonPtSumOutsideSignalCone_token;
-      edm::Handle<reco::PFTauDiscriminator> photonPtSumOutsideSignalCone_;
-      edm::EDGetTokenT<reco::PFTauDiscriminator> FootprintCorrection_token;
-      edm::Handle<reco::PFTauDiscriminator> footprintCorrection_;
+      edm::EDGetTokenT<reco::TauDiscriminatorContainer> basicTauDiscriminators_token;
+      edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminators_;
+      int chargedIsoPtSum_index_ = 0;
+      int neutralIsoPtSum_index_ = 0;
+      int pucorrPtSum_index_ = 0;
+      int photonPtSumOutsideSignalCone_index_ = 0;
+      int footprintCorrection_index_ = 0;
+      std::string input_id_name_suffix_;
+      edm::ProcessHistoryID phID_;
 
       edm::Handle<TauCollection> taus_;
-      std::unique_ptr<PFTauDiscriminator> category_output_;
 
       std::vector<TFile*> inputFilesToDelete_;
 
@@ -197,20 +186,40 @@ namespace reco {
 
       evt.getByToken(TauTransverseImpactParameters_token, tauLifetimeInfos);
 
-      evt.getByToken(ChargedIsoPtSum_token, chargedIsoPtSums_);
-      evt.getByToken(NeutralIsoPtSum_token, neutralIsoPtSums_);
-      evt.getByToken(PUcorrPtSum_token, puCorrPtSums_);
-      evt.getByToken(PhotonPtSumOutsideSignalCone_token, photonPtSumOutsideSignalCone_);
-      evt.getByToken(FootprintCorrection_token, footprintCorrection_);
+      evt.getByToken(basicTauDiscriminators_token, basicTauDiscriminators_);
 
       evt.getByToken(Tau_token, taus_);
-      category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
+
+      // load indices from input provenance config if process history changed, in particular for the first event
+      // skip missing IDs and leave treatment to produce/discriminate function
+      if (evt.processHistoryID() != phID_ && basicTauDiscriminators_.isValid()) {
+        phID_ = evt.processHistoryID();
+        const edm::Provenance* prov = basicTauDiscriminators_.provenance();
+        const std::vector<edm::ParameterSet> psetsFromProvenance =
+            edm::parameterSet(prov->stable(), evt.processHistory())
+                .getParameter<std::vector<edm::ParameterSet>>("IDdefinitions");
+        for (uint i = 0; i < psetsFromProvenance.size(); i++) {
+          if (psetsFromProvenance[i].getParameter<std::string>("IDname") == "ChargedIsoPtSum" + input_id_name_suffix_)
+            chargedIsoPtSum_index_ = i;
+          else if (psetsFromProvenance[i].getParameter<std::string>("IDname") ==
+                   "NeutralIsoPtSum" + input_id_name_suffix_)
+            neutralIsoPtSum_index_ = i;
+          else if (psetsFromProvenance[i].getParameter<std::string>("IDname") == "PUcorrPtSum" + input_id_name_suffix_)
+            pucorrPtSum_index_ = i;
+          else if (psetsFromProvenance[i].getParameter<std::string>("IDname") ==
+                   "PhotonPtSumOutsideSignalCone" + input_id_name_suffix_)
+            photonPtSumOutsideSignalCone_index_ = i;
+          else if (psetsFromProvenance[i].getParameter<std::string>("IDname") ==
+                   "TauFootprintCorrection" + input_id_name_suffix_)
+            footprintCorrection_index_ = i;
+        }
+      }
     }
 
-    double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& tau) const {
-      // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
-      double category = 0.;
-      category_output_->setValue(tauIndex_, category);
+    reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(
+        const PFTauRef& tau) const {
+      reco::SingleTauDiscriminatorContainer result;
+      result.rawValues = {-1.};
 
       // CV: computation of MVA value requires presence of leading charged hadron
       if (tau->leadChargedHadrCand().isNull())
@@ -225,11 +234,12 @@ namespace reco {
             mvaOpt_ == kDBnewDMwLTwGJ) &&
            (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 ||
             tauDecayMode == 10 || tauDecayMode == 11))) {
-        float chargedIsoPtSum = (*chargedIsoPtSums_)[tau];
-        float neutralIsoPtSum = (*neutralIsoPtSums_)[tau];
-        float puCorrPtSum = (*puCorrPtSums_)[tau];
-        float photonPtSumOutsideSignalCone = (*photonPtSumOutsideSignalCone_)[tau];
-        float footprintCorrection = (*footprintCorrection_)[tau];
+        auto const rawValues = (*basicTauDiscriminators_)[tau].rawValues;
+        float chargedIsoPtSum = rawValues.at(chargedIsoPtSum_index_);
+        float neutralIsoPtSum = rawValues.at(neutralIsoPtSum_index_);
+        float puCorrPtSum = rawValues.at(pucorrPtSum_index_);
+        float photonPtSumOutsideSignalCone = rawValues.at(photonPtSumOutsideSignalCone_index_);
+        float footprintCorrection = rawValues.at(footprintCorrection_index_);
 
         const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[tau];
 
@@ -371,33 +381,23 @@ namespace reco {
               << " distance = " << decayDistMag << ", significance = " << tauLifetimeInfo.flightLengthSig();
           edm::LogPrint("PFTauDiscByMVAIsol2") << "--> mvaValue = " << mvaValue;
         }
-        return mvaValue;
-      } else {
-        return -1.;
+        result.rawValues.at(0) = mvaValue;
       }
-    }
-
-    void PFRecoTauDiscriminationByMVAIsolationRun2::endEvent(edm::Event& evt) {
-      // add all category indices to event
-      evt.put(std::move(category_output_), "category");
+      return result;
     }
 
     void PFRecoTauDiscriminationByMVAIsolationRun2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       // pfRecoTauDiscriminationByMVAIsolationRun2
       edm::ParameterSetDescription desc;
 
-      desc.add<std::string>("mvaName");
-      desc.add<bool>("loadMVAfromDB");
+      desc.add<std::string>("mvaName", "tauIdMVAnewDMwLT");
+      desc.add<bool>("loadMVAfromDB", true);
       desc.addOptional<edm::FileInPath>("inputFileName");
-      desc.add<std::string>("mvaOpt");
+      desc.add<std::string>("mvaOpt", "newDMwLT");
 
-      desc.add<edm::InputTag>("srcTauTransverseImpactParameters");
-      desc.add<edm::InputTag>("srcChargedIsoPtSum");
-      desc.add<edm::InputTag>("srcNeutralIsoPtSum");
-      desc.add<edm::InputTag>("srcPUcorrPtSum");
-
-      desc.add<edm::InputTag>("srcPhotonPtSumOutsideSignalCone");
-      desc.add<edm::InputTag>("srcFootprintCorrection");
+      desc.add<edm::InputTag>("srcTauTransverseImpactParameters", edm::InputTag(""));
+      desc.add<edm::InputTag>("srcBasicTauDiscriminators", edm::InputTag("hpsPFTauBasicDiscriminators"));
+      desc.add<std::string>("inputIDNameSuffix", "");
 
       desc.add<int>("verbosity", 0);
 

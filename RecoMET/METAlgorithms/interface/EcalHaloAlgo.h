@@ -44,7 +44,7 @@
 class EcalHaloAlgo {
 public:
   // constructor
-  EcalHaloAlgo();
+  explicit EcalHaloAlgo(edm::ConsumesCollector iC);
   // destructor
   ~EcalHaloAlgo() {}
 
@@ -117,6 +117,7 @@ private:
   float SumEnergyThreshold;
   int NHitsThreshold;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
   const CaloGeometry* geo;
   math::XYZPoint getPosition(const DetId& id, reco::Vertex::Point vtx);
 };

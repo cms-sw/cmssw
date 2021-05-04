@@ -24,7 +24,8 @@ DDExpandedView::DDExpandedView(const DDCompactView& cpv)
       trans_(DDTranslation()),
       rot_(DDRotationMatrix()),
       depth_(0),
-      worldpos_(cpv.worldPosition()) {
+      worldpos_(cpv.worldPosition()),
+      cpv_(&cpv) {
   walker_ = &w2_;
 
   const DDPosData* pd((*walker_).current().second);

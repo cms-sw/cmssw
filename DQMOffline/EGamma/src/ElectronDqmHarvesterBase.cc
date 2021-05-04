@@ -51,27 +51,25 @@ std::string ElectronDqmHarvesterBase::newName(const std::string &name) {
 }
 
 const std::string *ElectronDqmHarvesterBase::find(DQMStore::IGetter &iGetter, const std::string &name) {
-  typedef std::vector<std::string> HistoNames;
-  typedef HistoNames::iterator HistoNamesItr;
   if (!histoNamesReady) {
     histoNamesReady = true;
     histoNames_ = iGetter.getMEs();
   }
-  HistoNamesItr histoName;
-  std::vector<HistoNamesItr> res;
+  std::vector<const std::string *> res;
+  std::size_t nsize = name.size();
 
-  for (histoName = histoNames_.begin(); histoName != histoNames_.end(); ++histoName) {
-    std::size_t nsize = name.size(), lsize = histoName->size();
-    if ((lsize >= nsize) && (histoName->find(name) == (lsize - nsize))) {
-      res.push_back(histoName);
+  for (const auto &histoName : histoNames_) {
+    std::size_t lsize = histoName.size();
+    if ((lsize >= nsize) && (histoName.find(name) == (lsize - nsize))) {
+      res.push_back(&histoName);
     }
   }
   if (res.empty()) {
     std::ostringstream oss;
     oss << "Histogram " << name << " not found in " << outputInternalPath_;
     char sep = ':';
-    for (histoName = histoNames_.begin(); histoName != histoNames_.end(); ++histoName) {
-      oss << sep << ' ' << *histoName;
+    for (auto const &histoName : histoNames_) {
+      oss << sep << ' ' << histoName;
       sep = ',';
     }
     oss << '.';
@@ -81,17 +79,15 @@ const std::string *ElectronDqmHarvesterBase::find(DQMStore::IGetter &iGetter, co
     std::ostringstream oss;
     oss << "Ambiguous histograms for " << name << " in " << outputInternalPath_;
     char sep = ':';
-    std::vector<HistoNamesItr>::iterator resItr;
-    for (resItr = res.begin(); resItr != res.end(); ++resItr) {
-      oss << sep << ' ' << (**resItr);
+    for (auto const resItr : res) {
+      oss << sep << ' ' << *resItr;
       sep = ',';
     }
     oss << '.';
     edm::LogWarning("ElectronDqmHarvesterBase::find") << oss.str();
     return nullptr;
-  } else {
-    return &*res[0];
   }
+  return res[0];
 }
 
 void ElectronDqmHarvesterBase::beginJob() {}
@@ -132,11 +128,7 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::get(DQMStore
 }
 
 void ElectronDqmHarvesterBase::remove(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, const std::string &name) {
-  const std::string *fullName = find(iGetter, name);
-  if (fullName) {
-    iBooker.setCurrentFolder(inputInternalPath_);
-    iGetter.removeElement(*fullName);
-  }
+  // TODO: remove no longer supported in DQMStore.
 }
 
 ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1andDivide(DQMStore::IBooker &iBooker,
@@ -203,16 +195,16 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1(DQMSt
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   if (!titleX.empty()) {
-    me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str());
   }
   if (TString(option) != "") {
-    me->getTH1F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1F()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }
@@ -228,15 +220,15 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1withSu
                                                                                     Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
-  me->getTH1F()->Sumw2();
+  me->enableSumw2();
   if (!titleX.empty()) {
-    me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str());
   }
   if (TString(option) != "") {
-    me->getTH1F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
     me->getTH1F()->StatOverflows(kTRUE);
@@ -259,13 +251,13 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH2(DQMSt
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   if (!titleX.empty()) {
-    me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str());
   }
   if (TString(option) != "") {
-    me->getTH2F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
     me->getTH1F()->StatOverflows(kTRUE);
@@ -287,15 +279,15 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH2withSu
                                                                                     Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
-  me->getTH2F()->Sumw2();
+  me->enableSumw2();
   if (!titleX.empty()) {
-    me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str());
   }
   if (TString(option) != "") {
-    me->getTH2F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
     me->getTH1F()->StatOverflows(kTRUE);

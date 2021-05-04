@@ -104,11 +104,11 @@ void NanoAODBaseCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup&
 
   objectSelection(*jetsIn, *muonsIn, *electronsIn, *tausIn, *photonsIn, jets, muons, eles, taus, photons);
 
-  muonsTable->addColumn<uint8_t>(name_, muons, doc_, nanoaod::FlatTable::UInt8Column);
-  jetsTable->addColumn<uint8_t>(name_, jets, doc_, nanoaod::FlatTable::UInt8Column);
-  electronsTable->addColumn<uint8_t>(name_, eles, doc_, nanoaod::FlatTable::UInt8Column);
-  tausTable->addColumn<uint8_t>(name_, taus, doc_, nanoaod::FlatTable::UInt8Column);
-  photonsTable->addColumn<uint8_t>(name_, photons, doc_, nanoaod::FlatTable::UInt8Column);
+  muonsTable->addColumn<uint8_t>(name_, muons, doc_);
+  jetsTable->addColumn<uint8_t>(name_, jets, doc_);
+  electronsTable->addColumn<uint8_t>(name_, eles, doc_);
+  tausTable->addColumn<uint8_t>(name_, taus, doc_);
+  photonsTable->addColumn<uint8_t>(name_, photons, doc_);
 
   iEvent.put(std::move(jetsTable), "jets");
   iEvent.put(std::move(muonsTable), "muons");

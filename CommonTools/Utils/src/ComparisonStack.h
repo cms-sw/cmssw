@@ -10,13 +10,14 @@
  * \version $Revision: 1.2 $
  *
  */
-#include <boost/shared_ptr.hpp>
+
 #include <vector>
+#include <memory>
 
 namespace reco {
   namespace parser {
     struct ComparisonBase;
-    typedef std::vector<boost::shared_ptr<ComparisonBase> > ComparisonStack;
+    typedef std::vector<std::shared_ptr<ComparisonBase> > ComparisonStack;
   }  // namespace parser
 }  // namespace reco
 

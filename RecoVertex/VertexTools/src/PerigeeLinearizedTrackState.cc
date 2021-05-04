@@ -4,6 +4,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 void PerigeeLinearizedTrackState::computeJacobians() const {
   GlobalPoint paramPt(theLinPoint);

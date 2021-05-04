@@ -1,24 +1,38 @@
 import FWCore.ParameterSet.Config as cms
 
+import sys
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
 process = cms.Process("DQM", run2_HECollapse_2018)
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+	unitTest=True
+
+if unitTest:
+  process.load("DQM.Integration.config.unittestinputsource_cfi")
+  from DQM.Integration.config.unittestinputsource_cfi import options
+else:
+  # for live online DQM in P5
+  process.load("DQM.Integration.config.inputsource_cfi")
+  from DQM.Integration.config.inputsource_cfi import options
 # used in the old input source
 #process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputHLTDQM')
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 #process.maxEvents = cms.untracked.PSet(
 #    input = cms.untracked.int32(100)
 #)
 
 process.load("DQM.Integration.config.environment_cfi")
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/hlt_reference.root"
 
 process.dqmEnv.subSystemFolder = 'HLT'
 process.dqmSaver.tag = 'HLT'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'HLT'
+process.dqmSaverPB.runNumber = options.runNumber
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -111,18 +125,11 @@ process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
 ### for Proton-Lead collisions only (2016 Proton-Lead Era)
 #process.load("DQM.HLTEvF.HLTObjectMonitorProtonLead_cff")
 
-# added for hlt scalars
-process.load("DQM.TrigXMonitor.HLTSeedL1LogicScalers_cfi")
-# added for hlt scalars
-process.hltSeedL1Logic.l1GtData = cms.InputTag("l1GtUnpack","","DQM")
-process.hltSeedL1Logic.dqmFolder =    cms.untracked.string("HLT/HLTSeedL1LogicScalers_SM")
-
 process.load("DQM.HLTEvF.HLTObjectMonitor_Client_cff")
 
 #process.p = cms.EndPath(process.hlts+process.hltsClient)
-process.p = cms.EndPath(process.hltSeedL1Logic)
 
-process.pp = cms.Path(process.dqmEnv+process.dqmSaver)
+process.pp = cms.Path(process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
 #process.hltResults.plotAll = True
 
 

@@ -167,7 +167,6 @@ void PFClient_JetRes::createResolutionPlots(DQMStore::IBooker &ibooker,
       me_mean->setBinContent(ix, mean);
       me_sigma->setBinContent(ix, sigma);
     }
-    // if (me_slice) igetter.removeElement(me_slice->getName());
     delete[] xbins;
   }
 }

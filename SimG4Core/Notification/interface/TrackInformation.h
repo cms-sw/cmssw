@@ -1,9 +1,13 @@
 #ifndef SimG4Core_TrackInformation_H
 #define SimG4Core_TrackInformation_H
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "G4VUserTrackInformation.hh"
-
 #include "G4Allocator.hh"
+#include "G4Track.hh"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class TrackInformation : public G4VUserTrackInformation {
 public:
@@ -53,6 +57,24 @@ public:
   double caloSurfaceParticleP() const { return caloSurfaceParticleP_; }
   void setCaloSurfaceParticleP(double p) { caloSurfaceParticleP_ = p; }
 
+  // Boundary crossing variables
+  void setCrossedBoundary(const G4Track *track) {
+    crossedBoundary_ = true;
+    idAtBoundary_ = track->GetTrackID();
+    positionAtBoundary_ = math::XYZTLorentzVectorF(track->GetPosition().x() / CLHEP::cm,
+                                                   track->GetPosition().y() / CLHEP::cm,
+                                                   track->GetPosition().z() / CLHEP::cm,
+                                                   track->GetGlobalTime());
+    momentumAtBoundary_ = math::XYZTLorentzVectorF(track->GetMomentum().x() / CLHEP::GeV,
+                                                   track->GetMomentum().y() / CLHEP::GeV,
+                                                   track->GetMomentum().z() / CLHEP::GeV,
+                                                   track->GetKineticEnergy() / CLHEP::GeV);
+  }
+  bool crossedBoundary() const { return crossedBoundary_; }
+  const math::XYZTLorentzVectorF &getPositionAtBoundary() const { return positionAtBoundary_; }
+  const math::XYZTLorentzVectorF &getMomentumAtBoundary() const { return momentumAtBoundary_; }
+  int getIDAtBoundary() const { return idAtBoundary_; }
+
   // Generator information
   int genParticlePID() const { return genParticlePID_; }
   void setGenParticlePID(int id) { genParticlePID_ = id; }
@@ -81,6 +103,11 @@ private:
   int idCaloVolume_;
   int idLastVolume_;
   bool caloIDChecked_;
+  bool crossedBoundary_;
+  bool idAtBoundary_;
+  math::XYZTLorentzVectorF positionAtBoundary_;
+  math::XYZTLorentzVectorF momentumAtBoundary_;
+
   int genParticlePID_, caloSurfaceParticlePID_;
   double genParticleP_, caloSurfaceParticleP_;
 
@@ -100,6 +127,7 @@ private:
         idCaloVolume_(-1),
         idLastVolume_(-1),
         caloIDChecked_(false),
+        crossedBoundary_(false),
         genParticlePID_(-1),
         caloSurfaceParticlePID_(0),
         genParticleP_(0),

@@ -24,6 +24,7 @@
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "Rtypes.h"
 
@@ -52,12 +53,13 @@ namespace fwlite {
   class DataGetterHelper {
   public:
     //            DataGetterHelper() {};
-    DataGetterHelper(TTree* tree,
-                     std::shared_ptr<HistoryGetterBase> historyGetter,
-                     std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
-                     std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
-                     bool useCache = false,
-                     std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
+    DataGetterHelper(
+        TTree* tree,
+        std::shared_ptr<HistoryGetterBase> historyGetter,
+        std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
+        std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
+        bool useCache = false,
+        std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
     virtual ~DataGetterHelper();
 
     // ---------- const member functions ---------------------
@@ -67,11 +69,17 @@ namespace fwlite {
     virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*, Long_t) const;
 
     edm::WrapperBase const* getByProductID(edm::ProductID const& pid, Long_t eventEntry) const;
-    edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key, Long_t eventEntry) const;
+    std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(edm::ProductID const& pid,
+                                                                                       unsigned int key,
+                                                                                       Long_t eventEntry) const;
     void getThinnedProducts(edm::ProductID const& pid,
                             std::vector<edm::WrapperBase const*>& foundContainers,
                             std::vector<unsigned int>& keys,
                             Long_t eventEntry) const;
+    edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const& parent,
+                                              unsigned int key,
+                                              edm::ProductID const& thinned,
+                                              Long_t eventEntry) const;
 
     // ---------- static member functions --------------------
 
@@ -96,16 +104,18 @@ namespace fwlite {
 
     // ---------- member data --------------------------------
     TTree* tree_;
-    mutable std::shared_ptr<BranchMapReader> branchMap_;
-    mutable KeyToDataMap data_;
-    mutable std::vector<char const*> labels_;
+    //This class is not inteded to be used across different threads
+    CMS_SA_ALLOW mutable std::shared_ptr<BranchMapReader> branchMap_;
+    CMS_SA_ALLOW mutable KeyToDataMap data_;
+    CMS_SA_ALLOW mutable std::vector<char const*> labels_;
     const edm::ProcessHistory& history() const;
 
-    mutable std::map<std::pair<edm::ProductID, edm::BranchListIndex>, std::shared_ptr<internal::Data>> idToData_;
-    mutable std::map<edm::BranchID, std::shared_ptr<internal::Data>> bidToData_;
+    CMS_SA_ALLOW mutable std::map<std::pair<edm::ProductID, edm::BranchListIndex>, std::shared_ptr<internal::Data>>
+        idToData_;
+    CMS_SA_ALLOW mutable std::map<edm::BranchID, std::shared_ptr<internal::Data>> bidToData_;
     edm::propagate_const<std::shared_ptr<fwlite::HistoryGetterBase>> historyGetter_;
     std::shared_ptr<edm::EDProductGetter const> getter_;
-    mutable bool tcTrained_;
+    CMS_SA_ALLOW mutable bool tcTrained_;
     /// Use internal TTreeCache.
     const bool tcUse_;
     /// Branch-access-function gets called whenever a branch data is accessed.

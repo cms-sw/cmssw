@@ -5,7 +5,6 @@
  */
 
 #include "DQM/BeamMonitor/plugins/BeamSpotProblemMonitor.h"
-#include "DQMServices/Core/interface/QReport.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -15,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoVertex/BeamSpotProducer/interface/BeamSpotOnlineProducer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
@@ -92,7 +90,7 @@ void BeamSpotProblemMonitor::bookHistograms(DQMStore::IBooker& iB, const edm::Ru
   beamSpotStatusLumiAll_->setAxisTitle(ytitle, 2);
 
   //NOTE: This in principal should be a Lumi only histogram since it gets reset at every
-  // beginLuminosityBlock call. However, it is also filled at that time and the DQMStore
+  // dqmBeginLuminosityBlock call. However, it is also filled at that time and the DQMStore
   // clears all lumi histograms at postGlobalBeginLuminosityBlock!
   beamSpotError_ = iB.book1D("BeamSpotError", "ERROR: Beamspot missing from scalars", 20, 0.5, 20.5);
   beamSpotError_->setAxisTitle("# of consecutive LSs with problem", 1);
@@ -100,25 +98,25 @@ void BeamSpotProblemMonitor::bookHistograms(DQMStore::IBooker& iB, const edm::Ru
 }
 
 //--------------------------------------------------------
-void BeamSpotProblemMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
+void BeamSpotProblemMonitor::dqmBeginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   const int nthlumi = lumiSeg.luminosityBlock();
 
   if (onlineMode_) {
     if (nthlumi > nextlumi_) {
       fillPlots(lastlumi_, nextlumi_, nthlumi);
       nextlumi_ = nthlumi;
-      edm::LogInfo("BeamSpotProblemMonitor") << "beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
+      edm::LogInfo("BeamSpotProblemMonitor") << "dqmBeginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
     }
   } else {
     if (processed_)
       fillPlots(lastlumi_, nextlumi_, nthlumi);
     nextlumi_ = nthlumi;
-    edm::LogInfo("BeamSpotProblemMonitor") << " beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
+    edm::LogInfo("BeamSpotProblemMonitor") << " dqmBeginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
   }
 
   if (processed_)
     processed_ = false;
-  edm::LogInfo("BeamSpotProblemMonitor") << " beginLuminosityBlock::  Begin of Lumi: " << nthlumi << endl;
+  edm::LogInfo("BeamSpotProblemMonitor") << " dqmBeginLuminosityBlock::  Begin of Lumi: " << nthlumi << endl;
 }
 
 // ----------------------------------------------------------
@@ -279,16 +277,16 @@ void BeamSpotProblemMonitor::fillPlots(int& lastlumi, int& nextlumi, int nthlumi
 }
 
 //--------------------------------------------------------
-void BeamSpotProblemMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& iSetup) {
+void BeamSpotProblemMonitor::dqmEndLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& iSetup) {
   const int nthlumi = lumiSeg.id().luminosityBlock();
-  edm::LogInfo("BeamSpotProblemMonitor") << "endLuminosityBlock:: Lumi of the last event before endLuminosityBlock: "
-                                         << nthlumi << endl;
+  edm::LogInfo("BeamSpotProblemMonitor")
+      << "dqmEndLuminosityBlock:: Lumi of the last event before dqmEndLuminosityBlock: " << nthlumi << endl;
 }
 //-------------------------------------------------------
 
-void BeamSpotProblemMonitor::endRun(const Run& r, const EventSetup& context) {
+void BeamSpotProblemMonitor::dqmEndRun(const Run& r, const EventSetup& context) {
   if (debug_)
-    edm::LogInfo("BeamSpotProblemMonitor") << "endRun:: Clearing all the Maps " << endl;
+    edm::LogInfo("BeamSpotProblemMonitor") << "dqmEndRun:: Clearing all the Maps " << endl;
   //Reset it end of job
   beamSpotError_->Reset();
 }

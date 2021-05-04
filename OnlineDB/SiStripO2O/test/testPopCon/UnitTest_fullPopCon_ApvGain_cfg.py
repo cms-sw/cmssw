@@ -3,7 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("o2o")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

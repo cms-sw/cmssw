@@ -24,8 +24,7 @@ def addBoostedTaus(process):
     process.combinatoricRecoTausBoosted.builders[0].pfCandSrc = cms.InputTag('particleFlow')
     ## Note JetArea is not defined for subjets (-> do not switch to True in hpsPFTauDiscriminationByLooseMuonRejection3Boosted, False is default)
     ## The restiction to jetArea is turned to dRMatch=0.1 (-> use explicitly this modified value)
-    process.hpsPFTauDiscriminationByLooseMuonRejection3Boosted.dRmuonMatch = 0.1
-    process.hpsPFTauDiscriminationByTightMuonRejection3Boosted.dRmuonMatch = 0.1
+    process.hpsPFTauDiscriminationByMuonRejection3Boosted.dRmuonMatch = 0.1
     massSearchReplaceAnyInputTag(process.PATTauSequenceBoosted,cms.InputTag("ak4PFJets"),cms.InputTag("boostedTauSeeds"))  
     process.slimmedTausBoosted = process.slimmedTaus.clone(src = cms.InputTag("selectedPatTausBoosted"))
     patAlgosToolsTask.add(process.slimmedTausBoosted)

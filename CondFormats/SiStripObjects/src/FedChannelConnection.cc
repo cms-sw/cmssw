@@ -122,7 +122,7 @@ uint16_t FedChannelConnection::lldChannel() const {
 
 // -----------------------------------------------------------------------------
 /** */
-uint16_t FedChannelConnection::apvPairNumber() const {
+uint16_t FedChannelConnection::apvPairNumberDebug() const {
   if (nApvPairs_ == 2) {
     if (apv0_ == 32 || apv1_ == 33) {
       return 0;

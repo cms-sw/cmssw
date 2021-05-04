@@ -8,6 +8,7 @@
 //
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 
 #include <cmath>
 

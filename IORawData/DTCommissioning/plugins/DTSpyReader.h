@@ -19,7 +19,7 @@
 
 #include <ostream>
 #include <fstream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class DTSpyReader : public edm::EDProducer {
 public:

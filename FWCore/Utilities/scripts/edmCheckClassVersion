@@ -1,7 +1,12 @@
 #!  /usr/bin/env python
-import string
+from __future__ import print_function
 from optparse import OptionParser
 import six
+from sys import version_info
+if version_info[0] > 2:
+    atol = int
+else:
+    from string import atol
 
 class XmlParser(object):
     """Parses a classes_def.xml file looking for class declarations that contain
@@ -37,9 +42,9 @@ class XmlParser(object):
             if c == '"' : q1 = not q1
             if c == "'" : q2 = not q2
         try : p.Parse(nxml)
-        except xml.parsers.expat.ExpatError, e :
-            print '--->> edmCheckClassVersion: ERROR: parsing selection file ',self._file
-            print '--->> edmCheckClassVersion: ERROR: Error is:', e
+        except xml.parsers.expat.ExpatError as e :
+            print ('--->> edmCheckClassVersion: ERROR: parsing selection file ',self._file)
+            print ('--->> edmCheckClassVersion: ERROR: Error is:', e)
             raise
         f.close()
     def start_element(self,name,attrs):
@@ -47,17 +52,17 @@ class XmlParser(object):
             if 'name' in attrs:
                 if 'ClassVersion' in attrs:
                     normalizedName = self.genNName(attrs['name'])
-                    self.classes[normalizedName]=[attrs['name'],string.atol(attrs['ClassVersion']),[]]
+                    self.classes[normalizedName]=[attrs['name'],atol(attrs['ClassVersion']),[]]
                     self._presentClass=normalizedName
         if name == 'version':
-            self.classes[self._presentClass][XmlParser.versionsToChecksumIndex].append([string.atol(attrs['ClassVersion']),
-                                                                                    string.atol(attrs['checksum'])])
+            self.classes[self._presentClass][XmlParser.versionsToChecksumIndex].append([atol(attrs['ClassVersion']),
+                                                                                    atol(attrs['checksum'])])
         pass
     def end_element(self,name):
         if name in ('class','struct'):
             self._presentClass = None
     def genNName(self, name ):
-        n_name = string.join(name.split())
+        n_name = " ".join(name.split())
         for e in [ ['long long unsigned int', 'unsigned long long'],
                    ['long long int',          'long long'],
                    ['unsigned short int',     'unsigned short'],
@@ -80,7 +85,7 @@ def verifyBaseClasses(c) :
     # check that all bases are loaded
     bases = c.GetListOfBases()
     if not bases :
-        print "Incomplete class ", c.GetName()
+        print ("Incomplete class ", c.GetName())
         return 1
 
     for b in bases :
@@ -88,7 +93,7 @@ def verifyBaseClasses(c) :
         if bc :
             missingBase += verifyBaseClasses(bc)
         else :
-            print "Incomplete base class for ", c.GetName(), ": ", b.GetName()
+            print ("Incomplete base class for ", c.GetName(), ": ", b.GetName())
             missingBase += 1
 
     return missingBase
@@ -106,10 +111,10 @@ def checkDictionaries(name):
             for telem in ts :
                 clm = telem.GetClassPointer()
                 if clm and not clm.IsLoaded() :
-                    print "Missing dictionary for ", telem.GetName(), " type ", clm.GetName();
+                    print ("Missing dictionary for ", telem.GetName(), " type ", clm.GetName())
                     missingDict += 1
         else :
-            print "No streamer info for ", c.GetName()
+            print ("No streamer info for ", c.GetName())
             missingDict += 1
 
     return missingDict
@@ -171,7 +176,7 @@ ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine(".autodict")
 if options.library is None:
     if options.checkdict :
-        print "Dictionary checks require a specific library"
+        print ("Dictionary checks require a specific library")
 else:
     if ROOT.gSystem.Load(options.library) < 0 :
         raise RuntimeError("failed to load library '"+options.library+"'")
@@ -201,12 +206,12 @@ for name,retValues in six.iteritems(foundErrors):
     rootClassVersion = retValues[2]
     if code == errorRootDoesNotMatchClassDef:
         foundRootDoesNotMatchError=True
-        print "error: for class '"+name+"' ROOT says the ClassVersion is "+str(rootClassVersion)+" but classes_def.xml says it is "+str(classVersion)+". Are you sure everything compiled correctly?"
+        print ("error: for class '"+name+"' ROOT says the ClassVersion is "+str(rootClassVersion)+" but classes_def.xml says it is "+str(classVersion)+". Are you sure everything compiled correctly?")
     elif code == errorMustUpdateClassVersion and not options.generate:
-        print "error: class '"+name+"' has a different checksum for ClassVersion "+str(classVersion)+". Increment ClassVersion to "+str(classVersion+1)+" and assign it to checksum "+str(classChecksum)
+        print ("error: class '"+name+"' has a different checksum for ClassVersion "+str(classVersion)+". Increment ClassVersion to "+str(classVersion+1)+" and assign it to checksum "+str(classChecksum))
     elif not options.generate:
-        print "error:class '"+name+"' needs to include the following as part of its 'class' declaration"
-        print '   <version ClassVersion="'+str(classVersion)+'" checksum="'+str(classChecksum)+'"/>'
+        print ("error:class '"+name+"' needs to include the following as part of its 'class' declaration")
+        print ('   <version ClassVersion="'+str(classVersion)+'" checksum="'+str(classChecksum)+'"/>')
 
 
 if options.generate and not foundRootDoesNotMatchError and not missingDict:

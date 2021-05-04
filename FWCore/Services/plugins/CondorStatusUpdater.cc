@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/XrdAdaptor/src/XrdStatistics.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -211,7 +212,7 @@ bool CondorStatusService::isChirpSupported() {
     return true;
   }
 
-  return getenv("_CONDOR_CHIRP_CONFIG") && updateChirp("Elapsed", "0");
+  return std::getenv("_CONDOR_CHIRP_CONFIG") && updateChirp("Elapsed", "0");
 }
 
 void CondorStatusService::firstUpdate() {
@@ -247,7 +248,8 @@ void CondorStatusService::update() {
   time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   if ((now - m_lastUpdate.load(std::memory_order_relaxed)) > m_updateInterval) {
     if (!m_shouldUpdate.test_and_set(std::memory_order_acquire)) {
-      try {
+      // Caught exception is rethrown
+      CMS_SA_ALLOW try {
         time_t sinceLastUpdate = now - m_lastUpdate;
         m_lastUpdate = now;
         updateImpl(sinceLastUpdate);

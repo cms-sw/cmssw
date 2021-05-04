@@ -8,8 +8,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "EventFilter/SiStripRawToDigi/interface/TFHeaderDescription.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -25,7 +23,8 @@ namespace sistrip {
       : runNumber_(0),
         cacheId_(0),
         cabling_(nullptr),
-        token_(consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"))) {
+        token_(consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"))),
+        cablingToken_(esConsumes<SiStripFedCabling, SiStripFedCablingRcd, edm::Transition::BeginRun>()) {
     produces<DetIdCollection>();
   }
 
@@ -37,8 +36,7 @@ namespace sistrip {
     if (cacheId_ != cacheId) {
       cacheId_ = cacheId;
 
-      edm::ESHandle<SiStripFedCabling> c;
-      es.get<SiStripFedCablingRcd>().get(c);
+      edm::ESHandle<SiStripFedCabling> c = es.getHandle(cablingToken_);
       cabling_ = c.product();
     }
   }

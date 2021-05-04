@@ -10,7 +10,6 @@
 #include <map>
 #include <set>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
 // #include <HepMC/GenEvent.h>
@@ -255,7 +254,7 @@ namespace gen {
   }
 
   //void JetMatchingMadgraph::beforeHadronisation(
-  //				const boost::shared_ptr<lhef::LHEEvent> &event)
+  //				const std::shared_ptr<lhef::LHEEvent> &event)
 
   void JetMatchingMadgraph::beforeHadronisation(const lhef::LHEEvent *event) {
     if (!runInitialized)

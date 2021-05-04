@@ -3,10 +3,8 @@ condorJobTemplate="""#!/bin/tcsh
 set curDir=$PWD
 echo $curDir
 cd {base}/../..
-
 eval `scramv1 runtime -csh`
 
-#~ source /afs/cern.ch/cms/caf/setup.csh
 cd $curDir
 
 xrdcp {inputFile} reco.root
@@ -30,21 +28,21 @@ Queue Arguments from (
 {arguments})
 """
 
-# Use this one only if connected to lxplus-t0.cern.ch
-#~ condorSubTemplate="""
-#~ Executable = {jobFile}
-#~ Universe = vanilla
-#~ Output = {outputFile}
-#~ Error  = {errorFile}
-#~ Log  = {logFile}
-#~ request_memory = 2000M
-#~ request_disk = 400M
-#~ batch_name = {jobName}
-#~ +JobFlavour = "workday"
-#~ +AccountingGroup = "group_u_CMS.CAF.ALCA" 
-#~ Queue Arguments from (
-#~ {arguments})
-#~ """
+
+condorSubTemplateCAF="""
+Executable = {jobFile}
+Universe = vanilla
+Output = {outputFile}
+Error  = {errorFile}
+Log  = {logFile}
+request_memory = 2000M
+request_disk = 400M
+batch_name = {jobName}
++JobFlavour = "workday"
++AccountingGroup = "group_u_CMS.CAF.ALCA" 
+Queue Arguments from (
+{arguments})
+"""
 
 condorArgumentTemplate="""{fileNumber} {inputFile}
 """

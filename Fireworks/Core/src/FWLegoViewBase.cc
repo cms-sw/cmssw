@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "TAxis.h"
 #include "TH2.h"
@@ -70,12 +70,12 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
   if (typeId == FWViewType::kLegoHF)
     m_cell2DMode.set(2);  // different default for HF view
 
-  m_autoRebin.changed_.connect(boost::bind(&FWLegoViewBase::setAutoRebin, this));
-  m_pixelsPerBin.changed_.connect(boost::bind(&FWLegoViewBase::setPixelsPerBin, this));
-  m_drawValuesIn2D.changed_.connect(boost::bind(&FWLegoViewBase::setFontSizein2D, this));
-  m_showOverlay.changed_.connect(boost::bind(&FWLegoViewBase::showOverlay, this));
-  m_projectionMode.changed_.connect(boost::bind(&FWLegoViewBase::setProjectionMode, this));
-  m_cell2DMode.changed_.connect(boost::bind(&FWLegoViewBase::setCell2DMode, this));
+  m_autoRebin.changed_.connect(std::bind(&FWLegoViewBase::setAutoRebin, this));
+  m_pixelsPerBin.changed_.connect(std::bind(&FWLegoViewBase::setPixelsPerBin, this));
+  m_drawValuesIn2D.changed_.connect(std::bind(&FWLegoViewBase::setFontSizein2D, this));
+  m_showOverlay.changed_.connect(std::bind(&FWLegoViewBase::showOverlay, this));
+  m_projectionMode.changed_.connect(std::bind(&FWLegoViewBase::setProjectionMode, this));
+  m_cell2DMode.changed_.connect(std::bind(&FWLegoViewBase::setCell2DMode, this));
 }
 
 FWLegoViewBase::~FWLegoViewBase() {

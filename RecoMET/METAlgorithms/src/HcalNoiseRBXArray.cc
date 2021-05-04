@@ -20,7 +20,7 @@ HcalNoiseRBXArray::HcalNoiseRBXArray() {
     rbx.idnumber_ = i;
 
     // set the hpdnumber here
-    boost::array<int, HcalHPDRBXMap::NUM_HPDS_PER_RBX> hpdindices;
+    std::array<int, HcalHPDRBXMap::NUM_HPDS_PER_RBX> hpdindices;
     HcalHPDRBXMap::indicesHPDfromRBX(i, hpdindices);
     for (int j = 0; j < HcalHPDRBXMap::NUM_HPDS_PER_RBX; j++) {
       rbx.hpds_[j].idnumber_ = hpdindices[j];

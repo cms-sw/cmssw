@@ -72,6 +72,9 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
 
   const bool createEntryForDoubleSidedModule_;
   std::vector<TrackerTreeVariables> vTkTreeVar_;
@@ -90,7 +93,11 @@ private:
 // constructors and destructor
 //
 TrackerTreeGenerator::TrackerTreeGenerator(const edm::ParameterSet& config)
-    : createEntryForDoubleSidedModule_(config.getParameter<bool>("createEntryForDoubleSidedModule")), config_(config) {
+    : geomDetToken_(esConsumes()),
+      ptpToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      createEntryForDoubleSidedModule_(config.getParameter<bool>("createEntryForDoubleSidedModule")),
+      config_(config) {
   usesResource(TFileService::kSharedResource);
 }
 
@@ -100,20 +107,13 @@ TrackerTreeGenerator::TrackerTreeGenerator(const edm::ParameterSet& config)
 
 // ------------ method called to for each event  ------------
 void TrackerTreeGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
   // now try to take directly the ideal geometry independent of used geometry in Global Tag
-  edm::ESHandle<GeometricDet> geometricDet;
-  iSetup.get<IdealGeometryRecord>().get(geometricDet);
+  const GeometricDet* geometricDet = &iSetup.getData(geomDetToken_);
+  const PTrackerParameters& ptp = iSetup.getData(ptpToken_);
+  const TrackerTopology* tTopo = &iSetup.getData(topoToken_);
 
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  edm::ESHandle<PTrackerParameters> ptp;
-  iSetup.get<PTrackerParametersRcd>().get(ptp);
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  const TrackerGeometry* tkGeom = trackerBuilder.build(&(*geometricDet), *ptp, tTopo);
+  const TrackerGeometry* tkGeom = trackerBuilder.build(geometricDet, ptp, tTopo);
   AlignableTracker alignableTracker{tkGeom, tTopo};
   const auto& ns = alignableTracker.trackerNameSpace();
 

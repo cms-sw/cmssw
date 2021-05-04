@@ -5,15 +5,12 @@
 #include "RecoLocalMuon/GEMRecHit/plugins/GEMRecHitProducer.h"
 
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
 
 #include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitAlgoFactory.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
-#include "CondFormats/DataRecord/interface/GEMMaskedStripsRcd.h"
-#include "CondFormats/DataRecord/interface/GEMDeadStripsRcd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
@@ -28,7 +25,8 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config)
       theAlgo{GEMRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
                                                   config.getParameter<ParameterSet>("recAlgoConfig"))},
       maskSource_(MaskSource::EventSetup),
-      deadSource_(MaskSource::EventSetup) {
+      deadSource_(MaskSource::EventSetup),
+      gemGeomToken_(esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>()) {
   produces<GEMRecHitCollection>();
 
   // Get masked- and dead-strip information from file
@@ -65,6 +63,12 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config)
       }
       inputFile.close();
     }
+    if (maskSource_ == MaskSource::EventSetup) {
+      maskedStripsToken_ = esConsumes<GEMMaskedStrips, GEMMaskedStripsRcd, edm::Transition::BeginRun>();
+    }
+    if (deadSource_ == MaskSource::EventSetup) {
+      deadStripsToken_ = esConsumes<GEMDeadStrips, GEMDeadStripsRcd, edm::Transition::BeginRun>();
+    }
   }
 }
 
@@ -84,19 +88,17 @@ void GEMRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 void GEMRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
   // Get the GEM Geometry
-  setup.get<MuonGeometryRecord>().get(gemGeom_);
+  gemGeom_ = setup.getHandle(gemGeomToken_);
 
   if (applyMasking_) {
     // Getting the masked-strip information
     if (maskSource_ == MaskSource::EventSetup) {
-      edm::ESHandle<GEMMaskedStrips> readoutMaskedStrips;
-      setup.get<GEMMaskedStripsRcd>().get(readoutMaskedStrips);
+      edm::ESHandle<GEMMaskedStrips> readoutMaskedStrips = setup.getHandle(maskedStripsToken_);
       theGEMMaskedStripsObj = std::make_unique<GEMMaskedStrips>(*readoutMaskedStrips.product());
     }
     // Getting the dead-strip information
     if (deadSource_ == MaskSource::EventSetup) {
-      edm::ESHandle<GEMDeadStrips> readoutDeadStrips;
-      setup.get<GEMDeadStripsRcd>().get(readoutDeadStrips);
+      edm::ESHandle<GEMDeadStrips> readoutDeadStrips = setup.getHandle(deadStripsToken_);
       theGEMDeadStripsObj = std::make_unique<GEMDeadStrips>(*readoutDeadStrips.product());
     }
 
@@ -108,13 +110,13 @@ void GEMRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup
       for (const auto& tomask : theGEMMaskedStripsObj->getMaskVec()) {
         if (tomask.rawId == rawId) {
           const int bit = tomask.strip;
-          mask.set(bit - 1);
+          mask.set(bit);
         }
       }
       for (const auto& tomask : theGEMDeadStripsObj->getDeadVec()) {
         if (tomask.rawId == rawId) {
           const int bit = tomask.strip;
-          mask.set(bit - 1);
+          mask.set(bit);
         }
       }
       // add to masking map if masking present in etaPartition

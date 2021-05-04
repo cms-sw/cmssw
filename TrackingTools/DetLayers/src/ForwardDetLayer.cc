@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 using namespace std;
 

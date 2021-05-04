@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 
 #include "FWCore/Integration/test/WhatsIt.h"
 #include "FWCore/Integration/test/Doodad.h"
@@ -33,6 +34,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 //
 // class decleration
@@ -113,6 +116,10 @@ namespace edmtest {
 
   // ------------ method called to produce the data  ------------
   WhatsItESProducer::ReturnType WhatsItESProducer::produce(const GadgetRcd& iRecord) {
+    //This tests that the Service system is accessible from a ESProducer
+    edm::Service<edm::service::TriggerNamesService> tns;
+    tns->getProcessName();
+
     edm::ESHandle<Doodad> doodad = iRecord.getHandle(token_);
     auto pWhatsIt = std::make_unique<WhatsIt>();
     pWhatsIt->a = doodad->a;

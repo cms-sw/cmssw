@@ -4,7 +4,7 @@ process = cms.Process("G4PrintGeometry")
 
 #process.load('Configuration.Geometry.GeometryExtended2015_cff')
 #process.load('Configuration.Geometry.GeometryExtended2017_cff')
-#process.load('Configuration.Geometry.GeometryExtended2018_cff')
+#process.load('Configuration.Geometry.GeometryExtended2021_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D17_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D45_cff')
 process.load('SimG4Core.PrintGeomInfo.cmsMuon2017XML_cfi')
@@ -16,10 +16,11 @@ process = checkOverlap(process)
 process.g4SimHits.CheckGeometry = True
 
 # Geant4 geometry check 
-process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("Muon2017")
+process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("Muon2021")
 process.g4SimHits.G4CheckOverlap.OverlapFlag = cms.bool(True)
 process.g4SimHits.G4CheckOverlap.Tolerance  = cms.double(0.0)
 process.g4SimHits.G4CheckOverlap.Resolution = cms.int32(10000)
+process.g4SimHits.G4CheckOverlap.Depth      = cms.int32(-1)
 # tells if NodeName is G4Region or G4PhysicalVolume
 process.g4SimHits.G4CheckOverlap.RegionFlag = cms.bool(False)
 # list of names

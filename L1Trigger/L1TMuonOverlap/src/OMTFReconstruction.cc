@@ -1,10 +1,10 @@
+#include <memory>
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
-
-#include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFProcessor.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinput.h"
@@ -16,13 +16,14 @@
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
-OMTFReconstruction::OMTFReconstruction()
-    : m_OMTFConfig(nullptr), m_OMTF(nullptr), aTopElement(nullptr), m_OMTFConfigMaker(nullptr), m_Writer(nullptr) {}
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
-OMTFReconstruction::OMTFReconstruction(const edm::ParameterSet& theConfig)
+OMTFReconstruction::OMTFReconstruction(const edm::ParameterSet& theConfig, edm::ConsumesCollector&& iC)
     : m_Config(theConfig),
+      l1TMuonOverlapParamsToken_(
+          iC.esConsumes<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd, edm::Transition::BeginRun>()),
       m_OMTFConfig(nullptr),
+      m_InputMaker(iC, false),
       m_OMTF(nullptr),
       aTopElement(nullptr),
       m_OMTFConfigMaker(nullptr),
@@ -59,13 +60,8 @@ void OMTFReconstruction::endJob() {
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
-void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  const L1TMuonOverlapParamsRcd& omtfRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
-
-  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle;
-  omtfRcd.get(omtfParamsHandle);
-
-  const L1TMuonOverlapParams* omtfParams = omtfParamsHandle.product();
+void OMTFReconstruction::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
+  const L1TMuonOverlapParams* omtfParams = &iSetup.getData(l1TMuonOverlapParamsToken_);
 
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
@@ -78,9 +74,9 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
   if (m_OMTFConfig->fwVersion() >= 5) {
     //  if(m_Config.exists("ghostBusterType") ) {
     //    if(m_Config.getParameter<std::string>("ghostBusterType") == "GhostBusterPreferRefDt")
-    m_GhostBuster.reset(new GhostBusterPreferRefDt(m_OMTFConfig));
+    m_GhostBuster = std::make_unique<GhostBusterPreferRefDt>(m_OMTFConfig);
   } else {
-    m_GhostBuster.reset(new GhostBuster());
+    m_GhostBuster = std::make_unique<GhostBuster>();
   }
 
   m_Sorter.initialize(m_OMTFConfig);
@@ -97,7 +93,7 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstruct(const edm::Event& iEvent,
-                                                                                   const edm::EventSetup& evSetup) {
+                                                                                   const edm::EventSetup&) {
   loadAndFilterDigis(iEvent);
 
   if (dumpResultToXML)

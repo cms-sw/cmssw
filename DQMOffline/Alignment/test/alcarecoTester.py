@@ -3,7 +3,7 @@
 from __future__ import print_function
 import os
 import sys
-import ConfigParser
+import configparser as ConfigParser
 import optparse
 import datetime
 
@@ -62,7 +62,6 @@ process.source = cms.Source("PoolSource",
 )
 
 process.p1 = cms.Path(process.EDMtoMEConverter*process.dqmSaver)
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/ConverterTester/Test/RECO'
 """

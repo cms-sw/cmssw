@@ -63,6 +63,7 @@ public:
       const DetId& detid = erh.detid();
       auto energy = erh.energy();
       auto time = erh.time();
+      auto flags = erh.flagsBits();
       bool hi = (useSrF ? isHighInterest(detid) : true);
 
       const auto thisCell = ecalGeo->getGeometry(detid);
@@ -72,7 +73,7 @@ public:
         throw cms::Exception("PFEcalBarrelRecHitCreator") << "detid " << detid.rawId() << "not found in geometry";
       }
 
-      out->emplace_back(thisCell, detid.rawId(), PFLayer::ECAL_BARREL, energy);
+      out->emplace_back(thisCell, detid.rawId(), PFLayer::ECAL_BARREL, energy, flags);
 
       auto& rh = out->back();
 

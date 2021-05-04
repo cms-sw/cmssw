@@ -1,4 +1,3 @@
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
@@ -7,16 +6,18 @@
 <use name="CondFormats/DataRecord"/>
 <use name="PhysicsTools/MVAComputer"/>
 <library file="testWriteMVAComputerCondDB.cc" name="testWriteMVAComputerCondDB">
-   <use name="CondCore/DBOutputService"/>
-   <flags EDM_PLUGIN="1"/>
+  <use name="CondCore/DBOutputService"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="testReadMVAComputerCondDB.cc" name="testReadMVAComputerCondDB">
-   <flags EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="testMVAComputerEvaluate.cc" name="testReadMVAComputerEvaluate">
-   <use name="CondCore/PluginSystem"/>
-   <flags EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<bin   name="testPhysicsToolsMVAComputer" file="*.cppunit.cc">
-  <use   name="cppunit"/>
+
+<bin name="testPhysicsToolsMVAComputer" file="*.cppunit.cc">
+  <use name="cppunit"/>
 </bin>

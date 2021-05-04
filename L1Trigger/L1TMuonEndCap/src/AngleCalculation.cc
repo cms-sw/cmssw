@@ -1,6 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/AngleCalculation.h"
-
-#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 #include "helper.h"  // to_hex, to_binary
 
 namespace {
@@ -89,24 +88,12 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
     }
 
     if (bugME11Dupes_) {
-      if (not(st_conv_hits.at(istation).size() <= 4))  // ambiguity in theta is max 4
-      {
-        edm::LogError("L1T") << "st_conv_hits.at(istation).size() = " << st_conv_hits.at(istation).size();
-        return;
-      }
+      emtf_assert(st_conv_hits.at(istation).size() <= 4);  // ambiguity in theta is max 4
     } else {
-      if (not(st_conv_hits.at(istation).size() <= 2))  // ambiguity in theta is max 2
-      {
-        edm::LogError("L1T") << "st_conv_hits.at(istation).size() = " << st_conv_hits.at(istation).size();
-        return;
-      }
+      emtf_assert(st_conv_hits.at(istation).size() <= 2);  // ambiguity in theta is max 2
     }
   }
-  if (not(st_conv_hits.size() == emtf::NUM_STATIONS)) {
-    edm::LogError("L1T") << "st_conv_hits.size() = " << st_conv_hits.size()
-                         << ", emtf::NUM_STATIONS = " << emtf::NUM_STATIONS;
-    return;
-  }
+  emtf_assert(st_conv_hits.size() == emtf::NUM_STATIONS);
 
   // Best theta deltas and phi deltas
   // from 0 to 5: dtheta12, dtheta13, dtheta14, dtheta23, dtheta24, dtheta34
@@ -157,14 +144,8 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
           int thB = conv_hitB.Theta_fp();
           int dth = abs_diff(thA, thB);
           int dth_sign = (thA <= thB);  // sign
-          if (not(thA != 0 && thB != 0)) {
-            edm::LogError("L1T") << "thA = " << thA << ", thB = " << thB;
-            return;
-          }
-          if (not(dth < invalid_dtheta)) {
-            edm::LogError("L1T") << "dth = " << dth << ", invalid_dtheta = " << invalid_dtheta;
-            return;
-          }
+          emtf_assert(thA != 0 && thB != 0);
+          emtf_assert(dth < invalid_dtheta);
 
           if (best_dtheta_arr.at(ipair) >= dth) {
             best_dtheta_arr.at(ipair) = dth;
@@ -197,10 +178,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
       ++ipair;
     }  // end loop over station B
   }    // end loop over station A
-  if (not(ipair == emtf::NUM_STATION_PAIRS)) {
-    edm::LogError("L1T") << "ipair = " << ipair << ", emtf::NUM_STATION_PAIRS = " << emtf::NUM_STATION_PAIRS;
-    return;
-  }
+  emtf_assert(ipair == emtf::NUM_STATION_PAIRS);
 
   // Apply cuts on dtheta
 
@@ -287,7 +265,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
     if (best_dtheta_valid_arr_1.at(5)) {
       dth_bad &= (~(1 << 3));  // 34
     }
-    assert(dth_bad < 64);
+    emtf_assert(dth_bad < 64);
 
     // extract station mask from LUT
     vstat = trk_bld[dth_bad];
@@ -353,10 +331,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
   if (best_pair != -1) {
     phi_fp = best_phi_arr.at(best_pair);
     theta_fp = best_theta_arr.at(best_pair);
-    if (not(theta_fp != 0)) {
-      edm::LogError("L1T") << "theta_fp = " << theta_fp;
-      return;
-    }
+    emtf_assert(theta_fp != 0);
 
     // In firmware, the track is associated to LCTs by the segment number, which
     // identifies the best strip, but does not resolve the ambiguity in theta.
@@ -411,7 +386,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
     // CSC chamber, so the FR bit assignment is the same as for CSCs - AWB 06.06.17
 
     // GEMs are in front of the CSCs
-    if (subsystem == TriggerPrimitive::kGEM)
+    if (subsystem == L1TMuon::kGEM)
       return true;
 
     bool result = false;
@@ -456,10 +431,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
     const auto& v = st_conv_hits.at(i);
     if (!v.empty()) {
       int bt_station = v.front().BT_station();
-      if (not(0 <= bt_station && bt_station <= 4)) {
-        edm::LogError("L1T") << "bt_station = " << bt_station;
-        return;
-      }
+      emtf_assert(0 <= bt_station && bt_station <= 4);
 
       int bt_segment = v.front().BT_segment();
       ptlut_data.bt_vi[bt_station] = 1;
@@ -494,10 +466,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
 
 void AngleCalculation::calculate_bx(EMTFTrack& track) const {
   const int delayBX = bxWindow_ - 1;
-  if (not(delayBX >= 0)) {
-    edm::LogError("L1T") << "delayBX = " << delayBX;
-    return;
-  }
+  emtf_assert(delayBX >= 0);
   std::vector<int> counter(delayBX + 1, 0);
 
   for (const auto& conv_hit : track.Hits()) {
@@ -515,10 +484,7 @@ void AngleCalculation::calculate_bx(EMTFTrack& track) const {
       break;
     }
   }
-  if (not(second_bx != 99)) {
-    edm::LogError("L1T") << "second_bx = " << second_bx;
-    return;
-  }
+  emtf_assert(second_bx != 99);
 
   // ___________________________________________________________________________
   // Output
@@ -550,14 +516,7 @@ void AngleCalculation::erase_tracks(EMTFTrackCollection& tracks) const {
   }
 
   for (const auto& track : tracks) {
-    if (not(!track.Hits().empty())) {
-      edm::LogError("L1T") << "track.Hits().empty() = " << track.Hits().empty();
-      return;
-    }
-    if (not(track.Hits().size() <= emtf::NUM_STATIONS)) {
-      edm::LogError("L1T") << "track.Hits().size() = " << track.Hits().size()
-                           << ", emtf::NUM_STATIONS= " << emtf::NUM_STATIONS;
-      return;
-    }
+    emtf_assert(!track.Hits().empty());
+    emtf_assert(track.Hits().size() <= emtf::NUM_STATIONS);
   }
 }

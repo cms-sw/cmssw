@@ -766,12 +766,6 @@ namespace hcaldqm {
     }
   }
 
-  /* virtual */ void Container1D::setLumiFlag() {
-    for (auto const &pair : _mes) {
-      pair.second->setLumiFlag();
-    }
-  }
-
   void Container1D::showOverflowX(bool showOverflow) { _qx->showOverflow(showOverflow); }
 
   void Container1D::showOverflowY(bool showOverflow) { _qy->showOverflow(showOverflow); }

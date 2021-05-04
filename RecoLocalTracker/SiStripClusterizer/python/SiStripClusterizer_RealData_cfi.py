@@ -15,8 +15,8 @@ siStripClusters = cms.EDProducer("SiStripClusterizer",
 # This part has to be clean up when they will be officially removed from the entire flow
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(siStripClusters, # FIXME
-  DigiProducersList = cms.VInputTag( cms.InputTag('simSiStripDigis','ZeroSuppressed'),
-                                     cms.InputTag('siStripZeroSuppression','VirginRaw'),
-                                     cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
-                                     cms.InputTag('siStripZeroSuppression','ScopeMode'))
+  DigiProducersList = [ 'simSiStripDigis:ZeroSuppressed',
+                        'siStripZeroSuppression:VirginRaw',
+                        'siStripZeroSuppression:ProcessedRaw',
+                        'siStripZeroSuppression:ScopeMode']
 )

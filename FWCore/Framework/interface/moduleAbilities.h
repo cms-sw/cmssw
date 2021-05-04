@@ -45,6 +45,12 @@ namespace edm {
   };
 
   template <typename T>
+  struct InputProcessBlockCache {
+    static constexpr module::Abilities kAbilities = module::Abilities::kInputProcessBlockCache;
+    typedef T Type;
+  };
+
+  template <typename T>
   struct RunCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kRunCache;
     typedef T Type;
@@ -66,6 +72,21 @@ namespace edm {
   struct LuminosityBlockSummaryCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kLuminosityBlockSummaryCache;
     typedef T Type;
+  };
+
+  struct WatchProcessBlock {
+    static constexpr module::Abilities kAbilities = module::Abilities::kWatchProcessBlock;
+    typedef module::Empty Type;
+  };
+
+  struct BeginProcessBlockProducer {
+    static constexpr module::Abilities kAbilities = module::Abilities::kBeginProcessBlockProducer;
+    typedef module::Empty Type;
+  };
+
+  struct EndProcessBlockProducer {
+    static constexpr module::Abilities kAbilities = module::Abilities::kEndProcessBlockProducer;
+    typedef module::Empty Type;
   };
 
   struct BeginRunProducer {
@@ -123,6 +144,18 @@ namespace edm {
   };
 
   template <typename... VArgs>
+  struct WantsProcessBlockTransitions {
+    static constexpr bool value = CheckAbility<module::Abilities::kWatchProcessBlock, VArgs...>::kHasIt or
+                                  CheckAbility<module::Abilities::kBeginProcessBlockProducer, VArgs...>::kHasIt or
+                                  CheckAbility<module::Abilities::kEndProcessBlockProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct WantsInputProcessBlockTransitions {
+    static constexpr bool value = CheckAbility<module::Abilities::kInputProcessBlockCache, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
   struct WantsGlobalRunTransitions {
     static constexpr bool value = CheckAbility<module::Abilities::kRunCache, VArgs...>::kHasIt or
                                   CheckAbility<module::Abilities::kRunSummaryCache, VArgs...>::kHasIt or
@@ -151,16 +184,35 @@ namespace edm {
   };
 
   template <typename... VArgs>
-  struct HasAbilityToProduceInRuns {
-    static constexpr bool value = CheckAbility<module::Abilities::kBeginRunProducer, VArgs...>::kHasIt or
-                                  CheckAbility<module::Abilities::kEndRunProducer, VArgs...>::kHasIt;
+  struct HasAbilityToProduceInBeginProcessBlocks {
+    static constexpr bool value = CheckAbility<module::Abilities::kBeginProcessBlockProducer, VArgs...>::kHasIt;
   };
 
   template <typename... VArgs>
-  struct HasAbilityToProduceInLumis {
-    static constexpr bool value = CheckAbility<module::Abilities::kBeginLuminosityBlockProducer, VArgs...>::kHasIt or
-                                  CheckAbility<module::Abilities::kEndLuminosityBlockProducer, VArgs...>::kHasIt;
+  struct HasAbilityToProduceInEndProcessBlocks {
+    static constexpr bool value = CheckAbility<module::Abilities::kEndProcessBlockProducer, VArgs...>::kHasIt;
   };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInBeginRuns {
+    static constexpr bool value = CheckAbility<module::Abilities::kBeginRunProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInEndRuns {
+    static constexpr bool value = CheckAbility<module::Abilities::kEndRunProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInBeginLumis {
+    static constexpr bool value = CheckAbility<module::Abilities::kBeginLuminosityBlockProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInEndLumis {
+    static constexpr bool value = CheckAbility<module::Abilities::kEndLuminosityBlockProducer, VArgs...>::kHasIt;
+  };
+
 }  // namespace edm
 
 #endif

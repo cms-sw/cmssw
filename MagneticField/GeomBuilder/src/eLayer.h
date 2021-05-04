@@ -7,28 +7,29 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
-#include "MagneticField/GeomBuilder/src/bSector.h"
+#include "bSector.h"
 
 class MagELayer;
 
-class MagGeoBuilderFromDDD::eLayer {
-public:
-  /// Constructor from list of volumes
-  eLayer(handles::const_iterator begin, handles::const_iterator end);
+namespace magneticfield {
+  class eLayer {
+  public:
+    /// Constructor from list of volumes
+    eLayer(handles::const_iterator begin, handles::const_iterator end);
 
-  /// Destructor
-  ~eLayer();
+    /// Destructor
+    ~eLayer() = default;
 
-  //   /// Return the list of all volumes.
-  //   const handles & volumes() const {return theVolumes;}
+    //   /// Return the list of all volumes.
+    //   const handles & volumes() const {return theVolumes;}
 
-  /// Construct the MagELayer upon request.
-  MagELayer* buildMagELayer() const;
+    /// Construct the MagELayer upon request.
+    MagELayer* buildMagELayer() const;
 
-private:
-  handles theVolumes;  // pointer to all volumes in this layer
-  mutable MagELayer* mlayer;
-};
+  private:
+    handles theVolumes;  // pointer to all volumes in this layer
+    mutable MagELayer* mlayer;
+  };
+}  // namespace magneticfield
+
 #endif

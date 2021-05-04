@@ -20,7 +20,6 @@
 #include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
 #include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -65,7 +64,9 @@ private:
 
 RPCConeBuilder::RPCConeBuilder(const edm::ParameterSet& iConfig)
     : m_towerBeg(iConfig.getParameter<int>("towerBeg")), m_towerEnd(iConfig.getParameter<int>("towerEnd")) {
-  setWhatProduced(this).setConsumes(m_rpcGeometryToken).setConsumes(m_l1RPCConeDefinitionToken);
+  auto cc = setWhatProduced(this);
+  m_rpcGeometryToken = cc.consumes();
+  m_l1RPCConeDefinitionToken = cc.consumes();
 }
 
 // ------------ method called to produce the data  ------------

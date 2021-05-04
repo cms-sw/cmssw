@@ -1,5 +1,5 @@
+#include <functional>
 #include <iostream>
-#include "boost/bind.hpp"
 
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "Fireworks/FWInterface/src/FWFFNavigator.h"
@@ -133,8 +133,8 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const& ps)
   // in the release area then in the local directory.  It is also possible to
   // override those locations by using the displayConfigurationFilename and
   // geometryFilename in the parameterset.
-  const char* releaseBase = getenv("CMSSW_RELEASE_BASE");
-  const char* workarea = getenv("CMSSW_BASE");
+  const char* releaseBase = std::getenv("CMSSW_RELEASE_BASE");
+  const char* workarea = std::getenv("CMSSW_BASE");
   std::string displayConfigRelFilename = "/src/Fireworks/FWInterface/macros/ffw.fwc";
   std::string geometryRelFilename = "/src/Fireworks/FWInterface/data/cmsGeom10.root";
 
@@ -168,7 +168,7 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const& ps)
 
 void FWFFLooper::loadDefaultGeometryFile(void) {
   CmsShowTaskExecutor::TaskFunctor f;
-  f = boost::bind(&CmsShowMainBase::loadGeometry, this);
+  f = std::bind(&CmsShowMainBase::loadGeometry, this);
   startupTasks()->addTask(f);
 }
 
@@ -197,7 +197,7 @@ void FWFFLooper::startingNewLoop(unsigned int count) {
     // be responsible for returning the control to CMSSW.
     assert(m_Rint);
     CmsShowTaskExecutor::TaskFunctor f;
-    f = boost::bind(&TApplication::Terminate, m_Rint, 0);
+    f = std::bind(&TApplication::Terminate, m_Rint, 0);
     startupTasks()->addTask(f);
     // FIXME: do we really need to delay tasks like this?
     startupTasks()->startDoingTasks();
@@ -294,9 +294,9 @@ void FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     setupConfiguration();
     setupActions();
 
-    guiManager()->showEventFilterGUI_.connect(boost::bind(&FWFFLooper::showPathsGUI, this, _1));
+    guiManager()->showEventFilterGUI_.connect(std::bind(&FWFFLooper::showPathsGUI, this, std::placeholders::_1));
     guiManager()->setFilterButtonText("Show paths / CMSSW configuration editor");
-    guiManager()->filterButtonClicked_.connect(boost::bind(&FWGUIManager::showEventFilterGUI, guiManager()));
+    guiManager()->filterButtonClicked_.connect(std::bind(&FWGUIManager::showEventFilterGUI, guiManager()));
 
     m_firstTime = false;
     m_autoReload = false;

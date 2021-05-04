@@ -1,19 +1,13 @@
 import FWCore.ParameterSet.Config as cms
+import CommonTools.ParticleFlow.tppfCandidatesOnPFCandidates_cfi as _mod
 
-pfNoMuon = cms.EDProducer(
-    "TPPFCandidatesOnPFCandidates",
-    enable =  cms.bool( True ),
-    verbose = cms.untracked.bool( False ),
-    name = cms.untracked.string("noMuon"),
-    topCollection = cms.InputTag("pfIsolatedMuons"),
-    bottomCollection = cms.InputTag("pfNoPileUp"),
+pfNoMuon = _mod.tppfCandidatesOnPFCandidates.clone(
+    enable = True,
+    name = "noMuon",
+    topCollection = "pfIsolatedMuons",
+    bottomCollection = "pfNoPileUp",
 )
 
-pfNoMuonJME = cms.EDProducer(
-    "TPPFCandidatesOnPFCandidates",
-    enable =  cms.bool( True ),
-    verbose = cms.untracked.bool( False ),
-    name = cms.untracked.string("noMuon"),
-    topCollection = cms.InputTag("pfIsolatedMuons"),
-    bottomCollection = cms.InputTag("pfNoPileUpJME")
+pfNoMuonJME = pfNoMuon.clone(
+    bottomCollection = "pfNoPileUpJME"
 )

@@ -9,4 +9,5 @@
    <version ClassVersion="11" checksum="1957420259"/>
    <version ClassVersion="12" checksum="3600271005"/>
   </class>
+  <class name="std::vector<LocalTrajectoryParameters>"/>
 </lcgdict>                                                                                                                                                        

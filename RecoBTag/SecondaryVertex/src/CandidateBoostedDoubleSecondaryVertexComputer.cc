@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoBTag/SecondaryVertex/interface/CandidateBoostedDoubleSecondaryVertexComputer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,11 +11,10 @@
 CandidateBoostedDoubleSecondaryVertexComputer::Tokens::Tokens(const edm::ParameterSet& parameters,
                                                               edm::ESConsumesCollector&& cc) {
   if (parameters.getParameter<bool>("useCondDB")) {
-    cc.setConsumes(gbrForest_,
-                   edm::ESInputTag{"",
-                                   parameters.existsAs<std::string>("gbrForestLabel")
-                                       ? parameters.getParameter<std::string>("gbrForestLabel")
-                                       : ""});
+    gbrForest_ = cc.consumes(edm::ESInputTag{"",
+                                             parameters.existsAs<std::string>("gbrForestLabel")
+                                                 ? parameters.getParameter<std::string>("gbrForestLabel")
+                                                 : ""});
   }
 }
 
@@ -24,10 +25,10 @@ CandidateBoostedDoubleSecondaryVertexComputer::CandidateBoostedDoubleSecondaryVe
                       : edm::FileInPath()),
       useGBRForest_(parameters.existsAs<bool>("useGBRForest") ? parameters.getParameter<bool>("useGBRForest") : false),
       useAdaBoost_(parameters.existsAs<bool>("useAdaBoost") ? parameters.getParameter<bool>("useAdaBoost") : false),
-      tokens_{std::move(tokens)} {
+      tokens_{tokens} {
   uses(0, "svTagInfos");
 
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 void CandidateBoostedDoubleSecondaryVertexComputer::initialize(const JetTagComputerRecord& record) {

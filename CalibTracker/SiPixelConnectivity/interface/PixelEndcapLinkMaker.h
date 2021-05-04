@@ -1,7 +1,6 @@
 #ifndef PixelEndcapLinkMaker_H
 #define PixelEndcapLinkMaker_H
 
-#include <boost/cstdint.hpp>
 #include <vector>
 
 #include "CalibTracker/SiPixelConnectivity/interface/TRange.h"
@@ -10,6 +9,7 @@ class PixelModuleName;
 class PixelEndcapName;
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
+#include <cstdint>
 
 class PixelEndcapLinkMaker {
 public:

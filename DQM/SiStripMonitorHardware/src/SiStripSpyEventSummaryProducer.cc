@@ -20,10 +20,10 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
+#include <cstdint>
 #include <memory>
 #include <string>
-#include "boost/scoped_array.hpp"
-#include "boost/cstdint.hpp"
+#include <vector>
 
 using edm::LogError;
 using edm::LogInfo;
@@ -74,15 +74,16 @@ namespace sistrip {
     for (uint16_t fedId = sistrip::FED_ID_MIN; fedId <= sistrip::FED_ID_MAX; ++fedId) {
       const FEDRawData& fedData = rawData.FEDData(fedId);
       if (fedData.size() && fedData.data()) {
-        std::unique_ptr<sistrip::FEDBufferBase> pBuffer;
-        try {
-          pBuffer.reset(new sistrip::FEDBufferBase(fedData.data(), fedData.size()));
-        } catch (const cms::Exception& e) {
-          LogInfo(messageLabel_) << "Skipping FED " << fedId << " because of exception: " << e.what();
+        const auto st_buffer = preconstructCheckFEDBufferBase(fedData);
+        if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
+          LogInfo(messageLabel_) << "Skipping FED " << fedId << " because of exception: "
+                                 << "An exception of category 'FEDBuffer' occurred.\n"
+                                 << st_buffer;
           continue;
         }
-        fedEventNumber = pBuffer->daqLvl1ID();
-        fedBxNumber = pBuffer->daqBXID();
+        const sistrip::FEDBufferBase buffer{fedData};
+        fedEventNumber = buffer.daqLvl1ID();
+        fedBxNumber = buffer.daqBXID();
         fedFound = true;
         break;
       }
@@ -101,7 +102,7 @@ namespace sistrip {
     pSummary->bx(fedBxNumber);
     //create a fake trigger FED buffer to take comissioning parameters from
     const int maxTriggerFedBufferSize = 84;
-    boost::scoped_array<uint32_t> fakeTriggerFedData(new uint32_t[maxTriggerFedBufferSize]);
+    std::vector<uint32_t> fakeTriggerFedData(maxTriggerFedBufferSize);
     for (uint8_t i = 0; i < maxTriggerFedBufferSize; ++i) {
       fakeTriggerFedData[i] = 0;
     }
@@ -114,7 +115,7 @@ namespace sistrip {
     //set the run type
     fakeTriggerFedData[10] = runType_;
     //fill the summarry using trigger FED buffer  with no data
-    pSummary->commissioningInfo(fakeTriggerFedData.get(), fedEventNumber);
+    pSummary->commissioningInfo(fakeTriggerFedData.data(), fedEventNumber);
 
     //store in event
     event.put(std::move(pSummary));

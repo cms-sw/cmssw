@@ -1,20 +1,16 @@
-/** \file
- *
- *  $Date: 2013/01/18 04:21:50 $
- *  $Revision: 1.1 $
- *
- * \author Vadim Khotilovich
- */
-
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 #include <iostream>
 
-GEMPadDigi::GEMPadDigi(int pad, int bx) : pad_(pad), bx_(bx) {}
+GEMPadDigi::GEMPadDigi(uint16_t pad, int16_t bx, enum GEMSubDetId::Station station, unsigned nPart)
+    : pad_(pad), bx_(bx), station_(station), part_(nPart) {}
 
-GEMPadDigi::GEMPadDigi() : pad_(0), bx_(0) {}
+GEMPadDigi::GEMPadDigi()
+    : pad_(GE11InValid), bx_(-99), station_(GEMSubDetId::Station::GE11), part_(NumberPartitions::GE11) {}
 
 // Comparison
-bool GEMPadDigi::operator==(const GEMPadDigi& digi) const { return pad_ == digi.pad() and bx_ == digi.bx(); }
+bool GEMPadDigi::operator==(const GEMPadDigi& digi) const {
+  return pad_ == digi.pad() and bx_ == digi.bx() and station_ == digi.station();
+}
 
 // Comparison
 bool GEMPadDigi::operator!=(const GEMPadDigi& digi) const { return pad_ != digi.pad() or bx_ != digi.bx(); }
@@ -27,7 +23,15 @@ bool GEMPadDigi::operator<(const GEMPadDigi& digi) const {
     return digi.bx() < bx_;
 }
 
-bool GEMPadDigi::isValid() const { return pad_ != 0; }
+bool GEMPadDigi::isValid() const {
+  uint16_t invalid = GE11InValid;
+  if (station_ == GEMSubDetId::Station::ME0) {
+    invalid = ME0InValid;
+  } else if (station_ == GEMSubDetId::Station::GE21) {
+    invalid = GE21InValid;
+  }
+  return pad_ != invalid;
+}
 
 std::ostream& operator<<(std::ostream& o, const GEMPadDigi& digi) {
   return o << " GEMPadDigi Pad = " << digi.pad() << " bx = " << digi.bx();

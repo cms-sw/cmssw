@@ -8,7 +8,6 @@ Test of GenericHandle class.
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -90,8 +89,7 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::EventAuxiliary eventAux(id, uuid, time, true);
   edm::EventPrincipal ep(
       preg, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_, edm::StreamID::invalidStreamID());
-  edm::ProcessHistoryRegistry phr;
-  ep.fillEventPrincipal(eventAux, phr);
+  ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow = true;
@@ -134,8 +132,6 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
-  processConfiguration->setParameterSetID(dummyProcessPset.id());
 
   edm::ParameterSet pset;
   pset.registerIt();
@@ -176,8 +172,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(
       pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_, edm::StreamID::invalidStreamID());
-  edm::ProcessHistoryRegistry phr;
-  ep.fillEventPrincipal(eventAux, phr);
+  ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
   edm::BranchDescription const& branchFromRegistry = it->second;
   std::vector<edm::BranchID> const ids;
@@ -187,13 +182,9 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
-    edm::ParameterSet dummyProcessPset;
-    dummyProcessPset.registerIt();
     auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
     processConfiguration->setParameterSetID(dummyProcessPset.id());
 
-    edm::ParameterSet pset;
-    pset.registerIt();
     edm::ModuleDescription modDesc(
         pset.id(), "Blah", "blahs", processConfiguration.get(), edm::ModuleDescription::getUniqueID());
     edm::Event event(ep, modDesc, nullptr);

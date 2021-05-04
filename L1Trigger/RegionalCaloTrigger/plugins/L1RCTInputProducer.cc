@@ -3,20 +3,6 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
-#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
-#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
-
-#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-
-#include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
-#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
-
-#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
-#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
-
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
@@ -33,7 +19,12 @@ L1RCTInputProducer::L1RCTInputProducer(const edm::ParameterSet &conf)
       useEcal(conf.getParameter<bool>("useEcal")),
       useHcal(conf.getParameter<bool>("useHcal")),
       ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
-      hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel")) {
+      hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel")),
+      rctParametersToken(esConsumes<L1RCTParameters, L1RCTParametersRcd>()),
+      channelMaskToken(esConsumes<L1RCTChannelMask, L1RCTChannelMaskRcd>()),
+      ecalScaleToken(esConsumes<L1CaloEcalScale, L1CaloEcalScaleRcd>()),
+      hcalScaleToken(esConsumes<L1CaloHcalScale, L1CaloHcalScaleRcd>()),
+      emScaleToken(esConsumes<L1CaloEtScale, L1EmEtScaleRcd>()) {
   produces<std::vector<unsigned short>>("rctCrate");
   produces<std::vector<unsigned short>>("rctCard");
   produces<std::vector<unsigned short>>("rctTower");
@@ -61,20 +52,15 @@ void L1RCTInputProducer::produce(edm::Event &event, const edm::EventSetup &event
   // There should be a call back function in future to
   // handle changes in configuration
 
-  edm::ESHandle<L1RCTParameters> rctParameters;
-  eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
+  edm::ESHandle<L1RCTParameters> rctParameters = eventSetup.getHandle(rctParametersToken);
   const L1RCTParameters *r = rctParameters.product();
-  edm::ESHandle<L1RCTChannelMask> channelMask;
-  eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
+  edm::ESHandle<L1RCTChannelMask> channelMask = eventSetup.getHandle(channelMaskToken);
   const L1RCTChannelMask *c = channelMask.product();
-  edm::ESHandle<L1CaloEcalScale> ecalScale;
-  eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+  edm::ESHandle<L1CaloEcalScale> ecalScale = eventSetup.getHandle(ecalScaleToken);
   const L1CaloEcalScale *e = ecalScale.product();
-  edm::ESHandle<L1CaloHcalScale> hcalScale;
-  eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+  edm::ESHandle<L1CaloHcalScale> hcalScale = eventSetup.getHandle(hcalScaleToken);
   const L1CaloHcalScale *h = hcalScale.product();
-  edm::ESHandle<L1CaloEtScale> emScale;
-  eventSetup.get<L1EmEtScaleRcd>().get(emScale);
+  edm::ESHandle<L1CaloEtScale> emScale = eventSetup.getHandle(emScaleToken);
   const L1CaloEtScale *s = emScale.product();
 
   rctLookupTables->setRCTParameters(r);

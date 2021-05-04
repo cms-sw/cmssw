@@ -29,10 +29,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TFile.h"
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
+#include "CondFormats/GBRForest/interface/GBRForestD.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-//#include "CondCore/DBCommon/interface/CoralServiceManager.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"

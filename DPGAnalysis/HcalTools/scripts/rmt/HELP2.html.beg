@@ -1,0 +1,37 @@
+</html><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html"/>
+<title> Set of runs for each year </title>
+<style type="text/css">
+ body,td{ background-color: #FFFFCC; font-family: arial, arial ce, helvetica; font-size: 12px; }
+   td.s0 { font-family: arial, arial ce, helvetica; }
+   td.s1 { font-family: arial, arial ce, helvetica; font-weight: bold; background-color: #FFC169; text-align: center;}
+   td.s2 { font-family: arial, arial ce, helvetica; background-color: #eeeeee; }
+   td.s3 { font-family: arial, arial ce, helvetica; background-color: #d0d0d0; }
+   td.s4 { font-family: arial, arial ce, helvetica; background-color: #FFC169; }
+</style>
+<body>
+<h1> Set of runs for each year</h1>
+<br>
+<h2> 2012: 67 LED runs of 10K events </h2>
+<h3> 
+"194057","194124","194165","194807","195328","195470","195682",
+"195778","195978","196150","196338","196385","196472","198091",
+"198223","198084","198436","198552","198633","198806","198866",
+"198964","199065","199124","199392","199419","199446","199668",
+"199724","199778","199822","199932","200062","200552","200870",
+"201017","201182","201305","201571","202066","202341","203339",
+"203874","203902","204172","204584","204918","205058","205117",
+"205225","205268","205441","205546","205637","205928","206456",
+"207406","207545","207914","208361","208565","208959","209726",
+"209997","210378","211006","211659"
+ </h3> 
+<h2> corresponding days counted since 10.02.2012 (0 days) </h2>
+<h3> 
+91.,93.,94.,103.,110.,114.,117.,118.,121.,122.,124.,125.,127.,142.,144.,145.,
+146.,149.,150.,151.,152.,154.,156.,157.,161.,162.,163.,165.,166.,167.,168.,
+170.,172.,180.,185.,187.,189.,192.,194.,203.,209.,223.,231.,232.,235.,239.,
+244.,245.,246.,247.,248.,250.,251.,252.,261.,264.,279.,282.,288.,294.,298.,
+306.,334.,338.,342.,353.,365.
+</h3>
+<h4> 2012: all runs </h4> 

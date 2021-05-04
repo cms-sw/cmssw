@@ -14,7 +14,7 @@
 
 #include <boost/thread/mutex.hpp>
 #include "tbb/parallel_for_each.h"
-#include "tbb/task_scheduler_init.h"
+#include "tbb/global_control.h"
 
 namespace cond {
 
@@ -77,7 +77,7 @@ namespace cond {
 
     Session m_session;
     IOVProxy m_iov;
-    boost::shared_ptr<pimpl> m_data;
+    std::shared_ptr<pimpl> m_data;
 
     Binary m_buffer;
     Binary m_streamerInfo;
@@ -144,7 +144,7 @@ void cond::UntypedPayloadProxy::load(const std::string& tag) {
 }
 
 void cond::UntypedPayloadProxy::reload() {
-  std::string tag = m_iov.tag();
+  std::string tag = m_iov.tagInfo().name;
   load(tag);
 }
 
@@ -155,11 +155,11 @@ void cond::UntypedPayloadProxy::reset() {
 
 void cond::UntypedPayloadProxy::disconnect() { m_session.close(); }
 
-std::string cond::UntypedPayloadProxy::tag() const { return m_iov.tag(); }
+std::string cond::UntypedPayloadProxy::tag() const { return m_iov.tagInfo().name; }
 
-cond::TimeType cond::UntypedPayloadProxy::timeType() const { return m_iov.timeType(); }
+cond::TimeType cond::UntypedPayloadProxy::timeType() const { return m_iov.tagInfo().timeType; }
 
-std::string cond::UntypedPayloadProxy::payloadType() const { return m_iov.payloadObjectType(); }
+std::string cond::UntypedPayloadProxy::payloadType() const { return m_iov.tagInfo().payloadType; }
 
 bool cond::UntypedPayloadProxy::get(cond::Time_t targetTime, bool debug) {
   bool loaded = false;
@@ -168,13 +168,15 @@ bool cond::UntypedPayloadProxy::get(cond::Time_t targetTime, bool debug) {
   if (targetTime < m_data->current.since || targetTime >= m_data->current.till) {
     // a new payload is required!
     if (debug)
-      std::cout << " Searching tag " << m_iov.tag() << " for a valid payload for time=" << targetTime << std::endl;
+      std::cout << " Searching tag " << m_iov.tagInfo().name << " for a valid payload for time=" << targetTime
+                << std::endl;
     m_session.transaction().start();
-    auto iIov = m_iov.find(targetTime);
-    if (iIov == m_iov.end())
-      cond::throwException(
-          std::string("Tag ") + m_iov.tag() + ": No iov available for the target time:" + std::to_string(targetTime),
-          "UntypedPayloadProxy::get");
+    auto iovs = m_iov.selectAll();
+    auto iIov = iovs.find(targetTime);
+    if (iIov == iovs.end())
+      cond::throwException(std::string("Tag ") + m_iov.tagInfo().name +
+                               ": No iov available for the target time:" + std::to_string(targetTime),
+                           "UntypedPayloadProxy::get");
     m_data->current = *iIov;
 
     std::string payloadType("");
@@ -478,7 +480,7 @@ int cond::TestGTPerf::execute() {
   std::vector<UntypedPayloadProxy*> proxies;
   std::map<std::string, size_t> requests;
   size_t nt = 0;
-  for (auto t : gt) {
+  for (const auto& t : gt) {
     nt++;
     UntypedPayloadProxy* p = new UntypedPayloadProxy;
     p->init(session);
@@ -503,7 +505,7 @@ int cond::TestGTPerf::execute() {
   if (nThrF > 1)
     session.transaction().commit();
 
-  tbb::task_scheduler_init init(nThrF);
+  tbb::global_control init(tbb::global_control::max_allowed_parallelism, nThrF);
   std::vector<std::shared_ptr<FetchWorker> > tasks;
 
   std::string payloadTypeName;
@@ -566,7 +568,7 @@ int cond::TestGTPerf::execute() {
 
   std::shared_ptr<void> payloadPtr;
 
-  tbb::task_scheduler_init initD(nThrD);
+  tbb::global_control initD(tbb::global_control::max_allowed_parallelism, nThrD);
   std::vector<std::shared_ptr<DeserialWorker> > tasksD;
 
   timex.interval("setup deserialization");
@@ -635,7 +637,7 @@ int cond::TestGTPerf::execute() {
       std::cout << "*** Tag: " << p->tag() << " Requests processed:" << r->second << " Queries:" << p->numberOfQueries()
                 << std::endl;
       const std::vector<std::string>& hist = p->history();
-      for (auto e : p->history())
+      for (const auto& e : p->history())
         std::cout << "    " << e << std::endl;
     }
   }

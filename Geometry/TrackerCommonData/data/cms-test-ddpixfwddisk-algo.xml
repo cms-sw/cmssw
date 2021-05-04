@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+    <!--debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_volumes/>
+    <debug_materials/>
+    <debug_constants/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_specpars/-->
+  </debug>
+  <open_geometry/>
+  <close_geometry/>
+
+  <ConstantsSection label="" eval="true">
+    <Constant name="world_x" value="5*m"/>
+    <Constant name="world_y" value="5*m"/>
+    <Constant name="fm"      value="1e-12*m"/> 
+    <Constant name="world_z" value="5*m"/>
+    <Constant name="Air"     value="materials:Air"     type="string"/>
+    <Constant name="Vacuum"  value="materials:Vacuum"  type="string"/>
+  </ConstantsSection>
+
+  <IncludeSection>
+    <Include ref="Geometry/TrackerCommonData/data/testDDPixFwdDiskAlgo.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/PixelForward/pixfwdDisks.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>
+  </IncludeSection>
+
+</DDDefinition>

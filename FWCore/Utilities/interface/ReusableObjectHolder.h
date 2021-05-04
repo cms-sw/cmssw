@@ -59,6 +59,10 @@
  }
  \endcode
 
+ When a custom deleter is used, the deleter type must be the same to
+ all objects. The deleter is allowed to have state that depends on the
+ object. The deleter object is passed along the std::unique_ptr, and
+ is internally kept along the object. The deleter object must be copyable.
  */
 //
 // Original Author:  Chris Jones
@@ -72,9 +76,11 @@
 #include "tbb/concurrent_queue.h"
 
 namespace edm {
-  template <class T>
+  template <class T, class Deleter = std::default_delete<T>>
   class ReusableObjectHolder {
   public:
+    using deleter_type = Deleter;
+
     ReusableObjectHolder() : m_outstandingObjects(0) {}
     ReusableObjectHolder(ReusableObjectHolder&& iOther)
         : m_availableQueue(std::move(iOther.m_availableQueue)), m_outstandingObjects(0) {
@@ -82,18 +88,18 @@ namespace edm {
     }
     ~ReusableObjectHolder() {
       assert(0 == m_outstandingObjects);
-      T* item = nullptr;
+      std::unique_ptr<T, Deleter> item;
       while (m_availableQueue.try_pop(item)) {
-        delete item;
+        item.reset();
       }
     }
 
     ///Adds the item to the cache.
     /// Use this function if you know ahead of time
     /// how many cached items you will need.
-    void add(std::unique_ptr<T> iItem) {
+    void add(std::unique_ptr<T, Deleter> iItem) {
       if (nullptr != iItem) {
-        m_availableQueue.push(iItem.release());
+        m_availableQueue.push(std::move(iItem));
       }
     }
 
@@ -101,15 +107,18 @@ namespace edm {
     /// if none are available, returns an empty shared_ptr.
     /// Use this function in conjunction with add()
     std::shared_ptr<T> tryToGet() {
-      T* item = nullptr;
+      std::unique_ptr<T, Deleter> item;
       m_availableQueue.try_pop(item);
       if (nullptr == item) {
         return std::shared_ptr<T>{};
       }
       //instead of deleting, hand back to queue
       auto pHolder = this;
+      auto deleter = item.get_deleter();
       ++m_outstandingObjects;
-      return std::shared_ptr<T>{item, [pHolder](T* iItem) { pHolder->addBack(iItem); }};
+      return std::shared_ptr<T>{item.release(), [pHolder, deleter](T* iItem) {
+                                  pHolder->addBack(std::unique_ptr<T, Deleter>{iItem, deleter});
+                                }};
     }
 
     ///If there isn't an object already available, creates a new one using iFunc
@@ -117,7 +126,7 @@ namespace edm {
     std::shared_ptr<T> makeOrGet(F iFunc) {
       std::shared_ptr<T> returnValue;
       while (!(returnValue = tryToGet())) {
-        add(std::unique_ptr<T>(iFunc()));
+        add(makeUnique(iFunc()));
       }
       return returnValue;
     }
@@ -129,19 +138,27 @@ namespace edm {
     std::shared_ptr<T> makeOrGetAndClear(FM iMakeFunc, FC iClearFunc) {
       std::shared_ptr<T> returnValue;
       while (!(returnValue = tryToGet())) {
-        add(std::unique_ptr<T>(iMakeFunc()));
+        add(makeUnique(iMakeFunc()));
       }
       iClearFunc(returnValue.get());
       return returnValue;
     }
 
   private:
-    void addBack(T* iItem) {
-      m_availableQueue.push(iItem);
+    std::unique_ptr<T> makeUnique(T* ptr) {
+      static_assert(std::is_same_v<Deleter, std::default_delete<T>>,
+                    "Generating functions returning raw pointers are supported only with std::default_delete<T>");
+      return std::unique_ptr<T>{ptr};
+    }
+
+    std::unique_ptr<T, Deleter> makeUnique(std::unique_ptr<T, Deleter> ptr) { return ptr; }
+
+    void addBack(std::unique_ptr<T, Deleter> iItem) {
+      m_availableQueue.push(std::move(iItem));
       --m_outstandingObjects;
     }
 
-    tbb::concurrent_queue<T*> m_availableQueue;
+    tbb::concurrent_queue<std::unique_ptr<T, Deleter>> m_availableQueue;
     std::atomic<size_t> m_outstandingObjects;
   };
 

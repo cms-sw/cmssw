@@ -17,5 +17,4 @@ cscDigiValidator = cms.EDAnalyzer('CSCDigiValidator',
                                   repackCorrLCT = cms.untracked.InputTag("muonCSCDigis","MuonCSCCorrelatedLCTDigi"),
                                   repackCSCTF = cms.untracked.InputTag("csctfDigis",""),
                                   repackCSCTFStubs = cms.untracked.InputTag("csctfDigis","DT"),
-                                  applyStripReordering = cms.untracked.bool(True) #this does not work yet, me1a might be flipped if used on real data
 )

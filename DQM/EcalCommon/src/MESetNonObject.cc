@@ -54,7 +54,7 @@ namespace ecaldqm {
     return copy;
   }
 
-  void MESetNonObject::book(DQMStore::IBooker &_ibooker) {
+  void MESetNonObject::book(DQMStore::IBooker &_ibooker, EcalElectronicsMapping const *electronicsMap) {
     using namespace std;
 
     clear();
@@ -65,6 +65,9 @@ namespace ecaldqm {
     size_t slashPos(path_.find_last_of('/'));
     string name(path_.substr(slashPos + 1));
     _ibooker.setCurrentFolder(path_.substr(0, slashPos));
+    auto oldscope = MonitorElementData::Scope::RUN;
+    if (lumiFlag_)
+      oldscope = _ibooker.setScope(MonitorElementData::Scope::LUMI);
 
     MonitorElement *me(nullptr);
 
@@ -172,14 +175,16 @@ namespace ecaldqm {
     }
 
     if (lumiFlag_)
-      me->setLumiFlag();
+      _ibooker.setScope(oldscope);
 
     mes_.push_back(me);
 
     active_ = true;
   }
 
-  bool MESetNonObject::retrieve(DQMStore::IGetter &_igetter, std::string *_failedPath /* = 0*/) const {
+  bool MESetNonObject::retrieve(EcalElectronicsMapping const *electronicsMap,
+                                DQMStore::IGetter &_igetter,
+                                std::string *_failedPath /* = 0*/) const {
     mes_.clear();
 
     MonitorElement *me(_igetter.get(path_));
@@ -195,7 +200,7 @@ namespace ecaldqm {
     return true;
   }
 
-  void MESetNonObject::fill(double _x, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetNonObject::fill(EcalDQMSetupObjects const edso, double _x, double _wy /* = 1.*/, double _w /* = 1.*/) {
     if (!active_)
       return;
 
@@ -219,7 +224,7 @@ namespace ecaldqm {
     }
   }
 
-  void MESetNonObject::setBinContent(int _bin, double _content) {
+  void MESetNonObject::setBinContent(EcalDQMSetupObjects const edso, int _bin, double _content) {
     if (!active_)
       return;
     if (kind_ == MonitorElement::Kind::REAL)
@@ -231,7 +236,7 @@ namespace ecaldqm {
     mes_[0]->setBinContent(_bin, _content);
   }
 
-  void MESetNonObject::setBinError(int _bin, double _error) {
+  void MESetNonObject::setBinError(EcalDQMSetupObjects const edso, int _bin, double _error) {
     if (!active_)
       return;
     if (kind_ == MonitorElement::Kind::REAL)
@@ -243,7 +248,7 @@ namespace ecaldqm {
     mes_[0]->setBinError(_bin, _error);
   }
 
-  void MESetNonObject::setBinEntries(int _bin, double _entries) {
+  void MESetNonObject::setBinEntries(EcalDQMSetupObjects const edso, int _bin, double _entries) {
     if (!active_)
       return;
     if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
@@ -255,7 +260,7 @@ namespace ecaldqm {
     mes_[0]->setBinEntries(_bin, _entries);
   }
 
-  double MESetNonObject::getBinContent(int _bin, int) const {
+  double MESetNonObject::getBinContent(EcalDQMSetupObjects const edso, int _bin, int) const {
     if (!active_)
       return 0.;
     if (kind_ == MonitorElement::Kind::REAL)
@@ -274,7 +279,7 @@ namespace ecaldqm {
       return 0.;
   }
 
-  double MESetNonObject::getBinError(int _bin, int) const {
+  double MESetNonObject::getBinError(EcalDQMSetupObjects const edso, int _bin, int) const {
     if (!active_)
       return 0.;
     if (kind_ == MonitorElement::Kind::REAL)
@@ -286,7 +291,7 @@ namespace ecaldqm {
     return mes_[0]->getBinError(_bin);
   }
 
-  double MESetNonObject::getBinEntries(int _bin, int) const {
+  double MESetNonObject::getBinEntries(EcalDQMSetupObjects const edso, int _bin, int) const {
     if (!active_)
       return 0.;
     if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
@@ -298,7 +303,7 @@ namespace ecaldqm {
     return mes_[0]->getBinEntries(_bin);
   }
 
-  int MESetNonObject::findBin(double _x, double _y /* = 0.*/) const {
+  int MESetNonObject::findBin(EcalDQMSetupObjects const edso, double _x, double _y /* = 0.*/) const {
     if (!active_)
       return 0;
 

@@ -9,8 +9,8 @@ POOL object to store timeslice reco values, long version (for ZDC)
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <boost/cstdint.hpp>
 #include <vector>
+#include <cstdint>
 
 class HcalLongRecoParam {
 public:

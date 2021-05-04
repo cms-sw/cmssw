@@ -1,8 +1,10 @@
 #ifndef CastorMonitorModule_H
 #define CastorMonitorModule_H
 
+#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -15,7 +17,7 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -32,6 +34,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -39,13 +42,6 @@
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
 #include "DataFormats/CastorReco/interface/CastorJet.h"
 #include "DataFormats/CastorReco/interface/CastorTower.h"
-#include "DataFormats/JetReco/interface/BasicJet.h"
-#include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/JetReco/interface/CastorJetID.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "RecoJets/JetProducers/interface/CastorJetIDHelper.h"
-#include "RecoJets/JetProducers/plugins/CastorJetIDProducer.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
@@ -69,18 +65,18 @@
 #include <sys/time.h>
 #include <vector>
 
-class CastorMonitorModule : public DQMEDAnalyzer {
+class CastorMonitorModule : public DQMOneEDAnalyzer<> {
 public:
   CastorMonitorModule(const edm::ParameterSet &ps);
   ~CastorMonitorModule() override;
 
 protected:
-  void analyze(const edm::Event &iEvent, const edm::EventSetup &eventSetup) override;
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &) override;
 
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, const edm::EventSetup &) override;
 
-  void endRun(const edm::Run &run, const edm::EventSetup &eventSetup) override;
+  void dqmEndRun(const edm::Run &run, const edm::EventSetup &) override;
 
 private:
   int fVerbosity;
@@ -100,6 +96,8 @@ private:
   edm::EDGetTokenT<CastorTowerCollection> inputTokenCastorTowers_;
   typedef std::vector<reco::BasicJet> BasicJetCollection;
   edm::EDGetTokenT<BasicJetCollection> JetAlgorithm;
+
+  edm::ESGetToken<CastorDbService, CastorDbRecord> castorDbServiceToken_;
 
   //  std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
 

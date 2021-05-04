@@ -1,19 +1,14 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define LOCAL_DEBUG
+//#define EDM_ML_DEBUG
 
-CSCNumberingScheme::CSCNumberingScheme(const MuonDDDConstants& muonConstants) { initMe(muonConstants); }
+CSCNumberingScheme::CSCNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
-CSCNumberingScheme::CSCNumberingScheme(const DDCompactView& cpv) {
-  MuonDDDConstants muonConstants(cpv);
-  initMe(muonConstants);
-}
-
-void CSCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
+void CSCNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   int theLevelPart = muonConstants.getValue("level");
   theRegionLevel = muonConstants.getValue("me_region") / theLevelPart;
   theStationLevel = muonConstants.getValue("me_station") / theLevelPart;
@@ -21,7 +16,7 @@ void CSCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
   theSectorLevel = muonConstants.getValue("me_sector") / theLevelPart;
   theRingLevel = muonConstants.getValue("me_ring") / theLevelPart;
   theLayerLevel = muonConstants.getValue("me_layer") / theLevelPart;
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CSCNumbering") << "Initialize CSCNumberingScheme"
                                    << "\ntheRegionLevel " << theRegionLevel << "\ntheStationLevel " << theStationLevel
                                    << "\ntheSubringLevel " << theSubringLevel << "\ntheSectorLevel " << theSectorLevel
@@ -29,14 +24,13 @@ void CSCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
 #endif
 }
 
-int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
-#ifdef LOCAL_DEBUG
+int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CSCNumbering") << "CSCNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
     edm::LogVerbatim("CSCNumbering") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
   }
 #endif
-
   int fwbw_id = 0;
   int station_id = 0;
   int ring_id = 0;
@@ -57,22 +51,18 @@ int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
       const int station_tag = num.getSuperNo(level);
       station_id = station_tag;
       LogDebug("CSCNumbering") << "station=" << station_id;
-
     } else if (level == theSubringLevel) {
       const int copyno = num.getBaseNo(level);
       subring_id = copyno + 1;
       LogDebug("CSCNumbering") << "subring=" << subring_id;
-
     } else if (level == theSectorLevel) {
       const int copyno = num.getBaseNo(level);
       sector_id = copyno + 1;
       LogDebug("CSCNumbering") << "sector=" << sector_id;
-
     } else if (level == theLayerLevel) {
       const int copyno = num.getBaseNo(level);
       layer_id = copyno + 1;
       LogDebug("CSCNumbering") << "layer=" << layer_id;
-
     } else if (level == theRingLevel) {
       const int ring_tag = num.getSuperNo(level);
       ring_id = ring_tag;
@@ -121,7 +111,7 @@ int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
   int intIndex = CSCDetId::rawIdMaker(fwbw_id, station_id, ring_id, chamber_id, layer_id);
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CSCNumbering") << "CSCNumberingScheme :  fw/bw " << fwbw_id << " station " << station_id << " ring "
                                    << ring_id << " subring " << subring_id << " chamber " << chamber_id << " sector "
                                    << sector_id << " layer " << layer_id;

@@ -40,11 +40,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -75,7 +74,7 @@
 //
 // class declaration
 //
-class TrackerOfflineValidation : public edm::EDAnalyzer {
+class TrackerOfflineValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   explicit TrackerOfflineValidation(const edm::ParameterSet&);
@@ -94,6 +93,9 @@ public:
   };
 
 private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+
   struct ModuleHistos {
     ModuleHistos()
         : ResHisto(),
@@ -176,7 +178,7 @@ private:
         if (newDir.length() == 0)
           tfd.reset(&(*upDir.tfd));
         else
-          tfd.reset(new TFileDirectory(upDir.tfd->mkdir(newDir)));
+          tfd = std::make_unique<TFileDirectory>(upDir.tfd->mkdir(newDir));
       } else {
         theDbe = edm::Service<DQMStore>().operator->();
       }
@@ -187,9 +189,9 @@ private:
       if (!dqmMode) {
         edm::Service<TFileService> fs;
         if (newDir.length() == 0) {
-          tfd.reset(new TFileDirectory(fs->tFileDirectory()));
+          tfd = std::make_unique<TFileDirectory>(fs->tFileDirectory());
         } else {
-          tfd.reset(new TFileDirectory(fs->mkdir(newDir)));
+          tfd = std::make_unique<TFileDirectory>(fs->mkdir(newDir));
           directoryString = newDir;
         }
       } else {
@@ -326,6 +328,7 @@ private:
   std::unique_ptr<AlignableTracker> alignableTracker_;
 
   // parameters from cfg to steer
+  const int compressionSettings_;
   const bool lCoorHistOn_;
   const bool moduleLevelHistsTransient_;
   const bool moduleLevelProfiles_;
@@ -468,8 +471,11 @@ TH1* TrackerOfflineValidation::DirectoryWrapper::make<TH2F>(const char* name,
 // constructors and destructor
 //
 TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iConfig)
-    : parSet_(iConfig),
+    : geomToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      parSet_(iConfig),
       bareTkGeomPtr_(nullptr),
+      compressionSettings_(parSet_.getUntrackedParameter<int>("compressionSettings", -1)),
       lCoorHistOn_(parSet_.getParameter<bool>("localCoorHistosOn")),
       moduleLevelHistsTransient_(parSet_.getParameter<bool>("moduleLevelHistsTransient")),
       moduleLevelProfiles_(parSet_.getParameter<bool>("moduleLevelProfiles")),
@@ -482,7 +488,9 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
       chargeCut_(parSet_.getParameter<int>("chargeCut")),
       nTracks_(0),
       maxTracks_(parSet_.getParameter<unsigned long long>("maxTracks")),
-      avalidator_(iConfig, consumesCollector()) {}
+      avalidator_(iConfig, consumesCollector()) {
+  usesResource(TFileService::kSharedResource);
+}
 
 TrackerOfflineValidation::~TrackerOfflineValidation() {
   // do anything here that needs to be done at desctruction time
@@ -497,17 +505,16 @@ TrackerOfflineValidation::~TrackerOfflineValidation() {
 
 // ------------ method called once each job just before starting event loop  ------------
 void TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es) {
-  es.get<TrackerDigiGeometryRecord>().get(tkGeom_);
+  tkGeom_ = es.getHandle(geomToken_);
   const TrackerGeometry* newBareTkGeomPtr = &(*tkGeom_);
+
   if (newBareTkGeomPtr == bareTkGeomPtr_)
     return;  // already booked hists, nothing changed
 
   if (!bareTkGeomPtr_) {  // pointer not yet set: called the first time => book hists
 
     //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    es.get<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
+    const TrackerTopology* const tTopo = &es.getData(topoToken_);
 
     // construct alignable tracker to get access to alignable hierarchy
     alignableTracker_ = std::make_unique<AlignableTracker>(&(*tkGeom_), tTopo);
@@ -1368,6 +1375,10 @@ void TrackerOfflineValidation::endJob() {
   // In dqmMode tree operations are are sourced out to the additional module TrackerOfflineValidationSummary
 
   edm::Service<TFileService> fs;
+  if (compressionSettings_ > 0) {
+    fs->file().SetCompressionSettings(compressionSettings_);
+  }
+
   TTree* tree = fs->make<TTree>("TkOffVal", "TkOffVal");
 
   TkOffTreeVariables* treeMemPtr = new TkOffTreeVariables;

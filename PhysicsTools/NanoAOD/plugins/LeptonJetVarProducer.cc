@@ -162,7 +162,7 @@ std::tuple<float, float, float> LeptonJetVarProducer<T>::calculatePtRatioRel(edm
   auto ptrel = lepp4.Vect().Cross((jetp4 - lepp4).Vect().Unit()).R();
 
   unsigned int jndau = 0;
-  for (const auto _d : jet->daughterPtrVector()) {
+  for (const auto& _d : jet->daughterPtrVector()) {
     const auto d = dynamic_cast<const pat::PackedCandidate*>(_d.get());
     if (d->charge() == 0)
       continue;

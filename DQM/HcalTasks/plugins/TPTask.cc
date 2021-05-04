@@ -725,9 +725,9 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   //	book the flag for unknown ids and the online guy as well
   ib.setCurrentFolder(_subsystem + "/" + _name);
+  auto scope = DQMStore::IBooker::UseLumiScope(ib);
   meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
   _unknownIdsPresent = false;
-  meUnknownIds1LS->setLumiFlag();
 }
 
 /* virtual */ void TPTask::_resetMonitors(hcaldqm::UpdateFreq uf) {
@@ -766,6 +766,9 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   //	extract some info per event
   int bx = e.bunchCrossing();
+
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
 
   //	some summaries... per event
   int numHBHE(0), numHF(0), numCutHBHE(0), numCutHF(0);
@@ -1187,13 +1190,17 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void TPTask::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::beginLuminosityBlock(lb, es);
+std::shared_ptr<hcaldqm::Cache> TPTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                   edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void TPTask::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void TPTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   if (_ptype != fOnline)
     return;
+
+  auto lumiCache = luminosityBlockCache(lb.index());
+  _currentLS = lumiCache->currentLS;
 
   //
   //	GENERATE STATUS ONLY FOR ONLINE!
@@ -1278,7 +1285,7 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _xEmulTotal.reset();
 
   //	in the end always do the DQTask::endLumi
-  DQTask::endLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(TPTask);

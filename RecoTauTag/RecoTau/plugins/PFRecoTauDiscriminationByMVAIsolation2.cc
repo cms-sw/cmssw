@@ -27,7 +27,7 @@
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -66,14 +66,13 @@ namespace {
   }
 }  // namespace
 
-class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProducerBase {
+class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationContainerProducerBase {
 public:
   explicit PFRecoTauDiscriminationByIsolationMVA2(const edm::ParameterSet& cfg)
-      : PFTauDiscriminationProducerBase(cfg),
+      : PFTauDiscriminationContainerProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
         mvaReader_(nullptr),
-        mvaInput_(nullptr),
-        category_output_() {
+        mvaInput_(nullptr) {
     mvaName_ = cfg.getParameter<std::string>("mvaName");
     loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
     if (!loadMVAfromDB_) {
@@ -99,23 +98,21 @@ public:
     else
       assert(0);
 
-    TauTransverseImpactParameters_token =
+    tauTransverseImpactParameters_token_ =
         consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
 
-    ChargedIsoPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcChargedIsoPtSum"));
-    NeutralIsoPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcNeutralIsoPtSum"));
-    PUcorrPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPUcorrPtSum"));
+    basicTauDiscriminators_token_ =
+        consumes<reco::TauDiscriminatorContainer>(cfg.getParameter<edm::InputTag>("srcBasicTauDiscriminators"));
+    chargedIsoPtSum_index_ = cfg.getParameter<int>("srcChargedIsoPtSumIndex");
+    neutralIsoPtSum_index_ = cfg.getParameter<int>("srcNeutralIsoPtSumIndex");
+    pucorrPtSum_index_ = cfg.getParameter<int>("srcPUcorrPtSumIndex");
 
     verbosity_ = cfg.getParameter<int>("verbosity");
-
-    produces<PFTauDiscriminator>("category");
   }
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const PFTauRef&) const override;
-
-  void endEvent(edm::Event&) override;
+  reco::SingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
 
   ~PFRecoTauDiscriminationByIsolationMVA2() override {
     if (!loadMVAfromDB_)
@@ -141,18 +138,16 @@ private:
 
   typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> >
       PFTauTIPAssociationByRef;
-  edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
-  edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
+  edm::EDGetTokenT<PFTauTIPAssociationByRef> tauTransverseImpactParameters_token_;
+  edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos_;
 
-  edm::EDGetTokenT<reco::PFTauDiscriminator> ChargedIsoPtSum_token;
-  edm::Handle<reco::PFTauDiscriminator> chargedIsoPtSums_;
-  edm::EDGetTokenT<reco::PFTauDiscriminator> NeutralIsoPtSum_token;
-  edm::Handle<reco::PFTauDiscriminator> neutralIsoPtSums_;
-  edm::EDGetTokenT<reco::PFTauDiscriminator> PUcorrPtSum_token;
-  edm::Handle<reco::PFTauDiscriminator> puCorrPtSums_;
+  edm::EDGetTokenT<reco::TauDiscriminatorContainer> basicTauDiscriminators_token_;
+  edm::Handle<reco::TauDiscriminatorContainer> basicTauDiscriminators_;
+  int chargedIsoPtSum_index_;
+  int neutralIsoPtSum_index_;
+  int pucorrPtSum_index_;
 
   edm::Handle<TauCollection> taus_;
-  std::unique_ptr<PFTauDiscriminator> category_output_;
 
   std::vector<TFile*> inputFilesToDelete_;
 
@@ -168,20 +163,17 @@ void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, c
     }
   }
 
-  evt.getByToken(TauTransverseImpactParameters_token, tauLifetimeInfos);
+  evt.getByToken(tauTransverseImpactParameters_token_, tauLifetimeInfos_);
 
-  evt.getByToken(ChargedIsoPtSum_token, chargedIsoPtSums_);
-  evt.getByToken(NeutralIsoPtSum_token, neutralIsoPtSums_);
-  evt.getByToken(PUcorrPtSum_token, puCorrPtSums_);
+  evt.getByToken(basicTauDiscriminators_token_, basicTauDiscriminators_);
 
   evt.getByToken(Tau_token, taus_);
-  category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
 }
 
-double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau) const {
-  // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
-  double category = 0.;
-  category_output_->setValue(tauIndex_, category);
+reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau) const {
+  reco::SingleTauDiscriminatorContainer result;
+  // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts
+  result.rawValues = {-1., 0.};
 
   // CV: computation of MVA value requires presence of leading charged hadron
   if (tau->leadChargedHadrCand().isNull())
@@ -194,11 +186,11 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
       ((mvaOpt_ == kNewDMwoLT || mvaOpt_ == kNewDMwLT) &&
        (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 ||
         tauDecayMode == 10))) {
-    double chargedIsoPtSum = (*chargedIsoPtSums_)[tau];
-    double neutralIsoPtSum = (*neutralIsoPtSums_)[tau];
-    double puCorrPtSum = (*puCorrPtSums_)[tau];
+    double chargedIsoPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(chargedIsoPtSum_index_);
+    double neutralIsoPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(neutralIsoPtSum_index_);
+    double puCorrPtSum = (*basicTauDiscriminators_)[tau].rawValues.at(pucorrPtSum_index_);
 
-    const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[tau];
+    const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos_)[tau];
 
     double decayDistX = tauLifetimeInfo.flightLength().x();
     double decayDistY = tauLifetimeInfo.flightLength().y();
@@ -241,15 +233,9 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
           << " distance = " << decayDistMag << ", significance = " << tauLifetimeInfo.flightLengthSig();
       edm::LogPrint("PFTauDiscByMVAIsol2") << "--> mvaValue = " << mvaValue;
     }
-    return mvaValue;
-  } else {
-    return -1.;
+    result.rawValues.at(0) = mvaValue;
   }
-}
-
-void PFRecoTauDiscriminationByIsolationMVA2::endEvent(edm::Event& evt) {
-  // add all category indices to event
-  evt.put(std::move(category_output_), "category");
+  return result;
 }
 
 void PFRecoTauDiscriminationByIsolationMVA2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -262,9 +248,10 @@ void PFRecoTauDiscriminationByIsolationMVA2::fillDescriptions(edm::Configuration
   desc.add<std::string>("mvaOpt");
 
   desc.add<edm::InputTag>("srcTauTransverseImpactParameters");
-  desc.add<edm::InputTag>("srcChargedIsoPtSum");
-  desc.add<edm::InputTag>("srcNeutralIsoPtSum");
-  desc.add<edm::InputTag>("srcPUcorrPtSum");
+  desc.add<edm::InputTag>("srcBasicTauDiscriminators");
+  desc.add<int>("srcChargedIsoPtSumIndex");
+  desc.add<int>("srcNeutralIsoPtSumIndex");
+  desc.add<int>("srcPUcorrPtSumIndex");
   desc.add<int>("verbosity", 0);
 
   fillProducerDescriptions(desc);  // inherited from the base

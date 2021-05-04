@@ -1,6 +1,6 @@
 #include "PhysicsTools/UtilAlgos/interface/BasicMuonAnalyzer.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
-#include "PhysicsTools/UtilAlgos/interface/FWLiteAnalyzerWrapper.h"
+#include "PhysicsTools/FWLite/interface/FWLiteAnalyzerWrapper.h"
 
 typedef fwlite::AnalyzerWrapper<BasicMuonAnalyzer> WrappedFWLiteMuonAnalyzer;
 

@@ -75,17 +75,16 @@ process.dtNoiseAnalyzer = cms.EDAnalyzer("DTnoiseDBValidation",
     #OutputFileName = cms.string('noiseDBValidation.root')
 )
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     reportThreshold = cms.untracked.string('black'),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )
 
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = config.workflowName
 process.dqmSaver.dirName = config.outputdir 
-process.DQMStore.collateHistograms = False
 process.DQM.collectorHost = ''
 
 #process.p = cms.Path(process.dtNoiseAnalyzer*process.qTester*process.dqmSaver)

@@ -5,5 +5,3 @@
 <architecture name="osx">
   <flags LDFLAGs="-flat_namespace"/>
 </architecture>
-
-

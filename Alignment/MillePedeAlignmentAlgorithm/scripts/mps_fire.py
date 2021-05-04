@@ -20,7 +20,10 @@ import os
 import sys
 import glob
 import shutil
-import cPickle
+if sys.version_info[0]>2:
+  import _pickle as cPickle
+else:
+  import cPickle
 import subprocess
 import re
 import argparse
@@ -176,6 +179,9 @@ parser.add_argument("maxJobs", type=int, nargs='?', default=1,
 parser.add_argument("-j", "--job-id", dest = "job_id", nargs = "*",
                     help = ("job IDs to be submitted; "
                             "use either 'job<ID>' or directly '<ID>'"))
+parser.add_argument("-r", "--resubmit", dest = "resub", default=False, 
+                    action="store_true",
+                    help = ("resubmit jobs - only works if job IDs are specified"))
 parser.add_argument("-a", "--all", dest="allMille", default=False,
                     action="store_true",
                     help = ("submit all setup Mille jobs; "
@@ -208,6 +214,11 @@ if args.allMille:
     # submit all Mille jobs and ignore 'maxJobs' supplied by user
     args.maxJobs = lib.nJobs
     args.job_id = None
+
+if args.job_id is None and args.resub:
+    print("Can only resubmit jobs if job IDs are specified")
+    sys.exit(1)
+
 
 if args.job_id is None:
     job_mask = lib.JOBDIR
@@ -261,6 +272,15 @@ if not args.fireMerge:
         resources = '-q'+resources+' -m g_cmscaf'
     elif "htcondor" in resources:
         fire_htcondor = True
+        schedinfo = subprocess.check_output(["myschedd","show"])
+        if 'cafalca' in resources:
+            if not 'tzero' in schedinfo:
+                print("\nMPS fire: request to use CAF pool which has not been set up. Call `module load lxbatch/tzero` and try again")
+                exit(1)
+        else:
+            if not 'share' in schedinfo:
+                print("\nMPS fire: request to use standard pool when CAF pool is set up. Call `module load lxbatch/share` and try again")
+                exit(1)
     else:
         resources = '-q '+resources
 
@@ -310,6 +330,71 @@ if not args.fireMerge:
                     print('Submission of %03d seems to have failed: %s' % (lib.JOBNUMBER[i],result), end=' ')
                 nSub +=1
 
+        elif args.resub:
+            if nSub < args.maxJobs:
+                if args.forwardProxy:
+                    forward_proxy(os.path.join(theJobData,lib.JOBDIR[i]))
+
+                try:
+                    os.remove("%s/%s/HTCJOB" % (theJobData, lib.JOBDIR[i])) 
+                except OSError as e:
+                    print("Cannot delete file %s/%s/HTCJOB :" % (theJobData,lib.JOBDIR[i]), e.strerror)
+                try:
+                    os.remove("%s/%s/STDOUT" % (theJobData, lib.JOBDIR[i])) 
+                except OSError as e:
+                    print("Cannot delete file %s/%s/STDOUT :" % (theJobData,lib.JOBDIR[i]), e.strerror)
+                try:
+                    os.remove("%s/%s/STDOUT.gz" % (theJobData, lib.JOBDIR[i])) 
+                except OSError as e:
+                    print("Cannot delete file %s/%s/STDOUT.gz :" % (theJobData,lib.JOBDIR[i]), e.strerror)
+                try:
+                    os.remove("%s/%s/alignment.log.gz" % (theJobData, lib.JOBDIR[i])) 
+                except OSError as e:
+                    print("Cannot delete file %s/%s/alignment.log.gz :" % (theJobData,lib.JOBDIR[i]), e.strerror)
+                try:
+                    os.remove("%s/%s/millePedeMonitor%03d.root" % (theJobData, lib.JOBDIR[i], lib.JOBNUMBER[i]))
+                except OSError as e:
+                    print("Cannot delete file %s/%s/millePedeMonitor%03d.root :" % (theJobData,lib.JOBDIR[i],lib.JOBNUMBER[i]), e.strerror)
+
+                # submit a new job with 'bsub -J ...' and check output
+                # for some reasons LSF wants script with full path
+                if fire_htcondor:
+                    Path = os.path.join(theJobData,lib.JOBDIR[i])
+                    scriptPath = os.path.join(Path, "theScript.sh")
+                    if args.forwardProxy:
+                        job_submit_file = write_HTCondor_submit_file_mille(Path, scriptPath, lib,os.path.join(Path,".user_proxy"))
+                    else:
+                        job_submit_file = write_HTCondor_submit_file_mille(Path, scriptPath, lib)
+                    submission = "condor_submit -batch-name %s %s"%\
+                          (theJobName, job_submit_file)
+                else:
+                    submission = 'bsub -J %s %s %s/%s/theScript.sh' % \
+                          (theJobName, resources, theJobData, lib.JOBDIR[i])
+                print(submission)
+                try:
+                    result = subprocess.check_output(submission,
+                                                     stderr=subprocess.STDOUT,
+                                                     shell=True)
+                except subprocess.CalledProcessError as e:
+                    result = "" # -> check for successful job submission will fail
+                print('      '+result, end=' ')
+                result = result.strip()
+
+                # check if job was submitted and updating jobdatabase
+                if fire_htcondor:
+                    match = re.search(r"1 job\(s\) submitted to cluster (\d+)\.", result)
+                else:
+                    match = re.search('Job <(\d+)> is submitted', result)
+                if match:
+                    # need standard format for job number
+                    lib.JOBSTATUS[i] = 'SUBTD'
+                    lib.JOBID[i] = match.group(1)
+                    if fire_htcondor: lib.JOBID[i] += ".0"
+                else:
+                    print('Submission of %03d seems to have failed: %s' % (lib.JOBNUMBER[i],result), end=' ')
+                nSub +=1
+
+
 # fire the merge job
 else:
     print('fire merge')
@@ -319,6 +404,11 @@ else:
         resources = '-q cmscafalcamille'
     elif "htcondor" in resources:
         fire_htcondor = True
+        schedinfo = subprocess.check_output(["myschedd","show"])
+        if 'bigmem' in resources:
+            if not 'share' in schedinfo:
+                print("\nMPS fire: CAF pool is set up, but request to use high-memory machines which live in the standard pool. Call `module load lxbatch/share` and try again")
+                exit(1)
     else:
         resources = '-q '+resources
 
@@ -343,12 +433,12 @@ else:
             continue
 
         # check if current job in SETUP mode or if forced
-        if lib.JOBSTATUS[i] != 'SETUP':
+        if lib.JOBSTATUS[i] != 'SETUP' and not args.resub:
             print('Merge job %d status %s not submitted.' % \
                   (jobNumFrom1, lib.JOBSTATUS[i]))
         elif not (mergeOK or args.forceMerge or args.forceMergeManual):
             print('Merge job',jobNumFrom1,'not submitted since Mille jobs error/unfinished (Use -m -f to force).')
-        else:
+        elif not args.resub:
             # some paths for clarity
             Path = os.path.join(theJobData,lib.JOBDIR[i])
             backupScriptPath  = os.path.join(Path, "theScript.sh.bak")
@@ -453,7 +543,91 @@ else:
             else:
                 print('Submission of merge job seems to have failed:',result, end=' ')
 
+        elif args.resub:
+            # some paths for clarity
+            Path = os.path.join(theJobData,lib.JOBDIR[i])
+            dircontents = os.listdir(Path)
+            for outfile in dircontents:
+                if outfile.endswith(".root"):
+                    os.remove("%s/%s" %(Path, outfile))
+            try:
+                os.remove("%s/HTCJOB" % (Path)) 
+            except OSError as e:
+                print("Cannot delete file %s/HTCJOB :" % (Path), e.strerror)
+            try:
+                os.remove("%s/STDOUT" % (Path)) 
+            except OSError as e:
+                print("Cannot delete file %s/STDOUT :" % (Path), e.strerror)
+            try:
+                os.remove("%s/STDOUT.gz" % (Path)) 
+            except OSError as e:
+                print("Cannot delete file %s/STDOUT.gz :" % (Path), e.strerror)
+            try:
+                os.remove("%s/alignment.log.gz" % (Path)) 
+            except OSError as e:
+                print("Cannot delete file %s/alignment.log.gz :" % (Path), e.strerror)
+
+
+            backupScriptPath  = os.path.join(Path, "theScript.sh.bak")
+            scriptPath        = os.path.join(Path, "theScript.sh")
+
+            # restore the backup copy of the script
+            if os.path.isfile(backupScriptPath):
+                os.system('cp -pf '+backupScriptPath+' '+scriptPath)
+
+            # get the name of merge cfg file
+            command  = "cat "+scriptPath+" | grep '^\s*CONFIG_FILE' | awk -F'=' '{print $2}'"
+            mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+            command  = 'basename '+mergeCfg
+            mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+            mergeCfg = mergeCfg.replace('\n','')
+
+            if fire_htcondor:
+                job_submit_file = write_HTCondor_submit_file_pede(Path, scriptPath, mergeCfg, lib)
+
+            # restore the backup copy of the cfg
+            backupCfgPath  = Path+'/%s.bak' % mergeCfg
+            cfgPath        = Path+'/%s'     % mergeCfg
+            if os.path.isfile(backupCfgPath):
+               os.system('cp -pf '+backupCfgPath+' '+cfgPath)
+
+
+            # submit merge job
+            nMerge = i-lib.nJobs  # 'index' of this merge job
+            curJobName = 'm'+str(nMerge)+'_'+theJobName
+            if args.forwardProxy: forward_proxy(Path)
+            if fire_htcondor:
+                submission = ["condor_submit",
+                              "-batch-name", curJobName,
+                              job_submit_file]
+            else:
+                submission = ["bsub", "-J", curJobName, resources, scriptPath]
+            for _ in range(5):
+                try:
+                    result = subprocess.check_output(submission, stderr=subprocess.STDOUT)
+                    break
+                except subprocess.CalledProcessError as e:
+                    result = e.output
+
+            print('     '+result, end=' ')
+            result = result.strip()
+
+            # check if merge job was submitted and updating jobdatabase
+            if fire_htcondor:
+                match = re.search(r"1 job\(s\) submitted to cluster (\d+)\.", result)
+            else:
+                match = re.search('Job <(\d+)> is submitted', result)
+            if match:
+                lib.JOBSTATUS[i] = 'SUBTD'
+                lib.JOBID[i] = match.group(1)
+                # need standard format for job number
+                if fire_htcondor: lib.JOBID[i] += ".0"
+                print("jobid is", lib.JOBID[i])
+            else:
+                print('Submission of merge job seems to have failed:',result, end=' ')
+
         i +=1
+
         # end of while on merge jobs
 
 

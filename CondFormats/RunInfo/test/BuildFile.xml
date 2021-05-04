@@ -1,6 +1,7 @@
 <bin file="testSerializationRunInfo.cpp">
-    <use   name="CondFormats/RunInfo"/>
+  <use name="CondFormats/RunInfo"/>
 </bin>
+
 <bin file="fromXML.cpp">
-    <use   name="CondFormats/RunInfo"/>
+  <use name="CondFormats/RunInfo"/>
 </bin>

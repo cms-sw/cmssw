@@ -11,7 +11,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ""
 
 process.load("CondCore.CondDB.CondDB_cfi")
@@ -35,17 +35,13 @@ process.load('DQM.DTMonitorClient.ALCARECODTCalibSynchDQMClient_cff')
 
 workflowName = '/Mu/Calibration-v1/DQM'
 if config.dqmAtRunEnd:
-    process.DQMStore.referenceFileName = ''
     process.dqmSaver.convention = 'Offline'
     process.dqmSaver.workflow = workflowName
-    process.DQMStore.collateHistograms = False
     process.EDMtoMEConverter.convertOnEndLumi = True
     process.EDMtoMEConverter.convertOnEndRun = True
 else:
-    process.DQMStore.referenceFileName = ''
     process.dqmSaver.convention = 'Offline'
     process.dqmSaver.workflow = workflowName
-    process.DQMStore.collateHistograms = True
     process.EDMtoMEConverter.convertOnEndLumi = True
     process.EDMtoMEConverter.convertOnEndRun = True
     process.dqmSaver.saveByRun = -1

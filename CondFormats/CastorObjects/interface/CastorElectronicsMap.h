@@ -15,7 +15,6 @@ Modified for CASTOR by L. Mundim
 
 #include <vector>
 #include <algorithm>
-#include <boost/cstdint.hpp>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #endif
@@ -26,6 +25,7 @@ Modified for CASTOR by L. Mundim
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/CastorElectronicsId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include <cstdint>
 //
 class CastorElectronicsMap {
 public:

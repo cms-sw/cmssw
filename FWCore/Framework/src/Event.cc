@@ -1,13 +1,14 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -19,12 +20,13 @@ namespace edm {
 
   std::string const Event::emptyString_;
 
+  Event::Event(EventTransitionInfo const& info, ModuleDescription const& md, ModuleCallingContext const* mcc)
+      : Event(info.principal(), md, mcc) {}
+
   Event::Event(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext)
       : provRecorder_(ep, md, true /*always at end*/),
         aux_(ep.aux()),
-        luminosityBlock_(ep.luminosityBlockPrincipalPtrValid()
-                             ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext, false)
-                             : nullptr),
+        luminosityBlock_(),
         gotBranchIDs_(),
         gotViews_(),
         streamID_(ep.streamID()),
@@ -37,12 +39,23 @@ namespace edm {
   void Event::setConsumer(EDConsumerBase const* iConsumer) {
     provRecorder_.setConsumer(iConsumer);
     gotBranchIDs_.reserve(provRecorder_.numberOfProductsConsumed());
-    const_cast<LuminosityBlock*>(luminosityBlock_.get())->setConsumer(iConsumer);
+    if (luminosityBlock_) {
+      luminosityBlock_->setConsumer(iConsumer);
+    }
   }
 
   void Event::setSharedResourcesAcquirer(SharedResourcesAcquirer* iResourceAcquirer) {
     provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
-    const_cast<LuminosityBlock*>(luminosityBlock_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
+    if (luminosityBlock_) {
+      luminosityBlock_->setSharedResourcesAcquirer(iResourceAcquirer);
+    }
+  }
+
+  void Event::fillLuminosityBlock() const {
+    luminosityBlock_.emplace(
+        eventPrincipal().luminosityBlockPrincipal(), provRecorder_.moduleDescription(), moduleCallingContext_, false);
+    luminosityBlock_->setConsumer(provRecorder_.getConsumer());
+    luminosityBlock_->setSharedResourcesAcquirer(provRecorder_.getSharedResourcesAcquirer());
   }
 
   void Event::setProducerCommon(ProducerBase const* iProd, std::vector<BranchID>* previousParentage) {
@@ -102,12 +115,18 @@ namespace edm {
 
   ProcessHistoryID const& Event::processHistoryID() const { return eventPrincipal().processHistoryID(); }
 
-  Provenance Event::getProvenance(BranchID const& bid) const {
-    return provRecorder_.principal().getProvenance(bid, moduleCallingContext_);
+  Provenance const& Event::getProvenance(BranchID const& bid) const {
+    return provRecorder_.principal().getProvenance(bid);
   }
 
-  Provenance Event::getProvenance(ProductID const& pid) const {
-    return eventPrincipal().getProvenance(pid, moduleCallingContext_);
+  Provenance const& Event::getProvenance(ProductID const& pid) const { return eventPrincipal().getProvenance(pid); }
+
+  StableProvenance const& Event::getStableProvenance(BranchID const& bid) const {
+    return provRecorder_.principal().getStableProvenance(bid);
+  }
+
+  StableProvenance const& Event::getStableProvenance(ProductID const& pid) const {
+    return eventPrincipal().getStableProvenance(pid);
   }
 
   void Event::getAllProvenance(std::vector<Provenance const*>& provenances) const {
@@ -151,7 +170,7 @@ namespace edm {
       for (auto index : iShouldPut) {
         auto resolver = p.getProductResolverByIndex(index);
         if (not resolver->productResolved()) {
-          resolver->putProduct(std::unique_ptr<WrapperBase>());
+          dynamic_cast<ProductPutterBase const*>(resolver)->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
     }

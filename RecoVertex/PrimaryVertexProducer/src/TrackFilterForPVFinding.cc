@@ -3,6 +3,8 @@
 
 TrackFilterForPVFinding::TrackFilterForPVFinding(const edm::ParameterSet& conf) {
   maxD0Sig_ = conf.getParameter<double>("maxD0Significance");
+  maxD0Error_ = conf.getParameter<double>("maxD0Error");
+  maxDzError_ = conf.getParameter<double>("maxDzError");
   minPt_ = conf.getParameter<double>("minPt");
   maxEta_ = conf.getParameter<double>("maxEta");
   maxNormChi2_ = conf.getParameter<double>("maxNormalizedChi2");
@@ -23,7 +25,8 @@ bool TrackFilterForPVFinding::operator()(const reco::TransientTrack& tk) const {
   if (!tk.stateAtBeamLine().isValid())
     return false;
   bool IPSigCut = (tk.stateAtBeamLine().transverseImpactParameter().significance() < maxD0Sig_) &&
-                  (tk.stateAtBeamLine().transverseImpactParameter().error() < 1.0) && (tk.track().dzError() < 1.0);
+                  (tk.stateAtBeamLine().transverseImpactParameter().error() < maxD0Error_) &&
+                  (tk.track().dzError() < maxDzError_);
   bool pTCut = tk.impactPointState().globalMomentum().transverse() > minPt_;
   bool etaCut = std::fabs(tk.impactPointState().globalMomentum().eta()) < maxEta_;
   bool normChi2Cut = tk.normalizedChi2() < maxNormChi2_;
@@ -43,4 +46,17 @@ std::vector<reco::TransientTrack> TrackFilterForPVFinding::select(
       seltks.push_back(*itk);  //  calls the filter function for single tracks
   }
   return seltks;
+}
+
+void TrackFilterForPVFinding::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<double>("maxNormalizedChi2", 10.0);
+  desc.add<double>("minPt", 0.0);
+  desc.add<std::string>("algorithm", "filter");
+  desc.add<double>("maxEta", 2.4);
+  desc.add<double>("maxD0Significance", 4.0);
+  desc.add<double>("maxD0Error", 1.0);
+  desc.add<double>("maxDzError", 1.0);
+  desc.add<std::string>("trackQuality", "any");
+  desc.add<int>("minPixelLayersWithHits", 2);
+  desc.add<int>("minSiliconLayersWithHits", 5);
 }

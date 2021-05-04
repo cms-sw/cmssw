@@ -131,7 +131,7 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
     if (phiRange.empty())
       continue;
 
-    const HitRZCompatibility* checkRZ =
+    std::unique_ptr<const HitRZCompatibility> checkRZ =
         region.checkRZ(&innerHitDetLayer,
                        ohit,
                        iSetup,
@@ -157,15 +157,15 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
       bool ok[e - b];
       switch (checkRZ->algo()) {
         case (HitRZCompatibility::zAlgo):
-          std::get<0>(kernels).set(checkRZ);
+          std::get<0>(kernels).set(checkRZ.get());
           std::get<0>(kernels)(b, e, innerHitsMap, ok);
           break;
         case (HitRZCompatibility::rAlgo):
-          std::get<1>(kernels).set(checkRZ);
+          std::get<1>(kernels).set(checkRZ.get());
           std::get<1>(kernels)(b, e, innerHitsMap, ok);
           break;
         case (HitRZCompatibility::etaAlgo):
-          std::get<2>(kernels).set(checkRZ);
+          std::get<2>(kernels).set(checkRZ.get());
           std::get<2>(kernels)(b, e, innerHitsMap, ok);
           break;
       }
@@ -175,13 +175,11 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
         if (theMaxElement != 0 && result.size() >= theMaxElement) {
           result.clear();
           edm::LogError("TooManyPairs") << "number of pairs exceed maximum, no pairs produced";
-          delete checkRZ;
           return;
         }
         result.add(b + i, io);
       }
     }
-    delete checkRZ;
   }
   LogDebug("HitPairGeneratorFromLayerPair") << " total number of pairs provided back: " << result.size();
   result.shrink_to_fit();

@@ -147,7 +147,7 @@ bool Herwig7Hadronizer::hadronize() {
 }
 
 void Herwig7Hadronizer::finalizeEvent() {
-  eventInfo().reset(new GenEventInfoProduct(event().get()));
+  eventInfo() = std::make_unique<GenEventInfoProduct>(event().get());
   eventInfo()->setBinningValues(std::vector<double>(1, pthat(thepegEvent)));
 
   if (eventsToPrint) {

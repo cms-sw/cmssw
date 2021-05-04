@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Utilities/interface/ProcessBlockIndex.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -103,6 +104,50 @@ namespace edm {
       };
 
       template <typename T>
+      class WatchProcessBlock : public virtual T {
+      public:
+        WatchProcessBlock() = default;
+        WatchProcessBlock(WatchProcessBlock const&) = delete;
+        WatchProcessBlock& operator=(WatchProcessBlock const&) = delete;
+        ~WatchProcessBlock() noexcept(false) override {}
+
+      private:
+        void doBeginProcessBlock_(ProcessBlock const&) final;
+        void doEndProcessBlock_(ProcessBlock const&) final;
+
+        virtual void beginProcessBlock(ProcessBlock const&) {}
+        virtual void endProcessBlock(ProcessBlock const&) {}
+      };
+
+      template <typename T>
+      class BeginProcessBlockProducer : public virtual T {
+      public:
+        BeginProcessBlockProducer() = default;
+        BeginProcessBlockProducer(BeginProcessBlockProducer const&) = delete;
+        BeginProcessBlockProducer& operator=(BeginProcessBlockProducer const&) = delete;
+        ~BeginProcessBlockProducer() noexcept(false) override{};
+
+      private:
+        void doBeginProcessBlockProduce_(ProcessBlock&) final;
+
+        virtual void beginProcessBlockProduce(edm::ProcessBlock&) = 0;
+      };
+
+      template <typename T>
+      class EndProcessBlockProducer : public virtual T {
+      public:
+        EndProcessBlockProducer() = default;
+        EndProcessBlockProducer(EndProcessBlockProducer const&) = delete;
+        EndProcessBlockProducer& operator=(EndProcessBlockProducer const&) = delete;
+        ~EndProcessBlockProducer() noexcept(false) override{};
+
+      private:
+        void doEndProcessBlockProduce_(ProcessBlock&) final;
+
+        virtual void endProcessBlockProduce(edm::ProcessBlock&) = 0;
+      };
+
+      template <typename T>
       class BeginRunProducer : public virtual T {
       public:
         BeginRunProducer() = default;
@@ -156,6 +201,31 @@ namespace edm {
         void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) final;
 
         virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) = 0;
+      };
+
+      template <typename T, typename C>
+      class InputProcessBlockCacheHolder : public virtual T {
+      public:
+        InputProcessBlockCacheHolder() = default;
+        InputProcessBlockCacheHolder(InputProcessBlockCacheHolder const&) = delete;
+        InputProcessBlockCacheHolder& operator=(InputProcessBlockCacheHolder const&) = delete;
+        ~InputProcessBlockCacheHolder() override {}
+
+      protected:
+        // Not implemented yet
+        // const C* inputProcessBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
+
+      private:
+        // Not yet fully implemented, will never get called
+        // THINK ABOUT HOW CACHES ARE CLEARED!!!
+        void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
+          caches_.push_back(accessInputProcessBlock(pb));
+        }
+
+        // Not yet fully implemented, will never get called
+        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) = 0;
+
+        std::vector<std::shared_ptr<C>> caches_;
       };
 
       template <typename T, typename C>

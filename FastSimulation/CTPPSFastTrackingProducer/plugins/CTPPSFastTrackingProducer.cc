@@ -16,18 +16,120 @@ Implementation:
 //
 //
 
-// system include files
 #include <memory>
 
-// user include files
-#include "FastSimulation/CTPPSFastTrackingProducer/interface/CTPPSFastTrackingProducer.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Vector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHit.h"
+#include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHitContainer.h"
+#include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastTrack.h"
+#include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastTrackContainer.h"
+#include "FastSimulation/CTPPSFastGeometry/interface/CTPPSToFDetector.h"
+#include "FastSimulation/CTPPSFastGeometry/interface/CTPPSTrkDetector.h"
+#include "Utilities/PPS/interface/PPSUnitConversion.h"
 #include "Utilities/PPS/interface/PPSUtilities.h"
+
 #include "TLorentzVector.h"
+
 // hector includes
 #include "H_Parameters.h"
 #include "H_BeamLine.h"
 #include "H_RecRPObject.h"
 #include "H_BeamParticle.h"
+
+class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
+public:
+  explicit CTPPSFastTrackingProducer(const edm::ParameterSet&);
+
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  // ----------member data ---------------------------
+
+  typedef std::vector<CTPPSFastRecHit> CTPPSFastRecHitContainer;
+  edm::EDGetTokenT<CTPPSFastRecHitContainer> _recHitToken;
+  void ReadRecHits(edm::Handle<CTPPSFastRecHitContainer>&);
+  void FastReco(int Direction, H_RecRPObject* station);
+  void Reconstruction();
+  void ReconstructArm(
+      H_RecRPObject* pps_station, double x1, double y1, double x2, double y2, double& tx, double& ty, double& eloss);
+  void MatchCellId(int cellId, std::vector<int> vrecCellId, std::vector<double> vrecTof, bool& match, double& recTof);
+  bool SearchTrack(int,
+                   int,
+                   int Direction,
+                   double& xi,
+                   double& t,
+                   double& partP,
+                   double& pt,
+                   double& thx,
+                   double& thy,
+                   double& x0,
+                   double& y0,
+                   double& xt,
+                   double& yt,
+                   double& X1d,
+                   double& Y1d,
+                   double& X2d,
+                   double& Y2d);
+  void TrackerStationClear();
+  void TrackerStationStarting();
+  void ProjectToToF(const double x1, const double y1, const double x2, const double y2, double& xt, double& yt) {
+    xt = ((fz_timing - fz_tracker2) * (x2 - x1) / (fz_tracker2 - fz_tracker1)) + x2;
+    yt = ((fz_timing - fz_tracker2) * (y2 - y1) / (fz_tracker2 - fz_tracker1)) + y2;
+  };
+  // Hector objects
+  bool SetBeamLine();
+
+  std::unique_ptr<H_BeamLine> m_beamlineCTPPS1;
+  std::unique_ptr<H_BeamLine> m_beamlineCTPPS2;
+  std::unique_ptr<H_RecRPObject> pps_stationF;
+  std::unique_ptr<H_RecRPObject> pps_stationB;
+
+  std::string beam1filename;
+  std::string beam2filename;
+
+  // Defaults
+  double lengthctpps;
+  bool m_verbosity;
+  double fBeamEnergy;
+  double fBeamMomentum;
+  bool fCrossAngleCorr;
+  double fCrossingAngleBeam1;
+  double fCrossingAngleBeam2;
+  ////////////////////////////////////////////////
+  std::unique_ptr<CTPPSTrkStation> TrkStation_F;  // auxiliary object with the tracker geometry
+  std::unique_ptr<CTPPSTrkStation> TrkStation_B;
+  std::unique_ptr<CTPPSTrkDetector> det1F;
+  std::unique_ptr<CTPPSTrkDetector> det1B;
+  std::unique_ptr<CTPPSTrkDetector> det2F;
+  std::unique_ptr<CTPPSTrkDetector> det2B;
+  std::unique_ptr<CTPPSToFDetector> detToF_F;
+  std::unique_ptr<CTPPSToFDetector> detToF_B;
+
+  std::vector<CTPPSFastTrack> theCTPPSFastTrack;
+
+  CTPPSFastTrack track;
+
+  std::vector<int> recCellId_F, recCellId_B;
+  std::vector<double> recTof_F, recTof_B;
+
+  double fz_tracker1, fz_tracker2, fz_timing;
+  double fTrackerWidth, fTrackerHeight, fTrackerInsertion, fBeamXRMS_Trk1, fBeamXRMS_Trk2, fTrk1XOffset, fTrk2XOffset;
+  std::vector<double> fToFCellWidth;
+  double fToFCellHeight, fToFPitchX, fToFPitchY;
+  int fToFNCellX, fToFNCellY;
+  double fToFInsertion, fBeamXRMS_ToF, fToFXOffset, fTimeSigma, fImpParcut;
+};
 //////////////////////
 // constructors and destructor
 //
@@ -86,32 +188,29 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
   // Take care: the z inside the station is in meters
   //
   //Tracker Detector Description
-  det1F = std::unique_ptr<CTPPSTrkDetector>(
-      new CTPPSTrkDetector(fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk1 + fTrk1XOffset));
-  det2F = std::unique_ptr<CTPPSTrkDetector>(
-      new CTPPSTrkDetector(fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk2 + fTrk2XOffset));
-  det1B = std::unique_ptr<CTPPSTrkDetector>(
-      new CTPPSTrkDetector(fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk1 + fTrk1XOffset));
-  det2B = std::unique_ptr<CTPPSTrkDetector>(
-      new CTPPSTrkDetector(fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk2 + fTrk2XOffset));
+  det1F = std::make_unique<CTPPSTrkDetector>(
+      fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk1 + fTrk1XOffset);
+  det2F = std::make_unique<CTPPSTrkDetector>(
+      fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk2 + fTrk2XOffset);
+  det1B = std::make_unique<CTPPSTrkDetector>(
+      fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk1 + fTrk1XOffset);
+  det2B = std::make_unique<CTPPSTrkDetector>(
+      fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk2 + fTrk2XOffset);
 
   //Timing Detector Description
   std::vector<double> vToFCellWidth;
+  vToFCellWidth.reserve(8);
   for (int i = 0; i < 8; i++) {
     vToFCellWidth.push_back(fToFCellWidth[i]);
   }
   double pos_tof = fToFInsertion * fBeamXRMS_ToF + fToFXOffset;
-  detToF_F = std::unique_ptr<CTPPSToFDetector>(new CTPPSToFDetector(
-      fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma));
-  detToF_B = std::unique_ptr<CTPPSToFDetector>(new CTPPSToFDetector(
-      fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma));
+  detToF_F = std::make_unique<CTPPSToFDetector>(
+      fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma);
+  detToF_B = std::make_unique<CTPPSToFDetector>(
+      fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma);
   //
 }
-CTPPSFastTrackingProducer::~CTPPSFastTrackingProducer() {
-  for (std::map<unsigned int, H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
-    delete (*it).second;
-  }
-}
+
 // ------------ method called to produce the data  ------------
 void CTPPSFastTrackingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -135,13 +234,6 @@ void CTPPSFastTrackingProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   iEvent.put(std::move(output_tracks), "CTPPSFastTrack");
 }  //end
-void CTPPSFastTrackingProducer::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup) {
-  TrackerStationStarting();
-}
-////////////////////
-void CTPPSFastTrackingProducer::endEvent(edm::Event& event, const edm::EventSetup& eventSetup) {
-  TrackerStationClear();
-}
 
 /////////////////////////
 void CTPPSFastTrackingProducer::TrackerStationClear() {
@@ -197,8 +289,8 @@ void CTPPSFastTrackingProducer::ReadRecHits(edm::Handle<CTPPSFastRecHitContainer
 
   }  //LOOP TRK
   //creating Stations
-  TrkStation_F = std::unique_ptr<CTPPSTrkStation>(new std::pair<CTPPSTrkDetector, CTPPSTrkDetector>(*det1F, *det2F));
-  TrkStation_B = std::unique_ptr<CTPPSTrkStation>(new std::pair<CTPPSTrkDetector, CTPPSTrkDetector>(*det1B, *det2B));
+  TrkStation_F = std::make_unique<CTPPSTrkStation>(*det1F, *det2F);
+  TrkStation_B = std::make_unique<CTPPSTrkStation>(*det1B, *det2B);
 }  // end function
 
 void CTPPSFastTrackingProducer::Reconstruction() {
@@ -228,7 +320,6 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,
                                             double& X2d,
                                             double& Y2d) {
   // Given 1 hit in Tracker1 and 1 hit in Tracker2 try to make a track with Hector
-  double theta = 0.;
   xi = 0;
   t = 0;
   partP = 0;
@@ -269,8 +360,7 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,
   thx *= -Direction;                                                      //  invert to the CMS ref frame
 
   // Protect for unphysical results
-  if (std::isnan(eloss) || std::isinf(eloss) || std::isnan(thx) || std::isinf(thx) || std::isnan(thy) ||
-      std::isinf(thy))
+  if (edm::isNotFinite(eloss) || edm::isNotFinite(thx) || edm::isNotFinite(thy))
     return false;
   //
 
@@ -287,18 +377,17 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,
     return false;
   //
   // Calculate the reconstructed track parameters
-  theta = sqrt(thx * thx + thy * thy) * urad;
+  double theta = sqrt(thx * thx + thy * thy) * urad;
   xi = eloss / fBeamEnergy;
   double energy = fBeamEnergy * (1. - xi);
   partP = sqrt(energy * energy - PPSTools::ProtonMassSQ);
   t = -2. * (PPSTools::ProtonMassSQ - fBeamEnergy * energy + fBeamMomentum * partP * cos(theta));
-  pt = sqrt(pow(partP * thx * urad, 2) + pow(partP * thy * urad, 2));
+  pt = partP * theta;
   if (xi < 0. || xi > 1. || t < 0. || t > 10. || pt <= 0.) {
     xi = 0.;
     t = 0.;
     partP = 0.;
     pt = 0.;
-    theta = 0.;
     x0 = 0.;
     y0 = 0.;
     return false;  // unphysical values
@@ -325,7 +414,7 @@ void CTPPSFastTrackingProducer::ReconstructArm(
   y2 *= mm_to_um;
   pps_station->setPositions(x1, y1, x2, y2);
   double energy = pps_station->getE(AM);  // dummy call needed to calculate some Hector internal parameter
-  if (std::isnan(energy) || std::isinf(energy))
+  if (edm::isNotFinite(energy))
     return;
   tx = pps_station->getTXIP();  // change orientation to CMS
   ty = pps_station->getTYIP();
@@ -351,6 +440,7 @@ void CTPPSFastTrackingProducer::FastReco(int Direction, H_RecRPObject* station) 
   double pos_tof = fToFInsertion * fBeamXRMS_ToF + fToFXOffset;
   int cellId = 0;
   std::vector<double> vToFCellWidth;
+  vToFCellWidth.reserve(8);
   for (int i = 0; i < 8; i++) {
     vToFCellWidth.push_back(fToFCellWidth[i]);
   }
@@ -419,26 +509,19 @@ void CTPPSFastTrackingProducer::FastReco(int Direction, H_RecRPObject* station) 
   }
 }  //end FastReco
 
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-
-void CTPPSFastTrackingProducer::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-
-void CTPPSFastTrackingProducer::endStream() {}
 bool CTPPSFastTrackingProducer::SetBeamLine() {
   edm::FileInPath b1(beam1filename.c_str());
   edm::FileInPath b2(beam2filename.c_str());
   if (lengthctpps <= 0)
     return false;
-  m_beamlineCTPPS1 = std::unique_ptr<H_BeamLine>(new H_BeamLine(-1, lengthctpps + 0.1));  // (direction, length)
+  m_beamlineCTPPS1 = std::make_unique<H_BeamLine>(-1, lengthctpps + 0.1);  // (direction, length)
   m_beamlineCTPPS1->fill(b2.fullPath(), 1, "IP5");
-  m_beamlineCTPPS2 = std::unique_ptr<H_BeamLine>(new H_BeamLine(1, lengthctpps + 0.1));  //
+  m_beamlineCTPPS2 = std::make_unique<H_BeamLine>(1, lengthctpps + 0.1);  //
   m_beamlineCTPPS2->fill(b1.fullPath(), 1, "IP5");
   m_beamlineCTPPS1->offsetElements(120, 0.097);
   m_beamlineCTPPS2->offsetElements(120, -0.097);
-  pps_stationF = std::unique_ptr<H_RecRPObject>(new H_RecRPObject(fz_tracker1, fz_tracker2, *m_beamlineCTPPS1));
-  pps_stationB = std::unique_ptr<H_RecRPObject>(new H_RecRPObject(fz_tracker1, fz_tracker2, *m_beamlineCTPPS2));
+  pps_stationF = std::make_unique<H_RecRPObject>(fz_tracker1, fz_tracker2, *m_beamlineCTPPS1);
+  pps_stationB = std::make_unique<H_RecRPObject>(fz_tracker1, fz_tracker2, *m_beamlineCTPPS2);
   return true;
 }
 //define this as a plug-in

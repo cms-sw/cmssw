@@ -196,6 +196,9 @@ METAnalyzer::~METAnalyzer() {
 void METAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
   std::string DirName = FolderName_ + metCollectionLabel_.label();
   ibooker.setCurrentFolder(DirName);
+  // since this module does things in dqmEndRun, we need to make sure to have
+  // per-run histograms.
+  ibooker.setScope(MonitorElementData::Scope::RUN);
 
   if (!folderNames_.empty()) {
     folderNames_.clear();
@@ -334,8 +337,12 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
     hMET = ibooker.book1D("MET", "MET", 200, 0, 1000);
     hMET_2 = ibooker.book1D("MET_2", "MET Range 2", 200, 0, 2000);
     hSumET = ibooker.book1D("SumET", "SumET", 400, 0, 4000);
-    hMETSig = ibooker.book1D("METSig", "METSig", 51, 0, 51);
-    hMETSig->setLumiFlag();
+
+    {
+      auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+      hMETSig = ibooker.book1D("METSig", "METSig", 51, 0, 51);
+    }
+
     hMETPhi = ibooker.book1D("METPhi", "METPhi", 60, -M_PI, M_PI);
     hMET_logx = ibooker.book1D("MET_logx", "MET_logx", 40, -1, 9);
     hSumET_logx = ibooker.book1D("SumET_logx", "SumET_logx", 40, -1, 9);
@@ -1150,11 +1157,11 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
         hMExLS = ibooker.book2D("MExLS", "MEx_LS", 200, -200, 200, 250, 0., 2500.);
         hMExLS->setAxisTitle("MEx [GeV]", 1);
         hMExLS->setAxisTitle("Lumi Section", 2);
-        hMExLS->getTH2F()->SetOption("colz");
+        hMExLS->setOption("colz");
         hMEyLS = ibooker.book2D("MEyLS", "MEy_LS", 200, -200, 200, 250, 0., 2500.);
         hMEyLS->setAxisTitle("MEy [GeV]", 1);
         hMEyLS->setAxisTitle("Lumi Section", 2);
-        hMEyLS->getTH2F()->SetOption("colz");
+        hMEyLS->setOption("colz");
         map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MExLS", hMExLS));
         map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MEyLS", hMEyLS));
       }
@@ -1326,7 +1333,7 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 }
 
 // ***********************************************************
-void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void METAnalyzer::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   //
   //--- Check the time length of the Run from the lumi section plots
 
@@ -1394,10 +1401,11 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime) {
       // Integral plot & convert number of events to rate (hz)
       tMETRate = (TH1F*)tMET->Clone("METRateHist");
       for (int i = tMETRate->GetNbinsX() - 1; i >= 0; i--) {
-        mMETRate->setBinContent(i + 1, tMETRate->GetBinContent(i + 2) + tMET->GetBinContent(i + 1));
+        tMETRate->SetBinContent(i + 1, tMETRate->GetBinContent(i + 2) + tMET->GetBinContent(i + 1));
       }
       for (int i = 0; i < tMETRate->GetNbinsX(); i++) {
-        mMETRate->setBinContent(i + 1, tMETRate->GetBinContent(i + 1) / double(totltime));
+        tMETRate->SetBinContent(i + 1, tMETRate->GetBinContent(i + 1) / double(totltime));
+        mMETRate->setBinContent(i + 1, tMETRate->GetBinContent(i + 1));
       }
     }
   }

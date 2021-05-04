@@ -6,7 +6,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
-#include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
 MTDTimeCalib::MTDTimeCalib(edm::ParameterSet const& conf, const MTDGeometry* geom, const MTDTopology* topo)
     : geom_(geom),
@@ -27,8 +27,8 @@ float MTDTimeCalib::getTimeCalib(const MTDDetId& id) const {
   if (id.mtdSubDetector() == MTDDetId::BTL) {
     time_calib += btlTimeOffset_;
     BTLDetId hitId(id);
-    DetId geoId = hitId.geographicalId(
-        (BTLDetId::CrysLayout)topo_->getMTDTopologyMode());  //for BTL topology gives different layout id
+    //for BTL topology gives different layout id
+    DetId geoId = hitId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
 
     if (thedet == nullptr) {
@@ -38,13 +38,14 @@ float MTDTimeCalib::getTimeCalib(const MTDDetId& id) const {
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-    if (topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::tile) {
+    if (MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()) == BTLDetId::CrysLayout::tile) {
       time_calib -= btlLightCollTime_;  //simply remove the offset introduced at sim level
-    } else if (topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::bar ||
-               topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::barphiflat) {
+    } else if (MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()) == BTLDetId::CrysLayout::bar ||
+               MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()) ==
+                   BTLDetId::CrysLayout::barphiflat) {
       //for bars in phi
       time_calib -= 0.5 * topo.pitch().first * btlLightCollSlope_;  //time offset for bar time is L/2v
-    } else if (topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::barzflat) {
+    } else if (MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()) == BTLDetId::CrysLayout::barzflat) {
       //for bars in z
       time_calib -= 0.5 * topo.pitch().second * btlLightCollSlope_;  //time offset for bar time is L/2v
     }

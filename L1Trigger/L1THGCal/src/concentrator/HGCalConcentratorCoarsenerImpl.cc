@@ -2,10 +2,9 @@
 
 HGCalConcentratorCoarsenerImpl::HGCalConcentratorCoarsenerImpl(const edm::ParameterSet& conf)
     : fixedDataSizePerHGCROC_(conf.getParameter<bool>("fixedDataSizePerHGCROC")),
-      coarseTCmapping_(std::vector<unsigned>{HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_}) {}
+      coarseTCmapping_(conf.getParameter<std::vector<unsigned>>("ctcSize")),
+      calibration_(conf.getParameterSet("superTCCalibration")),
+      vfeCompression_(conf.getParameterSet("coarseTCCompression")) {}
 
 void HGCalConcentratorCoarsenerImpl::updateCoarseTriggerCellMaps(const l1t::HGCalTriggerCell& tc, uint32_t ctcid) {
   auto& ctc = coarseTCs_[ctcid];
@@ -22,9 +21,13 @@ void HGCalConcentratorCoarsenerImpl::updateCoarseTriggerCellMaps(const l1t::HGCa
 
 void HGCalConcentratorCoarsenerImpl::assignCoarseTriggerCellEnergy(l1t::HGCalTriggerCell& tc,
                                                                    const CoarseTC& ctc) const {
-  tc.setHwPt(ctc.sumHwPt);
-  tc.setMipPt(ctc.sumMipPt);
-  tc.setPt(ctc.sumPt);
+  //Compress and recalibrate CTC energy
+  uint32_t code(0);
+  uint32_t compressed_value(0);
+  vfeCompression_.compressSingle(ctc.sumHwPt, code, compressed_value);
+
+  tc.setHwPt(compressed_value);
+  calibration_.calibrateInGeV(tc);
 }
 
 void HGCalConcentratorCoarsenerImpl::coarsen(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,
@@ -33,12 +36,7 @@ void HGCalConcentratorCoarsenerImpl::coarsen(const std::vector<l1t::HGCalTrigger
 
   // first pass, fill the coarse trigger cell information
   for (const l1t::HGCalTriggerCell& tc : trigCellVecInput) {
-    int thickness = 0;
-    if (triggerTools_.isSilicon(tc.detId())) {
-      thickness = triggerTools_.thicknessIndex(tc.detId(), true);
-    } else if (triggerTools_.isScintillator(tc.detId())) {
-      thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
-    }
+    int thickness = triggerTools_.thicknessIndex(tc.detId(), true);
 
     if (fixedDataSizePerHGCROC_ && thickness == kHighDensityThickness_) {
       trigCellVecOutput.push_back(tc);
@@ -51,10 +49,16 @@ void HGCalConcentratorCoarsenerImpl::coarsen(const std::vector<l1t::HGCalTrigger
 
   for (const auto& ctc : coarseTCs_) {
     l1t::HGCalTriggerCell triggerCell;
-    assignCoarseTriggerCellEnergy(triggerCell, ctc.second);
+
     uint32_t representativeId = coarseTCmapping_.getRepresentativeDetId(ctc.second.maxId);
     triggerCell.setDetId(representativeId);
+
     GlobalPoint point = coarseTCmapping_.getCoarseTriggerCellPosition(ctc.first);
+    math::PtEtaPhiMLorentzVector initial_p4(ctc.second.sumPt, point.eta(), point.phi(), 0);
+
+    triggerCell.setP4(initial_p4);
+    assignCoarseTriggerCellEnergy(triggerCell, ctc.second);
+
     math::PtEtaPhiMLorentzVector p4(triggerCell.pt(), point.eta(), point.phi(), 0);
     triggerCell.setPosition(point);
     triggerCell.setP4(p4);

@@ -1,12 +1,10 @@
-// #include "Utilities/Configuration/interface/Architecture.h"
-
 /*
  *  See header file for a description of this class.
  *
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/eLayer.h"
+#include "eLayer.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/Layers/interface/MagELayer.h"
 
@@ -14,10 +12,10 @@
 
 using namespace SurfaceOrientation;
 using namespace std;
+using namespace magneticfield;
 
 //The ctor is in charge of finding sectors inside the layer.
-MagGeoBuilderFromDDD::eLayer::eLayer(handles::const_iterator begin, handles::const_iterator end)
-    : theVolumes(begin, end), mlayer(nullptr) {
+eLayer::eLayer(handles::const_iterator begin, handles::const_iterator end) : theVolumes(begin, end), mlayer(nullptr) {
   //  bool debug=MagGeoBuilderFromDDD::debug;
 
   // Sort in R
@@ -29,8 +27,6 @@ MagGeoBuilderFromDDD::eLayer::eLayer(handles::const_iterator begin, handles::con
   //   }
 }
 
-MagGeoBuilderFromDDD::eLayer::~eLayer() {}
-
 // double MagGeoBuilderFromDDD::eLayer::minR() const {
 //   // ASSUMPTION: a layer is only 1 volume thick (by construction).
 //   return theVolumes.front()->minR();
@@ -41,7 +37,7 @@ MagGeoBuilderFromDDD::eLayer::~eLayer() {}
 //   return theVolumes.front()->maxR();
 // }
 
-MagELayer* MagGeoBuilderFromDDD::eLayer::buildMagELayer() const {
+MagELayer* eLayer::buildMagELayer() const {
   if (mlayer == nullptr) {
     //FIXME not guaranteed that all volumes in layer have the same zmin
     // and zmax!

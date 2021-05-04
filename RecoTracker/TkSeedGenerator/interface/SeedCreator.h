@@ -3,8 +3,6 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class TrackingRegion;
 class SeedingHitSet;
 class SeedComparitor;

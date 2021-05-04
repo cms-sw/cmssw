@@ -34,7 +34,7 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.enable = cms.untracked.bool(True)
 process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
@@ -43,7 +43,7 @@ process.MessageLogger.cout.FwkReport = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(10000)
     )
 
-process.MessageLogger.cerr.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cerr.enable = cms.untracked.bool(True)
 process.MessageLogger.cerr.threshold = cms.untracked.string("WARNING")
 process.MessageLogger.cerr.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
@@ -86,7 +86,7 @@ process.seqRECO = cms.Sequence()
 
 if options.fromRAW == 1:
     process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-    process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+    process.load("Configuration.StandardSequences.MagneticField_cff")
     process.load("Configuration.StandardSequences.GeometryDB_cff")
     process.load("Configuration.StandardSequences.Reconstruction_cff")
     process.load("Configuration.StandardSequences.L1Reco_cff")
@@ -466,8 +466,8 @@ process.p0 = cms.Path(
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 if options.testTag==1:

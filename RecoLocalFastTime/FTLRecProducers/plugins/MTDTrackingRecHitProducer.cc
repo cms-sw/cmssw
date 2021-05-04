@@ -16,7 +16,6 @@
 
 #include "RecoLocalFastTime/Records/interface/MTDCPERecord.h"
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDClusterParameterEstimator.h"
-#include "RecoLocalFastTime/FTLClusterizer/interface/MTDCPEBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -45,12 +44,16 @@ private:
 
   const MTDGeometry* geom_;
   const MTDClusterParameterEstimator* cpe_;
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<MTDClusterParameterEstimator, MTDCPERecord> cpeToken_;
 };
 
 MTDTrackingRecHitProducer::MTDTrackingRecHitProducer(const edm::ParameterSet& ps)
     : ftlbClusters_(consumes<FTLClusterCollection>(ps.getParameter<edm::InputTag>("barrelClusters"))),
       ftleClusters_(consumes<FTLClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusters"))) {
   produces<MTDTrackingDetSetVector>();
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+  cpeToken_ = esConsumes<MTDClusterParameterEstimator, MTDCPERecord>(edm::ESInputTag("", "MTDCPEBase"));
 }
 
 // Configuration descriptions
@@ -62,12 +65,10 @@ void MTDTrackingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void MTDTrackingRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  edm::ESHandle<MTDGeometry> geom;
-  es.get<MTDDigiGeometryRecord>().get(geom);
+  auto geom = es.getTransientHandle(mtdgeoToken_);
   geom_ = geom.product();
 
-  edm::ESHandle<MTDClusterParameterEstimator> cpe;
-  es.get<MTDCPERecord>().get("MTDCPEBase", cpe);
+  auto cpe = es.getTransientHandle(cpeToken_);
   cpe_ = cpe.product();
 
   edm::Handle<FTLClusterCollection> inputBarrel;
@@ -97,7 +98,7 @@ void MTDTrackingRecHitProducer::run(edm::Handle<FTLClusterCollection> inputHandl
   for (; DSViter != input.end(); DSViter++) {
     unsigned int detid = DSViter->detId();
     DetId detIdObject(detid);
-    const auto& genericDet = geom_->idToDetUnit(detIdObject);
+    const auto genericDet = geom_->idToDetUnit(detIdObject);
     if (genericDet == nullptr) {
       throw cms::Exception("MTDTrackingRecHitProducer")
           << "GeographicalID: " << std::hex << detid << " is invalid!" << std::dec << std::endl;

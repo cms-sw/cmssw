@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from .alternateValidationTemplates import *
 from .offlineValidationTemplates import *
 from .primaryVertexValidationTemplates import *
+from .primaryVertexResolutionTemplates import *
 from .geometryComparisonTemplates import *
 from .monteCarloValidationTemplates import *
 from .trackSplittingValidationTemplates import *
@@ -156,9 +157,8 @@ process.options = cms.untracked.PSet(
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.MessageLogger.statistics.append('cout')
+process.MessageLogger.cout.enableStatistics = cms.untracked.bool(True)
 """
 
 

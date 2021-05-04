@@ -17,8 +17,6 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // data in edm::event
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -38,7 +36,8 @@
 #include <vector>
 
 TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet &ps)
-    : verbose_(ps.getUntrackedParameter<bool>("Verbosity", false)),
+    : tGeomEsToken_(esConsumes()),
+      verbose_(ps.getUntrackedParameter<bool>("Verbosity", false)),
       edmPSimHitContainer_pxlBrlLow_Token_(
           consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("PxlBrlLowSrc"))),
       edmPSimHitContainer_pxlBrlHigh_Token_(
@@ -80,19 +79,6 @@ void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker &ibooker, const edm::R
   Char_t hname4[50], htitle4[80];
   Char_t hname5[50], htitle5[80];
   Char_t hname6[50], htitle6[80];
-
-  if (fDBE) {
-    if (verbose_) {
-      fDBE->setVerbose(1);
-    } else {
-      fDBE->setVerbose(0);
-    }
-  }
-
-  if (fDBE) {
-    if (verbose_)
-      fDBE->showDirStructure();
-  }
 
   if (fDBE != nullptr) {
     //   fDBE->setCurrentFolder("TrackerHitsV/TrackerHitTask");
@@ -345,19 +331,6 @@ TrackerHitAnalyzer::~TrackerHitAnalyzer() {
   // don't try to delete any pointers - they're handled by DQM machinery
 }
 
-void TrackerHitAnalyzer::endJob() {
-  // According to the previous code some profile plots were created here
-  // However, these profile plots are not in the final root file
-  // For now we comment out these plots (since they are not created in any case)
-  // Then, if needed we will consider moving the booking of the profileplots to
-  // the bookHistograms function and here we will do the profile
-
-  // Save root file only in standalone mode
-  if (runStandalone && !fOutputFile.empty() && fDBE) {
-    fDBE->save(fOutputFile);
-  }
-}
-
 void TrackerHitAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c) {
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
@@ -483,9 +456,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c) 
   }
 
   // Get geometry information
-
-  edm::ESHandle<TrackerGeometry> tracker;
-  c.get<TrackerDigiGeometryRecord>().get(tracker);
+  const auto &tracker = &c.getData(tGeomEsToken_);
 
   int ir = -100;
   edm::SimTrackContainer::const_iterator itTrk;

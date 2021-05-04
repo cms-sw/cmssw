@@ -1,5 +1,6 @@
 #ifndef TkNavigation_SimpleNavigationSchool_H
 #define TkNavigation_SimpleNavigationSchool_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "RecoTracker/TkNavigation/interface/TkNavigationSchool.h"
 #include <vector>

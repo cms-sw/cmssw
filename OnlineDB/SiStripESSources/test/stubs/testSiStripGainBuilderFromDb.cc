@@ -1,15 +1,15 @@
 
 #include "OnlineDB/SiStripESSources/test/stubs/testSiStripGainBuilderFromDb.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <math.h>
-#include <iomanip>
 
 // -----------------------------------------------------------------------------
 //

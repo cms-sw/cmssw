@@ -4,7 +4,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,6 +16,7 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
@@ -80,6 +80,7 @@ private:
   bool initialized;
   std::string g4Label_, hcalHits_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
   const HcalDDDRecConstants *hcons;
   std::vector<idType> types;
   bool verbose_, testNumber_;

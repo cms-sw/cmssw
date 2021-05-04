@@ -1,84 +1,50 @@
 /*
  * Tests for loading meta graphs via the SavedModel interface.
- * Based on TensorFlow C++ API 1.3.
+ * Based on TensorFlow 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
  */
 
-#include <boost/filesystem.hpp>
-#include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
+#include <cppunit/extensions/HelperMacros.h>
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-std::string cmsswPath(std::string path) {
-  if (path.size() > 0 && path.substr(0, 1) != "/") {
-    path = "/" + path;
-  }
+#include "testBase.h"
 
-  std::string base = std::string(std::getenv("CMSSW_BASE"));
-  std::string releaseBase = std::string(std::getenv("CMSSW_RELEASE_BASE"));
-
-  return (boost::filesystem::exists(base.c_str()) ? base : releaseBase) + path;
-}
-
-class testMetaGraphLoading : public CppUnit::TestFixture {
+class testMetaGraphLoading : public testBase {
   CPPUNIT_TEST_SUITE(testMetaGraphLoading);
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  std::string dataPath;
-
-  void setUp();
-  void tearDown();
-  void checkAll();
+  std::string pyScript() const override;
+  void checkAll() override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testMetaGraphLoading);
 
-void testMetaGraphLoading::setUp() {
-  dataPath = cmsswPath("/test/" + std::string(getenv("SCRAM_ARCH")) + "/" + boost::filesystem::unique_path().string());
-
-  // create the graph
-  std::string testPath = cmsswPath("/src/PhysicsTools/TensorFlow/test");
-  std::string cmd = "python " + testPath + "/creategraph.py " + dataPath;
-  std::array<char, 128> buffer;
-  std::string result;
-  std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
-  if (!pipe) {
-    throw std::runtime_error("popen() failed!");
-  }
-  while (!feof(pipe.get())) {
-    if (fgets(buffer.data(), 128, pipe.get()) != NULL) {
-      result += buffer.data();
-    }
-  }
-  std::cout << std::endl << result << std::endl;
-}
-
-void testMetaGraphLoading::tearDown() {
-  if (boost::filesystem::exists(dataPath)) {
-    boost::filesystem::remove_all(dataPath);
-  }
-}
+std::string testMetaGraphLoading::pyScript() const { return "creategraph.py"; }
 
 void testMetaGraphLoading::checkAll() {
-  std::string exportDir = dataPath + "/simplegraph";
+  std::string exportDir = dataPath_ + "/simplegraph";
 
   // load the graph
   tensorflow::setLogging();
-  tensorflow::MetaGraphDef* metaGraph = tensorflow::loadMetaGraph(exportDir);
-  CPPUNIT_ASSERT(metaGraph != nullptr);
+  tensorflow::MetaGraphDef* metaGraphDef = tensorflow::loadMetaGraphDef(exportDir);
+  CPPUNIT_ASSERT(metaGraphDef != nullptr);
 
   // create a new, empty session
   tensorflow::Session* session1 = tensorflow::createSession();
   CPPUNIT_ASSERT(session1 != nullptr);
 
   // create a new session, using the meta graph
-  tensorflow::Session* session2 = tensorflow::createSession(metaGraph, exportDir);
+  tensorflow::Session* session2 = tensorflow::createSession(metaGraphDef, exportDir);
   CPPUNIT_ASSERT(session2 != nullptr);
+
+  // check for exception
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, exportDir), cms::Exception);
 
   // example evaluation
   tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});
@@ -114,5 +80,5 @@ void testMetaGraphLoading::checkAll() {
   // cleanup
   CPPUNIT_ASSERT(tensorflow::closeSession(session1));
   CPPUNIT_ASSERT(tensorflow::closeSession(session2));
-  delete metaGraph;
+  delete metaGraphDef;
 }

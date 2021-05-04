@@ -1,20 +1,21 @@
 #ifndef __L1Trigger_L1THGCal_HGCalHistoSeedingImpl_h__
 #define __L1Trigger_L1THGCal_HGCalHistoSeedingImpl_h__
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "L1Trigger/L1THGCal/interface/backend/HGCalShowerShape.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
+#include "L1Trigger/L1THGCal/interface/backend/HGCalShowerShape.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalTriggerClusterIdentificationBase.h"
 
 class HGCalHistoSeedingImpl {
 private:
   struct Bin {
-    float sumMipPt = 0.;
+    enum Content { Sum, Ecal, Hcal };
+    std::array<float, 3> values = {{0., 0., 0.}};
     float weighted_x = 0.;
     float weighted_y = 0.;
   };
@@ -26,6 +27,7 @@ private:
     using const_iterator = typename Data::const_iterator;
 
   public:
+    HistogramT() : bins1_(0), bins2_(0), bins_(0) {}
     HistogramT(unsigned bins1, unsigned bins2)
         : bins1_(bins1), bins2_(bins2), bins_(bins1 * bins2), histogram_(bins_ * kSides_) {}
 
@@ -55,6 +57,54 @@ private:
   };
   using Histogram = HistogramT<Bin>;
 
+  class Navigator {
+  public:
+    enum class AxisType { Bounded, Circular };
+
+    Navigator() : axis_types_({{AxisType::Bounded, AxisType::Bounded}}), bins_({{0, 0}}), home_({{0, 0}}) {}
+
+    Navigator(int bins1, AxisType type_axis1, int bins2, AxisType type_axis2)
+        : axis_types_({{type_axis1, type_axis2}}), bins_({{bins1, bins2}}), home_({{0, 0}}) {}
+
+    void setHome(int x1, int x2) {
+      if (x1 < 0 || x2 < 0 || x1 >= std::get<0>(bins_) || x2 >= std::get<1>(bins_)) {
+        throw cms::Exception("OutOfBound") << "Setting invalid navigator home position (" << x1 << "," << x2 << "\n)";
+      }
+      home_[0] = x1;
+      home_[1] = x2;
+    }
+
+    std::array<int, 2> move(int offset1, int offset2) { return {{offset<0>(offset1), offset<1>(offset2)}}; }
+
+    template <unsigned N>
+    int offset(int shift) {
+      int shifted = std::get<N>(home_);
+      int max = std::get<N>(bins_);
+      switch (std::get<N>(axis_types_)) {
+        case AxisType::Bounded:
+          shifted += shift;
+          if (shifted < 0 || shifted >= max)
+            shifted = -1;
+          break;
+        case AxisType::Circular:
+          shifted += shift;
+          while (shifted < 0)
+            shifted += max;
+          while (shifted >= max)
+            shifted -= max;
+          break;
+        default:
+          break;
+      }
+      return shifted;
+    }
+
+  private:
+    std::array<AxisType, 2> axis_types_;
+    std::array<int, 2> bins_;
+    std::array<int, 2> home_;
+  };
+
 public:
   HGCalHistoSeedingImpl(const edm::ParameterSet& conf);
 
@@ -67,12 +117,13 @@ public:
 
 private:
   enum SeedingType { HistoMaxC3d, HistoSecondaryMaxC3d, HistoThresholdC3d, HistoInterpolatedMaxC3d };
+  enum SeedingSpace { RPhi, XY };
   enum SeedingPosition { BinCentre, TCWeighted };
 
   Histogram fillHistoClusters(const std::vector<edm::Ptr<l1t::HGCalCluster>>& clustersPtrs);
 
+  Histogram fillSmoothHistoClusters(const Histogram&, const vector<double>&, Bin::Content);
   Histogram fillSmoothPhiHistoClusters(const Histogram& histoClusters, const vector<unsigned>& binSums);
-
   Histogram fillSmoothRPhiHistoClusters(const Histogram& histoClusters);
 
   void setSeedEnergyAndPosition(std::vector<std::pair<GlobalPoint, double>>& seedPositionsEnergy,
@@ -89,21 +140,29 @@ private:
 
   std::vector<std::pair<GlobalPoint, double>> computeThresholdSeeds(const Histogram& histoClusters);
 
+  std::array<double, 4> boundaries();
+
   std::string seedingAlgoType_;
   SeedingType seedingType_;
+  SeedingSpace seedingSpace_;
   SeedingPosition seedingPosition_;
 
-  unsigned nBinsRHisto_ = 42;
-  unsigned nBinsPhiHisto_ = 216;
+  unsigned nBins1_ = 42;
+  unsigned nBins2_ = 216;
   std::vector<unsigned> binsSumsHisto_;
   double histoThreshold_ = 20.;
   std::vector<double> neighbour_weights_;
+  std::vector<double> smoothing_ecal_;
+  std::vector<double> smoothing_hcal_;
 
   HGCalTriggerTools triggerTools_;
+  Navigator navigator_;
 
   static constexpr unsigned neighbour_weights_size_ = 9;
-  static constexpr double kROverZMin_ = 0.076;
-  static constexpr double kROverZMax_ = 0.58;
+  const double kROverZMin_ = 0.076;
+  const double kROverZMax_ = 0.58;
+
+  static constexpr double kXYMax_ = 0.6;
 };
 
 #endif

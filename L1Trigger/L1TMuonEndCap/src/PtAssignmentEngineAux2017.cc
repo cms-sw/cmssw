@@ -1,8 +1,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
-#include <cassert>
-#include <cmath>
 
 // From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLUTVarCalc.cc
 
@@ -26,10 +24,7 @@ static const int dPhiNLBMap_7bit_512Max[128] = {
     174, 181, 188, 196, 204, 214, 224, 235, 247, 261, 276, 294, 313, 336, 361, 391, 427, 470};
 
 int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
-  if (not((bits == 4 && max == 256) || (bits == 5 && max == 256) || (bits == 7 && max == 512))) {
-    edm::LogError("L1T") << "bits = " << bits << ", max = " << max;
-    return 0;
-  }
+  emtf_assert((bits == 4 && max == 256) || (bits == 5 && max == 256) || (bits == 7 && max == 512));
 
   int dPhi_ = max;
   int sign_ = 1;
@@ -70,18 +65,12 @@ int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
     }  // End conditional: if (bits == 7)
   }    // End conditional: else if (max == 512)
 
-  if (not(abs(sign_) == 1 && dPhi_ >= 0 && dPhi_ < max)) {
-    edm::LogError("L1T") << "sign_ = " << sign_ << ", dPhi_ = " << dPhi_ << ", max = " << max;
-    return 0;
-  }
+  emtf_assert(abs(sign_) == 1 && dPhi_ >= 0 && dPhi_ < max);
   return (sign_ * dPhi_);
-}  // End function: nt PtAssignmentEngineAux2017::getNLBdPhi()
+}  // End function: int PtAssignmentEngineAux2017::getNLBdPhi()
 
 int PtAssignmentEngineAux2017::getNLBdPhiBin(int dPhi, int bits, int max) const {
-  if (not((bits == 4 && max == 256) || (bits == 5 && max == 256) || (bits == 7 && max == 512))) {
-    edm::LogError("L1T") << "bits = " << bits << ", max = " << max;
-    return 0;
-  }
+  emtf_assert((bits == 4 && max == 256) || (bits == 5 && max == 256) || (bits == 7 && max == 512));
 
   int dPhiBin_ = (1 << bits) - 1;
   int sign_ = 1;
@@ -119,18 +108,12 @@ int PtAssignmentEngineAux2017::getNLBdPhiBin(int dPhi, int bits, int max) const 
     }  // End conditional: if (bits == 7)
   }    // End conditional: else if (max == 512)
 
-  if (not(dPhiBin_ >= 0 && dPhiBin_ < pow(2, bits))) {
-    edm::LogError("L1T") << "dPhiBin_ = " << dPhiBin_ << ", bits = " << bits;
-    return 0;
-  }
+  emtf_assert(dPhiBin_ >= 0 && dPhiBin_ < pow(2, bits));
   return (dPhiBin_);
 }  // End function: int PtAssignmentEngineAux2017::getNLBdPhiBin()
 
 int PtAssignmentEngineAux2017::getdPhiFromBin(int dPhiBin, int bits, int max) const {
-  if (not((bits == 4 && max == 256) || (bits == 5 && max == 256) || (bits == 7 && max == 512))) {
-    edm::LogError("L1T") << "bits = " << bits << ", max = " << max;
-    return 0;
-  }
+  emtf_assert((bits == 4 && max == 256) || (bits == 5 && max == 256) || (bits == 7 && max == 512));
 
   int dPhi_ = (1 << bits) - 1;
 
@@ -149,10 +132,7 @@ int PtAssignmentEngineAux2017::getdPhiFromBin(int dPhiBin, int bits, int max) co
       dPhi_ = dPhiNLBMap_7bit_512Max[dPhiBin];
   }  // End conditional: else if (max == 512)
 
-  if (not(dPhi_ >= 0 && dPhi_ < max)) {
-    edm::LogError("L1T") << "dPhi_ = " << dPhi_ << ", max = " << max;
-    return 0;
-  }
+  emtf_assert(dPhi_ >= 0 && dPhi_ < max);
   return (dPhi_);
 }  // End function: int PtAssignmentEngineAux2017::getdPhiFromBin()
 
@@ -160,11 +140,7 @@ int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int b
   // std::cout << "Inside getCLCT: clct = " << clct << ", endcap = " << endcap
   //             << ", dPhiSign = " << dPhiSign << ", bits = " << bits << std::endl;
 
-  if (not(clct >= 0 && clct <= 10 && abs(endcap) == 1 && abs(dPhiSign) == 1 && (bits == 2 || bits == 3))) {
-    edm::LogError("L1T") << "clct = " << clct << ", endcap = " << endcap << ", dPhiSign = " << dPhiSign
-                         << ", bits = " << bits;
-    return 0;
-  }
+  emtf_assert(clct >= 0 && clct <= 10 && abs(endcap) == 1 && abs(dPhiSign) == 1 && (bits == 2 || bits == 3));
 
   // Convention here: endcap == +/-1, dPhiSign = +/-1.
   int clct_ = 0;
@@ -264,10 +240,7 @@ int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int b
 
   // std::cout << "  * Output clct_ = " << clct_ << std::endl;
 
-  if (not(clct_ >= 0 && clct_ < pow(2, bits))) {
-    edm::LogError("L1T") << "clct_ = " << clct_ << ", bits = " << bits;
-    return 0;
-  }
+  emtf_assert(clct_ >= 0 && clct_ < pow(2, bits));
   return clct_;
 }  // End function: int PtAssignmentEngineAux2017::getCLCT()
 
@@ -275,18 +248,9 @@ int PtAssignmentEngineAux2017::unpackCLCT(int clct, int endcap, int dPhiSign, in
   // std::cout << "Inside unpackCLCT: clct = " << clct << ", endcap = " << endcap
   //             << ", dPhiSign = " << dPhiSign << ", bits = " << bits << std::endl;
 
-  if (not(bits == 2 || bits == 3)) {
-    edm::LogError("L1T") << "bits = " << bits;
-    return 0;
-  }
-  if (not(clct >= 0 && clct < pow(2, bits))) {
-    edm::LogError("L1T") << "bits = " << bits << ", clct = " << clct;
-    return 0;
-  }
-  if (not(abs(dPhiSign) == 1)) {
-    edm::LogError("L1T") << "dPhiSign = " << dPhiSign;
-    return 0;
-  }
+  emtf_assert(bits == 2 || bits == 3);
+  emtf_assert(clct >= 0 && clct < pow(2, bits));
+  emtf_assert(abs(dPhiSign) == 1);
 
   // Convention here: endcap == +/-1, dPhiSign = +/-1.
   int clct_ = -1;
@@ -342,18 +306,12 @@ int PtAssignmentEngineAux2017::unpackCLCT(int clct, int endcap, int dPhiSign, in
 
   // std::cout << "  * Output clct_ = " << clct_ << std::endl;
 
-  if (not(clct_ >= 0 && clct_ <= 10)) {
-    edm::LogError("L1T") << "clct_ = " << clct_;
-    return 0;
-  }
+  emtf_assert(clct_ >= 0 && clct_ <= 10);
   return clct_;
 }  // End function: int PtAssignmentEngineAux2017::unpackCLCT()
 
 int PtAssignmentEngineAux2017::getdTheta(int dTheta, int bits) const {
-  if (not(bits == 2 || bits == 3)) {
-    edm::LogError("L1T") << "bits = " << bits;
-    return 0;
-  }
+  emtf_assert(bits == 2 || bits == 3);
 
   int dTheta_ = -99;
 
@@ -389,18 +347,13 @@ int PtAssignmentEngineAux2017::getdTheta(int dTheta, int bits) const {
       dTheta_ = 7;
   }  // End conditional: if (bits == 3)
 
-  if (not(dTheta_ >= 0 && dTheta_ < pow(2, bits))) {
-    edm::LogError("L1T") << "dTheta_ = " << dTheta_ << ", bits = " << bits;
-    return 0;
-  }
+  emtf_assert(dTheta_ >= 0 && dTheta_ < pow(2, bits));
   return (dTheta_);
 }  // End function: int PtAssignmentEngineAux2017::getdTheta()
 
 int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits) const {
-  if (not(bits == 2 || bits == 3)) {
-    edm::LogError("L1T") << "bits = " << bits;
-    return 0;
-  }
+  emtf_assert(bits == 2 || bits == 3);
+
   int dTheta_ = -99;
 
   if (bits == 2) {  // For use in mode 15
@@ -451,18 +404,12 @@ int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits) const {
     }
   }
 
-  if (not(dTheta_ >= -4 && dTheta_ <= 3)) {
-    edm::LogError("L1T") << "dTheta_ = " << dTheta_;
-    return 0;
-  }
+  emtf_assert(dTheta_ >= -4 && dTheta_ <= 3);
   return (dTheta_);
 }  // End function: int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits)
 
 int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) const {
-  if (not(theta >= 5 && theta < 128 && (st1_ring2 == 0 || st1_ring2 == 1) && (bits == 4 || bits == 5))) {
-    edm::LogError("L1T") << "theta = " << theta << ", st1_ring2 = " << st1_ring2 << ", bits = " << bits;
-    return 0;
-  }
+  emtf_assert(theta >= 5 && theta < 128 && (st1_ring2 == 0 || st1_ring2 == 1) && (bits == 4 || bits == 5));
 
   int theta_ = -99;
 
@@ -492,22 +439,13 @@ int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) cons
     }
   }  // End conditional: else if (bits == 5)
 
-  if (not(theta_ >= 0 && ((bits == 4 && theta_ <= 13) || (bits == 5 && theta_ < pow(2, bits))))) {
-    edm::LogError("L1T") << "theta_ = " << theta_ << ", bits = " << bits;
-    return 0;
-  }
+  emtf_assert(theta_ >= 0 && ((bits == 4 && theta_ <= 13) || (bits == 5 && theta_ < pow(2, bits))));
   return (theta_);
 }  // End function: int PtAssignmentEngineAux2017::getTheta()
 
 void PtAssignmentEngineAux2017::unpackTheta(int& theta, int& st1_ring2, int bits) const {
-  if (not(bits == 4 || bits == 5)) {
-    edm::LogError("L1T") << "bits = " << bits;
-    return;
-  }
-  if (not(theta >= 0 && theta < pow(2, bits))) {
-    edm::LogError("L1T") << "theta = " << theta << ", bits = " << bits;
-    return;
-  }
+  emtf_assert(bits == 4 || bits == 5);
+  emtf_assert(theta >= 0 && theta < pow(2, bits));
 
   // For use in mode 15
   if (bits == 4) {
@@ -528,22 +466,13 @@ void PtAssignmentEngineAux2017::unpackTheta(int& theta, int& st1_ring2, int bits
     }
   }
 
-  if (not(theta >= 5 && theta <= 104)) {
-    edm::LogError("L1T") << "theta = " << theta;
-    return;
-  }
+  emtf_assert(theta >= 5 && theta <= 104);
 
 }  // End function: void PtAssignmentEngineAux2017::unpackTheta()
 
 int PtAssignmentEngineAux2017::unpackSt1Ring2(int theta, int bits) const {
-  if (not(bits == 4 || bits == 5)) {
-    edm::LogError("L1T") << "bits = " << bits;
-    return 0;
-  }
-  if (not(theta >= 0 && theta < pow(2, bits))) {
-    edm::LogError("L1T") << "theta = " << theta << ", bits = " << bits;
-    return 0;
-  }
+  emtf_assert(bits == 4 || bits == 5);
+  emtf_assert(theta >= 0 && theta < pow(2, bits));
 
   // For use in mode 15
   if (bits == 4) {
@@ -572,18 +501,12 @@ int PtAssignmentEngineAux2017::get2bRPC(int clctA, int clctB, int clctC) const {
   else
     rpc_2b = 3;
 
-  if (not(rpc_2b >= 0 && rpc_2b < 4)) {
-    edm::LogError("L1T") << "rpc_2b = " << rpc_2b;
-    return 0;
-  }
+  emtf_assert(rpc_2b >= 0 && rpc_2b < 4);
   return (rpc_2b);
 }  // End function: int PtAssignmentEngineAux2017::get2bRPC()
 
 void PtAssignmentEngineAux2017::unpack2bRPC(int rpc_2b, int& rpcA, int& rpcB, int& rpcC) const {
-  if (not(rpc_2b >= 0 && rpc_2b < 4)) {
-    edm::LogError("L1T") << "rpc_2b = " << rpc_2b;
-    return;
-  }
+  emtf_assert(rpc_2b >= 0 && rpc_2b < 4);
 
   rpcA = 0;
   rpcB = 0;
@@ -607,10 +530,8 @@ int PtAssignmentEngineAux2017::get8bMode15(
     theta = (std::min(std::max(theta, 46), 87) - 46) / 7;
   else
     theta = (std::min(std::max(theta, 5), 52) - 5) / 6;
-  if (not(theta >= 0 && theta < 10)) {
-    edm::LogError("L1T") << "theta = " << theta;
-    return 0;
-  }
+
+  emtf_assert(theta >= 0 && theta < 10);
 
   int clctA_2b = getCLCT(clctA, endcap, sPhiAB, 2);
 
@@ -657,10 +578,7 @@ int PtAssignmentEngineAux2017::get8bMode15(
 
   // std::cout << "  * Output mode15_8b = " << mode15_8b << std::endl;
 
-  if (not(mode15_8b >= 0 && mode15_8b < pow(2, 8))) {
-    edm::LogError("L1T") << "mode15_8b = " << mode15_8b;
-    return 0;
-  }
+  emtf_assert(mode15_8b >= 0 && mode15_8b < pow(2, 8));
   return (mode15_8b);
 
 }  // End function: int PtAssignmentEngineAux2017::get8bMode15()
@@ -679,14 +597,8 @@ void PtAssignmentEngineAux2017::unpack8bMode15(int mode15_8b,
   //             << ", st1_ring2 = " << st1_ring2  << ", endcap = " << endcap << ", sPhiAB = " << sPhiAB << ", clctA = " << clctA
   //             << ", rpcA = " << rpcA << ", rpcB = " << rpcB << ", rpcC = " << rpcC << ", rpcD = " << rpcD << std::endl;
 
-  if (not(mode15_8b >= 0 && mode15_8b < pow(2, 8))) {
-    edm::LogError("L1T") << "mode15_8b = " << mode15_8b;
-    return;
-  }
-  if (not(abs(endcap) == 1 && abs(sPhiAB) == 1)) {
-    edm::LogError("L1T") << "endcap = " << endcap << ", sPhiAB = " << sPhiAB;
-    return;
-  }
+  emtf_assert(mode15_8b >= 0 && mode15_8b < pow(2, 8));
+  emtf_assert(abs(endcap) == 1 && abs(sPhiAB) == 1);
 
   rpcA = 0;
   rpcB = 0;
@@ -803,9 +715,348 @@ void PtAssignmentEngineAux2017::unpack8bMode15(int mode15_8b,
   // std::cout << "  * Output theta = " << theta << ", st1_ring2 = " << st1_ring2 << ", clctA = " << clctA
   //             << ", rpcA = " << rpcA << ", rpcB = " << rpcB << ", rpcC = " << rpcC << ", rpcD = " << rpcD << std::endl;
 
-  if (not(nRPC >= 0)) {
-    edm::LogError("L1T") << "nRPC = " << nRPC;
-    return;
-  }
+  emtf_assert(nRPC >= 0);
 
 }  // End function: void PtAssignmentEngineAux2017::unpack8bMode15()
+
+// _____________________________________________________________________________
+// From here down, code was originally in PtLUTVarCalc.cc
+
+int PtAssignmentEngineAux2017::calcTrackTheta(const int th1,
+                                              const int th2,
+                                              const int th3,
+                                              const int th4,
+                                              const int st1_ring2,
+                                              const int mode,
+                                              const bool BIT_COMP) const {
+  int theta = -99;
+
+  if ((mode % 8) / 4 > 0)  // Has station 2 hit
+    theta = th2;
+  else if ((mode % 4) / 2 > 0)  // Has station 3 hit
+    theta = th3;
+  else if ((mode % 2) > 0)  // Has station 4 hit
+    theta = th4;
+
+  emtf_assert(theta > 0);
+
+  if (BIT_COMP) {
+    int nBits = (mode == 15 ? 4 : 5);
+    theta = getTheta(theta, st1_ring2, nBits);
+  }
+
+  return theta;
+}
+
+void PtAssignmentEngineAux2017::calcDeltaPhis(int& dPh12,
+                                              int& dPh13,
+                                              int& dPh14,
+                                              int& dPh23,
+                                              int& dPh24,
+                                              int& dPh34,
+                                              int& dPhSign,
+                                              int& dPhSum4,
+                                              int& dPhSum4A,
+                                              int& dPhSum3,
+                                              int& dPhSum3A,
+                                              int& outStPh,
+                                              const int ph1,
+                                              const int ph2,
+                                              const int ph3,
+                                              const int ph4,
+                                              const int mode,
+                                              const bool BIT_COMP) const {
+  dPh12 = ph2 - ph1;
+  dPh13 = ph3 - ph1;
+  dPh14 = ph4 - ph1;
+  dPh23 = ph3 - ph2;
+  dPh24 = ph4 - ph2;
+  dPh34 = ph4 - ph3;
+  dPhSign = 0;
+
+  if (mode >= 8) {           // First hit is station 1
+    if ((mode % 8) / 4 > 0)  // Has station 2 hit
+      dPhSign = (dPh12 >= 0 ? +1 : -1);
+    else if ((mode % 4) / 2 > 0)  // Has station 3 hit
+      dPhSign = (dPh13 >= 0 ? +1 : -1);
+    else if ((mode % 2) > 0)  // Has station 4 hit
+      dPhSign = (dPh14 >= 0 ? +1 : -1);
+  } else if ((mode % 8) / 4 > 0) {  // First hit is station 2
+    if ((mode % 4) / 2 > 0)         // Has station 3 hit
+      dPhSign = (dPh23 >= 0 ? +1 : -1);
+    else if ((mode % 2) > 0)  // Has station 4 hit
+      dPhSign = (dPh24 >= 0 ? +1 : -1);
+  } else if ((mode % 4) / 2 > 0) {  // First hit is station 3
+    if ((mode % 2) > 0)             // Has station 4 hit
+      dPhSign = (dPh34 >= 0 ? +1 : -1);
+  }
+
+  emtf_assert(dPhSign != 0);
+
+  dPh12 *= dPhSign;
+  dPh13 *= dPhSign;
+  dPh14 *= dPhSign;
+  dPh23 *= dPhSign;
+  dPh24 *= dPhSign;
+  dPh34 *= dPhSign;
+
+  if (BIT_COMP) {
+    int nBitsA = 7;
+    int nBitsB = 7;
+    int nBitsC = 7;
+    int maxA = 512;
+    int maxB = 512;
+    int maxC = 512;
+
+    if (mode == 7 || mode == 11 || mode > 12) {
+      nBitsB = 5;
+      maxB = 256;
+      nBitsC = 5;
+      maxC = 256;
+    }
+    if (mode == 15) {
+      nBitsC = 4;
+      maxC = 256;
+    }
+
+    dPh12 = getNLBdPhi(dPh12, nBitsA, maxA);
+    dPh13 = getNLBdPhi(dPh13, nBitsA, maxA);
+    dPh14 = getNLBdPhi(dPh14, nBitsA, maxA);
+    if (mode == 7)
+      dPh23 = getNLBdPhi(dPh23, nBitsA, maxA);
+    else
+      dPh23 = getNLBdPhi(dPh23, nBitsB, maxB);
+    dPh24 = getNLBdPhi(dPh24, nBitsB, maxB);
+    dPh34 = getNLBdPhi(dPh34, nBitsC, maxC);
+
+    // Some delta phi values must be computed from others
+    switch (mode) {
+      case 15:
+        dPh13 = dPh12 + dPh23;
+        dPh14 = dPh13 + dPh34;
+        dPh24 = dPh23 + dPh34;
+        break;
+      case 14:
+        dPh13 = dPh12 + dPh23;
+        break;
+      case 13:
+        dPh14 = dPh12 + dPh24;
+        break;
+      case 11:
+        dPh14 = dPh13 + dPh34;
+        break;
+      case 7:
+        dPh24 = dPh23 + dPh34;
+        break;
+      default:
+        break;
+    }
+
+  }  // End conditional: if (BIT_COMP)
+
+  // Compute summed quantities
+  if (mode == 15)
+    calcDeltaPhiSums(dPhSum4, dPhSum4A, dPhSum3, dPhSum3A, outStPh, dPh12, dPh13, dPh14, dPh23, dPh24, dPh34);
+
+}  // End function: void PtAssignmentEngineAux2017::calcDeltaPhis()
+
+void PtAssignmentEngineAux2017::calcDeltaThetas(int& dTh12,
+                                                int& dTh13,
+                                                int& dTh14,
+                                                int& dTh23,
+                                                int& dTh24,
+                                                int& dTh34,
+                                                const int th1,
+                                                const int th2,
+                                                const int th3,
+                                                const int th4,
+                                                const int mode,
+                                                const bool BIT_COMP) const {
+  dTh12 = th2 - th1;
+  dTh13 = th3 - th1;
+  dTh14 = th4 - th1;
+  dTh23 = th3 - th2;
+  dTh24 = th4 - th2;
+  dTh34 = th4 - th3;
+
+  if (BIT_COMP) {
+    int nBits = (mode == 15 ? 2 : 3);
+
+    dTh12 = getdTheta(dTh12, nBits);
+    dTh13 = getdTheta(dTh13, nBits);
+    dTh14 = getdTheta(dTh14, nBits);
+    dTh23 = getdTheta(dTh23, nBits);
+    dTh24 = getdTheta(dTh24, nBits);
+    dTh34 = getdTheta(dTh34, nBits);
+  }  // End conditional: if (BIT_COMP)
+
+}  // Enf function: void PtAssignmentEngineAux2017::calcDeltaThetas()
+
+void PtAssignmentEngineAux2017::calcBends(int& bend1,
+                                          int& bend2,
+                                          int& bend3,
+                                          int& bend4,
+                                          const int pat1,
+                                          const int pat2,
+                                          const int pat3,
+                                          const int pat4,
+                                          const int dPhSign,
+                                          const int endcap,
+                                          const int mode,
+                                          const bool BIT_COMP) const {
+  bend1 = calcBendFromPattern(pat1, endcap);
+  bend2 = calcBendFromPattern(pat2, endcap);
+  bend3 = calcBendFromPattern(pat3, endcap);
+  bend4 = calcBendFromPattern(pat4, endcap);
+
+  if (BIT_COMP) {
+    int nBits = 3;
+    if (mode == 7 || mode == 11 || mode > 12)
+      nBits = 2;
+
+    if (mode / 8 > 0)  // Has station 1 hit
+      bend1 = getCLCT(pat1, endcap, dPhSign, nBits);
+    if ((mode % 8) / 4 > 0)  // Has station 2 hit
+      bend2 = getCLCT(pat2, endcap, dPhSign, nBits);
+    if ((mode % 4) / 2 > 0)  // Has station 3 hit
+      bend3 = getCLCT(pat3, endcap, dPhSign, nBits);
+    if ((mode % 2) > 0)  // Has station 4 hit
+      bend4 = getCLCT(pat4, endcap, dPhSign, nBits);
+  }  // End conditional: if (BIT_COMP)
+
+}  // End function: void PtAssignmentEngineAux2017::calcBends()
+
+void PtAssignmentEngineAux2017::calcRPCs(int& RPC1,
+                                         int& RPC2,
+                                         int& RPC3,
+                                         int& RPC4,
+                                         const int mode,
+                                         const int st1_ring2,
+                                         const int theta,
+                                         const bool BIT_COMP) const {
+  if (BIT_COMP) {
+    // Mask some invalid locations for RPC hits
+    // theta is assumed to be the compressed, mode 15 version
+    if (mode == 15 && !st1_ring2) {
+      RPC1 = 0;
+      RPC2 = 0;
+      if (theta < 4) {
+        RPC3 = 0;
+        RPC4 = 0;
+      }
+    }
+
+    int nRPC = (RPC1 == 1) + (RPC2 == 1) + (RPC3 == 1) + (RPC4 == 1);
+
+    // In 3- and 4-station modes, only specify some combinations of RPCs
+    if (nRPC >= 2) {
+      if (mode == 15) {
+        if (RPC1 == 1 && RPC2 == 1) {
+          RPC3 = 0;
+          RPC4 = 0;
+        } else if (RPC1 == 1 && RPC3 == 1) {
+          RPC4 = 0;
+        } else if (RPC4 == 1 && RPC2 == 1) {
+          RPC3 = 0;
+        } else if (RPC3 == 1 && RPC4 == 1 && !st1_ring2) {
+          RPC3 = 0;
+        }
+      } else if (mode == 14) {
+        if (RPC1 == 1) {
+          RPC2 = 0;
+          RPC3 = 0;
+        } else if (RPC3 == 1) {
+          RPC2 = 0;
+        }
+      } else if (mode == 13) {
+        if (RPC1 == 1) {
+          RPC2 = 0;
+          RPC4 = 0;
+        } else if (RPC4 == 1) {
+          RPC2 = 0;
+        }
+      } else if (mode == 11) {
+        if (RPC1 == 1) {
+          RPC3 = 0;
+          RPC4 = 0;
+        } else if (RPC4 == 1) {
+          RPC3 = 0;
+        }
+      } else if (mode == 7) {
+        if (RPC2 == 1) {
+          RPC3 = 0;
+          RPC4 = 0;
+        } else if (RPC4 == 1) {
+          RPC3 = 0;
+        }
+      }
+
+    }  // End conditional: if (nRPC >= 2)
+  }    // End conditional: if (BIT_COMP)
+
+}  // End function: void PtAssignmentEngineAux2017::calcRPCs()
+
+int PtAssignmentEngineAux2017::calcBendFromPattern(const int pattern, const int endcap) const {
+  int bend = -99;
+  if (pattern < 0)
+    return bend;
+
+  if (pattern == 10)
+    bend = 0;
+  else if ((pattern % 2) == 0)
+    bend = (10 - pattern) / 2;
+  else if ((pattern % 2) == 1)
+    bend = -1 * (11 - pattern) / 2;
+
+  // Reverse to match dPhi convention
+  if (endcap == 1)
+    bend *= -1;
+
+  emtf_assert(bend != -99);
+  return bend;
+}
+
+void PtAssignmentEngineAux2017::calcDeltaPhiSums(int& dPhSum4,
+                                                 int& dPhSum4A,
+                                                 int& dPhSum3,
+                                                 int& dPhSum3A,
+                                                 int& outStPh,
+                                                 const int dPh12,
+                                                 const int dPh13,
+                                                 const int dPh14,
+                                                 const int dPh23,
+                                                 const int dPh24,
+                                                 const int dPh34) const {
+  dPhSum4 = dPh12 + dPh13 + dPh14 + dPh23 + dPh24 + dPh34;
+  dPhSum4A = abs(dPh12) + abs(dPh13) + abs(dPh14) + abs(dPh23) + abs(dPh24) + abs(dPh34);
+  int devSt1 = abs(dPh12) + abs(dPh13) + abs(dPh14);
+  int devSt2 = abs(dPh12) + abs(dPh23) + abs(dPh24);
+  int devSt3 = abs(dPh13) + abs(dPh23) + abs(dPh34);
+  int devSt4 = abs(dPh14) + abs(dPh24) + abs(dPh34);
+
+  if (devSt4 > devSt3 && devSt4 > devSt2 && devSt4 > devSt1)
+    outStPh = 4;
+  else if (devSt3 > devSt4 && devSt3 > devSt2 && devSt3 > devSt1)
+    outStPh = 3;
+  else if (devSt2 > devSt4 && devSt2 > devSt3 && devSt2 > devSt1)
+    outStPh = 2;
+  else if (devSt1 > devSt4 && devSt1 > devSt3 && devSt1 > devSt2)
+    outStPh = 1;
+  else
+    outStPh = 0;
+
+  if (outStPh == 4) {
+    dPhSum3 = dPh12 + dPh13 + dPh23;
+    dPhSum3A = abs(dPh12) + abs(dPh13) + abs(dPh23);
+  } else if (outStPh == 3) {
+    dPhSum3 = dPh12 + dPh14 + dPh24;
+    dPhSum3A = abs(dPh12) + abs(dPh14) + abs(dPh24);
+  } else if (outStPh == 2) {
+    dPhSum3 = dPh13 + dPh14 + dPh34;
+    dPhSum3A = abs(dPh13) + abs(dPh14) + abs(dPh34);
+  } else {
+    dPhSum3 = dPh23 + dPh24 + dPh34;
+    dPhSum3A = abs(dPh23) + abs(dPh24) + abs(dPh34);
+  }
+
+}  // End function: void PtAssignmentEngineAux2017::calcDeltaPhiSums()

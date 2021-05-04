@@ -18,7 +18,7 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -34,7 +34,7 @@
 // class decleration
 //
 
-class EventIDChecker : public edm::EDAnalyzer {
+class EventIDChecker : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   explicit EventIDChecker(edm::ParameterSet const&);
   ~EventIDChecker() override;
@@ -42,12 +42,18 @@ public:
 
 private:
   void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void endJob() override;
 
   // ----------member data ---------------------------
   std::vector<edm::EventID> ids_;
   unsigned int index_;
+  edm::RunNumber_t presentRun_ = 0;
+  edm::LuminosityBlockNumber_t presentLumi_ = 0;
 
   unsigned int multiProcessSequentialEvents_;
   unsigned int numberOfEventsLeftBeforeSearch_;
@@ -117,7 +123,42 @@ void EventIDChecker::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
     throw cms::Exception("WrongEvent") << "Was expecting event " << ids_[index_] << " but was given " << iEvent.id()
                                        << "\n";
   }
+
+  if (presentRun_ != iEvent.run()) {
+    throw cms::Exception("MissingRunTransitionForEvent")
+        << "at event expected Run " << presentRun_ << " but got " << iEvent.run();
+  }
+  if (presentLumi_ != iEvent.luminosityBlock()) {
+    throw cms::Exception("MissingLuminosityBlockTransitionForEvent")
+        << "expected LuminosityBlock " << presentLumi_ << " but got " << iEvent.luminosityBlock();
+  }
+
   ++index_;
+}
+
+void EventIDChecker::beginRun(edm::Run const& iRun, edm::EventSetup const&) { presentRun_ = iRun.run(); }
+void EventIDChecker::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
+  if (presentRun_ != iLumi.run()) {
+    throw cms::Exception("WrongRunForLuminosityBlock")
+        << "at beginLuminosityBlock expected Run " << presentRun_ << " but got " << iLumi.run();
+  }
+  presentLumi_ = iLumi.luminosityBlock();
+}
+
+void EventIDChecker::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
+  if (presentRun_ != iLumi.run()) {
+    throw cms::Exception("WrongRunForLuminosityBlock")
+        << "at endLuminosityBlock expected Run " << presentRun_ << " but got " << iLumi.run();
+  }
+  if (presentLumi_ != iLumi.luminosityBlock()) {
+    throw cms::Exception("WrongEndLuminosityBlock")
+        << "expected LuminosityBlock " << presentLumi_ << " but got " << iLumi.luminosityBlock();
+  }
+}
+void EventIDChecker::endRun(edm::Run const& iRun, edm::EventSetup const&) {
+  if (presentRun_ != iRun.run()) {
+    throw cms::Exception("WrongEndRun") << "expected Run " << presentRun_ << " but got " << iRun.run();
+  }
 }
 
 // ------------ method called once each job just before starting event loop  ------------

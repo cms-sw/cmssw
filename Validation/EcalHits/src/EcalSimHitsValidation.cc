@@ -27,76 +27,32 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet &ps)
   ESHitsCollectionToken =
       consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("ESHitsCollection")));
 
-  // DQM ROOT output
-  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
-
-  if (!outputFile_.empty()) {
-    edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will be saved to " << outputFile_.c_str();
-  } else {
-    edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will NOT be saved";
-  }
-
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // DQMServices
-  dbe_ = nullptr;
-
-  // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (dbe_) {
-    if (verbose_) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-
-  if (dbe_) {
-    if (verbose_)
-      dbe_->showDirStructure();
-  }
-
-  meGunEnergy_ = nullptr;
-  meGunEta_ = nullptr;
-  meGunPhi_ = nullptr;
-  meEBEnergyFraction_ = nullptr;
-  meEEEnergyFraction_ = nullptr;
-  meESEnergyFraction_ = nullptr;
-
-  Char_t histo[200];
-
-  if (dbe_) {
-    dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
-
-    sprintf(histo, "EcalSimHitsValidation Gun Momentum");
-    meGunEnergy_ = dbe_->book1D(histo, histo, 100, 0., 1000.);
-
-    sprintf(histo, "EcalSimHitsValidation Gun Eta");
-    meGunEta_ = dbe_->book1D(histo, histo, 700, -3.5, 3.5);
-
-    sprintf(histo, "EcalSimHitsValidation Gun Phi");
-    meGunPhi_ = dbe_->book1D(histo, histo, 360, 0., 360.);
-
-    sprintf(histo, "EcalSimHitsValidation Barrel fraction of energy");
-    meEBEnergyFraction_ = dbe_->book1D(histo, histo, 100, 0., 1.1);
-
-    sprintf(histo, "EcalSimHitsValidation Endcap fraction of energy");
-    meEEEnergyFraction_ = dbe_->book1D(histo, histo, 100, 0., 1.1);
-
-    sprintf(histo, "EcalSimHitsValidation Preshower fraction of energy");
-    meESEnergyFraction_ = dbe_->book1D(histo, histo, 60, 0., 0.001);
-  }
 }
 
-EcalSimHitsValidation::~EcalSimHitsValidation() {
-  if (!outputFile_.empty() && dbe_)
-    dbe_->save(outputFile_);
+void EcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &, edm::EventSetup const &c) {
+  ib.setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+  ib.setScope(MonitorElementData::Scope::RUN);
+
+  std::string histo = "EcalSimHitsValidation Gun Momentum";
+  meGunEnergy_ = ib.book1D(histo, histo, 100, 0., 1000.);
+
+  histo = "EcalSimHitsValidation Gun Eta";
+  meGunEta_ = ib.book1D(histo, histo, 700, -3.5, 3.5);
+
+  histo = "EcalSimHitsValidation Gun Phi";
+  meGunPhi_ = ib.book1D(histo, histo, 360, 0., 360.);
+
+  histo = "EcalSimHitsValidation Barrel fraction of energy";
+  meEBEnergyFraction_ = ib.book1D(histo, histo, 100, 0., 1.1);
+
+  histo = "EcalSimHitsValidation Endcap fraction of energy";
+  meEEEnergyFraction_ = ib.book1D(histo, histo, 100, 0., 1.1);
+
+  histo = "EcalSimHitsValidation Preshower fraction of energy";
+  meESEnergyFraction_ = ib.book1D(histo, histo, 60, 0., 0.001);
 }
-
-void EcalSimHitsValidation::beginJob() {}
-
-void EcalSimHitsValidation::endJob() {}
 
 void EcalSimHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &c) {
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
@@ -130,12 +86,9 @@ void EcalSimHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &
     LogDebug("EventInfo") << "Particle gun type form MC = " << abs((*p)->pdg_id()) << "\n"
                           << "Energy = " << (*p)->momentum().e() << " Eta = " << heta << " Phi = " << hphi;
 
-    if (meGunEnergy_)
-      meGunEnergy_->Fill((*p)->momentum().e());
-    if (meGunEta_)
-      meGunEta_->Fill(heta);
-    if (meGunPhi_)
-      meGunPhi_->Fill(hphi);
+    meGunEnergy_->Fill((*p)->momentum().e());
+    meGunEta_->Fill(heta);
+    meGunPhi_->Fill(hphi);
   }
 
   double EBEnergy_ = 0.;
@@ -173,12 +126,7 @@ void EcalSimHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &
     fracES = ESEnergy_ / etot;
   }
 
-  if (meEBEnergyFraction_)
-    meEBEnergyFraction_->Fill(fracEB);
-
-  if (meEEEnergyFraction_)
-    meEEEnergyFraction_->Fill(fracEE);
-
-  if (meESEnergyFraction_)
-    meESEnergyFraction_->Fill(fracES);
+  meEBEnergyFraction_->Fill(fracEB);
+  meEEEnergyFraction_->Fill(fracEE);
+  meESEnergyFraction_->Fill(fracES);
 }

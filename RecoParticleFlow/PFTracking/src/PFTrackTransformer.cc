@@ -58,15 +58,19 @@ bool PFTrackTransformer::addPoints(reco::PFRecTrack& pftrack,
       B_.z());
 
   float pfoutenergy = sqrt((pfmass * pfmass) + track.outerMomentum().Mag2());
-  BaseParticlePropagator theOutParticle = BaseParticlePropagator(
-      RawParticle(
-          XYZTLorentzVector(
-              track.outerMomentum().x(), track.outerMomentum().y(), track.outerMomentum().z(), pfoutenergy),
-          XYZTLorentzVector(track.outerPosition().x(), track.outerPosition().y(), track.outerPosition().z(), 0.),
-          track.charge()),
-      0.,
-      0.,
-      B_.z());
+  BaseParticlePropagator theOutParticle;
+  if (track.outerOk())
+    theOutParticle = BaseParticlePropagator(
+        RawParticle(
+            XYZTLorentzVector(
+                track.outerMomentum().x(), track.outerMomentum().y(), track.outerMomentum().z(), pfoutenergy),
+            XYZTLorentzVector(track.outerPosition().x(), track.outerPosition().y(), track.outerPosition().z(), 0.),
+            track.charge()),
+        0.,
+        0.,
+        B_.z());
+  else
+    theOutParticle = theParticle;  // if outer state is not available, use the information at the closest approach
 
   math::XYZTLorentzVector momClosest = math::XYZTLorentzVector(track.px(), track.py(), track.pz(), track.p());
   const math::XYZPoint& posClosest = track.vertex();
@@ -192,10 +196,9 @@ bool PFTrackTransformer::addPoints(reco::PFRecTrack& pftrack,
   }
 
   //HO layer0
-  //   if (abs(theOutParticle.particle().vertex().z())<550) {
+  // if (abs(theOutParticle.particle().vertex().z())<550) {
   if (PT > 3.0) {  //Same value is used in PFBlockAlgo::link( case PFBlockLink::TRACKandHO:
     theOutParticle.setMagneticField(0);
-    //theOutParticle.setCharge(0);  //Since the B field is 0, there should be no need to change charge
     theOutParticle.propagateToHOLayer(false);
     if (theOutParticle.getSuccess() != 0) {
       pftrack.addPoint(PFTrajectoryPoint(-1,
@@ -208,6 +211,9 @@ bool PFTrackTransformer::addPoints(reco::PFRecTrack& pftrack,
       PFTrajectoryPoint dummyHOLayer;
       pftrack.addPoint(dummyHOLayer);
     }
+  } else {
+    PFTrajectoryPoint dummyHOLayer;
+    pftrack.addPoint(dummyHOLayer);
   }
 
   //VFcal(HF) entrance
@@ -539,7 +545,6 @@ bool PFTrackTransformer::addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
         brem.addPoint(dummyHOLayer);
       }
     }
-    brem.calculatePositionREP();
     pftrack.addBrem(brem);
     iTrajPos++;
   }
@@ -738,7 +743,6 @@ bool PFTrackTransformer::addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
     }
   }
 
-  brem.calculatePositionREP();
   pftrack.addBrem(brem);
   iTrajPos++;
 
@@ -902,7 +906,6 @@ bool PFTrackTransformer::addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
       }
     }
 
-    brem.calculatePositionREP();
     pftrack.addBrem(brem);
     iTrajPos++;
   }
@@ -1155,7 +1158,6 @@ bool PFTrackTransformer::addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
         brem.addPoint(dummyHOLayer);
       }
     }
-    brem.calculatePositionREP();
     pftrack.addBrem(brem);
     iTrajPos++;
   }

@@ -4,7 +4,7 @@
 #include "TRootEmbeddedCanvas.h"
 
 template <typename T>
-FWDetailViewCanvas<T>::FWDetailViewCanvas() : m_infoCanvas(0), m_guiFrame(0), m_viewCanvas(0) {}
+FWDetailViewCanvas<T>::FWDetailViewCanvas() : m_infoCanvas(nullptr), m_guiFrame(nullptr), m_viewCanvas(nullptr) {}
 
 template <typename T>
 FWDetailViewCanvas<T>::~FWDetailViewCanvas() {}

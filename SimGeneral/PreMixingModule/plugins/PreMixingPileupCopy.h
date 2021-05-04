@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -32,7 +33,7 @@ namespace edm {
 
   class PreMixingPileupCopy {
   public:
-    PreMixingPileupCopy(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
+    PreMixingPileupCopy(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
     ~PreMixingPileupCopy() = default;
 
     float getTrueNumInteractions(PileUpEventPrincipal const& pep) const;

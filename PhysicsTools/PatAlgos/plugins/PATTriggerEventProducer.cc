@@ -114,7 +114,7 @@ void PATTriggerEventProducer::beginRun(const Run& iRun, const EventSetup& iSetup
   // adapt configuration of used input tags
   if (tagTriggerResults_.process().empty() || tagTriggerResults_.process() == "*") {
     tagTriggerResults_ = InputTag(tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_);
-  } else if (tagTriggerEvent_.process() != nameProcess_) {
+  } else if (tagTriggerResults_.process() != nameProcess_) {
     LogWarning("triggerResultsTag") << "TriggerResults process name '" << tagTriggerResults_.process()
                                     << "' differs from HLT process name '" << nameProcess_ << "'";
   }

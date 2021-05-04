@@ -21,7 +21,6 @@
 #include "Geometry/CaloGeometry/interface/FlatHexagon.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/Records/interface/HGCalGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -72,6 +71,7 @@ public:
                   CaloSubdetectorGeometry::IVec& dinsVector) const override;
 
   GlobalPoint getPosition(const DetId& id) const;
+  GlobalPoint getWaferPosition(const DetId& id) const;
 
   /// Returns area of a cell
   double getArea(const DetId& detid) const;
@@ -138,7 +138,6 @@ private:
   CellVec m_cellVec;
   CellVec2 m_cellVec2;
   std::vector<DetId> m_validGeomIds;
-  HGCalGeometryMode::GeometryMode mode_;
   DetId::Detector m_det;
   ForwardSubdetector m_subdet;
   const double twoBysqrt3_;

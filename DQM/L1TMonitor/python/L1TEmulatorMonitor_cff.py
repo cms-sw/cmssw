@@ -46,6 +46,8 @@ l1TdeRCTfromRCT = l1TdeRCT.clone()
 l1TdeRCTfromRCT.rctSourceData = 'rctDigis'
 l1TdeRCTfromRCT.HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT_FromRCT')
 
+from DQM.L1TMonitor.L1TdeCSCTPG_cfi import *
+
 from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
 
 from DQM.L1TMonitor.L1GtHwValidation_cff import *
@@ -67,7 +69,7 @@ from L1Trigger.L1TCalorimeter.caloStage1LegacyFormatDigis_cfi import *
 
 ############################################################
 
-# GMT unpack from Fed813 in legacy stage1 parallel running                                                               
+# GMT unpack from Fed813 in legacy stage1 parallel running
 from EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi import *
 l1GtUnpack.DaqGtInputTag = 'rawDataCollector'
 
@@ -78,24 +80,31 @@ l1TdeRCTSeq = cms.Sequence(
                     )
 
 l1ExpertDataVsEmulator = cms.Sequence(
-                                l1TdeGCT + 
-                                l1TdeCSCTF + 
-                                l1GtHwValidation + 
-                                l1TdeRCTRun1
-                                )
+    l1TdeGCT +
+    l1tdeCSCTPG +
+    l1TdeCSCTF +
+    l1GtHwValidation +
+    l1TdeRCTRun1
+)
 
 
+l1EmulatorMonitorTask = cms.Task(
+    l1GtUnpack
+)
 l1EmulatorMonitor = cms.Sequence(
-                            l1GtUnpack* 
                             l1demon+
-                            l1ExpertDataVsEmulator             
+                            l1ExpertDataVsEmulator,
+                            l1EmulatorMonitorTask
                             )
 
 # for use in processes where hardware validation is not run
+l1HwValEmulatorMonitorTask = cms.Task(
+    l1GtUnpack
+)
 l1HwValEmulatorMonitor = cms.Sequence(
-                                l1GtUnpack* 
                                 L1HardwareValidation*
-                                l1EmulatorMonitor
+                                l1EmulatorMonitor,
+                                l1HwValEmulatorMonitorTask
                                 )
 
 # for stage1
@@ -110,16 +119,19 @@ l1ExpertDataVsEmulatorStage1 = cms.Sequence(
 
 l1EmulatorMonitorStage1 = cms.Sequence(
     #caloStage1Digis*
-    #caloStage1LegacyFormatDigis*    
+    #caloStage1LegacyFormatDigis*
     l1demonstage1+
     l1ExpertDataVsEmulatorStage1
     )
 
+l1Stage1HwValEmulatorMonitorTask = cms.Task(
+    rctDigis,
+    #caloStage1Digis,
+    #caloStage1LegacyFormatDigis,
+    l1GtUnpack
+)
 l1Stage1HwValEmulatorMonitor = cms.Sequence(
-    rctDigis*
-    #caloStage1Digis*
-    #caloStage1LegacyFormatDigis*
-    l1GtUnpack*
     L1HardwareValidationforStage1 +
-    l1EmulatorMonitorStage1                            
+    l1EmulatorMonitorStage1,
+    l1Stage1HwValEmulatorMonitorTask
     )

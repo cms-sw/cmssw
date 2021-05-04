@@ -1,15 +1,16 @@
 #ifndef CondFormats_HcalObjects_HcalIndexLookup_h
 #define CondFormats_HcalObjects_HcalIndexLookup_h
 
-#include <cstdint>
-#include <climits>
-
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/serialization/access.hpp"
 #include "boost/serialization/version.hpp"
 #include "boost/serialization/vector.hpp"
 #include "boost/serialization/utility.hpp"
+
+#include <cstdint>
+#include <climits>
+#include <vector>
 
 //
 // Storable lookup of unsigned index values by unsigned key

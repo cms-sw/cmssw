@@ -9,6 +9,8 @@ trackingMaterialAnalyser = cms.EDAnalyzer("TrackingMaterialAnalyser",
     SaveDetailedPlots       = cms.bool(False),
     SaveParameters          = cms.bool(True),
     SaveXML                 = cms.bool(True),
+    isHGCal                 = cms.bool(False),
+    isHFNose                = cms.bool(False),
 # to derive the following list:
 # cat ../data/trackingMaterialGroups_ForPhaseII.xml | grep TrackingMaterialGroup | sed -e 's/\s*//' | cut -d ' ' -f 3 | tr '=' ' ' | cut -d ' ' -f 2 | tr -d '"' | sed -e 's/\(.*\)/"\1",/'
     Groups = cms.vstring(

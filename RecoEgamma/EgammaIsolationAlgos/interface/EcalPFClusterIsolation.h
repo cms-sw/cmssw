@@ -8,20 +8,6 @@
 // Institute: UCSD
 //*****************************************************************************
 
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/Framework/interface/stream/EDProducer.h"
-
-// #include "FWCore/Framework/interface/Event.h"
-// #include "FWCore/Framework/interface/MakerMacros.h"
-
-// #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateIsolation.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 

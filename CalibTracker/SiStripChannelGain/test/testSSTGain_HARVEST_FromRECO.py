@@ -13,7 +13,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.AlCaHarvesting_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:PromptCalibProdSiStripGains.root'),
+    fileNames = cms.untracked.vstring('file:PromptCalibProdSiStripGains_A.root'),
     processingMode = cms.untracked.string('RunsAndLumis'),
     secondaryFileNames = cms.untracked.vstring()
 )

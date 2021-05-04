@@ -89,7 +89,7 @@ float HBHEDarkening::degradationYear(const LumiYear& year, float intlumi, int ie
   //determine if this is a partial year
   float intlumiToUse = year.intlumi_;
   if (intlumi < year.sumlumi_)
-    intlumiToUse = year.sumlumi_ - intlumi;
+    intlumiToUse = intlumi - (year.sumlumi_ - year.intlumi_);
 
   //calculate degradation
   return std::exp(-(intlumiToUse * doseToUse) / decayConst);
@@ -105,7 +105,7 @@ float HBHEDarkening::degradation(float intlumi, int ieta, int lay) const {
   //accumulate degradation over years
   float response = 1.0;
   std::string yearForLumi = getYearForLumi(intlumi);
-  assert(yearForLumi.size());
+  assert(!yearForLumi.empty());
 
   for (const auto& year : years_) {
     response *= degradationYear(year, intlumi, ieta, lay);

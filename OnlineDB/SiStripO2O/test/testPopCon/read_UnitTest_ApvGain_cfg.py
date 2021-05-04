@@ -8,9 +8,16 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Reader")
 
-process.MessageLogger = cms.Service("MessageLogger", 
-    debugModules = cms.untracked.vstring(''), 
-    destinations = cms.untracked.vstring('SiStripApvGainReader.log') 
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring(''),
+    files = cms.untracked.PSet(
+        SiStripApvGainReader = cms.untracked.PSet(
+
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

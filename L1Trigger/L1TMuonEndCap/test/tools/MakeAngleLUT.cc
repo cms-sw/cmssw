@@ -29,7 +29,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 //#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 
 #include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"

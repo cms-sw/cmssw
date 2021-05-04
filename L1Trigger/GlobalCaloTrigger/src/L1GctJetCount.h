@@ -4,7 +4,6 @@
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 
 /*!

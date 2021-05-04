@@ -161,6 +161,10 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
       pfjetidversion = PFJetIDSelectionFunctor::WINTER17;
     } else if (JetIDVersion_ == "WINTER17PUPPI") {
       pfjetidversion = PFJetIDSelectionFunctor::WINTER17PUPPI;
+    } else if (JetIDVersion_ == "RUN2ULCHS") {
+      pfjetidversion = PFJetIDSelectionFunctor::RUN2ULCHS;
+    } else if (JetIDVersion_ == "RUN2ULPUPPI") {
+      pfjetidversion = PFJetIDSelectionFunctor::RUN2ULPUPPI;
     } else {
       if (verbose_)
         std::cout << "no valid PF JetID version given" << std::endl;
@@ -205,8 +209,10 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   edm::ParameterSet highptjetparms = pSet.getParameter<edm::ParameterSet>("highPtJetTrigger");
   edm::ParameterSet lowptjetparms = pSet.getParameter<edm::ParameterSet>("lowPtJetTrigger");
 
-  highPtJetEventFlag_ = new GenericTriggerEventFlag(highptjetparms, consumesCollector(), *this);
-  lowPtJetEventFlag_ = new GenericTriggerEventFlag(lowptjetparms, consumesCollector(), *this);
+  highPtJetEventFlag_ =
+      new GenericTriggerEventFlag(highptjetparms, consumesCollector(), *this, l1t::UseEventSetupIn::Run);
+  lowPtJetEventFlag_ =
+      new GenericTriggerEventFlag(lowptjetparms, consumesCollector(), *this, l1t::UseEventSetupIn::Run);
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_ = lowptjetparms.getParameter<std::vector<std::string> >("hltPaths");
@@ -367,7 +373,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NJets_profile", mNJets_profile));
 
   mPhiVSEta = ibooker.book2D("PhiVSEta", "PhiVSEta", 50, etaMin_, etaMax_, 24, phiMin_, phiMax_);
-  mPhiVSEta->getTH2F()->SetOption("colz");
+  mPhiVSEta->setOption("colz");
   mPhiVSEta->setAxisTitle("#eta", 1);
   mPhiVSEta->setAxisTitle("#phi", 2);
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "PhiVSEta", mPhiVSEta));
@@ -2240,9 +2246,6 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 }
 
 // ***********************************************************
-void JetAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
-
-// ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //set general folders first --> change later on for different folders
   if (jetCleaningFlag_) {
@@ -2843,7 +2846,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       jetpassid = pfjetIDFunctor((*pfJets)[ijet]);
       if (jetCleaningFlag_) {
         Thiscleaned = jetpassid;
-        //JetIDWPU= (jetpassid && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose ));
+        JetIDWPU = jetpassid;  // && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose )
       }
       if (Thiscleaned && pass_uncorrected) {
         mPt_uncor = map_of_MEs[DirName + "/" + "Pt_uncor"];
@@ -3761,9 +3764,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
               (*patJets)[ijet].hasUserFloat("ak8PFJetsPuppiSoftDropMass"))
             mSoftDropMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsPuppiSoftDropMass"));
           mPrunedMass = map_of_MEs[DirName + "/" + "PrunedMass"];
-          if (mPrunedMass && mPrunedMass->getRootObject() &&
-              (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass"))
-            mPrunedMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass"));
           mtau2_over_tau1 = map_of_MEs[DirName + "/" + "tau2_over_tau1"];
           if (mtau2_over_tau1 && mtau2_over_tau1->getRootObject() &&
               ((*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau1") &&
@@ -3817,9 +3817,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
                 (*patJets)[ijet].hasUserFloat("ak8PFJetsPuppiSoftDropMass"))
               mSoftDropMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsPuppiSoftDropMass"));
             mPrunedMass_boosted = map_of_MEs[DirName + "/" + "PrunedMass_boosted"];
-            if (mPrunedMass_boosted && mPrunedMass_boosted->getRootObject() &&
-                (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass"))
-              mPrunedMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass"));
             mtau2_over_tau1_boosted = map_of_MEs[DirName + "/" + "tau2_over_tau1_boosted"];
             if (mtau2_over_tau1_boosted && mtau2_over_tau1_boosted->getRootObject() &&
                 ((*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau1") &&
@@ -3913,10 +3910,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mPhiVSEta->Fill(correctedJet.eta(), correctedJet.phi());
       //if(!isJPTJet_){
       float nConstituents = correctedJet.nConstituents();
-      if (isMiniAODJet_) {
-        if ((*patJets)[ijet].hasUserFloat("patPuppiJetSpecificProducer:puppiMultiplicity"))
-          nConstituents = (*patJets)[ijet].userFloat("patPuppiJetSpecificProducer:puppiMultiplicity");
-      }
       mConstituents = map_of_MEs[DirName + "/" + "Constituents"];
       if (mConstituents && mConstituents->getRootObject())
         mConstituents->Fill(nConstituents);

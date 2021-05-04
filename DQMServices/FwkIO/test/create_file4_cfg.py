@@ -18,7 +18,7 @@ for i in range(0,10):
 
 # A dummy tracked parameter is added to force the ProcessHistoryID to be different
 # It serves no other purpose.
-process.filler = cms.EDAnalyzer("DummyFillDQMStore",
+process.filler = cms.EDProducer("DummyFillDQMStore",
                                 elements=cms.untracked.VPSet(*elements),
                                 fillRuns = cms.untracked.bool(True),
                                 fillLumis = cms.untracked.bool(True),
@@ -30,6 +30,8 @@ process.out = cms.OutputModule("DQMRootOutputModule",
 readRunElements = list()
 for i in range(0,10):
     readRunElements.append(cms.untracked.PSet(name=cms.untracked.string("Foo"+str(i)),
+                                              runs  = cms.untracked.vint32(1),
+                                              lumis = cms.untracked.vint32(0),
                                               means = cms.untracked.vdouble(i),
                                               entries=cms.untracked.vdouble(1)
     ))
@@ -37,6 +39,8 @@ for i in range(0,10):
 readLumiElements=list()
 for i in range(0,10):
     readLumiElements.append(cms.untracked.PSet(name=cms.untracked.string("Foo"+str(i)),
+                                              runs  = cms.untracked.vint32([1 for x in range(0,10)]),
+                                              lumis = cms.untracked.vint32([x+100 for x in range(0,10)]),
                                               means = cms.untracked.vdouble([i for x in range(0,10)]),
                                               entries=cms.untracked.vdouble([1 for x in range(0,10)])
     ))

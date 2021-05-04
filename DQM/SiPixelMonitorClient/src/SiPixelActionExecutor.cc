@@ -8,9 +8,9 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -264,160 +264,6 @@ void SiPixelActionExecutor::bookDeviations(DQMStore::IBooker &iBooker, bool isUp
   iBooker.cd();
 }
 
-void SiPixelActionExecutor::fillDeviations(DQMStore::IGetter &iGetter) {
-  int n = 768;
-  MonitorElement *me1;
-  MonitorElement *me2;
-  MonitorElement *me3;
-  MonitorElement *me4;
-  MonitorElement *me5;
-  TH1 *ref1;
-  TH1 *ref2;
-  TH1 *ref3;
-  TH1 *ref4;
-  TH1 *ref5;
-  MonitorElement *dev1;
-  MonitorElement *dev2;
-  MonitorElement *dev3;
-  MonitorElement *dev4;
-  MonitorElement *dev5;
-  me1 = iGetter.get("Pixel/Barrel/SUMDIG_adc_Barrel");
-  ref1 = me1->getRefTH1();
-  dev1 = iGetter.get("Pixel/Barrel/DEV_adc_Barrel");
-  me2 = iGetter.get("Pixel/Barrel/SUMDIG_ndigis_Barrel");
-  ref2 = me2->getRefTH1();
-  dev2 = iGetter.get("Pixel/Barrel/DEV_ndigis_Barrel");
-  me3 = iGetter.get("Pixel/Barrel/SUMCLU_charge_Barrel");
-  ref3 = me3->getRefTH1();
-  dev3 = iGetter.get("Pixel/Barrel/DEV_charge_Barrel");
-  me4 = iGetter.get("Pixel/Barrel/SUMCLU_nclusters_Barrel");
-  ref4 = me4->getRefTH1();
-  dev4 = iGetter.get("Pixel/Barrel/DEV_nclusters_Barrel");
-  me5 = iGetter.get("Pixel/Barrel/SUMCLU_size_Barrel");
-  ref5 = me5->getRefTH1();
-  dev5 = iGetter.get("Pixel/Barrel/DEV_size_Barrel");
-  for (int i = 1; i != n + 1; i++) {
-    float ref_value;
-    float new_value;
-    // Barrel adc:
-    if (me1)
-      if (ref1)
-        if (dev1) {
-          new_value = me1->getBinContent(i);
-          ref_value = ref1->GetBinContent(i);
-          dev1->setBinContent(i, ref_value - new_value);
-        }
-    // Barrel ndigis:
-    if (me2)
-      if (ref2)
-        if (dev2) {
-          new_value = me2->getBinContent(i);
-          ref_value = ref2->GetBinContent(i);
-          dev2->setBinContent(i, ref_value - new_value);
-        }
-    // Barrel cluster charge:
-    if (me3)
-      if (ref3)
-        if (dev3) {
-          new_value = me3->getBinContent(i);
-          ref_value = ref3->GetBinContent(i);
-          dev3->setBinContent(i, ref_value - new_value);
-        }
-    // Barrel nclusters:
-    if (me4)
-      if (ref4)
-        if (dev4) {
-          new_value = me4->getBinContent(i);
-          ref_value = ref4->GetBinContent(i);
-          dev4->setBinContent(i, ref_value - new_value);
-        }
-    // Barrel cluster size:
-    if (me5)
-      if (ref5)
-        if (dev5) {
-          new_value = me5->getBinContent(i);
-          ref_value = ref5->GetBinContent(i);
-          dev5->setBinContent(i, ref_value - new_value);
-        }
-  }
-
-  int nn = 672;
-  MonitorElement *me11;
-  MonitorElement *me12;
-  MonitorElement *me13;
-  MonitorElement *me14;
-  MonitorElement *me15;
-  TH1 *ref11;
-  TH1 *ref12;
-  TH1 *ref13;
-  TH1 *ref14;
-  TH1 *ref15;
-  MonitorElement *dev11;
-  MonitorElement *dev12;
-  MonitorElement *dev13;
-  MonitorElement *dev14;
-  MonitorElement *dev15;
-  me11 = iGetter.get("Pixel/Endcap/SUMDIG_adc_Endcap");
-  ref11 = me11->getRefTH1();
-  dev11 = iGetter.get("Pixel/Endcap/DEV_adc_Endcap");
-  me12 = iGetter.get("Pixel/Endcap/SUMDIG_ndigis_Endcap");
-  ref12 = me12->getRefTH1();
-  dev12 = iGetter.get("Pixel/Endcap/DEV_ndigis_Endcap");
-  me13 = iGetter.get("Pixel/Endcap/SUMCLU_charge_Endcap");
-  ref13 = me13->getRefTH1();
-  dev13 = iGetter.get("Pixel/Endcap/DEV_charge_Endcap");
-  me14 = iGetter.get("Pixel/Endcap/SUMCLU_nclusters_Endcap");
-  ref14 = me14->getRefTH1();
-  dev14 = iGetter.get("Pixel/Endcap/DEV_nclusters_Endcap");
-  me15 = iGetter.get("Pixel/Endcap/SUMCLU_size_Endcap");
-  ref15 = me15->getRefTH1();
-  dev15 = iGetter.get("Pixel/Endcap/DEV_size_Endcap");
-  for (int i = 1; i != nn + 1; i++) {
-    float ref_value;
-    float new_value;
-    // Endcap adc:
-    if (me11)
-      if (ref11)
-        if (dev11) {
-          new_value = me11->getBinContent(i);
-          ref_value = ref11->GetBinContent(i);
-          dev11->setBinContent(i, ref_value - new_value);
-        }
-    // Endcap ndigis:
-    if (me12)
-      if (ref12)
-        if (dev12) {
-          new_value = me12->getBinContent(i);
-          ref_value = ref12->GetBinContent(i);
-          dev12->setBinContent(i, ref_value - new_value);
-        }
-    // Endcap cluster charge:
-    if (me13)
-      if (ref13)
-        if (dev13) {
-          new_value = me13->getBinContent(i);
-          ref_value = ref13->GetBinContent(i);
-          dev13->setBinContent(i, ref_value - new_value);
-        }
-    // Endcap nclusters:
-    if (me14)
-      if (ref14)
-        if (dev14) {
-          new_value = me14->getBinContent(i);
-          ref_value = ref14->GetBinContent(i);
-          dev14->setBinContent(i, ref_value - new_value);
-        }
-    // Endcap cluster size:
-    if (me15)
-      if (ref15)
-        if (dev15) {
-          new_value = me15->getBinContent(i);
-          ref_value = ref15->GetBinContent(i);
-          dev15->setBinContent(i, ref_value - new_value);
-        }
-  }
-}
-
 //=============================================================================================================
 
 void SiPixelActionExecutor::GetBladeSubdirs(DQMStore::IBooker &iBooker,
@@ -590,7 +436,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
         for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
           string sname = ((*isum)->getName());
           string tname = " ";
-          tname = sname.substr(7, (sname.find("_", 7) - 6));
+          tname = sname.substr(7, (sname.find('_', 7) - 6));
           if (sname.find("ALLMODS_adcCOMB_") != string::npos)
             tname = "adc_";
           if (sname.find("ALLMODS_chargeCOMB_") != string::npos)
@@ -735,13 +581,13 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
               }
               string title = " ";
               if (sname.find("_RMS_") != string::npos) {
-                title = "RMS of " + sname.substr(7, (sname.find("_", 7) - 7)) + " per module";
+                title = "RMS of " + sname.substr(7, (sname.find('_', 7) - 7)) + " per module";
               } else if (sname.find("_FracOfPerfectPix_") != string::npos) {
-                title = "FracOfPerfectPix " + sname.substr(7, (sname.find("_", 7) - 7)) + " per module";
+                title = "FracOfPerfectPix " + sname.substr(7, (sname.find('_', 7) - 7)) + " per module";
               } else if (sname.find("_NCalibErrors_") != string::npos) {
-                title = "Number of CalibErrors " + sname.substr(7, (sname.find("_", 7) - 7)) + " per module";
+                title = "Number of CalibErrors " + sname.substr(7, (sname.find('_', 7) - 7)) + " per module";
               } else if (sname.find("_NNegativeFits_") != string::npos) {
-                title = "Number of pixels with neg. fit result " + sname.substr(7, (sname.find("_", 7) - 7)) +
+                title = "Number of pixels with neg. fit result " + sname.substr(7, (sname.find('_', 7) - 7)) +
                         " per module";
               } else if (sname.find("FREQ_") != string::npos) {
                 title = "NEvents with digis per module";
@@ -759,9 +605,9 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
               } else {
                 if (prefix == "SUMOFF")
                   title =
-                      "Mean " + sname.substr(7, (sname.find("_", 7) - 7)) + (isbarrel ? " per Ladder" : " per Blade");
+                      "Mean " + sname.substr(7, (sname.find('_', 7) - 7)) + (isbarrel ? " per Ladder" : " per Blade");
                 else
-                  title = "Mean " + sname.substr(7, (sname.find("_", 7) - 7)) + " per Module";
+                  title = "Mean " + sname.substr(7, (sname.find('_', 7) - 7)) + " per Module";
               }
               (*isum)->setAxisTitle(title, 2);
             }
@@ -970,7 +816,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
           }
           string sname = ((*isum)->getName());
           string tname = " ";
-          tname = sname.substr(7, (sname.find("_", 7) - 6));
+          tname = sname.substr(7, (sname.find('_', 7) - 6));
           if (((*im)).find(tname) == 0) {
             string fullpathname = iBooker.pwd() + "/" + (*im);
             MonitorElement *me = iGetter.get(fullpathname);
@@ -1003,7 +849,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
               }
               (*isum)->setAxisTitle("FED #", 1);
               string title = " ";
-              title = sname.substr(7, (sname.find("_", 7) - 7)) + " per FED";
+              title = sname.substr(7, (sname.find('_', 7) - 7)) + " per FED";
               (*isum)->setAxisTitle(title, 2);
             }
             break;
@@ -1039,7 +885,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
   vector<MonitorElement *> gsum_mes;
   string currDir = iBooker.pwd();
   string path_name = iBooker.pwd();
-  string dir_name = path_name.substr(path_name.find_last_of("/") + 1);
+  string dir_name = path_name.substr(path_name.find_last_of('/') + 1);
   if ((dir_name.find("DQMData") == 0) || (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) || (dir_name.find("Endcap") == 0) ||
       (dir_name.find("HalfCylinder") == 0) || (dir_name.find("Disk") == 0) || (dir_name.find("Blade") == 0) ||
@@ -1421,7 +1267,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
   vector<MonitorElement *> gsum_mes;
   string currDir = iBooker.pwd();
   string path_name = iBooker.pwd();
-  string dir_name = path_name.substr(path_name.find_last_of("/") + 1);
+  string dir_name = path_name.substr(path_name.find_last_of('/') + 1);
   if ((dir_name.find("DQMData") == 0) || (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) || (dir_name.find("Barrel") == 0) ||
       (dir_name.find("Shell") == 0) || (dir_name.find("Layer") == 0) || (dir_name.find("Ladder") == 0))
@@ -1959,7 +1805,7 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker &iBooker, DQMStore::
   if (Tier0Flag_)
     return;
   string currDir = iBooker.pwd();
-  string dname = currDir.substr(currDir.find_last_of("/") + 1);
+  string dname = currDir.substr(currDir.find_last_of('/') + 1);
 
   if (dname.find("Layer_") != string::npos || dname.find("Disk_") != string::npos) {
     vector<string> meVec = iGetter.getMEs();
@@ -1970,9 +1816,9 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker &iBooker, DQMStore::
         if (!me)
           continue;
         string path = full_path;
-        while (path.find_last_of("/") != 5)  // Stop before Pixel/
+        while (path.find_last_of('/') != 5)  // Stop before Pixel/
         {
-          path = path.substr(0, path.find_last_of("/"));
+          path = path.substr(0, path.find_last_of('/'));
           //							cout << "\t" <<
           // path
           //<< endl;
@@ -2219,7 +2065,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
                                            bool isUpgrade) {
   // cout<<"entering SiPixelActionExecutor::fillEfficiency..."<<std::endl;
   string currDir = iBooker.pwd();
-  string dname = currDir.substr(currDir.find_last_of("/") + 1);
+  string dname = currDir.substr(currDir.find_last_of('/') + 1);
   // cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
 
   if (Tier0Flag_) {  // Offline

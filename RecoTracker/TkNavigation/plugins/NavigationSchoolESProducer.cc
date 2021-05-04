@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "NavigationSchoolFactory.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
@@ -41,9 +42,9 @@ NavigationSchoolESProducer::NavigationSchoolESProducer(const edm::ParameterSet& 
   //the following line is needed to tell the framework what
   // data is being produced
 
-  setWhatProduced(this, navigationSchoolName_)
-      .setConsumes(magFieldToken_, edm::ESInputTag("", iConfig.getParameter<std::string>("SimpleMagneticField")))
-      .setConsumes(geometricSearchTrackerToken_);
+  auto cc = setWhatProduced(this, navigationSchoolName_);
+  magFieldToken_ = cc.consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("SimpleMagneticField")));
+  geometricSearchTrackerToken_ = cc.consumes();
 
   //now do what ever other initialization is needed
 }

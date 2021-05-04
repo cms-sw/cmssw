@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
@@ -33,12 +34,13 @@ private:
   int iev;  // events through
   edm::EDGetTokenT<ME0RecHitCollection> theME0RecHitToken;
   std::unique_ptr<ME0SegmentBuilder> segmentBuilder_;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> me0GeomToken_;
 };
 
 ME0SegmentProducer::ME0SegmentProducer(const edm::ParameterSet& ps) : iev(0) {
   theME0RecHitToken = consumes<ME0RecHitCollection>(ps.getParameter<edm::InputTag>("me0RecHitLabel"));
   segmentBuilder_ = std::make_unique<ME0SegmentBuilder>(ps);  // pass on the Parameter Set
-
+  me0GeomToken_ = esConsumes<ME0Geometry, MuonGeometryRecord>();
   // register what this produces
   produces<ME0SegmentCollection>();
 }
@@ -47,8 +49,7 @@ void ME0SegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   LogDebug("ME0SegmentProducer") << "start producing segments for " << ++iev << "th event with ME0 data";
 
   // find the geometry (& conditions?) for this event & cache it in the builder
-  edm::ESHandle<ME0Geometry> me0g;
-  setup.get<MuonGeometryRecord>().get(me0g);
+  edm::ESHandle<ME0Geometry> me0g = setup.getHandle(me0GeomToken_);
   const ME0Geometry* mgeom = &*me0g;
   segmentBuilder_->setGeometry(mgeom);
 

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-	<ConstantsSection label="zdclumi">
+	<ConstantsSection label="zdclumi" eval="true">
 		<Constant name="LUMIWorldHalfdX" value="8.0000*cm"/>
 		<Constant name="LUMIWorldHalfdY" value="64.0000*cm"/>
 		<Constant name="LUMIWorldHalfdZ" value="8.0000*cm"/>

@@ -11,16 +11,22 @@
 #include "DataFormats/L1THGCal/interface/HGCalTowerMap.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 
+#include <utility>
+
 typedef HGCalProcessorBaseT<HGCalDigiCollection, l1t::HGCalTriggerCellBxCollection> HGCalVFEProcessorBase;
-typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTriggerCellBxCollection>, l1t::HGCalTriggerCellBxCollection>
+typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTriggerCellBxCollection>,
+                            std::pair<l1t::HGCalTriggerCellBxCollection, l1t::HGCalTriggerSumsBxCollection> >
     HGCalConcentratorProcessorBase;
 typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTriggerCellBxCollection>, l1t::HGCalClusterBxCollection>
     HGCalBackendLayer1ProcessorBase;
-typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalClusterBxCollection>, l1t::HGCalMulticlusterBxCollection>
+typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalClusterBxCollection>,
+                            std::pair<l1t::HGCalMulticlusterBxCollection, l1t::HGCalClusterBxCollection> >
     HGCalBackendLayer2ProcessorBase;
-typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTriggerCellBxCollection>, l1t::HGCalTowerMapBxCollection>
+typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTriggerSumsBxCollection>, l1t::HGCalTowerMapBxCollection>
     HGCalTowerMapProcessorBase;
-typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTowerMapBxCollection>, l1t::HGCalTowerBxCollection>
+typedef HGCalProcessorBaseT<
+    std::pair<edm::Handle<l1t::HGCalTowerMapBxCollection>, edm::Handle<l1t::HGCalClusterBxCollection> >,
+    l1t::HGCalTowerBxCollection>
     HGCalTowerProcessorBase;
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"

@@ -116,10 +116,6 @@ void SUSY_HLT_Electron_BJet::analyze(edm::Event const &e, edm::EventSetup const 
   }
 }
 
-void SUSY_HLT_Electron_BJet::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_Electron_BJet") << "SUSY_HLT_Electron_BJet::endRun" << std::endl;
-}
-
 void SUSY_HLT_Electron_BJet::bookHistos(DQMStore::IBooker &ibooker_) {
   ibooker_.cd();
   ibooker_.setCurrentFolder("HLT/SUSYBSM/" + triggerPath_);

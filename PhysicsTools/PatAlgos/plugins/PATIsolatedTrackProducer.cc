@@ -43,6 +43,7 @@ namespace pat {
 
   class PATIsolatedTrackProducer : public edm::stream::EDProducer<> {
   public:
+    typedef pat::IsolatedTrack::PolarLorentzVector PolarLorentzVector;
     typedef pat::IsolatedTrack::LorentzVector LorentzVector;
 
     explicit PATIsolatedTrackProducer(const edm::ParameterSet&);
@@ -51,17 +52,17 @@ namespace pat {
     void produce(edm::Event&, const edm::EventSetup&) override;
 
     // compute iso/miniiso
-    void getIsolation(const LorentzVector& p4,
+    void getIsolation(const PolarLorentzVector& p4,
                       const pat::PackedCandidateCollection* pc,
                       int pc_idx,
                       pat::PFIsolation& iso,
                       pat::PFIsolation& miniiso) const;
 
-    bool getPFLeptonOverlap(const LorentzVector& p4, const pat::PackedCandidateCollection* pc) const;
+    bool getPFLeptonOverlap(const PolarLorentzVector& p4, const pat::PackedCandidateCollection* pc) const;
 
-    float getPFNeutralSum(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx) const;
+    float getPFNeutralSum(const PolarLorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx) const;
 
-    void getNearestPCRef(const LorentzVector& p4,
+    void getNearestPCRef(const PolarLorentzVector& p4,
                          const pat::PackedCandidateCollection* pc,
                          int pc_idx,
                          int& pc_ref_idx) const;
@@ -70,7 +71,7 @@ namespace pat {
 
     TrackDetMatchInfo getTrackDetMatchInfo(const edm::Event&, const edm::EventSetup&, const reco::Track&);
 
-    void getCaloJetEnergy(const LorentzVector&, const reco::CaloJetCollection*, float&, float&) const;
+    void getCaloJetEnergy(const PolarLorentzVector&, const reco::CaloJetCollection*, float&, float&) const;
 
   private:
     const edm::EDGetTokenT<pat::PackedCandidateCollection> pc_;
@@ -101,6 +102,7 @@ namespace pat {
     const float pcRefNearest_DR_;     // radius for nearest charged packed candidate
     const float pcRefNearest_pTmin_;  // min pT for nearest charged packed candidate
     const float pfneutralsum_DR_;     // pf lepton overlap radius
+    const bool useHighPurity_;
     const bool saveDeDxHitInfo_;
     StringCutObjectSelector<pat::IsolatedTrack> saveDeDxHitInfoCut_;
 
@@ -145,6 +147,7 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
       pcRefNearest_DR_(iConfig.getParameter<double>("pcRefNearest_DR")),
       pcRefNearest_pTmin_(iConfig.getParameter<double>("pcRefNearest_pTmin")),
       pfneutralsum_DR_(iConfig.getParameter<double>("pfneutralsum_DR")),
+      useHighPurity_(iConfig.getParameter<bool>("useHighPurity")),
       saveDeDxHitInfo_(iConfig.getParameter<bool>("saveDeDxHitInfo")),
       saveDeDxHitInfoCut_(iConfig.getParameter<std::string>("saveDeDxHitInfoCut")) {
   // TrackAssociator parameters
@@ -236,6 +239,9 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
   //add general tracks
   for (unsigned int igt = 0; igt < generalTracks->size(); igt++) {
     const reco::Track& gentk = (*gt_h)[igt];
+    if (useHighPurity_)
+      if (!(gentk.quality(reco::TrackBase::qualityByName("highPurity"))))
+        continue;
     reco::TrackRef tkref = reco::TrackRef(gt_h, igt);
     pat::PackedCandidateRef pcref = (*gt2pc)[tkref];
     pat::PackedCandidateRef ltref = (*gt2lt)[tkref];
@@ -248,6 +254,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     bool isInPackedCands = (pcref.isNonnull() && pcref.id() == pc_h.id() && pfCand->charge() != 0);
     bool isInLostTracks = (ltref.isNonnull() && ltref.id() == lt_h.id());
 
+    PolarLorentzVector polarP4;
     LorentzVector p4;
     pat::PackedCandidateRef refToCand;
     int pdgId, charge, fromPV;
@@ -258,11 +265,13 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     // get the four-momentum and charge
     if (isInPackedCands) {
       p4 = pfCand->p4();
+      polarP4 = pfCand->p4();
       charge = pfCand->charge();
       pfCandInd = pcref.key();
       ltCandInd = -1;
     } else if (isInLostTracks) {
       p4 = lostTrack->p4();
+      polarP4 = lostTrack->p4();
       charge = lostTrack->charge();
       pfCandInd = -1;
       ltCandInd = ltref.key();
@@ -270,6 +279,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
       double m = 0.13957018;  //assume pion mass
       double E = sqrt(m * m + gentk.p() * gentk.p());
       p4.SetPxPyPzE(gentk.px(), gentk.py(), gentk.pz(), E);
+      polarP4.SetCoordinates(gentk.pt(), gentk.eta(), gentk.phi(), m);
       charge = gentk.charge();
       pfCandInd = -1;
       ltCandInd = -1;
@@ -283,7 +293,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
       }
     }
 
-    if (p4.pt() < pT_cut_ && prescaled <= 1)
+    if (polarP4.pt() < pT_cut_ && prescaled <= 1)
       continue;
     if (charge == 0)
       continue;
@@ -291,12 +301,13 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     // get the isolation of the track
     pat::PFIsolation isolationDR03;
     pat::PFIsolation miniIso;
-    getIsolation(p4, pc, pfCandInd, isolationDR03, miniIso);
+    getIsolation(polarP4, pc, pfCandInd, isolationDR03, miniIso);
 
     // isolation cut
-    if (p4.pt() < pT_cut_noIso_ && prescaled <= 1 &&
-        !(isolationDR03.chargedHadronIso() < absIso_cut_ || isolationDR03.chargedHadronIso() / p4.pt() < relIso_cut_ ||
-          miniIso.chargedHadronIso() / p4.pt() < miniRelIso_cut_))
+    if (polarP4.pt() < pT_cut_noIso_ && prescaled <= 1 &&
+        !(isolationDR03.chargedHadronIso() < absIso_cut_ ||
+          isolationDR03.chargedHadronIso() / polarP4.pt() < relIso_cut_ ||
+          miniIso.chargedHadronIso() / polarP4.pt() < miniRelIso_cut_))
       continue;
 
     // get the rest after the pt/iso cuts. Saves some runtime
@@ -327,20 +338,20 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     }
 
     float caloJetEm, caloJetHad;
-    getCaloJetEnergy(p4, caloJets.product(), caloJetEm, caloJetHad);
+    getCaloJetEnergy(polarP4, caloJets.product(), caloJetEm, caloJetHad);
 
-    bool pfLepOverlap = getPFLeptonOverlap(p4, pc);
-    float pfNeutralSum = getPFNeutralSum(p4, pc, pfCandInd);
+    bool pfLepOverlap = getPFLeptonOverlap(polarP4, pc);
+    float pfNeutralSum = getPFNeutralSum(polarP4, pc, pfCandInd);
 
     pat::PackedCandidateRef refToNearestPF = pat::PackedCandidateRef();
     int refToNearestPF_idx = -1;
-    getNearestPCRef(p4, pc, pfCandInd, refToNearestPF_idx);
+    getNearestPCRef(polarP4, pc, pfCandInd, refToNearestPF_idx);
     if (refToNearestPF_idx != -1)
       refToNearestPF = pat::PackedCandidateRef(pc_h, refToNearestPF_idx);
 
     pat::PackedCandidateRef refToNearestLostTrack = pat::PackedCandidateRef();
     int refToNearestLostTrack_idx = -1;
-    getNearestPCRef(p4, lt, ltCandInd, refToNearestLostTrack_idx);
+    getNearestPCRef(polarP4, lt, ltCandInd, refToNearestLostTrack_idx);
     if (refToNearestLostTrack_idx != -1)
       refToNearestLostTrack = pat::PackedCandidateRef(lt_h, refToNearestLostTrack_idx);
 
@@ -435,15 +446,15 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     if (pfref.get()->trackRef().isNonnull() && pfref.get()->trackRef().id() == gt_h.id())
       continue;
 
-    LorentzVector p4;
+    PolarLorentzVector polarP4;
     pat::PackedCandidateRef refToCand;
     int pdgId, charge, fromPV;
     float dz, dxy, dzError, dxyError;
 
-    p4 = pfCand.p4();
+    polarP4 = pfCand.polarP4();
     charge = pfCand.charge();
 
-    if (p4.pt() < pT_cut_)
+    if (polarP4.pt() < pT_cut_)
       continue;
     if (charge == 0)
       continue;
@@ -451,12 +462,12 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     // get the isolation of the track
     pat::PFIsolation isolationDR03;
     pat::PFIsolation miniIso;
-    getIsolation(p4, pc, ipc, isolationDR03, miniIso);
+    getIsolation(polarP4, pc, ipc, isolationDR03, miniIso);
 
     // isolation cut
-    if (p4.pt() < pT_cut_noIso_ &&
-        !(isolationDR03.chargedHadronIso() < absIso_cut_ || isolationDR03.chargedHadronIso() / p4.pt() < relIso_cut_ ||
-          miniIso.chargedHadronIso() / p4.pt() < miniRelIso_cut_))
+    if (polarP4.pt() < pT_cut_noIso_ && !(isolationDR03.chargedHadronIso() < absIso_cut_ ||
+                                          isolationDR03.chargedHadronIso() / polarP4.pt() < relIso_cut_ ||
+                                          miniIso.chargedHadronIso() / polarP4.pt() < miniRelIso_cut_))
       continue;
 
     pdgId = pfCand.pdgId();
@@ -473,20 +484,20 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     refToCand = pcref;
 
     float caloJetEm, caloJetHad;
-    getCaloJetEnergy(p4, caloJets.product(), caloJetEm, caloJetHad);
+    getCaloJetEnergy(polarP4, caloJets.product(), caloJetEm, caloJetHad);
 
-    bool pfLepOverlap = getPFLeptonOverlap(p4, pc);
-    float pfNeutralSum = getPFNeutralSum(p4, pc, ipc);
+    bool pfLepOverlap = getPFLeptonOverlap(polarP4, pc);
+    float pfNeutralSum = getPFNeutralSum(polarP4, pc, ipc);
 
     pat::PackedCandidateRef refToNearestPF = pat::PackedCandidateRef();
     int refToNearestPF_idx = -1;
-    getNearestPCRef(p4, pc, ipc, refToNearestPF_idx);
+    getNearestPCRef(polarP4, pc, ipc, refToNearestPF_idx);
     if (refToNearestPF_idx != -1)
       refToNearestPF = pat::PackedCandidateRef(pc_h, refToNearestPF_idx);
 
     pat::PackedCandidateRef refToNearestLostTrack = pat::PackedCandidateRef();
     int refToNearestLostTrack_idx = -1;
-    getNearestPCRef(p4, lt, -1, refToNearestLostTrack_idx);
+    getNearestPCRef(polarP4, lt, -1, refToNearestLostTrack_idx);
     if (refToNearestLostTrack_idx != -1)
       refToNearestLostTrack = pat::PackedCandidateRef(lt_h, refToNearestLostTrack_idx);
 
@@ -505,7 +516,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
                                           caloJetHad,
                                           pfLepOverlap,
                                           pfNeutralSum,
-                                          p4,
+                                          pfCand.p4(),
                                           charge,
                                           pdgId,
                                           dz,
@@ -539,7 +550,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
   }
 }
 
-void pat::PATIsolatedTrackProducer::getIsolation(const LorentzVector& p4,
+void pat::PATIsolatedTrackProducer::getIsolation(const PolarLorentzVector& p4,
                                                  const pat::PackedCandidateCollection* pc,
                                                  int pc_idx,
                                                  pat::PFIsolation& iso,
@@ -553,7 +564,7 @@ void pat::PATIsolatedTrackProducer::getIsolation(const LorentzVector& p4,
     int id = std::abs(pf_it->pdgId());
     bool fromPV = (pf_it->fromPV() > 1 || fabs(pf_it->dz()) < pfIsolation_DZ_);
     float pt = pf_it->p4().pt();
-    float dr = deltaR(p4, pf_it->p4());
+    float dr = deltaR(p4, *pf_it);
 
     if (dr < pfIsolation_DR_) {
       // charged cands from PV get added to trackIso
@@ -587,7 +598,7 @@ void pat::PATIsolatedTrackProducer::getIsolation(const LorentzVector& p4,
 }
 
 //get overlap of isolated track with a PF lepton
-bool pat::PATIsolatedTrackProducer::getPFLeptonOverlap(const LorentzVector& p4,
+bool pat::PATIsolatedTrackProducer::getPFLeptonOverlap(const PolarLorentzVector& p4,
                                                        const pat::PackedCandidateCollection* pc) const {
   bool isOverlap = false;
   float dr_min = pflepoverlap_DR_;
@@ -604,7 +615,7 @@ bool pat::PATIsolatedTrackProducer::getPFLeptonOverlap(const LorentzVector& p4,
     if (pt < pflepoverlap_pTmin_)  // exclude pf candidates w/ pT below threshold
       continue;
 
-    float dr = deltaR(p4, pf.p4());
+    float dr = deltaR(p4, pf);
     if (dr > pflepoverlap_DR_)  // exclude pf candidates far from isolated track
       continue;
 
@@ -621,7 +632,7 @@ bool pat::PATIsolatedTrackProducer::getPFLeptonOverlap(const LorentzVector& p4,
 }
 
 //get ref to nearest pf packed candidate
-void pat::PATIsolatedTrackProducer::getNearestPCRef(const LorentzVector& p4,
+void pat::PATIsolatedTrackProducer::getNearestPCRef(const PolarLorentzVector& p4,
                                                     const pat::PackedCandidateCollection* pc,
                                                     int pc_idx,
                                                     int& pc_ref_idx) const {
@@ -634,7 +645,7 @@ void pat::PATIsolatedTrackProducer::getNearestPCRef(const LorentzVector& p4,
     int charge = std::abs(pf_it->charge());
     bool fromPV = (pf_it->fromPV() > 1 || fabs(pf_it->dz()) < pfIsolation_DZ_);
     float pt = pf_it->p4().pt();
-    float dr = deltaR(p4, pf_it->p4());
+    float dr = deltaR(p4, *pf_it);
     if (charge == 0)  // exclude neutral candidates
       continue;
     if (pt < pcRefNearest_pTmin_)  // exclude candidates w/ pT below threshold
@@ -661,7 +672,7 @@ void pat::PATIsolatedTrackProducer::getNearestPCRef(const LorentzVector& p4,
 }
 
 // get PF neutral pT sum around isolated track
-float pat::PATIsolatedTrackProducer::getPFNeutralSum(const LorentzVector& p4,
+float pat::PATIsolatedTrackProducer::getPFNeutralSum(const PolarLorentzVector& p4,
                                                      const pat::PackedCandidateCollection* pc,
                                                      int pc_idx) const {
   float nsum = 0;
@@ -671,7 +682,7 @@ float pat::PATIsolatedTrackProducer::getPFNeutralSum(const LorentzVector& p4,
       continue;
     int id = std::abs(pf_it->pdgId());
     float pt = pf_it->p4().pt();
-    float dr = deltaR(p4, pf_it->p4());
+    float dr = deltaR(p4, *pf_it);
 
     if (dr < pfneutralsum_DR_) {
       // neutral hadron sum
@@ -747,14 +758,14 @@ TrackDetMatchInfo pat::PATIsolatedTrackProducer::getTrackDetMatchInfo(const edm:
   return trackAssociator_.associate(iEvent, iSetup, trackAssocParameters_, &initialState);
 }
 
-void pat::PATIsolatedTrackProducer::getCaloJetEnergy(const LorentzVector& p4,
+void pat::PATIsolatedTrackProducer::getCaloJetEnergy(const PolarLorentzVector& p4,
                                                      const reco::CaloJetCollection* cJets,
                                                      float& caloJetEm,
                                                      float& caloJetHad) const {
   float nearestDR = 999;
   int ind = -1;
   for (unsigned int i = 0; i < cJets->size(); i++) {
-    float dR = deltaR(cJets->at(i).p4(), p4);
+    float dR = deltaR(cJets->at(i), p4);
     if (dR < caloJet_DR_ && dR < nearestDR) {
       nearestDR = dR;
       ind = i;

@@ -2,6 +2,8 @@
 #define __CorrectedECALPFClusterProducer__
 
 // user include files
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
@@ -50,7 +52,7 @@ public:
     _inputPS = consumes<reco::PFClusterCollection>(inputPS);
 
     const edm::ParameterSet& corConf = conf.getParameterSet("energyCorrector");
-    _corrector.reset(new PFClusterEMEnergyCorrector(corConf, consumesCollector()));
+    _corrector = std::make_unique<PFClusterEMEnergyCorrector>(corConf, consumesCollector());
 
     produces<reco::PFCluster::EEtoPSAssociation>();
     produces<reco::PFClusterCollection>();
@@ -135,10 +137,8 @@ void CorrectedECALPFClusterProducer::fillDescriptions(edm::ConfigurationDescript
     psd0.add<bool>("autoDetectBunchSpacing", true);
     psd0.add<int>("bunchSpacing", 25);
     psd0.add<double>("maxPtForMVAEvaluation", -99.);
-    psd0.add<std::string>("algoName", "PFClusterEMEnergyCorrector");
     psd0.add<edm::InputTag>("recHitsEBLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
     psd0.add<edm::InputTag>("recHitsEELabel", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
-    psd0.add<edm::InputTag>("verticesLabel", edm::InputTag("offlinePrimaryVertices"));
     psd0.add<edm::InputTag>("ebSrFlagLabel", edm::InputTag("ecalDigis"));
     psd0.add<edm::InputTag>("eeSrFlagLabel", edm::InputTag("ecalDigis"));
     desc.add<edm::ParameterSetDescription>("energyCorrector", psd0);

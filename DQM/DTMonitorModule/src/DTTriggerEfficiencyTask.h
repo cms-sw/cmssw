@@ -68,8 +68,8 @@ protected:
   bool hasRPCTriggers(const edm::Event& e);
 
   /// return the top folder
-  std::string topFolder(std::string source) {
-    return source == "TM" ? "DT/03-LocalTrigger-TM/" : "DT/04-LocalTrigger-DDU/";
+  std::string topFolder() {
+    return "DT/03-LocalTrigger-TM/";  //DDU no longer existing, leaving folder here for past references
   }
 
   /// Analyze
@@ -82,16 +82,14 @@ private:
 
   std::string SegmArbitration;
 
-  bool processTM, processDDU, detailedPlots, checkRPCtriggers;
+  bool processTM, detailedPlots, checkRPCtriggers;
   std::vector<std::string> processTags;
-  int minBXDDU, maxBXDDU;
 
   float phiAccRange;
   int nMinHitsPhi;
 
   edm::EDGetTokenT<reco::MuonCollection> muons_Token_;
   edm::EDGetTokenT<L1MuDTChambPhContainer> tm_Token_;
-  edm::EDGetTokenT<DTLocalTriggerCollection> ddu_Token_;
   edm::InputTag inputTagSEG;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> gmt_Token_;
 

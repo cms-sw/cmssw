@@ -19,17 +19,6 @@
 namespace edm {
   namespace test {
 
-    //
-    // constants, enums and typedefs
-    //
-
-    //
-    // static data member definitions
-    //
-
-    //
-    // constructors and destructor
-    //
     EventSetupTestHelper::EventSetupTestHelper(std::vector<ESProduceEntry> iProxies) : proxies_{std::move(iProxies)} {
       //Deal with duplicates
       std::set<eventsetup::EventSetupRecordKey> records;
@@ -42,31 +31,40 @@ namespace edm {
       }
     }
 
-    void EventSetupTestHelper::newInterval(const eventsetup::EventSetupRecordKey& iRecordType,
-                                           const ValidityInterval&) {}
-
     void EventSetupTestHelper::setIntervalFor(const eventsetup::EventSetupRecordKey&,
                                               const IOVSyncValue& iSync,
                                               ValidityInterval& oIOV) {
-      if (iSync.luminosityBlockNumber() == 0) {
-        //make valid through first run
-        oIOV = ValidityInterval(iSync, IOVSyncValue(EventID(iSync.eventID().run(), 1, 1)));
-      } else if (iSync.eventID().event() == 0) {
-        oIOV =
-            ValidityInterval(iSync, IOVSyncValue(EventID(iSync.eventID().run(), iSync.eventID().luminosityBlock(), 1)));
-      } else {
-        //Make valid for only this point
-        oIOV = ValidityInterval(iSync, iSync);
-      }
+      // Note that we manually invalidate the proxies at the end of every call
+      // to test. And the beginning of the call to test is the only opportunity
+      // to reset this data, so we are not relying on the EventSetup system
+      // to manage invalidating the proxies in EventSetupTestHelper. The only
+      // reasonable thing to do is return an interval for all time so the EventSetup
+      // system does not invalidate these proxies when it shouldn't. There are two
+      // weaknesses to this:
+      //
+      //     1. If for the same record type there are DataProxies both managed
+      //     by this class and also others managed by the EventSetup, then
+      //     at IOV boundaries for this record this will fail. The EventSetup
+      //     will invalidate all the proxies for the record after this class
+      //     has set the ones it manages and they will stay invalid when they
+      //     are needed.
+      //
+      //     2. TestProcessor does not support the special case where the different
+      //     transitions executed in one call to test have different IOVs and different
+      //     EventSetup data. That would be a pretty strange case, especially for a test.
+
+      oIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
     }
 
-    void EventSetupTestHelper::registerProxies(const eventsetup::EventSetupRecordKey& iRecordKey,
-                                               KeyedProxies& aProxyList) {
+    eventsetup::DataProxyProvider::KeyedProxiesVector EventSetupTestHelper::registerProxies(
+        const eventsetup::EventSetupRecordKey& iRecordKey, unsigned int iovIndex) {
+      KeyedProxiesVector keyedProxiesVector;
       for (auto const& p : proxies_) {
         if (p.recordKey_ == iRecordKey) {
-          aProxyList.emplace_back(p.dataKey_, p.proxy_);
+          keyedProxiesVector.emplace_back(p.dataKey_, p.proxy_);
         }
       }
+      return keyedProxiesVector;
     }
 
     std::shared_ptr<eventsetup::DataProxy> EventSetupTestHelper::getProxy(unsigned int iIndex) {

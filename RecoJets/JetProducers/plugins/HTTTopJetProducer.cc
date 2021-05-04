@@ -3,6 +3,8 @@
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "HTTTopJetProducer.h"
 
+#include <memory>
+
 using namespace edm;
 using namespace cms;
 using namespace reco;
@@ -60,22 +62,22 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf)
   // Signal to the VirtualJetProducer that we have to add HTT information
   fromHTTTopJetProducer_ = true;
 
-  fjHEPTopTagger_ = std::unique_ptr<fastjet::HEPTopTaggerV2>(new fastjet::HEPTopTaggerV2(optimalR_,
-                                                                                         qJets_,
-                                                                                         minSubjetPt_,
-                                                                                         minCandPt_,
-                                                                                         subjetMass_,
-                                                                                         muCut_,
-                                                                                         filtR_,
-                                                                                         filtN_,
-                                                                                         mode_,
-                                                                                         minCandMass_,
-                                                                                         maxCandMass_,
-                                                                                         massRatioWidth_,
-                                                                                         minM23Cut_,
-                                                                                         minM13Cut_,
-                                                                                         maxM13Cut_,
-                                                                                         rejectMinR_));
+  fjHEPTopTagger_ = std::make_unique<fastjet::HEPTopTaggerV2>(optimalR_,
+                                                              qJets_,
+                                                              minSubjetPt_,
+                                                              minCandPt_,
+                                                              subjetMass_,
+                                                              muCut_,
+                                                              filtR_,
+                                                              filtN_,
+                                                              mode_,
+                                                              minCandMass_,
+                                                              maxCandMass_,
+                                                              massRatioWidth_,
+                                                              minM23Cut_,
+                                                              minM13Cut_,
+                                                              maxM13Cut_,
+                                                              rejectMinR_);
 }
 
 void HTTTopJetProducer::produce(edm::Event& e, const edm::EventSetup& c) {
@@ -90,7 +92,7 @@ void HTTTopJetProducer::produce(edm::Event& e, const edm::EventSetup& c) {
 
 void HTTTopJetProducer::runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (!doAreaFastjet_ && !doRhoFastjet_) {
-    fjClusterSeq_ = ClusterSequencePtr(new fastjet::ClusterSequence(fjInputs_, *fjJetDefinition_));
+    fjClusterSeq_ = std::make_shared<fastjet::ClusterSequence>(fjInputs_, *fjJetDefinition_);
   } else if (voronoiRfact_ <= 0) {
     fjClusterSeq_ =
         ClusterSequencePtr(new fastjet::ClusterSequenceArea(fjInputs_, *fjJetDefinition_, *fjAreaDefinition_));

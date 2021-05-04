@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <vector>
 #include <string>
+#include <algorithm>
 
 namespace nanoaod {
 
@@ -22,9 +23,9 @@ namespace nanoaod {
       std::string name, doc;
       T value;
       void operator+=(const SingleColumn<T>& other) {
-        //// if one arrives here from tryMerge the checks are already done in the compatible() function before.
-        //// you may however want to enable these and remove the 'return false' in tryMerge in order to see what's incompatible between the tables.
-        //if (name != other.name) throw cms::Exception("LogicError", "Trying to merge "+name+" with "+other.name+"\n");
+        if (!compatible(other))
+          throw cms::Exception("LogicError",
+                               "Trying to merge " + name + " with " + other.name + " failed compatibility test.\n");
         value += other.value;
       }
       bool compatible(const SingleColumn<T>& other) {
@@ -33,6 +34,23 @@ namespace nanoaod {
     };
     typedef SingleColumn<float_accumulator> FloatColumn;
     typedef SingleColumn<int_accumulator> IntColumn;
+
+    template <typename T>
+    struct SingleWithNormColumn : SingleColumn<T> {
+      SingleWithNormColumn() { norm = 0; }
+      SingleWithNormColumn(const std::string& aname, const std::string& adoc, T avalue = T(), const double anorm = 0)
+          : SingleColumn<T>(aname, adoc, avalue), norm(anorm) {}
+      double norm;
+      void operator+=(const SingleWithNormColumn<T>& other) {
+        if (!this->compatible(other))
+          throw cms::Exception(
+              "LogicError", "Trying to merge " + this->name + " with " + other.name + " failed compatibility test.\n");
+        auto newNorm = norm + other.norm;
+        this->value = (newNorm != 0) ? (this->value * norm + other.value * other.norm) / newNorm : 0;
+        norm = newNorm;
+      }
+    };
+    typedef SingleWithNormColumn<float_accumulator> FloatWithNormColumn;
 
     template <typename T>
     struct VectorColumn {
@@ -45,10 +63,9 @@ namespace nanoaod {
       std::string name, doc;
       std::vector<T> values;
       void operator+=(const VectorColumn<T>& other) {
-        //// if one arrives here from tryMerge the checks are already done in the compatible() function before.
-        //// you may however want to enable these and remove the 'return false' in tryMerge in order to see what's incompatible between the tables.
-        //if (name != other.name) throw cms::Exception("LogicError", "Trying to merge "+name+" with "+other.name+"\n");
-        //if (values.size() != other.values.size()) throw cms::Exception("LogicError", "Trying to merge "+name+" with different number of values!\n");
+        if (!compatible(other))
+          throw cms::Exception("LogicError",
+                               "Trying to merge " + name + " with " + other.name + " failed compatibility test.\n");
         for (unsigned int i = 0, n = values.size(); i < n; ++i) {
           values[i] += other.values[i];
         }
@@ -60,14 +77,46 @@ namespace nanoaod {
     typedef VectorColumn<float_accumulator> VFloatColumn;
     typedef VectorColumn<int_accumulator> VIntColumn;
 
+    template <typename T>
+    struct VectorWithNormColumn : VectorColumn<T> {
+      double norm;
+      VectorWithNormColumn() { norm = 0; }
+      VectorWithNormColumn(const std::string& aname, const std::string& adoc, unsigned int size, double anorm = 0)
+          : VectorColumn<T>(aname, adoc, size), norm(anorm) {}
+      VectorWithNormColumn(const std::string& aname,
+                           const std::string& adoc,
+                           const std::vector<T>& somevalues,
+                           double anorm = 0)
+          : VectorColumn<T>(aname, adoc, somevalues), norm(anorm) {}
+      void operator+=(const VectorWithNormColumn<T>& other) {
+        if (!this->compatible(other))
+          throw cms::Exception(
+              "LogicError", "Trying to merge " + this->name + " with " + other.name + " failed compatibility test.\n");
+        auto newNorm = norm + other.norm;
+        for (unsigned int i = 0, n = this->values.size(); i < n; ++i) {
+          this->values[i] =
+              (newNorm != 0) ? (this->values[i] * norm + other.values[i] * other.norm) / (norm + other.norm) : 0;
+        }
+        norm = newNorm;
+      }
+    };
+    typedef VectorWithNormColumn<float_accumulator> VFloatWithNormColumn;
+
     const std::vector<FloatColumn>& floatCols() const { return floatCols_; }
     const std::vector<VFloatColumn>& vfloatCols() const { return vfloatCols_; }
+    const std::vector<FloatWithNormColumn>& floatWithNormCols() const { return floatWithNormCols_; }
+    const std::vector<VFloatWithNormColumn>& vfloatWithNormCols() const { return vfloatWithNormCols_; }
     const std::vector<IntColumn>& intCols() const { return intCols_; }
     const std::vector<VIntColumn>& vintCols() const { return vintCols_; }
 
     template <typename F>
     void addFloat(const std::string& name, const std::string& doc, F value) {
       floatCols_.push_back(FloatColumn(name, doc, value));
+    }
+
+    template <typename F>
+    void addFloatWithNorm(const std::string& name, const std::string& doc, F value, double norm) {
+      floatWithNormCols_.push_back(FloatWithNormColumn(name, doc, value, norm));
     }
 
     template <typename I>
@@ -79,6 +128,12 @@ namespace nanoaod {
     void addVFloat(const std::string& name, const std::string& doc, const std::vector<F> values) {
       vfloatCols_.push_back(VFloatColumn(name, doc, values.size()));
       std::copy(values.begin(), values.end(), vfloatCols_.back().values.begin());
+    }
+
+    template <typename F>
+    void addVFloatWithNorm(const std::string& name, const std::string& doc, const std::vector<F> values, double norm) {
+      vfloatWithNormCols_.push_back(VFloatWithNormColumn(name, doc, values.size(), norm));
+      std::copy(values.begin(), values.end(), vfloatWithNormCols_.back().values.begin());
     }
 
     template <typename I>
@@ -96,12 +151,18 @@ namespace nanoaod {
         return false;
       if (!tryMerge(vfloatCols_, other.vfloatCols_))
         return false;
+      if (!tryMerge(floatWithNormCols_, other.floatWithNormCols_))
+        return false;
+      if (!tryMerge(vfloatWithNormCols_, other.vfloatWithNormCols_))
+        return false;
       return true;
     }
 
     void swap(MergeableCounterTable& iOther) {
       floatCols_.swap(iOther.floatCols_);
       vfloatCols_.swap(iOther.vfloatCols_);
+      floatWithNormCols_.swap(iOther.floatWithNormCols_);
+      vfloatWithNormCols_.swap(iOther.vfloatWithNormCols_);
       intCols_.swap(iOther.intCols_);
       vintCols_.swap(iOther.vintCols_);
     }
@@ -109,17 +170,19 @@ namespace nanoaod {
   private:
     std::vector<FloatColumn> floatCols_;
     std::vector<VFloatColumn> vfloatCols_;
+    std::vector<FloatWithNormColumn> floatWithNormCols_;
+    std::vector<VFloatWithNormColumn> vfloatWithNormCols_;
     std::vector<IntColumn> intCols_;
     std::vector<VIntColumn> vintCols_;
 
     template <typename T>
     bool tryMerge(std::vector<T>& one, const std::vector<T>& two) {
-      if (one.size() != two.size())
-        return false;
-      for (unsigned int i = 0, n = one.size(); i < n; ++i) {
-        if (!one[i].compatible(two[i]))
-          return false;
-        one[i] += two[i];
+      for (auto y : two) {
+        auto x = std::find_if(one.begin(), one.end(), [&y](const T& x) { return x.name == y.name; });
+        if (x == one.end())
+          one.push_back(y);
+        else
+          (*x) += y;
       }
       return true;
     }

@@ -12,17 +12,12 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 #include <vector>
-
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}  // namespace edm
-class TrackerTopology;
 
 class MuonTrajectoryBuilder;
 class MuonTrajectoryCleaner;
@@ -36,12 +31,15 @@ public:
 
 public:
   /// Constructor, with default cleaner. For the STA reconstruction the trackLoader must have the propagator.
-  MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder, MuonTrackLoader* trackLoader);
+  MuonTrackFinder(std::unique_ptr<MuonTrajectoryBuilder> ConcreteMuonTrajectoryBuilder,
+                  std::unique_ptr<MuonTrackLoader> trackLoader,
+                  edm::ConsumesCollector iC);
 
   /// Constructor, with user-defined cleaner. For the STA reconstruction the trackLoader must have the propagator.
-  MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
-                  MuonTrackLoader* trackLoader,
-                  MuonTrajectoryCleaner* cleaner);
+  MuonTrackFinder(std::unique_ptr<MuonTrajectoryBuilder> ConcreteMuonTrajectoryBuilder,
+                  std::unique_ptr<MuonTrackLoader> trackLoader,
+                  std::unique_ptr<MuonTrajectoryCleaner> cleaner,
+                  edm::ConsumesCollector iC);
 
   /// destructor
   virtual ~MuonTrackFinder();
@@ -61,16 +59,18 @@ private:
   void setEvent(const edm::Event&);
 
   /// convert the trajectories into tracks and load them in to the event
-  edm::OrphanHandle<reco::TrackCollection> load(const TrajectoryContainer&, edm::Event&, const TrackerTopology& ttopo);
+  edm::OrphanHandle<reco::TrackCollection> load(TrajectoryContainer&, edm::Event&, const TrackerTopology& ttopo);
 
   /// convert the trajectories into tracks and load them in to the event
-  void load(const CandidateContainer&, edm::Event&, const TrackerTopology& ttopo);
+  void load(CandidateContainer&, edm::Event&, const TrackerTopology& ttopo);
 
 private:
-  MuonTrajectoryBuilder* theTrajBuilder;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTtopoToken;
 
-  MuonTrajectoryCleaner* theTrajCleaner;
+  std::unique_ptr<MuonTrajectoryBuilder> theTrajBuilder;
 
-  MuonTrackLoader* theTrackLoader;
+  std::unique_ptr<MuonTrajectoryCleaner> theTrajCleaner;
+
+  std::unique_ptr<MuonTrackLoader> theTrackLoader;
 };
 #endif

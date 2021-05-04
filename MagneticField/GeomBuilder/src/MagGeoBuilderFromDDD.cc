@@ -4,15 +4,15 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
-#include "MagneticField/GeomBuilder/src/bSlab.h"
-#include "MagneticField/GeomBuilder/src/bRod.h"
-#include "MagneticField/GeomBuilder/src/bSector.h"
-#include "MagneticField/GeomBuilder/src/bLayer.h"
-#include "MagneticField/GeomBuilder/src/eSector.h"
-#include "MagneticField/GeomBuilder/src/eLayer.h"
-#include "MagneticField/GeomBuilder/src/FakeInterpolator.h"
+#include "MagGeoBuilderFromDDD.h"
+#include "volumeHandle.h"
+#include "bSlab.h"
+#include "bRod.h"
+#include "bSector.h"
+#include "bLayer.h"
+#include "eSector.h"
+#include "eLayer.h"
+#include "FakeInterpolator.h"
 
 #include "MagneticField/Layers/interface/MagBLayer.h"
 #include "MagneticField/Layers/interface/MagESector.h"
@@ -24,7 +24,6 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 
 #include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
 #include "MagneticField/Interpolation/interface/MFGridFactory.h"
@@ -32,9 +31,9 @@
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
-#include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -51,14 +50,11 @@
 #include <boost/algorithm/string/replace.hpp>
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
-bool MagGeoBuilderFromDDD::debug;
-
 using namespace std;
 using namespace magneticfield;
 
 MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_, int geometryVersion_, bool debug_)
-    : tableSet(tableSet_), geometryVersion(geometryVersion_), theGridFiles(nullptr) {
-  debug = debug_;
+    : tableSet(tableSet_), geometryVersion(geometryVersion_), theGridFiles(nullptr), debug(debug_) {
   if (debug)
     cout << "Constructing a MagGeoBuilderFromDDD" << endl;
 }
@@ -190,7 +186,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
     //       }
     //     }
 
-    volumeHandle* v = new volumeHandle(fv, expand);
+    volumeHandle* v = new volumeHandle(fv, expand, debug);
 
     if (theGridFiles != nullptr) {
       int key = (v->volumeno) * 100 + v->copyno;
@@ -315,14 +311,14 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
     while ((*separ)->RN() < rSepar)
       ++separ;
 
-    bLayer thislayer(ringStart, separ);
+    bLayer thislayer(ringStart, separ, debug);
     layers.push_back(thislayer);
     ringStart = separ;
   }
   {
     if (debug)
       cout << " Layer at RN = " << rClust.back();
-    bLayer thislayer(separ, last);
+    bLayer thislayer(separ, last, debug);
     layers.push_back(thislayer);
   }
 
@@ -378,7 +374,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
       }
     }
 
-    sectors.push_back(eSector(eVolumes.begin() + ((i)*offset), eVolumes.begin() + ((i + 1) * offset)));
+    sectors.push_back(eSector(eVolumes.begin() + ((i)*offset), eVolumes.begin() + ((i + 1) * offset), debug));
   }
 
   if (debug)
@@ -464,9 +460,9 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles& volumes, map<string, M
     if (interpolators.find((*vol)->magFile) != interpolators.end()) {
       mp = interpolators[(*vol)->magFile];
     } else {
-      edm::LogError("MagGeoBuilderFromDDDbuildMagVolumes")
-          << "No interpolator found for file " << (*vol)->magFile << " vol: " << (*vol)->volumeno << "\n"
-          << interpolators.size() << endl;
+      edm::LogError("MagGeoBuilder") << "No interpolator found for file " << (*vol)->magFile
+                                     << " vol: " << (*vol)->volumeno << "\n"
+                                     << interpolators.size() << endl;
     }
 
     // Search for [volume,sector] in the list of scaling factors; sector = 0 handled as wildcard
@@ -482,9 +478,8 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles& volumes, map<string, M
     if (isf != theScalingFactors.end()) {
       sf = (*isf).second;
 
-      edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer")
-          << "Applying scaling factor " << sf << " to " << (*vol)->volumeno << "[" << (*vol)->copyno << "] (key:" << key
-          << ")" << endl;
+      edm::LogInfo("MagGeoBuilder") << "Applying scaling factor " << sf << " to " << (*vol)->volumeno << "["
+                                    << (*vol)->copyno << "] (key:" << key << ")" << endl;
     }
 
     const GloballyPositioned<float>* gpos = (*vol)->placement();

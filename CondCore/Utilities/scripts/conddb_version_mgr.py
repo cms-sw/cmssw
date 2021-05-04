@@ -11,7 +11,6 @@ import CondCore.Utilities.credentials as auth
 import CondCore.Utilities.conddb_time as conddb_time
 import os
 
-authPathEnvVar = 'COND_AUTH_PATH'
 prod_db_service = ('cms_orcon_prod',{'w':'cms_orcon_prod/cms_cond_general_w','r':'cms_orcon_prod/cms_cond_general_r'})
 adg_db_service = ('cms_orcon_adg',{'r':'cms_orcon_adg/cms_cond_general_r'})
 dev_db_service = ('cms_orcoff_prep',{'w':'cms_orcoff_prep/cms_cond_general_w','r':'cms_orcoff_prep/cms_cond_general_r'})
@@ -169,7 +168,7 @@ class conddb_tool(object):
         if self.args.accessType not in db_service[1].keys():
             raise Exception('The specified database connection %s does not support the requested action.' %db_service[0])
         service = db_service[1][self.args.accessType]
-        creds = auth.get_credentials( authPathEnvVar, service, self.args.auth )
+        creds = auth.get_credentials( service, self.args.auth )
         if creds is None:
             raise Exception("Could not find credentials for service %s" %service)
         (username, account, pwd) = creds

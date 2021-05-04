@@ -18,7 +18,6 @@ public:
 private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob(void) override;
 
   edm::EDGetTokenT<ESDigiCollection> digitoken_;
   edm::FileInPath lookup_;

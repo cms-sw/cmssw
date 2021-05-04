@@ -4,7 +4,7 @@
 /*
  * \file L1TStage2BMTF.h
  * \Author Esmaeel Eskandari Tadavani
- * \December 2015 
+ * \December 2015
 */
 
 // system requirements
@@ -60,7 +60,6 @@ public:
   // member functions
 protected:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
 
   // data members
@@ -96,7 +95,7 @@ private:
   MonitorElement* bmtf_hwQual_bx;
 
   MonitorElement* bmtf_hwDXY;
-  MonitorElement* bmtf_hwPt2;
+  MonitorElement* bmtf_hwPtUnconstrained;
 
   /* MonitorElement* bmtf_twinmuxInput_PhiBX; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhi; */

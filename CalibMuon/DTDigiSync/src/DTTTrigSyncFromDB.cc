@@ -36,7 +36,8 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config)
       theWirePropCorrType(config.getParameter<int>("wirePropCorrType")),
       // spacing of BX in ns
       theBXspace(config.getUntrackedParameter<double>("bxSpace", 25.)),
-      thetTrigLabel(config.getParameter<string>("tTrigLabel")) {}
+      thetTrigLabel(config.getParameter<string>("tTrigLabel")),
+      thet0Label(config.getParameter<string>("t0Label")) {}
 
 DTTTrigSyncFromDB::~DTTTrigSyncFromDB() {}
 
@@ -44,7 +45,7 @@ void DTTTrigSyncFromDB::setES(const EventSetup& setup) {
   if (doT0Correction) {
     // Get the map of t0 from pulses from the Setup
     ESHandle<DTT0> t0Handle;
-    setup.get<DTT0Rcd>().get(t0Handle);
+    setup.get<DTT0Rcd>().get(thet0Label, t0Handle);
     tZeroMap = &*t0Handle;
     if (debug) {
       cout << "[DTTTrigSyncFromDB] t0 version: " << tZeroMap->version() << endl;

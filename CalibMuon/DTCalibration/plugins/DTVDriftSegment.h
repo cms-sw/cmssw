@@ -14,6 +14,7 @@
 #include <string>
 
 class DTMtime;
+class DTRecoConditions;
 class DTResidualFitter;
 class TH1F;
 class TFile;
@@ -34,7 +35,9 @@ namespace dtCalibration {
 
     unsigned int nSigmas_;
 
-    const DTMtime* mTimeMap_;
+    const DTMtime* mTimeMap_;            // legacy DB object
+    const DTRecoConditions* vDriftMap_;  // DB object in new format
+    bool readLegacyVDriftDB;             // which one to use
     TFile* rootFile_;
     DTResidualFitter* fitter_;
   };

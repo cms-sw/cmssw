@@ -35,7 +35,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -76,14 +76,13 @@ namespace {
 namespace reco {
   namespace tau {
 
-    class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProducerBase {
+    class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationContainerProducerBase {
     public:
       explicit PATTauDiscriminationByMVAIsolationRun2(const edm::ParameterSet& cfg)
-          : PATTauDiscriminationProducerBase(cfg),
+          : PATTauDiscriminationContainerProducerBase(cfg),
             moduleLabel_(cfg.getParameter<std::string>("@module_label")),
             mvaReader_(nullptr),
-            mvaInput_(nullptr),
-            category_output_() {
+            mvaInput_(nullptr) {
         mvaName_ = cfg.getParameter<std::string>("mvaName");
         loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
         if (!loadMVAfromDB_) {
@@ -110,6 +109,8 @@ namespace reco {
           mvaOpt_ = kDBoldDMwLTwGJ;
         else if (mvaOpt_string == "DBnewDMwLTwGJ")
           mvaOpt_ = kDBnewDMwLTwGJ;
+        else if (mvaOpt_string == "DBnewDMwLTwGJPhase2")
+          mvaOpt_ = kDBnewDMwLTwGJPhase2;
         else
           throw cms::Exception("PATTauDiscriminationByMVAIsolationRun2")
               << " Invalid Configuration Parameter 'mvaOpt' = " << mvaOpt_string << " !!\n";
@@ -121,6 +122,8 @@ namespace reco {
         else if (mvaOpt_ == kDBoldDMwLT || mvaOpt_ == kDBnewDMwLT || mvaOpt_ == kPWoldDMwLT || mvaOpt_ == kPWnewDMwLT ||
                  mvaOpt_ == kDBoldDMwLTwGJ || mvaOpt_ == kDBnewDMwLTwGJ)
           mvaInput_ = new float[23];
+        else if (mvaOpt_ == kDBnewDMwLTwGJPhase2)
+          mvaInput_ = new float[30];
         else
           assert(0);
 
@@ -131,15 +134,11 @@ namespace reco {
         footprintCorrection_ = cfg.getParameter<std::string>("srcFootprintCorrection");
 
         verbosity_ = cfg.getParameter<int>("verbosity");
-
-        produces<pat::PATTauDiscriminator>("category");
       }
 
       void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-      double discriminate(const TauRef&) const override;
-
-      void endEvent(edm::Event&) override;
+      reco::SingleTauDiscriminatorContainer discriminate(const TauRef&) const override;
 
       ~PATTauDiscriminationByMVAIsolationRun2() override {
         if (!loadMVAfromDB_)
@@ -169,7 +168,6 @@ namespace reco {
       std::string footprintCorrection_;
 
       edm::Handle<TauCollection> taus_;
-      std::unique_ptr<pat::PATTauDiscriminator> category_output_;
       std::vector<TFile*> inputFilesToDelete_;
 
       int verbosity_;
@@ -185,17 +183,18 @@ namespace reco {
       }
 
       evt.getByToken(Tau_token, taus_);
-      category_output_.reset(new pat::PATTauDiscriminator(TauRefProd(taus_)));
     }
 
-    double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) const {
+    reco::SingleTauDiscriminatorContainer PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) const {
       // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
-      double category = 0.;
-      category_output_->setValue(tauIndex_, category);
+      reco::SingleTauDiscriminatorContainer result;
+      result.rawValues = {-1.};
 
       // CV: computation of MVA value requires presence of leading charged hadron
-      if (tau->leadChargedHadrCand().isNull())
-        return 0.;
+      if (tau->leadChargedHadrCand().isNull()) {
+        result.rawValues.at(0) = 0.;
+        return result;
+      }
 
       if (reco::tau::fillIsoMVARun2Inputs(mvaInput_,
                                           *tau,
@@ -219,14 +218,9 @@ namespace reco {
                                                    << ", significance = " << tau->flightLengthSig();
           edm::LogPrint("PATTauDiscByMVAIsolRun2") << "--> mvaValue = " << mvaValue;
         }
-        return mvaValue;
+        result.rawValues.at(0) = mvaValue;
       }
-      return -1.;
-    }
-
-    void PATTauDiscriminationByMVAIsolationRun2::endEvent(edm::Event& evt) {
-      // add all category indices to event
-      evt.put(std::move(category_output_), "category");
+      return result;
     }
 
     void PATTauDiscriminationByMVAIsolationRun2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

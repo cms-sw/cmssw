@@ -13,20 +13,18 @@
 #include "Geometry/MuonNumbering/interface/MuonNumberingScheme.h"
 
 class MuonBaseNumber;
-class DDCompactView;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 
 class RPCNumberingScheme : public MuonNumberingScheme {
 public:
-  RPCNumberingScheme(const DDCompactView& cpv);
-  RPCNumberingScheme(const MuonDDDConstants& muonConstants);
+  RPCNumberingScheme(const MuonGeometryConstants& muonConstants);
 
   ~RPCNumberingScheme() override{};
 
-  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
+  int baseNumberToUnitNumber(const MuonBaseNumber&) const override;
 
 private:
-  void initMe(const MuonDDDConstants& muonConstants);
+  void initMe(const MuonGeometryConstants& muonConstants);
 
   int theRegionLevel;
   int theBWheelLevel;

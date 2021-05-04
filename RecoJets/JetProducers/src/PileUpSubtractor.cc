@@ -13,6 +13,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <map>
+#include <memory>
+
 using namespace std;
 
 PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
@@ -28,7 +30,7 @@ PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig, edm::Consum
   ghostArea = iConfig.getParameter<double>("GhostArea");
 
   if (doAreaFastjet_ || doRhoFastjet_) {
-    fjActiveArea_ = ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax, activeAreaRepeats, ghostArea));
+    fjActiveArea_ = std::make_shared<fastjet::ActiveAreaSpec>(ghostEtaMax, activeAreaRepeats, ghostArea);
     if ((ghostEtaMax < 0) || (activeAreaRepeats < 0) || (ghostArea < 0))
       throw cms::Exception("doAreaFastjet or doRhoFastjet")
           << "Parameters ghostEtaMax, activeAreaRepeats or ghostArea for doAreaFastjet/doRhoFastjet are not defined."
@@ -49,7 +51,7 @@ void PileUpSubtractor::reset(std::vector<edm::Ptr<reco::Candidate> >& input,
 }
 
 void PileUpSubtractor::setDefinition(JetDefPtr const& jetDef) {
-  fjJetDefinition_ = JetDefPtr(new fastjet::JetDefinition(*jetDef));
+  fjJetDefinition_ = std::make_shared<fastjet::JetDefinition>(*jetDef);
 }
 
 void PileUpSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -67,19 +69,17 @@ void PileUpSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::EventSetu
     for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
       if ((*did).det() == DetId::Hcal) {
         HcalDetId hid = HcalDetId(*did);
-        if ((hid).depth() == 1) {
-          allgeomid_.push_back(*did);
+        allgeomid_.push_back(*did);
 
-          if ((hid).ieta() != ietaold) {
-            ietaold = (hid).ieta();
-            geomtowers_[(hid).ieta()] = 1;
-            if ((hid).ieta() > ietamax_)
-              ietamax_ = (hid).ieta();
-            if ((hid).ieta() < ietamin_)
-              ietamin_ = (hid).ieta();
-          } else {
-            geomtowers_[(hid).ieta()]++;
-          }
+        if (hid.ieta() != ietaold) {
+          ietaold = hid.ieta();
+          geomtowers_[hid.ieta()] = 1;
+          if (hid.ieta() > ietamax_)
+            ietamax_ = hid.ieta();
+          if (hid.ieta() < ietamin_)
+            ietamin_ = hid.ieta();
+        } else {
+          geomtowers_[hid.ieta()]++;
         }
       }
     }

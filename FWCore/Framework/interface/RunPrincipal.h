@@ -29,6 +29,7 @@ namespace edm {
   class MergeableRunProductProcesses;
   class MergeableRunProductMetadata;
   class ModuleCallingContext;
+  class ProcessHistoryRegistry;
 
   class RunPrincipal : public Principal {
   public:
@@ -74,6 +75,8 @@ namespace edm {
     void put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
+
+    void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     MergeableRunProductMetadata* mergeableRunProductMetadata() { return mergeableRunProductMetadataPtr_.get(); }
 

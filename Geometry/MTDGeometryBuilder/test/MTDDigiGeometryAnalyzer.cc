@@ -13,19 +13,24 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
-#include "Geometry/Records/interface/MTDTopologyRcd.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
+#include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Math/interface/Rounding.h"
+
+#include <fstream>
+
 // class declaration
 
 class MTDDigiGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit MTDDigiGeometryAnalyzer(const edm::ParameterSet&) {}
+  explicit MTDDigiGeometryAnalyzer(const edm::ParameterSet&);
   ~MTDDigiGeometryAnalyzer() override = default;
 
   void beginJob() override {}
@@ -35,28 +40,53 @@ public:
 private:
   void analyseRectangle(const GeomDetUnit& det);
   void checkRotation(const GeomDetUnit& det);
+  void checkRectangularMTDTopology(const RectangularMTDTopology&);
+
+  std::stringstream sunitt;
+
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
 };
+
+using cms_rounding::roundIfNear0, cms_rounding::roundVecIfNear0;
+
+MTDDigiGeometryAnalyzer::MTDDigiGeometryAnalyzer(const edm::ParameterSet& iConfig) {
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+}
 
 // ------------ method called to produce the data  ------------
 void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<MTDTopology> mtdTopo;
-  iSetup.get<MTDTopologyRcd>().get(mtdTopo);
-
   //
   // get the MTDGeometry
   //
-  edm::ESHandle<MTDGeometry> pDD;
-  iSetup.get<MTDDigiGeometryRecord>().get(pDD);
-  edm::LogInfo("MTDDigiGeometryAnalyzer") << "Geometry node for MTDGeom is  " << &(*pDD) << "\n"
-                                          << " # detectors = " << pDD->detUnits().size() << "\n"
-                                          << " # types     = " << pDD->detTypes().size() << "\n";
+  auto pDD = iSetup.getTransientHandle(mtdgeoToken_);
+  edm::LogInfo("MTDDigiGeometryAnalyzer")
+      << "Geometry node for MTDGeom is  " << &(*pDD) << "\n"
+      << " # detectors = " << pDD->detUnits().size() << "\n"
+      << " # types     = " << pDD->detTypes().size() << "\n"
+      << " # BTL dets  = " << pDD->detsBTL().size() << "\n"
+      << " # ETL dets  = " << pDD->detsETL().size() << "\n"
+      << " # layers " << pDD->geomDetSubDetector(1) << "  = " << pDD->numberOfLayers(1) << "\n"
+      << " # layers " << pDD->geomDetSubDetector(2) << "  = " << pDD->numberOfLayers(2) << "\n";
+  sunitt << std::fixed << std::setw(7) << pDD->detUnits().size() << std::setw(7) << pDD->detTypes().size() << "\n";
   for (auto const& it : pDD->detUnits()) {
     if (dynamic_cast<const MTDGeomDetUnit*>((it)) != nullptr) {
       const BoundPlane& p = (dynamic_cast<const MTDGeomDetUnit*>((it)))->specificSurface();
+      const MTDDetId mtdId(it->geographicalId());
+      std::stringstream moduleLabel;
+      if (mtdId.mtdSubDetector() == 1) {
+        moduleLabel << " BTL side " << mtdId.mtdSide() << " Rod " << mtdId.mtdRR() << " mod "
+                    << (static_cast<const BTLDetId>(mtdId)).module();
+      } else if (mtdId.mtdSubDetector() == 2) {
+        const ETLDetId etlId(it->geographicalId());
+        moduleLabel << " ETL side " << mtdId.mtdSide() << " Disc/Side/Sector " << etlId.nDisc() << " "
+                    << etlId.discSide() << " " << etlId.sector();
+      } else {
+        edm::LogWarning("MTDDigiGeometryanalyzer") << (it->geographicalId()).rawId() << " unknown MTD subdetector!";
+      }
       edm::LogVerbatim("MTDDigiGeometryAnalyzer")
           << "---------------------------------------------------------- \n"
-          << mtdTopo->print(it->geographicalId()) << " RadLeng Pixel " << p.mediumProperties().radLen() << " Xi Pixel "
-          << p.mediumProperties().xi();
+          << it->geographicalId().rawId() << moduleLabel.str() << " RadLeng Pixel " << p.mediumProperties().radLen()
+          << " Xi Pixel " << p.mediumProperties().xi();
 
       const GeomDetUnit theDet = *(dynamic_cast<const MTDGeomDetUnit*>(it));
       analyseRectangle(theDet);
@@ -67,13 +97,48 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     if (dynamic_cast<const MTDGeomDetType*>((it)) != nullptr) {
       const PixelTopology& p = (dynamic_cast<const MTDGeomDetType*>((it)))->specificTopology();
       const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(p);
+      auto pitchval = topo.pitch();
       edm::LogVerbatim("MTDDigiGeometryAnalyzer")
           << "\n Subdetector " << it->subDetector() << " MTD Det " << it->name() << "\n"
           << " Rows     " << topo.nrows() << " Columns " << topo.ncolumns() << " ROCS X   " << topo.rocsX()
-          << " ROCS Y  " << topo.rocsY() << " Rows/ROC " << topo.rowsperroc() << " Cols/ROC " << topo.colsperroc();
+          << " ROCS Y  " << topo.rocsY() << " Rows/ROC " << topo.rowsperroc() << " Cols/ROC " << topo.colsperroc()
+          << " Pitch X " << pitchval.first << " Pitch Y " << pitchval.second << " Sensor Interpad X "
+          << topo.gapxInterpad() << " Sensor Interpad Y " << topo.gapyInterpad() << " Sensor Border X "
+          << topo.gapxBorder() << " Sensor Border Y " << topo.gapyBorder();
+      sunitt << std::fixed << std::setw(7) << it->subDetector() << std::setw(4) << topo.nrows() << std::setw(4)
+             << topo.ncolumns() << std::setw(4) << std::setw(4) << topo.rocsX() << std::setw(4) << topo.rocsY()
+             << std::setw(4) << topo.rowsperroc() << std::setw(4) << topo.colsperroc() << std::setw(10)
+             << pitchval.first << std::setw(10) << pitchval.second << std::setw(10) << topo.gapxInterpad()
+             << std::setw(10) << topo.gapyInterpad() << std::setw(10) << topo.gapxBorder() << std::setw(10)
+             << topo.gapyBorder() << "\n";
+      checkRectangularMTDTopology(topo);
     }
   }
+
+  edm::LogInfo("MTDDigiGeometryAnalyzer") << "Additional MTD geometry content:"
+                                          << "\n"
+                                          << " # dets            = " << pDD->dets().size() << "\n"
+                                          << " # detUnitIds      = " << pDD->detUnitIds().size() << "\n"
+                                          << " # detIds          = " << pDD->detIds().size() << "\n";
+  sunitt << std::fixed << std::setw(7) << pDD->dets().size() << std::setw(7) << pDD->detUnitIds().size() << std::setw(7)
+         << pDD->detIds().size() << "\n";
+
+  edm::LogVerbatim("MTDUnitTest") << sunitt.str();
 }
+
+void MTDDigiGeometryAnalyzer::checkRectangularMTDTopology(const RectangularMTDTopology& topo) {
+  std::stringstream pixelinfo;
+  pixelinfo << "Pixel center location:\n";
+  LocalPoint center(0, 0, 0);
+  for (int r = 0; r < topo.nrows(); r++) {
+    for (int c = 0; c < topo.ncolumns(); c++) {
+      sunitt << r << " " << c << " " << topo.pixelToModuleLocalPoint(center, r, c) << "\n";
+      pixelinfo << r << " " << c << " " << topo.pixelToModuleLocalPoint(center, r, c) << "\n";
+    }
+  }
+  edm::LogVerbatim("MTDDigiGeometryAnalyzer") << pixelinfo.str();
+}
+
 void MTDDigiGeometryAnalyzer::analyseRectangle(const GeomDetUnit& det) {
   const double safety = 0.9999;
 
@@ -93,11 +158,25 @@ void MTDDigiGeometryAnalyzer::analyseRectangle(const GeomDetUnit& det) {
   if (outerMiddle.perp() < innerMiddle.perp())
     std::swap(outerMiddle, innerMiddle);
 
-  edm::LogVerbatim("MTDDigigeometryAnalyzer")
-      << "Det at pos " << pos << " radius " << std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()) << " has length "
-      << length << " width " << width << " thickness " << thickness << "\n"
+  auto fround = [&](double in) {
+    std::stringstream ss;
+    ss << std::fixed << std::setw(14) << roundIfNear0(in);
+    return ss.str();
+  };
+
+  auto fvecround = [&](GlobalPoint vecin) {
+    std::stringstream ss;
+    ss << std::fixed << std::setw(14) << roundVecIfNear0(vecin);
+    return ss.str();
+  };
+
+  edm::LogVerbatim("MTDDigiGeometryAnalyzer")
+      << "Det at pos " << fvecround(pos) << " radius " << fround(std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()))
+      << " has length " << fround(length) << " width " << fround(width) << " thickness " << fround(thickness) << "\n"
       << "det center inside bounds? " << tb->inside(det.surface().toLocal(pos)) << "\n"
-      << "outerMiddle " << outerMiddle;
+      << "outerMiddle " << fvecround(outerMiddle);
+  sunitt << det.geographicalId().rawId() << fvecround(pos) << fround(length) << fround(width) << fround(thickness)
+         << tb->inside(det.surface().toLocal(pos)) << fvecround(outerMiddle) << "\n";
 
   checkRotation(det);
 }

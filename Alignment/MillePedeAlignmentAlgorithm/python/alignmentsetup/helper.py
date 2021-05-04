@@ -11,7 +11,7 @@ def checked_out_MPS():
     git_initialized = False
     try:
         with open(checked_out_packages, "r") as f:
-            packages = ("/Alignment/", "/Alignment/MillePedeAlignmentAlgorithm/")
+            packages = ("/Alignment/", "/Alignment/MillePedeAlignmentAlgorithm/","/*/")
             for line in f:
                 if line.strip() in packages:
                     checked_out = True

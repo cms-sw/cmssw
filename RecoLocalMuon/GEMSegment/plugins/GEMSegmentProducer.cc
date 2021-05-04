@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -33,12 +34,13 @@ private:
   int iev;  // events through
   edm::EDGetTokenT<GEMRecHitCollection> theGEMRecHitToken;
   std::unique_ptr<GEMSegmentBuilder> segmentBuilder_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
 };
 
 GEMSegmentProducer::GEMSegmentProducer(const edm::ParameterSet& ps) : iev(0) {
   theGEMRecHitToken = consumes<GEMRecHitCollection>(ps.getParameter<edm::InputTag>("gemRecHitLabel"));
   segmentBuilder_ = std::make_unique<GEMSegmentBuilder>(ps);  // pass on the Parameter Set
-
+  gemGeomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
   // register what this produces
   produces<GEMSegmentCollection>();
 }
@@ -47,8 +49,7 @@ void GEMSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   LogDebug("GEMSegmentProducer") << "start producing segments for " << ++iev << "th event with GEM data";
 
   // find the geometry (& conditions?) for this event & cache it in the builder
-  edm::ESHandle<GEMGeometry> gemg;
-  setup.get<MuonGeometryRecord>().get(gemg);
+  edm::ESHandle<GEMGeometry> gemg = setup.getHandle(gemGeomToken_);
   const GEMGeometry* mgeom = &*gemg;
   segmentBuilder_->setGeometry(mgeom);
 

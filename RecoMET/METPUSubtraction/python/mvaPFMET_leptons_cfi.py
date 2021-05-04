@@ -51,7 +51,7 @@ kt6PFJetsForRhoComputationVoronoiMet = dummy.clone(
 
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import hpsSelectionDiscriminator
 hpsPFTauDiscriminationByDecayModeFinding = hpsSelectionDiscriminator.clone(
-        PFTauProducer = cms.InputTag('hpsPFTauProducer')
+        PFTauProducer = 'hpsPFTauProducer'
             )
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
@@ -99,21 +99,24 @@ isotaus = cms.EDFilter(
     filter = cms.bool(False)
     )
 
-isomuonseq     = cms.Sequence(isomuons)
-isoelectronseq = cms.Sequence(isoelectrons)
-isotauseq      = cms.Sequence(
-    hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits*
-     #kt6PFJetsForRhoComputationVoronoiMet*
-     #hpsPFTauDiscriminationByMVAIsolation*
-     hpsPFTauDiscriminationAgainstMuon2*
+isomuonTask     = cms.Task(isomuons)
+isomuonseq      = cms.Sequence(isomuonsTask)
+isoelectronTask = cms.Task(isoelectrons)
+isoelectronseq  = cms.Sequence(isoelectronsTask)
+isotauTask      = cms.Task(
+     hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits,
+     #kt6PFJetsForRhoComputationVoronoiMet,
+     #hpsPFTauDiscriminationByMVAIsolation,
+     hpsPFTauDiscriminationAgainstMuon2,
      isotaus
     )
+isotauseq      = cms.Sequence(isotauTask)
 
 leptonSelection = cms.PSet(
     SelectEvents = cms.PSet(
-    SelectEvents = cms.vstring(
-    'isomuonseq',
-    'isoelectronseq',
-    'isotauseq')
+       SelectEvents = cms.vstring(
+       'isomuonseq',
+       'isoelectronseq',
+       'isotauseq')
     )
-    )
+)

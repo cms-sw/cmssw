@@ -258,7 +258,7 @@ void ElasticPlotDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
 
   for (const auto &ds : *hits) {
     TotemRPDetId detId(ds.detId());
-    CTPPSDetId rpId = detId.getRPId();
+    CTPPSDetId rpId = detId.rpId();
 
     if (ds.size() > 5) {
       if (detId.isStripsCoordinateUDirection())
@@ -274,12 +274,12 @@ void ElasticPlotDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
     // count U and V patterns
     unsigned int n_pat_u = 0, n_pat_v = 0;
     for (auto &p : ds) {
-      if (!p.getFittable())
+      if (!p.fittable())
         continue;
 
-      if (p.getProjection() == TotemRPUVPattern::projU)
+      if (p.projection() == TotemRPUVPattern::projU)
         n_pat_u++;
-      else if (p.getProjection() == TotemRPUVPattern::projV)
+      else if (p.projection() == TotemRPUVPattern::projV)
         n_pat_v++;
     }
 
@@ -330,10 +330,10 @@ void ElasticPlotDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
         continue;
 
       if (cond_4rp)
-        dp.v_h2_y_vs_x_dgn_4rp[i]->Fill(tr_i->getX0(), tr_i->getY0());
+        dp.v_h2_y_vs_x_dgn_4rp[i]->Fill(tr_i->x0(), tr_i->y0());
 
       if (cond_2rp)
-        dp.v_h2_y_vs_x_dgn_2rp[i]->Fill(tr_i->getX0(), tr_i->getY0());
+        dp.v_h2_y_vs_x_dgn_2rp[i]->Fill(tr_i->x0(), tr_i->y0());
 
       for (unsigned int j = 0; j < 4; j++) {
         if (rp_track[dp.rpIds[j]] == nullptr)
@@ -341,7 +341,7 @@ void ElasticPlotDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
 
         dp.h2_track_corr_vert->Fill(i, j);
 
-        dp.v_h_y[i][j]->Fill(tr_i->getY0());
+        dp.v_h_y[i][j]->Fill(tr_i->y0());
       }
     }
   }

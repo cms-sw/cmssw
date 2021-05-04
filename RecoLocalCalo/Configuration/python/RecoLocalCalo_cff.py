@@ -24,8 +24,8 @@ calolocalrecoTask = cms.Task(ecalLocalRecoTask,hcalLocalRecoTask)
 calolocalreco = cms.Sequence(calolocalrecoTask)
 
 from RecoLocalCalo.HcalRecProducers.HcalHitSelection_cfi import *
-reducedHcalRecHitsSequence = cms.Sequence( reducedHcalRecHits )
-
+reducedHcalRecHitsTask = cms.Task( reducedHcalRecHits )
+reducedHcalRecHitsSequence = cms.Sequence(reducedHcalRecHitsTask)
 #
 # R.Ofierzynski (29.Oct.2009): add NZS sequence
 #

@@ -7,6 +7,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 namespace {
   template <typename DataContainer>

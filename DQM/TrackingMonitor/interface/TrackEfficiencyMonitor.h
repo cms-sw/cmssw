@@ -14,23 +14,24 @@ Monitoring source to measure the track efficiency
 
 #include <memory>
 #include <fstream>
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "RecoMuon/GlobalTrackingTools/interface/DirectTrackerNavigation.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 namespace reco {
   class TransientTrack;
@@ -43,8 +44,6 @@ public:
   typedef reco::TrackCollection TrackCollection;
   explicit TrackEfficiencyMonitor(const edm::ParameterSet&);
   ~TrackEfficiencyMonitor() override;
-  void beginJob(void) override;
-  void endJob(void) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -109,14 +108,20 @@ private:
   MonitorElement* StandaloneMuonPtEtaPhiHighPt;
   const DirectTrackerNavigation* theNavigation;
   MuonServiceProxy* theMuonServiceProxy;
-  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
-  edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
-  edm::ESHandle<Propagator> thePropagator;
-  edm::ESHandle<Propagator> thePropagatorCyl;
-  edm::ESHandle<TransientTrackBuilder> theTTrackBuilder;
-  edm::ESHandle<GeometricSearchTracker> theTracker;
-  edm::ESHandle<MagneticField> bField;
 
-  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propToken_;
+  const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navToken_;
+  const edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> gstToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
+  const edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> mtToken_;
+
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+
+  const Propagator* thePropagator;
+  const TransientTrackBuilder* theTTrackBuilder;
+  const GeometricSearchTracker* theTracker;
+  const MagneticField* bField;
+  const MeasurementTracker* measurementTracker;
 };
 #endif

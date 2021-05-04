@@ -10,7 +10,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 // system include files
-#include "boost/bind.hpp"
+#include <functional>
 #include "boost/regex.hpp"
 #include "TROOT.h"
 #include "TTree.h"
@@ -58,7 +58,7 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain& main)
       m_main(main),
       m_guiFilter(nullptr) {
   m_guiFilter = new FWGUIEventFilter(this);
-  filterStateChanged_.connect(boost::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, _1));
+  filterStateChanged_.connect(std::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, std::placeholders::_1));
 }
 
 CmsShowNavigator::~CmsShowNavigator() { delete m_guiFilter; }
@@ -71,7 +71,7 @@ bool CmsShowNavigator::openFile(const std::string& fileName) {
   fwLog(fwlog::kDebug) << "CmsShowNavigator::openFile [" << fileName << "]" << std::endl;
   FWFileEntry* newFile = nullptr;
   try {
-    newFile = new FWFileEntry(fileName, m_main.getVersionCheck());
+    newFile = new FWFileEntry(fileName, m_main.getVersionCheck(), m_main.getGlobalTagCheck());
   } catch (std::exception& iException) {
     fwLog(fwlog::kError) << "Navigator::openFile ecaught exception FWFileEntry constructor " << iException.what()
                          << std::endl;
@@ -110,7 +110,7 @@ bool CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQue
   fwLog(fwlog::kDebug) << "CmsShowNavigator::appendFile [" << fileName << "]" << std::endl;
   FWFileEntry* newFile = nullptr;
   try {
-    newFile = new FWFileEntry(fileName, m_main.getVersionCheck());
+    newFile = new FWFileEntry(fileName, m_main.getVersionCheck(), m_main.getGlobalTagCheck());
   } catch (std::exception& iException) {
     fwLog(fwlog::kError) << "Navigator::appendFile caught exception FWFileEntry constructor " << iException.what()
                          << std::endl;
@@ -811,4 +811,12 @@ const char* CmsShowNavigator::frameTitle() {
               (int)m_files.size(),
               m_currentEvent + 1,
               (*m_currentFile)->lastEvent() + 1);
+}
+
+std::string CmsShowNavigator::getCurrentGlobalTag() {
+  std::string res;
+  if (!m_files.empty()) {
+    res = (*m_currentFile)->getGlobalTag();
+  }
+  return res;
 }

@@ -7,19 +7,20 @@
 
 #include "CSCSegAlgoRU.h"
 #include "CSCSegFit.h"
-#include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <memory>
+
 #include <string>
 
 CSCSegAlgoRU::CSCSegAlgoRU(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoRU") {
   doCollisions = ps.getParameter<bool>("doCollisions");
-  enlarge = ps.getParameter<bool>("enlarge");
   chi2_str_ = ps.getParameter<double>("chi2_str");
   chi2Norm_2D_ = ps.getParameter<double>("chi2Norm_2D_");
   dRMax = ps.getParameter<double>("dRMax");
@@ -94,7 +95,6 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
   AlgoState aState;
   aState.aChamber = aChamber;
   aState.doCollisions = doCollisions;
-  aState.enlarge = enlarge;
   aState.dRMax = dRMax;
   aState.dPhiMax = dPhiMax;
   aState.dRIntMax = dRIntMax;
@@ -102,10 +102,6 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
   aState.chi2Norm_2D_ = chi2Norm_2D_;
   aState.chi2_str_ = chi2_str_;
   aState.chi2Max = chi2Max;
-
-  int scale_factor = 1;
-  if (aState.enlarge)
-    scale_factor = 2;
 
   // Define buffer for segments we build
   std::vector<CSCSegment> segments;
@@ -120,13 +116,11 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
   for (int ipass = 0; ipass < npass; ++ipass) {
     if (aState.windowScale > 1.) {
       iadd = 1;
-      aState.strip_iadd = 2 * scale_factor;
-      aState.chi2D_iadd = 2 * scale_factor;
-      if (aState.enlarge) {
-        aState.chi2Max = 2 * chi2Max;
-        if (rechits.size() <= 12)
-          iadd = 0;  //allow 3 hit segments for low hit multiplicity chambers
-      }
+      aState.strip_iadd = 4;
+      aState.chi2D_iadd = 4;
+      aState.chi2Max = 2 * chi2Max;
+      if (rechits.size() <= 12)
+        iadd = 0;  //allow 3 hit segments for low hit multiplicity chambers
     }
 
     int used_rh = 0;
@@ -141,13 +135,13 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
             2) {  //check if there are enough recHits left to build a segment from displaced vertices
       aState.doCollisions = false;
       aState.windowScale = 1.;  // scale factor for cuts
-      aState.dRMax = scale_factor * 2.0;
-      aState.dPhiMax = scale_factor * 2 * aState.dPhiMax;
-      aState.dRIntMax = scale_factor * 2 * aState.dRIntMax;
-      aState.dPhiIntMax = scale_factor * 2 * aState.dPhiIntMax;
-      aState.chi2Norm_2D_ = scale_factor * 5 * aState.chi2Norm_2D_;
-      aState.chi2_str_ = scale_factor * 100;
-      aState.chi2Max = scale_factor * 2 * aState.chi2Max;
+      aState.dRMax = 4.0;
+      aState.dPhiMax = 4 * aState.dPhiMax;
+      aState.dRIntMax = 4 * aState.dRIntMax;
+      aState.dPhiIntMax = 4 * aState.dPhiIntMax;
+      aState.chi2Norm_2D_ = 10 * aState.chi2Norm_2D_;
+      aState.chi2_str_ = 200;
+      aState.chi2Max = 4 * aState.chi2Max;
     } else {
       search_disp = false;  //make sure the flag is off
     }
@@ -282,11 +276,11 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
       aState.doCollisions = true;
       aState.dRMax = 2.0;
       aState.chi2_str_ = 100;
-      aState.dPhiMax = 0.5 * aState.dPhiMax / scale_factor;
-      aState.dRIntMax = 0.5 * aState.dRIntMax / scale_factor;
-      aState.dPhiIntMax = 0.5 * aState.dPhiIntMax / scale_factor;
-      aState.chi2Norm_2D_ = 0.2 * aState.chi2Norm_2D_ / scale_factor;
-      aState.chi2Max = 0.5 * aState.chi2Max / scale_factor;
+      aState.dPhiMax = 0.25 * aState.dPhiMax;
+      aState.dRIntMax = 0.25 * aState.dRIntMax;
+      aState.dPhiIntMax = 0.25 * aState.dPhiIntMax;
+      aState.chi2Norm_2D_ = 0.1 * aState.chi2Norm_2D_;
+      aState.chi2Max = 0.25 * aState.chi2Max;
     }
 
     std::vector<CSCSegment>::iterator it = segments.begin();
@@ -424,19 +418,10 @@ bool CSCSegAlgoRU::areHitsCloseInR(const AlgoState& aState, const CSCRecHit2D* h
     h1z = 1;
     h2z = 1;
   }
-
-  if (aState.enlarge) {
-    return (gp2.perp() > ((gp1.perp() - aState.dRMax * aState.strip_iadd * maxWG_width[iStn]) * h2z) / h1z &&
-            gp2.perp() < ((gp1.perp() + aState.dRMax * aState.strip_iadd * maxWG_width[iStn]) * h2z) / h1z)
-               ? true
-               : false;
-
-  } else {
-    return (gp2.perp() > ((gp1.perp() - aState.dRMax * maxWG_width[iStn]) * h2z) / h1z &&
-            gp2.perp() < ((gp1.perp() + aState.dRMax * maxWG_width[iStn]) * h2z) / h1z)
-               ? true
-               : false;
-  }
+  return (gp2.perp() > ((gp1.perp() - aState.dRMax * aState.strip_iadd * maxWG_width[iStn]) * h2z) / h1z &&
+          gp2.perp() < ((gp1.perp() + aState.dRMax * aState.strip_iadd * maxWG_width[iStn]) * h2z) / h1z)
+             ? true
+             : false;
 }
 
 bool CSCSegAlgoRU::areHitsCloseInGlobalPhi(const AlgoState& aState,
@@ -542,19 +527,10 @@ bool CSCSegAlgoRU::isHitNearSegment(const AlgoState& aState, const CSCRecHit2D* 
       maxWG_width[1] = 10.75;
     }
   }
-
-  if (aState.enlarge) {
-    return (fabs(phidif) < aState.dPhiIntMax * aState.strip_iadd * pos_str + dphi_incr &&
-            fabs(dr) < aState.dRIntMax * aState.strip_iadd * maxWG_width[iStn])
-               ? true
-               : false;
-
-  } else {
-    return (fabs(phidif) < aState.dPhiIntMax * aState.strip_iadd * pos_str + dphi_incr &&
-            fabs(dr) < aState.dRIntMax * maxWG_width[iStn])
-               ? true
-               : false;
-  }
+  return (fabs(phidif) < aState.dPhiIntMax * aState.strip_iadd * pos_str + dphi_incr &&
+          fabs(dr) < aState.dRIntMax * aState.strip_iadd * maxWG_width[iStn])
+             ? true
+             : false;
 }
 
 float CSCSegAlgoRU::phiAtZ(const AlgoState& aState, float z) const {
@@ -581,7 +557,7 @@ bool CSCSegAlgoRU::isSegmentGood(const AlgoState& aState, const ChamberHitContai
   unsigned int iadd = (rechitsInChamber.size() > 20) ? 1 : 0;
   if (aState.windowScale > 1.) {
     iadd = 1;
-    if (rechitsInChamber.size() <= 12 && aState.enlarge)
+    if (rechitsInChamber.size() <= 12)
       iadd = 0;
   }
   if (aState.proto_segment.size() >= 3 + iadd)
@@ -620,7 +596,7 @@ bool CSCSegAlgoRU::addHit(AlgoState& aState, const CSCRecHit2D* aHit, int layer)
 void CSCSegAlgoRU::updateParameters(AlgoState& aState) const {
   // Delete input CSCSegFit, create a new one and make the fit
   // delete sfit;
-  aState.sfit.reset(new CSCSegFit(aState.aChamber, aState.proto_segment));
+  aState.sfit = std::make_unique<CSCSegFit>(aState.aChamber, aState.proto_segment);
   aState.sfit->fit();
 }
 
@@ -897,7 +873,7 @@ bool CSCSegAlgoRU::replaceHit(AlgoState& aState, const CSCRecHit2D* h, int layer
 void CSCSegAlgoRU::compareProtoSegment(AlgoState& aState, const CSCRecHit2D* h, int layer) const {
   // Copy the input CSCSegFit
   std::unique_ptr<CSCSegFit> oldfit;
-  oldfit.reset(new CSCSegFit(aState.aChamber, aState.proto_segment));
+  oldfit = std::make_unique<CSCSegFit>(aState.aChamber, aState.proto_segment);
   oldfit->fit();
   ChamberHitContainer oldproto = aState.proto_segment;
 
@@ -914,7 +890,7 @@ void CSCSegAlgoRU::increaseProtoSegment(AlgoState& aState, const CSCRecHit2D* h,
   // Creates a new fit
   std::unique_ptr<CSCSegFit> oldfit;
   ChamberHitContainer oldproto = aState.proto_segment;
-  oldfit.reset(new CSCSegFit(aState.aChamber, aState.proto_segment));
+  oldfit = std::make_unique<CSCSegFit>(aState.aChamber, aState.proto_segment);
   oldfit->fit();
 
   bool ok = addHit(aState, h, layer);

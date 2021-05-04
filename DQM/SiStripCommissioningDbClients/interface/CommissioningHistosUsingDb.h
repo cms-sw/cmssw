@@ -2,22 +2,26 @@
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "boost/range/iterator_range.hpp"
-#include <boost/cstdint.hpp>
 #include <string>
 #include <map>
+#include <cstdint>
 
 class SiStripConfigDb;
 class SiStripFedCabling;
+class TrackerTopology;
 
 class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   // ---------- public interface ----------
 
 public:
-  CommissioningHistosUsingDb(SiStripConfigDb* const, sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE);
+  CommissioningHistosUsingDb(SiStripConfigDb* const,
+                             edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken,
+                             sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE);
 
   ~CommissioningHistosUsingDb() override;
 
@@ -82,6 +86,8 @@ private:
   bool uploadAnal_;
 
   bool uploadConf_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
 inline void CommissioningHistosUsingDb::doUploadConf(bool upload) { uploadConf_ = upload; }

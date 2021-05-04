@@ -2,9 +2,14 @@
 #ifndef DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
 #define DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
 
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DQM/SiStripCommissioningClients/interface/SiStripTFile.h"
+
+class TrackerTopology;
+class TrackerGeometry;
 
 /**
    @class SiStripCommissioningOfflineDbClient 
@@ -31,6 +36,9 @@ private:
   bool uploadAnal_;
 
   bool uploadConf_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
 };
 
 #endif  // DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H

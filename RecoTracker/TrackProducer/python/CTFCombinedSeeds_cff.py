@@ -9,13 +9,11 @@ from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
-# pixelCPE
-from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 
 import RecoTracker.TrackProducer.TrackProducer_cfi
 # TrackProducer
-ctfCombinedSeeds = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-ctfCombinedSeeds.src = 'ckfTrackCandidatesCombinedSeeds'
-
+ctfCombinedSeeds = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'ckfTrackCandidatesCombinedSeeds'
+)

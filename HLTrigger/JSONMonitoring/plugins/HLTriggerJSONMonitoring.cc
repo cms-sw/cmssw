@@ -1,6 +1,5 @@
 /** \class HLTriggerJSONMonitoring
  *
- *
  *  Description: This class outputs JSON files with HLT monitoring information.
  *
  */
@@ -8,25 +7,25 @@
 #include <atomic>
 #include <fstream>
 
-#include <boost/format.hpp>
+#include <fmt/printf.h>
 
-#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/FastMonitor.h"
-#include "EventFilter/Utilities/interface/JSONSerializer.h"
-#include "EventFilter/Utilities/interface/FastMonitoringService.h"
-#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 struct HLTriggerJSONMonitoringData {
@@ -211,11 +210,11 @@ std::shared_ptr<HLTriggerJSONMonitoringData::run> HLTriggerJSONMonitoring::globa
   }
 
   // write the per-run .jsd file
-  rundata->jsdFileName = (boost::format("run%06d_ls0000_streamHLTRates_pid%05d.jsd") % run.run() % getpid()).str();
+  rundata->jsdFileName = fmt::sprintf("run%06d_ls0000_streamHLTRates_pid%05d.jsd", run.run(), getpid());
   writeJsdFile(*rundata);
 
   // write the per-run .ini file
-  // iniFileName = (boost::format("run%06d_ls0000_streamHLTRates_pid%05d.ini") % run.run() % getpid()).str();
+  //iniFileName = fmt::sprintf("run%06d_ls0000_streamHLTRates_pid%05d.ini", run.run(), getpid());
   writeIniFile(*rundata, run.run());
 
   return rundata;
@@ -421,14 +420,14 @@ void HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
     jsndata[jsoncollector::DataPoint::DATA].append(lumidata->hltErrors.toJsonValue());
     jsndata[jsoncollector::DataPoint::DATA].append(lumidata->datasets.toJsonValue());
 
-    auto jsndataFileName = boost::format("run%06d_ls%04d_streamHLTRates_pid%05d.jsndata") % run % ls % getpid();
+    auto jsndataFileName = fmt::sprintf("run%06d_ls%04d_streamHLTRates_pid%05d.jsndata", run, ls, getpid());
 
     std::string result = writer.write(jsndata);
-    std::ofstream jsndataFile(rundata.baseRunDir + "/" + jsndataFileName.str());
+    std::ofstream jsndataFile(rundata.baseRunDir + "/" + jsndataFileName);
     jsndataFile << result;
     jsndataFile.close();
 
-    jsndataFileList = jsndataFileName.str();
+    jsndataFileList = jsndataFileName;
     jsndataSize = result.size();
     jsndataAdler32 = cms::Adler32(result.c_str(), result.size());
   }
@@ -456,8 +455,8 @@ void HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlo
   jsn[jsoncollector::DataPoint::DATA].append(rundata.streamMergeType);
   jsn[jsoncollector::DataPoint::DATA].append(jsnHLTErrorEvents);
 
-  auto jsnFileName = boost::format("run%06d_ls%04d_streamHLTRates_pid%05d.jsn") % run % ls % getpid();
-  std::ofstream jsnFile(rundata.baseRunDir + "/" + jsnFileName.str());
+  auto jsnFileName = fmt::sprintf("run%06d_ls%04d_streamHLTRates_pid%05d.jsn", run, ls, getpid());
+  std::ofstream jsnFile(rundata.baseRunDir + "/" + jsnFileName);
   jsnFile << writer.write(jsn);
   jsnFile.close();
 }
@@ -493,7 +492,7 @@ void HLTriggerJSONMonitoring::writeIniFile(HLTriggerJSONMonitoringData::run cons
     datasetNames.append(name);
   content["Dataset-Names"] = datasetNames;
 
-  std::string iniFileName = (boost::format("run%06d_ls0000_streamHLTRates_pid%05d.ini") % run % getpid()).str();
+  std::string iniFileName = fmt::sprintf("run%06d_ls0000_streamHLTRates_pid%05d.ini", run, getpid());
   std::ofstream file(rundata.baseRunDir + "/" + iniFileName);
   Json::StyledWriter writer;
   file << writer.write(content);

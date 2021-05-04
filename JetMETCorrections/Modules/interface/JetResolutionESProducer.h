@@ -23,7 +23,7 @@ private:
 public:
   JetResolutionESProducer(edm::ParameterSet const& fConfig) {
     auto label = fConfig.getParameter<std::string>("label");
-    setWhatProduced(this, label).setConsumes(token_, edm::ESInputTag{"", label});
+    token_ = setWhatProduced(this, label).consumes(edm::ESInputTag{"", label});
   }
 
   ~JetResolutionESProducer() override {}
@@ -40,7 +40,7 @@ private:
 public:
   JetResolutionScaleFactorESProducer(edm::ParameterSet const& fConfig) {
     auto label = fConfig.getParameter<std::string>("label");
-    setWhatProduced(this, label).setConsumes(token_, edm::ESInputTag{"", label});
+    token_ = setWhatProduced(this, label).consumes(edm::ESInputTag{"", label});
   }
 
   ~JetResolutionScaleFactorESProducer() override {}

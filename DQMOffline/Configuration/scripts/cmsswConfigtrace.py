@@ -16,7 +16,7 @@ from collections import defaultdict
 SERVE_PORT = 1234
 
 OUTFILE_TREE = "configtree.sqlite"
-IGNORE_PACKAGES = ['FWCore/ParameterSet', 'FWCore/GuiBrowsers', 'DQMOffline/Configuration/scripts', "cmsRun"]
+IGNORE_PACKAGES = ['FWCore/ParameterSet', 'DQMOffline/Configuration/scripts', "cmsRun"]
 STRIPPATHS = [ # we will add the base dir from CMSSWCALLBASE env var here
   os.environ["CMSSW_BASE"] + "/python/", os.environ["CMSSW_RELEASE_BASE"] + "/python/",
   os.environ["CMSSW_BASE"] + "/cfipython/", os.environ["CMSSW_RELEASE_BASE"] + "/cfipython/"]
@@ -105,14 +105,6 @@ trace_location(Schedule, '__init__', lambda self, *args, **kwargs: {'args': flat
 trace_location(Schedule, 'associate', lambda self, *tasks: {'args': list(tasks)})
 trace_location(Schedule, 'copy')
 # TODO: we could go deeper into Types and PSet, but that should not be needed for now.
-
-import FWCore.ParameterSet.Utilities
-def convertToUnscheduled(proc):
-  print("+ Blocking convertToUnscheduled to not mess up the process.")
-  # we could continue tracing, but the later manipulations don't make much sense and take forever.
-  raise Exception("Aborting in convertToUnscheduled.")
-  return proc
-FWCore.ParameterSet.Utilities.convertToUnscheduled = convertToUnscheduled
 
 # lifted from EnablePSetHistory, we don't need all of that stuff.
 def new_items_(self):
@@ -545,7 +537,7 @@ def serve_main():
     (re.compile('/workflow/(.*)$'), showworkflow),
     (re.compile('/info/(.*):(\d+)$'), showinfo),
     (re.compile('/why/(\d+)$'), showwhy),
-    (re.compile('/(.+)$'), showfile),
+    (re.compile('/([^.]*[.]?[^.]+[.]?[^.]*)$'), showfile),
     (re.compile('/$'), index),
   ]
 

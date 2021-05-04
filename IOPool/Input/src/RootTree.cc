@@ -7,6 +7,7 @@
 #include "TTree.h"
 #include "TTreeIndex.h"
 #include "TTreeCache.h"
+#include "TLeaf.h"
 
 #include <cassert>
 #include <iostream>

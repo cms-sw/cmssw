@@ -1,9 +1,9 @@
-#include "DD4hep/Path.h"
-#include "DD4hep/Printout.h"
-#include "DD4hep/Detector.h"
-#include "DD4hep/BasicGrammar.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
-#include "DetectorDescription/DDCMS/interface/Filter.h"
+#include <DD4hep/Path.h>
+#include <DD4hep/Printout.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Filter.h>
+#include <DD4hep/Grammar.h>
 
 #include <TClass.h>
 
@@ -170,8 +170,8 @@ string DDAlgoArguments::resolveValue(const std::string& aValue) const {
   for (idx = v.find('[', 0); idx != string::npos; idx = v.find('[', idx + 1)) {
     idq = v.find(']', idx + 1);
     rep = v.substr(idx + 1, idq - idx - 1);
-    auto r = ns.context()->description.load()->constants().find(rep);
-    if (r != ns.context()->description.load()->constants().end()) {
+    auto r = ns.context()->description.constants().find(rep);
+    if (r != ns.context()->description.constants().end()) {
       rep = "(" + r->second->type + ")";
       v.replace(idx, idq - idx + 1, rep);
     }
@@ -340,6 +340,9 @@ int DDAlgoArguments::integer(const string& nam) const { return this->value<int>(
 
 /// Shortcut to access vector<double> arguments
 vector<double> DDAlgoArguments::vecDble(const string& nam) const { return this->value<vector<double> >(nam); }
+
+/// Shortcut to access vector<float> arguments
+vector<float> DDAlgoArguments::vecFloat(const string& nam) const { return this->value<vector<float> >(nam); }
 
 /// Shortcut to access vector<int> arguments
 vector<int> DDAlgoArguments::vecInt(const string& nam) const { return this->value<vector<int> >(nam); }

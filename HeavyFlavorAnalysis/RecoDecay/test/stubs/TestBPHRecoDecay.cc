@@ -21,6 +21,7 @@
 #include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
 #include <TH1.h>
 #include <TFile.h>
+#include <TMath.h>
 
 #include <set>
 #include <string>
@@ -35,25 +36,25 @@ using namespace std;
 // xyz = ps.getParameter<string>( "xyx" )
 
 TestBPHRecoDecay::TestBPHRecoDecay(const edm::ParameterSet& ps) {
-  usePM = (SET_LABEL(patMuonLabel, ps) != "");
-  useCC = (SET_LABEL(ccCandsLabel, ps) != "");
-  usePF = (SET_LABEL(pfCandsLabel, ps) != "");
-  usePC = (SET_LABEL(pcCandsLabel, ps) != "");
-  useGP = (SET_LABEL(gpCandsLabel, ps) != "");
+  usePM = (!SET_LABEL(patMuonLabel, ps).empty());
+  useCC = (!SET_LABEL(ccCandsLabel, ps).empty());
+  usePF = (!SET_LABEL(pfCandsLabel, ps).empty());
+  usePC = (!SET_LABEL(pcCandsLabel, ps).empty());
+  useGP = (!SET_LABEL(gpCandsLabel, ps).empty());
 
   if (usePM)
     consume<pat::MuonCollection>(patMuonToken, patMuonLabel);
   if (useCC)
-    consume<vector<pat::CompositeCandidate> >(ccCandsToken, ccCandsLabel);
+    consume<vector<pat::CompositeCandidate>>(ccCandsToken, ccCandsLabel);
   if (usePF)
-    consume<vector<reco::PFCandidate> >(pfCandsToken, pfCandsLabel);
+    consume<vector<reco::PFCandidate>>(pfCandsToken, pfCandsLabel);
   if (usePC)
-    consume<vector<BPHTrackReference::candidate> >(pcCandsToken, pcCandsLabel);
+    consume<vector<BPHTrackReference::candidate>>(pcCandsToken, pcCandsLabel);
   if (useGP)
-    consume<vector<pat::GenericParticle> >(gpCandsToken, gpCandsLabel);
+    consume<vector<pat::GenericParticle>>(gpCandsToken, gpCandsLabel);
   SET_LABEL(outDump, ps);
   SET_LABEL(outHist, ps);
-  if (outDump == "")
+  if (outDump.empty())
     fPtr = &cout;
   else
     fPtr = new ofstream(outDump.c_str());
@@ -98,7 +99,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   int nrc = 0;
 
   // get reco::PFCandidate collection (in full AOD )
-  edm::Handle<vector<reco::PFCandidate> > pfCands;
+  edm::Handle<vector<reco::PFCandidate>> pfCands;
   if (usePF) {
     pfCandsToken.get(ev, pfCands);
     nrc = pfCands->size();
@@ -112,7 +113,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   // pat::PackedCandidate is not defined in CMSSW_5XY, so a
   // typedef (BPHTrackReference::candidate) is used, actually referring
   // to pat::PackedCandidate only for CMSSW versions where it's defined
-  edm::Handle<vector<BPHTrackReference::candidate> > pcCands;
+  edm::Handle<vector<BPHTrackReference::candidate>> pcCands;
   if (usePC) {
     pcCandsToken.get(ev, pcCands);
     nrc = pcCands->size();
@@ -123,7 +124,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   }
 
   // get pat::GenericParticle collection (in skimmed data)
-  edm::Handle<vector<pat::GenericParticle> > gpCands;
+  edm::Handle<vector<pat::GenericParticle>> gpCands;
   if (useGP) {
     gpCandsToken.get(ev, gpCands);
     nrc = gpCands->size();
@@ -149,7 +150,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   vector<const reco::Candidate*> muDaugs;
   set<const pat::Muon*> muonSet;
   if (useCC) {
-    edm::Handle<vector<pat::CompositeCandidate> > ccCands;
+    edm::Handle<vector<pat::CompositeCandidate>> ccCands;
     ccCandsToken.get(ev, ccCands);
     int n = ccCands->size();
     if (ccCands.isValid())
@@ -171,7 +172,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
         const pat::Muon* mp = dynamic_cast<const pat::Muon*>(dp);
         iter = muonSet.begin();
         iend = muonSet.end();
-        bool add = (mp != 0) && (muonSet.find(mp) == iend);
+        bool add = (mp != nullptr) && (muonSet.find(mp) == iend);
         while (add && (iter != iend)) {
           if (BPHRecoBuilder::sameTrack(mp, *iter++, 1.0e-5))
             add = false;
@@ -196,10 +197,10 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MuonChargeSelect : public BPHRecoSelect {
   public:
     MuonChargeSelect(int c) : charge(c) {}
-    ~MuonChargeSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const {
-      const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
-      if (p == 0)
+    ~MuonChargeSelect() override {}
+    bool accept(const reco::Candidate& cand) const override {
+      const pat::Muon* p = dynamic_cast<const pat::Muon*>(&cand);
+      if (p == nullptr)
         return false;
       return ((charge * cand.charge()) > 0);
     }
@@ -212,10 +213,10 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MuonPtSelect : public BPHRecoSelect {
   public:
     MuonPtSelect(float pt) : ptCut(pt) {}
-    ~MuonPtSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const {
-      const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
-      if (p == 0)
+    ~MuonPtSelect() override {}
+    bool accept(const reco::Candidate& cand) const override {
+      const pat::Muon* p = dynamic_cast<const pat::Muon*>(&cand);
+      if (p == nullptr)
         return false;
       return (p->p4().pt() > ptCut);
     }
@@ -228,10 +229,10 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MuonEtaSelect : public BPHRecoSelect {
   public:
     MuonEtaSelect(float eta) : etaCut(eta) {}
-    ~MuonEtaSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const {
-      const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
-      if (p == 0)
+    ~MuonEtaSelect() override {}
+    bool accept(const reco::Candidate& cand) const override {
+      const pat::Muon* p = dynamic_cast<const pat::Muon*>(&cand);
+      if (p == nullptr)
         return false;
       return (fabs(p->p4().eta()) < etaCut);
     }
@@ -244,8 +245,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class KaonChargeSelect : public BPHRecoSelect {
   public:
     KaonChargeSelect(int c) : charge(c) {}
-    ~KaonChargeSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const { return ((charge * cand.charge()) > 0); }
+    ~KaonChargeSelect() override {}
+    bool accept(const reco::Candidate& cand) const override { return ((charge * cand.charge()) > 0); }
 
   private:
     int charge;
@@ -254,16 +255,16 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class KaonNeutralVeto : public BPHRecoSelect {
   public:
     KaonNeutralVeto() {}
-    ~KaonNeutralVeto() {}
-    virtual bool accept(const reco::Candidate& cand) const { return lround(fabs(cand.charge())); }
+    ~KaonNeutralVeto() override {}
+    bool accept(const reco::Candidate& cand) const override { return lround(fabs(cand.charge())); }
   };
 
   // kaon selection by Pt
   class KaonPtSelect : public BPHRecoSelect {
   public:
     KaonPtSelect(float pt) : ptCut(pt) {}
-    ~KaonPtSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const { return (cand.p4().pt() > ptCut); }
+    ~KaonPtSelect() override {}
+    bool accept(const reco::Candidate& cand) const override { return (cand.p4().pt() > ptCut); }
 
   private:
     float ptCut;
@@ -273,8 +274,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class KaonEtaSelect : public BPHRecoSelect {
   public:
     KaonEtaSelect(float eta) : etaCut(eta) {}
-    ~KaonEtaSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const { return (fabs(cand.p4().eta()) < etaCut); }
+    ~KaonEtaSelect() override {}
+    bool accept(const reco::Candidate& cand) const override { return (fabs(cand.p4().eta()) < etaCut); }
 
   private:
     float etaCut;
@@ -288,7 +289,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MassSelect : public BPHMomentumSelect {
   public:
     MassSelect(double minMass, double maxMass) : mMin(minMass), mMax(maxMass) {}
-    virtual bool accept(const BPHDecayMomentum& cand) const {
+    ~MassSelect() override {}
+    bool accept(const BPHDecayMomentum& cand) const override {
       double mass = cand.composite().mass();
       return ((mass > mMin) && (mass < mMax));
     }
@@ -302,7 +304,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class Chi2Select : public BPHVertexSelect {
   public:
     Chi2Select(double minProb) : mProb(minProb) {}
-    virtual bool accept(const BPHDecayVertex& cand) const {
+    ~Chi2Select() override {}
+    bool accept(const BPHDecayVertex& cand) const override {
       const reco::Vertex& v = cand.vertex();
       if (v.isFake())
         return false;
@@ -415,7 +418,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     // apply kinematic fit
     for (iBs = 0; iBs < nBs; ++iBs) {
       // get candidate and cast constness away
-      BPHRecoCandidate* cptr(const_cast<BPHRecoCandidate*>(lBs[iBs].get()));
+      const BPHRecoCandidate* cptr = lBs[iBs].get();
       cptr->kinematicTree("JPsi", 3.096916, 0.000040);
     }
     for (iBs = 0; iBs < nBs; ++iBs)
@@ -450,7 +453,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     // apply kinematic fit
     for (iBu = 0; iBu < nBu; ++iBu) {
       // get candidate and cast constness away
-      BPHRecoCandidate* cptr(const_cast<BPHRecoCandidate*>(lBu[iBu].get()));
+      const BPHRecoCandidate* cptr = lBu[iBu].get();
       cptr->kinematicTree("JPsi", 3.096916, 0.000040);
     }
     for (iBu = 0; iBu < nBu; ++iBu)
@@ -482,7 +485,7 @@ void TestBPHRecoDecay::dumpRecoCand(const string& name, const BPHRecoCandidate* 
   static string dType = "";
   string* type;
   const BPHPlusMinusCandidate* pmCand = dynamic_cast<const BPHPlusMinusCandidate*>(cand);
-  if (pmCand != 0) {
+  if (pmCand != nullptr) {
     if (pmCand->isCowboy())
       type = &cType;
     else
@@ -507,7 +510,7 @@ void TestBPHRecoDecay::dumpRecoCand(const string& name, const BPHRecoCandidate* 
   int ndof = lround(vx.ndof());
   double prob = TMath::Prob(chi2, ndof);
   string tdca = "";
-  if (pmCand != 0) {
+  if (pmCand != nullptr) {
     stringstream sstr;
     sstr << " - " << pmCand->cAppInRPhi().distance();
     tdca = sstr.str();
@@ -524,7 +527,7 @@ void TestBPHRecoDecay::dumpRecoCand(const string& name, const BPHRecoCandidate* 
     GlobalPoint gp(vp.X(), vp.Y(), vp.Z());
     GlobalVector dm(0.0, 0.0, 0.0);
     const reco::TransientTrack* tt = cand->getTransientTrack(dp);
-    if (tt != 0) {
+    if (tt != nullptr) {
       TrajectoryStateClosestToPoint tscp = tt->trajectoryStateClosestToPoint(gp);
       dm = tscp.momentum();
       //      TrajectoryStateOnSurface tsos = tt->stateOnSurface( gp );

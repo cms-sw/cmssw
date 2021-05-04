@@ -15,7 +15,7 @@ externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 
-generator = cms.EDFilter("Pythia8HadronizerFilter",
+generator = cms.EDFilter("Pythia8ConcurrentHadronizerFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(1),

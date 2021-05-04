@@ -76,7 +76,7 @@ class ResultPlotter:
     
     def makeHitNumbers(self, label, sectorRange, coordinate):
         self.numHitCounters += 1
-        sectors = range(sectorRange[0],sectorRange[1]+1)
+        sectors = list(range(sectorRange[0],sectorRange[1]+1))
         numSectors = len(sectors)
         
         fi = ROOT.TFile(self.hitNumbers[label], "READ")
@@ -101,7 +101,7 @@ class ResultPlotter:
         return labels
             
     def makeHist(self, label, sectorRange, coordinate, number):
-        sectors = range(sectorRange[0],sectorRange[1]+1)
+        sectors = list(range(sectorRange[0],sectorRange[1]+1))
         numSectors = len(sectors)
         
         hist = ROOT.TH1F("{}hist{}_{}".format(label, number, coordinate), "", numSectors, 0, numSectors)
@@ -161,7 +161,7 @@ class ResultPlotter:
             plotNumber = 0
             rangeList = self.granularity.sectors[coordinate]
             for sectorRange in rangeList:
-                self.canvas = ROOT.TCanvas("canvas", "canvas", int(ROOT.gStyle.GetCanvasDefW()*len(range(sectorRange[0],sectorRange[1]+1))/10.),ROOT.gStyle.GetCanvasDefH())
+                self.canvas = ROOT.TCanvas("canvas", "canvas", int(ROOT.gStyle.GetCanvasDefW()*len(list(range(sectorRange[0],sectorRange[1]+1)))/10.),ROOT.gStyle.GetCanvasDefH())
                 ROOT.gPad.SetRightMargin(0.10)
                 
                 legend = ROOT.TLegend(0.2,0.62,0.5,0.82)

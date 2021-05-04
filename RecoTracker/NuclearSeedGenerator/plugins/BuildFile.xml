@@ -1,7 +1,8 @@
-<use   name="RecoTracker/NuclearSeedGenerator"/>
-<use   name="RecoTracker/TrackProducer"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/VertexReco"/>
-<library   file="*.cc" name="RecoTrackerNuclearSeedGeneratorPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="RecoTracker/NuclearSeedGenerator"/>
+<use name="RecoTracker/TrackProducer"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/VertexReco"/>
+<library file="*.cc" name="RecoTrackerNuclearSeedGeneratorPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

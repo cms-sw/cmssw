@@ -71,26 +71,13 @@ elPFIsoValuePU03 = cms.EDProducer("PFCandIsolatorFromDeposits",
    )
 )
 
-elPFIsoValueCharged04 = elPFIsoValueCharged03.clone()
-elPFIsoValueCharged04.deposits[0].deltaR = cms.double(0.4)
+elPFIsoValueCharged04 = elPFIsoValueCharged03.clone(deposits = {0: dict(deltaR = 0.4)} )
+elPFIsoValueChargedAll04 = elPFIsoValueChargedAll03.clone(deposits = {0: dict(deltaR = 0.4)} )
+elPFIsoValueGamma04 = elPFIsoValueGamma03.clone(deposits = {0: dict(deltaR = 0.4)} )
+elPFIsoValueNeutral04 = elPFIsoValueNeutral03.clone(deposits = {0: dict(deltaR = 0.4)} )
+elPFIsoValuePU04 = elPFIsoValuePU03.clone(deposits ={0: dict(deltaR = 0.4)} )
 
-
-elPFIsoValueChargedAll04 = elPFIsoValueChargedAll03.clone()
-elPFIsoValueChargedAll04.deposits[0].deltaR = cms.double(0.4)
-
-elPFIsoValueGamma04 = elPFIsoValueGamma03.clone()
-elPFIsoValueGamma04.deposits[0].deltaR = cms.double(0.4)
-
-
-elPFIsoValueNeutral04 = elPFIsoValueNeutral03.clone()
-elPFIsoValueNeutral04.deposits[0].deltaR = cms.double(0.4)
-
-elPFIsoValuePU04 = elPFIsoValuePU03.clone()
-elPFIsoValuePU04.deposits[0].deltaR = cms.double(0.4)
-
-
-
-electronPFIsolationValuesTask = cms.Task (
+electronPFIsolationValuesTask = cms.Task(
     elPFIsoValueCharged03,
     elPFIsoValueChargedAll03,
     elPFIsoValueGamma03,
@@ -178,10 +165,10 @@ gedElPFIsoValuePU03 = cms.EDProducer("PFCandIsolatorFromDeposits",
    )
 )
 
-gedElectronPFIsolationValuesTask = cms.Task (
+gedElectronPFIsolationValuesTask = cms.Task(
     gedElPFIsoValueCharged03,
     gedElPFIsoValueChargedAll03,
     gedElPFIsoValueGamma03,
     gedElPFIsoValueNeutral03,
     gedElPFIsoValuePU03 )
-gedElectronPFIsolationValuesSequence = cms.Sequence (gedElectronPFIsolationValuesTask)
+gedElectronPFIsolationValuesSequence = cms.Sequence(gedElectronPFIsolationValuesTask)

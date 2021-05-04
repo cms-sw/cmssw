@@ -21,7 +21,7 @@
 #include <stdlib.h>  // for setenv; <cstdlib> is likely to fail
 #include <string>
 #include <unistd.h>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 class testmakepset : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testmakepset);
@@ -208,8 +208,8 @@ void testmakepset::fileinpathAux() {
     edm::FileInPath ufip = innerps.getUntrackedParameter<edm::FileInPath>("ufip");
     CPPUNIT_ASSERT(innerps.existsAs<int>("extraneous"));
     CPPUNIT_ASSERT(!innerps.existsAs<int>("absent"));
-    char* releaseBase = getenv("CMSSW_RELEASE_BASE");
-    char* localBase = getenv("CMSSW_BASE");
+    char* releaseBase = std::getenv("CMSSW_RELEASE_BASE");
+    char* localBase = std::getenv("CMSSW_BASE");
     localArea = (releaseBase != nullptr && strlen(releaseBase) != 0 && strcmp(releaseBase, localBase));
     if (localArea) {
       // Need to account for possible symbolic links
@@ -232,7 +232,7 @@ void testmakepset::fileinpathAux() {
 
     CPPUNIT_ASSERT(!fullpath.empty());
 
-    tmpout = fullpath.substr(0, fullpath.find("FWCore/PyDevParameterSet/test/fip.txt")) + "tmp.py";
+    tmpout = fullpath.substr(0, fullpath.find("FWCore/PyDevParameterSet/test/fip.txt")) + "PyDevtmp.py";
 
     edm::FileInPath topo = innerps.getParameter<edm::FileInPath>("topo");
     // if the file is local, then just disable this check as then it is expected to fail
@@ -240,7 +240,7 @@ void testmakepset::fileinpathAux() {
       std::string const src("/src");
       std::string local = localBase + src;
       std::string localFile = local + "/Geometry/TrackerSimData/data/trackersens.xml";
-      if (!boost::filesystem::exists(localFile))
+      if (!std::filesystem::exists(localFile))
         CPPUNIT_ASSERT(topo.location() != edm::FileInPath::Local);
       else
         std::cerr << "Disabling test against local path for trackersens.xml as package is checked out in this test"
@@ -271,7 +271,7 @@ void testmakepset::fileinpathAux() {
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('PROD')\n"
       "process.main = cms.PSet(\n"
-      "    fip2 = cms.FileInPath('tmp.py')\n"
+      "    fip2 = cms.FileInPath('PyDevtmp.py')\n"
       ")\n"
       "process.source = cms.Source('EmptySource')\n";
 
@@ -288,7 +288,7 @@ void testmakepset::fileinpathAux() {
   if (localArea) {
     CPPUNIT_ASSERT(fip2.location() == edm::FileInPath::Local);
   }
-  CPPUNIT_ASSERT(fip2.relativePath() == "tmp.py");
+  CPPUNIT_ASSERT(fip2.relativePath() == "PyDevtmp.py");
   std::string fullpath2 = fip2.fullPath();
   std::cerr << "fullPath is: " << fip2.fullPath() << std::endl;
   std::cerr << "copy of fullPath is: " << fullpath2 << std::endl;

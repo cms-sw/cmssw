@@ -21,6 +21,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "EventFilter/CastorRawToDigi/interface/CastorUnpacker.h"
 #include "EventFilter/CastorRawToDigi/interface/CastorCtdcUnpacker.h"
@@ -28,6 +29,9 @@
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
 #include "EventFilter/CastorRawToDigi/interface/ZdcUnpacker.h"
 #include "CondFormats/DataRecord/interface/HcalAllRcds.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
+
 #include <map>
 //#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
@@ -56,6 +60,7 @@ private:
   std::unique_ptr<HcalElectronicsMap> myEMap;
   edm::EDGetTokenT<FEDRawDataCollection> tok_input_;
   edm::ParameterSet zdcemap;
+  edm::ESGetToken<CastorDbService, CastorDbRecord> tok_pSetup_;
 };
 
 #endif

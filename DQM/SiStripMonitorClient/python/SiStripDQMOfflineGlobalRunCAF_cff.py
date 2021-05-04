@@ -23,7 +23,8 @@ from DQMServices.Components.MEtoEDMConverter_cfi import *
 from DQMServices.Components.EDMtoMEConverter_cfi import *
 
 ## Quality tester ##
-qTester = cms.EDAnalyzer( "QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+qTester = DQMQualityTester(
     qtList                  = cms.untracked.FileInPath( 'DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml' ),
     getQualityTestsFromFile = cms.untracked.bool( True ),
     prescaleFactor          = cms.untracked.int32( 1 )

@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerRingBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -10,45 +11,45 @@
 #include <vector>
 #include <bitset>
 
-void CmsTrackerRingBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsDetConstruction theCmsDetConstruction;
+template <class FilteredView>
+void CmsTrackerRingBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  moduleName_ = ExtractStringFromDDD<FilteredView>::getString("TkDDDStructure", &fv);
+
+  CmsDetConstruction<FilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerRingBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
-  fv.firstChild();
   GeometricDet::GeometricDetContainer compfw;
   GeometricDet::GeometricDetContainer compbw;
 
   switch (comp.front()->type()) {
     case GeometricDet::mergedDet:
-      trackerStablePhiSort(comp.begin(), comp.end(), getPhiGluedModule);
+      trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhiGluedModule);
       break;
     case GeometricDet::DetUnit:
-      trackerStablePhiSort(comp.begin(), comp.end(), getPhi);
+      trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhi);
       break;
     default:
       edm::LogError("CmsTrackerRingBuilder")
           << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
   }
 
-  static std::string const part("TkDDDStructure");
   static std::string const TECGluedDet("TECGluedDet");
   static std::string const TECDet("TECDet");
 
-  std::string const pname = ExtractStringFromDDD::getString(part, &fv);
-
   // TEC
   // Module Number: 3 bits [1,...,5 at most]
-  if (pname == TECGluedDet || pname == TECDet) {
+  if (moduleName_ == TECGluedDet || moduleName_ == TECDet) {
     // TEC-
-    if (det->translation().z() < 0 && pname == TECDet) {
-      trackerStablePhiSort(comp.begin(), comp.end(), getPhiMirror);
+    if (det->translation().z() < 0 && moduleName_ == TECDet) {
+      trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhiMirror);
     }
 
-    if (det->translation().z() < 0 && pname == TECGluedDet) {
-      trackerStablePhiSort(comp.begin(), comp.end(), getPhiGluedModuleMirror);
+    if (det->translation().z() < 0 && moduleName_ == TECGluedDet) {
+      trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhiGluedModuleMirror);
     }
 
     for (uint32_t i = 0; i < comp.size(); i++)
@@ -83,6 +84,7 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
     det->addComponents(compfw);
     det->addComponents(compbw);
   }
-
-  fv.parent();
 }
+
+template class CmsTrackerRingBuilder<DDFilteredView>;
+template class CmsTrackerRingBuilder<cms::DDFilteredView>;

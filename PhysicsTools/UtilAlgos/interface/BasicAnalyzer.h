@@ -28,7 +28,7 @@
    of reading configuration files and event looping as shown in the example below:
 
    #include "PhysicsTools/PatExamples/interface/BasicMuonAnalyzer.h"
-   #include "PhysicsTools/UtilAlgos/interface/FWLiteAnalyzerWrapper.h"
+   #include "PhysicsTools/FWLite/interface/FWLiteAnalyzerWrapper.h"
 
    typedef fwlite::AnalyzerWrapper<BasicMuonAnalyzer> WrappedFWLiteAnalyzer;
    ...

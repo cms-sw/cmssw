@@ -25,13 +25,13 @@ HGCPassive::HGCPassive(const edm::ParameterSet& p) : topPV_(nullptr), topLV_(nul
   motherName_ = m_Passive.getParameter<std::string>("MotherName");
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ValidHGCal") << "Name of the mother volume " << motherName_;
+  edm::LogVerbatim("HGCSim") << "Name of the mother volume " << motherName_;
   unsigned k(0);
 #endif
-  for (auto name : LVNames_) {
+  for (const auto& name : LVNames_) {
     produces<edm::PassiveHitContainer>(Form("%sPassiveHits", name.c_str()));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ValidHGCal") << "Collection name[" << k << "] " << name;
+    edm::LogVerbatim("HGCSim") << "Collection name[" << k << "] " << name;
     ++k;
 #endif
   }
@@ -50,7 +50,7 @@ void HGCPassive::produce(edm::Event& e, const edm::EventSetup&) {
 void HGCPassive::update(const BeginOfRun* run) {
   topPV_ = getTopPV();
   if (topPV_ == nullptr) {
-    edm::LogWarning("HGCPassive") << "Cannot find top level volume\n";
+    edm::LogWarning("HGCSim") << "Cannot find top level volume\n";
   } else {
     init_ = true;
     const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
@@ -59,11 +59,11 @@ void HGCPassive::update(const BeginOfRun* run) {
     }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ValidHGCal") << "HGCPassive::Finds " << mapLV_.size() << " logical volumes";
+    edm::LogVerbatim("HGCSim") << "HGCPassive::Finds " << mapLV_.size() << " logical volumes";
     unsigned int k(0);
     for (const auto& lvs : mapLV_) {
-      edm::LogVerbatim("ValidHGCal") << "Entry[" << k << "] " << lvs.first << ": (" << (lvs.second).first << ", "
-                                     << (lvs.second).second << ")";
+      edm::LogVerbatim("HGCSim") << "Entry[" << k << "] " << lvs.first << ": (" << (lvs.second).first << ", "
+                                 << (lvs.second).second << ")";
       ++k;
     }
 #endif
@@ -73,7 +73,7 @@ void HGCPassive::update(const BeginOfRun* run) {
 //=================================================================== per EVENT
 void HGCPassive::update(const BeginOfEvent* evt) {
   int iev = (*evt)()->GetEventID();
-  edm::LogVerbatim("ValidHGCal") << "HGCPassive: =====> Begin event = " << iev << std::endl;
+  edm::LogVerbatim("HGCSim") << "HGCPassive: =====> Begin event = " << iev << std::endl;
 
   ++count_;
   store_.clear();
@@ -96,15 +96,15 @@ void HGCPassive::update(const G4Step* aStep) {
       if (((aStep->GetPostStepPoint() == nullptr) || (aStep->GetTrack()->GetNextVolume() == nullptr)) &&
           (aStep->IsLastStepInVolume())) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("ValidHGCal") << plv->GetName() << " F|L Step " << aStep->IsFirstStepInVolume() << ":"
-                                       << aStep->IsLastStepInVolume() << " Position"
-                                       << aStep->GetPreStepPoint()->GetPosition() << " Track "
-                                       << aStep->GetTrack()->GetDefinition()->GetParticleName() << " at"
-                                       << aStep->GetTrack()->GetPosition() << " Volume "
-                                       << aStep->GetTrack()->GetVolume() << ":" << aStep->GetTrack()->GetNextVolume()
-                                       << " Status " << aStep->GetTrack()->GetTrackStatus() << " KE "
-                                       << aStep->GetTrack()->GetKineticEnergy() << " Deposit "
-                                       << aStep->GetTotalEnergyDeposit() << " Map " << (it != mapLV_.end());
+        edm::LogVerbatim("HGCSim") << plv->GetName() << " F|L Step " << aStep->IsFirstStepInVolume() << ":"
+                                   << aStep->IsLastStepInVolume() << " Position"
+                                   << aStep->GetPreStepPoint()->GetPosition() << " Track "
+                                   << aStep->GetTrack()->GetDefinition()->GetParticleName() << " at"
+                                   << aStep->GetTrack()->GetPosition() << " Volume " << aStep->GetTrack()->GetVolume()
+                                   << ":" << aStep->GetTrack()->GetNextVolume() << " Status "
+                                   << aStep->GetTrack()->GetTrackStatus() << " KE "
+                                   << aStep->GetTrack()->GetKineticEnergy() << " Deposit "
+                                   << aStep->GetTotalEnergyDeposit() << " Map " << (it != mapLV_.end());
 #endif
         energy += (aStep->GetPreStepPoint()->GetKineticEnergy() / CLHEP::GeV);
       } else {
@@ -131,8 +131,8 @@ void HGCPassive::update(const G4Step* aStep) {
         G4LogicalVolume* plv = touchable->GetVolume(i)->GetLogicalVolume();
         auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("ValidHGCal") << "Level: " << ii << ":" << i << " " << plv->GetName() << " flag in the List "
-                                       << (it != mapLV_.end());
+        edm::LogVerbatim("HGCSim") << "Level: " << level << ":" << i << " " << plv->GetName() << " flag in the List "
+                                   << (it != mapLV_.end());
 #endif
         if (it != mapLV_.end()) {
           unsigned int copy =
@@ -161,7 +161,7 @@ void HGCPassive::endOfEvent(edm::PassiveHitContainer& hgcPH, unsigned int k) {
             (it->second).second, (element.first).second, (element.second)[1], (element.second)[2], (element.second)[0]);
         hgcPH.push_back(hit);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("ValidHGCal") << "HGCPassive[" << k << "] Hit[" << kount << "] " << hit;
+        edm::LogVerbatim("HGCSim") << "HGCPassive[" << k << "] Hit[" << kount << "] " << hit;
         ++kount;
 #endif
       }
@@ -209,9 +209,9 @@ void HGCPassive::storeInfo(const HGCPassive::volumeIterator it,
   }
 #ifdef EDM_ML_DEBUG
   itr = store_.find(key);
-  edm::LogVerbatim("ValidHGCal") << "HGCPassive: Element " << (it->second).first << ":" << (it->second).second << ":"
-                                 << copy << " T " << (itr->second)[0] << " E " << (itr->second)[1] << ":"
-                                 << (itr->second)[2];
+  edm::LogVerbatim("HGCSim") << "HGCPassive: Element " << (it->second).first << ":" << (it->second).second << ":"
+                             << copy << " T " << (itr->second)[0] << " E " << (itr->second)[1] << ":"
+                             << (itr->second)[2];
 #endif
 }
 

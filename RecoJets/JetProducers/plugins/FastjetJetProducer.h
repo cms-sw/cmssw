@@ -55,7 +55,7 @@ public:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   // typedefs
-  typedef boost::shared_ptr<DynamicRfilt> DynamicRfiltPtr;
+  typedef std::shared_ptr<DynamicRfilt> DynamicRfiltPtr;
 
 protected:
   //

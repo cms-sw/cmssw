@@ -5,6 +5,9 @@ import os
 import copy
 import multiprocessing
 import time
+import re
+
+MAXWORKFLOWLENGTH = 81
 
 def performInjectionOptionTest(opt):
     if opt.show:
@@ -53,21 +56,38 @@ class MatrixInjector(object):
         self.keep = opt.keep
         self.memoryOffset = opt.memoryOffset
         self.memPerCore = opt.memPerCore
+        self.numberEventsInLuminosityBlock = opt.numberEventsInLuminosityBlock
+        self.numberOfStreams = 0
+        if(opt.nStreams>0):
+            self.numberOfStreams = opt.nStreams
         self.batchName = ''
         self.batchTime = str(int(time.time()))
         if(opt.batchName):
             self.batchName = '__'+opt.batchName+'-'+self.batchTime
 
-        #wagemt stuff
+        # WMagent url
         if not self.wmagent:
-            self.wmagent=os.getenv('WMAGENT_REQMGR')
+            # Overwrite with env variable
+            self.wmagent = os.getenv('WMAGENT_REQMGR')
+
         if not self.wmagent:
-            if not opt.testbed :
+            # Default values
+            if not opt.testbed:
                 self.wmagent = 'cmsweb.cern.ch'
-                self.DbsUrl = "https://"+self.wmagent+"/dbs/prod/global/DBSReader"
-            else :
+            else:
                 self.wmagent = 'cmsweb-testbed.cern.ch'
-                self.DbsUrl = "https://"+self.wmagent+"/dbs/int/global/DBSReader"
+
+        # DBSReader url
+        if opt.dbsUrl is not None:
+            self.DbsUrl = opt.dbsUrl
+        elif os.getenv('CMS_DBSREADER_URL') is not None:
+            self.DbsUrl = os.getenv('CMS_DBSREADER_URL')
+        else:
+            # Default values
+            if not opt.testbed:
+                self.DbsUrl = "https://cmsweb-prod.cern.ch/dbs/prod/global/DBSReader"
+            else:
+                self.DbsUrl = "https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader"
 
         if not self.dqmgui:
             self.dqmgui="https://cmsweb.cern.ch/dqm/relval"
@@ -81,7 +101,7 @@ class MatrixInjector(object):
         self.speciallabel=''
         if opt.label:
             self.speciallabel= '_'+opt.label
-
+        self.longWFName = []
 
         if not os.getenv('WMCORE_ROOT'):
             print('\n\twmclient is not setup properly. Will not be able to upload or submit requests.\n')
@@ -128,11 +148,13 @@ class MatrixInjector(object):
             "GlobalTag": None,
             "SplittingAlgo"  : "EventBased",             #Splitting Algorithm
             "EventsPerJob" : None,                       #Size of jobs in terms of splitting algorithm
+            "EventsPerLumi" : None,
             "RequestNumEvents" : None,                      #Total number of events to generate
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
             "nowmIO": {},
             "Multicore" : opt.nThreads,                  # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "EventStreams": self.numberOfStreams,
             "KeepOutput" : False
             }
         self.defaultInput={
@@ -144,6 +166,7 @@ class MatrixInjector(object):
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "EventStreams": self.numberOfStreams,
             "KeepOutput" : False
             }
         self.defaultTask={
@@ -156,133 +179,144 @@ class MatrixInjector(object):
             "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
+            "EventStreams": self.numberOfStreams,
             "KeepOutput" : False
             }
 
         self.chainDicts={}
 
-
-    def prepare(self,mReader, directories, mode='init'):
+    @staticmethod
+    def get_wmsplit():
+        """
+        Return a "wmsplit" dictionary that contain non-default LumisPerJob values
+        """
+        wmsplit = {}
         try:
-            #from Configuration.PyReleaseValidation.relval_steps import wmsplit
-            wmsplit = {}
-            wmsplit['DIGIHI']=5
-            wmsplit['RECOHI']=5
-            wmsplit['HLTD']=5
-            wmsplit['RECODreHLT']=2  
-            wmsplit['DIGIPU']=4
-            wmsplit['DIGIPU1']=4
-            wmsplit['RECOPU1']=1
-            wmsplit['DIGIUP15_PU50']=1
-            wmsplit['RECOUP15_PU50']=1
-            wmsplit['DIGIUP15_PU25']=1
-            wmsplit['RECOUP15_PU25']=1
-            wmsplit['DIGIUP15_PU25HS']=1
-            wmsplit['RECOUP15_PU25HS']=1
-            wmsplit['DIGIHIMIX']=5
-            wmsplit['RECOHIMIX']=5
-            wmsplit['RECODSplit']=1
-            wmsplit['SingleMuPt10_UP15_ID']=1
-            wmsplit['DIGIUP15_ID']=1
-            wmsplit['RECOUP15_ID']=1
-            wmsplit['TTbar_13_ID']=1
-            wmsplit['SingleMuPt10FS_ID']=1
-            wmsplit['TTbarFS_ID']=1
-            wmsplit['RECODR2_50nsreHLT']=5
-            wmsplit['RECODR2_25nsreHLT']=5
-            wmsplit['RECODR2_2016reHLT']=5
-            wmsplit['RECODR2_50nsreHLT_HIPM']=5
-            wmsplit['RECODR2_25nsreHLT_HIPM']=5
-            wmsplit['RECODR2_2016reHLT_HIPM']=1
-            wmsplit['RECODR2_2016reHLT_skimSingleMu']=1
-            wmsplit['RECODR2_2016reHLT_skimDoubleEG']=1
-            wmsplit['RECODR2_2016reHLT_skimMuonEG']=1
-            wmsplit['RECODR2_2016reHLT_skimJetHT']=1
-            wmsplit['RECODR2_2016reHLT_skimMET']=1
-            wmsplit['RECODR2_2016reHLT_skimSinglePh']=1
-            wmsplit['RECODR2_2016reHLT_skimMuOnia']=1
-            wmsplit['RECODR2_2016reHLT_skimSingleMu_HIPM']=1
-            wmsplit['RECODR2_2016reHLT_skimDoubleEG_HIPM']=1
-            wmsplit['RECODR2_2016reHLT_skimMuonEG_HIPM']=1
-            wmsplit['RECODR2_2016reHLT_skimJetHT_HIPM']=1
-            wmsplit['RECODR2_2016reHLT_skimMET_HIPM']=1
-            wmsplit['RECODR2_2016reHLT_skimSinglePh_HIPM']=1
-            wmsplit['RECODR2_2016reHLT_skimMuOnia_HIPM']=1
-            wmsplit['RECODR2_2017reHLT_Prompt']=1
-            wmsplit['RECODR2_2017reHLT_skimSingleMu_Prompt_Lumi']=1
-            wmsplit['RECODR2_2017reHLT_skimDoubleEG_Prompt']=1
-            wmsplit['RECODR2_2017reHLT_skimMET_Prompt']=1
-            wmsplit['RECODR2_2017reHLT_skimMuOnia_Prompt']=1
-            wmsplit['RECODR2_2017reHLT_Prompt_L1TEgDQM']=1
-            wmsplit['RECODR2_2018reHLT_Prompt']=1
-            wmsplit['RECODR2_2018reHLT_skimSingleMu_Prompt_Lumi']=1
-            wmsplit['RECODR2_2018reHLT_skimDoubleEG_Prompt']=1
-            wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt']=1
-            wmsplit['RECODR2_2018reHLT_skimMET_Prompt']=1
-            wmsplit['RECODR2_2018reHLT_skimMuOnia_Prompt']=1
-            wmsplit['RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM']=1
-            wmsplit['RECODR2_2018reHLT_skimMuonEG_Prompt']=1
-            wmsplit['RECODR2_2018reHLT_skimCharmonium_Prompt']=1
-            wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail']=1
-            wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig']=1
-            wmsplit['RECODR2_2018reHLTAlCaTkCosmics_Prompt']=1
-            wmsplit['RECODR2_2018reHLT_skimDisplacedJet_Prompt']=1
-            wmsplit['RECODR2_2018reHLT_ZBPrompt']=1
-            wmsplit['RECODR2_2018reHLT_Offline']=1
-            wmsplit['RECODR2_2018reHLT_skimSingleMu_Offline_Lumi']=1
-            wmsplit['RECODR2_2018reHLT_skimDoubleEG_Offline']=1
-            wmsplit['RECODR2_2018reHLT_skimJetHT_Offline']=1
-            wmsplit['RECODR2_2018reHLT_skimMET_Offline']=1
-            wmsplit['RECODR2_2018reHLT_skimMuOnia_Offline']=1
-            wmsplit['RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM']=1
-            wmsplit['RECODR2_2018reHLT_skimMuonEG_Offline']=1
-            wmsplit['RECODR2_2018reHLT_skimCharmonium_Offline']=1
-            wmsplit['RECODR2_2018reHLT_skimJetHT_Offline_HEfail']=1
-            wmsplit['RECODR2_2018reHLT_skimJetHT_Offline_BadHcalMitig']=1
-            wmsplit['RECODR2_2018reHLTAlCaTkCosmics_Offline']=1
-            wmsplit['RECODR2_2018reHLT_skimDisplacedJet_Offline']=1
-            wmsplit['RECODR2_2018reHLT_ZBOffline']=1
-            wmsplit['HLTDR2_50ns']=1
-            wmsplit['HLTDR2_25ns']=1
-            wmsplit['HLTDR2_2016']=1
-            wmsplit['HLTDR2_2017']=1
-            wmsplit['HLTDR2_2018']=1
-            wmsplit['HLTDR2_2018_BadHcalMitig']=1
-            wmsplit['Hadronizer']=1
-            wmsplit['DIGIUP15']=1 
-            wmsplit['RECOUP15']=1 
-            wmsplit['RECOAODUP15']=5
-            wmsplit['DBLMINIAODMCUP15NODQM']=5
-            wmsplit['DigiFull']=5
-            wmsplit['RecoFull']=5
-            wmsplit['DigiFullPU']=1
-            wmsplit['RecoFullPU']=1
-            wmsplit['RECOHID11']=1
-            wmsplit['DigiFullTriggerPU_2026D17PU'] = 1 
-            wmsplit['RecoFullGlobalPU_2026D17PU']=1
-            wmsplit['DIGIUP17']=1
-            wmsplit['RECOUP17']=1
-            wmsplit['DIGIUP17_PU25']=1
-            wmsplit['RECOUP17_PU25']=1
-            wmsplit['DIGICOS_UP16']=1
-            wmsplit['RECOCOS_UP16']=1
-            wmsplit['DIGICOS_UP17']=1
-            wmsplit['RECOCOS_UP17']=1
-            wmsplit['DIGICOS_UP18']=1
-            wmsplit['RECOCOS_UP18']=1
-            wmsplit['DIGICOS_UP21']=1
-            wmsplit['RECOCOS_UP21']=1
-            wmsplit['HYBRIDRepackHI2015VR']=1
-            wmsplit['HYBRIDZSHI2015']=1
-            wmsplit['RECOHID15']=1
-            wmsplit['RECOHID18']=1
-                                    
-            #import pprint
-            #pprint.pprint(wmsplit)            
-        except:
-            print("Not set up for step splitting")
-            wmsplit={}
+            wmsplit['DIGIHI'] = 5
+            wmsplit['RECOHI'] = 5
+            wmsplit['HLTD'] = 5
+            wmsplit['RECODreHLT'] = 2
+            wmsplit['DIGIPU'] = 4
+            wmsplit['DIGIPU1'] = 4
+            wmsplit['RECOPU1'] = 1
+            wmsplit['DIGIUP15_PU50'] = 1
+            wmsplit['RECOUP15_PU50'] = 1
+            wmsplit['DIGIUP15_PU25'] = 1
+            wmsplit['RECOUP15_PU25'] = 1
+            wmsplit['DIGIUP15_PU25HS'] = 1
+            wmsplit['RECOUP15_PU25HS'] = 1
+            wmsplit['DIGIHIMIX'] = 5
+            wmsplit['RECOHIMIX'] = 5
+            wmsplit['RECODSplit'] = 1
+            wmsplit['SingleMuPt10_UP15_ID'] = 1
+            wmsplit['DIGIUP15_ID'] = 1
+            wmsplit['RECOUP15_ID'] = 1
+            wmsplit['TTbar_13_ID'] = 1
+            wmsplit['SingleMuPt10FS_ID'] = 1
+            wmsplit['TTbarFS_ID'] = 1
+            wmsplit['RECODR2_50nsreHLT'] = 5
+            wmsplit['RECODR2_25nsreHLT'] = 5
+            wmsplit['RECODR2_2016reHLT'] = 5
+            wmsplit['RECODR2_50nsreHLT_HIPM'] = 5
+            wmsplit['RECODR2_25nsreHLT_HIPM'] = 5
+            wmsplit['RECODR2_2016reHLT_HIPM'] = 1
+            wmsplit['RECODR2_2016reHLT_skimSingleMu'] = 1
+            wmsplit['RECODR2_2016reHLT_skimDoubleEG'] = 1
+            wmsplit['RECODR2_2016reHLT_skimMuonEG'] = 1
+            wmsplit['RECODR2_2016reHLT_skimJetHT'] = 1
+            wmsplit['RECODR2_2016reHLT_skimMET'] = 1
+            wmsplit['RECODR2_2016reHLT_skimSinglePh'] = 1
+            wmsplit['RECODR2_2016reHLT_skimMuOnia'] = 1
+            wmsplit['RECODR2_2016reHLT_skimSingleMu_HIPM'] = 1
+            wmsplit['RECODR2_2016reHLT_skimDoubleEG_HIPM'] = 1
+            wmsplit['RECODR2_2016reHLT_skimMuonEG_HIPM'] = 1
+            wmsplit['RECODR2_2016reHLT_skimJetHT_HIPM'] = 1
+            wmsplit['RECODR2_2016reHLT_skimMET_HIPM'] = 1
+            wmsplit['RECODR2_2016reHLT_skimSinglePh_HIPM'] = 1
+            wmsplit['RECODR2_2016reHLT_skimMuOnia_HIPM'] = 1
+            wmsplit['RECODR2_2017reHLT_Prompt'] = 1
+            wmsplit['RECODR2_2017reHLT_skimSingleMu_Prompt_Lumi'] = 1
+            wmsplit['RECODR2_2017reHLT_skimDoubleEG_Prompt'] = 1
+            wmsplit['RECODR2_2017reHLT_skimMET_Prompt'] = 1
+            wmsplit['RECODR2_2017reHLT_skimMuOnia_Prompt'] = 1
+            wmsplit['RECODR2_2017reHLT_Prompt_L1TEgDQM'] = 1
+            wmsplit['RECODR2_2018reHLT_Prompt'] = 1
+            wmsplit['RECODR2_2018reHLT_skimSingleMu_Prompt_Lumi'] = 1
+            wmsplit['RECODR2_2018reHLT_skimDoubleEG_Prompt'] = 1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt'] = 1
+            wmsplit['RECODR2_2018reHLT_skimMET_Prompt'] = 1
+            wmsplit['RECODR2_2018reHLT_skimMuOnia_Prompt'] = 1
+            wmsplit['RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM'] = 1
+            wmsplit['RECODR2_2018reHLT_skimMuonEG_Prompt'] = 1
+            wmsplit['RECODR2_2018reHLT_skimCharmonium_Prompt'] = 1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail'] = 1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig'] = 1
+            wmsplit['RECODR2_2018reHLTAlCaTkCosmics_Prompt'] = 1
+            wmsplit['RECODR2_2018reHLT_skimDisplacedJet_Prompt'] = 1
+            wmsplit['RECODR2_2018reHLT_ZBPrompt'] = 1
+            wmsplit['RECODR2_2018reHLT_Offline'] = 1
+            wmsplit['RECODR2_2018reHLT_skimSingleMu_Offline_Lumi'] = 1
+            wmsplit['RECODR2_2018reHLT_skimDoubleEG_Offline'] = 1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Offline'] = 1
+            wmsplit['RECODR2_2018reHLT_skimMET_Offline'] = 1
+            wmsplit['RECODR2_2018reHLT_skimMuOnia_Offline'] = 1
+            wmsplit['RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM'] = 1
+            wmsplit['RECODR2_2018reHLT_skimMuonEG_Offline'] = 1
+            wmsplit['RECODR2_2018reHLT_skimCharmonium_Offline'] = 1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Offline_HEfail'] = 1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Offline_BadHcalMitig'] = 1
+            wmsplit['RECODR2_2018reHLTAlCaTkCosmics_Offline'] = 1
+            wmsplit['RECODR2_2018reHLT_skimDisplacedJet_Offline'] = 1
+            wmsplit['RECODR2_2018reHLT_ZBOffline'] = 1
+            wmsplit['HLTDR2_50ns'] = 1
+            wmsplit['HLTDR2_25ns'] = 1
+            wmsplit['HLTDR2_2016'] = 1
+            wmsplit['HLTDR2_2017'] = 1
+            wmsplit['HLTDR2_2018'] = 1
+            wmsplit['HLTDR2_2018_BadHcalMitig'] = 1
+            wmsplit['Hadronizer'] = 1
+            wmsplit['DIGIUP15'] = 1
+            wmsplit['RECOUP15'] = 1
+            wmsplit['RECOAODUP15'] = 5
+            wmsplit['DBLMINIAODMCUP15NODQM'] = 5
+            wmsplit['Digi'] = 5
+            wmsplit['Reco'] = 5
+            wmsplit['DigiPU'] = 1
+            wmsplit['RecoPU'] = 1
+            wmsplit['RECOHID11'] = 1
+            wmsplit['DIGIUP17'] = 1
+            wmsplit['RECOUP17'] = 1
+            wmsplit['DIGIUP17_PU25'] = 1
+            wmsplit['RECOUP17_PU25'] = 1
+            wmsplit['DIGICOS_UP16'] = 1
+            wmsplit['RECOCOS_UP16'] = 1
+            wmsplit['DIGICOS_UP17'] = 1
+            wmsplit['RECOCOS_UP17'] = 1
+            wmsplit['DIGICOS_UP18'] = 1
+            wmsplit['RECOCOS_UP18'] = 1
+            wmsplit['DIGICOS_UP21'] = 1
+            wmsplit['RECOCOS_UP21'] = 1
+            wmsplit['HYBRIDRepackHI2015VR'] = 1
+            wmsplit['HYBRIDZSHI2015'] = 1
+            wmsplit['RECOHID15'] = 1
+            wmsplit['RECOHID18'] = 1
+            # automate for phase 2
+            from .upgradeWorkflowComponents import upgradeKeys
+            for key in upgradeKeys[2026]:
+                if 'PU' not in key:
+                    continue
 
+                wmsplit['DigiTriggerPU_' + key] = 1
+                wmsplit['RecoGlobalPU_' + key] = 1
+
+        except Exception as ex:
+            print('Exception while building a wmsplit dictionary: %s' % (str(ex)))
+            return {}
+
+        return wmsplit
+
+    def prepare(self, mReader, directories, mode='init'):
+        wmsplit = MatrixInjector.get_wmsplit()
         acqEra=False
         for (n,dir) in directories.items():
             chainDict=copy.deepcopy(self.defaultChain)
@@ -329,9 +363,17 @@ class MatrixInjector(object):
                                     return -12
                                 else:
                                     arg=s[2][index].split()
-                                    ns=map(int,arg[arg.index('--relval')+1].split(','))
+                                    ns=list(map(int,arg[len(arg) - arg[-1::-1].index('--relval')].split(',')))
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['EventsPerJob'] = ns[1]
+                                    chainDict['nowmTasklist'][-1]['EventsPerLumi'] = ns[1]
+                                    #overwrite EventsPerLumi if numberEventsInLuminosityBlock is set in cmsDriver
+                                    if 'numberEventsInLuminosityBlock' in s[2][index]:
+                                        nEventsInLuminosityBlock = re.findall('process.source.numberEventsInLuminosityBlock=cms.untracked.uint32\(([ 0-9 ]*)\)', s[2][index],re.DOTALL)
+                                        if nEventsInLuminosityBlock[-1].isdigit() and int(nEventsInLuminosityBlock[-1]) < ns[1]:
+                                            chainDict['nowmTasklist'][-1]['EventsPerLumi'] = int(nEventsInLuminosityBlock[-1])
+                                    if(self.numberEventsInLuminosityBlock > 0 and self.numberEventsInLuminosityBlock <= ns[1]):
+                                        chainDict['nowmTasklist'][-1]['EventsPerLumi'] = self.numberEventsInLuminosityBlock
                                 if 'FASTSIM' in s[2][index] or '--fast' in s[2][index]:
                                     thisLabel+='_FastSim'
                                 if 'lhe' in s[2][index] in s[2][index]:
@@ -442,6 +484,10 @@ class MatrixInjector(object):
                     chainDict['RequestString']='RV'+chainDict['CMSSWVersion']+s[1].split('+')[0]
                     if processStrPrefix or thisLabel:
                         chainDict['RequestString']+='_'+processStrPrefix+thisLabel
+                    #check candidate WF name
+                    self.candidateWFName = self.user+'_'+chainDict['RequestString']
+                    if (len(self.candidateWFName)>MAXWORKFLOWLENGTH):
+                        self.longWFName.append(self.candidateWFName)
 
 ### PrepID
                     chainDict['PrepID'] = chainDict['CMSSWVersion']+'__'+self.batchTime+'-'+s[1].split('+')[0]
@@ -477,6 +523,8 @@ class MatrixInjector(object):
                                 #print 't_second',pprint.pformat(t_second)
                                 if t_second['TaskName'].startswith('HARVEST'):
                                     chainDict.update(copy.deepcopy(self.defaultHarvest))
+                                    if "_RD" in t_second['TaskName']:
+                                        chainDict['DQMHarvestUnit'] = "multiRun"
                                     chainDict['DQMConfigCacheID']=t_second['ConfigCacheID']
                                     ## the info are not in the task specific dict but in the general dict
                                     #t_input.update(copy.deepcopy(self.defaultHarvest))
@@ -610,6 +658,6 @@ class MatrixInjector(object):
                 workFlow=makeRequest(self.wmagent,d,encodeDict=True)
                 print("...........",n,"submitted")
                 random_sleep()
-            
-
-        
+        if self.testMode and len(self.longWFName)>0:
+            print("\n*** WARNING: "+str(len(self.longWFName))+" workflows have too long names for submission (>"+str(MAXWORKFLOWLENGTH)+ "characters) ***")
+            print('\n'.join(self.longWFName))

@@ -340,8 +340,8 @@ bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollecti
   if (nElectrons < 2)
     return false;
 
-  for (auto tagElectron : *electrons) {
-    for (auto probeElectron : *electrons) {
+  for (const auto& tagElectron : *electrons) {
+    for (const auto& probeElectron : *electrons) {
       if (tagElectron.p4() == probeElectron.p4())
         continue;
 
@@ -571,8 +571,8 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
 //
 // -------------------------------------- endRun --------------------------------------------
 //
-void L1TEGammaOffline::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::endRun" << std::endl;
+void L1TEGammaOffline::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+  normalise2DHistogramsToBinArea();
 }
 
 //
@@ -581,6 +581,8 @@ void L1TEGammaOffline::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker& ibooker) {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
+  // since there are endRun manipulations.
+  ibooker.setScope(MonitorElementData::Scope::RUN);
 
   dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
   h_nVertex_ = ibooker.book1D(nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax);
@@ -940,8 +942,6 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker& ibooker) {
 
   ibooker.cd();
 }
-
-void L1TEGammaOffline::endJob() { normalise2DHistogramsToBinArea(); }
 
 void L1TEGammaOffline::normalise2DHistogramsToBinArea() {
   std::vector<MonitorElement*> monElementstoNormalize = {h_L1EGammaETvsElectronET_EB_,

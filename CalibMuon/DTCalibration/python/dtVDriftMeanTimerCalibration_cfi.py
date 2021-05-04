@@ -27,7 +27,8 @@ dtVDriftMeanTimerCalibration = cms.EDAnalyzer("DTVDriftCalibration",
         # Switch on/off the TO correction from pulses
         doT0Correction = cms.bool(True),
         debug = cms.untracked.bool(False),
-        tTrigLabel = cms.string('')
+        tTrigLabel = cms.string(''),
+        t0Label = cms.string('')
     ),
     # Choose to calculate vDrift and t0 or just fill the TMax histograms
     findVDriftAndT0 = cms.untracked.bool(False),

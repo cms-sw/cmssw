@@ -1,12 +1,10 @@
-// #include "Utilities/Configuration/interface/Architecture.h"
-
 /*
  *  See header file for a description of this class.
  *
- *  \author N. Amapane - INFN Torino
+ *  \author N. Amapane - INFN Torino (original developer)
  */
 
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
+#include "volumeHandle.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -20,8 +18,6 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
-
 #include <string>
 #include <iterator>
 #include <iomanip>
@@ -31,21 +27,24 @@
 using namespace SurfaceOrientation;
 using namespace std;
 
-MagGeoBuilderFromDDD::volumeHandle::~volumeHandle() { delete refPlane; }
+#include "DataFormats/Math/interface/GeantUnits.h"
 
-MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool expand2Pi)
-    : name(fv.logicalPart().name().name()),
-      copyno(fv.copyno()),
-      magVolume(nullptr),
-      masterSector(1),
-      theRN(0.),
-      theRMin(0.),
-      theRMax(0.),
-      refPlane(nullptr),
-      solid(fv.logicalPart().solid()),
-      center_(GlobalPoint(fv.translation().x() / cm, fv.translation().y() / cm, fv.translation().z() / cm)),
-      expand(expand2Pi),
-      isIronFlag(false) {
+namespace {
+  // Old DD returns lengths in mm, but CMS code uses cm
+  template <class NumType>
+  inline constexpr NumType convertUnits(NumType millimeters)  // Millimeters -> centimeters
+  {
+    return (geant_units::operators::convertMmToCm(millimeters));
+  }
+}  // namespace
+
+MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool expand2Pi, bool debugVal)
+    : magneticfield::BaseVolumeHandle(expand2Pi, debugVal) {
+  name = fv.logicalPart().name().name();
+  copyno = fv.copyno();
+  solid = fv.logicalPart().solid();
+  center_ = GlobalPoint(fv.translation().x() / cm, fv.translation().y() / cm, fv.translation().z() / cm);
+
   // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
   string volName = name;
   volName.erase(0, volName.rfind('_') + 1);
@@ -55,24 +54,71 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     isAssigned[i] = false;
   }
 
-  if (MagGeoBuilderFromDDD::debug) {
+  if (debug) {
     cout.precision(7);
   }
 
   referencePlane(fv);
 
   if (solid.shape() == DDSolidShape::ddbox) {
-    buildBox(fv);
+    DDBox box(solid);
+    double halfX = convertUnits(box.halfX());
+    double halfY = convertUnits(box.halfY());
+    double halfZ = convertUnits(box.halfZ());
+    buildBox(halfX, halfY, halfZ);
   } else if (solid.shape() == DDSolidShape::ddtrap) {
-    buildTrap(fv);
+    DDTrap trap(solid);
+    double x1 = convertUnits(trap.x1());
+    double x2 = convertUnits(trap.x2());
+    double x3 = convertUnits(trap.x3());
+    double x4 = convertUnits(trap.x4());
+    double y1 = convertUnits(trap.y1());
+    double y2 = convertUnits(trap.y2());
+    double theta = trap.theta();
+    double phi = trap.phi();
+    double halfZ = convertUnits(trap.halfZ());
+    double alpha1 = trap.alpha1();
+    double alpha2 = trap.alpha2();
+    buildTrap(x1, x2, x3, x4, y1, y2, theta, phi, halfZ, alpha1, alpha2);
   } else if (solid.shape() == DDSolidShape::ddcons) {
-    buildCons(fv);
+    DDCons cons(solid);
+    double zhalf = convertUnits(cons.zhalf());
+    double rInMinusZ = convertUnits(cons.rInMinusZ());
+    double rOutMinusZ = convertUnits(cons.rOutMinusZ());
+    double rInPlusZ = convertUnits(cons.rInPlusZ());
+    double rOutPlusZ = convertUnits(cons.rOutPlusZ());
+    double startPhi = cons.phiFrom();
+    double deltaPhi = cons.deltaPhi();
+    buildCons(zhalf, rInMinusZ, rOutMinusZ, rInPlusZ, rOutPlusZ, startPhi, deltaPhi);
   } else if (solid.shape() == DDSolidShape::ddtubs) {
-    buildTubs(fv);
+    DDTubs tubs(solid);
+    double zhalf = convertUnits(tubs.zhalf());
+    double rIn = convertUnits(tubs.rIn());
+    double rOut = convertUnits(tubs.rOut());
+    double startPhi = tubs.startPhi();
+    double deltaPhi = tubs.deltaPhi();
+    buildTubs(zhalf, rIn, rOut, startPhi, deltaPhi);
   } else if (solid.shape() == DDSolidShape::ddpseudotrap) {
-    buildPseudoTrap(fv);
+    DDPseudoTrap ptrap(solid);
+    double x1 = convertUnits(ptrap.x1());
+    double x2 = convertUnits(ptrap.x2());
+    double y1 = convertUnits(ptrap.y1());
+    double y2 = convertUnits(ptrap.y2());
+    double halfZ = convertUnits(ptrap.halfZ());
+    double radius = convertUnits(ptrap.radius());
+    bool atMinusZ = ptrap.atMinusZ();
+    buildPseudoTrap(x1, x2, y1, y2, halfZ, radius, atMinusZ);
   } else if (solid.shape() == DDSolidShape::ddtrunctubs) {
-    buildTruncTubs(fv);
+    DDTruncTubs tubs(solid);
+    double zhalf = convertUnits(tubs.zHalf());            // half of the z-Axis
+    double rIn = convertUnits(tubs.rIn());                // inner radius
+    double rOut = convertUnits(tubs.rOut());              // outer radius
+    double startPhi = tubs.startPhi();                    // angular start of the tube-section
+    double deltaPhi = tubs.deltaPhi();                    // angular span of the tube-section
+    double cutAtStart = convertUnits(tubs.cutAtStart());  // truncation at begin of the tube-section
+    double cutAtDelta = convertUnits(tubs.cutAtDelta());  // truncation at end of the tube-section
+    bool cutInside = tubs.cutInside();  // true, if truncation is on the inner side of the tube-section
+    buildTruncTubs(zhalf, rIn, rOut, startPhi, deltaPhi, cutAtStart, cutAtDelta, cutInside);
   } else {
     cout << "volumeHandle ctor: Unexpected solid: " << DDSolidShapesName::name(solid.shape()) << endl;
   }
@@ -132,7 +178,7 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   if (fv.logicalPart().material().name().name() == "Iron")
     isIronFlag = true;
 
-  if (MagGeoBuilderFromDDD::debug) {
+  if (debug) {
     cout << " RMin =  " << theRMin << endl;
     cout << " RMax =  " << theRMax << endl;
 
@@ -152,8 +198,6 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     cout << endl;
   }
 }
-
-const Surface::GlobalPoint &MagGeoBuilderFromDDD::volumeHandle::center() const { return center_; }
 
 void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv) {
   // The refPlane is the "main plane" for the solid. It corresponds to the
@@ -190,7 +234,7 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   // The reference plane rotation
   DD3Vector x, y, z;
   fv.rotation().GetComponents(x, y, z);
-  if (MagGeoBuilderFromDDD::debug) {
+  if (debug) {
     if (x.Cross(y).Dot(z) < 0.5) {
       cout << "*** WARNING: Rotation is not RH " << endl;
     }
@@ -210,7 +254,7 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   refPlane = new GloballyPositioned<float>(posResult, rotResult);
 
   // Check correct orientation
-  if (MagGeoBuilderFromDDD::debug) {
+  if (debug) {
     cout << "Refplane pos  " << refPlane->position() << endl;
 
     // See comments above for the conventions for orientation.
@@ -226,182 +270,6 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
     if (chk < .999)
       cout << "*** WARNING RefPlane check failed!***" << chk << endl;
   }
-}
-
-void MagGeoBuilderFromDDD::volumeHandle::buildPhiZSurf(double startPhi, double deltaPhi, double zhalf, double rCentr) {
-  // This is 100% equal for cons and tubs!!!
-
-  GlobalVector planeXAxis = refPlane->toGlobal(LocalVector(1, 0, 0));
-  GlobalVector planeYAxis = refPlane->toGlobal(LocalVector(0, 1, 0));
-  GlobalVector planeZAxis = refPlane->toGlobal(LocalVector(0, 0, 1));
-
-  // Local Y axis of the faces at +-phi.
-  GlobalVector y_phiplus = refPlane->toGlobal(LocalVector(cos(startPhi + deltaPhi), sin(startPhi + deltaPhi), 0.));
-  GlobalVector y_phiminus = refPlane->toGlobal(LocalVector(cos(startPhi), sin(startPhi), 0.));
-
-  Surface::RotationType rot_Z(planeXAxis, planeYAxis);
-  Surface::RotationType rot_phiplus(planeZAxis, y_phiplus);
-  Surface::RotationType rot_phiminus(planeZAxis, y_phiminus);
-
-  GlobalPoint pos_zplus(center_.x(), center_.y(), center_.z() + zhalf);
-  GlobalPoint pos_zminus(center_.x(), center_.y(), center_.z() - zhalf);
-  // BEWARE: in this case, the origin for phiplus,phiminus surfaces is
-  // at radius R and not on a plane passing by center_ orthogonal to the radius.
-  GlobalPoint pos_phiplus(
-      refPlane->toGlobal(LocalPoint(rCentr * cos(startPhi + deltaPhi), rCentr * sin(startPhi + deltaPhi), 0.)));
-  GlobalPoint pos_phiminus(refPlane->toGlobal(LocalPoint(rCentr * cos(startPhi), rCentr * sin(startPhi), 0.)));
-  surfaces[zplus] = new Plane(pos_zplus, rot_Z);
-  surfaces[zminus] = new Plane(pos_zminus, rot_Z);
-  surfaces[phiplus] = new Plane(pos_phiplus, rot_phiplus);
-  surfaces[phiminus] = new Plane(pos_phiminus, rot_phiminus);
-
-  if (MagGeoBuilderFromDDD::debug) {
-    cout << "Actual Center at: " << center_ << " R " << center_.perp() << " phi " << center_.phi() << endl;
-    cout << "RN            " << theRN << endl;
-
-    cout << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi() << endl
-         << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi() << endl
-         << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
-         << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi() << endl;
-
-    cout << "y_phiplus " << y_phiplus << endl;
-    cout << "y_phiminus " << y_phiminus << endl;
-
-    cout << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
-         << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-         << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
-         << "rot_phi- " << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-         << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl;
-  }
-
-  //   // Check ordering.
-  if (MagGeoBuilderFromDDD::debug) {
-    if (pos_zplus.z() < pos_zminus.z()) {
-      cout << "*** WARNING: pos_zplus < pos_zminus " << endl;
-    }
-    if (Geom::Phi<float>(pos_phiplus.phi() - pos_phiminus.phi()) < 0.) {
-      cout << "*** WARNING: pos_phiplus < pos_phiminus " << endl;
-    }
-  }
-}
-
-bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface &s1, Sides which_side, float tolerance) {
-  //Check for null comparison
-  if (&s1 == (surfaces[which_side]).get()) {
-    if (MagGeoBuilderFromDDD::debug)
-      cout << "      sameSurface: OK (same ptr)" << endl;
-    return true;
-  }
-
-  const float maxtilt = 0.999;
-
-  const Surface &s2 = *(surfaces[which_side]);
-  // Try with a plane.
-  const Plane *p1 = dynamic_cast<const Plane *>(&s1);
-  if (p1 != nullptr) {
-    const Plane *p2 = dynamic_cast<const Plane *>(&s2);
-    if (p2 == nullptr) {
-      if (MagGeoBuilderFromDDD::debug)
-        cout << "      sameSurface: different types" << endl;
-      return false;
-    }
-
-    if ((fabs(p1->normalVector().dot(p2->normalVector())) > maxtilt) &&
-        (fabs((p1->toLocal(p2->position())).z()) < tolerance)) {
-      if (MagGeoBuilderFromDDD::debug)
-        cout << "      sameSurface: OK " << fabs(p1->normalVector().dot(p2->normalVector())) << " "
-             << fabs((p1->toLocal(p2->position())).z()) << endl;
-      return true;
-    } else {
-      if (MagGeoBuilderFromDDD::debug)
-        cout << "      sameSurface: not the same: " << p1->normalVector() << p1->position() << endl
-             << "                                 " << p2->normalVector() << p2->position() << endl
-             << fabs(p1->normalVector().dot(p2->normalVector())) << " " << (p1->toLocal(p2->position())).z() << endl;
-      return false;
-    }
-  }
-
-  // Try with a cylinder.
-  const Cylinder *cy1 = dynamic_cast<const Cylinder *>(&s1);
-  if (cy1 != nullptr) {
-    const Cylinder *cy2 = dynamic_cast<const Cylinder *>(&s2);
-    if (cy2 == nullptr) {
-      if (MagGeoBuilderFromDDD::debug)
-        cout << "      sameSurface: different types" << endl;
-      return false;
-    }
-    // Assume axis is the same!
-    if (fabs(cy1->radius() - cy2->radius()) < tolerance) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  // Try with a cone.
-  const Cone *co1 = dynamic_cast<const Cone *>(&s1);
-  if (co1 != nullptr) {
-    const Cone *co2 = dynamic_cast<const Cone *>(&s2);
-    if (co2 == nullptr) {
-      if (MagGeoBuilderFromDDD::debug)
-        cout << "      sameSurface: different types" << endl;
-      return false;
-    }
-    // FIXME
-    if (fabs(co1->openingAngle() - co2->openingAngle()) < maxtilt &&
-        (co1->vertex() - co2->vertex()).mag() < tolerance) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "      sameSurface: unknown surfaces..." << endl;
-  return false;
-}
-
-bool MagGeoBuilderFromDDD::volumeHandle::setSurface(const Surface &s1, Sides which_side) {
-  //Check for null assignment
-  if (&s1 == (surfaces[which_side]).get()) {
-    isAssigned[which_side] = true;
-    return true;
-  }
-
-  if (!sameSurface(s1, which_side)) {
-    cout << "***ERROR: setSurface: trying to assign a surface that does not match destination surface. Skipping."
-         << endl;
-    const Surface &s2 = *(surfaces[which_side]);
-    //FIXME: Just planes for the time being!!!
-    const Plane *p1 = dynamic_cast<const Plane *>(&s1);
-    const Plane *p2 = dynamic_cast<const Plane *>(&s2);
-    if (p1 != nullptr && p2 != nullptr)
-      cout << p1->normalVector() << p1->position() << endl << p2->normalVector() << p2->position() << endl;
-    return false;
-  }
-
-  if (isAssigned[which_side]) {
-    if (&s1 != (surfaces[which_side]).get()) {
-      cout << "*** WARNING volumeHandle::setSurface: trying to reassign a surface to a different surface instance"
-           << endl;
-      return false;
-    }
-  } else {
-    surfaces[which_side] = &s1;
-    isAssigned[which_side] = true;
-    if (MagGeoBuilderFromDDD::debug)
-      cout << "     Volume " << name << " # " << copyno << " Assigned: " << (int)which_side << endl;
-    return true;
-  }
-
-  return false;  // let the compiler be happy
-}
-
-const Surface &MagGeoBuilderFromDDD::volumeHandle::surface(Sides which_side) const { return *(surfaces[which_side]); }
-
-const Surface &MagGeoBuilderFromDDD::volumeHandle::surface(int which_side) const {
-  assert(which_side >= 0 && which_side < 6);
-  return *(surfaces[which_side]);
 }
 
 std::vector<VolumeSide> MagGeoBuilderFromDDD::volumeHandle::sides() const {
@@ -422,33 +290,12 @@ std::vector<VolumeSide> MagGeoBuilderFromDDD::volumeHandle::sides() const {
   return result;
 }
 
-void MagGeoBuilderFromDDD::volumeHandle::printUniqueNames(handles::const_iterator begin,
-                                                          handles::const_iterator end,
-                                                          bool uniq) {
-  std::vector<std::string> names;
-  for (handles::const_iterator i = begin; i != end; ++i) {
-    if (uniq)
-      names.push_back((*i)->name);
-    else
-      names.push_back((*i)->name + ":" + std::to_string((*i)->copyno));
-  }
+using volumeHandle = MagGeoBuilderFromDDD::volumeHandle;
+using namespace magneticfield;
 
-  sort(names.begin(), names.end());
-  if (uniq) {
-    std::vector<std::string>::iterator i = unique(names.begin(), names.end());
-    int nvols = int(i - names.begin());
-    cout << nvols << " ";
-    copy(names.begin(), i, ostream_iterator<std::string>(cout, " "));
-  } else {
-    cout << names.size() << " ";
-    copy(names.begin(), names.end(), ostream_iterator<std::string>(cout, " "));
-  }
-  cout << endl;
-}
-
-#include "MagneticField/GeomBuilder/src/buildBox.icc"
-#include "MagneticField/GeomBuilder/src/buildTrap.icc"
-#include "MagneticField/GeomBuilder/src/buildTubs.icc"
-#include "MagneticField/GeomBuilder/src/buildCons.icc"
-#include "MagneticField/GeomBuilder/src/buildPseudoTrap.icc"
-#include "MagneticField/GeomBuilder/src/buildTruncTubs.icc"
+#include "buildBox.icc"
+#include "buildTrap.icc"
+#include "buildTubs.icc"
+#include "buildCons.icc"
+#include "buildPseudoTrap.icc"
+#include "buildTruncTubs.icc"

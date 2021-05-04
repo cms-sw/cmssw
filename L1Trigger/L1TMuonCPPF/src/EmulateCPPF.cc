@@ -4,21 +4,24 @@
 #include "L1Trigger/L1TMuonCPPF/interface/EmulateCPPF.h"
 #include <fstream>
 #include <string>
+#include "L1Trigger/L1TMuonCPPF/src/CPPFClusterContainer.h"
+#include "L1Trigger/L1TMuonCPPF/src/CPPFCluster.h"
+#include "L1Trigger/L1TMuonCPPF/src/CPPFClusterizer.h"
+#include "L1Trigger/L1TMuonCPPF/src/CPPFMaskReClusterizer.h"
+#include "Geometry/RPCGeometry/interface/RPCRoll.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 
-EmulateCPPF::EmulateCPPF(const edm::ParameterSet &iConfig,
-                         edm::ConsumesCollector &&iConsumes)
-    :  // rpcDigi_processors_(),
-      recHit_processors_(),
-      // rpcDigiToken_(
-      // iConsumes.consumes<RPCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("recHitLabel"))
-      // ),
+EmulateCPPF::EmulateCPPF(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iConsumes)
+    : recHit_processors_(),
+      rpcDigiToken_(iConsumes.consumes<RPCDigiCollection>(iConfig.getParameter<edm::InputTag>("rpcDigiLabel"))),
       recHitToken_(iConsumes.consumes<RPCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitLabel"))),
+      rpcDigiSimLinkToken_(iConsumes.consumes<edm::DetSetVector<RPCDigiSimLink> >(
+          iConfig.getParameter<edm::InputTag>("rpcDigiSimLinkLabel"))),
       cppfSource_(CppfSource::EventSetup),
       MaxClusterSize_(0) {
   MaxClusterSize_ = iConfig.getParameter<int>("MaxClusterSize");
-
   const std::string cppfSource = iConfig.getParameter<std::string>("cppfSource");
-  // Look up table
+  //      Look up table
   if (cppfSource == "File") {
     cppfSource_ = CppfSource::File;
     edm::FileInPath fp = iConfig.getParameter<edm::FileInPath>("cppfvecfile");
@@ -35,15 +38,14 @@ EmulateCPPF::EmulateCPPF(const edm::ParameterSet &iConfig,
     }
     inputFile.close();
   }
-
-  // RPC Geometry
+  //      RPC Geometry
   else if (cppfSource == "Geo") {
     cppfSource_ = CppfSource::EventSetup;
   }
-  // Error for wrong input
+  //      Error for wrong input
   else {
-    throw cms::Exception("Invalid option") << "Error: Specify in python/emulatorCppfDigis_cfi 'File' for look up  "
-                                              "table or 'Geo' for RPC Geometry";
+    throw cms::Exception("Invalid option")
+        << "Error: Specify in python/emulatorCppfDigis_cfi 'File' for look up table or 'Geo' for RPC Geometry";
     exit(1);
   }
 }
@@ -52,26 +54,19 @@ EmulateCPPF::~EmulateCPPF() {}
 
 void EmulateCPPF::process(const edm::Event &iEvent,
                           const edm::EventSetup &iSetup,
-                          // l1t::CPPFDigiCollection& cppf_rpcDigi,
                           l1t::CPPFDigiCollection &cppf_recHit) {
-  if (cppfSource_ == CppfSource::File) {
-    // Using the look up table to fill the information
+  if (cppfSource_ == CppfSource::File) {  // Using the look up table to fill the information
     cppf_recHit.clear();
     for (auto &recHit_processor : recHit_processors_) {
-      recHit_processor.processLook(iEvent, iSetup, recHitToken_, CppfVec_1, cppf_recHit, MaxClusterSize_);
-      //  recHit_processors_.at(recHit_processor).processLook( iEvent, iSetup,
-      //  recHitToken_, CppfVec_1, cppf_recHit );
+      recHit_processor.processLook(
+          iEvent, iSetup, recHitToken_, rpcDigiToken_, rpcDigiSimLinkToken_, CppfVec_1, cppf_recHit, MaxClusterSize_);
     }
   } else if (cppfSource_ == CppfSource::EventSetup) {
     // Clear output collections
     // cppf_rpcDigi.clear();
     cppf_recHit.clear();
 
-    // // Get the RPCDigis from the event
-    // edm::Handle<RPCTag::digi_collection> rpcDigis;
-    // iEvent.getByToken(rpcDigiToken_, rpcDigis);
-
-    // _________________________________________________________________________________
+    //Get the RPCDigis from the event
     // Run the CPPF clusterization+coordinate conversion algo on RPCDigis and
     // RecHits
 
@@ -84,9 +79,7 @@ void EmulateCPPF::process(const edm::Event &iEvent,
     // cppf_rpcDigi );
     // }
     for (auto &recHit_processor : recHit_processors_) {
-      recHit_processor.process(iEvent, iSetup, recHitToken_, cppf_recHit);
-      // recHit_processors_.at(recHit_processor).process( iEvent, iSetup,
-      // recHitToken_, cppf_recHit );
+      recHit_processor.process(iEvent, iSetup, recHitToken_, rpcDigiToken_, rpcDigiSimLinkToken_, cppf_recHit);
     }
   }
 }  // End void EmulateCPPF::process()

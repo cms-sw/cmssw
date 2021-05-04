@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -14,9 +14,10 @@
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 class DDHGCalWafer : public DDAlgorithm {
 public:
@@ -117,7 +118,7 @@ void DDHGCalWafer::execute(DDCompactView& cpv) {
       double xpos = dx * nx;
       nx += 2;
       DDTranslation tran(xpos, ypos, 0);
-      int copy = cellType_ * 1000 + kount;
+      int copy = HGCalTypes::packCellType6(cellType_, kount);
       cpv.position(DDName(name, idNameSpace_), parentName_, copy, tran, rot);
       ++kount;
 #ifdef EDM_ML_DEBUG

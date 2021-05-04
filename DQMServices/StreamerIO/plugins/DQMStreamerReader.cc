@@ -10,13 +10,16 @@
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "DQMStreamerReader.h"
 
-#include <fstream>
-#include <queue>
 #include <cstdlib>
-#include <boost/regex.hpp>
+#include <filesystem>
+#include <fstream>
+#include <memory>
+#include <queue>
+
+#include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/range.hpp>
-#include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <IOPool/Streamer/interface/DumpTools.h>
@@ -96,10 +99,12 @@ namespace dqmservices {
     std::string path = entry.get_data_path();
 
     file_.lumi_ = entry;
-    file_.streamFile_.reset(new edm::StreamerInputFile(path));
+    file_.streamFile_ = std::make_unique<edm::StreamerInputFile>(path);
 
     InitMsgView const* header = getHeaderMsg();
-    deserializeAndMergeWithRegistry(*header, false);
+    if (isFirstFile_) {
+      deserializeAndMergeWithRegistry(*header, false);
+    }
 
     // dump the list of HLT trigger name from the header
     //  dumpInitHeader(header);
@@ -127,6 +132,8 @@ namespace dqmservices {
     }
   }
 
+  void DQMStreamerReader::genuineCloseFile() {}
+
   void DQMStreamerReader::closeFileImp_(const std::string& reason) {
     if (file_.open()) {
       file_.streamFile_->closeStreamerFile();
@@ -136,13 +143,25 @@ namespace dqmservices {
     }
   }
 
+  void DQMStreamerReader::genuineReadFile() {
+    if (isFirstFile_) {
+      //The file was already opened in the constructor
+      isFirstFile_ = false;
+      return;
+    }
+
+    //Get header/init from reader
+    InitMsgView const* header = getHeaderMsg();
+    deserializeAndMergeWithRegistry(*header, true);
+  }
+
   bool DQMStreamerReader::openNextFileImp_() {
     closeFileImp_("skipping to another file");
 
     DQMFileIterator::LumiEntry currentLumi = fiterator_.open();
     std::string p = currentLumi.get_data_path();
 
-    if (boost::filesystem::exists(p)) {
+    if (std::filesystem::exists(p)) {
       try {
         openFileImp_(currentLumi);
         return true;
@@ -174,7 +193,12 @@ namespace dqmservices {
   }
 
   EventMsgView const* DQMStreamerReader::getEventMsg() {
-    if (!file_.streamFile_->next()) {
+    auto next = file_.streamFile_->next();
+    if (edm::StreamerInputFile::Next::kFile == next) {
+      return nullptr;
+    }
+
+    if (edm::StreamerInputFile::Next::kStop == next) {
       return nullptr;
     }
 
@@ -290,21 +314,14 @@ namespace dqmservices {
   /**
  * This is the actual code for checking the new event and/or deserializing it.
  */
-  bool DQMStreamerReader::checkNextEvent() {
+  edm::RawInputSource::Next DQMStreamerReader::checkNext() {
     try {
       EventMsgView const* eview = prepareNextEvent();
       if (eview == nullptr) {
-        return false;
-      }
-
-      // this is reachable only if eview is set
-      // and the file is openned
-      if (file_.streamFile_->newHeader()) {
-        // A new file has been opened and we must compare Headers here !!
-        // Get header/init from reader
-
-        InitMsgView const* header = getHeaderMsg();
-        deserializeAndMergeWithRegistry(*header, true);
+        if (file_.streamFile_ and file_.streamFile_->newHeader()) {
+          return Next::kFile;
+        }
+        return Next::kStop;
       }
 
       deserializeEvent(*eview);
@@ -314,12 +331,12 @@ namespace dqmservices {
       closeFileImp_("data file corrupted");
 
       // this is not optimal, but hopefully we won't catch this many times in a row
-      return checkNextEvent();
+      return checkNext();
     }
 
     processedEventPerLs_ += 1;
 
-    return true;
+    return Next::kEvent;
   }
 
   /**

@@ -34,7 +34,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -65,7 +65,16 @@ FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer(const edm::ParameterS
   m_muon = pset.getUntrackedParameter<bool>("Muon", true);
   m_calo = pset.getUntrackedParameter<bool>("Calo", true);
 
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
+  if (m_tracker || m_muon) {
+    m_trackingGeomToken = cc.consumes();
+  }
+  if (m_tracker) {
+    m_trackerTopologyToken = cc.consumes();
+  }
+  if (m_calo) {
+    m_caloGeomToken = cc.consumes();
+  }
 }
 
 FWTGeoRecoGeometryESProducer::~FWTGeoRecoGeometryESProducer(void) {}
@@ -257,9 +266,7 @@ std::unique_ptr<FWTGeoRecoGeometry> FWTGeoRecoGeometryESProducer::produce(const 
   auto fwTGeoRecoGeometry = std::make_unique<FWTGeoRecoGeometry>();
 
   if (m_calo) {
-    edm::ESHandle<CaloGeometry> caloH;
-    record.getRecord<CaloGeometryRecord>().get(caloH);
-    m_caloGeom = caloH.product();
+    m_caloGeom = &record.get(m_caloGeomToken);
   }
 
   TGeoManager* geom = new TGeoManager("cmsGeo", "CMS Detector");
@@ -284,16 +291,14 @@ std::unique_ptr<FWTGeoRecoGeometry> FWTGeoRecoGeometryESProducer::produce(const 
   top->SetLineColor(kBlue);
 
   if (m_tracker || m_muon) {
-    record.getRecord<GlobalTrackingGeometryRecord>().get(m_geomRecord);
+    m_trackingGeom = &record.get(m_trackingGeomToken);
   }
 
   if (m_tracker) {
     DetId detId(DetId::Tracker, 0);
-    m_trackerGeom = (const TrackerGeometry*)m_geomRecord->slaveGeometry(detId);
+    m_trackerGeom = static_cast<const TrackerGeometry*>(m_trackingGeom->slaveGeometry(detId));
 
-    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-    record.getRecord<TrackerTopologyRcd>().get(trackerTopologyHandle);
-    m_trackerTopology = trackerTopologyHandle.product();
+    m_trackerTopology = &record.get(m_trackerTopologyToken);
 
     addPixelBarrelGeometry();
     addPixelForwardGeometry();
@@ -555,7 +560,7 @@ void FWTGeoRecoGeometryESProducer::addDTGeometry() {
   //
   {
     TGeoVolume* assembly = GetDaughter(assemblyTop, "DTChamber", kMuonDT);
-    auto const& dtChamberGeom = m_geomRecord->slaveGeometry(DTChamberId())->dets();
+    auto const& dtChamberGeom = m_trackingGeom->slaveGeometry(DTChamberId())->dets();
     for (auto it = dtChamberGeom.begin(), end = dtChamberGeom.end(); it != end; ++it) {
       if (auto chamber = dynamic_cast<const DTChamber*>(*it)) {
         DTChamberId detid = chamber->geographicalId();
@@ -576,7 +581,7 @@ void FWTGeoRecoGeometryESProducer::addDTGeometry() {
   // Fill in DT super layer parameters
   {
     TGeoVolume* assembly = GetDaughter(assemblyTop, "DTSuperLayer", kMuonDT);
-    auto const& dtSuperLayerGeom = m_geomRecord->slaveGeometry(DTSuperLayerId())->dets();
+    auto const& dtSuperLayerGeom = m_trackingGeom->slaveGeometry(DTSuperLayerId())->dets();
     for (auto it = dtSuperLayerGeom.begin(), end = dtSuperLayerGeom.end(); it != end; ++it) {
       if (auto* superlayer = dynamic_cast<const DTSuperLayer*>(*it)) {
         DTSuperLayerId detid(DetId(superlayer->geographicalId()));
@@ -597,7 +602,7 @@ void FWTGeoRecoGeometryESProducer::addDTGeometry() {
   // Fill in DT layer parameters
   {
     TGeoVolume* assembly = GetDaughter(assemblyTop, "DTLayer", kMuonDT);
-    auto const& dtLayerGeom = m_geomRecord->slaveGeometry(DTLayerId())->dets();
+    auto const& dtLayerGeom = m_trackingGeom->slaveGeometry(DTLayerId())->dets();
     for (auto it = dtLayerGeom.begin(), end = dtLayerGeom.end(); it != end; ++it) {
       if (auto layer = dynamic_cast<const DTLayer*>(*it)) {
         DTLayerId detid(DetId(layer->geographicalId()));
@@ -621,13 +626,13 @@ void FWTGeoRecoGeometryESProducer::addDTGeometry() {
 //______________________________________________________________________________
 
 void FWTGeoRecoGeometryESProducer::addCSCGeometry() {
-  if (!m_geomRecord->slaveGeometry(CSCDetId()))
+  if (!m_trackingGeom->slaveGeometry(CSCDetId()))
     throw cms::Exception("FatalError") << "Cannnot find CSCGeometry\n";
 
   TGeoVolume* tv = GetTopHolder("Muon", kMuonRPC);
   TGeoVolume* assembly = GetDaughter(tv, "CSC", kMuonCSC);
 
-  auto const& cscGeom = m_geomRecord->slaveGeometry(CSCDetId())->dets();
+  auto const& cscGeom = m_trackingGeom->slaveGeometry(CSCDetId())->dets();
   for (auto it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it) {
     unsigned int rawid = (*it)->geographicalId();
     CSCDetId detId(rawid);
@@ -659,7 +664,7 @@ void FWTGeoRecoGeometryESProducer::addCSCGeometry() {
 void FWTGeoRecoGeometryESProducer::addGEMGeometry() {
   try {
     DetId detId(DetId::Muon, MuonSubdetId::GEM);
-    const GEMGeometry* gemGeom = (const GEMGeometry*)m_geomRecord->slaveGeometry(detId);
+    const GEMGeometry* gemGeom = static_cast<const GEMGeometry*>(m_trackingGeom->slaveGeometry(detId));
 
     TGeoVolume* tv = GetTopHolder("Muon", kMuonRPC);
     TGeoVolume* assemblyTop = GetDaughter(tv, "GEM", kMuonGEM);
@@ -720,7 +725,7 @@ void FWTGeoRecoGeometryESProducer::addRPCGeometry() {
   TGeoVolume* assembly = GetDaughter(tv, "RPC", kMuonRPC);
 
   DetId detId(DetId::Muon, MuonSubdetId::RPC);
-  const RPCGeometry* rpcGeom = (const RPCGeometry*)m_geomRecord->slaveGeometry(detId);
+  const RPCGeometry* rpcGeom = static_cast<const RPCGeometry*>(m_trackingGeom->slaveGeometry(detId));
   for (auto it = rpcGeom->rolls().begin(), end = rpcGeom->rolls().end(); it != end; ++it) {
     RPCRoll const* roll = (*it);
     if (roll) {
@@ -749,7 +754,7 @@ void FWTGeoRecoGeometryESProducer::addME0Geometry() {
 
   DetId detId(DetId::Muon, 5);
   try {
-    const ME0Geometry* me0Geom = (const ME0Geometry*)m_geomRecord->slaveGeometry(detId);
+    const ME0Geometry* me0Geom = static_cast<const ME0Geometry*>(m_trackingGeom->slaveGeometry(detId));
 
     for (auto roll : me0Geom->etaPartitions()) {
       if (roll) {

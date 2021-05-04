@@ -1,13 +1,13 @@
-# hltGetConfiguration --full --data /dev/CMSSW_11_0_0/Fake2 --type Fake2 --unprescale --process HLTFake2 --globaltag auto:run2_hlt_Fake2 --input file:RelVal_Raw_Fake2_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_11_3_0/Fake2 --type Fake2 --unprescale --process HLTFake2 --globaltag auto:run2_hlt_Fake2 --input file:RelVal_Raw_Fake2_DATA.root
 
-# /dev/CMSSW_11_0_0/Fake2/V4 (CMSSW_11_0_0_pre6)
+# /dev/CMSSW_11_3_0/Fake2/V8 (CMSSW_11_3_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_0_0/Fake2/V4')
+  tableName = cms.string('/dev/CMSSW_11_3_0/Fake2/V8')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -92,11 +92,12 @@ process.FastTimerService = cms.Service( "FastTimerService",
     dqmPath = cms.untracked.string( "HLT/TimerService" ),
     dqmModuleTimeRange = cms.untracked.double( 40.0 ),
     enableDQMbyPath = cms.untracked.bool( False ),
-    dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
+    writeJSONSummary = cms.untracked.bool( False ),
     dqmPathMemoryResolution = cms.untracked.double( 5000.0 ),
     enableDQM = cms.untracked.bool( True ),
     enableDQMbyModule = cms.untracked.bool( False ),
     dqmModuleMemoryRange = cms.untracked.double( 100000.0 ),
+    dqmModuleMemoryResolution = cms.untracked.double( 500.0 ),
     dqmMemoryResolution = cms.untracked.double( 5000.0 ),
     enableDQMbyLumiSection = cms.untracked.bool( True ),
     dqmPathTimeResolution = cms.untracked.double( 0.5 ),
@@ -104,41 +105,20 @@ process.FastTimerService = cms.Service( "FastTimerService",
     dqmPathTimeRange = cms.untracked.double( 100.0 ),
     dqmTimeRange = cms.untracked.double( 1000.0 ),
     enableDQMTransitions = cms.untracked.bool( False ),
-    dqmLumiSectionsRange = cms.untracked.uint32( 2500 ),
     dqmPathMemoryRange = cms.untracked.double( 1000000.0 ),
+    dqmLumiSectionsRange = cms.untracked.uint32( 2500 ),
+    enableDQMbyProcesses = cms.untracked.bool( True ),
     dqmMemoryRange = cms.untracked.double( 1000000.0 ),
     dqmTimeResolution = cms.untracked.double( 5.0 ),
     printRunSummary = cms.untracked.bool( True ),
-    dqmModuleMemoryResolution = cms.untracked.double( 500.0 ),
+    dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
     printJobSummary = cms.untracked.bool( True ),
-    enableDQMbyProcesses = cms.untracked.bool( True )
+    jsonFileName = cms.untracked.string( "resources.json" )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
     suppressInfo = cms.untracked.vstring(  ),
-    debugs = cms.untracked.PSet( 
-      threshold = cms.untracked.string( "INFO" ),
-      placeholder = cms.untracked.bool( True ),
-      suppressInfo = cms.untracked.vstring(  ),
-      suppressWarning = cms.untracked.vstring(  ),
-      suppressDebug = cms.untracked.vstring(  ),
-      suppressError = cms.untracked.vstring(  )
-    ),
     suppressDebug = cms.untracked.vstring(  ),
-    cout = cms.untracked.PSet(  placeholder = cms.untracked.bool( True ) ),
-    cerr_stats = cms.untracked.PSet( 
-      threshold = cms.untracked.string( "WARNING" ),
-      output = cms.untracked.string( "cerr" ),
-      optionalPSet = cms.untracked.bool( True )
-    ),
-    warnings = cms.untracked.PSet( 
-      threshold = cms.untracked.string( "INFO" ),
-      placeholder = cms.untracked.bool( True ),
-      suppressInfo = cms.untracked.vstring(  ),
-      suppressWarning = cms.untracked.vstring(  ),
-      suppressDebug = cms.untracked.vstring(  ),
-      suppressError = cms.untracked.vstring(  )
-    ),
-    statistics = cms.untracked.vstring( 'cerr' ),
+    suppressFwkInfo = cms.untracked.vstring(  ),
     cerr = cms.untracked.PSet( 
       INFO = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
       noTimeStamps = cms.untracked.bool( False ),
@@ -154,14 +134,6 @@ process.MessageLogger = cms.Service( "MessageLogger",
         limit = cms.untracked.int32( 10000000 )
       ),
       threshold = cms.untracked.string( "INFO" ),
-      suppressInfo = cms.untracked.vstring(  ),
-      suppressWarning = cms.untracked.vstring(  ),
-      suppressDebug = cms.untracked.vstring(  ),
-      suppressError = cms.untracked.vstring(  )
-    ),
-    FrameworkJobReport = cms.untracked.PSet( 
-      default = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
-      FwkJob = cms.untracked.PSet(  limit = cms.untracked.int32( 10000000 ) )
     ),
     suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot',
       'hltCtf3HitL1SeededWithMaterialTracks',
@@ -183,36 +155,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltL1SeededStartUpElectronPixelSeeds',
       'hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV',
       'hltCtfActivityWithMaterialTracks' ),
-    errors = cms.untracked.PSet( 
-      threshold = cms.untracked.string( "INFO" ),
-      placeholder = cms.untracked.bool( True ),
-      suppressInfo = cms.untracked.vstring(  ),
-      suppressWarning = cms.untracked.vstring(  ),
-      suppressDebug = cms.untracked.vstring(  ),
-      suppressError = cms.untracked.vstring(  )
-    ),
-    fwkJobReports = cms.untracked.vstring( 'FrameworkJobReport' ),
     debugModules = cms.untracked.vstring(  ),
-    infos = cms.untracked.PSet( 
-      threshold = cms.untracked.string( "INFO" ),
-      Root_NoDictionary = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
-      placeholder = cms.untracked.bool( True ),
-      suppressInfo = cms.untracked.vstring(  ),
-      suppressWarning = cms.untracked.vstring(  ),
-      suppressDebug = cms.untracked.vstring(  ),
-      suppressError = cms.untracked.vstring(  )
-    ),
-    categories = cms.untracked.vstring( 'FwkJob',
-      'FwkReport',
-      'FwkSummary',
-      'Root_NoDictionary' ),
-    destinations = cms.untracked.vstring( 'warnings',
-      'errors',
-      'infos',
-      'debugs',
-      'cout',
-      'cerr' ),
-    threshold = cms.untracked.string( "INFO" ),
     suppressError = cms.untracked.vstring( 'hltOnlineBeamSpot',
       'hltL3MuonCandidates',
       'hltL3TkTracksFromL2OIState',
@@ -257,6 +200,7 @@ process.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
 process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     L1DataBxInEvent = cms.int32( 5 ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
+    RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
     BstLengthBytes = cms.int32( -1 ),
     MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
@@ -270,12 +214,12 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
     PrintL1Menu = cms.untracked.bool( False ),
     ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" ),
+    TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
     PrescaleSet = cms.uint32( 1 ),
     EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     GetPrescaleColumnFromData = cms.bool( False ),
-    TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' )
+    AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
@@ -393,7 +337,6 @@ process.AOutput = cms.EndPath( process.hltPreAOutput + process.hltOutputA )
 
 # load the DQMStore and DQMRootOutputModule
 process.load( "DQMServices.Core.DQMStore_cfi" )
-process.DQMStore.enableMultiThread = True
 
 process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
@@ -425,7 +368,6 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True ),
     numberOfThreads = cms.untracked.uint32( 4 ),
     numberOfStreams = cms.untracked.uint32( 0 ),
-    sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 )
 
 # override the GlobalTag, connection string and pfnPrefix
@@ -434,11 +376,12 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_Fake2')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-    process.MessageLogger.categories.append('L1GtTrigReport')
-    process.MessageLogger.categories.append('L1TGlobalSummary')
-    process.MessageLogger.categories.append('HLTrigReport')
-    process.MessageLogger.categories.append('FastReport')
+    process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport = cms.untracked.PSet()
+    process.MessageLogger.FastReport = cms.untracked.PSet()
+    process.MessageLogger.ThroughputService = cms.untracked.PSet()
 
 # add specific customizations
 _customInfo = {}

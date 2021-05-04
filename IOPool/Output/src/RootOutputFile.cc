@@ -52,19 +52,14 @@ namespace edm {
 
   namespace {
     bool sorterForJobReportHash(BranchDescription const* lh, BranchDescription const* rh) {
-      return lh->fullClassName() < rh->fullClassName()
-                 ? true
-                 : lh->fullClassName() > rh->fullClassName()
-                       ? false
-                       : lh->moduleLabel() < rh->moduleLabel()
-                             ? true
-                             : lh->moduleLabel() > rh->moduleLabel()
-                                   ? false
-                                   : lh->productInstanceName() < rh->productInstanceName()
-                                         ? true
-                                         : lh->productInstanceName() > rh->productInstanceName()
-                                               ? false
-                                               : lh->processName() < rh->processName() ? true : false;
+      return lh->fullClassName() < rh->fullClassName()               ? true
+             : lh->fullClassName() > rh->fullClassName()             ? false
+             : lh->moduleLabel() < rh->moduleLabel()                 ? true
+             : lh->moduleLabel() > rh->moduleLabel()                 ? false
+             : lh->productInstanceName() < rh->productInstanceName() ? true
+             : lh->productInstanceName() > rh->productInstanceName() ? false
+             : lh->processName() < rh->processName()                 ? true
+                                                                     : false;
     }
 
     TFile* openTFile(char const* name, int compressionLevel) {
@@ -121,6 +116,8 @@ namespace edm {
       filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
     } else if (om_->compressionAlgorithm() == std::string("LZMA")) {
       filePtr_->SetCompressionAlgorithm(ROOT::kLZMA);
+    } else if (om_->compressionAlgorithm() == std::string("ZSTD")) {
+      filePtr_->SetCompressionAlgorithm(ROOT::kZSTD);
     } else {
       throw Exception(errors::Configuration)
           << "PoolOutputModule configured with unknown compression algorithm '" << om_->compressionAlgorithm() << "'\n"
@@ -129,8 +126,16 @@ namespace edm {
     if (-1 != om->eventAutoFlushSize()) {
       eventTree_.setAutoFlush(-1 * om->eventAutoFlushSize());
     }
-    eventTree_.addAuxiliary<EventAuxiliary>(
-        BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_);
+    if (om_->compactEventAuxiliary()) {
+      eventTree_.addAuxiliary<EventAuxiliary>(
+          BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_, false);
+      eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(),
+                                         false);  // see writeEventAuxiliary
+    } else {
+      eventTree_.addAuxiliary<EventAuxiliary>(
+          BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_);
+    }
+
     eventTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
                                                            pEventEntryInfoVector(),
                                                            om_->auxItems()[InEvent].basketSize_);
@@ -148,19 +153,24 @@ namespace edm {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi] = &lumiTree_;
     treePointers_[InRun] = &runTree_;
+    treePointers_[InProcess] = nullptr;
 
     for (int i = InEvent; i < NumBranchTypes; ++i) {
+      if (i == InProcess) {
+        // Output for ProcessBlocks is not implemented yet.
+        continue;
+      }
       BranchType branchType = static_cast<BranchType>(i);
       RootOutputTree* theTree = treePointers_[branchType];
-      for (auto const& item : om_->selectedOutputItemList()[branchType]) {
-        item.product_ = nullptr;
-        BranchDescription const& desc = *item.branchDescription_;
+      for (auto& item : om_->selectedOutputItemList()[branchType]) {
+        item.setProduct(nullptr);
+        BranchDescription const& desc = *item.branchDescription();
         theTree->addBranch(desc.branchName(),
                            desc.wrappedName(),
-                           item.product_,
-                           item.splitLevel_,
-                           item.basketSize_,
-                           item.branchDescription_->produced());
+                           item.product(),
+                           item.splitLevel(),
+                           item.basketSize(),
+                           item.branchDescription()->produced());
         //make sure we always store product registry info for all branches we create
         branchesWithStoredHistory_.insert(item.branchID());
       }
@@ -182,8 +192,8 @@ namespace edm {
     branchNames.reserve(om_->selectedOutputItemList()[InEvent].size());
     branches.reserve(om->selectedOutputItemList()[InEvent].size());
     for (auto const& item : om_->selectedOutputItemList()[InEvent]) {
-      branchNames.push_back(item.branchDescription_->branchName());
-      branches.push_back(item.branchDescription_);
+      branchNames.push_back(item.branchDescription()->branchName());
+      branches.push_back(item.branchDescription());
     }
     // Now sort the branches for the hash.
     sort_all(branches, sorterForJobReportHash);
@@ -379,10 +389,25 @@ namespace edm {
     if (fb.tree() != nullptr && whyNotFastClonable_ != FileBlock::CanFastClone) {
       maybeIssueWarning(whyNotFastClonable_, fb.fileName(), file_);
     }
+
+    if (om_->compactEventAuxiliary() &&
+        (whyNotFastClonable_ & (FileBlock::EventsOrLumisSelectedByID | FileBlock::InitialEventsSkipped |
+                                FileBlock::EventSelectionUsed)) == 0) {
+      long long int reserve = remainingEvents;
+      if (fb.tree() != nullptr) {
+        reserve = reserve > 0 ? std::min(fb.tree()->GetEntries(), reserve) : fb.tree()->GetEntries();
+      }
+      if (reserve > 0) {
+        compactEventAuxiliary_.reserve(compactEventAuxiliary_.size() + reserve);
+      }
+    }
   }
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
-    eventTree_.setEntries();
+    // We can't do setEntries() on the event tree if the EventAuxiliary branch is empty & disabled
+    if (not om_->compactEventAuxiliary()) {
+      eventTree_.setEntries();
+    }
     lumiTree_.setEntries();
     runTree_.setEntries();
   }
@@ -435,6 +460,10 @@ namespace edm {
     indexIntoFile_.addEntry(
         reducedPHID, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
+
+    if (om_->compactEventAuxiliary()) {
+      compactEventAuxiliary_.push_back(*pEventAux_);
+    }
 
     // Report event written
     Service<JobReport> reportSvc;
@@ -611,6 +640,43 @@ namespace edm {
     b->Fill();
   }
 
+  // For duplicate removal and to determine if fast cloning is possible, the input
+  // module by default reads the entire EventAuxiliary branch when it opens the
+  // input files.  If EventAuxiliary is written in the usual way, this results
+  // in many small reads scattered throughout the file, which can have very poor
+  // performance characteristics on some filesystems.  As a workaround, we save
+  // EventAuxiliary and write it at the end of the file.
+
+  void RootOutputFile::writeEventAuxiliary() {
+    constexpr std::size_t maxEaBasketSize = 4 * 1024 * 1024;
+
+    if (om_->compactEventAuxiliary()) {
+      auto tree = eventTree_.tree();
+      auto const& bname = BranchTypeToAuxiliaryBranchName(InEvent).c_str();
+
+      tree->SetBranchStatus(bname, true);
+      auto basketsize =
+          std::min(maxEaBasketSize,
+                   compactEventAuxiliary_.size() * (sizeof(EventAuxiliary) + 26));  // 26 is an empirical fudge factor
+      tree->SetBasketSize(bname, basketsize);
+      auto b = tree->GetBranch(bname);
+
+      assert(b);
+
+      LogDebug("writeEventAuxiliary") << "EventAuxiliary ratio extras/GUIDs/all = "
+                                      << compactEventAuxiliary_.extrasSize() << "/"
+                                      << compactEventAuxiliary_.guidsSize() << "/" << compactEventAuxiliary_.size();
+
+      for (auto const& aux : compactEventAuxiliary_) {
+        const auto ea = aux.eventAuxiliary();
+        pEventAux_ = &ea;
+        // Fill EventAuxiliary branch
+        b->Fill();
+      }
+      eventTree_.setEntries();
+    }
+  }
+
   void RootOutputFile::finishEndFile() {
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
@@ -622,6 +688,10 @@ namespace edm {
     // events/lumis/runs trees. The loop is over all types of data
     // products.
     for (int i = InEvent; i < NumBranchTypes; ++i) {
+      if (i == InProcess) {
+        // Output for ProcessBlocks is not implemented yet.
+        continue;
+      }
       BranchType branchType = static_cast<BranchType>(i);
       setBranchAliases(treePointers_[branchType]->tree(), om_->keptProducts()[branchType]);
       treePointers_[branchType]->writeTree();
@@ -631,6 +701,10 @@ namespace edm {
     // Just to play it safe, zero all pointers to objects in the TFile to be closed.
     metaDataTree_ = parentageTree_ = nullptr;
     for (auto& treePointer : treePointers_) {
+      if (treePointer.get() == nullptr) {
+        // Output for ProcessBlock is not implemented yet
+        continue;
+      }
       treePointer->close();
       treePointer = nullptr;
     }
@@ -690,7 +764,7 @@ namespace edm {
                                     ProductProvenanceRetriever const* provRetriever) {
     std::vector<std::unique_ptr<WrapperBase> > dummies;
 
-    OutputItemList const& items = om_->selectedOutputItemList()[branchType];
+    OutputItemList& items = om_->selectedOutputItemList()[branchType];
 
     bool const doProvenance =
         (productProvenanceVecPtr != nullptr) && (om_->dropMetaData() != PoolOutputModule::DropAll);
@@ -714,19 +788,19 @@ namespace edm {
     }
 
     // Loop over EDProduct branches, possibly fill the provenance, and write the branch.
-    for (auto const& item : items) {
-      BranchID const& id = item.branchDescription_->branchID();
+    for (auto& item : items) {
+      BranchID const& id = item.branchDescription()->branchID();
       branchesWithStoredHistory_.insert(id);
 
-      bool produced = item.branchDescription_->produced();
+      bool produced = item.branchDescription()->produced();
       bool getProd =
-          (produced || !fastCloning || treePointers_[branchType]->uncloned(item.branchDescription_->branchName()));
+          (produced || !fastCloning || treePointers_[branchType]->uncloned(item.branchDescription()->branchName()));
       bool keepProvenance = doProvenance && (produced || keepProvenanceForPrior);
 
       WrapperBase const* product = nullptr;
       ProductProvenance const* productProvenance = nullptr;
       if (getProd) {
-        BasicHandle result = occurrence.getByToken(item.token_, item.branchDescription_->unwrappedTypeID());
+        BasicHandle result = occurrence.getByToken(item.token(), item.branchDescription()->unwrappedTypeID());
         product = result.wrapper();
         if (result.isValid() && keepProvenance) {
           productProvenance = result.provenance()->productProvenance();
@@ -734,7 +808,7 @@ namespace edm {
         if (product == nullptr) {
           // No product with this ID is in the event.
           // Add a null product.
-          TClass* cp = item.branchDescription_->wrappedType().getClass();
+          TClass* cp = item.branchDescription()->wrappedType().getClass();
           assert(cp != nullptr);
           int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
           void* p = cp->New();
@@ -742,10 +816,10 @@ namespace edm {
           product = dummy.get();
           dummies.emplace_back(std::move(dummy));
         }
-        item.product_ = product;
+        item.setProduct(product);
       }
       if (keepProvenance && productProvenance == nullptr) {
-        productProvenance = provRetriever->branchIDToProvenance(item.branchDescription_->originalBranchID());
+        productProvenance = provRetriever->branchIDToProvenance(item.branchDescription()->originalBranchID());
       }
       if (productProvenance) {
         insertProductProvenance(*productProvenance, provenanceToKeep);

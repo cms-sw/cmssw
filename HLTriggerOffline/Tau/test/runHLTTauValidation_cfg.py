@@ -5,7 +5,7 @@ process = cms.Process("HLTVAL")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-#process.MessageLogger.categories.append("HLTTauDQMOffline")
+#
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )

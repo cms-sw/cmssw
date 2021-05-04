@@ -262,6 +262,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/RPCGeometryBuilder/data/RPCSpecs.xml',
         'Geometry/GEMGeometryBuilder/data/GEMSpecsFilter17.xml',
         'Geometry/GEMGeometryBuilder/data/v4/GEMSpecs.xml',
+        'Geometry/CMSCommonData/data/cmsProdCuts.xml',
         'Geometry/CMSCommonData/data/FieldParameters.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )

@@ -4,7 +4,6 @@
 #include "CalibTracker/SiStripChannelGain/interface/APVGainStruct.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
@@ -20,6 +19,8 @@ namespace APVGain {
   int subdetectorId(uint32_t);
   int subdetectorId(const std::string&);
   int subdetectorSide(uint32_t, const TrackerTopology*);
+  int thickness(uint32_t);
+  int thickness(const std::string& tag);
   int subdetectorSide(const std::string&);
   int subdetectorPlane(uint32_t, const TrackerTopology*);
   int subdetectorPlane(const std::string&);
@@ -28,8 +29,8 @@ namespace APVGain {
 
   struct APVmon {
   public:
-    APVmon(int v1, int v2, int v3, MonitorElement* v4)
-        : m_subdetectorId(v1), m_subdetectorSide(v2), m_subdetectorPlane(v3), m_monitor(v4) {}
+    APVmon(int v0, int v1, int v2, int v3, MonitorElement* v4)
+        : m_thickness(v0), m_subdetectorId(v1), m_subdetectorSide(v2), m_subdetectorPlane(v3), m_monitor(v4) {}
 
     int getSubdetectorId() { return m_subdetectorId; }
 
@@ -37,17 +38,21 @@ namespace APVGain {
 
     int getSubdetectorPlane() { return m_subdetectorPlane; }
 
+    int getThickness() { return m_thickness; }
+
     MonitorElement* getMonitor() { return m_monitor; }
 
     void printAll() {
       LogDebug("APVGainHelpers") << "subDetectorID:" << m_subdetectorId << std::endl;
       LogDebug("APVGainHelpers") << "subDetectorSide:" << m_subdetectorSide << std::endl;
       LogDebug("APVGainHelpers") << "subDetectorPlane:" << m_subdetectorPlane << std::endl;
+      LogDebug("APVGainHelpers") << "thickness:" << m_thickness << std::endl;
       LogDebug("APVGainHelpers") << "histoName:" << m_monitor->getName() << std::endl;
       return;
     }
 
   private:
+    int m_thickness;
     int m_subdetectorId;
     int m_subdetectorSide;
     int m_subdetectorPlane;
@@ -57,7 +62,8 @@ namespace APVGain {
   struct APVGainHistograms {
   public:
     APVGainHistograms()
-        : Charge_Vs_Index(7),
+        : EventStats(),
+          Charge_Vs_Index(7),
           Charge_1(),
           Charge_2(),
           Charge_3(),
@@ -75,21 +81,22 @@ namespace APVGain {
           APVsCollOrdered(),
           APVsColl() {}
 
-    std::vector<ConcurrentMonitorElement> Charge_Vs_Index;         /*!< Charge per cm for each detector id */
-    std::array<std::vector<ConcurrentMonitorElement>, 7> Charge_1; /*!< Charge per cm per layer / wheel */
-    std::array<std::vector<ConcurrentMonitorElement>, 7> Charge_2; /*!< Charge per cm per layer / wheel without G2 */
-    std::array<std::vector<ConcurrentMonitorElement>, 7> Charge_3; /*!< Charge per cm per layer / wheel without G1 */
-    std::array<std::vector<ConcurrentMonitorElement>, 7>
+    dqm::reco::MonitorElement* EventStats;
+    std::vector<dqm::reco::MonitorElement*> Charge_Vs_Index;         /*!< Charge per cm for each detector id */
+    std::array<std::vector<dqm::reco::MonitorElement*>, 7> Charge_1; /*!< Charge per cm per layer / wheel */
+    std::array<std::vector<dqm::reco::MonitorElement*>, 7> Charge_2; /*!< Charge per cm per layer / wheel without G2 */
+    std::array<std::vector<dqm::reco::MonitorElement*>, 7> Charge_3; /*!< Charge per cm per layer / wheel without G1 */
+    std::array<std::vector<dqm::reco::MonitorElement*>, 7>
         Charge_4; /*!< Charge per cm per layer / wheel without G1 and G1*/
 
-    std::vector<ConcurrentMonitorElement> Charge_Vs_PathlengthTIB;   /*!< Charge vs pathlength in TIB */
-    std::vector<ConcurrentMonitorElement> Charge_Vs_PathlengthTOB;   /*!< Charge vs pathlength in TOB */
-    std::vector<ConcurrentMonitorElement> Charge_Vs_PathlengthTIDP;  /*!< Charge vs pathlength in TIDP */
-    std::vector<ConcurrentMonitorElement> Charge_Vs_PathlengthTIDM;  /*!< Charge vs pathlength in TIDM */
-    std::vector<ConcurrentMonitorElement> Charge_Vs_PathlengthTECP1; /*!< Charge vs pathlength in TECP thin */
-    std::vector<ConcurrentMonitorElement> Charge_Vs_PathlengthTECP2; /*!< Charge vs pathlength in TECP thick */
-    std::vector<ConcurrentMonitorElement> Charge_Vs_PathlengthTECM1; /*!< Charge vs pathlength in TECP thin */
-    std::vector<ConcurrentMonitorElement> Charge_Vs_PathlengthTECM2; /*!< Charge vs pathlength in TECP thick */
+    std::vector<dqm::reco::MonitorElement*> Charge_Vs_PathlengthTIB;   /*!< Charge vs pathlength in TIB */
+    std::vector<dqm::reco::MonitorElement*> Charge_Vs_PathlengthTOB;   /*!< Charge vs pathlength in TOB */
+    std::vector<dqm::reco::MonitorElement*> Charge_Vs_PathlengthTIDP;  /*!< Charge vs pathlength in TIDP */
+    std::vector<dqm::reco::MonitorElement*> Charge_Vs_PathlengthTIDM;  /*!< Charge vs pathlength in TIDM */
+    std::vector<dqm::reco::MonitorElement*> Charge_Vs_PathlengthTECP1; /*!< Charge vs pathlength in TECP thin */
+    std::vector<dqm::reco::MonitorElement*> Charge_Vs_PathlengthTECP2; /*!< Charge vs pathlength in TECP thick */
+    std::vector<dqm::reco::MonitorElement*> Charge_Vs_PathlengthTECM1; /*!< Charge vs pathlength in TECP thin */
+    std::vector<dqm::reco::MonitorElement*> Charge_Vs_PathlengthTECM2; /*!< Charge vs pathlength in TECP thick */
     mutable std::atomic<unsigned int> NStripAPVs;
     mutable std::atomic<unsigned int> NPixelDets;
     std::vector<std::shared_ptr<stAPVGain>> APVsCollOrdered;

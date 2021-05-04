@@ -1,11 +1,10 @@
 #ifndef TOPSINGLELEPTONDQM_MINIAOD
 #define TOPSINGLELEPTONDQM_MINIAOD
 
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include <string>
 #include <vector>
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DQM/Physics/interface/TopDQMHelpers.h"
@@ -182,9 +181,8 @@ namespace TopSingleLepton_miniAOD {
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class TopSingleLeptonDQM_miniAOD : public DQMEDAnalyzer {
+class TopSingleLeptonDQM_miniAOD : public DQMOneEDAnalyzer<> {
 public:
   /// default constructor
   TopSingleLeptonDQM_miniAOD(const edm::ParameterSet& cfg);

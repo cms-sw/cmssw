@@ -1,0 +1,4 @@
+<bin file="testAlcaBeamMonitor.cc">
+  <use name="FWCore/TestProcessor"/>
+  <use name="catch2"/>
+</bin>

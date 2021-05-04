@@ -22,8 +22,6 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  void endJob() override;
-
 private:
   int ievt_;
 

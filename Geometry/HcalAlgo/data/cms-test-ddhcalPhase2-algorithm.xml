@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+<!-- 
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_materials/>
+    <debug_visattr/>
+-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/extend/v2/cmsextent.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cms/2026/v1/cms.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/eta3/etaMax.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cmsMother.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/caloBase/2026/v1/caloBase.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cmsCalo.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/muonBase/2026/v2/muonBase.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cmsMuon.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/muonMB.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcal/v8/hgcal.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalrotations.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcal/HGCal/hcalalgo.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalbarrelalgo.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalendcap/SSAbsorber/hcalendcapalgo.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalouteralgo.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalforwardmaterial.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalforwardalgo.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalforwardfibre.xml"/>
+    <Include ref="Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalsens/HGCal/hcalsenspmf.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalSimNumbering.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalRecNumbering.xml"/>
+    <Include ref="Geometry/HcalSimData/data/hf.xml"/>
+    <Include ref="Geometry/HcalSimData/data/hfpmt.xml"/>
+    <Include ref="Geometry/HcalSimData/data/hffibre.xml"/>
+    <Include ref="Geometry/HcalSimData/data/hffibrebundle.xml"/>
+    <Include ref="Geometry/HcalSimData/data/CaloUtil.xml"/>
+  </IncludeSection>
+  
+</DDDefinition>

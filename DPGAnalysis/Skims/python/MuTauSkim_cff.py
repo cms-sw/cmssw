@@ -29,6 +29,7 @@ TauSkimPFTausSelected = cms.EDFilter("PFTauSelector",
 
 
   ),
+  discriminatorContainers = cms.VPSet(),
   #cut = cms.string('pt > 22. && abs(eta) < 2.3') #53X
   #cut = cms.string('et > 15. && abs(eta) < 2.5')  #75X
   #cut = cms.string('pt > 18. && abs(eta) < 2.3') #HTT 2015 TWIKI
@@ -73,15 +74,20 @@ TauSkimPFTausSelectedForMuTau.discriminators = cms.VPSet(
 #              selectionCut=cms.double(0.5)
 #              ),
 
-    cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection3"), #HTT 2015 TWIKI 
-              selectionCut=cms.double(0.5)
-              ),
     #cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByElectronVLooseMVA5"), #HTT 2015 TWIKI (not working!)
     #          selectionCut=cms.double(0.5)
     #          ),
 
 
     )
+
+TauSkimPFTausSelectedForMuTau.discriminatorContainers = cms.VPSet(
+    cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByMuonRejection3"),
+              workingPoints=cms.vstring("ByLooseMuonRejection3"),
+              rawValues=cms.vstring(),
+              selectionCuts=cms.vdouble()
+    )
+)
 
 ## MODULE IN 53X ONLY  
 #TauSkimPFTausSelectedForMuTau.cut = cms.string('pt > 18. && abs(eta) < 2.3') #75X

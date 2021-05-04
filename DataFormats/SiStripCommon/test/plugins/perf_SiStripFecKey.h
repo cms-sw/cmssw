@@ -5,8 +5,8 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include <boost/cstdint.hpp>
 #include <vector>
+#include <cstdint>
 
 /**
    @class perfSiStripFecKey 

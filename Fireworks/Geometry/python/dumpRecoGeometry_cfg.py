@@ -92,7 +92,7 @@ def recoGeoLoad(score):
        process.trackerGeometry.applyAlignment = cms.bool(False)
        process.load('RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi')
 
-       process.load('Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi')
+       process.load('Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi')
        
     elif score == "HGCTB160": ## hgcal testbeam
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff") 

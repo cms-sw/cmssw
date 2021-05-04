@@ -23,8 +23,6 @@
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -32,11 +30,11 @@
 
 #include <vector>
 #include <memory>
-#include <iostream>
 #include <sstream>
 
 HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
+      idealMagneticFieldRecordToken_(esConsumes()),
       beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
       beamspotToken_(consumes<reco::BeamSpot>(beamspotTag_)),
       muonTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
@@ -147,8 +145,7 @@ bool HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent,
   iEvent.getByToken(beamspotToken_, beamspotHandle);
   reco::BeamSpot::Point beamspot(beamspotHandle->position());
   // Needed for DCA calculation
-  edm::ESHandle<MagneticField> bFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+  auto const& bFieldHandle = iSetup.getHandle(idealMagneticFieldRecordToken_);
   //
   // Muons
   //
@@ -350,10 +347,9 @@ bool HLTMuonTrackMassFilter::pairMatched(std::vector<reco::RecoChargedCandidateR
   // comparison by hits of TrajectorySeed of the new track
   // with the previous candidate
   //
-  TrajectorySeed::range seedHits = seedRef->recHits();
+  const TrajectorySeed::RecHitRange seedHits = seedRef->recHits();
   trackingRecHit_iterator prevTrackHitEnd;
   trackingRecHit_iterator iprev;
-  TrajectorySeed::const_iterator iseed;
   for (size_t i = 0; i < prevMuonRefs.size(); ++i) {
     // identity of muon
     if (prevMuonRefs[i] != muonRef)
@@ -369,11 +365,11 @@ bool HLTMuonTrackMassFilter::pairMatched(std::vector<reco::RecoChargedCandidateR
     if (seedRef->nHits() != prevTrackRef->recHitsSize())
       continue;
     // hit-by-hit comparison based on the sharesInput method
-    iseed = seedHits.first;
+    auto iseed = seedHits.begin();
     iprev = prevTrackRef->recHitsBegin();
     prevTrackHitEnd = prevTrackRef->recHitsEnd();
     bool identical(true);
-    for (; iseed != seedHits.second && iprev != prevTrackHitEnd; ++iseed, ++iprev) {
+    for (; iseed != seedHits.end() && iprev != prevTrackHitEnd; ++iseed, ++iprev) {
       if ((*iseed).isValid() != (**iprev).isValid() || !(*iseed).sharesInput(&**iprev, TrackingRecHit::all)) {
         // terminate loop over hits on first mismatch
         identical = false;

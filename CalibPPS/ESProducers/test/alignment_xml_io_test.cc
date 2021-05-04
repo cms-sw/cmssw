@@ -1,7 +1,7 @@
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsDataSequence.h"
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsDataSequence.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsMethods.h"
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsMethods.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"

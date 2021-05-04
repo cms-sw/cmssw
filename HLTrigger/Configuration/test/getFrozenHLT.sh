@@ -2,9 +2,9 @@
 
 # ConfDB configurations to use
 TABLES="Fake Fake1 Fake2"
-HLT_Fake="/dev/CMSSW_11_0_0/Fake"
-HLT_Fake1="/dev/CMSSW_11_0_0/Fake1"
-HLT_Fake2="/dev/CMSSW_11_0_0/Fake2"
+HLT_Fake="/dev/CMSSW_11_3_0/Fake"
+HLT_Fake1="/dev/CMSSW_11_3_0/Fake1"
+HLT_Fake2="/dev/CMSSW_11_3_0/Fake2"
 
 # print extra messages ?
 VERBOSE=false
@@ -35,8 +35,10 @@ function getConfigForOnline() {
 
   if [ "$NAME" == "Fake" ]; then
     hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
+  elif [ "$NAME" == "Fake1" ] || [ "$NAME" == "Fake2" ] || [ "$NAME" == "2018" ]; then
+   hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
   else
-    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
+    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run3_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
   fi
 }
 

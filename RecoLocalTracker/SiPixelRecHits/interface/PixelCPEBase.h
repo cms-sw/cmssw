@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEBase_H
-#define RecoLocalTracker_SiPixelRecHits_PixelCPEBase_H 1
+#ifndef RecoLocalTracker_SiPixelRecHits_interface_PixelCPEBase_h
+#define RecoLocalTracker_SiPixelRecHits_interface_PixelCPEBase_h 1
 
 //-----------------------------------------------------------------------------
 // \class        PixelCPEBase
@@ -11,43 +11,32 @@
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 //-----------------------------------------------------------------------------
 
-#include <utility>
-#include <vector>
-#include "TMath.h"
-
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonTopologies/interface/Topology.h"
-
-//--- For the configuration:
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
-#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-
-// new errors
-#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
-// old errors
-//#include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-
-#include <unordered_map>
-
-#include <iostream>
 #ifdef EDM_ML_DEBUG
 #include <atomic>
 #endif
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include <TMath.h>
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 
 class RectangularPixelTopology;
 class MagneticField;
@@ -78,11 +67,12 @@ public:
   };
 
   struct ClusterParam {
+    ClusterParam() {}
     ClusterParam(const SiPixelCluster& cl) : theCluster(&cl) {}
 
     virtual ~ClusterParam() = default;
 
-    const SiPixelCluster* theCluster;
+    const SiPixelCluster* theCluster = nullptr;
 
     //--- Cluster-level quantities (filled in computeAnglesFrom....)
     float cotalpha;
@@ -143,11 +133,11 @@ public:
   inline ReturnType getParameters(const SiPixelCluster& cl, const GeomDetUnit& det) const override {
 #ifdef EDM_ML_DEBUG
     nRecHitsTotal_++;
-    //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
+    LogDebug("PixelCPEBase") << " in PixelCPEBase:localParameters(all) - " << nRecHitsTotal_;
 #endif
 
     DetParam const& theDetParam = detParam(det);
-    ClusterParam* theClusterParam = createClusterParam(cl);
+    std::unique_ptr<ClusterParam> theClusterParam = createClusterParam(cl);
     setTheClu(theDetParam, *theClusterParam);
     computeAnglesFromDetPosition(theDetParam, *theClusterParam);
 
@@ -156,9 +146,8 @@ public:
     LocalError le = localError(theDetParam, *theClusterParam);
     SiPixelRecHitQuality::QualWordType rqw = rawQualityWord(*theClusterParam);
     auto tuple = std::make_tuple(lp, le, rqw);
-    delete theClusterParam;
 
-    //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
+    LogDebug("PixelCPEBase") << " in PixelCPEBase:localParameters(all) - " << lp.x() << " " << lp.y();
     return tuple;
   }
 
@@ -170,11 +159,11 @@ public:
                                   const LocalTrajectoryParameters& ltp) const override {
 #ifdef EDM_ML_DEBUG
     nRecHitsTotal_++;
-    //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
+    LogDebug("PixelCPEBase") << " in PixelCPEBase:localParameters(on track) - " << nRecHitsTotal_;
 #endif
 
     DetParam const& theDetParam = detParam(det);
-    ClusterParam* theClusterParam = createClusterParam(cl);
+    std::unique_ptr<ClusterParam> theClusterParam = createClusterParam(cl);
     setTheClu(theDetParam, *theClusterParam);
     computeAnglesFromTrajectory(theDetParam, *theClusterParam, ltp);
 
@@ -183,14 +172,13 @@ public:
     LocalError le = localError(theDetParam, *theClusterParam);
     SiPixelRecHitQuality::QualWordType rqw = rawQualityWord(*theClusterParam);
     auto tuple = std::make_tuple(lp, le, rqw);
-    delete theClusterParam;
 
-    //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
+    LogDebug("PixelCPEBase") << " in PixelCPEBase:localParameters(on track) - " << lp.x() << " " << lp.y();
     return tuple;
   }
 
 private:
-  virtual ClusterParam* createClusterParam(const SiPixelCluster& cl) const = 0;
+  virtual std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster& cl) const = 0;
 
   //--------------------------------------------------------------------------
   // This is where the action happens.
@@ -250,8 +238,23 @@ protected:
   const SiPixelTemplateDBObject* templateDBobject_;
   bool alpha2Order;  // switch on/off E.B effect.
 
-  bool DoLorentz_;
+  bool useLAFromDB_;  //Use LA value from the database (used for generic CPE or in template CPE if an error)
+
+  bool doLorentzFromAlignment_;
   bool LoadTemplatesFromDB_;
+
+  //errors for template reco for edge hits, based on observed residuals from
+  //studies likely done in 2011...
+  static constexpr float xEdgeXError_ = 23.0f;
+  static constexpr float xEdgeYError_ = 39.0f;
+
+  static constexpr float yEdgeXError_ = 24.0f;
+  static constexpr float yEdgeYError_ = 96.0f;
+
+  static constexpr float bothEdgeXError_ = 31.0f;
+  static constexpr float bothEdgeYError_ = 90.0f;
+
+  static constexpr float clusterSplitMaxError_ = 7777.7f;
 
   //---------------------------------------------------------------------------
   //  Geometrical services to subclasses.
@@ -280,4 +283,4 @@ protected:
   DetParams m_DetParams = DetParams(1440);
 };
 
-#endif
+#endif  // RecoLocalTracker_SiPixelRecHits_interface_PixelCPEBase_h

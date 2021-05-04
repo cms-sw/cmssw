@@ -25,7 +25,7 @@
 #include <sstream>
 
 EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
-    : DQMEDAnalyzer(),
+    : DQMOneEDAnalyzer<edm::LuminosityBlockCache<ecaldqm::EcalLSCache>>(),
       ecaldqm::EcalDQMonitor(_ps),
       schedule_(),
       allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections")),
@@ -52,7 +52,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
       },
       "initialization");
 
-  edm::ParameterSet const& collectionTags(_ps.getUntrackedParameterSet("collectionTags"));
+  edm::ParameterSet const& collectionTags(_ps.getParameterSet("collectionTags"));
 
   for (unsigned iCol(0); iCol < ecaldqm::nCollections; iCol++) {
     if (hasTaskToRun[iCol])
@@ -90,7 +90,7 @@ void EcalDQMonitorTask::fillDescriptions(edm::ConfigurationDescriptions& _descs)
 
   edm::ParameterSetDescription collectionTags;
   collectionTags.addWildcardUntracked<edm::InputTag>("*");
-  desc.addUntracked("collectionTags", collectionTags);
+  desc.add("collectionTags", collectionTags);
 
   desc.addUntracked<bool>("allowMissingCollections", true);
   desc.addUntracked<double>("resetInterval", 0.);
@@ -99,7 +99,9 @@ void EcalDQMonitorTask::fillDescriptions(edm::ConfigurationDescriptions& _descs)
 }
 
 void EcalDQMonitorTask::bookHistograms(DQMStore::IBooker& _ibooker, edm::Run const&, edm::EventSetup const& _es) {
-  ecaldqmGetSetupObjects(_es);
+  executeOnWorkers_([&_es](ecaldqm::DQWorker* worker) { worker->setSetupObjects(_es); },
+                    "ecaldqmGetSetupObjects",
+                    "Getting EventSetup Objects");
 
   executeOnWorkers_([&_ibooker](ecaldqm::DQWorker* worker) { worker->bookMEs(_ibooker); }, "bookMEs", "Booking MEs");
 }
@@ -113,29 +115,34 @@ void EcalDQMonitorTask::dqmBeginRun(edm::Run const& _run, edm::EventSetup const&
     lastResetTime_ = time(nullptr);
 }
 
-void EcalDQMonitorTask::endRun(edm::Run const& _run, edm::EventSetup const& _es) {
-  if (lastResetTime_ != 0)
-    executeOnWorkers_([](ecaldqm::DQWorker* worker) { static_cast<ecaldqm::DQWorkerTask*>(worker)->recoverStats(); },
-                      "recoverStats");
-
+void EcalDQMonitorTask::dqmEndRun(edm::Run const& _run, edm::EventSetup const& _es) {
   ecaldqmEndRun(_run, _es);
 
   executeOnWorkers_([](ecaldqm::DQWorker* worker) { worker->releaseMEs(); }, "releaseMEs", "releasing histograms");
 }
 
-void EcalDQMonitorTask::beginLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
+std::shared_ptr<ecaldqm::EcalLSCache> EcalDQMonitorTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& _lumi,
+                                                                                    edm::EventSetup const& _es) const {
+  std::shared_ptr<ecaldqm::EcalLSCache> tmpCache = std::make_shared<ecaldqm::EcalLSCache>();
+  executeOnWorkers_(
+      [&tmpCache](ecaldqm::DQWorker* worker) { (tmpCache->ByLumiPlotsResetSwitches)[worker->getName()] = true; },
+      "globalBeginLuminosityBlock");
+  if (this->verbosity_ > 2)
+    edm::LogInfo("EcalDQM") << "Set LS cache.";
+
+  // Reset lhcStatusSet_ to false at the beginning of each LS; when LHC status is set in some event this variable will be set to tru
+  tmpCache->lhcStatusSet_ = false;
   ecaldqmBeginLuminosityBlock(_lumi, _es);
+  return tmpCache;
 }
 
-void EcalDQMonitorTask::endLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
+void EcalDQMonitorTask::globalEndLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es) {
   ecaldqmEndLuminosityBlock(_lumi, _es);
 
   if (lastResetTime_ != 0 && (time(nullptr) - lastResetTime_) / 3600. > resetInterval_) {
     if (verbosity_ > 0)
       edm::LogInfo("EcalDQM") << moduleName_ << ": Soft-resetting the histograms";
-    executeOnWorkers_([](ecaldqm::DQWorker* worker) { static_cast<ecaldqm::DQWorkerTask*>(worker)->softReset(); },
-                      "softReset");
-
+    // TODO: soft-reset is no longer supported.
     lastResetTime_ = time(nullptr);
   }
 }
@@ -191,13 +198,18 @@ void EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _
   ++processedEvents_;
 
   // start event processing
+  auto lumiCache = luminosityBlockCache(_evt.getLuminosityBlock().index());
   executeOnWorkers_(
-      [&_evt, &_es, &enabledTasks](ecaldqm::DQWorker* worker) {
+      [&_evt, &_es, &enabledTasks, &lumiCache](ecaldqm::DQWorker* worker) {
         if (enabledTasks.find(worker) != enabledTasks.end()) {
           if (worker->onlineMode())
             worker->setTime(time(nullptr));
           worker->setEventNumber(_evt.id().event());
-          static_cast<ecaldqm::DQWorkerTask*>(worker)->beginEvent(_evt, _es);
+          bool ByLumiResetSwitch = (lumiCache->ByLumiPlotsResetSwitches).at(worker->getName());
+          bool lhcStatusSet = lumiCache->lhcStatusSet_;
+          static_cast<ecaldqm::DQWorkerTask*>(worker)->beginEvent(_evt, _es, ByLumiResetSwitch, lhcStatusSet);
+          (lumiCache->ByLumiPlotsResetSwitches)[worker->getName()] = false;
+          lumiCache->lhcStatusSet_ = lhcStatusSet;
         }
       },
       "beginEvent");

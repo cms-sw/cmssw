@@ -3,7 +3,7 @@
 
 // system include files
 //#include <memory>
-#include <boost/shared_ptr.hpp>
+
 #include <iostream>
 #include <vector>
 
@@ -55,8 +55,8 @@ private:
   //  uint32_t printdebug_;
   std::string type_;
   //std::unique_ptr<BaseFunction> corrector_;
-  boost::shared_ptr<MomentumScaleCorrector> corrector_;
-  boost::shared_ptr<ResolutionFunction> resolution_;
-  boost::shared_ptr<BackgroundFunction> background_;
+  std::shared_ptr<MomentumScaleCorrector> corrector_;
+  std::shared_ptr<ResolutionFunction> resolution_;
+  std::shared_ptr<BackgroundFunction> background_;
 };
 #endif

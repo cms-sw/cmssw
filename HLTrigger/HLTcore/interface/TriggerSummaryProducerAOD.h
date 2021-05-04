@@ -3,7 +3,7 @@
 
 /** \class TriggerSummaryProducerAOD
  *
- *  
+ *
  *  This class is an EDProducer making the HLT summary object for AOD
  *
  *
@@ -12,7 +12,7 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -46,6 +46,15 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
+#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
+#include "DataFormats/L1TCorrelator/interface/TkElectron.h"
+#include "DataFormats/L1TCorrelator/interface/TkEm.h"
+#include "DataFormats/L1TParticleFlow/interface/PFJet.h"
+#include "DataFormats/L1TParticleFlow/interface/PFTau.h"
+#include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"
+#include "DataFormats/L1TParticleFlow/interface/HPSPFTauFwd.h"
+#include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
+
 #include <map>
 #include <set>
 #include <string>
@@ -75,60 +84,15 @@ struct InputTagHash {
     return Hash(inputTag.label()) ^ Hash(inputTag.instance()) ^ Hash(inputTag.process());
   }
 };
-struct GlobalInputTags {
-  GlobalInputTags() : filterTagsGlobal_(), collectionTagsGlobal_() {}
-  mutable tbb::concurrent_unordered_set<edm::InputTag, InputTagHash> filterTagsGlobal_;
-  mutable tbb::concurrent_unordered_set<edm::InputTag, InputTagHash> collectionTagsGlobal_;
-};
-
-class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCache<GlobalInputTags>> {
+class TriggerSummaryProducerAOD : public edm::global::EDProducer<> {
 public:
-  explicit TriggerSummaryProducerAOD(const edm::ParameterSet&, const GlobalInputTags*);
+  explicit TriggerSummaryProducerAOD(const edm::ParameterSet&);
   ~TriggerSummaryProducerAOD() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
-  static void globalEndJob(const GlobalInputTags*);
-
-  // additional
-  static std::unique_ptr<GlobalInputTags> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::unique_ptr<GlobalInputTags>(new GlobalInputTags());
-  };
-
-  template <typename C>
-  void fillTriggerObjectCollections(const edm::Event&, edm::GetterOfProducts<C>&);
-
-  template <typename T>
-  void fillTriggerObject(const T&);
-  void fillTriggerObject(const l1extra::L1HFRings&);
-  void fillTriggerObject(const l1extra::L1EtMissParticle&);
-  void fillTriggerObject(const reco::PFMET&);
-  void fillTriggerObject(const reco::CaloMET&);
-  void fillTriggerObject(const reco::MET&);
-
-  template <typename C>
-  void fillFilterObjectMembers(const edm::Event&,
-                               const edm::InputTag& tag,
-                               const trigger::Vids&,
-                               const std::vector<edm::Ref<C>>&);
-
-  template <typename C>
-  void fillFilterObjectMember(const int&, const int&, const edm::Ref<C>&);
-  void fillFilterObjectMember(const int&, const int&, const edm::Ref<l1extra::L1HFRingsCollection>&);
-  void fillFilterObjectMember(const int&, const int&, const edm::Ref<l1extra::L1EtMissParticleCollection>&);
-  void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::PFMETCollection>&);
-  void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::CaloMETCollection>&);
-  void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::METCollection>&);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void endJob() override;
 
 private:
-  /// throw on error
-  bool throw_;
-  /// process name
-  std::string pn_;
-  /// module labels which should be avoided
-  std::vector<std::regex> moduleLabelPatternsToMatch_;
-  std::vector<std::regex> moduleLabelPatternsToSkip_;
-
   /// InputTag ordering class
   struct OrderInputTag {
     bool ignoreProcess_;
@@ -147,29 +111,81 @@ private:
       return c < 0;
     };
   };
-  typedef std::set<edm::InputTag, OrderInputTag> InputTagSet;
+
+  using ProductIDtoIndex = std::map<edm::ProductID, unsigned int>;
+  using InputTagSet = std::set<edm::InputTag, OrderInputTag>;
+  template <typename C>
+  void fillTriggerObjectCollections(trigger::TriggerObjectCollection&,
+                                    ProductIDtoIndex&,
+                                    std::vector<std::string>&,
+                                    trigger::Keys&,
+                                    const edm::Event&,
+                                    const edm::GetterOfProducts<C>&,
+                                    const InputTagSet&) const;
+
+  template <typename T>
+  void fillTriggerObject(trigger::TriggerObjectCollection&, const T&) const;
+  void fillTriggerObject(trigger::TriggerObjectCollection&, const l1extra::L1HFRings&) const;
+  void fillTriggerObject(trigger::TriggerObjectCollection&, const l1extra::L1EtMissParticle&) const;
+  void fillTriggerObject(trigger::TriggerObjectCollection&, const reco::PFMET&) const;
+  void fillTriggerObject(trigger::TriggerObjectCollection&, const reco::CaloMET&) const;
+  void fillTriggerObject(trigger::TriggerObjectCollection&, const reco::MET&) const;
+
+  template <typename C>
+  void fillFilterObjectMembers(const edm::Event&,
+                               const edm::InputTag& tag,
+                               const trigger::Vids&,
+                               const std::vector<edm::Ref<C>>&,
+                               const ProductIDtoIndex&,
+                               trigger::Keys& keys,
+                               trigger::Vids& oIds) const;
+
+  template <typename C>
+  void fillFilterObjectMember(trigger::Keys& keys, trigger::Vids& ids, const int&, const int&, const edm::Ref<C>&) const;
+  void fillFilterObjectMember(trigger::Keys& keys,
+                              trigger::Vids& ids,
+                              const int&,
+                              const int&,
+                              const edm::Ref<l1extra::L1HFRingsCollection>&) const;
+  void fillFilterObjectMember(trigger::Keys& keys,
+                              trigger::Vids& ids,
+                              const int&,
+                              const int&,
+                              const edm::Ref<l1extra::L1EtMissParticleCollection>&) const;
+  void fillFilterObjectMember(
+      trigger::Keys& keys, trigger::Vids& ids, const int&, const int&, const edm::Ref<reco::PFMETCollection>&) const;
+  void fillFilterObjectMember(
+      trigger::Keys& keys, trigger::Vids& ids, const int&, const int&, const edm::Ref<reco::CaloMETCollection>&) const;
+  void fillFilterObjectMember(
+      trigger::Keys& keys, trigger::Vids& ids, const int&, const int&, const edm::Ref<reco::METCollection>&) const;
+
+  /// throw on error
+  const bool throw_;
+  /// process name
+  std::string pn_;
+  /// module labels which should be avoided
+  std::vector<std::regex> moduleLabelPatternsToMatch_;
+  std::vector<std::regex> moduleLabelPatternsToSkip_;
 
   /// list of L3 filter tags
-  InputTagSet filterTagsEvent_;
-  InputTagSet filterTagsStream_;
+  mutable tbb::concurrent_unordered_set<edm::InputTag, InputTagHash> filterTagsGlobal_;
 
   /// list of L3 collection tags
-  InputTagSet collectionTagsEvent_;
-  InputTagSet collectionTagsStream_;
+  mutable tbb::concurrent_unordered_set<edm::InputTag, InputTagHash> collectionTagsGlobal_;
 
   /// trigger object collection
-  trigger::TriggerObjectCollection toc_;
-  std::vector<std::string> tags_;
+  //trigger::TriggerObjectCollection toc_;
+  //std::vector<std::string> tags_;
   /// global map for indices into toc_: offset per input L3 collection
-  std::map<edm::ProductID, unsigned int> offset_;
+  //std::map<edm::ProductID, unsigned int> offset_;
 
   /// keys
-  trigger::Keys keys_;
+  //trigger::Keys keys_;
   /// ids
-  trigger::Vids ids_;
+  //trigger::Vids ids_;
 
   /// packing decision
-  std::vector<bool> maskFilters_;
+  //std::vector<bool> maskFilters_;
 
   edm::GetterOfProducts<trigger::TriggerFilterObjectWithRefs> getTriggerFilterObjectWithRefs_;
   edm::GetterOfProducts<reco::RecoEcalCandidateCollection> getRecoEcalCandidateCollection_;
@@ -193,5 +209,12 @@ private:
   edm::GetterOfProducts<l1t::JetBxCollection> getL1TJetParticleCollection_;
   edm::GetterOfProducts<l1t::TauBxCollection> getL1TTauParticleCollection_;
   edm::GetterOfProducts<l1t::EtSumBxCollection> getL1TEtSumParticleCollection_;
+  edm::GetterOfProducts<l1t::TkMuonCollection> getL1TTkMuonCollection_;
+  edm::GetterOfProducts<l1t::TkElectronCollection> getL1TTkElectronCollection_;
+  edm::GetterOfProducts<l1t::TkEmCollection> getL1TTkEmCollection_;
+  edm::GetterOfProducts<l1t::PFJetCollection> getL1TPFJetCollection_;
+  edm::GetterOfProducts<l1t::PFTauCollection> getL1TPFTauCollection_;
+  edm::GetterOfProducts<l1t::HPSPFTauCollection> getL1THPSPFTauCollection_;
+  edm::GetterOfProducts<l1t::PFTrackCollection> getL1TPFTrackCollection_;
 };
 #endif

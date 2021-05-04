@@ -21,6 +21,7 @@
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorExtendedRcd.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //
 // constants, enums and typedefs
@@ -33,10 +34,13 @@
 //
 // constructors and destructor
 //
-MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB() : m_dtLabel(""), m_cscLabel("") {}
+MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB()
+    : m_dtLabel(""), m_cscLabel(""), idealGeometryLabel("idealForInputSurveyDB") {}
 
-MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(std::string dtLabel, std::string cscLabel)
-    : m_dtLabel(dtLabel), m_cscLabel(cscLabel) {}
+MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(std::string dtLabel,
+                                                       std::string cscLabel,
+                                                       std::string idealLabel)
+    : m_dtLabel(dtLabel), m_cscLabel(cscLabel), idealGeometryLabel(idealLabel) {}
 
 // MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB& rhs)
 // {
@@ -62,8 +66,12 @@ MuonAlignmentInputSurveyDB::~MuonAlignmentInputSurveyDB() {}
 //
 
 AlignableMuon* MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetup& iSetup) const {
-  std::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
-  std::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
+  edm::ESHandle<DTGeometry> dtGeometry;
+  edm::ESHandle<CSCGeometry> cscGeometry;
+  edm::ESHandle<GEMGeometry> gemGeometry;
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
 
   edm::ESHandle<Alignments> dtSurvey;
   edm::ESHandle<SurveyErrors> dtSurveyError;
@@ -74,7 +82,7 @@ AlignableMuon* MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetu
   iSetup.get<CSCSurveyRcd>().get(m_cscLabel, cscSurvey);
   iSetup.get<CSCSurveyErrorExtendedRcd>().get(m_cscLabel, cscSurveyError);
 
-  AlignableMuon* output = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
+  AlignableMuon* output = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 
   unsigned int theSurveyIndex = 0;
   const Alignments* theSurveyValues = &*dtSurvey;

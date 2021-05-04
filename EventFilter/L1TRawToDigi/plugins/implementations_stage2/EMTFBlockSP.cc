@@ -310,6 +310,9 @@ namespace l1t {
         // else if (nDelay[2] + nDelay[1]             >= 1) trk_delay = 1;
         // else if (nDelay[2] + nDelay[1] + nDelay[0] >= 1) trk_delay = 0;
 
+        // Reverse 'rotate by 2' to get CPPF subsector number
+        auto get_subsector_rpc_cppf = [](int subsector_rpc) { return ((subsector_rpc + 3) % 6) + 1; };
+
         std::array<int, 4> St_hits{{0, 0, 0, 0}};  // Number of matched hits in each station
 
         for (auto const& Hit : *res_hit) {
@@ -341,8 +344,9 @@ namespace l1t {
             if (Hit.Is_CSC() == 1 && (Hit.CSC_ID() != conv_vals_SP.at(0) || Hit.Subsector() != conv_vals_SP.at(2)))
               continue;
 
-            int RPC_subsector = ((Hit.Subsector() - 1) / 3) + 1;  // Map RPC subsector to equivalent CSC subsector
-            int RPC_CSC_ID = ((Hit.Subsector() - 1) % 3) + 4;     // Map RPC subsector and ring to equivalent CSC ID
+            int tmp_subsector = get_subsector_rpc_cppf(Hit.Subsector_RPC());
+            int RPC_subsector = ((tmp_subsector - 1) / 3) + 1;  // Map RPC subsector to equivalent CSC subsector
+            int RPC_CSC_ID = ((tmp_subsector - 1) % 3) + 4;     // Map RPC subsector and ring to equivalent CSC ID
 
             if (Hit.Is_RPC() == 1 && (RPC_CSC_ID != conv_vals_SP.at(0) || RPC_subsector != conv_vals_SP.at(2)))
               continue;
@@ -365,7 +369,8 @@ namespace l1t {
             if (Hit.Is_CSC() == 1 && Hit.CSC_ID() != conv_vals_SP.at(0))
               continue;
 
-            if (Hit.Is_RPC() == 1 && Hit.Subsector() + 3 != conv_vals_SP.at(0))
+            int tmp_subsector = get_subsector_rpc_cppf(Hit.Subsector_RPC());
+            if (Hit.Is_RPC() == 1 && tmp_subsector + 3 != conv_vals_SP.at(0))
               continue;
 
             if (St_hits.at(1) == 0) {
@@ -386,7 +391,8 @@ namespace l1t {
             if (Hit.Is_CSC() == 1 && Hit.CSC_ID() != conv_vals_SP.at(0))
               continue;
 
-            if (Hit.Is_RPC() == 1 && Hit.Subsector() + 3 != conv_vals_SP.at(0))
+            int tmp_subsector = get_subsector_rpc_cppf(Hit.Subsector_RPC());
+            if (Hit.Is_RPC() == 1 && tmp_subsector + 3 != conv_vals_SP.at(0))
               continue;
 
             if (St_hits.at(2) == 0) {
@@ -407,7 +413,8 @@ namespace l1t {
             if (Hit.Is_CSC() == 1 && Hit.CSC_ID() != conv_vals_SP.at(0))
               continue;
 
-            if (Hit.Is_RPC() == 1 && Hit.Subsector() + 3 != conv_vals_SP.at(0))
+            int tmp_subsector = get_subsector_rpc_cppf(Hit.Subsector_RPC());
+            if (Hit.Is_RPC() == 1 && tmp_subsector + 3 != conv_vals_SP.at(0))
               continue;
 
             if (St_hits.at(3) == 0) {

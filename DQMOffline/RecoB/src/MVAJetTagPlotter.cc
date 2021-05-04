@@ -1,7 +1,5 @@
 #include <sstream>
 
-#include <boost/bind.hpp>
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
@@ -9,7 +7,6 @@
 #include "DQMOffline/RecoB/interface/MVAJetTagPlotter.h"
 
 using namespace std;
-using namespace boost;
 using namespace edm;
 using namespace reco;
 

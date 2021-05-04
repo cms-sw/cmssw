@@ -12,6 +12,10 @@ trackingMaterialProducer.UseMagneticField = False
 trackingMaterialProducer.Watchers = cms.VPSet(cms.PSet(
     TrackingMaterialProducer = cms.PSet(
         PrimaryTracksOnly = cms.bool(True),
+        #The following variables are set for HGCal support and 
+        #it doesn't effect or run at all for Tracker
+        txtOutFile = cms.untracked.string('VolumesZPosition.txt'),
+        hgcalzfront = cms.double(3190.5),
         SelectedVolumes = cms.vstring('BEAM', 
             'Tracker')
     ),

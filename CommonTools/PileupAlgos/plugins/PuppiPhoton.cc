@@ -139,7 +139,7 @@ void PuppiPhoton::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   int iPF = 0;
   std::vector<float> lWeights;
   static const reco::PFCandidate dummySinceTranslateIsNotStatic;
-  corrCandidates_.reset(new PFOutputCollection);
+  corrCandidates_ = std::make_unique<PFOutputCollection>();
   std::set<int> foundPhoIndex;
   for (CandidateView::const_iterator itPF = pupCol->begin(); itPF != pupCol->end(); itPF++) {
     auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(itPF->pdgId());

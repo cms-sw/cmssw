@@ -1,9 +1,12 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/GeometryCommonDetAlgo"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="DataFormats/Phase2TrackerDigi"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Phase2TrackerDigi"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-

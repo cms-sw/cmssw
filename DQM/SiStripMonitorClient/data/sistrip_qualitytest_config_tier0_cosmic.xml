@@ -197,4 +197,4 @@
 <LINK name="*TrackParameters/GeneralProperties/FractionOfGoodTracks_CKFTk">
   <TestName activate="true">XrangeWithin:FractionOfGoodTracks</TestName>
 </LINK>
-</TESTCONFIGURATION>
+</TESTSCONFIGURATION>

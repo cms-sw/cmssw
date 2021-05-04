@@ -14,10 +14,14 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "CondFormats/GEMObjects/interface/GEMMaskedStrips.h"
 #include "CondFormats/GEMObjects/interface/GEMDeadStrips.h"
+#include "CondFormats/DataRecord/interface/GEMMaskedStripsRcd.h"
+#include "CondFormats/DataRecord/interface/GEMDeadStripsRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitBaseAlgo.h"
 
 class GEMRecHitProducer : public edm::stream::EDProducer<> {
@@ -52,6 +56,10 @@ private:
   enum class MaskSource { File, EventSetup } maskSource_, deadSource_;
 
   edm::ESHandle<GEMGeometry> gemGeom_;
+
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
+  edm::ESGetToken<GEMMaskedStrips, GEMMaskedStripsRcd> maskedStripsToken_;
+  edm::ESGetToken<GEMDeadStrips, GEMDeadStripsRcd> deadStripsToken_;
 
   // map of mask and dead strips
   std::map<GEMDetId, EtaPartitionMask> gemMask_;

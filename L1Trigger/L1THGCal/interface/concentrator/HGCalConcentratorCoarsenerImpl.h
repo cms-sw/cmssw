@@ -4,6 +4,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 #include "L1Trigger/L1THGCal/interface/HGCalCoarseTriggerCellMapping.h"
+#include "L1Trigger/L1THGCal/interface/HGCalVFECompressionImpl.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerCellCalibration.h"
 
 class HGCalConcentratorCoarsenerImpl {
 public:
@@ -14,6 +16,7 @@ public:
   void eventSetup(const edm::EventSetup& es) {
     triggerTools_.eventSetup(es);
     coarseTCmapping_.eventSetup(es);
+    calibration_.eventSetup(es);
   }
 
 private:
@@ -21,6 +24,9 @@ private:
   bool fixedDataSizePerHGCROC_;
   HGCalCoarseTriggerCellMapping coarseTCmapping_;
   static constexpr int kHighDensityThickness_ = 0;
+
+  HGCalTriggerCellCalibration calibration_;
+  HGCalVFECompressionImpl vfeCompression_;
 
   struct CoarseTC {
     float sumPt;

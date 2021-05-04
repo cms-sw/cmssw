@@ -17,8 +17,8 @@
 //
 
 // system include files
-#include <boost/cstdint.hpp>
 #include <vector>
+#include <cstdint>
 
 // user include files
 

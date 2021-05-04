@@ -5,14 +5,11 @@
  */
 
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -26,19 +23,12 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-#include <string>
 #include <TMath.h>
 
 void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,

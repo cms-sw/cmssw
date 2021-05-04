@@ -1,18 +1,16 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug>
+<!-- 
     <debug_shapes/>
     <debug_includes/>
     <debug_rotations/>
     <debug_includes/>
     <debug_volumes/>
     <debug_constants/>
-    <!-- debug_materials/ -->
     <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
-
-<!-- 
     <debug_materials/>
     <debug_visattr/>
 -->
@@ -22,15 +20,20 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalforwardmaterial.xml"/>
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalrotations.xml"/>
     <Include ref="Geometry/CMSCommonData/data/normal/cmsextent.xml"/>
     <Include ref="Geometry/HcalAlgo/test/data/cms.xml"/>
+    <Include ref="Geometry/HcalAlgo/test/data/world.xml"/>
     <Include ref="Geometry/HcalAlgo/test/data/muonBase.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalforwardalgo.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalforwardfibre.xml"/>
+    <Include ref="Geometry/HcalSimData/data/hf.xml"/>
+    <Include ref="Geometry/HcalSimData/data/hfpmt.xml"/>
+    <Include ref="Geometry/HcalSimData/data/hffibrebundle.xml"/>
+    <Include ref="Geometry/HcalSimData/data/CaloUtil.xml"/>
   </IncludeSection>
   
 </DDDefinition>

@@ -138,7 +138,8 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
   // GEM hit association
   GEMHitAssociator gemtruth(*event, *setup, conf_);
 
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
+  MuonAssociatorByHitsHelper::Resources resources = {
+      tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
 
   auto recSimColl = helper_.associateRecoToSimIndices(muonHitRefs, tPC, resources);
   for (auto it = recSimColl.begin(), ed = recSimColl.end(); it != ed; ++it) {

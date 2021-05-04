@@ -603,48 +603,7 @@ void CommissioningHistograms::createSummaryHisto(const sistrip::Monitorable& mon
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::remove(std::string pattern) {
-  if (!bei_) {
-    edm::LogError(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
-                                << " NULL pointer to DQMStore!";
-    return;
-  }
-
-  bei_->setVerbose(0);
-
-  LogTrace(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
-                         << " Removing histograms...";
-
-  if (!pattern.empty()) {
-    if (bei_->dirExists(pattern)) {
-      bei_->rmdir(pattern);
-    }
-
-    LogTrace(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
-                           << " Removing directories (and MonitorElements"
-                           << " therein) that match the pattern \"" << pattern << "\"";
-
-  } else {
-    bei_->cd();
-    bei_->removeContents();
-
-    if (bei_->dirExists("Collector")) {
-      bei_->rmdir("Collector");
-    }
-    if (bei_->dirExists("EvF")) {
-      bei_->rmdir("EvF");
-    }
-    if (bei_->dirExists("SiStrip")) {
-      bei_->rmdir("SiStrip");
-    }
-
-    LogTrace(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
-                           << " Removing \"DQM source\" directories (and MonitorElements therein)";
-  }
-
-  LogTrace(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
-                         << " Removed histograms!";
-
-  bei_->setVerbose(1);
+  // TODO: remove no longer supported in DQMStore.
 }
 
 // -----------------------------------------------------------------------------
@@ -663,8 +622,8 @@ void CommissioningHistograms::save(std::string& path, uint32_t run_number, std::
     // Retrieve SCRATCH directory
     std::string scratch = "SCRATCH";
     std::string dir = "";
-    if (getenv(scratch.c_str()) != nullptr) {
-      dir = getenv(scratch.c_str());
+    if (std::getenv(scratch.c_str()) != nullptr) {
+      dir = std::getenv(scratch.c_str());
     }
 
     // Add directory path
@@ -708,12 +667,7 @@ TH1* CommissioningHistograms::histogram(const sistrip::Monitorable& mon,
   // Construct histogram name
   std::string name = SummaryGenerator::name(task_, mon, pres, view, directory);
 
-  // Check if summary plot already exists and remove
   MonitorElement* me = bei_->get(bei_->pwd() + "/" + name);
-  if (me) {
-    bei_->removeElement(name);
-    me = nullptr;
-  }
 
   // Create summary plot
   float high = static_cast<float>(xbins);

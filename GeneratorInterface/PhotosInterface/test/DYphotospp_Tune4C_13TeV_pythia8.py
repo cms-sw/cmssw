@@ -100,7 +100,17 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     )
 )
 
-process.ProductionFilterSequence = cms.Sequence(process.generator)
+process.genParticles = cms.EDProducer("GenParticleProducer",
+    saveBarCodes = cms.untracked.bool(True),
+    src = cms.InputTag("generator:unsmeared"),
+    abortOnUnknownPDGCode = cms.untracked.bool(False)
+)
+process.printTree1 = cms.EDAnalyzer("ParticleListDrawer",
+    src = cms.InputTag("genParticles"),
+    maxEventsToPrint  = cms.untracked.int32(10)
+)
+
+process.ProductionFilterSequence = cms.Sequence(process.generator*process.genParticles*process.printTree1)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

@@ -1,9 +1,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
@@ -13,12 +11,13 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "CommonTools/ParticleFlow/interface/PFClusterWidthAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TFile.h>
 #include <TVector2.h>
@@ -41,7 +40,7 @@
 #define LOGERR(x) edm::LogError(x)
 #define LOGDRESSED(x) edm::LogInfo(x)
 #else
-#define docast(x, y) reinterpret_cast<x>(y)
+#define docast(x, y) static_cast<x>(y)
 #define LOGVERB(x) LogTrace(x)
 #define LOGWARN(x) edm::LogWarning(x)
 #define LOGERR(x) edm::LogError(x)
@@ -90,13 +89,13 @@ namespace {
                                const size_t test,
                                const float EoPin_cut = 1.0e6) {
     constexpr reco::PFBlockElement::TrackType ConvType = reco::PFBlockElement::T_FROM_GAMMACONV;
+    auto elemkey = &(block->elements()[key]);
     // this is inside out but I just want something that works right now
-    switch (keytype) {
+    switch (elemkey->type()) {
       case reco::PFBlockElement::GSF: {
-        const reco::PFBlockElementGsfTrack* elemasgsf =
-            docast(const reco::PFBlockElementGsfTrack*, &(block->elements()[key]));
+        const reco::PFBlockElementGsfTrack* elemasgsf = docast(const reco::PFBlockElementGsfTrack*, elemkey);
         if (elemasgsf && valtype == PFBlockElement::ECAL) {
-          const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
+          const ClusterElement* elemasclus = static_cast<const ClusterElement*>(&(block->elements()[test]));
           float cluster_e = elemasclus->clusterRef()->correctedEnergy();
           float trk_pin = elemasgsf->Pin().P();
           if (cluster_e / trk_pin > EoPin_cut) {
@@ -106,9 +105,9 @@ namespace {
         }
       } break;
       case reco::PFBlockElement::TRACK: {
-        const reco::PFBlockElementTrack* elemaskf = docast(const reco::PFBlockElementTrack*, &(block->elements()[key]));
+        const reco::PFBlockElementTrack* elemaskf = docast(const reco::PFBlockElementTrack*, elemkey);
         if (elemaskf && valtype == PFBlockElement::ECAL) {
-          const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
+          const ClusterElement* elemasclus = static_cast<const ClusterElement*>(&(block->elements()[test]));
           float cluster_e = elemasclus->clusterRef()->correctedEnergy();
           float trk_pin = std::sqrt(elemaskf->trackRef()->innerMomentum().mag2());
           if (cluster_e / trk_pin > EoPin_cut) {
@@ -150,7 +149,7 @@ namespace {
           if (!useConvs && elemaskf->trackType(ConvType))
             return false;
           if (elemaskf && valtype == PFBlockElement::ECAL) {
-            const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
+            const ClusterElement* elemasclus = static_cast<const ClusterElement*>(&(block->elements()[test]));
             float cluster_e = elemasclus->clusterRef()->correctedEnergy();
             float trk_pin = std::sqrt(elemaskf->trackRef()->innerMomentum().mag2());
             if (cluster_e / trk_pin > EoPin_cut)
@@ -444,8 +443,19 @@ namespace {
   }
 }  // namespace
 
-PFEGammaAlgo::PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg, GBRForests const& gbrForests)
-    : gbrForests_(gbrForests), cfg_(cfg) {}
+PFEGammaAlgo::PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg,
+                           GBRForests const& gbrForests,
+                           EEtoPSAssociation const& eetops,
+                           ESEEIntercalibConstants const& esEEInterCalib,
+                           ESChannelStatus const& channelStatus,
+                           reco::Vertex const& primaryVertex)
+    : gbrForests_(gbrForests),
+      eetops_(eetops),
+      cfg_(cfg),
+      primaryVertex_(primaryVertex),
+      channelStatus_(channelStatus) {
+  thePFEnergyCalibration_.initAlphaGamma_ESplanes_fromDB(&esEEInterCalib);
+}
 
 float PFEGammaAlgo::evaluateSingleLegMVA(const reco::PFBlockRef& blockRef,
                                          const reco::Vertex& primaryVtx,
@@ -456,7 +466,7 @@ float PFEGammaAlgo::evaluateSingleLegMVA(const reco::PFBlockRef& blockRef,
   const PFBlock::LinkData& linkData = block.linkData();
   //calculate MVA Variables
   const float chi2 = elements[trackIndex].trackRef()->chi2() / elements[trackIndex].trackRef()->ndof();
-  const float nlost = elements[trackIndex].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  const float nlost = elements[trackIndex].trackRef()->missingInnerHits();
   const float nLayers = elements[trackIndex].trackRef()->hitPattern().trackerLayersWithMeasurement();
   const float trackPt = elements[trackIndex].trackRef()->pt();
   const float stip = elements[trackIndex].trackRefPF()->STIP();
@@ -895,7 +905,7 @@ int PFEGammaAlgo::attachPSClusters(const ClusterElement* ecalclus, ClusterMap::m
   edm::Ptr<reco::PFCluster> clusptr = refToPtr(ecalclus->clusterRef());
   EEtoPSElement ecalkey(clusptr.key(), clusptr);
   auto assc_ps =
-      std::equal_range(eetops_->cbegin(), eetops_->cend(), ecalkey, [](const EEtoPSElement& a, const EEtoPSElement& b) {
+      std::equal_range(eetops_.cbegin(), eetops_.cend(), ecalkey, [](const EEtoPSElement& a, const EEtoPSElement& b) {
         return a.first < b.first;
       });
   for (const auto& ps1 : _splayedblock[reco::PFBlockElement::PS1]) {
@@ -1049,9 +1059,9 @@ void PFEGammaAlgo::removeOrLinkECALClustersToKFTracks() {
           const reco::PFBlockElementTrack* kfEle = docast(const reco::PFBlockElementTrack*, kftrack.get());
           const reco::TrackRef& trackref = kfEle->trackRef();
 
-          const int nexhits = trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+          const int nexhits = trackref->missingInnerHits();
           bool fromprimaryvertex = false;
-          for (auto vtxtks = primaryVertex_->tracks_begin(); vtxtks != primaryVertex_->tracks_end(); ++vtxtks) {
+          for (auto vtxtks = primaryVertex_.tracks_begin(); vtxtks != primaryVertex_.tracks_end(); ++vtxtks) {
             if (trackref == vtxtks->castTo<reco::TrackRef>()) {
               fromprimaryvertex = true;
               break;
@@ -1425,7 +1435,7 @@ void PFEGammaAlgo::linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) {
     }
     // go through non-conv-identified kfs and check MVA to add conversions
     for (auto kf = notconvkf; kf != notmatchedkf; ++kf) {
-      float mvaval = evaluateSingleLegMVA(_currentblock, *primaryVertex_, (*kf)->index());
+      float mvaval = evaluateSingleLegMVA(_currentblock, primaryVertex_, (*kf)->index());
       if (mvaval > cfg_.mvaConvCut) {
         const reco::PFBlockElementTrack* elemaskf = docast(const reco::PFBlockElementTrack*, kf->get());
         RO.secondaryKFs.push_back(elemaskf);
@@ -1479,12 +1489,14 @@ PFEGammaAlgo::EgammaObjects PFEGammaAlgo::fillPFCandidates(const std::list<PFEGa
       cand.setCharge(RO.primaryKFs[0]->trackRef()->charge());
       xtra.setKfTrackRef(RO.primaryKFs[0]->trackRef());
       cand.setTrackRef(RO.primaryKFs[0]->trackRef());
+      cand.setVertex(RO.primaryKFs[0]->trackRef()->vertex());
       cand.addElementInBlock(_currentblock, RO.primaryKFs[0]->index());
     }
     if (!RO.primaryGSFs.empty()) {
       cand.setCharge(RO.primaryGSFs[0]->GsftrackRef()->chargeMode());
       xtra.setGsfTrackRef(RO.primaryGSFs[0]->GsftrackRef());
       cand.setGsfTrackRef(RO.primaryGSFs[0]->GsftrackRef());
+      cand.setVertex(RO.primaryGSFs[0]->GsftrackRef()->vertex());
       cand.addElementInBlock(_currentblock, RO.primaryGSFs[0]->index());
     }
     if (RO.parentSC) {
@@ -1528,7 +1540,7 @@ PFEGammaAlgo::EgammaObjects PFEGammaAlgo::fillPFCandidates(const std::list<PFEGa
         //by storing 3.0 + mvaval
         float mvaval = (mvavalmapped != RO.singleLegConversionMvaMap.end()
                             ? mvavalmapped->second
-                            : 3.0 + evaluateSingleLegMVA(_currentblock, *primaryVertex_, kf->index()));
+                            : 3.0 + evaluateSingleLegMVA(_currentblock, primaryVertex_, kf->index()));
 
         xtra.addSingleLegConvTrackRefMva(std::make_pair(kf->trackRef(), mvaval));
       }
@@ -1558,7 +1570,7 @@ PFEGammaAlgo::EgammaObjects PFEGammaAlgo::fillPFCandidates(const std::list<PFEGa
     const double scE = the_sc.energy();
     if (scE != 0.0) {
       const math::XYZPoint& seedPos = the_sc.seed()->position();
-      math::XYZVector egDir = the_sc.position() - primaryVertex_->position();
+      math::XYZVector egDir = the_sc.position() - primaryVertex_.position();
       egDir = egDir.Unit();
       cand.setP4(math::XYZTLorentzVector(scE * egDir.x(), scE * egDir.y(), scE * egDir.z(), scE));
       math::XYZPointF ecalPOS_f(seedPos.x(), seedPos.y(), seedPos.z());
@@ -1780,18 +1792,15 @@ reco::SuperCluster PFEGammaAlgo::buildRefinedSuperCluster(const PFEGammaAlgo::Pr
   }
 
   bool isEE = false;
-  edm::Ptr<reco::PFCluster> clusptr;
   // need the vector of raw pointers for a PF width class
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
-  double posX(0), posY(0), posZ(0), rawSCEnergy(0), corrSCEnergy(0), corrPSEnergy(0), PS1_clus_sum(0), PS2_clus_sum(0),
-      ePS1(0), ePS2(0), ps1_energy(0.0), ps2_energy(0.0);
-  int condP1(1), condP2(1);
+  double posX(0), posY(0), posZ(0), rawSCEnergy(0), corrSCEnergy(0), corrPSEnergy(0), ps1_energy(0.0), ps2_energy(0.0);
   for (auto& clus : RO.ecalclusters) {
-    ePS1 = 0;
-    ePS2 = 0;
+    double ePS1 = 0;
+    double ePS2 = 0;
     isEE = PFLayer::ECAL_ENDCAP == clus->clusterRef()->layer();
-    clusptr = edm::refToPtr<reco::PFClusterCollection>(clus->clusterRef());
+    auto clusptr = edm::refToPtr<reco::PFClusterCollection>(clus->clusterRef());
     bare_ptrs.push_back(clusptr.get());
 
     const double cluseraw = clusptr->energy();
@@ -1802,61 +1811,18 @@ reco::SuperCluster PFEGammaAlgo::buildRefinedSuperCluster(const PFEGammaAlgo::Pr
     posZ += cluseraw * cluspos.Z();
     // update EE calibrated super cluster energies
     if (isEE && RO.ecal2ps.count(clus.get())) {
-      ePS1 = 0;
-      ePS2 = 0;
-      condP1 = condP2 = 1;
-
       const auto& psclusters = RO.ecal2ps.at(clus.get());
 
-      for (auto i_ps = psclusters.begin(); i_ps != psclusters.end(); ++i_ps) {
-        const PFClusterRef& psclus = (*i_ps)->clusterRef();
-
-        auto const& recH_Frac = psclus->recHitFractions();
-
-        switch (psclus->layer()) {
-          case PFLayer::PS1:
-            for (auto const& recH : recH_Frac) {
-              ESDetId strip1 = recH.recHitRef()->detId();
-              if (strip1 != ESDetId(0)) {
-                ESChannelStatusMap::const_iterator status_p1 = channelStatus_->getMap().find(strip1);
-                //getStatusCode() == 0 => active channel
-                // apply correction if all recHits are dead
-                if (status_p1->getStatusCode() == 0)
-                  condP1 = 0;
-              }
-            }
-            break;
-          case PFLayer::PS2:
-            for (auto const& recH : recH_Frac) {
-              ESDetId strip2 = recH.recHitRef()->detId();
-              if (strip2 != ESDetId(0)) {
-                ESChannelStatusMap::const_iterator status_p2 = channelStatus_->getMap().find(strip2);
-                if (status_p2->getStatusCode() == 0)
-                  condP2 = 0;
-              }
-            }
-            break;
-          default:
-            break;
-        }
+      std::vector<reco::PFCluster const*> psClusterPointers;
+      psClusterPointers.reserve(psclusters.size());
+      for (auto const& psc : psclusters) {
+        psClusterPointers.push_back(psc->clusterRef().get());
       }
-
-      auto sumPSEnergy = [](double a, const ClusterElement* b, PFLayer::Layer layer) {
-        return a + (layer == b->clusterRef()->layer()) * b->clusterRef()->energy();
-      };
-
-      PS1_clus_sum =
-          std::accumulate(psclusters.begin(), psclusters.end(), 0.0, std::bind(sumPSEnergy, _1, _2, PFLayer::PS1));
-      PS2_clus_sum =
-          std::accumulate(psclusters.begin(), psclusters.end(), 0.0, std::bind(sumPSEnergy, _1, _2, PFLayer::PS2));
-
-      if (condP1 == 1)
-        ePS1 = -1.;
-      if (condP2 == 1)
-        ePS2 = -1.;
-
-      cluscalibe = thePFEnergyCalibration_.energyEm(
-          *clusptr, PS1_clus_sum, PS2_clus_sum, ePS1, ePS2, cfg_.applyCrackCorrections);
+      auto calibratedEnergies = thePFEnergyCalibration_.calibrateEndcapClusterEnergies(
+          *clusptr, psClusterPointers, channelStatus_, cfg_.applyCrackCorrections);
+      cluscalibe = calibratedEnergies.clusterEnergy;
+      ePS1 = calibratedEnergies.ps1Energy;
+      ePS2 = calibratedEnergies.ps2Energy;
     }
     if (ePS1 == -1.)
       ePS1 = 0;
@@ -1876,7 +1842,7 @@ reco::SuperCluster PFEGammaAlgo::buildRefinedSuperCluster(const PFEGammaAlgo::Pr
   // now build the supercluster
   reco::SuperCluster new_sc(corrSCEnergy, math::XYZPoint(posX, posY, posZ));
 
-  clusptr = edm::refToPtr<reco::PFClusterCollection>(RO.ecalclusters.front()->clusterRef());
+  auto clusptr = edm::refToPtr<reco::PFClusterCollection>(RO.ecalclusters.front()->clusterRef());
   new_sc.setCorrectedEnergy(corrSCEnergy);
   new_sc.setSeed(clusptr);
   new_sc.setPreshowerEnergyPlane1(ps1_energy);
@@ -2033,8 +1999,7 @@ void PFEGammaAlgo::unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO
       if (RO.localMap.contains(ecal->get(), *secd_kf)) {
         auto hcal_matched = std::partition(hcal_begin, hcal_end, tracksToHCALs);
         for (auto hcalclus = hcal_begin; hcalclus != hcal_matched; ++hcalclus) {
-          const reco::PFBlockElementCluster* clusthcal =
-              dynamic_cast<const reco::PFBlockElementCluster*>(hcalclus->get());
+          const reco::PFBlockElementCluster* clusthcal = docast(const reco::PFBlockElementCluster*, hcalclus->get());
           const double hcalenergy = clusthcal->clusterRef()->energy();
           const double hpluse = ecalenergy + hcalenergy;
           const bool isHoHE = ((hcalenergy / hpluse) > 0.1 && goodTrack);

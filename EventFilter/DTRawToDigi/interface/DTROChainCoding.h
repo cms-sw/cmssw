@@ -10,8 +10,7 @@
 #include <DataFormats/DTDigi/interface/DTDDUWords.h>
 
 #include <vector>
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 /// FIXEME:
 /*

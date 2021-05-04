@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowTree.h"
+#include "ShallowTree.h"
 
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
@@ -8,6 +8,8 @@
 #include <TBranch.h>
 
 ShallowTree::ShallowTree(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
+
   //int compSettings= iConfig.getParameter<int>("CompressionSettings",-1);
   int compSettings = iConfig.getUntrackedParameter<int>("CompressionSettings", -1);
   if (compSettings > 0)
@@ -150,7 +152,7 @@ ShallowTree::ShallowTree(const edm::ParameterSet& iConfig) {
         default: {
           std::string leafstring = "";
           typedef std::pair<std::string, LEAFTYPE> pair_t;
-          for (const pair_t& leaf : leafmap) {
+          for (const auto& leaf : leafmap) {
             leafstring += "\t" + leaf.first + "\n";
           }
 
@@ -194,5 +196,3 @@ ShallowTree::TypedBranchConnector<T>::TypedBranchConnector(edm::BranchDescriptio
     tree->Branch(pin.c_str(), &object_ptr_);
   }  //vector<type>
 }
-
-void ShallowTree::beginJob() {}

@@ -3,21 +3,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "SiStripDcsInfo.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
-
-#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
-//Run Info
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <iostream>
 #include <iomanip>
@@ -29,7 +19,16 @@
 //
 // -- Contructor
 //
-SiStripDcsInfo::SiStripDcsInfo(edm::ParameterSet const& pSet) {
+SiStripDcsInfo::SiStripDcsInfo(edm::ParameterSet const& pSet)
+    : tTopoToken0_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
+      tTopoToken1_(esConsumes<edm::Transition::EndLuminosityBlock>()),
+      tTopoToken2_(esConsumes<edm::Transition::EndRun>()),
+      tTopoToken3_(esConsumes<edm::Transition::BeginRun>()),
+      detVOffToken0_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
+      detVOffToken1_(esConsumes<edm::Transition::EndLuminosityBlock>()),
+      detVOffToken2_(esConsumes<edm::Transition::EndRun>()),
+      detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      runInfoToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogDebug("SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
 }
 
@@ -53,12 +52,9 @@ void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
   constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
 
   // Count Tracker FEDs from RunInfo
-
-  if (auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-
-    if (sumFED.isValid()) {
+  //
+  if (eSetup.tryToGet<RunInfoRcd>()) {
+    if (auto sumFED = eSetup.getHandle(runInfoToken_)) {
       std::vector<int> FedsInIds = sumFED->m_fed_in;
       for (unsigned int it = 0; it < FedsInIds.size(); ++it) {
         int fedID = FedsInIds[it];
@@ -88,7 +84,7 @@ void SiStripDcsInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   for (auto& subDetME : SubDetMEsMap) {
     subDetME.second.FaultyDetectors.clear();
   }
-  readStatus(eSetup);
+  readStatus(eSetup, 0);
   nLumiAnalysed_++;
 }
 
@@ -98,7 +94,7 @@ void SiStripDcsInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm
   if (nFEDConnected_ == 0)
     return;
   auto& dqm_store = *edm::Service<DQMStore>{};
-  readStatus(eSetup);
+  readStatus(eSetup, 1);
   fillStatus(dqm_store);
 }
 
@@ -111,7 +107,7 @@ void SiStripDcsInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup) 
   for (auto& subDetME : SubDetMEsMap) {
     subDetME.second.FaultyDetectors.clear();
   }
-  readStatus(eSetup);
+  readStatus(eSetup, 2);
   auto& dqm_store = *edm::Service<DQMStore>{};
   addBadModules(dqm_store);
 }
@@ -129,9 +125,9 @@ void SiStripDcsInfo::bookStatus(DQMStore& dqm_store) {
   else
     dqm_store.setCurrentFolder("SiStrip/EventInfo");
 
-  DcsFraction_ = dqm_store.bookFloat("DCSSummary");
+  auto scope = DQMStore::UseLumiScope(dqm_store);
 
-  DcsFraction_->setLumiFlag();
+  DcsFraction_ = dqm_store.bookFloat("DCSSummary");
 
   dqm_store.cd();
   if (!strip_dir.empty())
@@ -141,24 +137,18 @@ void SiStripDcsInfo::bookStatus(DQMStore& dqm_store) {
   for (auto& [suffix, subDetME] : SubDetMEsMap) {
     std::string const me_name{"SiStrip_" + suffix};
     subDetME.DcsFractionME = dqm_store.bookFloat(me_name);
-    subDetME.DcsFractionME->setLumiFlag();
   }
   bookedStatus_ = true;
   dqm_store.cd();
 }
 
 void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const auto tTopo = &eSetup.getData(tTopoToken3_);
 
-  unsigned long long cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
-  if (m_cacheIDCabling_ != cacheID) {
-    m_cacheIDCabling_ = cacheID;
+  if (fedCablingWatcher_.check(eSetup)) {
     LogDebug("SiStripDcsInfo") << "SiStripDcsInfo::readCabling : "
                                << " Change in Cache";
-    eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
+    detCabling_ = &eSetup.getData(detCablingToken_);
 
     std::vector<uint32_t> SelectedDetIds;
     detCabling_->addActiveDetectorsRawIds(SelectedDetIds);
@@ -188,15 +178,12 @@ void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
 //
 // -- Get Faulty Detectors
 //
-void SiStripDcsInfo::readStatus(edm::EventSetup const& eSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  eSetup.get<SiStripDetVOffRcd>().get(siStripDetVOff_);
+void SiStripDcsInfo::readStatus(edm::EventSetup const& eSetup, int transition) {
+  const auto tTopo = &eSetup.getData(transition == 0 ? tTopoToken0_ : (transition == 1 ? tTopoToken1_ : tTopoToken2_));
+  const auto& detVOff =
+      eSetup.getData(transition == 0 ? detVOffToken0_ : (transition == 1 ? detVOffToken1_ : detVOffToken2_));
   std::vector<uint32_t> FaultyDetIds;
-  siStripDetVOff_->getDetIds(FaultyDetIds);
+  detVOff.getDetIds(FaultyDetIds);
   LogDebug("SiStripDcsInfo") << " SiStripDcsInfo::readStatus : "
                              << " Faulty Detectors " << FaultyDetIds.size();
   // Read and fille bad modules

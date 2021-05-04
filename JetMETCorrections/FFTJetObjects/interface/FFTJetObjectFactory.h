@@ -56,7 +56,7 @@ public:
   typedef typename Factory::Base::base_type base_type;
 
   static const Factory& instance() {
-    static Factory obj;
+    static Factory const obj;
     return obj;
   }
 

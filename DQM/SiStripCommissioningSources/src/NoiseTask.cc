@@ -29,7 +29,11 @@ std::ostream &operator<<(std::ostream &rOut, ApvAnalysis::PedestalType &rPEDS) {
 
 // -----------------------------------------------------------------------------
 //
-NoiseTask::NoiseTask(DQMStore *dqm, const FedChannelConnection &conn) : CommissioningTask(dqm, conn, "NoiseTask") {
+NoiseTask::NoiseTask(DQMStore *dqm,
+                     const FedChannelConnection &conn,
+                     edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken,
+                     edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken)
+    : CommissioningTask(dqm, conn, "NoiseTask"), pedestalToken_(pedestalToken), noiseToken_(noiseToken) {
   //@@ NOT GUARANTEED TO BE THREAD SAFE!
   pApvFactory_ = edm::Service<ApvFactoryService>().operator->()->getApvFactory();
 
@@ -138,12 +142,8 @@ void NoiseTask::book() {
     LogTrace(mlDqmSource_) << "[NoiseTask::" << __func__ << "] "
                            << "Retrieving Pedestals from DB";
 
-    // Directly retrieve Pedestals from EventSetup
-    edm::ESHandle<SiStripPedestals> pedestals;
-    eventSetup()->get<SiStripPedestalsRcd>().get(pedestals);
-
-    // Cache Pedestals
-    pDBPedestals.reset(new SiStripPedestals(*pedestals));
+    // Directly retrieve Pedestals from EventSetup, and cache
+    pDBPedestals = std::make_unique<SiStripPedestals>(eventSetup()->getData(pedestalToken_));
 
     LogTrace(mlDqmSource_) << "[NoiseTask::" << __func__ << "] "
                            << "Done Retrieving Pedestals from DB";
@@ -155,12 +155,8 @@ void NoiseTask::book() {
     LogTrace(mlDqmSource_) << "[NoiseTask::" << __func__ << "] "
                            << "Retrieving Noises from DB";
 
-    // Directly retrieve Noises from EventSetup
-    edm::ESHandle<SiStripNoises> noises;
-    eventSetup()->get<SiStripNoisesRcd>().get(noises);
-
-    // Cache Pedestals
-    pDBNoises.reset(new SiStripNoises(*noises));
+    // Directly retrieve Noises from EventSetup, and cache
+    pDBNoises = std::make_unique<SiStripNoises>(eventSetup()->getData(noiseToken_));
 
     LogTrace(mlDqmSource_) << "[NoiseTask::" << __func__ << "] "
                            << "Done Retrieving Noises from DB";

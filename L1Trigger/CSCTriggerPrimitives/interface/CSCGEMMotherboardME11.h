@@ -23,9 +23,6 @@ public:
                         unsigned chamber,
                         const edm::ParameterSet& conf);
 
-  /** Constructor for use during testing. */
-  CSCGEMMotherboardME11();
-
   /** Default destructor. */
   ~CSCGEMMotherboardME11() override;
 
@@ -33,7 +30,7 @@ public:
       takes results and correlates into CorrelatedLCT. */
   void run(const CSCWireDigiCollection* wiredc,
            const CSCComparatorDigiCollection* compdc,
-           const GEMPadDigiCollection* gemPads) override;
+           const GEMPadDigiClusterCollection* gemPads) override;
 
   /* readout the LCTs in ME1a or ME1b */
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a() const;

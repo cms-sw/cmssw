@@ -30,16 +30,13 @@ process.dqmSaver.workflow = "/CMSSW_3_1_0/RelVal/TrigVal"
 #process.dqmSaver.referenceHandling = cms.untracked.string('skip')
 process.dqmSaver.referenceHandling = cms.untracked.string('all')
 
-process.DQMStore.collateHistograms = False
 process.DQMStore.verbose=0
-process.DQMStore.referenceFileName = "hltReference.root"
 #"/build/nuno/test/CMSSW_3_1_X_2009-02-05-0000/src/HltReference.root"
 
 
 process.options = cms.untracked.PSet(
     fileMode = cms.untracked.string('FULLMERGE')
 )
-process.MessageLogger.categories.append('DQMFileSaver')
 process.MessageLogger.cout.DQMFileSaver = cms.untracked.PSet(
        limit = cms.untracked.int32(1000000)
        )
@@ -57,7 +54,6 @@ process.validation = cms.Path(
     # process.muonTriggerRateTimeAnalyzer
     #+process.HLTTauVal
     #+process.egammaValidationSequence
-    #+process.HLTTopVal
     #+process.HLTSusyExoVal
     #+process.heavyFlavorValidationSequence
     #+process.HLTJetMETValSeq
@@ -70,7 +66,6 @@ process.post_validation = cms.Path(
     # process.HLTMuonPostVal
     #+process.HLTTauPostVal
     #+process.EgammaPostVal
-    #+process.HLTTopPostVal
     #+process.SusyExoPostVal
     #+process.heavyFlavorValidationHarvestingSequence
     #+process.JetMETPostVal

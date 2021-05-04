@@ -31,7 +31,7 @@ namespace {  // Avoid cluttering the global namespace.
       sdataBuf.pubsetbuf(const_cast<char *>(payloadData.c_str()), payloadData.size());
 
       std::istream inBuffer(&sdataBuf);
-      eos::portable_iarchive ia(inBuffer);
+      cond::serialization::InputArchive ia(inBuffer);
       payload.reset(new PayloadType);
       ia >> (*payload);
 

@@ -1,8 +1,7 @@
-<use   name="clhep"/>
-
-<use   name="rootmath"/>
-<use   name="DataFormats/Math"/>
+<use name="clhep"/>
+<use name="rootmath"/>
+<use name="DataFormats/Math"/>
 <export>
-  <lib   name="1"/>
-  <use   name="DataFormats/Math"/>
+  <lib name="1"/>
+  <use name="DataFormats/Math"/>
 </export>

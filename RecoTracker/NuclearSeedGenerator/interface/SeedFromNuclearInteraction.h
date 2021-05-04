@@ -14,8 +14,6 @@
 
 #include "RecoTracker/NuclearSeedGenerator/interface/TangentHelix.h"
 
-#include <boost/shared_ptr.hpp>
-
 class FreeTrajectoryState;
 
 class SeedFromNuclearInteraction {
@@ -79,11 +77,11 @@ private:
   ConstRecHitPointer innerHit_; /**< Pointer to the hit of the inner TM */
   ConstRecHitPointer outerHit_; /**< Pointer to the outer hit */
 
-  boost::shared_ptr<TSOS> updatedTSOS_; /**< Final TSOS */
+  std::shared_ptr<TSOS> updatedTSOS_; /**< Final TSOS */
 
-  boost::shared_ptr<TSOS> initialTSOS_; /**< Initial TSOS used as input */
+  std::shared_ptr<TSOS> initialTSOS_; /**< Initial TSOS used as input */
 
-  boost::shared_ptr<FreeTrajectoryState> freeTS_; /**< Initial FreeTrajectoryState */
+  std::shared_ptr<FreeTrajectoryState> freeTS_; /**< Initial FreeTrajectoryState */
 
   PTrajectoryStateOnDet pTraj; /**< the final persistent TSOS */
 

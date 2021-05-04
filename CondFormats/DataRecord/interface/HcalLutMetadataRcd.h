@@ -24,6 +24,6 @@
 
 class HcalLutMetadataRcd : public edm::eventsetup::DependentRecordImplementation<
                                HcalLutMetadataRcd,
-                               boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                               edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

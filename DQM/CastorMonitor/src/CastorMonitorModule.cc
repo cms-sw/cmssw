@@ -1,6 +1,5 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -26,7 +25,8 @@
 using namespace std;
 using namespace edm;
 
-CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet &ps) {
+CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet &ps)
+    : castorDbServiceToken_{esConsumes<CastorDbService, CastorDbRecord>()} {
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);
   subsystemname_ = ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor");
   inputTokenRaw_ = consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("rawLabel"));
@@ -40,7 +40,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet &ps) {
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
 
   if (ps.getUntrackedParameter<bool>("DigiMonitor", false))
-    DigiMon_ = std::make_unique<CastorDigiMonitor>(ps);
+    DigiMon_ = std::make_unique<CastorDigiMonitor>(ps, consumesCollector());
 
   if (ps.getUntrackedParameter<bool>("RecHitMonitor", false))
     RecHitMon_ = std::make_unique<CastorRecHitMonitor>(ps);
@@ -53,7 +53,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet &ps) {
 
 CastorMonitorModule::~CastorMonitorModule() {}
 
-void CastorMonitorModule::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
+void CastorMonitorModule::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &) {
   if (fVerbosity > 0)
     LogPrint("CastorMonitorModule") << "dqmBeginRun(start)";
 }
@@ -62,41 +62,41 @@ void CastorMonitorModule::bookHistograms(DQMStore::IBooker &ibooker,
                                          const edm::Run &iRun,
                                          const edm::EventSetup &iSetup) {
   if (DigiMon_) {
+    // Run histos only since there is endRun processing.
+    auto scope = DQMStore::IBooker::UseRunScope(ibooker);
     DigiMon_->bookHistograms(ibooker, iRun, iSetup);
   }
   if (RecHitMon_) {
-    RecHitMon_->bookHistograms(ibooker, iRun, iSetup);
+    RecHitMon_->bookHistograms(ibooker, iRun);
   }
   if (LedMon_) {
-    LedMon_->bookHistograms(ibooker, iRun, iSetup);
+    LedMon_->bookHistograms(ibooker, iRun);
   }
 
   ibooker.setCurrentFolder(subsystemname_);
   char s[60];
   sprintf(s, "CastorEventProducts");
   CastorEventProduct = ibooker.book1DD(s, s, 6, -0.5, 5.5);
-  CastorEventProduct->getTH1D()->GetYaxis()->SetTitle("Events");
-  TAxis *xa = CastorEventProduct->getTH1D()->GetXaxis();
-  xa->SetBinLabel(1, "FEDs/3");
-  xa->SetBinLabel(2, "RawData");
-  xa->SetBinLabel(3, "Digi");
-  xa->SetBinLabel(4, "RecHits");
-  xa->SetBinLabel(5, "Towers");
-  xa->SetBinLabel(6, "Jets");
+  CastorEventProduct->setAxisTitle("Events", /* axis */ 2);
+  CastorEventProduct->setBinLabel(1, "FEDs/3");
+  CastorEventProduct->setBinLabel(2, "RawData");
+  CastorEventProduct->setBinLabel(3, "Digi");
+  CastorEventProduct->setBinLabel(4, "RecHits");
+  CastorEventProduct->setBinLabel(5, "Towers");
+  CastorEventProduct->setBinLabel(6, "Jets");
 
   sprintf(s, "CASTORUnpackReport");
   hunpkrep = ibooker.bookProfile(s, s, 6, -0.5, 5.5, 100, 0, 1.e10, "");
-  xa = hunpkrep->getTProfile()->GetXaxis();
-  xa->SetBinLabel(1, "N_FEDs");
-  xa->SetBinLabel(2, "SPIGOT_Err");
-  xa->SetBinLabel(3, "empty");
-  xa->SetBinLabel(4, "busy");
-  xa->SetBinLabel(5, "OvF");
-  xa->SetBinLabel(6, "BadDigis");
+  hunpkrep->setBinLabel(1, "N_FEDs");
+  hunpkrep->setBinLabel(2, "SPIGOT_Err");
+  hunpkrep->setBinLabel(3, "empty");
+  hunpkrep->setBinLabel(4, "busy");
+  hunpkrep->setBinLabel(5, "OvF");
+  hunpkrep->setBinLabel(6, "BadDigis");
   return;
 }
 
-void CastorMonitorModule::endRun(const edm::Run &r, const edm::EventSetup &context) {
+void CastorMonitorModule::dqmEndRun(const edm::Run &r, const edm::EventSetup &) {
   if (DigiMon_) {
     DigiMon_->endRun();
   }
@@ -180,10 +180,8 @@ void CastorMonitorModule::analyze(const edm::Event &iEvent, const edm::EventSetu
   CastorEventProduct->Fill(5, jetsOK_);
 
   if (digiOK_) {
-    edm::ESHandle<CastorDbService> conditions;
-    iSetup.get<CastorDbRecord>().get(conditions);
-
-    DigiMon_->processEvent(iEvent, *CastorDigi, *TrigResults, *conditions);
+    const CastorDbService &conditions = iSetup.getData(castorDbServiceToken_);
+    DigiMon_->processEvent(iEvent, *CastorDigi, *TrigResults, conditions);
   }
   if (showTiming_) {
     cpu_timer.stop();

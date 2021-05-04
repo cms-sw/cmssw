@@ -254,7 +254,7 @@ HFPhase1PMTData(const Cuts& cutShapes, const float charge0,
 The constructor arguments are:
 
 cutShapes -- An array of cut shapes. "Cuts" is actually a typedef:
-             typedef boost::array<boost::shared_ptr<AbsHcalFunctor>,6> Cuts.
+             typedef boost::array<std::shared_ptr<AbsHcalFunctor>,6> Cuts.
              AbsHcalFunctor is a base class for functors which define
              an arbitrary univariate function. In this case, the functors
              describe the dependence of the cut value on the collected

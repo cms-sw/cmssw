@@ -1,0 +1,10 @@
+<!-- To make the tests run in parallel, we chunk up the work into arbitrary sets of 50 sequences. -->
+<test name="TestDQMOfflineConfiguration0" command="runtests.sh 50 0"/>
+<test name="TestDQMOfflineConfiguration50" command="runtests.sh 50 50"/>
+<test name="TestDQMOfflineConfiguration100" command="runtests.sh 50 100"/>
+<test name="TestDQMOfflineConfiguration150" command="runtests.sh 50 150"/>
+<test name="TestDQMOfflineConfiguration200" command="runtests.sh 50 200"/>
+<test name="TestDQMOfflineConfiguration250" command="runtests.sh 50 250"/>
+<!-- To make sure we actually got all sequences, the last check checks that there are no sequences beyond the last test -->
+<!-- This might need to updated when the number of distinct sequences grows, add more rows above and change the number here. -->
+<test name="TestDQMOfflineConfigurationGotAll" command="cmsswSequenceInfo.py --runTheMatrix --steps DQM,VALIDATION --limit 50 --offset 300 --threads 1 | grep 'Analyzing 0 seqs'"/>

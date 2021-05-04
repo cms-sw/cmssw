@@ -6,10 +6,10 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 
@@ -27,6 +27,8 @@ public:
                                bool &lockTracks) const;
 
   bool isPhotonSafeForJetMET(const reco::Photon &, const reco::PFCandidate &) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription &iDesc);
 
 private:
   bool passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron &) const;
@@ -47,7 +49,7 @@ private:
   const float ele_iso_combIso_eb_;
   const float ele_iso_combIso_ee_;
   const float ele_noniso_mva_;
-  const unsigned int ele_missinghits_;
+  const int ele_missinghits_;
   const float ele_ecalDrivenHademPreselCut_;
   const float ele_maxElePtForOnlyMVAPresel_;
   float ele_maxNtracks_;

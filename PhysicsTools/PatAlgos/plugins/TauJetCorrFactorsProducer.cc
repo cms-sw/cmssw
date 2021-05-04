@@ -1,5 +1,7 @@
 #include "PhysicsTools/PatAlgos/plugins/TauJetCorrFactorsProducer.h"
 
+#include <memory>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
@@ -51,7 +53,7 @@ std::vector<JetCorrectorParameters> TauJetCorrFactorsProducer::params(
 }
 
 float TauJetCorrFactorsProducer::evaluate(edm::View<reco::BaseTau>::const_iterator& tauJet,
-                                          boost::shared_ptr<FactorizedJetCorrector>& corrector,
+                                          std::shared_ptr<FactorizedJetCorrector>& corrector,
                                           int corrLevel) {
   corrector->setJetEta(tauJet->eta());
   corrector->setJetPt(tauJet->pt());
@@ -64,7 +66,7 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
   edm::Handle<edm::View<reco::BaseTau> > tauJets;
   evt.getByToken(srcToken_, tauJets);
 
-  typedef boost::shared_ptr<FactorizedJetCorrector> FactorizedJetCorrectorPtr;
+  typedef std::shared_ptr<FactorizedJetCorrector> FactorizedJetCorrectorPtr;
   std::map<std::string, FactorizedJetCorrectorPtr> correctorMapping;
 
   // fill the tauJetCorrFactors
@@ -103,8 +105,7 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
       edm::ESHandle<JetCorrectorParametersCollection> jecParameters;
       es.get<JetCorrectionsRecord>().get(payload, jecParameters);
 
-      correctorMapping[payload] =
-          FactorizedJetCorrectorPtr(new FactorizedJetCorrector(params(*jecParameters, levels_)));
+      correctorMapping[payload] = std::make_shared<FactorizedJetCorrector>(params(*jecParameters, levels_));
     }
     FactorizedJetCorrectorPtr& corrector = correctorMapping[payload];
 
@@ -121,7 +122,7 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
       //   'Uncorrected' : 1 ;
       //   'L2Relative'  : x ;
       //   'L3Absolute'  : x ;
-      jec.push_back(std::make_pair(corrLevel.substr(0, corrLevel.find("_")), jecFactor));
+      jec.push_back(std::make_pair(corrLevel.substr(0, corrLevel.find('_')), jecFactor));
     }
 
     // create the actual object with the scale factors we want the valuemap to refer to

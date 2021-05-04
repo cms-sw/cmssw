@@ -103,5 +103,6 @@ private:
   double theBXspace;
 
   std::string thetTrigLabel;
+  std::string thet0Label;
 };
 #endif

@@ -12,6 +12,9 @@ const std::string edm::SharedResourceNames::kTauola = "Tauola";
 const std::string edm::SharedResourceNames::kEvtGen = "EvtGen";
 const std::string edm::SharedResourceNames::kHerwig6 = "Herwig6";
 
+const std::string edm::ESSharedResourceNames::kDDGeometry = "es_DDGeometry";
+const std::string edm::ESSharedResourceNames::kDD4Hep = "es_DD4Hep";
+
 static std::atomic<unsigned int> counter;
 
 // See comments in header file for the purpose of this function.

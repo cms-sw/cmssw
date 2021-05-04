@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import math
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
@@ -37,8 +36,8 @@ OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
 #TTStub phi distribution
     TH1TTStub_Phi = cms.PSet(
         Nbinsx = cms.int32(60),
-        xmin = cms.double(-math.pi),
-        xmax = cms.double(math.pi)
+        xmin = cms.double(-3.5),
+        xmax = cms.double(3.5)
         ),
 
 #TTStub R distribution
@@ -46,6 +45,20 @@ OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
         Nbinsx = cms.int32(45),
         xmin = cms.double(0),
         xmax = cms.double(120)
+        ),
+
+#TTStub bend distribution
+    TH1TTStub_bend = cms.PSet(
+        Nbinsx = cms.int32(69),
+        xmin = cms.double(-8.625),
+        xmax = cms.double(8.625)
+        ),
+
+#TTStub, isPS?
+    TH1TTStub_isPS = cms.PSet(
+        Nbinsx = cms.int32(2),
+        xmin = cms.double(0.0),
+        xmax = cms.double(2.0)
         ),
 
 #TTStub Barrel Layers

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
@@ -6,6 +8,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace reco::tau {
 
@@ -24,7 +27,7 @@ namespace reco::tau {
         minRelPhotonSumPt_outsideSignalCone_(minRelPhotonSumPt_outsideSignalCone),
         pfCands_(pfCands) {
     // Initialize tau
-    tau_.reset(new PFTau());
+    tau_ = std::make_unique<PFTau>();
 
     copyGammas_ = copyGammasFromPiZeros;
     // Initialize our Accessors
@@ -42,7 +45,7 @@ namespace reco::tau {
     // RefVectors
     for (auto const& colkey : collections_) {
       // Build an empty list for each collection
-      sortedCollections_[colkey.first] = SortedListPtr(new SortedListPtr::element_type);
+      sortedCollections_[colkey.first] = std::make_shared<SortedListPtr::element_type>();
     }
 
     tau_->setjetRef(jet);

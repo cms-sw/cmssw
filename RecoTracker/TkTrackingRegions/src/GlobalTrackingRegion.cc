@@ -31,25 +31,24 @@ TrackingRegion::Hits GlobalTrackingRegion::hits(const edm::EventSetup& es,
   return layer.hits();
 }
 
-HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer,
-                                                  const Hit& outerHit,
-                                                  const edm::EventSetup& iSetup,
-                                                  const DetLayer* outerlayer,
-                                                  float lr,
-                                                  float gz,
-                                                  float dr,
-                                                  float dz) const {
+std::unique_ptr<HitRZCompatibility> GlobalTrackingRegion::checkRZ(const DetLayer* layer,
+                                                                  const Hit& outerHit,
+                                                                  const edm::EventSetup& iSetup,
+                                                                  const DetLayer* outerlayer,
+                                                                  float lr,
+                                                                  float gz,
+                                                                  float dr,
+                                                                  float dz) const {
   bool isBarrel = layer->isBarrel();
   bool isPixel = (layer->subDetector() == PixelBarrel || layer->subDetector() == PixelEndcap);
 
-  if
-    UNLIKELY(!outerlayer) {
-      GlobalPoint ohit = outerHit->globalPosition();
-      lr = std::sqrt(sqr(ohit.x() - origin().x()) + sqr(ohit.y() - origin().y()));
-      gz = ohit.z();
-      dr = outerHit->errorGlobalR();
-      dz = outerHit->errorGlobalZ();
-    }
+  if UNLIKELY (!outerlayer) {
+    GlobalPoint ohit = outerHit->globalPosition();
+    lr = std::sqrt(sqr(ohit.x() - origin().x()) + sqr(ohit.y() - origin().y()));
+    gz = ohit.z();
+    dr = outerHit->errorGlobalR();
+    dz = outerHit->errorGlobalZ();
+  }
 
   PixelRecoPointRZ outerred(lr, gz);
 
@@ -60,12 +59,11 @@ HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer,
                               ? PixelRecoPointRZ(-originRBound(), origin().z() - originZBound())
                               : PixelRecoPointRZ(originRBound(), origin().z() - originZBound());
 
-  if
-    UNLIKELY((!thePrecise) && (isPixel)) {
-      auto VcotMin = PixelRecoLineRZ(vtxR, outerred).cotLine();
-      auto VcotMax = PixelRecoLineRZ(vtxL, outerred).cotLine();
-      return new HitEtaCheck(isBarrel, outerred, VcotMax, VcotMin);
-    }
+  if UNLIKELY ((!thePrecise) && (isPixel)) {
+    auto VcotMin = PixelRecoLineRZ(vtxR, outerred).cotLine();
+    auto VcotMax = PixelRecoLineRZ(vtxL, outerred).cotLine();
+    return std::make_unique<HitEtaCheck>(isBarrel, outerred, VcotMax, VcotMin);
+  }
 
   constexpr float nSigmaPhi = 3.;
 
@@ -90,25 +88,51 @@ HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer,
   SimpleLineRZ rightLine(vtxR, outerR);
   HitRZConstraint rzConstraint(leftLine, rightLine);
 
-  if
-    UNLIKELY(theUseMS) {
-      MultipleScatteringParametrisation iSigma(layer, iSetup);
-      PixelRecoPointRZ vtxMean(0., origin().z());
+  if UNLIKELY (theUseMS) {
+    MultipleScatteringParametrisation iSigma(layer, iSetup);
+    PixelRecoPointRZ vtxMean(0., origin().z());
 
-      float innerScatt = 3.f * (outerlayer ? iSigma(ptMin(), vtxMean, outerred, outerlayer->seqNum())
-                                           : iSigma(ptMin(), vtxMean, outerred));
+    float innerScatt = 3.f * (outerlayer ? iSigma(ptMin(), vtxMean, outerred, outerlayer->seqNum())
+                                         : iSigma(ptMin(), vtxMean, outerred));
 
-      float cotTheta = SimpleLineRZ(vtxMean, outerred).cotLine();
+    float cotTheta = SimpleLineRZ(vtxMean, outerred).cotLine();
 
-      if (isBarrel) {
-        float sinTheta = 1 / std::sqrt(1 + sqr(cotTheta));
-        corr = innerScatt / sinTheta + dz;
-      } else {
-        float cosTheta = 1 / std::sqrt(1 + sqr(1 / cotTheta));
-        corr = innerScatt / cosTheta + dr;
-      }
+    if (isBarrel) {
+      float sinTheta = 1 / std::sqrt(1 + sqr(cotTheta));
+      corr = innerScatt / sinTheta + dz;
+    } else {
+      float cosTheta = 1 / std::sqrt(1 + sqr(1 / cotTheta));
+      corr = innerScatt / cosTheta + dr;
+    }
+  }
+
+  if (isBarrel) {
+    return std::make_unique<HitZCheck>(rzConstraint, HitZCheck::Margin(corr, corr));
+  } else {
+    return std::make_unique<HitRCheck>(rzConstraint, HitRCheck::Margin(corr, corr));
+  }
+}
+
+void GlobalTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const {
+  const math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
+
+  assert(mask.size() == tracks.size());
+  int i = -1;
+  for (auto const& track : tracks) {
+    i++;
+    if (mask[i])
+      continue;
+
+    if (track.pt() < ptMin()) {
+      continue;
+    }
+    if (std::abs(track.dxy(regOrigin)) > originRBound()) {
+      continue;
+    }
+    if (std::abs(track.dz(regOrigin)) > originZBound()) {
+      continue;
     }
 
-  return isBarrel ? (HitRZCompatibility*)(new HitZCheck(rzConstraint, HitZCheck::Margin(corr, corr)))
-                  : (HitRZCompatibility*)(new HitRCheck(rzConstraint, HitRCheck::Margin(corr, corr)));
+    mask[i] = true;
+  }
 }

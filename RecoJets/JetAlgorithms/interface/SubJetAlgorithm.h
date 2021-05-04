@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
-
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "RecoJets/JetAlgorithms/interface/FastPrunePlugin.hh"
@@ -19,9 +17,9 @@ public:
                   unsigned int subjets,
                   double zcut,
                   double rcut_factor,
-                  boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition,
+                  std::shared_ptr<fastjet::JetDefinition> fjJetDefinition,
                   bool doAreaFastjet,
-                  boost::shared_ptr<fastjet::GhostedAreaSpec> fjActiveArea,
+                  std::shared_ptr<fastjet::GhostedAreaSpec> fjActiveArea,
                   double voronoiRfact)
       : ptMin_(ptMin),
         nSubjets_(subjets),
@@ -45,10 +43,10 @@ private:
   int nSubjets_;        //<! number of subjets to produce.
   double zcut_;         //<! zcut parameter (see arXiv:0903.5081). Only relevant if pruning is enabled.
   double rcut_factor_;  //<! r-cut factor (see arXiv:0903.5081).
-  boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition_;  //<! jet definition to use
-  bool doAreaFastjet_;                                         //<! whether or not to use the fastjet area
-  boost::shared_ptr<fastjet::GhostedAreaSpec> fjActiveArea_;   //<! fastjet area spec
-  double voronoiRfact_;                                        //<! fastjet voronoi area R factor
+  std::shared_ptr<fastjet::JetDefinition> fjJetDefinition_;  //<! jet definition to use
+  bool doAreaFastjet_;                                       //<! whether or not to use the fastjet area
+  std::shared_ptr<fastjet::GhostedAreaSpec> fjActiveArea_;   //<! fastjet area spec
+  double voronoiRfact_;                                      //<! fastjet voronoi area R factor
 };
 
 #endif

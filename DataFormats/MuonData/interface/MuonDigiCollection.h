@@ -12,7 +12,6 @@
 #include <vector>
 #include <map>
 #include <iterator>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /**
  * \class DigiContainerIteratorAdaptor MuonDigiCollection.h "/MuonDigiCollection.h"

@@ -17,6 +17,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <tbb/concurrent_vector.h>
+#include <tbb/concurrent_unordered_map.h>
 
 template class DDI::Singleton<AxesNames>;
 template class DDI::Singleton<DDRoot>;
@@ -31,6 +33,7 @@ template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDI::Solid> > >
 template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<double> > >;
 template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDRotationMatrix> > >;
 template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDI::Division>, std::unique_ptr<DDI::Division> > >;
-template class DDI::Singleton<std::map<std::pair<std::string, std::string>, int> >;
-template class DDI::Singleton<std::map<std::string, std::vector<DDName> > >;
-template class DDI::Singleton<std::vector<std::map<std::pair<std::string, std::string>, int>::const_iterator> >;
+template class DDI::Singleton<std::map<std::string, std::vector<DDName> > >;  //Used internally by DDLogicalPart
+//The following are used by DDName
+template class DDI::Singleton<DDName::Registry>;
+template class DDI::Singleton<DDName::IdToName>;

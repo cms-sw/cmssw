@@ -138,7 +138,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   HepMC::GenVertex* vertex1 = nullptr;
   HepMC::GenVertex* vertex2 = nullptr;
-  if (parton1 == nullptr and parton2 == nullptr) {
+  if (parton1 == nullptr || parton2 == nullptr) {
     // Particle gun samples do not have incident partons. Put dummy incident particle and prod vertex
     // Note: leave parton1 and parton2 as nullptr since it is not used anymore after creating hepmc_parton1 and 2
     const reco::Candidate::LorentzVector nullP4(0, 0, 0, 0);

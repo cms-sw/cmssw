@@ -1,8 +1,8 @@
 #ifndef TRACKINGOBJECTS_PIXELDIGISIMLINK_H
 #define TRACKINGOBJECTS_PIXELDIGISIMLINK_H
 
-#include "boost/cstdint.hpp"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include <cstdint>
 
 //typedef std::pair<unsigned int ,unsigned int > PixelDigiSimLink;
 class PixelDigiSimLink {

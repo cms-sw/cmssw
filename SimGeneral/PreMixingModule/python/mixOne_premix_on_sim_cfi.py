@@ -202,12 +202,12 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 phase2_common.toModify(mixData, input = dict(producers = [])) # we use digis directly, no need for raw2digi producers
 
 # Tracker
@@ -225,7 +225,8 @@ phase2_tracker.toModify(mixData,
             pixelPileInputTag = cms.InputTag("simSiPixelDigis:Pixel"),
             trackerLabelSig = cms.InputTag("simSiPixelDigis:Tracker"),
             trackerPileInputTag = cms.InputTag("simSiPixelDigis:Tracker"),
-            premixStage1ElectronPerAdc = cms.double(_phase2TrackerPremixStage1ModifyDict["PixelDigitizerAlgorithm"]["ElectronPerAdc"])
+            pixelPmxStage1ElectronPerAdc = cms.double(phase2TrackerDigitizer.PixelDigitizerAlgorithm.ElectronPerAdc.value()),
+            trackerPmxStage1ElectronPerAdc = cms.double(phase2TrackerDigitizer.PSPDigitizerAlgorithm.ElectronPerAdc.value())
         ),
         pixelSimLink = dict(
             labelSig = "simSiPixelDigis:Pixel",
@@ -241,7 +242,7 @@ phase2_tracker.toModify(mixData,
 )
 
 # MTD
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(mixData,
+phase2_timing_layer.toModify(mixData,
     workers = dict(
         mtdBarrel = cms.PSet(
             mtdDigitizer.barrelDigitizer,
@@ -302,9 +303,8 @@ phase2_hfnose.toModify(mixData,
     )
 )
 
-
 # Muon
-phase2_muon.toModify(mixData,
+(phase2_muon & ~phase2_GE0).toModify(mixData,
     workers = dict(
         me0 = cms.PSet(
             workerType = cms.string("PreMixingCrossingFramePSimHitWorker"),
@@ -314,3 +314,4 @@ phase2_muon.toModify(mixData,
         ),
     )
 )
+

@@ -5,7 +5,7 @@
   <Constant name="zCaloFront" value="2500.0*cm"/>
 </ConstantsSection>
 
-<SolidSection label="cms.xml">
+<SolidSection label="cms.xml" eval="true">
   <Tubs name="OCMS" rMin="0.0*fm" rMax="2.0*m" dz="45.0*m" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="CMSE" rMin="0.0*fm" rMax="2.0*m" dz="45.0*m" startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>

@@ -33,6 +33,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
@@ -40,6 +41,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <memory>
 #include <string>
@@ -70,7 +72,8 @@ namespace edm {
 
   class Event : public EventBase {
   public:
-    Event(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const*);
+    Event(EventTransitionInfo const&, ModuleDescription const&, ModuleCallingContext const*);
+    Event(EventPrincipal const&, ModuleDescription const&, ModuleCallingContext const*);
     ~Event() override;
 
     //Used in conjunction with EDGetToken
@@ -94,7 +97,12 @@ namespace edm {
     ///\return The id for the particular Stream processing the Event
     StreamID streamID() const { return streamID_; }
 
-    LuminosityBlock const& getLuminosityBlock() const { return *luminosityBlock_; }
+    LuminosityBlock const& getLuminosityBlock() const {
+      if (not luminosityBlock_) {
+        fillLuminosityBlock();
+      }
+      return *luminosityBlock_;
+    }
 
     Run const& getRun() const;
 
@@ -211,9 +219,13 @@ namespace edm {
     template <typename ELEMENT>
     Handle<View<ELEMENT>> fillView_(BasicHandle& bh) const;
 
-    Provenance getProvenance(BranchID const& theID) const;
+    Provenance const& getProvenance(BranchID const& theID) const;
 
-    Provenance getProvenance(ProductID const& theID) const;
+    Provenance const& getProvenance(ProductID const& theID) const;
+
+    StableProvenance const& getStableProvenance(BranchID const& theID) const;
+
+    StableProvenance const& getStableProvenance(ProductID const& theID) const;
 
     // Get the provenance for all products that may be in the event
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;
@@ -254,6 +266,8 @@ namespace edm {
     friend class ::testEvent;
 
     EventPrincipal const& eventPrincipal() const;
+
+    void fillLuminosityBlock() const;
 
     ProductID makeProductID(BranchDescription const& desc) const;
 
@@ -298,15 +312,17 @@ namespace edm {
     ProductPtrVec putProducts_;
 
     EventAuxiliary const& aux_;
-    std::shared_ptr<LuminosityBlock const> const luminosityBlock_;
+    // measurable performance gain by only creating LuminosityBlock when needed
+    // mutables are allowed in this case because edm::Event is only accessed by one thread
+    CMS_SA_ALLOW mutable std::optional<LuminosityBlock> luminosityBlock_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
     // which do not logically modify the PrincipalGetAdapter. gotBranchIDs_ is
     // merely a cache reflecting what has been retrieved from the
     // Principal class.
     typedef std::unordered_set<BranchID::value_type> BranchIDSet;
-    mutable BranchIDSet gotBranchIDs_;
-    mutable std::vector<bool> gotBranchIDsFromPrevious_;
+    CMS_SA_ALLOW mutable BranchIDSet gotBranchIDs_;
+    CMS_SA_ALLOW mutable std::vector<bool> gotBranchIDsFromPrevious_;
     std::vector<BranchID>* previousBranchIDs_ = nullptr;
     std::vector<BranchID>* gotBranchIDsFromAcquire_ = nullptr;
 
@@ -314,7 +330,7 @@ namespace edm {
     void addToGotBranchIDs(BranchID const& branchID) const;
 
     // We own the retrieved Views, and have to destroy them.
-    mutable std::vector<std::shared_ptr<ViewBase>> gotViews_;
+    CMS_SA_ALLOW mutable std::vector<std::shared_ptr<ViewBase>> gotViews_;
 
     StreamID streamID_;
     ModuleCallingContext const* moduleCallingContext_;
@@ -382,7 +398,7 @@ namespace edm {
 
   template <typename PROD>
   OrphanHandle<PROD> Event::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
     }
@@ -394,7 +410,7 @@ namespace edm {
 
   template <typename PROD>
   OrphanHandle<PROD> Event::put(EDPutToken token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
     }
@@ -481,8 +497,9 @@ namespace edm {
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag, moduleCallingContext_);
     result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
-    if
-      UNLIKELY(result.failedToGet()) { return false; }
+    if UNLIKELY (result.failedToGet()) {
+      return false;
+    }
     addToGotBranchIDs(*result.provenance());
     return true;
   }
@@ -493,8 +510,9 @@ namespace edm {
     BasicHandle bh = provRecorder_.getByLabel_(
         TypeID(typeid(PROD)), label, productInstanceName, emptyString_, moduleCallingContext_);
     result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
-    if
-      UNLIKELY(result.failedToGet()) { return false; }
+    if UNLIKELY (result.failedToGet()) {
+      return false;
+    }
     addToGotBranchIDs(*result.provenance());
     return true;
   }
@@ -518,8 +536,9 @@ namespace edm {
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     result = convert_handle<PROD>(std::move(bh));  // throws on conversion error
-    if
-      UNLIKELY(result.failedToGet()) { return false; }
+    if UNLIKELY (result.failedToGet()) {
+      return false;
+    }
     addToGotBranchIDs(*result.provenance());
     return true;
   }
@@ -529,8 +548,9 @@ namespace edm {
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     result = convert_handle<PROD>(std::move(bh));
-    if
-      UNLIKELY(result.failedToGet()) { return false; }
+    if UNLIKELY (result.failedToGet()) {
+      return false;
+    }
     addToGotBranchIDs(*result.provenance());
     return true;
   }
@@ -539,8 +559,9 @@ namespace edm {
   Handle<PROD> Event::getHandle(EDGetTokenT<PROD> token) const {
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     auto result = convert_handle<PROD>(std::move(bh));
-    if
-      LIKELY(not result.failedToGet()) { addToGotBranchIDs(*result.provenance()); }
+    if LIKELY (not result.failedToGet()) {
+      addToGotBranchIDs(*result.provenance());
+    }
     return result;
   }
 
@@ -548,8 +569,9 @@ namespace edm {
   PROD const& Event::get(EDGetTokenT<PROD> token) const noexcept(false) {
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     auto result = convert_handle<PROD>(std::move(bh));
-    if
-      LIKELY(not result.failedToGet()) { addToGotBranchIDs(*result.provenance()); }
+    if LIKELY (not result.failedToGet()) {
+      addToGotBranchIDs(*result.provenance());
+    }
     return *result;
   }
 
@@ -557,12 +579,11 @@ namespace edm {
   bool Event::getByLabel(InputTag const& tag, Handle<View<ELEMENT>>& result) const {
     result.clear();
     BasicHandle bh = provRecorder_.getMatchingSequenceByLabel_(TypeID(typeid(ELEMENT)), tag, moduleCallingContext_);
-    if
-      UNLIKELY(bh.failedToGet()) {
-        Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
-        h.swap(result);
-        return false;
-      }
+    if UNLIKELY (bh.failedToGet()) {
+      Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
+      h.swap(result);
+      return false;
+    }
     result = fillView_<ELEMENT>(bh);
     return true;
   }
@@ -574,12 +595,11 @@ namespace edm {
     result.clear();
     BasicHandle bh = provRecorder_.getMatchingSequenceByLabel_(
         TypeID(typeid(ELEMENT)), moduleLabel, productInstanceName, emptyString_, moduleCallingContext_);
-    if
-      UNLIKELY(bh.failedToGet()) {
-        Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
-        h.swap(result);
-        return false;
-      }
+    if UNLIKELY (bh.failedToGet()) {
+      Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
+      h.swap(result);
+      return false;
+    }
     result = fillView_<ELEMENT>(bh);
     return true;
   }
@@ -593,12 +613,11 @@ namespace edm {
   bool Event::getByToken(EDGetToken token, Handle<View<ELEMENT>>& result) const {
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)), ELEMENT_TYPE, token, moduleCallingContext_);
-    if
-      UNLIKELY(bh.failedToGet()) {
-        Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
-        h.swap(result);
-        return false;
-      }
+    if UNLIKELY (bh.failedToGet()) {
+      Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
+      h.swap(result);
+      return false;
+    }
     result = fillView_<ELEMENT>(bh);
     return true;
   }
@@ -607,12 +626,11 @@ namespace edm {
   bool Event::getByToken(EDGetTokenT<View<ELEMENT>> token, Handle<View<ELEMENT>>& result) const {
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)), ELEMENT_TYPE, token, moduleCallingContext_);
-    if
-      UNLIKELY(bh.failedToGet()) {
-        Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
-        h.swap(result);
-        return false;
-      }
+    if UNLIKELY (bh.failedToGet()) {
+      Handle<View<ELEMENT>> h(std::move(bh.whyFailedFactory()));
+      h.swap(result);
+      return false;
+    }
     result = fillView_<ELEMENT>(bh);
     return true;
   }
@@ -620,19 +638,18 @@ namespace edm {
   template <typename ELEMENT>
   Handle<View<ELEMENT>> Event::getHandle(EDGetTokenT<View<ELEMENT>> token) const {
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)), ELEMENT_TYPE, token, moduleCallingContext_);
-    if
-      UNLIKELY(bh.failedToGet()) {
-        return Handle<View<ELEMENT>>(std::move(bh.whyFailedFactory()));
-        ;
-      }
+    if UNLIKELY (bh.failedToGet()) {
+      return Handle<View<ELEMENT>>(std::move(bh.whyFailedFactory()));
+    }
     return fillView_<ELEMENT>(bh);
   }
 
   template <typename ELEMENT>
   View<ELEMENT> const& Event::get(EDGetTokenT<View<ELEMENT>> token) const noexcept(false) {
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)), ELEMENT_TYPE, token, moduleCallingContext_);
-    if
-      UNLIKELY(bh.failedToGet()) { bh.whyFailedFactory()->make()->raise(); }
+    if UNLIKELY (bh.failedToGet()) {
+      bh.whyFailedFactory()->make()->raise();
+    }
     return *fillView_<ELEMENT>(bh);
   }
 

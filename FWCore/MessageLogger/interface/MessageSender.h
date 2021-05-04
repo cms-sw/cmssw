@@ -1,24 +1,12 @@
 #ifndef FWCore_MessageLogger_MessageSender_h
 #define FWCore_MessageLogger_MessageSender_h
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
 #include <memory>
 
 #include <map>
-
-// Change log
-//
-//  1  mf 8/25/08	error summary information for LoggedErrorsSummary()
-//
-//  2  mf 6/22/09	add severity to LoggedErrorsSummary by using
-//			ErrorSummaryEntry as map key
-//
-//  3 wmtan 6/22/11     Hold the ErrorObj with a shared pointer with a custom deleter.
-//                      The custom deleter takes over the function of the message sending from the MessageSender destructor.
-//                      This allows MessageSender to be copyable, which fixes the clang compilation errors.
 
 namespace edm {
 
@@ -30,8 +18,15 @@ namespace edm {
 
   public:
     // ---  birth/death:
-    MessageSender() : errorobj_p() {}
-    MessageSender(ELseverityLevel const& sev, ELstring const& id, bool verbatim = false, bool suppressed = false);
+    MessageSender() = default;
+    MessageSender(messagelogger::ELseverityLevel const& sev,
+                  std::string_view id,
+                  bool verbatim = false,
+                  bool suppressed = false);
+    MessageSender(MessageSender&&) = default;
+    MessageSender(MessageSender const&) = default;
+    MessageSender& operator=(MessageSender&&) = default;
+    MessageSender& operator=(MessageSender const&) = default;
     ~MessageSender();
 
     // ---  stream out the next part of a message:
@@ -42,7 +37,14 @@ namespace edm {
       return *this;
     }
 
-    bool valid() { return errorobj_p != nullptr; }
+    template <typename... Args>
+    MessageSender& format(std::string_view fmt, Args const&... args) {
+      if (valid())
+        errorobj_p->format(fmt, args...);
+      return *this;
+    }
+
+    bool valid() const noexcept { return errorobj_p != nullptr; }
 
   private:
     // data:

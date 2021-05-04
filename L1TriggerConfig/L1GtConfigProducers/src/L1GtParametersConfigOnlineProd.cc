@@ -178,7 +178,7 @@ std::unique_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(const 
   // get the mapping of boards to active bits
 
   // active boards in the L1 DAQ record & number of BXs per board
-  boost::uint16_t daqActiveBoardsVal = 0;
+  uint16_t daqActiveBoardsVal = 0;
 
   int daqActiveBoardsLength = 16;  // ...hard...
   std::vector<int> daqNrBxBoard(daqActiveBoardsLength, 0);
@@ -245,7 +245,7 @@ std::unique_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(const 
   //daqNrBxBoard.at(iActiveBit) = boost::lexical_cast<int>(daqNrBxBoardStrTIM);
 
   // active boards in the L1 EVM record
-  boost::uint16_t evmActiveBoardsVal = 0;
+  uint16_t evmActiveBoardsVal = 0;
 
   int evmActiveBoardsLength = 16;  // ...hard...
   std::vector<int> evmNrBxBoard(evmActiveBoardsLength, 0);

@@ -26,7 +26,7 @@ namespace {
     //return std::make_pair(true,"");
     std::string status, aName, aNs;
     bool emptyNs = false;
-    if (ns == "")
+    if (ns.empty())
       emptyNs = true;
 
     aName = "^" + nm + "$";

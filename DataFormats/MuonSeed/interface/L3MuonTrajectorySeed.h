@@ -15,8 +15,6 @@
 
 class L3MuonTrajectorySeed : public TrajectorySeed {
 public:
-  typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
-
   /// Default constructor
   L3MuonTrajectorySeed() {}
 

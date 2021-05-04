@@ -30,8 +30,6 @@
 //---------------
 // C++ Headers --
 //---------------
-#include <iostream>
-
 using namespace std;
 
 //-------------------
@@ -42,10 +40,24 @@ using namespace std;
 // Constructors --
 //----------------
 BPHDecayVertex::BPHDecayVertex(const edm::EventSetup* es)
-    : evSetup(es), oldTracks(true), oldVertex(true), validTks(false) {}
+    : evSetup(es),
+      oldTracks(true),
+      oldVertex(true),
+      validTks(false),
+      savedFitter(nullptr),
+      savedBS(nullptr),
+      savedPP(nullptr),
+      savedPE(nullptr) {}
 
 BPHDecayVertex::BPHDecayVertex(const BPHDecayVertex* ptr, const edm::EventSetup* es)
-    : evSetup(es), oldTracks(true), oldVertex(true), validTks(false) {
+    : evSetup(es),
+      oldTracks(true),
+      oldVertex(true),
+      validTks(false),
+      savedFitter(nullptr),
+      savedBS(nullptr),
+      savedPP(nullptr),
+      savedPE(nullptr) {
   map<const reco::Candidate*, const reco::Candidate*> iMap;
   const vector<const reco::Candidate*>& daug = daughters();
   const vector<Component>& list = ptr->componentList();
@@ -77,20 +89,34 @@ BPHDecayVertex::~BPHDecayVertex() {}
 // Operations --
 //--------------
 bool BPHDecayVertex::validTracks() const {
-  if (oldVertex)
-    fitVertex();
+  if (oldTracks)
+    tTracks();
   return validTks;
 }
 
 bool BPHDecayVertex::validVertex() const {
-  if (oldVertex)
-    fitVertex();
+  vertex();
   return validTks && fittedVertex.isValid();
 }
 
-const reco::Vertex& BPHDecayVertex::vertex() const {
-  if (oldVertex)
-    fitVertex();
+const reco::Vertex& BPHDecayVertex::vertex(VertexFitter<5>* fitter,
+                                           const reco::BeamSpot* bs,
+                                           const GlobalPoint* priorPos,
+                                           const GlobalError* priorError) const {
+  if ((fitter == nullptr) && (bs == nullptr) && (priorPos == nullptr) && (priorError == nullptr)) {
+    fitter = savedFitter;
+    bs = savedBS;
+    priorPos = savedPP;
+    priorError = savedPE;
+  }
+  if (oldVertex || (fitter != savedFitter) || (bs != savedBS) || (priorPos != savedPP) || (priorError != savedPE)) {
+    if (fitter != nullptr) {
+      fitVertex(fitter, bs, priorPos, priorError);
+    } else {
+      KalmanVertexFitter kvf(true);
+      fitVertex(&kvf, bs, priorPos, priorError);
+    }
+  }
   return fittedVertex;
 }
 
@@ -121,6 +147,9 @@ reco::TransientTrack* BPHDecayVertex::getTransientTrack(const reco::Candidate* c
   map<const reco::Candidate*, reco::TransientTrack*>::const_iterator iend = ttMap.end();
   return (iter != iend ? iter->second : nullptr);
 }
+
+/// retrieve EventSetup
+const edm::EventSetup* BPHDecayVertex::getEventSetup() const { return evSetup; }
 
 const string& BPHDecayVertex::getTrackSearchList(const reco::Candidate* cand) const {
   static string dum = "";
@@ -173,7 +202,7 @@ void BPHDecayVertex::tTracks() const {
     map<const reco::Candidate*, string>::const_iterator iter = searchMap.find(rp);
     if (iter != searchMap.end())
       searchList = iter->second.c_str();
-    tp = BPHTrackReference::getTrack(*rp, searchList);
+    tp = BPHTrackReference::getTrack(*originalReco(rp), searchList);
     if (tp == nullptr) {
       edm::LogPrint("DataNotFound") << "BPHDecayVertex::tTracks: "
                                     << "no track for reco::(PF)Candidate";
@@ -189,14 +218,42 @@ void BPHDecayVertex::tTracks() const {
   return;
 }
 
-void BPHDecayVertex::fitVertex() const {
+void BPHDecayVertex::fitVertex(VertexFitter<5>* fitter,
+                               const reco::BeamSpot* bs,
+                               const GlobalPoint* priorPos,
+                               const GlobalError* priorError) const {
   oldVertex = false;
+  savedFitter = fitter;
+  savedBS = bs;
+  savedPP = priorPos;
+  savedPE = priorError;
   if (oldTracks)
     tTracks();
   if (trTracks.size() < 2)
     return;
-  KalmanVertexFitter kvf(true);
-  TransientVertex tv = kvf.vertex(trTracks);
-  fittedVertex = tv;
+  try {
+    if (bs == nullptr) {
+      if (priorPos == nullptr) {
+        TransientVertex tv = fitter->vertex(trTracks);
+        fittedVertex = tv;
+      } else {
+        if (priorError == nullptr) {
+          TransientVertex tv = fitter->vertex(trTracks, *priorPos);
+          fittedVertex = tv;
+        } else {
+          TransientVertex tv = fitter->vertex(trTracks, *priorPos, *priorError);
+          fittedVertex = tv;
+        }
+      }
+    } else {
+      TransientVertex tv = fitter->vertex(trTracks, *bs);
+      fittedVertex = tv;
+    }
+  } catch (std::exception const&) {
+    reco::Vertex tv;
+    fittedVertex = tv;
+    edm::LogPrint("FitFailed") << "BPHDecayVertex::fitVertex: "
+                               << "vertex fit failed";
+  }
   return;
 }

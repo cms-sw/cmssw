@@ -9,7 +9,7 @@
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 // Declare histograms for debugging purposes
-#include "CalibMuon/DTCalibration/interface/Histogram.h"
+//#include "CalibMuon/DTCalibration/interface/Histogram.h"
 
 #include <map>
 #include <iostream>
@@ -43,7 +43,8 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits,
                const DTSuperLayer& isl,
                GlobalVector dir,
                GlobalPoint pos,
-               const DTTTrigBaseSync& sync)
+               const DTTTrigBaseSync& sync,
+               dtcalibration::Histograms& hist)
     : theInfoLayers(4, (InfoLayer*)nullptr),  //FIXME
       theTMaxes(4, (TMax*)nullptr) {
   // debug parameter for verbose output
@@ -152,19 +153,19 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits,
       if (type == "LRL" || type == "RLR") {
         t0Factor = 2;
         t = (t1 + t3) / 2. + t2;
-        hT123LRL->Fill(t);
+        hist.hT123LRL->Fill(t);
       } else if ((type == "LLR" && theSegDir == R) || (type == "RRL" && theSegDir == L)) {
         t0Factor = 1;
         t = (t3 - t1) / 2. + t2;
-        hT123LLR->Fill(t);
+        hist.hT123LLR->Fill(t);
       } else if ((type == "LRR" && theSegDir == R) || (type == "RLL" && theSegDir == L)) {
         t0Factor = 1;
         t = (t1 - t3) / 2. + t2;
-        hT123LRR->Fill(t);
+        hist.hT123LRR->Fill(t);
       } else {
         t = -1.;
         sigma = noR;
-        hT123Bad->Fill(t);
+        hist.hT123Bad->Fill(t);
       }
       theTMaxes[cGroup] = new TMax(t, cGroup, type, sigma, t0Factor, hSubGroup);
       if (debug)
@@ -178,43 +179,43 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits,
       if ((theSegType == "LRLR" && type == "LRR" && x1 > x4) || (theSegType == "RLRL" && type == "RLL" && x1 < x4)) {
         t0Factor = 2;
         t = 1.5 * t2 + t1 - t4 / 2.;
-        hT124LRR1gt4->Fill(t);
+        hist.hT124LRR1gt4->Fill(t);
       } else if ((type == "LLR" && theSegDir == R && (fabs(x2 - x4) < delta) && x1 < x2) ||
                  (type == "RRL" && theSegDir == L && (fabs(x2 - x4) < delta) && x1 > x2)) {
         t0Factor = 1;
         t = 1.5 * t2 - t1 + t4 / 2.;
-        hT124LLR->Fill(t);
+        hist.hT124LLR->Fill(t);
       } else if ((type == "LLL" && theSegDir == R && (fabs(x2 - x4) < delta) && x1 < x2) ||
                  (type == "RRR" && theSegDir == L && (fabs(x2 - x4) < delta) && x1 > x2)) {
         t0Factor = 0;
         t = 1.5 * t2 - t1 - t4 / 2.;
-        hT124LLLR->Fill(t);
+        hist.hT124LLLR->Fill(t);
       } else if ((type == "LLL" && theSegDir == L && (fabs(x2 - x4) < delta)) ||
                  (type == "RRR" && theSegDir == R && (fabs(x2 - x4) < delta))) {
         t0Factor = 0;
         t = -1.5 * t2 + t1 + t4 / 2.;
-        hT124LLLL->Fill(t);
+        hist.hT124LLLL->Fill(t);
       } else if ((type == "LRL" && theSegDir == L && (fabs(x2 - x4) < delta)) ||
                  (type == "RLR" && theSegDir == R && (fabs(x2 - x4) < delta))) {
         t0Factor = 3;
         t = 1.5 * t2 + t1 + t4 / 2.;
-        hT124LRLL->Fill(t);
+        hist.hT124LRLL->Fill(t);
       } else if ((type == "LRL" && theSegDir == R && (fabs(x1 - x4) < (halfCell + delta))) ||
                  (type == "RLR" && theSegDir == L && (fabs(x1 - x4) < (halfCell + delta)))) {
         t0Factor = 99;  // it's actually 1.5, but this value it's not used
         t = 3. / 4. * t2 + t1 / 2. + t4 / 4.;
         sigma = r78;
-        hT124LRLR->Fill(t);
+        hist.hT124LRLR->Fill(t);
       } else if ((type == "LRR" && theSegDir == R && x1 < x4 && (fabs(x1 - x4) < (halfCell + delta))) ||
                  (type == "RLL" && theSegDir == L && x1 > x4 && (fabs(x1 - x4) < (halfCell + delta)))) {
         t0Factor = 1;
         t = 3. / 4. * t2 + t1 / 2. - t4 / 4.;
         sigma = r78;
-        hT124LRR1lt4->Fill(t);
+        hist.hT124LRR1lt4->Fill(t);
       } else {
         t = -1.;
         sigma = noR;
-        hT124Bad->Fill(t);
+        hist.hT124Bad->Fill(t);
       }
       theTMaxes[cGroup] = new TMax(t, cGroup, type, sigma, t0Factor, hSubGroup);
       if (debug)
@@ -228,43 +229,43 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits,
       if ((type == "LLR" && x1 > x4 && theSegType == "LRLR") || (type == "RRL" && x1 < x4 && theSegType == "RLRL")) {
         t0Factor = 2;
         t = 1.5 * t3 + t4 - t1 / 2.;
-        hT134LLR1gt4->Fill(t);
+        hist.hT134LLR1gt4->Fill(t);
       } else if ((type == "LLR" && x1 < x4 && (fabs(x1 - x4) < (halfCell + delta))) ||
                  (type == "RRL" && x1 > x4 && (fabs(x1 - x4) < (halfCell + delta)))) {
         t0Factor = 1;
         t = 3. / 4. * t3 + t4 / 2. - t1 / 4.;
         sigma = r78;
-        hT134LLR1lt4->Fill(t);
+        hist.hT134LLR1lt4->Fill(t);
       } else if ((type == "LRR" && theSegDir == R && x1 < x4 && (fabs(x1 - x3) < delta)) ||
                  (type == "RLL" && theSegDir == L && x1 > x4 && (fabs(x1 - x3) < delta))) {
         t0Factor = 1;
         t = 1.5 * t3 - t4 + t1 / 2.;
-        hT134LRR->Fill(t);
+        hist.hT134LRR->Fill(t);
       } else if ((type == "LRL" && theSegDir == R && (fabs(x1 - x3) < delta)) ||
                  (type == "RLR" && theSegDir == L && (fabs(x1 - x3) < delta))) {
         t0Factor = 3;
         t = 1.5 * t3 + t4 + t1 / 2.;
-        hT134LRLR->Fill(t);
+        hist.hT134LRLR->Fill(t);
       } else if ((type == "LRL" && theSegDir == L && (fabs(x1 - x3) < (2. * halfCell + delta))) ||
                  (type == "RLR" && theSegDir == R && (fabs(x1 - x3) < (2. * halfCell + delta)))) {
         t0Factor = 99;  // it's actually 1.5, but this value it's not used
         t = 3. / 4. * t3 + t4 / 2. + t1 / 4.;
         sigma = r78;
-        hT134LRLL->Fill(t);
+        hist.hT134LRLL->Fill(t);
       } else if ((type == "LLL" && theSegDir == L && x1 > x4 && (fabs(x1 - x3) < delta)) ||
                  (type == "RRR" && theSegDir == R && x1 < x4 && (fabs(x1 - x3) < delta))) {
         t0Factor = 0;
         t = 1.5 * t3 - t4 - t1 / 2.;
-        hT134LLLL->Fill(t);
+        hist.hT134LLLL->Fill(t);
       } else if ((type == "LLL" && theSegDir == R && (fabs(x1 - x3) < delta)) ||
                  (type == "RRR" && theSegDir == L && (fabs(x1 - x3) < delta))) {
         t0Factor = 0;
         t = -1.5 * t3 + t4 + t1 / 2.;
-        hT134LLLR->Fill(t);
+        hist.hT134LLLR->Fill(t);
       } else {
         t = -1;
         sigma = noR;
-        hT134Bad->Fill(t);
+        hist.hT134Bad->Fill(t);
       }
       theTMaxes[cGroup] = new TMax(t, cGroup, type, sigma, t0Factor, hSubGroup);
       if (debug)
@@ -278,19 +279,19 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits,
       if ((type == "LRL") || (type == "RLR")) {
         t0Factor = 2;
         t = (t2 + t4) / 2. + t3;
-        hT234LRL->Fill(t);
+        hist.hT234LRL->Fill(t);
       } else if ((type == "LRR" && theSegDir == R) || (type == "RLL" && theSegDir == L)) {
         t0Factor = 1;
         t = (t2 - t4) / 2. + t3;
-        hT234LRR->Fill(t);
+        hist.hT234LRR->Fill(t);
       } else if ((type == "LLR" && theSegDir == R) || (type == "RRL" && theSegDir == L)) {
         t0Factor = 1;
         t = (t4 - t2) / 2. + t3;
-        hT234LLR->Fill(t);
+        hist.hT234LLR->Fill(t);
       } else {
         t = -1;
         sigma = noR;
-        hT234Bad->Fill(t);
+        hist.hT234Bad->Fill(t);
       }
       theTMaxes[cGroup] = new TMax(t, cGroup, type, sigma, t0Factor, hSubGroup);
       if (debug)

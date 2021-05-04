@@ -8,13 +8,10 @@
  */
 
 // Base Class Headers
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -26,7 +23,6 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 namespace edm {
   class ParameterSet;
@@ -41,7 +37,7 @@ class KFUpdator;
 class MeasurementEstimator;
 class HResolution1DRecHit;
 
-class MuonTrackResidualAnalyzer : public DQMEDAnalyzer {
+class MuonTrackResidualAnalyzer : public DQMOneEDAnalyzer<> {
 public:
   enum EtaRange { all, barrel, endcap };
 
@@ -57,7 +53,7 @@ public:
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endRun(edm::Run const &, edm::EventSetup const &) override;
+  void dqmEndRun(edm::Run const &, edm::EventSetup const &) override;
 
 protected:
 private:

@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CaloTest")
 process.load("Configuration.EventContent.EventContent_cff")
-
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-
 process.load("SimG4CMS.CherenkovAnalysis.testMuon_cfi")
-
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.maxEvents = cms.untracked.PSet(
@@ -50,37 +50,10 @@ process.VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
     TimeOffset = cms.double(0.0)
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout', 'errors'),
-    categories = cms.untracked.vstring('EcalSim', 
-        'G4cout', 
-        'G4cerr', 
-        'XtalDedxAnalysis'),
-    errors = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        XtalDedxAnalysis = cms.untracked.PSet(
-            limit = cms.untracked.int32(100)
-        )
-    ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        XtalDedxAnalysis = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    )
-)
+process.MessageLogger.cerr.FwkReport.reportEvery = 5
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.EcalSim=dict()
+    process.MessageLogger.CherenkovAnalysis=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -92,7 +65,7 @@ process.analyzer = cms.EDAnalyzer("XtalDedxAnalysis",
     EnergyMax = cms.double(200.0)
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.analyzer)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.analyzer)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
@@ -102,6 +75,7 @@ process.g4SimHits.ECalSD = cms.PSet(
     TestBeam = cms.untracked.bool(False),
     ReadBothSide = cms.untracked.bool(False),
     BirkL3Parametrization = cms.bool(False),
+    DD4Hep = cms.untracked.bool(False),
     doCherenkov = cms.bool(False),
     BirkCut = cms.double(0.1),
     BirkC1 = cms.double(0.0045),

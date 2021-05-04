@@ -7,7 +7,6 @@
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
-#include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
 namespace gen {

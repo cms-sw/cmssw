@@ -30,7 +30,6 @@
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -60,6 +59,7 @@ MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset)
   thePatternRecognition = new MuonSeedOrcaPatternRecognition(pset, iC);
 
   beamspotToken = consumes<reco::BeamSpot>(theBeamSpotTag);
+  magFieldToken = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
 // Destructor
@@ -74,8 +74,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   // create the pointer to the Seed container
   auto output = std::make_unique<TrajectorySeedCollection>();
 
-  edm::ESHandle<MagneticField> field;
-  eSetup.get<IdealMagneticFieldRecord>().get(field);
+  edm::ESHandle<MagneticField> field = eSetup.getHandle(magFieldToken);
   theSeedFinder->setBField(&*field);
 
   reco::BeamSpot beamSpot;

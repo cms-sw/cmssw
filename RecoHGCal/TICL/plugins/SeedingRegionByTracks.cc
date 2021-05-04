@@ -17,19 +17,26 @@ SeedingRegionByTracks::SeedingRegionByTracks(const edm::ParameterSet &conf, edm:
     : SeedingRegionAlgoBase(conf, sumes),
       tracks_token_(sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"))),
       cutTk_(conf.getParameter<std::string>("cutTk")),
-      propName_(conf.getParameter<std::string>("propagator")) {}
+      detector_(conf.getParameter<std::string>("detector")),
+      propName_(conf.getParameter<std::string>("propagator")),
+      bfield_token_(sumes.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
+      propagator_token_(sumes.esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", propName_))) {
+  std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
+  hdc_token_ = sumes.esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+      edm::ESInputTag("", detectorName_));
+}
 
 SeedingRegionByTracks::~SeedingRegionByTracks() {}
 
 void SeedingRegionByTracks::initialize(const edm::EventSetup &es) {
-  edm::ESHandle<HGCalDDDConstants> hdc;
-  es.get<IdealGeometryRecord>().get(detectorName_, hdc);
+  edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
   hgcons_ = hdc.product();
 
   buildFirstLayers();
 
-  es.get<IdealMagneticFieldRecord>().get(bfield_);
-  es.get<TrackingComponentsRecord>().get(propName_, propagator_);
+  bfield_ = es.getHandle(bfield_token_);
+  propagator_ = es.getHandle(propagator_token_);
 }
 
 void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
@@ -55,6 +62,20 @@ void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
       result.emplace_back(tsos.globalPosition(), tsos.globalMomentum(), iSide, i, trkId);
     }
   }
+  // sorting seeding region by descending momentum
+  std::sort(result.begin(), result.end(), [](const TICLSeedingRegion &a, const TICLSeedingRegion &b) {
+    return a.directionAtOrigin.perp2() > b.directionAtOrigin.perp2();
+  });
+}
+
+void SeedingRegionByTracks::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.add<std::string>("cutTk",
+                        "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
+                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
+  desc.add<std::string>("propagator", "PropagatorWithMaterial");
+  desc.add<std::string>("detector", "HGCAL");
+  SeedingRegionAlgoBase::fillPSetDescription(desc);
 }
 
 void SeedingRegionByTracks::buildFirstLayers() {

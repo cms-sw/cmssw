@@ -10,11 +10,11 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -49,9 +49,11 @@ namespace {
   private:
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelSrcToken_;
     edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> stripSrcToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
   };
 
-  SiPixelPhase1Clusters::SiPixelPhase1Clusters(const edm::ParameterSet& iConfig) : SiPixelPhase1Base(iConfig) {
+  SiPixelPhase1Clusters::SiPixelPhase1Clusters(const edm::ParameterSet& iConfig)
+      : SiPixelPhase1Base(iConfig), trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {
     pixelSrcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("pixelSrc"));
 
     stripSrcToken_ = consumes<edmNew::DetSetVector<SiStripCluster>>(iConfig.getParameter<edm::InputTag>("stripSrc"));
@@ -79,15 +81,13 @@ namespace {
 
     bool hasClusters = false;
 
-    edm::ESHandle<TrackerGeometry> tracker;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-    assert(tracker.isValid());
+    const TrackerGeometry& tracker = iSetup.getData(trackerGeometryToken_);
 
     edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
     for (it = inputPixel->begin(); it != inputPixel->end(); ++it) {
       auto id = DetId(it->detId());
 
-      const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(id));
+      const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker.idToDet(id));
       const PixelTopology& topol = theGeomDet->specificTopology();
 
       for (SiPixelCluster const& cluster : *it) {

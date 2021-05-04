@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-process = cms.Process('ctppsDQMfromAOD', ctpps_2016)
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
+process = cms.Process('ctppsDQMfromAOD', ctpps)
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
@@ -41,7 +41,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # geometry definition and reco modules
-process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
+process.load("RecoPPS.Configuration.recoCTPPS_cff")
 
 # CTPPS DQM modules
 process.load("DQM.CTPPS.ctppsDQM_cff")

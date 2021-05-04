@@ -1,71 +1,34 @@
 /*
  * Tests for loading graphs via the converted protobuf files.
- * Based on TensorFlow C++ API 1.3.
+ * Based on TensorFlow 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
  */
 
-#include <boost/filesystem.hpp>
-#include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
+#include <cppunit/extensions/HelperMacros.h>
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-std::string cmsswPath(std::string path) {
-  if (path.size() > 0 && path.substr(0, 1) != "/") {
-    path = "/" + path;
-  }
+#include "testBase.h"
 
-  std::string base = std::string(std::getenv("CMSSW_BASE"));
-  std::string releaseBase = std::string(std::getenv("CMSSW_RELEASE_BASE"));
-
-  return (boost::filesystem::exists(base.c_str()) ? base : releaseBase) + path;
-}
-
-class testGraphLoading : public CppUnit::TestFixture {
+class testGraphLoading : public testBase {
   CPPUNIT_TEST_SUITE(testGraphLoading);
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  std::string dataPath;
-
-  void setUp();
-  void tearDown();
-  void checkAll();
+  std::string pyScript() const override;
+  void checkAll() override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testGraphLoading);
 
-void testGraphLoading::setUp() {
-  dataPath = cmsswPath("/test/" + std::string(getenv("SCRAM_ARCH")) + "/" + boost::filesystem::unique_path().string());
-
-  // create the graph
-  std::string testPath = cmsswPath("/src/PhysicsTools/TensorFlow/test");
-  std::string cmd = "python " + testPath + "/createconstantgraph.py " + dataPath;
-  std::array<char, 128> buffer;
-  std::string result;
-  std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
-  if (!pipe) {
-    throw std::runtime_error("popen() failed!");
-  }
-  while (!feof(pipe.get())) {
-    if (fgets(buffer.data(), 128, pipe.get()) != NULL) {
-      result += buffer.data();
-    }
-  }
-  std::cout << std::endl << result << std::endl;
-}
-
-void testGraphLoading::tearDown() {
-  if (boost::filesystem::exists(dataPath)) {
-    boost::filesystem::remove_all(dataPath);
-  }
-}
+std::string testGraphLoading::pyScript() const { return "createconstantgraph.py"; }
 
 void testGraphLoading::checkAll() {
-  std::string pbFile = dataPath + "/constantgraph.pb";
+  std::string pbFile = dataPath_ + "/constantgraph.pb";
 
   // load the graph
   tensorflow::setLogging();
@@ -75,6 +38,9 @@ void testGraphLoading::checkAll() {
   // create a new session and add the graphDef
   tensorflow::Session* session = tensorflow::createSession(graphDef);
   CPPUNIT_ASSERT(session != nullptr);
+
+  // check for exception
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr), cms::Exception);
 
   // example evaluation
   tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});

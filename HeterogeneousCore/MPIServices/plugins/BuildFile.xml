@@ -1,0 +1,4 @@
+<use name="openmpi"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<flags EDM_PLUGIN="1"/>

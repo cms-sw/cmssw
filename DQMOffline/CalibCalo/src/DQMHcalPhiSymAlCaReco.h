@@ -13,12 +13,12 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-class DQMHcalPhiSymAlCaReco : public DQMEDAnalyzer {
+class DQMHcalPhiSymAlCaReco : public DQMOneEDAnalyzer<> {
 public:
   DQMHcalPhiSymAlCaReco(const edm::ParameterSet &);
   ~DQMHcalPhiSymAlCaReco() override;
@@ -28,7 +28,7 @@ protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
-  void endRun(const edm::Run &r, const edm::EventSetup &c) override;
+  void dqmEndRun(const edm::Run &r, const edm::EventSetup &c) override;
 
 private:
   int eventCounter_;

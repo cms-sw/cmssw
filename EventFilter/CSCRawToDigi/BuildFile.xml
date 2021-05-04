@@ -1,11 +1,9 @@
-<use   name="DataFormats/CSCDigi"/>
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="CondFormats/CSCObjects"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="DataFormats/L1CSCTrackFinder"/>
+<use name="DataFormats/GEMDigi"/>
+<use name="DataFormats/CSCDigi"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="CondFormats/CSCObjects"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -8,8 +8,6 @@ Marco A. Harrendorf
 #include <memory>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
 #include <HepMC/IO_BaseClass.h>
@@ -26,9 +24,13 @@ Marco A. Harrendorf
 namespace ThePEG {
 
   template <>
-  struct HepMCTraits<HepMC::GenEvent>
-      : public HepMCTraitsBase<HepMC::GenEvent, HepMC::GenParticle, HepMC::GenVertex, HepMC::Polarization, HepMC::PdfInfo> {
-  };
+  struct HepMCTraits<HepMC::GenEvent> : public HepMCTraitsBase<HepMC::GenEvent,
+                                                               HepMC::GenParticle,
+                                                               HepMC::GenParticle *,
+                                                               HepMC::GenVertex,
+                                                               HepMC::GenVertex *,
+                                                               HepMC::Polarization,
+                                                               HepMC::PdfInfo> {};
 
 }  // namespace ThePEG
 
@@ -70,7 +72,7 @@ protected:
   void createInputFile(const edm::ParameterSet &params);
 
 private:
-  boost::shared_ptr<ThePEG::RandomEngineGlue::Proxy> randomEngineGlueProxy_;
+  std::shared_ptr<ThePEG::RandomEngineGlue::Proxy> randomEngineGlueProxy_;
 
   const std::string dataLocation_;
   const std::string generator_;

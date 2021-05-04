@@ -45,7 +45,7 @@ for names changing more often than by run even in real data.
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <string>
-#include <map>
+#include <utility>
 #include <vector>
 
 namespace edm {
@@ -54,14 +54,22 @@ namespace edm {
 
   class TriggerNames {
   public:
-    typedef std::vector<std::string> Strings;
-    typedef std::map<std::string, unsigned int> IndexMap;
+    using IndexMap = std::vector<std::pair<std::string_view, unsigned int>>;
+    using Strings = std::vector<std::string>;
 
     // Users should not construct these.  Instead they should
     // get a reference to the current one from the Event. See
     // comments above.
-    TriggerNames();
-    TriggerNames(edm::ParameterSet const& pset);
+    TriggerNames() = default;
+    explicit TriggerNames(edm::ParameterSet const& pset);
+
+    TriggerNames(TriggerNames const&);
+    TriggerNames(TriggerNames&&) = default;
+    TriggerNames& operator=(TriggerNames const&);
+    TriggerNames& operator=(TriggerNames&&) = default;
+
+    // called as part of reading back object from ROOT storage
+    void initializeTriggerIndex();
 
     Strings const& triggerNames() const;
 
@@ -70,10 +78,10 @@ namespace edm {
 
     // If the input name is not known, this returns a value
     // equal to the size.
-    unsigned int triggerIndex(std::string const& name) const;
+    unsigned int triggerIndex(std::string_view name) const;
 
     // The number of trigger names.
-    Strings::size_type size() const;
+    std::size_t size() const;
 
     // Can be used to quickly compare two TriggerNames objects
     // to see whether or not they contain the same names.

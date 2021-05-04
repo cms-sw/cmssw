@@ -105,8 +105,6 @@ L1TCSCTF::~L1TCSCTF() {
         delete srLUTs_[i][j][s];  //free the array of pointers
 }
 
-void L1TCSCTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 void L1TCSCTF::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   m_scalesCacheID = -999;
   m_ptScaleCacheID = -999;

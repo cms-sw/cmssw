@@ -1,0 +1,8 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/RPCGeometry"/>
+<library name="RPCGeometryBuilderTest" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>
+

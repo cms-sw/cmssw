@@ -11,6 +11,7 @@
 //
 
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveStraightLineSet.h"
 #include "TGeoArb8.h"
 

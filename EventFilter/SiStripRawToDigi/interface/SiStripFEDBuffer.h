@@ -1,7 +1,6 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripFEDBuffer_H
 #define EventFilter_SiStripRawToDigi_SiStripFEDBuffer_H
 
-#include "boost/cstdint.hpp"
 #include <string>
 #include <vector>
 #include <memory>
@@ -9,8 +8,10 @@
 #include <cstring>
 #include <cmath>
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include <cstdint>
 
 namespace sistrip {
   constexpr uint16_t BITS_PER_BYTE = 8;
@@ -22,10 +23,36 @@ namespace sistrip {
   //class representing standard (non-spy channel) FED buffers
   class FEDBuffer final : public FEDBufferBase {
   public:
-    //construct from buffer
-    //if allowBadBuffer is set to true then exceptions will not be thrown if the channel lengths do not make sense or the event format is not recognized
-    FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer = false);
-    ~FEDBuffer() override;
+    /**
+     * constructor from a FEDRawData buffer
+     *
+     * The sistrip::preconstructCheckFEDBuffer() method should be used
+     * (with the same value of allowBadBuffer) to check the validity of
+     * fedBuffer before constructing a sistrip::FEDBuffer.
+     * If allowBadBuffer is set to true, the initialization proceeds
+     * even if the event format is not recognized.
+     * To initialize also the channel information, the FEDBuffer::findChannels()
+     * method should be called as well, and its return status checked
+     * (unless bad buffers, with an unrecognized event format or channel lengths
+     * that do not make sense, should also be included).
+     *
+     * @see sistrip::preconstructCheckFEDBuffer() sistrip::FEDBuffer::findChannels()
+     */
+    explicit FEDBuffer(const FEDRawData& fedBuffer, const bool allowBadBuffer = false);
+    ~FEDBuffer() override {}
+
+    /**
+     * Read the channel lengths from the payload
+     *
+     * This method should be called to after the constructor
+     * (and should not be called more than once for the same sistrip::FEDBuffer).
+     * In case any check fails, a value different from sistrip::FEDBufferStatusCode::SUCCESS
+     * is returned, and detailed information printed to LogDebug("FEDBuffer"), if relevant.
+     *
+     * @see sistrip::FEDBuffer::FEDBuffer()
+     */
+    FEDBufferStatusCode findChannels();
+
     void print(std::ostream& os) const override;
     const FEDFEHeader* feHeader() const;
     //check that a FE unit is enabled, has a good majority address and, if in full debug mode, that it is present
@@ -37,13 +64,13 @@ namespace sistrip {
     bool fePresent(uint8_t internalFEUnitNum) const;
     //check that a channel is present in data, found, on a good FE unit and has no errors flagged in status bits
     using sistrip::FEDBufferBase::channelGood;
-    virtual bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck = true) const;
+    bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck) const;
     void setLegacyMode(bool legacy) { legacyUnpacker_ = legacy; }
 
     //functions to check buffer. All return true if there is no problem.
     //minimum checks to do before using buffer
     using sistrip::FEDBufferBase::doChecks;
-    virtual bool doChecks(bool doCRC = true) const;
+    bool doChecks(bool doCRC) const;
 
     //additional checks to check for corrupt buffers
     //check channel lengths fit inside to buffer length
@@ -74,7 +101,6 @@ namespace sistrip {
 
   private:
     uint8_t nFEUnitsPresent() const;
-    void findChannels();
     inline uint8_t getCorrectPacketCode() const { return packetCode(legacyUnpacker_); }
     uint16_t calculateFEUnitLength(const uint8_t internalFEUnitNumber) const;
     std::unique_ptr<FEDFEHeader> feHeader_;
@@ -85,107 +111,54 @@ namespace sistrip {
     bool legacyUnpacker_ = false;
   };
 
-  //class for unpacking data from ZS FED channels
-  class FEDZSChannelUnpacker {
-  public:
-    static FEDZSChannelUnpacker zeroSuppressedModeUnpacker(const FEDChannel& channel);
-    static FEDZSChannelUnpacker zeroSuppressedLiteModeUnpacker(const FEDChannel& channel);
-    static FEDZSChannelUnpacker preMixRawModeUnpacker(const FEDChannel& channel);
-    FEDZSChannelUnpacker();
-    uint8_t sampleNumber() const;
-    uint8_t adc() const;
-    uint16_t adcPreMix() const;
-    bool hasData() const;
-    FEDZSChannelUnpacker& operator++();
-    FEDZSChannelUnpacker& operator++(int);
-
-  private:
-    //pointer to beginning of FED or FE data, offset of start of channel payload in data and length of channel payload
-    FEDZSChannelUnpacker(const uint8_t* payload,
-                         const uint16_t channelPayloadOffset,
-                         const int16_t channelPayloadLength,
-                         const uint16_t offsetIncrement = 1);
-    void readNewClusterInfo();
-    static void throwBadChannelLength(const uint16_t length);
-    void throwBadClusterLength();
-    static void throwUnorderedData(const uint8_t currentStrip, const uint8_t firstStripOfNewCluster);
-    const uint8_t* data_;
-    uint16_t currentOffset_;
-    uint16_t offsetIncrement_;
-    uint8_t currentStrip_;
-    uint8_t valuesLeftInCluster_;
-    uint16_t channelPayloadOffset_;
-    uint16_t channelPayloadLength_;
-  };
-
-  //class for unpacking data from raw FED channels
-  class FEDRawChannelUnpacker {
-  public:
-    static FEDRawChannelUnpacker scopeModeUnpacker(const FEDChannel& channel) { return FEDRawChannelUnpacker(channel); }
-    static FEDRawChannelUnpacker virginRawModeUnpacker(const FEDChannel& channel) {
-      return FEDRawChannelUnpacker(channel);
-    }
-    static FEDRawChannelUnpacker procRawModeUnpacker(const FEDChannel& channel) {
-      return FEDRawChannelUnpacker(channel);
-    }
-    explicit FEDRawChannelUnpacker(const FEDChannel& channel);
-    uint8_t sampleNumber() const;
-    uint16_t adc() const;
-    bool hasData() const;
-    FEDRawChannelUnpacker& operator++();
-    FEDRawChannelUnpacker& operator++(int);
-
-  private:
-    static void throwBadChannelLength(const uint16_t length);
-    const uint8_t* data_;
-    uint16_t currentOffset_;
-    uint8_t currentStrip_;
-    uint16_t valuesLeft_;
-  };
-
-  //class for unpacking data from any FED channels with a non-integer words bits stripping mode
-  class FEDBSChannelUnpacker {
-  public:
-    static FEDBSChannelUnpacker virginRawModeUnpacker(const FEDChannel& channel, uint16_t num_bits);
-    static FEDBSChannelUnpacker zeroSuppressedModeUnpacker(const FEDChannel& channel, uint16_t num_bits);
-    static FEDBSChannelUnpacker zeroSuppressedLiteModeUnpacker(const FEDChannel& channel, uint16_t num_bits);
-    FEDBSChannelUnpacker();
-    uint8_t sampleNumber() const;
-    uint16_t adc() const;
-    bool hasData() const;
-    FEDBSChannelUnpacker& operator++();
-    FEDBSChannelUnpacker& operator++(int);
-
-  private:
-    //pointer to beginning of FED or FE data, offset of start of channel payload in data and length of channel payload
-    FEDBSChannelUnpacker(const uint8_t* payload,
-                         const uint16_t channelPayloadOffset,
-                         const int16_t channelPayloadLength,
-                         const uint16_t offsetIncrement,
-                         bool useZS);
-    void readNewClusterInfo();
-    static void throwBadChannelLength(const uint16_t length);
-    static void throwBadWordLength(const uint16_t word_length);
-    static void throwUnorderedData(const uint8_t currentStrip, const uint8_t firstStripOfNewCluster);
-    const uint8_t* data_;
-    uint16_t oldWordOffset_;
-    uint16_t currentWordOffset_;
-    uint16_t currentLocalBitOffset_;
-    uint16_t bitOffsetIncrement_;
-    uint8_t currentStrip_;
-    uint16_t channelPayloadOffset_;
-    uint16_t channelPayloadLength_;
-    bool useZS_;
-    uint8_t valuesLeftInCluster_;
-  };
-
   //
   // Inline function definitions
   //
 
+  /**
+   * Check if a FEDRawData object satisfies the requirements for constructing a sistrip::FEDBuffer
+   *
+   * These are:
+   *   - those from sistrip::preconstructCheckFEDBufferBase()
+   *   - the readout mode should not be sistrip::READOUT_MODE_SPY
+   *   - (unless allowBadBuffers is true) the header type should not be sistrip::HEADER_TYPE_INVALID or HEADER_TYPE_NONE
+   *
+   * In case any check fails, a value different from sistrip::FEDBufferStatusCode::SUCCESS
+   * is returned, and detailed information printed to LogDebug("FEDBuffer"), if relevant.
+   *
+   * @see sistrip::preconstructCheckFEDBufferBase()
+   */
+  inline FEDBufferStatusCode preconstructCheckFEDBuffer(const FEDRawData& fedBuffer, bool allowBadBuffer = false) {
+    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, !allowBadBuffer);
+    if (FEDBufferStatusCode::SUCCESS != st_base)
+      return st_base;
+    const TrackerSpecialHeader hdr{fedBuffer.data() + 8};
+    const auto hdr_type = hdr.headerType();
+    if ((!allowBadBuffer) && ((hdr_type == sistrip::HEADER_TYPE_INVALID) || (hdr_type == sistrip::HEADER_TYPE_NONE))) {
+#ifdef EDM_ML_DEBUG
+      std::ostringstream msg;
+      msg << "Header type is invalid. Header type nibble is ";
+      const auto headerTypeNibble = hdr.headerTypeNibble();
+      printHex(&headerTypeNibble, 1, msg);
+      LogDebug("FEDBuffer") << msg.str();
+#endif
+      return FEDBufferStatusCode::WRONG_HEADERTYPE;
+    }
+    if (READOUT_MODE_SPY == hdr.readoutMode())
+      return FEDBufferStatusCode::EXPECT_NOT_SPY;
+    return FEDBufferStatusCode::SUCCESS;
+  }
+
   //FEDBuffer
 
   inline const FEDFEHeader* FEDBuffer::feHeader() const { return feHeader_.get(); }
+
+  inline bool FEDBuffer::channelGood(const uint8_t internalFEDChannelNum, const bool doAPVeCheck) const {
+    return ((internalFEDChannelNum < validChannels_) &&
+            ((doAPVeCheck && feGood(internalFEDChannelNum / FEDCH_PER_FEUNIT)) ||
+             (!doAPVeCheck && feGoodWithoutAPVEmulatorCheck(internalFEDChannelNum / FEDCH_PER_FEUNIT))) &&
+            (this->readoutMode() == sistrip::READOUT_MODE_SCOPE || checkStatusBits(internalFEDChannelNum)));
+  }
 
   inline bool FEDBuffer::feGood(const uint8_t internalFEUnitNum) const {
     return (!majorityAddressErrorForFEUnit(internalFEUnitNum) && !feOverflow(internalFEUnitNum) &&
@@ -206,251 +179,314 @@ namespace sistrip {
     return checkStatusBits(internalFEDChannelNum(internalFEUnitNum, internalChannelNum));
   }
 
-  //FEDBSChannelUnpacker
-
-  inline FEDBSChannelUnpacker::FEDBSChannelUnpacker()
-      : data_(nullptr),
-        oldWordOffset_(0),
-        currentWordOffset_(0),
-        currentLocalBitOffset_(0),
-        bitOffsetIncrement_(10),
-        currentStrip_(0),
-        channelPayloadOffset_(0),
-        channelPayloadLength_(0),
-        useZS_(false),
-        valuesLeftInCluster_(0) {}
-
-  inline FEDBSChannelUnpacker::FEDBSChannelUnpacker(const uint8_t* payload,
-                                                    const uint16_t channelPayloadOffset,
-                                                    const int16_t channelPayloadLength,
-                                                    const uint16_t offsetIncrement,
-                                                    bool useZS)
-      : data_(payload),
-        oldWordOffset_(0),
-        currentWordOffset_(channelPayloadOffset),
-        currentLocalBitOffset_(0),
-        bitOffsetIncrement_(offsetIncrement),
-        currentStrip_(0),
-        channelPayloadOffset_(channelPayloadOffset),
-        channelPayloadLength_(channelPayloadLength),
-        useZS_(useZS),
-        valuesLeftInCluster_(0) {
-    if (bitOffsetIncrement_ > 16)
-      throwBadWordLength(bitOffsetIncrement_);  // more than 2 words... still to be implemented
-    if (useZS_ && channelPayloadLength_)
-      readNewClusterInfo();
+  inline bool FEDBuffer::doChecks(bool doCRC) const {
+    //check that all channels were unpacked properly
+    return (validChannels_ == FEDCH_PER_FED) &
+           //do checks from base class
+           (FEDBufferBase::doChecks()) &
+           // check crc if required
+           (!doCRC || checkCRC());
   }
 
-  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::virginRawModeUnpacker(const FEDChannel& channel,
-                                                                          uint16_t num_bits) {
-    uint16_t length = channel.length();
-    if (length & 0xF000)
-      throwBadChannelLength(length);
-    if (num_bits <= 0 or num_bits > 16)
-      throwBadWordLength(num_bits);
-    FEDBSChannelUnpacker result(channel.data(), channel.offset() + 3, length - 3, num_bits, false);
-    return result;
-  }
+  namespace fedchannelunpacker {
+    enum class StatusCode { SUCCESS = 0, BAD_CHANNEL_LENGTH, UNORDERED_DATA, BAD_PACKET_CODE, ZERO_PACKET_CODE };
 
-  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(const FEDChannel& channel,
-                                                                               uint16_t num_bits) {
-    uint16_t length = channel.length();
-    if (length & 0xF000)
-      throwBadChannelLength(length);
-    FEDBSChannelUnpacker result(channel.data(), channel.offset() + 7, length - 7, num_bits, true);
-    return result;
-  }
+    namespace detail {
 
-  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::zeroSuppressedLiteModeUnpacker(const FEDChannel& channel,
-                                                                                   uint16_t num_bits) {
-    uint16_t length = channel.length();
-    if (length & 0xF000)
-      throwBadChannelLength(length);
-    FEDBSChannelUnpacker result(channel.data(), channel.offset() + 2, length - 2, num_bits, true);
-    return result;
-  }
+      template <uint8_t num_words>
+      uint16_t getADC_W(const uint8_t* data, uint_fast16_t offset, uint8_t bits_shift) {
+        // get ADC from one or two bytes (at most 10 bits), and shift if needed
+        return (data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0)) << bits_shift;
+      }
 
-  inline uint8_t FEDBSChannelUnpacker::sampleNumber() const { return currentStrip_; }
+      template <uint16_t mask>
+      uint16_t getADC_B2(const uint8_t* data, uint_fast16_t wOffset, uint_fast8_t bOffset) {
+        // get ADC from two bytes, from wOffset until bOffset bits from the next byte (maximum decided by mask)
+        return (((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask;
+      }
+      template <uint16_t mask>
+      uint16_t getADC_B1(const uint8_t* data, uint_fast16_t wOffset, uint_fast8_t bOffset) {
+        // get ADC from one byte, until bOffset into the byte at wOffset (maximum decided by mask)
+        return (data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask;
+      }
 
-  inline uint16_t FEDBSChannelUnpacker::adc() const {
-    uint16_t bits_missing = (bitOffsetIncrement_ - BITS_PER_BYTE) + currentLocalBitOffset_;
-    uint16_t adc = (data_[currentWordOffset_ ^ 7] << bits_missing);
-    if (currentWordOffset_ > oldWordOffset_) {
-      adc += ((data_[(currentWordOffset_ + 1) ^ 7] >> (BITS_PER_BYTE - bits_missing)));
-    }
-    return (adc & ((1 << bitOffsetIncrement_) - 1));
-  }
+      // Unpack Raw with ADCs in whole 8-bit words (8bit and 10-in-16bit)
+      template <uint8_t num_bits, typename OUT>
+      StatusCode unpackRawW(const FEDChannel& channel, OUT&& out, uint8_t bits_shift = 0) {
+        constexpr auto num_words = num_bits / 8;
+        static_assert(((num_bits % 8) == 0) && (num_words > 0) && (num_words < 3));
+        if ((num_words > 1) && ((channel.length() - 3) % num_words)) {
+          LogDebug("FEDBuffer") << "Channel length is invalid. Raw channels have 3 header bytes and " << num_words
+                                << " bytes per sample. "
+                                << "Channel length is " << uint16_t(channel.length()) << ".";
+          return StatusCode::BAD_CHANNEL_LENGTH;
+        }
+        const uint8_t* const data = channel.data();
+        const uint_fast16_t end = channel.offset() + channel.length();
+        for (uint_fast16_t offset = channel.offset() + 3; offset != end; offset += num_words) {
+          *out++ = SiStripRawDigi(getADC_W<num_words>(data, offset, bits_shift));
+        }
+        return StatusCode::SUCCESS;
+      }
 
-  inline bool FEDBSChannelUnpacker::hasData() const {
-    const uint16_t nextChanWordOffset = channelPayloadOffset_ + channelPayloadLength_;
-    if (currentWordOffset_ + 1 < nextChanWordOffset) {
-      return true;  // fast case: 2 bytes always fit an ADC (even if offset)
-    } else {        // close to end
-      const uint16_t plusOneBitOffset = currentLocalBitOffset_ + bitOffsetIncrement_;
-      const uint16_t plusOneWordOffset = currentWordOffset_ + plusOneBitOffset / BITS_PER_BYTE;
-      return (plusOneBitOffset % BITS_PER_BYTE) ? (plusOneWordOffset < nextChanWordOffset)
-                                                : (plusOneWordOffset <= nextChanWordOffset);
-    }
-  }
+      // Generic implementation for non-whole words (10bit, essentially)
+      template <uint_fast8_t num_bits, typename OUT>
+      StatusCode unpackRawB(const FEDChannel& channel, OUT&& out) {
+        static_assert(num_bits <= 16, "Word length must be between 0 and 16.");
+        if (channel.length() & 0xF000) {
+          LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
+          return StatusCode::BAD_CHANNEL_LENGTH;
+        }
+        constexpr uint16_t mask = (1 << num_bits) - 1;
+        const uint8_t* const data = channel.data();
+        const uint_fast16_t chEnd = channel.offset() + channel.length();
+        uint_fast16_t wOffset = channel.offset() + 3;
+        uint_fast8_t bOffset = 0;
+        while (((wOffset + 1) < chEnd) || ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits)) {
+          bOffset += num_bits;
+          if ((num_bits > BITS_PER_BYTE) || (bOffset > BITS_PER_BYTE)) {
+            bOffset -= BITS_PER_BYTE;
+            **out++ = SiStripRawDigi(getADC_B2<mask>(data, wOffset, bOffset));
+            ++wOffset;
+          } else {
+            **out++ = SiStripRawDigi(getADC_B1<mask>(data, wOffset, bOffset));
+          }
+          if (bOffset == BITS_PER_BYTE) {
+            bOffset = 0;
+            ++wOffset;
+          }
+        }
+        return StatusCode::SUCCESS;
+      }
 
-  inline FEDBSChannelUnpacker& FEDBSChannelUnpacker::operator++() {
-    oldWordOffset_ = currentWordOffset_;
-    currentLocalBitOffset_ += bitOffsetIncrement_;
-    while (currentLocalBitOffset_ >= BITS_PER_BYTE) {
-      currentWordOffset_++;
-      currentLocalBitOffset_ -= BITS_PER_BYTE;
-    }
-    if (useZS_) {
-      if (valuesLeftInCluster_) {
-        currentStrip_++;
-        valuesLeftInCluster_--;
+      template <uint8_t num_bits, typename OUT>
+      StatusCode unpackZSW(
+          const FEDChannel& channel, OUT&& out, uint8_t headerLength, uint16_t stripStart, uint8_t bits_shift = 0) {
+        constexpr auto num_words = num_bits / 8;
+        static_assert(((num_bits % 8) == 0) && (num_words > 0) && (num_words < 3));
+        if (channel.length() & 0xF000) {
+          LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
+          return StatusCode::BAD_CHANNEL_LENGTH;
+        }
+        const uint8_t* const data = channel.data();
+        uint_fast16_t offset = channel.offset() + headerLength;  // header is 2 (lite) or 7
+        uint_fast8_t firstStrip{0}, nInCluster{0}, inCluster{0};
+        const uint_fast16_t end = channel.offset() + channel.length();
+        while (offset != end) {
+          if (inCluster == nInCluster) {
+            if (offset + 2 >= end) {
+              // offset should already be at end then (empty cluster)
+              break;
+            }
+            const uint_fast8_t newFirstStrip = data[(offset++) ^ 7];
+            if (newFirstStrip < (firstStrip + inCluster)) {
+              LogDebug("FEDBuffer") << "First strip of new cluster is not greater than last strip of previous cluster. "
+                                    << "Last strip of previous cluster is " << uint16_t(firstStrip + inCluster) << ". "
+                                    << "First strip of new cluster is " << uint16_t(newFirstStrip) << ".";
+              return StatusCode::UNORDERED_DATA;
+            }
+            firstStrip = newFirstStrip;
+            nInCluster = data[(offset++) ^ 7];
+            inCluster = 0;
+          }
+          *out++ = SiStripDigi(stripStart + firstStrip + inCluster, getADC_W<num_words>(data, offset, bits_shift));
+          offset += num_words;
+          ++inCluster;
+        }
+        return StatusCode::SUCCESS;
+      }
+
+      // Generic implementation (for 10bit, essentially)
+      template <uint_fast8_t num_bits, typename OUT>
+      StatusCode unpackZSB(const FEDChannel& channel, OUT&& out, uint8_t headerLength, uint16_t stripStart) {
+        constexpr uint16_t mask = (1 << num_bits) - 1;
+        if (channel.length() & 0xF000) {
+          LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
+          return StatusCode::BAD_CHANNEL_LENGTH;
+        }
+        const uint8_t* const data = channel.data();
+        uint_fast16_t wOffset = channel.offset() + headerLength;  // header is 2 (lite) or 7
+        uint_fast8_t bOffset{0}, firstStrip{0}, nInCluster{0}, inCluster{0};
+        const uint_fast16_t chEnd = channel.offset() + channel.length();
+        while (((wOffset + 1) < chEnd) ||
+               ((inCluster != nInCluster) && ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits))) {
+          if (inCluster == nInCluster) {
+            if (wOffset + 2 >= chEnd) {
+              // offset should already be at end then (empty cluster)
+              break;
+            }
+            if (bOffset) {
+              ++wOffset;
+              bOffset = 0;
+            }
+            const uint_fast8_t newFirstStrip = data[(wOffset++) ^ 7];
+            if (newFirstStrip < (firstStrip + inCluster)) {
+              LogDebug("FEDBuffer") << "First strip of new cluster is not greater than last strip of previous cluster. "
+                                    << "Last strip of previous cluster is " << uint16_t(firstStrip + inCluster) << ". "
+                                    << "First strip of new cluster is " << uint16_t(newFirstStrip) << ".";
+              return StatusCode::UNORDERED_DATA;
+            }
+            firstStrip = newFirstStrip;
+            nInCluster = data[(wOffset++) ^ 7];
+            inCluster = 0;
+            bOffset = 0;
+          }
+          bOffset += num_bits;
+          if ((num_bits > BITS_PER_BYTE) || (bOffset > BITS_PER_BYTE)) {
+            bOffset -= BITS_PER_BYTE;
+            *out++ = SiStripDigi(stripStart + firstStrip + inCluster, getADC_B2<mask>(data, wOffset, bOffset));
+            ++wOffset;
+          } else {
+            *out++ = SiStripDigi(stripStart + firstStrip + inCluster, getADC_B1<mask>(data, wOffset, bOffset));
+          }
+          ++inCluster;
+          if (bOffset == BITS_PER_BYTE) {
+            bOffset = 0;
+            ++wOffset;
+          }
+        }
+        return StatusCode::SUCCESS;
+      }
+
+      inline uint16_t readoutOrder(uint16_t physical_order) {
+        return (4 * ((static_cast<uint16_t>((static_cast<float>(physical_order) / 8.0))) % 4) +
+                static_cast<uint16_t>(static_cast<float>(physical_order) / 32.0) + 16 * (physical_order % 8));
+      }
+    };  // namespace detail
+
+    inline bool isZeroSuppressed(FEDReadoutMode mode,
+                                 bool legacy = false,
+                                 FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+      if (!legacy) {
+        switch (mode) {
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+          case READOUT_MODE_PREMIX_RAW:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+          case READOUT_MODE_ZERO_SUPPRESSED:
+          case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+            return true;
+            break;
+          default:
+            return false;
+        }
       } else {
-        if (hasData()) {
-          const uint8_t oldStrip = currentStrip_;
-          readNewClusterInfo();
-          if (!(currentStrip_ > oldStrip))
-            throwUnorderedData(oldStrip, currentStrip_);
+        switch (lmode) {
+          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:
+          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:
+          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL:
+          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE:
+          case READOUT_MODE_LEGACY_PREMIX_RAW:
+            return true;
+          default:
+            return false;
         }
       }
-    } else {
-      currentStrip_++;
     }
-    return (*this);
-  }
-
-  inline FEDBSChannelUnpacker& FEDBSChannelUnpacker::operator++(int) {
-    ++(*this);
-    return *this;
-  }
-
-  inline void FEDBSChannelUnpacker::readNewClusterInfo() {
-    if (currentLocalBitOffset_) {
-      ++currentWordOffset_;
-      currentLocalBitOffset_ = 0;
+    inline bool isNonLiteZS(FEDReadoutMode mode,
+                            bool legacy = false,
+                            FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+      return (!legacy) ? (mode == READOUT_MODE_ZERO_SUPPRESSED || mode == READOUT_MODE_ZERO_SUPPRESSED_FAKE)
+                       : (lmode == READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL ||
+                          lmode == READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE);
     }
-    currentStrip_ = data_[(currentWordOffset_++) ^ 7];
-    valuesLeftInCluster_ = data_[(currentWordOffset_++) ^ 7] - 1;
-  }
+    inline bool isVirginRaw(FEDReadoutMode mode,
+                            bool legacy = false,
+                            FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+      return (!legacy) ? mode == READOUT_MODE_VIRGIN_RAW
+                       : (lmode == READOUT_MODE_LEGACY_VIRGIN_RAW_REAL || lmode == READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE);
+    }
+    inline bool isProcessedRaw(FEDReadoutMode mode,
+                               bool legacy = false,
+                               FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+      return (!legacy) ? mode == READOUT_MODE_PROC_RAW
+                       : (lmode == READOUT_MODE_LEGACY_PROC_RAW_REAL || lmode == READOUT_MODE_LEGACY_PROC_RAW_FAKE);
+    }
+    inline bool isScopeMode(FEDReadoutMode mode,
+                            bool legacy = false,
+                            FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+      return (!legacy) ? mode == READOUT_MODE_SCOPE : lmode == READOUT_MODE_LEGACY_SCOPE;
+    }
 
-  //FEDRawChannelUnpacker
+    template <typename OUT>
+    StatusCode unpackScope(const FEDChannel& channel, OUT&& out) {
+      return detail::unpackRawW<16>(channel, out);
+    }
+    template <typename OUT>
+    StatusCode unpackProcessedRaw(const FEDChannel& channel, OUT&& out) {
+      return detail::unpackRawW<16>(channel, out);
+    }
 
-  inline FEDRawChannelUnpacker::FEDRawChannelUnpacker(const FEDChannel& channel)
-      : data_(channel.data()),
-        currentOffset_(channel.offset() + 3),
-        currentStrip_(0),
-        valuesLeft_((channel.length() - 3) / 2) {
-    if ((channel.length() - 3) % 2)
-      throwBadChannelLength(channel.length());
-  }
-
-  inline uint8_t FEDRawChannelUnpacker::sampleNumber() const { return currentStrip_; }
-
-  inline uint16_t FEDRawChannelUnpacker::adc() const {
-    return (data_[currentOffset_ ^ 7] + ((data_[(currentOffset_ + 1) ^ 7] & 0x03) << 8));
-  }
-
-  inline bool FEDRawChannelUnpacker::hasData() const { return valuesLeft_; }
-
-  inline FEDRawChannelUnpacker& FEDRawChannelUnpacker::operator++() {
-    currentOffset_ += 2;
-    currentStrip_++;
-    valuesLeft_--;
-    return (*this);
-  }
-
-  inline FEDRawChannelUnpacker& FEDRawChannelUnpacker::operator++(int) {
-    ++(*this);
-    return *this;
-  }
-
-  //FEDZSChannelUnpacker
-
-  inline FEDZSChannelUnpacker::FEDZSChannelUnpacker()
-      : data_(nullptr),
-        offsetIncrement_(1),
-        valuesLeftInCluster_(0),
-        channelPayloadOffset_(0),
-        channelPayloadLength_(0) {}
-
-  inline FEDZSChannelUnpacker::FEDZSChannelUnpacker(const uint8_t* payload,
-                                                    const uint16_t channelPayloadOffset,
-                                                    const int16_t channelPayloadLength,
-                                                    const uint16_t offsetIncrement)
-      : data_(payload),
-        currentOffset_(channelPayloadOffset),
-        offsetIncrement_(offsetIncrement),
-        currentStrip_(0),
-        valuesLeftInCluster_(0),
-        channelPayloadOffset_(channelPayloadOffset),
-        channelPayloadLength_(channelPayloadLength) {
-    if (channelPayloadLength_)
-      readNewClusterInfo();
-  }
-
-  inline FEDZSChannelUnpacker FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(const FEDChannel& channel) {
-    uint16_t length = channel.length();
-    if (length & 0xF000)
-      throwBadChannelLength(length);
-    FEDZSChannelUnpacker result(channel.data(), channel.offset() + 7, length - 7);
-    return result;
-  }
-
-  inline FEDZSChannelUnpacker FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(const FEDChannel& channel) {
-    uint16_t length = channel.length();
-    if (length & 0xF000)
-      throwBadChannelLength(length);
-    FEDZSChannelUnpacker result(channel.data(), channel.offset() + 2, length - 2);
-    return result;
-  }
-
-  inline FEDZSChannelUnpacker FEDZSChannelUnpacker::preMixRawModeUnpacker(const FEDChannel& channel) {
-    //CAMM - to modify more ?
-    uint16_t length = channel.length();
-    if (length & 0xF000)
-      throwBadChannelLength(length);
-    FEDZSChannelUnpacker result(channel.data(), channel.offset() + 7, length - 7, 2);
-    return result;
-  }
-
-  inline uint8_t FEDZSChannelUnpacker::sampleNumber() const { return currentStrip_; }
-
-  inline uint8_t FEDZSChannelUnpacker::adc() const { return data_[currentOffset_ ^ 7]; }
-
-  inline uint16_t FEDZSChannelUnpacker::adcPreMix() const {
-    return (data_[currentOffset_ ^ 7] + ((data_[(currentOffset_ + 1) ^ 7] & 0x03) << 8));
-  }
-
-  inline bool FEDZSChannelUnpacker::hasData() const {
-    return (currentOffset_ < channelPayloadOffset_ + channelPayloadLength_);
-  }
-
-  inline FEDZSChannelUnpacker& FEDZSChannelUnpacker::operator++() {
-    if (valuesLeftInCluster_) {
-      currentStrip_++;
-      currentOffset_ += offsetIncrement_;
-      valuesLeftInCluster_--;
-    } else {
-      currentOffset_ += offsetIncrement_;
-      if (hasData()) {
-        const uint8_t oldStrip = currentStrip_;
-        readNewClusterInfo();
-        if (!(currentStrip_ > oldStrip))
-          throwUnorderedData(oldStrip, currentStrip_);
+    template <typename OUT>
+    StatusCode unpackVirginRaw(const FEDChannel& channel, OUT&& out, uint8_t packetCode) {
+      std::vector<SiStripRawDigi> samples;
+      auto st = StatusCode::SUCCESS;
+      if (PACKET_CODE_VIRGIN_RAW == packetCode) {
+        samples.reserve((channel.length() - 3) / 2);
+        st = detail::unpackRawW<16>(channel, std::back_inserter(samples));
+      } else if (PACKET_CODE_VIRGIN_RAW10 == packetCode) {
+        samples.reserve((channel.length() - 3) * 10 / 8);
+        st = detail::unpackRawB<10>(channel, std::back_inserter(samples));
+      } else if (PACKET_CODE_VIRGIN_RAW8_BOTBOT == packetCode || PACKET_CODE_VIRGIN_RAW8_TOPBOT == packetCode) {
+        samples.reserve(channel.length() - 3);
+        st = detail::unpackRawW<8>(
+            channel, std::back_inserter(samples), (PACKET_CODE_VIRGIN_RAW8_BOTBOT == packetCode ? 2 : 1));
+      }
+      if (!samples.empty()) {  // reorder
+        for (uint_fast16_t i{0}; i != samples.size(); ++i) {
+          const auto physical = i % 128;
+          const auto readout = (detail::readoutOrder(physical) * 2  // convert index from physical to readout order
+                                + (i >= 128 ? 1 : 0));              // un-multiplex data
+          *out++ = samples[readout];
+        }
+      }
+      return st;
+    }
+    template <typename OUT>
+    StatusCode unpackZeroSuppressed(const FEDChannel& channel,
+                                    OUT&& out,
+                                    uint16_t stripStart,
+                                    bool isNonLite,
+                                    FEDReadoutMode mode,
+                                    bool legacy = false,
+                                    FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID,
+                                    uint8_t packetCode = 0) {
+      if ((isNonLite && packetCode == PACKET_CODE_ZERO_SUPPRESSED10) ||
+          ((!legacy) &&
+           (mode == READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode == READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE))) {
+        return detail::unpackZSB<10>(channel, out, (isNonLite ? 7 : 2), stripStart);
+      } else if ((!legacy) ? mode == READOUT_MODE_PREMIX_RAW : lmode == READOUT_MODE_LEGACY_PREMIX_RAW) {
+        return detail::unpackZSW<16>(channel, out, 7, stripStart);
+      } else {  // 8bit
+        uint8_t bits_shift = 0;
+        if (isNonLite) {
+          if (packetCode == PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT)
+            bits_shift = 1;
+          else if (packetCode == PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT)
+            bits_shift = 2;
+        } else {  // lite
+          if (mode == READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT ||
+              mode == READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE)
+            bits_shift = 1;
+          else if (mode == READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT ||
+                   mode == READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE)
+            bits_shift = 2;
+        }
+        auto st = detail::unpackZSW<8>(channel, out, (isNonLite ? 7 : 2), stripStart, bits_shift);
+        if (isNonLite && packetCode == 0 && StatusCode::SUCCESS == st) {
+          // workaround for a pre-2015 bug in the packer: assume default ZS packing
+          return StatusCode::ZERO_PACKET_CODE;
+        }
+        return st;
       }
     }
-    return (*this);
-  }
-
-  inline FEDZSChannelUnpacker& FEDZSChannelUnpacker::operator++(int) {
-    ++(*this);
-    return *this;
-  }
-
-  inline void FEDZSChannelUnpacker::readNewClusterInfo() {
-    currentStrip_ = data_[(currentOffset_++) ^ 7];
-    valuesLeftInCluster_ = data_[(currentOffset_++) ^ 7] - 1;
-  }
-
+  };  // namespace fedchannelunpacker
+  std::string toString(fedchannelunpacker::StatusCode status);
 }  // namespace sistrip
 
 #endif  //ndef EventFilter_SiStripRawToDigi_SiStripFEDBuffer_H

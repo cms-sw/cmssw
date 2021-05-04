@@ -11,7 +11,8 @@ import os, sys, socket, string
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
-process      = cms.Process('HCALDQM')
+from Configuration.Eras.Era_Run3_cff import Run3
+process      = cms.Process('HCALDQM', Run3)
 subsystem    = 'HcalCalib'
 cmssw        = os.getenv("CMSSW_VERSION").split("_")
 debugstr     = "### HcalDQM::cfg::DEBUG: "
@@ -26,27 +27,32 @@ useMap       = False
 #-------------------------------------
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
-	process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-	process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
+	process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+	process.GlobalTag.globaltag = '106X_dataRun3_HLT_Candidate_2019_11_26_14_48_16'
+	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
+	from DQM.Integration.config.fileinputsource_cfi import options
 else:
 	process.load('DQM.Integration.config.inputsource_cfi')
+	from DQM.Integration.config.inputsource_cfi import options
 process.load('DQM.Integration.config.environment_cfi')
 
 #-------------------------------------
 #	Central DQM Customization
 #-------------------------------------
 process.source.streamLabel = cms.untracked.string("streamDQMCalibration")
-process.source.SelectEvents = cms.untracked.vstring("*HcalCalibration*")
+#process.source.SelectEvents = cms.untracked.vstring("*HcalCalibration*")
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
-referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
-process.DQMStore.referenceFileName = referenceFileName
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = subsystem
+process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
-process.source.minEventsPerLumi=100
+if not useFileInput:
+	process.source.minEventsPerLumi=100
 
 
 #-------------------------------------
@@ -114,10 +120,11 @@ process.load('DQM.HcalTasks.QIE11Task')
 #	Absent for Online Running
 #-------------------------------------
 if useMap:
-    process.GlobalTag.toGet.append(cms.PSet(record = cms.string("HcalElectronicsMapRcd"),
-                                            tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
-                                            )
-                                   )
+    process.GlobalTag.toGet.append(
+    	cms.PSet(record = cms.string("HcalElectronicsMapRcd"),
+                 #tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
+                 tag = cms.string("HcalElectronicsMap_v9.0_hlt"),
+        ))
 
 #-------------------------------------
 #	Some Settings before Finishing up
@@ -231,7 +238,8 @@ process.p = cms.Path(
 					*process.tasksSequence
 					*process.harvestingSequence
                     *process.dqmEnv
-                    *process.dqmSaver)
+                    *process.dqmSaver
+		    *process.dqmSaverPB)
 
 #-------------------------------------
 #	Scheduling

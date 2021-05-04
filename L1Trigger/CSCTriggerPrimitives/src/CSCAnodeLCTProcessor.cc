@@ -1,48 +1,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 #include <set>
 
-//-----------------
-// Static variables
-//-----------------
-
-/* This is the pattern envelope, which is used to define the collision
-   patterns A and B.
-   pattern_envelope[0][i]=layer;
-   pattern_envelope[1+MEposition][i]=key_wire offset. */
-const int CSCAnodeLCTProcessor::pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
-    //Layer
-    {0, 0, 0, 1, 1, 2, 3, 3, 4, 4, 4, 5, 5, 5},
-
-    //Keywire offset for ME1 and ME2
-    {-2, -1, 0, -1, 0, 0, 0, 1, 0, 1, 2, 0, 1, 2},
-
-    //Keywire offset for ME3 and ME4
-    {2, 1, 0, 1, 0, 0, 0, -1, 0, -1, -2, 0, -1, -2}};
-
-// Since the test beams in 2003, both collision patterns are "completely
-// open".  This is our current default.
-const int CSCAnodeLCTProcessor::pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] =
-    {
-        // Accelerator pattern
-        {0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0},
-
-        // Collision pattern A
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-
-        // Collision pattern B
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-
-// Special option for narrow pattern for ring 1 stations
-const int CSCAnodeLCTProcessor::pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
-    // Accelerator pattern
-    {0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0},
-
-    // Collision pattern A
-    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0},
-
-    // Collision pattern B
-    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0}};
-
 // Default values of configuration parameters.
 const unsigned int CSCAnodeLCTProcessor::def_fifo_tbins = 16;
 const unsigned int CSCAnodeLCTProcessor::def_fifo_pretrig = 10;
@@ -104,8 +62,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
 
   // Check and print configuration parameters.
   checkConfigParameters();
-  if ((infoV > 0 || (isSLHC_)) && !config_dumped) {
-    //std::cout<<"**** ALCT constructor parameters dump ****"<<std::endl;
+  if ((infoV > 0 || (runPhase2_)) && !config_dumped) {
     dumpConfigParams();
     config_dumped = true;
   }
@@ -115,47 +72,30 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
 
   // whether to calculate bx as corrected_bx instead of pretrigger one
   use_corrected_bx = false;
-  if (isSLHC_) {
+  if (runPhase2_) {
     use_corrected_bx = alctParams_.getParameter<bool>("alctUseCorrectedBx");
   }
 
   // Load appropriate pattern mask.
   loadPatternMask();
-}
 
-CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() : CSCBaseboard() {
-  // Used for debugging. -JM
-  static std::atomic<bool> config_dumped{false};
+  // quality control of stubs
+  qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
 
-  // ALCT parameters.
-  setDefaultConfigParameters();
-  infoV = 2;
-
-  early_tbins = 4;
-
-  // Check and print configuration parameters.
-  checkConfigParameters();
-  if (!config_dumped) {
-    //std::cout<<"**** ALCT default constructor parameters dump ****"<<std::endl;
-    dumpConfigParams();
-    config_dumped = true;
-  }
-
-  numWireGroups = CSCConstants::MAX_NUM_WIRES;
-  MESelection = (theStation < 3) ? 0 : 1;
-
-  // Load pattern mask.
-  loadPatternMask();
+  const auto& shower = showerParams_.getParameterSet("anodeShower");
+  thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
+  showerMinInTBin_ = shower.getParameter<unsigned>("showerMinInTBin");
+  showerMaxInTBin_ = shower.getParameter<unsigned>("showerMaxInTBin");
+  showerMinOutTBin_ = shower.getParameter<unsigned>("showerMinOutTBin");
+  showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
 }
 
 void CSCAnodeLCTProcessor::loadPatternMask() {
   // Load appropriate pattern mask.
-  for (int i_patt = 0; i_patt < CSCConstants::NUM_ALCT_PATTERNS; i_patt++) {
-    for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-      pattern_mask[i_patt][i_wire] = pattern_mask_open[i_patt][i_wire];
-      if (narrow_mask_r1 && (theRing == 1 || theRing == 4))
-        pattern_mask[i_patt][i_wire] = pattern_mask_r1[i_patt][i_wire];
-    }
+  if (narrow_mask_r1 && (theRing == 1 || theRing == 4)) {
+    alct_pattern_ = CSCPatternBank::alct_pattern_r1_;
+  } else {
+    alct_pattern_ = CSCPatternBank::alct_pattern_legacy_;
   }
 }
 
@@ -191,7 +131,6 @@ void CSCAnodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf) 
   // Check and print configuration parameters.
   checkConfigParameters();
   if (!config_dumped) {
-    //std::cout<<"**** ALCT setConfigParam parameters dump ****"<<std::endl;
     dumpConfigParams();
     config_dumped = true;
   }
@@ -213,84 +152,24 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
   static const unsigned int max_l1a_window_width = CSCConstants::MAX_ALCT_TBINS;  // 4 bits
 
   // Checks.
-  if (fifo_tbins >= max_fifo_tbins) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of fifo_tbins, " << fifo_tbins << ", exceeds max allowed, " << max_fifo_tbins - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, fifo_tbins=" << def_fifo_tbins << " +++\n";
-    fifo_tbins = def_fifo_tbins;
-  }
-  if (fifo_pretrig >= max_fifo_pretrig) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of fifo_pretrig, " << fifo_pretrig << ", exceeds max allowed, " << max_fifo_pretrig - 1
-          << " +++\n"
-          << "+++ Try to proceed with the default value, fifo_pretrig=" << def_fifo_pretrig << " +++\n";
-    fifo_pretrig = def_fifo_pretrig;
-  }
-  if (drift_delay >= max_drift_delay) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of drift_delay, " << drift_delay << ", exceeds max allowed, " << max_drift_delay - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, drift_delay=" << def_drift_delay << " +++\n";
-    drift_delay = def_drift_delay;
-  }
-  if (nplanes_hit_pretrig >= max_nplanes_hit_pretrig) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of nplanes_hit_pretrig, " << nplanes_hit_pretrig << ", exceeds max allowed, "
-          << max_nplanes_hit_pretrig - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, nplanes_hit_pretrig=" << nplanes_hit_pretrig << " +++\n";
-    nplanes_hit_pretrig = def_nplanes_hit_pretrig;
-  }
-  if (nplanes_hit_pattern >= max_nplanes_hit_pattern) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of nplanes_hit_pattern, " << nplanes_hit_pattern << ", exceeds max allowed, "
-          << max_nplanes_hit_pattern - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, nplanes_hit_pattern=" << nplanes_hit_pattern << " +++\n";
-    nplanes_hit_pattern = def_nplanes_hit_pattern;
-  }
-  if (nplanes_hit_accel_pretrig >= max_nplanes_hit_accel_pretrig) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of nplanes_hit_accel_pretrig, " << nplanes_hit_accel_pretrig << ", exceeds max allowed, "
-          << max_nplanes_hit_accel_pretrig - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, "
-          << "nplanes_hit_accel_pretrig=" << nplanes_hit_accel_pretrig << " +++\n";
-    nplanes_hit_accel_pretrig = def_nplanes_hit_accel_pretrig;
-  }
-  if (nplanes_hit_accel_pattern >= max_nplanes_hit_accel_pattern) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of nplanes_hit_accel_pattern, " << nplanes_hit_accel_pattern << ", exceeds max allowed, "
-          << max_nplanes_hit_accel_pattern - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, "
-          << "nplanes_hit_accel_pattern=" << nplanes_hit_accel_pattern << " +++\n";
-    nplanes_hit_accel_pattern = def_nplanes_hit_accel_pattern;
-  }
-  if (trig_mode >= max_trig_mode) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of trig_mode, " << trig_mode << ", exceeds max allowed, " << max_trig_mode - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, trig_mode=" << trig_mode << " +++\n";
-    trig_mode = def_trig_mode;
-  }
-  if (accel_mode >= max_accel_mode) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of accel_mode, " << accel_mode << ", exceeds max allowed, " << max_accel_mode - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, accel_mode=" << accel_mode << " +++\n";
-    accel_mode = def_accel_mode;
-  }
-  if (l1a_window_width >= max_l1a_window_width) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|ConfigError")
-          << "+++ Value of l1a_window_width, " << l1a_window_width << ", exceeds max allowed, "
-          << max_l1a_window_width - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, l1a_window_width=" << l1a_window_width << " +++\n";
-    l1a_window_width = def_l1a_window_width;
-  }
+  CSCBaseboard::checkConfigParameters(fifo_tbins, max_fifo_tbins, def_fifo_tbins, "fifo_tbins");
+  CSCBaseboard::checkConfigParameters(fifo_pretrig, max_fifo_pretrig, def_fifo_pretrig, "fifo_pretrig");
+  CSCBaseboard::checkConfigParameters(drift_delay, max_drift_delay, def_drift_delay, "drift_delay");
+  CSCBaseboard::checkConfigParameters(
+      nplanes_hit_pretrig, max_nplanes_hit_pretrig, def_nplanes_hit_pretrig, "nplanes_hit_pretrig");
+  CSCBaseboard::checkConfigParameters(
+      nplanes_hit_pattern, max_nplanes_hit_pattern, def_nplanes_hit_pattern, "nplanes_hit_pattern");
+  CSCBaseboard::checkConfigParameters(nplanes_hit_accel_pretrig,
+                                      max_nplanes_hit_accel_pretrig,
+                                      def_nplanes_hit_accel_pretrig,
+                                      "nplanes_hit_accel_pretrig");
+  CSCBaseboard::checkConfigParameters(nplanes_hit_accel_pattern,
+                                      max_nplanes_hit_accel_pattern,
+                                      def_nplanes_hit_accel_pattern,
+                                      "nplanes_hit_accel_pattern");
+  CSCBaseboard::checkConfigParameters(trig_mode, max_trig_mode, def_trig_mode, "trig_mode");
+  CSCBaseboard::checkConfigParameters(accel_mode, max_accel_mode, def_accel_mode, "accel_mode");
+  CSCBaseboard::checkConfigParameters(l1a_window_width, max_l1a_window_width, def_l1a_window_width, "l1a_window_width");
 }
 
 void CSCAnodeLCTProcessor::clear() {
@@ -299,6 +178,8 @@ void CSCAnodeLCTProcessor::clear() {
     secondALCT[bx].clear();
   }
   lct_list.clear();
+  inTimeHMT_ = 0;
+  outTimeHMT_ = 0;
 }
 
 void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
@@ -313,54 +194,50 @@ void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
 
 std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   static std::atomic<bool> config_dumped{false};
-  if ((infoV > 0 || (isSLHC_)) && !config_dumped) {
-    //std::cout<<"**** ALCT run parameters dump ****"<<std::endl;
+  if ((infoV > 0 || (runPhase2_)) && !config_dumped) {
     dumpConfigParams();
     config_dumped = true;
   }
 
   // Get the number of wire groups for the given chamber.  Do it only once
   // per chamber.
-  if (numWireGroups == 0) {
+  if (numWireGroups <= 0 or numWireGroups > CSCConstants::MAX_NUM_WIREGROUPS) {
     if (cscChamber_) {
       numWireGroups = cscChamber_->layer(1)->geometry()->numberOfWireGroups();
-      if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {
-        if (infoV >= 0)
-          edm::LogError("CSCAnodeLCTProcessor|SetupError")
-              << "+++ Number of wire groups, " << numWireGroups << " found in " << theCSCName_ << " (sector "
-              << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
-              << " exceeds max expected, " << CSCConstants::MAX_NUM_WIRES << " +++\n"
-              << "+++ CSC geometry looks garbled; no emulation possible +++\n";
+      if (numWireGroups > CSCConstants::MAX_NUM_WIREGROUPS) {
+        edm::LogError("CSCAnodeLCTProcessor|SetupError")
+            << "+++ Number of wire groups, " << numWireGroups << " found in " << theCSCName_ << " (sector " << theSector
+            << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
+            << " exceeds max expected, " << CSCConstants::MAX_NUM_WIREGROUPS << " +++\n"
+            << "+++ CSC geometry looks garbled; no emulation possible +++\n";
         numWireGroups = -1;
       }
     } else {
-      if (infoV >= 0)
-        edm::LogError("CSCAnodeLCTProcessor|SetupError")
-            << "+++ " << theCSCName_ << " (sector " << theSector << " subsector " << theSubsector << " trig id. "
-            << theTrigChamber << ")"
-            << " is not defined in current geometry! +++\n"
-            << "+++ CSC geometry looks garbled; no emulation possible +++\n";
+      edm::LogError("CSCAnodeLCTProcessor|SetupError")
+          << "+++ " << theCSCName_ << " (sector " << theSector << " subsector " << theSubsector << " trig id. "
+          << theTrigChamber << ")"
+          << " is not defined in current geometry! +++\n"
+          << "+++ CSC geometry looks garbled; no emulation possible +++\n";
       numWireGroups = -1;
     }
   }
 
-  if (numWireGroups < 0) {
-    if (infoV >= 0)
-      edm::LogError("CSCAnodeLCTProcessor|SetupError")
-          << "+++ " << theCSCName_ << " (sector " << theSector << " subsector " << theSubsector << " trig id. "
-          << theTrigChamber << "):"
-          << " numWireGroups = " << numWireGroups << "; ALCT emulation skipped! +++";
+  if (numWireGroups <= 0 or (unsigned) numWireGroups > qualityControl_->get_csc_max_wire(theStation, theRing)) {
+    edm::LogError("CSCAnodeLCTProcessor|SetupError")
+        << "+++ " << theCSCName_ << " (sector " << theSector << " subsector " << theSubsector << " trig id. "
+        << theTrigChamber << "):"
+        << " numWireGroups = " << numWireGroups << "; ALCT emulation skipped! +++";
     std::vector<CSCALCTDigi> emptyV;
     return emptyV;
   }
 
   // Get wire digis in this chamber from wire digi collection.
-  bool noDigis = getDigis(wiredc);
+  bool hasDigis = getDigis(wiredc);
 
-  if (!noDigis) {
-    // First get wire times from the wire digis.
-    std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
-    readWireDigis(wire);
+  if (hasDigis) {
+    // First get wiregroup times from the wire digis.
+    std::vector<int> wireGroupTimes[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS];
+    readWireDigis(wireGroupTimes);
 
     // Pass an array of wire times on to another run() doing the LCT search.
     // If the number of layers containing digis is smaller than that
@@ -373,25 +250,32 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
     unsigned int layersHit = 0;
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
       for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
-        if (!wire[i_layer][i_wire].empty()) {
+        if (!wireGroupTimes[i_layer][i_wire].empty()) {
           layersHit++;
           break;
         }
       }
     }
     if (layersHit >= min_layers)
-      run(wire);
+      run(wireGroupTimes);
+    // Get the high multiplicity bits in this chamber
+    encodeHighMultiplicityBits(wireGroupTimes);
   }
 
   // Return vector of all found ALCTs.
   return getALCTs();
 }
 
-void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   bool trigger = false;
 
   // Check if there are any in-time hits and do the pulse extension.
   bool chamber_empty = pulseExtension(wire);
+
+  // define a new pattern map
+  // for each key wiregroup, and for each pattern, store the 2D collection of fired wiregroup digis
+  std::map<int, std::map<int, CSCALCTDigi::WireContainer>> hits_in_patterns;
+  hits_in_patterns.clear();
 
   // Only do the rest of the processing if chamber is not empty.
   // Stop drift_delay bx's short of fifo_tbins since at later bx's we will
@@ -399,13 +283,18 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
   unsigned int stop_bx = fifo_tbins - drift_delay;
   if (!chamber_empty) {
     for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
+      // extra check to make sure only valid wires are processed
+      const unsigned max_wire = qualityControl_->get_csc_max_wire(theStation, theRing);
+      if (unsigned(i_wire) >= max_wire)
+        continue;
+
       unsigned int start_bx = 0;
       // Allow for more than one pass over the hits in the time window.
       while (start_bx < stop_bx) {
         if (preTrigger(i_wire, start_bx)) {
           if (infoV > 2)
             showPatterns(i_wire);
-          if (patternDetection(i_wire)) {
+          if (patternDetection(i_wire, hits_in_patterns)) {
             trigger = true;
             int ghost_cleared[2] = {0, 0};
             ghostCancellationLogicOneWire(i_wire, ghost_cleared);
@@ -415,10 +304,15 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
               edm::LogError("CSCAnodeLCTProcessor")
                   << " bx of valid trigger : " << bx << " > max allowed value " << CSCConstants::MAX_ALCT_TBINS;
 
-            //acceloration mode
+            //acceleration mode
             if (quality[i_wire][0] > 0 and bx < CSCConstants::MAX_ALCT_TBINS) {
               int valid = (ghost_cleared[0] == 0) ? 1 : 0;  //cancelled, valid=0, otherwise it is 1
-              lct_list.push_back(CSCALCTDigi(valid, quality[i_wire][0], 1, 0, i_wire, bx));
+              CSCALCTDigi newALCT(valid, quality[i_wire][0], 1, 0, i_wire, bx);
+
+              // set the wire digis for this pattern
+              setWireContainer(newALCT, hits_in_patterns[i_wire][0]);
+
+              lct_list.emplace_back(newALCT);
               if (infoV > 1)
                 LogTrace("CSCAnodeLCTProcessor") << "Add one ALCT to list " << lct_list.back();
             }
@@ -426,7 +320,13 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
             //collision mode
             if (quality[i_wire][1] > 0 and bx < CSCConstants::MAX_ALCT_TBINS) {
               int valid = (ghost_cleared[1] == 0) ? 1 : 0;  //cancelled, valid=0, otherwise it is 1
-              lct_list.push_back(CSCALCTDigi(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx));
+
+              CSCALCTDigi newALCT(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx);
+
+              // set the wire digis for this pattern
+              setWireContainer(newALCT, hits_in_patterns[i_wire][1]);
+
+              lct_list.emplace_back(newALCT);
               if (infoV > 1)
                 LogTrace("CSCAnodeLCTProcessor") << "Add one ALCT to list " << lct_list.back();
             }
@@ -456,7 +356,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
 
 bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
   // Routine for getting digis and filling digiV vector.
-  bool noDigis = true;
+  bool hasDigis = false;
 
   // Loop over layers and save wire digis on each one into digiV[layer].
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
@@ -472,7 +372,7 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
     }
 
     if (!digiV[i_layer].empty()) {
-      noDigis = false;
+      hasDigis = true;
       if (infoV > 1) {
         LogTrace("CSCAnodeLCTProcessor") << "found " << digiV[i_layer].size() << " wire digi(s) in layer " << i_layer
                                          << " of " << theCSCName_ << " (trig. sector " << theSector << " subsector "
@@ -484,7 +384,7 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
     }
   }
 
-  return noDigis;
+  return hasDigis;
 }
 
 void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc, const CSCDetId& id) {
@@ -494,7 +394,8 @@ void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc, const C
   }
 }
 
-void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+void CSCAnodeLCTProcessor::readWireDigis(
+    std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   // Loop over all 6 layers.
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     // Loop over all digis in the layer and find the wireGroup and bx
@@ -551,7 +452,7 @@ void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM
 }
 
 bool CSCAnodeLCTProcessor::pulseExtension(
-    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   bool chamber_empty = true;
   int i_wire, i_layer, digi_num;
   const unsigned int bits_in_pulse = 8 * sizeof(pulse[0][0]);
@@ -615,9 +516,11 @@ bool CSCAnodeLCTProcessor::pulseExtension(
 }
 
 bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
+  int nPreTriggers = 0;
+
   unsigned int layers_hit;
   bool hit_layer[CSCConstants::NUM_LAYERS];
-  int this_layer, this_wire;
+  int this_wire;
   // If nplanes_hit_accel_pretrig is 0, the firmware uses the value
   // of nplanes_hit_pretrig instead.
   const unsigned int nplanes_hit_pretrig_acc =
@@ -632,32 +535,42 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
   unsigned int stop_bx = fifo_tbins - drift_delay;
   for (unsigned int bx_time = start_bx; bx_time < stop_bx; bx_time++) {
     for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
+      // initialize the hit layers
       for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
         hit_layer[i_layer] = false;
       layers_hit = 0;
 
-      for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-        if (pattern_mask[i_pattern][i_wire] != 0) {
-          this_layer = pattern_envelope[0][i_wire];
-          this_wire = pattern_envelope[1 + MESelection][i_wire] + key_wire;
-          if ((this_wire >= 0) && (this_wire < numWireGroups)) {
-            // Perform bit operation to see if pulse is 1 at a certain bx_time.
-            if (((pulse[this_layer][this_wire] >> bx_time) & 1) == 1) {
-              // Store number of layers hit.
-              if (hit_layer[this_layer] == false) {
-                hit_layer[this_layer] = true;
-                layers_hit++;
-              }
-
-              // See if number of layers hit is greater than or equal to
-              // pretrig_thresh.
-              if (layers_hit >= pretrig_thresh[i_pattern]) {
-                first_bx[key_wire] = bx_time;
-                if (infoV > 1) {
-                  LogTrace("CSCAnodeLCTProcessor") << "Pretrigger was satisfied for wire: " << key_wire
-                                                   << " pattern: " << i_pattern << " bx_time: " << bx_time;
+      // now run over all layers and wires
+      for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+        for (int i_wire = 0; i_wire < CSCConstants::ALCT_PATTERN_WIDTH; i_wire++) {
+          // check if the hit is valid
+          if (alct_pattern_[i_pattern][i_layer][i_wire]) {
+            this_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire] + key_wire;
+            if ((this_wire >= 0) && (this_wire < numWireGroups)) {
+              // Perform bit operation to see if pulse is 1 at a certain bx_time.
+              if (((pulse[i_layer][this_wire] >> bx_time) & 1) == 1) {
+                // Store number of layers hit.
+                if (!hit_layer[i_layer]) {
+                  hit_layer[i_layer] = true;
+                  layers_hit++;
                 }
-                return true;
+
+                // See if number of layers hit is greater than or equal to
+                // pretrig_thresh.
+                if (layers_hit >= pretrig_thresh[i_pattern]) {
+                  first_bx[key_wire] = bx_time;
+                  if (infoV > 1) {
+                    LogTrace("CSCAnodeLCTProcessor") << "Pretrigger was satisfied for wire: " << key_wire
+                                                     << " pattern: " << i_pattern << " bx_time: " << bx_time;
+                  }
+                  // make a new pre-trigger
+                  nPreTriggers++;
+                  // make a new pre-trigger digi
+                  // useful for calculating DAQ rates
+                  thePreTriggerDigis.emplace_back(
+                      CSCALCTPreTriggerDigi(1, layers_hit - 3, 0, 0, this_wire, bx_time, nPreTriggers));
+                  return true;
+                }
               }
             }
           }
@@ -669,11 +582,12 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
   return false;
 }
 
-bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
+bool CSCAnodeLCTProcessor::patternDetection(
+    const int key_wire, std::map<int, std::map<int, CSCALCTDigi::WireContainer>>& hits_in_patterns) {
   bool trigger = false;
   bool hit_layer[CSCConstants::NUM_LAYERS];
   unsigned int temp_quality;
-  int this_layer, this_wire, delta_wire;
+  int this_wire, delta_wire;
   // If nplanes_hit_accel_pattern is 0, the firmware uses the value
   // of nplanes_hit_pattern instead.
   const unsigned int nplanes_hit_pattern_acc =
@@ -684,51 +598,66 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 
   for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
     temp_quality = 0;
+
+    // initialize the hit layers
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
       hit_layer[i_layer] = false;
+
+    // clear a single pattern!
+    CSCALCTDigi::WireContainer hits_single_pattern;
+    hits_single_pattern.clear();
+    hits_single_pattern.resize(CSCConstants::NUM_LAYERS);
+    for (auto& p : hits_single_pattern) {
+      p.resize(CSCConstants::ALCT_PATTERN_WIDTH, INVALID_WIRE);
+    }
 
     double num_pattern_hits = 0., times_sum = 0.;
     std::multiset<int> mset_for_median;
     mset_for_median.clear();
 
-    for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-      if (pattern_mask[i_pattern][i_wire] != 0) {
-        this_layer = pattern_envelope[0][i_wire];
-        delta_wire = pattern_envelope[1 + MESelection][i_wire];
-        this_wire = delta_wire + key_wire;
-        if ((this_wire >= 0) && (this_wire < numWireGroups)) {
-          // Wait a drift_delay time later and look for layers hit in
-          // the pattern.
-          if (((pulse[this_layer][this_wire] >> (first_bx[key_wire] + drift_delay)) & 1) == 1) {
-            // If layer has never had a hit before, then increment number
-            // of layer hits.
-            if (hit_layer[this_layer] == false) {
-              temp_quality++;
-              // keep track of which layers already had hits.
-              hit_layer[this_layer] = true;
-              if (infoV > 1)
-                LogTrace("CSCAnodeLCTProcessor")
-                    << "bx_time: " << first_bx[key_wire] << " pattern: " << i_pattern << " keywire: " << key_wire
-                    << " layer: " << this_layer << " quality: " << temp_quality;
-            }
+    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+      for (int i_wire = 0; i_wire < CSCConstants::ALCT_PATTERN_WIDTH; i_wire++) {
+        // check if the hit is valid
+        if (alct_pattern_[i_pattern][i_layer][i_wire]) {
+          delta_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire];
+          this_wire = delta_wire + key_wire;
+          if ((this_wire >= 0) && (this_wire < numWireGroups)) {
+            // Wait a drift_delay time later and look for layers hit in
+            // the pattern.
+            if (((pulse[i_layer][this_wire] >> (first_bx[key_wire] + drift_delay)) & 1) == 1) {
+              // store hits in the temporary pattern vector
+              hits_single_pattern[i_layer][i_wire] = this_wire;
 
-            // for averaged time use only the closest WGs around the key WG
-            if (abs(delta_wire) < 2) {
-              // find at what bx did pulse on this wire&layer start
-              // use hit_pesrist constraint on how far back we can go
-              int first_bx_layer = first_bx[key_wire] + drift_delay;
-              for (unsigned int dbx = 0; dbx < hit_persist; dbx++) {
-                if (((pulse[this_layer][this_wire] >> (first_bx_layer - 1)) & 1) == 1)
-                  first_bx_layer--;
-                else
-                  break;
+              // If layer has never had a hit before, then increment number
+              // of layer hits.
+              if (!hit_layer[i_layer]) {
+                temp_quality++;
+                // keep track of which layers already had hits.
+                hit_layer[i_layer] = true;
+                if (infoV > 1)
+                  LogTrace("CSCAnodeLCTProcessor")
+                      << "bx_time: " << first_bx[key_wire] << " pattern: " << i_pattern << " keywire: " << key_wire
+                      << " layer: " << i_layer << " quality: " << temp_quality;
               }
-              times_sum += (double)first_bx_layer;
-              num_pattern_hits += 1.;
-              mset_for_median.insert(first_bx_layer);
-              if (infoV > 2)
-                LogTrace("CSCAnodeLCTProcessor") << " 1st bx in layer: " << first_bx_layer << " sum bx: " << times_sum
-                                                 << " #pat. hits: " << num_pattern_hits;
+
+              // for averaged time use only the closest WGs around the key WG
+              if (abs(delta_wire) < 2) {
+                // find at what bx did pulse on this wire&layer start
+                // use hit_pesrist constraint on how far back we can go
+                int first_bx_layer = first_bx[key_wire] + drift_delay;
+                for (unsigned int dbx = 0; dbx < hit_persist; dbx++) {
+                  if (((pulse[i_layer][this_wire] >> (first_bx_layer - 1)) & 1) == 1)
+                    first_bx_layer--;
+                  else
+                    break;
+                }
+                times_sum += (double)first_bx_layer;
+                num_pattern_hits += 1.;
+                mset_for_median.insert(first_bx_layer);
+                if (infoV > 2)
+                  LogTrace("CSCAnodeLCTProcessor") << " 1st bx in layer: " << first_bx_layer << " sum bx: " << times_sum
+                                                   << " #pat. hits: " << num_pattern_hits;
+              }
             }
           }
         }
@@ -759,8 +688,10 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 #endif
     }
 
+    // save the pattern information when a trigger was formed!
     if (temp_quality >= pattern_thresh[i_pattern]) {
       trigger = true;
+      hits_in_patterns[key_wire][i_pattern] = hits_single_pattern;
 
       // Quality definition changed on 22 June 2007: it no longer depends
       // on pattern_thresh.
@@ -797,7 +728,7 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 }
 
 void CSCAnodeLCTProcessor::ghostCancellationLogic() {
-  int ghost_cleared[CSCConstants::MAX_NUM_WIRES][2];
+  int ghost_cleared[CSCConstants::MAX_NUM_WIREGROUPS][2];
 
   for (int key_wire = 0; key_wire < numWireGroups; key_wire++) {
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
@@ -987,15 +918,22 @@ void CSCAnodeLCTProcessor::lctSearch() {
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     if (bestALCT[bx].isValid()) {
       bestALCT[bx].setTrknmb(1);
+
+      // check if the best ALCT is valid
+      qualityControl_->checkValidReadout(bestALCT[bx]);
+
       if (infoV > 0) {
-        LogDebug("CSCAnodeLCTProcessor") << "\n"
-                                         << bestALCT[bx] << " fullBX = " << bestALCT[bx].getFullBX() << " found in "
+        LogDebug("CSCAnodeLCTProcessor") << bestALCT[bx] << " fullBX = " << bestALCT[bx].getFullBX() << " found in "
                                          << theCSCName_ << " (sector " << theSector << " subsector " << theSubsector
                                          << " trig id. " << theTrigChamber << ")"
                                          << "\n";
       }
       if (secondALCT[bx].isValid()) {
         secondALCT[bx].setTrknmb(2);
+
+        // check if the second best ALCT is valid
+        qualityControl_->checkValidReadout(secondALCT[bx]);
+
         if (infoV > 0) {
           LogDebug("CSCAnodeLCTProcessor")
               << secondALCT[bx] << " fullBX = " << secondALCT[bx].getFullBX() << " found in " << theCSCName_
@@ -1249,12 +1187,11 @@ void CSCAnodeLCTProcessor::dumpConfigParams() const {
   strm << " l1a_window_width [L1Accept window width, in 25 ns bins] = " << l1a_window_width << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCAnodeLCTProcessor") << strm.str();
-  //std::cout<<strm.str()<<std::endl;
 }
 
 // Dump of digis on wire groups.
 void CSCAnodeLCTProcessor::dumpDigis(
-    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const {
+    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) const {
   LogDebug("CSCAnodeLCTProcessor") << theCSCName_ << " nWiregroups " << numWireGroups;
 
   std::ostringstream strstrm;
@@ -1287,23 +1224,17 @@ void CSCAnodeLCTProcessor::dumpDigis(
 
 // Returns vector of read-out ALCTs, if any.  Starts with the vector of
 // all found ALCTs and selects the ones in the read-out time window.
-std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
+std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs(int nMaxALCTs) const {
   std::vector<CSCALCTDigi> tmpV;
 
   // The number of LCT bins in the read-out is given by the
   // l1a_window_width parameter, but made even by setting the LSB of
   // l1a_window_width to 0.
-  const int lct_bins =
-      //    (l1a_window_width%2 == 0) ? l1a_window_width : l1a_window_width-1;
-      l1a_window_width;
+  const int lct_bins = l1a_window_width;
   static std::atomic<int> late_tbins{early_tbins + lct_bins};
 
   static std::atomic<int> ifois{0};
   if (ifois == 0) {
-    //std::cout<<"ALCT early_tbins="<<early_tbins<<"  lct_bins="<<lct_bins<<"  l1a_window_width="<<l1a_window_width<<"  late_tbins="<<late_tbins<<std::endl;
-    //std::cout<<"**** ALCT readoutALCTs config dump ****"<<std::endl;
-    //dumpConfigParams();
-
     if (infoV >= 0 && early_tbins < 0) {
       edm::LogWarning("CSCAnodeLCTProcessor|SuspiciousParameters")
           << "+++ fifo_pretrig = " << fifo_pretrig << "; in-time ALCTs are not getting read-out!!! +++"
@@ -1323,7 +1254,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
 
   // Start from the vector of all found ALCTs and select those within
   // the ALCT*L1A coincidence window.
-  const std::vector<CSCALCTDigi>& all_alcts = getALCTs();
+  const std::vector<CSCALCTDigi>& all_alcts = getALCTs(nMaxALCTs);
   for (const auto& p : all_alcts) {
     if (!p.isValid())
       continue;
@@ -1357,11 +1288,18 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
   for (auto& p : tmpV) {
     p.setBX(p.getBX() - (CSCConstants::LCT_CENTRAL_BX - l1a_window_width / 2));
   }
+
+  // do a final check on the ALCTs in readout
+  qualityControl_->checkMultiplicityBX(tmpV);
+  for (const auto& alct : tmpV) {
+    qualityControl_->checkValid(alct, nMaxALCTs);
+  }
+
   return tmpV;
 }
 
 // Returns vector of all found ALCTs, if any.  Used in ALCT-CLCT matching.
-std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
+std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs(unsigned nMaxALCTs) const {
   std::vector<CSCALCTDigi> tmpV;
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     if (bestALCT[bx].isValid())
@@ -1371,6 +1309,13 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
   }
   return tmpV;
 }
+
+CSCALCTDigi CSCAnodeLCTProcessor::getBestALCT(int bx) const { return bestALCT[bx]; }
+
+CSCALCTDigi CSCAnodeLCTProcessor::getSecondALCT(int bx) const { return secondALCT[bx]; }
+
+/** Returns shower bits */
+CSCShowerDigi CSCAnodeLCTProcessor::readoutShower() const { return shower_; }
 
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////Test Routines///////////////////////////////
@@ -1385,17 +1330,18 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
       strstrm_header << ((32 - i) % 10);
     }
     LogTrace("CSCAnodeLCTProcessor") << strstrm_header.str();
-    for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-      if (pattern_mask[i_pattern][i_wire] != 0) {
-        std::ostringstream strstrm_pulse;
-        int this_layer = pattern_envelope[0][i_wire];
-        int this_wire = pattern_envelope[1 + MESelection][i_wire] + key_wire;
-        if (this_wire >= 0 && this_wire < numWireGroups) {
-          for (int i = 1; i <= 32; i++) {
-            strstrm_pulse << ((pulse[this_layer][this_wire] >> (32 - i)) & 1);
+    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+      for (int i_wire = 0; i_wire < CSCConstants::ALCT_PATTERN_WIDTH; i_wire++) {
+        // check if the hit is valid
+        if (alct_pattern_[i_pattern][i_layer][i_wire]) {
+          std::ostringstream strstrm_pulse;
+          int this_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire] + key_wire;
+          if (this_wire >= 0 && this_wire < numWireGroups) {
+            for (int i = 1; i <= 32; i++) {
+              strstrm_pulse << ((pulse[i_layer][this_wire] >> (32 - i)) & 1);
+            }
+            LogTrace("CSCAnodeLCTProcessor") << strstrm_pulse.str() << " on layer " << i_layer << " wire " << this_wire;
           }
-          LogTrace("CSCAnodeLCTProcessor")
-              << strstrm_pulse.str() << " on layer " << this_layer << " wire " << this_wire;
         }
       }
     }
@@ -1411,4 +1357,62 @@ int CSCAnodeLCTProcessor::getTempALCTQuality(int temp_quality) const {
     Q = 0;  // quality code 0 is valid!
 
   return Q;
+}
+
+void CSCAnodeLCTProcessor::cleanWireContainer(CSCALCTDigi::WireContainer& wireHits) const {
+  for (auto& p : wireHits) {
+    p.erase(
+        std::remove_if(p.begin(), p.end(), [](unsigned i) -> bool { return i == CSCAnodeLCTProcessor::INVALID_WIRE; }),
+        p.end());
+  }
+}
+
+void CSCAnodeLCTProcessor::setWireContainer(CSCALCTDigi& alct, CSCALCTDigi::WireContainer& wireHits) const {
+  // clean the wire digi container
+  cleanWireContainer(wireHits);
+
+  // set the hit container
+  alct.setHits(wireHits);
+}
+
+void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(
+    const std::vector<int> wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
+  inTimeHMT_ = 0;
+  outTimeHMT_ = 0;
+
+  // functions for in-time and out-of-time
+  auto inTime = [=](unsigned time) { return time >= showerMinInTBin_ and time <= showerMaxInTBin_; };
+  auto outTime = [=](unsigned time) { return time >= showerMinOutTBin_ and time <= showerMaxOutTBin_; };
+
+  // count the wires in-time and out-time
+  unsigned hitsInTime = 0;
+  unsigned hitsOutTime = 0;
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (int i_wire = 0; i_wire < CSCConstants::MAX_NUM_WIREGROUPS; i_wire++) {
+      auto times = wires[i_layer][i_wire];
+      hitsInTime += std::count_if(times.begin(), times.end(), inTime);
+      hitsOutTime += std::count_if(times.begin(), times.end(), outTime);
+    }
+  }
+
+  // convert station and ring number to index
+  // index runs from 2 to 10, subtract 2
+  unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
+
+  // loose, nominal and tight
+  std::vector<unsigned> station_thresholds = {
+      thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
+
+  // assign the bits
+  for (unsigned i = 0; i < station_thresholds.size(); i++) {
+    if (hitsInTime >= station_thresholds[i]) {
+      inTimeHMT_ = i + 1;
+    }
+    if (hitsOutTime >= station_thresholds[i]) {
+      outTimeHMT_ = i + 1;
+    }
+  }
+
+  // create a new object
+  shower_ = CSCShowerDigi(inTimeHMT_, outTimeHMT_, theTrigChamber);
 }

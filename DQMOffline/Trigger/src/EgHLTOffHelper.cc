@@ -10,7 +10,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
-#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTTrackIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHLTTrackIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
@@ -325,10 +325,9 @@ void OffHelper::fillClusShapeData(const reco::GsfElectron& ele, OffEle::ClusShap
       seedClus.hitsAndFractions()[0]
           .first;  //note this may not actually be the seed hit but it doesnt matter because all hits will be in the barrel OR endcap
   if (seedDetId.subdetId() == EcalBarrel) {
-    std::vector<float> stdCov =
+    const auto& stdCov =
         EcalClusterTools::covariances(seedClus, ebRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    std::vector<float> crysCov =
-        EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
     if (ele.superCluster()->rawEnergy() != 0.) {
@@ -338,10 +337,9 @@ void OffHelper::fillClusShapeData(const reco::GsfElectron& ele, OffEle::ClusShap
       clusShapeData.r9 = -1.;
 
   } else {
-    std::vector<float> stdCov =
+    const auto& stdCov =
         EcalClusterTools::covariances(seedClus, eeRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    std::vector<float> crysCov =
-        EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
     if (ele.superCluster()->rawEnergy() != 0.) {
@@ -496,17 +494,15 @@ void OffHelper::fillClusShapeData(const reco::Photon& pho, OffPho::ClusShapeData
       seedClus.hitsAndFractions()[0]
           .first;  //note this may not actually be the seed hit but it doesnt matter because all hits will be in the barrel OR endcap (it is also incredably inefficient as it getHitsByDetId passes the vector by value not reference
   if (seedDetId.subdetId() == EcalBarrel) {
-    std::vector<float> stdCov =
+    const auto& stdCov =
         EcalClusterTools::covariances(seedClus, ebRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    std::vector<float> crysCov =
-        EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
   } else {
-    std::vector<float> stdCov =
+    const auto& stdCov =
         EcalClusterTools::covariances(seedClus, eeRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    std::vector<float> crysCov =
-        EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
 
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);

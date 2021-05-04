@@ -1,7 +1,6 @@
 
 #include "DQM/TrackingMonitorClient/plugins/TrackingDQMClientHeavyIons.h"
 
-#include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -51,23 +50,23 @@ void TrackingDQMClientHeavyIons::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore:
   DCAStats->getTH2F()->GetYaxis()->SetBinLabel(2, "RMS, #sigma");
   DCAStats->getTH2F()->GetYaxis()->SetBinLabel(3, "Skewness ,#gamma_{1}");
   DCAStats->getTH2F()->GetYaxis()->SetBinLabel(4, "Kurtosis, #gamma_{2}");
-  DCAStats->getTH2F()->GetXaxis()->SetBinLabel(1, "Longitudinal");
-  DCAStats->getTH2F()->GetXaxis()->SetBinLabel(2, "Transverse");
-  DCAStats->getTH2F()->SetOption("text");
+  DCAStats->setBinLabel(1, "Longitudinal");
+  DCAStats->setBinLabel(2, "Transverse");
+  DCAStats->setOption("text");
 
   histName = "LongDCASig_HeavyIonTk";
   ME* element = igetter.get(TopFolder_ + "/" + histName);
   //Longitudinal First
-  DCAStats->getTH2F()->SetBinContent(1, 1, element->getTH1F()->GetMean());      //mean
-  DCAStats->getTH2F()->SetBinContent(1, 2, element->getTH1F()->GetRMS());       //rms
-  DCAStats->getTH2F()->SetBinContent(1, 3, element->getTH1F()->GetSkewness());  //skewness
-  DCAStats->getTH2F()->SetBinContent(1, 4, element->getTH1F()->GetKurtosis());  //kurtosis
+  DCAStats->setBinContent(1, 1, element->getTH1F()->GetMean());      //mean
+  DCAStats->setBinContent(1, 2, element->getTH1F()->GetRMS());       //rms
+  DCAStats->setBinContent(1, 3, element->getTH1F()->GetSkewness());  //skewness
+  DCAStats->setBinContent(1, 4, element->getTH1F()->GetKurtosis());  //kurtosis
   //Transverse
   histName = "TransDCASig_HeavyIonTk";
   ME* element1 = igetter.get(TopFolder_ + "/" + histName);
   //Longitudinal First
-  DCAStats->getTH2F()->SetBinContent(2, 1, element1->getTH1F()->GetMean());      //mean
-  DCAStats->getTH2F()->SetBinContent(2, 2, element1->getTH1F()->GetRMS());       //rms
-  DCAStats->getTH2F()->SetBinContent(2, 3, element1->getTH1F()->GetSkewness());  //skewness
-  DCAStats->getTH2F()->SetBinContent(2, 4, element1->getTH1F()->GetKurtosis());  //kurtosis
+  DCAStats->setBinContent(2, 1, element1->getTH1F()->GetMean());      //mean
+  DCAStats->setBinContent(2, 2, element1->getTH1F()->GetRMS());       //rms
+  DCAStats->setBinContent(2, 3, element1->getTH1F()->GetSkewness());  //skewness
+  DCAStats->setBinContent(2, 4, element1->getTH1F()->GetKurtosis());  //kurtosis
 }

@@ -12,7 +12,7 @@
 //
 //
 
-#include "boost/array.hpp"
+#include <array>
 
 #include "DataFormats/METReco/interface/HcalNoiseHPD.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
@@ -24,7 +24,7 @@
 
 namespace reco {
 
-  class HcalNoiseRBXArray : public boost::array<HcalNoiseRBX, HcalHPDRBXMap::NUM_RBXS> {
+  class HcalNoiseRBXArray : public std::array<HcalNoiseRBX, HcalHPDRBXMap::NUM_RBXS> {
   public:
     // constructor/destructor
     HcalNoiseRBXArray();

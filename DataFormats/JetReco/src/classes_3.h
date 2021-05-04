@@ -5,6 +5,12 @@
 
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#if defined __has_feature
+#if __has_feature(modules)
+// Workaround the missing CLHEP.modulemap: CLHEP/Vector/ThreeVector.h:41:7: error: redefinition of 'Hep3Vector'
+#include "DataFormats/JetReco/interface/PFClusterJetCollection.h"
+#endif
+#endif
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"

@@ -33,7 +33,7 @@ namespace cond {
       return ret;
     }
 
-    cond::Time_t RUN_INFO::Table::getLastInserted() {
+    cond::Time_t RUN_INFO::Table::getLastInserted(boost::posix_time::ptime& start, boost::posix_time::ptime& end) {
       cond::Time_t run = cond::time::MIN_VAL;
       Query<MAX_RUN_NUMBER> q0(m_schema);
       try {
@@ -46,6 +46,7 @@ namespace cond {
         if (message.find("Attempt to access data of NULL attribute") != 0)
           throw;
       }
+      select(run, start, end);
       return run;
     }
 
@@ -74,15 +75,20 @@ namespace cond {
         std::vector<std::tuple<cond::Time_t, boost::posix_time::ptime, boost::posix_time::ptime> >& runData) {
       boost::posix_time::ptime up = upper;
       // first find the lowest existing run >= upper
-      Query<MIN_START_TIME> q0(m_schema);
+      Query<START_TIME> q0(m_schema);
       q0.addCondition<START_TIME>(upper, ">=");
-      for (auto r : q0)
+      bool found = q0.retrievedRows();
+      if (!found)
+        return false;
+      Query<MIN_START_TIME> q1(m_schema);
+      q1.addCondition<START_TIME>(upper, ">=");
+      for (auto r : q1)
         up = std::get<0>(r);
       // then find the inclusive range
-      Query<RUN_NUMBER, START_TIME, END_TIME> q1(m_schema);
-      q1.addCondition<END_TIME>(lower, ">=").addCondition<START_TIME>(up, "<=");
+      Query<RUN_NUMBER, START_TIME, END_TIME> q2(m_schema);
+      q2.addCondition<END_TIME>(lower, ">=").addCondition<START_TIME>(up, "<=");
       size_t prevSize = runData.size();
-      for (auto r : q1) {
+      for (auto r : q2) {
         runData.push_back(r);
       }
       return runData.size() > prevSize;

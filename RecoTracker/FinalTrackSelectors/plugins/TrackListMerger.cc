@@ -23,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "RecoTracker/FinalTrackSelectors/interface/TrackAlgoPriorityOrder.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -55,6 +56,8 @@ private:
 
   bool copyExtras_;
   bool makeReKeyedSeeds_;
+
+  edm::ESGetToken<TrackAlgoPriorityOrder, CkfComponentsRecord> priorityToken;
 
   struct TkEDGetTokenss {
     edm::InputTag tag;
@@ -134,7 +137,7 @@ private:
 
 //#include "DataFormats/TrackReco/src/classes.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalRefSetter.h"
+#include "TrackingTools/PatternTools/interface/ClusterRemovalRefSetter.h"
 
 #ifdef STAT_TSB
 #include <x86intrin.h>
@@ -202,6 +205,7 @@ namespace {
 
 TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   copyExtras_ = conf.getUntrackedParameter<bool>("copyExtras", true);
+  priorityName_ = conf.getParameter<std::string>("trackAlgoPriorityOrder");
 
   std::vector<edm::InputTag> trackProducerTags(conf.getParameter<std::vector<edm::InputTag>>("TrackProducers"));
   //which of these do I need to turn into vectors?
@@ -215,6 +219,7 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   lostHitPenalty_ = conf.getParameter<double>("LostHitPenalty");
   indivShareFrac_ = conf.getParameter<std::vector<double>>("indivShareFrac");
   std::string qualityStr = conf.getParameter<std::string>("newQuality");
+  priorityToken = esConsumes<TrackAlgoPriorityOrder, CkfComponentsRecord>(edm::ESInputTag("", priorityName_));
 
   if (!qualityStr.empty()) {
     qualityToSet_ = reco::TrackBase::qualityByName(conf.getParameter<std::string>("newQuality"));
@@ -293,8 +298,6 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
     trackProducers_[i] = hasSelector_[i] > 0 ? edTokens(trackProducerTags[i], selectors[i], mvaStores[i])
                                              : edTokens(trackProducerTags[i], mvaStores[i]);
   }
-
-  priorityName_ = conf.getParameter<std::string>("trackAlgoPriorityOrder");
 }
 
 // Virtual destructor needed.
@@ -309,8 +312,7 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   //    using namespace reco;
 
-  edm::ESHandle<TrackAlgoPriorityOrder> priorityH;
-  es.get<CkfComponentsRecord>().get(priorityName_, priorityH);
+  edm::ESHandle<TrackAlgoPriorityOrder> priorityH = es.getHandle(priorityToken);
   auto const& trackAlgoPriorityOrder = *priorityH;
 
   // get Inputs
@@ -461,182 +463,180 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
       unsigned int id = hit->rawId();
       if (hit->geographicalId().subdetId() > 2)
         id &= (~3);  // mask mono/stereo in strips...
-      if
-        LIKELY(hit->isValid()) {
-          rh1[i].emplace_back(id, hit);
-          std::push_heap(rh1[i].begin(), rh1[i].end(), compById);
-        }
+      if LIKELY (hit->isValid()) {
+        rh1[i].emplace_back(id, hit);
+        std::push_heap(rh1[i].begin(), rh1[i].end(), compById);
+      }
     }
     std::sort_heap(rh1[i].begin(), rh1[i].end(), compById);
   }
 
   //DL here
-  if
-    LIKELY(ngood > 1 && collsSize > 1)
-  for (unsigned int ltm = 0; ltm < listsToMerge_.size(); ltm++) {
-    int saveSelected[rSize];
-    bool notActive[collsSize];
-    for (unsigned int cn = 0; cn != collsSize; ++cn)
-      notActive[cn] = find(listsToMerge_[ltm].begin(), listsToMerge_[ltm].end(), cn) == listsToMerge_[ltm].end();
+  if LIKELY (ngood > 1 && collsSize > 1)
+    for (unsigned int ltm = 0; ltm < listsToMerge_.size(); ltm++) {
+      int saveSelected[rSize];
+      bool notActive[collsSize];
+      for (unsigned int cn = 0; cn != collsSize; ++cn)
+        notActive[cn] = find(listsToMerge_[ltm].begin(), listsToMerge_[ltm].end(), cn) == listsToMerge_[ltm].end();
 
-    for (unsigned int i = 0; i < rSize; i++)
-      saveSelected[i] = selected[i];
+      for (unsigned int i = 0; i < rSize; i++)
+        saveSelected[i] = selected[i];
 
-    //DL protect against 0 tracks?
-    for (unsigned int i = 0; i < rSize - 1; i++) {
-      if (selected[i] == 0)
-        continue;
-      unsigned int collNum = trackCollNum[i];
-
-      //check that this track is in one of the lists for this iteration
-      if (notActive[collNum])
-        continue;
-
-      int k1 = indexG[i];
-      unsigned int nh1 = rh1[k1].size();
-      int qualityMaskT1 = trackQuals[i];
-
-      int nhit1 = nh1;  // validHits[k1];
-      float score1 = score[k1];
-
-      // start at next collection
-      for (unsigned int j = i + 1; j < rSize; j++) {
-        if (selected[j] == 0)
+      //DL protect against 0 tracks?
+      for (unsigned int i = 0; i < rSize - 1; i++) {
+        if (selected[i] == 0)
           continue;
-        unsigned int collNum2 = trackCollNum[j];
-        if ((collNum == collNum2) && indivShareFrac_[collNum] > 0.99)
-          continue;
+        unsigned int collNum = trackCollNum[i];
+
         //check that this track is in one of the lists for this iteration
-        if (notActive[collNum2])
+        if (notActive[collNum])
           continue;
 
-        int k2 = indexG[j];
+        int k1 = indexG[i];
+        unsigned int nh1 = rh1[k1].size();
+        int qualityMaskT1 = trackQuals[i];
 
-        int newQualityMask = -9;  //avoid resetting quality mask if not desired 10+ -9 =1
-        if (promoteQuality_[ltm]) {
-          int maskT1 = saveSelected[i] > 1 ? saveSelected[i] - 10 : qualityMaskT1;
-          int maskT2 = saveSelected[j] > 1 ? saveSelected[j] - 10 : trackQuals[j];
-          newQualityMask = (maskT1 | maskT2);  // take OR of trackQuality
-        }
-        unsigned int nh2 = rh1[k2].size();
-        int nhit2 = nh2;
+        int nhit1 = nh1;  // validHits[k1];
+        float score1 = score[k1];
 
-        auto share = use_sharesInput_ ? [](const TrackingRecHit* it, const TrackingRecHit* jt, float) -> bool {
-          return it->sharesInput(jt, TrackingRecHit::some);
-        }
-        : [](const TrackingRecHit* it, const TrackingRecHit* jt, float eps) -> bool {
-            float delta = std::abs(it->localPosition().x() - jt->localPosition().x());
-            return (it->geographicalId() == jt->geographicalId()) && (delta < eps);
-          };
+        // start at next collection
+        for (unsigned int j = i + 1; j < rSize; j++) {
+          if (selected[j] == 0)
+            continue;
+          unsigned int collNum2 = trackCollNum[j];
+          if ((collNum == collNum2) && indivShareFrac_[collNum] > 0.99)
+            continue;
+          //check that this track is in one of the lists for this iteration
+          if (notActive[collNum2])
+            continue;
 
-        statCount.start();
+          int k2 = indexG[j];
 
-        //loop over rechits
-        int noverlap = 0;
-        int firstoverlap = 0;
-        // check first hit  (should use REAL first hit?)
-        if
-          UNLIKELY(allowFirstHitShare_ && rh1[k1][0].first == rh1[k2][0].first) {
+          int newQualityMask = -9;  //avoid resetting quality mask if not desired 10+ -9 =1
+          if (promoteQuality_[ltm]) {
+            int maskT1 = saveSelected[i] > 1 ? saveSelected[i] - 10 : qualityMaskT1;
+            int maskT2 = saveSelected[j] > 1 ? saveSelected[j] - 10 : trackQuals[j];
+            newQualityMask = (maskT1 | maskT2);  // take OR of trackQuality
+          }
+          unsigned int nh2 = rh1[k2].size();
+          int nhit2 = nh2;
+
+          auto share = use_sharesInput_ ? [](const TrackingRecHit* it, const TrackingRecHit* jt, float) -> bool {
+            return it->sharesInput(jt, TrackingRecHit::some);
+          }
+          : [](const TrackingRecHit* it, const TrackingRecHit* jt, float eps) -> bool {
+              float delta = std::abs(it->localPosition().x() - jt->localPosition().x());
+              return (it->geographicalId() == jt->geographicalId()) && (delta < eps);
+            };
+
+          statCount.start();
+
+          //loop over rechits
+          int noverlap = 0;
+          int firstoverlap = 0;
+          // check first hit  (should use REAL first hit?)
+          if UNLIKELY (allowFirstHitShare_ && rh1[k1][0].first == rh1[k2][0].first) {
             const TrackingRecHit* it = rh1[k1][0].second;
             const TrackingRecHit* jt = rh1[k2][0].second;
             if (share(it, jt, epsilon_))
               firstoverlap = 1;
           }
 
-        // exploit sorting
-        unsigned int jh = 0;
-        unsigned int ih = 0;
-        while (ih != nh1 && jh != nh2) {
-          // break if not enough to go...
-          // if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
-          // if ( nprecut-noverlap+firstoverlap > int(nh2-jh)) break;
-          auto const id1 = rh1[k1][ih].first;
-          auto const id2 = rh1[k2][jh].first;
-          if (id1 < id2)
-            ++ih;
-          else if (id2 < id1)
-            ++jh;
-          else {
-            // in case of split-hit do full conbinatorics
-            auto li = ih;
-            while ((++li) != nh1 && id1 == rh1[k1][li].first) {
-            }
-            auto lj = jh;
-            while ((++lj) != nh2 && id2 == rh1[k2][lj].first) {
-            }
-            for (auto ii = ih; ii != li; ++ii)
-              for (auto jj = jh; jj != lj; ++jj) {
-                const TrackingRecHit* it = rh1[k1][ii].second;
-                const TrackingRecHit* jt = rh1[k2][jj].second;
-                if (share(it, jt, epsilon_))
-                  noverlap++;
+          // exploit sorting
+          unsigned int jh = 0;
+          unsigned int ih = 0;
+          while (ih != nh1 && jh != nh2) {
+            // break if not enough to go...
+            // if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
+            // if ( nprecut-noverlap+firstoverlap > int(nh2-jh)) break;
+            auto const id1 = rh1[k1][ih].first;
+            auto const id2 = rh1[k2][jh].first;
+            if (id1 < id2)
+              ++ih;
+            else if (id2 < id1)
+              ++jh;
+            else {
+              // in case of split-hit do full conbinatorics
+              auto li = ih;
+              while ((++li) != nh1 && id1 == rh1[k1][li].first) {
               }
-            jh = lj;
-            ih = li;
-          }  // equal ids
+              auto lj = jh;
+              while ((++lj) != nh2 && id2 == rh1[k2][lj].first) {
+              }
+              for (auto ii = ih; ii != li; ++ii)
+                for (auto jj = jh; jj != lj; ++jj) {
+                  const TrackingRecHit* it = rh1[k1][ii].second;
+                  const TrackingRecHit* jt = rh1[k2][jj].second;
+                  if (share(it, jt, epsilon_))
+                    noverlap++;
+                }
+              jh = lj;
+              ih = li;
+            }  // equal ids
 
-        }  //loop over ih & jh
+          }  //loop over ih & jh
 
-        bool dupfound =
-            (collNum != collNum2)
-                ? (noverlap - firstoverlap) > (std::min(nhit1, nhit2) - firstoverlap) * shareFrac_
-                : (noverlap - firstoverlap) > (std::min(nhit1, nhit2) - firstoverlap) * indivShareFrac_[collNum];
+          bool dupfound =
+              (collNum != collNum2)
+                  ? (noverlap - firstoverlap) > (std::min(nhit1, nhit2) - firstoverlap) * shareFrac_
+                  : (noverlap - firstoverlap) > (std::min(nhit1, nhit2) - firstoverlap) * indivShareFrac_[collNum];
 
-        auto seti = [&](unsigned int ii, unsigned int jj) {
-          selected[jj] = 0;
-          selected[ii] = 10 + newQualityMask;  // add 10 to avoid the case where mask = 1
-          trkUpdated[ii] = true;
-          if (trackAlgoPriorityOrder.priority(oriAlgo[jj]) < trackAlgoPriorityOrder.priority(oriAlgo[ii]))
-            oriAlgo[ii] = oriAlgo[jj];
-          algoMask[ii] |= algoMask[jj];
-          algoMask[jj] = algoMask[ii];  // in case we keep discarded
-        };
+          auto seti = [&](unsigned int ii, unsigned int jj) {
+            selected[jj] = 0;
+            selected[ii] = 10 + newQualityMask;  // add 10 to avoid the case where mask = 1
+            trkUpdated[ii] = true;
+            if (trackAlgoPriorityOrder.priority(oriAlgo[jj]) < trackAlgoPriorityOrder.priority(oriAlgo[ii]))
+              oriAlgo[ii] = oriAlgo[jj];
+            algoMask[ii] |= algoMask[jj];
+            algoMask[jj] = algoMask[ii];  // in case we keep discarded
+          };
 
-        if (dupfound) {
-          float score2 = score[k2];
-          constexpr float almostSame = 0.01f;  // difference rather than ratio due to possible negative values for score
-          if (score1 - score2 > almostSame) {
-            seti(i, j);
-          } else if (score2 - score1 > almostSame) {
-            seti(j, i);
-          } else {
-            // If tracks from both iterations are virtually identical, choose the one with the best quality or with lower algo
-            if ((trackQuals[j] &
-                 (1 << reco::TrackBase::loose | 1 << reco::TrackBase::tight | 1 << reco::TrackBase::highPurity)) ==
-                (trackQuals[i] &
-                 (1 << reco::TrackBase::loose | 1 << reco::TrackBase::tight | 1 << reco::TrackBase::highPurity))) {
-              //same quality, pick earlier algo
-              if (trackAlgoPriorityOrder.priority(algo[k1]) <= trackAlgoPriorityOrder.priority(algo[k2])) {
+          if (dupfound) {
+            float score2 = score[k2];
+            constexpr float almostSame =
+                0.01f;  // difference rather than ratio due to possible negative values for score
+            if (score1 - score2 > almostSame) {
+              seti(i, j);
+            } else if (score2 - score1 > almostSame) {
+              seti(j, i);
+            } else {
+              // If tracks from both iterations are virtually identical, choose the one with the best quality or with lower algo
+              if ((trackQuals[j] &
+                   (1 << reco::TrackBase::loose | 1 << reco::TrackBase::tight | 1 << reco::TrackBase::highPurity)) ==
+                  (trackQuals[i] &
+                   (1 << reco::TrackBase::loose | 1 << reco::TrackBase::tight | 1 << reco::TrackBase::highPurity))) {
+                //same quality, pick earlier algo
+                if (trackAlgoPriorityOrder.priority(algo[k1]) <= trackAlgoPriorityOrder.priority(algo[k2])) {
+                  seti(i, j);
+                } else {
+                  seti(j, i);
+                }
+              } else if ((trackQuals[j] & (1 << reco::TrackBase::loose | 1 << reco::TrackBase::tight |
+                                           1 << reco::TrackBase::highPurity)) <
+                         (trackQuals[i] & (1 << reco::TrackBase::loose | 1 << reco::TrackBase::tight |
+                                           1 << reco::TrackBase::highPurity))) {
                 seti(i, j);
               } else {
                 seti(j, i);
               }
-            } else if ((trackQuals[j] & (1 << reco::TrackBase::loose | 1 << reco::TrackBase::tight |
-                                         1 << reco::TrackBase::highPurity)) <
-                       (trackQuals[i] & (1 << reco::TrackBase::loose | 1 << reco::TrackBase::tight |
-                                         1 << reco::TrackBase::highPurity))) {
-              seti(i, j);
-            } else {
-              seti(j, i);
-            }
-          }  //end fi < fj
-          statCount.overlap();
-          /*
+            }  //end fi < fj
+            statCount.overlap();
+            /*
 	    if (at0[k1]&&at0[k2]) {
 	      statCount.dp(dphi);
 	      if (dz<1.f) statCount.de(deta);
 	    }
 	    */
-        }  //end got a duplicate
-        else {
-          statCount.noOverlap();
-        }
-        //stop if the ith track is now unselected
-        if (selected[i] == 0)
-          break;
-      }  //end track2 loop
-    }    //end track loop
-  }      //end loop over track list sets
+          }  //end got a duplicate
+          else {
+            statCount.noOverlap();
+          }
+          //stop if the ith track is now unselected
+          if (selected[i] == 0)
+            break;
+        }  //end track2 loop
+      }    //end track loop
+    }      //end loop over track list sets
 
   auto vmMVA = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerMVA(*vmMVA);
@@ -755,14 +755,13 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
         edm::InputTag clusterRemovalInfos("");
         //grab on of the hits of the seed
         if (origSeedRef->nHits() != 0) {
-          TrajectorySeed::const_iterator firstHit = origSeedRef->recHits().first;
-          const TrackingRecHit* hit = &*firstHit;
-          if (firstHit->isValid()) {
-            edm::ProductID pID = clusterProductB(hit);
+          TrackingRecHit const& hit = *origSeedRef->recHits().begin();
+          if (hit.isValid()) {
+            edm::ProductID pID = clusterProductB(&hit);
             // the cluster collection either produced a removalInfo or mot
             //get the clusterremoval info from the provenance: will rekey if this is found
             edm::Handle<reco::ClusterRemovalInfo> CRIh;
-            edm::Provenance prov = e.getProvenance(pID);
+            edm::StableProvenance const& prov = e.getStableProvenance(pID);
             clusterRemovalInfos = edm::InputTag(prov.moduleLabel(), prov.productInstanceName(), prov.processName());
             doRekeyOnThisSeed = e.getByLabel(clusterRemovalInfos, CRIh);
           }  //valid hit
@@ -770,12 +769,10 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
         if (doRekeyOnThisSeed && !(clusterRemovalInfos == edm::InputTag(""))) {
           ClusterRemovalRefSetter refSetter(e, clusterRemovalInfos);
-          TrajectorySeed::recHitContainer newRecHitContainer;
+          TrajectorySeed::RecHitContainer newRecHitContainer;
           newRecHitContainer.reserve(origSeedRef->nHits());
-          TrajectorySeed::const_iterator iH = origSeedRef->recHits().first;
-          TrajectorySeed::const_iterator iH_end = origSeedRef->recHits().second;
-          for (; iH != iH_end; ++iH) {
-            newRecHitContainer.push_back(*iH);
+          for (auto const& recHit : origSeedRef->recHits()) {
+            newRecHitContainer.push_back(recHit);
             refSetter.reKey(&newRecHitContainer.back());
           }
           outputSeeds->push_back(

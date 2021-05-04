@@ -1,7 +1,6 @@
 <library file="Tauolapp/*.cc" name="TauolappInterface">
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
   <use name="GeneratorInterface/TauolaInterface"/>
   <use name="SimGeneral/HepPDTRecord"/>
@@ -14,15 +13,11 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-
 <library file="TauSpinner/*.cc" name="TauSpinnerInterface">
-  <use name="FWCore/Concurrency"/>
+  <use name="GeneratorInterface/TauolaInterface"/>
   <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="SimDataFormats/GeneratorProducts"/>
-  <use name="DataFormats/Candidate"/>
-  <use name="DataFormats/HepMCCandidate"/>
   <use name="tauolapp"/>
   <use name="lhapdf"/>
   <use name="root"/>

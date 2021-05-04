@@ -38,6 +38,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
@@ -96,11 +97,26 @@ namespace edm {
       void preModuleEndStream(StreamContext const&, ModuleCallingContext const&);
       void postModuleEndStream(StreamContext const&, ModuleCallingContext const&);
 
+      void preBeginProcessBlock(GlobalContext const&);
+      void postBeginProcessBlock(GlobalContext const&);
+
+      void preAccessInputProcessBlock(GlobalContext const&);
+      void postAccessInputProcessBlock(GlobalContext const&);
+
+      void preEndProcessBlock(GlobalContext const&);
+      void postEndProcessBlock(GlobalContext const&);
+
+      void preWriteProcessBlock(GlobalContext const&);
+      void postWriteProcessBlock(GlobalContext const&);
+
       void preGlobalBeginRun(GlobalContext const&);
       void postGlobalBeginRun(GlobalContext const&);
 
       void preGlobalEndRun(GlobalContext const&);
       void postGlobalEndRun(GlobalContext const&);
+
+      void preGlobalWriteRun(GlobalContext const&);
+      void postGlobalWriteRun(GlobalContext const&);
 
       void preStreamBeginRun(StreamContext const&);
       void postStreamBeginRun(StreamContext const&);
@@ -113,6 +129,9 @@ namespace edm {
 
       void preGlobalEndLumi(GlobalContext const&);
       void postGlobalEndLumi(GlobalContext const&);
+
+      void preGlobalWriteLumi(GlobalContext const&);
+      void postGlobalWriteLumi(GlobalContext const&);
 
       void preStreamBeginLumi(StreamContext const&);
       void postStreamBeginLumi(StreamContext const&);
@@ -128,6 +147,9 @@ namespace edm {
 
       void preModuleConstruction(ModuleDescription const& md);
       void postModuleConstruction(ModuleDescription const& md);
+
+      void preModuleDestruction(ModuleDescription const& md);
+      void postModuleDestruction(ModuleDescription const& md);
 
       void preModuleBeginJob(ModuleDescription const& md);
       void postModuleBeginJob(ModuleDescription const& md);
@@ -156,6 +178,13 @@ namespace edm {
       void preModuleStreamEndLumi(StreamContext const&, ModuleCallingContext const&);
       void postModuleStreamEndLumi(StreamContext const&, ModuleCallingContext const&);
 
+      void preModuleBeginProcessBlock(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleBeginProcessBlock(GlobalContext const&, ModuleCallingContext const&);
+      void preModuleAccessInputProcessBlock(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleAccessInputProcessBlock(GlobalContext const&, ModuleCallingContext const&);
+      void preModuleEndProcessBlock(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleEndProcessBlock(GlobalContext const&, ModuleCallingContext const&);
+
       void preModuleGlobalBeginRun(GlobalContext const&, ModuleCallingContext const&);
       void postModuleGlobalBeginRun(GlobalContext const&, ModuleCallingContext const&);
       void preModuleGlobalEndRun(GlobalContext const&, ModuleCallingContext const&);
@@ -166,6 +195,9 @@ namespace edm {
       void preModuleGlobalEndLumi(GlobalContext const&, ModuleCallingContext const&);
       void postModuleGlobalEndLumi(GlobalContext const&, ModuleCallingContext const&);
 
+      void preModuleWriteProcessBlock(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleWriteProcessBlock(GlobalContext const&, ModuleCallingContext const&);
+
       void preModuleWriteRun(GlobalContext const&, ModuleCallingContext const&);
       void postModuleWriteRun(GlobalContext const&, ModuleCallingContext const&);
 
@@ -175,17 +207,10 @@ namespace edm {
       void preSourceConstruction(ModuleDescription const& md);
       void postSourceConstruction(ModuleDescription const& md);
 
-      void preLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                eventsetup::EventSetupRecordKey const&,
-                                eventsetup::DataKey const&);
-
-      void postLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                 eventsetup::EventSetupRecordKey const&,
-                                 eventsetup::DataKey const&);
-
-      void postEventSetupGet(eventsetup::ComponentDescription const*,
-                             eventsetup::EventSetupRecordKey const&,
-                             eventsetup::DataKey const&);
+      void preESModulePrefetching(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void postESModulePrefetching(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void preESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void postESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
 
     private:
       std::string indention_;
@@ -255,11 +280,26 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPreModuleEndStream(this, &Tracer::preModuleEndStream);
   iRegistry.watchPostModuleEndStream(this, &Tracer::postModuleEndStream);
 
+  iRegistry.watchPreBeginProcessBlock(this, &Tracer::preBeginProcessBlock);
+  iRegistry.watchPostBeginProcessBlock(this, &Tracer::postBeginProcessBlock);
+
+  iRegistry.watchPreAccessInputProcessBlock(this, &Tracer::preAccessInputProcessBlock);
+  iRegistry.watchPostAccessInputProcessBlock(this, &Tracer::postAccessInputProcessBlock);
+
+  iRegistry.watchPreEndProcessBlock(this, &Tracer::preEndProcessBlock);
+  iRegistry.watchPostEndProcessBlock(this, &Tracer::postEndProcessBlock);
+
+  iRegistry.watchPreWriteProcessBlock(this, &Tracer::preWriteProcessBlock);
+  iRegistry.watchPostWriteProcessBlock(this, &Tracer::postWriteProcessBlock);
+
   iRegistry.watchPreGlobalBeginRun(this, &Tracer::preGlobalBeginRun);
   iRegistry.watchPostGlobalBeginRun(this, &Tracer::postGlobalBeginRun);
 
   iRegistry.watchPreGlobalEndRun(this, &Tracer::preGlobalEndRun);
   iRegistry.watchPostGlobalEndRun(this, &Tracer::postGlobalEndRun);
+
+  iRegistry.watchPreGlobalWriteRun(this, &Tracer::preGlobalWriteRun);
+  iRegistry.watchPostGlobalWriteRun(this, &Tracer::postGlobalWriteRun);
 
   iRegistry.watchPreStreamBeginRun(this, &Tracer::preStreamBeginRun);
   iRegistry.watchPostStreamBeginRun(this, &Tracer::postStreamBeginRun);
@@ -272,6 +312,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
 
   iRegistry.watchPreGlobalEndLumi(this, &Tracer::preGlobalEndLumi);
   iRegistry.watchPostGlobalEndLumi(this, &Tracer::postGlobalEndLumi);
+
+  iRegistry.watchPreGlobalWriteLumi(this, &Tracer::preGlobalWriteLumi);
+  iRegistry.watchPostGlobalWriteLumi(this, &Tracer::postGlobalWriteLumi);
 
   iRegistry.watchPreStreamBeginLumi(this, &Tracer::preStreamBeginLumi);
   iRegistry.watchPostStreamBeginLumi(this, &Tracer::postStreamBeginLumi);
@@ -287,6 +330,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
 
   iRegistry.watchPreModuleConstruction(this, &Tracer::preModuleConstruction);
   iRegistry.watchPostModuleConstruction(this, &Tracer::postModuleConstruction);
+
+  iRegistry.watchPreModuleDestruction(this, &Tracer::preModuleDestruction);
+  iRegistry.watchPostModuleDestruction(this, &Tracer::postModuleDestruction);
 
   iRegistry.watchPreModuleBeginJob(this, &Tracer::preModuleBeginJob);
   iRegistry.watchPostModuleBeginJob(this, &Tracer::postModuleBeginJob);
@@ -315,6 +361,13 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPreModuleStreamEndLumi(this, &Tracer::preModuleStreamEndLumi);
   iRegistry.watchPostModuleStreamEndLumi(this, &Tracer::postModuleStreamEndLumi);
 
+  iRegistry.watchPreModuleBeginProcessBlock(this, &Tracer::preModuleBeginProcessBlock);
+  iRegistry.watchPostModuleBeginProcessBlock(this, &Tracer::postModuleBeginProcessBlock);
+  iRegistry.watchPreModuleAccessInputProcessBlock(this, &Tracer::preModuleAccessInputProcessBlock);
+  iRegistry.watchPostModuleAccessInputProcessBlock(this, &Tracer::postModuleAccessInputProcessBlock);
+  iRegistry.watchPreModuleEndProcessBlock(this, &Tracer::preModuleEndProcessBlock);
+  iRegistry.watchPostModuleEndProcessBlock(this, &Tracer::postModuleEndProcessBlock);
+
   iRegistry.watchPreModuleGlobalBeginRun(this, &Tracer::preModuleGlobalBeginRun);
   iRegistry.watchPostModuleGlobalBeginRun(this, &Tracer::postModuleGlobalBeginRun);
   iRegistry.watchPreModuleGlobalEndRun(this, &Tracer::preModuleGlobalEndRun);
@@ -325,6 +378,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPreModuleGlobalEndLumi(this, &Tracer::preModuleGlobalEndLumi);
   iRegistry.watchPostModuleGlobalEndLumi(this, &Tracer::postModuleGlobalEndLumi);
 
+  iRegistry.watchPreModuleWriteProcessBlock(this, &Tracer::preModuleWriteProcessBlock);
+  iRegistry.watchPostModuleWriteProcessBlock(this, &Tracer::postModuleWriteProcessBlock);
+
   iRegistry.watchPreModuleWriteRun(this, &Tracer::preModuleWriteRun);
   iRegistry.watchPostModuleWriteRun(this, &Tracer::postModuleWriteRun);
 
@@ -334,11 +390,10 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPreSourceConstruction(this, &Tracer::preSourceConstruction);
   iRegistry.watchPostSourceConstruction(this, &Tracer::postSourceConstruction);
 
-  if (dumpEventSetupInfo_) {
-    iRegistry.watchPreLockEventSetupGet(this, &Tracer::preLockEventSetupGet);
-    iRegistry.watchPostLockEventSetupGet(this, &Tracer::postLockEventSetupGet);
-    iRegistry.watchPostEventSetupGet(this, &Tracer::postEventSetupGet);
-  }
+  iRegistry.watchPreESModulePrefetching(this, &Tracer::preESModulePrefetching);
+  iRegistry.watchPostESModulePrefetching(this, &Tracer::postESModulePrefetching);
+  iRegistry.watchPreESModule(this, &Tracer::preESModule);
+  iRegistry.watchPostESModule(this, &Tracer::postESModule);
 
   iRegistry.preSourceEarlyTerminationSignal_.connect([this](edm::TerminationOrigin iOrigin) {
     LogAbsolute out("Tracer");
@@ -461,7 +516,8 @@ void Tracer::preBeginJob(PathsAndConsumesOfModulesBase const& pathsAndConsumes, 
     }
     out << "All modules (listed by class and label) and all their consumed products.\n";
     out << "Consumed products are listed by type, label, instance, process.\n";
-    out << "For products not in the event, \'run\' or \'lumi\' is added to indicate the TTree they are from.\n";
+    out << "For products not in the event, \'processBlock\', \'run\' or \'lumi\' is added to indicate the TTree they "
+           "are from.\n";
     out << "For products that are declared with mayConsume, \'may consume\' is added.\n";
     out << "For products consumed for Views, \'element type\' is added\n";
     out << "For products only read from previous processes, \'skip current process\' is added\n";
@@ -477,6 +533,8 @@ void Tracer::preBeginJob(PathsAndConsumesOfModulesBase const& pathsAndConsumes, 
             out << ", lumi";
           } else if (info.branchType() == InRun) {
             out << ", run";
+          } else if (info.branchType() == InProcess) {
+            out << ", processBlock";
           }
           if (!info.alwaysGets()) {
             out << ", may consume";
@@ -607,6 +665,70 @@ void Tracer::postModuleEndStream(StreamContext const& sc, ModuleCallingContext c
   }
 }
 
+void Tracer::preBeginProcessBlock(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << indention_ << indention_ << " starting: begin process block";
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::postBeginProcessBlock(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << indention_ << indention_ << " finished: begin process block";
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::preAccessInputProcessBlock(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << indention_ << indention_ << " starting: access input process block";
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::postAccessInputProcessBlock(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << indention_ << indention_ << " finished: access input process block";
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::preEndProcessBlock(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << indention_ << indention_ << " starting: end process block";
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::postEndProcessBlock(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << indention_ << indention_ << " finished: end process block";
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::preWriteProcessBlock(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << indention_ << indention_ << " starting: write process block";
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::postWriteProcessBlock(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << indention_ << indention_ << " finished: write process block";
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
 void Tracer::preGlobalBeginRun(GlobalContext const& gc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
@@ -641,6 +763,26 @@ void Tracer::postGlobalEndRun(GlobalContext const& gc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: global end run " << gc.luminosityBlockID().run()
+      << " : time = " << gc.timestamp().value();
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::preGlobalWriteRun(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " starting: global write run " << gc.luminosityBlockID().run()
+      << " : time = " << gc.timestamp().value();
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::postGlobalWriteRun(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " finished: global write run " << gc.luminosityBlockID().run()
       << " : time = " << gc.timestamp().value();
   if (dumpNonModuleContext_) {
     out << "\n" << gc;
@@ -721,6 +863,26 @@ void Tracer::postGlobalEndLumi(GlobalContext const& gc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: global end lumi: run = " << gc.luminosityBlockID().run()
+      << " lumi = " << gc.luminosityBlockID().luminosityBlock() << " time = " << gc.timestamp().value();
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::preGlobalWriteLumi(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " starting: global write lumi: run = " << gc.luminosityBlockID().run()
+      << " lumi = " << gc.luminosityBlockID().luminosityBlock() << " time = " << gc.timestamp().value();
+  if (dumpNonModuleContext_) {
+    out << "\n" << gc;
+  }
+}
+
+void Tracer::postGlobalWriteLumi(GlobalContext const& gc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " finished: global write lumi: run = " << gc.luminosityBlockID().run()
       << " lumi = " << gc.luminosityBlockID().luminosityBlock() << " time = " << gc.timestamp().value();
   if (dumpNonModuleContext_) {
     out << "\n" << gc;
@@ -829,6 +991,26 @@ void Tracer::postModuleConstruction(ModuleDescription const& desc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: constructing module with label '" << desc.moduleLabel()
+      << "' id = " << desc.id();
+  if (dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << desc;
+  }
+}
+
+void Tracer::preModuleDestruction(ModuleDescription const& desc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " starting: destructing module with label '" << desc.moduleLabel()
+      << "' id = " << desc.id();
+  if (dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << desc;
+  }
+}
+
+void Tracer::postModuleDestruction(ModuleDescription const& desc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  out << indention_ << indention_ << " finished: destructing module with label '" << desc.moduleLabel()
       << "' id = " << desc.id();
   if (dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << desc;
@@ -1129,6 +1311,90 @@ void Tracer::postModuleStreamEndLumi(StreamContext const& sc, ModuleCallingConte
   }
 }
 
+void Tracer::preModuleBeginProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  unsigned int nIndents = mcc.depth() + 3;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: begin process block for module: label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void Tracer::postModuleBeginProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  unsigned int nIndents = mcc.depth() + 3;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: begin process block for module: label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void Tracer::preModuleAccessInputProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  unsigned int nIndents = mcc.depth() + 3;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: access input process block for module: label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void Tracer::postModuleAccessInputProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  unsigned int nIndents = mcc.depth() + 3;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: access input process block for module: label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void Tracer::preModuleEndProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  unsigned int nIndents = mcc.depth() + 3;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: end process block for module: label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void Tracer::postModuleEndProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  unsigned int nIndents = mcc.depth() + 3;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: end process block for module: label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
 void Tracer::preModuleGlobalBeginRun(GlobalContext const& gc, ModuleCallingContext const& mcc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
@@ -1249,6 +1515,34 @@ void Tracer::postModuleGlobalEndLumi(GlobalContext const& gc, ModuleCallingConte
   }
 }
 
+void Tracer::preModuleWriteProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  unsigned int nIndents = mcc.depth() + 3;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: write process block for module: label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void Tracer::postModuleWriteProcessBlock(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  unsigned int nIndents = mcc.depth() + 3;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: write process block for module: label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
 void Tracer::preModuleWriteRun(GlobalContext const& gc, ModuleCallingContext const& mcc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
@@ -1329,37 +1623,48 @@ void Tracer::postSourceConstruction(ModuleDescription const& desc) {
   }
 }
 
-void Tracer::preLockEventSetupGet(eventsetup::ComponentDescription const* desc,
-                                  eventsetup::EventSetupRecordKey const& recordKey,
-                                  eventsetup::DataKey const& dataKey) {
+void Tracer::preESModulePrefetching(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
   LogAbsolute out("Tracer");
-  out << "preLockEventSetupGet  ";
-  out << desc->label_ << "  ";
-  out << recordKey.name() << "  ";
-  out << dataKey.type().name() << "  ";
-  out << dataKey.name().value();
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: prefetching for esmodule: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
 }
 
-void Tracer::postLockEventSetupGet(eventsetup::ComponentDescription const* desc,
-                                   eventsetup::EventSetupRecordKey const& recordKey,
-                                   eventsetup::DataKey const& dataKey) {
+void Tracer::postESModulePrefetching(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
   LogAbsolute out("Tracer");
-  out << "postLockEventSetupGet  ";
-  out << desc->label_ << "  ";
-  out << recordKey.name() << "  ";
-  out << dataKey.type().name() << "  ";
-  out << dataKey.name().value();
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: prefetching for esmodule: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
 }
 
-void Tracer::postEventSetupGet(eventsetup::ComponentDescription const* desc,
-                               eventsetup::EventSetupRecordKey const& recordKey,
-                               eventsetup::DataKey const& dataKey) {
+void Tracer::preESModule(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
   LogAbsolute out("Tracer");
-  out << "postEventSetupGet  ";
-  out << desc->label_ << "  ";
-  out << recordKey.name() << "  ";
-  out << dataKey.type().name() << "  ";
-  out << dataKey.name().value();
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: processing esmodule: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
+}
+
+void Tracer::postESModule(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: processing esmodule: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
 }
 
 using edm::service::Tracer;

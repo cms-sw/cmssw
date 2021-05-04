@@ -53,13 +53,13 @@ public:
 
   ~EgammaTowerIsolationNew() { delete[] mem; }
 
-  void compute(
-      bool et, Sum& sum, reco::Candidate const& cand, CaloTowerDetId const* first, CaloTowerDetId const* last) const {
+  template <typename I>
+  void compute(bool et, Sum& sum, reco::Candidate const& cand, I first, I last) const {
     reco::SuperCluster const& sc = *cand.get<reco::SuperClusterRef>().get();
     return compute(et, sum, sc, first, last);
   }
-  void compute(
-      bool et, Sum& sum, reco::SuperCluster const& sc, CaloTowerDetId const* first, CaloTowerDetId const* last) const;
+  template <typename I>
+  void compute(bool et, Sum& sum, reco::SuperCluster const& sc, I first, I last) const;
 
   void setRadius(float const extRadius[NC], float const intRadius[NC]) {
     for (std::size_t i = 0; i != NCuts; ++i) {
@@ -153,8 +153,9 @@ inline EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
 }
 
 template <unsigned int NC>
+template <typename I>
 inline void EgammaTowerIsolationNew<NC>::compute(
-    bool et, Sum& sum, reco::SuperCluster const& sc, CaloTowerDetId const* first, CaloTowerDetId const* last) const {
+    bool et, Sum& sum, reco::SuperCluster const& sc, I first, I last) const {
   if (nt == 0)
     return;
 

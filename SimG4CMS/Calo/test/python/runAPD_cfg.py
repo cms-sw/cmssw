@@ -17,10 +17,10 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run1_mc']
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cerr')
-    process.MessageLogger.categories.append('FlatThetaGun')
-    process.MessageLogger.categories.append('EcalGeom')
-    process.MessageLogger.categories.append('EcalSim')
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.FlatThetaGun=dict()
+    process.MessageLogger.EcalGeom=dict()
+    process.MessageLogger.EcalSim=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

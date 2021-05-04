@@ -116,43 +116,15 @@ namespace edm {
 
   StatsCount::StatsCount() : n(0), aggregateN(0), ignoredFlag(false), context1(""), context2(""), contextLast("") {}
 
-  void StatsCount::add(const ELstring& context, bool reactedTo) {
+  void StatsCount::add(std::string_view context, bool reactedTo) {
     ++n;
     ++aggregateN;
 
-    ((1 == n) ? context1 : (2 == n) ? context2 : contextLast) = ELstring(context, 0, 16);
+    ((1 == n) ? context1 : (2 == n) ? context2 : contextLast) = std::string(context, 0, 16);
 
     if (!reactedTo)
       ignoredFlag = true;
 
   }  // add()
-
-  // ----------------------------------------------------------------------
-
-#ifdef ELmapDumpTRACE
-  // ----------------------------------------------------------------------
-  // Global Dump methods (useful for debugging)
-  // ----------------------------------------------------------------------
-
-#include <sstream>
-#include <string.h>
-
-  boost::shared_array<char> ELmapDump(ELmap_limits m) {
-    std::ostringstream s;
-    s << "**** ELmap_limits Dump **** \n";
-
-    ELmap_limits::const_iterator i;
-    for (i = m.begin(); i != m.end(); ++i) {
-      LimitAndTimespan lt = (*i).second;
-      s << "     " << (*i).first << ":  " << lt.limit << ", " << lt.timespan << "\n";
-    }
-    s << "--------------------------------------------\n";
-
-    boost::shared_array<char> dump(new char[s.str().size() + 1]);
-    strcpy(dump.get(), s.str().c_str());
-
-    return dump;
-  }
-#endif
 
 }  // end of namespace edm  */

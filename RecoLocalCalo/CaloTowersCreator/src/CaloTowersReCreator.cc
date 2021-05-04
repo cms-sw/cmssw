@@ -1,6 +1,4 @@
 #include "RecoLocalCalo/CaloTowersCreator/src/CaloTowersReCreator.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf)
@@ -62,6 +60,10 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf)
             conf.getParameter<int>("HcalPhase")),
       allowMissingInputs_(false) {
   tok_calo_ = consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("caloLabel"));
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_cttopo_ = esConsumes<CaloTowerTopology, HcalRecNumberingRecord>();
+  tok_ctmap_ = esConsumes<CaloTowerConstituentsMap, CaloGeometryRecord>();
 
   EBEScale = conf.getParameter<double>("EBEScale");
   EEEScale = conf.getParameter<double>("EEEScale");
@@ -80,14 +82,10 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf)
 
 void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   // get the necessary event setup objects...
-  edm::ESHandle<CaloGeometry> pG;
-  edm::ESHandle<HcalTopology> htopo;
-  edm::ESHandle<CaloTowerTopology> cttopo;
-  edm::ESHandle<CaloTowerConstituentsMap> ctmap;
-  c.get<CaloGeometryRecord>().get(pG);
-  c.get<HcalRecNumberingRecord>().get(htopo);
-  c.get<HcalRecNumberingRecord>().get(cttopo);
-  c.get<CaloGeometryRecord>().get(ctmap);
+  edm::ESHandle<CaloGeometry> pG = c.getHandle(tok_geom_);
+  edm::ESHandle<HcalTopology> htopo = c.getHandle(tok_topo_);
+  edm::ESHandle<CaloTowerTopology> cttopo = c.getHandle(tok_cttopo_);
+  edm::ESHandle<CaloTowerConstituentsMap> ctmap = c.getHandle(tok_ctmap_);
 
   algo_.setEBEScale(EBEScale);
   algo_.setEEEScale(EEEScale);

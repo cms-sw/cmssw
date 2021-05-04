@@ -43,6 +43,10 @@ void testPackedCandidate::testDefaultConstructor() {
   CPPUNIT_ASSERT(pc.vertex() == pat::PackedCandidate::Point(0, 0, 0));
 }
 
+static bool tolerance(double iLHS, double iRHS, double fraction) {
+  return std::abs(iLHS - iRHS) <= fraction * std::abs(iLHS + iRHS) / 2.;
+}
+
 void testPackedCandidate::testCopyConstructor() {
   pat::PackedCandidate::LorentzVector lv(1., 0.5, 0., std::sqrt(1. + 0.25 + 0.120 * 0.120));
   pat::PackedCandidate::PolarLorentzVector plv(lv.Pt(), lv.Eta(), lv.Phi(), lv.M());
@@ -66,10 +70,25 @@ void testPackedCandidate::testCopyConstructor() {
   CPPUNIT_ASSERT(&copy_pc.polarP4() != &pc.polarP4());
   CPPUNIT_ASSERT(&copy_pc.p4() != &pc.p4());
   CPPUNIT_ASSERT(&copy_pc.vertex() != &pc.vertex());
-}
 
-static bool tolerance(double iLHS, double iRHS, double fraction) {
-  return std::abs(iLHS - iRHS) <= fraction * std::abs(iLHS + iRHS) / 2.;
+  CPPUNIT_ASSERT(tolerance(pc.vertex().X(), copy_pc.vertex().X(), 0.001));
+  CPPUNIT_ASSERT(tolerance(pc.vertex().Y(), copy_pc.vertex().Y(), 0.001));
+  CPPUNIT_ASSERT(tolerance(pc.vertex().Z(), copy_pc.vertex().Z(), 0.01));
+  CPPUNIT_ASSERT(tolerance(pc.dxy(), copy_pc.dxy(), 0.001));
+  CPPUNIT_ASSERT(tolerance(pc.dzAssociatedPV(), copy_pc.dzAssociatedPV(), 0.01));
+  CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(), copy_pc.phiAtVtx(), 0.001));
+  CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(), copy_pc.etaAtVtx(), 0.001));
+  CPPUNIT_ASSERT(tolerance(pc.ptTrk(), copy_pc.ptTrk(), 0.001));
+
+  {
+    //Test copy of default constructed candidate
+    pat::PackedCandidate def;
+    pat::PackedCandidate copy_def(def);
+
+    CPPUNIT_ASSERT(copy_def.polarP4() == pat::PackedCandidate::PolarLorentzVector(0, 0, 0, 0));
+    CPPUNIT_ASSERT(copy_def.p4() == pat::PackedCandidate::LorentzVector(0, 0, 0, 0));
+    CPPUNIT_ASSERT(copy_def.vertex() == pat::PackedCandidate::Point(0, 0, 0));
+  }
 }
 
 void testPackedCandidate::testPackUnpack() {

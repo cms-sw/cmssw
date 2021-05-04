@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import print_function
 #pylint: disable-msg=W0403
 """
 MakeBuildSet - utilizes dependency discovery mechanism for Partial Releases.
@@ -38,7 +39,7 @@ def usage():
     """
     # Require minimum arguments and use options only to
     # override the defaults
-    print """
+    print ("""
 USAGE:
     """ + programName + """ -d <dir> [OPTIONS] [<package>]+
 OPTIONS:
@@ -59,15 +60,15 @@ OPTIONS:
 		  will be excluded
    -h           - Optional: print this help and exit.
    -v           - Optional: display version number.
-"""
+""")
 
 def usageError ( message, programName) :
     """
     usageError:
       Call it to quit in case of usage error
     """
-    print "Usage error: ", message, \
-          "\nTry \'" + programName + " -h\' for help"
+    print ("Usage error: ", message, \
+          "\nTry \'" + programName + " -h\' for help")
     sys.exit ( 2 )
 
     
@@ -79,10 +80,10 @@ def readPackageFromFile(pkfile):
     blankLine = re.compile('^\s*(#.*|)$')
     for line in f.readlines():
         line = line.strip()
-	if blankLine.match(line):
-	    continue
-	else:
-	    cache[line]=1
+        if blankLine.match(line):
+            continue
+        else:
+           cache[line]=1
     f.close()
     return cache
 	
@@ -93,26 +94,26 @@ def readProductsInfo(productFile):
     parts  = re.compile("^([^:]+):([^:]+):([^:]+):([^:]+)$")
     for line in prods.readlines():
         line = line.strip()
-	if comment.match(line):
-	    continue
-	result = parts.match(line)
-	if result:
-	    prodFrom = result.group(1)
-	    typeName = result.group(2)
-	    dirPath  = result.group(3)
-	    prodName = result.group(4)
-	    cache[prodName]={}
-	    cache[prodName]["FROM"] = prodFrom
-	    cache[prodName]["TYPE"] = typeName
-	    cache[prodName]["PATH"] = dirPath
+        if comment.match(line):
+            continue
+        result = parts.match(line)
+        if result:
+            prodFrom = result.group(1)
+            typeName = result.group(2)
+            dirPath  = result.group(3)
+            prodName = result.group(4)
+            cache[prodName]={}
+            cache[prodName]["FROM"] = prodFrom
+            cache[prodName]["TYPE"] = typeName
+            cache[prodName]["PATH"] = dirPath
     prods.close()
     return cache
 
 def excludeProducts(lookup,match,cache,maps):
     for p in cache.keys():
         if cache[p][lookup] == match:
-	    maps[p]=1
-	    
+            maps[p]=1
+
 def addDependencies(packages, dependencies):
     cache              = {}
     for t in outputFormats:
@@ -122,18 +123,18 @@ def addDependencies(packages, dependencies):
     return cache
 
 def addDependency(p,scope,dependencies,cache):
-    if cache[scope].has_key(p):
+    if p in cache[scope]:
         return
     cache[scope][p]=1
-    if dependencies[scope].has_key(p):
-	for d in dependencies[scope][p].keys():
-	    if dependencies["tools"].has_key(d):
-	        cache["tools"][d]=1
-		continue
-	    xscope = "lcg"
-	    if not dependencies[xscope].has_key(d):
-		xscope = "packages"
-	    addDependency(d,xscope,dependencies,cache)
+    if p in dependencies[scope]:
+        for d in dependencies[scope][p].keys():
+            if d in dependencies["tools"]:
+                cache["tools"][d]=1
+                continue
+            xscope = "lcg"
+            if not d in dependencies[xscope]:
+                xscope = "packages"
+            addDependency(d,xscope,dependencies,cache)
 	    
 def readIgnominyDependencyDB(igFile,droppedProducts,packages):
     dependencies = {}
@@ -155,84 +156,84 @@ def readIgnominyDependencyDB(igFile,droppedProducts,packages):
         if inBlock:
             if endBlock.match(line):
                 inBlock = 0
-		return dependencies
+                return dependencies
             else:
                 if inPackage:
                     result=requiresEntry.match(line)
                     if result:
-		        if not skipProduct:
-		            requires=result.group(0).strip()
-			    if pname.match(requires):
-			        continue
-			    if dependencyType != "binary" and extraEntry.match(requires):
-			        continue
-			    lcg = ""
-			    res = lcgProject.match (requires)
-			    if res:
-			        lcg = res.group(2).lower()
-				requires = res.group(1)
-				dependencies["tools"][lcg]=1
-			    else:
-			        res = tools.match (requires)
-			        if res:
-			            requires = res.group(2).lower()
-			            dependencies["tools"][requires]=1
-		            if dependencies["packages"].has_key(currentPackage):
-			        dependencies["packages"][currentPackage][requires]=1
-				if lcg:
-				    dependencies["packages"][currentPackage][lcg]=1
-			    else:
-			        dependencies["lcg"][currentPackage][requires]=1
+                        if not skipProduct:
+                            requires=result.group(0).strip()
+                            if pname.match(requires):
+                                continue
+                            if dependencyType != "binary" and extraEntry.match(requires):
+                                continue
+                            lcg = ""
+                            res = lcgProject.match (requires)
+                            if res:
+                                lcg = res.group(2).lower()
+                                requires = res.group(1)
+                                dependencies["tools"][lcg]=1
+                            else:
+                                res = tools.match (requires)
+                                if res:
+                                     requires = res.group(2).lower()
+                                     dependencies["tools"][requires]=1
+                            if currentPackage in dependencies["packages"]:
+                                dependencies["packages"][currentPackage][requires]=1
+                                if lcg:
+                                     dependencies["packages"][currentPackage][lcg]=1
+                            else:
+                                 dependencies["lcg"][currentPackage][requires]=1
                     else:
                         inPackage=0
                 else:
                     result = packageEntry.match(line)
                     if result:
-		        inPackage = 1
-		        skipProduct = 0
-		        currentPackage = result.group(1)
-			if currentPackage == "(UNKNOWN)":
-		            skipProduct = 1
-			    continue
-			res = lcgProject.match(currentPackage)
-		        if res:
-			    dependencies["tools"][res.group(2).lower()]=1
-			    currentPackage = res.group(1)
-			    if not dependencies["lcg"].has_key(currentPackage):
-			        dependencies["lcg"][currentPackage]={}
-			    continue
-		        res = tools.match (currentPackage)
-		        if res:
-		            currentPackage = res.group(2).lower()
-			    dependencies["tools"][currentPackage]=1
-			    skipProduct = 1
-			    continue
-			prodname=currentPackage.replace("/","")
-		        pkg = 1
-			res = pname.match(currentPackage)
-		        if res:
-		            pkg = 0
-			    currentPackage = res.group(1)
-			    prodname = res.group(2)       
-			elif dependencyType != "binary":
-			    res = extraEntry.match(currentPackage)
-			    if res:
-				if res.group(2) == "test" and dropTests:
-				    skipProduct = 1
-				    continue
-			        elif res.group(2) == "plugins" and dropPluginDeps:
-				    skipProduct = 1
-				    continue
-				else:
-				    pkg = 0
-				    currentPackage = res.group(1)
-				    prodname = currentPackage.replace("/","")
-			if not pkg or not packages.has_key(currentPackage):
-			    if droppedProducts.has_key(prodname):
-			        skipProduct = 1
-			        continue
-		        if not dependencies["packages"].has_key(currentPackage):
-			    dependencies["packages"][currentPackage]={}
+                        inPackage = 1
+                        skipProduct = 0
+                        currentPackage = result.group(1)
+                        if currentPackage == "(UNKNOWN)":
+                           skipProduct = 1
+                           continue
+                        res = lcgProject.match(currentPackage)
+                        if res:
+                            dependencies["tools"][res.group(2).lower()]=1
+                            currentPackage = res.group(1)
+                            if not currentPackage in dependencies["lcg"]:
+                                dependencies["lcg"][currentPackage]={}
+                            continue
+                        res = tools.match (currentPackage)
+                        if res:
+                            currentPackage = res.group(2).lower()
+                            dependencies["tools"][currentPackage]=1
+                            skipProduct = 1
+                            continue
+                        prodname=currentPackage.replace("/","")
+                        pkg = 1
+                        res = pname.match(currentPackage)
+                        if res:
+                            pkg = 0
+                            currentPackage = res.group(1)
+                            prodname = res.group(2)
+                        elif dependencyType != "binary":
+                            res = extraEntry.match(currentPackage)
+                            if res:
+                                if res.group(2) == "test" and dropTests:
+                                    skipProduct = 1
+                                    continue
+                                elif res.group(2) == "plugins" and dropPluginDeps:
+                                    skipProduct = 1
+                                    continue
+                                else:
+                                    pkg = 0
+                                    currentPackage = res.group(1)
+                                    prodname = currentPackage.replace("/","")
+                        if (not pkg) or (not currentPackage in packages):
+                            if prodname in droppedProducts:
+                                 skipProduct = 1
+                                 continue
+                        if not currentPackage in dependencies["packages"]:
+                            dependencies["packages"][currentPackage]={}
         else:
             if beginBlock.match(line):
                 inBlock = 1
@@ -253,7 +254,7 @@ except getopt.error:
 
 for o, a in opts:
     if o == "-v":
-        print __version__
+        print (__version__)
         sys.exit()
     if o == "-h":
         usage()
@@ -272,13 +273,13 @@ for o, a in opts:
             usageError( "unknown ignominy generated dependency type: '" + a + "'.", programName)        
     if o == "-d":
         if not os.path.isdir(a):
-	    usageError( "directory '" + a + "' does not exist!", programName)
+            usageError( "directory '" + a + "' does not exist!", programName)
         dependencyAnalysisDir = a
     if o == "-p":
         dropPluginDeps = 1
     if o == "-P":
         dropAllPluginDeps = 1
-	dropPluginDeps = 1
+        dropPluginDeps = 1
     if o == "-T":
         dropTests = 0
 
@@ -294,11 +295,11 @@ for p in args[0:]:
     packages[p]=1
     
 if not len(packages.keys()):
-    print """
+    print ("""
 ERROR: You should use either '-f <file>' command-line option
        to provide the list of packages to look for OR provide
        a <space> separated list of package at the end of command-line
-"""
+""")
     sys.exit(2)
 
 # Read Product information dumped by ignominy in products.txt file
@@ -330,9 +331,8 @@ pitems = []
 if outputFormat != "all":
     outputFormats = [outputFormat]
 for item in outputFormats:
-    pkg = myPackages[item].keys()
-    pkg.sort()
+    pkg = sorted(myPackages[item].keys())
     for p in pkg:
-        print p
+        print (p)
 
 sys.exit()

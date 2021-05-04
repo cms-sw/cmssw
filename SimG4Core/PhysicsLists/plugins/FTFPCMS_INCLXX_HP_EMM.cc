@@ -1,8 +1,8 @@
 #include "FTFPCMS_INCLXX_HP_EMM.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
-#include "SimG4Core/PhysicsLists/interface/CMSThermalNeutrons.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4ThermalNeutrons.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonINCLXXPhysics.hh"
@@ -12,12 +12,9 @@
 #include "G4NeutronTrackingCut.hh"
 #include "G4HadronicProcessStore.hh"
 
-#include "G4DataQuestionaire.hh"
 #include "G4HadronPhysicsINCLXX.hh"
 
 FTFPCMS_INCLXX_HP_EMM::FTFPCMS_INCLXX_HP_EMM(const edm::ParameterSet& p) : PhysicsList(p) {
-  G4DataQuestionaire it(photon);
-
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool emPhys = p.getUntrackedParameter<bool>("EMPhysics", true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics", true);
@@ -31,7 +28,7 @@ FTFPCMS_INCLXX_HP_EMM::FTFPCMS_INCLXX_HP_EMM(const edm::ParameterSet& p) : Physi
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new CMSEmStandardPhysicsLPM(ver));
+    RegisterPhysics(new CMSEmStandardPhysics(ver, p));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
@@ -63,7 +60,7 @@ FTFPCMS_INCLXX_HP_EMM::FTFPCMS_INCLXX_HP_EMM(const edm::ParameterSet& p) : Physi
       RegisterPhysics(ncut);
     }
     if (thermal) {
-      RegisterPhysics(new CMSThermalNeutrons(ver));
+      RegisterPhysics(new G4ThermalNeutrons(ver));
     }
   }
 }

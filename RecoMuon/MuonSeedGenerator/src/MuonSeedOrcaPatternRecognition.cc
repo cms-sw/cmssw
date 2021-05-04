@@ -25,9 +25,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -54,7 +51,8 @@ MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::Parame
           pset.existsAs<double>("deltaEtaSearchWindow") ? pset.getParameter<double>("deltaEtaSearchWindow") : 0.2),
       theDeltaCrackWindow(pset.existsAs<double>("deltaEtaCrackSearchWindow")
                               ? pset.getParameter<double>("deltaEtaCrackSearchWindow")
-                              : 0.25) {
+                              : 0.25),
+      muonLayersToken(iC.esConsumes<MuonDetLayerGeometry, MuonRecoGeometryRecord>()) {
   muonMeasurements = new MuonDetLayerMeasurements(theDTRecSegmentLabel.label(),
                                                   theCSCRecSegmentLabel,
                                                   edm::InputTag(),
@@ -76,8 +74,7 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event,
   // RecHitContainer like it was in ORCA
 
   // Muon Geometry - DT, CSC, RPC and ME0
-  edm::ESHandle<MuonDetLayerGeometry> muonLayers;
-  eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
+  edm::ESHandle<MuonDetLayerGeometry> muonLayers = eSetup.getHandle(muonLayersToken);
 
   // get the DT layers
   vector<const DetLayer*> dtLayers = muonLayers->allDTLayers();

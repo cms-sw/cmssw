@@ -8,7 +8,6 @@
  *
  *  \author N. Amapane - INFN Torino
  */
-#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -26,7 +25,8 @@ class MagVolume6Faces;
 namespace magneticfield {
   class VolumeBasedMagneticFieldESProducer;
   class VolumeBasedMagneticFieldESProducerFromDB;
-  class AutoMagneticFieldESProducer;
+  class BaseVolumeHandle;  // Needs to be public to share code with DD4hep
+  using handles = std::vector<BaseVolumeHandle*>;
 }  // namespace magneticfield
 
 class MagGeoBuilderFromDDD {
@@ -54,9 +54,10 @@ public:
 
   float maxZ() const;
 
-private:
-  typedef ConstReferenceCountingPointer<Surface> RCPS;
+  // Temporary container to manipulate volumes and their surfaces.
+  class volumeHandle;  // Needs to be public to share code with DD4hep
 
+private:
   // Build the geometry.
   //virtual void build();
   virtual void build(const DDCompactView& cpv);
@@ -66,53 +67,25 @@ private:
   friend class MagGeometry;
   friend class magneticfield::VolumeBasedMagneticFieldESProducer;
   friend class magneticfield::VolumeBasedMagneticFieldESProducerFromDB;
-  friend class magneticfield::AutoMagneticFieldESProducer;
 
   std::vector<MagVolume6Faces*> barrelVolumes() const;
   std::vector<MagVolume6Faces*> endcapVolumes() const;
-
-  // Temporary container to manipulate volumes and their surfaces.
-  class volumeHandle;
-  typedef std::vector<volumeHandle*> handles;
 
   // Build interpolator for the volume with "correct" rotation
   void buildInterpolator(const volumeHandle* vol, std::map<std::string, MagProviderInterpol*>& interpolators);
 
   // Build all MagVolumes setting the MagProviderInterpol
-  void buildMagVolumes(const handles& volumes, std::map<std::string, MagProviderInterpol*>& interpolators);
+  void buildMagVolumes(const magneticfield::handles& volumes,
+                       std::map<std::string, MagProviderInterpol*>& interpolators);
 
   // Print checksums for surfaces.
-  void summary(handles& volumes);
+  void summary(magneticfield::handles& volumes);
 
   // Perform simple sanity checks
-  void testInside(handles& volumes);
+  void testInside(magneticfield::handles& volumes);
 
-  // A layer of barrel volumes.
-  class bLayer;
-  // A sector of volumes in a layer.
-  class bSector;
-  // A rod of volumes in a sector.
-  class bRod;
-  // A slab of volumes in a rod.
-  class bSlab;
-  // A sector of endcap volumes.
-  class eSector;
-  // A layer of volumes in an endcap sector.
-  class eLayer;
-
-  // Extractors for precomputed_value_sort (to sort containers of volumeHandles).
-  struct ExtractZ;
-  struct ExtractAbsZ;
-  struct ExtractPhi;
-  struct ExtractPhiMax;
-  struct ExtractR;
-  struct ExtractRN;
-  struct LessDPhi;
-  // This one to be used only for max_element and min_element
-  struct LessZ;
-
-  handles bVolumes;  // the barrel volumes.
-  handles eVolumes;  // the endcap volumes.
+  magneticfield::handles bVolumes;  // the barrel volumes.
+  magneticfield::handles eVolumes;  // the endcap volumes.
 
   std::vector<MagBLayer*> mBLayers;    // Finally built barrel geometry
   std::vector<MagESector*> mESectors;  // Finally built barrel geometry
@@ -123,6 +96,6 @@ private:
   std::map<int, double> theScalingFactors;
   const magneticfield::TableFileMap* theGridFiles;  // Non-owned pointer assumed to be valid until build() is called
 
-  static bool debug;
+  const bool debug;
 };
 #endif

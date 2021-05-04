@@ -1,16 +1,16 @@
-<use   name="CondFormats/SiStripObjects"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="DataFormats/Scalers"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="Geometry/Records"/>
-
-<use   name="clhep"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/Scalers"/>
+<use name="DataFormats/OnlineMetaData"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="CondFormats/DataRecord"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/Records"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -9,6 +9,7 @@
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 namespace {
 
@@ -72,7 +73,7 @@ std::pair<bool, TrajectoryStateOnSurface> GeomDetCompatibilityChecker::isCompati
   */
 
   bool isIn = false;
-  float sagitta = 99999999;
+  float sagitta = 99999999.0f;
   bool close = false;
   if
     LIKELY(sagCut > 0) {

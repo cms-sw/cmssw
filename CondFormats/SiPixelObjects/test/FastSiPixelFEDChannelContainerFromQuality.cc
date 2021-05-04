@@ -161,14 +161,14 @@ void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, c
 
   // get the list of payloads for the SiPixelQuality tag
   std::vector<std::tuple<cond::Time_t, cond::Hash> > m_iovs;
-  condDbSession.getIovRange(m_QualityTagName, startIov, endIov, m_iovs);
+  condDbSession.readIov(m_QualityTagName).selectRange(startIov, endIov, m_iovs);
 
   const auto MIN_VAL = cond::timeTypeSpecs[cond::runnumber].beginValue;
   const auto MAX_VAL = cond::timeTypeSpecs[cond::runnumber].endValue;
 
   // get the list of payloads for the Cabling Map
   std::vector<std::tuple<cond::Time_t, cond::Hash> > m_cabling_iovs;
-  condDbSession2.getIovRange(m_CablingTagName, MIN_VAL, MAX_VAL, m_cabling_iovs);
+  condDbSession2.readIov(m_CablingTagName).selectRange(MIN_VAL, MAX_VAL, m_cabling_iovs);
 
   // create here the unpacked list of IOVs (run numbers)
   std::vector<unsigned int> listOfIOVs;

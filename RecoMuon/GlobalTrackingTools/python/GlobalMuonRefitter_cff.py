@@ -53,11 +53,6 @@ GlobalMuonRefitter = cms.PSet(
     RefitFlag = cms.bool( True )
 )
 
-# This customization will be removed once we get the templates for
-# phase2 pixel
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(GlobalMuonRefitter, TrackerRecHitBuilder = 'WithTrackAngle') # FIXME
-
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 # FastSim doesn't use Runge Kute for propagation
 fastSim.toModify(GlobalMuonRefitter, Propagator = "SmartPropagatorAny")

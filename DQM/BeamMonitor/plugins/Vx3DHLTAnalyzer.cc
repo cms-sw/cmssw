@@ -73,7 +73,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig) {
   // ##############################
 }
 
-Vx3DHLTAnalyzer::~Vx3DHLTAnalyzer() { reset("scratch"); }
+Vx3DHLTAnalyzer::~Vx3DHLTAnalyzer() {}
 
 void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
   Handle<VertexCollection> Vx3DCollection;
@@ -100,7 +100,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
       outputDebugFile.open(debugFile.str().c_str(), ios::app);
     }
 
-    beginLuminosityBlock(iEvent.getLuminosityBlock(), iSetup);
+    dqmBeginLuminosityBlock(iEvent.getLuminosityBlock(), iSetup);
   } else if (beginTimeOfFit != 0) {
     totalHits += HitCounter(iEvent);
 
@@ -333,13 +333,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       Gauss3D->SetVariable(8, "mean z", *(it + 8), parDistanceZ);
 
       // Set the central positions of the centroid for vertex rejection
-      xPos = Gauss3D->X()[6];
-      yPos = Gauss3D->X()[7];
-      zPos = Gauss3D->X()[8];
+      xPos = (*vals)[6];
+      yPos = (*vals)[7];
+      zPos = (*vals)[8];
 
       // Set dimensions of the centroid for vertex rejection
-      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
-      maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
+      maxTransRadius = nSigmaXY * std::sqrt(std::fabs((*vals)[0]) + std::fabs((*vals)[1])) / 2.;
+      maxLongLength = nSigmaZ * std::sqrt(std::fabs((*vals)[2]));
 
       Gauss3D->Minimize();
       goodData = Gauss3D->Status();
@@ -542,13 +542,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
     Gauss3D->SetVariable(8, "mean z", *(it + 8) + (double(bestMovementZ) - 1.) * std::sqrt(*(it + 2)), parDistanceZ);
 
     // Set the central positions of the centroid for vertex rejection
-    xPos = Gauss3D->X()[6];
-    yPos = Gauss3D->X()[7];
-    zPos = Gauss3D->X()[8];
+    xPos = (*vals)[6];
+    yPos = (*vals)[7];
+    zPos = (*vals)[8];
 
     // Set dimensions of the centroid for vertex rejection
-    maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
-    maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
+    maxTransRadius = nSigmaXY * std::sqrt(std::fabs((*vals)[0]) + std::fabs((*vals)[1])) / 2.;
+    maxLongLength = nSigmaZ * std::sqrt(std::fabs((*vals)[2]));
 
     Gauss3D->Minimize();
     goodData = Gauss3D->Status();
@@ -922,7 +922,7 @@ void Vx3DHLTAnalyzer::printFitParams(const vector<double>& fitResults) {
   cout << "mean z --> " << fitResults[8] << " +/- " << fitResults[8 + nParams] << endl;
 }
 
-void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
+void Vx3DHLTAnalyzer::dqmBeginLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
   // @@@ If statement to avoid problems with non-sequential lumisections @@@
   if ((lumiCounter == 0) && (lumiBlock.luminosityBlock() > lastLumiOfFit)) {
     beginTimeOfFit = lumiBlock.beginTime().value();
@@ -934,7 +934,7 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock, con
     reset("scratch");
 }
 
-void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
+void Vx3DHLTAnalyzer::dqmEndLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
   stringstream histTitle;
   double minXfit, maxXfit;
   int goodData;

@@ -58,10 +58,6 @@ namespace edm {
     std::string const& productInstanceName() const { return stable().productInstanceName(); }
     std::string const& friendlyClassName() const { return stable().friendlyClassName(); }
     ProductProvenanceRetriever const* store() const { return store_; }
-    ProcessHistory const& processHistory() const { return stable().processHistory(); }
-    ProcessHistory const* processHistoryPtr() const { return stable().processHistoryPtr(); }
-    bool getProcessConfiguration(ProcessConfiguration& pc) const { return stable().getProcessConfiguration(pc); }
-    ReleaseVersion releaseVersion() const { return stable().releaseVersion(); }
     std::set<std::string> const& branchAliases() const { return stable().branchAliases(); }
 
     // Usually branchID() and originalBranchID() return exactly the same result.
@@ -79,8 +75,6 @@ namespace edm {
     void write(std::ostream& os) const;
 
     void setStore(ProductProvenanceRetriever const* store) { store_ = store; }
-
-    void setProcessHistory(ProcessHistory const& ph) { stable().setProcessHistory(ph); }
 
     ProductID const& productID() const { return stable().productID(); }
 

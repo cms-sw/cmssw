@@ -1,25 +1,121 @@
-#include "DQMOffline/Trigger/plugins/LepHTMonitor.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 
 #include <limits>
 #include <algorithm>
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+class LepHTMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
+public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
 
-#include "FWCore/Common/interface/TriggerNames.h"
+  LepHTMonitor(const edm::ParameterSet &ps);
+  ~LepHTMonitor() throw() override;
 
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
+protected:
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &) override;
+  void analyze(const edm::Event &e, const edm::EventSetup &eSetup) override;
 
-#include "DataFormats/Math/interface/deltaR.h"
+private:
+  edm::InputTag theElectronTag_;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron> > theElectronCollection_;
+  edm::InputTag theElectronVIDTag_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > theElectronVIDMap_;
+  edm::InputTag theMuonTag_;
+  edm::EDGetTokenT<reco::MuonCollection> theMuonCollection_;
+  edm::InputTag thePfMETTag_;
+  edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;
+  edm::InputTag thePfJetTag_;
+  edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
+  edm::InputTag theJetTagTag_;
+  edm::EDGetTokenT<reco::JetTagCollection> theJetTagCollection_;
+  edm::InputTag theVertexCollectionTag_;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexCollection_;
+  edm::InputTag theConversionCollectionTag_;
+  edm::EDGetTokenT<reco::ConversionCollection> theConversionCollection_;
+  edm::InputTag theBeamSpotTag_;
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpot_;
 
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "RecoEgamma/EgammaTools/src/ConversionTools.cc"  //Would prefer to include header, but fails to find hasMatchedConversion definition without this..
-#include "DataFormats/PatCandidates/interface/Muon.h"
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_lep_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_HT_genTriggerEventFlag_;
 
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
+
+  int muonIDlevel_;
+
+  double jetPtCut_;
+  double jetEtaCut_;
+  double metCut_;
+  double htCut_;
+  double nmusCut_;
+  double nelsCut_;
+  double lep_pt_plateau_;
+  double lep_counting_threshold_;
+  double lep_iso_cut_;
+  double lep_eta_cut_;
+  double lep_d0_cut_b_;
+  double lep_dz_cut_b_;
+  double lep_d0_cut_e_;
+  double lep_dz_cut_e_;
+
+  std::vector<double> ptbins_;
+  std::vector<double> htbins_;
+  int nbins_eta_;
+  int nbins_phi_;
+  int nbins_npv_;
+  float etabins_min_;
+  float etabins_max_;
+  float phibins_min_;
+  float phibins_max_;
+  float npvbins_min_;
+  float npvbins_max_;
+
+  // Histograms
+  MonitorElement *h_pfHTTurnOn_num_;
+  MonitorElement *h_pfHTTurnOn_den_;
+  MonitorElement *h_lepPtTurnOn_num_;
+  MonitorElement *h_lepPtTurnOn_den_;
+  MonitorElement *h_lepEtaTurnOn_num_;
+  MonitorElement *h_lepEtaTurnOn_den_;
+  MonitorElement *h_lepPhiTurnOn_num_;
+  MonitorElement *h_lepPhiTurnOn_den_;
+  MonitorElement *h_lepEtaPhiTurnOn_num_;
+  MonitorElement *h_lepEtaPhiTurnOn_den_;
+  MonitorElement *h_NPVTurnOn_num_;
+  MonitorElement *h_NPVTurnOn_den_;
+};
 
 namespace {
 
@@ -157,9 +253,10 @@ LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps)
           ps.getParameter<edm::ParameterSet>("den_HT_GenericTriggerEventPSet"), consumesCollector(), *this)),
 
       folderName_(ps.getParameter<std::string>("folderName")),
+      requireValidHLTPaths_(ps.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
 
       muonIDlevel_(ps.getUntrackedParameter<int>("muonIDlevel")),
-
       jetPtCut_(ps.getUntrackedParameter<double>("jetPtCut")),
       jetEtaCut_(ps.getUntrackedParameter<double>("jetEtaCut")),
       metCut_(ps.getUntrackedParameter<double>("metCut")),
@@ -201,15 +298,45 @@ LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps)
   edm::LogInfo("LepHTMonitor") << "Constructor LepHTMonitor::LepHTMonitor\n";
 }
 
-LepHTMonitor::~LepHTMonitor() { edm::LogInfo("LepHTMonitor") << "Destructor LepHTMonitor::~LepHTMonitor\n"; }
-
-void LepHTMonitor::dqmBeginRun(const edm::Run &run, const edm::EventSetup &e) {
-  edm::LogInfo("LepHTMonitor") << "LepHTMonitor::beginRun\n";
+LepHTMonitor::~LepHTMonitor() throw() {
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_lep_genTriggerEventFlag_) {
+    den_lep_genTriggerEventFlag_.reset();
+  }
+  if (den_HT_genTriggerEventFlag_) {
+    den_HT_genTriggerEventFlag_.reset();
+  }
 }
 
 void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun, const edm::EventSetup &iSetup) {
-  edm::LogInfo("LepHTMonitor") << "LepHTMonitor::bookHistograms\n";
-  //book at beginRun
+  // Initialize trigger flags
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_lep_genTriggerEventFlag_ && den_lep_genTriggerEventFlag_->on()) {
+    den_lep_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_HT_genTriggerEventFlag_ && den_HT_genTriggerEventFlag_->on()) {
+    den_HT_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = ((num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                        num_genTriggerEventFlag_->allHLTPathsAreValid()) &&
+                       ((den_lep_genTriggerEventFlag_ && den_lep_genTriggerEventFlag_->on() &&
+                         den_lep_genTriggerEventFlag_->allHLTPathsAreValid()) ||
+                        (den_HT_genTriggerEventFlag_ && den_HT_genTriggerEventFlag_->on() &&
+                         den_HT_genTriggerEventFlag_->allHLTPathsAreValid())));
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
+  // book at beginRun
   ibooker.cd();
   ibooker.setCurrentFolder("HLT/SUSY/LepHT/" + folderName_);
 
@@ -220,7 +347,8 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iR
   } else if (not theElectronTag_.label().empty() and theMuonTag_.label().empty()) {
     is_ele = true;
   }
-  //Cosmetic axis names
+
+  // Cosmetic axis names
   std::string lepton = "lepton", Lepton = "Lepton";
   if (is_mu && !is_ele) {
     lepton = "muon";
@@ -229,13 +357,6 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iR
     lepton = "electron";
     Lepton = "Electron";
   }
-  //Initialize trigger flags
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_lep_genTriggerEventFlag_ && den_lep_genTriggerEventFlag_->on())
-    den_lep_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_HT_genTriggerEventFlag_ && den_HT_genTriggerEventFlag_->on())
-    den_HT_genTriggerEventFlag_->initRun(iRun, iSetup);
 
   //Convert to vfloat for picky TH1F constructor
   vector<float> f_ptbins;
@@ -292,9 +413,13 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iR
 }
 
 void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
-  edm::LogInfo("LepHTMonitor") << "LepHTMonitor::analyze\n";
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
 
-  //Find whether main and auxilliary triggers fired
+  // Find whether main and auxilliary triggers fired
   bool hasFired = false;
   bool hasFiredAuxiliary = false;
   bool hasFiredLeptonAuxiliary = false;
@@ -554,9 +679,4 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
   }
 }
 
-void LepHTMonitor::endRun(const edm::Run &run, const edm::EventSetup &eSetup) {
-  edm::LogInfo("LepHTMonitor") << "LepHTMonitor::endRun\n";
-}
-
-//define this as a plug-in
 DEFINE_FWK_MODULE(LepHTMonitor);

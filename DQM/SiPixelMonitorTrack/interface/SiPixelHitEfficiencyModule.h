@@ -13,15 +13,14 @@
 #ifndef SiPixelMonitorTrack_SiPixelHitEfficiencyModule_h
 #define SiPixelMonitorTrack_SiPixelHitEfficiencyModule_h
 
-#include <boost/cstdint.hpp>
 #include <utility>
 
-//#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+#include <cstdint>
 
 namespace edm {
   class EventSetup;
@@ -37,7 +36,7 @@ public:
   ~SiPixelHitEfficiencyModule();
 
   void book(
-      const edm::ParameterSet &, edm::EventSetup const &, DQMStore::IBooker &, int type = 0, bool isUpgrade = false);
+      const edm::ParameterSet &, const TrackerTopology *, DQMStore::IBooker &, int type = 0, bool isUpgrade = false);
   void fill(const TrackerTopology *pTT,
             const LocalTrajectoryParameters &ltp,
             bool isHitValid,

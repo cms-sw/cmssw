@@ -7,6 +7,7 @@
 #include "Validation/RecoMuon/src/MuonTrackAnalyzer.h"
 
 // Collaborating Class Header
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,7 +43,7 @@ MuonTrackAnalyzer::MuonTrackAnalyzer(const ParameterSet &ps) {
   pset = ps;
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   theSimTracksLabel = edm::InputTag("g4SimHits");
   theSimTracksToken = consumes<edm::SimTrackContainer>(theSimTracksLabel);
@@ -87,9 +88,6 @@ MuonTrackAnalyzer::~MuonTrackAnalyzer() {
     delete theService;
 }
 
-void MuonTrackAnalyzer::beginJob() {
-  //theFile->cd();
-}
 void MuonTrackAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
                                        edm::Run const &iRun,
                                        edm::EventSetup const & /* iSetup */) {
@@ -169,23 +167,6 @@ void MuonTrackAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
   }
 }
 
-void MuonTrackAnalyzer::endRun(DQMStore::IBooker &ibooker) {
-  LogInfo("MuonTrackAnalyzer") << "Number of Sim tracks: " << numberOfSimTracks;
-
-  LogInfo("MuonTrackAnalyzer") << "Number of Reco tracks: " << numberOfRecTracks;
-
-  if (doTracksAnalysis) {
-    double eff = hRecoTracksPCA->computeEfficiency(hSimTracks, ibooker);
-    LogInfo("MuonTrackAnalyzer") << " *Track Efficiency* = " << eff << "%";
-  }
-
-  if (doSeedsAnalysis) {
-    double eff = hRecoSeedInner->computeEfficiency(hSimTracks, ibooker);
-    LogInfo("MuonTrackAnalyzer") << " *Seed Efficiency* = " << eff << "%";
-  }
-  if (!out.empty() && dbe_)
-    dbe_->save(out);
-}
 void MuonTrackAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
   LogDebug("MuonTrackAnalyzer") << "Run: " << event.id().run() << " Event: " << event.id().event();
 

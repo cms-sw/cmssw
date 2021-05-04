@@ -5,10 +5,10 @@
 
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/range/iterator_range.hpp>
-#include <boost/cstdint.hpp>
 #include <sstream>
 #include <vector>
 #include <string>
+#include <cstdint>
 
 #define SISTRIPCABLING_USING_NEW_STRUCTURE
 #define SISTRIPCABLING_USING_NEW_INTERFACE

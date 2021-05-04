@@ -320,6 +320,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 
     std::vector<int> OwnerShip;
     std::vector<double> LumpEnergy;
+    OwnerShip.reserve(int(dominoEnergy.size()));
     for (int i = 0; i < int(dominoEnergy.size()); ++i)
       OwnerShip.push_back(-1);
 

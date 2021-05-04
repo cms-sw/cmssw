@@ -1,8 +1,10 @@
-<use   name="CondFormats/GeometryObjects"/>
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/HGCalCommonData"/>
-<use   name="Geometry/Records"/>
-<use   name="DetectorDescription/Core"/>
-<use   name="DataFormats/ForwardDetId"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="FWCore/Framework"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/Records"/>
+<use name="DetectorDescription/Core"/>
+<use name="DataFormats/ForwardDetId"/>
 <flags EDM_PLUGIN="1"/>
-<library file="*.cc" name="testGeometryHGCalCommonData">  </library>
+<library file="*.cc" name="testGeometryHGCalCommonData">
+</library>
+<bin name="HGCalConvert" file="HGCalConvert.cpp"> </bin>

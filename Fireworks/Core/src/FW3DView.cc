@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 #include "TGLViewer.h"

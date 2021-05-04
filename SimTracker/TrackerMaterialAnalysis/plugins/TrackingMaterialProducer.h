@@ -2,6 +2,7 @@
 #define TrackingMaterialProducer_h
 #include <string>
 #include <vector>
+#include <fstream>
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
@@ -56,10 +57,20 @@ private:
   bool m_primaryTracks;
   std::vector<std::string> m_selectedNames;
   std::vector<const G4LogicalVolume*> m_selectedVolumes;
+  std::string m_txtOutFile;
+  double m_hgcalzfront;
   MaterialAccountingTrack m_track;
+  const G4VPhysicalVolume* m_track_volume;
   std::vector<MaterialAccountingTrack>* m_tracks;
   TFile* output_file_;
   TProfile* radLen_vs_eta_;
+  bool isHGCal;
+  bool isHFNose;
+  static constexpr float innerHGCalEta = 2.4;
+  static constexpr float outerHGCalEta = 2.0;
+  static constexpr float innerHFnoseEta = 4.;
+  static constexpr float outerHFnoseEta = 3.3;
+  std::ofstream outVolumeZpositionTxt;
 };
 
 #endif  // TrackingMaterialProducer_h

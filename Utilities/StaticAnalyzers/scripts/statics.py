@@ -9,7 +9,7 @@ fre = re.compile("function")
 
 statics = set()
 toplevelfuncs = set()
-skipfunc = re.compile("(edm::(LuminosityBlock::|Run::|Event::)getBy(Label|Token))|(fwlite::|edm::EDProductGetter::getIt|edm::Event::|edm::eventsetup::EventSetupRecord::get|edm::eventsetup::DataProxy::getImpl|edm::EventPrincipal::unscheduledFill|edm::ServiceRegistry::get|edm::eventsetup::EventSetupRecord::getImplementation|edm::eventsetup::EventSetupRecord::getFromProxy|edm::eventsetup::DataProxy::get|edm::serviceregistry::ServicesManager::MakerHolder::add|(cond::service::PoolDBOutputService::(writeOne|appendSinceTime|tagInfo))|edm::EventProcessor::|edm::SubProcess::)")
+skipfunc = re.compile("(edm::(LuminosityBlock::|Run::|Event::|Principal::)getBy(Label|Token))|(fwlite::|edm::EDProductGetter::getIt|edm::Event::|edm::eventsetup::EventSetupRecord::get|edm::eventsetup::DataProxy::getImpl|edm::EventPrincipal::unscheduledFill|edm::ServiceRegistry::get|edm::eventsetup::EventSetupRecord::getImplementation|edm::eventsetup::EventSetupRecord::getFromProxy|edm::eventsetup::DataProxy::get|edm::serviceregistry::ServicesManager::MakerHolder::add|(cond::service::PoolDBOutputService::(writeOne|appendSinceTime|tagInfo))|edm::EventProcessor::|edm::SubProcess::)")
 skipfuncs=set()
 
 import networkx as nx
@@ -40,7 +40,7 @@ fileinput.close()
 
 for tfunc in sorted(toplevelfuncs):
 	for static in sorted(statics):
-		if nx.has_path(G,tfunc,static): 
+		if G.has_node(tfunc) and G.has_node(static) and nx.has_path(G,tfunc,static): 
 			path = nx.shortest_path(G,tfunc,static)
 
 			print("Non-const static variable \'"+re.sub(farg,"()",static)+"' is accessed in call stack '", end=' ')

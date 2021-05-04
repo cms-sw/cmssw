@@ -5,15 +5,12 @@
  * Contact: Jeremy.Werner@cern.ch
  * Date: February 21, 2007
  */
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "HLTPMMassFilter.h"
 
 //
 // constructors and destructor
 //
-HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
+HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), magFieldToken_(esConsumes()) {
   candTag_ = iConfig.getParameter<edm::InputTag>("candTag");
   beamSpot_ = iConfig.getParameter<edm::InputTag>("beamSpot");
   l1EGTag_ = iConfig.getParameter<edm::InputTag>("l1EGCand");
@@ -60,8 +57,7 @@ bool HLTPMMassFilter::hltFilter(edm::Event& iEvent,
     filterproduct.addCollectionTag(l1EGTag_);
   }
 
-  edm::ESHandle<MagneticField> theMagField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+  auto const& theMagField = iSetup.getData(magFieldToken_);
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByToken(candToken_, PrevFilterOutput);
@@ -133,10 +129,10 @@ bool HLTPMMassFilter::hltFilter(edm::Event& iEvent,
     for (auto& i : scs) {
       refsc = i;
       const reco::SuperClusterRef sc = refsc->superCluster();
-      TLorentzVector pscPos = approxMomAtVtx(theMagField.product(), vertexPos, sc, 1);
+      TLorentzVector pscPos = approxMomAtVtx(theMagField, vertexPos, sc, 1);
       pEleCh1.push_back(pscPos);
 
-      TLorentzVector pscEle = approxMomAtVtx(theMagField.product(), vertexPos, sc, -1);
+      TLorentzVector pscEle = approxMomAtVtx(theMagField, vertexPos, sc, -1);
       pEleCh2.push_back(pscEle);
       etaOrig.push_back(sc->eta());
     }
@@ -170,13 +166,13 @@ bool HLTPMMassFilter::hltFilter(edm::Event& iEvent,
   return accept;
 }
 
-TLorentzVector HLTPMMassFilter::approxMomAtVtx(const MagneticField* magField,
+TLorentzVector HLTPMMassFilter::approxMomAtVtx(const MagneticField& magField,
                                                const GlobalPoint& xvert,
                                                const reco::SuperClusterRef sc,
                                                int charge) const {
   GlobalPoint xsc(sc->position().x(), sc->position().y(), sc->position().z());
   float energy = sc->energy();
-  FreeTrajectoryState theFTS = FTSFromVertexToPointFactory::get(*magField, xsc, xvert, energy, charge);
+  auto theFTS = trackingTools::ftsFromVertexToPoint(magField, xsc, xvert, energy, charge);
   float theApproxMomMod = theFTS.momentum().x() * theFTS.momentum().x() +
                           theFTS.momentum().y() * theFTS.momentum().y() + theFTS.momentum().z() * theFTS.momentum().z();
   TLorentzVector theApproxMom(

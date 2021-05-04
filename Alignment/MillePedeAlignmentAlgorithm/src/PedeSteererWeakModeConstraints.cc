@@ -13,7 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include <boost/cstdint.hpp>
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"

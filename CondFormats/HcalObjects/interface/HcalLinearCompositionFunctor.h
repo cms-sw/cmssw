@@ -20,7 +20,7 @@ public:
   inline HcalLinearCompositionFunctor() : a_(0.0), b_(0.0) {}
 
   // Normal constructor
-  HcalLinearCompositionFunctor(boost::shared_ptr<AbsHcalFunctor> p, double a, double b);
+  HcalLinearCompositionFunctor(std::shared_ptr<AbsHcalFunctor> p, double a, double b);
 
   inline ~HcalLinearCompositionFunctor() override {}
 
@@ -39,7 +39,7 @@ protected:
   }
 
 private:
-  boost::shared_ptr<AbsHcalFunctor> other_;
+  std::shared_ptr<AbsHcalFunctor> other_;
   double a_;
   double b_;
 

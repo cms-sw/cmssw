@@ -7,32 +7,19 @@
  * Created:     12 Mar 2015
  */
 
-/** @todo nope */
-
 #ifndef tmEventSetup_L1TUtmAlgorithm_hh
 #define tmEventSetup_L1TUtmAlgorithm_hh
 
-/*====================================================================*
- * declarations
- *====================================================================*/
-/*-----------------------------------------------------------------*
- * headers
- *-----------------------------------------------------------------*/
+#include <set>
 #include <string>
 #include <vector>
 #include "CondFormats/Serialization/interface/Serializable.h"
-
-/*-----------------------------------------------------------------*
- * constants
- *-----------------------------------------------------------------*/
-/* nope */
 
 /**
  *  This class implements data structure for Algorithm
  */
 class L1TUtmAlgorithm {
 public:
-  // ctor
   L1TUtmAlgorithm()
       : name_(),
         expression_(),
@@ -43,8 +30,7 @@ public:
         module_index_(),
         version(0){};
 
-  // dtor
-  virtual ~L1TUtmAlgorithm(){};
+  virtual ~L1TUtmAlgorithm() = default;
 
   /** set rpn_vector_ */
   void setRpnVector(const std::vector<std::string>& x) { rpn_vector_ = x; };
@@ -79,8 +65,8 @@ protected:
   unsigned int module_id_;              /**< module id */
   unsigned int module_index_;           /**< index of algorithm in module (local to module id) */
   unsigned int version;
+
   COND_SERIALIZABLE;
 };
 
 #endif  // tmEventSetup_L1TUtmAlgorithm_hh
-/* eof */

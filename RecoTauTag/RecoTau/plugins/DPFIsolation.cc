@@ -74,9 +74,7 @@ public:
   }
 
 private:
-  tensorflow::Tensor getPredictions(edm::Event& event,
-                                    const edm::EventSetup& es,
-                                    edm::Handle<TauCollection> taus) override {
+  tensorflow::Tensor getPredictions(edm::Event& event, edm::Handle<TauCollection> taus) override {
     edm::Handle<pat::PackedCandidateCollection> pfcands;
     event.getByToken(pfcandToken_, pfcands);
 
@@ -142,7 +140,7 @@ private:
 
       std::vector<unsigned int> signalCandidateInds;
 
-      for (const auto c : tau.signalCands())
+      for (const auto& c : tau.signalCands())
         signalCandidateInds.push_back(getPFCandidateIndex(pfcands, c));
 
       // Use of setZero results in warnings in eigen library during compilation.
@@ -167,8 +165,6 @@ private:
         float deltaR_tau_p = deltaR(p.p4(), tau.p4());
 
         if (p.pt() < 0.5)
-          continue;
-        if (p.fromPV() < 0)
           continue;
         if (deltaR_tau_p > 0.5)
           continue;
@@ -387,7 +383,7 @@ private:
         }
         iPF++;
       }
-      tensorflow::run(&(cache_->getSession()), {{"input_1", tensor}}, {"output_node0"}, {}, &outputs_);
+      tensorflow::run(&(cache_->getSession()), {{"input_1", tensor}}, {"output_node0"}, &outputs_);
       predictions.matrix<float>()(tau_index, 0) = outputs_[0].flat<float>()(0);
     }
     return predictions;

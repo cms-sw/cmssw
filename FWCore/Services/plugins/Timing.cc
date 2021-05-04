@@ -90,18 +90,6 @@ namespace edm {
 
       double postCommon() const;
 
-      void preLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                eventsetup::EventSetupRecordKey const&,
-                                eventsetup::DataKey const&);
-
-      void postLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                 eventsetup::EventSetupRecordKey const&,
-                                 eventsetup::DataKey const&);
-
-      void postEventSetupGet(eventsetup::ComponentDescription const*,
-                             eventsetup::EventSetupRecordKey const&,
-                             eventsetup::DataKey const&);
-
       struct CountAndTime {
       public:
         CountAndTime(unsigned int count, double time) : count_(count), time_(time) {}
@@ -245,10 +233,6 @@ namespace edm {
       iRegistry.watchPreEvent(this, &Timing::preEvent);
       iRegistry.watchPostEvent(this, &Timing::postEvent);
 
-      iRegistry.watchPreLockEventSetupGet(this, &Timing::preLockEventSetupGet);
-      iRegistry.watchPostLockEventSetupGet(this, &Timing::postLockEventSetupGet);
-      iRegistry.watchPostEventSetupGet(this, &Timing::postEventSetupGet);
-
       bool checkThreshold = true;
       if (threshold_ <= 0.0) {
         //we need to ignore the threshold check
@@ -278,6 +262,9 @@ namespace edm {
 
         iRegistry.watchPreModuleConstruction(this, &Timing::preModule);
         iRegistry.watchPostModuleConstruction(this, &Timing::postModule);
+
+        iRegistry.watchPreModuleDestruction(this, &Timing::preModule);
+        iRegistry.watchPostModuleDestruction(this, &Timing::postModule);
 
         iRegistry.watchPreModuleBeginJob(this, &Timing::preModule);
         iRegistry.watchPostModuleBeginJob(this, &Timing::postModule);
@@ -603,31 +590,6 @@ namespace edm {
             << " seconds.";
       }
       return t;
-    }
-
-    void Timing::preLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                      eventsetup::EventSetupRecordKey const&,
-                                      eventsetup::DataKey const&) {
-      if (!configuredInTopLevelProcess_) {
-        return;
-      }
-      accumulateTimeBegin(countAndTimeForLock_, accumulatedTimeForLock_);
-    }
-
-    void Timing::postLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                       eventsetup::EventSetupRecordKey const&,
-                                       eventsetup::DataKey const&) {
-      if (!configuredInTopLevelProcess_) {
-        return;
-      }
-      accumulateTimeEnd(countAndTimeForLock_, accumulatedTimeForLock_);
-      accumulateTimeBegin(countAndTimeForGet_, accumulatedTimeForGet_);
-    }
-
-    void Timing::postEventSetupGet(eventsetup::ComponentDescription const*,
-                                   eventsetup::EventSetupRecordKey const&,
-                                   eventsetup::DataKey const&) {
-      accumulateTimeEnd(countAndTimeForGet_, accumulatedTimeForGet_);
     }
 
     void Timing::accumulateTimeBegin(std::atomic<CountAndTime*>& countAndTime, double& accumulatedTime) {

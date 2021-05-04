@@ -18,8 +18,6 @@
 // system include files
 #include <memory>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 //   base class
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -30,6 +28,7 @@
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
+#include <cstdint>
 
 // forward declarations
 
@@ -62,9 +61,9 @@ L1GtParametersTrivialProducer::L1GtParametersTrivialProducer(const edm::Paramete
     m_totalBxInEvent = 1;
   }
 
-  m_daqActiveBoards = static_cast<boost::uint16_t>(parSet.getParameter<unsigned int>("DaqActiveBoards"));
+  m_daqActiveBoards = static_cast<uint16_t>(parSet.getParameter<unsigned int>("DaqActiveBoards"));
 
-  m_evmActiveBoards = static_cast<boost::uint16_t>(parSet.getParameter<unsigned int>("EvmActiveBoards"));
+  m_evmActiveBoards = static_cast<uint16_t>(parSet.getParameter<unsigned int>("EvmActiveBoards"));
 
   m_daqNrBxBoard = parSet.getParameter<std::vector<int> >("DaqNrBxBoard");
 

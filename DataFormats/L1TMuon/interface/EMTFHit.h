@@ -12,19 +12,21 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "DataFormats/RPCDigi/interface/RPCDigi.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
-#include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
-#include "DataFormats/L1TMuon/interface/EMTF/ME.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 namespace l1t {
+
+  namespace l1tmu = L1TMuon;
 
   class EMTFHit {
   public:
     EMTFHit()
         : rawDetId(0),
+          subsystem(-99),
           endcap(-99),
           station(-99),
           ring(-99),
@@ -53,13 +55,12 @@ namespace l1t {
           bend(-99),
           valid(-99),
           sync_err(-99),
+          layer(-99),  // TODO: verify inclusion for GEM, or better to generalize this class... - JS 06.07.20
           bc0(-99),
           bx(-99),
           stub_num(-99),
           phi_fp(-99),
           theta_fp(-99),
-          phzvl(-99),
-          ph_hit(-99),
           zone_hit(-99),
           zone_code(-99),
           fs_segment(-99),
@@ -77,28 +78,23 @@ namespace l1t {
           rho_sim(-99),
           z_sim(-99),
           alct_quality(-99),
-          clct_quality(-99),
-          is_CSC(-99),
-          is_RPC(-99),
-          is_GEM(-99),
-          subsystem(-99){};
+          clct_quality(-99){};
 
     virtual ~EMTFHit(){};
 
-    // void ImportCSCDetId (const CSCDetId& _detId);
     CSCDetId CreateCSCDetId() const;
-    // void ImportRPCDetId (const RPCDetId& _detId);
-    // void ImportGEMDetId (const GEMDetId& _detId);
     RPCDetId CreateRPCDetId() const;
-    // GEMDetId CreateGEMDetId() const;
+    GEMDetId CreateGEMDetId() const;
+    ME0DetId CreateME0DetId() const;
+
     // void ImportCSCCorrelatedLCTDigi (const CSCCorrelatedLCTDigi& _digi);
     CSCCorrelatedLCTDigi CreateCSCCorrelatedLCTDigi() const;
     // void ImportRPCDigi (const RPCDigi& _digi);
     // RPCDigi CreateRPCDigi() const;
     // void ImportCPPFDigi (const CPPFDigi& _digi);
     CPPFDigi CreateCPPFDigi() const;
-    // void ImportGEMPadDigi (const GEMPadDigi& _digi);
-    // GEMPadDigi CreateGEMPadDigi() const;
+    // void ImportGEMPadDigiCluster (const GEMPadDigiCluster& _digi);  // TODO: implement placeholder when others are implemented
+    GEMPadDigiCluster CreateGEMPadDigiCluster() const;
 
     // void PrintSimulatorHeader() const;
     // void PrintForSimulator() const;
@@ -109,11 +105,12 @@ namespace l1t {
     //void SetCSCLCTDigi (const CSCCorrelatedLCTDigi& digi)   { csc_LCTDigi       = digi;      }
     //void SetRPCDigi    (const RPCDigi& digi)                { rpc_Digi          = digi;      }
     //void SetCPPFDigi   (const CPPFDigi& digi)               { cppf_Digi         = digi;      }
-    //void SetGEMPadDigi (const GEMPadDigi& digi)             { gem_PadDigi       = digi;      }
+    //void SetGEMPadDigiCluster (const GEMPadDigiCluster& digi)             { gem_PadClusterDigi       = digi;      }
     void SetCSCDetId(const CSCDetId& id) { rawDetId = id.rawId(); }
     void SetRPCDetId(const RPCDetId& id) { rawDetId = id.rawId(); }
     void SetGEMDetId(const GEMDetId& id) { rawDetId = id.rawId(); }
     void SetME0DetId(const ME0DetId& id) { rawDetId = id.rawId(); }
+    void SetDTDetId(const DTChamberId& id) { rawDetId = id.rawId(); }
 
     //CSCDetId CSC_DetId                          () const { return csc_DetId;    }
     //RPCDetId RPC_DetId                          () const { return rpc_DetId;    }
@@ -121,12 +118,14 @@ namespace l1t {
     //CSCCorrelatedLCTDigi CSC_LCTDigi            () const { return csc_LCTDigi;  }
     //RPCDigi RPC_Digi                            () const { return rpc_Digi;     }
     //CPPFDigi CPPF_Digi                          () const { return cppf_Digi;    }
-    //GEMPadDigi GEM_PadDigi                      () const { return gem_PadDigi;  }
+    //GEMPadDigiCluster GEM_PadClusterDigi        () const { return gem_PadClusterDigi;  }
     CSCDetId CSC_DetId() const { return CSCDetId(rawDetId); }
     RPCDetId RPC_DetId() const { return RPCDetId(rawDetId); }
     GEMDetId GEM_DetId() const { return GEMDetId(rawDetId); }
     ME0DetId ME0_DetId() const { return ME0DetId(rawDetId); }
+    DTChamberId DT_DetId() const { return DTChamberId(rawDetId); }
 
+    void set_subsystem(int bits) { subsystem = bits; }
     void set_endcap(int bits) { endcap = bits; }
     void set_station(int bits) { station = bits; }
     void set_ring(int bits) { ring = bits; }
@@ -155,13 +154,20 @@ namespace l1t {
     void set_bend(int bits) { bend = bits; }
     void set_valid(int bits) { valid = bits; }
     void set_sync_err(int bits) { sync_err = bits; }
+    // GEM specific aliases
+    void set_pad(int bits) { set_strip(bits); }
+    void set_pad_hi(int bits) { set_strip_hi(bits); }
+    void set_pad_low(int bits) { set_strip_low(bits); }
+    void set_partition(int bits) { set_roll(bits); }
+    void set_layer(int bits) { layer = bits; }
+    void set_cluster_size(int bits) { set_quality(bits); }
+    void set_cluster_id(int bits) { set_track_num(bits); }
+    // END GEM specific
     void set_bc0(int bits) { bc0 = bits; }
     void set_bx(int bits) { bx = bits; }
     void set_stub_num(int bits) { stub_num = bits; }
     void set_phi_fp(int bits) { phi_fp = bits; }
     void set_theta_fp(int bits) { theta_fp = bits; }
-    void set_phzvl(int bits) { phzvl = bits; }
-    void set_ph_hit(int bits) { ph_hit = bits; }
     void set_zone_hit(int bits) { zone_hit = bits; }
     void set_zone_code(int bits) { zone_code = bits; }
     void set_fs_segment(int bits) { fs_segment = bits; }
@@ -180,11 +186,8 @@ namespace l1t {
     void set_z_sim(float val) { z_sim = val; }
     void set_alct_quality(int bits) { alct_quality = bits; }
     void set_clct_quality(int bits) { clct_quality = bits; }
-    void set_is_CSC(int bits) { is_CSC = bits; }
-    void set_is_RPC(int bits) { is_RPC = bits; }
-    void set_is_GEM(int bits) { is_GEM = bits; }
-    void set_subsystem(int bits) { subsystem = bits; }
 
+    int Subsystem() const { return subsystem; }
     int Endcap() const { return endcap; }
     int Station() const { return station; }
     int Ring() const { return ring; }
@@ -213,13 +216,35 @@ namespace l1t {
     int Bend() const { return bend; }
     int Valid() const { return valid; }
     int Sync_err() const { return sync_err; }
+    // GEM specific aliases for member variables that don't match GEM nomenclature
+    /*
+     * Each GEM pad is the OR of two neighbouring strips in phi.
+     * For GE1/1 (10 degree chambers) this results in a total of 192 pads per eta partition
+       * 128 strips per phi sector
+       * 3 phi sectors per eta partition
+     * For GE2/1 (20 degree chambers) this results in a total of 384 pads per eta partition
+       * 128 strips per phi sector
+       * 6 phi sectors per eta partition
+     */
+    /// Repurpose "strip" as GEM pad for GEM sourced hits
+    int Pad() const { return Strip(); }
+    /// Repurpose "strip" as GEM pad for GEM sourced hits
+    int Pad_hi() const { return Strip_hi(); }
+    /// Repurpose "strip" as GEM pad for GEM sourced hits
+    int Pad_low() const { return Strip_low(); }
+    /// "roll" corresponds to the GEM eta partition
+    int Partition() const { return Roll(); }
+    int Layer() const { return layer; }
+    /// Repurpose "quality" as the GEM cluster_size (number of pads in the cluster)
+    int ClusterSize() const { return Quality(); }
+    /// Repurpose "track_num" as the GEM cluster_id
+    int ClusterID() const { return Track_num(); }
+    // END GEM specific
     int BC0() const { return bc0; }
     int BX() const { return bx; }
     int Stub_num() const { return stub_num; }
     int Phi_fp() const { return phi_fp; }
     int Theta_fp() const { return theta_fp; }
-    int Phzvl() const { return phzvl; }
-    int Ph_hit() const { return ph_hit; }
     int Zone_hit() const { return zone_hit; }
     int Zone_code() const { return zone_code; }
     int FS_segment() const { return fs_segment; }
@@ -238,10 +263,12 @@ namespace l1t {
     float Z_sim() const { return z_sim; }
     int ALCT_quality() const { return alct_quality; }
     int CLCT_quality() const { return clct_quality; }
-    int Is_CSC() const { return is_CSC; }
-    int Is_RPC() const { return is_RPC; }
-    int Is_GEM() const { return is_GEM; }
-    int Subsystem() const { return subsystem; }
+
+    bool Is_DT() const { return subsystem == l1tmu::kDT; }
+    bool Is_CSC() const { return subsystem == l1tmu::kCSC; }
+    bool Is_RPC() const { return subsystem == l1tmu::kRPC; }
+    bool Is_GEM() const { return subsystem == l1tmu::kGEM; }
+    bool Is_ME0() const { return subsystem == l1tmu::kME0; }
 
   private:
     //CSCDetId csc_DetId;
@@ -250,67 +277,64 @@ namespace l1t {
     //CSCCorrelatedLCTDigi csc_LCTDigi;
     //RPCDigi rpc_Digi;
     //CPPFDigi cppf_Digi;
-    //GEMPadDigi gem_PadDigi;
+    //GEMPadDigiCluster gem_PadClusterDigi;
 
-    uint32_t rawDetId;  // raw CMSSW DetId
-
-    int endcap;   //    +/-1.  For ME+ and ME-.
-    int station;  //  1 -  4.
-    int ring;  //  1 -  4.  ME1/1a is denoted as "Ring 4".  Should check dependence on input CSCDetId convention. - AWB 02.03.17
-    int sector;      //  1 -  6.  CSC / EMTF sector convention: sector 1 starts at 15 degrees
-    int sector_RPC;  //  1 -  6.  RPC sector convention (in CMSSW): sector 1 starts at -5 degrees
-    int sector_idx;  //  0 - 11.  0 - 5 for ME+, 6 - 11 for ME-.  For neighbor hits, set by EMTF sector that received it.
-    int subsector;  //  0 -  6.  In CSCs, 1 or 2 for ME1, 0 for ME2/3/4.  In RPCs, 1 - 6, where 1 is first chamber in EMTF sector.
-    int subsector_RPC;  // 0 -  6.  RPC sector convention (in CMSSW): subsector 3 is the first chamber in the EMTF sector.
-    int chamber;        //  1 - 36.  Chamber 1 starts at -5 degrees.
-    int csc_ID;         //  1 -  9.  For CSCs only.
-    int csc_nID;        //  1 - 15.  For CSCs only.  Neighbors 10 - 15, 12 not filled.
-    int roll;           //  1 -  3.  For RPCs only, sub-division of ring. (Range? - AWB 02.03.17)
-    int neighbor;       //  0 or 1.  Filled in EMTFBlockME.cc
-    int mpc_link;       //  1 -  3.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
-    int pc_sector;      //  1 -  6.  EMTF sector that received the LCT, even those sent from neighbor sectors.
-    int pc_station;     //  0 -  5.  0 for ME1 subsector 1, 5 for neighbor hits.
-    int pc_chamber;     //  0 -  8.
-    int pc_segment;     //  0 -  3.
-    int wire;           //  0 - 111  For CSCs only.
-    int strip;          //  0 - 158  For CSCs only.
-    int strip_hi;       //  ? -  ?.  For RPCs only, highest strip in a cluster.  (Range? - AWB 02.03.17)
-    int strip_low;      //  ? -  ?.  For RPCs only, lowest strip in a cluster.  (Range? - AWB 02.03.17)
-    int track_num;      //  ? -  ?.  For CSCs only.  (Range? - AWB 02.03.17)
-    int quality;        //  0 - 15.  For CSCs only.
-    int pattern;        //  0 - 10.  For CSCs only.
-    int bend;           //  0 or 1.  For CSCs only.
-    int valid;          //  0 or 1.  For CSCs only (for now; could use to flag failing clusters? - AWB 02.03.17)
-    int sync_err;       //  0 or 1.  For CSCs only.
-    int bc0;            //  0 or 1.  Only from unpacked data? - AWB 02.03.17
-    int bx;             // -3 - +3.
-    int stub_num;       //  0 or 1.  Only from unpacked data? - AWB 02.03.17
-    int phi_fp;         //  0 - 4920
-    int theta_fp;       //  0 - 127
-    int phzvl;          //  0 -  6.
-    int ph_hit;         //  2 - 43.  (Range? - AWB 02.03.17)
-    int zone_hit;       //  4 - 156  (Range? - AWB 02.03.17)
-    int zone_code;      //  0 - 12.  (Range? - AWB 02.03.17)
-    int fs_segment;     //  0 - 13.  (Range? - AWB 02.03.17)
-    int fs_zone_code;  //  1 - 14.  (Range? - AWB 02.03.17)
-    int bt_station;    //  0 -  4.
-    int bt_segment;    //  0 - 25.  (Range? - AWB 02.03.17)
-    float phi_loc;     // -20 - 60  (Range? - AWB 02.03.17)
-    float phi_glob;    // +/-180.
-    float theta;       // 0 - 90.
-    float eta;         // +/-2.5.
-    float time;        //  ? -  ?.  RPC time information
-    float phi_sim;     // +/-180.
-    float theta_sim;   // 0 - 90.
-    float eta_sim;     // +/-2.5.
-    float rho_sim;     //  ? -  ?.
-    float z_sim;       //  ? -  ?.
-    int alct_quality;  //  1 -  3.  For emulated CSC LCTs only, maps to number of ALCT layers (4 - 6).
-    int clct_quality;  //  4 -  6.  For emulated CSC LCTs only, maps to number of CLCT layers (4 - 6).
-    int is_CSC;        //  0 or 1.
-    int is_RPC;        //  0 or 1.
-    int is_GEM;        //  0 or 1.
-    int subsystem;     //  1 or ?.  1 for CSC, 2 for RPC, 3 for GEM
+    uint32_t rawDetId;  ///< raw CMSSW DetId
+    int subsystem;      ///<  0 -  4.  0 for DT, 1 for CSC, 2 for RPC, 3 for GEM, 4 for ME0
+    int endcap;         ///<    +/-1.  For ME+ and ME-.
+    int station;        ///<  1 -  4.
+    int ring;  ///<  1 -  4.  ME1/1a is denoted as "Ring 4".  Should check dependence on input CSCDetId convention. - AWB 02.03.17
+    int sector;      ///<  1 -  6.  CSC / GEM / EMTF sector convention: sector 1 starts at 15 degrees
+    int sector_RPC;  ///<  1 -  6.  RPC sector convention (in CMSSW): sector 1 starts at -5 degrees
+    int sector_idx;  ///<  0 - 11.  0 - 5 for ME+, 6 - 11 for ME-.  For neighbor hits, set by EMTF sector that received it.
+    int subsector;  ///<  0 -  6.  In CSCs, 1 or 2 for ME1, 0 for ME2/3/4.
+    int subsector_RPC;  ///<  0 -  6.  RPC sector convention (in CMSSW): subsector 3 is the first chamber in the EMTF sector.
+    int chamber;        ///<  1 - 36.  Chamber 1 starts at -5 degrees.
+    int csc_ID;         ///<  1 -  9.  For CSCs only.
+    int csc_nID;        ///<  1 - 15.  For CSCs only.  Neighbors 10 - 15, 12 not filled.
+    int roll;           ///<  1 -  3.  For RPCs only, sub-division of ring. (Range? - AWB 02.03.17)
+    int neighbor;       ///<  0 or 1.  Filled in EMTFBlock(ME|GEM|RPC).cc
+    int mpc_link;       ///<  1 -  3.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
+    int pc_sector;   ///<  1 -  6.  EMTF sector that received the LCT, even those sent from neighbor sectors.
+    int pc_station;  ///<  0 -  5.  0 for ME1 subsector 1, 5 for neighbor hits.
+    int pc_chamber;  ///<  0 -  8.
+    int pc_segment;  ///<  0 -  3.
+    int wire;        ///<  0 - 111  For CSCs only.
+    int strip;       ///<  0 - 158  For CSCs only.
+    int strip_hi;    ///<  ? -  ?.  For RPCs only, highest strip in a cluster.  (Range? - AWB 02.03.17)
+    int strip_low;   ///<  ? -  ?.  For RPCs only, lowest strip in a cluster.  (Range? - AWB 02.03.17)
+    int track_num;   ///<  ? -  ?.  For CSCs only.  (Range? - AWB 02.03.17)
+    int quality;     ///<  0 - 15.  For CSCs only.
+    int pattern;     ///<  0 - 10.  For CSCs only.
+    int bend;        ///<  0 or 1.  For CSCs only.
+    int valid;       ///<  0 or 1.  For CSCs only (for now; could use to flag failing clusters? - AWB 02.03.17)
+    int sync_err;    ///<  0 or 1.  For CSCs only.
+    // GEM specific
+    int layer;  ///<  0 -   1.  For GEMs only, superchamber detector layer (1 or 2).
+    // END GEM specific
+    int bc0;           ///<  0 or 1.  Only from unpacked data? - AWB 02.03.17
+    int bx;            ///< -3 - +3.
+    int stub_num;      ///<  0 or 1.  Only from unpacked data? - AWB 02.03.17
+    int phi_fp;        ///<  0 - 4920
+    int theta_fp;      ///<  0 - 127
+    int zone_hit;      ///<  4 - 156  (Range? - AWB 02.03.17)
+    int zone_code;     ///<  0 - 12.  (Range? - AWB 02.03.17)
+    int fs_segment;    ///<  0 - 13.  (Range? - AWB 02.03.17)
+    int fs_zone_code;  ///<  1 - 14.  (Range? - AWB 02.03.17)
+    int bt_station;    ///<  0 -  4.
+    int bt_segment;    ///<  0 - 25.  (Range? - AWB 02.03.17)
+    float phi_loc;     ///< -20 - 60  (Range? - AWB 02.03.17)
+    float phi_glob;    ///< +/-180.
+    float theta;       ///< 0 - 90.
+    float eta;         ///< +/-2.5.
+    float time;        ///<  ? -  ?.  RPC time information (ns)
+    float phi_sim;     ///< +/-180.
+    float theta_sim;   ///< 0 - 90.
+    float eta_sim;     ///< +/-2.5.
+    float rho_sim;     ///<  ? -  ?.
+    float z_sim;       ///<  ? -  ?.
+    int alct_quality;  ///<  1 -  3.  For emulated CSC LCTs only, maps to number of ALCT layers (4 - 6).
+    int clct_quality;  ///<  4 -  6.  For emulated CSC LCTs only, maps to number of CLCT layers (4 - 6).
 
   };  // End of class EMTFHit
 

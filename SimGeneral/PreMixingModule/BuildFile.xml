@@ -1,7 +1,6 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

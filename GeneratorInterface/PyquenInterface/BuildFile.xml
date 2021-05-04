@@ -1,14 +1,14 @@
-<use   name="boost"/>
-<use   name="FWCore/Concurrency"/>
-<use   name="FWCore/Framework"/>
-<use   name="GeneratorInterface/Core"/>
-<use   name="GeneratorInterface/HiGenCommon"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="clhep"/>
-<use   name="f77compiler"/>
-<use   name="GeneratorInterface/Pythia6Interface"/>
-<use   name="GeneratorInterface/ExternalDecays"/>
-<use   name="pyquen"/>
+<use name="boost"/>
+<use name="FWCore/Concurrency"/>
+<use name="FWCore/Framework"/>
+<use name="GeneratorInterface/Core"/>
+<use name="GeneratorInterface/HiGenCommon"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="clhep"/>
+<use name="f77compiler"/>
+<use name="GeneratorInterface/Pythia6Interface"/>
+<use name="GeneratorInterface/ExternalDecays"/>
+<use name="pyquen"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

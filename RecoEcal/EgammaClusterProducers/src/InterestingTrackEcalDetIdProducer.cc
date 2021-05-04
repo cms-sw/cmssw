@@ -47,20 +47,17 @@
 class InterestingTrackEcalDetIdProducer : public edm::stream::EDProducer<> {
 public:
   explicit InterestingTrackEcalDetIdProducer(const edm::ParameterSet&);
-  ~InterestingTrackEcalDetIdProducer() override;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginRun(edm::Run const&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
-  edm::InputTag trackCollection_;
   edm::ParameterSet trackAssociatorPS_;
 
   double minTrackPt_;
 
-  const CaloTopology* caloTopology_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
   TrackDetectorAssociator trackAssociator_;
   TrackAssociatorParameters trackAssociatorParameters_;
 };
@@ -77,23 +74,16 @@ private:
 // constructors and destructor
 //
 InterestingTrackEcalDetIdProducer::InterestingTrackEcalDetIdProducer(const edm::ParameterSet& iConfig)
-    :
-
-      trackAssociatorPS_(iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters")),
-      minTrackPt_(iConfig.getParameter<double>("MinTrackPt"))
+    : minTrackPt_(iConfig.getParameter<double>("MinTrackPt")),
+      caloTopologyToken_(esConsumes())
 
 {
   trackCollectionToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackCollection"));
   trackAssociator_.useDefaultPropagator();
   edm::ConsumesCollector iC = consumesCollector();
-  trackAssociatorParameters_.loadParameters(trackAssociatorPS_, iC);
+  trackAssociatorParameters_.loadParameters(iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC);
 
   produces<DetIdCollection>();
-}
-
-InterestingTrackEcalDetIdProducer::~InterestingTrackEcalDetIdProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -110,13 +100,18 @@ void InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::E
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(trackCollectionToken_, tracks);
 
+  const auto& caloTopology = iSetup.getData(caloTopologyToken_);
+
   // Loop over tracks
   for (reco::TrackCollection::const_iterator tkItr = tracks->begin(); tkItr != tracks->end(); ++tkItr) {
     if (tkItr->pt() < minTrackPt_)
       continue;
 
     TrackDetMatchInfo info = trackAssociator_.associate(
-        iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *tkItr), trackAssociatorParameters_);
+        iEvent,
+        iSetup,
+        trackAssociator_.getFreeTrajectoryState(&iSetup.getData(trackAssociatorParameters_.bFieldToken), *tkItr),
+        trackAssociatorParameters_);
 
     DetId centerId = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits);
 
@@ -124,7 +119,7 @@ void InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::E
       continue;
 
     // Find 5x5 around max
-    const CaloSubdetectorTopology* topology = caloTopology_->getSubdetectorTopology(DetId::Ecal, centerId.subdetId());
+    const CaloSubdetectorTopology* topology = caloTopology.getSubdetectorTopology(DetId::Ecal, centerId.subdetId());
     const std::vector<DetId>& ids = topology->getWindow(centerId, 5, 5);
     for (std::vector<DetId>::const_iterator idItr = ids.begin(); idItr != ids.end(); ++idItr) {
       if (std::find(interestingDetIdCollection->begin(), interestingDetIdCollection->end(), *idItr) ==
@@ -134,12 +129,6 @@ void InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::E
   }
 
   iEvent.put(std::move(interestingDetIdCollection));
-}
-
-void InterestingTrackEcalDetIdProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  caloTopology_ = &(*theCaloTopology);
 }
 
 //define this as a plug-in

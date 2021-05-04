@@ -118,7 +118,8 @@ namespace edm {
       throw cms::Exception("TestThrow") << "ThrowingSource::readEvent_";
     assert(eventCached() || processingMode() != RunsLumisAndEvents);
     EventAuxiliary aux(eventID(), processGUID(), Timestamp(presentTime()), false, EventAuxiliary::Undefined);
-    eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
+    auto history = processHistoryRegistry().getMapped(aux.processHistoryID());
+    eventPrincipal.fillEventPrincipal(aux, history);
   }
 }  // namespace edm
 

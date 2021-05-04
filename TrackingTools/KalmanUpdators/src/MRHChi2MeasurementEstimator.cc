@@ -1,5 +1,4 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
-#include "RecoTracker/SiTrackerMRHTools/interface/SiTrackerMultiRecHitUpdator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/KalmanUpdators/interface/MRHChi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"

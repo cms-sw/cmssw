@@ -1,20 +1,17 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="DataFormats/HcalDigi"/>
-<use   name="DataFormats/HcalRecHit"/>
-<use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="RecoLocalCalo/HcalRecAlgos"/>
-
-<library   file="HcalSevLvlAnalyzer.cc" name="HcalSevLvlAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/HcalRecHit"/>
+<use name="CalibCalorimetry/HcalAlgos"/>
+<use name="RecoLocalCalo/HcalRecAlgos"/>
+<library file="HcalSevLvlAnalyzer.cc" name="HcalSevLvlAnalyzer">
+  <flags EDM_PLUGIN="1"/>
 </library>
 
-<library   file="HcalRecHitReflagger.cc" name="HcalRecHitReflagger">
-  <flags   EDM_PLUGIN="1"/>
+<library file="HcalRecHitReflagger.cc" name="HcalRecHitReflagger">
+  <flags EDM_PLUGIN="1"/>
 </library>
 
-<library   file="MahiDebugger.cc" name="MahiDebugger">
-  <flags   EDM_PLUGIN="1"/>
+<library file="MahiDebugger.cc" name="MahiDebugger">
+  <flags EDM_PLUGIN="1"/>
 </library>

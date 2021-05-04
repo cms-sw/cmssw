@@ -4,11 +4,11 @@
 
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include <boost/cstdint.hpp>
 #include <cmath>
 #include <map>
 #include <sstream>
 #include <vector>
+#include <cstdint>
 
 /**
    Author: pwing

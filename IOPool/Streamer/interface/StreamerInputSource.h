@@ -93,10 +93,12 @@ namespace edm {
       ~EventPrincipalHolder() override;
 
       WrapperBase const* getIt(ProductID const& id) const override;
-      WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
+      std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
+                                                                                         unsigned int) const override;
       void getThinnedProducts(ProductID const& pid,
                               std::vector<WrapperBase const*>& wrappers,
                               std::vector<unsigned int>& keys) const override;
+      OptionalThinnedKey getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const override;
 
       unsigned int transitionIndex_() const override;
 
@@ -110,8 +112,6 @@ namespace edm {
     void read(EventPrincipal& eventPrincipal) override;
 
     void setRun(RunNumber_t r) override;
-
-    std::unique_ptr<FileBlock> readFile_() override;
 
     edm::propagate_const<TClass*> tc_;
     std::vector<unsigned char> dest_;

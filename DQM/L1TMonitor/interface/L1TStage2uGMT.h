@@ -21,7 +21,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
@@ -35,6 +34,7 @@ private:
   std::string monitorDir;
   bool emul;
   bool verbose;
+  bool displacedQuantities_;
 
   const float etaScale_;
   const float phiScale_;
@@ -42,6 +42,8 @@ private:
   MonitorElement* ugmtBMTFBX;
   MonitorElement* ugmtBMTFnMuons;
   MonitorElement* ugmtBMTFhwPt;
+  MonitorElement* ugmtBMTFhwPtUnconstrained;
+  MonitorElement* ugmtBMTFhwDXY;
   MonitorElement* ugmtBMTFhwEta;
   MonitorElement* ugmtBMTFhwPhi;
   MonitorElement* ugmtBMTFglbPhi;
@@ -75,6 +77,8 @@ private:
   MonitorElement* ugmtEMTFBX;
   MonitorElement* ugmtEMTFnMuons;
   MonitorElement* ugmtEMTFhwPt;
+  MonitorElement* ugmtEMTFhwPtUnconstrained;
+  MonitorElement* ugmtEMTFhwDXY;
   MonitorElement* ugmtEMTFhwEta;
   MonitorElement* ugmtEMTFhwPhiPos;
   MonitorElement* ugmtEMTFhwPhiNeg;
@@ -113,6 +117,8 @@ private:
   MonitorElement* ugmtnMuons;
   MonitorElement* ugmtMuonIndex;
   MonitorElement* ugmtMuonhwPt;
+  MonitorElement* ugmtMuonhwPtUnconstrained;
+  MonitorElement* ugmtMuonhwDXY;
   MonitorElement* ugmtMuonhwEta;
   MonitorElement* ugmtMuonhwPhi;
   MonitorElement* ugmtMuonhwEtaAtVtx;
@@ -123,6 +129,7 @@ private:
   MonitorElement* ugmtMuonhwIso;
 
   MonitorElement* ugmtMuonPt;
+  MonitorElement* ugmtMuonPtUnconstrained;
   MonitorElement* ugmtMuonEta;
   MonitorElement* ugmtMuonPhi;
   MonitorElement* ugmtMuonEtaAtVtx;

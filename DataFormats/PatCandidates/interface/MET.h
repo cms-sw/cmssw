@@ -70,6 +70,10 @@ namespace pat {
     void setMETSignificance(const double& metSig);
     // get the MET significance
     double metSignificance() const;
+    // set the MET sumPtUnclustered for MET Significance
+    void setMETSumPtUnclustered(const double& sumPtUnclustered);
+    // get the MET sumPtUnclustered
+    double metSumPtUnclustered() const;
 
     // ---- methods for uncorrected MET ----
     // Methods not yet defined
@@ -180,7 +184,9 @@ namespace pat {
       RawCalo = 10,
       RawChs = 11,
       RawTrk = 12,
-      METCorrectionLevelSize = 13
+      RawDeepResponseTune = 13,
+      RawDeepResolutionTune = 14,
+      METCorrectionLevelSize = 15
     };
     enum METCorrectionType {
       None = 0,
@@ -195,7 +201,9 @@ namespace pat {
       Calo = 9,
       Chs = 10,
       Trk = 11,
-      METCorrectionTypeSize = 12
+      DeepResponseTune = 12,
+      DeepResolutionTune = 13,
+      METCorrectionTypeSize = 14
     };
 
     struct Vector2 {
@@ -317,6 +325,8 @@ namespace pat {
 
     // MET significance
     double metSig_;
+    // MET sumPtUnclustered for MET Significance
+    double sumPtUnclustered_;
 
     const PackedMETUncertainty findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const;
 

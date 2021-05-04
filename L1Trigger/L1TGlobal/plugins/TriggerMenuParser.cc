@@ -30,8 +30,6 @@
 #include <iomanip>
 #include <cmath>
 
-#include <boost/cstdint.hpp>
-
 #include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -45,6 +43,7 @@
 #include "tmEventSetup/esCut.hh"
 #include "tmEventSetup/esScale.hh"
 #include "tmGrammar/Algorithm.hh"
+#include <cstdint>
 
 // constructor
 l1t::TriggerMenuParser::TriggerMenuParser()
@@ -1026,7 +1025,7 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
   MuonTemplate::CorrelationParameter corrParameter;
 
   // need at least two values for deltaPhi
-  std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
+  std::vector<uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
   tmpValues.reserve(nrObj);
 
   if (int(condMu.getObjects().size()) != nrObj) {
@@ -1069,6 +1068,10 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
     relativeBx = object.getBxOffset();
 
     //  Loop over the cuts for this object
+    int upperUnconstrainedPtInd = -1;
+    int lowerUnconstrainedPtInd = 0;
+    int upperImpactParameterInd = -1;
+    int lowerImpactParameterInd = 0;
     int upperThresholdInd = -1;
     int lowerThresholdInd = 0;
     int upperIndexInd = -1;
@@ -1077,15 +1080,27 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
     unsigned int etaWindow1Lower = -1, etaWindow1Upper = -1, etaWindow2Lower = -1, etaWindow2Upper = -1;
     int cntPhi = 0;
     unsigned int phiWindow1Lower = -1, phiWindow1Upper = -1, phiWindow2Lower = -1, phiWindow2Upper = -1;
-    int isolationLUT = 0xF;   //default is to ignore unless specified.
-    int charge = -1;          //default value is to ignore unless specified
-    int qualityLUT = 0xFFFF;  //default is to ignore unless specified.
+    int isolationLUT = 0xF;        //default is to ignore unless specified.
+    int impactParameterLUT = 0xF;  //default is to ignore unless specified
+    int charge = -1;               //default value is to ignore unless specified
+    int qualityLUT = 0xFFFF;       //default is to ignore unless specified.
 
     const std::vector<esCut>& cuts = object.getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++) {
       const esCut cut = cuts.at(kk);
 
       switch (cut.getCutType()) {
+        case esCutType::UnconstrainedPt:
+          lowerUnconstrainedPtInd = cut.getMinimum().index;
+          upperUnconstrainedPtInd = cut.getMaximum().index;
+          break;
+
+        case esCutType::ImpactParameter:
+          lowerImpactParameterInd = cut.getMinimum().index;
+          upperImpactParameterInd = cut.getMaximum().index;
+          impactParameterLUT = l1tstr2int(cut.getData());
+          break;
+
         case esCutType::Threshold:
           lowerThresholdInd = cut.getMinimum().index;
           upperThresholdInd = cut.getMaximum().index;
@@ -1152,6 +1167,12 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
     }  //end loop over cuts
 
     // Set the parameter cuts
+    objParameter[cnt].unconstrainedPtHigh = upperUnconstrainedPtInd;
+    objParameter[cnt].unconstrainedPtLow = lowerUnconstrainedPtInd;
+    objParameter[cnt].impactParameterHigh = upperImpactParameterInd;
+    objParameter[cnt].impactParameterLow = lowerImpactParameterInd;
+    objParameter[cnt].impactParameterLUT = impactParameterLUT;
+
     objParameter[cnt].ptHighThreshold = upperThresholdInd;
     objParameter[cnt].ptLowThreshold = lowerThresholdInd;
 
@@ -1251,7 +1272,7 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
   MuonTemplate::CorrelationParameter corrParameter;
 
   // need at least two values for deltaPhi
-  std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
+  std::vector<uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
   tmpValues.reserve(nrObj);
 
   // BLW TO DO: How do we deal with these in the new format
@@ -1541,7 +1562,7 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
   CaloTemplate::CorrelationParameter corrParameter;
 
   // need at least one value for deltaPhiRange
-  std::vector<boost::uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
+  std::vector<uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
   tmpValues.reserve(nrObj);
 
   if (int(condCalo.getObjects().size()) != nrObj) {
@@ -1552,8 +1573,8 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
   }
 
   //    std::string str_condCalo = "";
-  //    boost::uint64_t tempUIntH, tempUIntL;
-  //    boost::uint64_t dst;
+  //    uint64_t tempUIntH, tempUIntL;
+  //    uint64_t dst;
   int cnt = 0;
 
   // BLW TO DO: These needs to the added to the object rather than the whole condition.
@@ -1783,7 +1804,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
   CaloTemplate::CorrelationParameter corrParameter;
 
   // need at least one value for deltaPhiRange
-  std::vector<boost::uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
+  std::vector<uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
   tmpValues.reserve(nrObj);
 
   // BLW TO DO: These needs to the added to the object rather than the whole condition.
@@ -2642,7 +2663,9 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         case esObjectType::Tau: {
           objType[jj] = gtTau;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondCalo;
 
     } else if (object.getType() == esObjectType::ETM || object.getType() == esObjectType::ETMHF ||
@@ -2666,7 +2689,9 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         case esObjectType::TOWERCOUNT: {
           objType[jj] = GlobalObject::gtTowerCount;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondEnergySum;
 
     } else {
@@ -2928,7 +2953,9 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
         case esObjectType::Tau: {
           objType[jj] = gtTau;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondCalo;
 
     } else if (object.getType() == esObjectType::ETM || object.getType() == esObjectType::ETMHF ||
@@ -2952,7 +2979,9 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
         case esObjectType::TOWERCOUNT: {
           objType[jj] = GlobalObject::gtTowerCount;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondEnergySum;
 
     } else {

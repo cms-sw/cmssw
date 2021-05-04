@@ -8,8 +8,9 @@
  *         adapted by Luca Lista, INFN
  *
  */
-#include <boost/shared_ptr.hpp>
+
 #include <vector>
+#include <memory>
 
 namespace edm {
   class ObjectWithDict;
@@ -21,7 +22,7 @@ namespace reco {
       virtual ~ExpressionBase() {}
       virtual double value(const edm::ObjectWithDict&) const = 0;
     };
-    typedef boost::shared_ptr<ExpressionBase> ExpressionPtr;
+    typedef std::shared_ptr<ExpressionBase> ExpressionPtr;
   }  // namespace parser
 }  // namespace reco
 

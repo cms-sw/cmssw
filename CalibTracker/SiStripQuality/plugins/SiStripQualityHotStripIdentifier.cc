@@ -2,15 +2,15 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
 #include <sstream>
 
 //Insert here the include to the algos
@@ -18,7 +18,6 @@
 
 SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig),
-      m_cacheID_(0),
       dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel", "")),
       conf_(iConfig),
       fp_(iConfig.getUntrackedParameter<edm::FileInPath>(
@@ -26,7 +25,8 @@ SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::Pa
       Cluster_src_(iConfig.getParameter<edm::InputTag>("Cluster_src")),
       Track_src_(iConfig.getUntrackedParameter<edm::InputTag>("Track_src")),
       tracksCollection_in_EventTree(iConfig.getUntrackedParameter<bool>("RemoveTrackClusters", false)),
-      tTopo(nullptr) {
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      stripQualityToken_(esConsumes<edm::Transition::BeginRun>()) {
   reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
   edm::ParameterSet pset = iConfig.getUntrackedParameter<edm::ParameterSet>("ClusterSelection", edm::ParameterSet());
@@ -54,7 +54,7 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifier::getNewObject(
     theIdentifier.setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip", 5));
 
     SiStripQuality* qobj = new SiStripQuality();
-    theIdentifier.extractBadStrips(qobj, ClusterPositionHistoMap, SiStripQuality_);
+    theIdentifier.extractBadStrips(qobj, ClusterPositionHistoMap, stripQuality_);
 
     edm::LogInfo("SiStripQualityHotStripIdentifier")
         << " [SiStripQualityHotStripIdentifier::getNewObject] copy SiStripObject in SiStripBadStrip" << std::endl;
@@ -89,20 +89,13 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifier::getNewObject(
 }
 
 void SiStripQualityHotStripIdentifier::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tTopo = tTopoHandle.product();
+  tTopo = &iSetup.getData(tTopoToken_);
 
   resetHistos();
-  unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
 
-  if (m_cacheID_ == cacheID)
-    return;
-
-  m_cacheID_ = cacheID;
-
-  iSetup.get<SiStripQualityRcd>().get(dataLabel_, SiStripQuality_);
+  if (stripQualityWatcher_.check(iSetup)) {
+    stripQuality_ = &iSetup.getData(stripQualityToken_);
+  }
 }
 
 void SiStripQualityHotStripIdentifier::algoEndJob() {
@@ -129,7 +122,7 @@ void SiStripQualityHotStripIdentifier::bookHistos() {
     SiStrip::QualityHistosMap::iterator ref = ClusterPositionHistoMap.find(it->first);
     if (ref == ClusterPositionHistoMap.end()) {
       ClusterPositionHistoMap[it->first] =
-          boost::shared_ptr<TH1F>(new TH1F(hname, hname, it->second.nApvs * 128, -0.5, it->second.nApvs * 128 - 0.5));
+          std::make_shared<TH1F>(hname, hname, it->second.nApvs * 128, -0.5, it->second.nApvs * 128 - 0.5);
     } else
       edm::LogError("SiStripQualityHotStripIdentifier")
           << " [SiStripQualityHotStripIdentifier::bookHistos] DetId " << it->first

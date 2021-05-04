@@ -1,5 +1,3 @@
-
-
 #include <memory>
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -104,9 +102,3 @@ void EcalNextToDeadChannelESProducer::setupNextToDeadChannels(const EcalChannelS
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(EcalNextToDeadChannelESProducer);
-
-// Configure (x)emacs for this file ...
-// Local Variables:
-// mode:c++
-// compile-command: "cd .. ; scram b"
-// End:

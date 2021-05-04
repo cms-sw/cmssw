@@ -19,8 +19,8 @@
 //
 
 // system include files
-#include <boost/function.hpp>
 #include <deque>
+#include <functional>
 
 // user include files
 #include "Fireworks/Core/src/CmsShowTaskExecutorBase.h"
@@ -32,7 +32,7 @@ public:
   CmsShowTaskExecutor();
   ~CmsShowTaskExecutor() override;
 
-  typedef boost::function0<void> TaskFunctor;
+  typedef std::function<void()> TaskFunctor;
   // ---------- const member functions ---------------------
 
   // ---------- static member functions --------------------

@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoMET/METAlgorithms/interface/EcalHaloAlgo.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
@@ -16,7 +17,7 @@ using namespace edm;
 
 bool CompareTime(const EcalRecHit* x, const EcalRecHit* y) { return x->time() < y->time(); }
 
-EcalHaloAlgo::EcalHaloAlgo() {
+EcalHaloAlgo::EcalHaloAlgo(edm::ConsumesCollector iC) : geoToken_(iC.esConsumes()) {
   RoundnessCut = 0;
   AngleCut = 0;
   EBRecHitEnergyThreshold = 0.;
@@ -182,9 +183,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry,
     TheAngleFiller.fill();
   }
 
-  edm::ESHandle<CaloGeometry> pGeo;
-  TheSetup.get<CaloGeometryRecord>().get(pGeo);
-  geo = pGeo.product();
+  geo = &TheSetup.getData(geoToken_);
 
   //Halo cluster building:
   //Various clusters are built, depending on the subdetector.

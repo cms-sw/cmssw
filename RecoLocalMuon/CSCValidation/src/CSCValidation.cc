@@ -122,6 +122,8 @@ CSCValidation::CSCValidation(const ParameterSet& pset) {
   // setup trees to hold global position data for rechits and segments
   if (writeTreeToFile)
     histos->setupTrees();
+
+  geomToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
 
 //////////////////
@@ -195,8 +197,7 @@ void CSCValidation::analyze(const Event& event, const EventSetup& eventSetup) {
   }
 
   // Get the CSC Geometry :
-  edm::ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
+  edm::ESHandle<CSCGeometry> cscGeom = eventSetup.getHandle(geomToken_);
 
   // Get the RecHits collection :
   edm::Handle<CSCRecHit2DCollection> recHits;
@@ -345,7 +346,7 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
   return true;
   //if (saMuons->size() != 1) return false;
   /*
-  for(reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++ muon ) {  
+  for(reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++ muon ) {
     double p  = muon->p();
     double reducedChisq = muon->normalizedChi2();
 
@@ -378,7 +379,7 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
       && ( crudeLength > lengthMin )
       && ( crudeLength < lengthMax );
 
-    
+
     goodSAMuon = goodSAMuon && ( fabs(deltaPhi) < deltaPhiMax );
     goodSAMuon = goodSAMuon &&
       (
@@ -391,13 +392,13 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
        ( (M_PI-outerGlobalPolarAngle > polarMin) && (M_PI-outerGlobalPolarAngle < polarMax) )
        );
 
-   //goodSAMuon = goodSAMuon && (nCSCHits > nCSCHitsMin) && (nCSCHits < 13);  
+   //goodSAMuon = goodSAMuon && (nCSCHits > nCSCHitsMin) && (nCSCHits < 13);
    //goodSAMuon = goodSAMuon && (nCSCHits > 13) && (nCSCHits < 19);
    //goodSAMuon = goodSAMuon && (nCSCHits > 19) && (nCSCHits < nCSCHitsMax);
 
 
    if (goodSAMuon) nGoodSAMuons++;
-   
+
   } // end loop over stand-alone muon collection
 
 
@@ -850,6 +851,7 @@ void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips) {
 //=======================================================
 
 void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips) {
+  constexpr float threshold = 13.3;
   for (CSCStripDigiCollection::DigiRangeIterator dPNiter = strips->begin(); dPNiter != strips->end(); dPNiter++) {
     CSCDetId id = (CSCDetId)(*dPNiter).first;
     std::vector<CSCStripDigi>::const_iterator pedIt = (*dPNiter).second.first;
@@ -858,18 +860,10 @@ void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips) 
       int myStrip = pedIt->getStrip();
       std::vector<int> myADCVals = pedIt->getADCCounts();
       float TotalADC = getSignal(*strips, id, myStrip);
-      bool thisStripFired = false;
       float thisPedestal = 0.5 * (float)(myADCVals[0] + myADCVals[1]);
       float thisSignal =
           (1. / 6) * (myADCVals[2] + myADCVals[3] + myADCVals[4] + myADCVals[5] + myADCVals[6] + myADCVals[7]);
-      float threshold = 13.3;
-      if (id.station() == 1 && id.ring() == 4) {
-        if (myStrip <= 16)
-          myStrip += 64;  // no trapping for any bizarreness
-      }
-      if (TotalADC > threshold) {
-        thisStripFired = true;
-      }
+      bool thisStripFired = TotalADC > threshold;
       if (!thisStripFired) {
         float ADC = thisSignal - thisPedestal;
         histos->fill1DHist(ADC, "hStripPed", "Pedestal Noise Distribution", 50, -25., 25., "PedestalNoise");
@@ -2624,8 +2618,6 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
     for (wiredetUnitIt = wirecltn.begin(); wiredetUnitIt != wirecltn.end(); ++wiredetUnitIt) {
       const CSCDetId id = (*wiredetUnitIt).first;
       idlayer = indexer.dbIndex(id, channel);
-      idchamber = idlayer / 10;
-      layer = id.layer();
       // looping in the layer of given CSC
       mult = 0;
       wire = 0;
@@ -2704,7 +2696,7 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
               /*
                    std::cout<<idchamber<<"   "<<id.station()<<" "<<id.ring()<<" "
                    <<id.chamber()<<"    "<<layer<<" "<< wire<<" "<<m_strip[1]<<" "<<
-                   chambertype<<" "<< hvsgmtnmb<<" "<< nmbofhvsegm<<" "<< 
+                   chambertype<<" "<< hvsgmtnmb<<" "<< nmbofhvsegm<<" "<<
                    location<<"   "<<adc_3_3_sum<<std::endl;
                  */
             }  // end of if flag==0
@@ -2818,7 +2810,7 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
         /*
           if(id.station()==1 && (id.ring()==1 || id.ring()==4))
              std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "
-                      <<strip <<std::endl;  
+                      <<strip <<std::endl;
           */
         indexer.dbIndex(id, strip);  // strips 1-16 of ME1/1a
                                      // become strips 65-80 of ME1/1
@@ -2903,7 +2895,7 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
                       if(id.station()==1 && (id.ring()==1 || id.ring()==4))
                       std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "<<m_strip[1]<<" "<<
                           "      "<<centerStrip<<
-                             " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;    
+                             " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;
                       */
             ss << "adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_" << idchamber;
             name = ss.str();
@@ -3328,7 +3320,6 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   /// Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
   event.getByToken(rd_token, rawdata);
-  bool goodEvent = false;
   // If set selective unpacking mode
   // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
   // then examinerMask for CSC level errors will be used during unpacking of each CSC block
@@ -3346,12 +3337,9 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
     unsigned long length = fedData.size();
 
     if (length >= 32) {  ///if fed has data then unpack it
-      CSCDCCExaminer* examiner = nullptr;
       std::stringstream examiner_out, examiner_err;
-      goodEvent = true;
       ///examine event for integrity
-      //CSCDCCExaminer examiner;
-      examiner = new CSCDCCExaminer();
+      CSCDCCExaminer* examiner = new CSCDCCExaminer();
       if (examinerMask & 0x40000)
         examiner->crcCFEB(true);
       if (examinerMask & 0x8000)
@@ -3361,6 +3349,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
       examiner->setMask(examinerMask);
       const short unsigned int* data = (short unsigned int*)fedData.data();
 
+      bool goodEvent;
       if (examiner->check(data, long(fedData.size() / 2)) < 0) {
         goodEvent = false;
       } else {
@@ -3424,7 +3413,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
             bool goodTMB = false;
             if (nclct && cscData[iCSC].tmbData()) {
               if (cscData[iCSC].tmbHeader()->check()) {
-                if (cscData[iCSC].clctData()->check())
+                if (cscData[iCSC].comparatorData()->check())
                   goodTMB = true;
               }
             }

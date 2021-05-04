@@ -8,12 +8,12 @@
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "boost/cstdint.hpp"
-#include "boost/shared_ptr.hpp"
+
 #include <set>
 #include <map>
 #include <memory>
 #include <vector>
+#include <cstdint>
 
 //forward declarations
 class FEDRawDataCollection;
@@ -59,10 +59,10 @@ namespace sistrip {
       std::vector<uint32_t> outputTotalEventCounters_;
       std::vector<uint32_t> outputL1ACounters_;
       std::vector<uint32_t> outputAPVAddresses_;
-      boost::shared_ptr<std::vector<edm::DetSet<SiStripRawDigi> > > outputScopeDigisVector_;
-      boost::shared_ptr<std::vector<edm::DetSet<SiStripRawDigi> > > outputPayloadDigisVector_;
-      boost::shared_ptr<std::vector<edm::DetSet<SiStripRawDigi> > > outputReorderedDigisVector_;
-      boost::shared_ptr<std::vector<edm::DetSet<SiStripRawDigi> > > outputVirginRawDigisVector_;
+      std::shared_ptr<std::vector<edm::DetSet<SiStripRawDigi> > > outputScopeDigisVector_;
+      std::shared_ptr<std::vector<edm::DetSet<SiStripRawDigi> > > outputPayloadDigisVector_;
+      std::shared_ptr<std::vector<edm::DetSet<SiStripRawDigi> > > outputReorderedDigisVector_;
+      std::shared_ptr<std::vector<edm::DetSet<SiStripRawDigi> > > outputVirginRawDigisVector_;
       std::set<uint16_t> alreadyMergedFeds_;
     };
 
@@ -118,7 +118,7 @@ namespace sistrip {
       Counters* p;
       bool deleteP;
     };
-    typedef boost::shared_ptr<CountersWrapper> CountersPtr;
+    typedef std::shared_ptr<CountersWrapper> CountersPtr;
 
     //source for spy events
     typedef edm::VectorInputSource Source;

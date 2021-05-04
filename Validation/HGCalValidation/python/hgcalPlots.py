@@ -6,7 +6,7 @@ import collections
 
 import six
 import ROOT
-from ROOT import TFile
+from ROOT import TFile, TString
 from ROOT import gDirectory
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -66,7 +66,7 @@ print(layerscheme)
 #For V10:
 '''
 layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 50, 'lastLayerEEzp': 78, 'lastLayerFHzp': 90, 'maxlayerzp': 100 }
-print(layerscheme)
+#print(layerscheme)
 
 lastLayerEEzm = layerscheme['lastLayerEEzm']  # last layer of EE -z
 lastLayerFHzm = layerscheme['lastLayerFHzm']  # last layer of FH -z
@@ -76,7 +76,7 @@ lastLayerFHzp = layerscheme['lastLayerFHzp']  # last layer of FH +z
 maxlayerzp = layerscheme['maxlayerzp'] # last layer of BH +z
 
 hitlayerscheme = { 'EE_min': 1,'EE_max': 28, 'HESilicon_min': 1, 'HESilicon_max': 22, 'HEScintillator_min': 9 , 'HEScintillator_max': 22 }
-print(hitlayerscheme)
+#print(hitlayerscheme)
 
 EE_min = hitlayerscheme['EE_min']
 EE_max = hitlayerscheme['EE_max']
@@ -111,6 +111,11 @@ _mixedhitsclusters = PlotGroup("mixedhitsclusters", [
   Plot("mixedhitscluster_zplus", xtitle="", **_common),
 ],ncols=2)
 
+_mixedhitssimclusters = PlotGroup("mixedhitssimclusters", [
+  Plot("mixedhitssimcluster_zminus", xtitle="", **_common),
+  Plot("mixedhitssimcluster_zplus", xtitle="", **_common),
+],ncols=2)
+
 #Just to prevent the stabox covering the plot
 _common = {"stat": True, "drawStyle": "hist", "statx": 0.45, "staty": 0.65 }
 
@@ -140,8 +145,16 @@ _totclusternum_thick = PlotGroup("totclusternum_thick", [
   Plot("mixedhitscluster", xtitle="", **_common_layerperthickness),
 ])
 
+_totsimclusternum_thick = PlotGroup("totsimclusternum_thick", [
+  Plot("totsimclusternum_thick_120", xtitle="", **_common_layerperthickness),
+  Plot("totsimclusternum_thick_200", xtitle="", **_common_layerperthickness),
+  Plot("totsimclusternum_thick_300", xtitle="", **_common_layerperthickness),
+  Plot("totsimclusternum_thick_-1", xtitle="", **_common_layerperthickness),
+  Plot("mixedhitssimcluster", xtitle="", **_common_layerperthickness),
+])
+
 #We will plot the density in logy scale.
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ylog": True}
 
 _cellsenedens_thick =  PlotGroup("cellsenedens_thick", [
   Plot("cellsenedens_thick_120", xtitle="", **_common),
@@ -157,29 +170,41 @@ _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 #--------------------------------------------------------------------------------------------
 # z-
 #--------------------------------------------------------------------------------------------
-_totclusternum_layer_EE_zminus = PlotGroup("totclusternum_layer_EE_zminus", [
+_totclusternum_layer_EE_zminus = PlotGroup("totclusternum_layer_EE", [
   Plot("totclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_totclusternum_layer_FH_zminus = PlotGroup("totclusternum_layer_FH_zminus", [
+_totclusternum_layer_FH_zminus = PlotGroup("totclusternum_layer_FH", [
   Plot("totclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_totclusternum_layer_BH_zminus = PlotGroup("totclusternum_layer_BH_zminus", [
+_totclusternum_layer_BH_zminus = PlotGroup("totclusternum_layer_BH", [
   Plot("totclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
+], ncols=7)
+
+_totsimclusternum_layer_EE_zminus = PlotGroup("totsimclusternum_layer_EE_zminus", [
+  Plot("totsimclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
 ], ncols=4)
 
-_energyclustered_perlayer_EE_zminus = PlotGroup("energyclustered_perlayer_EE_zminus", [
+_totsimclusternum_layer_FH_zminus = PlotGroup("totsimclusternum_layer_FH_zminus", [
+  Plot("totsimclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
+], ncols=4)
+
+_totsimclusternum_layer_BH_zminus = PlotGroup("totsimclusternum_layer_BH_zminus", [
+  Plot("totsimclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
+], ncols=4)
+
+_energyclustered_perlayer_EE_zminus = PlotGroup("energyclustered_perlayer_EE", [
   Plot("energyclustered_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_energyclustered_perlayer_FH_zminus = PlotGroup("energyclustered_perlayer_FH_zminus", [
+_energyclustered_perlayer_FH_zminus = PlotGroup("energyclustered_perlayer_FH", [
   Plot("energyclustered_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_energyclustered_perlayer_BH_zminus = PlotGroup("energyclustered_perlayer_BH_zminus", [
+_energyclustered_perlayer_BH_zminus = PlotGroup("energyclustered_perlayer_BH", [
   Plot("energyclustered_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
@@ -190,56 +215,56 @@ _common_cells["xmax"] = 50
 _common_cells["ymin"] = 0.1
 _common_cells["ymax"] = 10000
 _common_cells["ylog"] = True
-_cellsnum_perthick_perlayer_120_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_120_EE_zminus", [
+_cellsnum_perthick_perlayer_120_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_120_EE", [
   Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_120_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_120_FH_zminus", [
+_cellsnum_perthick_perlayer_120_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_120_FH", [
   Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_120_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_120_BH_zminus", [
+_cellsnum_perthick_perlayer_120_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_120_BH", [
   Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_cellsnum_perthick_perlayer_200_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_200_EE_zminus", [
+_cellsnum_perthick_perlayer_200_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_200_EE", [
   Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_200_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_200_FH_zminus", [
+_cellsnum_perthick_perlayer_200_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_200_FH", [
   Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_200_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_200_BH_zminus", [
+_cellsnum_perthick_perlayer_200_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_200_BH", [
   Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_cellsnum_perthick_perlayer_300_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_300_EE_zminus", [
+_cellsnum_perthick_perlayer_300_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_300_EE", [
   Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_300_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_300_FH_zminus", [
+_cellsnum_perthick_perlayer_300_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_300_FH", [
   Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_300_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_300_BH_zminus", [
+_cellsnum_perthick_perlayer_300_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_300_BH", [
   Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_cellsnum_perthick_perlayer_scint_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_-1_EE_zminus", [
+_cellsnum_perthick_perlayer_scint_EE_zminus = PlotGroup("cellsnum_perthick_perlayer_Sci_EE", [
   Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_scint_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_-1_FH_zminus", [
+_cellsnum_perthick_perlayer_scint_FH_zminus = PlotGroup("cellsnum_perthick_perlayer_Sci_FH", [
   Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_scint_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_-1_BH_zminus", [
+_cellsnum_perthick_perlayer_scint_BH_zminus = PlotGroup("cellsnum_perthick_perlayer_Sci_BH", [
   Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
@@ -252,324 +277,324 @@ _common_distance["ymin"] = 1e-3
 _common_distance["ymax"] = 10000
 _common_distance["ylog"] = True
 
-_distancetomaxcell_perthickperlayer_120_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_EE_zminus", [
+_distancetomaxcell_perthickperlayer_120_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_EE", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_120_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_FH_zminus", [
+_distancetomaxcell_perthickperlayer_120_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_FH", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_120_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_BH_zminus", [
+_distancetomaxcell_perthickperlayer_120_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_120_BH", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancetomaxcell_perthickperlayer_200_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_EE_zminus", [
+_distancetomaxcell_perthickperlayer_200_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_EE", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_200_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_FH_zminus", [
+_distancetomaxcell_perthickperlayer_200_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_FH", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_200_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_BH_zminus", [
+_distancetomaxcell_perthickperlayer_200_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_200_BH", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancetomaxcell_perthickperlayer_300_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_EE_zminus", [
+_distancetomaxcell_perthickperlayer_300_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_EE", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_300_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_FH_zminus", [
+_distancetomaxcell_perthickperlayer_300_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_FH", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_300_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_BH_zminus", [
+_distancetomaxcell_perthickperlayer_300_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_300_BH", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancetomaxcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_-1_EE_zminus", [
+_distancetomaxcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_EE", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_-1_FH_zminus", [
+_distancetomaxcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_FH", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_-1_BH_zminus", [
+_distancetomaxcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_BH", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancebetseedandmaxcell_perthickperlayer_120_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_EE_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_120_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_120_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_FH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_120_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_120_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_BH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_120_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancebetseedandmaxcell_perthickperlayer_200_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_EE_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_200_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_200_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_FH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_200_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_200_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_BH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_200_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancebetseedandmaxcell_perthickperlayer_300_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_EE_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_300_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_300_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_FH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_300_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_300_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_BH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_300_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancebetseedandmaxcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_EE_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_FH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_BH_zminus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_EE_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_FH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_BH_zminus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancetoseedcell_perthickperlayer_120_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_EE_zminus", [
+_distancetoseedcell_perthickperlayer_120_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_EE", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_120_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_FH_zminus", [
+_distancetoseedcell_perthickperlayer_120_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_FH", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_120_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_BH_zminus", [
+_distancetoseedcell_perthickperlayer_120_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_120_BH", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancetoseedcell_perthickperlayer_200_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_EE_zminus", [
+_distancetoseedcell_perthickperlayer_200_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_EE", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_200_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_FH_zminus", [
+_distancetoseedcell_perthickperlayer_200_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_FH", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_200_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_BH_zminus", [
+_distancetoseedcell_perthickperlayer_200_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_200_BH", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancetoseedcell_perthickperlayer_300_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_EE_zminus", [
+_distancetoseedcell_perthickperlayer_300_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_EE", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_300_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_FH_zminus", [
+_distancetoseedcell_perthickperlayer_300_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_FH", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_300_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_BH_zminus", [
+_distancetoseedcell_perthickperlayer_300_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_300_BH", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancetoseedcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_-1_EE_zminus", [
+_distancetoseedcell_perthickperlayer_scint_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_EE", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_-1_FH_zminus", [
+_distancetoseedcell_perthickperlayer_scint_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_FH", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_-1_BH_zminus", [
+_distancetoseedcell_perthickperlayer_scint_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_BH", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #=====================================================================================================================
 #----------------------------------------------------------------------------------------------------------------
 #We need points for the weighted plots
 _common = {"stat": True, "drawStyle": "EP", "staty": 0.65 }
 #120 um
-_distancetomaxcell_perthickperlayer_eneweighted_120_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_EE_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_120_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_FH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_120_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_BH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancetomaxcell_perthickperlayer_eneweighted_200_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_EE_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_200_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_FH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_200_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_BH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancetomaxcell_perthickperlayer_eneweighted_300_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_EE_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_300_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_FH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_300_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_BH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 #scint um
-_distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_EE_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_FH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_BH_zminus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zminus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancetoseedcell_perthickperlayer_eneweighted_120_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_EE_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_120_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_FH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_120_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_BH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancetoseedcell_perthickperlayer_eneweighted_200_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_EE_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_200_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_FH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_200_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_BH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancetoseedcell_perthickperlayer_eneweighted_300_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_EE_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_300_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_FH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_300_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_BH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_EE_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_FH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_BH_zminus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zminus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #Coming back to the usual definition
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
@@ -577,79 +602,91 @@ _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 #--------------------------------------------------------------------------------------------
 # z+
 #--------------------------------------------------------------------------------------------
-_totclusternum_layer_EE_zplus = PlotGroup("totclusternum_layer_EE_zplus", [
+_totclusternum_layer_EE_zplus = PlotGroup("totclusternum_layer_EE", [
   Plot("totclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_totclusternum_layer_FH_zplus = PlotGroup("totclusternum_layer_FH_zplus", [
+_totclusternum_layer_FH_zplus = PlotGroup("totclusternum_layer_FH", [
   Plot("totclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_totclusternum_layer_BH_zplus = PlotGroup("totclusternum_layer_BH_zplus", [
+_totclusternum_layer_BH_zplus = PlotGroup("totclusternum_layer_BH", [
   Plot("totclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
+], ncols=7)
+
+_totsimclusternum_layer_EE_zplus = PlotGroup("totsimclusternum_layer_EE_zplus", [
+  Plot("totsimclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
 ], ncols=4)
 
-_energyclustered_perlayer_EE_zplus = PlotGroup("energyclustered_perlayer_EE_zplus", [
+_totsimclusternum_layer_FH_zplus = PlotGroup("totsimclusternum_layer_FH_zplus", [
+  Plot("totsimclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
+], ncols=4)
+
+_totsimclusternum_layer_BH_zplus = PlotGroup("totsimclusternum_layer_BH_zplus", [
+  Plot("totsimclusternum_layer_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
+], ncols=4)
+
+_energyclustered_perlayer_EE_zplus = PlotGroup("energyclustered_perlayer_EE", [
   Plot("energyclustered_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_energyclustered_perlayer_FH_zplus = PlotGroup("energyclustered_perlayer_FH_zplus", [
+_energyclustered_perlayer_FH_zplus = PlotGroup("energyclustered_perlayer_FH", [
   Plot("energyclustered_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_energyclustered_perlayer_BH_zplus = PlotGroup("energyclustered_perlayer_BH_zplus", [
+_energyclustered_perlayer_BH_zplus = PlotGroup("energyclustered_perlayer_BH", [
   Plot("energyclustered_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_cellsnum_perthick_perlayer_120_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_120_EE_zplus", [
+_cellsnum_perthick_perlayer_120_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_120_EE", [
   Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_120_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_120_FH_zplus", [
+_cellsnum_perthick_perlayer_120_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_120_FH", [
   Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
-_cellsnum_perthick_perlayer_120_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_120_BH_zplus", [
+], ncols=7)
+_cellsnum_perthick_perlayer_120_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_120_BH", [
   Plot("cellsnum_perthick_perlayer_120_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_cellsnum_perthick_perlayer_200_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_200_EE_zplus", [
+_cellsnum_perthick_perlayer_200_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_200_EE", [
   Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_200_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_200_FH_zplus", [
+_cellsnum_perthick_perlayer_200_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_200_FH", [
   Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_200_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_200_BH_zplus", [
+_cellsnum_perthick_perlayer_200_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_200_BH", [
   Plot("cellsnum_perthick_perlayer_200_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 #300 um
-_cellsnum_perthick_perlayer_300_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_300_EE_zplus", [
+_cellsnum_perthick_perlayer_300_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_300_EE", [
   Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_300_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_300_FH_zplus", [
+_cellsnum_perthick_perlayer_300_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_300_FH", [
   Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
-_cellsnum_perthick_perlayer_300_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_300_BH_zplus", [
+], ncols=7)
+_cellsnum_perthick_perlayer_300_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_300_BH", [
   Plot("cellsnum_perthick_perlayer_300_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_cellsnum_perthick_perlayer_scint_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_-1_EE_zplus", [
+_cellsnum_perthick_perlayer_scint_EE_zplus = PlotGroup("cellsnum_perthick_perlayer_Sci_EE", [
   Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_scint_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_-1_FH_zplus", [
+_cellsnum_perthick_perlayer_scint_FH_zplus = PlotGroup("cellsnum_perthick_perlayer_Sci_FH", [
   Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_cellsnum_perthick_perlayer_scint_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_-1_BH_zplus", [
+_cellsnum_perthick_perlayer_scint_BH_zplus = PlotGroup("cellsnum_perthick_perlayer_Sci_BH", [
   Plot("cellsnum_perthick_perlayer_-1_{:02d}".format(i), xtitle="", **_common_cells) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
@@ -662,216 +699,216 @@ _common_distance["ymin"] = 1e-3
 _common_distance["ymax"] = 10000
 _common_distance["ylog"] = True
 
-_distancetomaxcell_perthickperlayer_120_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_EE_zplus", [
+_distancetomaxcell_perthickperlayer_120_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_EE", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_120_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_FH_zplus", [
+_distancetomaxcell_perthickperlayer_120_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_FH", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_120_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_BH_zplus", [
+_distancetomaxcell_perthickperlayer_120_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_120_BH", [
   Plot("distancetomaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancetomaxcell_perthickperlayer_200_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_EE_zplus", [
+_distancetomaxcell_perthickperlayer_200_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_EE", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_200_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_FH_zplus", [
+_distancetomaxcell_perthickperlayer_200_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_FH", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_200_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_BH_zplus", [
+_distancetomaxcell_perthickperlayer_200_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_200_BH", [
   Plot("distancetomaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancetomaxcell_perthickperlayer_300_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_EE_zplus", [
+_distancetomaxcell_perthickperlayer_300_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_EE", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_300_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_FH_zplus", [
+_distancetomaxcell_perthickperlayer_300_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_FH", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_300_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_BH_zplus", [
+_distancetomaxcell_perthickperlayer_300_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_300_BH", [
   Plot("distancetomaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancetomaxcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_-1_EE_zplus", [
+_distancetomaxcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_EE", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_-1_FH_zplus", [
+_distancetomaxcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_FH", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_-1_BH_zplus", [
+_distancetomaxcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_Sci_BH", [
   Plot("distancetomaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancebetseedandmaxcell_perthickperlayer_120_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_EE_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_120_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_120_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_FH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_120_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_120_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_BH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_120_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_120_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancebetseedandmaxcell_perthickperlayer_200_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_EE_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_200_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_200_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_FH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_200_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_200_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_BH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_200_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_200_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancebetseedandmaxcell_perthickperlayer_300_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_EE_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_300_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_300_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_FH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_300_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_300_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_BH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_300_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_300_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancebetseedandmaxcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_EE_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_EE", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_FH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_FH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_-1_BH_zplus", [
+_distancebetseedandmaxcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancebetseedandmaxcell_perthickperlayer_Sci_BH", [
   Plot("distancebetseedandmaxcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_EE_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_EE", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_FH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_FH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_BH_zplus", [
+_distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus = PlotGroup("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_Sci_BH", [
   Plot("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancetoseedcell_perthickperlayer_120_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_EE_zplus", [
+_distancetoseedcell_perthickperlayer_120_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_EE", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_120_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_FH_zplus", [
+_distancetoseedcell_perthickperlayer_120_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_FH", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_120_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_BH_zplus", [
+_distancetoseedcell_perthickperlayer_120_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_120_BH", [
   Plot("distancetoseedcell_perthickperlayer_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancetoseedcell_perthickperlayer_200_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_EE_zplus", [
+_distancetoseedcell_perthickperlayer_200_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_EE", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_200_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_FH_zplus", [
+_distancetoseedcell_perthickperlayer_200_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_FH", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_200_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_BH_zplus", [
+_distancetoseedcell_perthickperlayer_200_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_200_BH", [
   Plot("distancetoseedcell_perthickperlayer_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancetoseedcell_perthickperlayer_300_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_EE_zplus", [
+_distancetoseedcell_perthickperlayer_300_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_EE", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_300_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_FH_zplus", [
+_distancetoseedcell_perthickperlayer_300_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_FH", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_300_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_BH_zplus", [
+_distancetoseedcell_perthickperlayer_300_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_300_BH", [
   Plot("distancetoseedcell_perthickperlayer_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancetoseedcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_-1_EE_zplus", [
+_distancetoseedcell_perthickperlayer_scint_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_EE", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_-1_FH_zplus", [
+_distancetoseedcell_perthickperlayer_scint_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_FH", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_-1_BH_zplus", [
+_distancetoseedcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_Sci_BH", [
   Plot("distancetoseedcell_perthickperlayer_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #=====================================================================================================================
 #----------------------------------------------------------------------------------------------------------------
@@ -879,108 +916,108 @@ _distancetoseedcell_perthickperlayer_scint_BH_zplus = PlotGroup("distancetoseedc
 _common = {"stat": True, "drawStyle": "EP", "staty": 0.65 }
 
 #120 um
-_distancetomaxcell_perthickperlayer_eneweighted_120_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_EE_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_120_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_FH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_120_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_BH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_120_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_120_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancetomaxcell_perthickperlayer_eneweighted_200_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_EE_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
-_distancetomaxcell_perthickperlayer_eneweighted_200_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_FH_zplus", [
+], ncols=7)
+_distancetomaxcell_perthickperlayer_eneweighted_200_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_200_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_BH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_200_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_200_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancetomaxcell_perthickperlayer_eneweighted_300_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_EE_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_300_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_FH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_300_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_BH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_300_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_300_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_EE_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_EE", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_FH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_FH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_-1_BH_zplus", [
+_distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zplus = PlotGroup("distancetomaxcell_perthickperlayer_eneweighted_Sci_BH", [
   Plot("distancetomaxcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #----------------------------------------------------------------------------------------------------------------
 #120 um
-_distancetoseedcell_perthickperlayer_eneweighted_120_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_EE_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_120_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_FH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_120_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_BH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_120_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_120_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_120_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #200 um
-_distancetoseedcell_perthickperlayer_eneweighted_200_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_EE_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_200_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_FH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_200_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_BH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_200_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_200_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_200_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #300 um
-_distancetoseedcell_perthickperlayer_eneweighted_300_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_EE_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_300_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_FH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_300_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_BH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_300_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_300_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_300_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #scint um
-_distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_EE_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_EE", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_FH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_FH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_-1_BH_zplus", [
+_distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zplus = PlotGroup("distancetoseedcell_perthickperlayer_eneweighted_Sci_BH", [
   Plot("distancetoseedcell_perthickperlayer_eneweighted_-1_{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 #Just in case we add some plots below to be on the safe side.
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
@@ -999,9 +1036,9 @@ _common_score = {"title": "Score CaloParticle to LayerClusters in z-",
                  "ylog": True
                 }
 _common_score.update(_legend_common)
-_score_caloparticle_to_layerclusters_zminus = PlotGroup("score_caloparticle_to_layercluster_zminus", [
+_score_caloparticle_to_layerclusters_zminus = PlotGroup("score_caloparticle_to_layercluster", [
         Plot("Score_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(0,maxlayerzm)
-        ], ncols=8 )
+        ], ncols=10 )
 
 _common_score = {"title": "Score LayerCluster to CaloParticles in z-",
                  "stat": False,
@@ -1014,7 +1051,7 @@ _common_score = {"title": "Score LayerCluster to CaloParticles in z-",
                  "ylog": True
                 }
 _common_score.update(_legend_common)
-_score_layercluster_to_caloparticles_zminus = PlotGroup("score_layercluster_to_caloparticle_zminus", [
+_score_layercluster_to_caloparticles_zminus = PlotGroup("score_layercluster_to_caloparticle", [
         Plot("Score_layercl2caloparticle_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(0,maxlayerzm)
         ], ncols=8 )
 
@@ -1026,7 +1063,7 @@ _common_shared.update(_legend_common)
 _shared_plots_zminus = [Plot("SharedEnergy_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)]
 _shared_plots_zminus.extend([Plot("SharedEnergy_caloparticle2layercl_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)])
 _shared_plots_zminus.extend([Plot("SharedEnergy_caloparticle2layercl_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)])
-_sharedEnergy_caloparticle_to_layercluster_zminus = PlotGroup("sharedEnergy_caloparticle_to_layercluster_zminus", _shared_plots_zminus, ncols=8)
+_sharedEnergy_caloparticle_to_layercluster_zminus = PlotGroup("sharedEnergy_caloparticle_to_layercluster", _shared_plots_zminus, ncols=8)
 
 _common_shared= {"title": "Shared Energy Layer Cluster To CaloParticle in z-",
                  "stat": False,
@@ -1043,7 +1080,7 @@ _common_shared= {"title": "Shared Energy Layer Cluster To Best CaloParticle in z
 _common_shared.update(_legend_common)
 _shared_plots2_zminus.extend([Plot("SharedEnergy_layercl2caloparticle_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)])
 _shared_plots2_zminus.extend([Plot("SharedEnergy_layercl2caloparticle_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(0,maxlayerzm)])
-_sharedEnergy_layercluster_to_caloparticle_zminus = PlotGroup("sharedEnergy_layercluster_to_caloparticle_zminus", _shared_plots2_zminus, ncols=8)
+_sharedEnergy_layercluster_to_caloparticle_zminus = PlotGroup("sharedEnergy_layercluster_to_caloparticle", _shared_plots2_zminus, ncols=8)
 
 
 _common_assoc = {#"title": "Cell Association Table in z-",
@@ -1056,78 +1093,86 @@ _common_assoc = {#"title": "Cell Association Table in z-",
                  "ymax": 10000,
                  "ylog": True}
 _common_assoc.update(_legend_common)
-_cell_association_table_zminus = PlotGroup("cellAssociation_table_zminus", [
+_cell_association_table_zminus = PlotGroup("cellAssociation_table", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzm)
         ], ncols=8 )
 
 _bin_count = 0
-_xbinlabels = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
-_common_eff = {"stat": False, "legend": False}
-_effplots_zminus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
-_effplots_zminus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)])
-_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_xbinlabels = [ "{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_xtitle = "Layer Numbers in z-"
+_common_eff = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1, "xbinlabeloption": "d"}
+_effplots_zminus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
+_effplots_zminus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_eff["xmin"] = _bin_count
 _common_eff["xmax"] = maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_effplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z-", **_common_eff)])
-_efficiencies_zminus = PlotGroup("Efficiencies_zminus", _effplots_zminus, ncols=8)
+_effplots_zminus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Efficiency", **_common_eff)]
+_efficiencies_zminus_eta = PlotGroup("Efficiencies_vs_eta", _effplots_zminus_eta, ncols=10)
+_efficiencies_zminus_phi = PlotGroup("Efficiencies_vs_phi", _effplots_zminus_phi, ncols=10)
+_efficiencies_zminus     = PlotGroup("Efficiencies_vs_layer", _effplots_zminus, ncols=1)
 
-_common_dup = {"stat": False, "legend": False}
-_dupplots_zminus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
-_dupplots_zminus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)])
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_dup = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
+_dupplots_zminus_eta = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
+_dupplots_zminus_phi = [Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_dup["xmin"] = _bin_count
 _common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_dupplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z-", **_common_dup)])
-_duplicates_zminus = PlotGroup("Duplicates_zminus", _dupplots_zminus, ncols=8)
+_dupplots_zminus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Duplicates", **_common_dup)]
+_duplicates_zminus_eta = PlotGroup("Duplicates_vs_eta", _dupplots_zminus_eta, ncols=10)
+_duplicates_zminus_phi = PlotGroup("Duplicates_vs_phi", _dupplots_zminus_phi, ncols=10)
+_duplicates_zminus     = PlotGroup("Duplicates_vs_layer", _dupplots_zminus, ncols=1)
 
-_common_fake = {"stat": False, "legend": False}
-_fakeplots_zminus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
-_fakeplots_zminus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)])
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_fake = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
+_fakeplots_zminus_eta = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
+_fakeplots_zminus_phi = [Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_fake["xmin"] = _bin_count
 _common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_common_fake["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_fake["xbinlabelsize"] = 10.
-_fakeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z-", **_common_fake)])
-_fakes_zminus = PlotGroup("FakeRate_zminus", _fakeplots_zminus, ncols=8)
+_fakeplots_zminus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Fake Rate", **_common_fake)]
+_fakes_zminus_eta = PlotGroup("FakeRate_vs_eta", _fakeplots_zminus_eta, ncols=10)
+_fakes_zminus_phi = PlotGroup("FakeRate_vs_phi", _fakeplots_zminus_phi, ncols=10)
+_fakes_zminus     = PlotGroup("FakeRate_vs_layer", _fakeplots_zminus, ncols=1)
 
-_common_merge = {"stat": False, "legend": False}
-_mergeplots_zminus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
-_mergeplots_zminus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)])
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_merge = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
+_mergeplots_zminus_eta = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
+_mergeplots_zminus_phi = [Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_merge["xmin"] = _bin_count
 _common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_common_merge["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
 _common_merge["xbinlabelsize"] = 10.
-_mergeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z-", **_common_merge)])
-_merges_zminus = PlotGroup("MergeRate_zminus", _mergeplots_zminus, ncols=8)
+_mergeplots_zminus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Merge Rate", **_common_merge)]
+_merges_zminus_eta = PlotGroup("MergeRate_vs_eta", _mergeplots_zminus_eta, ncols=10)
+_merges_zminus_phi = PlotGroup("MergeRate_vs_phi", _mergeplots_zminus_phi, ncols=10)
+_merges_zminus     = PlotGroup("MergeRate_vs_layer", _mergeplots_zminus, ncols=1)
 
 
 _common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
     stat=True,
     xbinlabeloption="d",
     ncols=1,
-    ylog=True,
-    xlog=True,
     xmin=0.001,
     xmax=1.,
     ymin=0.01,
     ymax=1.)
-_energyscore_cp2lc_zminus = []
-for i in range(0, maxlayerzm):
-  _energyscore_cp2lc_zminus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1))
+_energyscore_cp2lc_zminus = PlotGroup("Energy_vs_Score_CP2LC", [Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_CP2LC", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(0, maxlayerzm)
+                                                     ], ncols=10)
 
-_energyscore_lc2cp_zminus = []
-_common_energy_score["xlog"]=False
-_common_energy_score["ylog"]=False
+_energyscore_cp2lc_zplus = PlotGroup("Energy_vs_Score_CP2LC", [Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_CP2LC", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(maxlayerzm,maxlayerzp)
+                                                     ], ncols=10)
 _common_energy_score["xmin"]=-0.1
-for i in range(0, maxlayerzm):
-  _energyscore_lc2cp_zminus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1))
-#_energyclustered =
+_energyscore_lc2cp_zminus = PlotGroup("Energy_vs_Score_LC2CP", [Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2CP", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(0, maxlayerzm)
+                                                     ], ncols=10)
+_energyscore_lc2cp_zplus = PlotGroup("Energy_vs_Score_LC2CP", [Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2CP", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(maxlayerzm,maxlayerzp)
+                                                     ], ncols=10)
 
 #--------------------------------------------------------------------------------------------
 # z+
@@ -1143,9 +1188,9 @@ _common_score = {"title": "Score CaloParticle to LayerClusters in z+",
                  "ylog": True
                 }
 _common_score.update(_legend_common)
-_score_caloparticle_to_layerclusters_zplus = PlotGroup("score_caloparticle_to_layercluster_zplus", [
+_score_caloparticle_to_layerclusters_zplus = PlotGroup("score_caloparticle_to_layercluster", [
         Plot("Score_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(maxlayerzm,maxlayerzp)
-        ], ncols=8 )
+        ], ncols=10 )
 
 _common_score = {"title": "Score LayerCluster to CaloParticles in z+",
                  "stat": False,
@@ -1158,7 +1203,7 @@ _common_score = {"title": "Score LayerCluster to CaloParticles in z+",
                  "ylog": True
                 }
 _common_score.update(_legend_common)
-_score_layercluster_to_caloparticles_zplus = PlotGroup("score_layercluster_to_caloparticle_zplus", [
+_score_layercluster_to_caloparticles_zplus = PlotGroup("score_layercluster_to_caloparticle", [
         Plot("Score_layercl2caloparticle_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_score) for i in range(maxlayerzm,maxlayerzp)
         ], ncols=8 )
 
@@ -1170,7 +1215,7 @@ _common_shared.update(_legend_common)
 _shared_plots_zplus = [Plot("SharedEnergy_caloparticle2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)]
 _shared_plots_zplus.extend([Plot("SharedEnergy_caloparticle2layercl_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)])
 _shared_plots_zplus.extend([Plot("SharedEnergy_caloparticle2layercl_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)])
-_sharedEnergy_caloparticle_to_layercluster_zplus = PlotGroup("sharedEnergy_caloparticle_to_layercluster_zplus", _shared_plots_zplus, ncols=8)
+_sharedEnergy_caloparticle_to_layercluster_zplus = PlotGroup("sharedEnergy_caloparticle_to_layercluster", _shared_plots_zplus, ncols=8)
 
 _common_shared= {"title": "Shared Energy Layer Cluster To CaloParticle in z+",
                  "stat": False,
@@ -1187,7 +1232,7 @@ _common_shared= {"title": "Shared Energy Layer Cluster To Best CaloParticle in z
 _common_shared.update(_legend_common)
 _shared_plots2_zplus.extend([Plot("SharedEnergy_layercl2caloparticle_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)])
 _shared_plots2_zplus.extend([Plot("SharedEnergy_layercl2caloparticle_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_shared) for i in range(maxlayerzm,maxlayerzp)])
-_sharedEnergy_layercluster_to_caloparticle_zplus = PlotGroup("sharedEnergy_layercluster_to_caloparticle_zplus", _shared_plots2_zplus, ncols=8)
+_sharedEnergy_layercluster_to_caloparticle_zplus = PlotGroup("sharedEnergy_layercluster_to_caloparticle", _shared_plots2_zplus, ncols=8)
 
 
 _common_assoc = {#"title": "Cell Association Table in z+",
@@ -1200,53 +1245,175 @@ _common_assoc = {#"title": "Cell Association Table in z+",
                  "ymax": 10000,
                  "ylog": True}
 _common_assoc.update(_legend_common)
-_cell_association_table_zplus = PlotGroup("cellAssociation_table_zplus", [
+_cell_association_table_zplus = PlotGroup("cellAssociation_table", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(maxlayerzm,maxlayerzp)
         ], ncols=8 )
 
 
 _bin_count = 50
-_common_eff = {"stat": False, "legend": False}
-_effplots_zplus = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
-_effplots_zplus.extend([Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)])
-_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_xtitle = "Layer Numbers in z+"
+_common_eff = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
+_effplots_zplus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
+_effplots_zplus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_eff["xmin"] = _bin_count
 _common_eff["xmax"] = _common_eff["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_effplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Efficiencies in z+", **_common_eff)])
-_efficiencies_zplus = PlotGroup("Efficiencies_zplus", _effplots_zplus, ncols=8)
+_effplots_zplus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Efficiency", **_common_eff)]
+_efficiencies_zplus_eta = PlotGroup("Efficiencies_vs_eta", _effplots_zplus_eta, ncols=10)
+_efficiencies_zplus_phi = PlotGroup("Efficiencies_vs_phi", _effplots_zplus_phi, ncols=10)
+_efficiencies_zplus = PlotGroup("Efficiencies_vs_layer", _effplots_zplus, ncols=1)
 
-
-_common_dup = {"stat": False, "legend": False}
-_dupplots_zplus = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
-_dupplots_zplus.extend([Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)])
-_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_dup = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
+_dupplots_zplus_eta = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
+_dupplots_zplus_phi = [Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_dup["xmin"] = _bin_count
 _common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_dupplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Duplicates in z+", **_common_dup)])
-_duplicates_zplus = PlotGroup("Duplicates_zplus", _dupplots_zplus, ncols=8)
+_dupplots_zplus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Duplicates", **_common_dup)]
+_duplicates_zplus_eta = PlotGroup("Duplicates_vs_eta", _dupplots_zplus_eta, ncols=10)
+_duplicates_zplus_phi = PlotGroup("Duplicates_vs_phi", _dupplots_zplus_phi, ncols=10)
+_duplicates_zplus = PlotGroup("Duplicates_vs_layer", _dupplots_zplus, ncols=1)
 
-_common_fake = {"stat": False, "legend": False}
-_fakeplots_zplus = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
-_fakeplots_zplus.extend([Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)])
-_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_fake = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
+_fakeplots_zplus_eta = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
+_fakeplots_zplus_phi = [Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_fake["xmin"] = _bin_count
 _common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_fakeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global Fake Rate in z+", **_common_fake)])
-_fakes_zplus = PlotGroup("FakeRate_zplus", _fakeplots_zplus, ncols=8)
+_fakeplots_zplus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Fake Rate", **_common_fake)]
+_fakes_zplus_eta = PlotGroup("FakeRate_vs_eta", _fakeplots_zplus_eta, ncols=10)
+_fakes_zplus_phi = PlotGroup("FakeRate_vs_phi", _fakeplots_zplus_phi, ncols=10)
+_fakes_zplus = PlotGroup("FakeRate_vs_layer", _fakeplots_zplus, ncols=1)
 
-_common_merge = {"stat": False, "legend": False}
-_mergeplots_zplus = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
-_mergeplots_zplus.extend([Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)])
-_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_merge = {"stat": False, "legend": False, "ymin": 0.0, "ymax": 1.1}
+_mergeplots_zplus_eta = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
+_mergeplots_zplus_phi = [Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloption": "v", "ymin": 0.0, "ymax": 1.1}
 _common_merge["xmin"] = _bin_count
 _common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
 _bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
-_mergeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate in z+", **_common_merge)])
-_merges_zplus = PlotGroup("MergeRate_zplus", _mergeplots_zplus, ncols=8)
+_mergeplots_zplus = [Plot("globalEfficiencies", xtitle=_xtitle, ytitle="Merge Rate", **_common_merge)]
+_merges_zplus_eta = PlotGroup("MergeRate_vs_eta", _mergeplots_zplus_eta, ncols=10)
+_merges_zplus_phi = PlotGroup("MergeRate_vs_phi", _mergeplots_zplus_phi, ncols=10)
+_merges_zplus = PlotGroup("MergeRate_vs_layer", _mergeplots_zplus, ncols=1)
 
+#--------------------------------------------------------------------------------------------
+# SIMCLUSTERS
+#--------------------------------------------------------------------------------------------
+
+_common_sc_score = {"title": "Score SimCluster to LayerClusters in z-",
+                 "stat": False,
+                 "ymin": 0.1,
+                 "ymax": 10**6,
+                 "xmin": 0,
+                 "xmax": 1,
+                 "drawStyle": "hist",
+                 "lineWidth": 1,
+                 "ylog": True
+                }
+_common_sc_score.update(_legend_common)
+_score_simcluster_to_layerclusters_zminus = PlotGroup("score_simcluster_to_layercluster_zminus", [
+        Plot("Score_simcluster2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(0,maxlayerzm)
+        ], ncols=10 )
+
+_common_sc_score = {"title": "Score LayerCluster to SimClusters in z-",
+                 "stat": False,
+                 "ymin": 0.1,
+                 "ymax": 10**6,
+                 "xmin": 0,
+                 "xmax": 1,
+                 "drawStyle": "hist",
+                 "lineWidth": 1,
+                 "ylog": True
+                }
+_common_sc_score.update(_legend_common)
+_score_layercluster_to_simclusters_zminus = PlotGroup("score_layercluster_to_simcluster_zminus", [
+        Plot("Score_layercl2simcluster_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(0,maxlayerzm)
+        ], ncols=8 )
+
+_common_sc_shared= {"title": "Shared Energy SimCluster To Layer Cluster in z-",
+                 "stat": False,
+                 "legend": False,
+                }
+_common_sc_shared.update(_legend_common)
+_shared_sc_plots_zminus = [Plot("SharedEnergy_simcluster2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(0,maxlayerzm)]
+_shared_sc_plots_zminus.extend([Plot("SharedEnergy_simcluster2layercl_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(0,maxlayerzm)])
+_shared_sc_plots_zminus.extend([Plot("SharedEnergy_simcluster2layercl_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(0,maxlayerzm)])
+_sharedEnergy_simcluster_to_layercluster_zminus = PlotGroup("sharedEnergy_simcluster_to_layercluster_zminus", _shared_sc_plots_zminus, ncols=8)
+
+_common_sc_shared= {"title": "Shared Energy Layer Cluster To SimCluster in z-",
+                 "stat": False,
+                 "legend": False,
+                }
+_common_sc_shared.update(_legend_common)
+_shared_plots2_sc_zminus = [Plot("SharedEnergy_layercluster2simcluster_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(0,maxlayerzm)]
+_common_sc_shared= {"title": "Shared Energy Layer Cluster To Best SimCluster in z-",
+                 "stat": False,
+                 "legend": False,
+                 "ymin": 0,
+                 "ymax": 1
+                }
+_common_sc_shared.update(_legend_common)
+_shared_plots2_sc_zminus.extend([Plot("SharedEnergy_layercl2simcluster_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(0,maxlayerzm)])
+_shared_plots2_sc_zminus.extend([Plot("SharedEnergy_layercl2simcluster_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(0,maxlayerzm)])
+_sharedEnergy_layercluster_to_simcluster_zminus = PlotGroup("sharedEnergy_layercluster_to_simcluster_zminus", _shared_plots2_sc_zminus, ncols=8)
+
+_bin_count = 0
+_xbinlabels = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_eff = {"stat": False, "legend": False}
+_effplots_sc_zminus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
+_effplots_sc_zminus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(0,maxlayerzm)]
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_eff["xmin"] = _bin_count
+_common_eff["xmax"] = maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
+_effplots_sc_zminus = [Plot("globalEfficiencies_zminus", xtitle="Global Efficiencies in z-", **_common_eff)]
+_efficiencies_sc_zminus_eta = PlotGroup("Efficiencies_vs_eta_zminus", _effplots_sc_zminus_eta, ncols=10)
+_efficiencies_sc_zminus_phi = PlotGroup("Efficiencies_vs_phi_zminus", _effplots_sc_zminus_phi, ncols=10)
+_efficiencies_sc_zminus     = PlotGroup("Eff_Dup_Fake_Merge_Global_zminus", _effplots_sc_zminus, ncols=4)
+
+_common_dup = {"stat": False, "legend": False}
+_dupplots_sc_zminus_eta = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
+_dupplots_sc_zminus_phi = [Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(0,maxlayerzm)]
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_dup["xmin"] = _bin_count
+_common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
+_dupplots_sc_zminus = [Plot("globalDublicates_zminus", xtitle="Global Duplicates in z-", **_common_dup)]
+_duplicates_sc_zminus_eta = PlotGroup("Duplicates_vs_eta_zminus", _dupplots_sc_zminus_eta, ncols=10)
+_duplicates_sc_zminus_phi = PlotGroup("Duplicates_vs_phi_zminus", _dupplots_sc_zminus_phi, ncols=10)
+_duplicates_sc_zminus     = PlotGroup("Eff_Dup_Fake_Merge_Global_zminus", _dupplots_sc_zminus, ncols=4)
+
+_common_fake = {"stat": False, "legend": False}
+_fakeplots_sc_zminus_eta = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
+_fakeplots_sc_zminus_phi = [Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(0,maxlayerzm)]
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_fake["xmin"] = _bin_count
+_common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
+_common_fake["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_fake["xbinlabelsize"] = 10.
+_fakeplots_sc_zminus = [Plot("globalFakes_zminus", xtitle="Global Fake Rate in z-", **_common_fake)]
+_fakes_sc_zminus_eta = PlotGroup("FakeRate_vs_eta_zminus", _fakeplots_sc_zminus_eta, ncols=10)
+_fakes_sc_zminus_phi = PlotGroup("FakeRate_vs_phi_zminus", _fakeplots_sc_zminus_phi, ncols=10)
+_fakes_sc_zminus     = PlotGroup("Eff_Dup_Fake_Merge_Global_zminus", _fakeplots_sc_zminus, ncols=4)
+
+_common_merge = {"stat": False, "legend": False}
+_mergeplots_sc_zminus_eta = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
+_mergeplots_sc_zminus_phi = [Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(0,maxlayerzm)]
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z-", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_merge["xmin"] = _bin_count
+_common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
+_common_merge["xbinlabels"] = [ "L{:02d}".format(i+1) for i in range(0,maxlayerzm) ]
+_common_merge["xbinlabelsize"] = 10.
+_mergeplots_sc_zminus = [Plot("globalMergeRate_zminus", xtitle="Global merge Rate in z-", **_common_merge)]
+_merges_sc_zminus_eta = PlotGroup("MergeRate_vs_eta_zminus", _mergeplots_sc_zminus_eta, ncols=10)
+_merges_sc_zminus_phi = PlotGroup("MergeRate_vs_phi_zminus", _mergeplots_sc_zminus_phi, ncols=10)
+_merges_sc_zminus     = PlotGroup("Eff_Dup_Fake_Merge_Global_zminus", _mergeplots_sc_zminus, ncols=4)
 
 _common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
     stat=True,
@@ -1258,17 +1425,136 @@ _common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
     xmax=1.,
     ymin=0.01,
     ymax=1.)
-_energyscore_cp2lc_zplus = []
-for i in range(maxlayerzm,maxlayerzp):
-  _energyscore_cp2lc_zplus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1))
+_energyscore_sc2lc_zminus = PlotGroup("Energy_vs_Score_SC2LC_zminus", [Plot("Energy_vs_Score_simcluster2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_SC2LC",
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(0, maxlayerzm)
+                                                     ], ncols=10)
+
+_energyscore_sc2lc_zplus = PlotGroup("Energy_vs_Score_SC2LC_zplus", [Plot("Energy_vs_Score_simcluster2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_SC2LC",
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(maxlayerzm,maxlayerzp)
+                                                     ], ncols=10)
 
 _common_energy_score["xlog"]=False
 _common_energy_score["ylog"]=False
 _common_energy_score["xmin"]=-0.1
-_energyscore_lc2cp_zplus = []
-for i in range(maxlayerzm,maxlayerzp):
-  _energyscore_lc2cp_zplus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1))
-#_energyclustered =
+_energyscore_lc2sc_zminus = PlotGroup("Energy_vs_Score_LC2SC_zminus", [Plot("Energy_vs_Score_layer2simcluster_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2SC",
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(0, maxlayerzm)
+                                                     ], ncols=10)
+_energyscore_lc2sc_zplus = PlotGroup("Energy_vs_Score_LC2SC_zplus", [Plot("Energy_vs_Score_layer2simcluster_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2SC",
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(maxlayerzm,maxlayerzp)
+                                                     ], ncols=10)
+
+#--------------------------------------------------------------------------------------------
+# z+
+#--------------------------------------------------------------------------------------------
+_common_sc_score = {"title": "Score SimCluster to LayerClusters in z+",
+                 "stat": False,
+                 "ymin": 0.1,
+                 "ymax": 1000,
+                 "xmin": 0,
+                 "xmax": 1,
+                 "drawStyle": "hist",
+                 "lineWidth": 1,
+                 "ylog": True
+                }
+_common_sc_score.update(_legend_common)
+_score_simcluster_to_layerclusters_zplus = PlotGroup("score_simcluster_to_layercluster_zplus", [
+        Plot("Score_simcluster2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(maxlayerzm,maxlayerzp)
+        ], ncols=10 )
+
+_common_sc_score = {"title": "Score LayerCluster to SimClusters in z+",
+                 "stat": False,
+                 "ymin": 0.1,
+                 "ymax": 1000,
+                 "xmin": 0,
+                 "xmax": 1,
+                 "drawStyle": "hist",
+                 "lineWidth": 1,
+                 "ylog": True
+                }
+_common_sc_score.update(_legend_common)
+_score_layercluster_to_simclusters_zplus = PlotGroup("score_layercluster_to_simcluster_zplus", [
+        Plot("Score_layercl2simcluster_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(maxlayerzm,maxlayerzp)
+        ], ncols=8 )
+
+_common_sc_shared= {"title": "Shared Energy SimCluster To Layer Cluster in z+",
+                 "stat": False,
+                 "legend": False,
+                }
+_common_sc_shared.update(_legend_common)
+_shared_sc_plots_zplus = [Plot("SharedEnergy_simcluster2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(maxlayerzm,maxlayerzp)]
+_shared_sc_plots_zplus.extend([Plot("SharedEnergy_simcluster2layercl_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(maxlayerzm,maxlayerzp)])
+_shared_sc_plots_zplus.extend([Plot("SharedEnergy_simcluster2layercl_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(maxlayerzm,maxlayerzp)])
+_sharedEnergy_simcluster_to_layercluster_zplus = PlotGroup("sharedEnergy_simcluster_to_layercluster_zplus", _shared_sc_plots_zplus, ncols=8)
+
+_common_sc_shared= {"title": "Shared Energy Layer Cluster To SimCluster in z+",
+                 "stat": False,
+                 "legend": False,
+                }
+_common_sc_shared.update(_legend_common)
+_shared_plots2_sc_zplus = [Plot("SharedEnergy_layercluster2simcluster_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(maxlayerzm,maxlayerzp)]
+_common_sc_shared= {"title": "Shared Energy Layer Cluster To Best SimCluster in z+",
+                 "stat": False,
+                 "legend": False,
+                 "ymin": 0,
+                 "ymax": 1,
+                }
+_common_sc_shared.update(_legend_common)
+_shared_plots2_sc_zplus.extend([Plot("SharedEnergy_layercl2simcluster_vs_eta_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(maxlayerzm,maxlayerzp)])
+_shared_plots2_sc_zplus.extend([Plot("SharedEnergy_layercl2simcluster_vs_phi_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_shared) for i in range(maxlayerzm,maxlayerzp)])
+_sharedEnergy_layercluster_to_simcluster_zplus = PlotGroup("sharedEnergy_layercluster_to_simcluster_zplus", _shared_plots2_sc_zplus, ncols=8)
+
+
+_bin_count = 50
+_common_eff = {"stat": False, "legend": False}
+_effplots_sc_zplus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
+_effplots_sc_zplus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
+_common_eff = {"stat": False, "legend": False, "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_eff["xmin"] = _bin_count
+_common_eff["xmax"] = _common_eff["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
+_effplots_sc_zplus = [Plot("globalEfficiencies_zplus", xtitle="Global Efficiencies in z+", **_common_eff)]
+_efficiencies_sc_zplus_eta = PlotGroup("Efficiencies_vs_eta_zplus", _effplots_sc_zplus_eta, ncols=10)
+_efficiencies_sc_zplus_phi = PlotGroup("Efficiencies_vs_phi_zplus", _effplots_sc_zplus_phi, ncols=10)
+_efficiencies_sc_zplus = PlotGroup("Eff_Dup_Fake_Merge_Global_zplus", _effplots_sc_zplus, ncols=4)
+
+_common_dup = {"stat": False, "legend": False}
+_dupplots_sc_zplus_eta = [Plot("duplicate_eta_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
+_dupplots_sc_zplus_phi = [Plot("duplicate_phi_layer{:02d}".format(i), xtitle="", **_common_dup) for i in range(maxlayerzm,maxlayerzp)]
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_dup["xmin"] = _bin_count
+_common_dup["xmax"] = _common_dup["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
+_dupplots_sc_zplus = [Plot("globalDuplicates_zplus", xtitle="Global Duplicates in z+", **_common_dup)]
+_duplicates_sc_zplus_eta = PlotGroup("Duplicates_vs_eta_zplus", _dupplots_sc_zplus_eta, ncols=10)
+_duplicates_sc_zplus_phi = PlotGroup("Duplicates_vs_phi_zplus", _dupplots_sc_zplus_phi, ncols=10)
+_duplicates_sc_zplus = PlotGroup("Eff_Dup_Fake_Merge_Global_zplus", _dupplots_sc_zplus, ncols=4)
+
+_common_fake = {"stat": False, "legend": False}
+_fakeplots_sc_zplus_eta = [Plot("fake_eta_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
+_fakeplots_sc_zplus_phi = [Plot("fake_phi_layer{:02d}".format(i), xtitle="", **_common_fake) for i in range(maxlayerzm,maxlayerzp)]
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_fake["xmin"] = _bin_count
+_common_fake["xmax"] = _common_fake["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
+_fakeplots_sc_zplus = [Plot("globalFakeRate_zplus", xtitle="Global Fake Rate in z+", **_common_fake)]
+_fakes_sc_zplus_eta = PlotGroup("FakeRate_vs_eta_zplus", _fakeplots_sc_zplus_eta, ncols=10)
+_fakes_sc_zplus_phi = PlotGroup("FakeRate_vs_phi_zplus", _fakeplots_sc_zplus_phi, ncols=10)
+_fakes_sc_zplus = PlotGroup("Eff_Dup_Fake_Merge_Global_zplus", _fakeplots_sc_zplus, ncols=4)
+
+_common_merge = {"stat": False, "legend": False}
+_mergeplots_sc_zplus_eta = [Plot("merge_eta_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
+_mergeplots_sc_zplus_phi = [Plot("merge_phi_layer{:02d}".format(i), xtitle="", **_common_merge) for i in range(maxlayerzm,maxlayerzp)]
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates in z+", "xbinlabels": _xbinlabels, "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_common_merge["xmin"] = _bin_count
+_common_merge["xmax"] = _common_merge["xmin"] + maxlayerzm
+_bin_count += 4*maxlayerzm # 2 for the eta{-,+} and 2 for phi{+,-}
+_mergeplots_sc_zplus = [Plot("globalMergeRate_zplus", xtitle="Global merge Rate in z+", **_common_merge)]
+_merges_sc_zplus_eta = PlotGroup("MergeRate_vs_eta_zplus", _mergeplots_sc_zplus_eta, ncols=10)
+_merges_sc_zplus_phi = PlotGroup("MergeRate_vs_phi_zplus", _mergeplots_sc_zplus_phi, ncols=10)
+_merges_sc_zplus = PlotGroup("Eff_Dup_Fake_Merge_Global_zplus", _mergeplots_sc_zplus, ncols=4)
+
+#Just in case we add some plots below to be on the safe side.
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
 #--------------------------------------------------------------------------------------------
 # MULTICLUSTERS
@@ -1284,11 +1570,9 @@ _common_score = {#"title": "Score CaloParticle to MultiClusters",
                  "ylog": True
                 }
 _common_score.update(_legend_common)
-_score_caloparticle_to_multiclusters = PlotGroup("score_caloparticle_to_multicluster", [
-        Plot("Score_caloparticle2multicl", **_common_score),
-        Plot("Score_caloparticle2contimulticl", **_common_score),
-        Plot("Score_caloparticle2noncontimulticl", **_common_score)
-        ], ncols=3)
+_score_caloparticle_to_multiclusters = PlotGroup("ScoreCaloParticlesToMultiClusters", [
+        Plot("Score_caloparticle2multicl", **_common_score)
+        ], ncols=1)
 
 _common_score = {#"title": "Score MultiCluster to CaloParticles",
                  "stat": False,
@@ -1301,31 +1585,37 @@ _common_score = {#"title": "Score MultiCluster to CaloParticles",
                  "ylog": True
                 }
 _common_score.update(_legend_common)
-_score_multicluster_to_caloparticles = PlotGroup("score_multicluster_to_caloparticle", [
-        Plot("Score_multicl2caloparticle", **_common_score),
-        Plot("Score_contimulticl2caloparticle", **_common_score),
-        Plot("Score_noncontimulticl2caloparticle", **_common_score)
-        ])
+_score_multicluster_to_caloparticles = PlotGroup("ScoreMultiClustersToCaloParticles", [
+        Plot("Score_multicl2caloparticle", **_common_score)
+        ], ncols=1)
 
 _common_shared= {"title": "Shared Energy CaloParticle To Multi Cluster ",
                  "stat": False,
-                 "legend": False,
-                }
+                 "legend": True,
+                 "xmin": 0,
+                 "xmax": 1.0,
+               }
 _common_shared.update(_legend_common)
 _shared_plots = [ Plot("SharedEnergy_caloparticle2multicl", **_common_shared) ]
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_eta", **_common_shared)])
-_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_phi", **_common_shared)])
-_sharedEnergy_caloparticle_to_multicluster = PlotGroup("sharedEnergy_caloparticle_to_multicluster", _shared_plots, ncols=3)
+_common_shared["xmin"] = -4.0
+_common_shared["xmax"] = 4.0
+_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_eta", xtitle="CaloParticle #eta", **_common_shared)])
+_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_phi", xtitle="CaloParticle #phi", **_common_shared)])
+_sharedEnergy_caloparticle_to_multicluster = PlotGroup("SharedEnergy_CaloParticleToMultiCluster", _shared_plots, ncols=3)
 
 _common_shared= {"title": "Shared Energy Multi Cluster To CaloParticle ",
                  "stat": False,
-                 "legend": False,
+                 "legend": True,
+                 "xmin": 0,
+                 "xmax": 1.0,
                 }
 _common_shared.update(_legend_common)
 _shared_plots2 = [Plot("SharedEnergy_multicluster2caloparticle", **_common_shared)]
-_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_eta", **_common_shared)])
-_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_phi", **_common_shared)])
-_sharedEnergy_multicluster_to_caloparticle = PlotGroup("sharedEnergy_multicluster_to_caloparticle", _shared_plots2, ncols=3)
+_common_shared["xmin"] = -4.0
+_common_shared["xmax"] = 4.0
+_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_eta", xtitle="MultiCluster #eta", **_common_shared)])
+_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_phi", xtitle="MultiCluster #phi", **_common_shared)])
+_sharedEnergy_multicluster_to_caloparticle = PlotGroup("SharedEnergy_MultiClusterToCaloParticle", _shared_plots2, ncols=3)
 
 
 _common_assoc = {#"title": "Cell Association Table",
@@ -1342,28 +1632,26 @@ _cell_association_table = PlotGroup("cellAssociation_table", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzm)
         ], ncols=8 )
 
-_cell_association_multi = PlotGroup("cellAssociation_multi", [ Plot("cellAssociation", xtitle="", **_common_assoc) ] )
-
-_common_eff = {"stat": False, "legend": False}
+_common_eff = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
 _effplots = [Plot("effic_eta", xtitle="", **_common_eff)]
 _effplots.extend([Plot("effic_phi", xtitle="", **_common_eff)])
 _effplots.extend([Plot("globalEfficiencies", xtitle="", **_common_eff)])
 _efficiencies = PlotGroup("Efficiencies", _effplots, ncols=3)
 
 
-_common_dup = {"stat": False, "legend": False}
+_common_dup = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
 _dupplots = [Plot("duplicate_eta", xtitle="", **_common_dup)]
 _dupplots.extend([Plot("duplicate_phi", xtitle="", **_common_dup)])
 _dupplots.extend([Plot("globalEfficiencies", xtitle="", **_common_dup)])
 _duplicates = PlotGroup("Duplicates", _dupplots, ncols=3)
 
-_common_fake = {"stat": False, "legend": False}
+_common_fake = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
 _fakeplots = [Plot("fake_eta", xtitle="", **_common_fake)]
 _fakeplots.extend([Plot("fake_phi", xtitle="", **_common_fake)])
 _fakeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_fake)])
 _fakes = PlotGroup("FakeRate", _fakeplots, ncols=3)
 
-_common_merge = {"stat": False, "legend": False}
+_common_merge = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
 _mergeplots = [Plot("merge_eta", xtitle="", **_common_merge)]
 _mergeplots.extend([Plot("merge_phi", xtitle="", **_common_merge)])
 _mergeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_merge)])
@@ -1372,139 +1660,96 @@ _merges = PlotGroup("MergeRate", _mergeplots, ncols=3)
 _common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d")
 _common_energy_score["ymax"] = 1.
 _common_energy_score["xmax"] = 1.0
-_energyscore_cp2mcl = PlotOnSideGroup("_energyscore_cp2mcl", Plot("Energy_vs_Score_caloparticle2multi", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_energyscore_cp2contimcl = PlotOnSideGroup("_energyscore_cp2contimcl", Plot("Energy_vs_Score_caloparticle2contimulti", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_energyscore_cp2noncontimcl = PlotOnSideGroup("_energyscore_cp2noncontimcl", Plot("Energy_vs_Score_caloparticle2noncontimulti", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_common_energy_score["ymax"] = 8.
+_energyscore_cp2mcl = PlotOnSideGroup("Energy_vs_Score_CaloParticlesToMultiClusters", Plot("Energy_vs_Score_caloparticle2multi", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
+_common_energy_score["ymax"] = 1.
 _common_energy_score["xmax"] = 1.0
-_energyscore_mcl2cp = PlotOnSideGroup("_energyscore_mcl2cp", Plot("Energy_vs_Score_multi2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_energyscore_contimcl2cp = PlotOnSideGroup("_energyscore_contimcl2cp", Plot("Energy_vs_Score_contimulti2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-_energyscore_noncontimcl2cp = PlotOnSideGroup("_energyscore_noncontimcl2cp", Plot("Energy_vs_Score_noncontimulti2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
-
-#_energyclustered =
+_energyscore_mcl2cp = PlotOnSideGroup("Energy_vs_Score_MultiClustersToCaloParticles", Plot("Energy_vs_Score_multi2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
 
 #Coming back to the usual box definition
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
-_totmulticlusternum = PlotGroup("totmulticlusternum", [
+_totmulticlusternum = PlotGroup("TotalNumberofMultiClusters", [
   Plot("totmulticlusternum", xtitle="", **_common)
 ],ncols=1)
 
-_contmulticlusternum = PlotGroup("contmulticlusternum", [
-  Plot("contmulticlusternum", xtitle="", **_common)
-],ncols=1)
-
-_noncontmulticlusternum = PlotGroup("noncontmulticlusternum", [
-  Plot("noncontmulticlusternum", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_firstlayer = PlotGroup("multicluster_firstlayer", [
-  Plot("multicluster_firstlayer", xtitle="Layer number", **_common)
-],ncols=1)
-
-_multicluster_lastlayer = PlotGroup("multicluster_lastlayer", [
-  Plot("multicluster_lastlayer", xtitle="Layer number", **_common)
-],ncols=1)
-
-_multicluster_layersnum = PlotGroup("multicluster_layersnum", [
-  Plot("multicluster_layersnum", xtitle="", **_common)
-],ncols=1)
+_multicluster_layernum_plots = [Plot("multicluster_firstlayer", xtitle="MultiCluster First Layer", **_common)]
+_multicluster_layernum_plots.extend([Plot("multicluster_lastlayer", xtitle="MultiCluster Last Layer", **_common)])
+_multicluster_layernum_plots.extend([Plot("multicluster_layersnum", xtitle="MultiCluster Number of Layers", **_common)])
+_multicluster_layernum = PlotGroup("LayerNumbersOfMultiCluster", _multicluster_layernum_plots, ncols=3)
 
 _common["xmax"] = 50
-_clusternum_in_multicluster = PlotGroup("clusternum_in_multicluster",[
+_clusternum_in_multicluster = PlotGroup("NumberofLayerClustersinMultiCluster",[
   Plot("clusternum_in_multicluster", xtitle="", **_common)
 ],ncols=1)
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 _common = {"stat": True, "drawStyle": "pcolz", "staty": 0.65}
 
-_clusternum_in_multicluster_vs_layer = PlotGroup("clusternum_in_multicluster_vs_layer",[
+_clusternum_in_multicluster_vs_layer = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer",[
   Plot("clusternum_in_multicluster_vs_layer", xtitle="Layer number", ytitle = "<2d Layer Clusters in Multicluster>",  **_common)
 ],ncols=1)
 
 _common["scale"] = 100.
 #, ztitle = "% of clusters" normalizeToUnitArea=True
-_multiplicity_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters/multiplicity_numberOfEventsHistogram"
-_multiplicity_zminus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters/multiplicity_zminus_numberOfEventsHistogram"
-_multiplicity_zplus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters/multiplicity_zplus_numberOfEventsHistogram"
-_multiplicityOfLCinMCL = PlotGroup("multiplicityOfLCinMCL",[
-  Plot("multiplicityOfLCinMCL", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster size (n_{hit})         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
-],ncols=1)
+_multiplicity_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlMultiClustersFromTrackstersEM/multiplicity_numberOfEventsHistogram"
+_multiplicity_zminus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlMultiClustersFromTrackstersEM/multiplicity_zminus_numberOfEventsHistogram"
+_multiplicity_zplus_numberOfEventsHistogram = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/ticlMultiClustersFromTrackstersEM/multiplicity_zplus_numberOfEventsHistogram"
 
-_multiplicityOfLCinMCL_vs_layercluster_zminus = PlotGroup("multiplicityOfLCinMCL_vs_layercluster_zminus",[
-  Plot("multiplicityOfLCinMCL_vs_layercluster_zminus", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
-],ncols=1)
-
-_multiplicityOfLCinMCL_vs_layercluster_zplus = PlotGroup("multiplicityOfLCinMCL_vs_layercluster_zplus",[
-  Plot("multiplicityOfLCinMCL_vs_layercluster_zplus", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
-],ncols=1)
-
-_multiplicityOfLCinMCL_vs_layerclusterenergy = PlotGroup("multiplicityOfLCinMCL_vs_layerclusterenergy",[
-  Plot("multiplicityOfLCinMCL_vs_layerclusterenergy", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster Energy (GeV)         ", drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)
-],ncols=1)
+_multiplicityOfLCinMCL_plots = [Plot("multiplicityOfLCinMCL", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster size (n_{hit})", 
+                                drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]
+_multiplicityOfLCinMCL_plots.extend([Plot("multiplicityOfLCinMCL_vs_layerclusterenergy", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Cluster Energy (GeV)", 
+                                drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]) 
+_multiplicityOfLCinMCL_plots.extend([Plot("multiplicityOfLCinMCL_vs_layercluster_zplus", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number", 
+                                drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
+_multiplicityOfLCinMCL_plots.extend([Plot("multiplicityOfLCinMCL_vs_layercluster_zminus", xtitle="Layer Cluster multiplicity in Multiclusters", ytitle = "Layer Number", 
+                                drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
+_multiplicityOfLCinMCL = PlotGroup("MultiplcityofLCinMLC", _multiplicityOfLCinMCL_plots, ncols=2)
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 #--------------------------------------------------------------------------------------------
 # z-
 #--------------------------------------------------------------------------------------------
-_clusternum_in_multicluster_perlayer_zminus_EE = PlotGroup("clusternum_in_multicluster_perlayer_zminus_EE", [
+_clusternum_in_multicluster_perlayer_zminus_EE = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zminus_EE", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm)
-], ncols=4)
+], ncols=7)
 
-_clusternum_in_multicluster_perlayer_zminus_FH = PlotGroup("clusternum_in_multicluster_perlayer_zminus_FH", [
+_clusternum_in_multicluster_perlayer_zminus_FH = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zminus_FH", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzm,lastLayerFHzm)
-], ncols=4)
+], ncols=7)
 
-_clusternum_in_multicluster_perlayer_zminus_BH = PlotGroup("clusternum_in_multicluster_perlayer_zminus_BH", [
+_clusternum_in_multicluster_perlayer_zminus_BH = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zminus_BH", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzm,maxlayerzm)
-], ncols=4)
+], ncols=7)
 
 #--------------------------------------------------------------------------------------------
 # z+
 #--------------------------------------------------------------------------------------------
-_clusternum_in_multicluster_perlayer_zplus_EE = PlotGroup("clusternum_in_multicluster_perlayer_zplus_EE", [
+_clusternum_in_multicluster_perlayer_zplus_EE = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zplus_EE", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(maxlayerzm,lastLayerEEzp)
-], ncols=4)
+], ncols=7)
 
-_clusternum_in_multicluster_perlayer_zplus_FH = PlotGroup("clusternum_in_multicluster_perlayer_zplus_FH", [
+_clusternum_in_multicluster_perlayer_zplus_FH = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zplus_FH", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerEEzp,lastLayerFHzp)
-], ncols=4)
+], ncols=7)
 
-_clusternum_in_multicluster_perlayer_zplus_BH = PlotGroup("clusternum_in_multicluster_perlayer_zplus_BH", [
+_clusternum_in_multicluster_perlayer_zplus_BH = PlotGroup("NumberofLayerClustersinMultiClusterPerLayer_zplus_BH", [
   Plot("clusternum_in_multicluster_perlayer{:02d}".format(i), xtitle="", **_common) for i in range(lastLayerFHzp,maxlayerzp)
-], ncols=4)
+], ncols=7)
 
 #Coming back to the usual box definition
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 
 #Some multiclusters quantities
-_multicluster_pt = PlotGroup("multicluster_pt", [
-  Plot("multicluster_pt", xtitle="", **_common)
-],ncols=1)
+_multicluster_eppe_plots = [Plot("multicluster_eta", xtitle="MultiCluster #eta", **_common)]
+_multicluster_eppe_plots.extend([Plot("multicluster_phi", xtitle="MultiCluster #phi", **_common)])
+_multicluster_eppe_plots.extend([Plot("multicluster_pt", xtitle="MultiCluster p_{T}", **_common)])
+_multicluster_eppe_plots.extend([Plot("multicluster_energy", xtitle="MultiCluster Energy", **_common)])
+_multicluster_eppe = PlotGroup("EtaPhiPtEnergy", _multicluster_eppe_plots, ncols=2)
 
-_multicluster_eta = PlotGroup("multicluster_eta", [
-  Plot("multicluster_eta", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_phi = PlotGroup("multicluster_phi", [
-  Plot("multicluster_phi", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_energy = PlotGroup("multicluster_energy", [
-  Plot("multicluster_energy", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_x = PlotGroup("multicluster_x", [
-  Plot("multicluster_x", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_y = PlotGroup("multicluster_y", [
-  Plot("multicluster_y", xtitle="", **_common)
-],ncols=1)
-
-_multicluster_z = PlotGroup("multicluster_z", [
-  Plot("multicluster_z", xtitle="", **_common)
-],ncols=1)
+_multicluster_xyz_plots = [Plot("multicluster_x", xtitle="MultiCluster x", **_common)]
+_multicluster_xyz_plots.extend([Plot("multicluster_y", xtitle="MultiCluster y", **_common)])
+_multicluster_xyz_plots.extend([Plot("multicluster_z", xtitle="MultiCluster z", **_common)])
+_multicluster_xyz = PlotGroup("XYZ", _multicluster_xyz_plots, ncols=3)
 
 #--------------------------------------------------------------------------------------------
 # SIMHITS, DIGIS, RECHITS
@@ -1520,1378 +1765,1033 @@ _HitValidation = PlotGroup("HitValidation", [
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 
-_SimHits_Occupancy_EE_zplus = PlotGroup("SimHits_Occupancy_EE_zplus", [
-                                                                       Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_Occupancy_EE_zplus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                                       ], ncols=4)
+_Occupancy_EE_zplus = PlotGroup("Occupancy_EE_zplus", [Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="Occupancy_EE_zplus", 
+                                                        xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                        ], ncols=7)
 
-_SimHits_Occupancy_HE_Silicon_zplus = PlotGroup("SimHits_Occupancy_HE_Silicon_zplus", [
-                                                                                       Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_HE_Occupancy_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                                       ], ncols=4)
+_Occupancy_HE_Silicon_zplus = PlotGroup("Occupancy_HE_Silicon_zplus", [Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="Occupancy_HE_zplus", 
+                                                                       xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                       ], ncols=7)
 
-_SimHits_Occupancy_HE_Scintillator_zplus = PlotGroup("SimHits_Occupancy_HE_Scintillator_zplus", [
-                                                                                                 Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_Occupancy_HE_Scintillator_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                                                 ], ncols=4)
+_Occupancy_HE_Scintillator_zplus = PlotGroup("Occupancy_HE_Scintillator_zplus", [Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="Occupancy_HE_Scintillator_zplus", 
+                                                                                         xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                         ], ncols=7)
 
-_SimHits_Occupancy_EE_zminus = PlotGroup("SimHits_Occupancy_EE_zminus", [
-                                                                         Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_Occupancy_EE_zminus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                                         ], ncols=4)
+_Occupancy_EE_zminus = PlotGroup("Occupancy_EE_zminus", [Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="Occupancy_EE_zminus", 
+                                                         xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                         ], ncols=7)
 
-_SimHits_Occupancy_HE_Silicon_zminus = PlotGroup("SimHits_Occupancy_HE_Silicon_zminus", [
-                                                                                         Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_Occupancy_HE_Silicon_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                                         ], ncols=4)
+_Occupancy_HE_Silicon_zminus = PlotGroup("Occupancy_HE_Silicon_zminus", [Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="Occupancy_HE_Silicon_zminus", 
+                                                                         xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                         ], ncols=7)
 
-_SimHits_Occupancy_HE_Scintillator_zminus = PlotGroup("SimHits_Occupancy_HE_Scintillator_zminus", [
-                                                                                                   Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="SimHits_Occupancy_HE_Scintillator_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                                                   ], ncols=4)
+_Occupancy_HE_Scintillator_zminus = PlotGroup("Occupancy_HE_Scintillator_zminus", [Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="Occupancy_HE_Scintillator_zminus", 
+                                                                                   xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                   ], ncols=7)
 
 _common_etaphi = dict(removeEmptyBins=False, xbinlabelsize=10, xbinlabeloption="d", ymin=None)
 
-_SimHits_EtaPhi_EE_zplus=[]
-for i in range(EE_min,EE_max+1):
-    _SimHits_EtaPhi_EE_zplus.append(PlotOnSideGroup("EE_EtaPhi_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="SimHits_EtaPhi_EE_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_EtaPhi_EE_zplus = PlotGroup("EtaPhi_EE_zplus", [Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="EtaPhi_EE_zplus", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(EE_min,EE_max+1)
+                                                     ], ncols=7)
 
-_SimHits_EtaPhi_HE_Silicon_zplus=[]
-for i in range(HESilicon_min,HESilicon_max+1):
-    _SimHits_EtaPhi_HE_Silicon_zplus.append(PlotOnSideGroup("HE_Silicon_EtaPhi_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="SimHits_EtaPhi_HE_Silicon_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_EtaPhi_HE_Silicon_zplus = PlotGroup("EtaPhi_HE_Silicon_zplus", [Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="EtaPhi_HE_Silicon_zplus", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(HESilicon_min,HESilicon_max+1)
+                                                     ], ncols=7)
 
-_SimHits_EtaPhi_HE_Scintillator_zplus=[]
-for i in range(HEScintillator_min,HEScintillator_max+1):
-    _SimHits_EtaPhi_HE_Scintillator_zplus.append(PlotOnSideGroup("HE_Scintillator_EtaPhi_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="SimHits_EtaPhi_HE_Scintillator_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_EtaPhi_HE_Scintillator_zplus = PlotGroup("EtaPhi_HE_Scintillator_zplus", [Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="EtaPhi_HE_Scintillator_zplus", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                     ], ncols=7)
 
-_SimHits_EtaPhi_EE_zminus=[]
-for i in range(EE_min,EE_max+1):
-    _SimHits_EtaPhi_EE_zminus.append(PlotOnSideGroup("EE_EtaPhi_zminus_layer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="SimHits_EtaPhi_EE_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_EtaPhi_EE_zminus = PlotGroup("EtaPhi_EE_zminus", [Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="EtaPhi_EE_zminus", 
+                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(EE_min,EE_max+1)
+                                                      ], ncols=7)
 
-_SimHits_EtaPhi_HE_Silicon_zminus=[]
-for i in range(HESilicon_min,HESilicon_max+1):
-    _SimHits_EtaPhi_HE_Silicon_zminus.append(PlotOnSideGroup("HE_Silicon_EtaPhi_zminus_layer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="SimHits_EtaPhi_HE_Silicon_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_EtaPhi_HE_Silicon_zminus = PlotGroup("EtaPhi_HE_Silicon_zminus", [Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="EtaPhi_HE_Silicon_zminus", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(HESilicon_min,HESilicon_max+1)
+                                                     ], ncols=7)
 
-_SimHits_EtaPhi_HE_Scintillator_zminus=[]
-for i in range(HEScintillator_min,HEScintillator_max+1):
-    _SimHits_EtaPhi_HE_Scintillator_zminus.append(PlotOnSideGroup("HE_Scintillator_EtaPhi_zminuslayer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="SimHits_EtaPhi_HE_Scintillator_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
-
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
-
-_SimHits_Energy_EE_0 = PlotGroup("SimHits_Energy_Time_0_EE", [
-                                                              Plot("energy_time_0_layer_{:02d}".format(i), title="SimHits_Energy_Time_0_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                              ], ncols=4)
-
-_SimHits_Energy_HE_Silicon_0 = PlotGroup("SimHits_Energy_Time_0_HE_Silicon", [
-                                                                              Plot("energy_time_0_layer_{:02d}".format(i), title="SimHits_Energy_Time_0_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                              ], ncols=4)
-
-_SimHits_Energy_HE_Scintillator_0 = PlotGroup("SimHits_Energy_Time_0_HE_Scintillator", [
-                                                                                        Plot("energy_time_0_layer_{:02d}".format(i), title="SimHits_Energy_Time_0_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                                        ], ncols=4)
-
-_SimHits_Energy_EE_1 = PlotGroup("SimHits_Energy_Time_1_EE", [
-                                                              Plot("energy_time_1_layer_{:02d}".format(i), title="SimHits_Energy_Time_1_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                              ], ncols=4)
-
-_SimHits_Energy_HE_Silicon_1 = PlotGroup("SimHits_Energy_Time_1_HE_Silicon", [
-                                                                              Plot("energy_time_1_layer_{:02d}".format(i), title="SimHits_Energy_Time_1_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                              ], ncols=4)
-
-_SimHits_Energy_HE_Scintillator_1 = PlotGroup("SimHits_Energy_Time_1_HE_Scintillator", [
-                                                                                        Plot("energy_time_1_layer_{:02d}".format(i), title="SimHits_Energy_Time_1_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                                        ], ncols=4)
-
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
-
-_RecHits_Occupancy_EE_zplus = PlotGroup("RecHits_Occupancy_EE_zplus", [
-                                                                       Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="RecHits_Occupancy_EE_zplus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                                       ], ncols=4)
-
-_RecHits_Occupancy_HE_Silicon_zplus = PlotGroup("RecHits_Occupancy_HE_Silicon_zplus", [
-                                                                                       Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="RecHits_Occupancy_HE_Silicon_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                                       ], ncols=4)
-
-_RecHits_Occupancy_HE_Scintillator_zplus = PlotGroup("RecHits_Occupancy_HE_Scintillator_zplus", [
-                                                                                                 Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="RecHits_Occupancy_HE_Scintillator_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                                                 ], ncols=4)
-
-_RecHits_Occupancy_EE_zminus = PlotGroup("RecHits_Occupancy_EE_zminus", [
-                                                                         Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="RecHits_Occupancy_EE_zminus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                                         ], ncols=4)
-
-_RecHits_Occupancy_HE_Silicon_zminus = PlotGroup("RecHits_Occupancy_HE_Silicon_zminus", [
-                                                                                         Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="RecHits_Occupancy_HE_Silicon_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                                         ], ncols=4)
-
-_RecHits_Occupancy_HE_Scintillator_zminus = PlotGroup("RecHits_Occupancy_HE_Scintillator_zminus", [
-                                                                                                   Plot("HitOccupancy_Minus_layer_{:02d}".format(i),  title="RecHits_Occupancy_HE_Scintillator_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                                                   ], ncols=4)
+_EtaPhi_HE_Scintillator_zminus = PlotGroup("EtaPhi_HE_Scintillator_zminus", [Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="EtaPhi_HE_Scintillator_zminus", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                     ], ncols=7)
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
 
-_RecHits_Energy_EE = PlotGroup("RecHits_Energy_EE", [
-                                                     Plot("energy_layer_{:02d}".format(i), title="RecHits_Energy_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                     ], ncols=4)
+_Energy_EE_0 = PlotGroup("Energy_Time_0_EE", [Plot("energy_time_0_layer_{:02d}".format(i), title="Energy_Time_0_EE", 
+                                              xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                              ], ncols=7)
 
-_RecHits_Energy_HE_Silicon = PlotGroup("RecHits_Energy_HE_Silicon", [
-                                                                     Plot("energy_layer_{:02d}".format(i), title="RecHits_Energy_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                     ], ncols=4)
+_Energy_HE_Silicon_0 = PlotGroup("Energy_Time_0_HE_Silicon", [Plot("energy_time_0_layer_{:02d}".format(i), title="Energy_Time_0_HE_Silicon", 
+                                                              xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                              ], ncols=7)
 
-_RecHits_Energy_HE_Scintillator = PlotGroup("RecHits_Energy_HE_Scintillator", [
-                                                                               Plot("energy_layer_{:02d}".format(i), title="RecHits_Energy_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                               ], ncols=4)
+_Energy_HE_Scintillator_0 = PlotGroup("Energy_Time_0_HE_Scintillator", [Plot("energy_time_0_layer_{:02d}".format(i), title="Energy_Time_0_HE_Scintillator", 
+                                                                        xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                        ], ncols=7)
 
-_RecHits_EtaPhi_EE_zplus=[]
-for i in range(EE_min,EE_max+1):
-    _RecHits_EtaPhi_EE_zplus.append(PlotOnSideGroup("RecHits_EtaPhi_EE_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="RecHits_EtaPhi_EE_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_Energy_EE_1 = PlotGroup("Energy_Time_1_EE", [Plot("energy_time_1_layer_{:02d}".format(i), title="Energy_Time_1_EE", 
+                                              xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                              ], ncols=7)
 
-_RecHits_EtaPhi_HE_Silicon_zplus=[]
-for i in range(HESilicon_min,HESilicon_max+1):
-    _RecHits_EtaPhi_HE_Silicon_zplus.append(PlotOnSideGroup("RecHits_EtaPhi_HE_Silicon_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="RecHits_EtaPhi_HE_Silicon_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_Energy_HE_Silicon_1 = PlotGroup("Energy_Time_1_HE_Silicon", [Plot("energy_time_1_layer_{:02d}".format(i), title="Energy_Time_1_HE_Silicon", 
+                                                              xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                              ], ncols=7)
 
-_RecHits_EtaPhi_HE_Scintillator_zplus=[]
-for i in range(HEScintillator_min,HEScintillator_max+1):
-    _RecHits_EtaPhi_HE_Scintillator_zplus.append(PlotOnSideGroup("RecHits_EtaPhi_HE_Scintillator_zplus_layer_{:02d}".format(i), Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="RecHits_EtaPhi_HE_Scintillator_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_Energy_HE_Scintillator_1 = PlotGroup("Energy_Time_1_HE_Scintillator", [Plot("energy_time_1_layer_{:02d}".format(i), title="Energy_Time_1_HE_Scintillator", 
+                                                                        xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                        ], ncols=7)
 
-_RecHits_EtaPhi_EE_zminus=[]
-for i in range(EE_min,EE_max+1):
-    _RecHits_EtaPhi_EE_zminus.append(PlotOnSideGroup("RecHits_EtaPhi_EE_zminus_layer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="RecHits_EtaPhi_EE_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_Energy_EE = PlotGroup("Energy_EE", [Plot("energy_layer_{:02d}".format(i), title="Energy_EE", 
+                                             xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                             ], ncols=7)
 
-_RecHits_EtaPhi_HE_Silicon_zminus=[]
-for i in range(HESilicon_min,HESilicon_max+1):
-    _RecHits_EtaPhi_HE_Silicon_zminus.append(PlotOnSideGroup("RecHits_EtaPhi_HE_Silicon_zminus_layer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="RecHits_EtaPhi_HE_Silicon_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_Energy_HE_Silicon = PlotGroup("Energy_HE_Silicon", [Plot("energy_layer_{:02d}".format(i), title="Energy_HE_Silicon", 
+                                                             xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                             ], ncols=7)
 
-_RecHits_EtaPhi_HE_Scintillator_zminus=[]
-for i in range(HEScintillator_min,HEScintillator_max+1):
-    _RecHits_EtaPhi_HE_Scintillator_zminus.append(PlotOnSideGroup("RecHits_EtaPhi_HE_Scintillator_zminus_layer_{:02d}".format(i), Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="RecHits_EtaPhi_HE_Scintillator_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi), ncols=1))
+_Energy_HE_Scintillator = PlotGroup("Energy_HE_Scintillator", [Plot("energy_layer_{:02d}".format(i), title="Energy_HE_Scintillator", 
+                                                                               xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                               ], ncols=7)
 
-_DigiHits_ADC_EE = PlotGroup("DigiHits_ADC_EE", [
-                                                 Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                 ], ncols=4)
+_DigiHits_ADC_EE = PlotGroup("ADC_EE", [Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_EE", 
+                                        xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                        ], ncols=7)
 
-_DigiHits_ADC_HE_Silicon = PlotGroup("DigiHits_ADC_HE_Silicon", [
-                                                                 Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                 ], ncols=4)
+_DigiHits_ADC_HE_Silicon = PlotGroup("ADC_HE_Silicon", [Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_HE_Silicon", 
+                                                       xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                       ], ncols=7)
 
-_DigiHits_ADC_HE_Scintillator = PlotGroup("DigiHits_ADC_HE_Scintillator", [
-                                                                           Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                           ], ncols=4)
+_DigiHits_ADC_HE_Scintillator = PlotGroup("ADC_HE_Scintillator", [Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_HE_Scintillator", 
+                                                                  xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                  ], ncols=7)
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 
-_DigiHits_Occupancy_EE_zplus = PlotGroup("DigiHits_Occupancy_EE_zplus", [
-                                                                         Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_EE_zplus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                                         ], ncols=4)
+_DigiHits_Occupancy_EE_zplus = PlotGroup("Occupancy_EE_zplus", [Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_EE_zplus", 
+                                                                xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                                ], ncols=7)
 
-_DigiHits_Occupancy_HE_Silicon_zplus = PlotGroup("DigiHits_Occupancy_HE_Silicon_zplus", [
-                                                                                         Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Silicon_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                                         ], ncols=4)
+_DigiHits_Occupancy_HE_Silicon_zplus = PlotGroup("Occupancy_HE_Silicon_zplus", [Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Silicon_zplus", 
+                                                                                 xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                                 ], ncols=7)
 
-_DigiHits_Occupancy_HE_Scintillator_zplus = PlotGroup("DigiHits_Occupancy_HE_Scintillator_zplus", [
-                                                                                                   Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Scintillator_zplus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                                                   ], ncols=4)
+_DigiHits_Occupancy_HE_Scintillator_zplus = PlotGroup("Occupancy_HE_Scintillator_zplus", [Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Scintillator_zplus", 
+                                                                                          xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                           ], ncols=7)
 
-_DigiHits_Occupancy_EE_zminus = PlotGroup("DigiHits_Occupancy_EE_zminus", [
-                                                                           Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_EE_zminus", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                                           ], ncols=4)
+_DigiHits_Occupancy_EE_zminus = PlotGroup("Occupancy_EE_zminus", [Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_EE_zminus", 
+                                                                  xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                                  ], ncols=7)
 
-_DigiHits_Occupancy_HE_Silicon_zminus = PlotGroup("DigiHits_Occupancy_HE_Silicon_zminus", [
-                                                                                           Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Silicon_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                                           ], ncols=4)
+_DigiHits_Occupancy_HE_Silicon_zminus = PlotGroup("Occupancy_HE_Silicon_zminus", [Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Silicon_zminus", 
+                                                                                  xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                                  ], ncols=7)
 
-_DigiHits_Occupancy_HE_Scintillator_zminus = PlotGroup("DigiHits_Occupancy_HE_Scintillator_zminus", [
-                                                                                                     Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Scintillator_zminus", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                                                     ], ncols=4)
+_DigiHits_Occupancy_HE_Scintillator_zminus = PlotGroup("Occupancy_HE_Scintillator_zminus", [Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Scintillator_zminus", 
+                                                                                            xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                                            ], ncols=7)
 
 _common_XY = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", ymin=None)
 
-_DigiHits_Occupancy_XY_EE_zplus=[]
-for i in range(EE_min,EE_max+1):
-    _DigiHits_Occupancy_XY_EE_zplus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_EE_zplus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_EE_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
+_DigiHits_Occupancy_XY_EE = PlotGroup("Occupancy_XY_EE", [Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_EE", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY) for i in range(EE_min,EE_max+1)
+                                                     ], ncols=7)
 
-_DigiHits_Occupancy_XY_HE_Silicon_zplus=[]
-for i in range(HESilicon_min,HESilicon_max+1):
-    _DigiHits_Occupancy_XY_HE_Silicon_zplus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_HE_Silicon_zplus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Silicon_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
+_DigiHits_Occupancy_XY_HE_Silicon = PlotGroup("Occupancy_XY_HE_Silicon", [Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Silicon", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY) for i in range(HESilicon_min,HESilicon_max+1)
+                                                     ], ncols=7)
 
-_DigiHits_Occupancy_XY_HE_Scintillator_zplus=[]
-for i in range(HEScintillator_min,HEScintillator_max+1):
-    _DigiHits_Occupancy_XY_HE_Scintillator_zplus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_HE_Scintillator_zplus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Scintillator_zplus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
-
-_DigiHits_Occupancy_XY_EE_zminus=[]
-for i in range(EE_min,EE_max+1):
-    _DigiHits_Occupancy_XY_EE_zminus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_EE_zminus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_EE_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
-
-_DigiHits_Occupancy_XY_HE_Silicon_zminus=[]
-for i in range(HESilicon_min,HESilicon_max+1):
-    _DigiHits_Occupancy_XY_HE_Silicon_zminus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_HE_Silicon_zminus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Silicon_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
-
-_DigiHits_Occupancy_XY_HE_Scintillator_zminus=[]
-for i in range(HEScintillator_min,HEScintillator_max+1):
-    _DigiHits_Occupancy_XY_HE_Scintillator_zminus.append(PlotOnSideGroup("DigiHits_Occupancy_XY_HE_Scintillator_zminus_layer_{:02d}".format(i), Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Scintillator_zminus", xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY), ncols=1))
+_DigiHits_Occupancy_XY_HE_Scintillator = PlotGroup("Occupancy_XY_HE_Scintillator", [Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Scintillator", 
+                                                     xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                     ], ncols=7)
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
 
-_DigiHits_TOA_EE = PlotGroup("DigiHits_TOA_EE", [
-                                                 Plot("TOA_layer_{:02d}".format(i), title="DigiHits_TOA_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                 ], ncols=4)
+_DigiHits_TOA_EE = PlotGroup("TOA_EE", [
+                                                 Plot("TOA_layer_{:02d}".format(i), title="TOA_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                 ], ncols=7)
 
-_DigiHits_TOA_HE_Silicon = PlotGroup("DigiHits_TOA_HE_Silicon", [
-                                                                 Plot("TOA_layer_{:02d}".format(i), title="DigiHits_TOA_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                 ], ncols=4)
+_DigiHits_TOA_HE_Silicon = PlotGroup("TOA_HE_Silicon", [
+                                                                 Plot("TOA_layer_{:02d}".format(i), title="TOA_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                 ], ncols=7)
 
-_DigiHits_TOA_HE_Scintillator = PlotGroup("DigiHits_TOA_HE_Scintillator", [
-                                                                           Plot("TOA_layer_{:02d}".format(i), title="DigiHits_TOA_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                           ], ncols=4)
+_DigiHits_TOA_HE_Scintillator = PlotGroup("TOA_HE_Scintillator", [
+                                                                           Plot("TOA_layer_{:02d}".format(i), title="TOA_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                           ], ncols=7)
 
-_DigiHits_TOT_EE = PlotGroup("DigiHits_TOT_EE", [
-                                                 Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
-                                                 ], ncols=4)
+_DigiHits_TOT_EE = PlotGroup("TOT_EE", [
+                                                 Plot("TOT_layer_{:02d}".format(i), title="TOT_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
+                                                 ], ncols=7)
 
-_DigiHits_TOT_HE_Silicon = PlotGroup("DigiHits_TOT_HE_Silicon", [
-                                                                 Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
-                                                                 ], ncols=4)
+_DigiHits_TOT_HE_Silicon = PlotGroup("TOT_HE_Silicon", [
+                                                                 Plot("TOT_layer_{:02d}".format(i), title="TOT_HE_Silicon", xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
+                                                                 ], ncols=7)
 
-_DigiHits_TOT_HE_Scintillator = PlotGroup("DigiHits_TOT_HE_Scintillator", [
-                                                                           Plot("TOT_layer_{:02d}".format(i), title="DigiHits_TOT_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
-                                                                           ], ncols=4)
+_DigiHits_TOT_HE_Scintillator = PlotGroup("TOT_HE_Scintillator", [
+                                                                           Plot("TOT_layer_{:02d}".format(i), title="TOT_HE_Scintillator", xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
+                                                                           ], ncols=7)
+
+#===================================================================================================================
+#Plot definition for HitCalibration
+_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": False}
+
+_LayerOccupancy = PlotGroup("LayerOccupancy", [
+                                               Plot("LayerOccupancy", title="LayerOccupancy", **_common)], ncols=1)
+
+_ReconstructableEnergyOverCPenergy = PlotGroup("ReconstructableEnergyOverCPenergy", [
+  Plot("h_EoP_CPene_100_calib_fraction", title="EoP_CPene_100_calib_fraction", **_common),
+  Plot("h_EoP_CPene_200_calib_fraction", title="EoP_CPene_200_calib_fraction", **_common),
+  Plot("h_EoP_CPene_300_calib_fraction", title="EoP_CPene_300_calib_fraction", **_common),
+  Plot("h_EoP_CPene_scint_calib_fraction", title="EoP_CPene_scint_calib_fraction", **_common),
+])
+
+_ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy = PlotGroup("ParticleFlowClusterHGCalFromMultiCl", [
+  Plot("hgcal_EoP_CPene_100_calib_fraction", title="hgcal_EoP_CPene_100_calib_fraction", **_common),
+  Plot("hgcal_EoP_CPene_200_calib_fraction", title="hgcal_EoP_CPene_200_calib_fraction", **_common),
+  Plot("hgcal_EoP_CPene_300_calib_fraction", title="hgcal_EoP_CPene_300_calib_fraction", **_common),
+  Plot("hgcal_EoP_CPene_scint_calib_fraction", title="hgcal_EoP_CPene_scint_calib_fraction", **_common),
+])
+
+_EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy = PlotGroup("EcalDrivenGsfElectronsFromMultiCl", [
+  Plot("hgcal_ele_EoP_CPene_100_calib_fraction", title="hgcal_ele_EoP_CPene_100_calib_fraction", **_common),
+  Plot("hgcal_ele_EoP_CPene_200_calib_fraction", title="hgcal_ele_EoP_CPene_200_calib_fraction", **_common),
+  Plot("hgcal_ele_EoP_CPene_300_calib_fraction", title="hgcal_ele_EoP_CPene_300_calib_fraction", **_common),
+  Plot("hgcal_ele_EoP_CPene_scint_calib_fraction", title="hgcal_ele_EoP_CPene_scint_calib_fraction", **_common),
+])
+
+_PhotonsFromMultiCl_Closest_EoverCPenergy = PlotGroup("PhotonsFromMultiCl", [
+  Plot("hgcal_photon_EoP_CPene_100_calib_fraction", title="hgcal_photon_EoP_CPene_100_calib_fraction", **_common),
+  Plot("hgcal_photon_EoP_CPene_200_calib_fraction", title="hgcal_photon_EoP_CPene_200_calib_fraction", **_common),
+  Plot("hgcal_photon_EoP_CPene_300_calib_fraction", title="hgcal_photon_EoP_CPene_300_calib_fraction", **_common),
+  Plot("hgcal_photon_EoP_CPene_scint_calib_fraction", title="hgcal_photon_EoP_CPene_scint_calib_fraction", **_common),
+])
 
 #=================================================================================================
 hgcalLayerClustersPlotter = Plotter()
-#We follow Chris categories in folders
-# [A] calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
-# (one entry per rechit, in the appropriate histo)
-hgcalLayerClustersPlotter.append("CellsEnergyDensityPerThickness", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _cellsenedens_thick,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="CellsEnergyDensityPerThickness"
-        ))
+layerClustersLabel = 'Layer Clusters'
 
-# [B] number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
-# (one entry per event in each of the four histos)
-hgcalLayerClustersPlotter.append("TotalNumberofLayerClustersPerThickness", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _totclusternum_thick,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="TotalNumberofLayerClustersPerThickness"
-        ))
+lc_general_clusterlevel = [
+  # number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
+  # (one entry per event in each of the four histos)
+  _totclusternum_thick,
+  # Miscellaneous plots:
+  # longdepthbarycentre: The longitudinal depth barycentre. One entry per event.
+  # mixedhitscluster: Number of clusters per event with hits in different thicknesses.
+  # num_reco_cluster_eta: Number of reco clusters vs eta
+  _num_reco_cluster_eta,
+  _energyclustered,
+  _mixedhitsclusters,
+  _longdepthbarycentre,
+  # calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
+  # (one entry per rechit, in the appropriate histo)
+  _cellsenedens_thick
+]
 
-# [C] number of layer clusters per layer (one entry per event in each histo)
-# z-
-hgcalLayerClustersPlotter.append("NumberofLayerClustersPerLayer_zminus", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _totclusternum_layer_EE_zminus,
-        _totclusternum_layer_FH_zminus,
-        _totclusternum_layer_BH_zminus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="NumberofLayerClustersPerLayer_zminus"
-        ))
+lc_clusterlevel_zminus = [
+  # number of layer clusters per layer (one entry per event in each histo)
+  _totclusternum_layer_EE_zminus,
+  _totclusternum_layer_FH_zminus,
+  _totclusternum_layer_BH_zminus,
+  # Looking at the fraction of true energy that has been clustered; by layer and overall
+  _energyclustered_perlayer_EE_zminus,
+  _energyclustered_perlayer_FH_zminus,
+  _energyclustered_perlayer_BH_zminus
+]
 
-# z+
-hgcalLayerClustersPlotter.append("NumberofLayerClustersPerLayer_zplus", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _totclusternum_layer_EE_zplus,
-        _totclusternum_layer_FH_zplus,
-        _totclusternum_layer_BH_zplus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="NumberofLayerClustersPerLayer_zplus"
-        ))
+lc_cellevel_zminus = [
+  # For each layer cluster:
+  # number of cells in layer cluster, by layer - separate histos in each layer for 120um Si, 200/300um Si, Scint
+  # NB: not all combinations exist; e.g. no 120um Si in layers with scint.
+  # (One entry in the appropriate histo per layer cluster).
+  _cellsnum_perthick_perlayer_120_EE_zminus,
+  _cellsnum_perthick_perlayer_120_FH_zminus,
+  _cellsnum_perthick_perlayer_120_BH_zminus,
+  _cellsnum_perthick_perlayer_200_EE_zminus,
+  _cellsnum_perthick_perlayer_200_FH_zminus,
+  _cellsnum_perthick_perlayer_200_BH_zminus,
+  _cellsnum_perthick_perlayer_300_EE_zminus,
+  _cellsnum_perthick_perlayer_300_FH_zminus,
+  _cellsnum_perthick_perlayer_300_BH_zminus,
+  _cellsnum_perthick_perlayer_scint_EE_zminus,
+  _cellsnum_perthick_perlayer_scint_FH_zminus,
+  _cellsnum_perthick_perlayer_scint_BH_zminus,
+  # Cell Association per Layer
+  _cell_association_table_zminus
+]
 
-# [D] For each layer cluster:
-# number of cells in layer cluster, by layer - separate histos in each layer for 120um Si, 200/300um Si, Scint
-# NB: not all combinations exist; e.g. no 120um Si in layers with scint.
-# (One entry in the appropriate histo per layer cluster).
-# z-
-hgcalLayerClustersPlotter.append("CellsNumberPerLayerPerThickness_zminus", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _cellsnum_perthick_perlayer_120_EE_zminus,
-        _cellsnum_perthick_perlayer_120_FH_zminus,
-        _cellsnum_perthick_perlayer_120_BH_zminus,
-        _cellsnum_perthick_perlayer_200_EE_zminus,
-        _cellsnum_perthick_perlayer_200_FH_zminus,
-        _cellsnum_perthick_perlayer_200_BH_zminus,
-        _cellsnum_perthick_perlayer_300_EE_zminus,
-        _cellsnum_perthick_perlayer_300_FH_zminus,
-        _cellsnum_perthick_perlayer_300_BH_zminus,
-        _cellsnum_perthick_perlayer_scint_EE_zminus,
-        _cellsnum_perthick_perlayer_scint_FH_zminus,
-        _cellsnum_perthick_perlayer_scint_BH_zminus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="CellsNumberPerLayerPerThickness_zminus"
-        ))
+lc_cp_association_zminus = [
+  # Efficiency Plots
+  _efficiencies_zminus,
+  _efficiencies_zminus_eta,
+  _efficiencies_zminus_phi,
+  # Duplicate Plots
+  _duplicates_zminus,
+  _duplicates_zminus_eta,
+  _duplicates_zminus_phi,
+  # Fake Rate Plots
+  _fakes_zminus,
+  _fakes_zminus_eta,
+  _fakes_zminus_phi,
+  # Merge Rate Plots
+  _merges_zminus,
+  _merges_zminus_eta,
+  _merges_zminus_phi,
+  # Score of CaloParticles wrt Layer Clusters
+  _score_caloparticle_to_layerclusters_zminus,
+  # Score of LayerClusters wrt CaloParticles
+  _score_layercluster_to_caloparticles_zminus,
+  # Shared Energy between CaloParticle and LayerClusters
+  _sharedEnergy_caloparticle_to_layercluster_zminus,
+  # Shared Energy between LayerClusters and CaloParticle
+  _sharedEnergy_layercluster_to_caloparticle_zminus,
+  # Energy vs Score 2D plots CP to LC
+  _energyscore_cp2lc_zminus,
+  # Energy vs Score 2D plots LC to CP
+  _energyscore_lc2cp_zminus
+]
 
-# z+
-hgcalLayerClustersPlotter.append("CellsNumberPerLayerPerThickness_zplus", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _cellsnum_perthick_perlayer_120_EE_zplus,
-        _cellsnum_perthick_perlayer_120_FH_zplus,
-        _cellsnum_perthick_perlayer_120_BH_zplus,
-        _cellsnum_perthick_perlayer_200_EE_zplus,
-        _cellsnum_perthick_perlayer_200_FH_zplus,
-        _cellsnum_perthick_perlayer_200_BH_zplus,
-        _cellsnum_perthick_perlayer_300_EE_zplus,
-        _cellsnum_perthick_perlayer_300_FH_zplus,
-        _cellsnum_perthick_perlayer_300_BH_zplus,
-        _cellsnum_perthick_perlayer_scint_EE_zplus,
-        _cellsnum_perthick_perlayer_scint_FH_zplus,
-        _cellsnum_perthick_perlayer_scint_BH_zplus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="CellsNumberPerLayerPerThickness_zplus"
-        ))
+lc_zminus_extended = [
+  # For each layer cluster:
+  # distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
+  # separate histos in each layer for 120um Si, 200/300um Si, Scint
+  # NB: not all combinations exist; e.g. no 120um Si in layers with scint.
+  # (One entry in each of the four appropriate histos per cell in a layer cluster)
+  _distancetomaxcell_perthickperlayer_120_EE_zminus,
+  _distancetomaxcell_perthickperlayer_120_FH_zminus,
+  _distancetomaxcell_perthickperlayer_120_BH_zminus,
+  _distancetomaxcell_perthickperlayer_200_EE_zminus,
+  _distancetomaxcell_perthickperlayer_200_FH_zminus,
+  _distancetomaxcell_perthickperlayer_200_BH_zminus,
+  _distancetomaxcell_perthickperlayer_300_EE_zminus,
+  _distancetomaxcell_perthickperlayer_300_FH_zminus,
+  _distancetomaxcell_perthickperlayer_300_BH_zminus,
+  _distancetomaxcell_perthickperlayer_scint_EE_zminus,
+  _distancetomaxcell_perthickperlayer_scint_FH_zminus,
+  _distancetomaxcell_perthickperlayer_scint_BH_zminus,
+  _distancetoseedcell_perthickperlayer_120_EE_zminus,
+  _distancetoseedcell_perthickperlayer_120_FH_zminus,
+  _distancetoseedcell_perthickperlayer_120_BH_zminus,
+  _distancetoseedcell_perthickperlayer_200_EE_zminus,
+  _distancetoseedcell_perthickperlayer_200_FH_zminus,
+  _distancetoseedcell_perthickperlayer_200_BH_zminus,
+  _distancetoseedcell_perthickperlayer_300_EE_zminus,
+  _distancetoseedcell_perthickperlayer_300_FH_zminus,
+  _distancetoseedcell_perthickperlayer_300_BH_zminus,
+  _distancetoseedcell_perthickperlayer_scint_EE_zminus,
+  _distancetoseedcell_perthickperlayer_scint_FH_zminus,
+  _distancetoseedcell_perthickperlayer_scint_BH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_EE_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_FH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_BH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_EE_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_FH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_BH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_EE_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_FH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_BH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zminus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_EE_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_FH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_BH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_EE_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_FH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_BH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_EE_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_FH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_BH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zminus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_120_EE_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_120_FH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_120_BH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_200_EE_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_200_FH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_200_BH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_300_EE_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_300_FH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_300_BH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_EE_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_FH_zminus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_BH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus
+]
 
-# [E] For each layer cluster:
-# distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
-# separate histos in each layer for 120um Si, 200/300um Si, Scint
-# NB: not all combinations exist; e.g. no 120um Si in layers with scint.
-# (One entry in each of the four appropriate histos per cell in a layer cluster)
-# z-
-hgcalLayerClustersPlotter.append("CellsDistanceToSeedAndMaxCellPerLayerPerThickness_zminus", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _distancetomaxcell_perthickperlayer_120_EE_zminus,
-        _distancetomaxcell_perthickperlayer_120_FH_zminus,
-        _distancetomaxcell_perthickperlayer_120_BH_zminus,
-        _distancetomaxcell_perthickperlayer_200_EE_zminus,
-        _distancetomaxcell_perthickperlayer_200_FH_zminus,
-        _distancetomaxcell_perthickperlayer_200_BH_zminus,
-        _distancetomaxcell_perthickperlayer_300_EE_zminus,
-        _distancetomaxcell_perthickperlayer_300_FH_zminus,
-        _distancetomaxcell_perthickperlayer_300_BH_zminus,
-        _distancetomaxcell_perthickperlayer_scint_EE_zminus,
-        _distancetomaxcell_perthickperlayer_scint_FH_zminus,
-        _distancetomaxcell_perthickperlayer_scint_BH_zminus,
-        _distancetoseedcell_perthickperlayer_120_EE_zminus,
-        _distancetoseedcell_perthickperlayer_120_FH_zminus,
-        _distancetoseedcell_perthickperlayer_120_BH_zminus,
-        _distancetoseedcell_perthickperlayer_200_EE_zminus,
-        _distancetoseedcell_perthickperlayer_200_FH_zminus,
-        _distancetoseedcell_perthickperlayer_200_BH_zminus,
-        _distancetoseedcell_perthickperlayer_300_EE_zminus,
-        _distancetoseedcell_perthickperlayer_300_FH_zminus,
-        _distancetoseedcell_perthickperlayer_300_BH_zminus,
-        _distancetoseedcell_perthickperlayer_scint_EE_zminus,
-        _distancetoseedcell_perthickperlayer_scint_FH_zminus,
-        _distancetoseedcell_perthickperlayer_scint_BH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_EE_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_FH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_BH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_EE_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_FH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_BH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_EE_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_FH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_BH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zminus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_EE_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_FH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_BH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_EE_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_FH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_BH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_EE_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_FH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_BH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zminus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_120_EE_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_120_FH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_120_BH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_200_EE_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_200_FH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_200_BH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_300_EE_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_300_FH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_300_BH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_EE_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_FH_zminus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_BH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zminus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="CellsDistanceToSeedAndMaxCellPerLayerPerThickness_zminus"
-        ))
+lc_clusterlevel_zplus = [
+  # number of layer clusters per layer (one entry per event in each histo)
+  _totclusternum_layer_EE_zplus,
+  _totclusternum_layer_FH_zplus,
+  _totclusternum_layer_BH_zplus,
+  # Looking at the fraction of true energy that has been clustered; by layer and overall
+  _energyclustered_perlayer_EE_zplus,
+  _energyclustered_perlayer_FH_zplus,
+  _energyclustered_perlayer_BH_zplus
+]
 
-# z+
-hgcalLayerClustersPlotter.append("CellsDistanceToSeedAndMaxCellPerLayerPerThickness_zplus", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _distancetomaxcell_perthickperlayer_120_EE_zplus,
-        _distancetomaxcell_perthickperlayer_120_FH_zplus,
-        _distancetomaxcell_perthickperlayer_120_BH_zplus,
-        _distancetomaxcell_perthickperlayer_200_EE_zplus,
-        _distancetomaxcell_perthickperlayer_200_FH_zplus,
-        _distancetomaxcell_perthickperlayer_200_BH_zplus,
-        _distancetomaxcell_perthickperlayer_300_EE_zplus,
-        _distancetomaxcell_perthickperlayer_300_FH_zplus,
-        _distancetomaxcell_perthickperlayer_300_BH_zplus,
-        _distancetomaxcell_perthickperlayer_scint_EE_zplus,
-        _distancetomaxcell_perthickperlayer_scint_FH_zplus,
-        _distancetomaxcell_perthickperlayer_scint_BH_zplus,
-        _distancetoseedcell_perthickperlayer_120_EE_zplus,
-        _distancetoseedcell_perthickperlayer_120_FH_zplus,
-        _distancetoseedcell_perthickperlayer_120_BH_zplus,
-        _distancetoseedcell_perthickperlayer_200_EE_zplus,
-        _distancetoseedcell_perthickperlayer_200_FH_zplus,
-        _distancetoseedcell_perthickperlayer_200_BH_zplus,
-        _distancetoseedcell_perthickperlayer_300_EE_zplus,
-        _distancetoseedcell_perthickperlayer_300_FH_zplus,
-        _distancetoseedcell_perthickperlayer_300_BH_zplus,
-        _distancetoseedcell_perthickperlayer_scint_EE_zplus,
-        _distancetoseedcell_perthickperlayer_scint_FH_zplus,
-        _distancetoseedcell_perthickperlayer_scint_BH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_EE_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_FH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_120_BH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_EE_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_FH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_200_BH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_EE_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_FH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_300_BH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zplus,
-        _distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_EE_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_FH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_120_BH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_EE_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_FH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_200_BH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_EE_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_FH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_300_BH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zplus,
-        _distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_120_EE_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_120_FH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_120_BH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_200_EE_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_200_FH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_200_BH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_300_EE_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_300_FH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_300_BH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_EE_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_FH_zplus,
-        _distancebetseedandmaxcell_perthickperlayer_scint_BH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus,
-        _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="CellsDistanceToSeedAndMaxCellPerLayerPerThickness_zplus"
-        ))
+lc_cellevel_zplus = [
+  # number of cells in layer cluster, by layer - separate histos in each layer for 120um Si, 200/300um Si, Scint
+  _cellsnum_perthick_perlayer_120_EE_zplus,
+  _cellsnum_perthick_perlayer_120_FH_zplus,
+  _cellsnum_perthick_perlayer_120_BH_zplus,
+  _cellsnum_perthick_perlayer_200_EE_zplus,
+  _cellsnum_perthick_perlayer_200_FH_zplus,
+  _cellsnum_perthick_perlayer_200_BH_zplus,
+  _cellsnum_perthick_perlayer_300_EE_zplus,
+  _cellsnum_perthick_perlayer_300_FH_zplus,
+  _cellsnum_perthick_perlayer_300_BH_zplus,
+  _cellsnum_perthick_perlayer_scint_EE_zplus,
+  _cellsnum_perthick_perlayer_scint_FH_zplus,
+  _cellsnum_perthick_perlayer_scint_BH_zplus,
+  # Cell Association per Layer
+  _cell_association_table_zplus
+]
 
-# [F] Looking at the fraction of true energy that has been clustered; by layer and overall
-# z-
-hgcalLayerClustersPlotter.append("EnergyClusteredByLayerAndOverall_zminus", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _energyclustered_perlayer_EE_zminus,
-        _energyclustered_perlayer_FH_zminus,
-        _energyclustered_perlayer_BH_zminus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="EnergyClusteredByLayerAndOverall_zminus"
-        ))
-# z+
-hgcalLayerClustersPlotter.append("EnergyClusteredByLayerAndOverall_zplus", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-        ], PlotFolder(
-        _energyclustered_perlayer_EE_zplus,
-        _energyclustered_perlayer_FH_zplus,
-        _energyclustered_perlayer_BH_zplus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="EnergyClusteredByLayerAndOverall_zplus"
-        ))
+lc_cp_association_zplus = [
+  # Efficiency Plots
+  _efficiencies_zplus,
+  _efficiencies_zplus_eta,
+  _efficiencies_zplus_phi,
+  # Duplicate Plots
+  _duplicates_zplus,
+  _duplicates_zplus_eta,
+  _duplicates_zplus_phi,
+  # Fake Rate Plots
+  _fakes_zplus,
+  _fakes_zplus_eta,
+  _fakes_zplus_phi,
+  # Merge Rate Plots
+  _merges_zplus,
+  _merges_zplus_eta,
+  _merges_zplus_phi,  
+  # Score of CaloParticles wrt Layer Clusters
+  _score_caloparticle_to_layerclusters_zplus,
+  # Score of LayerClusters wrt CaloParticles
+  _score_layercluster_to_caloparticles_zplus,
+  # Shared Energy between CaloParticle and LayerClusters
+  _sharedEnergy_caloparticle_to_layercluster_zplus,
+  # Shared Energy between LayerClusters and CaloParticle
+  _sharedEnergy_layercluster_to_caloparticle_zplus,
+  _energyscore_cp2lc_zplus,
+  _energyscore_lc2cp_zplus
+]
 
-# [G] Miscellaneous plots:
-# longdepthbarycentre: The longitudinal depth barycentre. One entry per event.
-# mixedhitscluster: Number of clusters per event with hits in different thicknesses.
-# num_reco_cluster_eta: Number of reco clusters vs eta
+lc_zplus_extended = [
+  # distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
+  _distancetomaxcell_perthickperlayer_120_EE_zplus,
+  _distancetomaxcell_perthickperlayer_120_FH_zplus,
+  _distancetomaxcell_perthickperlayer_120_BH_zplus,
+  _distancetomaxcell_perthickperlayer_200_EE_zplus,
+  _distancetomaxcell_perthickperlayer_200_FH_zplus,
+  _distancetomaxcell_perthickperlayer_200_BH_zplus,
+  _distancetomaxcell_perthickperlayer_300_EE_zplus,
+  _distancetomaxcell_perthickperlayer_300_FH_zplus,
+  _distancetomaxcell_perthickperlayer_300_BH_zplus,
+  _distancetomaxcell_perthickperlayer_scint_EE_zplus,
+  _distancetomaxcell_perthickperlayer_scint_FH_zplus,
+  _distancetomaxcell_perthickperlayer_scint_BH_zplus,
+  _distancetoseedcell_perthickperlayer_120_EE_zplus,
+  _distancetoseedcell_perthickperlayer_120_FH_zplus,
+  _distancetoseedcell_perthickperlayer_120_BH_zplus,
+  _distancetoseedcell_perthickperlayer_200_EE_zplus,
+  _distancetoseedcell_perthickperlayer_200_FH_zplus,
+  _distancetoseedcell_perthickperlayer_200_BH_zplus,
+  _distancetoseedcell_perthickperlayer_300_EE_zplus,
+  _distancetoseedcell_perthickperlayer_300_FH_zplus,
+  _distancetoseedcell_perthickperlayer_300_BH_zplus,
+  _distancetoseedcell_perthickperlayer_scint_EE_zplus,
+  _distancetoseedcell_perthickperlayer_scint_FH_zplus,
+  _distancetoseedcell_perthickperlayer_scint_BH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_EE_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_FH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_120_BH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_EE_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_FH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_200_BH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_EE_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_FH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_300_BH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_EE_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_FH_zplus,
+  _distancetomaxcell_perthickperlayer_eneweighted_scint_BH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_EE_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_FH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_120_BH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_EE_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_FH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_200_BH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_EE_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_FH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_300_BH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_EE_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_FH_zplus,
+  _distancetoseedcell_perthickperlayer_eneweighted_scint_BH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_120_EE_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_120_FH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_120_BH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_200_EE_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_200_FH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_200_BH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_300_EE_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_300_FH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_300_BH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_EE_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_FH_zplus,
+  _distancebetseedandmaxcell_perthickperlayer_scint_BH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_EE_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_FH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_120_BH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_EE_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_FH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_200_BH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_EE_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_FH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus
+]
 
-hgcalLayerClustersPlotter.append("Miscellaneous", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _num_reco_cluster_eta,
-            _energyclustered,
-            _mixedhitsclusters,
-            _longdepthbarycentre,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Miscellaneous"
-            ))
+def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_collection = layerClustersLabel, extended = False):
+  print('extended : ',extended)
+  regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
+  regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
+  regions_LCtoCP_association = ["Z-minus: LC_CP association", "Z-plus: LC_CP association"]
+  
+  plots_lc_general_clusterlevel  = lc_general_clusterlevel
+  plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus 
+  plots_lc_cellevel_zminus       = lc_cellevel_zminus 
+  plots_lc_clusterlevel_zplus    = lc_clusterlevel_zplus
+  plots_lc_cellevel_zplus        = lc_cellevel_zplus
+  plots_lc_cp_association_zminus = lc_cp_association_zminus
+  plots_lc_cp_association_zplus  = lc_cp_association_zplus
 
-# [H] SelectedCaloParticles plots
-hgcalLayerClustersPlotter.append("SelectedCaloParticles_Photons", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/22",
-            ], PlotFolder(
-            _SelectedCaloParticles,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SelectedCaloParticles_Photons"
-            ))
+  if extended :
+    #plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus 
+    #plots_lc_clusterlevel_zplus    = lc_clusterlevel_zplus 
+    plots_lc_cellevel_zminus       = lc_cellevel_zminus + lc_zminus_extended
+    plots_lc_cellevel_zplus        = lc_cellevel_zplus + lc_zplus_extended
+    #plots_lc_cp_association_zminus = lc_cp_association_zminus 
+    #plots_lc_cp_association_zplus  = lc_cp_association_zplus 
 
-# [I] Score of CaloParticles wrt Layer Clusters
-# z-
-hgcalLayerClustersPlotter.append("ScoreCaloParticlesToLayerClusters_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _score_caloparticle_to_layerclusters_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="ScoreCaloParticlesToLayerClusters_zminus"))
-
-# z+
-hgcalLayerClustersPlotter.append("ScoreCaloParticlesToLayerClusters_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _score_caloparticle_to_layerclusters_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="ScoreCaloParticlesToLayerClusters_zplus"))
-
-# [J] Score of LayerClusters wrt CaloParticles
-# z-
-hgcalLayerClustersPlotter.append("ScoreLayerClustersToCaloParticles_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _score_layercluster_to_caloparticles_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="ScoreLayerClustersToCaloParticles_zminus"))
-
-# z+
-hgcalLayerClustersPlotter.append("ScoreLayerClustersToCaloParticles_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _score_layercluster_to_caloparticles_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="ScoreLayerClustersToCaloParticles_zplus"))
-
-# [K] Shared Energy between CaloParticle and LayerClusters
-# z-
-hgcalLayerClustersPlotter.append("SharedEnergyC2L_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _sharedEnergy_caloparticle_to_layercluster_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToLayerCluster_zminus"))
-
-# z+
-hgcalLayerClustersPlotter.append("SharedEnergyC2L_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _sharedEnergy_caloparticle_to_layercluster_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToLayerCluster_zplus"))
-
-# [K2] Shared Energy between LayerClusters and CaloParticle
-# z-
-hgcalLayerClustersPlotter.append("SharedEnergyL2C_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _sharedEnergy_layercluster_to_caloparticle_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SharedEnergyLayerClusterToCaloParticle_zminus"))
-
-# z+
-hgcalLayerClustersPlotter.append("SharedEnergyL2C_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _sharedEnergy_layercluster_to_caloparticle_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SharedEnergyLayerClusterToCaloParticle_zplus"))
-
-# [L] Cell Association per Layer
-# z-
-hgcalLayerClustersPlotter.append("CellAssociation_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _cell_association_table_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_zminus"))
-
-# z+
-hgcalLayerClustersPlotter.append("CellAssociation_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _cell_association_table_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_zplus"))
-
-# [M] Efficiency Plots
-# z-
-hgcalLayerClustersPlotter.append("Efficiencies_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _efficiencies_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Efficiencies_zminus"))
-
-# z+
-hgcalLayerClustersPlotter.append("Efficiencies_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _efficiencies_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Efficiencies_zplus"))
-
-# [L] Duplicate Plots
-# z-
-hgcalLayerClustersPlotter.append("Duplicates_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _duplicates_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Duplicates_zminus"))
-
-# z+
-hgcalLayerClustersPlotter.append("Duplicates_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _duplicates_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Duplicates_zplus"))
-
-# [M] Fake Rate Plots
-# z-
-hgcalLayerClustersPlotter.append("FakeRate_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _fakes_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Fakes_zminus"))
-
-# z+
-hgcalLayerClustersPlotter.append("FakeRate_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _fakes_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Fakes_zplus"))
-
-# [N] Merge Rate Plots
-# z-
-hgcalLayerClustersPlotter.append("MergeRate_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _merges_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Merges_zminus"))
-
-# z+
-hgcalLayerClustersPlotter.append("MergeRate_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-            ], PlotFolder(
-            _merges_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Merges_zplus"))
-
-# [O] Energy vs Score 2D plots CP to LC
-# z-
-for i,item in enumerate(_energyscore_cp2lc_zminus, start=1):
-  hgcalLayerClustersPlotter.append("Energy_vs_Score_CP2LC_zminus", [
-              "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-              ], PlotFolder(
-              item,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Energy_vs_Score_CP2LC_zminus"))
-
-# z+
-for i,item in enumerate(_energyscore_cp2lc_zplus, start=1):
-  hgcalLayerClustersPlotter.append("Energy_vs_Score_CP2LC_zplus", [
-              "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-              ], PlotFolder(
-              item,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Energy_vs_Score_CP2LC_zplus"))
-
-# [P] Energy vs Score 2D plots LC to CP
-# z-
-for i,item in enumerate(_energyscore_lc2cp_zminus, start=1):
-  hgcalLayerClustersPlotter.append("Energy_vs_Score_LC2CP_zminus", [
-              "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-              ], PlotFolder(
-              item,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Energy_vs_Score_LC2CP_zminus"))
-
-# z+
-for i,item in enumerate(_energyscore_lc2cp_zplus, start=1):
-  hgcalLayerClustersPlotter.append("Energy_vs_Score_LC2CP_zplus", [
-              "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalLayerClusters",
-              ], PlotFolder(
-              item,
-              loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page="Energy_vs_Score_LC2CP_zplus"))
+  setPlots_ClusterLevel       = [plots_lc_general_clusterlevel, plots_lc_clusterlevel_zminus, plots_lc_clusterlevel_zplus]
+  setPlots_CellLevel          = [plots_lc_cellevel_zminus, plots_lc_cellevel_zplus]
+  setPlots_LCtoCP_association = [plots_lc_cp_association_zminus, plots_lc_cp_association_zplus]
+  for reg, setPlot in zip(regions_ClusterLevel, setPlots_ClusterLevel):
+    hgcalLayerClustersPlotter.append(collection+"_"+reg, [
+                _hgcalFolders(collection + "/ClusterLevel")
+                ], PlotFolder(
+                *setPlot,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
+  for reg, setPlot in zip(regions_CellLevel, setPlots_CellLevel):
+    hgcalLayerClustersPlotter.append(collection+"_"+reg, [
+                _hgcalFolders(collection + "/CellLevel")
+                ], PlotFolder(
+                *setPlot,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
+  for reg, setPlot in zip(regions_LCtoCP_association, setPlots_LCtoCP_association):
+    hgcalLayerClustersPlotter.append(collection+"_"+reg, [
+                _hgcalFolders(collection + "/LCtoCP_association")
+                ], PlotFolder(
+                *setPlot,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
 
 #=================================================================================================
+def _hgcalsimClustersFolders(lastDirName):
+    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/simClusters/"+lastDirName
+
+sc_clusterlevel = [
+  # number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
+  # (one entry per event in each of the four histos) ([B] above)
+  _totsimclusternum_thick,
+  # number of simclusters per layer (one entry per event in each histo) ([C] above)
+  # z-
+  _totsimclusternum_layer_EE_zminus,
+  _totsimclusternum_layer_FH_zminus,
+  _totsimclusternum_layer_BH_zminus,
+  # z+
+  _totsimclusternum_layer_EE_zplus,
+  _totsimclusternum_layer_FH_zplus,
+  _totsimclusternum_layer_BH_zplus,
+  # Miscellaneous plots ([G] above):
+  # mixedhitscluster: Number of clusters per event with hits in different thicknesses.
+  _mixedhitssimclusters,
+]
+
+sc_ticltracksters = [
+  # Score of SimClusters wrt Layer Clusters
+  # z-
+  _score_simcluster_to_layerclusters_zminus,
+  # z+
+  _score_simcluster_to_layerclusters_zplus,
+  # Score of LayerClusters wrt SimClusters
+  # z-
+  _score_layercluster_to_simclusters_zminus,
+  # z+
+  _score_layercluster_to_simclusters_zplus,
+  # Shared Energy between SimCluster and LayerClusters
+  # z-
+  _sharedEnergy_simcluster_to_layercluster_zminus,
+  # z+
+  _sharedEnergy_simcluster_to_layercluster_zplus,
+  # Shared Energy between LayerClusters and SimCluster
+  # z-
+  _sharedEnergy_layercluster_to_simcluster_zminus,
+  # z+
+  _sharedEnergy_layercluster_to_simcluster_zplus,
+  # Efficiency Plots
+  # z-
+  _efficiencies_sc_zminus,
+  _duplicates_sc_zminus,
+  _fakes_sc_zminus,
+  _merges_sc_zminus,
+  _efficiencies_sc_zminus_eta,
+  _efficiencies_sc_zminus_phi,
+  # z+
+  _efficiencies_sc_zplus,
+  _duplicates_sc_zplus,
+  _fakes_sc_zplus,
+  _merges_sc_zplus,
+  _efficiencies_sc_zplus_eta,
+  _efficiencies_sc_zplus_phi,
+   # Duplicate Plots
+  # z-
+  _duplicates_sc_zminus_eta,
+  _duplicates_sc_zminus_phi,
+   # z+
+  _duplicates_sc_zplus_eta,
+  _duplicates_sc_zplus_phi,
+  # Fake Rate Plots
+  # z-
+  _fakes_sc_zminus_eta,
+  _fakes_sc_zminus_phi,
+  # z+
+  _fakes_sc_zplus_eta,
+  _fakes_sc_zplus_phi,
+  # Merge Rate Plots
+  # z-
+  _merges_sc_zminus_eta,
+  _merges_sc_zminus_phi,
+  # z+
+  _merges_sc_zplus_eta,
+  _merges_sc_zplus_phi,
+  # Energy vs Score 2D plots SC to LC
+  # z-
+  _energyscore_sc2lc_zminus,
+  # z+
+  _energyscore_sc2lc_zplus,
+  # Energy vs Score 2D plots LC to SC
+  # z-
+  _energyscore_lc2sc_zminus,
+  # z+
+  _energyscore_lc2sc_zplus
+]
+
+hgcalSimClustersPlotter = Plotter()
+
+def append_hgcalSimClustersPlots(collection, name_collection):
+  if collection == "ClusterLevel":
+      hgcalSimClustersPlotter.append(collection, [
+                  _hgcalsimClustersFolders(collection)
+                  ], PlotFolder(
+                  *sc_clusterlevel,
+                  loopSubFolders=False,
+                  purpose=PlotPurpose.Timing, page="SimClusters", section=name_collection))
+  else:
+      hgcalSimClustersPlotter.append(collection, [
+                  _hgcalsimClustersFolders(collection)
+                  ], PlotFolder(
+                  *sc_ticltracksters,
+                  loopSubFolders=False,
+                  purpose=PlotPurpose.Timing, page="SimClusters", section=name_collection))
+
+
+#=================================================================================================
+def _hgcalFolders(lastDirName="hgcalLayerClusters"):
+    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+lastDirName
+
+_multiclustersAllPlots = [
+  _efficiencies,
+  _duplicates,
+  _fakes,
+  _merges,
+  _multicluster_eppe,
+  _multicluster_xyz,
+  _totmulticlusternum,
+  _score_caloparticle_to_multiclusters,
+  _score_multicluster_to_caloparticles,
+  _sharedEnergy_caloparticle_to_multicluster,
+  _sharedEnergy_multicluster_to_caloparticle,
+  #_energyscore_cp2mcl_mcl2cp,
+  _energyscore_cp2mcl,
+  _energyscore_mcl2cp,
+  _clusternum_in_multicluster,
+  _clusternum_in_multicluster_vs_layer,
+  _clusternum_in_multicluster_perlayer_zminus_EE,
+  _clusternum_in_multicluster_perlayer_zminus_FH,
+  _clusternum_in_multicluster_perlayer_zminus_BH,
+  _clusternum_in_multicluster_perlayer_zplus_EE,
+  _clusternum_in_multicluster_perlayer_zplus_FH,
+  _clusternum_in_multicluster_perlayer_zplus_BH,
+  _multicluster_layernum,
+  _multiplicityOfLCinMCL,
+]
+
 hgcalMultiClustersPlotter = Plotter()
-# [A] Score of CaloParticles wrt Multi Clusters
-hgcalMultiClustersPlotter.append("ScoreCaloParticlesToMultiClusters", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _score_caloparticle_to_multiclusters,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="ScoreCaloParticlesToMultiClusters"))
+def append_hgcalMultiClustersPlots(collection = 'ticlMultiClustersFromTrackstersMerge', name_collection = "MultiClustersMerge"):
+  # Appending all plots for MCs
+  hgcalMultiClustersPlotter.append(collection, [
+              _hgcalFolders(collection)
+              ], PlotFolder(
+              *_multiclustersAllPlots,
+              loopSubFolders=False,
+              purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection))
 
-# [B] Score of MultiClusters wrt CaloParticles
-hgcalMultiClustersPlotter.append("ScoreMultiClustersToCaloParticles", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _score_multicluster_to_caloparticles,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="ScoreMultiClustersToCaloParticles"))
+  #We append here two PlotFolder because we want the text to be in percent
+  #and the number of events are different in zplus and zminus
+  #hgcalMultiClustersPlotter.append("Multiplicity", [
+  #            dqmfolder
+  #            ], PlotFolder(
+  #            _multiplicityOfLCinMCL_vs_layercluster_zminus,
+  #            loopSubFolders=False,
+  #            purpose=PlotPurpose.Timing, page=collection,
+  #            numberOfEventsHistogram=_multiplicity_zminus_numberOfEventsHistogram
+  #            ))
+  #
+  #hgcalMultiClustersPlotter.append("Multiplicity", [
+  #            dqmfolder
+  #            ], PlotFolder(
+  #            _multiplicityOfLCinMCL_vs_layercluster_zplus,
+  #            loopSubFolders=False,
+  #            purpose=PlotPurpose.Timing, page=collection,
+  #            numberOfEventsHistogram=_multiplicity_zplus_numberOfEventsHistogram
+  #            ))
 
-# [C] Shared Energy between CaloParticle and MultiClusters
-hgcalMultiClustersPlotter.append("SharedEnergy", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _sharedEnergy_caloparticle_to_multicluster,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToMultiCluster"))
+#=================================================================================================
+_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
 
-# [C2] Shared Energy between MultiClusters and CaloParticle
-hgcalMultiClustersPlotter.append("SharedEnergy", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _sharedEnergy_multicluster_to_caloparticle,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="SharedEnergyMultiClusterToCaloParticle"))
+hgcalCaloParticlesPlotter = Plotter()
+def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
 
-# [D] Cell Association per Multi
-hgcalMultiClustersPlotter.append("CellAssociation_per_multicluster", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _cell_association_multi,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_per_multicluster"))
+  list_2D_histos = ["Energy of Rec-matched Hits vs layer",
+                    "Energy of Rec-matched Hits vs layer (1SC)",
+                    "Rec-matched Hits Sum Energy vs layer"]
 
-# z-
-hgcalMultiClustersPlotter.append("CellAssociation_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _cell_association_table_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_zminus"))
+  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
+  templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  if not gDirectory.GetDirectory(dqmfolder):
+    print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
+    return hgcalTrackstersPlotter
 
-# z+
-hgcalMultiClustersPlotter.append("CellAssociation_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _cell_association_table_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_zplus"))
+  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  key = keys[0]
+  while key:
+    obj = key.ReadObj()
+    name = obj.GetName()
+    fileName = TString(name)
+    fileName.ReplaceAll(" ","_")
+    pg= PlotGroup(fileName.Data(),[
+                  Plot(name,
+                       xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                       drawCommand = "",
+                       normalizeToNumberOfEvents = True, **_common_Calo)
+                  ],
+                  ncols=1)
 
-# [E] Efficiency Plots
-hgcalMultiClustersPlotter.append("Efficiencies", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _efficiencies,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Efficiencies"))
+    if name in list_2D_histos :
+        pg= PlotOnSideGroup(plotName.Data(),
+                      Plot(name,
+                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                           drawCommand = "COLZ",
+                           normalizeToNumberOfEvents = True, **_common_Calo)
+                      ,
+                      ncols=1)
 
-# [F] Duplicate Plots
-hgcalMultiClustersPlotter.append("Duplicates", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _duplicates,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Duplicates"))
+    hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [
+              dqmfolder
+              ], PlotFolder(
+                pg,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page="CaloParticles", section=name_collection)
+              )
 
-# [G] Fake Rate Plots
-hgcalMultiClustersPlotter.append("FakeRate", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _fakes,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Fakes"))
+    key = keys.After(key)
 
-# [H] Merge Rate Plots
-hgcalMultiClustersPlotter.append("MergeRate", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _merges,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Merges"))
+  templateFile.Close()
 
-# [I] Energy vs Score 2D plots CP to MCL and MCL to CP
-hgcalMultiClustersPlotter.append("Energy_vs_Score_CP2MCL_MCL2CP", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            #_energyscore_cp2mcl_mcl2cp,
-            _energyscore_cp2mcl,
-            _energyscore_cp2contimcl,
-            _energyscore_cp2noncontimcl,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Energy_vs_Score_CP2MCL"))
+  return hgcalCaloParticlesPlotter
 
-# [J] Energy vs Score 2D plots MCL to CP
-hgcalMultiClustersPlotter.append("Energy_vs_Score_MCL2CP", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-            ], PlotFolder(
-            _energyscore_mcl2cp,
-            _energyscore_contimcl2cp,
-            _energyscore_noncontimcl2cp,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="Energy_vs_Score_MCL2CP"))
+#=================================================================================================
+def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', name_collection = "MultiClustersMerge"):
+  grouped = {"cosAngle Beta": PlotGroup("cosAngle_Beta_per_layer",[],ncols=10), "cosAngle Beta Weighted": PlotGroup("cosAngle_Beta_Weighted_per_layer",[],ncols=10)}
+  groupingFlag = " on Layer "
 
-#[K] Number of multiclusters per event.
-hgcalMultiClustersPlotter.append("NumberofMultiClusters_All_Contiguous_NonContiguous", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-        ], PlotFolder(
-        _totmulticlusternum,
-        _contmulticlusternum,
-        _noncontmulticlusternum,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="NumberofMultiClusters_All_Contiguous_NonContiguous"
-        ))
+  hgcalTrackstersPlotter = Plotter()
+  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/" + collection
+  #_multiplicity_tracksters_numberOfEventsHistogram = dqmfolder+"/Number of Trackster per Event"
 
-#[L] total number of layer clusters in multicluster per event and per layer
-hgcalMultiClustersPlotter.append("NumberofLayerClustersinMultiClusterPerEventAndPerLayer", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-        ], PlotFolder(
-        _clusternum_in_multicluster,
-        _clusternum_in_multicluster_vs_layer,
-        _clusternum_in_multicluster_perlayer_zminus_EE,
-        _clusternum_in_multicluster_perlayer_zminus_FH,
-        _clusternum_in_multicluster_perlayer_zminus_BH,
-        _clusternum_in_multicluster_perlayer_zplus_EE,
-        _clusternum_in_multicluster_perlayer_zplus_FH,
-        _clusternum_in_multicluster_perlayer_zplus_BH,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="NumberofLayerClustersinMultiClusterPerEventAndPerLayer"
-        ))
+  _common["ymin"] = 0.0
+  _common["staty"] = 0.85
+  templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  if not gDirectory.GetDirectory(dqmfolder):
+    print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
+    return hgcalTrackstersPlotter
 
-#[M] For each multicluster: pt, eta, phi, energy, x, y, z.
-hgcalMultiClustersPlotter.append("MultiClustersPtEtaPhiEneXYZ", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-        ], PlotFolder(
-        _multicluster_pt,
-        _multicluster_eta,
-        _multicluster_phi,
-        _multicluster_energy,
-        _multicluster_x,
-        _multicluster_y,
-        _multicluster_z,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="MultiClustersPtEtaPhiEneXYZ"
-        ))
+  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  key = keys[0]
+  while key:
+    obj = key.ReadObj()
+    name = obj.GetName()
+    plotName = TString(name)
+    plotName.ReplaceAll(" ","_")
 
-#[N] Multicluster first, last, total number of layers
-hgcalMultiClustersPlotter.append("NumberofMultiClusters_First_Last_NLayers", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-        ], PlotFolder(
-        _multicluster_firstlayer,
-        _multicluster_lastlayer,
-        _multicluster_layersnum,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="NumberofMultiClusters_First_Last_NLayers"
-        ))
+    if groupingFlag in name:
+        for group in grouped:
+            if group+groupingFlag in name:
+                grouped[group].append(Plot(name,
+                                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                           **_common)
+                                     )
+    else:
+        pg = None
+        if obj.InheritsFrom("TH2"):
+            pg = PlotOnSideGroup(plotName.Data(),
+                                 Plot(name,
+                                      xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                      drawCommand = "COLZ",
+                                      **_common),
+                                 ncols=1)
+        else:
+            pg = PlotGroup(plotName.Data(),
+                           [Plot(name,
+                                 xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                 drawCommand = "COLZ", # ineffective for TH1
+                                 **_common)
+                           ],
+                           ncols=1, legendDh=-0.03 * len(files))
 
-#[O] Multiplicity of layer clusters in multicluster
-hgcalMultiClustersPlotter.append("Multiplicity", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-        ], PlotFolder(
-        _multiplicityOfLCinMCL,
-        _multiplicityOfLCinMCL_vs_layerclusterenergy,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="Multiplicity",
-        numberOfEventsHistogram=_multiplicity_numberOfEventsHistogram
-        ))
+        hgcalTrackstersPlotter.append(name_collection+"_TICLDebugger",
+            [dqmfolder], PlotFolder(pg,
+                                    loopSubFolders=False,
+                                    purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection)
+            #numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
+            )
 
-#We append here two PlotFolder because we want the text to be in percent
-#and the number of events are different in zplus and zminus
-hgcalMultiClustersPlotter.append("Multiplicity", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-        ], PlotFolder(
-        _multiplicityOfLCinMCL_vs_layercluster_zminus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="Multiplicity",
-        numberOfEventsHistogram=_multiplicity_zminus_numberOfEventsHistogram
-        ))
+    key = keys.After(key)
 
-hgcalMultiClustersPlotter.append("Multiplicity", [
-        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-        ], PlotFolder(
-        _multiplicityOfLCinMCL_vs_layercluster_zplus,
-        loopSubFolders=False,
-        purpose=PlotPurpose.Timing, page="Multiplicity",
-        numberOfEventsHistogram=_multiplicity_zplus_numberOfEventsHistogram
-        ))
+  for group in grouped:
+      hgcalTrackstersPlotter.append(name_collection+"_TICLDebugger",
+          [dqmfolder], PlotFolder(grouped[group],
+                                  loopSubFolders=False,
+                                  purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection)
+          #numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
+          )
+
+  templateFile.Close()
+
+  return hgcalTrackstersPlotter
+
+#=================================================================================================
+_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
+
+hgcalCaloParticlesPlotter = Plotter()
+
+def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
+  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
+  print(dqmfolder)
+#  _common["ymin"] = 0.0
+  templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  key = keys[0]
+  while key:
+    obj = key.ReadObj()
+    name = obj.GetName()
+    plotName = TString(name)
+    plotName.ReplaceAll(" ","_")
+    pg= PlotGroup(plotName.Data(),[
+                  Plot(name,
+                       xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                       drawCommand = "", # may want to customize for TH2 (colz, etc.)
+                       normalizeToNumberOfEvents = True, **_common_Calo)
+                  ],
+                  ncols=1)
+
+    if obj.InheritsFrom("TH2"):
+        pg= PlotOnSideGroup(plotName.Data(),
+                      Plot(name,
+                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                           drawCommand = "COLZ",
+                           normalizeToNumberOfEvents = True, **_common_Calo),
+                      ncols=1)
+
+    hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [
+              dqmfolder
+              ], PlotFolder(
+                pg,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page="CaloParticles", section=name_collection)
+              )
+
+    key = keys.After(key)
+
+  templateFile.Close()
+
+  return hgcalCaloParticlesPlotter
 
 #=================================================================================================
 # hitValidation
+def _hgcalHitFolders(dirName="HGCalSimHitsV/HGCalEESensitive"):
+    return "DQMData/Run 1/HGCAL/Run summary/"+dirName
+
 hgcalHitPlotter = Plotter()
+hitsLabel = 'Hits'
+simHitsLabel = 'Simulated Hits'
 
 hgcalHitPlotter.append("SimHits_Validation", [
                                               "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HitValidation",
                                               ], PlotFolder(
                                                             _HitValidation,
                                                             loopSubFolders=False,
-                                                            purpose=PlotPurpose.Timing, page="SimHits_Validation"
+                                                            purpose=PlotPurpose.Timing, page=hitsLabel, section=simHitsLabel
                                                             ))
 
-hgcalHitPlotter.append("SimHits_Occupancy_zplus", [
-                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
-                                                   ], PlotFolder(
-                                                                 _SimHits_Occupancy_EE_zplus,
-                                                                 loopSubFolders=False,
-                                                                 purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zplus"
-                                                                 ))
+def append_hgcalHitsPlots(collection = "HGCalSimHitsV", name_collection = "Simulated Hits"):
+  _hitsCommonPlots_EE = [
+    _Occupancy_EE_zplus,
+    _Occupancy_EE_zminus, 
+    _EtaPhi_EE_zminus,
+    _EtaPhi_EE_zplus
+  ]
+  _hitsCommonPlots_HE_Sil = [
+    _Occupancy_HE_Silicon_zplus,
+    _Occupancy_HE_Silicon_zminus,
+    _EtaPhi_HE_Silicon_zminus,
+    _EtaPhi_HE_Silicon_zplus
+  ]
+  _hitsCommonPlots_HE_Sci = [
+    _Occupancy_HE_Scintillator_zplus,
+    _Occupancy_HE_Scintillator_zminus,
+    _EtaPhi_HE_Scintillator_zminus,
+    _EtaPhi_HE_Scintillator_zplus
+  ]
 
-hgcalHitPlotter.append("SimHits_Occupancy_zplus", [
-                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
-                                                   ], PlotFolder(
-                                                                 _SimHits_Occupancy_HE_Silicon_zplus,
-                                                                 loopSubFolders=False,
-                                                                 purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zplus"
-                                                                 ))
+  regions = ["HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"]
+  setPlots = [_hitsCommonPlots_EE, _hitsCommonPlots_HE_Sil, _hitsCommonPlots_HE_Sci]
+  if "SimHits" in collection :
+    _hitsCommonPlots_EE.append(_Energy_EE_0)
+    _hitsCommonPlots_EE.append(_Energy_EE_1)
+    _hitsCommonPlots_HE_Sil.append(_Energy_HE_Silicon_0)
+    _hitsCommonPlots_HE_Sil.append( _Energy_HE_Silicon_1)
+    _hitsCommonPlots_HE_Sil.append(_Energy_HE_Scintillator_0)
+    _hitsCommonPlots_HE_Sil.append(_Energy_HE_Scintillator_1)
+  if "RecHits" in collection :
+    _hitsCommonPlots_EE.append(_Energy_EE)
+    _hitsCommonPlots_HE_Sil.append(_Energy_HE_Silicon)
+    _hitsCommonPlots_HE_Sil.append(_Energy_HE_Scintillator)
 
-hgcalHitPlotter.append("SimHits_Occupancy_zplus", [
-                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive"
-                                                   ], PlotFolder(
-                                                                 _SimHits_Occupancy_HE_Scintillator_zplus,
-                                                                 loopSubFolders=False,
-                                                                 purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zplus"
-                                                                 ))
+  for reg, setPlot in zip(regions, setPlots):
+    dirName = collection+"/"+reg
+    print(dirName)
+    hgcalHitPlotter.append(collection, [
+                _hgcalHitFolders(dirName)
+                ], PlotFolder(
+                *setPlot,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page=hitsLabel, section=name_collection))
 
-hgcalHitPlotter.append("SimHits_Occupancy_zminus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
-                                                    ], PlotFolder(
-                                                                  _SimHits_Occupancy_EE_zminus,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zminus"
-                                                                  ))
+_digisCommonPlots_EE = [
+  _DigiHits_Occupancy_EE_zplus,
+  _DigiHits_Occupancy_EE_zminus,
+  _DigiHits_Occupancy_XY_EE,
+  _DigiHits_ADC_EE,
+  _DigiHits_TOA_EE,
+  _DigiHits_TOT_EE,
+]
+_digisCommonPlots_HE_Sil = [
+  _DigiHits_Occupancy_HE_Silicon_zplus,
+  _DigiHits_Occupancy_HE_Silicon_zminus,
+  _DigiHits_Occupancy_XY_HE_Silicon,
+  _DigiHits_ADC_HE_Silicon,
+  _DigiHits_TOA_HE_Silicon,
+  _DigiHits_TOT_HE_Silicon,
+]
+_digisCommonPlots_HE_Sci = [
+  _DigiHits_Occupancy_HE_Scintillator_zplus,
+  _DigiHits_Occupancy_HE_Scintillator_zminus,
+  _DigiHits_Occupancy_XY_HE_Scintillator,
+  _DigiHits_ADC_HE_Scintillator,
+  _DigiHits_TOA_HE_Scintillator,
+  _DigiHits_TOT_HE_Scintillator,
+]
 
-hgcalHitPlotter.append("SimHits_Occupancy_zminus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
-                                                    ], PlotFolder(
-                                                                  _SimHits_Occupancy_HE_Silicon_zminus,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zminus"
-                                                                  ))
+def append_hgcalDigisPlots(collection = "HGCalDigisV", name_collection = "Digis"):
+  regions = ["HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"]
+  setPlots = [_digisCommonPlots_EE, _digisCommonPlots_HE_Sil, _digisCommonPlots_HE_Sci]
+  for reg, setPlot in zip(regions, setPlots):
+    dirName = collection+"/"+reg
+    print(dirName)
+    hgcalHitPlotter.append(name_collection, [
+                _hgcalHitFolders(dirName)
+                ], PlotFolder(
+                *setPlot,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page=hitsLabel, section=name_collection))
 
-hgcalHitPlotter.append("SimHits_Occupancy_zminus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive"
-                                                    ], PlotFolder(
-                                                                  _SimHits_Occupancy_HE_Scintillator_zminus,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="SimHits_Occupancy_zminus"
-                                                                  ))
+#=================================================================================================
+# hitCalibration
+hgcalHitCalibPlotter = Plotter()
+hitCalibrationLabel = 'Calibrated RecHits'
 
-for i,item in enumerate(_SimHits_EtaPhi_EE_zplus, start=1):
-    hgcalHitPlotter.append("SimHits_EtaPhi_zplus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
-                                                    ], PlotFolder(
-                                                                  item,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zplus"
-                                                                  ))
+hgcalHitCalibPlotter.append("Layer_Occupancy", [
+                                                "DQMData/Run 1/HGCalHitCalibration/Run summary",
+                                                ], PlotFolder(
+                                                              _LayerOccupancy,
+                                                              loopSubFolders=False,
+                                                              purpose=PlotPurpose.Timing, page=hitCalibrationLabel, section=hitCalibrationLabel
+                                                              ))
+hgcalHitCalibPlotter.append("ReconstructableEnergyOverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _ReconstructableEnergyOverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page=hitCalibrationLabel, section=hitCalibrationLabel
+        ))
 
-for i,item in enumerate(_SimHits_EtaPhi_HE_Silicon_zplus, start=1):
-    hgcalHitPlotter.append("SimHits_EtaPhi_zplus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
-                                                    ], PlotFolder(
-                                                                  item,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zplus"
-                                                                  ))
+hgcalHitCalibPlotter.append("ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _ParticleFlowClusterHGCalFromMultiCl_Closest_EoverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page=hitCalibrationLabel, section=hitCalibrationLabel
+        ))
 
-for i,item in enumerate(_SimHits_EtaPhi_HE_Scintillator_zplus, start=1):
-    hgcalHitPlotter.append("SimHits_EtaPhi_zplus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive",
-                                                    ], PlotFolder(
-                                                                  item,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zplus"))
+hgcalHitCalibPlotter.append("PhotonsFromMultiCl_Closest_EoverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _PhotonsFromMultiCl_Closest_EoverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page=hitCalibrationLabel, section=hitCalibrationLabel
+        ))
 
-for i,item in enumerate(_SimHits_EtaPhi_EE_zminus, start=1):
-    hgcalHitPlotter.append("SimHits_EtaPhi_zminus", [
-                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
-                                                     ], PlotFolder(
-                                                                   item,
-                                                                   loopSubFolders=False,
-                                                                   purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zminus"
-                                                                   ))
-
-for i,item in enumerate(_SimHits_EtaPhi_HE_Silicon_zminus, start=1):
-    hgcalHitPlotter.append("SimHits_EtaPhi_zminus", [
-                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
-                                                     ], PlotFolder(
-                                                                   item,
-                                                                   loopSubFolders=False,
-                                                                   purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zminus"
-                                                                   ))
-
-for i,item in enumerate(_SimHits_EtaPhi_HE_Scintillator_zminus, start=1):
-    hgcalHitPlotter.append("SimHits_EtaPhi_zminus", [
-                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive"
-                                                     ], PlotFolder(
-                                                                   item,
-                                                                   loopSubFolders=False,
-                                                                   purpose=PlotPurpose.Timing, page="SimHits_EtaPhi_zminus"
-                                                                   ))
-
-hgcalHitPlotter.append("SimHits_Energy", [
-                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
-                                          ], PlotFolder(
-                                                        _SimHits_Energy_EE_0,
-                                                        loopSubFolders=False,
-                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
-                                                        ))
-
-hgcalHitPlotter.append("SimHits_Energy", [
-                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
-                                          ], PlotFolder(
-                                                        _SimHits_Energy_HE_Silicon_0,
-                                                        loopSubFolders=False,
-                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
-                                                        ))
-
-hgcalHitPlotter.append("SimHits_Energy", [
-                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive"
-                                          ], PlotFolder(
-                                                        _SimHits_Energy_HE_Scintillator_0,
-                                                        loopSubFolders=False,
-                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
-                                                        ))
-
-hgcalHitPlotter.append("SimHits_Energy", [
-                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalEESensitive"
-                                          ], PlotFolder(
-                                                        _SimHits_Energy_EE_1,
-                                                        loopSubFolders=False,
-                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
-                                                        ))
-
-hgcalHitPlotter.append("SimHits_Energy", [
-                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHESiliconSensitive"
-                                          ], PlotFolder(
-                                                        _SimHits_Energy_HE_Silicon_1,
-                                                        loopSubFolders=False,
-                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
-                                                        ))
-
-hgcalHitPlotter.append("SimHits_Energy", [
-                                          "DQMData/Run 1/HGCAL/Run summary/HGCalSimHitsV/HGCalHEScintillatorSensitive"
-                                          ], PlotFolder(
-                                                        _SimHits_Energy_HE_Scintillator_1,
-                                                        loopSubFolders=False,
-                                                        purpose=PlotPurpose.Timing, page="SimHits_Energy"
-                                                        ))
-
-hgcalHitPlotter.append("RecHits_Occupancy_zplus", [
-                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalEESensitive"
-                                                   ], PlotFolder(
-                                                                 _RecHits_Occupancy_EE_zplus,
-                                                                 loopSubFolders=False,
-                                                                 purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zplus"
-                                                                 ))
-
-hgcalHitPlotter.append("RecHits_Occupancy_zplus", [
-                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHESiliconSensitive"
-                                                   ], PlotFolder(
-                                                                 _RecHits_Occupancy_HE_Silicon_zplus,
-                                                                 loopSubFolders=False,
-                                                                 purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zplus"
-                                                                 ))
-
-hgcalHitPlotter.append("RecHits_Occupancy_zplus", [
-                                                   "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHEScintillatorSensitive"
-                                                   ], PlotFolder(
-                                                                 _RecHits_Occupancy_HE_Scintillator_zplus,
-                                                                 loopSubFolders=False,
-                                                                 purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zplus"
-                                                                 ))
-
-hgcalHitPlotter.append("RecHits_Occupancy_zminus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalEESensitive"
-                                                    ], PlotFolder(
-                                                                  _RecHits_Occupancy_EE_zminus,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zminus"
-                                                                  ))
-
-hgcalHitPlotter.append("RecHits_Occupancy_zminus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHESiliconSensitive"
-                                                    ], PlotFolder(
-                                                                  _RecHits_Occupancy_HE_Silicon_zminus,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zminus"
-                                                                  ))
-
-hgcalHitPlotter.append("RecHits_Occupancy_zminus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHEScintillatorSensitive"
-                                                    ], PlotFolder(
-                                                                  _RecHits_Occupancy_HE_Scintillator_zminus,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="RecHits_Occupancy_zminus"
-                                                                  ))
-
-hgcalHitPlotter.append("RecHits_Energy", [
-                                          "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalEESensitive"
-                                          ], PlotFolder(
-                                                        _RecHits_Energy_EE,
-                                                        loopSubFolders=False,
-                                                        purpose=PlotPurpose.Timing, page="RecHits_Energy"
-                                                        ))
-
-hgcalHitPlotter.append("RecHits_Energy", [
-                                          "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHESiliconSensitive"
-                                          ], PlotFolder(
-                                                        _RecHits_Energy_HE_Silicon,
-                                                        loopSubFolders=False,
-                                                        purpose=PlotPurpose.Timing, page="RecHits_Energy"
-                                                        ))
-
-hgcalHitPlotter.append("RecHits_Energy", [
-                                          "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHEScintillatorSensitive"
-                                          ], PlotFolder(
-                                                        _RecHits_Energy_HE_Scintillator,
-                                                        loopSubFolders=False,
-                                                        purpose=PlotPurpose.Timing, page="RecHits_Energy"
-                                                        ))
-
-for i,item in enumerate(_RecHits_EtaPhi_EE_zplus, start=1):
-    hgcalHitPlotter.append("RecHits_EtaPhi_zplus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalEESensitive"
-                                                    ], PlotFolder(
-                                                                  item,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zplus"
-                                                                  ))
-
-for i,item in enumerate(_RecHits_EtaPhi_HE_Silicon_zplus, start=1):
-    hgcalHitPlotter.append("RecHits_EtaPhi_zplus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHESiliconSensitive"
-                                                    ], PlotFolder(
-                                                                  item,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zplus"
-                                                                  ))
-
-for i,item in enumerate(_RecHits_EtaPhi_HE_Scintillator_zplus, start=1):
-    hgcalHitPlotter.append("RecHits_EtaPhi_zplus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHEScintillatorSensitive",
-                                                    ], PlotFolder(
-                                                                  item,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zplus"))
-
-for i,item in enumerate(_RecHits_EtaPhi_EE_zminus, start=1):
-    hgcalHitPlotter.append("RecHits_EtaPhi_zminus", [
-                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalEESensitive"
-                                                     ], PlotFolder(
-                                                                   item,
-                                                                   loopSubFolders=False,
-                                                                   purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zminus"
-                                                                   ))
-
-for i,item in enumerate(_RecHits_EtaPhi_HE_Silicon_zminus, start=1):
-    hgcalHitPlotter.append("RecHits_EtaPhi_zminus", [
-                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHESiliconSensitive"
-                                                     ], PlotFolder(
-                                                                   item,
-                                                                   loopSubFolders=False,
-                                                                   purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zminus"
-                                                                   ))
-
-for i,item in enumerate(_RecHits_EtaPhi_HE_Scintillator_zminus, start=1):
-    hgcalHitPlotter.append("RecHits_EtaPhi_zminus", [
-                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalRecHitsV/HGCalHEScintillatorSensitive"
-                                                     ], PlotFolder(
-                                                                   item,
-                                                                   loopSubFolders=False,
-                                                                   purpose=PlotPurpose.Timing, page="RecHits_EtaPhi_zminus"
-                                                                   ))
-
-hgcalHitPlotter.append("DigiHits_ADC", [
-                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
-                                        ], PlotFolder(
-                                                      _DigiHits_ADC_EE,
-                                                      loopSubFolders=False,
-                                                      purpose=PlotPurpose.Timing, page="DigiHits_ADC"
-                                                      ))
-
-hgcalHitPlotter.append("DigiHits_ADC", [
-                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
-                                        ], PlotFolder(
-                                                      _DigiHits_ADC_HE_Silicon,
-                                                      loopSubFolders=False,
-                                                      purpose=PlotPurpose.Timing, page="DigiHits_ADC"
-                                                      ))
-
-hgcalHitPlotter.append("DigiHits_ADC", [
-                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive"
-                                        ], PlotFolder(
-                                                      _DigiHits_ADC_HE_Scintillator,
-                                                      loopSubFolders=False,
-                                                      purpose=PlotPurpose.Timing, page="DigiHits_ADC"
-                                                      ))
-
-hgcalHitPlotter.append("DigiHits_Occupancy_zplus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
-                                                    ], PlotFolder(
-                                                                  _DigiHits_Occupancy_EE_zplus,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zplus"
-                                                                  ))
-
-hgcalHitPlotter.append("DigiHits_Occupancy_zplus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
-                                                    ], PlotFolder(
-                                                                  _DigiHits_Occupancy_HE_Silicon_zplus,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zplus"
-                                                                  ))
-
-hgcalHitPlotter.append("DigiHits_Occupancy_zplus", [
-                                                    "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive"
-                                                    ], PlotFolder(
-                                                                  _DigiHits_Occupancy_HE_Scintillator_zplus,
-                                                                  loopSubFolders=False,
-                                                                  purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zplus"
-                                                                  ))
-
-hgcalHitPlotter.append("DigiHits_Occupancy_zminus", [
-                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
-                                                     ], PlotFolder(
-                                                                   _DigiHits_Occupancy_EE_zminus,
-                                                                   loopSubFolders=False,
-                                                                   purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zminus"
-                                                                   ))
-
-hgcalHitPlotter.append("DigiHits_Occupancy_zminus", [
-                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
-                                                     ], PlotFolder(
-                                                                   _DigiHits_Occupancy_HE_Silicon_zminus,
-                                                                   loopSubFolders=False,
-                                                                   purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zminus"
-                                                                   ))
-
-hgcalHitPlotter.append("DigiHits_Occupancy_zminus", [
-                                                     "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive"
-                                                     ], PlotFolder(
-                                                                   _DigiHits_Occupancy_HE_Scintillator_zminus,
-                                                                   loopSubFolders=False,
-                                                                   purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_zminus"
-                                                                   ))
-
-for i,item in enumerate(_DigiHits_Occupancy_XY_EE_zplus, start=1):
-    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zplus", [
-                                                           "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
-                                                           ], PlotFolder(
-                                                                         item,
-                                                                         loopSubFolders=False,
-                                                                         purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zplus"
-                                                                         ))
-
-for i,item in enumerate(_DigiHits_Occupancy_XY_HE_Silicon_zplus, start=1):
-    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zplus", [
-                                                           "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
-                                                           ], PlotFolder(
-                                                                         item,
-                                                                         loopSubFolders=False,
-                                                                         purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zplus"
-                                                                         ))
-
-for i,item in enumerate(_DigiHits_Occupancy_XY_HE_Scintillator_zplus, start=1):
-    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zplus", [
-                                                           "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive",
-                                                           ], PlotFolder(
-                                                                         item,
-                                                                         loopSubFolders=False,
-                                                                         purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zplus"))
-
-for i,item in enumerate(_DigiHits_Occupancy_XY_EE_zminus, start=1):
-    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zminus", [
-                                                            "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
-                                                            ], PlotFolder(
-                                                                          item,
-                                                                          loopSubFolders=False,
-                                                                          purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zminus"
-                                                                          ))
-
-for i,item in enumerate(_DigiHits_Occupancy_XY_HE_Silicon_zminus, start=1):
-    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zminus", [
-                                                            "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
-                                                            ], PlotFolder(
-                                                                          item,
-                                                                          loopSubFolders=False,
-                                                                          purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zminus"
-                                                                          ))
-
-for i,item in enumerate(_DigiHits_Occupancy_XY_HE_Scintillator_zminus, start=1):
-    hgcalHitPlotter.append("DigiHits_Occupancy_XY_zminus", [
-                                                            "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive",
-                                                            ], PlotFolder(
-                                                                          item,
-                                                                          loopSubFolders=False,
-                                                                          purpose=PlotPurpose.Timing, page="DigiHits_Occupancy_XY_zminus"))
-
-hgcalHitPlotter.append("DigiHits_TOA", [
-                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
-                                        ], PlotFolder(
-                                                      _DigiHits_TOA_EE,
-                                                      loopSubFolders=False,
-                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOA"
-                                                      ))
-
-hgcalHitPlotter.append("DigiHits_TOA", [
-                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
-                                        ], PlotFolder(
-                                                      _DigiHits_TOA_HE_Silicon,
-                                                      loopSubFolders=False,
-                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOA"
-                                                      ))
-
-hgcalHitPlotter.append("DigiHits_TOA", [
-                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive"
-                                        ], PlotFolder(
-                                                      _DigiHits_TOA_HE_Scintillator,
-                                                      loopSubFolders=False,
-                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOA"
-                                                      ))
-
-hgcalHitPlotter.append("DigiHits_TOT", [
-                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalEESensitive"
-                                        ], PlotFolder(
-                                                      _DigiHits_TOT_EE,
-                                                      loopSubFolders=False,
-                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOT"
-                                                      ))
-
-hgcalHitPlotter.append("DigiHits_TOT", [
-                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHESiliconSensitive"
-                                        ], PlotFolder(
-                                                      _DigiHits_TOT_HE_Silicon,
-                                                      loopSubFolders=False,
-                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOT"
-                                                      ))
-
-hgcalHitPlotter.append("DigiHits_TOT", [
-                                        "DQMData/Run 1/HGCAL/Run summary/HGCalDigisV/HGCalHEScintillatorSensitive"
-                                        ], PlotFolder(
-                                                      _DigiHits_TOT_HE_Scintillator,
-                                                      loopSubFolders=False,
-                                                      purpose=PlotPurpose.Timing, page="DigiHits_TOT"
-                                                      ))
+hgcalHitCalibPlotter.append("EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy", [
+        "DQMData/Run 1/HGCalHitCalibration/Run summary",
+        ], PlotFolder(
+        _EcalDrivenGsfElectronsFromMultiCl_Closest_EoverCPenergy,
+        loopSubFolders=False,
+        purpose=PlotPurpose.Timing, page=hitCalibrationLabel, section=hitCalibrationLabel
+        ))

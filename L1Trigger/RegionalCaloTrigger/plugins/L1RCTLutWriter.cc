@@ -37,7 +37,13 @@
 L1RCTLutWriter::L1RCTLutWriter(const edm::ParameterSet &iConfig)
     : lookupTable_(new L1RCTLookupTables),
       keyName_(iConfig.getParameter<std::string>("key")),
-      useDebugTpgScales_(iConfig.getParameter<bool>("useDebugTpgScales")) {
+      rctParametersToken_(esConsumes<L1RCTParameters, L1RCTParametersRcd>()),
+      emScaleToken_(esConsumes<L1CaloEtScale, L1EmEtScaleRcd>()),
+      transcoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>()),
+      hcalScaleToken_(esConsumes<L1CaloHcalScale, L1CaloHcalScaleRcd>()),
+      ecalScaleToken_(esConsumes<L1CaloEcalScale, L1CaloEcalScaleRcd>()),
+      useDebugTpgScales_(iConfig.getParameter<bool>("useDebugTpgScales")),
+      tokens_(consumesCollector()) {
   // now do what ever initialization is needed
 }
 
@@ -57,11 +63,9 @@ L1RCTLutWriter::~L1RCTLutWriter() {
 void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get all the configuration information from the event, set it
   // in the lookuptable
-  edm::ESHandle<L1RCTParameters> rctParameters;
-  iSetup.get<L1RCTParametersRcd>().get(rctParameters);
+  edm::ESHandle<L1RCTParameters> rctParameters = iSetup.getHandle(rctParametersToken_);
   rctParameters_ = rctParameters.product();
-  edm::ESHandle<L1CaloEtScale> emScale;
-  iSetup.get<L1EmEtScaleRcd>().get(emScale);
+  edm::ESHandle<L1CaloEtScale> emScale = iSetup.getHandle(emScaleToken_);
   const L1CaloEtScale *s = emScale.product();
 
   // make dummy channel mask -- we don't want to mask
@@ -108,13 +112,11 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     std::cout << "Using old-style TPG scales!" << std::endl;
 
     // old version of hcal energy scale to convert input
-    edm::ESHandle<CaloTPGTranscoder> transcoder;
-    iSetup.get<CaloTPGRecord>().get(transcoder);
+    edm::ESHandle<CaloTPGTranscoder> transcoder = iSetup.getHandle(transcoderToken_);
     const CaloTPGTranscoder *h_tpg = transcoder.product();
 
     // old version of ecal energy scale to convert input
-    EcalTPGScale *e_tpg = new EcalTPGScale();
-    e_tpg->setEventSetup(iSetup);
+    EcalTPGScale e_tpg(tokens_, iSetup);
 
     L1CaloEcalScale *ecalScale = new L1CaloEcalScale();
     L1CaloHcalScale *hcalScale = new L1CaloHcalScale();
@@ -125,11 +127,11 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     for (unsigned short ieta = 1; ieta <= L1CaloEcalScale::nBinEta; ++ieta) {
       for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
-        double etGeVPos = e_tpg->getTPGInGeV(irank,
-                                             EcalTrigTowerDetId(1,  // +ve eta
-                                                                subdet,
-                                                                ieta,
-                                                                1));  // dummy phi value
+        double etGeVPos = e_tpg.getTPGInGeV(irank,
+                                            EcalTrigTowerDetId(1,  // +ve eta
+                                                               subdet,
+                                                               ieta,
+                                                               1));  // dummy phi value
         ecalScale->setBin(irank, ieta, 1, etGeVPos);
       }
     }
@@ -138,11 +140,11 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
 
-        double etGeVNeg = e_tpg->getTPGInGeV(irank,
-                                             EcalTrigTowerDetId(-1,  // -ve eta
-                                                                subdet,
-                                                                ieta,
-                                                                2));  // dummy phi value
+        double etGeVNeg = e_tpg.getTPGInGeV(irank,
+                                            EcalTrigTowerDetId(-1,  // -ve eta
+                                                               subdet,
+                                                               ieta,
+                                                               2));  // dummy phi value
         ecalScale->setBin(irank, ieta, -1, etGeVNeg);
       }
     }
@@ -164,17 +166,13 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     dummyE = ecalScale;
     dummyH = hcalScale;
 
-    delete e_tpg;
-
   } else {
     // get energy scale to convert input from ECAL
-    edm::ESHandle<L1CaloEcalScale> ecalScale;
-    iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+    edm::ESHandle<L1CaloEcalScale> ecalScale = iSetup.getHandle(ecalScaleToken_);
     const L1CaloEcalScale *e = ecalScale.product();
 
     // get energy scale to convert input from HCAL
-    edm::ESHandle<L1CaloHcalScale> hcalScale;
-    iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+    edm::ESHandle<L1CaloHcalScale> hcalScale = iSetup.getHandle(hcalScaleToken_);
     const L1CaloHcalScale *h = hcalScale.product();
 
     // set scales

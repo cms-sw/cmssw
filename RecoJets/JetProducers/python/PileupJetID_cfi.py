@@ -1,18 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoJets.JetProducers.PileupJetIDParams_cfi import * 
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
+from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 
-#_stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
-_stdalgos_5x = cms.VPSet(full_5x,cutbased,PhilV1)
+from RecoJets.JetProducers.PileupJetIDParams_cfi import *
 
-#_chsalgos_4x = cms.VPSet(full,   cutbased) 
-_chsalgos_5x = cms.VPSet(full_5x_chs,cutbased)
-_chsalgos_74x = cms.VPSet(full_74x_chs,cutbased)
-_chsalgos_76x = cms.VPSet(full_76x_chs,cutbased)
-_chsalgos_80x = cms.VPSet(full_80x_chs,cutbased)
 _chsalgos_81x = cms.VPSet(full_81x_chs,cutbased)
+_chsalgos_94x = cms.VPSet(full_94x_chs,cutbased)
+_chsalgos_102x = cms.VPSet(full_102x_chs,cutbased)
+_chsalgos_106X_UL17 = cms.VPSet(full_106x_UL17_chs,cutbased)
+_chsalgos_106X_UL18 = cms.VPSet(full_106x_UL18_chs,cutbased)
 
-_stdalgos    = _chsalgos_81x
+_stdalgos    = _chsalgos_106X_UL18
 
 # Calculate+store variables and run MVAs
 pileupJetId = cms.EDProducer('PileupJetIdProducer',
@@ -31,16 +33,21 @@ pileupJetId = cms.EDProducer('PileupJetIdProducer',
 #     residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/download.url") # must be an existing file
 )
 
+# set algos for re-miniAOD campaign
+run2_miniAOD_80XLegacy.toModify(pileupJetId, algos = _chsalgos_81x)
+run2_miniAOD_94XFall17.toModify(pileupJetId, algos = _chsalgos_94x)
+(run2_miniAOD_UL & run2_jme_2017).toModify(pileupJetId, algos = _chsalgos_106X_UL17)
+
 # Calculate variables, but don't run MVAs
 pileupJetIdCalculator = pileupJetId.clone(
-    runMvas = cms.bool(False),
-    algos = cms.VPSet(cutbased),
+    runMvas = False,
+    algos   = cms.VPSet(cutbased),
 )
 
 # Run MVAs on precalculated variables
 pileupJetIdEvaluator = pileupJetId.clone(
-    produceJetIds = cms.bool(False),
-    jetids = cms.InputTag("pileupJetIdCalculator"),
+    produceJetIds = False,
+    jetids        = "pileupJetIdCalculator",
 )
 
 pileUpJetIDTask = cms.Task(pileupJetId,

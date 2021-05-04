@@ -7,13 +7,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
-
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -22,7 +15,10 @@
 
 L1GctValidation::L1GctValidation(const edm::ParameterSet& iConfig)
     : m_gctinp_tag(iConfig.getUntrackedParameter<edm::InputTag>("rctInputTag", edm::InputTag("rctDigis"))),
-      m_energy_tag(iConfig.getUntrackedParameter<edm::InputTag>("gctInputTag", edm::InputTag("gctDigis"))) {}
+      m_energy_tag(iConfig.getUntrackedParameter<edm::InputTag>("gctInputTag", edm::InputTag("gctDigis"))),
+      m_jfParsToken(esConsumes<L1GctJetFinderParams, L1GctJetFinderParamsRcd>()),
+      m_htMissScaleToken(esConsumes<L1CaloEtScale, L1HtMissScaleRcd>()),
+      m_hfRingEtScaleToken(esConsumes<L1CaloEtScale, L1HfRingEtScaleRcd>()) {}
 
 L1GctValidation::~L1GctValidation() {
   // do anything here that needs to be done at desctruction time
@@ -38,8 +34,7 @@ void L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   using namespace edm;
 
   // Get the scales from the event setup
-  ESHandle<L1GctJetFinderParams> jfPars;
-  iSetup.get<L1GctJetFinderParamsRcd>().get(jfPars);  // which record?
+  ESHandle<L1GctJetFinderParams> jfPars = iSetup.getHandle(m_jfParsToken);
 
   double lsbForEt = jfPars.product()->getRgnEtLsbGeV();
   double lsbForHt = jfPars.product()->getHtLsbGeV();
@@ -47,10 +42,8 @@ void L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   unsigned httJetThreshold = static_cast<int>(jfPars.product()->getHtJetEtThresholdGeV() / lsbForHt);
   unsigned htmJetThreshold = static_cast<int>(jfPars.product()->getMHtJetEtThresholdGeV() / lsbForHt);
 
-  ESHandle<L1CaloEtScale> htMissScale;
-  iSetup.get<L1HtMissScaleRcd>().get(htMissScale);  // which record?
-  ESHandle<L1CaloEtScale> hfRingEtScale;
-  iSetup.get<L1HfRingEtScaleRcd>().get(hfRingEtScale);  // which record?
+  ESHandle<L1CaloEtScale> htMissScale = iSetup.getHandle(m_htMissScaleToken);
+  ESHandle<L1CaloEtScale> hfRingEtScale = iSetup.getHandle(m_hfRingEtScaleToken);
 
   // Get the Gct energy sums from the event
   Handle<L1GctEtTotalCollection> sumEtColl;

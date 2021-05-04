@@ -1,7 +1,6 @@
 <use name="boost"/>
 <use name="root"/>
 <use name="heppdt"/>
-<use name="GeneratorInterface/Hydjet2Interface"/>
 <use name="FWCore/Framework"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="SimDataFormats/GeneratorProducts"/>

@@ -12,7 +12,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/EndCapParamsHelper.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "TXMLEngine.h"
 
 using namespace std;
 

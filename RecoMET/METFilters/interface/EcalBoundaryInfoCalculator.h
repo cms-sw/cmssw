@@ -226,7 +226,7 @@ private:
   }
 
   CdOrientation goBackOneCell(CdOrientation currDirection, EcalDetId prev, CaloNavigator<EcalDetId>* theEcalNav) const {
-    std::map<CdOrientation, CdOrientation>::iterator oIt = oppositeDirs.find(currDirection);
+    auto oIt = oppositeDirs.find(currDirection);
     CdOrientation oppDirection = none;
     if (oIt != oppositeDirs.end()) {
       oppDirection = oIt->second;

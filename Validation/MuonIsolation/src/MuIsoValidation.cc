@@ -390,21 +390,24 @@ void MuIsoValidation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
   //---Initialize 1D Histograms---
   for (int var = 0; var < NUM_VARS; var++) {
-    h_1D[var] = ibooker.book1D(
-        names[var], title_sam + main_titles[var] + title_cone, (int)param[var][0], param[var][1], param[var][2]);
+    h_1D[var] = ibooker.book1D(names[var],
+                               title_sam + main_titles[var] + title_cone,
+                               (int)param[var][0],
+                               param[var][1],
+                               param[var][2],
+                               [](TH1* th1) { th1->Sumw2(); });
     h_1D[var]->setAxisTitle(axis_titles[var], XAXIS);
     h_1D[var]->setAxisTitle("Fraction of Muons", YAXIS);
-    GetTH1FromMonitorElement(h_1D[var])->Sumw2();
 
     if (cdCompNeeded[var]) {
       cd_plots[var] = ibooker.book1D(names[var] + "_cd",
                                      title_sam + title_cd + main_titles[var] + title_cone,
                                      (int)param[var][0],
                                      param[var][1],
-                                     param[var][2]);
+                                     param[var][2],
+                                     [](TH1* th1) { th1->Sumw2(); });
       cd_plots[var]->setAxisTitle(axis_titles[var], XAXIS);
       cd_plots[var]->setAxisTitle("Fraction of Muons", YAXIS);
-      GetTH1FromMonitorElement(cd_plots[var])->Sumw2();
     }
   }  //Finish 1D
 
@@ -414,18 +417,6 @@ void MuIsoValidation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
       if (var1 == var2)
         continue;
 
-      /*      h_2D[var1][var2] = ibooker.book2D(
-	      names[var1] + "_" + names[var2] + "_s",
-	      //title is in "y-var vs. x-var" format
-	      title_sam + main_titles[var2] + " <vs> " + main_titles[var1] + title_cone, 
-	      (int)param[var1][0],
-	      param[var1][1],
-	      param[var1][2],
-	      (int)param[var2][0],
-	      param[var2][1],
-	      param[var2][2]
-	      );
-      */
       //Monitor elements is weird and takes y axis parameters as well
       //as x axis parameters for a 1D profile plot
       p_2D[var1][var2] = ibooker.bookProfile(names[var1] + "_" + names[var2],
@@ -436,24 +427,19 @@ void MuIsoValidation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
                                              (int)param[var2][0],  //documentation says this is disregarded
                                              param[var2][1],       //does this do anything?
                                              param[var2][2],       //does this do anything?
-                                             " "                   //profile errors = spread/sqrt(num_datums)
-      );
-
-      if (LOG_BINNING_ENABLED && isContinuous[var1]) {
-        Double_t* bin_edges = new Double_t[NUM_LOG_BINS + 1];
-        // nbins+1 because there is one more edge than there are bins
-        MakeLogBinsForProfile(bin_edges, param[var1][1], param[var1][2]);
-        GetTProfileFromMonitorElement(p_2D[var1][var2])->SetBins(NUM_LOG_BINS, bin_edges);
-        delete[] bin_edges;
-      }
-      /*      h_2D[var1][var2]->setAxisTitle(axis_titles[var1],XAXIS);
-	      h_2D[var1][var2]->setAxisTitle(axis_titles[var2],YAXIS);
-	      GetTH2FromMonitorElement(h_2D[var1][var2])->Sumw2();
-      */
+                                             " ",                  //profile errors = spread/sqrt(num_datums)
+                                             [&](TProfile* tprof) {
+                                               if (LOG_BINNING_ENABLED && isContinuous[var1]) {
+                                                 Double_t* bin_edges = new Double_t[NUM_LOG_BINS + 1];
+                                                 // nbins+1 because there is one more edge than there are bins
+                                                 MakeLogBinsForProfile(bin_edges, param[var1][1], param[var1][2]);
+                                                 tprof->SetBins(NUM_LOG_BINS, bin_edges);
+                                                 delete[] bin_edges;
+                                               }
+                                             });
 
       p_2D[var1][var2]->setAxisTitle(axis_titles[var1], XAXIS);
       p_2D[var1][var2]->setAxisTitle(axis_titles[var2], YAXIS);
-      //			GetTProfileFromMonitorElement(p_2D[var1][var2])->Sumw2();
     }
   }  //Finish 2D
 
@@ -481,30 +467,6 @@ void MuIsoValidation::MakeLogBinsForProfile(Double_t* bin_edges, const double mi
   bin_edges[nbins] = max;
 }
 
-void MuIsoValidation::NormalizeHistos() {
-  for (int var = 0; var < NUM_VARS; var++) {
-    //turn cd_plots into CDF's
-    //underflow -> bin #0.  overflow -> bin #(nbins+1)
-    //0th bin doesn't need changed
-
-    //----normalize------
-    double entries = GetTH1FromMonitorElement(h_1D[var])->GetEntries();
-    if (entries == 0)
-      continue;
-    GetTH1FromMonitorElement(h_1D[var])->Scale(1. / entries);
-
-    if (cdCompNeeded[var]) {
-      int n_max = int(param[var][0]) + 1;
-      for (int n = 1; n <= n_max; ++n) {
-        cd_plots[var]->setBinContent(
-            n, cd_plots[var]->getBinContent(n) + cd_plots[var]->getBinContent(n - 1));  //Integrate.
-      }
-      //----normalize------
-      GetTH1FromMonitorElement(cd_plots[var])->Scale(1. / entries);
-    }
-  }
-}
-
 void MuIsoValidation::FillHistos() {
   //----------Fill 1D histograms---------------
   for (int var = 0; var < NUM_VARS; var++) {
@@ -524,12 +486,6 @@ void MuIsoValidation::FillHistos() {
     }
   }  //Finish 2D
 }
-
-TH1* MuIsoValidation::GetTH1FromMonitorElement(MonitorElement* me) { return me->getTH1(); }
-
-TH2* MuIsoValidation::GetTH2FromMonitorElement(MonitorElement* me) { return me->getTH2F(); }
-
-TProfile* MuIsoValidation::GetTProfileFromMonitorElement(MonitorElement* me) { return me->getTProfile(); }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(MuIsoValidation);

@@ -9,7 +9,7 @@
 #include "MagneticField/Layers/interface/MagESector.h"
 #include "MagneticField/Layers/interface/MagELayer.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
@@ -31,13 +31,9 @@ const MagVolume* MagESector::findVolume(const GlobalPoint& gp, double tolerance)
   for (vector<MagELayer*>::const_reverse_iterator ilay = theLayers.rbegin(); ilay != theLayers.rend(); ++ilay) {
     if (Z + tolerance > (*ilay)->minZ()) {
       if (Z - tolerance < (*ilay)->maxZ()) {
-#ifdef MF_DEBUG
-        cout << "  Trying elayer at Z " << (*ilay)->minZ() << " " << Z << endl;
-#endif
+        LogTrace("MagGeometry") << "  Trying elayer at Z " << (*ilay)->minZ() << " " << Z << endl;
         result = (*ilay)->findVolume(gp, tolerance);
-#ifdef MF_DEBUG
-        cout << "***In elayer " << (result == 0 ? " failed " : " OK ") << endl;
-#endif
+        LogTrace("MagGeometry") << "***In elayer " << (result == nullptr ? " failed " : " OK ") << endl;
       } else {
         // break;  // FIXME: OK if sorted by maxZ
       }

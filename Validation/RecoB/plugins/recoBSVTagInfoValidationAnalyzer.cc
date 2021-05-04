@@ -167,7 +167,7 @@ recoBSVTagInfoValidationAnalyzer::recoBSVTagInfoValidationAnalyzer(const edm::Pa
 
   // Set the proper categories names
   for (Int_t i = 0; i < numberVertexClassifier_; ++i)
-    HistIndex_["VertexClassifier"]->getTH1F()->GetXaxis()->SetBinLabel(i + 1, VertexCategories::Names[i]);
+    HistIndex_["VertexClassifier"]->setBinLabel(i + 1, VertexCategories::Names[i]);
 
   // book histograms
   bookRecoToSim("rs_All");

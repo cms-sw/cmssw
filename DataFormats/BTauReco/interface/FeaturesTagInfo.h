@@ -4,8 +4,6 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
-
 namespace reco {
 
   template <class Features>

@@ -19,9 +19,6 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig) {
   if (!dbe_) {
     LogWarning("Status") << "unable to get DQMStore service?";
   }
-  if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-    dbe_->setVerbose(0);
-  }
 
   dirname_ = "HLT/FourVectorHLT";
 
@@ -163,11 +160,6 @@ void FourVectorHLT::beginJob() {
   nev_ = 0;
   DQMStore* dbe = nullptr;
   dbe = Service<DQMStore>().operator->();
-
-  if (dbe) {
-    dbe->setCurrentFolder(dirname_);
-    dbe->rmdir(dirname_);
-  }
 
   if (dbe) {
     dbe->setCurrentFolder(dirname_);

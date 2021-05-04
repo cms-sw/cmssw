@@ -59,7 +59,7 @@ namespace edm {
         currProto_(0),
         newHeader_(false),
         endOfFile_(false) {
-    openStreamerFile(names.at(0).fileName(), names.at(0).logicalFileName());
+    openStreamerFile(names.at(0).fileName(0), names.at(0).logicalFileName());
     ++currentFile_;
     readStartMessage();
     currRun_ = startMsg_->run();
@@ -172,37 +172,35 @@ namespace edm {
     startMsg_ = std::make_shared<InitMsgView>(&headerBuf_[0]);  // propagate_const<T> has no reset() function
   }
 
-  bool StreamerInputFile::next() {
+  StreamerInputFile::Next StreamerInputFile::next() {
     if (this->readEventMessage()) {
-      return true;
+      return Next::kEvent;
     }
     if (multiStreams_) {
       //Try opening next file
-      if (openNextFile()) {
-        endOfFile_ = false;
-        if (this->readEventMessage()) {
-          return true;
-        }
+      if (currentFile_ <= streamerNames_.size() - 1) {
+        newHeader_ = true;
+        return Next::kFile;
       }
     }
-    return false;
+    return Next::kStop;
   }
 
   bool StreamerInputFile::openNextFile() {
     if (currentFile_ <= streamerNames_.size() - 1) {
-      FDEBUG(10) << "Opening file " << streamerNames_.at(currentFile_).fileName().c_str() << std::endl;
+      FDEBUG(10) << "Opening file " << streamerNames_.at(currentFile_).fileNames()[0].c_str() << std::endl;
 
-      openStreamerFile(streamerNames_.at(currentFile_).fileName(), streamerNames_.at(currentFile_).logicalFileName());
+      openStreamerFile(streamerNames_.at(currentFile_).fileNames()[0],
+                       streamerNames_.at(currentFile_).logicalFileName());
 
       // If start message was already there, then compare the
       // previous and new headers
       if (startMsg_) {
         FDEBUG(10) << "Comparing Header" << std::endl;
-        if (!compareHeader()) {
-          return false;
-        }
+        compareHeader();
       }
       ++currentFile_;
+      endOfFile_ = false;
       return true;
     }
     return false;
@@ -215,11 +213,10 @@ namespace edm {
     //Values from new Header should match up
     if (currRun_ != startMsg_->run() || currProto_ != startMsg_->protocolVersion()) {
       throw Exception(errors::MismatchedInputFiles, "StreamerInputFile::compareHeader")
-          << "File " << streamerNames_.at(currentFile_).fileName()
+          << "File " << streamerNames_.at(currentFile_).fileNames()[0]
           << "\nhas different run number or protocol version than previous\n";
       return false;
     }
-    newHeader_ = true;
     return true;
   }
 

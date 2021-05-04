@@ -33,6 +33,8 @@ private:
 
   std::vector<std::shared_ptr<fastjet::FunctionOfPseudoJet<double>>> routine_;
   std::vector<StringCutObjectSelector<reco::Jet>> selectors_;
+  edm::EDGetTokenT<edm::ValueMap<float>> input_weights_token_;
+  edm::ValueMap<float> const* weightsHandle_;
 };
 
 #endif

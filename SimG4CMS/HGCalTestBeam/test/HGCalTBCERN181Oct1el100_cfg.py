@@ -11,6 +11,7 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct1XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
+process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -26,9 +27,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if 'MessageLogger' in process.__dict__:
-     process.MessageLogger.categories.append('BeamMomentumGun')
-#    process.MessageLogger.categories.append('HGCSim')
-#    process.MessageLogger.categories.append('HcalSim')
+     process.MessageLogger.BeamMomentumGun=dict()
+     process.MessageLogger.HGCSim=dict()
+#    process.MessageLogger.HcalSim=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -108,6 +109,7 @@ process.HGCalTBAnalyzer.doRecHits       = False
 process.HGCalTBAnalyzer.useFH           = True
 process.HGCalTBAnalyzer.useBH           = True
 process.HGCalTBAnalyzer.useBeam         = True
+process.HGCalTBAnalyzer.addP            = True
 process.HGCalTBAnalyzer.zFrontEE        = 1110.0
 process.HGCalTBAnalyzer.zFrontFH        = 1176.5
 process.HGCalTBAnalyzer.zFrontFH        = 1307.5

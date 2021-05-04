@@ -32,13 +32,16 @@ namespace reco {
                      edm::EventSetup const& c);
 
   /// Make PFlowJet specifics. Assumes PseudoJet is made from ParticleFlowCandidates
-  bool makeSpecific(std::vector<reco::CandidatePtr> const& particles, reco::PFJet::Specific* pfJetSpecific);
+  bool makeSpecific(std::vector<reco::CandidatePtr> const& particles,
+                    reco::PFJet::Specific* pfJetSpecific,
+                    edm::ValueMap<float> const* weights = nullptr);
 
   void writeSpecific(reco::PFJet& jet,
                      reco::Particle::LorentzVector const& p4,
                      reco::Particle::Point const& point,
                      std::vector<reco::CandidatePtr> const& constituents,
-                     edm::EventSetup const& c);
+                     edm::EventSetup const& c,
+                     edm::ValueMap<float> const* weights = nullptr);
 
   /// Make GenJet specifics. Assumes PseudoJet is made from HepMCCandidate
   bool makeSpecific(std::vector<reco::CandidatePtr> const& mcparticles, reco::GenJet::Specific* genJetSpecific);

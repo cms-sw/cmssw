@@ -8,17 +8,14 @@
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
 #include "SimG4Core/Application/interface/GFlashEMShowerModel.h"
 #include "SimG4Core/Application/interface/GFlashHadronShowerModel.h"
+#include "SimG4Core/Application/interface/LowEnergyFastSimModel.h"
 #include "SimG4Core/Application/interface/ElectronLimiter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4FastSimulationManagerProcess.hh"
 #include "G4ProcessManager.hh"
+#include "G4EmBuilder.hh"
 
-#include "G4LeptonConstructor.hh"
-#include "G4MesonConstructor.hh"
-#include "G4BaryonConstructor.hh"
-#include "G4ShortLivedConstructor.hh"
-#include "G4IonConstructor.hh"
 #include "G4RegionStore.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
@@ -32,12 +29,14 @@
 #include "G4AntiProton.hh"
 
 #include "G4EmParameters.hh"
-#include "G4PhysicsListHelper.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4UAtomicDeexcitation.hh"
 #include "G4LossTableManager.hh"
+#include "G4PhysicsListHelper.hh"
 #include "G4ProcessManager.hh"
+#include "G4SystemOfUnits.hh"
 #include "G4Transportation.hh"
+#include "G4UAtomicDeexcitation.hh"
+#include <memory>
+
 #include <string>
 #include <vector>
 
@@ -52,6 +51,7 @@ const G4String rname[NREG] = {"EcalRegion",
 
 struct ParametrisedEMPhysics::TLSmod {
   std::unique_ptr<GFlashEMShowerModel> theEcalEMShowerModel;
+  std::unique_ptr<LowEnergyFastSimModel> theLowEnergyFastSimModel;
   std::unique_ptr<GFlashEMShowerModel> theHcalEMShowerModel;
   std::unique_ptr<GFlashHadronShowerModel> theEcalHadShowerModel;
   std::unique_ptr<GFlashHadronShowerModel> theHcalHadShowerModel;
@@ -62,13 +62,20 @@ G4ThreadLocal ParametrisedEMPhysics::TLSmod* ParametrisedEMPhysics::m_tpmod = nu
 
 ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm::ParameterSet& p)
     : G4VPhysicsConstructor(name), theParSet(p) {
-  // bremsstrahlung threshold and EM verbosity
   G4EmParameters* param = G4EmParameters::Instance();
   G4int verb = theParSet.getUntrackedParameter<int>("Verbosity", 0);
   param->SetVerbose(verb);
 
-  G4double bremth = theParSet.getParameter<double>("G4BremsstrahlungThreshold") * GeV;
+  G4double bremth = theParSet.getParameter<double>("G4BremsstrahlungThreshold") * CLHEP::GeV;
   param->SetBremsstrahlungTh(bremth);
+  G4double mubrth = theParSet.getParameter<double>("G4MuonBremsstrahlungThreshold") * CLHEP::GeV;
+  param->SetMuHadBremsstrahlungTh(mubrth);
+
+  bool genp = theParSet.getParameter<bool>("G4GeneralProcess");
+  param->SetGeneralProcessActive(genp);
+
+  bool mudat = theParSet.getParameter<bool>("ReadMuonData");
+  param->SetRetrieveMuDataFromFile(mudat);
 
   bool fluo = theParSet.getParameter<bool>("FlagFluo");
   param->SetFluo(fluo);
@@ -108,27 +115,13 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
 }
 
 ParametrisedEMPhysics::~ParametrisedEMPhysics() {
-  if (m_tpmod) {
-    delete m_tpmod;
-    m_tpmod = nullptr;
-  }
+  delete m_tpmod;
+  m_tpmod = nullptr;
 }
 
 void ParametrisedEMPhysics::ConstructParticle() {
-  G4LeptonConstructor pLeptonConstructor;
-  pLeptonConstructor.ConstructParticle();
-
-  G4MesonConstructor pMesonConstructor;
-  pMesonConstructor.ConstructParticle();
-
-  G4BaryonConstructor pBaryonConstructor;
-  pBaryonConstructor.ConstructParticle();
-
-  G4ShortLivedConstructor pShortLivedConstructor;
-  pShortLivedConstructor.ConstructParticle();
-
-  G4IonConstructor pConstructor;
-  pConstructor.ConstructParticle();
+  // minimal set of particles for EM physics
+  G4EmBuilder::ConstructMinimalEmSet();
 }
 
 void ParametrisedEMPhysics::ConstructProcess() {
@@ -136,34 +129,40 @@ void ParametrisedEMPhysics::ConstructProcess() {
 
   // GFlash part
   bool gem = theParSet.getParameter<bool>("GflashEcal");
+  bool lowEnergyGem = theParSet.getParameter<bool>("LowEnergyGflashEcal");
   bool ghad = theParSet.getParameter<bool>("GflashHcal");
   bool gemHad = theParSet.getParameter<bool>("GflashEcalHad");
   bool ghadHad = theParSet.getParameter<bool>("GflashHcalHad");
 
-  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
-  if (gem || ghad || gemHad || ghadHad) {
+  if (gem || ghad || lowEnergyGem || gemHad || ghadHad) {
     if (!m_tpmod) {
       m_tpmod = new TLSmod;
     }
-    edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics: GFlash Construct for e+-: " << gem << "  "
-                                             << ghad << " for hadrons: " << gemHad << "  " << ghadHad;
+    edm::LogVerbatim("SimG4CoreApplication")
+        << "ParametrisedEMPhysics: GFlash Construct for e+-: " << gem << "  " << ghad << " " << lowEnergyGem
+        << " for hadrons: " << gemHad << "  " << ghadHad;
 
-    m_tpmod->theFastSimulationManagerProcess.reset(new G4FastSimulationManagerProcess());
+    m_tpmod->theFastSimulationManagerProcess = std::make_unique<G4FastSimulationManagerProcess>();
 
     if (gem || ghad) {
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4Electron::Electron());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4Positron::Positron());
-    }
-    if (gemHad || ghadHad) {
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4Proton::Proton());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4AntiProton::AntiProton());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4PionPlus::PionPlus());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4PionMinus::PionMinus());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4KaonPlus::KaonPlus());
-      ph->RegisterProcess(m_tpmod->theFastSimulationManagerProcess.get(), G4KaonMinus::KaonMinus());
+      G4Electron::Electron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4Positron::Positron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+    } else if (lowEnergyGem) {
+      G4Electron::Electron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4Positron::Positron()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
     }
 
-    if (gem || gemHad) {
+    if (gemHad || ghadHad) {
+      G4Proton::Proton()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4AntiProton::AntiProton()->GetProcessManager()->AddDiscreteProcess(
+          m_tpmod->theFastSimulationManagerProcess.get());
+      G4PionPlus::PionPlus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4PionMinus::PionMinus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4KaonPlus::KaonPlus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+      G4KaonMinus::KaonMinus()->GetProcessManager()->AddDiscreteProcess(m_tpmod->theFastSimulationManagerProcess.get());
+    }
+
+    if (gem || gemHad || lowEnergyGem) {
       G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("EcalRegion", false);
 
       if (!aRegion) {
@@ -173,12 +172,18 @@ void ParametrisedEMPhysics::ConstructProcess() {
       } else {
         if (gem) {
           //Electromagnetic Shower Model for ECAL
-          m_tpmod->theEcalEMShowerModel.reset(new GFlashEMShowerModel("GflashEcalEMShowerModel", aRegion, theParSet));
+          m_tpmod->theEcalEMShowerModel =
+              std::make_unique<GFlashEMShowerModel>("GflashEcalEMShowerModel", aRegion, theParSet);
+        } else if (lowEnergyGem) {
+          //Low energy electromagnetic Shower Model for ECAL
+          m_tpmod->theLowEnergyFastSimModel =
+              std::make_unique<LowEnergyFastSimModel>("LowEnergyFastSimModel", aRegion, theParSet);
         }
+
         if (gemHad) {
           //Electromagnetic Shower Model for ECAL
-          m_tpmod->theEcalHadShowerModel.reset(
-              new GFlashHadronShowerModel("GflashEcalHadShowerModel", aRegion, theParSet));
+          m_tpmod->theEcalHadShowerModel =
+              std::make_unique<GFlashHadronShowerModel>("GflashEcalHadShowerModel", aRegion, theParSet);
         }
       }
     }
@@ -191,16 +196,19 @@ void ParametrisedEMPhysics::ConstructProcess() {
       } else {
         if (ghad) {
           //Electromagnetic Shower Model for HCAL
-          m_tpmod->theHcalEMShowerModel.reset(new GFlashEMShowerModel("GflashHcalEMShowerModel", aRegion, theParSet));
+          m_tpmod->theHcalEMShowerModel =
+              std::make_unique<GFlashEMShowerModel>("GflashHcalEMShowerModel", aRegion, theParSet);
         }
         if (ghadHad) {
           //Electromagnetic Shower Model for ECAL
-          m_tpmod->theHcalHadShowerModel.reset(
-              new GFlashHadronShowerModel("GflashHcalHadShowerModel", aRegion, theParSet));
+          m_tpmod->theHcalHadShowerModel =
+              std::make_unique<GFlashHadronShowerModel>("GflashHcalHadShowerModel", aRegion, theParSet);
         }
       }
     }
   }
+
+  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   // Step limiters for e+-
   bool eLimiter = theParSet.getParameter<bool>("ElectronStepLimit");
@@ -301,8 +309,6 @@ void ParametrisedEMPhysics::ConstructProcess() {
     double th2 = theParSet.getUntrackedParameter<double>("ThresholdImportantEnergy") * MeV;
     int nt = theParSet.getUntrackedParameter<int>("ThresholdTrials");
     ModifyTransportation(G4Electron::Electron(), nt, th1, th2);
-    ModifyTransportation(G4Positron::Positron(), nt, th1, th2);
-    ModifyTransportation(G4Proton::Proton(), nt, th1, th2);
   }
   edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics::ConstructProcess() is done";
 }

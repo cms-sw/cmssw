@@ -1,19 +1,14 @@
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define LOCAL_DEBUG
+//#define EDM_ML_DEBUG
 
-RPCNumberingScheme::RPCNumberingScheme(const MuonDDDConstants& muonConstants) { initMe(muonConstants); }
+RPCNumberingScheme::RPCNumberingScheme(const MuonGeometryConstants& muonConstants) { initMe(muonConstants); }
 
-RPCNumberingScheme::RPCNumberingScheme(const DDCompactView& cpv) {
-  MuonDDDConstants muonConstants(cpv);
-  initMe(muonConstants);
-}
-
-void RPCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
+void RPCNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   int theLevelPart = muonConstants.getValue("level");
   theRegionLevel = muonConstants.getValue("mr_region") / theLevelPart;
   theBWheelLevel = muonConstants.getValue("mr_bwheel") / theLevelPart;
@@ -23,7 +18,7 @@ void RPCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
   theEPlaneLevel = muonConstants.getValue("mr_eplane") / theLevelPart;
   theESectorLevel = muonConstants.getValue("mr_esector") / theLevelPart;
   theERollLevel = muonConstants.getValue("mr_eroll") / theLevelPart;
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme::theRegionLevel " << theRegionLevel
                                          << "\ntheBWheelLevel " << theBWheelLevel << "\ntheBStationLevel "
                                          << theBStationLevel << "\ntheBPlaneLevel " << theBPlaneLevel
@@ -33,8 +28,8 @@ void RPCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
 #endif
 }
 
-int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
-#ifdef LOCAL_DEBUG
+int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("RPCNumberingScheme") << "RPCNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
     edm::LogVerbatim("RPCNumberingScheme") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
@@ -186,7 +181,7 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
   int trIndex = (eta_id * 10000 + plane_id * 1000 + sector_id * 10 + copy_id) * 10 + roll_id;
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   if (barrel_muon) {
     edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme (barrel): ";
   } else {
@@ -204,7 +199,7 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   RPCDetId id;
   id.buildfromTrIndex(trIndex);
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme:: DetId " << id;
 #endif
 

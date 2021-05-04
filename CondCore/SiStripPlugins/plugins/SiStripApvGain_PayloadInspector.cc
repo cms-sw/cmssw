@@ -40,21 +40,22 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     1d histogram of SiStripApvGains of 1 IOV 
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripApvGainsValue : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+  class SiStripApvGainsValue : public Histogram1D<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvGainsValue()
-        : cond::payloadInspector::Histogram1D<SiStripApvGain>(
-              "SiStripApv Gains values", "SiStripApv Gains values", 200, 0.0, 2.0) {
-      Base::setSingleIov(true);
+        : Histogram1D<SiStripApvGain, SINGLE_IOV>("SiStripApv Gains values", "SiStripApv Gains values", 200, 0.0, 2.0) {
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<uint32_t> detid;
@@ -80,20 +81,19 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripApvBarrelGainsByLayer : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+  class SiStripApvBarrelGainsByLayer : public Histogram1D<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvBarrelGainsByLayer()
-        : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Barrel layer",
-                                                              "Barrel layer (0-3: TIB), (4-9: TOB)",
-                                                              10,
-                                                              0,
-                                                              10,
-                                                              "average SiStripApv Gain") {
-      Base::setSingleIov(true);
-    }
+        : Histogram1D<SiStripApvGain, SINGLE_IOV>("SiStripApv Gains averages by Barrel layer",
+                                                  "Barrel layer (0-3: TIB), (4-9: TOB)",
+                                                  10,
+                                                  0,
+                                                  10,
+                                                  "average SiStripApv Gain") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
@@ -140,23 +140,21 @@ namespace {
     SiStripApvGains for Tracker Barrel of 1 IOV
   *************************************************/
 
-  class SiStripApvAbsoluteBarrelGainsByLayer : public cond::payloadInspector::Histogram2D<SiStripApvGain> {
+  class SiStripApvAbsoluteBarrelGainsByLayer : public Histogram2D<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvAbsoluteBarrelGainsByLayer()
-        : cond::payloadInspector::Histogram2D<SiStripApvGain>("SiStripApv Gains by Barrel layer",
-                                                              "Barrel layer (0-3: TIB), (4-9: TOB)",
-                                                              10,
-                                                              0,
-                                                              10,
-                                                              "SiStripApv Gain",
-                                                              200,
-                                                              0.0,
-                                                              2.0) {
-      Base::setSingleIov(true);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      for (auto const& iov : iovs) {
+        : Histogram2D<SiStripApvGain, SINGLE_IOV>("SiStripApv Gains by Barrel layer",
+                                                  "Barrel layer (0-3: TIB), (4-9: TOB)",
+                                                  10,
+                                                  0,
+                                                  10,
+                                                  "SiStripApv Gain",
+                                                  200,
+                                                  0.0,
+                                                  2.0) {}
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
@@ -188,20 +186,19 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripApvEndcapMinusGainsByDisk : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+  class SiStripApvEndcapMinusGainsByDisk : public Histogram1D<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvEndcapMinusGainsByDisk()
-        : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Endcap (minus) disk",
-                                                              "Endcap (minus) disk (0-2: TID), (3-11: TEC)",
-                                                              12,
-                                                              0,
-                                                              12,
-                                                              "average SiStripApv Gain") {
-      Base::setSingleIov(true);
-    }
+        : Histogram1D<SiStripApvGain, SINGLE_IOV>("SiStripApv Gains averages by Endcap (minus) disk",
+                                                  "Endcap (minus) disk (0-2: TID), (3-11: TEC)",
+                                                  12,
+                                                  0,
+                                                  12,
+                                                  "average SiStripApv Gain") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
@@ -257,20 +254,19 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripApvEndcapPlusGainsByDisk : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+  class SiStripApvEndcapPlusGainsByDisk : public Histogram1D<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvEndcapPlusGainsByDisk()
-        : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains averages by Endcap (plus) disk",
-                                                              "Endcap (plus) disk (0-2: TID), (3-11: TEC)",
-                                                              12,
-                                                              0,
-                                                              12,
-                                                              "average SiStripApv Gain") {
-      Base::setSingleIov(true);
-    }
+        : Histogram1D<SiStripApvGain, SINGLE_IOV>("SiStripApv Gains averages by Endcap (plus) disk",
+                                                  "Endcap (plus) disk (0-2: TID), (3-11: TEC)",
+                                                  12,
+                                                  0,
+                                                  12,
+                                                  "average SiStripApv Gain") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
@@ -325,23 +321,22 @@ namespace {
     2D histogram of absolute (i.e. not average)
     SiStripApv Gains on the Endcap- for 1 IOV
    ************************************************/
-  class SiStripApvAbsoluteEndcapMinusGainsByDisk : public cond::payloadInspector::Histogram2D<SiStripApvGain> {
+  class SiStripApvAbsoluteEndcapMinusGainsByDisk : public Histogram2D<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvAbsoluteEndcapMinusGainsByDisk()
-        : cond::payloadInspector::Histogram2D<SiStripApvGain>("SiStripApv Gains averages by Endcap (minus) disk",
-                                                              "Endcap (minus) disk (0-2: TID), (3-11: TEC)",
-                                                              12,
-                                                              0,
-                                                              12,
-                                                              "SiStripApv Gain",
-                                                              200,
-                                                              0.0,
-                                                              2.0) {
-      Base::setSingleIov(true);
-    }
+        : Histogram2D<SiStripApvGain, SINGLE_IOV>("SiStripApv Gains averages by Endcap (minus) disk",
+                                                  "Endcap (minus) disk (0-2: TID), (3-11: TEC)",
+                                                  12,
+                                                  0,
+                                                  12,
+                                                  "SiStripApv Gain",
+                                                  200,
+                                                  0.0,
+                                                  2.0) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
@@ -384,23 +379,21 @@ namespace {
     2D histogram of absolute (i.e. not average)
     SiStripApv Gains on the Endcap+ for 1 IOV
    ************************************************/
-  class SiStripApvAbsoluteEndcapPlusGainsByDisk : public cond::payloadInspector::Histogram2D<SiStripApvGain> {
+  class SiStripApvAbsoluteEndcapPlusGainsByDisk : public Histogram2D<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvAbsoluteEndcapPlusGainsByDisk()
-        : cond::payloadInspector::Histogram2D<SiStripApvGain>("SiStripApv Gains averages by Endcap (plus) disk",
-                                                              "Endcap (plus) disk (0-2: TID), (3-11: TEC)",
-                                                              12,
-                                                              0,
-                                                              12,
-                                                              "SiStripApv Gain",
-                                                              200,
-                                                              0.0,
-                                                              2.0) {
-      Base::setSingleIov(true);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      for (auto const& iov : iovs) {
+        : Histogram2D<SiStripApvGain, SINGLE_IOV>("SiStripApv Gains averages by Endcap (plus) disk",
+                                                  "Endcap (plus) disk (0-2: TID), (3-11: TEC)",
+                                                  12,
+                                                  0,
+                                                  12,
+                                                  "SiStripApv Gain",
+                                                  200,
+                                                  0.0,
+                                                  2.0) {}
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
@@ -442,20 +435,18 @@ namespace {
   /************************************************
     TrackerMap of SiStripApvGains (average gain per detid)
   *************************************************/
-  class SiStripApvGainsAverageTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  class SiStripApvGainsAverageTrackerMap : public PlotImage<SiStripApvGain, SINGLE_IOV> {
   public:
-    SiStripApvGainsAverageTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripApvGain>("Tracker Map of average SiStripGains") {
-      setSingleIov(true);
-    }
+    SiStripApvGainsAverageTrackerMap() : PlotImage<SiStripApvGain, SINGLE_IOV>("Tracker Map of average SiStripGains") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload(std::get<1>(iov));
 
       std::string titleMap = "SiStrip APV Gain average per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -491,18 +482,17 @@ namespace {
   /************************************************
     TrackerMap of SiStripApvGains (module with default)
   *************************************************/
-  class SiStripApvGainsDefaultTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  class SiStripApvGainsDefaultTrackerMap : public PlotImage<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvGainsDefaultTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripApvGain>("Tracker Map of SiStripGains to default") {
-      setSingleIov(true);
-    }
+        : PlotImage<SiStripApvGain, SINGLE_IOV>("Tracker Map of SiStripGains to default") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
 
       tmap->setPalette(1);
 
@@ -561,25 +551,44 @@ namespace {
     TrackerMap of SiStripApvGains (ratio with previous gain per detid)
   *************************************************/
 
-  template <int nsigma>
-  class SiStripApvGainsRatioWithPreviousIOVTrackerMapBase : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripApvGainsRatioTrackerMapBase : public PlotImage<SiStripApvGain, nIOVs, ntags> {
   public:
-    SiStripApvGainsRatioWithPreviousIOVTrackerMapBase()
-        : cond::payloadInspector::PlotImage<SiStripApvGain>("Tracker Map of ratio of SiStripGains with previous IOV") {}
+    SiStripApvGainsRatioTrackerMapBase()
+        : PlotImage<SiStripApvGain, nIOVs, ntags>("Tracker Map of ratio of SiStripGains with previous IOV") {
+      PlotBase::addInputParam("nsigma");
+    }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill() override {
+      // determine n. sigmas
+      unsigned int nsigma(1);
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      auto paramValues = PlotBase::inputParamValues();
+      auto ip = paramValues.find("nsigma");
+      if (ip != paramValues.end()) {
+        nsigma = boost::lexical_cast<unsigned int>(ip->second);
+      }
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiStripApvGain> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string titleMap = "SiStrip APV Gain ratio per module average (IOV: ";
 
@@ -590,7 +599,7 @@ namespace {
 
       titleMap += +" " + std::to_string(nsigma) + " std. dev. saturation";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -637,72 +646,62 @@ namespace {
       //=========================
       auto range = SiStripPI::getTheRange(cachedRatio, nsigma);
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       tmap->save(true, range.first, range.second, fileName);
 
       return true;
     }
   };
 
-  template <int nsigma>
-  class SiStripApvGainsRatioWithPreviousIOVTrackerMapSingleTag
-      : public SiStripApvGainsRatioWithPreviousIOVTrackerMapBase<nsigma> {
-  public:
-    SiStripApvGainsRatioWithPreviousIOVTrackerMapSingleTag()
-        : SiStripApvGainsRatioWithPreviousIOVTrackerMapBase<nsigma>() {
-      this->setSingleIov(false);
-    }
-  };
-
-  template <int nsigma>
-  class SiStripApvGainsRatioWithPreviousIOVTrackerMapTwoTags
-      : public SiStripApvGainsRatioWithPreviousIOVTrackerMapBase<nsigma> {
-  public:
-    SiStripApvGainsRatioWithPreviousIOVTrackerMapTwoTags()
-        : SiStripApvGainsRatioWithPreviousIOVTrackerMapBase<nsigma>() {
-      this->setTwoTags(true);
-    }
-  };
-
-  typedef SiStripApvGainsRatioWithPreviousIOVTrackerMapSingleTag<1>
-      SiStripApvGainsAvgDeviationRatio1sigmaTrackerMapSingleTag;
-  typedef SiStripApvGainsRatioWithPreviousIOVTrackerMapSingleTag<2>
-      SiStripApvGainsAvgDeviationRatio2sigmaTrackerMapSingleTag;
-  typedef SiStripApvGainsRatioWithPreviousIOVTrackerMapSingleTag<3>
-      SiStripApvGainsAvgDeviationRatio3sigmaTrackerMapSingleTag;
-
-  typedef SiStripApvGainsRatioWithPreviousIOVTrackerMapTwoTags<1>
-      SiStripApvGainsAvgDeviationRatio1sigmaTrackerMapTwoTags;
-  typedef SiStripApvGainsRatioWithPreviousIOVTrackerMapTwoTags<2>
-      SiStripApvGainsAvgDeviationRatio2sigmaTrackerMapTwoTags;
-  typedef SiStripApvGainsRatioWithPreviousIOVTrackerMapTwoTags<3>
-      SiStripApvGainsAvgDeviationRatio3sigmaTrackerMapTwoTags;
+  using SiStripApvGainsAvgDeviationRatioWithPreviousIOVTrackerMap = SiStripApvGainsRatioTrackerMapBase<1, MULTI_IOV>;
+  using SiStripApvGainsAvgDeviationRatioTrackerMapTwoTags = SiStripApvGainsRatioTrackerMapBase<2, SINGLE_IOV>;
 
   /************************************************
    TrackerMap of SiStripApvGains (ratio for largest deviation with previous gain per detid)
   *************************************************/
 
-  template <int nsigma>
-  class SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapBase
-      : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripApvGainsRatioMaxDeviationTrackerMapBase : public PlotImage<SiStripApvGain, nIOVs, ntags> {
   public:
-    SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapBase()
-        : cond::payloadInspector::PlotImage<SiStripApvGain>(
-              "Tracker Map of ratio (for largest deviation) of SiStripGains with previous IOV") {}
+    SiStripApvGainsRatioMaxDeviationTrackerMapBase()
+        : PlotImage<SiStripApvGain, nIOVs, ntags>(
+              "Tracker Map of ratio (for largest deviation) of SiStripGains with previous IOV") {
+      PlotBase::addInputParam("nsigma");
+    }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill() override {
+      unsigned int nsigma(1);
+      auto paramValues = PlotBase::inputParamValues();
+      auto ip = paramValues.find("nsigma");
+      if (ip != paramValues.end()) {
+        nsigma = boost::lexical_cast<unsigned int>(ip->second);
+        edm::LogPrint("SiStripApvGain_PayloadInspector")
+            << "using custom z-axis saturation: " << nsigma << " sigmas" << std::endl;
+      } else {
+        edm::LogPrint("SiStripApvGain_PayloadInspector")
+            << "using default saturation: " << nsigma << " sigmas" << std::endl;
+      }
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiStripApvGain> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string titleMap = "SiStrip APV Gain ratio for largest deviation per module (IOV: ";
 
@@ -713,7 +712,7 @@ namespace {
 
       titleMap += +" - " + std::to_string(nsigma) + " std. dev. saturation";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -779,64 +778,35 @@ namespace {
 
       //=========================
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       tmap->save(true, range.first, range.second, fileName);
 
       return true;
     }
   };
 
-  template <int nsigma>
-  class SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapSingleTag
-      : public SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapBase<nsigma> {
-  public:
-    SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapSingleTag()
-        : SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapBase<nsigma>() {
-      this->setSingleIov(false);
-    }
-  };
+  using SiStripApvGainsMaxDeviationRatioWithPreviousIOVTrackerMap =
+      SiStripApvGainsRatioMaxDeviationTrackerMapBase<1, MULTI_IOV>;
 
-  template <int nsigma>
-  class SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapTwoTags
-      : public SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapBase<nsigma> {
-  public:
-    SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapTwoTags()
-        : SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapBase<nsigma>() {
-      this->setTwoTags(true);
-    }
-  };
-
-  typedef SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapSingleTag<1>
-      SiStripApvGainsMaxDeviationRatio1sigmaTrackerMapSingleTag;
-  typedef SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapSingleTag<2>
-      SiStripApvGainsMaxDeviationRatio2sigmaTrackerMapSingleTag;
-  typedef SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapSingleTag<3>
-      SiStripApvGainsMaxDeviationRatio3sigmaTrackerMapSingleTag;
-
-  typedef SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapTwoTags<1>
-      SiStripApvGainsMaxDeviationRatio1sigmaTrackerMapTwoTags;
-  typedef SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapTwoTags<2>
-      SiStripApvGainsMaxDeviationRatio2sigmaTrackerMapTwoTags;
-  typedef SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMapTwoTags<3>
-      SiStripApvGainsMaxDeviationRatio3sigmaTrackerMapTwoTags;
+  using SiStripApvGainsMaxDeviationRatioTrackerMapTwoTags =
+      SiStripApvGainsRatioMaxDeviationTrackerMapBase<2, SINGLE_IOV>;
 
   /************************************************
     TrackerMap of SiStripApvGains (maximum gain per detid)
   *************************************************/
-  class SiStripApvGainsMaximumTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  class SiStripApvGainsMaximumTrackerMap : public PlotImage<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvGainsMaximumTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripApvGain>("Tracker Map of SiStripAPVGains (maximum per DetId)") {
-      setSingleIov(true);
-    }
+        : PlotImage<SiStripApvGain, SINGLE_IOV>("Tracker Map of SiStripAPVGains (maximum per DetId)") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload(std::get<1>(iov));
 
       std::string titleMap = "SiStrip APV Gain maximum per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -876,20 +846,20 @@ namespace {
   /************************************************
     TrackerMap of SiStripApvGains (minimum gain per detid)
   *************************************************/
-  class SiStripApvGainsMinimumTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  class SiStripApvGainsMinimumTrackerMap : public PlotImage<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvGainsMinimumTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripApvGain>("Tracker Map of SiStripAPVGains (minimum per DetId)") {
-      setSingleIov(true);
-    }
+        : PlotImage<SiStripApvGain, SINGLE_IOV>("Tracker Map of SiStripAPVGains (minimum per DetId)") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+
       std::shared_ptr<SiStripApvGain> payload = fetchPayload(std::get<1>(iov));
 
       std::string titleMap = "SiStrip APV Gain minumum per module (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripApvGains");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -930,11 +900,10 @@ namespace {
     time history histogram of SiStripApvGains 
   *************************************************/
 
-  class SiStripApvGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain, float> {
+  class SiStripApvGainByRunMeans : public HistoryPlot<SiStripApvGain, float> {
   public:
     SiStripApvGainByRunMeans()
-        : cond::payloadInspector::HistoryPlot<SiStripApvGain, float>("SiStripApv Gains average",
-                                                                     "average Strip APV gain value") {}
+        : HistoryPlot<SiStripApvGain, float>("SiStripApv Gains average", "average Strip APV gain value") {}
     ~SiStripApvGainByRunMeans() override = default;
 
     float getFromPayload(SiStripApvGain& payload) override {
@@ -961,11 +930,11 @@ namespace {
   *************************************************/
 
   template <SiStripPI::estimator est>
-  class SiStripApvGainProperties : public cond::payloadInspector::HistoryPlot<SiStripApvGain, float> {
+  class SiStripApvGainProperties : public HistoryPlot<SiStripApvGain, float> {
   public:
     SiStripApvGainProperties()
-        : cond::payloadInspector::HistoryPlot<SiStripApvGain, float>("SiStripApv Gains " + estimatorType(est),
-                                                                     estimatorType(est) + " Strip APV gain value") {}
+        : HistoryPlot<SiStripApvGain, float>("SiStripApv Gains " + estimatorType(est),
+                                             estimatorType(est) + " Strip APV gain value") {}
     ~SiStripApvGainProperties() override = default;
 
     float getFromPayload(SiStripApvGain& payload) override {
@@ -1015,7 +984,7 @@ namespace {
           edm::LogWarning("LogicError") << "Unknown estimator: " << est;
           break;
       }
-
+      return 0.;
     }  // payload
   };
 
@@ -1028,11 +997,11 @@ namespace {
     time history histogram of TIB SiStripApvGains 
   *************************************************/
 
-  class SiStripApvTIBGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain, float> {
+  class SiStripApvTIBGainByRunMeans : public HistoryPlot<SiStripApvGain, float> {
   public:
     SiStripApvTIBGainByRunMeans()
-        : cond::payloadInspector::HistoryPlot<SiStripApvGain, float>("SiStripApv Gains average",
-                                                                     "average Tracker Inner Barrel APV gain value") {}
+        : HistoryPlot<SiStripApvGain, float>("SiStripApv Gains average",
+                                             "average Tracker Inner Barrel APV gain value") {}
     ~SiStripApvTIBGainByRunMeans() override = default;
 
     float getFromPayload(SiStripApvGain& payload) override {
@@ -1063,11 +1032,10 @@ namespace {
     time history histogram of TOB SiStripApvGains 
   *************************************************/
 
-  class SiStripApvTOBGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain, float> {
+  class SiStripApvTOBGainByRunMeans : public HistoryPlot<SiStripApvGain, float> {
   public:
     SiStripApvTOBGainByRunMeans()
-        : cond::payloadInspector::HistoryPlot<SiStripApvGain, float>("SiStripApv Gains average",
-                                                                     "average Tracker Outer Barrel gain value") {}
+        : HistoryPlot<SiStripApvGain, float>("SiStripApv Gains average", "average Tracker Outer Barrel gain value") {}
     ~SiStripApvTOBGainByRunMeans() override = default;
 
     float getFromPayload(SiStripApvGain& payload) override {
@@ -1098,11 +1066,11 @@ namespace {
     time history histogram of TID SiStripApvGains 
   *************************************************/
 
-  class SiStripApvTIDGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain, float> {
+  class SiStripApvTIDGainByRunMeans : public HistoryPlot<SiStripApvGain, float> {
   public:
     SiStripApvTIDGainByRunMeans()
-        : cond::payloadInspector::HistoryPlot<SiStripApvGain, float>("SiStripApv Gains average",
-                                                                     "average Tracker Inner Disks APV gain value") {}
+        : HistoryPlot<SiStripApvGain, float>("SiStripApv Gains average", "average Tracker Inner Disks APV gain value") {
+    }
     ~SiStripApvTIDGainByRunMeans() override = default;
 
     float getFromPayload(SiStripApvGain& payload) override {
@@ -1132,11 +1100,11 @@ namespace {
     time history histogram of TEC SiStripApvGains 
   *************************************************/
 
-  class SiStripApvTECGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain, float> {
+  class SiStripApvTECGainByRunMeans : public HistoryPlot<SiStripApvGain, float> {
   public:
     SiStripApvTECGainByRunMeans()
-        : cond::payloadInspector::HistoryPlot<SiStripApvGain, float>("SiStripApv Gains average in TEC",
-                                                                     "average Tracker Endcaps APV gain value") {}
+        : HistoryPlot<SiStripApvGain, float>("SiStripApv Gains average in TEC",
+                                             "average Tracker Endcaps APV gain value") {}
     ~SiStripApvTECGainByRunMeans() override = default;
 
     float getFromPayload(SiStripApvGain& payload) override {
@@ -1167,18 +1135,16 @@ namespace {
     test class
   *************************************************/
 
-  class SiStripApvGainsTest : public cond::payloadInspector::Histogram1D<SiStripApvGain> {
+  class SiStripApvGainsTest : public Histogram1D<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvGainsTest()
-        : cond::payloadInspector::Histogram1D<SiStripApvGain>(
-              "SiStripApv Gains test", "SiStripApv Gains test", 10, 0.0, 10.0),
+        : Histogram1D<SiStripApvGain, SINGLE_IOV>("SiStripApv Gains test", "SiStripApv Gains test", 10, 0.0, 10.0),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      Base::setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<uint32_t> detid;
@@ -1214,23 +1180,32 @@ namespace {
     Compare Gains from 2 IOVs, 2 pads canvas, firsr for ratio, second for scatter plot
   *************************************************/
 
-  class SiStripApvGainsComparatorBase : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripApvGainsComparatorBase : public PlotImage<SiStripApvGain, nIOVs, ntags> {
   public:
-    SiStripApvGainsComparatorBase() : cond::payloadInspector::PlotImage<SiStripApvGain>("SiStripGains Comparison") {}
+    SiStripApvGainsComparatorBase() : PlotImage<SiStripApvGain, nIOVs, ntags>("SiStripGains Comparison") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripApvGain> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -1324,22 +1299,22 @@ namespace {
 
         if (subid == StripSubdetector::TIB) {
           ratios["TIB"]->Fill(ratio);
-          scatters["TIB"]->Fill(lastmap[index], firstmap[index]);
+          scatters["TIB"]->Fill(firstmap[index], lastmap[index]);
         }
 
         if (subid == StripSubdetector::TOB) {
           ratios["TOB"]->Fill(ratio);
-          scatters["TOB"]->Fill(lastmap[index], firstmap[index]);
+          scatters["TOB"]->Fill(firstmap[index], lastmap[index]);
         }
 
         if (subid == StripSubdetector::TID) {
           ratios["TID"]->Fill(ratio);
-          scatters["TID"]->Fill(lastmap[index], firstmap[index]);
+          scatters["TID"]->Fill(firstmap[index], lastmap[index]);
         }
 
         if (subid == StripSubdetector::TEC) {
           ratios["TEC"]->Fill(ratio);
-          scatters["TEC"]->Fill(lastmap[index], firstmap[index]);
+          scatters["TEC"]->Fill(firstmap[index], lastmap[index]);
         }
       }
 
@@ -1398,47 +1373,49 @@ namespace {
 
       legend2.Draw("same");
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }
   };
 
-  class SiStripApvGainsComparatorSingleTag : public SiStripApvGainsComparatorBase {
-  public:
-    SiStripApvGainsComparatorSingleTag() : SiStripApvGainsComparatorBase() { setSingleIov(false); }
-  };
-
-  class SiStripApvGainsComparatorTwoTags : public SiStripApvGainsComparatorBase {
-  public:
-    SiStripApvGainsComparatorTwoTags() : SiStripApvGainsComparatorBase() { setTwoTags(true); }
-  };
+  using SiStripApvGainsComparatorSingleTag = SiStripApvGainsComparatorBase<1, MULTI_IOV>;
+  using SiStripApvGainsComparatorTwoTags = SiStripApvGainsComparatorBase<2, SINGLE_IOV>;
 
   //*******************************************//
   // Compare Gains from 2 IOVs
   //******************************************//
 
-  class SiStripApvGainsValuesComparatorBase : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripApvGainsValuesComparatorBase : public PlotImage<SiStripApvGain, nIOVs, ntags> {
   public:
     SiStripApvGainsValuesComparatorBase()
-        : cond::payloadInspector::PlotImage<SiStripApvGain>("Comparison of SiStrip APV gains values") {}
+        : PlotImage<SiStripApvGain, nIOVs, ntags>("Comparison of SiStrip APV gains values") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+    bool fill() override {
       TH1F::SetDefaultSumw2(true);
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripApvGain> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -1574,50 +1551,52 @@ namespace {
       hratio->GetXaxis()->SetLabelFont(43);  // Absolute font size in pixel (precision 3)
       hratio->GetXaxis()->SetTitleOffset(3.);
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }
   };
 
-  class SiStripApvGainsValuesComparatorSingleTag : public SiStripApvGainsValuesComparatorBase {
-  public:
-    SiStripApvGainsValuesComparatorSingleTag() : SiStripApvGainsValuesComparatorBase() { setSingleIov(false); }
-  };
-
-  class SiStripApvGainsValuesComparatorTwoTags : public SiStripApvGainsValuesComparatorBase {
-  public:
-    SiStripApvGainsValuesComparatorTwoTags() : SiStripApvGainsValuesComparatorBase() { setTwoTags(true); }
-  };
+  using SiStripApvGainsValuesComparatorSingleTag = SiStripApvGainsValuesComparatorBase<1, MULTI_IOV>;
+  using SiStripApvGainsValuesComparatorTwoTags = SiStripApvGainsValuesComparatorBase<2, SINGLE_IOV>;
 
   //*******************************************//
   // Compare Gains ratio from 2 IOVs, region by region
   //******************************************//
 
-  class SiStripApvGainsRatioComparatorByRegionBase : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripApvGainsRatioComparatorByRegionBase : public PlotImage<SiStripApvGain, nIOVs, ntags> {
   public:
     SiStripApvGainsRatioComparatorByRegionBase()
-        : cond::payloadInspector::PlotImage<SiStripApvGain>("Module by Module Comparison of SiStrip APV gains"),
+        : PlotImage<SiStripApvGain, nIOVs, ntags>("Module by Module Comparison of SiStrip APV gains"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+    bool fill() override {
       //gStyle->SetPalette(5);
       SiStripPI::setPaletteStyle(SiStripPI::GRAY);
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripApvGain> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -1659,22 +1638,21 @@ namespace {
       TCanvas canvas("Payload comparison by Tracker Region", "payload comparison by Tracker Region", 1800, 800);
       canvas.Divide(2, 1);
 
-      auto h2first = std::unique_ptr<TH2F>(
-          new TH2F("byRegion1", "SiStrip APV Gain values by region;; average SiStrip Gain", 38, 1., 39., 100., 0., 2.));
-      auto h2last = std::unique_ptr<TH2F>(
-          new TH2F("byRegion2", "SiStrip APV Gain values by region;; average SiStrip Gain", 38, 1., 39., 100., 0., 2.));
+      auto h2first = std::make_unique<TH2F>(
+          "byRegion1", "SiStrip APV Gain values by region;; average SiStrip Gain", 38, 1., 39., 100., 0., 2.);
+      auto h2last = std::make_unique<TH2F>(
+          "byRegion2", "SiStrip APV Gain values by region;; average SiStrip Gain", 38, 1., 39., 100., 0., 2.);
 
-      auto h2ratio =
-          std::unique_ptr<TH2F>(new TH2F("byRegionRatio",
-                                         Form("SiStrip APV Gains ratio by region;; Gains ratio IOV: %s/ IOV %s",
-                                              lastIOVsince.c_str(),
-                                              firstIOVsince.c_str()),
-                                         38,
-                                         1.,
-                                         39.,
-                                         100.,
-                                         0.85,
-                                         1.15));
+      auto h2ratio = std::make_unique<TH2F>("byRegionRatio",
+                                            Form("SiStrip APV Gains ratio by region;; Gains ratio IOV: %s/ IOV %s",
+                                                 lastIOVsince.c_str(),
+                                                 firstIOVsince.c_str()),
+                                            38,
+                                            1.,
+                                            39.,
+                                            100.,
+                                            0.85,
+                                            1.15);
 
       h2first->SetStats(false);
       h2last->SetStats(false);
@@ -1747,7 +1725,7 @@ namespace {
       hpfx_tmp->SetMarkerStyle(20);
       hpfx_tmp->Draw("same");
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       delete hpfx_tmp;
@@ -1792,42 +1770,42 @@ namespace {
     }
   };
 
-  class SiStripApvGainsRatioComparatorByRegionSingleTag : public SiStripApvGainsRatioComparatorByRegionBase {
-  public:
-    SiStripApvGainsRatioComparatorByRegionSingleTag() : SiStripApvGainsRatioComparatorByRegionBase() {
-      setSingleIov(false);
-    }
-  };
-
-  class SiStripApvGainsRatioComparatorByRegionTwoTags : public SiStripApvGainsRatioComparatorByRegionBase {
-  public:
-    SiStripApvGainsRatioComparatorByRegionTwoTags() : SiStripApvGainsRatioComparatorByRegionBase() { setTwoTags(true); }
-  };
+  using SiStripApvGainsRatioComparatorByRegionSingleTag = SiStripApvGainsRatioComparatorByRegionBase<1, MULTI_IOV>;
+  using SiStripApvGainsRatioComparatorByRegionTwoTags = SiStripApvGainsRatioComparatorByRegionBase<2, SINGLE_IOV>;
 
   /************************************************
     Compare Gains for each tracker region
   *************************************************/
 
-  class SiStripApvGainsComparatorByRegionBase : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripApvGainsComparatorByRegionBase : public PlotImage<SiStripApvGain, nIOVs, ntags> {
   public:
     SiStripApvGainsComparatorByRegionBase()
-        : cond::payloadInspector::PlotImage<SiStripApvGain>("SiStripGains Comparison By Region"),
+        : PlotImage<SiStripApvGain, nIOVs, ntags>("SiStripGains Comparison By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripApvGain> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::vector<uint32_t> detid;
       last_payload->getDetIds(detid);
@@ -1857,13 +1835,13 @@ namespace {
       TCanvas canvas("Region summary", "region summary", 1200, 1000);
       canvas.cd();
 
-      auto hfirst = std::unique_ptr<TH1F>(new TH1F("byRegion1",
-                                                   "SiStrip APV Gain average by region;; average SiStrip Gain",
-                                                   firstmap.size(),
-                                                   0.,
-                                                   firstmap.size()));
-      auto hlast = std::unique_ptr<TH1F>(new TH1F(
-          "byRegion2", "SiStrip APV Gain average by region;; average SiStrip Gain", lastmap.size(), 0., lastmap.size()));
+      auto hfirst = std::make_unique<TH1F>("byRegion1",
+                                           "SiStrip APV Gain average by region;; average SiStrip Gain",
+                                           firstmap.size(),
+                                           0.,
+                                           firstmap.size());
+      auto hlast = std::make_unique<TH1F>(
+          "byRegion2", "SiStrip APV Gain average by region;; average SiStrip Gain", lastmap.size(), 0., lastmap.size());
 
       hfirst->SetStats(false);
       hlast->SetStats(false);
@@ -1963,7 +1941,7 @@ namespace {
       legend.AddEntry(hlast.get(), ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "PL");
       legend.Draw("same");
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
@@ -1973,31 +1951,23 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
-  class SiStripApvGainsComparatorByRegionSingleTag : public SiStripApvGainsComparatorByRegionBase {
-  public:
-    SiStripApvGainsComparatorByRegionSingleTag() : SiStripApvGainsComparatorByRegionBase() { setSingleIov(false); }
-  };
-
-  class SiStripApvGainsComparatorByRegionTwoTags : public SiStripApvGainsComparatorByRegionBase {
-  public:
-    SiStripApvGainsComparatorByRegionTwoTags() : SiStripApvGainsComparatorByRegionBase() { setTwoTags(true); }
-  };
+  using SiStripApvGainsComparatorByRegionSingleTag = SiStripApvGainsComparatorByRegionBase<1, MULTI_IOV>;
+  using SiStripApvGainsComparatorByRegionTwoTags = SiStripApvGainsComparatorByRegionBase<2, SINGLE_IOV>;
 
   /************************************************
     Plot gain averages by region 
   *************************************************/
 
-  class SiStripApvGainsByRegion : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  class SiStripApvGainsByRegion : public PlotImage<SiStripApvGain, SINGLE_IOV> {
   public:
     SiStripApvGainsByRegion()
-        : cond::payloadInspector::PlotImage<SiStripApvGain>("SiStripGains By Region"),
+        : PlotImage<SiStripApvGain, SINGLE_IOV>("SiStripGains By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload(std::get<1>(iov));
 
       std::vector<uint32_t> detid;
@@ -2017,8 +1987,8 @@ namespace {
 
       TCanvas canvas("Region summary", "region summary", 1200, 1000);
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(
-          new TH1F("byRegion", "SiStrip Gain average by region;; average SiStrip Gain", map.size(), 0., map.size()));
+      auto h1 = std::make_unique<TH1F>(
+          "byRegion", "SiStrip Gain average by region;; average SiStrip Gain", map.size(), 0., map.size());
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.12);
@@ -2123,18 +2093,10 @@ PAYLOAD_INSPECTOR_MODULE(SiStripApvGain) {
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsDefaultTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaximumTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMinimumTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatio1sigmaTrackerMapSingleTag);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatio1sigmaTrackerMapTwoTags);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatio2sigmaTrackerMapSingleTag);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatio2sigmaTrackerMapTwoTags);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatio3sigmaTrackerMapSingleTag);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatio3sigmaTrackerMapTwoTags);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio1sigmaTrackerMapSingleTag);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio1sigmaTrackerMapTwoTags);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio2sigmaTrackerMapSingleTag);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio2sigmaTrackerMapTwoTags);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio3sigmaTrackerMapSingleTag);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio3sigmaTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatioWithPreviousIOVTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatioTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatioWithPreviousIOVTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatioTrackerMapTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainByRunMeans);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainMin_History);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainMax_History);

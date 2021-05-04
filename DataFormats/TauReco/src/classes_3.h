@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TauReco/interface/BaseTauTagInfo.h"
 #include "DataFormats/TauReco/interface/PFTauTagInfo.h"
 #include "DataFormats/TauReco/interface/BaseTau.h"
@@ -9,6 +10,7 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Ptr.h"
@@ -29,8 +31,6 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include <vector>
 #include <map>

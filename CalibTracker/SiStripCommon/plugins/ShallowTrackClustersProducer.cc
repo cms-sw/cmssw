@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowTrackClustersProducer.h"
+#include "ShallowTrackClustersProducer.h"
 
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
 
@@ -7,26 +7,21 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
-#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 #include <map>
 
 ShallowTrackClustersProducer::ShallowTrackClustersProducer(const edm::ParameterSet& iConfig)
     : tracks_token_(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("Tracks"))),
       association_token_(consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("Tracks"))),
       clusters_token_(consumes<edmNew::DetSetVector<SiStripCluster>>(iConfig.getParameter<edm::InputTag>("Clusters"))),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      laToken_(esConsumes<SiStripLorentzAngle, SiStripLorentzAngleDepRcd>()),
       Suffix(iConfig.getParameter<std::string>("Suffix")),
       Prefix(iConfig.getParameter<std::string>("Prefix")) {
   produces<std::vector<int>>(Prefix + "clusterIdx" + Suffix);          //link: on trk cluster --> general cluster info
@@ -154,12 +149,9 @@ void ShallowTrackClustersProducer::produce(edm::Event& iEvent, const edm::EventS
   auto globalZofunitlocalY = std::make_unique<std::vector<float>>();
   globalZofunitlocalY->reserve(size);
 
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-  edm::ESHandle<MagneticField> magfield;
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle;
-  iSetup.get<SiStripLorentzAngleDepRcd>().get(SiStripLorentzAngle);
+  edm::ESHandle<TrackerGeometry> theTrackerGeometry = iSetup.getHandle(geomToken_);
+  edm::ESHandle<MagneticField> magfield = iSetup.getHandle(magFieldToken_);
+  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle = iSetup.getHandle(laToken_);
 
   edm::Handle<TrajTrackAssociationCollection> associations;
   iEvent.getByToken(association_token_, associations);

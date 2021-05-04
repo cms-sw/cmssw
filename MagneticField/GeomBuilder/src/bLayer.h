@@ -1,55 +1,58 @@
 #ifndef bLayer_H
 #define bLayer_H
 
-/** \class MagGeoBuilderFromDDD::bLayer
+/** \class bLayer
  *  A layer of barrel volumes. Holds a list of volumes and 12 sectors.
  *  It is assumed that the geometry is 12-fold periodic in phi!
  *
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
-#include "MagneticField/GeomBuilder/src/bSector.h"
+#include "bSector.h"
 
 class MagBLayer;
 
-class MagGeoBuilderFromDDD::bLayer {
-public:
-  /// Constructor from list of volumes
-  bLayer(handles::const_iterator begin, handles::const_iterator end);
+namespace magneticfield {
 
-  /// Destructor
-  ~bLayer();
+  class bLayer {
+  public:
+    /// Constructor from list of volumes
+    bLayer(handles::const_iterator begin, handles::const_iterator end, bool debugFlag = false);
 
-  /// Distance  from center along normal of sectors.
-  const float RN() const { return theVolumes.front()->RN(); }
+    /// Destructor
+    ~bLayer() = default;
 
-  /// Return the list of all volumes.
-  const handles& volumes() const { return theVolumes; }
+    /// Distance  from center along normal of sectors.
+    const float RN() const { return theVolumes.front()->RN(); }
 
-  /// Return sector at i (handling periodicity)
-  //   const bSector & sector(int i) const;
+    /// Return the list of all volumes.
+    const handles& volumes() const { return theVolumes; }
 
-  /// Min R (conservative guess).
-  double minR() const;
+    /// Return sector at i (handling periodicity)
+    //   const bSector & sector(int i) const;
 
-  // Depends on volumeHandle::maxR(), which actually returns max RN.
-  // (should be changed?)
-  // double maxR() const;
+    /// Min R (conservative guess).
+    double minR() const;
 
-  /// Construct the MagBLayer upon request.
-  MagBLayer* buildMagBLayer() const;
+    // Depends on volumeHandle::maxR(), which actually returns max RN.
+    // (should be changed?)
+    // double maxR() const;
 
-private:
-  int size;  //< the number of volumes
+    /// Construct the MagBLayer upon request.
+    MagBLayer* buildMagBLayer() const;
 
-  // Check periodicity;
-  int bin(int i) const;
+  private:
+    int size;  //< the number of volumes
 
-  std::vector<bSector> sectors;  // the sectors in this layer
-  handles theVolumes;            // pointer to all volumes in this layer
+    // Check periodicity;
+    int bin(int i) const;
 
-  mutable MagBLayer* mlayer;
-};
+    std::vector<bSector> sectors;  // the sectors in this layer
+    handles theVolumes;            // pointer to all volumes in this layer
+
+    mutable MagBLayer* mlayer;
+    const bool debug;
+  };
+}  // namespace magneticfield
+
 #endif

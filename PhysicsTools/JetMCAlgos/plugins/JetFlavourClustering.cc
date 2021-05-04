@@ -89,12 +89,13 @@
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfo.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -158,16 +159,16 @@ private:
                     const bool isLepton,
                     std::vector<fastjet::PseudoJet>& constituents);
 
-  void matchReclusteredJets(const edm::Handle<edm::View<reco::Jet> >& jets,
+  void matchReclusteredJets(const edm::Handle<edm::View<reco::Jet>>& jets,
                             const std::vector<fastjet::PseudoJet>& matchedJets,
                             std::vector<int>& matchedIndices);
-  void matchGroomedJets(const edm::Handle<edm::View<reco::Jet> >& jets,
-                        const edm::Handle<edm::View<reco::Jet> >& matchedJets,
+  void matchGroomedJets(const edm::Handle<edm::View<reco::Jet>>& jets,
+                        const edm::Handle<edm::View<reco::Jet>>& matchedJets,
                         std::vector<int>& matchedIndices);
   void matchSubjets(const std::vector<int>& groomedIndices,
-                    const edm::Handle<edm::View<reco::Jet> >& groomedJets,
-                    const edm::Handle<edm::View<reco::Jet> >& subjets,
-                    std::vector<std::vector<int> >& matchedIndices);
+                    const edm::Handle<edm::View<reco::Jet>>& groomedJets,
+                    const edm::Handle<edm::View<reco::Jet>>& subjets,
+                    std::vector<std::vector<int>>& matchedIndices);
 
   void setFlavours(const reco::GenParticleRefVector& clusteredbHadrons,
                    const reco::GenParticleRefVector& clusteredcHadrons,
@@ -176,17 +177,18 @@ private:
                    int& partonFlavour);
 
   void assignToSubjets(const reco::GenParticleRefVector& clusteredParticles,
-                       const edm::Handle<edm::View<reco::Jet> >& subjets,
+                       const edm::Handle<edm::View<reco::Jet>>& subjets,
                        const std::vector<int>& subjetIndices,
                        std::vector<reco::GenParticleRefVector>& assignedParticles);
 
   // ----------member data ---------------------------
-  const edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken_;           // Input jet collection
-  edm::EDGetTokenT<edm::View<reco::Jet> > groomedJetsToken_;          // Input groomed jet collection
-  edm::EDGetTokenT<edm::View<reco::Jet> > subjetsToken_;              // Input subjet collection
+  const edm::EDGetTokenT<edm::View<reco::Jet>> jetsToken_;            // Input jet collection
+  edm::EDGetTokenT<edm::View<reco::Jet>> groomedJetsToken_;           // Input groomed jet collection
+  edm::EDGetTokenT<edm::View<reco::Jet>> subjetsToken_;               // Input subjet collection
   const edm::EDGetTokenT<reco::GenParticleRefVector> bHadronsToken_;  // Input b hadron collection
   const edm::EDGetTokenT<reco::GenParticleRefVector> cHadronsToken_;  // Input c hadron collection
   const edm::EDGetTokenT<reco::GenParticleRefVector> partonsToken_;   // Input parton collection
+  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;               // Input weights collection
   edm::EDGetTokenT<reco::GenParticleRefVector> leptonsToken_;         // Input lepton collection
 
   const std::string jetAlgorithm_;
@@ -196,6 +198,7 @@ private:
   const double relPtTolerance_;
   const bool hadronFlavourHasPriority_;
   const bool useSubjets_;
+
   const bool useLeptons_;
 
   ClusterSequencePtr fjClusterSeq_;
@@ -210,14 +213,13 @@ private:
 // constructors and destructor
 //
 JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
-    :
-
-      jetsToken_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
+    : jetsToken_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       bHadronsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("bHadrons"))),
       cHadronsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("cHadrons"))),
       partonsToken_(consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("partons"))),
       jetAlgorithm_(iConfig.getParameter<std::string>("jetAlgorithm")),
       rParam_(iConfig.getParameter<double>("rParam")),
+
       jetPtMin_(
           0.),  // hardcoded to 0. since we simply want to recluster all input jets which already had some PtMin applied
       ghostRescaling_(iConfig.exists("ghostRescaling") ? iConfig.getParameter<double>("ghostRescaling") : 1e-18),
@@ -232,6 +234,9 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
 {
   // register your products
   produces<reco::JetFlavourInfoMatchingCollection>();
+  if (iConfig.existsAs<edm::InputTag>("weights"))
+    weightsToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("weights"));
+
   if (useSubjets_)
     produces<reco::JetFlavourInfoMatchingCollection>("SubJets");
 
@@ -247,8 +252,8 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig)
                                                 << ", use CambridgeAachen | Kt | AntiKt" << std::endl;
 
   if (useSubjets_) {
-    groomedJetsToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("groomedJets"));
-    subjetsToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("subjets"));
+    groomedJetsToken_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("groomedJets"));
+    subjetsToken_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("subjets"));
   }
   if (useLeptons_) {
     leptonsToken_ = consumes<reco::GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("leptons"));
@@ -266,11 +271,11 @@ JetFlavourClustering::~JetFlavourClustering() {
 
 // ------------ method called to produce the data  ------------
 void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<edm::View<reco::Jet> > jets;
+  edm::Handle<edm::View<reco::Jet>> jets;
   iEvent.getByToken(jetsToken_, jets);
 
-  edm::Handle<edm::View<reco::Jet> > groomedJets;
-  edm::Handle<edm::View<reco::Jet> > subjets;
+  edm::Handle<edm::View<reco::Jet>> groomedJets;
+  edm::Handle<edm::View<reco::Jet>> subjets;
   if (useSubjets_) {
     iEvent.getByToken(groomedJetsToken_, groomedJets);
     iEvent.getByToken(subjetsToken_, subjets);
@@ -284,6 +289,10 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   edm::Handle<reco::GenParticleRefVector> partons;
   iEvent.getByToken(partonsToken_, partons);
+
+  edm::Handle<edm::ValueMap<float>> weights;
+  if (!weightsToken_.isUninitialized())
+    iEvent.getByToken(weightsToken_, weights);
 
   edm::Handle<reco::GenParticleRefVector> leptons;
   if (useLeptons_)
@@ -302,8 +311,8 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
   fjInputs.reserve(reserve);
   // loop over all input jets and collect all their constituents
   for (edm::View<reco::Jet>::const_iterator it = jets->begin(); it != jets->end(); ++it) {
-    std::vector<edm::Ptr<reco::Candidate> > constituents = it->getJetConstituents();
-    std::vector<edm::Ptr<reco::Candidate> >::const_iterator m;
+    std::vector<edm::Ptr<reco::Candidate>> constituents = it->getJetConstituents();
+    std::vector<edm::Ptr<reco::Candidate>>::const_iterator m;
     for (m = constituents.begin(); m != constituents.end(); ++m) {
       reco::CandidatePtr constit = *m;
       if (!constit.isNonnull() || !constit.isAvailable()) {
@@ -315,7 +324,16 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
         edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
         continue;
       }
-      fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+      if (it->isWeighted()) {
+        if (weightsToken_.isUninitialized())
+          throw cms::Exception("MissingConstituentWeight")
+              << "JetFlavourClustering: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+        float w = (*weights)[constit];
+        fjInputs.push_back(
+            fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+      } else {
+        fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
+      }
     }
   }
   // insert "ghost" b hadrons in the vector of constituents
@@ -354,7 +372,7 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // match subjets and original jets
-  std::vector<std::vector<int> > subjetIndices;
+  std::vector<std::vector<int>> subjetIndices;
   if (useSubjets_) {
     matchSubjets(groomedIndices, groomedJets, subjets, subjetIndices);
   }
@@ -538,7 +556,7 @@ void JetFlavourClustering::insertGhosts(const edm::Handle<reco::GenParticleRefVe
 }
 
 // ------------ method that matches reclustered and original jets based on minimum dR ------------
-void JetFlavourClustering::matchReclusteredJets(const edm::Handle<edm::View<reco::Jet> >& jets,
+void JetFlavourClustering::matchReclusteredJets(const edm::Handle<edm::View<reco::Jet>>& jets,
                                                 const std::vector<fastjet::PseudoJet>& reclusteredJets,
                                                 std::vector<int>& matchedIndices) {
   std::vector<bool> matchedLocks(reclusteredJets.size(), false);
@@ -579,8 +597,8 @@ void JetFlavourClustering::matchReclusteredJets(const edm::Handle<edm::View<reco
 }
 
 // ------------ method that matches groomed and original jets based on minimum dR ------------
-void JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Jet> >& jets,
-                                            const edm::Handle<edm::View<reco::Jet> >& groomedJets,
+void JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Jet>>& jets,
+                                            const edm::Handle<edm::View<reco::Jet>>& groomedJets,
                                             std::vector<int>& matchedIndices) {
   std::vector<bool> jetLocks(jets->size(), false);
   std::vector<int> jetIndices;
@@ -628,9 +646,9 @@ void JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Je
 
 // ------------ method that matches subjets and original jets ------------
 void JetFlavourClustering::matchSubjets(const std::vector<int>& groomedIndices,
-                                        const edm::Handle<edm::View<reco::Jet> >& groomedJets,
-                                        const edm::Handle<edm::View<reco::Jet> >& subjets,
-                                        std::vector<std::vector<int> >& matchedIndices) {
+                                        const edm::Handle<edm::View<reco::Jet>>& groomedJets,
+                                        const edm::Handle<edm::View<reco::Jet>>& subjets,
+                                        std::vector<std::vector<int>>& matchedIndices) {
   for (size_t g = 0; g < groomedIndices.size(); ++g) {
     std::vector<int> subjetIndices;
 
@@ -711,7 +729,7 @@ void JetFlavourClustering::setFlavours(const reco::GenParticleRefVector& cluster
 
 // ------------ method that assigns clustered particles to subjets ------------
 void JetFlavourClustering::assignToSubjets(const reco::GenParticleRefVector& clusteredParticles,
-                                           const edm::Handle<edm::View<reco::Jet> >& subjets,
+                                           const edm::Handle<edm::View<reco::Jet>>& subjets,
                                            const std::vector<int>& subjetIndices,
                                            std::vector<reco::GenParticleRefVector>& assignedParticles) {
   // loop over clustered particles and assign them to different subjets based on smallest dR

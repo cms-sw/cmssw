@@ -45,20 +45,22 @@ namespace edm {
     PoolOutputModule& operator=(PoolOutputModule const&) = delete;  // Disallow copying and moving
     std::string const& fileName() const { return fileName_; }
     std::string const& logicalFileName() const { return logicalFileName_; }
-    int const& compressionLevel() const { return compressionLevel_; }
+    int compressionLevel() const { return compressionLevel_; }
     std::string const& compressionAlgorithm() const { return compressionAlgorithm_; }
-    int const& basketSize() const { return basketSize_; }
+    int basketSize() const { return basketSize_; }
+    int eventAuxiliaryBasketSize() const { return eventAuxBasketSize_; }
     int eventAutoFlushSize() const { return eventAutoFlushSize_; }
-    int const& splitLevel() const { return splitLevel_; }
+    int splitLevel() const { return splitLevel_; }
     std::string const& basketOrder() const { return basketOrder_; }
-    int const& treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
-    bool const& overrideInputFileSplitLevels() const { return overrideInputFileSplitLevels_; }
+    int treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
+    bool overrideInputFileSplitLevels() const { return overrideInputFileSplitLevels_; }
+    bool compactEventAuxiliary() const { return compactEventAuxiliary_; }
     DropMetaData const& dropMetaData() const { return dropMetaData_; }
     std::string const& catalog() const { return catalog_; }
     std::string const& moduleLabel() const { return moduleLabel_; }
-    unsigned int const& maxFileSize() const { return maxFileSize_; }
-    int const& inputFileCount() const { return inputFileCount_; }
-    int const& whyNotFastClonable() const { return whyNotFastClonable_; }
+    unsigned int maxFileSize() const { return maxFileSize_; }
+    int inputFileCount() const { return inputFileCount_; }
+    int whyNotFastClonable() const { return whyNotFastClonable_; }
 
     std::string const& currentFileName() const;
 
@@ -96,9 +98,18 @@ namespace edm {
 
       bool operator<(OutputItem const& rh) const { return *branchDescription_ < *rh.branchDescription_; }
 
+      BranchDescription const* branchDescription() const { return branchDescription_; }
+      EDGetToken token() const { return token_; }
+      void const* const product() const { return product_; }
+      void const*& product() { return product_; }
+      void setProduct(void const* iProduct) { product_ = iProduct; }
+      int splitLevel() const { return splitLevel_; }
+      int basketSize() const { return basketSize_; }
+
+    private:
       BranchDescription const* branchDescription_;
       EDGetToken token_;
-      mutable void const* product_;
+      void const* product_;
       int splitLevel_;
       int basketSize_;
     };
@@ -121,6 +132,8 @@ namespace edm {
 
     OutputItemListArray const& selectedOutputItemList() const { return selectedOutputItemList_; }
 
+    OutputItemListArray& selectedOutputItemList() { return selectedOutputItemList_; }
+
     BranchChildren const& branchChildren() const { return branchChildren_; }
 
   protected:
@@ -132,7 +145,7 @@ namespace edm {
     virtual void doExtrasAfterCloseFile();
 
   private:
-    void preActionBeforeRunEventAsync(WaitingTask* iTask,
+    void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                       ModuleCallingContext const& iModuleCallingContext,
                                       Principal const& iPrincipal) const override;
 
@@ -165,6 +178,7 @@ namespace edm {
     void writeBranchIDListRegistry();
     void writeThinnedAssociationsHelper();
     void writeProductDependencies();
+    void writeEventAuxiliary();
     void finishEndFile();
 
     void fillSelectedItemList(BranchType branchtype, TTree* theInputTree);
@@ -181,6 +195,7 @@ namespace edm {
     int const compressionLevel_;
     std::string const compressionAlgorithm_;
     int const basketSize_;
+    int const eventAuxBasketSize_;
     int const eventAutoFlushSize_;
     int const splitLevel_;
     std::string basketOrder_;
@@ -191,12 +206,11 @@ namespace edm {
     bool initializedFromInput_;
     int outputFileCount_;
     int inputFileCount_;
-    unsigned int childIndex_;
-    unsigned int numberOfDigitsInIndex_;
     BranchParents branchParents_;
     BranchChildren branchChildren_;
     std::vector<BranchID> producedBranches_;
     bool overrideInputFileSplitLevels_;
+    bool compactEventAuxiliary_;
     edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;
     std::vector<std::string> processesWithSelectedMergeableRunProducts_;

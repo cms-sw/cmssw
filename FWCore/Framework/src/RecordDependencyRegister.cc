@@ -27,6 +27,11 @@ namespace edm {
         static tbb::concurrent_unordered_map<EventSetupRecordKey, DepFunction, KeyHash> s_map;
         return s_map;
       }
+
+      tbb::concurrent_unordered_map<EventSetupRecordKey, bool, KeyHash>& getAllowMap() {
+        static tbb::concurrent_unordered_map<EventSetupRecordKey, bool, KeyHash> s_allow_map;
+        return s_allow_map;
+      }
     }  // namespace
 
     std::set<EventSetupRecordKey> dependencies(EventSetupRecordKey const& iKey) {
@@ -38,7 +43,19 @@ namespace edm {
       return std::set<EventSetupRecordKey>();
     }
 
-    void addDependencyFunction(EventSetupRecordKey iKey, DepFunction iFunction) { getMap().emplace(iKey, iFunction); }
+    bool allowConcurrentIOVs(EventSetupRecordKey const& iKey) {
+      auto& map = getAllowMap();
+      auto itFind = map.find(iKey);
+      if (itFind != map.end()) {
+        return itFind->second;
+      }
+      return false;
+    }
+
+    void addDependencyFunction(EventSetupRecordKey iKey, DepFunction iFunction, bool allowConcurrentIOVs) {
+      getMap().emplace(iKey, iFunction);
+      getAllowMap().emplace(iKey, allowConcurrentIOVs);
+    }
 
   }  // namespace eventsetup
 }  // namespace edm

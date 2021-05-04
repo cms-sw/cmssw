@@ -1,7 +1,7 @@
 #ifndef SiStripRecHitConverterAlgorithm_h
 #define SiStripRecHitConverterAlgorithm_h
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
@@ -13,9 +13,14 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 namespace edm {
+  class ConsumesCollector;
   class ParameterSet;
+  class ParameterSetDescription;
   class EventSetup;
 }  // namespace edm
+class TrackerDigiGeometryRecord;
+class TkStripCPERecord;
+class SiStripQualityRcd;
 
 class SiStripRecHitConverterAlgorithm {
 public:
@@ -38,10 +43,12 @@ public:
     }
   };
 
-  SiStripRecHitConverterAlgorithm(const edm::ParameterSet&);
+  SiStripRecHitConverterAlgorithm(const edm::ParameterSet&, edm::ConsumesCollector);
   void initialize(const edm::EventSetup&);
   void run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output);
   void run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output, LocalVector trackdirection);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   void match(products& output, LocalVector trackdirection) const;
@@ -49,13 +56,15 @@ private:
   bool isMasked(const SiStripCluster& cluster, bool bad128StripBlocks[6]) const;
   bool useModule(const uint32_t id) const;
 
-  bool useQuality, maskBad128StripBlocks;
-  uint32_t tracker_cache_id, cpe_cache_id, quality_cache_id;
-  edm::ESInputTag cpeTag, matcherTag, qualityTag;
-  edm::ESHandle<TrackerGeometry> tracker;
-  edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
-  edm::ESHandle<SiStripRecHitMatcher> matcher;
-  edm::ESHandle<SiStripQuality> quality;
+  bool useQuality, maskBad128StripBlocks, doMatching;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken;
+  edm::ESGetToken<StripClusterParameterEstimator, TkStripCPERecord> cpeToken;
+  edm::ESGetToken<SiStripRecHitMatcher, TkStripCPERecord> matcherToken;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken;
+  const TrackerGeometry* tracker = nullptr;
+  const StripClusterParameterEstimator* parameterestimator = nullptr;
+  const SiStripRecHitMatcher* matcher = nullptr;
+  const SiStripQuality* quality = nullptr;
 
   typedef SiStripRecHit2DCollection::FastFiller Collector;
 };

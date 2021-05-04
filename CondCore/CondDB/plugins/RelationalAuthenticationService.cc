@@ -10,15 +10,14 @@
 #include "CoralKernel/Property.h"
 #include "CoralKernel/Context.h"
 //
-#include <memory>
 #include <cstdlib>
-#include <fstream>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <boost/filesystem.hpp>
-#include <boost/version.hpp>
+#include <fstream>
+#include <memory>
+#include <sys/stat.h>
+
 #include <boost/bind.hpp>
-//#include <iostream>
+
 #include "CoralBase/MessageStream.h"
 
 cond::RelationalAuthenticationService::RelationalAuthenticationService::RelationalAuthenticationService(
@@ -85,6 +84,10 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
     cond::throwException(msg, "cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials");
   }
   return *creds;
+}
+
+std::string cond::RelationalAuthenticationService::RelationalAuthenticationService::principalName() {
+  return m_db.keyPrincipalName();
 }
 
 DEFINE_CORALSERVICE(cond::RelationalAuthenticationService::RelationalAuthenticationService,

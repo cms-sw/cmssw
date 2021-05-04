@@ -37,7 +37,7 @@ void L1TMuonEndCapParamsWriter::analyze(const edm::Event& iEvent, const edm::Eve
   else
     evSetup.get<L1TMuonEndCapParamsRcd>().get(handle1);
 
-  boost::shared_ptr<L1TMuonEndCapParams> ptr1(new L1TMuonEndCapParams(*(handle1.product())));
+  std::shared_ptr<L1TMuonEndCapParams> ptr1(new L1TMuonEndCapParams(*(handle1.product())));
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {

@@ -1,5 +1,6 @@
 #ifndef RecoTracker_TkSeedGenerator_SeedFromConsecutiveHitsTripletOnlyCreator_H
 #define RecoTracker_TkSeedGenerator_SeedFromConsecutiveHitsTripletOnlyCreator_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "SeedFromConsecutiveHitsCreator.h"
 

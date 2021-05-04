@@ -23,8 +23,6 @@
 #include <cstddef>
 #include <cmath>
 
-#include <boost/shared_ptr.hpp>
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 namespace cond {
@@ -126,7 +124,6 @@ namespace cond {
 
     equal_pointer(std::unique_ptr);
     equal_pointer(std::shared_ptr);
-    equal_pointer(boost::shared_ptr);
 #undef equal_pointer
 
     template <typename T, std::size_t N>

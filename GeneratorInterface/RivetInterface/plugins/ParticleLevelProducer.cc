@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "GeneratorInterface/RivetInterface/interface/ParticleLevelProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -17,10 +19,8 @@ using namespace reco;
 using namespace Rivet;
 
 ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset)
-    : srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))),
-      rivetAnalysis_(new Rivet::RivetAnalysis(pset)) {
+    : srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))), pset_(pset) {
   usesResource("Rivet");
-
   genVertex_ = reco::Particle::Point(0, 0, 0);
 
   produces<reco::GenParticleCollection>("neutrinos");
@@ -31,9 +31,6 @@ ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset)
   produces<reco::GenParticleCollection>("consts");
   produces<reco::GenParticleCollection>("tags");
   produces<reco::METCollection>("mets");
-
-  analysisHandler_.setIgnoreBeams(true);
-  analysisHandler_.addAnalysis(rivetAnalysis_);
 }
 
 void ParticleLevelProducer::addGenJet(Rivet::Jet jet,
@@ -91,6 +88,16 @@ void ParticleLevelProducer::addGenJet(Rivet::Jet jet,
     } else {
       tags->push_back(reco::GenParticle(p.charge(), p4(p) * 1e-20, genVertex_, p.pid(), 2, true));
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, ++iTag)));
+      // Also save lepton+neutrino daughters of tag particles
+      int iTagMother = iTag;
+      for (auto const& d : p.constituents()) {
+        ++iTag;
+        int d_status = (d.isStable()) ? 1 : 2;
+        tags->push_back(reco::GenParticle(d.charge(), p4(d) * 1e-20, genVertex_, d.pid(), d_status, true));
+        tags->at(iTag).addMother(reco::GenParticleRef(tagsRefHandle, iTagMother));
+        tags->at(iTagMother).addDaughter(reco::GenParticleRef(tagsRefHandle, iTag));
+        genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, iTag)));
+      }
     }
   }
 
@@ -116,7 +123,16 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   event.getByToken(srcToken_, srcHandle);
 
   const HepMC::GenEvent* genEvent = srcHandle->GetEvent();
-  analysisHandler_.analyze(*genEvent);
+
+  if (!rivetAnalysis_ || !rivetAnalysis_->hasProjection("FS")) {
+    rivetAnalysis_ = new Rivet::RivetAnalysis(pset_);
+    analysisHandler_ = std::make_unique<Rivet::AnalysisHandler>();
+
+    analysisHandler_->setIgnoreBeams(true);
+    analysisHandler_->addAnalysis(rivetAnalysis_);
+  }
+
+  analysisHandler_->analyze(*genEvent);
 
   // Convert into edm objects
   // Prompt neutrinos
@@ -159,10 +175,10 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   std::sort(leptons->begin(), leptons->end(), GreaterByPt<reco::GenJet>());
 
   // Jets with constituents and tag particles
-  for (auto jet : rivetAnalysis_->jets()) {
+  for (const auto& jet : rivetAnalysis_->jets()) {
     addGenJet(jet, jets, consts, constsRefHandle, iConstituent, tags, tagsRefHandle, iTag);
   }
-  for (auto jet : rivetAnalysis_->fatjets()) {
+  for (const auto& jet : rivetAnalysis_->fatjets()) {
     addGenJet(jet, fatjets, consts, constsRefHandle, iConstituent, tags, tagsRefHandle, iTag);
   }
 

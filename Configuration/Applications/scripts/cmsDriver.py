@@ -27,17 +27,17 @@ def run():
         
         configBuilder.prepare()
         # fetch the results and write it to file
-        config = file(options.python_filename,"w")
+        config = open(options.python_filename,"w")
         config.write(configBuilder.pythonCfgCode)
         config.close()
 
         # handle different dump options
         if options.dump_python:
             result = {}
-            execfile(options.python_filename, result)
+            exec(open(options.python_filename).read(), result)
             process = result["process"]
             expanded = process.dumpPython()
-            expandedFile = file(options.python_filename,"w")
+            expandedFile = open(options.python_filename,"w")
             expandedFile.write(expanded)
             expandedFile.close()
             print("Expanded config file", options.python_filename, "created")

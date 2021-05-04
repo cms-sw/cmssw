@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #taken from root_numpy examples
 #https://rootpy.github.io/root_numpy/auto_examples/tmva/plot_regression.html
 import matplotlib

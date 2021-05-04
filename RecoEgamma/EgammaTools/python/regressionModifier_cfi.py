@@ -14,10 +14,10 @@ regressionModifier106XUL = cms.PSet(
             rangeMaxHighEt = cms.double(3.0),
             forceHighEnergyTrainingIfSaturated = cms.bool(True),
             lowEtHighEtBoundary = cms.double(999999.),
-            ebLowEtForestName = cms.string("electron_eb_ecalOnly_1To300_0p2To2_mean"),
-            ebHighEtForestName = cms.string("electron_eb_ECALonly"),
-            eeLowEtForestName = cms.string("electron_ee_ecalOnly_1To300_0p2To2_mean"),
-            eeHighEtForestName = cms.string("electron_ee_ECALonly"),
+            ebLowEtForestName = cms.ESInputTag("", "electron_eb_ecalOnly_1To300_0p2To2_mean"),
+            ebHighEtForestName = cms.ESInputTag("", "electron_eb_ECALonly"),
+            eeLowEtForestName = cms.ESInputTag("", "electron_ee_ecalOnly_1To300_0p2To2_mean"),
+            eeHighEtForestName = cms.ESInputTag("", "electron_ee_ECALonly"),
             ),
         ecalOnlySigma = cms.PSet(
             rangeMinLowEt = cms.double(0.0002),
@@ -26,10 +26,10 @@ regressionModifier106XUL = cms.PSet(
             rangeMaxHighEt = cms.double(0.5),
             forceHighEnergyTrainingIfSaturated = cms.bool(True),
             lowEtHighEtBoundary = cms.double(999999.),
-            ebLowEtForestName = cms.string("electron_eb_ecalOnly_1To300_0p0002To0p5_sigma"),
-            ebHighEtForestName = cms.string("electron_eb_ECALonly_var"),
-            eeLowEtForestName = cms.string("electron_ee_ecalOnly_1To300_0p0002To0p5_sigma"),
-            eeHighEtForestName = cms.string("electron_ee_ECALonly_var"),
+            ebLowEtForestName = cms.ESInputTag("", "electron_eb_ecalOnly_1To300_0p0002To0p5_sigma"),
+            ebHighEtForestName = cms.ESInputTag("", "electron_eb_ECALonly_var"),
+            eeLowEtForestName = cms.ESInputTag("", "electron_ee_ecalOnly_1To300_0p0002To0p5_sigma"),
+            eeHighEtForestName = cms.ESInputTag("", "electron_ee_ECALonly_var"),
             ),
         epComb = cms.PSet(
             ecalTrkRegressionConfig = cms.PSet(
@@ -39,10 +39,10 @@ regressionModifier106XUL = cms.PSet(
                 rangeMaxHighEt = cms.double(2.0),
                 lowEtHighEtBoundary = cms.double(999999.),
                 forceHighEnergyTrainingIfSaturated = cms.bool(False),
-                ebLowEtForestName = cms.string('electron_eb_ecalTrk_1To300_0p2To2_mean'),
-                ebHighEtForestName = cms.string('electron_eb_ecalTrk_1To300_0p2To2_mean'),
-                eeLowEtForestName = cms.string('electron_ee_ecalTrk_1To300_0p2To2_mean'),
-                eeHighEtForestName = cms.string('electron_ee_ecalTrk_1To300_0p2To2_mean'),
+                ebLowEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To300_0p2To2_mean'),
+                ebHighEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To300_0p2To2_mean'),
+                eeLowEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To300_0p2To2_mean'),
+                eeHighEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To300_0p2To2_mean'),
                 ),
             ecalTrkRegressionUncertConfig = cms.PSet(
                 rangeMinLowEt = cms.double(0.0002),
@@ -51,10 +51,10 @@ regressionModifier106XUL = cms.PSet(
                 rangeMaxHighEt = cms.double(0.5),
                 lowEtHighEtBoundary = cms.double(999999.),  
                 forceHighEnergyTrainingIfSaturated = cms.bool(False),
-                ebLowEtForestName = cms.string('electron_eb_ecalTrk_1To300_0p0002To0p5_sigma'),
-                ebHighEtForestName = cms.string('electron_eb_ecalTrk_1To300_0p0002To0p5_sigma'),
-                eeLowEtForestName = cms.string('electron_ee_ecalTrk_1To300_0p0002To0p5_sigma'),
-                eeHighEtForestName = cms.string('electron_ee_ecalTrk_1To300_0p0002To0p5_sigma'),
+                ebLowEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To300_0p0002To0p5_sigma'),
+                ebHighEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To300_0p0002To0p5_sigma'),
+                eeLowEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To300_0p0002To0p5_sigma'),
+                eeHighEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To300_0p0002To0p5_sigma'),
                 ),
             maxEcalEnergyForComb=cms.double(200.),
             minEOverPForComb=cms.double(0.025),
@@ -70,10 +70,10 @@ regressionModifier106XUL = cms.PSet(
             rangeMaxHighEt = cms.double(3.0),
             forceHighEnergyTrainingIfSaturated = cms.bool(True),
             lowEtHighEtBoundary = cms.double(999999.),
-            ebLowEtForestName = cms.string("photon_eb_ecalOnly_5To300_0p2To2_mean"),
-            ebHighEtForestName = cms.string("photon_eb_ECALonly"),
-            eeLowEtForestName = cms.string("photon_ee_ecalOnly_5To300_0p2To2_mean"),
-            eeHighEtForestName = cms.string("photon_ee_ECALonly"),
+            ebLowEtForestName = cms.ESInputTag("", "photon_eb_ecalOnly_5To300_0p2To2_mean"),
+            ebHighEtForestName = cms.ESInputTag("", "photon_eb_ECALonly"),
+            eeLowEtForestName = cms.ESInputTag("", "photon_ee_ecalOnly_5To300_0p2To2_mean"),
+            eeHighEtForestName = cms.ESInputTag("", "photon_ee_ECALonly"),
             ),
         ecalOnlySigma = cms.PSet(
             rangeMinLowEt = cms.double(0.0002),
@@ -82,10 +82,100 @@ regressionModifier106XUL = cms.PSet(
             rangeMaxHighEt = cms.double(0.5),
             forceHighEnergyTrainingIfSaturated = cms.bool(True),
             lowEtHighEtBoundary = cms.double(999999.),
-            ebLowEtForestName = cms.string("photon_eb_ecalOnly_5To300_0p0002To0p5_sigma"),
-            ebHighEtForestName = cms.string("photon_eb_ECALonly_var"),
-            eeLowEtForestName = cms.string("photon_ee_ecalOnly_5To300_0p0002To0p5_sigma"),
-            eeHighEtForestName = cms.string("photon_ee_ECALonly_var"),
+            ebLowEtForestName = cms.ESInputTag("", "photon_eb_ecalOnly_5To300_0p0002To0p5_sigma"),
+            ebHighEtForestName = cms.ESInputTag("", "photon_eb_ECALonly_var"),
+            eeLowEtForestName = cms.ESInputTag("", "photon_ee_ecalOnly_5To300_0p0002To0p5_sigma"),
+            eeHighEtForestName = cms.ESInputTag("", "photon_ee_ECALonly_var"),
+        ),
+    )
+)
+
+regressionModifier103XLowPtPho = cms.PSet(
+    modifierName = cms.string('EGRegressionModifierV3'),       
+    rhoTag = cms.InputTag('fixedGridRhoFastjetAllTmp'),
+    useClosestToCentreSeedCrysDef = cms.bool(False),
+    maxRawEnergyForLowPtEBSigma = cms.double(-1), 
+    maxRawEnergyForLowPtEESigma = cms.double(1200.),
+    eleRegs = cms.PSet(
+        ecalOnlyMean = cms.PSet(
+            rangeMinLowEt = cms.double(0.2),
+            rangeMaxLowEt = cms.double(2.0),
+            rangeMinHighEt = cms.double(-1.),
+            rangeMaxHighEt = cms.double(3.0),
+            forceHighEnergyTrainingIfSaturated = cms.bool(True),
+            lowEtHighEtBoundary = cms.double(999999.),
+            ebLowEtForestName = cms.ESInputTag("", "electron_eb_ecalOnly_1To20_0p2To2_mean"),
+            ebHighEtForestName = cms.ESInputTag("", "electron_eb_ECALonly"),
+            eeLowEtForestName = cms.ESInputTag("", "electron_ee_ecalOnly_1To20_0p2To2_mean"),
+            eeHighEtForestName = cms.ESInputTag("", "electron_ee_ECALonly"),
+            ),
+        ecalOnlySigma = cms.PSet(
+            rangeMinLowEt = cms.double(0.0002),
+            rangeMaxLowEt = cms.double(0.5),
+            rangeMinHighEt = cms.double(0.0002),
+            rangeMaxHighEt = cms.double(0.5),
+            forceHighEnergyTrainingIfSaturated = cms.bool(True),
+            lowEtHighEtBoundary = cms.double(999999.),
+            ebLowEtForestName = cms.ESInputTag("", "electron_eb_ecalOnly_1To20_0p0002To0p5_sigma"),
+            ebHighEtForestName = cms.ESInputTag("", "electron_eb_ECALonly_var"),
+            eeLowEtForestName = cms.ESInputTag("", "electron_ee_ecalOnly_1To20_0p0002To0p5_sigma"),
+            eeHighEtForestName = cms.ESInputTag("", "electron_ee_ECALonly_var"),
+            ),
+        epComb = cms.PSet(
+            ecalTrkRegressionConfig = cms.PSet(
+                rangeMinLowEt = cms.double(0.2),
+                rangeMaxLowEt = cms.double(2.0),
+                rangeMinHighEt = cms.double(0.2),
+                rangeMaxHighEt = cms.double(2.0),
+                lowEtHighEtBoundary = cms.double(999999.),
+                forceHighEnergyTrainingIfSaturated = cms.bool(False),
+                ebLowEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To20_0p2To2_mean'),
+                ebHighEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To20_0p2To2_mean'),
+                eeLowEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To20_0p2To2_mean'),
+                eeHighEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To20_0p2To2_mean'),
+                ),
+            ecalTrkRegressionUncertConfig = cms.PSet(
+                rangeMinLowEt = cms.double(0.0002),
+                rangeMaxLowEt = cms.double(0.5),
+                rangeMinHighEt = cms.double(0.0002),
+                rangeMaxHighEt = cms.double(0.5),
+                lowEtHighEtBoundary = cms.double(999999.),  
+                forceHighEnergyTrainingIfSaturated = cms.bool(False),
+                ebLowEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To20_0p0002To0p5_sigma'),
+                ebHighEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_1To20_0p0002To0p5_sigma'),
+                eeLowEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To20_0p0002To0p5_sigma'),
+                eeHighEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_1To20_0p0002To0p5_sigma'),
+                ),
+            maxEcalEnergyForComb=cms.double(200.),
+            minEOverPForComb=cms.double(0.025),
+            maxEPDiffInSigmaForComb=cms.double(15.),
+            maxRelTrkMomErrForComb=cms.double(10.),                
+            )
+        ),
+    phoRegs = cms.PSet(
+        ecalOnlyMean = cms.PSet(
+            rangeMinLowEt = cms.double(0.2),
+            rangeMaxLowEt = cms.double(2.0),
+            rangeMinHighEt = cms.double(-1.),
+            rangeMaxHighEt = cms.double(3.0),
+            forceHighEnergyTrainingIfSaturated = cms.bool(True),
+            lowEtHighEtBoundary = cms.double(999999.),
+            ebLowEtForestName = cms.ESInputTag("", "photon_eb_ecalOnly_1To20_0p2To2_mean"),
+            ebHighEtForestName = cms.ESInputTag("", "photon_eb_ECALonly"),
+            eeLowEtForestName = cms.ESInputTag("", "photon_ee_ecalOnly_1To20_0p2To2_mean"),
+            eeHighEtForestName = cms.ESInputTag("", "photon_ee_ECALonly"),
+            ),
+        ecalOnlySigma = cms.PSet(
+            rangeMinLowEt = cms.double(0.0002),
+            rangeMaxLowEt = cms.double(0.5),
+            rangeMinHighEt = cms.double(0.0002),
+            rangeMaxHighEt = cms.double(0.5),
+            forceHighEnergyTrainingIfSaturated = cms.bool(True),
+            lowEtHighEtBoundary = cms.double(999999.),
+            ebLowEtForestName = cms.ESInputTag("", "photon_eb_ecalOnly_1To20_0p0002To0p5_sigma"),
+            ebHighEtForestName = cms.ESInputTag("", "photon_eb_ECALonly_var"),
+            eeLowEtForestName = cms.ESInputTag("", "photon_ee_ecalOnly_1To20_0p0002To0p5_sigma"),
+            eeHighEtForestName = cms.ESInputTag("", "photon_ee_ECALonly_var"),
         ),
     )
 )
@@ -129,11 +219,11 @@ regressionModifier80X = \
               electron_config = cms.PSet( # EB, EE                                                                                                                                                          
                                           regressionKey_25ns  = cms.vstring('gedelectron_EBCorrection_25ns', 'gedelectron_EECorrection_25ns'),
                                           uncertaintyKey_25ns = cms.vstring('gedelectron_EBUncertainty_25ns', 'gedelectron_EEUncertainty_25ns'),
-                                          combinationKey_25ns   = cms.string('gedelectron_p4combination_25ns'),
+                                          combinationKey_25ns   = cms.ESInputTag("", 'gedelectron_p4combination_25ns'),
 
                                           regressionKey_50ns  = cms.vstring('gedelectron_EBCorrection_50ns', 'gedelectron_EECorrection_50ns'),
                                           uncertaintyKey_50ns = cms.vstring('gedelectron_EBUncertainty_50ns', 'gedelectron_EEUncertainty_50ns'),
-                                          combinationKey_50ns   = cms.string('gedelectron_p4combination_50ns'),
+                                          combinationKey_50ns   = cms.ESInputTag("", 'gedelectron_p4combination_50ns'),
                                           ),
 
               photon_config   = cms.PSet( # EB, EE                                                                                                                                                          
@@ -150,8 +240,11 @@ regressionModifier80X = \
 regressionModifier = regressionModifier94X.clone()
 
 
+from Configuration.Eras.Modifier_run2_egamma_2016_cff import run2_egamma_2016
 from Configuration.Eras.Modifier_run2_egamma_2017_cff import run2_egamma_2017
-run2_egamma_2017.toReplaceWith(regressionModifier,regressionModifier106XUL)
-
 from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
-run2_egamma_2018.toReplaceWith(regressionModifier,regressionModifier106XUL)
+
+(run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toReplaceWith(regressionModifier,regressionModifier106XUL)
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toReplaceWith(regressionModifier,regressionModifier103XLowPtPho)

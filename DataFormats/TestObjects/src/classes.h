@@ -18,6 +18,7 @@
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/TrackOfThings.h"
+#include "DataFormats/TestObjects/interface/TrackOfDSVThings.h"
 
 #include "DataFormats/TestObjects/interface/StreamTestSimple.h"
 #include "DataFormats/TestObjects/interface/StreamTestThing.h"
@@ -30,6 +31,7 @@
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "DataFormats/Common/interface/RandomNumberGeneratorState.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"

@@ -10,27 +10,21 @@ import FWCore.ParameterSet.Config as cms
 #the default set of includes
 from RecoMuon.MuonIsolationProducers.muIsoDeposits_setup_cff import *
 #the default set of modules first
-#from RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi import *
-#from RecoMuon.MuonIsolationProducers.muIsoDepositJets_cfi import *
-#from RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi import *
 from RecoMuon.MuonIsolationProducers.muIsoDepositCopies_cfi import *
 from RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi import *
 import RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi
-muParamGlobalIsoDepositCtfTk = RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi.muIsoDepositTk.clone()
 import RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi
-muParamGlobalIsoDepositCalByAssociatorTowers = RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi.muIsoDepositCalByAssociatorTowers.clone()
-import RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi
-muParamGlobalIsoDepositCalByAssociatorHits = RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi.muIsoDepositCalByAssociatorHits.clone()
 import RecoMuon.MuonIsolationProducers.muIsoDepositJets_cfi
-muParamGlobalIsoDepositJets = RecoMuon.MuonIsolationProducers.muIsoDepositJets_cfi.muIsoDepositJets.clone()
-import RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi
-muParamGlobalIsoDepositGsTk = RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi.muIsoDepositTk.clone()
-import RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi
-muParamGlobalIsoDepositTk = RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi.muIsoDepositTk.clone()
 import RecoMuon.MuonIsolationProducers.muIsoDepositCal_cfi
+
+muParamGlobalIsoDepositCtfTk   = RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi.muIsoDepositTk.clone()
+muParamGlobalIsoDepositJets    = RecoMuon.MuonIsolationProducers.muIsoDepositJets_cfi.muIsoDepositJets.clone()
+muParamGlobalIsoDepositGsTk    = RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi.muIsoDepositTk.clone()
+muParamGlobalIsoDepositTk      = RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi.muIsoDepositTk.clone()
 muParamGlobalIsoDepositCalEcal = RecoMuon.MuonIsolationProducers.muIsoDepositCal_cfi.muIsoDepositCal.clone()
-import RecoMuon.MuonIsolationProducers.muIsoDepositCal_cfi
 muParamGlobalIsoDepositCalHcal = RecoMuon.MuonIsolationProducers.muIsoDepositCal_cfi.muIsoDepositCal.clone()
+muParamGlobalIsoDepositCalByAssociatorTowers = RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi.muIsoDepositCalByAssociatorTowers.clone()
+muParamGlobalIsoDepositCalByAssociatorHits   = RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi.muIsoDepositCalByAssociatorHits.clone()
 #
 # and now sequences of the above
 #
@@ -82,5 +76,3 @@ muParamGlobalIsoDepositCalHcal.IOPSet = cms.PSet(
 muParamGlobalIsoDepositCalHcal.ExtractorPSet = cms.PSet(
     MIsoCaloExtractorHcalBlock
 )
-
-

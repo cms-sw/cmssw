@@ -20,4 +20,4 @@
 <LINK name="*NoisyStripDistribution__det__*">
   <TestName activate="true">XrangeWithin:-0.5-0.5</TestName>
 </LINK>
-</TESTCONFIGURATION>
+</TESTSCONFIGURATION>

@@ -1,4 +1,4 @@
-<use name="DataFormats/Math"/>
+<use name="RecoTracker/TkSeedGenerator"/>
 <bin file="FastCircle_t.cpp"/>
 <bin file="FastCircleFit_t.cpp">
   <use name="eigen"/>

@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/ProcessBlockIndex.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -46,7 +47,7 @@ namespace edm {
         StreamCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         StreamCacheHolder(StreamCacheHolder<T, C> const&) = delete;
         StreamCacheHolder<T, C>& operator=(StreamCacheHolder<T, C> const&) = delete;
-        ~StreamCacheHolder() {
+        ~StreamCacheHolder() override {
           for (auto c : caches_) {
             delete c;
           }
@@ -88,12 +89,36 @@ namespace edm {
       };
 
       template <typename T, typename C>
+      class InputProcessBlockCacheHolder : public virtual T {
+      public:
+        InputProcessBlockCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
+        InputProcessBlockCacheHolder(InputProcessBlockCacheHolder const&) = delete;
+        InputProcessBlockCacheHolder& operator=(InputProcessBlockCacheHolder const&) = delete;
+        ~InputProcessBlockCacheHolder() noexcept(false) override {}
+
+      protected:
+        // Not implemented yet
+        // const C* inputProcessBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
+
+      private:
+        // Not yet fully implemented, will never get called
+        void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
+          caches_.push_back(accessInputProcessBlock(pb));
+        }
+
+        // Not yet fully implemented, will never get called
+        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) const = 0;
+
+        std::vector<std::shared_ptr<C>> caches_;
+      };
+
+      template <typename T, typename C>
       class RunCacheHolder : public virtual T {
       public:
         RunCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         RunCacheHolder(RunCacheHolder<T, C> const&) = delete;
         RunCacheHolder<T, C>& operator=(RunCacheHolder<T, C> const&) = delete;
-        ~RunCacheHolder() noexcept(false){};
+        ~RunCacheHolder() noexcept(false) override{};
 
       protected:
         C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
@@ -117,7 +142,7 @@ namespace edm {
         LuminosityBlockCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         LuminosityBlockCacheHolder(LuminosityBlockCacheHolder<T, C> const&) = delete;
         LuminosityBlockCacheHolder<T, C>& operator=(LuminosityBlockCacheHolder<T, C> const&) = delete;
-        ~LuminosityBlockCacheHolder() noexcept(false){};
+        ~LuminosityBlockCacheHolder() noexcept(false) override{};
 
       protected:
         C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return caches_[iID].get(); }
@@ -149,7 +174,7 @@ namespace edm {
         RunSummaryCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         RunSummaryCacheHolder(RunSummaryCacheHolder<T, C> const&) = delete;
         RunSummaryCacheHolder<T, C>& operator=(RunSummaryCacheHolder<T, C> const&) = delete;
-        ~RunSummaryCacheHolder() noexcept(false){};
+        ~RunSummaryCacheHolder() noexcept(false) override{};
 
       private:
         friend class EndRunSummaryProducer<T, C>;
@@ -182,21 +207,24 @@ namespace edm {
         LuminosityBlockSummaryCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
         LuminosityBlockSummaryCacheHolder(LuminosityBlockSummaryCacheHolder<T, C> const&) = delete;
         LuminosityBlockSummaryCacheHolder<T, C>& operator=(LuminosityBlockSummaryCacheHolder<T, C> const&) = delete;
-        ~LuminosityBlockSummaryCacheHolder() noexcept(false){};
+        ~LuminosityBlockSummaryCacheHolder() noexcept(false) override{};
 
       private:
+        void preallocLumisSummary(unsigned int iNLumis) final { caches_.reset(new std::shared_ptr<C>[iNLumis]); }
+
         friend class EndLuminosityBlockSummaryProducer<T, C>;
 
         void doBeginLuminosityBlockSummary_(edm::LuminosityBlock const& lb, EventSetup const& c) final {
-          cache_ = globalBeginLuminosityBlockSummary(lb, c);
+          caches_[lb.index()] = globalBeginLuminosityBlockSummary(lb, c);
         }
 
         void doStreamEndLuminosityBlockSummary_(StreamID id, LuminosityBlock const& lb, EventSetup const& c) final {
           std::lock_guard<std::mutex> guard(mutex_);
-          streamEndLuminosityBlockSummary(id, lb, c, cache_.get());
+          streamEndLuminosityBlockSummary(id, lb, c, caches_[lb.index()].get());
         }
         void doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c) final {
-          globalEndLuminosityBlockSummary(lb, c, cache_.get());
+          globalEndLuminosityBlockSummary(lb, c, caches_[lb.index()].get());
+          maybeClearCache(lb);
         }
 
         virtual std::shared_ptr<C> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
@@ -208,9 +236,55 @@ namespace edm {
 
         virtual void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
 
+        virtual void maybeClearCache(LuminosityBlock const& lb) { caches_[lb.index()].reset(); }
+
         //When threaded we will have a container for N items where N is # of simultaneous Lumis
-        std::shared_ptr<C> cache_;
+        std::unique_ptr<std::shared_ptr<C>[]> caches_;
         std::mutex mutex_;
+      };
+
+      template <typename T>
+      class WatchProcessBlock : public virtual T {
+      public:
+        WatchProcessBlock(edm::ParameterSet const& iPSet) : T(iPSet) {}
+        WatchProcessBlock(WatchProcessBlock const&) = delete;
+        WatchProcessBlock& operator=(WatchProcessBlock const&) = delete;
+        ~WatchProcessBlock() noexcept(false) override{};
+
+      private:
+        void doBeginProcessBlock_(ProcessBlock const&) final;
+        void doEndProcessBlock_(ProcessBlock const&) final;
+
+        virtual void beginProcessBlock(ProcessBlock const&) const {}
+        virtual void endProcessBlock(ProcessBlock const&) const {}
+      };
+
+      template <typename T>
+      class BeginProcessBlockProducer : public virtual T {
+      public:
+        BeginProcessBlockProducer(edm::ParameterSet const& iPSet) : T(iPSet) {}
+        BeginProcessBlockProducer(BeginProcessBlockProducer const&) = delete;
+        BeginProcessBlockProducer& operator=(BeginProcessBlockProducer const&) = delete;
+        ~BeginProcessBlockProducer() noexcept(false) override{};
+
+      private:
+        void doBeginProcessBlockProduce_(ProcessBlock&) final;
+
+        virtual void beginProcessBlockProduce(edm::ProcessBlock&) const = 0;
+      };
+
+      template <typename T>
+      class EndProcessBlockProducer : public virtual T {
+      public:
+        EndProcessBlockProducer(edm::ParameterSet const& iPSet) : T(iPSet) {}
+        EndProcessBlockProducer(EndProcessBlockProducer const&) = delete;
+        EndProcessBlockProducer& operator=(EndProcessBlockProducer const&) = delete;
+        ~EndProcessBlockProducer() noexcept(false) override{};
+
+      private:
+        void doEndProcessBlockProduce_(ProcessBlock&) final;
+
+        virtual void endProcessBlockProduce(edm::ProcessBlock&) const = 0;
       };
 
       template <typename T>
@@ -247,7 +321,7 @@ namespace edm {
         EndRunSummaryProducer(edm::ParameterSet const& iPSet) : T(iPSet), RunSummaryCacheHolder<T, C>(iPSet) {}
         EndRunSummaryProducer(EndRunSummaryProducer const&) = delete;
         EndRunSummaryProducer& operator=(EndRunSummaryProducer const&) = delete;
-        ~EndRunSummaryProducer() noexcept(false){};
+        ~EndRunSummaryProducer() noexcept(false) override{};
 
       private:
         void doEndRunProduce_(Run& rp, EventSetup const& c) final {
@@ -290,14 +364,18 @@ namespace edm {
             : T(iPSet), LuminosityBlockSummaryCacheHolder<T, S>(iPSet) {}
         EndLuminosityBlockSummaryProducer(EndLuminosityBlockSummaryProducer const&) = delete;
         EndLuminosityBlockSummaryProducer& operator=(EndLuminosityBlockSummaryProducer const&) = delete;
-        ~EndLuminosityBlockSummaryProducer() noexcept(false){};
+        ~EndLuminosityBlockSummaryProducer() noexcept(false) override{};
 
       private:
         void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) final {
-          globalEndLuminosityBlockProduce(lb, c, LuminosityBlockSummaryCacheHolder<T, S>::cache_.get());
+          globalEndLuminosityBlockProduce(lb, c, LuminosityBlockSummaryCacheHolder<T, S>::caches_[lb.index()].get());
+          LuminosityBlockSummaryCacheHolder<T, S>::caches_[lb.index()].reset();
         }
 
         virtual void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, S const*) const = 0;
+
+        // Do nothing because the cache is cleared in doEndLuminosityBlockProduce_
+        void maybeClearCache(LuminosityBlock const&) final {}
       };
 
       template <typename T>

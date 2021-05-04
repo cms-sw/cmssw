@@ -2,7 +2,6 @@
 #define GEOMETRY_RECORDS_MUON_GEOMETRY_RCD_H
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/DetectorDescriptionRcd.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "Geometry/Records/interface/MuonNumberingRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
@@ -10,16 +9,15 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class MuonGeometryRcd
     : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRcd,
-                                                            boost::mpl::vector<MuonNumberingRcd,
-                                                                               DDSpecParRegistryRcd,
-                                                                               DetectorDescriptionRcd,
-                                                                               GlobalPositionRcd,
-                                                                               DTAlignmentRcd,
-                                                                               DTAlignmentErrorRcd,
-                                                                               DTAlignmentErrorExtendedRcd,
-                                                                               DTRecoGeometryRcd>> {};
+                                                            edm::mpl::Vector<MuonNumberingRcd,
+                                                                             DDSpecParRegistryRcd,
+                                                                             GlobalPositionRcd,
+                                                                             DTAlignmentRcd,
+                                                                             DTAlignmentErrorRcd,
+                                                                             DTAlignmentErrorExtendedRcd,
+                                                                             DTRecoGeometryRcd>> {};
 #endif

@@ -7,9 +7,8 @@
 
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigiCollection.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelGainCalibrations.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
-#include "RecoCTPPS/PixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
 
 class RPixDummyROCSimulator {
 public:
@@ -32,7 +31,6 @@ private:
   bool dead_pixels_simulation_on_;
   dead_pixel_set dead_pixels_;
   int verbosity_;
-  unsigned short pixels_no_;
   double threshold_;
   double electron_per_adc_;
   int VcaltoElectronGain_;

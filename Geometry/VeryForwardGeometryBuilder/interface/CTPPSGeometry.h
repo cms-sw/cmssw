@@ -13,9 +13,6 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
-
 #include <map>
 #include <set>
 
@@ -36,14 +33,13 @@ public:
   typedef std::map<int, const DetGeomDesc*> RPDeviceMapType;
   typedef std::map<unsigned int, std::set<unsigned int> > mapSetType;
 
-  CTPPSGeometry() {}
-  ~CTPPSGeometry() {}
+  using Vector = DetGeomDesc::Translation;
 
   /// build up from DetGeomDesc
-  CTPPSGeometry(const DetGeomDesc* gd) { build(gd); }
+  CTPPSGeometry(const DetGeomDesc* gd, unsigned int verbosity) { build(gd, verbosity); }
 
   /// build up from DetGeomDesc structure
-  void build(const DetGeomDesc*);
+  void build(const DetGeomDesc*, unsigned int verbosity);
 
   //----- setters and getters
 
@@ -58,12 +54,12 @@ public:
 
   ///\brief returns geometry of a detector
   /// performs necessary checks, returns NULL if fails
-  const DetGeomDesc* getSensor(unsigned int id) const;
-  const DetGeomDesc* getSensorNoThrow(unsigned int id) const noexcept;
+  const DetGeomDesc* sensor(unsigned int id) const;
+  const DetGeomDesc* sensorNoThrow(unsigned int id) const noexcept;
 
   /// returns geometry of a RP box
-  const DetGeomDesc* getRP(unsigned int id) const;
-  const DetGeomDesc* getRPNoThrow(unsigned int id) const noexcept;
+  const DetGeomDesc* rp(unsigned int id) const;
+  const DetGeomDesc* rpNoThrow(unsigned int id) const noexcept;
 
   //----- objects iterators
 
@@ -82,34 +78,34 @@ public:
   /// coordinate transformations between local<-->global reference frames
   /// dimensions in mm
   /// sensor id expected
-  CLHEP::Hep3Vector localToGlobal(const DetGeomDesc*, const CLHEP::Hep3Vector&) const;
-  CLHEP::Hep3Vector globalToLocal(const DetGeomDesc*, const CLHEP::Hep3Vector&) const;
-  CLHEP::Hep3Vector localToGlobal(unsigned int, const CLHEP::Hep3Vector&) const;
-  CLHEP::Hep3Vector globalToLocal(unsigned int, const CLHEP::Hep3Vector&) const;
+  Vector localToGlobal(const DetGeomDesc*, const Vector&) const;
+  Vector globalToLocal(const DetGeomDesc*, const Vector&) const;
+  Vector localToGlobal(unsigned int, const Vector&) const;
+  Vector globalToLocal(unsigned int, const Vector&) const;
 
   /// direction transformations between local and global reference frames
   /// \param id sensor id
-  CLHEP::Hep3Vector localToGlobalDirection(unsigned int id, const CLHEP::Hep3Vector&) const;
+  Vector localToGlobalDirection(unsigned int id, const Vector&) const;
   /// direction transformations between global and local reference frames
   /// \param id sensor id
-  CLHEP::Hep3Vector globalToLocalDirection(unsigned int id, const CLHEP::Hep3Vector&) const;
+  Vector globalToLocalDirection(unsigned int id, const Vector&) const;
 
   /// returns translation (position) of a detector
   /// \param id sensor id
-  CLHEP::Hep3Vector getSensorTranslation(unsigned int id) const;
+  Vector sensorTranslation(unsigned int id) const;
 
   /// returns position of a RP box
   /// \param id RP id
-  CLHEP::Hep3Vector getRPTranslation(unsigned int id) const;
+  Vector rpTranslation(unsigned int id) const;
 
   /// after checks returns set of station ids corresponding to the given arm id
-  const std::set<unsigned int>& getStationsInArm(unsigned int) const;
+  const std::set<unsigned int>& stationsInArm(unsigned int) const;
 
   /// after checks returns set of RP ids corresponding to the given station id
-  const std::set<unsigned int>& getRPsInStation(unsigned int) const;
+  const std::set<unsigned int>& rpsInStation(unsigned int) const;
 
   /// after checks returns set of sensor ids corresponding to the given RP id
-  const std::set<unsigned int>& getSensorsInRP(unsigned int) const;
+  const std::set<unsigned int>& sensorsInRP(unsigned int) const;
 
 protected:
   /// map: sensor id --> DetGeomDesc

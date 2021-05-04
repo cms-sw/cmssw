@@ -12,10 +12,15 @@ from __future__ import print_function
 #                                                                              
 ################################################################################
 
+from sys import version_info
 from os import getenv
 from os.path import exists
-from httplib import HTTPSConnection
-from urllib2  import AbstractHTTPHandler
+if version_info[0]==2:
+  from httplib import HTTPSConnection
+  from urllib2  import AbstractHTTPHandler
+else:
+  from http.client import HTTPSConnection
+  from urllib.request  import AbstractHTTPHandler
 #-------------------------------------------------------------------------------  
 
 class X509CertAuth(HTTPSConnection):

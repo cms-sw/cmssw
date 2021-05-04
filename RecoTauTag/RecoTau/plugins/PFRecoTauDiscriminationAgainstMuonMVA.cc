@@ -27,7 +27,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -65,10 +65,10 @@ namespace {
     return mva.product();
   }
 
-  class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationProducerBase {
+  class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationContainerProducerBase {
   public:
     explicit PFRecoTauDiscriminationAgainstMuonMVA(const edm::ParameterSet& cfg)
-        : PFTauDiscriminationProducerBase(cfg),
+        : PFTauDiscriminationContainerProducerBase(cfg),
           moduleLabel_(cfg.getParameter<std::string>("@module_label")),
           mvaReader_(nullptr),
           mvaInput_(nullptr) {
@@ -84,15 +84,11 @@ namespace {
       dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
 
       verbosity_ = cfg.getParameter<int>("verbosity");
-
-      produces<PFTauDiscriminator>("category");
     }
 
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-    double discriminate(const PFTauRef&) const override;
-
-    void endEvent(edm::Event&) override;
+    reco::SingleTauDiscriminatorContainer discriminate(const PFTauRef&) const override;
 
     ~PFRecoTauDiscriminationAgainstMuonMVA() override {
       if (!loadMVAfromDB_)
@@ -120,7 +116,6 @@ namespace {
     double dRmuonMatch_;
 
     edm::Handle<TauCollection> taus_;
-    std::unique_ptr<PFTauDiscriminator> category_output_;
 
     std::vector<TFile*> inputFilesToDelete_;
 
@@ -139,7 +134,6 @@ namespace {
     evt.getByToken(Muons_token, muons_);
 
     evt.getByToken(Tau_token, taus_);
-    category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
   }
 
   namespace {
@@ -170,15 +164,15 @@ namespace {
     }
   }  // namespace
 
-  double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) const {
+  reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) const {
     if (verbosity_) {
       edm::LogPrint("PFTauAgainstMuonMVA") << "<PFRecoTauDiscriminationAgainstMuonMVA::discriminate>:";
       edm::LogPrint("PFTauAgainstMuonMVA") << " moduleLabel = " << moduleLabel_;
     }
 
-    // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
-    double category = 0.;
-    category_output_->setValue(tauIndex_, category);
+    reco::SingleTauDiscriminatorContainer result;
+    // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to apply WP cuts
+    result.rawValues = {-1., 0.};
 
     // CV: computation of anti-muon MVA value requires presence of leading charged hadron
     if (tau->leadPFChargedHadrCand().isNull())
@@ -234,18 +228,12 @@ namespace {
     mvaInput_[9] = numHitsDT[2] + numHitsCSC[2] + numHitsRPC[2];
     mvaInput_[10] = numHitsDT[3] + numHitsCSC[3] + numHitsRPC[3];
 
-    double mvaValue = mvaReader_->GetClassifier(mvaInput_);
+    result.rawValues.at(0) = mvaReader_->GetClassifier(mvaInput_);
     if (verbosity_) {
-      edm::LogPrint("PFTauAgainstMuonMVA") << "mvaValue = " << mvaValue;
+      edm::LogPrint("PFTauAgainstMuonMVA") << "mvaValue = " << result.rawValues.at(0);
     }
-    return mvaValue;
+    return result.rawValues.at(0);
   }
-
-  void PFRecoTauDiscriminationAgainstMuonMVA::endEvent(edm::Event& evt) {
-    // add all category indices to event
-    evt.put(std::move(category_output_), "category");
-  }
-
 }  // namespace
 
 void PFRecoTauDiscriminationAgainstMuonMVA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

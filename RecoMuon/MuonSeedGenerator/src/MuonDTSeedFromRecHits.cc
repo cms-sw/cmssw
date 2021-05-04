@@ -234,7 +234,9 @@ void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
           pt[7] = thispt;
           break;
         }
-        default: { break; }
+        default: {
+          break;
+        }
       }
     }
   }

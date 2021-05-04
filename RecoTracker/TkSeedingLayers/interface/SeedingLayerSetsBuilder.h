@@ -77,7 +77,7 @@ private:
     LayerSpec(const LayerSpec&) = delete;
     LayerSpec& operator=(const LayerSpec&) = delete;
     LayerSpec(LayerSpec&&) = default;
-    LayerSpec& operator=(LayerSpec&&) = default;
+    LayerSpec& operator=(LayerSpec&&) = delete;
     const unsigned short nameIndex;
     std::string pixelHitProducer;
     bool usePixelHitProducer;

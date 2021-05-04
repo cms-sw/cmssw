@@ -1,11 +1,8 @@
-<use   name="boost"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="GeneratorInterface/Core"/>
-<use   name="clhep"/>
-<use   name="pythia6"/>
-<use   name="f77compiler"/>
+<use name="boost"/>
+<use name="GeneratorInterface/Core"/>
+<use name="clhep"/>
+<use name="pythia6"/>
+<use name="f77compiler"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -38,7 +38,7 @@
 #include <TString.h>
 #include <TTree.h>
 #include <TVector.h>
-//#include<TObjString.h>
+#include <TObjString.h>
 
 // forward declarations
 class DDDWorld;

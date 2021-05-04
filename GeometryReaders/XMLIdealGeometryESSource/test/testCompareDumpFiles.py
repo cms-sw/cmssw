@@ -16,13 +16,19 @@ process.source = cms.Source("EmptyIOVSource",
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    compDDdumperrors = cms.untracked.PSet( threshold = cms.untracked.string('ERROR')),
-                                    destinations = cms.untracked.vstring('compDDdumperrors')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        compDDdumperrors = cms.untracked.PSet(
+            threshold = cms.untracked.string('ERROR')
+        )
+    )
+)
 
 process.comparedddump = cms.EDAnalyzer("TestCompareDDDumpFiles",
                                        dumpFile1 = cms.string('workarea/xml/dumpSTD'),
-                                       dumpFile2 = cms.string('workarea/db/dumpBDB'),
+                                       dumpFile2 = cms.string('workarea/db/dumpLocDB'),
                                        tolerance = cms.untracked.double(0.0004)
                                        )
 

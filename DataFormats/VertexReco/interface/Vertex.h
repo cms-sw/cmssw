@@ -18,6 +18,7 @@
  *
  */
 #include <Rtypes.h>
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

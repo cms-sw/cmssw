@@ -62,3 +62,9 @@ phase2_tracker.toModify(SimTrackerPREMIX, outputCommands = [
         'keep *_*_Phase2OTDigiSimLink_*',
         'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
 ])
+
+from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016
+for _entry in [SimTrackerFEVTDEBUG,SimTrackerDEBUG,SimTrackerRAW,SimTrackerRECO,SimTrackerAOD,SimTrackerPREMIX]:
+    strips_vfp30_2016.toModify(_entry, outputCommands = _entry.outputCommands + [
+        'keep *_simAPVsaturation_SimulatedAPVDynamicGain_*'
+    ])

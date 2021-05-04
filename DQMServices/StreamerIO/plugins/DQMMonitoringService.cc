@@ -1,11 +1,12 @@
-#include "DQMMonitoringService.h"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-
 #include <ctime>
 #include <iostream>
+
+#include <fmt/printf.h>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
+#include "DQMMonitoringService.h"
 
 /*
  * This service is very similar to the FastMonitoringService in the HLT,
@@ -15,7 +16,7 @@
 namespace dqmservices {
 
   DQMMonitoringService::DQMMonitoringService(const edm::ParameterSet& pset, edm::ActivityRegistry& ar) {
-    const char* x = getenv("DQM2_SOCKET");
+    const char* x = std::getenv("DQM2_SOCKET");
     if (x) {
       std::cerr << "Monitoring pipe: " << x << std::endl;
       mstream_.connect(boost::asio::local::stream_protocol::endpoint(x));
@@ -74,7 +75,7 @@ namespace dqmservices {
       plumi.put("rate", rate);
 
       std::time_t hkey = std::time(nullptr);
-      doc.add_child(str(boost::format("extra.lumi_stats.%d") % hkey), plumi);
+      doc.add_child(fmt::sprintf("extra.lumi_stats.%d", hkey), plumi);
     }
 
     outputUpdate(doc);

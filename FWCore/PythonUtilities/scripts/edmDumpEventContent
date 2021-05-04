@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
+from builtins import object
 import os
 import sys
 import copy
@@ -7,6 +9,7 @@ import optparse
 import re
 import copy
 import subprocess
+import six
 
 # define regex
 wrapperRE      = re.compile (r'edm::Wrapper<(.+)\s*>$')
@@ -42,8 +45,8 @@ def expandFilename (filename, options):
     stdout, stderr = getOutput ('edmFileUtil -d %s' % filename)
     if stdout:
         return stdout.strip()
-    raise RuntimeError, "Could not successfully run 'edmFileUtil.' Error %s" \
-          % stderr
+    raise RuntimeError("Could not successfully run 'edmFileUtil.' Error %s" \
+          % stderr)
 
 
 class Branch (object):
@@ -60,11 +63,11 @@ class Branch (object):
             self.type = match.group (1)
         else:
             # this isn't a type we're interested in
-            raise ValueError, "Not edm::Wrapper"
+            raise ValueError("Not edm::Wrapper")
         name = trailingDotRE.sub ('', branchInfo.GetName())
         pieces = underscoreRE.split (name)
         if len (pieces) != 4:
-            raise ValueError, "%s not formatted as expected" % name
+            raise ValueError("%s not formatted as expected" % name)
         self.typeString = pieces[0] # not currently used
         self.module     = pieces[1]
         self.label      = pieces[2]
@@ -84,8 +87,8 @@ class Branch (object):
                 found = True
                 break
         if not found:
-            raise ValueError, "%s does not match regexs provided" \
-                  % self.fullname
+            raise ValueError("%s does not match regexs provided" \
+                  % self.fullname)
 
         
     def __str__ (self):
@@ -113,12 +116,12 @@ class Branch (object):
         # that order here.
         order = ['type', 'module', 'label', 'process']
         for obj in branchList:
-            for key, twoList in lengthDict.iteritems():
+            for key, twoList in six.iteritems(lengthDict):
                 attribute = getattr (obj, key)
                 if len (attribute) + 2 > twoList[0]:
                     twoList[0] = len (attribute) + 2
         totalLength = 0
-        for twoList in lengthDict.values():
+        for twoList in list(lengthDict.values()):
             totalLength += twoList[0]
         useMin = True
         if Branch.forceColumns or totalLength < 70:
@@ -149,10 +152,10 @@ class Branch (object):
                                'label'    : 'Label',
                                'process'  : 'Process',
                                'fullname' : 'Full Name'}
-        print title
-        print '-' * len(title)
+        print(title)
+        print('-' * len(title))
         for branch in branchList:
-            print branch
+            print(branch)
 
 #branches = ''
 if __name__ == "__main__":
@@ -181,7 +184,7 @@ if __name__ == "__main__":
                        help="Forces printouts to be in nice columns")
     options, args = parser.parse_args()
     if not args:
-        print parser.print_usage()
+        print(parser.print_usage())
         sys.exit()
     filename = expandFilename (args[0], options)
     ###################
@@ -189,9 +192,9 @@ if __name__ == "__main__":
     ###################
     # check for illegal combinations
     if options.name and options.all:
-        raise RuntimeError, "Can notuse '--name' and '--all' options together."
+        raise RuntimeError("Can notuse '--name' and '--all' options together.")
     if options.lumi and options.run:
-        raise RuntimeError, "Can not use '--lumi' and '--run' options together."
+        raise RuntimeError("Can not use '--lumi' and '--run' options together.")
     if options.name:
         Branch.mode = 'name'
     elif options.all:
@@ -218,12 +221,12 @@ if __name__ == "__main__":
     # saying we don't have a dictionary for all of the objects in the
     # root file.  When we've loaded the file, we're turn it back
     oldStderr = os.dup( sys.stderr.fileno() )
-    newStderr = file ( '/dev/null', 'w')
+    newStderr = open ( '/dev/null', 'w')
     os.dup2( newStderr.fileno(), sys.stderr.fileno() )
     rootfile = ROOT.TFile.Open( filename )
     os.dup2( oldStderr, sys.stderr.fileno() )
     if not rootfile:
-        raise RuntimeError, "Could not open file '%s'." % filename
+        raise RuntimeError("Could not open file '%s'." % filename)
     Tree = rootfile.Get (treeName)
     branches = Tree.GetListOfBranches()
     branchList = []
@@ -232,7 +235,7 @@ if __name__ == "__main__":
             branch = Branch (branchInfo, regexList)
         except Exception as detail:
             if options.skipping:
-                print "Skipping ", detail
+                print("Skipping ", detail)
             continue
         branchList.append (branch)
     Branch.printList (branchList)

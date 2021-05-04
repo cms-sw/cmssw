@@ -1,0 +1,10 @@
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DataFormats/TrackReco"/>
+<use name="CalibTracker/StandaloneTrackerTopology"/>
+<use name="rootgraphics"/>
+<use name="rootmath"/>
+<use name="roothistmatrix"/>
+<export>
+  <lib name="1"/>
+</export>

@@ -1,3 +1,4 @@
+#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -9,8 +10,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
+#include <memory>
+
 #include <sstream>
 
 using namespace reco;
@@ -142,7 +144,7 @@ MuonAssociatorByHits::MuonAssociatorByHits(const edm::ParameterSet &conf, edm::C
   DTHitAssociator dttruth(conf, std::move(iC));
   CSCHitAssociator muonTruth(conf, std::move(iC));
   if (conf.getUntrackedParameter<bool>("dumpInputCollections")) {
-    diagnostics_.reset(new InputDumper(conf, std::move(iC)));
+    diagnostics_ = std::make_unique<InputDumper>(conf, std::move(iC));
   }
 }
 
@@ -177,7 +179,8 @@ RecoToSimCollection MuonAssociatorByHits::associateRecoToSim(
   // GEM hit association
   GEMHitAssociator gemtruth(*e, *setup, conf_);
 
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
+  MuonAssociatorByHitsHelper::Resources resources = {
+      tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
 
   if (diagnostics_) {
     resources.diagnostics_ = [this, e](const TrackHitsCollection &hC, const TrackingParticleCollection &pC) {
@@ -224,7 +227,8 @@ SimToRecoCollection MuonAssociatorByHits::associateSimToReco(
   // GEM hit association
   GEMHitAssociator gemtruth(*e, *setup, conf_);
 
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
+  MuonAssociatorByHitsHelper::Resources resources = {
+      tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
 
   auto bareAssoc = helper_.associateSimToRecoIndices(tH, TPCollectionH, resources);
   for (auto it = bareAssoc.begin(), ed = bareAssoc.end(); it != ed; ++it) {

@@ -1,0 +1,16 @@
+<library name="DDMTDLinear" file="DDMTDLinear.cc">
+  <use name="DataFormats/Math"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/PluginManager"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library name="DD4hep_DDMTDLinear" file="dd4hep/DDMTDLinear.cc">
+  <use name="DataFormats/Math"/>
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="dd4hep"/>
+  <flags DD4HEP_PLUGIN="1"/>
+</library>

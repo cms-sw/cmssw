@@ -5,7 +5,6 @@ process = cms.Process("SiPixelGenErrorDBObjectReaderTest")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-# process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 # process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.source = cms.Source("EmptySource")
@@ -25,7 +24,7 @@ if testGlobalTag :
 #    process.GlobalTag.globaltag = "START72_V3::All"
 
 #use GTs without ::All with the next line
-    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     from Configuration.AlCa.autoCond import autoCond
     #use autocond, see:
     #https://github.com/cms-sw/cmssw/blob/CMSSW_7_3_X/Configuration/AlCa/python/autoCond.py

@@ -3,17 +3,8 @@
 #include <limits>
 
 FTLUncalibratedRecHit::FTLUncalibratedRecHit()
-    : amplitude_(-1.f, -1.f),
-      time_(-1.f, -1.f),
-      timeError_(-1.f),
-      id_(DetId()),
-      row_(0),
-      column_(0),
-      flags_(std::numeric_limits<unsigned char>::max()) {}
-
-FTLUncalibratedRecHit::FTLUncalibratedRecHit(
-    const DetId& id, std::pair<float, float> ampl, std::pair<float, float> time, float timeError, unsigned char flags)
-    : amplitude_(ampl), time_(time), timeError_(timeError), id_(id), row_(0), column_(0), flags_(flags) {}
+    : FTLUncalibratedRecHit(
+          DetId(), 0, 0, {-1.f, -1.f}, {-1.f, -1.f}, -1.f, -1.f, -1.f, std::numeric_limits<unsigned char>::max()) {}
 
 FTLUncalibratedRecHit::FTLUncalibratedRecHit(const DetId& id,
                                              uint8_t row,
@@ -21,10 +12,27 @@ FTLUncalibratedRecHit::FTLUncalibratedRecHit(const DetId& id,
                                              std::pair<float, float> ampl,
                                              std::pair<float, float> time,
                                              float timeError,
+                                             float position,
+                                             float positionError,
                                              unsigned char flags)
-    : amplitude_(ampl), time_(time), timeError_(timeError), id_(id), row_(row), column_(column), flags_(flags) {}
+    : amplitude_(ampl),
+      time_(time),
+      timeError_(timeError),
+      position_(position),
+      positionError_(positionError),
+      id_(id),
+      row_(row),
+      column_(column),
+      flags_(flags) {}
 
-FTLUncalibratedRecHit::~FTLUncalibratedRecHit() {}
+FTLUncalibratedRecHit::FTLUncalibratedRecHit(const DetId& id,
+                                             std::pair<float, float> ampl,
+                                             std::pair<float, float> time,
+                                             float timeError,
+                                             float position,
+                                             float positionError,
+                                             unsigned char flags)
+    : FTLUncalibratedRecHit(id, 0, 0, ampl, time, timeError, position, positionError, flags) {}
 
 bool FTLUncalibratedRecHit::isSaturated() const { return FTLUncalibratedRecHit::checkFlag(kSaturated); }
 

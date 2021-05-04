@@ -38,7 +38,10 @@ MuonTrackResidualsTest::MuonTrackResidualsTest(const edm::ParameterSet& ps) {
   SigmaCriterionName = parameters.getUntrackedParameter<string>("sigmaTestName", "ResidualsSigmaInRange");
   MeanCriterionName = parameters.getUntrackedParameter<string>("meanTestName", "ResidualsMeanInRange");
 }
-void MuonTrackResidualsTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
+void MuonTrackResidualsTest::dqmEndRun(DQMStore::IBooker& ibooker,
+                                       DQMStore::IGetter& igetter,
+                                       edm::Run const&,
+                                       edm::EventSetup const&) {
   ////////////////////////////////////////////////////
   ////   BOOK NEW HISTOGRAMS
   ////////////////////////////////////////////////////
@@ -90,29 +93,6 @@ void MuonTrackResidualsTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
         float sigma = (*res_histo).getRMS(1);
         MeanHistos.find((*histo).first)->second->setBinContent(BinNumber, mean);
         SigmaHistos.find((*histo).first)->second->setBinContent(BinNumber, sigma);
-      }
-    }
-  }
-
-  // Mean test
-  for (map<string, MonitorElement*>::const_iterator hMean = MeanHistos.begin(); hMean != MeanHistos.end(); hMean++) {
-    const QReport* theMeanQReport = (*hMean).second->getQReport(MeanCriterionName);
-    if (theMeanQReport) {
-      vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
-      }
-    }
-  }
-
-  // Sigma test
-  for (map<string, MonitorElement*>::const_iterator hSigma = SigmaHistos.begin(); hSigma != SigmaHistos.end();
-       hSigma++) {
-    const QReport* theSigmaQReport = (*hSigma).second->getQReport(SigmaCriterionName);
-    if (theSigmaQReport) {
-      vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
       }
     }
   }

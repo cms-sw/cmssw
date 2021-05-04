@@ -34,9 +34,12 @@ namespace edm {
     template <typename IT>
     UnscheduledConfigurator(IT iBegin, IT iEnd, UnscheduledAuxiliary const* iAux) : m_aux(iAux) {
       for (auto it = iBegin; it != iEnd; ++it) {
-        m_labelToWorker.emplace((*it)->description().moduleLabel(), *it);
+        m_labelToWorker.emplace((*it)->description()->moduleLabel(), *it);
       }
     }
+
+    UnscheduledConfigurator(const UnscheduledConfigurator&) = delete;                   // stop default
+    const UnscheduledConfigurator& operator=(const UnscheduledConfigurator&) = delete;  // stop default
 
     // ---------- const member functions ---------------------
     Worker* findWorker(std::string const& iLabel) const {
@@ -50,10 +53,6 @@ namespace edm {
     UnscheduledAuxiliary const* auxiliary() const { return m_aux; }
 
   private:
-    UnscheduledConfigurator(const UnscheduledConfigurator&) = delete;  // stop default
-
-    const UnscheduledConfigurator& operator=(const UnscheduledConfigurator&) = delete;  // stop default
-
     // ---------- member data --------------------------------
     std::unordered_map<std::string, Worker*> m_labelToWorker;
     UnscheduledAuxiliary const* m_aux;

@@ -5,21 +5,9 @@
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQM/TrackingMonitor/interface/TrackEfficiencyClient.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include <iostream>
-#include <iomanip>
-#include <cstdio>
-#include <string>
-#include <sstream>
-#include <cmath>
 
 //-----------------------------------------------------------------------------------
 TrackEfficiencyClient::TrackEfficiencyClient(edm::ParameterSet const& iConfig)
@@ -69,7 +57,7 @@ void TrackEfficiencyClient::bookMEs(DQMStore::IBooker& ibooker_)
   histName = "effX_";
   effX = ibooker_.book1D(histName + algoName_, histName + algoName_, effXBin, effXMin, effXMax);
   if (effX->getTH1F())
-    effX->getTH1F()->Sumw2();
+    effX->enableSumw2();
   effX->setAxisTitle("");
 
   //
@@ -80,7 +68,7 @@ void TrackEfficiencyClient::bookMEs(DQMStore::IBooker& ibooker_)
   histName = "effY_";
   effY = ibooker_.book1D(histName + algoName_, histName + algoName_, effYBin, effYMin, effYMax);
   if (effY->getTH1F())
-    effY->getTH1F()->Sumw2();
+    effY->enableSumw2();
   effY->setAxisTitle("");
 
   //
@@ -91,7 +79,7 @@ void TrackEfficiencyClient::bookMEs(DQMStore::IBooker& ibooker_)
   histName = "effZ_";
   effZ = ibooker_.book1D(histName + algoName_, histName + algoName_, effZBin, effZMin, effZMax);
   if (effZ->getTH1F())
-    effZ->getTH1F()->Sumw2();
+    effZ->enableSumw2();
   effZ->setAxisTitle("");
 
   //
@@ -102,7 +90,7 @@ void TrackEfficiencyClient::bookMEs(DQMStore::IBooker& ibooker_)
   histName = "effEta_";
   effEta = ibooker_.book1D(histName + algoName_, histName + algoName_, effEtaBin, effEtaMin, effEtaMax);
   if (effEta->getTH1F())
-    effEta->getTH1F()->Sumw2();
+    effEta->enableSumw2();
   effEta->setAxisTitle("");
 
   //
@@ -113,7 +101,7 @@ void TrackEfficiencyClient::bookMEs(DQMStore::IBooker& ibooker_)
   histName = "effPhi_";
   effPhi = ibooker_.book1D(histName + algoName_, histName + algoName_, effPhiBin, effPhiMin, effPhiMax);
   if (effPhi->getTH1F())
-    effPhi->getTH1F()->Sumw2();
+    effPhi->enableSumw2();
   effPhi->setAxisTitle("");
 
   //
@@ -124,7 +112,7 @@ void TrackEfficiencyClient::bookMEs(DQMStore::IBooker& ibooker_)
   histName = "effD0_";
   effD0 = ibooker_.book1D(histName + algoName_, histName + algoName_, effD0Bin, effD0Min, effD0Max);
   if (effD0->getTH1F())
-    effD0->getTH1F()->Sumw2();
+    effD0->enableSumw2();
   effD0->setAxisTitle("");
 
   //
@@ -139,19 +127,19 @@ void TrackEfficiencyClient::bookMEs(DQMStore::IBooker& ibooker_)
                                         effCompatibleLayersMin,
                                         effCompatibleLayersMax);
   if (effCompatibleLayers->getTH1F())
-    effCompatibleLayers->getTH1F()->Sumw2();
+    effCompatibleLayers->enableSumw2();
   effCompatibleLayers->setAxisTitle("");
 
   histName = "MuonEffPtPhi_LowPt";
   effPtPhiLowPt = ibooker_.book2D(histName + algoName_, histName + algoName_, 20, -2.4, 2.4, 20, -3.25, 3.25);
   if (effPtPhiLowPt->getTH2F())
-    effPtPhiLowPt->getTH2F()->Sumw2();
+    effPtPhiLowPt->enableSumw2();
   effPtPhiLowPt->setAxisTitle("");
 
   histName = "MuonEffPtPhi_HighPt";
   effPtPhiHighPt = ibooker_.book2D(histName + algoName_, histName + algoName_, 20, -2.4, 2.4, 20, -3.25, 3.25);
   if (effPtPhiHighPt->getTH2F())
-    effPtPhiHighPt->getTH2F()->Sumw2();
+    effPtPhiHighPt->enableSumw2();
   effPtPhiHighPt->setAxisTitle("");
 }
 
@@ -162,7 +150,7 @@ void TrackEfficiencyClient::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGe
   edm::LogInfo("TrackEfficiencyClient") << "TrackEfficiencyClient::endLuminosityBlock";
 
   bookMEs(ibooker_);
-  FolderName_ = "Tracking/TrackParameters";
+  FolderName_ = "Tracking/TrackParameters/TrackEfficiency";
   std::vector<std::string> s1 = igetter_.getSubdirs();
 
   igetter_.cd("Tracking");

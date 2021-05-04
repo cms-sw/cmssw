@@ -61,7 +61,7 @@ namespace {
     IntsConsumer(std::vector<edm::InputTag> const& iTags) {
       m_tokens.reserve(iTags.size());
       for (auto const& tag : iTags) {
-        m_tokens.push_back(consumes<std::vector<int>>(tag));
+        m_tokens.emplace_back(consumes(tag));
       }
     }
 
@@ -74,7 +74,7 @@ namespace {
       m_tokens.reserve(iTags.size());
       m_mayTokens.reserve(iMayTags.size());
       for (auto const& tag : iTags) {
-        m_tokens.push_back(consumes<std::vector<int>>(tag));
+        m_tokens.emplace_back(consumes(tag));
       }
       for (auto const& tag : iMayTags) {
         m_mayTokens.push_back(mayConsume<std::vector<int>>(tag));
@@ -101,9 +101,15 @@ namespace {
   public:
     IntsConsumesCollectorConsumer(std::vector<edm::InputTag> const& iTags) {
       m_tokens.reserve(iTags.size());
-      edm::ConsumesCollector c{consumesCollector()};
+      edm::ConsumesCollector collector{consumesCollector()};
+      edm::ConsumesCollector collectorCopy(collector);
+      edm::ConsumesCollector collectorCopy1(collector);
+      edm::ConsumesCollector collectorCopy2(collector);
+      collectorCopy1 = collectorCopy;
+      collectorCopy2 = std::move(collectorCopy1);
+
       for (auto const& tag : iTags) {
-        m_tokens.push_back(c.consumes<std::vector<int>>(tag));
+        m_tokens.emplace_back(collectorCopy2.consumes(tag));
       }
     }
 

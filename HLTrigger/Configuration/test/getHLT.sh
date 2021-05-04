@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_11_0_0/HLT"             # no explicit version, take the most recent
-TARGET="/dev/CMSSW_11_0_0/\$TABLE"         # no explicit version, take the most recent
+MASTER="/dev/CMSSW_11_3_0/HLT"             # no explicit version, take the most recent
+TARGET="/dev/CMSSW_11_3_0/\$TABLE"         # no explicit version, take the most recent
 
 TABLES="GRun HIon PIon PRef"               # $TABLE in the above variable will be expanded to these TABLES
 
@@ -87,8 +87,10 @@ function getConfigForOnline() {
   # override L1 menus
   if [ "$NAME" == "Fake" ]; then
     hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
-  else
+  elif [ "$NAME" == "Fake1" ] || [ "$NAME" == "Fake2" ] || [ "$NAME" == "2018" ]; then
     hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
+  else
+    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run3_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
   fi
 
 }

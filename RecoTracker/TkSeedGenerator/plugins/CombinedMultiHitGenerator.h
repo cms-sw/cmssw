@@ -5,6 +5,7 @@
  *  triplet generators of type MultiHitGeneratorFromPairAndLayers
  *  initialised from provided layers in the form of PixelLayerTriplets  
  */
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"

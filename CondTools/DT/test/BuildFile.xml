@@ -1,17 +1,17 @@
-<use   name="clhep"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="CondFormats/DTObjects"/>
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/Records"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="DataFormats/MuonDetId"/>
-<library   file="stubs/*.cc" name="CondToolsDTTest">
-  <use   name="CondTools/DT"/>
-  <use   name="Geometry/DTGeometry"/>
-  <use   name="CondCore/DBOutputService"/>
-  <flags   EDM_PLUGIN="1"/>
+<use name="clhep"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondFormats/DTObjects"/>
+<use name="FWCore/Framework"/>
+<use name="Geometry/Records"/>
+<use name="CondFormats/DataRecord"/>
+<use name="DataFormats/MuonDetId"/>
+<library file="stubs/*.cc" name="CondToolsDTTest">
+  <use name="CondTools/DT"/>
+  <use name="Geometry/DTGeometry"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="validate/*.cc" name="CondToolsDTValidate">
-  <use   name="CondCore/PopCon"/>
-  <flags   EDM_PLUGIN="1"/>
+
+<library file="validate/*.cc" name="CondToolsDTValidate">
+  <use name="CondCore/PopCon"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

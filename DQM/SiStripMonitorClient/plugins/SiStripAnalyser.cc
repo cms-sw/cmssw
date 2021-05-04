@@ -22,11 +22,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
@@ -38,7 +33,7 @@
 #include <string>
 
 SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps)
-    : condDataMon_{ps},
+    : condDataMon_{ps, consumesCollector()},
       actionExecutor_{ps},
       tkMapPSet_{ps.getParameter<edm::ParameterSet>("TkmapParameters")},
       summaryFrequency_{ps.getUntrackedParameter<int>("SummaryCreationFrequency", 1)},
@@ -46,6 +41,13 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps)
       globalStatusFilling_{ps.getUntrackedParameter<int>("GlobalStatusFilling", 1)},
       shiftReportFrequency_{ps.getUntrackedParameter<int>("ShiftReportFrequency", 1)},
       rawDataToken_{consumes<FEDRawDataCollection>(ps.getUntrackedParameter<edm::InputTag>("RawDataTag"))},
+      detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      tTopoToken_(esConsumes()),
+      tTopoTokenELB_(esConsumes<edm::Transition::EndLuminosityBlock>()),
+      tTopoTokenBR_(esConsumes<edm::Transition::BeginRun>()),
+      tkDetMapToken_(esConsumes()),
+      tkDetMapTokenELB_(esConsumes<edm::Transition::EndLuminosityBlock>()),
+      tkDetMapTokenBR_(esConsumes<edm::Transition::BeginRun>()),
       printFaultyModuleList_{ps.getUntrackedParameter<bool>("PrintFaultyModuleList", true)} {
   std::string const localPath{"DQM/SiStripMonitorClient/test/loader.html"};
   std::ifstream fin{edm::FileInPath(localPath).fullPath(), std::ios::in};
@@ -71,17 +73,15 @@ void SiStripAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetu
   edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser:: Begining of Run";
 
   // Check latest Fed cabling and create TrackerMapCreator
-  unsigned long long const cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
-  if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;
+  if (fedCablingWatcher_.check(eSetup)) {
     edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser::beginRun: "
                                     << " Change in Cabling, recrated TrackerMap";
-    if (!actionExecutor_.readTkMapConfiguration(eSetup)) {
+    detCabling_ = &eSetup.getData(detCablingToken_);
+    if (!actionExecutor_.readTkMapConfiguration(
+            detCabling_, &eSetup.getData(tkDetMapTokenBR_), &eSetup.getData(tTopoTokenBR_))) {
       edm::LogInfo("SiStripAnalyser") << "SiStripAnalyser:: Error to read configuration file!! TrackerMap "
                                          "will not be produced!!!";
     }
-    eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-    eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
   }
   condDataMon_.beginRun(run.run(), eSetup);
   if (globalStatusFilling_) {
@@ -103,7 +103,7 @@ void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup
       actionExecutor_.createDummyShiftReport();
     } else {
       auto& dqm_store = *edm::Service<DQMStore>{};
-      actionExecutor_.fillStatus(dqm_store, detCabling_, eSetup);
+      actionExecutor_.fillStatus(dqm_store, detCabling_, &eSetup.getData(tkDetMapToken_), &eSetup.getData(tTopoToken_));
       if (shiftReportFrequency_ != -1)
         actionExecutor_.createShiftReport(dqm_store);
     }
@@ -128,7 +128,8 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   auto& dqm_store = *edm::Service<DQMStore>{};
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
-    actionExecutor_.fillStatus(dqm_store, detCabling_, eSetup);
+    actionExecutor_.fillStatus(
+        dqm_store, detCabling_, &eSetup.getData(tkDetMapTokenELB_), &eSetup.getData(tTopoTokenELB_));
   }
   // -- Create summary monitor elements according to the frequency
   if (summaryFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_ % summaryFrequency_ == 0) {

@@ -1,8 +1,10 @@
 from __future__ import absolute_import
 from .MatrixUtil import *
+import six
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
+from .upgradeWorkflowComponents import step3_trackingOnly
 
 # step1 gensim: for run1
 step1Defaults = {'--relval'      : None, # need to be explicitly set
@@ -17,7 +19,7 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
 step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              '-n'            : 10,
                              '--conditions'  : 'auto:run2_mc',
-                             '--beamspot'    : 'Realistic50ns13TeVCollision',
+                             '--beamspot'    : 'Realistic25ns13TeV2016Collision',
                              '--datatier'    : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
                              '--era'         : 'Run2_2016'
@@ -25,13 +27,15 @@ step1Up2015Defaults = {'-s' : 'GEN,SIM',
 # step1 gensim: for 2017
 step1Up2017Defaults = merge ([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--beamspot':'Realistic25ns13TeVEarly2017Collision'},step1Up2015Defaults])
 # step1 gensim: for 2018
-step1Up2018Defaults = merge ([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018'},step1Up2017Defaults])
+step1Up2018Defaults = merge ([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--beamspot':'Realistic25ns13TeVEarly2018Collision','--geometry':'DB:Extended'},step1Up2017Defaults])
 # step1 gensim: for 2018 HI
-step1Up2018HiDefaults = merge ([{'--conditions':'auto:phase1_2018_realistic_hi','--era':'Run2_2018_pp_on_AA'},step1Up2017Defaults])
+step1Up2018HiDefaults = merge ([{'--conditions':'auto:phase1_2018_realistic_hi','--era':'Run2_2018_pp_on_AA','--beamspot':'RealisticPbPbCollision2018','--geometry':'DB:Extended'},step1Up2017Defaults])
 # step1 gensim: for 2018 prod
-step1Up2018ProdDefaults = merge ([{'--beamspot':'Realistic25ns13TeVEarly2018Collision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018Defaults])
-# step1 gensim: for 2018 HI prod 
-step1Up2018HiProdDefaults = merge ([{'--beamspot':'RealisticPbPbCollision2018','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
+step1Up2018ProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018Defaults])
+# step1 gensim: for 2018 HI prod
+step1Up2018HiProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018HiDefaults])
+# step1 gensim: for 2021 HI prod
+step1Up2021HiProdDefaults = merge ([{'--conditions':'auto:phase1_2021_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Run3RoundOptics25ns13TeVLowSigmaZ','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
 
 steps = Steps()
 
@@ -107,8 +111,9 @@ steps['RunHI2015VR']={'INPUT':InputInfo(dataSet='/HITrackerVirginRaw/HIRun2015-v
 #steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedFormat0/Tier0_REPLAY_vocms015-v214/RAW',label='hi2018reduced',run=[325174],events=10000,location='STD')}
 
 Run2018HI={326479: [[1,23]]}
-steps['RunHI2018']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-v1/RAW',label='hi2018',events=10000,location='STD',ls=Run2018HI)}                                                                          
+steps['RunHI2018']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-v1/RAW',label='hi2018',events=10000,location='STD',ls=Run2018HI)}
 steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedFormat0/HIRun2018A-v1/RAW',label='hi2018reduced',events=10000,location='STD',ls=Run2018HI)}
+steps['RunHI2018AOD']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-04Apr2019-v1/AOD',label='hi2018aod',events=10000,location='STD',ls=Run2018HI)}
 
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
@@ -229,6 +234,8 @@ steps['RunSinglePh2016B']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016B-v2/
 steps['RunZeroBias2016B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016B-v2/RAW',label='2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunMuOnia2016B']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016B-v2/RAW',label='2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunNoBPTX2016B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2016B-v2/RAW',label='2016B',events=100000,location='STD', ls=Run2016B)}
+# reminiAOD selection, mainly for PPS testing
+steps['RunJetHT2016B_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2016B-21Feb2020_ver2_UL2016_HIPM-v1/AOD',label='2016BrmaodUL',events=100000,location='STD', ls=Run2016B)}
 
 #### run2 2016C ####
 Run2016C={276092: [[115, 149]]}
@@ -272,6 +279,7 @@ steps['RunSinglePh2016E']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016E-v2/
 steps['RunZeroBias2016E']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016E-v2/RAW',label='2016E',events=100000,location='STD', ls=Run2016E)}
 steps['RunMuOnia2016E']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016E-v2/RAW',label='2016E',events=100000,location='STD', ls=Run2016E)}
 steps['RunJetHT2016E_reminiaod']={'INPUT':InputInfo(dataSet='/JetHT/Run2016E-18Apr2017-v1/AOD',label='2016Ermaod',events=100000,location='STD', ls=Run2016E)}
+steps['RunJetHT2016E_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2016E-21Feb2020_UL2016_HIPM-v1/AOD',label='2016ErmaodUL',events=100000,location='STD', ls=Run2016E)}
 
 #### run2 2016H ####
 Run2016H={283877: [[1, 45]]}
@@ -287,6 +295,7 @@ steps['RunSinglePh2016H']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016H-v1/
 steps['RunZeroBias2016H']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016H-v1/RAW',label='2016H',events=100000,location='STD', ls=Run2016H)}
 steps['RunMuOnia2016H']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016H-v1/RAW',label='2016H',events=100000,location='STD', ls=Run2016H)}
 steps['RunJetHT2016H_reminiaod']={'INPUT':InputInfo(dataSet='/JetHT/Run2016H-18Apr2017-v1/AOD',label='2016Hrmaod',events=100000,location='STD', ls=Run2016H)}
+steps['RunJetHT2016H_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2016H-21Feb2020_UL2016-v1/AOD',label='2016HrmaodUL',events=100000,location='STD', ls=Run2016H)}
 steps['RunJetHT2016H_nano']={'INPUT':InputInfo(dataSet='/JetHT/Run2016H-18Apr2017-v1/MINIAOD',label='2016Hnano',events=100000,location='STD', ls=Run2016H)}
 
 #### run2 2017B ####
@@ -382,6 +391,7 @@ steps['RunNoBPTX2017F']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2017F-v1/RAW',lab
 steps['RunExpressPhy2017F']={'INPUT':InputInfo(dataSet='/ExpressPhysics/Run2017F-Express-v1/FEVT',label='2017F',events=100000,location='STD', ls=Run2017F)}
 
 steps['RunJetHT2017F_reminiaod']={'INPUT':InputInfo(dataSet='/JetHT/Run2017F-17Nov2017-v1/AOD',label='2017Frmaod',events=100000,location='STD', ls=Run2017F)}
+steps['RunJetHT2017F_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2017F-09Aug2019_UL2017-v1/AOD',label='2017FrmaodUL',events=100000,location='STD', ls=Run2017F)}
 
 steps['RunJetHT2017C_94Xv2NanoAODINPUT']={'INPUT':InputInfo(dataSet='/JetHT/CMSSW_9_4_5_cand1-94X_dataRun2_relval_v11_RelVal_rmaod_jetHT2017C-v1/MINIAOD',label='2017Cnano',events=100000,location='STD', ls=Run2017C)}
 
@@ -408,6 +418,9 @@ steps['RunZeroBias1_hBStarRP']={'INPUT':InputInfo(dataSet='/ZeroBias1/Commission
 #### 2018 NANOAOD from prompt reco  2018 MINIAOD ####
 steps['RunJetHT2018A_nano']={'INPUT':InputInfo(dataSet='/JetHT/Run2018A-PromptReco-v1/MINIAOD',label='2018Anano',events=100000,location='STD', ls=Run2018A)}
 
+#### 2018 NANOAOD from prompt reco  2018 MINIAOD - UL ####
+steps['RunJetHT2018A_nanoUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2018A-12Nov2019_UL2018-v2/MINIAOD',label='2018Anano',events=100000,location='STD', ls=Run2018A)}
+
 #### run2 2018B ####
 Run2018B={317435: [[1, 100]]}
 Run2018B_parkingBPH={317661: [[301, 400]]}
@@ -425,7 +438,6 @@ steps['RunDisplacedJet2018B']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018B
 steps['RunCharmonium2018B']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018B-v1/RAW',label='2018B',events=100000,location='STD', ls=Run2018B)}
 steps['RunParkingBPH2018B']={'INPUT':InputInfo(dataSet='/ParkingBPH5/Run2018B-v1/RAW',label='2018B',events=100000,location='STD', ls=Run2018B_parkingBPH)}
 steps['RunJetHT2018BHEfail']={'INPUT':InputInfo(dataSet='/JetHT/Run2018B-v1/RAW',label='HEfail',events=100000,location='STD', ls=Run2018B)}
-steps['RunJetHT2018BBadHcalMitig']={'INPUT':InputInfo(dataSet='/JetHT/Run2018B-v1/RAW',label='BadHcalMitig',events=100000,location='STD', ls=Run2018B)}
 
 #### run2 2018C ####
 Run2018C={319450: [[1, 100]]}
@@ -442,6 +454,8 @@ steps['RunNoBPTX2018C']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018C-v1/RAW',lab
 steps['RunDisplacedJet2018C']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018C-v1/RAW',label='2018C',events=100000,location='STD', ls=Run2018C)}
 steps['RunCharmonium2018C']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018C-v1/RAW',label='2018C',events=100000,location='STD', ls=Run2018C)}
 
+steps['RunJetHT2018C_nanoULremini']={'INPUT':InputInfo(dataSet='/JetHT/Run2018C-UL2018_MiniAODv2-v1/MINIAOD',label='2018C',events=100000,location='STD', ls=Run2018C)}
+
 #### run2 2018D ####
 Run2018D={320822: [[1, 100]]}
 steps['RunHLTPhy2018D']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018D)}
@@ -456,6 +470,8 @@ steps['RunMuOnia2018D']={'INPUT':InputInfo(dataSet='/MuOnia/Run2018D-v1/RAW',lab
 steps['RunNoBPTX2018D']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018D)}
 steps['RunDisplacedJet2018D']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018D)}
 steps['RunCharmonium2018D']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018D)}
+# UL AOD
+steps['RunJetHT2018D_reminiaodUL']={'INPUT':InputInfo(dataSet='/JetHT/Run2018D-12Nov2019_UL2018-v4/AOD',label='2018DrmaodUL',events=100000,location='STD', ls=Run2018D)}
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -475,8 +491,14 @@ steps['RunSingleMu2015HLHS']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015D-v1
 steps['RunCosmics2015C']={'INPUT':InputInfo(dataSet='/Cosmics/Run2015C-v1/RAW',label='2015C',run=[256259],events=100000,location='STD')}
 steps['RunCosmics2016B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2016B-v1/RAW',label='2016B',run=[272133],events=100000,location='STD')}
 
-### LS2 - MWGR ###
-steps['RunCosmics2019']={'INPUT':InputInfo(dataSet='/ExpressCosmics/Commissioning2019-Express-v1/FEVT',label='2019GR3',run=[330098],events=100000,location='STD')}
+### LS2 - MWGR#5 2020 - CSC, DAQ, DCS, DQM, DT, ECAL, GEM, HCAL, RPC, TCDS, TRACKER, TRG ###
+steps['RunCosmics2020']={'INPUT':InputInfo(dataSet='/ExpressCosmics/Commissioning2020-Express-v1/FEVT',label='2020GR5',ls={338714: [[1, 10000]]},events=100000,location='STD')}
+
+#### Test of lumi section boundary crossing with run2 2018D ####
+Run2018Dml1={320822: [[1,1]] , 320823: [[1,1]]}
+Run2018Dml2={320822: [[1,2]]}
+steps['RunEGamma2018Dml1']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018Dml1)}
+steps['RunEGamma2018Dml2']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018Dml2)}
 
 def gen(fragment,howMuch):
     global step1Defaults
@@ -494,9 +516,15 @@ def gen2018(fragment,howMuch):
 def gen2018prod(fragment,howMuch):
     global step1Up2018ProdDefaults
     return merge([{'cfg':fragment},howMuch,step1Up2018ProdDefaults])
+def gen2018prodml(fragment,howMuch): #Prod with multiple lumis
+    global step1Up2018ProdDefaults
+    return merge([{'cfg':fragment},howMuch,{'--customise_commands': '"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5)"'},step1Up2018ProdDefaults]) #this setting is to allow job to cross LS in IB
 def gen2018hiprod(fragment,howMuch):
     global step1Up2018HiProdDefaults
     return merge([{'cfg':fragment},howMuch,step1Up2018HiProdDefaults])
+def gen2021hiprod(fragment,howMuch):
+    global step1Up2021HiProdDefaults
+    return merge([{'cfg':fragment},howMuch,step1Up2021HiProdDefaults])
 
 ### Production test: 13 TeV equivalents
 steps['ProdMinBias_13']=gen2015('MinBias_13TeV_pythia8_TuneCUETP8M1_cfi',Kby(9,100))
@@ -573,7 +601,6 @@ steps['RSGravitonToGaGa_13']=gen2015('RSGravitonToGammaGamma_kMpl01_M_3000_TuneC
 steps['WpToENu_M-2000_13']=gen2015('WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_cff',Kby(9,100))
 steps['DisplacedSUSY_stopToBottom_M_300_1000mm_13']=gen2015('DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff',Kby(9,100))
 
-
 ### 2017 wf: only the ones for premixing (for the moment)
 steps['NuGun_UP17']=gen2017('SingleNuE10_cfi.py',Kby(9,50))
 steps['TTbar_13UP17']=gen2017('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
@@ -585,11 +612,14 @@ steps['H125GGgluonfusion_13UP17']=gen2017('H125GGgluonfusion_13TeV_TuneCUETP8M1_
 steps['QQH1352T_13UP17']=gen2017('QQH1352T_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17']=gen2017('SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi',Kby(9,50))
 
+
 ### 2018 wf: only the ones for premixing (for the moment)
 steps['NuGun_UP18']=gen2018('SingleNuE10_cfi.py',Kby(9,50))
 steps['ProdTTbar_13UP18']=gen2018prod('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
+steps['ProdTTbar_13UP18ml']=gen2018prodml('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['TTbar_13UP18']=gen2018('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['ProdZEE_13UP18']=gen2018prod('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
+steps['ProdZEE_13UP18ml']=gen2018prodml('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['ZEE_13UP18']=gen2018('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['ProdZMM_13UP18']=gen2018prod('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))
 steps['ZMM_13UP18']=gen2018('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))
@@ -629,13 +659,15 @@ baseDataSetRelease=[
     'CMSSW_10_6_0-106X_mc2017_realistic_v3-v1',     # 13 - GENSIM input for 2017 fullSim premix workflows
     'CMSSW_10_6_0-PU25ns_106X_mc2017_realistic_v3-v1',     # 14 - fullSim PU 25ns UP17 premix library
     'CMSSW_10_6_0-106X_mc2017_realistic_v3_FastSim-v1',    # 15 - fastSim MinBias for mixing UP17
-    'CMSSW_10_6_0-PU25ns_106X_mc2017_realistic_v3_FastSim-v1',# 16 - fastSim premix library UP17 
+    'CMSSW_10_6_0-PU25ns_106X_mc2017_realistic_v3_FastSim-v1',# 16 - fastSim premix library UP17
     'CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4-v1',  # 17 - fullSim PU 25ns UP18 premix library
     'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',  # 18 - GENSIM input for 2018 fullSim premix workflows
     'CMSSW_10_6_0-106X_upgrade2018_realistic_v4_FastSim-v1',    # 19 - fastSim MinBias for mixing UP18
-    'CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4_FastSim-v1',# 20 - fastSim premix library UP18 
-    'CMSSW_10_6_0-106X_mc2017_realistic_v3-v1',		# 21 - GEN-SIM inputs for LHE-GEN-SIM 2017 workflows
-    'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',		# 22 - GEN-SIM inputs for LHE-GEN-SIM 2018 workflows
+    'CMSSW_10_6_0-PU25ns_106X_upgrade2018_realistic_v4_FastSim-v1',# 20 - fastSim premix library UP18
+    'CMSSW_10_6_0-106X_mc2017_realistic_v3-v1',         # 21 - GEN-SIM inputs for LHE-GEN-SIM 2017 workflows
+    'CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v1',            # 22 - GEN-SIM inputs for LHE-GEN-SIM 2018 workflows
+    'CMSSW_11_2_0_pre8-112X_mcRun3_2021_realistic_HI_v11-v1',    #23 - Run3 HI GEN-SIM for mixing
+    'CMSSW_11_2_0_pre8-PU_112X_upgrade2018_realistic_v4-v1', # 24 - 2018 Run-Dependent premix library
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available
@@ -671,11 +703,21 @@ steps['TTbar__DIGIPU1INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_2_
 steps['ProdZEE_13_reminiaodINPUT']={'INPUT':InputInfo(dataSet='/RelValProdZEE_13_pmx25ns/CMSSW_8_0_21-PUpmx25ns_80X_mcRun2_asymptotic_2016_TrancheIV_v6_Tr4GT_v6-v1/AODSIM',label='rmaod',location='STD')}
 # INPUT command for reminiAOD wf on 94X relval input
 steps['TTbar_13_94XreminiaodINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_9_4_0-94X_mc2017_realistic_v10-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
+# INPUT command for reminiAOD wfs on UL-like relval inputs
+steps['TTbar_13_reminiaod2016UL_preVFP_INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13UP16/CMSSW_10_6_12-PU25ns_106X_mcRun2_asymptotic_preVFP_v8_hltul16_preVFP-v1/AODSIM',label='rmaod',location='STD')}
+steps['TTbar_13_reminiaod2016UL_postVFP_INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13UP16/CMSSW_10_6_12-PU25ns_106X_mcRun2_asymptotic_v13_hltul16_postVFP-v1/AODSIM',label='rmaod',location='STD')}
+# FIXME: replace with AODSIM (more appropriate)
+steps['TTbar_13_reminiaod2017UL_INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_10_6_4-PUpmx25ns_106X_mc2017_realistic_v6_rsb-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
+steps['TTbar_13_reminiaod2018UL_INPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar_13_pmx25ns/CMSSW_10_6_4-PUpmx25ns_106X_upgrade2018_realistic_v9-v1/AODSIM',label='rmaod',location='STD')}
+# INPUT command for reminiAOD wfs on PbPb relval inputs
+steps['HydjetQ_reminiaodPbPb2018_INPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B12_5020GeV_2018_ppReco/CMSSW_10_3_3-PU_103X_upgrade2018_realistic_HI_v11-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
 
 #input for a NANOAOD from MINIAOD workflow
 steps['ZEE_13_80XNanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/CMSSW_8_0_21-PU25ns_80X_mcRun2_asymptotic_2016_TrancheIV_v6_Tr4GT_v6-v1/MINIAODSIM',label='nanoaod80X',location='STD')}
 steps['TTbar_13_94Xv1NanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_9_4_0_pre3-PU25ns_94X_mc2017_realistic_v4-v1/MINIAODSIM',label='nanoaod94X',location='STD')}
 steps['TTbar_13_94Xv2NanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_9_4_5_cand1-94X_mc2017_realistic_v14_PU_RelVal_rmaod-v1/MINIAODSIM',label='nanoaod94Xv2',location='STD')}
+
+steps['TTbar_13_106Xv1NanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_10_6_14-PU25ns_106X_mc2017_realistic_v7-v1/MINIAODSIM',label='nanoaod106X',location='STD')}
 
 # 13 TeV recycle GEN-SIM input
 steps['MinBias_13INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -764,7 +806,6 @@ steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17INPUT']={'INPUT':InputInfo(dataSet='/R
 # INPUT commands for 2018 wf
 steps['TTbar_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[18],),location='STD')}
 steps['TTbar_13UP18HEfailINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[18],),location='STD')}
-steps['TTbar_13UP18BadHcalMitigINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[18],),label='Mitig',location='STD')}
 steps['ZEE_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM'%(baseDataSetRelease[18],),location='STD')}
 steps['ZMM_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM'%(baseDataSetRelease[18],),location='STD')}
 steps['ZTT_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM'%(baseDataSetRelease[18],),location='STD')}
@@ -873,6 +914,7 @@ steps['Cosmics_UP16']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','-n':'500','--c
 steps['Cosmics_UP17']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','-n':'500','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(666,100000),step1Defaults])
 steps['Cosmics_UP18']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','-n':'500','--conditions':'auto:phase1_2018_cosmics','--scenario':'cosmics','--era':'Run2_2018'},Kby(666,100000),step1Defaults])
 steps['Cosmics_UP21']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','-n':'500','--conditions':'auto:phase1_2021_cosmics','--scenario':'cosmics','--era':'Run3'},Kby(666,100000),step1Defaults])
+steps['Cosmics_UP21_0T']=merge([{'--magField':'0T','--conditions':'auto:phase1_2021_cosmics_0T'},steps['Cosmics_UP21']])
 steps['CosmicsSPLoose_UP17']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(5000,500000),step1Up2015Defaults])
 steps['CosmicsSPLoose_UP18']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:phase1_2018_cosmics','--scenario':'cosmics','--era':'Run2_2018'},Kby(5000,500000),step1Up2015Defaults])
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
@@ -917,8 +959,9 @@ U80by1={'--relval': '80,1'}
 hiAlca2011 = {'--conditions':'auto:run1_mc_hi'}
 hiAlca2015 = {'--conditions':'auto:run2_mc_hi', '--era':'Run2_HI'}
 hiAlca2017 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017_pp_on_XeXe'}
-hiAlca2018 = {'--conditions':'auto:phase1_2018_realistic', '--era':'Run2_2018'}
+hiAlca2018 = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018'}
 hiAlca2018_ppReco = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018_pp_on_AA'}
+hiAlca2021_ppReco = {'--conditions':'auto:phase1_2021_realistic_hi', '--era':'Run3_pp_on_PbPb'}
 
 
 hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2}])
@@ -926,17 +969,23 @@ hiDefaults2015=merge([hiAlca2015,{'--scenario':'HeavyIons','-n':2}])
 hiDefaults2017=merge([hiAlca2017,{'-n':2}])
 hiDefaults2018=merge([hiAlca2018,{'--scenario':'HeavyIons','-n':2}])
 hiDefaults2018_ppReco=merge([hiAlca2018_ppReco,{'-n':2}])
+hiDefaults2021_ppReco=merge([hiAlca2021_ppReco,{'-n':2}])
 
 steps['HydjetQ_B12_5020GeV_2011']=merge([{'-n':1,'--beamspot':'RealisticHI2011Collision'},hiDefaults2011,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2015']=merge([{'-n':1,'--beamspot':'RealisticHICollisionFixZ2015'},hiDefaults2015,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_XeXe_5442GeV_2017']=merge([{'-n':1},hiDefaults2017,gen2017('Hydjet_Quenched_MinBias_XeXe_5442GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2018']=merge([{'-n':1},hiDefaults2018,gen2018prod('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2018_ppReco']=merge([{'-n':1},hiDefaults2018_ppReco,gen2018hiprod('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
+steps['HydjetQ_B12_5020GeV_2021_ppReco']=merge([{'-n':1},hiDefaults2021_ppReco,gen2021hiprod('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 
 steps['QCD_Pt_80_120_13_HI']=merge([hiDefaults2018_ppReco,gen2018hiprod('QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi',Kby(9,150))])
 steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaults2018_ppReco,gen2018hiprod('PhotonJet_Pt_10_13TeV_TuneCUETP8M1_cfi',Kby(9,150))])
-steps['ZMM_13_HI']=merge([hiDefaults2018_ppReco,gen2018hiprod('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))])
 steps['ZEEMM_13_HI']=merge([hiDefaults2018_ppReco,gen2018hiprod('ZEEMM_13TeV_TuneCUETP8M1_cfi',Kby(18,300))])
+
+steps['QCD_Pt_80_120_14_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('QCD_Pt_80_120_14TeV_TuneCP5_cfi',Kby(9,150))])
+steps['PhotonJets_Pt_10_14_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('PhotonJet_Pt_10_14TeV_TuneCP5_cfi',Kby(9,150))])
+steps['ZMM_14_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('ZMM_14TeV_TuneCP5_cfi',Kby(18,300))])
+steps['ZEE_14_HI_2021']=merge([hiDefaults2021_ppReco,gen2021hiprod('ZEE_14TeV_TuneCP5_cfi',Kby(18,300))])
 
 ## pp reference tests
 
@@ -948,7 +997,7 @@ steps['QCD_Pt_80_120_13_PPREF']=merge([ppRefDefaults2017,gen2017('QCD_Pt_80_120_
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
 #step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,HLT:@fake,VALIDATION:@standardValidation,DQM:@standardDQM',
-step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQMFS',
                            '--fast':'',
                            '--beamspot'    : 'Realistic8TeVCollision',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -956,10 +1005,10 @@ step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW
                            '--relval':'27000,3000'},
                           step1Defaults])
 #step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,HLT:@relval2016,VALIDATION:@standardValidation,DQM:@standardDQM',
-step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQMFS',
                            '--fast':'',
                            '--conditions'  :'auto:run2_mc',
-                           '--beamspot'    : 'Realistic50ns13TeVCollision',
+                           '--beamspot'    : 'Realistic25ns13TeV2016Collision',
                            '--era'         :'Run2_2016',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
@@ -972,7 +1021,7 @@ step1FastPUNewMixing =merge([{'-s':'GEN,SIM,RECOBEFMIX',
 step1FastUpg2015_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
                                                 step1FastUpg2015Defaults])
 
-step1FastUpg2017Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastUpg2017Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQMFS',
                            '--fast':'',
                            '--conditions'  :'auto:phase1_2017_realistic',
                            '--beamspot'    : 'Realistic25ns13TeVEarly2017Collision',
@@ -988,7 +1037,7 @@ step1FastPU17NewMixing =merge([{'-s':'GEN,SIM,RECOBEFMIX',
 step1FastUpg2017_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
                                                 step1FastUpg2017Defaults])
 
-step1FastUpg2018Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
+step1FastUpg2018Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQMFS',
                            '--fast':'',
                            '--conditions'  :'auto:phase1_2018_realistic',
                            '--beamspot'    :'Realistic25ns13TeVEarly2018Collision',
@@ -1038,7 +1087,7 @@ steps['SingleMuPt100FS_UP15']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1Fa
 ### FastSim: produce sample of minbias events for PU mixing
 steps['MinBiasFS_13_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPUNewMixing])
 
-#step1FastUpg2017Defaults                                                                                                                                                      
+#step1FastUpg2017Defaults
 steps['TTbarFS_13_UP17']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2017Defaults])
 steps['TTbarFS_13_trackingOnlyValidation_UP17']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2017_trackingOnlyValidation])
 steps['SMS-T1tttt_mGl-1500_mLSP-100FS_13_UP17']=merge([{'cfg':'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi'},Kby(100,1000),step1FastUpg2017Defaults])
@@ -1054,7 +1103,7 @@ steps['SingleMuPt100FS_UP17']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1Fa
 ### FastSim: produce sample of minbias events for PU mixing
 steps['MinBiasFS_13_UP17_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPU17NewMixing])
 
-#step1FastUpg2018Defaults                                                                                                                                                      
+#step1FastUpg2018Defaults
 steps['TTbarFS_13_UP18']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2018Defaults])
 steps['TTbarFS_13_trackingOnlyValidation_UP18']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2018_trackingOnlyValidation])
 steps['SMS-T1tttt_mGl-1500_mLSP-100FS_13_UP18']=merge([{'cfg':'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi'},Kby(100,1000),step1FastUpg2018Defaults])
@@ -1255,7 +1304,7 @@ step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,5000',
                          '--eventcontent':'RAWSIM,DQM',
                          '--datatier':'GEN,DQMIO',
-                         '--conditions':'auto:run2_mc_FULL'
+                         '--conditions':'auto:run2_mc'
                          },
                         step1Defaults])
 
@@ -1267,15 +1316,17 @@ step1LHEDefaults=merge([{'-s':'LHE',
                          '--relval':'200000,5000',
                          '--eventcontent':'LHE',
                          '--datatier':'GEN',
-                         '--conditions':'auto:run2_mc_FULL'
+                         '--conditions':'auto:run2_mc'
                          },
                         step1Defaults])
 
 steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
+steps['DYToll012Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll012Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar_Pow_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar_Pow_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['DYToll012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['WTolNu01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/WTolNu01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
+steps['WTolNu012Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/WTolNu012Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['GGToH_Pow_LHE_13TeV']=genvalid('Configuration/Generator/python/GGToH_Pow_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['VHToH_Pow_LHE_13TeV']=genvalid('Configuration/Generator/python/VHToH_Pow_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['VBFToH_Pow_JHU4l_LHE_13TeV']=genvalid('Configuration/Generator/python/VBFToH_Pow_JHU4l_LHE_13TeV_cff.py',step1LHEDefaults)
@@ -1374,7 +1425,7 @@ step1LHEGenSimDefault = { '--relval':'9000,50',
                           '-s':'LHE,GEN,SIM',
                           '-n'            : 10,
                           '--conditions'  : 'auto:run2_mc',
-                          '--beamspot'    : 'Realistic50ns13TeVCollision',
+                          '--beamspot'    : 'Realistic25ns13TeV2016Collision',
                           '--datatier'    : 'GEN-SIM,LHE',
                           '--eventcontent': 'FEVTDEBUG,LHE',
                           '--era'         : 'Run2_2016',
@@ -1382,7 +1433,7 @@ step1LHEGenSimDefault = { '--relval':'9000,50',
 
 # LHE-GEN with DQM
 step1LHEGenDQM = merge([{'-s':'LHE,GEN,VALIDATION:genvalid','--datatier'    : 'LHE,GEN,DQMIO','--eventcontent': 'LHE,RAWSIM,DQM'},step1LHEDefaults])
-                        
+
 
 def lhegensim(fragment,howMuch):
     global step1LHEGenSimDefault
@@ -1401,6 +1452,15 @@ step1LHEGenSimUp2018Default = merge ([{'--conditions':'auto:phase1_2018_realisti
 def lhegensim2018(fragment,howMuch):
     global step1LHEGenSimUp2018Default
     return merge([{'cfg':fragment},howMuch,step1LHEGenSimUp2018Default])
+
+# Run-Dependent MC
+def gen2018RD(fragment,howMuch):
+    global step1Up2018Defaults
+    return merge([{'cfg':fragment},howMuch,{'--conditions':'auto:phase1_2018_realistic_rd','--customise_commands': "\"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5) \""},step1Up2018Defaults])
+
+steps['ZEE_13UP18_RD']=gen2018RD('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(10,50))
+steps['ZMM_13UP18_RD']=gen2018RD('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(10,50))
+steps['TTbar_13UP18_RD']=gen2018RD('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(10,50))
 
 steps['TTbar012Jets_NLO_Mad_py8_Evt_13']=lhegensim('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cfi.py',Kby(9,50))
 steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py', Kby(9,50))
@@ -1440,7 +1500,7 @@ step1LHENormal = {'--relval'     : '10000,50',
 step1GENNormal = {'--relval'     : '10000,50',
                  '-s'           : 'GEN,SIM',
                  '--conditions'  : 'auto:run2_mc',
-                 '--beamspot'    : 'Realistic50ns13TeVCollision',
+                 '--beamspot'    : 'Realistic25ns13TeV2016Collision',
                  '--eventcontent': 'FEVTDEBUG',
                  '--datatier'    : 'GEN-SIM',
                  '--era'         : 'Run2_2016',
@@ -1474,7 +1534,7 @@ steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13UP18']=g
 
 #Sherpa
 steps['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER_cff',step1GenDefaults)
-steps['sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER_cff',step1GenDefaults)
+steps['sherpa_ZtoLL_2j_MEPSatNLO_13TeV_MASTER']=genvalid('sherpa_ZtoLL_2j_MEPSatNLO_13TeV_MASTER_cff',step1GenDefaults)
 steps['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER']=genvalid('sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_cff',step1GenDefaults)
 
 #Herwig7
@@ -1485,11 +1545,19 @@ steps['TTbar_13TeV_Pow_herwig7']=genvalid('Configuration/Generator/python/TT_13T
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
 
 # B-physics
-steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
+steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_cfi',step1GenDefaults)
 steps['Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 steps['Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 steps['LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
-steps['BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
+steps['BsToMuMu_forSTEAM_13TeV']=genvalid('BsToMuMu_forSTEAM_13TeV_cfi',step1GenDefaults)
+
+# Workflows for multiple concurrent lumi blocks
+
+def lhegensim2018ml(fragment,howMuch):
+    return merge([{'cfg':fragment},howMuch,{'--customise_commands': '"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5)"'},step1LHEGenSimUp2018Default])
+
+steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP18ml']=lhegensim2018ml('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,50))
+
 
 
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
@@ -1511,6 +1579,7 @@ PU2={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SI
 PU25={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[3],)}
 PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[3],)}
 PUHI={'-n':10,'--pileup_input':'das:/RelValHydjetQ_B12_5020GeV_2018/%s/GEN-SIM'%(baseDataSetRelease[9])}
+PUHI2021={'-n':10,'--pileup_input':'das:/RelValHydjetQ_B12_5020GeV_2021_ppReco/%s/GEN-SIM'%(baseDataSetRelease[23])}
 PU25UP17={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[13],)}
 PU25UP18={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[18],)}
 
@@ -1559,6 +1628,8 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016'
                   }
 step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval50ns','--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step2Upg2015Defaults])
 
+step2Upg2015DefaultsAPVSimu = merge([{'--era': 'Run2_2016_HIPM'},step2Upg2015Defaults])
+
 #for 2017
 step2Upg2017Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017',
                  '--conditions'  :'auto:phase1_2017_realistic',
@@ -1581,8 +1652,12 @@ step2Upg2018Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018'
 
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
+steps['DIGIUP15APVSimu']=merge([{'--era': 'Run2_2016_HIPM'},step2Upg2015Defaults])
+
 steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2016','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
+steps['DIGIUP15APVSimu_PU25']=merge([PU25,step2Upg2015DefaultsAPVSimu])
+
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
 steps['DIGIUP18']=merge([step2Upg2018Defaults])
@@ -1608,6 +1683,8 @@ steps['DIGICOS_UP16']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'DIGI:p
 steps['DIGICOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run2_2017'},step2Upg2015Defaults])
 steps['DIGICOS_UP18']=merge([{'--conditions':'auto:phase1_2018_cosmics','-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run2_2018'},step2Upg2015Defaults])
 steps['DIGICOS_UP21']=merge([{'--conditions':'auto:phase1_2021_cosmics','-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run3'},step2Upg2015Defaults])
+steps['DIGICOS_UP21_0T']=merge([{'--magField':'0T','--conditions':'auto:phase1_2021_cosmics_0T'},steps['DIGICOS_UP21']])
+
 steps['DIGICOSPEAK_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics_peak','-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017','--customise_commands': '"process.mix.digitizers.strip.APVpeakmode=cms.bool(True)"','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run2_2017'},step2Upg2015Defaults])
 steps['DIGICOSPEAK_UP18']=merge([{'--conditions':'auto:phase1_2018_cosmics_peak','-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018','--customise_commands': '"process.mix.digitizers.strip.APVpeakmode=cms.bool(True)"','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run2_2018'},step2Upg2015Defaults])
 
@@ -1621,11 +1698,13 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 #steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
 
+steps['DIGIHI2021PPRECO']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2021_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018PPRECO']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2018_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2017']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2017, step2Upg2015Defaults])
 steps['DIGIHI2015']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake'}, hiDefaults2015, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2011']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake'}, hiDefaults2011, {'--pileup':'HiMixNoPU'}, step2Defaults])
+steps['DIGIHI2021MIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2021_ppReco, {'--pileup':'HiMix'}, PUHI2021, step2Upg2015Defaults])
 steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2018_ppReco, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
 
 steps['DIGIPPREF2017']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake2'}, ppRefDefaults2017, step2Upg2015Defaults])
@@ -1641,6 +1720,7 @@ premixUp2015Defaults = {
     '--procModifiers':'premix_stage1',
     '--era'         : 'Run2_2016' # temporary replacement for premix; to be brought back to customisePostLS1 *EDIT - This comment possibly no longer relevant with switch to eras
 }
+
 premixUp2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns'},
                                   {'--era':'Run2_50ns'},
                                   premixUp2015Defaults])
@@ -1668,16 +1748,8 @@ digiPremixUp2015Defaults25ns = {
     '--procModifiers': 'premix_stage2',
     '--era'          : 'Run2_2016'
     }
-# Specifying explicitly the --filein is not nice but that was the
-# easiest way to "skip" the output of step2 (=premixing stage1) for
-# filein (as it goes to pileup_input). It works (a bit accidentally
-# though) also for "-i all" because in that case the --filein for DAS
-# input is after this one in the list of command line arguments to
-# cmsDriver, and gets then used in practice.
-digiPremixLocalPileup = {
-    "--filein": "file:step1.root",
-    "--pileup_input": "file:step2.root"
-}
+
+from .upgradeWorkflowComponents import digiPremixLocalPileup
 digiPremixLocalPileupUp2015Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2015Defaults25ns])
 digiPremixUp2015Defaults50ns=merge([{'-s':'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns'},
@@ -1713,14 +1785,28 @@ digiPremixUp2018Defaults25ns = {
 digiPremixLocalPileupUp2018Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2018Defaults25ns])
 
-
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15APVSimu_PU25']=merge([{'--era': 'Run2_2016_HIPM'},digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXLOCALUP15_PU25']=merge([digiPremixLocalPileupUp2015Defaults25ns])
+steps['DIGIPRMXLOCALUP15APVSimu_PU25']=merge([{'--era': 'Run2_2016_HIPM'},digiPremixLocalPileupUp2015Defaults25ns])
+
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
 steps['DIGIPRMXUP17_PU25']=merge([digiPremixUp2017Defaults25ns])
 steps['DIGIPRMXLOCALUP17_PU25']=merge([digiPremixLocalPileupUp2017Defaults25ns])
 steps['DIGIPRMXUP18_PU25']=merge([digiPremixUp2018Defaults25ns])
 steps['DIGIPRMXLOCALUP18_PU25']=merge([digiPremixLocalPileupUp2018Defaults25ns])
+
+# Run-Dependent MC: DIGI step; 17 is a dummy test; 2018 with 2000 lumis
+steps['DIGIPRMXUP17_PU25_RD']=merge([digiPremixUp2017Defaults25ns, { '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_UL_2017_mc'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )  \\n process.mixData.workers.ecal.timeDependent=True\"" } ])
+
+digiPremixRD2018 = {
+    '--pileup_input':'das:/RelValPREMIXUP18_PU25/%s/PREMIX'%baseDataSetRelease[24]
+}
+
+steps['DIGIPRMXUP18_PU25_RD']=merge([digiPremixRD2018, {'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.mixData.workers.ecal.timeDependent=True \\n process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(*[cms.LuminosityBlockID(x,y) for x,y in ((315257, 1), (316082, 222), (316720, 445), (317527, 668), (320917, 890), (321414, 1112), (321973, 1334), (322492, 1556), (324245, 1779))]) \""}, digiPremixUp2018Defaults25ns])
+
+# configuration to simulate cross run number boundary in IB, given 5 events per lumi
+steps['DIGIPRMXUP18_PU25_RD_IB']=merge([digiPremixRD2018, {'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.mixData.workers.ecal.timeDependent=True \\n process.source.setRunNumberForEachLumi = cms.untracked.vuint32(315257,316083) \""}, digiPremixUp2018Defaults25ns])
 
 premixProd25ns = {'-s'             : 'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval2016',
                  '--eventcontent' : 'PREMIXRAW',
@@ -1734,9 +1820,8 @@ steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd50ns,digiPremixUp2015Defaults50
 steps['DIGIPRMXUP17_PROD_PU25']=merge([premixProd25ns2017,digiPremixUp2017Defaults25ns])
 steps['DIGIPRMXUP18_PROD_PU25']=merge([premixProd25ns2018,digiPremixUp2018Defaults25ns])
 
-dataReco={ '--runUnscheduled':'',
-          '--conditions':'auto:run1_data',
-          '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
+dataReco={'--conditions':'auto:run1_data',
+          '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM',
           '--datatier':'RECO,MINIAOD,DQMIO',
           '--eventcontent':'RECO,MINIAOD,DQM',
           '--data':'',
@@ -1787,8 +1872,11 @@ steps['HLTDR2_2017']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2017,},{'--con
 hltKey2018='relval2018'
 steps['HLTDR2_2018']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2018,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2018'},steps['HLTD'] ] )
 
+# special setting for lumi section boundary crossing in RunEGamma2018Dml
+steps['HLTDR2_2018ml']=merge( [ {'--customise_commands':'"process.source.skipEvents=cms.untracked.uint32(7000)"'},steps['HLTDR2_2018'] ] )
+
+
 steps['HLTDR2_2018_hBStar']=merge( [ {'--era' : 'Run2_2018_highBetaStar'},steps['HLTDR2_2018'] ] )
-steps['HLTDR2_2018_BadHcalMitig']=merge( [ {'--era' : 'Run2_2018,pf_badHcalMitigation'},steps['HLTDR2_2018'] ] )
 
 # use --era
 steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_50ns',},dataReco])
@@ -1824,12 +1912,12 @@ steps['HYBRIDRepackHI2015VR']={'--eventcontent':'RAW',
                                '--datatier':'RAW',
                                '--conditions':'auto:run2_hlt_hi',
                                '--step':'RAW2DIGI,REPACK:DigiToHybridRawRepack',
-                               '--scenario':'HeavyIons',                     
+                               '--scenario':'HeavyIons',
                                '--data':'',
                                '--era':'Run2_HI',
                                '--customise':'RecoLocalTracker/SiStripZeroSuppression/customiseHybrid.addHybridEmulationBeforeRepack',
-                               '--processName':'EMULATEHYBRID',   
-                               '--outputCommands':'"drop FEDRawDataCollection_*__HLT","drop FEDRawDataCollection_*__LHC"', 
+                               '--processName':'EMULATEHYBRID',
+                               '--outputCommands':'"drop FEDRawDataCollection_*__HLT","drop FEDRawDataCollection_*__LHC"',
                                #'--customise_commands':'\'process.RAWoutput.outputCommands.append(\"drop *_*_*_HLT*\")\'',
                                '-n':100
                                }
@@ -1840,20 +1928,31 @@ steps['HYBRIDZSHI2015']=merge([{'--step': 'RAW2DIGI,REPACK:DigiToRawRepack',
                                 '--customise_commands':'\'from Configuration.Applications.ConfigBuilder import MassReplaceInputTag; MassReplaceInputTag(process, new="hybridRawDataRepacker")\'' ,
                                 },steps['HYBRIDRepackHI2015VR']])
 
-steps['RECOHID15']=merge([{ '--runUnscheduled':'',
-                            '--conditions':'auto:run2_data',
+steps['RECOHID15']=merge([{ '--conditions':'auto:run2_data',
                             '--era':'Run2_HI'
                             },steps['RECOHID11']])
-                           
+
 steps['RECOHID18']=merge([{ '--scenario':'pp',
                             '--conditions':'auto:run2_data_promptlike_hi',
                             '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiPixelCalZeroBias,SKIM:PbPbEMu+PbPbZEE+PbPbZMM+PbPbZMu,EI,DQM:@commonFakeHLT+@standardDQMFakeHLT',
                             '--datatier':'AOD,DQMIO',
                             '--eventcontent':'AOD,DQM',
                             '--era':'Run2_2018_pp_on_AA',
-			    '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_pp_on_AA',
+                            '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_pp_on_AA',
                             '-n':'10'
                             },steps['RECOHID15']])
+
+steps['REMINIAODHID18']={ '--scenario':'pp',
+                          '--conditions':'auto:run2_data_promptlike_hi',
+                          '-s':'PAT,DQM:@miniAODDQM',
+                          '--datatier':'MINIAOD,DQMIO',
+                          '--eventcontent':'MINIAOD,DQM',
+                          '--era':'Run2_2018_pp_on_AA',
+                          '--procModifiers':'run2_miniAOD_pp_on_AA_103X',
+                          '--data':'',
+                          '--processName':'PAT',
+                          '-n':'100'
+}
 
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForPrompt,DQM:@allForPrompt,ENDJOB',
@@ -1873,7 +1972,7 @@ steps['TIER0EXPRUN2']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allFor
                           '--eventcontent':'ALCARECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                           '--era':'Run2_2017',
-                          '--conditions':'auto:run2_data_promptlike'
+                          '--conditions':'auto:run2_data'
                           },steps['TIER0']])
 
 steps['TIER0EXPHI']={      '--conditions':'auto:run1_data',
@@ -1938,7 +2037,7 @@ steps['TIER0EXPHPBS']={'-s':'RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,AL
                           '--process':'RECO',
                           '--scenario': 'pp',
                           '--era':'Run2_2017',
-                          '--conditions':'auto:run2_data_promptlike',
+                          '--conditions':'auto:run2_data',
                           '--data': '',
                           '--datatier':'ALCARECO,DQMIO',
                           '--eventcontent':'ALCARECO,DQM',
@@ -1949,7 +2048,7 @@ steps['TIER0RAWSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:SiPixelC
                           '--process':'RECO',
                           '--scenario': 'pp',
                           '--era':'Run2_2017',
-                          '--conditions':'auto:run2_data_promptlike',
+                          '--conditions':'auto:run2_data',
                           '--data': '',
                           '--datatier':'ALCARECO,DQMIO',
                           '--eventcontent':'ALCARECO,DQM',
@@ -1960,7 +2059,17 @@ steps['TIER0EXPSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:SiPixelCalZeroBi
                           '--process':'ALCARECO',
                           '--scenario': 'pp',
                           '--era':'Run2_2017',
-                          '--conditions':'auto:run2_data_promptlike',
+                          '--conditions':'auto:run2_data',
+                          '--data': '',
+                          '--datatier':'ALCARECO',
+                          '--eventcontent':'ALCARECO',
+                          }
+
+steps['TIER0EXPPPSCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,ENDJOB',
+                          '--process':'ALCARECO',
+                          '--scenario': 'pp',
+                          '--era':'Run2_2017',
+                          '--conditions':'auto:run2_data',
                           '--data': '',
                           '--datatier':'ALCARECO',
                           '--eventcontent':'ALCARECO',
@@ -1972,7 +2081,7 @@ steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpo
                         '--era':'Run2_2017',
                         '--datatier':'ALCARECO',
                         '--eventcontent':'ALCARECO',
-                        '--conditions':'auto:run2_data_promptlike',
+                        '--conditions':'auto:run2_data',
                         '--triggerResultsProcess':'RECO',
                         }
 
@@ -1982,14 +2091,24 @@ steps['ALCASPLITSIPIXELCAL']={'-s':'ALCAOUTPUT:SiPixelCalZeroBias,ALCA:PromptCal
                         '--era':'Run2_2017',
                         '--datatier':'ALCARECO',
                         '--eventcontent':'ALCARECO',
-                        '--conditions':'auto:run2_data_promptlike',
+                        '--conditions':'auto:run2_data',
                         '--triggerResultsProcess':'RECO',
                         #'--filein':'file:step2.root'
                         }
 
+steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSTimingCalib',
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run2_2017',
+                        '--datatier':'ALCARECO',
+                        '--eventcontent':'ALCARECO',
+                        '--conditions':'auto:run2_data',
+                        '--triggerResultsProcess':'RECO',
+                        }
+
 steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotHP']),
                         #'--conditions':'auto:run2_data_promptlike',
-                        '--conditions':'92X_dataRun2_Express_v2_snapshotted', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
+                        '--conditions':'auto:run3_data_express', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
@@ -1998,7 +2117,7 @@ steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotH
 
 steps['ALCAHARVDHPBSLOWPU']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotHPLowPU']),
                         #'--conditions':'auto:run2_data_promptlike',
-                        '--conditions':'92X_dataRun2_Express_v2_snapshotted', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
+                        '--conditions':'auto:run3_data_express', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
@@ -2007,7 +2126,7 @@ steps['ALCAHARVDHPBSLOWPU']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeam
 
 
 steps['ALCAHARVDSIPIXELCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixel']),
-                        '--conditions':'100X_dataRun2_Express_v2',
+                        '--conditions':'auto:run3_data_express',
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
@@ -2019,15 +2138,23 @@ steps['ALCAHARVDSIPIXELCALRUN1']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibPro
                         '--data':'',
                         '--filein':'file:PromptCalibProdSiPixel.root'}
 
+steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPS']),
+                        '--conditions':'auto:run3_data_express',
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run2_2017',
+                        '--filein':'file:PPSTimingCalib.root'}
+
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
-                          '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:DtCalib',
+                          '-s':'RAW2DIGI,L1Reco,RECO,DQM',
                           '--datatier':'RECO,DQMIO',     # no miniAOD for cosmics
                           '--eventcontent':'RECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData'
                           },dataReco])
 
 steps['RECOCOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['RECOCOSD']])
-steps['RECOCOSDRUN3']=merge([{'--conditions':'auto:run3_data_promptlike','--era':'Run3'},steps['RECOCOSD']])
+steps['RECOCOSDRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3'},steps['RECOCOSD']])
+steps['RECOCOSDEXPRUN3']=merge([{'--conditions':'auto:run3_data_express','--era':'Run3'},steps['RECOCOSD']])
 
 # step1 gensim for HI mixing
 step1Up2018HiMixDefaults = merge ([{'--beamspot':'MatchHI', '--pileup':'HiMixGEN', '--scenario':'HeavyIons'},hiDefaults2018_ppReco,PUHI,step1Up2018HiProdDefaults])
@@ -2035,14 +2162,21 @@ def gen2018HiMix(fragment,howMuch):
     global step1Up2018HiMixDefaults
     return merge([{'cfg':fragment},howMuch,step1Up2018HiMixDefaults])
 
+step1Up2021HiMixDefaults = merge ([{'--beamspot':'MatchHI', '--pileup':'HiMixGEN', '--scenario':'HeavyIons'},hiDefaults2021_ppReco,PUHI2021,step1Up2021HiProdDefaults])
+def gen2021HiMix(fragment,howMuch):
+    global step1Up2021HiMixDefaults
+    return merge([{'cfg':fragment},howMuch,step1Up2021HiMixDefaults])
+
 steps['Pyquen_GammaJet_pt20_2760GeV']=gen2018HiMix('Pyquen_GammaJet_pt20_2760GeV_cfi',Kby(9,100))
 steps['Pyquen_DiJet_pt80to120_2760GeV']=gen2018HiMix('Pyquen_DiJet_pt80to120_2760GeV_cfi',Kby(9,100))
 steps['Pyquen_ZeemumuJets_pt10_2760GeV']=gen2018HiMix('Pyquen_ZeemumuJets_pt10_2760GeV_cfi',Kby(9,100))
+steps['Pyquen_GammaJet_pt20_2760GeV_2021']=gen2021HiMix('Pyquen_GammaJet_pt20_2760GeV_cfi',Kby(9,100))
+steps['Pyquen_DiJet_pt80to120_2760GeV_2021']=gen2021HiMix('Pyquen_DiJet_pt80to120_2760GeV_cfi',Kby(9,100))
+steps['Pyquen_ZeemumuJets_pt10_2760GeV_2021']=gen2021HiMix('Pyquen_ZeemumuJets_pt10_2760GeV_cfi',Kby(9,100))
 
 # step3
 step3Defaults = {
                   '-s'            : 'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
-                  '--runUnscheduled':'',
                   '--conditions'  : 'auto:run1_mc',
                   '--no_exec'     : '',
                   '--datatier'    : 'GEN-SIM-RECO,MINIAODSIM,DQMIO',
@@ -2056,7 +2190,6 @@ steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 step3Up2015Defaults = {
     #'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
     '-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
-    '--runUnscheduled':'',
     '--conditions':'auto:run2_mc',
     '-n':'10',
     '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
@@ -2077,15 +2210,14 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                   '--era'          :'Run2_2016'
                   }
 
-step3_trackingOnly = {
-    '-s': 'RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM',
-    '--datatier':'GEN-SIM-RECO,DQMIO',
-    '--eventcontent':'RECOSIM,DQM',
+step3_pixel_ntuplet_cpu = {
+    '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksSoAonCPU'
 }
-step3_pixelTrackingOnly = {
-    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
-    '--datatier': 'GEN-SIM-RECO,DQMIO',
-    '--eventcontent': 'RECOSIM,DQM',
+step3_pixel_triplets = {
+    '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksForTriplets'
+}
+step3_gpu = {
+    '--procModifiers': 'gpu',
 }
 step3_trackingLowPU = {
     '--era': 'Run2_2016_trackingLowPU'
@@ -2093,18 +2225,7 @@ step3_trackingLowPU = {
 step3_HIPM = {
     '--era': 'Run2_2016_HIPM'
 }
-step3Up2015Defaults_trackingOnly = merge([step3_trackingOnly, remove(step3Up2015Defaults, "--runUnscheduled")])
-step3_TICLOnly = {
-    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations'
-}
-step3_TICLFullReco = {
-    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations_withReco'
-}
-
-# mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
-#unSchOverrides={'--runUnscheduled':'','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM','--eventcontent':'RECOSIM,MINIAODSIM,DQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO'}
-#step3Up2015DefaultsUnsch = merge([unSchOverrides,step3Up2015Defaults])
-#step3DefaultsUnsch = merge([unSchOverrides,step3Defaults])
+step3Up2015Defaults_trackingOnly = merge([step3_trackingOnly, step3Up2015Defaults])
 
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 steps['RECOUP15_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'},step3Up2015Defaults]) # todo: remove UP from label
@@ -2152,15 +2273,15 @@ steps['RECODR2_2017reHLTAlCaTkCosmics']=merge([{'--hltProcess':'reHLT','--condit
 steps['RECODR2_2017reHLTSiPixelCalZeroBias']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiPixelCalZeroBias,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2017']])
 steps['RECODR2_2018reHLTAlCaTkCosmics']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval','-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXONoBPTXSkim,EI,PAT,ALCA:TkAlCosmicsInCollisions,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2018']])
 
-steps['RECODR2_2016reHLT_skimSingleMu']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:ZMu+MuTau,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECODR2_2016reHLT']])
+steps['RECODR2_2016reHLT_skimSingleMu']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:ZMu+MuTau,EI,PAT,ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECODR2_2016reHLT']])
 steps['RECODR2_2016reHLT_skimDoubleEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:ZElectron,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2016reHLT']])
-steps['RECODR2_2016reHLT_skimMuonEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:TopMuEG,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2016reHLT']])
+steps['RECODR2_2016reHLT_skimMuonEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:TopMuEG,EI,PAT,ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2016reHLT']])
 steps['RECODR2_2016reHLT_skimJetHT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:JetHTJetPlusHOFilter,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2016reHLT']])
 steps['RECODR2_2016reHLT_skimMET']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:HighMET+EXOMONOPOLE,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2016reHLT']])
 steps['RECODR2_2016reHLT_skimSinglePh']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:SinglePhotonJetPlusHOFilter+EXOMONOPOLE,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2016reHLT']])
 steps['RECODR2_2016reHLT_skimMuOnia']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2016reHLT']])
 
-steps['RECODR2_2017reHLT_skimSingleMu']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECODR2_2017reHLT']])
+steps['RECODR2_2017reHLT_skimSingleMu']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimDoubleEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:ZElectron,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimMuonEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:TopMuEG,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 steps['RECODR2_2017reHLT_skimJetHT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:JetHTJetPlusHOFilter,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
@@ -2171,7 +2292,7 @@ steps['RECODR2_2017reHLT_skimMuOnia']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:BP
 steps['RECODR2_2017reHLT_skimCharmonium']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGJPsiSkim+BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2017reHLT']])
 
 steps['RECODR2_2018reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval'},steps['RECODR2_2018']])
-steps['RECODR2_2018reHLT_skimSingleMu']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECODR2_2018reHLT']])
+steps['RECODR2_2018reHLT_skimSingleMu']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimEGamma_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:ZElectron+SinglePhotonJetPlusHOFilter+EXOMONOPOLE,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimMuonEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:TopMuEG,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimJetHT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:JetHTJetPlusHOFilter,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
@@ -2219,41 +2340,49 @@ steps['RECODR2_2017reHLT_skimSingleMu_Prompt']=merge([{'--conditions':'auto:run2
 steps['RECODR2_2017reHLT_skimSinglePh_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2017reHLT_skimSinglePh']])
 steps['RECODR2_2017reHLT_skimMuOnia_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2017reHLT_skimMuOnia']])
 steps['RECODR2_2017reHLT_skimCharmonium_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2017reHLT_skimCharmonium']])
-steps['RECODR2_2017reHLT_skimSingleMu_Prompt_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@lumi+@L1TMuon'},steps['RECODR2_2017reHLT_skimSingleMu_Prompt']])
+steps['RECODR2_2017reHLT_skimSingleMu_Prompt_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@lumi+@L1TMuon'},steps['RECODR2_2017reHLT_skimSingleMu_Prompt']])
 steps['RECODR2_2017reHLTAlCaTkCosmics_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2017reHLTAlCaTkCosmics']])
 steps['RECODR2_2017reHLTSiPixelCalZeroBias_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2017reHLTSiPixelCalZeroBias']])
 
-steps['RECODR2_2018reHLT_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT']])
-steps['RECODR2_2018reHLT_ZBPrompt']=merge([{'--conditions':'auto:run2_data_promptlike','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@rerecoZeroBias+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
+steps['RECODR2_2018reHLT_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT']])
+steps['RECODR2_2018reHLT_ZBPrompt']=merge([{'--conditions':'auto:run2_data','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@rerecoZeroBias+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
+steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']=merge([{'-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,DQM:@pixelTrackingOnlyDQM'},steps['RECODR2_2018reHLT_Prompt']])
+steps['RECODR2_2018reHLT_Patatrack_PixelOnlyCPU']=merge([step3_pixel_ntuplet_cpu, steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']])
+steps['RECODR2_2018reHLT_Patatrack_PixelOnlyGPU']=merge([step3_gpu, steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']])
+steps['RECODR2_2018reHLT_Patatrack_PixelOnlyTripletsCPU']=merge([step3_pixel_ntuplet_cpu, step3_pixel_triplets, steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']])
+steps['RECODR2_2018reHLT_Patatrack_PixelOnlyTripletsGPU']=merge([step3_gpu, step3_pixel_triplets, steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']])
+
+steps['RECODR2_2018reHLT_ECALOnlyCPU']=merge([{'-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,DQM:@ecalOnly'},steps['RECODR2_2018reHLT_Prompt']])
+steps['RECODR2_2018reHLT_ECALOnlyGPU']=merge([step3_gpu, steps['RECODR2_2018reHLT_ECALOnlyCPU']])
+steps['RECODR2_2018reHLT_HCALOnlyCPU']=merge([{'-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,DQM:@hcalOnly+@hcal2Only'},steps['RECODR2_2018reHLT_Prompt']])
+steps['RECODR2_2018reHLT_HCALOnlyGPU']=merge([step3_gpu, steps['RECODR2_2018reHLT_HCALOnlyCPU']])
 steps['RECODR2_2018reHLT_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_ZBOffline']=merge([{'--conditions':'auto:run2_data','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@rerecoZeroBias+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
-steps['RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimEGamma_L1TEgDQM']])
+steps['RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimEGamma_L1TEgDQM']])
 steps['RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimEGamma_L1TEgDQM']])
-steps['RECODR2_2018reHLT_skimJetHT_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimJetHT']])
+steps['RECODR2_2018reHLT_skimJetHT_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimJetHT']])
 steps['RECODR2_2018reHLT_skimJetHT_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimJetHT']])
-steps['RECODR2_2018reHLT_skimDisplacedJet_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimDisplacedJet']])
+steps['RECODR2_2018reHLT_skimDisplacedJet_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimDisplacedJet']])
 steps['RECODR2_2018reHLT_skimDisplacedJet_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimDisplacedJet']])
-steps['RECODR2_2018reHLT_skimMET_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimMET']])
+steps['RECODR2_2018reHLT_skimMET_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimMET']])
 steps['RECODR2_2018reHLT_skimMET_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimMET']])
-steps['RECODR2_2018reHLT_skimMuonEG_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimMuonEG']])
+steps['RECODR2_2018reHLT_skimMuonEG_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimMuonEG']])
 steps['RECODR2_2018reHLT_skimMuonEG_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimMuonEG']])
-steps['RECODR2_2018reHLT_skimSingleMu_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimSingleMu']])
+steps['RECODR2_2018reHLT_skimSingleMu_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimSingleMu']])
 steps['RECODR2_2018reHLT_skimSingleMu_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimSingleMu']])
-steps['RECODR2_2018reHLT_skimMuOnia_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimMuOnia']])
+steps['RECODR2_2018reHLT_skimMuOnia_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimMuOnia']])
 steps['RECODR2_2018reHLT_skimMuOnia_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimMuOnia']])
-steps['RECODR2_2018reHLT_skimCharmonium_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimCharmonium']])
+steps['RECODR2_2018reHLT_skimCharmonium_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimCharmonium']])
 steps['RECODR2_2018reHLT_skimCharmonium_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimCharmonium']])
-steps['RECODR2_2018reHLT_skimParkingBPH_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimParkingBPH']])
+steps['RECODR2_2018reHLT_skimParkingBPH_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimParkingBPH']])
 steps['RECODR2_2018reHLT_skimParkingBPH_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimParkingBPH']])
-steps['RECODR2_2018reHLT_skimSingleMu_Prompt_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@lumi+@L1TMuon'},steps['RECODR2_2018reHLT_skimSingleMu_Prompt']])
-steps['RECODR2_2018reHLT_skimSingleMu_Offline_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@lumi+@L1TMuon'},steps['RECODR2_2018reHLT_skimSingleMu_Offline']])
-steps['RECODR2_2018reHLTAlCaTkCosmics_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLTAlCaTkCosmics']])
+steps['RECODR2_2018reHLT_skimSingleMu_Prompt_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@lumi+@L1TMuon'},steps['RECODR2_2018reHLT_skimSingleMu_Prompt']])
+steps['RECODR2_2018reHLT_skimSingleMu_Offline_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@lumi+@L1TMuon'},steps['RECODR2_2018reHLT_skimSingleMu_Offline']])
+steps['RECODR2_2018reHLTAlCaTkCosmics_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLTAlCaTkCosmics']])
 steps['RECODR2_2018reHLTAlCaTkCosmics_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLTAlCaTkCosmics']])
 steps['RECODR2_2018reHLT_Prompt_hBStar']=merge([{'--era':'Run2_2018_highBetaStar'},steps['RECODR2_2018reHLT_Prompt']])
 steps['RECODR2_2018reHLT_Offline_hBStar']=merge([{'--era':'Run2_2018_highBetaStar'},steps['RECODR2_2018reHLT_Offline']])
-steps['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail']=merge([{'--conditions':'auto:run2_data_promptlike_HEfail'},steps['RECODR2_2018reHLT_skimJetHT']])
-steps['RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig']=merge([{'--conditions':'auto:run2_data_promptlike_HEfail','--era':'Run2_2018,pf_badHcalMitigation'},steps['RECODR2_2018reHLT_skimJetHT']])
-
+steps['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail']=merge([{'--conditions':'auto:run2_data_HEfail'},steps['RECODR2_2018reHLT_skimJetHT']])
 steps['RECO']=merge([step3Defaults])
 
 
@@ -2275,6 +2404,7 @@ steps['RECOCOS_UP16']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'RAW2DI
 steps['RECOCOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
 steps['RECOCOS_UP18']=merge([{'--conditions':'auto:phase1_2018_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2018'},step3Up2015Hal])
 steps['RECOCOS_UP21']=merge([{'--conditions':'auto:phase1_2021_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run3'},step3Up2015Hal])
+steps['RECOCOS_UP21_0T']=merge([{'--magField':'0T','--conditions':'auto:phase1_2021_cosmics_0T'},steps['RECOCOS_UP21']])
 steps['RECOCOSPEAK_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics_peak','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
 steps['RECOCOSPEAK_UP18']=merge([{'--conditions':'auto:phase1_2018_cosmics_peak','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2018'},step3Up2015Hal])
 
@@ -2288,6 +2418,7 @@ steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+
 steps['RECOPU1']=merge([PU,steps['RECO']])
 steps['RECOPU2']=merge([PU2,steps['RECO']])
 steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
+steps['RECOUP15_PU25_HIPM']=merge([step3_HIPM,steps['RECOUP15_PU25']])
 steps['RECOUP15_PU25_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'},steps['RECOUP15_PU25']])
 steps['RECOUP15_PU25_L1TMuDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECOUP15_PU25']])
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
@@ -2307,9 +2438,11 @@ steps['RECOUP15_PU25HS']=merge([PU25HS,step3Up2015Defaults])
 steps['RECOPRMXUP15_PU25']=merge([
         {'--era':'Run2_2016','--procModifiers':'premix_stage2'}, # temporary replacement for premix; to be brought back to customisePostLS1; DataMixer customize for rerouting inputs to mixed data.
         step3Up2015Defaults])
+steps['RECOPRMXUP15_HIPM_PU25']=merge([step3_HIPM,steps['RECOPRMXUP15_PU25']])
 steps['RECOPRMXUP15_PU50']=merge([
         {'--era':'Run2_50ns','--procModifiers':'premix_stage2'},
         step3Up2015Defaults50ns])
+
 steps['RECOPRMXUP17_PU25']=merge([
         {'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--procModifiers':'premix_stage2'},
         step3Up2015Defaults])
@@ -2319,6 +2452,12 @@ steps['RECOPRMXUP18_PU25']=merge([
         step3Up2015Defaults])
 steps['RECOPRMXUP18_PU25_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'},steps['RECOPRMXUP18_PU25']])
 steps['RECOPRMXUP18_PU25_L1TMuDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECOPRMXUP18_PU25']])
+
+#Run-Dependent RECO
+step_RECO18_RD = {'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n \""}
+steps['RECOPRMXUP18_PU25_RD']=merge([step_RECO18_RD, steps['RECOPRMXUP18_PU25']])
+steps['RECOPRMXUP18_PU25_L1TEgDQM_RD']=merge([step_RECO18_RD, steps['RECOPRMXUP18_PU25_L1TEgDQM']])
+steps['RECOPRMXUP18_PU25_L1TMuDQM_RD']=merge([step_RECO18_RD, steps['RECOPRMXUP18_PU25_L1TMuDQM']])
 
 recoPremixUp15prod = merge([
         #{'-s':'RAW2DIGI,L1Reco,RECO,EI'}, # tmp
@@ -2353,14 +2492,50 @@ steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
 steps['RECOUP15_ID']=merge([{'--hltProcess':'HLT2'},steps['RECOUP15']])
 
+steps['RECOHI2021PPRECO']=merge([hiDefaults2021_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+                                                        '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+                                                        '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
+                                                        },step3Up2015Defaults])
+steps['RECOHI2021PPRECOMB']=merge([hiDefaults2021_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+                                                          '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+                                                          '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
+                                                          '--era':'Run3_pp_on_PbPb',
+                                                          '--procModifiers':'genJetSubEvent',
+                                                        },step3Up2015Defaults])
+
+steps['ALCARECOHI2021PPRECO']=merge([hiDefaults2021_ppReco,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias',
+                                                            '--datatier':'ALCARECO',
+                                                            '--eventcontent':'ALCARECO'
+                                                            }])
+
 steps['RECOHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiPixelCalZeroBias,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                         '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO,ALCARECO',
                                                         '--eventcontent':'RECOSIM,MINIAODSIM,DQM,ALCARECO',
                                                         },step3Up2015Defaults])
+steps['RECOHI2018PPRECOMB']=merge([hiDefaults2018_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiPixelCalZeroBias,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+                                                          '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO,ALCARECO',
+                                                          '--eventcontent':'RECOSIM,MINIAODSIM,DQM,ALCARECO',
+                                                          '--era':'Run2_2018_pp_on_AA',
+                                                          '--procModifiers':'genJetSubEvent',
+                                                      },step3Up2015Defaults])
 
+steps['REMINIAODHI2018PPRECO']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
+                                       '--datatier':'MINIAODSIM,DQMIO',
+                                       '--eventcontent':'MINIAODSIM,DQM',
+                                       '-n':100,
+                                       '--era':'Run2_2018_pp_on_AA',
+                                       '--procModifiers':'run2_miniAOD_pp_on_AA_103X',
+                                   },hiDefaults2018_ppReco,step3Up2015Defaults])
+steps['REMINIAODHI2018PPRECOMB']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
+                                         '--datatier':'MINIAODSIM,DQMIO',
+                                         '--eventcontent':'MINIAODSIM,DQM',
+                                         '-n':100,
+                                         '--era':'Run2_2018_pp_on_AA',
+                                         '--procModifiers':'genJetSubEvent,run2_miniAOD_pp_on_AA_103X',
+                                     },hiDefaults2018_ppReco,step3Up2015Defaults])
 steps['ALCARECOHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias',
                                                             '--datatier':'ALCARECO',
-                                                            '--eventcontent':'ALCARECO'   
+                                                            '--eventcontent':'ALCARECO'
                                                             }])
 
 steps['RECOHI2018']=merge([hiDefaults2018,{'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'},step3Up2015Defaults])
@@ -2390,16 +2565,17 @@ steps['ALCACOSD']={'--conditions':'auto:run1_data',
                    '-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'
                    }
 
-steps['ALCACOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics+DQM'},steps['ALCACOSD']])
+steps['ALCACOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
 
-steps['ALCACOSDRUN3']=merge([{'--conditions':'auto:run3_data_promptlike','--era':'Run3','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics+DQM'},steps['ALCACOSD']])
+steps['ALCACOSDRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
+steps['ALCACOSDEXPRUN3']=merge([{'--conditions':'auto:run3_data_express','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
 
 steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--filein':'file:TkAlMinBias.root',
                      '--conditions':'auto:run1_data',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
-steps['ALCAEXP']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+DtCalib+Hotline+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel',
+steps['ALCAEXP']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+Hotline+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel',
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
@@ -2449,10 +2625,11 @@ steps['ALCABH_UP21']=merge([{'--conditions':'auto:phase1_2021_cosmics','-s':'ALC
 
 steps['ALCAHAL']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},step4Up2015Defaults])
 steps['ALCACOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},step4Up2015Defaults])
-steps['ALCACOS_UP16']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo','--era':'Run2_2016'},step4Up2015Defaults])
-steps['ALCACOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo','--era':'Run2_2017'},step4Up2015Defaults])
-steps['ALCACOS_UP18']=merge([{'--conditions':'auto:phase1_2018_cosmics','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo','--era':'Run2_2018'},step4Up2015Defaults])
-steps['ALCACOS_UP21']=merge([{'--conditions':'auto:phase1_2021_cosmics','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo','--era':'Run3'},step4Up2015Defaults])
+steps['ALCACOS_UP16']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+SiPixelCalCosmics+TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo','--era':'Run2_2016'},step4Up2015Defaults])
+steps['ALCACOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+SiPixelCalCosmics+TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo','--era':'Run2_2017'},step4Up2015Defaults])
+steps['ALCACOS_UP18']=merge([{'--conditions':'auto:phase1_2018_cosmics','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+SiPixelCalCosmics+TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo','--era':'Run2_2018'},step4Up2015Defaults])
+steps['ALCACOS_UP21']=merge([{'--conditions':'auto:phase1_2021_cosmics','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+SiPixelCalCosmics+TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo','--era':'Run3'},step4Up2015Defaults])
+steps['ALCACOS_UP21_0T']=merge([{'--magField':'0T','--conditions':'auto:phase1_2021_cosmics_0T'},steps['ALCACOS_UP21']])
 steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality',
                     '--conditions':'auto:run1_data',
                     '--scenario':'pp',
@@ -2510,11 +2687,12 @@ steps['ALCAHARVDTE']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdEcalPedesta
                      '--filein':'file:PromptCalibProdEcalPedestals.root'}
 
 steps['RECOHISt4']=steps['RECOHI2015']
+steps['RECOHI2021MIX']=merge([steps['RECOHI2021PPRECO'],{'--pileup':'HiMix','--pileup_input':'das:/RelValHydjetQ_B12_5020GeV_2021_ppReco/%s/GEN-SIM'%(baseDataSetRelease[23])}])
 steps['RECOHIMIX']=merge([steps['RECOHI2018PPRECO'],{'--pileup':'HiMix','--pileup_input':'das:/RelValHydjetQ_B12_5020GeV_2018/%s/GEN-SIM'%(baseDataSetRelease[9])}])
 
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
-                     '--conditions':'auto:run2_mc_FULL',
+                     '--conditions':'auto:run2_mc',
                      '--mc':'',
                      '--era' :'Run2_2016',
                      '--filetype':'DQM',
@@ -2525,7 +2703,7 @@ steps['HARVESTGEN2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTG
 
 
 #data
-steps['HARVESTD']={'-s':'HARVESTING:@standardDQM+@ExtraHLT+@miniAODDQM',
+steps['HARVESTD']={'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM',
                    '--conditions':'auto:run1_data',
                    '--data':'',
                    '--filetype':'DQM',
@@ -2549,17 +2727,19 @@ steps['HARVEST2017ZB'] = merge([ {'--conditions':'auto:run2_data_relval','--era'
 steps['HARVEST2017_L1TEgDQM'] = merge([ {'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'}, steps['HARVEST2017'] ])
 steps['HARVEST2017_L1TMuDQM'] = merge([ {'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'}, steps['HARVEST2017'] ])
 steps['HARVEST2018'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data',}, steps['HARVESTD'] ])
-steps['HARVEST2018ZB'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data','-s':'HARVESTING:@rerecoZeroBias+@ExtraHLT+@miniAODDQM'}, steps['HARVESTD'] ])
+steps['HARVEST2018ZB'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data','-s':'HARVESTING:@rerecoZeroBiasFakeHLT+@miniAODDQM'}, steps['HARVESTD'] ])
 
-steps['HARVEST2018_Prompt'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data_promptlike',}, steps['HARVESTD'] ])
-steps['HARVEST2018_PromptZB'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data_promptlike','-s':'HARVESTING:@rerecoZeroBiasFakeHLT+@miniAODDQM'}, steps['HARVESTD'] ])
+steps['HARVEST2018_Prompt'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data',}, steps['HARVESTD'] ])
+steps['HARVEST2018_PromptZB'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data','-s':'HARVESTING:@rerecoZeroBiasFakeHLT+@miniAODDQM'}, steps['HARVESTD'] ])
 steps['HARVEST2018_L1TEgDQM'] = merge([ {'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_L1TEgDQM_Prompt'] = merge([ {'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'}, steps['HARVEST2018_Prompt'] ])
 steps['HARVEST2018_L1TMuDQM'] = merge([ {'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_L1TMuDQM_Prompt'] = merge([ {'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'}, steps['HARVEST2018_Prompt'] ])
+steps['HARVEST2018_pixelTrackingOnly'] = merge([ {'-s':'HARVESTING:@pixelTrackingOnlyDQM'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_ECALOnly'] = merge([ {'-s':'HARVESTING:@ecal'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_HCALOnly'] = merge([ {'-s':'HARVESTING:@hcalOnly'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_hBStar'] = merge([ {'--era' : 'Run2_2018_highBetaStar'}, steps['HARVEST2018'] ])
-steps['HARVEST2018_HEfail'] = merge([ {'--conditions':'auto:run2_data_promptlike_HEfail'}, steps['HARVEST2018'] ])
-steps['HARVEST2018_BadHcalMitig'] = merge([ {'--era' : 'Run2_2018,pf_badHcalMitigation','--conditions':'auto:run2_data_promptlike_HEfail'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_HEfail'] = merge([ {'--conditions':'auto:run2_data_HEfail'}, steps['HARVEST2018'] ])
 
 steps['HARVEST2018_L1TEgDQM_MULTIRUN'] = merge([ {
         '--customise':"Configuration/StandardSequences/DQMSaverAtJobEnd_cff",
@@ -2569,19 +2749,20 @@ steps['HARVEST2018_L1TEgDQM_MULTIRUN'] = merge([ {
 
 steps['DQMHLTonAOD_2017']={
     '-s':'DQM:offlineHLTSourceOnAOD', ### DQM-only workflow on AOD input: for HLT
-    '--conditions':'auto:run2_data_promptlike',
+    '--conditions':'auto:run2_data',
     '--data':'',
     '--eventcontent':'DQM',
     '--datatier':'DQMIO',
     '--era':'Run2_2017',
     '--fileout':'DQMHLTonAOD.root',
+    '--procModifiers':'tau_readOldDiscriminatorFormat',
     }
 steps['DQMHLTonAODextra_2017'] = merge([ {'-s':'DQM:offlineHLTSourceOnAODextra'}, steps['DQMHLTonAOD_2017'] ])
 
 steps['DQMHLTonRAWAOD_2017']={
     '--process':'reHLT',
     '-s':'HLT:@relval2017,DQM:offlineHLTSourceOnAOD',
-    '--conditions':'auto:run2_data_promptlike',
+    '--conditions':'auto:run2_data',
     '--data':'',
     '--eventcontent':'DQM',
     '--datatier':'DQMIO',
@@ -2589,6 +2770,7 @@ steps['DQMHLTonRAWAOD_2017']={
     '--secondfilein':'filelist:step1_dasparentquery.log',
     '--customise_commands':'"process.HLTAnalyzerEndpath.remove(process.hltL1TGlobalSummary)"',
     '--fileout':'DQMHLTonAOD.root',
+    '--procModifiers':'tau_readOldDiscriminatorFormat',
     }
 
 steps['HARVESTDQMHLTonAOD_2017'] = merge([ {'--filein':'file:DQMHLTonAOD.root','-s':'HARVESTING:hltOfflineDQMClient'}, steps['HARVEST2017'] ]) ### Harvesting step for the DQM-only workflow
@@ -2606,12 +2788,17 @@ steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvestingFakeHLT',
 
 steps['HARVESTDCRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['HARVESTDC']])
 
-steps['HARVESTDCRUN3']=merge([{'--conditions':'auto:run3_data_promptlike','--era':'Run3'},steps['HARVESTDC']])
+steps['HARVESTDCRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3'},steps['HARVESTDC']])
+steps['HARVESTDCEXPRUN3']=merge([{'--conditions':'auto:run3_data_express','--era':'Run3'},steps['HARVESTDC']])
 
 steps['HARVESTDR2_REMINIAOD_data2016']=merge([{'--data':'', '-s':'HARVESTING:@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTDR2']])
 steps['HARVESTDR2_REMINIAOD_data2016_HIPM']=merge([{'--era':'Run2_2016_HIPM,run2_miniAOD_80XLegacy'},steps['HARVESTDR2_REMINIAOD_data2016']])
+steps['HARVESTDR2_REMINIAOD_data2016UL']=merge([{'--era':'Run2_2016', '--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['HARVESTDR2_REMINIAOD_data2016']])
+steps['HARVESTDR2_REMINIAOD_data2016UL_HIPM']=merge([{'--era':'Run2_2016_HIPM'},steps['HARVESTDR2_REMINIAOD_data2016UL']])
 
 steps['HARVEST2017_REMINIAOD_data2017']=merge([{'--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['HARVESTDR2_REMINIAOD_data2016']])
+steps['HARVEST2017_REMINIAOD_data2017UL']=merge([{'--era':'Run2_2017'},steps['HARVESTDR2_REMINIAOD_data2016UL']])
+steps['HARVEST2018_REMINIAOD_data2018UL']=merge([{'--era':'Run2_2018'},steps['HARVESTDR2_REMINIAOD_data2016UL']])
 
 steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvestingFakeHLT',
                    '--conditions':'auto:run1_data',
@@ -2626,6 +2813,12 @@ steps['HARVESTDHI15']=merge([{ '--conditions':'auto:run2_data',
 steps['HARVESTDHI18']=merge([{ '--era':'Run2_2018_pp_on_AA',
                                '--scenario':'pp' },steps['HARVESTDHI15']])
 
+steps['HARVESTHI18MINIAOD']=merge([{'-s':'HARVESTING:@miniAODDQM',
+                                    '--filein':'file:step2_inDQM.root',
+                                    '--data':'',
+                                    '--era' : 'Run2_2018_pp_on_AA',
+                                    '--filetype':'DQM',
+                                    '-n':100},hiDefaults2018_ppReco])
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                    '--conditions':'auto:run1_mc',
@@ -2699,19 +2892,35 @@ steps['HARVESTCOS_UP21']={'-s'          :'HARVESTING:dqmHarvesting',
                           '--era' : 'Run3'
                           }
 
-steps['HARVESTFS']={'-s':'HARVESTING:validationHarvesting',
+steps['HARVESTCOS_UP21_0T']=merge([{'--magField':'0T','--conditions':'auto:phase1_2021_cosmics_0T'},steps['HARVESTCOS_UP21']])
+
+steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:run1_mc',
                    '--mc':'',
                     '--fast':'',
                     '--filetype':'DQM',
                    '--scenario':'pp'}
+
+steps['HARVESTHI2021PPRECO']=merge([hiDefaults2021_ppReco,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+                                                           '--filein':'file:step3_inDQM.root',
+                                                           '--mc':'',
+                                                           '--era' : 'Run3_pp_on_PbPb',
+                                                           '--filetype':'DQM'}])
+
 steps['HARVESTHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
-                                                           '--filein':'file:step3_inDQM.root', 
+                                                           '--filein':'file:step3_inDQM.root',
                                                            '--mc':'',
                                                            '--era' : 'Run2_2018_pp_on_AA',
                                                            '--filetype':'DQM'}])
 
-steps['HARVESTHI2018']=merge([hiDefaults2018,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+steps['HARVESTHI2018PPRECOMINIAOD']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
+                                                                  '--filein':'file:step2_inDQM.root',
+                                                                  '--mc':'',
+                                                                  '--era' : 'Run2_2018_pp_on_AA',
+                                                                  '--filetype':'DQM',
+                                                                  '-n':100},hiDefaults2018_ppReco])
+
+steps['HARVESTHI2018']=merge([hiDefaults2018,{'-s':'HARVESTING:validationHarvesting+dqmHarvestingFakeHLT',
                     '--mc':'',
                     '--era' : 'Run2_2017',
                     '--filetype':'DQM',
@@ -2720,12 +2929,12 @@ steps['HARVESTHI2017']=merge([hiDefaults2017,{'-s':'HARVESTING:validationHarvest
                     '--mc':'',
                     '--era' : 'Run2_2017_pp_on_XeXe',
                     '--filetype':'DQM'}])
-steps['HARVESTHI2015']=merge([hiDefaults2015,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+steps['HARVESTHI2015']=merge([hiDefaults2015,{'-s':'HARVESTING:validationHarvesting+dqmHarvestingFakeHLT',
                     '--mc':'',
                     '--era' : 'Run2_2016,Run2_HI',
                     '--filetype':'DQM',
                     '--scenario':'HeavyIons'}])
-steps['HARVESTHI2011']=merge([hiDefaults2011,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+steps['HARVESTHI2011']=merge([hiDefaults2011,{'-s':'HARVESTING:validationHarvesting+dqmHarvestingFakeHLT',
                                               '--mc':'',
                                               '--filetype':'DQM'}])
 
@@ -2751,6 +2960,7 @@ steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 steps['HARVESTUP15_PU25_L1TEgDQM']=steps['HARVESTUP15_L1TEgDQM']
 steps['HARVESTUP15_PU25_L1TMuDQM']=steps['HARVESTUP15_L1TMuDQM']
 
+
 steps['HARVESTUP15_PU50']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--era' : 'Run2_50ns'},steps['HARVESTUP15']])
 steps['HARVESTUP15_PU50_L1TEgDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TEgamma'},steps['HARVESTUP15_PU50']])
 steps['HARVESTUP15_PU50_L1TMuDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TMuon'},steps['HARVESTUP15_PU50']])
@@ -2767,8 +2977,20 @@ steps['HARVESTUP18_PU25']=steps['HARVESTUP18']
 steps['HARVESTUP18_PU25_L1TEgDQM']=steps['HARVESTUP18_L1TEgDQM']
 steps['HARVESTUP18_PU25_L1TMuDQM']=steps['HARVESTUP18_L1TMuDQM']
 
+#Run-Dependent harvesting; using MultiRun harvesting + force RunNumber=1 for GUI MC
+step_harvest_MRH_RD = {'--harvesting':'AtJobEnd','--customise_commands':'"process.dqmSaver.forceRunNumber = 1"'}
+steps['HARVESTUP18_PU25_RD']=merge([step_harvest_MRH_RD,steps['HARVESTUP18']])
+steps['HARVESTUP18_PU25_L1TEgDQM_RD']=merge([step_harvest_MRH_RD,steps['HARVESTUP18_L1TEgDQM']])
+steps['HARVESTUP18_PU25_L1TMuDQM_RD']=merge([step_harvest_MRH_RD,steps['HARVESTUP18_L1TMuDQM']])
+
 steps['HARVESTDR2_REMINIAOD_mc2016']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTUP15']])
 steps['HARVESTUP17_REMINIAOD_mc2017']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM','--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['HARVESTUP17']])
+# UL setup uses proc modifiers
+steps['HARVESTDR2_REMINIAOD_mc2016UL_preVFP']=merge([{'--conditions':'auto:run2_mc_pre_vfp','--era':'Run2_2016_HIPM','--procModifiers':'run2_miniAOD_UL_preSummer20'},
+                                                     steps['HARVESTDR2_REMINIAOD_mc2016']])
+steps['HARVESTDR2_REMINIAOD_mc2016UL_postVFP']=merge([{'--conditions':'auto:run2_mc','--era':'Run2_2016'},steps['HARVESTDR2_REMINIAOD_mc2016UL_preVFP']])
+steps['HARVESTUP17_REMINIAOD_mc2017UL']=merge([{'--era':'Run2_2017','--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['HARVESTUP17_REMINIAOD_mc2017']])
+steps['HARVESTUP18_REMINIAOD_mc2018UL']=merge([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018'},steps['HARVESTUP17_REMINIAOD_mc2017UL']])
 
 # for Run1 PPb data workflow
 steps['HARVEST_PPbData']=merge([{'--conditions':'auto:run1_data','-s':'HARVESTING:dqmHarvestingFakeHLT','--scenario':'pp','--era':'Run1_pA' }, steps['HARVESTDHI']])
@@ -2820,22 +3042,12 @@ steps['RECOFROMRECO']=merge([{'-s':'RECO,EI',
                               '--process':'reRECO',
                               '--datatier':'AODSIM',
                               '--eventcontent':'AODSIM',
-                              '--procModifiers':'recoFromReco', 
+                              '--procModifiers':'recoFromReco',
                               },
                              stCond,step3Defaults])
 
 
 steps['RECOFROMRECOSt2']=steps['RECOFROMRECO']
-
-steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reconstruction_noTracking,EI',
-                                  '--filtername':'RECOfromRAWRECO',
-                                  '--process':'rereRECO',
-                                  '--datatier':'AOD',
-                                  '--eventcontent':'AOD',
-                                  '--secondfilein':'filelist:step1_dasquery.log',
-                                  },
-                                 steps['RECOD']])
-
 
 steps['COPYPASTE']={'-s':'NONE',
                     '--conditions':'auto:run1_mc',
@@ -2844,7 +3056,6 @@ steps['COPYPASTE']={'-s':'NONE',
 
 #miniaod
 stepMiniAODDefaults = { '-s'              : 'PAT',
-                        '--runUnscheduled': '',
                         '--era'           : 'Run2_2016',
                         '-n'              : '100'
                         }
@@ -2862,15 +3073,17 @@ steps['REMINIAOD_data2016'] = merge([{'-s' : 'PAT,DQM:@miniAODDQM',
                                       '--data' : '',
                                       '--scenario' : 'pp',
                                       '--eventcontent' : 'MINIAOD,DQM',
-                                      '--datatier' : 'MINIAOD,DQMIO',
-                                      '--customise_unsch' : 'PhysicsTools/PatAlgos/slimming/customizeMiniAOD_HcalFixLegacy2016.customizeAll'
+                                      '--datatier' : 'MINIAOD,DQMIO'
                                       },stepMiniAODDefaults])
 
 steps['REMINIAOD_data2016_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM,run2_miniAOD_80XLegacy'},steps['REMINIAOD_data2016']])
+steps['REMINIAOD_data2016UL'] = merge([{'--era' : 'Run2_2016', '--procModifiers' : 'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_data2016']])
+steps['REMINIAOD_data2016UL_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM'},steps['REMINIAOD_data2016UL']])
 
 stepReMiniAODData17 = merge([{'--era' : 'Run2_2017,run2_miniAOD_94XFall17'},steps['REMINIAOD_data2016']])
-stepReMiniAODData17 = remove(stepReMiniAODData17,'--customise_unsch')
 steps['REMINIAOD_data2017'] = stepReMiniAODData17
+steps['REMINIAOD_data2017UL'] = merge([{'--era' : 'Run2_2017'},steps['REMINIAOD_data2016UL']])
+steps['REMINIAOD_data2018UL'] = merge([{'--era' : 'Run2_2018'},steps['REMINIAOD_data2016UL']])
 
 # Not sure whether the customisations are in the dict as "--customise" or "--era" so try to
 # remove both. Currently premixing uses "--customise" and everything else uses "--era".
@@ -2896,7 +3109,11 @@ steps['REMINIAOD_mc2016'] = merge([{'-s' : 'PAT,VALIDATION:@miniAODValidation,DQ
                                     },stepMiniAODDefaults])
 
 steps['REMINIAOD_mc2017'] =merge([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['REMINIAOD_mc2016']])
-
+# UL uses procModifiers:
+steps['REMINIAOD_mc2016UL_preVFP']=merge([{'--conditions':'auto:run2_mc_pre_vfp','--era':'Run2_2016_HIPM','--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_mc2016']])
+steps['REMINIAOD_mc2016UL_postVFP']=merge([{'--conditions':'auto:run2_mc','--era':'Run2_2016'},steps['REMINIAOD_mc2016UL_preVFP']])
+steps['REMINIAOD_mc2017UL']=merge([{'--era':'Run2_2017','--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_mc2017']])
+steps['REMINIAOD_mc2018UL']=merge([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_mc2017']])
 
 #steps['MINIAODDATA']       =merge([stepMiniAODData])
 #steps['MINIAODDreHLT']     =merge([{'--conditions':'auto:run1_data_%s'%menu},stepMiniAODData])
@@ -2922,11 +3139,16 @@ steps['MINIAODMCUP18bParking']   =merge([{'--conditions':'auto:phase1_2018_reali
 steps['MINIAODMCUP18FS']   =merge([{'--filein':'file:step1.root','--fast':'','--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018_FastSim'},stepMiniAODMC])
 
 stepNanoAODDefaults = { '-s': 'NANO,DQM:@nanoAODDQM', '-n': 1000 }
+stepNanoGenDefaults = { '-s': 'NANOGEN,DQM:@nanogenDQM', '-n': 1000 }
 stepNanoAODData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD,DQM' ,'--datatier': 'NANOAOD,DQMIO'    }, stepNanoAODDefaults ])
 stepNanoAODMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM,DQM','--datatier': 'NANOAODSIM,DQMIO' }, stepNanoAODDefaults ])
 stepNanoEDMData = merge([{ '--data':'', '--eventcontent' : 'NANOEDMAOD,DQM' ,'--datatier': 'NANOAOD,DQMIO'     }, stepNanoAODDefaults ])
 stepNanoEDMMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOEDMAODSIM,DQM','--datatier': 'NANOAODSIM,DQMIO'    }, stepNanoAODDefaults ])
 stepNanoEDMMCProd   = merge([{ '--mc':'', '-s': 'NANO', '--eventcontent' : 'NANOEDMAODSIM','--datatier': 'NANOAODSIM'    }, stepNanoAODDefaults ])
+stepNanoGen     = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODGEN,DQM','--datatier': 'NANOAODSIM,DQMIO' }, stepNanoGenDefaults ])
+
+steps['NANOGENFromGen']   = merge([{'--conditions': 'auto:run2_mc', '--customise' : 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGEN'}, stepNanoGen ])
+steps['NANOGENFromMini']  = merge([{'--conditions': 'auto:run2_mc'}, stepNanoGen ])
 
 steps['NANOAOD2016']   = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2016'}, stepNanoAODData ])
 steps['NANOAOD2017']   = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoAODData ])
@@ -2942,30 +3164,48 @@ steps['NANOAODMC2016_80X'] = merge([{'--era': 'Run2_2016,run2_miniAOD_80XLegacy'
 steps['NANOAODMC2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'},       steps['NANOAODMC2017'] ])
 steps['NANOAODMC2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'},       steps['NANOAODMC2017'] ])
 
+steps['NANOAODMC2017_106XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv1'},       steps['NANOAODMC2017'] ])
+
 steps['NANOEDMMC2017'] = merge([{'--conditions': 'auto:phase1_2017_realistic', '--era': 'Run2_2017'}, stepNanoEDMMC ])
 steps['NANOEDMMC2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'}, steps['NANOEDMMC2017'] ])
+steps['NANOEDMMC2017_106XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv1'}, steps['NANOEDMMC2017'] ])
 steps['NANOEDMMC2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'}, steps['NANOEDMMC2017'] ])
 steps['NANOEDMMC2016_80X'] = merge([{'--conditions': 'auto:run2_mc', '--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOEDMMC2017'] ])
 steps['NANOEDMMC2018_PROD'] = merge([{'--conditions': 'auto:phase1_2018_realistic', '--era': 'Run2_2018', '--filein':'file:step3_inMINIAODSIM.root'}, stepNanoEDMMCProd ])
-
+steps['NANOUP15'] = merge([{ '--conditions':'auto:run2_mc', '--era':'Run2_2016','-n':'10', '--filein':'file:step3_inMINIAODSIM.root','--nThreads':'2'}, stepNanoEDMMCProd ])
+steps['NANOUP15_PU25']=steps['NANOUP15']
+steps['NANOUP17'] = merge([{'--conditions':'auto:phase1_2017_realistic','--era': 'Run2_2017','-n':'10' ,'--filein':'file:step3_inMINIAODSIM.root', '--geometry':'DB:Extended', '--nThreads':'2'}, stepNanoEDMMCProd])
+steps['NANOUP15Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP15']])
+steps['NANOUP15MC_PU25_JME']=merge([{'--customise':'PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD_MC'},steps['NANOUP15']])
+steps['NANOUP15Data_PU25_JME']=merge([{'--customise':'PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD_Data','--data':''},steps['NANOUP15']])
+steps['NANOUP17Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP17']])
+steps['NANOUP18'] = merge([{'--conditions': 'auto:phase1_2018_realistic', '--era': 'Run2_2018','-n':'10', '--filein':'file:step3_inMINIAODSIM.root', '--nThreads':'2'}, stepNanoEDMMCProd ])
+steps['NANOUP18Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP18']])
+steps['NANOPRODUP18']=merge([{'--filein':'file:step4.root'},steps['NANOUP18']])
 steps['NANOEDM2017'] = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoEDMData ])
 steps['NANOEDM2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'}, steps['NANOEDM2017'] ])
 steps['NANOEDM2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'}, steps['NANOEDM2017'] ])
 steps['NANOEDM2016_80X'] = merge([{'--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOEDM2017'] ])
-steps['NANOEDM2018'] = merge([ {'--conditions': 'auto:run2_data_promptlike', '--era': 'Run2_2018'}, stepNanoEDMData ])
+steps['NANOEDM2018'] = merge([ {'--conditions': 'auto:run2_data', '--era': 'Run2_2018'}, stepNanoEDMData ])
 steps['NANOEDM2018_102Xv1'] = merge([ {'--era': 'Run2_2018,run2_nanoAOD_102Xv1'}, steps['NANOEDM2018'] ])
+steps['NANOEDM2018_106Xv1'] = merge([ {'--era': 'Run2_2018,run2_nanoAOD_106Xv1'}, steps['NANOEDM2018'] ])
+steps['NANOEDM2018_106Xv2'] = merge([ {'--era': 'Run2_2018,run2_nanoAOD_106Xv2'}, steps['NANOEDM2018'] ])
 
 steps['HARVESTNANOAODMC2017']=merge([{'-s':'HARVESTING:@nanoAODDQM','--conditions': 'auto:phase1_2017_realistic','--era': 'Run2_2017'},steps['HARVESTUP15']])
 steps['HARVESTNANOAODMC2017_94XMiniAODv1']=merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'},steps['HARVESTNANOAODMC2017']])
 steps['HARVESTNANOAODMC2017_94XMiniAODv2']=merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'},steps['HARVESTNANOAODMC2017']])
 steps['HARVESTNANOAODMC2016_80X']=merge([{'--conditions': 'auto:run2_mc','--era': 'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTNANOAODMC2017']])
 
+steps['HARVESTNANOAODMC2017_106XMiniAODv1']=merge([{'--era': 'Run2_2017,run2_nanoAOD_106Xv1'},steps['HARVESTNANOAODMC2017']])
+
 steps['HARVESTNANOAOD2017']=merge([{'--data':'','-s':'HARVESTING:@nanoAODDQM','--conditions':'auto:run2_data_relval','--era':'Run2_2017'},steps['HARVESTDR2']])
 steps['HARVESTNANOAOD2017_94XMiniAODv1']=merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'},steps['HARVESTNANOAOD2017']])
 steps['HARVESTNANOAOD2017_94XMiniAODv2']=merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'},steps['HARVESTNANOAOD2017']])
 steps['HARVESTNANOAOD2016_80X']=merge([{'--era': 'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTNANOAOD2017']])
-steps['HARVESTNANOAOD2018']=merge([{'--conditions': 'auto:run2_data_promptlike', '--era':'Run2_2018'}, steps['HARVESTNANOAOD2017']])
+steps['HARVESTNANOAOD2018']=merge([{'--conditions': 'auto:run2_data', '--era':'Run2_2018'}, steps['HARVESTNANOAOD2017']])
 steps['HARVESTNANOAOD2018_102Xv1']=merge([{'--era':'Run2_2018,run2_nanoAOD_102Xv1'}, steps['HARVESTNANOAOD2018']])
+steps['HARVESTNANOAOD2018_106Xv1']=merge([{'--era':'Run2_2018,run2_nanoAOD_106Xv1'}, steps['HARVESTNANOAOD2018']])
+steps['HARVESTNANOAOD2018_106Xv2']=merge([{'--era':'Run2_2018,run2_nanoAOD_106Xv2'}, steps['HARVESTNANOAOD2018']])
 
 steps['NANOMERGE'] = { '-s': 'ENDJOB', '-n': 1000 , '--eventcontent' : 'NANOAODSIM','--datatier': 'NANOAODSIM', '--conditions': 'auto:run2_mc' }
 
@@ -2975,13 +3215,12 @@ steps['HEfail'] = {'--conditions':'auto:phase1_2018_realistic_HEfail',
                    '--era' : 'Run2_2018',
                    '--geometry' : 'DB:Extended'
                   }
-steps['DigiFullHEfail']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018','--datatier':'GEN-SIM-DIGI-RAW','--eventcontent':'FEVTDEBUGHLT'}, steps['HEfail']])    
-steps['RecoFullHEfail']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
+steps['DigiFullHEfail']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018','--datatier':'GEN-SIM-DIGI-RAW','--eventcontent':'FEVTDEBUGHLT'}, steps['HEfail']])
+steps['RecoFullHEfail']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                 '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
-                                '--runUnscheduled':'',
                                 '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                }, steps['HEfail']])
-steps['HARVESTFullHEfail']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM','--mc':'','--scenario' : 'pp','--filetype':'DQM'}, steps['HEfail']])
+steps['HARVESTFullHEfail']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--mc':'','--scenario' : 'pp','--filetype':'DQM'}, steps['HEfail']])
 steps['NanoFullHEfail']={'-s':'NANO',
                          '--conditions':'auto:phase1_2018_realistic_HEfail',
                          '-n':'10',
@@ -2990,10 +3229,6 @@ steps['NanoFullHEfail']={'-s':'NANO',
                          '--datatier':'NANOAODSIM',
                          '--eventcontent':'NANOEDMAODSIM',
                          '--filein':'file:step3_inMINIAODSIM.root'}
-steps['DigiFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['DigiFullHEfail']])
-steps['RecoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['RecoFullHEfail']])
-steps['HARVESTFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['HARVESTFullHEfail']])
-steps['NanoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['NanoFullHEfail']])
 
 #################################################################################
 ####From this line till the end of the file :
@@ -3009,20 +3244,20 @@ steps['NanoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 # imported from above, only non-empty values should be provided here
-defaultDataSets['2017']='CMSSW_10_6_0-106X_mc2017_realistic_v3-v'
-defaultDataSets['2017Design']='CMSSW_10_0_0_pre2-100X_mc2017_design_IdealBS_v1-v'
-defaultDataSets['2018']='CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v'
-defaultDataSets['2018Design']='CMSSW_10_6_0-106X_upgrade2018_design_v3-v'
-defaultDataSets['2021']='CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v'
-defaultDataSets['2021Design']='CMSSW_10_6_0_pre3-105X_postLS2_realistic_v6-v'
-defaultDataSets['2023']='CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v'
-defaultDataSets['2024']='CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v'
-defaultDataSets['2026D35']='CMSSW_10_4_0_mtd3-103X_upgrade2023_realistic_v2_2023D35noPU_2-v'
-defaultDataSets['2026D41']='CMSSW_10_6_0_patch2-106X_upgrade2023_realistic_v3_2023D41noPU-v'
+defaultDataSets['2017']='CMSSW_11_3_0_pre4-113X_mc2017_realistic_v4-v'
+defaultDataSets['2017Design']='CMSSW_11_3_0_pre4-113X_mc2017_design_v4-v'
+defaultDataSets['2018']='CMSSW_11_3_0_pre4-113X_upgrade2018_realistic_v4-v'
+defaultDataSets['2018Design']='CMSSW_11_3_0_pre4-113X_upgrade2018_design_v4-v'
+defaultDataSets['2021']='CMSSW_11_3_0_pre4-113X_mcRun3_2021_realistic_v7-v'
+defaultDataSets['2021Design']='CMSSW_11_3_0_pre4-113X_mcRun3_2021_design_v5-v'
+defaultDataSets['2023']='CMSSW_11_3_0_pre4-113X_mcRun3_2023_realistic_v5-v'
+defaultDataSets['2024']='CMSSW_11_3_0_pre4-113X_mcRun3_2024_realistic_v5-v'
+defaultDataSets['2026D49']='CMSSW_11_3_0_pre4-113X_mcRun4_realistic_v4_2026D49noPU_rsb-v'
+defaultDataSets['2026D76']='CMSSW_11_3_0_pre3-113X_mcRun4_realistic_v3_2026D76noPU-v'
 
-keys=defaultDataSets.keys()
-for key in keys:
-  defaultDataSets[key+'PU']=defaultDataSets[key]
+puDataSets = {}
+for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
+defaultDataSets.update(puDataSets)
 
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
 versionOverrides={'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_2017':'2','HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_2017':'2','RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_2017':'2','WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_2017':'2','DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_2017':'2','TenE_E_0_200_pythia8_2017':'2','TenE_E_0_200_pythia8_2017PU':'2', 'TenTau_E_15_500_pythia8_2018':'2','PhotonJet_Pt_10_13TeV_TuneCUETP8M1_2018':'2','Wjet_Pt_80_120_13TeV_TuneCUETP8M1_2018':'2'}
@@ -3030,7 +3265,7 @@ versionOverrides={'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_2017':'2','H
 baseDataSetReleaseBetter={}
 for gen in upgradeFragments:
     for ds in defaultDataSets:
-       	key=gen[:-4]+'_'+ds
+        key=gen[:-4]+'_'+ds
         version='1'
         if key in versionOverrides:
             version = versionOverrides[key]
@@ -3038,18 +3273,18 @@ for gen in upgradeFragments:
 
 PUDataSets={}
 for ds in defaultDataSets:
-    key='MinBias_14TeV_pythia8_TuneCUETP8M1'+'_'+ds
+    key='MinBias_14TeV_pythia8_TuneCP5'+'_'+ds
     name=baseDataSetReleaseBetter[key]
-    if '2017' in name:
-    	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2018' in name:
-    	PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2021' in name:
+    if '2017' in ds:
+        PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    elif '2018' in ds:
+        PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    elif '2021' in ds:
       PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
-    elif 'postLS2' in name:
-    	PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2026' in name:
-    	PUDataSets[ds]={'-n':10,'--pileup':'AVE_200_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
+    elif 'postLS2' in ds:
+        PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    elif '2026' in ds:
+        PUDataSets[ds]={'-n':10,'--pileup':'AVE_200_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
     else:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
 
@@ -3058,16 +3293,8 @@ for ds in defaultDataSets:
 
 
 upgradeStepDict={}
-for stepType in upgradeSteps.keys():
-    for step in upgradeSteps[stepType]['steps']:
-        stepName = step+upgradeSteps[stepType]['suffix']
-        upgradeStepDict[stepName]={}
-    for step in upgradeSteps[stepType]['PU']:
-        stepName = step+'PU'+upgradeSteps[stepType]['suffix']
-        upgradeStepDict[stepName]={}
-        stepNamePmx = step+'PUPRMX'+upgradeSteps[stepType]['suffix']
-        upgradeStepDict[stepNamePmx]={}
-        upgradeStepDict[stepNamePmx+'Combined']={}
+for specialType,specialWF in six.iteritems(upgradeWFs):
+	specialWF.init(upgradeStepDict)
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
 # collapse upgradeKeys using list comprehension
@@ -3078,12 +3305,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     geom=upgradeProperties[year][k]['Geom']
     gt=upgradeProperties[year][k]['GT']
     hltversion=upgradeProperties[year][k].get('HLTmenu')
-    cust=upgradeProperties[year][k].get('Custom', None)
-    era=upgradeProperties[year][k].get('Era', None)
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
 
     # setup baseline steps
-    upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
+    upgradeStepDict['GenSim'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
                                        '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
@@ -3091,9 +3316,9 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
                                        }
-    if beamspot is not None: upgradeStepDict['GenSimFull'][k]['--beamspot']=beamspot
+    if beamspot is not None: upgradeStepDict['GenSim'][k]['--beamspot']=beamspot
 
-    upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
+    upgradeStepDict['GenSimHLBeamSpot'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
                                        '--beamspot' : 'HLLHC',
@@ -3102,7 +3327,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--geometry' : geom
                                        }
 
-    upgradeStepDict['GenSimHLBeamSpotFull14'][k]= {'-s' : 'GEN,SIM',
+    upgradeStepDict['GenSimHLBeamSpot14'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
                                        '--beamspot' : 'HLLHC14TeV',
@@ -3111,7 +3336,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--geometry' : geom
                                        }
 
-    upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
+    upgradeStepDict['Digi'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
                                       '-n':'10',
@@ -3120,7 +3345,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       }
 
     # Adding Track trigger step in step2
-    upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:%s'%(hltversion),
+    upgradeStepDict['DigiTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
                                       '-n':'10',
@@ -3128,25 +3353,31 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
+    upgradeStepDict['Reco'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                       '-n':'10',
-                                      '--runUnscheduled':'',
                                       '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['RecoFullGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
+    upgradeStepDict['RecoFakeHLT'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                       '-n':'10',
-                                      '--runUnscheduled':'',
+                                      '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
+                                      '--geometry' : geom
+                                      }
+
+    upgradeStepDict['RecoGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+                                      '-n':'10',
                                       '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['RecoFullLocal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:localreco',
+    upgradeStepDict['RecoLocal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:localreco',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO',
                                       '-n':'10',
@@ -3154,16 +3385,15 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['MiniAODFullGlobal'][k] = {'-s':'PAT',
+    upgradeStepDict['MiniAOD'][k] = {'-s':'PAT',
                                       '--conditions':gt,
                                       '--datatier':'MINIAODSIM',
                                       '-n':'10',
-                                      '--runUnscheduled':'',
                                       '--eventcontent':'MINIAODSIM',
                                       '--geometry' : geom
                                       }
 
-    upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM',
+    upgradeStepDict['HARVEST'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,
                                     '--mc':'',
                                     '--geometry' : geom,
@@ -3171,9 +3401,17 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--filetype':'DQM',
                                     }
 
-    upgradeStepDict['HARVESTFullGlobal'][k] = merge([{'-s': 'HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM'}, upgradeStepDict['HARVESTFull'][k]])
+    upgradeStepDict['HARVESTFakeHLT'][k]={'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM',
+                                    '--conditions':gt,
+                                    '--mc':'',
+                                    '--geometry' : geom,
+                                    '--scenario' : 'pp',
+                                    '--filetype':'DQM',
+                                    }
 
-    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu+SiStripCalMinBias',
+    upgradeStepDict['HARVESTGlobal'][k] = merge([{'-s': 'HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM'}, upgradeStepDict['HARVEST'][k]])
+
+    upgradeStepDict['ALCA'][k] = {'-s':'ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu+SiStripCalMinBias',
                                       '--conditions':gt,
                                       '--datatier':'ALCARECO',
                                       '-n':'10',
@@ -3197,171 +3435,61 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--scenario' : 'pp'
                                     }
 
-    upgradeStepDict['NanoFull'][k] = {'-s':'NANO',
+    upgradeStepDict['Nano'][k] = {'-s':'NANO',
                                       '--conditions':gt,
                                       '--datatier':'NANOAODSIM',
                                       '-n':'10',
                                       '--eventcontent':'NANOEDMAODSIM',
-				      '--filein':'file:step3_inMINIAODSIM.root',
+                                      '--filein':'file:step3_inMINIAODSIM.root',
                                       '--geometry' : geom
                                       }
 
-
-    # setup baseline customizations and PU
-    for step in upgradeSteps['baseline']['steps']:
-        if cust is not None: upgradeStepDict[step][k]['--customise']=cust
-        if era is not None: upgradeStepDict[step][k]['--era']=era
-
-    # setup variations (manually)
-
-    for step in upgradeSteps['trackingOnly']['steps']:
-        stepName = step + upgradeSteps['trackingOnly']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_trackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['pixelTrackingOnly']['steps']:
-        stepName = step + upgradeSteps['pixelTrackingOnly']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_pixelTrackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['trackingRun2']['steps']:
-        stepName = step + upgradeSteps['trackingRun2']['suffix']
-        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['trackingOnlyRun2']['steps']:
-        stepName = step + upgradeSteps['trackingOnlyRun2']['suffix']
-        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, step3_trackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['trackingLowPU']['steps']:
-        stepName = step + upgradeSteps['trackingLowPU']['suffix']
-        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingLowPU'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['Neutron']['steps']:
-        if 'GenSim' in step:
-            custNew = "SimG4Core/Application/NeutronBGforMuonsXS_cff.customise"
-        else:
-            custNew = "SLHCUpgradeSimulations/Configuration/customise_mixing.customise_Mix_LongLived_Neutrons"
-        stepName = step + upgradeSteps['Neutron']['suffix']
-        upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
-        if '--customise' in upgradeStepDict[stepName][k].keys():
-            upgradeStepDict[stepName][k]['--customise'] += ","+custNew
-        else:
-            upgradeStepDict[stepName][k]['--customise'] = custNew
-
-    for step in upgradeSteps['heCollapse']['steps']:
-        stepName = step + upgradeSteps['heCollapse']['suffix']
-        upgradeStepDict[stepName][k] = merge([{'--procModifiers': 'run2_HECollapse_2018'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['ProdLike']['steps']:
-        stepName = step + upgradeSteps['ProdLike']['suffix']
-        if 'Reco' in step:
-            upgradeStepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'GEN-SIM-RECO', '--eventcontent':'FEVTDEBUGHLT'}, upgradeStepDict[step][k]])
-        elif 'MiniAOD' in step:
-            # the separate miniAOD step is used here
-            upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
-        if 'HARVEST' in step:
-            # remove step
-            upgradeStepDict[stepName][k] = None
-
-    for step in upgradeSteps['ParkingBPH']['steps']:
-        stepName = step + upgradeSteps['ParkingBPH']['suffix']
-        if 'Reco' in step and 'Run2_2018' in upgradeStepDict[step][k]['--era']:
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2018,bParking'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['TICLOnly']['steps']:
-        stepName = step + upgradeSteps['TICLOnly']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_TICLOnly, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['TICLFullReco']['steps']:
-        stepName = step + upgradeSteps['TICLFullReco']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_TICLFullReco, upgradeStepDict[step][k]])
+    # setup baseline and variations
+    for specialType,specialWF in six.iteritems(upgradeWFs):
+        specialWF.setup(upgradeStepDict, k, upgradeProperties[year][k])
 
     # setup PU
     if k2 in PUDataSets:
-        # Setup premixing stage1
-        #
-        # Has to be done before the overall PU definition in order to benefit from that
-        #
-        # It is a complete overkill to define premixing step for
-        # each generator fragment, but let's worry about
-        # simplification later
-        for step in upgradeSteps['baseline']['steps']:
-            if "GenSim" in step:
-                stepName = step + upgradeSteps['baseline']['suffix']
-                stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeSteps['Premix']['suffix']
-                d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid',
-                            '--datatier'    : 'PREMIX',
-                            '--eventcontent': 'PREMIX',
-                            '--procModifiers': 'premix_stage1',
-                           },
-                           PUDataSets[k2],upgradeStepDict[stepName][k]])
-                upgradeStepDict[stepNamePmx][k] = d
-
-        for stepType in upgradeSteps.keys():
-            if "Premix" in stepType:
-                # Premix stage1 is already set above, and there are no non-PU steps so has to be ignored here
-                continue
-            for step in upgradeSteps[stepType]['PU']:
-                stepName = step + upgradeSteps[stepType]['suffix']
-                stepNamePU = step + 'PU' + upgradeSteps[stepType]['suffix']
-                if upgradeStepDict[stepName][k] is None:
+        for specialType,specialWF in six.iteritems(upgradeWFs):
+            for step in specialWF.PU:
+                stepName = specialWF.getStepName(step)
+                stepNamePU = specialWF.getStepNamePU(step)
+                if k not in upgradeStepDict[stepName] or upgradeStepDict[stepName][k] is None:
                     upgradeStepDict[stepNamePU][k] = None
                 else:
                     upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
 
-                # Setup premixing stage2
-                if "Digi" in step or "Reco" in step:
-                    stepNamePUpmx = step + 'PUPRMX' + upgradeSteps[stepType]['suffix']
-                    d = merge([upgradeStepDict[stepName][k]])
-                    if "Digi" in step:
-                        tmpsteps = []
-                        for s in d["-s"].split(","):
-                            if s == "DIGI" or "DIGI:" in s:
-                                tmpsteps.extend([s, "DATAMIX"])
-                            else:
-                                tmpsteps.append(s)
-                        d = merge([{"-s"             : ",".join(tmpsteps),
-                                    "--datamix"      : "PreMix",
-                                    "--procModifiers": "premix_stage2"},
-                                   d])
-                    elif "Reco" in step:
-                        if "--procModifiers" in d:
-                            d["--procModifiers"] += ",premix_stage2"
-                        else:
-                            d["--procModifiers"] = "premix_stage2"
-                    upgradeStepDict[stepNamePUpmx][k] = d
-                    # For combined stage1+stage2
-                    if "Digi" in step:
-                        upgradeStepDict[stepNamePUpmx+"Combined"][k] = merge([digiPremixLocalPileup, d])
-                # Increase the input file step number by one for Nano in combined stage1+stage2
-                if "Nano" in step:
-                    d = merge([upgradeStepDict[stepName][k]])
-                    if "--filein" in d:
-                        filein = d["--filein"]
-                        m = re.search("step(?P<ind>\d+)_", filein)
-                        if m:
-                            d["--filein"] = filein.replace(m.group(), "step%d_"%(int(m.group("ind"))+1))
-                    stepNamePUpmx = step + 'PUPRMX' + upgradeSteps[stepType]['suffix']
-                    upgradeStepDict[stepNamePUpmx+"Combined"][k] = d
+            # in case special WF has PU-specific changes: apply *after* basic PU step is created
+            specialWF.setupPU(upgradeStepDict, k, upgradeProperties[year][k])
+
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
    if 'Sim' in step or 'Premix' in step:
-        for frag in upgradeFragments:
-            howMuch=howMuches[frag]
+        for frag,info in six.iteritems(upgradeFragments):
+            howMuch=info.howMuch
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
-                if (step in upgradeStepDict or step.replace("PUPRMX", "PU")) and key in upgradeStepDict[step]:
-                    steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
-                    #get inputs in case of -i...but no need to specify in great detail
-                    #however, there can be a conflict of beam spots but this is lost in the dataset name
-                    #so please be careful
-                    s=frag[:-4]+'_'+key
-                    if 'FastSim' not in k and 'Premix' not in step and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
-                        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                if step in upgradeStepDict and key in upgradeStepDict[step]:
+                    if upgradeStepDict[step][key] is None:
+                        steps[k]=None
+                    elif 'Premix' in step:
+                        # Include premixing stage1 only for SingleNu, use special step name
+                        if not 'SingleNu' in frag:
+                            continue
+                        stepKey = 'PREMIX_'+key+'_'+step
+                        howMuch = Kby(100,100)
+                        steps[stepKey]=merge([ {'--evt_type':frag},howMuch,upgradeStepDict[step][key]])
+                    else:
+                        steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
+                        #get inputs in case of -i...but no need to specify in great detail
+                        #however, there can be a conflict of beam spots but this is lost in the dataset name
+                        #so please be careful
+                        s=frag[:-4]+'_'+key
+                        # exclude upgradeKeys without input dataset, and special WFs that disable reuse
+                        istep = step+preventReuseKeyword
+                        if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
+                           (istep not in upgradeStepDict or key not in upgradeStepDict[istep] or upgradeStepDict[istep][key] is not None):
+                            steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key

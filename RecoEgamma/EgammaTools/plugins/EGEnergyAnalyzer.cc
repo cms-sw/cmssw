@@ -29,8 +29,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TFile.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-//#include "CondCore/DBCommon/interface/CoralServiceManager.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -59,11 +57,13 @@ private:
   EGEnergyCorrector cordb;
 
   edm::EDGetTokenT<EcalRecHitCollection> ebRHToken_, eeRHToken_;
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 };
 
-EGEnergyAnalyzer::EGEnergyAnalyzer(const edm::ParameterSet& iConfig) {
-  ebRHToken_ = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
-  eeRHToken_ = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
+EGEnergyAnalyzer::EGEnergyAnalyzer(const edm::ParameterSet& iConfig)
+    : ecalClusterToolsESGetTokens_{consumesCollector()} {
+  ebRHToken_ = consumes(edm::InputTag("reducedEcalRecHitsEB"));
+  eeRHToken_ = consumes(edm::InputTag("reducedEcalRecHitsEE"));
 }
 
 EGEnergyAnalyzer::~EGEnergyAnalyzer() {
@@ -93,17 +93,19 @@ void EGEnergyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   Handle<reco::PhotonCollection> hPhotonProduct;
   iEvent.getByLabel("photons", hPhotonProduct);
 
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, ebRHToken_, eeRHToken_);
+  auto const& ecalClusterToolsESData = ecalClusterToolsESGetTokens_.get(iSetup);
+  auto const& caloGeometry = ecalClusterToolsESData.caloGeometry;
+  EcalClusterLazyTools lazyTools(iEvent, ecalClusterToolsESData, ebRHToken_, eeRHToken_);
 
   Handle<reco::VertexCollection> hVertexProduct;
   iEvent.getByLabel("offlinePrimaryVerticesWithBS", hVertexProduct);
 
-  for (reco::PhotonCollection::const_iterator it = hPhotonProduct->begin(); it != hPhotonProduct->end(); ++it) {
-    std::pair<double, double> corsfile = corfile.CorrectedEnergyWithError(*it, *hVertexProduct, lazyTools, iSetup);
-    std::pair<double, double> corsdb = cordb.CorrectedEnergyWithError(*it, *hVertexProduct, lazyTools, iSetup);
+  for (auto const& it : *hPhotonProduct) {
+    std::pair<double, double> corsfile = corfile.CorrectedEnergyWithError(it, *hVertexProduct, lazyTools, caloGeometry);
+    std::pair<double, double> corsdb = cordb.CorrectedEnergyWithError(it, *hVertexProduct, lazyTools, caloGeometry);
 
-    printf("file: default = %5f, correction = %5f, uncertainty = %5f\n", it->energy(), corsfile.first, corsfile.second);
-    printf("db:   default = %5f, correction = %5f, uncertainty = %5f\n", it->energy(), corsdb.first, corsdb.second);
+    printf("file: default = %5f, correction = %5f, uncertainty = %5f\n", it.energy(), corsfile.first, corsfile.second);
+    printf("db:   default = %5f, correction = %5f, uncertainty = %5f\n", it.energy(), corsdb.first, corsdb.second);
   }
 }
 

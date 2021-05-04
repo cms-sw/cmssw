@@ -21,8 +21,6 @@ public:
 protected:
   //Book histograms
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override {}
-  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   int getEtaIndex(float eta);
 
 private:
@@ -39,6 +37,7 @@ private:
     virtual void book(DQMStore::IBooker& booker) {
       booker.setCurrentFolder(dir);
       plot = booker.book1D(name, title, nxbins, xlow, xhigh);
+      plot->setStatOverflows(kTRUE);
     }
 
     virtual void fill(float value) {

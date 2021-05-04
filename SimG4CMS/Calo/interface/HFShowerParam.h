@@ -8,13 +8,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "SimG4CMS/Calo/interface/HFGflash.h"
 
 #include "G4ThreeVector.hh"
 
-class DDCompactView;
 class G4Step;
 
 #include <TH1F.h>
@@ -24,7 +24,10 @@ class G4Step;
 
 class HFShowerParam {
 public:
-  HFShowerParam(const std::string& name, const DDCompactView& cpv, edm::ParameterSet const& p);
+  HFShowerParam(const std::string& name,
+                const HcalDDDSimConstants* hcons,
+                const HcalSimulationParameters* hps,
+                edm::ParameterSet const& p);
   virtual ~HFShowerParam();
 
 public:
@@ -35,23 +38,22 @@ public:
     double time;
     double edep;
   };
-
-  void initRun(const HcalDDDSimConstants*);
   std::vector<Hit> getHits(const G4Step* aStep, double weight, bool& isKilled);
 
 private:
-  HFShowerLibrary* showerLibrary;
-  HFFibre* fibre;
-  HFGflash* gflash;
-  double pePerGeV, edMin, ref_index, aperture, attLMeanInv;
-  bool trackEM, onlyLong, applyFidCut, parametrizeLast;
-  G4int emPDG, epPDG, gammaPDG;
-  std::vector<double> gpar;
-  bool fillHisto;
-  TH1F *em_long_1, *em_lateral_1, *em_long_2, *em_lateral_2;
-  TH1F *hzvem, *hzvhad, *em_long_1_tuned, *em_long_gflash;
-  TH1F* em_long_sl;
-  TH2F *em_2d_1, *em_2d_2;
+  const HcalDDDSimConstants* hcalConstants_;
+  std::unique_ptr<HFShowerLibrary> showerLibrary_;
+  std::unique_ptr<HFFibre> fibre_;
+  std::unique_ptr<HFGflash> gflash_;
+  bool fillHisto_;
+  double pePerGeV_, edMin_, ref_index_, aperture_, attLMeanInv_;
+  bool trackEM_, onlyLong_, applyFidCut_, parametrizeLast_;
+  G4int emPDG_, epPDG_, gammaPDG_;
+  std::vector<double> gpar_;
+  TH1F *em_long_1_, *em_lateral_1_, *em_long_2_, *em_lateral_2_;
+  TH1F *hzvem_, *hzvhad_, *em_long_1_tuned_, *em_long_gflash_;
+  TH1F* em_long_sl_;
+  TH2F *em_2d_1_, *em_2d_2_;
 };
 
 #endif  // HFShowerParam_h

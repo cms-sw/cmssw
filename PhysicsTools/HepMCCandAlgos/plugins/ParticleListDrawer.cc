@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -50,6 +51,7 @@ private:
   edm::InputTag src_;
   edm::EDGetTokenT<reco::CandidateView> srcToken_;
   edm::ESHandle<ParticleDataTable> pdt_;
+  edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdtToken_;
   int maxEventsToPrint_;  // Must be signed, because -1 is used for no limit
   unsigned int nEventAnalyzed_;
   bool printOnlyHardInteraction_;
@@ -61,6 +63,7 @@ private:
 ParticleListDrawer::ParticleListDrawer(const edm::ParameterSet& pset)
     : src_(pset.getParameter<InputTag>("src")),
       srcToken_(consumes<reco::CandidateView>(src_)),
+      pdtToken_(esConsumes<ParticleDataTable, edm::DefaultRecord>()),
       maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint", 1)),
       nEventAnalyzed_(0),
       printOnlyHardInteraction_(pset.getUntrackedParameter<bool>("printOnlyHardInteraction", false)),
@@ -81,7 +84,7 @@ std::string ParticleListDrawer::getParticleName(int id) const {
 void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<reco::CandidateView> particles;
   iEvent.getByToken(srcToken_, particles);
-  iSetup.getData(pdt_);
+  pdt_ = iSetup.getHandle(pdtToken_);
 
   if (maxEventsToPrint_ < 0 || nEventAnalyzed_ < static_cast<unsigned int>(maxEventsToPrint_)) {
     ostringstream out;

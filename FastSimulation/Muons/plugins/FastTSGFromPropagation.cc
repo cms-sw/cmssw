@@ -1,5 +1,7 @@
 #include "FastSimulation/Muons/plugins/FastTSGFromPropagation.h"
 
+#include <memory>
+
 /** \class FastTSGFromPropagation
  *
  *  Emulate TSGFromPropagation in RecoMuon
@@ -50,7 +52,6 @@ FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet& iConfig,
                                                const MuonServiceProxy* service,
                                                edm::ConsumesCollector& iC)
     : theCategory("FastSimulation|Muons|FastTSGFromPropagation"),
-      theTkLayerMeasurements(),
       theTracker(),
       theNavigation(),
       theService(service),
@@ -104,7 +105,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
       if ((*inl == nullptr))
         break;
       //         if ( (inl != nls.end()-1 ) && ( (*inl)->subDetector() == GeomDetEnumerators::TEC ) && ( (*(inl+1))->subDetector() == GeomDetEnumerators::TOB ) ) continue;
-      alltm = findMeasurements_new(*inl, staState);
+      alltm = findMeasurements(*inl, staState);
       if ((!alltm.empty())) {
         LogTrace(theCategory) << "final compatible layer: " << ndesLayer;
         break;
@@ -317,7 +318,7 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
     theResetMethod = "discrete";
   }
 
-  theEstimator.reset(new Chi2MeasurementEstimator(theMaxChi2));
+  theEstimator = std::make_unique<Chi2MeasurementEstimator>(theMaxChi2);
 
   theCacheId_MT = 0;
 
@@ -333,21 +334,21 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSelectStateFlag = theConfig.getParameter<bool>("SelectState");
 
-  theUpdator.reset(new KFUpdator());
+  theUpdator = std::make_unique<KFUpdator>();
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if (theResetMethod == "matrix" && !errorMatrixPset.empty()) {
     theAdjustAtIp = errorMatrixPset.getParameter<bool>("atIP");
-    theErrorMatrixAdjuster.reset(new MuonErrorMatrix(errorMatrixPset));
+    theErrorMatrixAdjuster = std::make_unique<MuonErrorMatrix>(errorMatrixPset);
   } else {
     theAdjustAtIp = false;
     theErrorMatrixAdjuster.reset();
   }
 
   theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
-  theNavigation.reset(new DirectTrackerNavigation(theTracker));
+  theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
 
   edm::ESHandle<TrackerGeometry> geometry;
   theService->eventSetup().get<TrackerDigiGeometryRecord>().get(geometry);
@@ -373,7 +374,6 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
   if (theUpdateStateFlag) {
     iEvent.getByToken(theMeasurementTrackerEventToken_, theMeasTrackerEvent);
-    theTkLayerMeasurements = LayerMeasurements(*theMeasTracker, *theMeasTrackerEvent);
   }
 
   bool trackerGeomChanged = false;
@@ -388,7 +388,7 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
   }
 
   if (trackerGeomChanged && theTracker.product()) {
-    theNavigation.reset(new DirectTrackerNavigation(theTracker));
+    theNavigation = std::make_unique<DirectTrackerNavigation>(theTracker);
   }
 }
 
@@ -447,7 +447,7 @@ void FastTSGFromPropagation::validMeasurements(std::vector<TrajectoryMeasurement
   return;
 }
 
-std::vector<TrajectoryMeasurement> FastTSGFromPropagation::findMeasurements_new(
+std::vector<TrajectoryMeasurement> FastTSGFromPropagation::findMeasurements(
     const DetLayer* nl, const TrajectoryStateOnSurface& staState) const {
   std::vector<TrajectoryMeasurement> result;
 
@@ -471,14 +471,6 @@ std::vector<TrajectoryMeasurement> FastTSGFromPropagation::findMeasurements_new(
     }
   }
 
-  return result;
-}
-
-std::vector<TrajectoryMeasurement> FastTSGFromPropagation::findMeasurements(
-    const DetLayer* nl, const TrajectoryStateOnSurface& staState) const {
-  std::vector<TrajectoryMeasurement> result =
-      tkLayerMeasurements()->measurements((*nl), staState, *propagator(), *estimator());
-  validMeasurements(result);
   return result;
 }
 

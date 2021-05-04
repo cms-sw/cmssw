@@ -25,8 +25,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <vector>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class SiStripDetCabling;
 class SiStripDetInfoFileReader;
 class TrackerTopology;

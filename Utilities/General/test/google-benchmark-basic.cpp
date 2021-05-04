@@ -11,7 +11,7 @@ BENCHMARK(BM_StringCreation);
 static void BM_StringCopy(benchmark::State& state) {
   std::string x = "hello";
   for (auto _ : state)
-    std::string copy(x);
+    std::string copy(x);  // NOLINT - prevent clang-tidy from changing to a `const &`
 }
 BENCHMARK(BM_StringCopy);
 

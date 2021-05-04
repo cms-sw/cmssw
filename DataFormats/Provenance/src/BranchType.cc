@@ -1,4 +1,8 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
+
+#include <array>
+#include <cassert>
+#include <cstddef>
 #include <iostream>
 
 namespace edm {
@@ -16,52 +20,41 @@ namespace edm {
     std::string const branchEntryInfo = "BranchEntryInfo";  // backward compatibility
     std::string const productProvenance = "ProductProvenance";
 
-    // Prefixes
-    std::string const run = "Run";
-    std::string const lumi = "LuminosityBlock";
-    std::string const event = "Event";
+    std::array<std::string, NumBranchTypes> const branchTypeNames{{"Event", "LuminosityBlock", "Run", "ProcessBlock"}};
+    std::size_t constexpr eventLumiRunSize = 3;
+    using NameArray = std::array<std::string, eventLumiRunSize>;
 
-    // Trees, branches, indices
-    std::string const runs = run + 's';
-    std::string const lumis = lumi + 's';
-    std::string const events = event + 's';
+    NameArray makeNameArray(std::string const& postfix) {
+      static_assert(InEvent == 0);
+      static_assert(InLumi == 1);
+      static_assert(InRun == 2);
+      static_assert(InProcess == 3);
+      NameArray ret;
+      for (auto i = 0U; i != eventLumiRunSize; ++i) {
+        ret[i] = branchTypeNames[i] + postfix;
+      }
+      return ret;
+    }
 
-    std::string const runMeta = run + metaData;
-    std::string const lumiMeta = lumi + metaData;
-    std::string const eventMeta = event + metaData;
+    const NameArray treeNames{makeNameArray(std::string("s"))};
 
-    std::string const runInfo = run + "StatusInformation";      // backward compatibility
-    std::string const lumiInfo = lumi + "StatusInformation";    // backward compatibility
-    std::string const eventInfo = event + "StatusInformation";  // backward compatibility
+    const NameArray metaTreeNames{makeNameArray(metaData)};
 
-    std::string const runAuxiliary = run + auxiliary;
-    std::string const lumiAuxiliary = lumi + auxiliary;
-    std::string const eventAuxiliary = event + auxiliary;
+    // backward compatibility
+    const NameArray infoNames{makeNameArray(std::string("StatusInformation"))};
 
-    std::string const runProductStatus = run + productStatus;      // backward compatibility
-    std::string const lumiProductStatus = lumi + productStatus;    // backward compatibility
-    std::string const eventProductStatus = event + productStatus;  // backward compatibility
+    const NameArray auxiliaryNames{makeNameArray(auxiliary)};
 
-    std::string const runEventEntryInfo = run + branchEntryInfo;      // backward compatibility
-    std::string const lumiEventEntryInfo = lumi + branchEntryInfo;    // backward compatibility
-    std::string const eventEventEntryInfo = event + branchEntryInfo;  // backward compatibility
+    // backward compatibility
+    const NameArray productStatusNames{makeNameArray(productStatus)};
 
-    std::string const runProductProvenance = run + productProvenance;
-    std::string const lumiProductProvenance = lumi + productProvenance;
-    std::string const eventProductProvenance = event + productProvenance;
+    // backward compatibility
+    const NameArray eventEntryInfoNames{makeNameArray(branchEntryInfo)};
 
-    std::string const majorIndex = ".id_.run_";
-    std::string const runMajorIndex = runAuxiliary + majorIndex;
-    std::string const lumiMajorIndex = lumiAuxiliary + majorIndex;
-    std::string const eventMajorIndex = eventAuxiliary + majorIndex;
+    const NameArray productProvenanceNames{makeNameArray(productProvenance)};
 
-    std::string const runMinorIndex;  // empty
-    std::string const lumiMinorIndex = lumiAuxiliary + ".id_.luminosityBlock_";
-    std::string const eventMinorIndex = eventAuxiliary + ".id_.event_";
-
-    std::string const runAux = run + aux;
-    std::string const lumiAux = lumi + aux;
-    std::string const eventAux = event + aux;
+    // backward compatibility
+    const NameArray auxNames{makeNameArray(aux)};
 
     std::string const entryDescriptionTree = "EntryDescription";
     std::string const entryDescriptionIDBranch = "Hash";
@@ -95,53 +88,50 @@ namespace edm {
     std::string const idToParameterSetBlobsBranch = "IdToParameterSetsBlobs";
   }  // namespace
 
-  std::string const& BranchTypeToString(BranchType const& branchType) {
-    return ((branchType == InEvent) ? event : ((branchType == InRun) ? run : lumi));
-  }
+  std::string const& BranchTypeToString(BranchType const& branchType) { return branchTypeNames[branchType]; }
 
   std::string const& BranchTypeToProductTreeName(BranchType const& branchType) {
-    return ((branchType == InEvent) ? events : ((branchType == InRun) ? runs : lumis));
+    assert(branchType < eventLumiRunSize);
+    return treeNames[branchType];
   }
 
   std::string const& BranchTypeToMetaDataTreeName(BranchType const& branchType) {
-    return ((branchType == InEvent) ? eventMeta : ((branchType == InRun) ? runMeta : lumiMeta));
+    assert(branchType < eventLumiRunSize);
+    return metaTreeNames[branchType];
   }
 
-  std::string const& BranchTypeToInfoTreeName(BranchType const& branchType) {  // backward compatibility
-    return ((branchType == InEvent) ? eventInfo
-                                    : ((branchType == InRun) ? runInfo : lumiInfo));  // backward compatibility
-  }                                                                                   // backward compatibility
+  // backward compatibility
+  std::string const& BranchTypeToInfoTreeName(BranchType const& branchType) {
+    assert(branchType < eventLumiRunSize);
+    return infoNames[branchType];
+  }
 
   std::string const& BranchTypeToAuxiliaryBranchName(BranchType const& branchType) {
-    return ((branchType == InEvent) ? eventAuxiliary : ((branchType == InRun) ? runAuxiliary : lumiAuxiliary));
+    assert(branchType < eventLumiRunSize);
+    return auxiliaryNames[branchType];
   }
 
-  std::string const& BranchTypeToAuxBranchName(BranchType const& branchType) {                 // backward compatibility
-    return ((branchType == InEvent) ? eventAux : ((branchType == InRun) ? runAux : lumiAux));  // backward compatibility
-  }                                                                                            // backward compatibility
+  // backward compatibility
+  std::string const& BranchTypeToAuxBranchName(BranchType const& branchType) {
+    assert(branchType < eventLumiRunSize);
+    return auxNames[branchType];
+  }
 
-  std::string const& BranchTypeToProductStatusBranchName(BranchType const& branchType) {  // backward compatibility
-    return ((branchType == InEvent)
-                ? eventProductStatus
-                : ((branchType == InRun) ? runProductStatus : lumiProductStatus));  // backward compatibility
-  }                                                                                 // backward compatibility
+  // backward compatibility
+  std::string const& BranchTypeToProductStatusBranchName(BranchType const& branchType) {
+    assert(branchType < eventLumiRunSize);
+    return productStatusNames[branchType];
+  }
 
+  // backward compatibility
   std::string const& BranchTypeToBranchEntryInfoBranchName(BranchType const& branchType) {
-    return ((branchType == InEvent) ? eventEventEntryInfo
-                                    : ((branchType == InRun) ? runEventEntryInfo : lumiEventEntryInfo));
+    assert(branchType < eventLumiRunSize);
+    return eventEntryInfoNames[branchType];
   }
 
   std::string const& BranchTypeToProductProvenanceBranchName(BranchType const& branchType) {
-    return ((branchType == InEvent) ? eventProductProvenance
-                                    : ((branchType == InRun) ? runProductProvenance : lumiProductProvenance));
-  }
-
-  std::string const& BranchTypeToMajorIndexName(BranchType const& branchType) {
-    return ((branchType == InEvent) ? eventMajorIndex : ((branchType == InRun) ? runMajorIndex : lumiMajorIndex));
-  }
-
-  std::string const& BranchTypeToMinorIndexName(BranchType const& branchType) {
-    return ((branchType == InEvent) ? eventMinorIndex : ((branchType == InRun) ? runMinorIndex : lumiMinorIndex));
+    assert(branchType < eventLumiRunSize);
+    return productProvenanceNames[branchType];
   }
 
   namespace poolNames {
@@ -215,12 +205,12 @@ namespace edm {
     // Branch on ParameterSets Tree
     std::string const& idToParameterSetBlobsBranchName() { return idToParameterSetBlobsBranch; }
 
-    std::string const& eventTreeName() { return events; }
+    std::string const& eventTreeName() { return treeNames[InEvent]; }
 
-    std::string const& eventMetaDataTreeName() { return eventMeta; }
+    std::string const& eventMetaDataTreeName() { return metaTreeNames[InEvent]; }
 
     std::string const& eventHistoryTreeName() { return eventHistory; }
-    std::string const& luminosityBlockTreeName() { return lumis; }
-    std::string const& runTreeName() { return runs; }
+    std::string const& luminosityBlockTreeName() { return treeNames[InLumi]; }
+    std::string const& runTreeName() { return treeNames[InRun]; }
   }  // namespace poolNames
 }  // namespace edm

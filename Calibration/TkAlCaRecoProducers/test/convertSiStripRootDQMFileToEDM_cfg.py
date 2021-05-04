@@ -10,7 +10,6 @@ process = cms.Process("CONV")
 #process.load("DQMServices.Core.test.MessageLogger_cfi")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
 
 
@@ -46,7 +45,6 @@ process.ALCARECOStreamSiStripPCLHistos = cms.OutputModule("PoolOutputModule",
                                                           )
 
 process.MEtoEDMConvertSiStrip = cms.EDProducer("MEtoEDMConverter",
-                                               deleteAfterCopy = cms.untracked.bool(False),
                                                Verbosity = cms.untracked.int32(0),
                                                Frequency = cms.untracked.int32(50),
                                                Name = cms.untracked.string('MEtoEDMConverter'),

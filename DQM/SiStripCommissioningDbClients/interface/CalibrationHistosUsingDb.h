@@ -5,7 +5,6 @@
 #include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
 #include <string>
 #include <map>
 
@@ -16,6 +15,7 @@ public:
   CalibrationHistosUsingDb(const edm::ParameterSet& pset,
                            DQMStore*,
                            SiStripConfigDb* const,
+                           edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken,
                            const sistrip::RunType& task = sistrip::CALIBRATION);
 
   ~CalibrationHistosUsingDb() override;

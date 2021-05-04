@@ -15,7 +15,7 @@
 #include <vector>
 #include <iostream>
 
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/PPSObjects/interface/TotemFramePosition.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 

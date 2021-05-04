@@ -20,6 +20,34 @@ namespace {
     float getFromPayload(cond::BasicPayload& payload) override { return payload.m_data0; }
   };
 
+  class BasicPayload_data0_withInput : public cond::payloadInspector::HistoryPlot<cond::BasicPayload, float> {
+  public:
+    BasicPayload_data0_withInput()
+        : cond::payloadInspector::HistoryPlot<cond::BasicPayload, float>("Example Trend", "data0") {
+      cond::payloadInspector::PlotBase::addInputParam("Offset");
+      cond::payloadInspector::PlotBase::addInputParam("Factor");
+      cond::payloadInspector::PlotBase::addInputParam("Scale");
+    }
+    ~BasicPayload_data0_withInput() override = default;
+    float getFromPayload(cond::BasicPayload& payload) override {
+      float v = payload.m_data0;
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Factor");
+      if (ip != paramValues.end()) {
+        v = v * boost::lexical_cast<float>(ip->second);
+      }
+      ip = paramValues.find("Offset");
+      if (ip != paramValues.end()) {
+        v = v + boost::lexical_cast<float>(ip->second);
+      }
+      ip = paramValues.find("Scale");
+      if (ip != paramValues.end()) {
+        v = v * boost::lexical_cast<float>(ip->second);
+      }
+      return v;
+    }
+  };
+
   class BasicPayload_data1 : public cond::payloadInspector::RunHistoryPlot<cond::BasicPayload, float> {
   public:
     BasicPayload_data1()
@@ -55,8 +83,9 @@ namespace {
     }
     ~BasicPayload_data4() override = default;
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto iov : tag.iovs) {
         std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           for (size_t j = 0; j < 100; j++) {
@@ -68,16 +97,17 @@ namespace {
     }
   };
 
-  class BasicPayload_data5 : public cond::payloadInspector::Histogram2D<cond::BasicPayload> {
+  class BasicPayload_data5
+      : public cond::payloadInspector::Histogram2D<cond::BasicPayload, cond::payloadInspector::SINGLE_IOV> {
   public:
     BasicPayload_data5()
-        : cond::payloadInspector::Histogram2D<cond::BasicPayload>("Example Histo2d", "x", 10, 0, 10, "y", 10, 0, 10) {
-      Base::setSingleIov(true);
-    }
+        : cond::payloadInspector::Histogram2D<cond::BasicPayload, cond::payloadInspector::SINGLE_IOV>(
+              "Example Histo2d", "x", 10, 0, 10, "y", 10, 0, 10) {}
     ~BasicPayload_data5() override = default;
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto iov : tag.iovs) {
         std::shared_ptr<cond::BasicPayload> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           for (size_t i = 0; i < 10; i++)
@@ -90,14 +120,16 @@ namespace {
     }
   };
 
-  class BasicPayload_data6 : public cond::payloadInspector::PlotImage<cond::BasicPayload> {
+  class BasicPayload_data6
+      : public cond::payloadInspector::PlotImage<cond::BasicPayload, cond::payloadInspector::SINGLE_IOV> {
   public:
-    BasicPayload_data6() : cond::payloadInspector::PlotImage<cond::BasicPayload>("Example delivery picture") {
-      setSingleIov(true);
-    }
+    BasicPayload_data6()
+        : cond::payloadInspector::PlotImage<cond::BasicPayload, cond::payloadInspector::SINGLE_IOV>(
+              "Example delivery picture") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<cond::BasicPayload> payload = fetchPayload(std::get<1>(iov));
 
       double xmax(100.), ymax(100.);
@@ -177,7 +209,7 @@ namespace {
       setTwoTags(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       auto iov0 = iovs.front();
       auto iov1 = iovs.back();
       std::shared_ptr<cond::BasicPayload> payload0 = fetchPayload(std::get<1>(iov0));
@@ -259,6 +291,7 @@ namespace {
 
 PAYLOAD_INSPECTOR_MODULE(BasicPayload) {
   PAYLOAD_INSPECTOR_CLASS(BasicPayload_data0);
+  PAYLOAD_INSPECTOR_CLASS(BasicPayload_data0_withInput);
   PAYLOAD_INSPECTOR_CLASS(BasicPayload_data1);
   PAYLOAD_INSPECTOR_CLASS(BasicPayload_data2);
   PAYLOAD_INSPECTOR_CLASS(BasicPayload_data3);

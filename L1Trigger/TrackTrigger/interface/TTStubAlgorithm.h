@@ -46,12 +46,9 @@ public:
   virtual ~TTStubAlgorithm() {}
 
   /// Matching operations
-  virtual void PatternHitCorrelation(bool &aConfirmation,
-                                     int &aDisplacement,
-                                     int &anOffset,
-                                     float &anROffset,
-                                     float &anHardBend,
-                                     const TTStub<T> &aTTStub) const {}
+  virtual void PatternHitCorrelation(
+      bool &aConfirmation, int &aDisplacement, int &anOffset, float &anHardBend, const TTStub<T> &aTTStub) const {}
+  // Removed real offset.  Ivan Reid 10/2019
 
   /// Algorithm name
   virtual std::string AlgorithmName() const { return className_; }

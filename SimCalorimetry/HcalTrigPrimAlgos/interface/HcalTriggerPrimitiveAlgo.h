@@ -32,6 +32,8 @@ public:
                            uint32_t ZS_threshold,
                            int numberOfSamples,
                            int numberOfPresamples,
+                           int numberOfFilterPresamplesHBQIE11,
+                           int numberOfFilterPresamplesHEQIE11,
                            int numberOfSamplesHF,
                            int numberOfPresamplesHF,
                            bool useTDCInMinBiasBits,
@@ -75,8 +77,14 @@ public:
                         const HcalElectronicsMap* emap,
                         HcalTrigPrimDigiCollection& result);
   void setPeakFinderAlgorithm(int algo);
+  void setWeightsQIE11(const edm::ParameterSet& weightsQIE11);
+  void setWeightQIE11(int aieta, double weight);
   void setNCTScaleShift(int);
   void setRCTScaleShift(int);
+
+  void setNumFilterPresamplesHBQIE11(int presamples) { numberOfFilterPresamplesHBQIE11_ = presamples; }
+
+  void setNumFilterPresamplesHEQIE11(int presamples) { numberOfFilterPresamplesHEQIE11_ = presamples; }
 
   void setUpgradeFlags(bool hb, bool he, bool hf);
   void overrideParameters(const edm::ParameterSet& ps);
@@ -95,6 +103,7 @@ private:
   bool validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
   bool validChannel(const QIE10DataFrame& digi, int ts) const;
   bool needLegacyFG(const HcalTrigTowerDetId& id) const;
+  bool needUpgradeID(const HcalTrigTowerDetId& id, int depth) const;
 
   /// adds the actual digis
   void analyze(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
@@ -120,6 +129,7 @@ private:
   double theThreshold;
   bool peakfind_;
   std::vector<double> weights_;
+  std::array<std::array<double, 2>, 29> weightsQIE11_;
   int latency_;
   uint32_t FG_threshold_;
   std::vector<uint32_t> FG_HF_thresholds_;
@@ -127,6 +137,8 @@ private:
   int ZS_threshold_I_;
   int numberOfSamples_;
   int numberOfPresamples_;
+  int numberOfFilterPresamplesHBQIE11_;
+  int numberOfFilterPresamplesHEQIE11_;
   int numberOfSamplesHF_;
   int numberOfPresamplesHF_;
   bool useTDCInMinBiasBits_;
@@ -205,6 +217,7 @@ private:
 
   // HE constants
   static const int HBHE_OVERLAP_TOWER = 16;
+  static const int FIRST_DEPTH7_TOWER = 26;
   static const int LAST_FINEGRAIN_DEPTH = 6;
   static const int LAST_FINEGRAIN_TOWER = 28;
 

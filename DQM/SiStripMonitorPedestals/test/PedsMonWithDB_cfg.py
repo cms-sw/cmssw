@@ -4,11 +4,14 @@ process = cms.Process("PEDESTALS")
 
 # MessageLogger ########
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('PedsMon'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('ERROR')
     ),
-    destinations = cms.untracked.vstring('cout')
+    debugModules = cms.untracked.vstring('PedsMon')
 )
 
 # geometry
@@ -25,7 +28,6 @@ process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 # DQM Services
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
 

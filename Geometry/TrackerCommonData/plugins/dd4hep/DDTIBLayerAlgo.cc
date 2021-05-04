@@ -1,17 +1,15 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include <DD4hep/DD4hepUnits.h>
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
-static long algorithm(Detector& /* description */,
-                      cms::DDParsingContext& context,
-                      xml_h element,
-                      SensitiveDetector& /* sens */) {
+static long algorithm(Detector& /* description */, cms::DDParsingContext& context, xml_h element) {
   using VecDouble = vector<double>;
 
   cms::DDNamespace ns(context, element, true);
@@ -252,12 +250,12 @@ static long algorithm(Detector& /* description */,
     name = idName + "Rib" + std::to_string(i);
     double width = 2. * ribW[i] / (rin + rout);
     double dz = 0.5 * layerL - 2. * fillerDz;
-    double _rmi = std::min(rin + 0.5_mm, rout - 0.5_mm);
-    double _rma = std::max(rin + 0.5_mm, rout - 0.5_mm);
+    double _rmi = std::min(rin + 0.5 * dd4hep::mm, rout - 0.5 * dd4hep::mm);
+    double _rma = std::max(rin + 0.5 * dd4hep::mm, rout - 0.5 * dd4hep::mm);
     solid = ns.addSolidNS(name, Tube(_rmi, _rma, dz, -0.5 * width, width));
     LogDebug("TIBGeom") << solid.name() << " Tubs made of " << ribMat << " from " << -0.5 * convertRadToDeg(width)
-                        << " to " << 0.5 * convertRadToDeg(width) << " with Rin " << rin + 0.5_mm << " Rout "
-                        << rout - 0.5_mm << " ZHalf " << dz;
+                        << " to " << 0.5 * convertRadToDeg(width) << " with Rin " << rin + 0.5 * dd4hep::mm << " Rout "
+                        << rout - 0.5 * dd4hep::mm << " ZHalf " << dz;
     Volume cylinderRib = ns.addVolumeNS(Volume(name, solid, matrib));
     double phix = ribPhi[i];
     double theta = 90_deg;
@@ -344,7 +342,7 @@ static long algorithm(Detector& /* description */,
   double dohmCarrierZ = 0.5 * layerL - 2. * MFRingDz - dohmCarrierDz;
 
   solid = ns.addSolidNS(
-      name, Tube(dohmCarrierRin, dohmCarrierRout, dohmCarrierPhiOff, dohmCarrierDz, 180._deg - 2. * dohmCarrierPhiOff));
+      name, Tube(dohmCarrierRin, dohmCarrierRout, dohmCarrierDz, dohmCarrierPhiOff, 180._deg - dohmCarrierPhiOff));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " << dohmCarrierMaterial << " from " << dohmCarrierPhiOff
                       << " to " << 180._deg - dohmCarrierPhiOff << " with Rin " << dohmCarrierRin << " Rout "
                       << MFRingOutR << " ZHalf " << dohmCarrierDz;
@@ -364,9 +362,12 @@ static long algorithm(Detector& /* description */,
     int dohmCarrierReplica = 0;
     int placeDohm = 0;
 
+    Volume dohmCarrier;
+
     switch (j) {
       case 0:
         name = idName + "DOHMCarrierFW";
+        dohmCarrier = ns.addVolumeNS(Volume(name, solid, ns.material(dohmCarrierMaterial)));
         dohmList = dohmListFW;
         tran = Position(0., 0., dohmCarrierZ);
         rotstr = idName + "FwUp";
@@ -376,6 +377,7 @@ static long algorithm(Detector& /* description */,
         break;
       case 1:
         name = idName + "DOHMCarrierFW";
+        dohmCarrier = ns.volume(name);  // Re-use internally stored DOHMCarrierFW Volume
         dohmList = dohmListFW;
         tran = Position(0., 0., dohmCarrierZ);
         rotstr = idName + "FwDown";
@@ -385,6 +387,7 @@ static long algorithm(Detector& /* description */,
         break;
       case 2:
         name = idName + "DOHMCarrierBW";
+        dohmCarrier = ns.addVolumeNS(Volume(name, solid, ns.material(dohmCarrierMaterial)));
         dohmList = dohmListBW;
         tran = Position(0., 0., -dohmCarrierZ);
         rotstr = idName + "BwUp";
@@ -394,6 +397,7 @@ static long algorithm(Detector& /* description */,
         break;
       case 3:
         name = idName + "DOHMCarrierBW";
+        dohmCarrier = ns.volume(name);  // Re-use internally stored DOHMCarrierBW Volume
         dohmList = dohmListBW;
         tran = Position(0., 0., -dohmCarrierZ);
         rotstr = idName + "BwDown";
@@ -403,43 +407,40 @@ static long algorithm(Detector& /* description */,
         break;
     }
 
-    Volume dohmCarrier = ns.addVolumeNS(Volume(name, solid, ns.material(dohmCarrierMaterial)));
     int primReplica = 0;
     int auxReplica = 0;
-#if 0
-    for ( size_t i = 0; i < placeDohm*dohmList.size(); i++ )   {
-      double phi   = (std::abs(dohmList[i])+0.5-1.)*dphi;
-      double phix  = phi + 90_deg;
-      double theta = 90_deg;
-      double phiy  = phix + 90._deg;
-      dohmRotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
 
-      int    dohmReplica = 0;
+    for (size_t i = 0; i < placeDohm * dohmList.size(); i++) {
+      double phi = (std::abs(dohmList[i]) + 0.5 - 1.) * dphi;
+      double phix = phi + 90_deg;
+      double phideg = convertRadToDeg(phix);
+      if (phideg != 0) {
+        double theta = 90_deg;
+        double phiy = phix + 90._deg;
+        dohmRotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
+      }
+      int dohmReplica = 0;
       double dohmZ = 0.;
       Volume dohm;
 
-      if(dohmList[i]<0.) {
+      if (dohmList[i] < 0.) {
         // Place a Auxiliary DOHM
-        dohm  = ns.volume(dohmAuxName);
-        dohmZ = dohmCarrierDz - 0.5*dohmAuxL - dohmtoMF;
+        dohm = ns.volume(dohmAuxName);
+        dohmZ = dohmCarrierDz - 0.5 * dohmAuxL - dohmtoMF;
         primReplica++;
         dohmReplica = primReplica;
       } else {
         // Place a Primary DOHM
         dohm = ns.volume(dohmPrimName);
-        dohmZ = dohmCarrierDz - 0.5*dohmPrimL - dohmtoMF;
+        dohmZ = dohmCarrierDz - 0.5 * dohmPrimL - dohmtoMF;
         auxReplica++;
         dohmReplica = auxReplica;
       }
-      Position dohmTrasl(dohmR*cos(phi), dohmR*sin(phi), dohmZ);
-      pv = dohmCarrier.placeVolume(dohm,dohmReplica,Transform3D(dohmRotation,dohmTrasl));
+      Position dohmTrasl(dohmR * cos(phi), dohmR * sin(phi), dohmZ);
+      pv = dohmCarrier.placeVolume(dohm, dohmReplica, Transform3D(dohmRotation, dohmTrasl));
       LogPosition(pv);
     }
-#else
-    if (placeDohm || primReplica || auxReplica || dohmR > 0e0) {
-    }  // Avoid warnings
-    edm::LogWarning("TIBGeom") << "DOOHM placement sucks for Geant4. ERASED!";
-#endif
+
     pv = layer.placeVolume(dohmCarrier, dohmCarrierReplica, Transform3D(rotation, tran));
     LogPosition(pv);
   }

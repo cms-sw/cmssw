@@ -2,12 +2,13 @@
 
 #include <limits>
 
-EGHcalRecHitSelector::EGHcalRecHitSelector(const edm::ParameterSet& config)
+EGHcalRecHitSelector::EGHcalRecHitSelector(const edm::ParameterSet& config, edm::ConsumesCollector cc)
     : maxDIEta_(config.getParameter<int>("maxDIEta")),
       maxDIPhi_(config.getParameter<int>("maxDIPhi")),
       minEnergyHB_(config.getParameter<double>("minEnergyHB")),
       minEnergyHEDepth1_(config.getParameter<double>("minEnergyHEDepth1")),
-      minEnergyHEDefault_(config.getParameter<double>("minEnergyHEDefault")) {}
+      minEnergyHEDefault_(config.getParameter<double>("minEnergyHEDefault")),
+      towerMapToken_(cc.esConsumes<CaloTowerConstituentsMap, CaloGeometryRecord, edm::Transition::BeginRun>()) {}
 
 edm::ParameterSetDescription EGHcalRecHitSelector::makePSetDescription() {
   edm::ParameterSetDescription desc;

@@ -1,7 +1,6 @@
 #ifndef PhysicsTools_PatUtils_interface_StringParserTools_h
 #define PhysicsTools_PatUtils_interface_StringParserTools_h
 
-#include <boost/shared_ptr.hpp>
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -23,28 +22,28 @@ public:
 
 private:
   std::string expr_;
-  boost::shared_ptr<StringObjectFunction<reco::Candidate> > candFunc_;
+  std::shared_ptr<StringObjectFunction<reco::Candidate> > candFunc_;
 
-  boost::shared_ptr<StringObjectFunction<pat::Electron> > eleFunc_;
-  boost::shared_ptr<StringObjectFunction<pat::Muon> > muFunc_;
-  boost::shared_ptr<StringObjectFunction<pat::Tau> > tauFunc_;
-  boost::shared_ptr<StringObjectFunction<pat::Photon> > gamFunc_;
-  boost::shared_ptr<StringObjectFunction<pat::Jet> > jetFunc_;
-  boost::shared_ptr<StringObjectFunction<pat::MET> > metFunc_;
-  boost::shared_ptr<StringObjectFunction<pat::GenericParticle> > gpFunc_;
-  boost::shared_ptr<StringObjectFunction<pat::PFParticle> > pfFunc_;
+  std::shared_ptr<StringObjectFunction<pat::Electron> > eleFunc_;
+  std::shared_ptr<StringObjectFunction<pat::Muon> > muFunc_;
+  std::shared_ptr<StringObjectFunction<pat::Tau> > tauFunc_;
+  std::shared_ptr<StringObjectFunction<pat::Photon> > gamFunc_;
+  std::shared_ptr<StringObjectFunction<pat::Jet> > jetFunc_;
+  std::shared_ptr<StringObjectFunction<pat::MET> > metFunc_;
+  std::shared_ptr<StringObjectFunction<pat::GenericParticle> > gpFunc_;
+  std::shared_ptr<StringObjectFunction<pat::PFParticle> > pfFunc_;
 
   template <typename Obj>
-  boost::shared_ptr<StringObjectFunction<Obj> > tryGet(const std::string &str) {
+  std::shared_ptr<StringObjectFunction<Obj> > tryGet(const std::string &str) {
     try {
-      return boost::shared_ptr<StringObjectFunction<Obj> >(new StringObjectFunction<Obj>(str));
+      return std::shared_ptr<StringObjectFunction<Obj> >(new StringObjectFunction<Obj>(str));
     } catch (cms::Exception const &) {
-      return boost::shared_ptr<StringObjectFunction<Obj> >();
+      return std::shared_ptr<StringObjectFunction<Obj> >();
     }
   }
 
   template <typename Obj>
-  double tryEval(const reco::Candidate &c, const boost::shared_ptr<StringObjectFunction<Obj> > &func) const {
+  double tryEval(const reco::Candidate &c, const std::shared_ptr<StringObjectFunction<Obj> > &func) const {
     if (func.get())
       return (*func)(static_cast<const Obj &>(c));
     else
@@ -66,28 +65,28 @@ public:
 
 private:
   std::string expr_;
-  boost::shared_ptr<StringCutObjectSelector<reco::Candidate> > candFunc_;
+  std::shared_ptr<StringCutObjectSelector<reco::Candidate> > candFunc_;
 
-  boost::shared_ptr<StringCutObjectSelector<pat::Electron> > eleFunc_;
-  boost::shared_ptr<StringCutObjectSelector<pat::Muon> > muFunc_;
-  boost::shared_ptr<StringCutObjectSelector<pat::Tau> > tauFunc_;
-  boost::shared_ptr<StringCutObjectSelector<pat::Photon> > gamFunc_;
-  boost::shared_ptr<StringCutObjectSelector<pat::Jet> > jetFunc_;
-  boost::shared_ptr<StringCutObjectSelector<pat::MET> > metFunc_;
-  boost::shared_ptr<StringCutObjectSelector<pat::GenericParticle> > gpFunc_;
-  boost::shared_ptr<StringCutObjectSelector<pat::PFParticle> > pfFunc_;
+  std::shared_ptr<StringCutObjectSelector<pat::Electron> > eleFunc_;
+  std::shared_ptr<StringCutObjectSelector<pat::Muon> > muFunc_;
+  std::shared_ptr<StringCutObjectSelector<pat::Tau> > tauFunc_;
+  std::shared_ptr<StringCutObjectSelector<pat::Photon> > gamFunc_;
+  std::shared_ptr<StringCutObjectSelector<pat::Jet> > jetFunc_;
+  std::shared_ptr<StringCutObjectSelector<pat::MET> > metFunc_;
+  std::shared_ptr<StringCutObjectSelector<pat::GenericParticle> > gpFunc_;
+  std::shared_ptr<StringCutObjectSelector<pat::PFParticle> > pfFunc_;
 
   template <typename Obj>
-  boost::shared_ptr<StringCutObjectSelector<Obj> > tryGet(const std::string &str) {
+  std::shared_ptr<StringCutObjectSelector<Obj> > tryGet(const std::string &str) {
     try {
-      return boost::shared_ptr<StringCutObjectSelector<Obj> >(new StringCutObjectSelector<Obj>(str));
+      return std::shared_ptr<StringCutObjectSelector<Obj> >(new StringCutObjectSelector<Obj>(str));
     } catch (cms::Exception const &) {
-      return boost::shared_ptr<StringCutObjectSelector<Obj> >();
+      return std::shared_ptr<StringCutObjectSelector<Obj> >();
     }
   }
 
   template <typename Obj>
-  bool tryEval(const reco::Candidate &c, const boost::shared_ptr<StringCutObjectSelector<Obj> > &func) const {
+  bool tryEval(const reco::Candidate &c, const std::shared_ptr<StringCutObjectSelector<Obj> > &func) const {
     if (func.get())
       return (*func)(static_cast<const Obj &>(c));
     else

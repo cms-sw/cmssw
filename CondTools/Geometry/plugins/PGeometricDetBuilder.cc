@@ -10,14 +10,19 @@
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
+using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+using RotationMatrix = ROOT::Math::Rotation3D;
+
 class PGeometricDetBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  PGeometricDetBuilder(const edm::ParameterSet&) {}
+  PGeometricDetBuilder(const edm::ParameterSet&);
 
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
@@ -25,7 +30,12 @@ public:
 
 private:
   void putOne(const GeometricDet* gd, PGeometricDet* pgd, int lev);
+  bool fromDD4hep_;
 };
+
+PGeometricDetBuilder::PGeometricDetBuilder(const edm::ParameterSet& iConfig) {
+  fromDD4hep_ = iConfig.getParameter<bool>("fromDD4hep");
+}
 
 void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
   PGeometricDet* pgd = new PGeometricDet;
@@ -34,9 +44,14 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
     edm::LogError("PGeometricDetBuilder") << "PoolDBOutputService unavailable";
     return;
   }
-  edm::ESTransientHandle<DDCompactView> pDD;
+  if (!fromDD4hep_) {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+  } else {
+    edm::ESTransientHandle<cms::DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+  }
   edm::ESHandle<GeometricDet> rDD;
-  es.get<IdealGeometryRecord>().get(pDD);
   es.get<IdealGeometryRecord>().get(rDD);
   const GeometricDet* tracker = &(*rDD);
 
@@ -114,8 +129,8 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
 
 void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, int lev) {
   PGeometricDet::Item item;
-  const DDTranslation& tran = gd->translation();
-  const DDRotationMatrix& rot = gd->rotation();
+  const Translation& tran = gd->translation();
+  const RotationMatrix& rot = gd->rotation();
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
   item._name = gd->name();
@@ -135,9 +150,9 @@ void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, in
   item._a31 = x.Z();
   item._a32 = y.Z();
   item._a33 = z.Z();
-  item._shape = static_cast<int>(gd->shape());
+  item._shape = static_cast<int>(gd->shape_dd4hep());
   item._type = gd->type();
-  if (gd->shape() == DDSolidShape::ddbox) {
+  if (gd->shape_dd4hep() == cms::DDSolidShape::ddbox) {
     item._params0 = gd->params()[0];
     item._params1 = gd->params()[1];
     item._params2 = gd->params()[2];
@@ -149,7 +164,7 @@ void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, in
     item._params8 = 0;
     item._params9 = 0;
     item._params10 = 0;
-  } else if (gd->shape() == DDSolidShape::ddtrap) {
+  } else if (gd->shape_dd4hep() == cms::DDSolidShape::ddtrap) {
     item._params0 = gd->params()[0];
     item._params1 = gd->params()[1];
     item._params2 = gd->params()[2];
@@ -174,7 +189,7 @@ void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, in
     item._params9 = 0;
     item._params10 = 0;
   }
-  item._geographicalID = gd->geographicalID();
+  item._geographicalID = gd->geographicalId();
   item._radLength = gd->radLength();
   item._xi = gd->xi();
   item._pixROCRows = gd->pixROCRows();

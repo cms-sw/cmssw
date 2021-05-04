@@ -47,7 +47,7 @@ public:
       ddd_ = nullptr;
   }
 
-  /// Compute parameters
+  /// Compute HGCUncalibratedRecHit from DataFrame
   virtual HGCUncalibratedRecHit makeRecHit(const C& dataFrame) {
     double amplitude_(-1.), pedestal_(-1.), jitter_(-1.), chi2_(-1.);
     uint32_t flag = 0;
@@ -55,41 +55,45 @@ public:
     constexpr int iSample = 2;  //only in-time sample
     const auto& sample = dataFrame.sample(iSample);
 
-    // are we using the SiFE Simulation?
+    // Were digis done w/ the complete digitization and using signal shape?
+    // (originally done only for the silicon, while for scitillator it was trivial. Fomr 11_ also scinti uses shape)
     if (isSiFESim_) {
-      // mode == true means TDC readout was activated
+      // mode == true: TDC readout was activated and amplitude comes from TimeOverThreshold
       if (sample.mode()) {
-        flag = !sample.threshold();  //raise flag if busy cell
-                                     // LG (23/06/2015):
-                                     //to get a continuous energy spectrum we must add here the maximum value in fC ever
-                                     //reported by the ADC. Namely: floor(tdcOnset/adcLSB_) * adcLSB_
-                                     // need to increment by one so TDC doesn't overlap with ADC last bin
-                                     // LG (11/04/2016):
-                                     // offset the TDC upwards to reflect the bin center
+        flag = !sample.threshold();  // raise flag if busy cell
+        // LG (23/06/2015):
+        // to get a continuous energy spectrum we must add here the maximum value in fC ever
+        // reported by the ADC. Namely: floor(tdcOnset/adcLSB_) * adcLSB_
+        // need to increment by one so TDC doesn't overlap with ADC last bin
+        // LG (11/04/2016):
+        // offset the TDC upwards to reflect the bin center
         amplitude_ = (std::floor(tdcOnsetfC_ / adcLSB_) + 1.0) * adcLSB_ + (double(sample.data()) + 0.5) * tdcLSB_;
-        if (sample.getToAValid())
+
+        if (sample.getToAValid()) {
           jitter_ = double(sample.toa()) * toaLSBToNS_;
-        LogDebug("HGCUncalibratedRecHit")
-            << "TDC+: set the charge to: " << amplitude_ << ' ' << sample.data() << ' ' << tdcLSB_ << std::endl
-            << "TDC+: set the ToA to: " << jitter_ << ' ' << sample.toa() << ' ' << toaLSBToNS_ << ' '
-            << " flag=" << flag << std::endl;
+        }
       } else {
-        amplitude_ = double(sample.data()) * adcLSB_;
-        if (sample.getToAValid())
+        amplitude_ = double(sample.data()) * adcLSB_;  // why do we not have +0.5 here ?
+        if (sample.getToAValid()) {
           jitter_ = double(sample.toa()) * toaLSBToNS_;
-        LogDebug("HGCUncalibratedRecHit")
-            << "ADC+: set the charge to: " << amplitude_ << ' ' << sample.data() << ' ' << adcLSB_ << ' '
-            << "TDC+: set the ToA to: " << jitter_ << ' ' << sample.toa() << ' ' << toaLSBToNS_ << ' ' << std::endl;
-      }
-    } else {
+        }
+      }  //isSiFESim_
+    }    //mode()
+
+    // trivial digitization, i.e. no signal shape
+    else {
       amplitude_ = double(sample.data()) * adcLSB_;
-      LogDebug("HGCUncalibratedRecHit") << "ADC+: set the charge to: " << amplitude_ << ' ' << sample.data() << ' '
-                                        << adcLSB_ << ' ' << std::endl;
     }
 
     int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id()) : 0;
     amplitude_ = amplitude_ / fCPerMIP_[thickness];
 
+    LogDebug("HGCUncalibratedRecHit") << "isSiFESim_: " << isSiFESim_ << " ADC+: set the charge to: " << amplitude_
+                                      << ' ' << sample.data() << ' ' << adcLSB_ << ' '
+                                      << "               TDC+: set the ToA to: " << jitter_ << ' ' << sample.toa()
+                                      << ' ' << toaLSBToNS_ << ' ' << tdcLSB_
+                                      << "               getToAValid(): " << sample.getToAValid()
+                                      << " mode(): " << sample.mode() << std::endl;
     LogDebug("HGCUncalibratedRecHit") << "Final uncalibrated amplitude : " << amplitude_ << std::endl;
 
     return HGCUncalibratedRecHit(dataFrame.id(), amplitude_, pedestal_, jitter_, chi2_, flag);

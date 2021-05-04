@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -39,6 +38,7 @@ public:
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
   struct ParamBlock {
     ParamBlock() : isSet_(false), usesCharge_(false) {}
     ParamBlock(const edm::ParameterSet &iConfig)
@@ -111,7 +111,8 @@ void SeedClusterRemover::readPSet(
 }
 
 SeedClusterRemover::SeedClusterRemover(const ParameterSet &iConfig)
-    : doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
+    : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
       doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
       mergeOld_(iConfig.exists("oldClusterRemovalInfo")) {
   fill(pblocks_, pblocks_ + NumberOfParamBlocks, ParamBlock());
@@ -235,8 +236,7 @@ void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2, const Tr
 }
 
 void SeedClusterRemover::produce(Event &iEvent, const EventSetup &iSetup) {
-  edm::ESHandle<TrackerGeometry> tgh;
-  iSetup.get<TrackerDigiGeometryRecord>().get("", tgh);  //is it correct to use "" ?
+  const auto &tgh = &iSetup.getData(tTrackerGeom_);
 
   Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
   if (doPixel_) {
@@ -280,12 +280,10 @@ void SeedClusterRemover::produce(Event &iEvent, const EventSetup &iSetup) {
   iEvent.getByToken(trajectories_, seeds);
 
   for (auto const &seed : (*seeds)) {
-    auto hits = seed.recHits();
-    auto hit = hits.first;
-    for (; hit != hits.second; ++hit) {
-      if (!hit->isValid())
+    for (auto const &hit : seed.recHits()) {
+      if (!hit.isValid())
         continue;
-      process(&(*hit), 0., tgh.product());
+      process(&hit, 0., tgh);
     }
   }
 

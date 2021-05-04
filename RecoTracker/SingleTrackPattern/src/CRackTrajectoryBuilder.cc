@@ -221,14 +221,14 @@ Trajectory CRackTrajectoryBuilder::createStartingTrajectory(const TrajectorySeed
 
 std::vector<TrajectoryMeasurement> CRackTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const {
   std::vector<TrajectoryMeasurement> result;
-  TrajectorySeed::range hitRange = seed.recHits();
-  for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
+  auto const& hitRange = seed.recHits();
+  for (auto ihit = hitRange.begin(); ihit != hitRange.end(); ihit++) {
     //RC TransientTrackingRecHit* recHit = RHBuilder->build(&(*ihit));
     TransientTrackingRecHit::RecHitPointer recHit = RHBuilder->build(&(*ihit));
     const GeomDet* hitGeomDet = (&(*tracker))->idToDet(ihit->geographicalId());
     TSOS invalidState(new BasicSingleTrajectoryState(hitGeomDet->surface()));
 
-    if (ihit == hitRange.second - 1) {
+    if (ihit == hitRange.end() - 1) {
       TSOS updatedState = startingTSOS(seed);
       result.emplace_back(invalidState, updatedState, recHit);
 
@@ -252,8 +252,6 @@ vector<const TrackingRecHit*> CRackTrajectoryBuilder::SortHits(const SiStripRecH
   vector<const TrackingRecHit*> allHits;
 
   SiStripRecHit2DCollection::DataContainer::const_iterator istrip;
-  TrajectorySeed::range hRange = seed.recHits();
-  TrajectorySeed::const_iterator ihit;
   float yref = 0.;
 
   if (debug_info)
@@ -275,19 +273,20 @@ vector<const TrackingRecHit*> CRackTrajectoryBuilder::SortHits(const SiStripRecH
   float_t yMin = 0.;
   float_t yMax = 0.;
 
-  int seedHitSize = hRange.second - hRange.first;
+  int seedHitSize = seed.nHits();
 
   vector<int> detIDSeedMatched(seedHitSize);
   vector<int> detIDSeedRphi(seedHitSize);
   vector<int> detIDSeedStereo(seedHitSize);
 
-  for (ihit = hRange.first; ihit != hRange.second; ihit++) {
+  auto const& hRange = seed.recHits();
+  for (auto ihit = hRange.begin(); ihit != hRange.end(); ihit++) {
     // need to find track with lowest (seed_plus)/ highest y (seed_minus)
     // split matched hits ...
     const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(&(*ihit));
 
     yref = RHBuilder->build(&(*ihit))->globalPosition().y();
-    if (ihit == hRange.first) {
+    if (ihit == hRange.begin()) {
       yMin = yref;
       yMax = yref;
     }

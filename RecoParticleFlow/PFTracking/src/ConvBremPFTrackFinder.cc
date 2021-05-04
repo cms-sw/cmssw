@@ -55,7 +55,6 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
   const PFRecTrackCollection& PfRTkColl = *(thePfRecTrackCol.product());
   reco::PFRecTrackCollection::const_iterator pft = PfRTkColl.begin();
   reco::PFRecTrackCollection::const_iterator pftend = PfRTkColl.end();
-  //PFEnergyCalibration pfcalib_;
 
   vector<PFRecTrackRef> AllPFRecTracks;
   AllPFRecTracks.clear();
@@ -264,7 +263,6 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
       float MinDist = 100000.;
       float EE_calib = 0.;
       PFRecTrack pfrectrack = *AllPFRecTracks[iPF];
-      pfrectrack.calculatePositionREP();
       // Find and ECAL associated cluster
       for (PFClusterCollection::const_iterator clus = theEClus.begin(); clus != theEClus.end(); clus++) {
         // Removed unusd variable, left this in case it has side effects
@@ -276,16 +274,9 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
                    ? LinkByRecHit::testTrackAndClusterByRecHit(pfrectrack, clust)
                    : -1.;
 
-        if (dist > 0.) {
-          bool applyCrackCorrections = false;
-          vector<double> ps1Ene(0);
-          vector<double> ps2Ene(0);
-          double ps1, ps2;
-          ps1 = ps2 = 0.;
-          if (dist < MinDist) {
-            MinDist = dist;
-            EE_calib = cache->pfcalib_->energyEm(*clus, ps1Ene, ps2Ene, ps1, ps2, applyCrackCorrections);
-          }
+        if (dist > 0. && dist < MinDist) {
+          MinDist = dist;
+          EE_calib = cache->pfcalib_->energyEm(*clus, 0.0, 0.0, false);
         }
       }
       if (MinDist > 0. && MinDist < 100000.) {

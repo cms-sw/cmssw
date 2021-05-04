@@ -14,9 +14,9 @@ public:
     endcapNav_ = new endcap(iConfig.getParameter<edm::ParameterSet>("endcap"));
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) override {
-    barrelNav_->beginEvent(iSetup);
-    endcapNav_->beginEvent(iSetup);
+  void init(const edm::EventSetup& iSetup) override {
+    barrelNav_->init(iSetup);
+    endcapNav_->init(iSetup);
   }
 
   void associateNeighbours(reco::PFRecHit& hit,

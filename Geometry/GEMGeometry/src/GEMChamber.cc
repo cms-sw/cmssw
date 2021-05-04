@@ -18,7 +18,7 @@ GEMDetId GEMChamber::id() const { return detId_; }
 
 bool GEMChamber::operator==(const GEMChamber& ch) const { return this->id() == ch.id(); }
 
-void GEMChamber::add(GEMEtaPartition* rl) { etaPartitions_.emplace_back(rl); }
+void GEMChamber::add(const GEMEtaPartition* rl) { etaPartitions_.emplace_back(rl); }
 
 std::vector<const GeomDet*> GEMChamber::components() const {
   return std::vector<const GeomDet*>(etaPartitions_.begin(), etaPartitions_.end());

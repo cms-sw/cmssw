@@ -652,14 +652,14 @@ void DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGe
 
   if (reportSummaryMap && reportSummaryMap->getRootObject()) {
     reportSummaryMap->getTH2F()->SetStats(kFALSE);
-    reportSummaryMap->getTH2F()->SetOption("colz");
+    reportSummaryMap->setOption("colz");
     reportSummaryMap->setBinLabel(1, "CaloTower");
     reportSummaryMap->setBinLabel(2, "MET");
     reportSummaryMap->setBinLabel(3, "Jet");
   }
   if (CertificationSummaryMap && CertificationSummaryMap->getRootObject()) {
     CertificationSummaryMap->getTH2F()->SetStats(kFALSE);
-    CertificationSummaryMap->getTH2F()->SetOption("colz");
+    CertificationSummaryMap->setOption("colz");
     CertificationSummaryMap->setBinLabel(1, "CaloTower");
     CertificationSummaryMap->setBinLabel(2, "MET");
     CertificationSummaryMap->setBinLabel(3, "Jet");

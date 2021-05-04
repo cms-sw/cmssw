@@ -1,5 +1,4 @@
 #include "DataFormats/DetId/interface/DetId.h"
-#include <boost/cstdint.hpp>
 #include <map>
 #include <vector>
 

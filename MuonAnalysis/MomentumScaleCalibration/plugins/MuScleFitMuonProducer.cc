@@ -63,7 +63,7 @@ private:
   edm::ESHandle<MuScleFitDBobject> dbObject_;
   std::string dbObjectLabel_;
   unsigned long long dbObjectCacheId_;
-  boost::shared_ptr<MomentumScaleCorrector> corrector_;
+  std::shared_ptr<MomentumScaleCorrector> corrector_;
 };
 
 MuScleFitMuonProducer::MuScleFitMuonProducer(const edm::ParameterSet& iConfig)

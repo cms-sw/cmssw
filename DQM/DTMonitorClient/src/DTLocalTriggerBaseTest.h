@@ -26,7 +26,6 @@
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
-#include <boost/cstdint.hpp>
 #include <string>
 #include <map>
 
@@ -91,7 +90,7 @@ protected:
   std::string getMEName(std::string histoTag, std::string subfolder, int wh);
 
   /// Get top folder name
-  inline std::string& topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; };
+  inline std::string& topFolder() { return baseFolderTM; };
 
   /// Get message logger name
   inline std::string category() { return "DTDQM|DTMonitorClient|" + testName + "Test"; };
@@ -108,7 +107,6 @@ protected:
   edm::ParameterSet parameters;
   bool runOnline;
   std::string baseFolderTM;
-  std::string baseFolderDDU;
   std::string trigSource;
   std::string hwSource;
   edm::ESHandle<DTGeometry> muonGeom;

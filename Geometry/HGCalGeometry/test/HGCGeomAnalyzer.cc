@@ -53,7 +53,9 @@ private:
 
   // ----------member data ---------------------------
   edm::Service<TFileService> fs_;
-  std::string txtFileName_;
+  const std::string txtFileName_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+
   std::map<std::pair<DetId::Detector, int>, TProfile2D *> layerXYview_;
   std::map<std::pair<DetId::Detector, int>, TProfile *> layerThickR_;
   std::map<std::pair<DetId::Detector, int>, TProfile *> layerThickEta_;
@@ -61,7 +63,8 @@ private:
 
 //
 HGCGeomAnalyzer::HGCGeomAnalyzer(const edm::ParameterSet &iConfig)
-    : txtFileName_(iConfig.getParameter<std::string>("fileName")) {
+    : txtFileName_(iConfig.getParameter<std::string>("fileName")),
+      geomToken_{esConsumes<CaloGeometry, CaloGeometryRecord>()} {
   usesResource("TFileService");
   fs_->file().cd();
 }
@@ -76,13 +79,12 @@ void HGCGeomAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &e
   boundaries.open(txtFileName_);
 
   //get geometry
-  edm::ESHandle<CaloGeometry> geomhandle;
-  es.get<CaloGeometryRecord>().get(geomhandle);
+  const CaloGeometry *caloGeom = &es.getData(geomToken_);
 
   std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi, DetId::HGCalHSc};
   for (const auto &d : dets) {
     const HGCalGeometry *geom =
-        static_cast<const HGCalGeometry *>(geomhandle->getSubdetectorGeometry(d, ForwardSubdetector::ForwardEmpty));
+        static_cast<const HGCalGeometry *>(caloGeom->getSubdetectorGeometry(d, ForwardSubdetector::ForwardEmpty));
     const HGCalTopology *topo = &(geom->topology());
     const HGCalDDDConstants *ddd = &(topo->dddConstants());
 

@@ -1,7 +1,5 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/PluginManager"/>
-
 <library file="CSCTFSingleGen.cc" name="EventFilterCSCTFSingleGen_test">
   <use name="DataFormats/CSCDigi"/>
   <use name="DataFormats/MuonDetId"/>
@@ -9,9 +7,4 @@
   <use name="CondFormats/CSCObjects"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-
-<bin name="testCSCTFRawToDigi" file="testCSCTFRawToDigi.cpp">
-  <use name="FWCore/ParameterSetReader"/>
-  <use name="cppunit"/>
-</bin>
-
+<test name="testCSCTFRawToDigi" command="cmsRun ${LOCALTOP}/src/EventFilter/CSCTFRawToDigi/test/testCSCTFRawToDigi_cfg.py"/>

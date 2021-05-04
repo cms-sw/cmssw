@@ -210,7 +210,7 @@ namespace LHCInfoImpl {
             break;
         }
       }
-      targetPayload.reset(new LHCInfo());
+      targetPayload = std::make_unique<LHCInfo>();
       targetPayload->setFillNumber(currentFill);
       targetPayload->setBunchesInBeam1(bunches1);
       targetPayload->setBunchesInBeam2(bunches2);
@@ -853,15 +853,14 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     edm::LogInfo(m_name) << "New tag " << tagInfo().name << "; from " << m_name << "::getNewObjects";
   } else {
     //check what is already inside the database
-    edm::LogInfo(m_name) << "got info for tag " << tagInfo().name << ", IOVSequence token " << tagInfo().token
-                         << ": size " << tagInfo().size << ", last object valid since " << tagInfo().lastInterval.first
-                         << " ( "
+    edm::LogInfo(m_name) << "got info for tag " << tagInfo().name << ": size " << tagInfo().size
+                         << ", last object valid since " << tagInfo().lastInterval.since << " ( "
                          << boost::posix_time::to_iso_extended_string(
-                                cond::time::to_boost(tagInfo().lastInterval.first))
+                                cond::time::to_boost(tagInfo().lastInterval.since))
                          << " ); from " << m_name << "::getNewObjects";
   }
 
-  cond::Time_t lastSince = tagInfo().lastInterval.first;
+  cond::Time_t lastSince = tagInfo().lastInterval.since;
   if (lastSince == 0) {
     // for a new or empty tag, an empty payload should be added on top with since=1
     addEmptyPayload(1);
@@ -896,10 +895,10 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
   cond::persistency::Session session = connection.createSession(m_connectionString, false);
   cond::persistency::Session session2 = connection.createSession(m_ecalConnectionString, false);
   // fetch last payload when available
-  if (!tagInfo().lastPayloadToken.empty()) {
+  if (!tagInfo().lastInterval.payloadId.empty()) {
     cond::persistency::Session session3 = dbSession();
     session3.transaction().start(true);
-    m_prevPayload = session3.fetchPayload<LHCInfo>(tagInfo().lastPayloadToken);
+    m_prevPayload = session3.fetchPayload<LHCInfo>(tagInfo().lastInterval.payloadId);
     session3.transaction().commit();
   }
 

@@ -16,7 +16,7 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  edm::Handle<edm::ValueMap<float>> TimeValueMapHandle;
+  edm::Handle<edm::ValueMap<std::pair<float, float>>> TimeValueMapHandle;
   double timeLowerBound, timeUpperBound;
   long layer;
   double saturation_energy;
@@ -73,7 +73,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
                                       TEveElement &oItemHolder,
                                       const FWViewContext *) {
   if (enableTimeFilter && TimeValueMapHandle.isValid()) {
-    const float time = TimeValueMapHandle->get(iIndex);
+    const float time = TimeValueMapHandle->get(iIndex).first;
     if (time < timeLowerBound || time > timeUpperBound)
       return;
   }
@@ -107,7 +107,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
 
     // HGCal
     if (iData.algo() == 8 || (type >= 8 && type <= 10)) {
-      if (heatmap && hitmap.find(it->first) == hitmap.end())
+      if (heatmap && hitmap->find(it->first) == hitmap->end())
         continue;
 
       const bool z = (it->first >> 25) & 0x1;
@@ -142,7 +142,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
           continue;
       }
 
-      // seed
+      // seed and cluster position
       if (iData.seed().rawId() == it->first.rawId()) {
         TEveStraightLineSet *marker = new TEveStraightLineSet;
         marker->SetLineWidth(1);
@@ -159,12 +159,25 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
         marker->AddLine(center[0], center[1], center[2] - crossScale, center[0], center[1], center[2] + crossScale);
 
         oItemHolder.AddElement(marker);
+
+        TEveStraightLineSet *position_marker = new TEveStraightLineSet;
+        position_marker->SetLineWidth(2);
+        position_marker->SetLineColor(kOrange);
+        auto const &pos = iData.position();
+        const float position_crossScale = crossScale * 0.5;
+        position_marker->AddLine(
+            pos.x() - position_crossScale, pos.y(), pos.z(), pos.x() + position_crossScale, pos.y(), pos.z());
+        position_marker->AddLine(
+            pos.x(), pos.y() - position_crossScale, pos.z(), pos.x(), pos.y() + position_crossScale, pos.z());
+
+        oItemHolder.AddElement(position_marker);
       }
 
-      const float energy = fmin(
-          (item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap[it->first]->energy() : iData.energy()) /
-              saturation_energy,
-          1.0f);
+      const float energy =
+          fmin((item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap->at(it->first)->energy()
+                                                                         : iData.energy()) /
+                   saturation_energy,
+               1.0f);
       const uint8_t colorFactor = gradient_steps * energy;
 
       // Scintillator

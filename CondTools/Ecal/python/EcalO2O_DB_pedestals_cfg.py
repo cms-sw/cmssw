@@ -3,8 +3,6 @@ import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
 process.load("CondCore.CondDB.CondDB_cfi")
-#process.CondDB.connect = 'oracle://cms_orcoff_prep/CMS_CONDITIONS'
-#process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
 process.CondDB.connect = 'sqlite_file:EcalPedestals_hlt.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -19,7 +17,8 @@ process.source = cms.Source("EmptyIOVSource",
   interval = cms.uint64(1)
 )
 
-db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+db_reader_account = 'CMS_ECAL_R'
+db_service,db_user,db_pwd = auth.get_db_credentials( db_reader_account )
 
 #process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 #  process.CondDB,

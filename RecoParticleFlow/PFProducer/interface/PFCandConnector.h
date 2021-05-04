@@ -2,12 +2,11 @@
 #define PFProducer_PFCandConnector_H_
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 // \author : M. Gouzevitch
 // \date : May 2010
 
@@ -78,6 +77,8 @@ public:
                      double dptRel_MergedTrack,
                      double ptErrorSecondary,
                      const std::vector<double>& nuclCalibFactors);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   reco::PFCandidateCollection connect(reco::PFCandidateCollection& pfCand) const;
 

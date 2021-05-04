@@ -1,8 +1,8 @@
 #ifndef L1GCTETTYPES_H
 #define L1GCTETTYPES_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
+#include <cstdint>
 
 /*!
  * \class L1GctTwosComplement

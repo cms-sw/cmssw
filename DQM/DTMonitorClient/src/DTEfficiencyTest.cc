@@ -152,7 +152,6 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
           // Loop over the TH1F bin and fill the ME to be used for the Quality Test
           for (int bin = firstWire; bin <= lastWire; bin++) {
             if ((recSegmOccupancy_histo_root->GetBinContent(bin)) != 0) {
-              //cout<<"book histos"<<endl;
               if (EfficiencyHistos.find(lID) == EfficiencyHistos.end())
                 bookHistos(ibooker, lID, firstWire, lastWire);
               float efficiency =

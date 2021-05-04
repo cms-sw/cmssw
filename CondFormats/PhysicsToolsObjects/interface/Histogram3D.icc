@@ -71,7 +71,7 @@ namespace PhysicsTools {
           binULimitsX(binULimitsX),
           binULimitsY(binULimitsY),
           binULimitsZ(binULimitsZ),
-          binValues((binULimitsY.size() + 1) * strideX * strideY),
+          binValues((binULimitsZ.size() + 1) * strideX * strideY),
           limitsX(AxisX_t(), AxisX_t()),
           limitsY(AxisY_t(), AxisY_t()),
           limitsZ(AxisZ_t(), AxisZ_t()),

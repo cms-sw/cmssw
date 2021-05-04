@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -45,7 +46,7 @@ namespace hitTripletEDProducerT {
     ImplBase() = default;
     virtual ~ImplBase() = default;
 
-    virtual void produces(edm::ProducerBase& producer) const = 0;
+    virtual void produces(edm::ProducesCollector) const = 0;
     virtual void produce(const IntermediateHitDoublets& regionDoublets,
                          edm::Event& iEvent,
                          const edm::EventSetup& iSetup) = 0;
@@ -73,9 +74,9 @@ namespace hitTripletEDProducerT {
         : ImplGeneratorBase<T_HitTripletGenerator>(iConfig, iC) {}
     ~Impl() override = default;
 
-    void produces(edm::ProducerBase& producer) const override {
-      T_SeedingHitSets::produces(producer);
-      T_IntermediateHitTriplets::produces(producer);
+    void produces(edm::ProducesCollector producesCollector) const override {
+      T_SeedingHitSets::produces(producesCollector);
+      T_IntermediateHitTriplets::produces(producesCollector);
     };
 
     void produce(const IntermediateHitDoublets& regionDoublets,
@@ -182,7 +183,7 @@ namespace hitTripletEDProducerT {
     DoNothing() {}
     explicit DoNothing(const SeedingLayerSetsHits* layers) {}
 
-    static void produces(edm::ProducerBase&) {}
+    static void produces(edm::ProducesCollector) {}
 
     void reserve(size_t, size_t) {}
 
@@ -205,7 +206,9 @@ namespace hitTripletEDProducerT {
   public:
     ImplSeedingHitSets() : seedingHitSets_(std::make_unique<RegionsSeedingHitSets>()) {}
 
-    static void produces(edm::ProducerBase& producer) { producer.produces<RegionsSeedingHitSets>(); }
+    static void produces(edm::ProducesCollector producesCollector) {
+      producesCollector.produces<RegionsSeedingHitSets>();
+    }
 
     void reserve(size_t regionsSize, size_t localRAupper) { seedingHitSets_->reserve(regionsSize, localRAupper); }
 
@@ -237,7 +240,9 @@ namespace hitTripletEDProducerT {
     explicit ImplIntermediateHitTriplets(const SeedingLayerSetsHits* layers)
         : intermediateHitTriplets_(std::make_unique<IntermediateHitTriplets>(layers)), layers_(layers) {}
 
-    static void produces(edm::ProducerBase& producer) { producer.produces<IntermediateHitTriplets>(); }
+    static void produces(edm::ProducesCollector producesCollector) {
+      producesCollector.produces<IntermediateHitTriplets>();
+    }
 
     void reserve(size_t regionsSize, size_t localRAupper) {
       intermediateHitTriplets_->reserve(regionsSize, layers_->size(), localRAupper);
@@ -305,7 +310,7 @@ HitTripletEDProducerT<T_HitTripletGenerator>::HitTripletEDProducerT(const edm::P
         << "HitTripletEDProducerT requires either produceIntermediateHitTriplets or produceSeedingHitSets to be True. "
            "If neither are needed, just remove this module from your sequence/path as it doesn't do anything useful";
 
-  impl_->produces(*this);
+  impl_->produces(producesCollector());
 }
 
 template <typename T_HitTripletGenerator>

@@ -126,7 +126,6 @@
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
 #include <utility>

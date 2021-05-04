@@ -3,7 +3,7 @@
 import os
 import re
 import argparse
-from extend_argparse import *
+from HLTrigger.Configuration.extend_argparse import *
 
 import HLTrigger.Configuration.Tools.pipe    as pipe
 import HLTrigger.Configuration.Tools.confdb  as confdb

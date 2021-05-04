@@ -26,6 +26,7 @@ CTPPSPixelRawToDigi::CTPPSPixelRawToDigi(const edm::ParameterSet& conf)
 
 {
   FEDRawDataCollection_ = consumes<FEDRawDataCollection>(config_.getParameter<edm::InputTag>("inputLabel"));
+  CTPPSPixelDAQMapping_ = esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>();
 
   produces<edm::DetSetVector<CTPPSPixelDigi>>();
 
@@ -69,7 +70,7 @@ void CTPPSPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   auto errorcollection = std::make_unique<edm::DetSetVector<CTPPSPixelDataError>>();
 
   if (data_exist) {
-    es.get<CTPPSPixelDAQMappingRcd>().get(mapping);
+    mapping = es.getHandle(CTPPSPixelDAQMapping_);
 
     fedIds_ = mapping->fedIds();
 

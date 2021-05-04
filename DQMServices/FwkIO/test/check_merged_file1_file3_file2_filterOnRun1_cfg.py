@@ -14,16 +14,11 @@ values = list()
 nRuns = 1
 nHists = 10
 nLumiPerRun = 20
+nJobsPerRun = 2
 startIndex = 0
 lastIndex =-1
 for i in range(0,nRuns):
     for l in range(0,nLumiPerRun):
-        if l == 10:
-            for j in range(0,nHists):
-                lastIndex +=1
-                values.append(("Foo"+str(j), 0, 1.0))
-            expectedIndices.append( (i+1,0,3,startIndex,lastIndex) )
-            startIndex = lastIndex+1
         for j in range(0,nHists):
             lastIndex +=1
             values.append(("Foo"+str(j)+"_lumi", 0, 1.0))
@@ -31,17 +26,16 @@ for i in range(0,nRuns):
         startIndex = lastIndex+1
     for j in range(0,nHists):
         lastIndex +=1
-        values.append(("Foo"+str(j), 0, 1.0))
+        values.append(("Foo"+str(j), 0, 1.0*nJobsPerRun))
     expectedIndices.append( (i+1,0,3,startIndex,lastIndex) )
     startIndex = lastIndex+1
 
-
-expected = 2*nRuns*nHists+nRuns*nLumiPerRun*nHists
+expected = nRuns*nHists+nRuns*nLumiPerRun*nHists
 if expected != th1fs.GetEntries():
     print("wrong number of entries in TH1Fs",th1fs.GetEntries(),"expected",expected)
     sys.exit(1)
 
-if 2*nRuns+nRuns*nLumiPerRun != indices.GetEntries():
+if nRuns+nRuns*nLumiPerRun != indices.GetEntries():
     print("wrong number of entries in Indices", indices.GetEntries())
     sys.exit(1)
 

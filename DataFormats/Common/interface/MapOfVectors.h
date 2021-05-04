@@ -1,6 +1,7 @@
 #ifndef DataFormats_Common_MapOfVectors_h
 #define DataFormats_Common_MapOfVectors_h
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <vector>
 #include <map>
 
@@ -12,7 +13,7 @@ class TestMapOfVectors;
 namespace edm {
 
   /* a linearized read-only map-of vectors
-
+   NOTE: The iterator for MapOfVectors an not safely be used across threads, even if only const methods are called.
    */
   template <typename K, typename T>
   class MapOfVectors {
@@ -61,7 +62,8 @@ namespace edm {
       key_iterator key;
       offset_iterator off;
       data_iterator data;
-      mutable Pair cache;
+      //This class is not intended to be used across threads
+      CMS_SA_ALLOW mutable Pair cache;
     };
 
     typedef Iter const_iterator;
@@ -115,6 +117,7 @@ namespace edm {
       return range(b, e);
     }
 
+    ///The iterator returned can not safely be used across threads
     const_iterator begin() const { return const_iterator(m_keys.begin(), m_offsets.begin(), m_data); }
 
     const_iterator end() const { return const_iterator(m_keys.end(), m_offsets.begin() + m_keys.size(), m_data); }

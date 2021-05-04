@@ -131,8 +131,8 @@ int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
     _cTotalChargeProfile.fill(it->id(), _currentLS, sumQ);
   }
 }
-/* virtual */ void UMNioTask::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::endLuminosityBlock(lb, es);
+/* virtual */ void UMNioTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(UMNioTask);

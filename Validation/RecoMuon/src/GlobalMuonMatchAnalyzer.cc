@@ -206,7 +206,7 @@ void GlobalMuonMatchAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void GlobalMuonMatchAnalyzer::endRun(edm::Run const &, edm::EventSetup const &) {
+void GlobalMuonMatchAnalyzer::dqmEndRun(edm::Run const &, edm::EventSetup const &) {
   computeEfficiencyEta(h_effic, h_goodMatchSim, h_shouldMatch);
   computeEfficiencyPt(h_efficPt, h_goodMatchSim, h_shouldMatch);
 
@@ -225,6 +225,9 @@ void GlobalMuonMatchAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
   // Tk Associator
 
   ibooker.cd();
+  // Run histos only for dqmEndRun handling
+  ibooker.setScope(MonitorElementData::Scope::RUN);
+
   std::string dirName = "Matcher/";
   //  ibooker.setCurrentFolder("RecoMuonV/Matcher");
   ibooker.setCurrentFolder(dirName);

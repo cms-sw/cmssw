@@ -1,5 +1,4 @@
 #include "TrackFromParentImporter.h"
-#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 
 namespace {

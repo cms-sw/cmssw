@@ -3,8 +3,8 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "boost/cstdint.hpp"
 #include <memory>
+#include <cstdint>
 
 class SiStripFedCabling;
 class SiStripFedCablingRcd;

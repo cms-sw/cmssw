@@ -28,16 +28,13 @@ herwig7CH2SettingsBlock = cms.PSet(
         ),
     herwig7CH2AlphaS = cms.vstring(
         'cd /Herwig/Shower',
-        'set AlphaQCD:AlphaMZ 0.118',
+        'set AlphaQCD:AlphaIn 0.118',
         'cd /'
         ),
     herwig7CH2MPISettings = cms.vstring(
-        'read snippets/SoftModel.in',
         'set /Herwig/Hadronization/ColourReconnector:ReconnectionProbability 0.479',
         'set /Herwig/UnderlyingEvent/MPIHandler:pTmin0 3.138',
         'set /Herwig/UnderlyingEvent/MPIHandler:InvRadius 1.174',
         'set /Herwig/UnderlyingEvent/MPIHandler:Power 0.1203',
-        'set /Herwig/Partons/RemnantDecayer:ladderPower -0.08',
-        'set /Herwig/Partons/RemnantDecayer:ladderNorm 0.95',
                                 )
 )

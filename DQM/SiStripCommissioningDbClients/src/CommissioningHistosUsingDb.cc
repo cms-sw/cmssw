@@ -1,6 +1,3 @@
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -17,14 +14,17 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistosUsingDb::CommissioningHistosUsingDb(SiStripConfigDb* const db, sistrip::RunType type)
+CommissioningHistosUsingDb::CommissioningHistosUsingDb(SiStripConfigDb* const db,
+                                                       edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken,
+                                                       sistrip::RunType type)
     : CommissioningHistograms(),
       runType_(type),
       db_(db),
       cabling_(nullptr),
       detInfo_(),
       uploadAnal_(true),
-      uploadConf_(false) {
+      uploadConf_(false),
+      tTopoToken_{tTopoToken} {
   LogTrace(mlDqmClient_) << "[" << __PRETTY_FUNCTION__ << "]"
                          << " Constructing object...";
 }
@@ -76,12 +76,11 @@ void CommissioningHistosUsingDb::configure(const edm::ParameterSet&, const edm::
     cabling_->terse(ss);
     LogTrace(mlDqmClient_) << ss.str();
 
-    edm::ESHandle<TrackerTopology> tTopo;
-    setup.get<TrackerTopologyRcd>().get(tTopo);
+    const auto& tTopo = setup.getData(tTopoToken_);
     std::stringstream sss;
     sss << "[CommissioningHistosUsingDb::" << __func__ << "]"
         << " Summary of FED cabling:" << std::endl;
-    cabling_->summary(sss, tTopo.product());
+    cabling_->summary(sss, &tTopo);
     edm::LogVerbatim(mlDqmClient_) << sss.str();
   }
 }

@@ -9,7 +9,7 @@
 // It is used in PFBlockAlgo.cc in the function links().
 class KDTreeLinkerPSEcal : public KDTreeLinkerBase {
 public:
-  KDTreeLinkerPSEcal();
+  KDTreeLinkerPSEcal(const edm::ParameterSet &conf);
   ~KDTreeLinkerPSEcal() override;
 
   // With this method, we create the list of psCluster that we want to link.
@@ -70,8 +70,8 @@ private:
 // construct it when calling the factory
 DEFINE_EDM_PLUGIN(KDTreeLinkerFactory, KDTreeLinkerPSEcal, "KDTreePreshowerAndECALLinker");
 
-KDTreeLinkerPSEcal::KDTreeLinkerPSEcal()
-    : KDTreeLinkerBase(), resPSpitch_(0.19), resPSlength_(6.1), ps1ToEcal_(1.072), ps2ToEcal_(1.057) {}
+KDTreeLinkerPSEcal::KDTreeLinkerPSEcal(const edm::ParameterSet &conf)
+    : KDTreeLinkerBase(conf), resPSpitch_(0.19), resPSlength_(6.1), ps1ToEcal_(1.072), ps2ToEcal_(1.057) {}
 
 KDTreeLinkerPSEcal::~KDTreeLinkerPSEcal() { clear(); }
 
@@ -100,7 +100,7 @@ void KDTreeLinkerPSEcal::insertFieldClusterElt(reco::PFBlockElement *ecalCluster
     const reco::PFRecHitRef &rh = fraction[rhit].recHitRef();
     double fract = fraction[rhit].fraction();
 
-    if ((rh.isNull()) || (fract < 1E-4))
+    if ((rh.isNull()) || (fract < cutOffFrac))
       continue;
 
     const reco::PFRecHit &rechit = *rh;
@@ -139,12 +139,10 @@ void KDTreeLinkerPSEcal::buildTree(const RecHitSet &rechitsSet, KDTreeLinkerAlgo
 }
 
 void KDTreeLinkerPSEcal::searchLinks() {
-  // Must of the code has been taken from LinkByRecHit.cc
+  // Most of the code has been taken from LinkByRecHit.cc
 
   // We iterate over the PS clusters.
   for (BlockEltSet::iterator it = targetSet_.begin(); it != targetSet_.end(); it++) {
-    (*it)->setIsValidMultilinks(true);
-
     reco::PFClusterRef clusterPSRef = (*it)->clusterRef();
     const reco::PFCluster &clusterPS = *clusterPSRef;
 
@@ -233,18 +231,25 @@ void KDTreeLinkerPSEcal::searchLinks() {
 void KDTreeLinkerPSEcal::updatePFBlockEltWithLinks() {
   //TODO YG : Check if cluster positionREP() is valid ?
 
-  // Here we save in each track the list of phi/eta values of linked clusters.
+  // Here we save in each PS the list of phi/eta values of linked ECAL clusters.
   for (BlockElt2BlockEltMap::iterator it = target2ClusterLinks_.begin(); it != target2ClusterLinks_.end(); ++it) {
+    const auto &psElt = it->first;
+    const auto &ecalEltSet = it->second;
     reco::PFMultiLinksTC multitracks(true);
 
-    for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
-      double clusterphi = (*jt)->clusterRef()->positionREP().phi();
-      double clustereta = (*jt)->clusterRef()->positionREP().eta();
+    for (const auto &ecalElt : ecalEltSet) {
+      double clusterphi = ecalElt->clusterRef()->positionREP().phi();
+      double clustereta = ecalElt->clusterRef()->positionREP().eta();
 
       multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
+
+      // We set the multilinks flag of the ECAL element (for links to PS) to true. It will allow us to
+      // use it in an optimized way in prefilter
+      ecalElt->setIsValidMultilinks(true, _targetType);
     }
 
-    it->first->setMultilinks(multitracks);
+    // We set multilinks of the PS element (for links to ECAL)
+    psElt->setMultilinks(multitracks, _fieldType);
   }
 }
 

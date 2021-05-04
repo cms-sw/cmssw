@@ -37,6 +37,7 @@ private:
   const bool _prodInitClusters;
   // the actual algorithm
   std::vector<std::unique_ptr<RecHitTopologicalCleanerBase> > _cleaners;
+  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase> > _seedcleaners;
   std::unique_ptr<SeedFinderBase> _seedFinder;
   std::unique_ptr<InitialClusteringStepBase> _initialClustering;
   std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;

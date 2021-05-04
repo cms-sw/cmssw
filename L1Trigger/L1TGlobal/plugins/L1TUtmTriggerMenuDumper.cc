@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
@@ -48,9 +49,11 @@ private:
   void endRun(Run const&, EventSetup const&) override;
   void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
   void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1TriggerMenuToken;
 };
 
-L1TUtmTriggerMenuDumper::L1TUtmTriggerMenuDumper(const ParameterSet& iConfig) {}
+L1TUtmTriggerMenuDumper::L1TUtmTriggerMenuDumper(const ParameterSet& iConfig)
+    : m_l1TriggerMenuToken(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd, edm::Transition::BeginRun>()) {}
 
 L1TUtmTriggerMenuDumper::~L1TUtmTriggerMenuDumper() {}
 
@@ -61,8 +64,7 @@ void L1TUtmTriggerMenuDumper::beginJob() { cout << "INFO:  L1TUtmTriggerMenuDump
 void L1TUtmTriggerMenuDumper::endJob() { cout << "INFO:  L1TUtmTriggerMenuDumper module endJob called.\n"; }
 
 void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup) {
-  edm::ESHandle<L1TUtmTriggerMenu> hmenu;
-  iSetup.get<L1TUtmTriggerMenuRcd>().get(hmenu);
+  edm::ESHandle<L1TUtmTriggerMenu> hmenu = iSetup.getHandle(m_l1TriggerMenuToken);
   const esTriggerMenu* menu = reinterpret_cast<const esTriggerMenu*>(hmenu.product());
 
   const std::map<std::string, esAlgorithm>& algoMap = menu->getAlgorithmMap();

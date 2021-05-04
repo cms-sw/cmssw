@@ -42,7 +42,7 @@ namespace edm {
     std::shared_ptr<ProductRegistry>& productRegistry() { return get_underlying_safe(productRegistry_); }
 
     edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
-    edm::propagate_const<std::shared_ptr<VectorInputSource> const> secInput_;
+    edm::propagate_const<std::shared_ptr<VectorInputSource>> secInput_;
     edm::propagate_const<std::unique_ptr<ProcessConfiguration>> processConfiguration_;
     edm::propagate_const<std::unique_ptr<EventPrincipal>> eventPrincipal_;
     bool sequential_;

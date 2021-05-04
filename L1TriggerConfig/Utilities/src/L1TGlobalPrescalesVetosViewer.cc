@@ -60,7 +60,7 @@ std::string L1TGlobalPrescalesVetosViewer::hash(void* buf, size_t len) const {
 void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<L1TGlobalPrescalesVetos> handle1;
   evSetup.get<L1TGlobalPrescalesVetosRcd>().get(handle1);
-  boost::shared_ptr<L1TGlobalPrescalesVetos> ptr(new L1TGlobalPrescalesVetos(*(handle1.product())));
+  std::shared_ptr<L1TGlobalPrescalesVetos> ptr(new L1TGlobalPrescalesVetos(*(handle1.product())));
 
   edm::LogInfo("") << "L1TGlobalPrescalesVetosViewer:";
 

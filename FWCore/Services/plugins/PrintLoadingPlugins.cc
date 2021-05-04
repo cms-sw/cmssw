@@ -34,7 +34,7 @@ public:
   PrintLoadingPlugins();
   virtual ~PrintLoadingPlugins();
 
-  void goingToLoad(const boost::filesystem::path&);
+  void goingToLoad(const std::filesystem::path&);
 
   void askedToLoad(const std::string&, const std::string&);
 
@@ -130,7 +130,7 @@ void PrintLoadingPlugins::askedToLoad(const std::string& iCategory, const std::s
     std::pair<PIItr, PIItr> range = std::equal_range(itFound->second.begin(), itFound->second.end(), i, PICompare());
 
     if (range.second - range.first > 1) {
-      const boost::filesystem::path& loadable = range.first->loadable_;
+      const std::filesystem::path& loadable = range.first->loadable_;
 
       libname = loadable.string();
     }
@@ -140,7 +140,7 @@ void PrintLoadingPlugins::askedToLoad(const std::string& iCategory, const std::s
   }
 }
 
-void PrintLoadingPlugins::goingToLoad(const boost::filesystem::path& Loadable_)
+void PrintLoadingPlugins::goingToLoad(const std::filesystem::path& Loadable_)
 
 {
   edm::LogAbsolute("LoadLib") << "Loading> " << Loadable_.string() << std::endl;

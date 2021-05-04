@@ -8,10 +8,11 @@ _barrelAlgo = cms.PSet(
     adcNbits = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.adcNbits,
     adcSaturation = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.adcSaturation_MIP,
     toaLSB_ns = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.toaLSB_ns,
-    timeResolutionInNs = cms.double(0.025),
+    timeResolutionInNs = cms.string("0.308*pow(x,-0.4175)"), # [ns]
     timeCorr_p0 = cms.double( 2.21103),
     timeCorr_p1 = cms.double(-0.933552),
-    timeCorr_p2 = cms.double( 0.)
+    timeCorr_p2 = cms.double( 0.),
+    c_LYSO = cms.double(13.846235)     # in unit cm/ns
 )
 
 
@@ -21,7 +22,7 @@ _endcapAlgo = cms.PSet(
     adcSaturation = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcSaturation_MIP,
     toaLSB_ns     = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.toaLSB_ns,
     tofDelay      = mtdDigitizer.endcapDigitizer.DeviceSimulation.tofDelay,
-    timeResolutionInNs = cms.double(0.025)
+    timeResolutionInNs = cms.string("0.039") # [ns]
 )
 
 

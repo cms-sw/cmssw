@@ -1,6 +1,8 @@
 <iftool name="cuda-gcc-support">
-<bin name="test_detid" file="test_detid.cu">
-    <use name="DataFormats/DetId"/>
+  <bin name="test_detid" file="test_detid.cu">
     <use name="cuda"/>
-</bin>
+    <use name="DataFormats/DetId"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+  </bin>
+
 </iftool>

@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
@@ -21,7 +21,7 @@
 
 class PreMixingHcalWorker : public PreMixingWorker {
 public:
-  PreMixingHcalWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer, edm::ConsumesCollector &&iC);
+  PreMixingHcalWorker(const edm::ParameterSet &ps, edm::ProducesCollector, edm::ConsumesCollector &&iC);
   ~PreMixingHcalWorker() override = default;
 
   PreMixingHcalWorker(const PreMixingHcalWorker &) = delete;
@@ -68,7 +68,7 @@ private:
 
 // Constructor
 PreMixingHcalWorker::PreMixingHcalWorker(const edm::ParameterSet &ps,
-                                         edm::ProducerBase &producer,
+                                         edm::ProducesCollector producesCollector,
                                          edm::ConsumesCollector &&iC)
     : HBHEPileInputTag_(ps.getParameter<edm::InputTag>("HBHEPileInputTag")),
       HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
@@ -101,13 +101,13 @@ PreMixingHcalWorker::PreMixingHcalWorker(const edm::ParameterSet &ps,
   QIE10DigiCollectionDM_ = ps.getParameter<std::string>("QIE10DigiCollectionDM");
   QIE11DigiCollectionDM_ = ps.getParameter<std::string>("QIE11DigiCollectionDM");
 
-  producer.produces<HBHEDigiCollection>();
-  producer.produces<HODigiCollection>();
-  producer.produces<HFDigiCollection>();
-  producer.produces<ZDCDigiCollection>();
+  producesCollector.produces<HBHEDigiCollection>();
+  producesCollector.produces<HODigiCollection>();
+  producesCollector.produces<HFDigiCollection>();
+  producesCollector.produces<ZDCDigiCollection>();
 
-  producer.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
-  producer.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
+  producesCollector.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
+  producesCollector.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
 
   // initialize HcalDigitizer here...
   myHcalDigitizer_.setHBHENoiseSignalGenerator(&theHBHESignalGenerator);

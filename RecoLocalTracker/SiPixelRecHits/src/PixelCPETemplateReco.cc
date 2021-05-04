@@ -2,7 +2,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateReco.h"
 
 // Geometry services
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 //#define DEBUG
@@ -94,13 +94,10 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const& conf,
 //-----------------------------------------------------------------------------
 //  Clean up.
 //-----------------------------------------------------------------------------
-PixelCPETemplateReco::~PixelCPETemplateReco() {
-  for (auto x : thePixelTemp_)
-    x.destroy();
-}
+PixelCPETemplateReco::~PixelCPETemplateReco() {}
 
-PixelCPEBase::ClusterParam* PixelCPETemplateReco::createClusterParam(const SiPixelCluster& cl) const {
-  return new ClusterParamTemplate(cl);
+std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPETemplateReco::createClusterParam(const SiPixelCluster& cl) const {
+  return std::make_unique<ClusterParamTemplate>(cl);
 }
 
 //------------------------------------------------------------------
@@ -154,6 +151,13 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
 
   // Store these offsets (to be added later) in a LocalPoint after tranforming
   // them from measurement units (pixel units) to local coordinates (cm)
+  //
+  //
+
+  // In case of template reco failure, these are the lorentz drift corrections
+  // to be applied
+  float lorentzshiftX = 0.5f * theDetParam.lorentzShiftInCmX;
+  float lorentzshiftY = 0.5f * theDetParam.lorentzShiftInCmY;
 
   // ggiurgiu@jhu.edu 12/09/2010 : update call with trk angles needed for bow/kink corrections
   LocalPoint lp;
@@ -254,56 +258,47 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
   // ******************************************************************
 
   // Check exit status
-  if
-    UNLIKELY(theClusterParam.ierr != 0) {
-      LogDebug("PixelCPETemplateReco::localPosition")
-          << "reconstruction failed with error " << theClusterParam.ierr << "\n";
+  if UNLIKELY (theClusterParam.ierr != 0) {
+    LogDebug("PixelCPETemplateReco::localPosition")
+        << "reconstruction failed with error " << theClusterParam.ierr << "\n";
 
-      // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
-      // In the x case, apply a rough Lorentz drift average correction
-      // To do: call PixelCPEGeneric whenever PixelTempReco1D fails
-      float lorentz_drift = -999.9;
-      if (!fpix)
-        lorentz_drift = 60.0f;  // in microns
-      else
-        lorentz_drift = 10.0f;  // in microns
-      // ggiurgiu@jhu.edu, 21/09/2010 : trk angles needed to correct for bows/kinks
-      if (theClusterParam.with_track_angle) {
-        theClusterParam.templXrec_ =
-            theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) -
-            lorentz_drift * micronsToCm;  // rough Lorentz drift correction
-        theClusterParam.templYrec_ =
-            theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred);
-      } else {
-        edm::LogError("PixelCPETemplateReco") << "@SUB = PixelCPETemplateReco::localPosition"
-                                              << "Should never be here. PixelCPETemplateReco should always be called "
-                                                 "with track angles. This is a bad error !!! ";
+    // Template reco has failed, compute position estimates based on cluster center of gravity + Lorentz drift
+    // Future improvement would be to call generic reco instead
 
-        theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) -
-                                     lorentz_drift * micronsToCm;  // rough Lorentz drift correction
-        theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y());
-      }
+    // ggiurgiu@jhu.edu, 21/09/2010 : trk angles needed to correct for bows/kinks
+    if (theClusterParam.with_track_angle) {
+      theClusterParam.templXrec_ =
+          theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) + lorentzshiftX;
+      theClusterParam.templYrec_ =
+          theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred) + lorentzshiftY;
+    } else {
+      edm::LogError("PixelCPETemplateReco") << "@SUB = PixelCPETemplateReco::localPosition"
+                                            << "Should never be here. PixelCPETemplateReco should always be called "
+                                               "with track angles. This is a bad error !!! ";
+
+      theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) + lorentzshiftX;
+      theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y()) + lorentzshiftY;
     }
-  else if
-    UNLIKELY(UseClusterSplitter_ && theClusterParam.templQbin_ == 0) {
-      cout << " PixelCPETemplateReco : We should never be here !!!!!!!!!!!!!!!!!!!!!!" << endl;
-      cout << "                 (int)UseClusterSplitter_ = " << (int)UseClusterSplitter_ << endl;
+  } else if UNLIKELY (UseClusterSplitter_ && theClusterParam.templQbin_ == 0) {
+    edm::LogError("PixelCPETemplateReco") << " PixelCPETemplateReco: Qbin = 0 but using cluster splitter, we should "
+                                             "never be here !!!!!!!!!!!!!!!!!!!!!! \n"
+                                          << "(int)UseClusterSplitter_ = " << (int)UseClusterSplitter_ << endl;
 
-      //ierr =
-      //PixelTempSplit( ID, fpix, cotalpha_, cotbeta_,
-      //		clust_array_2d, ydouble, xdouble,
-      //		templ,
-      //		templYrec1_, templYrec2_, templSigmaY_, templProbY_,
-      //		templXrec1_, templXrec2_, templSigmaX_, templProbX_,
-      //		templQbin_ );
+    //ierr =
+    //PixelTempSplit( ID, fpix, cotalpha_, cotbeta_,
+    //		clust_array_2d, ydouble, xdouble,
+    //		templ,
+    //		templYrec1_, templYrec2_, templSigmaY_, templProbY_,
+    //		templXrec1_, templXrec2_, templSigmaX_, templProbX_,
+    //		templQbin_ );
 
-      // Commented for now (3/10/17) until we figure out how to resuscitate 2D template splitter
-      ///      std::vector< SiPixelTemplateStore2D > thePixelTemp2D_;
-      ///SiPixelTemplate2D::pushfile(ID, thePixelTemp2D_);
-      ///SiPixelTemplate2D templ2D_(thePixelTemp2D_);
+    // Commented for now (3/10/17) until we figure out how to resuscitate 2D template splitter
+    ///      std::vector< SiPixelTemplateStore2D > thePixelTemp2D_;
+    ///SiPixelTemplate2D::pushfile(ID, thePixelTemp2D_);
+    ///SiPixelTemplate2D templ2D_(thePixelTemp2D_);
 
-      theClusterParam.ierr = -123;
-      /*
+    theClusterParam.ierr = -123;
+    /*
        float dchisq;
        float templProbQ_;
        SiPixelTemplateSplit::PixelTempSplit( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
@@ -319,57 +314,45 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
        templ2D_ );
        
        */
-      if (theClusterParam.ierr != 0) {
-        LogDebug("PixelCPETemplateReco::localPosition")
-            << "reconstruction failed with error " << theClusterParam.ierr << "\n";
+    if (theClusterParam.ierr != 0) {
+      // Template reco has failed, compute position estimates based on cluster center of gravity + Lorentz drift
+      // Future improvement would be to call generic reco instead
 
-        // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
-        // In the x case, apply a rough Lorentz drift average correction
-        // To do: call PixelCPEGeneric whenever PixelTempReco1D fails
-        float lorentz_drift = -999.9f;
-        if (!fpix)
-          lorentz_drift = 60.0f;  // in microns
-        else
-          lorentz_drift = 10.0f;  // in microns
-
-        // ggiurgiu@jhu.edu, 12/09/2010 : trk angles needed to correct for bows/kinks
-        if (theClusterParam.with_track_angle) {
-          theClusterParam.templXrec_ =
-              theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) -
-              lorentz_drift * micronsToCm;  // rough Lorentz drift correction
-          theClusterParam.templYrec_ =
-              theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred);
-        } else {
-          edm::LogError("PixelCPETemplateReco") << "@SUB = PixelCPETemplateReco::localPosition"
-                                                << "Should never be here. PixelCPETemplateReco should always be called "
-                                                   "with track angles. This is a bad error !!! ";
-
-          theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) -
-                                       lorentz_drift * micronsToCm;  // very rough Lorentz drift correction
-          theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y());
-        }
+      // ggiurgiu@jhu.edu, 12/09/2010 : trk angles needed to correct for bows/kinks
+      if (theClusterParam.with_track_angle) {
+        theClusterParam.templXrec_ =
+            theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) + lorentzshiftX;
+        theClusterParam.templYrec_ =
+            theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred) + lorentzshiftY;
       } else {
-        // go from micrometer to centimeter
-        templXrec1_ *= micronsToCm;
-        templYrec1_ *= micronsToCm;
-        templXrec2_ *= micronsToCm;
-        templYrec2_ *= micronsToCm;
-
-        // go back to the module coordinate system
-        templXrec1_ += lp.x();
-        templYrec1_ += lp.y();
-        templXrec2_ += lp.x();
-        templYrec2_ += lp.y();
-
-        // calculate distance from each hit to the track and choose the hit closest to the track
-        float distX1 = std::abs(templXrec1_ - theClusterParam.trk_lp_x);
-        float distX2 = std::abs(templXrec2_ - theClusterParam.trk_lp_x);
-        float distY1 = std::abs(templYrec1_ - theClusterParam.trk_lp_y);
-        float distY2 = std::abs(templYrec2_ - theClusterParam.trk_lp_y);
-        theClusterParam.templXrec_ = (distX1 < distX2 ? templXrec1_ : templXrec2_);
-        theClusterParam.templYrec_ = (distY1 < distY2 ? templYrec1_ : templYrec2_);
+        edm::LogError("PixelCPETemplateReco") << "@SUB = PixelCPETemplateReco::localPosition"
+                                              << "Should never be here. PixelCPETemplateReco should always be called "
+                                                 "with track angles. This is a bad error !!! ";
+        theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) + lorentzshiftX;
+        theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y()) + lorentzshiftY;
       }
-    }  // else if ( UseClusterSplitter_ && templQbin_ == 0 )
+    } else {
+      // go from micrometer to centimeter
+      templXrec1_ *= micronsToCm;
+      templYrec1_ *= micronsToCm;
+      templXrec2_ *= micronsToCm;
+      templYrec2_ *= micronsToCm;
+
+      // go back to the module coordinate system
+      templXrec1_ += lp.x();
+      templYrec1_ += lp.y();
+      templXrec2_ += lp.x();
+      templYrec2_ += lp.y();
+
+      // calculate distance from each hit to the track and choose the hit closest to the track
+      float distX1 = std::abs(templXrec1_ - theClusterParam.trk_lp_x);
+      float distX2 = std::abs(templXrec2_ - theClusterParam.trk_lp_x);
+      float distY1 = std::abs(templYrec1_ - theClusterParam.trk_lp_y);
+      float distY2 = std::abs(templYrec2_ - theClusterParam.trk_lp_y);
+      theClusterParam.templXrec_ = (distX1 < distX2 ? templXrec1_ : templXrec2_);
+      theClusterParam.templYrec_ = (distY1 < distY2 ? templYrec1_ : templYrec2_);
+    }
+  }  // else if ( UseClusterSplitter_ && templQbin_ == 0 )
 
   else  // apparenly this is the good one!
   {
@@ -382,7 +365,7 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
     theClusterParam.templYrec_ += lp.y();
 
     // Compute the Alignment Group Corrections [template ID should already be selected from call to reco procedure]
-    if (DoLorentz_) {
+    if (doLorentzFromAlignment_) {
       // Do only if the lotentzshift has meaningfull numbers
       if (theDetParam.lorentzShiftInCmX != 0.0 || theDetParam.lorentzShiftInCmY != 0.0) {
         // the LA width/shift returned by templates use (+)
@@ -441,9 +424,9 @@ LocalError PixelCPETemplateReco::localError(DetParam const& theDetParam, Cluster
 
   // Check if the errors were already set at the clusters splitting level
   if (theClusterParam.theCluster->getSplitClusterErrorX() > 0.0f &&
-      theClusterParam.theCluster->getSplitClusterErrorX() < 7777.7f &&
+      theClusterParam.theCluster->getSplitClusterErrorX() < clusterSplitMaxError_ &&
       theClusterParam.theCluster->getSplitClusterErrorY() > 0.0f &&
-      theClusterParam.theCluster->getSplitClusterErrorY() < 7777.7f) {
+      theClusterParam.theCluster->getSplitClusterErrorY() < clusterSplitMaxError_) {
     xerr = theClusterParam.theCluster->getSplitClusterErrorX() * micronsToCm;
     yerr = theClusterParam.theCluster->getSplitClusterErrorY() * micronsToCm;
 
@@ -491,14 +474,14 @@ LocalError PixelCPETemplateReco::localError(DetParam const& theDetParam, Cluster
     } else if (edgex || edgey) {
       // for edge pixels assign errors according to observed residual RMS
       if (edgex && !edgey) {
-        xerr = 23.0f * micronsToCm;
-        yerr = 39.0f * micronsToCm;
+        xerr = xEdgeXError_ * micronsToCm;
+        yerr = xEdgeYError_ * micronsToCm;
       } else if (!edgex && edgey) {
-        xerr = 24.0f * micronsToCm;
-        yerr = 96.0f * micronsToCm;
+        xerr = yEdgeXError_ * micronsToCm;
+        yerr = yEdgeYError_ * micronsToCm;
       } else if (edgex && edgey) {
-        xerr = 31.0f * micronsToCm;
-        yerr = 90.0f * micronsToCm;
+        xerr = bothEdgeXError_ * micronsToCm;
+        yerr = bothEdgeYError_ * micronsToCm;
       } else {
         throw cms::Exception(" PixelCPETemplateReco::localError: Something wrong with pixel edge flag !!!");
       }

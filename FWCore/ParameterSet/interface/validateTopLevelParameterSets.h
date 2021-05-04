@@ -6,8 +6,6 @@ namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
 
-  constexpr unsigned int s_defaultNumberOfThreads = 1;
-
   void validateTopLevelParameterSets(ParameterSet* processParameterSet);
   void fillOptionsDescription(ParameterSetDescription& description);
   void fillMaxEventsDescription(ParameterSetDescription& description);

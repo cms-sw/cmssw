@@ -8,6 +8,8 @@ using Vector2D = Basic2DVector<double>::MathVector;
 namespace {
   const Vector2D one2D = BVector2D(1.0, 1.0).v;
   const Vector2D fivepercent2D = BVector2D(0.05, 0.05).v;
+  // rechit with fraction below this value will be ignored in LinkByRecHit
+  const float minPFRecHitFrac = 1E-4;
 }  // namespace
 
 // to enable debugs
@@ -52,6 +54,7 @@ double LinkByRecHit::testTrackAndClusterByRecHit(const reco::PFRecTrack& track,
   switch (cluster.layer()) {
     case PFLayer::ECAL_BARREL:
       barrel = true;
+      [[fallthrough]];
     case PFLayer::ECAL_ENDCAP:
 #ifdef PFLOW_DEBUG
       if (debug)
@@ -77,6 +80,7 @@ double LinkByRecHit::testTrackAndClusterByRecHit(const reco::PFRecTrack& track,
 
     case PFLayer::HCAL_BARREL1:
       barrel = true;
+      [[fallthrough]];
     case PFLayer::HCAL_ENDCAP:
 #ifdef PFLOW_DEBUG
       if (debug)
@@ -159,6 +163,7 @@ double LinkByRecHit::testTrackAndClusterByRecHit(const reco::PFRecTrack& track,
       break;
 
     case PFLayer::PS1:
+      [[fallthrough]];
     case PFLayer::PS2:
       //Note Alex: Nothing implemented for the
       //PreShower (No resolution maps yet)
@@ -213,7 +218,7 @@ double LinkByRecHit::testTrackAndClusterByRecHit(const reco::PFRecTrack& track,
   for (unsigned int rhit = 0; rhit < fracs.size(); ++rhit) {
     const reco::PFRecHitRef& rh = fracs[rhit].recHitRef();
     double fraction = fracs[rhit].fraction();
-    if (fraction < 1E-4)
+    if (fraction < minPFRecHitFrac)
       continue;
     if (rh.isNull())
       continue;
@@ -412,7 +417,7 @@ double LinkByRecHit::testECALAndPSByRecHit(const reco::PFCluster& clusterECAL,
   for (unsigned int rhit = 0; rhit < fracs.size(); ++rhit) {
     const auto& rh = fracs[rhit].recHitRef();
     double fraction = fracs[rhit].fraction();
-    if (fraction < 1E-4)
+    if (fraction < minPFRecHitFrac)
       continue;
     if (rh.isNull())
       continue;
@@ -493,12 +498,12 @@ double LinkByRecHit::testHFEMAndHFHADByRecHit(const reco::PFCluster& clusterHFEM
   const auto& posxyzEM = clusterHFEM.position();
   const auto& posxyzHAD = clusterHFHAD.position();
 
-  double dX = posxyzEM.X() - posxyzHAD.X();
-  double dY = posxyzEM.Y() - posxyzHAD.Y();
   double sameZ = posxyzEM.Z() * posxyzHAD.Z();
-
   if (sameZ < 0)
     return -1.;
+
+  double dX = posxyzEM.X() - posxyzHAD.X();
+  double dY = posxyzEM.Y() - posxyzHAD.Y();
 
   double dist2 = dX * dX + dY * dY;
 

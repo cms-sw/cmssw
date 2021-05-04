@@ -3,18 +3,17 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCEEDigitizer.h"
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCHEfrontDigitizer.h"
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
-#include "SimCalorimetry/HGCalSimProducers/interface/HFNoseDigitizer.h"
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
@@ -53,45 +52,32 @@ public:
      @short handle SimHit accumulation
    */
   void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+  void accumulate_forPreMix(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
-  template <typename GEOM>
+  void accumulate_forPreMix(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+
   void accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
                   int bxCrossing,
-                  const GEOM* geom,
+                  const HGCalGeometry* geom,
                   CLHEP::HepRandomEngine* hre);
-  // for premixing
-  void accumulate(const PHGCSimAccumulator& simAccumulator);
+  void accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> const& hits,
+                            int bxCrossing,
+                            const HGCalGeometry* geom,
+                            CLHEP::HepRandomEngine* hre);
 
+  void accumulate_forPreMix(const PHGCSimAccumulator& simAccumulator, const bool minbiasFlag);
   /**
      @short actions at the start/end of event
    */
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
   void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
 
-  /**
-   */
-  bool producesEEDigis() { return ((mySubDet_ == ForwardSubdetector::HGCEE) || (myDet_ == DetId::HGCalEE)); }
-  bool producesHEfrontDigis() { return ((mySubDet_ == ForwardSubdetector::HGCHEF) || (myDet_ == DetId::HGCalHSi)); }
-  bool producesHEbackDigis() { return ((mySubDet_ == ForwardSubdetector::HGCHEB) || (myDet_ == DetId::HGCalHSc)); }
-  bool producesHFNoseDigis() { return ((mySubDet_ == ForwardSubdetector::HFNose) && (myDet_ == DetId::Forward)); }
   std::string digiCollection() { return digiCollection_; }
-  int geometryType() { return geometryType_; }
-
-  /**
-      @short actions at the start/end of run
-   */
-  void beginRun(const edm::EventSetup& es);
-  void endRun();
 
 private:
   uint32_t getType() const;
-  bool getWeight(std::array<float, 3>& tdcForToAOnset, float& keV2fC) const;
-
-  //input/output names
   std::string hitCollection_, digiCollection_;
-
-  //geometry type (0 pre-TDR; 1 TDR)
-  int geometryType_;
 
   //digitization type (it's up to the specializations to decide it's meaning)
   int digitizationType_;
@@ -108,25 +94,20 @@ private:
   int maxSimHitsAccTime_;
   double bxTime_, ev_per_eh_pair_;
   std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;
+  std::unique_ptr<hgc::HGCPUSimHitDataAccumulator> pusimHitAccumulator_;
   void resetSimHitDataAccumulator();
-
+  void resetPUSimHitDataAccumulator();
   //debug position
   void checkPosition(const HGCalDigiCollection* digis) const;
 
-  //digitizers
-  std::unique_ptr<HGCEEDigitizer> theHGCEEDigitizer_;
-  std::unique_ptr<HGCHEbackDigitizer> theHGCHEbackDigitizer_;
-  std::unique_ptr<HGCHEfrontDigitizer> theHGCHEfrontDigitizer_;
-  std::unique_ptr<HFNoseDigitizer> theHFNoseDigitizer_;
+  //digitizer
+  std::unique_ptr<HGCDigitizerBase> theDigitizer_;
 
   //geometries
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESWatcher<CaloGeometryRecord> geomWatcher_;
   std::unordered_set<DetId> validIds_;
-  const HGCalGeometry* gHGCal_;
-  const HcalGeometry* gHcal_;
-
-  //detector and subdetector id
-  DetId::Detector myDet_;
-  ForwardSubdetector mySubDet_;
+  const HGCalGeometry* gHGCal_ = nullptr;
 
   //misc switches
   uint32_t verbosity_;
@@ -141,9 +122,13 @@ private:
   std::array<double, 4> averageOccupancies_;
   uint32_t nEvents_;
 
+  //maxBx limit beyond which the Digitizer should filter out all hits
+  static const unsigned int maxBx_ = 14;
+  static const unsigned int thisBx_ = 9;
   std::vector<float> cce_;
-
-  std::map<uint32_t, std::vector<std::pair<float, float> > > hitRefs_bx0;
+  std::unordered_map<uint32_t, std::vector<std::pair<float, float> > > hitRefs_bx0;
+  std::unordered_map<uint32_t, std::vector<std::tuple<float, float, float> > > PhitRefs_bx0;
+  std::unordered_map<uint32_t, bool> hitOrder_monitor;
 };
 
 #endif

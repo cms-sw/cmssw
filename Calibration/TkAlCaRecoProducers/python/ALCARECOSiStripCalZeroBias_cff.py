@@ -38,8 +38,9 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
 # Clusterizer #
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
 
+siStripUnbiasedClusterizerConditions = SiStripClusterizerConditionsESProducer.clone(QualityLabel="unbiased", Label="unbiased")
 calZeroBiasClusters = siStripClusters.clone()
-calZeroBiasClusters.Clusterizer.QualityLabel = 'unbiased'
+calZeroBiasClusters.Clusterizer.ConditionsLabel = 'unbiased'
 
 # Not persistent collections needed by the filters in the AlCaReco DQM
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
@@ -57,10 +58,10 @@ seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*DCSSt
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(ALCARECOSiStripCalZeroBiasHLT,
-                                           eventSetupPathsKey='SiStripCalZeroBiasHI'
-                                           )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(ALCARECOSiStripCalZeroBiasHLT,
+                                      eventSetupPathsKey='SiStripCalZeroBiasHI'
+)
 
 # Select pp-like events based on the pixel cluster multiplicity
 import HLTrigger.special.hltPixelActivityFilter_cfi
@@ -71,6 +72,6 @@ HLTPixelActivityFilterForSiStripCalZeroBias.inputTag    = 'siPixelClusters'
 seqALCARECOSiStripCalZeroBiasHI = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)
 
 #Specify we want to use our other sequence 
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(seqALCARECOSiStripCalZeroBias,
-                                                seqALCARECOSiStripCalZeroBiasHI
-                                                )
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(seqALCARECOSiStripCalZeroBias,
+                                           seqALCARECOSiStripCalZeroBiasHI
+)

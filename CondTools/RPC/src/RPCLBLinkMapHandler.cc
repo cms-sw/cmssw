@@ -102,10 +102,10 @@ RPCLBLinkMapHandler::~RPCLBLinkMapHandler() {}
 
 void RPCLBLinkMapHandler::getNewObjects() {
   edm::LogInfo("RPCLBLinkMapHandler") << "getNewObjects";
-  cond::TagInfo const& tag_info = tagInfo();
-  if (since_run_ < tag_info.lastInterval.first)
+  cond::TagInfo_t const& tag_info = tagInfo();
+  if (since_run_ < tag_info.lastInterval.since)
     throw cms::Exception("RPCLBLinkMapHandler") << "Refuse to create RPCLBLinkMap for run " << since_run_
-                                                << ", older than most recent tag" << tag_info.lastInterval.first;
+                                                << ", older than most recent tag" << tag_info.lastInterval.since;
 
   edm::LogInfo("RPCDCCLinkMapHandler") << "Opening read-only Input Session";
   auto input_session = connection_.createCoralSession(connect_, false);  // writeCapable

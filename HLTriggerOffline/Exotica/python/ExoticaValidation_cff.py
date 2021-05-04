@@ -14,7 +14,7 @@ recoExoticaValidationHT = cms.EDProducer(
     alias = cms.string('PFMHT'),
     globalThreshold = cms.double(30.0),
     calculateSignificance = cms.bool(False),
-    jets = cms.InputTag("ak4PFJetsCHS") # for significance calculation
+    srcJets = cms.InputTag("ak4PFJetsCHS") # for significance calculation
     )
 
 recoExoticaValidationMETNoMu = cms.EDProducer( 

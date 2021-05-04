@@ -6,10 +6,10 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
-#include "DataFormats/L1THGCal/interface/ClusterShapes.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseTriggerDetId.h"
 
 /* ROOT */
 #include "Math/Vector3D.h"
@@ -101,9 +101,6 @@ namespace l1t {
     const GlobalPoint& centre() const { return centre_; }
     const GlobalPoint& centreProj() const { return centreProj_; }
 
-    // FIXME: will need to fix places where the shapes are directly accessed
-    // Right now keep shapes() getter as non-const
-    ClusterShapes& shapes() { return shapes_; }
     double hOverE() const {
       double pt_em = 0.;
       double pt_had = 0.;
@@ -115,13 +112,22 @@ namespace l1t {
         double fraction = (id_fraction != constituentsFraction_.end() ? id_fraction->second : 1.);
         if ((id.det() == DetId::Forward && id.subdetId() == HGCEE) || (id.det() == DetId::HGCalEE) ||
             (id.det() == DetId::HGCalTrigger &&
-             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger)) {
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger) ||
+            (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose && HFNoseDetId(id).isEE()) ||
+            (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger &&
+             HFNoseTriggerDetId(id).isEE())) {
           pt_em += id_constituent.second->pt() * fraction;
         } else if ((id.det() == DetId::Forward && id.subdetId() == HGCHEF) ||
                    (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) || (id.det() == DetId::HGCalHSi) ||
                    (id.det() == DetId::HGCalHSc) ||
                    (id.det() == DetId::HGCalTrigger &&
-                    HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger)) {
+                    HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger) ||
+                   (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose &&
+                    HFNoseDetId(id).isHE()) ||
+                   (id.det() == DetId::HGCalTrigger &&
+                    HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger &&
+                    HFNoseTriggerDetId(id).isHSilicon())) {
           pt_had += id_constituent.second->pt() * fraction;
         }
       }
@@ -149,6 +155,12 @@ namespace l1t {
     float sigmaRRTot() const { return sigmaRRTot_; }
     float sigmaRRMax() const { return sigmaRRMax_; }
     float sigmaRRMean() const { return sigmaRRMean_; }
+    float zBarycenter() const { return zBarycenter_; }
+    float layer10percent() const { return layer10percent_; }
+    float layer50percent() const { return layer50percent_; }
+    float layer90percent() const { return layer90percent_; }
+    float triggerCells67percent() const { return triggerCells67percent_; }
+    float triggerCells90percent() const { return triggerCells90percent_; }
 
     void showerLength(int showerLength) { showerLength_ = showerLength; }
     void coreShowerLength(int coreShowerLength) { coreShowerLength_ = coreShowerLength; }
@@ -163,6 +175,12 @@ namespace l1t {
     void sigmaRRTot(float sigmaRRTot) { sigmaRRTot_ = sigmaRRTot; }
     void sigmaRRMean(float sigmaRRMean) { sigmaRRMean_ = sigmaRRMean; }
     void sigmaZZ(float sigmaZZ) { sigmaZZ_ = sigmaZZ; }
+    void zBarycenter(float zBarycenter) { zBarycenter_ = zBarycenter; }
+    void layer10percent(float layer10percent) { layer10percent_ = layer10percent; }
+    void layer50percent(float layer50percent) { layer50percent_ = layer50percent; }
+    void layer90percent(float layer90percent) { layer90percent_ = layer90percent; }
+    void triggerCells67percent(float triggerCells67percent) { triggerCells67percent_ = triggerCells67percent; }
+    void triggerCells90percent(float triggerCells90percent) { triggerCells90percent_ = triggerCells90percent; }
 
     /* operators */
     bool operator<(const HGCalClusterT<C>& cl) const { return mipPt() < cl.mipPt(); }
@@ -186,21 +204,25 @@ namespace l1t {
 
     //shower shape
 
-    int showerLength_;
-    int coreShowerLength_;
-    int firstLayer_;
-    int maxLayer_;
-    float eMax_;
-    float sigmaEtaEtaMax_;
-    float sigmaPhiPhiMax_;
-    float sigmaRRMax_;
-    float sigmaEtaEtaTot_;
-    float sigmaPhiPhiTot_;
-    float sigmaRRTot_;
-    float sigmaRRMean_;
-    float sigmaZZ_;
-
-    ClusterShapes shapes_;
+    int showerLength_ = 0;
+    int coreShowerLength_ = 0;
+    int firstLayer_ = 0;
+    int maxLayer_ = 0;
+    float eMax_ = 0.;
+    float sigmaEtaEtaMax_ = 0.;
+    float sigmaPhiPhiMax_ = 0.;
+    float sigmaRRMax_ = 0.;
+    float sigmaEtaEtaTot_ = 0.;
+    float sigmaPhiPhiTot_ = 0.;
+    float sigmaRRTot_ = 0.;
+    float sigmaRRMean_ = 0.;
+    float sigmaZZ_ = 0.;
+    float zBarycenter_ = 0.;
+    float layer10percent_ = 0.;
+    float layer50percent_ = 0.;
+    float layer90percent_ = 0.;
+    float triggerCells67percent_ = 0.;
+    float triggerCells90percent_ = 0.;
 
     void updateP4AndPosition(const edm::Ptr<C>& c, bool updateCentre = true, float fraction = 1.) {
       double cMipt = c->mipPt() * fraction;

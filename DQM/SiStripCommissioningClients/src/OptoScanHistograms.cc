@@ -1,12 +1,14 @@
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/OptoScanSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 OptoScanHistograms::OptoScanHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("OptoScanParameters"), bei, sistrip::OPTO_SCAN) {
-  factory_ = unique_ptr<OptoScanSummaryFactory>(new OptoScanSummaryFactory);
+  factory_ = std::make_unique<OptoScanSummaryFactory>();
   LogTrace(mlDqmClient_) << "[OptoScanHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

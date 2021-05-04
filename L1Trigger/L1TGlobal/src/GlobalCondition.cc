@@ -555,7 +555,9 @@ void GlobalCondition::print(std::ostream& myCout) const {
       }
 
       break;
-      default: { myCout << " Unknown type " << m_objectType[i]; } break;
+      default: {
+        myCout << " Unknown type " << m_objectType[i];
+      } break;
     }
   }
 

@@ -13,6 +13,7 @@ RootTree.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputType.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "Rtypes.h"
 #include "TBranch.h"
@@ -58,8 +59,9 @@ namespace edm {
       BranchDescription const branchDescription_;
       TBranch* productBranch_;
       TBranch* provenanceBranch_;  // For backward compatibility
-      mutable TClass* classCache_;
-      mutable Int_t offsetToWrapperBase_;
+      //All access to a ROOT file is serialized
+      CMS_SA_ALLOW mutable TClass* classCache_;
+      CMS_SA_ALLOW mutable Int_t offsetToWrapperBase_;
     };
 
     class BranchMap {
@@ -216,10 +218,11 @@ namespace edm {
     // So, we make sure to it is detached before closing the TFile so there is no double delete.
     std::shared_ptr<TTreeCache> treeCache_;
     std::shared_ptr<TTreeCache> rawTreeCache_;
-    mutable std::shared_ptr<TTreeCache> triggerTreeCache_;
-    mutable std::shared_ptr<TTreeCache> rawTriggerTreeCache_;
-    mutable std::unordered_set<TBranch*> trainedSet_;
-    mutable std::unordered_set<TBranch*> triggerSet_;
+    //All access to a ROOT file is serialized
+    CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> triggerTreeCache_;
+    CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> rawTriggerTreeCache_;
+    CMS_SA_ALLOW mutable std::unordered_set<TBranch*> trainedSet_;
+    CMS_SA_ALLOW mutable std::unordered_set<TBranch*> triggerSet_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::unique_ptr<std::vector<EntryNumber> > entryNumberForIndex_;
@@ -227,8 +230,8 @@ namespace edm {
     BranchMap branches_;
     bool trainNow_;
     EntryNumber switchOverEntry_;
-    mutable EntryNumber rawTriggerSwitchOverEntry_;
-    mutable bool performedSwitchOver_;
+    CMS_SA_ALLOW mutable EntryNumber rawTriggerSwitchOverEntry_;
+    CMS_SA_ALLOW mutable bool performedSwitchOver_;
     unsigned int learningEntries_;
     unsigned int cacheSize_;
     unsigned long treeAutoFlush_;

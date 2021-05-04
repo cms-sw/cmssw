@@ -3,6 +3,7 @@
 // TAU includes
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 // ELECTRON includes
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -31,8 +32,16 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
     auto const& pfTau = iConfig.getUntrackedParameter<edm::ParameterSet>("PFTaus");
     PFTaus_ = consumes<reco::PFTauCollection>(pfTau.getUntrackedParameter<InputTag>("PFTauProducer"));
     auto discs = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminators");
-    for (edm::InputTag& tag : discs) {
+    auto discConts = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminatorContainers");
+    PFTauDisContWPs_ = pfTau.getUntrackedParameter<vector<std::string>>("PFTauDiscriminatorContainerWPs");
+    if (discConts.size() != PFTauDisContWPs_.size())
+      throw cms::Exception("Configuration") << "HLTTauRefProducer: Input parameters PFTauDiscriminatorContainers and "
+                                               "PFTauDiscriminatorContainerWPs must have the same number of entries!\n";
+    for (auto const& tag : discs) {
       PFTauDis_.push_back(consumes<reco::PFTauDiscriminator>(tag));
+    }
+    for (auto const& tag : discConts) {
+      PFTauDisCont_.push_back(consumes<reco::TauDiscriminatorContainer>(tag));
     }
     doPFTaus_ = pfTau.getUntrackedParameter<bool>("doPFTaus", false);
     ptMinPFTau_ = pfTau.getUntrackedParameter<double>("ptMin", 15.);
@@ -109,9 +118,9 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
   produces<LorentzVectorCollection>("MET");
 }
 
-void HLTTauRefProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
+void HLTTauRefProducer::produce(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const&) const {
   if (doPFTaus_)
-    doPFTaus(iEvent);
+    doPFTaus(iID, iEvent);
   if (doElectrons_)
     doElectrons(iEvent);
   if (doMuons_)
@@ -126,18 +135,58 @@ void HLTTauRefProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSet
     doMET(iEvent);
 }
 
-void HLTTauRefProducer::doPFTaus(edm::Event& iEvent) const {
+void HLTTauRefProducer::doPFTaus(edm::StreamID iID, edm::Event& iEvent) const {
   auto product_PFTaus = make_unique<LorentzVectorCollection>();
 
   edm::Handle<PFTauCollection> pftaus;
   if (iEvent.getByToken(PFTaus_, pftaus)) {
+    // Retrieve ID container indices if config history changes, in particular for the first event.
+    if (streamCache(iID)->first != iEvent.processHistoryID()) {
+      streamCache(iID)->first = iEvent.processHistoryID();
+      streamCache(iID)->second.resize(PFTauDisContWPs_.size());
+      for (size_t i = 0; i < PFTauDisCont_.size(); ++i) {
+        auto const aHandle = iEvent.getHandle(PFTauDisCont_[i]);
+        auto const aProv = aHandle.provenance();
+        if (aProv == nullptr)
+          aHandle.whyFailed()->raise();
+        const auto& psetsFromProvenance = edm::parameterSet(aProv->stable(), iEvent.processHistory());
+        if (psetsFromProvenance.exists("workingPoints")) {
+          auto const idlist = psetsFromProvenance.getParameter<std::vector<std::string>>("workingPoints");
+          bool found = false;
+          for (size_t j = 0; j < idlist.size(); ++j) {
+            if (PFTauDisContWPs_[i] == idlist[j]) {
+              found = true;
+              streamCache(iID)->second[i] = j;
+            }
+          }
+          if (!found)
+            throw cms::Exception("Configuration")
+                << "HLTTauRefProducer: Requested working point '" << PFTauDisContWPs_[i] << "' not found!\n";
+        } else if (psetsFromProvenance.exists("IDWPdefinitions")) {
+          auto const idlist = psetsFromProvenance.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
+          bool found = false;
+          for (size_t j = 0; j < idlist.size(); ++j) {
+            if (PFTauDisContWPs_[i] == idlist[j].getParameter<std::string>("IDname")) {
+              found = true;
+              streamCache(iID)->second[i] = j;
+            }
+          }
+          if (!found)
+            throw cms::Exception("Configuration")
+                << "HLTTauRefProducer: Requested working point '" << PFTauDisContWPs_[i] << "' not found!\n";
+        } else
+          throw cms::Exception("Configuration")
+              << "HLTTauRefProducer: No suitable ID list found in provenace config!\n";
+      }
+    }
     for (unsigned int i = 0; i < pftaus->size(); ++i) {
       auto const& pftau = (*pftaus)[i];
       if (pftau.pt() > ptMinPFTau_ && pftau.eta() > etaMinPFTau_ && pftau.eta() < etaMaxPFTau_ &&
           pftau.phi() > phiMinPFTau_ && pftau.phi() < phiMaxPFTau_) {
         reco::PFTauRef thePFTau{pftaus, i};
         bool passAll{true};
-        for (edm::EDGetTokenT<reco::PFTauDiscriminator> const& token : PFTauDis_) {
+
+        for (auto const& token : PFTauDis_) {
           edm::Handle<reco::PFTauDiscriminator> pftaudis;
           if (iEvent.getByToken(token, pftaudis)) {
             if ((*pftaudis)[thePFTau] < 0.5) {
@@ -148,6 +197,23 @@ void HLTTauRefProducer::doPFTaus(edm::Event& iEvent) const {
             passAll = false;
             break;
           }
+        }
+
+        int idx = 0;
+        for (auto const& token : PFTauDisCont_) {
+          edm::Handle<reco::TauDiscriminatorContainer> pftaudis;
+          if (iEvent.getByToken(token, pftaudis)) {
+            //WP vector not filled if prediscriminator in RecoTauDiscriminator failed.
+            if ((*pftaudis)[thePFTau].workingPoints.empty() ||
+                !(*pftaudis)[thePFTau].workingPoints.at(streamCache(iID)->second[idx])) {
+              passAll = false;
+              break;
+            }
+          } else {
+            passAll = false;
+            break;
+          }
+          idx++;
         }
         if (passAll) {
           product_PFTaus->emplace_back(pftau.px(), pftau.py(), pftau.pz(), pftau.energy());

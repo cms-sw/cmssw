@@ -88,8 +88,8 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps) {
 
   // switch on the mode for running on slice test (different top folder and other customizations)
   sliceTestMode = ps.getUntrackedParameter<bool>("sliceTestMode", false);
-  // time pedestal to be subtracted if sliceTestMode is true
-  tdcPedestal = ps.getUntrackedParameter<int>("tdcPedestal", 105100);
+  // time pedestal used to set the minimum in the time box plot
+  tdcPedestal = ps.getUntrackedParameter<int>("tdcPedestal", 0);
 
   // switch on production of time-boxes with layer granularity
   doLayerTimeBoxes = ps.getUntrackedParameter<bool>("doLayerTimeBoxes", false);
@@ -132,6 +132,9 @@ void DTDigiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run,
     nEventMonitor = ibooker.bookFloat(tpMode ? "nProcessedEventsDigiTP" : "nProcessedEventsDigi");
     ibooker.setCurrentFolder(topFolder());
     for (int wh = -2; wh <= 2; ++wh) {  // loop over wheels
+      if (sliceTestMode && wh != 2)
+        continue;
+
       if (doAllHitsOccupancies)
         bookHistos(ibooker, wh, string("Occupancies"), "OccupancyAllHits");
 
@@ -149,6 +152,10 @@ void DTDigiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run,
         for (int sect = 1; sect <= 14; ++sect) {  // loop over sectors
           if ((sect == 13 || sect == 14) && st != 4)
             continue;
+
+          if (sliceTestMode && (sect != 12 || wh != 2))
+            continue;
+
           // Get the chamber ID
           const DTChamberId dtChId(wh, st, sect);
 
@@ -205,6 +212,9 @@ void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
     for (int wh = -2; wh <= 2; wh++) {
       for (int sect = 1; sect <= 14; sect++) {
         for (int st = 1; st <= 4; st++) {
+          if (sliceTestMode && (sect != 12 || wh != 2)) {
+            continue;
+          }
           if ((sect == 13 || sect == 14) && st != 4) {
             continue;
           }
@@ -260,15 +270,18 @@ void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& dt
     string histoTitle = histoName + " (TDC Counts)";
 
     if (!readTTrigDB) {
-      (digiHistos[histoTag])[dtSL.rawId()] =
-          ibooker.book1D(histoName, histoTitle, maxTTMounts / timeBoxGranularity, 0, maxTTMounts);
+      (digiHistos[histoTag])[dtSL.rawId()] = ibooker.book1D(
+          histoName, histoTitle, maxTTMounts / timeBoxGranularity, tdcPedestal, maxTTMounts + tdcPedestal);
       if (doLayerTimeBoxes) {  // Book TimeBoxes per layer
         for (int layer = 1; layer != 5; ++layer) {
           DTLayerId layerId(dtSL, layer);
           stringstream layerHistoName;
           layerHistoName << histoName << "_L" << layer;
-          (digiHistos[histoTag])[layerId.rawId()] = ibooker.book1D(
-              layerHistoName.str(), layerHistoName.str(), maxTTMounts / timeBoxGranularity, 0, maxTTMounts);
+          (digiHistos[histoTag])[layerId.rawId()] = ibooker.book1D(layerHistoName.str(),
+                                                                   layerHistoName.str(),
+                                                                   maxTTMounts / timeBoxGranularity,
+                                                                   tdcPedestal,
+                                                                   maxTTMounts + tdcPedestal);
         }
       }
     } else {
@@ -603,8 +616,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
       }
 
       if (sliceTestMode) {
-        tdcTime -= tdcPedestal;
-        tdcTime = std::max(1, std::min(maxTTMounts - 1, tdcTime));
+        tdcTime = std::max(tdcPedestal + 1, std::min(tdcPedestal + maxTTMounts - 1, tdcTime));
         // std::cout << tdcTime << std::endl;
       }
 

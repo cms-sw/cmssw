@@ -90,6 +90,7 @@ void Photon::setCorrectedEnergy(P4type type, float newEnergy, float delta_e, boo
     case regression1:
       eCorrections_.regression1Energy = newEnergy;
       eCorrections_.regression1EnergyError = delta_e;
+      [[fallthrough]];
     case regression2:
       eCorrections_.regression2Energy = newEnergy;
       eCorrections_.regression2EnergyError = delta_e;
@@ -150,6 +151,7 @@ void Photon::setP4(P4type type, const LorentzVector& p4, float error, bool setTo
     case regression1:
       eCorrections_.regression1P4 = p4;
       eCorrections_.regression1EnergyError = error;
+      [[fallthrough]];
     case regression2:
       eCorrections_.regression2P4 = p4;
       eCorrections_.regression2EnergyError = error;

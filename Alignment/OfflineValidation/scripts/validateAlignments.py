@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #test execute: export CMSSW_BASE=/tmp/CMSSW && ./validateAlignments.py -c defaultCRAFTValidation.ini,test.ini -n -N test
 from __future__ import print_function
+from future.utils import lmap
 import subprocess
 import os
 import sys
@@ -41,6 +42,8 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation \
     import ZMuMuValidation
 from Alignment.OfflineValidation.TkAlAllInOneTool.primaryVertexValidation \
     import PrimaryVertexValidation
+from Alignment.OfflineValidation.TkAlAllInOneTool.primaryVertexResolution \
+    import PrimaryVertexResolution
 from Alignment.OfflineValidation.TkAlAllInOneTool.preexistingValidation \
     import *
 from Alignment.OfflineValidation.TkAlAllInOneTool.plottingOptions \
@@ -189,6 +192,9 @@ class ValidationJob(ValidationBase):
         elif valType == "primaryvertex":
             validation = PrimaryVertexValidation( name,
                 Alignment( alignments.strip(), config ), config )
+        elif valType == "pvresolution":
+            validation = PrimaryVertexResolution( name,
+                Alignment( alignments.strip(), config ), config )
         elif valType == "preexistingprimaryvertex":
             validation = PreexistingPrimaryVertexValidation(name, self.__config)
         elif valType == "overlap":
@@ -214,6 +220,7 @@ class ValidationJob(ValidationBase):
                           os.path.abspath( self.commandLineOptions.Name) )
 
     def runJob( self ):
+
         general = self.config.getGeneral()
         log = ""
 
@@ -405,7 +412,7 @@ class ValidationJobMultiIOV(ValidationBase):
         return validations
 
     def createJob( self ):
-        map( lambda validation: validation.createJob(), self.validations )
+        lmap( lambda validation: validation.createJob(), self.validations )
 
     def runJob( self ):
         return [validation.runJob() for validation in self.validations]
@@ -529,11 +536,11 @@ def createMergeScript( path, validations, options ):
     #pprint.pprint(comparisonLists)
     anythingToMerge = []
 
-    for (validationtype, validationName, referenceName), validations in comparisonLists.iteritems():
+    for (validationtype, validationName, referenceName), validations in six.iteritems(comparisonLists):
         #pprint.pprint("validations")
         #pprint.pprint(validations)
         globalDictionaries.plottingOptions = {}
-        map( lambda validation: validation.getRepMap(), validations )
+        lmap( lambda validation: validation.getRepMap(), validations )
         #plotInfo = "plots:offline"
         #allPlotInfo = dict(validations[0].config.items(plotInfo))
         #repMap[(validationtype, validationName, referenceName)].update(allPlotInfo)
@@ -550,11 +557,9 @@ def createMergeScript( path, validations, options ):
                     repMap[(validationtype, validationName, referenceName)]["beforeMerge"] += validationtype.doInitMerge()
                 repMap[(validationtype, validationName, referenceName)]["doMerge"] += validation.doMerge()
                 for f in validation.getRepMap()["outputFiles"]:
-		            longName = os.path.join("/eos/cms/store/group/alca_trackeralign/AlignmentValidation/",
-		                                    validation.getRepMap()["eosdir"], f)
-		            repMap[(validationtype, validationName, referenceName)]["rmUnmerged"] += "    rm "+longName+"\n"
-
-
+                    longName = os.path.join("/eos/cms/store/group/alca_trackeralign/AlignmentValidation/",
+                                            validation.getRepMap()["eosdir"], f)
+                    repMap[(validationtype, validationName, referenceName)]["rmUnmerged"] += "    rm "+longName+"\n"
 
         repMap[(validationtype, validationName, referenceName)]["rmUnmerged"] += ("else\n"
                                                                   "    echo -e \\n\"WARNING: Merging failed, unmerged"
@@ -641,6 +646,12 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
 
     (options, args) = optParser.parse_args(argv)
 
+    if not options.dryRun:
+        schedinfo = subprocess.check_output(["myschedd","show"])
+        if not 'tzero' in schedinfo:
+            print("\nAll-In-One Tool: you need to call `module load lxbatch/tzero` before trying to submit jobs. Please do so and try again")
+            exit(1)
+
 
     if not options.restrictTo == None:
         options.restrictTo = options.restrictTo.split(",")
@@ -716,13 +727,14 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
     validations = []
     jobs = []
     for validation in config.items("validation"):
+        validation = validation[0].split("-")
         alignmentList = [validation[1]]
         validationsToAdd = [(validation[0],alignment) \
                                 for alignment in alignmentList]
         validations.extend(validationsToAdd)
 
-
     for validation in validations:
+
         job = ValidationJobMultiIOV(validation, config, options, outPath, len(validations))
         if (job.optionMultiIOV == True):
             jobs.extend(job)
@@ -733,17 +745,19 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
         if job.needsproxy and not proxyexists:
             raise AllInOneError("At least one job needs a grid proxy, please init one.")
 
-    map( lambda job: job.createJob(), jobs )
+    lmap( lambda job: job.createJob(), jobs )
 
     validations = [ job.getValidation() for job in jobs ]
     validations = flatten(validations)
 
     createMergeScript(outPath, validations, options)
 
+    lmap( lambda job: job.runJob(), jobs )
 
-    map( lambda job: job.runJob(), jobs )
-
-    ValidationJobMultiIOV.runCondorJobs(outPath)
+    if options.dryRun:
+        pass
+    else:
+        ValidationJobMultiIOV.runCondorJobs(outPath)
 
 
 if __name__ == "__main__":

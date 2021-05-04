@@ -114,8 +114,8 @@ public:
     ProcessType(ProcessType const &other) = default;
     ProcessType(ProcessType &&other) = default;
 
-    ProcessType &operator=(ProcessType const &other) = default;
-    ProcessType &operator=(ProcessType &&other) = default;
+    ProcessType &operator=(ProcessType const &other) = delete;
+    ProcessType &operator=(ProcessType &&other) = delete;
   };
 
 public:

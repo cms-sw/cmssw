@@ -66,10 +66,11 @@ private:
   std::vector<FTLCluster> theClusters;          // resulting clusters
 
   //! Clustering-related quantities:
-  float theHitThreshold;      // Hit threshold
-  float theSeedThreshold;     // MTD cluster seed
-  float theClusterThreshold;  // Cluster threshold
-  float theTimeThreshold;     // Time compatibility between new hit and seed
+  const float theHitThreshold;       // Hit threshold
+  const float theSeedThreshold;      // MTD cluster seed
+  const float theClusterThreshold;   // Cluster threshold
+  const float theTimeThreshold;      // Time compatibility between new hit and seed
+  const float thePositionThreshold;  // Position threshold between new hit and seed
 
   //! Geometry-related information
   int theNumOfRows;
@@ -82,7 +83,7 @@ private:
   bool bufferAlreadySet;     // status of the buffer array
 
   bool setup(const MTDGeometry* geometry, const MTDTopology* topo, const DetId& id);
-  void copy_to_buffer(RecHitIterator itr);
+  void copy_to_buffer(RecHitIterator itr, const MTDGeometry* geom, const MTDTopology* topo);
   void clear_buffer(RecHitIterator itr);
   FTLCluster make_cluster(const FTLCluster::FTLHitPos& hit);
 };

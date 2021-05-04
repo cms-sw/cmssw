@@ -82,11 +82,13 @@ private:
 
 DTGeometryValidate::DTGeometryValidate(const edm::ParameterSet& iConfig)
     : dtGeometryToken_{esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
-      infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
+      infileName_(
+          iConfig.getUntrackedParameter<string>("infileName", "Geometry/DTGeometryBuilder/data/cmsRecoGeom-2021.root")),
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateDTGeometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
-  fwGeometry_.loadMap(infileName_.c_str());
-  outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
+  edm::FileInPath fp(infileName_.c_str());
+  fwGeometry_.loadMap(fp.fullPath().c_str());
+  outFile_ = TFile::Open(outfileName_.c_str(), "RECREATE");
 }
 
 void DTGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
@@ -95,7 +97,6 @@ void DTGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup&
   if (dtGeometry_.isValid()) {
     LogVerbatim("DTGeometry") << "Validating DT chamber geometry";
     validateDTChamberGeometry();
-
     LogVerbatim("DTGeometry") << "Validating DT layer geometry";
     validateDTLayerGeometry();
   } else

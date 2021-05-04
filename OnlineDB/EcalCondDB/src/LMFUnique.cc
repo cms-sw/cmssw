@@ -58,11 +58,11 @@ void LMFUnique::attach(std::string name, LMFUnique* u) {
   }
 }
 
-boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const noexcept(false) {
+std::list<std::unique_ptr<LMFUnique>> LMFUnique::fetchAll() const noexcept(false) {
   /*
     Returns a list of pointers to DB objects
    */
-  boost::ptr_list<LMFUnique> l;
+  std::list<std::unique_ptr<LMFUnique>> l;
   this->checkConnection();
 
   try {
@@ -84,8 +84,8 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const noexcept(false) {
             o->dump();
           }
           try {
-            l.push_back(o);
-          } catch (boost::bad_pointer& e) {
+            l.emplace_back(o);
+          } catch (std::exception& e) {
             throw(std::runtime_error(m_className + "::fetchAll:  " + e.what()));
           }
         }

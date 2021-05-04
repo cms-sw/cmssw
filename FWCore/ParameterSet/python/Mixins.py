@@ -9,10 +9,12 @@ class _ConfigureComponent(object):
         return False
 
 class PrintOptions(object):
-    def __init__(self):
-        self.indent_= 0
-        self.deltaIndent_ = 4
-        self.isCfg = True
+    def __init__(self, indent = 0, deltaIndent = 4, process = True, targetDirectory = None, useSubdirectories = False):
+        self.indent_= indent
+        self.deltaIndent_ = deltaIndent
+        self.isCfg = process
+        self.targetDirectory = targetDirectory
+        self.useSubdirectories = useSubdirectories
     def indentation(self):
         return ' '*self.indent_
     def indent(self):
@@ -82,7 +84,9 @@ class _ParameterTypeBase(object):
         return self._isFrozen 
     def setIsFrozen(self):
         self._isFrozen = True
-
+    def isCompatibleCMSType(self,aType):
+        return isinstance(self,aType)
+ 
 class _SimpleParameterTypeBase(_ParameterTypeBase):
     """base class for parameter classes which only hold a single value"""
     def __init__(self,value):
@@ -167,7 +171,8 @@ class _Parameterizable(object):
         if len(arg) != 0:
             #raise ValueError("unnamed arguments are not allowed. Please use the syntax 'name = value' when assigning arguments.")
             for block in arg:
-                if type(block).__name__ != "PSet":
+                # Allow __PSet for testing
+                if type(block).__name__ not in ["PSet", "__PSet"]:
                     raise ValueError("Only PSets can be passed as unnamed argument blocks.  This is a "+type(block).__name__)
                 self.__setParameters(block.parameters_())
         self.__setParameters(kargs)
@@ -360,6 +365,10 @@ class _Parameterizable(object):
         # usings need to go first
         resultList = usings
         resultList.extend(others)
+        if self.__validator is not None:
+            options.indent()
+            resultList.append(options.indentation()+"allowAnyLabel_="+self.__validator.dumpPython(options))
+            options.unindent()
         return ',\n'.join(resultList)+'\n'
     def __repr__(self):
         return self.dumpPython()
@@ -378,7 +387,6 @@ class _TypedParameterizable(_Parameterizable):
         #    arg = arg[1:]
         #else:
         #    del args['type_']
-        arg = tuple([x for x in arg if x != None])
         super(_TypedParameterizable,self).__init__(*arg,**kargs)
         saveOrigin(self, 1) 
     def _place(self,name,proc):
@@ -389,11 +397,7 @@ class _TypedParameterizable(_Parameterizable):
     def copy(self):
         returnValue =_TypedParameterizable.__new__(type(self))
         params = self.parameters_()
-        args = list()
-        if len(params) == 0:
-            args.append(None)
-        returnValue.__init__(self.__type,*args,
-                             **params)
+        returnValue.__init__(self.__type,**params)
         returnValue._isModified = self._isModified
         return returnValue
     def clone(self, *args, **params):
@@ -410,10 +414,10 @@ class _TypedParameterizable(_Parameterizable):
         """
         returnValue =_TypedParameterizable.__new__(type(self))
         myparams = self.parameters_()
-        if len(myparams) == 0 and len(params) and len(args):
-            args.append(None)
         
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
+        if self._Parameterizable__validator is not None:
+            myparams["allowAnyLabel_"] = self._Parameterizable__validator
 
         returnValue.__init__(self.__type,*args,
                              **myparams)
@@ -452,6 +456,9 @@ class _TypedParameterizable(_Parameterizable):
                             params[name] = getattr(default,name)
                         return params
         return None
+
+    def directDependencies(self):
+        return []
     
     def dumpConfig(self, options=PrintOptions()):
         config = self.__type +' { \n'
@@ -534,7 +541,10 @@ class _Labelable(object):
     def dumpSequenceConfig(self):
         return str(self.__label)
     def dumpSequencePython(self, options=PrintOptions()):
-        return 'process.'+str(self.__label)
+        if options.isCfg:
+            return 'process.'+str(self.__label)
+        else:
+            return str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
         myDeps=knownDeps.get(self.label_(),None)
@@ -579,14 +589,21 @@ class _ValidatingListBase(list):
             if not self._itemIsValid(item):
                 return False
         return True
+    def _itemFromArgument(self, x):
+        return x
+    def _convertArguments(self, seq):
+        if isinstance(seq, str):
+            yield seq
+        for x in seq:
+            yield self._itemFromArgument(x)
     def append(self,x):
         if not self._itemIsValid(x):
             raise TypeError("wrong type being appended to container "+self._labelIfAny())
-        super(_ValidatingListBase,self).append(x)
+        super(_ValidatingListBase,self).append(self._itemFromArgument(x))
     def extend(self,x):
         if not self._isValid(x):
             raise TypeError("wrong type being extended to container "+self._labelIfAny())
-        super(_ValidatingListBase,self).extend(x)
+        super(_ValidatingListBase,self).extend(self._convertArguments(x))
     def __add__(self,rhs):
         if not self._isValid(rhs):
             raise TypeError("wrong type being added to container "+self._labelIfAny())
@@ -597,7 +614,7 @@ class _ValidatingListBase(list):
     def insert(self,i,x):
         if not self._itemIsValid(x):
             raise TypeError("wrong type being inserted to container "+self._labelIfAny())
-        super(_ValidatingListBase,self).insert(i,x)
+        super(_ValidatingListBase,self).insert(i,self._itemFromArgument(x))
     def _labelIfAny(self):
         result = type(self).__name__
         if hasattr(self, '__label'):
@@ -665,6 +682,8 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
             result +=' ) '
         result += ')'
         return result            
+    def directDependencies(self):
+        return []
     @staticmethod
     def _itemsFromStrings(strings,converter):
         return (converter(x).value() for x in strings)
@@ -770,6 +789,25 @@ if __name__ == "__main__":
         def testUsingBlock(self):
             a = UsingBlock("a")
             self.assert_(isinstance(a, _ParameterTypeBase))
+        def testConstruction(self):
+            class __Test(_TypedParameterizable):
+                pass
+            class __TestType(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            class __PSet(_ParameterTypeBase,_Parameterizable):
+                def __init__(self,*arg,**args):
+                    #need to call the inits separately
+                    _ParameterTypeBase.__init__(self)
+                    _Parameterizable.__init__(self,*arg,**args)
+
+            a = __Test("MyType", __PSet(a=__TestType(1)))
+            self.assertEqual(a.a.value(), 1)
+            b = __Test("MyType", __PSet(a=__TestType(1)), __PSet(b=__TestType(2)))
+            self.assertEqual(b.a.value(), 1)
+            self.assertEqual(b.b.value(), 2)
+            self.assertRaises(ValueError, lambda: __Test("MyType", __PSet(a=__TestType(1)), __PSet(a=__TestType(2))))
+
         def testCopy(self):
             class __Test(_TypedParameterizable):
                 pass
@@ -780,6 +818,11 @@ if __name__ == "__main__":
             b = a.copy()
             self.assertEqual(b.t.value(),1)
             self.assertEqual(b.u.value(),2)
+
+            c = __Test("MyType")
+            self.assertEqual(len(c.parameterNames_()), 0)
+            d = c.copy()
+            self.assertEqual(len(d.parameterNames_()), 0)
         def testClone(self):
             class __Test(_TypedParameterizable):
                 pass
@@ -791,6 +834,9 @@ if __name__ == "__main__":
                     #need to call the inits separately
                     _ParameterTypeBase.__init__(self)
                     _Parameterizable.__init__(self,*arg,**args)
+                def dumpPython(self,options=PrintOptions()):
+                    return "__PSet(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
+
             a = __Test("MyType",
                        t=__TestType(1),
                        u=__TestType(2),
@@ -817,7 +863,22 @@ if __name__ == "__main__":
             self.assertEqual(hasattr(b,"w"), False)
             self.assertEqual(hasattr(c.x,"a"), False)
             self.assertEqual(hasattr(c.x,"c"), False)
-            self.assertRaises(TypeError,a.clone,None,**{"v":1})
+            self.assertRaises(TypeError,a.clone,**{"v":1})
+            d = a.clone(__PSet(k=__TestType(42)))
+            self.assertEqual(d.t.value(), 1)
+            self.assertEqual(d.k.value(), 42)
+            # TODO: following case that currently raises an exception
+            # will be made to work in the near future
+            self.assertRaises(ValueError, a.clone, __PSet(t=__TestType(42)))
+
+            e = __Test("MyType")
+            self.assertEqual(len(e.parameterNames_()), 0)
+            f = e.clone(__PSet(a = __TestType(1)), b = __TestType(2))
+            self.assertEqual(f.a.value(), 1)
+            self.assertEqual(f.b.value(), 2)
+            g = e.clone()
+            self.assertEqual(len(g.parameterNames_()), 0)
+
         def testModified(self):
             class __TestType(_SimpleParameterTypeBase):
                 def _isValid(self,value):

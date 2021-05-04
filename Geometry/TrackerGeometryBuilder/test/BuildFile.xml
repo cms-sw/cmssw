@@ -3,29 +3,46 @@
 <use name="Geometry/CommonDetUnit"/>
 <use name="FWCore/Framework"/>
 <library file="TrackerDigiGeometryAnalyzer.cc" name="TrackerDigiGeometryAnalyzer">
-  <use name="CondFormats/Alignment"/>
   <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="TrackerParametersAnalyzer.cc" name="TrackerParametersAnalyzer">
-  <use name="CondFormats/Alignment"/>
   <use name="CondFormats/GeometryObjects"/>
   <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="TrackerParametersGeometryAnalyzer.cc" name="TrackerParametersGeometryAnalyzer">
+  <use name="CondFormats/GeometryObjects"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="TrackerMapTool.cc" name="TrackerMapTool">
-  <use name="CondFormats/Alignment"/>
   <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="ModuleInfo.cc" name="ModuleInfo">
-  <use name="CondFormats/Alignment"/>
   <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="GeoHierarchyTest.cc" name="GeoHierarchyTest">
   <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="PixelTopologyMapTest.cc" name="PixelTopologyMapTest">
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <bin file="phase1PixelTopology_t.cpp"/>
+
+<bin file="runTests.cpp" name="GeometryTrackerGeometryBuilderTestDriver">
+  <use name="FWCore/Utilities"/>
+  <flags TEST_RUNNER_ARGS="/bin/bash Geometry/TrackerGeometryBuilder/test runTest.sh"/>
+</bin>

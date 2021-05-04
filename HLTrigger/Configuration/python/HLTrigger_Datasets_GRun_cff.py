@@ -1,4 +1,4 @@
-# /dev/CMSSW_11_0_0/GRun
+# /dev/CMSSW_11_3_0/GRun
 
 import FWCore.ParameterSet.Config as cms
 
@@ -121,6 +121,12 @@ streamPhysicsCommissioning_datasetCommissioning_selector.triggerConditions = cms
     'HLT_IsoTrackHE_v4', 
     'HLT_L1_CDC_SingleMu_3_er1p2_TOP120_DPHI2p618_3p142_v2'
 )
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetCosmics_selector
+streamPhysicsCommissioning_datasetCosmics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsCommissioning_datasetCosmics_selector.l1tResults = cms.InputTag('')
+streamPhysicsCommissioning_datasetCosmics_selector.throw      = cms.bool(False)
+streamPhysicsCommissioning_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_L1SingleMuCosmics_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetHLTPhysics_selector
 streamPhysicsCommissioning_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -645,17 +651,12 @@ streamPhysicsHadronsTaus_datasetMET_selector.hltResults = cms.InputTag('TriggerR
 streamPhysicsHadronsTaus_datasetMET_selector.l1tResults = cms.InputTag('')
 streamPhysicsHadronsTaus_datasetMET_selector.throw      = cms.bool(False)
 streamPhysicsHadronsTaus_datasetMET_selector.triggerConditions = cms.vstring(
-    'HLT_CaloMET100_HBHECleaned_v4', 
     'HLT_CaloMET100_NotCleaned_v4', 
     'HLT_CaloMET110_NotCleaned_v4', 
-    'HLT_CaloMET250_HBHECleaned_v4', 
     'HLT_CaloMET250_NotCleaned_v4', 
-    'HLT_CaloMET300_HBHECleaned_v4', 
-    'HLT_CaloMET350_HBHECleaned_v4', 
-    'HLT_CaloMET70_HBHECleaned_v4', 
-    'HLT_CaloMET80_HBHECleaned_v4', 
+    'HLT_CaloMET300_NotCleaned_v4', 
+    'HLT_CaloMET350_NotCleaned_v4', 
     'HLT_CaloMET80_NotCleaned_v4', 
-    'HLT_CaloMET90_HBHECleaned_v4', 
     'HLT_CaloMET90_NotCleaned_v4', 
     'HLT_CaloMHT90_v4', 
     'HLT_DiJet110_35_Mjj650_PFMET110_v9', 
@@ -679,11 +680,10 @@ streamPhysicsHadronsTaus_datasetMET_selector.triggerConditions = cms.vstring(
     'HLT_PFMET130_PFMHT130_IDTight_v20', 
     'HLT_PFMET140_PFMHT140_IDTight_CaloBTagDeepCSV_3p1_v8', 
     'HLT_PFMET140_PFMHT140_IDTight_v20', 
-    'HLT_PFMET200_HBHECleaned_v9', 
-    'HLT_PFMET200_HBHE_BeamHaloCleaned_v9', 
+    'HLT_PFMET200_BeamHaloCleaned_v9', 
     'HLT_PFMET200_NotCleaned_v9', 
-    'HLT_PFMET250_HBHECleaned_v9', 
-    'HLT_PFMET300_HBHECleaned_v9', 
+    'HLT_PFMET250_NotCleaned_v9', 
+    'HLT_PFMET300_NotCleaned_v9', 
     'HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_v9', 
     'HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v20', 
     'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_v9', 
@@ -696,7 +696,7 @@ streamPhysicsHadronsTaus_datasetMET_selector.triggerConditions = cms.vstring(
     'HLT_PFMETTypeOne120_PFMHT120_IDTight_v12', 
     'HLT_PFMETTypeOne130_PFMHT130_IDTight_v12', 
     'HLT_PFMETTypeOne140_PFMHT140_IDTight_v11', 
-    'HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned_v9', 
+    'HLT_PFMETTypeOne200_BeamHaloCleaned_v9', 
     'HLT_TripleJet110_35_35_Mjj650_PFMET110_v9', 
     'HLT_TripleJet110_35_35_Mjj650_PFMET120_v9', 
     'HLT_TripleJet110_35_35_Mjj650_PFMET130_v9'
@@ -983,24 +983,7 @@ streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.hltResults = cms.In
 streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.l1tResults = cms.InputTag('')
 streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.throw      = cms.bool(False)
 streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.triggerConditions = cms.vstring(
-    'DST_CaloJet40_BTagScouting_v15', 
-    'DST_CaloJet40_CaloBTagScouting_v14', 
-    'DST_CaloJet40_CaloScouting_PFScouting_v15', 
-    'DST_DoubleMu1_noVtx_CaloScouting_v2', 
-    'DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v6', 
-    'DST_DoubleMu3_noVtx_CaloScouting_v6', 
-    'DST_DoubleMu3_noVtx_Mass10_PFScouting_v3', 
-    'DST_HT250_CaloBTagScouting_v10', 
-    'DST_HT250_CaloScouting_v10', 
-    'DST_HT410_BTagScouting_v16', 
-    'DST_HT410_PFScouting_v16', 
-    'DST_L1DoubleMu_BTagScouting_v16', 
-    'DST_L1DoubleMu_CaloScouting_PFScouting_v15', 
-    'DST_L1HTT_BTagScouting_v15', 
-    'DST_L1HTT_CaloBTagScouting_v14', 
-    'DST_L1HTT_CaloScouting_PFScouting_v15', 
-    'DST_ZeroBias_BTagScouting_v15', 
-    'DST_ZeroBias_CaloScouting_PFScouting_v14', 
+    'DST_Run3_PFScoutingPixelTracking_v16', 
     'HLT_Ele115_CaloIdVT_GsfTrkIdT_v14', 
     'HLT_Ele35_WPTight_Gsf_v9', 
     'HLT_IsoMu27_v16', 

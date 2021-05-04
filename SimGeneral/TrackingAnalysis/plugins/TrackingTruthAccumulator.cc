@@ -32,10 +32,11 @@
  */
 #include "SimGeneral/TrackingAnalysis/plugins/TrackingTruthAccumulator.h"
 
+#include <memory>
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -49,10 +50,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // Turn on integrity checking
 //#define DO_DEBUG_TESTING
@@ -257,7 +255,7 @@ namespace {
 //---------------------------------------------------------------------------------
 
 TrackingTruthAccumulator::TrackingTruthAccumulator(const edm::ParameterSet &config,
-                                                   edm::ProducerBase &mixMod,
+                                                   edm::ProducesCollector producesCollector,
                                                    edm::ConsumesCollector &iC)
     : messageCategory_("TrackingTruthAccumulator"),
       volumeRadius_(config.getParameter<double>("volumeRadius")),
@@ -276,6 +274,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator(const edm::ParameterSet &conf
       collectionTags_(),
       genParticleLabel_(config.getParameter<edm::InputTag>("genParticleCollection")),
       hepMCproductLabel_(config.getParameter<edm::InputTag>("HepMCProductLabel")),
+      tTopoToken_(iC.esConsumes()),
       allowDifferentProcessTypeForDifferentDetectors_(config.getParameter<bool>("allowDifferentSimHitProcesses")) {
   //
   // Make sure at least one of the merged and unmerged collections have been set
@@ -321,17 +320,17 @@ TrackingTruthAccumulator::TrackingTruthAccumulator(const edm::ParameterSet &conf
   // configured to be created.
   //
   if (createUnmergedCollection_) {
-    mixMod.produces<TrackingVertexCollection>();
-    mixMod.produces<TrackingParticleCollection>();
+    producesCollector.produces<TrackingVertexCollection>();
+    producesCollector.produces<TrackingParticleCollection>();
   }
 
   if (createMergedCollection_) {
-    mixMod.produces<TrackingParticleCollection>("MergedTrackTruth");
-    mixMod.produces<TrackingVertexCollection>("MergedTrackTruth");
+    producesCollector.produces<TrackingParticleCollection>("MergedTrackTruth");
+    producesCollector.produces<TrackingVertexCollection>("MergedTrackTruth");
   }
 
   if (createInitialVertexCollection_) {
-    mixMod.produces<TrackingVertexCollection>("InitialVertices");
+    producesCollector.produces<TrackingVertexCollection>("InitialVertices");
   }
 
   iC.consumes<std::vector<SimTrack>>(simTrackLabel_);
@@ -356,16 +355,16 @@ TrackingTruthAccumulator::TrackingTruthAccumulator(const edm::ParameterSet &conf
 
 void TrackingTruthAccumulator::initializeEvent(edm::Event const &event, edm::EventSetup const &setup) {
   if (createUnmergedCollection_) {
-    unmergedOutput_.pTrackingParticles.reset(new TrackingParticleCollection);
-    unmergedOutput_.pTrackingVertices.reset(new TrackingVertexCollection);
+    unmergedOutput_.pTrackingParticles = std::make_unique<TrackingParticleCollection>();
+    unmergedOutput_.pTrackingVertices = std::make_unique<TrackingVertexCollection>();
     unmergedOutput_.refTrackingParticles =
         const_cast<edm::Event &>(event).getRefBeforePut<TrackingParticleCollection>();
     unmergedOutput_.refTrackingVertexes = const_cast<edm::Event &>(event).getRefBeforePut<TrackingVertexCollection>();
   }
 
   if (createMergedCollection_) {
-    mergedOutput_.pTrackingParticles.reset(new TrackingParticleCollection);
-    mergedOutput_.pTrackingVertices.reset(new TrackingVertexCollection);
+    mergedOutput_.pTrackingParticles = std::make_unique<TrackingParticleCollection>();
+    mergedOutput_.pTrackingVertices = std::make_unique<TrackingVertexCollection>();
     mergedOutput_.refTrackingParticles =
         const_cast<edm::Event &>(event).getRefBeforePut<TrackingParticleCollection>("MergedTrackTruth");
     mergedOutput_.refTrackingVertexes =
@@ -373,7 +372,7 @@ void TrackingTruthAccumulator::initializeEvent(edm::Event const &event, edm::Eve
   }
 
   if (createInitialVertexCollection_) {
-    pInitialVertices_.reset(new TrackingVertexCollection);
+    pInitialVertices_ = std::make_unique<TrackingVertexCollection>();
   }
 }
 
@@ -467,9 +466,7 @@ void TrackingTruthAccumulator::accumulateEvent(const T &event,
   }
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &setup.getData(tTopoToken_);
 
   // Run through the collections and work out the decay chain of each
   // track/vertex. The information in SimTrack and SimVertex only allows
@@ -482,9 +479,9 @@ void TrackingTruthAccumulator::accumulateEvent(const T &event,
   std::unique_ptr<::OutputCollectionWrapper> pUnmergedCollectionWrapper;
   std::unique_ptr<::OutputCollectionWrapper> pMergedCollectionWrapper;
   if (createUnmergedCollection_)
-    pUnmergedCollectionWrapper.reset(new ::OutputCollectionWrapper(decayChain, unmergedOutput_));
+    pUnmergedCollectionWrapper = std::make_unique<::OutputCollectionWrapper>(decayChain, unmergedOutput_);
   if (createMergedCollection_)
-    pMergedCollectionWrapper.reset(new ::OutputCollectionWrapper(decayChain, mergedOutput_));
+    pMergedCollectionWrapper = std::make_unique<::OutputCollectionWrapper>(decayChain, mergedOutput_);
 
   std::vector<const PSimHit *> simHitPointers;
   fillSimHits(simHitPointers, event, setup);

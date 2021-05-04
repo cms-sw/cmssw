@@ -36,6 +36,7 @@ Implementation:
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -49,8 +50,8 @@ Implementation:
 #include "EventFilter/CTPPSRawToDigi/interface/CTPPSPixelDataFormatter.h"
 
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelFramePosition.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelFramePosition.h"
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -78,6 +79,7 @@ private:
   std::string mappingLabel_;
   edm::ESWatcher<CTPPSPixelDAQMappingRcd> recordWatcher_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDigi>> tCTPPSPixelDigi_;
+  edm::ESGetToken<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd> tCTPPSPixelDAQMapping_;
   std::vector<CTPPSPixelDataFormatter::PPSPixelIndex> v_iDdet2fed_;
   CTPPSPixelFramePosition fPos_;
 };
@@ -100,6 +102,7 @@ CTPPSPixelDigiToRaw::CTPPSPixelDigiToRaw(const edm::ParameterSet& iConfig)
       mappingLabel_(iConfig.getParameter<std::string>("mappingLabel")) {
   //register your products
   tCTPPSPixelDigi_ = consumes<edm::DetSetVector<CTPPSPixelDigi>>(iConfig.getParameter<edm::InputTag>("InputLabel"));
+  tCTPPSPixelDAQMapping_ = esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>();
 
   // Define EDProduct type
   produces<FEDRawDataCollection>();
@@ -132,7 +135,7 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   allDigiCounter_ += digiCounter;
   edm::ESHandle<CTPPSPixelDAQMapping> mapping;
   if (recordWatcher_.check(iSetup)) {
-    iSetup.get<CTPPSPixelDAQMappingRcd>().get(mapping);
+    mapping = iSetup.getHandle(tCTPPSPixelDAQMapping_);
     for (const auto& p : mapping->ROCMapping)
       v_iDdet2fed_.emplace_back(CTPPSPixelDataFormatter::PPSPixelIndex{
           p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx()});

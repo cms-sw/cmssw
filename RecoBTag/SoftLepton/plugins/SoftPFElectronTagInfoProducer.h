@@ -9,13 +9,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include <DataFormats/ParticleFlowCandidate/interface/PFCandidate.h>
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 // Vertex
 #include "DataFormats/VertexReco/interface/Vertex.h"

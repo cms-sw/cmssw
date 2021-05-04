@@ -143,21 +143,21 @@ StatisticsSenderService::StatisticsSenderService(edm::ParameterSet const & /*pse
 }
 
 const char *StatisticsSenderService::getJobID() {
-  const char *id = getenv(JOB_UNIQUE_ID_ENV);
+  const char *id = std::getenv(JOB_UNIQUE_ID_ENV);
   // Dashboard developers requested that we migrate to this environment variable.
-  return id ? id : getenv(JOB_UNIQUE_ID_ENV_V2);
+  return id ? id : std::getenv(JOB_UNIQUE_ID_ENV_V2);
 }
 
 void StatisticsSenderService::setCurrentServer(const std::string &servername) {
-  size_t dot_pos = servername.find(".");
+  size_t dot_pos = servername.find('.');
   std::string serverhost;
   std::string serverdomain;
   if (dot_pos == std::string::npos) {
-    serverhost = servername.substr(0, servername.find(":"));
+    serverhost = servername.substr(0, servername.find(':'));
     serverdomain = "unknown";
   } else {
     serverhost = servername.substr(0, dot_pos);
-    serverdomain = servername.substr(dot_pos + 1, servername.find(":") - dot_pos - 1);
+    serverdomain = servername.substr(dot_pos + 1, servername.find(':') - dot_pos - 1);
     if (serverdomain.empty()) {
       serverdomain = "unknown";
     }
@@ -216,7 +216,7 @@ void StatisticsSenderService::determineHostnames(void) {
   } else {
     m_clienthost = tmpName;
   }
-  size_t dot_pos = m_clienthost.find(".");
+  size_t dot_pos = m_clienthost.find('.');
   if (dot_pos == std::string::npos) {
     m_clientdomain = "unknown";
   } else {
@@ -373,7 +373,7 @@ static bool getX509SubjectFromFile(const std::string &filename, std::string &res
 }
 
 bool StatisticsSenderService::getX509Subject(std::string &result) {
-  char *filename = getenv("X509_USER_PROXY");
+  char *filename = std::getenv("X509_USER_PROXY");
   if (filename && getX509SubjectFromFile(filename, result)) {
     return true;
   }

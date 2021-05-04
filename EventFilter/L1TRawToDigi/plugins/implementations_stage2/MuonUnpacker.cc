@@ -54,13 +54,15 @@ namespace l1t {
     }
 
     void MuonUnpacker::unpackBx(int bx, const std::vector<uint32_t>& payload, unsigned int startIdx) {
-      unsigned int i = startIdx;
+      unsigned int i = startIdx + 2;  // Only words 2-5 are "standard" muon words.
       // Check if there are enough words left in the payload
-      if (i + nWords_ <= payload.size()) {
-        for (unsigned nWord = 0; nWord < nWords_; nWord += 2) {
+      if (startIdx + nWords_ <= payload.size()) {
+        for (unsigned nWord = 2; nWord < nWords_; nWord += 2) {  // Only words 2-5 are "standard" muon words.
+          uint32_t raw_data_spare = payload[startIdx + 1];
           uint32_t raw_data_00_31 = payload[i++];
           uint32_t raw_data_32_63 = payload[i++];
-          LogDebug("L1T") << "raw_data_00_31 = 0x" << hex << raw_data_00_31 << " raw_data_32_63 = 0x" << raw_data_32_63;
+          LogDebug("L1T") << "raw_data_spare = 0x" << hex << raw_data_spare << " raw_data_00_31 = 0x" << raw_data_00_31
+                          << " raw_data_32_63 = 0x" << raw_data_32_63;
           // skip empty muons (hwPt == 0)
           if (((raw_data_00_31 >> l1t::MuonRawDigiTranslator::ptShift_) & l1t::MuonRawDigiTranslator::ptMask_) == 0) {
             LogDebug("L1T") << "Muon hwPt zero. Skip.";
@@ -69,7 +71,8 @@ namespace l1t {
 
           Muon mu;
 
-          MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, fed_, getAlgoVersion());
+          MuonRawDigiTranslator::fillMuon(
+              mu, raw_data_spare, raw_data_00_31, raw_data_32_63, fed_, getAlgoVersion(), nWord / 2);
 
           LogDebug("L1T") << "Mu" << nWord / 2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt()
                           << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge()

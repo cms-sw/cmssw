@@ -6,10 +6,15 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class ESIntegrityTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+struct ESLSCache {
+  int ievtLS_;
+  int DIErrorsLS_[2][2][40][40];
+};
+
+class ESIntegrityTask : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<ESLSCache>> {
 public:
   ESIntegrityTask(const edm::ParameterSet& ps);
   ~ESIntegrityTask() override {}
@@ -24,16 +29,17 @@ protected:
   void endJob(void) override;
 
   /// EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   /// Begin Lumi
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
+  std::shared_ptr<ESLSCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                        const edm::EventSetup& c) const override;
 
   /// End Lumi
-  void endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
+  void globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
 
   /// Calculate Data Integrity Fraction
-  void calculateDIFraction(void);
+  void calculateDIFraction(const edm::LuminosityBlock& lumi, const edm::EventSetup& c);
 
 private:
   int ievt_;
