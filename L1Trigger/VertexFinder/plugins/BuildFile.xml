@@ -22,7 +22,6 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondFormats/DataRecord"/>
 <use name="L1Trigger/VertexFinder"/>
-<flags CXXFLAGS="-g -Wno-unused-variable"/>
 <library file="*.cc" name="L1TriggerVertexFinderPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
