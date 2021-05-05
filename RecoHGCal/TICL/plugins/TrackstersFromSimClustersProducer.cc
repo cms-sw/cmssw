@@ -156,7 +156,7 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
           tmpTrackster.vertices().push_back(lc.index());
           double fraction = energyScorePair.first / lc->energy();
           (*output_mask)[lc.index()] -= fraction;
-          tmpTrackster.vertex_multiplicity().push_back(static_cast<uint8_t>(std::clamp(1. / fraction, 1., 255.)));
+          tmpTrackster.vertex_multiplicity().push_back(1. / fraction);
         }
       }
       tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(cp.pdgId(), cp.charge()), 1.f);
@@ -184,7 +184,7 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
             tmpTrackster.vertices().push_back(lc.index());
             double fraction = energyScorePair.first / lc->energy();
             (*output_mask)[lc.index()] -= fraction;
-            tmpTrackster.vertex_multiplicity().push_back(static_cast<uint8_t>(std::clamp(1. / fraction, 1., 255.)));
+            tmpTrackster.vertex_multiplicity().push_back(1. / fraction);
           }
         }
         tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(sc.pdgId(), sc.charge()), 1.f);
