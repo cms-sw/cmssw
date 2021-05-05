@@ -63,6 +63,25 @@ SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
   )
 )
 
+SiPixelPhase1TrackClustersOnTrackCorrCharge = DefaultHistoTrack.clone(
+  name = "charge_corr",
+  title = "Template Corrected Cluster Charge (OnTrack)",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+
+  specs = VPSet(
+    StandardSpecifications1D,
+    Specification().groupBy("PXForward/PXRing").save()
+  )
+)
+
+SiPixelPhase1TrackTemplateCorr = SiPixelPhase1TrackClustersOnTrackCorrCharge.clone(
+  name = "template_corr",
+  title = "Template Correction",
+  range_min = 0, range_max = 3, range_nbins = 150,
+  xlabel = "A.U."
+)
+
 SiPixelPhase1TrackClustersOnTrackBigPixelCharge = DefaultHistoTrack.clone(
   name = "bigpixelcharge",
   title = "Corrected Big Pixel Charge (OnTrack)",
@@ -488,6 +507,8 @@ SiPixelPhase1TrackClustersOnTrackShapeInner = SiPixelPhase1TrackClustersOnTrackS
 # copy this in the enum
 SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackCharge,
+  SiPixelPhase1TrackClustersOnTrackCorrCharge,
+  SiPixelPhase1TrackTemplateCorr,
   SiPixelPhase1TrackClustersOnTrackBigPixelCharge,
   SiPixelPhase1TrackClustersOnTrackNotBigPixelCharge,
   SiPixelPhase1TrackClustersOnTrackSize,
