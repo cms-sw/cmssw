@@ -712,19 +712,17 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
     if (hitToTuple.size(idx) < 2)
       continue;
 
-    float mc = 10000.f;
-    uint16_t im = 60000;
     uint32_t maxNh = 0;
 
     // find maxNh
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-      if (quality[*it] <= reject)
+      if (quality[*it] < reject)
         continue;
       uint32_t nh = foundNtuplets.size(*it);
       maxNh = std::max(nh, maxNh);
     }
 
-    if (maxNh < 3)
+    if (maxNh < 4)
       continue;
 
     // quad pass thotough
@@ -741,6 +739,48 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
       if (nh < maxNh && quality[*it] > reject)
         quality[*it] = reject;  // dup; // loose;
     }
+  }
+}
+
+__global__ void kernel_tripletCleaner(int const *__restrict__ nshared,
+                                        TrackingRecHit2DSOAView const *__restrict__ hhp,
+                                           HitContainer const *__restrict__ ptuples,
+                                           TkSoA const *__restrict__ ptracks,
+                                           Quality *__restrict__ quality,
+                                           uint16_t nmin,
+                                           bool dupPassThrough,
+                                           CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
+  constexpr auto bad = pixelTrack::Quality::bad;
+  constexpr auto dup = pixelTrack::Quality::dup;
+  constexpr auto loose = pixelTrack::Quality::loose;
+  constexpr auto strict = pixelTrack::Quality::strict;
+
+  // quality to mark rejected
+  auto const reject = loose; // dupPassThrough ? loose : dup;
+
+  auto &hitToTuple = *phitToTuple;
+  auto const &foundNtuplets = *ptuples;
+  auto const &tracks = *ptracks;
+
+  int first = blockDim.x * blockIdx.x + threadIdx.x;
+  for (int idx = first, ntot = hitToTuple.nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
+    if (hitToTuple.size(idx) < 2)
+      continue;
+
+    float mc = 10000.f;
+    uint16_t im = 60000;
+    uint32_t maxNh = 0;
+
+    // find maxNh
+    for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
+    if (quality[*it] <= loose)
+        continue;
+      uint32_t nh = foundNtuplets.size(*it);
+      maxNh = std::max(nh, maxNh);
+    }
+
+    if (maxNh < 3)
+         continue;
 
     if (maxNh > 3)
       continue;
