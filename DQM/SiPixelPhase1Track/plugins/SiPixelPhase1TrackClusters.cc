@@ -34,8 +34,6 @@
 #include "CondFormats/SiPixelTransient/src/SiPixelTemplate.cc"
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 
-
-
 namespace {
 
   class SiPixelPhase1TrackClusters final : public SiPixelPhase1Base {
@@ -87,7 +85,7 @@ namespace {
   private:
     const bool applyVertexCut_;
     const SiPixelTemplateDBObject* templateDBobject_;
-    std::vector< SiPixelTemplateStore > thePixelTemp_;
+    std::vector<SiPixelTemplateStore> thePixelTemp_;
 
     edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
     edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
@@ -122,11 +120,10 @@ namespace {
     iSetup.get<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
     templateDBobject_ = templateDBobject.product();
     if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_))
-      cout << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-           << (*templateDBobject_).version() << "\n\n";
+      edm::LogError("SiPixelPhase1TrackClusters")
+          << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
+          << (*templateDBobject_).version() << std::endl;
   }
-
-
 
   void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if (!checktrigger(iEvent, iSetup, DCS))
@@ -247,17 +244,17 @@ namespace {
         // correct charge for track impact angle
         auto charge = cluster.charge() * ltp.absdz();
         //Correct charge with Template1D
-        float cotAlpha=ltp.dxdz();
-        float cotBeta=ltp.dydz();
+        float cotAlpha = ltp.dxdz();
+        float cotBeta = ltp.dydz();
         float locBx = 1.;
-        if(cotBeta < 0.)
+        if (cotBeta < 0.)
           locBx = -1.;
         float locBz = locBx;
-        if(cotAlpha < 0.)
+        if (cotAlpha < 0.)
           locBz = -locBx;
         templ.interpolate(templateDBobject_->getTemplateID(id), cotAlpha, cotBeta, locBz, locBx);
-	auto charge_cor = (charge*templ.qscale())/templ.r_qMeas_qTrue();
-        auto tmpl=templ.qscale()/templ.r_qMeas_qTrue();
+        auto charge_cor = (charge * templ.qscale()) / templ.r_qMeas_qTrue();
+        auto tmpl = templ.qscale() / templ.r_qMeas_qTrue();
 
         auto clustgp = pixhit->globalPosition();  // from rechit
 
@@ -298,7 +295,7 @@ namespace {
 
         histo[ON_TRACK_NCLUSTERS].fill(id, &iEvent);
         histo[ON_TRACK_CHARGE].fill(charge, id, &iEvent);
-	histo[ON_TRACK_CORRECTEDCHARGE].fill(charge_cor, id, &iEvent);
+        histo[ON_TRACK_CORRECTEDCHARGE].fill(charge_cor, id, &iEvent);
         histo[TEMPLATE_CORRECTION].fill(tmpl, id, &iEvent);
         histo[ON_TRACK_SIZE].fill(cluster.size(), id, &iEvent);
 
