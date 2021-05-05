@@ -63,6 +63,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         FixZonePhi      = cms.bool(True),  # Pattern phi slightly offset from true LCT phi; also ME3/4 pattern width off
         UseNewZones     = cms.bool(False), # Improve high-quality pattern finding near ring 1-2 gap in ME3/4
         FixME11Edges    = cms.bool(True),  # Improved small fraction of buggy LCT coordinate transformations
+        UseRun3CCLUT    = cms.bool(True),  # New Run 3 CSC TPs using CCLUT algorithm
     ),
 
     # Sector processor pattern-recognition parameters
