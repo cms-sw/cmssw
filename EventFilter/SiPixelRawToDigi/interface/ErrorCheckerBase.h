@@ -39,6 +39,7 @@ public:
 private:
   bool includeErrors_;
   int getConversionErrorTypeAndIssueLogMessage(int status, int fedId) const;
+  void addErrorToCollectionDummy(int errorType, int fedId, Word64 word, SiPixelFormatterErrors& errors);
   virtual cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const = 0;
 };
 
