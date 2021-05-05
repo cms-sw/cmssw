@@ -53,8 +53,10 @@ public:
 
     // Declare consumes (also for the base class)
     bsSrc_Token = consumes<reco::BeamSpot>(bsSrc);
-    if (label_tp_refvector) tp_refvector_Token = consumes<TrackingParticleRefVector>(label_tp);
-    else tp_Token = consumes<TrackingParticleCollection>(label_tp);
+    if (label_tp_refvector)
+      tp_refvector_Token = consumes<TrackingParticleRefVector>(label_tp);
+    else
+      tp_Token = consumes<TrackingParticleCollection>(label_tp);
     pileupinfo_Token = consumes<std::vector<PileupSummaryInfo> >(label_pileupinfo);
     for (unsigned int www = 0; www < label.size(); www++) {
       track_Collection_Token.push_back(consumes<edm::View<reco::Track> >(label[www]));
@@ -96,42 +98,42 @@ public:
       std::string recoTracksInstance = label[www].instance();
 
       // tracks with hits only on tracker
-      if (recoTracksLabel == "generalTracks" || recoTracksLabel == "probeTracks" || recoTracksLabel == "displacedTracks" || 
-	  recoTracksLabel == "extractGemMuons" || recoTracksLabel == "extractMe0Muons" ||
-          recoTracksLabel == "ctfWithMaterialTracksP5LHCNavigation" || recoTracksLabel == "ctfWithMaterialTracksP5" ||
-	  recoTracksLabel == "hltIterL3OIMuonTrackSelectionHighPurity" || recoTracksLabel == "hltIterL3MuonMerged" ||
-	  recoTracksLabel == "hltIterL3MuonAndMuonFromL1Merged") {
+      if (recoTracksLabel == "generalTracks" || recoTracksLabel == "probeTracks" ||
+          recoTracksLabel == "displacedTracks" || recoTracksLabel == "extractGemMuons" ||
+          recoTracksLabel == "extractMe0Muons" || recoTracksLabel == "ctfWithMaterialTracksP5LHCNavigation" ||
+          recoTracksLabel == "ctfWithMaterialTracksP5" ||
+          recoTracksLabel == "hltIterL3OIMuonTrackSelectionHighPurity" || recoTracksLabel == "hltIterL3MuonMerged" ||
+          recoTracksLabel == "hltIterL3MuonAndMuonFromL1Merged") {
         if (usemuon) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usemuon == true"
               << "\n ---> resetting to usemuon == false ";
-	  usemuon = false;
+          usemuon = false;
         }
         if (!usetracker) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usetracker == false"
               << "\n ---> resetting to usetracker == true ";
-	  usetracker = true;
+          usetracker = true;
         }
       }
 
       // tracks with hits only on muon detectors
-      else if (recoTracksLabel == "seedsOfSTAmuons" || recoTracksLabel == "standAloneMuons" || 
-	       recoTracksLabel == "seedsOfDisplacedSTAmuons" || recoTracksLabel == "displacedStandAloneMuons" || 
-	       recoTracksLabel == "refittedStandAloneMuons" ||
-               recoTracksLabel == "cosmicMuons" || recoTracksLabel == "cosmicMuons1Leg" ||
-               recoTracksLabel == "hltL2Muons") {
+      else if (recoTracksLabel == "seedsOfSTAmuons" || recoTracksLabel == "standAloneMuons" ||
+               recoTracksLabel == "seedsOfDisplacedSTAmuons" || recoTracksLabel == "displacedStandAloneMuons" ||
+               recoTracksLabel == "refittedStandAloneMuons" || recoTracksLabel == "cosmicMuons" ||
+               recoTracksLabel == "cosmicMuons1Leg" || recoTracksLabel == "hltL2Muons") {
         if (usetracker) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usetracker == true"
               << "\n ---> resetting to usetracker == false ";
-	  usetracker = false;
+          usetracker = false;
         }
         if (!usemuon) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usemuon == false"
               << "\n ---> resetting to usemuon == true ";
-	  usemuon = true;
+          usemuon = true;
         }
       }
 

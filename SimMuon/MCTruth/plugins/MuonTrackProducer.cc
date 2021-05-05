@@ -275,12 +275,12 @@ void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
                 << ", N mu hits = " << muon->dytTrack()->hitPattern().numberOfValidMuonHits()
                 << ", N trk hits = " << muon->dytTrack()->hitPattern().numberOfValidTrackerHits() << std::endl;
 
-          if (muon->isGlobalMuon() && muon->globalTrack()->hitPattern().numberOfValidMuonHits()>0)
+          if (muon->isGlobalMuon() && muon->globalTrack()->hitPattern().numberOfValidMuonHits() > 0)
             trackref = muon->globalTrack();
           else if (muon->isTrackerMuon()) {
             trackref = muon->innerTrack();
-            addMatchedMuonSegments = true;}
-          else if (muon->isPFMuon())
+            addMatchedMuonSegments = true;
+          } else if (muon->isPFMuon())
             trackref = muon->muonBestTrack();
           else if (muon->isStandAloneMuon())
             trackref = muon->outerTrack();

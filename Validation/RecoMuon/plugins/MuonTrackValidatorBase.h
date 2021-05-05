@@ -42,8 +42,10 @@ public:
   /// Constructor
   MuonTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector iC) : MuonTrackValidatorBase(pset) {
     bsSrc_Token = iC.consumes<reco::BeamSpot>(bsSrc);
-    if (label_tp_refvector) tp_refvector_Token = iC.consumes<TrackingParticleRefVector>(label_tp);
-    else tp_Token = iC.consumes<TrackingParticleCollection>(label_tp);
+    if (label_tp_refvector)
+      tp_refvector_Token = iC.consumes<TrackingParticleRefVector>(label_tp);
+    else
+      tp_Token = iC.consumes<TrackingParticleCollection>(label_tp);
     pileupinfo_Token = iC.consumes<std::vector<PileupSummaryInfo> >(label_pileupinfo);
     for (unsigned int www = 0; www < label.size(); www++) {
       track_Collection_Token[www] = iC.consumes<edm::View<reco::Track> >(label[www]);
