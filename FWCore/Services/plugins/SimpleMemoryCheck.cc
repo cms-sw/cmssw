@@ -584,7 +584,7 @@ namespace edm {
         eventStatOutput("LargestIncreaseRssEvent", eventDeltaRssT1_, reportData);
 
 #ifdef __linux__
-      struct mallinfo minfo = mallinfo();
+      struct mallinfo2 minfo = mallinfo2();
       reportData.insert(std::make_pair("HEAP_ARENA_SIZE_BYTES", i2str(minfo.arena)));
       reportData.insert(std::make_pair("HEAP_ARENA_N_UNUSED_CHUNKS", i2str(minfo.ordblks)));
       reportData.insert(std::make_pair("HEAP_TOP_FREE_BYTES", i2str(minfo.keepcost)));
@@ -678,7 +678,7 @@ namespace edm {
       if (eventDeltaRssT1_.deltaRss > 0)
         eventStatOutput("LargestIncreaseRssEvent", eventDeltaRssT1_, reportData);
 
-      struct mallinfo minfo = mallinfo();
+      struct mallinfo2 minfo = mallinfo2();
       reportData.push_back(mallOutput("HEAP_ARENA_SIZE_BYTES", minfo.arena));
       reportData.push_back(mallOutput("HEAP_ARENA_N_UNUSED_CHUNKS", minfo.ordblks));
       reportData.push_back(mallOutput("HEAP_TOP_FREE_BYTES", minfo.keepcost));
@@ -871,7 +871,7 @@ namespace edm {
                                       << deltaRSS;
           } else {
 #ifdef __linux__
-            struct mallinfo minfo = mallinfo();
+            struct mallinfo2 minfo = mallinfo2();
 #endif
             LogWarning("MemoryCheck") << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE "
                                       << current_->vsize << " " << deltaVSIZE << " RSS " << current_->rss << " "
