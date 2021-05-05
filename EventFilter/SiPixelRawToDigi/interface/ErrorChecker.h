@@ -18,7 +18,7 @@ public:
                 const SiPixelFrameConverter* converter,
                 const SiPixelFedCabling* theCablingTree,
                 Word32& errorWord,
-                SiPixelFormatterErrors& errors) override;
+                SiPixelFormatterErrors& errors) const override;
 
 private:
   bool includeErrors_;
