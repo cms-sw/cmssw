@@ -132,10 +132,10 @@ void L1METPFProducer::Project(pt_t pt, phi_t phi, pxy_t& pxy, bool isX, bool deb
     phiQ1 = hwPi_ - phiQ1;
 
   if (phiQ1 > hwPiOverTwo_) {
-    edm::LogWarning  ("L1METPFProducer") << "unexpected phi (high)";
+    edm::LogWarning("L1METPFProducer") << "unexpected phi (high)";
     phiQ1 = hwPiOverTwo_;
   } else if (phiQ1 < 0) {
-    edm::LogWarning  ("L1METPFProducer") << "unexpected phi (low)";
+    edm::LogWarning("L1METPFProducer") << "unexpected phi (low)";
     phiQ1 = 0;
   }
   if (isX) {
@@ -183,8 +183,13 @@ void L1METPFProducer::PhiFromXY(pxy_t px, pxy_t py, phi_t& phi, bool debug) cons
   inv_t a_over_b = a * inv_b;
 
   if (debug) {
-    LogDebug("L1METPFProducer") << "  a, b = \n  " <<a.to_double()<<" , "<<b.to_double()<<";   index, inv = "<<index<<", "<<inv_b.to_double()<<"; ratio= "<<a_over_b.to_double()<<" \n"<<std::endl;
-    LogDebug("L1METPFProducer") << "bcheck, 1/bc = "<<bcheck<<", "<<1. / bcheck<<" -- "<<invTableSize_<<" "<<maxPt_<<" "<<dropFactor_<<" \n"<<std::endl;
+    LogDebug("L1METPFProducer") << "  a, b = \n  " << a.to_double() << " , " << b.to_double()
+                                << ";   index, inv = " << index << ", " << inv_b.to_double()
+                                << "; ratio= " << a_over_b.to_double() << " \n"
+                                << std::endl;
+    LogDebug("L1METPFProducer") << "bcheck, 1/bc = " << bcheck << ", " << 1. / bcheck << " -- " << invTableSize_ << " "
+                                << maxPt_ << " " << dropFactor_ << " \n"
+                                << std::endl;
   }
 
   const int atanTableBits_ = 7;
@@ -193,7 +198,10 @@ void L1METPFProducer::PhiFromXY(pxy_t px, pxy_t py, phi_t& phi, bool debug) cons
   phi = atan(float(index) / atanTableSize_) / phiLSB_;
 
   if (debug) {
-    LogDebug("L1METPFProducer") << "    atan index, phi = "<<index<<", "<<phi.to_double()<<" ("<<phi.to_double() * (M_PI / hwPi_.to_double())<<" rad) real atan(a/b)= "<<atan(a.to_double() / b.to_double())<<" \n"<<std::endl;
+    LogDebug("L1METPFProducer") << "    atan index, phi = " << index << ", " << phi.to_double() << " ("
+                                << phi.to_double() * (M_PI / hwPi_.to_double())
+                                << " rad) real atan(a/b)= " << atan(a.to_double() / b.to_double()) << " \n"
+                                << std::endl;
   }
 
   // rotate from (0,pi/4) to full quad1
@@ -208,15 +216,18 @@ void L1METPFProducer::PhiFromXY(pxy_t px, pxy_t py, phi_t& phi, bool debug) cons
     phi = -(hwPi_ - phi);  // Q3 composition of both
 
   if (debug) {
-    LogDebug("L1METPFProducer") << "    phi hw, float, real = "<<phi.to_double()<<", "<<phi.to_double() * (M_PI / hwPi_.to_double())<<"     ("<<atan2(py.to_double(), px.to_double())<<" rad from x,y = "<<px.to_double()<<", "<<py.to_double()<<") \n"<<std::endl;
+    LogDebug("L1METPFProducer") << "    phi hw, float, real = " << phi.to_double() << ", "
+                                << phi.to_double() * (M_PI / hwPi_.to_double()) << "     ("
+                                << atan2(py.to_double(), px.to_double()) << " rad from x,y = " << px.to_double() << ", "
+                                << py.to_double() << ") \n"
+                                << std::endl;
   }
 }
 
-void
-L1METPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1METPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<int>("maxCandidates", 128);
-  desc.add<edm::InputTag>("L1PFObjects", edm::InputTag("L1PFProducer","l1pfCandidates"));
+  desc.add<edm::InputTag>("L1PFObjects", edm::InputTag("L1PFProducer", "l1pfCandidates"));
   descriptions.add("L1METPFProducer", desc);
 }
 
