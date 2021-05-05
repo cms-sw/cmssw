@@ -22,13 +22,15 @@ public:
 
   virtual ~ErrorCheckerBase() = default;
 
-  virtual void setErrorStatus(bool ErrorStatus);
+  void setErrorStatus(bool ErrorStatus);
 
-  virtual bool checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors);
+  bool checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors);
 
-  virtual bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors);
+  bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors);
 
-  virtual bool checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors);
+  bool checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors);
+
+  void conversionError(int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors);
 
   virtual bool checkROC(bool& errorsInEvent,
                         int fedId,
@@ -36,9 +38,6 @@ public:
                         const SiPixelFedCabling* theCablingTree,
                         Word32& errorWord,
                         Errors& errors) = 0;
-
-  virtual void conversionError(
-      int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors);
 
 private:
   bool includeErrors;
