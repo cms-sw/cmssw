@@ -627,8 +627,10 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset)
   // Labels for simulation and reconstruction tracks
   simLabel_ = pset.getParameter<InputTag>("simLabel");
   tpRefVector = pset.getParameter<bool>("tpRefVector");
-  if (tpRefVector) tpRefVectorToken_ = consumes<TrackingParticleRefVector>(simLabel_);
-  else simToken_ = consumes<TrackingParticleCollection>(simLabel_);
+  if (tpRefVector)
+    tpRefVectorToken_ = consumes<TrackingParticleRefVector>(simLabel_);
+  else
+    simToken_ = consumes<TrackingParticleCollection>(simLabel_);
 
   muonLabel_ = pset.getParameter<InputTag>("muonLabel");
   muonToken_ = consumes<edm::View<reco::Muon> >(muonLabel_);
@@ -852,8 +854,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     event.getByToken(tpRefVectorToken_, TPCollectionRefVector_H);
     ptr_TPrefV = TPCollectionRefVector_H.product();
     TPrefV = *ptr_TPrefV;
-  }
-  else {
+  } else {
     event.getByToken(simToken_, simHandle);
     size_t nTP = simHandle->size();
     for (size_t i = 0; i < nTP; ++i) {
@@ -889,12 +890,10 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
   if (doAssoc_) {
     edm::LogVerbatim("RecoMuonValidator")
-      << "\n >>> MuonToSim association : "<< muAssocLabel_ <<" <<< \n"
-      << "     muon collection : " << muonLabel_
-      << " (size = " << muonHandle->size() << ") \n"
-      << "     TrackingParticle collection : " << simLabel_
-      << " (size = " << nSim << ")";
-    
+        << "\n >>> MuonToSim association : " << muAssocLabel_ << " <<< \n"
+        << "     muon collection : " << muonLabel_ << " (size = " << muonHandle->size() << ") \n"
+        << "     TrackingParticle collection : " << simLabel_ << " (size = " << nSim << ")";
+
     assoByHits->associateMuons(muonToSimColl, simToMuonColl, Muons, trackType_, TPrefV);
   } else {
     /*

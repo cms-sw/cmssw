@@ -339,12 +339,11 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
         bool matchOk = trackerOk || muonOk;
 
         // only for global tracks: match both tracker and muon stub (if acceptOneStubMatchings==false)
-	// depending on the muon selection reject tracks with only one stub (if rejectBadGlobal==true)
-	//
-	if (UseTracker && UseMuon && !acceptOneStubMatchings &&
-	    ((n_tracker_selected_hits != 0 && n_muon_selected_hits != 0) || rejectBadGlobal)
-	    )
-	  matchOk = trackerOk && muonOk;  
+        // depending on the muon selection reject tracks with only one stub (if rejectBadGlobal==true)
+        //
+        if (UseTracker && UseMuon && !acceptOneStubMatchings &&
+            ((n_tracker_selected_hits != 0 && n_muon_selected_hits != 0) || rejectBadGlobal))
+          matchOk = trackerOk && muonOk;
 
         if (matchOk) {
           outputCollection[tindex].push_back(IndexMatch(tpindex, global_quality));
@@ -458,11 +457,11 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
 
   int tindex = 0;
   for (TrackHitsCollection::const_iterator track = tC.begin(); track != tC.end(); track++, tindex++) {
-    if (printRtS) 
+    if (printRtS)
       edm::LogVerbatim("MuonAssociatorByHitsHelper")
-	<< "\n"
-	<< "reco::Track " << tindex << ", number of RecHits = " << (track->second - track->first) << "\n";
-    
+          << "\n"
+          << "reco::Track " << tindex << ", number of RecHits = " << (track->second - track->first) << "\n";
+
     tracker_matchedIds_valid.clear();
     muon_matchedIds_valid.clear();
 
@@ -646,7 +645,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
         if (global_nshared == 0)
           continue;  // if this TP shares no hits with the current reco::Track
                      // loop over
-	
+
         // adapt to new TP interface: this gives the total number of hits in
         // tracker
         //   should reproduce the behaviour of UseGrouped=UseSplitting=.true.
@@ -750,10 +749,9 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
         // only for global tracks: match both tracker and muon stub (if acceptOneStubMatchings==false)
         // depending on the muon selection reject tracks with only one stub (if rejectBadGlobal==true)
         //
-	if (UseTracker && UseMuon && !acceptOneStubMatchings &&
-	    ((n_tracker_selected_hits != 0 && n_muon_selected_hits != 0) || rejectBadGlobal)
-	    )
-	  matchOk = trackerOk && muonOk;  
+        if (UseTracker && UseMuon && !acceptOneStubMatchings &&
+            ((n_tracker_selected_hits != 0 && n_muon_selected_hits != 0) || rejectBadGlobal))
+          matchOk = trackerOk && muonOk;
 
         if (matchOk) {
           outputCollection[tpindex].push_back(IndexMatch(tindex, global_quality));
@@ -812,7 +810,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
                     << (*g4T).eventId().bunchCrossing() << ")";
             }
             if (printRtS)
-	      edm::LogVerbatim("MuonAssociatorByHitsHelper")
+              edm::LogVerbatim("MuonAssociatorByHitsHelper")
                   << "\t selected " << n_global_selected_simhits << " PSimHits"
                   << " (tracker:" << n_tracker_selected_simhits << "/muons:" << n_muon_selected_simhits << ")"
                   << "\n\t NOT matched  to reco::Track " << tindex << ZeroHitMuon
