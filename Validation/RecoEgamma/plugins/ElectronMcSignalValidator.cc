@@ -3268,7 +3268,7 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
 
 ElectronMcSignalValidator::~ElectronMcSignalValidator() {}
 
-void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &) {
   // get collections
   edm::Handle<GsfElectronCollection> gsfElectrons;
   iEvent.getByToken(electronCollection_, gsfElectrons);

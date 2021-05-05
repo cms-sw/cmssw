@@ -24,6 +24,9 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -118,6 +121,10 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> famos_simVtx_Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
 
   std::unique_ptr<PhotonMCTruthFinder> thePhotonMCTruthFinder_;
 

@@ -137,7 +137,7 @@ void ElectronConversionRejectionValidator::bookHistograms(DQMStore::IBooker& ibo
       "convLeadTrackAlgo", "# of Electrons", reco::TrackBase::algoSize, -0.5, reco::TrackBase::algoSize - 0.5);
 }
 
-void ElectronConversionRejectionValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) {
+void ElectronConversionRejectionValidator::analyze(const edm::Event& e, const edm::EventSetup&) {
   using namespace edm;
 
   nEvt_++;
