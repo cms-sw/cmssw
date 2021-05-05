@@ -95,7 +95,8 @@ namespace {
     edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
     edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> clusterShapeHitFilterToken_;
 
-    edm::ESHandle<SiPixelTemplateDBObject> templateDBobject;
+    edm::ESGetToken<SiPixelTemplateDBObject, SiPixel2DTemplateDBObjectESProducerRcd> templateDBobjectToken_;
+
   };
 
   SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& iConfig)
@@ -113,11 +114,12 @@ namespace {
     trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
     clusterShapeHitFilterToken_ =
         esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"));
+    templateDBobjectToken_ = esConsumes<SiPixelTemplateDBObject, SiPixel2DTemplateDBObjectESProducerRcd>();
   }
 
   void SiPixelPhase1TrackClusters::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     // Initialize 1D templates
-    iSetup.get<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
+    edm::ESHandle<SiPixelTemplateDBObject> templateDBobject = iSetup.getHandle(templateDBobjectToken_);
     templateDBobject_ = templateDBobject.product();
     if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_))
       edm::LogError("SiPixelPhase1TrackClusters")
