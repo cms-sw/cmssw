@@ -96,7 +96,6 @@ namespace {
     edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> clusterShapeHitFilterToken_;
 
     edm::ESGetToken<SiPixelTemplateDBObject, SiPixel2DTemplateDBObjectESProducerRcd> templateDBobjectToken_;
-
   };
 
   SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& iConfig)
