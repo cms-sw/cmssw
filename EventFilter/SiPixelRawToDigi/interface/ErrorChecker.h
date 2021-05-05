@@ -5,14 +5,12 @@
  *  
  */
 
+#include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorCheckerBase.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 
 class ErrorChecker : public ErrorCheckerBase {
 public:
-  typedef cms_uint32_t Word32;
-  typedef cms_uint64_t Word64;
-
   typedef std::vector<SiPixelRawDataError> DetErrors;
   typedef std::map<cms_uint32_t, DetErrors> Errors;
 

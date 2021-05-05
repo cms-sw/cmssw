@@ -16,32 +16,7 @@
 using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
-
-namespace {
-  constexpr int CRC_bits = 1;
-  constexpr int LINK_bits = 6;
-  constexpr int ROC_bits = 5;
-  constexpr int DCOL_bits = 5;
-  constexpr int PXID_bits = 8;
-  constexpr int ADC_bits = 8;
-  constexpr int OMIT_ERR_bits = 1;
-
-  constexpr int CRC_shift = 2;
-  constexpr int ADC_shift = 0;
-  constexpr int PXID_shift = ADC_shift + ADC_bits;
-  constexpr int DCOL_shift = PXID_shift + PXID_bits;
-  constexpr int ROC_shift = DCOL_shift + DCOL_bits;
-  constexpr int LINK_shift = ROC_shift + ROC_bits;
-  constexpr int OMIT_ERR_shift = 20;
-
-  constexpr cms_uint32_t dummyDetId = 0xffffffff;
-
-  constexpr ErrorCheckerBase::Word64 CRC_mask = ~(~ErrorCheckerBase::Word64(0) << CRC_bits);
-  constexpr ErrorCheckerBase::Word32 ERROR_mask = ~(~ErrorCheckerBase::Word32(0) << ROC_bits);
-  constexpr ErrorCheckerBase::Word32 LINK_mask = ~(~ErrorCheckerBase::Word32(0) << LINK_bits);
-  constexpr ErrorCheckerBase::Word32 ROC_mask = ~(~ErrorCheckerBase::Word32(0) << ROC_bits);
-  constexpr ErrorCheckerBase::Word32 OMIT_ERR_mask = ~(~ErrorCheckerBase::Word32(0) << OMIT_ERR_bits);
-}  // namespace
+using namespace sipixelconstants;
 
 ErrorCheckerBase::ErrorCheckerBase() : includeErrors(false) {}
 
