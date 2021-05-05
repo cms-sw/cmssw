@@ -22,15 +22,19 @@ ErrorCheckerBase::ErrorCheckerBase() : includeErrors_(false) {}
 
 void ErrorCheckerBase::setErrorStatus(bool ErrorStatus) { includeErrors_ = ErrorStatus; }
 
+void ErrorCheckerBase::addErrorToCollectionDummy(int errorType, int fedId, Word64 word, SiPixelFormatterErrors& errors) {
+  if (includeErrors_) {
+    SiPixelRawDataError error(word, errorType, fedId);
+    errors[sipixelconstants::dummyDetId].push_back(error);
+  }
+}
+
 bool ErrorCheckerBase::checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, SiPixelFormatterErrors& errors) {
   const int CRC_BIT = (*trailer >> CRC_shift) & CRC_mask;
   const bool isCRCcorrect = (CRC_BIT == 0);
+  if (!isCRCcorrect)
+    addErrorToCollectionDummy(39, fedId, *trailer, errors);
   errorsInEvent = (errorsInEvent || !isCRCcorrect);
-  if (includeErrors_ && !isCRCcorrect) {
-    const int errorType = 39;
-    SiPixelRawDataError error(*trailer, errorType, fedId);
-    errors[sipixelconstants::dummyDetId].push_back(error);
-  }
   return isCRCcorrect;
 }
 
