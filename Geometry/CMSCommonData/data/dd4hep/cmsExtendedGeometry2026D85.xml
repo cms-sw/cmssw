@@ -91,9 +91,9 @@
     <Include ref='Geometry/ForwardCommonData/data/zdc.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdclumi.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdMaterial/v2/mtdMaterial.xml'/>
     <Include ref='Geometry/MTDCommonData/data/btl/v1/btl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/etl/v6/etl.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/etl/v5/etl.xml'/>
     <Include ref='Geometry/MTDCommonData/data/mtdParameters/v3/mtdStructureTopology.xml'/>
     <Include ref='Geometry/MTDCommonData/data/mtdParameters/v2/mtdParameters.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v5/muonNumbering.xml'/>
