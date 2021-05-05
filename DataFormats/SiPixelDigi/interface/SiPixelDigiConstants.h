@@ -45,6 +45,17 @@ namespace sipixelconstants {
     constexpr uint32_t COL_mask = ~(~Word32(0) << COL_bits1_l1);
     constexpr uint32_t ROW_mask = ~(~Word32(0) << ROW_bits1_l1);
   }  // namespace phase1layer1
+
+  // constexpr functions are available in device code (GPU) as well
+  inline namespace functions {
+    inline constexpr uint32_t getLink(uint32_t ww) { return ((ww >> LINK_shift) & LINK_mask); }
+    inline constexpr uint32_t getROC(uint32_t ww) { return ((ww >> ROC_shift) & ROC_mask); }
+    inline constexpr uint32_t getADC(uint32_t ww) { return ((ww >> ADC_shift) & ADC_mask); }
+    inline constexpr uint32_t getCol(uint32_t ww) { return ((ww >> COL_shift) & COL_mask); }
+    inline constexpr uint32_t getRow(uint32_t ww) { return ((ww >> ROW_shift) & ROW_mask); }
+    inline constexpr uint32_t getDCol(uint32_t ww) { return ((ww >> DCOL_shift) & DCOL_mask); }
+    inline constexpr uint32_t getPxId(uint32_t ww) { return ((ww >> PXID_shift) & PXID_mask); }
+  }  // namespace functions
 }  // namespace sipixelconstants
 
 #endif  // DataFormats_SiPixelDigi_interface_SiPixelDigiConstants
