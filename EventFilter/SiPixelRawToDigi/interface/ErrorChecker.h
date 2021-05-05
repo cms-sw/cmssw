@@ -18,23 +18,12 @@ public:
 
   ErrorChecker();
 
-  void setErrorStatus(bool ErrorStatus) override;
-
-  bool checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors) override;
-
-  bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors) override;
-
-  bool checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors) override;
-
   bool checkROC(bool& errorsInEvent,
                 int fedId,
                 const SiPixelFrameConverter* converter,
                 const SiPixelFedCabling* theCablingTree,
                 Word32& errorWord,
                 Errors& errors) override;
-
-  void conversionError(
-      int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors) override;
 
 private:
   bool includeErrors;
