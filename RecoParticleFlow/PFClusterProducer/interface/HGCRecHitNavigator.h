@@ -34,8 +34,8 @@ public:
     desc.add<edm::ParameterSetDescription>("hgchef", deschef);
 
     edm::ParameterSetDescription descheb;
-    deschef.add<std::string>("name", "PFRecHitHGCHENavigator");
-    deschef.add<std::string>("topologySource", "HGCalHEScintillatorSensitive");
+    descheb.add<std::string>("name", "PFRecHitHGCHENavigator");
+    descheb.add<std::string>("topologySource", "HGCalHEScintillatorSensitive");
     desc.add<edm::ParameterSetDescription>("hgcheb", descheb);
 
     descriptions.add("navigator", desc);
