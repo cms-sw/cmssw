@@ -23,23 +23,7 @@
 using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
-namespace {
-  constexpr int LINK_bits = 6;
-  constexpr int ROC_bits = 5;
-  constexpr int DCOL_bits = 5;
-  constexpr int PXID_bits = 8;
-  constexpr int ADC_bits = 8;
-
-  // Add phase1 constants
-  // For phase1
-  //GO BACK TO OLD VALUES. THE 48-CHAN FED DOES NOT NEED A NEW FORMAT
-  // 28/9/16 d.k.
-  constexpr int LINK_bits1 = 6;  // 7;
-  constexpr int ROC_bits1 = 5;   // 4;
-  // Special for layer 1 bpix rocs 6/9/16 d.k. THIS STAYS.
-  constexpr int COL_bits1_l1 = 6;
-  constexpr int ROW_bits1_l1 = 7;
-}  // namespace
+using namespace sipixelconstants;
 
 PixelDataFormatter::PixelDataFormatter(const SiPixelFedCablingTree* map, bool phase)
     : theDigiCounter(0),
@@ -61,36 +45,11 @@ PixelDataFormatter::PixelDataFormatter(const SiPixelFedCablingTree* map, bool ph
   allDetDigis = 0;
   hasDetDigis = 0;
 
-  ADC_shift = 0;
-  PXID_shift = ADC_shift + ADC_bits;
-  DCOL_shift = PXID_shift + PXID_bits;
-  ROC_shift = DCOL_shift + DCOL_bits;
-
-  if (phase1) {  // for phase 1
-    LINK_shift = ROC_shift + ROC_bits1;
-    LINK_mask = ~(~Word32(0) << LINK_bits1);
-    ROC_mask = ~(~Word32(0) << ROC_bits1);
-    // special for layer 1 ROC
-    ROW_shift = ADC_shift + ADC_bits;
-    COL_shift = ROW_shift + ROW_bits1_l1;
-    COL_mask = ~(~Word32(0) << COL_bits1_l1);
-    ROW_mask = ~(~Word32(0) << ROW_bits1_l1);
-    maxROCIndex = 8;
-
-  } else {  // for phase 0
-    LINK_shift = ROC_shift + ROC_bits;
-    LINK_mask = ~(~Word32(0) << LINK_bits);
-    ROC_mask = ~(~Word32(0) << ROC_bits);
-    maxROCIndex = 25;
-  }
-
-  DCOL_mask = ~(~Word32(0) << DCOL_bits);
-  PXID_mask = ~(~Word32(0) << PXID_bits);
-  ADC_mask = ~(~Word32(0) << ADC_bits);
-
   if (phase1) {
+    maxROCIndex = 8;
     errorcheck = std::unique_ptr<ErrorCheckerBase>(new ErrorChecker());
   } else {
+    maxROCIndex = 25;
     errorcheck = std::unique_ptr<ErrorCheckerBase>(new ErrorCheckerPhase0());
   }
 }
@@ -289,11 +248,11 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
       } else if (detBadChannels != badChannels.end()) {
         auto badChannel =
             std::find_if(detBadChannels->second.begin(), detBadChannels->second.end(), [&](const PixelFEDChannel& ch) {
-              return (int(ch.fed) == fedId && ch.link == getLinkId(words[fedId].back()));
+              return (int(ch.fed) == fedId && ch.link == getLink(words[fedId].back()));
             });
         if (badChannel != detBadChannels->second.end()) {
           LogError("FormatDataException") << " while marked bad, found digi for FED " << fedId << " Link "
-                                          << getLinkId(words[fedId].back()) << " on module " << rawId << endl
+                                          << getLink(words[fedId].back()) << " on module " << rawId << endl
                                           << print(digi) << endl;
         }
       }  // if (fedId)
@@ -436,7 +395,7 @@ void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors const& error
           int fedId = aPixelError.getFedId();
           const sipixelobjects::PixelFEDCabling* fed = theCablingTree->fed(fedId);
           if (fed) {
-            cms_uint32_t linkId = getLinkId(aPixelError.getWord32());
+            cms_uint32_t linkId = getLink(aPixelError.getWord32());
             const sipixelobjects::PixelFEDLink* link = fed->link(linkId);
             if (link) {
               // The "offline" 0..15 numbering is fixed by definition, also, the FrameConversion depends on it
