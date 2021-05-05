@@ -26,7 +26,8 @@ FTFPCMS_BERT_EMM_TRK::FTFPCMS_BERT_EMM_TRK(const edm::ParameterSet& p) : Physics
   RegisterPhysics(new G4HadronElasticPhysics(ver));
 
   // Hadron inelastic physics
-  RegisterPhysics(new CMSHadronPhysicsFTFP_BERT(3*CLHEP::GeV, 6*CLHEP::GeV, 12*CLHEP::GeV, 2*CLHEP::GeV, 4*CLHEP::GeV));
+  RegisterPhysics(
+      new CMSHadronPhysicsFTFP_BERT(3 * CLHEP::GeV, 6 * CLHEP::GeV, 12 * CLHEP::GeV, 2 * CLHEP::GeV, 4 * CLHEP::GeV));
 
   // Stopping physics
   RegisterPhysics(new G4StoppingPhysics(ver));

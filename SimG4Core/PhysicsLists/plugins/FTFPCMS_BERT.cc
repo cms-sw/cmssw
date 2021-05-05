@@ -17,8 +17,7 @@ FTFPCMS_BERT::FTFPCMS_BERT(const edm::ParameterSet& p) : PhysicsList(p) {
   double maxBERT = p.getParameter<double>("EmaxBERT") * CLHEP::GeV;
   double maxBERTpi = p.getParameter<double>("EmaxBERTpi") * CLHEP::GeV;
   edm::LogVerbatim("PhysicsList") << "CMS Physics List FTFP_BERT: "
-                                  << "\n Flags for EM Physics: " << emPhys 
-                                  << "; Hadronic Physics: " << hadPhys 
+                                  << "\n Flags for EM Physics: " << emPhys << "; Hadronic Physics: " << hadPhys
                                   << "\n  transition energy Bertini/FTFP from " << minFTFP / CLHEP::GeV << " to "
                                   << maxBERT / CLHEP::GeV << ":" << maxBERTpi / CLHEP::GeV << " GeV";
 
@@ -35,7 +34,6 @@ FTFPCMS_BERT::FTFPCMS_BERT(const edm::ParameterSet& p) : PhysicsList(p) {
   RegisterPhysics(new G4DecayPhysics(ver));
 
   if (hadPhys) {
-
     // Hadron Elastic scattering
     RegisterPhysics(new G4HadronElasticPhysics(ver));
 

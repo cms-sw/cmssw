@@ -17,8 +17,7 @@ FTFPCMS_BERT_EMY::FTFPCMS_BERT_EMY(const edm::ParameterSet& p) : PhysicsList(p) 
   double maxBERT = p.getParameter<double>("EmaxBERT") * CLHEP::GeV;
   double maxBERTpi = p.getParameter<double>("EmaxBERTpi") * CLHEP::GeV;
   edm::LogVerbatim("PhysicsList") << "CMS Physics List FTFP_BERT_EMY: "
-                                  << "\n Flags for EM Physics: " << emPhys 
-                                  << "; Hadronic Physics: " << hadPhys 
+                                  << "\n Flags for EM Physics: " << emPhys << "; Hadronic Physics: " << hadPhys
                                   << "\n  transition energy Bertini/FTFP from " << minFTFP / CLHEP::GeV << " to "
                                   << maxBERT / CLHEP::GeV << ":" << maxBERTpi / CLHEP::GeV << " GeV";
 
