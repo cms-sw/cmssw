@@ -23,16 +23,15 @@ ErrorCheckerBase::ErrorCheckerBase() : includeErrors(false) {}
 void ErrorCheckerBase::setErrorStatus(bool ErrorStatus) { includeErrors = ErrorStatus; }
 
 bool ErrorCheckerBase::checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors) {
-  int CRC_BIT = (*trailer >> CRC_shift) & CRC_mask;
-  if (CRC_BIT == 0)
-    return true;
-  errorsInEvent = true;
-  if (includeErrors) {
-    int errorType = 39;
+  const int CRC_BIT = (*trailer >> CRC_shift) & CRC_mask;
+  const bool isCRCcorrect = (CRC_BIT == 0);
+  errorsInEvent = (errorsInEvent || !isCRCcorrect);
+  if (includeErrors && !isCRCcorrect) {
+    const int errorType = 39;
     SiPixelRawDataError error(*trailer, errorType, fedId);
     errors[dummyDetId].push_back(error);
   }
-  return false;
+  return isCRCcorrect;
 }
 
 bool ErrorCheckerBase::checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors) {
