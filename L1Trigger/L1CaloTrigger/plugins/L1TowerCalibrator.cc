@@ -99,7 +99,7 @@ private:
 
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalToken_;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTowerHandle;
-  edm::ESHandle<CaloTPGTranscoder> decoder_;
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderTag_;
 
   // nHits to nvtx functions
   std::vector<edm::ParameterSet> nHits_to_nvtx_params;
@@ -142,6 +142,7 @@ L1TowerCalibrator::L1TowerCalibrator(const edm::ParameterSet& iConfig)
       hgcalTowersToken_(
           consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("L1HgcalTowersInputTag"))),
       hcalToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigis"))),
+      decoderTag_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>(edm::ESInputTag("", ""))),
       nHits_to_nvtx_params(iConfig.getParameter<std::vector<edm::ParameterSet> >("nHits_to_nvtx_params")),
       nvtx_to_PU_sub_params(iConfig.getParameter<std::vector<edm::ParameterSet> >("nvtx_to_PU_sub_params")) {
   // Initialize the nHits --> nvtx functions
@@ -297,10 +298,10 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // Loop over Hcal HF tower inputs and create L1CaloTowers and add to
   // L1CaloTowerCalibratedCollection collection
-  iSetup.get<CaloTPGRecord>().get(decoder_);
+  const auto &decoder = iSetup.getData(decoderTag_);
   for (const auto& hit : *hcalTowerHandle.product()) {
     HcalTrigTowerDetId id = hit.id();
-    double et = decoder_->hcaletValue(hit.id(), hit.t0());
+    double et = decoder.hcaletValue(hit.id(), hit.t0());
     if (et < HFTpEtMin)
       continue;
     // Only doing HF so skip outside range
