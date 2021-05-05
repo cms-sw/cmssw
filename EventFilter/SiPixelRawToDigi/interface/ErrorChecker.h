@@ -6,14 +6,11 @@
  */
 
 #include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelFormatterErrors.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorCheckerBase.h"
-#include "FWCore/Utilities/interface/typedefs.h"
 
 class ErrorChecker : public ErrorCheckerBase {
 public:
-  typedef std::vector<SiPixelRawDataError> DetErrors;
-  typedef std::map<cms_uint32_t, DetErrors> Errors;
-
   ErrorChecker();
 
   bool checkROC(bool& errorsInEvent,
@@ -21,7 +18,7 @@ public:
                 const SiPixelFrameConverter* converter,
                 const SiPixelFedCabling* theCablingTree,
                 Word32& errorWord,
-                Errors& errors) override;
+                SiPixelFormatterErrors& errors) override;
 
 private:
   bool includeErrors_;

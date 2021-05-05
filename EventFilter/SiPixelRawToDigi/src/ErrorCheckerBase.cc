@@ -22,7 +22,7 @@ ErrorCheckerBase::ErrorCheckerBase() : includeErrors_(false) {}
 
 void ErrorCheckerBase::setErrorStatus(bool ErrorStatus) { includeErrors_ = ErrorStatus; }
 
-bool ErrorCheckerBase::checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors) {
+bool ErrorCheckerBase::checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, SiPixelFormatterErrors& errors) {
   const int CRC_BIT = (*trailer >> CRC_shift) & CRC_mask;
   const bool isCRCcorrect = (CRC_BIT == 0);
   errorsInEvent = (errorsInEvent || !isCRCcorrect);
@@ -34,7 +34,10 @@ bool ErrorCheckerBase::checkCRC(bool& errorsInEvent, int fedId, const Word64* tr
   return isCRCcorrect;
 }
 
-bool ErrorCheckerBase::checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors) {
+bool ErrorCheckerBase::checkHeader(bool& errorsInEvent,
+                                   int fedId,
+                                   const Word64* header,
+                                   SiPixelFormatterErrors& errors) {
   FEDHeader fedHeader(reinterpret_cast<const unsigned char*>(header));
   if (!fedHeader.check())
     return false;  // throw exception?
@@ -52,7 +55,7 @@ bool ErrorCheckerBase::checkHeader(bool& errorsInEvent, int fedId, const Word64*
 }
 
 bool ErrorCheckerBase::checkTrailer(
-    bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors) {
+    bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, SiPixelFormatterErrors& errors) {
   FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
   if (!fedTrailer.check()) {
     if (includeErrors_) {
@@ -77,7 +80,7 @@ bool ErrorCheckerBase::checkTrailer(
 }
 
 void ErrorCheckerBase::conversionError(
-    int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors) {
+    int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, SiPixelFormatterErrors& errors) {
   const int errorType = getConversionErrorTypeAndIssueLogMessage(status, fedId);
   // errorType == 0 means unexpected error, in this case we don't include it in the error collection
   if (errorType && includeErrors_) {
