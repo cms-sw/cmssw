@@ -37,6 +37,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorCheckerPhase0.h"
@@ -67,9 +68,6 @@ public:
   typedef std::vector<PixelFEDChannel> DetBadChannels;
   typedef std::map<cms_uint32_t, DetBadChannels> BadChannels;
 
-  typedef cms_uint32_t Word32;
-  typedef cms_uint64_t Word64;
-
   PixelDataFormatter(const SiPixelFedCablingTree* map, bool phase1 = false);
 
   void setErrorStatus(bool ErrorStatus);
@@ -93,8 +91,6 @@ public:
                        edmNew::DetSetVector<PixelFEDChannel>& disabled_channelcollection,
                        DetErrors& nodeterrors);
 
-  cms_uint32_t getLinkId(cms_uint32_t word32) { return (word32 >> LINK_shift) & LINK_mask; }
-
 private:
   mutable int theDigiCounter;
   mutable int theWordCounter;
@@ -110,10 +106,6 @@ private:
   int hasDetDigis;
   std::unique_ptr<ErrorCheckerBase> errorcheck;
 
-  // For the 32bit data format (moved from *.cc namespace, keep uppercase for compatibility)
-  // Add special layer 1 roc for phase1
-  int ADC_shift, PXID_shift, DCOL_shift, ROC_shift, LINK_shift, ROW_shift, COL_shift;
-  Word32 LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask, ROW_mask, COL_mask;
   int maxROCIndex;
   bool phase1;
 
