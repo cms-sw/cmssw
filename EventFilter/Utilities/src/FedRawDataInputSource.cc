@@ -1178,7 +1178,7 @@ void FedRawDataInputSource::readSupervisor() {
   //make sure threads finish reading
   unsigned numFinishedThreads = 0;
   while (numFinishedThreads < workerThreads_.size()) {
-    unsigned int tid;
+    unsigned tid = 0;
     while (!workerPool_.try_pop(tid)) {
       usleep(10000);
     }
