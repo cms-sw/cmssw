@@ -48,7 +48,6 @@ process.l1tStage2Fed.FEDDirName = cms.untracked.string(path)
 # Pixel sequence:
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi')
-process.siPixelDigis.cpu.Timing = False
 process.siPixelDigis.cpu.IncludeErrors = True
 process.load('DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi')
 process.SiPixelHLTSource.saveFile = False
