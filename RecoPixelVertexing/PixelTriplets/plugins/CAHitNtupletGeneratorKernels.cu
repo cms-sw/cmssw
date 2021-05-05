@@ -302,6 +302,15 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
                                                                           params_.minHitsForSharingCut_,
                                                                           params_.dupPassThrough_,
                                                                           device_hitToTuple_.get());
+    kernel_tripletCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(nShared.get(),
+                                                                          hh.view(),
+                                                                          tuples_d,
+                                                                          tracks_d,
+                                                                          quality_d,
+                                                                          params_.minHitsForSharingCut_,
+                                                                          params_.dupPassThrough_,
+                                                                          device_hitToTuple_.get());
+
     cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
     cudaCheck(cudaDeviceSynchronize());
