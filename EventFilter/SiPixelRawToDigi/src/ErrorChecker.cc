@@ -18,7 +18,7 @@ using namespace edm;
 using namespace sipixelobjects;
 using namespace sipixelconstants;
 
-ErrorChecker::ErrorChecker() { includeErrors = false; }
+ErrorChecker::ErrorChecker() : ErrorCheckerBase(){};
 
 bool ErrorChecker::checkROC(bool& errorsInEvent,
                             int fedId,
