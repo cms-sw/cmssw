@@ -298,7 +298,7 @@ void L1TowerCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // Loop over Hcal HF tower inputs and create L1CaloTowers and add to
   // L1CaloTowerCalibratedCollection collection
-  const auto &decoder = iSetup.getData(decoderTag_);
+  const auto& decoder = iSetup.getData(decoderTag_);
   for (const auto& hit : *hcalTowerHandle.product()) {
     HcalTrigTowerDetId id = hit.id();
     double et = decoder.hcaletValue(hit.id(), hit.t0());
