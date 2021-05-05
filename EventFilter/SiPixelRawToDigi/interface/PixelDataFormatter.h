@@ -71,15 +71,15 @@ public:
   using FEDWordsMap = std::map<int, std::vector<Word32>>;
   using ModuleIDSet = std::set<unsigned int>;
 
-  PixelDataFormatter(const SiPixelFedCablingTree* map, bool phase1 = false);
+  PixelDataFormatter(const SiPixelFedCablingTree* map, bool phase1_ = false);
 
   void setErrorStatus(bool ErrorStatus);
   void setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo);
   void setModulesToUnpack(const ModuleIDSet* moduleIds);
   void passFrameReverter(const SiPixelFrameReverter* reverter);
 
-  int nDigis() const { return theDigiCounter; }
-  int nWords() const { return theWordCounter; }
+  int nDigis() const { return theDigiCounter_; }
+  int nWords() const { return theWordCounter_; }
 
   void interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& data, Collection& digis, Errors& errors);
 
@@ -95,22 +95,22 @@ public:
                        DetErrors& nodeterrors);
 
 private:
-  mutable int theDigiCounter;
-  mutable int theWordCounter;
+  mutable int theDigiCounter_;
+  mutable int theWordCounter_;
 
-  SiPixelFedCablingTree const* theCablingTree;
-  const SiPixelFrameReverter* theFrameReverter;
-  const SiPixelQuality* badPixelInfo;
-  const ModuleIDSet* modulesToUnpack;
+  SiPixelFedCablingTree const* theCablingTree_;
+  const SiPixelFrameReverter* theFrameReverter_;
+  const SiPixelQuality* badPixelInfo_;
+  const ModuleIDSet* modulesToUnpack_;
 
-  bool includeErrors;
-  bool useQualityInfo;
-  int allDetDigis;
-  int hasDetDigis;
-  std::unique_ptr<ErrorCheckerBase> errorcheck;
+  bool includeErrors_;
+  bool useQualityInfo_;
+  int allDetDigis_;
+  int hasDetDigis_;
+  std::unique_ptr<ErrorCheckerBase> errorcheck_;
 
-  int maxROCIndex;
-  bool phase1;
+  int maxROCIndex_;
+  bool phase1_;
 
   int checkError(const Word32& data) const;
 
