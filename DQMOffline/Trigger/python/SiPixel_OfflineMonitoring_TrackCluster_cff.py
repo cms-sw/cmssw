@@ -15,6 +15,25 @@ hltSiPixelPhase1TrackClustersOnTrackCharge = hltDefaultHistoTrack.clone(
   )
 )
 
+hltSiPixelPhase1TrackClustersOnTrackCorrCharge = hltDefaultHistoTrack.clone(
+  name = "charge_cor",
+  title = "Tempalte Corrected Cluster Charge (OnTrack)",
+  range_min = 0, range_max = 200e3, range_nbins = 200,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+  specs = VPSet(
+    hltStandardSpecifications1D
+  )
+)
+
+hltSiPixelPhase1TrackTemplateCorr = hltSiPixelPhase1TrackClustersOnTrackCorrCharge.clone(
+  name = "template_corr",
+  title = "Tempalte Correction",
+  range_min = 0, range_max = 20, range_nbins = 200,
+  xlabel = "A.U.",
+  enabled=False
+)
+
 hltSiPixelPhase1TrackClustersOnTrackBigPixelCharge = DefaultHistoTrack.clone(
   name = "bigpixelcharge",
   title = "Corrected Big Pixel Charge (OnTrack)",
@@ -331,6 +350,8 @@ hltSiPixelPhase1TrackClustersConf = cms.VPSet(
 ### THE LIST DEFINED IN THE ENUM
 ### https://cmssdt.cern.ch/lxr/source/DQM/SiPixelPhase1TrackClusters/src/SiPixelPhase1TrackClusters.cc#0063
    hltSiPixelPhase1TrackClustersOnTrackCharge,
+   hltSiPixelPhase1TrackClustersOnTrackCorrCharge,
+   hltSiPixelPhase1TrackTemplateCorr,
    hltSiPixelPhase1TrackClustersOnTrackBigPixelCharge,
    hltSiPixelPhase1TrackClustersOnTrackNotBigPixelCharge,
    hltSiPixelPhase1TrackClustersOnTrackSize,
