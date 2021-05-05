@@ -9,15 +9,11 @@ from RecoHGCal.TICL.HADStep_cff import *
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
 from RecoHGCal.TICL.trackstersMergeProducer_cfi import trackstersMergeProducer as _trackstersMergeProducer
-from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer as _multiClustersFromTrackstersProducer
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
 ticlTrackstersMerge = _trackstersMergeProducer.clone()
-ticlMultiClustersFromTrackstersMerge = _multiClustersFromTrackstersProducer.clone(
-    Tracksters = "ticlTrackstersMerge"
-)
-ticlTracksterMergeTask = cms.Task(ticlTrackstersMerge, ticlMultiClustersFromTrackstersMerge)
+ticlTracksterMergeTask = cms.Task(ticlTrackstersMerge)
 
 
 pfTICL = _pfTICLProducer.clone()
