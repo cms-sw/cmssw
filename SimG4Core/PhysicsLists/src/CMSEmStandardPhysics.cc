@@ -51,6 +51,7 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p
   param->SetStepFunction(0.8, 1 * CLHEP::mm);
   param->SetMscRangeFactor(0.2);
   param->SetMscStepLimitType(fMinimal);
+  param->SetFluo(false);
   SetPhysicsType(bElectromagnetic);
   fRangeFactor = p.getParameter<double>("G4MscRangeFactor");
   fGeomFactor = p.getParameter<double>("G4MscGeomFactor");
@@ -99,7 +100,6 @@ void CMSEmStandardPhysics::ConstructProcess() {
   G4ParticleDefinition* particle = G4Gamma::Gamma();
 
   G4PhotoElectricEffect* pee = new G4PhotoElectricEffect();
-  pee->SetEmModel(new G4LivermorePhotoElectricModel());
 
   if (G4EmParameters::Instance()->GeneralProcessActive()) {
     G4GammaGeneralProcess* sp = new G4GammaGeneralProcess();
