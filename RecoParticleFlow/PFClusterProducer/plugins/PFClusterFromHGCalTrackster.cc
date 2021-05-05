@@ -1,23 +1,23 @@
-#include "PFClusterFromHGCalMultiCluster.h"
+#include "PFClusterFromHGCalTrackster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
-void PFClusterFromHGCalMultiCluster::updateEvent(const edm::Event& ev) {
-  ev.getByToken(clusterToken_, clusterH_);
+void PFClusterFromHGCalTrackster::updateEvent(const edm::Event& ev) {
   ev.getByToken(tracksterToken_, trackstersH_);
+  ev.getByToken(clusterToken_, clusterH_);
 }
 
-void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
-                                                   const std::vector<bool>& rechitMask,
-                                                   const std::vector<bool>& seedable,
-                                                   reco::PFClusterCollection& output) {
-  const auto& hgcalMultiClusters = *clusterH_;
+void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
+                                                const std::vector<bool>& rechitMask,
+                                                const std::vector<bool>& seedable,
+                                                reco::PFClusterCollection& output) {
   auto const& hits = *input;
 
   const auto& tracksters = *trackstersH_;
+  const auto& clusters = *clusterH_;
 
   // for quick indexing back to hit energy
   std::unordered_map<uint32_t, size_t> detIdToIndex(hits.size());
@@ -25,18 +25,16 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
     detIdToIndex[hits[i].detId()] = i;
   }
 
-  int iMultiClus = -1;
-  for (const auto& mcl : hgcalMultiClusters) {
-    iMultiClus++;
-    // Skip empty multiclusters
-    if (mcl.hitsAndFractions().empty()) {
+  for (const auto& tst : tracksters) {
+    // Skip empty tracksters
+    if (tst.vertices().empty()) {
       continue;
     }
     // Filter using trackster PID
     if (filterByTracksterPID_) {
       float probTotal = 0.0f;
       for (int cat : filter_on_categories_) {
-        probTotal += tracksters[iMultiClus].id_probabilities(cat);
+        probTotal += tst.id_probabilities(cat);
       }
       if (probTotal < pid_threshold_) {
         continue;
@@ -47,18 +45,15 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
     double energy = 0.0, highest_energy = 0.0;
     output.emplace_back();
     reco::PFCluster& back = output.back();
-    const auto& hitsAndFractions_mcl = mcl.hitsAndFractions();
 
     std::vector<std::pair<DetId, float> > hitsAndFractions;
-    hitsAndFractions.insert(hitsAndFractions.end(), hitsAndFractions_mcl.begin(), hitsAndFractions_mcl.end());
-
-    // Use the H&F of the clusters inside the multicluster if the latter's H&F are not stored
-    if (hitsAndFractions.empty()) {
-      for (const auto& cl : mcl) {
-        const auto& hAndF_temp = cl->hitsAndFractions();
-        hitsAndFractions.insert(hitsAndFractions.end(), hAndF_temp.begin(), hAndF_temp.end());
+    int iLC = 0;
+    std::for_each(std::begin(tst.vertices()), std::end(tst.vertices()), [&](unsigned int lcId) {
+      const auto fraction = 1.f / tst.vertex_multiplicity(iLC++);
+      for (const auto& cell : clusters[lcId].hitsAndFractions()) {
+        hitsAndFractions.emplace_back(cell.first, cell.second * fraction);
       }
-    }
+    });
 
     for (const auto& hAndF : hitsAndFractions) {
       auto itr = detIdToIndex.find(hAndF.first);
@@ -88,5 +83,5 @@ void PFClusterFromHGCalMultiCluster::buildClusters(const edm::Handle<reco::PFRec
       back.setSeed(0);
       back.setEnergy(0.f);
     }
-  }  // end of loop over hgcalMulticlusters (3D)
+  }  // end of loop over hgcalTracksters (3D)
 }

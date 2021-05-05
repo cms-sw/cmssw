@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingGlobal, ticlSeedingGlobalHFNose
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer as _trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
-from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer as _multiClustersFromTrackstersProducer
 
 # CLUSTER FILTERING/MASKING
 
@@ -38,16 +37,9 @@ ticlTrackstersEM = _trackstersProducer.clone(
     algo_verbosity = 0,
 )
 
-# MULTICLUSTERS
-
-ticlMultiClustersFromTrackstersEM = _multiClustersFromTrackstersProducer.clone(
-    Tracksters = "ticlTrackstersEM"
-)
-
 ticlEMStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersEM
-    ,ticlTrackstersEM
-    ,ticlMultiClustersFromTrackstersEM)
+    ,ticlTrackstersEM)
 
 filteredLayerClustersHFNoseEM = filteredLayerClustersEM.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
