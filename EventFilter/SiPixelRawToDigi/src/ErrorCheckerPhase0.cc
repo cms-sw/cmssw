@@ -25,7 +25,7 @@ bool ErrorCheckerPhase0::checkROC(bool& errorsInEvent,
                                   const SiPixelFrameConverter* converter,
                                   const SiPixelFedCabling* theCablingTree,
                                   Word32& errorWord,
-                                  Errors& errors) {
+                                  SiPixelFormatterErrors& errors) {
   int errorType = (errorWord >> ROC_shift) & ERROR_mask;
   if LIKELY (errorType < 25)
     return true;

@@ -6,38 +6,35 @@
  */
 
 #include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
-#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-
-#include <vector>
-#include <map>
+#include "DataFormats/SiPixelRawData/interface/SiPixelFormatterErrors.h"
 
 class SiPixelFrameConverter;
 class SiPixelFedCabling;
 
 class ErrorCheckerBase {
 public:
-  typedef std::vector<SiPixelRawDataError> DetErrors;
-  typedef std::map<cms_uint32_t, DetErrors> Errors;
   ErrorCheckerBase();
 
   virtual ~ErrorCheckerBase() = default;
 
   void setErrorStatus(bool ErrorStatus);
 
-  bool checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors);
+  bool checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, SiPixelFormatterErrors& errors);
 
-  bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors);
+  bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header, SiPixelFormatterErrors& errors);
 
-  bool checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors);
+  bool checkTrailer(
+      bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, SiPixelFormatterErrors& errors);
 
-  void conversionError(int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors);
+  void conversionError(
+      int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, SiPixelFormatterErrors& errors);
 
   virtual bool checkROC(bool& errorsInEvent,
                         int fedId,
                         const SiPixelFrameConverter* converter,
                         const SiPixelFedCabling* theCablingTree,
                         Word32& errorWord,
-                        Errors& errors) = 0;
+                        SiPixelFormatterErrors& errors) = 0;
 
 private:
   bool includeErrors_;
