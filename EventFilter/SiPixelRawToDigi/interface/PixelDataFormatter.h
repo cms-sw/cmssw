@@ -33,17 +33,20 @@
 //
 // Add the phase1 format
 //
+// CMSSW include(s)
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorCheckerPhase0.h"
 #include "FWCore/Utilities/interface/typedefs.h"
-#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 
+// standard include(s)
 #include <vector>
 #include <map>
 #include <set>
@@ -57,22 +60,22 @@ class SiPixelFedCablingTree;
 
 class PixelDataFormatter {
 public:
-  typedef edm::DetSetVector<PixelDigi> Collection;
-
-  typedef std::map<int, FEDRawData> RawData;
-  typedef std::vector<PixelDigi> DetDigis;
-  typedef std::map<cms_uint32_t, DetDigis> Digis;
-  typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range;
-  typedef std::vector<SiPixelRawDataError> DetErrors;
-  typedef std::map<cms_uint32_t, DetErrors> Errors;
-  typedef std::vector<PixelFEDChannel> DetBadChannels;
-  typedef std::map<cms_uint32_t, DetBadChannels> BadChannels;
+  using DetErrors = std::vector<SiPixelRawDataError>;
+  using Errors = std::map<cms_uint32_t, DetErrors>;
+  using Collection = edm::DetSetVector<PixelDigi>;
+  using RawData = std::map<int, FEDRawData>;
+  using DetDigis = std::vector<PixelDigi>;
+  using Digis = std::map<cms_uint32_t, DetDigis>;
+  using DetBadChannels = std::vector<PixelFEDChannel>;
+  using BadChannels = std::map<cms_uint32_t, DetBadChannels>;
+  using FEDWordsMap = std::map<int, std::vector<Word32>>;
+  using ModuleIDSet = std::set<unsigned int>;
 
   PixelDataFormatter(const SiPixelFedCablingTree* map, bool phase1 = false);
 
   void setErrorStatus(bool ErrorStatus);
   void setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo);
-  void setModulesToUnpack(const std::set<unsigned int>* moduleIds);
+  void setModulesToUnpack(const ModuleIDSet* moduleIds);
   void passFrameReverter(const SiPixelFrameReverter* reverter);
 
   int nDigis() const { return theDigiCounter; }
@@ -98,7 +101,7 @@ private:
   SiPixelFedCablingTree const* theCablingTree;
   const SiPixelFrameReverter* theFrameReverter;
   const SiPixelQuality* badPixelInfo;
-  const std::set<unsigned int>* modulesToUnpack;
+  const ModuleIDSet* modulesToUnpack;
 
   bool includeErrors;
   bool useQualityInfo;
@@ -111,10 +114,8 @@ private:
 
   int checkError(const Word32& data) const;
 
-  int digi2word(cms_uint32_t detId, const PixelDigi& digi, std::map<int, std::vector<Word32> >& words) const;
-  int digi2wordPhase1Layer1(cms_uint32_t detId,
-                            const PixelDigi& digi,
-                            std::map<int, std::vector<Word32> >& words) const;
+  int digi2word(cms_uint32_t detId, const PixelDigi& digi, FEDWordsMap& words) const;
+  int digi2wordPhase1Layer1(cms_uint32_t detId, const PixelDigi& digi, FEDWordsMap& words) const;
 
   std::string print(const PixelDigi& digi) const;
   std::string print(const Word64& word) const;
