@@ -43,19 +43,16 @@ bool ErrorCheckerBase::checkHeader(bool& errorsInEvent,
                                    const Word64* header,
                                    SiPixelFormatterErrors& errors) {
   FEDHeader fedHeader(reinterpret_cast<const unsigned char*>(header));
-  if (!fedHeader.check())
-    return false;  // throw exception?
-  if (fedHeader.sourceID() != fedId) {
+  const bool fedHeaderCorrect = fedHeader.check();
+  // if not fedHeaderCorrect throw exception?
+  if (fedHeaderCorrect && (fedHeader.sourceID() != fedId)) {
+    int errorType = 32;
+    addErrorToCollectionDummy(errorType, fedId, *header, errors);
     LogDebug("PixelDataFormatter::interpretRawData, fedHeader.sourceID() != fedId")
-        << ", sourceID = " << fedHeader.sourceID() << ", fedId = " << fedId << ", errorType = 32";
+        << ", sourceID = " << fedHeader.sourceID() << ", fedId = " << fedId << ", errorType = " << errorType;
     errorsInEvent = true;
-    if (includeErrors_) {
-      int errorType = 32;
-      SiPixelRawDataError error(*header, errorType, fedId);
-      errors[sipixelconstants::dummyDetId].push_back(error);
-    }
   }
-  return fedHeader.moreHeaders();
+  return fedHeaderCorrect && fedHeader.moreHeaders();
 }
 
 bool ErrorCheckerBase::checkTrailer(
