@@ -28,7 +28,7 @@
 
 class GBRTree {
 public:
-  GBRTree();
+  GBRTree() {}
   explicit GBRTree(int nIntermediate, int nTerminal);
 
   double GetResponse(const float *vector) const;
