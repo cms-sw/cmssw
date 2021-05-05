@@ -671,9 +671,10 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
             if i == 0:
                 if n>nPerLine: result += '\n'+options.indentation()
             else:
-                result += ', '
                 if i % nPerLine == 0:
-                    result += '\n'+options.indentation()
+                    result += ',\n'+options.indentation()
+                else:
+                    result += ', '
             result += self.pythonValueForItem(v,options)
         if n>nPerLine:
             options.unindent()
