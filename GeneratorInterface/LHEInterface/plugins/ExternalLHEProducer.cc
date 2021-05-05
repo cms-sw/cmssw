@@ -17,22 +17,22 @@ Implementation:
 //
 
 // system include files
+#include "tbb/task_arena.h"
+#include "tbb/task_group.h"
 #include <cstdio>
+#include <cstdlib>
 #include <dirent.h>
 #include <fcntl.h>
 #include <filesystem>
 #include <fstream>
 #include <memory>
 #include <string>
+#include <sys/resource.h>
+#include <sys/time.h>
+#include <sys/wait.h>
 #include <system_error>
 #include <unistd.h>
 #include <vector>
-#include <sys/wait.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include "tbb/task_arena.h"
-#include "tbb/task_group.h"
-#include <stdlib.h>
 
 #include "boost/ptr_container/ptr_deque.hpp"
 
@@ -332,7 +332,7 @@ void ExternalLHEProducer::endRun(edm::Run const& run, edm::EventSetup const& es)
   nextEvent();
   if (partonLevel_) {
     // VALIDATION_RUN env variable allows to finish event processing early without errors by sending SIGINT
-    if (getenv("VALIDATION_RUN") != NULL) {
+    if (getenv("VALIDATION_RUN") != nullptr) {
       edm::LogWarning("ExternalLHEProducer")
           << "Event loop is over, but there are still lhe events to process, ignoring...";
     } else {
