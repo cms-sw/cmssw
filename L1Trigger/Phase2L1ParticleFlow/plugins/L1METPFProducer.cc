@@ -14,10 +14,12 @@
 
 using namespace l1t;
 
-class L1MetPfProducer : public edm::global::EDProducer<> {
+class L1METPFProducer : public edm::global::EDProducer<> {
 public:
-  explicit L1MetPfProducer(const edm::ParameterSet&);
-  ~L1MetPfProducer() override;
+  explicit L1METPFProducer(const edm::ParameterSet&);
+  ~L1METPFProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
@@ -53,13 +55,13 @@ private:
   void CalcMetHLS(std::vector<float> pt, std::vector<float> phi, reco::Candidate::PolarLorentzVector& metVector) const;
 };
 
-L1MetPfProducer::L1MetPfProducer(const edm::ParameterSet& cfg)
+L1METPFProducer::L1METPFProducer(const edm::ParameterSet& cfg)
     : _l1PFToken(consumes<std::vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))),
       maxCands_(cfg.getParameter<int>("maxCands")) {
   produces<std::vector<l1t::EtSum>>();
 }
 
-void L1MetPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void L1METPFProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<l1t::PFCandidateCollection> l1PFCandidates;
   iEvent.getByToken(_l1PFToken, l1PFCandidates);
 
@@ -83,7 +85,7 @@ void L1MetPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
   iEvent.put(std::move(metCollection));
 }
 
-void L1MetPfProducer::CalcMetHLS(std::vector<float> pt,
+void L1METPFProducer::CalcMetHLS(std::vector<float> pt,
                                  std::vector<float> phi,
                                  reco::Candidate::PolarLorentzVector& metVector) const {
   pxy_t hw_px = 0;
@@ -113,7 +115,7 @@ void L1MetPfProducer::CalcMetHLS(std::vector<float> pt,
   metVector.SetEta(0);
 }
 
-void L1MetPfProducer::Project(pt_t pt, phi_t phi, pxy_t& pxy, bool isX, bool debug) const {
+void L1METPFProducer::Project(pt_t pt, phi_t phi, pxy_t& pxy, bool isX, bool debug) const {
   /*
       Convert pt and phi to px (py)
       1) Map phi to the first quadrant to reduce LUT size
@@ -130,10 +132,10 @@ void L1MetPfProducer::Project(pt_t pt, phi_t phi, pxy_t& pxy, bool isX, bool deb
     phiQ1 = hwPi_ - phiQ1;
 
   if (phiQ1 > hwPiOverTwo_) {
-    std::cout << "unexpected phi (high)" << std::endl;
+    edm::LogWarning  ("L1METPFProducer") << "unexpected phi (high)";
     phiQ1 = hwPiOverTwo_;
   } else if (phiQ1 < 0) {
-    std::cout << "unexpected phi (low)" << std::endl;
+    edm::LogWarning  ("L1METPFProducer") << "unexpected phi (low)";
     phiQ1 = 0;
   }
   if (isX) {
@@ -150,7 +152,7 @@ void L1MetPfProducer::Project(pt_t pt, phi_t phi, pxy_t& pxy, bool isX, bool deb
   }
 }
 
-void L1MetPfProducer::PhiFromXY(pxy_t px, pxy_t py, phi_t& phi, bool debug) const {
+void L1METPFProducer::PhiFromXY(pxy_t px, pxy_t py, phi_t& phi, bool debug) const {
   if (px == 0 && py == 0) {
     phi = 0;
     return;
@@ -181,26 +183,17 @@ void L1MetPfProducer::PhiFromXY(pxy_t px, pxy_t py, phi_t& phi, bool debug) cons
   inv_t a_over_b = a * inv_b;
 
   if (debug) {
-    printf("  a, b = %f, %f;   index, inv = %d, %f; ratio = %f \n",
-           a.to_double(),
-           b.to_double(),
-           index,
-           inv_b.to_double(),
-           a_over_b.to_double());
-    printf("    bcheck, 1/bc = %f, %f  -- %d  %f  %d  \n", bcheck, 1. / bcheck, invTableSize_, maxPt_, dropFactor_);
+    LogDebug("L1METPFProducer") << "  a, b = \n  " <<a.to_double()<<" , "<<b.to_double()<<";   index, inv = "<<index<<", "<<inv_b.to_double()<<"; ratio= "<<a_over_b.to_double()<<" \n"<<std::endl;
+    LogDebug("L1METPFProducer") << "bcheck, 1/bc = "<<bcheck<<", "<<1. / bcheck<<" -- "<<invTableSize_<<" "<<maxPt_<<" "<<dropFactor_<<" \n"<<std::endl;
   }
 
-  int atanTableBits_ = 7;
-  int atanTableSize_ = (1 << atanTableBits_);
+  const int atanTableBits_ = 7;
+  const int atanTableSize_ = (1 << atanTableBits_);
   index = round(a_over_b.to_double() * atanTableSize_);
   phi = atan(float(index) / atanTableSize_) / phiLSB_;
 
   if (debug) {
-    printf("    atan index, phi = %d, %f (%f rad)  real atan(a/b)= %f  \n",
-           index,
-           phi.to_double(),
-           phi.to_double() * (M_PI / hwPi_.to_double()),
-           atan(a.to_double() / b.to_double()));
+    LogDebug("L1METPFProducer") << "    atan index, phi = "<<index<<", "<<phi.to_double()<<" ("<<phi.to_double() * (M_PI / hwPi_.to_double())<<" rad) real atan(a/b)= "<<atan(a.to_double() / b.to_double())<<" \n"<<std::endl;
   }
 
   // rotate from (0,pi/4) to full quad1
@@ -215,16 +208,19 @@ void L1MetPfProducer::PhiFromXY(pxy_t px, pxy_t py, phi_t& phi, bool debug) cons
     phi = -(hwPi_ - phi);  // Q3 composition of both
 
   if (debug) {
-    printf("    phi hw, float, real = %f, %f    (%f rad from x,y = %f, %f) \n",
-           phi.to_double(),
-           phi.to_double() * (M_PI / hwPi_.to_double()),
-           atan2(py.to_double(), px.to_double()),
-           px.to_double(),
-           py.to_double());
+    LogDebug("L1METPFProducer") << "    phi hw, float, real = "<<phi.to_double()<<", "<<phi.to_double() * (M_PI / hwPi_.to_double())<<"     ("<<atan2(py.to_double(), px.to_double())<<" rad from x,y = "<<px.to_double()<<", "<<py.to_double()<<") \n"<<std::endl;
   }
 }
 
-L1MetPfProducer::~L1MetPfProducer() {}
+void
+L1METPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<int>("maxCandidates", 128);
+  desc.add<edm::InputTag>("L1PFObjects", edm::InputTag("L1PFProducer","l1pfCandidates"));
+  descriptions.add("L1METPFProducer", desc);
+}
+
+L1METPFProducer::~L1METPFProducer() {}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(L1MetPfProducer);
+DEFINE_FWK_MODULE(L1METPFProducer);
