@@ -58,26 +58,20 @@ bool ErrorCheckerBase::checkHeader(bool& errorsInEvent,
 bool ErrorCheckerBase::checkTrailer(
     bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, SiPixelFormatterErrors& errors) {
   FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
-  if (!fedTrailer.check()) {
-    if (includeErrors_) {
-      int errorType = 33;
-      SiPixelRawDataError error(*trailer, errorType, fedId);
-      errors[sipixelconstants::dummyDetId].push_back(error);
-    }
+  const bool fedTrailerCorrect = fedTrailer.check();
+  if (!fedTrailerCorrect) {
+    int errorType = 33;
+    addErrorToCollectionDummy(errorType, fedId, *trailer, errors);
+    LogError("FedTrailerCheck") << "fedTrailer.check failed, Fed: " << fedId << ", errorType = " << errorType;
     errorsInEvent = true;
-    LogError("FedTrailerCheck") << "fedTrailer.check failed, Fed: " << fedId << ", errorType = 33";
-    return false;
-  }
-  if (fedTrailer.fragmentLength() != nWords) {
-    LogError("FedTrailerLenght") << "fedTrailer.fragmentLength()!= nWords !! Fed: " << fedId << ", errorType = 34";
+  } else if (fedTrailer.fragmentLength() != nWords) {
+    int errorType = 34;
+    addErrorToCollectionDummy(errorType, fedId, *trailer, errors);
+    LogError("FedTrailerLenght") << "fedTrailer.fragmentLength()!= nWords !! Fed: " << fedId
+                                 << ", errorType = " << errorType;
     errorsInEvent = true;
-    if (includeErrors_) {
-      int errorType = 34;
-      SiPixelRawDataError error(*trailer, errorType, fedId);
-      errors[sipixelconstants::dummyDetId].push_back(error);
-    }
   }
-  return fedTrailer.moreTrailers();
+  return fedTrailerCorrect && fedTrailer.moreTrailers();
 }
 
 void ErrorCheckerBase::conversionError(
