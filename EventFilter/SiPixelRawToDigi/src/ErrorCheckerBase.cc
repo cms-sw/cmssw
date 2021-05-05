@@ -79,48 +79,44 @@ bool ErrorCheckerBase::checkTrailer(
 
 void ErrorCheckerBase::conversionError(
     int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors) {
+  // errorType == 0 means unexpected error, in this case we don't include it in the error collection
+  const int errorType = getConversionErrorTypeAndIssueLogMessage(status, fedId);
+  if (errorType && includeErrors) {
+    SiPixelRawDataError error(errorWord, errorType, fedId);
+    cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
+    errors[detId].push_back(error);
+  }
+}
+
+int ErrorCheckerBase::getConversionErrorTypeAndIssueLogMessage(int status, int fedId) const {
+  int errorType = 0;
+  std::string debugMessage;
   switch (status) {
     case (1): {
-      LogDebug("ErrorChecker::conversionError") << " Fed: " << fedId << "  invalid channel Id (errorType=35)";
-      if (includeErrors) {
-        int errorType = 35;
-        SiPixelRawDataError error(errorWord, errorType, fedId);
-        cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
-        errors[detId].push_back(error);
-      }
+      debugMessage = "invalid channel Id";
+      errorType = 35;
       break;
     }
     case (2): {
-      LogDebug("ErrorChecker::conversionError") << " Fed: " << fedId << "  invalid ROC Id (errorType=36)";
-      if (includeErrors) {
-        int errorType = 36;
-        SiPixelRawDataError error(errorWord, errorType, fedId);
-        cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
-        errors[detId].push_back(error);
-      }
+      debugMessage = "invalid ROC Id";
+      errorType = 36;
       break;
     }
     case (3): {
-      LogDebug("ErrorChecker::conversionError") << " Fed: " << fedId << "  invalid dcol/pixel value (errorType=37)";
-      if (includeErrors) {
-        int errorType = 37;
-        SiPixelRawDataError error(errorWord, errorType, fedId);
-        cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
-        errors[detId].push_back(error);
-      }
+      debugMessage = "invalid dcol/pixel value";
+      errorType = 37;
       break;
     }
     case (4): {
-      LogDebug("ErrorChecker::conversionError") << " Fed: " << fedId << "  dcol/pixel read out of order (errorType=38)";
-      if (includeErrors) {
-        int errorType = 38;
-        SiPixelRawDataError error(errorWord, errorType, fedId);
-        cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
-        errors[detId].push_back(error);
-      }
+      debugMessage = "dcol/pixel read out of order";
+      errorType = 38;
       break;
     }
-    default:
-      LogDebug("ErrorChecker::conversionError") << "  cabling check returned unexpected result, status = " << status;
   };
+  if (errorType) {
+    LogDebug("ErrorChecker::conversionError") << "Fed:" << fedId << debugMessage << "(errorType =" << errorType << ")";
+  } else {
+    LogDebug("ErrorChecker::conversionError") << "cabling check returned unexpected result, status =" << status;
+  }
+  return errorType;
 }
