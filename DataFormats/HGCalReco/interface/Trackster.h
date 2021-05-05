@@ -54,7 +54,7 @@ namespace ticl {
 
     inline void setIteration(const Trackster::IterationIndex i) { iterationIndex_ = i; }
     std::vector<unsigned int> &vertices() { return vertices_; }
-    std::vector<uint8_t> &vertex_multiplicity() { return vertex_multiplicity_; }
+    std::vector<float> &vertex_multiplicity() { return vertex_multiplicity_; }
     std::vector<std::array<unsigned int, 2> > &edges() { return edges_; }
     inline void setSeed(edm::ProductID pid, int index) {
       seedID_ = pid;
@@ -119,8 +119,8 @@ namespace ticl {
     inline const Trackster::IterationIndex ticlIteration() const { return (IterationIndex)iterationIndex_; }
     inline const std::vector<unsigned int> &vertices() const { return vertices_; }
     inline const unsigned int vertices(int index) const { return vertices_[index]; }
-    inline const std::vector<uint8_t> &vertex_multiplicity() const { return vertex_multiplicity_; }
-    inline const uint8_t vertex_multiplicity(int index) const { return vertex_multiplicity_[index]; }
+    inline const std::vector<float> &vertex_multiplicity() const { return vertex_multiplicity_; }
+    inline const float vertex_multiplicity(int index) const { return vertex_multiplicity_[index]; }
     inline const std::vector<std::array<unsigned int, 2> > &edges() const { return edges_; }
     inline const edm::ProductID &seedID() const { return seedID_; }
     inline const int seedIndex() const { return seedIndex_; }
@@ -153,7 +153,7 @@ namespace ticl {
     // The vertices of the DAG are the indices of the
     // 2d objects in the global collection
     std::vector<unsigned int> vertices_;
-    std::vector<uint8_t> vertex_multiplicity_;
+    std::vector<float> vertex_multiplicity_;
 
     // The edges connect two vertices together in a directed doublet
     // ATTENTION: order matters!

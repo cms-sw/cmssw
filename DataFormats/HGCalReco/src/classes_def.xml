@@ -1,6 +1,7 @@
 
 <lcgdict>
-  <class name="ticl::Trackster" ClassVersion="8">
+  <class name="ticl::Trackster" ClassVersion="9">
+    <version ClassVersion="9" checksum="1001808235"/>
     <version ClassVersion="8" checksum="749412802"/>
     <version ClassVersion="7" checksum="1072014319"/>
     <version ClassVersion="6" checksum="3003722924"/>
