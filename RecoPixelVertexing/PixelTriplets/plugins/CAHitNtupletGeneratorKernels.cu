@@ -284,6 +284,16 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
       kernel_markSharedHit<<<nQuadrupletBlocks(blockSize), blockSize, 0, cudaStream>>>(nShared.get(), tuples_d, quality_d, params_.dupPassThrough_);
     */
 
+    /*
+    kernel_rejectDuplicate<<<numberOfBlocks, blockSize, 0, cudaStream>>>(nShared.get(),
+                                               hh.view(),
+                                                                          tuples_d,
+                                                                          tracks_d,
+                                                                          quality_d,
+                                                                          params_.minHitsForSharingCut_,
+                                                                          params_.dupPassThrough_,
+                                                                          device_hitToTuple_.get());
+    */
     kernel_sharedHitCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(nShared.get(),
                                                                           hh.view(),
                                                                           tuples_d,

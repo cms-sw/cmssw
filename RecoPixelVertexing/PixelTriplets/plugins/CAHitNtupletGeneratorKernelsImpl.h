@@ -230,6 +230,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       }
     }
 
+    
     // find maxQual
     auto maxQual = reject;  // no duplicate!
     for (auto it : thisCell.tracks()) {
@@ -256,6 +257,9 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       if (tracks->quality(it) > loose && it != im)
         tracks->quality(it) = loose;  //no race:  simple assignment of the same constant
     }
+    
+
+
   }
 }
 
@@ -616,7 +620,9 @@ __global__ void kernel_markSharedHit(int const *__restrict__ nshared,
   }
 }
 
-__global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
+
+// mostly for very forward triplets.....
+__global__ void kernel_rejectDuplicate(int const *__restrict__ nshared,
                                         TrackingRecHit2DSOAView const *__restrict__ hhp,
                                         HitContainer const *__restrict__ ptuples,
                                         TkSoA const *__restrict__ ptracks,
@@ -624,20 +630,13 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
                                         uint16_t nmin,
                                         bool dupPassThrough,
                                         CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
-  constexpr auto bad = pixelTrack::Quality::bad;
-  constexpr auto dup = pixelTrack::Quality::dup;
-  constexpr auto loose = pixelTrack::Quality::loose;
-  constexpr auto strict = pixelTrack::Quality::strict;
 
   // quality to mark rejected
-  auto const reject = dupPassThrough ? loose : dup;
+  auto const reject = dupPassThrough ? pixelTrack::Quality::loose : pixelTrack::Quality::dup;
 
   auto &hitToTuple = *phitToTuple;
   auto const &foundNtuplets = *ptuples;
   auto const &tracks = *ptracks;
-
-  auto const &hh = *hhp;
-  int l1end = hh.hitsLayerStart()[1];
 
   int first = blockDim.x * blockIdx.x + threadIdx.x;
   for (int idx = first, ntot = hitToTuple.nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
@@ -682,6 +681,36 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
         }
       }
     }
+  }   
+}
+
+__global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
+                                        TrackingRecHit2DSOAView const *__restrict__ hhp,
+                                           HitContainer const *__restrict__ ptuples,
+                                           TkSoA const *__restrict__ ptracks,
+                                           Quality *__restrict__ quality,
+                                           uint16_t nmin,
+                                           bool dupPassThrough,
+                                           CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
+  constexpr auto bad = pixelTrack::Quality::bad;
+  constexpr auto dup = pixelTrack::Quality::dup;
+  constexpr auto loose = pixelTrack::Quality::loose;
+  constexpr auto strict = pixelTrack::Quality::strict;
+
+  // quality to mark rejected
+  auto const reject = loose; // dupPassThrough ? loose : dup;
+
+  auto &hitToTuple = *phitToTuple;
+  auto const &foundNtuplets = *ptuples;
+  auto const &tracks = *ptracks;
+
+  auto const &hh = *hhp;
+  int l1end = hh.hitsLayerStart()[1];
+
+  int first = blockDim.x * blockIdx.x + threadIdx.x;
+  for (int idx = first, ntot = hitToTuple.nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
+    if (hitToTuple.size(idx) < 2)
+      continue;
 
     float mc = 10000.f;
     uint16_t im = 60000;
@@ -689,7 +718,7 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
 
     // find maxNh
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-      if (quality[*it] < strict)
+      if (quality[*it] <= reject)
         continue;
       uint32_t nh = foundNtuplets.size(*it);
       maxNh = std::max(nh, maxNh);
@@ -709,8 +738,8 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
       if (idx < l1end and nh > nmin)
         continue;
 
-      if (nh < maxNh && quality[*it] >= strict)
-        quality[*it] = loose;  // dup; // loose;
+      if (nh < maxNh && quality[*it] > reject)
+        quality[*it] = reject;  // dup; // loose;
     }
 
     if (maxNh > 3)
