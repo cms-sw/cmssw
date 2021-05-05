@@ -22,14 +22,20 @@ ErrorCheckerBase::ErrorCheckerBase() : includeErrors_(false) {}
 
 void ErrorCheckerBase::setErrorStatus(bool ErrorStatus) { includeErrors_ = ErrorStatus; }
 
-void ErrorCheckerBase::addErrorToCollectionDummy(int errorType, int fedId, Word64 word, SiPixelFormatterErrors& errors) {
+void ErrorCheckerBase::addErrorToCollectionDummy(int errorType,
+                                                 int fedId,
+                                                 Word64 word,
+                                                 SiPixelFormatterErrors& errors) const {
   if (includeErrors_) {
     SiPixelRawDataError error(word, errorType, fedId);
     errors[sipixelconstants::dummyDetId].push_back(error);
   }
 }
 
-bool ErrorCheckerBase::checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, SiPixelFormatterErrors& errors) {
+bool ErrorCheckerBase::checkCRC(bool& errorsInEvent,
+                                int fedId,
+                                const Word64* trailer,
+                                SiPixelFormatterErrors& errors) const {
   const int CRC_BIT = (*trailer >> CRC_shift) & CRC_mask;
   const bool isCRCcorrect = (CRC_BIT == 0);
   if (!isCRCcorrect)
@@ -41,7 +47,7 @@ bool ErrorCheckerBase::checkCRC(bool& errorsInEvent, int fedId, const Word64* tr
 bool ErrorCheckerBase::checkHeader(bool& errorsInEvent,
                                    int fedId,
                                    const Word64* header,
-                                   SiPixelFormatterErrors& errors) {
+                                   SiPixelFormatterErrors& errors) const {
   FEDHeader fedHeader(reinterpret_cast<const unsigned char*>(header));
   const bool fedHeaderCorrect = fedHeader.check();
   // if not fedHeaderCorrect throw exception?
@@ -56,7 +62,7 @@ bool ErrorCheckerBase::checkHeader(bool& errorsInEvent,
 }
 
 bool ErrorCheckerBase::checkTrailer(
-    bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, SiPixelFormatterErrors& errors) {
+    bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, SiPixelFormatterErrors& errors) const {
   FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
   const bool fedTrailerCorrect = fedTrailer.check();
   if (!fedTrailerCorrect) {
@@ -74,8 +80,11 @@ bool ErrorCheckerBase::checkTrailer(
   return fedTrailerCorrect && fedTrailer.moreTrailers();
 }
 
-void ErrorCheckerBase::conversionError(
-    int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, SiPixelFormatterErrors& errors) {
+void ErrorCheckerBase::conversionError(int fedId,
+                                       const SiPixelFrameConverter* converter,
+                                       int status,
+                                       Word32& errorWord,
+                                       SiPixelFormatterErrors& errors) const {
   const int errorType = getConversionErrorTypeAndIssueLogMessage(status, fedId);
   // errorType == 0 means unexpected error, in this case we don't include it in the error collection
   if (errorType && includeErrors_) {
