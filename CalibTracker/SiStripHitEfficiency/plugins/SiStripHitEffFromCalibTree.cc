@@ -304,7 +304,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     cout << "A module is bad if efficiency < the avg in layer - " << threshold << " and has at least " << nModsMin
          << " nModsMin." << endl;
 
-  unsigned int run, evt, bx;
+  unsigned int run, evt, bx{0};
   double instLumi, PU;
 
   //Open the ROOT Calib Tree
