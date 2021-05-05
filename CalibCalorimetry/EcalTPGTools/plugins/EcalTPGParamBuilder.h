@@ -1,5 +1,5 @@
-#ifndef ECALTPGPARAMBUILDER_H
-#define ECALTPGPARAMBUILDER_H
+#ifndef CalibCalorimetry_EcalTPGTools_EcalTPGParamBuilder_h
+#define CalibCalorimetry_EcalTPGTools_EcalTPGParamBuilder_h
 
 //Author: Pascal Paganini - LLR
 //Date: 2006/07/10 15:58:06 $
@@ -9,17 +9,30 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
 #include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
@@ -36,8 +49,6 @@
 #include <map>
 #include <iostream>
 
-class CaloSubdetectorGeometry;
-class EcalElectronicsMapping;
 class EcalTPGDBApp;
 
 class coeffStruc {
@@ -56,15 +67,15 @@ public:
   int shift_[3];
 };
 
-class EcalTPGParamBuilder : public edm::EDAnalyzer {
+class EcalTPGParamBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalTPGParamBuilder(edm::ParameterSet const& pSet);
   ~EcalTPGParamBuilder() override;
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   void beginJob() override;
-  bool checkIfOK(EcalPedestals::Item item);
 
 private:
+  bool checkIfOK(EcalPedestals::Item item);
   bool computeLinearizerParam(
       double theta, double gainRatio, double calibCoeff, std::string subdet, int& mult, int& shift);
   void create_header();
@@ -93,10 +104,21 @@ private:
   std::string getDet(int tcc);
   std::pair<std::string, int> getCrate(int tcc);
 
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalEndcapGeometryRecord> theEndcapGeometryToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> theBarrelGeometryToken_;
   const CaloSubdetectorGeometry* theEndcapGeometry_;
   const CaloSubdetectorGeometry* theBarrelGeometry_;
-  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmapToken_;
+  const EcalTrigTowerConstituentsMap* eTTmap_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalmappingToken_;
   const EcalElectronicsMapping* theMapping_;
+
+  edm::ESGetToken<EcalLaserAlphas, EcalLaserAlphasRcd> ecalLaserAlphasToken_;
+  edm::ESGetToken<EcalLaserAPDPNRatios, EcalLaserAPDPNRatiosRcd> ecalLaserAPDPNRatiosToken_;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> ecalPedestalsToken_;
+  edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> ecalIntercalibConstantsToken_;
+  edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> ecalGainRatiosToken_;
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> ecalADCToGeVConstantToken_;
 
   bool useTransverseEnergy_;
   double xtal_LSB_EB_, xtal_LSB_EE_;
