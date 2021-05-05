@@ -30,6 +30,8 @@ VersionControl::VersionControl(const edm::ParameterSet& iConfig) : config_(iConf
   fixZonePhi_ = spPCParams16.getParameter<bool>("FixZonePhi");
   useNewZones_ = spPCParams16.getParameter<bool>("UseNewZones");
   fixME11Edges_ = spPCParams16.getParameter<bool>("FixME11Edges");
+  // Run 3 CCLUT
+  useRun3CCLUT_ = spPCParams16.getParameter<bool>("UseRun3CCLUT");
 
   auto spPRParams16 = iConfig.getParameter<edm::ParameterSet>("spPRParams16");
   pattDefinitions_ = spPRParams16.getParameter<std::vector<std::string> >("PatternDefinitions");

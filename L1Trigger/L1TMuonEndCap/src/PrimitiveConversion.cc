@@ -20,7 +20,8 @@ void PrimitiveConversion::configure(const GeometryTranslator* tp_geom,
                                     bool fixZonePhi,
                                     bool useNewZones,
                                     bool fixME11Edges,
-                                    bool bugME11Dupes) {
+                                    bool bugME11Dupes,
+                                    bool useRun3CCLUT) {
   emtf_assert(tp_geom != nullptr);
   emtf_assert(pc_lut != nullptr);
 
@@ -44,6 +45,9 @@ void PrimitiveConversion::configure(const GeometryTranslator* tp_geom,
   useNewZones_ = useNewZones;
   fixME11Edges_ = fixME11Edges;
   bugME11Dupes_ = bugME11Dupes;
+
+  // Run 3 CCLUT algorithm
+  useRun3CCLUT_ = useRun3CCLUT;
 }
 
 void PrimitiveConversion::process(const std::map<int, TriggerPrimitiveCollection>& selected_prim_map,
@@ -158,6 +162,13 @@ void PrimitiveConversion::convert_csc(int pc_sector,
   conv_hit.set_time(0.);  // No fine resolution timing
   conv_hit.set_alct_quality(tp_data.alct_quality);
   conv_hit.set_clct_quality(tp_data.clct_quality);
+  // Run-3
+  conv_hit.set_strip_quart(tp_data.strip_quart);
+  conv_hit.set_strip_eighth(tp_data.strip_eighth);
+  conv_hit.set_strip_quart_bit(tp_data.strip_quart_bit);
+  conv_hit.set_strip_eighth_bit(tp_data.strip_eighth_bit);
+  conv_hit.set_pattern_run3(tp_data.pattern_run3);
+  conv_hit.set_slope(tp_data.slope);
 
   conv_hit.set_neighbor(is_neighbor);
   conv_hit.set_sector_idx((endcap_ == 1) ? sector_ - 1 : sector_ + 5);
@@ -286,10 +297,18 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
 
   if (is_10degree) {
     eighth_strip = fw_strip << 2;  // full precision, uses only 2 bits of pattern correction
-    eighth_strip += clct_pat_corr_sign * (clct_pat_corr >> 1);
+    if (useRun3CCLUT_){
+      eighth_strip += (conv_hit.Strip_quart_bit() << 1 | conv_hit.Strip_eighth_bit() << 0); // Run 3 CCLUT variables
+    } else {
+      eighth_strip += clct_pat_corr_sign * (clct_pat_corr >> 1);
+    }
   } else {
     eighth_strip = fw_strip << 3;  // multiply by 2, uses all 3 bits of pattern correction
-    eighth_strip += clct_pat_corr_sign * (clct_pat_corr >> 0);
+    if (useRun3CCLUT_){
+      eighth_strip += (conv_hit.Strip_quart_bit() << 2 | conv_hit.Strip_eighth_bit() << 1); // Run 3 CCLUT variables
+    } else {
+      eighth_strip += clct_pat_corr_sign * (clct_pat_corr >> 0);
+    }
   }
   emtf_assert(bugStrip0BeforeFW48200 == true || eighth_strip >= 0);
 
