@@ -67,7 +67,7 @@ PFBadHcalPseudoClusterProducer::PFBadHcalPseudoClusterProducer(const edm::Parame
       debug_(ps.getUntrackedParameter<bool>("debug", false)),
       cacheId_quality_(0),
       cacheId_geom_(0),
-      hQualityToken_(esConsumes(edm::ESInputTag("", "withTopo"))), 
+      hQualityToken_(esConsumes(edm::ESInputTag("", "withTopo"))),
       hGeomToken_(esConsumes()) {
   produces<std::vector<reco::PFCluster>>();
   produces<std::vector<reco::PFRecHit>>("hits");

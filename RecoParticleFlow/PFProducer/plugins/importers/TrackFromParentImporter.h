@@ -34,8 +34,7 @@ namespace pflow {
           vetoMode_ = conf.getParameter<unsigned>("vetoMode");
           switch (vetoMode_) {
             case pfRecTrackCollection:
-              vetoPFTracksSrc_ =
-                  cc.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+              vetoPFTracksSrc_ = cc.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
               break;
             case ticlSeedingRegion:
               vetoTICLSeedingSrc_ =

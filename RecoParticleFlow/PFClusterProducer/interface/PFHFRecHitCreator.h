@@ -21,8 +21,7 @@
 class PFHFRecHitCreator final : public PFRecHitCreatorBase {
 public:
   PFHFRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitCreatorBase(iConfig, cc),
-        geomToken_(cc.esConsumes()) {
+      : PFRecHitCreatorBase(iConfig, cc), geomToken_(cc.esConsumes()) {
     recHitToken_ = cc.consumes<edm::SortedCollection<HFRecHit> >(iConfig.getParameter<edm::InputTag>("src"));
     EM_Depth_ = iConfig.getParameter<double>("EMDepthCorrection");
     HAD_Depth_ = iConfig.getParameter<double>("HADDepthCorrection");

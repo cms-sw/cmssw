@@ -19,8 +19,7 @@
 class PFHBHERecHitCreator : public PFRecHitCreatorBase {
 public:
   PFHBHERecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitCreatorBase(iConfig, cc),
-        geomToken_(cc.esConsumes()) {
+      : PFRecHitCreatorBase(iConfig, cc), geomToken_(cc.esConsumes()) {
     recHitToken_ = cc.consumes<edm::SortedCollection<HBHERecHit> >(iConfig.getParameter<edm::InputTag>("src"));
   }
 

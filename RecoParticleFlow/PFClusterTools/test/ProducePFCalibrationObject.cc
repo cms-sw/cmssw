@@ -22,7 +22,7 @@
 using namespace std;
 using namespace edm;
 
-ProducePFCalibrationObject::ProducePFCalibrationObject(const edm::ParameterSet& pSet) 
+ProducePFCalibrationObject::ProducePFCalibrationObject(const edm::ParameterSet& pSet)
     : perfToken(esConsumes<edm::Transition::BeginRun>()) {
   read = pSet.getUntrackedParameter<bool>("read");
   write = pSet.getUntrackedParameter<bool>("write");
@@ -116,8 +116,8 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
   if (read) {
     // ---------------------------------------------------------------------------------
     // Read the objects
-    auto perfH = eSetup.getHandle(perfToken); 
-    
+    auto perfH = eSetup.getHandle(perfToken);
+
     //edm::ESHandle<PerformancePayload> perfH;
     //eSetup.get<PFCalibrationRcd>().get(perfH);
 

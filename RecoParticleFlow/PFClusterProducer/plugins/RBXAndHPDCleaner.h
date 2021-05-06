@@ -8,7 +8,8 @@
 
 class RBXAndHPDCleaner : public RecHitTopologicalCleanerBase {
 public:
-  RBXAndHPDCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) : RecHitTopologicalCleanerBase(conf, cc) {}
+  RBXAndHPDCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : RecHitTopologicalCleanerBase(conf, cc) {}
   RBXAndHPDCleaner(const RBXAndHPDCleaner&) = delete;
   RBXAndHPDCleaner& operator=(const RBXAndHPDCleaner&) = delete;
 

@@ -120,17 +120,18 @@ using namespace std;
 using namespace reco;
 
 ConvBremSeedProducer::ConvBremSeedProducer(const ParameterSet& iConfig)
-    : conf_(iConfig), 
-      fieldMap_(nullptr), 
-      layerMap_(56, static_cast<const DetLayer*>(nullptr)), 
+    : conf_(iConfig),
+      fieldMap_(nullptr),
+      layerMap_(56, static_cast<const DetLayer*>(nullptr)),
       negLayerOffset_(27),
-      magFieldToken_(esConsumes()), 
+      magFieldToken_(esConsumes()),
       geomSearchTrackerToken_(esConsumes<edm::Transition::BeginRun>()),
       geometryToken_(esConsumes<edm::Transition::BeginRun>()),
       trackerToken_(esConsumes<edm::Transition::BeginRun>()),
       magFieldToken_beginRun_(esConsumes<edm::Transition::BeginRun>()),
       magFieldMapToken_(esConsumes<edm::Transition::BeginRun>()),
-      hitBuilderToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", conf_.getParameter<string>("TTRHBuilder")))) {
+      hitBuilderToken_(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", conf_.getParameter<string>("TTRHBuilder")))) {
   produces<ConvBremSeedCollection>();
 }
 

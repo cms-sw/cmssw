@@ -22,9 +22,7 @@ template <typename Digi, typename Geometry, PFLayer::Layer Layer, int Detector>
 class PFHcalRecHitCreator final : public PFRecHitCreatorBase {
 public:
   PFHcalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitCreatorBase(iConfig, cc),
-        geomToken_(cc.esConsumes()),
-        topoToken_(cc.esConsumes()) {
+      : PFRecHitCreatorBase(iConfig, cc), geomToken_(cc.esConsumes()), topoToken_(cc.esConsumes()) {
     recHitToken_ = cc.consumes<edm::SortedCollection<Digi> >(iConfig.getParameter<edm::InputTag>("src"));
   }
 
