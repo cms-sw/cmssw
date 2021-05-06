@@ -3,6 +3,7 @@
 
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/CircularBuffer.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 #include <cassert>
 #include <vector>
@@ -33,8 +34,8 @@ namespace trklet {
                        unsigned int iSeed,
                        unsigned int nbitsfinephiediff,
                        unsigned int iAllStub,
-                       std::vector<bool> const& pttableinner,
-                       std::vector<bool> const& pttableouter,
+                       const TrackletLUT& pttableinnernew,
+                       const TrackletLUT& pttableouternew,
                        VMStubsTEMemory* outervmstubs);
 
     ~TrackletEngineUnit() = default;
@@ -82,8 +83,8 @@ namespace trklet {
 
     bool idle_;
 
-    std::vector<bool> pttableinner_;
-    std::vector<bool> pttableouter_;
+    const TrackletLUT& pttableinnernew_;
+    const TrackletLUT& pttableouternew_;
 
     std::pair<const Stub*, const Stub*> candpair_, candpair__;
     bool goodpair_, goodpair__;

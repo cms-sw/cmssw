@@ -3,6 +3,7 @@
 
 #include "L1Trigger/TrackFindingTracklet/interface/ProcessBase.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 #include <string>
 #include <vector>
@@ -41,13 +42,14 @@ namespace trklet {
     int icorzshift_;
     int phi0shift_;
 
-    unsigned int phimatchcut_[N_SEED];
-    unsigned int zmatchcut_[N_SEED];
-    unsigned int rphicutPS_[N_SEED];
-    unsigned int rphicut2S_[N_SEED];
-    unsigned int rcutPS_[N_SEED];
-    unsigned int rcut2S_[N_SEED];
-
+    TrackletLUT phimatchcuttable_;
+    TrackletLUT zmatchcuttable_;
+    
+    TrackletLUT rphicutPStable_;
+    TrackletLUT rphicut2Stable_;
+    TrackletLUT rcutPStable_;
+    TrackletLUT rcut2Stable_;
+    
     int ialphafactinner_[N_DSS_MOD * 2];
     int ialphafactouter_[N_DSS_MOD * 2];
 

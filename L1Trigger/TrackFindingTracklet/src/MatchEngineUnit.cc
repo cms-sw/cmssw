@@ -1,12 +1,12 @@
 #include "L1Trigger/TrackFindingTracklet/interface/MatchEngineUnit.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 using namespace std;
 using namespace trklet;
 
-MatchEngineUnit::MatchEngineUnit(bool barrel, unsigned int layerdisk, vector<bool> table) : candmatches_(5) {
+MatchEngineUnit::MatchEngineUnit(bool barrel, unsigned int layerdisk, const TrackletLUT& luttable) : luttable_(luttable), candmatches_(5) {
   idle_ = true;
   barrel_ = barrel;
-  table_ = table;
   layerdisk_ = layerdisk;
 }
 
@@ -108,12 +108,12 @@ void MatchEngineUnit::step(bool print) {
 
   if (print)
     cout << "MEU TrkId stubindex : " << 128 * proj_->TCIndex() + proj_->trackletIndex() << " "
-         << vmstub.stubindex().value() << "   " << ((pass && dphicut) && table_[index]) << " index=" << index
+         << vmstub.stubindex().value() << "   " << ((pass && dphicut) && luttable_.lookup(index)) << " index=" << index
          << " projrinv bend : " << projrinv_ << " " << vmstub.bend().value() << "  shift_ isPSseed_ :" << shift_ << " "
          << isPSseed_ << " slot=" << slot << endl;
 
   //Check if stub bend and proj rinv consistent
-  if ((pass && dphicut) && table_[index]) {
+  if ((pass && dphicut) && luttable_.lookup(index)) {
     std::pair<Tracklet*, const Stub*> tmp(proj_, vmstub.stub());
     candmatches_.store(tmp);
   }

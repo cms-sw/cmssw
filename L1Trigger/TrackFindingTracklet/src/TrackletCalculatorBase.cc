@@ -270,10 +270,10 @@ void TrackletCalculatorBase::addProjectionDisk(int disk,
                                                int iphi,
                                                TrackletProjectionsMemory* trackletprojs,
                                                Tracklet* tracklet) {
-  if (iSeed_ == 2 && abs(disk) == 4)
+  if (iSeed_ == Seed::L3L4 && abs(disk) == 4)
     return;  //L3L4 projections to D3 are not used. Should be in configuration
   if (trackletprojs == nullptr) {
-    if (iSeed_ == 2 && abs(disk) == 3)
+    if (iSeed_ == Seed::L3L4 && abs(disk) == 3)
       return;  //L3L4 projections to D3 are not used.
     if (settings_.warnNoMem()) {
       edm::LogVerbatim("Tracklet") << "No projection memory exists in " << getName() << " for disk = " << abs(disk)

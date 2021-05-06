@@ -2,7 +2,7 @@
 #define L1Trigger_TrackFindingTracklet_interface_ProjectionRouter_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/ProcessBase.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ProjectionRouterBendTable.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProjectionsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/AllProjectionsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMProjectionsMemory.h"
@@ -29,6 +29,9 @@ namespace trklet {
 
     int nrbits_;
     int nphiderbits_;
+    
+    //disk projectionrinv table
+    TrackletLUT rinvbendlut_;
 
     std::vector<TrackletProjectionsMemory*> inputproj_;
 

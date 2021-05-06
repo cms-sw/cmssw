@@ -40,7 +40,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "L1Trigger/TrackFindingTracklet/interface/VMRouterPhiCorrTable.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 using namespace std;
 using namespace trklet;
@@ -69,12 +69,8 @@ bool Sector::addStub(L1TStub stub, string dtc) {
   unsigned int layerdisk = stub.layerdisk();
 
   if (layerdisk < N_LAYER && globals_->phiCorr(layerdisk) == nullptr) {
-    globals_->phiCorr(layerdisk) = new VMRouterPhiCorrTable(settings_);
-
-    int nbits = 3;
-    if (layerdisk >= N_PSLAYER)
-      nbits = 4;
-    globals_->phiCorr(layerdisk)->init(layerdisk + 1, nbits, 3);
+    globals_->phiCorr(layerdisk) = new TrackletLUT(settings_);
+    globals_->phiCorr(layerdisk)->initPhiCorrTable(layerdisk, 3);
   }
 
   Stub fpgastub(stub, settings_, *globals_);
@@ -83,8 +79,8 @@ bool Sector::addStub(L1TStub stub, string dtc) {
     FPGAWord r = fpgastub.r();
     int bendbin = fpgastub.bend().value();
     int rbin = (r.value() + (1 << (r.nbits() - 1))) >> (r.nbits() - 3);
-    const VMRouterPhiCorrTable& phiCorrTable = *globals_->phiCorr(layerdisk);
-    int iphicorr = phiCorrTable.getphiCorrValue(bendbin, rbin);
+    const TrackletLUT& phiCorrTable = *globals_->phiCorr(layerdisk);
+    int iphicorr = phiCorrTable.lookup(bendbin*(1<<3)+rbin);
     fpgastub.setPhiCorr(iphicorr);
   }
 

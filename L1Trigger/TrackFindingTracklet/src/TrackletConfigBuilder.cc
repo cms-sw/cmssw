@@ -278,11 +278,11 @@ std::string TrackletConfigBuilder::iRegStr(unsigned int iReg, unsigned int iSeed
 
   static std::string nameL2L3[4] = {"I", "J", "K", "L"};
 
-  if (iSeed == 1) {
+  if (iSeed == Seed::L2L3) {
     assert(iReg < 4);
     return nameL2L3[iReg];
   }
-  if (iSeed == 6 || iSeed == 7) {
+  if (iSeed == Seed::L1D1 || iSeed == Seed::L2D1) {
     assert(iReg < 8);
     return nameOverlap[iReg];
   }
@@ -892,7 +892,7 @@ void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& mem
       for (unsigned int iReg = 0; iReg < NRegions_[l2]; iReg++) {
         unsigned int nmem = 0;
         //Hack since we use same module twice
-        if (iSeed == 7) {
+        if (iSeed == Seed::L2D1) {
           nmem = 2;
         }
 
@@ -942,7 +942,7 @@ void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& mem
 
           unsigned int nmem = 0;
 
-          if (iSeed == 7) {
+          if (iSeed == Seed::L2D1) {
             nmem = 4;
           }
 

@@ -1,4 +1,5 @@
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
 #include <filesystem>
@@ -6,7 +7,7 @@
 using namespace std;
 using namespace trklet;
 
-VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings) : MemoryBase(name, settings) {
+VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings) : MemoryBase(name, settings), bendtable_(settings) {
   //set the layer or disk that the memory is in
   initLayerDisk(6, layer_, disk_);
 
@@ -22,16 +23,6 @@ VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings) : Memory
   phibin_ = subname[0] - '0';
   if (subname[1] != 'n') {
     phibin_ = 10 * phibin_ + (subname[1] - '0');
-  }
-
-  //set the bins used in the bend tabele
-  unsigned int nbins = 8;
-  if (layer_ >= 4)
-    nbins = 16;
-  if (disk_ == 1 && extended_ && overlap_)
-    nbins = 16;
-  for (unsigned int i = 0; i < nbins; i++) {
-    vmbendtable_.push_back(true);
   }
 
   isinner_ = (layer_ % 2 == 1 or disk_ % 2 == 1);
@@ -79,7 +70,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
     return true;
   }
 
-  bool pass = passbend(vmstub.bend().value());
+  bool pass = bendtable_.lookup(vmstub.bend().value());
 
   if (!pass) {
     if (settings_.debugTracklet())
@@ -141,7 +132,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
 
   //If the pt of the stub is consistent with the allowed pt of tracklets
   //in that can be formed in this VM and the other VM used in the TE.
-  bool pass = passbend(vmstub.bend().value());
+  bool pass = bendtable_.lookup(vmstub.bend().value());
 
   if (!pass) {
     if (settings_.debugTracklet())
@@ -271,27 +262,7 @@ void VMStubsTEMemory::getPhiRange(double& phimin, double& phimax, unsigned int i
   return;
 }
 
-void VMStubsTEMemory::setbendtable(std::vector<bool> vmbendtable) {
-  assert(vmbendtable_.size() == vmbendtable.size());
-  for (unsigned int i = 0; i < vmbendtable.size(); i++) {
-    vmbendtable_[i] = vmbendtable[i];
-  }
-
-  if (settings_.writeTable())
-    writeVMBendTable();
+void VMStubsTEMemory::setbendtable(const TrackletLUT& bendtable) {
+  bendtable_ = bendtable;
 }
 
-void VMStubsTEMemory::writeVMBendTable() {
-  ofstream outvmbendcut = openfile(settings_.tablePath(), getName() + "_vmbendcut.tab", __FILE__, __LINE__);
-
-  outvmbendcut << "{" << endl;
-  unsigned int vmbendtableSize = vmbendtable_.size();
-  assert(vmbendtableSize == 16 || vmbendtableSize == 8);
-  for (unsigned int i = 0; i < vmbendtableSize; i++) {
-    if (i != 0)
-      outvmbendcut << "," << endl;
-    outvmbendcut << vmbendtable_[i];
-  }
-  outvmbendcut << endl << "};" << endl;
-  outvmbendcut.close();
-}

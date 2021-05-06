@@ -19,7 +19,10 @@ using namespace std;
 using namespace trklet;
 
 MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals* global)
-    : ProcessBase(name, settings, global) {
+  : ProcessBase(name, settings, global), phimatchcuttable_(settings), zmatchcuttable_(settings),
+    rphicutPStable_(settings), rphicut2Stable_(settings),
+    rcutPStable_(settings), rcut2Stable_(settings) {
+  
   phiregion_ = name[8] - 'A';
   layerdisk_ = initLayerDisk(3);
 
@@ -43,96 +46,19 @@ MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals*
     phi0shift_ = 0;
   }
 
-  for (unsigned int iSeed = 0; iSeed < N_SEED; iSeed++) {
-    if (layerdisk_ < N_LAYER) {
-      phimatchcut_[iSeed] =
-          settings_.rphimatchcut(iSeed, layerdisk_) / (settings_.kphi1() * settings_.rmean(layerdisk_));
-      zmatchcut_[iSeed] = settings_.zmatchcut(iSeed, layerdisk_) / settings_.kz();
-    } else {
-      rphicutPS_[iSeed] = settings_.rphicutPS(iSeed, layerdisk_ - N_LAYER) / (settings_.kphi() * settings_.kr());
-      rphicut2S_[iSeed] = settings_.rphicut2S(iSeed, layerdisk_ - N_LAYER) / (settings_.kphi() * settings_.kr());
-      rcut2S_[iSeed] = settings_.rcut2S(iSeed, layerdisk_ - N_LAYER) / settings_.krprojshiftdisk();
-      rcutPS_[iSeed] = settings_.rcutPS(iSeed, layerdisk_ - N_LAYER) / settings_.krprojshiftdisk();
-    }
+  unsigned int region = getName()[8]-'A';
+  assert(region < settings_.nallstubs(layerdisk_));
+  
+  if (layerdisk_ < N_LAYER) {
+    phimatchcuttable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::barrelphi, region);
+    zmatchcuttable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::barrelz, region);
+  } else {
+    rphicutPStable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::diskPSphi, region);
+    rphicut2Stable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::disk2Sphi, region);
+    rcutPStable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::diskPSr, region);
+    rcut2Stable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::disk2Sr, region);
   }
-
-  if (layerdisk_ < N_LAYER && settings_.writeTable()) {
-    ofstream outphicut = openfile(settings_.tablePath(), getName() + "_phicut.tab", __FILE__, __LINE__);
-
-    outphicut << "{" << endl;
-    for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
-      if (seedindex != 0)
-        outphicut << "," << endl;
-      outphicut << phimatchcut_[seedindex];
-    }
-    outphicut << endl << "};" << endl;
-    outphicut.close();
-
-    const string filezcut = settings_.tablePath() + getName() + "_zcut.tab";
-    ofstream outzcut(filezcut);
-    if (outzcut.fail())
-      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << filezcut;
-
-    outzcut << "{" << endl;
-    for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
-      if (seedindex != 0)
-        outzcut << "," << endl;
-      outzcut << zmatchcut_[seedindex];
-    }
-    outzcut << endl << "};" << endl;
-    outzcut.close();
-  }
-
-  if (layerdisk_ >= N_LAYER && settings_.writeTable()) {
-    ofstream outPSphicut = openfile(settings_.tablePath(), getName() + "_PSphicut.tab", __FILE__, __LINE__);
-
-    outPSphicut << "{" << endl;
-    for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
-      if (seedindex != 0)
-        outPSphicut << "," << endl;
-      outPSphicut << rphicutPS_[seedindex];
-    }
-    outPSphicut << endl << "};" << endl;
-    outPSphicut.close();
-
-    ofstream out2Sphicut = openfile(settings_.tablePath(), getName() + "_2Sphicut.tab", __FILE__, __LINE__);
-
-    out2Sphicut << "{" << endl;
-    for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
-      if (seedindex != 0)
-        out2Sphicut << "," << endl;
-      out2Sphicut << rphicut2S_[seedindex];
-    }
-    out2Sphicut << endl << "};" << endl;
-    out2Sphicut.close();
-
-    const string filePSrcut = settings_.tablePath() + getName() + "_PSrcut.tab";
-    ofstream outPSrcut(filePSrcut);
-    if (outPSrcut.fail())
-      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << filePSrcut;
-    outPSrcut << "{" << endl;
-    for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
-      if (seedindex != 0)
-        outPSrcut << "," << endl;
-      outPSrcut << rcutPS_[seedindex];
-    }
-    outPSrcut << endl << "};" << endl;
-    outPSrcut.close();
-
-    const string file2Srcut = settings_.tablePath() + getName() + "_2Srcut.tab";
-    ofstream out2Srcut(file2Srcut);
-    if (out2Srcut.fail())
-      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << file2Srcut;
-    out2Srcut << "{" << endl;
-    for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
-      if (seedindex != 0)
-        out2Srcut << "," << endl;
-      out2Srcut << rcut2S_[seedindex];
-    }
-    out2Srcut << endl << "};" << endl;
-    out2Srcut.close();
-  }
-
+  
   for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
     ialphafactinner_[i] = (1 << settings_.alphashift()) * settings_.krprojshiftdisk() * settings_.half2SmoduleWidth() /
                           (1 << (settings_.nbitsalpha() - 1)) / (settings_.rDSSinner(i) * settings_.rDSSinner(i)) /
@@ -257,8 +183,8 @@ void MatchCalculator::execute(double phioffset) {
 
       int seedindex = tracklet->getISeed();
 
-      assert(phimatchcut_[seedindex] > 0);
-      assert(zmatchcut_[seedindex] > 0);
+      assert(phimatchcuttable_.lookup(seedindex) > 0);
+      assert(zmatchcuttable_.lookup(seedindex) > 0);
 
       if (settings_.bookHistos()) {
         bool truthmatch = tracklet->stubtruthmatch(stub);
@@ -286,17 +212,17 @@ void MatchCalculator::execute(double phioffset) {
             << layerdisk_ + 1 << " " << seedindex << " " << pt << " "
             << ideltaphi * settings_.kphi1() * settings_.rmean(layerdisk_) << " "
             << dphiapprox * settings_.rmean(layerdisk_) << " "
-            << phimatchcut_[seedindex] * settings_.kphi1() * settings_.rmean(layerdisk_) << "   "
-            << ideltaz * fact_ * settings_.kz() << " " << dz << " " << zmatchcut_[seedindex] * settings_.kz() << endl;
+            << phimatchcuttable_.lookup(seedindex) * settings_.kphi1() * settings_.rmean(layerdisk_) << "   "
+            << ideltaz * fact_ * settings_.kz() << " " << dz << " " << zmatchcuttable_.lookup(seedindex) * settings_.kz() << endl;
       }
 
-      bool imatch = (std::abs(ideltaphi) <= (int)phimatchcut_[seedindex]) &&
-	(std::abs(ideltaz * fact_) <= (int)zmatchcut_[seedindex]);
+      bool imatch = (std::abs(ideltaphi) <= (int)phimatchcuttable_.lookup(seedindex)) &&
+	(std::abs(ideltaz * fact_) <= (int)zmatchcuttable_.lookup(seedindex));
 
       if (settings_.debugTracklet()) {
         edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
-                                     << phimatchcut_[seedindex] << " ideltaz*fact cut " << ideltaz * fact_ << " "
-                                     << zmatchcut_[seedindex];
+                                     << phimatchcuttable_.lookup(seedindex) << " ideltaz*fact cut " << ideltaz * fact_ << " "
+                                     << zmatchcuttable_.lookup(seedindex);
       }
 
       if (imatch) {
@@ -424,11 +350,11 @@ void MatchCalculator::execute(double phioffset) {
 
       int seedindex = tracklet->getISeed();
 
-      int idrphicut = rphicutPS_[seedindex];
-      int idrcut = rcutPS_[seedindex];
+      int idrphicut = rphicutPStable_.lookup(seedindex);
+      int idrcut = rcutPStable_.lookup(seedindex);
       if (!stub->isPSmodule()) {
-        idrphicut = rphicut2S_[seedindex];
-        idrcut = rcut2S_[seedindex];
+        idrphicut = rphicut2Stable_.lookup(seedindex);
+        idrcut = rcut2Stable_.lookup(seedindex);
       }
 
       double drphicut = idrphicut * settings_.kphi() * settings_.kr();

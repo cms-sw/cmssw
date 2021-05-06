@@ -19,7 +19,9 @@ using namespace trklet;
 TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Globals* globals)
     : TrackletCalculatorBase(name, settings, globals),
       tebuffer_(CircularBuffer<TEData>(3), 0, 0, 0, 0),
-      vmrtable_(settings) {
+      pttableinner_(settings), pttableouter_(settings), useregiontable_(settings),
+      innerTable_(settings), innerOverlapTable_(settings) {
+  
   iAllStub_ = -1;
 
   for (unsigned int ilayer = 0; ilayer < N_LAYER; ilayer++) {
@@ -35,19 +37,58 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
   outervmstubs_ = nullptr;
 
   initLayerDisksandISeed(layerdisk1_, layerdisk2_, iSeed_);
+  
+  double rmin = -1.0;
+  double rmax = -1.0;
+
+  if  (iSeed_ == Seed::L1L2 ||iSeed_ == Seed::L2L3 ||iSeed_ == Seed::L3L4 ||iSeed_ == Seed::L5L6 ) {
+    rmin = settings_.rmean(layerdisk1_);
+    rmax = settings_.rmean(layerdisk2_);
+  } else {
+    if (iSeed_ == Seed::L1D1) {
+      rmax = settings_.rmaxdiskl1overlapvm();
+      rmin = settings_.rmean(layerdisk1_);
+    } else if (iSeed_ == Seed::L2D1) {
+      rmax = settings_.rmaxdiskvm();
+      rmin = settings_.rmean(layerdisk1_);
+    } else {
+      rmax = settings_.rmaxdiskvm();
+      rmin = rmax * settings_.zmean(layerdisk2_ - N_LAYER - 1) / settings_.zmean(layerdisk2_ - N_LAYER);
+    }
+  }
+
+  double dphimax = asin(0.5 * settings_.maxrinv() * rmax) - asin(0.5 * settings_.maxrinv() * rmin);
+
+  //number of fine phi bins in sector
+  int nfinephibins =
+      settings_.nallstubs(layerdisk2_) * settings_.nvmte(1, iSeed_) * (1 << settings_.nfinephi(1, iSeed_));
+  double dfinephi = settings_.dphisectorHG() / nfinephibins;
+
+  nbitsfinephi_ = settings_.nbitsallstubs(layerdisk2_) + settings_.nbitsvmte(1, iSeed_) + settings_.nfinephi(1, iSeed_);
+  
+  int nbins = 2.0 * (dphimax / dfinephi + 1.0);
+
+  nbitsfinephidiff_ = log(nbins) / log(2.0) + 1;
 
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk1_);
   nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk1_);
 
-  vmrtable_.init(layerdisk1_);
-
   nbitsrzbin_ = N_RZBITS;
-  if (iSeed_ == 4 || iSeed_ == 5)
+  if (iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4)
     nbitsrzbin_ = 2;
 
   innerphibits_ = settings_.nfinephi(0, iSeed_);
   outerphibits_ = settings_.nfinephi(1, iSeed_);
 
+  if (layerdisk1_ == LayerDisk::L1 || layerdisk1_ == LayerDisk::L2 || layerdisk1_ == LayerDisk::L3 || layerdisk1_ == LayerDisk::L5
+      || layerdisk1_ == LayerDisk::D1 || layerdisk1_ == LayerDisk::D3) {
+    innerTable_.initVMRTable(layerdisk1_, TrackletLUT::VMRTableType::inner);       //projection to next layer/disk
+  }
+
+  if (layerdisk1_ == LayerDisk::L1 || layerdisk1_ == LayerDisk::L2 ) {
+    innerOverlapTable_.initVMRTable(layerdisk1_, TrackletLUT::VMRTableType::inneroverlap);  //projection to disk from layer
+  }
+  
   // set TC index
   iTC_ = name_[7] - 'A';
   assert(iTC_ >= 0 && iTC_ < 14);
@@ -116,9 +157,9 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
     assert(tmp != nullptr);
     outervmstubs_ = tmp;
     iAllStub_ = tmp->getName()[11] - 'A';
-    if (iSeed_ == 1)
+    if (iSeed_ == Seed::L2L3)
       iAllStub_ = tmp->getName()[11] - 'I';
-    if (iSeed_ == 6 || iSeed_ == 7) {
+    if (iSeed_ == Seed::L1D1 || iSeed_ == Seed::L2D1) {
       if (tmp->getName()[11] == 'X')
         iAllStub_ = 0;
       if (tmp->getName()[11] == 'Y')
@@ -128,8 +169,17 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
       if (tmp->getName()[11] == 'W')
         iAllStub_ = 3;
     }
-    buildLUT();  //need iAllStub_ set before building the table //FIXME should be in initiall
 
+    unsigned int iTP = getName()[7]-'A';
+    
+    pttableinner_.initTPlut(true, iSeed_, layerdisk1_, layerdisk2_, nbitsfinephidiff_, iTP); 
+    pttableouter_.initTPlut(false, iSeed_, layerdisk1_, layerdisk2_, nbitsfinephidiff_, iTP); 
+
+    //need iAllStub_ set before building the table
+    
+    useregiontable_.initTPregionlut(iSeed_, layerdisk1_, layerdisk2_, iAllStub_,
+				    nbitsfinephidiff_, nbitsfinephi_, pttableinner_, iTP);
+    
     TrackletEngineUnit teunit(&settings_,
                               nbitsfinephi_,
                               layerdisk1_,
@@ -137,8 +187,8 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
                               iSeed_,
                               nbitsfinephidiff_,
                               iAllStub_,
-                              pttableinnernew_,
-                              pttableouternew_,
+                              pttableinner_,
+                              pttableouter_,
                               outervmstubs_);
 
     teunits_.resize(settings_.teunits(iSeed_), teunit);
@@ -222,6 +272,9 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
   bool tebuffernearfull;
 
   for (unsigned int istep = 0; istep < maxStep_; istep++) {
+
+    // These print statements are not on by defaul but can be enabled for the
+    // comparison with HLS code to track differences.
     if (print) {
       CircularBuffer<TEData>& tedatabuffer = std::get<0>(tebuffer_);
       unsigned int& istub = std::get<1>(tebuffer_);
@@ -278,11 +331,9 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
 
       bool accept = false;
 
-      if (iSeed_ < 4) {
-        if (print)
-          cout << "istep=" << istep << " TEUnit read iTE=" << iTE << endl;
+      if (iSeed_ == Seed::L1L2 || iSeed_ == Seed::L2L3 || iSeed_ == Seed::L3L4 || iSeed_ == Seed::L5L6 ) {
         accept = barrelSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
-      } else if (iSeed_ < 6) {
+      } else if ( iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4 ) {
         accept = diskSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
       } else {
         accept = overlapSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub);
@@ -315,9 +366,6 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
       if (teunit.idle()) {
         if (notemptytebuffer) {
           teunit.init(std::get<0>(tebuffer_).read());
-          if (print)
-            std::cout << "istep=" << istep << " TEUnit init iTE inner : " << ite << " "
-                      << teunit.innerStub()->allStubIndex().value() << std::endl;
           notemptytebuffer = false;  //prevent initialzing another TE unit
         }
       }
@@ -367,9 +415,9 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
 
       int lutval = -1;
       if (iSeed_ < 6) {  //FIXME should only be one table - but will need coordination with HLS code.
-        lutval = vmrtable_.lookupinner(indexz, indexr);
+	lutval = innerTable_.lookup((indexz<<nbitsrfinebintable_) + indexr);
       } else {
-        lutval = vmrtable_.lookupinneroverlap(indexz, indexr);
+	lutval = innerOverlapTable_.lookup((indexz<<nbitsrfinebintable_) + indexr);
       }
 
       if (lutval != -1) {
@@ -381,7 +429,7 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
         int start = lookupbits.bits(NFINERZBITS + 1, nbitsrzbin_);  //rz bin
         int rzdiffmax = lookupbits.bits(NFINERZBITS + 1 + nbitsrzbin_, NFINERZBITS);
 
-        if ((iSeed_ == 4 || iSeed_ == 5) && negdisk) {  //TODO - need to store negative disk
+        if (( iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4 ) && negdisk) {  //TODO - need to store negative disk
           start += (1 << nbitsrzbin_);
         }
         int last = start + next;
@@ -389,16 +437,15 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
         int nbins = (1 << N_RZBITS);
 
         unsigned int useregindex = (innerfinephi << innerbend.nbits()) + innerbend.value();
-        if (iSeed_ >= 4) {
+        if ( iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4 || iSeed_ == Seed::L1D1 || iSeed_ == Seed::L2D1 ) {
           //FIXME If the lookupbits were rationally organized this would be much simpler
           unsigned int nrbits = 3;
           int ir = ((start & ((1 << (nrbits - 1)) - 1)) << 1) + (rzfinebinfirst >> (NFINERZBITS - 1));
           useregindex = (useregindex << nrbits) + ir;
         }
 
-        assert(useregindex < useregion_.size());
-        unsigned int usereg = useregion_[useregindex];
-
+        unsigned int usereg = useregiontable_.lookup(useregindex);
+	
         tedata.regions_.clear();
         tedata.stub_ = stub;
         tedata.rzbinfirst_ = rzfinebinfirst;
@@ -422,10 +469,6 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
             }
             assert(ireg * nbins + ibin < outervmstubs_->nBin());
             int nstubs = outervmstubs_->nVMStubsBinned(ireg * nbins + ibin);
-
-            if (print)
-              cout << "Add to TEBuffer stub ibin ireg nstubs: " << stub->allStubIndex().value() << " " << ibin << " "
-                   << ireg << " " << nstubs << endl;
 
             if (nstubs > 0) {
               mask = "1" + mask;
@@ -496,208 +539,3 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
   }
 }
 
-void TrackletProcessor::buildLUT() {
-  //number of fine phi bins in sector
-  int nfinephibins =
-      settings_.nallstubs(layerdisk2_) * settings_.nvmte(1, iSeed_) * (1 << settings_.nfinephi(1, iSeed_));
-  double dfinephi = settings_.dphisectorHG() / nfinephibins;
-
-  double rmin = -1.0;
-  double rmax = -1.0;
-
-  if (iSeed_ < 4) {
-    rmin = settings_.rmean(layerdisk1_);
-    rmax = settings_.rmean(layerdisk2_);
-  } else {
-    if (iSeed_ > 5) {
-      if (iSeed_ == 6) {
-        rmax = settings_.rmaxdiskl1overlapvm();
-      }
-      if (iSeed_ == 7) {
-        rmax = settings_.rmaxdiskvm();
-      }
-      rmin = settings_.rmean(layerdisk1_);
-    } else {
-      rmax = settings_.rmaxdiskvm();
-      rmin = rmax * settings_.zmean(layerdisk2_ - 6 - 1) / settings_.zmean(layerdisk2_ - 6);
-    }
-  }
-
-  double dphimax = asin(0.5 * settings_.maxrinv() * rmax) - asin(0.5 * settings_.maxrinv() * rmin);
-
-  int nbins = 2.0 * (dphimax / dfinephi + 1.0);
-
-  nbitsfinephidiff_ = log(nbins) / log(2.0) + 1;
-
-  nbitsfinephi_ = settings_.nbitsallstubs(layerdisk2_) + settings_.nbitsvmte(1, iSeed_) + settings_.nfinephi(1, iSeed_);
-
-  int outerrbits = 3;
-  if (iSeed_ < 4) {
-    outerrbits = 0;
-  }
-
-  int outerrbins = (1 << outerrbits);
-
-  double dphi[2];
-  double router[2];
-
-  unsigned int nbendbitsinner = 3;
-  unsigned int nbendbitsouter = 3;
-  if (iSeed_ == 2) {
-    nbendbitsouter = 4;
-  } else if (iSeed_ == 3) {
-    nbendbitsinner = 4;
-    nbendbitsouter = 4;
-  }
-
-  int nbinsfinephidiff = (1 << nbitsfinephidiff_);
-
-  for (int iphibin = 0; iphibin < nbinsfinephidiff; iphibin++) {
-    int iphidiff = iphibin;
-    if (iphibin >= nbinsfinephidiff / 2) {
-      iphidiff = iphibin - nbinsfinephidiff;
-    }
-    //min and max dphi
-    dphi[0] = (iphidiff - 1.5) * dfinephi;
-    dphi[1] = (iphidiff + 1.5) * dfinephi;
-    for (int irouterbin = 0; irouterbin < outerrbins; irouterbin++) {
-      if (iSeed_ >= 4) {
-        router[0] =
-            settings_.rmindiskvm() + irouterbin * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
-        router[1] =
-            settings_.rmindiskvm() + (irouterbin + 1) * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
-      } else {
-        router[0] = settings_.rmean(layerdisk2_);
-        router[1] = settings_.rmean(layerdisk2_);
-      }
-
-      double bendinnermin = 20.0;
-      double bendinnermax = -20.0;
-      double bendoutermin = 20.0;
-      double bendoutermax = -20.0;
-      double rinvmin = 1.0;
-      for (int i2 = 0; i2 < 2; i2++) {
-        for (int i3 = 0; i3 < 2; i3++) {
-          double rinner = 0.0;
-          if (iSeed_ == 4 || iSeed_ == 5) {
-            rinner = router[i3] * settings_.zmean(layerdisk1_ - N_LAYER) / settings_.zmean(layerdisk2_ - N_LAYER);
-          } else {
-            rinner = settings_.rmean(layerdisk1_);
-          }
-          double rinv1 = rinv(0.0, -dphi[i2], rinner, router[i3]);
-          double pitchinner = (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-          double pitchouter =
-              (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-          double abendinner = bendstrip(rinner, rinv1, pitchinner);
-          double abendouter = bendstrip(router[i3], rinv1, pitchouter);
-          if (abendinner < bendinnermin)
-            bendinnermin = abendinner;
-          if (abendinner > bendinnermax)
-            bendinnermax = abendinner;
-          if (abendouter < bendoutermin)
-            bendoutermin = abendouter;
-          if (abendouter > bendoutermax)
-            bendoutermax = abendouter;
-          if (std::abs(rinv1) < rinvmin) {
-            rinvmin = std::abs(rinv1);
-          }
-        }
-      }
-
-      bool passptcut = rinvmin < settings_.rinvcutte();
-
-      for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
-        double bend = settings_.benddecode(ibend, layerdisk1_, nbendbitsinner == 3);
-
-        bool passinner = bend <= bendinnermax + settings_.bendcutte(ibend, layerdisk1_, nbendbitsinner == 3) &&
-                         bend >= bendinnermin - settings_.bendcutte(ibend, layerdisk1_, nbendbitsinner == 3);
-        pttableinnernew_.push_back(passinner && passptcut);
-      }
-
-      for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
-        double bend = settings_.benddecode(ibend, layerdisk2_, nbendbitsouter == 3);
-
-        bool passouter = bend <= bendoutermax + settings_.bendcutte(ibend, layerdisk2_, nbendbitsouter == 3) &&
-                         bend >= bendoutermin - settings_.bendcutte(ibend, layerdisk2_, nbendbitsouter == 3);
-        pttableouternew_.push_back(passouter && passptcut);
-      }
-    }
-  }
-
-  int nirbits = 0;
-  if (iSeed_ >= 4)
-    nirbits = 3;
-
-  int nregmax = 0;
-
-  for (int innerfinephi = 0; innerfinephi < (1 << nbitsfinephi_); innerfinephi++) {
-    for (int innerbend = 0; innerbend < (1 << nbendbitsinner); innerbend++) {
-      for (int ir = 0; ir < (1 << nirbits); ir++) {
-        int nreg = 0;
-        unsigned int usereg = 0;
-        for (unsigned int ireg = 0; ireg < settings_.nvmte(1, iSeed_); ireg++) {
-          bool match = false;
-          for (int ifinephiouter = 0; ifinephiouter < (1 << settings_.nfinephi(1, iSeed_)); ifinephiouter++) {
-            int outerfinephi = iAllStub_ * (1 << (nbitsfinephi_ - settings_.nbitsallstubs(layerdisk2_))) +
-                               ireg * (1 << settings_.nfinephi(1, iSeed_)) + ifinephiouter;
-            int idphi = outerfinephi - innerfinephi;
-            bool inrange = (idphi < (1 << (nbitsfinephidiff_ - 1))) && (idphi >= -(1 << (nbitsfinephidiff_ - 1)));
-            if (idphi < 0)
-              idphi = idphi + (1 << nbitsfinephidiff_);
-            int idphi1 = idphi;
-            if (iSeed_ >= 4)
-              idphi1 = (idphi << 3) + ir;
-            int ptinnerindexnew = (idphi1 << nbendbitsinner) + innerbend;
-            match = match || (inrange && pttableinnernew_[ptinnerindexnew]);
-          }
-          if (match && ir < 3)
-            nreg++;
-          if (match) {
-            usereg = usereg | (1 << ireg);
-          }
-        }
-
-        useregion_.push_back(usereg);
-        if (nreg > nregmax)
-          nregmax = nreg;
-      }
-    }
-  }
-
-  if (settings_.writeTable()) {
-    ofstream out;
-    out.open(settings_.tablePath() + getName() + "_usereg.tab");
-
-    out << "{" << endl;
-    for (unsigned int i = 0; i < useregion_.size(); i++) {
-      if (i != 0) {
-        out << "," << endl;
-      }
-      out << useregion_[i];
-    }
-    out << endl << "};" << endl;
-    out.close();
-
-    ofstream outstubptinnercut;
-    outstubptinnercut.open(settings_.tablePath() + getName() + "_stubptinnercut.tab");
-    outstubptinnercut << "{" << endl;
-    for (unsigned int i = 0; i < pttableinnernew_.size(); i++) {
-      if (i != 0)
-        outstubptinnercut << "," << endl;
-      outstubptinnercut << pttableinnernew_[i];
-    }
-    outstubptinnercut << endl << "};" << endl;
-    outstubptinnercut.close();
-
-    ofstream outstubptoutercut;
-    outstubptoutercut.open(settings_.tablePath() + getName() + "_stubptoutercut.tab");
-    outstubptoutercut << "{" << endl;
-    for (unsigned int i = 0; i < pttableouternew_.size(); i++) {
-      if (i != 0)
-        outstubptoutercut << "," << endl;
-      outstubptoutercut << pttableouternew_[i];
-    }
-    outstubptoutercut << endl << "};" << endl;
-    outstubptoutercut.close();
-  }
-}

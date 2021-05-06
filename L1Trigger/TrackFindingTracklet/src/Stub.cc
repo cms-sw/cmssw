@@ -21,9 +21,7 @@ Stub::Stub(L1TStub& stub, Settings const& settings, Globals& globals) : settings
 
   layerdisk_ = stub.layerdisk();
 
-  int nbendbits = 4;
-  if (stub.isPSmodule())
-    nbendbits = 3;
+  int nbendbits = stub.isPSmodule() ? N_BENDBITS_PS : N_BENDBITS_2S;
 
   int nalphabits = 0;
 
@@ -35,8 +33,6 @@ Stub::Stub(L1TStub& stub, Settings const& settings, Globals& globals) : settings
     nalphabits = settings.nbitsalpha();
     nrbits = 7;
   }
-
-  int layer = stub.layer() + 1;
 
   assert(nbendbits + nalphabits + nrbits + nzbits + nphibits == 36);
 
@@ -71,9 +67,9 @@ Stub::Stub(L1TStub& stub, Settings const& settings, Globals& globals) : settings
   phi_.set(newphi, nphibits, true, __LINE__, __FILE__);
   phicorr_.set(newphi, nphibits, true, __LINE__, __FILE__);
   bool pos = false;
-  if (layerdisk_ > 5) {
+  if (layerdisk_ >= N_LAYER) {
     pos = true;
-    int disk = layerdisk_ - 5;
+    int disk = layerdisk_ - N_LAYER + 1;
     if (stub.z() < 0.0)
       disk = -disk;
     disk_.set(disk, 4, false, __LINE__, __FILE__);
@@ -83,7 +79,7 @@ Stub::Stub(L1TStub& stub, Settings const& settings, Globals& globals) : settings
     }
   } else {
     disk_.set(0, 4, false, __LINE__, __FILE__);
-    layer_.set(layer - 1, 3, true, __LINE__, __FILE__);
+    layer_.set(layerdisk_, 3, true, __LINE__, __FILE__);
   }
   r_.set(newr, nrbits, pos, __LINE__, __FILE__);
   z_.set(newz, nzbits, false, __LINE__, __FILE__);
@@ -125,13 +121,13 @@ std::string Stub::phiregionaddressstr() const {
 }
 
 void Stub::setAllStubIndex(int nstub) {
-  if (nstub >= (1 << 7)) {
+  if (nstub >= (1 << N_BITSMEMADDRESS)) {
     if (settings_.debugTracklet())
       edm::LogPrint("Tracklet") << "Warning too large stubindex!";
-    nstub = (1 << 7) - 1;
+    nstub = (1 << N_BITSMEMADDRESS) - 1;
   }
 
-  stubindex_.set(nstub, 7);
+  stubindex_.set(nstub, N_BITSMEMADDRESS);
 }
 
 void Stub::setPhiCorr(int phiCorr) {
@@ -188,6 +184,6 @@ double Stub::phiapprox(double phimin, double) const {
 
 unsigned int Stub::layerdisk() const {
   if (layer_.value() == -1)
-    return 5 + abs(disk_.value());
+    return N_LAYER - 1 + abs(disk_.value());
   return layer_.value();
 }

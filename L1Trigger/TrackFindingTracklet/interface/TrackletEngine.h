@@ -2,6 +2,7 @@
 #define L1Trigger_TrackFindingTracklet_interface_TrackletEngine_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/ProcessBase.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 #include <vector>
 #include <string>
@@ -27,8 +28,6 @@ namespace trklet {
 
     void setVMPhiBin();
 
-    void writeTETable();
-
   private:
     //Which seed type and which layer/disk is used
     unsigned int iSeed_;
@@ -43,8 +42,8 @@ namespace trklet {
     StubPairsMemory* stubpairs_;
 
     //The stub pt (bend) lookup table for the inner and outer stub
-    std::vector<bool> pttableinner_;
-    std::vector<bool> pttableouter_;
+    TrackletLUT innerptlut_;
+    TrackletLUT outerptlut_;
 
     //Number of phi bits used in the lookup table
     unsigned int innerphibits_;

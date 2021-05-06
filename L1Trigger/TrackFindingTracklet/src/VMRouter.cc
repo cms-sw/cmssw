@@ -14,15 +14,37 @@ using namespace std;
 using namespace trklet;
 
 VMRouter::VMRouter(string name, Settings const& settings, Globals* global)
-    : ProcessBase(name, settings, global), vmrtable_(settings) {
+  : ProcessBase(name, settings, global), meTable_(settings), diskTable_(settings),
+    innerTable_(settings), innerOverlapTable_(settings), innerThirdTable_(settings) {
+  
   layerdisk_ = initLayerDisk(4);
 
   vmstubsMEPHI_.resize(settings_.nvmme(layerdisk_), nullptr);
 
+  unsigned int region = name[9]-'A';
+  assert(region < settings_.nallstubs(layerdisk_));
+  
   overlapbits_ = 7;
   nextrabits_ = overlapbits_ - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_));
 
-  vmrtable_.init(layerdisk_, name);
+  meTable_.initVMRTable(layerdisk_, TrackletLUT::VMRTableType::me, region);                    //used for ME and outer TE barrel
+
+  if (layerdisk_==LayerDisk::D1 || layerdisk_==LayerDisk::D2 || layerdisk_==D4) { 
+   diskTable_.initVMRTable(layerdisk_, TrackletLUT::VMRTableType::disk, region);         //outer disk used by D1, D2, and D4
+  }
+  
+  if (layerdisk_ == LayerDisk::L1 || layerdisk_ == LayerDisk::L2 || layerdisk_ == LayerDisk::L3 || layerdisk_ == LayerDisk::L5 ||
+      layerdisk_ == LayerDisk::D1 || layerdisk_ == LayerDisk::D3) {
+    innerTable_.initVMRTable(layerdisk_, TrackletLUT::VMRTableType::inner, region);       //projection to next layer/disk
+  }
+
+  if (layerdisk_ == LayerDisk::L1 || layerdisk_ == LayerDisk::L2 ) {
+    innerOverlapTable_.initVMRTable(layerdisk_, TrackletLUT::VMRTableType::inneroverlap, region);  //projection to disk from layer
+  }
+
+  if (layerdisk_ == LayerDisk::L2 || layerdisk_ == LayerDisk::L3 || layerdisk_ == LayerDisk::L5 || layerdisk_ == LayerDisk::D1 ) {
+    innerThirdTable_.initVMRTable(layerdisk_, TrackletLUT::VMRTableType::innerthird, region);  //projection to third layer/disk 
+  }
 
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk_);
   nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk_);
@@ -60,40 +82,41 @@ void VMRouter::addOutput(MemoryBase* memory, string output) {
       VMStubsTEMemory* tmp = dynamic_cast<VMStubsTEMemory*>(memory);
       assert(tmp != nullptr);
       if (seedtype < 'I') {
-        if (layerdisk_ == 0 || layerdisk_ == 1)
-          iseed = 0;
-        if (layerdisk_ == 2 || layerdisk_ == 3)
-          iseed = 2;
-        if (layerdisk_ == 4 || layerdisk_ == 5)
-          iseed = 3;
-        if (layerdisk_ == 6 || layerdisk_ == 7)
-          iseed = 4;
-        if (layerdisk_ == 8 || layerdisk_ == 9)
-          iseed = 5;
-        if (layerdisk_ == 0 || layerdisk_ == 2 || layerdisk_ == 4 || layerdisk_ == 6 || layerdisk_ == 8)
+        if (layerdisk_ == LayerDisk::L1 || layerdisk_ == LayerDisk::L2)
+          iseed = Seed::L1L2;
+        if (layerdisk_ == LayerDisk::L3 || layerdisk_ == LayerDisk::L4)
+          iseed = Seed::L3L4;
+        if (layerdisk_ == LayerDisk::L5 || layerdisk_ == LayerDisk::L6)
+          iseed = Seed::L5L6;
+        if (layerdisk_ == LayerDisk::D1 || layerdisk_ == LayerDisk::D2)
+          iseed = Seed::D1D2;
+        if (layerdisk_ == LayerDisk::D3 || layerdisk_ == LayerDisk::D4)
+          iseed = Seed::D3D4;
+        if (layerdisk_ == LayerDisk::L1 || layerdisk_ == LayerDisk::L3 || layerdisk_ == LayerDisk::L5 ||
+	    layerdisk_ == LayerDisk::D1 || layerdisk_ == LayerDisk::D3)
           inner = 0;
       } else if (seedtype < 'M') {
-        if (layerdisk_ == 1 || layerdisk_ == 2)
-          iseed = 1;
-        if (layerdisk_ == 1)
+        if (layerdisk_ == LayerDisk::L2 || layerdisk_ == LayerDisk::L3)
+          iseed = Seed::L2L3;
+        if (layerdisk_ == LayerDisk::L2)
           inner = 0;
       } else if (seedtype <= 'Z') {
-        if (layerdisk_ == 0 || layerdisk_ == 6)
-          iseed = 6;
-        if (layerdisk_ == 1 || layerdisk_ == 6)
-          iseed = 7;
-        if (layerdisk_ == 0 || layerdisk_ == 1)
+        if (layerdisk_ == LayerDisk::L1 || layerdisk_ == LayerDisk::D1)
+          iseed = Seed::L1D1;
+        if (layerdisk_ == LayerDisk::L2 || layerdisk_ == LayerDisk::D1)
+          iseed = Seed::L2D1;
+        if (layerdisk_ == LayerDisk::L1 || layerdisk_ == LayerDisk::L2)
           inner = 0;
       } else if (seedtype < 'o' && seedtype >= 'a') {
-        if (layerdisk_ == 1 || layerdisk_ == 2)
-          iseed = 10;
-        if (layerdisk_ == 1)
+        if (layerdisk_ == LayerDisk::L2 || layerdisk_ == LayerDisk::L3)
+          iseed = Seed::L2L3D1;
+        if (layerdisk_ == LayerDisk::L1)
           inner = 0;
       } else if (seedtype > 'o' && seedtype <= 'z') {
-        if (layerdisk_ == 1)
-          iseed = 11;
-        if (layerdisk_ == 6)
-          iseed = 10;
+        if (layerdisk_ == LayerDisk::L2)
+          iseed = Seed::D1D2L2;
+        if (layerdisk_ == LayerDisk::D1)
+          iseed = Seed::L2L3D1;
         inner = 2;
       } else {
         throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " Invalid seeding!";
@@ -224,8 +247,7 @@ void VMRouter::execute() {
       assert(indexz < (1 << nbitszfinebintable_));
       assert(indexr < (1 << nbitsrfinebintable_));
 
-      int melut = vmrtable_.lookup(indexz, indexr);
-
+      int melut = meTable_.lookup((indexz<<nbitsrfinebintable_)+indexr);
       assert(melut >= 0);
 
       int vmbin = melut >> 3;
@@ -289,21 +311,21 @@ void VMRouter::execute() {
                 }
               }
             } else {
-              lutval = vmrtable_.lookupdisk(indexz, indexr);
+	      lutval = diskTable_.lookup((indexz<<nbitsrfinebintable_)+indexr);
             }
           }
           if (lutval == -1)
             continue;
         } else {
           if (iseed < 6 || iseed > 7) {
-            lutval = vmrtable_.lookupinner(indexz, indexr);
+	    lutval = innerTable_.lookup((indexz<<nbitsrfinebintable_)+indexr);
           } else {
-            lutval = vmrtable_.lookupinneroverlap(indexz, indexr);
+	    lutval = innerOverlapTable_.lookup((indexz<<nbitsrfinebintable_)+indexr);
           }
           if (lutval == -1)
             continue;
           if (settings_.extended() && (iseed == 2 || iseed == 3 || iseed == 10 || iseed == 4)) {
-            int lutval2 = vmrtable_.lookupinnerThird(indexz, indexr);
+	    int lutval2 = innerThirdTable_.lookup((indexz<<nbitsrfinebintable_)+indexr);
             if (lutval2 == -1)
               continue;
             lutval += (lutval2 << 10);

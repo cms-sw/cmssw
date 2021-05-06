@@ -15,72 +15,16 @@
 using namespace std;
 using namespace trklet;
 
-MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global) : ProcessBase(name, settings, global) {
+MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global) : ProcessBase(name, settings, global),
+										   luttable_(settings) {
   layerdisk_ = initLayerDisk(3);
 
   barrel_ = layerdisk_ < N_LAYER;
 
-  nvm_ = settings_.nvmme(layerdisk_) * settings_.nallstubs(layerdisk_);
-
-  nvmbits_ = settings_.nbitsvmme(layerdisk_) + settings_.nbitsallstubs(layerdisk_);
+  luttable_.initBendMatch(layerdisk_);
 
   nrinv_ = NRINVBITS;
-  double rinvhalf = 0.5 * ((1 << nrinv_) - 1);
 
-  nfinephibits_ = 3;
-
-  if (barrel_) {
-    bool isPSmodule = layerdisk_ < N_PSLAYER;
-
-    unsigned int nbits = isPSmodule ? N_BENDBITS_PS : N_BENDBITS_2S;
-
-    for (unsigned int irinv = 0; irinv < (1u << nrinv_); irinv++) {
-      double rinv = (irinv - rinvhalf) * (1 << (settings_.nbitsrinv() - nrinv_)) * settings_.krinvpars();
-
-      double stripPitch = settings_.stripPitch(isPSmodule);
-      double projbend = bendstrip(settings_.rmean(layerdisk_), rinv, stripPitch);
-      for (unsigned int ibend = 0; ibend < (1u << nbits); ibend++) {
-        double stubbend = settings_.benddecode(ibend, layerdisk_, isPSmodule);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(ibend, layerdisk_, isPSmodule);
-        table_.push_back(pass);
-      }
-    }
-
-    if (settings_.writeTable()) {
-      char layer = '1' + layerdisk_;
-      string fname = "METable_L";
-      fname += layer;
-      fname += ".tab";
-
-      ofstream out = openfile(settings_.tablePath(), fname, __FILE__, __LINE__);
-
-      out << "{" << endl;
-      for (unsigned int i = 0; i < table_.size(); i++) {
-        if (i != 0) {
-          out << "," << endl;
-        }
-        out << table_[i];
-      }
-      out << "};" << endl;
-      out.close();
-    }
-  }
-
-  if (layerdisk_ >= N_LAYER) {
-    for (unsigned int iprojbend = 0; iprojbend < (1u << nrinv_); iprojbend++) {
-      double projbend = 0.5 * (iprojbend - rinvhalf);
-      for (unsigned int ibend = 0; ibend < (1 << N_BENDBITS_PS); ibend++) {
-        double stubbend = settings_.benddecode(ibend, layerdisk_, true);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(ibend, layerdisk_, true);
-        tablePS_.push_back(pass);
-      }
-      for (unsigned int ibend = 0; ibend < (1 << N_BENDBITS_2S); ibend++) {
-        double stubbend = settings_.benddecode(ibend, layerdisk_, false);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(ibend, layerdisk_, false);
-        table2S_.push_back(pass);
-      }
-    }
-  }
 }
 
 void MatchEngine::addOutput(MemoryBase* memory, string output) {
@@ -292,6 +236,9 @@ void MatchEngine::execute() {
       bool passphi = (std::abs(deltaphi) < mindeltaphicut) || (std::abs(deltaphi) > maxdeltaphicut);
 
       unsigned int index = (projrinv << nbits) + vmstub.bend().value();
+      if (!barrel_&&isPSmodule) {
+	index += (1 << (nrinv_ + N_BENDBITS_2S));
+      }
 
       //Check if stub z position consistent
       int idrz = stubfinerz - projfinerzadj;
@@ -323,7 +270,7 @@ void MatchEngine::execute() {
 
       //Check if stub bend and proj rinv consistent
       if (passz && passphi) {
-        if (barrel_ ? table_[index] : (isPSmodule ? tablePS_[index] : table2S_[index])) {
+        if (luttable_.lookup(index)) {
           Tracklet* proj = vmprojs_->getTracklet(projindex);
           std::pair<Tracklet*, int> tmp(proj, vmprojs_->getAllProjIndex(projindex));
           if (settings_.writeMonitorData("Seeds")) {
