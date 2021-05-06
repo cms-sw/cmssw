@@ -89,16 +89,14 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
       seeding_regions_token_(
           consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
       itername_(ps.getParameter<std::string>("itername")) {
+  auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
+  auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
   if (doNose_) {
-    auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
-    auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
     myAlgoHFNose_ = PatternRecognitionHFNoseFactory::get()->create(
         ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, cache, consumesCollector());
     layer_clusters_tiles_hfnose_token_ =
         consumes<TICLLayerTilesHFNose>(ps.getParameter<edm::InputTag>("layer_clusters_hfnose_tiles"));
   } else {
-    auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
-    auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
     myAlgo_ = PatternRecognitionFactory::get()->create(
         ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, cache, consumesCollector());
     layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
