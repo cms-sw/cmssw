@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.MuonSeedGenerator.ptSeedParameterization_cfi import ptSeedParameterization
 from RecoMuon.MuonSeedGenerator.MuonSeedPtScale_cfi import dphiScale
 
-import RecoMuon.MuonSeedGenerator.produceMuons_cfi as _mod
-ancientMuonSeed = _mod.produceMuons.clone(
+import RecoMuon.MuonSeedGenerator.muonSeedGenerator_cfi as _mod
+ancientMuonSeed = _mod.muonSeedGenerator.clone(
                                  ptSeedParameterization,
                                  dphiScale,
                                  beamSpotTag = "offlineBeamSpot",

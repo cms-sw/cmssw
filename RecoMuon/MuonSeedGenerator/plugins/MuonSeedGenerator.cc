@@ -120,5 +120,5 @@ void MuonSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<double>("deltaPhiSearchWindow", 0.25);
   desc.add<double>("deltaEtaSearchWindow", 0.2);
   desc.add<double>("deltaEtaCrackSearchWindow", 0.25);
-  descriptions.add("produceMuons", desc);
+  descriptions.add("muonSeedGenerator", desc);
 }
