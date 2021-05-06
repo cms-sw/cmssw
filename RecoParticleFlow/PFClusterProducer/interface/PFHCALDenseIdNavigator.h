@@ -57,7 +57,8 @@ public:
       std::vector<DetId> vecDetIds(caloGeom.getValidDetIds(DetId::Hcal, hcalSubdet));
       vecHcal.insert(vecHcal.end(), vecDetIds.begin(), vecDetIds.end());
     }
-    for (auto hDetId : vecHcal) {
+    vDenseIdHcal.reserve(vecHcal.size());
+ for (auto hDetId : vecHcal) {
       vDenseIdHcal.push_back(topology_.get()->detId2denseId(hDetId));
     }
     std::sort(vDenseIdHcal.begin(), vDenseIdHcal.end());

@@ -18,7 +18,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
     : _prodInitClusters(conf.getUntrackedParameter<bool>("prodInitialClusters", false)) {
   _rechitsLabel = consumes<reco::PFRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsSource"));
   edm::ConsumesCollector cc = consumesCollector();
-  
+
   //setup rechit cleaners
   const edm::VParameterSet& cleanerConfs = conf.getParameterSetVector("recHitCleaners");
   for (const auto& conf : cleanerConfs) {

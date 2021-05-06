@@ -34,8 +34,7 @@ public:
           tracksSrc_ = cc.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
           break;
         case pfCandidateCollection:
-          vetoPFCandidatesSrc_ =
-              cc.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+          vetoPFCandidatesSrc_ = cc.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
           break;
       }  // switch
     }

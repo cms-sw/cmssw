@@ -203,7 +203,8 @@ class PFRecHitQTestHCALTimeVsDepth : public PFRecHitQTestBase {
 public:
   PFRecHitQTestHCALTimeVsDepth() {}
 
-  PFRecHitQTestHCALTimeVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitQTestBase(iConfig, cc) {
+  PFRecHitQTestHCALTimeVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc) {
     std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
     for (auto& pset : psets) {
       depths_.push_back(pset.getParameter<int>("depth"));
@@ -259,7 +260,8 @@ class PFRecHitQTestHCALThresholdVsDepth : public PFRecHitQTestBase {
 public:
   PFRecHitQTestHCALThresholdVsDepth() {}
 
-  PFRecHitQTestHCALThresholdVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitQTestBase(iConfig, cc) {
+  PFRecHitQTestHCALThresholdVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc) {
     std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
     for (auto& pset : psets) {
       depths_ = pset.getParameter<std::vector<int> >("depth");

@@ -12,6 +12,7 @@ public:
     filterByTracksterPID_ = conf.getParameter<bool>("filterByTracksterPID");
     pid_threshold_ = conf.getParameter<double>("pid_threshold");
     filter_on_categories_ = conf.getParameter<std::vector<int> >("filter_on_categories");
+    
     tracksterToken_ = cc.consumes<std::vector<ticl::Trackster> >(conf.getParameter<edm::InputTag>("tracksterSrc"));
     clusterToken_ =
         cc.consumes<reco::CaloClusterCollection>(conf.getParameter<edm::InputTag>("clusterSrc"));

@@ -21,7 +21,8 @@
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
-Basic2DGenericPFlowClusterizer::Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+Basic2DGenericPFlowClusterizer::Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf,
+                                                               edm::ConsumesCollector& cc)
     : PFClusterBuilderBase(conf, cc),
       _maxIterations(conf.getParameter<unsigned>("maxIterations")),
       _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),

@@ -45,5 +45,6 @@ public:
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<PFRecHitQTestBase*(const edm::ParameterSet&, edm::ConsumesCollector&)> PFRecHitQTestFactory;
+typedef edmplugin::PluginFactory<PFRecHitQTestBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    PFRecHitQTestFactory;
 #endif

@@ -53,6 +53,7 @@ protected:
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<PFRecHitNavigatorBase*(const edm::ParameterSet&, edm::ConsumesCollector&)> PFRecHitNavigationFactory;
+typedef edmplugin::PluginFactory<PFRecHitNavigatorBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    PFRecHitNavigationFactory;
 
 #endif

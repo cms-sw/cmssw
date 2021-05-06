@@ -26,8 +26,7 @@
 class PFPSRecHitCreator final : public PFRecHitCreatorBase {
 public:
   PFPSRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitCreatorBase(iConfig, cc),
-        geomToken_(cc.esConsumes()) {
+      : PFRecHitCreatorBase(iConfig, cc), geomToken_(cc.esConsumes()) {
     recHitToken_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
   }
 

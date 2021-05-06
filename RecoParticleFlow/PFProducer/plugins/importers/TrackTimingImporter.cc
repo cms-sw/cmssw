@@ -25,9 +25,9 @@ public:
                             : edm::EDGetTokenT<edm::ValueMap<float>>()),
         srcTimeGsf_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMapGsf"))),
         srcTimeErrorGsf_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMapGsf"))),
-        srcTimeQualityGsf_(useTimeQuality_ ? cc.consumes<edm::ValueMap<float>>(
-                                                 conf.getParameter<edm::InputTag>("timeQualityMapGsf"))
-                                           : edm::EDGetTokenT<edm::ValueMap<float>>()),
+        srcTimeQualityGsf_(
+            useTimeQuality_ ? cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeQualityMapGsf"))
+                            : edm::EDGetTokenT<edm::ValueMap<float>>()),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   void importToBlock(const edm::Event&, ElementList&) const override;

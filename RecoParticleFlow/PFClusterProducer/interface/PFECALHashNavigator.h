@@ -22,8 +22,7 @@ public:
   PFECALHashNavigator() {}
 
   PFECALHashNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitNavigatorBase(iConfig, cc),
-        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
+      : PFRecHitNavigatorBase(iConfig, cc), geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     crossBarrelEndcapBorder_ = iConfig.getParameter<bool>("crossBarrelEndcapBorder");
     neighbourmapcalculated_ = false;
   }

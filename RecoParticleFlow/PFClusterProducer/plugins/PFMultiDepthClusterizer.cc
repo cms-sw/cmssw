@@ -9,7 +9,8 @@
 
 #include <iterator>
 
-PFMultiDepthClusterizer::PFMultiDepthClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) : PFClusterBuilderBase(conf, cc) {
+PFMultiDepthClusterizer::PFMultiDepthClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+    : PFClusterBuilderBase(conf, cc) {
   if (conf.exists("allCellsPositionCalc")) {
     const edm::ParameterSet& acConf = conf.getParameterSet("allCellsPositionCalc");
     const std::string& algoac = acConf.getParameter<std::string>("algoName");

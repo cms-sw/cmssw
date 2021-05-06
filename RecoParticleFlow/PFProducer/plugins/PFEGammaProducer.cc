@@ -59,7 +59,7 @@ private:
   /// particle flow algorithm configuration
   const PFEGammaAlgo::PFEGConfigInfo pfEGConfigInfo_;
   const PFEGammaAlgo::GBRForests gbrForests_;
-  
+
   const edm::ESGetToken<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd> esEEInterCalibToken_;
   const edm::ESGetToken<ESChannelStatus, ESChannelStatusRcd> esChannelStatusToken_;
 };
@@ -106,7 +106,7 @@ void PFEGammaProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
 
   // preshower conditions
   auto esEEInterCalibHandle_ = iSetup.getHandle(esEEInterCalibToken_);
-  auto esChannelStatusHandle_ = iSetup.getHandle(esChannelStatusToken_);;
+  auto esChannelStatusHandle_ = iSetup.getHandle(esChannelStatusToken_);
 
   //Assign the PFAlgo Parameters
   auto const& primaryVertices = iEvent.get(vertices_);
