@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-#include "RecoHGCal/TICL/plugins/GlobalCache.h"
+#include "RecoHGCal/TICL/interface/GlobalCache.h"
 
 typedef edmplugin::PluginFactory<ticl::PatternRecognitionAlgoBaseT<TICLLayerTiles>*(
     const edm::ParameterSet&, const ticl::CacheBase*, edm::ConsumesCollector)>
