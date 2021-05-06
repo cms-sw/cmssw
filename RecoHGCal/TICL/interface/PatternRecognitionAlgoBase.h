@@ -24,7 +24,7 @@ namespace ticl {
   template <typename TILES>
   class PatternRecognitionAlgoBaseT {
   public:
-    PatternRecognitionAlgoBaseT(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector )
+    PatternRecognitionAlgoBaseT(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector)
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
     virtual ~PatternRecognitionAlgoBaseT(){};
 
