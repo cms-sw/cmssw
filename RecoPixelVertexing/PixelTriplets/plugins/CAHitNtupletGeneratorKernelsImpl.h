@@ -257,11 +257,11 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       if (tracks->quality(it) > loose && it != im)
         tracks->quality(it) = loose;  //no race:  simple assignment of the same constant
     }
+
     
-
-
   }
 }
+
 
 __global__ void kernel_connect(cms::cuda::AtomicPairCounter *apc1,
                                cms::cuda::AtomicPairCounter *apc2,  // just to zero them,
@@ -502,8 +502,8 @@ __global__ void kernel_countHitInTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  // guard
-    if (quality[idx] < pixelTrack::Quality::loose)
-      continue;
+    // if (quality[idx] < pixelTrack::Quality::loose)
+    //  continue;
     for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
       hitToTuple->count(*h);
   }
@@ -516,8 +516,8 @@ __global__ void kernel_fillHitInTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  // guard
-    if (quality[idx] < pixelTrack::Quality::loose)
-      continue;
+    // if (quality[idx] < pixelTrack::Quality::loose)
+    //  continue;
     for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
       hitToTuple->fill(*h, idx);
   }
@@ -692,17 +692,17 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
                                            uint16_t nmin,
                                            bool dupPassThrough,
                                            CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
-  constexpr auto bad = pixelTrack::Quality::bad;
-  constexpr auto dup = pixelTrack::Quality::dup;
+  //constexpr auto bad = pixelTrack::Quality::bad;
+  //constexpr auto dup = pixelTrack::Quality::dup;
   constexpr auto loose = pixelTrack::Quality::loose;
-  constexpr auto strict = pixelTrack::Quality::strict;
+  //constexpr auto strict = pixelTrack::Quality::strict;
 
   // quality to mark rejected
-  auto const reject = loose; // dupPassThrough ? loose : dup;
+  auto const reject = dupPassThrough ? pixelTrack::Quality::loose : pixelTrack::Quality::dup;
 
   auto &hitToTuple = *phitToTuple;
   auto const &foundNtuplets = *ptuples;
-  auto const &tracks = *ptracks;
+  // auto const &tracks = *ptracks;
 
   auto const &hh = *hhp;
   int l1end = hh.hitsLayerStart()[1];
@@ -716,7 +716,7 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
 
     // find maxNh
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-      if (quality[*it] < reject)
+      if (quality[*it] < pixelTrack::Quality::highPurity)
         continue;
       uint32_t nh = foundNtuplets.size(*it);
       maxNh = std::max(nh, maxNh);
@@ -785,6 +785,7 @@ __global__ void kernel_tripletCleaner(int const *__restrict__ nshared,
     if (maxNh > 3)
       continue;
 
+    /*
     //  not a quality criteria.....
     int minSh = 1000;
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
@@ -797,6 +798,9 @@ __global__ void kernel_tripletCleaner(int const *__restrict__ nshared,
       continue;
     if (minSh == 0)
       printf("problem with 0 sharing\n");
+
+    */
+
 
     // for triplets choose best tip!  (should we first find best quality???)
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
