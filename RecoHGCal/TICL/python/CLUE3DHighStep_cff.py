@@ -23,14 +23,7 @@ ticlTrackstersCLUE3DHigh = _trackstersProducer.clone(
     patternRecognitionBy = "CLUE3D"
 )
 
-# MULTICLUSTERS
-
-ticlMultiClustersFromTrackstersCLUE3DHigh = _multiClustersFromTrackstersProducer.clone(
-    Tracksters = "ticlTrackstersCLUE3DHigh"
-)
-
 ticlCLUE3DHighStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersCLUE3DHigh
-    ,ticlTrackstersCLUE3DHigh
-    ,ticlMultiClustersFromTrackstersCLUE3DHigh)
+    ,ticlTrackstersCLUE3DHigh)
 

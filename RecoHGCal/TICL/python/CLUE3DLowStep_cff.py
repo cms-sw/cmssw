@@ -27,14 +27,7 @@ ticlTrackstersCLUE3DLow = _trackstersProducer.clone(
     )
 )
 
-# MULTICLUSTERS
-
-ticlMultiClustersFromTrackstersCLUE3DLow = _multiClustersFromTrackstersProducer.clone(
-    Tracksters = "ticlTrackstersCLUE3DLow"
-)
-
 ticlCLUE3DLowStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersCLUE3DLow
-    ,ticlTrackstersCLUE3DLow
-    ,ticlMultiClustersFromTrackstersCLUE3DLow)
+    ,ticlTrackstersCLUE3DLow)
 
