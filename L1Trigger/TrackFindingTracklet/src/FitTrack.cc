@@ -989,7 +989,7 @@ void FitTrack::execute(unsigned int iSector) {
 
     std::vector<const Stub*> trackstublist;
     std::vector<std::pair<int, int>> stubidslist;
-    if ((bestTracklet->getISeed() >= 8 && nMatchesUniq >= 1) ||
+    if ((bestTracklet->getISeed() >=  (int)N_SEED_PROMPT && nMatchesUniq >= 1) ||
         nMatchesUniq >= 2) {  //For seeds index >=8 (triplet seeds), there are three stubs associated from start.
       countFit++;
 

@@ -1,12 +1,12 @@
 #include "L1Trigger/TrackFindingTracklet/interface/MatchProcessor.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ProjectionRouterBendTable.h"
 #include "L1Trigger/TrackFindingTracklet/interface/HistBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
 
 #include <filesystem>
 
@@ -14,7 +14,11 @@ using namespace std;
 using namespace trklet;
 
 MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* global)
-    : ProcessBase(name, settings, global), fullmatches_(12), inputProjBuffer_(3) {
+  : ProcessBase(name, settings, global),
+    phimatchcuttable_(settings), zmatchcuttable_(settings), rphicutPStable_(settings),
+    rphicut2Stable_(settings), rcutPStable_(settings), rcut2Stable_(settings),
+    fullmatches_(12), rinvbendlut_(settings), luttable_(settings), inputProjBuffer_(3) {
+  
   phiregion_ = name[8] - 'A';
 
   layerdisk_ = initLayerDisk(3);
@@ -32,100 +36,30 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
     icorzshift_ = ilog2(settings_.krprojshiftdisk() / (settings_.kz() * settings_.krder()));
   }
 
+  luttable_.initBendMatch(layerdisk_);
+
   nrbits_ = 5;
   nphiderbits_ = 6;
 
+  if (!barrel_) {
+    rinvbendlut_.initProjectionBend(global->ITC_L1L2()->der_phiD_final.K(), layerdisk_-N_LAYER, nrbits_, nphiderbits_);
+  }
+
   nrinv_ = NRINVBITS;
-  double rinvhalf = 0.5 * ((1 << nrinv_) - 1);
 
-  for (unsigned int iSeed = 0; iSeed < 12; iSeed++) {
-    if (layerdisk_ < N_LAYER) {
-      phimatchcut_[iSeed] =
-          settings_.rphimatchcut(iSeed, layerdisk_) / (settings_.kphi1() * settings_.rmean(layerdisk_));
-      zmatchcut_[iSeed] = settings_.zmatchcut(iSeed, layerdisk_) / settings_.kz();
-    } else {
-      rphicutPS_[iSeed] = settings_.rphicutPS(iSeed, layerdisk_ - N_LAYER) / (settings_.kphi() * settings_.kr());
-      rphicut2S_[iSeed] = settings_.rphicut2S(iSeed, layerdisk_ - N_LAYER) / (settings_.kphi() * settings_.kr());
-      rcut2S_[iSeed] = settings_.rcut2S(iSeed, layerdisk_ - N_LAYER) / settings_.krprojshiftdisk();
-      rcutPS_[iSeed] = settings_.rcutPS(iSeed, layerdisk_ - N_LAYER) / settings_.krprojshiftdisk();
-    }
-  }
-
-  if (barrel_ && settings_.writeTable()) {
-    ofstream outphicut = openfile(settings_.tablePath(), getName() + "_phicut.tab", __FILE__, __LINE__);
-
-    outphicut << "{" << endl;
-    for (unsigned int seedindex = 0; seedindex < 12; seedindex++) {
-      if (seedindex != 0)
-        outphicut << "," << endl;
-      outphicut << phimatchcut_[seedindex];
-    }
-    outphicut << endl << "};" << endl;
-    outphicut.close();
-
-    ofstream outzcut = openfile(settings_.tablePath(), getName() + "_zcut.tab", __FILE__, __LINE__);
-
-    outzcut << "{" << endl;
-    for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
-      if (seedindex != 0)
-        outzcut << "," << endl;
-      outzcut << zmatchcut_[seedindex];
-    }
-    outzcut << endl << "};" << endl;
-    outzcut.close();
-  }
+  unsigned int region = getName()[8]-'A';
+  assert(region < settings_.nallstubs(layerdisk_));
 
   if (barrel_) {
-    unsigned int nbits = (layerdisk_ < N_PSLAYER) ? N_BENDBITS_PS : N_BENDBITS_2S;
-
-    for (unsigned int irinv = 0; irinv < (1u << nrinv_); irinv++) {
-      double rinv = (irinv - rinvhalf) * (1 << (settings_.nbitsrinv() - nrinv_)) * settings_.krinvpars();
-      double stripPitch = settings_.stripPitch(layerdisk_ < N_PSLAYER);
-      double projbend = bendstrip(settings_.rmean(layerdisk_), rinv, stripPitch);
-      for (unsigned int ibend = 0; ibend < (unsigned int)(1 << nbits); ibend++) {
-        double stubbend = settings_.benddecode(ibend, layerdisk_, layerdisk_ < (int)N_PSLAYER);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(ibend, layerdisk_, layerdisk_ < (int)N_PSLAYER);
-        table_.push_back(pass);
-      }
-    }
+    phimatchcuttable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::barrelphi, region);
+    zmatchcuttable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::barrelz, region);
   } else {
-    constexpr int nprojbends = 1 << NRINVBITS;
-    constexpr int npsbends = 1 << N_BENDBITS_PS;
-    constexpr int n2sbends = 1 << N_BENDBITS_2S;
-    table_.resize(nprojbends * n2sbends * 2, false); //Factor of 2 is to have both 2s and ps bends in same table
-    for (unsigned int iprojbend = 0; iprojbend < nprojbends; iprojbend++) {
-      double projbend = 0.5 * (iprojbend - rinvhalf);
-      for (unsigned int ibend = 0; ibend < npsbends; ibend++) {
-        double stubbend = settings_.benddecode(ibend, layerdisk_, true);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(ibend, layerdisk_, true);
-        table_[nprojbends*n2sbends + npsbends * iprojbend + ibend] = pass;
-      }
-      for (unsigned int ibend = 0; ibend < n2sbends; ibend++) {
-        double stubbend = settings_.benddecode(ibend, layerdisk_, false);
-        bool pass = std::abs(stubbend - projbend) < settings_.bendcutme(ibend, layerdisk_, false);
-        table_[n2sbends * iprojbend + ibend] = pass;
-      }
-    }
+    rphicutPStable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::diskPSphi, region);
+    rphicut2Stable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::disk2Sphi, region);
+    rcutPStable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::diskPSr, region);
+    rcut2Stable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::disk2Sr, region);
   }
-
-  if (settings_.writeTable()) {
-    char layerdisk = barrel_ ? '0' + layerdisk_ + 1 : '0' + layerdisk_ - N_LAYER + 1;
-    string fname = barrel_ ? "METable_L" : "METable_D";
-    fname += layerdisk;
-    fname += ".tab";
-
-    ofstream out = openfile(settings_.tablePath(), fname, __FILE__, __LINE__);
-    out << "{" << endl;
-    for (unsigned int i = 0; i < table_.size(); i++) {
-      if (i != 0) {
-        out << "," << endl;
-      }
-      out << table_[i];
-    }
-    out << "};" << endl;
-    out.close();
-  }
-
+  
   for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
     ialphafactinner_[i] = (1 << settings_.alphashift()) * settings_.krprojshiftdisk() * settings_.half2SmoduleWidth() /
                           (1 << (settings_.nbitsalpha() - 1)) / (settings_.rDSSinner(i) * settings_.rDSSinner(i)) /
@@ -141,15 +75,10 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
 
   nMatchEngines_ = 4;
   for (unsigned int iME = 0; iME < nMatchEngines_; iME++) {
-    MatchEngineUnit tmpME(barrel_, layerdisk_, table_);
+    MatchEngineUnit tmpME(barrel_, layerdisk_, luttable_);
     matchengines_.push_back(tmpME);
   }
 
-  if (globals_->projectionRouterBendTable() == nullptr) {
-    auto* bendTablePtr = new ProjectionRouterBendTable();
-    bendTablePtr->init(settings_, globals_, nrbits_, nphiderbits_);
-    globals_->projectionRouterBendTable() = bendTablePtr;
-  }
 }
 
 void MatchProcessor::addOutput(MemoryBase* memory, string output) {
@@ -302,8 +231,8 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
 
               int bendindex = (signindex << (nphiderbits_ + nrbits_)) + (rindex << (nphiderbits_)) + phiderindex;
 
-              projrinv = globals_->projectionRouterBendTable()->bendLoookup(layerdisk_ - N_LAYER, bendindex);
-
+	      projrinv = rinvbendlut_.lookup(bendindex);
+	      
               proj->proj(layerdisk_).setBendIndex(projrinv);
             }
             assert(projrinv >= 0);
@@ -502,8 +431,8 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
 
     int seedindex = tracklet->getISeed();
 
-    assert(phimatchcut_[seedindex] > 0);
-    assert(zmatchcut_[seedindex] > 0);
+    assert(phimatchcuttable_.lookup(seedindex) > 0);
+    assert(zmatchcuttable_.lookup(seedindex) > 0);
 
     if (settings_.bookHistos()) {
       bool truthmatch = tracklet->stubtruthmatch(stub);
@@ -525,18 +454,18 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
           << layerdisk_ + 1 << " " << seedindex << " " << pt << " "
           << ideltaphi * settings_.kphi1() * settings_.rmean(layerdisk_) << " "
           << dphiapprox * settings_.rmean(layerdisk_) << " "
-          << phimatchcut_[seedindex] * settings_.kphi1() * settings_.rmean(layerdisk_) << "   "
-          << (ideltaz << dzshift_) * settings_.kz() << " " << dz << " " << zmatchcut_[seedindex] * settings_.kz()
+          << phimatchcuttable_.lookup(seedindex) * settings_.kphi1() * settings_.rmean(layerdisk_) << "   "
+          << (ideltaz << dzshift_) * settings_.kz() << " " << dz << " " << zmatchcuttable_.lookup(seedindex) * settings_.kz()
           << endl;
     }
 
-    bool imatch = ((unsigned int)std::abs(ideltaphi) <= phimatchcut_[seedindex]) &&
-                  ((unsigned int)std::abs(ideltaz << dzshift_) <= zmatchcut_[seedindex]);
+    bool imatch = (std::abs(ideltaphi) <= phimatchcuttable_.lookup(seedindex)) &&
+      (std::abs(ideltaz << dzshift_) <= zmatchcuttable_.lookup(seedindex));
 
     if (settings_.debugTracklet()) {
       edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
-                                   << phimatchcut_[seedindex] << " ideltaz<<dzshift cut " << (ideltaz << dzshift_)
-                                   << " " << zmatchcut_[seedindex];
+                                   << phimatchcuttable_.lookup(seedindex) << " ideltaz<<dzshift cut " << (ideltaz << dzshift_)
+                                   << " " << zmatchcuttable_.lookup(seedindex);
     }
 
     //This would catch significant consistency problems in the configuration - helps to debug if there are problems.
@@ -667,11 +596,11 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
 
     int seedindex = tracklet->getISeed();
 
-    int idrphicut = rphicutPS_[seedindex];
-    int idrcut = rcutPS_[seedindex];
+    int idrphicut = rphicutPStable_.lookup(seedindex);
+    int idrcut = rcutPStable_.lookup(seedindex);
     if (!stub->isPSmodule()) {
-      idrphicut = rphicut2S_[seedindex];
-      idrcut = rcut2S_[seedindex];
+      idrphicut = rphicut2Stable_.lookup(seedindex);
+      idrcut = rcut2Stable_.lookup(seedindex);
     }
 
     double drphicut = idrphicut * settings_.kphi() * settings_.kr();

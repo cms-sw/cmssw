@@ -3,6 +3,8 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FPGAWord.h"
+#include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -11,13 +13,18 @@ using namespace std;
 using namespace trklet;
 
 ProjectionRouter::ProjectionRouter(string name, Settings const& settings, Globals* global)
-    : ProcessBase(name, settings, global) {
+  : ProcessBase(name, settings, global), rinvbendlut_(settings) {
   layerdisk_ = initLayerDisk(3);
 
   vmprojs_.resize(settings_.nvmme(layerdisk_), nullptr);
 
   nrbits_ = 5;
   nphiderbits_ = 6;
+
+  if (layerdisk_ >= N_LAYER) {
+    rinvbendlut_.initProjectionBend(global->ITC_L1L2()->der_phiD_final.K(), layerdisk_-N_LAYER, nrbits_, nphiderbits_);
+  }
+  
 }
 
 void ProjectionRouter::addOutput(MemoryBase* memory, string output) {
@@ -67,11 +74,6 @@ void ProjectionRouter::addInput(MemoryBase* memory, string input) {
 }
 
 void ProjectionRouter::execute() {
-  if (globals_->projectionRouterBendTable() == nullptr) {
-    auto* bendTablePtr = new ProjectionRouterBendTable();
-    bendTablePtr->init(settings_, globals_, nrbits_, nphiderbits_);
-    globals_->projectionRouterBendTable() = bendTablePtr;
-  }
 
   unsigned int allprojcount = 0;
 
@@ -91,7 +93,6 @@ void ProjectionRouter::execute() {
       if (layerdisk_ < N_LAYER) {
         fpgaphi = tracklet->proj(layerdisk_).fpgaphiproj();
       } else {
-        int disk = layerdisk_ - (N_LAYER - 1);
 
         Projection& proj = tracklet->proj(layerdisk_);
         fpgaphi = proj.fpgaphiproj();
@@ -110,7 +111,7 @@ void ProjectionRouter::execute() {
 
         int bendindex = (signindex << (nphiderbits_ + nrbits_)) + (rindex << (nphiderbits_)) + phiderindex;
 
-        int ibendproj = globals_->projectionRouterBendTable()->bendLoookup(disk - 1, bendindex);
+	int ibendproj = rinvbendlut_.lookup(bendindex);
 
         proj.setBendIndex(ibendproj);
       }
