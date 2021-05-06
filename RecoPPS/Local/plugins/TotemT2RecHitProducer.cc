@@ -92,7 +92,7 @@ void TotemT2RecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& des
       ->setComment("input tag for timing calibrations retrieval");
   desc.add<double>("timeSliceNs", 25.0 / 1024.0)
       ->setComment("conversion constant between timing bin size and nanoseconds");
-  desc.add<bool>("applyCalibration", true)->setComment("switch on/off the timing calibration");
+  desc.add<bool>("applyCalibration", false)->setComment("switch on/off the timing calibration");
 
   descr.add("totemT2RecHits", desc);
 }

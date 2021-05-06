@@ -16,7 +16,8 @@
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 
-class CTPPSDiamondRecHitProducerAlgorithm : public TimingRecHitProducerAlgorithm<CTPPSGeometry, CTPPSDiamondDigi, CTPPSDiamondRecHit> {
+class CTPPSDiamondRecHitProducerAlgorithm
+    : public TimingRecHitProducerAlgorithm<CTPPSGeometry, CTPPSDiamondDigi, CTPPSDiamondRecHit> {
 public:
   using TimingRecHitProducerAlgorithm::TimingRecHitProducerAlgorithm;
   void build(const CTPPSGeometry&,

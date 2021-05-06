@@ -27,9 +27,8 @@ void TotemT2RecHitProducerAlgorithm::build(const TotemGeometry& geom,
     edm::DetSet<TotemT2RecHit>& rec_hits = output.find_or_insert(detid);
 
     // retrieve the geometry element associated to this DetID
-    const DetGeomDesc* det = geom.tile(detid);
+    const auto& tile = geom.tile(detid);
 
-    const float x_pos = det->translation().x(), y_pos = det->translation().y();
-    float z_pos = det->parentZPosition();  // retrieve the plane position;
+    rec_hits.emplace_back(tile.centre(), ch_t_offset, ch_t_precis);
   }
 }
