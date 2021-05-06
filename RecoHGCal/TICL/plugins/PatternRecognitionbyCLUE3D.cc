@@ -20,8 +20,9 @@
 using namespace ticl;
 
 template <typename TILES>
-PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf, const CacheBase *cache)
-    : PatternRecognitionAlgoBaseT<TILES>(conf, cache),
+PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf, const CacheBase *cache, edm::ConsumesCollector iC)
+    : PatternRecognitionAlgoBaseT<TILES>(conf, cache, iC),
+      caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       criticalDensity_(conf.getParameter<double>("criticalDensity")),
       densitySiblingLayers_(conf.getParameter<int>("densitySiblingLayers")),
       densityEtaPhiDistanceSqr_(conf.getParameter<double>("densityEtaPhiDistanceSqr")),
@@ -171,10 +172,9 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "New Event";
   }
 
-  edm::ESHandle<CaloGeometry> geom;
   edm::EventSetup const &es = input.es;
-  es.get<CaloGeometryRecord>().get(geom);
-  rhtools_.setGeometry(*geom);
+  const CaloGeometry &geom = es.getData(caloGeomToken_);
+  rhtools_.setGeometry(geom);
 
   clusters_.clear();
   clusters_.resize(104);  // FIXME(rovere): Get it from template type or via rechittools

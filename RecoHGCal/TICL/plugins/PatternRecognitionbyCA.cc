@@ -19,7 +19,7 @@ template <typename TILES>
 PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf,
                                                       const CacheBase *cache,
                                                       edm::ConsumesCollector iC)
-    : PatternRecognitionAlgoBaseT<TILES>(conf, cache),
+    : PatternRecognitionAlgoBaseT<TILES>(conf, cache, iC),
       caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),

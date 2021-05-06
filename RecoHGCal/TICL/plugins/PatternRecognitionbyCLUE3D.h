@@ -11,7 +11,7 @@ namespace ticl {
   template <typename TILES>
   class PatternRecognitionbyCLUE3D final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
-    PatternRecognitionbyCLUE3D(const edm::ParameterSet& conf, const CacheBase* cache);
+    PatternRecognitionbyCLUE3D(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector);
     ~PatternRecognitionbyCLUE3D() override;
 
     void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
@@ -106,6 +106,7 @@ namespace ticl {
 
     std::vector<ClustersOnLayer> clusters_;
 
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const double criticalDensity_;
     const int densitySiblingLayers_;
     const double densityEtaPhiDistanceSqr_;

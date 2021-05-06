@@ -7,7 +7,6 @@
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "HGCGraph.h"
 
 namespace ticl {
