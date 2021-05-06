@@ -12,10 +12,10 @@ TrackletEngineUnit::TrackletEngineUnit(const Settings* const settings,
                                        unsigned int iSeed,
                                        unsigned int nbitsfinephidiff,
                                        unsigned int iAllStub,
-                                       std::vector<bool> const& pttableinner,
-                                       std::vector<bool> const& pttableouter,
+				       const TrackletLUT& pttableinnernew,
+				       const TrackletLUT& pttableouternew,
                                        VMStubsTEMemory* outervmstubs)
-    : settings_(settings), candpairs_(3) {
+: settings_(settings), pttableinnernew_(pttableinnernew), pttableouternew_(pttableouternew), candpairs_(3) {
   idle_ = true;
   nbitsfinephi_ = nbitsfinephi;
   layerdisk2_ = layerdisk2;
@@ -23,8 +23,6 @@ TrackletEngineUnit::TrackletEngineUnit(const Settings* const settings,
   iSeed_ = iSeed;
   nbitsfinephidiff_ = nbitsfinephidiff;
   iAllStub_ = iAllStub;
-  pttableinner_ = pttableinner;
-  pttableouter_ = pttableouter;
   outervmstubs_ = outervmstubs;
 }
 
@@ -102,8 +100,8 @@ void TrackletEngineUnit::step(bool, int, int) {
 
     int ptinnerindex = (idphi << tedata_.innerbend_.nbits()) + tedata_.innerbend_.value();
     int ptouterindex = (idphi << outerbend.nbits()) + outerbend.value();
-
-    if (!(inrange && pttableinner_[ptinnerindex] && pttableouter_[ptouterindex])) {
+    
+    if (!(inrange && pttableinnernew_.lookup(ptinnerindex) && pttableouternew_.lookup(ptouterindex))) {
       if (settings_->debugTracklet()) {
         edm::LogVerbatim("Tracklet") << " Stub pair rejected because of stub pt cut bends : "
                                      << settings_->benddecode(

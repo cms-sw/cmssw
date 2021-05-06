@@ -25,6 +25,36 @@ namespace trklet {
     //This method writes out the configuration as files
     void writeAll(std::ostream& wires, std::ostream& memories, std::ostream& modules);
 
+    //
+    // The next group of fcn formats a string to write out names of different
+    // memories and processing modules
+    //
+
+    //Seed string, eg. L1L2
+    std::string iSeedStr(unsigned int iSeed);
+
+    //Return unsigned as string
+    static std::string numStr(unsigned int i);
+
+    //Retunr iTC as string - ie A, B, C, etc
+    std::string iTCStr(unsigned int iTC);
+
+    //The region string A, B, C etc for layers and disks; X, Y, Z etc for overlap
+    std::string iRegStr(unsigned int iReg, unsigned int iSeed);
+
+    //TC Name
+    std::string TCName(unsigned int iSeed, unsigned int iTC);
+
+    //Name of layer or disk, e.g. L1 or D1
+    static std::string LayerName(unsigned int ilayer);
+
+    //Tracklet projection name
+    std::string TPROJName(unsigned int iSeed, unsigned int iTC, unsigned int ilayer, unsigned int ireg);
+
+    //Projection router name
+    std::string PRName(unsigned int ilayer, unsigned int ireg);
+
+    
   private:
     //
     // Method to initialize the regions and VM in each layer
@@ -77,34 +107,6 @@ namespace trklet {
     //
     double rinv(double r1, double phi1, double r2, double phi2);
 
-    //
-    // The next group of fcn formats a string to write out names of different
-    // memories and processing modules
-    //
-
-    //Seed string, eg. L1L2
-    std::string iSeedStr(unsigned int iSeed);
-
-    //Return unsigned as string
-    std::string numStr(unsigned int i);
-
-    //Retunr iTC as string - ie A, B, C, etc
-    std::string iTCStr(unsigned int iTC);
-
-    //The region string A, B, C etc for layers and disks; X, Y, Z etc for overlap
-    std::string iRegStr(unsigned int iReg, unsigned int iSeed);
-
-    //TC Name
-    std::string TCName(unsigned int iSeed, unsigned int iTC);
-
-    //Name of layer or disk, e.g. L1 or D1
-    std::string LayerName(unsigned int ilayer);
-
-    //Tracklet projection name
-    std::string TPROJName(unsigned int iSeed, unsigned int iTC, unsigned int ilayer, unsigned int ireg);
-
-    //Projection router name
-    std::string PRName(unsigned int ilayer, unsigned int ireg);
 
     //StubPair Name
     std::string SPName(unsigned int l1,
