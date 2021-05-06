@@ -20,9 +20,7 @@ public:
                 Word32& errorWord,
                 SiPixelFormatterErrors& errors) const override;
 
-private:
-  bool includeErrors_;
-
+protected:
   cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const override;
 };
 
