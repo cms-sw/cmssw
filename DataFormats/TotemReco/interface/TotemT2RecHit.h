@@ -9,32 +9,28 @@
 #ifndef DataFormats_TotemReco_TotemT2RecHit_h
 #define DataFormats_TotemReco_TotemT2RecHit_h
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
 class TotemT2RecHit {
 public:
-  explicit TotemT2RecHit() = default;
+  TotemT2RecHit() = default;
+  explicit TotemT2RecHit(const GlobalPoint&, float, float);
 
-  void setLeadingEdge(unsigned short le) { lead_edge_ = le; }
-  unsigned short leadingEdge() const { return lead_edge_; }
-  void setTrailingEdge(unsigned short te) { trail_edge_ = te; }
-  unsigned short trailingEdge() const { return trail_edge_; }
+  const GlobalPoint centre() const { return centre_; }
+  void setTime(float time) { time_ = time; }
+  float time() const { return time_; }
+  void setTimeUnc(float time_unc) { time_unc_ = time_unc; }
+  float timeUnc() const { return time_unc_; }
 
 private:
+  /// Tile centre position
+  GlobalPoint centre_;
   /// Leading edge time
-  unsigned short lead_edge_;
-  /// Trailing edge time
-  unsigned short trail_edge_;
+  float time_;
+  /// Time over threshold/pulse width
+  float time_unc_;
 };
 
-bool operator<(const TotemT2RecHit& lhs, const TotemT2RecHit& rhs) {
-  if (lhs.leadingEdge() < rhs.leadingEdge())
-    return true;
-  if (lhs.leadingEdge() > rhs.leadingEdge())
-    return false;
-  if (lhs.trailingEdge() < rhs.trailingEdge())
-    return true;
-  if (lhs.trailingEdge() > rhs.trailingEdge())
-    return false;
-  return false;
-}
+bool operator<(const TotemT2RecHit&, const TotemT2RecHit&);
 
 #endif
