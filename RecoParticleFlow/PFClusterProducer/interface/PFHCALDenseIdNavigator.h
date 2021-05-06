@@ -31,7 +31,9 @@ public:
     }
   }
 
-  PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {
+  PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : hcalToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()),
+        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     vhcalEnum_ = iConfig.getParameter<std::vector<int>>("hcalEnums");
   }
 
@@ -40,14 +42,12 @@ public:
     if (!check)
       return;
 
-    edm::ESHandle<HcalTopology> hcalTopology;
-    iSetup.get<HcalRecNumberingRecord>().get(hcalTopology);
+    edm::ESHandle<HcalTopology> hcalTopology = iSetup.getHandle(hcalToken_);
     topology_.release();
     topology_.reset(hcalTopology.product());
 
     // Fill a vector of valid denseid's
-    edm::ESHandle<CaloGeometry> hGeom;
-    iSetup.get<CaloGeometryRecord>().get(hGeom);
+    edm::ESHandle<CaloGeometry> hGeom = iSetup.getHandle(geomToken_);
     const CaloGeometry& caloGeom = *hGeom;
 
     std::vector<DetId> vecHcal;
@@ -188,6 +188,10 @@ protected:
   std::vector<std::vector<DetId>> neighboursHcal_;
   unsigned int denseIdHcalMax_;
   unsigned int denseIdHcalMin_;
+
+private:
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 
 #endif

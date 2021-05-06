@@ -28,7 +28,9 @@
 class PFEcalBarrelRecHitCreator : public PFRecHitCreatorBase {
 public:
   PFEcalBarrelRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitCreatorBase(iConfig, cc) {
+      : PFRecHitCreatorBase(iConfig, cc),
+        geomToken_(cc.esConsumes()),
+        towerToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     recHitToken_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
     if (not srF.label().empty())
@@ -44,8 +46,7 @@ public:
 
     edm::Handle<EcalRecHitCollection> recHitHandle;
 
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
 
     bool useSrF = false;
     if (not srFlagToken_.isUninitialized()) {
@@ -99,8 +100,7 @@ public:
   }
 
   void init(const edm::EventSetup& es) override {
-    edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
-    es.get<IdealGeometryRecord>().get(hTriggerTowerMap);
+    edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap = es.getHandle(towerToken_);
     triggerTowerMap_ = hTriggerTowerMap.product();
   }
 
@@ -124,6 +124,10 @@ protected:
   const EcalTrigTowerConstituentsMap* triggerTowerMap_;
   // selective readout flags collection
   edm::Handle<EBSrFlagCollection> srFlagHandle_;
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> towerToken_;
 };
 
 #endif

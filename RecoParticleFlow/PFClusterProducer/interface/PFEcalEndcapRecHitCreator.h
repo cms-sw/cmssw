@@ -30,7 +30,9 @@
 class PFEcalEndcapRecHitCreator : public PFRecHitCreatorBase {
 public:
   PFEcalEndcapRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitCreatorBase(iConfig, cc) {
+      : PFRecHitCreatorBase(iConfig, cc),
+        geomToken_(cc.esConsumes()),
+        mappingToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     recHitToken_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
     if (not srF.label().empty())
@@ -46,8 +48,7 @@ public:
 
     edm::Handle<EcalRecHitCollection> recHitHandle;
 
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
 
     bool useSrF = false;
     if (not srFlagToken_.isUninitialized()) {
@@ -101,8 +102,7 @@ public:
   }
 
   void init(const edm::EventSetup& es) override {
-    edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-    es.get<EcalMappingRcd>().get(ecalmapping);
+    edm::ESHandle<EcalElectronicsMapping> ecalmapping = es.getHandle(mappingToken_);
     elecMap_ = ecalmapping.product();
   }
 
@@ -135,6 +135,10 @@ protected:
   const EcalElectronicsMapping* elecMap_;
   // selective readout flags collection
   edm::Handle<EESrFlagCollection> srFlagHandle_;
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> mappingToken_;
 };
 
 #endif
