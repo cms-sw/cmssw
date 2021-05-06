@@ -83,6 +83,7 @@ private:
   edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   hgcal::RecHitTools rhtools_;
+  const double fractionCut_;
 };
 DEFINE_FWK_MODULE(TrackstersFromSimClustersProducer);
 
@@ -101,7 +102,8 @@ TrackstersFromSimClustersProducer::TrackstersFromSimClustersProducer(const edm::
       associatorLayerClusterCaloParticle_(
           ps.getUntrackedParameter<edm::InputTag>("layerClusterCaloParticleAssociator")),
       associatorMapCaloParticleToReco_token_(consumes<hgcal::SimToRecoCollection>(associatorLayerClusterCaloParticle_)),
-      geom_token_(esConsumes()) {
+      geom_token_(esConsumes()),
+      fractionCut_(ps.getParameter<double>("fractionCut")) {
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();
 }
@@ -119,6 +121,8 @@ void TrackstersFromSimClustersProducer::fillDescriptions(edm::ConfigurationDescr
                                    edm::InputTag("layerClusterSimClusterAssociationProducer"));
   desc.addUntracked<edm::InputTag>("layerClusterCaloParticleAssociator",
                                    edm::InputTag("layerClusterCaloParticleAssociationProducer"));
+  desc.add<double>("fractionCut", 0.02);
+
   descriptions.add("trackstersFromSimClustersProducer", desc);
 }
 
@@ -153,8 +157,10 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
       tmpTrackster.vertex_multiplicity().reserve(values.size());
       for (auto const& [lc, energyScorePair] : values) {
         if (inputClusterMask[lc.index()] > 0) {
-          tmpTrackster.vertices().push_back(lc.index());
           double fraction = energyScorePair.first / lc->energy();
+          if (fraction < fractionCut_)
+            continue;
+          tmpTrackster.vertices().push_back(lc.index());
           (*output_mask)[lc.index()] -= fraction;
           tmpTrackster.vertex_multiplicity().push_back(1. / fraction);
         }
@@ -181,8 +187,10 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
 
         for (auto const& [lc, energyScorePair] : lcVec) {
           if (inputClusterMask[lc.index()] > 0) {
-            tmpTrackster.vertices().push_back(lc.index());
             double fraction = energyScorePair.first / lc->energy();
+            if (fraction < fractionCut_)
+              continue;
+            tmpTrackster.vertices().push_back(lc.index());
             (*output_mask)[lc.index()] -= fraction;
             tmpTrackster.vertex_multiplicity().push_back(1. / fraction);
           }
