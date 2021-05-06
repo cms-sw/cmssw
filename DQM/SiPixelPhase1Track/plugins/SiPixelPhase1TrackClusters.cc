@@ -110,25 +110,24 @@ namespace {
     pixelClusterShapeCacheToken_ =
         consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCache"));
 
-    trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
-    trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
+    trackerTopoToken_ = esConsumes<edm::Transition::BeginRun>();
+    trackerGeomToken_ = esConsumes<edm::Transition::BeginRun>();
     clusterShapeHitFilterToken_ =
         esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"));
-    templateDBobjectToken_ =
-        esConsumes<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd, edm::Transition::BeginRun>();
+    templateDBobjectToken_ = esConsumes<edm::Transition::BeginRun>();
   }
 
   void SiPixelPhase1TrackClusters::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     // get geometry
     edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
     assert(tracker.isValid());
-
-    edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
-    tkTpl = tTopoHandle.product();
+    //get topology
+    tkTpl = &iSetup.getData(trackerTopoToken_);
+    ;
 
     // Initialize 1D templates
-    edm::ESHandle<SiPixelTemplateDBObject> templateDBobject = iSetup.getHandle(templateDBobjectToken_);
-    templateDBobject_ = templateDBobject.product();
+    templateDBobject_ = &iSetup.getData(templateDBobjectToken_);
+    ;
     if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_))
       edm::LogError("SiPixelPhase1TrackClusters")
           << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
