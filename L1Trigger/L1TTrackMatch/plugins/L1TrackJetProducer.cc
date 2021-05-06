@@ -27,7 +27,7 @@
 #include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "L1TrackJetProducer.h"
+#include "L1Trigger/L1TTrackMatch/interface/L1TrackJetProducer.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include <TMath.h>

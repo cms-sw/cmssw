@@ -4,7 +4,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-using namespace std;
 
 //Each individual box in the eta and phi dimension.
 //  Also used to store final cluster data for each zbin.
