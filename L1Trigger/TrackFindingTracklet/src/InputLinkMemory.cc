@@ -1,7 +1,5 @@
 #include "L1Trigger/TrackFindingTracklet/interface/InputLinkMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/L1TStub.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
-
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 
 #include <iomanip>

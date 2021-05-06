@@ -12,8 +12,6 @@ namespace trklet {
   class Settings;
   class Globals;
   class Stub;
-  class L1TStub;
-  class VMRouterPhiCorrTable;
 
   class InputLinkMemory : public MemoryBase {
   public:

@@ -4,7 +4,7 @@
 
 #include "L1Trigger/TrackFindingTracklet/interface/ProcessBase.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FPGAWord.h"
-#include "L1Trigger/TrackFindingTracklet/interface/VMRouterTable.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 #include <string>
 #include <vector>
@@ -54,7 +54,8 @@ namespace trklet {
 
     unsigned int nvmmebins_;  //number of long z/r bins in VM
 
-    VMRouterTable vmrtable_;
+    TrackletLUT meTable_;                    //used for ME and outer TE barrel
+    TrackletLUT diskTable_;                  //outer disk used by D1, D2, and D4
 
     //The input stub memories
     std::vector<InputLinkMemory*> stubinputs_;

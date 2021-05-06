@@ -4,7 +4,7 @@
 #define L1Trigger_TrackFindingTracklet_interface_TrackletProcessor_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculatorBase.h"
-#include "L1Trigger/TrackFindingTracklet/interface/VMRouterTable.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 #include "L1Trigger/TrackFindingTracklet/interface/CircularBuffer.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletEngineUnit.h"
 
@@ -35,10 +35,6 @@ namespace trklet {
 
     void execute(unsigned int iSector, double phimin, double phimax);
 
-    void writeTETable();
-
-    void buildLUT();
-
   private:
     int iTC_;
     int iAllStub_;
@@ -55,13 +51,9 @@ namespace trklet {
     std::vector<AllInnerStubsMemory*> innerallstubs_;
     std::vector<AllStubsMemory*> outerallstubs_;
 
-    std::map<unsigned int, std::vector<bool> > pttableinner_;
-    std::map<unsigned int, std::vector<bool> > pttableouter_;
-
-    std::vector<bool> pttableinnernew_;
-    std::vector<bool> pttableouternew_;
-
-    std::vector<unsigned int> useregion_;
+    TrackletLUT pttableinner_;
+    TrackletLUT pttableouter_;
+    TrackletLUT useregiontable_;
 
     int nbitsfinephi_;
     int nbitsfinephidiff_;
@@ -74,7 +66,9 @@ namespace trklet {
 
     unsigned int nbitsrzbin_;
 
-    VMRouterTable vmrtable_;
+    TrackletLUT innerTable_;                 //projection to next layer/disk
+    TrackletLUT innerOverlapTable_;          //projection to disk from layer
+    
   };
 
 };  // namespace trklet
