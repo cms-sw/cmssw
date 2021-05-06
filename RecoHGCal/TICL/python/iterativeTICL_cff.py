@@ -22,9 +22,7 @@ pfTICL = _pfTICLProducer.clone()
 ticlPFTask = cms.Task(pfTICL)
 
 ticlIterationsTask = cms.Task(
-    ticlCLUE3DHighStepTask
-    ,ticlCLUE3DLowStepTask
-    ,ticlTrkEMStepTask
+    ticlTrkEMStepTask
     ,ticlEMStepTask
     ,ticlTrkStepTask
     ,ticlHADStepTask
