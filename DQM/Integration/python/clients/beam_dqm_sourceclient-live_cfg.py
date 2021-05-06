@@ -385,6 +385,12 @@ if unitTest == False:
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
         ))
     )
+    try:
+        process.OnlineDBOutputService.frontierKey = cms.untracked.string(options.runUniqueKey)
+        print("Configured frontierKey", options.runUniqueKey)
+    except:
+        pass
+
 else:
     process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 

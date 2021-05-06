@@ -190,6 +190,12 @@ if (process.runType.getRunType() == process.runType.pp_run or
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
         ))
       )
+      try:
+          process.OnlineDBOutputService.frontierKey = cms.untracked.string(options.runUniqueKey)
+          print("Configured frontierKey", options.runUniqueKey)
+      except:
+          pass
+
     else:
       process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
         DBParameters = cms.PSet(
