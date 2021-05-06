@@ -177,7 +177,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   rhtools_.setGeometry(geom);
 
   clusters_.clear();
-  clusters_.resize(104);  // FIXME(rovere): Get it from template type or via rechittools
+  clusters_.resize(2 * rhtools_.lastLayer(false));
   std::vector<std::pair<int, int>> layerIdx2layerandSoa; //used everywhere also to propagate cluster masking
 
   layerIdx2layerandSoa.reserve(input.layerClusters.size());
@@ -236,10 +236,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].followers.resize(clusters_[layer].x.size());
   }
 
-  //  dumpTiles(input.tiles);
   std::vector<int> numberOfClustersPerLayer(104, 0);
-  // tbb::this_task_arena::isolate([&] {
-  //    tbb::parallel_for(size_t(0), size_t(104), [&](size_t i) { //FIXME(rovere): layer limits
   for (unsigned int i = 0; i < 104; i++) {
     calculateLocalDensity(input.tiles, i, layerIdx2layerandSoa);
   }
@@ -252,13 +249,10 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Reconstructed " << nTracksters << " tracksters" << std::endl;
     dumpClusters(layerIdx2layerandSoa, eventNumber);
   }
-  //    );
-  //  });
 
   // Build Trackster
   result.resize(nTracksters);
 
-  assert(clusters_.size() == 104);
   for (unsigned int layer = 0; layer < clusters_.size(); ++layer) {
     const auto &thisLayer = clusters_[layer];
     if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
@@ -284,8 +278,6 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     }
   }
 
-  //  // run energy regression and ID
-  //  energyRegressionAndID(input.layerClusters, tmpTracksters);
   ticl::assignPCAtoTracksters(
       result, input.layerClusters, input.layerClustersTime, rhtools_.getPositionLayer(rhtools_.lastLayerEE(0), 0).z());
 
@@ -579,15 +571,15 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
         << tiles[layerId].etaBin(clustersOnLayer.phi[i]);
     }
     // We need to partition the two sides of the HGCAL detector
-    auto lastLayerPerSide = int(rhtools_.lastLayer(false)) - 1;
+    auto lastLayerPerSide = (unsigned int)(rhtools_.lastLayer(false));
     unsigned int minLayer = 0;
-    unsigned int maxLayer = 2*lastLayerPerSide;
-    if (int(layerId) <= lastLayerPerSide) {
-      minLayer = std::max((int)layerId - densitySiblingLayers_, 0);
-      maxLayer = std::min((int)layerId + densitySiblingLayers_, lastLayerPerSide);
+    unsigned int maxLayer = 2*lastLayerPerSide - 1;
+    if (layerId < lastLayerPerSide) {
+      minLayer = std::max(layerId - densitySiblingLayers_, minLayer);
+      maxLayer = std::min(layerId + densitySiblingLayers_, lastLayerPerSide - 1);
     } else {
-      minLayer = std::max((int)layerId - densitySiblingLayers_, lastLayerPerSide+1);
-      maxLayer = std::min((int)layerId + densitySiblingLayers_, 2*lastLayerPerSide);
+      minLayer = std::max(layerId - densitySiblingLayers_, lastLayerPerSide);
+      maxLayer = std::min(layerId + densitySiblingLayers_, maxLayer);
     }
     float maxDelta = std::numeric_limits<float>::max();
     float i_delta = maxDelta;
@@ -664,8 +656,7 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
 
   std::vector<std::pair<int, int>> localStack;
   // find cluster seeds and outlier
-  // FIXME(rovere): loop can be parallel for with local stack vector addressed by layer
-  for (unsigned int layer = 0; layer < 104; layer++) {
+  for (unsigned int layer = 0; layer < 2 * rhtools_.lastLayer(); layer++) {
     auto &clustersOnLayer = clusters_[layer];
     unsigned int numberOfClusters = clustersOnLayer.x.size();
     for (unsigned int i = 0; i < numberOfClusters; i++) {
