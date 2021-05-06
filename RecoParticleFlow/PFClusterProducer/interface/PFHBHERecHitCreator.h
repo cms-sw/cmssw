@@ -18,7 +18,9 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 class PFHBHERecHitCreator : public PFRecHitCreatorBase {
 public:
-  PFHBHERecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitCreatorBase(iConfig, cc) {
+  PFHBHERecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc),
+        geomToken_(cc.esConsumes()) {
     recHitToken_ = cc.consumes<edm::SortedCollection<HBHERecHit> >(iConfig.getParameter<edm::InputTag>("src"));
   }
 
@@ -30,8 +32,7 @@ public:
 
     edm::Handle<edm::SortedCollection<HBHERecHit> > recHitHandle;
 
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
 
     // get the ecal geometry
     const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
@@ -92,6 +93,9 @@ public:
 
 protected:
   edm::EDGetTokenT<edm::SortedCollection<HBHERecHit> > recHitToken_;
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 
 #endif
