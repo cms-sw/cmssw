@@ -86,6 +86,7 @@ namespace {
     const bool applyVertexCut_;
     const SiPixelTemplateDBObject* templateDBobject_;
     std::vector<SiPixelTemplateStore> thePixelTemp_;
+    const TrackerTopology* tkTpl = nullptr;
 
     edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
     edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
@@ -109,8 +110,8 @@ namespace {
     pixelClusterShapeCacheToken_ =
         consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCache"));
 
-    trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
-    trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+    trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+    trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
     clusterShapeHitFilterToken_ =
         esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"));
     templateDBobjectToken_ =
@@ -118,6 +119,13 @@ namespace {
   }
 
   void SiPixelPhase1TrackClusters::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+    // get geometry
+    edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
+    assert(tracker.isValid());
+
+    edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
+    tkTpl = tTopoHandle.product();
+
     // Initialize 1D templates
     edm::ESHandle<SiPixelTemplateDBObject> templateDBobject = iSetup.getHandle(templateDBobjectToken_);
     templateDBobject_ = templateDBobject.product();
@@ -136,13 +144,6 @@ namespace {
           << "incompatible configuration " << histo.size() << "!=" << ENUM_SIZE << std::endl;
       return;
     }
-
-    // get geometry
-    edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
-    assert(tracker.isValid());
-
-    edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
-    auto const& tkTpl = *tTopoHandle;
 
     edm::ESHandle<ClusterShapeHitFilter> shapeFilterH = iSetup.getHandle(clusterShapeHitFilterToken_);
     auto const& shapeFilter = *shapeFilterH;
@@ -209,8 +210,8 @@ namespace {
 
         // PXB_L4 IS IN THE OTHER WAY
         // CAN BE XORed BUT LETS KEEP THINGS SIMPLE
-        bool iAmOuter = ((tkTpl.pxbLadder(id) % 2 == 1) && tkTpl.pxbLayer(id) != 4) ||
-                        ((tkTpl.pxbLadder(id) % 2 != 1) && tkTpl.pxbLayer(id) == 4);
+        bool iAmOuter = ((tkTpl->pxbLadder(id) % 2 == 1) && tkTpl->pxbLayer(id) != 4) ||
+                        ((tkTpl->pxbLadder(id) % 2 != 1) && tkTpl->pxbLayer(id) == 4);
 
         auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
         if (!pixhit)

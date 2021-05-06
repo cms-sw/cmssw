@@ -70,8 +70,18 @@ SiPixelPhase1TrackClustersOnTrackCorrCharge = DefaultHistoTrack.clone(
   xlabel = "Charge (electrons)",
 
   specs = VPSet(
-    StandardSpecifications1D,
-    Specification().groupBy("PXForward/PXRing").save()
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save(),
+    Specification().groupBy("PXForward/PXRing").save(),
+    Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
+    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing").save(),
+    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save(),
+    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder").save(),
+    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade").save(),
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName").save(),
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName").save()
   )
 )
 
