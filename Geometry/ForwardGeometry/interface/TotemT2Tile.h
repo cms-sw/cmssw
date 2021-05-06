@@ -12,8 +12,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 
-#include <DD4hep/DD4hepUnits.h>
-
 class TotemT2Tile {
 public:
   TotemT2Tile();
@@ -23,7 +21,6 @@ public:
   const GlobalPoint& centre() const { return centre_; }
 
 private:
-  dd4hep::PlacedVolume vol_;
   GlobalPoint centre_;
 };
 
