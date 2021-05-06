@@ -230,7 +230,6 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       }
     }
 
-    
     // find maxQual
     auto maxQual = reject;  // no duplicate!
     for (auto it : thisCell.tracks()) {
@@ -257,11 +256,8 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       if (tracks->quality(it) > loose && it != im)
         tracks->quality(it) = loose;  //no race:  simple assignment of the same constant
     }
-
-    
   }
 }
-
 
 __global__ void kernel_connect(cms::cuda::AtomicPairCounter *apc1,
                                cms::cuda::AtomicPairCounter *apc2,  // just to zero them,
@@ -620,17 +616,15 @@ __global__ void kernel_markSharedHit(int const *__restrict__ nshared,
   }
 }
 
-
 // mostly for very forward triplets.....
 __global__ void kernel_rejectDuplicate(int const *__restrict__ nshared,
-                                        TrackingRecHit2DSOAView const *__restrict__ hhp,
-                                        HitContainer const *__restrict__ ptuples,
-                                        TkSoA const *__restrict__ ptracks,
-                                        Quality *__restrict__ quality,
-                                        uint16_t nmin,
-                                        bool dupPassThrough,
-                                        CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
-
+                                       TrackingRecHit2DSOAView const *__restrict__ hhp,
+                                       HitContainer const *__restrict__ ptuples,
+                                       TkSoA const *__restrict__ ptracks,
+                                       Quality *__restrict__ quality,
+                                       uint16_t nmin,
+                                       bool dupPassThrough,
+                                       CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
   // quality to mark rejected
   auto const reject = dupPassThrough ? pixelTrack::Quality::loose : pixelTrack::Quality::dup;
 
@@ -681,17 +675,17 @@ __global__ void kernel_rejectDuplicate(int const *__restrict__ nshared,
         }
       }
     }
-  }   
+  }
 }
 
 __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
                                         TrackingRecHit2DSOAView const *__restrict__ hhp,
-                                           HitContainer const *__restrict__ ptuples,
-                                           TkSoA const *__restrict__ ptracks,
-                                           Quality *__restrict__ quality,
-                                           uint16_t nmin,
-                                           bool dupPassThrough,
-                                           CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
+                                        HitContainer const *__restrict__ ptuples,
+                                        TkSoA const *__restrict__ ptracks,
+                                        Quality *__restrict__ quality,
+                                        uint16_t nmin,
+                                        bool dupPassThrough,
+                                        CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
   //constexpr auto bad = pixelTrack::Quality::bad;
   //constexpr auto dup = pixelTrack::Quality::dup;
   constexpr auto loose = pixelTrack::Quality::loose;
@@ -743,20 +737,20 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
 }
 
 __global__ void kernel_tripletCleaner(int const *__restrict__ nshared,
-                                        TrackingRecHit2DSOAView const *__restrict__ hhp,
-                                           HitContainer const *__restrict__ ptuples,
-                                           TkSoA const *__restrict__ ptracks,
-                                           Quality *__restrict__ quality,
-                                           uint16_t nmin,
-                                           bool dupPassThrough,
-                                           CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
+                                      TrackingRecHit2DSOAView const *__restrict__ hhp,
+                                      HitContainer const *__restrict__ ptuples,
+                                      TkSoA const *__restrict__ ptracks,
+                                      Quality *__restrict__ quality,
+                                      uint16_t nmin,
+                                      bool dupPassThrough,
+                                      CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
   constexpr auto bad = pixelTrack::Quality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
   constexpr auto loose = pixelTrack::Quality::loose;
   constexpr auto strict = pixelTrack::Quality::strict;
 
   // quality to mark rejected
-  auto const reject = loose; // dupPassThrough ? loose : dup;
+  auto const reject = loose;  // dupPassThrough ? loose : dup;
 
   auto &hitToTuple = *phitToTuple;
   auto const &foundNtuplets = *ptuples;
@@ -773,14 +767,14 @@ __global__ void kernel_tripletCleaner(int const *__restrict__ nshared,
 
     // find maxNh
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-    if (quality[*it] <= loose)
+      if (quality[*it] <= loose)
         continue;
       uint32_t nh = foundNtuplets.size(*it);
       maxNh = std::max(nh, maxNh);
     }
 
     if (maxNh < 3)
-         continue;
+      continue;
 
     if (maxNh > 3)
       continue;
@@ -800,7 +794,6 @@ __global__ void kernel_tripletCleaner(int const *__restrict__ nshared,
       printf("problem with 0 sharing\n");
 
     */
-
 
     // for triplets choose best tip!  (should we first find best quality???)
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
