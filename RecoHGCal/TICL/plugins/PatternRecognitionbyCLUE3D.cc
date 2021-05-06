@@ -55,7 +55,9 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
   int type = tiles[0].typeT();
   int nEtaBin = (type == 1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
   int nPhiBin = (type == 1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
-  for (int layer = 0; layer < 104; layer++) {
+  auto lastLayerPerSide = (unsigned int)(rhtools_.lastLayer(false));
+  unsigned int maxLayer = 2 * lastLayerPerSide - 1;
+  for (unsigned int layer = 0; layer <= maxLayer; layer++) {
     for (int ieta = 0; ieta < nEtaBin; ieta++) {
       auto offset = ieta * nPhiBin;
       for (int phi = 0; phi < nPhiBin; phi++) {
@@ -219,11 +221,13 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].followers.resize(clusters_[layer].x.size());
   }
 
-  std::vector<int> numberOfClustersPerLayer(104, 0);
-  for (unsigned int i = 0; i < 104; i++) {
+  auto lastLayerPerSide = (unsigned int)(rhtools_.lastLayer(false));
+  unsigned int maxLayer = 2 * lastLayerPerSide - 1;
+  std::vector<int> numberOfClustersPerLayer(maxLayer, 0);
+  for (unsigned int i = 0; i <= maxLayer; i++) {
     calculateLocalDensity(input.tiles, i, layerIdx2layerandSoa);
   }
-  for (unsigned int i = 0; i < 104; i++) {
+  for (unsigned int i = 0; i <= maxLayer; i++) {
     calculateDistanceToHigher(input.tiles, i, layerIdx2layerandSoa);
   }
 
@@ -449,15 +453,15 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
 
   for (unsigned int i = 0; i < numberOfClusters; i++) {
     // We need to partition the two sides of the HGCAL detector
-    auto lastLayerPerSide = int(rhtools_.lastLayer(false)) - 1;
+    auto lastLayerPerSide = (unsigned int)(rhtools_.lastLayer(false)) - 1;
     unsigned int minLayer = 0;
-    unsigned int maxLayer = 2 * lastLayerPerSide;
-    if (int(layerId) <= lastLayerPerSide) {
-      minLayer = std::max((int)layerId - densitySiblingLayers_, 0);
-      maxLayer = std::min((int)layerId + densitySiblingLayers_, lastLayerPerSide);
+    unsigned int maxLayer = 2 * lastLayerPerSide - 1;
+    if (layerId < lastLayerPerSide) {
+      minLayer = std::max(layerId - densitySiblingLayers_, minLayer);
+      maxLayer = std::min(layerId + densitySiblingLayers_, lastLayerPerSide - 1);
     } else {
-      minLayer = std::max((int)layerId - densitySiblingLayers_, lastLayerPerSide + 1);
-      maxLayer = std::min((int)layerId + densitySiblingLayers_, 2 * lastLayerPerSide);
+      minLayer = std::max(layerId - densitySiblingLayers_, lastLayerPerSide);
+      maxLayer = std::min(layerId + densitySiblingLayers_, maxLayer);
     }
     for (unsigned int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
