@@ -121,7 +121,7 @@ void TrackstersFromSimClustersProducer::fillDescriptions(edm::ConfigurationDescr
                                    edm::InputTag("layerClusterSimClusterAssociationProducer"));
   desc.addUntracked<edm::InputTag>("layerClusterCaloParticleAssociator",
                                    edm::InputTag("layerClusterCaloParticleAssociationProducer"));
-  desc.add<double>("fractionCut", 0.05);
+  desc.add<double>("fractionCut", 0.);
 
   descriptions.add("trackstersFromSimClustersProducer", desc);
 }
