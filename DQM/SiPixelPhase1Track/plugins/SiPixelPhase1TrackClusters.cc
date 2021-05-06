@@ -113,7 +113,6 @@ namespace {
     trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
     clusterShapeHitFilterToken_ =
         esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"));
-    //    templateDBobjectToken_ = esConsumes<SiPixelTemplateDBObject, SiPixel2DTemplateDBObjectESProducerRcd>();
     templateDBobjectToken_ = esConsumes<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd,edm::Transition::BeginRun>();
   }
 
