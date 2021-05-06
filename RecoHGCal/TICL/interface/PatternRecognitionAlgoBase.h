@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoHGCal/TICL/plugins/GlobalCache.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class Event;
@@ -23,7 +24,7 @@ namespace ticl {
   template <typename TILES>
   class PatternRecognitionAlgoBaseT {
   public:
-    PatternRecognitionAlgoBaseT(const edm::ParameterSet& conf, const CacheBase* cache)
+    PatternRecognitionAlgoBaseT(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector )
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
     virtual ~PatternRecognitionAlgoBaseT(){};
 
