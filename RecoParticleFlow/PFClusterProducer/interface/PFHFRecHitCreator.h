@@ -20,7 +20,9 @@
 
 class PFHFRecHitCreator final : public PFRecHitCreatorBase {
 public:
-  PFHFRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitCreatorBase(iConfig, cc) {
+  PFHFRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc),
+        geomToken_(cc.esConsumes()) {
     recHitToken_ = cc.consumes<edm::SortedCollection<HFRecHit> >(iConfig.getParameter<edm::InputTag>("src"));
     EM_Depth_ = iConfig.getParameter<double>("EMDepthCorrection");
     HAD_Depth_ = iConfig.getParameter<double>("HADDepthCorrection");
@@ -42,8 +44,7 @@ public:
 
     edm::Handle<edm::SortedCollection<HFRecHit> > recHitHandle;
 
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
 
     // get the ecal geometry
     const CaloSubdetectorGeometry* hcalGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalForward);
@@ -195,5 +196,8 @@ protected:
         return a.detId() < b.detId();
     }
   };
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 #endif

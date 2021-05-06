@@ -21,15 +21,15 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 public:
   PFECALHashNavigator() {}
 
-  PFECALHashNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitNavigatorBase(iConfig, cc) {
+  PFECALHashNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitNavigatorBase(iConfig, cc),
+        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     crossBarrelEndcapBorder_ = iConfig.getParameter<bool>("crossBarrelEndcapBorder");
-
     neighbourmapcalculated_ = false;
   }
 
   void init(const edm::EventSetup& iSetup) override {
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
 
     const CaloSubdetectorGeometry* ebTmp = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
     const CaloSubdetectorGeometry* eeTmp = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
@@ -345,6 +345,9 @@ protected:
 
   /// if true, navigation will cross the barrel-endcap border
   bool crossBarrelEndcapBorder_;
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 
 #endif

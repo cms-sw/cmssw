@@ -26,7 +26,8 @@ template <typename DET, PFLayer::Layer Layer, DetId::Detector det, unsigned subd
 class PFHGCalRecHitCreator : public PFRecHitCreatorBase {
 public:
   PFHGCalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitCreatorBase(iConfig, cc) {
+      : PFRecHitCreatorBase(iConfig, cc),
+        geomToken_(cc.esConsumes()) {
     recHitToken_ = cc.consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     geometryInstance_ = iConfig.getParameter<std::string>("geometryInstance");
   }
@@ -36,8 +37,7 @@ public:
                      const edm::Event& iEvent,
                      const edm::EventSetup& iSetup) override {
     // Setup RecHitTools to properly compute the position of the HGCAL Cells vie their DetIds
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
     recHitTools_.setGeometry(*geoHandle);
 
     for (unsigned int i = 0; i < qualityTests_.size(); ++i) {
@@ -101,6 +101,7 @@ protected:
 
 private:
   hgcal::RecHitTools recHitTools_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 
 #include "DataFormats/DetId/interface/DetId.h"

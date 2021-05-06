@@ -21,7 +21,10 @@
 template <typename Digi, typename Geometry, PFLayer::Layer Layer, int Detector>
 class PFHcalRecHitCreator final : public PFRecHitCreatorBase {
 public:
-  PFHcalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitCreatorBase(iConfig, cc) {
+  PFHcalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc),
+        geomToken_(cc.esConsumes()),
+        topoToken_(cc.esConsumes()) {
     recHitToken_ = cc.consumes<edm::SortedCollection<Digi> >(iConfig.getParameter<edm::InputTag>("src"));
   }
 
@@ -33,10 +36,8 @@ public:
 
     edm::Handle<edm::SortedCollection<Digi> > recHitHandle;
 
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    edm::ESHandle<HcalTopology> hcalTopology;
-    iSetup.get<HcalRecNumberingRecord>().get(hcalTopology);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
+    edm::ESHandle<HcalTopology> hcalTopology = iSetup.getHandle(topoToken_);
 
     // get the hcal geometry and topology
     const CaloSubdetectorGeometry* gTmp = geoHandle->getSubdetectorGeometry(DetId::Hcal, Detector);
@@ -93,6 +94,10 @@ public:
 protected:
   edm::EDGetTokenT<edm::SortedCollection<Digi> > recHitToken_;
   int hoDepth_;
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_;
 };
 
 typedef PFHcalRecHitCreator<HBHERecHit, CaloSubdetectorGeometry, PFLayer::HCAL_BARREL1, HcalBarrel> PFHBRecHitCreator;
