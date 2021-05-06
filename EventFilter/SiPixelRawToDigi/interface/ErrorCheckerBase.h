@@ -39,7 +39,7 @@ public:
                         Word32& errorWord,
                         SiPixelFormatterErrors& errors) const = 0;
 
-private:
+protected:
   bool includeErrors_;
   int getConversionErrorTypeAndIssueLogMessage(int status, int fedId) const;
   void addErrorToCollectionDummy(int errorType, int fedId, Word64 word, SiPixelFormatterErrors& errors) const;
