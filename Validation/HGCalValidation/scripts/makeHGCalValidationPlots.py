@@ -18,12 +18,12 @@ trackstersIters.extend(["ticlSimTracksters"])
 hitLabel = 'recHits'
 layerClustersLabel = 'layerClusters'
 trackstersLabel = 'tracksters'
-trackstersEdgesLabel = 'trackstersEdges'
+trackstersWithEdgesLabel = 'trackstersWithEdges'
 simLabel = 'simulation'
 allLabel = 'all'
 
 collection_choices = [allLabel]
-collection_choices.extend([hitLabel]+[layerClustersLabel]+[trackstersLabel]+[trackstersEdgesLabel]+[simLabel])
+collection_choices.extend([hitLabel]+[layerClustersLabel]+[trackstersLabel]+[trackstersWithEdgesLabel]+[simLabel])
 
 def main(opts):
 
@@ -68,7 +68,7 @@ def main(opts):
             hgcalPlots.append_hgcalTrackstersPlots(tracksterCollection, tracksterCollection)
         val.doPlots(hgctrackster, plotterDrawArgs=drawArgs)
 
-    #trackstersEdges
+    #trackstersWithEdges
     def plot_TstEdges():
         plot_Tst()
         for tracksterCollection in trackstersIters :
@@ -101,13 +101,14 @@ def main(opts):
         val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
 
 
-    plotDict = {hitLabel:[plot_hitVal, plot_hitCal], layerClustersLabel:[plot_LC], trackstersLabel:[plot_Tst], trackstersEdgesLabel:[plot_TstEdges], simLabel:[plot_SC, plot_CP]}
+    plotDict = {hitLabel:[plot_hitVal, plot_hitCal], layerClustersLabel:[plot_LC], trackstersLabel:[plot_Tst], trackstersWithEdgesLabel:[plot_TstEdges], simLabel:[plot_SC, plot_CP]}
 
     if (opts.collection != allLabel):
         for task in plotDict[opts.collection]:
             task()
     else:
         for label in plotDict:
+            if (label == trackstersLabel): continue # already run in trackstersWithEdges
             for task in plotDict[label]:
                 task()
 
