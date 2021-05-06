@@ -22,7 +22,7 @@ namespace ticl {
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
       iDesc.add<int>("algo_verbosity", 0);
-      iDesc.add<double>("criticalDensity", 4); // in GeV
+      iDesc.add<double>("criticalDensity", 4);  // in GeV
       iDesc.add<int>("densitySiblingLayers", 3);
       iDesc.add<double>("densityEtaPhiDistanceSqr", 0.0009);
       iDesc.add<bool>("densityOnSameLayer", false);
@@ -101,7 +101,8 @@ namespace ticl {
     int findAndAssignTracksters(const TILES&, const std::vector<std::pair<int, int>>&);
     void dumpClusters(const std::vector<std::pair<int, int>>& layerIdx2layerandSoa, const int) const;
     void dumpTracksters(const std::vector<std::pair<int, int>>& layerIdx2layerandSoa,
-        const int, const std::vector<Trackster>&) const;
+                        const int,
+                        const std::vector<Trackster>&) const;
     void dumpTiles(const TILES&) const;
 
     std::vector<ClustersOnLayer> clusters_;

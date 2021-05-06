@@ -99,8 +99,8 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
   } else {
     auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
     auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
-    myAlgo_ =
-        PatternRecognitionFactory::get()->create(ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, cache, consumesCollector());
+    myAlgo_ = PatternRecognitionFactory::get()->create(
+        ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, cache, consumesCollector());
     layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
   }
 
