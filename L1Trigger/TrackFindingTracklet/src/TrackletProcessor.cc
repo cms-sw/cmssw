@@ -187,8 +187,8 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
                               iSeed_,
                               nbitsfinephidiff_,
                               iAllStub_,
-                              pttableinner_,
-                              pttableouter_,
+                              &pttableinner_,
+                              &pttableouter_,
                               outervmstubs_);
 
     teunits_.resize(settings_.teunits(iSeed_), teunit);
@@ -299,14 +299,10 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
 
     TrackletEngineUnit* teunitptr = nullptr;
 
-    int iTE = 0;
-    int icount = -1;
     for (auto& teunit : teunits_) {
       teunit.setNearFull();
-      icount++;
       if (!teunit.empty()) {
         teunitptr = &teunit;
-        iTE = icount;
       }
     }
 
