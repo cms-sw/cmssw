@@ -18,7 +18,8 @@ bool MTDTopology::orderETLSector(const GeomDet*& gd1, const GeomDet*& gd2) {
 }
 
 size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) const {
-  static constexpr size_t failIndex(std::numeric_limits<unsigned int>::max());  // return out-of-range value for any failure
+  static constexpr size_t failIndex(
+      std::numeric_limits<unsigned int>::max());  // return out-of-range value for any failure
 
   ETLDetId start_mod(detid);
 
