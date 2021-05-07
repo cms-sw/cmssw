@@ -376,18 +376,16 @@ namespace reco {
       int nTrkSolidCone;
       //Number of tracks in a hollow cone of outer radius, inner radius
       int nTrkHollowCone;
-
       IsolationVariables()
           :
 
-            ecalRecHitSumEt(0),
+            ecalRecHitSumEt(0.f),
             hcalRecHitSumEt{{0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f}},
             hcalRecHitSumEtBc{{0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f}},
-            trkSumPtSolidCone(0),
-            trkSumPtHollowCone(0),
+            trkSumPtSolidCone(0.f),
+            trkSumPtHollowCone(0.f),
             nTrkSolidCone(0),
             nTrkHollowCone(0)
-
       {}
     };
 
