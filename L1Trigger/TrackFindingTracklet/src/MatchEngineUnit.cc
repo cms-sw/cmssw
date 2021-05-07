@@ -4,10 +4,14 @@
 using namespace std;
 using namespace trklet;
 
-MatchEngineUnit::MatchEngineUnit(bool barrel, unsigned int layerdisk, const TrackletLUT& luttable) : luttable_(luttable), candmatches_(5) {
+MatchEngineUnit::MatchEngineUnit(bool barrel, unsigned int layerdisk, const TrackletLUT& luttable) : luttable_(luttable), candmatches_(3) {
   idle_ = true;
   barrel_ = barrel;
   layerdisk_ = layerdisk;
+  goodpair_ = false;
+  goodpair__ = false;
+  havepair_ = false;
+  havepair__ = false;
 }
 
 void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
@@ -23,7 +27,8 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
                            bool usesecondMinus,
                            bool usesecondPlus,
                            bool isPSseed,
-                           Tracklet* proj) {
+                           Tracklet* proj,
+			   bool) {
   vmstubsmemory_ = vmstubsmemory;
   idle_ = false;
   nrzbins_ = nrzbins;
@@ -39,11 +44,11 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   if (usefirstMinus) {
     use_.emplace_back(0, 0);
   }
-  if (usefirstPlus) {
-    use_.emplace_back(0, 1);
-  }
   if (usesecondMinus) {
     use_.emplace_back(1, 0);
+  }
+  if (usefirstPlus) {
+    use_.emplace_back(0, 1);
   }
   if (usesecondPlus) {
     use_.emplace_back(1, 1);
@@ -51,10 +56,41 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   assert(use_.size() != 0);
   isPSseed_ = isPSseed;
   proj_ = proj;
+
+  //Even when you init a new projection you need to process the pipeline
+  //This should be fixed to be done more cleanly - but require synchronizaton
+  //with the HLS code
+  if (goodpair__) {
+    candmatches_.store(tmppair__);
+  }
+
+  havepair__ = havepair_;
+  goodpair__ = goodpair_;
+  tmppair__ =  tmppair_;
+
+  havepair_ = false;
+  goodpair_ = false;
+
+  
 }
 
-void MatchEngineUnit::step(bool print) {
-  if (idle() || candmatches_.almostfull())
+void MatchEngineUnit::step(bool) {
+
+  bool almostfull = candmatches_.nearfull();
+  
+  if (goodpair__) {
+    assert(havepair__);
+    candmatches_.store(tmppair__);
+  }
+
+  havepair__ = havepair_;
+  goodpair__ = goodpair_;
+  tmppair__ =  tmppair_;
+
+  havepair_ = false;
+  goodpair_ = false;
+  
+  if (idle() || almostfull)
     return;
 
   unsigned int slot = (phibin_ + use_[iuse_].second) * nrzbins_ + rzbin_ + use_[iuse_].first;
@@ -106,16 +142,21 @@ void MatchEngineUnit::step(bool print) {
     }
   }
 
-  if (print)
-    cout << "MEU TrkId stubindex : " << 128 * proj_->TCIndex() + proj_->trackletIndex() << " "
-         << vmstub.stubindex().value() << "   " << ((pass && dphicut) && luttable_.lookup(index)) << " index=" << index
-         << " projrinv bend : " << projrinv_ << " " << vmstub.bend().value() << "  shift_ isPSseed_ :" << shift_ << " "
-         << isPSseed_ << " slot=" << slot << endl;
+  // Detailed printout for comparison with HLS code
+  //if (print)
+  //  cout << "MEU TrkId stubindex : " << 128 * proj_->TCIndex() + proj_->trackletIndex() << " "
+  //       << vmstub.stubindex().value() << "   " << ((pass && dphicut) && luttable_.lookup(index)) << " index=" << index
+  //       << " projrinv bend : " << projrinv_ << " " << vmstub.bend().value() << "  shift_ isPSseed_ :" << shift_ << " "
+  //       << isPSseed_ << " slot=" << slot << endl;
 
   //Check if stub bend and proj rinv consistent
-  if ((pass && dphicut) && luttable_.lookup(index)) {
-    std::pair<Tracklet*, const Stub*> tmp(proj_, vmstub.stub());
-    candmatches_.store(tmp);
+  
+  goodpair_ = (pass && dphicut) && luttable_.lookup(index);
+  havepair_ = true;
+  
+  if (havepair_) {
+    std::pair<Tracklet*, const Stub*> tmppair(proj_, vmstub.stub());
+    tmppair_ = tmppair;
   }
 
   istub_++;
@@ -133,4 +174,27 @@ void MatchEngineUnit::reset() {
   candmatches_.reset();
   idle_ = true;
   istub_ = 0;
+  goodpair_ = false;
+  goodpair__ = false;
+  havepair_ = false;
+  havepair__ = false;
+}
+
+int MatchEngineUnit::TCID() const {
+
+  if (!empty()) {
+    return peek().first->TCID();
+  }
+
+  if (idle_&&!havepair_&&!havepair__) {
+    return 16383;
+  }
+  if (havepair__) {
+    return tmppair__.first->TCID();
+  }
+  if (havepair_) {
+    return tmppair_.first->TCID();
+  }
+  return proj_->TCID();
+
 }
