@@ -123,11 +123,9 @@ namespace {
     assert(tracker.isValid());
     //get topology
     tkTpl = &iSetup.getData(trackerTopoToken_);
-    ;
 
     // Initialize 1D templates
     templateDBobject_ = &iSetup.getData(templateDBobjectToken_);
-    ;
     if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_))
       edm::LogError("SiPixelPhase1TrackClusters")
           << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
