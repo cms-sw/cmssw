@@ -269,19 +269,13 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
       }
     }
 
-    LogDebug("LCToCPAssociatorByEnergyScoreImpl") << std::setw(10) << "LayerId:\t"
-                                                  << std::setw(12) << "layerCluster\t"
-                                                  << std::setw(10) << "lc energy\t"
-                                                  << std::setw(5) << "nhits\t"
-                                                  << std::setw(12) << "noise hits\t"
-                                                  << std::setw(22) << "maxCPId_byNumberOfHits\t"
-                                                  << std::setw(8) << "nhitsCP\t"
-                                                  << std::setw(13) << "maxCPId_byEnergy\t"
-                                                  << std::setw(20) << "maxEnergySharedLCandCP\t"
-                                                  << std::setw(22) << "totalCPEnergyOnLayer\t"
-                                                  << std::setw(22) << "energyFractionOfLCinCP\t"
-                                                  << std::setw(25) << "energyFractionOfCPinLC\t"
-                                                  << "\n";
+    LogDebug("LCToCPAssociatorByEnergyScoreImpl")
+        << std::setw(10) << "LayerId:\t" << std::setw(12) << "layerCluster\t" << std::setw(10) << "lc energy\t"
+        << std::setw(5) << "nhits\t" << std::setw(12) << "noise hits\t" << std::setw(22) << "maxCPId_byNumberOfHits\t"
+        << std::setw(8) << "nhitsCP\t" << std::setw(13) << "maxCPId_byEnergy\t" << std::setw(20)
+        << "maxEnergySharedLCandCP\t" << std::setw(22) << "totalCPEnergyOnLayer\t" << std::setw(22)
+        << "energyFractionOfLCinCP\t" << std::setw(25) << "energyFractionOfCPinLC\t"
+        << "\n";
     LogDebug("LCToCPAssociatorByEnergyScoreImpl")
         << std::setw(10) << lcLayerId << "\t" << std::setw(12) << lcId << "\t" << std::setw(10)
         << clusters[lcId].energy() << "\t" << std::setw(5) << numberOfHitsInLC << "\t" << std::setw(12)
