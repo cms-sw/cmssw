@@ -19,9 +19,11 @@ using namespace trklet;
 TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Globals* globals)
     : TrackletCalculatorBase(name, settings, globals),
       tebuffer_(CircularBuffer<TEData>(3), 0, 0, 0, 0),
-      pttableinner_(settings), pttableouter_(settings), useregiontable_(settings),
-      innerTable_(settings), innerOverlapTable_(settings) {
-  
+      pttableinner_(settings),
+      pttableouter_(settings),
+      useregiontable_(settings),
+      innerTable_(settings),
+      innerOverlapTable_(settings) {
   iAllStub_ = -1;
 
   for (unsigned int ilayer = 0; ilayer < N_LAYER; ilayer++) {
@@ -37,11 +39,11 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
   outervmstubs_ = nullptr;
 
   initLayerDisksandISeed(layerdisk1_, layerdisk2_, iSeed_);
-  
+
   double rmin = -1.0;
   double rmax = -1.0;
 
-  if  (iSeed_ == Seed::L1L2 ||iSeed_ == Seed::L2L3 ||iSeed_ == Seed::L3L4 ||iSeed_ == Seed::L5L6 ) {
+  if (iSeed_ == Seed::L1L2 || iSeed_ == Seed::L2L3 || iSeed_ == Seed::L3L4 || iSeed_ == Seed::L5L6) {
     rmin = settings_.rmean(layerdisk1_);
     rmax = settings_.rmean(layerdisk2_);
   } else {
@@ -65,7 +67,7 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
   double dfinephi = settings_.dphisectorHG() / nfinephibins;
 
   nbitsfinephi_ = settings_.nbitsallstubs(layerdisk2_) + settings_.nbitsvmte(1, iSeed_) + settings_.nfinephi(1, iSeed_);
-  
+
   int nbins = 2.0 * (dphimax / dfinephi + 1.0);
 
   nbitsfinephidiff_ = log(nbins) / log(2.0) + 1;
@@ -80,15 +82,16 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
   innerphibits_ = settings_.nfinephi(0, iSeed_);
   outerphibits_ = settings_.nfinephi(1, iSeed_);
 
-  if (layerdisk1_ == LayerDisk::L1 || layerdisk1_ == LayerDisk::L2 || layerdisk1_ == LayerDisk::L3 || layerdisk1_ == LayerDisk::L5
-      || layerdisk1_ == LayerDisk::D1 || layerdisk1_ == LayerDisk::D3) {
-    innerTable_.initVMRTable(layerdisk1_, TrackletLUT::VMRTableType::inner);       //projection to next layer/disk
+  if (layerdisk1_ == LayerDisk::L1 || layerdisk1_ == LayerDisk::L2 || layerdisk1_ == LayerDisk::L3 ||
+      layerdisk1_ == LayerDisk::L5 || layerdisk1_ == LayerDisk::D1 || layerdisk1_ == LayerDisk::D3) {
+    innerTable_.initVMRTable(layerdisk1_, TrackletLUT::VMRTableType::inner);  //projection to next layer/disk
   }
 
-  if (layerdisk1_ == LayerDisk::L1 || layerdisk1_ == LayerDisk::L2 ) {
-    innerOverlapTable_.initVMRTable(layerdisk1_, TrackletLUT::VMRTableType::inneroverlap);  //projection to disk from layer
+  if (layerdisk1_ == LayerDisk::L1 || layerdisk1_ == LayerDisk::L2) {
+    innerOverlapTable_.initVMRTable(layerdisk1_,
+                                    TrackletLUT::VMRTableType::inneroverlap);  //projection to disk from layer
   }
-  
+
   // set TC index
   iTC_ = name_[7] - 'A';
   assert(iTC_ >= 0 && iTC_ < 14);
@@ -170,16 +173,16 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
         iAllStub_ = 3;
     }
 
-    unsigned int iTP = getName()[7]-'A';
-    
-    pttableinner_.initTPlut(true, iSeed_, layerdisk1_, layerdisk2_, nbitsfinephidiff_, iTP); 
-    pttableouter_.initTPlut(false, iSeed_, layerdisk1_, layerdisk2_, nbitsfinephidiff_, iTP); 
+    unsigned int iTP = getName()[7] - 'A';
+
+    pttableinner_.initTPlut(true, iSeed_, layerdisk1_, layerdisk2_, nbitsfinephidiff_, iTP);
+    pttableouter_.initTPlut(false, iSeed_, layerdisk1_, layerdisk2_, nbitsfinephidiff_, iTP);
 
     //need iAllStub_ set before building the table
-    
-    useregiontable_.initTPregionlut(iSeed_, layerdisk1_, layerdisk2_, iAllStub_,
-				    nbitsfinephidiff_, nbitsfinephi_, pttableinner_, iTP);
-    
+
+    useregiontable_.initTPregionlut(
+        iSeed_, layerdisk1_, layerdisk2_, iAllStub_, nbitsfinephidiff_, nbitsfinephi_, pttableinner_, iTP);
+
     TrackletEngineUnit teunit(&settings_,
                               nbitsfinephi_,
                               layerdisk1_,
@@ -272,7 +275,6 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
   bool tebuffernearfull;
 
   for (unsigned int istep = 0; istep < maxStep_; istep++) {
-
     // These print statements are not on by defaul but can be enabled for the
     // comparison with HLS code to track differences.
     if (print) {
@@ -327,9 +329,9 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
 
       bool accept = false;
 
-      if (iSeed_ == Seed::L1L2 || iSeed_ == Seed::L2L3 || iSeed_ == Seed::L3L4 || iSeed_ == Seed::L5L6 ) {
+      if (iSeed_ == Seed::L1L2 || iSeed_ == Seed::L2L3 || iSeed_ == Seed::L3L4 || iSeed_ == Seed::L5L6) {
         accept = barrelSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
-      } else if ( iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4 ) {
+      } else if (iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4) {
         accept = diskSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
       } else {
         accept = overlapSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub);
@@ -411,9 +413,9 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
 
       int lutval = -1;
       if (iSeed_ < 6) {  //FIXME should only be one table - but will need coordination with HLS code.
-	lutval = innerTable_.lookup((indexz<<nbitsrfinebintable_) + indexr);
+        lutval = innerTable_.lookup((indexz << nbitsrfinebintable_) + indexr);
       } else {
-	lutval = innerOverlapTable_.lookup((indexz<<nbitsrfinebintable_) + indexr);
+        lutval = innerOverlapTable_.lookup((indexz << nbitsrfinebintable_) + indexr);
       }
 
       if (lutval != -1) {
@@ -425,7 +427,7 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
         int start = lookupbits.bits(NFINERZBITS + 1, nbitsrzbin_);  //rz bin
         int rzdiffmax = lookupbits.bits(NFINERZBITS + 1 + nbitsrzbin_, NFINERZBITS);
 
-        if (( iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4 ) && negdisk) {  //TODO - need to store negative disk
+        if ((iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4) && negdisk) {  //TODO - need to store negative disk
           start += (1 << nbitsrzbin_);
         }
         int last = start + next;
@@ -433,7 +435,7 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
         int nbins = (1 << N_RZBITS);
 
         unsigned int useregindex = (innerfinephi << innerbend.nbits()) + innerbend.value();
-        if ( iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4 || iSeed_ == Seed::L1D1 || iSeed_ == Seed::L2D1 ) {
+        if (iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4 || iSeed_ == Seed::L1D1 || iSeed_ == Seed::L2D1) {
           //FIXME If the lookupbits were rationally organized this would be much simpler
           unsigned int nrbits = 3;
           int ir = ((start & ((1 << (nrbits - 1)) - 1)) << 1) + (rzfinebinfirst >> (NFINERZBITS - 1));
@@ -441,7 +443,7 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
         }
 
         unsigned int usereg = useregiontable_.lookup(useregindex);
-	
+
         tedata.regions_.clear();
         tedata.stub_ = stub;
         tedata.rzbinfirst_ = rzfinebinfirst;
@@ -534,4 +536,3 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
                                                 << endl;
   }
 }
-

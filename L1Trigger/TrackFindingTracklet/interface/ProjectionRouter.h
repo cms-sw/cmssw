@@ -29,7 +29,7 @@ namespace trklet {
 
     int nrbits_;
     int nphiderbits_;
-    
+
     //disk projectionrinv table
     TrackletLUT rinvbendlut_;
 

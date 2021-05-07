@@ -63,7 +63,7 @@ namespace trklet {
     bool isinner_;   // is inner layer/disk for TE purpose
 
     TrackletLUT bendtable_;
-    
+
     std::vector<VMStubTE> stubsvm_;
     std::vector<std::vector<VMStubTE> > stubsbinnedvm_;
   };

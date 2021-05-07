@@ -55,11 +55,11 @@ namespace trklet {
     int nbitszfinebintable_;
     int nbitsrfinebintable_;
 
-    TrackletLUT meTable_;                    //used for ME and outer TE barrel
-    TrackletLUT diskTable_;                  //outer disk used by D1, D2, and D4
-    TrackletLUT innerTable_;                 //projection to next layer/disk
-    TrackletLUT innerOverlapTable_;          //projection to disk from layer
-    TrackletLUT innerThirdTable_;            //projection to disk1 for extended - iseed=10
+    TrackletLUT meTable_;            //used for ME and outer TE barrel
+    TrackletLUT diskTable_;          //outer disk used by D1, D2, and D4
+    TrackletLUT innerTable_;         //projection to next layer/disk
+    TrackletLUT innerOverlapTable_;  //projection to disk from layer
+    TrackletLUT innerThirdTable_;    //projection to disk1 for extended - iseed=10
 
     //The input stub memories the two tmp inputs are used to build the order needed in HLS
     std::vector<InputLinkMemory*> stubinputs_, stubinputtmp_, stubinputdisk2stmp_;

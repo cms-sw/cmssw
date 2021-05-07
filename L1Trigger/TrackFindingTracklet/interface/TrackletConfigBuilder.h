@@ -54,7 +54,6 @@ namespace trklet {
     //Projection router name
     std::string PRName(unsigned int ilayer, unsigned int ireg);
 
-    
   private:
     //
     // Method to initialize the regions and VM in each layer
@@ -106,7 +105,6 @@ namespace trklet {
     // Helper function to calculate rinv for two stubs at (r1,phi1) and (r2,phi2)
     //
     double rinv(double r1, double phi1, double r2, double phi2);
-
 
     //StubPair Name
     std::string SPName(unsigned int l1,

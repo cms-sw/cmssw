@@ -138,7 +138,7 @@ namespace trklet {
   //Open file - create directory if not existent.
   inline std::ofstream openfile(const std::string& dir, const std::string& fname, const char* file, int line) {
     if (dirExists(dir) != 1) {
-      edm::LogVerbatim("Tracklet")  << "Creating directory : " << dir;
+      edm::LogVerbatim("Tracklet") << "Creating directory : " << dir;
       int fail = system((std::string("mkdir -p ") + dir).c_str());
       if (fail) {
         throw cms::Exception("BadDir") << file << " " << line << " could not create directory " << dir;

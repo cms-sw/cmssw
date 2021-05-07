@@ -35,11 +35,10 @@ namespace trklet {
 
     bool barrel_;
 
-    unsigned int nrinv_;         //number of bits for rinv in stub bend LUT
+    unsigned int nrinv_;  //number of bits for rinv in stub bend LUT
 
     //LUT for bend consistency
     TrackletLUT luttable_;
-    
   };
 
 };  // namespace trklet

@@ -44,12 +44,12 @@ namespace trklet {
 
     TrackletLUT phimatchcuttable_;
     TrackletLUT zmatchcuttable_;
-    
+
     TrackletLUT rphicutPStable_;
     TrackletLUT rphicut2Stable_;
     TrackletLUT rcutPStable_;
     TrackletLUT rcut2Stable_;
-    
+
     int ialphafactinner_[N_DSS_MOD * 2];
     int ialphafactouter_[N_DSS_MOD * 2];
 

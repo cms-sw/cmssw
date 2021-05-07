@@ -12,10 +12,10 @@ TrackletEngineUnit::TrackletEngineUnit(const Settings* const settings,
                                        unsigned int iSeed,
                                        unsigned int nbitsfinephidiff,
                                        unsigned int iAllStub,
-				       const TrackletLUT* pttableinnernew,
-				       const TrackletLUT* pttableouternew,
+                                       const TrackletLUT* pttableinnernew,
+                                       const TrackletLUT* pttableouternew,
                                        VMStubsTEMemory* outervmstubs)
-: settings_(settings), pttableinnernew_(pttableinnernew), pttableouternew_(pttableouternew), candpairs_(3) {
+    : settings_(settings), pttableinnernew_(pttableinnernew), pttableouternew_(pttableouternew), candpairs_(3) {
   idle_ = true;
   nbitsfinephi_ = nbitsfinephi;
   layerdisk2_ = layerdisk2;
@@ -43,7 +43,6 @@ void TrackletEngineUnit::reset() {
 }
 
 void TrackletEngineUnit::step(bool, int, int) {
-
   if (goodpair__) {
     candpairs_.store(candpair__);
   }
@@ -100,7 +99,7 @@ void TrackletEngineUnit::step(bool, int, int) {
 
     int ptinnerindex = (idphi << tedata_.innerbend_.nbits()) + tedata_.innerbend_.value();
     int ptouterindex = (idphi << outerbend.nbits()) + outerbend.value();
-    
+
     if (!(inrange && pttableinnernew_->lookup(ptinnerindex) && pttableouternew_->lookup(ptouterindex))) {
       if (settings_->debugTracklet()) {
         edm::LogVerbatim("Tracklet") << " Stub pair rejected because of stub pt cut bends : "
