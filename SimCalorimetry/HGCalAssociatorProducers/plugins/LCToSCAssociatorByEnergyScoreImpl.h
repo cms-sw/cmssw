@@ -1,4 +1,4 @@
-// Original Author: Marco Rovere
+// Original Author: Leonardo Cristella
 
 #include <vector>
 #include <map>
@@ -44,9 +44,9 @@ namespace hgcal {
   typedef std::tuple<layerClusterToSimCluster, simClusterToLayerCluster> association;
 }  // namespace hgcal
 
-class SimClusterAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToSimClusterAssociatorBaseImpl {
+class LCToSCAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToSimClusterAssociatorBaseImpl {
 public:
-  explicit SimClusterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
+  explicit LCToSCAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                                  bool,
                                                  std::shared_ptr<hgcal::RecHitTools>,
                                                  const std::unordered_map<DetId, const HGCRecHit *> *);
