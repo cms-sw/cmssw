@@ -35,10 +35,13 @@ namespace trklet {
               bool usesecondMinus,
               bool usesecondPlus,
               bool isPSseed,
-              Tracklet* proj);
+              Tracklet* proj,
+	      bool print);
 
     bool empty() const { return candmatches_.empty(); }
 
+    int TCID() const;
+    
     std::pair<Tracklet*, const Stub*> read() { return candmatches_.read(); }
 
     std::pair<Tracklet*, const Stub*> peek() const { return candmatches_.peek(); }
@@ -47,7 +50,15 @@ namespace trklet {
 
     bool idle() const { return idle_; }
 
+    bool active() const { return !idle_||goodpair_||goodpair__||!empty(); }
+
+    bool have_() const { return havepair_; }
+    bool have__() const { return havepair__; }
+    
     void reset();
+
+    unsigned int rptr() const { return candmatches_.rptr(); }
+    unsigned int wptr() const { return candmatches_.wptr(); }
 
     void step(bool print);
 
@@ -77,7 +88,11 @@ namespace trklet {
     //LUT for bend consistency with rinv
     const TrackletLUT& luttable_;
 
-
+    //Pipeline variables
+    std::pair<Tracklet*, const Stub*> tmppair_, tmppair__;
+    bool goodpair_, goodpair__;
+    bool havepair_, havepair__;
+    
     //save the candidate matches
     CircularBuffer<std::pair<Tracklet*, const Stub*>> candmatches_;
   };
