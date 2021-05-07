@@ -363,11 +363,11 @@ namespace reco {
       float e2x5Max;             // energy inside 2x5 in etaxphi around the seed Xtal (max bwt the 2 possible sums)
       float e5x5;                // energy inside 5x5 in etaxphi around the seed Xtal
       float r9;                  // ratio of the 3x3 energy and supercluster energy
-      float sigmaIetaIphi;
       std::array<float, 7> hcalOverEcal; // hcal over ecal seed cluster energy per depth (using rechits within a cone)
       std::array<float, 7> hcalOverEcalBc; // hcal over ecal seed cluster energy per depth (using rechits behind clusters)
       std::vector<CaloTowerDetId> hcalTowersBehindClusters;
       bool invalidHcal;  // set to true if the hcal energy estimate is not valid (e.g. the corresponding tower was off or masked)
+      float sigmaIetaIphi;
       float eMax;
       float e2nd;
       float eTop;
@@ -386,10 +386,10 @@ namespace reco {
             e2x5Max(0.f),
             e5x5(0.f),
             r9(-std::numeric_limits<float>::max()),
-            sigmaIetaIphi(0.f),
             hcalOverEcal{{0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f}},
             hcalOverEcalBc{{0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f}},
             invalidHcal(false),
+            sigmaIetaIphi(0.f),
             eMax(0.f),
             e2nd(0.f),
             eTop(0.f),

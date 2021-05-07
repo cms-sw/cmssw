@@ -44,6 +44,18 @@
     <version ClassVersion="13" checksum="641067911"/>
    <version ClassVersion="12" checksum="1586705784"/>
    <version ClassVersion="11" checksum="2494542444"/>
+  <ioread sourceClass="reco::Photon::ShowerShape" version="[1-14]" source="float hcalDepth1OverEcal; float hcalDepth2OverEcal;" targetClass="reco::Photon::ShowerShape" target="hcalOverEcal">
+   <![CDATA[
+            hcalOverEcal[0] = onfile.hcalDepth1OverEcal;
+            hcalOverEcal[1] = onfile.hcalDepth2OverEcal;
+   ]]>
+  </ioread>
+  <ioread sourceClass="reco::Photon::ShowerShape" version="[1-14]" source="float hcalDepth1OverEcalBc; float hcalDepth2OverEcalBc;" targetClass="reco::Photon::ShowerShape" target="hcalOverEcalBc">
+   <![CDATA[
+            hcalOverEcalBc[0] = onfile.hcalDepth1OverEcalBc;
+            hcalOverEcalBc[1] = onfile.hcalDepth2OverEcalBc;
+   ]]>
+  </ioread>
   </class>
   <class name="reco::Photon::SaturationInfo" ClassVersion="3">
    <version ClassVersion="3" checksum="2679714023"/>
@@ -55,6 +67,18 @@
    <version ClassVersion="12" checksum="3054008509"/>
    <version ClassVersion="10" checksum="3308689624"/>
    <version ClassVersion="11" checksum="3649971983"/>
+  <ioread sourceClass="reco::Photon::IsolationVariables" version="[1-11]" source="float hcalDepth1TowerSumEt; float hcalDepth2TowerSumEt;" targetClass="reco::Photon::IsolationVariables" target="hcalRecHitSumEt">
+   <![CDATA[
+            hcalRecHitSumEt[0] = onfile.hcalDepth1TowerSumEt;
+            hcalRecHitSumEt[1] = onfile.hcalDepth2TowerSumEt;
+   ]]>
+  </ioread>
+  <ioread sourceClass="reco::Photon::IsolationVariables" version="[1-11]" source="float hcalDepth1TowerSumEtBc; float hcalDepth2TowerSumEtBc;" targetClass="reco::Photon::IsolationVariables" target="hcalRecHitSumEtBc">
+   <![CDATA[
+            hcalRecHitSumEtBc[0] = onfile.hcalDepth1TowerSumEtBc;
+            hcalRecHitSumEtBc[1] = onfile.hcalDepth2TowerSumEtBc;
+   ]]>
+  </ioread>
   </class>
   <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="14">
    <version ClassVersion="11" checksum="3200292660"/>
@@ -167,18 +191,43 @@
   <class name="reco::GsfElectron::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2564471186"/>
   </class>
-  <class name="reco::GsfElectron::ShowerShape" ClassVersion="15">
+  <class name="reco::GsfElectron::ShowerShape" ClassVersion="16">
+   <version ClassVersion="16" checksum="2009811606"/>
    <version ClassVersion="15" checksum="2267383514"/>
    <version ClassVersion="14" checksum="1877043619"/>
    <version ClassVersion="13" checksum="1955217576"/>
    <version ClassVersion="12" checksum="1486422105"/>
    <version ClassVersion="11" checksum="3451347438"/>
    <version ClassVersion="10" checksum="3070677812"/>
+  <ioread sourceClass="reco::GsfElectron::ShowerShape" version="[1-14]" source="float hcalDepth1OverEcal; float hcalDepth2OverEcal;" targetClass="reco::GsfElectron::ShowerShape" target="hcalOverEcal">
+   <![CDATA[
+            hcalOverEcal[0] = onfile.hcalDepth1OverEcal;
+            hcalOverEcal[1] = onfile.hcalDepth2OverEcal;
+   ]]>
+  </ioread>
+  <ioread sourceClass="reco::GsfElectron::ShowerShape" version="[1-14]" source="float hcalDepth1OverEcalBc; float hcalDepth2OverEcalBc;" targetClass="reco::GsfElectron::ShowerShape" target="hcalOverEcalBc">
+   <![CDATA[
+            hcalOverEcalBc[0] = onfile.hcalDepth1OverEcalBc;
+            hcalOverEcalBc[1] = onfile.hcalDepth2OverEcalBc;
+   ]]>
+  </ioread>
   </class>
   <class name="reco::GsfElectron::IsolationVariables" ClassVersion="12">
    <version ClassVersion="12" checksum="3743031501"/>
    <version ClassVersion="11" checksum="1799511018"/>
    <version ClassVersion="10" checksum="4260674990"/>
+  <ioread sourceClass="reco::GsfElectron::IsolationVariables" version="[1-11]" source="float hcalDepth1TowerSumEt; float hcalDepth2TowerSumEt;" targetClass="reco::GsfElectron::IsolationVariables" target="hcalRecHitSumEt">
+   <![CDATA[
+            hcalRecHitSumEt[0] = onfile.hcalDepth1TowerSumEt;
+            hcalRecHitSumEt[1] = onfile.hcalDepth2TowerSumEt;
+   ]]>
+  </ioread>
+  <ioread sourceClass="reco::GsfElectron::IsolationVariables" version="[1-11]" source="float hcalDepth1TowerSumEtBc; float hcalDepth2TowerSumEtBc;" targetClass="reco::GsfElectron::IsolationVariables" target="hcalRecHitSumEtBc">
+   <![CDATA[
+            hcalRecHitSumEtBc[0] = onfile.hcalDepth1TowerSumEtBc;
+            hcalRecHitSumEtBc[1] = onfile.hcalDepth2TowerSumEtBc;
+   ]]>
+  </ioread>
   </class>
   <class name="reco::GsfElectron::ConversionRejection" ClassVersion="11">
    <version ClassVersion="11" checksum="2813508647"/>
