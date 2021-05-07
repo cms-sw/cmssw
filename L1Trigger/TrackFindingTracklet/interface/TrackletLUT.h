@@ -60,7 +60,7 @@ namespace trklet {
     int lookup(unsigned int index) const;
 
     unsigned int size() const { return table_.size(); }
-    
+
   private:
 
     int getphiCorrValue(unsigned int layerdisk, unsigned int ibend, unsigned int irbin,

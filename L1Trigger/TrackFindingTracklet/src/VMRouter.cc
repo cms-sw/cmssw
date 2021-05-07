@@ -110,7 +110,7 @@ void VMRouter::addOutput(MemoryBase* memory, string output) {
       } else if (seedtype < 'o' && seedtype >= 'a') {
         if (layerdisk_ == LayerDisk::L2 || layerdisk_ == LayerDisk::L3)
           iseed = Seed::L2L3D1;
-        if (layerdisk_ == LayerDisk::L1)
+        if (layerdisk_ == LayerDisk::L2)
           inner = 0;
       } else if (seedtype > 'o' && seedtype <= 'z') {
         if (layerdisk_ == LayerDisk::L2)
@@ -185,7 +185,7 @@ void VMRouter::execute() {
     for (unsigned int i = 0; i < stubinput->nStubs(); i++) {
       if (allStubCounter >= settings_.maxStep("VMR"))
         continue;
-      if (allStubCounter > 127)
+      if (allStubCounter >= (1<<N_BITSMEMADDRESS))
         continue;
       Stub* stub = stubinput->getStub(i);
 
@@ -194,7 +194,7 @@ void VMRouter::execute() {
 
       //use &127 to make sure we fit into the number of bits -
       //though we should have protected against overflows above
-      FPGAWord allStubIndex(allStubCounter & 127, 7, true, __LINE__, __FILE__);
+      FPGAWord allStubIndex(allStubCounter & ((1<<N_BITSMEMADDRESS)-1),  N_BITSMEMADDRESS, true, __LINE__, __FILE__);
 
       //TODO - should not be needed - but need to migrate some other pieces of code before removing
       stub->setAllStubIndex(allStubCounter);
@@ -287,7 +287,7 @@ void VMRouter::execute() {
       for (auto& ivmstubTEPHI : vmstubsTEPHI_) {
         unsigned int iseed = ivmstubTEPHI.seednumber;
         unsigned int inner = ivmstubTEPHI.stubposition;
-        if ((iseed == 4 || iseed == 5 || iseed == 6 || iseed == 7) && (!stub->isPSmodule()))
+        if ((iseed == Seed::D1D2 || iseed == Seed::D3D4 || iseed == Seed::L1D1 || iseed == Seed::L2D1) && (!stub->isPSmodule()))
           continue;
 
         unsigned int lutwidth = settings_.lutwidthtab(inner, iseed);
@@ -301,7 +301,7 @@ void VMRouter::execute() {
           if (layerdisk_ < N_LAYER) {
             lutval = melut;
           } else {
-            if (inner == 2 && iseed == 10) {
+            if (inner == 2 && iseed == Seed::L2L3D1) {
               lutval = 0;
               if (stub->r().value() < 10) {
                 lutval = 8 * (1 + (stub->r().value() >> 2));
@@ -317,14 +317,14 @@ void VMRouter::execute() {
           if (lutval == -1)
             continue;
         } else {
-          if (iseed < 6 || iseed > 7) {
+          if (iseed < Seed::L1D1 || iseed > Seed::L2D1) {
 	    lutval = innerTable_.lookup((indexz<<nbitsrfinebintable_)+indexr);
           } else {
 	    lutval = innerOverlapTable_.lookup((indexz<<nbitsrfinebintable_)+indexr);
           }
           if (lutval == -1)
             continue;
-          if (settings_.extended() && (iseed == 2 || iseed == 3 || iseed == 10 || iseed == 4)) {
+          if (settings_.extended() && (iseed == Seed::L3L4 || iseed == Seed::L5L6 || iseed == Seed::D1D2 || iseed == Seed::L2L3D1)) {
 	    int lutval2 = innerThirdTable_.lookup((indexz<<nbitsrfinebintable_)+indexr);
             if (lutval2 == -1)
               continue;
