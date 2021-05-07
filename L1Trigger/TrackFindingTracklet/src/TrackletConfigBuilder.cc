@@ -772,7 +772,7 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
             }
 
             if (ext == "") {
-              ext = "_" + LayerName(l1)+iTCStr(iTC);
+              ext = "_" + LayerName(l1) + iTCStr(iTC);
             }
 
             if (iSeed < 4) {  //Barrel seeding
@@ -960,17 +960,18 @@ void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& mem
             if (!used)
               continue;
 
-	    string inorout = "I";
-	    if (innerouterseed == 1 )
-	      inorout = "O";
-	    
+            string inorout = "I";
+            if (innerouterseed == 1)
+              inorout = "O";
+
             nmem++;
             memories << "VMStubsTE: VMSTE_" << LayerName(ilayer) << "PHI" << iRegStr(iReg, iSeed) << iVMTE + 1 << "n"
                      << nmem << " [18]" << std::endl;
             os << "VMSTE_" << LayerName(ilayer) << "PHI" << iRegStr(iReg, iSeed) << iVMTE + 1 << "n" << nmem
-               << " input=> VMR_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".vmstuboutTE"<<inorout<<"PHI" << iRegStr(iReg,iSeed)
-               << iVMTE + 1 << " output=> TE_" << LayerName(l1) << "PHI" << iRegStr(TE1 / NVMTE1, iSeed) << TE1 + 1
-               << "_" << LayerName(l2) << "PHI" << iRegStr(TE2 / NVMTE2, iSeed) << TE2 + 1;
+               << " input=> VMR_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".vmstuboutTE" << inorout << "PHI"
+               << iRegStr(iReg, iSeed) << iVMTE + 1 << " output=> TE_" << LayerName(l1) << "PHI"
+               << iRegStr(TE1 / NVMTE1, iSeed) << TE1 + 1 << "_" << LayerName(l2) << "PHI"
+               << iRegStr(TE2 / NVMTE2, iSeed) << TE2 + 1;
             if (innerouterseed == 0) {
               os << ".innervmstubin" << std::endl;
             } else {

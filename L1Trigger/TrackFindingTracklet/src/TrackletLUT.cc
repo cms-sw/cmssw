@@ -11,72 +11,71 @@ using namespace trklet;
 TrackletLUT::TrackletLUT(const Settings& settings) : settings_(settings) {}
 
 void TrackletLUT::initmatchcut(unsigned int layerdisk, MatchType type, unsigned int region) {
+  char cregion = 'A' + region;
 
-  char cregion =  'A'+region;
-  
   for (unsigned int iSeed = 0; iSeed < 12; iSeed++) {
-    if (type==barrelphi) {
+    if (type == barrelphi) {
       table_.push_back(settings_.rphimatchcut(iSeed, layerdisk) / (settings_.kphi1() * settings_.rmean(layerdisk)));
     }
-    if (type==barrelz) {    
+    if (type == barrelz) {
       table_.push_back(settings_.zmatchcut(iSeed, layerdisk) / settings_.kz());
     }
-    if (type==diskPSphi) {
+    if (type == diskPSphi) {
       table_.push_back(settings_.rphicutPS(iSeed, layerdisk - N_LAYER) / (settings_.kphi() * settings_.kr()));
     }
-    if (type==disk2Sphi) {
+    if (type == disk2Sphi) {
       table_.push_back(settings_.rphicut2S(iSeed, layerdisk - N_LAYER) / (settings_.kphi() * settings_.kr()));
     }
-    if (type==disk2Sr) {
+    if (type == disk2Sr) {
       table_.push_back(settings_.rcut2S(iSeed, layerdisk - N_LAYER) / settings_.krprojshiftdisk());
     }
-    if (type==diskPSr) {
+    if (type == diskPSr) {
       table_.push_back(settings_.rcutPS(iSeed, layerdisk - N_LAYER) / settings_.krprojshiftdisk());
     }
   }
 
-  name_ =  settings_.combined() ? "MP_" : "MC_";
+  name_ = settings_.combined() ? "MP_" : "MC_";
 
-  if (type==barrelphi) {
-    name_ += TrackletConfigBuilder::LayerName(layerdisk)+"PHI"+cregion+"_phicut.tab";
-      }
-  if (type==barrelz) {    
-    name_ += TrackletConfigBuilder::LayerName(layerdisk)+"PHI"+cregion+"_zcut.tab";
+  if (type == barrelphi) {
+    name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_phicut.tab";
   }
-  if (type==diskPSphi) {
-    name_ += TrackletConfigBuilder::LayerName(layerdisk)+"PHI"+cregion+"_PSphicut.tab";
+  if (type == barrelz) {
+    name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_zcut.tab";
   }
-  if (type==disk2Sphi) {
-    name_ += TrackletConfigBuilder::LayerName(layerdisk)+"PHI"+cregion+"_2Sphicut.tab";
+  if (type == diskPSphi) {
+    name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_PSphicut.tab";
   }
-  if (type==disk2Sr) {
-    name_ += TrackletConfigBuilder::LayerName(layerdisk)+"PHI"+cregion+"_2Srcut.tab";
+  if (type == disk2Sphi) {
+    name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_2Sphicut.tab";
   }
-  if (type==diskPSr) {
-    name_ += TrackletConfigBuilder::LayerName(layerdisk)+"PHI"+cregion+"_PSrcut.tab";
+  if (type == disk2Sr) {
+    name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_2Srcut.tab";
+  }
+  if (type == diskPSr) {
+    name_ += TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_PSrcut.tab";
   }
 
   positive_ = false;
-  
-  writeTable();
 
+  writeTable();
 }
 
-
-void TrackletLUT::initTPlut(bool fillInner, unsigned int iSeed, unsigned int layerdisk1, unsigned int layerdisk2,
-			    unsigned int nbitsfinephidiff, unsigned int iTP) {
-  
+void TrackletLUT::initTPlut(bool fillInner,
+                            unsigned int iSeed,
+                            unsigned int layerdisk1,
+                            unsigned int layerdisk2,
+                            unsigned int nbitsfinephidiff,
+                            unsigned int iTP) {
   //number of fine phi bins in sector
-  int nfinephibins =
-      settings_.nallstubs(layerdisk2) * settings_.nvmte(1, iSeed) * (1 << settings_.nfinephi(1, iSeed));
+  int nfinephibins = settings_.nallstubs(layerdisk2) * settings_.nvmte(1, iSeed) * (1 << settings_.nfinephi(1, iSeed));
   double dfinephi = settings_.dphisectorHG() / nfinephibins;
 
   int outerrbits = 3;
 
-  if (iSeed == Seed::L1L2 || iSeed == Seed::L2L3 ||iSeed == Seed::L3L4 || iSeed == Seed::L5L6 ) {
+  if (iSeed == Seed::L1L2 || iSeed == Seed::L2L3 || iSeed == Seed::L3L4 || iSeed == Seed::L5L6) {
     outerrbits = 0;
   }
-  
+
   int outerrbins = (1 << outerrbits);
 
   double dphi[2];
@@ -102,7 +101,7 @@ void TrackletLUT::initTPlut(bool fillInner, unsigned int iSeed, unsigned int lay
     dphi[0] = (iphidiff - 1.5) * dfinephi;
     dphi[1] = (iphidiff + 1.5) * dfinephi;
     for (int irouterbin = 0; irouterbin < outerrbins; irouterbin++) {
-      if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 ||iSeed == Seed::L1D1 || iSeed == Seed::L2D1 ) {
+      if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 || iSeed == Seed::L1D1 || iSeed == Seed::L2D1) {
         router[0] =
             settings_.rmindiskvm() + irouterbin * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
         router[1] =
@@ -148,47 +147,49 @@ void TrackletLUT::initTPlut(bool fillInner, unsigned int iSeed, unsigned int lay
       bool passptcut = rinvmin < settings_.rinvcutte();
 
       if (fillInner) {
-	for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
-	  double bend = settings_.benddecode(ibend, layerdisk1, nbendbitsinner == 3);
-	  
-	  bool passinner = bend <= bendinnermax + settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3) &&
-	    bend >= bendinnermin - settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3);
-	  table_.push_back(passinner && passptcut);
-	}
+        for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
+          double bend = settings_.benddecode(ibend, layerdisk1, nbendbitsinner == 3);
+
+          bool passinner = bend <= bendinnermax + settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3) &&
+                           bend >= bendinnermin - settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3);
+          table_.push_back(passinner && passptcut);
+        }
       } else {
-	for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
-	  double bend = settings_.benddecode(ibend, layerdisk2, nbendbitsouter == 3);
-	  
-	  bool passouter = bend <= bendoutermax + settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3) &&
-	    bend >= bendoutermin - settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3);
-	  table_.push_back(passouter && passptcut);
-	}
+        for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
+          double bend = settings_.benddecode(ibend, layerdisk2, nbendbitsouter == 3);
+
+          bool passouter = bend <= bendoutermax + settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3) &&
+                           bend >= bendoutermin - settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3);
+          table_.push_back(passouter && passptcut);
+        }
       }
     }
   }
 
   positive_ = false;
-  char cTP='A'+iTP;
-  
-  name_="TP_"+TrackletConfigBuilder::LayerName(layerdisk1)+TrackletConfigBuilder::LayerName(layerdisk2)+cTP;
+  char cTP = 'A' + iTP;
+
+  name_ = "TP_" + TrackletConfigBuilder::LayerName(layerdisk1) + TrackletConfigBuilder::LayerName(layerdisk2) + cTP;
 
   if (fillInner) {
-    name_+="_stubptinnercut.tab";
+    name_ += "_stubptinnercut.tab";
   } else {
-    name_+="_stubptoutercut.tab";
+    name_ += "_stubptoutercut.tab";
   }
-  
-  writeTable();
 
+  writeTable();
 }
 
-
-void TrackletLUT::initTPregionlut(unsigned int iSeed, unsigned int layerdisk1, unsigned int layerdisk2,
-			    unsigned int iAllStub, unsigned int nbitsfinephidiff, unsigned int nbitsfinephi,
-				  const TrackletLUT& tplutinner, unsigned int iTP) {
-  
+void TrackletLUT::initTPregionlut(unsigned int iSeed,
+                                  unsigned int layerdisk1,
+                                  unsigned int layerdisk2,
+                                  unsigned int iAllStub,
+                                  unsigned int nbitsfinephidiff,
+                                  unsigned int nbitsfinephi,
+                                  const TrackletLUT& tplutinner,
+                                  unsigned int iTP) {
   int nirbits = 0;
-  if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 ||iSeed == Seed::L1D1 || iSeed == Seed::L2D1 ) {
+  if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 || iSeed == Seed::L1D1 || iSeed == Seed::L2D1) {
     nirbits = 3;
   }
 
@@ -223,27 +224,34 @@ void TrackletLUT::initTPregionlut(unsigned int iSeed, unsigned int layerdisk1, u
         }
 
         table_.push_back(usereg);
-
       }
     }
   }
 
   positive_ = false;
-  char cTP='A'+iTP;
-  
-  name_="TP_"+TrackletConfigBuilder::LayerName(layerdisk1)+TrackletConfigBuilder::LayerName(layerdisk2)+cTP+"_usereg.tab";
+  char cTP = 'A' + iTP;
+
+  name_ = "TP_" + TrackletConfigBuilder::LayerName(layerdisk1) + TrackletConfigBuilder::LayerName(layerdisk2) + cTP +
+          "_usereg.tab";
 
   writeTable();
-  
 }
 
-void TrackletLUT::initteptlut(bool fillInner, bool fillTEMem, unsigned int iSeed, unsigned int layerdisk1, unsigned int layerdisk2,
-			      unsigned int innerphibits, unsigned int outerphibits,
-			      double innerphimin, double innerphimax, double outerphimin, double outerphimax,
-			      const std::string& innermem, const std::string& outermem) {
-
+void TrackletLUT::initteptlut(bool fillInner,
+                              bool fillTEMem,
+                              unsigned int iSeed,
+                              unsigned int layerdisk1,
+                              unsigned int layerdisk2,
+                              unsigned int innerphibits,
+                              unsigned int outerphibits,
+                              double innerphimin,
+                              double innerphimax,
+                              double outerphimin,
+                              double outerphimax,
+                              const std::string& innermem,
+                              const std::string& outermem) {
   int outerrbits = 0;
-  if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 ||iSeed == Seed::L1D1 || iSeed == Seed::L2D1 ) {
+  if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 || iSeed == Seed::L1D1 || iSeed == Seed::L2D1) {
     outerrbits = 3;
   }
 
@@ -272,7 +280,7 @@ void TrackletLUT::initteptlut(bool fillInner, bool fillTEMem, unsigned int iSeed
       table_.resize((1 << nbendbitsouter), false);
     }
   }
-    
+
   for (int iphiinnerbin = 0; iphiinnerbin < innerphibins; iphiinnerbin++) {
     phiinner[0] = innerphimin + iphiinnerbin * (innerphimax - innerphimin) / innerphibins;
     phiinner[1] = innerphimin + (iphiinnerbin + 1) * (innerphimax - innerphimin) / innerphibins;
@@ -280,7 +288,7 @@ void TrackletLUT::initteptlut(bool fillInner, bool fillTEMem, unsigned int iSeed
       phiouter[0] = outerphimin + iphiouterbin * (outerphimax - outerphimin) / outerphibins;
       phiouter[1] = outerphimin + (iphiouterbin + 1) * (outerphimax - outerphimin) / outerphibins;
       for (int irouterbin = 0; irouterbin < outerrbins; irouterbin++) {
-        if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 ||iSeed == Seed::L1D1 || iSeed == Seed::L2D1 ) {
+        if (iSeed == Seed::D1D2 || iSeed == Seed::D3D4 || iSeed == Seed::L1D1 || iSeed == Seed::L2D1) {
           router[0] =
               settings_.rmindiskvm() + irouterbin * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
           router[1] = settings_.rmindiskvm() +
@@ -328,36 +336,36 @@ void TrackletLUT::initteptlut(bool fillInner, bool fillTEMem, unsigned int iSeed
 
         bool passptcut = rinvmin < settings_.rinvcutte();
 
-	if (fillInner) {
-	  for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
-	    double bend = settings_.benddecode(ibend, layerdisk1, nbendbitsinner == 3);
-	    
-	    bool passinner = bend > bendinnermin - settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3) &&
-	      bend < bendinnermax + settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3);
+        if (fillInner) {
+          for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
+            double bend = settings_.benddecode(ibend, layerdisk1, nbendbitsinner == 3);
 
-	    if (fillTEMem) {
-	      if (passinner) {
-		table_[ibend] = 1;
-	      }
-	    } else {
-	      table_.push_back(passinner && passptcut);
-	    }
-	  }
-	} else {
-	  for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
-	    double bend = settings_.benddecode(ibend, layerdisk2, nbendbitsouter == 3);
-	    
-	    bool passouter = bend > bendoutermin - settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3) &&
-	      bend < bendoutermax + settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3);
-	    if (fillTEMem) {
-	      if (passouter) {
-		table_[ibend] = 1;
-	      }
-	    } else {
-	      table_.push_back(passouter && passptcut);
-	    }
-	  }
-	}
+            bool passinner = bend > bendinnermin - settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3) &&
+                             bend < bendinnermax + settings_.bendcutte(ibend, layerdisk1, nbendbitsinner == 3);
+
+            if (fillTEMem) {
+              if (passinner) {
+                table_[ibend] = 1;
+              }
+            } else {
+              table_.push_back(passinner && passptcut);
+            }
+          }
+        } else {
+          for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
+            double bend = settings_.benddecode(ibend, layerdisk2, nbendbitsouter == 3);
+
+            bool passouter = bend > bendoutermin - settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3) &&
+                             bend < bendoutermax + settings_.bendcutte(ibend, layerdisk2, nbendbitsouter == 3);
+            if (fillTEMem) {
+              if (passouter) {
+                table_[ibend] = 1;
+              }
+            } else {
+              table_.push_back(passouter && passptcut);
+            }
+          }
+        }
       }
     }
   }
@@ -366,91 +374,81 @@ void TrackletLUT::initteptlut(bool fillInner, bool fillTEMem, unsigned int iSeed
 
   if (fillTEMem) {
     if (fillInner) {
-      name_ = "VMSTE_"+innermem+"_vmbendcut.tab";
+      name_ = "VMSTE_" + innermem + "_vmbendcut.tab";
     } else {
-      name_ = "VMSTE_"+outermem+"_vmbendcut.tab";
+      name_ = "VMSTE_" + outermem + "_vmbendcut.tab";
     }
   } else {
-    name_ = "TE_"+innermem.substr(0,innermem.size()-2)+"_"+outermem.substr(0,outermem.size()-2);
+    name_ = "TE_" + innermem.substr(0, innermem.size() - 2) + "_" + outermem.substr(0, outermem.size() - 2);
     if (fillInner) {
-      name_+="_stubptinnercut.tab";
+      name_ += "_stubptinnercut.tab";
     } else {
-      name_+="_stubptoutercut.tab";
+      name_ += "_stubptoutercut.tab";
     }
   }
 
-  
   writeTable();
-  
 }
 
-
 void TrackletLUT::initProjectionBend(double k_phider,
-				     unsigned int idisk,
+                                     unsigned int idisk,
                                      unsigned int nrbits,
                                      unsigned int nphiderbits) {
-
   unsigned int nsignbins = 2;
   unsigned int nrbins = 1 << (nrbits);
   unsigned int nphiderbins = 1 << (nphiderbits);
-  
+
   for (unsigned int isignbin = 0; isignbin < nsignbins; isignbin++) {
     for (unsigned int irbin = 0; irbin < nrbins; irbin++) {
       int ir = irbin;
       if (ir > (1 << (nrbits - 1)))
-	ir -= (1 << nrbits);
+        ir -= (1 << nrbits);
       ir = ir << (settings_.nrbitsstub(N_LAYER) - nrbits);
       for (unsigned int iphiderbin = 0; iphiderbin < nphiderbins; iphiderbin++) {
-	int iphider = iphiderbin;
-	if (iphider > (1 << (nphiderbits - 1)))
-	  iphider -= (1 << nphiderbits);
-	iphider = iphider << (settings_.nbitsphiprojderL123() - nphiderbits);
-	
-	double rproj = ir * settings_.krprojshiftdisk();
-	double phider = iphider * k_phider;
-	double t = settings_.zmean(idisk) / rproj;
-	
-	if (isignbin)
-	  t = -t;
-	
-	double rinv = -phider * (2.0 * t);
-	
-	double stripPitch = (rproj < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-	double bendproj = bendstrip(rproj, rinv, stripPitch);
-	
-	int ibendproj = 2.0 * bendproj + 15.5;
-	if (ibendproj < 0)
-	  ibendproj = 0;
-	if (ibendproj > 31)
-	  ibendproj = 31;
-	
-	table_.push_back(ibendproj);
+        int iphider = iphiderbin;
+        if (iphider > (1 << (nphiderbits - 1)))
+          iphider -= (1 << nphiderbits);
+        iphider = iphider << (settings_.nbitsphiprojderL123() - nphiderbits);
+
+        double rproj = ir * settings_.krprojshiftdisk();
+        double phider = iphider * k_phider;
+        double t = settings_.zmean(idisk) / rproj;
+
+        if (isignbin)
+          t = -t;
+
+        double rinv = -phider * (2.0 * t);
+
+        double stripPitch = (rproj < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
+        double bendproj = bendstrip(rproj, rinv, stripPitch);
+
+        int ibendproj = 2.0 * bendproj + 15.5;
+        if (ibendproj < 0)
+          ibendproj = 0;
+        if (ibendproj > 31)
+          ibendproj = 31;
+
+        table_.push_back(ibendproj);
       }
     }
   }
 
   positive_ = false;
   name_ = settings_.combined() ? "MP_" : "PR_";
-  name_ += "ProjectionBend_"+TrackletConfigBuilder::LayerName(N_LAYER+idisk)+".tab";
+  name_ += "ProjectionBend_" + TrackletConfigBuilder::LayerName(N_LAYER + idisk) + ".tab";
 
   writeTable();
-
 }
 
-
-
-
 void TrackletLUT::initBendMatch(unsigned int layerdisk) {
-  
   unsigned int nrinv = NRINVBITS;
   double rinvhalf = 0.5 * ((1 << nrinv) - 1);
 
   bool barrel = layerdisk < N_LAYER;
   bool isPSmodule = layerdisk < N_PSLAYER;
   double stripPitch = settings_.stripPitch(isPSmodule);
-  
-  if (barrel) {
 
+  if (barrel) {
     unsigned int nbits = isPSmodule ? N_BENDBITS_PS : N_BENDBITS_2S;
 
     for (unsigned int irinv = 0; irinv < (1u << nrinv); irinv++) {
@@ -484,15 +482,12 @@ void TrackletLUT::initBendMatch(unsigned int layerdisk) {
 
   positive_ = false;
 
-  name_ = "METable_"+TrackletConfigBuilder::LayerName(layerdisk)+".tab";
-  
-  writeTable();
+  name_ = "METable_" + TrackletConfigBuilder::LayerName(layerdisk) + ".tab";
 
+  writeTable();
 }
 
-
 void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int region) {
-
   unsigned int zbits = settings_.vmrlutzbits(layerdisk);
   unsigned int rbits = settings_.vmrlutrbits(layerdisk);
 
@@ -500,7 +495,7 @@ void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int re
   unsigned int zbins = (1 << zbits);
 
   double zmin, zmax, rmin, rmax;
-  
+
   if (layerdisk < N_LAYER) {
     zmin = -settings_.zlength();
     zmax = settings_.zlength();
@@ -540,8 +535,8 @@ void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int re
         }
       }
 
-      if (layerdisk >= N_LAYER  && irbin < 10)  //special case for the tabulated radii in 2S disks
-        r = (layerdisk < N_LAYER+2) ? settings_.rDSSinner(irbin) : settings_.rDSSouter(irbin);
+      if (layerdisk >= N_LAYER && irbin < 10)  //special case for the tabulated radii in 2S disks
+        r = (layerdisk < N_LAYER + 2) ? settings_.rDSSinner(irbin) : settings_.rDSSouter(irbin);
 
       int bin;
       if (layerdisk < N_LAYER) {
@@ -556,120 +551,115 @@ void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int re
       if (bin >= NBINS)
         bin = NBINS - 1;
 
-      if (type == VMRTableType::me ) {
-	table_.push_back(bin);
+      if (type == VMRTableType::me) {
+        table_.push_back(bin);
       }
 
-      if (type == VMRTableType::disk ) {
-	if (layerdisk >= N_LAYER) {
-	  double rproj = r * settings_.zmean(layerdisk - N_LAYER) / z;
-	  bin = 0.5 * NBINS * (rproj - settings_.rmindiskvm()) / (settings_.rmaxdiskvm() - settings_.rmindiskvm());
-	  //bin value of zero indicates that stub is out of range
-	  if (bin < 0)
-	    bin = 0;
-	  if (bin >= NBINS / 2)
-	    bin = 0;
-	  table_.push_back(bin);
-	}
+      if (type == VMRTableType::disk) {
+        if (layerdisk >= N_LAYER) {
+          double rproj = r * settings_.zmean(layerdisk - N_LAYER) / z;
+          bin = 0.5 * NBINS * (rproj - settings_.rmindiskvm()) / (settings_.rmaxdiskvm() - settings_.rmindiskvm());
+          //bin value of zero indicates that stub is out of range
+          if (bin < 0)
+            bin = 0;
+          if (bin >= NBINS / 2)
+            bin = 0;
+          table_.push_back(bin);
+        }
       }
 
-      if (type == VMRTableType::inner ) {
-	if (layerdisk == LayerDisk::L1 || layerdisk == LayerDisk::L3 || layerdisk == LayerDisk::L5 ||
-	    layerdisk == LayerDisk::D1 || layerdisk == LayerDisk::D3) {
-	  table_.push_back(getVMRLookup(layerdisk + 1, z, r, dz, dr));
-	}
-	if (layerdisk == LayerDisk::L2) {
-	  table_.push_back(getVMRLookup(layerdisk + 1, z, r, dz, dr, Seed::L2L3));
-	}
+      if (type == VMRTableType::inner) {
+        if (layerdisk == LayerDisk::L1 || layerdisk == LayerDisk::L3 || layerdisk == LayerDisk::L5 ||
+            layerdisk == LayerDisk::D1 || layerdisk == LayerDisk::D3) {
+          table_.push_back(getVMRLookup(layerdisk + 1, z, r, dz, dr));
+        }
+        if (layerdisk == LayerDisk::L2) {
+          table_.push_back(getVMRLookup(layerdisk + 1, z, r, dz, dr, Seed::L2L3));
+        }
       }
 
-      if (type == VMRTableType::inneroverlap ) {
-	if (layerdisk == LayerDisk::L1 || layerdisk == LayerDisk::L2) {
-	  table_.push_back(getVMRLookup(6, z, r, dz, dr, layerdisk + 6));
-	}
-      }
-      
-      
-      if (type == VMRTableType::innerthird ) {
-	if (layerdisk == LayerDisk::L2) {  //projection from L2 to D1 for L2L3D1 seeding
-	  table_.push_back(getVMRLookup(LayerDisk::D1, z, r, dz, dr, Seed::L2L3D1));
-	}
-	
-	if (layerdisk == LayerDisk::L5) {  //projection from L5 to L4 for L5L6L4 seeding
-	  table_.push_back(getVMRLookup(LayerDisk::L4, z, r, dz, dr));
-	}
-	
-	if (layerdisk == LayerDisk::L3) {  //projection from L3 to L5 for L3L4L2 seeding
-	  table_.push_back(getVMRLookup(LayerDisk::L2, z, r, dz, dr));
-	}
-	
-	if (layerdisk == LayerDisk::D1) {  //projection from D1 to L2 for D1D2L2 seeding
-	  table_.push_back(getVMRLookup(LayerDisk::L2, z, r, dz, dr));
-	}
+      if (type == VMRTableType::inneroverlap) {
+        if (layerdisk == LayerDisk::L1 || layerdisk == LayerDisk::L2) {
+          table_.push_back(getVMRLookup(6, z, r, dz, dr, layerdisk + 6));
+        }
       }
 
+      if (type == VMRTableType::innerthird) {
+        if (layerdisk == LayerDisk::L2) {  //projection from L2 to D1 for L2L3D1 seeding
+          table_.push_back(getVMRLookup(LayerDisk::D1, z, r, dz, dr, Seed::L2L3D1));
+        }
+
+        if (layerdisk == LayerDisk::L5) {  //projection from L5 to L4 for L5L6L4 seeding
+          table_.push_back(getVMRLookup(LayerDisk::L4, z, r, dz, dr));
+        }
+
+        if (layerdisk == LayerDisk::L3) {  //projection from L3 to L5 for L3L4L2 seeding
+          table_.push_back(getVMRLookup(LayerDisk::L2, z, r, dz, dr));
+        }
+
+        if (layerdisk == LayerDisk::D1) {  //projection from D1 to L2 for D1D2L2 seeding
+          table_.push_back(getVMRLookup(LayerDisk::L2, z, r, dz, dr));
+        }
+      }
     }
   }
-
 
   if (settings_.combined()) {
     if (type == VMRTableType::me) {
       positive_ = false;
-      name_ = "VMRME_"+TrackletConfigBuilder::LayerName(layerdisk)+".tab";
+      name_ = "VMRME_" + TrackletConfigBuilder::LayerName(layerdisk) + ".tab";
     }
     if (type == VMRTableType::disk) {
       positive_ = false;
-      name_ = "VMRTE_"+TrackletConfigBuilder::LayerName(layerdisk)+".tab";
+      name_ = "VMRTE_" + TrackletConfigBuilder::LayerName(layerdisk) + ".tab";
     }
     if (type == VMRTableType::inner) {
       positive_ = true;
       nbits_ = 10;
-      name_ = "TP_"+TrackletConfigBuilder::LayerName(layerdisk)
-	+TrackletConfigBuilder::LayerName(layerdisk+1)+".tab";
+      name_ = "TP_" + TrackletConfigBuilder::LayerName(layerdisk) + TrackletConfigBuilder::LayerName(layerdisk + 1) +
+              ".tab";
     }
-    
+
     if (type == VMRTableType::inneroverlap) {
       positive_ = true;
       nbits_ = 10;
-      name_ = "TP_"+TrackletConfigBuilder::LayerName(layerdisk)
-	+TrackletConfigBuilder::LayerName(N_LAYER)+".tab";
+      name_ = "TP_" + TrackletConfigBuilder::LayerName(layerdisk) + TrackletConfigBuilder::LayerName(N_LAYER) + ".tab";
     }
 
   } else {
     if (type == VMRTableType::me) {
       //This if a hack where the same memory is used in both ME and TE modules
-      if (layerdisk==1||layerdisk==2||layerdisk==3||layerdisk==4) {
-	positive_ = false;
-	name_ = "VMTableOuter"+TrackletConfigBuilder::LayerName(layerdisk)+".tab";
-	writeTable();
+      if (layerdisk == 1 || layerdisk == 2 || layerdisk == 3 || layerdisk == 4) {
+        positive_ = false;
+        name_ = "VMTableOuter" + TrackletConfigBuilder::LayerName(layerdisk) + ".tab";
+        writeTable();
       }
-      
-      assert(region>=0);
-      char cregion='A'+region;
-      name_ = "VMR_"+TrackletConfigBuilder::LayerName(layerdisk)+"PHI"+cregion+"_finebin.tab";
+
+      assert(region >= 0);
+      char cregion = 'A' + region;
+      name_ = "VMR_" + TrackletConfigBuilder::LayerName(layerdisk) + "PHI" + cregion + "_finebin.tab";
       positive_ = false;
     }
-    
+
     if (type == VMRTableType::inner) {
       positive_ = false;
-      name_ = "VMTableInner"+TrackletConfigBuilder::LayerName(layerdisk)
-	+TrackletConfigBuilder::LayerName(layerdisk+1)+".tab";
+      name_ = "VMTableInner" + TrackletConfigBuilder::LayerName(layerdisk) +
+              TrackletConfigBuilder::LayerName(layerdisk + 1) + ".tab";
     }
-    
+
     if (type == VMRTableType::inneroverlap) {
       positive_ = false;
-      name_ = "VMTableInner"+TrackletConfigBuilder::LayerName(layerdisk)
-	+TrackletConfigBuilder::LayerName(N_LAYER)+".tab";
+      name_ = "VMTableInner" + TrackletConfigBuilder::LayerName(layerdisk) + TrackletConfigBuilder::LayerName(N_LAYER) +
+              ".tab";
     }
-    
+
     if (type == VMRTableType::disk) {
       positive_ = false;
-      name_ = "VMTableOuter"+TrackletConfigBuilder::LayerName(layerdisk)+".tab";
+      name_ = "VMTableOuter" + TrackletConfigBuilder::LayerName(layerdisk) + ".tab";
     }
   }
-    
-  writeTable();
 
+  writeTable();
 }
 
 int TrackletLUT::getVMRLookup(unsigned int layerdisk, double z, double r, double dz, double dr, int iseed) const {
@@ -829,20 +819,16 @@ int TrackletLUT::getVMRLookup(unsigned int layerdisk, double z, double r, double
   }
 }
 
-  
-
-
 void TrackletLUT::initPhiCorrTable(unsigned int layerdisk, unsigned int rbits) {
-
   bool psmodule = layerdisk < N_PSLAYER;
 
   unsigned int bendbits = psmodule ? N_BENDBITS_PS : N_BENDBITS_2S;
-  
+
   unsigned int rbins = (1 << rbits);
 
   double rmean = settings_.rmean(layerdisk);
   double drmax = settings_.drmax();
-  
+
   double dr = 2.0 * drmax / rbins;
 
   unsigned int bendbins = (1 << bendbits);
@@ -854,19 +840,17 @@ void TrackletLUT::initPhiCorrTable(unsigned int layerdisk, unsigned int rbits) {
     }
   }
 
-  name_ = "VMPhiCorrL" + std::to_string(layerdisk+1) + ".tab";
+  name_ = "VMPhiCorrL" + std::to_string(layerdisk + 1) + ".tab";
   nbits_ = 14;
   positive_ = false;
 
   writeTable();
-  
 }
 
-int TrackletLUT::getphiCorrValue(unsigned int layerdisk, unsigned int ibend, unsigned int irbin,
-				 double rmean, double dr, double drmax) const {
-
+int TrackletLUT::getphiCorrValue(
+    unsigned int layerdisk, unsigned int ibend, unsigned int irbin, double rmean, double dr, double drmax) const {
   bool psmodule = layerdisk < N_PSLAYER;
-  
+
   double bend = -settings_.benddecode(ibend, layerdisk, psmodule);
 
   //for the rbin - calculate the distance to the nominal layer radius
@@ -875,17 +859,15 @@ int TrackletLUT::getphiCorrValue(unsigned int layerdisk, unsigned int ibend, uns
   //calculate the phi correction - this is a somewhat approximate formula
   double dphi = (Delta / 0.18) * bend * settings_.stripPitch(psmodule) / rmean;
 
-  double kphi =  psmodule ? settings_.kphi() : settings_.kphi1();
-				  
-  int idphi = dphi/kphi;
+  double kphi = psmodule ? settings_.kphi() : settings_.kphi1();
+
+  int idphi = dphi / kphi;
 
   return idphi;
 }
 
-
 // Write LUT table.
-void TrackletLUT::writeTable() const{
-
+void TrackletLUT::writeTable() const {
   if (!settings_.writeTable()) {
     return;
   }
@@ -893,7 +875,7 @@ void TrackletLUT::writeTable() const{
   if (name_ == "") {
     return;
   }
-  
+
   ofstream out = openfile(settings_.tablePath(), name_, __FILE__, __LINE__);
 
   out << "{" << endl;

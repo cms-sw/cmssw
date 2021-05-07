@@ -35,20 +35,20 @@ namespace trklet {
   constexpr unsigned int N_RZBITS = 3;      //number of bit for the r/z bins
   constexpr unsigned int N_PHIBITS = 3;     //number of bit for the phi bins
 
-  constexpr unsigned int N_VMSTUBSMAX = 15;  // maximum number of stubs in VM bin
-  constexpr unsigned int N_BITSMEMADDRESS = 7; // Number of bits for address in memories
+  constexpr unsigned int N_VMSTUBSMAX = 15;     // maximum number of stubs in VM bin
+  constexpr unsigned int N_BITSMEMADDRESS = 7;  // Number of bits for address in memories
 
   constexpr double sixth = 1.0 / 6.0;  //Commonly used factor
   constexpr double third = 1.0 / 3.0;  //Commonly used factor
 
-  constexpr double VMROUTERCUTZL2 = 50.0;  //Min L2 z for inner allstub
-  constexpr double VMROUTERCUTZL1L3L5 = 95.0; //Max z for inner barrel layers
-  constexpr double VMROUTERCUTZL1 = 70.0; //Max z for L1 barrel seeding
-  constexpr double VMROUTERCUTRD1D3 = 55.0; //Max r for disk seeds
+  constexpr double VMROUTERCUTZL2 = 50.0;      //Min L2 z for inner allstub
+  constexpr double VMROUTERCUTZL1L3L5 = 95.0;  //Max z for inner barrel layers
+  constexpr double VMROUTERCUTZL1 = 70.0;      //Max z for L1 barrel seeding
+  constexpr double VMROUTERCUTRD1D3 = 55.0;    //Max r for disk seeds
 
   enum Seed { L1L2 = 0, L2L3, L3L4, L5L6, D1D2, D3D4, L1D1, L2D1, L2L3L4, L4L5L6, L2L3D1, D1D2L2 };
   enum LayerDisk { L1 = 0, L2, L3, L4, L5, L6, D1, D2, D3, D4, D5 };
-  
+
   class Settings {
   public:
     Settings() {
@@ -279,7 +279,7 @@ namespace trklet {
     void setNbitsseedextended(unsigned int nbitsseed) { nbitsseedextended_ = nbitsseed; }
 
     double dphisectorHG() const {
-      //These values are used in the DTC emulation code. 
+      //These values are used in the DTC emulation code.
       double rsectmin = 21.8;
       double rsectmax = 112.7;
       return 2 * M_PI / N_SECTOR + rinvmax() * std::max(rcrit_ - rsectmin, rsectmax - rcrit_);
@@ -416,13 +416,13 @@ namespace trklet {
       assert(bendcut > 0.0);
       return bendcut;
     }
-    
+
     const std::vector<int>& dtcLayers(const std::string& dtcName) const {
-      auto iter=dtclayers_.find(dtcName);
-      assert(iter!=dtclayers_.end());
+      auto iter = dtclayers_.find(dtcName);
+      assert(iter != dtclayers_.end());
       return iter->second;
     }
-    
+
     double bendcutte(int ibend, int layerdisk, bool isPSmodule) const { return bendcut(ibend, layerdisk, isPSmodule); }
 
     double bendcutme(int ibend, int layerdisk, bool isPSmodule) const {
@@ -478,17 +478,17 @@ namespace trklet {
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1}}}};
 
     std::map<std::string, std::vector<int> > dtclayers_{{"PS10G_1", {0, 6, 8, 10}},
-	{"PS10G_2", {0, 7, 9}},
-	{"PS10G_3", {1, 7}},
-	{"PS10G_4", {6, 8, 10}},
-	{"PS_1", {2, 7}},
-	{"PS_2", {2, 9}},
-	{"2S_1", {3, 4}},
-	{"2S_2", {4}},
-	{"2S_3", {5}},
-	{"2S_4", {5, 8}},
-	{"2S_5", {6, 9}},
-	{"2S_6", {7, 10}}};
+                                                        {"PS10G_2", {0, 7, 9}},
+                                                        {"PS10G_3", {1, 7}},
+                                                        {"PS10G_4", {6, 8, 10}},
+                                                        {"PS_1", {2, 7}},
+                                                        {"PS_2", {2, 9}},
+                                                        {"2S_1", {3, 4}},
+                                                        {"2S_2", {4}},
+                                                        {"2S_3", {5}},
+                                                        {"2S_4", {5, 8}},
+                                                        {"2S_5", {6, 9}},
+                                                        {"2S_6", {7, 10}}};
 
     double rmindiskvm_{22.5};
     double rmaxdiskvm_{67.0};
@@ -752,7 +752,7 @@ namespace trklet {
 
     //Number of processing steps for one event (108=18TM*240MHz/40MHz)
     std::unordered_map<std::string, unsigned int> maxstep_{{"IR", 168},  //IR will run at a higher clock speed to handle
-	                                                                 //input links running at 25 Gbits/s
+                                                                         //input links running at 25 Gbits/s
                                                            {"VMR", 108},
                                                            {"TE", 108},
                                                            {"TC", 108},

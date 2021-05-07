@@ -54,8 +54,8 @@ namespace trklet {
 
     unsigned int nvmmebins_;  //number of long z/r bins in VM
 
-    TrackletLUT meTable_;                    //used for ME and outer TE barrel
-    TrackletLUT diskTable_;                  //outer disk used by D1, D2, and D4
+    TrackletLUT meTable_;    //used for ME and outer TE barrel
+    TrackletLUT diskTable_;  //outer disk used by D1, D2, and D4
 
     //The input stub memories
     std::vector<InputLinkMemory*> stubinputs_;
