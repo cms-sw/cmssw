@@ -19,16 +19,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define DEBUG_ENABLED
-#ifdef DEBUG_ENABLED
-#define DEBUG(x)                 \
-  do {                           \
-    std::cout << x << std::endl; \
-  } while (0)
-#else
-#define DEBUG(x)
-#endif
-
 class MTDTrackingRecHitProducer : public edm::stream::EDProducer<> {
 public:
   explicit MTDTrackingRecHitProducer(const edm::ParameterSet& ps);
@@ -92,11 +82,10 @@ void MTDTrackingRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
 //---------------------------------------------------------------------------
 void MTDTrackingRecHitProducer::run(edm::Handle<FTLClusterCollection> inputHandle, MTDTrackingDetSetVector& output) {
   const edmNew::DetSetVector<FTLCluster>& input = *inputHandle;
-  edmNew::DetSetVector<FTLCluster>::const_iterator DSViter = input.begin();
 
-  DEBUG("inputCollection " << input.size());
-  for (; DSViter != input.end(); DSViter++) {
-    unsigned int detid = DSViter->detId();
+  LogDebug("MTDTrackingRecHitProducer") << "inputCollection " << input.size();
+  for ( const auto& DSVit : input ) {
+    unsigned int detid = DSVit.detId();
     DetId detIdObject(detid);
     const auto genericDet = geom_->idToDetUnit(detIdObject);
     if (genericDet == nullptr) {
@@ -106,27 +95,25 @@ void MTDTrackingRecHitProducer::run(edm::Handle<FTLClusterCollection> inputHandl
 
     MTDTrackingDetSetVector::FastFiller recHitsOnDet(output, detid);
 
-    edmNew::DetSet<FTLCluster>::const_iterator clustIt = DSViter->begin(), clustEnd = DSViter->end();
-
-    for (; clustIt != clustEnd; clustIt++) {
-      DEBUG("Cluster: size " << clustIt->size() << " " << clustIt->x() << "," << clustIt->y() << " "
-                             << clustIt->energy() << " " << clustIt->time());
-      MTDClusterParameterEstimator::ReturnType tuple = cpe_->getParameters(*clustIt, *genericDet);
+    for (const auto& clustIt : DSVit ) {
+      LogDebug("MTDTrackingRcHitProducer") << "Cluster: size " << clustIt.size() << " " << clustIt.x() << "," << clustIt.y() << " "
+                             << clustIt.energy() << " " << clustIt.time();
+      MTDClusterParameterEstimator::ReturnType tuple = cpe_->getParameters(clustIt, *genericDet);
       LocalPoint lp(std::get<0>(tuple));
       LocalError le(std::get<1>(tuple));
 
       // Create a persistent edm::Ref to the cluster
-      edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> cluster = edmNew::makeRefTo(inputHandle, clustIt);
+      edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> cluster = edmNew::makeRefTo(inputHandle, &clustIt);
       // Make a RecHit and add it to the DetSet
       MTDTrackingRecHit hit(lp, le, *genericDet, cluster);
-      DEBUG("MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
+      LogDebug("MTDTrackingRcHitProducer") << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
                         << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time()
-                        << " : " << hit.timeError());
+                        << " : " << hit.timeError();
       // Now save it =================
       recHitsOnDet.push_back(hit);
     }  //  <-- End loop on Clusters
   }    //    <-- End loop on DetUnits
-  DEBUG("outputCollection " << output.size());
+  LogDebug("MTDTrackingRcHitProducer") << "outputCollection " << output.size();
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
