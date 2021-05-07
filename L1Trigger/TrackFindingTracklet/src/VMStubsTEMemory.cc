@@ -70,8 +70,13 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
     return true;
   }
 
-  bool pass = bendtable_.lookup(vmstub.bend().value());
-
+  bool pass = false;
+  if (settings_.extended()&&bendtable_.size()==0) {
+    pass = true ;
+  } else {
+    pass = bendtable_.lookup(vmstub.bend().value());
+  }
+  
   if (!pass) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << getName() << " Stub failed bend cut. bend = "
@@ -132,8 +137,14 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
 
   //If the pt of the stub is consistent with the allowed pt of tracklets
   //in that can be formed in this VM and the other VM used in the TE.
-  bool pass = bendtable_.lookup(vmstub.bend().value());
 
+  bool pass = false;
+  if (settings_.extended()&&bendtable_.size()==0) {
+    pass = true ;
+  } else {
+    pass = bendtable_.lookup(vmstub.bend().value());
+  }
+    
   if (!pass) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << getName() << " Stub failed bend cut. bend = "
