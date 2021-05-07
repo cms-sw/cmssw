@@ -70,13 +70,15 @@ namespace l1tVertexFinder {
     const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
     const edm::EDGetTokenT<TTTrackCollectionView> l1TracksToken_;
     const edm::EDGetTokenT<std::vector<l1t::Vertex>> l1VerticesToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
 
     const bool printResults_;
 
     // storage class for configuration parameters
     AnalysisSettings settings_;
 
-    edm::Service<TFileService> fs_;
+    //edm::Service<TFileService> fs_;
     // Histograms for Vertex Reconstruction
 
     TH1F* hisNoRecoVertices_;
@@ -159,12 +161,15 @@ namespace l1tVertexFinder {
         clusterTruthInputTag(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
         l1TracksToken_(consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
         l1VerticesToken_(consumes<std::vector<l1t::Vertex>>(iConfig.getParameter<edm::InputTag>("l1VerticesInputTag"))),
+        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("",""))),
+        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("",""))),
         printResults_(iConfig.getParameter<bool>("printResults")),
         settings_(iConfig) {
     // Configure TH1 for plotting
     TH1::SetDefaultSumw2(true);
 
     // create performance histograms
+    edm::Service<TFileService> fs_;
     TFileDirectory inputDir = fs_->mkdir("VertexReconstruction");
 
     // distributions of the generator level information
@@ -406,6 +411,8 @@ namespace l1tVertexFinder {
                         settings_,
                         hepMCInputTag,
                         genParticleInputTag,
+			trackerGeometryToken_,
+			trackerTopologyToken_,
                         tpInputTag,
                         stubInputTag,
                         stubTruthInputTag,
@@ -418,10 +425,8 @@ namespace l1tVertexFinder {
     l1Tracks.reserve(l1TracksHandle->size());
     {
       // Get the tracker geometry info needed to unpack the stub info.
-      edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-      iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-      edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-      iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+      const auto &trackerGeometry = iSetup.getData(trackerGeometryToken_);
+      const auto &trackerTopology = iSetup.getData(trackerTopologyToken_);
 
       edm::Handle<TTTrackAssMap> mcTruthTTTrackHandle;
       edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
@@ -780,6 +785,7 @@ namespace l1tVertexFinder {
 
   void VertexAnalyzer::endJob() {
     // Vertex Efficiency
+    edm::Service<TFileService> fs_;
     TFileDirectory inputDir = fs_->mkdir("VertexEfficiency");
 
     PVefficiencyVsTrueZ0_ = inputDir.make<TEfficiency>(*hisRecoPrimaryVertexVsTrueZ0_, *hisPrimaryVertexTrueZ0_);
