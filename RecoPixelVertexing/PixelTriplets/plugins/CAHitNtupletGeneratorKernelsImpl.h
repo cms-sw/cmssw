@@ -111,8 +111,7 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
 }
 
 __global__ void kernel_fishboneCleaner(GPUCACell const *cells, uint32_t const *__restrict__ nCells, Quality *quality) {
-  constexpr auto dup = pixelTrack::Quality::dup;
-  constexpr auto loose = pixelTrack::Quality::loose;
+  constexpr auto reject = pixelTrack::Quality::dup;
 
   auto first = threadIdx.x + blockIdx.x * blockDim.x;
   for (int idx = first, nt = (*nCells); idx < nt; idx += gridDim.x * blockDim.x) {
@@ -121,7 +120,7 @@ __global__ void kernel_fishboneCleaner(GPUCACell const *cells, uint32_t const *_
       continue;
 
     for (auto it : thisCell.tracks())
-      quality[it] = dup;
+      quality[it] = reject;
   }
 }
 
@@ -153,7 +152,7 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
       maxNh = std::max(nh, maxNh);
     }
 
-    // quad pass through
+    // quad pass through (leave it her for tests)
     //  maxNh = std::min(4U, maxNh);
 
     for (auto it : thisCell.tracks()) {
@@ -169,12 +168,9 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
                                             HitContainer const *__restrict__ foundNtuplets,
                                             TkSoA *__restrict__ tracks,
                                             bool dupPassThrough) {
-  // constexpr auto bad = pixelTrack::Quality::bad;
-  constexpr auto dup = pixelTrack::Quality::dup;
+  // quality to mark rejected
+  auto const reject = dupPassThrough ? pixelTrack::Quality::loose : pixelTrack::Quality::dup;
   constexpr auto loose = pixelTrack::Quality::loose;
-
-  // quality to    mark rejected
-  auto const reject = dupPassThrough ? loose : dup;
 
   assert(nCells);
 
@@ -416,6 +412,7 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
 
     assert(quality[it] == pixelTrack::Quality::bad);
 
+    // FIXME remove....
     if (quality[it] != pixelTrack::Quality::bad)
       printf("big mess\n");
 
@@ -498,8 +495,6 @@ __global__ void kernel_countHitInTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  // guard
-    // if (quality[idx] < pixelTrack::Quality::loose)
-    //  continue;
     for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
       hitToTuple->count(*h);
   }
@@ -512,8 +507,6 @@ __global__ void kernel_fillHitInTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  // guard
-    // if (quality[idx] < pixelTrack::Quality::loose)
-    //  continue;
     for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
       hitToTuple->fill(*h, idx);
   }
@@ -563,24 +556,16 @@ __global__ void kernel_countSharedHit(int *__restrict__ nshared,
     if (hitToTuple.size(idx) < 2)
       continue;
 
-    // uint32_t maxNh = 0;
-
-    int n3 = 0;
+    int nt = 0;
 
     // count "good" tracks
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
       if (quality[*it] < loose)
         continue;
-      //  uint32_t nh = foundNtuplets.size(*it);
-      //  if (3 == nh)
-      ++n3;
-      // maxNh = std::max(nh, maxNh);
+      ++nt;
     }
 
-    //if (maxNh<4) continue;
-    // there is at least a good quad
-
-    if (n3 < 2)
+    if (nt < 2)
       continue;
 
     // now mark  each track triplet as sharing a hit
@@ -686,13 +671,10 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
                                         uint16_t nmin,
                                         bool dupPassThrough,
                                         CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
-  //constexpr auto bad = pixelTrack::Quality::bad;
-  //constexpr auto dup = pixelTrack::Quality::dup;
-  constexpr auto loose = pixelTrack::Quality::loose;
-  //constexpr auto strict = pixelTrack::Quality::strict;
-
   // quality to mark rejected
   auto const reject = dupPassThrough ? pixelTrack::Quality::loose : pixelTrack::Quality::dup;
+  // quality of longest track
+  auto const longTqual = pixelTrack::Quality::highPurity;
 
   auto &hitToTuple = *phitToTuple;
   auto const &foundNtuplets = *ptuples;
@@ -710,7 +692,7 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
 
     // find maxNh
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-      if (quality[*it] < pixelTrack::Quality::highPurity)
+      if (quality[*it] < longTqual)
         continue;
       uint32_t nh = foundNtuplets.size(*it);
       maxNh = std::max(nh, maxNh);
@@ -719,7 +701,7 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
     if (maxNh < 4)
       continue;
 
-    // quad pass thotough
+    // quad pass through (leave for tests)
     // maxNh = std::min(4U, maxNh);
 
     // kill all tracks shorter than maxHn (only triplets???
@@ -731,7 +713,7 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
         continue;
 
       if (nh < maxNh && quality[*it] > reject)
-        quality[*it] = reject;  // dup; // loose;
+        quality[*it] = reject;
     }
   }
 }
@@ -744,13 +726,10 @@ __global__ void kernel_tripletCleaner(int const *__restrict__ nshared,
                                       uint16_t nmin,
                                       bool dupPassThrough,
                                       CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
-  constexpr auto bad = pixelTrack::Quality::bad;
-  constexpr auto dup = pixelTrack::Quality::dup;
-  constexpr auto loose = pixelTrack::Quality::loose;
-  constexpr auto strict = pixelTrack::Quality::strict;
-
   // quality to mark rejected
-  auto const reject = loose;  // dupPassThrough ? loose : dup;
+  auto const reject = pixelTrack::Quality::loose;
+  /// min quality of good
+  auto const good = pixelTrack::Quality::strict;
 
   auto &hitToTuple = *phitToTuple;
   auto const &foundNtuplets = *ptuples;
@@ -767,38 +746,20 @@ __global__ void kernel_tripletCleaner(int const *__restrict__ nshared,
 
     // find maxNh
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-      if (quality[*it] <= loose)
+      if (quality[*it] <= good)
         continue;
       uint32_t nh = foundNtuplets.size(*it);
       maxNh = std::max(nh, maxNh);
     }
 
-    if (maxNh < 3)
+    // only triplets
+    if (maxNh != 3)
       continue;
-
-    if (maxNh > 3)
-      continue;
-
-    /*
-    //  not a quality criteria.....
-    int minSh = 1000;
-    for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
-      auto const it = *ip;
-      if (quality[it] >= strict && nshared[it] < minSh) {
-        minSh = nshared[it];
-      }
-    }
-    if (minSh == 1000)
-      continue;
-    if (minSh == 0)
-      printf("problem with 0 sharing\n");
-
-    */
 
     // for triplets choose best tip!  (should we first find best quality???)
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      if (quality[it] >= strict && std::abs(tracks.tip(it)) < mc) {
+      if (quality[it] >= good && std::abs(tracks.tip(it)) < mc) {
         mc = std::abs(tracks.tip(it));
         im = it;
       }
@@ -810,9 +771,8 @@ __global__ void kernel_tripletCleaner(int const *__restrict__ nshared,
     // mark worse ambiguities
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      // if (nshared[it]<2) continue;  // kill only tracks that share also other hits
-      if (quality[it] >= strict && it != im)
-        quality[it] = loose;  //no race:  simple assignment of the same constant
+      if (quality[it] > reject && it != im)
+        quality[it] = reject;  //no race:  simple assignment of the same constant
     }
 
   }  // loop over hits
