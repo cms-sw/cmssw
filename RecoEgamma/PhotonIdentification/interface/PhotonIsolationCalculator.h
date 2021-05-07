@@ -80,11 +80,11 @@ private:
   template <bool isoBC>
   double calculateHcalRecHitIso(const reco::Photon* photon,
                                 const CaloGeometry& geometry,
-                                const HcalTopology &hcalTopology,
-                                const HcalChannelQuality &hcalChStatus,
-                                const HcalSeverityLevelComputer &hcalSevLvlComputer,
-                                const CaloTowerConstituentsMap &towerMap,
-                                const HBHERecHitCollection &hbheRecHits,
+                                const HcalTopology& hcalTopology,
+                                const HcalChannelQuality& hcalChStatus,
+                                const HcalSeverityLevelComputer& hcalSevLvlComputer,
+                                const CaloTowerConstituentsMap& towerMap,
+                                const HBHERecHitCollection& hbheRecHits,
                                 double RCone,
                                 double RConeInner,
                                 int depth) const dso_internal;

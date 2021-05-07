@@ -51,7 +51,7 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
 
   //  gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
   modulePhiBoundary_ = conf.getParameter<double>("modulePhiBoundary");
-  moduleEtaBoundary_ = conf.getParameter<std::vector<double> >("moduleEtaBoundary");
+  moduleEtaBoundary_ = conf.getParameter<std::vector<double>>("moduleEtaBoundary");
   //
   vetoClusteredEcalHits_ = conf.getParameter<bool>("vetoClustered");
   useNumCrystals_ = conf.getParameter<bool>("useNumCrystals");
@@ -353,31 +353,53 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   phoisolR2.ecalRecHitSumEt = EcalRecHitIsoB;
 
   for (size_t id = 0; id < 7; ++id) {
-    phoisolR1.hcalRecHitSumEt[id] = calculateHcalRecHitIso<false>(pho, caloGeometry,
-                                                                  *hcalTopology, *hcalChannelQuality, *hcalSevLvlComputer,
-                                                                  towerMap, hbheRecHits,
-                                                                  detector == EcalBarrel ? hcalIsoOuterRadAEB_[id] : hcalIsoOuterRadAEE_[id],
-                                                                  detector == EcalBarrel ? hcalIsoInnerRadAEB_[id] : hcalIsoInnerRadAEE_[id],
-                                                                  id + 1);
+    phoisolR1.hcalRecHitSumEt[id] =
+        calculateHcalRecHitIso<false>(pho,
+                                      caloGeometry,
+                                      *hcalTopology,
+                                      *hcalChannelQuality,
+                                      *hcalSevLvlComputer,
+                                      towerMap,
+                                      hbheRecHits,
+                                      detector == EcalBarrel ? hcalIsoOuterRadAEB_[id] : hcalIsoOuterRadAEE_[id],
+                                      detector == EcalBarrel ? hcalIsoInnerRadAEB_[id] : hcalIsoInnerRadAEE_[id],
+                                      id + 1);
 
-    phoisolR2.hcalRecHitSumEt[id] = calculateHcalRecHitIso<false>(pho, caloGeometry,
-                                                                  *hcalTopology, *hcalChannelQuality, *hcalSevLvlComputer,
-                                                                  towerMap, hbheRecHits,
-                                                                  detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
-                                                                  detector == EcalBarrel ? hcalIsoInnerRadBEB_[id] : hcalIsoInnerRadBEE_[id],
-                                                                  id + 1);
+    phoisolR2.hcalRecHitSumEt[id] =
+        calculateHcalRecHitIso<false>(pho,
+                                      caloGeometry,
+                                      *hcalTopology,
+                                      *hcalChannelQuality,
+                                      *hcalSevLvlComputer,
+                                      towerMap,
+                                      hbheRecHits,
+                                      detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
+                                      detector == EcalBarrel ? hcalIsoInnerRadBEB_[id] : hcalIsoInnerRadBEE_[id],
+                                      id + 1);
 
-    phoisolR1.hcalRecHitSumEtBc[id] = calculateHcalRecHitIso<true>(pho, caloGeometry,
-                                                                   *hcalTopology, *hcalChannelQuality, *hcalSevLvlComputer,
-                                                                   towerMap, hbheRecHits,
-                                                                   detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
-                                                                   0., id + 1);
+    phoisolR1.hcalRecHitSumEtBc[id] =
+        calculateHcalRecHitIso<true>(pho,
+                                     caloGeometry,
+                                     *hcalTopology,
+                                     *hcalChannelQuality,
+                                     *hcalSevLvlComputer,
+                                     towerMap,
+                                     hbheRecHits,
+                                     detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
+                                     0.,
+                                     id + 1);
 
-    phoisolR2.hcalRecHitSumEtBc[id] = calculateHcalRecHitIso<true>(pho, caloGeometry,
-                                                                   *hcalTopology, *hcalChannelQuality, *hcalSevLvlComputer,
-                                                                   towerMap, hbheRecHits,
-                                                                   detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
-                                                                   0., id + 1);
+    phoisolR2.hcalRecHitSumEtBc[id] =
+        calculateHcalRecHitIso<true>(pho,
+                                     caloGeometry,
+                                     *hcalTopology,
+                                     *hcalChannelQuality,
+                                     *hcalSevLvlComputer,
+                                     towerMap,
+                                     hbheRecHits,
+                                     detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
+                                     0.,
+                                     id + 1);
   }
 }
 
@@ -517,12 +539,12 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 
 template <bool isoBC>
 double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* photon,
-                                                         const CaloGeometry &geometry,
-                                                         const HcalTopology &hcalTopology,
-                                                         const HcalChannelQuality &hcalChStatus,
-                                                         const HcalSeverityLevelComputer &hcalSevLvlComputer,
-                                                         const CaloTowerConstituentsMap &towerMap,
-                                                         const HBHERecHitCollection &hbheRecHits,
+                                                         const CaloGeometry& geometry,
+                                                         const HcalTopology& hcalTopology,
+                                                         const HcalChannelQuality& hcalChStatus,
+                                                         const HcalSeverityLevelComputer& hcalSevLvlComputer,
+                                                         const CaloTowerConstituentsMap& towerMap,
+                                                         const HBHERecHitCollection& hbheRecHits,
                                                          double RCone,
                                                          double RConeInner,
                                                          int depth) const {
@@ -530,29 +552,42 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
   const std::array<double, 7> e07{{0., 0., 0., 0., 0., 0., 0.}};
 
   if constexpr (isoBC) {
-      auto hcaliso = EgammaHcalIsolation(EgammaHcalIsolation::InclusionRule::withinConeAroundCluster, RCone,
-                                         EgammaHcalIsolation::InclusionRule::isBehindClusterSeed, RConeInner,
-                                         hcalIsoEThresHB_,
-                                         e04,
-                                         maxHcalSeverity_,
-                                         hcalIsoEThresHE_,
-                                         e07,
-                                         maxHcalSeverity_,
-                                         hbheRecHits, geometry, hcalTopology, hcalChStatus, hcalSevLvlComputer, towerMap);
+    auto hcaliso = EgammaHcalIsolation(EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+                                       RCone,
+                                       EgammaHcalIsolation::InclusionRule::isBehindClusterSeed,
+                                       RConeInner,
+                                       hcalIsoEThresHB_,
+                                       e04,
+                                       maxHcalSeverity_,
+                                       hcalIsoEThresHE_,
+                                       e07,
+                                       maxHcalSeverity_,
+                                       hbheRecHits,
+                                       geometry,
+                                       hcalTopology,
+                                       hcalChStatus,
+                                       hcalSevLvlComputer,
+                                       towerMap);
 
-      return hcaliso.getHcalEtSumBc(photon, depth);
-    }
-  else {
-      auto hcaliso = EgammaHcalIsolation(EgammaHcalIsolation::InclusionRule::withinConeAroundCluster, RCone,
-                                         EgammaHcalIsolation::InclusionRule::withinConeAroundCluster, RConeInner,
-                                         hcalIsoEThresHB_,
-                                         e04,
-                                         maxHcalSeverity_,
-                                         hcalIsoEThresHE_,
-                                         e07,
-                                         maxHcalSeverity_,
-                                         hbheRecHits, geometry, hcalTopology, hcalChStatus, hcalSevLvlComputer, towerMap);
+    return hcaliso.getHcalEtSumBc(photon, depth);
+  } else {
+    auto hcaliso = EgammaHcalIsolation(EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+                                       RCone,
+                                       EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+                                       RConeInner,
+                                       hcalIsoEThresHB_,
+                                       e04,
+                                       maxHcalSeverity_,
+                                       hcalIsoEThresHE_,
+                                       e07,
+                                       maxHcalSeverity_,
+                                       hbheRecHits,
+                                       geometry,
+                                       hcalTopology,
+                                       hcalChStatus,
+                                       hcalSevLvlComputer,
+                                       towerMap);
 
-      return hcaliso.getHcalEtSum(photon, depth);
+    return hcaliso.getHcalEtSum(photon, depth);
   }
 }

@@ -29,16 +29,16 @@ CutApplicatorBase::result_type PhotonHcalOverEcalCut<isBC>::operator()(const rec
       (std::abs(cand->superCluster()->eta()) < _barrelCutOff ? _hcalOverEcalCutValueEB : _hcalOverEcalCutValueEE);
 
   if constexpr (isBC)
-                 return cand->hcalOverEcalBc() < hcalOverEcalCutValue;
+    return cand->hcalOverEcalBc() < hcalOverEcalCutValue;
   else
-                 return cand->hcalOverEcal() < hcalOverEcalCutValue;
+    return cand->hcalOverEcal() < hcalOverEcalCutValue;
 }
 
 template <bool isBC>
 double PhotonHcalOverEcalCut<isBC>::value(const reco::CandidatePtr& cand) const {
   reco::PhotonPtr pho(cand);
   if constexpr (isBC)
-                 return pho->hcalOverEcalBc();
+    return pho->hcalOverEcalBc();
   else
-                 return pho->hcalOverEcal();
+    return pho->hcalOverEcal();
 }

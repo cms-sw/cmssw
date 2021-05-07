@@ -37,10 +37,7 @@ double scaleToEt(const double &eta);
 
 class EgammaHcalIsolation {
 public:
-  enum class InclusionRule : int {
-    withinConeAroundCluster = 0,
-    isBehindClusterSeed = 1
-  };
+  enum class InclusionRule : int { withinConeAroundCluster = 0, isBehindClusterSeed = 1 };
 
   // constructors
   EgammaHcalIsolation(InclusionRule extIncRule,
@@ -77,23 +74,36 @@ public:
                       const HcalSeverityLevelComputer &hcalSevLvlComputer,
                       const CaloTowerConstituentsMap &towerMap);
 
-  double getHcalESum(const reco::Candidate *c, int depth) const { return getHcalESum(c->get<reco::SuperClusterRef>().get(), depth); }
-  double getHcalEtSum(const reco::Candidate *c, int depth) const { return getHcalEtSum(c->get<reco::SuperClusterRef>().get(), depth); }
+  double getHcalESum(const reco::Candidate *c, int depth) const {
+    return getHcalESum(c->get<reco::SuperClusterRef>().get(), depth);
+  }
+  double getHcalEtSum(const reco::Candidate *c, int depth) const {
+    return getHcalEtSum(c->get<reco::SuperClusterRef>().get(), depth);
+  }
   double getHcalESum(const reco::SuperCluster *sc, int depth) const { return getHcalESum(sc->position(), depth); }
   double getHcalEtSum(const reco::SuperCluster *sc, int depth) const { return getHcalEtSum(sc->position(), depth); }
-  double getHcalESum(const math::XYZPoint &p, int depth) const { return getHcalESum(GlobalPoint(p.x(), p.y(), p.z()), depth); }
-  double getHcalEtSum(const math::XYZPoint &p, int depth) const { return getHcalEtSum(GlobalPoint(p.x(), p.y(), p.z()), depth); }
+  double getHcalESum(const math::XYZPoint &p, int depth) const {
+    return getHcalESum(GlobalPoint(p.x(), p.y(), p.z()), depth);
+  }
+  double getHcalEtSum(const math::XYZPoint &p, int depth) const {
+    return getHcalEtSum(GlobalPoint(p.x(), p.y(), p.z()), depth);
+  }
   double getHcalESum(const GlobalPoint &pclu, int depth) const { return getHcalSum(pclu, depth, 0, 0, 0, &scaleToE); }
   double getHcalEtSum(const GlobalPoint &pclu, int depth) const { return getHcalSum(pclu, depth, 0, 0, 0, &scaleToEt); }
 
-  double getHcalESumBc(const reco::Candidate *c, int depth) const { return getHcalESumBc(c->get<reco::SuperClusterRef>().get(), depth); }
-  double getHcalEtSumBc(const reco::Candidate *c, int depth) const { return getHcalEtSumBc(c->get<reco::SuperClusterRef>().get(), depth); }
+  double getHcalESumBc(const reco::Candidate *c, int depth) const {
+    return getHcalESumBc(c->get<reco::SuperClusterRef>().get(), depth);
+  }
+  double getHcalEtSumBc(const reco::Candidate *c, int depth) const {
+    return getHcalEtSumBc(c->get<reco::SuperClusterRef>().get(), depth);
+  }
   double getHcalESumBc(const reco::SuperCluster *sc, int depth) const {
     const auto tower = egamma::towerOf(*(sc->seed()), towerMap_);
 
     if (extIncRule_ == InclusionRule::isBehindClusterSeed and intIncRule_ == InclusionRule::withinConeAroundCluster)
       return getHcalESumBc(sc->position(), depth, tower.ieta(), tower.iphi(), -1);
-    else if (extIncRule_ == InclusionRule::withinConeAroundCluster and intIncRule_ == InclusionRule::isBehindClusterSeed)
+    else if (extIncRule_ == InclusionRule::withinConeAroundCluster and
+             intIncRule_ == InclusionRule::isBehindClusterSeed)
       return getHcalESumBc(sc->position(), depth, tower.ieta(), tower.iphi(), 1);
 
     return getHcalESumBc(sc->position(), depth, tower.ieta(), tower.iphi(), 0);
@@ -103,7 +113,8 @@ public:
 
     if (extIncRule_ == InclusionRule::isBehindClusterSeed and intIncRule_ == InclusionRule::withinConeAroundCluster)
       return getHcalEtSumBc(sc->position(), depth, tower.ieta(), tower.iphi(), -1);
-    else if (extIncRule_ == InclusionRule::withinConeAroundCluster and intIncRule_ == InclusionRule::isBehindClusterSeed)
+    else if (extIncRule_ == InclusionRule::withinConeAroundCluster and
+             intIncRule_ == InclusionRule::isBehindClusterSeed)
       return getHcalEtSumBc(sc->position(), depth, tower.ieta(), tower.iphi(), 1);
 
     return getHcalEtSumBc(sc->position(), depth, tower.ieta(), tower.iphi(), 0);
@@ -122,9 +133,20 @@ public:
   }
 
 private:
-  double goodHitEnergy(const GlobalPoint &pclu, const HBHERecHit &hit, int depth, int ieta, int iphi, int include_or_exclude, double (*scale)(const double &)) const;
+  double goodHitEnergy(const GlobalPoint &pclu,
+                       const HBHERecHit &hit,
+                       int depth,
+                       int ieta,
+                       int iphi,
+                       int include_or_exclude,
+                       double (*scale)(const double &)) const;
 
-  double getHcalSum(const GlobalPoint &pclu, int depth, int ieta, int iphi, int include_or_exclude, double (*scale)(const double &)) const;
+  double getHcalSum(const GlobalPoint &pclu,
+                    int depth,
+                    int ieta,
+                    int iphi,
+                    int include_or_exclude,
+                    double (*scale)(const double &)) const;
 
   InclusionRule extIncRule_;
   double extRadius_;

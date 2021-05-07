@@ -305,14 +305,14 @@ void ElectronTagProbeAnalyzer::bookHistograms(DQMStore::IBooker& iBooker, edm::R
                                    "Events",
                                    "ELE_LOGY E1 P");
   h1_hcalRecHitSumEt_dr03 = bookH1(iBooker,
-                                  "hcalRecHitSumEt_dr03",
-                                  "hcal isolation sum, dR=0.3",
-                                  100,
-                                  0.0,
-                                  20.,
-                                  "HcalIsoSum, cone 0.3 (GeV)",
-                                  "Events",
-                                  "ELE_LOGY E1 P");
+                                   "hcalRecHitSumEt_dr03",
+                                   "hcal isolation sum, dR=0.3",
+                                   100,
+                                   0.0,
+                                   20.,
+                                   "HcalIsoSum, cone 0.3 (GeV)",
+                                   "Events",
+                                   "ELE_LOGY E1 P");
 
   // di-electron mass
   setBookIndex(200);

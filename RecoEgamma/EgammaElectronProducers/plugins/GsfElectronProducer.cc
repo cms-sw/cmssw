@@ -608,7 +608,7 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
   }
   // go back to run2-like 2 effective depths if desired - depth 1 is the normal depth 1, depth 2 is the sum over the rest
   if (hcalRun2EffDepth_) {
-    for (auto &ele : electrons)
+    for (auto& ele : electrons)
       ele.hcalToRun2EffDepth();
   }
   // final filling

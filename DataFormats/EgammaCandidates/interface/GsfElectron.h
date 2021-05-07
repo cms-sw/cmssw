@@ -356,15 +356,16 @@ namespace reco {
 
   public:
     struct ShowerShape {
-      float sigmaEtaEta;         // weighted cluster rms along eta and inside 5x5 (absolute eta)
-      float sigmaIetaIeta;       // weighted cluster rms along eta and inside 5x5 (Xtal eta)
-      float sigmaIphiIphi;       // weighted cluster rms along phi and inside 5x5 (Xtal phi)
-      float e1x5;                // energy inside 1x5 in etaxphi around the seed Xtal
-      float e2x5Max;             // energy inside 2x5 in etaxphi around the seed Xtal (max bwt the 2 possible sums)
-      float e5x5;                // energy inside 5x5 in etaxphi around the seed Xtal
-      float r9;                  // ratio of the 3x3 energy and supercluster energy
-      std::array<float, 7> hcalOverEcal; // hcal over ecal seed cluster energy per depth (using rechits within a cone)
-      std::array<float, 7> hcalOverEcalBc; // hcal over ecal seed cluster energy per depth (using rechits behind clusters)
+      float sigmaEtaEta;    // weighted cluster rms along eta and inside 5x5 (absolute eta)
+      float sigmaIetaIeta;  // weighted cluster rms along eta and inside 5x5 (Xtal eta)
+      float sigmaIphiIphi;  // weighted cluster rms along phi and inside 5x5 (Xtal phi)
+      float e1x5;           // energy inside 1x5 in etaxphi around the seed Xtal
+      float e2x5Max;        // energy inside 2x5 in etaxphi around the seed Xtal (max bwt the 2 possible sums)
+      float e5x5;           // energy inside 5x5 in etaxphi around the seed Xtal
+      float r9;             // ratio of the 3x3 energy and supercluster energy
+      std::array<float, 7> hcalOverEcal;  // hcal over ecal seed cluster energy per depth (using rechits within a cone)
+      std::array<float, 7>
+          hcalOverEcalBc;  // hcal over ecal seed cluster energy per depth (using rechits behind clusters)
       std::vector<CaloTowerDetId> hcalTowersBehindClusters;
       bool invalidHcal;  // set to true if the hcal energy estimate is not valid (e.g. the corresponding tower was off or masked)
       float sigmaIetaIphi;
@@ -412,11 +413,13 @@ namespace reco {
     float r9() const { return showerShape_.r9; }
     float hcalOverEcal(int depth = 0) const {
       const auto &hovere = showerShape_.hcalOverEcal;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f) : hovere[depth - 1];
+      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f)
+                                          : hovere[depth - 1];
     }
     float hcalOverEcalBc(int depth = 0) const {
       const auto &hovere = showerShape_.hcalOverEcalBc;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f) : hovere[depth - 1];
+      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f)
+                                          : hovere[depth - 1];
     }
     const std::vector<CaloTowerDetId> &hcalTowersBehindClusters() const {
       return showerShape_.hcalTowersBehindClusters;
@@ -438,11 +441,13 @@ namespace reco {
     float full5x5_r9() const { return full5x5_showerShape_.r9; }
     float full5x5_hcalOverEcal(int depth = 0) const {
       const auto &hovere = full5x5_showerShape_.hcalOverEcal;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f) : hovere[depth - 1];
+      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f)
+                                          : hovere[depth - 1];
     }
     float full5x5_hcalOverEcalBc(int depth = 0) const {
       const auto &hovere = full5x5_showerShape_.hcalOverEcalBc;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f) : hovere[depth - 1];
+      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f)
+                                          : hovere[depth - 1];
     }
     bool full5x5_hcalOverEcalValid() const { return !full5x5_showerShape_.invalidHcal; }
     float full5x5_e2x5Left() const { return full5x5_showerShape_.e2x5Left; }
@@ -498,11 +503,11 @@ namespace reco {
 
   public:
     struct IsolationVariables {
-      float tkSumPt;                 // track iso with electron footprint removed
-      float tkSumPtHEEP;             // track iso used for the HEEP ID
-      float ecalRecHitSumEt;         // ecal iso deposit with electron footprint removed
-      std::array<float, 7> hcalRecHitSumEt; // ...per depth, with electron footprint removed
-      std::array<float, 7> hcalRecHitSumEtBc; // ...per depth, with hcal rechit behind cluster removed
+      float tkSumPt;                           // track iso with electron footprint removed
+      float tkSumPtHEEP;                       // track iso used for the HEEP ID
+      float ecalRecHitSumEt;                   // ecal iso deposit with electron footprint removed
+      std::array<float, 7> hcalRecHitSumEt;    // ...per depth, with electron footprint removed
+      std::array<float, 7> hcalRecHitSumEtBc;  // ...per depth, with hcal rechit behind cluster removed
       IsolationVariables()
           : tkSumPt(0.),
             tkSumPtHEEP(0.),
@@ -517,11 +522,13 @@ namespace reco {
     float dr03EcalRecHitSumEt() const { return dr03_.ecalRecHitSumEt; }
     float dr03HcalTowerSumEt(int depth = 0) const {
       const auto &hcaliso = dr03_.hcalRecHitSumEt;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f) : hcaliso[depth - 1];
+      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f)
+                                          : hcaliso[depth - 1];
     }
     float dr03HcalTowerSumEtBc(int depth = 0) const {
       const auto &hcaliso = dr03_.hcalRecHitSumEtBc;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f) : hcaliso[depth - 1];
+      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f)
+                                          : hcaliso[depth - 1];
     }
     const IsolationVariables &dr03IsolationVariables() const { return dr03_; }
 
@@ -531,11 +538,13 @@ namespace reco {
     float dr04EcalRecHitSumEt() const { return dr04_.ecalRecHitSumEt; }
     float dr04HcalTowerSumEt(int depth = 0) const {
       const auto &hcaliso = dr04_.hcalRecHitSumEt;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f) : hcaliso[depth - 1];
+      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f)
+                                          : hcaliso[depth - 1];
     }
     float dr04HcalTowerSumEtBc(int depth = 0) const {
       const auto &hcaliso = dr04_.hcalRecHitSumEtBc;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f) : hcaliso[depth - 1];
+      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f)
+                                          : hcaliso[depth - 1];
     }
     const IsolationVariables &dr04IsolationVariables() const { return dr04_; }
 

@@ -44,8 +44,7 @@ void ElectronHcalHelper::beginEvent(const edm::Event& evt, const edm::EventSetup
                                                      eventSetup.getHandle(hcalChannelQualityToken_),
                                                      eventSetup.getHandle(hcalSevLvlComputerToken_),
                                                      towerMap_);
-  }
-  else {
+  } else {
     hcalIso_ = std::make_unique<EgammaHcalIsolation>(EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
                                                      cfg_.hOverEConeSize,
                                                      EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
@@ -65,10 +64,14 @@ void ElectronHcalHelper::beginEvent(const edm::Event& evt, const edm::EventSetup
   }
 }
 
-bool ElectronHcalHelper::hasActiveHcal(const reco::SuperCluster &sc) const {
-  return (cfg_.checkHcalStatus) ? egamma::hasActiveHcal(hcalTowersBehindClusters(sc), *towerMap_, *hcalChannelQuality_, *hcalTopology_) : true;
+bool ElectronHcalHelper::hasActiveHcal(const reco::SuperCluster& sc) const {
+  return (cfg_.checkHcalStatus)
+             ? egamma::hasActiveHcal(hcalTowersBehindClusters(sc), *towerMap_, *hcalChannelQuality_, *hcalTopology_)
+             : true;
 }
 
-double ElectronHcalHelper::hcalESum(const SuperCluster &sc, int depth) const {
-  return (cfg_.onlyBehindCluster) ? hcalIso_->getHcalESumBc(&sc, depth) : (cfg_.hOverEConeSize > 0.) ? hcalIso_->getHcalESum(&sc, depth) : 0.;
+double ElectronHcalHelper::hcalESum(const SuperCluster& sc, int depth) const {
+  return (cfg_.onlyBehindCluster)     ? hcalIso_->getHcalESumBc(&sc, depth)
+         : (cfg_.hOverEConeSize > 0.) ? hcalIso_->getHcalESum(&sc, depth)
+                                      : 0.;
 }
