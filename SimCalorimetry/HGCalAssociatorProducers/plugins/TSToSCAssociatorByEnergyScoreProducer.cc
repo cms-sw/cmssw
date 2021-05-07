@@ -12,12 +12,12 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "SimDataFormats/Associations/interface/TracksterToSimClusterAssociator.h"
-#include "TracksterAssociatorByEnergyScoreImpl.h"
+#include "TSToSCAssociatorByEnergyScoreImpl.h"
 
-class TracksterAssociatorByEnergyScoreProducer : public edm::global::EDProducer<> {
+class TSToSCAssociatorByEnergyScoreProducer : public edm::global::EDProducer<> {
 public:
-  explicit TracksterAssociatorByEnergyScoreProducer(const edm::ParameterSet &);
-  ~TracksterAssociatorByEnergyScoreProducer() override;
+  explicit TSToSCAssociatorByEnergyScoreProducer(const edm::ParameterSet &);
+  ~TSToSCAssociatorByEnergyScoreProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -29,7 +29,7 @@ private:
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
 };
 
-TracksterAssociatorByEnergyScoreProducer::TracksterAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
+TSToSCAssociatorByEnergyScoreProducer::TSToSCAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const HGCRecHit *>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")) {
@@ -39,23 +39,23 @@ TracksterAssociatorByEnergyScoreProducer::TracksterAssociatorByEnergyScoreProduc
   produces<hgcal::TracksterToSimClusterAssociator>();
 }
 
-TracksterAssociatorByEnergyScoreProducer::~TracksterAssociatorByEnergyScoreProducer() {}
+TSToSCAssociatorByEnergyScoreProducer::~TSToSCAssociatorByEnergyScoreProducer() {}
 
-void TracksterAssociatorByEnergyScoreProducer::produce(edm::StreamID,
+void TSToSCAssociatorByEnergyScoreProducer::produce(edm::StreamID,
                                                        edm::Event &iEvent,
                                                        const edm::EventSetup &es) const {
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
-  const std::unordered_map<DetId, const HGCRecHit *> *hitMap = &iEvent.get(hitMap_);
+  const auto hitMap = &iEvent.get(hitMap_);
 
-  auto impl = std::make_unique<TracksterAssociatorByEnergyScoreImpl>(
+  auto impl = std::make_unique<TSToSCAssociatorByEnergyScoreImpl>(
       iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
   auto toPut = std::make_unique<hgcal::TracksterToSimClusterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 
-void TracksterAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
+void TSToSCAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcalRecHitMapProducer"));
   desc.add<bool>("hardScatterOnly", true);
@@ -64,4 +64,4 @@ void TracksterAssociatorByEnergyScoreProducer::fillDescriptions(edm::Configurati
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TracksterAssociatorByEnergyScoreProducer);
+DEFINE_FWK_MODULE(TSToSCAssociatorByEnergyScoreProducer);
