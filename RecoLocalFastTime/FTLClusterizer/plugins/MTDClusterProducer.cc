@@ -74,8 +74,7 @@ MTDClusterProducer::MTDClusterProducer(edm::ParameterSet const& conf)
       etlHits_(consumes<FTLRecHitCollection>(conf.getParameter<edm::InputTag>("srcEndcap"))),
       ftlbInstance_(conf.getParameter<std::string>("BarrelClusterName")),
       ftleInstance_(conf.getParameter<std::string>("EndcapClusterName")),
-      clusterMode_(conf.getParameter<std::string>("ClusterMode"))
-{
+      clusterMode_(conf.getParameter<std::string>("ClusterMode")) {
   //--- Declare to the EDM what kind of collections we will be making.
   produces<FTLClusterCollection>(ftlbInstance_);
   produces<FTLClusterCollection>(ftleInstance_);
