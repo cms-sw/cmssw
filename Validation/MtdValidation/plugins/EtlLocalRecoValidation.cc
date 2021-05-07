@@ -63,8 +63,11 @@ private:
   const float hitMinEnergy1Dis_;
   const float hitMinEnergy2Dis_;
   const bool LocalPosDebug_;
+  const bool uncalibRecHitsPlots_;
+  const double hitMinAmplitude_;
 
   edm::EDGetTokenT<FTLRecHitCollection> etlRecHitsToken_;
+  edm::EDGetTokenT<FTLUncalibratedRecHitCollection> etlUncalibRecHitsToken_;
   edm::EDGetTokenT<CrossingFrame<PSimHit> > etlSimHitsToken_;
   edm::EDGetTokenT<FTLClusterCollection> etlRecCluToken_;
 
@@ -108,6 +111,19 @@ private:
   MonitorElement* meEnergyRes_;
   MonitorElement* meTPullvsE_;
   MonitorElement* meTPullvsEta_;
+
+  // --- UncalibratedRecHits histograms
+
+  static constexpr int nBinsQ_ = 20;
+  static constexpr float binWidthQ_ = 1.3;  // in MIP units
+
+  MonitorElement* meTimeResQ_[2][nBinsQ_];
+
+  static constexpr int nBinsEta_ = 26;
+  static constexpr float binWidthEta_ = 0.05;
+  static constexpr float etaMin_ = 1.65;
+
+  MonitorElement* meTimeResEta_[2][nBinsEta_];
 };
 
 // ------------ constructor and destructor --------------
@@ -115,10 +131,16 @@ EtlLocalRecoValidation::EtlLocalRecoValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy1Dis_(iConfig.getParameter<double>("hitMinimumEnergy1Dis")),
       hitMinEnergy2Dis_(iConfig.getParameter<double>("hitMinimumEnergy2Dis")),
-      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")) {
+      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")),
+      uncalibRecHitsPlots_(iConfig.getParameter<bool>("UncalibRecHitsPlots")),
+      hitMinAmplitude_(iConfig.getParameter<double>("HitMinimumAmplitude")) {
   etlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsTag"));
+  if (uncalibRecHitsPlots_)
+    etlUncalibRecHitsToken_ =
+        consumes<FTLUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("uncalibRecHitsTag"));
   etlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("simHitsTag"));
   etlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
+
   mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
@@ -356,6 +378,59 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meCluOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
       meCluHits_[idet]->Fill(cluster.size());
     }
+  }
+
+  // --- Loop over the ETL Uncalibrated RECO hits
+  if (uncalibRecHitsPlots_) {
+    auto etlUncalibRecHitsHandle = makeValid(iEvent.getHandle(etlUncalibRecHitsToken_));
+
+    for (const auto& uRecHit : *etlUncalibRecHitsHandle) {
+      ETLDetId detId = uRecHit.id();
+
+      int idet = detId.zside() + detId.nDisc();
+
+      // --- Skip UncalibratedRecHits not matched to SimHits
+      if (m_etlSimHits[idet].count(detId.rawId()) != 1)
+        continue;
+
+      DetId geoId = detId.geographicalId();
+      const MTDGeomDet* thedet = geom->idToDet(geoId);
+      if (thedet == nullptr)
+        throw cms::Exception("EtlLocalRecoValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
+                                                       << detId.rawId() << ") is invalid!" << std::dec << std::endl;
+      const PixelTopology& topo = static_cast<const PixelTopology&>(thedet->topology());
+
+      Local3DPoint local_point(topo.localX(uRecHit.row()), topo.localY(uRecHit.column()), 0.);
+      const auto& global_point = thedet->toGlobal(local_point);
+
+      // --- Fill the histograms
+
+      if (uRecHit.amplitude().first < hitMinAmplitude_)
+        continue;
+
+      float time_res = uRecHit.time().first - m_etlSimHits[idet][detId.rawId()].time;
+
+      int iside = (detId.zside() == -1 ? 0 : 1);
+
+      // amplitude histograms
+
+      int qBin = (int)(uRecHit.amplitude().first / binWidthQ_);
+      if (qBin > nBinsQ_ - 1)
+        qBin = nBinsQ_ - 1;
+
+      meTimeResQ_[iside][qBin]->Fill(time_res);
+
+      // eta histograms
+
+      int etaBin = (int)((fabs(global_point.eta()) - etaMin_) / binWidthEta_);
+      if (etaBin < 0)
+        etaBin = 0;
+      else if (etaBin > nBinsEta_ - 1)
+        etaBin = nBinsEta_ - 1;
+
+      meTimeResEta_[iside][etaBin]->Fill(time_res);
+
+    }  // uRecHit loop
   }
 }
 
@@ -738,6 +813,29 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     100,
                                     -150,
                                     150);
+
+  // --- UncalibratedRecHits histograms
+
+  if (uncalibRecHitsPlots_) {
+    const std::string det_name[2] = {"ETL-", "ETL+"};
+    for (unsigned int iside = 0; iside < 2; ++iside) {
+      for (unsigned int ihistoQ = 0; ihistoQ < nBinsQ_; ++ihistoQ) {
+        std::string hname = Form("TimeResQ_%d_%d", iside, ihistoQ);
+        std::string htitle =
+            Form("%s time resolution (Q bin = %d);T_{RECO} - T_{SIM} [ns]", det_name[iside].data(), ihistoQ);
+        meTimeResQ_[iside][ihistoQ] = ibook.book1D(hname, htitle, 200, -0.5, 0.5);
+
+      }  // ihistoQ loop
+
+      for (unsigned int ihistoEta = 0; ihistoEta < nBinsEta_; ++ihistoEta) {
+        std::string hname = Form("TimeResEta_%d_%d", iside, ihistoEta);
+        std::string htitle =
+            Form("%s time resolution (|#eta| bin = %d);T_{RECO} - T_{SIM} [ns]", det_name[iside].data(), ihistoEta);
+        meTimeResEta_[iside][ihistoEta] = ibook.book1D(hname, htitle, 200, -0.5, 0.5);
+
+      }  // ihistoEta loop
+    }
+  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -746,11 +844,14 @@ void EtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
 
   desc.add<std::string>("folder", "MTD/ETL/LocalReco");
   desc.add<edm::InputTag>("recHitsTag", edm::InputTag("mtdRecHits", "FTLEndcap"));
+  desc.add<edm::InputTag>("uncalibRecHitsTag", edm::InputTag("mtdUncalibratedRecHits", "FTLEndcap"));
   desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
   desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLEndcap"));
   desc.add<double>("hitMinimumEnergy1Dis", 1.);     // [MeV]
   desc.add<double>("hitMinimumEnergy2Dis", 0.001);  // [MeV]
   desc.add<bool>("LocalPositionDebug", false);
+  desc.add<bool>("UncalibRecHitsPlots", false);
+  desc.add<double>("HitMinimumAmplitude", 0.33);  // [MIP]
 
   descriptions.add("etlLocalReco", desc);
 }
