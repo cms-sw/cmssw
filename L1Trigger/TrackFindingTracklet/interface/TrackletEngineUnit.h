@@ -34,8 +34,8 @@ namespace trklet {
                        unsigned int iSeed,
                        unsigned int nbitsfinephiediff,
                        unsigned int iAllStub,
-                       const TrackletLUT& pttableinnernew,
-                       const TrackletLUT& pttableouternew,
+                       const TrackletLUT* pttableinnernew,
+                       const TrackletLUT* pttableouternew,
                        VMStubsTEMemory* outervmstubs);
 
     ~TrackletEngineUnit() = default;
@@ -83,8 +83,8 @@ namespace trklet {
 
     bool idle_;
 
-    const TrackletLUT& pttableinnernew_;
-    const TrackletLUT& pttableouternew_;
+    const TrackletLUT* pttableinnernew_;
+    const TrackletLUT* pttableouternew_;
 
     std::pair<const Stub*, const Stub*> candpair_, candpair__;
     bool goodpair_, goodpair__;
