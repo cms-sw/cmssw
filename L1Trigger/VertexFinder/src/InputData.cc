@@ -24,6 +24,8 @@ namespace l1tVertexFinder {
                        const AnalysisSettings& settings,
                        const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken,
                        const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken,
+ 		       edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_,
+    		       edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_,
                        const edm::EDGetTokenT<TrackingParticleCollection> tpToken,
                        const edm::EDGetTokenT<DetSetVec> stubToken,
                        const edm::EDGetTokenT<TTStubAssMap> stubTruthToken,
@@ -62,13 +64,20 @@ namespace l1tVertexFinder {
     }
 
     // Get the tracker geometry info needed to unpack the stub info.
-    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+    /*edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
     iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
     const TrackerGeometry* trackerGeometry = trackerGeometryHandle.product();
 
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
     iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-    const TrackerTopology* trackerTopology = trackerTopologyHandle.product();
+    const TrackerTopology* trackerTopology = trackerTopologyHandle.product();*/
+//        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("",""))),
+//        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("",""))),
+
+    const auto &trackerGeometry_ = iSetup.getData(trackerGeometryToken_);
+    const auto &trackerTopology_ = iSetup.getData(trackerTopologyToken_);
+    const TrackerGeometry* trackerGeometry = &trackerGeometry_;
+    const TrackerTopology* trackerTopology= &trackerTopology_;
 
     // Get stub info, by looping over modules and then stubs inside each module.
     // Also get the association map from stubs to tracking particles.
