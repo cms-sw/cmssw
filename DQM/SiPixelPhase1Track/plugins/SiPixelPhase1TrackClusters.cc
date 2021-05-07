@@ -58,6 +58,10 @@ namespace {
       SIZE_VS_ETA_ON_TRACK_INNER,
       ON_TRACK_CHARGE_OUTER,
       ON_TRACK_CHARGE_INNER,
+      ON_TRACK_CORRECTEDCHARGE_OUTER,
+      ON_TRACK_CORRECTEDCHARGE_INNER,
+      TEMPLATE_CORRECTION_OUTER,
+      TEMPLATE_CORRECTION_INNER,
 
       ON_TRACK_SHAPE_OUTER,
       ON_TRACK_SHAPE_INNER,
@@ -309,9 +313,13 @@ namespace {
           if (iAmOuter) {
             histo[SIZE_VS_ETA_ON_TRACK_OUTER].fill(etatk, cluster.sizeY(), id, &iEvent);
             histo[ON_TRACK_CHARGE_OUTER].fill(charge, id, &iEvent);
+            histo[ON_TRACK_CORRECTEDCHARGE_OUTER].fill(charge_cor, id, &iEvent);
+            histo[TEMPLATE_CORRECTION_OUTER].fill(tmpl, id, &iEvent);
           } else {
             histo[SIZE_VS_ETA_ON_TRACK_INNER].fill(etatk, cluster.sizeY(), id, &iEvent);
             histo[ON_TRACK_CHARGE_INNER].fill(charge, id, &iEvent);
+            histo[ON_TRACK_CORRECTEDCHARGE_INNER].fill(charge_cor, id, &iEvent);
+            histo[TEMPLATE_CORRECTION_INNER].fill(tmpl, id, &iEvent);
           }
         }
       }

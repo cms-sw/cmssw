@@ -75,13 +75,6 @@ SiPixelPhase1TrackClustersOnTrackCorrCharge = DefaultHistoTrack.clone(
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXDisk").save(),
     Specification().groupBy("PXForward/PXRing").save(),
-    Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
-    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing").save(),
-    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save(),
-    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder").save(),
-    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade").save(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName").save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName").save()
   )
 )
 
@@ -498,6 +491,35 @@ SiPixelPhase1TrackClustersOnTrackChargeInner = SiPixelPhase1TrackClustersOnTrack
   title = "Corrected Cluster Charge (OnTrack) inner ladders"
 )
 
+SiPixelPhase1TrackClustersOnTrackCorrChargeOuter = DefaultHistoTrack.clone(
+  name = "chargeOuter_corr",
+  title = "Template Corrected Cluster Charge (OnTrack) outer ladders",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").save()
+  )
+)
+
+SiPixelPhase1TrackClustersOnTrackCorrChargeInner = SiPixelPhase1TrackClustersOnTrackCorrChargeOuter.clone(
+  name = "chargeInner_corr",
+  title = "Template Corrected Cluster Charge (OnTrack) inner ladders"
+)
+
+SiPixelPhase1TrackTemplateCorrOuter = SiPixelPhase1TrackClustersOnTrackCorrChargeOuter.clone(
+  name = "templateOuter_corr",
+  title = "Template Correction outer ladders",
+  range_min = 0, range_max = 3, range_nbins = 150,
+  xlabel = "A.U."
+)
+
+SiPixelPhase1TrackTemplateCorrInner = SiPixelPhase1TrackTemplateCorrOuter.clone(
+  name = "templateInner_corr",
+  title = "Template Correction inner ladders"
+)
+
+
 SiPixelPhase1TrackClustersOnTrackShapeOuter = DefaultHistoTrack.clone(
   topFolderName = "PixelPhase1/ClusterShape",
   name = "shapeFilterOuter",
@@ -536,6 +558,10 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1ClustersSizeVsEtaOnTrackInner,
   SiPixelPhase1TrackClustersOnTrackChargeOuter,
   SiPixelPhase1TrackClustersOnTrackChargeInner,
+  SiPixelPhase1TrackClustersOnTrackCorrChargeOuter,
+  SiPixelPhase1TrackClustersOnTrackCorrChargeInner,
+  SiPixelPhase1TrackTemplateCorrOuter,
+  SiPixelPhase1TrackTemplateCorrInner,
 
   SiPixelPhase1TrackClustersOnTrackShapeOuter,
   SiPixelPhase1TrackClustersOnTrackShapeInner,

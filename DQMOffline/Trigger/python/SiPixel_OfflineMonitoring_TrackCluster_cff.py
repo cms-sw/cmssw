@@ -328,6 +328,38 @@ hltSiPixelPhase1TrackClustersOnTrackChargeInner = hltSiPixelPhase1TrackClustersO
   title = "Corrected Cluster Charge (OnTrack) inner ladders"
 )
 
+
+hltSiPixelPhase1TrackClustersOnTrackCorrChargeOuter = hltDefaultHistoTrack.clone(
+  name = "chargeOuter_corr",
+  title = "Template Corrected Cluster Charge (OnTrack) outer ladders",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled = False,
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").save()
+  )
+)
+
+hltSiPixelPhase1TrackClustersOnTrackCorrChargeInner = hltSiPixelPhase1TrackClustersOnTrackCorrChargeOuter.clone(
+  name = "chargeInner_corr",
+  title = "Template Corrected Cluster Charge (OnTrack) inner ladders",
+  enabled = False
+)
+
+hltSiPixelPhase1TrackTemplateCorrOuter = hltSiPixelPhase1TrackClustersOnTrackCorrChargeOuter.clone(
+  name = "templateOuter_corr",
+  title = "Template Correction outer ladders",
+  range_min = 0, range_max = 3, range_nbins = 150,
+  xlabel = "A.U.",
+  enabled = False
+)
+
+hltSiPixelPhase1TrackTemplateCorrInner = hltSiPixelPhase1TrackTemplateCorrOuter.clone(
+  name = "templateInner_corr",
+  title = "Template Correction inner ladders",
+  enabled = False
+)
+
 hltSiPixelPhase1TrackClustersOnTrackShapeOuter = hltDefaultHistoTrack.clone(
   enabled = False,
   name = "shapeFilterOuter",
@@ -369,6 +401,10 @@ hltSiPixelPhase1TrackClustersConf = cms.VPSet(
    hltSiPixelPhase1ClustersSizeVsEtaOnTrackInner,
    hltSiPixelPhase1TrackClustersOnTrackChargeOuter,
    hltSiPixelPhase1TrackClustersOnTrackChargeInner,
+   hltSiPixelPhase1TrackClustersOnTrackCorrChargeOuter,
+   hltSiPixelPhase1TrackClustersOnTrackCorrChargeInner,
+   hltSiPixelPhase1TrackTemplateCorrOuter,
+   hltSiPixelPhase1TrackTemplateCorrInner,
 
    hltSiPixelPhase1TrackClustersOnTrackShapeOuter,
    hltSiPixelPhase1TrackClustersOnTrackShapeInner,
