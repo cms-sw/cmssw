@@ -84,7 +84,7 @@ void MTDTrackingRecHitProducer::run(edm::Handle<FTLClusterCollection> inputHandl
   const edmNew::DetSetVector<FTLCluster>& input = *inputHandle;
 
   LogDebug("MTDTrackingRecHitProducer") << "inputCollection " << input.size();
-  for ( const auto& DSVit : input ) {
+  for (const auto& DSVit : input) {
     unsigned int detid = DSVit.detId();
     DetId detIdObject(detid);
     const auto genericDet = geom_->idToDetUnit(detIdObject);
@@ -95,9 +95,9 @@ void MTDTrackingRecHitProducer::run(edm::Handle<FTLClusterCollection> inputHandl
 
     MTDTrackingDetSetVector::FastFiller recHitsOnDet(output, detid);
 
-    for (const auto& clustIt : DSVit ) {
-      LogDebug("MTDTrackingRcHitProducer") << "Cluster: size " << clustIt.size() << " " << clustIt.x() << "," << clustIt.y() << " "
-                             << clustIt.energy() << " " << clustIt.time();
+    for (const auto& clustIt : DSVit) {
+      LogDebug("MTDTrackingRcHitProducer") << "Cluster: size " << clustIt.size() << " " << clustIt.x() << ","
+                                           << clustIt.y() << " " << clustIt.energy() << " " << clustIt.time();
       MTDClusterParameterEstimator::ReturnType tuple = cpe_->getParameters(clustIt, *genericDet);
       LocalPoint lp(std::get<0>(tuple));
       LocalError le(std::get<1>(tuple));
@@ -106,9 +106,10 @@ void MTDTrackingRecHitProducer::run(edm::Handle<FTLClusterCollection> inputHandl
       edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> cluster = edmNew::makeRefTo(inputHandle, &clustIt);
       // Make a RecHit and add it to the DetSet
       MTDTrackingRecHit hit(lp, le, *genericDet, cluster);
-      LogDebug("MTDTrackingRcHitProducer") << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
-                        << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time()
-                        << " : " << hit.timeError();
+      LogDebug("MTDTrackingRcHitProducer")
+          << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
+          << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time() << " : "
+          << hit.timeError();
       // Now save it =================
       recHitsOnDet.push_back(hit);
     }  //  <-- End loop on Clusters

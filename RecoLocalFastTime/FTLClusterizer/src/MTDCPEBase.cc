@@ -19,10 +19,9 @@ using namespace std;
 //
 //-----------------------------------------------------------------------------
 MTDCPEBase::MTDCPEBase(edm::ParameterSet const& conf, const MTDGeometry& geom) : geom_(geom) {
-
-//-----------------------------------------------------------------------------
-//  Fill all variables which are constant for an event (geometry)
-//-----------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------
+  //  Fill all variables which are constant for an event (geometry)
+  //-----------------------------------------------------------------------------
   auto const& dus = geom_.detUnits();
   unsigned detectors = dus.size();
   m_DetParams.resize(detectors);

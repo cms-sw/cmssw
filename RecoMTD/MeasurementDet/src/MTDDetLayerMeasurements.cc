@@ -19,10 +19,11 @@ typedef std::shared_ptr<GenericTransientTrackingRecHit> MTDRecHitPointer;
 typedef std::vector<GenericTransientTrackingRecHit::RecHitPointer> MTDRecHitContainer;
 typedef MTDDetLayerMeasurements::MeasurementContainer MeasurementContainer;
 
-MTDDetLayerMeasurements::MTDDetLayerMeasurements(edm::InputTag mtdlabel, edm::ConsumesCollector& iC)
-    : theMTDRecHits(), theMTDEventCacheID(0), theEvent(nullptr) {
-  mtdToken_ = iC.consumes<MTDTrackingRecHit>(mtdlabel);
-}
+MTDDetLayerMeasurements::MTDDetLayerMeasurements(const edm::InputTag& mtdlabel, edm::ConsumesCollector& iC)
+    : theMTDToken(iC.consumes<MTDTrackingRecHit>(mtdlabel)),
+      theMTDRecHits(),
+      theMTDEventCacheID(0),
+      theEvent(nullptr) {}
 
 MTDDetLayerMeasurements::~MTDDetLayerMeasurements() {}
 
@@ -35,7 +36,7 @@ MTDRecHitContainer MTDDetLayerMeasurements::recHits(const GeomDet* geomDet, cons
 
   // Create the ChamberId
   DetId detId(geoId.rawId());
-  LogDebug("Track|RecoMTD|MTDDetLayerMeasurements") << "(MTD): " << static_cast<MTDDetId>(detId) << std::endl;
+  LogDebug("MTDDetLayerMeasurements") << "(MTD): " << static_cast<MTDDetId>(detId) << std::endl;
 
   // Get the MTD-Segment which relies on this chamber
   //auto cmp = [](const unsigned one, const unsigned two) -> bool { return one < two; };
@@ -48,19 +49,19 @@ MTDRecHitContainer MTDDetLayerMeasurements::recHits(const GeomDet* geomDet, cons
 }
 
 void MTDDetLayerMeasurements::checkMTDRecHits() {
-  LogDebug("Track|RecoMTD|MTDDetLayerMeasurements") << "Checking MTD RecHits";
+  LogDebug("MTDDetLayerMeasurements") << "Checking MTD RecHits";
   checkEvent();
   auto cacheID = theEvent->cacheIdentifier();
   if (cacheID == theMTDEventCacheID)
     return;
 
   {
-    theEvent->getByToken(mtdToken_, theMTDRecHits);
+    theEvent->getByToken(theMTDToken, theMTDRecHits);
     theMTDEventCacheID = cacheID;
   }
   if (!theMTDRecHits.isValid()) {
     throw cms::Exception("MTDDetLayerMeasurements") << "Cannot get MTD RecHits";
-    LogDebug("Track|RecoMTD|MTDDetLayerMeasurements") << "Cannot get MTD RecHits";
+    LogDebug("MTDDetLayerMeasurements") << "Cannot get MTD RecHits";
   }
 }
 
@@ -81,7 +82,7 @@ MeasurementContainer MTDDetLayerMeasurements::measurements(const DetLayer* layer
   MeasurementContainer result;
 
   std::vector<DetWithState> dss = layer->compatibleDets(startingState, prop, est);
-  LogDebug("RecoMTD") << "compatibleDets: " << dss.size() << std::endl;
+  LogDebug("MTDDetLayerMeasurements") << "compatibleDets: " << dss.size() << std::endl;
 
   for (const auto& dws : dss) {
     MeasurementContainer detMeasurements = measurements(layer, dws.first, dws.second, est, iEvent);
