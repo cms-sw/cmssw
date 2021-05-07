@@ -71,8 +71,7 @@ if GEOMETRY == "D49":
   #inputMC=getCMSdata(dataName)
 
   # Or read specified .root file:
-  inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v3_2026D49PU200-v1/00000/001edbad-174e-46af-932a-6ce8e04aee1c.root"] 
-  #inputMC = ["/store/relval/CMSSW_11_2_0_pre8/RelValSingleMuPt10/GEN-SIM-RECO/112X_mcRun4_realistic_v3_2026D49noPU-v1/00000/007d817e-9c59-4dec-959b-0f227942cdf0.root"]
+  inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/00000/00260a30-734a-4a3a-a4b0-f836ce5502c6.root"] 
   #inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW/113X_mcRun4_realistic_v3_2026D49noPU-v1/00000/04514913-efc7-49fc-8df4-90efe43ca047.root"]
 
 else:
@@ -206,14 +205,11 @@ process.load( 'L1Trigger.TrackerDTC.Analyzer_cff' )
 #process.TrackTriggerSetup.Hybrid.MinPt=1.0
 process.dtc = cms.Path( process.TrackerDTCProducer )#* process.TrackerDTCAnalyzer )
 
-
-
-
 # use this if you want to re-run the stub making
-# process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.TTTracksEmulationWithTruth,process.ana)
+# process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.dtc,process.TTTracksEmulationWithTruth,process.ana)
 
 # use this if cluster/stub associators not available 
-# process.schedule = cms.Schedule(process.TTClusterStubTruth,process.TTTracksEmulationWithTruth,process.ana)
+# process.schedule = cms.Schedule(process.TTClusterStubTruth,process.dtc,process.TTTracksEmulationWithTruth,process.ana)
 
 # use this to only run tracking + track associator
 process.schedule = cms.Schedule(process.dtc,process.TTTracksEmulationWithTruth,process.ana)
