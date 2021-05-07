@@ -97,8 +97,7 @@ namespace cond {
               tag, m_session->sessionHash, cond::auth::COND_SESSION_HASH_CODE, cond::auth::COND_DBTAG_LOCK_ACCESS_CODE);
           if (!mylock)
             cond::throwException(
-                "Tag \"" + tag + "\" can't be accessed for update, because it has been locked by an other session. \"" +
-                    m_session->principalName + "\".",
+                "Tag \"" + tag + "\" can't be accessed for update, because it has been locked by an other session.",
                 "IOVEditor::load");
         }
       }
