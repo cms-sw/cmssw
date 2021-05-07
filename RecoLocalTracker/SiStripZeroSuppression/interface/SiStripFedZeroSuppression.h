@@ -52,8 +52,8 @@ public:
 private:
   edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
   edm::ESGetToken<SiStripThreshold, SiStripThresholdRcd> thresholdToken_;
-  const SiStripNoises* noiseHandle_;
-  const SiStripThreshold* thresholdHandle_;
+  const SiStripNoises* noise_;
+  const SiStripThreshold* threshold_;
   edm::ESWatcher<SiStripNoisesRcd> noiseWatcher_;
   edm::ESWatcher<SiStripThresholdRcd> thresholdWatcher_;
 

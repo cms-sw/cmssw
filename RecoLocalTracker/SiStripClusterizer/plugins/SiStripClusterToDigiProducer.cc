@@ -32,14 +32,14 @@ public:
 private:
   void process(const ClusterCollection& input, std::vector<DetDigiCollection>& output_base);
   void setDetId(const uint32_t id);
-  float gain(const uint16_t& strip) const { return gainHandle->getStripGain(strip, gainRange); }
+  float gain(const uint16_t& strip) const { return gain_->getStripGain(strip, gainRange); }
   uint16_t applyGain(const uint16_t& strip, const uint16_t& adc);
 
   edm::EDGetTokenT<ClusterCollection> token;
   SiStripApvGain::Range gainRange;
   edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
   edm::ESWatcher<SiStripGainRcd> gainWatcher_;
-  const SiStripGain* gainHandle;
+  const SiStripGain* gain_;
   uint32_t detId;
 };
 
@@ -55,7 +55,7 @@ SiStripClusterToDigiProducer::SiStripClusterToDigiProducer(const edm::ParameterS
 
 void SiStripClusterToDigiProducer::produce(edm::Event& event, const edm::EventSetup& es) {
   if (gainWatcher_.check(es)) {
-    gainHandle = &es.getData(gainToken_);
+    gain_ = &es.getData(gainToken_);
   }
 
   std::vector<DetDigiCollection> output_base;
@@ -102,7 +102,7 @@ void SiStripClusterToDigiProducer::process(const ClusterCollection& input,
 }
 
 inline void SiStripClusterToDigiProducer::setDetId(const uint32_t id) {
-  gainRange = gainHandle->getRange(id);
+  gainRange = gain_->getRange(id);
   detId = id;
 }
 
