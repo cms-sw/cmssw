@@ -47,7 +47,7 @@ void LCToCPAssociatorByEnergyScoreProducer::produce(edm::StreamID,
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
-  const std::unordered_map<DetId, const HGCRecHit *> *hitMap = &iEvent.get(hitMap_);
+  const auto hitMap = &iEvent.get(hitMap_);
 
   auto impl = std::make_unique<LCToCPAssociatorByEnergyScoreImpl>(
       iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
