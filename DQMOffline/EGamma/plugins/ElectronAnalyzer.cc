@@ -441,14 +441,14 @@ void ElectronAnalyzer::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const
                                    "Events",
                                    "ELE_LOGY E1 P");
   h1_hcalRecHitSumEt_dr03 = bookH1(iBooker,
-                                  "hcalRecHitSumEt_dr03",
-                                  "hcal isolation sum, dR=0.3",
-                                  100,
-                                  0.0,
-                                  20.,
-                                  "HcalIsoSum (GeV)",
-                                  "Events",
-                                  "ELE_LOGY E1 P");
+                                   "hcalRecHitSumEt_dr03",
+                                   "hcal isolation sum, dR=0.3",
+                                   100,
+                                   0.0,
+                                   20.,
+                                   "HcalIsoSum (GeV)",
+                                   "Events",
+                                   "ELE_LOGY E1 P");
 
   // pf isolation
   h1_PFch_dr03 = bookH1(iBooker,

@@ -134,22 +134,22 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
   //AA
   //Flags and Severities to be excluded from photon calculations
   const std::vector<std::string> flagnamesEB =
-      config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEB");
+      config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEB");
 
   const std::vector<std::string> flagnamesEE =
-      config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
+      config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEE");
 
   flagsexclEB_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
 
   flagsexclEE_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
 
   const std::vector<std::string> severitynamesEB =
-      config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEB");
+      config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEB");
 
   severitiesexclEB_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEB);
 
   const std::vector<std::string> severitynamesEE =
-      config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEE");
+      config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEE");
 
   severitiesexclEE_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
 
@@ -322,7 +322,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   // go back to run2-like 2 effective depths if desired - depth 1 is the normal depth 1, depth 2 is the sum over the rest
   if (hcalRun2EffDepth_) {
-    for (auto &pho : *outputPhotonCollection_p)
+    for (auto& pho : *outputPhotonCollection_p)
       pho.hcalToRun2EffDepth();
   }
 

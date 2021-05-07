@@ -241,10 +241,10 @@ float GsfElectron::p4Error(P4Kind kind) const {
 }
 
 void GsfElectron::hcalToRun2EffDepth() {
-  auto &ss1 = showerShape_;
-  auto &ss2 = full5x5_showerShape_;
-  auto &iv1 = dr03_;
-  auto &iv2 = dr04_;
+  auto& ss1 = showerShape_;
+  auto& ss2 = full5x5_showerShape_;
+  auto& iv1 = dr03_;
+  auto& iv2 = dr04_;
 
   for (uint id = 2u; id < ss1.hcalOverEcal.size(); ++id) {
     ss1.hcalOverEcal[1] += ss1.hcalOverEcal[id];

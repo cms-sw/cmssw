@@ -507,7 +507,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
 
   // go back to run2-like 2 effective depths if desired - depth 1 is the normal depth 1, depth 2 is the sum over the rest
   if (hcalRun2EffDepth_) {
-    for (auto &pho : *outputPhotonCollection_p)
+    for (auto& pho : *outputPhotonCollection_p)
       pho.hcalToRun2EffDepth();
   }
   const auto photonOrphHandle = theEvent.put(std::move(outputPhotonCollection_p), photonCollection_);
@@ -628,7 +628,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
                                                                     &thresholds,
                                                                     multThresEB_,
                                                                     multThresEE_)
-         : std::array<float, 3>({{0.f, 0.f, 0.f}}));
+                         : std::array<float, 3>({{0.f, 0.f, 0.f}}));
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);
     float full5x5_sigmaIetaIeta = sqrt(full5x5_locCov[0]);

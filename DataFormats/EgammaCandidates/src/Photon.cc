@@ -181,10 +181,10 @@ const Candidate::LorentzVector& Photon::p4(P4type type) const {
 }
 
 void Photon::hcalToRun2EffDepth() {
-  auto &ss1 = showerShapeBlock_;
-  auto &ss2 = full5x5_showerShapeBlock_;
-  auto &iv1 = isolationR03_;
-  auto &iv2 = isolationR04_;
+  auto& ss1 = showerShapeBlock_;
+  auto& ss2 = full5x5_showerShapeBlock_;
+  auto& iv1 = isolationR03_;
+  auto& iv2 = isolationR04_;
 
   for (uint id = 2u; id < ss1.hcalOverEcal.size(); ++id) {
     ss1.hcalOverEcal[1] += ss1.hcalOverEcal[id];
