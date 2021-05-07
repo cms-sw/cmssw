@@ -37,7 +37,7 @@ unitTest = False
 if 'unitTest=True' in sys.argv:
     live=False
     unitTest=True
-    useLockRecords = False.
+    useLockRecords = False
 
 #---------------
 # Input sources
