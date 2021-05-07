@@ -66,9 +66,8 @@ namespace trklet {
 
     unsigned int nbitsrzbin_;
 
-    TrackletLUT innerTable_;                 //projection to next layer/disk
-    TrackletLUT innerOverlapTable_;          //projection to disk from layer
-    
+    TrackletLUT innerTable_;         //projection to next layer/disk
+    TrackletLUT innerOverlapTable_;  //projection to disk from layer
   };
 
 };  // namespace trklet

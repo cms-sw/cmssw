@@ -80,7 +80,7 @@ bool Sector::addStub(L1TStub stub, string dtc) {
     int bendbin = fpgastub.bend().value();
     int rbin = (r.value() + (1 << (r.nbits() - 1))) >> (r.nbits() - 3);
     const TrackletLUT& phiCorrTable = *globals_->phiCorr(layerdisk);
-    int iphicorr = phiCorrTable.lookup(bendbin*(1<<3)+rbin);
+    int iphicorr = phiCorrTable.lookup(bendbin * (1 << 3) + rbin);
     fpgastub.setPhiCorr(iphicorr);
   }
 

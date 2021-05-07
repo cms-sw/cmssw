@@ -4,7 +4,8 @@
 using namespace std;
 using namespace trklet;
 
-MatchEngineUnit::MatchEngineUnit(bool barrel, unsigned int layerdisk, const TrackletLUT& luttable) : luttable_(luttable), candmatches_(3) {
+MatchEngineUnit::MatchEngineUnit(bool barrel, unsigned int layerdisk, const TrackletLUT& luttable)
+    : luttable_(luttable), candmatches_(3) {
   idle_ = true;
   barrel_ = barrel;
   layerdisk_ = layerdisk;
@@ -28,7 +29,7 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
                            bool usesecondPlus,
                            bool isPSseed,
                            Tracklet* proj,
-			   bool) {
+                           bool) {
   vmstubsmemory_ = vmstubsmemory;
   idle_ = false;
   nrzbins_ = nrzbins;
@@ -66,18 +67,15 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
 
   havepair__ = havepair_;
   goodpair__ = goodpair_;
-  tmppair__ =  tmppair_;
+  tmppair__ = tmppair_;
 
   havepair_ = false;
   goodpair_ = false;
-
-  
 }
 
 void MatchEngineUnit::step(bool) {
-
   bool almostfull = candmatches_.nearfull();
-  
+
   if (goodpair__) {
     assert(havepair__);
     candmatches_.store(tmppair__);
@@ -85,11 +83,11 @@ void MatchEngineUnit::step(bool) {
 
   havepair__ = havepair_;
   goodpair__ = goodpair_;
-  tmppair__ =  tmppair_;
+  tmppair__ = tmppair_;
 
   havepair_ = false;
   goodpair_ = false;
-  
+
   if (idle() || almostfull)
     return;
 
@@ -150,10 +148,10 @@ void MatchEngineUnit::step(bool) {
   //       << isPSseed_ << " slot=" << slot << endl;
 
   //Check if stub bend and proj rinv consistent
-  
+
   goodpair_ = (pass && dphicut) && luttable_.lookup(index);
   havepair_ = true;
-  
+
   if (havepair_) {
     std::pair<Tracklet*, const Stub*> tmppair(proj_, vmstub.stub());
     tmppair_ = tmppair;
@@ -181,12 +179,11 @@ void MatchEngineUnit::reset() {
 }
 
 int MatchEngineUnit::TCID() const {
-
   if (!empty()) {
     return peek().first->TCID();
   }
 
-  if (idle_&&!havepair_&&!havepair__) {
+  if (idle_ && !havepair_ && !havepair__) {
     return 16383;
   }
   if (havepair__) {
@@ -196,5 +193,4 @@ int MatchEngineUnit::TCID() const {
     return tmppair_.first->TCID();
   }
   return proj_->TCID();
-
 }
