@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 #include "Geometry/MTDGeometryBuilder/interface/MTDParametersFromDD.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
@@ -68,7 +70,7 @@ bool MTDParametersFromDD::build(const DDCompactView* cvp, PMTDParameters& ptp) {
         "Offset_Back_Left",
         "Offset_Back_Right",
     }};
-    int sector(0);
+    int sector(10);
     for (const auto& name : etlLayout) {
       auto const& v = cvp->vector(name);
       if (!v.empty()) {
@@ -88,19 +90,21 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
   cms::DDVectorsMap vmap = cvp->detector()->vectors();
 
   std::array<std::string, 2> mtdSubdet{{"BTL", "ETL"}};
-  int subdet(0), oldsubdet(-1);
+  int subdet(0);
   for (const auto& name : mtdSubdet) {
+    bool found(false);
     for (auto const& it : vmap) {
       if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), name)) {
         subdet++;
-        oldsubdet = subdet;
         std::vector<int> subdetPars;
         for (const auto& i : it.second)
           subdetPars.emplace_back(std::round(i));
         putOne(subdet, subdetPars, ptp);
+        found = true;
+        break;
       }
     }
-    if (oldsubdet != subdet) {
+    if (!found) {
       throw cms::Exception("MTDParametersFromDD") << "Not found " << name << " but needed.";
     }
   }
@@ -139,20 +143,21 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
         "Offset_Back_Left",
         "Offset_Back_Right",
     }};
-    int sector(0), oldsector(-1);
+    int sector(10); // add vector index with offset, to distinguish from subdet
     for (const auto& name : etlLayout) {
+      bool found(false);
       for (auto const& it : vmap) {
-        edm::LogWarning("MTDParametersFromDD") << name << " " << dd4hep::dd::noNamespace(it.first);
         if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), name)) {
           sector++;
-          oldsector = sector;
           std::vector<int> ipos;
           for (const auto& i : it.second)
             ipos.emplace_back(std::round(i));
           putOne(sector, ipos, ptp);
+          found = true;
+          break;
         }
       }
-      if (oldsector != sector) {
+      if (!found) {
         throw cms::Exception("MTDParametersFromDD") << "Not found " << name << " but needed.";
       }
     }
@@ -166,4 +171,15 @@ void MTDParametersFromDD::putOne(int subdet, std::vector<int>& vpars, PMTDParame
   item.id_ = subdet;
   item.vpars_ = vpars;
   ptp.vitems_.emplace_back(item);
+#ifdef EDM_ML_DEBUG
+  auto print_item = [&]() {
+    std::stringstream ss;
+    ss << item.id_ << " with " << item.vpars_.size() << " elements:";
+    for ( const auto& thePar : item.vpars_) {
+      ss << " " << thePar;
+    }
+    return ss.str();
+  };
+  edm::LogInfo("MTDParametersFromDD") << "Adding PMTDParameters item: " << print_item();
+#endif
 }
