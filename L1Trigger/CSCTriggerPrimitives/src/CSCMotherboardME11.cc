@@ -26,11 +26,6 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap,
 
   if (!runME11Up_)
     edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
-
-  cscTmbLUT_ = std::make_unique<CSCMotherboardLUTME11>();
-
-  // ignore unphysical ALCT-CLCT matches
-  ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
 }
 
 CSCMotherboardME11::~CSCMotherboardME11() {}
@@ -271,10 +266,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a() const {
     }
   }  // Report all LCTs found.
   return tmpV;
-}
-
-bool CSCMotherboardME11::doesALCTCrossCLCT(const CSCALCTDigi& a, const CSCCLCTDigi& c) const {
-  return cscTmbLUT_->doesALCTCrossCLCT(a, c, theEndcap, gangedME1a_);
 }
 
 void CSCMotherboardME11::correlateLCTsME11(const CSCALCTDigi& bALCT,

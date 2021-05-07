@@ -51,6 +51,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
     config_dumped = true;
   }
 
+  // quality assignment
+  qualityAssignment_ = std::make_unique<LCTQualityAssignment>(station);
+
   // quality control of stubs
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
 
@@ -387,9 +390,9 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   // LCT quality number
   unsigned int quality;
   if (runCCLUT_) {
-    quality = static_cast<unsigned int>(findQualityRun3(aLCT, cLCT));
+    quality = qualityAssignment_->findQualityRun3(aLCT, cLCT);
   } else {
-    quality = static_cast<unsigned int>(findQuality(aLCT, cLCT));
+    quality = qualityAssignment_->findQualityRun2(aLCT, cLCT);
   }
 
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
@@ -436,115 +439,6 @@ unsigned int CSCMotherboard::encodePattern(const int ptn) const {
   unsigned int pattern = (abs(ptn) & ((1 << kPatternBitWidth) - 1));
 
   return pattern;
-}
-
-// 4-bit LCT quality number.
-CSCMotherboard::LCT_Quality CSCMotherboard::findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const {
-  // Either ALCT or CLCT is invalid
-  if (!(aLCT.isValid()) || !(cLCT.isValid())) {
-    // No CLCT
-    if (aLCT.isValid() && !(cLCT.isValid()))
-      return LCT_Quality::NO_CLCT;
-
-    // No ALCT
-    else if (!(aLCT.isValid()) && cLCT.isValid())
-      return LCT_Quality::NO_ALCT;
-
-    // No ALCT and no CLCT
-    else
-      return LCT_Quality::INVALID;
-  }
-  // Both ALCT and CLCT are valid
-  else {
-    const int pattern(cLCT.getPattern());
-
-    // Layer-trigger in CLCT
-    if (pattern == 1)
-      return LCT_Quality::CLCT_LAYER_TRIGGER;
-
-    // Multi-layer pattern in CLCT
-    else {
-      // ALCT quality is the number of layers hit minus 3.
-      const bool a4(aLCT.getQuality() >= 1);
-
-      // CLCT quality is the number of layers hit.
-      const bool c4(cLCT.getQuality() >= 4);
-
-      // quality = 4; "reserved for low-quality muons in future"
-
-      // marginal anode and cathode
-      if (!a4 && !c4)
-        return LCT_Quality::MARGINAL_ANODE_CATHODE;
-
-      // HQ anode, but marginal cathode
-      else if (a4 && !c4)
-        return LCT_Quality::HQ_ANODE_MARGINAL_CATHODE;
-
-      // HQ cathode, but marginal anode
-      else if (!a4 && c4)
-        return LCT_Quality::HQ_CATHODE_MARGINAL_ANODE;
-
-      // HQ muon, but accelerator ALCT
-      else if (a4 && c4) {
-        if (aLCT.getAccelerator())
-          return LCT_Quality::HQ_ACCEL_ALCT;
-
-        else {
-          // quality =  9; "reserved for HQ muons with future patterns
-          // quality = 10; "reserved for HQ muons with future patterns
-
-          // High quality muons are determined by their CLCT pattern
-          if (pattern == 2 || pattern == 3)
-            return LCT_Quality::HQ_PATTERN_2_3;
-
-          else if (pattern == 4 || pattern == 5)
-            return LCT_Quality::HQ_PATTERN_4_5;
-
-          else if (pattern == 6 || pattern == 7)
-            return LCT_Quality::HQ_PATTERN_6_7;
-
-          else if (pattern == 8 || pattern == 9)
-            return LCT_Quality::HQ_PATTERN_8_9;
-
-          else if (pattern == 10)
-            return LCT_Quality::HQ_PATTERN_10;
-
-          else {
-            edm::LogWarning("CSCMotherboard")
-                << "findQuality: Unexpected CLCT pattern id = " << pattern << " in " << theCSCName_;
-            return LCT_Quality::INVALID;
-          }
-        }
-      }
-    }
-  }
-  return LCT_Quality::INVALID;
-}
-
-// 2-bit LCT quality number for Run-3
-CSCMotherboard::LCT_QualityRun3 CSCMotherboard::findQualityRun3(const CSCALCTDigi& aLCT,
-                                                                const CSCCLCTDigi& cLCT) const {
-  // Run-3 definition
-  if (!(aLCT.isValid()) and !(cLCT.isValid())) {
-    return LCT_QualityRun3::INVALID;
-  }
-  // use number of layers on each as indicator
-  else {
-    bool a4 = (aLCT.getQuality() >= 1);
-    bool a5 = (aLCT.getQuality() >= 1);
-    bool a6 = (aLCT.getQuality() >= 1);
-
-    bool c4 = (cLCT.getQuality() >= 4);
-    bool c5 = (cLCT.getQuality() >= 4);
-    bool c6 = (cLCT.getQuality() >= 4);
-    if (a6 or c6)
-      return LCT_QualityRun3::HighQ;
-    else if (a5 or c5)
-      return LCT_QualityRun3::MedQ;
-    else if (a4 or c4)
-      return LCT_QualityRun3::LowQ;
-  }
-  return LCT_QualityRun3::INVALID;
 }
 
 void CSCMotherboard::checkConfigParameters() {
