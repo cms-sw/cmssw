@@ -143,7 +143,7 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
         "Offset_Back_Left",
         "Offset_Back_Right",
     }};
-    int sector(10); // add vector index with offset, to distinguish from subdet
+    int sector(10);  // add vector index with offset, to distinguish from subdet
     for (const auto& name : etlLayout) {
       bool found(false);
       for (auto const& it : vmap) {
@@ -175,7 +175,7 @@ void MTDParametersFromDD::putOne(int subdet, std::vector<int>& vpars, PMTDParame
   auto print_item = [&]() {
     std::stringstream ss;
     ss << item.id_ << " with " << item.vpars_.size() << " elements:";
-    for ( const auto& thePar : item.vpars_) {
+    for (const auto& thePar : item.vpars_) {
       ss << " " << thePar;
     }
     return ss.str();
