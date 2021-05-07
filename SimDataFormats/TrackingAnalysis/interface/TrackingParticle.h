@@ -189,7 +189,7 @@ public:
     return r.position().Z();
   }
 
-  /// @brief dxy parameter. (This is the transverse impact parameter w.r.t. to (0,0,0) ONLY if refPoint is close to (0,0,0)).
+  /// @brief dxy parameter. 
   double dxy() const { return (-vx() * py() + vy() * px()) / pt(); }
 
   /// @brief dxy parameter in perigee convention (d0 = -dxy)

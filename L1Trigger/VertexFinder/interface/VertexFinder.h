@@ -42,7 +42,7 @@ namespace l1tVertexFinder {
     /// Number of reconstructed vertices
     unsigned int numVertices() const { return vertices_.size(); }
     /// Reconstructed Primary Vertex
-    RecoVertex<> PrimaryVertex() const {
+    RecoVertex<> primaryVertex() const {
       if (pv_index_ < vertices_.size())
         return vertices_[pv_index_];
       else {
@@ -51,42 +51,42 @@ namespace l1tVertexFinder {
       }
     }
     /// Reconstructed Primary Vertex Id
-    unsigned int PrimaryVertexId() const { return pv_index_; }
+    unsigned int primaryVertexId() const { return pv_index_; }
     /// Storage for tracks out of the L1 Track finder
-    const FitTrackCollection& FitTracks() const { return fitTracks_; }
+    const FitTrackCollection& fitTracks() const { return fitTracks_; }
     /// Storage for tracks out of the L1 Track finder
     unsigned int numInputTracks() const { return fitTracks_.size(); }
 
     /// Find the primary vertex
-    void FindPrimaryVertex();
+    void findPrimaryVertex();
     /// Associate the primary vertex with the real one
-    void AssociatePrimaryVertex(double trueZ0);
+    void associatePrimaryVertex(double trueZ0);
     /// Gap Clustering Algorithm
-    void GapClustering();
+    void gapClustering();
     /// Find maximum distance in two clusters of tracks
-    float MaxDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
+    float maxDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
     /// Find minimum distance in two clusters of tracks
-    float MinDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
+    float minDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
     /// Find average distance in two clusters of tracks
-    float MeanDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
+    float meanDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
     /// Find distance between centres of two clusters
-    float CentralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
+    float centralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
     /// Simple Merge Algorithm
-    void AgglomerativeHierarchicalClustering();
+    void agglomerativeHierarchicalClustering();
     /// DBSCAN algorithm
     void DBSCAN();
     /// Principal Vertex Reconstructor algorithm
     void PVR();
     /// Adaptive Vertex Reconstruction algorithm
-    void AdaptiveVertexReconstruction();
+    void adaptiveVertexReconstruction();
     /// High pT Vertex Algorithm
     void HPV();
     /// Kmeans Algorithm
     void Kmeans();
     /// TDR histogramming algorithmn
-    void FastHistoLooseAssociation();
+    void fastHistoLooseAssociation();
     /// Histogramming algorithm
-    void FastHisto(const TrackerTopology* tTopo);
+    void fastHisto(const TrackerTopology* tTopo);
     /// Sort Vertices in pT
     void SortVerticesInPt() {
       std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {
@@ -100,9 +100,9 @@ namespace l1tVertexFinder {
       });
     }
     /// Number of iterations
-    unsigned int NumIterations() const { return iterations_; }
+    unsigned int numIterations() const { return iterations_; }
     /// Number of iterations
-    unsigned int IterationsPerTrack() const { return double(iterations_) / double(fitTracks_.size()); }
+    unsigned int iterationsPerTrack() const { return double(iterations_) / double(fitTracks_.size()); }
 
     template <typename ForwardIterator, typename T>
     void strided_iota(ForwardIterator first, ForwardIterator last, T value, T stride) {

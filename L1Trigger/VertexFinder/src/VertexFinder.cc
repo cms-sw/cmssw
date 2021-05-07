@@ -4,7 +4,7 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
-  void VertexFinder::GapClustering() {
+  void VertexFinder::gapClustering() {
     sort(fitTracks_.begin(), fitTracks_.end(), SortTracksByZ0());
     iterations_ = 0;
     RecoVertex Vertex;
@@ -23,7 +23,7 @@ namespace l1tVertexFinder {
     }
   }
 
-  float VertexFinder::MaxDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
+  float VertexFinder::maxDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
     float distance = 0;
     for (const L1Track* track0 : cluster0.tracks()) {
       for (const L1Track* track1 : cluster1.tracks()) {
@@ -36,7 +36,7 @@ namespace l1tVertexFinder {
     return distance;
   }
 
-  float VertexFinder::MinDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
+  float VertexFinder::minDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
     float distance = 9999;
     for (const L1Track* track0 : cluster0.tracks()) {
       for (const L1Track* track1 : cluster1.tracks()) {
@@ -49,7 +49,7 @@ namespace l1tVertexFinder {
     return distance;
   }
 
-  float VertexFinder::MeanDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
+  float VertexFinder::meanDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
     float distanceSum = 0;
 
     for (const L1Track* track0 : cluster0.tracks()) {
@@ -62,7 +62,7 @@ namespace l1tVertexFinder {
     return distance;
   }
 
-  float VertexFinder::CentralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
+  float VertexFinder::centralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
     cluster0.computeParameters(
         settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
     cluster1.computeParameters(
@@ -72,7 +72,7 @@ namespace l1tVertexFinder {
     return distance;
   }
 
-  void VertexFinder::AgglomerativeHierarchicalClustering() {
+  void VertexFinder::agglomerativeHierarchicalClustering() {
     iterations_ = 0;
 
     sort(fitTracks_.begin(), fitTracks_.end(), SortTracksByZ0());
@@ -95,13 +95,13 @@ namespace l1tVertexFinder {
 
         float M = 0;
         if (settings_->vx_distanceType() == 0)
-          M = MaxDistance(vClusters[iClust], vClusters[iClust + 1]);
+          M = maxDistance(vClusters[iClust], vClusters[iClust + 1]);
         else if (settings_->vx_distanceType() == 1)
-          M = MinDistance(vClusters[iClust], vClusters[iClust + 1]);
+          M = minDistance(vClusters[iClust], vClusters[iClust + 1]);
         else if (settings_->vx_distanceType() == 2)
-          M = MeanDistance(vClusters[iClust], vClusters[iClust + 1]);
+          M = meanDistance(vClusters[iClust], vClusters[iClust + 1]);
         else
-          M = CentralDistance(vClusters[iClust], vClusters[iClust + 1]);
+          M = centralDistance(vClusters[iClust], vClusters[iClust + 1]);
 
         if (M < MinimumScore) {
           MinimumScore = M;
@@ -257,7 +257,7 @@ namespace l1tVertexFinder {
     }
   }
 
-  void VertexFinder::AdaptiveVertexReconstruction() {
+  void VertexFinder::adaptiveVertexReconstruction() {
     bool start = true;
     iterations_ = 0;
     FitTrackCollection discardedTracks, acceptedTracks, discardedTracks2;
@@ -395,7 +395,7 @@ namespace l1tVertexFinder {
     }
   }
 
-  void VertexFinder::FindPrimaryVertex() {
+  void VertexFinder::findPrimaryVertex() {
     double vertexPt = 0;
     pv_index_ = 0;
 
@@ -407,7 +407,7 @@ namespace l1tVertexFinder {
     }
   }
 
-  void VertexFinder::AssociatePrimaryVertex(double trueZ0) {
+  void VertexFinder::associatePrimaryVertex(double trueZ0) {
     double distance = 999.;
     for (unsigned int id = 0; id < vertices_.size(); ++id) {
       if (std::abs(trueZ0 - vertices_[id].z0()) < distance) {
@@ -417,7 +417,7 @@ namespace l1tVertexFinder {
     }
   }
 
-  void VertexFinder::FastHistoLooseAssociation() {
+  void VertexFinder::fastHistoLooseAssociation() {
     float vxPt = 0.;
     RecoVertex leading_vertex;
 
@@ -439,10 +439,10 @@ namespace l1tVertexFinder {
     }
 
     vertices_.emplace_back(leading_vertex);
-    pv_index_ = 0;  // by default FastHistoLooseAssociation algorithm finds only hard PV
-  }                 // end of FastHistoLooseAssociation
+    pv_index_ = 0;  // by default fastHistoLooseAssociation algorithm finds only hard PV
+  }                 // end of fastHistoLooseAssociation
 
-  void VertexFinder::FastHisto(const TrackerTopology* tTopo) {
+  void VertexFinder::fastHisto(const TrackerTopology* tTopo) {
     // Create the histogram
     int nbins =
         std::ceil((settings_->vx_histogram_max() - settings_->vx_histogram_min()) / settings_->vx_histogram_binwidth());
@@ -469,7 +469,7 @@ namespace l1tVertexFinder {
       // Get pointers to stubs associated to the L1 track
       const auto& theStubs = track.getTTTrackPtr()->getStubRefs();
       if (theStubs.empty()) {
-        edm::LogWarning("VertexFinder") << "FastHisto::Could not retrieve the vector of stubs.";
+        edm::LogWarning("VertexFinder") << "fastHisto::Could not retrieve the vector of stubs.";
         continue;
       }
 
@@ -548,6 +548,6 @@ namespace l1tVertexFinder {
       vertices_.emplace_back(sums.at(imax));
     }
     pv_index_ = 0;
-  }  // end of FastHisto
+  }  // end of fastHisto
 
 }  // namespace l1tVertexFinder
