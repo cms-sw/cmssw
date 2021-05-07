@@ -443,10 +443,6 @@ namespace l1tVertexFinder {
                         stubTruthToken_,
                         clusterTruthToken_);
 
-    // Get the tracker geometry info needed to unpack the stub info.
-    const auto& trackerGeometry = iSetup.getData(trackerGeometryToken_);
-    const auto& trackerTopology = iSetup.getData(trackerTopologyToken_);
-
     // Fill the handles which change only once per event
     edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
     edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;

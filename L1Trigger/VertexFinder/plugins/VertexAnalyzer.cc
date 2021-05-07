@@ -424,10 +424,6 @@ namespace l1tVertexFinder {
     std::vector<L1TrackTruthMatched> l1Tracks;
     l1Tracks.reserve(l1TracksHandle->size());
     {
-      // Get the tracker geometry info needed to unpack the stub info.
-      const auto& trackerGeometry = iSetup.getData(trackerGeometryToken_);
-      const auto& trackerTopology = iSetup.getData(trackerTopologyToken_);
-
       edm::Handle<TTTrackAssMap> mcTruthTTTrackHandle;
       edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
       edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
