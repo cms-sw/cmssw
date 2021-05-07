@@ -181,6 +181,15 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     memset(nShared.get(), 0, caConstants::maxNumberOfQuadruplets * sizeof(int32_t));
     kernel_countSharedHit(nShared.get(), tuples_d, quality_d, device_hitToTuple_.get());
 
+    kernel_rejectDuplicate(nShared.get(),
+                           hh.view(),
+                           tuples_d,
+                           tracks_d,
+                           quality_d,
+                           params_.minHitsForSharingCut_,
+                           params_.dupPassThrough_,
+                           device_hitToTuple_.get());
+
     kernel_sharedHitCleaner(nShared.get(),
                             hh.view(),
                             tuples_d,
@@ -189,6 +198,14 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
                             params_.minHitsForSharingCut_,
                             params_.dupPassThrough_,
                             device_hitToTuple_.get());
+    kernel_tripletCleaner(nShared.get(),
+                          hh.view(),
+                          tuples_d,
+                          tracks_d,
+                          quality_d,
+                          params_.minHitsForSharingCut_,
+                          params_.dupPassThrough_,
+                          device_hitToTuple_.get());
   }
 
   if (params_.doStats_) {
