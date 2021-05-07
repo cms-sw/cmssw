@@ -48,12 +48,18 @@
    <![CDATA[
             hcalOverEcal[0] = onfile.hcalDepth1OverEcal;
             hcalOverEcal[1] = onfile.hcalDepth2OverEcal;
+
+            for (uint id = 2u; id < hcalOverEcal.size(); ++id)
+              hcalOverEcal[id] = 0.f;
    ]]>
   </ioread>
   <ioread sourceClass="reco::Photon::ShowerShape" version="[1-14]" source="float hcalDepth1OverEcalBc; float hcalDepth2OverEcalBc;" targetClass="reco::Photon::ShowerShape" target="hcalOverEcalBc">
    <![CDATA[
             hcalOverEcalBc[0] = onfile.hcalDepth1OverEcalBc;
             hcalOverEcalBc[1] = onfile.hcalDepth2OverEcalBc;
+
+            for (uint id = 2u; id < hcalOverEcalBc.size(); ++id)
+              hcalOverEcalBc[id] = 0.f;
    ]]>
   </ioread>
   </class>
@@ -71,12 +77,18 @@
    <![CDATA[
             hcalRecHitSumEt[0] = onfile.hcalDepth1TowerSumEt;
             hcalRecHitSumEt[1] = onfile.hcalDepth2TowerSumEt;
+
+            for (uint id = 2u; id < hcalRecHitSumEt.size(); ++id)
+              hcalRecHitSumEt[id] = 0.f;
    ]]>
   </ioread>
   <ioread sourceClass="reco::Photon::IsolationVariables" version="[1-11]" source="float hcalDepth1TowerSumEtBc; float hcalDepth2TowerSumEtBc;" targetClass="reco::Photon::IsolationVariables" target="hcalRecHitSumEtBc">
    <![CDATA[
             hcalRecHitSumEtBc[0] = onfile.hcalDepth1TowerSumEtBc;
             hcalRecHitSumEtBc[1] = onfile.hcalDepth2TowerSumEtBc;
+
+            for (uint id = 2u; id < hcalRecHitSumEtBc.size(); ++id)
+              hcalRecHitSumEtBc[id] = 0.f;
    ]]>
   </ioread>
   </class>
@@ -203,12 +215,18 @@
    <![CDATA[
             hcalOverEcal[0] = onfile.hcalDepth1OverEcal;
             hcalOverEcal[1] = onfile.hcalDepth2OverEcal;
+
+            for (uint id = 2u; id < hcalOverEcal.size(); ++id)
+              hcalOverEcal[id] = 0.f;
    ]]>
   </ioread>
   <ioread sourceClass="reco::GsfElectron::ShowerShape" version="[1-14]" source="float hcalDepth1OverEcalBc; float hcalDepth2OverEcalBc;" targetClass="reco::GsfElectron::ShowerShape" target="hcalOverEcalBc">
    <![CDATA[
             hcalOverEcalBc[0] = onfile.hcalDepth1OverEcalBc;
             hcalOverEcalBc[1] = onfile.hcalDepth2OverEcalBc;
+
+            for (uint id = 2u; id < hcalOverEcalBc.size(); ++id)
+              hcalOverEcalBc[id] = 0.f;
    ]]>
   </ioread>
   </class>
@@ -220,12 +238,18 @@
    <![CDATA[
             hcalRecHitSumEt[0] = onfile.hcalDepth1TowerSumEt;
             hcalRecHitSumEt[1] = onfile.hcalDepth2TowerSumEt;
+
+            for (uint id = 2u; id < hcalRecHitSumEt.size(); ++id)
+              hcalRecHitSumEt[id] = 0.f;
    ]]>
   </ioread>
   <ioread sourceClass="reco::GsfElectron::IsolationVariables" version="[1-11]" source="float hcalDepth1TowerSumEtBc; float hcalDepth2TowerSumEtBc;" targetClass="reco::GsfElectron::IsolationVariables" target="hcalRecHitSumEtBc">
    <![CDATA[
             hcalRecHitSumEtBc[0] = onfile.hcalDepth1TowerSumEtBc;
             hcalRecHitSumEtBc[1] = onfile.hcalDepth2TowerSumEtBc;
+
+            for (uint id = 2u; id < hcalRecHitSumEtBc.size(); ++id)
+              hcalRecHitSumEtBc[id] = 0.f;
    ]]>
   </ioread>
   </class>
