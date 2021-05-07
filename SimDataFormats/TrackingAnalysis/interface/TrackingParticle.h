@@ -189,7 +189,7 @@ public:
     return r.position().Z();
   }
 
-  /// @brief dxy parameter. 
+  /// @brief dxy parameter.
   double dxy() const { return (-vx() * py() + vy() * px()) / pt(); }
 
   /// @brief dxy parameter in perigee convention (d0 = -dxy)
