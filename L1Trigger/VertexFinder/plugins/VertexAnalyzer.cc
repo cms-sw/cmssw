@@ -504,7 +504,7 @@ namespace l1tVertexFinder {
     }
 
     // Associate true primary vertex with the closest reconstructed vertex
-    RecoVertexWithTP* RecoPrimaryVertex =
+    unique_ptr<RecoVertexWithTP> RecoPrimaryVertex
         (l1VerticesHandle->empty() ? new RecoVertexWithTP(-9999.) : recoVertices.at(primaryVertexIndex));
 
     if (settings_.debug() > 2 and numVertices > 0) {
@@ -765,8 +765,6 @@ namespace l1tVertexFinder {
 
     if (settings_.debug() > 2)
       edm::LogInfo("VertexAnalyzer") << "analyzer::================ End of Event ==============";
-
-    delete RecoPrimaryVertex;
 
     if (printResults_) {
       edm::LogInfo("VertexAnalyzer") << "analyzer::" << numVertices << " vertices were found ... ";

@@ -42,10 +42,6 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
       break;
   }
 
-  // Tame debug printout.
-  cout.setf(ios::fixed, ios::floatfield);
-  cout.precision(4);
-
   //--- Define EDM output to be written to file (if required)
   produces<l1t::VertexCollection>(outputCollectionName_);
 }
@@ -73,17 +69,17 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   switch (settings_.vx_algo()) {
     case Algorithm::FastHisto: {
       edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopologyToken_);
-      vf.FastHisto(tTopoHandle.product());
+      vf.fastHisto(tTopoHandle.product());
       break;
     }
     case Algorithm::FastHistoLooseAssociation:
-      vf.FastHistoLooseAssociation();
+      vf.fastHistoLooseAssociation();
       break;
     case Algorithm::GapClustering:
-      vf.GapClustering();
+      vf.gapClustering();
       break;
     case Algorithm::AgglomerativeHierarchical:
-      vf.AgglomerativeHierarchicalClustering();
+      vf.agglomerativeHierarchicalClustering();
       break;
     case Algorithm::DBSCAN:
       vf.DBSCAN();
@@ -92,7 +88,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       vf.PVR();
       break;
     case Algorithm::AdaptiveVertexReconstruction:
-      vf.AdaptiveVertexReconstruction();
+      vf.adaptiveVertexReconstruction();
       break;
     case Algorithm::HPV:
       vf.HPV();
@@ -103,7 +99,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   vf.SortVerticesInPt();
-  vf.FindPrimaryVertex();
+  vf.findPrimaryVertex();
 
   // //=== Store output EDM track and hardware stub collections.
   std::unique_ptr<l1t::VertexCollection> lProduct(new std::vector<l1t::Vertex>());
