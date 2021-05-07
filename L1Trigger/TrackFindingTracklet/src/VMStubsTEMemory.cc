@@ -7,7 +7,8 @@
 using namespace std;
 using namespace trklet;
 
-VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings) : MemoryBase(name, settings), bendtable_(settings) {
+VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings)
+    : MemoryBase(name, settings), bendtable_(settings) {
   //set the layer or disk that the memory is in
   initLayerDisk(6, layer_, disk_);
 
@@ -71,12 +72,12 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
   }
 
   bool pass = false;
-  if (settings_.extended()&&bendtable_.size()==0) {
-    pass = true ;
+  if (settings_.extended() && bendtable_.size() == 0) {
+    pass = true;
   } else {
     pass = bendtable_.lookup(vmstub.bend().value());
   }
-  
+
   if (!pass) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << getName() << " Stub failed bend cut. bend = "
@@ -139,12 +140,12 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
   //in that can be formed in this VM and the other VM used in the TE.
 
   bool pass = false;
-  if (settings_.extended()&&bendtable_.size()==0) {
-    pass = true ;
+  if (settings_.extended() && bendtable_.size() == 0) {
+    pass = true;
   } else {
     pass = bendtable_.lookup(vmstub.bend().value());
   }
-    
+
   if (!pass) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << getName() << " Stub failed bend cut. bend = "
@@ -273,7 +274,4 @@ void VMStubsTEMemory::getPhiRange(double& phimin, double& phimax, unsigned int i
   return;
 }
 
-void VMStubsTEMemory::setbendtable(const TrackletLUT& bendtable) {
-  bendtable_ = bendtable;
-}
-
+void VMStubsTEMemory::setbendtable(const TrackletLUT& bendtable) { bendtable_ = bendtable; }

@@ -15,8 +15,8 @@
 using namespace std;
 using namespace trklet;
 
-MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global) : ProcessBase(name, settings, global),
-										   luttable_(settings) {
+MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global)
+    : ProcessBase(name, settings, global), luttable_(settings) {
   layerdisk_ = initLayerDisk(3);
 
   barrel_ = layerdisk_ < N_LAYER;
@@ -24,7 +24,6 @@ MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global)
   luttable_.initBendMatch(layerdisk_);
 
   nrinv_ = NRINVBITS;
-
 }
 
 void MatchEngine::addOutput(MemoryBase* memory, string output) {
@@ -236,8 +235,8 @@ void MatchEngine::execute() {
       bool passphi = (std::abs(deltaphi) < mindeltaphicut) || (std::abs(deltaphi) > maxdeltaphicut);
 
       unsigned int index = (projrinv << nbits) + vmstub.bend().value();
-      if (!barrel_&&isPSmodule) {
-	index += (1 << (nrinv_ + N_BENDBITS_2S));
+      if (!barrel_ && isPSmodule) {
+        index += (1 << (nrinv_ + N_BENDBITS_2S));
       }
 
       //Check if stub z position consistent
