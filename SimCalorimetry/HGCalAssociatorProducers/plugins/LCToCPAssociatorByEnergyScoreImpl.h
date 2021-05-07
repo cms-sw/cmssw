@@ -44,9 +44,9 @@ namespace hgcal {
   typedef std::tuple<layerClusterToCaloParticle, caloParticleToLayerCluster> association;
 }  // namespace hgcal
 
-class LayerClusterAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToCaloParticleAssociatorBaseImpl {
+class LCToCPAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToCaloParticleAssociatorBaseImpl {
 public:
-  explicit LayerClusterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
+  explicit LCToCPAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                                    bool,
                                                    std::shared_ptr<hgcal::RecHitTools>,
                                                    const std::unordered_map<DetId, const HGCRecHit *> *&);
