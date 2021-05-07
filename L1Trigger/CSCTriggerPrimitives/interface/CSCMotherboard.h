@@ -122,6 +122,9 @@ protected:
   static const unsigned int def_match_trig_enable, def_match_trig_window_size;
   static const unsigned int def_tmb_l1a_window_size;
 
+  /* quality assignment */
+  std::unique_ptr<LCTQualityAssignment> qualityAssignment_;
+
   /* quality control */
   std::unique_ptr<LCTQualityControl> qualityControl_;
 
@@ -140,37 +143,6 @@ protected:
 
   // CLCT pattern number: encodes the pattern number itself
   unsigned int encodePattern(const int clctPattern) const;
-
-  // 4-bit LCT quality number.Made by TMB lookup tables and used for MPC sorting.
-  enum class LCT_Quality : unsigned int {
-    INVALID = 0,
-    NO_CLCT = 1,
-    NO_ALCT = 2,
-    CLCT_LAYER_TRIGGER = 3,
-    LOW_QUALITY = 4,
-    MARGINAL_ANODE_CATHODE = 5,
-    HQ_ANODE_MARGINAL_CATHODE = 6,
-    HQ_CATHODE_MARGINAL_ANODE = 7,
-    HQ_ACCEL_ALCT = 8,
-    HQ_RESERVED_1 = 9,
-    HQ_RESERVED_2 = 10,
-    HQ_PATTERN_2_3 = 11,
-    HQ_PATTERN_4_5 = 12,
-    HQ_PATTERN_6_7 = 13,
-    HQ_PATTERN_8_9 = 14,
-    HQ_PATTERN_10 = 15
-  };
-
-  enum class LCT_QualityRun3 : unsigned int {
-    INVALID = 0,
-    LowQ = 1,
-    MedQ = 2,
-    HighQ = 3,
-  };
-
-  LCT_Quality findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
-
-  LCT_QualityRun3 findQualityRun3(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
