@@ -24,8 +24,8 @@ namespace l1tVertexFinder {
                        const AnalysisSettings& settings,
                        const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken,
                        const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken,
- 		       edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_,
-    		       edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_,
+                       edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_,
+                       edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_,
                        const edm::EDGetTokenT<TrackingParticleCollection> tpToken,
                        const edm::EDGetTokenT<DetSetVec> stubToken,
                        const edm::EDGetTokenT<TTStubAssMap> stubTruthToken,
@@ -71,13 +71,13 @@ namespace l1tVertexFinder {
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
     iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
     const TrackerTopology* trackerTopology = trackerTopologyHandle.product();*/
-//        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("",""))),
-//        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("",""))),
+    //        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("",""))),
+    //        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("",""))),
 
-    const auto &trackerGeometry_ = iSetup.getData(trackerGeometryToken_);
-    const auto &trackerTopology_ = iSetup.getData(trackerTopologyToken_);
+    const auto& trackerGeometry_ = iSetup.getData(trackerGeometryToken_);
+    const auto& trackerTopology_ = iSetup.getData(trackerTopologyToken_);
     const TrackerGeometry* trackerGeometry = &trackerGeometry_;
-    const TrackerTopology* trackerTopology= &trackerTopology_;
+    const TrackerTopology* trackerTopology = &trackerTopology_;
 
     // Get stub info, by looping over modules and then stubs inside each module.
     // Also get the association map from stubs to tracking particles.
