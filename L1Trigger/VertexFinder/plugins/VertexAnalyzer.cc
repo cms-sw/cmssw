@@ -161,8 +161,8 @@ namespace l1tVertexFinder {
         clusterTruthInputTag(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
         l1TracksToken_(consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
         l1VerticesToken_(consumes<std::vector<l1t::Vertex>>(iConfig.getParameter<edm::InputTag>("l1VerticesInputTag"))),
-        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("",""))),
-        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("",""))),
+        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("", ""))),
+        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
         printResults_(iConfig.getParameter<bool>("printResults")),
         settings_(iConfig) {
     // Configure TH1 for plotting
@@ -411,8 +411,8 @@ namespace l1tVertexFinder {
                         settings_,
                         hepMCInputTag,
                         genParticleInputTag,
-			trackerGeometryToken_,
-			trackerTopologyToken_,
+                        trackerGeometryToken_,
+                        trackerTopologyToken_,
                         tpInputTag,
                         stubInputTag,
                         stubTruthInputTag,
@@ -425,8 +425,8 @@ namespace l1tVertexFinder {
     l1Tracks.reserve(l1TracksHandle->size());
     {
       // Get the tracker geometry info needed to unpack the stub info.
-      const auto &trackerGeometry = iSetup.getData(trackerGeometryToken_);
-      const auto &trackerTopology = iSetup.getData(trackerTopologyToken_);
+      const auto& trackerGeometry = iSetup.getData(trackerGeometryToken_);
+      const auto& trackerTopology = iSetup.getData(trackerTopologyToken_);
 
       edm::Handle<TTTrackAssMap> mcTruthTTTrackHandle;
       edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
@@ -509,8 +509,8 @@ namespace l1tVertexFinder {
     }
 
     // Associate true primary vertex with the closest reconstructed vertex
-    unique_ptr<RecoVertexWithTP> RecoPrimaryVertex
-        (l1VerticesHandle->empty() ? new RecoVertexWithTP(-9999.) : recoVertices.at(primaryVertexIndex));
+    unique_ptr<RecoVertexWithTP> RecoPrimaryVertex(l1VerticesHandle->empty() ? new RecoVertexWithTP(-9999.)
+                                                                             : recoVertices.at(primaryVertexIndex));
 
     if (settings_.debug() > 2 and numVertices > 0) {
       edm::LogInfo("VertexAnalyzer") << "analyzer::Num Found Vertices " << numVertices

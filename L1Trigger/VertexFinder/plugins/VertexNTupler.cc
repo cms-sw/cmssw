@@ -218,8 +218,8 @@ namespace l1tVertexFinder {
         stubTruthToken_(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
         clusterTruthToken_(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
         genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJetsInputTag"))),
-        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("",""))),
-        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("",""))),
+        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("", ""))),
+        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
         outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
         printResults_(iConfig.getParameter<bool>("printResults")),
         settings_(iConfig) {
@@ -444,8 +444,8 @@ namespace l1tVertexFinder {
                         clusterTruthToken_);
 
     // Get the tracker geometry info needed to unpack the stub info.
-    const auto &trackerGeometry = iSetup.getData(trackerGeometryToken_);
-    const auto &trackerTopology = iSetup.getData(trackerTopologyToken_);
+    const auto& trackerGeometry = iSetup.getData(trackerGeometryToken_);
+    const auto& trackerTopology = iSetup.getData(trackerTopologyToken_);
 
     // Fill the handles which change only once per event
     edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
