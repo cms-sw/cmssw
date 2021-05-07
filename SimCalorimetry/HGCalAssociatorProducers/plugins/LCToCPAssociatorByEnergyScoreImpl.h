@@ -47,9 +47,9 @@ namespace hgcal {
 class LCToCPAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToCaloParticleAssociatorBaseImpl {
 public:
   explicit LCToCPAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
-                                                   bool,
-                                                   std::shared_ptr<hgcal::RecHitTools>,
-                                                   const std::unordered_map<DetId, const HGCRecHit *> *);
+                                             bool,
+                                             std::shared_ptr<hgcal::RecHitTools>,
+                                             const std::unordered_map<DetId, const HGCRecHit *> *);
 
   hgcal::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
                                                 const edm::Handle<CaloParticleCollection> &cPCH) const override;
