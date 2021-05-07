@@ -58,7 +58,7 @@ namespace trklet {
     TrackletLUT rphicut2Stable_;
     TrackletLUT rcutPStable_;
     TrackletLUT rcut2Stable_;
-    
+
     int nrbits_;
     int nphiderbits_;
 
@@ -77,7 +77,7 @@ namespace trklet {
 
     //LUT for bend consistency
     TrackletLUT luttable_;
-    
+
     double phimin_;
 
     unsigned int nMatchEngines_;
