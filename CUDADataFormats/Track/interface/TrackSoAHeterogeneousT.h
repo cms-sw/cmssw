@@ -1,14 +1,23 @@
 #ifndef CUDADataFormats_Track_TrackHeterogeneousT_H
 #define CUDADataFormats_Track_TrackHeterogeneousT_H
 
+#include <string>
+#include <algorithm>
+
 #include "CUDADataFormats/Track/interface/TrajectoryStateSoAT.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 
 #include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
 
 namespace pixelTrack {
-  enum class Quality : uint8_t { bad = 0, dup, loose, strict, tight, highPurity };
-}
+  constexpr uint32_t qualitySize{7};
+  enum class Quality : uint8_t { bad = 0, edup, dup, loose, strict, tight, highPurity, notQuality = qualitySize };
+  const std::string qualityName[qualitySize]{"bad", "edup", "dup", "loose", "strict", "tight", "highPurity"};
+  inline Quality qualityByName(std::string const &name) {
+    auto qp = std::find(qualityName, qualityName + qualitySize, name) - qualityName;
+    return static_cast<Quality>(qp);
+  }
+}  // namespace pixelTrack
 
 template <int32_t S>
 class TrackSoAHeterogeneousT {
