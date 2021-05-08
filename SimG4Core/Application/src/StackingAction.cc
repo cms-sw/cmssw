@@ -171,8 +171,8 @@ StackingAction::~StackingAction() { delete newTA; }
 G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
   // G4 interface part
   G4ClassificationOfNewTrack classification = fUrgent;
-  int pdg = aTrack->GetDefinition()->GetPDGEncoding();
-  int abspdg = std::abs(pdg);
+  const int pdg = aTrack->GetDefinition()->GetPDGEncoding();
+  const int abspdg = std::abs(pdg);
 
   // primary
   if (aTrack->GetCreatorProcess() == nullptr || aTrack->GetParentID() == 0) {
@@ -208,13 +208,13 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
 
     } else {
       // potentially good for tracking
-      double ke = aTrack->GetKineticEnergy();
+      const double ke = aTrack->GetKineticEnergy();
 
       // kill tracks in specific regions
-      if (classification != fKill && isThisRegion(reg, deadRegions)) {
+      if (isThisRegion(reg, deadRegions)) {
         classification = fKill;
       }
-      if (ke <= limitEnergyForVacuum && isThisRegion(reg, lowdensRegions)) {
+      if (classification != fKill && ke <= limitEnergyForVacuum && isThisRegion(reg, lowdensRegions)) {
         classification = fKill;
 
       } else {
@@ -346,14 +346,14 @@ void StackingAction::PrepareNewEvent() {}
 
 void StackingAction::initPointer() {
   // prepare region vector
-  unsigned int num = maxTimeNames.size();
+  const unsigned int num = maxTimeNames.size();
   maxTimeRegions.resize(num, nullptr);
 
   // Russian roulette
-  std::vector<G4Region*>* rs = G4RegionStore::GetInstance();
+  const std::vector<G4Region*>* rs = G4RegionStore::GetInstance();
 
   for (auto& reg : *rs) {
-    G4String rname = reg->GetName();
+    const G4String& rname = reg->GetName();
     if ((gRusRoEcal < 1.0 || nRusRoEcal < 1.0) && rname == "EcalRegion") {
       regionEcal = reg;
     }
@@ -434,8 +434,8 @@ bool StackingAction::rrApplicable(const G4Track* aTrack, const G4Track& mother) 
   const TrackInformation& motherInfo(extractor(mother));
 
   // Check whether mother is gamma, e+, e-
-  int genID = motherInfo.genParticlePID();
-  return (22 == genID || 11 == genID || -11 == genID) ? false : true;
+  const int genID = std::abs(motherInfo.genParticlePID());
+  return (22 != genID && 11 != genID);
 }
 
 int StackingAction::isItFromPrimary(const G4Track& mother, int flagIn) const {
@@ -457,7 +457,7 @@ bool StackingAction::isItOutOfTimeWindow(const G4Region* reg, const G4Track* aTr
       break;
     }
   }
-  return (aTrack->GetGlobalTime() > tofM) ? true : false;
+  return (aTrack->GetGlobalTime() > tofM);
 }
 
 void StackingAction::printRegions(const std::vector<const G4Region*>& reg, const std::string& word) const {
