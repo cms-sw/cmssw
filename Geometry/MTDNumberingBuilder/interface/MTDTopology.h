@@ -40,6 +40,9 @@ private:
   const int mtdTopologyMode_;
 
   const ETLValues etlVals_;
+
+  static constexpr size_t failIndex_ =
+      std::numeric_limits<unsigned int>::max();  // return out-of-range value for any failure
 };
 
 #endif

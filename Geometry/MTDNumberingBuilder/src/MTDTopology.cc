@@ -18,14 +18,11 @@ bool MTDTopology::orderETLSector(const GeomDet*& gd1, const GeomDet*& gd2) {
 }
 
 size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) const {
-  static constexpr size_t failIndex(
-      std::numeric_limits<unsigned int>::max());  // return out-of-range value for any failure
-
   ETLDetId start_mod(detid);
 
   if (horizontalShift == 0) {
     edm::LogWarning("MTDTopology") << "asking of a null horizotalShift in ETL";
-    return failIndex;
+    return failIndex_;
   }
   int hsh = horizontalShift > 0 ? 1 : -1;
 
@@ -53,18 +50,17 @@ size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) c
     }
   }
 
-  return failIndex;
+  return failIndex_;
 }
 
 size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, size_t& closest) const {
-  size_t failIndex(std::numeric_limits<unsigned int>::max());  // return out-of-range value for any failure
-  closest = failIndex;
+  closest = failIndex_;
 
   ETLDetId start_mod(detid);
 
   if (verticalShift == 0) {
     edm::LogWarning("MTDTopology") << "asking of a null verticalShift in ETL";
-    return failIndex;
+    return failIndex_;
   }
   int vsh = verticalShift > 0 ? 1 : -1;
 
@@ -94,7 +90,7 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, siz
 
   if (iBin == etlVals_[discside].start_copy_[iHome].size()) {
     edm::LogWarning("MTDTopology") << "Module number not compatible with layout, abort";
-    return failIndex;
+    return failIndex_;
   }
 
   // define the interval of interest for the other type according to the vertical shift sign
@@ -107,7 +103,7 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, siz
     iBinOther = iBin + 1;
   }
   if (iBinOther < 0 || iBinOther >= static_cast<int>(etlVals_[discside].start_copy_[iOther].size()) - 1) {
-    return failIndex;
+    return failIndex_;
   }
 
   // determine the position of the other type corresponding to the same column of the home type
@@ -124,9 +120,9 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, siz
               iBinOther + 1 == static_cast<int>(etlVals_[discside].start_copy_[iOther].size()))) {
     closest = etlVals_[discside].start_copy_[iOther][iBinOther + 1] - 1;
   }
-  if (closest < failIndex) {
+  if (closest < failIndex_) {
     closest = closest + nmodOffset - 1;
-    return failIndex;
+    return failIndex_;
   } else {
     // number of module shifted by 1 wrt the position in the array (i.e. module 1 has index 0)
     return etlVals_[discside].start_copy_[iOther][iBinOther] + vpos - 1 -
