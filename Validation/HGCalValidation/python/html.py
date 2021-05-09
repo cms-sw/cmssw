@@ -144,21 +144,20 @@ summhitvalid = [
                           
 #Plots to keep in summary from layer clusters
 summlc = [
-    'hgcalLayerClusters_zminus/Efficiencies_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zplus/Efficiencies_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zminus/Duplicates_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zplus/Duplicates_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zminus/FakeRate_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zplus/FakeRate_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zminus/MergeRate_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zplus/MergeRate_vs_layer/globalEfficiencies.png',
+    'hgcalLayerClusters_Z-minus: LC_CP association/Efficiencies_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-plus: LC_CP association/Efficiencies_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-minus: LC_CP association/Duplicates_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-plus: LC_CP association/Duplicates_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-minus: LC_CP association/FakeRate_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-plus: LC_CP association/FakeRate_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-minus: LC_CP association/MergeRate_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-plus: LC_CP association/MergeRate_vs_layer/globalEfficiencies.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_num_caloparticle_eta.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_caloparticle_pt.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_caloparticle_phi.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_caloparticle_energy.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_Eta vs Zorigin.png'
     ]
-                          
 
 #Plots to keep in summary from ticlMultiClustersFromTrackstersEM
 summmcEM = [
