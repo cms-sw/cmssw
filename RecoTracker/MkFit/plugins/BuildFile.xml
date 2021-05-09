@@ -12,7 +12,6 @@
   <use name="FWCore/ParameterSet"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
-  <use name="RecoTracker/MeasurementDet"/>
   <use name="RecoTracker/MkFit"/>
   <use name="RecoTracker/TkDetLayers"/>
   <use name="RecoTracker/TransientTrackingRecHit"/>
