@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"             // edm::ParameterSet
 #include "DataFormats/Provenance/interface/ProductID.h"             // edm::ProductID
 #include "L1Trigger/Phase2L1Taus/interface/L1HPSPFTauQualityCut.h"  // L1HPSPFTauQualityCut
-#include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"          // l1t::HPSPFTau
+#include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"         // l1t::HPSPFTau
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"  // l1t::PFCandidate, l1t::PFCandidateCollection, l1t::PFCandidateRef
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"

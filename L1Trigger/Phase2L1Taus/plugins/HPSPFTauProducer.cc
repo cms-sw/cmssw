@@ -33,7 +33,7 @@ HPSPFTauProducer::HPSPFTauProducer(const edm::ParameterSet& cfg)
     tokenL1Jets_ = consumes<std::vector<reco::CaloJet>>(srcL1Jets_);
   }
   srcL1Vertices_ = cfg.getParameter<edm::InputTag>("srcL1Vertices");
-  if (srcL1Vertices_.label() != "") {
+  if (!srcL1Vertices_.label().empty()) {
     tokenL1Vertices_ = consumes<std::vector<l1t::TkPrimaryVertex>>(srcL1Vertices_);
   }
   deltaR2Cleaning_ = deltaRCleaning_ * deltaRCleaning_;
@@ -64,10 +64,10 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   l1t::TkPrimaryVertexRef primaryVertex;
   float primaryVertex_z = 0.;
-  if (srcL1Vertices_.label() != "") {
+  if (!srcL1Vertices_.label().empty()) {
     edm::Handle<std::vector<l1t::TkPrimaryVertex>> vertices;
     evt.getByToken(tokenL1Vertices_, vertices);
-    if (vertices->size() > 0) {
+    if (!vertices->->empty()) {
       primaryVertex = l1t::TkPrimaryVertexRef(vertices, 0);
       primaryVertex_z = primaryVertex->zvertex();
     }
@@ -75,7 +75,7 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   if (debug_) {
     std::cout << "BEFORE selection:" << std::endl;
-    for (auto l1PFCand : *l1PFCands) {
+    for (const auto& l1PFCand : *l1PFCands) {
       printPFCand(std::cout, l1PFCand, primaryVertex_z);
     }
   }
@@ -104,7 +104,7 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   if (debug_) {
     std::cout << "AFTER selection (signalQualityCuts):" << std::endl;
-    for (auto l1PFCand : selectedL1PFCandsSignalQualityCuts) {
+    for (const auto& l1PFCand : selectedL1PFCandsSignalQualityCuts) {
       printPFCand(std::cout, *l1PFCand, primaryVertex_z);
     }
   }
@@ -112,7 +112,7 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   l1t::HPSPFTauCollection l1PFTauCollectionUncleaned;
 
   if (useChargedPFCandSeeds_) {
-    for (auto l1PFCand : selectedL1PFCandsSignalQualityCuts) {
+    for (const auto& l1PFCand : selectedL1PFCandsSignalQualityCuts) {
       if (l1PFCand->charge() != 0 && l1PFCand->pt() > minSeedChargedPFCandPt_ &&
           std::fabs(l1PFCand->eta()) < maxSeedChargedPFCandEta_) {
         bool isFromPrimaryVertex = false;
@@ -173,12 +173,12 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     }
   }
 
-  for (auto l1PFTau : l1PFTauCollectionUncleaned) {
+  for (const auto& l1PFTau : l1PFTauCollectionUncleaned) {
     if (applyPreselection_ &&
         !(l1PFTau.pt() > minPFTauPt_ && std::fabs(l1PFTau.eta()) < maxPFTauEta_ &&
           l1PFTau.leadChargedPFCand().isNonnull() && l1PFTau.leadChargedPFCand()->pt() > minLeadChargedPFCandPt_ &&
           std::fabs(l1PFTau.leadChargedPFCand()->eta()) < maxLeadChargedPFCandEta_ &&
-          (srcL1Vertices_.label() == "" ||
+          (srcL1Vertices_.label().empty() ||
            (primaryVertex.isNonnull() && l1PFTau.leadChargedPFCand()->pfTrack().isNonnull() &&
             std::fabs(l1PFTau.leadChargedPFCand()->pfTrack()->vertex().z() - primaryVertex->zvertex()) <
                 maxLeadChargedPFCandDz_)) &&
@@ -186,7 +186,7 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       continue;
 
     bool isOverlap = false;
-    for (auto l1PFTau2 : *l1PFTauCollectionCleaned) {
+    for (const auto& l1PFTau2 : *l1PFTauCollectionCleaned) {
       double deltaEta = l1PFTau.eta() - l1PFTau2.eta();
       double deltaPhi = l1PFTau.phi() - l1PFTau2.phi();
       if ((deltaEta * deltaEta + deltaPhi * deltaPhi) < deltaR2Cleaning_) {
@@ -209,12 +209,10 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   evt.put(std::move(l1PFTauCollectionCleaned));
 }
 
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-void
-HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // HPSPFTauProducerPF
   edm::ParameterSetDescription desc;
   desc.add<bool>("useJetSeeds", true);
@@ -256,7 +254,7 @@ HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<double>("minSeedJetPt", 30.0);
   desc.add<double>("maxChargedRelIso", 1.0);
   desc.add<double>("minSeedChargedPFCandPt", 5.0);
-  desc.add<edm::InputTag>("srcL1PFCands", edm::InputTag("l1pfCandidates","PF"));
+  desc.add<edm::InputTag>("srcL1PFCands", edm::InputTag("l1pfCandidates", "PF"));
   desc.add<double>("stripSizeEta", 0.05);
   desc.add<double>("maxLeadChargedPFCandEta", 2.4);
   desc.add<double>("deltaRCleaning", 0.4);
@@ -304,14 +302,13 @@ HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<double>("maxLeadChargedPFCandDz", 1000.0);
   desc.add<double>("maxSeedJetEta", 2.4);
   desc.add<std::string>("signalConeSize", "2.8/max(1., pt)");
-  desc.add<edm::InputTag>("srcL1Jets", edm::InputTag("Phase1L1TJetProducer","UncalibratedPhase1L1TJetFromPfCandidates"));
+  desc.add<edm::InputTag>("srcL1Jets",
+                          edm::InputTag("Phase1L1TJetProducer", "UncalibratedPhase1L1TJetFromPfCandidates"));
   desc.addUntracked<bool>("debug", false);
   desc.add<double>("maxPFTauEta", 2.4);
   desc.add<double>("maxSignalConeSize", 0.1);
   descriptions.addWithDefaultLabel(desc);
 }
-
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HPSPFTauProducer);
