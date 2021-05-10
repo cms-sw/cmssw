@@ -398,117 +398,26 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
   bool useTempErrors =
       useErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
 
-  if LIKELY (useTempErrors) {
-    //
-    // Use template errors
+  // from PixelCPEGenericBase
+  setXYErrors(xerr, yerr, edgex, edgey, sizex, sizey, bigInX, bigInY, useTempErrors, theDetParam, theClusterParam);
 
-    if (!edgex) {  // Only use this for non-edge clusters
-      if (sizex == 1) {
-        if (!bigInX) {
-          xerr = theClusterParam.sx1;
-        } else {
-          xerr = theClusterParam.sx2;
-        }
-      } else {
-        xerr = theClusterParam.sigmax;
-      }
+  if (!useTempErrors && inflate_errors) {
+    int n_bigx = 0;
+    int n_bigy = 0;
+
+    for (int irow = 0; irow < 7; ++irow) {
+      if (theDetParam.theRecTopol->isItBigPixelInX(irow + minPixelRow))
+        ++n_bigx;
     }
 
-    if (!edgey) {  // Only use for non-edge clusters
-      if (sizey == 1) {
-        if (!bigInY) {
-          yerr = theClusterParam.sy1;
-        } else {
-          yerr = theClusterParam.sy2;
-        }
-      } else {
-        yerr = theClusterParam.sigmay;
-      }
+    for (int icol = 0; icol < 21; ++icol) {
+      if (theDetParam.theRecTopol->isItBigPixelInY(icol + minPixelCol))
+        ++n_bigy;
     }
 
-    if (localPrint) {
-      cout << " in if " << edgex << " " << edgey << " " << sizex << " " << sizey << endl;
-      cout << " errors  " << xerr << " " << yerr << " " << theClusterParam.sx1 << " " << theClusterParam.sx2 << " "
-           << theClusterParam.sigmax << endl;  //dk
-    }
-  } else {  // simple errors
-
-    // This are the simple errors, hardcoded in the code
-    //cout << "Track angles are not known " << endl;
-    //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
-
-    if (GeomDetEnumerators::isTrackerPixel(theDetParam.thePart)) {
-      if (GeomDetEnumerators::isBarrel(theDetParam.thePart)) {
-        DetId id = (theDetParam.theDet->geographicalId());
-        int layer = ttopo_.layer(id);
-        if (layer == 1) {
-          if (!edgex) {
-            if (sizex <= xerr_barrel_l1_.size())
-              xerr = xerr_barrel_l1_[sizex - 1];
-            else
-              xerr = xerr_barrel_l1_def_;
-          }
-
-          if (!edgey) {
-            if (sizey <= yerr_barrel_l1_.size())
-              yerr = yerr_barrel_l1_[sizey - 1];
-            else
-              yerr = yerr_barrel_l1_def_;
-          }
-        } else {  // layer 2,3
-          if (!edgex) {
-            if (sizex <= xerr_barrel_ln_.size())
-              xerr = xerr_barrel_ln_[sizex - 1];
-            else
-              xerr = xerr_barrel_ln_def_;
-          }
-
-          if (!edgey) {
-            if (sizey <= yerr_barrel_ln_.size())
-              yerr = yerr_barrel_ln_[sizey - 1];
-            else
-              yerr = yerr_barrel_ln_def_;
-          }
-        }
-
-      } else {  // EndCap
-
-        if (!edgex) {
-          if (sizex <= xerr_endcap_.size())
-            xerr = xerr_endcap_[sizex - 1];
-          else
-            xerr = xerr_endcap_def_;
-        }
-
-        if (!edgey) {
-          if (sizey <= yerr_endcap_.size())
-            yerr = yerr_endcap_[sizey - 1];
-          else
-            yerr = yerr_endcap_def_;
-        }
-      }  // end endcap
-    }
-
-    if (inflate_errors) {
-      int n_bigx = 0;
-      int n_bigy = 0;
-
-      for (int irow = 0; irow < 7; ++irow) {
-        if (theDetParam.theRecTopol->isItBigPixelInX(irow + minPixelRow))
-          ++n_bigx;
-      }
-
-      for (int icol = 0; icol < 21; ++icol) {
-        if (theDetParam.theRecTopol->isItBigPixelInY(icol + minPixelCol))
-          ++n_bigy;
-      }
-
-      xerr = (float)(sizex + n_bigx) * theDetParam.thePitchX / std::sqrt(12.0f);
-      yerr = (float)(sizey + n_bigy) * theDetParam.thePitchY / std::sqrt(12.0f);
-
-    }  // if(inflate_errors)
-
-  }  // end
+    xerr = (float)(sizex + n_bigx) * theDetParam.thePitchX / std::sqrt(12.0f);
+    yerr = (float)(sizey + n_bigy) * theDetParam.thePitchY / std::sqrt(12.0f);
+  }
 
 #ifdef EDM_ML_DEBUG
   if (!(xerr > 0.0))
