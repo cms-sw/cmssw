@@ -39,7 +39,6 @@ MTDRecHitContainer MTDDetLayerMeasurements::recHits(const GeomDet* geomDet, cons
   LogDebug("MTDDetLayerMeasurements") << "(MTD): " << static_cast<MTDDetId>(detId) << std::endl;
 
   // Get the MTD-Segment which relies on this chamber
-  //auto cmp = [](const unsigned one, const unsigned two) -> bool { return one < two; };
   auto detset = (*theMTDRecHits)[detId];
 
   for (const auto& rechit : detset)
@@ -61,8 +60,16 @@ void MTDDetLayerMeasurements::checkMTDRecHits() {
   }
   if (!theMTDRecHits.isValid()) {
     throw cms::Exception("MTDDetLayerMeasurements") << "Cannot get MTD RecHits";
-    LogDebug("MTDDetLayerMeasurements") << "Cannot get MTD RecHits";
   }
+}
+
+template <class T>
+T MTDDetLayerMeasurements::sortResult(T& result) {
+  if (!result.empty()) {
+    sort(result.begin(), result.end(), TrajMeasLessEstim());
+  }
+
+  return result;
 }
 
 ///measurements method if already got the Event
@@ -81,7 +88,7 @@ MeasurementContainer MTDDetLayerMeasurements::measurements(const DetLayer* layer
                                                            const edm::Event& iEvent) {
   MeasurementContainer result;
 
-  std::vector<DetWithState> dss = layer->compatibleDets(startingState, prop, est);
+  const auto& dss = layer->compatibleDets(startingState, prop, est);
   LogDebug("MTDDetLayerMeasurements") << "compatibleDets: " << dss.size() << std::endl;
 
   for (const auto& dws : dss) {
@@ -89,10 +96,7 @@ MeasurementContainer MTDDetLayerMeasurements::measurements(const DetLayer* layer
     result.insert(result.end(), detMeasurements.begin(), detMeasurements.end());
   }
 
-  if (!result.empty())
-    sort(result.begin(), result.end(), TrajMeasLessEstim());
-
-  return result;
+  return sortResult(result);
 }
 
 MeasurementContainer MTDDetLayerMeasurements::measurements(const DetLayer* layer,
@@ -106,18 +110,15 @@ MeasurementContainer MTDDetLayerMeasurements::measurements(const DetLayer* layer
   MTDRecHitContainer mtdRecHits = recHits(det, iEvent);
 
   // Create the Trajectory Measurement
-  for (auto rechit = mtdRecHits.begin(); rechit != mtdRecHits.end(); ++rechit) {
-    MeasurementEstimator::HitReturnType estimate = est.estimate(stateOnDet, **rechit);
-    LogDebug("RecoMTD") << "Dimension: " << (*rechit)->dimension() << " Chi2: " << estimate.second << std::endl;
+  for (const auto& rechit : mtdRecHits) {
+    MeasurementEstimator::HitReturnType estimate = est.estimate(stateOnDet, *rechit);
+    LogDebug("RecoMTD") << "Dimension: " << rechit->dimension() << " Chi2: " << estimate.second << std::endl;
     if (estimate.first) {
-      result.push_back(TrajectoryMeasurement(stateOnDet, *rechit, estimate.second, layer));
+      result.push_back(TrajectoryMeasurement(stateOnDet, rechit, estimate.second, layer));
     }
   }
 
-  if (!result.empty())
-    sort(result.begin(), result.end(), TrajMeasLessEstim());
-
-  return result;
+  return sortResult(result);
 }
 
 MeasurementContainer MTDDetLayerMeasurements::fastMeasurements(const DetLayer* layer,
@@ -128,18 +129,14 @@ MeasurementContainer MTDDetLayerMeasurements::fastMeasurements(const DetLayer* l
                                                                const edm::Event& iEvent) {
   MeasurementContainer result;
   MTDRecHitContainer rhs = recHits(layer, iEvent);
-  for (const MTDRecHitContainer::value_type& irh : rhs) {
+  for (const auto& irh : rhs) {
     MeasurementEstimator::HitReturnType estimate = est.estimate(theStateOnDet, (*irh));
     if (estimate.first) {
       result.push_back(TrajectoryMeasurement(theStateOnDet, irh, estimate.second, layer));
     }
   }
 
-  if (!result.empty()) {
-    sort(result.begin(), result.end(), TrajMeasLessEstim());
-  }
-
-  return result;
+  return sortResult(result);
 }
 
 ///fastMeasurements method if already got the Event
@@ -180,10 +177,7 @@ std::vector<TrajectoryMeasurementGroup> MTDDetLayerMeasurements::groupedMeasurem
       groupMeasurements.insert(groupMeasurements.end(), detMeasurements.begin(), detMeasurements.end());
     }
 
-    if (!groupMeasurements.empty())
-      std::sort(groupMeasurements.begin(), groupMeasurements.end(), TrajMeasLessEstim());
-
-    result.push_back(TrajectoryMeasurementGroup(groupMeasurements, grp));
+    result.push_back(TrajectoryMeasurementGroup(sortResult(groupMeasurements), grp));
   }
 
   return result;
