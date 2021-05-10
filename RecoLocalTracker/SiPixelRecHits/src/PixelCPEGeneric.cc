@@ -90,30 +90,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
       cout << " Use simple parametrised errors " << endl;
   }  // if ( useErrorsFromTemplates_ )
 
-  // Rechit errors in case other, more correct, errors are not vailable
-  if (isUpgrade_) {
-    xerr_barrel_ln_ = {0.00025, 0.00030, 0.00035, 0.00035};
-    xerr_barrel_ln_def_ = 0.00035;
-    yerr_barrel_ln_ = {0.00210, 0.00115, 0.00125};
-    yerr_barrel_ln_def_ = 0.00125;
-    xerr_endcap_ = {0.00072, 0.00025};
-    xerr_endcap_def_ = 0.00060;
-    yerr_endcap_ = {0.00289, 0.00025};
-    yerr_endcap_def_ = 0.00180;
-
-    if (conf.getParameter<bool>("SmallPitch")) {
-      xerr_barrel_l1_ = {0.00104, 0.000691, 0.00122};
-      xerr_barrel_l1_def_ = 0.00321;
-      yerr_barrel_l1_ = {0.00199, 0.00136, 0.0015, 0.00153, 0.00152, 0.00171, 0.00154, 0.00157, 0.00154};
-      yerr_barrel_l1_def_ = 0.00164;
-    } else {
-      xerr_barrel_l1_ = {0.00025, 0.00030, 0.00035, 0.00035};
-      xerr_barrel_l1_def_ = 0.00035;
-      yerr_barrel_l1_ = {0.00210, 0.00115, 0.00125};
-      yerr_barrel_l1_def_ = 0.00125;
-    }
-  }  // if isUpgrade
-
   if (MYDEBUG) {
     cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
     cout << "(int)useErrorsFromTemplates_ = " << (int)useErrorsFromTemplates_ << endl;
