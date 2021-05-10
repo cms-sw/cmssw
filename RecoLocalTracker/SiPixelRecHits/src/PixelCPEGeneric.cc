@@ -245,7 +245,7 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   int q_l_X;  //!< Q of the last   pixel  in X
   int q_f_Y;  //!< Q of the first  pixel  in Y
   int q_l_Y;  //!< Q of the last   pixel  in Y
-  collect_edge_charges(theClusterParam, q_f_X, q_l_X, q_f_Y, q_l_Y);
+  collect_edge_charges(theClusterParam, q_f_X, q_l_X, q_f_Y, q_l_Y, UseErrorsFromTemplates_ && TruncatePixelCharge_);
 
   //--- Find the inner widths along X and Y in one shot.  We
   //--- compute the upper right corner of the inner pixels
@@ -386,55 +386,6 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   //--- Now put the two together
   LocalPoint pos_in_local(xPos, yPos);
   return pos_in_local;
-}
-
-//-----------------------------------------------------------------------------
-//!  Collect the edge charges in x and y, in a single pass over the pixel vector.
-//!  Calculate charge in the first and last pixel projected in x and y
-//!  and the inner cluster charge, projected in x and y.
-//-----------------------------------------------------------------------------
-void PixelCPEGeneric::collect_edge_charges(ClusterParam& theClusterParamBase,  //!< input, the cluster
-                                           int& q_f_X,                         //!< output, Q first  in X
-                                           int& q_l_X,                         //!< output, Q last   in X
-                                           int& q_f_Y,                         //!< output, Q first  in Y
-                                           int& q_l_Y                          //!< output, Q last   in Y
-) const {
-  ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
-
-  // Initialize return variables.
-  q_f_X = q_l_X = 0.0;
-  q_f_Y = q_l_Y = 0.0;
-
-  // Obtain boundaries in index units
-  int xmin = theClusterParam.theCluster->minPixelRow();
-  int xmax = theClusterParam.theCluster->maxPixelRow();
-  int ymin = theClusterParam.theCluster->minPixelCol();
-  int ymax = theClusterParam.theCluster->maxPixelCol();
-
-  // Iterate over the pixels.
-  int isize = theClusterParam.theCluster->size();
-  for (int i = 0; i != isize; ++i) {
-    auto const& pixel = theClusterParam.theCluster->pixel(i);
-    // ggiurgiu@fnal.gov: add pixel charge truncation
-    int pix_adc = pixel.adc;
-    if (UseErrorsFromTemplates_ && TruncatePixelCharge_)
-      pix_adc = std::min(pix_adc, theClusterParam.pixmx);
-
-    //
-    // X projection
-    if (pixel.x == xmin)
-      q_f_X += pix_adc;
-    if (pixel.x == xmax)
-      q_l_X += pix_adc;
-    //
-    // Y projection
-    if (pixel.y == ymin)
-      q_f_Y += pix_adc;
-    if (pixel.y == ymax)
-      q_l_Y += pix_adc;
-  }
-
-  return;
 }
 
 //==============  INFLATED ERROR AND ERRORS FROM DB BELOW  ================

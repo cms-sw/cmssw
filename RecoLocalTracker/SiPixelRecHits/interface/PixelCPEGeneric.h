@@ -70,12 +70,6 @@ private:
   //--------------------------------------------------------------------
   //  Methods.
   //------------------------------------------------------------------
-  void collect_edge_charges(ClusterParam &theClusterParam,  //!< input, the cluster
-                            int &q_f_X,                     //!< output, Q first  in X
-                            int &q_l_X,                     //!< output, Q last   in X
-                            int &q_f_Y,                     //!< output, Q first  in Y
-                            int &q_l_Y                      //!< output, Q last   in Y
-  ) const;
 
   //--- Errors squared in x and y.  &&& Need to be revisited.
   float err2X(bool &, int &) const;
