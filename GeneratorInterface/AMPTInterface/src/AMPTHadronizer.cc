@@ -238,9 +238,9 @@ bool AMPTHadronizer::call_amptset(
           izp,
           iat,
           izt,
-          strlen(frame.data()),
-          strlen(proj.data()),
-          strlen(targ.data()));
+          frame.length(),
+          proj.length(),
+          targ.length());
   return true;
 }
 //______________________________________________________________________
