@@ -99,6 +99,10 @@ private:
   /// check that the event is set, and throw otherwise
   void checkEvent() const;
 
+  // sort functions for containers provided by measurements methods
+  template <class T>
+  T sortResult(T&);
+
   edm::EDGetTokenT<MTDTrackingRecHit> theMTDToken;
 
   // caches that should get filled once per event
