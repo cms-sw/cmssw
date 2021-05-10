@@ -14,25 +14,6 @@
 class MagneticField;
 class PixelCPEFast final : public PixelCPEGenericBase {
 public:
-  struct ClusterParamGeneric : ClusterParam {
-    ClusterParamGeneric() {}
-    ClusterParamGeneric(const SiPixelCluster &cl) : ClusterParam(cl) {}
-
-    // The truncation value pix_maximum is an angle-dependent cutoff on the
-    // individual pixel signals. It should be applied to all pixels in the
-    // cluster [signal_i = fminf(signal_i, pixmax)] before the column and row
-    // sums are made. Morris
-    int pixmx;
-
-    // These are errors predicted by PIXELAV
-    float sigmay;  // CPE Generic y-error for multi-pixel cluster
-    float sigmax;  // CPE Generic x-error for multi-pixel cluster
-    float sy1;     // CPE Generic y-error for single single-pixel
-    float sy2;     // CPE Generic y-error for single double-pixel cluster
-    float sx1;     // CPE Generic x-error for single single-pixel cluster
-    float sx2;     // CPE Generic x-error for single double-pixel cluster
-  };
-
   PixelCPEFast(edm::ParameterSet const &conf,
                const MagneticField *,
                const TrackerGeometry &,
