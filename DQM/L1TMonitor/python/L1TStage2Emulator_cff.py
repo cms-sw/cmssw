@@ -59,7 +59,9 @@ valMuonGEMPadDigiClusters = simMuonGEMPadDigiClusters.clone(InputCollection = "v
 from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
 valCscStage2Digis = cscTriggerPrimitiveDigis.clone(
     CSCComparatorDigiProducer = "muonCSCDigis:MuonCSCComparatorDigi",
-    CSCWireDigiProducer = "muonCSCDigis:MuonCSCWireDigi"
+    CSCWireDigiProducer = "muonCSCDigis:MuonCSCWireDigi",
+    GEMPadDigiClusterProducer = "",
+    commonParam = dict(runME11ILT = False)
 )
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
