@@ -59,7 +59,7 @@ public:
                   const SiPixelGenErrorDBObject *,
                   const SiPixelLorentzAngle *);
 
-  ~PixelCPEGeneric() override { ; }
+  ~PixelCPEGeneric() override = default;
 
   static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
