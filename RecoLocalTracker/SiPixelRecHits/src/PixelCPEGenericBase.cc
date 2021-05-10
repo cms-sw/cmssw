@@ -1,5 +1,18 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
 
+PixelCPEGenericBase::PixelCPEGenericBase(edm::ParameterSet const& conf,
+                                         const MagneticField* mag,
+                                         const TrackerGeometry& geom,
+                                         const TrackerTopology& ttopo,
+                                         const SiPixelLorentzAngle* lorentzAngle,
+                                         const SiPixelGenErrorDBObject* genErrorDBObject,
+                                         const SiPixelLorentzAngle* lorentzAngleWidth = nullptr)
+    : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr, lorentzAngleWidth, 0),
+      edgeClusterErrorX_(conf.getParameter<double>("EdgeClusterErrorX")),
+      edgeClusterErrorY_(conf.getParameter<double>("EdgeClusterErrorY")),
+      useErrorsFromTemplates_(conf.getParameter<bool>("UseErrorsFromTemplates")),
+      truncatePixelCharge_(conf.getParameter<bool>("TruncatePixelCharge")){};
+
 std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPEGenericBase::createClusterParam(const SiPixelCluster& cl) const {
   return std::make_unique<ClusterParamGeneric>(cl);
 }

@@ -38,11 +38,6 @@ private:
 
   void errorFromTemplates(DetParam const &theDetParam, ClusterParamGeneric &theClusterParam, float qclus) const;
 
-  const float edgeClusterErrorX_;
-  const float edgeClusterErrorY_;
-  const bool useErrorsFromTemplates_;
-  const bool truncatePixelCharge_;
-
   std::vector<float> xerr_barrel_l1_, yerr_barrel_l1_, xerr_barrel_ln_;
   std::vector<float> yerr_barrel_ln_, xerr_endcap_, yerr_endcap_;
   float xerr_barrel_l1_def_, yerr_barrel_l1_def_, xerr_barrel_ln_def_;
