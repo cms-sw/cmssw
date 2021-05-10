@@ -64,8 +64,6 @@ public:
   static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
-  std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster &cl) const override;
-
   LocalPoint localPosition(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
   LocalError localError(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
 

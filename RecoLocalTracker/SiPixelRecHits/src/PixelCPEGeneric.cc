@@ -143,10 +143,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   }
 }
 
-std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPEGeneric::createClusterParam(const SiPixelCluster& cl) const {
-  return std::make_unique<ClusterParamGeneric>(cl);
-}
-
 //-----------------------------------------------------------------------------
 //! Hit position in the local frame (in cm).  Unlike other CPE's, this
 //! one converts everything from the measurement frame (in channel numbers)

@@ -33,8 +33,6 @@ public:
   pixelCPEforGPU::ParamsOnGPU const &getCPUProduct() const { return cpuData_; }
 
 private:
-  std::unique_ptr<PixelCPEBase::ClusterParam> createClusterParam(const SiPixelCluster &cl) const override;
-
   LocalPoint localPosition(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
   LocalError localError(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
 
