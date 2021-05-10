@@ -6,8 +6,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
-#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterHigherBarycenterRes.h"
-
 #include "DataFormats/Common/interface/ContainerMask.h"
 
 #endif  // SISTRIPCLUSTER_CLASSES_H
