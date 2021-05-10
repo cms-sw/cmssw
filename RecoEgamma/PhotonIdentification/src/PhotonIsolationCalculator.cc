@@ -41,7 +41,9 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
   endcapecalCollection_ =
       iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
 
-  hbheRecHitsTag_ = iC.consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("HBHERecHitCollection"));
+  auto hbhetag = conf.getParameter<edm::InputTag>("HBHERecHitCollection");
+  if (not hbhetag.label().empty())
+    hbheRecHitsTag_ = iC.consumes<HBHERecHitCollection>(hbhetag);
 
   caloGeometryToken_ = decltype(caloGeometryToken_){iC.esConsumes()};
   hcalTopologyToken_ = decltype(hcalTopologyToken_){iC.esConsumes()};
@@ -164,7 +166,6 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   phofid.isEEDeeGap = isEEDeeGap;
   phofid.isEBEEGap = isEBEEGap;
 
-  auto const& hbheRecHits = e.get(hbheRecHitsTag_);
   auto const& caloGeometry = es.getData(caloGeometryToken_);
   auto const& hcalTopology = &es.getData(hcalTopologyToken_);
   auto const& hcalChannelQuality = &es.getData(hcalChannelQualityToken_);
@@ -352,54 +353,58 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                                                  useNumCrystals_);
   phoisolR2.ecalRecHitSumEt = EcalRecHitIsoB;
 
-  for (size_t id = 0; id < 7; ++id) {
-    phoisolR1.hcalRecHitSumEt[id] =
-        calculateHcalRecHitIso<false>(pho,
-                                      caloGeometry,
-                                      *hcalTopology,
-                                      *hcalChannelQuality,
-                                      *hcalSevLvlComputer,
-                                      towerMap,
-                                      hbheRecHits,
-                                      detector == EcalBarrel ? hcalIsoOuterRadAEB_[id] : hcalIsoOuterRadAEE_[id],
-                                      detector == EcalBarrel ? hcalIsoInnerRadAEB_[id] : hcalIsoInnerRadAEE_[id],
-                                      id + 1);
+  if (not hbheRecHitsTag_.isUninitialized()) {
+    auto const& hbheRecHits = e.get(hbheRecHitsTag_);
 
-    phoisolR2.hcalRecHitSumEt[id] =
-        calculateHcalRecHitIso<false>(pho,
-                                      caloGeometry,
-                                      *hcalTopology,
-                                      *hcalChannelQuality,
-                                      *hcalSevLvlComputer,
-                                      towerMap,
-                                      hbheRecHits,
-                                      detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
-                                      detector == EcalBarrel ? hcalIsoInnerRadBEB_[id] : hcalIsoInnerRadBEE_[id],
-                                      id + 1);
+    for (size_t id = 0; id < 7; ++id) {
+      phoisolR1.hcalRecHitSumEt[id] =
+          calculateHcalRecHitIso<false>(pho,
+                                        caloGeometry,
+                                        *hcalTopology,
+                                        *hcalChannelQuality,
+                                        *hcalSevLvlComputer,
+                                        towerMap,
+                                        hbheRecHits,
+                                        detector == EcalBarrel ? hcalIsoOuterRadAEB_[id] : hcalIsoOuterRadAEE_[id],
+                                        detector == EcalBarrel ? hcalIsoInnerRadAEB_[id] : hcalIsoInnerRadAEE_[id],
+                                        id + 1);
 
-    phoisolR1.hcalRecHitSumEtBc[id] =
-        calculateHcalRecHitIso<true>(pho,
-                                     caloGeometry,
-                                     *hcalTopology,
-                                     *hcalChannelQuality,
-                                     *hcalSevLvlComputer,
-                                     towerMap,
-                                     hbheRecHits,
-                                     detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
-                                     0.,
-                                     id + 1);
+      phoisolR2.hcalRecHitSumEt[id] =
+          calculateHcalRecHitIso<false>(pho,
+                                        caloGeometry,
+                                        *hcalTopology,
+                                        *hcalChannelQuality,
+                                        *hcalSevLvlComputer,
+                                        towerMap,
+                                        hbheRecHits,
+                                        detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
+                                        detector == EcalBarrel ? hcalIsoInnerRadBEB_[id] : hcalIsoInnerRadBEE_[id],
+                                        id + 1);
 
-    phoisolR2.hcalRecHitSumEtBc[id] =
-        calculateHcalRecHitIso<true>(pho,
-                                     caloGeometry,
-                                     *hcalTopology,
-                                     *hcalChannelQuality,
-                                     *hcalSevLvlComputer,
-                                     towerMap,
-                                     hbheRecHits,
-                                     detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
-                                     0.,
-                                     id + 1);
+      phoisolR1.hcalRecHitSumEtBc[id] =
+          calculateHcalRecHitIso<true>(pho,
+                                       caloGeometry,
+                                       *hcalTopology,
+                                       *hcalChannelQuality,
+                                       *hcalSevLvlComputer,
+                                       towerMap,
+                                       hbheRecHits,
+                                       detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
+                                       0.,
+                                       id + 1);
+
+      phoisolR2.hcalRecHitSumEtBc[id] =
+          calculateHcalRecHitIso<true>(pho,
+                                       caloGeometry,
+                                       *hcalTopology,
+                                       *hcalChannelQuality,
+                                       *hcalSevLvlComputer,
+                                       towerMap,
+                                       hbheRecHits,
+                                       detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id],
+                                       0.,
+                                       id + 1);
+    }
   }
 }
 
