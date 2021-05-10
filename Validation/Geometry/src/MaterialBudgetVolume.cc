@@ -34,16 +34,16 @@
 //#define EDM_ML_DEBUG
 
 class MaterialBudgetVolume : public SimProducer,
-			     public Observer<const BeginOfRun *>,
-			     public Observer<const BeginOfEvent *>,
-			     public Observer<const BeginOfTrack*>,
-			     public Observer<const G4Step*>,
-			     public Observer<const EndOfTrack*> {
+                             public Observer<const BeginOfRun*>,
+                             public Observer<const BeginOfEvent*>,
+                             public Observer<const BeginOfTrack*>,
+                             public Observer<const G4Step*>,
+                             public Observer<const EndOfTrack*> {
 public:
-  MaterialBudgetVolume(const edm::ParameterSet &p);
+  MaterialBudgetVolume(const edm::ParameterSet& p);
   ~MaterialBudgetVolume() override {}
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   struct MatInfo {
     double stepL, radL, intL;
@@ -51,17 +51,17 @@ public:
   };
 
 private:
-  MaterialBudgetVolume(const MaterialBudgetVolume &) = delete;  // stop default
-  const MaterialBudgetVolume &operator=(const MaterialBudgetVolume &) = delete;
+  MaterialBudgetVolume(const MaterialBudgetVolume&) = delete;  // stop default
+  const MaterialBudgetVolume& operator=(const MaterialBudgetVolume&) = delete;
 
   // observer classes
-  void update(const BeginOfRun *run) override;
-  void update(const BeginOfEvent *evt) override;
+  void update(const BeginOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
   void update(const BeginOfTrack*) override;
   void update(const EndOfTrack*) override;
-  void update(const G4Step *step) override;
+  void update(const G4Step* step) override;
 
-  void endOfEvent(edm::MaterialInformationContainer &matbg);
+  void endOfEvent(edm::MaterialInformationContainer& matbg);
   bool loadLV();
   int findLV(const G4VTouchable*);
 
@@ -83,10 +83,11 @@ MaterialBudgetVolume::MaterialBudgetVolume(const edm::ParameterSet& p) : init_(f
   iaddLevel_ = (m_p.getParameter<bool>("useDD4Hep")) ? 1 : 0;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume: Studies Material budget for " << lvNames_.size() << " volumes with addLevel " << iaddLevel_;
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume: Studies Material budget for " << lvNames_.size()
+                                     << " volumes with addLevel " << iaddLevel_;
   std::ostringstream st1;
   for (unsigned int k = 0; k < lvNames_.size(); ++k)
-    st1 << " ["  << k << "] " << lvNames_[k] << " at " << lvLevel_[k];
+    st1 << " [" << k << "] " << lvNames_[k] << " at " << lvLevel_[k];
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume: Volumes" << st1.str();
 #endif
 
@@ -106,7 +107,8 @@ void MaterialBudgetVolume::update(const BeginOfRun* run) {
   init_ = loadLV();
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume::Finds " << mapLV_.size() << " logical volumes with return flag " << init_;
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume::Finds " << mapLV_.size()
+                                     << " logical volumes with return flag " << init_;
 #endif
 }
 
@@ -129,7 +131,9 @@ void MaterialBudgetVolume::update(const BeginOfTrack* trk) {
   const G4ThreeVector& mom = aTrack->GetMomentum();
   double theEnergy = aTrack->GetTotalEnergy();
   int theID = static_cast<int>(aTrack->GetDefinition()->GetPDGEncoding());
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolumme: Track " << aTrack->GetTrackID() << " Code " << theID << " Energy " << theEnergy / CLHEP::GeV << " GeV; Momentum " << mom / CLHEP::GeV << " GeV";
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolumme: Track " << aTrack->GetTrackID() << " Code " << theID
+                                     << " Energy " << theEnergy / CLHEP::GeV << " GeV; Momentum " << mom / CLHEP::GeV
+                                     << " GeV";
 #endif
 }
 
@@ -146,7 +150,9 @@ void MaterialBudgetVolume::update(const G4Step* aStep) {
     lengths_[index].intL += (step / intl);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume::Step in " << touch->GetVolume(0)->GetLogicalVolume()->GetName() << " Index " << index << " Step " << step << " RadL " << step / radl << " IntL " << step / intl;
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume::Step in "
+                                     << touch->GetVolume(0)->GetLogicalVolume()->GetName() << " Index " << index
+                                     << " Step " << step << " RadL " << step / radl << " IntL " << step / intl;
 #endif
 }
 
@@ -169,7 +175,13 @@ void MaterialBudgetVolume::endOfEvent(edm::MaterialInformationContainer& matbg) 
   unsigned int kount(0);
 #endif
   for (const auto& element : store_) {
-    MaterialInformation info(element.vname(), element.id(), element.trackEta(), element.trackPhi(), element.stepLength(), element.radiationLength(), element.interactionLength());
+    MaterialInformation info(element.vname(),
+                             element.id(),
+                             element.trackEta(),
+                             element.trackPhi(),
+                             element.stepLength(),
+                             element.radiationLength(),
+                             element.interactionLength());
     matbg.push_back(info);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume:: Info[" << kount << "] " << info;
@@ -187,28 +199,28 @@ bool MaterialBudgetVolume::loadLV() {
       G4LogicalVolume* lv = nullptr;
       std::string name(lvNames_[i]);
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-	std::string namx(dd4hep::dd::noNamespace((*lvcite)->GetName()));
-	if (namx == name) {
-	  lv = (*lvcite);
-	  break;
-	}
+        std::string namx(dd4hep::dd::noNamespace((*lvcite)->GetName()));
+        if (namx == name) {
+          lv = (*lvcite);
+          break;
+        }
       }
       if (lv != nullptr)
-	mapLV_[i] = std::make_pair(lv, lvLevel_[i]);
+        mapLV_[i] = std::make_pair(lv, lvLevel_[i]);
     }
     flag = true;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume::Finds " << mapLV_.size() << " logical volumes";
     unsigned int k(0);
     for (const auto& lvs : mapLV_) {
-      edm::LogVerbatim("MaterialBudget") << "Entry[" << k << "] " << lvs.first << ": (" << (lvs.second).first << ", " << (lvs.second).second << ") : " << lvNames_[lvs.first];
+      edm::LogVerbatim("MaterialBudget") << "Entry[" << k << "] " << lvs.first << ": (" << (lvs.second).first << ", "
+                                         << (lvs.second).second << ") : " << lvNames_[lvs.first];
       ++k;
     }
 #endif
   }
   return flag;
 }
-
 
 int MaterialBudgetVolume::findLV(const G4VTouchable* touch) {
   int level(-1);
@@ -217,8 +229,8 @@ int MaterialBudgetVolume::findLV(const G4VTouchable* touch) {
     if ((lvs.second).second <= levels) {
       int ii = levels - (lvs.second).second;
       if ((touch->GetVolume(ii)->GetLogicalVolume()) == (lvs.second).first) {
-	level = lvs.first;
-	break;
+        level = lvs.first;
+        break;
       }
     }
   }

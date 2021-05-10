@@ -8,8 +8,10 @@
 
 class MaterialInformation {
 public:
- MaterialInformation(std::string vname, int id = 0, float eta = 0, float phi = 0, float length = 0, float radlen = 0, float intlen = 0) : vname_(vname), id_(id), eta_(eta), phi_(phi), length_(length), radlen_(radlen), intlen_(intlen) {}
- MaterialInformation() : vname_(""), id_(0), eta_(0), phi_(0), length_(0), radlen_(0), intlen_(0) {}
+  MaterialInformation(
+      std::string vname, int id = 0, float eta = 0, float phi = 0, float length = 0, float radlen = 0, float intlen = 0)
+      : vname_(vname), id_(id), eta_(eta), phi_(phi), length_(length), radlen_(radlen), intlen_(intlen) {}
+  MaterialInformation() : vname_(""), id_(0), eta_(0), phi_(0), length_(0), radlen_(0), intlen_(0) {}
 
   //Names
   static const char *name() { return "MaterialInformation"; }
