@@ -38,13 +38,6 @@ private:
 
   void errorFromTemplates(DetParam const &theDetParam, ClusterParamGeneric &theClusterParam, float qclus) const;
 
-  static void collect_edge_charges(ClusterParam &theClusterParam,  //!< input, the cluster
-                                   int &q_f_X,                     //!< output, Q first  in X
-                                   int &q_l_X,                     //!< output, Q last   in X
-                                   int &q_f_Y,                     //!< output, Q first  in Y
-                                   int &q_l_Y,                     //!< output, Q last   in Y
-                                   bool truncate);
-
   const float edgeClusterErrorX_;
   const float edgeClusterErrorY_;
   const bool useErrorsFromTemplates_;

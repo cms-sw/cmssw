@@ -42,6 +42,13 @@ public:
 
 protected:
   std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster& cl) const override;
+
+  static void collect_edge_charges(ClusterParam& theClusterParam,  //!< input, the cluster
+                                   int& q_f_X,                     //!< output, Q first  in X
+                                   int& q_l_X,                     //!< output, Q last   in X
+                                   int& q_f_Y,                     //!< output, Q first  in Y
+                                   int& q_l_Y,                     //!< output, Q last   in Y
+                                   bool truncate);
 };
 
 #endif  // RecoLocalTracker_SiPixelRecHits_PixelCPEGenericBase_H
