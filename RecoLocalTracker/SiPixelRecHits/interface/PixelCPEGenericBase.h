@@ -39,6 +39,9 @@ public:
                       const SiPixelGenErrorDBObject* genErrorDBObject,
                       const SiPixelLorentzAngle* lorentzAngleWidth = nullptr)
       : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr, lorentzAngleWidth, 0){};
+
+protected:
+  std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster& cl) const override;
 };
 
 #endif  // RecoLocalTracker_SiPixelRecHits_PixelCPEGenericBase_H
