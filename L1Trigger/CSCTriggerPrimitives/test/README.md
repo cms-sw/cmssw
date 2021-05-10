@@ -30,7 +30,7 @@ Compare configuration from DB with Python for CSC trigger primitives. Typically 
 runGEMCSCLUTAnalyzer
 --------------------
 
-Makes the lookup tables for the GEM-CSC integrated local trigger in simulation and firmware. Current lookup tables can be found in https://github.com/cms-data/L1Trigger-CSCTriggerPrimitives/GEMCSC
+Makes the lookup tables for the GEM-CSC integrated local trigger in simulation and firmware. Current lookup tables can be found at https://github.com/cms-data/L1Trigger-CSCTriggerPrimitives/GEMCSC
 
 CCLUTLinearFitWriter
 --------------------
@@ -68,5 +68,28 @@ root -l -q -b CCLUTLinearFitWriter.cpp++(4)
 |   13  |   3/2              |   1               |   1                |   0              |
 |   14  |   7/4              |   1               |   1                |   1              |
 |   15  |   2                |   2               |   0                |   0              |
+
+* Convention for 4-bit slope:
+
+Slope is in units [half-strip offset/layer]. The sign of the bending is interpreted as in Run-1 and Run-2.
+
+| Value | Slope |
+|-------|-------|
+|   0   |  1/8  |
+|   1   |  2/8  |
+|   2   |  3/8  |
+|   3   |  4/8  |
+|   4   |  5/8  |
+|   5   |  6/8  |
+|   6   |  7/8  |
+|   7   |   1   |
+|   8   |  9/8  |
+|   9   | 10/8  |
+|  10   | 11/8  |
+|  11   | 12/8  |
+|  12   | 13/8  |
+|  13   | 14/8  |
+|  14   |   2   |
+|  15   | 20/8  |
 
 The LUTs can be found at https://github.com/cms-data/L1Trigger-CSCTriggerPrimitives/CCLUT
