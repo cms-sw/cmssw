@@ -1628,7 +1628,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     Tag1 = session1.get_dbtype(conddb.Tag)
     Tag2 = session2.get_dbtype(conddb.Tag)
     # Copy the tag
-    obj = session1.query(Tag1.name, Tag1.time_type, Tag1.object_type, Tag1.synchronization, Tag1.description, Tag1.last_validated_time, Tag1.end_of_validity, Tag1.insertion_time, Tag1.modification_time).first()
+    obj = session1.query(Tag1.name, Tag1.time_type, Tag1.object_type, Tag1.synchronization, Tag1.description, Tag1.last_validated_time, Tag1.end_of_validity, Tag1.insertion_time, Tag1.modification_time).filter(Tag1.name == first).first()
     tag = _rawdict_selection(obj)
     tag['name'] = second
 
