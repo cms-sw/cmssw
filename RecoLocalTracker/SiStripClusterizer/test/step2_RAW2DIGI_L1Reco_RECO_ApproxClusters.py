@@ -63,7 +63,9 @@ process.outputCompressed = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:step2approximated.root'),
     outputCommands = cms.untracked.vstring(
     'drop *',   
-    'keep *_*SiStripClusters2ApproxClusters*_*_*'       
+    'keep *_*SiStripClusters2ApproxClusters*_*_*',
+    'keep *_*SiStripApprox2ApproxClusters*_*_*'       
+    
     )
 )
 
@@ -82,15 +84,22 @@ process.SiStripClusters2ApproxClusters = cms.EDProducer("SiStripClusters2ApproxC
 	inputClusters = cms.InputTag("siStripClusters")
 )
 
+process.SiStripApprox2ApproxClusters = cms.EDProducer("SiStripApprox2ApproxClusters",
+	inputApproxClusters = cms.InputTag("SiStripClusters2ApproxClusters"),
+    approxVersion= cms.string("ORIGINAL")
+)
+
 process.SiStripApproximatedClustersDump = cms.EDAnalyzer("SiStripApproximatedClustersDump",
-    approximatedClustersTag = cms.InputTag("SiStripClusters2ApproxClusters")
+    #approximatedClustersTag = cms.InputTag("SiStripClusters2ApproxClusters")
+    approximatedClustersTag = cms.InputTag("SiStripApprox2ApproxClusters")
 )
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
-process.approxClustersv1_step = cms.Path(process.SiStripClusters2ApproxClusters)
+process.approxClusters_step = cms.Path(process.SiStripClusters2ApproxClusters)
+process.approxToApproxClusters_step=cms.Path(process.SiStripApprox2ApproxClusters)
 process.analyzer_step = cms.Path(process.SiStripApproximatedClustersDump) 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.outputClusters+process.outputCompressed)
@@ -133,7 +142,7 @@ process.rawPath = cms.Path(process.rawStep*process.rawStepPix*process.rawStepHCA
 
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.approxClustersv1_step, process.analyzer_step, process.rawPath, process.endjob_step,process.output_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.approxClusters_step, process.approxToApproxClusters_step, process.analyzer_step, process.rawPath, process.endjob_step,process.output_step)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 

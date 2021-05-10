@@ -12,21 +12,30 @@ class SiStripApproximateCluster  {
 public:
   
   SiStripApproximateCluster() {}
-  explicit SiStripApproximateCluster(const SiStripCluster& cluster){
-    rawBarycenter_=static_cast<uint16_t>(std::round(cluster.barycenter()));
-    width_=cluster.size();
-    if(width_>0x3F) width_=0x3F;
-    avgCharge_ = static_cast<uint8_t>(cluster.charge()/cluster.size());
-  }
   
+  explicit SiStripApproximateCluster(float barycenter, uint8_t width, float avgCharge){
+    barycenter_= barycenter;
+    width_=width;
+    //if(width_>0x3F) width_=0x3F;
+    avgCharge_ = avgCharge;
+  }
 
-  uint16_t barycenter() const {return rawBarycenter_;}
+  explicit SiStripApproximateCluster(const SiStripCluster& cluster){
+    //barycenter_=std::round(cluster.barycenter());
+    barycenter_=cluster.barycenter();
+    width_=cluster.size();
+    //if(width_>0x3F) width_=0x3F;
+    avgCharge_ = cluster.charge()/cluster.size();
+  }
+
+  float barycenter() const {return barycenter_;}
   uint8_t width() const {return width_;}
-  uint8_t  avgCharge() const{return avgCharge_;} 
+  float  avgCharge() const{return avgCharge_;} 
+
 
 private:
-  uint16_t                rawBarycenter_ = 0;
-  uint8_t                 width_=0;
-  uint8_t                 avgCharge_ = 0;
+  float                 barycenter_ = 0;
+  uint8_t               width_=0;
+  float                 avgCharge_ = 0;
 };
 #endif // DATAFORMATS_SiStripApproximateCluster_H
