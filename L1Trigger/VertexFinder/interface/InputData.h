@@ -8,6 +8,8 @@
 #include "L1Trigger/VertexFinder/interface/Stub.h"
 #include "L1Trigger/VertexFinder/interface/TP.h"
 #include "L1Trigger/VertexFinder/interface/Vertex.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <vector>
 
