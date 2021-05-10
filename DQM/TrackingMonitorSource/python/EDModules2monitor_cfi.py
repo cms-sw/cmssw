@@ -16,23 +16,23 @@ categories    ['LocalReco'] = cms.vstring('SiPixelRawToDigi', 'TooManyErrors', '
 
 # apparentely there are not LogError in RecoLocalTracker/SubCollectionProducers/src/TrackClusterRemover.cc
 pluginsMonName['Clusterizer'] = cms.string ( 'TrackClusterRemover' )
-modulesLabel  ['Clusterizer'] = cms.vstring( 'lowPtTripletStepClusters', 'pixelPairStepClusters', 'detachedTripletStepClusters', 'mixedTripletStepClusters', 'pixelLessStepClusters', 'tobTecStepClusters', 'displacedGeneralStepClusters' ) # TrackClusterRemover
+modulesLabel  ['Clusterizer'] = cms.vstring( 'lowPtTripletStepClusters', 'pixelPairStepClusters', 'detachedTripletStepClusters', 'mixedTripletStepClusters', 'pixelLessStepClusters', 'tobTecStepClusters', 'displacedGeneralStepClusters', 'displacedRegionalStepClusters' ) # TrackClusterRemover
 categories    ['Clusterizer'] = cms.vstring(  )
 
 # initialStepSeeds,lowPtTripletStepSeeds, pixelPairStepSeeds, detachedTripletStepSeeds, : TooManyClusters (SeedGeneratorFromRegionHitsEDProducer),
 # photonConvTrajSeedFromSingleLeg : (PhotonConversionTrajectorySeedProducerFromSingleLeg)
 pluginsMonName['Seeding'] = cms.string ( 'Seeding' ) 
-modulesLabel  ['Seeding'] = cms.vstring( 'initialStepSeeds', 'lowPtTripletStepSeeds', 'pixelPairStepSeeds', 'detachedTripletStepSeeds', 'mixedTripletStepSeedsA', 'mixedTripletStepSeedsB', 'mixedTripletStepSeeds', 'pixelLessStepSeeds', 'tobTecStepSeeds', 'displacedGeneralStepSeeds','photonConvTrajSeedFromSingleLeg')
+modulesLabel  ['Seeding'] = cms.vstring( 'initialStepSeeds', 'lowPtTripletStepSeeds', 'pixelPairStepSeeds', 'detachedTripletStepSeeds', 'mixedTripletStepSeedsA', 'mixedTripletStepSeedsB', 'mixedTripletStepSeeds', 'pixelLessStepSeeds', 'tobTecStepSeeds', 'displacedGeneralStepSeeds', 'displacedRegionalStepSeeds' ,'photonConvTrajSeedFromSingleLeg')
 categories    ['Seeding'] = cms.vstring( 'TooManyClusters', 'TooManyPairs', 'TooManyTriplets', 'TooManySeeds' )
 
 # RecoTracker/CkfPattern/src/CkfTrackCandidateMakerBase.cc
 pluginsMonName['TrackCandidate'] = cms.string ( 'TrackCandidate' ) 
-modulesLabel  ['TrackCandidate'] = cms.vstring( 'initialStepTrackCandidates', 'lowPtTripletStepTrackCandidates', 'pixelPairStepTrackCandidates', 'detachedTripletStepTrackCandidates', 'mixedTripletStepTrackCandidates', 'pixelLessStepTrackCandidates', 'tobTecStepTrackCandidates', 'displacedGeneralStepTrackCandidates', 'convTrackCandidates' )
+modulesLabel  ['TrackCandidate'] = cms.vstring( 'initialStepTrackCandidates', 'lowPtTripletStepTrackCandidates', 'pixelPairStepTrackCandidates', 'detachedTripletStepTrackCandidates', 'mixedTripletStepTrackCandidates', 'pixelLessStepTrackCandidates', 'tobTecStepTrackCandidates', 'displacedGeneralStepTrackCandidates', 'displacedRegionalStepTrackCandidates', 'convTrackCandidates' )
 categories    ['TrackCandidate'] = cms.vstring( 'TooManySeeds', 'CkfPattern', 'BaseCkfTrajectoryBuilder_InfiniteLoop' )
 
 # TrackProducer:FailedPropagation 
 pluginsMonName['TrackFinder'] = cms.string ( 'TrackFinder' ) 
-modulesLabel  ['TrackFinder'] = cms.vstring( 'pixelTracks', 'initialStepTracks', 'lowPtTripletStepTracks', 'pixelPairStepTracks', 'detachedTripletStepTracks', 'mixedTripletStepTracks', 'pixelLessStepTracks', 'tobTecStepTracks', 'displacedGeneralStepTracks', 'generalTracks' )
+modulesLabel  ['TrackFinder'] = cms.vstring( 'pixelTracks', 'initialStepTracks', 'lowPtTripletStepTracks', 'pixelPairStepTracks', 'detachedTripletStepTracks', 'mixedTripletStepTracks', 'pixelLessStepTracks', 'tobTecStepTracks', 'displacedGeneralStepTracks', 'displacedRegionalStepTracks', 'generalTracks' )
 categories    ['TrackFinder'] = cms.vstring( 'FailedPropagation' )
 
 
@@ -63,6 +63,9 @@ modulesLabel  ['FullIterTracking'] = cms.vstring(
        'displacedGeneralStepSeeds_iter7',
        'displacedGeneralStepTrackCandidates_iter7',
        'displacedGeneralStepTracks_iter7',
+       'displacedRegionalStepSeeds_iter8',
+       'displacedRegionalStepTrackCandidates_iter8',
+       'displacedRegionalStepTracks_iter8',
        'photonConvTrajSeedFromSingleLeg',
        'convTrackCandidates',
        'convStepTracks',
@@ -101,7 +104,10 @@ modulesLabel  ['IterTracking'] = cms.vstring(
        'tobTecStepTracks_iter6',
        'displacedGeneralStepSeeds_iter7',
        'displacedGeneralStepTrackCandidates_iter7',
-       'displacedGeneralStepTracks_iter7'
+       'displacedGeneralStepTracks_iter7',
+       'displacedRegionalStepSeeds_iter8',
+       'displacedRegionalStepTrackCandidates_iter8',
+       'displacedRegionalStepTracks_iter8'
 )
 categories['IterTracking']     = cms.vstring(
     'TooManyClusters',

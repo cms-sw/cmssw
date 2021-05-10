@@ -49,9 +49,11 @@ typedef ROOT::Math::SVector<double, 3> SVector3;
 V0Fitter::V0Fitter(const edm::ParameterSet& theParameters, edm::ConsumesCollector&& iC) : esTokenMF_(iC.esConsumes()) {
   token_beamSpot = iC.consumes<reco::BeamSpot>(theParameters.getParameter<edm::InputTag>("beamSpot"));
   useVertex_ = theParameters.getParameter<bool>("useVertex");
-  token_vertices = iC.consumes<std::vector<reco::Vertex>>(theParameters.getParameter<edm::InputTag>("vertices"));
+  if (useVertex_)
+    token_vertices = iC.consumes<std::vector<reco::Vertex>>(theParameters.getParameter<edm::InputTag>("vertices"));
 
   token_tracks = iC.consumes<reco::TrackCollection>(theParameters.getParameter<edm::InputTag>("trackRecoAlgorithm"));
+  doFit_ = theParameters.getParameter<bool>("doFit");
   vertexFitter_ = theParameters.getParameter<bool>("vertexFitter");
   useRefTracks_ = theParameters.getParameter<bool>("useRefTracks");
 
@@ -71,8 +73,13 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters, edm::ConsumesCollecto
   vtxChi2Cut_ = theParameters.getParameter<double>("vtxChi2Cut");
   vtxDecaySigXYZCut_ = theParameters.getParameter<double>("vtxDecaySigXYZCut");
   vtxDecaySigXYCut_ = theParameters.getParameter<double>("vtxDecaySigXYCut");
+  vtxDecayXYCut_ = theParameters.getParameter<double>("vtxDecayXYCut");
+  ssVtxDecayXYCut_ = theParameters.getParameter<double>("ssVtxDecayXYCut");
   // miscellaneous cuts
-  tkDCACut_ = theParameters.getParameter<double>("tkDCACut");
+  allowSS_ = theParameters.getParameter<bool>("allowSS");
+  innerTkDCACut_ = theParameters.getParameter<double>("innerTkDCACut");
+  outerTkDCACut_ = theParameters.getParameter<double>("outerTkDCACut");
+  allowWideAngleVtx_ = theParameters.getParameter<bool>("allowWideAngleVtx");
   mPiPiCut_ = theParameters.getParameter<double>("mPiPiCut");
   innerHitPosCut_ = theParameters.getParameter<double>("innerHitPosCut");
   cosThetaXYCut_ = theParameters.getParameter<double>("cosThetaXYCut");
@@ -150,7 +157,14 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
         negTransTkPtr = &theTransTracks[trdx2];
         posTransTkPtr = &theTransTracks[trdx1];
       } else {
-        continue;
+        if (!allowSS_)
+          continue;
+
+        // if same-sign pairs are allowed, assign the negative and positive tracks arbitrarily
+        negativeTrackRef = theTrackRefs[trdx1];
+        positiveTrackRef = theTrackRefs[trdx2];
+        negTransTkPtr = &theTransTracks[trdx1];
+        posTransTkPtr = &theTransTracks[trdx2];
       }
 
       // measure distance between tracks at their closest approach
@@ -168,20 +182,26 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
       if (!cApp.status())
         continue;
       float dca = std::abs(cApp.distance());
-      if (dca > tkDCACut_)
-        continue;
 
       // the POCA should at least be in the sensitive volume
       GlobalPoint cxPt = cApp.crossingPoint();
       if ((cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y()) > 120. * 120. || std::abs(cxPt.z()) > 300.)
         continue;
 
+      if (cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y() < 25.0) {
+        if (dca > innerTkDCACut_)
+          continue;
+      } else {
+        if (dca > outerTkDCACut_)
+          continue;
+      }
+
       // the tracks should at least point in the same quadrant
       TrajectoryStateClosestToPoint const& posTSCP = posTransTkPtr->trajectoryStateClosestToPoint(cxPt);
       TrajectoryStateClosestToPoint const& negTSCP = negTransTkPtr->trajectoryStateClosestToPoint(cxPt);
       if (!posTSCP.isValid() || !negTSCP.isValid())
         continue;
-      if (posTSCP.momentum().dot(negTSCP.momentum()) < 0)
+      if (!allowWideAngleVtx_ && posTSCP.momentum().dot(negTSCP.momentum()) < 0)
         continue;
 
       // calculate mPiPi
@@ -199,14 +219,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
       transTracks.push_back(*negTransTkPtr);
 
       // create the vertex fitter object and vertex the tracks
-      TransientVertex theRecoVertex;
-      if (vertexFitter_) {
-        KalmanVertexFitter theKalmanFitter(useRefTracks_ == 0 ? false : true);
-        theRecoVertex = theKalmanFitter.vertex(transTracks);
-      } else if (!vertexFitter_) {
-        useRefTracks_ = false;
-        AdaptiveVertexFitter theAdaptiveFitter;
-        theRecoVertex = theAdaptiveFitter.vertex(transTracks);
+      const GlobalError dummyError(1.0e-3, 0.0, 1.0e-3, 0.0, 0.0, 1.0e-3);
+      TransientVertex theRecoVertex(cxPt, dummyError, transTracks, 1.0e-3);
+      if (doFit_) {
+        if (vertexFitter_) {
+          KalmanVertexFitter theKalmanFitter(useRefTracks_ == 0 ? false : true);
+          theRecoVertex = theKalmanFitter.vertex(transTracks);
+        } else if (!vertexFitter_) {
+          useRefTracks_ = false;
+          AdaptiveVertexFitter theAdaptiveFitter;
+          theRecoVertex = theAdaptiveFitter.vertex(transTracks);
+        }
       }
       if (!theRecoVertex.isValid())
         continue;
@@ -224,6 +247,10 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
       double distMagXY = ROOT::Math::Mag(distVecXY);
       double sigmaDistMagXY = sqrt(ROOT::Math::Similarity(totalCov, distVecXY)) / distMagXY;
       if (distMagXY / sigmaDistMagXY < vtxDecaySigXYCut_)
+        continue;
+      if (distMagXY < vtxDecayXYCut_)
+        continue;
+      if (posTransTkPtr->charge() * negTransTkPtr->charge() > 0 && distMagXY < ssVtxDecayXYCut_)
         continue;
 
       // 3D decay significance

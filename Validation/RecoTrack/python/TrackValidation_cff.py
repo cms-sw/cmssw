@@ -47,12 +47,14 @@ for _eraName, _postfix, _era in _cfg.allEras():
 
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "jetCoreRegionalStepSeeds",
+                                 "displacedRegionalStepSeeds",
                                  "muonSeededSeedsInOut",
                                  "muonSeededSeedsOutIn"]
 _seedProducers_fastSim = [ x for x in _seedProducers if x not in _removeForFastSimSeedProducers]
 
 _removeForFastTrackProducers = ["initialStepTracksPreSplitting",
                                 "jetCoreRegionalStepTracks",
+                                "displacedRegionalStepTracks",
                                 "muonSeededTracksInOut",
                                 "muonSeededTracksOutIn"]
 _trackProducers_fastSim = [ x for x in _trackProducers if x not in _removeForFastTrackProducers]
