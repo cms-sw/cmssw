@@ -138,7 +138,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
       bcEndcapCollection_{consumes(config.getParameter<edm::InputTag>("bcEndcapCollection"))},
       scHybridBarrelProducer_{consumes(config.getParameter<edm::InputTag>("scHybridBarrelProducer"))},
       scIslandEndcapProducer_{consumes(config.getParameter<edm::InputTag>("scIslandEndcapProducer"))},
-      hbheRecHits_{consumes(config.getParameter<edm::InputTag>("hbheRechits_"))},
+      hbheRecHits_{consumes(config.getParameter<edm::InputTag>("hbheRechits"))},
       caloGeomToken_{esConsumes()},
       mFToken_{esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()},
       transientTrackToken_{esConsumes<TransientTrackBuilder, TransientTrackRecord, edm::Transition::BeginRun>(
