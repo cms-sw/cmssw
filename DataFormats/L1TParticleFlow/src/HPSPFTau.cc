@@ -8,7 +8,6 @@ l1t::HPSPFTau::HPSPFTau()
       sumNeutralIso_(0.),
       sumCombinedIso_(0.),
       sumChargedIsoPileup_(0.),
-      rhoCorr_(0.),
       passTightIso_(false),
       passMediumIso_(false),
       passLooseIso_(false),
@@ -34,7 +33,7 @@ ostream& operator<<(ostream& os, const l1t::HPSPFTau& l1PFTau) {
   os << "seed:";
   if (l1PFTau.isChargedPFCandSeeded()) {
     os << " chargedPFCand";
-  } else if (l1PFTau.isPFJetSeeded()) {
+  } else if (l1PFTau.isJetSeeded()) {
     os << " PFJet";
   } else {
     cms::Exception ex("InconsistentTau");
@@ -51,7 +50,7 @@ ostream& operator<<(ostream& os, const l1t::HPSPFTau& l1PFTau) {
   for (const auto& l1PFCand : l1PFTau.stripAllL1PFCandidates()) {
     printPFCand(os, *l1PFCand, l1PFTau.primaryVertex());
   }
-  os << "strip pT = " << l1PFTau.strip_p4().pt() << std::endl;
+  os << "strip pT = " << l1PFTau.stripP4().pt() << std::endl;
   os << "isolationPFCands:" << std::endl;
   for (const auto& l1PFCand : l1PFTau.isoAllL1PFCandidates()) {
     printPFCand(os, *l1PFCand, l1PFTau.primaryVertex());
@@ -61,30 +60,30 @@ ostream& operator<<(ostream& os, const l1t::HPSPFTau& l1PFTau) {
   return os;
 }
 
-void l1t::printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::TkPrimaryVertexRef& primaryVertex) {
-  float primaryVertex_z = (primaryVertex.isNonnull()) ? primaryVertex->zvertex() : 0.;
-  l1t::printPFCand(os, l1PFCand, primaryVertex_z);
+void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::TkPrimaryVertexRef& primaryVertex) {
+  float primaryVertexZ = (primaryVertex.isNonnull()) ? primaryVertex->zvertex() : 0.;
+  printPFCand(os, l1PFCand, primaryVertexZ);
 }
 
-void l1t::printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, float primaryVertex_z) {
-  std::string type_string;
+void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, float primaryVertexZ) {
+  std::string typeString;
   if (l1PFCand.id() == l1t::PFCandidate::ChargedHadron)
-    type_string = "PFChargedHadron";
+    typeString = "PFChargedHadron";
   else if (l1PFCand.id() == l1t::PFCandidate::Electron)
-    type_string = "PFElectron";
+    typeString = "PFElectron";
   else if (l1PFCand.id() == l1t::PFCandidate::NeutralHadron)
-    type_string = "PFNeutralHadron";
+    typeString = "PFNeutralHadron";
   else if (l1PFCand.id() == l1t::PFCandidate::Photon)
-    type_string = "PFPhoton";
+    typeString = "PFPhoton";
   else if (l1PFCand.id() == l1t::PFCandidate::Muon)
-    type_string = "PFMuon";
+    typeString = "PFMuon";
   else
-    type_string = "N/A";
-  os << " " << type_string << " with pT = " << l1PFCand.pt() << ", eta = " << l1PFCand.eta()
+    typeString = "N/A";
+  os << " " << typeString << " with pT = " << l1PFCand.pt() << ", eta = " << l1PFCand.eta()
      << ", phi = " << l1PFCand.phi() << ","
      << " mass = " << l1PFCand.mass() << ", charge = " << l1PFCand.charge();
-  if (l1PFCand.charge() != 0 && primaryVertex_z != 0.) {
-    os << " (dz = " << std::fabs(l1PFCand.pfTrack()->vertex().z() - primaryVertex_z) << ")";
+  if (l1PFCand.charge() != 0 && primaryVertexZ != 0.) {
+    os << " (dz = " << std::fabs(l1PFCand.pfTrack()->vertex().z() - primaryVertexZ) << ")";
   }
   os << std::endl;
 }
