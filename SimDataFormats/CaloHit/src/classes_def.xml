@@ -38,4 +38,10 @@
   <class name="std::vector<PassiveHit>"/>
   <class name="std::vector<const PassiveHit*>"/>
   <class name="edm::Wrapper<std::vector<PassiveHit>>" splitLevel="0"/>
+  <class name="MaterialInformation" ClassVersion="16">
+   <version ClassVersion="16" checksum="680156149"/>
+  </class>
+  <class name="std::vector<MaterialInformation>"/>
+  <class name="std::vector<const MaterialInformation*>"/>
+  <class name="edm::Wrapper<std::vector<MaterialInformation>>" splitLevel="0"/>
 </lcgdict>
