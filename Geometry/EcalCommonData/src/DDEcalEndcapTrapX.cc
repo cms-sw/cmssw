@@ -1,17 +1,10 @@
-#include "Geometry/EcalCommonData/interface/DDEcalEndcapTrap.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Plane3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
+#include "Geometry/EcalCommonData/interface/DDEcalEndcapTrapX.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/EulerAngles.h"
 
 //#define EDM_ML_DEBUG
+// Implementation of DDEcalEndcapTrapX class
 
-// Implementation of DDEcalEndcapTrap class
-
-DDEcalEndcapTrap::DDEcalEndcapTrap(const int hand, const double front, const double rear, const double length) {
+DDEcalEndcapTrapX::DDEcalEndcapTrapX(const int hand, const double front, const double rear, const double length) {
   //
   //  Initialise corners of supercrystal.
 
@@ -78,21 +71,7 @@ DDEcalEndcapTrap::DDEcalEndcapTrap(const int hand, const double front, const dou
   calculateCentres();
 }
 
-//void DDEcalEndcapTrap::rotate() {
-//  //
-//  //  Rotate supercrystal to standard position
-//  //
-//  std::cout << "DDEcalEndcapTrap::rotate() - not yet implemented" << std::endl;
-//}
-
-void DDEcalEndcapTrap::rotate(const DDTranslation& frontCentre, const DDTranslation& rearCentre) {
-  //
-  //  Rotate supercrystal to bring front and rear face centres to specified points
-  //
-  edm::LogVerbatim("EcalGeom") << "DDEcalEndcapTrap::rotate(DDTranslation,DDTranslation) - not yet implemented";
-}
-
-void DDEcalEndcapTrap::rotate(const DDRotationMatrix& rot) {
+void DDEcalEndcapTrapX::rotate(const DDRotationMatrix& rot) {
   //
   //  Rotate supercrystal by specified rotation about (0,0,0)
   //
@@ -100,7 +79,7 @@ void DDEcalEndcapTrap::rotate(const DDRotationMatrix& rot) {
   int icorner;
   DDTranslation cc;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << "DDEcalEndcapTrap::rotate - rotation " << rot;
+  edm::LogVerbatim("EcalGeom") << "DDEcalEndcapTrapX::rotate - rotation " << rot;
 #endif
   for (icorner = 1; icorner <= 8; icorner++) {
     cc = cornerPos(icorner);
@@ -117,14 +96,14 @@ void DDEcalEndcapTrap::rotate(const DDRotationMatrix& rot) {
   calculateCentres();
 }
 
-void DDEcalEndcapTrap::translate() {
+void DDEcalEndcapTrapX::translate() {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << "DDEcalEndcapTrap::translate() not yet implemented";
+  edm::LogVerbatim("EcalGeom") << "DDEcalEndcapTrapX::translate() not yet implemented";
 #endif
   translate(-1. * centrePos());
 }
 
-void DDEcalEndcapTrap::translate(const DDTranslation& trans) {
+void DDEcalEndcapTrapX::translate(const DDTranslation& trans) {
   //
   //  Translate supercrystal by specified amount
   //
@@ -138,7 +117,7 @@ void DDEcalEndcapTrap::translate(const DDTranslation& trans) {
   m_translation = trans + m_translation;
 }
 
-void DDEcalEndcapTrap::moveto(const DDTranslation& frontCentre, const DDTranslation& rearCentre) {
+void DDEcalEndcapTrapX::moveto(const DDTranslation& frontCentre, const DDTranslation& rearCentre) {
   //
   //  Rotate (about X then about Y) and translate supercrystal to bring axis joining front and rear face centres parallel to line connecting specified points
   //
@@ -156,7 +135,7 @@ void DDEcalEndcapTrap::moveto(const DDTranslation& frontCentre, const DDTranslat
                                << "moveto: X rotation: " << targetTheta << " " << currentTheta << " "
                                << targetTheta - currentTheta << std::endl
                                << "moveto: Y rotation: " << targetPhi << " " << currentPhi << " "
-                               << " " << targetPhi - currentPhi;
+                               << " " << targetPhi - currentPhi << std::endl;
 #endif
   rotateX(targetTheta - currentTheta);
   rotateY(targetPhi - currentPhi);
@@ -169,7 +148,7 @@ void DDEcalEndcapTrap::moveto(const DDTranslation& frontCentre, const DDTranslat
   translate(targetCentre - centrePos());
 }
 
-void DDEcalEndcapTrap::rotateX(const double angle) {
+void DDEcalEndcapTrapX::rotateX(const double angle) {
   //
   //  Rotate SC through given angle about X axis
   //
@@ -179,7 +158,7 @@ void DDEcalEndcapTrap::rotateX(const double angle) {
   rotate(DDRotationMatrix(tmp.xx(), tmp.xy(), tmp.xz(), tmp.yx(), tmp.yy(), tmp.yz(), tmp.zx(), tmp.zy(), tmp.zz()));
 }
 
-void DDEcalEndcapTrap::rotateY(const double angle) {
+void DDEcalEndcapTrapX::rotateY(const double angle) {
   //
   //  Rotate SC through given angle about Y axis
   //
@@ -188,7 +167,7 @@ void DDEcalEndcapTrap::rotateY(const double angle) {
   rotate(DDRotationMatrix(tmp.xx(), tmp.xy(), tmp.xz(), tmp.yx(), tmp.yy(), tmp.yz(), tmp.zx(), tmp.zy(), tmp.zz()));
 }
 
-void DDEcalEndcapTrap::calculateCentres() {
+void DDEcalEndcapTrapX::calculateCentres() {
   //
   //  Calculate crystal centre and front & rear face centres
   //
@@ -215,14 +194,14 @@ void DDEcalEndcapTrap::calculateCentres() {
   }
 }
 
-DDTranslation DDEcalEndcapTrap::cornerPos(const int icorner) {
+DDTranslation DDEcalEndcapTrapX::cornerPos(const int icorner) {
   //
-  //  Return specified corner as a DDTranslation
+  //  Return specified corner as a Translation
   //
   return DDTranslation(m_corners[3 * icorner - 3], m_corners[3 * icorner - 2], m_corners[3 * icorner - 1]);
 }
 
-void DDEcalEndcapTrap::cornerPos(const int icorner, const DDTranslation& cornerxyz) {
+void DDEcalEndcapTrapX::cornerPos(const int icorner, const DDTranslation& cornerxyz) {
   //
   //  Save position of specified corner.
   //
@@ -232,28 +211,28 @@ void DDEcalEndcapTrap::cornerPos(const int icorner, const DDTranslation& cornerx
   }
 }
 
-DDTranslation DDEcalEndcapTrap::centrePos() {
+DDTranslation DDEcalEndcapTrapX::centrePos() {
   //
-  //  Return SC centre as a DDTranslation
+  //  Return SC centre as a Translation
   //
   return DDTranslation(m_centre[0], m_centre[1], m_centre[2]);
 }
 
-DDTranslation DDEcalEndcapTrap::fcentrePos() {
+DDTranslation DDEcalEndcapTrapX::fcentrePos() {
   //
-  //  Return SC front face centre as a DDTranslation
+  //  Return SC front face centre as a Translation
   //
   return DDTranslation(m_fcentre[0], m_fcentre[1], m_fcentre[2]);
 }
 
-DDTranslation DDEcalEndcapTrap::rcentrePos() {
+DDTranslation DDEcalEndcapTrapX::rcentrePos() {
   //
-  //  Return SC rear face centre as a DDTranslation
+  //  Return SC rear face centre as a Translation
   //
   return DDTranslation(m_rcentre[0], m_rcentre[1], m_rcentre[2]);
 }
 
-double DDEcalEndcapTrap::elevationAngle(const DDTranslation& trans) {
+double DDEcalEndcapTrapX::elevationAngle(const DDTranslation& trans) {
   //
   //  Return elevation angle (out of x-z plane) of a given translation (seen as a vector from the origin).
   //
@@ -261,7 +240,7 @@ double DDEcalEndcapTrap::elevationAngle(const DDTranslation& trans) {
   return asin(sintheta);
 }
 
-double DDEcalEndcapTrap::elevationAngle() {
+double DDEcalEndcapTrapX::elevationAngle() {
   //
   //  Return elevation angle (out of x-z plane) of SC in current position.
   //
@@ -269,7 +248,7 @@ double DDEcalEndcapTrap::elevationAngle() {
   return elevationAngle(current);
 }
 
-double DDEcalEndcapTrap::polarAngle(const DDTranslation& trans) {
+double DDEcalEndcapTrapX::polarAngle(const DDTranslation& trans) {
   //
   //  Return polar angle (from x to z) of a given translation (seen as a vector from the origin).
   //
@@ -277,7 +256,7 @@ double DDEcalEndcapTrap::polarAngle(const DDTranslation& trans) {
   return atan(tanphi);
 }
 
-double DDEcalEndcapTrap::polarAngle() {
+double DDEcalEndcapTrapX::polarAngle() {
   //
   //  Return elevation angle (out of x-z plane) of SC in current position.
   //
@@ -285,14 +264,14 @@ double DDEcalEndcapTrap::polarAngle() {
   return polarAngle(current);
 }
 
-void DDEcalEndcapTrap::print() {
+void DDEcalEndcapTrapX::print() {
   //
   //  Print SC coordinates for debugging
   //
   edm::LogVerbatim("EcalGeom") << "Endcap supercrystal";
   for (int ic = 1; ic <= 8; ic++) {
     DDTranslation cc = cornerPos(ic);
-    edm::LogVerbatim("EcalGeom") << "Corner " << ic << " " << cc;
+    edm::LogVerbatim("EcalGeom") << "Corner " << ic << " " << cc << std::endl;
   }
   edm::LogVerbatim("EcalGeom") << "    Centre " << centrePos() << std::endl
                                << "   fCentre " << fcentrePos() << std::endl
