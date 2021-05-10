@@ -31,7 +31,7 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
-#include "CondFormats/SiPixelTransient/src/SiPixelTemplate.cc"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 
 namespace {
@@ -122,9 +122,6 @@ namespace {
   }
 
   void SiPixelPhase1TrackClusters::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-    // get geometry
-    edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
-    assert(tracker.isValid());
     //get topology
     tkTpl = &iSetup.getData(trackerTopoToken_);
 
