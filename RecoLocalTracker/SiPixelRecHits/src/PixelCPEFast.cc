@@ -392,93 +392,14 @@ LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& t
   bool bigInX = theDetParam.theRecTopol->containsBigPixelInX(minPixelRow, maxPixelRow);
   bool bigInY = theDetParam.theRecTopol->containsBigPixelInY(minPixelCol, maxPixelCol);
 
-  if (useErrorsFromTemplates_) {
-    //
-    // Use template errors
+  // from PixelCPEGenericBase
+  setXYErrors(
+      xerr, yerr, edgex, edgey, sizex, sizey, bigInX, bigInY, useErrorsFromTemplates_, theDetParam, theClusterParam);
 
-    if (!edgex) {  // Only use this for non-edge clusters
-      if (sizex == 1) {
-        if (!bigInX) {
-          xerr = theClusterParam.sx1;
-        } else {
-          xerr = theClusterParam.sx2;
-        }
-      } else {
-        xerr = theClusterParam.sigmax;
-      }
-    }
-
-    if (!edgey) {  // Only use for non-edge clusters
-      if (sizey == 1) {
-        if (!bigInY) {
-          yerr = theClusterParam.sy1;
-        } else {
-          yerr = theClusterParam.sy2;
-        }
-      } else {
-        yerr = theClusterParam.sigmay;
-      }
-    }
-
-  } else {  // simple errors
-
-    // This are the simple errors, hardcoded in the code
+  if (!useErrorsFromTemplates_) {
     LogDebug("PixelCPEFast") << "Track angles are not known.\n"
                              << "Default angle estimation which assumes track from PV (0,0,0) does not work.";
-
-    if (GeomDetEnumerators::isTrackerPixel(theDetParam.thePart)) {
-      if (GeomDetEnumerators::isBarrel(theDetParam.thePart)) {
-        DetId id = (theDetParam.theDet->geographicalId());
-        int layer = ttopo_.layer(id);
-        if (layer == 1) {
-          if (!edgex) {
-            if (sizex <= xerr_barrel_l1_.size())
-              xerr = xerr_barrel_l1_[sizex - 1];
-            else
-              xerr = xerr_barrel_l1_def_;
-          }
-
-          if (!edgey) {
-            if (sizey <= yerr_barrel_l1_.size())
-              yerr = yerr_barrel_l1_[sizey - 1];
-            else
-              yerr = yerr_barrel_l1_def_;
-          }
-        } else {  // layer 2,3
-          if (!edgex) {
-            if (sizex <= xerr_barrel_ln_.size())
-              xerr = xerr_barrel_ln_[sizex - 1];
-            else
-              xerr = xerr_barrel_ln_def_;
-          }
-
-          if (!edgey) {
-            if (sizey <= yerr_barrel_ln_.size())
-              yerr = yerr_barrel_ln_[sizey - 1];
-            else
-              yerr = yerr_barrel_ln_def_;
-          }
-        }
-
-      } else {  // EndCap
-
-        if (!edgex) {
-          if (sizex <= xerr_endcap_.size())
-            xerr = xerr_endcap_[sizex - 1];
-          else
-            xerr = xerr_endcap_def_;
-        }
-
-        if (!edgey) {
-          if (sizey <= yerr_endcap_.size())
-            yerr = yerr_endcap_[sizey - 1];
-          else
-            yerr = yerr_endcap_def_;
-        }
-      }  // end endcap
-    }
-
-  }  // end
+  }
 
   LogDebug("PixelCPEFast") << " errors  " << xerr << " " << yerr;
 

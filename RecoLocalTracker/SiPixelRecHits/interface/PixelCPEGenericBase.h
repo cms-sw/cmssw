@@ -54,6 +54,18 @@ protected:
                                    int& q_l_Y,                     //!< output, Q last   in Y
                                    bool truncate);
 
+  void setXYErrors(float& xerr,
+                   float& yerr,
+                   const bool edgex,
+                   const bool edgey,
+                   const unsigned int sizex,
+                   const unsigned int sizey,
+                   const bool bigInX,
+                   const bool bigInY,
+                   const bool useTemplateErrors,
+                   DetParam const& theDetParam,
+                   ClusterParamGeneric const& theClusterParam) const;
+
   const float edgeClusterErrorX_;
   const float edgeClusterErrorY_;
   bool useErrorsFromTemplates_;

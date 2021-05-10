@@ -76,6 +76,103 @@ void PixelCPEGenericBase::collect_edge_charges(ClusterParam& theClusterParamBase
   }
 }
 
+void PixelCPEGenericBase::setXYErrors(float& xerr,
+                                      float& yerr,
+                                      const bool edgex,
+                                      const bool edgey,
+                                      const unsigned int sizex,
+                                      const unsigned int sizey,
+                                      const bool bigInX,
+                                      const bool bigInY,
+                                      const bool useTemplateErrors,
+                                      DetParam const& theDetParam,
+                                      ClusterParamGeneric const& theClusterParam) const {
+  if (useTemplateErrors) {
+    if (!edgex) {  // Only use this for non-edge clusters
+      if (sizex == 1) {
+        if (!bigInX) {
+          xerr = theClusterParam.sx1;
+        } else {
+          xerr = theClusterParam.sx2;
+        }
+      } else {
+        xerr = theClusterParam.sigmax;
+      }
+    }
+
+    if (!edgey) {  // Only use for non-edge clusters
+      if (sizey == 1) {
+        if (!bigInY) {
+          yerr = theClusterParam.sy1;
+        } else {
+          yerr = theClusterParam.sy2;
+        }
+      } else {
+        yerr = theClusterParam.sigmay;
+      }
+    }
+
+    // if (localPrint) {
+    //   cout << " in if " << edgex << " " << edgey << " " << sizex << " " << sizey << endl;
+    //   cout << " errors  " << xerr << " " << yerr << " " << theClusterParam.sx1 << " " << theClusterParam.sx2 << " "
+    //        << theClusterParam.sigmax << endl;  //dk
+    // }
+  } else {  // simple errors
+
+    if (GeomDetEnumerators::isTrackerPixel(theDetParam.thePart)) {
+      if (GeomDetEnumerators::isBarrel(theDetParam.thePart)) {
+        DetId id = (theDetParam.theDet->geographicalId());
+        int layer = ttopo_.layer(id);
+        if (layer == 1) {
+          if (!edgex) {
+            if (sizex <= xerr_barrel_l1_.size())
+              xerr = xerr_barrel_l1_[sizex - 1];
+            else
+              xerr = xerr_barrel_l1_def_;
+          }
+
+          if (!edgey) {
+            if (sizey <= yerr_barrel_l1_.size())
+              yerr = yerr_barrel_l1_[sizey - 1];
+            else
+              yerr = yerr_barrel_l1_def_;
+          }
+        } else {  // layer 2,3
+          if (!edgex) {
+            if (sizex <= xerr_barrel_ln_.size())
+              xerr = xerr_barrel_ln_[sizex - 1];
+            else
+              xerr = xerr_barrel_ln_def_;
+          }
+
+          if (!edgey) {
+            if (sizey <= yerr_barrel_ln_.size())
+              yerr = yerr_barrel_ln_[sizey - 1];
+            else
+              yerr = yerr_barrel_ln_def_;
+          }
+        }
+
+      } else {  // EndCap
+
+        if (!edgex) {
+          if (sizex <= xerr_endcap_.size())
+            xerr = xerr_endcap_[sizex - 1];
+          else
+            xerr = xerr_endcap_def_;
+        }
+
+        if (!edgey) {
+          if (sizey <= yerr_endcap_.size())
+            yerr = yerr_endcap_[sizey - 1];
+          else
+            yerr = yerr_endcap_def_;
+        }
+      }  // end endcap
+    }
+  }
+}
+
 void PixelCPEGenericBase::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<std::vector<double>>("xerr_barrel_l1", {0.00115, 0.00120, 0.00088});
   desc.add<std::vector<double>>("yerr_barrel_l1",
