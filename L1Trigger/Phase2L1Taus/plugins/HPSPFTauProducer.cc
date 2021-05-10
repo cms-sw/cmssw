@@ -67,7 +67,7 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   if (!srcL1Vertices_.label().empty()) {
     edm::Handle<std::vector<l1t::TkPrimaryVertex>> vertices;
     evt.getByToken(tokenL1Vertices_, vertices);
-    if (!vertices->->empty()) {
+    if (!vertices->empty()) {
       primaryVertex = l1t::TkPrimaryVertexRef(vertices, 0);
       primaryVertex_z = primaryVertex->zvertex();
     }
