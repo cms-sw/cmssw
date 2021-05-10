@@ -154,5 +154,4 @@
 <test name="import-bs4" command="python3 -c 'import bs4'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
 <test name="run-ipython3" command="ipython3 -h"/>
-<test name="run-pylint" command="pylint -h"/>
 <test name="run-pylint3" command="pylint3 -h"/>
