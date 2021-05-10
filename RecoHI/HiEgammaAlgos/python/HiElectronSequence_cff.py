@@ -21,8 +21,8 @@ ecalDrivenGsfElectrons.vtxTag = "hiSelectedVertex"
 
 ecalDrivenGsfElectrons.preselection.maxHOverEBarrelCone = 0.25
 ecalDrivenGsfElectrons.preselection.maxHOverEEndcapsCone = 0.25
-ecalDrivenGsfElectrons.preselection.maxHOverEBarrelTower = 0.
-ecalDrivenGsfElectrons.preselection.maxHOverEEndcapsTower = 0.
+ecalDrivenGsfElectrons.preselection.maxHOverEBarrelBc = 0.
+ecalDrivenGsfElectrons.preselection.maxHOverEEndcapsBc = 0.
 ecalDrivenGsfElectrons.fillConvVtxFitProb = False
 
 
