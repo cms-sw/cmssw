@@ -8,7 +8,8 @@
 #include <cmath>                                   // std::fabs
 
 L1HPSPFTauBuilder::L1HPSPFTauBuilder(const edm::ParameterSet& cfg)
-  : signalConeSizeFormula_(std::regex_replace(cfg.getParameter<std::string>("signalConeSize"), std::regex("pt"), "x")),
+    : signalConeSizeFormula_(
+          std::regex_replace(cfg.getParameter<std::string>("signalConeSize"), std::regex("pt"), "x")),
       minSignalConeSize_(cfg.getParameter<double>("minSignalConeSize")),
       maxSignalConeSize_(cfg.getParameter<double>("maxSignalConeSize")),
       useStrips_(cfg.getParameter<bool>("useStrips")),
@@ -16,7 +17,6 @@ L1HPSPFTauBuilder::L1HPSPFTauBuilder(const edm::ParameterSet& cfg)
       stripSizePhi_(cfg.getParameter<double>("stripSizePhi")),
       isolationConeSize_(cfg.getParameter<double>("isolationConeSize")),
       debug_(cfg.getUntrackedParameter<bool>("debug", false)) {
-
   assert(maxSignalConeSize_ >= minSignalConeSize_);
 
   isolationConeSize2_ = isolationConeSize_ * isolationConeSize_;
@@ -158,7 +158,7 @@ void L1HPSPFTauBuilder::setL1PFTauSeed(const reco::CaloJetRef& l1JetSeed,
   float l1PFTauSeedZVtx = 0.;
   bool l1PFTauSeed_hasVtx = false;
   float max_chargedPFCand_pt = -1.;
-  for (auto l1PFCand : l1PFCands) {
+  for (const auto& l1PFCand : l1PFCands) {
     double dR = reco::deltaR(l1PFCand->eta(), l1PFCand->phi(), l1JetSeed->eta(), l1JetSeed->phi());
     if (dR > 0.4)
       continue;
@@ -191,7 +191,7 @@ void L1HPSPFTauBuilder::addL1PFCandidates(const std::vector<l1t::PFCandidateRef>
   if (!(isPFCandSeeded_ || isJetSeeded_))
     return;
 
-  for (auto l1PFCand : l1PFCands) {
+  for (const auto& l1PFCand : l1PFCands) {
     if (!isWithinIsolationCone(*l1PFCand))
       continue;
     sumAllL1PFCandidates_.push_back(l1PFCand);
@@ -208,7 +208,7 @@ void L1HPSPFTauBuilder::addL1PFCandidates(const std::vector<l1t::PFCandidateRef>
     }
   }
 
-  for (auto l1PFCand : sumAllL1PFCandidates_) {
+  for (const auto& l1PFCand : sumAllL1PFCandidates_) {
     sumAllL1PFCandidatesPt_ += l1PFCand->pt();
   }
   std::vector<double> emptyV;
@@ -223,7 +223,7 @@ void L1HPSPFTauBuilder::addL1PFCandidates(const std::vector<l1t::PFCandidateRef>
     signalConeSize_ = maxSignalConeSize_;
   signalConeSize2_ = signalConeSize_ * signalConeSize_;
 
-  for (auto l1PFCand : sumAllL1PFCandidates_) {
+  for (const auto& l1PFCand : sumAllL1PFCandidates_) {
     if (debug_) {
       printPFCand(std::cout, *l1PFCand, primaryVertex_);
     }
@@ -295,7 +295,7 @@ void L1HPSPFTauBuilder::addL1PFCandidates(const std::vector<l1t::PFCandidateRef>
     }
   }
 
-  for (auto l1PFCand : l1PFCands) {
+  for (const auto& l1PFCand : l1PFCands) {
     if (!isWithinIsolationCone(*l1PFCand))
       continue;
 
@@ -338,7 +338,7 @@ bool L1HPSPFTauBuilder::isWithinIsolationCone(const l1t::PFCandidate& l1PFCand) 
 
 void L1HPSPFTauBuilder::buildL1PFTau() {
   reco::Particle::LorentzVector l1PFTau_p4;
-  for (auto l1PFCand : signalAllL1PFCandidates_) {
+  for (const auto& l1PFCand : signalAllL1PFCandidates_) {
     if (l1PFCand->id() == l1t::PFCandidate::ChargedHadron || l1PFCand->id() == l1t::PFCandidate::Electron ||
         l1PFCand->id() == l1t::PFCandidate::Photon) {
       l1PFTau_p4 += l1PFCand->p4();
@@ -400,7 +400,7 @@ void L1HPSPFTauBuilder::buildL1PFTau() {
 
   double sumChargedIso = 0.;
   double sumNeutralIso = 0.;
-  for (auto l1PFCand : isoAllL1PFCandidates_) {
+  for (const auto& l1PFCand : isoAllL1PFCandidates_) {
     if (l1PFCand->charge() != 0) {
       sumChargedIso += l1PFCand->pt();
     } else if (l1PFCand->id() == l1t::PFCandidate::Photon) {
@@ -430,7 +430,7 @@ void L1HPSPFTauBuilder::buildL1PFTau() {
 
 l1t::PFCandidateRefVector L1HPSPFTauBuilder::convertToRefVector(const std::vector<l1t::PFCandidateRef>& l1PFCands) {
   l1t::PFCandidateRefVector l1PFCandsRefVector(l1PFCandProductID_);
-  for (auto l1PFCand : l1PFCands) {
+  for (const auto& l1PFCand : l1PFCands) {
     l1PFCandsRefVector.push_back(l1PFCand);
   }
   return l1PFCandsRefVector;

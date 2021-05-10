@@ -10,8 +10,8 @@
 
 #include "L1Trigger/Phase2L1Taus/interface/L1HPSPFTauQualityCut.h"  // L1HPSPFTauQualityCut
 #include "L1Trigger/Phase2L1Taus/interface/L1HPSPFTauBuilder.h"     // L1HPSPFTauBuilder
-#include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"          // l1t::HPSPFTau
-#include "DataFormats/L1TParticleFlow/interface/HPSPFTauFwd.h"       // l1t::HPSPFTauCollection
+#include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"         // l1t::HPSPFTau
+#include "DataFormats/L1TParticleFlow/interface/HPSPFTauFwd.h"      // l1t::HPSPFTauCollection
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"  // l1t::PFCandidate, l1t::PFCandidateCollection, l1t::PFCandidateRef
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
@@ -22,12 +22,12 @@
 class HPSPFTauProducer : public edm::stream::EDProducer<> {
 public:
   explicit HPSPFTauProducer(const edm::ParameterSet& cfg);
-  ~HPSPFTauProducer() = default;
+  ~HPSPFTauProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event& evt, const edm::EventSetup& es);
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   std::string moduleLabel_;
 
