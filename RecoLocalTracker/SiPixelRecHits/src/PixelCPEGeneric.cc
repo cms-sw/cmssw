@@ -47,16 +47,11 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   the_size_cutX = conf.getParameter<double>("size_cutX");
   the_size_cutY = conf.getParameter<double>("size_cutY");
 
-  EdgeClusterErrorX_ = conf.getParameter<double>("EdgeClusterErrorX");
-  EdgeClusterErrorY_ = conf.getParameter<double>("EdgeClusterErrorY");
-
   // Externally settable flags to inflate errors
   inflate_errors = conf.getParameter<bool>("inflate_errors");
   inflate_all_errors_no_trk_angle = conf.getParameter<bool>("inflate_all_errors_no_trk_angle");
 
   NoTemplateErrorsWhenNoTrkAngles_ = conf.getParameter<bool>("NoTemplateErrorsWhenNoTrkAngles");
-  UseErrorsFromTemplates_ = conf.getParameter<bool>("UseErrorsFromTemplates");
-  TruncatePixelCharge_ = conf.getParameter<bool>("TruncatePixelCharge");
   IrradiationBiasCorrection_ = conf.getParameter<bool>("IrradiationBiasCorrection");
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
 
@@ -65,18 +60,18 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
 
   // For cosmics force the use of simple errors
   if ((DoCosmics_))
-    UseErrorsFromTemplates_ = false;
+    useErrorsFromTemplates_ = false;
 
-  if (!UseErrorsFromTemplates_ && (TruncatePixelCharge_ || IrradiationBiasCorrection_ || LoadTemplatesFromDB_)) {
+  if (!useErrorsFromTemplates_ && (truncatePixelCharge_ || IrradiationBiasCorrection_ || LoadTemplatesFromDB_)) {
     throw cms::Exception("PixelCPEGeneric::PixelCPEGeneric: ")
-        << "\nERROR: UseErrorsFromTemplates_ is set to False in PixelCPEGeneric_cfi.py. "
+        << "\nERROR: useErrorsFromTemplates_ is set to False in PixelCPEGeneric_cfi.py. "
         << " In this case it does not make sense to set any of the following to True: "
-        << " TruncatePixelCharge_, IrradiationBiasCorrection_, DoCosmics_, LoadTemplatesFromDB_ !!!"
+        << " truncatePixelCharge_, IrradiationBiasCorrection_, DoCosmics_, LoadTemplatesFromDB_ !!!"
         << "\n\n";
   }
 
   // Use errors from templates or from GenError
-  if (UseErrorsFromTemplates_) {
+  if (useErrorsFromTemplates_) {
     if (LoadTemplatesFromDB_) {  // From DB
       if (!SiPixelGenError::pushfile(*genErrorDBObject_, thePixelGenError_))
         throw cms::Exception("InvalidCalibrationLoaded")
@@ -93,7 +88,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   } else {
     if (MYDEBUG)
       cout << " Use simple parametrised errors " << endl;
-  }  // if ( UseErrorsFromTemplates_ )
+  }  // if ( useErrorsFromTemplates_ )
 
   // Rechit errors in case other, more correct, errors are not vailable
   // This are constants. Maybe there is a more efficienct way to store them.
@@ -135,8 +130,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
 
   if (MYDEBUG) {
     cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
-    cout << "(int)UseErrorsFromTemplates_ = " << (int)UseErrorsFromTemplates_ << endl;
-    cout << "TruncatePixelCharge_         = " << (int)TruncatePixelCharge_ << endl;
+    cout << "(int)useErrorsFromTemplates_ = " << (int)useErrorsFromTemplates_ << endl;
+    cout << "truncatePixelCharge_         = " << (int)truncatePixelCharge_ << endl;
     cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
     cout << "(int)DoCosmics_              = " << (int)DoCosmics_ << endl;
     cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_ << endl;
@@ -160,7 +155,7 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
 
   //cout<<" main la width "<<chargeWidthX<<" "<<chargeWidthY<<endl;
 
-  if (UseErrorsFromTemplates_) {
+  if (useErrorsFromTemplates_) {
     float qclus = theClusterParam.theCluster->charge();
     float locBz = theDetParam.bz;
     float locBx = theDetParam.bx;
@@ -236,7 +231,7 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
     theClusterParam.sy1 = theClusterParam.sy1 * micronsToCm;
     theClusterParam.sy2 = theClusterParam.sy2 * micronsToCm;
 
-  }  // if ( UseErrorsFromTemplates_ )
+  }  // if ( useErrorsFromTemplates_ )
   else {
     theClusterParam.qBin_ = 0;
   }
@@ -245,7 +240,7 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   int q_l_X;  //!< Q of the last   pixel  in X
   int q_f_Y;  //!< Q of the first  pixel  in Y
   int q_l_Y;  //!< Q of the last   pixel  in Y
-  collect_edge_charges(theClusterParam, q_f_X, q_l_X, q_f_Y, q_l_Y, UseErrorsFromTemplates_ && TruncatePixelCharge_);
+  collect_edge_charges(theClusterParam, q_f_X, q_l_X, q_f_Y, q_l_Y, useErrorsFromTemplates_ && truncatePixelCharge_);
 
   //--- Find the inner widths along X and Y in one shot.  We
   //--- compute the upper right corner of the inner pixels
@@ -399,8 +394,8 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
   const bool localPrint = false;
   // Default errors are the maximum error used for edge clusters.
   // These are determined by looking at residuals for edge clusters
-  float xerr = EdgeClusterErrorX_ * micronsToCm;
-  float yerr = EdgeClusterErrorY_ * micronsToCm;
+  float xerr = edgeClusterErrorX_ * micronsToCm;
+  float yerr = edgeClusterErrorY_ * micronsToCm;
 
   // Find if cluster is at the module edge.
   int maxPixelCol = theClusterParam.theCluster->maxPixelCol();
@@ -432,14 +427,14 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
       cout << " big " << bigInX << " " << bigInY << endl;
     if (edgex || edgey)
       cout << " edge " << edgex << " " << edgey << endl;
-    cout << " before if " << UseErrorsFromTemplates_ << " " << theClusterParam.qBin_ << endl;
+    cout << " before if " << useErrorsFromTemplates_ << " " << theClusterParam.qBin_ << endl;
     if (theClusterParam.qBin_ == 0)
       cout << " qbin 0! " << edgex << " " << edgey << " " << bigInX << " " << bigInY << " " << sizex << " " << sizey
            << endl;
   }
 
   bool useTempErrors =
-      UseErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
+      useErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
 
   if LIKELY (useTempErrors) {
     //

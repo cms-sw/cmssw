@@ -86,15 +86,10 @@ private:
   bool inflate_errors;
   bool inflate_all_errors_no_trk_angle;
 
-  bool UseErrorsFromTemplates_;
   bool DoCosmics_;
-  bool TruncatePixelCharge_;
   bool IrradiationBiasCorrection_;
   bool isUpgrade_;
   bool NoTemplateErrorsWhenNoTrkAngles_;
-
-  float EdgeClusterErrorX_;
-  float EdgeClusterErrorY_;
 
   std::vector<float> xerr_barrel_l1_, yerr_barrel_l1_, xerr_barrel_ln_;
   std::vector<float> yerr_barrel_ln_, xerr_endcap_, yerr_endcap_;

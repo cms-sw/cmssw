@@ -37,8 +37,7 @@ public:
                       const TrackerTopology& ttopo,
                       const SiPixelLorentzAngle* lorentzAngle,
                       const SiPixelGenErrorDBObject* genErrorDBObject,
-                      const SiPixelLorentzAngle* lorentzAngleWidth = nullptr)
-      : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr, lorentzAngleWidth, 0){};
+                      const SiPixelLorentzAngle* lorentzAngleWidth);
 
 protected:
   std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster& cl) const override;
@@ -49,6 +48,11 @@ protected:
                                    int& q_f_Y,                     //!< output, Q first  in Y
                                    int& q_l_Y,                     //!< output, Q last   in Y
                                    bool truncate);
+
+  const float edgeClusterErrorX_;
+  const float edgeClusterErrorY_;
+  bool useErrorsFromTemplates_;
+  const bool truncatePixelCharge_;
 };
 
 #endif  // RecoLocalTracker_SiPixelRecHits_PixelCPEGenericBase_H
