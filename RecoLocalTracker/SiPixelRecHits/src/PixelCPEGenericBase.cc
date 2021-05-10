@@ -11,7 +11,19 @@ PixelCPEGenericBase::PixelCPEGenericBase(edm::ParameterSet const& conf,
       edgeClusterErrorX_(conf.getParameter<double>("EdgeClusterErrorX")),
       edgeClusterErrorY_(conf.getParameter<double>("EdgeClusterErrorY")),
       useErrorsFromTemplates_(conf.getParameter<bool>("UseErrorsFromTemplates")),
-      truncatePixelCharge_(conf.getParameter<bool>("TruncatePixelCharge")){};
+      truncatePixelCharge_(conf.getParameter<bool>("TruncatePixelCharge")),
+      xerr_barrel_l1_{conf.getParameter<std::vector<double>>("xerr_barrel_l1")},
+      yerr_barrel_l1_{conf.getParameter<std::vector<double>>("yerr_barrel_l1")},
+      xerr_barrel_ln_{conf.getParameter<std::vector<double>>("xerr_barrel_ln")},
+      yerr_barrel_ln_{conf.getParameter<std::vector<double>>("yerr_barrel_ln")},
+      xerr_endcap_{conf.getParameter<std::vector<double>>("xerr_endcap")},
+      yerr_endcap_{conf.getParameter<std::vector<double>>("yerr_endcap")},
+      xerr_barrel_l1_def_{conf.getParameter<double>("xerr_barrel_l1_def")},
+      yerr_barrel_l1_def_{conf.getParameter<double>("yerr_barrel_l1_def")},
+      xerr_barrel_ln_def_{conf.getParameter<double>("xerr_barrel_ln_def")},
+      yerr_barrel_ln_def_{conf.getParameter<double>("yerr_barrel_ln_def")},
+      xerr_endcap_def_{conf.getParameter<double>("xerr_endcap_def")},
+      yerr_endcap_def_{conf.getParameter<double>("yerr_endcap_def")} {};
 
 std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPEGenericBase::createClusterParam(const SiPixelCluster& cl) const {
   return std::make_unique<ClusterParamGeneric>(cl);
@@ -62,4 +74,21 @@ void PixelCPEGenericBase::collect_edge_charges(ClusterParam& theClusterParamBase
     if (pixel.y == ymax)
       q_l_Y += pix_adc;
   }
+}
+
+void PixelCPEGenericBase::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<std::vector<double>>("xerr_barrel_l1", {0.00115, 0.00120, 0.00088});
+  desc.add<std::vector<double>>("yerr_barrel_l1",
+                                {0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240});
+  desc.add<std::vector<double>>("xerr_barrel_ln", {0.00115, 0.00120, 0.00088});
+  desc.add<std::vector<double>>("yerr_barrel_ln",
+                                {0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240});
+  desc.add<std::vector<double>>("xerr_endcap", {0.0020, 0.0020});
+  desc.add<std::vector<double>>("yerr_endcap", {0.00210});
+  desc.add<double>("xerr_barrel_l1_def", 0.01030);
+  desc.add<double>("yerr_barrel_l1_def", 0.00210);
+  desc.add<double>("xerr_barrel_ln_def", 0.01030);
+  desc.add<double>("yerr_barrel_ln_def", 0.00210);
+  desc.add<double>("xerr_endcap_def", 0.0020);
+  desc.add<double>("yerr_endcap_def", 0.00075);
 }
