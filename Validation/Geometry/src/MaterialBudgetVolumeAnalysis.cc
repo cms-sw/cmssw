@@ -45,22 +45,33 @@ private:
   std::vector<TProfile2D*> meStepEtaPhi_, meRadLEtaPhi_, meIntLEtaPhi_;
 };
 
-MaterialBudgetVolumeAnalysis::MaterialBudgetVolumeAnalysis(const edm::ParameterSet& p) : names_(p.getParameter<std::vector<std::string> >("names")), tag_(p.getParameter<edm::InputTag>("inputTag")), binEta_(p.getParameter<int>("nBinEta")), binPhi_(p.getParameter<int>("nBinPhi")), etaLow_(p.getParameter<double>("etaLow")), etaHigh_(p.getParameter<double>("etaHigh")), phiLow_(-1._pi), phiHigh_(1._pi) {
+MaterialBudgetVolumeAnalysis::MaterialBudgetVolumeAnalysis(const edm::ParameterSet& p)
+    : names_(p.getParameter<std::vector<std::string> >("names")),
+      tag_(p.getParameter<edm::InputTag>("inputTag")),
+      binEta_(p.getParameter<int>("nBinEta")),
+      binPhi_(p.getParameter<int>("nBinPhi")),
+      etaLow_(p.getParameter<double>("etaLow")),
+      etaHigh_(p.getParameter<double>("etaHigh")),
+      phiLow_(-1._pi),
+      phiHigh_(1._pi) {
   usesResource(TFileService::kSharedResource);
   tok_info_ = consumes<edm::MaterialInformationContainer>(tag_);
 
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolumeAnalysis: Eta plot: NX " << binEta_ << " Range " << -etaLow_ << ":" << etaHigh_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi << ":" << 1._pi << " for " << names_.size() << " detectors from " << tag_;
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolumeAnalysis: Eta plot: NX " << binEta_ << " Range "
+                                     << -etaLow_ << ":" << etaHigh_ << " Phi plot: NX " << binPhi_ << " Range "
+                                     << -1._pi << ":" << 1._pi << " for " << names_.size() << " detectors from "
+                                     << tag_;
   std::ostringstream st1;
   for (unsigned int k = 0; k < names_.size(); ++k)
-    st1 << " ["  << k << "] " << names_[k];
+    st1 << " [" << k << "] " << names_[k];
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume: " << st1.str();
   bookHisto();
-
 }
 
 void MaterialBudgetVolumeAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  std::vector<std::string> names = {"BEAM", "BEAM1", "BEAM2", "BEAM3", "BEAM4", "Tracker", "ECAL", "HCal", "MUON", "VCAL", "MGNT", "OQUA", "HGCal"};
+  std::vector<std::string> names = {
+      "BEAM", "BEAM1", "BEAM2", "BEAM3", "BEAM4", "Tracker", "ECAL", "HCal", "MUON", "VCAL", "MGNT", "OQUA", "HGCal"};
   desc.add<std::vector<std::string> >("names", names);
   desc.add<edm::InputTag>("inputTag", edm::InputTag("g4SimHits", "MaterialInformation"));
   desc.add<int>("nBinEta", 260);
@@ -86,23 +97,25 @@ void MaterialBudgetVolumeAnalysis::analyze(const edm::Event& iEvent, const edm::
 #endif
       if (std::find(names_.begin(), names_.end(), it.vname()) != names_.end()) {
 #ifdef EDM_ML_DEBUG
-	nused++;
+        nused++;
 #endif
-	unsigned int k = static_cast<unsigned int>(std::find(names_.begin(), names_.end(), it.vname()) - names_.begin());
-	meStepEta_[k]->Fill(it.trackEta(), it.stepLength());
-	meRadLEta_[k]->Fill(it.trackEta(), it.radiationLength());
-	meIntLEta_[k]->Fill(it.trackEta(), it.interactionLength());
-	meStepPhi_[k]->Fill(it.trackPhi(), it.stepLength());
-	meRadLPhi_[k]->Fill(it.trackPhi(), it.radiationLength());
-	meIntLPhi_[k]->Fill(it.trackPhi(), it.interactionLength());
-	meStepEtaPhi_[k]->Fill(it.trackEta(), it.trackPhi(), it.stepLength());
-	meRadLEtaPhi_[k]->Fill(it.trackEta(), it.trackPhi(), it.radiationLength());
-	meIntLEtaPhi_[k]->Fill(it.trackEta(), it.trackPhi(), it.interactionLength());
+        unsigned int k =
+            static_cast<unsigned int>(std::find(names_.begin(), names_.end(), it.vname()) - names_.begin());
+        meStepEta_[k]->Fill(it.trackEta(), it.stepLength());
+        meRadLEta_[k]->Fill(it.trackEta(), it.radiationLength());
+        meIntLEta_[k]->Fill(it.trackEta(), it.interactionLength());
+        meStepPhi_[k]->Fill(it.trackPhi(), it.stepLength());
+        meRadLPhi_[k]->Fill(it.trackPhi(), it.radiationLength());
+        meIntLPhi_[k]->Fill(it.trackPhi(), it.interactionLength());
+        meStepEtaPhi_[k]->Fill(it.trackEta(), it.trackPhi(), it.stepLength());
+        meRadLEtaPhi_[k]->Fill(it.trackEta(), it.trackPhi(), it.radiationLength());
+        meIntLEtaPhi_[k]->Fill(it.trackEta(), it.trackPhi(), it.interactionLength());
       }
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MaterialBudget") << "MaterialInformation with " << nsize << ":" << ntot << " elements of which " << nused << " are used";
+  edm::LogVerbatim("MaterialBudget") << "MaterialInformation with " << nsize << ":" << ntot << " elements of which "
+                                     << nused << " are used";
 #endif
 }
 
@@ -130,13 +143,16 @@ void MaterialBudgetVolumeAnalysis::bookHisto() {
     meIntLPhi_.emplace_back(fs->make<TProfile>(name, title, binPhi_, phiLow_, phiHigh_));
     sprintf(name, "stepEtaPhi%s", names_[k].c_str());
     sprintf(title, "MB(Step) vs #eta and #phi for %s", names_[k].c_str());
-    meStepEtaPhi_.emplace_back(fs->make<TProfile2D>(name, title, binEta_/2, etaLow_, etaHigh_, binPhi_/2, phiLow_, phiHigh_));
+    meStepEtaPhi_.emplace_back(
+        fs->make<TProfile2D>(name, title, binEta_ / 2, etaLow_, etaHigh_, binPhi_ / 2, phiLow_, phiHigh_));
     sprintf(name, "radlEtaPhi%s", names_[k].c_str());
     sprintf(title, "MB(X0) vs #eta and #phi for %s", names_[k].c_str());
-    meRadLEtaPhi_.emplace_back(fs->make<TProfile2D>(name, title, binEta_/2, etaLow_, etaHigh_, binPhi_/2, phiLow_, phiHigh_));
+    meRadLEtaPhi_.emplace_back(
+        fs->make<TProfile2D>(name, title, binEta_ / 2, etaLow_, etaHigh_, binPhi_ / 2, phiLow_, phiHigh_));
     sprintf(name, "intlEtaPhi%s", names_[k].c_str());
     sprintf(title, "MB(L0) vs #eta and #phi for %s", names_[k].c_str());
-    meIntLEtaPhi_.emplace_back(fs->make<TProfile2D>(name, title, binEta_/2, etaLow_, etaHigh_, binPhi_/2, phiLow_, phiHigh_));
+    meIntLEtaPhi_.emplace_back(
+        fs->make<TProfile2D>(name, title, binEta_ / 2, etaLow_, etaHigh_, binPhi_ / 2, phiLow_, phiHigh_));
   }
 }
 
