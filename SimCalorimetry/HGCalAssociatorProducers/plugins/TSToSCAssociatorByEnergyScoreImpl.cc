@@ -76,21 +76,20 @@ hgcal::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
   for (size_t sc = 0; sc < tssInSimCluster.size(); ++sc) {
     LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "For SimCluster Idx: " << sc << " we have: " << std::endl;
     LogDebug("TSToSCAssociatorByEnergyScoreImpl")
-        << "    SimClusterIdx: " << tssInSimCluster[sc].simClusterId << std::endl;
-    LogDebug("TSToSCAssociatorByEnergyScoreImpl")
-        << "    Energy:          " << tssInSimCluster[sc].energy << std::endl;
-    LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "    # of clusters :          " << nLayerClusters << std::endl;
+        << "\tSimClusterIdx:\t" << tssInSimCluster[sc].simClusterId << std::endl;
+    LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "\tEnergy:\t" << tssInSimCluster[sc].energy << std::endl;
+    LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "\t# of clusters:\t" << layerClusters.size() << std::endl;
     double tot_energy = 0.;
     for (auto const& haf : tssInSimCluster[sc].hits_and_fractions) {
       LogDebug("TSToSCAssociatorByEnergyScoreImpl")
-          << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/" << haf.second << "/"
+          << "\tHits/fraction/energy: " << (uint32_t)haf.first << "/" << haf.second << "/"
           << haf.second * hitMap_->at(haf.first)->energy() << std::endl;
       tot_energy += haf.second * hitMap_->at(haf.first)->energy();
     }
-    LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "    Tot Sum haf: " << tot_energy << std::endl;
+    LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "\tTot Sum haf: " << tot_energy << std::endl;
     for (auto const& ts : tssInSimCluster[sc].tracksterIdToEnergyAndScore) {
       LogDebug("TSToSCAssociatorByEnergyScoreImpl")
-          << "      tsIdx/energy/score: " << ts.first << "/" << ts.second.first << "/" << ts.second.second << std::endl;
+          << "\ttsIdx/energy/score: " << ts.first << "/" << ts.second.first << "/" << ts.second.second << std::endl;
     }
   }
 
@@ -101,7 +100,7 @@ hgcal::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
         << " we have found the following connections with SimClusters:" << std::endl;
     for (auto const& sc : detId.second) {
       LogDebug("TSToSCAssociatorByEnergyScoreImpl")
-          << "  SimCluster Id: " << sc.clusterId << " with fraction: " << sc.fraction
+          << "\tSimCluster Id: " << sc.clusterId << " with fraction: " << sc.fraction
           << " and energy: " << sc.fraction * hitMap_->at(detId.first)->energy() << std::endl;
     }
   }
@@ -283,19 +282,18 @@ hgcal::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
     LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "For SimCluster Idx: " << sc << " we have: " << std::endl;
     LogDebug("TSToSCAssociatorByEnergyScoreImpl")
         << "    SimClusterIdx: " << tssInSimCluster[sc].simClusterId << std::endl;
-    LogDebug("TSToSCAssociatorByEnergyScoreImpl")
-        << "    Energy:          " << tssInSimCluster[sc].energy << std::endl;
+    LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "\tEnergy:\t" << tssInSimCluster[sc].energy << std::endl;
     double tot_energy = 0.;
     for (auto const& haf : tssInSimCluster[sc].hits_and_fractions) {
       LogDebug("TSToSCAssociatorByEnergyScoreImpl")
-          << "      Hits/fraction/energy: " << (uint32_t)haf.first << "/" << haf.second << "/"
+          << "\tHits/fraction/energy: " << (uint32_t)haf.first << "/" << haf.second << "/"
           << haf.second * hitMap_->at(haf.first)->energy() << std::endl;
       tot_energy += haf.second * hitMap_->at(haf.first)->energy();
     }
-    LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "    Tot Sum haf: " << tot_energy << std::endl;
+    LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "\tTot Sum haf: " << tot_energy << std::endl;
     for (auto const& ts : tssInSimCluster[sc].tracksterIdToEnergyAndScore) {
       LogDebug("TSToSCAssociatorByEnergyScoreImpl")
-          << "      tsIdx/energy/score: " << ts.first << "/" << ts.second.first << "/" << ts.second.second << std::endl;
+          << "\ttsIdx/energy/score: " << ts.first << "/" << ts.second.first << "/" << ts.second.second << std::endl;
     }
   }
 
@@ -326,8 +324,8 @@ hgcal::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
     if (tracksters[tsId].raw_energy() == 0. && !scsInTrackster[tsId].empty()) {
       for (auto& scPair : scsInTrackster[tsId]) {
         scPair.second = 1.;
-        LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "TracksterId : \t " << tsId << "\t SC id : \t"
-                                                         << scPair.first << "\t score \t " << scPair.second << "\n";
+        LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "TracksterId:\t " << tsId << "\tSC id:\t" << scPair.first
+                                                      << "\tscore\t " << scPair.second << "\n";
       }
       continue;
     }
@@ -464,7 +462,7 @@ hgcal::association TSToSCAssociatorByEnergyScoreImpl::makeConnections(
               (tsFraction - scFraction) * (tsFraction - scFraction) * hitEnergyWeight * invSCEnergyWeight;
 #ifdef EDM_ML_DEBUG
           LogDebug("TSToSCAssociatorByEnergyScoreImpl")
-              << "SCDetId:\t" << (uint32_t)sc_hitDetId << "\tTracksterId:\t" << tracksterId << "\t"
+              << "SCDetId:\t" << (uint32_t)sc_hitDetId << "\tTracksterId:\t" << tsId << "\t"
               << "tsFraction, scFraction:\t" << tsFraction << ", " << scFraction << "\t"
               << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
               << "current score:\t" << tsPair.second.second << "\t"
@@ -500,8 +498,8 @@ hgcal::RecoToSimCollectionTracksters TSToSCAssociatorByEnergyScoreImpl::associat
   const auto& scsInTrackster = std::get<0>(links);
   for (size_t tsId = 0; tsId < scsInTrackster.size(); ++tsId) {
     for (auto& scPair : scsInTrackster[tsId]) {
-      LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "Trackster Id: \t" << tsId << "\t SimCluster id: \t"
-                                                       << scPair.first << "\t score \t" << scPair.second << "\n";
+      LogDebug("TSToSCAssociatorByEnergyScoreImpl") << "Trackster Id:\t" << tsId << "\tSimCluster id:\t"
+                                                    << scPair.first << "\tscore:\t" << scPair.second << "\n";
       // Fill AssociationMap
       returnValue.insert(edm::Ref<ticl::TracksterCollection>(tCH, tsId),  // Ref to TS
                          std::make_pair(edm::Ref<SimClusterCollection>(sCCH, scPair.first),
