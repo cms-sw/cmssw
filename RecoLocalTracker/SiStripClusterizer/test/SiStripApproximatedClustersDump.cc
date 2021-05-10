@@ -1,10 +1,9 @@
 #include "RecoLocalTracker/SiStripClusterizer/test/SiStripApproximatedClustersDump.h"
 
-
 SiStripApproximatedClustersDump::SiStripApproximatedClustersDump(const edm::ParameterSet& conf) {
-  inputTagClusters = conf.getParameter< edm::InputTag >("approximatedClustersTag");
-  clusterToken = consumes< edmNew::DetSetVector<SiStripApproximateCluster>>(inputTagClusters);
-  
+  inputTagClusters = conf.getParameter<edm::InputTag>("approximatedClustersTag");
+  clusterToken = consumes<edmNew::DetSetVector<SiStripApproximateCluster>>(inputTagClusters);
+
   usesResource("TFileService");
 
   outNtuple = fs->make<TTree>("ApproxClusters", "ApproxClusters");
@@ -18,19 +17,17 @@ SiStripApproximatedClustersDump::SiStripApproximatedClustersDump(const edm::Para
 SiStripApproximatedClustersDump::~SiStripApproximatedClustersDump() {}
 
 void SiStripApproximatedClustersDump::analyze(const edm::Event& event, const edm::EventSetup& es) {
-  edm::Handle<edmNew::DetSetVector< SiStripApproximateCluster >> clusterCollection = event.getHandle(clusterToken);
+  edm::Handle<edmNew::DetSetVector<SiStripApproximateCluster>> clusterCollection = event.getHandle(clusterToken);
 
-  
-  for ( const auto& detClusters : *clusterCollection ) {
+  for (const auto& detClusters : *clusterCollection) {
     detId = detClusters.detId();
     eventN = event.id().event();
-    
-   for ( const auto& cluster : detClusters ){
+
+    for (const auto& cluster : detClusters) {
       barycenter = cluster.barycenter();
       width = cluster.width();
-      avCharge=cluster.avgCharge();
+      avCharge = cluster.avgCharge();
       outNtuple->Fill();
-      
     }
   }
 }
@@ -40,5 +37,3 @@ void SiStripApproximatedClustersDump::fillDescriptions(edm::ConfigurationDescrip
   desc.add<edm::InputTag>("approximatedClustersTag", edm::InputTag("SiStripClusters2ApproxClusters"));
   descriptions.add("SiStripApproximatedClustersDump", desc);
 }
-
-

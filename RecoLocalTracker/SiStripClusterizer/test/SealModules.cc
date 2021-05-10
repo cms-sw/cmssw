@@ -17,4 +17,3 @@ DEFINE_FWK_MODULE(StripByStripTestDriver);
 DEFINE_FWK_EVENTSETUP_MODULE(ClusterizerUnitTesterESProducer);
 DEFINE_FWK_MODULE(ClusterRefinerTagMCmerged);
 DEFINE_FWK_MODULE(SiStripApproximatedClustersDump);
-

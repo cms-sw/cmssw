@@ -1,7 +1,6 @@
 #ifndef RecoLocalTracker_SiStripApproximatedClustersDump_h
 #define RecoLocalTracker_SiStripApproximatedClustersDump_h
 
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -35,27 +34,26 @@
 // class decleration
 //
 
-
 class SiStripApproximatedClustersDump : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit SiStripApproximatedClustersDump(const edm::ParameterSet&);
   ~SiStripApproximatedClustersDump() override;
-   
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::InputTag inputTagClusters;
-  edm::EDGetTokenT< edmNew::DetSetVector<SiStripApproximateCluster> > clusterToken;  
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripApproximateCluster> > clusterToken;
 
   TTree* outNtuple;
   edm::Service<TFileService> fs;
 
   uint32_t detId;
-  uint16_t barycenter; 
+  uint16_t barycenter;
   uint16_t width;
   uint8_t avCharge;
   edm::EventNumber_t eventN;
 };
- #endif
+#endif
