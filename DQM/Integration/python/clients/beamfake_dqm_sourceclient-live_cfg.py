@@ -8,7 +8,7 @@ BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineTestLegacy'
 BSOnlineJobName = 'BeamSpotOnlineTestLegacy'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
-
+useLockRecords = True
 import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 process = cms.Process("FakeBeamMonitor", Run2_2018)
@@ -18,6 +18,7 @@ if "dqm_cmssw/playback" in str(sys.argv[1]):
     BSOnlineTag = BSOnlineTag + 'Playback'
     BSOnlineJobName = BSOnlineJobName + 'Playback'
     BSOnlineOmsServiceUrl = ''
+    useLockRecords = False
 
 #
 process.MessageLogger = cms.Service("MessageLogger",
@@ -35,8 +36,10 @@ unitTest = False
 if 'unitTest=True' in sys.argv:
     live=False
     unitTest=True
+    useLockRecords = False
 else:
     time.sleep(48.)
+
 
 #---------------
 # Input sources
@@ -81,6 +84,7 @@ else:
 #----------------------------
 # BeamMonitor
 process.load("DQM.BeamMonitor.FakeBeamMonitor_cff")
+
 
 
 #----------------
@@ -132,7 +136,7 @@ process.dqmFakeBeamMonitor.recordName = BSOnlineRecordName
 
 process.dqmFakeBeamMonitor.resetEveryNLumi   = 5 # was 10 for HI
 process.dqmFakeBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
-
+process.dqmFakeBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)
 
 
 #---------

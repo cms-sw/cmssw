@@ -7,6 +7,7 @@ BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineTestHLT'
 BSOnlineJobName = 'BeamSpotOnlineTestHLT'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
+useLockRecords = True
 
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
@@ -19,6 +20,7 @@ if "dqm_cmssw/playback" in str(sys.argv[1]):
   BSOnlineTag = BSOnlineTag + 'Playback'
   BSOnlineJobName = BSOnlineJobName + 'Playback'
   BSOnlineOmsServiceUrl = ''
+  useLockRecords = False
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -41,6 +43,7 @@ unitTest = False
 if 'unitTest=True' in sys.argv:
   live=False
   unitTest=True
+  useLockRecords = False
 
 # Common part for PP and H.I Running
 #-----------------------------
@@ -95,6 +98,7 @@ process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 # Change Beam Monitor variables
+process.dqmBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)
 if process.dqmRunConfig.type.value() is "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
