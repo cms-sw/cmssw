@@ -8,11 +8,11 @@
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
 class MagneticField;
-class PixelCPEFast final : public PixelCPEBase {
+class PixelCPEFast final : public PixelCPEGenericBase {
 public:
   struct ClusterParamGeneric : ClusterParam {
     ClusterParamGeneric() {}

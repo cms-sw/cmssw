@@ -30,7 +30,7 @@
 // simple, and is described in Morris's note (IN ???) on the generalizaton
 // of the pixel algorithm.
 
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
 // The template header files
@@ -49,7 +49,7 @@
 #endif
 
 class MagneticField;
-class PixelCPEGeneric final : public PixelCPEBase {
+class PixelCPEGeneric final : public PixelCPEGenericBase {
 public:
   struct ClusterParamGeneric : ClusterParam {
     ClusterParamGeneric(const SiPixelCluster &cl) : ClusterParam(cl) {}

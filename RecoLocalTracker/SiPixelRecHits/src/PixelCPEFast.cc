@@ -27,7 +27,7 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
                            const SiPixelLorentzAngle* lorentzAngle,
                            const SiPixelGenErrorDBObject* genErrorDBObject,
                            const SiPixelLorentzAngle* lorentzAngleWidth)
-    : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr, lorentzAngleWidth, 0),
+    : PixelCPEGenericBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth),
       edgeClusterErrorX_(conf.getParameter<double>("EdgeClusterErrorX")),
       edgeClusterErrorY_(conf.getParameter<double>("EdgeClusterErrorY")),
       useErrorsFromTemplates_(conf.getParameter<bool>("UseErrorsFromTemplates")),
