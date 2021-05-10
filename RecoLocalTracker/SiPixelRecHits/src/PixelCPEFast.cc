@@ -36,21 +36,6 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
           << (*genErrorDBObject_).version();
   }
 
-  // Rechit errors in case other, more correct, errors are not vailable
-  // These are constants. Maybe there is a more efficienct way to store them.
-  xerr_barrel_l1_ = {0.00115, 0.00120, 0.00088};
-  xerr_barrel_l1_def_ = 0.01030;
-  yerr_barrel_l1_ = {0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240};
-  yerr_barrel_l1_def_ = 0.00210;
-  xerr_barrel_ln_ = {0.00115, 0.00120, 0.00088};
-  xerr_barrel_ln_def_ = 0.01030;
-  yerr_barrel_ln_ = {0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240};
-  yerr_barrel_ln_def_ = 0.00210;
-  xerr_endcap_ = {0.0020, 0.0020};
-  xerr_endcap_def_ = 0.0020;
-  yerr_endcap_ = {0.00210};
-  yerr_endcap_def_ = 0.00075;
-
   fillParamsForGpu();
 
   cpuData_ = {
@@ -503,4 +488,7 @@ LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& t
   return LocalError(xerr_sq, 0, yerr_sq);
 }
 
-void PixelCPEFast::fillPSetDescription(edm::ParameterSetDescription& desc) {}
+void PixelCPEFast::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  // call PixelCPEGenericBase fillPSetDescription to add common rechit errors
+  PixelCPEGenericBase::fillPSetDescription(desc);
+}

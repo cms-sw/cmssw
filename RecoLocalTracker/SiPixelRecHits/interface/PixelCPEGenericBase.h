@@ -2,6 +2,7 @@
 #define RecoLocalTracker_SiPixelRecHits_PixelCPEGenericBase_H
 
 #include "PixelCPEBase.h"
+#include <vector>
 
 class PixelCPEGenericBase : public PixelCPEBase {
 public:
@@ -39,6 +40,10 @@ public:
                       const SiPixelGenErrorDBObject* genErrorDBObject,
                       const SiPixelLorentzAngle* lorentzAngleWidth);
 
+  ~PixelCPEGenericBase() override = default;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
 protected:
   std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster& cl) const override;
 
@@ -53,6 +58,12 @@ protected:
   const float edgeClusterErrorY_;
   bool useErrorsFromTemplates_;
   const bool truncatePixelCharge_;
+
+  // Rechit errors in case other, more correct, errors are not vailable
+  std::vector<double> xerr_barrel_l1_, yerr_barrel_l1_, xerr_barrel_ln_;
+  std::vector<double> yerr_barrel_ln_, xerr_endcap_, yerr_endcap_;
+  double xerr_barrel_l1_def_, yerr_barrel_l1_def_, xerr_barrel_ln_def_;
+  double yerr_barrel_ln_def_, xerr_endcap_def_, yerr_endcap_def_;
 };
 
 #endif  // RecoLocalTracker_SiPixelRecHits_PixelCPEGenericBase_H

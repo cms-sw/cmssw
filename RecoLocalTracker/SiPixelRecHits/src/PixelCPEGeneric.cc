@@ -91,21 +91,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   }  // if ( useErrorsFromTemplates_ )
 
   // Rechit errors in case other, more correct, errors are not vailable
-  // This are constants. Maybe there is a more efficienct way to store them.
-  if (!isUpgrade_) {  // normal case
-    xerr_barrel_l1_ = {0.00115, 0.00120, 0.00088};
-    xerr_barrel_l1_def_ = 0.01030;
-    yerr_barrel_l1_ = {0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240};
-    yerr_barrel_l1_def_ = 0.00210;
-    xerr_barrel_ln_ = {0.00115, 0.00120, 0.00088};
-    xerr_barrel_ln_def_ = 0.01030;
-    yerr_barrel_ln_ = {0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240};
-    yerr_barrel_ln_def_ = 0.00210;
-    xerr_endcap_ = {0.0020, 0.0020};
-    xerr_endcap_def_ = 0.0020;
-    yerr_endcap_ = {0.00210};
-    yerr_endcap_def_ = 0.00075;
-  } else {  // isUpgrade=true
+  if (isUpgrade_) {
     xerr_barrel_ln_ = {0.00025, 0.00030, 0.00035, 0.00035};
     xerr_barrel_ln_def_ = 0.00035;
     yerr_barrel_ln_ = {0.00210, 0.00115, 0.00125};
@@ -568,6 +554,7 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
 }
 
 void PixelCPEGeneric::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  PixelCPEGenericBase::fillPSetDescription(desc);
   desc.add<double>("eff_charge_cut_highX", 1.0);
   desc.add<double>("eff_charge_cut_highY", 1.0);
   desc.add<double>("eff_charge_cut_lowX", 0.0);
