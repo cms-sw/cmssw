@@ -120,7 +120,9 @@ void TrackDistanceValueMapProducer::produce(edm::StreamID streamID,
 
     // just copy the first nth
     std::vector<float> reduced_vdR2;
-    std::copy(v_dR2.begin(), v_dR2.begin() + nthClosestTrack_, std::back_inserter(reduced_vdR2));
+    std::copy(v_dR2.begin(),
+              v_dR2.begin() + std::min(v_dR2.size(), static_cast<size_t>(nthClosestTrack_)),
+              std::back_inserter(reduced_vdR2));
     v2_dR2.push_back(reduced_vdR2);
   }
 
