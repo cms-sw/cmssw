@@ -45,6 +45,8 @@ autoCond = {
     'phase1_2017_design'           : '113X_mc2017_design_v5',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
     'phase1_2017_realistic'        : '113X_mc2017_realistic_v5',
+    # GlobalTag for MC production with realistic conditions for Phase1 2017 detector, for PP reference run
+    'phase1_2017_realistic_ppref'    :  '120X_mc2017_realistic_forppRef5TeV_v1',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
     'phase1_2017_cosmics'          : '113X_mc2017cosmics_realistic_deco_v5',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
