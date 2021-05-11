@@ -50,6 +50,7 @@ private:
   std::string TopFolderName_;
   std::string AlignmentLabel_;
   int ndof_;
+  bool useHPfoAlignmentPlots_;
   bool errorPrinted_;
 
   // the histos

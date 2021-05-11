@@ -17,6 +17,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
       TopFolderName_(pSet.getParameter<std::string>("TopFolderName")),
       AlignmentLabel_(pSet.getParameter<std::string>("AlignmentLabel")),
       ndof_(pSet.getParameter<int>("ndof")),
+      useHPfoAlignmentPlots_(pSet.getParameter<bool>("useHPforAlignmentPlots")),
       errorPrinted_(false),
       nbvtx(nullptr),
       bsX(nullptr),
@@ -398,7 +399,7 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
 
   for (reco::Vertex::trackRef_iterator t = v.tracks_begin(); t != v.tracks_end(); t++) {
     bool isHighPurity = (**t).quality(reco::TrackBase::highPurity);
-    if (!isHighPurity)
+    if (!isHighPurity && useHPfoAlignmentPlots_)
       continue;
 
     float pt = (**t).pt();
