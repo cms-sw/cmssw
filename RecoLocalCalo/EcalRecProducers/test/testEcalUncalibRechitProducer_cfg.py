@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
-#from Configuration.ProcessModifiers.gpu_cff import gpu
 
 process = cms.Process('RECO', eras.Run2_2018)
 

@@ -1,44 +1,46 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
+from Configuration.ProcessModifiers.gpu_cff import gpu
 
+# legacy pixel rechit producer
 siPixelRecHits = cms.EDProducer("SiPixelRecHitConverter",
     src = cms.InputTag("siPixelClusters"),
     CPE = cms.string('PixelCPEGeneric'),
     VerboseLevel = cms.untracked.int32(0)
 )
 
-_siPixelRecHitsPreSplitting = siPixelRecHits.clone(
-    src = 'siPixelClustersPreSplitting'
-)
-
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
+# SwitchProducer wrapping the legacy pixel rechit producer
 siPixelRecHitsPreSplitting = SwitchProducerCUDA(
-    cpu = _siPixelRecHitsPreSplitting.clone()
+    cpu = siPixelRecHits.clone(
+        src = 'siPixelClustersPreSplitting'
+    )
 )
 
+# convert the pixel rechits from legacy to SoA format
+from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as siPixelRecHitsPreSplittingSoA
 
+siPixelRecHitsPreSplittingTask = cms.Task(
+    # SwitchProducer wrapping the legacy pixel rechit producer
+    siPixelRecHitsPreSplitting,
+    # convert the pixel rechits from legacy to SoA format
+    siPixelRecHitsPreSplittingSoA
+)
 
-from Configuration.ProcessModifiers.gpu_cff import gpu
+# reconstruct the pixel rechits on the gpu
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDA_cfi import siPixelRecHitCUDA as _siPixelRecHitCUDA
-from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDA_cfi import siPixelRecHitFromCUDA as _siPixelRecHitFromCUDA
-
-gpu.toModify(siPixelRecHitsPreSplitting, 
-    cuda = _siPixelRecHitFromCUDA.clone()
-)
-
-
-siPixelRecHitsPreSplittingTask = cms.Task(siPixelRecHitsPreSplitting)
-
 siPixelRecHitsPreSplittingCUDA = _siPixelRecHitCUDA.clone(
     beamSpot = "offlineBeamSpotToCUDA"
 )
 
-siPixelRecHitsPreSplittingLegacy = _siPixelRecHitFromCUDA.clone()
-siPixelRecHitsPreSplittingTaskCUDA = cms.Task(
-    siPixelRecHitsPreSplittingCUDA,
-    siPixelRecHitsPreSplittingLegacy,
+# transfer the pixel rechits to the host and convert them from SoA
+from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDA_cfi import siPixelRecHitFromCUDA as _siPixelRecHitFromCUDA
+gpu.toModify(siPixelRecHitsPreSplitting, 
+    cuda = _siPixelRecHitFromCUDA.clone()
 )
 
-from Configuration.ProcessModifiers.gpu_cff import gpu
-_siPixelRecHitsPreSplittingTask_gpu = siPixelRecHitsPreSplittingTask.copy()
-_siPixelRecHitsPreSplittingTask_gpu.add(siPixelRecHitsPreSplittingTaskCUDA)
-gpu.toReplaceWith(siPixelRecHitsPreSplittingTask, _siPixelRecHitsPreSplittingTask_gpu)
+gpu.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
+    # reconstruct the pixel rechits on the gpu
+    siPixelRecHitsPreSplittingCUDA,
+    # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
+    siPixelRecHitsPreSplittingTask.copy()
+))

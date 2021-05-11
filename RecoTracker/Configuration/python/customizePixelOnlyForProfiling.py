@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 def customizePixelOnlyForProfilingGPUOnly(process):
 
   process.consumer = cms.EDAnalyzer("GenericConsumer",
-      eventProducts = cms.untracked.vstring('caHitNtupletCUDA', 'pixelVertexCUDA')
+      eventProducts = cms.untracked.vstring('pixelTracksCUDA', 'pixelVertexCUDA')
   )
 
   process.consume_step = cms.EndPath(process.consumer)
@@ -28,7 +28,7 @@ def customizePixelOnlyForProfilingGPUWithHostCopy(process):
   #? process.siPixelRecHitSoAFromLegacy.convertToLegacy = False
 
   process.consumer = cms.EDAnalyzer("GenericConsumer",
-      eventProducts = cms.untracked.vstring('pixelTrackSoA', 'pixelVertexSoA')
+      eventProducts = cms.untracked.vstring('pixelTracksSoA', 'pixelVertexSoA')
   )
 
   process.consume_step = cms.EndPath(process.consumer)

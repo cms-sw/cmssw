@@ -12,14 +12,10 @@ from RecoLocalCalo.EcalRecProducers.ecalRecHitTPGConditions_cff import *
 #ECAL reconstruction
 from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi import *
-from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
-from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
-from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
-ecalLocalRecoTaskCosmics = cms.Task(ecalFixedAlphaBetaFitUncalibRecHit,ecalWeightUncalibRecHit,ecalDetIdToBeRecovered,ecalRecHit,ecalPreshowerRecHit)
-ecalLocalRecoSequenceCosmics = cms.Sequence(ecalLocalRecoTaskCosmics)
-ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
-ecalRecHit.ChannelStatusToBeExcluded = [
+from RecoLocalCalo.EcalRecProducers.ecalRecHit_cff import *
+ecalRecHit.cpu.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
+ecalRecHit.cpu.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+ecalRecHit.cpu.ChannelStatusToBeExcluded = [
     'kDAC',
     'kNoLaser',
     'kNoisy',
@@ -32,3 +28,14 @@ ecalRecHit.ChannelStatusToBeExcluded = [
     'kDeadFE',
     'kNoDataNoTP'
 ]
+from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
+from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
+
+ecalLocalRecoTaskCosmics = cms.Task(
+    ecalFixedAlphaBetaFitUncalibRecHit,
+    ecalWeightUncalibRecHit,
+    ecalDetIdToBeRecovered,
+    ecalCalibratedRecHitTask,
+    ecalPreshowerRecHit
+)
+ecalLocalRecoSequenceCosmics = cms.Sequence(ecalLocalRecoTaskCosmics)

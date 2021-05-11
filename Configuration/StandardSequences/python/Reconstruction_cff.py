@@ -235,6 +235,7 @@ reconstruction_hcalOnlyTask = cms.Task(
     bunchSpacingProducer,
     offlineBeamSpot,
     hcalOnlyLocalRecoTask,
+    hcalOnlyGlobalRecoTask,
     pfClusteringHBHEHFOnlyTask
 )
 
