@@ -1,4 +1,4 @@
-// Original author: Marco Rovere
+// Original author: Leonardo Cristella
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -11,13 +11,13 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
-#include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
-#include "LayerClusterAssociatorByEnergyScoreImpl.h"
+#include "SimDataFormats/Associations/interface/TracksterToSimClusterAssociator.h"
+#include "TSToSCAssociatorByEnergyScoreImpl.h"
 
-class LayerClusterAssociatorByEnergyScoreProducer : public edm::global::EDProducer<> {
+class TSToSCAssociatorByEnergyScoreProducer : public edm::global::EDProducer<> {
 public:
-  explicit LayerClusterAssociatorByEnergyScoreProducer(const edm::ParameterSet &);
-  ~LayerClusterAssociatorByEnergyScoreProducer() override;
+  explicit TSToSCAssociatorByEnergyScoreProducer(const edm::ParameterSet &);
+  ~TSToSCAssociatorByEnergyScoreProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -29,39 +29,39 @@ private:
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
 };
 
-LayerClusterAssociatorByEnergyScoreProducer::LayerClusterAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
+TSToSCAssociatorByEnergyScoreProducer::TSToSCAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const HGCRecHit *>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")) {
   rhtools_.reset(new hgcal::RecHitTools());
 
   // Register the product
-  produces<hgcal::LayerClusterToCaloParticleAssociator>();
+  produces<hgcal::TracksterToSimClusterAssociator>();
 }
 
-LayerClusterAssociatorByEnergyScoreProducer::~LayerClusterAssociatorByEnergyScoreProducer() {}
+TSToSCAssociatorByEnergyScoreProducer::~TSToSCAssociatorByEnergyScoreProducer() {}
 
-void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID,
-                                                          edm::Event &iEvent,
-                                                          const edm::EventSetup &es) const {
+void TSToSCAssociatorByEnergyScoreProducer::produce(edm::StreamID,
+                                                       edm::Event &iEvent,
+                                                       const edm::EventSetup &es) const {
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
-  const std::unordered_map<DetId, const HGCRecHit *> *hitMap = &iEvent.get(hitMap_);
+  const auto hitMap = &iEvent.get(hitMap_);
 
-  auto impl = std::make_unique<LayerClusterAssociatorByEnergyScoreImpl>(
+  auto impl = std::make_unique<TSToSCAssociatorByEnergyScoreImpl>(
       iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
-  auto toPut = std::make_unique<hgcal::LayerClusterToCaloParticleAssociator>(std::move(impl));
+  auto toPut = std::make_unique<hgcal::TracksterToSimClusterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 
-void LayerClusterAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
+void TSToSCAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("hitMapTag", edm::InputTag("hgcalRecHitMapProducer"));
   desc.add<bool>("hardScatterOnly", true);
 
-  cfg.add("layerClusterAssociatorByEnergyScore", desc);
+  cfg.add("tracksterAssociatorByEnergyScore", desc);
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(LayerClusterAssociatorByEnergyScoreProducer);
+DEFINE_FWK_MODULE(TSToSCAssociatorByEnergyScoreProducer);

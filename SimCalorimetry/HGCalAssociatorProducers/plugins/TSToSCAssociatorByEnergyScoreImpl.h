@@ -37,9 +37,9 @@ namespace hgcal {
   typedef std::tuple<tracksterToSimCluster, simClusterToTrackster> association;
 }  // namespace hgcal
 
-class TracksterAssociatorByEnergyScoreImpl : public hgcal::TracksterToSimClusterAssociatorBaseImpl {
+class TSToSCAssociatorByEnergyScoreImpl : public hgcal::TracksterToSimClusterAssociatorBaseImpl {
 public:
-  explicit TracksterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
+  explicit TSToSCAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                                 bool,
                                                 std::shared_ptr<hgcal::RecHitTools>,
                                                 const std::unordered_map<DetId, const HGCRecHit *> *);
