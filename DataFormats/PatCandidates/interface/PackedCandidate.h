@@ -254,7 +254,7 @@ namespace pat {
           track_(iOther.track_.exchange(nullptr)),
           pdgId_(iOther.pdgId_),
           qualityFlags_(iOther.qualityFlags_),
-          pvRefProd_(std::move(iOther.pvRefProd_)),
+          pvRefProd_(iOther.pvRefProd_),
           pvRefKey_(iOther.pvRefKey_),
           m_(iOther.m_.exchange(nullptr)),
           packedHits_(iOther.packedHits_),
@@ -771,13 +771,12 @@ namespace pat {
     /// Return reference to a pseudo track made with candidate kinematics,
     /// parameterized error for eta,phi,pt and full IP covariance
     virtual const reco::Track &pseudoTrack() const {
-      if(useLut() && !hasTrackDetails())
-      {
+      if (useLut() && !hasTrackDetails()) {
         throw edm::Exception(edm::errors::InvalidReference,
-                         "Trying to access covariance matrix for a "
-                         "PackedCandidate for which it's not available. "
-                         "Check hasTrackDetails() before or use fallBackTrack() "
-                         "to extrapolate the convariance from a LUT! \n");
+                             "Trying to access covariance matrix for a "
+                             "PackedCandidate for which it's not available. "
+                             "Check hasTrackDetails() before or use fallBackTrack() "
+                             "to extrapolate the convariance from a LUT! \n");
       }
       if (!track_)
         unpackTrk();
@@ -788,18 +787,15 @@ namespace pat {
     /// the LUT if the candidate was originally associated to a track
     virtual const reco::Track *fallBackTrack(int n = 8, int np = 3, int schema = 523) const {
       if (useLut() && covarianceParameterization_.loadedVersion() == covarianceVersion_) {
-        maybeUnpackTrack(n,np,schema);
+        maybeUnpackTrack(n, np, schema);
         return track_.load();
-      }
-      else if (!useLut())
-      {
+      } else if (!useLut()) {
         throw edm::Exception(edm::errors::InvalidReference,
-                         "Trying to access fallBackTrack() "
-                         "without having previously set up the LUT."
-                         "Use setLut() before using this method!\n");
+                             "Trying to access fallBackTrack() "
+                             "without having previously set up the LUT."
+                             "Use setLut() before using this method!\n");
 
-      } else
-      {
+      } else {
         return nullptr;
       }
     }
@@ -1009,29 +1005,27 @@ namespace pat {
     /// set time measurement
     void setTime(float aTime, float aTimeError = 0) { setDTimeAssociatedPV(aTime - vertexRef()->t(), aTimeError); }
 
-    static bool useLut()
-    {
-      std::call_once(useLut_load_flag, [](bool v) { useLut_ = v; }, false);
+    static bool useLut() {
+      std::call_once(
+          useLut_load_flag, [](bool v) { useLut_ = v; }, false);
       return useLut_;
     }
 
-    static void setLut (int covV)
-    {
-        std::call_once(useLut_load_flag, [](bool v) { useLut_ = v; }, true);
-        std::call_once(covariance_load_flag, [](int v) { covarianceParameterization_.load(v); }, covV);
+    static void setLut(int covV) {
+      std::call_once(
+          useLut_load_flag, [](bool v) { useLut_ = v; }, true);
+      std::call_once(
+          covariance_load_flag, [](int v) { covarianceParameterization_.load(v); }, covV);
     }
 
   private:
-
-    void unpackCovarianceElement(reco::TrackBase::CovarianceMatrix &m,uint16_t packed, int i, int j,int n = 8, int np = 3, int s = 523) const
-    {
-      if(hasTrackDetails() || !useLut())
-      {
-        m(i, j) = covarianceParameterization().unpack(packed, covarianceSchema_, i, j, pt(), eta(), numberOfHits(),numberOfPixelHits());
-      }
-      else
-      {
-        m(i, j) = covarianceParameterization().unpack(0,s, i, j, pt(),eta(), n ,np);
+    void unpackCovarianceElement(
+        reco::TrackBase::CovarianceMatrix &m, uint16_t packed, int i, int j, int n = 8, int np = 3, int s = 523) const {
+      if (hasTrackDetails() || !useLut()) {
+        m(i, j) = covarianceParameterization().unpack(
+            packed, covarianceSchema_, i, j, pt(), eta(), numberOfHits(), numberOfPixelHits());
+      } else {
+        m(i, j) = covarianceParameterization().unpack(0, s, i, j, pt(), eta(), n, np);
       }
     }
 
@@ -1063,12 +1057,12 @@ namespace pat {
     }
     void maybeUnpackTrack(int n = 8, int np = 3, int schema = 523) const {
       if (!track_)
-        unpackTrk(n,np,schema);
+        unpackTrk(n, np, schema);
     }
 
     void maybeUnpackCovariance(int n = 8, int np = 3, int schema = 523) const {
       if (!m_)
-        unpackCovariance(n,np,schema);
+        unpackCovariance(n, np, schema);
     }
     void packBoth() {
       pack(false);
@@ -1128,15 +1122,13 @@ namespace pat {
     static std::once_flag useLut_load_flag;
 
   protected:
-
     const CovarianceParameterization &covarianceParameterization() const {
-      if (!hasTrackDetails() and !useLut())
-      {
-          throw edm::Exception(edm::errors::InvalidReference,
-                           "Trying to access covariance matrix for a "
-                           "PackedCandidate for which it's not available. "
-                           "Check hasTrackDetails() before or use setLut() "
-                           "to extrapolate the convariance from a LUT! \n");
+      if (!hasTrackDetails() and !useLut()) {
+        throw edm::Exception(edm::errors::InvalidReference,
+                             "Trying to access covariance matrix for a "
+                             "PackedCandidate for which it's not available. "
+                             "Check hasTrackDetails() before or use setLut() "
+                             "to extrapolate the convariance from a LUT! \n");
       }
       std::call_once(
           covariance_load_flag, [](int v) { covarianceParameterization_.load(v); }, covarianceVersion_);

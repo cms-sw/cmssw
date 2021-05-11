@@ -166,7 +166,7 @@ float pat::PackedCandidate::dz(const Point &p) const {
 void pat::PackedCandidate::unpackTrk(int n, int np, int schema) const {
   maybeUnpackBoth();
   math::RhoEtaPhiVector p3(ptTrk(), etaAtVtx(), phiAtVtx());
-  maybeUnpackCovariance(n,np,schema);
+  maybeUnpackCovariance(n, np, schema);
   int numberOfStripLayers = stripLayersWithMeasurement(), numberOfPixelLayers = pixelLayersWithMeasurement();
   int numberOfPixelHits = this->numberOfPixelHits();
   int numberOfHits = this->numberOfHits();
