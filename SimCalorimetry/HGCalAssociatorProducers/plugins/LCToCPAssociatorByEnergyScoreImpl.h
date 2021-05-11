@@ -7,7 +7,7 @@
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
-#include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
+#include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 namespace edm {
@@ -32,32 +32,30 @@ namespace hgcal {
     float fraction;
   };
 
-  struct simClusterOnLayer {
-    unsigned int simClusterId;
+  struct caloParticleOnLayer {
+    unsigned int caloParticleId;
     float energy = 0;
     std::vector<std::pair<DetId, float>> hits_and_fractions;
     std::unordered_map<int, std::pair<float, float>> layerClusterIdToEnergyAndScore;
   };
 
-  typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToSimCluster;
-  typedef std::vector<std::vector<hgcal::simClusterOnLayer>> simClusterToLayerCluster;
-  typedef std::tuple<layerClusterToSimCluster, simClusterToLayerCluster> association;
+  typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToCaloParticle;
+  typedef std::vector<std::vector<hgcal::caloParticleOnLayer>> caloParticleToLayerCluster;
+  typedef std::tuple<layerClusterToCaloParticle, caloParticleToLayerCluster> association;
 }  // namespace hgcal
 
-class SimClusterAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToSimClusterAssociatorBaseImpl {
+class LCToCPAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToCaloParticleAssociatorBaseImpl {
 public:
-  explicit SimClusterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
-                                                 bool,
-                                                 std::shared_ptr<hgcal::RecHitTools>,
-                                                 const std::unordered_map<DetId, const HGCRecHit *> *);
+  explicit LCToCPAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
+                                             bool,
+                                             std::shared_ptr<hgcal::RecHitTools>,
+                                             const std::unordered_map<DetId, const HGCRecHit *> *);
 
-  hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(
-      const edm::Handle<reco::CaloClusterCollection> &cCH,
-      const edm::Handle<SimClusterCollection> &sCCH) const override;
+  hgcal::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                                const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
-  hgcal::SimToRecoCollectionWithSimClusters associateSimToReco(
-      const edm::Handle<reco::CaloClusterCollection> &cCH,
-      const edm::Handle<SimClusterCollection> &sCCH) const override;
+  hgcal::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                                const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
 private:
   const bool hardScatterOnly_;
@@ -66,5 +64,5 @@ private:
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
   hgcal::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                     const edm::Handle<SimClusterCollection> &sCCH) const;
+                                     const edm::Handle<CaloParticleCollection> &cPCH) const;
 };
