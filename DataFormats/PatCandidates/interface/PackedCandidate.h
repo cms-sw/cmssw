@@ -10,7 +10,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <atomic>
 #include <mutex>
 
@@ -772,6 +771,14 @@ namespace pat {
     /// Return reference to a pseudo track made with candidate kinematics,
     /// parameterized error for eta,phi,pt and full IP covariance
     virtual const reco::Track &pseudoTrack() const {
+      if(useLut() && !hasTrackDetails())
+      {
+        throw edm::Exception(edm::errors::InvalidReference,
+                         "Trying to access covariance matrix for a "
+                         "PackedCandidate for which it's not available. "
+                         "Check hasTrackDetails() before or use fallBackTrack() "
+                         "to extrapolate the convariance from a LUT! \n");
+      }
       if (!track_)
         unpackTrk();
       return *track_;
@@ -783,8 +790,18 @@ namespace pat {
       if (useLut() && covarianceParameterization_.loadedVersion() == covarianceVersion_) {
         maybeUnpackTrack(n,np,schema);
         return track_.load();
+      }
+      else if (!useLut())
+      {
+        throw edm::Exception(edm::errors::InvalidReference,
+                         "Trying to access fallBackTrack() "
+                         "without having previously set up the LUT."
+                         "Use setLut() before using this method!\n");
+
       } else
+      {
         return nullptr;
+      }
     }
 
     /// return a pointer to the track if present. otherwise, return a null pointer
