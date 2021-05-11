@@ -230,17 +230,8 @@ bool AMPTHadronizer::get_particles(HepMC::GenEvent* evt) {
 bool AMPTHadronizer::call_amptset(
     double efrm, std::string frame, std::string proj, std::string targ, int iap, int izp, int iat, int izt) {
   // initialize hydjet
-  AMPTSET(efrm,
-          frame.data(),
-          proj.data(),
-          targ.data(),
-          iap,
-          izp,
-          iat,
-          izt,
-          strlen(frame.data()),
-          strlen(proj.data()),
-          strlen(targ.data()));
+  AMPTSET(
+      efrm, frame.data(), proj.data(), targ.data(), iap, izp, iat, izt, frame.length(), proj.length(), targ.length());
   return true;
 }
 //______________________________________________________________________
