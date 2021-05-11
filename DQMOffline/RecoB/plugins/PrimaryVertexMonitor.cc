@@ -254,35 +254,35 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
                                     "");
   dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
   dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)", 2);
-  
-  dxyVsEtaVsPhi_pt1 = iBooker.bookProfile2D ("dxyVsEtaVsPhi_pt1",
-                                     "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum) VS track #eta VS track #phi",
-                                     EtaBin2D,
-                                     EtaMin,
-                                     EtaMax,
-                                     PhiBin2D,
-                                     PhiMin,
-                                     PhiMax,
-                                     DxyBin,
-                                     DxyMin,
-                                     DxyMax,
-                                     "");
+
+  dxyVsEtaVsPhi_pt1 = iBooker.bookProfile2D("dxyVsEtaVsPhi_pt1",
+                                            "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum) VS track #eta VS track #phi",
+                                            EtaBin2D,
+                                            EtaMin,
+                                            EtaMax,
+                                            PhiBin2D,
+                                            PhiMin,
+                                            PhiMax,
+                                            DxyBin,
+                                            DxyMin,
+                                            DxyMax,
+                                            "");
   dxyVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
   dxyVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
   dxyVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy} (#mum)", 3);
-  
-  dzVsEtaVsPhi_pt1 = iBooker.bookProfile2D ("dzVsEtaVsPhi_pt1",
-                                     "PV tracks (p_{T} > 1 GeV) d_{z} (#mum) VS track #eta VS track #phi",
-                                     EtaBin2D,
-                                     EtaMin,
-                                     EtaMax,
-                                     PhiBin2D,
-                                     PhiMin,
-                                     PhiMax,
-                                     DzBin,
-                                     DzMin,
-                                     DzMax,
-                                     "");
+
+  dzVsEtaVsPhi_pt1 = iBooker.bookProfile2D("dzVsEtaVsPhi_pt1",
+                                           "PV tracks (p_{T} > 1 GeV) d_{z} (#mum) VS track #eta VS track #phi",
+                                           EtaBin2D,
+                                           EtaMin,
+                                           EtaMax,
+                                           PhiBin2D,
+                                           PhiMin,
+                                           PhiMax,
+                                           DzBin,
+                                           DzMin,
+                                           DzMax,
+                                           "");
   dzVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
   dzVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
   dzVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)", 3);
@@ -334,35 +334,35 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
                                      "");
   dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
   dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)", 2);
-  
-  dxyVsEtaVsPhi_pt10 = iBooker.bookProfile2D ("dxyVsEtaVsPhi_pt10",
-                                     "PV tracks (p_{T} > 10 GeV) d_{xy} (#mum) VS track #eta VS track #phi",
-                                     EtaBin2D,
-                                     EtaMin,
-                                     EtaMax,
-                                     PhiBin2D,
-                                     PhiMin,
-                                     PhiMax,
-                                     DxyBin,
-                                     DxyMin,
-                                     DxyMax,
-                                     "");
+
+  dxyVsEtaVsPhi_pt10 = iBooker.bookProfile2D("dxyVsEtaVsPhi_pt10",
+                                             "PV tracks (p_{T} > 10 GeV) d_{xy} (#mum) VS track #eta VS track #phi",
+                                             EtaBin2D,
+                                             EtaMin,
+                                             EtaMax,
+                                             PhiBin2D,
+                                             PhiMin,
+                                             PhiMax,
+                                             DxyBin,
+                                             DxyMin,
+                                             DxyMax,
+                                             "");
   dxyVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
   dxyVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 2);
   dxyVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy} (#mum)", 3);
-  
-  dzVsEtaVsPhi_pt10 = iBooker.bookProfile2D ("dzVsEtaVsPhi_pt10",
-                                     "PV tracks (p_{T} > 10 GeV) d_{z} (#mum) VS track #eta VS track #phi",
-                                     EtaBin2D,
-                                     EtaMin,
-                                     EtaMax,
-                                     PhiBin2D,
-                                     PhiMin,
-                                     PhiMax,
-                                     DzBin,
-                                     DzMin,
-                                     DzMax,
-                                     "");
+
+  dzVsEtaVsPhi_pt10 = iBooker.bookProfile2D("dzVsEtaVsPhi_pt10",
+                                            "PV tracks (p_{T} > 10 GeV) d_{z} (#mum) VS track #eta VS track #phi",
+                                            EtaBin2D,
+                                            EtaMin,
+                                            EtaMax,
+                                            PhiBin2D,
+                                            PhiMin,
+                                            PhiMax,
+                                            DzBin,
+                                            DzMin,
+                                            DzMax,
+                                            "");
   dzVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
   dzVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 2);
   dzVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)", 3);
