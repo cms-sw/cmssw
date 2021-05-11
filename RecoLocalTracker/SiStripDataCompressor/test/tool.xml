@@ -1,0 +1,10 @@
+<tool name="anlz4cmssw" version="version">
+ <lib name="anlz4cmssw"/>
+ <client>
+   <environment name="ANZ4CMSSW_BASE" default="$CMSSW_BASE/src/RecoLocalTracker/SiStripDataCompressor"/>
+   <environment name="LIBDIR" default="$ANZ4CMSSW_BASE/lib"/>
+   <environment name="INCLUDE" default="$ANZ4CMSSW_BASE/include"/>
+ </client>
+ <runtime name="ANZ4CMSSW_BASE" value="$ANZ4CMSSW_BASE"/>
+ <use name="root"/>
+</tool>

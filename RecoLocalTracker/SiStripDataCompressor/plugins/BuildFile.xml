@@ -1,0 +1,5 @@
+<use name="FWCore/Framework"/>
+<library name="RecoLocalTrackerSiStripDataCompressorPlugins" file="*.cc">
+  <use name="RecoLocalTracker/SiStripDataCompressor"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
