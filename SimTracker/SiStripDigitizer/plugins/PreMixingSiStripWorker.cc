@@ -164,7 +164,7 @@ PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
       theElectronPerADC(ps.getParameter<double>(peakMode ? "electronPerAdcPeak" : "electronPerAdcDec")),
       APVSaturationFromHIP_(ps.getParameter<bool>("APVSaturationFromHIP")),
       theFedAlgo(ps.getParameter<int>("FedAlgorithm_PM")),
-      theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
+      theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo, &iC)),
       theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, false)),  // no premixing
       includeAPVSimulation_(ps.getParameter<bool>("includeAPVSimulation")),
       fracOfEventsToSimAPV_(ps.getParameter<double>("fracOfEventsToSimAPV")),
