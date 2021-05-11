@@ -16,7 +16,6 @@
 #include <vector>
 #include <memory>
 
-
 class SiStripDataCompressor : public edm::stream::EDProducer<> {
 public:
   explicit SiStripDataCompressor(const edm::ParameterSet& conf);
@@ -24,20 +23,18 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-
 private:
-
   std::unique_ptr<SiStripCompressionAlgorithm> algorithm;
-    
+
   edm::InputTag inputTagClusters;
-  edm::EDGetTokenT<vclusters_t> clusterToken;  
+  edm::EDGetTokenT<vclusters_t> clusterToken;
 };
 
-SiStripDataCompressor::SiStripDataCompressor(const edm::ParameterSet& conf){
-    inputTagClusters = conf.getParameter< edm::InputTag >("clustersToBeCompressed");
-    clusterToken = consumes< edmNew::DetSetVector< SiStripCluster > >(inputTagClusters);
-    
-    produces<vcomp_clusters_t>();
+SiStripDataCompressor::SiStripDataCompressor(const edm::ParameterSet& conf) {
+  inputTagClusters = conf.getParameter<edm::InputTag>("clustersToBeCompressed");
+  clusterToken = consumes<edmNew::DetSetVector<SiStripCluster> >(inputTagClusters);
+
+  produces<vcomp_clusters_t>();
 }
 
 void SiStripDataCompressor::produce(edm::Event& event, const edm::EventSetup& es) {
@@ -46,9 +43,8 @@ void SiStripDataCompressor::produce(edm::Event& event, const edm::EventSetup& es
   edm::Handle<vclusters_t> inClusters;
   event.getByToken(clusterToken, inClusters);
 
-    
   algorithm->compress(*inClusters, *outClusters);
-  
+
   event.put(std::move(outClusters));
 }
 
@@ -57,6 +53,6 @@ void SiStripDataCompressor::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("clustersToBeCompressed", edm::InputTag("siStripClusters"));
 
   descriptions.add("SiStripDataCompressor", desc);
-} 
+}
 
 DEFINE_FWK_MODULE(SiStripDataCompressor);
