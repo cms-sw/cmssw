@@ -177,7 +177,7 @@ public:
     return tuple;
   }
 
-protected:
+private:
   virtual std::unique_ptr<ClusterParam> createClusterParam(const SiPixelCluster& cl) const = 0;
 
   //--------------------------------------------------------------------------
@@ -196,6 +196,7 @@ protected:
   //-----------------------------------------------------------------------------
   SiPixelRecHitQuality::QualWordType rawQualityWord(ClusterParam& theClusterParam) const;
 
+protected:
   //--- All methods and data members are protected to facilitate (for now)
   //--- access from derived classes.
 
