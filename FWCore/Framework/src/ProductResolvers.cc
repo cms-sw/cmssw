@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

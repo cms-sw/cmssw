@@ -1,4 +1,4 @@
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 

@@ -26,7 +26,6 @@ namespace edm {
   class StableProvenance;
   class Timestamp;
   class ProductProvenanceLookup;
-  class ProductProvenanceRetriever;
 }  // namespace edm
 
 namespace cms {
