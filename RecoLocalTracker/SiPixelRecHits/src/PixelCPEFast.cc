@@ -371,26 +371,26 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
 LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
-  // Default errors are the maximum error used for edge clusters.
-  // These are determined by looking at residuals for edge clusters
-  float xerr = edgeClusterErrorX_ * micronsToCm;
-  float yerr = edgeClusterErrorY_ * micronsToCm;
+  // local variables
+  float xerr, yerr;
+  bool edgex, edgey, bigInX, bigInY;
+  int maxPixelCol, maxPixelRow, minPixelCol, minPixelRow;
+  uint sizex, sizey;
 
-  // Find if cluster is at the module edge.
-  int maxPixelCol = theClusterParam.theCluster->maxPixelCol();
-  int maxPixelRow = theClusterParam.theCluster->maxPixelRow();
-  int minPixelCol = theClusterParam.theCluster->minPixelCol();
-  int minPixelRow = theClusterParam.theCluster->minPixelRow();
-
-  bool edgex = phase1PixelTopology::isEdgeX(minPixelRow) | phase1PixelTopology::isEdgeX(maxPixelRow);
-  bool edgey = phase1PixelTopology::isEdgeY(minPixelCol) | phase1PixelTopology::isEdgeY(maxPixelCol);
-
-  unsigned int sizex = theClusterParam.theCluster->sizeX();
-  unsigned int sizey = theClusterParam.theCluster->sizeY();
-
-  // Find if cluster contains double (big) pixels.
-  bool bigInX = theDetParam.theRecTopol->containsBigPixelInX(minPixelRow, maxPixelRow);
-  bool bigInY = theDetParam.theRecTopol->containsBigPixelInY(minPixelCol, maxPixelCol);
+  initializeLocalErrorVariables(xerr,
+                                yerr,
+                                edgex,
+                                edgey,
+                                bigInX,
+                                bigInY,
+                                maxPixelCol,
+                                maxPixelRow,
+                                minPixelCol,
+                                minPixelRow,
+                                sizex,
+                                sizey,
+                                theDetParam,
+                                theClusterParam);
 
   // from PixelCPEGenericBase
   setXYErrors(

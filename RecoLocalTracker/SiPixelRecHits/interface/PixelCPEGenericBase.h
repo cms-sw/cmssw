@@ -54,6 +54,21 @@ protected:
                                    int& q_l_Y,                     //!< output, Q last   in Y
                                    bool truncate);
 
+  void initializeLocalErrorVariables(float& xerr,
+                                     float& yerr,
+                                     bool& edgex,
+                                     bool& edgey,
+                                     bool& bigInX,
+                                     bool& bigInY,
+                                     int& maxPixelCol,
+                                     int& maxPixelRow,
+                                     int& minPixelCol,
+                                     int& minPixelRow,
+                                     uint& sizex,
+                                     uint& sizey,
+                                     DetParam const& theDetParam,
+                                     ClusterParamGeneric const& theClusterParam) const;
+
   void setXYErrors(float& xerr,
                    float& yerr,
                    const bool edgex,

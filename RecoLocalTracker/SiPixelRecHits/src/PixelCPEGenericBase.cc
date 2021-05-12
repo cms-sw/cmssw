@@ -1,10 +1,12 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 namespace {
+  constexpr float micronsToCm = 1.0e-4;
   auto convertDoubleVecToFloatVec = [](std::vector<double> const& iIn) {
     return std::vector<float>(iIn.begin(), iIn.end());
   };
-}
+}  // namespace
 
 PixelCPEGenericBase::PixelCPEGenericBase(edm::ParameterSet const& conf,
                                          const MagneticField* mag,
@@ -81,6 +83,44 @@ void PixelCPEGenericBase::collect_edge_charges(ClusterParam& theClusterParamBase
       q_l_Y += pix_adc;
   }
 }
+
+void PixelCPEGenericBase::initializeLocalErrorVariables(
+    float& xerr,
+    float& yerr,
+    bool& edgex,
+    bool& edgey,
+    bool& bigInX,
+    bool& bigInY,
+    int& maxPixelCol,
+    int& maxPixelRow,
+    int& minPixelCol,
+    int& minPixelRow,
+    uint& sizex,
+    uint& sizey,
+    DetParam const& theDetParam,
+    ClusterParamGeneric const& theClusterParam) const {  // Default errors are the maximum error used for edge clusters.
+  // These are determined by looking at residuals for edge clusters
+  xerr = edgeClusterErrorX_ * micronsToCm;
+  yerr = edgeClusterErrorY_ * micronsToCm;
+
+  // Find if cluster is at the module edge.
+  maxPixelCol = theClusterParam.theCluster->maxPixelCol();
+  maxPixelRow = theClusterParam.theCluster->maxPixelRow();
+  minPixelCol = theClusterParam.theCluster->minPixelCol();
+  minPixelRow = theClusterParam.theCluster->minPixelRow();
+
+  edgex = (theDetParam.theRecTopol->isItEdgePixelInX(minPixelRow)) ||
+          (theDetParam.theRecTopol->isItEdgePixelInX(maxPixelRow));
+  edgey = (theDetParam.theRecTopol->isItEdgePixelInY(minPixelCol)) ||
+          (theDetParam.theRecTopol->isItEdgePixelInY(maxPixelCol));
+
+  sizex = theClusterParam.theCluster->sizeX();
+  sizey = theClusterParam.theCluster->sizeY();
+
+  // Find if cluster contains double (big) pixels.
+  bigInX = theDetParam.theRecTopol->containsBigPixelInX(minPixelRow, maxPixelRow);
+  bigInY = theDetParam.theRecTopol->containsBigPixelInY(minPixelCol, maxPixelCol);
+};
 
 void PixelCPEGenericBase::setXYErrors(float& xerr,
                                       float& yerr,
