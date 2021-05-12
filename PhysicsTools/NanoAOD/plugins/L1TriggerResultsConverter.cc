@@ -67,7 +67,6 @@ private:
   std::vector<std::string> names_;
   std::vector<unsigned int> mask_;
   std::vector<unsigned int> indices_;
-
 };
 
 //
