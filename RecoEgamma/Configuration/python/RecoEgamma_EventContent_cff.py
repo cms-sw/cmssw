@@ -40,6 +40,7 @@ RecoEgammaAOD = cms.PSet(
         'keep *_gedGsfElectronCores_*_*',
         'keep *_gedGsfElectrons_*_*',
         'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
+        'keep recoGsfElectrons_lowPtGsfElectronsPreRegression_*_*',
         'keep recoGsfElectrons_lowPtGsfElectrons_*_*',
         'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
         'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
