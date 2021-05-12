@@ -353,8 +353,6 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
 LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
-  const bool localPrint = false;
-
   // local variables
   float xerr, yerr;
   bool edgex, edgey, bigInX, bigInY;
@@ -379,27 +377,28 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
   bool useTempErrors =
       useErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
 
-  if (MYDEBUG) {
-    if (int(sizex) != (maxPixelRow - minPixelRow + 1))
-      cout << " wrong x" << endl;
-    if (int(sizey) != (maxPixelCol - minPixelCol + 1))
-      cout << " wrong y" << endl;
-  }
+  if (int(sizex) != (maxPixelRow - minPixelRow + 1))
+    LogDebug("PixelCPEGeneric") << " wrong x" << endl;
+  if (int(sizey) != (maxPixelCol - minPixelCol + 1))
+    LogDebug("PixelCPEGeneric") << " wrong y" << endl;
 
-  if (localPrint) {
-    cout << " edge clus " << xerr << " " << yerr << endl;  //dk
-    if (bigInX || bigInY)
-      cout << " big " << bigInX << " " << bigInY << endl;
-    if (edgex || edgey)
-      cout << " edge " << edgex << " " << edgey << endl;
-    cout << " before if " << useErrorsFromTemplates_ << " " << theClusterParam.qBin_ << endl;
-    if (theClusterParam.qBin_ == 0)
-      cout << " qbin 0! " << edgex << " " << edgey << " " << bigInX << " " << bigInY << " " << sizex << " " << sizey
-           << endl;
-  }
+  LogDebug("PixelCPEGeneric") << " edge clus " << xerr << " " << yerr << endl;  //dk
+  if (bigInX || bigInY)
+    LogDebug("PixelCPEGeneric") << " big " << bigInX << " " << bigInY << endl;
+  if (edgex || edgey)
+    LogDebug("PixelCPEGeneric") << " edge " << edgex << " " << edgey << endl;
+  LogDebug("PixelCPEGeneric") << " before if " << useErrorsFromTemplates_ << " " << theClusterParam.qBin_ << endl;
+  if (theClusterParam.qBin_ == 0)
+    LogDebug("PixelCPEGeneric") << " qbin 0! " << edgex << " " << edgey << " " << bigInX << " " << bigInY << " "
+                                << sizex << " " << sizey << endl;
 
   // from PixelCPEGenericBase
   setXYErrors(xerr, yerr, edgex, edgey, sizex, sizey, bigInX, bigInY, useTempErrors, theDetParam, theClusterParam);
+
+  if (!useTempErrors) {
+    LogDebug("PixelCPEGeneric") << "Track angles are not known.\n"
+                                << "Default angle estimation which assumes track from PV (0,0,0) does not work.";
+  }
 
   if (!useTempErrors && inflate_errors) {
     int n_bigx = 0;
@@ -427,10 +426,9 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
     throw cms::Exception("PixelCPEGeneric::localError") << "\nERROR: Negative pixel error yerr = " << yerr << "\n\n";
 #endif
 
-  //if(localPrint) {
-  //cout<<" errors  "<<xerr<<" "<<yerr<<endl;  //dk
-  //if(theClusterParam.qBin_ == 0) cout<<" qbin 0 "<<xerr<<" "<<yerr<<endl;
-  //}
+  LogDebug("PixelCPEGeneric") << " errors  " << xerr << " " << yerr << endl;  //dk
+  if (theClusterParam.qBin_ == 0)
+    LogDebug("PixelCPEGeneric") << " qbin 0 " << xerr << " " << yerr << endl;
 
   auto xerr_sq = xerr * xerr;
   auto yerr_sq = yerr * yerr;
