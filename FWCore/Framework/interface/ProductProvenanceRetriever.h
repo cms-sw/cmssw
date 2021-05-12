@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_BranchMapper_h
-#define DataFormats_Provenance_BranchMapper_h
+#ifndef DataFormats_Provenance_ProductProvenanceRetriever_h
+#define DataFormats_Provenance_ProductProvenanceRetriever_h
 
 /*----------------------------------------------------------------------
   
