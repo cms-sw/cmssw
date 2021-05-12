@@ -16,9 +16,9 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   '106X_mcRun2_design_v8',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, prior to VFP change
-    'run2_mc_pre_vfp'   :   '106X_mcRun2_asymptotic_preVFP_v10',
+    'run2_mc_pre_vfp'   :   '106X_mcRun2_asymptotic_preVFP_v11',
     #GlobalTag for MC production with optimistic alignment and calibrations for 2016, after VFP change
-    'run2_mc'           :   '106X_mcRun2_asymptotic_v16',
+    'run2_mc'           :   '106X_mcRun2_asymptotic_v17',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
     'run2_mc_cosmics'   :   '106X_mcRun2cosmics_asymptotic_deco_v3',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
@@ -26,11 +26,11 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '106X_mcRun2_pA_v6',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '106X_dataRun2_v33',
+    'run1_data'         :   '106X_dataRun2_v34',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '106X_dataRun2_v33',
+    'run2_data'         :   '106X_dataRun2_v34',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '106X_dataRun2_relval_v31',
+    'run2_data_relval'  :   '106X_dataRun2_relval_v32',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
     'run2_data_promptlike_HEfail' : '106X_dataRun2_PromptLike_HEfail_v14',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
