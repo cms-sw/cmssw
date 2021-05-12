@@ -72,10 +72,10 @@ protected:
   const bool truncatePixelCharge_;
 
   // Rechit errors in case other, more correct, errors are not vailable
-  std::vector<double> xerr_barrel_l1_, yerr_barrel_l1_, xerr_barrel_ln_;
-  std::vector<double> yerr_barrel_ln_, xerr_endcap_, yerr_endcap_;
-  double xerr_barrel_l1_def_, yerr_barrel_l1_def_, xerr_barrel_ln_def_;
-  double yerr_barrel_ln_def_, xerr_endcap_def_, yerr_endcap_def_;
+  const std::vector<float> xerr_barrel_l1_, yerr_barrel_l1_, xerr_barrel_ln_;
+  const std::vector<float> yerr_barrel_ln_, xerr_endcap_, yerr_endcap_;
+  const float xerr_barrel_l1_def_, yerr_barrel_l1_def_, xerr_barrel_ln_def_;
+  const float yerr_barrel_ln_def_, xerr_endcap_def_, yerr_endcap_def_;
 };
 
 #endif  // RecoLocalTracker_SiPixelRecHits_PixelCPEGenericBase_H
