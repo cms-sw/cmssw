@@ -72,7 +72,7 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify(nanoDQM.vplots.Photon, plots = _Photon_plots_2016)
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.FatJet, plots = _FatJet_plots_80x)
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.Flag, plots = _Flag_plots_80x)
-(~run2_nanoAOD_106Xv2).toModify(nanoDQM.vplots.Electron, plots=_Electron_plots_withFall17V1)
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toModify(nanoDQM.vplots.Electron, plots=_Electron_plots_withFall17V1)
 
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
 
