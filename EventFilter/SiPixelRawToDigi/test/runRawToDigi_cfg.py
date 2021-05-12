@@ -48,7 +48,6 @@ process.siPixelDigis.InputLabel = 'siPixelRawData'
 #process.siPixelDigis.InputLabel = 'source'
 #process.siPixelDigis.InputLabel = 'rawDataCollector'
 process.siPixelDigis.IncludeErrors = True
-process.siPixelDigis.Timing = False 
 #process.siPixelDigis.UseCablingTree = True 
 
 process.MessageLogger = cms.Service("MessageLogger",
