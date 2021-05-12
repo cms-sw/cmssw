@@ -237,8 +237,9 @@ int MaterialBudgetVolume::findLV(const G4VTouchable* touch) {
 #ifdef EDM_ML_DEBUG
   if (level < 0) {
     edm::LogVerbatim("MaterialBudget") << "findLV: Gets " << level << " from " << levels << " levels in touchables";
-    for (int i = 0; i < levels; ++i) 
-      edm::LogVerbatim("MaterialBudget") << "[" << (levels - i) << "] " << touch->GetVolume(i)->GetLogicalVolume() << " : " << touch->GetVolume(i)->GetLogicalVolume()->GetName();
+    for (int i = 0; i < levels; ++i)
+      edm::LogVerbatim("MaterialBudget") << "[" << (levels - i) << "] " << touch->GetVolume(i)->GetLogicalVolume()
+                                         << " : " << touch->GetVolume(i)->GetLogicalVolume()->GetName();
   }
 #endif
   return level;

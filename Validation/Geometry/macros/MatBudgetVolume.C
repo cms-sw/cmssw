@@ -43,29 +43,21 @@ void etaPhiPlot(TString fileName = "matbdg_run3.root",
                 double maxEta = 5.2,
                 std::string tag = "Run3");
 void etaPhi2DPlot(TString fileName = "matbdg_run3.root",
-		  std::string plot = "intl",
-		  bool drawLeg = true,
-		  double maxEta = 5.2,
-		  std::string tag = "Run3");
+                  std::string plot = "intl",
+                  bool drawLeg = true,
+                  double maxEta = 5.2,
+                  std::string tag = "Run3");
 void setStyle();
 
 const int nlay = 13;
 int colorLay[nlay] = {2, 2, 2, 2, 2, 3, 5, 4, 8, 6, 3, 7, 1};
-int legends[nlay] =  {1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
-std::string title[nlay] = {"Beam Pipe", "", "", "", "", "Tracker",
-			   "ECAL", "HCAL", "HGCAL", "HF", "Magnet",
-			   "MUON", "Forward"};
-std::string names[nlay] = {"BEAM", "BEAM1", "BEAM2", "BEAM3", "BEAM4",
-			   "Tracker", "ECAL", "HCal", "CALOEC", "VCAL",
-			   "MGNT", "MUON", "OQUA"};
+int legends[nlay] = {1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
+std::string title[nlay] = {
+    "Beam Pipe", "", "", "", "", "Tracker", "ECAL", "HCAL", "HGCAL", "HF", "Magnet", "MUON", "Forward"};
+std::string names[nlay] = {
+    "BEAM", "BEAM1", "BEAM2", "BEAM3", "BEAM4", "Tracker", "ECAL", "HCal", "CALOEC", "VCAL", "MGNT", "MUON", "OQUA"};
 
-
-void etaPhiPlot(TString fileName,
-                std::string plot,
-                bool drawLeg,
-                bool ifEta,
-                double maxEta,
-                std::string tag) {
+void etaPhiPlot(TString fileName, std::string plot, bool drawLeg, bool ifEta, double maxEta, std::string tag) {
   TFile *hcalFile = new TFile(fileName);
   hcalFile->cd("materialBudgetVolumeAnalysis");
   setStyle();
@@ -96,7 +88,7 @@ void etaPhiPlot(TString fileName,
 
   char hname[20], titlex[50];
   sprintf(hname, "%s%s%s", plot.c_str(), ztit.c_str(), names[0].c_str());
-  TProfile* prof;
+  TProfile *prof;
   gDirectory->GetObject(hname, prof);
   int nb = prof->GetNbinsX();
   double xlow = prof->GetBinLowEdge(1);
@@ -104,10 +96,10 @@ void etaPhiPlot(TString fileName,
   THStack *hs = new THStack("hs", "");
   for (int ii = 0; ii < nlay; ++ii) {
     sprintf(hname, "%s%s%s", plot.c_str(), ztit.c_str(), names[ii].c_str());
-    TProfile* prof;
+    TProfile *prof;
     gDirectory->GetObject(hname, prof);
     sprintf(hname, "%s%s%sH", plot.c_str(), ztit.c_str(), names[ii].c_str());
-    TH1D* hist = new TH1D(hname, "", nb, xlow, xhigh);
+    TH1D *hist = new TH1D(hname, "", nb, xlow, xhigh);
     for (int k = 1; k <= nb; ++k) {
       double cont = prof->GetBinContent(k);
       hist->SetBinContent(k, cont);
@@ -146,11 +138,7 @@ void etaPhiPlot(TString fileName,
   cc1->Modified();
 }
 
-void etaPhi2DPlot(TString fileName,
-		  std::string plot,
-		  bool drawLeg,
-		  double maxEta,
-		  std::string tag) {
+void etaPhi2DPlot(TString fileName, std::string plot, bool drawLeg, double maxEta, std::string tag) {
   TFile *hcalFile = new TFile(fileName);
   hcalFile->cd("materialBudgetVolumeAnalysis");
   setStyle();
@@ -175,7 +163,7 @@ void etaPhi2DPlot(TString fileName,
 
   char hname[20], titlex[50];
   sprintf(hname, "%sEtaPhi%s", plot.c_str(), names[0].c_str());
-  TProfile2D* prof;
+  TProfile2D *prof;
   gDirectory->GetObject(hname, prof);
   int nx = prof->GetXaxis()->GetNbins();
   double xlow = prof->GetXaxis()->GetBinLowEdge(1);
@@ -183,17 +171,18 @@ void etaPhi2DPlot(TString fileName,
   int ny = prof->GetYaxis()->GetNbins();
   double ylow = prof->GetYaxis()->GetBinLowEdge(1);
   double yhigh = prof->GetYaxis()->GetBinUpEdge(ny);
-  std::cout << hname << " X " << nx << ":" << xlow << ":" << xhigh << " Y " << ny << ":" << ylow << ":" << yhigh << std::endl;
+  std::cout << hname << " X " << nx << ":" << xlow << ":" << xhigh << " Y " << ny << ":" << ylow << ":" << yhigh
+            << std::endl;
   THStack *hs = new THStack("hs", ztit.c_str());
   for (int ii = 0; ii < nlay; ++ii) {
     sprintf(hname, "%sEtaPhi%s", plot.c_str(), names[ii].c_str());
     gDirectory->GetObject(hname, prof);
     sprintf(hname, "%sEtaPhi%sH", plot.c_str(), names[ii].c_str());
-    TH2D* hist = new TH2D(hname, "", nx, xlow, xhigh, ny, ylow, yhigh);
+    TH2D *hist = new TH2D(hname, "", nx, xlow, xhigh, ny, ylow, yhigh);
     for (int kx = 1; kx <= nx; ++kx) {
       for (int ky = 1; ky <= ny; ++ky) {
-	double cont = prof->GetBinContent(kx, ky);
-	hist->SetBinContent(kx, ky, cont);
+        double cont = prof->GetBinContent(kx, ky);
+        hist->SetBinContent(kx, ky, cont);
       }
     }
     hist->SetLineColor(colorLay[ii]);
