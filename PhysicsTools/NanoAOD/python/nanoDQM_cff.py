@@ -3,10 +3,12 @@ import copy
 
 from PhysicsTools.NanoAOD.nanoDQM_cfi import nanoDQM
 from PhysicsTools.NanoAOD.nanoDQM_tools_cff import *
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 ## Modify plots accordingly to era
 _vplots80X = nanoDQM.vplots.clone()
 # Tau plots
+(run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(nanoDQM.vplots, boostedTau = None)
 _tauPlots80X = cms.VPSet()
 for plot in _vplots80X.Tau.plots:
     if (plot.name.value().find("MVA")>-1 and plot.name.value().find("2017")>-1) or (plot.name.value().find("AntiEle")>-1 and plot.name.value().find("2018")>-1):
@@ -17,7 +19,6 @@ _tauPlots80X.append(Plot1D('idMVAoldDMdR03', 'idMVAoldDMdR03', 64, -0.5, 63.5, '
 _tauPlots80X.append(Plot1D('rawMVAnewDM', 'rawMVAnewDM', 20, -1, 1, 'byIsolationMVArun2v1DBnewDMwLT raw output discriminator'))
 _tauPlots80X.append(Plot1D('rawMVAoldDMdR03', 'rawMVAoldDMdR03', 20, -1, 1, 'byIsolationMVArun2v1DBdR03oldDMwLT raw output discriminator'))
 _vplots80X.Tau.plots = _tauPlots80X
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(nanoDQM,
                                      vplots = _vplots80X
 )
@@ -28,8 +29,6 @@ for plot in _METFixEE2017_DQMentry.plots:
     if plot.name.value().find("fiducial")>-1: continue
     _METFixEE2017_plots.append(plot)
 _METFixEE2017_DQMentry.plots = _METFixEE2017_plots
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
     modifier.toModify(nanoDQM.vplots, METFixEE2017 = _METFixEE2017_DQMentry)
 
@@ -57,7 +56,6 @@ _Flag_plots_80x = copy.deepcopy(nanoDQM.vplots.Flag.plots)
 _Flag_plots_80x.append(Plot1D('BadGlobalMuon', 'BadGlobalMuon', 2, -0.5, 1.5, 'Bad muon flag'))
 _Flag_plots_80x.append(Plot1D('CloneGlobalMuon', 'CloneGlobalMuon', 2, -0.5, 1.5, 'Clone muon flag'))
 
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify(nanoDQM.vplots.Electron, plots = _Electron_plots_2016)
     modifier.toModify(nanoDQM.vplots.Photon, plots = _Photon_plots_2016)
@@ -71,8 +69,6 @@ _sv_plots_106Xv1 = cms.VPSet()
 for plot in _sv_plots_nom:
     if (plot.name.value() != "charge"):
         _sv_plots_106Xv1.append(plot)
-from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
-from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_devel
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.SV, plots = _sv_plots_106Xv1 )
 
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.FatJet, plots=cms.VPSet(

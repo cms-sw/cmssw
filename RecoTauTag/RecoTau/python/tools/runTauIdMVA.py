@@ -817,6 +817,7 @@ class TauIDEmbedder(object):
             from RecoTauTag.RecoTau.PATTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
             _byElectronRejectionMVA62018Raw = "patTauDiscriminationByElectronRejectionMVA62018Raw"+self.postfix
             setattr(self.process,_byElectronRejectionMVA62018Raw,patTauDiscriminationAgainstElectronMVA6.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants, #already selected for MiniAOD
                 vetoEcalCracks = self.cms.bool(False), #keep taus in EB-EE cracks
                 mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL',
