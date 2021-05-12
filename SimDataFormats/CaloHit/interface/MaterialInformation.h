@@ -23,7 +23,7 @@ public:
   //Track eta, phi
   double trackEta() const { return eta_; }
   void setTrackEta(double e) { eta_ = e; }
-  double trackPhi() const { return eta_; }
+  double trackPhi() const { return phi_; }
   void setTrackPhi(double f) { phi_ = f; }
 
   //Lengths
