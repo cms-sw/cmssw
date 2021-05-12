@@ -61,6 +61,7 @@ void etaPhiPlot(TString fileName, std::string plot, bool drawLeg, bool ifEta, do
   TFile *hcalFile = new TFile(fileName);
   hcalFile->cd("materialBudgetVolumeAnalysis");
   setStyle();
+  gStyle->SetOptTitle(0);
 
   std::string xtit = "#eta";
   std::string ztit = "Eta";
@@ -80,7 +81,7 @@ void etaPhiPlot(TString fileName, std::string plot, bool drawLeg, bool ifEta, do
     ztit = "Phi";
   }
 
-  TLegend *leg = new TLegend(xh - 0.15, 0.60, xh, 0.90);
+  TLegend *leg = new TLegend(0.84, 0.69, 0.99, 0.99);
   leg->SetBorderSize(1);
   leg->SetFillColor(10);
   leg->SetMargin(0.25);
@@ -142,6 +143,7 @@ void etaPhi2DPlot(TString fileName, std::string plot, bool drawLeg, double maxEt
   TFile *hcalFile = new TFile(fileName);
   hcalFile->cd("materialBudgetVolumeAnalysis");
   setStyle();
+  gStyle->SetOptTitle(1);
 
   std::string xtit = "#eta";
   std::string ytit = "#phi";
@@ -223,6 +225,6 @@ void setStyle() {
   gStyle->SetFrameLineWidth(1);
   gStyle->SetOptStat(0);
   gStyle->SetLegendBorderSize(1);
-  gStyle->SetOptTitle(0);
+  gStyle->SetTitleColor(0);
   gStyle->SetTitleOffset(2.5, "Y");
 }
