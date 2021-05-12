@@ -75,6 +75,9 @@ from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106
 from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_devel
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.SV, plots = _sv_plots_106Xv1 )
 
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.FatJet, plots=cms.VPSet(
+    v for v in nanoDQM.vplots.FatJet.plots if v.name.value() != 'particleNet_mass'))
+
 #remove new plots from old campaign
 _Muon_noIsStandalone = [plot for plot in nanoDQM.vplots.Muon.plots if plot.name.value() != 'isStandalone']
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.Muon, plots = _Muon_noIsStandalone)
