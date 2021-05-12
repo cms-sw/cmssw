@@ -36,7 +36,9 @@ private:
   bool primaryVtxConstrain_;  // use event primary vertex instead of leading jet (if doVtxConstrain)
   bool useCaloJets_;          // Determines whether or not calo jets are used
   float deltaZ_;              // for jets [cm] (if DoTvxConstrain)
-  bool displaced_;            // Use prompt/displaced tracks
+  float minJetEtLowPt_;       // for track jets, minimum et required, depending on number of low pT tracks
+  float minJetEtHighPt_;
+  bool displaced_;  // Use prompt/displaced tracks
   unsigned int minNtracksHighPt_;
   unsigned int minNtracksLowPt_;
   const edm::EDGetTokenT<TkPrimaryVertexCollection> pvToken_;
@@ -54,6 +56,8 @@ L1TkHTMissProducer::L1TkHTMissProducer(const edm::ParameterSet& iConfig)
   deltaZ_ = (float)iConfig.getParameter<double>("deltaZ");
   minNtracksHighPt_ = iConfig.getParameter<int>("jet_minNtracksHighPt");
   minNtracksLowPt_ = iConfig.getParameter<int>("jet_minNtracksLowPt");
+  minJetEtLowPt_ = iConfig.getParameter<double>("jet_minJetEtLowPt");
+  minJetEtHighPt_ = iConfig.getParameter<double>("jet_minJetEtHighPt");
   displaced_ = iConfig.getParameter<bool>("displaced");
 
   if (useCaloJets_)
@@ -207,9 +211,9 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         continue;
       if (fabs(jetIter->eta()) > jetMaxEta_)
         continue;
-      if (jetIter->ntracks() < minNtracksLowPt_ && tmp_jet_et > 50)
+      if (jetIter->ntracks() < minNtracksLowPt_ && tmp_jet_et > minJetEtLowPt_)
         continue;
-      if (jetIter->ntracks() < minNtracksHighPt_ && tmp_jet_et > 100)
+      if (jetIter->ntracks() < minNtracksHighPt_ && tmp_jet_et > minJetEtHighPt_)
         continue;
       sumPx += tmp_jet_px;
       sumPy += tmp_jet_py;

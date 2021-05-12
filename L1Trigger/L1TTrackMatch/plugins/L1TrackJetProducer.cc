@@ -80,6 +80,8 @@ private:
   int etaBins_;
   int phiBins_;
   double minTrkJetpT_;
+  double minJetEtLowPt_;
+  double minJetEtHighPt_;
   float zStep_;
   float etaStep_;
   float phiStep_;
@@ -107,6 +109,8 @@ L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
   trkBendChi2Max_ = (float)iConfig.getParameter<double>("trk_bendChi2Max");
   trkNPSStubMin_ = (int)iConfig.getParameter<int>("trk_nPSStubMin");
   minTrkJetpT_ = iConfig.getParameter<double>("minTrkJetpT");
+  minJetEtLowPt_ = iConfig.getParameter<double>("minJetEtLowPt");
+  minJetEtHighPt_ = iConfig.getParameter<double>("minJetEtHighPt");
   etaBins_ = (int)iConfig.getParameter<int>("etaBins");
   phiBins_ = (int)iConfig.getParameter<int>("phiBins");
   zBins_ = (int)iConfig.getParameter<int>("zBins");
@@ -510,9 +514,9 @@ void L1TrackJetProducer::L2_cluster(
     // sum up all pTs in this zbin to find ht
     float ht = 0;
     for (int k = 0; k < nclust; ++k) {
-      if (L2cluster[k].pTtot > 50 && L2cluster[k].numtracks < lowpTJetMinTrackMultiplicity_)
+      if (L2cluster[k].pTtot > minJetEtLowPt_ && L2cluster[k].numtracks < lowpTJetMinTrackMultiplicity_)
         continue;
-      if (L2cluster[k].pTtot > 100 && L2cluster[k].numtracks < highpTJetMinTrackMultiplicity_)
+      if (L2cluster[k].pTtot > minJetEtHighPt_ && L2cluster[k].numtracks < highpTJetMinTrackMultiplicity_)
         continue;
       if (L2cluster[k].pTtot > minTrkJetpT_)
         ht += L2cluster[k].pTtot;

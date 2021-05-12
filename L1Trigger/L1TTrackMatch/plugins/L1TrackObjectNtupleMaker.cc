@@ -808,14 +808,6 @@ void L1TrackObjectNtupleMaker::beginJob() {
     eventTree->Branch("allstub_genuine", &m_allstub_genuine);
   }
 
-  // if (TrackingInJets) {
-  //   eventTree->Branch("jet_eta", &m_jet_eta);
-  //   eventTree->Branch("jet_phi", &m_jet_phi);
-  //   eventTree->Branch("jet_pt", &m_jet_pt);
-  //   eventTree->Branch("jet_tp_sumpt", &m_jet_tp_sumpt);
-  //   eventTree->Branch("jet_trk_sumpt", &m_jet_trk_sumpt);
-  //   eventTree->Branch("jet_matchtrk_sumpt", &m_jet_matchtrk_sumpt);
-  // }
   if (SaveTrackJets) {
     // eventTree->Branch("pv_L1recotruesumpt", &m_pv_L1recotruesumpt);
     // eventTree->Branch("pv_L1recosumpt", &m_pv_L1recosumpt);
