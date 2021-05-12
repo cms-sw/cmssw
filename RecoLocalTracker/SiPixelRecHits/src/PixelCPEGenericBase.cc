@@ -1,7 +1,9 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
 
 namespace {
-  auto convert = [](std::vector<double> const& iIn) { return std::vector<float>(iIn.begin(), iIn.end()); };
+  auto convertDoubleVecToFloatVec = [](std::vector<double> const& iIn) {
+    return std::vector<float>(iIn.begin(), iIn.end());
+  };
 }
 
 PixelCPEGenericBase::PixelCPEGenericBase(edm::ParameterSet const& conf,
@@ -12,22 +14,22 @@ PixelCPEGenericBase::PixelCPEGenericBase(edm::ParameterSet const& conf,
                                          const SiPixelGenErrorDBObject* genErrorDBObject,
                                          const SiPixelLorentzAngle* lorentzAngleWidth = nullptr)
     : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr, lorentzAngleWidth, 0),
-      edgeClusterErrorX_(conf.getParameter<double>("EdgeClusterErrorX")),
-      edgeClusterErrorY_(conf.getParameter<double>("EdgeClusterErrorY")),
-      useErrorsFromTemplates_(conf.getParameter<bool>("UseErrorsFromTemplates")),
-      truncatePixelCharge_(conf.getParameter<bool>("TruncatePixelCharge")),
-      xerr_barrel_l1_(convert(conf.getParameter<std::vector<double>>("xerr_barrel_l1"))),
-      yerr_barrel_l1_(convert(conf.getParameter<std::vector<double>>("yerr_barrel_l1"))),
-      xerr_barrel_ln_(convert(conf.getParameter<std::vector<double>>("xerr_barrel_ln"))),
-      yerr_barrel_ln_(convert(conf.getParameter<std::vector<double>>("yerr_barrel_ln"))),
-      xerr_endcap_(convert(conf.getParameter<std::vector<double>>("xerr_endcap"))),
-      yerr_endcap_(convert(conf.getParameter<std::vector<double>>("yerr_endcap"))),
-      xerr_barrel_l1_def_(conf.getParameter<double>("xerr_barrel_l1_def")),
-      yerr_barrel_l1_def_(conf.getParameter<double>("yerr_barrel_l1_def")),
-      xerr_barrel_ln_def_(conf.getParameter<double>("xerr_barrel_ln_def")),
-      yerr_barrel_ln_def_(conf.getParameter<double>("yerr_barrel_ln_def")),
-      xerr_endcap_def_(conf.getParameter<double>("xerr_endcap_def")),
-      yerr_endcap_def_(conf.getParameter<double>("yerr_endcap_def")){};
+      edgeClusterErrorX_{static_cast<float>(conf.getParameter<double>("EdgeClusterErrorX"))},
+      edgeClusterErrorY_{static_cast<float>(conf.getParameter<double>("EdgeClusterErrorY"))},
+      useErrorsFromTemplates_{conf.getParameter<bool>("UseErrorsFromTemplates")},
+      truncatePixelCharge_{conf.getParameter<bool>("TruncatePixelCharge")},
+      xerr_barrel_l1_{convertDoubleVecToFloatVec(conf.getParameter<std::vector<double>>("xerr_barrel_l1"))},
+      yerr_barrel_l1_{convertDoubleVecToFloatVec(conf.getParameter<std::vector<double>>("yerr_barrel_l1"))},
+      xerr_barrel_ln_{convertDoubleVecToFloatVec(conf.getParameter<std::vector<double>>("xerr_barrel_ln"))},
+      yerr_barrel_ln_{convertDoubleVecToFloatVec(conf.getParameter<std::vector<double>>("yerr_barrel_ln"))},
+      xerr_endcap_{convertDoubleVecToFloatVec(conf.getParameter<std::vector<double>>("xerr_endcap"))},
+      yerr_endcap_{convertDoubleVecToFloatVec(conf.getParameter<std::vector<double>>("yerr_endcap"))},
+      xerr_barrel_l1_def_{static_cast<float>(conf.getParameter<double>("xerr_barrel_l1_def"))},
+      yerr_barrel_l1_def_{static_cast<float>(conf.getParameter<double>("yerr_barrel_l1_def"))},
+      xerr_barrel_ln_def_{static_cast<float>(conf.getParameter<double>("xerr_barrel_ln_def"))},
+      yerr_barrel_ln_def_{static_cast<float>(conf.getParameter<double>("yerr_barrel_ln_def"))},
+      xerr_endcap_def_{static_cast<float>(conf.getParameter<double>("xerr_endcap_def"))},
+      yerr_endcap_def_{static_cast<float>(conf.getParameter<double>("yerr_endcap_def"))} {};
 
 std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPEGenericBase::createClusterParam(const SiPixelCluster& cl) const {
   return std::make_unique<ClusterParamGeneric>(cl);
