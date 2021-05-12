@@ -7,5 +7,8 @@ g4SimHits.Watchers = cms.VPSet(cms.PSet(
         lvLevels = cms.vint32(3, 3, 3, 3, 3, 3, 4, 4, 3, 4, 3, 3, 4),
         useDD4Hep = cms.bool(False),
     ),
-    type = cms.string('MaterialBudgetVolume')
+    type = cms.string('MaterialBudgetVolume'),
 ))
+
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+#dd4hep.toModify( g4SimHits.Watchers.MaterialBudgetVolume, useDD4Hep = True )
