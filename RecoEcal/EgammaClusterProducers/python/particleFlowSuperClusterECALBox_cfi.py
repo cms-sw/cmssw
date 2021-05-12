@@ -60,8 +60,6 @@ particleFlowSuperClusterECALBox = _mod.particleFlowSuperClusterECALMustache.clon
     satelliteClusterSeedThreshold = 50.0,
     satelliteMajorityFraction = 0.5,
     dropUnseedable = False,
-    #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
-    #thresh_PFClusterMustacheOutEndcap = cms.double(0.),
 
     # corrections
     applyCrackCorrections = False
