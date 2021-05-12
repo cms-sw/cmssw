@@ -47,7 +47,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
-#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
+#include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 
 class GEDPhotonProducer : public edm::stream::EDProducer<> {
 public:

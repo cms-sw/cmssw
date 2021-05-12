@@ -1,5 +1,5 @@
-#ifndef RecoEgamma_EgammaTools_interface_EgammaLocalCovParamDefaults_h
-#define RecoEgamma_EgammaTools_interface_EgammaLocalCovParamDefaults_h
+#ifndef RecoEcal_EgammaCoreTools_interface_EgammaLocalCovParamDefaults_h
+#define RecoEcal_EgammaCoreTools_interface_EgammaLocalCovParamDefaults_h
 
 struct EgammaLocalCovParamDefaults {
   static constexpr float kRelEnCut = 4.7;
