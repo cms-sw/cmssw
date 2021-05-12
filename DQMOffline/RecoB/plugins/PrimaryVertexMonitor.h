@@ -67,8 +67,10 @@ private:
   MonitorElement *dxy, *dxy2, *dz, *dxyErr, *dzErr;
   MonitorElement *dxyVsPhi_pt1, *dzVsPhi_pt1;
   MonitorElement *dxyVsEta_pt1, *dzVsEta_pt1;
+  MonitorElement *dxyVsEtaVsPhi_pt1, *dzVsEtaVsPhi_pt1;
   MonitorElement *dxyVsPhi_pt10, *dzVsPhi_pt10;
   MonitorElement *dxyVsEta_pt10, *dzVsEta_pt10;
+  MonitorElement *dxyVsEtaVsPhi_pt10, *dzVsEtaVsPhi_pt10;
 };
 
 #endif
