@@ -43,10 +43,14 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
       dzVsPhi_pt1(nullptr),
       dxyVsEta_pt1(nullptr),
       dzVsEta_pt1(nullptr),
+      dxyVsEtaVsPhi_pt1(nullptr),
+      dzVsEtaVsPhi_pt1(nullptr),
       dxyVsPhi_pt10(nullptr),
       dzVsPhi_pt10(nullptr),
       dxyVsEta_pt10(nullptr),
-      dzVsEta_pt10(nullptr) {
+      dzVsEta_pt10(nullptr),
+      dxyVsEtaVsPhi_pt10(nullptr),
+      dzVsEtaVsPhi_pt10(nullptr) {
   //  dqmStore_ = edm::Service<DQMStore>().operator->();
 
   vertexInputTag_ = pSet.getParameter<InputTag>("vertexLabel");
@@ -177,10 +181,12 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   double DzMax = conf_.getParameter<double>("DzMax");
 
   int PhiBin = conf_.getParameter<int>("PhiBin");
+  int PhiBin2D = conf_.getParameter<int>("PhiBin2D");
   double PhiMin = conf_.getParameter<double>("PhiMin");
   double PhiMax = conf_.getParameter<double>("PhiMax");
 
   int EtaBin = conf_.getParameter<int>("EtaBin");
+  int EtaBin2D = conf_.getParameter<int>("EtaBin2D");
   double EtaMin = conf_.getParameter<double>("EtaMin");
   double EtaMax = conf_.getParameter<double>("EtaMax");
 
@@ -250,6 +256,38 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
   dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)", 2);
 
+  dxyVsEtaVsPhi_pt1 = iBooker.bookProfile2D("dxyVsEtaVsPhi_pt1",
+                                            "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum) VS track #eta VS track #phi",
+                                            EtaBin2D,
+                                            EtaMin,
+                                            EtaMax,
+                                            PhiBin2D,
+                                            PhiMin,
+                                            PhiMax,
+                                            DxyBin,
+                                            DxyMin,
+                                            DxyMax,
+                                            "");
+  dxyVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  dxyVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
+  dxyVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy} (#mum)", 3);
+
+  dzVsEtaVsPhi_pt1 = iBooker.bookProfile2D("dzVsEtaVsPhi_pt1",
+                                           "PV tracks (p_{T} > 1 GeV) d_{z} (#mum) VS track #eta VS track #phi",
+                                           EtaBin2D,
+                                           EtaMin,
+                                           EtaMax,
+                                           PhiBin2D,
+                                           PhiMin,
+                                           PhiMax,
+                                           DzBin,
+                                           DzMin,
+                                           DzMax,
+                                           "");
+  dzVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  dzVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
+  dzVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)", 3);
+
   dxyVsPhi_pt10 = iBooker.bookProfile("dxyVsPhi_pt10",
                                       "PV tracks (p_{T} > 10 GeV) d_{xy} (#mum) VS track #phi",
                                       PhiBin,
@@ -297,6 +335,38 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
                                      "");
   dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
   dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)", 2);
+
+  dxyVsEtaVsPhi_pt10 = iBooker.bookProfile2D("dxyVsEtaVsPhi_pt10",
+                                             "PV tracks (p_{T} > 10 GeV) d_{xy} (#mum) VS track #eta VS track #phi",
+                                             EtaBin2D,
+                                             EtaMin,
+                                             EtaMax,
+                                             PhiBin2D,
+                                             PhiMin,
+                                             PhiMax,
+                                             DxyBin,
+                                             DxyMin,
+                                             DxyMax,
+                                             "");
+  dxyVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
+  dxyVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 2);
+  dxyVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy} (#mum)", 3);
+
+  dzVsEtaVsPhi_pt10 = iBooker.bookProfile2D("dzVsEtaVsPhi_pt10",
+                                            "PV tracks (p_{T} > 10 GeV) d_{z} (#mum) VS track #eta VS track #phi",
+                                            EtaBin2D,
+                                            EtaMin,
+                                            EtaMax,
+                                            PhiBin2D,
+                                            PhiMin,
+                                            PhiMax,
+                                            DzBin,
+                                            DzMin,
+                                            DzMax,
+                                            "");
+  dzVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
+  dzVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 2);
+  dzVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)", 3);
 }
 
 PrimaryVertexMonitor::~PrimaryVertexMonitor() {}
@@ -435,6 +505,8 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
     dzVsPhi_pt1->Fill(phi, Dz);
     dxyVsEta_pt1->Fill(eta, Dxy);
     dzVsEta_pt1->Fill(eta, Dz);
+    dxyVsEtaVsPhi_pt1->Fill(eta, phi, Dxy);
+    dzVsEtaVsPhi_pt1->Fill(eta, phi, Dz);
 
     if (pt < 10.)
       continue;
@@ -442,6 +514,8 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
     dzVsPhi_pt10->Fill(phi, Dz);
     dxyVsEta_pt10->Fill(eta, Dxy);
     dzVsEta_pt10->Fill(eta, Dz);
+    dxyVsEtaVsPhi_pt10->Fill(eta, phi, Dxy);
+    dzVsEtaVsPhi_pt10->Fill(eta, phi, Dz);
   }
   ntracks->Fill(float(nTracks));
   sumpt->Fill(sumPT);
