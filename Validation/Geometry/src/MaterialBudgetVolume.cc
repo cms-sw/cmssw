@@ -82,14 +82,12 @@ MaterialBudgetVolume::MaterialBudgetVolume(const edm::ParameterSet& p) : init_(f
   lvLevel_ = m_p.getParameter<std::vector<int> >("lvLevels");
   iaddLevel_ = (m_p.getParameter<bool>("useDD4Hep")) ? 1 : 0;
 
-#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume: Studies Material budget for " << lvNames_.size()
                                      << " volumes with addLevel " << iaddLevel_;
   std::ostringstream st1;
   for (unsigned int k = 0; k < lvNames_.size(); ++k)
     st1 << " [" << k << "] " << lvNames_[k] << " at " << lvLevel_[k];
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume: Volumes" << st1.str();
-#endif
 
   produces<edm::MaterialInformationContainer>("MaterialInformation");
 #ifdef EDM_ML_DEBUG
@@ -206,7 +204,7 @@ bool MaterialBudgetVolume::loadLV() {
         }
       }
       if (lv != nullptr)
-        mapLV_[i] = std::make_pair(lv, lvLevel_[i]);
+        mapLV_[i] = std::make_pair(lv, (lvLevel_[i] + iaddLevel_));
     }
     flag = true;
 #ifdef EDM_ML_DEBUG
