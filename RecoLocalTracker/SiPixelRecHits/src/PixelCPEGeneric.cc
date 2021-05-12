@@ -354,34 +354,37 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   const bool localPrint = false;
-  // Default errors are the maximum error used for edge clusters.
-  // These are determined by looking at residuals for edge clusters
-  float xerr = edgeClusterErrorX_ * micronsToCm;
-  float yerr = edgeClusterErrorY_ * micronsToCm;
 
-  // Find if cluster is at the module edge.
-  int maxPixelCol = theClusterParam.theCluster->maxPixelCol();
-  int maxPixelRow = theClusterParam.theCluster->maxPixelRow();
-  int minPixelCol = theClusterParam.theCluster->minPixelCol();
-  int minPixelRow = theClusterParam.theCluster->minPixelRow();
+  // local variables
+  float xerr, yerr;
+  bool edgex, edgey, bigInX, bigInY;
+  int maxPixelCol, maxPixelRow, minPixelCol, minPixelRow;
+  uint sizex, sizey;
 
-  bool edgex = (theDetParam.theRecTopol->isItEdgePixelInX(minPixelRow)) ||
-               (theDetParam.theRecTopol->isItEdgePixelInX(maxPixelRow));
-  bool edgey = (theDetParam.theRecTopol->isItEdgePixelInY(minPixelCol)) ||
-               (theDetParam.theRecTopol->isItEdgePixelInY(maxPixelCol));
+  initializeLocalErrorVariables(xerr,
+                                yerr,
+                                edgex,
+                                edgey,
+                                bigInX,
+                                bigInY,
+                                maxPixelCol,
+                                maxPixelRow,
+                                minPixelCol,
+                                minPixelRow,
+                                sizex,
+                                sizey,
+                                theDetParam,
+                                theClusterParam);
 
-  unsigned int sizex = theClusterParam.theCluster->sizeX();
-  unsigned int sizey = theClusterParam.theCluster->sizeY();
+  bool useTempErrors =
+      useErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
+
   if (MYDEBUG) {
     if (int(sizex) != (maxPixelRow - minPixelRow + 1))
       cout << " wrong x" << endl;
     if (int(sizey) != (maxPixelCol - minPixelCol + 1))
       cout << " wrong y" << endl;
   }
-
-  // Find if cluster contains double (big) pixels.
-  bool bigInX = theDetParam.theRecTopol->containsBigPixelInX(minPixelRow, maxPixelRow);
-  bool bigInY = theDetParam.theRecTopol->containsBigPixelInY(minPixelCol, maxPixelCol);
 
   if (localPrint) {
     cout << " edge clus " << xerr << " " << yerr << endl;  //dk
@@ -394,9 +397,6 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
       cout << " qbin 0! " << edgex << " " << edgey << " " << bigInX << " " << bigInY << " " << sizex << " " << sizey
            << endl;
   }
-
-  bool useTempErrors =
-      useErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
 
   // from PixelCPEGenericBase
   setXYErrors(xerr, yerr, edgex, edgey, sizex, sizey, bigInX, bigInY, useTempErrors, theDetParam, theClusterParam);
