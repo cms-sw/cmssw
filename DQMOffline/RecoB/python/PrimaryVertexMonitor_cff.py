@@ -21,9 +21,11 @@ pvMonitor = DQMEDAnalyzer('PrimaryVertexMonitor',
    DzMax          = cms.double(2000.0),
    DzMin          = cms.double(-2000.0),                                             
    PhiBin         = cms.int32(32),
+   PhiBin2D       = cms.int32(12),
    PhiMax         = cms.double(3.141592654),
    PhiMin         = cms.double(-3.141592654),
    EtaBin         = cms.int32(26),
+   EtaBin2D       = cms.int32(8),
    EtaMax         = cms.double(2.5),
    EtaMin         = cms.double(-2.5)
 )
@@ -32,5 +34,5 @@ pvMonitor = DQMEDAnalyzer('PrimaryVertexMonitor',
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase1Pixel.toModify(pvMonitor, EtaBin=31, EtaMin=-3.0, EtaMax=3.0)
-phase2_tracker.toModify(pvMonitor, EtaBin=41, EtaMin=-4.0, EtaMax=4.0)
+phase2_tracker.toModify(pvMonitor, EtaBin=41, EtaBin2D=9, EtaMin=-4.0, EtaMax=4.0)
 
