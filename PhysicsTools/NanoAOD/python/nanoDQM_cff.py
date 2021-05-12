@@ -44,6 +44,7 @@ _Electron_plots_2016.append(NoPlot('vidNestedWPBitmapSpring15'))
 
 #putting back the fall17V1 plots for non v9 case
 _Electron_plots_withFall17V1 = copy.deepcopy(nanoDQM.vplots.Electron.plots)
+_Electron_plots_withFall17V1.append(Plot1D('cutBased_Fall17_V1', 'cutBased_Fall17_V1', 5, -0.5, 4.5, 'cut-based ID Fall17 V1 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)'))
 _Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1Iso', 'mvaFall17V1Iso', 20, -1, 1, 'MVA Iso ID V1 score'))
 _Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1Iso_WP80', 'mvaFall17V1Iso_WP80', 2, -0.5, 1.5, 'MVA Iso ID V1 WP80'))
 _Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1Iso_WP90', 'mvaFall17V1Iso_WP90', 2, -0.5, 1.5, 'MVA Iso ID V1 WP90'))
