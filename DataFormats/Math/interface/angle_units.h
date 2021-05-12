@@ -11,11 +11,11 @@ namespace angle_units {
   namespace operators {
 
     // Angle
-    constexpr long double operator"" _pi(long double x) { return x * piRadians; }
-    constexpr long double operator"" _pi(unsigned long long int x) { return x * piRadians; }
-    constexpr long double operator"" _deg(long double deg) { return deg / degPerRad; }
-    constexpr long double operator"" _deg(unsigned long long int deg) { return deg / degPerRad; }
-    constexpr long double operator"" _rad(long double rad) { return rad * 1.; }
+    constexpr double operator"" _pi(long double x) { return x * piRadians; }
+    constexpr double operator"" _pi(unsigned long long int x) { return x * piRadians; }
+    constexpr double operator"" _deg(long double deg) { return deg / degPerRad; }
+    constexpr double operator"" _deg(unsigned long long int deg) { return deg / degPerRad; }
+    constexpr double operator"" _rad(long double rad) { return rad * 1.; }
 
     template <class NumType>
     inline constexpr NumType convertRadToDeg(NumType radians)  // Radians -> degrees
@@ -24,7 +24,7 @@ namespace angle_units {
     }
 
     template <class NumType>
-    inline constexpr long double convertDegToRad(NumType degrees)  // Degrees -> radians
+    inline constexpr double convertDegToRad(NumType degrees)  // Degrees -> radians
     {
       return (degrees / degPerRad);
     }
