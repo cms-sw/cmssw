@@ -79,10 +79,9 @@ public:
       }
     }
     // test for remaining unstabled due to lack of genparticle pointer
-    auto pdgid = tp->pdgId();
-    if (tp->status() == -99 && (std::abs(pdgid) != 11 && std::abs(pdgid) != 13 && std::abs(pdgid) != 211 &&
-                                std::abs(pdgid) != 321 && std::abs(pdgid) != 2212 && std::abs(pdgid) != 3112 &&
-                                std::abs(pdgid) != 3222 && std::abs(pdgid) != 3312 && std::abs(pdgid) != 3334)) {
+    int pdgid = std::abs(tp->pdgId());
+    if (tp->status() == -99 && (pdgid != 11 && pdgid != 13 && pdgid != 211 && pdgid != 321 && pdgid != 2212 &&
+                                pdgid != 3112 && pdgid != 3222 && pdgid != 3312 && pdgid != 3334)) {
       return false;
     }
     return true;

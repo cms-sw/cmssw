@@ -196,10 +196,7 @@ public:
   double d0() const { return -dxy(); }
 
   /// @brief dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0).
-  double dz() const {
-    const auto thept2inv = 1 / p4().Perp2();
-    return vz() - (vx() * px() + vy() * py()) * pz() * thept2inv;
-  }
+  double dz() const { return vz() - (vx() * px() + vy() * py()) * pz() / p4().Perp2(); }
 
   /// @brief z0 parameter
   double z0() const { return dz(); }
