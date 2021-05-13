@@ -61,7 +61,7 @@ public:
                             const reco::BeamSpot& bs,
                             double chi2Cut,
                             bool onlyDiag)
-    : productGetter_(&productGetter), mF_(&mF), beamSpot_(&bs), chi2cut_(chi2Cut), onlyDiagonal_(onlyDiag) {}
+      : productGetter_(&productGetter), mF_(&mF), beamSpot_(&bs), chi2cut_(chi2Cut), onlyDiagonal_(onlyDiag) {}
 
   /// Association Reco To Sim with Collections
 
@@ -87,14 +87,6 @@ public:
   }
 
 private:
-  /// basic method where chi2 is computed
-  double getChi2(const reco::TrackBase::ParameterVector& rParameters,
-                 const reco::TrackBase::CovarianceMatrix& recoTrackCovMatrix,
-                 const Basic3DVector<double>& momAtVtx,
-                 const Basic3DVector<double>& vert,
-                 int charge,
-                 const reco::BeamSpot&) const;
-
   edm::EDProductGetter const* productGetter_;
   const MagneticField* mF_;
   const reco::BeamSpot* beamSpot_;
