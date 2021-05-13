@@ -2,9 +2,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <cassert>
-#include <iostream>
-#include <limits>
+#include <algorithm>
 
 /*
  ProductProvenanceLookup
