@@ -85,36 +85,6 @@ void CSCCLCTDigi::clear() {
   setSlope(0);
 }
 
-uint16_t CSCCLCTDigi::getPattern() const { return getDataWord(pattern_, kLegacyPatternShift, kLegacyPatternMask); }
-
-void CSCCLCTDigi::setPattern(const uint16_t pattern) {
-  setDataWord(pattern, pattern_, kLegacyPatternShift, kLegacyPatternMask);
-}
-
-uint16_t CSCCLCTDigi::getRun3Pattern() const {
-  if (!isRun3())
-    return 0;
-  return getDataWord(pattern_, kRun3PatternShift, kRun3PatternMask);
-}
-
-void CSCCLCTDigi::setRun3Pattern(const uint16_t pattern) {
-  if (!isRun3())
-    return;
-  setDataWord(pattern, pattern_, kRun3PatternShift, kRun3PatternMask);
-}
-
-uint16_t CSCCLCTDigi::getSlope() const {
-  if (!isRun3())
-    return 0;
-  return getDataWord(pattern_, kRun3SlopeShift, kRun3SlopeMask);
-}
-
-void CSCCLCTDigi::setSlope(const uint16_t slope) {
-  if (!isRun3())
-    return;
-  setDataWord(slope, pattern_, kRun3SlopeShift, kRun3SlopeMask);
-}
-
 // slope in number of half-strips/layer
 float CSCCLCTDigi::getFractionalSlope() const {
   if (isRun3()) {
@@ -152,32 +122,6 @@ float CSCCLCTDigi::getFractionalStrip(const uint16_t n) const {
   } else {
     return 0.5f * (getKeyStrip(n) + 0.5);
   }
-}
-
-uint16_t CSCCLCTDigi::getStrip() const { return getDataWord(strip_, kHalfStripShift, kHalfStripMask); }
-
-bool CSCCLCTDigi::getQuartStrip() const {
-  if (!isRun3())
-    return false;
-  return getDataWord(strip_, kQuartStripShift, kQuartStripMask);
-}
-
-bool CSCCLCTDigi::getEighthStrip() const {
-  if (!isRun3())
-    return false;
-  return getDataWord(strip_, kEighthStripShift, kEighthStripMask);
-}
-
-void CSCCLCTDigi::setQuartStrip(const bool quartStrip) {
-  if (!isRun3())
-    return;
-  setDataWord(quartStrip, strip_, kQuartStripShift, kQuartStripMask);
-}
-
-void CSCCLCTDigi::setEighthStrip(const bool eighthStrip) {
-  if (!isRun3())
-    return;
-  setDataWord(eighthStrip, strip_, kEighthStripShift, kEighthStripMask);
 }
 
 void CSCCLCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Version::Run3 : Version::Legacy; }
@@ -261,18 +205,6 @@ void CSCCLCTDigi::print() const {
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid Cathode LCT.";
   }
-}
-
-void CSCCLCTDigi::setDataWord(const uint16_t newWord, uint16_t& word, const unsigned shift, const unsigned mask) {
-  // clear the old value
-  word &= ~(mask << shift);
-
-  // set the new value
-  word |= newWord << shift;
-}
-
-uint16_t CSCCLCTDigi::getDataWord(const uint16_t word, const unsigned shift, const unsigned mask) const {
-  return (word >> shift) & mask;
 }
 
 std::ostream& operator<<(std::ostream& o, const CSCCLCTDigi& digi) {

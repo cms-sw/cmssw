@@ -80,44 +80,8 @@ uint16_t CSCCorrelatedLCTDigi::getStrip(const uint16_t n) const {
   }
   // lowest 8 bits
   else {
-    return strip & kHalfStripMask;
+    return strip;
   }
-}
-
-void CSCCorrelatedLCTDigi::setQuartStrip(const bool quartStrip) {
-  if (!isRun3())
-    return;
-  setDataWord(quartStrip, strip, kQuartStripShift, kQuartStripMask);
-}
-
-void CSCCorrelatedLCTDigi::setEighthStrip(const bool eighthStrip) {
-  if (!isRun3())
-    return;
-  setDataWord(eighthStrip, strip, kEighthStripShift, kEighthStripMask);
-}
-
-bool CSCCorrelatedLCTDigi::getQuartStrip() const {
-  if (!isRun3())
-    return false;
-  return getDataWord(strip, kQuartStripShift, kQuartStripMask);
-}
-
-bool CSCCorrelatedLCTDigi::getEighthStrip() const {
-  if (!isRun3())
-    return false;
-  return getDataWord(strip, kEighthStripShift, kEighthStripMask);
-}
-
-uint16_t CSCCorrelatedLCTDigi::getSlope() const {
-  if (!isRun3())
-    return 0;
-  return getDataWord(pattern, kRun3SlopeShift, kRun3SlopeMask);
-}
-
-void CSCCorrelatedLCTDigi::setSlope(const uint16_t slope) {
-  if (!isRun3())
-    return;
-  setDataWord(slope, pattern, kRun3SlopeShift, kRun3SlopeMask);
 }
 
 // slope in number of half-strips/layer
@@ -148,26 +112,6 @@ uint16_t CSCCorrelatedLCTDigi::getCLCTPattern() const {
   return (isRun3() ? std::numeric_limits<uint16_t>::max() : (pattern & 0xF));
 }
 
-uint16_t CSCCorrelatedLCTDigi::getPattern() const {
-  return getDataWord(pattern, kLegacyPatternShift, kLegacyPatternMask);
-}
-
-void CSCCorrelatedLCTDigi::setPattern(const uint16_t pat) {
-  setDataWord(pat, pattern, kLegacyPatternShift, kLegacyPatternMask);
-}
-
-uint16_t CSCCorrelatedLCTDigi::getRun3Pattern() const {
-  if (!isRun3())
-    return 0;
-  return getDataWord(pattern, kRun3PatternShift, kRun3PatternMask);
-}
-
-void CSCCorrelatedLCTDigi::setRun3Pattern(const uint16_t pat) {
-  if (!isRun3())
-    return;
-  setDataWord(pat, pattern, kRun3PatternShift, kRun3PatternMask);
-}
-
 uint16_t CSCCorrelatedLCTDigi::getHMT() const { return (isRun3() ? hmt : std::numeric_limits<uint16_t>::max()); }
 
 void CSCCorrelatedLCTDigi::setHMT(const uint16_t h) { hmt = isRun3() ? h : std::numeric_limits<uint16_t>::max(); }
@@ -193,21 +137,6 @@ void CSCCorrelatedLCTDigi::print() const {
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid correlated LCT.";
   }
-}
-
-void CSCCorrelatedLCTDigi::setDataWord(const uint16_t newWord,
-                                       uint16_t& word,
-                                       const unsigned shift,
-                                       const unsigned mask) {
-  // clear the old value
-  word &= ~(mask << shift);
-
-  // set the new value
-  word |= newWord << shift;
-}
-
-uint16_t CSCCorrelatedLCTDigi::getDataWord(const uint16_t word, const unsigned shift, const unsigned mask) const {
-  return (word >> shift) & mask;
 }
 
 std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
