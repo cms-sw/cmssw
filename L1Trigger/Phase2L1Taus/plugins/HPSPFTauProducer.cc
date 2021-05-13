@@ -22,10 +22,6 @@ HPSPFTauProducer::HPSPFTauProducer(const edm::ParameterSet& cfg)
       deltaRCleaning_(cfg.getParameter<double>("deltaRCleaning")),
       applyPreselection_(cfg.getParameter<bool>("applyPreselection")),
       debug_(cfg.getUntrackedParameter<bool>("debug", false)) {
-  if (debug_) {
-    std::cout << "<HPSPFTauProducer::HPSPFTauProducer (moduleLabel = " << moduleLabel_ << ")>:" << std::endl;
-  }
-
   srcL1PFCands_ = cfg.getParameter<edm::InputTag>("srcL1PFCands");
   tokenL1PFCands_ = consumes<l1t::PFCandidateCollection>(srcL1PFCands_);
   srcL1Jets_ = cfg.getParameter<edm::InputTag>("srcL1Jets");
@@ -73,13 +69,6 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     }
   }
 
-  if (debug_) {
-    std::cout << "BEFORE selection:" << std::endl;
-    for (const auto& l1PFCand : *l1PFCands) {
-      printPFCand(std::cout, l1PFCand, primaryVertex_z);
-    }
-  }
-
   // build collection of selected PFCandidates
   std::vector<l1t::PFCandidateRef> selectedL1PFCandsSignalQualityCuts;
   std::vector<l1t::PFCandidateRef> selectedL1PFCandsSignalOrIsolationQualityCuts;
@@ -101,13 +90,6 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   std::sort(selectedL1PFCandsSignalOrIsolationQualityCuts.begin(),
             selectedL1PFCandsSignalOrIsolationQualityCuts.end(),
             isHigherPt_pfCandRef);
-
-  if (debug_) {
-    std::cout << "AFTER selection (signalQualityCuts):" << std::endl;
-    for (const auto& l1PFCand : selectedL1PFCandsSignalQualityCuts) {
-      printPFCand(std::cout, *l1PFCand, primaryVertex_z);
-    }
-  }
 
   l1t::HPSPFTauCollection l1PFTauCollectionUncleaned;
 
@@ -165,14 +147,6 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // sort PFTau candidate collection by decreasing pT
   std::sort(l1PFTauCollectionUncleaned.begin(), l1PFTauCollectionUncleaned.end(), isHigherPt_pfTau);
 
-  if (debug_) {
-    std::cout << "BEFORE cleaning:" << std::endl;
-    for (size_t idx = 0; idx < l1PFTauCollectionUncleaned.size(); ++idx) {
-      const l1t::HPSPFTau& l1PFTau = l1PFTauCollectionUncleaned.at(idx);
-      std::cout << "HPSPFTau #" << idx << ": " << l1PFTau;
-    }
-  }
-
   for (const auto& l1PFTau : l1PFTauCollectionUncleaned) {
     if (applyPreselection_ &&
         !(l1PFTau.pt() > minPFTauPt_ && std::fabs(l1PFTau.eta()) < maxPFTauEta_ &&
@@ -195,14 +169,6 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     }
     if (!isOverlap) {
       l1PFTauCollectionCleaned->push_back(l1PFTau);
-    }
-  }
-
-  if (debug_) {
-    std::cout << "AFTER cleaning:" << std::endl;
-    for (size_t idx = 0; idx < l1PFTauCollectionCleaned->size(); ++idx) {
-      const l1t::HPSPFTau& l1PFTau = l1PFTauCollectionCleaned->at(idx);
-      std::cout << "HPSPFTau #" << idx << ": " << l1PFTau;
     }
   }
 

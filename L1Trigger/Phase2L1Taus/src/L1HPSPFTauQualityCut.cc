@@ -31,11 +31,6 @@ L1HPSPFTauQualityCut::L1HPSPFTauQualityCut(const edm::ParameterSet& cfg)
 
   minPt_ = cfg.getParameter<double>("minPt");
   maxDz_ = (cfg.exists("maxDz")) ? cfg.getParameter<double>("maxDz") : 1.e+3;
-
-  if (debug_ && dzCut_ == kEnabledPrimary) {
-    std::cout << " applying pT > " << minPt_ << " GeV && dz < " << maxDz_ << " cm to PFCands of type = '"
-              << pfCandTypeString << "'" << std::endl;
-  }
 }
 
 bool L1HPSPFTauQualityCut::operator()(const l1t::PFCandidate& pfCand, float_t primaryVertex_z) const {

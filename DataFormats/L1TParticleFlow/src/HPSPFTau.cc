@@ -34,7 +34,7 @@ ostream& operator<<(ostream& os, const l1t::HPSPFTau& l1PFTau) {
   if (l1PFTau.isChargedPFCandSeeded()) {
     os << " chargedPFCand";
   } else if (l1PFTau.isJetSeeded()) {
-    os << " PFJet";
+    os << " CaloJet";
   } else {
     cms::Exception ex("InconsistentTau");
     ex.addContext("Calling HPSPFTau::operator <<");
