@@ -6,24 +6,20 @@
 ProductProvenanceRetriever: Manages the per event/lumi/run per product provenance.
 
 ----------------------------------------------------------------------*/
-#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProductProvenanceLookup.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-#include <vector>
 #include <memory>
 #include <set>
 #include <atomic>
-#include <string_view>
 
 /*
   ProductProvenanceRetriever
 */
 
 namespace edm {
-  class ProvenanceReaderBase;
   class ModuleCallingContext;
   class ProductRegistry;
 

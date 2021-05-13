@@ -3,7 +3,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cassert>
-#include <iostream>
 #include <limits>
 
 /*
