@@ -23,6 +23,7 @@ namespace geant_units {
     using angle_units::operators::operator""_deg;
     using angle_units::operators::operator""_pi;
     using angle_units::operators::operator""_rad;
+    using angle_units::operators::almostEqual;
     using angle_units::operators::convertDegToRad;
     using angle_units::operators::convertRadToDeg;
 
