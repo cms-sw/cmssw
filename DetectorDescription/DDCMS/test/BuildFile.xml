@@ -66,3 +66,7 @@
   <use name="FWCore/Utilities"/>
   <flags TEST_RUNNER_ARGS="/bin/bash DetectorDescription/DDCMS/test runTest.sh"/>
 </bin>
+
+<bin name="testDDUnits" file="testRunner.cpp,DDUnits.cppunit.cc">
+  <use name="clhep"/>
+</bin>
