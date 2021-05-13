@@ -52,7 +52,9 @@ private:
   void Project(pt_t pt, phi_t phi, pxy_t& pxy, bool isX, bool debug = false) const;
   void PhiFromXY(pxy_t px, pxy_t py, phi_t& phi, bool debug = false) const;
 
-  void CalcMetHLS(std::vector<float> pt, std::vector<float> phi, reco::Candidate::PolarLorentzVector& metVector) const;
+  void CalcMetHLS(const std::vector<float>& pt,
+                  const std::vector<float>& phi,
+                  reco::Candidate::PolarLorentzVector& metVector) const;
 };
 
 L1METPFProducer::L1METPFProducer(const edm::ParameterSet& cfg)
@@ -85,8 +87,8 @@ void L1METPFProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
   iEvent.put(std::move(metCollection));
 }
 
-void L1METPFProducer::CalcMetHLS(std::vector<float> pt,
-                                 std::vector<float> phi,
+void L1METPFProducer::CalcMetHLS(const std::vector<float>& pt,
+                                 const std::vector<float>& phi,
                                  reco::Candidate::PolarLorentzVector& metVector) const {
   pxy_t hw_px = 0;
   pxy_t hw_py = 0;
