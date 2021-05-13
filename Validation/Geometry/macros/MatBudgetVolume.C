@@ -14,12 +14,16 @@
 //      Make the 2-D plots as a function of eta and phi with same parameter
 //      meanings as those of *etaPhiPlot*
 //
+// etaPhiPlotComp(fileName1, fileName2, plot, ifEta, tag, debug)
+//      Compares material budget plots from 2 different files
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 // include files
 #include <TCanvas.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TGraphErrors.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <THStack.h>
@@ -47,10 +51,21 @@ void etaPhi2DPlot(TString fileName = "matbdg_run3.root",
                   bool drawLeg = true,
                   double maxEta = 5.2,
                   std::string tag = "Run3");
+void etaPhiPlotComp(TString fileName1 = "matbdg_run3.root", 
+		    TString fileName2 = "matbdg_run3_dd4hep.root",
+		    std::string plot = "intl", 
+		    bool ifEta = true, 
+		    std::string tag = "Run3", 
+		    bool debug = false);
+
 void setStyle();
 
 const int nlay = 13;
+const int ngrp = 9;
+int nlayers[ngrp] = {5, 1, 1, 1, 1, 1, 1, 1, 1};
+int nflayer[ngrp] = {0, 5, 6, 7, 8, 9, 10, 11, 12};
 int colorLay[nlay] = {2, 2, 2, 2, 2, 3, 5, 4, 8, 6, 3, 7, 1};
+int styleLay[nlay] = {20, 20, 20, 20, 20, 21, 22, 23, 24, 25, 26, 27, 30};
 int legends[nlay] = {1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
 std::string title[nlay] = {
     "Beam Pipe", "", "", "", "", "Tracker", "ECAL", "HCAL", "HGCAL", "HF", "Magnet", "MUON", "Forward"};
@@ -210,6 +225,127 @@ void etaPhi2DPlot(TString fileName, std::string plot, bool drawLeg, double maxEt
   hs->GetYaxis()->SetTitle(ytit.c_str());
   hs->GetYaxis()->SetTitleOffset(1.2);
   cc1->Modified();
+}
+
+void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot, 
+		    bool ifEta, std::string tag, bool debug) {
+  setStyle();
+  gStyle->SetOptTitle(0);
+  TFile *file1 = new TFile(fileName1);
+  TFile *file2 = new TFile(fileName2);
+  if ((file1 != nullptr) && (file2 != nullptr)) {
+    TDirectory *dir1 = (TDirectory *)(file1->FindObjectAny("materialBudgetVolumeAnalysis"));
+    TDirectory *dir2 = (TDirectory *)(file2->FindObjectAny("materialBudgetVolumeAnalysis"));
+    TLegend *leg = new TLegend(0.84, 0.69, 0.99, 0.99);
+    leg->SetBorderSize(1);
+    leg->SetFillColor(10);
+    leg->SetMargin(0.25);
+    leg->SetTextSize(0.028);
+    
+    std::string xtit = "#eta";
+    std::string ztit = "Eta";
+    std::string ytit = "none";
+    if (plot == "radl") {
+      ytit = "#frac{DDD}{DD4Hep} for MB (X_{0})";
+    } else if (plot == "step") {
+      ytit = "#frac{DDD}{DD4Hep} for MB (Step Length)";
+    } else {
+      plot = "intl";
+      ytit = "#frac{DDD}{DD4Hep} for MB (#lambda)";
+    }
+    if (!ifEta) {
+      xtit = "#phi";
+      ztit = "Phi";
+    }
+
+    std::vector<TGraphErrors*> graphs;
+    std::vector<int> index;
+    char hname[20], titlex[50];
+    int nb(0);
+    double xlow(0), xhigh(0);
+    for (int i = 0; i < ngrp; ++i) {
+      std::vector<double> xx0, yy1, yy2, dy1, dy2;
+      for (int j = 0; j < nlayers[i]; ++j) {
+	int ii = nflayer[i] + j;
+	sprintf(hname, "%s%s%s", plot.c_str(), ztit.c_str(), names[ii].c_str());
+	TProfile *prof1, *prof2;
+	dir1->GetObject(hname, prof1);
+	dir2->GetObject(hname, prof2);
+	if ((prof1 != nullptr) && (prof2 != nullptr)) {
+	  int nb = prof1->GetNbinsX();
+	  for (int k = 1; k <= nb; ++k) {
+	    yy1.push_back(prof1->GetBinContent(k));
+	    yy2.push_back(prof2->GetBinContent(k));
+	    dy1.push_back(prof1->GetBinError(k));
+	    dy2.push_back(prof2->GetBinError(k));
+	    xx0.push_back(prof1->GetBinLowEdge(k) + prof2->GetBinWidth(k));
+	  }
+	}
+      }
+      std::vector<double> xx, yy, dx, dy;
+      int ii = nflayer[i];
+      double sumNum(0), sumDen(0);
+      for (unsigned int k = 0; k < xx0.size(); ++k) {
+	if ((yy1[k] > 0) && (yy2[k] > 0)) {
+	  double rat = yy1[k] / yy2[k];
+	  double drt = rat * sqrt((dy1[k] / yy1[k]) * (dy1[k] / yy1[k]) + (dy2[k] / yy2[k]) * (dy2[k] / yy2[k]));
+	  xx.push_back(xx0[k]);
+	  dx.push_back(0);
+	  yy.push_back(rat);
+	  dy.push_back(drt);
+	  if (debug) {
+	    std::cout << title[ii] << " [" << (xx.size() - 1) << "] " << xx0[k] 
+		      << " Ratio " << rat << " +- " << drt << std::endl;
+	  }
+          double temp1 = (rat > 1.0) ? 1.0/rat : rat;
+          double temp2 = (rat > 1.0) ? drt/(rat * rat) : drt;
+	  sumNum += (fabs(1.0 - temp1) / (temp2 * temp2));
+	  sumDen += (1.0 / (temp2 * temp2));
+	}
+      }
+      sumNum  = (sumDen > 0)  ? (sumNum / sumDen) : 0;
+      sumDen  = (sumDen > 0)  ? 1.0 / sqrt(sumDen) : 0;
+      std::cout << "Mean deviation for " << title[ii] << "  " << sumNum << " +- " << sumDen << std::endl;
+      if (xx.size() > 0) {
+	TGraphErrors *graph = new TGraphErrors ( xx.size(), &xx[0], &yy[0], &dx[0], &dy[0]);
+	graph->SetLineColor(colorLay[ii]);
+	graph->SetFillColor(colorLay[ii]);
+	graph->SetMarkerStyle(styleLay[ii]);
+	sprintf(titlex, "%s", title[ii].c_str());
+	leg->AddEntry(graph, titlex, "lep");
+	graphs.push_back(graph);
+	if (nb == 0) {
+	  sprintf(hname, "%s%s%s", plot.c_str(), ztit.c_str(), names[0].c_str());
+	  TProfile *prof;
+	  dir1->GetObject(hname, prof);
+	  nb = prof->GetNbinsX();
+	  xlow = prof->GetBinLowEdge(1);
+	  xhigh = prof->GetBinLowEdge(nb) + prof->GetBinWidth(nb);
+	}
+      }
+    }
+    if (graphs.size() > 0) {
+      std::string cname = "c_" + plot + ztit + "Ratio" + tag;
+      TCanvas *cc1 = new TCanvas(cname.c_str(), cname.c_str(), 700, 600);
+      cc1->SetLeftMargin(0.10);
+      cc1->SetRightMargin(0.10);
+      TH1F *vFrame = cc1->DrawFrame(xlow, 0.5, xhigh, 1.5);
+      vFrame->GetXaxis()->SetRangeUser(xlow, xhigh);
+      vFrame->GetXaxis()->SetLabelSize(0.03);
+      vFrame->GetXaxis()->SetTitleSize(0.035);
+      vFrame->GetXaxis()->SetTitleOffset(0.4);
+      vFrame->GetXaxis()->SetTitle(xtit.c_str());
+      vFrame->GetYaxis()->SetRangeUser(0.9, 1.1);
+      vFrame->GetYaxis()->SetLabelSize(0.03);
+      vFrame->GetYaxis()->SetTitleSize(0.035);
+      vFrame->GetYaxis()->SetTitleOffset(1.3);
+      vFrame->GetYaxis()->SetTitle(ytit.c_str());
+      for (unsigned int i = 0; i < graphs.size(); ++i)
+	graphs[i]->Draw("P");
+      leg->Draw("sames");
+      cc1->Modified();
+    }
+  }
 }
 
 void setStyle() {
