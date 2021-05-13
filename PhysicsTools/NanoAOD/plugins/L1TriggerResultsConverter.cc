@@ -64,6 +64,9 @@ private:
   const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tokenLegacy_;
   const edm::EDGetTokenT<GlobalAlgBlkBxCollection> token_;
   const edm::EDGetTokenT<GlobalExtBlkBxCollection> token_ext_;
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1gtmenuToken_;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> l1gtalgoMaskToken_;
+  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1utmTrigToken_;
   std::vector<std::string> names_;
   std::vector<unsigned int> mask_;
   std::vector<unsigned int> indices_;
@@ -83,7 +86,10 @@ L1TriggerResultsConverter::L1TriggerResultsConverter(const edm::ParameterSet& pa
                         : edm::EDGetTokenT<GlobalAlgBlkBxCollection>()),
       token_ext_(store_unprefireable_bit_
                      ? consumes<GlobalExtBlkBxCollection>(params.getParameter<edm::InputTag>("src_ext"))
-                     : edm::EDGetTokenT<GlobalExtBlkBxCollection>()) {
+                     : edm::EDGetTokenT<GlobalExtBlkBxCollection>()),
+      l1gtmenuToken_(esConsumes<edm::Transition::BeginRun>()),
+      l1gtalgoMaskToken_(esConsumes<edm::Transition::BeginRun>()),
+      l1utmTrigToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<edm::TriggerResults>();
 }
 
@@ -101,20 +107,14 @@ void L1TriggerResultsConverter::beginRun(edm::Run const&, edm::EventSetup const&
   names_.clear();
   indices_.clear();
   if (legacyL1_) {
-    edm::ESHandle<L1GtTriggerMenu> handleMenu;
-    edm::ESHandle<L1GtTriggerMask> handleAlgoMask;
-    setup.get<L1GtTriggerMenuRcd>().get(handleMenu);
-    auto const& mapping = handleMenu->gtAlgorithmAliasMap();
+    auto const& mapping = setup.getHandle(l1gtmenuToken_)->gtAlgorithmAliasMap();
     for (auto const& keyval : mapping) {
       names_.push_back(keyval.first);
       indices_.push_back(keyval.second.algoBitNumber());
     }
-    setup.get<L1GtTriggerMaskAlgoTrigRcd>().get(handleAlgoMask);
-    mask_ = handleAlgoMask->gtTriggerMask();
+    mask_ = setup.getHandle(l1gtalgoMaskToken_)->gtTriggerMask();
   } else {
-    edm::ESHandle<L1TUtmTriggerMenu> menu;
-    setup.get<L1TUtmTriggerMenuRcd>().get(menu);
-    auto const& mapping = menu->getAlgorithmMap();
+    auto const& mapping = setup.getHandle(l1utmTrigToken_)->getAlgorithmMap();
     for (auto const& keyval : mapping) {
       names_.push_back(keyval.first);
       indices_.push_back(keyval.second.getIndex());
