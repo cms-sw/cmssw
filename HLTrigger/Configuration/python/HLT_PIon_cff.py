@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_11_3_0/PIon --type PIon
+# hltGetConfiguration --cff --data /dev/CMSSW_12_0_0/PIon --type PIon
 
-# /dev/CMSSW_11_3_0/PIon/V13 (CMSSW_11_3_0_pre5)
+# /dev/CMSSW_12_0_0/PIon/V1 (CMSSW_12_0_0_pre1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_3_0/PIon/V13')
+  tableName = cms.string('/dev/CMSSW_12_0_0/PIon/V1')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4851,10 +4851,8 @@ fragment.hltESPMuonTransientTrackingRecHitBuilder = cms.ESProducer( "MuonTransie
   ComponentName = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" )
 )
 fragment.hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
-  DoLorentz = cms.bool( False ),
-  useLAAlignmentOffsets = cms.bool( False ),
-  Upgrade = cms.bool( False ),
   DoCosmics = cms.bool( False ),
+  Upgrade = cms.bool( False ),
   eff_charge_cut_highX = cms.double( 1.0 ),
   eff_charge_cut_highY = cms.double( 1.0 ),
   inflate_all_errors_no_trk_angle = cms.bool( False ),
@@ -4870,26 +4868,29 @@ fragment.hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   ClusterProbComputationFlag = cms.int32( 0 ),
   Alpha2Order = cms.bool( True ),
   appendToDataLabel = cms.string( "" ),
-  lAWidthFPix = cms.double( 0.0 ),
+  useLAFromDB = cms.bool( True ),
   SmallPitch = cms.bool( False ),
+  lAWidthFPix = cms.double( 0.0 ),
   LoadTemplatesFromDB = cms.bool( True ),
   NoTemplateErrorsWhenNoTrkAngles = cms.bool( False ),
   EdgeClusterErrorX = cms.double( 50.0 ),
   EdgeClusterErrorY = cms.double( 85.0 ),
   lAOffset = cms.double( 0.0 ),
+  doLorentzFromAlignment = cms.bool( False ),
   ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
   MagneticFieldRecord = cms.ESInputTag( "" ),
   IrradiationBiasCorrection = cms.bool( True )
 )
 fragment.hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
-  DoLorentz = cms.bool( True ),
   barrelTemplateID = cms.int32( 0 ),
   appendToDataLabel = cms.string( "" ),
   lAOffset = cms.double( 0.0 ),
-  lAWidthFPix = cms.double( 0.0 ),
+  doLorentzFromAlignment = cms.bool( False ),
+  useLAFromDB = cms.bool( True ),
   ComponentName = cms.string( "hltESPPixelCPETemplateReco" ),
   directoryWithTemplates = cms.int32( 0 ),
   useLAWidthFromDB = cms.bool( True ),
+  lAWidthFPix = cms.double( 0.0 ),
   lAWidthBPix = cms.double( 0.0 ),
   ClusterProbComputationFlag = cms.int32( 0 ),
   LoadTemplatesFromDB = cms.bool( True ),
