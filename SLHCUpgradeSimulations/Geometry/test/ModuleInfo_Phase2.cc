@@ -75,6 +75,9 @@ public:
 
 private:
   // ----------member data ---------------------------
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geom_esToken;
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDet_esToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topo_esToken;
   bool fromDDD_;
   bool printDDD_;
 };
@@ -104,9 +107,7 @@ ModuleInfo_Phase2::~ModuleInfo_Phase2() {
 // ------------ method called to produce the data  ------------
 void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(topo_esToken);
 
   edm::LogInfo("ModuleInfo_Phase2") << "begins";
 
@@ -124,15 +125,12 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //
   // get the GeometricDet
   //
-  edm::ESHandle<GeometricDet> rDD;
+  const GeometricDet* rDD = &iSetup.getData(geomDet_esToken);
 
-  iSetup.get<IdealGeometryRecord>().get(rDD);
-  edm::LogInfo("ModuleInfo_Phase2") << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
-  edm::LogInfo("ModuleInfo_Phase2") << " And Contains  Daughters: " << rDD.product()->deepComponents().size()
-                                    << std::endl;
+  edm::LogInfo("ModuleInfo_Phase2") << " Top node is  " << rDD << " " << rDD->name() << std::endl;
+  edm::LogInfo("ModuleInfo_Phase2") << " And Contains  Daughters: " << rDD->deepComponents().size() << std::endl;
   //first instance tracking geometry
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* pDD = &iSetup.getData(geom_esToken);
   //
 
   // counters

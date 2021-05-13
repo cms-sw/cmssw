@@ -7,8 +7,6 @@
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -28,8 +26,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -39,8 +35,6 @@
 
 // Geometry
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -64,7 +58,9 @@ using namespace edm;
 using namespace reco;
 
 StdHitNtuplizer::StdHitNtuplizer(edm::ParameterSet const& conf)
-    : conf_(conf),
+    : geom_esToken(esConsumes()),
+      topo_esToken(esConsumes()),
+      conf_(conf),
       trackerHitAssociatorConfig_(conf, consumesCollector()),
       src_(conf.getParameter<edm::InputTag>("src")),
       rphiRecHits_(conf.getParameter<edm::InputTag>("rphiRecHits")),
@@ -117,15 +113,10 @@ void StdHitNtuplizer::beginJob() {
 // Functions that gets called by framework every event
 void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &es.getData(topo_esToken);
 
   // geometry setup
-  edm::ESHandle<TrackerGeometry> geometry;
-
-  es.get<TrackerDigiGeometryRecord>().get(geometry);
-  const TrackerGeometry* theGeometry = &(*geometry);
+  const TrackerGeometry* theGeometry = &es.getData(geom_esToken);
 
   // fastsim rechits
   //edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;

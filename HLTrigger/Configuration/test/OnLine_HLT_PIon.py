@@ -1,13 +1,13 @@
-# hltGetConfiguration --full --data /dev/CMSSW_11_3_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_12_0_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_11_3_0/PIon/V13 (CMSSW_11_3_0_pre5)
+# /dev/CMSSW_12_0_0/PIon/V1 (CMSSW_12_0_0_pre1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_3_0/PIon/V13')
+  tableName = cms.string('/dev/CMSSW_12_0_0/PIon/V1')
 )
 
 process.transferSystem = cms.PSet( 
@@ -5021,10 +5021,8 @@ process.hltESPMuonTransientTrackingRecHitBuilder = cms.ESProducer( "MuonTransien
   ComponentName = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" )
 )
 process.hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
-  DoLorentz = cms.bool( False ),
-  useLAAlignmentOffsets = cms.bool( False ),
-  Upgrade = cms.bool( False ),
   DoCosmics = cms.bool( False ),
+  Upgrade = cms.bool( False ),
   eff_charge_cut_highX = cms.double( 1.0 ),
   eff_charge_cut_highY = cms.double( 1.0 ),
   inflate_all_errors_no_trk_angle = cms.bool( False ),
@@ -5040,26 +5038,29 @@ process.hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   ClusterProbComputationFlag = cms.int32( 0 ),
   Alpha2Order = cms.bool( True ),
   appendToDataLabel = cms.string( "" ),
-  lAWidthFPix = cms.double( 0.0 ),
+  useLAFromDB = cms.bool( True ),
   SmallPitch = cms.bool( False ),
+  lAWidthFPix = cms.double( 0.0 ),
   LoadTemplatesFromDB = cms.bool( True ),
   NoTemplateErrorsWhenNoTrkAngles = cms.bool( False ),
   EdgeClusterErrorX = cms.double( 50.0 ),
   EdgeClusterErrorY = cms.double( 85.0 ),
   lAOffset = cms.double( 0.0 ),
+  doLorentzFromAlignment = cms.bool( False ),
   ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
   MagneticFieldRecord = cms.ESInputTag( "" ),
   IrradiationBiasCorrection = cms.bool( True )
 )
 process.hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
-  DoLorentz = cms.bool( True ),
   barrelTemplateID = cms.int32( 0 ),
   appendToDataLabel = cms.string( "" ),
   lAOffset = cms.double( 0.0 ),
-  lAWidthFPix = cms.double( 0.0 ),
+  doLorentzFromAlignment = cms.bool( False ),
+  useLAFromDB = cms.bool( True ),
   ComponentName = cms.string( "hltESPPixelCPETemplateReco" ),
   directoryWithTemplates = cms.int32( 0 ),
   useLAWidthFromDB = cms.bool( True ),
+  lAWidthFPix = cms.double( 0.0 ),
   lAWidthBPix = cms.double( 0.0 ),
   ClusterProbComputationFlag = cms.int32( 0 ),
   LoadTemplatesFromDB = cms.bool( True ),
@@ -5729,6 +5730,7 @@ process.hltPreDQMOutput = cms.EDFilter( "HLTPrescaler",
 process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     l1tResults = cms.InputTag( "" ),
+    usePathStatus = cms.bool( False ),
     hltResults = cms.InputTag( 'TriggerResults','','@currentProcess' ),
     triggerConditions = cms.vstring( '( HLT_Random_v3 OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE ) / 10',
       'HLT_Physics_v7',
