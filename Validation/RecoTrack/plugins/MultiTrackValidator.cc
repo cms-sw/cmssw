@@ -1033,13 +1033,15 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
       size_t n_selTrack_dr = 0;
 
       //calculate dR for tracks
+      declareDynArray(float, trackCollection.size(), dR_trk);
+      declareDynArray(float, trackCollection.size(), dR_trk_jet);
+      /* DO NOT FORGET TO DECOMMENT!!!!
       const edm::View<Track>* trackCollectionDr = &trackCollection;
       if (calculateDrSingleCollection_) {
         trackCollectionDr = trackCollectionForDrCalculation.product();
-      }
-      declareDynArray(float, trackCollection.size(), dR_trk);
-      declareDynArray(float, trackCollection.size(), dR_trk_jet);
+      }      
       trackDR(trackCollection, *trackCollectionDr, dR_trk, dR_trk_jet, coresVector);
+      */
 
       for (View<Track>::size_type i = 0; i < trackCollection.size(); ++i) {
         auto track = trackCollection.refAt(i);
