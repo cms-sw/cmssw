@@ -3,6 +3,7 @@ import copy
 
 from PhysicsTools.NanoAOD.nanoDQM_cfi import nanoDQM
 from PhysicsTools.NanoAOD.nanoDQM_tools_cff import *
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 ## Modify plots accordingly to era
 _vplots80X = nanoDQM.vplots.clone()
@@ -17,7 +18,6 @@ _tauPlots80X.append(Plot1D('idMVAoldDMdR03', 'idMVAoldDMdR03', 64, -0.5, 63.5, '
 _tauPlots80X.append(Plot1D('rawMVAnewDM', 'rawMVAnewDM', 20, -1, 1, 'byIsolationMVArun2v1DBnewDMwLT raw output discriminator'))
 _tauPlots80X.append(Plot1D('rawMVAoldDMdR03', 'rawMVAoldDMdR03', 20, -1, 1, 'byIsolationMVArun2v1DBdR03oldDMwLT raw output discriminator'))
 _vplots80X.Tau.plots = _tauPlots80X
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(nanoDQM,
                                      vplots = _vplots80X
 )
@@ -70,6 +70,18 @@ _Electron_plots_2016.append(Plot1D('mvaSpring16HZZ', 'mvaSpring16HZZ', 20, -1, 1
 _Electron_plots_2016.append(Plot1D('mvaSpring16HZZ_WPL', 'mvaSpring16HZZ_WPL', 2, -0.5, 1.5, 'MVA Spring16 HZZ ID loose WP'))
 _Electron_plots_2016.append(NoPlot('vidNestedWPBitmapSpring15'))
 
+#putting back the fall17V1 plots for non v9 case
+_Electron_plots_withFall17V1 = copy.deepcopy(nanoDQM.vplots.Electron.plots)
+_Electron_plots_withFall17V1.append(Plot1D('cutBased_Fall17_V1', 'cutBased_Fall17_V1', 5, -0.5, 4.5, 'cut-based ID Fall17 V1 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)'))
+_Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1Iso', 'mvaFall17V1Iso', 20, -1, 1, 'MVA Iso ID V1 score'))
+_Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1Iso_WP80', 'mvaFall17V1Iso_WP80', 2, -0.5, 1.5, 'MVA Iso ID V1 WP80'))
+_Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1Iso_WP90', 'mvaFall17V1Iso_WP90', 2, -0.5, 1.5, 'MVA Iso ID V1 WP90'))
+_Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1Iso_WPL', 'mvaFall17V1Iso_WPL', 2, -0.5, 1.5, 'MVA Iso ID V1 loose WP'))
+_Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1noIso', 'mvaFall17V1noIso', 20, -1, 1, 'MVA noIso ID V1 score'))
+_Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1noIso_WP80', 'mvaFall17V1noIso_WP80', 2, -0.5, 1.5, 'MVA noIso ID V1 WP80'))
+_Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1noIso_WP90', 'mvaFall17V1noIso_WP90', 2, -0.5, 1.5, 'MVA noIso ID V1 WP90'))
+_Electron_plots_withFall17V1.append(Plot1D('mvaFall17V1noIso_WPL', 'mvaFall17V1noIso_WPL', 2, -0.5, 1.5, 'MVA noIso ID V1 loose WP'))
+
 _Photon_plots_2016 = copy.deepcopy(nanoDQM.vplots.Photon.plots)
 _Photon_plots_2016.append(Plot1D('cutBased', 'cutBased', 4, -0.5, 3.5, 'cut-based Spring16-V2p2 ID (0:fail, 1::loose, 2:medium, 3:tight)'))
 _Photon_plots_2016.append(Plot1D('cutBased17Bitmap', 'cutBased17Bitmap', 8, -0.5, 7.5, 'cut-based Fall17-94X-V1 ID bitmap, 2^(0:loose, 1:medium, 2:tight)'))
@@ -89,6 +101,7 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify(nanoDQM.vplots.Photon, plots = _Photon_plots_2016)
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.FatJet, plots = _FatJet_plots_80x)
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.Flag, plots = _Flag_plots_80x)
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toModify(nanoDQM.vplots.Electron, plots=_Electron_plots_withFall17V1)
 
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
 
