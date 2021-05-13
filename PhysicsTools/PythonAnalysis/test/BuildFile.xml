@@ -2,7 +2,6 @@
 <use name="python_tools"/>
 
 <test name="testPandas" command="testPandas.py"/>
-<test name="testRootNumpy" command="testRootNumpy.py"/>
 <test name="test_pycurl" command="test_pycurl.py"/>
 <test name="testBottleneck" command="testBottleneck.py"/>
 <test name="testNumExpr" command="testNumExpr.py"/>
@@ -117,8 +116,6 @@
 <test name="import-qtconsole" command="python3 -c 'import qtconsole'"/>
 <test name="import-rep" command="python3 -c 'import rep'"/>
 <test name="import-requests" command="python3 -c 'import requests'"/>
-<test name="import-root_numpy" command="python3 -c 'import root_numpy'"/>
-<test name="import-root_pandas" command="python3 -c 'import root_pandas'"/>
 <test name="import-scandir" command="python3 -c 'import scandir'"/>
 <test name="import-schema" command="python3 -c 'import schema'"/>
 <test name="import-sklearn" command="python3 -c 'import sklearn'"/>
