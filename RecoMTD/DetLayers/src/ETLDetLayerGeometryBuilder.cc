@@ -178,14 +178,12 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(
     }
 
     if (!backGeomDets.empty()) {
-      //std::sort(backGeomDets.begin(), backGeomDets.end(), orderGeomDets);
       std::sort(backGeomDets.begin(), backGeomDets.end(), topo.orderETLSector);
       LogDebug("MTDDetLayers") << "backGeomDets size = " << backGeomDets.size();
       backSectors.emplace_back(makeDetSector(backGeomDets, topo));
     }
 
     if (!frontGeomDets.empty()) {
-      //std::sort(frontGeomDets.begin(), frontGeomDets.end(), orderGeomDets);
       std::sort(frontGeomDets.begin(), frontGeomDets.end(), topo.orderETLSector);
       LogDebug("MTDDetLayers") << "frontGeomDets size = " << frontGeomDets.size();
       frontSectors.emplace_back(makeDetSector(frontGeomDets, topo));
