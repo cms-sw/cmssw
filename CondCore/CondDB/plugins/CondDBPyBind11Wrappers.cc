@@ -5,21 +5,20 @@
 
 namespace cond {
 
-  std::pair<std::string, std::string> getDbCredentials(const std::string& connectionString,
-                                                       bool updateMode,
-                                                       const std::string& authPath) {
+  std::tuple<std::string, std::string, std::string> getDbCredentials(const std::string& connectionString,
+                                                                     int accessType,
+                                                                     const std::string& authPath) {
     std::string ap = authPath;
     if (ap.empty()) {
       ap = std::string(std::getenv(cond::auth::COND_AUTH_PATH));
     }
-    auto ret = std::make_pair(std::string(""), std::string(""));
+    auto ret = std::make_tuple(std::string(""), std::string(""), std::string(""));
     if (!ap.empty()) {
       CredentialStore credDb;
       credDb.setUpForConnectionString(connectionString, ap);
-      std::string role(cond::auth::COND_READER_ROLE);
-      if (updateMode)
-        role = cond::auth::COND_WRITER_ROLE;
-      ret = credDb.getUserCredentials(connectionString, role);
+      std::string role(cond::auth::s_roleCodeArray[accessType].first);
+      auto creds = credDb.getUserCredentials(connectionString, role);
+      ret = std::tie(credDb.keyPrincipalName(), creds.first, creds.second);
     }
     return ret;
   }
