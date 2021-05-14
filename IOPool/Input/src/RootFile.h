@@ -29,6 +29,7 @@ RootFile.h // used by ROOT input sources
 #include <map>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace edm {
@@ -202,8 +203,8 @@ namespace edm {
 
     void reportOpened(std::string const& inputType);
     void close();
-    bool readCurrentEvent(EventPrincipal& cache);
-    void readEvent(EventPrincipal& cache);
+    std::tuple<bool, bool> readCurrentEvent(EventPrincipal& cache, bool assertOnFailure = true);
+    bool readEvent(EventPrincipal& cache);
 
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_();
@@ -274,9 +275,10 @@ namespace edm {
     void fillIndexIntoFile();
     EventAuxiliary fillEventAuxiliary(IndexIntoFile::EntryNumber_t entry);
     EventAuxiliary const& fillThisEventAuxiliary();
-    void fillEventHistory(EventAuxiliary& evtAux,
+    bool fillEventHistory(EventAuxiliary& evtAux,
                           EventSelectionIDVector& eventSelectionIDs,
-                          BranchListIndexes& branchListIndexes);
+                          BranchListIndexes& branchListIndexes,
+                          bool assertOnFailure = true);
     std::shared_ptr<LuminosityBlockAuxiliary> fillLumiAuxiliary();
     std::shared_ptr<RunAuxiliary> fillRunAuxiliary();
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
