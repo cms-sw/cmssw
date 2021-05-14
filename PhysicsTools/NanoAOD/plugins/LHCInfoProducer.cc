@@ -50,7 +50,7 @@
 
 class LHCInfoProducer : public edm::global::EDProducer<edm::BeginLuminosityBlockProducer> {
 public:
-  LHCInfoProducer(edm::ParameterSet const&) {
+  LHCInfoProducer(edm::ParameterSet const&) : lhcinfoToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     produces<nanoaod::MergeableCounterTable, edm::Transition::BeginLuminosityBlock>();
   }
   ~LHCInfoProducer() override {}
@@ -59,13 +59,11 @@ public:
   void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {}
 
   void globalBeginLuminosityBlockProduce(edm::LuminosityBlock& iLumi, edm::EventSetup const& iSetup) const override {
-    edm::ESHandle<LHCInfo> lhcInfo;
-    iSetup.get<LHCInfoRcd>().get(lhcInfo);
-    const LHCInfo* info = lhcInfo.product();
+    const auto& info = iSetup.getData(lhcinfoToken_);
     auto out = std::make_unique<nanoaod::MergeableCounterTable>();
-    out->addFloat("crossingAngle", "LHC crossing angle", info->crossingAngle());
-    out->addFloat("betaStar", "LHC beta star", info->betaStar());
-    out->addFloat("energy", "LHC beam energy", info->energy());
+    out->addFloat("crossingAngle", "LHC crossing angle", info.crossingAngle());
+    out->addFloat("betaStar", "LHC beta star", info.betaStar());
+    out->addFloat("energy", "LHC beam energy", info.energy());
     iLumi.put(std::move(out));
   }
 
@@ -75,6 +73,7 @@ public:
     desc.setUnknown();
     descriptions.addDefault(desc);
   }
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcinfoToken_;
 };
 
 DEFINE_FWK_MODULE(LHCInfoProducer);
