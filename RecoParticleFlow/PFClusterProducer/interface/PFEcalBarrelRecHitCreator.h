@@ -29,13 +29,13 @@ class PFEcalBarrelRecHitCreator : public PFRecHitCreatorBase {
 public:
   PFEcalBarrelRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
       : PFRecHitCreatorBase(iConfig, cc),
+        recHitToken_(cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+        triggerTowerMap_(nullptr),
         geomToken_(cc.esConsumes()),
         towerToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
-    recHitToken_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
     if (not srF.label().empty())
       srFlagToken_ = cc.consumes<EBSrFlagCollection>(srF);
-    triggerTowerMap_ = nullptr;
   }
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,
@@ -99,10 +99,7 @@ public:
     }
   }
 
-  void init(const edm::EventSetup& es) override {
-    edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap = es.getHandle(towerToken_);
-    triggerTowerMap_ = hTriggerTowerMap.product();
-  }
+  void init(const edm::EventSetup& es) override { triggerTowerMap_ = &es.getData(towerToken_); }
 
 protected:
   bool isHighInterest(const EBDetId& detid) {

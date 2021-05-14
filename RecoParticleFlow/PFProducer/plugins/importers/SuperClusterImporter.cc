@@ -52,10 +52,7 @@ SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf, edm::C
       _superClustersArePF(conf.getParameter<bool>("superClustersArePF")),
       _ctmapToken(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
 
-void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) {
-  edm::ESHandle<CaloTowerConstituentsMap> ctmaph = es.getHandle(_ctmapToken);
-  towerMap_ = ctmaph.product();
-}
+void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) { towerMap_ = &es.getData(_ctmapToken); }
 
 void SuperClusterImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {
   auto eb_scs = e.getHandle(_srcEB);

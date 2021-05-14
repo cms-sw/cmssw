@@ -21,17 +21,17 @@
 class PFHFRecHitCreator final : public PFRecHitCreatorBase {
 public:
   PFHFRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitCreatorBase(iConfig, cc), geomToken_(cc.esConsumes()) {
-    recHitToken_ = cc.consumes<edm::SortedCollection<HFRecHit> >(iConfig.getParameter<edm::InputTag>("src"));
-    EM_Depth_ = iConfig.getParameter<double>("EMDepthCorrection");
-    HAD_Depth_ = iConfig.getParameter<double>("HADDepthCorrection");
-    shortFibre_Cut = iConfig.getParameter<double>("ShortFibre_Cut");
-    longFibre_Fraction = iConfig.getParameter<double>("LongFibre_Fraction");
-    longFibre_Cut = iConfig.getParameter<double>("LongFibre_Cut");
-    shortFibre_Fraction = iConfig.getParameter<double>("ShortFibre_Fraction");
-    thresh_HF_ = iConfig.getParameter<double>("thresh_HF");
-    HFCalib_ = iConfig.getParameter<double>("HFCalib29");
-  }
+      : PFRecHitCreatorBase(iConfig, cc),
+        recHitToken_(cc.consumes<edm::SortedCollection<HFRecHit> >(iConfig.getParameter<edm::InputTag>("src"))),
+        EM_Depth_(iConfig.getParameter<double>("EMDepthCorrection")),
+        HAD_Depth_(iConfig.getParameter<double>("HADDepthCorrection")),
+        shortFibre_Cut(iConfig.getParameter<double>("ShortFibre_Cut")),
+        longFibre_Fraction(iConfig.getParameter<double>("LongFibre_Fraction")),
+        longFibre_Cut(iConfig.getParameter<double>("LongFibre_Cut")),
+        shortFibre_Fraction(iConfig.getParameter<double>("ShortFibre_Fraction")),
+        thresh_HF_(iConfig.getParameter<double>("thresh_HF")),
+        HFCalib_(iConfig.getParameter<double>("HFCalib29")),
+        geomToken_(cc.esConsumes()) {}
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,
                      std::unique_ptr<reco::PFRecHitCollection>& cleaned,

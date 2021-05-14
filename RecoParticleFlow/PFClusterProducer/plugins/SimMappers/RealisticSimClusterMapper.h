@@ -25,11 +25,10 @@ public:
         useMCFractionsForExclEnergy_(conf.getParameter<bool>("useMCFractionsForExclEnergy")),
         calibMinEta_(conf.getParameter<double>("calibMinEta")),
         calibMaxEta_(conf.getParameter<double>("calibMaxEta")),
-        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
-    simClusterToken_ = cc.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
-    hadronCalib_ = conf.getParameter<std::vector<double> >("hadronCalib");
-    egammaCalib_ = conf.getParameter<std::vector<double> >("egammaCalib");
-  }
+        hadronCalib_(conf.getParameter<std::vector<double> >("hadronCalib")),
+        egammaCalib_(conf.getParameter<std::vector<double> >("egammaCalib")),
+        simClusterToken_(cc.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"))),
+        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
 
   ~RealisticSimClusterMapper() override {}
   RealisticSimClusterMapper(const RealisticSimClusterMapper&) = delete;

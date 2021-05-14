@@ -26,10 +26,10 @@ template <typename DET, PFLayer::Layer Layer, DetId::Detector det, unsigned subd
 class PFHGCalRecHitCreator : public PFRecHitCreatorBase {
 public:
   PFHGCalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitCreatorBase(iConfig, cc), geomToken_(cc.esConsumes()) {
-    recHitToken_ = cc.consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
-    geometryInstance_ = iConfig.getParameter<std::string>("geometryInstance");
-  }
+      : PFRecHitCreatorBase(iConfig, cc),
+        recHitToken_(cc.consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+        geometryInstance_(iConfig.getParameter<std::string>("geometryInstance")),
+        geomToken_(cc.esConsumes()) {}
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,
                      std::unique_ptr<reco::PFRecHitCollection>& cleaned,

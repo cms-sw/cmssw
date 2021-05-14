@@ -4,7 +4,6 @@
 
 #include <memory>
 
-
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"

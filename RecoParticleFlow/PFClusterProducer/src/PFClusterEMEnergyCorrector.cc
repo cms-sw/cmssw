@@ -177,8 +177,7 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
       bunchspacing = bunchSpacingManual_;
     }
 
-    const std::vector<std::string> &condnames_mean = (bunchspacing == 25) ? condnames_mean_25ns_ : condnames_mean_50ns_;
-    const unsigned int ncor = condnames_mean.size();
+    const unsigned int ncor = (bunchspacing == 25) ? condnames_mean_25ns_.size() : condnames_mean_50ns_.size();
 
     std::vector<edm::ESHandle<GBRForestD> > forestH_mean(ncor);
     std::vector<edm::ESHandle<GBRForestD> > forestH_sigma(ncor);
