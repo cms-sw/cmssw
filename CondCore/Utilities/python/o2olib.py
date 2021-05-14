@@ -38,6 +38,7 @@ class O2OJob(_Base):
     __table_args__     = {'schema' : schema_name}
     name               = sqlalchemy.Column(sqlalchemy.String(100),    primary_key=True)
     enabled            = sqlalchemy.Column(sqlalchemy.Integer,        nullable=False)
+    frequent           = sqlalchemy.Column(sqlalchemy.Integer,        nullable=False)
     tag_name           = sqlalchemy.Column(sqlalchemy.String(100),    nullable=False)
     interval           = sqlalchemy.Column(sqlalchemy.Integer,        nullable=False)
 
@@ -171,7 +172,7 @@ class O2OJobMgr(O2OMgr):
     def runManager( self ):
         return O2ORunMgr( self.db_connection, self.session, O2OMgr.logger( self ) )
 
-    def add( self, job_name, config_filename, int_val, en_flag ):
+    def add( self, job_name, config_filename, int_val, freq_flag, en_flag ):
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
         enabled = None
         for r in res:
@@ -182,15 +183,18 @@ class O2OJobMgr(O2OMgr):
         configJson = self.readConfiguration( config_filename )
         if configJson == '':
             return False       
-        job = O2OJob(name=job_name,tag_name='-',enabled=en_flag,interval=int_val)
-        config = O2OJobConf( job_name=job_name, insertion_time = datetime.now(), configuration = configJson ) 
+        freq_val = 0
+        if freq_flag:
+            freq_val = 1
+        job = O2OJob(name=job_name,tag_name='-',enabled=en_flag,frequent=freq_val,interval=int_val)
+        config = O2OJobConf( job_name=job_name, insertion_time = datetime.now(timezone.utc), configuration = configJson ) 
         self.session.add(job)
         self.session.add(config)
         self.session.commit()
         O2OMgr.logger( self).info( "New o2o job '%s' created.", job_name )
         return True 
 
-    def set( self, job_name, en_flag ):
+    def set( self, job_name, en_flag, fr_val=None ):
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
         enabled = None
         for r in res:
@@ -198,13 +202,22 @@ class O2OJobMgr(O2OMgr):
         if enabled is None:
             O2OMgr.logger( self).error( "A job called '%s' does not exist.", job_name )
             return
-        job = O2OJob(name=job_name,enabled=en_flag)
-        action = 'enabled'
-        if not en_flag:
-            action = 'disabled'
-        self.session.merge(job)
-        self.session.commit()
-        O2OMgr.logger( self).info( "Job '%s' %s." %(job_name,action) )
+        if en_flag is not None and enabled != en_flag:
+            job = O2OJob(name=job_name,enabled=en_flag)
+            self.session.merge(job)
+            self.session.commit()
+            action = 'enabled'
+            if not en_flag:
+                action = 'disabled'
+            O2OMgr.logger( self).info( "Job '%s' %s." %(job_name,action) )
+        if fr_val is not None:
+            job = O2OJob(name=job_name,frequent=fr_val)
+            self.session.merge(job)
+            self.session.commit()
+            if fr_val==1:
+                O2OMgr.logger( self).info( "Job '%s' set 'frequent'")
+            else:
+                O2OMgr.logger( self).info( "Job '%s' unset 'frequent'")
 
     def setConfig( self, job_name, config_filename ):
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
@@ -217,7 +230,7 @@ class O2OJobMgr(O2OMgr):
         configJson = self.readConfiguration( config_filename )
         if configJson == '':
             return False       
-        config = O2OJobConf( job_name=job_name, insertion_time = datetime.now(), configuration = configJson ) 
+        config = O2OJobConf( job_name=job_name, insertion_time = datetime.now(timezone.utc), configuration = configJson ) 
         self.session.add(config)
         self.session.commit()
         O2OMgr.logger( self).info( "New configuration inserted for job '%s'", job_name )
@@ -244,7 +257,7 @@ class O2OJobMgr(O2OMgr):
                 configDict = {}
                 configDict['tag']=tag
                 configJson = json.dumps( configDict )
-                config = O2OJobConf( job_name=job_name, insertion_time = datetime.now(), configuration = configJson ) 
+                config = O2OJobConf( job_name=job_name, insertion_time = datetime.now(timezone.utc), configuration = configJson ) 
                 self.session.add(config)
                 O2OMgr.logger( self).info( "Configuration for job '%s' inserted.", job_name )
         self.session.commit()
@@ -254,12 +267,14 @@ class O2OJobMgr(O2OMgr):
         res = self.session.query(O2ORun.job_name,sqlalchemy.func.max(O2ORun.start_time)).group_by(O2ORun.job_name).order_by(O2ORun.job_name)
         for r in res:
             runs[r[0]] = str(r[1])
-        res = self.session.query(O2OJob.name, O2OJob.interval, O2OJob.enabled).order_by(O2OJob.name).all()
+        res = self.session.query(O2OJob.name, O2OJob.interval, O2OJob.enabled, O2OJob.frequent).order_by(O2OJob.name).all()
         table = []
         for r in res:
             row = []
             row.append(r[0]),
             row.append('%5d' %r[1] )
+            frequent = 'Y' if (r[3]==1) else 'N'
+            row.append('%4s' %frequent )
             enabled = 'Y' if (r[2]==1) else 'N'
             row.append('%4s' %enabled )
             lastRun = '-'
@@ -267,7 +282,7 @@ class O2OJobMgr(O2OMgr):
                 lastRun = runs[r[0]]
             row.append( lastRun )
             table.append(row)
-        headers = ['Job name','Interval','Enabled','Last run start']
+        headers = ['Job name','Interval','Frequent','Enabled','Last run start']
         print_table( headers, table ) 
 
     def listConfig( self, jname ):
@@ -358,7 +373,7 @@ class O2ORunMgr(object):
                         self.logger.error( str(e) )
                         return 6
                 self.job_name = job_name
-                self.start = datetime.now()
+                self.start = datetime.now(timezone.utc)
                 run = O2ORun(job_name=self.job_name,start_time=self.start,status_code=startStatus)
                 self.session.add(run)
                 self.session.commit()
@@ -373,7 +388,7 @@ class O2ORunMgr(object):
 
 
     def endJob( self, status, log ):
-        self.end = datetime.now()
+        self.end = datetime.now(timezone.utc)
         try:
             run = O2ORun(job_name=self.job_name,start_time=self.start,end_time=self.end,status_code=status,log=log)
             self.session.merge(run)
@@ -390,7 +405,7 @@ class O2ORunMgr(object):
         logFolder = os.getcwd()
         if logFolderEnvVar in os.environ:
             logFolder = os.environ[logFolderEnvVar]
-        datelabel = datetime.now().strftime("%y-%m-%d-%H-%M-%S")
+        datelabel = datetime.now(timezone.utc).strftime("%y-%m-%d-%H-%M-%S")
         logFileName = '%s-%s.log' %(job_name,datelabel)
         logFile = os.path.join(logFolder,logFileName)
         started = self.startJob( job_name )
@@ -443,11 +458,16 @@ class O2OTool():
         parser_create.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_create.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path',required=True)
         parser_create.add_argument('--interval', '-i', type=int, help='the chron job interval',default=0)
+        parser_create.add_argument('--frequent', '-f',action='store_true',help='set the "frequent" flag for this job')
         parser_create.set_defaults(func=self.create)
         parser_setConfig = parser_subparsers.add_parser('setConfig', description='Set a new configuration for the specified job. The configuration is expected as a list of entries "param": "value" (dictionary). The "param" labels will be used to inject the values in the command to execute. The dictionary is stored in JSON format.')
         parser_setConfig.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_setConfig.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path',required=True)
         parser_setConfig.set_defaults(func=self.setConfig)
+        parser_setFrequent = parser_subparsers.add_parser('setFrequent',description='Set the "frequent" flag for the specified job')
+        parser_setFrequent.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
+        parser_setFrequent.add_argument('--flag', '-f', choices=['0','1'], help='the flag value to set',required=True)
+        parser_setFrequent.set_defaults(func=self.setFrequent)
         parser_setInterval = parser_subparsers.add_parser('setInterval',description='Set a new execution interval for the specified job')
         parser_setInterval.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_setInterval.add_argument('--interval', '-i', type=int, help='the chron job interval',required=True)
@@ -515,6 +535,9 @@ class O2OTool():
     
     def disable(self):
         self.mgr.set( self.args.name, False )
+
+    def setFrequent(self):
+        self.mgr.set( self.args.name, None, int(self.args.flag) )
 
     def migrate(self):
         self.mgr.migrateConfig()
