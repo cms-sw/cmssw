@@ -166,7 +166,7 @@ void VMRouter::addInput(MemoryBase* memory, string input) {
     InputLinkMemory* tmp1 = dynamic_cast<InputLinkMemory*>(memory);
     assert(tmp1 != nullptr);
     if (tmp1 != nullptr) {
-      if (layerdisk_ > N_LAYER && tmp1->getName().find("2S_") != string::npos) {
+      if (layerdisk_ >= N_LAYER && tmp1->getName().find("2S_") != string::npos) {
         stubinputdisk2stmp_.push_back(tmp1);
       } else {
         stubinputtmp_.push_back(tmp1);
