@@ -29,8 +29,14 @@ def runSelected(opt):
         testSet = set(opt.testList)
         undefSet = testSet - definedSet
         if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
-        duplicates = [wf for wf in testSet if definedWf.count(wf)>1 ]
-        if len(duplicates)>0: raise ValueError('Duplicated workflows: '+', '.join(map(str,list(duplicates))))
+        duplicates = [str(wf) for wf in testSet if definedWf.count(wf)>1 ]
+        if len(duplicates)>0: 
+            for duplicate in duplicates:
+                duplicate_wfs = [wfName for wfName in mrd.nameList.keys() if duplicate in wfName]
+                if(len(duplicate_wfs)>1):
+                    raise ValueError('There are multiple workflows matching the wf number %s: \n'%duplicate + '\n'.join(duplicate_wfs) + "\nPlease remove the duplicated workflow.")
+                else:
+                    print("WARNING: Workflow %s is defined multiple time."%duplicate_wfs[0])
 
     ret = 0
     if opt.show:
