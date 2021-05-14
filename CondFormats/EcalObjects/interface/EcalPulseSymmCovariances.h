@@ -17,7 +17,7 @@ public:
   int indexFor(int i, int j) const {
     int m = std::min(i, j);
     int n = std::max(i, j);
-    return n + (EcalPulseShape::TEMPLATESAMPLES - 1) * m;
+    return n + EcalPulseShape::TEMPLATESAMPLES * m - m * (m + 1) / 2;
   }
 
   float val(int i, int j) const { return covval[indexFor(i, j)]; }
