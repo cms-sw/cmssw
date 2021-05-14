@@ -707,7 +707,7 @@ namespace trklet {
          {{3.6, 3.8, 0.0, 0.0, 3.6, 0.0, 3.5, 3.8, 0.0, 0.0, 3.0, 3.0}},    //disk 4
          {{0.0, 0.0, 0.0, 0.0, 3.6, 3.4, 3.7, 0.0, 0.0, 0.0, 0.0, 3.0}}}};  //disk 5
 
-    //returns the mean bend (in strips at a 1.8cm separation) for bendcode
+    //returns the mean bend (in strips at a 1.8 mm separation) for bendcode
     std::array<std::array<double, 16>, 16> benddecode_{
         {{{0.0, 0.5, 0.7, 0.8, 89.9, -1.0, -0.9, -0.8, 99.9, 99.9, 99.9, 99.9, 99.9, 99.9, 99.9, 99.9}},  //L1 PS
          {{0.0, 0.7, 1.0, 1.5, 89.9, -1.5, -1.0, -0.7, 99.9, 99.9, 99.9, 99.9, 99.9, 99.9, 99.9, 99.9}},  //L2 PS
@@ -726,7 +726,7 @@ namespace trklet {
          {{0.0, 2.0, 2.6, 3.2, 3.8, 4.0, 4.4, 4.4, 89.9, -4.4, -4.4, -4.0, -3.8, -3.2, -2.6, -2.0}},      //D4 2S
          {{0.0, 2.0, 3.2, 3.4, 3.9, 3.9, 4.4, 4.4, 89.9, -4.4, -4.4, -3.9, -3.9, -3.4, -3.2, -2.0}}}};    //D5 2S
 
-    //returns the bend 'cut' (in strips at a 1.8cm separation) for bendcode
+    //returns the bend 'cut' (in strips at a 1.8 mm separation) for bendcode
     std::array<std::array<double, 16>, 16> bendcut_{
         {{{1.5, 1.2, 0.8, 0.8, 99.9, 0.8, 0.8, 1.2, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0}},  //L1 PS
          {{1.5, 1.3, 1.0, 1.0, 99.9, 1.0, 1.0, 1.3, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0}},  //L2 PS
