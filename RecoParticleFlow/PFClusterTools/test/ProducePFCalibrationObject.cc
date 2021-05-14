@@ -10,7 +10,6 @@
 
 #include <iostream>
 #include <vector>
-//#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
@@ -23,17 +22,14 @@ using namespace std;
 using namespace edm;
 
 ProducePFCalibrationObject::ProducePFCalibrationObject(const edm::ParameterSet& pSet)
-    : perfToken(esConsumes<edm::Transition::BeginRun>()) {
-  read = pSet.getUntrackedParameter<bool>("read");
-  write = pSet.getUntrackedParameter<bool>("write");
-
-  fToWrite = pSet.getParameter<vector<ParameterSet> >("toWrite");
-  fToRead = pSet.getUntrackedParameter<vector<string> >("toRead");
-}
+    : read(pSet.getUntrackedParameter<bool>("read")),
+      write(pSet.getUntrackedParameter<bool>("write")),
+      fToWrite(pSet.getParameter<vector<ParameterSet> >("toWrite")),
+      fToRead(pSet.getUntrackedParameter<vector<string> >("toRead")),
+      perfToken(esConsumes<edm::Transition::BeginRun>()) {}
 
 ProducePFCalibrationObject::~ProducePFCalibrationObject() {}
 
-// void ProducePFCalibrationObject::beginJob() {
 void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventSetup& eSetup) {
   cout << "[ProducePFCalibrationObject] beginJob" << endl;
 
@@ -116,13 +112,8 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
   if (read) {
     // ---------------------------------------------------------------------------------
     // Read the objects
-    auto perfH = eSetup.getHandle(perfToken);
-
-    //edm::ESHandle<PerformancePayload> perfH;
-    //eSetup.get<PFCalibrationRcd>().get(perfH);
-
     const PerformancePayloadFromTFormula* pfCalibrations =
-        static_cast<const PerformancePayloadFromTFormula*>(perfH.product());
+        static_cast<const PerformancePayloadFromTFormula*>(&eSetup.getData(perfToken));
 
     for (vector<string>::const_iterator name = fToRead.begin(); name != fToRead.end(); ++name) {
       cout << "Function: " << *name << endl;

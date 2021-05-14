@@ -32,10 +32,9 @@ public:
   }
 
   PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : hcalToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()),
-        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
-    vhcalEnum_ = iConfig.getParameter<std::vector<int>>("hcalEnums");
-  }
+      : vhcalEnum_(iConfig.getParameter<std::vector<int>>("hcalEnums")),
+        hcalToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()),
+        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     bool check = theRecNumberWatcher_.check(iSetup);
@@ -58,7 +57,7 @@ public:
       vecHcal.insert(vecHcal.end(), vecDetIds.begin(), vecDetIds.end());
     }
     vDenseIdHcal.reserve(vecHcal.size());
- for (auto hDetId : vecHcal) {
+    for (auto hDetId : vecHcal) {
       vDenseIdHcal.push_back(topology_.get()->detId2denseId(hDetId));
     }
     std::sort(vDenseIdHcal.begin(), vDenseIdHcal.end());

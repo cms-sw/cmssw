@@ -48,15 +48,16 @@ protected:
 //
 class PFRecHitQTestDBThreshold : public PFRecHitQTestBase {
 public:
-  PFRecHitQTestDBThreshold() : eventSetup_(nullptr) {}
+  PFRecHitQTestDBThreshold() {}
 
   PFRecHitQTestDBThreshold(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
       : PFRecHitQTestBase(iConfig, cc),
         applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")),
-        eventSetup_(nullptr),
         threshToken_(cc.esConsumes()) {}
 
-  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override { eventSetup_ = &iSetup; }
+  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
+    ths_ = iSetup.getHandle(threshToken_);
+  }
 
   bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override {
     if (applySelectionsToAllCrystals_)
@@ -74,12 +75,10 @@ public:
 
 protected:
   bool applySelectionsToAllCrystals_;
-  const edm::EventSetup* eventSetup_;
+  edm::ESHandle<EcalPFRecHitThresholds> ths_;
 
   bool pass(const reco::PFRecHit& hit) {
-    edm::ESHandle<EcalPFRecHitThresholds> ths = (*eventSetup_).getHandle(threshToken_);
-
-    float threshold = (*ths)[hit.detId()];
+    float threshold = (*ths_)[hit.detId()];
     return hit.energy() > threshold;
   }
 
@@ -96,13 +95,13 @@ public:
 
   PFRecHitQTestHCALChannel(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
       : PFRecHitQTestBase(iConfig, cc),
+        flagStr_(iConfig.getParameter<std::vector<std::string> >("flags")),
+        thresholds_(iConfig.getParameter<std::vector<int> >("maxSeverities")),
+        cleanThresholds_(iConfig.getParameter<std::vector<double> >("cleaningThresholds")),
         topoToken_(cc.esConsumes()),
         qualityToken_(cc.esConsumes(edm::ESInputTag("", "withTopo"))),
         severityToken_(cc.esConsumes()) {
-    thresholds_ = iConfig.getParameter<std::vector<int> >("maxSeverities");
-    cleanThresholds_ = iConfig.getParameter<std::vector<double> >("cleaningThresholds");
-    std::vector<std::string> flags = iConfig.getParameter<std::vector<std::string> >("flags");
-    for (auto& flag : flags) {
+    for (auto& flag : flagStr_) {
       if (flag == "Standard") {
         flags_.push_back(-1);
         depths_.push_back(-1);
@@ -129,12 +128,9 @@ public:
   }
 
   void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
-    edm::ESHandle<HcalTopology> topo = iSetup.getHandle(topoToken_);
-    theHcalTopology_ = topo.product();
-    edm::ESHandle<HcalChannelQuality> hcalChStatus = iSetup.getHandle(qualityToken_);
-    theHcalChStatus_ = hcalChStatus.product();
-    edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl = iSetup.getHandle(severityToken_);
-    hcalSevLvlComputer_ = hcalSevLvlComputerHndl.product();
+    theHcalTopology_ = &iSetup.getData(topoToken_);
+    theHcalChStatus_ = &iSetup.getData(qualityToken_);
+    hcalSevLvlComputer_ = &iSetup.getData(severityToken_);
   }
 
   bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override { return true; }
@@ -154,6 +150,7 @@ public:
   bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override { return true; }
 
 protected:
+  std::vector<std::string> flagStr_;
   std::vector<int> thresholds_;
   std::vector<double> cleanThresholds_;
   std::vector<int> flags_;
@@ -204,9 +201,8 @@ public:
   PFRecHitQTestHCALTimeVsDepth() {}
 
   PFRecHitQTestHCALTimeVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitQTestBase(iConfig, cc) {
-    std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
-    for (auto& pset : psets) {
+      : PFRecHitQTestBase(iConfig, cc), psets_(iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts")) {
+    for (auto& pset : psets_) {
       depths_.push_back(pset.getParameter<int>("depth"));
       minTimes_.push_back(pset.getParameter<double>("minTime"));
       maxTimes_.push_back(pset.getParameter<double>("maxTime"));
@@ -233,6 +229,7 @@ public:
   bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override { return true; }
 
 protected:
+  std::vector<edm::ParameterSet> psets_;
   std::vector<int> depths_;
   std::vector<double> minTimes_;
   std::vector<double> maxTimes_;
@@ -261,9 +258,8 @@ public:
   PFRecHitQTestHCALThresholdVsDepth() {}
 
   PFRecHitQTestHCALThresholdVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitQTestBase(iConfig, cc) {
-    std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
-    for (auto& pset : psets) {
+      : PFRecHitQTestBase(iConfig, cc), psets_(iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts")) {
+    for (auto& pset : psets_) {
       depths_ = pset.getParameter<std::vector<int> >("depth");
       thresholds_ = pset.getParameter<std::vector<double> >("threshold");
       detector_ = pset.getParameter<int>("detectorEnum");
@@ -292,6 +288,7 @@ public:
   bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override { return true; }
 
 protected:
+  std::vector<edm::ParameterSet> psets_;
   std::vector<int> depths_;
   std::vector<double> thresholds_;
   int detector_;

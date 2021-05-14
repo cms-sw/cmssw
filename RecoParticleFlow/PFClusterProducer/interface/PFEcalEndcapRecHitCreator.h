@@ -31,13 +31,13 @@ class PFEcalEndcapRecHitCreator : public PFRecHitCreatorBase {
 public:
   PFEcalEndcapRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
       : PFRecHitCreatorBase(iConfig, cc),
+        recHitToken_(cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+        elecMap_(nullptr),
         geomToken_(cc.esConsumes()),
         mappingToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
-    recHitToken_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
     if (not srF.label().empty())
       srFlagToken_ = cc.consumes<EESrFlagCollection>(srF);
-    elecMap_ = nullptr;
   }
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,
@@ -101,10 +101,7 @@ public:
     }
   }
 
-  void init(const edm::EventSetup& es) override {
-    edm::ESHandle<EcalElectronicsMapping> ecalmapping = es.getHandle(mappingToken_);
-    elecMap_ = ecalmapping.product();
-  }
+  void init(const edm::EventSetup& es) override { elecMap_ = &es.getData(mappingToken_); }
 
 protected:
   bool isHighInterest(const EEDetId& detid) {

@@ -417,26 +417,20 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 }
 
 void ConvBremSeedProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
-  auto track = iSetup.getHandle(geomSearchTrackerToken_);
-  geomSearchTracker_ = track.product();
+  geomSearchTracker_ = &iSetup.getData(geomSearchTrackerToken_);
 
-  auto theTrackerInteractionGeometry = iSetup.getHandle(geometryToken_);
-  geometry_ = theTrackerInteractionGeometry.product();
+  geometry_ = &iSetup.getData(geometryToken_);
 
-  auto tracker = iSetup.getHandle(trackerToken_);
-  tracker_ = tracker.product();
+  tracker_ = &iSetup.getData(trackerToken_);
 
-  auto magfield = iSetup.getHandle(magFieldToken_beginRun_);
-  magfield_ = magfield.product();
+  magfield_ = &iSetup.getData(magFieldToken_beginRun_);
   B_ = magfield_->inTesla(GlobalPoint(0, 0, 0));
 
-  auto fieldMap = iSetup.getHandle(magFieldMapToken_);
-  fieldMap_ = fieldMap.product();
+  fieldMap_ = &iSetup.getData(magFieldMapToken_);
 
-  auto hitBuilder = iSetup.getHandle(hitBuilderToken_);
-  hitBuilder_ = hitBuilder.product();
+  hitBuilder_ = &iSetup.getData(hitBuilderToken_);
 
-  propagator_ = new PropagatorWithMaterial(alongMomentum, 0.0005, &(*magfield));
+  propagator_ = new PropagatorWithMaterial(alongMomentum, 0.0005, magfield_);
   kfUpdator_ = new KFUpdator();
 }
 
