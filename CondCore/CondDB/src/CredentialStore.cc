@@ -645,6 +645,7 @@ void cond::CredentialStore::startSession(bool readMode) {
   // ok, authenticated!
   m_principalId = princData.id;
   m_principalKey = cipher0.b64decrypt(princData.principalKey);
+  m_authenticatedPrincipal = m_key.principalName();
 
   if (!readMode) {
     auth::Cipher cipher0(m_principalKey);
@@ -716,6 +717,7 @@ void cond::CredentialStore::startSession(bool readMode) {
 cond::CredentialStore::CredentialStore()
     : m_connection(),
       m_session(),
+      m_authenticatedPrincipal(""),
       m_principalId(-1),
       m_principalKey(""),
       m_serviceName(""),
@@ -1532,6 +1534,6 @@ bool cond::CredentialStore::exportAll(coral_bridge::AuthenticationCredentialSet&
 
 const std::string& cond::CredentialStore::serviceName() { return m_serviceName; }
 
-const std::string& cond::CredentialStore::keyPrincipalName() { return m_key.principalName(); }
+const std::string& cond::CredentialStore::keyPrincipalName() { return m_authenticatedPrincipal; }
 
 std::string cond::CredentialStore::log() { return m_log.str(); }
