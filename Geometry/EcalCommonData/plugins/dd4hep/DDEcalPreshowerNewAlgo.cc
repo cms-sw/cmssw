@@ -12,9 +12,9 @@ using namespace cms;
 using namespace dd4hep;
 using namespace angle_units::operators;
 
-static constexpr float const& k_half = 0.5;
-static constexpr float const& k_one32nd = 0.03125;
-static constexpr float const& k_one64th = 0.015625;
+static constexpr double const& k_half = 0.5;
+static constexpr double const& k_one32nd = 0.03125;
+static constexpr double const& k_one64th = 0.015625;
 
 namespace {
 
@@ -29,53 +29,53 @@ namespace {
     vector<string> typeOfLaddRow2;
     vector<string> typeOfLaddRow3;
 
-    vector<float> thickLayers;
-    vector<float> abs1stx;
-    vector<float> abs1sty;
-    vector<float> abs2ndx;
-    vector<float> abs2ndy;
-    vector<float> asymLadd;
-    vector<float> rminVec;
-    vector<float> rmaxVec;
-    vector<float> noLaddInCol;
-    vector<float> startOfFirstLadd;
-    vector<float> laddL5map;
-    vector<float> laddL4map;
+    vector<double> thickLayers;
+    vector<double> abs1stx;
+    vector<double> abs1sty;
+    vector<double> abs2ndx;
+    vector<double> abs2ndy;
+    vector<double> asymLadd;
+    vector<double> rminVec;
+    vector<double> rmaxVec;
+    vector<double> noLaddInCol;
+    vector<double> startOfFirstLadd;
+    vector<double> laddL5map;
+    vector<double> laddL4map;
     string laddMaterial;  // ladd material - air
-    float thickness;      // overall thickness of the preshower envelope
+    double thickness;     // overall thickness of the preshower envelope
 
-    float zlead1;
-    float zlead2;
-    float waf_intra_col_sep;
-    float waf_inter_col_sep;
-    float waf_active;
-    float wedge_length;
-    float wedge_offset;
-    float zwedge_ceramic_diff;
-    float ywedge_ceramic_diff;
-    float wedge_angle;
-    float box_thick;
-    float dee_separation;
-    float in_rad_Abs_Al;
-    float in_rad_Abs_Pb;
-    float ladder_thick;
-    float ladder_width;
-    float micromodule_length;
-    float absAlX_X;
-    float absAlX_Y;
-    float absAlX_subtr1_Xshift;
-    float absAlX_subtr1_Yshift;
-    float rMax_Abs_Al;
-    float absAlY_X;
-    float absAlY_Y;
-    float absAlY_subtr1_Xshift;
-    float absAlY_subtr1_Yshift;
-    float ldrBck_Length;
-    float ldrFrnt_Length;
-    float ldrFrnt_Offset;
-    float ldrBck_Offset;
-    float ceramic_length;
-    float wedge_back_thick;
+    double zlead1;
+    double zlead2;
+    double waf_intra_col_sep;
+    double waf_inter_col_sep;
+    double waf_active;
+    double wedge_length;
+    double wedge_offset;
+    double zwedge_ceramic_diff;
+    double ywedge_ceramic_diff;
+    double wedge_angle;
+    double box_thick;
+    double dee_separation;
+    double in_rad_Abs_Al;
+    double in_rad_Abs_Pb;
+    double ladder_thick;
+    double ladder_width;
+    double micromodule_length;
+    double absAlX_X;
+    double absAlX_Y;
+    double absAlX_subtr1_Xshift;
+    double absAlX_subtr1_Yshift;
+    double rMax_Abs_Al;
+    double absAlY_X;
+    double absAlY_Y;
+    double absAlY_subtr1_Xshift;
+    double absAlY_subtr1_Yshift;
+    double ldrBck_Length;
+    double ldrFrnt_Length;
+    double ldrFrnt_Offset;
+    double ldrBck_Offset;
+    double ceramic_length;
+    double wedge_back_thick;
   };
 }  // namespace
 
@@ -91,23 +91,23 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   Volume sfbyLog = ns.volume("esalgo:SFBY");
 
   EcalPreshower es;
-  es.asymLadd = args.vecFloat("ASYMETRIC_LADDER");
+  es.asymLadd = args.vecDble("ASYMETRIC_LADDER");
   es.typesL5 = args.vecStr("TYPES_OF_LADD_L5");
   es.typesL4 = args.vecStr("TYPES_OF_LADD_L4");
-  es.laddL5map = args.vecFloat("LADD_L5_MAP");
-  es.laddL4map = args.vecFloat("LADD_L4_MAP");
-  es.noLaddInCol = args.vecFloat("NUMB_OF_LADD_IN_COL");
-  es.startOfFirstLadd = args.vecFloat("START_OF_1ST_LADD");
+  es.laddL5map = args.vecDble("LADD_L5_MAP");
+  es.laddL4map = args.vecDble("LADD_L4_MAP");
+  es.noLaddInCol = args.vecDble("NUMB_OF_LADD_IN_COL");
+  es.startOfFirstLadd = args.vecDble("START_OF_1ST_LADD");
   es.typeOfLaddRow0 = args.vecStr("TYPE_OF_LADD_1");
   es.typeOfLaddRow1 = args.vecStr("TYPE_OF_LADD_2");
   es.typeOfLaddRow2 = args.vecStr("TYPE_OF_LADD_3");
   es.typeOfLaddRow3 = args.vecStr("TYPE_OF_LADD_4");
-  es.thickLayers = args.vecFloat("Layers");
+  es.thickLayers = args.vecDble("Layers");
   es.thickness = args.dble("PRESH_Z_TOTAL");
   es.materials = args.vecStr("LayMat");
   es.layName = args.vecStr("LayName");
-  es.rmaxVec = args.vecFloat("R_MAX");  // inner radii
-  es.rminVec = args.vecFloat("R_MIN");  // outer radii
+  es.rmaxVec = args.vecDble("R_MAX");  // inner radii
+  es.rminVec = args.vecDble("R_MIN");  // outer radii
   es.waf_intra_col_sep = args.dble("waf_intra_col_sep");
   es.waf_inter_col_sep = args.dble("waf_inter_col_sep");
   es.waf_active = args.dble("waf_active");
@@ -122,10 +122,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   es.ladder_width = args.dble("ladder_width");
   es.micromodule_length = args.dble("micromodule_length");
   es.box_thick = args.dble("box_thick");
-  es.abs1stx = args.vecFloat("1ST_ABSX");
-  es.abs1sty = args.vecFloat("1ST_ABSY");
-  es.abs2ndx = args.vecFloat("2ND_ABSX");
-  es.abs2ndy = args.vecFloat("2ND_ABSY");
+  es.abs1stx = args.vecDble("1ST_ABSX");
+  es.abs1sty = args.vecDble("1ST_ABSY");
+  es.abs2ndx = args.vecDble("2ND_ABSX");
+  es.abs2ndy = args.vecDble("2ND_ABSY");
   es.ladPfx = args.vecStr("LadPrefix");
   es.laddMaterial = args.str("LadderMaterial");
   es.ldrFrnt_Length = args.dble("LdrFrnt_Length");
@@ -152,7 +152,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     for (size_t i = 0; i < es.thickLayers.size(); ++i) {
       int I = int(i) + 1;  // FOTRAN I (offset +1)
 
-      float rIn(0), rOut(0), zHalf(0);
+      double rIn(0), rOut(0), zHalf(0);
 
       // create the name
       const string& ddname("esalgo:" + es.layName[i]);  // namespace:name
@@ -370,10 +370,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   }
   // create and place the ladders
   {
-    double xpos(0.), ypos(0.), zpos(0.);  //, sdx(0.), sdy(0.), sdz(0.);
-    float prev_length(0.), ladder_new_length(0.);
-    float ladd_shift(0.);
-    float ladder_length(0.);
+    double xpos(0.), ypos(0.), zpos(0.);
+    double prev_length(0.), ladder_new_length(0.);
+    double ladd_shift(0.);
+    double ladder_length(0.);
     int swed_scopy_glob(0);
 
     for (int M = 0; M < int(es.typesL5.size() + es.typesL4.size()); M++) {
@@ -634,7 +634,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   }
   // place the slicon strips in active silicon wafers
   {
-    float xpos(0), ypos(0);
+    double xpos(0), ypos(0);
     Volume sfwxLog = ns.volume("esalgo:SFWX");
     Volume sfwyLog = ns.volume("esalgo:SFWY");
     Volume sfsxLog = ns.volume("esalgo:SFSX");
