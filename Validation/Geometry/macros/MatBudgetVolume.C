@@ -51,12 +51,12 @@ void etaPhi2DPlot(TString fileName = "matbdg_run3.root",
                   bool drawLeg = true,
                   double maxEta = 5.2,
                   std::string tag = "Run3");
-void etaPhiPlotComp(TString fileName1 = "matbdg_run3.root", 
-		    TString fileName2 = "matbdg_run3_dd4hep.root",
-		    std::string plot = "intl", 
-		    bool ifEta = true, 
-		    std::string tag = "Run3", 
-		    bool debug = false);
+void etaPhiPlotComp(TString fileName1 = "matbdg_run3.root",
+                    TString fileName2 = "matbdg_run3_dd4hep.root",
+                    std::string plot = "intl",
+                    bool ifEta = true,
+                    std::string tag = "Run3",
+                    bool debug = false);
 
 void setStyle();
 
@@ -227,8 +227,7 @@ void etaPhi2DPlot(TString fileName, std::string plot, bool drawLeg, double maxEt
   cc1->Modified();
 }
 
-void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot, 
-		    bool ifEta, std::string tag, bool debug) {
+void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot, bool ifEta, std::string tag, bool debug) {
   setStyle();
   gStyle->SetOptTitle(0);
   TFile *file1 = new TFile(fileName1);
@@ -241,7 +240,7 @@ void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot,
     leg->SetFillColor(10);
     leg->SetMargin(0.25);
     leg->SetTextSize(0.028);
-    
+
     std::string xtit = "#eta";
     std::string ztit = "Eta";
     std::string ytit = "none";
@@ -258,7 +257,7 @@ void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot,
       ztit = "Phi";
     }
 
-    std::vector<TGraphErrors*> graphs;
+    std::vector<TGraphErrors *> graphs;
     std::vector<int> index;
     char hname[20], titlex[50];
     int nb(0);
@@ -266,62 +265,62 @@ void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot,
     for (int i = 0; i < ngrp; ++i) {
       std::vector<double> xx0, yy1, yy2, dy1, dy2;
       for (int j = 0; j < nlayers[i]; ++j) {
-	int ii = nflayer[i] + j;
-	sprintf(hname, "%s%s%s", plot.c_str(), ztit.c_str(), names[ii].c_str());
-	TProfile *prof1, *prof2;
-	dir1->GetObject(hname, prof1);
-	dir2->GetObject(hname, prof2);
-	if ((prof1 != nullptr) && (prof2 != nullptr)) {
-	  int nb = prof1->GetNbinsX();
-	  for (int k = 1; k <= nb; ++k) {
-	    yy1.push_back(prof1->GetBinContent(k));
-	    yy2.push_back(prof2->GetBinContent(k));
-	    dy1.push_back(prof1->GetBinError(k));
-	    dy2.push_back(prof2->GetBinError(k));
-	    xx0.push_back(prof1->GetBinLowEdge(k) + prof2->GetBinWidth(k));
-	  }
-	}
+        int ii = nflayer[i] + j;
+        sprintf(hname, "%s%s%s", plot.c_str(), ztit.c_str(), names[ii].c_str());
+        TProfile *prof1, *prof2;
+        dir1->GetObject(hname, prof1);
+        dir2->GetObject(hname, prof2);
+        if ((prof1 != nullptr) && (prof2 != nullptr)) {
+          int nb = prof1->GetNbinsX();
+          for (int k = 1; k <= nb; ++k) {
+            yy1.push_back(prof1->GetBinContent(k));
+            yy2.push_back(prof2->GetBinContent(k));
+            dy1.push_back(prof1->GetBinError(k));
+            dy2.push_back(prof2->GetBinError(k));
+            xx0.push_back(prof1->GetBinLowEdge(k) + prof2->GetBinWidth(k));
+          }
+        }
       }
       std::vector<double> xx, yy, dx, dy;
       int ii = nflayer[i];
       double sumNum(0), sumDen(0);
       for (unsigned int k = 0; k < xx0.size(); ++k) {
-	if ((yy1[k] > 0) && (yy2[k] > 0)) {
-	  double rat = yy1[k] / yy2[k];
-	  double drt = rat * sqrt((dy1[k] / yy1[k]) * (dy1[k] / yy1[k]) + (dy2[k] / yy2[k]) * (dy2[k] / yy2[k]));
-	  xx.push_back(xx0[k]);
-	  dx.push_back(0);
-	  yy.push_back(rat);
-	  dy.push_back(drt);
-	  if (debug) {
-	    std::cout << title[ii] << " [" << (xx.size() - 1) << "] " << xx0[k] 
-		      << " Ratio " << rat << " +- " << drt << std::endl;
-	  }
-          double temp1 = (rat > 1.0) ? 1.0/rat : rat;
-          double temp2 = (rat > 1.0) ? drt/(rat * rat) : drt;
-	  sumNum += (fabs(1.0 - temp1) / (temp2 * temp2));
-	  sumDen += (1.0 / (temp2 * temp2));
-	}
+        if ((yy1[k] > 0) && (yy2[k] > 0)) {
+          double rat = yy1[k] / yy2[k];
+          double drt = rat * sqrt((dy1[k] / yy1[k]) * (dy1[k] / yy1[k]) + (dy2[k] / yy2[k]) * (dy2[k] / yy2[k]));
+          xx.push_back(xx0[k]);
+          dx.push_back(0);
+          yy.push_back(rat);
+          dy.push_back(drt);
+          if (debug) {
+            std::cout << title[ii] << " [" << (xx.size() - 1) << "] " << xx0[k] << " Ratio " << rat << " +- " << drt
+                      << std::endl;
+          }
+          double temp1 = (rat > 1.0) ? 1.0 / rat : rat;
+          double temp2 = (rat > 1.0) ? drt / (rat * rat) : drt;
+          sumNum += (fabs(1.0 - temp1) / (temp2 * temp2));
+          sumDen += (1.0 / (temp2 * temp2));
+        }
       }
-      sumNum  = (sumDen > 0)  ? (sumNum / sumDen) : 0;
-      sumDen  = (sumDen > 0)  ? 1.0 / sqrt(sumDen) : 0;
+      sumNum = (sumDen > 0) ? (sumNum / sumDen) : 0;
+      sumDen = (sumDen > 0) ? 1.0 / sqrt(sumDen) : 0;
       std::cout << "Mean deviation for " << title[ii] << "  " << sumNum << " +- " << sumDen << std::endl;
       if (xx.size() > 0) {
-	TGraphErrors *graph = new TGraphErrors ( xx.size(), &xx[0], &yy[0], &dx[0], &dy[0]);
-	graph->SetLineColor(colorLay[ii]);
-	graph->SetFillColor(colorLay[ii]);
-	graph->SetMarkerStyle(styleLay[ii]);
-	sprintf(titlex, "%s", title[ii].c_str());
-	leg->AddEntry(graph, titlex, "lep");
-	graphs.push_back(graph);
-	if (nb == 0) {
-	  sprintf(hname, "%s%s%s", plot.c_str(), ztit.c_str(), names[0].c_str());
-	  TProfile *prof;
-	  dir1->GetObject(hname, prof);
-	  nb = prof->GetNbinsX();
-	  xlow = prof->GetBinLowEdge(1);
-	  xhigh = prof->GetBinLowEdge(nb) + prof->GetBinWidth(nb);
-	}
+        TGraphErrors *graph = new TGraphErrors(xx.size(), &xx[0], &yy[0], &dx[0], &dy[0]);
+        graph->SetLineColor(colorLay[ii]);
+        graph->SetFillColor(colorLay[ii]);
+        graph->SetMarkerStyle(styleLay[ii]);
+        sprintf(titlex, "%s", title[ii].c_str());
+        leg->AddEntry(graph, titlex, "lep");
+        graphs.push_back(graph);
+        if (nb == 0) {
+          sprintf(hname, "%s%s%s", plot.c_str(), ztit.c_str(), names[0].c_str());
+          TProfile *prof;
+          dir1->GetObject(hname, prof);
+          nb = prof->GetNbinsX();
+          xlow = prof->GetBinLowEdge(1);
+          xhigh = prof->GetBinLowEdge(nb) + prof->GetBinWidth(nb);
+        }
       }
     }
     if (graphs.size() > 0) {
@@ -341,7 +340,7 @@ void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot,
       vFrame->GetYaxis()->SetTitleOffset(1.3);
       vFrame->GetYaxis()->SetTitle(ytit.c_str());
       for (unsigned int i = 0; i < graphs.size(); ++i)
-	graphs[i]->Draw("P");
+        graphs[i]->Draw("P");
       leg->Draw("sames");
       cc1->Modified();
     }
