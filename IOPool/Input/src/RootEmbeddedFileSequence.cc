@@ -176,7 +176,8 @@ namespace edm {
     assert(rootFile());
     bool found = rootFile()->nextEventEntry();
     if (found) {
-      found = rootFile()->readCurrentEvent(cache);
+      auto [found2, succeeded] = rootFile()->readCurrentEvent(cache);
+      found = found2;
     }
     if (!found) {
       setAtNextFile();
@@ -223,7 +224,8 @@ namespace edm {
     assert(rootFile());
     bool found = rootFile()->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
     if (found) {
-      found = rootFile()->readCurrentEvent(cache);
+      auto [found2, succeeded] = rootFile()->readCurrentEvent(cache);
+      found = found2;
     }
     if (!found) {
       found = skipToItemInNewFile(id.run(), id.luminosityBlock(), 0);
@@ -247,7 +249,8 @@ namespace edm {
                                         << id << " in file id " << idx.fileNameHash() << "\n";
     }
     assert(rootFile());
-    found = rootFile()->readCurrentEvent(cache);
+    auto [found2, succeeded] = rootFile()->readCurrentEvent(cache);
+    found = found2;
     assert(found);
     fileNameHash = idx.fileNameHash();
     if (fileNameHash == 0U) {
@@ -296,11 +299,11 @@ namespace edm {
     }
     rootFile()->nextEventEntry();
 
-    bool found = rootFile()->readCurrentEvent(cache);
+    auto [found, succeeded] = rootFile()->readCurrentEvent(cache);
     if (!found) {
       rootFile()->setAtEventEntry(0);
-      found = rootFile()->readCurrentEvent(cache);
-      assert(found);
+      auto [found2, succeeded] = rootFile()->readCurrentEvent(cache);
+      assert(found2);
     }
     fileNameHash = lfnHash();
     --eventsRemainingInFile_;
@@ -336,7 +339,8 @@ namespace edm {
     assert(rootFile());
     bool found = rootFile()->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
     if (found) {
-      found = rootFile()->readCurrentEvent(cache);
+      auto [found2, succeeded] = rootFile()->readCurrentEvent(cache);
+      found = found2;
     }
     if (!found) {
       found = rootFile()->setEntryAtItem(id.run(), id.luminosityBlock(), 0);
