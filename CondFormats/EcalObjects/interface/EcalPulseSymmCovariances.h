@@ -21,6 +21,7 @@ public:
   }
 
   float val(int i, int j) const { return covval[indexFor(i, j)]; }
+  float& val(int i, int j) { return covval[indexFor(i, j)]; }
 
   COND_SERIALIZABLE;
 };
