@@ -1476,7 +1476,7 @@ void CSCTFPtLUT::readLUT() {
     unsigned short temp = 0;
     while (!PtLUT.eof() && i < 1 << CSCBitWidths::kPtAddressWidth) {
       PtLUT >> temp;
-      pt_lut[i++] = (*reinterpret_cast<ptdat*>(&temp));
+      pt_lut[i++] = temp;
     }
     PtLUT.close();
   }

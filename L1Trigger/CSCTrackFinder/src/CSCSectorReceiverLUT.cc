@@ -808,7 +808,7 @@ void CSCSectorReceiverLUT::readLUTsFromFile() {
       unsigned short temp = 0;
       while (!LocalPhiLUT.eof() && i < 1 << CSCBitWidths::kLocalPhiAddressWidth) {
         LocalPhiLUT >> temp;
-        me_lcl_phi[i++] = (*reinterpret_cast<lclphidat*>(&temp));
+        me_lcl_phi[i++] = temp;
       }
       LocalPhiLUT.close();
     }
@@ -836,7 +836,7 @@ void CSCSectorReceiverLUT::readLUTsFromFile() {
       unsigned i = 0;
       while (!GlobalPhiLUT.eof() && i < 1 << CSCBitWidths::kGlobalPhiAddressWidth) {
         GlobalPhiLUT >> temp;
-        me_global_phi[i++] = (*reinterpret_cast<gblphidat*>(&temp));
+        me_global_phi[i++] = temp;
       }
       GlobalPhiLUT.close();
     }
@@ -865,7 +865,7 @@ void CSCSectorReceiverLUT::readLUTsFromFile() {
       unsigned i = 0;
       while (!GlobalPhiLUT.eof() && i < 1 << CSCBitWidths::kGlobalPhiAddressWidth) {
         GlobalPhiLUT >> temp;
-        mb_global_phi[i++] = (*reinterpret_cast<gblphidat*>(&temp));
+        mb_global_phi[i++] = temp;
       }
       GlobalPhiLUT.close();
     }
@@ -893,7 +893,7 @@ void CSCSectorReceiverLUT::readLUTsFromFile() {
       unsigned i = 0;
       while (!GlobalEtaLUT.eof() && i < 1 << CSCBitWidths::kGlobalEtaAddressWidth) {
         GlobalEtaLUT >> temp;
-        me_global_eta[i++] = (*reinterpret_cast<gbletadat*>(&temp));
+        me_global_eta[i++] = temp;
       }
       GlobalEtaLUT.close();
     }
