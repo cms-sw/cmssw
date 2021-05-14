@@ -28,6 +28,17 @@ TEST_CASE("EcalPulseSymmCovariance testing", "[EcalPulseSymmCovariance]") {
       }
     }
   }
+  SECTION("Check index coverage") {
+    std::vector<bool> hitIndices(std::size(cov.covval), false);
+    for (int i = 0; i < EcalPulseShape::TEMPLATESAMPLES; ++i) {
+      for (int j = 0; j < EcalPulseShape::TEMPLATESAMPLES; ++j) {
+        hitIndices[cov.indexFor(i, j)] = true;
+      }
+    }
+    for (auto indx : hitIndices) {
+      REQUIRE(indx == true);
+    }
+  }
   SECTION("Check bounds") {
     for (int i = 0; i < EcalPulseShape::TEMPLATESAMPLES; ++i) {
       for (int j = 0; j < EcalPulseShape::TEMPLATESAMPLES; ++j) {
