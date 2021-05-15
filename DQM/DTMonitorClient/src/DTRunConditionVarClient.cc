@@ -14,10 +14,10 @@
  *
  *********************************/
 
-#include <DQM/DTMonitorClient/src/DTRunConditionVarClient.h>
-#include <DQMServices/Core/interface/DQMStore.h>
+#include "DQM/DTMonitorClient/src/DTRunConditionVarClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"

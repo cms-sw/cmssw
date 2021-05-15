@@ -5,7 +5,7 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTBlockedROChannelsTest.h>
+#include "DQM/DTMonitorClient/src/DTBlockedROChannelsTest.h"
 
 //Framework
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"

@@ -7,12 +7,12 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTResolutionAnalysisTest.h>
+#include "DQM/DTMonitorClient/src/DTResolutionAnalysisTest.h"
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"

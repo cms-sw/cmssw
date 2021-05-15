@@ -8,7 +8,7 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTDataIntegrityTest.h>
+#include "DQM/DTMonitorClient/src/DTDataIntegrityTest.h"
 
 //Framework
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
