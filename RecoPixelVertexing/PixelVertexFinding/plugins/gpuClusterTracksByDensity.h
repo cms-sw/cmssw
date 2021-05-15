@@ -59,7 +59,7 @@ namespace gpuVertexFinder {
     if (verbose && 0 == threadIdx.x)
       printf("booked hist with %d bins, size %d for %d tracks\n", hist.nbins(), hist.capacity(), nt);
 
-    assert(nt <= hist.capacity());
+    assert((int)nt <= hist.capacity());
 
     // fill hist  (bin shall be wider than "eps")
     for (auto i = threadIdx.x; i < nt; i += blockDim.x) {
