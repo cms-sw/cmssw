@@ -14,46 +14,35 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
+process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+    limit = cms.untracked.int32(0)
+)
+process.MessageLogger.cerr.GeometricTimingDetAnalyzer = cms.untracked.PSet(
+    limit = cms.untracked.int32(-1)
+)
+process.MessageLogger.files.mtdNumberingDD4hep = cms.untracked.PSet(
+    DEBUG = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
     ),
-    cout = cms.untracked.PSet(
-        GeometricTimingDetAnalyzer = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        enable = cms.untracked.bool(True),
-        enableStatistics = cms.untracked.bool(True),
-        noLineBreaks = cms.untracked.bool(True),
-        threshold = cms.untracked.string('INFO')
+    ERROR = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
     ),
-    files = cms.untracked.PSet(
-        mtdNumberingDD4hep = cms.untracked.PSet(
-            DEBUG = cms.untracked.PSet(
-                limit = cms.untracked.int32(0)
-            ),
-            ERROR = cms.untracked.PSet(
-                limit = cms.untracked.int32(0)
-            ),
-            FWKINFO = cms.untracked.PSet(
-                limit = cms.untracked.int32(0)
-            ),
-            INFO = cms.untracked.PSet(
-                limit = cms.untracked.int32(0)
-            ),
-            MTDUnitTest = cms.untracked.PSet(
-                limit = cms.untracked.int32(-1)
-            ),
-            WARNING = cms.untracked.PSet(
-                limit = cms.untracked.int32(0)
-            ),
-            noLineBreaks = cms.untracked.bool(True),
-            threshold = cms.untracked.string('INFO')
-        )
-    )
+    FWKINFO = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    INFO = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    MTDUnitTest = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1)
+    ),
+    WARNING = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    noLineBreaks = cms.untracked.bool(True),
+    threshold = cms.untracked.string('INFO')
 )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
