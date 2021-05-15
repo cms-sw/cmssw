@@ -22,7 +22,7 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include "MuonAnalysis/MuonAssociators/interface/L1MuonMatcherAlgo.h"
-#include "PhysicsTools/PatAlgos/plugins/PATTriggerMatchSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
@@ -43,7 +43,7 @@ namespace pat {
     bool operator()(const pat::TriggerObjectStandAlone &l1) const {
       if (resolveAmbiguities_ && (std::find(lockedItems_.begin(), lockedItems_.end(), &l1) != lockedItems_.end()))
         return false;
-      return selector_(false, l1);
+      return selector_(l1);
     }
 
   private:
@@ -58,8 +58,7 @@ namespace pat {
     edm::EDGetTokenT<PATPrimitiveCollection> l1Token_;
 
     /// Select HLT objects.
-    /// First template argument is dummy and useless,
-    pat::PATTriggerMatchSelector<bool, PATPrimitive> selector_;
+    StringCutObjectSelector<PATPrimitive> selector_;
     bool resolveAmbiguities_;
 
     /// Labels to set as filter names in the output
@@ -85,7 +84,7 @@ pat::HLTL1MuonMatcher::HLTL1MuonMatcher(const edm::ParameterSet &iConfig)
     : matcher_(iConfig),
       recoToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
       l1Token_(consumes<PATPrimitiveCollection>(iConfig.getParameter<edm::InputTag>("matched"))),
-      selector_(iConfig),
+      selector_{iConfig.getParameter<std::string>("matchedCuts")},
       resolveAmbiguities_(iConfig.getParameter<bool>("resolveAmbiguities")),
       labelProp_(iConfig.getParameter<std::string>("setPropLabel")),
       writeExtraInfo_(iConfig.existsAs<bool>("writeExtraInfo") ? iConfig.getParameter<bool>("writeExtraInfo") : false) {
