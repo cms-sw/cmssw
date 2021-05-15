@@ -602,8 +602,7 @@ __global__ void kernel_markSharedHit(int const *__restrict__ nshared,
 }
 
 // mostly for very forward triplets.....
-__global__ void kernel_rejectDuplicate(int const *__restrict__ nshared,
-                                       TrackingRecHit2DSOAView const *__restrict__ hhp,
+__global__ void kernel_rejectDuplicate(TrackingRecHit2DSOAView const *__restrict__ hhp,
                                        HitContainer const *__restrict__ ptuples,
                                        TkSoA const *__restrict__ ptracks,
                                        Quality *__restrict__ quality,
@@ -663,8 +662,7 @@ __global__ void kernel_rejectDuplicate(int const *__restrict__ nshared,
   }
 }
 
-__global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
-                                        TrackingRecHit2DSOAView const *__restrict__ hhp,
+__global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
                                         HitContainer const *__restrict__ ptuples,
                                         TkSoA const *__restrict__ ptracks,
                                         Quality *__restrict__ quality,
@@ -718,8 +716,7 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
   }
 }
 
-__global__ void kernel_tripletCleaner(int const *__restrict__ nshared,
-                                      TrackingRecHit2DSOAView const *__restrict__ hhp,
+__global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
                                       HitContainer const *__restrict__ ptuples,
                                       TkSoA const *__restrict__ ptracks,
                                       Quality *__restrict__ quality,
