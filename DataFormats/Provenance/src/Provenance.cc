@@ -1,7 +1,7 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "DataFormats/Provenance/interface/MergeableRunProductMetadataBase.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceLookup.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 
 #include <algorithm>

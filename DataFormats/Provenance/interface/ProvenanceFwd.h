@@ -25,7 +25,7 @@ namespace edm {
   class RunID;
   class StableProvenance;
   class Timestamp;
-  class ProductProvenanceRetriever;
+  class ProductProvenanceLookup;
 }  // namespace edm
 
 namespace cms {
