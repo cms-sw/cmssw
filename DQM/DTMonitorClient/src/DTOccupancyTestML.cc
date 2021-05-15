@@ -7,7 +7,7 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTOccupancyTestML.h>
+#include "DQM/DTMonitorClient/src/DTOccupancyTestML.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"

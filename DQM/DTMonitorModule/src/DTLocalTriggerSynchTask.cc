@@ -24,8 +24,8 @@
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
 // DT Digi
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+#include "DataFormats/DTDigi/interface/DTDigi.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 //Root
 #include "TH1.h"

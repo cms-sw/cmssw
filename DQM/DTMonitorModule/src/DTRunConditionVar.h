@@ -14,7 +14,7 @@
  *
  */
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 

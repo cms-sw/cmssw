@@ -7,10 +7,10 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTEfficiencyTest.h>
+#include "DQM/DTMonitorClient/src/DTEfficiencyTest.h"
 
 // Framework
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
