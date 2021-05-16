@@ -184,10 +184,15 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
     float mc = 10000.f;
     uint16_t im = 60000;
 
+    /* chi2 penalize higher-pt tracks  (try rescale it?)
     auto score = [&](auto it) {
-      return foundNtuplets->size(it) < 4 ? std::abs(tracks->tip(it)) :  // tip for triplets
-                 tracks->chi2(it);                                      //chi2
+      return foundNtuplets->size(it) < 4 ? 
+              std::abs(tracks->tip(it)) :  // tip for triplets
+              tracks->chi2(it);            //chi2 for quads
     };
+    */
+
+    auto score = [&](auto it) { return std::abs(tracks->tip(it)); };
 
     // full crazy combinatorics
     int ntr = thisCell.tracks().size();
@@ -621,10 +626,13 @@ __global__ void kernel_rejectDuplicate(TrackingRecHit2DSOAView const *__restrict
     if (hitToTuple.size(idx) < 2)
       continue;
 
+    /* chi2 is bad for large pt
     auto score = [&](auto it, auto nh) {
       return nh < 4 ? std::abs(tracks.tip(it)) :  // tip for triplets
                  tracks.chi2(it);                 //chi2
     };
+    */
+    auto score = [&](auto it, auto nh) { return std::abs(tracks.tip(it)); };
 
     // full combinatorics
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
