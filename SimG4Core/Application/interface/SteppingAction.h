@@ -62,7 +62,7 @@ private:
   unsigned int numberPart;
   unsigned int ndeadRegions;
   unsigned int nWarnings;
-  unsigned int maxNumberOfSteps;
+  G4int maxNumberOfSteps;
 
   bool initialized;
   bool killBeamPipe;
