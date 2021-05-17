@@ -142,8 +142,6 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
   paramName = "L1prefiring_muonparam_HotSpot_" + dataeraMuon_;
   parametrizationHotSpot_ = (TF1*)file_prefiringparams_->Get(paramName);
 
-
-
   produces<double>("nonPrefiringProb").setBranchAlias("nonPrefiringProb");
   produces<double>("nonPrefiringProbUp").setBranchAlias("nonPrefiringProbUp");
   produces<double>("nonPrefiringProbDown").setBranchAlias("nonPrefiringProbDown");
@@ -176,7 +174,6 @@ L1PrefiringWeightProducer::~L1PrefiringWeightProducer() {
   delete parametrization2p1To2p25_;
   delete parametrization2p25To2p4_;
   delete parametrizationHotSpot_;
-
 }
 
 void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -196,10 +193,10 @@ void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const
 
   //Probability for the event NOT to prefire, computed with the prefiring maps per object.
   //Up and down values correspond to the resulting value when shifting up/down all prefiring rates in prefiring maps.
-  double nonPrefiringProba[3] = {1., 1., 1.};  //0: central, 1: up, 2: down
-  double nonPrefiringProbaJet[3] = {1., 1., 1.};  //0: central, 1: up, 2: down
+  double nonPrefiringProba[3] = {1., 1., 1.};        //0: central, 1: up, 2: down
+  double nonPrefiringProbaJet[3] = {1., 1., 1.};     //0: central, 1: up, 2: down
   double nonPrefiringProbaPhoton[3] = {1., 1., 1.};  //0: central, 1: up, 2: down
-  double nonPrefiringProbaMuon[3] = {1., 1., 1.};  //0: central, 1: up, 2: down
+  double nonPrefiringProbaMuon[3] = {1., 1., 1.};    //0: central, 1: up, 2: down
 
   for (const auto fluct : {fluctuations::central, fluctuations::up, fluctuations::down}) {
     for (const auto& photon : *thePhotons) {
@@ -273,14 +270,12 @@ void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const
       double phi = muon.eta();
       double eta = muon.eta();
       // Remove crappy tracker muons which would not have prefired the L1 trigger
-      if (pt < 5 && !muon.isStandAloneMuon()) continue;
+      if (pt < 5 && !muon.isStandAloneMuon())
+        continue;
       double prefiringprob_mu = getPrefiringRateMuon(eta, phi, pt, fluct);
       nonPrefiringProba[fluct] *= (1. - prefiringprob_mu);
       nonPrefiringProbaMuon[fluct] *= (1. - prefiringprob_mu);
     }
-
-
-
   }
   auto nonPrefiringProb = std::make_unique<double>(nonPrefiringProba[0]);
   auto nonPrefiringProbUp = std::make_unique<double>(nonPrefiringProba[1]);
@@ -309,13 +304,12 @@ void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const
   iEvent.put(std::move(nonPrefiringProbMuon), "nonPrefiringProbMuon");
   iEvent.put(std::move(nonPrefiringProbMuonUp), "nonPrefiringProbMuonUp");
   iEvent.put(std::move(nonPrefiringProbMuonDown), "nonPrefiringProbMuonDown");
-
 }
 
 double L1PrefiringWeightProducer::getPrefiringRate(double eta,
-                                                       double pt,
-                                                       TH2F* h_prefmap,
-                                                       fluctuations fluctuation) const {
+                                                   double pt,
+                                                   TH2F* h_prefmap,
+                                                   fluctuations fluctuation) const {
   if (h_prefmap == nullptr && !skipwarnings_)
     std::cout << "Prefiring map not found, setting prefiring rate to 0 " << std::endl;
   if (h_prefmap == nullptr)
@@ -339,118 +333,108 @@ double L1PrefiringWeightProducer::getPrefiringRate(double eta,
   return prefrate;
 }
 double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
-						       double phi,
+                                                       double phi,
                                                        double pt,
                                                        fluctuations fluctuation) const {
   double prefrate;
   double statuncty;
-   if ( (dataeraMuon_.find("2016") != std::string::npos) && (eta > 1.24 && eta < 1.6) && (phi > 2.44346 && phi < 2.79253)){ 
-	if (parametrizationHotSpot_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << phi <<  std::endl;
-  	if (parametrizationHotSpot_ == nullptr)
-    		return 0.;
-  	prefrate = parametrizationHotSpot_->Eval(pt);
-  	statuncty = parametrizationHotSpot_->GetParError(2);
-  }
-  else if (std::abs(eta) < 0.2){ 
-	if (parametrization0p0To0p2_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization0p0To0p2_ == nullptr)
-    		return 0.;
-  	prefrate = parametrization0p0To0p2_->Eval(pt);
-  	statuncty = parametrization0p0To0p2_->GetParError(2);
-  }
-  else if (std::abs(eta) < 0.3){ 
-	if (parametrization0p2To0p3_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization0p2To0p3_ == nullptr)
-    		return 0.;
+  if ((dataeraMuon_.find("2016") != std::string::npos) && (eta > 1.24 && eta < 1.6) &&
+      (phi > 2.44346 && phi < 2.79253)) {
+    if (parametrizationHotSpot_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << phi
+                << std::endl;
+    if (parametrizationHotSpot_ == nullptr)
+      return 0.;
+    prefrate = parametrizationHotSpot_->Eval(pt);
+    statuncty = parametrizationHotSpot_->GetParError(2);
+  } else if (std::abs(eta) < 0.2) {
+    if (parametrization0p0To0p2_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization0p0To0p2_ == nullptr)
+      return 0.;
+    prefrate = parametrization0p0To0p2_->Eval(pt);
+    statuncty = parametrization0p0To0p2_->GetParError(2);
+  } else if (std::abs(eta) < 0.3) {
+    if (parametrization0p2To0p3_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization0p2To0p3_ == nullptr)
+      return 0.;
 
-        prefrate = parametrization0p2To0p3_->Eval(pt);
-        statuncty = parametrization0p2To0p3_->GetParError(2);
-  }
-  else if (std::abs(eta) < 0.55){ 
-	if (parametrization0p3To0p55_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization0p3To0p55_ == nullptr)
-    		return 0.;
+    prefrate = parametrization0p2To0p3_->Eval(pt);
+    statuncty = parametrization0p2To0p3_->GetParError(2);
+  } else if (std::abs(eta) < 0.55) {
+    if (parametrization0p3To0p55_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization0p3To0p55_ == nullptr)
+      return 0.;
 
-        prefrate = parametrization0p3To0p55_->Eval(pt);
-        statuncty = parametrization0p3To0p55_->GetParError(2);
-  }
-  else if (std::abs(eta) < 0.83){ 
-	if (parametrization0p55To0p83_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization0p55To0p83_ == nullptr)
-    		return 0.;
+    prefrate = parametrization0p3To0p55_->Eval(pt);
+    statuncty = parametrization0p3To0p55_->GetParError(2);
+  } else if (std::abs(eta) < 0.83) {
+    if (parametrization0p55To0p83_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization0p55To0p83_ == nullptr)
+      return 0.;
 
-        prefrate = parametrization0p55To0p83_->Eval(pt);
-        statuncty = parametrization0p55To0p83_->GetParError(2);
-  }
-  else if (std::abs(eta) < 1.24){ 
-	if (parametrization0p83To1p24_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization0p83To1p24_ == nullptr)
-    		return 0.;
+    prefrate = parametrization0p55To0p83_->Eval(pt);
+    statuncty = parametrization0p55To0p83_->GetParError(2);
+  } else if (std::abs(eta) < 1.24) {
+    if (parametrization0p83To1p24_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization0p83To1p24_ == nullptr)
+      return 0.;
 
-        prefrate = parametrization0p83To1p24_->Eval(pt);
-        statuncty = parametrization0p83To1p24_->GetParError(2);
-  }
-  else if (std::abs(eta) < 1.4){ 
-	if (parametrization1p24To1p4_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization1p24To1p4_ == nullptr)
-    		return 0.;
+    prefrate = parametrization0p83To1p24_->Eval(pt);
+    statuncty = parametrization0p83To1p24_->GetParError(2);
+  } else if (std::abs(eta) < 1.4) {
+    if (parametrization1p24To1p4_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization1p24To1p4_ == nullptr)
+      return 0.;
 
-        prefrate = parametrization1p24To1p4_->Eval(pt);
-        statuncty = parametrization1p24To1p4_->GetParError(2);
-  }
-  else if (std::abs(eta) < 1.6){ 
-	if (parametrization1p4To1p6_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization1p4To1p6_ == nullptr)
-    		return 0.;
+    prefrate = parametrization1p24To1p4_->Eval(pt);
+    statuncty = parametrization1p24To1p4_->GetParError(2);
+  } else if (std::abs(eta) < 1.6) {
+    if (parametrization1p4To1p6_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization1p4To1p6_ == nullptr)
+      return 0.;
 
-        prefrate = parametrization1p4To1p6_->Eval(pt);
-        statuncty = parametrization1p4To1p6_->GetParError(2);
-  }
-  else if (std::abs(eta) < 1.8){
-	if (parametrization1p6To1p8_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization1p6To1p8_ == nullptr)
-    		return 0.;
- 
-        prefrate = parametrization1p6To1p8_->Eval(pt);
-        statuncty = parametrization1p6To1p8_->GetParError(2);
-  }
-  else if (std::abs(eta) < 2.1){
-	if (parametrization1p8To2p1_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization1p8To2p1_ == nullptr)
-    		return 0.;
+    prefrate = parametrization1p4To1p6_->Eval(pt);
+    statuncty = parametrization1p4To1p6_->GetParError(2);
+  } else if (std::abs(eta) < 1.8) {
+    if (parametrization1p6To1p8_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization1p6To1p8_ == nullptr)
+      return 0.;
 
-        prefrate = parametrization1p8To2p1_->Eval(pt);
-        statuncty = parametrization1p8To2p1_->GetParError(2);
-  }
-  else if (std::abs(eta) < 2.25){
-	if (parametrization2p1To2p25_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization2p1To2p25_ == nullptr)
-    		return 0.;
+    prefrate = parametrization1p6To1p8_->Eval(pt);
+    statuncty = parametrization1p6To1p8_->GetParError(2);
+  } else if (std::abs(eta) < 2.1) {
+    if (parametrization1p8To2p1_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization1p8To2p1_ == nullptr)
+      return 0.;
 
-        prefrate = parametrization2p1To2p25_->Eval(pt);
-        statuncty = parametrization2p1To2p25_->GetParError(2);
-  }
-  else if (std::abs(eta) < 2.4){
-	if (parametrization2p25To2p4_ == nullptr && !skipwarnings_)
-    		std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
-  	if (parametrization2p25To2p4_ == nullptr)
-    		return 0.;
+    prefrate = parametrization1p8To2p1_->Eval(pt);
+    statuncty = parametrization1p8To2p1_->GetParError(2);
+  } else if (std::abs(eta) < 2.25) {
+    if (parametrization2p1To2p25_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization2p1To2p25_ == nullptr)
+      return 0.;
 
-        prefrate = parametrization2p25To2p4_->Eval(pt);
-        statuncty = parametrization2p25To2p4_->GetParError(2);
-  }
-  else
+    prefrate = parametrization2p1To2p25_->Eval(pt);
+    statuncty = parametrization2p1To2p25_->GetParError(2);
+  } else if (std::abs(eta) < 2.4) {
+    if (parametrization2p25To2p4_ == nullptr && !skipwarnings_)
+      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+    if (parametrization2p25To2p4_ == nullptr)
+      return 0.;
+
+    prefrate = parametrization2p25To2p4_->Eval(pt);
+    statuncty = parametrization2p25To2p4_->GetParError(2);
+  } else
     return 0.;
   double systuncty = prefiringRateSystUnc_ * prefrate;
 
