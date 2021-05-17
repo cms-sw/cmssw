@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,7 +25,8 @@
 using namespace edm;
 using namespace std;
 
-DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps) {
+DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps) :
+  muonGeomToken_(esConsumes()) {
   edm::LogVerbatim("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest]: Constructor";
 
   parameters = ps;
@@ -49,7 +49,7 @@ void DTChamberEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
                                                     edm::EventSetup const& context) {
   if (!bookingdone) {
     // Get the DT Geometry
-    context.get<MuonGeometryRecord>().get(muonGeom);
+    muonGeom = &context.getData(muonGeomToken_);
 
     // Loop over all the chambers
     vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
