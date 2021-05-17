@@ -32,6 +32,7 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <vector>
 #include <string>
@@ -94,7 +95,8 @@ private:
   edm::EDGetTokenT<L1MuGMTReadoutCollection> gmt_Token_;
 
   edm::ParameterSet parameters;
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
   DTTrigGeomUtils* trigGeomUtils;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
   std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;

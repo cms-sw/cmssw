@@ -15,7 +15,6 @@
 
 // Geometry
 #include "DataFormats/GeometryVector/interface/Pi.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
@@ -39,7 +38,8 @@
 using namespace edm;
 using namespace std;
 
-DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : trigGeomUtils(nullptr) {
+DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : //trigGeomUtils(nullptr),
+          muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogTrace("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: Constructor" << endl;
 
   parameters = ps;
@@ -72,7 +72,7 @@ DTTriggerEfficiencyTask::~DTTriggerEfficiencyTask() {
 
 void DTTriggerEfficiencyTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
   // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 }
 
