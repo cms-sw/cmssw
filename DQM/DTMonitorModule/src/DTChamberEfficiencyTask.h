@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -80,7 +81,9 @@ private:
   double theMinChi2NormSegment;
   double theMinCloseDist;
 
-  edm::ESHandle<DTGeometry> dtGeom;
+  //Load geometry
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
   edm::Handle<DTRecSegment4DCollection> segs;
 };
 #endif
