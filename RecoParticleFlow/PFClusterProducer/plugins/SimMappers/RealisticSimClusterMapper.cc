@@ -43,11 +43,7 @@ namespace {
 
 void RealisticSimClusterMapper::updateEvent(const edm::Event& ev) { ev.getByToken(simClusterToken_, simClusterH_); }
 
-void RealisticSimClusterMapper::update(const edm::EventSetup& es) {
-  edm::ESHandle<CaloGeometry> geom;
-  es.get<CaloGeometryRecord>().get(geom);
-  rhtools_.setGeometry(*geom);
-}
+void RealisticSimClusterMapper::update(const edm::EventSetup& es) { rhtools_.setGeometry(es.getData(geomToken_)); }
 
 void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
                                               const std::vector<bool>& rechitMask,

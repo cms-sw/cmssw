@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 template <ForwardSubdetector D1,
           typename hgcee,
@@ -41,19 +42,19 @@ public:
     descriptions.add("navigator", desc);
   }
 
-  HGCRecHitNavigator(const edm::ParameterSet& iConfig) {
+  HGCRecHitNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {
     if (iConfig.exists("hgcee")) {
-      eeNav_ = new hgcee(iConfig.getParameter<edm::ParameterSet>("hgcee"));
+      eeNav_ = new hgcee(iConfig.getParameter<edm::ParameterSet>("hgcee"), cc);
     } else {
       eeNav_ = nullptr;
     }
     if (iConfig.exists("hgchef")) {
-      hefNav_ = new hgchef(iConfig.getParameter<edm::ParameterSet>("hgchef"));
+      hefNav_ = new hgchef(iConfig.getParameter<edm::ParameterSet>("hgchef"), cc);
     } else {
       hefNav_ = nullptr;
     }
     if (iConfig.exists("hgcheb")) {
-      hebNav_ = new hgcheb(iConfig.getParameter<edm::ParameterSet>("hgcheb"));
+      hebNav_ = new hgcheb(iConfig.getParameter<edm::ParameterSet>("hgcheb"), cc);
     } else {
       hebNav_ = nullptr;
     }

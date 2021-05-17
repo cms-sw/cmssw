@@ -26,25 +26,24 @@ namespace pflow {
     template <class Collection, class Adaptor = noop::ParentCollectionAdaptor<Collection>>
     class TrackFromParentImporter : public BlockElementImporterBase {
     public:
-      TrackFromParentImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-          : BlockElementImporterBase(conf, sumes),
-            src_(sumes.consumes<Collection>(conf.getParameter<edm::InputTag>("source"))),
+      TrackFromParentImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+          : BlockElementImporterBase(conf, cc),
+            src_(cc.consumes<Collection>(conf.getParameter<edm::InputTag>("source"))),
             vetoEndcap_(conf.getParameter<bool>("vetoEndcap")) {
         if (vetoEndcap_) {
           vetoMode_ = conf.getParameter<unsigned>("vetoMode");
           switch (vetoMode_) {
             case pfRecTrackCollection:
-              vetoPFTracksSrc_ =
-                  sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+              vetoPFTracksSrc_ = cc.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
               break;
             case ticlSeedingRegion:
               vetoTICLSeedingSrc_ =
-                  sumes.consumes<std::vector<TICLSeedingRegion>>(conf.getParameter<edm::InputTag>("vetoSrc"));
-              tracksSrc_ = sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
+                  cc.consumes<std::vector<TICLSeedingRegion>>(conf.getParameter<edm::InputTag>("vetoSrc"));
+              tracksSrc_ = cc.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
               break;
             case pfCandidateCollection:
               vetoPFCandidatesSrc_ =
-                  sumes.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+                  cc.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
               break;
           }  // switch
         }    // vetoEndcap_

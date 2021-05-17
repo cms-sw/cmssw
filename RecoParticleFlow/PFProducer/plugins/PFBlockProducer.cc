@@ -45,9 +45,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig)
   bool debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
   pfBlockAlgo_.setDebug(debug_);
 
-  edm::ConsumesCollector coll = consumesCollector();
+  edm::ConsumesCollector cc = consumesCollector();
   const std::vector<edm::ParameterSet>& importers = iConfig.getParameterSetVector("elementImporters");
-  pfBlockAlgo_.setImporters(importers, coll);
+  pfBlockAlgo_.setImporters(importers, cc);
 
   const std::vector<edm::ParameterSet>& linkdefs = iConfig.getParameterSetVector("linkDefinitions");
   pfBlockAlgo_.setLinkers(linkdefs);

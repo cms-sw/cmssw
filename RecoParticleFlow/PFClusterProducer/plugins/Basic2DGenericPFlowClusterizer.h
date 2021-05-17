@@ -1,6 +1,7 @@
 #ifndef __Basic2DGenericPFlowClusterizer_H__
 #define __Basic2DGenericPFlowClusterizer_H__
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
@@ -10,7 +11,7 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
   typedef Basic2DGenericPFlowClusterizer B2DGPF;
 
 public:
-  Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf);
+  Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
 
   ~Basic2DGenericPFlowClusterizer() override = default;
   Basic2DGenericPFlowClusterizer(const B2DGPF&) = delete;

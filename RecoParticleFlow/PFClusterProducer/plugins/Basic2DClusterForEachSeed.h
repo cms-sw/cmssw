@@ -6,8 +6,8 @@
 
 class Basic2DClusterForEachSeed : public InitialClusteringStepBase {
 public:
-  Basic2DClusterForEachSeed(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : InitialClusteringStepBase(conf, sumes) {}
+  Basic2DClusterForEachSeed(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : InitialClusteringStepBase(conf, cc) {}
   ~Basic2DClusterForEachSeed() override = default;
 
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,

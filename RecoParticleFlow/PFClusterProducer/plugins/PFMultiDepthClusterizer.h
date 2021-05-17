@@ -3,6 +3,7 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <unordered_map>
 
@@ -10,7 +11,7 @@ class PFMultiDepthClusterizer final : public PFClusterBuilderBase {
   typedef PFMultiDepthClusterizer B2DGPF;
 
 public:
-  PFMultiDepthClusterizer(const edm::ParameterSet& conf);
+  PFMultiDepthClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
 
   ~PFMultiDepthClusterizer() override = default;
   PFMultiDepthClusterizer(const B2DGPF&) = delete;
