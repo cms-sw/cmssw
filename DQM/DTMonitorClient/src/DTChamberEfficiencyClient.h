@@ -24,6 +24,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
@@ -61,7 +63,8 @@ private:
   unsigned int nLumiSegs;
   int prescaleFactor;
 
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
 
   //an histogram of efficiency for each wheel, for each quality scenario
   MonitorElement *summaryHistos[5][2];
