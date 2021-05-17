@@ -12,16 +12,16 @@ PFRecHitProducer::PFRecHitProducer(const edm::ParameterSet& iConfig) {
   produces<reco::PFRecHitCollection>();
   produces<reco::PFRecHitCollection>("Cleaned");
 
-  edm::ConsumesCollector iC = consumesCollector();
+  edm::ConsumesCollector cc = consumesCollector();
 
   std::vector<edm::ParameterSet> creators = iConfig.getParameter<std::vector<edm::ParameterSet> >("producers");
   for (auto& creator : creators) {
     std::string name = creator.getParameter<std::string>("name");
-    creators_.emplace_back(PFRecHitFactory::get()->create(name, creator, iC));
+    creators_.emplace_back(PFRecHitFactory::get()->create(name, creator, cc));
   }
 
   edm::ParameterSet navSet = iConfig.getParameter<edm::ParameterSet>("navigator");
-  navigator_ = PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet);
+  navigator_ = PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet, cc);
 }
 
 PFRecHitProducer::~PFRecHitProducer() = default;

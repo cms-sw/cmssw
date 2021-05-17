@@ -7,15 +7,14 @@
 
 class PFClusterFromHGCalTrackster : public InitialClusteringStepBase {
 public:
-  PFClusterFromHGCalTrackster(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : InitialClusteringStepBase(conf, sumes) {
+  PFClusterFromHGCalTrackster(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : InitialClusteringStepBase(conf, cc) {
     filterByTracksterPID_ = conf.getParameter<bool>("filterByTracksterPID");
     pid_threshold_ = conf.getParameter<double>("pid_threshold");
     filter_on_categories_ = conf.getParameter<std::vector<int> >("filter_on_categories");
 
-    tracksterToken_ = sumes.consumes<std::vector<ticl::Trackster> >(conf.getParameter<edm::InputTag>("tracksterSrc"));
-    clusterToken_ =
-        sumes.consumes<reco::CaloClusterCollection>(conf.getParameter<edm::InputTag>("clusterSrc"));
+    tracksterToken_ = cc.consumes<std::vector<ticl::Trackster> >(conf.getParameter<edm::InputTag>("tracksterSrc"));
+    clusterToken_ = cc.consumes<reco::CaloClusterCollection>(conf.getParameter<edm::InputTag>("clusterSrc"));
   }
 
   ~PFClusterFromHGCalTrackster() override {}

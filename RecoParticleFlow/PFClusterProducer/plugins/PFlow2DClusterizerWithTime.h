@@ -3,6 +3,7 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/CaloRecHitResolutionProvider.h"
 
@@ -12,7 +13,7 @@ class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
   typedef PFlow2DClusterizerWithTime B2DGPF;
 
 public:
-  PFlow2DClusterizerWithTime(const edm::ParameterSet& conf);
+  PFlow2DClusterizerWithTime(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
 
   ~PFlow2DClusterizerWithTime() override = default;
   PFlow2DClusterizerWithTime(const B2DGPF&) = delete;

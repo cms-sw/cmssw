@@ -12,10 +12,10 @@
 template <reco::PFBlockElement::Type T>
 class SpecialClusterImporter : public BlockElementImporterBase {
 public:
-  SpecialClusterImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : BlockElementImporterBase(conf, sumes),
-        _src(sumes.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))),
-        _assoc(sumes.consumes<edm::ValueMap<reco::CaloClusterPtr> >(conf.getParameter<edm::InputTag>("BCtoPFCMap"))) {}
+  SpecialClusterImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : BlockElementImporterBase(conf, cc),
+        _src(cc.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))),
+        _assoc(cc.consumes<edm::ValueMap<reco::CaloClusterPtr> >(conf.getParameter<edm::InputTag>("BCtoPFCMap"))) {}
 
   void importToBlock(const edm::Event&, ElementList&) const override;
 

@@ -1,8 +1,9 @@
 #include "ECALPFSeedCleaner.h"
 
-ECALPFSeedCleaner::ECALPFSeedCleaner(const edm::ParameterSet& conf) : RecHitTopologicalCleanerBase(conf) {}
+ECALPFSeedCleaner::ECALPFSeedCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+    : RecHitTopologicalCleanerBase(conf, cc), thsToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
 
-void ECALPFSeedCleaner::update(const edm::EventSetup& iSetup) { iSetup.get<EcalPFSeedingThresholdsRcd>().get(ths_); }
+void ECALPFSeedCleaner::update(const edm::EventSetup& iSetup) { ths_ = iSetup.getHandle(thsToken_); }
 
 void ECALPFSeedCleaner::clean(const edm::Handle<reco::PFRecHitCollection>& input, std::vector<bool>& mask) {
   //need to run over energy sorted rechits, as this is order used in seeding step
