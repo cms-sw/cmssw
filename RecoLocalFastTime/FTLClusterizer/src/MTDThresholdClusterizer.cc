@@ -47,7 +47,7 @@ MTDThresholdClusterizer::MTDThresholdClusterizer(edm::ParameterSet const& conf)
 MTDThresholdClusterizer::~MTDThresholdClusterizer() {}
 
 // Configuration descriptions
-void MTDThresholdClusterizer::fillDescriptions(edm::ParameterSetDescription& desc) {
+void MTDThresholdClusterizer::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<double>("HitThreshold", 0.);
   desc.add<double>("SeedThreshold", 0.);
   desc.add<double>("ClusterThreshold", 0.);
