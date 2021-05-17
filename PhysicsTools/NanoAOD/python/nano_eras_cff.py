@@ -4,6 +4,7 @@ from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
 from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
 from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
 from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
+from Configuration.Eras.Modifier_run2_muon_2018_cff import run2_muon_2018
 
 from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
 from Configuration.Eras.Modifier_run2_HLTconditions_2017_cff import run2_HLTconditions_2017
