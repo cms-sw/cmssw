@@ -57,7 +57,6 @@ public:
   inline ReturnType getParameters(const FTLCluster& cl, const GeomDetUnit& det) const override {
     DetParam const& dp = detParam(det);
     ClusterParam cp(cl);
-    setTheClu(dp, cp);
     auto tuple =
         std::make_tuple(localPosition(dp, cp), localError(dp, cp), clusterTime(dp, cp), clusterTimeError(dp, cp));
     return tuple;
@@ -81,8 +80,6 @@ private:
   virtual TimeValue clusterTime(DetParam const& dp, ClusterParam& cp) const;
   virtual TimeValueError clusterTimeError(DetParam const& dp, ClusterParam& cp) const;
 
-  void fillDetParams();
-
 protected:
   //---------------------------------------------------------------------------
   //  Data members
@@ -92,8 +89,6 @@ protected:
   const MTDGeometry& geom_;  // geometry
 
 protected:
-  void setTheClu(DetParam const& dp, ClusterParam& cp) const;
-
   //---------------------------------------------------------------------------
   //  Cluster-level services.
   //---------------------------------------------------------------------------
