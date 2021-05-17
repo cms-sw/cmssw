@@ -70,8 +70,6 @@ private:
   std::vector<std::string> names_;
   std::vector<unsigned int> mask_;
   std::vector<unsigned int> indices_;
-
-  const unsigned int m_triggerRulePrefireVetoBit = 255;
 };
 
 //
@@ -137,8 +135,7 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
     if (store_unprefireable_bit_) {
       edm::Handle<GlobalExtBlkBxCollection> handleExtResults;
       iEvent.getByToken(token_ext_, handleExtResults);
-      unprefireable_bit = handleExtResults->at(0, 0).getExternalDecision(
-          std::max(m_triggerRulePrefireVetoBit, GlobalExtBlk::maxExternalConditions - 1));
+      unprefireable_bit = handleExtResults->at(0, 0).getExternalDecision(GlobalExtBlk::maxExternalConditions - 1);
     }
   } else {
     // Legacy access
