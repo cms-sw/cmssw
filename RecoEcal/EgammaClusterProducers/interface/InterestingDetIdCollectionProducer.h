@@ -41,7 +41,7 @@ The following classes of "interesting id" are considered
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannelRcd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
