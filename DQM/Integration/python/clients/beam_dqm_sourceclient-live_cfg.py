@@ -383,13 +383,9 @@ if unitTest == False:
             tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
-        ))
+        )),
+        frontierKey = cms.untracked.string(options.runUniqueKey)
     )
-    try:
-        process.OnlineDBOutputService.frontierKey = cms.untracked.string(options.runUniqueKey)
-        print("Configured frontierKey", options.runUniqueKey)
-    except:
-        pass
 
 else:
     process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
@@ -412,8 +408,10 @@ else:
             tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
-        ))
+        )),
+        frontierKey = cms.untracked.string(options.runUniqueKey)
     )
+print("Configured frontierKey", options.runUniqueKey)
 
 #---------
 # Final path
