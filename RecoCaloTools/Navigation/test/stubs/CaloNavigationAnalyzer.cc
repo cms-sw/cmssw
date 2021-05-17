@@ -11,7 +11,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
