@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
@@ -67,7 +68,8 @@ private:
 
   int run;
 
-  edm::ESHandle<DTReadOutMapping> mapping;
+  edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> mappingToken_;
+  const DTReadOutMapping* mapping;
 
   // Monitor Elements
   std::map<int, MonitorElement*> wheelHistos;
