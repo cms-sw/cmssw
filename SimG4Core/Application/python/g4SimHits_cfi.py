@@ -301,7 +301,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
-        MaxNumberOfSteps        = cms.int32(10000),
+        MaxNumberOfSteps        = cms.int32(50000),
         EkinNames               = cms.vstring(),
         EkinThresholds          = cms.vdouble(),
         EkinParticles           = cms.vstring()
