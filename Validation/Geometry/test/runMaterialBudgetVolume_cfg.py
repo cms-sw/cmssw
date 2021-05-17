@@ -2,9 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process('PROD',Run3)
+process.load("Configuration.Geometry.GeometryExtended2021_cff")
+#from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+#process = cms.Process('PROD',Run3_dd4hep)
+#process.load("Configuration.Geometry.GeometryDD4hepExtended2021_cff")
+#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+#process = cms.Process('PROD',Phase2C11)
+#process.load("Configuration.Geometry.GeometryExtended2026D77_cff")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2021_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("Validation.Geometry.materialBudgetVolume_cfi")
@@ -28,7 +34,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('matbdgHCAL_run3.root')
+    fileName = cms.string('matbdg_run3.root')
+#   fileName = cms.string('matbdg_run3_dd4hep.root')
+#   fileName = cms.string('matbdg_phase2.root')
 )
 
 process.g4SimHits.UseMagneticField = False
