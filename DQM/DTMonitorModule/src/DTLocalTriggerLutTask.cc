@@ -31,7 +31,8 @@ using namespace edm;
 using namespace std;
 
 DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps) :
-  muonGeomToken_(esConsumes(edm::ESInputTag("",ps.getUntrackedParameter<string>("geomLabel")))) {
+  muonGeomToken_(esConsumes(edm::ESInputTag("",ps.getUntrackedParameter<string>("geomLabel")))),
+  trigGeomUtils(nullptr) {
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: Constructor" << endl;
 
   tm_TokenIn_ = consumes<L1MuDTChambPhContainer>(ps.getUntrackedParameter<InputTag>("inputTagTMin"));
