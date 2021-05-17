@@ -6,6 +6,9 @@ from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
 from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
 from Configuration.Eras.Modifier_run2_muon_2018_cff import run2_muon_2018
 
+from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
+from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
+
 from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
 from Configuration.Eras.Modifier_run2_HLTconditions_2017_cff import run2_HLTconditions_2017
 
@@ -17,5 +20,9 @@ from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94
 from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
-from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
 
+from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_devel
+
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
