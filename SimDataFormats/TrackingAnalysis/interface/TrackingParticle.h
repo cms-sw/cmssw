@@ -111,6 +111,9 @@ public:
   /// @brief Magnitude of momentum vector. Note this is taken from the first SimTrack only.
   double p() const { return p4().P(); }
 
+  /// @brief Quotient of the electric charge over the magnitude of the momentum vector. Note this is taken from the first SimTrack only.
+  double qoverp() const { return charge() / p(); }
+
   /// @brief Energy. Note this is taken from the first SimTrack only.
   double energy() const { return p4().E(); }
 
@@ -150,6 +153,12 @@ public:
   /// @brief Momentum pseudorapidity. Note this is taken from the first SimTrack only.
   double eta() const { return p4().Eta(); }
 
+  /// @brief Lambda angle. Note this is taken from the first SimTrack only.
+  double lambda() const { return M_PI_2 - theta(); }
+
+  /// @brief tangent of the lambda angle. Note this is taken from the first SimTrack only.
+  double tanl() const { return tan(lambda()); }
+
   /// @brief Rapidity. Note this is taken from the first SimTrack only.
   double rapidity() const { return p4().Rapidity(); }
 
@@ -173,11 +182,24 @@ public:
     const TrackingVertex& r = (*parentVertex_);
     return r.position().Y();
   }
-  // @brief z coordinate of parent vertex position
+
+  /// @brief z coordinate of parent vertex position
   double vz() const {
     const TrackingVertex& r = (*parentVertex_);
     return r.position().Z();
   }
+
+  /// @brief dxy parameter.
+  double dxy() const { return (-vx() * py() + vy() * px()) / pt(); }
+
+  /// @brief dxy parameter in perigee convention (d0 = -dxy)
+  double d0() const { return -dxy(); }
+
+  /// @brief dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0).
+  double dz() const { return vz() - (vx() * px() + vy() * py()) * pz() / p4().Perp2(); }
+
+  /// @brief z0 parameter
+  double z0() const { return dz(); }
 
   /** @brief Status word.
      *
