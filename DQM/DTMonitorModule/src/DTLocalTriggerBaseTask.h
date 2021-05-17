@@ -24,6 +24,8 @@
 
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
@@ -107,6 +109,9 @@ private:
 
   edm::ParameterSet m_params;
   DTTrigGeomUtils* m_trigGeomUtils;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* geom;
+
   std::vector<std::string> m_types;
 
   std::map<uint32_t, DTTPGCompareUnit> m_compMapIn;
