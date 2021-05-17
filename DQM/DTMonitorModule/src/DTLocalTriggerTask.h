@@ -30,6 +30,7 @@
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <vector>
 #include <string>
@@ -122,7 +123,8 @@ private:
   bool track_ok[6][5][15];
 
   edm::ParameterSet parameters;
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
   DTTrigGeomUtils* trigGeomUtils;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > digiHistos;
   std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
