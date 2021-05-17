@@ -18,6 +18,8 @@
     <use   name="Geometry/CommonDetUnit"/>
     <use   name="Geometry/Records"/>
     <use   name="Geometry/TrackerGeometryBuilder"/>
+    <use   name="MagneticField/Engine"/>
+    <use   name="MagneticField/Records"/>
     <use   name="SimTracker/TrackTriggerAssociation"/>
     <use   name="SimDataFormats/TrackingHit"/>
     <use   name="SimDataFormats/TrackingAnalysis"/>
