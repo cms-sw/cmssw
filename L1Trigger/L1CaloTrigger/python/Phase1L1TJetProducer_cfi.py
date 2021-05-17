@@ -1,7 +1,8 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 from math import pi
 
-from Phase1L1TJets_sincosLUT_cff import sinPhi, cosPhi
+from .Phase1L1TJets_sincosLUT_cff import sinPhi, cosPhi
 
 caloEtaSegmentation = cms.vdouble(
   -5.0, -4.917, -4.833, -4.75, -4.667, -4.583, -4.5, -4.417, -4.333, -4.25, 
