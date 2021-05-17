@@ -1808,7 +1808,7 @@ digiPremixRD2018 = {
     '--procModifiers':'premix_stage2,runDependent'
 }
 
-steps['DIGIPRMXUP18_PU25_RD']=merge([{'--conditions':'auto:phase1_2018_realistic_rd', '--relval': str(kevents_rd*1000) + ',' + str(events_per_job_rd), '--runsScenarioForMCInteger': 'Run2018_Equal_Lumi_Integer_Weights'}, digiPremixRD2018, digiPremixUp2018Defaults25ns])
+steps['DIGIPRMXUP18_PU25_RD']=merge([{'--conditions':'auto:phase1_2018_realistic_rd', '--relval': str(kevents_rd*1000) + ',' + str(events_per_job_rd), '--runsScenarioForMCIntegerWeights': 'Run2018_Equal_Lumi_Integer_Weights'}, digiPremixRD2018, digiPremixUp2018Defaults25ns])
 
 # configuration to simulate cross run number boundary in IB, given 5 events per lumi
 steps['DIGIPRMXUP18_PU25_RD_IB']=merge([{'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.source.setRunNumberForEachLumi = cms.untracked.vuint32(315257,316083) \"", '--procModifiers':'premix_stage2,runDependent'}, digiPremixRD2018, digiPremixUp2018Defaults25ns])

@@ -82,8 +82,8 @@ defaultOptions.lumiToProcess=None
 defaultOptions.fast=False
 defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
-defaultOptions.runsAndWeightsForMCInteger = None
-defaultOptions.runsScenarioForMCInteger = None
+defaultOptions.runsAndWeightsForMCIntegerWeights = None
+defaultOptions.runsScenarioForMCIntegerWeights = None
 defaultOptions.runUnscheduled = False
 defaultOptions.timeoutOutput = False
 defaultOptions.nThreads = '1'
@@ -500,18 +500,18 @@ class ConfigBuilder(object):
 
         # modify source in case of run-dependent MC (Run-3 method)
         self.runsAndWeightsInt=None
-        if self._options.runsAndWeightsForMCInteger or self._options.runsScenarioForMCInteger:
+        if self._options.runsAndWeightsForMCIntegerWeights or self._options.runsScenarioForMCIntegerWeights:
             if not self._options.isMC :
-                raise Exception("options --runsAndWeightsForMCInteger and --runsScenarioForMCInteger are only valid for MC")
-            if self._options.runsAndWeightsForMCInteger:
-                self.runsAndWeightsInt = eval(self._options.runsAndWeightsForMCInteger)
+                raise Exception("options --runsAndWeightsForMCIntegerWeights and --runsScenarioForMCIntegerWeights are only valid for MC")
+            if self._options.runsAndWeightsForMCIntegerWeights:
+                self.runsAndWeightsInt = eval(self._options.runsAndWeightsForMCIntegerWeights)
             else:
                 from Configuration.StandardSequences.RunsAndWeights import RunsAndWeights
-                if isinstance(RunsAndWeights[self._options.runsScenarioForMCInteger], str):
-                    __import__(RunsAndWeights[self._options.runsScenarioForMCInteger])
-                    self.runsAndWeightsInt = sys.modules[RunsAndWeights[self._options.runsScenarioForMCInteger]].runProbabilityDistribution
+                if isinstance(RunsAndWeights[self._options.runsScenarioForMCIntegerWeights], str):
+                    __import__(RunsAndWeights[self._options.runsScenarioForMCIntegerWeights])
+                    self.runsAndWeightsInt = sys.modules[RunsAndWeights[self._options.runsScenarioForMCIntegerWeights]].runProbabilityDistribution
                 else:
-                    self.runsAndWeightsInt = RunsAndWeights[self._options.runsScenarioForMCInteger]
+                    self.runsAndWeightsInt = RunsAndWeights[self._options.runsScenarioForMCIntegerWeights]
 
         if self.runsAndWeightsInt:
             if not self._options.relval:
