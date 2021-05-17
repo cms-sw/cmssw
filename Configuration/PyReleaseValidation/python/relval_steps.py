@@ -957,7 +957,7 @@ steps['ZEEMM_13_HI']=merge([hiDefaults2018_ppReco,gen2018hiprod('ZEEMM_13TeV_Tun
 
 ## pp reference tests
 
-ppRefAlca2017 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017_ppRef'}
+ppRefAlca2017 = {'--conditions':'auto:phase1_2017_realistic_ppref', '--era':'Run2_2017_ppRef', '--beamspot':'Fixed_EmitRealistic5TeVppCollision2017'}
 ppRefDefaults2017=merge([ppRefAlca2017,{'-n':2}])
 
 steps['QCD_Pt_80_120_13_PPREF']=merge([ppRefDefaults2017,gen2017('QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi',Kby(9,150))])
