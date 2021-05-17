@@ -26,6 +26,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "RecoMuon/TrackingTools/interface/MuonSegmentMatcher.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -66,7 +67,8 @@ private:
   int rightSegment;
   int nevent;
   // the geometry
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
 
   // Label of 4D segments in the event
   edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
