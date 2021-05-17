@@ -51,7 +51,8 @@ private:
 };
 
 DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps)
-    : m_nEvents(0), m_nLumis(0), muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+    : m_nEvents(0), m_nLumis(0), m_trigGeomUtils(nullptr), 
+      muonGeomToken_(esConsumes<edm::Transition::BeginRun>()){
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask") << "[DTLocalTriggerBaseTask]: Constructor" << endl;
 
   m_tpMode = ps.getUntrackedParameter<bool>("testPulseMode");
