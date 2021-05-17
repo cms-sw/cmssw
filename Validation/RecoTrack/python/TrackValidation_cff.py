@@ -299,6 +299,11 @@ trackingParticlesSignal = _trackingParticleRefSelector.clone(
     maxRapidity = 10,
     ptMin = 0,
 )
+## Select in-time TrackingParticles, and do the corresponding associations
+trackingParticlesInTime = trackingParticlesSignal.clone(
+    signalOnly = False,
+    intimeOnly = True,
+)
 
 # select tracks with pT > 0.9 GeV (for upgrade fake rates)
 generalTracksPt09 = cutsRecoTracks_cfi.cutsRecoTracks.clone(ptMin=0.9)
@@ -606,6 +611,10 @@ trackValidatorJetCore = trackValidator.clone(#equivalent to trackBuilding case
     associators= ["trackAssociatorByChi2"],#cms.untracked.VInputTag('MTVTrackAssociationByChi2'),
     UseAssociators = True,
     doPVAssociationPlots = True,
+    label_tp_effic = "trackingParticlesInTime",
+    label_tp_fake = "trackingParticlesInTime",
+    label_tp_effic_refvector = True,
+    label_tp_fake_refvector = True,
 )
 for _eraName, _postfix, _era in _relevantEras:
     if 'jetCoreRegionalStep' in _cfg.iterationAlgos(_postfix) :
@@ -711,6 +720,7 @@ tracksPreValidation = cms.Task(
     tracksValidationSelectorsFromPVPt09,
     tracksValidationTruth,
     trackingParticlesSignal,
+    trackingParticlesInTime,
     trackingParticlesElectron,
     trackingParticlesConversion
 )
