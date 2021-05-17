@@ -3,11 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # AOD content
 RecoParticleFlowAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
-    'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
-    'keep recoPFRecHits_particleFlowClusterHCAL_Cleaned_*',
-    'keep recoPFRecHits_particleFlowClusterHO_Cleaned_*',
-    'keep recoPFRecHits_particleFlowClusterHF_Cleaned_*',
-    'keep recoPFRecHits_particleFlowClusterPS_Cleaned_*',
     'keep recoPFRecHits_particleFlowRecHitECAL_Cleaned_*',
     'keep recoPFRecHits_particleFlowRecHitHBHE_Cleaned_*',
     'keep recoPFRecHits_particleFlowRecHitHF_Cleaned_*',
@@ -49,8 +44,6 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_hgcal.toModify( RecoParticleFlowAOD,  
     outputCommands = RecoParticleFlowAOD.outputCommands + ['keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*',
-                                                           'keep recoPFClusters_particleFlowClusterHGCal__*',
-                                                           'keep recoPFClusters_particleFlowClusterHGCalFromMultiCl__*',
                                                            'keep recoSuperClusters_simPFProducer_*_*'])
 phase2_timing.toModify( RecoParticleFlowAOD,
     outputCommands = RecoParticleFlowAOD.outputCommands + ['keep *_ecalBarrelClusterFastTimer_*_*'])
