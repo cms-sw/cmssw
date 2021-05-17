@@ -279,4 +279,10 @@
   <class name="edm::Wrapper<l1t::L1DataEmulResultBxCollection>"/>
 
   <class name="edm::Ptr<l1t::L1Candidate>"/>
+
+  <class name="l1t::Vertex"/>
+  <class name="std::vector<l1t::Vertex>"/>
+  <class name="l1t::VertexCollection"/>
+  <class name="edm::Wrapper<std::vector<l1t::VertexCollection> >"/>
+
 </lcgdict>
