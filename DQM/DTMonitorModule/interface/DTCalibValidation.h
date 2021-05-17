@@ -22,6 +22,8 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <string>
@@ -63,7 +65,8 @@ private:
   // the analysis type
   bool detailedAnalysis;
   // the geometry
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
 
   // Lable of 1D rechits in the event
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
