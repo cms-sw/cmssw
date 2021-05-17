@@ -25,6 +25,7 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
@@ -91,7 +92,8 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     if (debug) {
-      printf("BXV L1CaloJetCollection JetHTT = %f   for PtMin %f   and EtaMax %f\n", *CaloJetHTT, PtMin, EtaMax);
+      LogDebug("L1CaloJetHTTProducer") << " BXV L1CaloJetCollection JetHTT = " << *CaloJetHTT << " for PtMin " << PtMin
+                                       << " and EtaMax " << EtaMax << "\n";
     }
   }
 
@@ -110,7 +112,8 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     if (debug) {
-      printf("Gen Jets HTT = %f   for PtMin %f   and EtaMax %f\n", *CaloJetHTT, PtMin, EtaMax);
+      LogDebug("L1CaloJetHTTProducer") << " Gen Jets HTT = " << *CaloJetHTT << " for PtMin " << PtMin << " and EtaMax "
+                                       << EtaMax << "\n";
     }
   }
 

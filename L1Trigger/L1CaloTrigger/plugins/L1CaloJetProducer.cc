@@ -29,6 +29,7 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
@@ -335,28 +336,15 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
       l1TowerToken_(consumes<l1tp2::CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("l1CaloTowers")))
 
 {
-  if (debug)
-    printf("L1CaloJetProducer setup\n");
   produces<l1tp2::CaloJetsCollection>("L1CaloJetsNoCuts");
   //produces<l1tp2::CaloJetsCollection>("L1CaloJetsWithCuts");
   //produces<l1extra::L1JetParticleCollection>("L1CaloClusterCollectionWithCuts");
   produces<BXVector<l1t::Jet>>("L1CaloJetCollectionBXV");
   produces<BXVector<l1t::Tau>>("L1CaloTauCollectionBXV");
 
-  if (debug)
-    printf("\nHcalTpEtMin = %f\nEcalTpEtMin = %f\n", HcalTpEtMin, EcalTpEtMin);
-  //for( unsigned int i = 0; i < emFractionBins.size(); i++)
-  //{
-  //    printf("\n  emFrac: %f", emFractionBins.at(i));
-  //}
-  //for( unsigned int i = 0; i < absEtaBins.size(); i++)
-  //{
-  //    printf("\n  absEta: %f", absEtaBins.at(i));
-  //}
-  //for( unsigned int i = 0; i < jetPtBins.size(); i++)
-  //{
-  //    printf("\n  jetPt: %f", jetPtBins.at(i));
-  //}
+  if (debug) {
+    LogDebug("L1CaloJetProducer") << " HcalTpEtMin = " << HcalTpEtMin << " EcalTpEtMin = " << EcalTpEtMin << "\n";
+  }
 
   // Fill the calibration 3D vector
   // Dimension 1 is AbsEta bin
@@ -371,8 +359,6 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
     for (unsigned int em_frac = 0; em_frac < emFractionBinsBarrel.size() - 1; em_frac++) {
       std::vector<double> pt_bin_calibs;
       for (unsigned int pt = 0; pt < jetPtBins.size() - 1; pt++) {
-        //printf("\n em_frac %d abs_eta %d pt %d", em_frac, abs_eta, pt);
-        //printf("\n - em_frac %f abs_eta %f pt %f = %f\n", emFractionBinsBarrel.at(em_frac), absEtaBinsBarrel.at(abs_eta), jetPtBins.at(pt), jetCalibrationsBarrel.at(index));
         pt_bin_calibs.push_back(jetCalibrationsBarrel.at(index));
         index++;
       }
@@ -380,10 +366,11 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
     }
     calibrationsBarrel.push_back(em_bins);
   }
-  if (debug)
-    printf("\nLoading Barrel calibrations: Loaded %i values vs. size() of input calibration file: %i",
-           index,
-           int(jetCalibrationsBarrel.size()));
+  if (debug) {
+    LogDebug("L1CaloJetProducer") << " Loading Barrel calibrations: Loaded " << index
+                                  << " values vs. size() of input calibration file: "
+                                  << int(jetCalibrationsBarrel.size()) << "\n";
+  }
 
   index = 0;
   //calibrations[em_frac][abs_eta].push_back( jetCalibrationsHGCal.at(index) );
@@ -392,8 +379,6 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
     for (unsigned int em_frac = 0; em_frac < emFractionBinsHGCal.size() - 1; em_frac++) {
       std::vector<double> pt_bin_calibs;
       for (unsigned int pt = 0; pt < jetPtBins.size() - 1; pt++) {
-        //printf("\n em_frac %d abs_eta %d pt %d", em_frac, abs_eta, pt);
-        //printf("\n - em_frac %f abs_eta %f pt %f = %f\n", emFractionBinsHGCal.at(em_frac), absEtaBinsHGCal.at(abs_eta), jetPtBins.at(pt), jetCalibrationsHGCal.at(index));
         pt_bin_calibs.push_back(jetCalibrationsHGCal.at(index));
         index++;
       }
@@ -401,10 +386,11 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
     }
     calibrationsHGCal.push_back(em_bins);
   }
-  if (debug)
-    printf("\nLoading HGCal calibrations: Loaded %i values vs. size() of input calibration file: %i",
-           index,
-           int(jetCalibrationsHGCal.size()));
+  if (debug) {
+    LogDebug("L1CaloJetProducer") << " Loading HGCal calibrations: Loaded " << index
+                                  << " values vs. size() of input calibration file: "
+                                  << int(jetCalibrationsHGCal.size()) << "\n";
+  }
 
   index = 0;
   //calibrations[em_frac][abs_eta].push_back( jetCalibrationsHF.at(index) );
@@ -413,8 +399,6 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
     for (unsigned int em_frac = 0; em_frac < emFractionBinsHF.size() - 1; em_frac++) {
       std::vector<double> pt_bin_calibs;
       for (unsigned int pt = 0; pt < jetPtBins.size() - 1; pt++) {
-        //printf("\n em_frac %d abs_eta %d pt %d", em_frac, abs_eta, pt);
-        //printf("\n - em_frac %f abs_eta %f pt %f = %f\n", emFractionBinsHF.at(em_frac), absEtaBinsHF.at(abs_eta), jetPtBins.at(pt), jetCalibrationsHF.at(index));
         pt_bin_calibs.push_back(jetCalibrationsHF.at(index));
         index++;
       }
@@ -422,17 +406,18 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
     }
     calibrationsHF.push_back(em_bins);
   }
-  if (debug)
-    printf("\nLoading HF calibrations: Loaded %i values vs. size() of input calibration file: %i",
-           index,
-           int(jetCalibrationsHF.size()));
+  if (debug) {
+    LogDebug("L1CaloJetProducer") << " Loading HF calibrations: Loaded " << index
+                                  << " values vs. size() of input calibration file: " << int(jetCalibrationsHF.size())
+                                  << "\n";
+  }
 
   // Load Tau L1EG-base calibration info into maps
   for (auto &first : tauL1egInfoBarrel) {
     if (debug) {
-      printf("barrel l1egCount = %f\n", first.getParameter<double>("l1egCount"));
+      LogDebug("L1CaloJetProducer") << " barrel l1egCount = " << first.getParameter<double>("l1egCount") << "\n";
       for (auto &em_frac : first.getParameter<std::vector<double>>("l1egEmFractions")) {
-        printf(" - EM = %.3f\n", em_frac);
+        LogDebug("L1CaloJetProducer") << " - EM = " << em_frac << "\n";
       }
     }
     double l1egCount = first.getParameter<double>("l1egCount");
@@ -443,9 +428,9 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
   std::sort(tauL1egValuesBarrel.begin(), tauL1egValuesBarrel.end());
   for (auto &first : tauL1egInfoHGCal) {
     if (debug) {
-      printf("hgcal l1egCount = %f\n", first.getParameter<double>("l1egCount"));
+      LogDebug("L1CaloJetProducer") << " hgcal l1egCount = " << first.getParameter<double>("l1egCount") << "\n";
       for (auto &em_frac : first.getParameter<std::vector<double>>("l1egEmFractions")) {
-        printf(" - EM = %.3f\n", em_frac);
+        LogDebug("L1CaloJetProducer") << " - EM = " << em_frac << "\n";
       }
     }
     double l1egCount = first.getParameter<double>("l1egCount");
@@ -471,10 +456,8 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
     for (auto &l1eg_info : tauL1egInfoMapBarrel) {
       std::vector<std::vector<double>> em_bins;
       for (unsigned int em_frac = 0; em_frac < l1eg_info.second.size() - 1; em_frac++) {
-        //printf("\nBarrel l1eg_bin %d em_frac %d (%.3f) abs_eta %d (%.2f)\n", int(l1eg_info.first), em_frac, l1eg_info.second[em_frac], abs_eta, tauAbsEtaBinsBarrel.at(abs_eta));
         std::vector<double> pt_bin_calibs;
         for (unsigned int pt = 0; pt < tauPtBins.size() - 1; pt++) {
-          //printf("pt(%d)=%.1f = %.3f, ", pt, tauPtBins.at(pt), tauCalibrationsBarrel.at(index));
           pt_bin_calibs.push_back(tauCalibrationsBarrel.at(index));
           index++;
         }
@@ -484,10 +467,11 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
     }
     tauPtCalibrationsBarrel.push_back(l1eg_bins);
   }
-  if (debug)
-    printf("\nLoading Barrel calibrations: Loaded %i values vs. size() of input calibration file: %i",
-           index,
-           int(tauCalibrationsBarrel.size()));
+  if (debug) {
+    LogDebug("L1CaloJetProducer") << " Loading Barrel calibrations: Loaded " << index
+                                  << " values vs. size() of input calibration file: "
+                                  << int(tauCalibrationsBarrel.size()) << "\n";
+  }
 
   index = 0;
   for (unsigned int abs_eta = 0; abs_eta < tauAbsEtaBinsHGCal.size() - 1; abs_eta++) {
@@ -495,10 +479,8 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
     for (const auto &l1eg_info : tauL1egInfoMapHGCal) {
       std::vector<std::vector<double>> em_bins;
       for (unsigned int em_frac = 0; em_frac < l1eg_info.second.size() - 1; em_frac++) {
-        //printf("\nHGCal l1eg_bin %d em_frac %d (%.3f) abs_eta %d (%.2f)\n", int(l1eg_info.first), em_frac, l1eg_info.second[em_frac], abs_eta, tauAbsEtaBinsHGCal.at(abs_eta));
         std::vector<double> pt_bin_calibs;
         for (unsigned int pt = 0; pt < tauPtBins.size() - 1; pt++) {
-          //printf("pt(%d)=%.1f = %.3f, ", pt, tauPtBins.at(pt), tauCalibrationsHGCal.at(index));
           pt_bin_calibs.push_back(tauCalibrationsHGCal.at(index));
           index++;
         }
@@ -508,10 +490,11 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
     }
     tauPtCalibrationsHGCal.push_back(l1eg_bins);
   }
-  if (debug)
-    printf("\nLoading HGCal calibrations: Loaded %i values vs. size() of input calibration file: %i",
-           index,
-           int(tauCalibrationsHGCal.size()));
+  if (debug) {
+    LogDebug("L1CaloJetProducer") << " Loading HGCal calibrations: Loaded " << index
+                                  << " values vs. size() of input calibration file: "
+                                  << int(tauCalibrationsHGCal.size()) << "\n";
+  }
 
   isoTauBarrel.SetParameter(0, 0.25);
   isoTauBarrel.SetParameter(1, 0.85);
@@ -519,14 +502,9 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
   isoTauHGCal.SetParameter(0, 0.34);
   isoTauHGCal.SetParameter(1, 0.35);
   isoTauHGCal.SetParameter(2, 0.051);
-
-  if (debug)
-    printf("\nL1CaloJetProducer end\n");
 }
 
 void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  //printf("begin L1CaloJetProducer\n");
-
   // Output collections
   std::unique_ptr<l1tp2::CaloJetsCollection> L1CaloJetsNoCuts(new l1tp2::CaloJetsCollection);
   //std::unique_ptr<l1tp2::CaloJetsCollection> L1CaloJetsWithCuts( new l1tp2::CaloJetsCollection );
@@ -568,15 +546,12 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     l1Hit.towerEta = hit.towerEta();
     l1Hit.towerPhi = hit.towerPhi();
     l1CaloTowers.push_back(l1Hit);
-    if (debug)
-      printf("Tower iEta %i iPhi %i eta %f phi %f ecal_et %f hcal_et %f total_et %f\n",
-             (int)l1Hit.towerIEta,
-             (int)l1Hit.towerIPhi,
-             l1Hit.towerEta,
-             l1Hit.towerPhi,
-             l1Hit.ecalTowerEt,
-             l1Hit.hcalTowerEt,
-             l1Hit.total_tower_et);
+    if (debug) {
+      LogDebug("L1CaloJetProducer") << " Tower iEta " << (int)l1Hit.towerIEta << " iPhi " << (int)l1Hit.towerIPhi
+                                    << " eta " << l1Hit.towerEta << " phi " << l1Hit.towerPhi << " ecal_et "
+                                    << l1Hit.ecalTowerEt << " hacl_et " << l1Hit.hcalTowerEt << " total_et "
+                                    << l1Hit.total_tower_et << "\n";
+    }
   }
 
   // Sort the ECAL+HCAL+L1EGs tower sums based on total ET
@@ -691,21 +666,16 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
         caloJetObj.seed_iEta = l1CaloTower.towerIEta;
         caloJetObj.seed_iPhi = l1CaloTower.towerIPhi;
 
-        if (debug)
-          printf(" -- hit %i, seeding input     p4 pt %f eta %f phi %f\n",
-                 cnt,
-                 l1CaloTower.total_tower_et,
-                 l1CaloTower.towerEta,
-                 l1CaloTower.towerPhi);
-        if (debug)
-          printf(
-              " -- hit %i, seeding input2    p4 pt %f eta %f phi %f\n", cnt, totalP4.pt(), totalP4.eta(), totalP4.phi());
-        if (debug)
-          printf(" -- hit %i, seeding reslt tot p4 pt %f eta %f phi %f\n",
-                 cnt,
-                 caloJetObj.jetClusterET,
-                 caloJetObj.jetCluster.eta(),
-                 caloJetObj.jetCluster.phi());
+        if (debug) {
+          LogDebug("L1CaloJetProducer") << " -- hit " << cnt << " , seeding input     p4 pt "
+                                        << l1CaloTower.total_tower_et << " eta " << l1CaloTower.towerEta << " phi "
+                                        << l1CaloTower.towerPhi << "\n";
+          LogDebug("L1CaloJetProducer") << " -- hit " << cnt << " , seeding input2    p4 pt " << totalP4.pt() << " eta "
+                                        << totalP4.eta() << " phi " << totalP4.phi() << "\n";
+          LogDebug("L1CaloJetProducer") << " -- hit " << cnt << " seeding reslt tot p4 pt " << caloJetObj.jetClusterET
+                                        << " eta " << caloJetObj.jetCluster.eta() << " phi "
+                                        << caloJetObj.jetCluster.phi() << "\n";
+        }
 
         // Need to add the seed energy to the dR rings
         caloJetObj.hcal_seed += hcalP4.pt();
@@ -828,14 +798,13 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
           caloJetObj.jetClusterET += l1CaloTower.total_tower_et;
         }
 
-        if (debug)
-          printf(" ---- hit %i input     p4 pt %f eta %f phi %f\n", cnt, totalP4.pt(), totalP4.eta(), totalP4.phi());
-        if (debug)
-          printf(" ---- hit %i resulting p4 pt %f eta %f phi %f\n",
-                 cnt,
-                 caloJetObj.jetClusterET,
-                 caloJetObj.jetCluster.eta(),
-                 caloJetObj.jetCluster.phi());
+        if (debug) {
+          LogDebug("L1CaloJetProducer") << " ---- hit " << cnt << " input     p4 pt " << totalP4.pt() << " eta "
+                                        << totalP4.eta() << " phi " << totalP4.phi() << "\n";
+          LogDebug("L1CaloJetProducer") << " ---- hit " << cnt << " resulting p4 pt " << caloJetObj.jetClusterET
+                                        << " eta " << caloJetObj.jetCluster.eta() << " phi "
+                                        << caloJetObj.jetCluster.phi() << "\n";
+        }
 
         if ((abs(d_iEta) == 0 && abs(d_iPhi) == 0) || (fabs(d_eta) < 0.043 && fabs(d_phi) < 0.043)) {
           caloJetObj.hcal_seed += hcalP4.pt();
@@ -1098,11 +1067,9 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       L1CaloJetCollectionBXV->push_back(0, l1t::Jet(jet_p4));
 
       if (debug)
-        printf("Made a Jet, eta %f phi %f pt %f calibrated pt %f\n",
-               caloJetObj.jetCluster.eta(),
-               caloJetObj.jetCluster.phi(),
-               caloJetObj.jetClusterET,
-               params["jet_pt_calibration"]);
+        LogDebug("L1CaloJetProducer") << " Made a Jet, eta " << caloJetObj.jetCluster.eta() << " phi "
+                                      << caloJetObj.jetCluster.phi() << " pt " << caloJetObj.jetClusterET
+                                      << " calibrated pt " << params["jet_pt_calibration"] << "\n";
     }
 
     // Only store taus passing ET threshold
@@ -1128,9 +1095,10 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       l1Tau.setIsMerged(false);
       L1CaloTauCollectionBXV->push_back(0, l1Tau);
 
-      if (debug)
-        printf(
-            "Made a Tau, eta %f phi %f pt %i calibrated pt %f\n", l1Tau.eta(), l1Tau.phi(), l1Tau.rawEt(), l1Tau.pt());
+      if (debug) {
+        LogDebug("L1CaloJetProducer") << " Made a Jet, eta " << l1Tau.eta() << " phi " << l1Tau.phi() << " pt "
+                                      << l1Tau.rawEt() << " calibrated pt " << l1Tau.pt() << "\n";
+      }
     }
 
   }  // end jetClusters loop
@@ -1140,8 +1108,6 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   //iEvent.put(std::move(L1CaloClusterCollectionWithCuts), "L1CaloClusterCollectionWithCuts" );
   iEvent.put(std::move(L1CaloJetCollectionBXV), "L1CaloJetCollectionBXV");
   iEvent.put(std::move(L1CaloTauCollectionBXV), "L1CaloTauCollectionBXV");
-
-  //printf("end L1CaloJetProducer\n");
 }
 
 int L1CaloJetProducer::ecalXtal_diPhi(int &iPhi_1, int &iPhi_2) const {
@@ -1223,7 +1189,6 @@ float L1CaloJetProducer::get_hcal_calibration(float &jet_pt,
         break;
       pt_index++;
     }
-    //printf("Barrel calib emId %i etaId %i jetPtId %i\n",int(em_index),int(eta_index),int(pt_index));
     calib = calibrationsBarrel[eta_index][em_index][pt_index];
   }                         // end Barrel
   else if (abs_eta <= 3.0)  // HGCal
@@ -1248,7 +1213,6 @@ float L1CaloJetProducer::get_hcal_calibration(float &jet_pt,
         break;
       pt_index++;
     }
-    //printf("HGCal calib emId %i etaId %i jetPtId %i\n",int(em_index),int(eta_index),int(pt_index));
     calib = calibrationsHGCal[eta_index][em_index][pt_index];
   }     // end HGCal
   else  // HF
@@ -1273,20 +1237,9 @@ float L1CaloJetProducer::get_hcal_calibration(float &jet_pt,
         break;
       pt_index++;
     }
-    //printf("HF calib emId %i etaId %i jetPtId %i\n",int(em_index),int(eta_index),int(pt_index));
     calib = calibrationsHF[eta_index][em_index][pt_index];
   }  // end HF
 
-  //printf(" - jet pt %f index %i\n", jet_pt, int(pt_index));
-  //printf(" --- calibration: %f\n", calibrations[ em_index ][ eta_index ][ pt_index ] );
-
-  if (calib > 5 && debug) {
-    printf(
-        " - l1eg %f, ecal %f, jet %f, em frac %f index %i\n", ecal_L1EG_jet_pt, ecal_pt, jet_pt, em_frac, int(em_index));
-    printf(" - eta %f, abs eta %f index %i\n", jet_eta, abs_eta, int(eta_index));
-    printf(" - jet pt %f tmp_jet_pt %f index %i\n", jet_pt, tmp_jet_pt, int(pt_index));
-    printf(" --- calibration: %f\n\n", calib);
-  }
   return calib;
 }
 
@@ -1342,7 +1295,6 @@ float L1CaloJetProducer::get_tau_pt_calibration(
         break;
       pt_index++;
     }
-    //printf("Barrel tau calib etaId %i nL1EG Id %i emId %i tauPtId %i\n",int(eta_index),int(n_L1EG_index),int(em_index),int(pt_index));
     calib = tauPtCalibrationsBarrel[eta_index][n_L1EG_index][em_index][pt_index];
   }                         // end Barrel
   else if (abs_eta <= 3.0)  // HGCal
@@ -1381,21 +1333,11 @@ float L1CaloJetProducer::get_tau_pt_calibration(
         break;
       pt_index++;
     }
-    //printf("HGCal tau calib etaId %i nL1EG Id %i emId %i tauPtId %i\n",int(eta_index),int(n_L1EG_index),int(em_index),int(pt_index));
     calib = tauPtCalibrationsHGCal[eta_index][n_L1EG_index][em_index][pt_index];
   }  // end HGCal
   else
     return calib;
 
-  //printf(" - tau pt %f index %i\n", tau_pt, int(pt_index));
-  //printf(" --- calibration: %f\n", calib );
-
-  if (calib > 5 && debug) {
-    printf(" - l1eg %f, ecal %f, tau %f, em frac %f index %i\n", l1EG_pt, ecal_pt, tau_pt, em_frac, int(em_index));
-    printf(" - eta %f, abs eta %f index %i\n", tau_eta, abs_eta, int(eta_index));
-    printf(" - tau pt %f tmp_tau_pt %f index %i\n", tau_pt, tmp_tau_pt, int(pt_index));
-    printf(" --- calibration: %f\n\n", calib);
-  }
   return calib;
 }
 
