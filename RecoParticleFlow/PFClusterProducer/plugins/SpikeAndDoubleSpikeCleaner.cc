@@ -66,8 +66,8 @@ namespace {
   }
 }  // namespace
 
-SpikeAndDoubleSpikeCleaner::SpikeAndDoubleSpikeCleaner(const edm::ParameterSet& conf)
-    : RecHitTopologicalCleanerBase(conf),
+SpikeAndDoubleSpikeCleaner::SpikeAndDoubleSpikeCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+    : RecHitTopologicalCleanerBase(conf, cc),
       _layerMap({{"PS2", (int)PFLayer::PS2},
                  {"PS1", (int)PFLayer::PS1},
                  {"ECAL_ENDCAP", (int)PFLayer::ECAL_ENDCAP},

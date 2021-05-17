@@ -2,6 +2,7 @@
 #define __PFClusterBuilderBase_H__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
@@ -20,7 +21,7 @@ class PFClusterBuilderBase {
 
 public:
   typedef PFCPositionCalculatorBase PosCalc;
-  PFClusterBuilderBase(const edm::ParameterSet& conf)
+  PFClusterBuilderBase(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
       : _nSeeds(0),
         _nClustersFound(0),
         _minFractionToKeep(conf.getParameter<double>("minFractionToKeep")),
@@ -28,7 +29,7 @@ public:
     if (conf.exists("positionCalc")) {
       const edm::ParameterSet& pcConf = conf.getParameterSet("positionCalc");
       const std::string& algo = pcConf.getParameter<std::string>("algoName");
-      _positionCalc = PFCPositionCalculatorFactory::get()->create(algo, pcConf);
+      _positionCalc = PFCPositionCalculatorFactory::get()->create(algo, pcConf, cc);
     }
   }
   virtual ~PFClusterBuilderBase() = default;
@@ -63,6 +64,7 @@ private:
 std::ostream& operator<<(std::ostream& o, const PFClusterBuilderBase& a);
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<PFClusterBuilderBase*(const edm::ParameterSet&)> PFClusterBuilderFactory;
+typedef edmplugin::PluginFactory<PFClusterBuilderBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    PFClusterBuilderFactory;
 
 #endif
