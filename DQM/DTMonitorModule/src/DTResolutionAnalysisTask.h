@@ -21,6 +21,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
@@ -52,7 +54,8 @@ public:
 
 protected:
 private:
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
 
   int prescaleFactor;
   int resetCycle;
