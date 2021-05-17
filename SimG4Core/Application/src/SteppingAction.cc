@@ -35,6 +35,7 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet& p, const
   maxTrackTimes = p.getParameter<std::vector<double> >("MaxTrackTimes");
   maxTimeNames = p.getParameter<std::vector<std::string> >("MaxTimeNames");
   deadRegionNames = p.getParameter<std::vector<std::string> >("DeadRegions");
+  maxNumberOfSteps = p.getParameter<int>("MaxNumberOfSteps");
   ekinMins = p.getParameter<std::vector<double> >("EkinThresholds");
   ekinNames = p.getParameter<std::vector<std::string> >("EkinNames");
   ekinParticles = p.getParameter<std::vector<std::string> >("EkinParticles");
@@ -45,7 +46,8 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet& p, const
       << "                 CriticalEnergyForVacuum = " << theCriticalEnergyForVacuum / CLHEP::MeV << " Mev;"
       << " MaxTrackTime = " << maxTrackTime / CLHEP::ns << " ns;"
       << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
-      << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns";
+      << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns"
+      << " MaxNumberOfSteps = " << maxNumberOfSteps;
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
@@ -107,8 +109,20 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
           << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
-          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV
+          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
           << " is killed due to edep=NaN inside PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
+          << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
+    }
+  }
+
+  if (sAlive == tstat && theTrack->GetCurrentStepNumber() > maxNumberOfSteps) {
+    tstat = sNumberOfSteps;
+    if (nWarnings < 5) {
+      ++nWarnings;
+      edm::LogWarning("SimG4CoreApplication")
+          << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
+          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
+          << " is killed due to limit on number of steps;PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
           << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
     }
   }
@@ -288,6 +302,9 @@ void SteppingAction::PrintKilledTrack(const G4Track* aTrack, const TrackStatus& 
     case sVeryForward:
       typ = " very forward track ";
       break;
+    case sNumberOfSteps:
+      typ = " too many steps ";
+      break;
     default:
       break;
   }
@@ -298,7 +315,8 @@ void SteppingAction::PrintKilledTrack(const G4Track* aTrack, const TrackStatus& 
   }
 
   edm::LogVerbatim("SimG4CoreApplication")
-      << "Track #" << aTrack->GetTrackID() << " " << aTrack->GetDefinition()->GetParticleName()
-      << " E(MeV)= " << aTrack->GetKineticEnergy() / MeV << " T(ns)= " << aTrack->GetGlobalTime() / ns
-      << " is killed due to " << typ << " inside LV: " << vname << " (" << rname << ") at " << aTrack->GetPosition();
+      << "Track #" << aTrack->GetTrackID() << " StepN= " << aTrack->GetCurrentStepNumber() << " "
+      << aTrack->GetDefinition()->GetParticleName() << " E(MeV)= " << aTrack->GetKineticEnergy() / MeV
+      << " T(ns)= " << aTrack->GetGlobalTime() / ns << " is killed due to " << typ << " inside LV: " << vname << " ("
+      << rname << ") at " << aTrack->GetPosition();
 }

@@ -96,7 +96,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         NodeNames = cms.vstring('World')
     ),
     G4Commands = cms.vstring(),
-    #G4Commands = cms.vstring('/process/em/UseGeneralProcess true'), # eneble G4 general process
     SteppingVerbosity = cms.untracked.int32(0),
     StepVerboseThreshold = cms.untracked.double(0.1), # in GeV
     VerboseEvents = cms.untracked.vint32(),
@@ -231,7 +230,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     Generator = cms.PSet(
         common_maximum_time,
         HectorEtaCut,
-#        HepMCProductLabel = cms.InputTag('LHCTransport'),
         HepMCProductLabel = cms.InputTag('generatorSmeared'),
         ApplyPCuts = cms.bool(True),
         ApplyPtransCut = cms.bool(False),
@@ -303,6 +301,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
+        MaxNumberOfSteps        = cms.int32(50000),
         EkinNames               = cms.vstring(),
         EkinThresholds          = cms.vdouble(),
         EkinParticles           = cms.vstring()

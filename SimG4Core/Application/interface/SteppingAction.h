@@ -25,7 +25,8 @@ enum TrackStatus {
   sLowEnergy = 4,
   sLowEnergyInVacuum = 5,
   sEnergyDepNaN = 6,
-  sVeryForward = 7
+  sVeryForward = 7,
+  sNumberOfSteps = 8
 };
 
 class SteppingAction : public G4UserSteppingAction {
@@ -55,6 +56,18 @@ private:
   double maxTrackTime;
   double maxTrackTimeForward;
   double maxZCentralCMS;
+
+  unsigned int numberTimes;
+  unsigned int numberEkins;
+  unsigned int numberPart;
+  unsigned int ndeadRegions;
+  unsigned int nWarnings;
+  G4int maxNumberOfSteps;
+
+  bool initialized;
+  bool killBeamPipe;
+  bool hasWatcher;
+
   std::vector<double> maxTrackTimes, ekinMins;
   std::vector<std::string> maxTimeNames, ekinNames, ekinParticles;
   std::vector<std::string> deadRegionNames;
@@ -62,15 +75,6 @@ private:
   std::vector<const G4Region*> deadRegions;
   std::vector<G4LogicalVolume*> ekinVolumes;
   std::vector<int> ekinPDG;
-  unsigned int numberTimes;
-  unsigned int numberEkins;
-  unsigned int numberPart;
-  unsigned int ndeadRegions;
-  unsigned int nWarnings;
-
-  bool initialized;
-  bool killBeamPipe;
-  bool hasWatcher;
 };
 
 inline bool SteppingAction::isInsideDeadRegion(const G4Region* reg) const {
