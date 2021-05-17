@@ -5,6 +5,7 @@
 <use name="DQMServices/Core"/>
 <use name="MagneticField/Records"/>
 <use name="root"/>
+<use name="boost_regex"/>
 <export>
   <lib name="1"/>
 </export>

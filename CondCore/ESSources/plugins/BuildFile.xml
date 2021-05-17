@@ -1,6 +1,7 @@
 <use name="FWCore/Catalog"/>
 <use name="FWCore/Framework"/>
 <use name="CondCore/ESSources"/>
+<use name="boost_regex"/>
 <library file="*.cc" name="CondCoreESSourcesPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
