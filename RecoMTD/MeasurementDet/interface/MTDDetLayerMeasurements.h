@@ -1,5 +1,5 @@
-#ifndef MeasurementDet_MTDDetLayerMeasurements_H
-#define MeasurementDet_MTDDetLayerMeasurements_H
+#ifndef RecoMTD_MeasurementDet_MTDDetLayerMeasurements_H
+#define RecoMTD_MeasurementDet_MTDDetLayerMeasurements_H
 
 /** \class MTDDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
@@ -33,7 +33,7 @@ public:
   typedef std::pair<const GeomDet*, TrajectoryStateOnSurface> DetWithState;
   typedef std::vector<GenericTransientTrackingRecHit::RecHitPointer> MTDRecHitContainer;
 
-  MTDDetLayerMeasurements(edm::InputTag mtdlabel, edm::ConsumesCollector& iC);
+  MTDDetLayerMeasurements(const edm::InputTag& mtdlabel, edm::ConsumesCollector& iC);
 
   virtual ~MTDDetLayerMeasurements();
 
@@ -99,7 +99,11 @@ private:
   /// check that the event is set, and throw otherwise
   void checkEvent() const;
 
-  edm::EDGetTokenT<MTDTrackingRecHit> mtdToken_;
+  // sort functions for containers provided by measurements methods
+  template <class T>
+  T sortResult(T&);
+
+  edm::EDGetTokenT<MTDTrackingRecHit> theMTDToken;
 
   // caches that should get filled once per event
   edm::Handle<edmNew::DetSetVector<MTDTrackingRecHit>> theMTDRecHits;

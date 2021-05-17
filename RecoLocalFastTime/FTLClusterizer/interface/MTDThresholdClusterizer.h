@@ -59,7 +59,7 @@ public:
                   const MTDTopology* topo,
                   FTLClusterCollection& output) override;
 
-  static void fillDescriptions(edm::ParameterSetDescription& desc);
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   std::vector<FTLCluster::FTLHitPos> theSeeds;  // cached seed pixels
