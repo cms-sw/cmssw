@@ -84,7 +84,7 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
   jets_token_ = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("TheJets"));
   muon_token_ = consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("TheMuons"));
 
-  dataera_ = iConfig.getParameter<std::string>("DataEra");
+  dataera_ = iConfig.getParameter<std::string>("DataEraECAL");
   dataeraMuon_ = iConfig.getParameter<std::string>("DataEraMuon");
   useEMpt_ = iConfig.getParameter<bool>("UseJetEMPt");
   prefiringRateSystUnc_ = iConfig.getParameter<double>("PrefiringRateSystematicUncty");
@@ -96,16 +96,16 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
   edm::FileInPath mapsfilepath("PhysicsTools/PatUtils/data/" + fname);
   file_prefiringmaps_ = new TFile(mapsfilepath.fullPath().c_str(), "read");
   if (file_prefiringmaps_ == nullptr && !skipwarnings_)
-    std::cout << "File with maps not found. All prefiring weights set to 0. " << std::endl;
+    edm::LogWarning("L1PrefireWeightProducer") << "File with maps not found. All prefiring weights set to 0. " << std::endl;
 
   TString mapphotonfullname = "L1prefiring_photonptvseta_" + dataera_;
   if (!file_prefiringmaps_->Get(mapphotonfullname) && !skipwarnings_)
-    std::cout << "Photon map not found. All photons prefiring weights set to 0. " << std::endl;
+    edm::LogWarning("L1PrefireWeightProducer") << "Photon map not found. All photons prefiring weights set to 0. " << std::endl;
   h_prefmap_photon = (TH2F*)file_prefiringmaps_->Get(mapphotonfullname);
 
   TString mapjetfullname = (useEMpt_) ? "L1prefiring_jetemptvseta_" + dataera_ : "L1prefiring_jetptvseta_" + dataera_;
   if (!file_prefiringmaps_->Get(mapjetfullname) && !skipwarnings_)
-    std::cout << "Jet map not found. All jets prefiring weights set to 0. " << std::endl;
+    edm::LogWarning("L1PrefireWeightProducer") << "Jet map not found. All jets prefiring weights set to 0. " << std::endl;
   h_prefmap_jet = (TH2F*)file_prefiringmaps_->Get(mapjetfullname);
   file_prefiringmaps_->Close();
   delete file_prefiringmaps_;
@@ -115,7 +115,7 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
   edm::FileInPath paramsfilepath("PhysicsTools/PatUtils/data/" + fnameMuon);
   file_prefiringparams_ = new TFile(paramsfilepath.fullPath().c_str(), "read");
   if (file_prefiringparams_ == nullptr && !skipwarnings_)
-    std::cout << "File with muon parametrizations not found. All prefiring weights set to 0." << std::endl;
+    edm::LogWarning("L1PrefireWeightProducer") << "File with muon parametrizations not found. All prefiring weights set to 0." << std::endl;
 
   TString paramName = "L1prefiring_muonparam_0.0To0.2_" + dataeraMuon_;
   parametrization0p0To0p2_ = (TF1*)file_prefiringparams_->Get(paramName);
@@ -180,16 +180,13 @@ void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const
   using namespace edm;
 
   //Photons
-  edm::Handle<std::vector<pat::Photon> > thePhotons;
-  iEvent.getByToken(photons_token_, thePhotons);
+  std::vector<pat::Photon>  thePhotons = iEvent.get(photons_token_);
 
   //Jets
-  edm::Handle<std::vector<pat::Jet> > theJets;
-  iEvent.getByToken(jets_token_, theJets);
+  std::vector<pat::Jet> theJets = iEvent.get(jets_token_);
 
   //Muons
-  edm::Handle<std::vector<pat::Muon> > theMuons;
-  iEvent.getByToken(muon_token_, theMuons);
+  std::vector<pat::Muon> theMuons = iEvent.get(muon_token_);
 
   //Probability for the event NOT to prefire, computed with the prefiring maps per object.
   //Up and down values correspond to the resulting value when shifting up/down all prefiring rates in prefiring maps.
@@ -199,7 +196,7 @@ void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const
   double nonPrefiringProbaMuon[3] = {1., 1., 1.};    //0: central, 1: up, 2: down
 
   for (const auto fluct : {fluctuations::central, fluctuations::up, fluctuations::down}) {
-    for (const auto& photon : *thePhotons) {
+    for (const auto& photon : thePhotons) {
       double pt_gam = photon.pt();
       double eta_gam = photon.eta();
       if (pt_gam < 20.)
@@ -214,7 +211,7 @@ void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const
     }
 
     //Now applying the prefiring maps to jets in the affected regions.
-    for (const auto& jet : *theJets) {
+    for (const auto& jet : theJets) {
       double pt_jet = jet.pt();
       double eta_jet = jet.eta();
       double phi_jet = jet.phi();
@@ -228,7 +225,7 @@ void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const
         continue;
       //Loop over photons to remove overlap
       double nonprefiringprobfromoverlappingphotons = 1.;
-      for (const auto& photon : *thePhotons) {
+      for (const auto& photon : thePhotons) {
         double pt_gam = photon.pt();
         double eta_gam = photon.eta();
         double phi_gam = photon.phi();
@@ -265,7 +262,7 @@ void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const
       }
       //Last case: if overlapping photons have a non prefiring rate smaller than the jet, don't consider the jet in the event weight, and do nothing.
     }
-    for (const auto& muon : *theMuons) {
+    for (const auto& muon : theMuons) {
       double pt = muon.pt();
       double phi = muon.eta();
       double eta = muon.eta();
@@ -311,7 +308,7 @@ double L1PrefiringWeightProducer::getPrefiringRate(double eta,
                                                    TH2F* h_prefmap,
                                                    fluctuations fluctuation) const {
   if (h_prefmap == nullptr && !skipwarnings_)
-    std::cout << "Prefiring map not found, setting prefiring rate to 0 " << std::endl;
+    edm::LogWarning("L1PrefireWeightProducer") << "Prefiring map not found, setting prefiring rate to 0 " << std::endl;
   if (h_prefmap == nullptr)
     return 0.;
   //Check pt is not above map overflow
@@ -341,7 +338,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
   if ((dataeraMuon_.find("2016") != std::string::npos) && (eta > 1.24 && eta < 1.6) &&
       (phi > 2.44346 && phi < 2.79253)) {
     if (parametrizationHotSpot_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << phi
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << phi
                 << std::endl;
     if (parametrizationHotSpot_ == nullptr)
       return 0.;
@@ -349,14 +346,14 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrizationHotSpot_->GetParError(2);
   } else if (std::abs(eta) < 0.2) {
     if (parametrization0p0To0p2_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization0p0To0p2_ == nullptr)
       return 0.;
     prefrate = parametrization0p0To0p2_->Eval(pt);
     statuncty = parametrization0p0To0p2_->GetParError(2);
   } else if (std::abs(eta) < 0.3) {
     if (parametrization0p2To0p3_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization0p2To0p3_ == nullptr)
       return 0.;
 
@@ -364,7 +361,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrization0p2To0p3_->GetParError(2);
   } else if (std::abs(eta) < 0.55) {
     if (parametrization0p3To0p55_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization0p3To0p55_ == nullptr)
       return 0.;
 
@@ -372,7 +369,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrization0p3To0p55_->GetParError(2);
   } else if (std::abs(eta) < 0.83) {
     if (parametrization0p55To0p83_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization0p55To0p83_ == nullptr)
       return 0.;
 
@@ -380,7 +377,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrization0p55To0p83_->GetParError(2);
   } else if (std::abs(eta) < 1.24) {
     if (parametrization0p83To1p24_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization0p83To1p24_ == nullptr)
       return 0.;
 
@@ -388,7 +385,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrization0p83To1p24_->GetParError(2);
   } else if (std::abs(eta) < 1.4) {
     if (parametrization1p24To1p4_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization1p24To1p4_ == nullptr)
       return 0.;
 
@@ -396,7 +393,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrization1p24To1p4_->GetParError(2);
   } else if (std::abs(eta) < 1.6) {
     if (parametrization1p4To1p6_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization1p4To1p6_ == nullptr)
       return 0.;
 
@@ -404,7 +401,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrization1p4To1p6_->GetParError(2);
   } else if (std::abs(eta) < 1.8) {
     if (parametrization1p6To1p8_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization1p6To1p8_ == nullptr)
       return 0.;
 
@@ -412,7 +409,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrization1p6To1p8_->GetParError(2);
   } else if (std::abs(eta) < 2.1) {
     if (parametrization1p8To2p1_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization1p8To2p1_ == nullptr)
       return 0.;
 
@@ -420,7 +417,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrization1p8To2p1_->GetParError(2);
   } else if (std::abs(eta) < 2.25) {
     if (parametrization2p1To2p25_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization2p1To2p25_ == nullptr)
       return 0.;
 
@@ -428,7 +425,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrization2p1To2p25_->GetParError(2);
   } else if (std::abs(eta) < 2.4) {
     if (parametrization2p25To2p4_ == nullptr && !skipwarnings_)
-      std::cout << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
+      edm::LogWarning("L1PrefireWeightProducer") << "Prefiring parametrization not found, setting prefiring rate to 0 " << eta << " " << std::endl;
     if (parametrization2p25To2p4_ == nullptr)
       return 0.;
 
@@ -453,7 +450,7 @@ void L1PrefiringWeightProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("TheJets", edm::InputTag("slimmedJets"));
   desc.add<std::string>("L1Maps", "L1PrefiringMaps.root");
   desc.add<std::string>("L1MuonParametrizations", "L1MuonPrefiringParametriations.root");
-  desc.add<std::string>("DataEra", "2017BtoF");
+  desc.add<std::string>("DataEraECAL", "2017BtoF");
   desc.add<std::string>("DataEraMuon", "2016");
   desc.add<bool>("UseJetEMPt", false);
   desc.add<double>("PrefiringRateSystematicUncty", 0.2);
