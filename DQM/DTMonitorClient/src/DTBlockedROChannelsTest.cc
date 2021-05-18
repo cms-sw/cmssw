@@ -22,7 +22,7 @@ using namespace edm;
 
 DTBlockedROChannelsTest::DTBlockedROChannelsTest(const ParameterSet& ps)
     : nevents(0), neventsPrev(0), prevNLumiSegs(0), prevTotalPerc(0), 
-    mappingToken_(esConsumes()), hSystFractionVsLS(nullptr){
+    mappingToken_(esConsumes<edm::Transition::BeginRun>()), hSystFractionVsLS(nullptr){
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest") << "[DTBlockedROChannelsTest]: Constructor";
 
   // prescale on the # of LS to update the test
@@ -39,13 +39,13 @@ DTBlockedROChannelsTest::~DTBlockedROChannelsTest() {
 }
 
 void DTBlockedROChannelsTest::beginRun(const Run& run, const EventSetup& setup) {
+  // get the RO mapping
+  mapping = &setup.getData(mappingToken_);
   nupdates = 0;
   return;
 }
 
 void DTBlockedROChannelsTest::fillChamberMap(DQMStore::IGetter& igetter, const EventSetup& context) {
-  // get the RO mapping
-  mapping = &context.getData(mappingToken_);
   int dummy = 0;
   bool tenDDU = !mapping->readOutToGeometry(779, 7, 1, 1, 1, dummy, dummy, dummy, dummy, dummy, dummy);
 
