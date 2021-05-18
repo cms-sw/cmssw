@@ -12,7 +12,7 @@ namespace ticl {
   class PatternRecognitionbyCLUE3D final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
     PatternRecognitionbyCLUE3D(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector);
-    ~PatternRecognitionbyCLUE3D() override;
+    ~PatternRecognitionbyCLUE3D() override = default;
 
     void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                         std::vector<Trackster>& result,
@@ -20,21 +20,7 @@ namespace ticl {
 
     void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
 
-    static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-      iDesc.add<int>("algo_verbosity", 0);
-      iDesc.add<double>("criticalDensity", 4);  // in GeV
-      iDesc.add<int>("densitySiblingLayers", 3);
-      iDesc.add<double>("densityEtaPhiDistanceSqr", 0.0009);
-      iDesc.add<bool>("densityOnSameLayer", false);
-      iDesc.add<double>("criticalEtaPhiDistance", 0.035);
-      iDesc.add<double>("outlierMultiplier", 2);
-      iDesc.add<std::string>("eid_input_name", "input");
-      iDesc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
-      iDesc.add<std::string>("eid_output_name_id", "output/id_probabilities");
-      iDesc.add<double>("eid_min_cluster_energy", 1.);
-      iDesc.add<int>("eid_n_layers", 50);
-      iDesc.add<int>("eid_n_clusters", 10);
-    }
+    static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   private:
     struct ClustersOnLayer {
@@ -84,7 +70,7 @@ namespace ticl {
         delta.shrink_to_fit();
         nearestHigher.shrink_to_fit();
         clusterIndex.shrink_to_fit();
-        layerClusterOriginalIdx.clear();
+        layerClusterOriginalIdx.shrink_to_fit();
         followers.shrink_to_fit();
         isSeed.shrink_to_fit();
       }

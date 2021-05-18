@@ -21,7 +21,7 @@
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 
-#include "RecoHGCal/TICL/interface/PatternRecognitionPluginFactory.h"
+#include "RecoHGCal/TICL/plugins/PatternRecognitionPluginFactory.h"
 #include "PatternRecognitionbyCA.h"
 #include "PatternRecognitionbyMultiClusters.h"
 

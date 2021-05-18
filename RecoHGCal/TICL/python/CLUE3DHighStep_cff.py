@@ -14,7 +14,7 @@ filteredLayerClustersCLUE3DHigh = _filteredLayerClustersProducer.clone(
     iteration_label = "CLUE3DHigh"
 )
 
-# CA - PATTERN RECOGNITION
+# PATTERN RECOGNITION
 
 ticlTrackstersCLUE3DHigh = _trackstersProducer.clone(
     filtered_mask = "filteredLayerClustersCLUE3DHigh:CLUE3DHigh",
