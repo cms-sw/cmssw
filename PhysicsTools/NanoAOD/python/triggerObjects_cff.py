@@ -218,7 +218,8 @@ run2_HLTconditions_2016.toModify(
 
 from PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff import prefiringweight
 #Next line will be updated once we get UL2016 maps
-run2_jme_2016.toModify( prefiringweight, DataEraECAL = cms.string("2016BtoH"),  DataEraMuon = cms.string("2016"))
+(run2_muon_2016 & tracker_apv_vfp30_2016).toModify( prefiringweight, DataEraECAL = cms.string("2016BtoH"),  DataEraMuon = cms.string("2016preVFP"))
+(run2_muon_2016 & ~tracker_apv_vfp30_2016).toModify( prefiringweight, DataEraECAL = cms.string("2016BtoH"),  DataEraMuon = cms.string("2016postVFP"))
 #Next line is for UL2017 maps 
 run2_jme_2017.toModify( prefiringweight, DataEraECAL = cms.string("UL2017BtoF"), DataEraMuon = cms.string("20172018"))
 #Next line is for UL2018 maps 
