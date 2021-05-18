@@ -43,11 +43,6 @@ ORADEV = 'cms_orcoff_prep'
 ONLINEORAPRO = 'cms_orcon_prod'
 ONLINEORAINT = 'cmsintr_lb'
 
-# access role codes
-READ_ROLE = 1
-WRITE_ROLE = 2
-ADMIN_ROLE = 3
-
 # Set initial level to WARN.  This so that log statements don't occur in
 # the absense of explicit logging being enabled.
 if logger.level == logging.NOTSET:
@@ -576,15 +571,15 @@ def connect(url, authPath=None, verbose=0, as_admin=False):
                     else:
                         explicit_auth =True
                 else:
-                    import pluginCondDBPyBind11Interface as credential_store
-                    role_code = 1
+                    import pluginCondDBPyBind11Interface as auth
+                    role_code = auth.reader_role
                     if url.username == dbwriter_user_name:
-                        role_code = 2
+                        role_code = auth.writer_role
                     if check_admin:
-                        role_code = 3
+                        role_code = auth.admin_role
                     connection_string = oracle_connection_string(url.host.lower(),schema_name)
                     logging.debug('Using db key to get credentials for %s' %connection_string )
-                    (dbuser,username,password) = credential_store.get_db_credentials(connection_string,role_code,authPath)
+                    (dbuser,username,password) = auth.get_credentials_from_db(connection_string,role_code,authPath)
                     if username=='' or password=='':
                         raise Exception('No credentials found to connect on %s with the required access role.'%connection_string)
                     check_admin = False

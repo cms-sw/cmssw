@@ -13,8 +13,8 @@ import json
 
 import CondCore.Utilities.credentials as auth
 
-prod_db_service = ['cms_orcon_prod','cms_orcon_prod/cms_cond_general_w']
-dev_db_service = ['cms_orcoff_prep','cms_orcoff_prep/cms_cond_general_w']
+prod_db_service = 'cms_orcon_prod'
+dev_db_service = 'cms_orcoff_prep'
 schema_name = 'CMS_CONDITIONS'
 sqlalchemy_tpl = 'oracle://%s:%s@%s'
 coral_tpl = 'oracle://%s/%s'
@@ -22,16 +22,9 @@ private_db = 'sqlite:///o2o_jobs.db'
 startStatus = -1
 messageLevelEnvVar = 'O2O_LOG_LEVEL'
 logFolderEnvVar = 'O2O_LOG_FOLDER'
+logger = logging.getLogger(__name__)
 
 _Base = sqlalchemy.ext.declarative.declarative_base()
-
-fmt_str = "[%(asctime)s] %(levelname)s: %(message)s"
-logLevel = logging.INFO
-if messageLevelEnvVar in os.environ:
-    levStr = os.environ[messageLevelEnvVar]
-    if levStr == 'DEBUG':
-        logLevel = logging.DEBUG
-logFormatter = logging.Formatter(fmt_str)
 
 class O2OJob(_Base):
     __tablename__      = 'O2O_JOB'
@@ -61,10 +54,6 @@ class O2ORun(_Base):
     log                = sqlalchemy.Column(sqlalchemy.CLOB,           nullable=True)
 
     job                = sqlalchemy.orm.relationship('O2OJob', primaryjoin="O2OJob.name==O2ORun.job_name")
-
-def get_db_credentials( db_service, authPath):
-    (username, account, pwd) = auth.get_credentials( db_service[1], authPath )
-    return username,pwd
 
 def print_table( headers, table ):
     ws = []
@@ -96,8 +85,19 @@ def print_table( headers, table ):
     for row in table:
         printf( row )
 
-class O2OMgr(object):
-    def __init__(self):
+
+class O2OJobMgr(object):
+
+    def __init__( self , logLevel):
+        self.db_connection = None
+        self.conf_dict = {}
+        fmt_str = "[%(asctime)s] %(levelname)s: %(message)s"
+        if messageLevelEnvVar in os.environ:
+            levStr = os.environ[messageLevelEnvVar]
+            if levStr == 'DEBUG':
+                logLevel = logging.DEBUG
+        logFormatter = logging.Formatter(fmt_str)
+
         self.logger = logging.getLogger()        
         self.logger.setLevel(logLevel)
         consoleHandler = logging.StreamHandler(sys.stdout) 
@@ -105,29 +105,26 @@ class O2OMgr(object):
         self.logger.addHandler(consoleHandler)
         self.eng = None
 
-    def logger( self ):
-        return self.logger
-        
-    def getSession( self, db_service, auth ):
+    def getSession( self, db_service, role, authPath ):
         url = None
         if db_service is None:
             url = private_db
         else:
             self.logger.info('Getting credentials')
-            if auth is not None:
-                if not os.path.exists(auth):
-                    self.logger.error('Authentication path %s is invalid.' %auth)
+            if authPath is not None:
+                if not os.path.exists(authPath):
+                    self.logger.error('Authentication path %s is invalid.' %authPath)
                     return None
             try:
-                username, pwd = get_db_credentials( db_service, auth )
+                (username, account, pwd) = auth.get_credentials_for_schema( db_service, schema_name, role, authPath )
             except Exception as e:
-                logging.debug(str(e))
+                self.logger.debug(str(e))
                 username = None
                 pwd = None
             if username is None:
-                logging.error('Credentials for service %s (machine=%s) are not available' %(db_service[0],db_service[1]))
-                raise Exception("Cannot connect to db %s" %db_service[0] )
-            url = sqlalchemy_tpl %(username,pwd,db_service[0])
+                self.logger.error('Credentials for service %s are not available' %db_service)
+                raise Exception("Cannot connect to db %s" %db_service )
+            url = sqlalchemy_tpl %(username,pwd,db_service)
         session = None
         try:
             self.eng = sqlalchemy.create_engine( url )
@@ -136,32 +133,24 @@ class O2OMgr(object):
             self.logger.error( str(dberror) )
         return session
 
-class O2OJobMgr(O2OMgr):
-
-    def __init__( self ):
-        O2OMgr.__init__(self)
-        self.db_connection = None
-        self.conf_dict = {}
-
-
     def readConfiguration( self, config_filename ):
         config = ''
         try:
             with open( config_filename, 'r' ) as config_file:
                 config = config_file.read()
                 if config == '':
-                    O2OMgr.logger( self).error( 'The file %s contains an empty string.', config_filename )
+                    self.logger.error( 'The file %s contains an empty string.', config_filename )
                 else:
                     json.loads(config)
         except IOError as e:
-            O2OMgr.logger( self).error( 'The file %s cannot be open.', config_filename )
+            self.logger.error( 'The file %s cannot be open.', config_filename )
         except ValueError as e:
             config = ''
-            O2OMgr.logger( self).error( 'The file %s contains an invalid json string.', config_filename )
+            self.logger.error( 'The file %s contains an invalid json string.', config_filename )
         return config
 
     def connect( self, service, args ):
-        self.session = O2OMgr.getSession( self,service, args.auth )
+        self.session = self.getSession( service, args.role, args.auth )
         self.verbose = args.verbose
         if self.session is None:
             return False
@@ -170,7 +159,7 @@ class O2OJobMgr(O2OMgr):
             self.conf_dict['db']=self.db_connection
             return True
     def runManager( self ):
-        return O2ORunMgr( self.db_connection, self.session, O2OMgr.logger( self ) )
+        return O2ORunMgr( self.db_connection, self.session, self.logger )
 
     def add( self, job_name, config_filename, int_val, freq_flag, en_flag ):
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
@@ -178,7 +167,7 @@ class O2OJobMgr(O2OMgr):
         for r in res:
             enabled = r
         if enabled:
-            O2OMgr.logger( self).error( "A job called '%s' exists already.", job_name )
+            self.logger.error( "A job called '%s' exists already.", job_name )
             return False
         configJson = self.readConfiguration( config_filename )
         if configJson == '':
@@ -187,11 +176,11 @@ class O2OJobMgr(O2OMgr):
         if freq_flag:
             freq_val = 1
         job = O2OJob(name=job_name,tag_name='-',enabled=en_flag,frequent=freq_val,interval=int_val)
-        config = O2OJobConf( job_name=job_name, insertion_time = datetime.now(timezone.utc), configuration = configJson ) 
+        config = O2OJobConf( job_name=job_name, insertion_time = datetime.utcnow(), configuration = configJson ) 
         self.session.add(job)
         self.session.add(config)
         self.session.commit()
-        O2OMgr.logger( self).info( "New o2o job '%s' created.", job_name )
+        self.logger.info( "New o2o job '%s' created.", job_name )
         return True 
 
     def set( self, job_name, en_flag, fr_val=None ):
@@ -200,7 +189,7 @@ class O2OJobMgr(O2OMgr):
         for r in res:
             enabled = r
         if enabled is None:
-            O2OMgr.logger( self).error( "A job called '%s' does not exist.", job_name )
+            self.logger.error( "A job called '%s' does not exist.", job_name )
             return
         if en_flag is not None and enabled != en_flag:
             job = O2OJob(name=job_name,enabled=en_flag)
@@ -209,15 +198,15 @@ class O2OJobMgr(O2OMgr):
             action = 'enabled'
             if not en_flag:
                 action = 'disabled'
-            O2OMgr.logger( self).info( "Job '%s' %s." %(job_name,action) )
+            self.logger.info( "Job '%s' %s." %(job_name,action) )
         if fr_val is not None:
             job = O2OJob(name=job_name,frequent=fr_val)
             self.session.merge(job)
             self.session.commit()
             if fr_val==1:
-                O2OMgr.logger( self).info( "Job '%s' set 'frequent'")
+                self.logger.info( "Job '%s' set 'frequent'")
             else:
-                O2OMgr.logger( self).info( "Job '%s' unset 'frequent'")
+                self.logger.info( "Job '%s' unset 'frequent'")
 
     def setConfig( self, job_name, config_filename ):
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
@@ -225,15 +214,15 @@ class O2OJobMgr(O2OMgr):
         for r in res:
             enabled = r
         if enabled is None:
-            O2OMgr.logger( self).error( "A job called '%s' does not exist.", job_name )
+            self.logger.error( "A job called '%s' does not exist.", job_name )
             return
         configJson = self.readConfiguration( config_filename )
         if configJson == '':
-            return False       
-        config = O2OJobConf( job_name=job_name, insertion_time = datetime.now(timezone.utc), configuration = configJson ) 
+            return False   
+        config = O2OJobConf( job_name=job_name, insertion_time = datetime.utcnow(), configuration = configJson )     
         self.session.add(config)
         self.session.commit()
-        O2OMgr.logger( self).info( "New configuration inserted for job '%s'", job_name )
+        self.logger.info( "New configuration inserted for job '%s'", job_name )
 
     def setInterval( self, job_name, int_val ):
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
@@ -241,27 +230,13 @@ class O2OJobMgr(O2OMgr):
         for r in res:
             enabled = r
         if enabled is None:
-            O2OMgr.logger( self).error( "A job called '%s' does not exist.", job_name )
+            self.logger.error( "A job called '%s' does not exist.", job_name )
             return
         job = O2OJob(name=job_name,interval=int_val)
         self.session.merge(job)
         self.session.commit()
-        O2OMgr.logger( self).info( "The execution interval for job '%s' has been updated.", job_name )
+        self.logger.info( "The execution interval for job '%s' has been updated.", job_name )
 
-    def migrateConfig( self ):
-        res = self.session.query(O2OJob.name,O2OJob.tag_name)
-        for r in res:
-            job_name = r[0]
-            tag = r[1] 
-            if tag != '-':
-                configDict = {}
-                configDict['tag']=tag
-                configJson = json.dumps( configDict )
-                config = O2OJobConf( job_name=job_name, insertion_time = datetime.now(timezone.utc), configuration = configJson ) 
-                self.session.add(config)
-                O2OMgr.logger( self).info( "Configuration for job '%s' inserted.", job_name )
-        self.session.commit()
- 
     def listJobs( self ):
         runs = {}
         res = self.session.query(O2ORun.job_name,sqlalchemy.func.max(O2ORun.start_time)).group_by(O2ORun.job_name).order_by(O2ORun.job_name)
@@ -291,7 +266,7 @@ class O2OJobMgr(O2OMgr):
         for r in res:
             enabled = r
         if enabled is None:
-            O2OMgr.logger( self).error( "A job called '%s' does not exist.", jname )
+            self.logger.error( "A job called '%s' does not exist.", jname )
             return
         res = self.session.query( O2OJobConf.configuration, O2OJobConf.insertion_time  ).filter_by(job_name=jname).order_by(O2OJobConf.insertion_time)
         configs = []
@@ -305,7 +280,7 @@ class O2OJobMgr(O2OMgr):
                 print(cf[0])
                 ind -= 1
         else:
-            O2OMgr.logger( self ).info("No configuration found for job '%s'" %jname )
+            self.logger.info("No configuration found for job '%s'" %jname )
 
     def dumpConfig( self, jname, versionIndex, configFile ):
         versionIndex = int(versionIndex)
@@ -314,7 +289,7 @@ class O2OJobMgr(O2OMgr):
         for r in res:
             enabled = r
         if enabled is None:
-            O2OMgr.logger( self).error( "A job called '%s' does not exist.", jname )
+            self.logger.error( "A job called '%s' does not exist.", jname )
             return
         res = self.session.query( O2OJobConf.configuration, O2OJobConf.insertion_time  ).filter_by(job_name=jname).order_by(O2OJobConf.insertion_time)
         configs = []
@@ -322,7 +297,7 @@ class O2OJobMgr(O2OMgr):
             configs.append((str(r[0]),r[1]))
         ind = len(configs)
         if versionIndex>ind or versionIndex==0:
-            O2OMgr.logger( self ).error("Configuration for job %s with index %s has not been found." %(jname,versionIndex))
+            self.logger.error("Configuration for job %s with index %s has not been found." %(jname,versionIndex))
             return
         print("Configuration #%2d for job '%s'" %(versionIndex,jname))
         config = configs[versionIndex-1]
@@ -373,7 +348,7 @@ class O2ORunMgr(object):
                         self.logger.error( str(e) )
                         return 6
                 self.job_name = job_name
-                self.start = datetime.now(timezone.utc)
+                self.start = datetime.utcnow()
                 run = O2ORun(job_name=self.job_name,start_time=self.start,status_code=startStatus)
                 self.session.add(run)
                 self.session.commit()
@@ -388,7 +363,7 @@ class O2ORunMgr(object):
 
 
     def endJob( self, status, log ):
-        self.end = datetime.now(timezone.utc)
+        self.end = datetime.utcnow()
         try:
             run = O2ORun(job_name=self.job_name,start_time=self.start,end_time=self.end,status_code=status,log=log)
             self.session.merge(run)
@@ -405,7 +380,7 @@ class O2ORunMgr(object):
         logFolder = os.getcwd()
         if logFolderEnvVar in os.environ:
             logFolder = os.environ[logFolderEnvVar]
-        datelabel = datetime.now(timezone.utc).strftime("%y-%m-%d-%H-%M-%S")
+        datelabel = datetime.utcnow().strftime("%y-%m-%d-%H-%M-%S")
         logFileName = '%s-%s.log' %(job_name,datelabel)
         logFile = os.path.join(logFolder,logFileName)
         started = self.startJob( job_name )
@@ -459,46 +434,44 @@ class O2OTool():
         parser_create.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path',required=True)
         parser_create.add_argument('--interval', '-i', type=int, help='the chron job interval',default=0)
         parser_create.add_argument('--frequent', '-f',action='store_true',help='set the "frequent" flag for this job')
-        parser_create.set_defaults(func=self.create)
+        parser_create.set_defaults(func=self.create,role=auth.admin_role)
         parser_setConfig = parser_subparsers.add_parser('setConfig', description='Set a new configuration for the specified job. The configuration is expected as a list of entries "param": "value" (dictionary). The "param" labels will be used to inject the values in the command to execute. The dictionary is stored in JSON format.')
         parser_setConfig.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_setConfig.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path',required=True)
-        parser_setConfig.set_defaults(func=self.setConfig)
+        parser_setConfig.set_defaults(func=self.setConfig,role=auth.admin_role)
         parser_setFrequent = parser_subparsers.add_parser('setFrequent',description='Set the "frequent" flag for the specified job')
         parser_setFrequent.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_setFrequent.add_argument('--flag', '-f', choices=['0','1'], help='the flag value to set',required=True)
-        parser_setFrequent.set_defaults(func=self.setFrequent)
+        parser_setFrequent.set_defaults(func=self.setFrequent,role=auth.admin_role)
         parser_setInterval = parser_subparsers.add_parser('setInterval',description='Set a new execution interval for the specified job')
         parser_setInterval.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_setInterval.add_argument('--interval', '-i', type=int, help='the chron job interval',required=True)
-        parser_setInterval.set_defaults(func=self.setInterval)
+        parser_setInterval.set_defaults(func=self.setInterval,role=auth.admin_role)
         parser_enable = parser_subparsers.add_parser('enable',description='enable the O2O job')
         parser_enable.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
-        parser_enable.set_defaults(func=self.enable)
+        parser_enable.set_defaults(func=self.enable,role=auth.admin_role)
         parser_disable = parser_subparsers.add_parser('disable',description='disable the O2O job')
         parser_disable.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
-        parser_disable.set_defaults(func=self.disable)
-        parser_migrateConf = parser_subparsers.add_parser('migrateConfig',description='migrate the tag info for the jobs in configuration entries')
-        parser_migrateConf.set_defaults(func=self.migrate)
+        parser_disable.set_defaults(func=self.disable,role=auth.admin_role)
         parser_listJobs = parser_subparsers.add_parser('listJobs', description='list the registered jobs')
-        parser_listJobs.set_defaults(func=self.listJobs)
+        parser_listJobs.set_defaults(func=self.listJobs,role=auth.reader_role)
         parser_listConf = parser_subparsers.add_parser('listConfig', description='shows the configurations for the specified job')
         parser_listConf.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_listConf.add_argument('--dump', type=int, help='Dump the specified config.',default=0)
-        parser_listConf.set_defaults(func=self.listConf)
+        parser_listConf.set_defaults(func=self.listConf,role=auth.reader_role)
         parser_dumpConf = parser_subparsers.add_parser('dumpConfig', description='dumps a specific job configuration version')
         parser_dumpConf.add_argument('versionIndex', type=str,help='the version to dump')
         parser_dumpConf.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
         parser_dumpConf.add_argument('--configFile', '-c', type=str, help='the JSON configuration file name - default:[jobname]_[version].json')
-        parser_dumpConf.set_defaults(func=self.dumpConf)
+        parser_dumpConf.set_defaults(func=self.dumpConf,role=auth.reader_role)
         parser_run = parser_subparsers.add_parser('run', description='Wrapper for O2O jobs execution. Supports input parameter injection from the configuration file associated to the job. The formatting syntax supported are the python ones: "command -paramName {paramLabel}" or "command -paramName %(paramLabel)s". where [paramName] is the name of the parameter required for the command, and [paramLabel] is the key of the parameter entry in the config dictionary (recommended to be equal for clarity!"')
         parser_run.add_argument('executable', type=str,help='command to execute')
         parser_run.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
-        parser_run.set_defaults(func=self.run)
+        parser_run.set_defaults(func=self.run,role=auth.writer_role)
 
         args = parser.parse_args()
-
-        if args.verbose >=1:
+        
+        if args.verbose is not None and args.verbose >=1:
             self.setup(args)
             return args.func()
         else:
@@ -518,7 +491,8 @@ class O2OTool():
             elif args.db != 'orapro' and args.db != 'onlineorapro' and args.db != 'pro':
                 raise Exception("Database '%s' is not known." %args.db )
         
-        self.mgr = O2OJobMgr()
+        logLevel = logging.DEBUG if args.verbose is not None and args.verbose >= 1 else logging.INFO
+        self.mgr = O2OJobMgr( logLevel )
         return self.mgr.connect( db_service, args )
         
     def create(self):
@@ -538,9 +512,6 @@ class O2OTool():
 
     def setFrequent(self):
         self.mgr.set( self.args.name, None, int(self.args.flag) )
-
-    def migrate(self):
-        self.mgr.migrateConfig()
 
     def listJobs(self):
         self.mgr.listJobs()
