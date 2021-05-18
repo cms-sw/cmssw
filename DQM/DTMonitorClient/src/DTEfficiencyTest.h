@@ -23,7 +23,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
@@ -77,7 +77,9 @@ private:
   int percentual;
 
   edm::ParameterSet parameters;
-  edm::ESHandle<DTGeometry> muonGeom;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
 
   std::map<DTLayerId, MonitorElement *> EfficiencyHistos;
   std::map<DTLayerId, MonitorElement *> UnassEfficiencyHistos;
