@@ -45,7 +45,8 @@ DTRunConditionVar::DTRunConditionVar(const ParameterSet& pSet)
       nMinHitsPhi(pSet.getUntrackedParameter<int>("nMinHitsPhi")),
       maxAnglePhiSegm(pSet.getUntrackedParameter<double>("maxAnglePhiSegm")),
       dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(pSet.getParameter<InputTag>("recoSegments"))),
-      muonGeomToken_(esConsumes<edm::Transition::BeginRun>()), mTimeToken_(esConsumes()) {}
+      muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      mTimeToken_(esConsumes()) {}
 
 DTRunConditionVar::~DTRunConditionVar() {
   LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar") << "DTRunConditionVar: destructor called";

@@ -119,7 +119,7 @@ private:
   // Status map (for noisy channels)
   edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> statusMapToken_;
   const DTStatusFlag* statusMap;
-     
+
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
   std::map<std::string, std::map<int, MonitorElement*> > wheelHistos;
 

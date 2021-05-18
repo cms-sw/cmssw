@@ -71,7 +71,7 @@ private:
   int nevents;
 
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
-  const DTGeometry* muonGeom;
+  const DTGeometry *muonGeom;
 
   // wheel summary histograms
   std::map<int, MonitorElement *> wheelHistos;

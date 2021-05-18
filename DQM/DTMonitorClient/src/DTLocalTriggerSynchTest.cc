@@ -36,8 +36,8 @@
 using namespace edm;
 using namespace std;
 
-DTLocalTriggerSynchTest::DTLocalTriggerSynchTest(const edm::ParameterSet& ps) :
-  wPhaseMapToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTLocalTriggerSynchTest::DTLocalTriggerSynchTest(const edm::ParameterSet& ps)
+    : wPhaseMapToken_(esConsumes<edm::Transition::BeginRun>()) {
   setConfig(ps, "DTLocalTriggerSynch");
   baseFolderTM = "DT/90-LocalTriggerSynch/";
 

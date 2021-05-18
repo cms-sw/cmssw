@@ -27,8 +27,8 @@
 using namespace edm;
 using namespace std;
 
-DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps) :
-  muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::LogVerbatim("efficiency") << "[DTEfficiencyTest]: Constructor";
 
   parameters = ps;

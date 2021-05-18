@@ -21,8 +21,12 @@ using namespace std;
 using namespace edm;
 
 DTBlockedROChannelsTest::DTBlockedROChannelsTest(const ParameterSet& ps)
-    : nevents(0), neventsPrev(0), prevNLumiSegs(0), prevTotalPerc(0), 
-    mappingToken_(esConsumes<edm::Transition::BeginRun>()), hSystFractionVsLS(nullptr){
+    : nevents(0),
+      neventsPrev(0),
+      prevNLumiSegs(0),
+      prevTotalPerc(0),
+      mappingToken_(esConsumes<edm::Transition::BeginRun>()),
+      hSystFractionVsLS(nullptr) {
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest") << "[DTBlockedROChannelsTest]: Constructor";
 
   // prescale on the # of LS to update the test

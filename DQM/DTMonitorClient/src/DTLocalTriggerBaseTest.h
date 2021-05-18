@@ -39,8 +39,7 @@ class TH1D;
 class DTLocalTriggerBaseTest : public DQMEDHarvester {
 public:
   /// Constructor
-  DTLocalTriggerBaseTest():
-   muonGeomToken_(esConsumes<edm::Transition::BeginRun>()){};
+  DTLocalTriggerBaseTest() : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()){};
 
   /// Destructor
   ~DTLocalTriggerBaseTest() override;

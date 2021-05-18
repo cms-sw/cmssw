@@ -35,8 +35,8 @@
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps) :
-  muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: Constructor";
   parameters = ps;
 

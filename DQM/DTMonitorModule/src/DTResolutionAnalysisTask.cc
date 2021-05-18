@@ -29,8 +29,8 @@
 using namespace edm;
 using namespace std;
 
-DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) :
-  muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
       << "[DTResolutionAnalysisTask] Constructor called!" << endl;
 

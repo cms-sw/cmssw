@@ -20,8 +20,8 @@
 using namespace edm;
 using namespace std;
 
-DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset) :
-      muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   debug = pset.getUntrackedParameter<bool>("debug", false);
 
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Constructor called!";

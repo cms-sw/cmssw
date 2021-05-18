@@ -64,7 +64,7 @@ private:
   int prescaleFactor;
 
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
-  const DTGeometry* muonGeom;
+  const DTGeometry *muonGeom;
 
   //an histogram of efficiency for each wheel, for each quality scenario
   MonitorElement *summaryHistos[5][2];
