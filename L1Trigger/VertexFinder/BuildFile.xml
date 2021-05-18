@@ -1,4 +1,3 @@
-<use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/L1TrackTrigger"/>
 <use name="DataFormats/L1Trigger"/>
@@ -6,14 +5,12 @@
 <use name="DataFormats/Phase2TrackerDigi"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="SimDataFormats/EncodedEventId"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
-<use name="SimGeneral/TrackingAnalysis"/>
 <use name="SimTracker/TrackTriggerAssociation"/>
 <use name="boost"/>
 <use name="roothistmatrix"/>

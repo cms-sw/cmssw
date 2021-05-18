@@ -1,4 +1,5 @@
 <library file="*.cc" name="SimTrackerSiStripDigitizerPlugins">
+  <use name="FWCore/Framework"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
   <use name="RecoLocalTracker/SiStripZeroSuppression"/>
