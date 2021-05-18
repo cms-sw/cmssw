@@ -66,7 +66,7 @@ void TestETLNavigation::analyze(const Event& ev, const EventSetup& es) {
                                     << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc() << " " << std::setw(4)
                                     << modId.discSide() << " " << std::setw(4) << modId.sector()
                                     << " mod/type = " << std::setw(4) << modId.module() << " " << std::setw(4)
-                                    << modId.modType() << " pos = " << imod->position();
+                                    << modId.modType() << " pos = " << std::setprecision(4) << imod->position();
         for (int iside = -1; iside <= 1; iside += 2) {
           size_t idetNew = isector->hshift(modId, iside);
           if (idetNew >= isector->basicComponents().size()) {
@@ -79,8 +79,8 @@ void TestETLNavigation::analyze(const Event& ev, const EventSetup& es) {
                                         << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " "
                                         << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
                                         << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4)
-                                        << newId.modType()
-                                        << " pos = " << isector->basicComponents()[idetNew]->position();
+                                        << newId.modType() << " pos = " << std::setprecision(4)
+                                        << isector->basicComponents()[idetNew]->position();
           }
         }
         for (int iside = -1; iside <= 1; iside += 2) {
@@ -95,8 +95,8 @@ void TestETLNavigation::analyze(const Event& ev, const EventSetup& es) {
                   << std::fixed << ".......closest.vshift= " << std::setw(2) << iside << " side = " << std::setw(4)
                   << newId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " " << std::setw(4)
                   << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type = " << std::setw(4)
-                  << newId.module() << " " << std::setw(4) << newId.modType()
-                  << " pos = " << isector->basicComponents()[closest]->position();
+                  << newId.module() << " " << std::setw(4) << newId.modType() << " pos = " << std::setprecision(4)
+                  << isector->basicComponents()[closest]->position();
             }
           } else {
             ETLDetId newId(isector->basicComponents()[idetNew]->geographicalId().rawId());
@@ -105,8 +105,8 @@ void TestETLNavigation::analyze(const Event& ev, const EventSetup& es) {
                                         << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " "
                                         << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
                                         << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4)
-                                        << newId.modType()
-                                        << " pos = " << isector->basicComponents()[idetNew]->position();
+                                        << newId.modType() << " pos = " << std::setprecision(4)
+                                        << isector->basicComponents()[idetNew]->position();
           }
         }
       }
