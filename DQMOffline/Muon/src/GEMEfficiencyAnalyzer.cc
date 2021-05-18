@@ -203,7 +203,6 @@ void GEMEfficiencyAnalyzer::bookEfficiencyChamber(DQMStore::IBooker& ibooker, co
   }    // station
 }
 
-
 void GEMEfficiencyAnalyzer::bookEfficiencyEtaPartition(DQMStore::IBooker& ibooker,
                                                        const edm::ESHandle<GEMGeometry>& gem) {
   // TODO Efficiency/Source
@@ -239,8 +238,7 @@ void GEMEfficiencyAnalyzer::bookEfficiencyEtaPartition(DQMStore::IBooker& ibooke
   }    // station
 }
 
-void GEMEfficiencyAnalyzer::bookEfficiencyDetector(DQMStore::IBooker& ibooker,
-                                                   const edm::ESHandle<GEMGeometry>& gem) {
+void GEMEfficiencyAnalyzer::bookEfficiencyDetector(DQMStore::IBooker& ibooker, const edm::ESHandle<GEMGeometry>& gem) {
   // TODO Efficiency/Source
   ibooker.setCurrentFolder(folder_ + "/Efficiency");
 

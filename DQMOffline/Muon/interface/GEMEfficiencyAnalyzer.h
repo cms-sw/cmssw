@@ -102,7 +102,7 @@ private:
   MEMap me_muon_phi_matched_;
   MEMap me_chamber_;  // 2D, region-station-layer
   MEMap me_chamber_matched_;
-  MEMap me_ieta_; // 1D, region-station-layer
+  MEMap me_ieta_;  // 1D, region-station-layer
   MEMap me_ieta_matched_;
   MEMap me_detector_;  // 2D, region-station-layer
   MEMap me_detector_matched_;
