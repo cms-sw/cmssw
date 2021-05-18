@@ -81,10 +81,17 @@ namespace edm {
     }
   }
 
-  void BranchIDListHelper::fixBranchListIndexes(BranchListIndexes& indexes) const {
+  bool BranchIDListHelper::fixBranchListIndexes(BranchListIndexes& indexes, bool assertOnFailure) const {
     for (BranchListIndex& i : indexes) {
-      assert(i < inputIndexToJobIndex_.size());
+      bool indexInRange = i < inputIndexToJobIndex_.size();
+      if (!indexInRange) {
+        if (assertOnFailure) {
+          assert(indexInRange);
+        }
+        return false;
+      }
       i = inputIndexToJobIndex_[i];
     }
+    return true;
   }
 }  // namespace edm
