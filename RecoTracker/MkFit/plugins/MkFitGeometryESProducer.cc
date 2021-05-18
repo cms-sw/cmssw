@@ -10,6 +10,8 @@
 
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 
+#include "createPhase1TrackerGeometry.h"
+
 // mkFit includes
 #include "ConfigWrapper.h"
 #include "TrackerInfo.h"
@@ -46,8 +48,7 @@ void MkFitGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& d
 std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRecoGeometryRecord& iRecord) {
   auto trackerInfo = std::make_unique<mkfit::TrackerInfo>();
   auto iterationsInfo = std::make_unique<mkfit::IterationsInfo>();
-  // TODO: absorb the functionality to CMSSW
-  mkfit::TrackerInfo::ExecTrackerInfoCreatorPlugin("CMS-2017", *trackerInfo, *iterationsInfo);
+  mkfit::createPhase1TrackerGeometry(*trackerInfo, *iterationsInfo, false);
   return std::make_unique<MkFitGeometry>(iRecord.get(geomToken_),
                                          iRecord.get(trackerToken_),
                                          iRecord.get(ttopoToken_),
