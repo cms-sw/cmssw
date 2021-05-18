@@ -18,7 +18,7 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <string>
@@ -65,7 +65,8 @@ private:
 
   bool doCalibAnalysis;
 
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
 
   // Histograms for tests
   std::map<std::pair<int, int>, MonitorElement*> MeanHistos;
