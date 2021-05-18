@@ -894,7 +894,7 @@ trackValidatorSeedingTrackingOnly = _trackValidatorSeedingBuilding.clone(
     dirName = "Tracking/TrackSeeding/",
     label = _seedSelectors,
     doSeedPlots = True,
-    doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap"]
+    doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeeds" ]
 )
 seedingDeepCore.toModify(trackValidatorSeedingTrackingOnly, doResolutionPlotsForLabels = ["seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap"] )
 
@@ -915,8 +915,8 @@ trackValidatorJetCoreSeedingTrackingOnly = trackValidatorSeedingTrackingOnly.clo
 for _eraName, _postfix, _era in _relevantEras:
     if 'jetCoreRegionalStep' in _cfg.iterationAlgos(_postfix) :
       _setForEra(trackValidatorJetCoreSeedingTrackingOnly, _eraName, _era,
-                 label = [ "seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap"],
-                 doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap"]
+                 label = [ "seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap" ],
+                 doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap" ]
       )
     
 for _eraName, _postfix, _era in _relevantErasAndFastSim:
