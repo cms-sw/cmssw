@@ -24,6 +24,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <memory>
 #include <iostream>
@@ -78,7 +79,8 @@ private:
   bool bookingdone;
 
   edm::ParameterSet parameters;
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
 
   // the histograms
   std::map<std::pair<int, int>, MonitorElement *> chi2Histos;
