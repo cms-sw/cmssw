@@ -100,14 +100,14 @@ namespace L1Analysis {
                    unsigned maxL1Extra,
                    unsigned int muonDetector);
     void SetMuonEMTF(const edm::Handle<l1t::EMTFTrackCollection> muonKF,
-                   unsigned maxL1Extra,
-                   unsigned int muonDetector);
+                     unsigned maxL1Extra,
+                     unsigned int muonDetector);
 
     void SetTkMuon(const edm::Handle<l1t::TkMuonCollection> TkMuon, unsigned maxL1Extra);
 
     void SetMuon(const edm::Handle<l1t::MuonBxCollection> muon, unsigned maxL1Extra);
 
-    void SetTkGlbMuon(const edm::Handle<l1t::TkGlbMuonCollection> TkGlbMuon, unsigned maxL1Extra); 
+    void SetTkGlbMuon(const edm::Handle<l1t::TkGlbMuonCollection> TkGlbMuon, unsigned maxL1Extra);
 
     // Add new PFJet collections
     void SetL1METPF(const edm::Handle<std::vector<reco::PFMET>> l1MetPF);
@@ -128,7 +128,6 @@ namespace L1Analysis {
     void SetTkMHT(const edm::Handle<l1t::TkHTMissCollection> trackerMHTs);
     void SetTkMETDisplaced(const edm::Handle<l1t::TkEtMissCollection> trackerMets);
     void SetTkMHTDisplaced(const edm::Handle<l1t::TkHTMissCollection> trackerMHTs);
-
 
     L1AnalysisPhaseIIStep1DataFormat* getData() { return &l1extra_; }
 

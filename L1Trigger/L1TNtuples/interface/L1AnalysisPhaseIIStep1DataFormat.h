@@ -126,7 +126,6 @@ namespace L1Analysis {
       tkMuonMuRefChg.clear();
       tkMuonRegion.clear();
 
-
       //global
       nGlobalMuons = 0;
       globalMuonPt.clear();
@@ -147,7 +146,6 @@ namespace L1Analysis {
       globalMuonTfMuonIdx.clear();
       globalMuonBx.clear();
 
-
       nTkGlbMuons = 0;
       tkGlbMuonPt.clear();
       tkGlbMuonEta.clear();
@@ -167,7 +165,6 @@ namespace L1Analysis {
       puppiMETEt = 0;
       puppiMETPhi = 0;
 
-
       nSeededConeJets = 0;
       seededConeJetPt.clear();
       seededConeJetEt.clear();
@@ -182,7 +179,6 @@ namespace L1Analysis {
       seededConeMHTPhi.clear();
       nSeededConeMHT = 0;
 
-
       nNNTaus = 0;
       nnTauPt.clear();
       nnTauEt.clear();
@@ -196,7 +192,7 @@ namespace L1Analysis {
       nnTauPassLoosePF.clear();
       nnTauPassTightPF.clear();
       nnTauPassTightNN.clear();
-   
+
       // TkJets
       nTrackerJets = 0;
       trackerJetPt.clear();
@@ -214,7 +210,6 @@ namespace L1Analysis {
       trackerJetDisplacedBx.clear();
       trackerJetDisplacedzVtx.clear();
 
-
       // TrackerMet
       nTrackerMet = 0;
       trackerMetSumEt.clear();
@@ -228,7 +223,6 @@ namespace L1Analysis {
       trackerMHT.clear();
       trackerMHTPhi.clear();
 
-
       // TrackerMetDisplaced
       nTrackerMetDisplaced = 0;
       trackerMetDisplacedSumEt.clear();
@@ -241,7 +235,6 @@ namespace L1Analysis {
       trackerHTDisplaced.clear();
       trackerMHTDisplaced.clear();
       trackerMHTPhiDisplaced.clear();
-
     }
 
     double z0Puppi;
@@ -390,7 +383,6 @@ namespace L1Analysis {
     std::vector<double> tkGlbMuonDRMuTrack;
     std::vector<double> tkGlbMuonNMatchedTracks;
 
-
     double puppiMETEt;
     double puppiMETPhi;
 
@@ -407,7 +399,6 @@ namespace L1Analysis {
     std::vector<double> seededConeMHTEt;
     std::vector<double> seededConeMHTPhi;
     unsigned int nSeededConeMHT;
-
 
     unsigned int nNNTaus;
     std::vector<double> nnTauPt;
@@ -439,7 +430,6 @@ namespace L1Analysis {
     std::vector<int> trackerJetDisplacedBx;
     std::vector<double> trackerJetDisplacedzVtx;
 
-
     unsigned int nTrackerMet;
     std::vector<double> trackerMetSumEt;
     std::vector<double> trackerMetEt;
@@ -461,8 +451,6 @@ namespace L1Analysis {
     std::vector<double> trackerHTDisplaced;
     std::vector<double> trackerMHTDisplaced;
     std::vector<double> trackerMHTPhiDisplaced;
-
-
   };
 }  // namespace L1Analysis
 #endif
