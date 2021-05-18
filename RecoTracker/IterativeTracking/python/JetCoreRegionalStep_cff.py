@@ -173,7 +173,7 @@ jetCoreRegionalStepDeepCoreTrajectoryCleaner = trajectoryCleanerBySharedHits.clo
 ############## to run MCtruthSeedGenerator ####################
 #import RecoTracker.TkSeedGenerator.deepCoreSeedGenerator_cfi
 #import Validation.RecoTrack.JetCoreMCtruthSeedGenerator_cfi
-#seedingDeepCore.toReplaceWith(jetCoreRegionalStepSeeds,
+#seedingDeepCore.toReplaceWith(jetCoreRegionalStepSeedsBarrel,
 #    RecoTracker.TkSeedGenerator.deepCoreSeedGenerator_cfi.deepCoreSeedGenerator.clone(#to run MCtruthSeedGenerator clone here from Validation.RecoTrack
 #       vertices="firstStepPrimaryVertices" 
 #    )
@@ -269,10 +269,6 @@ trackingPhase1.toReplaceWith(jetCoreRegionalStepBarrel, jetCoreRegionalStep.clon
      src = 'jetCoreRegionalStepBarrelTracks',
 ))
 
-jetCoreRegionalStepEndcap = jetCoreRegionalStep.clone(
-    src = 'jetCoreRegionalStepEndcapTracks',
-)
-
 from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
 trackdnn.toReplaceWith(jetCoreRegionalStep, TrackTfClassifier.clone(
@@ -283,12 +279,12 @@ trackdnn.toReplaceWith(jetCoreRegionalStepBarrel, TrackTfClassifier.clone(
      src = 'jetCoreRegionalStepBarrelTracks',
      qualityCuts = qualityCutDictionary["JetCoreRegionalStep"],
 ))
-trackdnn.toReplaceWith(jetCoreRegionalStepEndcap, TrackTfClassifier.clone(
-     src = 'jetCoreRegionalStepEndcapTracks',
-     qualityCuts = qualityCutDictionary["JetCoreRegionalStep"],
-))
 
 fastSim.toModify(jetCoreRegionalStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
+jetCoreRegionalStepEndcap = jetCoreRegionalStep.clone(
+    src = 'jetCoreRegionalStepEndcapTracks',
+)
 
 # Final sequence
 JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,                 
