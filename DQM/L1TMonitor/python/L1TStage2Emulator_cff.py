@@ -71,7 +71,8 @@ run3_GEM.toModify( valCscStage2Digis, GEMPadDigiClusterProducer = "valMuonGEMPad
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
 valEmtfStage2Digis = simEmtfDigis.clone(
     CSCInput = "emtfStage2Digis",
-    RPCInput = "muonRPCDigis"
+    RPCInput = "muonRPCDigis",
+    GEMInput = 'valMuonGEMPadDigiClusters'
 )
 
 # uGMT
