@@ -64,7 +64,7 @@ private:
   int minEntries;
   bool writeDB;
   edm::ESGetToken<DTTPGParameters, DTTPGParametersRcd> wPhaseMapToken_;
-  const DTTPGParameters* wPhaseMap;
+  const DTTPGParameters *wPhaseMap;
 
   bool bookingdone;
 };

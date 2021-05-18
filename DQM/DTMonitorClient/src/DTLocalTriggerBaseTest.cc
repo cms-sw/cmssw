@@ -29,7 +29,6 @@
 using namespace edm;
 using namespace std;
 
-
 DTLocalTriggerBaseTest::~DTLocalTriggerBaseTest() {
   LogVerbatim(category()) << "[" << testName << "Test]: analyzed " << nevents << " events";
 }

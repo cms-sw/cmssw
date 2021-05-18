@@ -33,8 +33,8 @@ using namespace edm;
 using namespace std;
 
 // Contructor
-DTDigiTask::DTDigiTask(const edm::ParameterSet& ps) :
-      muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+DTDigiTask::DTDigiTask(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
       readOutMapToken_(esConsumes<edm::Transition::BeginRun>()),
       TtrigToken_(esConsumes<edm::Transition::BeginRun>()),
       T0Token_(esConsumes<edm::Transition::BeginRun>()),
@@ -106,7 +106,7 @@ void DTDigiTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context
   nevents = 0;
 
   // Get the geometry
-  muonGeom = &context.getData(muonGeomToken_);  
+  muonGeom = &context.getData(muonGeomToken_);
 
   // map of the channels
   mapping = &context.getData(readOutMapToken_);

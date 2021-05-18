@@ -35,8 +35,8 @@
 using namespace edm;
 using namespace std;
 
-DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps) :
-   muonGeomToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
+DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
   edm::LogVerbatim("resolution") << "[DTResolutionTest]: Constructor";
   parameters = ps;
 
@@ -70,7 +70,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
   if (!bookingdone) {
     // Get the geometry
-      muonGeom = &context.getData(muonGeomToken_);
+    muonGeom = &context.getData(muonGeomToken_);
     // book the histos
     for (int wheel = -2; wheel < 3; wheel++) {
       bookHistos(ibooker, wheel);

@@ -80,7 +80,7 @@ private:
 
   edm::ParameterSet parameters;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
-  const DTGeometry* muonGeom;
+  const DTGeometry *muonGeom;
 
   // the histograms
   std::map<std::pair<int, int>, MonitorElement *> chi2Histos;

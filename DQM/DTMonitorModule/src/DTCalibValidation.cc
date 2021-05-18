@@ -27,8 +27,8 @@
 using namespace edm;
 using namespace std;
 
-DTCalibValidation::DTCalibValidation(const ParameterSet& pset) :
-          muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTCalibValidation::DTCalibValidation(const ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   parameters = pset;
 
   //FR the following was previously in the beginJob

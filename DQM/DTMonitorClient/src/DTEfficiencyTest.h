@@ -79,7 +79,7 @@ private:
   edm::ParameterSet parameters;
 
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
-  const DTGeometry* muonGeom;
+  const DTGeometry *muonGeom;
 
   std::map<DTLayerId, MonitorElement *> EfficiencyHistos;
   std::map<DTLayerId, MonitorElement *> UnassEfficiencyHistos;

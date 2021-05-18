@@ -30,10 +30,8 @@
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) :
-  muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
-  statusMapToken_(esConsumes()),
-  nevents(0) {
+DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()), statusMapToken_(esConsumes()), nevents(0) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Constructor called!";
 
   // switch for detailed analysis

@@ -26,8 +26,8 @@
 using namespace edm;
 using namespace std;
 
-DTOccupancyTestML::DTOccupancyTestML(const edm::ParameterSet& ps) : 
-  muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTOccupancyTestML::DTOccupancyTestML(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogVerbatim("DTDQM|DTMonitorClient|DTOccupancyTestML") << "[DTOccupancyTestML]: Constructor";
 
   // Get the DQM service

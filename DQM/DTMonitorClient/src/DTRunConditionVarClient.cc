@@ -30,8 +30,8 @@
 using namespace edm;
 using namespace std;
 
-DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet) :
-  mTimeMapToken_(esConsumes<edm::Transition::BeginRun>()){
+DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet)
+    : mTimeMapToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogVerbatim("DTDQM|DTMonitorClient|DTRunConditionVarClient") << "DTRunConditionVarClient: Constructor called";
 
   minRangeVDrift = pSet.getUntrackedParameter<double>("minRangeVDrift");

@@ -30,9 +30,8 @@
 using namespace edm;
 using namespace std;
 
-DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) :
-    muonGeomToken_(esConsumes<edm::Transition::BeginRun>()), 
-    dtGeomToken_(esConsumes()) {
+DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()), dtGeomToken_(esConsumes()) {
   debug = pset.getUntrackedParameter<bool>("debug", false);
   // the name of the 4D rec hits collection
   recHits4DToken_ = consumes<DTRecSegment4DCollection>(edm::InputTag(pset.getParameter<string>("recHits4DLabel")));

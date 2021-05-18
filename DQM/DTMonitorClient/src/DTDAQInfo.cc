@@ -27,8 +27,7 @@
 using namespace std;
 using namespace edm;
 
-DTDAQInfo::DTDAQInfo(const ParameterSet& pset) :
-  mappingToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
+DTDAQInfo::DTDAQInfo(const ParameterSet& pset) : mappingToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
   bookingdone = false;
   checkUros = pset.getUntrackedParameter<bool>("checkUros", true);
 }

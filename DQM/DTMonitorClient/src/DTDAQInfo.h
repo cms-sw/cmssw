@@ -51,8 +51,7 @@ private:
   MonitorElement *daqMap;
   std::map<int, MonitorElement *> daqFractions;
   edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> mappingToken_;
-  const DTReadOutMapping* mapping;
-
+  const DTReadOutMapping *mapping;
 };
 
 #endif

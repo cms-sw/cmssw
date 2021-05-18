@@ -31,7 +31,7 @@ using namespace edm;
 using namespace std;
 
 DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps)
-   :  muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
       trigGeomUtils(nullptr),
       isLocalRun(ps.getUntrackedParameter<bool>("localrun", true)) {
   if (!isLocalRun) {

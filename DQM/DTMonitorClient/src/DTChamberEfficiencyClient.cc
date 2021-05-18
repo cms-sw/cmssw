@@ -25,8 +25,8 @@ using namespace std;
 //two words about conventions: "All" histograms are those made for all segments
 //while "Qual" histograms are those for segments with at least 12 hits
 
-DTChamberEfficiencyClient::DTChamberEfficiencyClient(const ParameterSet& pSet) :
-  muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTChamberEfficiencyClient::DTChamberEfficiencyClient(const ParameterSet& pSet)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogVerbatim("DTDQM|DTMonitorClient|DTChamberEfficiencyClient") << "DTChamberEfficiencyClient: Constructor called";
 
   prescaleFactor = pSet.getUntrackedParameter<int>("diagnosticPrescale", 1);

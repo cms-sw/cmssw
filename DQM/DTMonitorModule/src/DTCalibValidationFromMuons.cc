@@ -28,8 +28,8 @@
 using namespace edm;
 using namespace std;
 
-DTCalibValidationFromMuons::DTCalibValidationFromMuons(const ParameterSet &pset) :
-           muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTCalibValidationFromMuons::DTCalibValidationFromMuons(const ParameterSet &pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   parameters = pset;
 
   // the name of the 4D segments

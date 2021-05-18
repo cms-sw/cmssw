@@ -29,8 +29,8 @@
 using namespace edm;
 using namespace std;
 
-DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps) :
-  muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") << "[DTNoiseAnalysisTest]: Constructor";
 
   // get the cfi parameters

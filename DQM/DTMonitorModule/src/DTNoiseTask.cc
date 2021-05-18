@@ -34,9 +34,10 @@
 using namespace edm;
 using namespace std;
 
-DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0),
-  muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
-  tTrigMapToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTNoiseTask::DTNoiseTask(const ParameterSet& ps)
+    : evtNumber(0),
+      muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      tTrigMapToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: Constructor" << endl;
 
   //switch for timeBox booking

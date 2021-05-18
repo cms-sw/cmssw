@@ -38,8 +38,8 @@
 using namespace edm;
 using namespace std;
 
-DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) :
-          muonGeomToken_(esConsumes<edm::Transition::BeginRun>()), trigGeomUtils(nullptr) {
+DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()), trigGeomUtils(nullptr) {
   LogTrace("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: Constructor" << endl;
 
   parameters = ps;

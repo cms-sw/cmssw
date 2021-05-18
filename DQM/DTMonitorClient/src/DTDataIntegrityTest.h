@@ -66,7 +66,7 @@ private:
   bool bookingdone;
 
   edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> mappingToken_;
-  const DTReadOutMapping* mapping;
+  const DTReadOutMapping *mapping;
 
   // Monitor Elements
   MonitorElement *summaryHisto;

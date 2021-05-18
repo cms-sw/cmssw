@@ -28,8 +28,8 @@
 using namespace edm;
 using namespace std;
 
-DTResolutionAnalysisTest::DTResolutionAnalysisTest(const ParameterSet& ps) :
-  muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTResolutionAnalysisTest::DTResolutionAnalysisTest(const ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogTrace("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "[DTResolutionAnalysisTest]: Constructor";
 
   prescaleFactor = ps.getUntrackedParameter<int>("diagnosticPrescale", 1);

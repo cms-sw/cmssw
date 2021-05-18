@@ -34,7 +34,6 @@
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
-
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <vector>
