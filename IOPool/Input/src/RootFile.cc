@@ -1251,9 +1251,10 @@ namespace edm {
     return fillThisEventAuxiliary();
   }
 
-  void RootFile::fillEventHistory(EventAuxiliary& evtAux,
+  bool RootFile::fillEventHistory(EventAuxiliary& evtAux,
                                   EventSelectionIDVector& eventSelectionIDs,
-                                  BranchListIndexes& branchListIndexes) {
+                                  BranchListIndexes& branchListIndexes,
+                                  bool assertOnFailure) {
     // We could consider doing delayed reading, but because we have to
     // store this History object in a different tree than the event
     // data tree, this is too hard to do in this first version.
@@ -1304,8 +1305,9 @@ namespace edm {
       provenanceAdaptor_->branchListIndexes(branchListIndexes);
     }
     if (branchIDListHelper_) {
-      branchIDListHelper_->fixBranchListIndexes(branchListIndexes);
+      return branchIDListHelper_->fixBranchListIndexes(branchListIndexes, assertOnFailure);
     }
+    return true;
   }
 
   std::shared_ptr<LuminosityBlockAuxiliary> RootFile::fillLumiAuxiliary() {
@@ -1440,23 +1442,27 @@ namespace edm {
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
   //  when it is asked to do so.
   //
-  void RootFile::readEvent(EventPrincipal& principal) {
+  bool RootFile::readEvent(EventPrincipal& principal) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
     // read the event
-    readCurrentEvent(principal);
+    auto [found, succeeded] = readCurrentEvent(principal, false);
     auto const& evtAux = principal.aux();
 
     runHelper_->checkRunConsistency(evtAux.run(), indexIntoFileIter_.run());
     runHelper_->checkLumiConsistency(evtAux.luminosityBlock(), indexIntoFileIter_.lumi());
 
     ++indexIntoFileIter_;
+    return succeeded;
   }
 
   // Reads event at the current entry in the event tree
-  bool RootFile::readCurrentEvent(EventPrincipal& principal) {
+  std::tuple<bool, bool> RootFile::readCurrentEvent(EventPrincipal& principal, bool assertOnFailure) {
+    bool found = true;
+    bool succeeded = true;
     if (!eventTree_.current()) {
-      return false;
+      found = false;
+      return {found, succeeded};
     }
     auto evtAux = fillThisEventAuxiliary();
     if (!fileFormatVersion().lumiInEventID()) {
@@ -1466,7 +1472,9 @@ namespace edm {
     }
     EventSelectionIDVector eventSelectionIDs;
     BranchListIndexes branchListIndexes;
-    fillEventHistory(evtAux, eventSelectionIDs, branchListIndexes);
+    if (!fillEventHistory(evtAux, eventSelectionIDs, branchListIndexes, assertOnFailure)) {
+      succeeded = false;
+    }
     runHelper_->overrideRunNumber(evtAux.id(), evtAux.isRealData());
 
     // We're not done ... so prepare the EventPrincipal
@@ -1489,7 +1497,7 @@ namespace edm {
 
     // report event read from file
     filePtr_->eventReadFromFile();
-    return true;
+    return {found, succeeded};
   }
 
   void RootFile::setAtEventEntry(IndexIntoFile::EntryNumber_t entry) { eventTree_.setEntryNumber(entry); }

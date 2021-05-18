@@ -215,15 +215,17 @@ namespace edm {
   }
 
   void PoolSource::readEvent_(EventPrincipal& eventPrincipal) {
-    primaryFileSequence_->readEvent(eventPrincipal);
+    bool readEventSucceeded = primaryFileSequence_->readEvent(eventPrincipal);
+    assert(readEventSucceeded);
     if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
       bool found = secondaryFileSequence_->skipToItem(
           eventPrincipal.run(), eventPrincipal.luminosityBlock(), eventPrincipal.id().event());
       if (found) {
         EventPrincipal& secondaryEventPrincipal = *secondaryEventPrincipals_[eventPrincipal.streamID().value()];
-        secondaryFileSequence_->readEvent(secondaryEventPrincipal);
+        bool readEventSucceeded = secondaryFileSequence_->readEvent(secondaryEventPrincipal);
         checkConsistency(eventPrincipal, secondaryEventPrincipal);
         checkHistoryConsistency(eventPrincipal, secondaryEventPrincipal);
+        assert(readEventSucceeded);
         eventPrincipal.recombine(secondaryEventPrincipal, branchIDsToReplace_[InEvent]);
         eventPrincipal.mergeProvenanceRetrievers(secondaryEventPrincipal);
         secondaryEventPrincipal.clearPrincipal();
