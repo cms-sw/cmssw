@@ -326,7 +326,7 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Transformations.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Parameters.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Timing_Station_Parameters.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Timing_Horizontal_Pot/2021/v1/CTPPS_Timing_Horizontal_Pot.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Timing_Horizontal_Pot.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern1_Segment1.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern2_Segment1.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern2_Segment2.xml'/>
