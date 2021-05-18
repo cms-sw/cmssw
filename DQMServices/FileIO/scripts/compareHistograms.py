@@ -6,7 +6,6 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 import os
 import sys
 import argparse
-import root_numpy
 import numpy as np
 from DQMServices.FileIO.blacklist import get_blacklist
 
@@ -114,8 +113,8 @@ def compare(shared_paths, pr_flat_dict, base_flat_dict, paths_to_save_in_pr, pat
 
       elif pr_item.InheritsFrom('TH1') and base_item.InheritsFrom('TH1'):
          # Compare bin by bin
-         pr_array = root_numpy.hist2array(hist=pr_item, include_overflow=True, copy=False)
-         base_array = root_numpy.hist2array(hist=base_item, include_overflow=True, copy=False)
+         pr_array = np.array(pr_item)
+         base_array = np.array(base_item)
 
          if pr_array.shape != base_array.shape or not np.allclose(pr_array, base_array, equal_nan=True):
             are_different = True
