@@ -1,4 +1,4 @@
-#include "RecoHGCal/TICL/interface/PatternRecognitionPluginFactory.h"
+#include "RecoHGCal/TICL/plugins/PatternRecognitionPluginFactory.h"
 #include "PatternRecognitionbyCA.h"
 #include "PatternRecognitionbyCLUE3D.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginFactoryMacros.h"
