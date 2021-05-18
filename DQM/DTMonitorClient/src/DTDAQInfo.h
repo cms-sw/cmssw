@@ -18,7 +18,6 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include <map>
 
@@ -54,8 +53,6 @@ private:
   edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> mappingToken_;
   const DTReadOutMapping* mapping;
 
-  edm::ESGetToken<RunInfo, RunSummaryRcd> sumFEDToken_;
-  const RunInfo* sumFED;
 };
 
 #endif
