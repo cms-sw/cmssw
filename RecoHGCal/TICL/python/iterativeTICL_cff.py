@@ -28,6 +28,9 @@ ticlIterationsTask = cms.Task(
     ,ticlHADStepTask
 )
 
+from Configuration.ProcessModifiers.clue3D_cff import clue3D
+clue3D.toModify(ticlIterationsTask, func=lambda x : x.add(ticlCLUE3DHighStepTask,ticlCLUE3DLowStepTask))
+
 ticlIterLabels = [_step.itername.value() for _iteration in ticlIterationsTask for _step in _iteration if (_step._TypedParameterizable__type == "TrackstersProducer")]
 
 iterTICLTask = cms.Task(ticlLayerTileTask
