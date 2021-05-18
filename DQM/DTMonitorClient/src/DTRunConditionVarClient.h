@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -97,7 +98,7 @@ private:
   float maxGoodT0Sigma;
   float minBadT0Sigma;
 
-  edm::ESHandle<DTMtime> mTime;
+  edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeMapToken_;
   const DTMtime* mTimeMap_;
 
   bool bookingdone;
