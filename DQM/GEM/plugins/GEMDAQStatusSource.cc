@@ -59,6 +59,7 @@ private:
   MEMap3Inf mapStatusVFAT_;
   MEMap3Inf mapGEBNumVFAT_;
 
+  MEMap3Inf mapStatusVFATPerLayer_;
   MEMap4Inf mapStatusVFATPerCh_;
 
   MonitorElement *h2SummaryStatus;
@@ -210,6 +211,8 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
                              -0.5,
                              24 + 0.5);  // FIXME: The maximum number of VFATs is different for each stations
 
+  mapStatusVFATPerLayer_ = MEMap3Inf(
+      this, "vfat_statusSum", "Summary on VFAT Quality Status", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
   mapStatusVFATPerCh_ =
       MEMap4Inf(this, "vfat_status", "VFAT Quality Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
@@ -226,6 +229,12 @@ int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
   mapStatusGEB_.SetLabelForChambers(key, 1);
 
   SetLabelGEBStatus(mapStatusGEB_.FindHist(key));
+
+  mapStatusVFATPerLayer_.SetBinConfX(stationInfo.nNumChambers_);
+  mapStatusVFATPerLayer_.SetBinConfY(stationInfo.nMaxVFAT_);
+  mapStatusVFATPerLayer_.bookND(bh, key);
+  mapStatusVFATPerLayer_.SetLabelForChambers(key, 1);
+  mapStatusVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   mapStatusVFAT_.SetBinConfX(stationInfo.nMaxVFAT_);
   mapStatusVFAT_.bookND(bh, key);
@@ -386,16 +395,18 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     const GEMVfatStatusDigiCollection::Range &range = (*vfatIt).second;
 
     for (auto vfatStat = range.first; vfatStat != range.second; ++vfatStat) {
+      // NOTE: nIdxVFAT starts from 1
+      Int_t nIdxVFAT = getVFATNumber(gid.station(), gid.ieta(), vfatStat->phi()) + 1;
       uint64_t unQFVFAT = vfatStat->quality();
       if ((unQFVFAT & ~0x1) == 0) {
         unQFVFAT |= 0x1;  // If no error, then it should be 'Good'
       } else {            // Error!
         mapChamberStatus[key4Ch] = false;
+        mapStatusVFATPerLayer_.Fill(key3, gid.chamber(), nIdxVFAT);
       }
 
-      Int_t nIdxVFAT = getVFATNumber(gid.station(), gid.roll(), vfatStat->phi());
-      mapStatusVFAT_.FillBits(key3, nIdxVFAT + 1, unQFVFAT);
-      mapStatusVFATPerCh_.FillBits(key4Ch, nIdxVFAT + 1, unQFVFAT);
+      mapStatusVFAT_.FillBits(key3, nIdxVFAT, unQFVFAT);
+      mapStatusVFATPerCh_.FillBits(key4Ch, nIdxVFAT, unQFVFAT);
     }
   }
 
