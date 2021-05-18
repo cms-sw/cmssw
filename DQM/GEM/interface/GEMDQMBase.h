@@ -150,6 +150,26 @@ public:
           dYL_(dYL),
           dYH_(dYH){};
 
+    //MEMapInfT(GEMDQMBase *pDQMBase,
+    //          TString strName,
+    //          TString strTitle,
+    //          std::vector<Double_t> &x_binning,
+    //          std::vector<Double_t> &y_binning,
+    //          TString strTitleX = "",
+    //          TString strTitleY = "")
+    //    : pDQMBase_(pDQMBase),
+    //      strName_(strName),
+    //      strTitle_(strTitle),
+    //      strTitleX_(strTitleX),
+    //      strTitleY_(strTitleY),
+    //      bOperating_(true),
+    //      nBinsX_(nBinsX),
+    //      dXL_(dXL),
+    //      dXH_(dXH),
+    //      nBinsY_(nBinsY),
+    //      dYL_(dYL),
+    //      dYH_(dYH){};
+
     ~MEMapInfT(){};
 
     Bool_t isOperating() { return bOperating_; };
@@ -341,13 +361,13 @@ public:
               nMaxVFAT_ == other.nMaxVFAT_ && nNumStrip_ == other.nNumStrip_);
     };
 
-    Int_t nRegion_;
-    Int_t nStation_;
-    Int_t nLayer_;
-    Int_t nNumChambers_;
-    Int_t nNumEtaPartitions_;
-    Int_t nMaxVFAT_;
-    Int_t nNumStrip_;
+    Int_t nRegion_;            // the region index
+    Int_t nStation_;           // the station index
+    Int_t nLayer_;             // the layer
+    Int_t nNumChambers_;       // the number of chambers in the current station
+    Int_t nNumEtaPartitions_;  // the number of eta partitions of the chambers
+    Int_t nMaxVFAT_;   // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
+    Int_t nNumStrip_;  // the number of strips of each VFAT
   };
 
 public:
@@ -357,6 +377,7 @@ public:
 protected:
   int initGeometry(edm::EventSetup const &iSetup);
   int loadChambers();
+  int readRadiusEtaPartition(int nRegion, int nStation);
 
   int GenerateMEPerChamber(DQMStore::IBooker &ibooker);
   virtual int ProcessWithMEMap2(BookingHelper &bh, ME2IdsKey key) { return 0; };             // must be overrided
