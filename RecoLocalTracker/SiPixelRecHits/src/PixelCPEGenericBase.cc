@@ -3,7 +3,7 @@
 
 namespace {
   constexpr float micronsToCm = 1.0e-4;
-  auto convertDoubleVecToFloatVec = [](std::vector<double> const& iIn) {
+  const auto convertDoubleVecToFloatVec = [](std::vector<double> const& iIn) {
     return std::vector<float>(iIn.begin(), iIn.end());
   };
 }  // namespace
@@ -158,11 +158,6 @@ void PixelCPEGenericBase::setXYErrors(float& xerr,
       }
     }
 
-    // if (localPrint) {
-    //   cout << " in if " << edgex << " " << edgey << " " << sizex << " " << sizey << endl;
-    //   cout << " errors  " << xerr << " " << yerr << " " << theClusterParam.sx1 << " " << theClusterParam.sx2 << " "
-    //        << theClusterParam.sigmax << endl;  //dk
-    // }
   } else {  // simple errors
 
     if (GeomDetEnumerators::isTrackerPixel(theDetParam.thePart)) {
