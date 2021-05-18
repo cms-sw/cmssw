@@ -469,7 +469,7 @@ void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco
 }
 
 template <typename TILES>
-void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
   iDesc.add<bool>("oneTracksterPerTrackSeed", false);
   iDesc.add<bool>("promoteEmptyRegionToTrackster", false);
@@ -485,7 +485,8 @@ void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescrip
   iDesc.add<int>("min_layers_per_trackster", 10);
   iDesc.add<std::vector<int>>("filter_on_categories", {0});
   iDesc.add<double>("pid_threshold", 0.)->setComment("make default such that no filtering is applied");
-  iDesc.add<double>("energy_em_over_total_threshold", -1.)->setComment("make default such that no filtering is applied");
+  iDesc.add<double>("energy_em_over_total_threshold", -1.)
+      ->setComment("make default such that no filtering is applied");
   iDesc.add<double>("max_longitudinal_sigmaPCA", 9999);
   iDesc.add<double>("max_delta_time", 3.)->setComment("nsigma");
   iDesc.add<std::string>("eid_input_name", "input");

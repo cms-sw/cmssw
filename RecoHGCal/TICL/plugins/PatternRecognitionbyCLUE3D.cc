@@ -500,14 +500,12 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
             // Skip masked layer clusters
             if ((layerandSoa.first == -1) && (layerandSoa.second == -1))
               continue;
-            auto const& clustersLayer = clusters_[layerandSoa.first];
+            auto const &clustersLayer = clusters_[layerandSoa.first];
             if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
               edm::LogVerbatim("PatternRecogntionbyCLUE3D")
                   << "OtherLayer: " << layerandSoa.first << " SoaIDX: " << layerandSoa.second;
-              edm::LogVerbatim("PatternRecogntionbyCLUE3D")
-                  << "OtherEta: " << clustersLayer.eta[layerandSoa.second];
-              edm::LogVerbatim("PatternRecogntionbyCLUE3D")
-                  << "OtherPhi: " << clustersLayer.phi[layerandSoa.second];
+              edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "OtherEta: " << clustersLayer.eta[layerandSoa.second];
+              edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "OtherPhi: " << clustersLayer.phi[layerandSoa.second];
             }
             // extend by 26 mm, roughly 2 cells, more wrt sum of radii
             float delta = clustersOnLayer.radius[i] + clustersLayer.radius[layerandSoa.second] + 2.6f;
@@ -530,11 +528,11 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
                                           clusters_[layerandSoa.first].energy[layerandSoa.second];
               }
             }
-          } // end of loop on possible compatible clusters
-        } // end of loop over phi-bin region
-      } // end of loop over eta-bin region
-    } // end of loop on the sibling layers
-  } // end of loop over clusters on this layer
+          }  // end of loop on possible compatible clusters
+        }    // end of loop over phi-bin region
+      }      // end of loop over eta-bin region
+    }        // end of loop on the sibling layers
+  }          // end of loop over clusters on this layer
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
   }
@@ -593,9 +591,9 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
               continue;
             auto const &clustersOnOtherLayer = clusters_[layerandSoa.first];
             float dist = reco::deltaR2(clustersOnLayer.eta[i],
-                clustersOnLayer.phi[i],
-                clustersOnOtherLayer.eta[layerandSoa.second],
-                clustersOnOtherLayer.phi[layerandSoa.second]);
+                                       clustersOnLayer.phi[i],
+                                       clustersOnOtherLayer.eta[layerandSoa.second],
+                                       clustersOnOtherLayer.phi[layerandSoa.second]);
             bool foundHigher = (clustersOnOtherLayer.rho[layerandSoa.second] > clustersOnLayer.rho[i]) ||
                                (clustersOnOtherLayer.rho[layerandSoa.second] == clustersOnLayer.rho[i] &&
                                 clustersOnOtherLayer.layerClusterOriginalIdx[layerandSoa.second] >
@@ -621,8 +619,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
     bool foundNearestHigherInEtaPhiCylinder = (i_delta != maxDelta);
     if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
       edm::LogVerbatim("PatternRecogntionbyCLUE3D")
-          << "i_delta: " << sqrt(i_delta) << " passed: " << foundNearestHigherInEtaPhiCylinder << " " << i_nearestHigher.first
-          << " " << i_nearestHigher.second;
+          << "i_delta: " << sqrt(i_delta) << " passed: " << foundNearestHigherInEtaPhiCylinder << " "
+          << i_nearestHigher.first << " " << i_nearestHigher.second;
     }
     if (foundNearestHigherInEtaPhiCylinder) {
       clustersOnLayer.delta[i] = sqrt(i_delta);
@@ -697,7 +695,7 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
 }
 
 template <typename TILES>
-void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
   iDesc.add<double>("criticalDensity", 4)->setComment("in GeV");
   iDesc.add<int>("densitySiblingLayers", 3);
