@@ -20,6 +20,7 @@
 
 #include "CommonTools/RecoAlgos/interface/PrimaryVertexAssignment.h"
 #include "CommonTools/RecoAlgos/interface/PrimaryVertexSorting.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 /**\class PrimaryVertexSorter
  * \author Andrea Rizzi
@@ -312,12 +313,20 @@ inline void PrimaryVertexSorter<std::vector<reco::PFCandidate>>::doConsumesForTi
 }
 
 template <>
+inline void PrimaryVertexSorter<std::vector<pat::PackedCandidate>>::doConsumesForTiming(const edm::ParameterSet& iConfig) {}
+
+template <>
 inline bool PrimaryVertexSorter<std::vector<reco::RecoChargedRefCandidate>>::needsProductsForTiming() {
   return true;
 }
 
 template <>
 inline bool PrimaryVertexSorter<std::vector<reco::PFCandidate>>::needsProductsForTiming() {
+  return false;
+}
+
+template <>
+inline bool PrimaryVertexSorter<std::vector<pat::PackedCandidate>>::needsProductsForTiming() {
   return false;
 }
 
@@ -336,6 +345,17 @@ template <>
 inline std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexSorter<std::vector<reco::PFCandidate>>::runAlgo(
     const reco::VertexCollection& vertices,
     const reco::PFCandidate& pf,
+    const edm::ValueMap<float>* trackTimeTag,
+    const edm::ValueMap<float>* trackTimeResoTag,
+    const edm::View<reco::Candidate>& jets,
+    const TransientTrackBuilder& builder) {
+  return assignmentAlgo_.chargedHadronVertex(vertices, pf, jets, builder);
+}
+
+template <>
+std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexSorter<std::vector<pat::PackedCandidate>>::runAlgo(
+    const reco::VertexCollection& vertices,
+    const pat::PackedCandidate& pf,
     const edm::ValueMap<float>* trackTimeTag,
     const edm::ValueMap<float>* trackTimeResoTag,
     const edm::View<reco::Candidate>& jets,

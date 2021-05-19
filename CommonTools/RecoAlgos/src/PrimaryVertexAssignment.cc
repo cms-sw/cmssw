@@ -28,6 +28,19 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
     }
     index++;
   }
+  return chargedHadronVertex(vertices, iVertex, track, time, timeReso, jets, builder);
+}
+
+std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::chargedHadronVertex(
+    const reco::VertexCollection& vertices,
+    int iVertex,
+    const reco::Track* track,
+    float time,
+    float timeReso,  // <0 if timing not available for this object
+    const edm::View<reco::Candidate>& jets,
+    const TransientTrackBuilder& builder) const {
+  typedef reco::VertexCollection::const_iterator IV;
+  typedef reco::Vertex::trackRef_iterator IT;
 
   bool useTime = useTiming_;
   if (edm::isNotFinite(time) || timeReso < 1e-6) {
@@ -53,6 +66,11 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
       }
     }
   }
+
+  // recover cases where the primary vertex is split
+  if ((iVertex > 0) && (iVertex <= fNumOfPUVtxsForCharged_) &&
+      (std::abs(track->dz(vertices.at(0).position())) < fDzCutForChargedFromPUVtxs_))
+    return std::pair<int, PrimaryVertexAssignment::Quality>(iVertex, PrimaryVertexAssignment::PrimaryDz);
 
   if (iVertex >= 0)
     return std::pair<int, PrimaryVertexAssignment::Quality>(iVertex, PrimaryVertexAssignment::UsedInFit);
@@ -89,12 +107,25 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
   // first use "closest in Z" with tight cuts (targetting primary particles)
   const float add_cov = vtxIdMinSignif >= 0 ? vertices[vtxIdMinSignif].covariance(2, 2) : 0.f;
   const float dzE = sqrt(track->dzError() * track->dzError() + add_cov);
-  if (vtxIdMinSignif >= 0 and
+  if (!fOnlyUseFirstDz_ and vtxIdMinSignif >= 0 and
       (dzmin < maxDzForPrimaryAssignment_ and dzmin / dzE < maxDzSigForPrimaryAssignment_ and
        track->dzError() < maxDzErrorForPrimaryAssignment_) and
       (!useTime or dtmin / timeReso < maxDtSigForPrimaryAssignment_)) {
     iVertex = vtxIdMinSignif;
   }
+
+  // consider only distances to first vertex for association of pileup vertices (originally used in PUPPI)
+  if ((fOnlyUseFirstDz_) && (vtxIdMinSignif >= 0) && (std::abs(track->eta()) > fEtaMinUseDz_))
+    iVertex = ((std::abs(track->dz(vertices.at(0).position())) < maxDzForPrimaryAssignment_ and
+                std::abs(track->dz(vertices.at(0).position())) / dzE < maxDzSigForPrimaryAssignment_ and
+                track->dzError() < maxDzErrorForPrimaryAssignment_) and
+               (!useTime or std::abs(time - vertices.at(0).t()) / timeReso < maxDtSigForPrimaryAssignment_))
+                  ? 0
+                  : vtxIdMinSignif;
+
+  // protect high pT particles from association to pileup vertices and assign them to the first vertex
+  if ((fPtMaxCharged_ > 0) && (vtxIdMinSignif >= 0) && (track->pt() > fPtMaxCharged_))
+    iVertex = 0;
 
   if (iVertex >= 0)
     return std::pair<int, PrimaryVertexAssignment::Quality>(iVertex, PrimaryVertexAssignment::PrimaryDz);

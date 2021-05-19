@@ -1,0 +1,115 @@
+# Auto generated configuration file
+# using: 
+# Revision: 1.19 
+# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+# with command line options: step5 --conditions auto:run2_mc --nThreads 2 -n 10 --era Run2_2016 --eventcontent MINIAODSIM --filein file:step3_inMINIAODSIM.root -s NANO --datatier NANOAODSIM --mc --fileout file:step5.root
+import FWCore.ParameterSet.Config as cms
+
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+
+process = cms.Process('NANO',Run2_2016)
+
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('PhysicsTools.NanoAOD.nano_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(10),
+    output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
+)
+
+# Input source
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/h/hinzmann/stable_13TeV/jetmet/mtd/CMSSW_11_1_8/src/25202.0_TTbar_13+TTbar_13+DIGIUP15_PU25+RECOUP15_PU25+HARVESTUP15_PU25+NANOUP15_PU25/step3_inMINIAODSIM.root'),
+    secondaryFileNames = cms.untracked.vstring()
+)
+
+process.options = cms.untracked.PSet(
+    FailPath = cms.untracked.vstring(),
+    IgnoreCompletely = cms.untracked.vstring(),
+    Rethrow = cms.untracked.vstring(),
+    SkipEvent = cms.untracked.vstring(),
+    allowUnscheduled = cms.obsolete.untracked.bool,
+    canDeleteEarly = cms.untracked.vstring(),
+    emptyRunLumiMode = cms.obsolete.untracked.string,
+    eventSetup = cms.untracked.PSet(
+        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
+
+        ),
+        numberOfConcurrentIOVs = cms.untracked.uint32(1)
+    ),
+    fileMode = cms.untracked.string('FULLMERGE'),
+    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    makeTriggerResults = cms.obsolete.untracked.bool,
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(1),
+    printDependencies = cms.untracked.bool(False),
+    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
+    throwIfIllegalParameter = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(False)
+)
+
+# Production Info
+process.configurationMetadata = cms.untracked.PSet(
+    annotation = cms.untracked.string('step5 nevts:10'),
+    name = cms.untracked.string('Applications'),
+    version = cms.untracked.string('$Revision: 1.19 $')
+)
+
+# Output definition
+
+process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
+    compressionAlgorithm = cms.untracked.string('LZMA'),
+    compressionLevel = cms.untracked.int32(9),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('MINIAODSIM'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:updatedMINIAODSIM.root'),
+    outputCommands = process.MINIAODSIMEventContent.outputCommands
+)
+
+# Additional output definition
+
+# Other statements
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+
+from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTune_MC
+UpdatePuppiTune_MC(process)
+
+# Path and EndPath definitions
+process.puppi_step = cms.Path(process.puppiSequence)
+process.endjob_step = cms.EndPath(process.endOfProcess)
+process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)
+
+# Schedule definition
+process.schedule = cms.Schedule(process.puppi_step,process.endjob_step,process.MINIAODSIMoutput_step)
+from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+associatePatAlgosToolsTask(process)
+
+#Setup FWK for multithreaded
+process.options.numberOfThreads=cms.untracked.uint32(2)
+process.options.numberOfStreams=cms.untracked.uint32(0)
+process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)
+
+# customisation of the process.
+
+# End of customisation functions
+
+# Customisation from command line
+
+# Add early deletion of temporary data products to reduce peak memory need
+from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+process = customiseEarlyDelete(process)
+# End adding early deletion

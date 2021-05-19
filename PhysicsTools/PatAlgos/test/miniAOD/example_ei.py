@@ -36,7 +36,7 @@ process.selectedElectrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("
     0.5*pfIsolationVariables().sumPUPt))/pt < 0.15'''))
 
 #do projections
-process.pfCHS = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))
+process.load("CommonTools.ParticleFlow.pfCHS_cff")
 process.pfNoMuonCHS =  cms.EDProducer("CandPtrProjector", src = cms.InputTag("pfCHS"), veto = cms.InputTag("selectedMuons"))
 process.pfNoElectronsCHS = cms.EDProducer("CandPtrProjector", src = cms.InputTag("pfNoMuonCHS"), veto =  cms.InputTag("selectedElectrons"))
 

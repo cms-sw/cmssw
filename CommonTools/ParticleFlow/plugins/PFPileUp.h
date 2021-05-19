@@ -15,6 +15,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include "CommonTools/ParticleFlow/interface/PFPileUpAlgo.h"
 
@@ -30,9 +31,10 @@ produces the corresponding collection of PileUpCandidates.
 
 class PFPileUp : public edm::stream::EDProducer<> {
 public:
-  typedef std::vector<edm::FwdPtr<reco::PFCandidate> > PFCollection;
+  typedef std::vector<edm::FwdPtr<reco::PFCandidate>> PFCollection;
   typedef edm::View<reco::PFCandidate> PFView;
   typedef std::vector<reco::PFCandidate> PFCollectionByValue;
+  typedef edm::Association<reco::VertexCollection> CandToVertex;
 
   explicit PFPileUp(const edm::ParameterSet&);
 
@@ -59,6 +61,11 @@ private:
 
   /// use the closest z vertex if a track is not in a vertex
   bool checkClosestZVertex_;
+
+  edm::EDGetTokenT<CandToVertex> tokenVertexAssociation_;
+  edm::EDGetTokenT<edm::ValueMap<int>> tokenVertexAssociationQuality_;
+  bool fUseVertexAssociation;
+  int vertexAssociationQuality_;
 };
 
 #endif
