@@ -6,6 +6,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
 
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include <string>
 #include <vector>
 
@@ -44,5 +47,7 @@ private:
   std::vector<RPCClient *> clientModules_;
 
   std::vector<int> clientTag_;
+
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
 };
 #endif
