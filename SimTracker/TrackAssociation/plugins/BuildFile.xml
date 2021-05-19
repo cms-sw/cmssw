@@ -5,10 +5,12 @@
 <use   name="SimTracker/Records"/>
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="SimDataFormats/TrackerDigiSimLink"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="MagneticField/Records"/>
+<use   name="PhysicsTools/HepMCCandAlgos"/>
 <library   name="SimTrackerTrackAssociation_plugins" file="*.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
