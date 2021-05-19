@@ -33,6 +33,8 @@ RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps) {
   NumberOfFeds_ = FEDRange_.second - FEDRange_.first + 1;
 
   offlineDQM_ = ps.getUntrackedParameter<bool>("OfflineDQM", true);
+
+  runInfoToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 }
 
 RPCEventSummary::~RPCEventSummary() { edm::LogVerbatim("rpceventsummary") << "[RPCEventSummary]: Destructor "; }
