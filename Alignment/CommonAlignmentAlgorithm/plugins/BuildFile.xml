@@ -16,7 +16,7 @@
   <use name="DataFormats/SiStripDetId"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
-  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
   <use name="TrackingTools/TransientTrackingRecHit"/>
   <flags EDM_PLUGIN="1"/>
 </library>
