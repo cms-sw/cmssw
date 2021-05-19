@@ -257,4 +257,4 @@ triggerObjectTables = cms.Sequence( unpackedPatTrigger + triggerObjectTable )
 
 _triggerObjectTables_withL1PreFiring = triggerObjectTables.copy()
 _triggerObjectTables_withL1PreFiring.replace(triggerObjectTable, prefiringweight + l1PreFiringEventWeightTable + triggerObjectTable)
-(run2_HLTconditions_2016 | run2_HLTconditions_2017).toReplaceWith(triggerObjectTables, _triggerObjectTables_withL1PreFiring)
+(run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018).toReplaceWith(triggerObjectTables, _triggerObjectTables_withL1PreFiring)
