@@ -19,6 +19,8 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 
 #include <fstream>
 #include <string>
@@ -52,8 +54,8 @@ private:
   // Switch for verbosity
   std::string metname_;
   // The DB label
-  std::string labelDBRef_;
-  std::string labelDB_;
+  edm::ESGetToken<DTT0, DTT0Rcd> labelDBRef_;
+  edm::ESGetToken<DTT0, DTT0Rcd> labelDB_;
 
   // The file which will contain the difference plot
   bool outputMEsInRootFile_;
@@ -62,11 +64,12 @@ private:
   std::string t0TestName_;
 
   // The DTGeometry
-  edm::ESHandle<DTGeometry> dtGeom_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry *dtGeom;
 
   // The t0 map
-  const DTT0 *tZeroMap_;
   const DTT0 *tZeroRefMap_;
+  const DTT0 *tZeroMap_;
 
   // Map of the t0 and sigma per wire
   std::map<DTWireId, std::vector<float>> t0RefMap_;
