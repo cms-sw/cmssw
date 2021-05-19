@@ -1,5 +1,5 @@
 <use name="Geometry/TrackerNumberingBuilder"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="FWCore/Framework"/>
 <use name="RecoTracker/TkDetLayers"/>
