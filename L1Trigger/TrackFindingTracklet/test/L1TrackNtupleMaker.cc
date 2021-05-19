@@ -915,14 +915,14 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
           if (detIdStub.subdetId() == StripSubdetector::TOB) {
             layer = static_cast<int>(tTopo->layer(detIdStub));
             if (DebugMode)
-	      edm::LogVerbatim("Tracklet")
-		<< "   stub in layer " << layer << " at position x y z = " << x << " " << y << " " << z;
+              edm::LogVerbatim("Tracklet")
+                  << "   stub in layer " << layer << " at position x y z = " << x << " " << y << " " << z;
             tmp_trk_lhits += pow(10, layer - 1);
           } else if (detIdStub.subdetId() == StripSubdetector::TID) {
             layer = static_cast<int>(tTopo->layer(detIdStub));
             if (DebugMode)
-	      edm::LogVerbatim("Tracklet")
-		<< "   stub in disk " << layer << " at position x y z = " << x << " " << y << " " << z;
+              edm::LogVerbatim("Tracklet")
+                  << "   stub in disk " << layer << " at position x y z = " << x << " " << y << " " << z;
             tmp_trk_dhits += pow(10, layer - 1);
           }
 
@@ -1012,36 +1012,36 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         tmp_matchtp_eta = my_tp->eta();
         tmp_matchtp_phi = my_tp->phi();
 
-	float tmp_matchtp_vz = my_tp->vz();
-	float tmp_matchtp_vx = my_tp->vx();
-	float tmp_matchtp_vy = my_tp->vy();
+        float tmp_matchtp_vz = my_tp->vz();
+        float tmp_matchtp_vx = my_tp->vx();
+        float tmp_matchtp_vy = my_tp->vy();
         tmp_matchtp_dxy = sqrt(tmp_matchtp_vx * tmp_matchtp_vx + tmp_matchtp_vy * tmp_matchtp_vy);
 
-	// ----------------------------------------------------------------------------------------------
-	// get d0/z0 propagated back to the IP
+        // ----------------------------------------------------------------------------------------------
+        // get d0/z0 propagated back to the IP
 
-	float tmp_matchtp_t = tan(2.0 * atan(1.0) - 2.0 * atan(exp(-tmp_matchtp_eta)));
+        float tmp_matchtp_t = tan(2.0 * atan(1.0) - 2.0 * atan(exp(-tmp_matchtp_eta)));
 
-	float delx = -tmp_matchtp_vx;
-	float dely = -tmp_matchtp_vy;
+        float delx = -tmp_matchtp_vx;
+        float dely = -tmp_matchtp_vy;
 
-	float b_field = magneticFieldHandle.product()->inTesla(GlobalPoint(0, 0, 0)).z();
-	float c_converted = CLHEP::c_light / 1.0E5;
-	float r2_inv = my_tp->charge() * c_converted * b_field / tmp_matchtp_pt / 2.0;
+        float b_field = magneticFieldHandle.product()->inTesla(GlobalPoint(0, 0, 0)).z();
+        float c_converted = CLHEP::c_light / 1.0E5;
+        float r2_inv = my_tp->charge() * c_converted * b_field / tmp_matchtp_pt / 2.0;
 
-	float tmp_matchtp_x0p = delx - (1. / (2. * r2_inv) * sin(tmp_matchtp_phi));
-	float tmp_matchtp_y0p = dely + (1. / (2. * r2_inv) * cos(tmp_matchtp_phi));
-	float tmp_matchtp_rp = sqrt(tmp_matchtp_x0p * tmp_matchtp_x0p + tmp_matchtp_y0p * tmp_matchtp_y0p);
-	tmp_matchtp_d0 = my_tp->charge() * tmp_matchtp_rp - (1. / (2. * r2_inv));
+        float tmp_matchtp_x0p = delx - (1. / (2. * r2_inv) * sin(tmp_matchtp_phi));
+        float tmp_matchtp_y0p = dely + (1. / (2. * r2_inv) * cos(tmp_matchtp_phi));
+        float tmp_matchtp_rp = sqrt(tmp_matchtp_x0p * tmp_matchtp_x0p + tmp_matchtp_y0p * tmp_matchtp_y0p);
+        tmp_matchtp_d0 = my_tp->charge() * tmp_matchtp_rp - (1. / (2. * r2_inv));
 
-	static double pi = M_PI;
-	float delphi = tmp_matchtp_phi - atan2(-r2_inv * tmp_matchtp_x0p, r2_inv * tmp_matchtp_y0p);
-	if (delphi < -pi)
-	  delphi += 2.0 * pi;
-	if (delphi > pi)
-	  delphi -= 2.0 * pi;
-	tmp_matchtp_z0 = tmp_matchtp_vz + tmp_matchtp_t * delphi / (2.0 * r2_inv);
-	// ----------------------------------------------------------------------------------------------
+        static double pi = M_PI;
+        float delphi = tmp_matchtp_phi - atan2(-r2_inv * tmp_matchtp_x0p, r2_inv * tmp_matchtp_y0p);
+        if (delphi < -pi)
+          delphi += 2.0 * pi;
+        if (delphi > pi)
+          delphi -= 2.0 * pi;
+        tmp_matchtp_z0 = tmp_matchtp_vz + tmp_matchtp_t * delphi / (2.0 * r2_inv);
+        // ----------------------------------------------------------------------------------------------
 
         if (DebugMode) {
           edm::LogVerbatim("Tracklet") << "TP matched to track has pt = " << my_tp->p4().pt()
