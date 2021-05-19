@@ -67,7 +67,7 @@ private:
   edm::EDGetTokenT<DTDigiCollection> DigiToken_;
   //Get DT Geometry
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
-  const DTGeometry* muonGeom;
+  const DTGeometry *muonGeom;
 
   // Switch for debug output
   bool verbose_;

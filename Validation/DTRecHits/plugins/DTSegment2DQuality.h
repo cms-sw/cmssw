@@ -54,7 +54,7 @@ private:
 
   //Get DT Geometry
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
-    
+
   // Sigma resolution on position
   double sigmaResPos_;
 

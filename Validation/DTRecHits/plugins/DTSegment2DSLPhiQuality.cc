@@ -34,8 +34,7 @@ namespace dtsegment2dsl {
 using namespace dtsegment2dsl;
 
 // Constructor
-DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet &pset) : 
-  muonGeomToken_(esConsumes()) {
+DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet &pset) : muonGeomToken_(esConsumes()) {
   // Get the debug parameter for verbose output
   debug_ = pset.getUntrackedParameter<bool>("debug");
   DTHitQualityUtils::debug = debug_;
@@ -71,7 +70,7 @@ void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const &event,
                                          edm::EventSetup const &setup,
                                          Histograms const &histograms) const {
   // Get the DT Geometry
-  const DTGeometry& dtGeom = setup.getData(muonGeomToken_);
+  const DTGeometry &dtGeom = setup.getData(muonGeomToken_);
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;

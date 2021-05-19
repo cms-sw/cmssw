@@ -84,8 +84,7 @@ namespace {
 }
 
 // Constructor
-DTRecHitQuality::DTRecHitQuality(const ParameterSet &pset) :
-  muonGeomToken_(esConsumes()) {
+DTRecHitQuality::DTRecHitQuality(const ParameterSet &pset) : muonGeomToken_(esConsumes()) {
   // Get the debug parameter for verbose output
   debug_ = pset.getUntrackedParameter<bool>("debug");
   // the name of the simhit collection
@@ -218,7 +217,7 @@ void DTRecHitQuality::dqmAnalyze(edm::Event const &event,
   }
 
   // Get the DT Geometry
-  const DTGeometry& dtGeom = setup.getData(muonGeomToken_);
+  const DTGeometry &dtGeom = setup.getData(muonGeomToken_);
 
   // Get the SimHit collection from the event
   Handle<PSimHitContainer> simHits;
