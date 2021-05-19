@@ -13,8 +13,6 @@ class UCTRegion;
 class UCTSummaryCard {
 public:
 
-//  UCTSummaryCard(const UCTLayer1* in, 
-//                const std::vector< std::vector< std::vector < uint32_t > > > *l,
   UCTSummaryCard(const std::vector< std::vector< std::vector < uint32_t > > > *l,
 		 uint32_t jetSeedIn = 10,
 		 uint32_t tauSeedIn = 10,
@@ -33,8 +31,7 @@ public:
 
   bool clearEvent();
   bool clearRegions();
-  //bool setRegionData(uint16_t regionData, unsigned regionEtaIndex, unsigned regionPhiIndex, int fwv);
-  bool setRegionData(std::vector<UCTRegion*> inputRegions);
+  bool setRegionData(std::vector<UCTRegion*> inputRegions); // Use when the region collection is available and no direct access to TPGs
   bool process();
 
   // Access to data

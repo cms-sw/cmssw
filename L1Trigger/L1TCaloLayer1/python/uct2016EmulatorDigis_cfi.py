@@ -1,13 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 uct2016EmulatorDigis = cms.EDProducer('L1TCaloSummary',
-                                      ecalToken = cms.InputTag("l1tCaloLayer1Digis"),
-                                      hcalToken = cms.InputTag("l1tCaloLayer1Digis"),
-                                      useLSB = cms.bool(True),
-                                      useCalib = cms.bool(True),
-                                      useECALLUT = cms.bool(True),
-                                      useHCALLUT = cms.bool(True),
-                                      useHFLUT = cms.bool(True),
                                       nPumBins = cms.uint32(18),
 pumLUT00n=  cms.vdouble(0.43, 0.32, 0.29, 0.36, 0.33, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25),
 pumLUT00p=  cms.vdouble(0.45, 0.32, 0.29, 0.35, 0.31, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25),
