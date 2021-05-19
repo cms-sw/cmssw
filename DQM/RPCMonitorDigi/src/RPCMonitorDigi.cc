@@ -1,7 +1,6 @@
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -38,19 +37,19 @@ RPCMonitorDigi::RPCMonitorDigi(const edm::ParameterSet& pset)
 
   noiseFolder_ = pset.getUntrackedParameter<std::string>("NoiseFolder", "AllHits");
   muonFolder_ = pset.getUntrackedParameter<std::string>("MuonFolder", "Muon");
+
+  rpcGeomToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void RPCMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r, edm::EventSetup const& iSetup) {
   edm::LogInfo("rpcmonitordigi") << "[RPCMonitorDigi]: Begin Run ";
 
   std::set<int> disk_set, ring_set;
-  edm::ESHandle<RPCGeometry> rpcGeoHandle;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeoHandle);
-  const RPCGeometry* rpcGeo = rpcGeoHandle.product();
+  const auto& rpcGeo = iSetup.getData(rpcGeomToken_);
 
   //loop on geometry to book all MEs
   edm::LogInfo("rpcmonitordigi") << "[RPCMonitorDigi]: Booking histograms per roll. ";
-  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeo->dets().begin(); it < rpcGeo->dets().end(); it++) {
+  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeo.dets().begin(); it < rpcGeo.dets().end(); it++) {
     if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
       const RPCChamber* ch = dynamic_cast<const RPCChamber*>(*it);
       std::vector<const RPCRoll*> roles = (ch->rolls());
@@ -68,16 +67,16 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& 
           RPCGeomServ rpcsrv(rpcId);
           std::string nameID = rpcsrv.name();
           if (useMuonDigis_)
-            bookRollME(ibooker, rpcId, rpcGeo, muonFolder_, meMuonCollection[nameID]);
-          bookRollME(ibooker, rpcId, rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
+            bookRollME(ibooker, rpcId, &rpcGeo, muonFolder_, meMuonCollection[nameID]);
+          bookRollME(ibooker, rpcId, &rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
         }
       } else {
         RPCDetId rpcId = roles[0]->id();  //any roll would do - here I just take the first one
         RPCGeomServ rpcsrv(rpcId);
         std::string nameID = rpcsrv.chambername();
         if (useMuonDigis_)
-          bookRollME(ibooker, rpcId, rpcGeo, muonFolder_, meMuonCollection[nameID]);
-        bookRollME(ibooker, rpcId, rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
+          bookRollME(ibooker, rpcId, &rpcGeo, muonFolder_, meMuonCollection[nameID]);
+        bookRollME(ibooker, rpcId, &rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
         if (rpcId.region() != 0) {
           disk_set.insert(rpcId.station());
           ring_set.insert(rpcId.ring());
