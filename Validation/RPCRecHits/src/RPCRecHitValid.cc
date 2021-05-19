@@ -11,10 +11,8 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include <algorithm>
@@ -31,6 +29,9 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet &pset) {
   muonToken_ = consumes<reco::MuonCollection>(pset.getParameter<edm::InputTag>("muon"));
 
   subDir_ = pset.getParameter<std::string>("subDir");
+
+  rpcGeomToken_ = esConsumes();
+  rpcGeomTokenInRun_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void RPCRecHitValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run, edm::EventSetup const &eventSetup) {
@@ -245,8 +246,7 @@ void RPCRecHitValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &r
   }
 
   // Book roll-by-roll histograms
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  auto rpcGeom = eventSetup.getHandle(rpcGeomTokenInRun_);
 
   int nRPCRollBarrel = 0, nRPCRollEndcap = 0;
 
@@ -355,8 +355,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
   h_eventCount->Fill(1);
 
   // Get the RPC Geometry
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  auto rpcGeom = eventSetup.getHandle(rpcGeomToken_);
 
   // Retrieve SimHits from the event
   edm::Handle<edm::PSimHitContainer> simHitHandle;
