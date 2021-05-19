@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
    src = cms.InputTag("selectedPatElectrons"),                                  
-   dropSuperCluster = cms.string("pt < 1"), # you can put a cut to slim selectively, e.g. pt < 10
-   dropBasicClusters = cms.string("pt < 1"), # you can put a cut to slim selectively, e.g. pt < 10
-   dropPFlowClusters = cms.string("pt < 1"), # you can put a cut to slim selectively, e.g. pt < 10
-   dropPreshowerClusters = cms.string("pt < 1"), # you can put a cut to slim selectively, e.g. pt < 10
-   dropSeedCluster = cms.string("pt < 1"), # you can put a cut to slim selectively, e.g. pt < 10
-   dropRecHits = cms.string("pt < 1"), # you can put a cut to slim selectively, e.g. pt < 10
-   dropCorrections = cms.string("pt < 1"), # you can put a cut to slim selectively, e.g. pt < 10
+   dropSuperCluster = cms.string("pt < 2"), # you can put a cut to slim selectively, e.g. pt < 10
+   dropBasicClusters = cms.string("pt < 2"), # you can put a cut to slim selectively, e.g. pt < 10
+   dropPFlowClusters = cms.string("pt < 2"), # you can put a cut to slim selectively, e.g. pt < 10
+   dropPreshowerClusters = cms.string("pt < 2"), # you can put a cut to slim selectively, e.g. pt < 10
+   dropSeedCluster = cms.string("pt < 2"), # you can put a cut to slim selectively, e.g. pt < 10
+   dropRecHits = cms.string("pt < 2"), # you can put a cut to slim selectively, e.g. pt < 10
+   dropCorrections = cms.string("pt < 2"), # you can put a cut to slim selectively, e.g. pt < 10
    dropIsolations = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
    dropShapes = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
    dropSaturation = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
