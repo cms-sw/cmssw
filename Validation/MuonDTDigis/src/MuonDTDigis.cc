@@ -16,8 +16,7 @@
 using namespace edm;
 using namespace std;
 
-MuonDTDigis::MuonDTDigis(const ParameterSet &pset) :
-   muonGeomToken_(esConsumes()){
+MuonDTDigis::MuonDTDigis(const ParameterSet &pset) : muonGeomToken_(esConsumes()) {
   // ----------------------
   // Get the debug parameter for verbose output
   verbose_ = pset.getUntrackedParameter<bool>("verbose", false);
