@@ -268,7 +268,7 @@ void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const
     }
     for (const auto& muon : theMuons) {
       double pt = muon.pt();
-      double phi = muon.eta();
+      double phi = muon.phi();
       double eta = muon.eta();
       // Remove crappy tracker muons which would not have prefired the L1 trigger
       if (pt < 5 && !muon.isStandAloneMuon())
