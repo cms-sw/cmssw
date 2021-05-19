@@ -44,11 +44,13 @@
   <use name="CoralBase"/>
   <use name="RelationalAccess"/>
   <use name="boost"/>
+  <use name="boost_regex"/>
 </bin>
 
 <bin file="testBoostRegex.cpp" name="testBoostRegex">
   <flags NO_TESTRUN="1"/>
   <use name="boost"/>
+  <use name="boost_regex"/>
 </bin>
 
 <bin file="validation/populateDummy2LumiDB.cpp" name="populateDummy2LumiDB">

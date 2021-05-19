@@ -5,6 +5,7 @@
 <use name="DataFormats/L1DTTrackFinder"/>
 <use name="DataFormats/L1TMuon"/>
 <use name="EventFilter/RPCRawToDigi"/>
+<use name="boost_regex"/>
 <export>
   <lib name="1"/>
 </export>
