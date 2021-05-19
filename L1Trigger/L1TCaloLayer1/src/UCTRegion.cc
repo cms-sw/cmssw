@@ -269,12 +269,8 @@ bool UCTRegion::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
 }
 
 bool UCTRegion::setRegionSummary(uint16_t regionData) {
+  // Use when the region collection is available and no direct access to TPGs
   regionSummary = regionData;
-  //for (uint32_t twr = 0; twr < towers.size(); twr++) {
-  //  if (!towers[twr]->process()) {
-  //    LOG_ERROR << "Tower level processing failed. Bailing out :(" << std::endl;
-  //  }
-  //}
   return true;
 }
 
