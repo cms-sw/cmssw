@@ -7,7 +7,7 @@
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="TrackingTools/AnalyticalJacobians"/>
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/TrajectoryParametrization"/>
