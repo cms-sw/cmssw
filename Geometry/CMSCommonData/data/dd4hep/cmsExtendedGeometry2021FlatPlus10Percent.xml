@@ -343,7 +343,7 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Detector_Assembly.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Detector_Assembly/2021/v1/CTPPS_Diamond_Detector_Assembly.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Sensitive_Dets_TimingHits.xml'/>
     <Include ref='Geometry/VeryForwardData/data/ppstrackerMaterials/v2/ppstrackerMaterials.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_Module/v3/CTPPS_Pixel_Module.xml'/>
