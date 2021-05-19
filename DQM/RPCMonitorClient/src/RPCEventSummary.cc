@@ -2,9 +2,6 @@
 #include <sstream>
 
 #include <DQM/RPCMonitorClient/interface/RPCEventSummary.h>
-//CondFormats
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -63,9 +60,8 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     if (auto runInfoRec = setup.tryToGet<RunInfoRcd>()) {
       defaultValue = -1;
       //get fed summary information
-      edm::ESHandle<RunInfo> sumFED;
-      runInfoRec->get(sumFED);
-      std::vector<int> FedsInIds = sumFED->m_fed_in;
+      auto sumFED = runInfoRec->get(runInfoToken_);
+      const std::vector<int> FedsInIds = sumFED.m_fed_in;
       unsigned int f = 0;
       isIn_ = false;
       while (!isIn_ && f < FedsInIds.size()) {
