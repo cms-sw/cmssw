@@ -11,6 +11,8 @@ RPCDaqInfo::RPCDaqInfo(const edm::ParameterSet& ps) {
 
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
 
+  runInfoToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
+
   init_ = false;
 }
 

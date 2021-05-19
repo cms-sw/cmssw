@@ -14,6 +14,8 @@ RPCDataCertification::RPCDataCertification(const edm::ParameterSet& ps) {
   NumberOfFeds_ = FEDRange_.second - FEDRange_.first + 1;
   offlineDQM_ = ps.getUntrackedParameter<bool>("OfflineDQM", true);
 
+  runInfoToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
+
   init_ = false;
   defaultValue_ = 1.;
 }
