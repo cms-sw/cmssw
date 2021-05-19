@@ -3,6 +3,9 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/RunInfo/interface/RunSummary.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include <map>
 
 class RPCDCSSummary : public DQMEDHarvester {
@@ -26,6 +29,8 @@ protected:
 private:
   void myBooker(DQMStore::IBooker &);
   void checkDCSbit(edm::EventSetup const &);
+
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 
   bool init_;
   double defaultValue_;
