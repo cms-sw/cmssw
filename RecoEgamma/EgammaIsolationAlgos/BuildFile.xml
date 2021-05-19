@@ -1,5 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="RecoCaloTools/Selectors" source_only="1"/>
@@ -13,6 +14,7 @@
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="RecoLocalCalo/HcalRecAlgos"/>
 <use name="CommonTools/Statistics"/>
+<use name="CondFormats/DataRecord"/>
 <export>
   <lib name="1"/>
 </export>
