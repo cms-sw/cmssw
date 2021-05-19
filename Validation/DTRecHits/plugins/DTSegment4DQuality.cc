@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Validation/DTRecHits/interface/DTHitQualityUtils.h"
 
@@ -53,7 +52,7 @@ namespace {
 }
 
 // Constructor
-DTSegment4DQuality::DTSegment4DQuality(const ParameterSet &pset) {
+DTSegment4DQuality::DTSegment4DQuality(const ParameterSet &pset) : muonGeomToken_(esConsumes()) {
   // Get the debug parameter for verbose output
   debug_ = pset.getUntrackedParameter<bool>("debug");
   DTHitQualityUtils::debug = debug_;
@@ -112,8 +111,7 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const &event,
   const float epsilon = 5e-5;  // numerical accuracy on angles [rad}
 
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  const DTGeometry &dtGeom = setup.getData(muonGeomToken_);
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
@@ -179,11 +177,11 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const &event,
 
     // Find direction and position of the sim Segment in Chamber RF
     pair<LocalVector, LocalPoint> dirAndPosSimSegm =
-        DTHitQualityUtils::findMuSimSegmentDirAndPos(inAndOutSimHit, chamberId, &(*dtGeom));
+        DTHitQualityUtils::findMuSimSegmentDirAndPos(inAndOutSimHit, chamberId, dtGeom);
 
     LocalVector simSegmLocalDir = dirAndPosSimSegm.first;
     LocalPoint simSegmLocalPos = dirAndPosSimSegm.second;
-    const DTChamber *chamber = dtGeom->chamber(chamberId);
+    const DTChamber *chamber = dtGeom.chamber(chamberId);
     GlobalPoint simSegmGlobalPos = chamber->toGlobal(simSegmLocalPos);
     GlobalVector simSegmGlobalDir = chamber->toGlobal(simSegmLocalDir);
 
@@ -313,7 +311,7 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const &event,
           alphaBestRHitRZ = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDirRZ).first;
 
           // Get SimSeg position and Direction in rZ SL frame
-          const DTSuperLayer *sl = dtGeom->superLayer(zedRecSeg->superLayerId());
+          const DTSuperLayer *sl = dtGeom.superLayer(zedRecSeg->superLayerId());
           LocalPoint simSegLocalPosRZTmp = sl->toLocal(simSegmGlobalPos);
           LocalVector simSegLocalDirRZ = sl->toLocal(simSegmGlobalDir);
           simSegLocalPosRZ =
