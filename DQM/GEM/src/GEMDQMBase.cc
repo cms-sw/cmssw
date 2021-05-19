@@ -1,4 +1,5 @@
 #include "DQM/GEM/interface/GEMDQMBase.h"
+#include "Geometry/CommonTopologies/interface/GEMStripTopology.h"
 
 using namespace std;
 using namespace edm;
@@ -74,7 +75,7 @@ int GEMDQMBase::loadChambers() {
       const int station_number = station->station();
       const int num_superchambers = superchambers.size();
       const int num_layers = superchambers.front()->nChambers();
-      const int max_vfat = getMaxVFAT(station->station());  // the numer of VFATs per GEMEtaPartition
+      const int max_vfat = getMaxVFAT(station->station());  // the number of VFATs per GEMEtaPartition
       const int num_etas = getNumEtaPartitions(station);    // the number of eta partitions per GEMChamber
       const int num_vfat = num_etas * max_vfat;             // the number of VFATs per GEMChamber
       const int num_strip = GEMeMap::maxChan_;              // the number of strips (channels) per VFAT
@@ -136,7 +137,9 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
     h2Res->setBinLabel(i, Form("%i", i), 1);
   for (Int_t i = 1; i <= (Int_t)listLayers.size(); i++) {
     auto key = listLayers[i - 1];
-    h2Res->setBinLabel(i, Form("GE%+i/%iL%i", keyToRegion(key), keyToStation(key), keyToLayer(key)), 2);
+    auto strInfo = GEMUtils::getSuffixName(key);  // NOTE: It starts with '_'
+    auto label = Form("GE%+i/%iL%i;%s", keyToRegion(key), keyToStation(key), keyToLayer(key), strInfo.Data());
+    h2Res->setBinLabel(i, label, 2);
     Int_t nNumCh = mapStationInfo_[key].nNumChambers_;
     h2Res->setBinContent(0, i, nNumCh);
   }
@@ -177,10 +180,10 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
     }
     for (auto iEta : ch.etaPartitions()) {
       GEMDetId rId = iEta->id();
-      ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), rId.roll()};
+      ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), rId.ieta()};
       if (!MEMap4Check_[key4]) {
-        auto strSuffixName = GEMUtils::getSuffixName(key3) + Form("_ieta%02i", rId.roll());
-        auto strSuffixTitle = GEMUtils::getSuffixTitle(key3) + Form(" iEta %02i", rId.roll());
+        auto strSuffixName = GEMUtils::getSuffixName(key3) + Form("_ieta%02i", rId.ieta());
+        auto strSuffixTitle = GEMUtils::getSuffixTitle(key3) + Form(" iEta %02i", rId.ieta());
         BookingHelper bh4(ibooker, strSuffixName, strSuffixTitle);
         ProcessWithMEMap4(bh4, key4);
         MEMap4Check_[key4] = true;
