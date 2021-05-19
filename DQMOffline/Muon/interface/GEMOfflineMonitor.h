@@ -30,9 +30,7 @@ private:
   edm::EDGetTokenT<GEMDigiCollection> digi_token_;
   edm::EDGetTokenT<GEMRecHitCollection> rechit_token_;
 
-
-
-  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken_;  
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken_;
 
   bool do_digi_occupancy_;
   bool do_hit_occupancy_;
