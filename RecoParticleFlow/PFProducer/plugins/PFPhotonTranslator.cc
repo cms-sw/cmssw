@@ -962,7 +962,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
     showerShape.maxEnergyXtal = egPhotonRef_[iphot]->maxEnergyXtal();
     showerShape.sigmaEtaEta = egPhotonRef_[iphot]->sigmaEtaEta();
     showerShape.sigmaIetaIeta = egPhotonRef_[iphot]->sigmaIetaIeta();
-    for (int id = 0; id < 7; ++id) {
+    for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
       showerShape.hcalOverEcal[id] = egPhotonRef_[iphot]->hcalOverEcal(id + 1);
     }
     myPhoton.setShowerShapeVariables(showerShape);
@@ -981,7 +981,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
     myPhoton.setFiducialVolumeFlags(fiducialFlags);
 
     isolationVariables03.ecalRecHitSumEt = egPhotonRef_[iphot]->ecalRecHitSumEtConeDR03();
-    for (int id = 0; id < 7; ++id) {
+    for (uint id = 0; id < isolationVariables03.hcalRecHitSumEt.size(); ++id) {
       isolationVariables03.hcalRecHitSumEt[id] = egPhotonRef_[iphot]->hcalTowerSumEtConeDR03(id + 1);
     }
     isolationVariables03.trkSumPtSolidCone = egPhotonRef_[iphot]->trkSumPtSolidConeDR03();
@@ -989,7 +989,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
     isolationVariables03.nTrkSolidCone = egPhotonRef_[iphot]->nTrkSolidConeDR03();
     isolationVariables03.nTrkHollowCone = egPhotonRef_[iphot]->nTrkHollowConeDR03();
     isolationVariables04.ecalRecHitSumEt = egPhotonRef_[iphot]->ecalRecHitSumEtConeDR04();
-    for (int id = 0; id < 7; ++id) {
+    for (uint id = 0; id < isolationVariables04.hcalRecHitSumEt.size(); ++id) {
       isolationVariables04.hcalRecHitSumEt[id] = egPhotonRef_[iphot]->hcalTowerSumEtConeDR04(id + 1);
     }
     isolationVariables04.trkSumPtSolidCone = egPhotonRef_[iphot]->trkSumPtSolidConeDR04();

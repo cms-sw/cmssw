@@ -678,7 +678,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.maxEnergyXtal = maxXtal;
     showerShape.sigmaEtaEta = sigmaEtaEta;
     showerShape.sigmaIetaIeta = sigmaIetaIeta;
-    for (int id = 0; id < 7; ++id) {
+    for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
       showerShape.hcalOverEcal[id] =
           (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1) / scRef->energy() : 0.f;
       showerShape.hcalOverEcalBc[id] =
@@ -791,7 +791,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
     // fill preshower shapes
     full5x5_showerShape.effSigmaRR = sigmaRR;
-    for (int id = 0; id < 7; ++id) {
+    for (uint id = 0; id < full5x5_showerShape.hcalOverEcal.size(); ++id) {
       full5x5_showerShape.hcalOverEcal[id] =
           (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1) / full5x5_e5x5 : 0.f;
       full5x5_showerShape.hcalOverEcalBc[id] =

@@ -454,7 +454,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.maxEnergyXtal = maxXtal;
     showerShape.sigmaEtaEta = sigmaEtaEta;
     showerShape.sigmaIetaIeta = sigmaIetaIeta;
-    for (int id = 0; id < 7; ++id) {
+    for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
       showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1) / scRef->energy();
       showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1) / scRef->energy();
     }
@@ -470,7 +470,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.maxEnergyXtal = full5x5_maxXtal;
     full5x5_showerShape.sigmaEtaEta = full5x5_sigmaEtaEta;
     full5x5_showerShape.sigmaIetaIeta = full5x5_sigmaIetaIeta;
-    for (int id = 0; id < 7; ++id) {
+    for (uint id = 0; id < full5x5_showerShape.hcalOverEcal.size(); ++id) {
       full5x5_showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1) / full5x5_e5x5;
       full5x5_showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1) / full5x5_e5x5;
     }

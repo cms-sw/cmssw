@@ -339,7 +339,7 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
 
   const float scale = full5x5 ? showerShape.e5x5 : theClus->energy();
 
-  for (int id = 0; id < 7; ++id) {
+  for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
     showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*theClus, id + 1) / scale;
     showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*theClus, id + 1) / scale;
   }
@@ -1100,7 +1100,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   dr04.tkSumPtHEEP = eventData.tkIsolHEEP04Calc(*ele.gsfTrack()).ptSum;
 
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
-    for (int id = 0; id < 7; ++id) {
+    for (uint id = 0; id < dr03.hcalRecHitSumEt.size(); ++id) {
       dr03.hcalRecHitSumEt[id] = eventData.hadIsolation03.getHcalEtSum(&ele, id + 1);
       dr03.hcalRecHitSumEtBc[id] = eventData.hadIsolation03Bc.getHcalEtSumBc(&ele, id + 1);
 
