@@ -102,8 +102,9 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
 #ifdef EDM_ML_DEBUG
   std::ostringstream st1;
   for (int k = 0; k < numberOfHierarchyLevels; ++k)
-    st1 << ", " <<  baseNumber.getLevelName(k) << ":" << baseNumber.getCopyNumber(k);
-  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme: dd4hep " << dd4hep << " witg  geometry levels = " << numberOfHierarchyLevels << st1.str();
+    st1 << ", " << baseNumber.getLevelName(k) << ":" << baseNumber.getCopyNumber(k);
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme: dd4hep " << dd4hep
+                               << " witg  geometry levels = " << numberOfHierarchyLevels << st1.str();
 #endif
   uint32_t intIndex = 0;
   if (numberOfHierarchyLevels > 0) {
@@ -137,7 +138,8 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
       ladd = baseNumber.getLevelName(3).substr(0, 6);
     }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme::Box " << box << " Ladder " << ladd << ":" << ladd_copy;
+    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme::Box " << box << " Ladder " << ladd << ":"
+                                 << ladd_copy;
 #endif
 
     int x = 0, y = 0, ix, iy, id;
@@ -468,7 +470,8 @@ std::pair<int, int> EcalPreshowerNumberingScheme::numbers(const std::string& nam
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme::Numbers from " << name << " are " << num1 << " and " << num2;
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme::Numbers from " << name << " are " << num1 << " and "
+                               << num2;
 #endif
   return std::make_pair(num1, num2);
 }
