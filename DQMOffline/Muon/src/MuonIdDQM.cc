@@ -1,8 +1,7 @@
 #include "DQMOffline/Muon/interface/MuonIdDQM.h"
 
 MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig)
-  : trackingGeomToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()) {
-
+    : trackingGeomToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()) {
   inputMuonCollection_ = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("inputMuonCollection"));
   inputDTRecSegment4DCollection_ =
       consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("inputDTRecSegment4DCollection"));
@@ -13,8 +12,6 @@ MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig)
   useTrackerMuonsNotGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuonsNotGlobalMuons");
   useGlobalMuonsNotTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuonsNotTrackerMuons");
   baseFolder_ = iConfig.getUntrackedParameter<std::string>("baseFolder");
-
-
 }
 
 MuonIdDQM::~MuonIdDQM() {}
@@ -134,9 +131,8 @@ void MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(inputMuonCollection_, muonCollectionH_);
   iEvent.getByToken(inputDTRecSegment4DCollection_, dtSegmentCollectionH_);
   iEvent.getByToken(inputCSCSegmentCollection_, cscSegmentCollectionH_);
-  
+
   geometry_ = iSetup.getHandle(trackingGeomToken_);
-  
 
   for (MuonCollection::const_iterator muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
     // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3

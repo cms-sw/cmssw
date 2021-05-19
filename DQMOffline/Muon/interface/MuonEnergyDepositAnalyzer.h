@@ -25,8 +25,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"                                                           
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"               
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 class MuonEnergyDepositAnalyzer : public DQMEDAnalyzer {
 public:
@@ -45,9 +45,9 @@ private:
   edm::ParameterSet parameters;
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
 
-  edm::ESHandle<TransientTrackBuilder> theB;                                          
-                                             
-  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trasientTrackToken_;   
+  edm::ESHandle<TransientTrackBuilder> theB;
+
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trasientTrackToken_;
 
   // Switch for verbosity
   std::string metname;
