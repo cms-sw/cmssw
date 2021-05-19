@@ -18,6 +18,10 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"   
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"      
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"                                                            
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"  
 
 class GEMEfficiencyAnalyzer : public GEMOfflineDQMBase {
 public:
@@ -30,6 +34,8 @@ protected:
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
 private:
+
+
   struct GEMLayerData {
     GEMLayerData(Disk::DiskPointer surface, std::vector<const GEMChamber *> chambers, int region, int station, int layer)
         : surface(surface), chambers(chambers), region(region), station(station), layer(layer) {}
@@ -37,7 +43,12 @@ private:
     Disk::DiskPointer surface;
     std::vector<const GEMChamber *> chambers;
     int region, station, layer;
+
   };
+
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken_;                                                                
+  const edm::ESGetToken<GlobalTrackingGeometry,  GlobalTrackingGeometryRecord>  globalGeomToken_;                                  
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trasientTranckToken_;     
 
   MonitorElement *bookNumerator1D(DQMStore::IBooker &, MonitorElement *);
   MonitorElement *bookNumerator2D(DQMStore::IBooker &, MonitorElement *);

@@ -6,13 +6,17 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Validation/MuonHits/interface/MuonHitHelper.h"
 #include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
-GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset) : GEMOfflineDQMBase(pset) {
+
+GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset) 
+  : GEMOfflineDQMBase(pset),
+    gemToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()),
+    globalGeomToken_(esConsumes<GlobalTrackingGeometry,  GlobalTrackingGeometryRecord>()),
+    trasientTranckToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>()) {
+
   name_ = pset.getUntrackedParameter<std::string>("name");
   folder_ = pset.getUntrackedParameter<std::string>("folder");
 
@@ -106,8 +110,11 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
 void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& run,
                                            edm::EventSetup const& isetup) {
-  edm::ESHandle<GEMGeometry> gem;
-  isetup.get<MuonGeometryRecord>().get(gem);
+
+
+  edm::ESHandle<GEMGeometry> gem;  
+  gem = isetup.getHandle(gemToken_);
+
   if (not gem.isValid()) {
     edm::LogError(kLogCategory_) << "GEMGeometry is invalid" << std::endl;
     return;
@@ -319,22 +326,30 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
     return;
   }
 
-  edm::ESHandle<GEMGeometry> gem;
-  setup.get<MuonGeometryRecord>().get(gem);
+  edm::ESHandle<GEMGeometry> gem;  
+  gem = setup.getHandle(gemToken_);
+
+
   if (not gem.isValid()) {
     edm::LogError(kLogCategory_) << "GEMGeometry is invalid" << std::endl;
     return;
   }
 
   edm::ESHandle<GlobalTrackingGeometry> global_tracking_geometry;
-  setup.get<GlobalTrackingGeometryRecord>().get(global_tracking_geometry);
+
+  global_tracking_geometry = setup.getHandle(globalGeomToken_);
+
+
+
+
   if (not global_tracking_geometry.isValid()) {
     edm::LogError(kLogCategory_) << "GlobalTrackingGeometry is invalid" << std::endl;
     return;
   }
 
   edm::ESHandle<TransientTrackBuilder> transient_track_builder;
-  setup.get<TransientTrackRecord>().get("TransientTrackBuilder", transient_track_builder);
+   transient_track_builder=setup.getHandle(trasientTranckToken_);
+
   if (not transient_track_builder.isValid()) {
     edm::LogError(kLogCategory_) << "TransientTrackRecord is invalid" << std::endl;
     return;
