@@ -41,6 +41,13 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
 
   tokenPFCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexName"));
+  fUseVertexAssociation = iConfig.getParameter<bool>("useVertexAssociation");
+  vertexAssociationQuality_ = iConfig.getParameter<int>("vertexAssociationQuality");
+  if (fUseVertexAssociation) {
+    tokenVertexAssociation_ = consumes<CandToVertex>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
+    tokenVertexAssociationQuality_ =
+        consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
+  }
 
   fUsePUProxyValue = iConfig.getParameter<bool>("usePUProxyValue");
 
@@ -80,6 +87,17 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(tokenVertices_, hVertexProduct);
   const reco::VertexCollection* pvCol = hVertexProduct.product();
 
+  edm::Handle<edm::Association<reco::VertexCollection>> assoHandle;
+  const edm::Association<reco::VertexCollection>* associatedPV = nullptr;
+  edm::Handle<edm::ValueMap<int>> assoQualityHandle;
+  const edm::ValueMap<int>* associationQuality = nullptr;
+  if ((fUseVertexAssociation) && (!fUseExistingWeights)) {
+    iEvent.getByToken(tokenVertexAssociation_, assoHandle);
+    associatedPV = assoHandle.product();
+    iEvent.getByToken(tokenVertexAssociationQuality_, assoQualityHandle);
+    associationQuality = assoQualityHandle.product();
+  }
+
   double puProxyValue = 0.;
   if (fUsePUProxyValue) {
     puProxyValue = iEvent.get(puProxyValueToken_);
@@ -95,6 +113,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //Fill the reco objects
     fRecoObjCollection.clear();
     fRecoObjCollection.reserve(pfCol->size());
+    size_t ic = 0;
     for (auto const& aPF : *pfCol) {
       RecoObj pReco;
       pReco.pt = aPF.pt();
@@ -110,7 +129,25 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       uint pVtxId = 0;
       bool isLepton = ((std::abs(pReco.pdgId) == 11) || (std::abs(pReco.pdgId) == 13));
       const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
-      if (lPack == nullptr) {
+
+      if (fUseVertexAssociation) {
+        const reco::VertexRef& PVOrig = (*associatedPV)[reco::CandidatePtr(hPFProduct, ic)];
+        int quality = (*associationQuality)[reco::CandidatePtr(hPFProduct, ic)];
+        if (PVOrig.isNonnull() && (quality >= vertexAssociationQuality_)) {
+          closestVtx = PVOrig.get();
+          pVtxId = PVOrig.key();
+        }
+        if (std::abs(pReco.charge) == 0)
+          pReco.id = 0;
+        else if (fPuppiNoLep && isLepton)
+          pReco.id = 3;
+        else if (closestVtx != nullptr && pVtxId == 0)
+          pReco.id = 1;  // Associated to main vertex
+        else if (closestVtx != nullptr && pVtxId > 0)
+          pReco.id = 2;  // Associated to PU
+        else
+          pReco.id = 0;  // Unassociated
+      } else if (lPack == nullptr) {
         const reco::PFCandidate* pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
         double curdz = 9999;
         int closestVtxForUnassociateds = -9999;
@@ -230,6 +267,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
 
       fRecoObjCollection.push_back(pReco);
+      ic++;
     }
 
     fPuppiContainer->initialize(fRecoObjCollection);
@@ -401,6 +439,9 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("vtxZCut", 24);
   desc.add<edm::InputTag>("candName", edm::InputTag("particleFlow"));
   desc.add<edm::InputTag>("vertexName", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("useVertexAssociation", false);
+  desc.add<int>("vertexAssociationQuality", 0);
+  desc.add<edm::InputTag>("vertexAssociation", edm::InputTag(""));
   desc.add<bool>("applyCHS", true);
   desc.add<bool>("invertPuppi", false);
   desc.add<bool>("useExp", false);

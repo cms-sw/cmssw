@@ -198,14 +198,12 @@ def miniAOD_customizeCommon(process):
     # ================== NoHF pfMET
 
     #  ==================  CHSMET 
-    process.CHSCands = cms.EDFilter("CandPtrSelector",
-                                    src=cms.InputTag("packedPFCandidates"),
-                                    cut=cms.string("fromPV(0) > 0")
-                                    )
-    task.add(process.CHSCands)
+    process.load("CommonTools.ParticleFlow.pfCHS_cff")
+    task.add(process.packedPrimaryVertexAssociationJME)
+    task.add(process.pfCHS)
 
     from RecoMET.METProducers.pfMet_cfi import pfMet
-    process.pfMetCHS = pfMet.clone(src = 'CHSCands')
+    process.pfMetCHS = pfMet.clone(src = 'pfCHS')
     task.add(process.pfMetCHS)
 
     addMETCollection(process,

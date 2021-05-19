@@ -6,3 +6,5 @@ typedef PrimaryVertexSorter<std::vector<reco::RecoChargedRefCandidate> > RecoCha
 DEFINE_FWK_MODULE(RecoChargedRefCandidatePrimaryVertexSorter);
 typedef PrimaryVertexSorter<std::vector<reco::PFCandidate> > PFCandidatePrimaryVertexSorter;
 DEFINE_FWK_MODULE(PFCandidatePrimaryVertexSorter);
+typedef PrimaryVertexSorter<std::vector<pat::PackedCandidate> > PackedCandidatePrimaryVertexSorter;
+DEFINE_FWK_MODULE(PackedCandidatePrimaryVertexSorter);

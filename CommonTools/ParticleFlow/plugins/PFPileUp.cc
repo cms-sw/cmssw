@@ -20,6 +20,14 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
 
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<InputTag>("Vertices"));
 
+  fUseVertexAssociation = iConfig.getParameter<bool>("useVertexAssociation");
+  vertexAssociationQuality_ = iConfig.getParameter<int>("vertexAssociationQuality");
+  if (fUseVertexAssociation) {
+    tokenVertexAssociation_ = consumes<CandToVertex>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
+    tokenVertexAssociationQuality_ =
+        consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
+  }
+
   enable_ = iConfig.getParameter<bool>("Enable");
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
@@ -93,10 +101,26 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
           "error.");
     }
 
-    pileUpAlgo_.process(*pfCandidatesRef, *vertices);
-    pOutput->insert(
-        pOutput->end(), pileUpAlgo_.getPFCandidatesFromPU().begin(), pileUpAlgo_.getPFCandidatesFromPU().end());
-
+    if (fUseVertexAssociation) {
+      edm::Handle<edm::Association<reco::VertexCollection>> assoHandle;
+      iEvent.getByToken(tokenVertexAssociation_, assoHandle);
+      const edm::Association<reco::VertexCollection>* associatedPV = assoHandle.product();
+      edm::Handle<edm::ValueMap<int>> assoQualityHandle;
+      iEvent.getByToken(tokenVertexAssociationQuality_, assoQualityHandle);
+      const edm::ValueMap<int>* associationQuality = assoQualityHandle.product();
+      PFCollection pfCandidatesFromPU;
+      for (unsigned i = 0; i < (*pfCandidatesRef).size(); i++) {
+        const reco::VertexRef& PVOrig = (*associatedPV)[(*pfCandidatesRef)[i]];
+        int quality = (*associationQuality)[(*pfCandidatesRef)[i]];
+        if (PVOrig.isNonnull() && (PVOrig.key() > 0) && (quality >= vertexAssociationQuality_))
+          pfCandidatesFromPU.push_back((*pfCandidatesRef)[i]);
+      }
+      pOutput->insert(pOutput->end(), pfCandidatesFromPU.begin(), pfCandidatesFromPU.end());
+    } else {
+      pileUpAlgo_.process(*pfCandidatesRef, *vertices);
+      pOutput->insert(
+          pOutput->end(), pileUpAlgo_.getPFCandidatesFromPU().begin(), pileUpAlgo_.getPFCandidatesFromPU().end());
+    }
     // for ( PFCollection::const_iterator byValueBegin = pileUpAlgo_.getPFCandidatesFromPU().begin(),
     // 	    byValueEnd = pileUpAlgo_.getPFCandidatesFromPU().end(), ibyValue = byValueBegin;
     // 	  ibyValue != byValueEnd; ++ibyValue ) {
