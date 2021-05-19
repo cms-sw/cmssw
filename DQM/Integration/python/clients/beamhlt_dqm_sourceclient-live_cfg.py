@@ -192,8 +192,10 @@ if (process.runType.getRunType() == process.runType.pp_run or
             tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
-        ))
+        )),
+        frontierKey = cms.untracked.string(options.runUniqueKey)
       )
+
     else:
       process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
         DBParameters = cms.PSet(
@@ -214,8 +216,11 @@ if (process.runType.getRunType() == process.runType.pp_run or
             tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
-        ))
+        )),
+        frontierKey = cms.untracked.string(options.runUniqueKey)
       )
+
+    print("Configured frontierKey", options.runUniqueKey)
 
     process.p = cms.Path( process.hltTriggerTypeFilter
                         * process.dqmcommon
