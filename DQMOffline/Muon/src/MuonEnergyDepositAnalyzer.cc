@@ -22,7 +22,8 @@ using namespace std;
 using namespace edm;
 
 MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pSet)
-    : trasientTrackToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>()) {
+  : trasientTrackToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
+
   parameters = pSet;
 
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
