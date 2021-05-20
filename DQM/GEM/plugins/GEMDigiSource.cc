@@ -181,24 +181,24 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
     const BoundPlane& surface = GEMGeometry_->idToDet(gid)->surface();
     if (total_strip_layer.find(key3) == total_strip_layer.end())
       total_strip_layer[key3] = 0;
-    for (auto roll : ch.etaPartitions()) {
-      GEMDetId rId = roll->id();
+    for (auto iEta : ch.etaPartitions()) {
+      GEMDetId rId = iEta->id();
       const auto& digis_in_det = gemDigis->get(rId);
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
         // Filling of digi occupancy
-        Int_t nIdxVFAT = getVFATNumberByStrip(gid.station(), rId.roll(), d->strip());
+        Int_t nIdxVFAT = getVFATNumberByStrip(gid.station(), rId.ieta(), d->strip());
         mapTotalDigi_layer_.Fill(key3, gid.chamber(), nIdxVFAT + 1);
 
         // Filling of strip
-        mapStripOcc_ieta_.Fill(key3, rId.roll());  // Roll
+        mapStripOcc_ieta_.Fill(key3, rId.ieta());  // Roll
 
-        GlobalPoint strip_global_pos = surface.toGlobal(roll->centreOfStrip(d->strip()));
+        GlobalPoint strip_global_pos = surface.toGlobal(iEta->centreOfStrip(d->strip()));
         Float_t fPhiDeg = ((Float_t)strip_global_pos.phi()) * 180.0 / 3.141592;
         if (fPhiDeg < -5.0)
           fPhiDeg += 360.0;
         mapStripOcc_phi_.Fill(key3, fPhiDeg);  // Phi
 
-        mapStripOccPerCh_.Fill(key4Ch, d->strip(), rId.roll());  // Per chamber
+        mapStripOccPerCh_.Fill(key4Ch, d->strip(), rId.ieta());  // Per chamber
 
         // For total strips
         total_strip_layer[key3]++;
