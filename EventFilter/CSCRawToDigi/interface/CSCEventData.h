@@ -102,6 +102,7 @@ public:
   void add(const std::vector<CSCALCTDigi> &);
   void add(const std::vector<CSCCLCTDigi> &);
   void add(const std::vector<CSCCorrelatedLCTDigi> &);
+  void add(const std::vector<CSCShowerDigi> &);
   void add(const std::vector<GEMPadDigiCluster> &, const GEMDetId &);
 
   /// this will fill the DMB header, and change all related fields in

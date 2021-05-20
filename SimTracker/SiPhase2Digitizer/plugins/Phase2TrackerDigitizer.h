@@ -16,12 +16,14 @@
 #include <vector>
 #include <unordered_map>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
@@ -60,7 +62,6 @@ namespace cms {
     void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
     void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
     virtual void beginJob() {}
-    void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override;
 
     template <class T>
     void accumulate_local(T const& iEvent, edm::EventSetup const& iSetup);
@@ -96,11 +97,13 @@ namespace cms {
     std::map<AlgorithmType, std::unique_ptr<Phase2TrackerDigitizerAlgorithm> > algomap_;
     const std::string hitsProducer_;
     const vstring trackerContainers_;
-    const std::string geometryType_;
-    edm::ESHandle<TrackerGeometry> pDD_;
-    edm::ESHandle<MagneticField> pSetup_;
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> pSetupToken_;
+    const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+    const TrackerGeometry* pDD_ = nullptr;
+    const MagneticField* pSetup_ = nullptr;
     std::map<uint32_t, const Phase2TrackerGeomDetUnit*> detectorUnits_;
-    edm::ESHandle<TrackerTopology> tTopoHand_;
+    const TrackerTopology* tTopo_ = nullptr;
     edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher_;
     const bool isOuterTrackerReadoutAnalog_;
     const bool premixStage1_;

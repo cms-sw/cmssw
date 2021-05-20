@@ -25,16 +25,6 @@ CSCGEMMotherboardME21::CSCGEMMotherboardME21(unsigned endcap,
   tmbLUT_ = std::make_unique<CSCGEMMotherboardLUTME21>();
 }
 
-CSCGEMMotherboardME21::CSCGEMMotherboardME21() : CSCGEMMotherboard() {
-  if (!runPhase2_) {
-    edm::LogError("CSCGEMMotherboardME21|SetupError") << "+++ TMB constructed while runPhase2 is not set! +++\n";
-  }
-
-  if (!runME21ILT_) {
-    edm::LogError("CSCGEMMotherboardME21|SetupError") << "+++ TMB constructed while runME21ILT_ is not set! +++\n";
-  }
-}
-
 CSCGEMMotherboardME21::~CSCGEMMotherboardME21() {}
 
 void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,

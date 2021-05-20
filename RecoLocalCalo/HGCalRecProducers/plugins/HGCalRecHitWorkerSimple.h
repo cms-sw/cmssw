@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
@@ -19,7 +20,7 @@
 
 class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
 public:
-  HGCalRecHitWorkerSimple(const edm::ParameterSet&);
+  HGCalRecHitWorkerSimple(const edm::ParameterSet&, edm::ConsumesCollector iC);
   ~HGCalRecHitWorkerSimple() override;
 
   void set(const edm::EventSetup& es) override;
@@ -27,6 +28,11 @@ public:
 
 protected:
   enum detectortype { hgcee = 1, hgcfh = 2, hgcbh = 3, hgchfnose = 4 };
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> ee_geometry_token_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hef_geometry_token_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hfnose_geometry_token_;
 
   double hgcEE_keV2DIGI_, hgceeUncalib2GeV_;
   std::vector<double> hgcEE_fCPerMIP_;

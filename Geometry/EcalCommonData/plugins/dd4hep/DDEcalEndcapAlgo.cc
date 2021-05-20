@@ -4,16 +4,13 @@
 #include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "DataFormats/Math/interface/angle_units.h"
 // Header files for endcap supercrystal geometry
-#include "Geometry/EcalCommonData/interface/DDEcalEndcapTrap.h"
+#include "Geometry/EcalCommonData/interface/DDEcalEndcapTrapX.h"
 #include <CLHEP/Geometry/Transform3D.h>
 
 #include <string>
 #include <vector>
 
 using namespace angle_units::operators;
-
-using DDTranslation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
-using DDRotation = ROOT::Math::Rotation3D;
 
 //#define EDM_ML_DEBUG
 
@@ -77,7 +74,7 @@ namespace {
     double zFront;
   };
 
-  const DDRotation& myrot(cms::DDNamespace& ns, const std::string& nam, const DDRotation& r) {
+  const DDRotationMatrix& myrot(cms::DDNamespace& ns, const std::string& nam, const DDRotationMatrix& r) {
     ns.addRotation(nam, r);
     return ns.rotation(ns.prepend(nam));
   }
@@ -308,18 +305,18 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       const CLHEP::HepRotationZ cutm(ffived);
 
-      DDRotation cutRot(5 != iSCType ? DDRotation()
-                                     : myrot(ns,
-                                             "EECry5Rot",
-                                             DDRotation(cutm.xx(),
-                                                        cutm.xy(),
-                                                        cutm.xz(),
-                                                        cutm.yx(),
-                                                        cutm.yy(),
-                                                        cutm.yz(),
-                                                        cutm.zx(),
-                                                        cutm.zy(),
-                                                        cutm.zz())));
+      DDRotationMatrix cutRot(5 != iSCType ? DDRotationMatrix()
+                                           : myrot(ns,
+                                                   "EECry5Rot",
+                                                   DDRotationMatrix(cutm.xx(),
+                                                                    cutm.xy(),
+                                                                    cutm.xz(),
+                                                                    cutm.yx(),
+                                                                    cutm.yy(),
+                                                                    cutm.yz(),
+                                                                    cutm.zx(),
+                                                                    cutm.zy(),
+                                                                    cutm.zz())));
 
       dd4hep::Solid eeCutEnv = dd4hep::SubtractionSolid(ee.envName + std::to_string(iSCType),
                                                         ns.solid(ee.envName + std::to_string(iSCType) + "Tmp"),
@@ -390,9 +387,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         if (imax > 0) {
           // Loop over crystals in this row
           for (int irow(imin); irow <= imax; ++irow) {
-            // Create crystal as a DDEcalEndcapTrap object and calculate rotation and
+            // Create crystal as a DDEcalEndcapTrapX object and calculate rotation and
             // translation required to position it in the SC.
-            DDEcalEndcapTrap crystal(1, ee.crysFront, ee.crysRear, ee.crysLength);
+            DDEcalEndcapTrapX crystal(1, ee.crysFront, ee.crysRear, ee.crysLength);
 
             crystal.moveto(ee.cryFCtr[icol - 1][irow - 1], ee.cryRCtr[icol - 1][irow - 1]);
 
@@ -434,9 +431,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           }
         }
 
-        // Create SC as a DDEcalEndcapTrap object and calculate rotation and
+        // Create SC as a DDEcalEndcapTrapX object and calculate rotation and
         // translation required to position it in the endcap.
-        DDEcalEndcapTrap scrys(1, ee.sCEFront, ee.sCERear, ee.sCELength);
+        DDEcalEndcapTrapX scrys(1, ee.sCEFront, ee.sCERear, ee.sCELength);
         scrys.moveto(ee.scrFCtr[icol - 1][irow - 1], ee.scrRCtr[icol - 1][irow - 1]);
         scrys.translate(DDTranslation(0., 0., -ee.zOff));
 

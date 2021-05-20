@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -19,41 +19,28 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define DEBUG_ENABLED
-#ifdef DEBUG_ENABLED
-#define DEBUG(x)                 \
-  do {                           \
-    std::cout << x << std::endl; \
-  } while (0)
-#else
-#define DEBUG(x)
-#endif
-
-class MTDTrackingRecHitProducer : public edm::stream::EDProducer<> {
+class MTDTrackingRecHitProducer : public edm::global::EDProducer<> {
 public:
   explicit MTDTrackingRecHitProducer(const edm::ParameterSet& ps);
   ~MTDTrackingRecHitProducer() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::Event& evt, const edm::EventSetup& es) override;
-  void run(edm::Handle<edmNew::DetSetVector<FTLCluster> > inputHandle, MTDTrackingDetSetVector& output);
+  void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override;
 
 private:
   const edm::EDGetTokenT<FTLClusterCollection> ftlbClusters_;  // collection of barrel digis
   const edm::EDGetTokenT<FTLClusterCollection> ftleClusters_;  // collection of endcap digis
 
-  const MTDGeometry* geom_;
-  const MTDClusterParameterEstimator* cpe_;
-  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
-  edm::ESGetToken<MTDClusterParameterEstimator, MTDCPERecord> cpeToken_;
+  const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  const edm::ESGetToken<MTDClusterParameterEstimator, MTDCPERecord> cpeToken_;
 };
 
 MTDTrackingRecHitProducer::MTDTrackingRecHitProducer(const edm::ParameterSet& ps)
     : ftlbClusters_(consumes<FTLClusterCollection>(ps.getParameter<edm::InputTag>("barrelClusters"))),
-      ftleClusters_(consumes<FTLClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusters"))) {
+      ftleClusters_(consumes<FTLClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusters"))),
+      mtdgeoToken_(esConsumes<MTDGeometry, MTDDigiGeometryRecord>()),
+      cpeToken_(esConsumes<MTDClusterParameterEstimator, MTDCPERecord>(edm::ESInputTag("", "MTDCPEBase"))) {
   produces<MTDTrackingDetSetVector>();
-  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
-  cpeToken_ = esConsumes<MTDClusterParameterEstimator, MTDCPERecord>(edm::ESInputTag("", "MTDCPEBase"));
 }
 
 // Configuration descriptions
@@ -64,12 +51,10 @@ void MTDTrackingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.add("mtdTrackingRecHitProducer", desc);
 }
 
-void MTDTrackingRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  auto geom = es.getTransientHandle(mtdgeoToken_);
-  geom_ = geom.product();
+void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
+  auto const& geom = es.getData(mtdgeoToken_);
 
-  auto cpe = es.getTransientHandle(cpeToken_);
-  cpe_ = cpe.product();
+  auto const& cpe = es.getData(cpeToken_);
 
   edm::Handle<FTLClusterCollection> inputBarrel;
   evt.getByToken(ftlbClusters_, inputBarrel);
@@ -77,56 +62,54 @@ void MTDTrackingRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
   edm::Handle<FTLClusterCollection> inputEndcap;
   evt.getByToken(ftleClusters_, inputEndcap);
 
+  std::array<edm::Handle<FTLClusterCollection>, 2> inputHandle{{inputBarrel, inputEndcap}};
+
   auto outputhits = std::make_unique<MTDTrackingDetSetVector>();
   auto& theoutputhits = *outputhits;
 
-  run(inputBarrel, theoutputhits);
-  run(inputEndcap, theoutputhits);
+  //---------------------------------------------------------------------------
+  //!  Iterate over DetUnits, then over Clusters and invoke the CPE on each,
+  //!  and make a RecHit to store the result.
+  //---------------------------------------------------------------------------
+
+  for (auto const& theInput : inputHandle) {
+    const edmNew::DetSetVector<FTLCluster>& input = *theInput;
+
+    LogDebug("MTDTrackingRecHitProducer") << "inputCollection " << input.size();
+    for (const auto& DSVit : input) {
+      unsigned int detid = DSVit.detId();
+      DetId detIdObject(detid);
+      const auto genericDet = geom.idToDetUnit(detIdObject);
+      if (genericDet == nullptr) {
+        throw cms::Exception("MTDTrackingRecHitProducer")
+            << "GeographicalID: " << std::hex << detid << " is invalid!" << std::dec << std::endl;
+      }
+
+      MTDTrackingDetSetVector::FastFiller recHitsOnDet(theoutputhits, detid);
+
+      for (const auto& clustIt : DSVit) {
+        LogDebug("MTDTrackingRcHitProducer") << "Cluster: size " << clustIt.size() << " " << clustIt.x() << ","
+                                             << clustIt.y() << " " << clustIt.energy() << " " << clustIt.time();
+        MTDClusterParameterEstimator::ReturnType tuple = cpe.getParameters(clustIt, *genericDet);
+        LocalPoint lp(std::get<0>(tuple));
+        LocalError le(std::get<1>(tuple));
+
+        // Create a persistent edm::Ref to the cluster
+        edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> cluster = edmNew::makeRefTo(theInput, &clustIt);
+        // Make a RecHit and add it to the DetSet
+        MTDTrackingRecHit hit(lp, le, *genericDet, cluster);
+        LogDebug("MTDTrackingRcHitProducer")
+            << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
+            << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time() << " : "
+            << hit.timeError();
+        // Now save it =================
+        recHitsOnDet.push_back(hit);
+      }  //  <-- End loop on Clusters
+    }    //    <-- End loop on DetUnits
+    LogDebug("MTDTrackingRcHitProducer") << "outputCollection " << theoutputhits.size();
+  }
 
   evt.put(std::move(outputhits));
-}
-
-//---------------------------------------------------------------------------
-//!  Iterate over DetUnits, then over Clusters and invoke the CPE on each,
-//!  and make a RecHit to store the result.
-//---------------------------------------------------------------------------
-void MTDTrackingRecHitProducer::run(edm::Handle<FTLClusterCollection> inputHandle, MTDTrackingDetSetVector& output) {
-  const edmNew::DetSetVector<FTLCluster>& input = *inputHandle;
-  edmNew::DetSetVector<FTLCluster>::const_iterator DSViter = input.begin();
-
-  DEBUG("inputCollection " << input.size());
-  for (; DSViter != input.end(); DSViter++) {
-    unsigned int detid = DSViter->detId();
-    DetId detIdObject(detid);
-    const auto genericDet = geom_->idToDetUnit(detIdObject);
-    if (genericDet == nullptr) {
-      throw cms::Exception("MTDTrackingRecHitProducer")
-          << "GeographicalID: " << std::hex << detid << " is invalid!" << std::dec << std::endl;
-    }
-
-    MTDTrackingDetSetVector::FastFiller recHitsOnDet(output, detid);
-
-    edmNew::DetSet<FTLCluster>::const_iterator clustIt = DSViter->begin(), clustEnd = DSViter->end();
-
-    for (; clustIt != clustEnd; clustIt++) {
-      DEBUG("Cluster: size " << clustIt->size() << " " << clustIt->x() << "," << clustIt->y() << " "
-                             << clustIt->energy() << " " << clustIt->time());
-      MTDClusterParameterEstimator::ReturnType tuple = cpe_->getParameters(*clustIt, *genericDet);
-      LocalPoint lp(std::get<0>(tuple));
-      LocalError le(std::get<1>(tuple));
-
-      // Create a persistent edm::Ref to the cluster
-      edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> cluster = edmNew::makeRefTo(inputHandle, clustIt);
-      // Make a RecHit and add it to the DetSet
-      MTDTrackingRecHit hit(lp, le, *genericDet, cluster);
-      DEBUG("MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
-                        << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time()
-                        << " : " << hit.timeError());
-      // Now save it =================
-      recHitsOnDet.push_back(hit);
-    }  //  <-- End loop on Clusters
-  }    //    <-- End loop on DetUnits
-  DEBUG("outputCollection " << output.size());
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

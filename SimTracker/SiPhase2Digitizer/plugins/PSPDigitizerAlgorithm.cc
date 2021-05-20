@@ -3,28 +3,30 @@
 
 #include "SimTracker/SiPhase2Digitizer/plugins/PSPDigitizerAlgorithm.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerLorentzAngleRcd.h"
 
 // Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 using namespace edm;
 
 void PSPDigitizerAlgorithm::init(const edm::EventSetup& es) {
   if (use_LorentzAngle_DB_) {  // Get Lorentz angle from DB record
-    es.get<SiPhase2OuterTrackerLorentzAngleSimRcd>().get(siPhase2OTLorentzAngle_);
+    siPhase2OTLorentzAngle_ = &es.getData(siPhase2OTLorentzAngleToken_);
   }
 
-  es.get<TrackerDigiGeometryRecord>().get(geom_);
+  geom_ = &es.getData(geomToken_);
 }
 
-PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf)
+PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
-                                      conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm")) {
+                                      conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm"),
+                                      iC),
+      geomToken_(iC.esConsumes()) {
+  if (use_LorentzAngle_DB_)
+    siPhase2OTLorentzAngleToken_ = iC.esConsumes();
   pixelFlag_ = false;
   LogDebug("PSPDigitizerAlgorithm") << "Algorithm constructed "
                                     << "Configuration parameters:"

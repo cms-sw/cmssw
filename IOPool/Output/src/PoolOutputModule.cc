@@ -15,7 +15,7 @@
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -442,7 +442,8 @@ namespace edm {
             "If over maximum, new output file will be started at next input file transition.");
     desc.addUntracked<int>("compressionLevel", 9)->setComment("ROOT compression level of output file.");
     desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
-        ->setComment("Algorithm used to compress data in the ROOT output file, allowed values are ZLIB and LZMA");
+        ->setComment(
+            "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, and ZSTD");
     desc.addUntracked<int>("basketSize", 16384)->setComment("Default ROOT basket size in output file.");
     desc.addUntracked<int>("eventAuxiliaryBasketSize", 16384)
         ->setComment("Default ROOT basket size in output file for EventAuxiliary branch.");

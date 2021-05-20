@@ -6,10 +6,10 @@
     4, 4, 4, 24
   </Vector>
   <Vector name="BTL" type="numeric" nEntries="12">
-    22, 24, 16, 10, 0x1, 0x3, 0x3F, 0x3F, 1, 16, 3, 1
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 16, 3, 1
   </Vector>
   <Vector name="ETL" type="numeric" nEntries="12">
-    22, 24, 16, 7, 0x1, 0x3, 0x3F, 0xFF, 24, 4, 2, 8
+    0, 0, 0, 0, 0, 0, 0, 0, 24, 4, 2, 8
   </Vector>
 
   </ConstantsSection>

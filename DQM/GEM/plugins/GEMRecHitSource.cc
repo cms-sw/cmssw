@@ -33,6 +33,7 @@ private:
   int nClusterSizeBinNum_;
 
   MEMap3Inf mapTotalRecHit_layer_;
+  MEMap3Inf mapRecHitWheel_layer_;
   MEMap3Inf mapRecHitOcc_ieta_;
   MEMap3Inf mapRecHitOcc_phi_;
   MEMap3Inf mapTotalRecHitPerEvt_;
@@ -41,6 +42,8 @@ private:
   MEMap4Inf mapCLSPerCh_;
 
   Int_t nCLSMax_;
+  Float_t fRadiusMin_;
+  Float_t fRadiusMax_;
 
   std::unordered_map<UInt_t, MonitorElement*> recHitME_;
   std::unordered_map<UInt_t, MonitorElement*> VFAT_vs_ClusterSize_;
@@ -93,9 +96,15 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   ibooker.setCurrentFolder("GEM/recHit");
 
   nCLSMax_ = 10;
+  fRadiusMin_ = 120.0;
+  fRadiusMax_ = 250.0;
+  float radS = -5.0 / 180 * 3.141592;
+  float radL = 355.0 / 180 * 3.141592;
 
   mapTotalRecHit_layer_ =
       MEMap3Inf(this, "rechit_det", "Rec. Hit Occupancy", 36, 0.5, 36.5, 8, 0.5, 8.5, "Chamber", "iEta");
+  mapRecHitWheel_layer_ =
+      MEMap3Inf(this, "rechit_wheel", "Rec. Hit Wheel Occupancy", 108, radS, radL, 8, fRadiusMin_, fRadiusMax_, "", "");
   mapRecHitOcc_ieta_ = MEMap3Inf(
       this, "rechit_ieta_occ", "RecHit Digi Occupancy per eta partition", 8, 0.5, 8.5, "iEta", "Number of recHits");
   mapRecHitOcc_phi_ = MEMap3Inf(
@@ -120,11 +129,19 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   MEStationInfo& stationInfo = mapStationInfo_[key];
 
+  Int_t nNumVFATPerEta = stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_;
+
   mapTotalRecHit_layer_.SetBinConfX(stationInfo.nNumChambers_);
   mapTotalRecHit_layer_.SetBinConfY(stationInfo.nNumEtaPartitions_);
   mapTotalRecHit_layer_.bookND(bh, key);
   mapTotalRecHit_layer_.SetLabelForChambers(key, 1);
   mapTotalRecHit_layer_.SetLabelForChambers(key, 2);  // No worries, it's same as the eta partition labelling
+
+  mapRecHitWheel_layer_.SetBinLowEdgeX(-0.088344);  // FIXME: It could be different for other stations...
+  mapRecHitWheel_layer_.SetBinHighEdgeX(-0.088344 + 2 * 3.141592);
+  mapRecHitWheel_layer_.SetNbinsX(nNumVFATPerEta * stationInfo.nNumChambers_);
+  mapRecHitWheel_layer_.SetNbinsY(stationInfo.nNumEtaPartitions_);
+  mapRecHitWheel_layer_.bookND(bh, key);
 
   mapRecHitOcc_ieta_.SetBinConfX(stationInfo.nNumEtaPartitions_);
   mapRecHitOcc_ieta_.bookND(bh, key);
@@ -164,25 +181,34 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
     GEMDetId gid = ch.id();
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
     ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};
+    MEStationInfo& stationInfo = mapStationInfo_[key3];
     for (auto ieta : ch.etaPartitions()) {
       GEMDetId rId = ieta->id();
-      ME4IdsKey key4iEta{gid.region(), gid.station(), gid.layer(), rId.roll()};
+      ME4IdsKey key4iEta{gid.region(), gid.station(), gid.layer(), rId.ieta()};
       if (total_rechit_layer.find(key3) == total_rechit_layer.end())
         total_rechit_layer[key3] = 0;
       const auto& recHitsRange = gemRecHits->get(rId);
       auto gemRecHit = recHitsRange.first;
       for (auto hit = gemRecHit; hit != recHitsRange.second; ++hit) {
+        GlobalPoint recHitGP = GEMGeometry_->idToDet(hit->gemId())->surface().toGlobal(hit->localPosition());
+        Float_t fPhi = recHitGP.phi();
+        if (fPhi < -5.0 / 180.0 * 3.141592)
+          fPhi += 2 * 3.141592;
+
         // Filling of digi occupancy
-        mapTotalRecHit_layer_.Fill(key3, gid.chamber(), rId.roll());
+        mapTotalRecHit_layer_.Fill(key3, gid.chamber(), rId.ieta());
+
+        // Filling of wheel occupancy
+        Float_t fR = fRadiusMin_ + (fRadiusMax_ - fRadiusMin_) * (rId.ieta() - 0.5) / stationInfo.nNumEtaPartitions_;
+        if (!(fRadiusMin_ <= fR && fR <= fRadiusMax_ && -0.08726 <= fPhi && fPhi <= 6.196))
+          std::cout << fR << ", " << fPhi << std::endl;
+        mapRecHitWheel_layer_.Fill(key3, fPhi, fR);
 
         // Filling of strip (iEta)
-        mapRecHitOcc_ieta_.Fill(key3, rId.roll());
+        mapRecHitOcc_ieta_.Fill(key3, rId.ieta());
 
         // Filling of strip (phi)
-        GlobalPoint recHitGP = GEMGeometry_->idToDet(hit->gemId())->surface().toGlobal(hit->localPosition());
-        Float_t fPhiDeg = ((Float_t)recHitGP.phi()) * 180.0 / 3.141592;
-        if (fPhiDeg < -5.0)
-          fPhiDeg += 360.0;
+        Float_t fPhiDeg = fPhi * 180.0 / 3.141592;
         mapRecHitOcc_phi_.Fill(key3, fPhiDeg);
 
         // For total recHits
@@ -191,7 +217,7 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
         // Filling of cluster size (CLS)
         Int_t nCLS = std::min(hit->clusterSize(), nCLSMax_);  // For overflow
         mapCLSRecHit_ieta_.Fill(key4iEta, nCLS);
-        mapCLSPerCh_.Fill(key4Ch, rId.roll(), nCLS);
+        mapCLSPerCh_.Fill(key4Ch, rId.ieta(), nCLS);
       }
     }
   }

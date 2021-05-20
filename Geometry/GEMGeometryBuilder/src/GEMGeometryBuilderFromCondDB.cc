@@ -166,7 +166,7 @@ GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdeal
   float ti = convertMmToCm(*(shapeStart + 3));
   float nstrip = *(shapeStart + 4);
   float npad = *(shapeStart + 5);
-  //float dphi = *(shapeStart + 6);
+  float dphi = (shapeStart + 6 < rgeo.shapeEnd(gid)) ? *(shapeStart + 6) : 0.17715;
 
   std::vector<float> pars;
   pars.emplace_back(be);
@@ -174,8 +174,7 @@ GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdeal
   pars.emplace_back(ap);
   pars.emplace_back(nstrip);
   pars.emplace_back(npad);
-  //pars.emplace_back(dphi);
-  pars.emplace_back(0.17715);  //temporary input for PR
+  pars.emplace_back(dphi);
 
   RCPBoundPlane surf(boundPlane(rgeo, gid, detId));
   GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, name, pars);

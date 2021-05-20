@@ -4,18 +4,12 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/PixelDigitizerAlgorithm.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
 
-#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
-#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
-
 // Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
@@ -27,19 +21,20 @@ void PixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
     theSiPixelGainCalibrationService_->setESObjects(es);
 
   if (use_deadmodule_DB_)
-    es.get<SiPixelQualityRcd>().get(siPixelBadModule_);
+    siPixelBadModule_ = &es.getData(siPixelBadModuleToken_);
 
   if (use_LorentzAngle_DB_)  // Get Lorentz angle from DB record
-    es.get<SiPixelLorentzAngleSimRcd>().get(siPixelLorentzAngle_);
+    siPixelLorentzAngle_ = &es.getData(siPixelLorentzAngleToken_);
 
   // gets the map and geometry from the DB (to kill ROCs)
-  es.get<SiPixelFedCablingMapRcd>().get(fedCablingMap_);
-  es.get<TrackerDigiGeometryRecord>().get(geom_);
+  fedCablingMap_ = &es.getData(fedCablingMapToken_);
+  geom_ = &es.getData(geomToken_);
 }
 
-PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf)
+PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
-                                      conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm")),
+                                      conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm"),
+                                      iC),
       odd_row_interchannelCoupling_next_row_(conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm")
                                                  .getParameter<double>("Odd_row_interchannelCoupling_next_row")),
       even_row_interchannelCoupling_next_row_(conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm")
@@ -52,7 +47,13 @@ PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf)
               .getParameter<double>("Even_column_interchannelCoupling_next_column")),
       apply_timewalk_(conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<bool>("ApplyTimewalk")),
       timewalk_model_(
-          conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<edm::ParameterSet>("TimewalkModel")) {
+          conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<edm::ParameterSet>("TimewalkModel")),
+      fedCablingMapToken_(iC.esConsumes()),
+      geomToken_(iC.esConsumes()) {
+  if (use_deadmodule_DB_)
+    siPixelBadModuleToken_ = iC.esConsumes();
+  if (use_LorentzAngle_DB_)
+    siPixelLorentzAngleToken_ = iC.esConsumes();
   pixelFlag_ = true;
   LogDebug("PixelDigitizerAlgorithm") << "Algorithm constructed "
                                       << "Configuration parameters:"

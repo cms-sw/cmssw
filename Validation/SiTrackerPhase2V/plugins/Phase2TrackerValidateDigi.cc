@@ -55,13 +55,13 @@ Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iC
       otDigiSimLinkSrc_(config_.getParameter<edm::InputTag>("OuterTrackerDigiSimLinkSource")),
       itPixelDigiSrc_(config_.getParameter<edm::InputTag>("InnerPixelDigiSource")),
       itPixelDigiSimLinkSrc_(config_.getParameter<edm::InputTag>("InnerPixelDigiSimLinkSource")),
-      pSimHitSrc_(config_.getParameter<std::vector<edm::InputTag> >("PSimHitSource")),
+      pSimHitSrc_(config_.getParameter<std::vector<edm::InputTag>>("PSimHitSource")),
       simTrackSrc_(config_.getParameter<edm::InputTag>("SimTrackSource")),
       simVertexSrc_(config_.getParameter<edm::InputTag>("SimVertexSource")),
-      otDigiToken_(consumes<edm::DetSetVector<Phase2TrackerDigi> >(otDigiSrc_)),
-      otDigiSimLinkToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(otDigiSimLinkSrc_)),
-      itPixelDigiToken_(consumes<edm::DetSetVector<PixelDigi> >(itPixelDigiSrc_)),
-      itPixelDigiSimLinkToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(itPixelDigiSimLinkSrc_)),
+      otDigiToken_(consumes<edm::DetSetVector<Phase2TrackerDigi>>(otDigiSrc_)),
+      otDigiSimLinkToken_(consumes<edm::DetSetVector<PixelDigiSimLink>>(otDigiSimLinkSrc_)),
+      itPixelDigiToken_(consumes<edm::DetSetVector<PixelDigi>>(itPixelDigiSrc_)),
+      itPixelDigiSimLinkToken_(consumes<edm::DetSetVector<PixelDigiSimLink>>(itPixelDigiSimLinkSrc_)),
       simTrackToken_(consumes<edm::SimTrackContainer>(simTrackSrc_)),
       simVertexToken_(consumes<edm::SimVertexContainer>(simVertexSrc_)),
       geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
@@ -99,26 +99,23 @@ void Phase2TrackerValidateDigi::dqmBeginRun(const edm::Run& iRun, const edm::Eve
     return;
   tkGeom_ = &(*geomHandle);
 
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tTopo_ = &iSetup.getData(topoToken_);
 }
 //
 // -- Analyze
 //
 void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // Get digis
-  iEvent.getByToken(itPixelDigiToken_, itPixelDigiHandle_);
-  iEvent.getByToken(otDigiToken_, otDigiHandle_);
-
+  //Digis
+  itdigis_ = &iEvent.get(itPixelDigiToken_);
+  otdigis_ = &iEvent.get(otDigiToken_);
   // DigiSimLink
-  iEvent.getByToken(itPixelDigiSimLinkToken_, itPixelSimLinkHandle_);
-  iEvent.getByToken(otDigiSimLinkToken_, otSimLinkHandle_);
+  itSimLink_ = &iEvent.get(itPixelDigiSimLinkToken_);
+  otSimLink_ = &iEvent.get(otDigiSimLinkToken_);
 
   // SimTrack
-  iEvent.getByToken(simTrackToken_, simTracks);
-
+  simTracks = iEvent.getHandle(simTrackToken_);
   // SimVertex
-  iEvent.getByToken(simVertexToken_, simVertices);
+  simVertices = iEvent.getHandle(simVertexToken_);
 
   // Fil # of SIM Vertices@
   nSimVertices->Fill((*simVertices).size());
@@ -194,11 +191,11 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
 
 int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, const SimTrack simTrk) {
   int totalHits = 0;
-
   unsigned int id = simTrk.trackId();
+  // Get digis
+
   for (const auto& itoken : simHitTokens_) {
-    edm::Handle<edm::PSimHitContainer> simHitHandle;
-    iEvent.getByToken(itoken, simHitHandle);
+    const auto& simHitHandle = iEvent.getHandle(itoken);
     if (!simHitHandle.isValid())
       continue;
     const edm::PSimHitContainer& simHits = (*simHitHandle.product());
@@ -328,15 +325,13 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, const Si
 }
 bool Phase2TrackerValidateDigi::findOTDigi(unsigned int detid, unsigned int id) {
   bool matched = false;
-  const edm::DetSetVector<Phase2TrackerDigi>* digis = otDigiHandle_.product();
-  const edm::DetSetVector<PixelDigiSimLink>* links = otSimLinkHandle_.product();
-  edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSVIter = digis->find(detid);
-  if (DSVIter != digis->end()) {
+  edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSVIter = otdigis_->find(detid);
+  if (DSVIter != otdigis_->end()) {
     for (edm::DetSet<Phase2TrackerDigi>::const_iterator di = DSVIter->begin(); di != DSVIter->end(); di++) {
       int col = di->column();  // column
       int row = di->row();     // row
       unsigned int channel = Phase2TrackerDigi::pixelToChannel(row, col);
-      unsigned int simTkId = getSimTrackId(links, detid, channel);
+      unsigned int simTkId = getSimTrackId(otSimLink_, detid, channel);
       if (simTkId == id) {
         matched = true;
         break;
@@ -347,16 +342,13 @@ bool Phase2TrackerValidateDigi::findOTDigi(unsigned int detid, unsigned int id) 
 }
 bool Phase2TrackerValidateDigi::findITPixelDigi(unsigned int detid, unsigned int id) {
   bool matched = false;
-  const edm::DetSetVector<PixelDigi>* digis = itPixelDigiHandle_.product();
-  const edm::DetSetVector<PixelDigiSimLink>* links = itPixelSimLinkHandle_.product();
-
-  edm::DetSetVector<PixelDigi>::const_iterator DSVIter = digis->find(detid);
-  if (DSVIter != digis->end()) {
+  edm::DetSetVector<PixelDigi>::const_iterator DSVIter = itdigis_->find(detid);
+  if (DSVIter != itdigis_->end()) {
     for (edm::DetSet<PixelDigi>::const_iterator di = DSVIter->begin(); di != DSVIter->end(); di++) {
       int col = di->column();  // column
       int row = di->row();     // row
       unsigned int channel = PixelDigi::pixelToChannel(row, col);
-      unsigned int simTkId = getSimTrackId(links, detid, channel);
+      unsigned int simTkId = getSimTrackId(itSimLink_, detid, channel);
       if (simTkId == id) {
         matched = true;
         break;
@@ -925,8 +917,8 @@ unsigned int Phase2TrackerValidateDigi::getSimTrackId(const edm::DetSetVector<Pi
   return simTrkId;
 }
 void Phase2TrackerValidateDigi::fillOTBXInfo() {
-  const edm::DetSetVector<PixelDigiSimLink>* links = otSimLinkHandle_.product();
-  for (typename edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter = links->begin(); DSViter != links->end();
+  for (typename edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter = otSimLink_->begin();
+       DSViter != otSimLink_->end();
        DSViter++) {
     unsigned int rawid = DSViter->id;
     DetId detId(rawid);
@@ -961,8 +953,8 @@ void Phase2TrackerValidateDigi::fillOTBXInfo() {
   }
 }
 void Phase2TrackerValidateDigi::fillITPixelBXInfo() {
-  const edm::DetSetVector<PixelDigiSimLink>* links = itPixelSimLinkHandle_.product();
-  for (typename edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter = links->begin(); DSViter != links->end();
+  for (typename edm::DetSetVector<PixelDigiSimLink>::const_iterator DSViter = itSimLink_->begin();
+       DSViter != itSimLink_->end();
        DSViter++) {
     unsigned int rawid = DSViter->id;
     DetId detId(rawid);

@@ -81,8 +81,8 @@ void TrackstersProducer::globalEndJob(TrackstersCache* cache) {
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
-      myAlgo_(std::make_unique<PatternRecognitionbyCA<TICLLayerTiles>>(ps, cache)),
-      myAlgoHFNose_(std::make_unique<PatternRecognitionbyCA<TICLLayerTilesHFNose>>(ps, cache)),
+      myAlgo_(std::make_unique<PatternRecognitionbyCA<TICLLayerTiles>>(ps, cache, consumesCollector())),
+      myAlgoHFNose_(std::make_unique<PatternRecognitionbyCA<TICLLayerTilesHFNose>>(ps, cache, consumesCollector())),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
       original_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"))),

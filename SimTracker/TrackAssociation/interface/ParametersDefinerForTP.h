@@ -62,10 +62,21 @@ public:
     return vertex(iEvent, iSetup, tp.charge(), tp.vertex(), tp.p4());
   }
 
+  virtual std::tuple<TrackingParticle::Vector, TrackingParticle::Point> momentumAndVertex(
+      const edm::Event &iEvent, const edm::EventSetup &iSetup, const TrackingParticleRef &tpr) const {
+    return momentumAndVertex(iEvent, iSetup, tpr->charge(), tpr->vertex(), tpr->p4());
+  }
+
+  std::tuple<TrackingParticle::Vector, TrackingParticle::Point> momentumAndVertex(const edm::Event &iEvent,
+                                                                                  const edm::EventSetup &iSetup,
+                                                                                  const Charge ch,
+                                                                                  const Point &vtx,
+                                                                                  const LorentzVector &lv) const;
+
   virtual void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) {}
 
   virtual std::unique_ptr<ParametersDefinerForTP> clone() const {
-    return std::unique_ptr<ParametersDefinerForTP>(new ParametersDefinerForTP(*this));
+    return std::make_unique<ParametersDefinerForTP>(*this);
   }
 
   edm::InputTag beamSpotInputTag_;

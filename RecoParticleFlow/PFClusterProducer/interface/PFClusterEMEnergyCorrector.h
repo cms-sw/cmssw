@@ -23,6 +23,8 @@
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
 #include "CondFormats/GBRForest/interface/GBRForestD.h"
 
+#include <vector>
+
 class PFClusterEMEnergyCorrector {
 public:
   PFClusterEMEnergyCorrector(const edm::ParameterSet& conf, edm::ConsumesCollector&& cc);
@@ -89,6 +91,12 @@ private:
   double sigmalimhighEE_;
   double sigmaoffsetEE_;
   double sigmascaleEE_;
+
+private:
+  std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd> > forestMeanTokens_25ns_;
+  std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd> > forestSigmaTokens_25ns_;
+  std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd> > forestMeanTokens_50ns_;
+  std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd> > forestSigmaTokens_50ns_;
 };
 
 #endif

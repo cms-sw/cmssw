@@ -3,7 +3,6 @@
 #include "CondTools/SiPixel/test/SiPixelCondObjReader.h"
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -11,7 +10,7 @@
 
 namespace cms {
   SiPixelCondObjReader::SiPixelCondObjReader(const edm::ParameterSet& conf)
-      : conf_(conf), SiPixelGainCalibrationService_(conf) {}
+      : conf_(conf), tkGeomToken_(esConsumes()), SiPixelGainCalibrationService_(conf, consumesCollector()) {}
 
   void SiPixelCondObjReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //Create Subdirectories
@@ -30,7 +29,7 @@ namespace cms {
     edm::LogInfo("SiPixelCondObjReader") << "[SiPixelCondObjReader::beginJob] End Reading CondObjects" << std::endl;
 
     // Get the Geometry
-    iSetup.get<TrackerDigiGeometryRecord>().get(tkgeom);
+    const TrackerGeometry* tkgeom = &iSetup.getData(tkGeomToken_);
     edm::LogInfo("SiPixelCondObjReader") << " There are " << tkgeom->dets().size() << " detectors" << std::endl;
 
     // Get the list of DetId's

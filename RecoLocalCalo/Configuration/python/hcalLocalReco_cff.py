@@ -1,15 +1,18 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 from RecoLocalCalo.HcalRecAlgos.hcalChannelPropertiesESProd_cfi import *
 hcalOOTPileupESProducer = cms.ESProducer('OOTPileupDBCompatibilityESProducer')
 
 from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
-hbheprereco = _phase1_hbheprereco.clone(
-    processQIE11 = False,
-    tsFromDB = True,
-    pulseShapeParametersQIE8 = dict(
-        TrianglePeakTS = 4,
+hbheprereco = SwitchProducerCUDA(
+    cpu = _phase1_hbheprereco.clone(
+        processQIE11 = False,
+        tsFromDB = True,
+        pulseShapeParametersQIE8 = dict(
+            TrianglePeakTS = 4,
+        )
     )
 )
 
@@ -31,10 +34,12 @@ _phase1_hcalLocalRecoTask = hcalLocalRecoTask.copy()
 _phase1_hcalLocalRecoTask.add(hfprereco)
 
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
-run2_HF_2017.toReplaceWith( hcalLocalRecoTask, _phase1_hcalLocalRecoTask )
-run2_HF_2017.toReplaceWith( hfreco, _phase1_hfreco )
+run2_HF_2017.toReplaceWith(hcalLocalRecoTask, _phase1_hcalLocalRecoTask)
+run2_HF_2017.toReplaceWith(hfreco, _phase1_hfreco)
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toReplaceWith(hbheprereco, _phase1_hbheprereco)
+run2_HCAL_2017.toModify(hbheprereco,
+    cpu = _phase1_hbheprereco.clone()
+)
 
 _plan1_hcalLocalRecoTask = _phase1_hcalLocalRecoTask.copy()
 _plan1_hcalLocalRecoTask.add(hbheplan1)
@@ -57,27 +62,20 @@ run3_HB.toReplaceWith(hcalLocalRecoTask, _run3_hcalLocalRecoTask)
 from Configuration.ProcessModifiers.gpu_cff import gpu
 
 from RecoLocalCalo.HcalRecProducers.hbheRecHitProducerGPUTask_cff import *
-_run3_hcalLocalRecoGPUTask = _run3_hcalLocalRecoTask.copy()
+_run3_hcalLocalRecoGPUTask = hcalLocalRecoTask.copy()
 _run3_hcalLocalRecoGPUTask.add(hbheRecHitProducerGPUTask)
 gpu.toReplaceWith(hcalLocalRecoTask, _run3_hcalLocalRecoGPUTask)
 
-#--- HCAL-only workflow for Run 3
-# FIXME rename `hbheprereco` to `hbhereco` and use it from hcalGlobalRecoTask
-hcalOnlyLocalRecoTask = cms.Task(hbheprereco, hfprereco, hfreco, horeco)
+#--- HCAL-only workflow
+hcalOnlyLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco])
 
-#--- HCAL-only workflow for Run 3 on GPU
-from Configuration.ProcessModifiers.gpu_cff import gpu
-
-_hcalOnlyLocalRecoGPUTask = hcalOnlyLocalRecoTask.copy()
-_hcalOnlyLocalRecoGPUTask.add(hbheRecHitProducerGPUTask)
-gpu.toReplaceWith(hcalOnlyLocalRecoTask, _hcalOnlyLocalRecoGPUTask)
-
-from RecoLocalCalo.HcalRecProducers.hcalCPURecHitsProducer_cfi import hcalCPURecHitsProducer as _hcalCPURecHitsProducer
-gpu.toReplaceWith(hbheprereco, _hcalCPURecHitsProducer.clone(
-    recHitsM0LabelIn = "hbheRecHitProducerGPU",
-    recHitsM0LabelOut = "",
-    recHitsLegacyLabelOut = ""
-))
+#--- HCAL-only workflow for Run 2 on GPU
+from RecoLocalCalo.HcalRecProducers.hcalCPURecHitsProducer_cfi import hcalCPURecHitsProducer as _hbheprerecoFromCUDA
+(gpu & ~run3_HB).toModify(hbheprereco,
+    cuda = _hbheprerecoFromCUDA.clone(
+        produceSoA = False
+    )
+)
 
 #--- for FastSim
 _fastSim_hcalLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco])

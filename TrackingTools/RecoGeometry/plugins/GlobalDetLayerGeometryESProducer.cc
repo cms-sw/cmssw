@@ -32,7 +32,7 @@ std::unique_ptr<DetLayerGeometry> GlobalDetLayerGeometryESProducer::produce(cons
       LogInfo("GlobalDetLayergGeometryBuilder") << "No MTD geometry is available.";
     }
   } else {
-    LogInfo("GlobalDetLayerGeometryBuilder") << "No MTDDigiGeometryRecord is available.";
+    LogInfo("GlobalDetLayerGeometryBuilder") << "No MTDRecoGeometryRecord is available.";
   }
 
   // if we've got MTD initialize it

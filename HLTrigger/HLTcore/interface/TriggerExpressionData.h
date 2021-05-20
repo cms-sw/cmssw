@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
@@ -24,6 +25,8 @@ namespace triggerExpression {
     // default c'tor
     Data()
         :  // configuration
+          m_usePathStatus(false),
+          m_pathStatusTokens(),
           m_hltResultsTag(""),
           m_hltResultsToken(),
           m_l1tResultsTag(""),
@@ -37,6 +40,8 @@ namespace triggerExpression {
           m_l1tCacheID(),
           m_l1tUpdated(false),
           // hlt values and status
+          m_pathStatus(),
+          m_triggerNames(),
           m_hltResults(nullptr),
           m_hltMenu(nullptr),
           m_hltCacheID(),
@@ -47,6 +52,8 @@ namespace triggerExpression {
     // explicit c'tor from a ParameterSet
     explicit Data(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
         :  // configuration
+          m_usePathStatus(config.getParameter<bool>("usePathStatus")),
+          m_pathStatusTokens(),
           m_hltResultsTag(config.getParameter<edm::InputTag>("hltResults")),
           m_hltResultsToken(),
           m_l1tResultsTag(config.getParameter<edm::InputTag>("l1tResults")),
@@ -60,25 +67,30 @@ namespace triggerExpression {
           m_l1tCacheID(),
           m_l1tUpdated(false),
           // hlt values and status
+          m_pathStatus(),
+          m_triggerNames(),
           m_hltResults(nullptr),
           m_hltMenu(nullptr),
           m_hltCacheID(),
           m_hltUpdated(false),
           // event values
           m_eventNumber() {
-      if (not m_hltResultsTag.label().empty())
+      if (not m_hltResultsTag.label().empty() && not m_usePathStatus)
         m_hltResultsToken = iC.consumes<edm::TriggerResults>(m_hltResultsTag);
       if (not m_l1tResultsTag.label().empty())
         m_l1tResultsToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tResultsTag);
     }
 
     // explicit c'tor from single arguments
-    Data(edm::InputTag const& hltResultsTag,
+    Data(bool const& usePathStatus,
+         edm::InputTag const& hltResultsTag,
          edm::InputTag const& l1tResultsTag,
          bool l1tIgnoreMaskAndPrescale,
          bool doThrow,
          edm::ConsumesCollector&& iC)
         :  // configuration
+          m_usePathStatus(usePathStatus),
+          m_pathStatusTokens(),
           m_hltResultsTag(hltResultsTag),
           m_hltResultsToken(),
           m_l1tResultsTag(l1tResultsTag),
@@ -92,17 +104,22 @@ namespace triggerExpression {
           m_l1tCacheID(),
           m_l1tUpdated(false),
           // hlt values and status
+          m_pathStatus(),
+          m_triggerNames(),
           m_hltResults(nullptr),
           m_hltMenu(nullptr),
           m_hltCacheID(),
           m_hltUpdated(false),
           // event values
           m_eventNumber() {
-      if (not m_hltResultsTag.label().empty())
+      if (not m_hltResultsTag.label().empty() && not m_usePathStatus)
         m_hltResultsToken = iC.consumes<edm::TriggerResults>(m_hltResultsTag);
       if (not m_l1tResultsTag.label().empty())
         m_l1tResultsToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tResultsTag);
     }
+
+    // set path status token
+    void setPathStatusToken(edm::BranchDescription const& branch, edm::ConsumesCollector&& iC);
 
     // set the new event
     bool setEvent(const edm::Event& event, const edm::EventSetup& setup);
@@ -120,6 +137,8 @@ namespace triggerExpression {
     void setThrow(bool doThrow) { m_throw = doThrow; }
 
     // read-only accessors
+
+    bool usePathStatus() const { return m_usePathStatus; }
 
     bool hasL1T() const { return not m_l1tResultsTag.label().empty(); }
 
@@ -145,7 +164,34 @@ namespace triggerExpression {
 
     bool ignoreL1MaskAndPrescale() const { return m_l1tIgnoreMaskAndPrescale; }
 
+    const std::vector<std::string>& triggerNames() const {
+      if (m_hltMenu)
+        return m_hltMenu->triggerNames();
+      return m_triggerNames;
+    }
+
+    bool passHLT(unsigned int const& index) const {
+      if (usePathStatus())
+        return m_pathStatus[index];
+      return m_hltResults && m_hltResults->accept(index);
+    }
+
+    int triggerIndex(std::string const& p) const {
+      if (usePathStatus()) {
+        auto it = std::find(m_triggerNames.begin(), m_triggerNames.end(), p);
+        if (it != m_triggerNames.end())
+          return it - m_triggerNames.begin();
+      } else if (m_hltMenu) {
+        auto index = m_hltMenu->triggerIndex(p);
+        if (index < m_hltMenu->size())
+          return index;
+      }
+      return -1;
+    }
+
     // configuration
+    bool m_usePathStatus;
+    std::map<std::string, edm::EDGetTokenT<edm::HLTPathStatus> > m_pathStatusTokens;
     edm::InputTag m_hltResultsTag;
     edm::EDGetTokenT<edm::TriggerResults> m_hltResultsToken;
     edm::InputTag m_l1tResultsTag;
@@ -161,6 +207,8 @@ namespace triggerExpression {
     bool m_l1tUpdated;
 
     // hlt values and status
+    std::vector<bool> m_pathStatus;
+    std::vector<std::string> m_triggerNames;
     const edm::TriggerResults* m_hltResults;
     const edm::TriggerNames* m_hltMenu;
     edm::ParameterSetID m_hltCacheID;

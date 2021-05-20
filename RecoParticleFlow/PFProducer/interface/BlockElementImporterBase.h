@@ -14,7 +14,7 @@
 class BlockElementImporterBase {
 public:
   typedef std::vector<std::unique_ptr<reco::PFBlockElement> > ElementList;
-  BlockElementImporterBase(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+  BlockElementImporterBase(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
       : _importerName(conf.getParameter<std::string>("importerName")) {}
   BlockElementImporterBase(const BlockElementImporterBase&) = delete;
   virtual ~BlockElementImporterBase() = default;

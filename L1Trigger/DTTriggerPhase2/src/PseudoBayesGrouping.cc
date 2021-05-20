@@ -348,11 +348,11 @@ void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDow
             (allowUncorrelatedPatterns_ && ((cand->nLayerUp() >= minUncorrelatedHits_ && cand->nLayerDown() == 0) ||
                                             (cand->nLayerDown() >= minUncorrelatedHits_ && cand->nLayerUp() == 0)))) {
           if (debug_) {
-            LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::RecognisePatterns Pattern found for pair in "
-                                            << LDown << " ," << wireDown << " ," << LUp << " ," << wireUp;
             LogDebug("PseudoBayesGrouping")
-                << "Candidate has " << cand->nhits() << " hits with quality " << cand->quality();
-            LogDebug("PseudoBayesGrouping") << *(*pat_it);
+                << "PseudoBayesGrouping::RecognisePatterns Pattern found for pair in " << LDown << " ," << wireDown
+                << " ," << LUp << " ," << wireUp << "\n"
+                << "Candidate has " << cand->nhits() << " hits with quality " << cand->quality() << "\n"
+                << *(*pat_it);
           }
           //We currently save everything at this level, might want to be more restrictive
           pidx_++;

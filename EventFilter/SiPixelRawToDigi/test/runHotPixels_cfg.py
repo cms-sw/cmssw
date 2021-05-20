@@ -78,7 +78,6 @@ process.dumper = cms.EDAnalyzer("findHotPixels",
 #   In 2012, extension = _LHC                                
     InputLabel = cms.untracked.string('rawDataCollector'),
 #    InputLabel = cms.untracked.string('siPixelRawData'),
-    CheckPixelOrder = cms.untracked.bool(False)
 )
 
 process.p = cms.Path(process.hltfilter*process.dumper)

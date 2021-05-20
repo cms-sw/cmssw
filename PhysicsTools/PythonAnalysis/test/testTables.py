@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # test for pytables
 # taken from https://kastnerkyle.github.io/posts/using-pytables-for-larger-than-ram-data-processing/

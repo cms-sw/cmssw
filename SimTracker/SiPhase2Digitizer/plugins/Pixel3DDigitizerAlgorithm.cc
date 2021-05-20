@@ -1,19 +1,14 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/Pixel3DDigitizerAlgorithm.h"
 
 // Framework infrastructure
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // Calibration & Conditions
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
-#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 // Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 //#include <iostream>
@@ -23,9 +18,11 @@
 
 using namespace sipixelobjects;
 
-// Analogously to CMSUnits (no um defined)
-constexpr double operator""_um(long double length) { return length * 1e-4; }
-constexpr double operator""_um_inv(long double length) { return length * 1e4; }
+namespace {
+  // Analogously to CMSUnits (no um defined)
+  constexpr double operator""_um(long double length) { return length * 1e-4; }
+  constexpr double operator""_um_inv(long double length) { return length * 1e4; }
+}  // namespace
 
 void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es) {
   // XXX: Just copied from PixelDigitizer Algorithm
@@ -37,22 +34,23 @@ void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es) {
   }
 
   if (use_deadmodule_DB_) {
-    es.get<SiPixelQualityRcd>().get(siPixelBadModule_);
+    siPixelBadModule_ = &es.getData(siPixelBadModuleToken_);
   }
 
   if (use_LorentzAngle_DB_) {
     // Get Lorentz angle from DB record
-    es.get<SiPixelLorentzAngleSimRcd>().get(siPixelLorentzAngle_);
+    siPixelLorentzAngle_ = &es.getData(siPixelLorentzAngleToken_);
   }
 
   // gets the map and geometry from the DB (to kill ROCs)
-  es.get<SiPixelFedCablingMapRcd>().get(fedCablingMap_);
-  es.get<TrackerDigiGeometryRecord>().get(geom_);
+  fedCablingMap_ = &es.getData(fedCablingMapToken_);
+  geom_ = &es.getData(geomToken_);
 }
 
-Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf)
+Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<edm::ParameterSet>("AlgorithmCommon"),
-                                      conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm")),
+                                      conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm"),
+                                      iC),
       np_column_radius_(
           (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnRadius")) *
           1.0_um),
@@ -61,9 +59,16 @@ Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& co
           1.0_um),
       np_column_gap_(
           (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnGap")) *
-          1.0_um) {
+          1.0_um),
+      fedCablingMapToken_(iC.esConsumes()),
+      geomToken_(iC.esConsumes()) {
   // XXX - NEEDED?
   pixelFlag_ = true;
+
+  if (use_deadmodule_DB_)
+    siPixelBadModuleToken_ = iC.esConsumes();
+  if (use_LorentzAngle_DB_)
+    siPixelLorentzAngleToken_ = iC.esConsumes();
 
   edm::LogInfo("Pixel3DDigitizerAlgorithm")
       << "Algorithm constructed \n"

@@ -38,6 +38,6 @@ namespace edm {
     hash_combine(seed, args...);
     return seed;
   }
-}  // namespace edm
 
+}  // namespace edm
 #endif

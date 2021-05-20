@@ -7,7 +7,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripThresholdRcd.h"
 
 #include <vector>
 class SiStripNoises;
@@ -17,9 +21,14 @@ class SiStripFedZeroSuppression {
   friend class SiStripRawProcessingFactory;
 
 public:
-  SiStripFedZeroSuppression(uint16_t fedalgo, bool trunc = true, bool trunc10bits = false)
-      : noise_cache_id(0),
-        threshold_cache_id(0),
+  SiStripFedZeroSuppression(uint16_t fedalgo,
+                            edm::ConsumesCollector* iC = nullptr,
+                            bool trunc = true,
+                            bool trunc10bits = false)
+      : noiseToken_{iC ? decltype(noiseToken_){iC->esConsumes<SiStripNoises, SiStripNoisesRcd>()}
+                       : decltype(noiseToken_){}},
+        thresholdToken_{iC ? decltype(thresholdToken_){iC->esConsumes<SiStripThreshold, SiStripThresholdRcd>()}
+                           : decltype(thresholdToken_){}},
         theFEDalgorithm(fedalgo),
         doTruncate(trunc),
         doTruncate10bits(trunc10bits) {}
@@ -28,8 +37,8 @@ public:
   void suppress(const std::vector<SiStripDigi>& in,
                 std::vector<SiStripDigi>& selectedSignal,
                 uint32_t detId,
-                edm::ESHandle<SiStripNoises>&,
-                edm::ESHandle<SiStripThreshold>&);
+                const SiStripNoises&,
+                const SiStripThreshold&);
   void suppress(const std::vector<SiStripDigi>& in, std::vector<SiStripDigi>& selectedSignal, uint32_t detId);
   void suppress(const edm::DetSet<SiStripRawDigi>& in, edm::DetSet<SiStripDigi>& out);
   void suppress(const std::vector<int16_t>& in, uint16_t firstAPV, edm::DetSet<SiStripDigi>& out);
@@ -41,9 +50,12 @@ public:
   };
 
 private:
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripThreshold> thresholdHandle;
-  uint32_t noise_cache_id, threshold_cache_id;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
+  edm::ESGetToken<SiStripThreshold, SiStripThresholdRcd> thresholdToken_;
+  const SiStripNoises* noise_;
+  const SiStripThreshold* threshold_;
+  edm::ESWatcher<SiStripNoisesRcd> noiseWatcher_;
+  edm::ESWatcher<SiStripThresholdRcd> thresholdWatcher_;
 
   uint16_t theFEDalgorithm;
   bool isAValidDigi();

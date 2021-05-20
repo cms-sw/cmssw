@@ -8,7 +8,7 @@ echo ">>> Change default behaviour for Theano"
 export THEANO_FLAGS="device=cpu,force_device=True,base_compiledir=$TEST_TMPDIR"
 
 echo ">>> Theano configuration for testing:"
-python -c 'import theano; print(theano.config)' || ERR=1
+python3 -c 'import theano; print(theano.config)' || ERR=1
 
 echo ">>> Cleaning compile cache"
 theano-cache clear  || ERR=1

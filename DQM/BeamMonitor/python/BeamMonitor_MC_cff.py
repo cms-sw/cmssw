@@ -12,6 +12,7 @@ dqmBeamMonitor = cms.DQMEDAnalyzer("BeamMonitor",
                               resetPVEveryNLumi = cms.untracked.int32(2),
                               Debug = cms.untracked.bool(False),
                               recordName = cms.untracked.string('BeamSpotOnlineHLTObjectsRcd'),
+                              useLockRecords = cms.untracked.bool(False),
                               BeamFitter = cms.PSet(
         			Debug = cms.untracked.bool(False),
         			TrackCollection = cms.untracked.InputTag('generalTracks'), ## ctfWithMaterialTracksP5 for CRAFT

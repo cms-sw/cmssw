@@ -11,6 +11,13 @@
 
 namespace triggerExpression {
 
+  void Data::setPathStatusToken(edm::BranchDescription const& branch, edm::ConsumesCollector&& iC) {
+    if (branch.branchType() == edm::InEvent && branch.className() == "edm::HLTPathStatus" &&
+        branch.moduleLabel().rfind("HLT_", 0) == 0)
+      m_pathStatusTokens[branch.moduleLabel()] = iC.consumes<edm::HLTPathStatus>(
+          edm::InputTag(branch.moduleLabel(), branch.productInstanceName(), branch.processName()));
+  }
+
   bool Data::setEvent(const edm::Event& event, const edm::EventSetup& setup) {
     // cache the event number
     m_eventNumber = event.id().event();
@@ -40,7 +47,19 @@ namespace triggerExpression {
     }
 
     // access HLT objects only if HLT is used
-    if (hasHLT()) {
+    if (usePathStatus()) {
+      m_pathStatus.clear();
+      std::vector<std::string> triggerNames;
+      for (auto const& p : m_pathStatusTokens) {
+        auto const& handle = event.getHandle(p.second);
+        if (handle.isValid()) {
+          m_pathStatus.push_back(handle->accept());
+          triggerNames.push_back(p.first);
+        }
+      }
+      m_hltUpdated = m_triggerNames != triggerNames;
+      m_triggerNames = triggerNames;
+    } else if (hasHLT()) {
       // cache the HLT TriggerResults
       m_hltResults = &edm::get(event, m_hltResultsToken);
       if (not m_hltResults)

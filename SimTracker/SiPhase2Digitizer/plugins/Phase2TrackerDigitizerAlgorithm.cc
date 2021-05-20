@@ -57,7 +57,8 @@ namespace {
   }
 }  // namespace
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
-                                                                 const edm::ParameterSet& conf_specific)
+                                                                 const edm::ParameterSet& conf_specific,
+                                                                 edm::ConsumesCollector iC)
     : _signal(),
       makeDigiSimLinks_(conf_common.getUntrackedParameter<bool>("makeDigiSimLinks", true)),
       use_ineff_from_db_(conf_specific.getParameter<bool>("Inefficiency_DB")),
@@ -165,7 +166,7 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
       fluctuate_(fluctuateCharge_ ? std::make_unique<SiG4UniversalFluctuation>() : nullptr),
       theNoiser_(addNoise_ ? std::make_unique<GaussianTailNoiseGenerator>() : nullptr),
       theSiPixelGainCalibrationService_(
-          use_ineff_from_db_ ? std::make_unique<SiPixelGainCalibrationOfflineSimService>(conf_specific) : nullptr),
+          use_ineff_from_db_ ? std::make_unique<SiPixelGainCalibrationOfflineSimService>(conf_specific, iC) : nullptr),
       subdetEfficiencies_(conf_specific) {
   LogDebug("Phase2TrackerDigitizerAlgorithm")
       << "Phase2TrackerDigitizerAlgorithm constructed\n"
@@ -893,9 +894,9 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomD
     std::vector<GlobalPixel> badrocpositions;
     for (size_t j = 0; j < static_cast<size_t>(ncol); j++) {
       if (siPixelBadModule_->IsRocBad(detID, j)) {
-        std::vector<CablingPathToDetUnit> path = fedCablingMap_.product()->pathToDetUnit(detID);
+        std::vector<CablingPathToDetUnit> path = fedCablingMap_->pathToDetUnit(detID);
         for (auto const& p : path) {
-          const PixelROC* myroc = fedCablingMap_.product()->findItem(p);
+          const PixelROC* myroc = fedCablingMap_->findItem(p);
           if (myroc->idInDetUnit() == j) {
             LocalPixel::RocRowCol local = {39, 25};  //corresponding to center of ROC row, col
             GlobalPixel global = myroc->toGlobal(LocalPixel(local));

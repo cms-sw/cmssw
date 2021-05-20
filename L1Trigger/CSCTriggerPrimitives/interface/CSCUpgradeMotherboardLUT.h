@@ -11,26 +11,6 @@
 enum CSCPart { ME1B = 1, ME1A = 4, ME21 = 21, ME1Ag, ME11, ME31, ME41 };
 enum Parity { Even = 0, Odd = 1 };
 
-class CSCMotherboardLUTME11 {
-public:
-  CSCMotherboardLUTME11();
-  ~CSCMotherboardLUTME11() {}
-  bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c, int theEndcap, bool gangedME1a = false) const;
-  bool doesWiregroupCrossStrip(int wg, int keystrip, int theEndcap, bool gangedME1a = false) const;
-
-private:
-  // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
-  // 1st index: WG number
-  // 2nd index: inclusive HS range
-  //with "ag" a modified LUT for ganged ME1a
-  std::vector<std::vector<double> > lut_wg_vs_hs_me1a;
-  std::vector<std::vector<double> > lut_wg_vs_hs_me1ag;
-  // LUT for which ME1/1 wire group can cross which ME1/b halfstrip
-  // 1st index: WG number
-  // 2nd index: inclusive HS range
-  std::vector<std::vector<double> > lut_wg_vs_hs_me1b;
-};
-
 class CSCGEMMotherboardLUT {
 public:
   CSCGEMMotherboardLUT();

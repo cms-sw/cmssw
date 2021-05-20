@@ -767,8 +767,7 @@ void FastTimerService::PlotsPerJob::fill_lumi(AtomicResources const& data, unsig
 ///////////////////////////////////////////////////////////////////////////////
 
 FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::ActivityRegistry& registry)
-    : tbb::task_scheduler_observer(true),
-      // configuration
+    :  // configuration
       callgraph_(),
       // job configuration
       concurrent_lumis_(0),

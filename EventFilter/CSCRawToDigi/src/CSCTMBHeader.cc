@@ -128,6 +128,11 @@ void CSCTMBHeader::add(const std::vector<CSCCorrelatedLCTDigi> &digis) {
     addCorrelatedLCT1(digis[1]);
 }
 
+void CSCTMBHeader::add(const std::vector<CSCShowerDigi> &digis) {
+  if (!digis.empty())
+    theHeaderFormat->addShower(digis[0]);
+}
+
 CSCTMBHeader2007 CSCTMBHeader::tmbHeader2007() const {
   CSCTMBHeader2007 *result = dynamic_cast<CSCTMBHeader2007 *>(theHeaderFormat.get());
   if (result == nullptr) {

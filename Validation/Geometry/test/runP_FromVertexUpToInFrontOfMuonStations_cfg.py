@@ -1,3 +1,4 @@
+from __future__ import print_function
 # In order to produce what you need (or in a loop)
 #time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=BeamPipe
 #time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=Tracker
@@ -58,9 +59,9 @@ options.parseArguments()
 # Option validation
 
 if options.label not in _ALLOWED_LABELS:
-    print "\n*** Error, '%s' not registered as a valid components to monitor." % options.label
-    print "Allowed components:", _ALLOWED_LABELS
-    print
+    print("\n*** Error, '%s' not registered as a valid components to monitor." % options.label)
+    print("Allowed components:", _ALLOWED_LABELS)
+    print()
     raise RuntimeError("Unknown label")
 
 _components = _LABELS2COMPS[options.label]

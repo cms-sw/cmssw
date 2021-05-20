@@ -15,6 +15,8 @@
  * \author  Vladimir Rekovic
  *                - indexing
  *                - correlations with overlap object removal
+ * \author R. Cavanaugh
+ *                - displaced muons
  *
  * $Date$
  * $Revision$
@@ -293,6 +295,12 @@ namespace l1t {
                       std::string lutpfx,
                       std::string obj1,
                       unsigned int prec);
+
+    // Parse LUT for Upt LUT in Mass calculation for displaced muons
+    void parseUpt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
+                       std::string lutpfx,
+                       std::string obj1,
+                       unsigned int prec);
 
     // Parse LUT for Delta Eta and Cosh
     void parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,

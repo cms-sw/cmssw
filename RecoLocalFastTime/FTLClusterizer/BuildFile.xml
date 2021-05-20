@@ -3,7 +3,6 @@
 <use name="Geometry/MTDGeometryBuilder"/>
 <use name="DataFormats/Common"/>
 <use name="TrackingTools/TrajectoryState"/>
-<use name="clhep"/>
 <export>
   <lib name="1"/>
 </export>

@@ -28,6 +28,7 @@ Implementation:
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHit.h"
 #include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHitContainer.h"
@@ -319,7 +320,6 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,
                                             double& X2d,
                                             double& Y2d) {
   // Given 1 hit in Tracker1 and 1 hit in Tracker2 try to make a track with Hector
-  double theta = 0.;
   xi = 0;
   t = 0;
   partP = 0;
@@ -360,8 +360,7 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,
   thx *= -Direction;                                                      //  invert to the CMS ref frame
 
   // Protect for unphysical results
-  if (std::isnan(eloss) || std::isinf(eloss) || std::isnan(thx) || std::isinf(thx) || std::isnan(thy) ||
-      std::isinf(thy))
+  if (edm::isNotFinite(eloss) || edm::isNotFinite(thx) || edm::isNotFinite(thy))
     return false;
   //
 
@@ -378,18 +377,17 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,
     return false;
   //
   // Calculate the reconstructed track parameters
-  theta = sqrt(thx * thx + thy * thy) * urad;
+  double theta = sqrt(thx * thx + thy * thy) * urad;
   xi = eloss / fBeamEnergy;
   double energy = fBeamEnergy * (1. - xi);
   partP = sqrt(energy * energy - PPSTools::ProtonMassSQ);
   t = -2. * (PPSTools::ProtonMassSQ - fBeamEnergy * energy + fBeamMomentum * partP * cos(theta));
-  pt = sqrt(pow(partP * thx * urad, 2) + pow(partP * thy * urad, 2));
+  pt = partP * theta;
   if (xi < 0. || xi > 1. || t < 0. || t > 10. || pt <= 0.) {
     xi = 0.;
     t = 0.;
     partP = 0.;
     pt = 0.;
-    theta = 0.;
     x0 = 0.;
     y0 = 0.;
     return false;  // unphysical values
@@ -416,7 +414,7 @@ void CTPPSFastTrackingProducer::ReconstructArm(
   y2 *= mm_to_um;
   pps_station->setPositions(x1, y1, x2, y2);
   double energy = pps_station->getE(AM);  // dummy call needed to calculate some Hector internal parameter
-  if (std::isnan(energy) || std::isinf(energy))
+  if (edm::isNotFinite(energy))
     return;
   tx = pps_station->getTXIP();  // change orientation to CMS
   ty = pps_station->getTYIP();

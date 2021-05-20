@@ -2,12 +2,14 @@
 #define __RBXAndHPDCleaner_H__
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <unordered_map>
 
 class RBXAndHPDCleaner : public RecHitTopologicalCleanerBase {
 public:
-  RBXAndHPDCleaner(const edm::ParameterSet& conf) : RecHitTopologicalCleanerBase(conf) {}
+  RBXAndHPDCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : RecHitTopologicalCleanerBase(conf, cc) {}
   RBXAndHPDCleaner(const RBXAndHPDCleaner&) = delete;
   RBXAndHPDCleaner& operator=(const RBXAndHPDCleaner&) = delete;
 

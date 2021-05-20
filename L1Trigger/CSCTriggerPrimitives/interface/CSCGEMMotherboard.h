@@ -38,9 +38,6 @@ public:
                     unsigned chamber,
                     const edm::ParameterSet& conf);
 
-  //Default constructor for testing
-  CSCGEMMotherboard();
-
   ~CSCGEMMotherboard() override;
 
   // clear stored pads and copads
@@ -183,19 +180,6 @@ protected:
   void processGEMClusters(const GEMPadDigiClusterCollection* pads);
   void processGEMPads(const GEMPadDigiCollection* pads);
   void processGEMCoPads();
-
-  enum LCT_QualityRun3 {
-    INVALID = 0,
-    CLCT_2GEM = 3,
-    ALCT_2GEM = 4,
-    ALCTCLCT = 5,
-    ALCTCLCT_1GEM = 6,
-    ALCTCLCT_2GEM = 7,
-  };
-
-  // quality of the LCT when you take into account max 2 GEM layers
-  CSCMotherboard::LCT_Quality findQualityGEMv1(const CSCALCTDigi&, const CSCCLCTDigi&, int gemlayer) const;
-  LCT_QualityRun3 findQualityGEMv2(const CSCALCTDigi&, const CSCCLCTDigi&, int gemlayer) const;
 
   // print available trigger pads
   void printGEMTriggerPads(int bx_start, int bx_stop, enum CSCPart);

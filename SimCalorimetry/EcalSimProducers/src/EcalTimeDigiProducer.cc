@@ -4,9 +4,7 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -22,6 +20,7 @@ EcalTimeDigiProducer::EcalTimeDigiProducer(const edm::ParameterSet &params,
       m_EBdigiCollection(params.getParameter<std::string>("EBtimeDigiCollection")),
       m_hitsProducerTagEB(params.getParameter<edm::InputTag>("hitsProducerEB")),
       m_hitsProducerTokenEB(sumes.consumes<std::vector<PCaloHit>>(m_hitsProducerTagEB)),
+      m_geometryToken(sumes.esConsumes()),
       m_timeLayerEB(params.getParameter<int>("timeLayerBarrel")),
       m_Geometry(nullptr) {
   producesCollector.produces<EcalTimeDigiCollection>(m_EBdigiCollection);
@@ -101,14 +100,8 @@ void EcalTimeDigiProducer::finalizeEvent(edm::Event &event, edm::EventSetup cons
 }
 
 void EcalTimeDigiProducer::checkGeometry(const edm::EventSetup &eventSetup) {
-  // TODO find a way to avoid doing this every event
-  edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<CaloGeometryRecord>().get(hGeometry);
-
-  const CaloGeometry *pGeometry = &*hGeometry;
-
-  if (pGeometry != m_Geometry) {
-    m_Geometry = pGeometry;
+  if (m_geometryWatcher.check(eventSetup)) {
+    m_Geometry = &eventSetup.getData(m_geometryToken);
     updateGeometry();
   }
 }

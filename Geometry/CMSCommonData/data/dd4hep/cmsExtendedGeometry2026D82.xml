@@ -46,7 +46,7 @@
     <Include ref='Geometry/EcalCommonData/data/ectkcable/2026/v1/ectkcable.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ectkcablemat/2026/v1/ectkcablemat.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebalgo.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/ebcon.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/ebcon/2021/v1/ebcon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebrot.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalrotations.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcal/v2/hcalalgo.xml'/>

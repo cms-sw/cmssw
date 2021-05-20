@@ -46,8 +46,8 @@ PixelTrackSoAFromCUDA::PixelTrackSoAFromCUDA(const edm::ParameterSet& iConfig)
 void PixelTrackSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("src", edm::InputTag("caHitNtupletCUDA"));
-  descriptions.add("pixelTrackSoA", desc);
+  desc.add<edm::InputTag>("src", edm::InputTag("pixelTracksCUDA"));
+  descriptions.add("pixelTracksSoA", desc);
 }
 
 void PixelTrackSoAFromCUDA::acquire(edm::Event const& iEvent,

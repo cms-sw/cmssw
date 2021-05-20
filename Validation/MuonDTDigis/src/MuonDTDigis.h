@@ -65,6 +65,9 @@ private:
 
   edm::EDGetTokenT<edm::PSimHitContainer> SimHitToken_;
   edm::EDGetTokenT<DTDigiCollection> DigiToken_;
+  //Get DT Geometry
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry *muonGeom;
 
   // Switch for debug output
   bool verbose_;

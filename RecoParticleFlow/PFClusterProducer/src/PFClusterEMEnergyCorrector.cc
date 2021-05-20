@@ -126,6 +126,20 @@ PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet &
                                "ecalPFClusterCor2017V2_EE_Full_ptbin1_sigma_25ns",
                                "ecalPFClusterCor2017V2_EE_Full_ptbin2_sigma_25ns",
                                "ecalPFClusterCor2017V2_EE_Full_ptbin3_sigma_25ns"});
+
+      for (short i = 0; i < (short)condnames_mean_.size(); i++) {
+        forestMeanTokens_25ns_.emplace_back(cc.esConsumes(edm::ESInputTag("", condnames_mean_[i])));
+        forestSigmaTokens_25ns_.emplace_back(cc.esConsumes(edm::ESInputTag("", condnames_sigma_[i])));
+      }
+    } else {
+      for (short i = 0; i < (short)condnames_mean_25ns_.size(); i++) {
+        forestMeanTokens_25ns_.emplace_back(cc.esConsumes(edm::ESInputTag("", condnames_mean_25ns_[i])));
+        forestSigmaTokens_25ns_.emplace_back(cc.esConsumes(edm::ESInputTag("", condnames_sigma_25ns_[i])));
+      }
+      for (short i = 0; i < (short)condnames_mean_50ns_.size(); i++) {
+        forestMeanTokens_50ns_.emplace_back(cc.esConsumes(edm::ESInputTag("", condnames_mean_50ns_[i])));
+        forestSigmaTokens_50ns_.emplace_back(cc.esConsumes(edm::ESInputTag("", condnames_sigma_50ns_[i])));
+      }
     }
   }
 }
@@ -163,16 +177,21 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
       bunchspacing = bunchSpacingManual_;
     }
 
-    const std::vector<std::string> &condnames_mean = (bunchspacing == 25) ? condnames_mean_25ns_ : condnames_mean_50ns_;
-    const std::vector<std::string> &condnames_sigma =
-        (bunchspacing == 25) ? condnames_sigma_25ns_ : condnames_sigma_50ns_;
-    const unsigned int ncor = condnames_mean.size();
+    const unsigned int ncor = (bunchspacing == 25) ? condnames_mean_25ns_.size() : condnames_mean_50ns_.size();
+
     std::vector<edm::ESHandle<GBRForestD> > forestH_mean(ncor);
     std::vector<edm::ESHandle<GBRForestD> > forestH_sigma(ncor);
 
-    for (unsigned int icor = 0; icor < ncor; ++icor) {
-      es.get<GBRDWrapperRcd>().get(condnames_mean[icor], forestH_mean[icor]);
-      es.get<GBRDWrapperRcd>().get(condnames_sigma[icor], forestH_sigma[icor]);
+    if (bunchspacing == 25) {
+      for (unsigned int icor = 0; icor < ncor; ++icor) {
+        forestH_mean[icor] = es.getHandle(forestMeanTokens_25ns_[icor]);
+        forestH_sigma[icor] = es.getHandle(forestSigmaTokens_25ns_[icor]);
+      }
+    } else {
+      for (unsigned int icor = 0; icor < ncor; ++icor) {
+        forestH_mean[icor] = es.getHandle(forestMeanTokens_50ns_[icor]);
+        forestH_sigma[icor] = es.getHandle(forestSigmaTokens_50ns_[icor]);
+      }
     }
 
     std::array<float, 5> eval;
@@ -263,14 +282,13 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
     throw cms::Exception("PFClusterEMEnergyCorrector")
         << "This version of PFCluster corrections requires the SrFlagCollection information to proceed!\n";
 
-  const unsigned int ncor = condnames_mean_.size();
-
+  const unsigned int ncor = forestMeanTokens_25ns_.size();
   std::vector<edm::ESHandle<GBRForestD> > forestH_mean(ncor);
   std::vector<edm::ESHandle<GBRForestD> > forestH_sigma(ncor);
 
   for (unsigned int icor = 0; icor < ncor; ++icor) {
-    es.get<GBRDWrapperRcd>().get(condnames_mean_[icor], forestH_mean[icor]);
-    es.get<GBRDWrapperRcd>().get(condnames_sigma_[icor], forestH_sigma[icor]);
+    forestH_mean[icor] = es.getHandle(forestMeanTokens_25ns_[icor]);
+    forestH_sigma[icor] = es.getHandle(forestSigmaTokens_25ns_[icor]);
   }
 
   std::array<float, 6> evalEB;

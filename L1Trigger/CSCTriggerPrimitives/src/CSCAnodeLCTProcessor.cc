@@ -90,30 +90,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
   showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
 }
 
-CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() : CSCBaseboard() {
-  // Used for debugging. -JM
-  static std::atomic<bool> config_dumped{false};
-
-  // ALCT parameters.
-  setDefaultConfigParameters();
-  infoV = 2;
-
-  early_tbins = 4;
-
-  // Check and print configuration parameters.
-  checkConfigParameters();
-  if (!config_dumped) {
-    dumpConfigParams();
-    config_dumped = true;
-  }
-
-  numWireGroups = CSCConstants::MAX_NUM_WIREGROUPS;
-  MESelection = (theStation < 3) ? 0 : 1;
-
-  // Load pattern mask.
-  loadPatternMask();
-}
-
 void CSCAnodeLCTProcessor::loadPatternMask() {
   // Load appropriate pattern mask.
   if (narrow_mask_r1 && (theRing == 1 || theRing == 4)) {
@@ -246,7 +222,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
     }
   }
 
-  if (numWireGroups <= 0 or (unsigned) numWireGroups > qualityControl_->get_csc_max_wire(theStation, theRing)) {
+  if (numWireGroups <= 0 or (unsigned) numWireGroups > qualityControl_->get_csc_max_wiregroup(theStation, theRing)) {
     edm::LogError("CSCAnodeLCTProcessor|SetupError")
         << "+++ " << theCSCName_ << " (sector " << theSector << " subsector " << theSubsector << " trig id. "
         << theTrigChamber << "):"
@@ -308,7 +284,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
   if (!chamber_empty) {
     for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
       // extra check to make sure only valid wires are processed
-      const unsigned max_wire = qualityControl_->get_csc_max_wire(theStation, theRing);
+      const unsigned max_wire = qualityControl_->get_csc_max_wiregroup(theStation, theRing);
       if (unsigned(i_wire) >= max_wire)
         continue;
 

@@ -14,7 +14,7 @@
 
 #include <boost/thread/mutex.hpp>
 #include "tbb/parallel_for_each.h"
-#include "tbb/task_scheduler_init.h"
+#include "tbb/global_control.h"
 
 namespace cond {
 
@@ -505,7 +505,7 @@ int cond::TestGTPerf::execute() {
   if (nThrF > 1)
     session.transaction().commit();
 
-  tbb::task_scheduler_init init(nThrF);
+  tbb::global_control init(tbb::global_control::max_allowed_parallelism, nThrF);
   std::vector<std::shared_ptr<FetchWorker> > tasks;
 
   std::string payloadTypeName;
@@ -568,7 +568,7 @@ int cond::TestGTPerf::execute() {
 
   std::shared_ptr<void> payloadPtr;
 
-  tbb::task_scheduler_init initD(nThrD);
+  tbb::global_control initD(tbb::global_control::max_allowed_parallelism, nThrD);
   std::vector<std::shared_ptr<DeserialWorker> > tasksD;
 
   timex.interval("setup deserialization");

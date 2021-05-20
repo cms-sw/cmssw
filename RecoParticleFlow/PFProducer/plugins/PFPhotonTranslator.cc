@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "CommonTools/ParticleFlow/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"

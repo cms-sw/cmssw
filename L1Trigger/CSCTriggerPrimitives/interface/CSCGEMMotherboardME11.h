@@ -23,9 +23,6 @@ public:
                         unsigned chamber,
                         const edm::ParameterSet& conf);
 
-  /** Constructor for use during testing. */
-  CSCGEMMotherboardME11();
-
   /** Default destructor. */
   ~CSCGEMMotherboardME11() override;
 
@@ -43,7 +40,6 @@ private:
   /* access to the LUTs needed for matching */
   const CSCGEMMotherboardLUTME11* getLUT() const override { return tmbLUT_.get(); }
   std::unique_ptr<CSCGEMMotherboardLUTME11> tmbLUT_;
-  std::unique_ptr<CSCMotherboardLUTME11> cscTmbLUT_;
 
   /* readout the LCTs in a sector of ME11 */
   std::vector<CSCCorrelatedLCTDigi> readoutLCTsME11(enum CSCPart me1ab) const;
@@ -54,12 +50,6 @@ private:
                 bool (*sorter)(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&)) const;
   void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&,
                 bool (*sorter)(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&)) const;
-
-  /* check if an ALCT cross a CLCT in an ME11 sector */
-  bool doesALCTCrossCLCT(const CSCALCTDigi& a, const CSCCLCTDigi& c) const;
-
-  /* does wiregroup cross halfstrip or not */
-  bool doesWiregroupCrossStrip(int key_wg, int key_hs) const override;
 
   /* correlate a pair of ALCTs and a pair of CLCTs with matched pads or copads
      the output is up to two LCTs in a sector of ME11 */
