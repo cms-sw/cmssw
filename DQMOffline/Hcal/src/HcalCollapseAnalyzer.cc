@@ -60,7 +60,7 @@ private:
   const int verbosity_;
   const edm::InputTag recHitHBHE_, preRecHitHBHE_;
   const bool doHE_, doHB_;
-  const HcalTopology *theHBHETopology = nullptr; 
+  const HcalTopology *theHBHETopology = nullptr;
 
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<HBHERecHitCollection> tok_prehbhe_;

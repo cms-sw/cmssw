@@ -10,10 +10,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-HcalRecHitsDQMClient::HcalRecHitsDQMClient(const edm::ParameterSet &iConfig)  
-  : conf_(iConfig), 
-    hcalDDDRecConstantsToken_{esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()}, 
-    caloGeometryRunToken_{esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()} {
+HcalRecHitsDQMClient::HcalRecHitsDQMClient(const edm::ParameterSet &iConfig)
+    : conf_(iConfig),
+      hcalDDDRecConstantsToken_{esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()},
+      caloGeometryRunToken_{esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()} {
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   debug_ = false;
   verbose_ = false;
