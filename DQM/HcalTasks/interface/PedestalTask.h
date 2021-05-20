@@ -47,6 +47,7 @@ protected:
   edm::EDGetTokenT<HODigiCollection> _tokHO;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   std::vector<hcaldqm::flag::Flag> _vflags;
   enum PedestalFlag { fMsn = 0, fBadM = 1, fBadR = 2, nPedestalFlag = 3 };

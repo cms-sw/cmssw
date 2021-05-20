@@ -38,6 +38,7 @@ protected:
 
   edm::InputTag _taguMN;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	cuts/constants from input
   double _cut;
