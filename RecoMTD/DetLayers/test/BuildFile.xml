@@ -10,10 +10,4 @@
   <use name="MagneticField/Engine"/>
   <use name="Geometry/MTDNumberingBuilder"/>
   <use name="Geometry/Records"/>
-  <flags EDM_PLUGIN="1"/>
 </library>
-<library file="TestETLNavigation.cc" name="testETLNavigation">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<test name="RecoMTDDetLayersTestDriver" command="runTest.sh"/>

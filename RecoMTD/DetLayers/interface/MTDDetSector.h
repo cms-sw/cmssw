@@ -3,7 +3,6 @@
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 #include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
 #include <ostream>
 
@@ -14,12 +13,10 @@ public:
   using GeometricSearchDet::GeometricSearchDet;
 
   /// Construct from iterators on GeomDet*
-  MTDDetSector(std::vector<const GeomDet*>::const_iterator first,
-               std::vector<const GeomDet*>::const_iterator last,
-               const MTDTopology& topo);
+  MTDDetSector(std::vector<const GeomDet*>::const_iterator first, std::vector<const GeomDet*>::const_iterator last);
 
   /// Construct from a vector of GeomDet*
-  MTDDetSector(const std::vector<const GeomDet*>& dets, const MTDTopology& topo);
+  MTDDetSector(const std::vector<const GeomDet*>& dets);
 
   ~MTDDetSector() override{};
 
@@ -52,15 +49,6 @@ public:
 
   const BoundDiskSector& specificSurface() const { return *theDiskS; }
 
-  void compatibleDetsLine(const size_t idetMin,
-                          std::vector<DetWithState>& result,
-                          const TrajectoryStateOnSurface& tsos,
-                          const Propagator& prop,
-                          const MeasurementEstimator& est) const;
-
-  size_t hshift(const uint32_t detid, const int horizontalShift) const;
-  size_t vshift(const uint32_t detid, const int verticalShift, size_t& closest) const;
-
 protected:
   void setDisk(BoundDiskSector* diskS) { theDiskS = diskS; }
 
@@ -74,7 +62,12 @@ private:
   ReferenceCountingPointer<BoundDiskSector> theDiskS;
   std::vector<const GeomDet*> theDets;
 
-  const MTDTopology* topo_;
+  // Window of detid ordered modules around that closest to the track extrapolation on the sector surface
+  // needed to limit the size of the vector of distances to sort
+  // value 50 based on the possible mismatch of module number between adjacent
+  // modules, due to left-right type imparity
+
+  static constexpr size_t detsRange = 50;
 
   void init();
 };
