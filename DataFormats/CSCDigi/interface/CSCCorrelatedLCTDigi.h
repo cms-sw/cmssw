@@ -22,6 +22,18 @@ public:
   // for data vs emulator studies
   enum LCTBXMask { kBXDataMask = 0x1 };
 
+  /// SIMULATION ONLY ////
+  enum Type {
+    CLCTALCT,      // CLCT-centric
+    ALCTCLCT,      // ALCT-centric
+    ALCTCLCTGEM,   // ALCT-CLCT-1 GEM pad
+    ALCTCLCT2GEM,  // ALCT-CLCT-2 GEM pads in coincidence
+    ALCT2GEM,      // ALCT-2 GEM pads in coincidence
+    CLCT2GEM,      // CLCT-2 GEM pads in coincidence
+    CLCTONLY,      // Missing ALCT
+    ALCTONLY       // Missing CLCT
+  };
+
   /// Constructors
   CSCCorrelatedLCTDigi(const uint16_t trknmb,
                        const uint16_t valid,
@@ -39,7 +51,8 @@ public:
                        const bool run3_quart_strip_bit = false,
                        const bool run3_eighth_strip_bit = false,
                        const uint16_t run3_pattern = 0,
-                       const uint16_t run3_slope = 0);
+                       const uint16_t run3_slope = 0,
+                       const int type = ALCTCLCT);
 
   /// default (calls clear())
   CSCCorrelatedLCTDigi();
@@ -194,18 +207,6 @@ public:
   bool isRun3() const { return version_ == Version::Run3; }
 
   void setRun3(const bool isRun3);
-
-  /// SIMULATION ONLY ////
-  enum Type {
-    CLCTALCT,      // CLCT-centric
-    ALCTCLCT,      // ALCT-centric
-    ALCTCLCTGEM,   // ALCT-CLCT-1 GEM pad
-    ALCTCLCT2GEM,  // ALCT-CLCT-2 GEM pads in coincidence
-    ALCT2GEM,      // ALCT-2 GEM pads in coincidence
-    CLCT2GEM,      // CLCT-2 GEM pads in coincidence
-    CLCTONLY,      // Missing ALCT
-    ALCTONLY       // Missing CLCT
-  };
 
   int getType() const { return type_; }
 
