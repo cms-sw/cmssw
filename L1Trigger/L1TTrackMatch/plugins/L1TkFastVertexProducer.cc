@@ -309,25 +309,10 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
 
   // sliding windows... maximize bin i + i-1  + i+1
 
-  float zvtx_sliding = -999;
-  float sigma_max = -999;
-  int imax = -999;
+  float zvtx_sliding;
+  float sigma_max;
+  int imax;
   int nb = htmp.GetNbinsX();
-  for (int i = 2; i <= nb - 1; i++) {
-    float a0 = htmp.GetBinContent(i - 1);
-    float a1 = htmp.GetBinContent(i);
-    float a2 = htmp.GetBinContent(i + 1);
-    float sigma = a0 + a1 + a2;
-    if (sigma > sigma_max) {
-      sigma_max = sigma;
-      imax = i;
-      float z0 = htmp.GetBinCenter(i - 1);
-      float z1 = htmp.GetBinCenter(i);
-      float z2 = htmp.GetBinCenter(i + 1);
-      zvtx_sliding = (a0 * z0 + a1 * z1 + a2 * z2) / sigma;
-    }
-  }
-
   std::vector<int> found;
   found.reserve(nVtx_);
   for (int ivtx = 0; ivtx < nVtx_; ivtx++) {

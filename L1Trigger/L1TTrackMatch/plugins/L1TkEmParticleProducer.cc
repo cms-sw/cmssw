@@ -266,7 +266,7 @@ float L1TkEmParticleProducer::CorrectedEta(float eta, float zv) const {
   } else {
     if (theta > 0)
       delta = ZEcal;
-    if (theta < 0)
+    else
       delta = -ZEcal;
   }
 
