@@ -14,7 +14,10 @@ options.register("modules", "TritonImageProducer", VarParsing.multiplicity.list,
 options.register("modelName","resnet50_netdef", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("brief", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("unittest", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("testother", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("shm", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("device","auto", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("docker", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("tries", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
@@ -89,12 +92,13 @@ for module in options.modules:
                 modelConfigPath = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/{}/config.pbtxt".format(models[module])),
                 verbose = cms.untracked.bool(options.verbose),
                 allowedTries = cms.untracked.uint32(options.tries),
+                useSharedMemory = cms.untracked.bool(options.shm),
             )
         )
     )
     processModule = getattr(process, module)
     if module=="TritonImageProducer":
-        processModule.batchSize = cms.uint32(1)
+        processModule.batchSize = cms.int32(1)
         processModule.topN = cms.uint32(5)
         processModule.imageList = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/resnet50_netdef/resnet50_labels.txt")
     elif "TritonGraph" in module:
@@ -109,8 +113,19 @@ for module in options.modules:
             processModule.nodeMax = cms.uint32(4000)
             processModule.edgeMin = cms.uint32(8000)
             processModule.edgeMax = cms.uint32(15000)
+        processModule.brief = cms.bool(options.brief)
     process.p += processModule
     keepMsgs.extend([module,module+':TritonClient'])
+    if options.testother:
+        # clone modules to test both gRPC and shared memory
+        _module2 = module+"GRPC" if processModule.Client.useSharedMemory else "SHM"
+        setattr(process, _module2,
+            processModule.clone(
+                Client = dict(useSharedMemory = not processModule.Client.useSharedMemory)
+            )
+        )
+        processModule2 = getattr(process, _module2)
+        process.p += processModule2
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 500

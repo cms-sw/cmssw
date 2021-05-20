@@ -8,7 +8,9 @@
 #include <vector>
 #include <unordered_set>
 
-#include "grpc_client.h"
+#include "HeterogeneousCore/SonicTriton/interface/grpc_client_gpu.h"
+
+#include "cuda_runtime_api.h"
 
 namespace triton_utils {
 
@@ -22,6 +24,14 @@ namespace triton_utils {
 
   //helper to turn triton error into warning
   bool warnIfError(const Error& err, std::string_view msg);
+
+  //helper to do either
+  bool warnOrThrowIfError(const Error& err, std::string_view msg, bool canThrow);
+
+  //generic version w/o Error
+  void warnOrThrow(std::string_view msg, bool canThrow);
+
+  bool cudaCheck(cudaError_t result, std::string_view msg, bool canThrow);
 
 }  // namespace triton_utils
 
