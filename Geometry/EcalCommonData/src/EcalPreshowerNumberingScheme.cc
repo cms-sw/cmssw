@@ -98,7 +98,8 @@ EcalPreshowerNumberingScheme::~EcalPreshowerNumberingScheme() {
  */
 uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
   const int numberOfHierarchyLevels = baseNumber.getLevels();
-  bool dd4hep = ((numberOfHierarchyLevels == 10) && (baseNumber.getCopyNumber(numberOfHierarchyLevels - 1) == 1) && (baseNumber.getLevelName(numberOfHierarchyLevels - 1) != "OCMS"));
+  bool dd4hep = ((numberOfHierarchyLevels == 10) && (baseNumber.getCopyNumber(numberOfHierarchyLevels - 1) == 1) &&
+                 (baseNumber.getLevelName(numberOfHierarchyLevels - 1) != "OCMS"));
 #ifdef EDM_ML_DEBUG
   std::ostringstream st1;
   for (int k = 0; k < numberOfHierarchyLevels; ++k)
