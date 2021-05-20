@@ -161,18 +161,18 @@ summlc = [
 
 #Plots to keep in summary from ticlMultiClustersFromTrackstersEM
 summmcEM = [
-    'ticlMultiClustersFromTrackstersEM/Efficiencies/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersEM/Duplicates/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersEM/FakeRate/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersEM/MergeRate/globalEfficiencies.png'
+    'ticlTrackstersEM/Efficiencies/globalEfficiencies.png' ,
+    'ticlTrackstersEM/Duplicates/globalEfficiencies.png' ,
+    'ticlTrackstersEM/FakeRate/globalEfficiencies.png' ,
+    'ticlTrackstersEM/MergeRate/globalEfficiencies.png'
 ]
 
 #Plots to keep in summary from ticlMultiClustersFromTrackstersHAD
 summmcHAD = [
-    'ticlMultiClustersFromTrackstersHAD/Efficiencies/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersHAD/Duplicates/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersHAD/FakeRate/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersHAD/MergeRate/globalEfficiencies.png'
+    'ticlTrackstersHAD/Efficiencies/globalEfficiencies.png' ,
+    'ticlTrackstersHAD/Duplicates/globalEfficiencies.png' ,
+    'ticlTrackstersHAD/FakeRate/globalEfficiencies.png' ,
+    'ticlTrackstersHAD/MergeRate/globalEfficiencies.png'
 ]
 
 summmcTICL = summmcEM + summmcHAD
@@ -188,7 +188,8 @@ for obj in _summobj:
 _summary['hitCalibration'] = summhitcalib
 _summary['hitValidation'] = summhitvalid
 _summary['layerClusters'] = summlc
-_summary['allTiclMultiClusters'] = summmcTICL
+_summary['tracksters'] = summmcTICL
+#_summary['allTiclMultiClusters'] = summmcTICL
 #_summary['ticlMultiClustersFromTrackstersEM'] = summmcEM
 #_summary['ticlMultiClustersFromTrackstersHAD'] = summmcHAD                          
 
