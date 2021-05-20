@@ -105,6 +105,8 @@ void PixelCPEGenericESProducer::fillDescriptions(edm::ConfigurationDescriptions&
   // specific to PixelCPEGenericESProducer
   desc.add<std::string>("ComponentName", "PixelCPEGeneric");
   desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag(""));
+  desc.addOptional<bool>("useLAAlignmentOffsets", false)->setComment("deprecated");
+  desc.addOptional<bool>("DoLorentz", false)->setComment("deprecated");
   descriptions.add("_generic_default", desc);
 }
 

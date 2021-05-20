@@ -83,6 +83,7 @@ void PixelCPETemplateRecoESProducer::fillDescriptions(edm::ConfigurationDescript
 
   // specific to PixelCPETemplateRecoESProducer
   desc.add<std::string>("ComponentName", "PixelCPETemplateReco");
+  desc.addOptional<bool>("DoLorentz", true)->setComment("deprecated");
   descriptions.add("_templates_default", desc);
 }
 

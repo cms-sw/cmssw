@@ -92,6 +92,8 @@ void PixelCPEFastESProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   // specific to PixelCPEFastESProducer
   desc.add<std::string>("ComponentName", "PixelCPEFast");
   desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag());
+  desc.addOptional<bool>("useLAAlignmentOffsets", false)->setComment("deprecated");
+  desc.addOptional<bool>("DoLorentz", false)->setComment("deprecated");
 
   descriptions.add("PixelCPEFastESProducer", desc);
 }
