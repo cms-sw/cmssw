@@ -26,16 +26,18 @@ namespace nic = ni::client;
 TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& debugName)
     : SonicClient(params, debugName, "TritonClient"),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
+      useSharedMemory_(params.getUntrackedParameter<bool>("useSharedMemory")),
       options_(params.getParameter<std::string>("modelName")) {
   //get appropriate server for this model
   edm::Service<TritonService> ts;
-  const auto& [url, isFallbackCPU] =
+  const auto& [url, serverType] =
       ts->serverAddress(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
+  serverType_ = serverType;
   if (verbose_)
     edm::LogInfo(fullDebugName_) << "Using server: " << url;
   //enforce sync mode for fallback CPU server to avoid contention
   //todo: could enforce async mode otherwise (unless mode was specified by user?)
-  if (isFallbackCPU)
+  if (serverType_ == TritonServerType::LocalCPU)
     setMode(SonicMode::Sync);
 
   //connect to the server
@@ -95,8 +97,9 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   inputsTriton_.reserve(nicInputs.size());
   for (const auto& nicInput : nicInputs) {
     const auto& iname = nicInput.name();
-    auto [curr_itr, success] = input_.emplace(
-        std::piecewise_construct, std::forward_as_tuple(iname), std::forward_as_tuple(iname, nicInput, noBatch_));
+    auto [curr_itr, success] = input_.emplace(std::piecewise_construct,
+                                              std::forward_as_tuple(iname),
+                                              std::forward_as_tuple(iname, nicInput, this, ts->pid()));
     auto& curr_input = curr_itr->second;
     inputsTriton_.push_back(curr_input.data());
     if (verbose_) {
@@ -118,8 +121,9 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     const auto& oname = nicOutput.name();
     if (!s_outputs.empty() and s_outputs.find(oname) == s_outputs.end())
       continue;
-    auto [curr_itr, success] = output_.emplace(
-        std::piecewise_construct, std::forward_as_tuple(oname), std::forward_as_tuple(oname, nicOutput, noBatch_));
+    auto [curr_itr, success] = output_.emplace(std::piecewise_construct,
+                                               std::forward_as_tuple(oname),
+                                               std::forward_as_tuple(oname, nicOutput, this, ts->pid()));
     auto& curr_output = curr_itr->second;
     outputsTriton_.push_back(curr_output.data());
     if (verbose_) {
@@ -146,6 +150,15 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
               << "Model max batch size: " << (noBatch_ ? 0 : maxBatchSize_) << "\n";
     edm::LogInfo(fullDebugName_) << model_msg.str() << io_msg.str();
   }
+}
+
+TritonClient::~TritonClient() {
+  //by default: members of this class destroyed before members of base class
+  //in shared memory case, TritonMemResource (member of TritonData) unregisters from client_ in its destructor
+  //but input/output objects are member of base class, so destroyed after client_ (member of this class)
+  //therefore, clear the maps here
+  input_.clear();
+  output_.clear();
 }
 
 bool TritonClient::setBatchSize(unsigned bsize) {
@@ -185,6 +198,7 @@ bool TritonClient::getResults(std::shared_ptr<nic::InferResult> results) {
       if (!status)
         return status;
       output.setShape(tmp_shape, false);
+      output.computeSizes();
     }
     //extend lifetime
     output.setResult(results);
@@ -200,6 +214,14 @@ void TritonClient::evaluate() {
     finish(true);
     return;
   }
+
+  //set up shared memory for output
+  bool prepare_status = true;
+  for (auto& element : output_) {
+    prepare_status &= element.second.prepare();
+  }
+  if (!prepare_status)
+    finish(prepare_status);
 
   // Get the status of the server prior to the request being made.
   const auto& start_status = getServerSideStatus();
@@ -355,6 +377,7 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.addUntracked<std::string>("preferredServer", "");
   descClient.addUntracked<unsigned>("timeout");
   descClient.addUntracked<bool>("verbose", false);
+  descClient.addUntracked<bool>("useSharedMemory", true);
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
   iDesc.add<edm::ParameterSetDescription>("Client", descClient);
 }

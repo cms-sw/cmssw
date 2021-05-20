@@ -6,6 +6,7 @@
 <use name="HeterogeneousCore/SonicCore"/>
 <use name="triton-inference-server"/>
 <use name="protobuf"/>
+<use name="cuda"/>
 <export>
   <lib   name="1"/>
 </export>

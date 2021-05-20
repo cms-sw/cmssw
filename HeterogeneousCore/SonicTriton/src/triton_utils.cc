@@ -1,6 +1,7 @@
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <sstream>
 #include <experimental/iterator>
@@ -19,15 +20,33 @@ namespace triton_utils {
 
   void throwIfError(const Error& err, std::string_view msg) {
     if (!err.IsOk())
-      throw cms::Exception("TritonServerFailure") << msg << ": " << err;
+      throw cms::Exception("TritonFailure") << msg << (err.Message().empty() ? "" : ": " + err.Message());
   }
 
   bool warnIfError(const Error& err, std::string_view msg) {
     if (!err.IsOk())
-      edm::LogWarning("TritonServerWarning") << msg << ": " << err;
+      edm::LogWarning("TritonWarning") << msg << (err.Message().empty() ? "" : ": " + err.Message());
     return err.IsOk();
   }
 
+  bool warnOrThrowIfError(const Error& err, std::string_view msg, bool canThrow) {
+    if (canThrow)
+      throwIfError(err, msg);
+    return !canThrow ? warnIfError(err, msg) : err.IsOk();
+  }
+
+  void warnOrThrow(std::string_view msg, bool canThrow) {
+    warnOrThrowIfError(Error("client-side problem"), msg, canThrow);
+  }
+
+  bool cudaCheck(cudaError_t result, std::string_view msg, bool canThrow) {
+    if (LIKELY(result == cudaSuccess))
+      return true;
+
+    std::string cudaMsg(std::string(cudaGetErrorName(result)) + ": " + cudaGetErrorString(result));
+    warnOrThrowIfError(Error(cudaMsg), msg, canThrow);
+    return false;
+  }
 }  // namespace triton_utils
 
 template std::string triton_utils::printColl(const edm::Span<std::vector<int64_t>::const_iterator>& coll,
