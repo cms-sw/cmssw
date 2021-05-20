@@ -97,7 +97,7 @@ _pageNameMap = {
     "summary": "Summary",
     "hitCalibration": "Reconstructed hits calibration",
     "hitValidation" : "Simulated hits, digis, reconstructed hits validation" , 
-    "hgcalLayerClusters": "Layer clusters",
+    "layerClusters": "Layer clusters",
     "tracksters":"Tracksters", 
     "ticlMultiClustersFromTrackstersEM": "Electromagnetic multiclusters",
     "ticlMultiClustersFromTrackstersHAD": "Hadronic multiclusters",
@@ -108,8 +108,8 @@ _pageNameMap = {
 _sectionNameMapOrder = collections.OrderedDict([
     # These are for the summary page
     # Will add later
-    # hgcalLayerClusters
-    ("hgcalLayerClusters", "Layer clusters"),
+    # layerClusters
+    ("layerClusters", "Layer clusters"),
     # ticlMultiClustersFromTrackstersEM
     ("ticlMultiClustersFromTrackstersEM","Electromagnetic multiclusters"),
     # ticlMultiClustersFromTrackstersHAD
@@ -124,8 +124,8 @@ _summary = {}
 
 #Objects to keep in summary
 #_summobj = ['hitCalibration','hitValidation', 'hgcalLayerClusters','ticlMultiClustersFromTrackstersEM','ticlMultiClustersFromTrackstersHAD']
-_summobj = ['hitCalibration','hitValidation', 'hgcalLayerClusters','tracksters']
-#_summobj = ['hitCalibration','hitValidation', 'hgcalLayerClusters']
+_summobj = ['hitCalibration','hitValidation', 'layerClusters','tracksters']
+#_summobj = ['hitCalibration','hitValidation', 'layerClusters']
 
 #Plots to keep in summary from hitCalibration
 summhitcalib=[
@@ -144,14 +144,14 @@ summhitvalid = [
                           
 #Plots to keep in summary from layer clusters
 summlc = [
-    'hgcalLayerClusters_Z-minus: LC_CP association/Efficiencies_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_Z-plus: LC_CP association/Efficiencies_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_Z-minus: LC_CP association/Duplicates_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_Z-plus: LC_CP association/Duplicates_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_Z-minus: LC_CP association/FakeRate_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_Z-plus: LC_CP association/FakeRate_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_Z-minus: LC_CP association/MergeRate_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_Z-plus: LC_CP association/MergeRate_vs_layer/globalEfficiencies.png',
+    'layerClusters_Z-minus: LC_CP association/Efficiencies_vs_layer/globalEfficiencies.png' ,
+    'layerClusters_Z-plus: LC_CP association/Efficiencies_vs_layer/globalEfficiencies.png' ,
+    'layerClusters_Z-minus: LC_CP association/Duplicates_vs_layer/globalEfficiencies.png' ,
+    'layerClusters_Z-plus: LC_CP association/Duplicates_vs_layer/globalEfficiencies.png' ,
+    'layerClusters_Z-minus: LC_CP association/FakeRate_vs_layer/globalEfficiencies.png' ,
+    'layerClusters_Z-plus: LC_CP association/FakeRate_vs_layer/globalEfficiencies.png' ,
+    'layerClusters_Z-minus: LC_CP association/MergeRate_vs_layer/globalEfficiencies.png' ,
+    'layerClusters_Z-plus: LC_CP association/MergeRate_vs_layer/globalEfficiencies.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_num_caloparticle_eta.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_caloparticle_pt.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_caloparticle_phi.png',
@@ -187,7 +187,7 @@ for obj in _summobj:
     _summary[obj] = {}
 _summary['hitCalibration'] = summhitcalib
 _summary['hitValidation'] = summhitvalid
-_summary['hgcalLayerClusters'] = summlc
+_summary['layerClusters'] = summlc
 _summary['allTiclMultiClusters'] = summmcTICL
 #_summary['ticlMultiClustersFromTrackstersEM'] = summmcEM
 #_summary['ticlMultiClustersFromTrackstersHAD'] = summmcHAD                          
