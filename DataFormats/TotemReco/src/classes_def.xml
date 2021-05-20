@@ -8,7 +8,7 @@
   <class name="std::vector<TotemT2Digi>"/>
   <class name="std::vector<edm::DetSet<TotemT2Digi> >"/>
   <class name="TotemT2RecHit" ClassVersion="2">
-    <version ClassVersion="2" checksum="2546742462"/>
+    <version ClassVersion="2" checksum="969691996"/>
   </class>
   <class name="edm::DetSet<TotemT2RecHit>"/>
   <class name="edm::DetSetVector<TotemT2RecHit>"/>
