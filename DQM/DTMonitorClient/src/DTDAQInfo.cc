@@ -18,7 +18,6 @@
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
@@ -27,7 +26,9 @@
 using namespace std;
 using namespace edm;
 
-DTDAQInfo::DTDAQInfo(const ParameterSet& pset) : mappingToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
+DTDAQInfo::DTDAQInfo(const ParameterSet& pset)
+    : mappingToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
+      runInfoToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
   bookingdone = false;
   checkUros = pset.getUntrackedParameter<bool>("checkUros", true);
 }
@@ -79,9 +80,8 @@ void DTDAQInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
     daqMap->Reset();
     //get fed summary information
-    ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-    vector<int> fedInIDs = sumFED->m_fed_in;
+    auto sumFED = runInfoRec->get(runInfoToken_);
+    const vector<int> fedInIDs = sumFED.m_fed_in;
 
     // the range of DT feds
     static const int FEDIDmin = FEDNumbering::MINDTFEDID;
