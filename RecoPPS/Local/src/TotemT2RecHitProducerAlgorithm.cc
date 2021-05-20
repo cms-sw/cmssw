@@ -6,6 +6,7 @@
 *
 ****************************************************************************/
 
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoPPS/Local/interface/TotemT2RecHitProducerAlgorithm.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
@@ -26,9 +27,24 @@ void TotemT2RecHitProducerAlgorithm::build(const TotemGeometry& geom,
     // prepare the output collection
     edm::DetSet<TotemT2RecHit>& rec_hits = output.find_or_insert(detid);
 
-    // retrieve the geometry element associated to this DetID
-    const auto& tile = geom.tile(detid);
+    for (const auto& digi : vec) {
+      const int t_lead = digi.leadingEdge(), t_trail = digi.trailingEdge();
+      if (t_lead == 0 && t_trail == 0)  // skip invalid digis
+        continue;
+      double tot = -1., ch_t_twc = 0.;
+      if (t_lead != 0 && t_trail != 0) {
+        tot = (t_trail - t_lead) * ts_to_ns_;  // in ns
+        if (calib_fct_ && apply_calib_) {      // compute the time-walk correction
+          ch_t_twc = calib_fct_->evaluate(std::vector<double>{tot}, ch_params);
+          if (edm::isNotFinite(ch_t_twc))
+            ch_t_twc = 0.;
+        }
+      }
 
-    rec_hits.emplace_back(tile.centre(), ch_t_offset, ch_t_precis);
+      // retrieve the geometry element associated to this DetID
+      const auto& tile = geom.tile(detid);
+
+      rec_hits.emplace_back(tile.centre(), t_lead * ts_to_ns_ - ch_t_offset - ch_t_twc, ch_t_precis, tot);
+    }
   }
 }
