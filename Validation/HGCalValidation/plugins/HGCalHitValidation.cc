@@ -336,7 +336,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
         hebEnSimRec->Fill(std::get<0>(itr->second), energy);
 
 #ifdef EDM_ML_DEBUG
-        edm::LogInfo("HGCalValid") << "BHHit: " << std::hex << id.rawId() << std::dec << " Sim ("
+        edm::LogInfo("HGCalValid") << "BHHit: " << std::hex << it->id().rawId() << std::dec << " Sim ("
                                    << std::get<0>(itr->second) << ", " << std::get<1>(itr->second) << ", "
                                    << std::get<2>(itr->second) << ", " << std::get<3>(itr->second) << ") Rec ("
                                    << energy << ", " << xyz.x() << ", " << xyz.y() << ", " << xyz.z() << ")\n";
