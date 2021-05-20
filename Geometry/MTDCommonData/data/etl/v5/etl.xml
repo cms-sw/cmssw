@@ -64,43 +64,6 @@
     <Constant name="Zpos1" value="4.02*mm"/>
     <Constant name="Zpos2" value="0.*mm"/>
     <Constant name="xoffset_servicehybrid" value="1*mm"/>
-
-    <Vector name="StartCopyNo_Front_Right" type="numeric" nEntries="28">
-      1, 7, 18, 33, 50, 69, 90, 112, 136, 161, 186, 207, 227, 247, 266,
-      285, 305, 325, 349, 374, 398, 421, 443, 463, 481, 497, 510, 517
-    </Vector>
-
-    <Vector name="StartCopyNo_Front_Left" type="numeric" nEntries="28">
-      1, 8, 21, 37, 55, 75, 97, 120, 144, 169, 193, 213, 233, 252, 271,
-      291, 311, 332, 357, 382, 406, 428, 449, 468, 485, 500, 511, 517
-    </Vector>
-
-    <Vector name="Offset_Front_Right" type="numeric" nEntries="28">
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 6, 7, 8, 8, 7, 6, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    </Vector>
-
-    <Vector name="Offset_Front_Left" type="numeric" nEntries="28">
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6, 7, 8, 8, 7, 6, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    </Vector>
-
-    <Vector name="StartCopyNo_Back_Right" type="numeric" nEntries="28">
-      1, 10, 23, 39, 57, 77, 99, 122, 146, 171, 194, 214, 234, 254, 273,
-      293, 313, 335, 360, 384, 407, 430, 451, 470, 487, 501, 511, 514
-    </Vector>
-
-    <Vector name="StartCopyNo_Back_Left" type="numeric" nEntries="28">
-      1, 4, 14, 28, 45, 64, 85, 107, 130, 154, 179, 201, 221, 241, 260,
-      280, 300, 320, 343, 368, 392, 415, 437, 457, 475, 491, 504, 513
-    </Vector>
-
-    <Vector name="Offset_Back_Right" type="numeric" nEntries="28">
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 6, 7, 7, 8, 7, 6, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    </Vector>
-
-    <Vector name="Offset_Back_Left" type="numeric" nEntries="28">
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 7, 8, 7, 7, 6, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    </Vector>
-
   </ConstantsSection>
 
 
@@ -108,16 +71,16 @@
     <Tubs name="EndcapTimingLayer" rMin="[ETLrmin]" rMax="[ETLrmax]" dz="0.5*[ETLthickness]" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="Disc" rMin="[Disc_Rmin]" rMax="[Disc_Rmax]" dz="0.5*[Disc_thickness]" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="Al_Disc" rMin="[Disc_Rmin]" rMax="[Disc_Rmax]" dz="0.5*[Al_Disc_thickness]" startPhi="0*deg" deltaPhi="360*deg"/>
-
+    
     <!-- FRONT: face closest to IP, BACK: furthest from IP -->
     <Tubs name="DiscSector_Front" rMin="[Disc_Rmin]" rMax="[Disc_Rmax]" dz="0.5*[ServiceHybrid_Z]" startPhi="-90*deg" deltaPhi="180*deg"/> <!-- half-disc on front face -->
     <Tubs name="DiscSector_Back" rMin="[Disc_Rmin]" rMax="[Disc_Rmax]" dz="0.5*[ServiceHybrid_Z]" startPhi="-90*deg" deltaPhi="180*deg"/> <!-- half-disc on back face -->
-
+    
     <Box name="SensorModule" dx="0.5*[SensorModule_X]" dy="0.5*[SensorModule_Y]" dz="0.5*[SensorModule_Z]"/>
     <Box name="ServiceHybrid3" dx="0.5*[ServiceHybrid_X3]" dy="0.5*[ServiceHybrid_Y]" dz="0.5*[ServiceHybrid_Z]"/>
     <Box name="ServiceHybrid6" dx="0.5*[ServiceHybrid_X6]" dy="0.5*[ServiceHybrid_Y]" dz="0.5*[ServiceHybrid_Z]"/>
     <Box name="ServiceHybrid7" dx="0.5*[ServiceHybrid_X7]" dy="0.5*[ServiceHybrid_Y]" dz="0.5*[ServiceHybrid_Z]"/>
-
+    
     <Box name="ThermalPad" dx="0.5*[SensorModule_X]" dy="0.5*[SensorModule_Y]" dz="0.5*[ThermalPad_dz]"/>
     <Box name="AlN_Carrier" dx="0.5*[SensorModule_X]" dy="0.5*[SensorModule_Y]" dz="0.5*[AIN_Carrier_dz]"/>
     <Box name="LairdFilm" dx="0.5*([ETROCdx]*2+[etrocSep_X])" dy="0.5*([ETROCdy]+0.5*[etrocSep_Y])" dz="0.5*[LairdFilm_dz]"/>
@@ -136,6 +99,49 @@
     <Rotation name="90" thetaX="90*deg" phiX="90*deg" thetaY="90*deg" phiY="180*deg" thetaZ="0*deg" phiZ="0*deg"/>
     <Rotation name="Reverse" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="270*deg" thetaZ="180*deg" phiZ="0*deg"/>
   </RotationSection>
+
+  <Vector name="StartCopyNo_Front_Right" type="numeric" nEntries="27">
+    1, 7, 18, 33, 50, 69, 90, 112, 136, 161, 186, 207, 227, 247, 266,
+    285, 305, 325, 349, 374, 398, 421, 443, 463, 481, 497, 510
+  </Vector>
+
+  <Vector name="StartCopyNo_Front_Left" type="numeric" nEntries="27">
+    1, 8, 21, 37, 55, 75, 97, 120, 144, 169, 193, 213, 233, 252, 271,
+    291, 311, 332, 357, 382, 406, 428, 449, 468, 485, 500, 511
+  </Vector>
+
+  <Vector name="Offset_Front_Right" type="numeric" nEntries="27">
+    [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset],
+    [x_offset]+5*([SensorModule_X]+[DeltaX]), [x_offset]+6*([SensorModule_X]+[DeltaX]), [x_offset]+7*([SensorModule_X]+[DeltaX]), [x_offset]+8*([SensorModule_X]+[DeltaX]), [x_offset]+8*([SensorModule_X]+[DeltaX]), [x_offset]+7*([SensorModule_X]+[DeltaX]), [x_offset]+6*([SensorModule_X]+[DeltaX]), [x_offset]+2*([SensorModule_X]+[DeltaX]),
+    [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset]
+  </Vector>
+
+  <Vector name="Offset_Front_Left" type="numeric" nEntries="27">
+    [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset],
+    [x_offset]+2*([SensorModule_X]+[DeltaX]), [x_offset]+6*([SensorModule_X]+[DeltaX]), [x_offset]+7*([SensorModule_X]+[DeltaX]), [x_offset]+8*([SensorModule_X]+[DeltaX]), [x_offset]+8*([SensorModule_X]+[DeltaX]), [x_offset]+7*([SensorModule_X]+[DeltaX]), [x_offset]+6*([SensorModule_X]+[DeltaX]), [x_offset]+5*([SensorModule_X]+[DeltaX]),
+    [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset]
+  </Vector>
+
+  <Vector name="StartCopyNo_Back_Right" type="numeric" nEntries="27">
+    1, 10, 23, 39, 57, 77, 99, 122, 146, 171, 194, 214, 234, 254, 273, 
+    293, 313, 335, 360, 384, 407, 430, 451, 470, 487, 501, 511
+  </Vector>
+
+  <Vector name="StartCopyNo_Back_Left" type="numeric" nEntries="27">
+    1, 4, 14, 28, 45, 64, 85, 107, 130, 154, 179, 201, 221, 241, 260, 
+    280, 300, 320, 343, 368, 392, 415, 437, 457, 475, 491, 504 
+  </Vector>
+
+  <Vector name="Offset_Back_Right" type="numeric" nEntries="27">
+    [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset]+3*([SensorModule_X]+[DeltaX]),
+    [x_offset]+6*([SensorModule_X]+[DeltaX]), [x_offset]+7*([SensorModule_X]+[DeltaX]), [x_offset]+7*([SensorModule_X]+[DeltaX]), [x_offset]+8*([SensorModule_X]+[DeltaX]), [x_offset]+7*([SensorModule_X]+[DeltaX]), [x_offset]+6*([SensorModule_X]+[DeltaX]), [x_offset]+4*([SensorModule_X]+[DeltaX]), [x_offset],[x_offset], [x_offset], [x_offset], [x_offset], [x_offset],
+    [x_offset], [x_offset], [x_offset], [x_offset]
+  </Vector>
+
+  <Vector name="Offset_Back_Left" type="numeric" nEntries="27">
+    [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset]+4*([SensorModule_X]+[DeltaX]), [x_offset]+6*([SensorModule_X]+[DeltaX]), [x_offset]+7*([SensorModule_X]+[DeltaX]), [x_offset]+8*([SensorModule_X]+[DeltaX]), [x_offset]+7*([SensorModule_X]+[DeltaX]), [x_offset]+7*([SensorModule_X]+[DeltaX]), [x_offset]+6*([SensorModule_X]+[DeltaX]), [x_offset]+3*([SensorModule_X]+[DeltaX]), [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset], [x_offset]
+  </Vector>
+
 
   <LogicalPartSection label="etl.xml">                                 
     <LogicalPart name="EndcapTimingLayer" category="unspecified">      
