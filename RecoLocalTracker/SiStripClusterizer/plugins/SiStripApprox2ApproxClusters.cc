@@ -38,7 +38,7 @@ SiStripApprox2ApproxClusters::SiStripApprox2ApproxClusters(const edm::ParameterS
 
 void SiStripApprox2ApproxClusters::produce(edm::Event& e, edm::EventSetup const&) {
   auto result = std::make_unique<edmNew::DetSetVector<SiStripApproximateCluster>>();
-  edm::Handle<edmNew::DetSetVector<SiStripApproximateCluster>> clusterCollection = e.getHandle(clusterToken);
+  const auto& clusters = event.get(clusterToken);
 
   for (const auto& detClusters : *clusterCollection) {
     std::vector<SiStripApproximateCluster> tempVec;
