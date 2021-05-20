@@ -1156,6 +1156,8 @@ void DQMGenericClient::limitedFit(MonitorElement* srcME, MonitorElement* meanME,
       TF1* fitFcn = new TF1(TString("g") + histo->GetName() + iString, "gaus", minfit, maxfit);
       double x1, x2;
       fitFcn->GetRange(x1, x2);
+      //To avoid DQMGenericClient maintains state between fit calls
+      fitFcn->SetParameters(histoY->Integral(), histoY->GetMean(), histoY->GetRMS());
 
       histoY->Fit(fitFcn, "QR0 SERIAL", "", x1, x2);
 
