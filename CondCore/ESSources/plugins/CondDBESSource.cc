@@ -235,9 +235,10 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
   for (it = itBeg; it != itEnd; ++it) {
     size_t ind = ipb++;
     proxyWrappers[ind] = std::unique_ptr<cond::DataProxyWrapperBase>{
-      cond::ProxyFactory::get()->tryToCreate(buildName(it->second.recordName()))}; 
-    if(!proxyWrappers[ind].get()){
-      edm::LogWarning("CondDBESSource") << "Plugin for Record "<<it->second.recordName()<<" has not been found."<<std::endl;
+        cond::ProxyFactory::get()->tryToCreate(buildName(it->second.recordName()))};
+    if (!proxyWrappers[ind].get()) {
+      edm::LogWarning("CondDBESSource") << "Plugin for Record " << it->second.recordName() << " has not been found."
+                                        << std::endl;
     }
   }
 
@@ -273,16 +274,16 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     // ownership...
     ProxyP proxy(std::move(proxyWrappers[ipb++]));
     //  instert in the map
-    if(proxy.get()){
+    if (proxy.get()) {
       m_proxies.insert(std::make_pair(it->second.recordName(), proxy));
       // initialize
       boost::posix_time::ptime tagSnapshotTime = snapshotTime;
       auto tagSnapshotIter = specialSnapshots.find(it->first);
       if (tagSnapshotIter != specialSnapshots.end())
-	tagSnapshotTime = tagSnapshotIter->second;
+        tagSnapshotTime = tagSnapshotIter->second;
       // finally, if the snapshot is set to infinity, reset the snapshot to null, to take the full iov set...
       if (tagSnapshotTime == boost::posix_time::time_from_string(std::string(cond::time::MAX_TIMESTAMP)))
-	tagSnapshotTime = boost::posix_time::ptime();
+        tagSnapshotTime = boost::posix_time::ptime();
 
       proxy->lateInit(nsess, tag, tagSnapshotTime, it->second.recordLabel(), connStr, &m_queue, &m_mutex);
     }
