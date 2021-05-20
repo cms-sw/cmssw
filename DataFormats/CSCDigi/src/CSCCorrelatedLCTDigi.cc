@@ -83,11 +83,11 @@ void CSCCorrelatedLCTDigi::clear() {
 uint16_t CSCCorrelatedLCTDigi::getStrip(const uint16_t n) const {
   // all 10 bits
   if (n == 8) {
-    return 2 * getStrip(4) + getEighthStrip();
+    return 2 * getStrip(4) + getEighthStripBit();
   }
   // lowest 9 bits
   else if (n == 4) {
-    return 2 * getStrip(2) + getQuartStrip();
+    return 2 * getStrip(2) + getQuartStripBit();
   }
   // lowest 8 bits
   else {

@@ -99,11 +99,11 @@ float CSCCLCTDigi::getFractionalSlope() const {
 uint16_t CSCCLCTDigi::getKeyStrip(const uint16_t n) const {
   // 10-bit case for strip data word
   if (compCode_ != -1 and n == 8) {
-    return getKeyStrip(4) * 2 + getEighthStrip();
+    return getKeyStrip(4) * 2 + getEighthStripBit();
   }
   // 9-bit case for strip data word
   else if (compCode_ != -1 and n == 4) {
-    return getKeyStrip(2) * 2 + getQuartStrip();
+    return getKeyStrip(2) * 2 + getQuartStripBit();
   }
   // 8-bit case for strip data word (all other cases)
   else {

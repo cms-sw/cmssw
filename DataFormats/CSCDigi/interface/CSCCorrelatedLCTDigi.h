@@ -63,16 +63,16 @@ public:
   uint16_t getStrip(uint16_t n = 2) const;
 
   /// set single quart strip bit
-  void setQuartStrip(const bool quartStrip) { run3_quart_strip_bit_ = quartStrip; }
+  void setQuartStripBit(const bool quartStripBit) { run3_quart_strip_bit_ = quartStripBit; }
 
   /// get single quart strip bit
-  bool getQuartStrip() const { return run3_quart_strip_bit_; }
+  bool getQuartStripBit() const { return run3_quart_strip_bit_; }
 
   /// set single eighth strip bit
-  void setEighthStrip(const bool eighthStrip) { run3_eighth_strip_bit_ = eighthStrip; }
+  void setEighthStripBit(const bool eighthStripBit) { run3_eighth_strip_bit_ = eighthStripBit; }
 
   /// get single eighth strip bit
-  bool getEighthStrip() const { return run3_eighth_strip_bit_; }
+  bool getEighthStripBit() const { return run3_eighth_strip_bit_; }
 
   /*
     Strips are numbered starting from 1 in CMSSW

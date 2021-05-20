@@ -420,8 +420,8 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
     thisLCT.setRun3(true);
     // 4-bit slope value derived with the CCLUT algorithm
     thisLCT.setSlope(cLCT.getSlope());
-    thisLCT.setQuartStrip(cLCT.getQuartStrip());
-    thisLCT.setEighthStrip(cLCT.getEighthStrip());
+    thisLCT.setQuartStripBit(cLCT.getQuartStripBit());
+    thisLCT.setEighthStripBit(cLCT.getEighthStripBit());
     thisLCT.setRun3Pattern(cLCT.getRun3Pattern());
   }
 
