@@ -31,8 +31,10 @@ namespace hcaldqm {
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   protected:
-    //	empa
+    edm::ESGetToken<RunInfo, RunInfoRcd> tok_RunInfo;
+    //	emap
     HcalElectronicsMap const *_emap;
+    edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> tok_ElectronicsMap;
 
     //	some counters
     int _totalLS;
@@ -46,6 +48,7 @@ namespace hcaldqm {
     std::vector<uint32_t> _vhashFEDs;
     //	container of quality masks from conddb
     ContainerXXX<uint32_t> _xQuality;
+    edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> tok_HcalChannelQuality;
     //	vector of Electronics raw Ids of HCAL FEDs
     //	that were registered at cDAQ for the Run
     std::vector<uint32_t> _vcdaqEids;

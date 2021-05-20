@@ -5,7 +5,8 @@ using namespace hcaldqm;
 using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
 
-RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
+RecHitTask::RecHitTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   _tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE", edm::InputTag("hbhereco"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("horeco"));
   _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hfreco"));
@@ -33,8 +34,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   DQTask::bookHistograms(ib, r, es);
 
   //	GET WHAT YOU NEED
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
 
   std::vector<uint32_t> vVME;
@@ -537,7 +537,8 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _cTimingvsEnergy_SubdetPM.fill(did, energy, timing);
     _cOccupancy_depth.fill(did);
     did.subdet() == HcalBarrel ? did.ieta() > 0 ? ehbp += energy : ehbm += energy
-                               : did.ieta() > 0 ? ehep += energy : ehem += energy;
+    : did.ieta() > 0           ? ehep += energy
+                               : ehem += energy;
 
     //	ONLINE ONLY!
     if (_ptype == fOnline) {

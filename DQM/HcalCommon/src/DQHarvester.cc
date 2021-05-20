@@ -4,7 +4,13 @@
 namespace hcaldqm {
   using namespace constants;
 
-  DQHarvester::DQHarvester(edm::ParameterSet const &ps) : DQModule(ps) {}
+  DQHarvester::DQHarvester(edm::ParameterSet const &ps) : DQModule(ps) {
+    tok_RunInfo = esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>();
+    tok_ElectronicsMap = esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd, edm::Transition::BeginRun>();
+    tok_HcalChannelQuality =
+        esConsumes<HcalChannelQuality, HcalChannelQualityRcd, edm::Transition::BeginLuminosityBlock>(
+            edm::ESInputTag("", "withTopo"));
+  }
 
   void DQHarvester::beginRun(edm::Run const &r, edm::EventSetup const &es) {
     if (_ptype == fLocal)
@@ -19,9 +25,7 @@ namespace hcaldqm {
 
     //	- get the Hcal Electronics Map
     //	- collect all the FED numbers and FED's rawIds
-    edm::ESHandle<HcalDbService> dbs;
-    es.get<HcalDbRecord>().get(dbs);
-    _emap = dbs->getHcalMapping();
+    _emap = &es.getData(tok_ElectronicsMap);
 
     if (_ptype != fOffline) {  // hidefed2crate
       _vFEDs = utilities::getFEDList(_emap);
@@ -45,9 +49,9 @@ namespace hcaldqm {
       }
 
       //	get the FEDs registered at cDAQ
-      if (auto runInfoRec = es.tryToGet<RunInfoRcd>()) {
-        edm::ESHandle<RunInfo> ri;
-        runInfoRec->get(ri);
+      edm::ESHandle<RunInfo> runInfoRec = es.getHandle(tok_RunInfo);
+      if (runInfoRec.isValid()) {
+        const RunInfo *ri = runInfoRec.product();
         std::vector<int> vfeds = ri->m_fed_in;
         for (std::vector<int>::const_iterator it = vfeds.begin(); it != vfeds.end(); ++it) {
           if (*it >= constants::FED_VME_MIN && *it <= FED_VME_MAX)
@@ -79,9 +83,7 @@ namespace hcaldqm {
                                             edm::LuminosityBlock const &lb,
                                             edm::EventSetup const &es) {
     //	get the Hcal Channels Quality for channels that are not 0
-    edm::ESHandle<HcalChannelQuality> hcq;
-    es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
-    const HcalChannelQuality *cq = hcq.product();
+    const HcalChannelQuality *cq = &es.getData(tok_HcalChannelQuality);
     std::vector<DetId> detids = cq->getAllChannels();
     for (std::vector<DetId>::const_iterator it = detids.begin(); it != detids.end(); ++it) {
       if (HcalGenericDetId(*it).genericSubdet() == HcalGenericDetId::HcalGenUnknown)

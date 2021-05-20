@@ -6,7 +6,8 @@ bool operator==(const FCDTask::FCDChannel& lhs, const FCDTask::FCDChannel& rhs) 
           (lhs.fiberChannel == rhs.fiberChannel));
 }
 
-FCDTask::FCDTask(edm::ParameterSet const& ps) {
+FCDTask::FCDTask(edm::ParameterSet const& ps)
+    : hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   //	tags
   _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagQIE10", edm::InputTag("hcalDigis", "ZDC"));
   _tokQIE10 = consumes<QIE10DigiCollection>(_tagQIE10);
@@ -23,8 +24,7 @@ FCDTask::FCDTask(edm::ParameterSet const& ps) {
 }
 
 /* virtual */ void FCDTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
-  edm::ESHandle<HcalDbService> dbService;
-  es.get<HcalDbRecord>().get(dbService);
+  edm::ESHandle<HcalDbService> dbService = es.getHandle(hcalDbServiceToken_);
   _emap = dbService->getHcalMapping();
   _ehashmap.initialize(_emap, hcaldqm::electronicsmap::fD2EHashMap);
 

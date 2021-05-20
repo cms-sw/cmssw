@@ -46,6 +46,7 @@ protected:
   edm::EDGetTokenT<HORecHitCollection> _tokHO;
   edm::EDGetTokenT<HFRecHitCollection> _tokHF;
   edm::EDGetTokenT<HFPreRecHitCollection> _tokPreHF;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   double _cutE_HBHE, _cutE_HO, _cutE_HF;
   double _thresh_unihf;
