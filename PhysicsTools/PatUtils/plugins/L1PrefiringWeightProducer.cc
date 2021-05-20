@@ -20,7 +20,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,7 +39,7 @@
 #include <iostream>
 enum fluctuations { central = 0, up, down };
 
-class L1PrefiringWeightProducer : public edm::global::EDProducer<> {
+class L1PrefiringWeightProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1PrefiringWeightProducer(const edm::ParameterSet&);
   ~L1PrefiringWeightProducer() override;
@@ -47,7 +47,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   double getPrefiringRate(double eta, double pt, TH2F* h_prefmap, fluctuations fluctuation) const;
   double getPrefiringRateMuon(double eta, double phi, double pt, fluctuations fluctuation) const;
@@ -180,7 +180,7 @@ L1PrefiringWeightProducer::~L1PrefiringWeightProducer() {
   delete parametrizationHotSpot_;
 }
 
-void L1PrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   //Photons
