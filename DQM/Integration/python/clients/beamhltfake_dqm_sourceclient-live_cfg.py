@@ -136,7 +136,8 @@ if unitTest == False:
           tag = cms.string(BSOnlineTag),
           timetype = cms.untracked.string('Lumi'),
           onlyAppendUpdatePolicy = cms.untracked.bool(True)
-      ))
+      )),
+      frontierKey = cms.untracked.string(options.runUniqueKey)
   )
 
 else:
@@ -160,8 +161,10 @@ else:
         tag = cms.string(BSOnlineTag),
         timetype = cms.untracked.string('Lumi'),
         onlyAppendUpdatePolicy = cms.untracked.bool(True)
-    ))
+    )),
+    frontierKey = cms.untracked.string(options.runUniqueKey)
 )
+print("Configured frontierKey", options.runUniqueKey)
 
 process.p = cms.Path(process.dqmcommon
                     * process.monitor )

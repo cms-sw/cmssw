@@ -141,9 +141,7 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     m_connectionString = iConfig.getParameter<std::string>("connect");
 
   // frontier key
-  if (iConfig.exists("frontierKey")) {
-    m_frontierKey = iConfig.getParameter<std::string>("frontierKey");
-  }
+  m_frontierKey = iConfig.getUntrackedParameter<std::string>("frontierKey", "");
 
   // snapshot
   boost::posix_time::ptime snapshotTime;
