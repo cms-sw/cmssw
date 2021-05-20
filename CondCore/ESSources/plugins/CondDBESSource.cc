@@ -233,8 +233,12 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
   std::vector<std::unique_ptr<cond::DataProxyWrapperBase>> proxyWrappers(m_tagCollection.size());
   size_t ipb = 0;
   for (it = itBeg; it != itEnd; ++it) {
-    proxyWrappers[ipb++] = std::unique_ptr<cond::DataProxyWrapperBase>{
-        cond::ProxyFactory::get()->tryToCreate(buildName(it->second.recordName()))}; 
+    size_t ind = ipb++;
+    proxyWrappers[ind] = std::unique_ptr<cond::DataProxyWrapperBase>{
+      cond::ProxyFactory::get()->tryToCreate(buildName(it->second.recordName()))}; 
+    if(!proxyWrappers[ind].get()){
+      edm::LogWarning("CondDBESSource") << "Plugin for Record "<<it->second.recordName()<<" has not been found."<<std::endl;
+    }
   }
 
   // now all required libraries have been loaded
