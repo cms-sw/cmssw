@@ -155,8 +155,7 @@ void CSCCorrelatedLCTDigi::print() const {
 std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
   return o << "CSC LCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
            << " MPC Link = " << digi.getMPCLink() << " cscID = " << digi.getCSCID()
-           << " syncErr = " << digi.getSyncErr() << " Type (SIM) = " << digi.getType()
-           << "\n"
+           << " syncErr = " << digi.getSyncErr() << " Type (SIM) = " << digi.getType() << "\n"
            << "  cathode info: Strip = " << digi.getStrip() << " Pattern = " << digi.getPattern()
            << " Bend = " << ((digi.getBend() == 0) ? 'L' : 'R') << "\n"
            << "    anode info: Key wire = " << digi.getKeyWG() << " BX = " << digi.getBX()
