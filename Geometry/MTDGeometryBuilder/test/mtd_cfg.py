@@ -13,49 +13,35 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
+process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+    limit = cms.untracked.int32(0)
+)
+process.MessageLogger.cerr.MTDDigiGeometryAnalyzer = cms.untracked.PSet(
+    limit = cms.untracked.int32(-1)
+)
+process.MessageLogger.files.mtdGeometryDDD = cms.untracked.PSet(
+    DEBUG = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
     ),
-    cout = cms.untracked.PSet(
-        FWKINFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        MTDDigiGeometryAnalyzer = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        enable = cms.untracked.bool(True),
-        enableStatistics = cms.untracked.bool(True),
-        noLineBreaks = cms.untracked.bool(True),
-        threshold = cms.untracked.string('INFO')
+    ERROR = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
     ),
-    files = cms.untracked.PSet(
-        mtdGeometryDDD = cms.untracked.PSet(
-            DEBUG = cms.untracked.PSet(
-                limit = cms.untracked.int32(0)
-            ),
-            ERROR = cms.untracked.PSet(
-                limit = cms.untracked.int32(0)
-            ),
-            FWKINFO = cms.untracked.PSet(
-                limit = cms.untracked.int32(0)
-            ),
-            INFO = cms.untracked.PSet(
-                limit = cms.untracked.int32(0)
-            ),
-            MTDUnitTest = cms.untracked.PSet(
-                limit = cms.untracked.int32(-1)
-            ),
-            WARNING = cms.untracked.PSet(
-                limit = cms.untracked.int32(0)
-            ),
-            noLineBreaks = cms.untracked.bool(True),
-            threshold = cms.untracked.string('INFO')
-        )
-    )
+    FWKINFO = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    INFO = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    MTDUnitTest = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1)
+    ),
+    WARNING = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    noLineBreaks = cms.untracked.bool(True),
+    threshold = cms.untracked.string('INFO')
 )
 
 process.load("Configuration.Geometry.GeometryExtended2026D76_cff")

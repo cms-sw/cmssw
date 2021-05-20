@@ -61,21 +61,12 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     const auto& pentry = hit.entryPoint();
     // ETL is already in module-local coordinates so just scale to cm from mm
     Local3DPoint simscaled(convertMmToCm(pentry.x()), convertMmToCm(pentry.y()), convertMmToCm(pentry.z()));
-    const auto& thepixel = topo.pixel(simscaled);
     //The following lines check whether the pixel point is actually out of the active area.
     //If that is the case it simply ignores the point but in the future some more sophisticated function could be applied.
-    const int ixbin = int(thepixel.first);
-    const int iybin = int(thepixel.second);
-    const float fractionX = thepixel.first - ixbin;
-    const float fractionY = thepixel.second - iybin;
-    if ((fractionX > 1.0 - topo.gapxInterpadFrac() || fractionX < topo.gapxInterpadFrac()) ||
-        (ixbin == 0 && fractionX < topo.gapxBorderFrac()) ||
-        (ixbin == topo.nrows() - 1 && fractionX > 1.0 - topo.gapxBorderFrac()))
+    if (!topo.isInPixel(simscaled)) {
       continue;
-    if ((fractionY > 1.0 - topo.gapyInterpadFrac() || fractionY < topo.gapyInterpadFrac()) ||
-        (iybin == 0 && fractionY < topo.gapyBorderFrac()) ||
-        (iybin == topo.ncolumns() - 1 && fractionY > 1.0 - topo.gapyBorderFrac()))
-      continue;
+    }
+    const auto& thepixel = topo.pixel(simscaled);
     const uint8_t row(thepixel.first), col(thepixel.second);
 
     auto simHitIt =
