@@ -1,10 +1,14 @@
 #ifndef SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 #define SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
@@ -23,11 +27,6 @@
 #include <vector>
 
 class PEcalTBInfo;
-
-namespace edm {
-  class StreamID;
-  class ConsumesCollector;
-}  // namespace edm
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -82,6 +81,10 @@ private:
   HBHEDigitizer *theHBHEDigitizer;
   HODigitizer *theHODigitizer;
 
+  edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
+  edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> hcalTimeSlew_delay_token_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  edm::ESWatcher<CaloGeometryRecord> geometryWatcher_;
   const CaloGeometry *theGeometry;
   std::vector<DetId> hbheCells;
   std::vector<DetId> hoCells;

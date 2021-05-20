@@ -157,8 +157,8 @@ void PPSPixelTopologyESSource::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<double>("PitchSimX", 100e-3);
   desc.add<double>("thickness", 0.23);
   desc.add<int>("noOfPixelSimX", 160);
-  desc.add<int>("noOfPixelSimY", 156);
-  desc.add<int>("noOfPixels", 160 * 156);
+  desc.add<int>("noOfPixelSimY", 104);
+  desc.add<int>("noOfPixels", 160 * 104);
   desc.add<double>("simXWidth", 16.6);
   desc.add<double>("simYWidth", 16.2);
   desc.add<double>("deadEdgeWidth", 200e-3);

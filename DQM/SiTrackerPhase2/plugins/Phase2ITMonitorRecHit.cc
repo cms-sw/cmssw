@@ -101,8 +101,7 @@ void Phase2ITMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
 
 void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
   // Get the RecHits
-  edm::Handle<SiPixelRecHitCollection> rechits;
-  iEvent.getByToken(tokenRecHitsIT_, rechits);
+  const auto& rechits = iEvent.getHandle(tokenRecHitsIT_);
   if (!rechits.isValid())
     return;
   std::map<std::string, unsigned int> nrechitLayerMap;
@@ -173,10 +172,8 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
 }
 
 void Phase2ITMonitorRecHit::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &iSetup.getData(geomToken_);
+  tTopo_ = &iSetup.getData(topoToken_);
 }
 
 void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
@@ -206,7 +203,6 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
   //Now book layer wise histos
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
   if (theTkDigiGeomWatcher.check(iSetup)) {
-    edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
     for (auto const& det_u : tkGeom_->detUnits()) {
       //Always check TrackerNumberingBuilder before changing this part
       if (!(det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXB ||

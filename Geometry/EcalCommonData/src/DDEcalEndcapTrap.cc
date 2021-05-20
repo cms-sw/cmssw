@@ -7,6 +7,8 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/EulerAngles.h"
 
+//#define EDM_ML_DEBUG
+
 // Implementation of DDEcalEndcapTrap class
 
 DDEcalEndcapTrap::DDEcalEndcapTrap(const int hand, const double front, const double rear, const double length) {
@@ -87,8 +89,7 @@ void DDEcalEndcapTrap::rotate(const DDTranslation& frontCentre, const DDTranslat
   //
   //  Rotate supercrystal to bring front and rear face centres to specified points
   //
-  edm::LogInfo("EcalGeom") << "DDEcalEndcapTrap::rotate(DDTranslation,DDTranslation) - not yet implemented"
-                           << std::endl;
+  edm::LogVerbatim("EcalGeom") << "DDEcalEndcapTrap::rotate(DDTranslation,DDTranslation) - not yet implemented";
 }
 
 void DDEcalEndcapTrap::rotate(const DDRotationMatrix& rot) {
@@ -98,12 +99,18 @@ void DDEcalEndcapTrap::rotate(const DDRotationMatrix& rot) {
 
   int icorner;
   DDTranslation cc;
-  //  edm::LogInfo("EcalGeom") << "DDEcalEndcapTrap::rotate - rotation " << rot << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "DDEcalEndcapTrap::rotate - rotation " << rot;
+#endif
   for (icorner = 1; icorner <= 8; icorner++) {
     cc = cornerPos(icorner);
-    //     edm::LogInfo("EcalGeom") << "   Corner (orig) " << icorner << cc << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << "   Corner (orig) " << icorner << cc;
+#endif
     cc = rot * cc;
-    //     edm::LogInfo("EcalGeom") << "   Corner (rot)  " << icorner << cc << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << "   Corner (rot)  " << icorner << cc;
+#endif
     cornerPos(icorner, cc);
   }
   m_rotation = rot * m_rotation;
@@ -111,7 +118,9 @@ void DDEcalEndcapTrap::rotate(const DDRotationMatrix& rot) {
 }
 
 void DDEcalEndcapTrap::translate() {
-  //  edm::LogInfo("EcalGeom") << "DDEcalEndcapTrap::translate() not yet implemented" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "DDEcalEndcapTrap::translate() not yet implemented";
+#endif
   translate(-1. * centrePos());
 }
 
@@ -141,16 +150,22 @@ void DDEcalEndcapTrap::moveto(const DDTranslation& frontCentre, const DDTranslat
   double targetPhi = polarAngle(frontCentre - rearCentre);
 
   //  Rotate to correct angle (X then Y)
-  // edm::LogInfo("EcalGeom") << "moveto: frontCentre " << frontCentre << std::endl;
-  // edm::LogInfo("EcalGeom") << "moveto: rearCentre  " << rearCentre << std::endl;
-  // edm::LogInfo("EcalGeom") << "moveto: X rotation: " << targetTheta << " " << currentTheta << " " << targetTheta-currentTheta << std::endl;
-  // edm::LogInfo("EcalGeom") << "moveto: Y rotation: " << targetPhi << " " << currentPhi << " " << " " << targetPhi-currentPhi << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "moveto: frontCentre " << frontCentre << std::endl
+                               << "moveto: rearCentre  " << rearCentre << std::endl
+                               << "moveto: X rotation: " << targetTheta << " " << currentTheta << " "
+                               << targetTheta - currentTheta << std::endl
+                               << "moveto: Y rotation: " << targetPhi << " " << currentPhi << " "
+                               << " " << targetPhi - currentPhi;
+#endif
   rotateX(targetTheta - currentTheta);
   rotateY(targetPhi - currentPhi);
 
   //  Translate SC to final position
   DDTranslation targetCentre = 0.5 * (frontCentre + rearCentre);
-  // edm::LogInfo("EcalGeom") << "moveto: translation " << targetCentre-centrePos() << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "moveto: translation " << targetCentre - centrePos();
+#endif
   translate(targetCentre - centrePos());
 }
 
@@ -274,12 +289,12 @@ void DDEcalEndcapTrap::print() {
   //
   //  Print SC coordinates for debugging
   //
-  edm::LogInfo("EcalGeom") << "Endcap supercrystal" << std::endl;
+  edm::LogVerbatim("EcalGeom") << "Endcap supercrystal";
   for (int ic = 1; ic <= 8; ic++) {
     DDTranslation cc = cornerPos(ic);
-    edm::LogInfo("EcalGeom") << "Corner " << ic << " " << cc << std::endl;
+    edm::LogVerbatim("EcalGeom") << "Corner " << ic << " " << cc;
   }
-  edm::LogInfo("EcalGeom") << "    Centre " << centrePos() << std::endl;
-  edm::LogInfo("EcalGeom") << "   fCentre " << fcentrePos() << std::endl;
-  edm::LogInfo("EcalGeom") << "   rCentre " << rcentrePos() << std::endl;
+  edm::LogVerbatim("EcalGeom") << "    Centre " << centrePos() << std::endl
+                               << "   fCentre " << fcentrePos() << std::endl
+                               << "   rCentre " << rcentrePos();
 }

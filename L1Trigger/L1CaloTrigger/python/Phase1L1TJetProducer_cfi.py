@@ -1,5 +1,8 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 from math import pi
+
+from .Phase1L1TJets_sincosLUT_cff import sinPhi, cosPhi
 
 caloEtaSegmentation = cms.vdouble(
   -5.0, -4.917, -4.833, -4.75, -4.667, -4.583, -4.5, -4.417, -4.333, -4.25, 
@@ -22,8 +25,19 @@ Phase1L1TJetProducer = cms.EDProducer('Phase1L1TJetProducer',
   phiUp = cms.double(pi),
   jetIEtaSize = cms.uint32(7),
   jetIPhiSize = cms.uint32(7),
+  trimmedGrid = cms.bool(False),
   seedPtThreshold = cms.double(5), # GeV
   puSubtraction = cms.bool(False),
+  ptlsb = cms.double(0.25),
+  philsb = cms.double(0.0043633231),
+  etalsb = cms.double(0.0043633231),
   outputCollectionName = cms.string("UncalibratedPhase1L1TJetFromPfCandidates"),
-  vetoZeroPt = cms.bool(True)
+  vetoZeroPt = cms.bool(True),
+  etaRegions = cms.vdouble( -5., -4.5, -4., -3.5, -3., -2.5, -1.5, -0.75, 0, 0.75, 1.5, 2.5, 3., 3.5, 4., 4.5, 5. ),
+  phiRegions = cms.vdouble( -3.5, -2.8, -2.1, -1.4, -0.7, 0, 0.7, 1.4, 2.1, 2.8, 3.5 ),#, 4.2, 4.9, 5.6, 6.3 ),
+  maxInputsPerRegion = cms.uint32( 18 ),
+  sinPhi = sinPhi,
+  cosPhi = cosPhi,
+  metAbsEtaCut = cms.double(3),
+  metHFAbsEtaCut = cms.double(5),
 )

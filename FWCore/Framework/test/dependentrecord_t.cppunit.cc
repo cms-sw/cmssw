@@ -38,6 +38,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cstring>
 
 using namespace edm::eventsetup;
 

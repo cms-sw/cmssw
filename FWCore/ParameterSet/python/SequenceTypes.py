@@ -1537,6 +1537,11 @@ class Task(_ConfigureComponent, _Labelable) :
         v = _CopyAndExcludeSequenceVisitor(listOfModulesToExclude)
         self.visit(v)
         return Task(*v.result(self))
+    def copyAndAdd(self, *modulesToAdd):
+        """Returns a copy of the Task adding modules/tasks"""
+        t = self.copy()
+        t.add(*modulesToAdd)
+        return t
     def expandAndClone(self):
         # Name of this function is not very good. It makes a shallow copy with all
         # the subTasks flattened out (removed), but keeping all the
@@ -2460,6 +2465,27 @@ if __name__=="__main__":
             self.assertTrue(id(t1Contents[0]) == id(t2Contents[0]))
             self.assertTrue(id(t1Contents[1]) == id(t2Contents[1]))
             self.assertTrue(id(t1._collection) != id(t2._collection))
+        def testCopyAndAdd(self):
+            a = DummyModule("a")
+            b = DummyModule("b")
+            c = DummyModule("c")
+            d = DummyModule("d")
+            e = DummyModule("e")
+            t1 = Task(a, b, c)
+            self.assertEqual(t1.dumpPython(), "cms.Task(process.a, process.b, process.c)\n")
+            t2 = t1.copyAndAdd(d, e)
+            self.assertEqual(t1.dumpPython(), "cms.Task(process.a, process.b, process.c)\n")
+            self.assertEqual(t2.dumpPython(), "cms.Task(process.a, process.b, process.c, process.d, process.e)\n")
+            t3 = t2.copyAndExclude([b])
+            self.assertEqual(t1.dumpPython(), "cms.Task(process.a, process.b, process.c)\n")
+            self.assertEqual(t2.dumpPython(), "cms.Task(process.a, process.b, process.c, process.d, process.e)\n")
+            self.assertEqual(t3.dumpPython(), "cms.Task(process.a, process.c, process.d, process.e)\n")
+            t4 = t1.copyAndExclude([b]).copyAndAdd(d)
+            self.assertEqual(t4.dumpPython(), "cms.Task(process.a, process.c, process.d)\n")
+            t5 = t2.copyAndExclude([b]).copyAndAdd(d)
+            self.assertEqual(t5.dumpPython(), "cms.Task(process.a, process.c, process.d, process.e)\n")
+            t6 = t4.copyAndAdd(Task(b))
+            self.assertEqual(t6.dumpPython(), "cms.Task(process.a, process.b, process.c, process.d)\n")
         def testInsertInto(self):
             from FWCore.ParameterSet.Types import vstring
             class TestPSet(object):

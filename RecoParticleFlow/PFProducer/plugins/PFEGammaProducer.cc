@@ -59,6 +59,9 @@ private:
   /// particle flow algorithm configuration
   const PFEGammaAlgo::PFEGConfigInfo pfEGConfigInfo_;
   const PFEGammaAlgo::GBRForests gbrForests_;
+
+  const edm::ESGetToken<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd> esEEInterCalibToken_;
+  const edm::ESGetToken<ESChannelStatus, ESChannelStatusRcd> esChannelStatusToken_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -88,7 +91,9 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig)
       },
       gbrForests_{
           iConfig,
-      } {}
+      },
+      esEEInterCalibToken_(esConsumes()),
+      esChannelStatusToken_(esConsumes()) {}
 
 void PFEGammaProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   LOGDRESSED("PFEGammaProducer") << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run()
@@ -100,11 +105,8 @@ void PFEGammaProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
   reco::SuperClusterCollection sClusters{};
 
   // preshower conditions
-  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
-  iSetup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
-
-  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_;
-  iSetup.get<ESChannelStatusRcd>().get(esChannelStatusHandle_);
+  auto esEEInterCalibHandle_ = iSetup.getHandle(esEEInterCalibToken_);
+  auto esChannelStatusHandle_ = iSetup.getHandle(esChannelStatusToken_);
 
   //Assign the PFAlgo Parameters
   auto const& primaryVertices = iEvent.get(vertices_);

@@ -74,7 +74,6 @@ process.siPixelDigisForLumi = cms.EDProducer("SiPixelRawToDigi",
     Regions = cms.PSet(
 
     ),
-    Timing = cms.untracked.bool(False),
     UsePhase1 = cms.bool(False),
     UsePilotBlade = cms.bool(False),
     UseQualityInfo = cms.bool(False),

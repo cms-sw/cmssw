@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 // Package:    SiStripMonitorCluster
 // Class:      SiStripMonitorCluster
@@ -652,8 +651,15 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
   runNb = iEvent.id().run();
   eventNb++;
-  trendVar = trendVs10Ls_ ? iEvent.orbitNumber() / (10 * 262144.0)
-                          : iEvent.orbitNumber() / (1 * 262144.0);  // 10 lumisection : lumisection
+
+  if (!iEvent.isRealData()) {
+    trendVar = trendVs10Ls_ ? iEvent.eventAuxiliary().luminosityBlock() / 10.f
+                            : iEvent.eventAuxiliary().luminosityBlock();  // 10 lumisection : lumisection
+
+  } else {
+    trendVar = trendVs10Ls_ ? iEvent.orbitNumber() / (10 * 262144.0)
+                            : iEvent.orbitNumber() / (1 * 262144.0);  // 10 lumisection : lumisection
+  }
 
   int NPixClusters = 0, NStripClusters = 0, MultiplicityRegion = 0;
   bool isPixValid = false;

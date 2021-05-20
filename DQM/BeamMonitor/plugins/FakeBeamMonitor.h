@@ -37,7 +37,9 @@ public:
   ~FakeBeamMonitor() override;
 
 protected:
-  // BeginRun
+  //BeginRun
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+
   void bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) override;
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
@@ -109,7 +111,7 @@ private:
   int countGapLumi_;
 
   bool processed_;
-
+  bool useLockRecords_;
   // ----------member data ---------------------------
 
   //   std::vector<BSTrkParameters> fBSvector;

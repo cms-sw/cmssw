@@ -23,9 +23,6 @@ public:
                         unsigned chamber,
                         const edm::ParameterSet& conf);
 
-  /** Test destructor. */
-  CSCGEMMotherboardME21();
-
   /** Default destructor. */
   ~CSCGEMMotherboardME21() override;
 

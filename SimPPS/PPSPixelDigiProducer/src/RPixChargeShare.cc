@@ -96,34 +96,109 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
       double pixel_width_y = pixel_upper_y - pixel_lower_y;
       double pixel_center_x = pixel_lower_x + (pixel_width_x) / 2.;
       double pixel_center_y = pixel_lower_y + (pixel_width_y) / 2.;
+
+      /*
+  First/last rows/columns are bigger due to sensor edges. 0.2mm is added to the pixel pitch but 
+  only 0.15mm is considered sensitive. 
+The pixel size is standard (100x150) but the actual one is +200 and the sensitive +150.
+  Row 0: 100x150 -> 250x150 sensitive (lower x 50, higher x 300) but charge share only in 100x150 and
+  x center in lower_x + active_edge + pitch_x/2.
+  Row 159: 100x150 -> 250x150 sensitive (lower x 16300, higher x 16550) but charge share only in 100x150 and
+  x center in lower_x + pitch_x/2.
+*/
+      if (pixel_row == 0) {
+        pixel_width_x = ppt.getPitchSimX();
+        pixel_center_x = pixel_lower_x + ppt.getPhysActiveEdgeDist() + ppt.getPitchSimX() / 2.;
+        if (fabs((*i).Position().x() - pixel_center_x) > ppt.getPitchSimX() / 2.) {
+          thePixelChargeMap[pixel_no] += charge_in_pixel;
+          continue;
+        }
+        if (pixel_col == 0) {
+          pixel_width_y = ppt.getPitchSimY();
+          pixel_center_y = pixel_lower_y + ppt.getPhysActiveEdgeDist() + ppt.getPitchSimY() / 2.;
+          if (fabs((*i).Position().y() - pixel_center_y) > ppt.getPitchSimY() / 2.) {
+            thePixelChargeMap[pixel_no] += charge_in_pixel;
+            continue;
+          }
+        }
+        if (pixel_col == ppt.getNoPixelsSimY() - 1) {
+          pixel_width_y = ppt.getPitchSimY();
+          pixel_center_y = pixel_lower_y + ppt.getPitchSimY() / 2.;
+          if (fabs((*i).Position().y() - pixel_center_y) > ppt.getPitchSimY() / 2.) {
+            thePixelChargeMap[pixel_no] += charge_in_pixel;
+            continue;
+          }
+        }
+      }
+      if (pixel_row == ppt.getNoPixelsSimX() - 1) {
+        pixel_width_x = ppt.getPitchSimX();
+        pixel_center_x = pixel_lower_x + ppt.getPitchSimX() / 2.;
+        if (fabs((*i).Position().x() - pixel_center_x) > ppt.getPitchSimX() / 2.) {
+          thePixelChargeMap[pixel_no] += charge_in_pixel;
+          continue;
+        }
+        if (pixel_col == 0) {
+          pixel_width_y = ppt.getPitchSimY();
+          pixel_center_y = pixel_lower_y + ppt.getPhysActiveEdgeDist() + ppt.getPitchSimY() / 2.;
+          if (fabs((*i).Position().y() - pixel_center_y) > ppt.getPitchSimY() / 2.) {
+            thePixelChargeMap[pixel_no] += charge_in_pixel;
+            continue;
+          }
+        }
+        if (pixel_col == ppt.getNoPixelsSimY() - 1) {
+          pixel_width_y = ppt.getPitchSimY();
+          pixel_center_y = pixel_lower_y + ppt.getPitchSimY() / 2.;
+          if (fabs((*i).Position().y() - pixel_center_y) > ppt.getPitchSimY() / 2.) {
+            thePixelChargeMap[pixel_no] += charge_in_pixel;
+            continue;
+          }
+        }
+      }
+      if (pixel_col == 0) {
+        pixel_width_y = ppt.getPitchSimY();
+        pixel_center_y = pixel_lower_y + ppt.getPhysActiveEdgeDist() + ppt.getPitchSimY() / 2.;
+        if (fabs((*i).Position().y() - pixel_center_y) > ppt.getPitchSimY() / 2.) {
+          thePixelChargeMap[pixel_no] += charge_in_pixel;
+          continue;
+        }
+      }
+      if (pixel_col == ppt.getNoPixelsSimY() - 1) {
+        pixel_width_y = ppt.getPitchSimY();
+        pixel_center_y = pixel_lower_y + ppt.getPitchSimY() / 2.;
+        if (fabs((*i).Position().y() - pixel_center_y) > ppt.getPitchSimY() / 2.) {
+          thePixelChargeMap[pixel_no] += charge_in_pixel;
+          continue;
+        }
+      }
+
       // xbin and ybin are coordinates (um) inside the pixel as in the test beam, swapped wrt plane coordinates.
       int xbin = int((((*i).Position().y() - pixel_center_y) + pixel_width_y / 2.) * 1.e3 / 5.);
       int ybin = int((((*i).Position().x() - pixel_center_x) + pixel_width_x / 2.) * 1.e3 / 5.);
       if (pixel_width_x < 0.11 && pixel_width_y < 0.151) {  // pixel 100x150 um^2
         psize = 0;
         if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize]) {
-          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds";
+          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds 0";
           continue;
         }
       }
       if (pixel_width_x > 0.11 && pixel_width_y < 0.151) {  // pixel 200x150 um^2
         psize = 2;
         if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize]) {
-          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds";
+          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds 2";
           continue;
         }
       }
       if (pixel_width_x < 0.11 && pixel_width_y > 0.151) {  // pixel 100x300 um^2
         psize = 1;
         if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize]) {
-          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds";
+          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds 1";
           continue;
         }
       }
       if (pixel_width_x > 0.11 && pixel_width_y > 0.151) {  // pixel 200x300 um^2
         psize = 3;
         if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize]) {
-          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds";
+          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds 3";
           continue;
         }
       }

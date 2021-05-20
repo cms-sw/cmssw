@@ -10,6 +10,7 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVTMBHeaderFormat.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -99,6 +100,7 @@ public:
   /// these methods need more brains to figure which one goes first
   void add(const std::vector<CSCCLCTDigi>& digis);
   void add(const std::vector<CSCCorrelatedLCTDigi>& digis);
+  void add(const std::vector<CSCShowerDigi>& digis);
 
   /// tests that packing and unpacking give same results
   static void selfTest(int firmwwareVersion, int firmwareRevision);

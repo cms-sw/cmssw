@@ -25,7 +25,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ecalClusterEnergyUncertaintyElectronSpecific.h"
 #include "CommonTools/Egamma/interface/ConversionTools.h"
-#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
+#include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 
 #include <Math/Point3D.h>
 #include <memory>

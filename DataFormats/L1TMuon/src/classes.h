@@ -5,6 +5,7 @@
 #include "DataFormats/L1TMuon/interface/MuonCaloSum.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonShower.h"
 #include "DataFormats/L1TMuon/interface/EMTFDaqOut.h"
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFRoad.h"

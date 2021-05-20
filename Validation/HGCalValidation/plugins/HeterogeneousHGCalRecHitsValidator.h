@@ -9,7 +9,9 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Validation/HGCalValidation/interface/ValidHit.h"
@@ -41,6 +43,9 @@ private:
   static const unsigned ncomputingdevices = 2;  //cpu, gpu
   //cpu amd gpu tokens and handles for the 3 subdetectors, cpu and gpu
   std::array<std::array<edm::EDGetTokenT<HGChefRecHitCollection>, ncomputingdevices>, nsubdetectors> tokens_;
+  std::array<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>, nsubdetectors> estokens_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> estokenGeom_;
+
   std::array<std::string, nsubdetectors> handles_str_ = {
       {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"}};
   hgcal::RecHitTools recHitTools_;

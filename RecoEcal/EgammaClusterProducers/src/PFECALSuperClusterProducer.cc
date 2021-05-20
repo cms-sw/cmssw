@@ -94,9 +94,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   double phiwidthSuperClusterEndcap = iConfig.getParameter<double>("phiwidth_SuperClusterEndcap");
   double etawidthSuperClusterEndcap = iConfig.getParameter<double>("etawidth_SuperClusterEndcap");
 
-  //double threshPFClusterMustacheOutBarrel = iConfig.getParameter<double>("thresh_PFClusterMustacheOutBarrel");
-  //double threshPFClusterMustacheOutEndcap = iConfig.getParameter<double>("thresh_PFClusterMustacheOutEndcap");
-
   double doSatelliteClusterMerge = iConfig.getParameter<bool>("doSatelliteClusterMerge");
   double satelliteClusterSeedThreshold = iConfig.getParameter<double>("satelliteClusterSeedThreshold");
   double satelliteMajorityFraction = iConfig.getParameter<double>("satelliteMajorityFraction");
@@ -124,8 +121,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   superClusterAlgo_.setSatelliteThreshold(satelliteClusterSeedThreshold);
   superClusterAlgo_.setMajorityFraction(satelliteMajorityFraction);
   superClusterAlgo_.setDropUnseedable(dropUnseedable);
-  //superClusterAlgo_.setThreshPFClusterMustacheOutBarrel( threshPFClusterMustacheOutBarrel );
-  //superClusterAlgo_.setThreshPFClusterMustacheOutEndcap( threshPFClusterMustacheOutEndcap );
 
   //Load the ECAL energy calibration
   thePFEnergyCalibration_ = std::make_shared<PFEnergyCalibration>();

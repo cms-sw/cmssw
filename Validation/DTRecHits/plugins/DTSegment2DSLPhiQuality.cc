@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Validation/DTRecHits/interface/DTHitQualityUtils.h"
 
@@ -35,7 +34,7 @@ namespace dtsegment2dsl {
 using namespace dtsegment2dsl;
 
 // Constructor
-DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet &pset) {
+DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet &pset) : muonGeomToken_(esConsumes()) {
   // Get the debug parameter for verbose output
   debug_ = pset.getUntrackedParameter<bool>("debug");
   DTHitQualityUtils::debug = debug_;
@@ -71,8 +70,7 @@ void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const &event,
                                          edm::EventSetup const &setup,
                                          Histograms const &histograms) const {
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  const DTGeometry &dtGeom = setup.getData(muonGeomToken_);
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
@@ -125,11 +123,11 @@ void DTSegment2DSLPhiQuality::dqmAnalyze(edm::Event const &event,
 
     // Find direction and position of the sim Segment in Chamber RF
     pair<LocalVector, LocalPoint> dirAndPosSimSegm =
-        DTHitQualityUtils::findMuSimSegmentDirAndPos(inAndOutSimHit, (*chamberId), &(*dtGeom));
+        DTHitQualityUtils::findMuSimSegmentDirAndPos(inAndOutSimHit, (*chamberId), dtGeom);
 
     LocalVector simSegmLocalDir = dirAndPosSimSegm.first;
     LocalPoint simSegmLocalPos = dirAndPosSimSegm.second;
-    const DTChamber *chamber = dtGeom->chamber(*chamberId);
+    const DTChamber *chamber = dtGeom.chamber(*chamberId);
     GlobalPoint simSegmGlobalPos = chamber->toGlobal(simSegmLocalPos);
 
     // Atan(x/z) angle and x position in SL RF

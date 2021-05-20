@@ -9,8 +9,10 @@ HeterogeneousHGCalRecHitsValidator::HeterogeneousHGCalRecHitsValidator(const edm
                   consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("gpuRecHitsHSciToken"))}}}}),
       treenames_({{"CEE", "CHSi", "CHSci"}}) {
   usesResource(TFileService::kSharedResource);
+  estokenGeom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   edm::Service<TFileService> fs;
   for (unsigned i(0); i < nsubdetectors; ++i) {
+    estokens_[i] = esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", handles_str_[i]});
     trees_[i] = fs->make<TTree>(treenames_[i].c_str(), treenames_[i].c_str());
     trees_[i]->Branch("cpu", "ValidHitCollection", &cpuValidRecHits[i]);
     trees_[i]->Branch("gpu", "ValidHitCollection", &gpuValidRecHits[i]);
@@ -23,14 +25,11 @@ HeterogeneousHGCalRecHitsValidator::~HeterogeneousHGCalRecHitsValidator() {}
 void HeterogeneousHGCalRecHitsValidator::endJob() {}
 
 void HeterogeneousHGCalRecHitsValidator::set_geometry_(const edm::EventSetup &setup, const unsigned &detidx) {
-  edm::ESHandle<HGCalGeometry> handle;
-  setup.get<IdealGeometryRecord>().get(handles_str_[detidx], handle);
+  edm::ESHandle<HGCalGeometry> handle = setup.getHandle(estokens_[detidx]);
 }
 
 void HeterogeneousHGCalRecHitsValidator::analyze(const edm::Event &event, const edm::EventSetup &setup) {
-  edm::ESHandle<CaloGeometry> baseGeom;
-  setup.get<CaloGeometryRecord>().get(baseGeom);
-  recHitTools_.setGeometry(*baseGeom);
+  recHitTools_.setGeometry(setup.getData(estokenGeom_));
 
   //future subdetector loop
   for (size_t idet = 0; idet < nsubdetectors; ++idet) {

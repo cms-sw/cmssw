@@ -22,6 +22,15 @@ public:
     NUM_CFEBS_ME11_UNGANGED = NUM_CFEBS_ME1A_UNGANGED + NUM_CFEBS_ME1B,  // 7
     // Run-2: Maximum number of cathode front-end boards
     MAX_CFEBS_RUN2 = NUM_CFEBS_ME11_UNGANGED,  // 7
+    // CFEBS for the rest of the system
+    NUM_CFEBS_ME12 = 5,
+    NUM_CFEBS_ME13 = 4,
+    NUM_CFEBS_ME21 = 5,
+    NUM_CFEBS_ME22 = 5,
+    NUM_CFEBS_ME31 = 5,
+    NUM_CFEBS_ME32 = 5,
+    NUM_CFEBS_ME41 = 5,
+    NUM_CFEBS_ME42 = 5
   };
 
   enum FPGA_Latency { CLCT_EMUL_TIME_OFFSET = 3, ALCT_EMUL_TIME_OFFSET = 6 };
@@ -70,10 +79,21 @@ public:
     NUM_HALF_STRIPS_ME1A_GANGED = NUM_CFEBS_ME1A_GANGED * NUM_HALF_STRIPS_PER_CFEB,      // 32
     NUM_HALF_STRIPS_ME1A_UNGANGED = NUM_CFEBS_ME1A_UNGANGED * NUM_HALF_STRIPS_PER_CFEB,  // 96
     NUM_HALF_STRIPS_ME1B = NUM_CFEBS_ME1B * NUM_HALF_STRIPS_PER_CFEB,                    // 128
+    NUM_HALF_STRIPS_ME11_GANGED = NUM_CFEBS_ME11_GANGED * NUM_HALF_STRIPS_PER_CFEB,      // 160
+    NUM_HALF_STRIPS_ME11_UNGANGED = NUM_CFEBS_ME11_UNGANGED * NUM_HALF_STRIPS_PER_CFEB,  // 224
     // max halfstrip number in ME1/1 chambers
     MAX_HALF_STRIP_ME1A_GANGED = NUM_HALF_STRIPS_ME1A_GANGED - 1,      // 31
     MAX_HALF_STRIP_ME1A_UNGANGED = NUM_HALF_STRIPS_ME1A_UNGANGED - 1,  // 95
     MAX_HALF_STRIP_ME1B = NUM_HALF_STRIPS_ME1B - 1,                    // 127
+    // half-strips for the rest of the system
+    NUM_HALF_STRIPS_ME12 = NUM_CFEBS_ME12 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+    NUM_HALF_STRIPS_ME13 = NUM_CFEBS_ME13 * NUM_HALF_STRIPS_PER_CFEB,  // 128
+    NUM_HALF_STRIPS_ME21 = NUM_CFEBS_ME21 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+    NUM_HALF_STRIPS_ME22 = NUM_CFEBS_ME22 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+    NUM_HALF_STRIPS_ME31 = NUM_CFEBS_ME31 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+    NUM_HALF_STRIPS_ME32 = NUM_CFEBS_ME32 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+    NUM_HALF_STRIPS_ME41 = NUM_CFEBS_ME41 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+    NUM_HALF_STRIPS_ME42 = NUM_CFEBS_ME42 * NUM_HALF_STRIPS_PER_CFEB,  // 160
   };
 
   // CSCs have 6 layers. The key (reference) layer is the third layer
@@ -109,6 +129,12 @@ public:
     MAX_LCTS_PER_CSC = 2,
     // An MPC receives up to 18 LCTs from 9 CSCs in the trigger sector
     MAX_LCTS_PER_MPC = 18,
+    /*
+      An EMTF sector processor receives LCTs from 5 MPCS
+      or 45 chambers when not considering overlapping EMTF SPs
+      18 CSCs in ME1; 9 x 3 CSCs in ME2,3,4
+    */
+    MAX_CSCS_PER_EMTF_SP_NO_OVERLAP = 45,
     // Reference BX for LCTs in simulation and firmware
     LCT_CENTRAL_BX = 8,
     /*

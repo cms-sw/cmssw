@@ -151,6 +151,13 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
 
   // Store these offsets (to be added later) in a LocalPoint after tranforming
   // them from measurement units (pixel units) to local coordinates (cm)
+  //
+  //
+
+  // In case of template reco failure, these are the lorentz drift corrections
+  // to be applied
+  float lorentzshiftX = 0.5f * theDetParam.lorentzShiftInCmX;
+  float lorentzshiftY = 0.5f * theDetParam.lorentzShiftInCmY;
 
   // ggiurgiu@jhu.edu 12/09/2010 : update call with trk angles needed for bow/kink corrections
   LocalPoint lp;
@@ -255,29 +262,22 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
     LogDebug("PixelCPETemplateReco::localPosition")
         << "reconstruction failed with error " << theClusterParam.ierr << "\n";
 
-    // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
-    // In the x case, apply a rough Lorentz drift average correction
-    // To do: call PixelCPEGeneric whenever PixelTempReco1D fails
-    float lorentz_drift = -999.9;
-    if (!fpix)
-      lorentz_drift = 60.0f;  // in microns
-    else
-      lorentz_drift = 10.0f;  // in microns
+    // Template reco has failed, compute position estimates based on cluster center of gravity + Lorentz drift
+    // Future improvement would be to call generic reco instead
+
     // ggiurgiu@jhu.edu, 21/09/2010 : trk angles needed to correct for bows/kinks
     if (theClusterParam.with_track_angle) {
       theClusterParam.templXrec_ =
-          theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) -
-          lorentz_drift * micronsToCm;  // rough Lorentz drift correction
+          theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) + lorentzshiftX;
       theClusterParam.templYrec_ =
-          theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred);
+          theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred) + lorentzshiftY;
     } else {
       edm::LogError("PixelCPETemplateReco") << "@SUB = PixelCPETemplateReco::localPosition"
                                             << "Should never be here. PixelCPETemplateReco should always be called "
                                                "with track angles. This is a bad error !!! ";
 
-      theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) -
-                                   lorentz_drift * micronsToCm;  // rough Lorentz drift correction
-      theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y());
+      theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) + lorentzshiftX;
+      theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y()) + lorentzshiftY;
     }
   } else if UNLIKELY (UseClusterSplitter_ && theClusterParam.templQbin_ == 0) {
     edm::LogError("PixelCPETemplateReco") << " PixelCPETemplateReco: Qbin = 0 but using cluster splitter, we should "
@@ -315,33 +315,21 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
        
        */
     if (theClusterParam.ierr != 0) {
-      LogDebug("PixelCPETemplateReco::localPosition")
-          << "reconstruction failed with error " << theClusterParam.ierr << "\n";
-
-      // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
-      // In the x case, apply a rough Lorentz drift average correction
-      // To do: call PixelCPEGeneric whenever PixelTempReco1D fails
-      float lorentz_drift = -999.9f;
-      if (!fpix)
-        lorentz_drift = 60.0f;  // in microns
-      else
-        lorentz_drift = 10.0f;  // in microns
+      // Template reco has failed, compute position estimates based on cluster center of gravity + Lorentz drift
+      // Future improvement would be to call generic reco instead
 
       // ggiurgiu@jhu.edu, 12/09/2010 : trk angles needed to correct for bows/kinks
       if (theClusterParam.with_track_angle) {
         theClusterParam.templXrec_ =
-            theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) -
-            lorentz_drift * micronsToCm;  // rough Lorentz drift correction
+            theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) + lorentzshiftX;
         theClusterParam.templYrec_ =
-            theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred);
+            theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred) + lorentzshiftY;
       } else {
         edm::LogError("PixelCPETemplateReco") << "@SUB = PixelCPETemplateReco::localPosition"
                                               << "Should never be here. PixelCPETemplateReco should always be called "
                                                  "with track angles. This is a bad error !!! ";
-
-        theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) -
-                                     lorentz_drift * micronsToCm;  // very rough Lorentz drift correction
-        theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y());
+        theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) + lorentzshiftX;
+        theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y()) + lorentzshiftY;
       }
     } else {
       // go from micrometer to centimeter
@@ -377,7 +365,7 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
     theClusterParam.templYrec_ += lp.y();
 
     // Compute the Alignment Group Corrections [template ID should already be selected from call to reco procedure]
-    if (DoLorentz_) {
+    if (doLorentzFromAlignment_) {
       // Do only if the lotentzshift has meaningfull numbers
       if (theDetParam.lorentzShiftInCmX != 0.0 || theDetParam.lorentzShiftInCmY != 0.0) {
         // the LA width/shift returned by templates use (+)

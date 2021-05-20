@@ -5,9 +5,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -20,8 +18,9 @@ namespace cms {
   SiPixelCondObjOfflineBuilder::SiPixelCondObjOfflineBuilder(const edm::ParameterSet& iConfig)
       : conf_(iConfig),
         appendMode_(conf_.getUntrackedParameter<bool>("appendMode", true)),
+        pddToken_(esConsumes()),
         SiPixelGainCalibration_(nullptr),
-        SiPixelGainCalibrationService_(iConfig),
+        SiPixelGainCalibrationService_(iConfig, consumesCollector()),
         recordName_(iConfig.getParameter<std::string>("record")),
         meanPed_(conf_.getParameter<double>("meanPed")),
         rmsPed_(conf_.getParameter<double>("rmsPed")),
@@ -64,8 +63,7 @@ namespace cms {
     float maxgain = 10.;
     SiPixelGainCalibration_ = new SiPixelGainCalibrationOffline(minped, maxped, mingain, maxgain);
 
-    edm::ESHandle<TrackerGeometry> pDD;
-    iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+    const TrackerGeometry* pDD = &iSetup.getData(pddToken_);
     edm::LogInfo("SiPixelCondObjOfflineBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
 
     for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
@@ -259,9 +257,6 @@ namespace cms {
       }
     }
   }
-
-  // ------------ method called once each job just after ending the event loop  ------------
-  void SiPixelCondObjOfflineBuilder::endJob() {}
 
   bool SiPixelCondObjOfflineBuilder::loadFromFile() {
     float par0, par1;  //,par2,par3;

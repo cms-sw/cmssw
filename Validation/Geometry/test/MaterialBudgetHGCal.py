@@ -1,11 +1,13 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # Pure trick to start ROOT in batch mode, pass this only option to it
 # and the rest of the command line options to this code.
+from __future__ import print_function
 import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import six
 
 from array import array
 oldargv = sys.argv[:]
@@ -101,7 +103,7 @@ def createPlots_(plot, compounddetectorname):
 
     hist_X0_elements = OrderedDict()
     prof_X0_elements = OrderedDict()
-    for subDetector,color in DETECTORS.iteritems():
+    for subDetector,color in six.iteritems(DETECTORS):
         subDetectorFilename = "matbdg_%s.root" % subDetector
         if not checkFile_(subDetectorFilename):
             print("Error opening file: %s" % subDetectorFilename)
@@ -115,7 +117,7 @@ def createPlots_(plot, compounddetectorname):
         hist_X0_detectors[subDetector] = prof_X0_XXX.ProjectionX()
 
         # category profiles
-        for label, [num, color, leg] in hist_label_to_num.iteritems():
+        for label, [num, color, leg] in six.iteritems(hist_label_to_num):
             prof_X0_elements[label] = subDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
             hist_X0_elements[label] = assignOrAddIfExists_(hist_X0_elements.setdefault(label, None),
                                                           prof_X0_elements[label])
@@ -128,10 +130,10 @@ def createPlots_(plot, compounddetectorname):
     cumulative_matbdg.SetDirectory(0)
 
     # colors
-    for det, color in DETECTORS.iteritems():
+    for det, color in six.iteritems(DETECTORS):
         setColorIfExists_(hist_X0_detectors, det, color)
 
-    for label, [num, color, leg] in hist_label_to_num.iteritems():
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         hist_X0_elements[label].SetFillColor(color)
 
     # First Plot: BeamPipe + Tracker + ECAL + HCal + HGCal + MB + MGNT
@@ -139,7 +141,7 @@ def createPlots_(plot, compounddetectorname):
     stackTitle_SubDetectors = "Material Budget;%s;%s" % (
         plots[plot].abscissa,plots[plot].ordinate)
     stack_X0_SubDetectors = THStack("stack_X0",stackTitle_SubDetectors)
-    for det, histo in hist_X0_detectors.iteritems():
+    for det, histo in six.iteritems(hist_X0_detectors):
         stack_X0_SubDetectors.Add(histo)
         cumulative_matbdg.Add(histo, 1)
 
@@ -162,7 +164,7 @@ def createPlots_(plot, compounddetectorname):
     theLegend_SubDetectors.SetFillStyle(0)
     theLegend_SubDetectors.SetBorderSize(0)
 
-    for det, histo in hist_X0_detectors.iteritems():
+    for det, histo in six.iteritems(hist_X0_detectors):
         theLegend_SubDetectors.AddEntry(histo, det,  "f")
 
     theLegend_SubDetectors.Draw()
@@ -249,7 +251,7 @@ def createPlots2D_(plot, compounddetectorname):
     hist_X0_elements = OrderedDict()
     prof_X0_elements = OrderedDict()
 
-    for subDetector,color in DETECTORS.iteritems():
+    for subDetector,color in six.iteritems(DETECTORS):
         subDetectorFilename = "matbdg_%s.root" % subDetector
         if not checkFile_(subDetectorFilename):
             print("Error opening file: %s" % subDetectorFilename)
@@ -262,7 +264,7 @@ def createPlots2D_(plot, compounddetectorname):
 
         #hist_X0_detectors[subDetector] = prof_X0_XXX
         hist_X0_detectors[subDetector] = prof_X0_XXX.ProjectionXY("_pxy","B")
-        print subDetector
+        print(subDetector)
 
     # First Plot: BeamPipe + Tracker + ECAL + HCal + HGCal + MB + MGNT
  
@@ -321,12 +323,12 @@ def createPlots2D_(plot, compounddetectorname):
 
 
     # colors
-    for det, color in DETECTORS.iteritems():
+    for det, color in six.iteritems(DETECTORS):
         hist_X0_detectors[det].SetMarkerColor(color)
         hist_X0_detectors[det].SetFillColor(color)
 
-    for det, histo in hist_X0_detectors.iteritems():
-        print det
+    for det, histo in six.iteritems(hist_X0_detectors):
+        print(det)
         histo.Draw("same")
 
     # Legenda
@@ -336,7 +338,7 @@ def createPlots2D_(plot, compounddetectorname):
     theLegend_SubDetectors.SetFillStyle(0)
     theLegend_SubDetectors.SetBorderSize(0)
 
-    for det, histo in hist_X0_detectors.iteritems():
+    for det, histo in six.iteritems(hist_X0_detectors):
         theLegend_SubDetectors.AddEntry(histo, det,  "f")
     #theLegend_SubDetectors.AddEntry(hgbound1, "HGCal Eta Boundaries [1.3, 3.0]",  "l") 
 
@@ -403,7 +405,7 @@ def createPlotsReco_(reco_file, label, debug=False):
     for s in sPREF:
         hs = THStack("hs","");
         histos = []
-        for det, color in sDETS.iteritems():
+        for det, color in six.iteritems(sDETS):
             layer_number = 0
             while True:
                 layer_number += 1
@@ -506,7 +508,7 @@ def createCompoundPlots(detector, plot):
     # get TProfiles
     prof_X0_elements = OrderedDict()
     hist_X0_elements = OrderedDict()
-    for label, [num, color, leg] in hist_label_to_num.iteritems():
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         #print label, num, color, leg
         prof_X0_elements[label] = theDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
         hist_X0_elements[label] = prof_X0_elements[label].ProjectionX()
@@ -527,7 +529,7 @@ def createCompoundPlots(detector, plot):
             print("*** Open file... %s" %  subDetectorFilename)
 
             # subdetector profiles
-            for label, [num, color, leg] in hist_label_to_num.iteritems():
+            for label, [num, color, leg] in six.iteritems(hist_label_to_num):
                 prof_X0_elements[label] = subDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
                 hist_X0_elements[label].Add(prof_X0_elements[label].ProjectionX("B_%s" % prof_X0_elements[label].GetName())
                                             , +1.000)
@@ -537,7 +539,7 @@ def createCompoundPlots(detector, plot):
                                                plots[plot].abscissa,
                                                plots[plot].ordinate)
     stack_X0 = THStack("stack_X0", stackTitle);
-    for label, [num, color, leg] in hist_label_to_num.iteritems():
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         stack_X0.Add(hist_X0_elements[label])
 
     # canvas
@@ -557,7 +559,7 @@ def createCompoundPlots(detector, plot):
     if plot == "x_vs_phi" or plot == "l_vs_phi": theLegend = TLegend(0.65, 0.30, 0.89, 0.70)
     if plot == "x_vs_R" or plot == "l_vs_R": theLegend = TLegend(0.75, 0.60, 0.95, 0.90)
 
-    for label, [num, color, leg] in hist_label_to_num.iteritems():
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         theLegend.AddEntry(hist_X0_elements[label], leg, "f")
     theLegend.Draw();
 
@@ -630,8 +632,8 @@ def create2DPlots(detector, plot, plotnum, plotmat, dosingledetector = True):
     # get TProfiles
     #prof2d_X0_det_total = theDetectorFile.Get('%s' % plots[plot].plotNumber)
     prof2d_X0_det_total = theDetectorFile.Get('%s' % plotnum)
-    print "==================================================================" 
-    print plotnum
+    print("==================================================================") 
+    print(plotnum)
 
     # histos
     prof2d_X0_det_total.__class__ = TProfile2D
@@ -903,7 +905,7 @@ def GetSiliconZValuesFromXML():
     layersmaxZ = np.asarray(layersmaxZ)
     layersmaxZ = 10. * layersmaxZ # in mm
 
-    print "Total number of layers from XML " , layersmaxZ.size - 1 # Minus 1 for the EE front input by hand. 
+    print("Total number of layers from XML " , layersmaxZ.size - 1) # Minus 1 for the EE front input by hand. 
 
     return layersmaxZ
 
@@ -978,30 +980,30 @@ if __name__ == '__main__':
         #Function to help filling the twiki with all these plots
         #First I loop through labels to put the hide button in twiki
         #All HGCal
-        print "---+++ Results: Plots for individual material in all HGCal"
-        for label, [num, color, leg] in hist_label_to_num.iteritems():
+        print("---+++ Results: Plots for individual material in all HGCal")
+        for label, [num, color, leg] in six.iteritems(hist_label_to_num):
             for p in ["x_vs_z_vs_Rsum", "l_vs_z_vs_Rsum", "x_vs_z_vs_Rsumcos", "l_vs_z_vs_Rsumcos", "x_vs_z_vs_Rloc", "l_vs_z_vs_Rloc"]:
                 TwikiPrintout(p, leg, "all")
         #Z+
-        print "---+++ Results: Plots for individual material in Z+ Endcap"
-        for label, [num, color, leg] in hist_label_to_num.iteritems():
+        print("---+++ Results: Plots for individual material in Z+ Endcap")
+        for label, [num, color, leg] in six.iteritems(hist_label_to_num):
             for p in ["x_vs_z_vs_Rsum", "l_vs_z_vs_Rsum", "x_vs_z_vs_Rsumcos", "l_vs_z_vs_Rsumcos", "x_vs_z_vs_Rloc", "l_vs_z_vs_Rloc"]:
                 TwikiPrintout(p, leg, "zplus")
         #Z-
-        print "---+++ Results: Plots for individual material in Z- Endcap"
-        for label, [num, color, leg] in hist_label_to_num.iteritems():
+        print("---+++ Results: Plots for individual material in Z- Endcap")
+        for label, [num, color, leg] in six.iteritems(hist_label_to_num):
             for p in ["x_vs_z_vs_Rsum", "l_vs_z_vs_Rsum", "x_vs_z_vs_Rsumcos", "l_vs_z_vs_Rsumcos", "x_vs_z_vs_Rloc", "l_vs_z_vs_Rloc"]:
                 TwikiPrintout(p, leg, "zminus")
 
         #Below is the silicon position from the xml geometry file
         #Should we put them on top of plots like the eta values?
-        print GetSiliconZValuesFromXML()
+        print(GetSiliconZValuesFromXML())
 
         for p in required_2Dplots:
             #First the total
             create2DPlots(args.detector, p, plots[p].plotNumber, "")
             #Then, the rest
-            for label, [num, color, leg] in hist_label_to_num.iteritems():
+            for label, [num, color, leg] in six.iteritems(hist_label_to_num):
                 #print label, num, color, leg
                 create2DPlots(args.detector, p, num + plots[p].plotNumber, leg)
 

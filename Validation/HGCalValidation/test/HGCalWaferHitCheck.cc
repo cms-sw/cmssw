@@ -17,7 +17,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -197,8 +196,7 @@ void HGCalWaferHitCheck::analyzeHits(std::string const& name, T const& hits) {
 
 // ------------ method called when starting to processes a run  ------------
 void HGCalWaferHitCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HGCalDDDConstants> pHGDC = iSetup.getHandle(geomToken_);
-  hgcons_ = &(*pHGDC);
+  hgcons_ = &iSetup.getData(geomToken_);
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << nameDetector_ << " defined with " << hgcons_->layers(false)
                                         << " Layers with " << (hgcons_->firstLayer() - 1) << " in front";

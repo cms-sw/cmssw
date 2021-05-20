@@ -95,12 +95,7 @@ L1TExtCondProducer::L1TExtCondProducer(const ParameterSet& iConfig)
       l1GtMenuToken_(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>()) {
   makeTriggerRulePrefireVetoBit_ = false;
 
-  m_triggerRulePrefireVetoBit = 255;
-  if (m_triggerRulePrefireVetoBit > GlobalExtBlk::maxExternalConditions - 1) {
-    m_triggerRulePrefireVetoBit = GlobalExtBlk::maxExternalConditions - 1;
-    edm::LogWarning("L1TExtCondProducer")
-        << "Default trigger rule prefire veto bit number too large. Resetting to " << m_triggerRulePrefireVetoBit;
-  }
+  m_triggerRulePrefireVetoBit = GlobalExtBlk::maxExternalConditions - 1;
 
   if (!(tcdsInputTag_ == edm::InputTag(""))) {
     tcdsRecordToken_ = consumes<TCDSRecord>(tcdsInputTag_);

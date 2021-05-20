@@ -1,5 +1,6 @@
 #include "RecoBTag/FeatureTools/interface/deep_helpers.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 namespace btagbtvdeep {
 
@@ -18,14 +19,11 @@ namespace btagbtvdeep {
 
   // remove infs and NaNs with value  (adapted from DeepNTuples)
   const float catch_infs(const float in, const float replace_value) {
-    if (in == in) {  // check if NaN
-      if (std::isinf(in))
-        return replace_value;
-      else if (in < -1e32 || in > 1e32)
-        return replace_value;
-      return in;
-    }
-    return replace_value;
+    if (edm::isNotFinite(in))
+      return replace_value;
+    if (in < -1e32 || in > 1e32)
+      return replace_value;
+    return in;
   }
 
   // remove infs/NaN and bound (adapted from DeepNTuples)

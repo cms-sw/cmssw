@@ -16,7 +16,7 @@
 using namespace edm;
 using namespace std;
 
-MuonDTDigis::MuonDTDigis(const ParameterSet &pset) {
+MuonDTDigis::MuonDTDigis(const ParameterSet &pset) : muonGeomToken_(esConsumes()) {
   // ----------------------
   // Get the debug parameter for verbose output
   verbose_ = pset.getUntrackedParameter<bool>("verbose", false);
@@ -165,8 +165,7 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
          << endl;
 
   // Get the DT Geometry
-  ESHandle<DTGeometry> muonGeom;
-  eventSetup.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &eventSetup.getData(muonGeomToken_);
 
   // Get the Digi collection from the event
   Handle<DTDigiCollection> dtDigis;

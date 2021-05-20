@@ -8,6 +8,7 @@
   <use name="FWCore/ParameterSet"/>
   <use name="EgammaAnalysis/ElectronTools"/>
   <use name="TrackingTools/Records"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
   <use name="clhep"/>
   <use name="root"/>
   <use name="roottmva"/>

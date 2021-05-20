@@ -2,7 +2,6 @@
 <use name="python_tools"/>
 
 <test name="testPandas" command="testPandas.py"/>
-<test name="testRootNumpy" command="testRootNumpy.py"/>
 <test name="test_pycurl" command="test_pycurl.py"/>
 <test name="testBottleneck" command="testBottleneck.py"/>
 <test name="testNumExpr" command="testNumExpr.py"/>
@@ -50,7 +49,6 @@
 <test name="import-bottleneck" command="python3 -c 'import bottleneck'"/>
 <test name="import-certifi" command="python3 -c 'import certifi'"/>
 <test name="import-chardet" command="python3 -c 'import chardet'"/>
-<test name="import-cjson" command="python2 -c 'import cjson'"/>
 <test name="import-click" command="python3 -c 'import click'"/>
 <test name="import-climate" command="python3 -c 'import climate'"/>
 <test name="import-cycler" command="python3 -c 'import cycler'"/>
@@ -118,8 +116,6 @@
 <test name="import-qtconsole" command="python3 -c 'import qtconsole'"/>
 <test name="import-rep" command="python3 -c 'import rep'"/>
 <test name="import-requests" command="python3 -c 'import requests'"/>
-<test name="import-root_numpy" command="python3 -c 'import root_numpy'"/>
-<test name="import-root_pandas" command="python3 -c 'import root_pandas'"/>
 <test name="import-scandir" command="python3 -c 'import scandir'"/>
 <test name="import-schema" command="python3 -c 'import schema'"/>
 <test name="import-sklearn" command="python3 -c 'import sklearn'"/>
@@ -155,5 +151,4 @@
 <test name="import-bs4" command="python3 -c 'import bs4'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
 <test name="run-ipython3" command="ipython3 -h"/>
-<test name="run-pylint" command="pylint -h"/>
 <test name="run-pylint3" command="pylint3 -h"/>

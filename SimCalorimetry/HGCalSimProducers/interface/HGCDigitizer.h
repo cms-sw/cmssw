@@ -3,6 +3,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -11,7 +12,8 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
@@ -73,12 +75,6 @@ public:
 
   std::string digiCollection() { return digiCollection_; }
 
-  /**
-      @short actions at the start/end of run
-   */
-  void beginRun(const edm::EventSetup& es);
-  void endRun();
-
 private:
   uint32_t getType() const;
   std::string hitCollection_, digiCollection_;
@@ -108,8 +104,10 @@ private:
   std::unique_ptr<HGCDigitizerBase> theDigitizer_;
 
   //geometries
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESWatcher<CaloGeometryRecord> geomWatcher_;
   std::unordered_set<DetId> validIds_;
-  const HGCalGeometry* gHGCal_;
+  const HGCalGeometry* gHGCal_ = nullptr;
 
   //misc switches
   uint32_t verbosity_;

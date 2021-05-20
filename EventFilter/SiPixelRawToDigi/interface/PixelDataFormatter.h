@@ -37,7 +37,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorCheckerPhase0.h"
 #include "FWCore/Utilities/interface/typedefs.h"
@@ -70,7 +70,7 @@ public:
   typedef cms_uint32_t Word32;
   typedef cms_uint64_t Word64;
 
-  PixelDataFormatter(const SiPixelFedCabling* map, bool phase1 = false);
+  PixelDataFormatter(const SiPixelFedCablingTree* map, bool phase1 = false);
 
   void setErrorStatus(bool ErrorStatus);
   void setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo);
@@ -84,20 +84,28 @@ public:
 
   void formatRawData(unsigned int lvl1_ID, RawData& fedRawData, const Digis& digis, const BadChannels& badChannels);
 
-  cms_uint32_t linkId(cms_uint32_t word32) { return (word32 >> LINK_shift) & LINK_mask; }
+  void unpackFEDErrors(Errors const& errors,
+                       std::vector<int> const& tkerrorlist,
+                       std::vector<int> const& usererrorlist,
+                       edm::DetSetVector<SiPixelRawDataError>& errorcollection,
+                       DetIdCollection& tkerror_detidcollection,
+                       DetIdCollection& usererror_detidcollection,
+                       edmNew::DetSetVector<PixelFEDChannel>& disabled_channelcollection,
+                       DetErrors& nodeterrors);
+
+  cms_uint32_t getLinkId(cms_uint32_t word32) { return (word32 >> LINK_shift) & LINK_mask; }
 
 private:
   mutable int theDigiCounter;
   mutable int theWordCounter;
 
-  SiPixelFedCabling const* theCablingTree;
+  SiPixelFedCablingTree const* theCablingTree;
   const SiPixelFrameReverter* theFrameReverter;
   const SiPixelQuality* badPixelInfo;
   const std::set<unsigned int>* modulesToUnpack;
 
   bool includeErrors;
   bool useQualityInfo;
-  bool debug;
   int allDetDigis;
   int hasDetDigis;
   std::unique_ptr<ErrorCheckerBase> errorcheck;
@@ -115,13 +123,6 @@ private:
   int digi2wordPhase1Layer1(cms_uint32_t detId,
                             const PixelDigi& digi,
                             std::map<int, std::vector<Word32> >& words) const;
-
-  int word2digi(const int fedId,
-                const SiPixelFrameConverter* converter,
-                const bool includeError,
-                const bool useQuality,
-                const Word32& word,
-                Digis& digis) const;
 
   std::string print(const PixelDigi& digi) const;
   std::string print(const Word64& word) const;

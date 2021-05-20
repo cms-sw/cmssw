@@ -7,7 +7,7 @@
 
 class ECALPFSeedCleaner : public RecHitTopologicalCleanerBase {
 public:
-  ECALPFSeedCleaner(const edm::ParameterSet& conf);
+  ECALPFSeedCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
   ECALPFSeedCleaner(const ECALPFSeedCleaner&) = delete;
   ECALPFSeedCleaner& operator=(const ECALPFSeedCleaner&) = delete;
 
@@ -17,6 +17,7 @@ public:
 
 private:
   edm::ESHandle<EcalPFSeedingThresholds> ths_;
+  edm::ESGetToken<EcalPFSeedingThresholds, EcalPFSeedingThresholdsRcd> thsToken_;
 };
 
 DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory, ECALPFSeedCleaner, "ECALPFSeedCleaner");

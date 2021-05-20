@@ -19,10 +19,11 @@
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 // Abstract base class provides common interface to different payload getters
@@ -57,8 +58,7 @@ public:
 template <class thePayloadObject, class theDBRecordType>
 class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibrationServiceBase {
 public:
-  explicit SiPixelGainCalibrationServicePayloadGetter(const edm::ParameterSet& conf);
-  ~SiPixelGainCalibrationServicePayloadGetter() override{};
+  explicit SiPixelGainCalibrationServicePayloadGetter(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
 
   //Abstract methods
   float getGain(const uint32_t& detID, const int& col, const int& row) override = 0;
@@ -94,7 +94,8 @@ protected:
 
   edm::ParameterSet conf_;
   bool ESetupInit_;
-  edm::ESHandle<thePayloadObject> ped;
+  const edm::ESGetToken<thePayloadObject, theDBRecordType> pedToken_;
+  const thePayloadObject* ped = nullptr;
   int numberOfRowsAveragedOver_;
   double gainLow_;
   double gainHigh_;
@@ -123,8 +124,8 @@ protected:
 
 template <class thePayloadObject, class theDBRecordType>
 SiPixelGainCalibrationServicePayloadGetter<thePayloadObject, theDBRecordType>::SiPixelGainCalibrationServicePayloadGetter(
-    const edm::ParameterSet& conf)
-    : conf_(conf), ESetupInit_(false) {
+    const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+    : conf_(conf), ESetupInit_(false), pedToken_(iC.esConsumes()) {
   edm::LogInfo("SiPixelGainCalibrationServicePayloadGetter")
       << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]";
   // Initialize cache variables
@@ -145,7 +146,7 @@ SiPixelGainCalibrationServicePayloadGetter<thePayloadObject, theDBRecordType>::S
 template <class thePayloadObject, class theDBRecordType>
 void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject, theDBRecordType>::setESObjects(
     const edm::EventSetup& es) {
-  es.get<theDBRecordType>().get(ped);
+  ped = &es.getData(pedToken_);
   // ped->initialize();  moved to cond infrastructure
   numberOfRowsAveragedOver_ = ped->getNumberOfRowsToAverageOver();
   ESetupInit_ = true;

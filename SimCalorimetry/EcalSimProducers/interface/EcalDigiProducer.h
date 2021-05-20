@@ -1,9 +1,29 @@
 #ifndef SimCalorimetry_EcalSimProducers_EcalDigiProducer_h
 #define SimCalorimetry_EcalSimProducers_EcalDigiProducer_h
 
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
+#include "CondFormats/DataRecord/interface/ESGainRcd.h"
+#include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/ESObjects/interface/ESGain.h"
+#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
+#include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
@@ -98,6 +118,18 @@ private:
   const std::string m_EEdigiCollection;
   const std::string m_ESdigiCollection;
   const std::string m_hitsProducerTag;
+
+  const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> m_pedestalsToken;
+  const edm::ESGetToken<EcalIntercalibConstantsMC, EcalIntercalibConstantsMCRcd> m_icalToken;
+  const edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> m_laserToken;
+  const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> m_agcToken;
+  const edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> m_grToken;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_geometryToken;
+  edm::ESGetToken<ESGain, ESGainRcd> m_esGainToken;
+  edm::ESGetToken<ESMIPToGeVConstant, ESMIPToGeVConstantRcd> m_esMIPToGeVToken;
+  edm::ESGetToken<ESPedestals, ESPedestalsRcd> m_esPedestalsToken;
+  edm::ESGetToken<ESIntercalibConstants, ESIntercalibConstantsRcd> m_esMIPsToken;
+  edm::ESWatcher<CaloGeometryRecord> m_geometryWatcher;
 
   bool m_useLCcorrection;
 

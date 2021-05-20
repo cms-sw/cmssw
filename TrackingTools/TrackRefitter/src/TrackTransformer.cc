@@ -56,24 +56,24 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet, edm::Consum
 TrackTransformer::~TrackTransformer() {}
 
 void TrackTransformer::fillPSetDescription(edm::ParameterSetDescription& desc,
-                                           bool DoPredictionsOnly,
-                                           const std::string& Fitter,
-                                           const std::string& Smoother,
-                                           const std::string& Propagator,
-                                           const std::string& RefitDirection,
-                                           bool RefitRPCHits,
-                                           const std::string& TrackerRecHitBuilder,
-                                           const std::string& MuonRecHitBuilder,
-                                           const std::string& MTDRecHitBuilder) {
-  desc.add<bool>("DoPredictionsOnly", DoPredictionsOnly);
-  desc.add<std::string>("Fitter", Fitter);
-  desc.add<std::string>("Smoother", Smoother);
-  desc.add<std::string>("Propagator", Propagator);
-  desc.add<std::string>("RefitDirection", RefitDirection);
-  desc.add<bool>("RefitRPCHits", RefitRPCHits);
-  desc.add<std::string>("TrackerRecHitBuilder", TrackerRecHitBuilder);
-  desc.add<std::string>("MuonRecHitBuilder", MuonRecHitBuilder);
-  desc.add<std::string>("MTDRecHitBuilder", MTDRecHitBuilder);
+                                           bool doPredictionsOnly,
+                                           const std::string& fitter,
+                                           const std::string& smoother,
+                                           const std::string& propagator,
+                                           const std::string& refitDirection,
+                                           bool refitRPCHits,
+                                           const std::string& trackerRecHitBuilder,
+                                           const std::string& muonRecHitBuilder,
+                                           const std::string& mtdRecHitBuilder) {
+  desc.add<bool>("DoPredictionsOnly", doPredictionsOnly);
+  desc.add<std::string>("Fitter", fitter);
+  desc.add<std::string>("Smoother", smoother);
+  desc.add<std::string>("Propagator", propagator);
+  desc.add<std::string>("RefitDirection", refitDirection);
+  desc.add<bool>("RefitRPCHits", refitRPCHits);
+  desc.add<std::string>("TrackerRecHitBuilder", trackerRecHitBuilder);
+  desc.add<std::string>("MuonRecHitBuilder", muonRecHitBuilder);
+  desc.add<std::string>("MTDRecHitBuilder", mtdRecHitBuilder);
 }
 
 void TrackTransformer::setServices(const EventSetup& setup) {

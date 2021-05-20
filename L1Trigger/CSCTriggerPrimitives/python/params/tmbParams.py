@@ -26,13 +26,6 @@ tmbPhase1 = cms.PSet(
     # to ALCTs in this BX, and not use them in the following BX
     tmbDropUsedClcts = cms.bool(False),
 
-    # Switch to enable
-    #  True = CLCT-centric matching (default non-upgrade behavior,
-    #         take CLCTs in BX look for matching ALCTs in window)
-        #  False = ALCT-centric matching (recommended for Phase-2,
-    #         take ALCTs in BX look for matching CLCTs in window)
-    clctToAlct = cms.bool(False),
-
     ## bits for high-multiplicity triggers
     useHighMultiplicityBits = cms.bool(False),
 )
@@ -69,7 +62,6 @@ tmbPhase2 = tmbPhase1.clone(
     ignoreAlctCrossClct = cms.bool(True),
 
     ## run in debug mode
-    debugLUTs = cms.bool(False),
     debugMatching = cms.bool(False),
 )
 
@@ -122,9 +114,26 @@ tmbPhase2GE21 = tmbPhase2.clone(
     promoteCLCTGEMquality = cms.bool(True),
 )
 
+## LUTs to map wiregroup onto min and max half-strip number that it crosses in ME1/1
+wgCrossHsME11Params = cms.PSet(
+    wgCrossHsME1aFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_min_hs_ME1a.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_max_hs_ME1a.txt",
+    ),
+    wgCrossHsME1aGangedFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_min_hs_ME1a_ganged.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_max_hs_ME1a_ganged.txt",
+    ),
+    wgCrossHsME1bFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_min_hs_ME1b.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_max_hs_ME1b.txt",
+    )
+)
+
 tmbPSets = cms.PSet(
     tmbPhase1 = tmbPhase1.clone(),
     tmbPhase2 = tmbPhase2.clone(),
     tmbPhase2GE11 = tmbPhase2GE11.clone(),
     tmbPhase2GE21 = tmbPhase2GE21.clone(),
+    wgCrossHsME11Params = wgCrossHsME11Params.clone(),
 )

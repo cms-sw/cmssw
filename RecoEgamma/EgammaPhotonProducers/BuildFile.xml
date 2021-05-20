@@ -19,6 +19,6 @@
 <use name="RecoTracker/CkfPattern"/>
 <use name="RecoTracker/TrackProducer"/>
 <use name="DataFormats/HcalRecHit"/>
-<use name="RecoCaloTools/Selectors"/>
+<use name="RecoCaloTools/Selectors" source_only="1"/>
 <use name="clhep"/>
 <flags EDM_PLUGIN="1"/>

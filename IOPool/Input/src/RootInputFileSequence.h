@@ -38,7 +38,7 @@ namespace edm {
     RootInputFileSequence& operator=(RootInputFileSequence const&) = delete;  // Disallow copying and moving
 
     bool containedInCurrentFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;
-    void readEvent(EventPrincipal& cache);
+    bool readEvent(EventPrincipal& cache);
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_();

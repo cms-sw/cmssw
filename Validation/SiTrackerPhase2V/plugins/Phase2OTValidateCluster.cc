@@ -124,10 +124,8 @@ Phase2OTValidateCluster::~Phase2OTValidateCluster() {
 // -- DQM Begin Run
 //
 void Phase2OTValidateCluster::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &iSetup.getData(geomToken_);
+  tTopo_ = &iSetup.getData(topoToken_);
 }
 
 // -- Analyze
@@ -136,16 +134,13 @@ void Phase2OTValidateCluster::analyze(const edm::Event& iEvent, const edm::Event
   // Getting simHits
   std::vector<edm::Handle<edm::PSimHitContainer>> simHits;
   for (const auto& itoken : simHitTokens_) {
-    edm::Handle<edm::PSimHitContainer> simHitHandle;
-    iEvent.getByToken(itoken, simHitHandle);
+    const auto& simHitHandle = iEvent.getHandle(itoken);
     if (!simHitHandle.isValid())
       continue;
     simHits.emplace_back(simHitHandle);
   }
   // Get the SimTracks
-  edm::Handle<edm::SimTrackContainer> simTracksRaw;
-  iEvent.getByToken(simTracksToken_, simTracksRaw);
-
+  const auto& simTracksRaw = iEvent.getHandle(simTracksToken_);
   // Rearrange the simTracks for ease of use <simTrackID, simTrack>
   SimTracksMap simTracks;
   for (edm::SimTrackContainer::const_iterator simTrackIt(simTracksRaw->begin()); simTrackIt != simTracksRaw->end();
@@ -161,12 +156,9 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
                                            const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
                                            const std::map<unsigned int, SimTrack>& simTracks) {
   // Getting the clusters
-  edm::Handle<Phase2TrackerCluster1DCollectionNew> clusterHandle;
-  iEvent.getByToken(clustersToken_, clusterHandle);
-
+  const auto& clusterHandle = iEvent.getHandle(clustersToken_);
   // Getting PixelDigiSimLinks
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink>> pixelSimLinksHandle;
-  iEvent.getByToken(simOTLinksToken_, pixelSimLinksHandle);
+  const auto& pixelSimLinksHandle = iEvent.getHandle(simOTLinksToken_);
 
   // Number of clusters
   std::map<std::string, unsigned int> nPrimarySimHits[3];
@@ -386,8 +378,8 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
     psd0.add<std::string>("name", "Delta_Y_Pixel_Primary");
     psd0.add<std::string>("title", "#Delta Y " + mptag + ";cluster resolution Y coordinate [#mum]");
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmin", -500);
-    psd0.add<double>("xmax", 500);
+    psd0.add<double>("xmin", -1500);
+    psd0.add<double>("xmax", 1500);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Pixel_Primary", psd0);
   }

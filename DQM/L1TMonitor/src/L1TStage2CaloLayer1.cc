@@ -5,6 +5,7 @@
  */
 //Modified by Bhawna Gomber <bhawna.gomber@cern.ch>
 //Modified by Andrew Loeliger <andrew.loeliger@cern.ch>
+//Modified by Ho-Fung Tsoi <ho.fung.tsoi@cern.ch>
 
 #include "DQM/L1TMonitor/interface/L1TStage2CaloLayer1.h"
 
@@ -21,6 +22,16 @@
 L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet& ps)
     : ecalTPSourceRecd_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecd"))),
       ecalTPSourceRecdLabel_(ps.getParameter<edm::InputTag>("ecalTPSourceRecd").label()),
+      ecalTPSourceRecdBx1_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx1"))),
+      ecalTPSourceRecdBx1Label_(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx1").label()),
+      ecalTPSourceRecdBx2_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx2"))),
+      ecalTPSourceRecdBx2Label_(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx2").label()),
+      ecalTPSourceRecdBx3_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx3"))),
+      ecalTPSourceRecdBx3Label_(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx3").label()),
+      ecalTPSourceRecdBx4_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx4"))),
+      ecalTPSourceRecdBx4Label_(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx4").label()),
+      ecalTPSourceRecdBx5_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx5"))),
+      ecalTPSourceRecdBx5Label_(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx5").label()),
       hcalTPSourceRecd_(consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalTPSourceRecd"))),
       hcalTPSourceRecdLabel_(ps.getParameter<edm::InputTag>("hcalTPSourceRecd").label()),
       ecalTPSourceSent_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceSent"))),
@@ -30,6 +41,7 @@ L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet& ps)
       fedRawData_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("fedRawDataLabel"))),
       histFolder_(ps.getParameter<std::string>("histFolder")),
       tpFillThreshold_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold", 0)),
+      tpFillThreshold5Bx_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold5Bx", 1)),
       ignoreHFfbs_(ps.getUntrackedParameter<bool>("ignoreHFfbs", false)) {}
 
 L1TStage2CaloLayer1::~L1TStage2CaloLayer1() {}
@@ -193,6 +205,63 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
 
   if (nEcalMismatch > streamCache(event.streamID())->streamNumMaxEvtMismatchECAL)
     streamCache(event.streamID())->streamNumMaxEvtMismatchECAL = nEcalMismatch;
+
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx1;
+  event.getByToken(ecalTPSourceRecdBx1_, ecalTPsRecdBx1);
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx2;
+  event.getByToken(ecalTPSourceRecdBx2_, ecalTPsRecdBx2);
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx3;
+  event.getByToken(ecalTPSourceRecdBx3_, ecalTPsRecdBx3);
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx4;
+  event.getByToken(ecalTPSourceRecdBx4_, ecalTPsRecdBx4);
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx5;
+  event.getByToken(ecalTPSourceRecdBx5_, ecalTPsRecdBx5);
+
+  for (const auto& tp : (*ecalTPsRecdBx1)) {
+    if (tp.compressedEt() > tpFillThreshold5Bx_) {
+      const int ieta = tp.id().ieta();
+      const int iphi = tp.id().iphi();
+      eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
+      eventMonitors.ecalOccRecd5Bx_->Fill(1);
+      eventMonitors.ecalOccRecd5BxEtWgt_->Fill(1, tp.compressedEt());
+    }
+  }
+  for (const auto& tp : (*ecalTPsRecdBx2)) {
+    if (tp.compressedEt() > tpFillThreshold5Bx_) {
+      const int ieta = tp.id().ieta();
+      const int iphi = tp.id().iphi();
+      eventMonitors.ecalOccRecdBx2_->Fill(ieta, iphi);
+      eventMonitors.ecalOccRecd5Bx_->Fill(2);
+      eventMonitors.ecalOccRecd5BxEtWgt_->Fill(2, tp.compressedEt());
+    }
+  }
+  for (const auto& tp : (*ecalTPsRecdBx3)) {
+    if (tp.compressedEt() > tpFillThreshold5Bx_) {
+      const int ieta = tp.id().ieta();
+      const int iphi = tp.id().iphi();
+      eventMonitors.ecalOccRecdBx3_->Fill(ieta, iphi);
+      eventMonitors.ecalOccRecd5Bx_->Fill(3);
+      eventMonitors.ecalOccRecd5BxEtWgt_->Fill(3, tp.compressedEt());
+    }
+  }
+  for (const auto& tp : (*ecalTPsRecdBx4)) {
+    if (tp.compressedEt() > tpFillThreshold5Bx_) {
+      const int ieta = tp.id().ieta();
+      const int iphi = tp.id().iphi();
+      eventMonitors.ecalOccRecdBx4_->Fill(ieta, iphi);
+      eventMonitors.ecalOccRecd5Bx_->Fill(4);
+      eventMonitors.ecalOccRecd5BxEtWgt_->Fill(4, tp.compressedEt());
+    }
+  }
+  for (const auto& tp : (*ecalTPsRecdBx5)) {
+    if (tp.compressedEt() > tpFillThreshold5Bx_) {
+      const int ieta = tp.id().ieta();
+      const int iphi = tp.id().iphi();
+      eventMonitors.ecalOccRecdBx5_->Fill(ieta, iphi);
+      eventMonitors.ecalOccRecd5Bx_->Fill(5);
+      eventMonitors.ecalOccRecd5BxEtWgt_->Fill(5, tp.compressedEt());
+    }
+  }
 
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPsSent;
   event.getByToken(hcalTPSourceSent_, hcalTPsSent);
@@ -441,6 +510,13 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   eventMonitors.ecalTPRawEtRecd_ = bookEt("ecalTPRawEtRecd", "ECal Raw Et Layer1 Readout");
   eventMonitors.ecalTPRawEtSentAndRecd_ = bookEt("ecalTPRawEtMatch", "ECal Raw Et FULL MATCH");
   eventMonitors.ecalTPRawEtSent_ = bookEt("ecalTPRawEtSent", "ECal Raw Et TCC Readout");
+  eventMonitors.ecalOccRecd5Bx_ = ibooker.book1D("ecalOccRecd5Bx", "ECal TP Values Averaged vs BX", 5, 1, 6);
+  eventMonitors.ecalOccRecd5BxEtWgt_ = ibooker.book1D("ecalOccRecd5BxEtWgt", "ECal TP*Et Averaged vs BX", 5, 1, 6);
+  eventMonitors.ecalOccRecdBx1_ = bookEcalOccupancy("ecalOccRecdBx1", "ECal TP Occupancy for BX1");
+  eventMonitors.ecalOccRecdBx2_ = bookEcalOccupancy("ecalOccRecdBx2", "ECal TP Occupancy for BX2");
+  eventMonitors.ecalOccRecdBx3_ = bookEcalOccupancy("ecalOccRecdBx3", "ECal TP Occupancy for BX3");
+  eventMonitors.ecalOccRecdBx4_ = bookEcalOccupancy("ecalOccRecdBx4", "ECal TP Occupancy for BX4");
+  eventMonitors.ecalOccRecdBx5_ = bookEcalOccupancy("ecalOccRecdBx5", "ECal TP Occupancy for BX5");
 
   ibooker.setCurrentFolder(histFolder_ + "/ECalDetail/TCCDebug");
   eventMonitors.ecalOccSentNotRecd_ =

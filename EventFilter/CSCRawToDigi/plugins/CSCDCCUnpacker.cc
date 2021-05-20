@@ -39,6 +39,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigiCollection.h"
@@ -85,6 +86,9 @@ private:
   /// option to unpack GEM cluster data
   bool useGEMs_;
 
+  /// option to unpack CSC shower data
+  bool useCSCShowers_;
+
   /// Visualization of raw data
   bool visualFEDInspect, visualFEDShort, formatedEventDump;
   /// Suppress zeros LCTs
@@ -117,8 +121,9 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   useFormatStatus = pset.getParameter<bool>("UseFormatStatus");
 
   useGEMs_ = pset.getParameter<bool>("useGEMs");
-  // Untracked
+  useCSCShowers_ = pset.getParameter<bool>("useCSCShowers");
 
+  // Untracked
   printEventNumber = pset.getUntrackedParameter<bool>("PrintEventNumber", true);
   debug = pset.getUntrackedParameter<bool>("Debug", false);
   instantiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
@@ -159,6 +164,11 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   if (useGEMs_) {
     produces<GEMPadDigiClusterCollection>("MuonGEMPadDigiCluster");
   }
+
+  if (useCSCShowers_) {
+    produces<CSCShowerDigiCollection>("MuonCSCShowerDigi");
+  }
+
   //CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
   CSCComparatorData::setDebug(debug);
@@ -188,6 +198,7 @@ void CSCDCCUnpacker::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("UnpackStatusDigis", false)->setComment("# Unpack general status digis?");
   desc.add<bool>("UseFormatStatus", true)->setComment("# Unpack FormatStatus digi?");
   desc.add<bool>("useGEMs", false)->setComment("Unpack GEM trigger data");
+  desc.add<bool>("useCSCShowers", false)->setComment("Unpack CSCShower trigger data");
   desc.addUntracked<bool>("Debug", false)->setComment("# Turn on lots of output");
   desc.addUntracked<bool>("PrintEventNumber", false);
   desc.addUntracked<bool>("runDQM", false);
@@ -236,6 +247,8 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
   auto formatStatusProduct = std::make_unique<CSCDCCFormatStatusDigiCollection>();
 
   auto gemProduct = std::make_unique<GEMPadDigiClusterCollection>();
+
+  auto showerProduct = std::make_unique<CSCShowerDigiCollection>();
 
   // If set selective unpacking mode
   // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
@@ -635,6 +648,9 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
   }
   if (useGEMs_) {
     e.put(std::move(gemProduct), "MuonGEMPadDigiCluster");
+  }
+  if (useCSCShowers_) {
+    e.put(std::move(showerProduct), "MuonCSCShowerDigi");
   }
   if (printEventNumber)
     LogTrace("CSCDCCUnpacker|CSCRawToDigi") << "[CSCDCCUnpacker]: " << numOfEvents << " events processed ";

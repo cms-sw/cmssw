@@ -92,9 +92,9 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     patternConversionLUTFiles_ = conf.getParameter<std::vector<std::string>>("patternConversionLUTFiles");
 
     for (int i = 0; i < 5; ++i) {
-      lutpos_[i] = std::make_unique<CSCComparatorCodeLUT>(positionLUTFiles_[i]);
-      lutslope_[i] = std::make_unique<CSCComparatorCodeLUT>(slopeLUTFiles_[i]);
-      lutpatconv_[i] = std::make_unique<CSCComparatorCodeLUT>(patternConversionLUTFiles_[i]);
+      lutpos_[i] = std::make_unique<CSCLUTReader>(positionLUTFiles_[i]);
+      lutslope_[i] = std::make_unique<CSCLUTReader>(slopeLUTFiles_[i]);
+      lutpatconv_[i] = std::make_unique<CSCLUTReader>(patternConversionLUTFiles_[i]);
     }
   }
 
@@ -109,37 +109,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 
   // quality control of stubs
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
-}
-
-CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() : CSCBaseboard() {
-  // constructor for debugging.
-  static std::atomic<bool> config_dumped{false};
-
-  // CLCT configuration parameters.
-  setDefaultConfigParameters();
-  infoV = 2;
-
-  early_tbins = 4;
-
-  start_bx_shift = 0;
-
-  // Check and print configuration parameters.
-  checkConfigParameters();
-  if (!config_dumped) {
-    dumpConfigParams();
-    config_dumped = true;
-  }
-
-  numStrips_ = CSCConstants::MAX_NUM_STRIPS_RUN1;
-  // Should be OK for all stations except ME1.
-  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    if ((i_layer + 1) % 2 == 0)
-      stagger[i_layer] = 0;
-    else
-      stagger[i_layer] = 1;
-  }
-
-  thePreTriggerDigis.clear();
 }
 
 void CSCCathodeLCTProcessor::setDefaultConfigParameters() {

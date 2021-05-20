@@ -168,6 +168,7 @@ namespace cond {
     std::shared_ptr<coral::IConnection> m_connection;
     std::shared_ptr<coral::ISession> m_session;
 
+    std::string m_authenticatedPrincipal;
     int m_principalId;
     // the key used to encrypt the db credentials accessibles by the owner of the authenticated key.
     std::string m_principalKey;

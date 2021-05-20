@@ -1,39 +1,22 @@
 #ifndef SimTracker_SiPixelDigitizer_SiPixelChargeReweightingAlgorithm_h
 #define SimTracker_SiPixelDigitizer_SiPixelChargeReweightingAlgorithm_h
 
+#include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObjectRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "SimTracker/SiPixelDigitizer/plugins/SiPixelDigitizerAlgorithm.h"
 
 // forward declarations
-
-// For the random numbers
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-namespace edm {
-  class EventSetup;
-  class ParameterSet;
-}  // namespace edm
-
 class DetId;
 class GaussianTailNoiseGenerator;
 class PixelDigi;
 class PixelDigiSimLink;
 class PixelGeomDetUnit;
 class SiG4UniversalFluctuation;
-class SiPixelFedCablingMap;
-class SiPixelGainCalibrationOfflineSimService;
-class SiPixelLorentzAngle;
-class SiPixelQuality;
-class SiPixelDynamicInefficiency;
-class TrackerGeometry;
-class TrackerTopology;
-class SiPixelFEDChannelContainer;
-class SiPixelQualityProbabilities;
 
 class SiPixelChargeReweightingAlgorithm {
 public:
-  SiPixelChargeReweightingAlgorithm(const edm::ParameterSet& conf);
+  SiPixelChargeReweightingAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   ~SiPixelChargeReweightingAlgorithm();
 
   // initialization that cannot be done in the constructor
@@ -73,6 +56,8 @@ private:
 
   std::vector<SiPixelTemplateStore2D> templateStores_;
 
+  edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectRcd> SiPixel2DTemp_den_token_;
+  edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectRcd> SiPixel2DTemp_num_token_;
   const SiPixel2DTemplateDBObject* dbobject_den;
   const SiPixel2DTemplateDBObject* dbobject_num;
 

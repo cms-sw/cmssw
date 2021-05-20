@@ -3,6 +3,7 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class Event;
@@ -14,7 +15,7 @@ namespace edm {
 // change in the future.
 class HGCalUncalibRecHitWorkerBaseClass {
 public:
-  HGCalUncalibRecHitWorkerBaseClass(const edm::ParameterSet&) {}
+  HGCalUncalibRecHitWorkerBaseClass(const edm::ParameterSet& ps, edm::ConsumesCollector iC) {}
   virtual ~HGCalUncalibRecHitWorkerBaseClass() {}
 
   // do event setup things

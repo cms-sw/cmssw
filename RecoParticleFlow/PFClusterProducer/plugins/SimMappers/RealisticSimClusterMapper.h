@@ -13,8 +13,8 @@
 
 class RealisticSimClusterMapper : public InitialClusteringStepBase {
 public:
-  RealisticSimClusterMapper(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : InitialClusteringStepBase(conf, sumes),
+  RealisticSimClusterMapper(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : InitialClusteringStepBase(conf, cc),
         invisibleFraction_(conf.getParameter<double>("invisibleFraction")),
         exclusiveFraction_(conf.getParameter<double>("exclusiveFraction")),
         maxDistanceFilter_(conf.getParameter<bool>("maxDistanceFilter")),
@@ -24,11 +24,11 @@ public:
         minNHitsforTiming_(conf.getParameter<unsigned int>("minNHitsforTiming")),
         useMCFractionsForExclEnergy_(conf.getParameter<bool>("useMCFractionsForExclEnergy")),
         calibMinEta_(conf.getParameter<double>("calibMinEta")),
-        calibMaxEta_(conf.getParameter<double>("calibMaxEta")) {
-    simClusterToken_ = sumes.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
-    hadronCalib_ = conf.getParameter<std::vector<double> >("hadronCalib");
-    egammaCalib_ = conf.getParameter<std::vector<double> >("egammaCalib");
-  }
+        calibMaxEta_(conf.getParameter<double>("calibMaxEta")),
+        hadronCalib_(conf.getParameter<std::vector<double> >("hadronCalib")),
+        egammaCalib_(conf.getParameter<std::vector<double> >("egammaCalib")),
+        simClusterToken_(cc.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"))),
+        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
 
   ~RealisticSimClusterMapper() override {}
   RealisticSimClusterMapper(const RealisticSimClusterMapper&) = delete;
@@ -59,6 +59,8 @@ private:
 
   edm::EDGetTokenT<SimClusterCollection> simClusterToken_;
   edm::Handle<SimClusterCollection> simClusterH_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, RealisticSimClusterMapper, "RealisticSimClusterMapper");

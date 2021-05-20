@@ -37,32 +37,17 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 
   match_earliest_alct_only = tmbParams_.getParameter<bool>("matchEarliestAlctOnly");
   match_earliest_clct_only = tmbParams_.getParameter<bool>("matchEarliestClctOnly");
-  clct_to_alct = tmbParams_.getParameter<bool>("clctToAlct");
   drop_used_clcts = tmbParams_.getParameter<bool>("tmbDropUsedClcts");
   tmb_cross_bx_algo = tmbParams_.getParameter<unsigned int>("tmbCrossBxAlgorithm");
   max_lcts = tmbParams_.getParameter<unsigned int>("maxLCTs");
   debug_matching = tmbParams_.getParameter<bool>("debugMatching");
-  debug_luts = tmbParams_.getParameter<bool>("debugLUTs");
 
   setPrefIndex();
-}
 
-CSCUpgradeMotherboard::CSCUpgradeMotherboard() : CSCMotherboard(), allLCTs(match_trig_window_size) {
-  if (!runPhase2_)
-    edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runPhase2_ is not set! +++\n";
-
-  if (theRing == 1) {
-    if (theStation == 1 and !runME11Up_)
-      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
-    if (theStation == 2 and !runME21Up_)
-      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME21Up_ is not set! +++\n";
-    if (theStation == 3 and !runME31Up_)
-      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME31Up_ is not set! +++\n";
-    if (theStation == 4 and !runME41Up_)
-      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME41Up_ is not set! +++\n";
-  }
-
-  setPrefIndex();
+  // ignore unphysical ALCT-CLCT matches
+  ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
+  const edm::ParameterSet me11luts(conf.getParameter<edm::ParameterSet>("wgCrossHsME11Params"));
+  cscOverlap_ = std::make_unique<CSCALCTCrossCLCT>(endcap, station, theRing, gangedME1a_, me11luts);
 }
 
 void CSCUpgradeMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc) {
@@ -252,6 +237,10 @@ void CSCUpgradeMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
        (match_trig_enable and secondALCT.isValid() and secondCLCT.isValid()))) {
     lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
   }
+}
+
+bool CSCUpgradeMotherboard::doesALCTCrossCLCT(const CSCALCTDigi& a, const CSCCLCTDigi& c) const {
+  return cscOverlap_->doesALCTCrossCLCT(a, c, ignoreAlctCrossClct);
 }
 
 //readout LCTs

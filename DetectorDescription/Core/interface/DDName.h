@@ -4,6 +4,8 @@
 #include <iosfwd>
 #include <string>
 #include <utility>
+
+#include "FWCore/Utilities/interface/StdPairHasher.h"
 #include <tbb/concurrent_vector.h>
 #include <tbb/concurrent_unordered_map.h>
 
@@ -15,7 +17,8 @@ class DDCurrentNamespace;
 class DDName {
 public:
   using id_type = int;
-  using Registry = tbb::concurrent_unordered_map<std::pair<std::string, std::string>, id_type>;
+  using key_type = std::pair<const std::string, std::string>;
+  using Registry = tbb::concurrent_unordered_map<key_type, id_type, edm::StdPairHasher>;
   using IdToName = tbb::concurrent_vector<Registry::const_iterator>;
 
   //! Constructs a DDName with name \a name and assigns \a name to the namespace \a ns.

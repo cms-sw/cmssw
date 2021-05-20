@@ -66,8 +66,11 @@ private:
   const std::string folder_;
   const double hitMinEnergy_;
   const bool LocalPosDebug_;
+  const bool uncalibRecHitsPlots_;
+  const double hitMinAmplitude_;
 
   edm::EDGetTokenT<FTLRecHitCollection> btlRecHitsToken_;
+  edm::EDGetTokenT<FTLUncalibratedRecHitCollection> btlUncalibRecHitsToken_;
   edm::EDGetTokenT<CrossingFrame<PSimHit> > btlSimHitsToken_;
   edm::EDGetTokenT<FTLClusterCollection> btlRecCluToken_;
 
@@ -123,16 +126,40 @@ private:
   MonitorElement* meCluEta_;
   MonitorElement* meCluHits_;
   MonitorElement* meCluZvsPhi_;
+
+  // --- UncalibratedRecHits histograms
+
+  static constexpr int nBinsQ_ = 20;
+  static constexpr float binWidthQ_ = 30.;
+  static constexpr int nBinsQEta_ = 3;
+  static constexpr float binsQEta_[nBinsQEta_ + 1] = {0., 0.65, 1.15, 1.55};
+
+  MonitorElement* meTimeResQ_[nBinsQ_];
+  MonitorElement* meTimeResQvsEta_[nBinsQ_][nBinsQEta_];
+
+  static constexpr int nBinsEta_ = 31;
+  static constexpr float binWidthEta_ = 0.05;
+  static constexpr int nBinsEtaQ_ = 7;
+  static constexpr float binsEtaQ_[nBinsEtaQ_ + 1] = {0., 30., 60., 90., 120., 150., 360., 600.};
+
+  MonitorElement* meTimeResEta_[nBinsEta_];
+  MonitorElement* meTimeResEtavsQ_[nBinsEta_][nBinsEtaQ_];
 };
 
 // ------------ constructor and destructor --------------
 BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
-      hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")),
-      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")) {
+      hitMinEnergy_(iConfig.getParameter<double>("HitMinimumEnergy")),
+      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")),
+      uncalibRecHitsPlots_(iConfig.getParameter<bool>("UncalibRecHitsPlots")),
+      hitMinAmplitude_(iConfig.getParameter<double>("HitMinimumAmplitude")) {
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsTag"));
+  if (uncalibRecHitsPlots_)
+    btlUncalibRecHitsToken_ =
+        consumes<FTLUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("uncalibRecHitsTag"));
   btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("simHitsTag"));
   btlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
+
   mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
@@ -287,6 +314,91 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meCluHits_->Fill(cluster.size());
     }
   }
+
+  // --- Loop over the BTL Uncalibrated RECO hits
+  if (uncalibRecHitsPlots_) {
+    auto btlUncalibRecHitsHandle = makeValid(iEvent.getHandle(btlUncalibRecHitsToken_));
+
+    for (const auto& uRecHit : *btlUncalibRecHitsHandle) {
+      BTLDetId detId = uRecHit.id();
+
+      // --- Skip UncalibratedRecHits not matched to SimHits
+      if (m_btlSimHits.count(detId.rawId()) != 1)
+        continue;
+
+      DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
+      const MTDGeomDet* thedet = geom->idToDet(geoId);
+      if (thedet == nullptr)
+        throw cms::Exception("BtlLocalRecoValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
+                                                       << detId.rawId() << ") is invalid!" << std::dec << std::endl;
+      const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+      const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+
+      Local3DPoint local_point(0., 0., 0.);
+      local_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));
+      const auto& global_point = thedet->toGlobal(local_point);
+
+      // --- Combine the information from the left and right BTL cell sides
+
+      float nHits = 0.;
+      float hit_amplitude = 0.;
+      float hit_time = 0.;
+
+      // left side:
+      if (uRecHit.amplitude().first > 0.) {
+        hit_amplitude += uRecHit.amplitude().first;
+        hit_time += uRecHit.time().first;
+        nHits += 1.;
+      }
+      // right side:
+      if (uRecHit.amplitude().second > 0.) {
+        hit_amplitude += uRecHit.amplitude().second;
+        hit_time += uRecHit.time().second;
+        nHits += 1.;
+      }
+
+      hit_amplitude /= nHits;
+      hit_time /= nHits;
+
+      // --- Fill the histograms
+
+      if (hit_amplitude < hitMinAmplitude_)
+        continue;
+
+      float time_res = hit_time - m_btlSimHits[detId.rawId()].time;
+
+      // amplitude histograms
+
+      int qBin = (int)(hit_amplitude / binWidthQ_);
+      if (qBin > nBinsQ_ - 1)
+        qBin = nBinsQ_ - 1;
+
+      meTimeResQ_[qBin]->Fill(time_res);
+
+      int etaBin = 0;
+      for (int ibin = 1; ibin < nBinsQEta_; ++ibin)
+        if (fabs(global_point.eta()) >= binsQEta_[ibin] && fabs(global_point.eta()) < binsQEta_[ibin + 1])
+          etaBin = ibin;
+
+      meTimeResQvsEta_[qBin][etaBin]->Fill(time_res);
+
+      // eta histograms
+
+      etaBin = (int)(fabs(global_point.eta()) / binWidthEta_);
+      if (etaBin > nBinsEta_ - 1)
+        etaBin = nBinsEta_ - 1;
+
+      meTimeResEta_[etaBin]->Fill(time_res);
+
+      qBin = 0;
+      for (int ibin = 1; ibin < nBinsEtaQ_; ++ibin)
+        if (hit_amplitude >= binsEtaQ_[ibin] && hit_amplitude < binsEtaQ_[ibin + 1])
+          qBin = ibin;
+
+      meTimeResEtavsQ_[etaBin][qBin]->Fill(time_res);
+
+    }  // uRecHit loop
+  }
 }
 
 // ------------ method for histogram booking ------------
@@ -376,6 +488,38 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluHits_ = ibook.book1D("BtlCluHitNumber", "BTL hits per cluster; Cluster size", 10, 0, 10);
   meCluZvsPhi_ = ibook.book2D(
       "BtlOccupancy", "BTL cluster Z vs #phi;Z_{RECO} [cm]; #phi_{RECO} [rad]", 144, -260., 260., 50, -3.2, 3.2);
+
+  // --- UncalibratedRecHits histograms
+
+  if (uncalibRecHitsPlots_) {
+    for (unsigned int ihistoQ = 0; ihistoQ < nBinsQ_; ++ihistoQ) {
+      std::string hname = Form("TimeResQ_%d", ihistoQ);
+      std::string htitle = Form("BTL time resolution (Q bin = %d);T_{RECO} - T_{SIM} [ns]", ihistoQ);
+      meTimeResQ_[ihistoQ] = ibook.book1D(hname, htitle, 200, -0.3, 0.7);
+
+      for (unsigned int ihistoEta = 0; ihistoEta < nBinsQEta_; ++ihistoEta) {
+        hname = Form("TimeResQvsEta_%d_%d", ihistoQ, ihistoEta);
+        htitle = Form("BTL time resolution (Q bin = %d, |#eta| bin = %d);T_{RECO} - T_{SIM} [ns]", ihistoQ, ihistoEta);
+        meTimeResQvsEta_[ihistoQ][ihistoEta] = ibook.book1D(hname, htitle, 200, -0.3, 0.7);
+
+      }  // ihistoEta loop
+
+    }  // ihistoQ loop
+
+    for (unsigned int ihistoEta = 0; ihistoEta < nBinsEta_; ++ihistoEta) {
+      std::string hname = Form("TimeResEta_%d", ihistoEta);
+      std::string htitle = Form("BTL time resolution (|#eta| bin = %d);T_{RECO} - T_{SIM} [ns]", ihistoEta);
+      meTimeResEta_[ihistoEta] = ibook.book1D(hname, htitle, 200, -0.3, 0.7);
+
+      for (unsigned int ihistoQ = 0; ihistoQ < nBinsEtaQ_; ++ihistoQ) {
+        hname = Form("TimeResEtavsQ_%d_%d", ihistoEta, ihistoQ);
+        htitle = Form("BTL time resolution (|#eta| bin = %d, Q bin = %d);T_{RECO} - T_{SIM} [ns]", ihistoEta, ihistoQ);
+        meTimeResEtavsQ_[ihistoEta][ihistoQ] = ibook.book1D(hname, htitle, 200, -0.3, 0.7);
+
+      }  // ihistoQ loop
+
+    }  // ihistoEta loop
+  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -384,10 +528,13 @@ void BtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
 
   desc.add<std::string>("folder", "MTD/BTL/LocalReco");
   desc.add<edm::InputTag>("recHitsTag", edm::InputTag("mtdRecHits", "FTLBarrel"));
+  desc.add<edm::InputTag>("uncalibRecHitsTag", edm::InputTag("mtdUncalibratedRecHits", "FTLBarrel"));
   desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLBarrel"));
-  desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
+  desc.add<double>("HitMinimumEnergy", 1.);  // [MeV]
   desc.add<bool>("LocalPositionDebug", false);
+  desc.add<bool>("UncalibRecHitsPlots", false);
+  desc.add<double>("HitMinimumAmplitude", 30.);  // [pC]
 
   descriptions.add("btlLocalReco", desc);
 }

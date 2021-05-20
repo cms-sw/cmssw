@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using:
 # Revision: 1.19
@@ -93,7 +94,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 if options.fromLocalXML:
-  print "Loading material from local XMLs"
+  print("Loading material from local XMLs")
   process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
 else:
   process.load('Configuration.StandardSequences.GeometryRecoDB_cff')

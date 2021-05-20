@@ -1,8 +1,8 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="FWCore/Framework"/>
-<use name="Geometry/CaloEventSetup"/>
+<use name="Geometry/Records"/>
 <use name="Geometry/CaloTopology"/>
-<use name="RecoCaloTools/Navigation"/>
+<use name="RecoCaloTools/Navigation" source_only="1"/>
 <flags EDM_PLUGIN="1"/>
 <library file="stubs/CaloNavigationAnalyzer.cc" name="testCaloNavigationAnalyzer">
 </library>

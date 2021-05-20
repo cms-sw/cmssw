@@ -137,6 +137,7 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
   minNrVertices_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("minNrVerticesForFit");
   minVtxNdf_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
   minVtxWgt_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
+  useLockRecords_ = ps.getUntrackedParameter<bool>("useLockRecords");
 
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
@@ -202,6 +203,12 @@ namespace {
     kNumHists
   };
 }  // namespace
+
+void BeamMonitor::dqmBeginRun(edm::Run const&, edm::EventSetup const&) {
+  if (useLockRecords_ && onlineDbService_.isAvailable()) {
+    onlineDbService_->lockRecords();
+  }
+}
 
 void BeamMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
   frun = iRun.run();
@@ -1544,8 +1551,11 @@ void BeamMonitor::dqmEndRun(const Run& r, const EventSetup& context) {
   mapLSBSTrkSize.clear();
   mapLSPVStoreSize.clear();
   mapLSCF.clear();
-}
 
+  if (useLockRecords_ && onlineDbService_.isAvailable()) {
+    onlineDbService_->releaseLocks();
+  }
+}
 //--------------------------------------------------------
 void BeamMonitor::scrollTH1(TH1* h, time_t ref) {
   char offsetTime[64];

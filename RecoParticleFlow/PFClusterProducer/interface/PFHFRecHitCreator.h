@@ -20,17 +20,18 @@
 
 class PFHFRecHitCreator final : public PFRecHitCreatorBase {
 public:
-  PFHFRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<edm::SortedCollection<HFRecHit> >(iConfig.getParameter<edm::InputTag>("src"));
-    EM_Depth_ = iConfig.getParameter<double>("EMDepthCorrection");
-    HAD_Depth_ = iConfig.getParameter<double>("HADDepthCorrection");
-    shortFibre_Cut = iConfig.getParameter<double>("ShortFibre_Cut");
-    longFibre_Fraction = iConfig.getParameter<double>("LongFibre_Fraction");
-    longFibre_Cut = iConfig.getParameter<double>("LongFibre_Cut");
-    shortFibre_Fraction = iConfig.getParameter<double>("ShortFibre_Fraction");
-    thresh_HF_ = iConfig.getParameter<double>("thresh_HF");
-    HFCalib_ = iConfig.getParameter<double>("HFCalib29");
-  }
+  PFHFRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc),
+        recHitToken_(cc.consumes<edm::SortedCollection<HFRecHit> >(iConfig.getParameter<edm::InputTag>("src"))),
+        EM_Depth_(iConfig.getParameter<double>("EMDepthCorrection")),
+        HAD_Depth_(iConfig.getParameter<double>("HADDepthCorrection")),
+        shortFibre_Cut(iConfig.getParameter<double>("ShortFibre_Cut")),
+        longFibre_Fraction(iConfig.getParameter<double>("LongFibre_Fraction")),
+        longFibre_Cut(iConfig.getParameter<double>("LongFibre_Cut")),
+        shortFibre_Fraction(iConfig.getParameter<double>("ShortFibre_Fraction")),
+        thresh_HF_(iConfig.getParameter<double>("thresh_HF")),
+        HFCalib_(iConfig.getParameter<double>("HFCalib29")),
+        geomToken_(cc.esConsumes()) {}
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,
                      std::unique_ptr<reco::PFRecHitCollection>& cleaned,
@@ -42,8 +43,7 @@ public:
 
     edm::Handle<edm::SortedCollection<HFRecHit> > recHitHandle;
 
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
 
     // get the ecal geometry
     const CaloSubdetectorGeometry* hcalGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalForward);
@@ -195,5 +195,8 @@ protected:
         return a.detId() < b.detId();
     }
   };
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 #endif

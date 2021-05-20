@@ -2,6 +2,9 @@
 #define HcalSimProducers_HcalDigitizer_h
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
@@ -34,10 +37,6 @@ class HcalBaseSignalGenerator;
 class HcalShapes;
 class PileUpEventPrincipal;
 class HcalTopology;
-
-namespace edm {
-  class ConsumesCollector;
-}
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -74,6 +73,15 @@ private:
   /// make sure the digitizer has the correct list of all cells that
   /// exist in the geometry
   void checkGeometry(const edm::EventSetup &eventSetup);
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_;
+  edm::ESGetToken<HBHEDarkening, HBHEDarkeningRecord> m_HBDarkeningToken;
+  edm::ESGetToken<HBHEDarkening, HBHEDarkeningRecord> m_HEDarkeningToken;
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> hcalTimeSlew_delay_token_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theGeometryToken;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> theRecNumberToken;
+  const edm::ESGetToken<HcalQIETypes, HcalQIETypesRcd> qieTypesToken_;
+  edm::ESGetToken<HcalMCParams, HcalMCParamsRcd> mcParamsToken_;
   edm::ESWatcher<CaloGeometryRecord> theGeometryWatcher_;
   edm::ESWatcher<HcalRecNumberingRecord> theRecNumberWatcher_;
   const CaloGeometry *theGeometry;

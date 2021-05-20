@@ -116,8 +116,6 @@ void DDHGCalWaferP::execute(DDCompactView& cpv) {
 
   static constexpr double tol = 0.00001;
   static const double sqrt3 = std::sqrt(3.0);
-  double rM = 0.5 * (waferSize_ + waferSepar_);
-  double RM = 2.0 * rM / sqrt3;
   double r = 0.5 * waferSize_;
   double R = 2.0 * r / sqrt3;
   std::string parentName = parent().name().name();
@@ -127,7 +125,7 @@ void DDHGCalWaferP::execute(DDCompactView& cpv) {
     // First the mother
     std::string mother = parentName + tags_[k];
     std::vector<std::pair<double, double> > wxy =
-        HGCalWaferMask::waferXY(partialTypes_[k], orientations_[k], 1, rM, RM, 0.0, 0.0);
+        HGCalWaferMask::waferXY(partialTypes_[k], orientations_[k], 1, r, R, 0.0, 0.0);
     std::vector<double> xM, yM;
     for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
       xM.emplace_back(wxy[i].first);

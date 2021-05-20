@@ -24,9 +24,7 @@ public:
   PreMixingHGCalWorker(const PreMixingHGCalWorker&) = delete;
   PreMixingHGCalWorker& operator=(const PreMixingHGCalWorker&) = delete;
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& ES) override;
-  void endRun() override;
-  void initializeEvent(const edm::Event& e, const edm::EventSetup& ES) override {}
+  void initializeEvent(const edm::Event& e, const edm::EventSetup& ES) override;
   void addSignals(const edm::Event& e, const edm::EventSetup& ES) override;
   void addPileups(const PileUpEventPrincipal&, const edm::EventSetup& ES) override;
   void put(edm::Event& e, const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) override;
@@ -47,9 +45,9 @@ PreMixingHGCalWorker::PreMixingHGCalWorker(const edm::ParameterSet& ps,
   producesCollector.produces<HGCalDigiCollection>(digitizer_.digiCollection());
 }
 
-void PreMixingHGCalWorker::beginRun(const edm::Run& run, const edm::EventSetup& ES) { digitizer_.beginRun(ES); }
-
-void PreMixingHGCalWorker::endRun() { digitizer_.endRun(); }
+void PreMixingHGCalWorker::initializeEvent(const edm::Event& e, const edm::EventSetup& ES) {
+  digitizer_.initializeEvent(e, ES);
+}
 
 void PreMixingHGCalWorker::addSignals(const edm::Event& e, const edm::EventSetup& ES) {
   edm::Handle<PHGCSimAccumulator> handle;
