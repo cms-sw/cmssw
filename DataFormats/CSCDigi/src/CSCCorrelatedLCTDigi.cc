@@ -23,8 +23,11 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const uint16_t itrknmb,
                                            const uint16_t ibx0,
                                            const uint16_t isyncErr,
                                            const uint16_t icscID,
-                                           const uint16_t ihmt,
-                                           const Version version)
+                                           const Version version,
+                                           const bool run3_quart_strip_bit,
+                                           const bool run3_eighth_strip_bit,
+                                           const uint16_t run3_pattern,
+                                           const uint16_t run3_slope)
     : trknmb(itrknmb),
       valid(ivalid),
       quality(iquality),
@@ -37,7 +40,10 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const uint16_t itrknmb,
       bx0(ibx0),
       syncErr(isyncErr),
       cscID(icscID),
-      hmt(ihmt),
+      run3_quart_strip_bit_(run3_quart_strip_bit),
+      run3_eighth_strip_bit_(run3_eighth_strip_bit),
+      run3_pattern_(run3_pattern),
+      run3_slope_(run3_slope),
       version_(version) {}
 
 /// Default
@@ -61,6 +67,11 @@ void CSCCorrelatedLCTDigi::clear() {
   cscID = 0;
   hmt = 0;
   version_ = Version::Legacy;
+  // Run-3 variables
+  run3_quart_strip_bit_ = false;
+  run3_eighth_strip_bit_ = false;
+  run3_pattern_ = 0;
+  run3_slope_ = 0;
   // clear the components
   type_ = 0;
   alct_.clear();
@@ -80,44 +91,8 @@ uint16_t CSCCorrelatedLCTDigi::getStrip(const uint16_t n) const {
   }
   // lowest 8 bits
   else {
-    return strip & kHalfStripMask;
+    return strip;
   }
-}
-
-void CSCCorrelatedLCTDigi::setQuartStrip(const bool quartStrip) {
-  if (!isRun3())
-    return;
-  setDataWord(quartStrip, strip, kQuartStripShift, kQuartStripMask);
-}
-
-void CSCCorrelatedLCTDigi::setEighthStrip(const bool eighthStrip) {
-  if (!isRun3())
-    return;
-  setDataWord(eighthStrip, strip, kEighthStripShift, kEighthStripMask);
-}
-
-bool CSCCorrelatedLCTDigi::getQuartStrip() const {
-  if (!isRun3())
-    return false;
-  return getDataWord(strip, kQuartStripShift, kQuartStripMask);
-}
-
-bool CSCCorrelatedLCTDigi::getEighthStrip() const {
-  if (!isRun3())
-    return false;
-  return getDataWord(strip, kEighthStripShift, kEighthStripMask);
-}
-
-uint16_t CSCCorrelatedLCTDigi::getSlope() const {
-  if (!isRun3())
-    return 0;
-  return getDataWord(pattern, kRun3SlopeShift, kRun3SlopeMask);
-}
-
-void CSCCorrelatedLCTDigi::setSlope(const uint16_t slope) {
-  if (!isRun3())
-    return;
-  setDataWord(slope, pattern, kRun3SlopeShift, kRun3SlopeMask);
 }
 
 // slope in number of half-strips/layer
@@ -148,26 +123,6 @@ uint16_t CSCCorrelatedLCTDigi::getCLCTPattern() const {
   return (isRun3() ? std::numeric_limits<uint16_t>::max() : (pattern & 0xF));
 }
 
-uint16_t CSCCorrelatedLCTDigi::getPattern() const {
-  return getDataWord(pattern, kLegacyPatternShift, kLegacyPatternMask);
-}
-
-void CSCCorrelatedLCTDigi::setPattern(const uint16_t pat) {
-  setDataWord(pat, pattern, kLegacyPatternShift, kLegacyPatternMask);
-}
-
-uint16_t CSCCorrelatedLCTDigi::getRun3Pattern() const {
-  if (!isRun3())
-    return 0;
-  return getDataWord(pattern, kRun3PatternShift, kRun3PatternMask);
-}
-
-void CSCCorrelatedLCTDigi::setRun3Pattern(const uint16_t pat) {
-  if (!isRun3())
-    return;
-  setDataWord(pat, pattern, kRun3PatternShift, kRun3PatternMask);
-}
-
 uint16_t CSCCorrelatedLCTDigi::getHMT() const { return (isRun3() ? hmt : std::numeric_limits<uint16_t>::max()); }
 
 void CSCCorrelatedLCTDigi::setHMT(const uint16_t h) { hmt = isRun3() ? h : std::numeric_limits<uint16_t>::max(); }
@@ -193,21 +148,6 @@ void CSCCorrelatedLCTDigi::print() const {
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid correlated LCT.";
   }
-}
-
-void CSCCorrelatedLCTDigi::setDataWord(const uint16_t newWord,
-                                       uint16_t& word,
-                                       const unsigned shift,
-                                       const unsigned mask) {
-  // clear the old value
-  word &= ~(mask << shift);
-
-  // set the new value
-  word |= newWord << shift;
-}
-
-uint16_t CSCCorrelatedLCTDigi::getDataWord(const uint16_t word, const unsigned shift, const unsigned mask) const {
-  return (word >> shift) & mask;
 }
 
 std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
