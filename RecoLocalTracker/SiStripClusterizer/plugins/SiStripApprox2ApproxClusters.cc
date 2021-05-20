@@ -32,14 +32,18 @@ private:
 SiStripApprox2ApproxClusters::SiStripApprox2ApproxClusters(const edm::ParameterSet& conf) {
   inputApproxClusters = conf.getParameter<edm::InputTag>("inputApproxClusters");
   approxVersionS = conf.getParameter<std::string>("approxVersion");
-  
-  approxVersion=-1;
 
-  if(approxVersionS=="ORIGINAL") approxVersion=0;
-  else if(approxVersionS=="FULL_WIDTH") approxVersion=1;
-  else if(approxVersionS=="BARY_RES_0.1") approxVersion=2;
-  else if(approxVersionS=="BARY_CHARGE_RES_0.1") approxVersion=3;
-  
+  approxVersion = -1;
+
+  if (approxVersionS == "ORIGINAL")
+    approxVersion = 0;
+  else if (approxVersionS == "FULL_WIDTH")
+    approxVersion = 1;
+  else if (approxVersionS == "BARY_RES_0.1")
+    approxVersion = 2;
+  else if (approxVersionS == "BARY_CHARGE_RES_0.1")
+    approxVersion = 3;
+
   clusterToken = consumes<edmNew::DetSetVector<SiStripApproximateCluster>>(inputApproxClusters);
   produces<edmNew::DetSetVector<SiStripApproximateCluster>>();
 }
@@ -55,29 +59,32 @@ void SiStripApprox2ApproxClusters::produce(edm::Event& event, edm::EventSetup co
       float barycenter = cluster.barycenter();
       uint8_t width = cluster.width();
       float avgCharge = cluster.avgCharge();
-      
-      switch(approxVersion){
-        case 0: //ORIGINAL
-          barycenter = std::round(barycenter); 
-          if (width > 0x3F) width = 0x3F;
+
+      switch (approxVersion) {
+        case 0:  //ORIGINAL
+          barycenter = std::round(barycenter);
+          if (width > 0x3F)
+            width = 0x3F;
           avgCharge = std::round(avgCharge);
-        break;
-        case 1: //FULL_WIDTH
+          break;
+        case 1:  //FULL_WIDTH
           barycenter = std::round(barycenter);
           avgCharge = std::round(avgCharge);
-        break;
-        case 2: //BARY_RES_0.1
+          break;
+        case 2:  //BARY_RES_0.1
           barycenter = std::round(barycenter * 10) / 10;
-          if (width > 0x3F) width = 0x3F;
+          if (width > 0x3F)
+            width = 0x3F;
           avgCharge = std::round(avgCharge);
-        break;
-        case 3: //BARY_CHARGE_RES_0.1
+          break;
+        case 3:  //BARY_CHARGE_RES_0.1
           barycenter = std::round(barycenter * 10) / 10;
-          if (width > 0x3F) width = 0x3F;
+          if (width > 0x3F)
+            width = 0x3F;
           avgCharge = std::round(avgCharge * 10) / 10;
-        break;
+          break;
       }
-      
+
       ff.push_back(SiStripApproximateCluster(barycenter, width, avgCharge));
     }
   }
