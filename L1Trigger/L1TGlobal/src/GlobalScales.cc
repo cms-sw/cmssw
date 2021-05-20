@@ -106,13 +106,12 @@ void l1t::GlobalScales::setLUT_Upt(const std::string& lutName, std::vector<long 
     return;
   }
 
-  // Insert this LUT into the Table                                                                                                                  
+  // Insert this LUT into the Table
   m_lut_Upt.insert(std::map<std::string, std::vector<long long>>::value_type(lutName, lut));
   m_Prec_Upt.insert(std::map<std::string, unsigned int>::value_type(lutName, precision));
 
   return;
 }
-
 
 void l1t::GlobalScales::setLUT_Cosh(const std::string& lutName, std::vector<long long> lut, unsigned int precision) {
   if (m_lut_Cosh.count(lutName) != 0) {
@@ -568,7 +567,6 @@ void l1t::GlobalScales::dumpAllLUTs(std::ostream& myCout) const {
        itr++) {
     dumpLUT(myCout, 8, itr->first);
   }
-
 }
 
 void l1t::GlobalScales::dumpLUT(std::ostream& myCout, int LUTtype, std::string name) const {
@@ -622,7 +620,7 @@ void l1t::GlobalScales::dumpLUT(std::ostream& myCout, int LUTtype, std::string n
       type = "Pt";
       break;
     }
-    case 9: { // Added for displaced muons
+    case 9: {  // Added for displaced muons
       dumpV = m_lut_Upt.find(name)->second;
       prec = m_Prec_Upt.find(name)->second;
       type = "Upt";
