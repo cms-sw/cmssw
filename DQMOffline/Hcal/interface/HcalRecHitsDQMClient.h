@@ -24,19 +24,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include <memory>
 #include <unistd.h>
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
 #include <fstream>
 #include <iostream>
@@ -54,7 +55,8 @@ private:
   std::string dirNameJet_;
   std::string dirNameMET_;
 
-  const HcalDDDRecConstants *hcons;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> hcalDDDRecConstantsToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryRunToken_;
   int maxDepthHB_, maxDepthHE_, maxDepthHO_, maxDepthHF_, maxDepthAll_;
 
   int nChannels_[5];  // 0:any, 1:HB, 2:HE, 3:HO, 4: HF
