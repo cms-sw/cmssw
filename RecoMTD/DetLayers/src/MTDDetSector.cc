@@ -1,7 +1,6 @@
 //#define EDM_ML_DEBUG
 
 #include "RecoMTD/DetLayers/interface/MTDDetSector.h"
-#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
@@ -15,17 +14,12 @@
 
 using namespace std;
 
-MTDDetSector::MTDDetSector(vector<const GeomDet*>::const_iterator first,
-                           vector<const GeomDet*>::const_iterator last,
-                           const MTDTopology& topo)
-    : GeometricSearchDet(false), theDets(first, last), topo_(&topo) {
+MTDDetSector::MTDDetSector(vector<const GeomDet*>::const_iterator first, vector<const GeomDet*>::const_iterator last)
+    : GeometricSearchDet(false), theDets(first, last) {
   init();
 }
 
-MTDDetSector::MTDDetSector(const vector<const GeomDet*>& vdets, const MTDTopology& topo)
-    : GeometricSearchDet(false), theDets(vdets), topo_(&topo) {
-  init();
-}
+MTDDetSector::MTDDetSector(const vector<const GeomDet*>& vdets) : GeometricSearchDet(false), theDets(vdets) { init(); }
 
 void MTDDetSector::init() {
   // Add here the sector build based on a collection of GeomDets, mimic what done in ForwardDetRingOneZ
@@ -85,8 +79,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   TrajectoryStateOnSurface& tsos = compat.second;
   GlobalPoint startPos = tsos.globalPosition();
 
-  LogTrace("MTDDetLayers") << "Starting position: " << startPos << " starting p/pT: " << tsos.globalMomentum().mag()
-                           << " / " << tsos.globalMomentum().perp();
+  LogTrace("MTDDetLayers") << "Starting position: " << startPos;
 
   // determine distance of det center from extrapolation on the surface, sort dets accordingly
 
@@ -102,35 +95,30 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
       dist2Min = dist2;
       idetMin = idet;
     }
+    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets " << std::fixed << std::setw(8) << idet << " "
+                             << theDets[idet]->geographicalId().rawId() << " dist = " << std::setw(10)
+                             << std::sqrt(dist2) << " Min idet/dist = " << std::setw(8) << idetMin << " "
+                             << std::setw(10) << std::sqrt(dist2Min) << " " << theDets[idet]->position();
   }
 
-  //look for the compatibledets considering each line of the sector
+  // loop on an interval od ordered detIds around the minimum
+  // set a range of GeomDets around the minimum compatible with the geometry of ETL
 
-  if (add(idetMin, result, tsos, prop, est)) {
-    compatibleDetsLine(idetMin, result, tsos, prop, est);
+  size_t iniPos(idetMin > detsRange ? idetMin - detsRange : static_cast<size_t>(0));
+  size_t endPos(std::min(idetMin + detsRange, basicComponents().size() - 1));
+  tmpDets.erase(tmpDets.begin() + endPos, tmpDets.end());
+  tmpDets.erase(tmpDets.begin(), tmpDets.begin() + iniPos);
+  std::sort(tmpDets.begin(), tmpDets.end());
 
-    for (int iside = -1; iside <= 1; iside += 2) {
-      bool isCompatible(true);
-      size_t idetNew(idetMin);
-      size_t closest = theDets.size();
-
-      while (isCompatible) {
-        idetNew = vshift(theDets[idetNew]->geographicalId().rawId(), iside, closest);
-        if (idetNew >= theDets.size()) {
-          if (closest < theDets.size()) {
-            idetNew = closest;
-          } else {
-            break;
-          }
-        }
-        isCompatible = add(idetNew, result, tsos, prop, est);
-        if (isCompatible) {
-          compatibleDetsLine(idetNew, result, tsos, prop, est);
-        }
-      }
+  for (const auto& thisDet : tmpDets) {
+    if (add(thisDet.second, result, tsos, prop, est)) {
+      LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det " << thisDet.second
+                               << " detId = " << theDets[thisDet.second]->geographicalId().rawId() << " at "
+                               << theDets[thisDet.second]->position() << " dist = " << std::sqrt(thisDet.first);
+    } else {
+      break;
     }
   }
-
 #ifdef EDM_ML_DEBUG
   if (result.empty()) {
     LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, closest not compatible!";
@@ -168,10 +156,6 @@ bool MTDDetSector::add(size_t idet,
 
   if (compat.first) {
     result.push_back(DetWithState(theDets[idet], compat.second));
-    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det idetMin " << idet
-                             << " detId = " << theDets[idet]->geographicalId().rawId() << " at "
-                             << theDets[idet]->position()
-                             << " dist = " << std::sqrt((tsos.globalPosition() - theDets[idet]->position()).mag2());
   }
 
   return compat.first;
@@ -187,33 +171,4 @@ std::ostream& operator<<(std::ostream& os, const MTDDetSector& id) {
      << " phi ref : " << std::setw(14) << id.specificSurface().position().phi() << std::endl
      << " phi w/2 : " << std::setw(14) << id.specificSurface().phiHalfExtension() << std::endl;
   return os;
-}
-
-void MTDDetSector::compatibleDetsLine(const size_t idetMin,
-                                      vector<DetWithState>& result,
-                                      const TrajectoryStateOnSurface& tsos,
-                                      const Propagator& prop,
-                                      const MeasurementEstimator& est) const {
-  for (int iside = -1; iside <= 1; iside += 2) {
-    bool isCompatible(true);
-    size_t idetNew(idetMin);
-
-    while (isCompatible) {
-      idetNew = hshift(theDets[idetNew]->geographicalId().rawId(), iside);
-      if (idetNew >= theDets.size()) {
-        break;
-      }
-      isCompatible = add(idetNew, result, tsos, prop, est);
-    }
-  }
-
-  return;
-}
-
-size_t MTDDetSector::hshift(const uint32_t detid, const int horizontalShift) const {
-  return topo_->hshiftETL(detid, horizontalShift);
-}
-
-size_t MTDDetSector::vshift(const uint32_t detid, const int verticalShift, size_t& closest) const {
-  return topo_->vshiftETL(detid, verticalShift, closest);
 }
