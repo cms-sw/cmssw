@@ -8,13 +8,17 @@
 
 #include "DataFormats/TotemReco/interface/TotemT2RecHit.h"
 
-TotemT2RecHit::TotemT2RecHit(const GlobalPoint& centre, float time, float time_unc)
-    : centre_(centre), time_(time), time_unc_(time_unc) {}
+TotemT2RecHit::TotemT2RecHit(const GlobalPoint& centre, float time, float time_unc, float tot)
+    : centre_(centre), time_(time), time_unc_(time_unc), tot_(tot) {}
 
 bool operator<(const TotemT2RecHit& lhs, const TotemT2RecHit& rhs) {
   if (lhs.time() < rhs.time())
     return true;
   if (lhs.time() > rhs.time())
+    return false;
+  if (lhs.toT() < rhs.toT())
+    return true;
+  if (lhs.toT() > rhs.toT())
     return false;
   if (lhs.timeUnc() < rhs.timeUnc())
     return true;

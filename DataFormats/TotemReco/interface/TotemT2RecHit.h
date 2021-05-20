@@ -14,21 +14,25 @@
 class TotemT2RecHit {
 public:
   TotemT2RecHit() = default;
-  explicit TotemT2RecHit(const GlobalPoint&, float, float);
+  explicit TotemT2RecHit(const GlobalPoint&, float, float, float);
 
   const GlobalPoint centre() const { return centre_; }
   void setTime(float time) { time_ = time; }
   float time() const { return time_; }
   void setTimeUnc(float time_unc) { time_unc_ = time_unc; }
   float timeUnc() const { return time_unc_; }
+  void setToT(float tot) { tot_ = tot; }
+  float toT() const { return tot_; }
 
 private:
   /// Tile centre position
   GlobalPoint centre_;
   /// Leading edge time
   float time_;
-  /// Time over threshold/pulse width
+  /// Uncertainty on leading edge time
   float time_unc_;
+  /// Time over threshold/pulse width
+  float tot_;
 };
 
 bool operator<(const TotemT2RecHit&, const TotemT2RecHit&);
