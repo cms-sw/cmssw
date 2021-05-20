@@ -27,7 +27,8 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const uint16_t itrknmb,
                                            const bool run3_quart_strip_bit,
                                            const bool run3_eighth_strip_bit,
                                            const uint16_t run3_pattern,
-                                           const uint16_t run3_slope)
+                                           const uint16_t run3_slope,
+                                           const int type)
     : trknmb(itrknmb),
       valid(ivalid),
       quality(iquality),
@@ -40,10 +41,12 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const uint16_t itrknmb,
       bx0(ibx0),
       syncErr(isyncErr),
       cscID(icscID),
+      hmt(0),
       run3_quart_strip_bit_(run3_quart_strip_bit),
       run3_eighth_strip_bit_(run3_eighth_strip_bit),
       run3_pattern_(run3_pattern),
       run3_slope_(run3_slope),
+      type_(type),
       version_(version) {}
 
 /// Default
@@ -73,7 +76,7 @@ void CSCCorrelatedLCTDigi::clear() {
   run3_pattern_ = 0;
   run3_slope_ = 0;
   // clear the components
-  type_ = 0;
+  type_ = 1;
   alct_.clear();
   clct_.clear();
   gem1_ = GEMPadDigi();
@@ -133,7 +136,7 @@ void CSCCorrelatedLCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Vers
 bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi& rhs) const {
   return ((trknmb == rhs.trknmb) && (quality == rhs.quality) && (keywire == rhs.keywire) && (strip == rhs.strip) &&
           (pattern == rhs.pattern) && (bend == rhs.bend) && (bx == rhs.bx) && (valid == rhs.valid) &&
-          (mpclink == rhs.mpclink) && (hmt == rhs.hmt));
+          (mpclink == rhs.mpclink));
 }
 
 /// Debug
@@ -143,8 +146,7 @@ void CSCCorrelatedLCTDigi::print() const {
                                 << " Quality = " << getQuality() << " Key Wire = " << getKeyWG()
                                 << " Strip = " << getStrip() << " Pattern = " << getPattern()
                                 << " Bend = " << ((getBend() == 0) ? 'L' : 'R') << " BX = " << getBX()
-                                << " MPC Link = " << getMPCLink() << " Type (SIM) = " << getType()
-                                << " HMT Bit = " << getHMT();
+                                << " MPC Link = " << getMPCLink() << " Type (SIM) = " << getType();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid correlated LCT.";
   }
@@ -153,7 +155,7 @@ void CSCCorrelatedLCTDigi::print() const {
 std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
   return o << "CSC LCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
            << " MPC Link = " << digi.getMPCLink() << " cscID = " << digi.getCSCID()
-           << " syncErr = " << digi.getSyncErr() << " Type (SIM) = " << digi.getType() << " HMT Bit = " << digi.getHMT()
+           << " syncErr = " << digi.getSyncErr() << " Type (SIM) = " << digi.getType()
            << "\n"
            << "  cathode info: Strip = " << digi.getStrip() << " Pattern = " << digi.getPattern()
            << " Bend = " << ((digi.getBend() == 0) ? 'L' : 'R') << "\n"
