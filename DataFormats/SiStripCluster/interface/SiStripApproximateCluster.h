@@ -15,15 +15,12 @@ public:
   explicit SiStripApproximateCluster(float barycenter, uint8_t width, float avgCharge) {
     barycenter_ = barycenter;
     width_ = width;
-    //if(width_>0x3F) width_=0x3F;
     avgCharge_ = avgCharge;
   }
 
   explicit SiStripApproximateCluster(const SiStripCluster& cluster) {
-    //barycenter_=std::round(cluster.barycenter());
     barycenter_ = cluster.barycenter();
     width_ = cluster.size();
-    //if(width_>0x3F) width_=0x3F;
     avgCharge_ = cluster.charge() / cluster.size();
   }
 
