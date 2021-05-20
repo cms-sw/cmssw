@@ -34,7 +34,6 @@
 #include "PhysicsTools/HepMCCandAlgos/interface/PdgEntryReplacer.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-
 namespace helper {
   struct SelectCode {
     enum KeepOrDrop { kKeep, kDrop };
@@ -46,15 +45,15 @@ namespace helper {
 }  // namespace helper
 
 class TrackingParticleSelectorByGen : public edm::stream::EDProducer<> {
-// a lot of this is copied from GenParticlePruner
-// refactor common parts in a separate class
+  // a lot of this is copied from GenParticlePruner
+  // refactor common parts in a separate class
 public:
-  explicit TrackingParticleSelectorByGen(const edm::ParameterSet&);
+  explicit TrackingParticleSelectorByGen(const edm::ParameterSet &);
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
   void parse(const std::string &selection, helper::SelectCode &code, std::string &cut) const;
   void flagDaughters(const reco::GenParticle &, int);
   void flagMothers(const reco::GenParticle &, int);
@@ -79,7 +78,9 @@ using namespace reco;
 
 const int keep = 1, drop = -1;
 
-void TrackingParticleSelectorByGen::parse(const std::string &selection, ::helper::SelectCode &code, std::string &cut) const {
+void TrackingParticleSelectorByGen::parse(const std::string &selection,
+                                          ::helper::SelectCode &code,
+                                          std::string &cut) const {
   using namespace ::helper;
   size_t f = selection.find_first_not_of(' ');
   size_t n = selection.size();
@@ -127,13 +128,12 @@ void TrackingParticleSelectorByGen::parse(const std::string &selection, ::helper
   code.all_ = cut == "*";
 }
 
-TrackingParticleSelectorByGen::TrackingParticleSelectorByGen(const edm::ParameterSet& iConfig)
+TrackingParticleSelectorByGen::TrackingParticleSelectorByGen(const edm::ParameterSet &iConfig)
     : tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticles"))),
       gpToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
       firstEvent_(true),
       keepOrDropAll_(drop),
       selection_(iConfig.getParameter<vector<string>>("select")) {
-      
   produces<TrackingParticleCollection>();
 }
 
@@ -150,9 +150,9 @@ void TrackingParticleSelectorByGen::flagMothers(const reco::GenParticle &gen, in
 }
 
 void TrackingParticleSelectorByGen::recursiveFlagDaughters(size_t index,
-                                               const reco::GenParticleCollection &src,
-                                               int keepOrDrop,
-                                               std::vector<size_t> &allIndices) {
+                                                           const reco::GenParticleCollection &src,
+                                                           int keepOrDrop,
+                                                           std::vector<size_t> &allIndices) {
   GenParticleRefVector daughters = src[index].daughterRefVector();
   // avoid infinite recursion if the daughters are set to "this" particle.
   size_t cachedIndex = index;
@@ -171,9 +171,9 @@ void TrackingParticleSelectorByGen::recursiveFlagDaughters(size_t index,
 }
 
 void TrackingParticleSelectorByGen::recursiveFlagMothers(size_t index,
-                                             const reco::GenParticleCollection &src,
-                                             int keepOrDrop,
-                                             std::vector<size_t> &allIndices) {
+                                                         const reco::GenParticleCollection &src,
+                                                         int keepOrDrop,
+                                                         std::vector<size_t> &allIndices) {
   GenParticleRefVector mothers = src[index].motherRefVector();
   // avoid infinite recursion if the mothers are set to "this" particle.
   size_t cachedIndex = index;
@@ -192,8 +192,8 @@ void TrackingParticleSelectorByGen::recursiveFlagMothers(size_t index,
 }
 
 void TrackingParticleSelectorByGen::getDaughterKeys(vector<size_t> &daIndxs,
-                                        vector<size_t> &daNewIndxs,
-                                        const GenParticleRefVector &daughters) const {
+                                                    vector<size_t> &daNewIndxs,
+                                                    const GenParticleRefVector &daughters) const {
   for (GenParticleRefVector::const_iterator j = daughters.begin(); j != daughters.end(); ++j) {
     GenParticleRef dau = *j;
     if (find(daIndxs.begin(), daIndxs.end(), dau.key()) == daIndxs.end()) {
@@ -211,8 +211,8 @@ void TrackingParticleSelectorByGen::getDaughterKeys(vector<size_t> &daIndxs,
 }
 
 void TrackingParticleSelectorByGen::getMotherKeys(vector<size_t> &moIndxs,
-                                      vector<size_t> &moNewIndxs,
-                                      const GenParticleRefVector &mothers) const {
+                                                  vector<size_t> &moNewIndxs,
+                                                  const GenParticleRefVector &mothers) const {
   for (GenParticleRefVector::const_iterator j = mothers.begin(); j != mothers.end(); ++j) {
     GenParticleRef mom = *j;
     if (find(moIndxs.begin(), moIndxs.end(), mom.key()) == moIndxs.end()) {
@@ -229,10 +229,9 @@ void TrackingParticleSelectorByGen::getMotherKeys(vector<size_t> &moIndxs,
   }
 }
 
-
-void TrackingParticleSelectorByGen::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void TrackingParticleSelectorByGen::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
-  
+
   if (firstEvent_) {
     PdgEntryReplacer rep(iSetup);
     for (vector<string>::const_iterator i = selection_.begin(); i != selection_.end(); ++i) {
@@ -262,10 +261,10 @@ void TrackingParticleSelectorByGen::produce(edm::Event& iEvent, const edm::Event
 
   edm::Handle<TrackingParticleCollection> tps;
   iEvent.getByToken(tpToken_, tps);
-  
+
   edm::Handle<reco::GenParticleCollection> gps;
   iEvent.getByToken(gpToken_, gps);
-  
+
   using namespace ::helper;
   const size_t n = gps->size();
   flags_.clear();
@@ -309,18 +308,19 @@ void TrackingParticleSelectorByGen::produce(edm::Event& iEvent, const edm::Event
       }
     }
   }
-  
+
   auto out = std::make_unique<TrackingParticleCollection>();
   out->reserve(n);
-  
-  for (auto&& tp: *tps) {
-    auto& associatedGenParticles = tp.genParticles();
-    
+
+  for (auto &&tp : *tps) {
+    auto &associatedGenParticles = tp.genParticles();
+
     bool isSelected = false;
-    for (auto&& assocGen: associatedGenParticles) {
-      if (flags_[assocGen.index()] == keep) isSelected = true;
+    for (auto &&assocGen : associatedGenParticles) {
+      if (flags_[assocGen.index()] == keep)
+        isSelected = true;
     }
-    
+
     if (isSelected) {
       out->emplace_back(tp);
     }
@@ -328,12 +328,12 @@ void TrackingParticleSelectorByGen::produce(edm::Event& iEvent, const edm::Event
   iEvent.put(std::move(out));
 }
 
-void TrackingParticleSelectorByGen::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void TrackingParticleSelectorByGen::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
   desc.add<vector<string>>("select");
-  
+
   descriptions.add("selectTPs", desc);
 }
 
