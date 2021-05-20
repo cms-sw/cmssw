@@ -45,6 +45,7 @@ namespace hcaldqm {
       std::vector<std::vector<flag::Flag>> _vflags;
       int _LS;
     };
+
     //	task name
     std::string _taskname;
 
@@ -53,6 +54,9 @@ namespace hcaldqm {
     int _maxProcessedLS;
 
     //	emap
+    edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
+    edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+    edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalChannelQualityToken_;
     HcalElectronicsMap const *_emap;
 
     // Crate and crate eid lists
