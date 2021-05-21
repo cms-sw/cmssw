@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 f = open('classes.txt','r')
 g = open('classnames.txt','w')
