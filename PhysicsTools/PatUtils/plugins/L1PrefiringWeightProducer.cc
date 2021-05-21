@@ -49,12 +49,31 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  double getPrefiringRate(double eta, double pt, TH2F* h_prefmap, fluctuations fluctuation) const;
+  double getPrefiringRateEcal(double eta, double pt, TH2F* h_prefmap, fluctuations fluctuation) const;
   double getPrefiringRateMuon(double eta, double phi, double pt, fluctuations fluctuation) const;
 
-  edm::EDGetTokenT<std::vector<pat::Photon> > photons_token_;
-  edm::EDGetTokenT<std::vector<pat::Jet> > jets_token_;
-  edm::EDGetTokenT<std::vector<pat::Muon> > muon_token_;
+  const edm::EDGetTokenT<std::vector<pat::Photon> > photons_token_;
+  const edm::EDGetTokenT<std::vector<pat::Jet> > jets_token_;
+  const edm::EDGetTokenT<std::vector<pat::Muon> > muon_token_;
+
+  const edm::EDPutTokenT<double> nonPrefiringProbToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbUpToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbDownToken_;
+
+  const edm::EDPutTokenT<double> nonPrefiringProbJetToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbJetUpToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbJetDownToken_;
+
+  const edm::EDPutTokenT<double> nonPrefiringProbPhotonToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbPhotonUpToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbPhotonDownToken_;
+
+  const edm::EDPutTokenT<double> nonPrefiringProbMuonToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbMuonUpToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbMuonDownToken_;
+
+  std::unique_ptr<TFile> file_prefiringmaps_;
+  std::unique_ptr<TFile> file_prefiringparams_;
 
   TF1* parametrization0p0To0p2_;
   TF1* parametrization0p2To0p3_;
@@ -69,103 +88,99 @@ private:
   TF1* parametrization2p25To2p4_;
   TF1* parametrizationHotSpot_;
 
-  TH2F* h_prefmap_photon;
-  TH2F* h_prefmap_jet;
-  std::string dataera_;
+  TH2F* h_prefmap_photon_;
+  TH2F* h_prefmap_jet_;
+  std::string dataeraEcal_;
   std::string dataeraMuon_;
   bool useEMpt_;
-  double prefiringRateSystUnc_;
+  double prefiringRateSystUncEcal_;
+  double prefiringRateSystUncMuon_;
   double jetMaxMuonFraction_;
   bool skipwarnings_;
 };
 
-L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iConfig) {
-  photons_token_ = consumes<std::vector<pat::Photon> >(iConfig.getParameter<edm::InputTag>("ThePhotons"));
-  jets_token_ = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("TheJets"));
-  muon_token_ = consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("TheMuons"));
-
-  dataera_ = iConfig.getParameter<std::string>("DataEraECAL");
+L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iConfig)
+    : photons_token_(consumes<std::vector<pat::Photon> >(iConfig.getParameter<edm::InputTag>("ThePhotons"))),
+      jets_token_(consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("TheJets"))),
+      muon_token_(consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("TheMuons"))),
+      nonPrefiringProbToken_(produces<double>("nonPrefiringProb")),
+      nonPrefiringProbUpToken_(produces<double>("nonPrefiringProbUp")),
+      nonPrefiringProbDownToken_(produces<double>("nonPrefiringProbDown")),
+      nonPrefiringProbJetToken_(produces<double>("nonPrefiringProbJet")),
+      nonPrefiringProbJetUpToken_(produces<double>("nonPrefiringProbJetUp")),
+      nonPrefiringProbJetDownToken_(produces<double>("nonPrefiringProbJetDown")),
+      nonPrefiringProbPhotonToken_(produces<double>("nonPrefiringProbPhoton")),
+      nonPrefiringProbPhotonUpToken_(produces<double>("nonPrefiringProbPhotonUp")),
+      nonPrefiringProbPhotonDownToken_(produces<double>("nonPrefiringProbPhotonDown")),
+      nonPrefiringProbMuonToken_(produces<double>("nonPrefiringProbMuon")),
+      nonPrefiringProbMuonUpToken_(produces<double>("nonPrefiringProbMuonUp")),
+      nonPrefiringProbMuonDownToken_(produces<double>("nonPrefiringProbMuonDown")) {
+  dataeraEcal_ = iConfig.getParameter<std::string>("DataEraECAL");
   dataeraMuon_ = iConfig.getParameter<std::string>("DataEraMuon");
-  useEMpt_ = iConfig.getParameter<bool>("UseJetEMPt");
-  prefiringRateSystUnc_ = iConfig.getParameter<double>("PrefiringRateSystematicUncty");
-  jetMaxMuonFraction_ = iConfig.getParameter<double>("JetMaxMuonFraction");
-  skipwarnings_ = iConfig.getParameter<bool>("SkipWarnings");
+  useEMpt_ = iConfig.getUntrackedParameter<bool>("UseJetEMPt");
+  prefiringRateSystUncEcal_ = iConfig.getUntrackedParameter<double>("PrefiringRateSystematicUnctyECAL");
+  prefiringRateSystUncMuon_ = iConfig.getUntrackedParameter<double>("PrefiringRateSystematicUnctyMuon");
+  jetMaxMuonFraction_ = iConfig.getUntrackedParameter<double>("JetMaxMuonFraction");
+  skipwarnings_ = iConfig.getUntrackedParameter<bool>("SkipWarnings");
 
-  TFile* file_prefiringmaps_;
   std::string fname = iConfig.getParameter<std::string>("L1Maps");
   edm::FileInPath mapsfilepath("PhysicsTools/PatUtils/data/" + fname);
-  file_prefiringmaps_ = new TFile(mapsfilepath.fullPath().c_str(), "read");
+  file_prefiringmaps_ = std::make_unique<TFile>(mapsfilepath.fullPath().c_str(), "read");
   if (file_prefiringmaps_ == nullptr && !skipwarnings_)
     edm::LogWarning("L1PrefireWeightProducer")
         << "File with maps not found. All prefiring weights set to 0. " << std::endl;
 
-  TString mapphotonfullname = "L1prefiring_photonptvseta_" + dataera_;
+  TString mapphotonfullname = "L1prefiring_photonptvseta_" + dataeraEcal_;
   if (!file_prefiringmaps_->Get(mapphotonfullname) && !skipwarnings_)
     edm::LogWarning("L1PrefireWeightProducer")
         << "Photon map not found. All photons prefiring weights set to 0. " << std::endl;
-  h_prefmap_photon = (TH2F*)file_prefiringmaps_->Get(mapphotonfullname);
+  h_prefmap_photon_ = file_prefiringmaps_->Get<TH2F>(mapphotonfullname);
 
-  TString mapjetfullname = (useEMpt_) ? "L1prefiring_jetemptvseta_" + dataera_ : "L1prefiring_jetptvseta_" + dataera_;
+  TString mapjetfullname =
+      (useEMpt_) ? "L1prefiring_jetemptvseta_" + dataeraEcal_ : "L1prefiring_jetptvseta_" + dataeraEcal_;
   if (!file_prefiringmaps_->Get(mapjetfullname) && !skipwarnings_)
     edm::LogWarning("L1PrefireWeightProducer")
         << "Jet map not found. All jets prefiring weights set to 0. " << std::endl;
-  h_prefmap_jet = (TH2F*)file_prefiringmaps_->Get(mapjetfullname);
+  h_prefmap_jet_ = file_prefiringmaps_->Get<TH2F>(mapjetfullname);
   file_prefiringmaps_->Close();
-  delete file_prefiringmaps_;
 
-  TFile* file_prefiringparams_;
   std::string fnameMuon = iConfig.getParameter<std::string>("L1MuonParametrizations");
   edm::FileInPath paramsfilepath("PhysicsTools/PatUtils/data/" + fnameMuon);
-  file_prefiringparams_ = new TFile(paramsfilepath.fullPath().c_str(), "read");
+  file_prefiringparams_ = std::make_unique<TFile>(paramsfilepath.fullPath().c_str(), "read");
   if (file_prefiringparams_ == nullptr && !skipwarnings_)
     edm::LogWarning("L1PrefireWeightProducer")
         << "File with muon parametrizations not found. All prefiring weights set to 0." << std::endl;
 
   TString paramName = "L1prefiring_muonparam_0.0To0.2_" + dataeraMuon_;
-  parametrization0p0To0p2_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization0p0To0p2_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_0.2To0.3_" + dataeraMuon_;
-  parametrization0p2To0p3_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization0p2To0p3_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_0.3To0.55_" + dataeraMuon_;
-  parametrization0p3To0p55_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization0p3To0p55_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_0.55To0.83_" + dataeraMuon_;
-  parametrization0p55To0p83_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization0p55To0p83_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_0.83To1.24_" + dataeraMuon_;
-  parametrization0p83To1p24_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization0p83To1p24_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_1.24To1.4_" + dataeraMuon_;
-  parametrization1p24To1p4_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization1p24To1p4_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_1.4To1.6_" + dataeraMuon_;
-  parametrization1p4To1p6_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization1p4To1p6_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_1.6To1.8_" + dataeraMuon_;
-  parametrization1p6To1p8_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization1p6To1p8_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_1.8To2.1_" + dataeraMuon_;
-  parametrization1p8To2p1_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization1p8To2p1_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_2.1To2.25_" + dataeraMuon_;
-  parametrization2p1To2p25_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization2p1To2p25_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_2.25To2.4_" + dataeraMuon_;
-  parametrization2p25To2p4_ = (TF1*)file_prefiringparams_->Get(paramName);
+  parametrization2p25To2p4_ = file_prefiringparams_->Get<TF1>(paramName);
   paramName = "L1prefiring_muonparam_HotSpot_" + dataeraMuon_;
-  parametrizationHotSpot_ = (TF1*)file_prefiringparams_->Get(paramName);
-
-  produces<double>("nonPrefiringProb").setBranchAlias("nonPrefiringProb");
-  produces<double>("nonPrefiringProbUp").setBranchAlias("nonPrefiringProbUp");
-  produces<double>("nonPrefiringProbDown").setBranchAlias("nonPrefiringProbDown");
-
-  produces<double>("nonPrefiringProbJet").setBranchAlias("nonPrefiringProbJet");
-  produces<double>("nonPrefiringProbJetUp").setBranchAlias("nonPrefiringProbJetUp");
-  produces<double>("nonPrefiringProbJetDown").setBranchAlias("nonPrefiringProbJetDown");
-
-  produces<double>("nonPrefiringProbPhoton").setBranchAlias("nonPrefiringProbPhoton");
-  produces<double>("nonPrefiringProbPhotonUp").setBranchAlias("nonPrefiringProbPhotonUp");
-  produces<double>("nonPrefiringProbPhotonDown").setBranchAlias("nonPrefiringProbPhotonDown");
-
-  produces<double>("nonPrefiringProbMuon").setBranchAlias("nonPrefiringProbMuon");
-  produces<double>("nonPrefiringProbMuonUp").setBranchAlias("nonPrefiringProbMuonUp");
-  produces<double>("nonPrefiringProbMuonDown").setBranchAlias("nonPrefiringProbMuonDown");
+  parametrizationHotSpot_ = file_prefiringparams_->Get<TF1>(paramName);
+  file_prefiringparams_->Close();
 }
 
 L1PrefiringWeightProducer::~L1PrefiringWeightProducer() {
-  delete h_prefmap_photon;
-  delete h_prefmap_jet;
+  delete h_prefmap_photon_;
+  delete h_prefmap_jet_;
   delete parametrization0p0To0p2_;
   delete parametrization0p2To0p3_;
   delete parametrization0p3To0p55_;
@@ -184,13 +199,13 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   using namespace edm;
 
   //Photons
-  std::vector<pat::Photon> thePhotons = iEvent.get(photons_token_);
+  const std::vector<pat::Photon>& thePhotons = iEvent.get(photons_token_);
 
   //Jets
-  std::vector<pat::Jet> theJets = iEvent.get(jets_token_);
+  const std::vector<pat::Jet>& theJets = iEvent.get(jets_token_);
 
   //Muons
-  std::vector<pat::Muon> theMuons = iEvent.get(muon_token_);
+  const std::vector<pat::Muon>& theMuons = iEvent.get(muon_token_);
 
   //Probability for the event NOT to prefire, computed with the prefiring maps per object.
   //Up and down values correspond to the resulting value when shifting up/down all prefiring rates in prefiring maps.
@@ -209,7 +224,7 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
         continue;
       if (fabs(eta_gam) > 3.)
         continue;
-      double prefiringprob_gam = getPrefiringRate(eta_gam, pt_gam, h_prefmap_photon, fluct);
+      double prefiringprob_gam = getPrefiringRateEcal(eta_gam, pt_gam, h_prefmap_photon_, fluct);
       nonPrefiringProba[fluct] *= (1. - prefiringprob_gam);
       nonPrefiringProbaPhoton[fluct] *= (1. - prefiringprob_gam);
     }
@@ -229,6 +244,7 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
         continue;
       //Loop over photons to remove overlap
       double nonprefiringprobfromoverlappingphotons = 1.;
+      bool foundOverlappingPhotons = false;
       for (const auto& photon : thePhotons) {
         double pt_gam = photon.pt();
         double eta_gam = photon.eta();
@@ -239,24 +255,25 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
           continue;
         if (fabs(eta_gam) > 3.)
           continue;
-        double dR = reco::deltaR(eta_jet, phi_jet, eta_gam, phi_gam);
-        if (dR > 0.4)
+        double dR2 = reco::deltaR2(eta_jet, phi_jet, eta_gam, phi_gam);
+        if (dR2 > 0.16)
           continue;
-        double prefiringprob_gam = getPrefiringRate(eta_gam, pt_gam, h_prefmap_photon, fluct);
+        double prefiringprob_gam = getPrefiringRateEcal(eta_gam, pt_gam, h_prefmap_photon_, fluct);
         nonprefiringprobfromoverlappingphotons *= (1. - prefiringprob_gam);
+        foundOverlappingPhotons = true;
       }
       //useEMpt =true if one wants to use maps parametrized vs Jet EM pt instead of pt.
       if (useEMpt_)
         pt_jet *= (jet.neutralEmEnergyFraction() + jet.chargedEmEnergyFraction());
-      double nonprefiringprobfromoverlappingjet = 1. - getPrefiringRate(eta_jet, pt_jet, h_prefmap_jet, fluct);
+      double nonprefiringprobfromoverlappingjet = 1. - getPrefiringRateEcal(eta_jet, pt_jet, h_prefmap_jet_, fluct);
 
-      if (nonprefiringprobfromoverlappingphotons == 1.) {
+      if (!foundOverlappingPhotons) {
         nonPrefiringProba[fluct] *= nonprefiringprobfromoverlappingjet;
         nonPrefiringProbaJet[fluct] *= nonprefiringprobfromoverlappingjet;
       }
       //If overlapping photons have a non prefiring rate larger than the jet, then replace these weights by the jet one
       else if (nonprefiringprobfromoverlappingphotons > nonprefiringprobfromoverlappingjet) {
-        if (nonprefiringprobfromoverlappingphotons != 0.) {
+        if (nonprefiringprobfromoverlappingphotons <= 0.) {
           nonPrefiringProba[fluct] *= nonprefiringprobfromoverlappingjet / nonprefiringprobfromoverlappingphotons;
           nonPrefiringProbaJet[fluct] *= nonprefiringprobfromoverlappingjet / nonprefiringprobfromoverlappingphotons;
         } else {
@@ -266,6 +283,7 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
       }
       //Last case: if overlapping photons have a non prefiring rate smaller than the jet, don't consider the jet in the event weight, and do nothing.
     }
+    //Now calculate prefiring weights for muons
     for (const auto& muon : theMuons) {
       double pt = muon.pt();
       double phi = muon.phi();
@@ -278,39 +296,28 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
       nonPrefiringProbaMuon[fluct] *= (1. - prefiringprob_mu);
     }
   }
-  auto nonPrefiringProb = std::make_unique<double>(nonPrefiringProba[0]);
-  auto nonPrefiringProbUp = std::make_unique<double>(nonPrefiringProba[1]);
-  auto nonPrefiringProbDown = std::make_unique<double>(nonPrefiringProba[2]);
-  iEvent.put(std::move(nonPrefiringProb), "nonPrefiringProb");
-  iEvent.put(std::move(nonPrefiringProbUp), "nonPrefiringProbUp");
-  iEvent.put(std::move(nonPrefiringProbDown), "nonPrefiringProbDown");
+  //Move global prefire weights, as well as those for muons, photons, and jets, to the event
+  iEvent.emplace(nonPrefiringProbToken_, nonPrefiringProba[0]);
+  iEvent.emplace(nonPrefiringProbUpToken_, nonPrefiringProba[1]);
+  iEvent.emplace(nonPrefiringProbDownToken_, nonPrefiringProba[2]);
 
-  auto nonPrefiringProbJet = std::make_unique<double>(nonPrefiringProbaJet[0]);
-  auto nonPrefiringProbJetUp = std::make_unique<double>(nonPrefiringProbaJet[1]);
-  auto nonPrefiringProbJetDown = std::make_unique<double>(nonPrefiringProbaJet[2]);
-  iEvent.put(std::move(nonPrefiringProbJet), "nonPrefiringProbJet");
-  iEvent.put(std::move(nonPrefiringProbJetUp), "nonPrefiringProbJetUp");
-  iEvent.put(std::move(nonPrefiringProbJetDown), "nonPrefiringProbJetDown");
+  iEvent.emplace(nonPrefiringProbJetToken_, nonPrefiringProbaJet[0]);
+  iEvent.emplace(nonPrefiringProbJetUpToken_, nonPrefiringProbaJet[1]);
+  iEvent.emplace(nonPrefiringProbJetDownToken_, nonPrefiringProbaJet[2]);
 
-  auto nonPrefiringProbPhoton = std::make_unique<double>(nonPrefiringProbaPhoton[0]);
-  auto nonPrefiringProbPhotonUp = std::make_unique<double>(nonPrefiringProbaPhoton[1]);
-  auto nonPrefiringProbPhotonDown = std::make_unique<double>(nonPrefiringProbaPhoton[2]);
-  iEvent.put(std::move(nonPrefiringProbPhoton), "nonPrefiringProbPhoton");
-  iEvent.put(std::move(nonPrefiringProbPhotonUp), "nonPrefiringProbPhotonUp");
-  iEvent.put(std::move(nonPrefiringProbPhotonDown), "nonPrefiringProbPhotonDown");
+  iEvent.emplace(nonPrefiringProbPhotonToken_, nonPrefiringProbaPhoton[0]);
+  iEvent.emplace(nonPrefiringProbPhotonUpToken_, nonPrefiringProbaPhoton[1]);
+  iEvent.emplace(nonPrefiringProbPhotonDownToken_, nonPrefiringProbaPhoton[2]);
 
-  auto nonPrefiringProbMuon = std::make_unique<double>(nonPrefiringProbaMuon[0]);
-  auto nonPrefiringProbMuonUp = std::make_unique<double>(nonPrefiringProbaMuon[1]);
-  auto nonPrefiringProbMuonDown = std::make_unique<double>(nonPrefiringProbaMuon[2]);
-  iEvent.put(std::move(nonPrefiringProbMuon), "nonPrefiringProbMuon");
-  iEvent.put(std::move(nonPrefiringProbMuonUp), "nonPrefiringProbMuonUp");
-  iEvent.put(std::move(nonPrefiringProbMuonDown), "nonPrefiringProbMuonDown");
+  iEvent.emplace(nonPrefiringProbMuonToken_, nonPrefiringProbaMuon[0]);
+  iEvent.emplace(nonPrefiringProbMuonUpToken_, nonPrefiringProbaMuon[1]);
+  iEvent.emplace(nonPrefiringProbMuonDownToken_, nonPrefiringProbaMuon[2]);
 }
 
-double L1PrefiringWeightProducer::getPrefiringRate(double eta,
-                                                   double pt,
-                                                   TH2F* h_prefmap,
-                                                   fluctuations fluctuation) const {
+double L1PrefiringWeightProducer::getPrefiringRateEcal(double eta,
+                                                       double pt,
+                                                       TH2F* h_prefmap,
+                                                       fluctuations fluctuation) const {
   if (h_prefmap == nullptr && !skipwarnings_)
     edm::LogWarning("L1PrefireWeightProducer") << "Prefiring map not found, setting prefiring rate to 0 " << std::endl;
   if (h_prefmap == nullptr)
@@ -325,11 +332,11 @@ double L1PrefiringWeightProducer::getPrefiringRate(double eta,
   double prefrate = h_prefmap->GetBinContent(thebin);
 
   double statuncty = h_prefmap->GetBinError(thebin);
-  double systuncty = prefiringRateSystUnc_ * prefrate;
+  double systuncty = prefiringRateSystUncEcal_ * prefrate;
 
   if (fluctuation == up)
     prefrate = std::min(1., prefrate + sqrt(pow(statuncty, 2) + pow(systuncty, 2)));
-  if (fluctuation == down)
+  else if (fluctuation == down)
     prefrate = std::max(0., prefrate - sqrt(pow(statuncty, 2) + pow(systuncty, 2)));
   return prefrate;
 }
@@ -448,11 +455,11 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     statuncty = parametrization2p25To2p4_->GetParError(2);
   } else
     return 0.;
-  double systuncty = prefiringRateSystUnc_ * prefrate;
+  double systuncty = prefiringRateSystUncMuon_ * prefrate;
 
   if (fluctuation == up)
     prefrate = std::min(1., prefrate + sqrt(pow(statuncty, 2) + pow(systuncty, 2)));
-  if (fluctuation == down)
+  else if (fluctuation == down)
     prefrate = std::max(0., prefrate - sqrt(pow(statuncty, 2) + pow(systuncty, 2)));
   return prefrate;
 }
@@ -467,10 +474,11 @@ void L1PrefiringWeightProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<std::string>("L1MuonParametrizations", "L1MuonPrefiringParametriations.root");
   desc.add<std::string>("DataEraECAL", "2017BtoF");
   desc.add<std::string>("DataEraMuon", "2016");
-  desc.add<bool>("UseJetEMPt", false);
-  desc.add<double>("PrefiringRateSystematicUncty", 0.2);
-  desc.add<double>("JetMaxMuonFraction", 0.5);
-  desc.add<bool>("SkipWarnings", true);
+  desc.addUntracked<bool>("UseJetEMPt", false);
+  desc.addUntracked<double>("PrefiringRateSystematicUnctyECAL", 0.2);
+  desc.addUntracked<double>("PrefiringRateSystematicUnctyMuon", 0.2);
+  desc.addUntracked<double>("JetMaxMuonFraction", 0.5);
+  desc.addUntracked<bool>("SkipWarnings", true);
   descriptions.add("l1PrefiringWeightProducer", desc);
 }
 
