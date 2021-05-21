@@ -4,7 +4,7 @@ using namespace hcaldqm;
 using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
 
-HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps)
+HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps, edm::ConsumesCollector &&iC)
     : DQHarvester(ps), _reportSummaryMap(nullptr) {
   _summaryList.push_back(fTP);
   _summaryList.push_back(fDigi);
@@ -18,16 +18,16 @@ HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps)
   }
 
   if (std::find(_summaryList.begin(), _summaryList.end(), fRaw) != _summaryList.end()) {
-    _sumgen[fRaw] = new hcaldqm::RawRunSummary("RawRunHarvesting", _sumnames[fRaw], ps);
+    _sumgen[fRaw] = new hcaldqm::RawRunSummary("RawRunHarvesting", _sumnames[fRaw], ps, iC);
   }
   if (std::find(_summaryList.begin(), _summaryList.end(), fDigi) != _summaryList.end()) {
-    _sumgen[fDigi] = new hcaldqm::DigiRunSummary("DigiRunHarvesting", _sumnames[fDigi], ps);
+    _sumgen[fDigi] = new hcaldqm::DigiRunSummary("DigiRunHarvesting", _sumnames[fDigi], ps, iC);
   }
   if (std::find(_summaryList.begin(), _summaryList.end(), fReco) != _summaryList.end()) {
-    _sumgen[fReco] = new hcaldqm::RecoRunSummary("RecoRunHarvesting", _sumnames[fReco], ps);
+    _sumgen[fReco] = new hcaldqm::RecoRunSummary("RecoRunHarvesting", _sumnames[fReco], ps, iC);
   }
   if (std::find(_summaryList.begin(), _summaryList.end(), fTP) != _summaryList.end()) {
-    _sumgen[fTP] = new hcaldqm::TPRunSummary("TPRunHarvesting", _sumnames[fTP], ps);
+    _sumgen[fTP] = new hcaldqm::TPRunSummary("TPRunHarvesting", _sumnames[fTP], ps, iC);
   }
 }
 

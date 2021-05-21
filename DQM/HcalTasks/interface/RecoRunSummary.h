@@ -7,7 +7,7 @@
 namespace hcaldqm {
   class RecoRunSummary : public DQClient {
   public:
-    RecoRunSummary(std::string const&, std::string const&, edm::ParameterSet const&);
+    RecoRunSummary(std::string const&, std::string const&, edm::ParameterSet const&, edm::ConsumesCollector &iC);
     ~RecoRunSummary() override {}
 
     void beginRun(edm::Run const&, edm::EventSetup const&) override;

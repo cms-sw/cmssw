@@ -7,7 +7,7 @@
 namespace hcaldqm {
   class RawRunSummary : public DQClient {
   public:
-    RawRunSummary(std::string const&, std::string const&, edm::ParameterSet const&);
+    RawRunSummary(std::string const&, std::string const&, edm::ParameterSet const&, edm::ConsumesCollector &iC);
     ~RawRunSummary() override {}
 
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
