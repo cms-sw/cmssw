@@ -532,7 +532,7 @@ electronMCTableNew = cms.EDProducer("CandMCMatchTableProducer",
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(electronsMCMatchForTable + electronMCTable)
-electronMCnew = cms.Sequence(particleLevelForMatching + tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
+electronMCnew = cms.Sequence(particleLevelForMatching + tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTableNew)
 ( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toReplaceWith(electronMC, electronMCnew)
 
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
