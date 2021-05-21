@@ -2,7 +2,7 @@
 //#include <cmath>
 #include <sstream>
 #include <DQM/RPCMonitorClient/interface/RPCOccupancyTest.h>
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

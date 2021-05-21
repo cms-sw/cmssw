@@ -1,4 +1,4 @@
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
+#include "DQM/RPCMonitorDigi/interface/RPCLinkSynchroStat.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -2,8 +2,8 @@
 // Original Author:  Anna Cimmino
 
 #include "DQM/RPCMonitorClient/interface/RPCDqmClient.h"
-#include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/RPCBookFolderStructure.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 //include client headers
 #include "DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h"
 #include "DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h"

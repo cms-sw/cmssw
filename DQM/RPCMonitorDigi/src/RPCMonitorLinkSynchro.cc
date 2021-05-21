@@ -1,7 +1,7 @@
 #include <memory>
 
-#include "DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h"
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroHistoMaker.h"
+#include "DQM/RPCMonitorDigi/interface/RPCMonitorLinkSynchro.h"
+#include "DQM/RPCMonitorDigi/interface/RPCLinkSynchroHistoMaker.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 

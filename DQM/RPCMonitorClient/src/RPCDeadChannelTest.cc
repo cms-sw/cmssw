@@ -1,5 +1,5 @@
 /* *  \author Anna Cimmino*/
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 #include <DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h>
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
