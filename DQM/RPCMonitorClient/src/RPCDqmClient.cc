@@ -11,7 +11,6 @@
 #include "DQM/RPCMonitorClient/interface/RPCOccupancyTest.h"
 #include "DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h"
 //Geometry
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 //Framework
@@ -49,6 +48,8 @@ RPCDqmClient::RPCDqmClient(const edm::ParameterSet& parameters_) {
 
   //clear counters
   lumiCounter_ = 0;
+
+  rpcGeomToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 }
 
 RPCDqmClient::~RPCDqmClient() {}
@@ -180,8 +181,7 @@ void RPCDqmClient::getMonitorElements(DQMStore::IGetter& igetter) {
 void RPCDqmClient::getRPCdetId(const edm::EventSetup& eventSetup) {
   myDetIds_.clear();
 
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  auto rpcGeo = eventSetup.getHandle(rpcGeomToken_);
 
   for (auto& det : rpcGeo->dets()) {
     const RPCChamber* ch = dynamic_cast<const RPCChamber*>(det);

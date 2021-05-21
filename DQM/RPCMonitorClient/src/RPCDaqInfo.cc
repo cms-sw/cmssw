@@ -1,8 +1,5 @@
 #include "DQM/RPCMonitorClient/interface/RPCDaqInfo.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -13,6 +10,8 @@ RPCDaqInfo::RPCDaqInfo(const edm::ParameterSet& ps) {
   NumberOfFeds_ = FEDRange_.second - FEDRange_.first + 1;
 
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
+
+  runInfoToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 
   init_ = false;
 }
@@ -29,9 +28,8 @@ void RPCDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
   if (auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
     //get fed summary information
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-    std::vector<int> FedsInIds = sumFED->m_fed_in;
+    auto sumFED = runInfoRec->get(runInfoToken_);
+    const std::vector<int> FedsInIds = sumFED.m_fed_in;
 
     int FedCount = 0;
 

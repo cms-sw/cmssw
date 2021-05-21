@@ -9,6 +9,7 @@
 
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
 #include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
@@ -40,6 +41,7 @@ public:
 protected:
   edm::ParameterSet theConfig;
   edm::ESWatcher<RPCEMapRcd> theCablingWatcher;
+  edm::ESGetToken<RPCEMap, RPCEMapRcd> rpcEMapToken_;
   RPCLinkSynchroStat theSynchroStat;
 
   MonitorElement* me_delaySummary;
