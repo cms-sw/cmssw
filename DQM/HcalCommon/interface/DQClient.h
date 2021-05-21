@@ -25,7 +25,7 @@ namespace hcaldqm {
     typedef dqm::legacy::MonitorElement MonitorElement;
     typedef dqm::legacy::DQMStore DQMStore;
 
-    DQClient(std::string const &, std::string const &, edm::ParameterSet const &);
+    DQClient(std::string const &, std::string const &, edm::ParameterSet const &, edm::ConsumesCollector &iC);
     ~DQClient() override {}
 
     virtual void beginRun(edm::Run const &, edm::EventSetup const &);

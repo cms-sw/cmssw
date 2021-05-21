@@ -7,7 +7,7 @@
 namespace hcaldqm {
   class TPRunSummary : public DQClient {
   public:
-    TPRunSummary(std::string const&, std::string const&, edm::ParameterSet const&);
+    TPRunSummary(std::string const&, std::string const&, edm::ParameterSet const&, edm::ConsumesCollector &iC);
     ~TPRunSummary() override {}
 
     void beginRun(edm::Run const&, edm::EventSetup const&) override;

@@ -7,7 +7,7 @@
 namespace hcaldqm {
   class PedestalRunSummary : public DQClient {
   public:
-    PedestalRunSummary(std::string const&, std::string const&, edm::ParameterSet const&);
+    PedestalRunSummary(std::string const&, std::string const&, edm::ParameterSet const&, edm::ConsumesCollector &iC);
     ~PedestalRunSummary() override {}
 
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
