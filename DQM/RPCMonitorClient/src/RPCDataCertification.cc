@@ -6,9 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-//CondFormats
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 RPCDataCertification::RPCDataCertification(const edm::ParameterSet& ps) {
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
@@ -16,6 +13,8 @@ RPCDataCertification::RPCDataCertification(const edm::ParameterSet& ps) {
   FEDRange_.second = ps.getUntrackedParameter<unsigned int>("MaximumRPCFEDId", 792);
   NumberOfFeds_ = FEDRange_.second - FEDRange_.first + 1;
   offlineDQM_ = ps.getUntrackedParameter<bool>("OfflineDQM", true);
+
+  runInfoToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 
   init_ = false;
   defaultValue_ = 1.;
@@ -50,9 +49,8 @@ void RPCDataCertification::checkFED(edm::EventSetup const& setup) {
   if (auto runInfoRec = setup.tryToGet<RunInfoRcd>()) {
     defaultValue = -1;
     //get fed summary information
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-    std::vector<int> FedsInIds = sumFED->m_fed_in;
+    auto sumFED = runInfoRec->get(runInfoToken_);
+    const std::vector<int> FedsInIds = sumFED.m_fed_in;
     unsigned int f = 0;
     bool flag = false;
     while (!flag && f < FedsInIds.size()) {

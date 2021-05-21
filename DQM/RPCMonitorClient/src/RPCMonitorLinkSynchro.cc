@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 
-#include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
 RPCMonitorLinkSynchro::RPCMonitorLinkSynchro(const edm::ParameterSet& cfg)
@@ -20,6 +19,7 @@ RPCMonitorLinkSynchro::RPCMonitorLinkSynchro(const edm::ParameterSet& cfg)
 {
   rpcRawSynchroProdItemTag_ =
       consumes<RPCRawSynchro::ProdItem>(cfg.getParameter<edm::InputTag>("rpcRawSynchroProdItemTag"));
+  rpcEMapToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 RPCMonitorLinkSynchro::~RPCMonitorLinkSynchro() {}
@@ -31,8 +31,7 @@ void RPCMonitorLinkSynchro::endLuminosityBlock(const edm::LuminosityBlock& ls, c
 
 void RPCMonitorLinkSynchro::dqmBeginRun(const edm::Run& r, const edm::EventSetup& es) {
   if (theCablingWatcher.check(es)) {
-    edm::ESTransientHandle<RPCEMap> readoutMapping;
-    es.get<RPCEMapRcd>().get(readoutMapping);
+    edm::ESTransientHandle<RPCEMap> readoutMapping = es.getTransientHandle(rpcEMapToken_);
     std::unique_ptr<RPCReadOutMapping const> cabling{readoutMapping->convert()};
     edm::LogInfo("RPCMonitorLinkSynchro")
         << "RPCMonitorLinkSynchro - record has CHANGED!!, read map, VERSION: " << cabling->version();
