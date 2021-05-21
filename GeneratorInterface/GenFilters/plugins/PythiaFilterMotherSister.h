@@ -69,5 +69,7 @@ private:
 
   const double betaBoost;
   const double maxSisDisplacement;
+  const double minTrackPt;
+  const double minLeptonPt;
 };
 #endif
