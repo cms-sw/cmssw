@@ -1,10 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 
 process = cms.Process("reader")
-
-# Better to know actual number of events in the .raw data file to set maxEvents.
-# Otherwise it doesn't stop automatically at the end of reading of .raw data file
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
@@ -12,9 +9,17 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
+options = VarParsing ('analysis')
+options.register ("firstRun", 341761, VarParsing.multiplicity.singleton, VarParsing.varType.int)
+options.maxEvents = 10000
+options.parseArguments()
+
+# Better to know actual number of events in the .raw data file to set maxEvents.
+# Otherwise it doesn't stop automatically at the end of reading of .raw data file
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("EmptySource",
-      firstRun= cms.untracked.uint32(1),
+      firstRun= cms.untracked.uint32(options.firstRun),
       numberEventsInLuminosityBlock = cms.untracked.uint32(200),
       numberEventsInRun       = cms.untracked.uint32(0)
 )
