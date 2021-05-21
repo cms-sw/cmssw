@@ -8,8 +8,6 @@
 //#include "DQMServices/Core/interface/DQMStore.h"
 
 //CondFormats
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 RPCDCSSummary::RPCDCSSummary(const edm::ParameterSet& ps) {
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
@@ -22,6 +20,8 @@ RPCDCSSummary::RPCDCSSummary(const edm::ParameterSet& ps) {
   NumberOfFeds_ = FEDRange_.second - FEDRange_.first + 1;
   init_ = false;
   defaultValue_ = 1.;
+
+  runInfoToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 }
 
 RPCDCSSummary::~RPCDCSSummary() {}
@@ -52,9 +52,8 @@ void RPCDCSSummary::checkDCSbit(edm::EventSetup const& setup) {
   if (auto runInfoRec = setup.tryToGet<RunInfoRcd>()) {
     defaultValue_ = -1.;
     //get fed summary information
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-    std::vector<int> FedsInIds = sumFED->m_fed_in;
+    auto sumFED = runInfoRec->get(runInfoToken_);
+    const std::vector<int> FedsInIds = sumFED.m_fed_in;
     unsigned int f = 0;
     bool flag = false;
     while (!flag && f < FedsInIds.size()) {

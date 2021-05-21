@@ -4,6 +4,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/RunInfo/interface/RunSummary.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 class RPCDataCertification : public DQMEDHarvester {
 public:
@@ -24,6 +27,8 @@ protected:
 private:
   void myBooker(DQMStore::IBooker&);
   void checkFED(edm::EventSetup const&);
+
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 
   MonitorElement* CertMap_;
   MonitorElement* totalCertFraction;
