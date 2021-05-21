@@ -1,6 +1,4 @@
 /*  \author Anna Cimmino*/
-#include <sstream>
-
 #include <DQM/RPCMonitorClient/interface/RPCEventSummary.h>
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

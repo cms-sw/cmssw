@@ -8,8 +8,6 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include <sstream>
-
 RPCDeadChannelTest::RPCDeadChannelTest(const edm::ParameterSet& ps) {
   edm::LogVerbatim("rpcdeadchanneltest") << "[RPCDeadChannelTest]: Constructor";
 

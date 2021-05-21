@@ -1,4 +1,3 @@
-#include <sstream>
 #include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
 #include "DQM/RPCMonitorClient/interface/RPCBookFolderStructure.h"
 #include "DQM/RPCMonitorClient/interface/utils.h"

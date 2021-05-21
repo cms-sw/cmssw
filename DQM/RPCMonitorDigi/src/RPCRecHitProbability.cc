@@ -1,4 +1,3 @@
-#include <sstream>
 #include <TMath.h>
 #include "DQM/RPCMonitorDigi/interface/RPCRecHitProbability.h"
 //Geometry

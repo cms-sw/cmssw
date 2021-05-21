@@ -6,7 +6,6 @@
 #include <iostream>
 #include <typeinfo>
 #include <iostream>
-#include <sstream>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/RPCObjects/interface/RPCDQMObject.h"

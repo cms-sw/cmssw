@@ -11,8 +11,6 @@
 // Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
-#include <sstream>
-
 RPCMultiplicityTest::RPCMultiplicityTest(const edm::ParameterSet& ps) {
   edm::LogVerbatim("multiplicity") << "[RPCMultiplicityTest]: Constructor";
   useRollInfo_ = ps.getUntrackedParameter<bool>("UseRollInfo", false);
