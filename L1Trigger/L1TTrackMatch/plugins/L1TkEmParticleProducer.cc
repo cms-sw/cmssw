@@ -264,7 +264,7 @@ float L1TkEmParticleProducer::CorrectedEta(float eta, float zv) const {
   if (IsBarrel) {
     delta = REcal / tantheta;
   } else {
-    if (theta > 0)
+    if (eta > 0)
       delta = ZEcal;
     else
       delta = -ZEcal;
