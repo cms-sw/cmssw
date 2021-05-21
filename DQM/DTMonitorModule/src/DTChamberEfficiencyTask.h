@@ -15,10 +15,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,7 +27,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include <string>
 #include <map>
@@ -80,7 +81,9 @@ private:
   double theMinChi2NormSegment;
   double theMinCloseDist;
 
-  edm::ESHandle<DTGeometry> dtGeom;
+  //Load geometry
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
   edm::Handle<DTRecSegment4DCollection> segs;
 };
 #endif

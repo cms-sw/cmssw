@@ -30,7 +30,8 @@
 using namespace edm;
 using namespace std;
 
-DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) {
+DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()), dtGeomToken_(esConsumes()) {
   debug = pset.getUntrackedParameter<bool>("debug", false);
   // the name of the 4D rec hits collection
   recHits4DToken_ = consumes<DTRecSegment4DCollection>(edm::InputTag(pset.getParameter<string>("recHits4DLabel")));
@@ -44,7 +45,7 @@ DTEfficiencyTask::~DTEfficiencyTask() {}
 
 void DTEfficiencyTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
   // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 }
 
 void DTEfficiencyTask::bookHistograms(DQMStore::IBooker& ibooker,
@@ -153,8 +154,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
   event.getByToken(recHitToken_, dtRecHits);
 
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = &setup.getData(dtGeomToken_);
 
   // Loop over all chambers containing a segment
   DTRecSegment4DCollection::id_iterator chamberId;

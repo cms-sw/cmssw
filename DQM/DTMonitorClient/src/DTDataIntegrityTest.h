@@ -11,16 +11,17 @@
  *
  *   
  */
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/DTDigi/interface/DTuROSControlData.h"
+#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 class DTReadOutMapping;
 
@@ -64,7 +65,8 @@ private:
 
   bool bookingdone;
 
-  edm::ESHandle<DTReadOutMapping> mapping;
+  edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> mappingToken_;
+  const DTReadOutMapping *mapping;
 
   // Monitor Elements
   MonitorElement *summaryHisto;
