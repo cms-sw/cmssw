@@ -1,5 +1,5 @@
-#ifndef DQM_RPCMonitorClient_RPCMonitorLinkSynchro_H
-#define DQM_RPCMonitorClient_RPCMonitorLinkSynchro_H
+#ifndef DQM_RPCMonitorDigi_RPCMonitorLinkSynchro_H
+#define DQM_RPCMonitorDigi_RPCMonitorLinkSynchro_H
 
 /** \class RPCMonitorLinkSynchro
  ** Monitor and anlyse synchro counts () produced by R2D. 
@@ -12,7 +12,7 @@
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
+#include "DQM/RPCMonitorDigi/interface/RPCLinkSynchroStat.h"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 

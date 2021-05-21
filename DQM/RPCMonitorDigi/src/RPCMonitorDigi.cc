@@ -1,5 +1,5 @@
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"

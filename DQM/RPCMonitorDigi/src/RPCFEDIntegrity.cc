@@ -1,7 +1,7 @@
 /*  \author Anna Cimmino*/
 #include <algorithm>
-#include <DQM/RPCMonitorClient/interface/RPCFEDIntegrity.h>
-#include <DQM/RPCMonitorClient/interface/RPCRawDataCountsHistoMaker.h>
+#include <DQM/RPCMonitorDigi/interface/RPCFEDIntegrity.h>
+#include <DQM/RPCMonitorDigi/interface/RPCRawDataCountsHistoMaker.h>
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>

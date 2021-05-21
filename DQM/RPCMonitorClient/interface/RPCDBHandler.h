@@ -20,7 +20,7 @@
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 
 class RPCDBHandler : public popcon::PopConSourceHandler<RPCDQMObject> {
 public:

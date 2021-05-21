@@ -1,5 +1,5 @@
 #include <DQM/RPCMonitorClient/interface/RPCClusterSizeTest.h>
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

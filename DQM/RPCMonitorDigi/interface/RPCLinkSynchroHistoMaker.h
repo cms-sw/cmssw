@@ -1,7 +1,7 @@
-#ifndef DQM_RPCMonitorClient_RPCLinkSynchroHistoMaker_H
-#define DQM_RPCMonitorClient_RPCLinkSynchroHistoMaker_H
+#ifndef DQM_RPCMonitorDigi_RPCLinkSynchroHistoMaker_H
+#define DQM_RPCMonitorDigi_RPCLinkSynchroHistoMaker_H
 
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
+#include "DQM/RPCMonitorDigi/interface/RPCLinkSynchroStat.h"
 #include <string>
 #include <vector>
 #include <map>

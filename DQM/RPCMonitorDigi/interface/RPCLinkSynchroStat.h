@@ -1,5 +1,5 @@
-#ifndef DQM_RPCMonitorClient_RPCLinkSynchroStat_H
-#define DQM_RPCMonitorClient_RPCLinkSynchroStat_H
+#ifndef DQM_RPCMonitorDigi_RPCLinkSynchroStat_H
+#define DQM_RPCMonitorDigi_RPCLinkSynchroStat_H
 
 #include <map>
 #include <cmath>

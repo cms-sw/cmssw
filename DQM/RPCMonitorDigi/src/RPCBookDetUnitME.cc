@@ -1,8 +1,8 @@
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h>
-#include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
+#include <DQM/RPCMonitorClient/interface/RPCBookFolderStructure.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <DQM/RPCMonitorDigi/interface/utils.h>
+#include <DQM/RPCMonitorClient/interface/utils.h>
 #include <iomanip>
 
 void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,

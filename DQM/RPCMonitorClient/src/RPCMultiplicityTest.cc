@@ -1,7 +1,7 @@
 /*
  *  \author Anna Cimmino
  */
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 #include <DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h>
 
 // Framework

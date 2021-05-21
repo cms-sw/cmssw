@@ -1,5 +1,5 @@
 #include <DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h>
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 
 //DQM Services
 //#include "DQMServices/Core/interface/DQMStore.h"

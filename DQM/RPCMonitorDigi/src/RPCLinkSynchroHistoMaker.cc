@@ -1,4 +1,4 @@
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroHistoMaker.h"
+#include "DQM/RPCMonitorDigi/interface/RPCLinkSynchroHistoMaker.h"
 #include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 

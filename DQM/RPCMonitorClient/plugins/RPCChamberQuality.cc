@@ -1,7 +1,7 @@
 #include <sstream>
 #include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
-#include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/RPCBookFolderStructure.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //DataFormats
