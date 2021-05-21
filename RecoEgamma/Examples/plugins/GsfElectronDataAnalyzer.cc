@@ -40,7 +40,6 @@
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-#include "TMath.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH1I.h"
@@ -1993,8 +1992,8 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
     if (!gsfIter->ecalDrivenSeed() && gsfIter->trackerDrivenSeed())
       sclRef = gsfIter->parentSuperCluster();
     histSclEn_->Fill(sclRef->energy());
-    double R = TMath::Sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y() + sclRef->z() * sclRef->z());
-    double Rt = TMath::Sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y());
+    double R = std::sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y() + sclRef->z() * sclRef->z());
+    double Rt = std::sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y());
     histSclEt_->Fill(sclRef->energy() * (Rt / R));
     histSclEtVsEta_->Fill(sclRef->eta(), sclRef->energy() * (Rt / R));
     histSclEtVsPhi_->Fill(sclRef->phi(), sclRef->energy() * (Rt / R));

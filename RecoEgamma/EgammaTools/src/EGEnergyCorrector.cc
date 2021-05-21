@@ -208,10 +208,10 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
     fVals[57] = biphi;      //crystal iphi
     fVals[58] = bieta % 5;  //submodule boundary eta symmetry
     fVals[59] = biphi % 2;  //submodule boundary phi symmetry
-    fVals[60] = (TMath::Abs(bieta) <= 25) * (bieta % 25) +
-                (TMath::Abs(bieta) > 25) *
-                    ((bieta - 25 * TMath::Abs(bieta) / bieta) % 20);  //module boundary eta approximate symmetry
-    fVals[61] = biphi % 20;                                           //module boundary phi symmetry
+    fVals[60] = (std::abs(bieta) <= 25) * (bieta % 25) +
+                (std::abs(bieta) > 25) *
+                    ((bieta - 25 * std::abs(bieta) / bieta) % 20);  //module boundary eta approximate symmetry
+    fVals[61] = biphi % 20;                                         //module boundary phi symmetry
     fVals[62] = betacry;  //local coordinates with respect to closest crystal center at nominal shower depth
     fVals[63] = bphicry;
 
@@ -226,8 +226,8 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
     fVals[65] = hasbc2 ? bc2iphi : 0.;
     fVals[66] = hasbc2 ? bc2ieta % 5 : 0.;
     fVals[67] = hasbc2 ? bc2iphi % 2 : 0.;
-    fVals[68] = hasbc2 ? (TMath::Abs(bc2ieta) <= 25) * (bc2ieta % 25) +
-                             (TMath::Abs(bc2ieta) > 25) * ((bc2ieta - 25 * TMath::Abs(bc2ieta) / bc2ieta) % 20)
+    fVals[68] = hasbc2 ? (std::abs(bc2ieta) <= 25) * (bc2ieta % 25) +
+                             (std::abs(bc2ieta) > 25) * ((bc2ieta - 25 * std::abs(bc2ieta) / bc2ieta) % 20)
                        : 0.;
     fVals[69] = hasbc2 ? bc2iphi % 20 : 0.;
     fVals[70] = hasbc2 ? bc2etacry : 0.;
@@ -339,10 +339,10 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
     fVals[31] = biphi;      //crystal iphi
     fVals[32] = bieta % 5;  //submodule boundary eta symmetry
     fVals[33] = biphi % 2;  //submodule boundary phi symmetry
-    fVals[34] = (TMath::Abs(bieta) <= 25) * (bieta % 25) +
-                (TMath::Abs(bieta) > 25) *
-                    ((bieta - 25 * TMath::Abs(bieta) / bieta) % 20);  //module boundary eta approximate symmetry
-    fVals[35] = biphi % 20;                                           //module boundary phi symmetry
+    fVals[34] = (std::abs(bieta) <= 25) * (bieta % 25) +
+                (std::abs(bieta) > 25) *
+                    ((bieta - 25 * std::abs(bieta) / bieta) % 20);  //module boundary eta approximate symmetry
+    fVals[35] = biphi % 20;                                         //module boundary phi symmetry
     fVals[36] = betacry;  //local coordinates with respect to closest crystal center at nominal shower depth
     fVals[37] = bphicry;
 
@@ -379,7 +379,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
       fVals[6] = 1.00002 * s->phiWidth() - 0.000371;        //phiwidth
       fVals[14] = fVals[3] * s->rawEnergy() / b->energy();  //compute consistent e3x3/eseed after r9 rescaling
       if (fVals[15] <= 1.0)  // rescale e5x5/eseed only if value is <=1.0, don't allow scaled values to exceed 1.0
-        fVals[15] = TMath::Min(1.0, 1.0022 * p.e5x5() / b->energy());
+        fVals[15] = std::min(1.0, 1.0022 * p.e5x5() / b->energy());
 
       fVals[4] =
           fVals[15] * b->energy() / s->rawEnergy();  // compute consistent e5x5()/rawEnergy() after e5x5/eseed resacling
@@ -400,12 +400,12 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
       fVals[29] = 1.09 * be2x5right / b->energy();
 
     } else {
-      fVals[3] = 1.0086 * p.r9() - 0.0007;                             //r9
-      fVals[4] = TMath::Min(1.0, 1.0022 * p.e5x5() / s->rawEnergy());  //e5x5/rawenergy
-      fVals[5] = 0.903254 * s->etaWidth() + 0.001346;                  //etawidth
-      fVals[6] = 0.99992 * s->phiWidth() + 4.8e-07;                    //phiwidth
+      fVals[3] = 1.0086 * p.r9() - 0.0007;                           //r9
+      fVals[4] = std::min(1.0, 1.0022 * p.e5x5() / s->rawEnergy());  //e5x5/rawenergy
+      fVals[5] = 0.903254 * s->etaWidth() + 0.001346;                //etawidth
+      fVals[6] = 0.99992 * s->phiWidth() + 4.8e-07;                  //phiwidth
       fVals[13] =
-          TMath::Min(1.0, 1.0022 * b->energy() / s->rawEnergy());  //eseed/rawenergy (practically equivalent to e5x5)
+          std::min(1.0, 1.0022 * b->energy() / s->rawEnergy());  //eseed/rawenergy (practically equivalent to e5x5)
 
       fVals[14] = fVals[3] * s->rawEnergy() / b->energy();  //compute consistent e3x3/eseed after r9 rescaling
 

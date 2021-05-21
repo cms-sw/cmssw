@@ -29,8 +29,6 @@
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-#include <TMath.h>
-
 void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
                                       std::vector<int> const& flagsEB,
                                       std::vector<int> const& flagsEE,

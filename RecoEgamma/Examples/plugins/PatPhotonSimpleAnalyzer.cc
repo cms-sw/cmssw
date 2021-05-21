@@ -26,7 +26,6 @@
 
 #include "TFile.h"
 #include "TH1.h"
-#include "TMath.h"
 #include "TTree.h"
 
 #include <memory>
@@ -174,13 +173,13 @@ void PatPhotonSimpleAnalyzer::beginJob() {
   // Photon Histograms
   h_photonEt_ = new TH1F("photonEt", "Photon E_{T}", 200, 0, 200);
   h_photonEta_ = new TH1F("photonEta", "Photon #eta", 200, -4, 4);
-  h_photonPhi_ = new TH1F("photonPhi", "Photon #phi", 200, -1. * TMath::Pi(), TMath::Pi());
+  h_photonPhi_ = new TH1F("photonPhi", "Photon #phi", 200, -1. * M_PI, M_PI);
   h_hadoverem_ = new TH1F("photonHoverE", "Hadronic over EM", 200, 0, 1);
 
   // Photon's SuperCluster Histograms
   h_photonScEt_ = new TH1F("photonScEt", "Photon SuperCluster E_{T}", 200, 0, 200);
   h_photonScEta_ = new TH1F("photonScEta", "Photon #eta", 200, -4, 4);
-  h_photonScPhi_ = new TH1F("photonScPhi", "Photon #phi", 200, -1. * TMath::Pi(), TMath::Pi());
+  h_photonScPhi_ = new TH1F("photonScPhi", "Photon #phi", 200, -1. * M_PI, M_PI);
   h_photonScEtaWidth_ = new TH1F("photonScEtaWidth", "#eta-width", 100, 0, .1);
 
   // Composite or Other Histograms
