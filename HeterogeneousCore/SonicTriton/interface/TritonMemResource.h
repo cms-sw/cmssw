@@ -2,6 +2,9 @@
 #define HeterogeneousCore_SonicTriton_TritonMemResource
 
 #include <string>
+#include <memory>
+
+#include "HeterogeneousCore/SonicTriton/interface/grpc_client_gpu.h"
 
 //forward declaration
 template <typename IO>
