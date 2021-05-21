@@ -22,7 +22,6 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps)
 
   //	GET WHAT YOU NEED
   edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
-  ;
   _emap = dbs->getHcalMapping();
   if (_ptype != fOffline) {  // hidefed2crate
     std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
