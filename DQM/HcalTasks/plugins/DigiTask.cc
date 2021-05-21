@@ -81,7 +81,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
 
   //	GET WHAT YOU NEED
   edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
-  ;
   _emap = dbs->getHcalMapping();
   std::vector<uint32_t> vVME;
   std::vector<uint32_t> vuTCA;
