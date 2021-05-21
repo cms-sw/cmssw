@@ -7,7 +7,6 @@
 #include "TH2F.h"
 
 #include <vector>
-#include <sstream>
 
 TH1F* RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(int fedId) {
   std::ostringstream str;

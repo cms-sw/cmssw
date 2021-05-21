@@ -1,6 +1,6 @@
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h>
 #include <DQM/RPCMonitorClient/interface/RPCBookFolderStructure.h>
-#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
+#include <DQM/RPCMonitorClient/interface/RPCNameHelper.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <DQM/RPCMonitorClient/interface/utils.h>
 #include <iomanip>
@@ -22,14 +22,9 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
   }
 
   /// Name components common to current RPCDetId
-  RPCGeomServ RPCname(detId);
-  std::string nameRoll = "";
+  const std::string nameRoll = RPCNameHelper::name(detId, useRollInfo_);
 
-  if (RPCMonitorDigi::useRollInfo_) {
-    nameRoll = RPCname.name();
-  } else {
-    nameRoll = RPCname.chambername();
-
+  if (!RPCMonitorDigi::useRollInfo_) {
     if (detId.region() != 0 ||                                                     //Endcaps
         (abs(detId.ring()) == 2 && detId.station() == 2 && detId.layer() != 1) ||  //Wheel -/+2 RB2out
         (abs(detId.ring()) != 2 && detId.station() == 2 && detId.layer() == 1)) {

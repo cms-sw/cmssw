@@ -2,7 +2,6 @@
 #include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
-#include <sstream>
 #include "TH1F.h"
 #include "TH2F.h"
 #include <algorithm>
