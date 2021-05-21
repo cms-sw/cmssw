@@ -274,9 +274,8 @@ void L1TrackJetProducer::L2_cluster(
     vector<Ptr<L1TTTrackType> > L1TrkPtrs_, vector<int> ttrk_, vector<int> tdtrk_, vector<int> ttdtrk_, MaxZBin &mzb) {
   const int nz = zBins_;
   MaxZBin all_zBins[nz];
-  MaxZBin mzbtemp;
   for (int z = 0; z < nz; ++z)
-    all_zBins[z] = mzbtemp;
+    all_zBins[z] = MaxZBin{0, 0, 0, nullptr, 0};
 
   float zmin = -1.0 * trkZMax_;
   float zmax = zmin + 2 * zStep_;
