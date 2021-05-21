@@ -480,7 +480,7 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp3::getOrdere
   else {
     HGCSiliconDetIdToROC tc2roc;
     int moduleU = hgc_module_id.moduleU();
-    int moduleV = hgc_module_id.moduleU();
+    int moduleV = hgc_module_id.moduleV();
     unsigned layer = hgc_module_id.layer();
 
     //Rotate to sector
