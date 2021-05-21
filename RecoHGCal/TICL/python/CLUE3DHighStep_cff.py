@@ -20,7 +20,11 @@ ticlTrackstersCLUE3DHigh = _trackstersProducer.clone(
     filtered_mask = "filteredLayerClustersCLUE3DHigh:CLUE3DHigh",
     seeding_regions = "ticlSeedingGlobal",
     itername = "CLUE3DHigh",
-    patternRecognitionBy = "CLUE3D"
+    patternRecognitionBy = "CLUE3D",
+    pluginPatternRecognitionByCLUE3D = dict (
+        criticalEtaPhiDistance = 0.025
+    )
+
 )
 
 ticlCLUE3DHighStepTask = cms.Task(ticlSeedingGlobal
