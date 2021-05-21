@@ -264,6 +264,11 @@ public:
         "type of object to match (Muon, Electron, Tau, Photon, Other), taylors what's in t Flav branch");
     desc.addOptional<edm::InputTag>("mcMapVisTau")
         ->setComment("as mcMap, but pointing to the visible gen taus (only if objType == Tau)");
+    desc.addOptional<edm::InputTag>("mcMapDressedLep")
+      ->setComment("as mcMap, but pointing to gen dressed leptons (only if objType == Electrons)");
+    desc.addOptional<edm::InputTag>("mapTauAnc")
+      ->setComment("Value map of matched gen electrons containing info on the tau ancestry");
+    desc.addOptional<edm::InputTag>("genparticles")->setComment("Collection of genParticles to be stored.");
     descriptions.add("candMcMatchTable", desc);
   }
 
