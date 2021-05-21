@@ -90,13 +90,13 @@ private:
 
   TH2F* h_prefmap_photon_;
   TH2F* h_prefmap_jet_;
-  std::string dataeraEcal_;
-  std::string dataeraMuon_;
-  bool useEMpt_;
-  double prefiringRateSystUncEcal_;
-  double prefiringRateSystUncMuon_;
-  double jetMaxMuonFraction_;
-  bool skipwarnings_;
+  const std::string dataeraEcal_;
+  const std::string dataeraMuon_;
+  const bool useEMpt_;
+  const double prefiringRateSystUncEcal_;
+  const double prefiringRateSystUncMuon_;
+  const double jetMaxMuonFraction_;
+  const bool skipwarnings_;
 };
 
 L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iConfig)
@@ -114,15 +114,14 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
       nonPrefiringProbPhotonDownToken_(produces<double>("nonPrefiringProbPhotonDown")),
       nonPrefiringProbMuonToken_(produces<double>("nonPrefiringProbMuon")),
       nonPrefiringProbMuonUpToken_(produces<double>("nonPrefiringProbMuonUp")),
-      nonPrefiringProbMuonDownToken_(produces<double>("nonPrefiringProbMuonDown")) {
-  dataeraEcal_ = iConfig.getParameter<std::string>("DataEraECAL");
-  dataeraMuon_ = iConfig.getParameter<std::string>("DataEraMuon");
-  useEMpt_ = iConfig.getUntrackedParameter<bool>("UseJetEMPt");
-  prefiringRateSystUncEcal_ = iConfig.getUntrackedParameter<double>("PrefiringRateSystematicUnctyECAL");
-  prefiringRateSystUncMuon_ = iConfig.getUntrackedParameter<double>("PrefiringRateSystematicUnctyMuon");
-  jetMaxMuonFraction_ = iConfig.getUntrackedParameter<double>("JetMaxMuonFraction");
-  skipwarnings_ = iConfig.getUntrackedParameter<bool>("SkipWarnings");
-
+      nonPrefiringProbMuonDownToken_(produces<double>("nonPrefiringProbMuonDown")),
+      dataeraEcal_(iConfig.getParameter<std::string>("DataEraECAL")),
+      dataeraMuon_(iConfig.getParameter<std::string>("DataEraMuon")),
+      useEMpt_(iConfig.getUntrackedParameter<bool>("UseJetEMPt")),
+      prefiringRateSystUncEcal_(iConfig.getUntrackedParameter<double>("PrefiringRateSystematicUnctyECAL")),
+      prefiringRateSystUncMuon_(iConfig.getUntrackedParameter<double>("PrefiringRateSystematicUnctyMuon")),
+      jetMaxMuonFraction_(iConfig.getUntrackedParameter<double>("JetMaxMuonFraction")),
+      skipwarnings_(iConfig.getUntrackedParameter<bool>("SkipWarnings")) {
   std::string fname = iConfig.getParameter<std::string>("L1Maps");
   edm::FileInPath mapsfilepath("PhysicsTools/PatUtils/data/" + fname);
   file_prefiringmaps_ = std::make_unique<TFile>(mapsfilepath.fullPath().c_str(), "read");
