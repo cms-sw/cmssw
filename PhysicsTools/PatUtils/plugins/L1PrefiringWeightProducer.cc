@@ -117,10 +117,10 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
       nonPrefiringProbMuonDownToken_(produces<double>("nonPrefiringProbMuonDown")),
       dataeraEcal_(iConfig.getParameter<std::string>("DataEraECAL")),
       dataeraMuon_(iConfig.getParameter<std::string>("DataEraMuon")),
-      useEMpt_(iConfig.getUntrackedParameter<bool>("UseJetEMPt")),
-      prefiringRateSystUncEcal_(iConfig.getUntrackedParameter<double>("PrefiringRateSystematicUnctyECAL")),
-      prefiringRateSystUncMuon_(iConfig.getUntrackedParameter<double>("PrefiringRateSystematicUnctyMuon")),
-      jetMaxMuonFraction_(iConfig.getUntrackedParameter<double>("JetMaxMuonFraction")),
+      useEMpt_(iConfig.getParameter<bool>("UseJetEMPt")),
+      prefiringRateSystUncEcal_(iConfig.getParameter<double>("PrefiringRateSystematicUnctyECAL")),
+      prefiringRateSystUncMuon_(iConfig.getParameter<double>("PrefiringRateSystematicUnctyMuon")),
+      jetMaxMuonFraction_(iConfig.getParameter<double>("JetMaxMuonFraction")),
       skipwarnings_(iConfig.getUntrackedParameter<bool>("SkipWarnings")) {
   std::string fname = iConfig.getParameter<std::string>("L1Maps");
   edm::FileInPath mapsfilepath("PhysicsTools/PatUtils/data/" + fname);
@@ -458,10 +458,10 @@ void L1PrefiringWeightProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<std::string>("L1MuonParametrizations", "L1MuonPrefiringParametriations.root");
   desc.add<std::string>("DataEraECAL", "2017BtoF");
   desc.add<std::string>("DataEraMuon", "2016");
-  desc.addUntracked<bool>("UseJetEMPt", false);
-  desc.addUntracked<double>("PrefiringRateSystematicUnctyECAL", 0.2);
-  desc.addUntracked<double>("PrefiringRateSystematicUnctyMuon", 0.2);
-  desc.addUntracked<double>("JetMaxMuonFraction", 0.5);
+  desc.add<bool>("UseJetEMPt", false);
+  desc.add<double>("PrefiringRateSystematicUnctyECAL", 0.2);
+  desc.add<double>("PrefiringRateSystematicUnctyMuon", 0.2);
+  desc.add<double>("JetMaxMuonFraction", 0.5);
   desc.addUntracked<bool>("SkipWarnings", true);
   descriptions.add("l1PrefiringWeightProducer", desc);
 }
