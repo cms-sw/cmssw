@@ -22,7 +22,6 @@
 
 // DB & Calib
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
-#include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
@@ -37,7 +36,8 @@
 using namespace edm;
 using namespace std;
 
-DTLocalTriggerSynchTest::DTLocalTriggerSynchTest(const edm::ParameterSet& ps) {
+DTLocalTriggerSynchTest::DTLocalTriggerSynchTest(const edm::ParameterSet& ps)
+    : wPhaseMapToken_(esConsumes<edm::Transition::BeginRun>()) {
   setConfig(ps, "DTLocalTriggerSynch");
   baseFolderTM = "DT/90-LocalTriggerSynch/";
 
@@ -90,9 +90,7 @@ void DTLocalTriggerSynchTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   LogVerbatim(category()) << "[" << testName << "Test]: book Histograms" << endl;
 
   if (parameters.getParameter<bool>("fineParamDiff")) {
-    ESHandle<DTTPGParameters> wPhaseHandle;
-    c.get<DTTPGParametersRcd>().get(wPhaseHandle);
-    wPhaseMap = (*wPhaseHandle);
+    wPhaseMap = &c.getData(wPhaseMapToken_);
   }
 
   bookingdone = true;
@@ -176,7 +174,7 @@ void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
       if (fineDiff || coarseDiff) {
         float wFine;
         int wCoarse;
-        wPhaseMap.get(chId, wCoarse, wFine, DTTimeUnits::ns);
+        wPhaseMap->get(chId, wCoarse, wFine, DTTimeUnits::ns);
         if (fineDiff) {
           fineDelay = wFine - fineDelay;
         }

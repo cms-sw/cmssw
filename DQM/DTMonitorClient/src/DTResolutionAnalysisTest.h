@@ -14,12 +14,12 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <string>
 #include <map>
@@ -65,7 +65,8 @@ private:
 
   bool doCalibAnalysis;
 
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
 
   // Histograms for tests
   std::map<std::pair<int, int>, MonitorElement*> MeanHistos;

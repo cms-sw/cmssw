@@ -17,7 +17,6 @@
 
 // Geometry
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // RecHit
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
@@ -29,7 +28,8 @@
 using namespace edm;
 using namespace std;
 
-DTCalibValidationFromMuons::DTCalibValidationFromMuons(const ParameterSet &pset) {
+DTCalibValidationFromMuons::DTCalibValidationFromMuons(const ParameterSet &pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   parameters = pset;
 
   // the name of the 4D segments
@@ -54,7 +54,7 @@ DTCalibValidationFromMuons::~DTCalibValidationFromMuons() {
 
 void DTCalibValidationFromMuons::dqmBeginRun(const edm::Run &run, const edm::EventSetup &setup) {
   // get the geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = &setup.getData(muonGeomToken_);
 }
 
 void DTCalibValidationFromMuons::analyze(const edm::Event &event, const edm::EventSetup &setup) {
@@ -108,7 +108,7 @@ void DTCalibValidationFromMuons::analyze(const edm::Event &event, const edm::Eve
   // Loop over all 4D segments
   for (auto segment : selectedSegment4Ds) {
     LogTrace("DTCalibValidationFromMuons") << "Anlysis on recHit at step 3";
-    compute(dtGeom.product(), *segment);
+    compute(dtGeom, *segment);
   }
 }
 

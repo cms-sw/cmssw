@@ -8,12 +8,11 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTDataIntegrityTest.h>
+#include "DQM/DTMonitorClient/src/DTDataIntegrityTest.h"
 
 //Framework
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,7 +23,7 @@
 using namespace std;
 using namespace edm;
 
-DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps) : nevents(0) {
+DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps) : nevents(0), mappingToken_(esConsumes()) {
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: Constructor";
 
   // prescale on the # of LS to update the test
@@ -67,7 +66,7 @@ void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     glbSummaryHisto->setAxisTitle("Sector", 1);
     glbSummaryHisto->setAxisTitle("Wheel", 2);
 
-    context.get<DTReadOutMappingRcd>().get(mapping);
+    mapping = &context.getData(mappingToken_);
   }  //booking
   bookingdone = true;
 

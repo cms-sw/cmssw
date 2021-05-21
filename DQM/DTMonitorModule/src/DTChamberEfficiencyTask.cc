@@ -14,16 +14,14 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
 #include <iterator>
 #include <iostream>
 #include <cmath>
 using namespace edm;
 using namespace std;
 
-DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset) {
+DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   debug = pset.getUntrackedParameter<bool>("debug", false);
 
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Constructor called!";
@@ -69,7 +67,7 @@ void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSe
 
 void DTChamberEfficiencyTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = &setup.getData(muonGeomToken_);
 }
 
 void DTChamberEfficiencyTask::bookHistograms(DQMStore::IBooker& ibooker,
