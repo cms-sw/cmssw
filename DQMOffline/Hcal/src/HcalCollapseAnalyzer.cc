@@ -60,9 +60,11 @@ private:
   const int verbosity_;
   const edm::InputTag recHitHBHE_, preRecHitHBHE_;
   const bool doHE_, doHB_;
+  const HcalTopology *theHBHETopology = nullptr;
 
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<HBHERecHitCollection> tok_prehbhe_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalTopologyToken_;
 
   MonitorElement *h_merge, *h_size, *h_depth;
   MonitorElement *h_sfrac, *h_frac, *h_balance;
@@ -74,7 +76,8 @@ HcalCollapseAnalyzer::HcalCollapseAnalyzer(const edm::ParameterSet &iConfig)
       recHitHBHE_(iConfig.getUntrackedParameter<edm::InputTag>("recHitHBHE", edm::InputTag("hbhereco"))),
       preRecHitHBHE_(iConfig.getUntrackedParameter<edm::InputTag>("preRecHitHBHE", edm::InputTag("hbheprereco"))),
       doHE_(iConfig.getUntrackedParameter<bool>("doHE", true)),
-      doHB_(iConfig.getUntrackedParameter<bool>("doHB", false)) {
+      doHB_(iConfig.getUntrackedParameter<bool>("doHB", false)),
+      hcalTopologyToken_{esConsumes<HcalTopology, HcalRecNumberingRecord>()} {
   // define tokens for access
   tok_hbhe_ = consumes<HBHERecHitCollection>(recHitHBHE_);
   tok_prehbhe_ = consumes<HBHERecHitCollection>(preRecHitHBHE_);
@@ -99,9 +102,7 @@ void HcalCollapseAnalyzer::analyze(edm::Event const &iEvent, edm::EventSetup con
     edm::LogVerbatim("Collapse") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event()
                                  << " starts ==============";
 
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology *theHBHETopology = htopo.product();
+  theHBHETopology = &iSetup.getData(hcalTopologyToken_);
 
   edm::Handle<HBHERecHitCollection> hbhereco;
   iEvent.getByToken(tok_hbhe_, hbhereco);
