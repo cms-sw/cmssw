@@ -125,6 +125,44 @@ initialStepTrackCandidatesPreSplitting = RecoTracker.CkfPattern.CkfTrackCandidat
 )
 initialStepTrackCandidatesPreSplitting.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
 
+from Configuration.ProcessModifiers.trackingMkFitInitialStepPreSplitting_cff import trackingMkFitInitialStepPreSplitting
+from RecoTracker.MkFit.mkFitGeometryESProducer_cfi import mkFitGeometryESProducer
+import RecoTracker.MkFit.mkFitSiPixelHitConverter_cfi as _mkFitSiPixelHitConverter_cfi
+import RecoTracker.MkFit.mkFitSiStripHitConverter_cfi as _mkFitSiStripHitConverter_cfi
+import RecoTracker.MkFit.mkFitEventOfHitsProducer_cfi as _mkFitEventOfHitsProducer_cfi
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as _mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as _mkFitIterationConfigESProducer_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as _mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as _mkFitOutputConverter_cfi
+mkFitSiPixelHitsPreSplitting = _mkFitSiPixelHitConverter_cfi.mkFitSiPixelHitConverter.clone(
+    hits = 'siPixelRecHitsPreSplitting'
+)
+mkFitSiStripHits = _mkFitSiStripHitConverter_cfi.mkFitSiStripHitConverter.clone() # TODO: figure out better place for this module?
+mkFitEventOfHitsPreSplitting = _mkFitEventOfHitsProducer_cfi.mkFitEventOfHitsProducer.clone(
+    pixelHits = 'mkFitSiPixelHitsPreSplitting'
+)
+initialStepTrackCandidatesMkFitSeedsPreSplitting = _mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'initialStepSeedsPreSplitting',
+)
+# TODO: or try to re-use the ESProducer of initialStep?
+initialStepTrackCandidatesMkFitConfigPreSplitting = _mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'initialStepTrackCandidatesMkFitConfigPreSplitting',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-initialStep.json',
+)
+initialStepTrackCandidatesMkFitPreSplitting = _mkFitProducer_cfi.mkFitProducer.clone(
+    pixelHits = 'mkFitSiPixelHitsPreSplitting',
+    eventOfHits = 'mkFitEventOfHitsPreSplitting',
+    seeds = 'initialStepTrackCandidatesMkFitSeedsPreSplitting',
+    config = ('', 'initialStepTrackCandidatesMkFitConfigPreSplitting'),
+)
+trackingMkFitInitialStepPreSplitting.toReplaceWith(initialStepTrackCandidatesPreSplitting, _mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    mkFitPixelHits = 'mkFitSiPixelHitsPreSplitting',
+    mkFitEventOfHits = 'mkFitEventOfHitsPreSplitting',
+    seeds = 'initialStepSeedsPreSplitting',
+    mkFitSeeds = 'initialStepTrackCandidatesMkFitSeedsPreSplitting',
+    tracks = 'initialStepTrackCandidatesMkFitPreSplitting',
+))
+
 # fitting
 import RecoTracker.TrackProducer.TrackProducer_cfi
 initialStepTracksPreSplitting = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
@@ -194,6 +232,10 @@ InitialStepPreSplitting = cms.Sequence(InitialStepPreSplittingTask)
 _InitialStepPreSplittingTask_trackingPhase1 = InitialStepPreSplittingTask.copy()
 _InitialStepPreSplittingTask_trackingPhase1.replace(initialStepHitTripletsPreSplitting, cms.Task(initialStepHitTripletsPreSplitting,initialStepHitQuadrupletsPreSplitting))
 trackingPhase1.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSplittingTask_trackingPhase1.copyAndExclude([initialStepHitTripletsPreSplitting]))
+
+_InitialStepPreSplittingTask_trackingMkFit = InitialStepPreSplittingTask.copy()
+_InitialStepPreSplittingTask_trackingMkFit.add(mkFitSiPixelHitsPreSplitting, mkFitSiStripHits, mkFitEventOfHitsPreSplitting, initialStepTrackCandidatesMkFitSeedsPreSplitting, initialStepTrackCandidatesMkFitPreSplitting, initialStepTrackCandidatesMkFitConfigPreSplitting)
+trackingMkFitInitialStepPreSplitting.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSplittingTask_trackingMkFit)
 
 
 # Although InitialStepPreSplitting is not really part of LowPU/Run1/Phase2PU140
