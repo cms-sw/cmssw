@@ -56,6 +56,7 @@ namespace pat {
     const double minHits_;
     const double minPixelHits_;
     const double minPtToStoreProps_;
+    const double minPtToStoreLowQualityProps_;
     const int covarianceVersion_;
     const std::vector<int> covariancePackingSchemas_;
     std::vector<reco::TrackBase::TrackQuality> qualsToAutoAccept_;
@@ -84,6 +85,7 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig)
       minHits_(iConfig.getParameter<uint32_t>("minHits")),
       minPixelHits_(iConfig.getParameter<uint32_t>("minPixelHits")),
       minPtToStoreProps_(iConfig.getParameter<double>("minPtToStoreProps")),
+      minPtToStoreLowQualityProps_(iConfig.getParameter<double>("minPtToStoreLowQualityProps")),
       covarianceVersion_(iConfig.getParameter<int>("covarianceVersion")),
       covariancePackingSchemas_(iConfig.getParameter<std::vector<int>>("covariancePackingSchemas")),
       muons_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
@@ -298,7 +300,7 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
             *trk, covariancePackingSchemas_[1], covarianceVersion_);  // high quality without pixels
       }
     }
-  } else if (!useLegacySetup_ && trk->pt() > 0.5) {
+  } else if (!useLegacySetup_ && trk->pt() > minPtToStoreLowQualityProps_) {
     if (trk->hitPattern().numberOfValidPixelHits() > 0) {
       cands.back().setTrackProperties(
           *trk, covariancePackingSchemas_[2], covarianceVersion_);  // low quality with pixels
