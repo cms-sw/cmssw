@@ -13,13 +13,13 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <DataFormats/MuonDetId/interface/DTLayerId.h>
-
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
@@ -79,7 +79,8 @@ private:
 
   int nevents;
 
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry *muonGeom;
 
   // wheel summary histograms
   std::map<int, MonitorElement *> wheelHistos;

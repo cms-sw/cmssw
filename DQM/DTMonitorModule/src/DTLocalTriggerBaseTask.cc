@@ -18,7 +18,6 @@
 
 // Geometry
 #include "DataFormats/GeometryVector/interface/Pi.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
@@ -52,7 +51,7 @@ private:
 };
 
 DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps)
-    : m_nEvents(0), m_nLumis(0), m_trigGeomUtils(nullptr) {
+    : m_nEvents(0), m_nLumis(0), m_trigGeomUtils(nullptr), muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask") << "[DTLocalTriggerBaseTask]: Constructor" << endl;
 
   m_tpMode = ps.getUntrackedParameter<bool>("testPulseMode");
@@ -131,8 +130,7 @@ void DTLocalTriggerBaseTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 void DTLocalTriggerBaseTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask") << "[DTLocalTriggerBaseTask]: BeginRun" << endl;
 
-  ESHandle<DTGeometry> geom;
-  context.get<MuonGeometryRecord>().get(geom);
+  geom = &context.getData(muonGeomToken_);
   m_trigGeomUtils = new DTTrigGeomUtils(geom);
 }
 

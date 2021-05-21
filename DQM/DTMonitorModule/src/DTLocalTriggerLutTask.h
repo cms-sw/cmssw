@@ -12,20 +12,21 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <vector>
 #include <string>
@@ -99,8 +100,8 @@ private:
   DTArr3bool track_ok;  // CB controlla se serve
 
   edm::ParameterSet parameters;
-  edm::ESHandle<DTGeometry> muonGeom;
-  std::string theGeomLabel;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
   DTTrigGeomUtils* trigGeomUtils;
 
   std::map<uint32_t, std::map<std::string, MonitorElement*> > chHistos;

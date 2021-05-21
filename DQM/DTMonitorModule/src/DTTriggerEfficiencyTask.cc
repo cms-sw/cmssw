@@ -15,18 +15,17 @@
 
 // Geometry
 #include "DataFormats/GeometryVector/interface/Pi.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
 // DT Digi
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+#include "DataFormats/DTDigi/interface/DTDigi.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 // Muon tracks
-#include <DataFormats/MuonReco/interface/Muon.h>
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 //Root
 #include "TH1.h"
@@ -39,7 +38,8 @@
 using namespace edm;
 using namespace std;
 
-DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : trigGeomUtils(nullptr) {
+DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()), trigGeomUtils(nullptr) {
   LogTrace("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: Constructor" << endl;
 
   parameters = ps;
@@ -72,7 +72,7 @@ DTTriggerEfficiencyTask::~DTTriggerEfficiencyTask() {
 
 void DTTriggerEfficiencyTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
   // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 }
 

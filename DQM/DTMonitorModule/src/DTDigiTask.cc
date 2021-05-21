@@ -5,30 +5,23 @@
  *
  */
 
-#include <DQM/DTMonitorModule/interface/DTDigiTask.h>
+#include "DQM/DTMonitorModule/interface/DTDigiTask.h"
 
 // Framework
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // Digis
-#include <DataFormats/MuonDetId/interface/DTLayerId.h>
-#include <DataFormats/MuonDetId/interface/DTChamberId.h>
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
 // T0s
-#include <CondFormats/DTObjects/interface/DTT0.h>
-#include <CondFormats/DataRecord/interface/DTT0Rcd.h>
-#include <CondFormats/DTObjects/interface/DTTtrig.h>
-#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
-
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "CondFormats/DTObjects/interface/DTTtrig.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -40,7 +33,12 @@ using namespace edm;
 using namespace std;
 
 // Contructor
-DTDigiTask::DTDigiTask(const edm::ParameterSet& ps) {
+DTDigiTask::DTDigiTask(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      readOutMapToken_(esConsumes<edm::Transition::BeginRun>()),
+      TtrigToken_(esConsumes<edm::Transition::BeginRun>()),
+      T0Token_(esConsumes<edm::Transition::BeginRun>()),
+      statusMapToken_(esConsumes()) {
   // switch for the verbosity
   LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]: Constructor" << endl;
 
@@ -108,17 +106,17 @@ void DTDigiTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context
   nevents = 0;
 
   // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 
   // map of the channels
-  context.get<DTReadOutMappingRcd>().get(mapping);
+  mapping = &context.getData(readOutMapToken_);
 
   // tTrig
   if (readTTrigDB)
-    context.get<DTTtrigRcd>().get(tTrigMap);
+    tTrigMap = &context.getData(TtrigToken_);
   // t0s
   if (subtractT0)
-    context.get<DTT0Rcd>().get(t0Map);
+    t0Map = &context.getData(T0Token_);
   // FIXME: tMax (not yet from the DB)
   tMax = defaultTmax;
 
@@ -462,10 +460,9 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     event.getByToken(ltcDigiCollectionToken_, ltcdigis);
 
   // Status map (for noisy channels)
-  ESHandle<DTStatusFlag> statusMap;
   if (checkNoisyChannels) {
     // Get the map of noisy channels
-    c.get<DTStatusFlagRcd>().get(statusMap);
+    statusMap = &c.getData(statusMapToken_);
   }
 
   string histoTag;

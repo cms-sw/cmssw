@@ -7,17 +7,16 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTSegmentAnalysisTest.h>
+#include "DQM/DTMonitorClient/src/DTSegmentAnalysisTest.h"
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
@@ -36,7 +35,8 @@
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps) {
+DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: Constructor";
   parameters = ps;
 
@@ -60,8 +60,7 @@ DTSegmentAnalysisTest::~DTSegmentAnalysisTest() {
 
 void DTSegmentAnalysisTest::beginRun(const Run& run, const EventSetup& context) {
   LogTrace("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: BeginRun";
-
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 }
 
 void DTSegmentAnalysisTest::dqmBeginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const&) {

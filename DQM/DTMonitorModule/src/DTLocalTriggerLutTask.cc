@@ -15,7 +15,6 @@
 
 // Geometry
 #include "DataFormats/GeometryVector/interface/Pi.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
@@ -31,7 +30,9 @@
 using namespace edm;
 using namespace std;
 
-DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps) : trigGeomUtils(nullptr) {
+DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes(edm::ESInputTag("", ps.getUntrackedParameter<string>("geomLabel")))),
+      trigGeomUtils(nullptr) {
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: Constructor" << endl;
 
   tm_TokenIn_ = consumes<L1MuDTChambPhContainer>(ps.getUntrackedParameter<InputTag>("inputTagTMin"));
@@ -40,7 +41,6 @@ DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps) : trig
 
   overUnderIn = ps.getUntrackedParameter<bool>("rebinOutFlowsInGraph");
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis");
-  theGeomLabel = ps.getUntrackedParameter<string>("geomLabel");
 
   if (detailedAnalysis) {
     nPhiBins = 401;
@@ -71,7 +71,7 @@ DTLocalTriggerLutTask::~DTLocalTriggerLutTask() {
 
 void DTLocalTriggerLutTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
   // Get the geometry
-  context.get<MuonGeometryRecord>().get(theGeomLabel, muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 }
 
