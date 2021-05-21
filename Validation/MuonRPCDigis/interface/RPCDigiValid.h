@@ -14,6 +14,9 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 class RPCDigiValid : public DQMEDAnalyzer {
 public:
   RPCDigiValid(const edm::ParameterSet &ps);
@@ -81,6 +84,8 @@ private:
   // Tokens for accessing run data. Used for passing to edm::Event. - stanislav
   edm::EDGetTokenT<edm::PSimHitContainer> simHitToken;
   edm::EDGetTokenT<RPCDigiCollection> rpcDigiToken;
+
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
 };
 
 #endif
