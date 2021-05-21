@@ -4,9 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 using namespace std;
 
@@ -17,12 +15,13 @@ RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet &pset) {
   recHitToken_ = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("recHit"));
 
   subDir_ = pset.getParameter<std::string>("subDir");
+
+  rpcGeomToken_ = esConsumes();
 }
 
 void RPCPointVsRecHit::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
   // Get the RPC Geometry
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  auto rpcGeom = eventSetup.getHandle(rpcGeomToken_);
 
   // Retrieve RefHits from the event
   edm::Handle<RPCRecHitCollection> refHitHandle;
