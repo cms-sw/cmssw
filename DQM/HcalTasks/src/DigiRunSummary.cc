@@ -3,7 +3,10 @@
 namespace hcaldqm {
   using namespace constants;
 
-  DigiRunSummary::DigiRunSummary(std::string const& name, std::string const& taskname, edm::ParameterSet const& ps, edm::ConsumesCollector &iC)
+  DigiRunSummary::DigiRunSummary(std::string const& name,
+                                 std::string const& taskname,
+                                 edm::ParameterSet const& ps,
+                                 edm::ConsumesCollector& iC)
       : DQClient(name, taskname, ps, iC), _booked(false) {
     _thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
 

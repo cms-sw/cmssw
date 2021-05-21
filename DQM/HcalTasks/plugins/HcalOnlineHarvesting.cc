@@ -3,7 +3,7 @@
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
 
-HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps, edm::ConsumesCollector &iC)
+HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
     : DQHarvester(ps), _nBad(0), _nTotal(0), _reportSummaryMap(nullptr) {
   //	NOTE: I will leave Run Summary Generators in place
   //	just not triggering on endJob!
@@ -18,6 +18,7 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps, edm::Con
   _vnames[fTP] = "TPTask";
   _vnames[fPedestal] = "PedestalTask";
 
+  auto iC = consumesCollector();
   _vsumgen[fRaw] = new hcaldqm::RawRunSummary("RawRunHarvesting", _vnames[fRaw], ps, iC);
   _vsumgen[fDigi] = new hcaldqm::DigiRunSummary("DigiRunHarvesting", _vnames[fDigi], ps, iC);
   _vsumgen[fReco] = new hcaldqm::RecoRunSummary("RecoRunHarvesting", _vnames[fReco], ps, iC);
