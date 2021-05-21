@@ -89,8 +89,8 @@ bool PythiaFilterMotherSister::filter(edm::StreamID, edm::Event& iEvent, const e
              // find the daugther you're interested in
              if(abs((*dau)->pdg_id()) == abs(sisterID)) {
 
-               bool passTrackPt = 0;
-               bool passLeptonPt = 0;
+               bool passTrackPt = false;
+               bool passLeptonPt = false;
 
                // check pt of the nephews
                for ( HepMC::GenVertex::particle_iterator nephew = (*dau)->end_vertex()->particles_begin(HepMC::children);
