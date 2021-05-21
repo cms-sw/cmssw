@@ -177,22 +177,7 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
   file_prefiringparams_->Close();
 }
 
-L1PrefiringWeightProducer::~L1PrefiringWeightProducer() {
-  delete h_prefmap_photon_;
-  delete h_prefmap_jet_;
-  delete parametrization0p0To0p2_;
-  delete parametrization0p2To0p3_;
-  delete parametrization0p3To0p55_;
-  delete parametrization0p55To0p83_;
-  delete parametrization0p83To1p24_;
-  delete parametrization1p24To1p4_;
-  delete parametrization1p4To1p6_;
-  delete parametrization1p6To1p8_;
-  delete parametrization1p8To2p1_;
-  delete parametrization2p1To2p25_;
-  delete parametrization2p25To2p4_;
-  delete parametrizationHotSpot_;
-}
+L1PrefiringWeightProducer::~L1PrefiringWeightProducer() {}
 
 void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
