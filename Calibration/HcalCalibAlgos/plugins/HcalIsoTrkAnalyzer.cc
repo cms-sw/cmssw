@@ -522,12 +522,13 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
     const std::vector<std::pair<std::string, bool> >& finalDecisions = l1GtUtils_->decisionsFinal();
     for (const auto& decision : finalDecisions) {
       if (decision.first.find(l1TrigName_) != std::string::npos) {
-	t_L1Bit = decision.second;
-	break;
+        t_L1Bit = decision.second;
+        break;
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "Trigger Information for " << l1TrigName_ << " is " << t_L1Bit << " from a list of " << finalDecisions.size() << " decisions";
+    edm::LogVerbatim("HcalIsoTrack") << "Trigger Information for " << l1TrigName_ << " is " << t_L1Bit
+                                     << " from a list of " << finalDecisions.size() << " decisions";
 #endif
 
     //HLT
@@ -536,24 +537,26 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
       const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
       const std::vector<std::string>& names = triggerNames.triggerNames();
       if (!trigNames_.empty()) {
-	for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
-	  int hlt = triggerResults->accept(iHLT);
-	  for (unsigned int i = 0; i < trigNames_.size(); ++i) {
-	    if (names[iHLT].find(trigNames_[i]) != std::string::npos) {
-	      t_trgbits->at(i) = (hlt > 0);
-	      t_hltbits->at(i) = (hlt > 0);
-	      if (hlt > 0)
-		t_TrigPass = true;
+        for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
+          int hlt = triggerResults->accept(iHLT);
+          for (unsigned int i = 0; i < trigNames_.size(); ++i) {
+            if (names[iHLT].find(trigNames_[i]) != std::string::npos) {
+              t_trgbits->at(i) = (hlt > 0);
+              t_hltbits->at(i) = (hlt > 0);
+              if (hlt > 0)
+                t_TrigPass = true;
 #ifdef EDM_ML_DEBUG
-	      edm::LogVerbatim("HcalIsoTrack") << "This trigger " << names[iHLT] << " Flag " << hlt << ":" << t_trgbits->at(i);
+              edm::LogVerbatim("HcalIsoTrack")
+                  << "This trigger " << names[iHLT] << " Flag " << hlt << ":" << t_trgbits->at(i);
 #endif
-	    }
-	  }
-	}
+            }
+          }
+        }
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "HLT Information shows " << t_TrigPass << ":" << trigNames_.empty() << ":" << okC;
+    edm::LogVerbatim("HcalIsoTrack") << "HLT Information shows " << t_TrigPass << ":" << trigNames_.empty() << ":"
+                                     << okC;
 #endif
   }
 
