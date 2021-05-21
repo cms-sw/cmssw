@@ -66,9 +66,8 @@ OnlineBeamMonitor::OnlineBeamMonitor(const ParameterSet& ps)
 
 void OnlineBeamMonitor::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
   edm::ParameterSetDescription ps;
-
   ps.addUntracked<std::string>("MonitorName", "YourSubsystemName");
-  iDesc.addDefault(ps);
+  iDesc.addWithDefaultLabel(ps);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
