@@ -4,7 +4,7 @@ using namespace hcaldqm;
 using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
 
-HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps, edm::ConsumesCollector &&iC)
+HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps)
     : DQHarvester(ps), _reportSummaryMap(nullptr) {
   _summaryList.push_back(fTP);
   _summaryList.push_back(fDigi);
@@ -17,6 +17,7 @@ HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps, edm::C
     _summarks[it_sum] = false;
   }
 
+  auto iC = consumesCollector();
   if (std::find(_summaryList.begin(), _summaryList.end(), fRaw) != _summaryList.end()) {
     _sumgen[fRaw] = new hcaldqm::RawRunSummary("RawRunHarvesting", _sumnames[fRaw], ps, iC);
   }

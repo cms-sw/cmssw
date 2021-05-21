@@ -4,7 +4,7 @@ namespace hcaldqm {
   PedestalRunSummary::PedestalRunSummary(std::string const& name,
                                          std::string const& taskname,
                                          edm::ParameterSet const& ps,
-					 edm::ConsumesCollector &iC)
+                                         edm::ConsumesCollector& iC)
       : DQClient(name, taskname, ps, iC) {}
 
   /* virtual */ void PedestalRunSummary::beginRun(edm::Run const& r, edm::EventSetup const& es) {

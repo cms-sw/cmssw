@@ -2,13 +2,18 @@
 
 namespace hcaldqm {
   using namespace constants;
-  DQClient::DQClient(std::string const &name, std::string const &taskname, edm::ParameterSet const &ps, edm::ConsumesCollector& iC)
+  DQClient::DQClient(std::string const &name,
+                     std::string const &taskname,
+                     edm::ParameterSet const &ps,
+                     edm::ConsumesCollector &iC)
       : DQModule(ps),
         _taskname(taskname),
         _maxProcessedLS(0),
         hcalDbServiceToken_(iC.esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()),
         runInfoToken_(iC.esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),
-        hcalChannelQualityToken_(iC.esConsumes<HcalChannelQuality, HcalChannelQualityRcd, edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", "withTopo"))) {
+        hcalChannelQualityToken_(
+            iC.esConsumes<HcalChannelQuality, HcalChannelQualityRcd, edm::Transition::BeginLuminosityBlock>(
+                edm::ESInputTag("", "withTopo"))) {
     //	- SET THE TASK NAME YOU REFER TO
     //	- SET THE CLIENT'S NAME AS WELL - RUN SUMMARY PLOTS
     //	WILL BE GENERATED UNDER THAT FOLDER

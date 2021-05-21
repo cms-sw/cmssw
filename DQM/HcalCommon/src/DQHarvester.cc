@@ -4,13 +4,13 @@
 namespace hcaldqm {
   using namespace constants;
 
-  DQHarvester::DQHarvester(edm::ParameterSet const &ps) : DQModule(ps) {
-    tok_RunInfo = esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>();
-    tok_ElectronicsMap = esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd, edm::Transition::BeginRun>();
-    tok_HcalChannelQuality =
-        esConsumes<HcalChannelQuality, HcalChannelQualityRcd, edm::Transition::BeginLuminosityBlock>(
-            edm::ESInputTag("", "withTopo"));
-  }
+  DQHarvester::DQHarvester(edm::ParameterSet const &ps)
+      : DQModule(ps),
+        hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()),
+        runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),
+        hcalChannelQualityToken_(
+            esConsumes<HcalChannelQuality, HcalChannelQualityRcd, edm::Transition::BeginLuminosityBlock>(
+                edm::ESInputTag("", "withTopo"))) {}
 
   void DQHarvester::beginRun(edm::Run const &r, edm::EventSetup const &es) {
     if (_ptype == fLocal)
@@ -25,7 +25,8 @@ namespace hcaldqm {
 
     //	- get the Hcal Electronics Map
     //	- collect all the FED numbers and FED's rawIds
-    _emap = &es.getData(tok_ElectronicsMap);
+    edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
+    _emap = dbs->getHcalMapping();
 
     if (_ptype != fOffline) {  // hidefed2crate
       _vFEDs = utilities::getFEDList(_emap);
@@ -49,10 +50,9 @@ namespace hcaldqm {
       }
 
       //	get the FEDs registered at cDAQ
-      edm::ESHandle<RunInfo> runInfoRec = es.getHandle(tok_RunInfo);
-      if (runInfoRec.isValid()) {
-        const RunInfo *ri = runInfoRec.product();
-        std::vector<int> vfeds = ri->m_fed_in;
+      if (auto runInfoRec = es.tryToGet<RunInfoRcd>()) {
+        const RunInfo &runInfo = es.getData(runInfoToken_);
+        std::vector<int> vfeds = runInfo.m_fed_in;
         for (std::vector<int>::const_iterator it = vfeds.begin(); it != vfeds.end(); ++it) {
           if (*it >= constants::FED_VME_MIN && *it <= FED_VME_MAX)
             _vcdaqEids.push_back(
@@ -83,7 +83,7 @@ namespace hcaldqm {
                                             edm::LuminosityBlock const &lb,
                                             edm::EventSetup const &es) {
     //	get the Hcal Channels Quality for channels that are not 0
-    const HcalChannelQuality *cq = &es.getData(tok_HcalChannelQuality);
+    const HcalChannelQuality *cq = &es.getData(hcalChannelQualityToken_);
     std::vector<DetId> detids = cq->getAllChannels();
     for (std::vector<DetId>::const_iterator it = detids.begin(); it != detids.end(); ++it) {
       if (HcalGenericDetId(*it).genericSubdet() == HcalGenericDetId::HcalGenUnknown)

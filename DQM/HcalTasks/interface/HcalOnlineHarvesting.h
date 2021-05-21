@@ -46,7 +46,7 @@
 
 class HcalOnlineHarvesting : public hcaldqm::DQHarvester {
 public:
-  HcalOnlineHarvesting(edm::ParameterSet const &, edm::ConsumesCollector &iC);
+  HcalOnlineHarvesting(edm::ParameterSet const &);
   ~HcalOnlineHarvesting() override {}
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
 

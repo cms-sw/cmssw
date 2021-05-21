@@ -2,7 +2,10 @@
 
 namespace hcaldqm {
   using namespace constants;
-  TPRunSummary::TPRunSummary(std::string const& name, std::string const& taskname, edm::ParameterSet const& ps, edm::ConsumesCollector &iC)
+  TPRunSummary::TPRunSummary(std::string const& name,
+                             std::string const& taskname,
+                             edm::ParameterSet const& ps,
+                             edm::ConsumesCollector& iC)
       : DQClient(name, taskname, ps, iC) {
     _thresh_EtMsmRate_high = ps.getUntrackedParameter<double>("thresh_EtMsmRate_high", 0.2);
     _thresh_EtMsmRate_low = ps.getUntrackedParameter<double>("thresh_EtMsmRate_low", 0.05);
