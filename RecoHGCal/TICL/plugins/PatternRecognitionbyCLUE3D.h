@@ -100,6 +100,7 @@ namespace ticl {
     const double densityOnSameLayer_;
     const double criticalEtaPhiDistance_;
     const double outlierMultiplier_;
+    const int minNumLayerCluster_;
     const std::vector<int> filter_on_categories_;
     const std::string eidInputName_;
     const std::string eidOutputNameEnergy_;

@@ -32,6 +32,7 @@ PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::Paramet
       densityOnSameLayer_(conf.getParameter<bool>("densityOnSameLayer")),
       criticalEtaPhiDistance_(conf.getParameter<double>("criticalEtaPhiDistance")),
       outlierMultiplier_(conf.getParameter<double>("outlierMultiplier")),
+      minNumLayerCluster_(conf.getParameter<int>("minNumLayerCluster")),
       eidInputName_(conf.getParameter<std::string>("eid_input_name")),
       eidOutputNameEnergy_(conf.getParameter<std::string>("eid_output_name_energy")),
       eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
@@ -264,6 +265,13 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     }
   }
 
+  result.erase(
+      std::remove_if(std::begin(result),
+                     std::end(result),
+                     [&](auto const &v) { return static_cast<int>(v.vertices().size()) < minNumLayerCluster_; }),
+      result.end());
+  result.shrink_to_fit();
+
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
@@ -458,7 +466,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
       minLayer = std::max(layerId - densitySiblingLayers_, minLayer);
       maxLayer = std::min(layerId + densitySiblingLayers_, lastLayerPerSide - 1);
     } else {
-      minLayer = std::max(layerId - densitySiblingLayers_, lastLayerPerSide);
+      minLayer = std::max(layerId - densitySiblingLayers_, lastLayerPerSide + 1);
       maxLayer = std::min(layerId + densitySiblingLayers_, maxLayer);
     }
     for (unsigned int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
@@ -483,12 +491,12 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
         edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "etaBinMin: " << etaBinMin << ", etaBinMax: " << etaBinMax;
         edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "phiBinMin: " << phiBinMin << ", phiBinMax: " << phiBinMax;
       }
-      for (int ieta = etaBinMin; ieta < etaBinMax; ++ieta) {
+      for (int ieta = etaBinMin; ieta <= etaBinMax; ++ieta) {
         auto offset = ieta * nPhiBin;
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
           edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "offset: " << offset;
         }
-        for (int iphi_it = phiBinMin; iphi_it < phiBinMax; ++iphi_it) {
+        for (int iphi_it = phiBinMin; iphi_it <= phiBinMax; ++iphi_it) {
           int iphi = ((iphi_it % nPhiBin + nPhiBin) % nPhiBin);
           if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
             edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "iphi: " << iphi;
@@ -498,8 +506,12 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
           for (auto otherClusterIdx : tileOnLayer[offset + iphi]) {
             auto const &layerandSoa = layerIdx2layerandSoa[otherClusterIdx];
             // Skip masked layer clusters
-            if ((layerandSoa.first == -1) && (layerandSoa.second == -1))
+            if ((layerandSoa.first == -1) && (layerandSoa.second == -1)) {
+              if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+                edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Skipping masked layerIdx " << otherClusterIdx;
+              }
               continue;
+            }
             auto const &clustersLayer = clusters_[layerandSoa.first];
             if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
               edm::LogVerbatim("PatternRecogntionbyCLUE3D")
@@ -519,13 +531,22 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
                                           clustersLayer.energy[layerandSoa.second];
               }
             } else {
-              if (isReachable(clustersOnLayer.eta[i],
-                              clusters_[layerandSoa.first].eta[layerandSoa.second],
-                              clustersOnLayer.phi[i],
-                              clusters_[layerandSoa.first].phi[layerandSoa.second],
-                              densityEtaPhiDistanceSqr_)) {
-                clustersOnLayer.rho[i] += (clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx ? 1.f : 0.5f) *
-                                          clusters_[layerandSoa.first].energy[layerandSoa.second];
+              if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+                edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Distance: "
+                                                              << reco::deltaR2(clustersOnLayer.eta[i],
+                                                                               clustersOnLayer.phi[i],
+                                                                               clustersLayer.eta[layerandSoa.second],
+                                                                               clustersLayer.phi[layerandSoa.second]);
+              }
+              if (reco::deltaR2(clustersOnLayer.eta[i],
+                                clustersOnLayer.phi[i],
+                                clustersLayer.eta[layerandSoa.second],
+                                clustersLayer.phi[layerandSoa.second]) < densityEtaPhiDistanceSqr_) {
+                auto energyToAdd = (clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx ? 1.f : 0.5f) *
+                                   clustersLayer.energy[layerandSoa.second];
+                clustersOnLayer.rho[i] += energyToAdd;
+                edm::LogVerbatim("PatternRecogntionbyCLUE3D")
+                    << "Adding " << energyToAdd << " partial " << clustersOnLayer.rho[i];
               }
             }
           }  // end of loop on possible compatible clusters
@@ -562,7 +583,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
       minLayer = std::max(layerId - densitySiblingLayers_, minLayer);
       maxLayer = std::min(layerId + densitySiblingLayers_, lastLayerPerSide - 1);
     } else {
-      minLayer = std::max(layerId - densitySiblingLayers_, lastLayerPerSide);
+      minLayer = std::max(layerId - densitySiblingLayers_, lastLayerPerSide + 1);
       maxLayer = std::min(layerId + densitySiblingLayers_, maxLayer);
     }
     float maxDelta = std::numeric_limits<float>::max();
@@ -699,10 +720,11 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
   iDesc.add<int>("algo_verbosity", 0);
   iDesc.add<double>("criticalDensity", 4)->setComment("in GeV");
   iDesc.add<int>("densitySiblingLayers", 3);
-  iDesc.add<double>("densityEtaPhiDistanceSqr", 0.0009);
+  iDesc.add<double>("densityEtaPhiDistanceSqr", 0.0008);
   iDesc.add<bool>("densityOnSameLayer", false);
   iDesc.add<double>("criticalEtaPhiDistance", 0.035);
   iDesc.add<double>("outlierMultiplier", 2);
+  iDesc.add<int>("minNumLayerCluster", 5)->setComment("Not Inclusive");
   iDesc.add<std::string>("eid_input_name", "input");
   iDesc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
   iDesc.add<std::string>("eid_output_name_id", "output/id_probabilities");
