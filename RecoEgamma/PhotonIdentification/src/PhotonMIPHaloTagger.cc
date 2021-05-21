@@ -12,8 +12,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
-#include <TMath.h>
-
 void PhotonMIPHaloTagger::setup(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC) {
   EBecalCollection_ = iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection"));
   EEecalCollection_ = iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
@@ -138,7 +136,7 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
       ietacell++;
 
     //Exclude all cells within +/- 5 ieta of seed cell
-    if (TMath::Abs(ietacell - seedIEta) >= 5 && it->energy() > 0.) {
+    if (std::abs(ietacell - seedIEta) >= 5 && it->energy() > 0.) {
       delt_ieta = ietacell - seedIEta;
       delt_iphi = iphicell - seedIPhi;
 
@@ -234,8 +232,8 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
       double res = 1.0 * iphi_cell[j] - a1 - b1 * ieta_cell[j];
       double res_sq = res * res;
 
-      if (TMath::Abs(res) > highest_res) {
-        highest_res = TMath::Abs(res);
+      if (std::abs(res) > highest_res) {
+        highest_res = std::abs(res);
         highres_index = j;
       }
 

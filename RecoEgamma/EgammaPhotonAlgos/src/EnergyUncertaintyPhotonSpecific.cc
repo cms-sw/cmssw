@@ -1,5 +1,4 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
-#include "TMath.h"
 
 #include <iostream>
 
@@ -205,7 +204,7 @@ double EnergyUncertaintyPhotonSpecific::computePhotonEnergyUncertainty_lowR9(dou
 
   int iEtaSl = -1;
   for (int iEta = 0; iEta < nBinsEta; ++iEta) {
-    if (EtaBins[iEta] <= TMath::Abs(eta) && TMath::Abs(eta) < EtaBins[iEta + 1]) {
+    if (EtaBins[iEta] <= std::abs(eta) && std::abs(eta) < EtaBins[iEta + 1]) {
       iEtaSl = iEta;
     }
   }
@@ -217,7 +216,7 @@ double EnergyUncertaintyPhotonSpecific::computePhotonEnergyUncertainty_lowR9(dou
     }
   }
 
-  if (TMath::Abs(eta) > 2.5)
+  if (std::abs(eta) > 2.5)
     iEtaSl = nBinsEta - 1;
   if (brem < BremBins[0])
     iBremSl = 0;
@@ -435,7 +434,7 @@ double EnergyUncertaintyPhotonSpecific::computePhotonEnergyUncertainty_highR9(do
 
   int iEtaSl = -1;
   for (int iEta = 0; iEta < nBinsEta; ++iEta) {
-    if (EtaBins[iEta] <= TMath::Abs(eta) && TMath::Abs(eta) < EtaBins[iEta + 1]) {
+    if (EtaBins[iEta] <= std::abs(eta) && std::abs(eta) < EtaBins[iEta + 1]) {
       iEtaSl = iEta;
     }
   }
@@ -447,7 +446,7 @@ double EnergyUncertaintyPhotonSpecific::computePhotonEnergyUncertainty_highR9(do
     }
   }
 
-  if (TMath::Abs(eta) > 2.5)
+  if (std::abs(eta) > 2.5)
     iEtaSl = nBinsEta - 1;
   if (brem < BremBins[0])
     iBremSl = 0;
