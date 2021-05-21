@@ -75,12 +75,6 @@ for plot in _fatjet_plots_nom:
     if (plot.name.value() != "nConstituents"):
         _fatjet_plots_106Xv1.append(plot)
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.FatJet, plots = _fatjet_plots_106Xv1 )
-_sv_plots_nom = copy.deepcopy(nanoDQM.vplots.SV.plots)
-_sv_plots_106Xv1 = cms.VPSet()
-for plot in _sv_plots_nom:
-    if (plot.name.value() != "charge"):
-        _sv_plots_106Xv1.append(plot)
-(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.SV, plots = _sv_plots_106Xv1 )
 
 
 ## MC
