@@ -93,6 +93,7 @@ namespace pat {
 
     const double minPtForChargedHadronProperties_;
     const double minPtForTrackProperties_;
+    const double minPtForLowQualityTrackProperties_;
     const int covarianceVersion_;
     const std::vector<int> covariancePackingSchemas_;
 
@@ -131,6 +132,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
           consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("chargedHadronIsolation"))),
       minPtForChargedHadronProperties_(iConfig.getParameter<double>("minPtForChargedHadronProperties")),
       minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
+      minPtForLowQualityTrackProperties_(iConfig.getParameter<double>("minPtForLowQualityTrackProperties")),
       covarianceVersion_(iConfig.getParameter<int>("covarianceVersion")),
       covariancePackingSchemas_(iConfig.getParameter<std::vector<int>>("covariancePackingSchemas")),
       pfCandidateTypesForHcalDepth_(iConfig.getParameter<std::vector<int>>("pfCandidateTypesForHcalDepth")),
@@ -305,7 +307,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
         }
         // outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
       } else {
-        if (outPtrP->back().pt() > 0.5) {
+        if (outPtrP->back().pt() > minPtForLowQualityTrackProperties_) {
           if (ctrack->hitPattern().numberOfValidPixelHits() > 0)
             outPtrP->back().setTrackProperties(*ctrack,
                                                covariancePackingSchemas_[2],

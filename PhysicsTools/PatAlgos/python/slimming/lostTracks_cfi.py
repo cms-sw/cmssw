@@ -19,6 +19,7 @@ lostTracks = cms.EDProducer("PATLostTracks",
     covariancePackingSchemas = packedPFCandidates.covariancePackingSchemas,
     qualsToAutoAccept = cms.vstring("highPurity"),
     minPtToStoreProps = cms.double(0.95),
+    minPtToStoreLowQualityProps = cms.double(0.0),
     passThroughCut = cms.string("pt>2"),
     pvAssignment = primaryVertexAssociation.assignment,
     useLegacySetup = cms.bool(False) #When True: check only if track used to fit vertex[0] and do not store track detailed info for Pt between 0.5 and minPtToStoreProps GeV
