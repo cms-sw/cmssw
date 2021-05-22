@@ -1,7 +1,7 @@
 #ifndef RPCNameHelper_H
 #define RPCNameHelper_H
 
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include <string>
 #include <array>
 

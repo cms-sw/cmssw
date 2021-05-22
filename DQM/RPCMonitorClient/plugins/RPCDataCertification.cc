@@ -1,4 +1,5 @@
 #include "DQM/RPCMonitorClient/interface/RPCDataCertification.h"
+#include "DQM/RPCMonitorClient/interface/RPCSummaryMapHisto.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -72,41 +73,12 @@ void RPCDataCertification::myBooker(DQMStore::IBooker& ibooker) {
   totalCertFraction = ibooker.bookFloat("CertificationSummary");
   totalCertFraction->Fill(defaultValue_);
 
-  CertMap_ = ibooker.book2D("CertificationSummaryMap", "RPC Certification Summary Map", 15, -7.5, 7.5, 12, 0.5, 12.5);
+  CertMap_ = RPCSummaryMapHisto::book(ibooker, "CertificationSummaryMap", "RPC Certification Summary Map");
 
-  //customize the 2d histo
-  for (int i = 1; i < 13; i++) {
-    const std::string binLabel = fmt::format("Sec{}", i);
-    CertMap_->setBinLabel(i, binLabel, 2);
-  }
-
-  for (int i = -2; i <= 2; i++) {
-    const std::string binLabel = fmt::format("Wheel{}", i);
-    CertMap_->setBinLabel(i + 8, binLabel, 1);
-  }
-
-  for (int i = 1; i <= numberOfDisks_; i++) {
-    const std::string binLabelP = fmt::format("Disk{}", i);
-    CertMap_->setBinLabel((i + 11), binLabelP, 1);
-    const std::string binLabelM = fmt::format("Disk{}", -i);
-    CertMap_->setBinLabel((-i + 5), binLabelM, 1);
-  }
   //fill the histo with "1" --- just for the moment
-  for (int i = 1; i <= 15; i++) {
-    for (int j = 1; j <= 12; j++) {
-      if (i == 5 || i == 11 || (j > 6 && (i < 6 || i > 10)))
-        CertMap_->setBinContent(i, j, -1);  //bins that not correspond to subdetector parts
-      else
-        CertMap_->setBinContent(i, j, defaultValue_);
-    }
-  }
+  RPCSummaryMapHisto::setBinsBarrel(CertMap_, defaultValue_);
+  RPCSummaryMapHisto::setBinsEndcap(CertMap_, defaultValue_);
 
-  if (numberOfDisks_ < 4) {
-    for (int j = 1; j <= 12; j++) {
-      CertMap_->setBinContent(1, j, -1);  //bins that not correspond to subdetector parts
-      CertMap_->setBinContent(15, j, -1);
-    }
-  }
   // book the ME
   ibooker.setCurrentFolder("RPC/EventInfo/CertificationContents");
 

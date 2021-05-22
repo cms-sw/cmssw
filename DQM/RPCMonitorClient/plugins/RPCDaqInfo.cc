@@ -1,4 +1,6 @@
 #include "DQM/RPCMonitorClient/interface/RPCDaqInfo.h"
+#include "DQM/RPCMonitorClient/interface/RPCSummaryMapHisto.h"
+
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -83,26 +85,9 @@ void RPCDaqInfo::myBooker(DQMStore::IBooker& ibooker) {
   ibooker.setCurrentFolder("RPC/EventInfo");
 
   DaqFraction_ = ibooker.bookFloat("DAQSummary");
-
-  DaqMap_ = ibooker.book2D("DAQSummaryMap", "RPC DAQ Summary Map", 15, -7.5, 7.5, 12, 0.5, 12.5);
-
-  //customize the 2d histo
-  for (int i = 1; i <= 15; ++i) {
-    if (i < 13) {
-      const std::string binLabel = fmt::format("Sec{}", i);
-      DaqMap_->setBinLabel(i, binLabel, 2);
-    }
-
-    std::string binLabel;
-    if (i < 5)
-      binLabel = fmt::format("Disk{}", i-5);
-    else if (i > 11)
-      binLabel = fmt::format("Disk{}", i-11);
-    else if (i != 11 and i != 5)
-      binLabel = fmt::format("Wheel{}", i-8);
-
-    DaqMap_->setBinLabel(i, binLabel, 1);
-  }
+  DaqMap_ = RPCSummaryMapHisto::book(ibooker, "DAQSummaryMap", "RPC DAQ Summary Map");
+  RPCSummaryMapHisto::setBinsBarrel(DaqMap_, 1);
+  RPCSummaryMapHisto::setBinsEndcap(DaqMap_, 1);
 
   init_ = true;
 }
