@@ -37,7 +37,9 @@ extraFlagsTable = cms.EDProducer("GlobalVariablesTableProducer",
     )
 )
 
-extraFlagsProducers = cms.Sequence(badGlobalMuonTagger + cloneGlobalMuonTagger + BadPFMuonTagger + BadChargedCandidateTagger)
+extraFlagsProducers = cms.Sequence()
+#The following line shows an example how to recompute MET filter decisions on top of MINIAOD in case the filter has been updated/is missing. This should not be the default in general.
+#extraFlagsProducers = cms.Sequence(badGlobalMuonTagger + cloneGlobalMuonTagger + BadPFMuonTagger + BadChargedCandidateTagger)
 
 from RecoMET.METFilters.ecalBadCalibFilter_cfi import *
 ecalBadCalibFilterNanoTagger = ecalBadCalibFilter.clone(
