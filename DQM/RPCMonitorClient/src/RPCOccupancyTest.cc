@@ -22,8 +22,6 @@ RPCOccupancyTest::RPCOccupancyTest(const edm::ParameterSet& ps) {
   prefixDir_ = subsystemFolder + "/" + recHitTypeFolder;
 }
 
-RPCOccupancyTest::~RPCOccupancyTest() {}
-
 void RPCOccupancyTest::beginJob(std::string& workingFolder) {
   edm::LogVerbatim("rpceventsummary") << "[RPCOccupancyTest]: Begin job ";
   globalFolder_ = workingFolder;

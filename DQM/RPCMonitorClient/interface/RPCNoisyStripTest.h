@@ -8,7 +8,7 @@
 class RPCNoisyStripTest : public RPCClient {
 public:
   RPCNoisyStripTest(const edm::ParameterSet &ps);
-  ~RPCNoisyStripTest() override;
+  ~RPCNoisyStripTest() override = default;
   void clientOperation() override;
   void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &) override;
   void beginJob(std::string &) override;

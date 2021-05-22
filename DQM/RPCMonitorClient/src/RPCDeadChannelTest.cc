@@ -18,8 +18,6 @@ RPCDeadChannelTest::RPCDeadChannelTest(const edm::ParameterSet& ps) {
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 
-RPCDeadChannelTest::~RPCDeadChannelTest() {}
-
 void RPCDeadChannelTest::beginJob(std::string& workingFolder) {
   edm::LogVerbatim("rpcdeadchanneltest") << "[RPCDeadChannelTest]: Begin Job";
   globalFolder_ = workingFolder;

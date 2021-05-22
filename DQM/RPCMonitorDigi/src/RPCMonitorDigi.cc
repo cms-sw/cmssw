@@ -4,7 +4,6 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"

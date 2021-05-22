@@ -1,5 +1,4 @@
 #include "DQM/RPCMonitorClient/interface/RPCDcsInfoClient.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 RPCDcsInfoClient::RPCDcsInfoClient(const edm::ParameterSet& ps)
     : dcsinfofolder_(ps.getUntrackedParameter<std::string>("dcsInfoFolder", "RPC/DCSInfo")),

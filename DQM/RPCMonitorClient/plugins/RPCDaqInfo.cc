@@ -2,6 +2,9 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/RunInfo/interface/RunSummary.h"
+
+#include <fmt/format.h>
 
 RPCDaqInfo::RPCDaqInfo(const edm::ParameterSet& ps) {
   FEDRange_.first = ps.getUntrackedParameter<unsigned int>("MinimumRPCFEDId", 790);
@@ -16,7 +19,6 @@ RPCDaqInfo::RPCDaqInfo(const edm::ParameterSet& ps) {
   init_ = false;
 }
 
-RPCDaqInfo::~RPCDaqInfo() {}
 void RPCDaqInfo::beginJob() {}
 void RPCDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
                                        DQMStore::IGetter& igetter,
@@ -34,10 +36,8 @@ void RPCDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     int FedCount = 0;
 
     //loop on all active feds
-    for (unsigned int fedItr = 0; fedItr < FedsInIds.size(); ++fedItr) {
-      int fedID = FedsInIds[fedItr];
+    for (const int fedID : FedsInIds ) {
       //make sure fed id is in allowed range
-
       if (fedID >= FEDRange_.first && fedID <= FEDRange_.second)
         ++FedCount;
     }
@@ -60,29 +60,21 @@ void RPCDaqInfo::myBooker(DQMStore::IBooker& ibooker) {
   //fraction of alive FEDs
   ibooker.setCurrentFolder("RPC/EventInfo/DAQContents");
 
-  int limit = numberOfDisks_;
-  if (numberOfDisks_ < 2)
-    limit = 2;
+  const int limit = std::max(2, numberOfDisks_);
 
-  for (int i = -1 * limit; i <= limit; i++) {  //loop on wheels and disks
-    if (i > -3 && i < kNWheels - 2) {          //wheels
-      std::stringstream streams;
-      streams << "RPC_Wheel" << i;
-      daqWheelFractions[i + 2] = ibooker.bookFloat(streams.str());
+  for (int i = -limit; i <= limit; ++i) {  //loop on wheels and disks
+    if (i > -3 && i < nWheels_ - 2) {          //wheels
+      const std::string meName = fmt::format("RPC_Wheel{}", i);
+      daqWheelFractions[i + 2] = ibooker.bookFloat(meName);
       daqWheelFractions[i + 2]->Fill(-1);
     }
 
-    if (i == 0 || i > numberOfDisks_ || i < (-1 * numberOfDisks_))
+    if (i == 0 || i > numberOfDisks_ || i < -numberOfDisks_)
       continue;
 
-    int offset = numberOfDisks_;
-    if (i > 0)
-      offset--;  //used to skip case equale to zero
-
-    if (i > -3 && i < kNDisks - 2) {
-      std::stringstream streams;
-      streams << "RPC_Disk" << i;
-      daqDiskFractions[i + 2] = ibooker.bookFloat(streams.str());
+    if (i > -3 && i < nDisks_ - 2) {
+      const std::string meName = fmt::format("RPC_Disk{}", i);
+      daqDiskFractions[i + 2] = ibooker.bookFloat(meName);
       daqDiskFractions[i + 2]->Fill(-1);
     }
   }
@@ -95,25 +87,21 @@ void RPCDaqInfo::myBooker(DQMStore::IBooker& ibooker) {
   DaqMap_ = ibooker.book2D("DAQSummaryMap", "RPC DAQ Summary Map", 15, -7.5, 7.5, 12, 0.5, 12.5);
 
   //customize the 2d histo
-  std::stringstream BinLabel;
-  for (int i = 1; i <= 15; i++) {
-    BinLabel.str("");
+  for (int i = 1; i <= 15; ++i) {
     if (i < 13) {
-      BinLabel << "Sec" << i;
-      DaqMap_->setBinLabel(i, BinLabel.str(), 2);
+      const std::string binLabel = fmt::format("Sec{}", i);
+      DaqMap_->setBinLabel(i, binLabel, 2);
     }
 
-    BinLabel.str("");
+    std::string binLabel;
     if (i < 5)
-      BinLabel << "Disk" << i - 5;
+      binLabel = fmt::format("Disk{}", i-5);
     else if (i > 11)
-      BinLabel << "Disk" << i - 11;
-    else if (i == 11 || i == 5)
-      BinLabel.str("");
-    else
-      BinLabel << "Wheel" << i - 8;
+      binLabel = fmt::format("Disk{}", i-11);
+    else if (i != 11 and i != 5)
+      binLabel = fmt::format("Wheel{}", i-8);
 
-    DaqMap_->setBinLabel(i, BinLabel.str(), 1);
+    DaqMap_->setBinLabel(i, binLabel, 1);
   }
 
   init_ = true;
