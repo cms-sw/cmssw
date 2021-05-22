@@ -161,7 +161,7 @@ constexpr const std::array<const char*, 16> L1TriggerJSONMonitoring::tcdsTrigger
 L1TriggerJSONMonitoring::L1TriggerJSONMonitoring(edm::ParameterSet const& config)
     : level1Results_(config.getParameter<edm::InputTag>("L1Results")),
       level1ResultsToken_(consumes<GlobalAlgBlkBxCollection>(level1Results_)),
-      l1tUtmTriggerMenuRcdToken_(esConsumes()) {}
+      l1tUtmTriggerMenuRcdToken_(esConsumes<edm::Transition::BeginRun>()) {}
 
 // validate the configuration and optionally fill the default values
 void L1TriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
