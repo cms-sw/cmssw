@@ -3,7 +3,6 @@
 #include "DQM/RPCMonitorClient/interface/RPCDqmClient.h"
 #include "DQM/RPCMonitorClient/interface/RPCNameHelper.h"
 #include "DQM/RPCMonitorClient/interface/RPCBookFolderStructure.h"
-#include "DQM/RPCMonitorClient/interface/utils.h"
 //include client headers
 #include "DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h"
 #include "DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h"

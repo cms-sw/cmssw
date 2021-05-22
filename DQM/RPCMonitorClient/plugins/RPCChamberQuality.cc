@@ -1,7 +1,7 @@
 #include "DQM/RPCMonitorClient/interface/RPCChamberQuality.h"
 
 #include "DQM/RPCMonitorClient/interface/RPCBookFolderStructure.h"
-#include "DQM/RPCMonitorClient/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/RPCRollMapHisto.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 
@@ -78,8 +78,6 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
 
   ibooker.setCurrentFolder(summaryDir_);
 
-  rpcdqm::utils rpcUtils;
-
   for (int r = 0; r < 3; r++) {
     const std::string histoName = fmt::format("RPCChamberQuality_{}", regions_[r]);
     MonitorElement* me = ibooker.book1D(histoName, histoName, 7, 0.5, 7.5);
@@ -102,10 +100,7 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
   for (int w = -2; w < 3; w++) {  //Loop on wheels
 
     const std::string histoName2D = fmt::format("RPCChamberQuality_Roll_vs_Sector_Wheel{}", w);
-    MonitorElement* me2D = ibooker.book2D(histoName2D, histoName2D, 12, 0.5, 12.5, 21, 0.5, 21.5);
-
-    rpcUtils.labelXAxisSector(me2D);
-    rpcUtils.labelYAxisRoll(me2D, 0, w, useRollInfo_);
+    auto * me2D = RPCRollMapHisto::bookBarrel(ibooker, w, histoName2D, histoName2D, useRollInfo_);
 
     const std::string histoName1D = fmt::format("RPCChamberQuality_Distribution_Wheel{}", w);
     MonitorElement* me1D = ibooker.book1D(histoName1D, histoName1D, 7, 0.5, 7.5);
@@ -119,9 +114,7 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
     if (d == 0)
       continue;
     const std::string histoName2D = fmt::format("RPCChamberQuality_Ring_vs_Segment_Disk{}", d);  //  2D histo for RPC Qtest
-    MonitorElement* me2D = ibooker.book2D(histoName2D, histoName2D, 36, 0.5, 36.5, 6, 0.5, 6.5);
-    rpcUtils.labelXAxisSegment(me2D);
-    rpcUtils.labelYAxisRing(me2D, 2, useRollInfo_);
+    auto me2D = RPCRollMapHisto::bookEndcap(ibooker, d, histoName2D, histoName2D, useRollInfo_);
 
     const std::string histoName1D = fmt::format("RPCChamberQuality_Distribution_Disk{}", d);
     MonitorElement* me1D = ibooker.book1D(histoName1D, histoName1D, 7, 0.5, 7.5);

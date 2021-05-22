@@ -1,4 +1,5 @@
 #include "DQM/RPCMonitorClient/interface/RPCClusterSizeTest.h"
+#include <DQM/RPCMonitorClient/interface/RPCRollMapHisto.h>
 #include "DQM/RPCMonitorClient/interface/utils.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -147,16 +148,13 @@ void RPCClusterSizeTest::myBooker(DQMStore::IBooker& ibooker) {
     histoName.str("");
     histoName << "ClusterSizeIn1Bin_Roll_vs_Sector_Wheel"
               << w;  // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)
-    CLSWheel[w + 2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
-    rpcUtils.labelXAxisSector(CLSWheel[w + 2]);
-    rpcUtils.labelYAxisRoll(CLSWheel[w + 2], 0, w, useRollInfo_);
+    auto me = RPCRollMapHisto::bookBarrel(ibooker, w, histoName.str(), histoName.str(), useRollInfo_);
+    CLSWheel[w + 2] = dynamic_cast<MonitorElement*>(me);
 
     histoName.str("");
     histoName << "ClusterSizeMean_Roll_vs_Sector_Wheel" << w;  // Avarage ClusterSize (2D Roll vs Sector)
-    MEANWheel[w + 2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
-
-    rpcUtils.labelXAxisSector(MEANWheel[w + 2]);
-    rpcUtils.labelYAxisRoll(MEANWheel[w + 2], 0, w, useRollInfo_);
+    me = RPCRollMapHisto::bookBarrel(ibooker, w, histoName.str(), histoName.str(), useRollInfo_);
+    MEANWheel[w + 2] = dynamic_cast<MonitorElement*>(me);
 
     if (testMode_) {
       histoName.str("");
@@ -180,16 +178,8 @@ void RPCClusterSizeTest::myBooker(DQMStore::IBooker& ibooker) {
     histoName.str("");
     histoName << "ClusterSizeIn1Bin_Ring_vs_Segment_Disk"
               << d;  // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)
-    CLSDisk[d + offset] = ibooker.book2D(histoName.str().c_str(),
-                                         histoName.str().c_str(),
-                                         36,
-                                         0.5,
-                                         36.5,
-                                         3 * numberOfRings_,
-                                         0.5,
-                                         3 * numberOfRings_ + 0.5);
-    rpcUtils.labelXAxisSegment(CLSDisk[d + offset]);
-    rpcUtils.labelYAxisRing(CLSDisk[d + offset], numberOfRings_, useRollInfo_);
+    auto me = RPCRollMapHisto::bookEndcap(ibooker, d, histoName.str(), histoName.str(), useRollInfo_);
+    CLSDisk[d + offset] = dynamic_cast<MonitorElement*>(me);
 
     if (testMode_) {
       histoName.str("");
@@ -203,15 +193,7 @@ void RPCClusterSizeTest::myBooker(DQMStore::IBooker& ibooker) {
 
     histoName.str("");
     histoName << "ClusterSizeMean_Ring_vs_Segment_Disk" << d;  // Avarage ClusterSize (2D Roll vs Sector)
-    MEANDisk[d + offset] = ibooker.book2D(histoName.str().c_str(),
-                                          histoName.str().c_str(),
-                                          36,
-                                          0.5,
-                                          36.5,
-                                          3 * numberOfRings_,
-                                          0.5,
-                                          3 * numberOfRings_ + 0.5);
-    rpcUtils.labelXAxisSegment(MEANDisk[d + offset]);
-    rpcUtils.labelYAxisRing(MEANDisk[d + offset], numberOfRings_, useRollInfo_);
+    me = RPCRollMapHisto::bookEndcap(ibooker, d, histoName.str(), histoName.str(), useRollInfo_);
+    MEANDisk[d + offset] = dynamic_cast<MonitorElement*>(me);
   }
 }
