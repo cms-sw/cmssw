@@ -1,9 +1,8 @@
 /*  \author Anna Cimmino*/
-#include <DQM/RPCMonitorClient/interface/RPCEventSummary.h>
-// Framework
+#include "DQM/RPCMonitorClient/interface/RPCEventSummary.h"
+#include "DQM/RPCMonitorClient/interface/RPCSummaryMapHisto.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/Framework/interface/LuminosityBlock.h"
-//#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -83,41 +82,9 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     meSummary->Fill(defaultValue);
 
     //TH2F ME providing a mapof values[0-1] to show if problems are localized or distributed
-    MonitorElement* me = ibooker.book2D("reportSummaryMap", "RPC Report Summary Map", 15, -7.5, 7.5, 12, 0.5, 12.5);
-
-    //customize the 2d histo
-    for (int i = 1; i <= 15; i++) {
-      if (i < 13) {
-        const std::string binLabel = fmt::format("Sec{}", i);
-        me->setBinLabel(i, binLabel, 2);
-      }
-
-      std::string binLabel;
-      if (i < 5)
-        binLabel = fmt::format("Disk{}", i-5);
-      else if (i > 11)
-        binLabel = fmt::format("Disk{}", i-11);
-      else if (i != 11 and i != 5)
-        binLabel = fmt::format("Wheel{}", i-8);
-
-      me->setBinLabel(i, binLabel, 1);
-    }
-
-    //fill the histo with "1" --- just for the moment
-    for (int i = 1; i <= 15; i++) {
-      for (int j = 1; j <= 12; j++) {
-        if (i == 5 || i == 11 || (j > 6 && (i < 6 || i > 10)))
-          me->setBinContent(i, j, -1);  //bins that not correspond to subdetector parts
-        else
-          me->setBinContent(i, j, defaultValue);
-      }
-    }
-
-    if (numberDisk_ < 4)
-      for (int j = 1; j <= 12; j++) {
-        me->setBinContent(1, j, -1);  //bins that not correspond to subdetector parts
-        me->setBinContent(15, j, -1);
-      }
+    MonitorElement* me = RPCSummaryMapHisto::book(ibooker, "reportSummaryMap", "RPC Report Summary Map");
+    RPCSummaryMapHisto::setBinsBarrel(me, defaultValue);
+    RPCSummaryMapHisto::setBinsEndcap(me, defaultValue);
 
     //the reportSummaryContents folder containins a collection of ME floats [0-1] (order of 5-10)
     // which describe the behavior of the respective subsystem sub-components.

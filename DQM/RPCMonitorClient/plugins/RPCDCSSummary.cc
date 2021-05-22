@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQM/RPCMonitorClient/interface/RPCSummaryMapHisto.h"
 
 #include <fmt/format.h>
 
@@ -70,42 +71,11 @@ void RPCDCSSummary::myBooker(DQMStore::IBooker& ibooker) {
   totalDCSFraction = ibooker.bookFloat("DCSSummary");
   totalDCSFraction->Fill(defaultValue_);
 
-  DCSMap_ = ibooker.book2D("DCSSummaryMap", "RPC DCS Summary Map", 15, -7.5, 7.5, 12, 0.5, 12.5);
-
-  //customize the 2d histo
-  for (int i = 1; i < 13; i++) {
-    const std::string binLabel = fmt::format("Sec{}", i);
-    DCSMap_->setBinLabel(i, binLabel, 2);
-  }
-
-  for (int i = -2; i <= 2; i++) {
-    const std::string binLabel = fmt::format("Wheel", i);
-    DCSMap_->setBinLabel((i + 8), binLabel, 1);
-  }
-
-  for (int i = 1; i <= numberOfDisks_; i++) {
-    const std::string binLabelP = fmt::format("Disk{}", i);
-    DCSMap_->setBinLabel((i + 11), binLabelP, 1);
-    const std::string binLabelM = fmt::format("Disk{}", -i);
-    DCSMap_->setBinLabel((-i + 5), binLabelM, 1);
-  }
+  DCSMap_ = RPCSummaryMapHisto::book(ibooker, "DCSSummaryMap", "RPC DCS Summary Map");
 
   //fill the histo with "1" --- just for the moment
-  for (int i = 1; i <= 15; i++) {
-    for (int j = 1; j <= 12; j++) {
-      if (i == 5 || i == 11 || (j > 6 && (i < 6 || i > 10)))
-        DCSMap_->setBinContent(i, j, -1);  //bins that not correspond to subdetector parts
-      else
-        DCSMap_->setBinContent(i, j, defaultValue_);
-    }
-  }
-
-  if (numberOfDisks_ < 4) {
-    for (int j = 1; j <= 12; j++) {
-      DCSMap_->setBinContent(1, j, -1);  //bins that not correspond to subdetector parts
-      DCSMap_->setBinContent(15, j, -1);
-    }
-  }
+  RPCSummaryMapHisto::setBinsBarrel(DCSMap_, 1);
+  RPCSummaryMapHisto::setBinsEndcap(DCSMap_, 1);
 
   // book the ME
   ibooker.setCurrentFolder("RPC/EventInfo/DCSContents");
