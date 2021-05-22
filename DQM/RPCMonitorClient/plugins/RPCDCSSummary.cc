@@ -1,13 +1,10 @@
 #include "DQM/RPCMonitorClient/interface/RPCDCSSummary.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "DQMServices/Core/interface/DQMStore.h"
-
-//CondFormats
+#include <fmt/format.h>
 
 RPCDCSSummary::RPCDCSSummary(const edm::ParameterSet& ps) {
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
@@ -23,8 +20,6 @@ RPCDCSSummary::RPCDCSSummary(const edm::ParameterSet& ps) {
 
   runInfoToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 }
-
-RPCDCSSummary::~RPCDCSSummary() {}
 
 void RPCDCSSummary::beginJob() {}
 
@@ -78,26 +73,21 @@ void RPCDCSSummary::myBooker(DQMStore::IBooker& ibooker) {
   DCSMap_ = ibooker.book2D("DCSSummaryMap", "RPC DCS Summary Map", 15, -7.5, 7.5, 12, 0.5, 12.5);
 
   //customize the 2d histo
-  std::stringstream BinLabel;
   for (int i = 1; i < 13; i++) {
-    BinLabel.str("");
-    BinLabel << "Sec" << i;
-    DCSMap_->setBinLabel(i, BinLabel.str(), 2);
+    const std::string binLabel = fmt::format("Sec{}", i);
+    DCSMap_->setBinLabel(i, binLabel, 2);
   }
 
   for (int i = -2; i <= 2; i++) {
-    BinLabel.str("");
-    BinLabel << "Wheel" << i;
-    DCSMap_->setBinLabel((i + 8), BinLabel.str(), 1);
+    const std::string binLabel = fmt::format("Wheel", i);
+    DCSMap_->setBinLabel((i + 8), binLabel, 1);
   }
 
   for (int i = 1; i <= numberOfDisks_; i++) {
-    BinLabel.str("");
-    BinLabel << "Disk" << i;
-    DCSMap_->setBinLabel((i + 11), BinLabel.str(), 1);
-    BinLabel.str("");
-    BinLabel << "Disk" << -i;
-    DCSMap_->setBinLabel((-i + 5), BinLabel.str(), 1);
+    const std::string binLabelP = fmt::format("Disk{}", i);
+    DCSMap_->setBinLabel((i + 11), binLabelP, 1);
+    const std::string binLabelM = fmt::format("Disk{}", -i);
+    DCSMap_->setBinLabel((-i + 5), binLabelM, 1);
   }
 
   //fill the histo with "1" --- just for the moment
@@ -120,28 +110,21 @@ void RPCDCSSummary::myBooker(DQMStore::IBooker& ibooker) {
   // book the ME
   ibooker.setCurrentFolder("RPC/EventInfo/DCSContents");
 
-  int limit = numberOfDisks_;
-  if (numberOfDisks_ < 2)
-    limit = 2;
+  const int limit = std::max(2, numberOfDisks_);
 
   for (int i = -1 * limit; i <= limit; i++) {  //loop on wheels and disks
-    if (i > -3 && i < kNWheels - 2) {          //wheels
-      std::stringstream streams;
-      streams << "RPC_Wheel" << i;
-      dcsWheelFractions[i + 2] = ibooker.bookFloat(streams.str());
+    if (i > -3 && i < nWheels_ - 2) {          //wheels
+      const std::string s = fmt::format("RPC_Wheel{}", i);
+      dcsWheelFractions[i + 2] = ibooker.bookFloat(s);
       dcsWheelFractions[i + 2]->Fill(defaultValue_);
     }
 
-    if (i == 0 || i > numberOfDisks_ || i < (-1 * numberOfDisks_))
+    if (i == 0 || i > numberOfDisks_ || i < -numberOfDisks_)
       continue;
 
-    int offset = numberOfDisks_;
-    if (i > 0)
-      offset--;  //used to skip case equale to zero
-    std::stringstream streams;
-    if (i > -3 && i < kNDisks - 2) {
-      streams << "RPC_Disk" << i;
-      dcsDiskFractions[i + 2] = ibooker.bookFloat(streams.str());
+    if (i > -3 && i < nDisks_ - 2) {
+      const std::string s = fmt::format("RPC_Disk{}", i);
+      dcsDiskFractions[i + 2] = ibooker.bookFloat(s);
       dcsDiskFractions[i + 2]->Fill(defaultValue_);
     }
   }

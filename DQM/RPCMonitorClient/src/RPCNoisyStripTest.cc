@@ -21,8 +21,6 @@ RPCNoisyStripTest::RPCNoisyStripTest(const edm::ParameterSet& ps) {
   testMode_ = ps.getUntrackedParameter<bool>("testMode", false);
 }
 
-RPCNoisyStripTest::~RPCNoisyStripTest() {}
-
 void RPCNoisyStripTest::beginJob(std::string& workingFolder) {
   edm::LogVerbatim("rpcnoisetest") << "[RPCNoisyStripTest]: Begin job ";
   globalFolder_ = workingFolder;

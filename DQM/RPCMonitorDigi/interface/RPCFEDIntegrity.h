@@ -1,20 +1,16 @@
 #ifndef RPCFEDIntegrity_H
 #define RPCFEDIntegrity_H
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
-#include <memory>
+#include <vector>
 #include <string>
-//#include <map>
 
 class RPCFEDIntegrity : public DQMEDAnalyzer {
 public:

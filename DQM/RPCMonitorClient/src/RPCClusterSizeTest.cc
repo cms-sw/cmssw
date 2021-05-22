@@ -1,10 +1,7 @@
-#include <DQM/RPCMonitorClient/interface/RPCClusterSizeTest.h>
+#include "DQM/RPCMonitorClient/interface/RPCClusterSizeTest.h"
 #include "DQM/RPCMonitorClient/interface/utils.h"
 
-// Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-// //Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 RPCClusterSizeTest::RPCClusterSizeTest(const edm::ParameterSet& ps) {
@@ -20,8 +17,6 @@ RPCClusterSizeTest::RPCClusterSizeTest(const edm::ParameterSet& ps) {
   resetMEArrays();
 }
 
-RPCClusterSizeTest::~RPCClusterSizeTest() {}
-
 void RPCClusterSizeTest::beginJob(std::string& workingFolder) {
   edm::LogVerbatim("rpceventsummary") << "[RPCClusterSizeTest]: Begin job ";
 
@@ -33,7 +28,7 @@ void RPCClusterSizeTest::getMonitorElements(std::vector<MonitorElement*>& meVect
                                             std::string& clientHistoName) {
   //Get  ME for each roll
   for (unsigned int i = 0; i < meVector.size(); i++) {
-    std::string meName = meVector[i]->getName();
+    const std::string& meName = meVector[i]->getName();
 
     if (meName.find(clientHistoName) != std::string::npos) {
       myClusterMe_.push_back(meVector[i]);
@@ -55,16 +50,14 @@ void RPCClusterSizeTest::clientOperation() {
   MonitorElement* MEAND = nullptr;  // Mean ClusterSize, Distribution
 
   std::stringstream meName;
-  RPCDetId detId;
-  MonitorElement* myMe;
 
   //Loop on chambers
-  for (unsigned int i = 0; i < myClusterMe_.size(); i++) {
-    myMe = myClusterMe_[i];
+  for (unsigned int i = 0; i < myClusterMe_.size(); ++i) {
+    MonitorElement* myMe = myClusterMe_[i];
     if (!myMe || myMe->getEntries() == 0)
       continue;
 
-    detId = myDetIds_[i];
+    const RPCDetId& detId = myDetIds_[i];
 
     if (detId.region() == 0) {
       CLS = CLSWheel[detId.ring() + 2];
@@ -93,7 +86,7 @@ void RPCClusterSizeTest::clientOperation() {
       }
     }
 
-    int xBin, yBin;
+    int xBin = 0, yBin = 0;
 
     if (detId.region() == 0) {  //Barrel
 
@@ -110,9 +103,8 @@ void RPCClusterSizeTest::clientOperation() {
     }
 
     // Normalization -> # of Entries in first Bin normalaized by total Entries
-
-    float NormCLS = myMe->getBinContent(1) / myMe->getEntries();
-    float meanCLS = myMe->getMean();
+    const float NormCLS = myMe->getBinContent(1) / myMe->getEntries();
+    const float meanCLS = myMe->getMean();
 
     if (CLS)
       CLS->setBinContent(xBin, yBin, NormCLS);
