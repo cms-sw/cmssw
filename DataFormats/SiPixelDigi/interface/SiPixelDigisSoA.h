@@ -1,6 +1,7 @@
 #ifndef DataFormats_SiPixelDigi_interface_SiPixelDigisSoA_h
 #define DataFormats_SiPixelDigi_interface_SiPixelDigisSoA_h
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
