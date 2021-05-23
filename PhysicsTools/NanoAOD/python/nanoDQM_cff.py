@@ -123,6 +123,17 @@ _photon_noscalesyst = [plot for plot in nanoDQM.vplots.Photon.plots if plot.name
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.Electron, plots = _electron_noscalesyst)
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.Photon, plots = _photon_noscalesyst)
 
+## no-change policy in run2_nanoAOD_106Xv1 (nanoAOD-v8)
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
+from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_devel
+_fatjet_plots_nom = copy.deepcopy(nanoDQM.vplots.FatJet.plots)
+_fatjet_plots_106Xv1 = cms.VPSet()
+for plot in _fatjet_plots_nom:
+    if (plot.name.value() != "nConstituents"):
+        _fatjet_plots_106Xv1.append(plot)
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.FatJet, plots = _fatjet_plots_106Xv1 )
+
+
 ## MC
 nanoDQMMC = nanoDQM.clone()
 nanoDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")
