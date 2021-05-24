@@ -190,7 +190,7 @@ const std::string& TableCollection::getCollectionName() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void TableCollections::add(const edm::EDGetToken& table_token,
+void TableCollectionSet::add(const edm::EDGetToken& table_token,
   const nanoaod::FlatTable& table)
 {
   // skip empty tables -- requirement of RNTuple to define schema before filling
@@ -225,14 +225,14 @@ void TableCollections::add(const edm::EDGetToken& table_token,
   collection->add(table_token, table);
 }
 
-void TableCollections::print() const {
+void TableCollectionSet::print() const {
   for (const auto& collection: m_collections) {
     collection.print();
     std::cout << "\n";
   }
 }
 
-void TableCollections::createFields(const edm::EventForOutput& event,
+void TableCollectionSet::createFields(const edm::EventForOutput& event,
   RNTupleModel& eventModel)
 {
   for (auto& collection: m_collections) {
@@ -250,7 +250,7 @@ void TableCollections::createFields(const edm::EventForOutput& event,
   }
 }
 
-void TableCollections::fill(const edm::EventForOutput& event) {
+void TableCollectionSet::fill(const edm::EventForOutput& event) {
   for (auto& collection: m_collections) {
     collection.fill(event);
   }
@@ -265,7 +265,7 @@ void TableCollections::fill(const edm::EventForOutput& event) {
   }
 }
 
-bool TableCollections::hasAnonymousColumn(const nanoaod::FlatTable& table) {
+bool TableCollectionSet::hasAnonymousColumn(const nanoaod::FlatTable& table) {
   int num_anon = 0;
   for (std::size_t i = 0; i < table.nColumns(); i++) {
     if (table.columnName(i).empty()) {

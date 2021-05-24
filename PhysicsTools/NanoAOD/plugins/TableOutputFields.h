@@ -117,7 +117,7 @@ class TableCollection {
     std::vector<TableOutputFields> m_extensions;
 };
 
-class TableCollections {
+class TableCollectionSet {
   public:
     void add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table);
     void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);

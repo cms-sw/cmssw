@@ -67,7 +67,7 @@ private:
 
   std::unique_ptr<TFile> m_file;
   std::unique_ptr<RNTupleWriter> m_ntuple;
-  TableCollections m_tables;
+  TableCollectionSet m_tables;
   std::vector<TriggerOutputFields> m_triggers;
   EventStringOutputFields m_evstrings;
 
