@@ -219,14 +219,10 @@ void TableCollections::add(const edm::EDGetToken& table_token,
   auto collection = std::find_if(m_collections.begin(), m_collections.end(),
     [&](const TableCollection& c) { return c.getCollectionName() == table.name(); });
   if (collection == m_collections.end()) {
-    std::cout << "adding new collection: \n";
-    print_table(table);
     m_collections.emplace_back(TableCollection());
     m_collections.back().add(table_token, table);
     return;
   }
-  std::cout << "adding to existing collection : \n";
-  print_table(table);
   collection->add(table_token, table);
 }
 

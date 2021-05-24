@@ -189,10 +189,8 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
   auto model = RNTupleModel::Create();
   m_commonFields.createFields(*model);
 
-  //m_tables.clear();
   const auto& keeps = keptProducts();
   for (const auto& keep: keeps[edm::InEvent]) {
-    //std::cout << "branch name: " << keep.first->branchName() << "\n";
     if (keep.first->className() == "nanoaod::FlatTable") {
       edm::Handle<nanoaod::FlatTable> handle;
       const auto& token = keep.second;
@@ -211,9 +209,8 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
   for (auto& trigger: m_triggers) {
     trigger.createFields(iEvent, *model);
   }
-  m_tables.print();
   m_evstrings.createFields(*model);
-  // todo use Append
+  // TODO use Append
   RNTupleWriteOptions options;
   options.SetCompression(m_file->GetCompressionSettings());
   m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
@@ -249,41 +246,6 @@ void NanoAODRNTupleOutputModule::reallyCloseFile() {
   m_run.finalizeWrite();
   m_file->Write();
   m_file->Close();
-
-  auto ntuple = ROOT::Experimental::RNTupleReader::Open("Events", m_fileName);
-  ntuple->PrintInfo();
-  ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
-
-  auto muons = ntuple->GetViewCollection("Muon");
-  auto muon_pt = muons.GetView<float>("pt");
-  auto num_entries = 0;
-  for (auto e: ntuple->GetEntryRange()) {
-    std::cout << "entry " << num_entries++ << ":\n";
-    auto num_muons = 0;
-    for (auto m: muons.GetCollectionRange(e)) {
-      std::cout << "pt: " << muon_pt(m) << "\n";
-      num_muons++;
-    }
-    std::cout << "... total " << num_muons << " muons\n";
-  }
-
-  auto lumi_ntuple = ROOT::Experimental::RNTupleReader::Open("LuminosityBlocks", m_fileName);
-  lumi_ntuple->PrintInfo();
-  lumi_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
-
-  auto run_ntuple = ROOT::Experimental::RNTupleReader::Open("Runs", m_fileName);
-  run_ntuple->PrintInfo();
-  run_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
-
-  auto pset_ntuple = ROOT::Experimental::RNTupleReader::Open(
-    edm::poolNames::parameterSetsTreeName(), m_fileName);
-  pset_ntuple->PrintInfo();
-  pset_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
-
-  auto md_ntuple = ROOT::Experimental::RNTupleReader::Open(
-    edm::poolNames::metaDataTreeName(), m_fileName);
-  md_ntuple->PrintInfo();
-  md_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
 
   edm::Service<edm::JobReport> jr;
   jr->outputFileClosed(m_jrToken);

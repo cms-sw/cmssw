@@ -80,7 +80,6 @@ void TriggerOutputFields::createFields(const edm::EventForOutput& event, RNTuple
   m_triggerFields.reserve(triggerNames.size());
   for (std::size_t i = 0; i < triggerNames.size(); i++) {
     auto& name = triggerNames[i];
-    std::cout << name << "\n";
     if (!is_nanoaod_trigger(name)) {
       continue;
     }
