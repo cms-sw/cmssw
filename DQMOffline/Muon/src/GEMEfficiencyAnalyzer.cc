@@ -12,9 +12,11 @@
 
 GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset)
     : GEMOfflineDQMBase(pset),
-      gemToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()),
+      gemToken1_(esConsumes<GEMGeometry, MuonGeometryRecord>()),                                                                    
+      gemToken2_(esConsumes<GEMGeometry, MuonGeometryRecord>()),  
       globalGeomToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()),
-      trasientTranckToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>()) {
+      trasientTrackToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder")))  {
+
   name_ = pset.getUntrackedParameter<std::string>("name");
   folder_ = pset.getUntrackedParameter<std::string>("folder");
 
@@ -109,7 +111,7 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& run,
                                            edm::EventSetup const& isetup) {
   edm::ESHandle<GEMGeometry> gem;
-  gem = isetup.getHandle(gemToken_);
+  gem = isetup.getHandle(gemToken1_);
 
   if (not gem.isValid()) {
     edm::LogError(kLogCategory_) << "GEMGeometry is invalid" << std::endl;
@@ -323,7 +325,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   }
 
   edm::ESHandle<GEMGeometry> gem;
-  gem = setup.getHandle(gemToken_);
+  gem = setup.getHandle(gemToken2_);
 
   if (not gem.isValid()) {
     edm::LogError(kLogCategory_) << "GEMGeometry is invalid" << std::endl;
@@ -340,7 +342,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   }
 
   edm::ESHandle<TransientTrackBuilder> transient_track_builder;
-  transient_track_builder = setup.getHandle(trasientTranckToken_);
+  transient_track_builder = setup.getHandle(trasientTrackToken_);
 
   if (not transient_track_builder.isValid()) {
     edm::LogError(kLogCategory_) << "TransientTrackRecord is invalid" << std::endl;
