@@ -15,7 +15,7 @@
 
 namespace {
 
-void trim_version_suffix(std::string& trigger_name) {
+void trimVersionSuffix(std::string& trigger_name) {
   // HLT and L1 triggers have version suffixes we trim before filling the RNTuple
   if (trigger_name.compare(0, 3, "HLT") != 0 && trigger_name.compare(0, 2, "L1") != 0) {
     return;
@@ -27,7 +27,7 @@ void trim_version_suffix(std::string& trigger_name) {
   trigger_name.replace(vfound, trigger_name.size() - vfound, "");
 }
 
-bool is_nanoaod_trigger(const std::string& name) {
+bool isNanoaodTrigger(const std::string& name) {
   return name.compare(0, 3, "HLT") == 0 || name.compare(0, 4, "Flag") == 0
     || name.compare(0, 2, "L1") == 0;
 }
@@ -80,10 +80,10 @@ void TriggerOutputFields::createFields(const edm::EventForOutput& event, RNTuple
   m_triggerFields.reserve(triggerNames.size());
   for (std::size_t i = 0; i < triggerNames.size(); i++) {
     auto& name = triggerNames[i];
-    if (!is_nanoaod_trigger(name)) {
+    if (!isNanoaodTrigger(name)) {
       continue;
     }
-    trim_version_suffix(name);
+    trimVersionSuffix(name);
     std::string modelName = name;
     makeUniqueFieldName(model, modelName);
     m_triggerFields.emplace_back(TriggerFieldPtr(name, i, modelName, model));
@@ -98,10 +98,10 @@ void TriggerOutputFields::updateTriggerFields(const edm::TriggerResults& trigger
     t.setIndex(-1);
     for (std::size_t j = 0; j < newNames.size(); j++) {
       auto& name = newNames[j];
-      if (!is_nanoaod_trigger(name)) {
+      if (!isNanoaodTrigger(name)) {
         continue;
       }
-      trim_version_suffix(name);
+      trimVersionSuffix(name);
       if (name == t.getTriggerName()) {
         t.setIndex(j);
       }
@@ -110,10 +110,10 @@ void TriggerOutputFields::updateTriggerFields(const edm::TriggerResults& trigger
   // find new triggers
   for (std::size_t j = 0; j < newNames.size(); j++) {
     auto& name = newNames[j];
-    if (!is_nanoaod_trigger(name)) {
+    if (!isNanoaodTrigger(name)) {
       continue;
     }
-    trim_version_suffix(name);
+    trimVersionSuffix(name);
     if (std::none_of(m_triggerFields.cbegin(), m_triggerFields.cend(),
       [&](const TriggerFieldPtr& t) { return t.getTriggerName() == name; }))
     {

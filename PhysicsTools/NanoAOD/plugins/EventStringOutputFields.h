@@ -18,7 +18,7 @@ private:
 public:
   EventStringOutputFields() = default;
 
-  void register_token(const edm::EDGetToken &token);
+  void registerToken(const edm::EDGetToken &token);
   void createFields(RNTupleModel &model);
   void fill(const edm::EventForOutput &iEvent);
 };

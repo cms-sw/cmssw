@@ -41,7 +41,7 @@ void LumiNTuple::finalizeWrite() {
   m_ntuple.reset();
 }
 
-void RunNTuple::register_token(const edm::EDGetToken &token) {
+void RunNTuple::registerToken(const edm::EDGetToken &token) {
   m_tokens.push_back(token);
 }
 

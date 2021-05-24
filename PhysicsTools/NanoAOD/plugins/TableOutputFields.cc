@@ -1,7 +1,7 @@
 #include "PhysicsTools/NanoAOD/plugins/TableOutputFields.h"
 
 namespace {
-  void print_table(const nanoaod::FlatTable& table) {
+  void printTable(const nanoaod::FlatTable& table) {
     std::cout << "FlatTable {\n";
     std::cout << "  name: " << (table.name().empty() ? "// anon" : table.name()) << "\n";
     std::cout << "  singleton: " << (table.singleton() ? "true" : "false") << "\n";
@@ -196,7 +196,7 @@ void TableCollections::add(const edm::EDGetToken& table_token,
   // skip empty tables -- requirement of RNTuple to define schema before filling
   if (table.nColumns() == 0) {
     std::cout << "Warning: skipping empty table: \n";
-    print_table(table);
+    printTable(table);
     return;
   }
   // Can handle either anonymous table or anonymous column but not both

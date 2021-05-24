@@ -36,7 +36,7 @@ private:
 class RunNTuple {
 public:
   RunNTuple() = default;
-  void register_token(const edm::EDGetToken &token);
+  void registerToken(const edm::EDGetToken &token);
   void fill(const edm::RunForOutput& iRun, TFile& file);
   void finalizeWrite();
 private:

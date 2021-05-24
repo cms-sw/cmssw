@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "PhysicsTools/NanoAOD/plugins/EventStringOutputFields.h"
 
-void EventStringOutputFields::register_token(const edm::EDGetToken &token) {
+void EventStringOutputFields::registerToken(const edm::EDGetToken &token) {
   m_tokens.push_back(token);
 }
 
