@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
+from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from DQMOffline.Muon.gemEfficiencyAnalyzerDefault_cfi import gemEfficiencyAnalyzerDefault as _gemEfficiencyAnalyzerDefault
 
 gemOfflineDQMTightGlbMuons = cms.EDFilter("MuonSelector",
