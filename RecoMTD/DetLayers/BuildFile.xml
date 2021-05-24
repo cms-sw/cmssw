@@ -4,6 +4,7 @@
 <use name="FWCore/Utilities"/>
 <use name="TrackingTools/DetLayers"/>
 <use name="Utilities/BinningTools"/>
+<use name="Geometry/MTDNumberingBuilder"/>
 <use name="Geometry/MTDGeometryBuilder"/>
 <use name="Geometry/Records"/>
 <use name="RecoMTD/Records"/>
