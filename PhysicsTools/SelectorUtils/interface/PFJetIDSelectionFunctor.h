@@ -564,6 +564,89 @@ public:  // interface
       if (ignoreCut(indexNNeutrals_FW_U_) ||
           (nneutrals < cut(indexNNeutrals_FW_U_, int()) || std::abs(jet.eta()) <= 3.0))
         passCut(ret, indexNNeutrals_FW_U_);
+
+    } else if (version_ == RUN2UL16CHS) {
+      // Cuts for |eta| <= 2.4 for RUN2UL16CHS scenario
+      if (ignoreCut(indexNConstituents_) ||
+          (nconstituents > cut(indexNConstituents_, int()) || std::abs(jet.eta()) > 2.4))
+        passCut(ret, indexNConstituents_);
+      if (ignoreCut(indexNEF_) || (nef < cut(indexNEF_, double()) || std::abs(jet.eta()) > 2.4))
+        passCut(ret, indexNEF_);
+      if (ignoreCut(indexNHF_) || (nhf < cut(indexNHF_, double()) || std::abs(jet.eta()) > 2.4))
+        passCut(ret, indexNHF_);
+      if (quality_ == TIGHTLEPVETO) {
+        if (ignoreCut(indexMUF_) || (muf < cut(indexMUF_, double()) || std::abs(jet.eta()) > 2.4))
+          passCut(ret, indexMUF_);
+      }
+
+      // Cuts for 2.4 <= |eta| <= 2.7 for RUN2UL16CHS scenario
+      if (ignoreCut(indexNHF_TR_) ||
+          (nhf < cut(indexNHF_TR_, double()) || std::abs(jet.eta()) <= 2.4 || std::abs(jet.eta()) > 2.7))
+        passCut(ret, indexNHF_TR_);
+      if (ignoreCut(indexNEF_TR_) ||
+          (nef < cut(indexNEF_TR_, double()) || std::abs(jet.eta()) <= 2.4 || std::abs(jet.eta()) > 2.7))
+        passCut(ret, indexNEF_TR_);
+
+      // Cuts for 2.7 < |eta| <= 3.0 for RUN2UL16CHS scenario
+      if (ignoreCut(indexNHF_EC_) ||
+          (nhf < cut(indexNHF_EC_, double()) || std::abs(jet.eta()) <= 2.7 || std::abs(jet.eta()) > 3.0))
+        passCut(ret, indexNHF_EC_);
+      if (ignoreCut(indexNEF_EC_L_) ||
+          (nef > cut(indexNEF_EC_L_, double()) || std::abs(jet.eta()) <= 2.7 || std::abs(jet.eta()) > 3.0))
+        passCut(ret, indexNEF_EC_L_);
+      if (ignoreCut(indexNEF_EC_U_) ||
+          (nef < cut(indexNEF_EC_U_, double()) || std::abs(jet.eta()) <= 2.7 || std::abs(jet.eta()) > 3.0))
+        passCut(ret, indexNEF_EC_U_);
+      if (ignoreCut(indexNNeutrals_EC_) ||
+          (nneutrals > cut(indexNNeutrals_EC_, int()) || std::abs(jet.eta()) <= 2.7 || std::abs(jet.eta()) > 3.0))
+        passCut(ret, indexNNeutrals_EC_);
+
+      // Cuts for |eta| > 3.0 for RUN2UL16CHS scenario
+      if (ignoreCut(indexNHF_FW_) || (nhf > cut(indexNHF_FW_, double()) || std::abs(jet.eta()) <= 3.0))
+        passCut(ret, indexNHF_FW_);
+      if (ignoreCut(indexNEF_FW_) || (nef < cut(indexNEF_FW_, double()) || std::abs(jet.eta()) <= 3.0))
+        passCut(ret, indexNEF_FW_);
+      if (ignoreCut(indexNNeutrals_FW_) || (nneutrals > cut(indexNNeutrals_FW_, int()) || std::abs(jet.eta()) <= 3.0))
+        passCut(ret, indexNNeutrals_FW_);
+
+    }
+    else if (version_ == RUN2UL16PUPPI) {
+      // Cuts for |eta| <= 2.6 for RUN2UL16PUPPI scenario
+      if (ignoreCut(indexNConstituents_) ||
+          (nconstituents > cut(indexNConstituents_, int()) || std::abs(jet.eta()) > 2.4))
+        passCut(ret, indexNConstituents_);
+      if (ignoreCut(indexNEF_) || (nef < cut(indexNEF_, double()) || std::abs(jet.eta()) > 2.4))
+        passCut(ret, indexNEF_);
+      if (ignoreCut(indexNHF_) || (nhf < cut(indexNHF_, double()) || std::abs(jet.eta()) > 2.4))
+        passCut(ret, indexNHF_);
+      if (quality_ == TIGHTLEPVETO) {
+        if (ignoreCut(indexMUF_) || (muf < cut(indexMUF_, double()) || std::abs(jet.eta()) > 2.4))
+          passCut(ret, indexMUF_);
+      }
+
+      // Cuts for 2.4 <= |eta| <= 2.7 for RUN2UL16PUPPI scenario
+      if (ignoreCut(indexNHF_TR_) ||
+          (nhf < cut(indexNHF_TR_, double()) || std::abs(jet.eta()) <= 2.4 || std::abs(jet.eta()) > 2.7))
+        passCut(ret, indexNHF_TR_);
+      if (ignoreCut(indexNEF_TR_) ||
+          (nef < cut(indexNEF_TR_, double()) || std::abs(jet.eta()) <= 2.4 || std::abs(jet.eta()) > 2.7))
+        passCut(ret, indexNEF_TR_);
+
+      // Cuts for 2.7 < |eta| <= 3.0 for RUN2UL16PUPPI scenario
+      if (ignoreCut(indexNNeutrals_EC_) ||
+          (nneutrals > cut(indexNNeutrals_EC_, int()) || std::abs(jet.eta()) <= 2.7 || std::abs(jet.eta()) > 3.0))
+        passCut(ret, indexNNeutrals_EC_);
+
+      // Cuts for |eta| > 3.0 for RUN2UL16PUPPI scenario
+      if (ignoreCut(indexNEF_FW_) || (nef < cut(indexNEF_FW_, double()) || std::abs(jet.eta()) <= 3.0))
+        passCut(ret, indexNEF_FW_);
+      if (ignoreCut(indexNNeutrals_FW_L_) ||
+          (nneutrals > cut(indexNNeutrals_FW_L_, int()) || std::abs(jet.eta()) <= 3.0))
+        passCut(ret, indexNNeutrals_FW_L_);
+      if (ignoreCut(indexNNeutrals_FW_U_) ||
+          (nneutrals < cut(indexNNeutrals_FW_U_, int()) || std::abs(jet.eta()) <= 3.0))
+        passCut(ret, indexNNeutrals_FW_U_);
+
     } else if ((version_ == SUMMER18) || (version_ == RUN2ULCHS)) {
       // Cuts for |eta| <= 2.6 for SUMMER18 scenario
       if (ignoreCut(indexNConstituents_) ||
@@ -592,9 +675,6 @@ public:  // interface
         if (ignoreCut(indexMUF_TR_) ||
             (muf < cut(indexMUF_TR_, double()) || std::abs(jet.eta()) <= 2.6 || std::abs(jet.eta()) > 2.7))
           passCut(ret, indexMUF_TR_);
-        if (ignoreCut(indexCEF_TR_) ||
-            (cef < cut(indexCEF_TR_, double()) || std::abs(jet.eta()) <= 2.6 || std::abs(jet.eta()) > 2.7))
-          passCut(ret, indexCEF_TR_);
       }
 
       // Cuts for 2.7 < |eta| <= 3.0 for SUMMER18 scenario
@@ -642,9 +722,6 @@ public:  // interface
         if (ignoreCut(indexMUF_TR_) ||
             (muf < cut(indexMUF_TR_, double()) || std::abs(jet.eta()) <= 2.6 || std::abs(jet.eta()) > 2.7))
           passCut(ret, indexMUF_TR_);
-        if (ignoreCut(indexCEF_TR_) ||
-            (cef < cut(indexCEF_TR_, double()) || std::abs(jet.eta()) <= 2.6 || std::abs(jet.eta()) > 2.7))
-          passCut(ret, indexCEF_TR_);
       }
 
       // Cuts for 2.7 < |eta| <= 3.0 for SUMMER18PUPPI scenario
@@ -960,8 +1037,8 @@ private:  // member variables
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 15);
       } else if (version_ == RUN2UL16CHS) {
-        set("CEF", 0.8);
         set("MUF", 0.8);
+        set("CEF", 0.8);
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("NHF_EC", 0.9);
@@ -972,8 +1049,8 @@ private:  // member variables
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
       } else if (version_ == RUN2UL16PUPPI) {
-        set("CEF", 0.8);
         set("MUF", 0.8);
+        set("CEF", 0.8);
         set("NHF_TR", 0.98);
         set("NEF_TR", 0.99);
         set("nNeutrals_EC", 1);
