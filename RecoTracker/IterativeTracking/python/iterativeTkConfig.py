@@ -84,6 +84,10 @@ _multipleSeedProducers_trackingPhase1 = {
     "MixedTripletStep": ["A", "B"],
     "TobTecStep": ["Pair", "Tripl"],
 }
+from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
+seedingDeepCore.toModify(_multipleSeedProducers_trackingPhase1, func=lambda x: x.update({"JetCoreRegionalStep": ["Barrel","Endcap"]}))
+
+
 _multipleSeedProducers_trackingPhase2PU140 = {}
 _oldStyleHasSelector = set([
     "InitialStep",
