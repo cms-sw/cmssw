@@ -681,10 +681,23 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetSequence.insert(proc.jetSequence.index(proc.pileupJetId94X), getattr(proc, pileupJetId80X))
 
   proc.updatedJetsWithUserData.userInts.puId80XfullId = cms.InputTag('pileupJetId80X:fullId')
-  run2_jme_2016.toModify(proc.updatedJetsWithUserData.userFloats, puId80XDisc = cms.InputTag("pileupJetId80X:fullDiscriminant"))
+  proc.updatedJetsWithUserData.userFloats.puId80XDisc = cms.InputTag("pileupJetId80X:fullDiscriminant")
 
-  proc.jetTable.variables.puId = Var("userInt('puId80XfullId')", int, doc="Pilup ID flags with 80X (2016) training")
   run2_jme_2016.toModify(proc.jetTable.variables, puIdDisc = Var("userFloat('puId80XDisc')",float,doc="Pilup ID discriminant with 80X (2016) training",precision=10))
+  run2_jme_2016.toModify(proc.jetTable.variables, puId = Var("userInt('puId80XfullId')",int,doc="Pileup ID flags with 80X (2016) training"))
+
+  for modifier in run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
+    modifier.toModify(proc.jetTable.variables, puId = Var("userInt('puId80XfullId')", int, doc="Pileup ID flags with 80X (2016) training"))
+
+  #
+  # Add charged energy fraction from other primary vertices
+  #
+  proc.updatedJetsWithUserData.userFloats.chFPV1EF = cms.InputTag("jercVars:chargedFromPV1EnergyFraction")
+  proc.updatedJetsWithUserData.userFloats.chFPV2EF = cms.InputTag("jercVars:chargedFromPV2EnergyFraction")
+  proc.updatedJetsWithUserData.userFloats.chFPV3EF = cms.InputTag("jercVars:chargedFromPV3EnergyFraction")
+  proc.jetTable.variables.chFPV1EF = Var("userFloat('chFPV1EF')", float, doc="charged fromPV==1 Energy Fraction (component of the total charged Energy Fraction).", precision= 6)
+  proc.jetTable.variables.chFPV2EF = Var("userFloat('chFPV2EF')", float, doc="charged fromPV==2 Energy Fraction (component of the total charged Energy Fraction).", precision= 6)
+  proc.jetTable.variables.chFPV3EF = Var("userFloat('chFPV3EF')", float, doc="charged fromPV==3 Energy Fraction (component of the total charged Energy Fraction).", precision= 6)
 
   #
   # Add variables for pileup jet ID studies.
