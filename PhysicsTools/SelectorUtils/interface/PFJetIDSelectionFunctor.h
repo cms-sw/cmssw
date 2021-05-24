@@ -675,6 +675,9 @@ public:  // interface
         if (ignoreCut(indexMUF_TR_) ||
             (muf < cut(indexMUF_TR_, double()) || std::abs(jet.eta()) <= 2.6 || std::abs(jet.eta()) > 2.7))
           passCut(ret, indexMUF_TR_);
+        if (ignoreCut(indexCEF_TR_) ||
+            (cef < cut(indexCEF_TR_, double()) || std::abs(jet.eta()) <= 2.6 || std::abs(jet.eta()) > 2.7))
+          passCut(ret, indexCEF_TR_);
       }
 
       // Cuts for 2.7 < |eta| <= 3.0 for SUMMER18 scenario
@@ -722,6 +725,9 @@ public:  // interface
         if (ignoreCut(indexMUF_TR_) ||
             (muf < cut(indexMUF_TR_, double()) || std::abs(jet.eta()) <= 2.6 || std::abs(jet.eta()) > 2.7))
           passCut(ret, indexMUF_TR_);
+        if (ignoreCut(indexCEF_TR_) ||
+            (cef < cut(indexCEF_TR_, double()) || std::abs(jet.eta()) <= 2.6 || std::abs(jet.eta()) > 2.7))
+          passCut(ret, indexCEF_TR_);
       }
 
       // Cuts for 2.7 < |eta| <= 3.0 for SUMMER18PUPPI scenario
