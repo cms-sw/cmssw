@@ -22,8 +22,12 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 
 class GEMEfficiencyAnalyzer : public GEMOfflineDQMBase {
+
 public:
   explicit GEMEfficiencyAnalyzer(const edm::ParameterSet &);
   ~GEMEfficiencyAnalyzer() override;
@@ -43,9 +47,10 @@ private:
     int region, station, layer;
   };
 
-  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken1_;  
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken2_;
   const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalGeomToken_;
-  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trasientTranckToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trasientTrackToken_;
 
   MonitorElement *bookNumerator1D(DQMStore::IBooker &, MonitorElement *);
   MonitorElement *bookNumerator2D(DQMStore::IBooker &, MonitorElement *);
