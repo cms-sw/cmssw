@@ -52,6 +52,7 @@ protected:
   edm::EDGetTokenT<HODigiCollection> _tokHO;
   edm::EDGetTokenT<HFDigiCollection> _tokHF;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	cuts
   double _lowHBHE, _lowHO, _lowHF;

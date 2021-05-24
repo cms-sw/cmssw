@@ -36,6 +36,7 @@ protected:
   edm::EDGetTokenT<HODigiCollection> _tokHO;
   edm::EDGetTokenT<HFDigiCollection> _tokHF;
   edm::EDGetTokenT<HcalUnpackerReport> _tokReport;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
 

@@ -3,8 +3,11 @@
 namespace hcaldqm {
   using namespace constants;
 
-  DigiRunSummary::DigiRunSummary(std::string const& name, std::string const& taskname, edm::ParameterSet const& ps)
-      : DQClient(name, taskname, ps), _booked(false) {
+  DigiRunSummary::DigiRunSummary(std::string const& name,
+                                 std::string const& taskname,
+                                 edm::ParameterSet const& ps,
+                                 edm::ConsumesCollector& iC)
+      : DQClient(name, taskname, ps, iC), _booked(false) {
     _thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
 
     std::vector<uint32_t> vrefDigiSize = ps.getUntrackedParameter<std::vector<uint32_t>>("refDigiSize");
