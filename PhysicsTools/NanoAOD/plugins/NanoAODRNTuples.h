@@ -15,8 +15,11 @@
 using ROOT::Experimental::RCollectionNTuple;
 using ROOT::Experimental::RNTupleWriter;
 
-#include "RNTupleFieldPtr.h"
-#include "SummaryTableOutputFields.h"
+#include "PhysicsTools/NanoAOD/plugins/EventStringOutputFields.h"
+#include "PhysicsTools/NanoAOD/plugins/RNTupleFieldPtr.h"
+#include "PhysicsTools/NanoAOD/plugins/SummaryTableOutputFields.h"
+#include "PhysicsTools/NanoAOD/plugins/TableOutputFields.h"
+#include "PhysicsTools/NanoAOD/plugins/TriggerOutputFields.h"
 
 class LumiNTuple {
 public:

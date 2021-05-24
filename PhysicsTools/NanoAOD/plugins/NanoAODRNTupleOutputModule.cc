@@ -37,10 +37,7 @@ using ROOT::Experimental::RNTupleWriteOptions;
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
-#include "PhysicsTools/NanoAOD/plugins/EventStringOutputFields.h"
 #include "PhysicsTools/NanoAOD/plugins/NanoAODRNTuples.h"
-#include "PhysicsTools/NanoAOD/plugins/TableOutputFields.h"
-#include "PhysicsTools/NanoAOD/plugins/TriggerOutputFields.h"
 
 class NanoAODRNTupleOutputModule : public edm::one::OutputModule<> {
 public:
