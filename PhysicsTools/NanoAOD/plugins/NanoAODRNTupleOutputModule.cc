@@ -185,11 +185,6 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
           keep.first->className() + " in Run branch");
     }
   }
-
-  // TODO move to reallyCloseFile, here for quick debugging
-  if (m_writeProvenance) {
-    writeProvenance();
-  }
 }
 
 void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEvent) {
@@ -248,9 +243,9 @@ void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
 }
 
 void NanoAODRNTupleOutputModule::reallyCloseFile() {
-  //if (m_writeProvenance) {
-  //  writeProvenance();
-  //}
+  if (m_writeProvenance) {
+    writeProvenance();
+  }
   // write ntuple to disk by calling the RNTupleWriter destructor
   m_ntuple.reset();
   m_lumi.finalizeWrite();
@@ -324,6 +319,16 @@ void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions
                                          "keep nanoaodMergeableCounterTable_*Table_*_*",
                                          "keep nanoaodUniqueString_nanoMetadata_*_*"};
   edm::one::OutputModule<>::fillDescription(desc, keep);
+
+  //Used by Workflow management for their own meta data
+  edm::ParameterSetDescription dataSet;
+  dataSet.setAllowAnything();
+  desc.addUntracked<edm::ParameterSetDescription>("dataset", dataSet)
+      ->setComment("PSet is only used by Data Operations and not by this module.");
+
+  edm::ParameterSetDescription branchSet;
+  branchSet.setAllowAnything();
+  desc.add<edm::ParameterSetDescription>("branches", branchSet);
 
   descriptions.addDefault(desc);
 }
