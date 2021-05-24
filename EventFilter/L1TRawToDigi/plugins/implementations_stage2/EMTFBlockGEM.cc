@@ -96,8 +96,9 @@ namespace l1t {
                                 const int evt_sector,
                                 const int cluster_id,  // used to differentiate between GEM layer 1/2
                                 const int link) {
-        station = -99;  // station is not encoded in the GEM frame
-        ring = 1;       // GEMs are only in GE1/1 and GE2/1
+        station =
+            1;  // station is not encoded in the GEM frame for now. Set station = 1 since we only have GE1/1 for Run 3.
+        ring = 1;  // GEMs are only in GE1/1 and GE2/1
         sector = -99;
         subsector = -99;
         neighbor = -99;
