@@ -1,7 +1,8 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 from math import pi
 
-from Phase1L1TJets_sincosLUT_cff import sinPhi, cosPhi
+from .Phase1L1TJets_sincosLUT_cff import sinPhi, cosPhi
 
 Phase1L1TJetSumsProducer = cms.EDProducer('Phase1L1TJetSumsProducer',
   inputJetCollectionTag = cms.InputTag("Phase1L1TJetCalibrator", "Phase1L1TJetFromPfCandidates"),
