@@ -10,15 +10,19 @@ namespace {
     std::cout << "  fields: {\n";
     for (std::size_t i = 0; i < table.nColumns(); i++) {
       std::cout << "    " << (table.columnName(i).empty() ? "// anon" : table.columnName(i)) << ": ";
-      switch(table.columnType(i)) {
+      switch (table.columnType(i)) {
         case nanoaod::FlatTable::ColumnType::Float:
-          std::cout << "f32,"; break;
+          std::cout << "f32,";
+          break;
         case nanoaod::FlatTable::ColumnType::Int:
-          std::cout << "i32,"; break;
+          std::cout << "i32,";
+          break;
         case nanoaod::FlatTable::ColumnType::UInt8:
-          std::cout << "u8,"; break;
+          std::cout << "u8,";
+          break;
         case nanoaod::FlatTable::ColumnType::Bool:
-          std::cout << "bool,"; break;
+          std::cout << "bool,";
+          break;
         default:
           throw cms::Exception("LogicError", "Unsupported type");
       }
@@ -26,19 +30,19 @@ namespace {
     }
     std::cout << "  }\n}\n";
   }
-} // anonymous namespace
+}  // anonymous namespace
 
 void TableOutputFields::print() const {
-  for (const auto& field: m_floatFields) {
+  for (const auto& field : m_floatFields) {
     std::cout << "  " << field.getFlatTableName() << ": f32,\n";
   }
-  for (const auto& field: m_intFields) {
+  for (const auto& field : m_intFields) {
     std::cout << "  " << field.getFlatTableName() << ": i32,\n";
   }
-  for (const auto& field: m_uint8Fields) {
+  for (const auto& field : m_uint8Fields) {
     std::cout << "  " << field.getFlatTableName() << ": u8,\n";
   }
-  for (const auto& field: m_boolFields) {
+  for (const auto& field : m_boolFields) {
     std::cout << "  " << field.getFlatTableName() << ": bool,\n";
   }
 }
@@ -48,15 +52,19 @@ void TableOutputFields::createFields(const edm::EventForOutput& event, RNTupleMo
   event.getByToken(m_token, handle);
   const nanoaod::FlatTable& table = *handle;
   for (std::size_t i = 0; i < table.nColumns(); i++) {
-    switch(table.columnType(i)) {
+    switch (table.columnType(i)) {
       case nanoaod::FlatTable::ColumnType::Float:
-        m_floatFields.emplace_back(FlatTableField<float>(table, i, model)); break;
+        m_floatFields.emplace_back(FlatTableField<float>(table, i, model));
+        break;
       case nanoaod::FlatTable::ColumnType::Int:
-        m_intFields.emplace_back(FlatTableField<int>(table, i, model)); break;
+        m_intFields.emplace_back(FlatTableField<int>(table, i, model));
+        break;
       case nanoaod::FlatTable::ColumnType::UInt8:
-        m_uint8Fields.emplace_back(FlatTableField<std::uint8_t>(table, i, model)); break;
+        m_uint8Fields.emplace_back(FlatTableField<std::uint8_t>(table, i, model));
+        break;
       case nanoaod::FlatTable::ColumnType::Bool:
-        m_boolFields.emplace_back(FlatTableField<bool>(table, i, model)); break;
+        m_boolFields.emplace_back(FlatTableField<bool>(table, i, model));
+        break;
       default:
         throw cms::Exception("LogicError", "Unsupported type");
     }
@@ -78,9 +86,7 @@ void TableOutputFields::fillEntry(const nanoaod::FlatTable& table, std::size_t i
   }
 }
 
-const edm::EDGetToken& TableOutputFields::getToken() const {
-  return m_token;
-}
+const edm::EDGetToken& TableOutputFields::getToken() const { return m_token; }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +95,7 @@ void TableOutputVectorFields::createFields(const edm::EventForOutput& event, RNT
   event.getByToken(m_token, handle);
   const nanoaod::FlatTable& table = *handle;
   for (std::size_t i = 0; i < table.nColumns(); i++) {
-    switch(table.columnType(i)) {
+    switch (table.columnType(i)) {
       case nanoaod::FlatTable::ColumnType::Float:
         m_vfloatFields.emplace_back(FlatTableField<std::vector<float>>(table, i, model));
         break;
@@ -137,14 +143,14 @@ void TableCollection::add(const edm::EDGetToken& table_token, const nanoaod::Fla
   }
   if (hasMainTable()) {
     throw cms::Exception("LogicError", "Trying to save multiple main tables for " + m_collectionName + "\n");
- }
+  }
   m_main = TableOutputFields(table_token);
 }
 
 void TableCollection::createFields(const edm::EventForOutput& event, RNTupleModel& eventModel) {
   auto collectionModel = RNTupleModel::Create();
   m_main.createFields(event, *collectionModel);
-  for (auto& extension: m_extensions) {
+  for (auto& extension : m_extensions) {
     extension.createFields(event, *collectionModel);
   }
   m_collection = eventModel.MakeCollection(m_collectionName, std::move(collectionModel));
@@ -157,13 +163,13 @@ void TableCollection::fill(const edm::EventForOutput& event) {
   auto table_size = main_table.size();
   for (std::size_t i = 0; i < table_size; i++) {
     m_main.fillEntry(main_table, i);
-    for (auto& ext: m_extensions) {
+    for (auto& ext : m_extensions) {
       edm::Handle<nanoaod::FlatTable> handle;
       event.getByToken(ext.getToken(), handle);
       const auto& ext_table = *handle;
       if (ext_table.size() != table_size) {
         throw cms::Exception("LogicError",
-          "Mismatch in number of entries between extension and main table for " + m_collectionName);
+                             "Mismatch in number of entries between extension and main table for " + m_collectionName);
       }
       ext.fillEntry(ext_table, i);
     }
@@ -174,25 +180,19 @@ void TableCollection::fill(const edm::EventForOutput& event) {
 void TableCollection::print() const {
   std::cout << "Collection: " << m_collectionName << " {\n";
   m_main.print();
-  for (const auto& ext: m_extensions) {
+  for (const auto& ext : m_extensions) {
     ext.print();
   }
   std::cout << "}\n";
 }
 
-bool TableCollection::hasMainTable() {
-  return !m_main.getToken().isUninitialized();
-}
+bool TableCollection::hasMainTable() { return !m_main.getToken().isUninitialized(); }
 
-const std::string& TableCollection::getCollectionName() const {
-  return m_collectionName;
-}
+const std::string& TableCollection::getCollectionName() const { return m_collectionName; }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void TableCollectionSet::add(const edm::EDGetToken& table_token,
-  const nanoaod::FlatTable& table)
-{
+void TableCollectionSet::add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table) {
   // skip empty tables -- requirement of RNTuple to define schema before filling
   if (table.nColumns() == 0) {
     std::cout << "Warning: skipping empty table: \n";
@@ -215,8 +215,9 @@ void TableCollectionSet::add(const edm::EDGetToken& table_token,
     return;
   }
   // case 2: Named singleton and vector tables are both written as RNTuple collections.
-  auto collection = std::find_if(m_collections.begin(), m_collections.end(),
-    [&](const TableCollection& c) { return c.getCollectionName() == table.name(); });
+  auto collection = std::find_if(m_collections.begin(), m_collections.end(), [&](const TableCollection& c) {
+    return c.getCollectionName() == table.name();
+  });
   if (collection == m_collections.end()) {
     m_collections.emplace_back(TableCollection());
     m_collections.back().add(table_token, table);
@@ -226,41 +227,40 @@ void TableCollectionSet::add(const edm::EDGetToken& table_token,
 }
 
 void TableCollectionSet::print() const {
-  for (const auto& collection: m_collections) {
+  for (const auto& collection : m_collections) {
     collection.print();
     std::cout << "\n";
   }
 }
 
-void TableCollectionSet::createFields(const edm::EventForOutput& event,
-  RNTupleModel& eventModel)
-{
-  for (auto& collection: m_collections) {
+void TableCollectionSet::createFields(const edm::EventForOutput& event, RNTupleModel& eventModel) {
+  for (auto& collection : m_collections) {
     if (!collection.hasMainTable()) {
-      throw cms::Exception("LogicError", "Trying to save an extension table for " +
-        collection.getCollectionName() + " without the corresponding main table\n");
+      throw cms::Exception("LogicError",
+                           "Trying to save an extension table for " + collection.getCollectionName() +
+                               " without the corresponding main table\n");
     }
     collection.createFields(event, eventModel);
   }
-  for (auto& table: m_singletonFields) {
+  for (auto& table : m_singletonFields) {
     table.createFields(event, eventModel);
   }
-  for (auto& table: m_vectorFields) {
+  for (auto& table : m_vectorFields) {
     table.createFields(event, eventModel);
   }
 }
 
 void TableCollectionSet::fill(const edm::EventForOutput& event) {
-  for (auto& collection: m_collections) {
+  for (auto& collection : m_collections) {
     collection.fill(event);
   }
-  for (auto& fields: m_singletonFields) {
+  for (auto& fields : m_singletonFields) {
     edm::Handle<nanoaod::FlatTable> handle;
     event.getByToken(fields.getToken(), handle);
     const auto& table = *handle;
     fields.fillEntry(table, 0);
   }
-  for (auto& fields: m_vectorFields) {
+  for (auto& fields : m_vectorFields) {
     fields.fill(event);
   }
 }
@@ -273,8 +273,8 @@ bool TableCollectionSet::hasAnonymousColumn(const nanoaod::FlatTable& table) {
     }
   }
   if (num_anon > 1) {
-    throw cms::Exception("LogicError", "FlatTable `" + table.name() +
-      "` has " + std::to_string(num_anon) + "anonymous fields");
+    throw cms::Exception("LogicError",
+                         "FlatTable `" + table.name() + "` has " + std::to_string(num_anon) + "anonymous fields");
   }
   return num_anon;
 }

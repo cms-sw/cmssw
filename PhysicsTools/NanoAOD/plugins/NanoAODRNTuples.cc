@@ -8,9 +8,9 @@
 #include <ROOT/RNTupleOptions.hxx>
 #include <ROOT/RPageStorageFile.hxx>
 using ROOT::Experimental::RNTupleModel;
+using ROOT::Experimental::RNTupleWriteOptions;
 using ROOT::Experimental::RNTupleWriter;
 using ROOT::Experimental::Detail::RPageSinkFile;
-using ROOT::Experimental::RNTupleWriteOptions;
 
 #include "RNTupleFieldPtr.h"
 #include "SummaryTableOutputFields.h"
@@ -24,8 +24,7 @@ void LumiNTuple::createFields(const edm::LuminosityBlockID& id, TFile& file) {
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
   m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
-    std::make_unique<RPageSinkFile>("LuminosityBlocks", file, options)
-  );
+                                             std::make_unique<RPageSinkFile>("LuminosityBlocks", file, options));
 }
 
 void LumiNTuple::fill(const edm::LuminosityBlockID& id, TFile& file) {
@@ -37,31 +36,25 @@ void LumiNTuple::fill(const edm::LuminosityBlockID& id, TFile& file) {
   m_ntuple->Fill();
 }
 
-void LumiNTuple::finalizeWrite() {
-  m_ntuple.reset();
-}
+void LumiNTuple::finalizeWrite() { m_ntuple.reset(); }
 
-void RunNTuple::registerToken(const edm::EDGetToken &token) {
-  m_tokens.push_back(token);
-}
+void RunNTuple::registerToken(const edm::EDGetToken& token) { m_tokens.push_back(token); }
 
 void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
   auto model = RNTupleModel::Create();
   m_run = RNTupleFieldPtr<UInt_t>("run", *model);
 
   edm::Handle<nanoaod::MergeableCounterTable> handle;
-  for (const auto &token : m_tokens) {
+  for (const auto& token : m_tokens) {
     iRun.getByToken(token, handle);
-    const nanoaod::MergeableCounterTable &tab = *handle;
+    const nanoaod::MergeableCounterTable& tab = *handle;
     m_tables.push_back(SummaryTableOutputFields(tab, *model));
   }
 
   // TODO use Append when we bump our RNTuple version
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
-    std::make_unique<RPageSinkFile>("Runs", file, options)
-  );
+  m_ntuple = std::make_unique<RNTupleWriter>(std::move(model), std::make_unique<RPageSinkFile>("Runs", file, options));
 }
 
 void RunNTuple::fill(const edm::RunForOutput& iRun, TFile& file) {
@@ -72,15 +65,13 @@ void RunNTuple::fill(const edm::RunForOutput& iRun, TFile& file) {
   edm::Handle<nanoaod::MergeableCounterTable> handle;
   for (std::size_t i = 0; i < m_tokens.size(); i++) {
     iRun.getByToken(m_tokens.at(i), handle);
-    const nanoaod::MergeableCounterTable &tab = *handle;
+    const nanoaod::MergeableCounterTable& tab = *handle;
     m_tables.at(i).fill(tab);
   }
   m_ntuple->Fill();
 }
 
-void RunNTuple::finalizeWrite() {
-  m_ntuple.reset();
-}
+void RunNTuple::finalizeWrite() { m_ntuple.reset(); }
 
 void PSetNTuple::createFields(TFile& file) {
   // use a collection to emulate std::pair
@@ -88,14 +79,12 @@ void PSetNTuple::createFields(TFile& file) {
   m_psetId = RNTupleFieldPtr<std::string>("first", *pairModel);
   m_psetBlob = RNTupleFieldPtr<std::string>("second", *pairModel);
   auto model = RNTupleModel::Create();
-  m_collection = model->MakeCollection(
-    edm::poolNames::idToParameterSetBlobsBranchName(), std::move(pairModel));
+  m_collection = model->MakeCollection(edm::poolNames::idToParameterSetBlobsBranchName(), std::move(pairModel));
   // TODO use Append when we bump our RNTuple version
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
-    std::make_unique<RPageSinkFile>(edm::poolNames::parameterSetsTreeName(), file, options)
-  );
+  m_ntuple = std::make_unique<RNTupleWriter>(
+      std::move(model), std::make_unique<RPageSinkFile>(edm::poolNames::parameterSetsTreeName(), file, options));
 }
 
 void PSetNTuple::fill(edm::pset::Registry* pset, TFile& file) {
@@ -105,7 +94,7 @@ void PSetNTuple::fill(edm::pset::Registry* pset, TFile& file) {
   if (!m_ntuple) {
     createFields(file);
   }
-  for (const auto& ps: *pset) {
+  for (const auto& ps : *pset) {
     std::ostringstream oss;
     oss << ps.first;
     m_psetId.fill(oss.str());
@@ -115,9 +104,7 @@ void PSetNTuple::fill(edm::pset::Registry* pset, TFile& file) {
   }
 }
 
-void PSetNTuple::finalizeWrite() {
-  m_ntuple.reset();
-}
+void PSetNTuple::finalizeWrite() { m_ntuple.reset(); }
 
 // TODO blocked on RNTuple typedef member field support
 void MetadataNTuple::createFields(TFile& file) {
@@ -125,13 +112,11 @@ void MetadataNTuple::createFields(TFile& file) {
   // ProcessHistory.transients_.phid_ replacement
   m_phId = RNTupleFieldPtr<std::string>("transients_phid_", *procHistModel);
   auto model = RNTupleModel::Create();
-  m_procHist = model->MakeCollection(edm::poolNames::processHistoryBranchName(),
-    std::move(procHistModel));
+  m_procHist = model->MakeCollection(edm::poolNames::processHistoryBranchName(), std::move(procHistModel));
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
-  m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
-    std::make_unique<RPageSinkFile>(edm::poolNames::metaDataTreeName(), file, options)
-  );
+  m_ntuple = std::make_unique<RNTupleWriter>(
+      std::move(model), std::make_unique<RPageSinkFile>(edm::poolNames::metaDataTreeName(), file, options));
 }
 
 void MetadataNTuple::fill(const edm::ProcessHistoryRegistry& procHist, TFile& file) {
@@ -147,6 +132,4 @@ void MetadataNTuple::fill(const edm::ProcessHistoryRegistry& procHist, TFile& fi
   m_ntuple->Fill();
 }
 
-void MetadataNTuple::finalizeWrite() {
-  m_ntuple.reset();
-}
+void MetadataNTuple::finalizeWrite() { m_ntuple.reset(); }

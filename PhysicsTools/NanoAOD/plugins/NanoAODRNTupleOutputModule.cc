@@ -18,9 +18,9 @@
 #include <ROOT/RNTupleOptions.hxx>
 #include <ROOT/RPageStorageFile.hxx>
 using ROOT::Experimental::RNTupleModel;
+using ROOT::Experimental::RNTupleWriteOptions;
 using ROOT::Experimental::RNTupleWriter;
 using ROOT::Experimental::Detail::RPageSinkFile;
-using ROOT::Experimental::RNTupleWriteOptions;
 
 #include "TObjString.h"
 
@@ -126,8 +126,7 @@ void NanoAODRNTupleOutputModule::writeRun(edm::RunForOutput const& iRun) {
     iRun.getByToken(p.second, hstring);
     TObjString* tos = dynamic_cast<TObjString*>(m_file->Get(p.first.c_str()));
     if (tos && hstring->str() != tos->GetString()) {
-      throw cms::Exception("LogicError", "Inconsistent nanoMetadata " + p.first +
-          " (" + hstring->str() + ")");
+      throw cms::Exception("LogicError", "Inconsistent nanoMetadata " + p.first + " (" + hstring->str() + ")");
     } else {
       auto ostr = std::make_unique<TObjString>(hstring->str().c_str());
       m_file->WriteTObject(ostr.release(), p.first.c_str());
@@ -136,9 +135,7 @@ void NanoAODRNTupleOutputModule::writeRun(edm::RunForOutput const& iRun) {
   m_processHistoryRegistry.registerProcessHistory(iRun.processHistory());
 }
 
-bool NanoAODRNTupleOutputModule::isFileOpen() const {
-  return nullptr != m_ntuple.get();
-}
+bool NanoAODRNTupleOutputModule::isFileOpen() const { return nullptr != m_ntuple.get(); }
 
 void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
   m_file = std::make_unique<TFile>(m_fileName.c_str(), "RECREATE", "", m_compressionLevel);
@@ -162,23 +159,20 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
     m_file->SetCompressionAlgorithm(ROOT::kLZMA);
   } else {
     throw cms::Exception("Configuration")
-      << "NanoAODOutputModule configured with unknown compression algorithm '"
-      << m_compressionAlgorithm << "'\n" << "Allowed compression algorithms are ZLIB and LZMA\n";
+        << "NanoAODOutputModule configured with unknown compression algorithm '" << m_compressionAlgorithm << "'\n"
+        << "Allowed compression algorithms are ZLIB and LZMA\n";
   }
 
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InRun]) {
     if (keep.first->className() == "nanoaod::MergeableCounterTable") {
       m_run.registerToken(keep.second);
-    }
-    else if (keep.first->className() == "nanoaod::UniqueString" &&
-             keep.first->moduleLabel() == "nanoMetadata")
-    {
+    } else if (keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata") {
       m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
-    }
-    else {
-      throw cms::Exception("Configuration", "NanoAODRNTupleOutputModule cannot handle class " +
-          keep.first->className() + " in Run branch");
+    } else {
+      throw cms::Exception(
+          "Configuration",
+          "NanoAODRNTupleOutputModule cannot handle class " + keep.first->className() + " in Run branch");
     }
   }
 }
@@ -189,7 +183,7 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
   m_commonFields.createFields(*model);
 
   const auto& keeps = keptProducts();
-  for (const auto& keep: keeps[edm::InEvent]) {
+  for (const auto& keep : keeps[edm::InEvent]) {
     if (keep.first->className() == "nanoaod::FlatTable") {
       edm::Handle<nanoaod::FlatTable> handle;
       const auto& token = keep.second;
@@ -205,16 +199,15 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
     }
   }
   m_tables.createFields(iEvent, *model);
-  for (auto& trigger: m_triggers) {
+  for (auto& trigger : m_triggers) {
     trigger.createFields(iEvent, *model);
   }
   m_evstrings.createFields(*model);
   // TODO use Append
   RNTupleWriteOptions options;
   options.SetCompression(m_file->GetCompressionSettings());
-  m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
-    std::make_unique<RPageSinkFile>("Events", *m_file, options)
-  );
+  m_ntuple =
+      std::make_unique<RNTupleWriter>(std::move(model), std::make_unique<RPageSinkFile>("Events", *m_file, options));
 }
 
 void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
@@ -227,7 +220,7 @@ void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
 
   m_commonFields.fill(iEvent.id());
   m_tables.fill(iEvent);
-  for (auto& trigger: m_triggers) {
+  for (auto& trigger : m_triggers) {
     trigger.fill(iEvent);
   }
   m_evstrings.fill(iEvent);
@@ -266,8 +259,10 @@ void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions
   desc.addUntracked<std::string>("fileName");
   desc.addUntracked<std::string>("logicalFileName", "");
   desc.addUntracked<int>("compressionLevel", 9)->setComment("ROOT compression level of output file.");
-  desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")->setComment("Algorithm used to "
-    "compress data in the ROOT output file, allowed values are ZLIB and LZMA");
+  desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
+      ->setComment(
+          "Algorithm used to "
+          "compress data in the ROOT output file, allowed values are ZLIB and LZMA");
   desc.addUntracked<bool>("saveProvenance", true)
       ->setComment("Save process provenance information, e.g. for edmProvDump");
   const std::vector<std::string> keep = {"drop *",

@@ -15,6 +15,7 @@ private:
   std::vector<edm::EDGetToken> m_tokens;
   RNTupleFieldPtr<std::vector<std::string>> m_evstrings;
   long m_lastLumi = -1;
+
 public:
   EventStringOutputFields() = default;
 

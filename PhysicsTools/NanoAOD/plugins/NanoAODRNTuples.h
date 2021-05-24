@@ -26,6 +26,7 @@ public:
   LumiNTuple() = default;
   void fill(const edm::LuminosityBlockID& id, TFile& file);
   void finalizeWrite();
+
 private:
   void createFields(const edm::LuminosityBlockID& id, TFile& file);
   std::unique_ptr<RNTupleWriter> m_ntuple;
@@ -36,9 +37,10 @@ private:
 class RunNTuple {
 public:
   RunNTuple() = default;
-  void registerToken(const edm::EDGetToken &token);
+  void registerToken(const edm::EDGetToken& token);
   void fill(const edm::RunForOutput& iRun, TFile& file);
   void finalizeWrite();
+
 private:
   void createFields(const edm::RunForOutput& iRun, TFile& file);
   std::vector<edm::EDGetToken> m_tokens;
@@ -52,6 +54,7 @@ public:
   PSetNTuple() = default;
   void fill(edm::pset::Registry* pset, TFile& file);
   void finalizeWrite();
+
 private:
   // TODO blocked on RNTuple std::pair support
   // using PSetType = std::pair<edm::ParameterSetID, edm::ParameterSetBlob>;
@@ -72,6 +75,7 @@ public:
   MetadataNTuple() = default;
   void fill(const edm::ProcessHistoryRegistry& procHist, TFile& file);
   void finalizeWrite();
+
 private:
   void createFields(TFile& file);
   std::shared_ptr<RCollectionNTuple> m_procHist;

@@ -1,9 +1,8 @@
 #include "PhysicsTools/NanoAOD/plugins/SummaryTableOutputFields.h"
 
 template <typename T, typename Col>
-std::vector<RNTupleFieldPtr<T>> SummaryTableOutputFields::makeFields(
-  const std::vector<Col> &tabcols, RNTupleModel &model)
-{
+std::vector<RNTupleFieldPtr<T>> SummaryTableOutputFields::makeFields(const std::vector<Col> &tabcols,
+                                                                     RNTupleModel &model) {
   std::vector<RNTupleFieldPtr<T>> fields;
   fields.reserve(tabcols.size());
   for (const auto &col : tabcols) {
@@ -15,8 +14,7 @@ std::vector<RNTupleFieldPtr<T>> SummaryTableOutputFields::makeFields(
 
 template <typename T, typename Col>
 void SummaryTableOutputFields::fillScalarFields(const std::vector<Col> &tabcols,
-  std::vector<RNTupleFieldPtr<T>> fields)
-{
+                                                std::vector<RNTupleFieldPtr<T>> fields) {
   if (tabcols.size() != fields.size()) {
     throw cms::Exception("LogicError", "Mismatch in table columns");
   }
@@ -30,8 +28,7 @@ void SummaryTableOutputFields::fillScalarFields(const std::vector<Col> &tabcols,
 
 template <typename T, typename Col>
 void SummaryTableOutputFields::fillVectorFields(const std::vector<Col> &tabcols,
-  std::vector<RNTupleFieldPtr<T>> fields)
-{
+                                                std::vector<RNTupleFieldPtr<T>> fields) {
   if (tabcols.size() != fields.size()) {
     throw cms::Exception("LogicError", "Mismatch in table columns");
   }
@@ -47,9 +44,7 @@ void SummaryTableOutputFields::fillVectorFields(const std::vector<Col> &tabcols,
   }
 }
 
-SummaryTableOutputFields::SummaryTableOutputFields(
-  const nanoaod::MergeableCounterTable &tab, RNTupleModel &model)
-{
+SummaryTableOutputFields::SummaryTableOutputFields(const nanoaod::MergeableCounterTable &tab, RNTupleModel &model) {
   // TODO use std::int64_t when supported
   m_intFields = makeFields<std::uint64_t>(tab.intCols(), model);
   m_floatFields = makeFields<double>(tab.floatCols(), model);

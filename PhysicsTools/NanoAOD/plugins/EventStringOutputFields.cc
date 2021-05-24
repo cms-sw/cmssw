@@ -1,9 +1,7 @@
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "PhysicsTools/NanoAOD/plugins/EventStringOutputFields.h"
 
-void EventStringOutputFields::registerToken(const edm::EDGetToken &token) {
-  m_tokens.push_back(token);
-}
+void EventStringOutputFields::registerToken(const edm::EDGetToken &token) { m_tokens.push_back(token); }
 
 void EventStringOutputFields::createFields(RNTupleModel &model) {
   m_evstrings = RNTupleFieldPtr<std::vector<std::string>>("EventStrings", model);

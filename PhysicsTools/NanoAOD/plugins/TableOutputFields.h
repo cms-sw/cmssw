@@ -11,11 +11,11 @@
 
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
+using ROOT::Experimental::RCollectionNTuple;
 using ROOT::Experimental::RNTupleModel;
 using ROOT::Experimental::RNTupleWriter;
-using ROOT::Experimental::RCollectionNTuple;
 
-template<typename T>
+template <typename T>
 class FlatTableField {
 public:
   FlatTableField() = default;
@@ -36,8 +36,7 @@ public:
   void fill(const nanoaod::FlatTable& table, std::size_t i) {
     int col_idx = table.columnIndex(m_flatTableName);
     if (col_idx == -1) {
-      throw cms::Exception("LogicError", "Missing column in input for "
-        + table.name() + "_" + m_flatTableName);
+      throw cms::Exception("LogicError", "Missing column in input for " + table.name() + "_" + m_flatTableName);
     }
     m_field.fill(table.columnData<T>(col_idx)[i]);
   }
@@ -46,8 +45,7 @@ public:
   void fillVectored(const nanoaod::FlatTable& table) {
     int col_idx = table.columnIndex(m_flatTableName);
     if (col_idx == -1) {
-      throw cms::Exception("LogicError", "Missing column in input for "
-        + table.name() + "_" + m_flatTableName);
+      throw cms::Exception("LogicError", "Missing column in input for " + table.name() + "_" + m_flatTableName);
     }
     std::vector<typename T::value_type> buf(table.size());
     for (std::size_t i = 0; i < table.size(); i++) {
@@ -55,9 +53,8 @@ public:
     }
     m_field.fill(buf);
   }
-  const std::string& getFlatTableName() const {
-    return m_flatTableName;
-  }
+  const std::string& getFlatTableName() const { return m_flatTableName; }
+
 private:
   RNTupleFieldPtr<T> m_field;
   std::string m_flatTableName;
@@ -66,12 +63,12 @@ private:
 class TableOutputFields {
 public:
   TableOutputFields() = default;
-  explicit TableOutputFields(const edm::EDGetToken& token)
-        : m_token(token) {}
+  explicit TableOutputFields(const edm::EDGetToken& token) : m_token(token) {}
   void print() const;
   void createFields(const edm::EventForOutput& event, RNTupleModel& model);
   void fillEntry(const nanoaod::FlatTable& table, std::size_t i);
   const edm::EDGetToken& getToken() const;
+
 private:
   edm::EDGetToken m_token;
   std::vector<FlatTableField<float>> m_floatFields;
@@ -83,10 +80,10 @@ private:
 class TableOutputVectorFields {
 public:
   TableOutputVectorFields() = default;
-  explicit TableOutputVectorFields(const edm::EDGetToken& token)
-        : m_token(token) {}
+  explicit TableOutputVectorFields(const edm::EDGetToken& token) : m_token(token) {}
   void createFields(const edm::EventForOutput& event, RNTupleModel& model);
   void fill(const edm::EventForOutput& event);
+
 private:
   edm::EDGetToken m_token;
   std::vector<FlatTableField<std::vector<float>>> m_vfloatFields;
@@ -96,40 +93,42 @@ private:
 };
 
 class TableCollection {
-  public:
-    TableCollection() = default;
-    // Invariants:
-    // * table has a non-empty base name
-    // * table has at least one column
-    void add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table);
-    // Invariants:
-    // * m_main not null
-    // * m_collectionName not empty
-    void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);
-    void fill(const edm::EventForOutput& event);
-    void print() const;
-    bool hasMainTable();
-    const std::string& getCollectionName() const;
-  private:
-    std::string m_collectionName;
-    std::shared_ptr<RCollectionNTuple> m_collection;
-    TableOutputFields m_main;
-    std::vector<TableOutputFields> m_extensions;
+public:
+  TableCollection() = default;
+  // Invariants:
+  // * table has a non-empty base name
+  // * table has at least one column
+  void add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table);
+  // Invariants:
+  // * m_main not null
+  // * m_collectionName not empty
+  void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);
+  void fill(const edm::EventForOutput& event);
+  void print() const;
+  bool hasMainTable();
+  const std::string& getCollectionName() const;
+
+private:
+  std::string m_collectionName;
+  std::shared_ptr<RCollectionNTuple> m_collection;
+  TableOutputFields m_main;
+  std::vector<TableOutputFields> m_extensions;
 };
 
 class TableCollectionSet {
-  public:
-    void add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table);
-    void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);
-    void fill(const edm::EventForOutput& event);
-    void print() const;
-  private:
-    // Returns true if the FlatTable has an anonymous column. Throws a cms::Exception
-    // if there is more than one anonymous column.
-    static bool hasAnonymousColumn(const nanoaod::FlatTable& table);
-    std::vector<TableCollection> m_collections;
-    std::vector<TableOutputFields> m_singletonFields;
-    std::vector<TableOutputVectorFields> m_vectorFields;
+public:
+  void add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table);
+  void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);
+  void fill(const edm::EventForOutput& event);
+  void print() const;
+
+private:
+  // Returns true if the FlatTable has an anonymous column. Throws a cms::Exception
+  // if there is more than one anonymous column.
+  static bool hasAnonymousColumn(const nanoaod::FlatTable& table);
+  std::vector<TableCollection> m_collections;
+  std::vector<TableOutputFields> m_singletonFields;
+  std::vector<TableOutputVectorFields> m_vectorFields;
 };
 
 #endif

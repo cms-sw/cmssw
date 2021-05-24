@@ -8,19 +8,16 @@
 namespace edm {
   class EventForOutput;
   class TriggerResults;
-}
+}  // namespace edm
 
 class TriggerFieldPtr {
 public:
   TriggerFieldPtr() = default;
   TriggerFieldPtr(std::string name, int index, std::string fieldName, RNTupleModel& model);
   void fill(const edm::TriggerResults& triggers);
-  const std::string& getTriggerName() const {
-    return m_triggerName;
-  }
-  void setIndex(int newIndex) {
-    m_triggerIndex = newIndex;
-  }
+  const std::string& getTriggerName() const { return m_triggerName; }
+  void setIndex(int newIndex) { m_triggerIndex = newIndex; }
+
 private:
   RNTupleFieldPtr<bool> m_field;
   // The trigger results name extracted from the TriggerResults with version suffixes trimmed
@@ -31,7 +28,7 @@ private:
 class TriggerOutputFields {
 public:
   TriggerOutputFields() = default;
-  explicit TriggerOutputFields(const std::string& processName, const edm::EDGetToken &token)
+  explicit TriggerOutputFields(const std::string& processName, const edm::EDGetToken& token)
       : m_token(token), m_lastRun(-1), m_processName(processName) {}
   void createFields(const edm::EventForOutput& event, RNTupleModel& model);
   void fill(const edm::EventForOutput& event);
