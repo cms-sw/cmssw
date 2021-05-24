@@ -5,6 +5,7 @@ std::vector<RNTupleFieldPtr<T>> SummaryTableOutputFields::makeFields(
   const std::vector<Col> &tabcols, RNTupleModel &model)
 {
   std::vector<RNTupleFieldPtr<T>> fields;
+  fields.reserve(tabcols.size());
   for (const auto &col : tabcols) {
     // TODO field description
     fields.emplace_back(RNTupleFieldPtr<T>(col.name, model));
