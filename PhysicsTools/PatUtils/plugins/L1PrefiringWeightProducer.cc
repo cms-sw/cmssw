@@ -69,6 +69,8 @@ private:
   const edm::EDPutTokenT<double> nonPrefiringProbPhotonDownToken_;
 
   const edm::EDPutTokenT<double> nonPrefiringProbMuonToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbMuonUpToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbMuonDownToken_;
   const edm::EDPutTokenT<double> nonPrefiringProbMuonUpSystToken_;
   const edm::EDPutTokenT<double> nonPrefiringProbMuonDownSystToken_;
   const edm::EDPutTokenT<double> nonPrefiringProbMuonUpStatToken_;
@@ -98,7 +100,6 @@ private:
   const double prefiringRateSystUncEcal_;
   const double prefiringRateSystUncMuon_;
   const double jetMaxMuonFraction_;
-  const bool skipwarnings_;
   bool missingInputEcal_;
   bool missingInputMuon_;
 };
@@ -117,6 +118,8 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
       nonPrefiringProbPhotonUpToken_(produces<double>("nonPrefiringProbPhotonUp")),
       nonPrefiringProbPhotonDownToken_(produces<double>("nonPrefiringProbPhotonDown")),
       nonPrefiringProbMuonToken_(produces<double>("nonPrefiringProbMuon")),
+      nonPrefiringProbMuonUpToken_(produces<double>("nonPrefiringProbMuonUp")),
+      nonPrefiringProbMuonDownToken_(produces<double>("nonPrefiringProbMuonDown")),
       nonPrefiringProbMuonUpSystToken_(produces<double>("nonPrefiringProbMuonSystUp")),
       nonPrefiringProbMuonDownSystToken_(produces<double>("nonPrefiringProbMuonSystDown")),
       nonPrefiringProbMuonUpStatToken_(produces<double>("nonPrefiringProbMuonStatUp")),
@@ -126,8 +129,7 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
       useEMpt_(iConfig.getParameter<bool>("UseJetEMPt")),
       prefiringRateSystUncEcal_(iConfig.getParameter<double>("PrefiringRateSystematicUnctyECAL")),
       prefiringRateSystUncMuon_(iConfig.getParameter<double>("PrefiringRateSystematicUnctyMuon")),
-      jetMaxMuonFraction_(iConfig.getParameter<double>("JetMaxMuonFraction")),
-      skipwarnings_(iConfig.getUntrackedParameter<bool>("SkipWarnings")) {
+      jetMaxMuonFraction_(iConfig.getParameter<double>("JetMaxMuonFraction")) {
   missingInputEcal_ = false;
   missingInputMuon_ = false;
 
@@ -136,25 +138,22 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
   file_prefiringmaps_ = std::make_unique<TFile>(mapsfilepath.fullPath().c_str(), "read");
   if (file_prefiringmaps_ == nullptr) {
     missingInputEcal_ = true;
-    if (!skipwarnings_)
-      edm::LogWarning("L1PrefireWeightProducer")
-          << "File with maps not found. All prefiring weights set to 0. " << std::endl;
+    edm::LogError("L1PrefireWeightProducer")
+        << "File with maps not found. All prefiring weights set to 0. " << std::endl;
   }
   TString mapphotonfullname = "L1prefiring_photonptvseta_" + dataeraEcal_;
   if (!file_prefiringmaps_->Get(mapphotonfullname)) {
     missingInputEcal_ = true;
-    if (!skipwarnings_)
-      edm::LogWarning("L1PrefireWeightProducer")
-          << "Photon map not found. All photons prefiring weights set to 0. " << std::endl;
+    edm::LogError("L1PrefireWeightProducer")
+        << "Photon map not found. All photons prefiring weights set to 0. " << std::endl;
   }
   h_prefmap_photon_ = file_prefiringmaps_->Get<TH2F>(mapphotonfullname);
   TString mapjetfullname =
       (useEMpt_) ? "L1prefiring_jetemptvseta_" + dataeraEcal_ : "L1prefiring_jetptvseta_" + dataeraEcal_;
   if (!file_prefiringmaps_->Get(mapjetfullname)) {
     missingInputEcal_ = true;
-    if (!skipwarnings_)
-      edm::LogWarning("L1PrefireWeightProducer")
-          << "Jet map not found. All jets prefiring weights set to 0. " << std::endl;
+    edm::LogWarning("L1PrefireWeightProducer")
+        << "Jet map not found. All jets prefiring weights set to 0. " << std::endl;
   }
   h_prefmap_jet_ = file_prefiringmaps_->Get<TH2F>(mapjetfullname);
   file_prefiringmaps_->Close();
@@ -164,9 +163,8 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
   file_prefiringparams_ = std::make_unique<TFile>(paramsfilepath.fullPath().c_str(), "read");
   if (file_prefiringparams_ == nullptr) {
     missingInputMuon_ = true;
-    if (!skipwarnings_)
-      edm::LogWarning("L1PrefireWeightProducer")
-          << "File with muon parametrizations not found. All prefiring weights set to 0." << std::endl;
+    edm::LogWarning("L1PrefireWeightProducer")
+        << "File with muon parametrizations not found. All prefiring weights set to 0." << std::endl;
   }
   TString paramName = "L1prefiring_muonparam_0.0To0.2_" + dataeraMuon_;
   parametrization0p0To0p2_ = file_prefiringparams_->Get<TF1>(paramName);
@@ -198,9 +196,8 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
       parametrization1p8To2p1_ == nullptr || parametrization2p1To2p25_ == nullptr ||
       parametrization2p25To2p4_ == nullptr) {
     missingInputMuon_ = true;
-    if (!skipwarnings_)
-      edm::LogWarning("L1PrefireWeightProducer")
-          << "Muon parametrization not found for at least one bin. All prefiring weights set to 0." << std::endl;
+    edm::LogError("L1PrefireWeightProducer")
+        << "Muon parametrization not found for at least one bin. All prefiring weights set to 0." << std::endl;
   }
 
   paramName = "L1prefiring_muonparam_HotSpot_" + dataeraMuon_;
@@ -208,10 +205,9 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
   file_prefiringparams_->Close();
   if ((dataeraMuon_.find("2016") != std::string::npos) && parametrizationHotSpot_ == nullptr) {
     missingInputMuon_ = true;
-    if (!skipwarnings_)
-      edm::LogWarning("L1PrefireWeightProducer")
-          << "Year is 2016 and no Muon parametrization is found for hot spot. All prefiring weights set to 0."
-          << std::endl;
+    edm::LogError("L1PrefireWeightProducer")
+        << "Year is 2016 and no Muon parametrization is found for hot spot. All prefiring weights set to 0."
+        << std::endl;
   }
 }
 
@@ -249,7 +245,6 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
         if (fabs(eta_gam) > 3.)
           continue;
         double prefiringprob_gam = getPrefiringRateEcal(eta_gam, pt_gam, h_prefmap_photon_, fluct);
-        nonPrefiringProba[fluct] *= (1. - prefiringprob_gam);
         nonPrefiringProbaPhoton[fluct] *= (1. - prefiringprob_gam);
       }
 
@@ -292,16 +287,13 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
         double nonprefiringprobfromoverlappingjet = 1. - getPrefiringRateEcal(eta_jet, pt_jet, h_prefmap_jet_, fluct);
 
         if (!foundOverlappingPhotons) {
-          nonPrefiringProba[fluct] *= nonprefiringprobfromoverlappingjet;
           nonPrefiringProbaJet[fluct] *= nonprefiringprobfromoverlappingjet;
         }
         //If overlapping photons have a non prefiring rate larger than the jet, then replace these weights by the jet one
         else if (nonprefiringprobfromoverlappingphotons > nonprefiringprobfromoverlappingjet) {
           if (nonprefiringprobfromoverlappingphotons > 0.) {
-            nonPrefiringProba[fluct] *= nonprefiringprobfromoverlappingjet / nonprefiringprobfromoverlappingphotons;
             nonPrefiringProbaJet[fluct] *= nonprefiringprobfromoverlappingjet / nonprefiringprobfromoverlappingphotons;
           } else {
-            nonPrefiringProba[fluct] = 0.;
             nonPrefiringProbaJet[fluct] = 0.;
           }
         }
@@ -318,11 +310,16 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
         if (pt < 5 && !muon.isStandAloneMuon())
           continue;
         double prefiringprob_mu = getPrefiringRateMuon(eta, phi, pt, fluct);
-        nonPrefiringProba[fluct] *= (1. - prefiringprob_mu);
         nonPrefiringProbaMuon[fluct] *= (1. - prefiringprob_mu);
       }
     }
   }
+  // Calculate combined weight as product of the weight for individual objects
+  for (const auto fluct : {fluctuations::central, fluctuations::up, fluctuations::down}) {
+    nonPrefiringProba[fluct] =
+        nonPrefiringProbaPhoton[fluct] * nonPrefiringProbaJet[fluct] * nonPrefiringProbaMuon[fluct];
+  }
+  // Calculate statistical and systematic uncertainty separately in the muon case
   for (const auto fluct :
        {fluctuations::upSyst, fluctuations::downSyst, fluctuations::upStat, fluctuations::downStat}) {
     if (!missingInputMuon_) {
@@ -352,6 +349,8 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   iEvent.emplace(nonPrefiringProbPhotonDownToken_, nonPrefiringProbaPhoton[2]);
 
   iEvent.emplace(nonPrefiringProbMuonToken_, nonPrefiringProbaMuon[0]);
+  iEvent.emplace(nonPrefiringProbMuonUpToken_, nonPrefiringProbaMuon[1]);
+  iEvent.emplace(nonPrefiringProbMuonDownToken_, nonPrefiringProbaMuon[2]);
   iEvent.emplace(nonPrefiringProbMuonUpSystToken_, nonPrefiringProbaMuon[3]);
   iEvent.emplace(nonPrefiringProbMuonDownSystToken_, nonPrefiringProbaMuon[4]);
   iEvent.emplace(nonPrefiringProbMuonUpStatToken_, nonPrefiringProbaMuon[5]);
@@ -378,8 +377,9 @@ double L1PrefiringWeightProducer::getPrefiringRateEcal(double eta,
     prefrate = std::min(1., prefrate + sqrt(pow(statuncty, 2) + pow(systuncty, 2)));
   else if (fluctuation == down)
     prefrate = std::max(0., prefrate - sqrt(pow(statuncty, 2) + pow(systuncty, 2)));
-  return prefrate;
+  return std::min(1., prefrate);
 }
+
 double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
                                                        double phi,
                                                        double pt,
@@ -424,9 +424,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     prefrate = parametrization2p25To2p4_->Eval(pt);
     statuncty = parametrization2p25To2p4_->GetParError(2);
   } else {
-    if (!skipwarnings_)
-      edm::LogWarning("L1PrefireWeightProducer")
-          << "Muon outside of |eta| <= 2.4. Prefiring weight set to 0." << std::endl;
+    LogDebug("L1PrefireWeightProducer") << "Muon outside of |eta| <= 2.4. Prefiring weight set to 0." << std::endl;
     return 0.;
   }
   double systuncty = prefiringRateSystUncMuon_ * prefrate;
@@ -444,7 +442,7 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
   else if (fluctuation == downStat)
     prefrate = std::max(0., prefrate - statuncty);
 
-  return prefrate;
+  return std::min(1., prefrate);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -461,7 +459,6 @@ void L1PrefiringWeightProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("PrefiringRateSystematicUnctyECAL", 0.2);
   desc.add<double>("PrefiringRateSystematicUnctyMuon", 0.2);
   desc.add<double>("JetMaxMuonFraction", 0.5);
-  desc.addUntracked<bool>("SkipWarnings", true);
   descriptions.add("l1PrefiringWeightProducer", desc);
 }
 
