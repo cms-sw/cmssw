@@ -37,7 +37,7 @@
 #include "TH2.h"
 
 #include <iostream>
-enum fluctuations { central = 0, up, down };
+enum fluctuations { central = 0, up, down, upStat, downStat, upSyst, downSyst };
 
 class L1PrefiringWeightProducer : public edm::stream::EDProducer<> {
 public:
@@ -69,8 +69,10 @@ private:
   const edm::EDPutTokenT<double> nonPrefiringProbPhotonDownToken_;
 
   const edm::EDPutTokenT<double> nonPrefiringProbMuonToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbMuonUpToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbMuonDownToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbMuonUpSystToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbMuonDownSystToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbMuonUpStatToken_;
+  const edm::EDPutTokenT<double> nonPrefiringProbMuonDownStatToken_;
 
   std::unique_ptr<TFile> file_prefiringmaps_;
   std::unique_ptr<TFile> file_prefiringparams_;
@@ -115,8 +117,10 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
       nonPrefiringProbPhotonUpToken_(produces<double>("nonPrefiringProbPhotonUp")),
       nonPrefiringProbPhotonDownToken_(produces<double>("nonPrefiringProbPhotonDown")),
       nonPrefiringProbMuonToken_(produces<double>("nonPrefiringProbMuon")),
-      nonPrefiringProbMuonUpToken_(produces<double>("nonPrefiringProbMuonUp")),
-      nonPrefiringProbMuonDownToken_(produces<double>("nonPrefiringProbMuonDown")),
+      nonPrefiringProbMuonUpSystToken_(produces<double>("nonPrefiringProbMuonSystUp")),
+      nonPrefiringProbMuonDownSystToken_(produces<double>("nonPrefiringProbMuonSystDown")),
+      nonPrefiringProbMuonUpStatToken_(produces<double>("nonPrefiringProbMuonStatUp")),
+      nonPrefiringProbMuonDownStatToken_(produces<double>("nonPrefiringProbMuonStatDown")),
       dataeraEcal_(iConfig.getParameter<std::string>("DataEraECAL")),
       dataeraMuon_(iConfig.getParameter<std::string>("DataEraMuon")),
       useEMpt_(iConfig.getParameter<bool>("UseJetEMPt")),
@@ -230,7 +234,8 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   double nonPrefiringProba[3] = {1., 1., 1.};        //0: central, 1: up, 2: down
   double nonPrefiringProbaJet[3] = {1., 1., 1.};     //0: central, 1: up, 2: down
   double nonPrefiringProbaPhoton[3] = {1., 1., 1.};  //0: central, 1: up, 2: down
-  double nonPrefiringProbaMuon[3] = {1., 1., 1.};    //0: central, 1: up, 2: down
+  double nonPrefiringProbaMuon[7] = {
+      1., 1., 1., 1., 1., 1., 1.};  //0: central, 1: up, 2: down, 3: up syst, 4: down syst, 5: up stat, 6: down stat
 
   for (const auto fluct : {fluctuations::central, fluctuations::up, fluctuations::down}) {
     if (!missingInputEcal_) {
@@ -318,6 +323,21 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
       }
     }
   }
+  for (const auto fluct :
+       {fluctuations::upSyst, fluctuations::downSyst, fluctuations::upStat, fluctuations::downStat}) {
+    if (!missingInputMuon_) {
+      for (const auto& muon : theMuons) {
+        double pt = muon.pt();
+        double phi = muon.phi();
+        double eta = muon.eta();
+        // Remove crappy tracker muons which would not have prefired the L1 trigger
+        if (pt < 5 && !muon.isStandAloneMuon())
+          continue;
+        double prefiringprob_mu = getPrefiringRateMuon(eta, phi, pt, fluct);
+        nonPrefiringProbaMuon[fluct] *= (1. - prefiringprob_mu);
+      }
+    }
+  }
   //Move global prefire weights, as well as those for muons, photons, and jets, to the event
   iEvent.emplace(nonPrefiringProbToken_, nonPrefiringProba[0]);
   iEvent.emplace(nonPrefiringProbUpToken_, nonPrefiringProba[1]);
@@ -332,8 +352,10 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   iEvent.emplace(nonPrefiringProbPhotonDownToken_, nonPrefiringProbaPhoton[2]);
 
   iEvent.emplace(nonPrefiringProbMuonToken_, nonPrefiringProbaMuon[0]);
-  iEvent.emplace(nonPrefiringProbMuonUpToken_, nonPrefiringProbaMuon[1]);
-  iEvent.emplace(nonPrefiringProbMuonDownToken_, nonPrefiringProbaMuon[2]);
+  iEvent.emplace(nonPrefiringProbMuonUpSystToken_, nonPrefiringProbaMuon[3]);
+  iEvent.emplace(nonPrefiringProbMuonDownSystToken_, nonPrefiringProbaMuon[4]);
+  iEvent.emplace(nonPrefiringProbMuonUpStatToken_, nonPrefiringProbaMuon[5]);
+  iEvent.emplace(nonPrefiringProbMuonDownStatToken_, nonPrefiringProbaMuon[6]);
 }
 
 double L1PrefiringWeightProducer::getPrefiringRateEcal(double eta,
@@ -413,6 +435,15 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
     prefrate = std::min(1., prefrate + sqrt(pow(statuncty, 2) + pow(systuncty, 2)));
   else if (fluctuation == down)
     prefrate = std::max(0., prefrate - sqrt(pow(statuncty, 2) + pow(systuncty, 2)));
+  else if (fluctuation == upSyst)
+    prefrate = std::max(0., prefrate + systuncty);
+  else if (fluctuation == downSyst)
+    prefrate = std::max(0., prefrate - systuncty);
+  else if (fluctuation == upStat)
+    prefrate = std::max(0., prefrate + statuncty);
+  else if (fluctuation == downStat)
+    prefrate = std::max(0., prefrate - statuncty);
+
   return prefrate;
 }
 
