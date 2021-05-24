@@ -38,7 +38,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HcalHBHEMuonSimAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
@@ -152,7 +152,6 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
   iEvent.getByToken(tok_SimTk_, SimTk);
-  edm::SimTrackContainer::const_iterator simTrkItr;
   edm::Handle<edm::SimVertexContainer> SimVtx;
   iEvent.getByToken(tok_SimVtx_, SimVtx);
 
