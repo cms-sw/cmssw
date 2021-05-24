@@ -142,7 +142,6 @@ bool NanoAODRNTupleOutputModule::isFileOpen() const {
 
 void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
   m_file = std::make_unique<TFile>(m_fileName.c_str(), "RECREATE", "", m_compressionLevel);
-  // todo check if m_file is valid?
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
   m_jrToken = jr->outputFileOpened(m_fileName,

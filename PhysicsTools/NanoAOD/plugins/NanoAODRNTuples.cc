@@ -45,7 +45,6 @@ void RunNTuple::register_token(const edm::EDGetToken &token) {
   m_tokens.push_back(token);
 }
 
-// TODO SummaryTableOutput fields
 void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
   auto model = RNTupleModel::Create();
   m_run = RNTupleFieldPtr<UInt_t>("run", *model);
@@ -120,6 +119,7 @@ void PSetNTuple::finalizeWrite() {
   m_ntuple.reset();
 }
 
+// TODO blocked on RNTuple typedef member field support
 void MetadataNTuple::createFields(TFile& file) {
   auto procHistModel = RNTupleModel::Create();
   // ProcessHistory.transients_.phid_ replacement

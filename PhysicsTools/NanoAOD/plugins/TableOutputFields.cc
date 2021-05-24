@@ -130,7 +130,6 @@ void TableOutputVectorFields::fill(const edm::EventForOutput& event) {
 void TableCollection::add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table) {
   if (m_collectionName.empty()) {
     m_collectionName = table.name();
-    // TODO ensure this isn't moved from twice?
   }
   if (table.extension()) {
     m_extensions.emplace_back(TableOutputFields(table_token));
@@ -156,22 +155,22 @@ void TableCollection::fill(const edm::EventForOutput& event) {
   event.getByToken(m_main.getToken(), handle);
   const auto& main_table = *handle;
   auto table_size = main_table.size();
-  // todo check table sizes
   for (std::size_t i = 0; i < table_size; i++) {
     m_main.fillEntry(main_table, i);
     for (auto& ext: m_extensions) {
       edm::Handle<nanoaod::FlatTable> handle;
       event.getByToken(ext.getToken(), handle);
       const auto& ext_table = *handle;
+      if (ext_table.size() != table_size) {
+        throw cms::Exception("LogicError",
+          "Mismatch in number of entries between extension and main table for " + m_collectionName);
+      }
       ext.fillEntry(ext_table, i);
     }
     m_collection->Fill();
   }
-  //if (num_fill != num_fill_ext) {
-  //  throw cms::Exception("LogicError",
-  //    "Mismatch in number of entries between extension and main table for " + m_collectionName);
-  //}
 }
+
 void TableCollection::print() const {
   std::cout << "Collection: " << m_collectionName << " {\n";
   m_main.print();
