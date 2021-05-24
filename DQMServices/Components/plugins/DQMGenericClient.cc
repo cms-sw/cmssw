@@ -173,6 +173,7 @@ public:
     delete h1;
     delete h2;
     delete h3;
+    delete fitFcn;
   }
   /// Fill the ME with the mean value of the gaussian fit in each slice
   void getFittedMean(MonitorElement* me) {
