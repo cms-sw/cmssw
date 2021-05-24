@@ -76,12 +76,7 @@ void popcon::EcalPulseSymmCovariancesHandler::getNewObjects() {
       EcalPulseSymmCovariances::Item item;
       for (int i = 0; i < EcalPulseShape::TEMPLATESAMPLES; ++i)
         for (int j = 0; j < EcalPulseShape::TEMPLATESAMPLES; ++j) {
-          int k = -1;
-          if (j >= i)
-            k = j + (EcalPulseShape::TEMPLATESAMPLES - 1) * i;
-          else
-            k = i + (EcalPulseShape::TEMPLATESAMPLES - 1) * j;
-          item.covval[k] = covvals[i][j];
+          item.val(i, j) = covvals[i][j];
         }
 
       if (isbarrel) {
