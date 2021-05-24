@@ -39,6 +39,7 @@ protected:
   edm::InputTag _tagReport;
   edm::EDGetTokenT<FEDRawDataCollection> _tokFEDs;
   edm::EDGetTokenT<HcalUnpackerReport> _tokReport;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	flag vector
   std::vector<hcaldqm::flag::Flag> _vflags;

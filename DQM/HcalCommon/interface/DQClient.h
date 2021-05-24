@@ -25,7 +25,7 @@ namespace hcaldqm {
     typedef dqm::legacy::MonitorElement MonitorElement;
     typedef dqm::legacy::DQMStore DQMStore;
 
-    DQClient(std::string const &, std::string const &, edm::ParameterSet const &);
+    DQClient(std::string const &, std::string const &, edm::ParameterSet const &, edm::ConsumesCollector &iC);
     ~DQClient() override {}
 
     virtual void beginRun(edm::Run const &, edm::EventSetup const &);
@@ -45,6 +45,7 @@ namespace hcaldqm {
       std::vector<std::vector<flag::Flag>> _vflags;
       int _LS;
     };
+
     //	task name
     std::string _taskname;
 
@@ -53,6 +54,9 @@ namespace hcaldqm {
     int _maxProcessedLS;
 
     //	emap
+    edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
+    edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+    edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalChannelQualityToken_;
     HcalElectronicsMap const *_emap;
 
     // Crate and crate eid lists

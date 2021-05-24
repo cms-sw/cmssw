@@ -4,7 +4,8 @@ using namespace hcaldqm;
 using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
 
-DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
+DigiTask::DigiTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
   _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
@@ -79,8 +80,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   DQTask::bookHistograms(ib, r, es);
 
   //	GET WHAT YOU NEED
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
   std::vector<uint32_t> vVME;
   std::vector<uint32_t> vuTCA;
