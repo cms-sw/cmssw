@@ -12,7 +12,7 @@
 
 GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset)
     : GEMOfflineDQMBase(pset),
-      gemToken1_(esConsumes<GEMGeometry, MuonGeometryRecord>()),
+      gemToken1_(esConsumes<edm::Transition::BeginRun>()),
       gemToken2_(esConsumes<GEMGeometry, MuonGeometryRecord>()),
       globalGeomToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()),
       trasientTrackToken_(
