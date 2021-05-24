@@ -152,8 +152,7 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
       (useEMpt_) ? "L1prefiring_jetemptvseta_" + dataeraEcal_ : "L1prefiring_jetptvseta_" + dataeraEcal_;
   if (!file_prefiringmaps_->Get(mapjetfullname)) {
     missingInputEcal_ = true;
-    edm::LogWarning("L1PrefireWeightProducer")
-        << "Jet map not found. All jets prefiring weights set to 0. " << std::endl;
+    edm::LogError("L1PrefireWeightProducer") << "Jet map not found. All jets prefiring weights set to 0. " << std::endl;
   }
   h_prefmap_jet_ = file_prefiringmaps_->Get<TH2F>(mapjetfullname);
   file_prefiringmaps_->Close();
@@ -163,7 +162,7 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
   file_prefiringparams_ = std::make_unique<TFile>(paramsfilepath.fullPath().c_str(), "read");
   if (file_prefiringparams_ == nullptr) {
     missingInputMuon_ = true;
-    edm::LogWarning("L1PrefireWeightProducer")
+    edm::LogError("L1PrefireWeightProducer")
         << "File with muon parametrizations not found. All prefiring weights set to 0." << std::endl;
   }
   TString paramName = "L1prefiring_muonparam_0.0To0.2_" + dataeraMuon_;
@@ -377,7 +376,11 @@ double L1PrefiringWeightProducer::getPrefiringRateEcal(double eta,
     prefrate = std::min(1., prefrate + sqrt(pow(statuncty, 2) + pow(systuncty, 2)));
   else if (fluctuation == down)
     prefrate = std::max(0., prefrate - sqrt(pow(statuncty, 2) + pow(systuncty, 2)));
-  return std::min(1., prefrate);
+  if (prefrate > 1.) {
+    edm::LogWarning("L1PrefireWeightProducer") << "Found a prefiring probability > 1. Setting to 1." << std::endl;
+    return 1.;
+  }
+  return prefrate;
 }
 
 double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
@@ -442,7 +445,11 @@ double L1PrefiringWeightProducer::getPrefiringRateMuon(double eta,
   else if (fluctuation == downStat)
     prefrate = std::max(0., prefrate - statuncty);
 
-  return std::min(1., prefrate);
+  if (prefrate > 1.) {
+    edm::LogWarning("L1PrefireWeightProducer") << "Found a prefiring probability > 1. Setting to 1." << std::endl;
+    return 1.;
+  }
+  return prefrate;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
