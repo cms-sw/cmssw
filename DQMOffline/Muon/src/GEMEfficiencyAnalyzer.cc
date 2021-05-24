@@ -12,11 +12,11 @@
 
 GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset)
     : GEMOfflineDQMBase(pset),
-      gemToken1_(esConsumes<GEMGeometry, MuonGeometryRecord>()),                                                                    
-      gemToken2_(esConsumes<GEMGeometry, MuonGeometryRecord>()),  
+      gemToken1_(esConsumes<GEMGeometry, MuonGeometryRecord>()),
+      gemToken2_(esConsumes<GEMGeometry, MuonGeometryRecord>()),
       globalGeomToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()),
-      trasientTrackToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder")))  {
-
+      trasientTrackToken_(
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
   name_ = pset.getUntrackedParameter<std::string>("name");
   folder_ = pset.getUntrackedParameter<std::string>("folder");
 
