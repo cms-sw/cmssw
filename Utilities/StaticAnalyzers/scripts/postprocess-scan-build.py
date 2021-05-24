@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import lxml
 from bs4 import BeautifulSoup
 import sys, os
