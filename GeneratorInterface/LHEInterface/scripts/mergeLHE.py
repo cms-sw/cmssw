@@ -32,8 +32,9 @@ class DefaultLHEMerger(BaseLHEMerger):
                 yield line
 
     def merge_init_blocks(self):
-        """Calculate the output init blocks by merging the input init block info
-        Formula used (same with the MadGraph5LHEMerger scheme):
+        """If all <init> blocks are identical, return the same <init> block (in the case of Powheg LHEs);
+        otherwise, calculate the output <init> blocks by merging the input blocks info using formula
+        (same with the MadGraph5LHEMerger scheme):
             XSECUP = sum(xsecup * no.events) / tot.events
             XERRUP = sqrt( sum(sigma^2 * no.events^2) ) / tot.events
             XMAXUP = max(xmaxup)
@@ -55,7 +56,15 @@ class DefaultLHEMerger(BaseLHEMerger):
             for ipr in sorted(list(old_init_block[i].keys()), reverse=True): # reverse order: follow the MG5 custom
                 print('  xsecup, xerrup, xmaxup, lprup: %.6E, %.6E, %.6E, %d' % tuple(old_init_block[i][ipr] + [ipr]))
 
-        # Calculate merged init block
+        # Adopt smarter <init> block merging method
+        # If all <init> blocks from input files are identical, return the same block;
+        # otherwise combine them based on MadGraph5LHEMerger scheme
+        if all([old_init_block[i] == old_init_block[0] for i in range(len(self._f))]):
+            # All <init> blocks are identical
+            print('\nAll input <init> blocks are identical. Output the same <init> block.')
+            return self._init_str[0]
+
+        # Otherwise, calculate merged init block
         for i in range(len(self._f)):
             for ipr in old_init_block[i]:
                 # Initiate the subprocess for the new block if it is found for the first time in one input file
@@ -156,7 +165,7 @@ def main(argv = None):
         argv = sys.argv[1:]
 
     parser = argparse.ArgumentParser(
-        description="Merge specified input LHE files (three available modes).")
+        description="Merge specified input LHE files (two available modes).")
     parser.add_argument("-i", "--inputPaths", dest="inputPaths",
                         required=True, type=str, help="input LHE path(s) separated by comma. Shell-type wildcards are supported. E.g. -i 'a/*.lhe,b/*.lhe'")
     parser.add_argument("-o", "--outputFileName", dest="outputFileName",
