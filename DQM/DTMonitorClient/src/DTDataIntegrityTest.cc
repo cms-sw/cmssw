@@ -23,7 +23,8 @@
 using namespace std;
 using namespace edm;
 
-DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps) : nevents(0), mappingToken_(esConsumes()) {
+DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps)
+    : nevents(0), mappingToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: Constructor";
 
   // prescale on the # of LS to update the test
