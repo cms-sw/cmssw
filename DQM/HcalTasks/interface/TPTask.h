@@ -41,6 +41,7 @@ protected:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokDataL1Rec;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmul;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmulNoTDCCut;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	flag vector
   std::vector<hcaldqm::flag::Flag> _vflags;

@@ -18,11 +18,12 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
   _vnames[fTP] = "TPTask";
   _vnames[fPedestal] = "PedestalTask";
 
-  _vsumgen[fRaw] = new hcaldqm::RawRunSummary("RawRunHarvesting", _vnames[fRaw], ps);
-  _vsumgen[fDigi] = new hcaldqm::DigiRunSummary("DigiRunHarvesting", _vnames[fDigi], ps);
-  _vsumgen[fReco] = new hcaldqm::RecoRunSummary("RecoRunHarvesting", _vnames[fReco], ps);
-  _vsumgen[fTP] = new hcaldqm::TPRunSummary("TPRunHarvesting", _vnames[fTP], ps);
-  _vsumgen[fPedestal] = new hcaldqm::PedestalRunSummary("PedestalRunHarvesting", _vnames[fPedestal], ps);
+  auto iC = consumesCollector();
+  _vsumgen[fRaw] = new hcaldqm::RawRunSummary("RawRunHarvesting", _vnames[fRaw], ps, iC);
+  _vsumgen[fDigi] = new hcaldqm::DigiRunSummary("DigiRunHarvesting", _vnames[fDigi], ps, iC);
+  _vsumgen[fReco] = new hcaldqm::RecoRunSummary("RecoRunHarvesting", _vnames[fReco], ps, iC);
+  _vsumgen[fTP] = new hcaldqm::TPRunSummary("TPRunHarvesting", _vnames[fTP], ps, iC);
+  _vsumgen[fPedestal] = new hcaldqm::PedestalRunSummary("PedestalRunHarvesting", _vnames[fPedestal], ps, iC);
 
   _thresh_bad_bad = ps.getUntrackedParameter("thresh_bad_bad", 0.05);
 }
