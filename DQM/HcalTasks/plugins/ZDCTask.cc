@@ -127,7 +127,7 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps) {
     _cShape_EChannel[histoname]->setAxisTitle("fC QIE8", 2);
 
     ib.setCurrentFolder("Hcal/ZDCTask/ADC_perChannel");
-    _cADC_EChannel[histoname] = ib.book1D(histoname, histoname, xAxisADC.nbins(), xAxisADC.min(), xAxisADC.max());
+    _cADC_EChannel[histoname] = ib.book1DD(histoname, histoname, xAxisADC.nbins(), xAxisADC.min(), xAxisADC.max());
     _cADC_EChannel[histoname]->getTH1()->SetBit(
         BIT(hcaldqm::constants::BIT_OFFSET + hcaldqm::quantity::AxisType::fYAxis));
     _cADC_EChannel[histoname]->setAxisTitle("ADC QIE8", 1);
@@ -161,7 +161,7 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps) {
   _cShape->setAxisTitle("Timing", 1);
   _cShape->setAxisTitle("fC QIE8", 2);
 
-  _cADC = ib.book1D("ADC", "ADC", xAxisADC.nbins(), xAxisADC.min(), xAxisADC.max());
+  _cADC = ib.book1DD("ADC", "ADC", xAxisADC.nbins(), xAxisADC.min(), xAxisADC.max());
   _cADC->getTH1()->SetBit(BIT(hcaldqm::constants::BIT_OFFSET + hcaldqm::quantity::AxisType::fYAxis));
   _cADC->setAxisTitle("ADC QIE8", 1);
 

@@ -41,7 +41,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _capidmbx[HcalEndcap] = 1;
   _capidmbx[HcalOuter] = 1;
   _capidmbx[HcalForward] = 1;
-
 }
 
 /* virtual */ void DigiTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
@@ -57,9 +56,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   for (unsigned i = 0; i < eids.size(); i++) {
     HcalElectronicsId eid = eids[i];
     DetId id = _emap->lookup(eid);
-    if(HcalGenericDetId(id.rawId()).isHcalCalibDetId()){
+    if (HcalGenericDetId(id.rawId()).isHcalCalibDetId()) {
       HcalCalibDetId calibId(id);
-      if(calibId.calibFlavor() == HcalCalibDetId::CalibrationBox){
+      if (calibId.calibFlavor() == HcalCalibDetId::CalibrationBox) {
         HcalSubdetector this_subdet = HcalEmpty;
         switch (calibId.hcalSubdet()) {
           case HcalBarrel:
@@ -78,7 +77,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
             this_subdet = HcalEmpty;
             break;
         }
-        _ledCalibrationChannels[this_subdet].push_back(HcalDetId(HcalOther, calibId.ieta(), calibId.iphi(), calibId.cboxChannel()));
+        _ledCalibrationChannels[this_subdet].push_back(
+            HcalDetId(HcalOther, calibId.ieta(), calibId.iphi(), calibId.cboxChannel()));
       }
     }
   }
@@ -788,7 +788,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
     //	book Number of Events vs LS histogram
     ib.setCurrentFolder(_subsystem + "/RunInfo");
-    meNumEvents1LS = ib.book1D("NumberOfEvents", "NumberOfEvents", 1, 0, 1);
+    meNumEvents1LS = ib.book1DD("NumberOfEvents", "NumberOfEvents", 1, 0, 1);
 
     //	book the flag for unknown ids and the online guy as well
     ib.setCurrentFolder(_subsystem + "/" + _name);
@@ -868,7 +868,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
         if (did.subdet() == HcalOther) {
           HcalOtherDetId hodid(digi.detid());
           if (hodid.subdet() == HcalCalibration) {
-            if (std::find(_ledCalibrationChannels[HcalEndcap].begin(), _ledCalibrationChannels[HcalEndcap].end(), did) != _ledCalibrationChannels[HcalEndcap].end()) {
+            if (std::find(_ledCalibrationChannels[HcalEndcap].begin(),
+                          _ledCalibrationChannels[HcalEndcap].end(),
+                          did) != _ledCalibrationChannels[HcalEndcap].end()) {
               bool channelLEDSignalPresent = false;
               for (int i = 0; i < digi.samples(); i++) {
                 _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), bx, digi[i].adc());
@@ -883,7 +885,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
                   _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS % 60);
                 }
               }
-            } else if (std::find(_ledCalibrationChannels[HcalBarrel].begin(), _ledCalibrationChannels[HcalBarrel].end(), did) != _ledCalibrationChannels[HcalBarrel].end()) {
+            } else if (std::find(_ledCalibrationChannels[HcalBarrel].begin(),
+                                 _ledCalibrationChannels[HcalBarrel].end(),
+                                 did) != _ledCalibrationChannels[HcalBarrel].end()) {
               bool channelLEDSignalPresent = false;
               for (int i = 0; i < digi.samples(); i++) {
                 _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), bx, digi[i].adc());
@@ -899,7 +903,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
                 }
               }
             }
-
           }
         }
       }
@@ -1095,7 +1098,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
         if (did.subdet() == HcalOther) {
           HcalOtherDetId hodid(did);
           if (hodid.subdet() == HcalCalibration) {
-            if (std::find(_ledCalibrationChannels[HcalOuter].begin(), _ledCalibrationChannels[HcalOuter].end(), did) != _ledCalibrationChannels[HcalOuter].end()) {
+            if (std::find(_ledCalibrationChannels[HcalOuter].begin(), _ledCalibrationChannels[HcalOuter].end(), did) !=
+                _ledCalibrationChannels[HcalOuter].end()) {
               bool channelLEDSignalPresent = false;
               for (int i = 0; i < digi.size(); i++) {
                 _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), bx, digi[i].adc());
@@ -1259,7 +1263,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
           if (did.subdet() == HcalOther) {
             HcalOtherDetId hodid(digi.detid());
             if (hodid.subdet() == HcalCalibration) {
-              if (std::find(_ledCalibrationChannels[HcalForward].begin(), _ledCalibrationChannels[HcalForward].end(), did) != _ledCalibrationChannels[HcalForward].end()) {
+              if (std::find(_ledCalibrationChannels[HcalForward].begin(),
+                            _ledCalibrationChannels[HcalForward].end(),
+                            did) != _ledCalibrationChannels[HcalForward].end()) {
                 bool channelLEDSignalPresent = false;
                 for (int i = 0; i < digi.samples(); i++) {
                   _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), bx, digi[i].adc());

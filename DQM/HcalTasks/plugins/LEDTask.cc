@@ -23,7 +23,6 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _lowHBHE = ps.getUntrackedParameter<double>("lowHBHE", 20);
   _lowHO = ps.getUntrackedParameter<double>("lowHO", 20);
   _lowHF = ps.getUntrackedParameter<double>("lowHF", 20);
-
 }
 
 /* virtual */ void LEDTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
@@ -42,9 +41,9 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
   for (unsigned i = 0; i < eids.size(); i++) {
     HcalElectronicsId eid = eids[i];
     DetId id = _emap->lookup(eid);
-    if(HcalGenericDetId(id.rawId()).isHcalCalibDetId()){
+    if (HcalGenericDetId(id.rawId()).isHcalCalibDetId()) {
       HcalCalibDetId calibId(id);
-      if(calibId.calibFlavor() == HcalCalibDetId::CalibrationBox){
+      if (calibId.calibFlavor() == HcalCalibDetId::CalibrationBox) {
         HcalSubdetector this_subdet = HcalEmpty;
         switch (calibId.hcalSubdet()) {
           case HcalBarrel:
@@ -63,7 +62,8 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
             this_subdet = HcalEmpty;
             break;
         }
-        _ledCalibrationChannels[this_subdet].push_back(HcalDetId(HcalOther, calibId.ieta(), calibId.iphi(), calibId.cboxChannel()));
+        _ledCalibrationChannels[this_subdet].push_back(
+            HcalDetId(HcalOther, calibId.ieta(), calibId.iphi(), calibId.cboxChannel()));
       }
     }
   }
@@ -519,9 +519,8 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
       if (did.subdet() == HcalOther) {
         HcalOtherDetId hodid(did);
         if (hodid.subdet() == HcalCalibration) {
-          if (std::find(_ledCalibrationChannels[HcalOuter].begin(),
-                        _ledCalibrationChannels[HcalOuter].end(),
-                        did) != _ledCalibrationChannels[HcalOuter].end()) {
+          if (std::find(_ledCalibrationChannels[HcalOuter].begin(), _ledCalibrationChannels[HcalOuter].end(), did) !=
+              _ledCalibrationChannels[HcalOuter].end()) {
             for (int i = 0; i < digi.size(); i++) {
               if (_ptype == fOnline) {
                 _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), e.bunchCrossing(), digi[i].adc());
