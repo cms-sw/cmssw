@@ -10,8 +10,6 @@
 
 #include "grpc_client.h"
 
-#include "cuda_runtime_api.h"
-
 namespace triton_utils {
 
   using Error = nvidia::inferenceserver::client::Error;
@@ -31,7 +29,9 @@ namespace triton_utils {
   //generic version w/o Error
   void warnOrThrow(std::string_view msg, bool canThrow);
 
+#ifdef TRITON_ENABLE_GPU
   bool cudaCheck(cudaError_t result, std::string_view msg, bool canThrow);
+#endif
 
 }  // namespace triton_utils
 

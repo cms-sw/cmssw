@@ -3,8 +3,6 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonMemResource.h"
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
-#include "grpc_client.h"
-
 #include <cstring>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -118,6 +116,12 @@ const uint8_t* TritonOutputCpuShmResource::copyOutput() {
   return addr_;
 }
 
+template class TritonHeapResource<nic::InferInput>;
+template class TritonCpuShmResource<nic::InferInput>;
+template class TritonHeapResource<nic::InferRequestedOutput>;
+template class TritonCpuShmResource<nic::InferRequestedOutput>;
+
+#ifdef TRITON_ENABLE_GPU
 template <typename IO>
 TritonGpuShmResource<IO>::TritonGpuShmResource(TritonData<IO>* data, const std::string& name, size_t size, bool canThrow)
     : TritonMemResource<IO>(data, name, size, canThrow), deviceId_(0), handle_(std::make_shared<cudaIpcMemHandle_t>()) {
@@ -161,9 +165,6 @@ const uint8_t* TritonOutputGpuShmResource::copyOutput() {
   return ptr->data();
 }
 
-template class TritonHeapResource<nic::InferInput>;
-template class TritonCpuShmResource<nic::InferInput>;
 template class TritonGpuShmResource<nic::InferInput>;
-template class TritonHeapResource<nic::InferRequestedOutput>;
-template class TritonCpuShmResource<nic::InferRequestedOutput>;
 template class TritonGpuShmResource<nic::InferRequestedOutput>;
+#endif

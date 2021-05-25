@@ -142,10 +142,13 @@ bool TritonData<IO>::updateMem(size_t size, bool canThrow) {
       //need to destroy before constructing new instance because shared memory key will be reused
       memResource_.reset();
       memResource_ = std::make_shared<TritonCpuShmResource<IO>>(this, shmName_, size, canThrow);
-    } else if (useShm_ and client_->serverType() == TritonServerType::LocalGPU) {
+    }
+#ifdef TRITON_ENABLE_GPU
+    else if (useShm_ and client_->serverType() == TritonServerType::LocalGPU) {
       memResource_.reset();
       memResource_ = std::make_shared<TritonGpuShmResource<IO>>(this, shmName_, size, canThrow);
     }
+#endif
     //for remote/heap, size increases don't matter
     else if (!memResource_)
       memResource_ = std::make_shared<TritonHeapResource<IO>>(this, shmName_, size, canThrow);
