@@ -177,7 +177,7 @@ CaloSamples CaloHitResponse::makeBlankSignal(const DetId &detId) const {
   int preciseSize(storePrecise ? parameters.readoutFrameSize() * BUNCHSPACE * invdt : 0);
   CaloSamples result(detId, parameters.readoutFrameSize(), preciseSize);
   result.setPresamples(parameters.binOfMaximum() - 1);
-  if (storePrecise){
+  if (storePrecise) {
     result.setPreciseSize(preciseSize);
     result.setPrecise(result.presamples() * BUNCHSPACE * invdt, dt);
   }
