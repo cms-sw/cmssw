@@ -1,9 +1,9 @@
 /****************************************************************************
-*
-* Authors:
-*  Jan Kašpar (jan.kaspar@gmail.com) 
-*    
-****************************************************************************/
+ *
+ * Authors:
+ *  Jan Kašpar (jan.kaspar@gmail.com) 
+ *    
+ ****************************************************************************/
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,7 +47,6 @@ CTPPSAlignmentInfo::CTPPSAlignmentInfo(const edm::ParameterSet& iConfig)
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSAlignmentInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //  edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
 
   if (alignmentType_ == "real") {
     if (watcherRealAlignments_.check(iSetup)) {
