@@ -1454,13 +1454,17 @@ def lhegensim2018(fragment,howMuch):
     return merge([{'cfg':fragment},howMuch,step1LHEGenSimUp2018Default])
 
 # Run-Dependent MC
+kevents_rd = 9
+events_per_job_rd = 50
 def gen2018RD(fragment,howMuch):
     global step1Up2018Defaults
-    return merge([{'cfg':fragment},howMuch,{'--conditions':'auto:phase1_2018_realistic_rd','--customise_commands': "\"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5) \""},step1Up2018Defaults])
+    return merge([{'cfg':fragment},howMuch,{'--conditions':'auto:phase1_2018_realistic_rd','--customise_commands': "\"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(" + str(events_per_job_rd) + ") \""},step1Up2018Defaults])
 
-steps['ZEE_13UP18_RD']=gen2018RD('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(10,50))
-steps['ZMM_13UP18_RD']=gen2018RD('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(10,50))
-steps['TTbar_13UP18_RD']=gen2018RD('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(10,50))
+steps['ZEE_13UP18_RD']=gen2018RD('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(kevents_rd,events_per_job_rd))
+steps['ZMM_13UP18_RD']=gen2018RD('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(kevents_rd,events_per_job_rd))
+steps['TTbar_13UP18_RD']=gen2018RD('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(kevents_rd,events_per_job_rd))
+steps['TTbar_13UP18_RD_IB']=gen2018RD('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(kevents_rd,events_per_job_rd))
+steps['TTbar_13UP18_RD_IB']['--customise_commands'] = "\"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5)\""
 
 steps['TTbar012Jets_NLO_Mad_py8_Evt_13']=lhegensim('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cfi.py',Kby(9,50))
 steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py', Kby(9,50))
@@ -1797,16 +1801,17 @@ steps['DIGIPRMXUP18_PU25']=merge([digiPremixUp2018Defaults25ns])
 steps['DIGIPRMXLOCALUP18_PU25']=merge([digiPremixLocalPileupUp2018Defaults25ns])
 
 # Run-Dependent MC: DIGI step; 17 is a dummy test; 2018 with 2000 lumis
-steps['DIGIPRMXUP17_PU25_RD']=merge([digiPremixUp2017Defaults25ns, { '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_UL_2017_mc'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )  \\n process.mixData.workers.ecal.timeDependent=True\"" } ])
+steps['DIGIPRMXUP17_PU25_RD']=merge([{'--procModifiers':'premix_stage2,runDependent'}, digiPremixUp2017Defaults25ns, { '--customise_commands':"\"process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_UL_2017_mc'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )\""} ])
 
 digiPremixRD2018 = {
-    '--pileup_input':'das:/RelValPREMIXUP18_PU25/%s/PREMIX'%baseDataSetRelease[24]
+    '--pileup_input':'das:/RelValPREMIXUP18_PU25/%s/PREMIX'%baseDataSetRelease[24],
+    '--procModifiers':'premix_stage2,runDependent'
 }
 
-steps['DIGIPRMXUP18_PU25_RD']=merge([digiPremixRD2018, {'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.mixData.workers.ecal.timeDependent=True \\n process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(*[cms.LuminosityBlockID(x,y) for x,y in ((315257, 1), (316082, 222), (316720, 445), (317527, 668), (320917, 890), (321414, 1112), (321973, 1334), (322492, 1556), (324245, 1779))]) \""}, digiPremixUp2018Defaults25ns])
+steps['DIGIPRMXUP18_PU25_RD']=merge([{'--conditions':'auto:phase1_2018_realistic_rd', '--relval': str(kevents_rd*1000) + ',' + str(events_per_job_rd), '--runsScenarioForMCIntegerWeights': 'Run2018_Equal_Lumi_Integer_Weights'}, digiPremixRD2018, digiPremixUp2018Defaults25ns])
 
 # configuration to simulate cross run number boundary in IB, given 5 events per lumi
-steps['DIGIPRMXUP18_PU25_RD_IB']=merge([digiPremixRD2018, {'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.mixData.workers.ecal.timeDependent=True \\n process.source.setRunNumberForEachLumi = cms.untracked.vuint32(315257,316083) \""}, digiPremixUp2018Defaults25ns])
+steps['DIGIPRMXUP18_PU25_RD_IB']=merge([{'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.source.setRunNumberForEachLumi = cms.untracked.vuint32(315257,316083) \"", '--procModifiers':'premix_stage2,runDependent'}, digiPremixRD2018, digiPremixUp2018Defaults25ns])
 
 premixProd25ns = {'-s'             : 'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval2016',
                  '--eventcontent' : 'PREMIXRAW',
@@ -2457,7 +2462,7 @@ steps['RECOPRMXUP18_PU25_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,E
 steps['RECOPRMXUP18_PU25_L1TMuDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECOPRMXUP18_PU25']])
 
 #Run-Dependent RECO
-step_RECO18_RD = {'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n \""}
+step_RECO18_RD = {'--conditions':'auto:phase1_2018_realistic_rd'}
 steps['RECOPRMXUP18_PU25_RD']=merge([step_RECO18_RD, steps['RECOPRMXUP18_PU25']])
 steps['RECOPRMXUP18_PU25_L1TEgDQM_RD']=merge([step_RECO18_RD, steps['RECOPRMXUP18_PU25_L1TEgDQM']])
 steps['RECOPRMXUP18_PU25_L1TMuDQM_RD']=merge([step_RECO18_RD, steps['RECOPRMXUP18_PU25_L1TMuDQM']])
@@ -2981,7 +2986,7 @@ steps['HARVESTUP18_PU25_L1TEgDQM']=steps['HARVESTUP18_L1TEgDQM']
 steps['HARVESTUP18_PU25_L1TMuDQM']=steps['HARVESTUP18_L1TMuDQM']
 
 #Run-Dependent harvesting; using MultiRun harvesting + force RunNumber=1 for GUI MC
-step_harvest_MRH_RD = {'--harvesting':'AtJobEnd','--customise_commands':'"process.dqmSaver.forceRunNumber = 1"'}
+step_harvest_MRH_RD = {'--harvesting':'AtJobEnd', '--procModifiers':'runDependent'}
 steps['HARVESTUP18_PU25_RD']=merge([step_harvest_MRH_RD,steps['HARVESTUP18']])
 steps['HARVESTUP18_PU25_L1TEgDQM_RD']=merge([step_harvest_MRH_RD,steps['HARVESTUP18_L1TEgDQM']])
 steps['HARVESTUP18_PU25_L1TMuDQM_RD']=merge([step_harvest_MRH_RD,steps['HARVESTUP18_L1TMuDQM']])
