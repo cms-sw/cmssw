@@ -130,7 +130,7 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit &hit, CLHEP::HepRan
     // use 0.5ns binning for precise sample
     for (int bin = 0; bin < result.size() * BUNCHSPACE * invdt; bin++) {
       sampleBin = bin / (BUNCHSPACE * invdt);
-      double pulseBit = (*shape)(binTime)*signal;
+      double pulseBit = (*shape)(binTime)*signal*dt;
       result[sampleBin] += pulseBit;
       result.preciseAtMod(bin) += pulseBit;
       binTime += dt;
