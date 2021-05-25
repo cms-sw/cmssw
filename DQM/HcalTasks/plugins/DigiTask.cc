@@ -42,7 +42,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
   _capidmbx[HcalEndcap] = 1;
   _capidmbx[HcalOuter] = 1;
   _capidmbx[HcalForward] = 1;
-
 }
 
 /* virtual */ void DigiTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {

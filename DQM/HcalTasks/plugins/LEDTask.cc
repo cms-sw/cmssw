@@ -24,7 +24,6 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
   _lowHBHE = ps.getUntrackedParameter<double>("lowHBHE", 20);
   _lowHO = ps.getUntrackedParameter<double>("lowHO", 20);
   _lowHF = ps.getUntrackedParameter<double>("lowHF", 20);
-
 }
 
 /* virtual */ void LEDTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
