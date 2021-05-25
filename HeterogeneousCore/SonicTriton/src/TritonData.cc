@@ -192,7 +192,7 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
   computeSizes();
   updateMem(totalByteSize_, true);
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
-    memResource_->copy(data_in[i0].data(), i0 * byteSizePerBatch_);
+    memResource_->copyInput(data_in[i0].data(), i0 * byteSizePerBatch_);
   }
   memResource_->set(true);
 
@@ -222,8 +222,7 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
                                             << " (should be " << byteSize_ << " for " << dname_ << ")";
   }
 
-  const uint8_t* r0;
-  memResource_->copy(&r0);
+  const uint8_t* r0 = memResource_->copyOutput();
   const DT* r1 = reinterpret_cast<const DT*>(r0);
 
   TritonOutput<DT> dataOut;
