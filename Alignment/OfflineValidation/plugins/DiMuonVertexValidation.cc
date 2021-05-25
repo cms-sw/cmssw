@@ -106,14 +106,14 @@ private:
 
   // 2D maps
 
-  DiLeptonHelp::PlotsVsKinematics CosPhiPlots = DiLeptonHelp::PlotsVsKinematics();
-  DiLeptonHelp::PlotsVsKinematics CosPhi3DPlots = DiLeptonHelp::PlotsVsKinematics();
-  DiLeptonHelp::PlotsVsKinematics VtxProbPlots = DiLeptonHelp::PlotsVsKinematics();
-  DiLeptonHelp::PlotsVsKinematics VtxDistPlots = DiLeptonHelp::PlotsVsKinematics();
-  DiLeptonHelp::PlotsVsKinematics VtxDist3DPlots = DiLeptonHelp::PlotsVsKinematics();
-  DiLeptonHelp::PlotsVsKinematics VtxDistSigPlots = DiLeptonHelp::PlotsVsKinematics();
-  DiLeptonHelp::PlotsVsKinematics VtxDist3DSigPlots = DiLeptonHelp::PlotsVsKinematics();
-  DiLeptonHelp::PlotsVsKinematics ZMassPlots = DiLeptonHelp::PlotsVsKinematics();
+  DiLeptonHelp::PlotsVsKinematics CosPhiPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics CosPhi3DPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics VtxProbPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics VtxDistPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics VtxDist3DPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics VtxDistSigPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics VtxDist3DSigPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics ZMassPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
 
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbESToken_;
 
