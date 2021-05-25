@@ -39,6 +39,7 @@ namespace triton_utils {
     warnOrThrowIfError(Error("client-side problem"), msg, canThrow);
   }
 
+#ifdef TRITON_ENABLE_GPU
   bool cudaCheck(cudaError_t result, std::string_view msg, bool canThrow) {
     if (LIKELY(result == cudaSuccess))
       return true;
@@ -47,6 +48,7 @@ namespace triton_utils {
     warnOrThrowIfError(Error(cudaMsg), msg, canThrow);
     return false;
   }
+#endif
 }  // namespace triton_utils
 
 template std::string triton_utils::printColl(const edm::Span<std::vector<int64_t>::const_iterator>& coll,

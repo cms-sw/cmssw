@@ -181,10 +181,12 @@ std::pair<std::string, TritonServerType> TritonService::serverAddress(const std:
   const auto& serverInfo(servers_.find(serverName)->second);
   auto serverType = TritonServerType::Remote;
   if (serverInfo.isFallback) {
-    if (fallbackOpts_.useGPU)
-      serverType = TritonServerType::LocalGPU;
-    else
+    if (!fallbackOpts_.useGPU)
       serverType = TritonServerType::LocalCPU;
+#ifdef TRITON_ENABLE_GPU
+    else
+      serverType = TritonServerType::LocalGPU;
+#endif
   }
   return std::make_pair(serverInfo.url, serverType);
 }

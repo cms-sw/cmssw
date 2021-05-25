@@ -23,8 +23,10 @@ template <typename IO>
 class TritonHeapResource;
 template <typename IO>
 class TritonCpuShmResource;
+#ifdef TRITON_ENABLE_GPU
 template <typename IO>
 class TritonGpuShmResource;
+#endif
 
 //aliases for local input and output types
 template <typename DT>
@@ -78,7 +80,9 @@ private:
   friend class TritonMemResource<IO>;
   friend class TritonHeapResource<IO>;
   friend class TritonCpuShmResource<IO>;
+#ifdef TRITON_ENABLE_GPU
   friend class TritonGpuShmResource<IO>;
+#endif
 
   //private accessors only used internally or by client
   unsigned fullLoc(unsigned loc) const { return loc + (noBatch_ ? 0 : 1); }
