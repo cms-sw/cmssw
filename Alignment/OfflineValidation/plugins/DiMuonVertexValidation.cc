@@ -63,7 +63,7 @@
 class DiMuonVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit DiMuonVertexValidation(const edm::ParameterSet&);
-  ~DiMuonVertexValidation() override;
+  ~DiMuonVertexValidation();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -73,6 +73,7 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
+  DiLeptonHelp::Counts myCounts;
 
   std::vector<double> pTthresholds_;
   float maxSVdist_;
@@ -104,6 +105,8 @@ private:
   TH1F* hInvMass_;
   TH1F* hTrackInvMass_;
 
+  TH1F* hCutFlow_;
+
   // 2D maps
 
   DiLeptonHelp::PlotsVsKinematics CosPhiPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
@@ -127,6 +130,7 @@ private:
 //
 
 static constexpr float cmToum = 10e4;
+static constexpr float mumass2 = 0.105658367 * 0.105658367;  //mu mass squared (GeV^2/c^4)
 
 //
 // static data member definitions
@@ -159,7 +163,7 @@ DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
   for (const auto& thr : pTthresholds_) {
     edm::LogInfo("DiMuonVertexValidation") << " Threshold: " << thr << " ";
   }
-  edm::LogInfo("DiMuonVertexValidation") << "\n Max SV distance: " << maxSVdist_ << " ";
+  edm::LogInfo("DiMuonVertexValidation") << "Max SV distance: " << maxSVdist_ << " ";
 }
 
 DiMuonVertexValidation::~DiMuonVertexValidation() = default;
@@ -171,6 +175,8 @@ DiMuonVertexValidation::~DiMuonVertexValidation() = default;
 // ------------ method called for each event  ------------
 void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
+
+  myCounts.eventsTotal++;
 
   // select the good muons
   std::vector<const reco::Muon*> myGoodMuonVector;
@@ -199,8 +205,15 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
   // reject if there's no Z
   if (myGoodMuonVector.size() < 2)
     return;
+
+  myCounts.eventsAfterMult++;
+
   if ((myGoodMuonVector[0]->pt()) < pTthresholds_[0] || (myGoodMuonVector[1]->pt() < pTthresholds_[1]))
     return;
+
+  myCounts.eventsAfterPt++;
+  myCounts.eventsAfterEta++;
+
   if (myGoodMuonVector[0]->charge() * myGoodMuonVector[1]->charge() > 0)
     return;
 
@@ -252,11 +265,8 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
   const auto& tplus = myTracks[0]->charge() > 0 ? myTracks[0] : myTracks[1];
   const auto& tminus = myTracks[0]->charge() < 0 ? myTracks[0] : myTracks[1];
 
-  static constexpr float mumass = 0.105658367;  //mu mass  (GeV/c^2)
-
-  TLorentzVector p4_tplus(tplus->px(), tplus->py(), tplus->pz(), sqrt((tplus->p() * tplus->p()) + (mumass * mumass)));
-  TLorentzVector p4_tminus(
-      tminus->px(), tminus->py(), tminus->pz(), sqrt((tminus->p() * tminus->p()) + (mumass * mumass)));
+  TLorentzVector p4_tplus(tplus->px(), tplus->py(), tplus->pz(), sqrt((tplus->p() * tplus->p()) + mumass2));
+  TLorentzVector p4_tminus(tminus->px(), tminus->py(), tminus->pz(), sqrt((tminus->p() * tminus->p()) + mumass2));
 
   const auto& Zp4 = p4_tplus + p4_tminus;
   float track_invMass = Zp4.M();
@@ -287,6 +297,8 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   if (!aTransientVertex.isValid())
     return;
+
+  myCounts.eventsAfterVtx++;
 
   // fill the VtxProb plots
   VtxProbPlots.fillPlots(SVProb, tktk_p4);
@@ -344,6 +356,8 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
     LogDebug("DiMuonVertexValidation") << "distance: " << distance << "+/-" << dist_err << std::endl;
     // cut on the PV - SV distance
     if (distance * cmToum < maxSVdist_) {
+      myCounts.eventsAfterDist++;
+
       double cosphi = (ZpT.x() * deltaVtx.x() + ZpT.y() * deltaVtx.y()) /
                       (sqrt(ZpT.x() * ZpT.x() + ZpT.y() * ZpT.y()) *
                        sqrt(deltaVtx.x() * deltaVtx.x() + deltaVtx.y() * deltaVtx.y()));
@@ -415,10 +429,29 @@ void DiMuonVertexValidation::beginJob() {
 
   TFileDirectory dirInvariantMass = fs->mkdir("InvariantMassPlots");
   ZMassPlots.bookFromPSet(dirInvariantMass, DiMuMassConfiguration_);
+
+  // cut flow
+
+  hCutFlow_ = fs->make<TH1F>("hCutFlow", "cut flow;cut step;events left", 6, -0.5, 5.5);
+  std::string names[6] = {"Total", "Mult.", ">pT", "<eta", "hasVtx", "VtxDist"};
+  for (unsigned int i = 0; i < 6; i++) {
+    hCutFlow_->GetXaxis()->SetBinLabel(i + 1, names[i].c_str());
+  }
+
+  myCounts.zeroAll();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void DiMuonVertexValidation::endJob() {
+  myCounts.printCounts();
+
+  hCutFlow_->SetBinContent(1, myCounts.eventsTotal);
+  hCutFlow_->SetBinContent(2, myCounts.eventsAfterMult);
+  hCutFlow_->SetBinContent(3, myCounts.eventsAfterPt);
+  hCutFlow_->SetBinContent(4, myCounts.eventsAfterEta);
+  hCutFlow_->SetBinContent(5, myCounts.eventsAfterVtx);
+  hCutFlow_->SetBinContent(6, myCounts.eventsAfterDist);
+
   TH1F::SetDefaultSumw2(kTRUE);
   const unsigned int nBinsX = hCosPhi_->GetNbinsX();
   for (unsigned int i = 1; i <= nBinsX; i++) {

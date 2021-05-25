@@ -67,7 +67,7 @@
 class DiElectronVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit DiElectronVertexValidation(const edm::ParameterSet&);
-  ~DiElectronVertexValidation() override;
+  ~DiElectronVertexValidation();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -81,6 +81,17 @@ private:
   DiLeptonHelp::Counts myCounts;
   std::vector<double> pTthresholds_;
   float maxSVdist_;
+
+  // plot configurations
+
+  edm::ParameterSet CosPhiConfiguration_;
+  edm::ParameterSet CosPhi3DConfiguration_;
+  edm::ParameterSet VtxProbConfiguration_;
+  edm::ParameterSet VtxDistConfiguration_;
+  edm::ParameterSet VtxDist3DConfiguration_;
+  edm::ParameterSet VtxDistSigConfiguration_;
+  edm::ParameterSet VtxDist3DSigConfiguration_;
+  edm::ParameterSet DiMuMassConfiguration_;
 
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbESToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection>
@@ -106,6 +117,17 @@ private:
   TH1F* hInvMass_;
   TH1I* hClosestVtxIndex_;
   TH1F* hCutFlow_;
+
+  // 2D maps
+
+  DiLeptonHelp::PlotsVsKinematics CosPhiPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::EE);
+  DiLeptonHelp::PlotsVsKinematics CosPhi3DPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::EE);
+  DiLeptonHelp::PlotsVsKinematics VtxProbPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::EE);
+  DiLeptonHelp::PlotsVsKinematics VtxDistPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::EE);
+  DiLeptonHelp::PlotsVsKinematics VtxDist3DPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::EE);
+  DiLeptonHelp::PlotsVsKinematics VtxDistSigPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::EE);
+  DiLeptonHelp::PlotsVsKinematics VtxDist3DSigPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::EE);
+  DiLeptonHelp::PlotsVsKinematics ZMassPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::EE);
 };
 
 //
@@ -113,7 +135,7 @@ private:
 //
 
 static constexpr float cmToum = 10e4;
-static constexpr float emass2 = 0.0005109990615 * 0.0005109990615;  //e mass squared  (GeV^2/c^4)
+static constexpr float emass2 = 0.0005109990615 * 0.0005109990615;  //electron mass squared  (GeV^2/c^4)
 
 //
 // constructors and destructor
@@ -121,14 +143,32 @@ static constexpr float emass2 = 0.0005109990615 * 0.0005109990615;  //e mass squ
 DiElectronVertexValidation::DiElectronVertexValidation(const edm::ParameterSet& iConfig)
     : pTthresholds_(iConfig.getParameter<std::vector<double>>("pTThresholds")),
       maxSVdist_(iConfig.getParameter<double>("maxSVdist")),
+      CosPhiConfiguration_(iConfig.getParameter<edm::ParameterSet>("CosPhiConfig")),
+      CosPhi3DConfiguration_(iConfig.getParameter<edm::ParameterSet>("CosPhi3DConfig")),
+      VtxProbConfiguration_(iConfig.getParameter<edm::ParameterSet>("VtxProbConfig")),
+      VtxDistConfiguration_(iConfig.getParameter<edm::ParameterSet>("VtxDistConfig")),
+      VtxDist3DConfiguration_(iConfig.getParameter<edm::ParameterSet>("VtxDist3DConfig")),
+      VtxDistSigConfiguration_(iConfig.getParameter<edm::ParameterSet>("VtxDistSigConfig")),
+      VtxDist3DSigConfiguration_(iConfig.getParameter<edm::ParameterSet>("VtxDist3DSigConfig")),
+      DiMuMassConfiguration_(iConfig.getParameter<edm::ParameterSet>("DiMuMassConfig")),
       ttbESToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       electronsToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
       gsfTracksToken_(consumes<reco::GsfTrackCollection>(iConfig.getParameter<edm::InputTag>("gsfTracks"))),
       vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))) {
   usesResource(TFileService::kSharedResource);
+
+  // sort the vector of thresholds
+  std::sort(pTthresholds_.begin(), pTthresholds_.end(), [](const double& lhs, const double& rhs) { return lhs > rhs; });
+
+  edm::LogInfo("DiElectronVertexValidation") << __FUNCTION__;
+  for (const auto& thr : pTthresholds_) {
+    edm::LogInfo("DiElectronVertexValidation") << " Threshold: " << thr << " ";
+  }
+  edm::LogInfo("DiElectronVertexValidation") << "Max SV distance: " << maxSVdist_ << " ";
+
 }
 
-DiElectronVertexValidation::~DiElectronVertexValidation() {}
+DiElectronVertexValidation::~DiElectronVertexValidation() = default;
 
 //
 // member functions
@@ -229,12 +269,21 @@ void DiElectronVertexValidation::analyze(const edm::Event& iEvent, const edm::Ev
   const auto& e0 = myTracks[0]->momentum();
   const auto& ditrack = e1 + e0;
 
-  TLorentzVector p4_e1(e1.x(), e1.y(), e1.z(), sqrt(e1.mag2() + emass2));
-  TLorentzVector p4_e0(e0.x(), e0.y(), e0.z(), sqrt(e0.mag2() + emass2));
+  const auto& tplus = myTracks[0]->charge() > 0 ? myTracks[0] : myTracks[1];
+  const auto& tminus = myTracks[0]->charge() < 0 ? myTracks[0] : myTracks[1];
 
-  const auto& Zp4 = p4_e1 + p4_e0;
+  TLorentzVector p4_tplus(tplus->px(), tplus->py(), tplus->pz(), sqrt((tplus->p() * tplus->p()) + emass2));
+  TLorentzVector p4_tminus(tminus->px(), tminus->py(), tminus->pz(), sqrt((tminus->p() * tminus->p()) + emass2));
+
+  // creat the pair of TLorentVectors used to make the plos
+  std::pair<TLorentzVector, TLorentzVector> tktk_p4 = std::make_pair(p4_tplus, p4_tminus);
+
+  const auto& Zp4 = p4_tplus + p4_tminus;
   float track_invMass = Zp4.M();
   hTrackInvMass_->Fill(track_invMass);
+
+  // fill the z->mm mass plots
+  ZMassPlots.fillPlots(track_invMass, tktk_p4);
 
   math::XYZPoint ZpT(ditrack.x(), ditrack.y(), 0);
   math::XYZPoint Zp(ditrack.x(), ditrack.y(), ditrack.z());
@@ -254,6 +303,9 @@ void DiElectronVertexValidation::analyze(const edm::Event& iEvent, const edm::Ev
     return;
 
   myCounts.eventsAfterVtx++;
+
+  // fill the VtxProb plots
+  VtxProbPlots.fillPlots(SVProb, tktk_p4);
 
   // get collection of reconstructed vertices from event
   edm::Handle<reco::VertexCollection> vertexHandle = iEvent.getHandle(vertexToken_);
@@ -295,12 +347,24 @@ void DiElectronVertexValidation::analyze(const edm::Event& iEvent, const edm::Ev
     hSVDist_->Fill(distance * cmToum);
     hSVDistSig_->Fill(distance / dist_err);
 
+    // fill the VtxDist plots
+    VtxDistPlots.fillPlots(distance * cmToum, tktk_p4);
+
+    // fill the VtxDisSig plots
+    VtxDistSigPlots.fillPlots(distance / dist_err, tktk_p4);
+
     // Z Vertex distance in 3D
     double distance3D = vertTool3D.distance(aTransVtx, TheMainVtx).value();
     double dist3D_err = vertTool3D.distance(aTransVtx, TheMainVtx).error();
 
     hSVDist3D_->Fill(distance3D * cmToum);
     hSVDist3DSig_->Fill(distance3D / dist3D_err);
+
+    // fill the VtxDist3D plots
+    VtxDist3DPlots.fillPlots(distance3D * cmToum, tktk_p4);
+
+    // fill the VtxDisSig plots
+    VtxDist3DSigPlots.fillPlots(distance3D / dist3D_err, tktk_p4);
 
     // cut on the PV - SV distance
     if (distance * cmToum < maxSVdist_) {
@@ -316,6 +380,12 @@ void DiElectronVertexValidation::analyze(const edm::Event& iEvent, const edm::Ev
 
       hCosPhi_->Fill(cosphi);
       hCosPhi3D_->Fill(cosphi3D);
+
+      // fill the cosphi plots
+      CosPhiPlots.fillPlots(cosphi, tktk_p4);
+
+      // fill the VtxDisSig plots
+      CosPhi3DPlots.fillPlots(cosphi3D, tktk_p4);
     }
   }
 }
@@ -372,6 +442,34 @@ void DiElectronVertexValidation::beginJob() {
 
   hClosestVtxIndex_ = fs->make<TH1I>("ClosestVtxIndex", ";closest vertex index;N(tk tk pairs)", 20, -0.5, 19.5);
 
+  // 2D Maps
+
+  TFileDirectory dirCosPhi = fs->mkdir("CosPhiPlots");
+  CosPhiPlots.bookFromPSet(dirCosPhi, CosPhiConfiguration_);
+
+  TFileDirectory dirCosPhi3D = fs->mkdir("CosPhi3DPlots");
+  CosPhi3DPlots.bookFromPSet(dirCosPhi3D, CosPhi3DConfiguration_);
+
+  TFileDirectory dirVtxProb = fs->mkdir("VtxProbPlots");
+  VtxProbPlots.bookFromPSet(dirVtxProb, VtxProbConfiguration_);
+
+  TFileDirectory dirVtxDist = fs->mkdir("VtxDistPlots");
+  VtxDistPlots.bookFromPSet(dirVtxDist, VtxDistConfiguration_);
+
+  TFileDirectory dirVtxDist3D = fs->mkdir("VtxDist3DPlots");
+  VtxDist3DPlots.bookFromPSet(dirVtxDist3D, VtxDist3DConfiguration_);
+
+  TFileDirectory dirVtxDistSig = fs->mkdir("VtxDistSigPlots");
+  VtxDistSigPlots.bookFromPSet(dirVtxDistSig, VtxDistSigConfiguration_);
+
+  TFileDirectory dirVtxDist3DSig = fs->mkdir("VtxDist3DSigPlots");
+  VtxDist3DSigPlots.bookFromPSet(dirVtxDist3DSig, VtxDist3DSigConfiguration_);
+
+  TFileDirectory dirInvariantMass = fs->mkdir("InvariantMassPlots");
+  ZMassPlots.bookFromPSet(dirInvariantMass, DiMuMassConfiguration_);
+
+  // cut flow 
+
   hCutFlow_ = fs->make<TH1F>("hCutFlow","cut flow;cut step;events left",6,-0.5,5.5);
   std::string names[6]={"Total","Mult.",">pT","<eta","hasVtx","VtxDist"};
   for(unsigned int i=0;i<6;i++){
@@ -383,7 +481,6 @@ void DiElectronVertexValidation::beginJob() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void DiElectronVertexValidation::endJob() {
-  // please remove this method if not needed
   myCounts.printCounts();
 
   hCutFlow_->SetBinContent(1,myCounts.eventsTotal);
@@ -392,7 +489,6 @@ void DiElectronVertexValidation::endJob() {
   hCutFlow_->SetBinContent(4,myCounts.eventsAfterEta);
   hCutFlow_->SetBinContent(5,myCounts.eventsAfterVtx);
   hCutFlow_->SetBinContent(6,myCounts.eventsAfterDist);
-
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -403,6 +499,96 @@ void DiElectronVertexValidation::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
   desc.add<std::vector<double>>("pTThresholds", {25., 15.});
   desc.add<double>("maxSVdist", 50.);
+
+  {
+    edm::ParameterSetDescription psDiMuMass;
+    psDiMuMass.add<std::string>("name", "DiMuMass");
+    psDiMuMass.add<std::string>("title", "M(#mu#mu)");
+    psDiMuMass.add<std::string>("yUnits", "[GeV]");
+    psDiMuMass.add<int>("NxBins", 24);
+    psDiMuMass.add<int>("NyBins", 50);
+    psDiMuMass.add<double>("ymin", 70.);
+    psDiMuMass.add<double>("ymax", 120.);
+    desc.add<edm::ParameterSetDescription>("DiMuMassConfig", psDiMuMass);
+  }
+  {
+    edm::ParameterSetDescription psCosPhi;
+    psCosPhi.add<std::string>("name", "CosPhi");
+    psCosPhi.add<std::string>("title", "cos(#phi_{xy})");
+    psCosPhi.add<std::string>("yUnits", "");
+    psCosPhi.add<int>("NxBins", 50);
+    psCosPhi.add<int>("NyBins", 50);
+    psCosPhi.add<double>("ymin", -1.);
+    psCosPhi.add<double>("ymax", 1.);
+    desc.add<edm::ParameterSetDescription>("CosPhiConfig", psCosPhi);
+  }
+  {
+    edm::ParameterSetDescription psCosPhi3D;
+    psCosPhi3D.add<std::string>("name", "CosPhi3D");
+    psCosPhi3D.add<std::string>("title", "cos(#phi_{3D})");
+    psCosPhi3D.add<std::string>("yUnits", "");
+    psCosPhi3D.add<int>("NxBins", 50);
+    psCosPhi3D.add<int>("NyBins", 50);
+    psCosPhi3D.add<double>("ymin", -1.);
+    psCosPhi3D.add<double>("ymax", 1.);
+    desc.add<edm::ParameterSetDescription>("CosPhi3DConfig", psCosPhi3D);
+  }
+  {
+    edm::ParameterSetDescription psVtxProb;
+    psVtxProb.add<std::string>("name", "VtxProb");
+    psVtxProb.add<std::string>("title", "Prob(#chi^{2}_{SV})");
+    psVtxProb.add<std::string>("yUnits", "");
+    psVtxProb.add<int>("NxBins", 50);
+    psVtxProb.add<int>("NyBins", 50);
+    psVtxProb.add<double>("ymin", 0);
+    psVtxProb.add<double>("ymax", 1.);
+    desc.add<edm::ParameterSetDescription>("VtxProbConfig", psVtxProb);
+  }
+  {
+    edm::ParameterSetDescription psVtxDist;
+    psVtxDist.add<std::string>("name", "VtxDist");
+    psVtxDist.add<std::string>("title", "d_{xy}(PV,SV)");
+    psVtxDist.add<std::string>("yUnits", "[#mum]");
+    psVtxDist.add<int>("NxBins", 50);
+    psVtxDist.add<int>("NyBins", 100);
+    psVtxDist.add<double>("ymin", 0);
+    psVtxDist.add<double>("ymax", 300.);
+    desc.add<edm::ParameterSetDescription>("VtxDistConfig", psVtxDist);
+  }
+  {
+    edm::ParameterSetDescription psVtxDist3D;
+    psVtxDist3D.add<std::string>("name", "VtxDist3D");
+    psVtxDist3D.add<std::string>("title", "d_{3D}(PV,SV)");
+    psVtxDist3D.add<std::string>("yUnits", "[#mum]");
+    psVtxDist3D.add<int>("NxBins", 50);
+    psVtxDist3D.add<int>("NyBins", 250);
+    psVtxDist3D.add<double>("ymin", 0);
+    psVtxDist3D.add<double>("ymax", 500.);
+    desc.add<edm::ParameterSetDescription>("VtxDist3DConfig", psVtxDist3D);
+  }
+  {
+    edm::ParameterSetDescription psVtxDistSig;
+    psVtxDistSig.add<std::string>("name", "VtxDistSig");
+    psVtxDistSig.add<std::string>("title", "d_{xy}(PV,SV)/#sigma_{dxy}(PV,SV)");
+    psVtxDistSig.add<std::string>("yUnits", "");
+    psVtxDistSig.add<int>("NxBins", 50);
+    psVtxDistSig.add<int>("NyBins", 100);
+    psVtxDistSig.add<double>("ymin", 0);
+    psVtxDistSig.add<double>("ymax", 5.);
+    desc.add<edm::ParameterSetDescription>("VtxDistSigConfig", psVtxDistSig);
+  }
+  {
+    edm::ParameterSetDescription psVtxDist3DSig;
+    psVtxDist3DSig.add<std::string>("name", "VtxDist3DSig");
+    psVtxDist3DSig.add<std::string>("title", "d_{3D}(PV,SV)/#sigma_{d3D}(PV,SV)");
+    psVtxDist3DSig.add<std::string>("yUnits", "");
+    psVtxDist3DSig.add<int>("NxBins", 50);
+    psVtxDist3DSig.add<int>("NyBins", 100);
+    psVtxDist3DSig.add<double>("ymin", 0);
+    psVtxDist3DSig.add<double>("ymax", 5.);
+    desc.add<edm::ParameterSetDescription>("VtxDist3DSigConfig", psVtxDist3DSig);
+  }
+
   descriptions.addWithDefaultLabel(desc);
 }
 
