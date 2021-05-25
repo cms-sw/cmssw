@@ -41,7 +41,7 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 // Geometry
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

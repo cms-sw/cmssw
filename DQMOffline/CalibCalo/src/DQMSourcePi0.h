@@ -12,7 +12,7 @@
 // Geometry
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"

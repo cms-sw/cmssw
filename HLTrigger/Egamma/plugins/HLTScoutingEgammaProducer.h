@@ -46,7 +46,7 @@ Description: Producer for ScoutingElectron and ScoutingPhoton
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Math/interface/libminifloat.h"

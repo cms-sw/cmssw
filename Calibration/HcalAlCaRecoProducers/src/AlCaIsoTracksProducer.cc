@@ -61,7 +61,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
