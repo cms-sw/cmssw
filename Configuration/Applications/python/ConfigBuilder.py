@@ -82,6 +82,8 @@ defaultOptions.lumiToProcess=None
 defaultOptions.fast=False
 defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
+defaultOptions.runsAndWeightsForMCIntegerWeights = None
+defaultOptions.runsScenarioForMCIntegerWeights = None
 defaultOptions.runUnscheduled = False
 defaultOptions.timeoutOutput = False
 defaultOptions.nThreads = '1'
@@ -495,6 +497,30 @@ class ConfigBuilder(object):
             ThrowAndSetRandomRun.throwAndSetRandomRun(self.process.source,self.runsAndWeights)
             self.additionalCommands.append('import SimGeneral.Configuration.ThrowAndSetRandomRun as ThrowAndSetRandomRun')
             self.additionalCommands.append('ThrowAndSetRandomRun.throwAndSetRandomRun(process.source,%s)'%(self.runsAndWeights))
+
+        # modify source in case of run-dependent MC (Run-3 method)
+        self.runsAndWeightsInt=None
+        if self._options.runsAndWeightsForMCIntegerWeights or self._options.runsScenarioForMCIntegerWeights:
+            if not self._options.isMC :
+                raise Exception("options --runsAndWeightsForMCIntegerWeights and --runsScenarioForMCIntegerWeights are only valid for MC")
+            if self._options.runsAndWeightsForMCIntegerWeights:
+                self.runsAndWeightsInt = eval(self._options.runsAndWeightsForMCIntegerWeights)
+            else:
+                from Configuration.StandardSequences.RunsAndWeights import RunsAndWeights
+                if isinstance(RunsAndWeights[self._options.runsScenarioForMCIntegerWeights], str):
+                    __import__(RunsAndWeights[self._options.runsScenarioForMCIntegerWeights])
+                    self.runsAndWeightsInt = sys.modules[RunsAndWeights[self._options.runsScenarioForMCIntegerWeights]].runProbabilityDistribution
+                else:
+                    self.runsAndWeightsInt = RunsAndWeights[self._options.runsScenarioForMCIntegerWeights]
+
+        if self.runsAndWeightsInt:
+            if not self._options.relval:
+                raise Exception("--relval option required when using --runsAndWeightsInt")
+            if 'DATAMIX' in self._options.step:
+                from SimGeneral.Configuration.LumiToRun import lumi_to_run
+                total_events, events_per_job  = self._options.relval.split(',')
+                lumi_to_run_mapping = lumi_to_run(self.runsAndWeightsInt, int(total_events), int(events_per_job))
+                self.additionalCommands.append("process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(*[cms.LuminosityBlockID(x,y) for x,y in " + str(lumi_to_run_mapping) + "])")
 
         return
 
