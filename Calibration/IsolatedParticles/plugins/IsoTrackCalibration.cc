@@ -475,7 +475,6 @@ void IsoTrackCalibration::beginRun(edm::Run const &iRun, edm::EventSetup const &
 
   // check if trigger names in (new) config
   if (changed_) {
-    changed_ = false;
     edm::LogInfo("HcalIsoTrack") << "New trigger menu found !!!";
     const unsigned int n(hltConfig_.size());
     for (unsigned itrig = 0; itrig < trigNames_.size(); itrig++) {
