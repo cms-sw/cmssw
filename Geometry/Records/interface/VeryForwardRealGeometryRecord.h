@@ -11,6 +11,7 @@
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardIdealGeometryRecord.h"
 
 #include "FWCore/Utilities/interface/mplVector.h"
 
@@ -22,6 +23,6 @@
  **/
 class VeryForwardRealGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
                                           VeryForwardRealGeometryRecord,
-                                          edm::mpl::Vector<IdealGeometryRecord, RPRealAlignmentRecord /*, ... */> > {};
+                                          edm::mpl::Vector<VeryForwardIdealGeometryRecord, IdealGeometryRecord, RPRealAlignmentRecord /*, ... */> > {};
 
 #endif
