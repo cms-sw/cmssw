@@ -12,7 +12,7 @@
 #include <memory>
 #include <atomic>
 
-#include "HeterogeneousCore/SonicTriton/interface/grpc_client_gpu.h"
+#include "grpc_client.h"
 #include "grpc_service.pb.h"
 
 //forward declaration

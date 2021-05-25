@@ -179,10 +179,14 @@ std::pair<std::string, TritonServerType> TritonService::serverAddress(const std:
 
   //todo: use some algorithm to select server rather than just picking arbitrarily
   const auto& serverInfo(servers_.find(serverName)->second);
-  return std::make_pair(serverInfo.url,
-                        serverInfo.isFallback
-                            ? fallbackOpts_.useGPU ? TritonServerType::LocalGPU : TritonServerType::LocalCPU
-                            : TritonServerType::Remote);
+  auto serverType = TritonServerType::Remote;
+  if (serverInfo.isFallback) {
+    if (fallbackOpts_.useGPU)
+      serverType = TritonServerType::LocalGPU;
+    else
+      serverType = TritonServerType::LocalCPU;
+  }
+  return std::make_pair(serverInfo.url, serverType);
 }
 
 void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&) {

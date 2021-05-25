@@ -4,13 +4,13 @@
 #include <string>
 #include <memory>
 
-#include "HeterogeneousCore/SonicTriton/interface/grpc_client_gpu.h"
+#include "grpc_client.h"
+
+#include "cuda_runtime_api.h"
 
 //forward declaration
 template <typename IO>
 class TritonData;
-struct cudaIpcMemHandle_st;
-typedef cudaIpcMemHandle_st cudaIpcMemHandle_t;
 
 //base class for memory operations
 template <typename IO>
@@ -21,7 +21,9 @@ public:
   uint8_t* addr() { return addr_; }
   size_t size() const { return size_; }
   bool status() const { return status_; }
+  //used for input
   virtual void copy(const void* values, size_t offset) {}
+  //used for output
   virtual void copy(const uint8_t** values) {}
   virtual bool set(bool canThrow);
 

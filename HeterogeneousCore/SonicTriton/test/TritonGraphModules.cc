@@ -64,7 +64,7 @@ public:
     if (brief_)
       edm::LogInfo(debugName) << "output shape: " << output1.shape()[0] << ", " << output1.shape()[1];
     else {
-      std::stringstream msg;
+      edm::LogInfo msg(debugName);
       for (int i = 0; i < output1.shape()[0]; ++i) {
         msg << "output " << i << ": ";
         for (int j = 0; j < output1.shape()[1]; ++j) {
@@ -72,7 +72,6 @@ public:
         }
         msg << "\n";
       }
-      edm::LogInfo(debugName) << msg.str();
     }
   }
   static void fillPSetDescription(edm::ParameterSetDescription& desc) {

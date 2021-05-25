@@ -139,6 +139,7 @@ bool TritonData<IO>::updateMem(size_t size, bool canThrow) {
   bool status = true;
   if (!memResource_ or size > memResource_->size()) {
     if (useShm_ and client_->serverType() == TritonServerType::LocalCPU) {
+      //need to destroy before constructing new instance because shared memory key will be reused
       memResource_.reset();
       memResource_ = std::make_shared<TritonCpuShmResource<IO>>(this, shmName_, size, canThrow);
     } else if (useShm_ and client_->serverType() == TritonServerType::LocalGPU) {
