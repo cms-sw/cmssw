@@ -33,40 +33,34 @@ private:
 
   edm::ESWatcher<RPRealAlignmentRecord> watcherRealAlignments_;
   edm::ESWatcher<RPMisalignedAlignmentRecord> watcherMisalignedAlignments_;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord> alignmentToken_;
+
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void printInfo(const CTPPSRPAlignmentCorrectionsData& alignments, const edm::Event& event) const;
 };
 
-//----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
-
-using namespace std;
-using namespace edm;
-
-//----------------------------------------------------------------------------------------------------
-
 CTPPSAlignmentInfo::CTPPSAlignmentInfo(const edm::ParameterSet& iConfig)
-    : alignmentType_(iConfig.getUntrackedParameter<std::string>("alignmentType", "real")) {}
+  : alignmentType_(iConfig.getUntrackedParameter<std::string>("alignmentType", "real")), alignmentToken_(esConsumes()) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSAlignmentInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
+  //  edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
 
   if (alignmentType_ == "real") {
     if (watcherRealAlignments_.check(iSetup)) {
-      iSetup.get<RPRealAlignmentRecord>().get(alignments);
-      printInfo(*alignments, iEvent);
+      auto const& alignments = iSetup.getData(alignmentToken_);
+      printInfo(alignments, iEvent);
     }
     return;
   }
 
   else if (alignmentType_ == "misaligned") {
     if (watcherMisalignedAlignments_.check(iSetup)) {
-      iSetup.get<RPMisalignedAlignmentRecord>().get(alignments);
-      printInfo(*alignments, iEvent);
+      auto const& alignments = iSetup.getData(alignmentToken_);
+      printInfo(alignments, iEvent);
     }
     return;
   }
