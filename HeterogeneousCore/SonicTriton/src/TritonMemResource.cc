@@ -3,9 +3,7 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonMemResource.h"
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
-#include "HeterogeneousCore/SonicTriton/interface/grpc_client_gpu.h"
-
-#include "cuda_runtime_api.h"
+#include "grpc_client.h"
 
 #include <cstring>
 #include <fcntl.h>
@@ -121,11 +119,11 @@ void TritonOutputCpuShmResource::copy(const uint8_t** values) {
 template <typename IO>
 TritonGpuShmResource<IO>::TritonGpuShmResource(TritonData<IO>* data, const std::string& name, size_t size, bool canThrow)
     : TritonMemResource<IO>(data, name, size, canThrow), deviceId_(0), handle_(std::make_shared<cudaIpcMemHandle_t>()) {
-  this->status_ &= triton_utils::cudaCheck(
-      cudaMalloc((void**)&this->addr_, this->size_), "unable to allocate GPU memory for key: " + this->name_, canThrow);
   //todo: get server device id somehow?
   this->status_ &= triton_utils::cudaCheck(
       cudaSetDevice(deviceId_), "unable to set device ID to " + std::to_string(deviceId_), canThrow);
+  this->status_ &= triton_utils::cudaCheck(
+      cudaMalloc((void**)&this->addr_, this->size_), "unable to allocate GPU memory for key: " + this->name_, canThrow);
   this->status_ &= triton_utils::cudaCheck(
       cudaIpcGetMemHandle(handle_.get(), this->addr_), "unable to get IPC handle for key: " + this->name_, canThrow);
   this->status_ &= triton_utils::warnOrThrowIfError(
@@ -144,7 +142,7 @@ TritonGpuShmResource<IO>::~TritonGpuShmResource<IO>() {
 template <>
 void TritonInputGpuShmResource::copy(const void* values, size_t offset) {
   triton_utils::cudaCheck(
-      cudaMemcpy((void*)(addr_ + offset), values, data_->byteSizePerBatch_, cudaMemcpyHostToDevice),
+      cudaMemcpy(addr_ + offset, values, data_->byteSizePerBatch_, cudaMemcpyHostToDevice),
       data_->name_ + " toServer(): unable to memcpy " + std::to_string(data_->byteSizePerBatch_) + " bytes to GPU",
       true);
 }
@@ -154,7 +152,7 @@ void TritonOutputGpuShmResource::copy(const uint8_t** values) {
   //copy back from gpu, keep in scope
   auto ptr = std::make_shared<std::vector<uint8_t>>(data_->totalByteSize_);
   triton_utils::cudaCheck(
-      cudaMemcpy((void*)(ptr->data()), (void*)(addr_), data_->totalByteSize_, cudaMemcpyDeviceToHost),
+      cudaMemcpy(ptr->data(), addr_, data_->totalByteSize_, cudaMemcpyDeviceToHost),
       data_->name_ + " fromServer(): unable to memcpy " + std::to_string(data_->totalByteSize_) + " bytes from GPU",
       true);
   *values = ptr->data();
