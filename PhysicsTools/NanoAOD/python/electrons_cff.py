@@ -507,7 +507,7 @@ electronsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt
     resolveByMatchQuality = cms.bool(True),    # False = just match input in order; True = pick lowest deltaR pair first
 )
 
-electronMCTableOld = cms.EDProducer("CandMCMatchTableProducer",
+electronOldMCTable = cms.EDProducer("CandMCMatchTableProducer",
     src     = electronTable.src,
     mcMap   = cms.InputTag("electronsMCMatchForTable"),
     objName = electronTable.name,
@@ -531,7 +531,7 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
-electronMCold = cms.Sequence(electronsMCMatchForTable + electronMCTableOld)
+electronMCold = cms.Sequence(electronsMCMatchForTable + electronOldMCTable)
 electronMC = cms.Sequence(particleLevelForMatching + tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
 ( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toReplaceWith(electronMC, electronMCold)
 
