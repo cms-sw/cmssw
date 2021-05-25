@@ -115,7 +115,7 @@ namespace hcaldqm {
     //	book the Numer of Events - set axis extendable
     if (!_booked) {
       ib.setCurrentFolder(_subsystem + "/" + _taskname);
-      _meNumEvents = ib.book1D("NumberOfEvents", "NumberOfEvents", 1000, 1, 1001);  // 1000 to start with
+      _meNumEvents = ib.book1DD("NumberOfEvents", "NumberOfEvents", 1000, 1, 1001);  // 1000 to start with
       _meNumEvents->getTH1()->SetCanExtend(TH1::kXaxis);
 
       _cOccupancy_depth.book(ib, _emap, _subsystem);
