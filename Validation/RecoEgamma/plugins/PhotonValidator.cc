@@ -62,7 +62,7 @@
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 //
 //#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 //

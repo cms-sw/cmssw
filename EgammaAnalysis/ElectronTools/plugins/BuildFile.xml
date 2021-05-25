@@ -16,7 +16,6 @@
 <use name="DataFormats/RecoCandidate"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
-<use name="Geometry/CaloEventSetup"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="TrackingTools/IPTools"/>
 <library name="EgammaAnalysisElectronToolsPlugins" file="*.cc">

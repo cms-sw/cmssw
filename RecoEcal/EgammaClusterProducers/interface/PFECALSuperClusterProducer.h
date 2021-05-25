@@ -21,7 +21,7 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/PFECALSuperClusterAlgo.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"

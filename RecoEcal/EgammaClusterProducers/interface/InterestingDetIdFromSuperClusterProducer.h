@@ -43,7 +43,7 @@ The following classes of "interesting id" are considered
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannelRcd.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 class CaloTopology;
