@@ -271,7 +271,7 @@ public:  // interface
   //
   bool operator()(const pat::Jet &jet, pat::strbitset &ret) override {
     if (version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16 || version_ == WINTER17 ||
-        version_ == WINTER17PUPPI || version_ == SUMMER18 || version_ == SUMMER18PUPPI || version_ == RUN2UL16CHS || 
+        version_ == WINTER17PUPPI || version_ == SUMMER18 || version_ == SUMMER18PUPPI || version_ == RUN2UL16CHS ||
         version_ == RUN2UL16PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) {
       if (jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable())
         return firstDataCuts(jet, ret, version_);
@@ -609,8 +609,7 @@ public:  // interface
       if (ignoreCut(indexNNeutrals_FW_) || (nneutrals > cut(indexNNeutrals_FW_, int()) || std::abs(jet.eta()) <= 3.0))
         passCut(ret, indexNNeutrals_FW_);
 
-    }
-    else if (version_ == RUN2UL16PUPPI) {
+    } else if (version_ == RUN2UL16PUPPI) {
       // Cuts for |eta| <= 2.6 for RUN2UL16PUPPI scenario
       if (ignoreCut(indexNConstituents_) ||
           (nconstituents > cut(indexNConstituents_, int()) || std::abs(jet.eta()) > 2.4))
