@@ -20,9 +20,6 @@ from Configuration.PyReleaseValidation.relval_premix import workflows as _premix
 
 from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgrade_workflows
 
-wfAlreadyIncluded = []
-
-
 numWFIB = []
 for upgrade_wf in _upgrade_workflows:
     veto = False
