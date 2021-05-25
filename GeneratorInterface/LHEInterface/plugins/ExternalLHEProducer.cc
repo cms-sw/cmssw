@@ -551,10 +551,10 @@ std::unique_ptr<LHERunInfoProduct> ExternalLHEProducer::generateRunInfo(std::vec
 
     std::for_each(runInfo->getHeaders().begin(),
                   runInfo->getHeaders().end(),
-                  std::bind(&LHERunInfoProduct::addHeader, product, std::placeholders::_1));
+                  std::bind(&LHERunInfoProduct::addHeader, &product, std::placeholders::_1));
     std::for_each(runInfo->getComments().begin(),
                   runInfo->getComments().end(),
-                  std::bind(&LHERunInfoProduct::addComment, product, std::placeholders::_1));
+                  std::bind(&LHERunInfoProduct::addComment, &product, std::placeholders::_1));
     if (not retValue) {
       retValue = std::make_unique<LHERunInfoProduct>(std::move(product));
     } else {
