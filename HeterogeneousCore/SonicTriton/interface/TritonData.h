@@ -127,7 +127,7 @@ private:
   size_t sizeShape_;
   size_t byteSizePerBatch_;
   size_t totalByteSize_;
-  mutable std::shared_ptr<void> holder_;
+  std::shared_ptr<void> holder_;
   std::shared_ptr<TritonMemResource<IO>> memResource_;
   std::shared_ptr<Result> result_;
 };
