@@ -29,7 +29,7 @@ TritonHeapResource<IO>::TritonHeapResource(TritonData<IO>* data, const std::stri
     : TritonMemResource<IO>(data, name, size, canThrow) {}
 
 template <>
-void TritonInputHeapResource::copy(const void* values, size_t offset) {
+void TritonInputHeapResource::copyInput(const void* values, size_t offset) {
   triton_utils::throwIfError(
       data_->data_->AppendRaw(reinterpret_cast<const uint8_t*>(values), data_->byteSizePerBatch_),
       data_->name_ + " toServer(): unable to set data for batch entry " +
@@ -37,14 +37,16 @@ void TritonInputHeapResource::copy(const void* values, size_t offset) {
 }
 
 template <>
-void TritonOutputHeapResource::copy(const uint8_t** values) {
+const uint8_t* TritonOutputHeapResource::copyOutput() {
   size_t contentByteSize;
-  triton_utils::throwIfError(data_->result_->RawData(data_->name_, values, &contentByteSize),
+  const uint8_t* values;
+  triton_utils::throwIfError(data_->result_->RawData(data_->name_, &values, &contentByteSize),
                              data_->name_ + " fromServer(): unable to get raw");
   if (contentByteSize != data_->totalByteSize_) {
     throw cms::Exception("TritonDataError") << data_->name_ << " fromServer(): unexpected content byte size "
                                             << contentByteSize << " (expected " << data_->totalByteSize_ << ")";
   }
+  return values;
 }
 
 //shared memory helpers based on:
@@ -107,13 +109,13 @@ TritonCpuShmResource<IO>::~TritonCpuShmResource<IO>() {
 }
 
 template <>
-void TritonInputCpuShmResource::copy(const void* values, size_t offset) {
+void TritonInputCpuShmResource::copyInput(const void* values, size_t offset) {
   std::memcpy(addr_ + offset, values, data_->byteSizePerBatch_);
 }
 
 template <>
-void TritonOutputCpuShmResource::copy(const uint8_t** values) {
-  *values = addr_;
+const uint8_t* TritonOutputCpuShmResource::copyOutput() {
+  return addr_;
 }
 
 template <typename IO>
@@ -140,7 +142,7 @@ TritonGpuShmResource<IO>::~TritonGpuShmResource<IO>() {
 }
 
 template <>
-void TritonInputGpuShmResource::copy(const void* values, size_t offset) {
+void TritonInputGpuShmResource::copyInput(const void* values, size_t offset) {
   triton_utils::cudaCheck(
       cudaMemcpy(addr_ + offset, values, data_->byteSizePerBatch_, cudaMemcpyHostToDevice),
       data_->name_ + " toServer(): unable to memcpy " + std::to_string(data_->byteSizePerBatch_) + " bytes to GPU",
@@ -148,15 +150,15 @@ void TritonInputGpuShmResource::copy(const void* values, size_t offset) {
 }
 
 template <>
-void TritonOutputGpuShmResource::copy(const uint8_t** values) {
+const uint8_t* TritonOutputGpuShmResource::copyOutput() {
   //copy back from gpu, keep in scope
   auto ptr = std::make_shared<std::vector<uint8_t>>(data_->totalByteSize_);
   triton_utils::cudaCheck(
       cudaMemcpy(ptr->data(), addr_, data_->totalByteSize_, cudaMemcpyDeviceToHost),
       data_->name_ + " fromServer(): unable to memcpy " + std::to_string(data_->totalByteSize_) + " bytes from GPU",
       true);
-  *values = ptr->data();
   data_->holder_ = ptr;
+  return ptr->data();
 }
 
 template class TritonHeapResource<nic::InferInput>;

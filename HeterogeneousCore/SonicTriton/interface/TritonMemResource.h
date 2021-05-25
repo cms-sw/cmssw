@@ -22,9 +22,9 @@ public:
   size_t size() const { return size_; }
   bool status() const { return status_; }
   //used for input
-  virtual void copy(const void* values, size_t offset) {}
+  virtual void copyInput(const void* values, size_t offset) {}
   //used for output
-  virtual void copy(const uint8_t** values) {}
+  virtual const uint8_t* copyOutput() { return nullptr; }
   virtual bool set(bool canThrow);
 
 protected:
@@ -41,8 +41,8 @@ class TritonHeapResource : public TritonMemResource<IO> {
 public:
   TritonHeapResource(TritonData<IO>* data, const std::string& name, size_t size, bool canThrow);
   ~TritonHeapResource() override {}
-  void copy(const void* values, size_t offset) override {}
-  void copy(const uint8_t** values) override {}
+  void copyInput(const void* values, size_t offset) override {}
+  const uint8_t* copyOutput() override { return nullptr; }
   bool set(bool canThrow) override { return true; }
 };
 
@@ -51,8 +51,8 @@ class TritonCpuShmResource : public TritonMemResource<IO> {
 public:
   TritonCpuShmResource(TritonData<IO>* data, const std::string& name, size_t size, bool canThrow);
   ~TritonCpuShmResource() override;
-  void copy(const void* values, size_t offset) override {}
-  void copy(const uint8_t** values) override {}
+  void copyInput(const void* values, size_t offset) override {}
+  const uint8_t* copyOutput() override { return nullptr; }
 };
 
 template <typename IO>
@@ -60,8 +60,8 @@ class TritonGpuShmResource : public TritonMemResource<IO> {
 public:
   TritonGpuShmResource(TritonData<IO>* data, const std::string& name, size_t size, bool canThrow);
   ~TritonGpuShmResource() override;
-  void copy(const void* values, size_t offset) override {}
-  void copy(const uint8_t** values) override {}
+  void copyInput(const void* values, size_t offset) override {}
+  const uint8_t* copyOutput() override { return nullptr; }
 
 protected:
   int deviceId_;
@@ -77,16 +77,16 @@ using TritonOutputGpuShmResource = TritonGpuShmResource<nvidia::inferenceserver:
 
 //avoid "explicit specialization after instantiation" error
 template <>
-void TritonInputHeapResource::copy(const void* values, size_t offset);
+void TritonInputHeapResource::copyInput(const void* values, size_t offset);
 template <>
-void TritonInputCpuShmResource::copy(const void* values, size_t offset);
+void TritonInputCpuShmResource::copyInput(const void* values, size_t offset);
 template <>
-void TritonInputGpuShmResource::copy(const void* values, size_t offset);
+void TritonInputGpuShmResource::copyInput(const void* values, size_t offset);
 template <>
-void TritonOutputHeapResource::copy(const uint8_t** values);
+const uint8_t* TritonOutputHeapResource::copyOutput();
 template <>
-void TritonOutputCpuShmResource::copy(const uint8_t** values);
+const uint8_t* TritonOutputCpuShmResource::copyOutput();
 template <>
-void TritonOutputGpuShmResource::copy(const uint8_t** values);
+const uint8_t* TritonOutputGpuShmResource::copyOutput();
 
 #endif
