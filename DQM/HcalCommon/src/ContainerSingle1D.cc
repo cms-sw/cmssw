@@ -56,7 +56,7 @@ namespace hcaldqm {
 
   /* virtual */ void ContainerSingle1D::book(DQMStore::IBooker &ib, std::string subsystem, std::string aux) {
     ib.setCurrentFolder(subsystem + "/" + _folder + "/" + _qname);
-    _me = ib.book1D(_qname + (aux.empty() ? aux : "_" + aux),
+    _me = ib.book1DD(_qname + (aux.empty() ? aux : "_" + aux),
                     _qname + (aux.empty() ? aux : " " + aux),
                     _qx->nbins(),
                     _qx->min(),
