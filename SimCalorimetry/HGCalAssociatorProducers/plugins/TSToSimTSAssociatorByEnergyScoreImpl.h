@@ -15,11 +15,11 @@ namespace edm {
 }
 
 namespace hgcal {
-  struct detIdInfoInCluster {
-    bool operator==(const detIdInfoInCluster &o) const { return clusterId == o.clusterId; };
+  struct lcInfoInTrackster {
+    bool operator==(const lcInfoInTrackster &o) const { return clusterId == o.clusterId; };
     long unsigned int clusterId;
     float fraction;
-    detIdInfoInCluster(long unsigned int cId, float fr) {
+    lcInfoInTrackster(long unsigned int cId, float fr) {
       clusterId = cId;
       fraction = fr;
     }
@@ -28,7 +28,7 @@ namespace hgcal {
   struct simTracksterOnLayer {
     unsigned int simTracksterId;
     float energy = 0;
-    std::vector<std::pair<DetId, float>> hits_and_fractions;
+    std::vector<std::pair<unsigned int, float>> lcs_and_fractions;
     std::unordered_map<int, std::pair<float, float>> tracksterIdToEnergyAndScore;
   };
 
