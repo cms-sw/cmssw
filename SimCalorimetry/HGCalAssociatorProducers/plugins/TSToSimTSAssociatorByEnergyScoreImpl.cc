@@ -182,7 +182,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
           //Loop through all the linked SimTracksters
           for (const auto& st : lc_find_in_ST->second) {
             const auto stId = st.clusterId;
-            STEnergyInLC[stId] += st.fraction * layerClusyers[lc_find_in_ST.first].energy();
+            STEnergyInLC[stId] += st.fraction * layerClusters[lcId].energy();
             // Keep track of which SimTrackster contributed the most, in terms
             // of energy, to this specific Layer Cluster.
             if (STEnergyInLC[stId] > maxSTEnergyInLC) {
@@ -272,7 +272,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
     for (auto const& st : lc.second) {
       LogDebug("TSToSimTSAssociatorByEnergyScoreImpl")
           << "  SimTrackster Id: " << st.clusterId << " with fraction: " << st.fraction
-          << " and energy: " << st.fraction * layerClusyers[lc.first].energy() << std::endl;
+          << " and energy: " << st.fraction * layerClusters[lc.first].energy() << std::endl;
     }
   }
 #endif
@@ -376,7 +376,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
         << std::setw(15) << "maxEnergyTSinST\t" << std::setw(20) << "STEnergyFractionInTS"
         << "\n";
     LogDebug("TSToSimTSAssociatorByEnergyScoreImpl")
-        << std::setw(12) << stId << "\t" << std::setw(15) << simTracksters[stId].energy() << "\t" << std::setw(15)
+        << std::setw(12) << stId << "\t" << std::setw(15) << simTracksters[stId].raw_energy() << "\t" << std::setw(15)
         << STenergy << "\t" << std::setw(14) << STNumberOfLCs << "\t" << std::setw(18) << tsWithMaxEnergyInST << "\t"
         << std::setw(15) << maxEnergyTSinST << "\t" << std::setw(20) << STEnergyFractionInTS << "\n";
 #endif
