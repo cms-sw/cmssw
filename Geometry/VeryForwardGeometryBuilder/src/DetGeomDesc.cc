@@ -90,9 +90,10 @@ DetGeomDesc::DetGeomDesc(const PDetGeomDesc::Item& item)
   RotationMatrix rot(item.axx_, item.axy_, item.axz_, item.ayx_, item.ayy_, item.ayz_, item.azx_, item.azy_, item.azz_);
   m_rot = rot;
   // Set the m_isABox flag for the box shaped sensors, so that m_params are properly set
-  if( (m_name == DDD_CTPPS_PIXELS_SENSOR_NAME || m_name == DDD_CTPPS_PIXELS_SENSOR_NAME_2x2 ||
+  if ((m_name == DDD_CTPPS_PIXELS_SENSOR_NAME || m_name == DDD_CTPPS_PIXELS_SENSOR_NAME_2x2 ||
        m_name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME || m_name == DDD_CTPPS_UFSD_SEGMENT_NAME ||
-       m_name.substr(0,7) == DDD_TOTEM_TIMING_SENSOR_TMPL.substr(0,7)) && m_params.size()>2 )
+       m_name.substr(0, 7) == DDD_TOTEM_TIMING_SENSOR_TMPL.substr(0, 7)) &&
+      m_params.size() > 2)
     m_isABox = true;
   else
     m_isABox = false;
@@ -100,7 +101,7 @@ DetGeomDesc::DetGeomDesc(const PDetGeomDesc::Item& item)
 }
 
 DetGeomDesc::DetGeomDesc(const PDetGeomDesc& pd) {
-  for (auto i : pd.container_) {
+  for (const auto& i : pd.container_) {
     DetGeomDesc* gd = new DetGeomDesc(i);
     this->addComponent(gd);
   }
@@ -153,7 +154,7 @@ void DetGeomDesc::deepDeleteComponents() {
 }
 
 std::string DetGeomDesc::computeNameWithNoNamespace(std::string_view nameFromView) const {
-  const auto& semiColonPos = nameFromView.find(":");
+  const auto& semiColonPos = nameFromView.find(':');
   const std::string name{(semiColonPos != std::string::npos ? nameFromView.substr(semiColonPos + 1) : nameFromView)};
   return name;
 }
