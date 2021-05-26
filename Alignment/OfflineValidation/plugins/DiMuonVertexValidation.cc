@@ -63,7 +63,7 @@
 class DiMuonVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit DiMuonVertexValidation(const edm::ParameterSet&);
-  ~DiMuonVertexValidation();
+  ~DiMuonVertexValidation() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -75,6 +75,7 @@ private:
   // ----------member data ---------------------------
   DiLeptonHelp::Counts myCounts;
 
+  bool useReco_;
   std::vector<double> pTthresholds_;
   float maxSVdist_;
 
@@ -121,8 +122,12 @@ private:
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbESToken_;
 
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;   //used to select what tracks to read from configuration file
-  edm::EDGetTokenT<reco::MuonCollection> muonsToken_;     //used to select what tracks to read from configuration file
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;  //used to select what vertices to read from configuration file
+
+  // either on or the other!
+  edm::EDGetTokenT<reco::MuonCollection> muonsToken_;  //used to select what tracks to read from configuration file
+  edm::EDGetTokenT<reco::TrackCollection>
+      alcaRecoToken_;  //used to select what muon tracks to read from configuration file
 };
 
 //
@@ -140,7 +145,8 @@ static constexpr float mumass2 = 0.105658367 * 0.105658367;  //mu mass squared (
 // constructors and destructor
 //
 DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
-    : pTthresholds_(iConfig.getParameter<std::vector<double>>("pTThresholds")),
+    : useReco_(iConfig.getParameter<bool>("useReco")),
+      pTthresholds_(iConfig.getParameter<std::vector<double>>("pTThresholds")),
       maxSVdist_(iConfig.getParameter<double>("maxSVdist")),
       CosPhiConfiguration_(iConfig.getParameter<edm::ParameterSet>("CosPhiConfig")),
       CosPhi3DConfiguration_(iConfig.getParameter<edm::ParameterSet>("CosPhi3DConfig")),
@@ -152,8 +158,13 @@ DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
       DiMuMassConfiguration_(iConfig.getParameter<edm::ParameterSet>("DiMuMassConfig")),
       ttbESToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
-      muonsToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))) {
+  if (useReco_) {
+    muonsToken_ = mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
+  } else {
+    alcaRecoToken_ = mayConsume<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"));
+  }
+
   usesResource(TFileService::kSharedResource);
 
   // sort the vector of thresholds
@@ -178,75 +189,84 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   myCounts.eventsTotal++;
 
-  // select the good muons
-  std::vector<const reco::Muon*> myGoodMuonVector;
-  for (const auto& muon : iEvent.get(muonsToken_)) {
-    const reco::TrackRef t = muon.innerTrack();
-    if (!t.isNull()) {
-      if (t->quality(reco::TrackBase::highPurity)) {
-        if (t->chi2() / t->ndof() <= 2.5 && t->numberOfValidHits() >= 5 &&
-            t->hitPattern().numberOfValidPixelHits() >= 2 && t->quality(reco::TrackBase::highPurity))
-          myGoodMuonVector.emplace_back(&muon);
-      }
-    }
-  }
-
-  LogDebug("DiMuonVertexValidation") << "myGoodMuonVector size: " << myGoodMuonVector.size() << std::endl;
-  std::sort(myGoodMuonVector.begin(), myGoodMuonVector.end(), [](const reco::Muon*& lhs, const reco::Muon*& rhs) {
-    return lhs->pt() > rhs->pt();
-  });
-
-  // just check the ordering
-  for (const auto& muon : myGoodMuonVector) {
-    LogDebug("DiMuonVertexValidation") << "pT: " << muon->pt() << " ";
-  }
-  LogDebug("DiMuonVertexValidation") << std::endl;
-
-  // reject if there's no Z
-  if (myGoodMuonVector.size() < 2)
-    return;
-
-  myCounts.eventsAfterMult++;
-
-  if ((myGoodMuonVector[0]->pt()) < pTthresholds_[0] || (myGoodMuonVector[1]->pt() < pTthresholds_[1]))
-    return;
-
-  myCounts.eventsAfterPt++;
-  myCounts.eventsAfterEta++;
-
-  if (myGoodMuonVector[0]->charge() * myGoodMuonVector[1]->charge() > 0)
-    return;
-
-  const auto& m1 = myGoodMuonVector[1]->p4();
-  const auto& m0 = myGoodMuonVector[0]->p4();
-  const auto& mother = m0 + m1;
-
-  float invMass = mother.M();
-  hInvMass_->Fill(invMass);
-
-  // just copy the top two muons
-  std::vector<const reco::Muon*> theZMuonVector;
-  theZMuonVector.reserve(2);
-  theZMuonVector.emplace_back(myGoodMuonVector[1]);
-  theZMuonVector.emplace_back(myGoodMuonVector[0]);
-
-  // do the matching of Z muons with inner tracks
+  // the di-muon tracks
   std::vector<const reco::Track*> myTracks;
 
-  unsigned int i = 0;
-  for (const auto& muon : theZMuonVector) {
-    i++;
-    float minD = 1000.;
-    const reco::Track* theMatch = nullptr;
-    for (const auto& track : iEvent.get(tracksToken_)) {
-      float D = ::deltaR(muon->eta(), muon->phi(), track.eta(), track.phi());
-      if (D < minD) {
-        minD = D;
-        theMatch = &track;
+  // if we have to start from scratch from RECO data-tier
+  if (useReco_) {
+    // select the good muons
+    std::vector<const reco::Muon*> myGoodMuonVector;
+    for (const auto& muon : iEvent.get(muonsToken_)) {
+      const reco::TrackRef t = muon.innerTrack();
+      if (!t.isNull()) {
+        if (t->quality(reco::TrackBase::highPurity)) {
+          if (t->chi2() / t->ndof() <= 2.5 && t->numberOfValidHits() >= 5 &&
+              t->hitPattern().numberOfValidPixelHits() >= 2 && t->quality(reco::TrackBase::highPurity))
+            myGoodMuonVector.emplace_back(&muon);
+        }
       }
     }
-    LogDebug("DiMuonVertexValidation") << "pushing new track: " << i << std::endl;
-    myTracks.emplace_back(theMatch);
+
+    LogDebug("DiMuonVertexValidation") << "myGoodMuonVector size: " << myGoodMuonVector.size() << std::endl;
+    std::sort(myGoodMuonVector.begin(), myGoodMuonVector.end(), [](const reco::Muon*& lhs, const reco::Muon*& rhs) {
+      return lhs->pt() > rhs->pt();
+    });
+
+    // just check the ordering
+    for (const auto& muon : myGoodMuonVector) {
+      LogDebug("DiMuonVertexValidation") << "pT: " << muon->pt() << " ";
+    }
+    LogDebug("DiMuonVertexValidation") << std::endl;
+
+    // reject if there's no Z
+    if (myGoodMuonVector.size() < 2)
+      return;
+
+    myCounts.eventsAfterMult++;
+
+    if ((myGoodMuonVector[0]->pt()) < pTthresholds_[0] || (myGoodMuonVector[1]->pt() < pTthresholds_[1]))
+      return;
+
+    myCounts.eventsAfterPt++;
+    myCounts.eventsAfterEta++;
+
+    if (myGoodMuonVector[0]->charge() * myGoodMuonVector[1]->charge() > 0)
+      return;
+
+    const auto& m1 = myGoodMuonVector[1]->p4();
+    const auto& m0 = myGoodMuonVector[0]->p4();
+    const auto& mother = m0 + m1;
+
+    float invMass = mother.M();
+    hInvMass_->Fill(invMass);
+
+    // just copy the top two muons
+    std::vector<const reco::Muon*> theZMuonVector;
+    theZMuonVector.reserve(2);
+    theZMuonVector.emplace_back(myGoodMuonVector[1]);
+    theZMuonVector.emplace_back(myGoodMuonVector[0]);
+
+    // do the matching of Z muons with inner tracks
+    unsigned int i = 0;
+    for (const auto& muon : theZMuonVector) {
+      i++;
+      float minD = 1000.;
+      const reco::Track* theMatch = nullptr;
+      for (const auto& track : iEvent.get(tracksToken_)) {
+        float D = ::deltaR(muon->eta(), muon->phi(), track.eta(), track.phi());
+        if (D < minD) {
+          minD = D;
+          theMatch = &track;
+        }
+      }
+      LogDebug("DiMuonVertexValidation") << "pushing new track: " << i << std::endl;
+      myTracks.emplace_back(theMatch);
+    }
+  } else {
+    // we start directly with the pre-selected ALCARECO tracks
+    for (const auto& muon : iEvent.get(alcaRecoToken_)) {
+      myTracks.emplace_back(&muon);
+    }
   }
 
   LogDebug("DiMuonVertexValidation") << "selected tracks: " << myTracks.size() << std::endl;
@@ -472,8 +492,15 @@ void DiMuonVertexValidation::endJob() {
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void DiMuonVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.ifValue(edm::ParameterDescription<bool>("useReco", true, true),
+               true >> edm::ParameterDescription<edm::InputTag>("muons", edm::InputTag("muons"), true) or
+                   false >> edm::ParameterDescription<edm::InputTag>(
+                                "muonTracks", edm::InputTag("ALCARECOTkAlDiMuon"), true))
+      ->setComment("If useReco is true need to specify the muon tracks, otherwise take the ALCARECO Inner tracks");
+  //desc.add<bool>("useReco",true);
+  //desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
+  //desc.add<edm::InputTag>("muonTracks", edm::InputTag("ALCARECOTkAlDiMuon"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
-  desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<std::vector<double>>("pTThresholds", {30., 10.});
   desc.add<double>("maxSVdist", 50.);

@@ -67,7 +67,7 @@
 class DiElectronVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit DiElectronVertexValidation(const edm::ParameterSet&);
-  ~DiElectronVertexValidation();
+  ~DiElectronVertexValidation() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -165,7 +165,6 @@ DiElectronVertexValidation::DiElectronVertexValidation(const edm::ParameterSet& 
     edm::LogInfo("DiElectronVertexValidation") << " Threshold: " << thr << " ";
   }
   edm::LogInfo("DiElectronVertexValidation") << "Max SV distance: " << maxSVdist_ << " ";
-
 }
 
 DiElectronVertexValidation::~DiElectronVertexValidation() = default;
