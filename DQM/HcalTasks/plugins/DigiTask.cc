@@ -792,7 +792,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
     //	book the flag for unknown ids and the online guy as well
     ib.setCurrentFolder(_subsystem + "/" + _name);
-    meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
+    meUnknownIds1LS = ib.book1DD("UnknownIds", "UnknownIds", 1, 0, 1);
     _unknownIdsPresent = false;
   }
 }

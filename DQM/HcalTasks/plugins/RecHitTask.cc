@@ -455,7 +455,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	book some mes...
   ib.setCurrentFolder(_subsystem + "/" + _name);
   auto scope = DQMStore::IBooker::UseLumiScope(ib);
-  meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
+  meUnknownIds1LS = ib.book1DD("UnknownIds", "UnknownIds", 1, 0, 1);
   _unknownIdsPresent = false;
 }
 
@@ -537,7 +537,8 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _cTimingvsEnergy_SubdetPM.fill(did, energy, timing);
     _cOccupancy_depth.fill(did);
     did.subdet() == HcalBarrel ? did.ieta() > 0 ? ehbp += energy : ehbm += energy
-                               : did.ieta() > 0 ? ehep += energy : ehem += energy;
+    : did.ieta() > 0           ? ehep += energy
+                               : ehem += energy;
 
     //	ONLINE ONLY!
     if (_ptype == fOnline) {
