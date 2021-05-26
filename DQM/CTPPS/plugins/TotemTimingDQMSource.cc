@@ -98,8 +98,8 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingRecHit>> tokenRecHit_;
   edm::EDGetTokenT<std::vector<TotemFEDInfo>> tokenFEDInfo_;
 
-  edm::ESGetToken<CTPPSGeometry,VeryForwardRealGeometryRecord> geometryToken_;
-  edm::ESGetToken<CTPPSGeometry,VeryForwardRealGeometryRecord> geometryTokenBeginRun_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryTokenBeginRun_;
 
   double minimumStripAngleForTomography_;
   double maximumStripAngleForTomography_;
@@ -409,7 +409,7 @@ TotemTimingDQMSource::TotemTimingDQMSource(const edm::ParameterSet &ps)
       // tokenTrack_(consumes<edm::DetSetVector<TotemTimingLocalTrack>>(
       //     ps.getParameter<edm::InputTag>("tagLocalTracks"))),
       tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"))),
-      geometryToken_(esConsumes()), 
+      geometryToken_(esConsumes()),
       geometryTokenBeginRun_(esConsumes<edm::Transition::BeginRun>()),
       minimumStripAngleForTomography_(ps.getParameter<double>("minimumStripAngleForTomography")),
       maximumStripAngleForTomography_(ps.getParameter<double>("maximumStripAngleForTomography")),
@@ -425,7 +425,7 @@ TotemTimingDQMSource::~TotemTimingDQMSource() {}
 
 void TotemTimingDQMSource::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   // Get detector shifts from the geometry (if present)
-  auto const& geom = iSetup.getData(geometryTokenBeginRun_);
+  auto const &geom = iSetup.getData(geometryTokenBeginRun_);
 
   const TotemTimingDetId detid_top(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_BOT_RP_ID, 0, 0);
   const TotemTimingDetId detid_bot(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_TOP_RP_ID, 0, 7);
@@ -482,7 +482,7 @@ std::shared_ptr<totemds::Cache> TotemTimingDQMSource::globalBeginLuminosityBlock
 
 void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
   // get event setup data
-  auto const& geometry = eventSetup.getData(geometryToken_);
+  auto const &geometry = eventSetup.getData(geometryToken_);
 
   // get event data
   edm::Handle<edm::DetSetVector<TotemRPLocalTrack>> stripTracks;
@@ -496,7 +496,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
   edm::Handle<edm::DetSetVector<TotemTimingRecHit>> timingRecHits;
   event.getByToken(tokenRecHit_, timingRecHits);
- 
+
   // check validity
   bool valid = true;
   valid &= timingDigis.isValid();
