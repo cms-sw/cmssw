@@ -200,8 +200,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           const string& dd_tmp_name_d("esalgo:" + es.layName[i] + "LinPb");
           const string& dd_tmp_name_e("esalgo:" + es.layName[i] + "LinAl");
           const string& dd_tmp_name_f("esalgo:" + es.layName[i] + "LOutAlVol");
-          const string& dd_tmp_name_box("esalgo:" + es.layName[i] + "LOutAlBox");
-          const string& dd_tmp_name_subt("esalgo:" + es.layName[i] + "LOutAlSubt");
           ostringstream tmp_Alname_fin;
           tmp_Alname_fin << es.layName[i] << "LtmpAl" << absz - 1;
           string dd_Alname_fin("esalgo:" + tmp_Alname_fin.str());
