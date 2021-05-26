@@ -783,6 +783,52 @@ __global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict_
   }  // loop over hits
 }
 
+__global__ void kernel_simpleTripletCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
+                                      HitContainer const *__restrict__ ptuples,
+                                      TkSoA const *__restrict__ ptracks,
+                                      Quality *__restrict__ quality,
+                                      uint16_t nmin,
+                                      bool dupPassThrough,
+                                      CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
+  // quality to mark rejected
+  auto const reject = pixelTrack::Quality::loose;
+  /// min quality of good
+  auto const good = pixelTrack::Quality::loose;
+
+  auto &hitToTuple = *phitToTuple;
+  auto const &foundNtuplets = *ptuples;
+  auto const &tracks = *ptracks;
+
+  int first = blockDim.x * blockIdx.x + threadIdx.x;
+  for (int idx = first, ntot = hitToTuple.nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
+    if (hitToTuple.size(idx) < 2)
+      continue;
+
+    float mc = 10000.f;
+    uint16_t im = 60000;
+
+    // choose best tip!  (should we first find best quality???)
+    for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
+      auto const it = *ip;
+      if (quality[it] >= good && std::abs(tracks.tip(it)) < mc) {
+        mc = std::abs(tracks.tip(it));
+        im = it;
+      }
+    }
+
+    if (60000 == im)
+      continue;
+
+    // mark worse ambiguities
+    for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
+      auto const it = *ip;
+      if (quality[it] > reject && foundNtuplets.size(it)==3 && it != im)
+        quality[it] = reject;  //no race:  simple assignment of the same constant
+    }
+
+  }  // loop over hits
+}
+
 __global__ void kernel_print_found_ntuplets(TrackingRecHit2DSOAView const *__restrict__ hhp,
                                             HitContainer const *__restrict__ ptuples,
                                             TkSoA const *__restrict__ ptracks,

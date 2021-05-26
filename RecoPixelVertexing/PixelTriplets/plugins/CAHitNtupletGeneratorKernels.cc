@@ -192,6 +192,15 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
                             params_.minHitsForSharingCut_,
                             params_.dupPassThrough_,
                             device_hitToTuple_.get());
+if (params_.useSimpleTripletCleaner_) {
+    kernel_simpleTripletCleaner(hh.view(),
+                          tuples_d,
+                          tracks_d,
+                          quality_d,
+                          params_.minHitsForSharingCut_,
+                          params_.dupPassThrough_,
+                          device_hitToTuple_.get());
+  } else {
     kernel_tripletCleaner(hh.view(),
                           tuples_d,
                           tracks_d,
@@ -200,7 +209,7 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
                           params_.dupPassThrough_,
                           device_hitToTuple_.get());
   }
-
+  }
   if (params_.doStats_) {
     // counters (add flag???)
     kernel_doStatsForHitInTracks(device_hitToTuple_.get(), counters_);
