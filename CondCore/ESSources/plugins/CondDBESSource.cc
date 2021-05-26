@@ -237,8 +237,7 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     proxyWrappers[ind] = std::unique_ptr<cond::DataProxyWrapperBase>{
         cond::ProxyFactory::get()->tryToCreate(buildName(it->second.recordName()))};
     if (!proxyWrappers[ind].get()) {
-      edm::LogWarning("CondDBESSource") << "Plugin for Record " << it->second.recordName() << " has not been found."
-                                        << std::endl;
+      edm::LogWarning("CondDBESSource") << "Plugin for Record " << it->second.recordName() << " has not been found.";
     }
   }
 
