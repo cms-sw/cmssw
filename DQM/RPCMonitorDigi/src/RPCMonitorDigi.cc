@@ -329,7 +329,7 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
 
       // ###################### Roll Level  #################################
 
-      tmpName =  "Occupancy_" + nameRoll;
+      tmpName = "Occupancy_" + nameRoll;
       if (meMap[tmpName]) {
         for (int s = firstStrip; s <= lastStrip; s++) {
           if (useRollInfo_) {
@@ -424,11 +424,11 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
 
     }  //end loop on recHits
 
-    tmpName = "BXWithData_"+nameRoll;
+    tmpName = "BXWithData_" + nameRoll;
     if (meMap[tmpName])
       meMap[tmpName]->Fill(bxSet.size());
 
-    tmpName = "NumberOfClusters_"+nameRoll;
+    tmpName = "NumberOfClusters_" + nameRoll;
     if (meMap[tmpName])
       meMap[tmpName]->Fill(numberOfRecHits);
 
@@ -449,14 +449,14 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
       }
     }
 
-    tmpName = "Multiplicity_"+nameRoll;
+    tmpName = "Multiplicity_" + nameRoll;
     if (meMap[tmpName])
       meMap[tmpName]->Fill(numDigi);
 
   }  //end loop on rolls
 
   for (int i = 0; i < 3; i++) {
-    const std::string tmpName = "NumberOfClusters_"+RPCMonitorDigi::regionNames_[i];
+    const std::string tmpName = "NumberOfClusters_" + RPCMonitorDigi::regionNames_[i];
     if (meRegion[tmpName])
       meRegion[tmpName]->Fill(totalNumberOfRecHits[i]);
   }

@@ -77,7 +77,7 @@ void RPCDqmClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     this->getRPCdetId(c);
 
     //...book summary histograms
-    for ( auto& module : clientModules_ ) {
+    for (auto& module : clientModules_) {
       module->myBooker(ibooker);
     }
   }
@@ -105,7 +105,7 @@ void RPCDqmClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
 
     edm::LogVerbatim("rpcdqmclient") << "[RPCDqmClient]: Client operations";
-    for ( auto& module : clientModules_ ) {
+    for (auto& module : clientModules_) {
       module->clientOperation();
     }
   }  //end of online operations
@@ -131,7 +131,7 @@ void RPCDqmClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& iget
   }
 
   edm::LogVerbatim("rpcdqmclient") << "[RPCDqmClient]: Client operations";
-  for ( auto& module : clientModules_ ) {
+  for (auto& module : clientModules_) {
     module->clientOperation();
   }
 }

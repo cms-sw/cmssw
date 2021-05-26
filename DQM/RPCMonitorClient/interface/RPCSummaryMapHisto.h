@@ -4,8 +4,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 
-struct RPCSummaryMapHisto
-{
+struct RPCSummaryMapHisto {
   typedef dqm::implementation::MonitorElement MonitorElement;
   typedef dqm::implementation::IBooker IBooker;
 
@@ -14,8 +13,6 @@ struct RPCSummaryMapHisto
   static void setBinEndcap(MonitorElement* me, const int disk, const int sector, const double value);
   static void setBinsBarrel(MonitorElement* me, const double value);
   static void setBinsEndcap(MonitorElement* me, const double value);
-
 };
 
 #endif
-

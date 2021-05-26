@@ -38,7 +38,7 @@ void RPCDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     int FedCount = 0;
 
     //loop on all active feds
-    for (const int fedID : FedsInIds ) {
+    for (const int fedID : FedsInIds) {
       //make sure fed id is in allowed range
       if (fedID >= FEDRange_.first && fedID <= FEDRange_.second)
         ++FedCount;
@@ -65,7 +65,7 @@ void RPCDaqInfo::myBooker(DQMStore::IBooker& ibooker) {
   const int limit = std::max(2, numberOfDisks_);
 
   for (int i = -limit; i <= limit; ++i) {  //loop on wheels and disks
-    if (i > -3 && i < nWheels_ - 2) {          //wheels
+    if (i > -3 && i < nWheels_ - 2) {      //wheels
       const std::string meName = fmt::format("RPC_Wheel{}", i);
       daqWheelFractions[i + 2] = ibooker.bookFloat(meName);
       daqWheelFractions[i + 2]->Fill(-1);

@@ -77,7 +77,7 @@ void RPCMonitorRaw::analyze(const edm::Event& ev, const edm::EventSetup& es) {
     me_mapBadEvents->Fill(cnt.first.second, cnt.first.first, cnt.second);
 
   // readout errors
-  for (auto cnt : counts.theReadoutErrors ) {
+  for (auto cnt : counts.theReadoutErrors) {
     rpcrawtodigi::ReadoutError error(cnt.first.second);
     LinkBoardElectronicIndex ele = error.where();
     rpcrawtodigi::ReadoutError::ReadoutErrorType type = error.type();

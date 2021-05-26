@@ -5,8 +5,7 @@
 #include <string>
 #include <array>
 
-struct RPCNameHelper
-{
+struct RPCNameHelper {
   static std::string name(const RPCDetId& detId, const bool useRoll);
   static std::string chamberName(const RPCDetId& detId);
   static std::string rollName(const RPCDetId& detId);

@@ -85,7 +85,7 @@ void RPCDataCertification::myBooker(DQMStore::IBooker& ibooker) {
   const int limit = std::max(2, numberOfDisks_);
 
   for (int i = -limit; i <= limit; ++i) {  //loop on wheels and disks
-    if (i > -3 && i < nWheels_ - 2) {          //wheels
+    if (i > -3 && i < nWheels_ - 2) {      //wheels
       const std::string binLabel = fmt::format("RPC_Wheel{}", i);
       certWheelFractions[i + 2] = ibooker.bookFloat(binLabel);
       certWheelFractions[i + 2]->Fill(defaultValue_);
