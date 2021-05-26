@@ -43,7 +43,7 @@ void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
                                         const edm::EventSetup &es,
                                         std::vector<TICLSeedingRegion> &result) {
   edm::Handle<reco::TrackCollection> tracks_h;
-  ev.getByToken(tracks_token_, tracks_h);
+  tracks_h = ev.getHandle(tracks_token_);
   edm::ProductID trkId = tracks_h.id();
   auto bFieldProd = bfield_.product();
   const Propagator &prop = (*propagator_);

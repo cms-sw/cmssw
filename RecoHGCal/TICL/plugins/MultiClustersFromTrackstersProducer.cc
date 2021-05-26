@@ -48,10 +48,10 @@ void MultiClustersFromTrackstersProducer::fillDescriptions(edm::ConfigurationDes
 void MultiClustersFromTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto multiclusters = std::make_unique<std::vector<reco::HGCalMultiCluster>>();
   edm::Handle<std::vector<ticl::Trackster>> tracksterHandle;
-  evt.getByToken(tracksters_token_, tracksterHandle);
+  tracksterHandle = evt.getHandle(tracksters_token_);
 
   edm::Handle<std::vector<reco::CaloCluster>> layer_clustersHandle;
-  evt.getByToken(layer_clusters_token_, layer_clustersHandle);
+  layer_clustersHandle = evt.getHandle(layer_clusters_token_);
 
   auto const& tracksters = *tracksterHandle;
   auto const& layerClusters = *layer_clustersHandle;

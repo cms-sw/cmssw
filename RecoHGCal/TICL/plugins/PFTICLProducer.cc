@@ -72,12 +72,12 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   //get TICLCandidates
   edm::Handle<edm::View<TICLCandidate>> ticl_cand_h;
-  evt.getByToken(ticl_candidates_, ticl_cand_h);
+  ticl_cand_h = evt.getHandle(ticl_candidates_);
   const auto ticl_candidates = *ticl_cand_h;
   edm::Handle<edm::ValueMap<float>> trackTimeH, trackTimeErrH, trackTimeQualH;
-  evt.getByToken(srcTrackTime_, trackTimeH);
-  evt.getByToken(srcTrackTimeError_, trackTimeErrH);
-  evt.getByToken(srcTrackTimeQuality_, trackTimeQualH);
+  trackTimeH = evt.getHandle(srcTrackTime_);
+  trackTimeErrH = evt.getHandle(srcTrackTimeError_);
+  trackTimeQualH = evt.getHandle(srcTrackTimeQuality_);
   const auto muonH = evt.getHandle(muons_);
   const auto muons = *muonH;
 

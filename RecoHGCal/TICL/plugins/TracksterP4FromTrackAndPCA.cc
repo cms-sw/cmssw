@@ -30,7 +30,7 @@ namespace ticl {
                                          std::vector<TICLCandidate>& ticl_cands,
                                          edm::Event& event) const {
     edm::Handle<reco::TrackCollection> tracks_h;
-    event.getByToken(tracks_token_, tracks_h);
+    tracks_h = event.getHandle(tracks_token_);
     edm::ProductID trkId = tracks_h.id();
     const reco::TrackCollection& trackCollection = *tracks_h.product();
 

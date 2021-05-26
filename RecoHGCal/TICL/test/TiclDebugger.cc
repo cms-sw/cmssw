@@ -86,7 +86,7 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   edm::Handle<std::vector<ticl::Trackster>> trackstersMergeH;
 
-  iEvent.getByToken(trackstersMergeToken_, trackstersMergeH);
+  trackstersMergeH = iEvent.getHandle(trackstersMergeToken_);
   auto const& tracksters = *trackstersMergeH.product();
   std::vector<int> sorted_tracksters_idx(tracksters.size());
   iota(begin(sorted_tracksters_idx), end(sorted_tracksters_idx), 0);
@@ -95,15 +95,15 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   });
 
   edm::Handle<std::vector<reco::CaloCluster>> layerClustersH;
-  iEvent.getByToken(layerClustersToken_, layerClustersH);
+  layerClustersH = iEvent.getHandle(layerClustersToken_);
   auto const& layerClusters = *layerClustersH.product();
 
   edm::Handle<std::vector<reco::Track>> tracksH;
-  iEvent.getByToken(tracksToken_, tracksH);
+  tracksH = iEvent.getHandle(tracksToken_);
   const auto& tracks = *tracksH.product();
 
   edm::Handle<std::vector<CaloParticle>> caloParticlesH;
-  iEvent.getByToken(caloParticlesToken_, caloParticlesH);
+  caloParticlesH = iEvent.getHandle(caloParticlesToken_);
   auto const& caloParticles = *caloParticlesH.product();
   std::vector<std::pair<int, float>> bestCPMatches;
 

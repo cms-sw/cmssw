@@ -57,9 +57,9 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
 
   edm::Handle<std::vector<reco::CaloCluster>> cluster_h;
   if (doNose_)
-    evt.getByToken(clusters_HFNose_token_, cluster_h);
+    cluster_h = evt.getHandle(clusters_HFNose_token_);
   else
-    evt.getByToken(clusters_token_, cluster_h);
+    cluster_h = evt.getHandle(clusters_token_);
 
   const auto &layerClusters = *cluster_h;
   int lcId = 0;

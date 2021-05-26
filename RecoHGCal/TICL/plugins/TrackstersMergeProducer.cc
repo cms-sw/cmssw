@@ -183,35 +183,35 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   // associating seed to the index of the trackster in the merged collection and the iteration that found it
   std::map<int, std::vector<std::pair<int, TracksterIterIndex>>> seedToTracksterAssociator;
   edm::Handle<std::vector<reco::Track>> track_h;
-  evt.getByToken(tracks_token_, track_h);
+  track_h = evt.getHandle(tracks_token_);
   const auto &tracks = *track_h;
 
   edm::Handle<std::vector<reco::CaloCluster>> cluster_h;
-  evt.getByToken(clusters_token_, cluster_h);
+  cluster_h = evt.getHandle(clusters_token_);
   const auto &layerClusters = *cluster_h;
 
   edm::Handle<edm::ValueMap<std::pair<float, float>>> clustersTime_h;
-  evt.getByToken(clustersTime_token_, clustersTime_h);
+  clustersTime_h = evt.getHandle(clustersTime_token_);
   const auto &layerClustersTimes = *clustersTime_h;
 
   edm::Handle<std::vector<Trackster>> trackstersem_h;
-  evt.getByToken(trackstersem_token_, trackstersem_h);
+  trackstersem_h = evt.getHandle(trackstersem_token_);
   const auto &trackstersEM = *trackstersem_h;
 
   edm::Handle<std::vector<Trackster>> tracksterstrkem_h;
-  evt.getByToken(tracksterstrkem_token_, tracksterstrkem_h);
+  tracksterstrkem_h = evt.getHandle(tracksterstrkem_token_);
   const auto &trackstersTRKEM = *tracksterstrkem_h;
 
   edm::Handle<std::vector<Trackster>> tracksterstrk_h;
-  evt.getByToken(tracksterstrk_token_, tracksterstrk_h);
+  tracksterstrk_h = evt.getHandle(tracksterstrk_token_);
   const auto &trackstersTRK = *tracksterstrk_h;
 
   edm::Handle<std::vector<Trackster>> trackstershad_h;
-  evt.getByToken(trackstershad_token_, trackstershad_h);
+  trackstershad_h = evt.getHandle(trackstershad_token_);
   const auto &trackstersHAD = *trackstershad_h;
 
   edm::Handle<std::vector<TICLSeedingRegion>> seedingTrk_h;
-  evt.getByToken(seedingTrk_token_, seedingTrk_h);
+  seedingTrk_h = evt.getHandle(seedingTrk_token_);
   const auto &seedingTrk = *seedingTrk_h;
   usedSeeds.resize(tracks.size(), false);
 

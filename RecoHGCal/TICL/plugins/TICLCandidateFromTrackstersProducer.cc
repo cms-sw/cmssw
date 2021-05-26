@@ -108,7 +108,7 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
   // adds one TICLCandidate for each trackster that has a minimum particle probability
   for (auto& trackster_token : trackster_tokens_) {
     edm::Handle<std::vector<Trackster>> trackster_h;
-    evt.getByToken(trackster_token, trackster_h);
+    trackster_h = evt.getHandle(trackster_token);
     for (size_t i_trackster = 0; i_trackster < trackster_h->size(); ++i_trackster) {
       auto const& trackster = trackster_h->at(i_trackster);
       auto id_prob_begin = std::begin(trackster.id_probabilities());

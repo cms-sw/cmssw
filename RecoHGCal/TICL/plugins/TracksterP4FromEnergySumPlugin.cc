@@ -37,7 +37,7 @@ namespace ticl {
                                        edm::Event& event) const {
     // Find best vertex
     edm::Handle<std::vector<reco::Vertex>> vertex_h;
-    event.getByToken(vertex_token_, vertex_h);
+    vertex_h = event.getHandle(vertex_token_);
     auto vertex_coll = *vertex_h;
     reco::Vertex best_vertex;
     if (!vertex_coll.empty()) {
@@ -48,7 +48,7 @@ namespace ticl {
     }
 
     edm::Handle<std::vector<reco::CaloCluster>> layer_clusters_h;
-    event.getByToken(layer_clusters_token_, layer_clusters_h);
+    layer_clusters_h = event.getHandle(layer_clusters_token_);
 
     auto size = std::min(tracksters.size(), ticl_cands.size());
     for (size_t i = 0; i < size; ++i) {
