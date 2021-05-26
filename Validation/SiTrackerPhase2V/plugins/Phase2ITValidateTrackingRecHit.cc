@@ -147,7 +147,7 @@ void Phase2ITValidateTrackingRecHit::fillITHistos(const edm::Event& iEvent,
 
       const std::vector<SimHitIdpr>& matchedId = associateRecHit.associateHitId(*rechit);
       const PSimHit* simhitClosest = nullptr;
-      float minx = 10000;
+      float mind = 1e4;
       LocalPoint lp = rechit->localPosition();
       for (const auto& simHitCol : simHits) {
         for (const auto& simhitIt : *simHitCol) {
@@ -155,8 +155,11 @@ void Phase2ITValidateTrackingRecHit::fillITHistos(const edm::Event& iEvent,
             continue;
           for (const auto& mId : matchedId) {
             if (simhitIt.trackId() == mId.first) {
-              if (!simhitClosest || abs(simhitIt.localPosition().x() - lp.x()) < minx) {
-                minx = abs(simhitIt.localPosition().x() - lp.x());
+              float dx = simhitIt.localPosition().x() - lp.x();
+              float dy = simhitIt.localPosition().y() - lp.y();
+              float dist = std::sqrt(dx * dx + dy * dy);
+              if (!simhitClosest || dist < mind) {
+                mind = dist;
                 simhitClosest = &simhitIt;
               }
             }
