@@ -142,7 +142,7 @@ void RPCEventSummary::clientOperation(DQMStore::IGetter& igetter) {
   float barrelFactor = 0;
 
   for (int w = -2; w < 3; w++) {
-    const std::string meName  = fmt::format("{}/RPCChamberQuality_Roll_vs_Sector_Wheel{}", globalFolder_, w);
+    const std::string meName = fmt::format("{}/RPCChamberQuality_Roll_vs_Sector_Wheel{}", globalFolder_, w);
     MonitorElement* myMe = igetter.get(meName);
 
     if (myMe) {

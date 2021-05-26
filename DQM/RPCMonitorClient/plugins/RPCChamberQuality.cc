@@ -87,8 +87,8 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
     }
   }
 
-
-  MonitorElement* me = ibooker.book2D("RPC_System_Quality_Overview", "RPC_System_Quality_Overview", 7, 0.5, 7.5, 3, 0.5, 3.5);
+  MonitorElement* me =
+      ibooker.book2D("RPC_System_Quality_Overview", "RPC_System_Quality_Overview", 7, 0.5, 7.5, 3, 0.5, 3.5);
   me->setBinLabel(1, "E-", 2);
   me->setBinLabel(2, "B", 2);
   me->setBinLabel(3, "E+", 2);
@@ -100,7 +100,7 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
   for (int w = -2; w < 3; w++) {  //Loop on wheels
 
     const std::string histoName2D = fmt::format("RPCChamberQuality_Roll_vs_Sector_Wheel{}", w);
-    auto * me2D = RPCRollMapHisto::bookBarrel(ibooker, w, histoName2D, histoName2D, useRollInfo_);
+    auto* me2D = RPCRollMapHisto::bookBarrel(ibooker, w, histoName2D, histoName2D, useRollInfo_);
 
     const std::string histoName1D = fmt::format("RPCChamberQuality_Distribution_Wheel{}", w);
     MonitorElement* me1D = ibooker.book1D(histoName1D, histoName1D, 7, 0.5, 7.5);
@@ -113,7 +113,8 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
   for (int d = -numberOfDisks_; d <= numberOfDisks_; d++) {  // Loop on disk
     if (d == 0)
       continue;
-    const std::string histoName2D = fmt::format("RPCChamberQuality_Ring_vs_Segment_Disk{}", d);  //  2D histo for RPC Qtest
+    const std::string histoName2D =
+        fmt::format("RPCChamberQuality_Ring_vs_Segment_Disk{}", d);  //  2D histo for RPC Qtest
     auto me2D = RPCRollMapHisto::bookEndcap(ibooker, d, histoName2D, histoName2D, useRollInfo_);
 
     const std::string histoName1D = fmt::format("RPCChamberQuality_Distribution_Disk{}", d);
@@ -127,7 +128,7 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
 
 void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
   int rpcEvents = minEvents;
-  RpcEvents = igetter.get(prefixDir_+"/RPCEvents");
+  RpcEvents = igetter.get(prefixDir_ + "/RPCEvents");
 
   if (RpcEvents)
     rpcEvents = (int)RpcEvents->getBinContent(1);
@@ -165,7 +166,7 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
         this->performeClientOperation(meName, 1, summary[2], igetter);
     }  //loop on Disks
 
-    MonitorElement* RpcOverview = igetter.get(summaryDir_+"/RPC_System_Quality_Overview");
+    MonitorElement* RpcOverview = igetter.get(summaryDir_ + "/RPC_System_Quality_Overview");
     RpcOverview->Reset();
 
     if (RpcOverview) {  //Fill Overview ME
@@ -187,28 +188,28 @@ void RPCChamberQuality::performeClientOperation(std::string MESufix,
                                                 int region,
                                                 MonitorElement* quality,
                                                 DQMStore::IGetter& igetter) {
-  MonitorElement* RCQ = igetter.get(summaryDir_+"/RPCChamberQuality_"+MESufix);
+  MonitorElement* RCQ = igetter.get(summaryDir_ + "/RPCChamberQuality_" + MESufix);
   //  if (RCQ)  RCQ->Reset();
 
   const int pos = MESufix.find_last_of('_');
-  MonitorElement* RCQD = igetter.get(summaryDir_+"/RPCChamberQuality_Distribution"+MESufix.substr(pos));
+  MonitorElement* RCQD = igetter.get(summaryDir_ + "/RPCChamberQuality_Distribution" + MESufix.substr(pos));
   if (RCQD)
     RCQD->Reset();
 
   //get HV Histo
-  MonitorElement* HV = igetter.get(summaryDir_+"/HVStatus_"+MESufix);
+  MonitorElement* HV = igetter.get(summaryDir_ + "/HVStatus_" + MESufix);
   //get LV Histo
-  MonitorElement* LV = igetter.get(summaryDir_+"/LVStatus_"+MESufix);
+  MonitorElement* LV = igetter.get(summaryDir_ + "/LVStatus_" + MESufix);
   //Dead
-  MonitorElement* DEAD = igetter.get(summaryDir_+"/DeadChannelFraction_"+MESufix);
+  MonitorElement* DEAD = igetter.get(summaryDir_ + "/DeadChannelFraction_" + MESufix);
   //ClusterSize
-  MonitorElement* CLS = igetter.get(summaryDir_+"/ClusterSizeIn1Bin_"+MESufix);
+  MonitorElement* CLS = igetter.get(summaryDir_ + "/ClusterSizeIn1Bin_" + MESufix);
   //NoisyStrips
-  MonitorElement* NoisySt = igetter.get(summaryDir_+"/RPCNoisyStrips_"+MESufix);
+  MonitorElement* NoisySt = igetter.get(summaryDir_ + "/RPCNoisyStrips_" + MESufix);
   //Multiplicity
-  MonitorElement* MULT = igetter.get(summaryDir_+"/NumberOfDigi_Mean_"+MESufix);
+  MonitorElement* MULT = igetter.get(summaryDir_ + "/NumberOfDigi_Mean_" + MESufix);
   //Asymetry
-  MonitorElement* Chip = igetter.get(summaryDir_+"/AsymmetryLeftRight_"+MESufix);
+  MonitorElement* Chip = igetter.get(summaryDir_ + "/AsymmetryLeftRight_" + MESufix);
 
   int xBinMax, yBinMax;
 

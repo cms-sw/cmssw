@@ -59,7 +59,7 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (m_rpcTrigger) {
       int ndec(0);
       const int bx1 = (bxX - m_GMTcandidatesBx[0]);
-      for (const auto& dec : ttuDec ) {
+      for (const auto& dec : ttuDec) {
         if (dec.second) {
           const int bx2 = dec.first;
           const float bxdiffPacTT = 1.0 * (bx1 - bx2);
@@ -143,7 +143,7 @@ int RPCTTUMonitor::discriminateGMT(const edm::Event& iEvent, const edm::EventSet
 
   edm::LogInfo("DiscriminateGMT") << "nRecords: " << gmt_records.size() << '\n';
 
-  for (const auto& rr : gmt_records ) {
+  for (const auto& rr : gmt_records) {
     const int BxInEvent = rr.getBxInEvent();
     const int BxInEventNew = rr.getBxNr();
 
@@ -156,7 +156,7 @@ int RPCTTUMonitor::discriminateGMT(const edm::Event& iEvent, const edm::EventSet
 
     std::vector<L1MuRegionalCand>::const_iterator RCItr;
 
-    for (const auto& rc :BrlRpcCands) {
+    for (const auto& rc : BrlRpcCands) {
       if (!rc.empty()) {
         m_GMTcandidatesBx.push_back(BxInEventNew);
 
@@ -211,7 +211,6 @@ void RPCTTUMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r
   m_ttBitsDecisionEmulator =
       ibooker.book1D("TechTrigger.Bits.Emulator", "Technical Trigger bits : Summary", 10, 23, 33);
   for (int k = 0; k < m_maxttBits; ++k) {
-
     hname = fmt::format("BX.diff.PAC-TTU.bit.{}", m_ttBits[k]);
     m_bxDistDiffPac[k] = ibooker.book1D(hname, "Timing difference between PAC and TTU", 7, -3, 3);
 
@@ -219,7 +218,6 @@ void RPCTTUMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r
     m_bxDistDiffDt[k] = ibooker.book1D(hname, "Timing difference between DT and TTU", 7, -3, 3);
 
     hname = fmt::format("Emu.Ttu.Compare.bit.{}", m_ttBits[k]);
-    m_dataVsemulator[k] =
-        ibooker.book1D(hname, "Comparison between emulator and TT decisions", 10, 0, 10);
+    m_dataVsemulator[k] = ibooker.book1D(hname, "Comparison between emulator and TT decisions", 10, 0, 10);
   }
 }

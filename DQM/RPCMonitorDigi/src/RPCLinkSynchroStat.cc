@@ -24,9 +24,7 @@ void RPCLinkSynchroStat::add(const std::string& lbName, const unsigned int* hits
 }
 
 int RPCLinkSynchroStat::LinkBoard::add(const ChamberAndPartition& part) {
-  for (auto it = theChamberAndPartitions.begin();
-       it != theChamberAndPartitions.end();
-       ++it) {
+  for (auto it = theChamberAndPartitions.begin(); it != theChamberAndPartitions.end(); ++it) {
     if ((*it) == part)
       return 1;
   }
@@ -233,9 +231,7 @@ std::string RPCLinkSynchroStat::dumpDelays() {
     // DUMP CHAMBERS
     std::map<std::string, std::vector<std::string> > chMap;
     const std::vector<LinkBoard::ChamberAndPartition>& chamberAndPartitions = board.chamberAndPartitions();
-    for (auto it = chamberAndPartitions.begin();
-         it != chamberAndPartitions.end();
-         ++it) {
+    for (auto it = chamberAndPartitions.begin(); it != chamberAndPartitions.end(); ++it) {
       std::vector<std::string>& partitions = chMap[it->first];
       if (find(partitions.begin(), partitions.end(), it->second) == partitions.end())
         partitions.push_back(it->second);

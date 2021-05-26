@@ -70,7 +70,7 @@ void RPCFEDIntegrity::labelBins(MonitorElement* myMe) {
     return;
 
   for (int i = 0; i < xbins; i++) {
-    const std::string xLabel = fmt::format("{}", minFEDNum_+i);
+    const std::string xLabel = fmt::format("{}", minFEDNum_ + i);
     myMe->setBinLabel(i + 1, xLabel, 1);
   }
 }
