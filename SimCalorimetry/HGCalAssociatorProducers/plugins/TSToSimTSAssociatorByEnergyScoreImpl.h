@@ -44,13 +44,15 @@ public:
                                                 std::shared_ptr<hgcal::RecHitTools>,
                                                 const std::unordered_map<DetId, const HGCRecHit *> *);
 
-  hgcal::RecoToSimCollectionSimTracksters associateRecoToSim(const edm::Handle<ticl::TracksterCollection> &tCH,
-                                                          const edm::Handle<reco::CaloClusterCollection> &lCCH,
-                                                          const edm::Handle<ticl::TracksterCollection> &sTCH) const override;
+  hgcal::RecoToSimCollectionSimTracksters associateRecoToSim(
+      const edm::Handle<ticl::TracksterCollection> &tCH,
+      const edm::Handle<reco::CaloClusterCollection> &lCCH,
+      const edm::Handle<ticl::TracksterCollection> &sTCH) const override;
 
-  hgcal::SimToRecoCollectionSimTracksters associateSimToReco(const edm::Handle<ticl::TracksterCollection> &tCH,
-                                                          const edm::Handle<reco::CaloClusterCollection> &lCCH,
-                                                          const edm::Handle<ticl::TracksterCollection> &sTCH) const override;
+  hgcal::SimToRecoCollectionSimTracksters associateSimToReco(
+      const edm::Handle<ticl::TracksterCollection> &tCH,
+      const edm::Handle<reco::CaloClusterCollection> &lCCH,
+      const edm::Handle<ticl::TracksterCollection> &sTCH) const override;
 
 private:
   const bool hardScatterOnly_;
