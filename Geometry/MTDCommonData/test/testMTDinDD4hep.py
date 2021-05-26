@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("CompareGeometryTest")
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+
+process = cms.Process("CompareGeometryTest",Phase2C11I13M9,dd4hep)
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(

@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-process = cms.Process("GeometryTest",dd4hep)
+process = cms.Process("GeometryTest",Phase2C11I13M9,dd4hep)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
