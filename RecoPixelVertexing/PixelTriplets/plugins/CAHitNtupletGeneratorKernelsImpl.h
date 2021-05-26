@@ -783,13 +783,14 @@ __global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict_
   }  // loop over hits
 }
 
-__global__ void kernel_simpleTripletCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
-                                      HitContainer const *__restrict__ ptuples,
-                                      TkSoA const *__restrict__ ptracks,
-                                      Quality *__restrict__ quality,
-                                      uint16_t nmin,
-                                      bool dupPassThrough,
-                                      CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
+__global__ void kernel_simpleTripletCleaner(
+    TrackingRecHit2DSOAView const *__restrict__ hhp,
+    HitContainer const *__restrict__ ptuples,
+    TkSoA const *__restrict__ ptracks,
+    Quality *__restrict__ quality,
+    uint16_t nmin,
+    bool dupPassThrough,
+    CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
   // quality to mark rejected
   auto const reject = pixelTrack::Quality::loose;
   /// min quality of good
@@ -822,7 +823,7 @@ __global__ void kernel_simpleTripletCleaner(TrackingRecHit2DSOAView const *__res
     // mark worse ambiguities
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      if (quality[it] > reject && foundNtuplets.size(it)==3 && it != im)
+      if (quality[it] > reject && foundNtuplets.size(it) == 3 && it != im)
         quality[it] = reject;  //no race:  simple assignment of the same constant
     }
 
