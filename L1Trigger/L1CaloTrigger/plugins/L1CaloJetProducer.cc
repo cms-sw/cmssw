@@ -59,7 +59,6 @@ public:
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;
   //bool cluster_passes_base_cuts(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5) const;
-  int ecalXtal_diPhi(int &iPhi_1, int &iPhi_2) const;
   int tower_diPhi(int &iPhi_1, int &iPhi_2) const;
   int tower_diEta(int &iEta_1, int &iEta_2) const;
   float get_deltaR(reco::Candidate::PolarLorentzVector &p4_1, reco::Candidate::PolarLorentzVector &p4_2) const;
@@ -1108,18 +1107,6 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   //iEvent.put(std::move(L1CaloClusterCollectionWithCuts), "L1CaloClusterCollectionWithCuts" );
   iEvent.put(std::move(L1CaloJetCollectionBXV), "L1CaloJetCollectionBXV");
   iEvent.put(std::move(L1CaloTauCollectionBXV), "L1CaloTauCollectionBXV");
-}
-
-int L1CaloJetProducer::ecalXtal_diPhi(int &iPhi_1, int &iPhi_2) const {
-  // We shouldn't compare integer indices in endcap, the map is not linear
-  // Logic from EBDetId::distancePhi() without the abs()
-  int PI = 180;
-  int result = iPhi_1 - iPhi_2;
-  while (result > PI)
-    result -= 2 * PI;
-  while (result <= -PI)
-    result += 2 * PI;
-  return result;
 }
 
 int L1CaloJetProducer::tower_diPhi(int &iPhi_1, int &iPhi_2) const {
