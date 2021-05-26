@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-import lxml
 from bs4 import BeautifulSoup
 import sys, os
 url=os.path.abspath(sys.argv[1])
 report_dir = os.path.dirname(url)
 page=open(url)
-soup=BeautifulSoup(page.read(),features="lxml")
+soup=BeautifulSoup(page.read(),'html.parser')
+page.close()
 seen=dict()
 tables=soup.find_all('table',recursive=True)
 
@@ -15,6 +15,8 @@ htag = soup.new_tag('td')
 htag.string='Num reports'
 htag['class']='Q'
 rowheaders[-1].insert(7,htag)
+sortable=rowheaders[-1].find_all('span')
+sortable[0].string.replace_with('&nbsp;&#x25BE;')
 
 rowsbody = tables[2].find('tbody')
 rows=rowsbody.find_all('tr')
@@ -43,4 +45,4 @@ for row in rows:
     tag.string='{}'.format(seen[key])
     tag['class']='Q'
     row.insert(3,tag)
-print(soup.prettify("latin1"))
+print(soup.prettify(formatter=None))
