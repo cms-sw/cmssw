@@ -25,12 +25,12 @@ namespace DiLeptonHelp {
 
   public:
     void printCounts() {
-      edm::LogPrint("DileptonHelp::Counts") << " Total Events: " << eventsTotal << "\n"
-                                            << " After multiplicity: " << eventsAfterMult << "\n"
-                                            << " After pT cut: " << eventsAfterPt << "\n"
-                                            << " After eta cut: " << eventsAfterEta << "\n"
-                                            << " After Vtx: " << eventsAfterVtx << "\n"
-                                            << " After VtxDist: " << eventsAfterDist << std::endl;
+      edm::LogInfo("DiLeptonHelpCounts") << " Total Events: " << eventsTotal << "\n"
+                                         << " After multiplicity: " << eventsAfterMult << "\n"
+                                         << " After pT cut: " << eventsAfterPt << "\n"
+                                         << " After eta cut: " << eventsAfterEta << "\n"
+                                         << " After Vtx: " << eventsAfterVtx << "\n"
+                                         << " After VtxDist: " << eventsAfterDist << std::endl;
     }
 
     void zeroAll() {
