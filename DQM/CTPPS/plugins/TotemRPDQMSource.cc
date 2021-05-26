@@ -53,7 +53,7 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<TotemRPUVPattern>> tokenUVPattern;
   edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack>> tokenLocalTrack;
 
-  edm::ESGetToken<CTPPSGeometry,VeryForwardRealGeometryRecord> geometryToken_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
 
   /// plots related to one RP
   struct PotPlots {
@@ -178,10 +178,10 @@ TotemRPDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsigned in
 //----------------------------------------------------------------------------------------------------
 
 TotemRPDQMSource::TotemRPDQMSource(const edm::ParameterSet &ps)
-  : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
-    geometryToken_(esConsumes())
-      
- {
+    : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
+      geometryToken_(esConsumes())
+
+{
   tokenStatus = consumes<DetSetVector<TotemVFATStatus>>(ps.getParameter<edm::InputTag>("tagStatus"));
 
   tokenDigi = consumes<DetSetVector<TotemRPDigi>>(ps.getParameter<edm::InputTag>("tagDigi"));
@@ -224,7 +224,7 @@ void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
 
 void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &eventSetup) {
   // get event setup data
-  auto const& geometry = eventSetup.getData(geometryToken_);
+  auto const &geometry = eventSetup.getData(geometryToken_);
 
   // get event data
   Handle<DetSetVector<TotemVFATStatus>> status;

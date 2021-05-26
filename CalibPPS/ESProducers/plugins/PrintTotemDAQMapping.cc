@@ -24,12 +24,11 @@
  **/
 class PrintTotemDAQMapping : public edm::one::EDAnalyzer<> {
 public:
-
   PrintTotemDAQMapping(const edm::ParameterSet &ps);
   ~PrintTotemDAQMapping() override {}
 
 private:
-/// label of the CTPPS sub-system
+  /// label of the CTPPS sub-system
   std::string subSystemName;
   edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken_;
   edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> maskToken_;
@@ -37,27 +36,27 @@ private:
 };
 
 PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps)
-  : subSystemName(ps.getUntrackedParameter<std::string>("subSystem")), mappingToken_(esConsumes(edm::ESInputTag("", subSystemName))), maskToken_(esConsumes(edm::ESInputTag("", subSystemName))) {}
+    : subSystemName(ps.getUntrackedParameter<std::string>("subSystem")),
+      mappingToken_(esConsumes(edm::ESInputTag("", subSystemName))),
+      maskToken_(esConsumes(edm::ESInputTag("", subSystemName))) {}
 
 //----------------------------------------------------------------------------------------------------
 
-void PrintTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) 
-{
-// get mapping
-  auto const& mapping = es.getData(mappingToken_);
+void PrintTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
+  // get mapping
+  auto const &mapping = es.getData(mappingToken_);
 
-// get analysis mask to mask channels
-  auto const& analysisMask = es.getData(maskToken_);
+  // get analysis mask to mask channels
+  auto const &analysisMask = es.getData(maskToken_);
 
-// print mapping
+  // print mapping
   for (const auto &p : mapping.VFATMapping)
-    edm::LogInfo("PrintTotemDAQMapping mapping")  << "    " << p.first << " -> " << p.second;
+    edm::LogInfo("PrintTotemDAQMapping mapping") << "    " << p.first << " -> " << p.second;
 
-// print mapping
+  // print mapping
   for (const auto &p : analysisMask.analysisMask)
-    edm::LogInfo("PrintTotemDAQMapping mask") << "    " << p.first << ": fullMask=" << p.second.fullMask 
-					      << ", number of masked channels "
-					      << p.second.maskedChannels.size();
+    edm::LogInfo("PrintTotemDAQMapping mask") << "    " << p.first << ": fullMask=" << p.second.fullMask
+                                              << ", number of masked channels " << p.second.maskedChannels.size();
 }
 
 //----------------------------------------------------------------------------------------------------

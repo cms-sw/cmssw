@@ -35,19 +35,18 @@ private:
   edm::ESWatcher<RPMisalignedAlignmentRecord> watcherMisalignedAlignments_;
   edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord> alignmentToken_;
 
-
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void printInfo(const CTPPSRPAlignmentCorrectionsData& alignments, const edm::Event& event) const;
 };
 
 CTPPSAlignmentInfo::CTPPSAlignmentInfo(const edm::ParameterSet& iConfig)
-  : alignmentType_(iConfig.getUntrackedParameter<std::string>("alignmentType", "real")), alignmentToken_(esConsumes()) {}
+    : alignmentType_(iConfig.getUntrackedParameter<std::string>("alignmentType", "real")),
+      alignmentToken_(esConsumes()) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSAlignmentInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   if (alignmentType_ == "real") {
     if (watcherRealAlignments_.check(iSetup)) {
       auto const& alignments = iSetup.getData(alignmentToken_);
