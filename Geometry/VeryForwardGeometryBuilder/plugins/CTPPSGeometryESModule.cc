@@ -70,11 +70,11 @@ private:
   std::unique_ptr<DetGeomDesc> produceMisalignedGDFromPreprocessedDB(const VeryForwardMisalignedGeometryRecord&);
   std::unique_ptr<CTPPSGeometry> produceMisalignedTG(const VeryForwardMisalignedGeometryRecord&);
 
-  template <typename REC , typename GEO>
+  template <typename REC, typename GEO>
   std::unique_ptr<DetGeomDesc> produceGD(const GEO&,
                                          const std::optional<REC>&,
-                                         edm::ESGetToken<DetGeomDesc,GEO> const&,
-                                         edm::ESGetToken<CTPPSRPAlignmentCorrectionsData,REC> const&,
+                                         edm::ESGetToken<DetGeomDesc, GEO> const&,
+                                         edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, REC> const&,
                                          const char* name);
 
   const unsigned int verbosity_;
@@ -108,7 +108,8 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
     realAlignmentToken_ = c1.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>(edm::ESInputTag());
 
     auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGDFromPreprocessedDB);
-    misAlignmentToken_ = c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
+    misAlignmentToken_ =
+        c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
   } else if (!fromDD4hep_) {
     auto c = setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD);
     ddToken_ = c.consumes<DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")));
@@ -118,7 +119,8 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
     realAlignmentToken_ = c1.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>(edm::ESInputTag());
 
     auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD);
-    misAlignmentToken_ = c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
+    misAlignmentToken_ =
+        c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
   } else {
     auto c = setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD);
     dd4hepToken_ =
@@ -129,12 +131,13 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
     realAlignmentToken_ = c1.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>(edm::ESInputTag());
 
     auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD);
-    misAlignmentToken_ = c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
+    misAlignmentToken_ =
+        c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
   }
 
   auto c_RTG = setWhatProduced(this, &CTPPSGeometryESModule::produceRealTG);
   dgdRealToken_ = c_RTG.consumes<DetGeomDesc>(edm::ESInputTag());
-  
+
   auto c_MTG = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG);
   dgdMisToken_ = c_MTG.consumes<DetGeomDesc>(edm::ESInputTag());
 }
@@ -168,25 +171,25 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGD(const IdealGe
   }
 }
 
-std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGDFromPreprocessedDB(const VeryForwardIdealGeometryRecord& iRecord) {
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGDFromPreprocessedDB(
+    const VeryForwardIdealGeometryRecord& iRecord) {
+  // Get the PDetGeomDesc from EventSetup
+  auto const& myDB = iRecord.get(dbToken_);
 
-    // Get the PDetGeomDesc from EventSetup
-    auto const& myDB = iRecord.get(dbToken_);
+  edm::LogInfo("CTPPSGeometryESModule") << " myDB size = " << myDB.container_.size();
 
-    edm::LogInfo("CTPPSGeometryESModule") << " myDB size = " << myDB.container_.size();
-
-    // Build geo from PDetGeomDesc DB object.
-    auto pdet = std::make_unique<DetGeomDesc>(myDB);
-    return pdet;
-
+  // Build geo from PDetGeomDesc DB object.
+  auto pdet = std::make_unique<DetGeomDesc>(myDB);
+  return pdet;
 }
 
-template <typename REC , typename GEO>
-std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceGD(GEO const& iIdealRec,
-                                        std::optional<REC> const& iAlignRec,
-                                        edm::ESGetToken<DetGeomDesc,GEO> const& iGDToken,
-                                        edm::ESGetToken<CTPPSRPAlignmentCorrectionsData,REC> const& iAlignToken,
-                                        const char* name) {
+template <typename REC, typename GEO>
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceGD(
+    GEO const& iIdealRec,
+    std::optional<REC> const& iAlignRec,
+    edm::ESGetToken<DetGeomDesc, GEO> const& iGDToken,
+    edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, REC> const& iAlignToken,
+    const char* name) {
   // get the input GeometricalDet
   auto const& idealGD = iIdealRec.get(iGDToken);
 
@@ -211,7 +214,8 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceGD(GEO const& iIdealR
   return CTPPSGeometryESCommon::applyAlignments(idealGD, alignments);
 }
 
-std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceRealGDFromPreprocessedDB(const VeryForwardRealGeometryRecord& iRecord) {
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceRealGDFromPreprocessedDB(
+    const VeryForwardRealGeometryRecord& iRecord) {
   return produceGD(iRecord.getRecord<VeryForwardIdealGeometryRecord>(),
                    iRecord.tryToGetRecord<RPRealAlignmentRecord>(),
                    idealDBGDToken_,

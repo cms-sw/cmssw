@@ -25,6 +25,7 @@
 class VeryForwardMisalignedGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<
           VeryForwardMisalignedGeometryRecord,
-          edm::mpl::Vector<VeryForwardIdealGeometryRecord, IdealGeometryRecord, RPMisalignedAlignmentRecord /*, ... */> > {};
+          edm::mpl::Vector<VeryForwardIdealGeometryRecord, IdealGeometryRecord, RPMisalignedAlignmentRecord /*, ... */> > {
+};
 
 #endif
