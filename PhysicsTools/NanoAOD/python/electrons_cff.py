@@ -507,14 +507,14 @@ electronsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt
     resolveByMatchQuality = cms.bool(True),    # False = just match input in order; True = pick lowest deltaR pair first
 )
 
-electronOldMCTable = cms.EDProducer("CandMCMatchTableProducer",
-    src     = electronTable.src,
-    mcMap   = cms.InputTag("electronsMCMatchForTable"),
-    objName = electronTable.name,
-    objType = electronTable.name, #cms.string("Electron"),
-    branchName = cms.string("genPart"),
-    docString = cms.string("MC matching to status==1 electrons or photons"),
-)
+# electronOldMCTable = cms.EDProducer("CandMCMatchTableProducer",
+#     src     = electronTable.src,
+#     mcMap   = cms.InputTag("electronsMCMatchForTable"),
+#     objName = electronTable.name,
+#     objType = electronTable.name, #cms.string("Electron"),
+#     branchName = cms.string("genPart"),
+#     docString = cms.string("MC matching to status==1 electrons or photons"),
+# )
 
 electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     src     = electronTable.src,
@@ -531,8 +531,14 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
-electronMCold = cms.Sequence(electronsMCMatchForTable + electronOldMCTable)
+electronMCold = cms.Sequence(electronsMCMatchForTable + electronMCTable)
 electronMC = cms.Sequence(particleLevelForMatching + tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
+( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify( electronMCTable,
+                                                       mcMapDressedLep=None,
+                                                       mcMap   = cms.InputTag("electronsMCMatchForTable"),
+                                                       mapTauAnc=None,
+                                                       objType=electronTable.name,
+                                                       genparticles=None)
 ( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toReplaceWith(electronMC, electronMCold)
 
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
