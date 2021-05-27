@@ -13,7 +13,7 @@
 
 // #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class AlcaBeamSpotHarvester : public edm::one::EDAnalyzer<> {
+class AlcaBeamSpotHarvester : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   AlcaBeamSpotHarvester(const edm::ParameterSet &);
@@ -23,10 +23,10 @@ public:
 
   // Operations
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void beginRun(const edm::Run &, const edm::EventSetup &);
-  void endRun(const edm::Run &, const edm::EventSetup &);
-  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
-  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
+  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
 
 protected:
 private:
