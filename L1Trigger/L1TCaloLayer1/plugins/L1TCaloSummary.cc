@@ -144,7 +144,7 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig) :
 	pumLUT[pumBin][side][iEta] = (uint32_t) round(pumLUTData[iEta] / caloScaleFactor);
       }
       if(pumLUTData.size() != (MaxUCTRegionsEta))
-	std::cerr << "PUM LUT Data size integrity check failed; Expected size = " << MaxUCTRegionsEta
+	edm::LogError("L1TCaloSummary") << "PUM LUT Data size integrity check failed; Expected size = " << MaxUCTRegionsEta
 		  << "; Provided size = " << pumLUTData.size()
 		  << "; Will use what is provided :(" << std::endl;
     }
@@ -179,7 +179,7 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<UCTRegion*> inputRegions;
   inputRegions.clear();
   edm::Handle<std::vector<L1CaloRegion>> regionCollection;
-  if(!iEvent.getByToken(regionToken, regionCollection)) std::cerr << "UCT: Failed to get regions from region collection!";
+  if(!iEvent.getByToken(regionToken, regionCollection)) edm::LogError("L1TCaloSummary") << "UCT: Failed to get regions from region collection!" ;
   iEvent.getByToken(regionToken, regionCollection);
   for (const L1CaloRegion &i : *regionCollection) {
     UCTRegionIndex r = g.getUCTRegionIndexFromL1CaloRegion(i.gctEta(), i.gctPhi());
@@ -199,7 +199,7 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   summaryCard->setRegionData(inputRegions);
  
   if(!summaryCard->process()) {
-    std::cerr << "UCT: Failed to process summary card" << std::endl;
+    edm::LogError("L1TCaloSummary") << "UCT: Failed to process summary card" << std::endl;
     exit(1);      
   }
 

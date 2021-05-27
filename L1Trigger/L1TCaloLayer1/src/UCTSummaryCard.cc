@@ -8,14 +8,13 @@
 using namespace std;
 
 #include "UCTSummaryCard.hh"
-
 #include "UCTObject.hh"
-
-#include "L1Trigger/L1TCaloLayer1/src/UCTLayer1.hh"
-#include "L1Trigger/L1TCaloLayer1/src/UCTCrate.hh"
-#include "L1Trigger/L1TCaloLayer1/src/UCTCard.hh"
-#include "L1Trigger/L1TCaloLayer1/src/UCTRegion.hh"
-#include "L1Trigger/L1TCaloLayer1/src/UCTGeometry.hh"
+#include "UCTLayer1.hh"
+#include "UCTCrate.hh"
+#include "UCTCard.hh"
+#include "UCTRegion.hh"
+#include "UCTGeometry.hh"
+#include "UCTLogging.hh"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
 using namespace l1tcalo;
@@ -513,7 +512,7 @@ const UCTRegion* UCTSummaryCard::getRegion(int regionEtaIndex, uint32_t regionPh
   if (!negativeEta)
     i++;
   if (i > regions.size()) {
-    std::cout << "UCTSummaryCard: Incorrect region requested -- bailing" << std::endl;
+    edm::LogError("L1TCaloSummary") << "UCTSummaryCard: Incorrect region requested -- bailing" << std::endl;
     exit(1);
   }
   return regions[i];
@@ -528,5 +527,5 @@ bool UCTSummaryCard::setRegionData(std::vector<UCTRegion*> inputRegions) {
 
 void UCTSummaryCard::print() {
   if(cardSummary > 0)
-    std::cout << "UCTSummaryCard: result = " << cardSummary << std::endl;
+    edm::LogInfo("L1TCaloSummary") << "UCTSummaryCard: result = " << cardSummary << std::endl;
 }
