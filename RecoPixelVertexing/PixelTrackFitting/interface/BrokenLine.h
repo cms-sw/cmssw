@@ -212,11 +212,11 @@ namespace brokenline {
       // We pre-compute only when possible/needed
       // The compiler with unroll this loop with a known boundary, and no tests should
       // be actually executed.
-      const auto t10 =  (i > 0)                   ? sTotal(i)     - sTotal(i - 1) : 0;
+      const auto t10 = (i > 0) ? sTotal(i) - sTotal(i - 1) : 0;
       const auto t21 = ((i > 0) && (i < (n - 1))) ? sTotal(i + 1) - sTotal(i - 1) : 0;
-      const auto t11 =             (i < (n - 1))  ? sTotal(i + 1) - sTotal(i)     : 0;
-      const auto t12 =             (i < (n - 2))  ? sTotal(i + 2) - sTotal(i + 1) : 0;
-      const auto t22 =             (i < (n - 2))  ? sTotal(i + 2) - sTotal(i)     : 0;
+      const auto t11 = (i < (n - 1)) ? sTotal(i + 1) - sTotal(i) : 0;
+      const auto t12 = (i < (n - 2)) ? sTotal(i + 2) - sTotal(i + 1) : 0;
+      const auto t22 = (i < (n - 2)) ? sTotal(i + 2) - sTotal(i) : 0;
       const auto t11xt10 = t11 * t10;
       const auto t12xt11 = t12 * t11;
       c_uMat(i, i) = weights(i);
@@ -230,17 +230,17 @@ namespace brokenline {
         c_uMat(i, i) += 1. / (varBeta(i + 1) * riemannFit::sqr(t11));
 
       if (i > 0 && i < n - 1)
-        c_uMat(i, i + 1) =  -t21 / (varBeta(i) * t11 * t11xt10);
+        c_uMat(i, i + 1) = -t21 / (varBeta(i) * t11 * t11xt10);
 
       if (i < n - 2)
         c_uMat(i, i + 1) += -t22 / (varBeta(i + 1) * t11 * t12xt11);
 
-      if (i < n - 1) // for 2 previous steps, non diagonal element copy for this symmetric matrix
+      if (i < n - 1)  // for 2 previous steps, non diagonal element copy for this symmetric matrix
         c_uMat(i + 1, i) = c_uMat(i, i + 1);
 
       if (i < n - 2) {
         c_uMat(i, i + 2) = 1. / (varBeta(i + 1) * t12xt11);
-        c_uMat(i + 2, i) = c_uMat(i, i + 2); // non-diagonal element copy.
+        c_uMat(i + 2, i) = c_uMat(i, i + 2);  // non-diagonal element copy.
       }
     }
     return c_uMat;

@@ -257,7 +257,7 @@ namespace riemannFit {
         const double tan_c = -y2 / x2;
         const double tan_c2 = sqr(tan_c);
         cov_rad(i) =
-            (cov_cart(i, i) + cov_cart(i + n, i + n) * tan_c2 + 2 * cov_cart(i, i + n) * tan_c) / (1. + tan_c2) ;
+            (cov_cart(i, i) + cov_cart(i + n, i + n) * tan_c2 + 2 * cov_cart(i, i + n) * tan_c) / (1. + tan_c2);
       }
     }
     return cov_rad;
