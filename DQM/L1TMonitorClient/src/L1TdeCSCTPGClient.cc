@@ -52,7 +52,7 @@ void L1TdeCSCTPGClient::book(DQMStore::IBooker &iBooker) {
   if (b904Setup_) {
     chambers_.resize(1);
   }
-  // do not analyze the 1/4-strip bits when not using B904 data
+  // do not analyze the 1/4-strip bit, 1/8-strip bit and comparator code
   else {
     clctVars_.resize(8);
     lctVars_.resize(8);
