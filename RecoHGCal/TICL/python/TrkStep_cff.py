@@ -21,16 +21,18 @@ ticlTrackstersTrk = _trackstersProducer.clone(
   filtered_mask = "filteredLayerClustersTrk:Trk",
   seeding_regions = "ticlSeedingTrk",
   original_mask = 'ticlTrackstersEM',
-  filter_on_categories = [2, 4], # filter muons and charged hadrons
-  pid_threshold = 0.0,
-  skip_layers = 3,
-  min_layers_per_trackster = 10,
-  min_cos_theta = 0.866, # ~30 degrees
-  min_cos_pointing = 0.798, # ~ 37 degrees
-  max_delta_time = -1.,
-  algo_verbosity = 2,
-  oneTracksterPerTrackSeed = True,
-  promoteEmptyRegionToTrackster = True,
+  pluginPatternRecognitionByCA = dict(
+    filter_on_categories = [2, 4], # filter muons and charged hadrons
+    pid_threshold = 0.0,
+    skip_layers = 3,
+    min_layers_per_trackster = 10,
+    min_cos_theta = 0.866, # ~30 degrees
+    min_cos_pointing = 0.798, # ~ 37 degrees
+    max_delta_time = -1.,
+    algo_verbosity = 2,
+    oneTracksterPerTrackSeed = True,
+    promoteEmptyRegionToTrackster = True
+  ),
   itername = "Trk"
 )
 
