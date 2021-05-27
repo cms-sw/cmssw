@@ -11,7 +11,7 @@
 class Phase2ITRecHitHarvester : public DQMEDHarvester {
 public:
   explicit Phase2ITRecHitHarvester(const edm::ParameterSet &);
-  ~Phase2ITRecHitHarvester();
+  ~Phase2ITRecHitHarvester() override;
   void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
