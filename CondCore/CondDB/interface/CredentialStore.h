@@ -19,6 +19,13 @@ namespace coral {
 
 }  // namespace coral
 
+std::string to_lower(const std::string& s) {
+  std::string str(s);
+  for (auto& c : str)
+    c = tolower(c);
+  return str;
+}
+
 namespace coral_bridge {
 
   class AuthenticationCredentialSet {
@@ -106,7 +113,7 @@ namespace cond {
                        const std::string& connectionString,
                        const std::string& connectionLabel);
 
-    bool unsetPermission(const std::string& principal, const std::string& role, const std::string& connectionString);
+    size_t unsetPermission(const std::string& principal, const std::string& role, const std::string& connectionString);
 
     bool updateConnection(const std::string& connectionLabel, const std::string& userName, const std::string& password);
 
