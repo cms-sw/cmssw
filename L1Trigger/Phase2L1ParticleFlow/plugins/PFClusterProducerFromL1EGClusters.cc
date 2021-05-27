@@ -7,7 +7,7 @@
 #include "DataFormats/L1TParticleFlow/interface/PFCluster.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/corrector.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/ParametricResolution.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
 
 namespace l1tpf {
   class PFClusterProducerFromL1EGClusters : public edm::stream::EDProducer<> {
@@ -16,7 +16,7 @@ namespace l1tpf {
     ~PFClusterProducerFromL1EGClusters() override {}
 
   private:
-    edm::EDGetTokenT<l1tp2::CaloCrystalClusterCollection> src_;
+    edm::EDGetTokenT<BXVector<l1t::EGamma>> src_;
     double etCut_;
     l1tpf::corrector corrector_;
     l1tpf::ParametricResolution resol_;
@@ -27,7 +27,7 @@ namespace l1tpf {
 }  // namespace l1tpf
 
 l1tpf::PFClusterProducerFromL1EGClusters::PFClusterProducerFromL1EGClusters(const edm::ParameterSet &iConfig)
-    : src_(consumes<l1tp2::CaloCrystalClusterCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+    : src_(consumes<BXVector<l1t::EGamma>>(iConfig.getParameter<edm::InputTag>("src"))),
       etCut_(iConfig.getParameter<double>("etMin")),
       corrector_(iConfig.getParameter<std::string>("corrector"), -1),
       resol_(iConfig.getParameter<edm::ParameterSet>("resol")) {
@@ -36,7 +36,7 @@ l1tpf::PFClusterProducerFromL1EGClusters::PFClusterProducerFromL1EGClusters(cons
 
 void l1tpf::PFClusterProducerFromL1EGClusters::produce(edm::Event &iEvent, const edm::EventSetup &) {
   std::unique_ptr<l1t::PFClusterCollection> out(new l1t::PFClusterCollection());
-  edm::Handle<l1tp2::CaloCrystalClusterCollection> clusters;
+  edm::Handle<BXVector<l1t::EGamma>> clusters;
   iEvent.getByToken(src_, clusters);
 
   unsigned int index = 0;
@@ -49,7 +49,7 @@ void l1tpf::PFClusterProducerFromL1EGClusters::produce(edm::Event &iEvent, const
     if (corrector_.valid())
       corrector_.correctPt(cluster);
     cluster.setPtError(resol_(cluster.pt(), std::abs(cluster.eta())));
-
+    cluster.setHwQual(it->hwQual());
     out->push_back(cluster);
     out->back().addConstituent(edm::Ptr<l1t::L1Candidate>(clusters, index));
   }

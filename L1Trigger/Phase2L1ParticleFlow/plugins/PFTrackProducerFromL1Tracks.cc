@@ -13,6 +13,8 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/L1TPFUtils.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/ParametricResolution.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
 namespace l1tpf {
   class PFTrackProducerFromL1Tracks : public edm::stream::EDProducer<> {
   public:
@@ -27,6 +29,8 @@ namespace l1tpf {
     float fBz_;
     l1tpf::ParametricResolution resolCalo_, resolTrk_;
 
+    std::vector<StringCutObjectSelector<l1t::PFTrack::L1TTTrackType>> qualityBitSetters_;
+
     void produce(edm::Event &, const edm::EventSetup &) override;
 
   };  // class
@@ -38,6 +42,9 @@ l1tpf::PFTrackProducerFromL1Tracks::PFTrackProducerFromL1Tracks(const edm::Param
       nParam_(iConfig.getParameter<unsigned int>("nParam")),
       resolCalo_(iConfig.getParameter<edm::ParameterSet>("resolCalo")),
       resolTrk_(iConfig.getParameter<edm::ParameterSet>("resolTrack")) {
+  for (const auto &cut : iConfig.getParameter<std::vector<std::string>>("qualityBits")) {
+    qualityBitSetters_.emplace_back(cut);
+  }
   produces<l1t::PFTrackCollection>();
 }
 
@@ -70,7 +77,11 @@ void l1tpf::PFTrackProducerFromL1Tracks::produce(edm::Event &iEvent, const edm::
 
     float trkErr = resolTrk_(pt, std::abs(eta));
     float caloErr = resolCalo_(pt, std::abs(eta));
-    int quality = 1;
+    int quality = 0;
+    for (int i = 0, n = qualityBitSetters_.size(), bit = 1; i < n; ++i, bit <<= 1) {
+      if (qualityBitSetters_[i](tk))
+        quality += bit;
+    }
     out->emplace_back(charge,
                       p4,
                       vtx,

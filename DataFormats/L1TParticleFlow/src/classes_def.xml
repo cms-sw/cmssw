@@ -18,13 +18,17 @@
   <class name="edm::RefVector<l1t::PFTrackCollection>" /> 
   <class name="std::vector<edm::Ref<l1t::PFTrackCollection> >" />
 
-  <class name="l1t::PFCandidate"  ClassVersion="3">
+  <class name="l1t::PFCandidate"  ClassVersion="4">
+        <version ClassVersion="4" checksum="3798885201"/>
         <version ClassVersion="3" checksum="4253860178"/>
   </class>
   <class name="l1t::PFCandidateCollection" />
   <class name="edm::Wrapper<l1t::PFCandidateCollection>" />
   <class name="edm::Ref<l1t::PFCandidateCollection>" />
   <class name="edm::RefVector<l1t::PFCandidateCollection>" />
+  <class name="edm::RefProd<l1t::PFCandidateCollection>" />
+  <class name="l1t::RegionalOutput<l1t::PFCandidateCollection>" />
+  <class name="edm::Wrapper<l1t::RegionalOutput<l1t::PFCandidateCollection>>" />
 
   <class name="l1t::PFJet"  ClassVersion="3">
         <version ClassVersion="3" checksum="133342988"/>
