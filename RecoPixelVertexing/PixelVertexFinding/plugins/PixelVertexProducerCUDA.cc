@@ -87,7 +87,7 @@ void PixelVertexProducerCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("PtMin", 0.5);
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksCUDA"));
 
-  auto label = "pixelVertexCUDA";
+  auto label = "pixelVerticesCUDA";
   descriptions.add(label, desc);
 }
 
