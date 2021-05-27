@@ -302,6 +302,11 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  if (mMom->numberOfMothers() > 0) {
 		    mMom = mMom->motherRef();
 		  }
+              else {
+                LogTrace("MuonSimClassifier") << "\t No Mother is found ";
+                break;
+              }
+              
 		  LogTrace("MuonSimClassifier") 
 		    << "\t\t backtracking mother "<<jm<<", pdgId = "<<mMom->pdgId()<<", status= " <<mMom->status();
 		}
