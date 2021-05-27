@@ -147,9 +147,6 @@ updatedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
          puId106XUL17Disc = cms.InputTag('pileupJetId106XUL17:fullDiscriminant'),
          puId106XUL18Disc = cms.InputTag('pileupJetId106XUL18:fullDiscriminant'),
          chFPV0EF = cms.InputTag("jercVars:chargedFromPV0EnergyFraction"),
-         chFPV1EF = cms.InputTag("jercVars:chargedFromPV1EnergyFraction"),
-         chFPV2EF = cms.InputTag("jercVars:chargedFromPV2EnergyFraction"),
-         chFPV3EF = cms.InputTag("jercVars:chargedFromPV3EnergyFraction"),
          ),
      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetId"),
@@ -162,6 +159,11 @@ updatedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
 )
 run2_jme_2016.toModify(updatedJetsWithUserData.userInts,
     looseId = cms.InputTag("looseJetId"),
+)
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(updatedJetsWithUserData.userFloats, 
+    chFPV1EF = cms.InputTag("jercVars:chargedFromPV1EnergyFraction"),
+    chFPV2EF = cms.InputTag("jercVars:chargedFromPV2EnergyFraction"),
+    chFPV3EF = cms.InputTag("jercVars:chargedFromPV3EnergyFraction"),
 )
 
 updatedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
@@ -239,9 +241,6 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision= 6),
         muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision= 6),
         chFPV0EF = Var("userFloat('chFPV0EF')", float, doc="charged fromPV==0 Energy Fraction (energy excluded from CHS jets). Previously called betastar.", precision= 6),
-        chFPV1EF = Var("userFloat('chFPV1EF')", float, doc="charged fromPV==1 Energy Fraction (component of the total charged Energy Fraction).", precision= 6),
-        chFPV2EF = Var("userFloat('chFPV2EF')", float, doc="charged fromPV==2 Energy Fraction (component of the total charged Energy Fraction).", precision= 6),
-        chFPV3EF = Var("userFloat('chFPV3EF')", float, doc="charged fromPV==3 Energy Fraction (component of the total charged Energy Fraction).", precision= 6),
     )
 )
 
@@ -267,7 +266,9 @@ run2_jme_2017.toModify( jetTable.variables, puIdDisc = Var("userFloat('puId106XU
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
     modifier.toModify( jetTable.variables, puIdDisc = Var("userFloat('puId94XDisc')", float,doc="Pileup ID discriminant with 94X (2017) training",precision=10))
     modifier.toModify( jetTable.variables, puId = Var("userInt('pileupJetId:fullId')",int,doc="Pileup ID flags for 2016/2017/2018 EOY trainings"))
-
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(jetTable.variables, chFPV1EF = Var("userFloat('chFPV1EF')", float, doc="charged fromPV==1 Energy Fraction (component of the total charged Energy Fraction).", precision= 6))
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(jetTable.variables, chFPV2EF = Var("userFloat('chFPV2EF')", float, doc="charged fromPV==2 Energy Fraction (component of the total charged Energy Fraction).", precision= 6))
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(jetTable.variables, chFPV3EF = Var("userFloat('chFPV3EF')", float, doc="charged fromPV==3 Energy Fraction (component of the total charged Energy Fraction).", precision= 6))
 
 bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
     backend = cms.string("TF"),

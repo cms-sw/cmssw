@@ -110,6 +110,15 @@ for plot in _sv_plots_nom:
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.FatJet, plots=cms.VPSet(
     v for v in nanoDQM.vplots.FatJet.plots if v.name.value() != 'particleNet_mass'))
 
+_Jet_plots_nom = copy.deepcopy(nanoDQM.vplots.Jet.plots)
+_Jet_plots_106Xv1 = cms.VPSet()
+for plot in _Jet_plots_nom:
+    _Jet_plots_106Xv1.append(plot)
+_Jet_plots_106Xv1.append(Plot1D('chFPV1EF', 'chFPV1EF', 20, 0, 1, 'charged fromPV==1 Energy Fraction (component of the total charged Energy Fraction).'))
+_Jet_plots_106Xv1.append(Plot1D('chFPV2EF', 'chFPV2EF', 20, 0, 1, 'charged fromPV==2 Energy Fraction (component of the total charged Energy Fraction).'))
+_Jet_plots_106Xv1.append(Plot1D('chFPV3EF', 'chFPV3EF', 20, 0, 1, 'charged fromPV==3 Energy Fraction (component of the total charged Energy Fraction).'))
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.Jet, plots=_Jet_plots_106Xv1)
+
 #remove new plots from old campaign
 _Muon_noIsStandalone = [plot for plot in nanoDQM.vplots.Muon.plots if plot.name.value() != 'isStandalone']
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.Muon, plots = _Muon_noIsStandalone)
