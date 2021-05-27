@@ -63,14 +63,12 @@ private:
                     const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
                     const std::map<unsigned int, SimTrack>& selectedSimTrackMap);
 
-
   edm::ParameterSet config_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   const double simtrackminpt_;
   const edm::EDGetTokenT<reco::TrackCollection> tokenTracks_;
   const edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> simHitTokens_;
-
 };
 
 //
@@ -83,7 +81,6 @@ Phase2OTValidateTrackingRecHit::Phase2OTValidateTrackingRecHit(const edm::Parame
       simtrackminpt_(iConfig.getParameter<double>("SimTrackMinPt")),
       tokenTracks_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksSrc"))),
       simTracksToken_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("simTracksSrc"))) {
- 
   edm::LogInfo("Phase2OTValidateTrackingRecHit") << ">>> Construct Phase2OTValidateTrackingRecHit ";
   for (const auto& itag : config_.getParameter<std::vector<edm::InputTag>>("PSimHitSource"))
     simHitTokens_.push_back(consumes<edm::PSimHitContainer>(itag));
@@ -123,10 +120,9 @@ void Phase2OTValidateTrackingRecHit::analyze(const edm::Event& iEvent, const edm
 }
 
 void Phase2OTValidateTrackingRecHit::fillOTHistos(const edm::Event& iEvent,
-                                          const TrackerHitAssociator& associateRecHit,
-                                          const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
-                                          const std::map<unsigned int, SimTrack>& selectedSimTrackMap) {
-
+                                                  const TrackerHitAssociator& associateRecHit,
+                                                  const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
+                                                  const std::map<unsigned int, SimTrack>& selectedSimTrackMap) {
   const auto& tracks = iEvent.getHandle(tokenTracks_);
   if (!tracks.isValid())
     return;
@@ -142,23 +138,23 @@ void Phase2OTValidateTrackingRecHit::fillOTHistos(const edm::Event& iEvent,
       // check that we are in the pixel
       auto subdetid = (detId.subdetId());
       if (subdetid == PixelSubdetector::PixelBarrel || subdetid == PixelSubdetector::PixelEndcap)
-	continue;
-      
+        continue;
+
       // determine the detector we are in
       TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
       std::string key = phase2tkutil::getOTHistoId(detId.rawId(), tTopo_);
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
-	if (nrechitLayerMapP_primary.find(key) == nrechitLayerMapP_primary.end()) {
-	  nrechitLayerMapP_primary.emplace(key,1);
-	} else {
-	  nrechitLayerMapP_primary[key] += 1;
-	}
+        if (nrechitLayerMapP_primary.find(key) == nrechitLayerMapP_primary.end()) {
+          nrechitLayerMapP_primary.emplace(key, 1);
+        } else {
+          nrechitLayerMapP_primary[key] += 1;
+        }
       } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
-	if (nrechitLayerMapS_primary.find(key) == nrechitLayerMapS_primary.end()) {
-	  nrechitLayerMapS_primary.emplace(key,1);
-	} else {
-	  nrechitLayerMapS_primary[key] += 1;
-	}
+        if (nrechitLayerMapS_primary.find(key) == nrechitLayerMapS_primary.end()) {
+          nrechitLayerMapS_primary.emplace(key, 1);
+        } else {
+          nrechitLayerMapS_primary[key] += 1;
+        }
       }
       //GetSimHits
       const Phase2TrackerRecHit1D* rechit = dynamic_cast<const Phase2TrackerRecHit1D*>(hit);
@@ -174,7 +170,7 @@ void Phase2OTValidateTrackingRecHit::fillOTHistos(const edm::Event& iEvent,
             if (simhitIt.trackId() == mId.first) {
               float dx = simhitIt.localPosition().x() - lp.x();
               float dy = simhitIt.localPosition().y() - lp.y();
-              float dist = dx*dx + dy*dy;
+              float dist = dx * dx + dy * dy;
               if (!simhitClosest || dist < mind) {
                 mind = dist;
                 simhitClosest = &simhitIt;
@@ -185,8 +181,9 @@ void Phase2OTValidateTrackingRecHit::fillOTHistos(const edm::Event& iEvent,
       }    //end loop over simHits
       if (!simhitClosest)
         continue;
-      fillOTRecHitHistos(simhitClosest, rechit, selectedSimTrackMap, nrechitLayerMapP_primary, nrechitLayerMapS_primary);
-      
+      fillOTRecHitHistos(
+          simhitClosest, rechit, selectedSimTrackMap, nrechitLayerMapP_primary, nrechitLayerMapS_primary);
+
     }  //end loop over rechits of a track
   }    //End loop over tracks
 
@@ -204,7 +201,7 @@ void Phase2OTValidateTrackingRecHit::fillDescriptions(edm::ConfigurationDescript
   edm::ParameterSetDescription desc;
   // call the base fillPsetDescription for the plots bookings
   Phase2OTValidateRecHitBase::fillPSetDescription(desc);
-  
+
   //for macro-pixel sensors
   ///////
   desc.add<edm::InputTag>("SimVertexSource", edm::InputTag("g4SimHits"));
