@@ -12,7 +12,7 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "RecoHGCal/TICL/plugins/GlobalCache.h"
+#include "RecoHGCal/TICL/interface/GlobalCache.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 
