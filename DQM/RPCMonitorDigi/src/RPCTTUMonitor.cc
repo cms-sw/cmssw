@@ -154,8 +154,6 @@ int RPCTTUMonitor::discriminateGMT(const edm::Event& iEvent, const edm::EventSet
     std::vector<L1MuRegionalCand> BrlRpcCands = rr.getBrlRPCCands();
     std::vector<L1MuRegionalCand> BrlDtCands = rr.getDTBXCands();
 
-    std::vector<L1MuRegionalCand>::const_iterator RCItr;
-
     for (const auto& rc : BrlRpcCands) {
       if (!rc.empty()) {
         m_GMTcandidatesBx.push_back(BxInEventNew);
