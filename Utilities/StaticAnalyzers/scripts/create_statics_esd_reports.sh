@@ -48,7 +48,7 @@ sort -u edm-global-classes.txt.unsorted | grep -v -e"^EDM global class " >edm-gl
 if [ ! -f ./callgraph.py ]
    then
    cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/callgraph.py .
-   cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/modules_to_package.yaml .
+   cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/module_to_package.yaml .
 fi
 touch eventsetuprecord-get-all.txt eventsetuprecord-get.txt
 ./callgraph.py 2>&1 | tee eventsetuprecord-get.txt
