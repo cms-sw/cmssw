@@ -218,18 +218,19 @@ run2_HLTconditions_2016.toModify(
 
 from PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff import prefiringweight
 #Next line will be updated once we get UL2016 maps
-run2_jme_2016.toModify( prefiringweight, DataEra = cms.string("2016BtoH"),  DataEraMuon = cms.string("2016"))
+(run2_muon_2016 & tracker_apv_vfp30_2016).toModify( prefiringweight, DataEraECAL = cms.string("2016BtoH"),  DataEraMuon = cms.string("2016preVFP"))
+(run2_muon_2016 & ~tracker_apv_vfp30_2016).toModify( prefiringweight, DataEraECAL = cms.string("2016BtoH"),  DataEraMuon = cms.string("2016postVFP"))
 #Next line is for UL2017 maps 
-run2_jme_2017.toModify( prefiringweight, DataEra = cms.string("UL2017BtoF"), DataEraMuon = cms.string("20172018"))
+run2_jme_2017.toModify( prefiringweight, DataEraECAL = cms.string("UL2017BtoF"), DataEraMuon = cms.string("20172018"))
 #Next line is for UL2018 maps 
-run2_muon_2018.toModify( prefiringweight, DataEra = cms.string("None"), DataEraMuon = cms.string("20172018"))
+run2_muon_2018.toModify( prefiringweight, DataEraECAL = cms.string("None"), DataEraMuon = cms.string("20172018"))
 
 #For pre-UL 2017 reprocessing, one should use the original maps and no muon jet protection  
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify( prefiringweight, DataEra = cms.string("2017BtoF"), DataEraMuon = cms.string("20172018"))
+    modifier.toModify( prefiringweight, DataEraECAL = cms.string("2017BtoF"), DataEraMuon = cms.string("20172018"))
     modifier.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
 #For pre-UL 2016 reprocessing, same thing
-run2_nanoAOD_94X2016.toModify( prefiringweight, DataEra = cms.string("2016BtoH"), DataEraMuon = cms.string("2016") )
+run2_nanoAOD_94X2016.toModify( prefiringweight, DataEraECAL = cms.string("2016BtoH"), DataEraMuon = cms.string("2016") )
 run2_nanoAOD_94X2016.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
 
 l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
@@ -238,22 +239,23 @@ l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
         L1PreFiringWeight_Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbUp"), "double", doc = "L1 pre-firing event correction weight (1-probability), up var.", precision=8),
         L1PreFiringWeight_Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbDown"), "double", doc = "L1 pre-firing event correction weight (1-probability), down var.", precision=8),
         L1PreFiringWeightMuon_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuon"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability)", precision=8),
-        L1PreFiringWeightMuon_Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonUp"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability), up var.", precision=8),
-        L1PreFiringWeightMuon_Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonDown"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability), down var.", precision=8),
+        L1PreFiringWeightMuon_SystUp = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonSystUp"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability), up var. syst.", precision=8),
+        L1PreFiringWeightMuon_SystDn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonSystDown"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability), down var. syst.", precision=8),
+        L1PreFiringWeightMuon_StatUp = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonStatUp"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability), up var. stat.", precision=8),
+        L1PreFiringWeightMuon_StatDn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonStatDown"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability), down var. stat.", precision=8),
         L1PreFiringWeightJet_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbJet"), "double", doc = "Jet L1 pre-firing event correction weight (1-probability)", precision=8),
         L1PreFiringWeightJet_Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbJetUp"), "double", doc = "Jet L1 pre-firing event correction weight (1-probability), up var.", precision=8),
         L1PreFiringWeightJet_Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbJetDown"), "double", doc = "Jet L1 pre-firing event correction weight (1-probability), down var.", precision=8),
         L1PreFiringWeightPhoton_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbPhoton"), "double", doc = "Photon L1 pre-firing event correction weight (1-probability)", precision=8),
         L1PreFiringWeightPhoton_Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbPhotonUp"), "double", doc = "Photon L1 pre-firing event correction weight (1-probability), up var.", precision=8),
         L1PreFiringWeightPhoton_Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbPhotonDown"), "double", doc = "Photon L1 pre-firing event correction weight (1-probability), down var.", precision=8),
-
-
-
     )
 )
 
 triggerObjectTables = cms.Sequence( unpackedPatTrigger + triggerObjectTable )
 
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(l1PreFiringEventWeightTable , L1PreFiringWeightMuon_Nom = None, L1PreFiringWeightMuon_SystUp = None, L1PreFiringWeightMuon_SystDn = None, L1PreFiringWeightMuon_StatUp = None, L1PreFiringWeightMuon_StatDn = None, L1PreFiringWeightJet_Nom = None, L1PreFiringWeightJet_Up = None, L1PreFiringWeightJet_Dn = None, L1PreFiringWeightPhoton_Nom = None, L1PreFiringWeightPhoton_Up = None, L1PreFiringWeightPhoton_Dn = None)
+
 _triggerObjectTables_withL1PreFiring = triggerObjectTables.copy()
 _triggerObjectTables_withL1PreFiring.replace(triggerObjectTable, prefiringweight + l1PreFiringEventWeightTable + triggerObjectTable)
-(run2_HLTconditions_2016 | run2_HLTconditions_2017).toReplaceWith(triggerObjectTables, _triggerObjectTables_withL1PreFiring)
+(run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018).toReplaceWith(triggerObjectTables, _triggerObjectTables_withL1PreFiring)
