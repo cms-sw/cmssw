@@ -13,9 +13,9 @@ pixelVerticesTask = cms.Task(
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 
 # build the pixel vertices in SoA format on the CPU
-from RecoPixelVertexing.PixelVertexFinding.pixelVertexCUDA_cfi import pixelVertexCUDA as _pixelVertexCUDA
+from RecoPixelVertexing.PixelVertexFinding.pixelVerticesCUDA_cfi import pixelVerticesCUDA as _pixelVerticesCUDA
 pixelVerticesSoA = SwitchProducerCUDA(
-    cpu = _pixelVertexCUDA.clone(
+    cpu = _pixelVerticesCUDA.clone(
         pixelTrackSrc = "pixelTracksSoA",
         onGPU = False
     )
@@ -39,15 +39,15 @@ pixelNtupletFit.toReplaceWith(pixelVerticesTask, cms.Task(
 from Configuration.ProcessModifiers.gpu_cff import gpu
 
 # build pixel vertices in SoA format on the GPU
-pixelVerticesCUDA = _pixelVertexCUDA.clone(
+pixelVerticesCUDA = _pixelVerticesCUDA.clone(
     pixelTrackSrc = "pixelTracksCUDA",
     onGPU = True
 )
 
 # transfer the pixel vertices in SoA format to the CPU
-from RecoPixelVertexing.PixelVertexFinding.pixelVertexSoA_cfi import pixelVertexSoA as _pixelVertexSoA
+from RecoPixelVertexing.PixelVertexFinding.pixelVerticesSoA_cfi import pixelVerticesSoA as _pixelVerticesSoA
 gpu.toModify(pixelVerticesSoA,
-    cuda = _pixelVertexSoA.clone(
+    cuda = _pixelVerticesSoA.clone(
         src = cms.InputTag("pixelVerticesCUDA")
     )
 )
