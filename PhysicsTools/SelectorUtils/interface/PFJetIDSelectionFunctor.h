@@ -610,7 +610,7 @@ public:  // interface
         passCut(ret, indexNNeutrals_FW_);
 
     } else if (version_ == RUN2UL16PUPPI) {
-      // Cuts for |eta| <= 2.6 for RUN2UL16PUPPI scenario
+      // Cuts for |eta| <= 2.4 for RUN2UL16PUPPI scenario
       if (ignoreCut(indexNConstituents_) ||
           (nconstituents > cut(indexNConstituents_, int()) || std::abs(jet.eta()) > 2.4))
         passCut(ret, indexNConstituents_);
