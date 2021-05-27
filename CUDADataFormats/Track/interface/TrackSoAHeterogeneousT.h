@@ -19,7 +19,6 @@ public:
   using hindex_type = uint32_t;
   using HitContainer = cms::cuda::OneToManyAssoc<hindex_type, S + 1, 5 * S>;
 
-
   // quality accessors
   constexpr Quality quality(int32_t i) const { return reinterpret_cast<Quality>(quality_(i)); }
   constexpr Quality &quality(int32_t i) { return reinterpret_cast<Quality &>(quality_(i)); }
@@ -27,17 +26,17 @@ public:
   constexpr Quality *qualityData() { return reinterpret_cast<Quality *>(quality_.data()); }
 
   // chi2 accessors
-  constexpr auto & chi2(int32_t i) { return chi2_(i); }
+  constexpr auto &chi2(int32_t i) { return chi2_(i); }
   constexpr auto chi2(int32_t i) const { return chi2_(i); }
 
   // stateAtBS accessors
-  constexpr TrajectoryStateSoAT<S> & stateAtBS() { return stateAtBS_; }
-  constexpr TrajectoryStateSoAT<S> const & stateAtBS() const { return stateAtBS_; }
+  constexpr TrajectoryStateSoAT<S> &stateAtBS() { return stateAtBS_; }
+  constexpr TrajectoryStateSoAT<S> const &stateAtBS() const { return stateAtBS_; }
   // eta accessors
-  constexpr auto & eta(int32_t i) { return eta_(i); }
+  constexpr auto &eta(int32_t i) { return eta_(i); }
   constexpr auto eta(int32_t i) const { return eta_(i); }
   // pt accessors
-  constexpr auto & pt(int32_t i) { return pt_(i); }
+  constexpr auto &pt(int32_t i) { return pt_(i); }
   constexpr auto pt(int32_t i) const { return pt_(i); }
 
   constexpr float charge(int32_t i) const { return std::copysign(1.f, stateAtBS_.state(i)(2)); }
@@ -46,13 +45,13 @@ public:
   constexpr float zip(int32_t i) const { return stateAtBS_.state(i)(4); }
 
   // hitIndices accessors
-  constexpr auto & hitIndices() { return hitIndices_; }
-  constexpr auto const & hitIndices() const { return hitIndices_; }
+  constexpr auto &hitIndices() { return hitIndices_; }
+  constexpr auto const &hitIndices() const { return hitIndices_; }
 
   // detInndices accessor
   constexpr int nHits(int i) const { return detIndices_.size(i); }
-  constexpr auto & detIndices() { return detIndices_; }
-  constexpr auto const & detIndices() const { return detIndices_; }
+  constexpr auto &detIndices() { return detIndices_; }
+  constexpr auto const &detIndices() const { return detIndices_; }
 
   // state at the detector of the outermost hit
   // representation to be decided...
