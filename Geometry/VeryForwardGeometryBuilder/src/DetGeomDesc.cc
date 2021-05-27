@@ -80,10 +80,10 @@ DetGeomDesc::DetGeomDesc(const PDetGeomDesc::Item& item)
     : m_name(item.name_),
       m_copy(item.copy_),
       m_isDD4hep(true),
-      m_params(item.params_),  // default unit from DD4hep (cm)
+      m_params(item.params_),  // default unit from DD4hep
       m_sensorType(item.sensorType_),
       m_geographicalID(item.geographicalID_),
-      m_z(item.z_)  // converted from cm (DD4hep) to mm
+      m_z(item.z_)  // converted from DD4hep to mm
 {
   Translation trans(item.dx_, item.dy_, item.dz_);
   m_trans = trans;
