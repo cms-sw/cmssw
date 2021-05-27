@@ -96,8 +96,10 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack>> tokenLocalTrack_;
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingDigi>> tokenDigi_;
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingRecHit>> tokenRecHit_;
-  // edm::EDGetTokenT<edm::DetSetVector<TotemTimingLocalTrack>> tokenTrack_;
   edm::EDGetTokenT<std::vector<TotemFEDInfo>> tokenFEDInfo_;
+
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryTokenBeginRun_;
 
   double minimumStripAngleForTomography_;
   double maximumStripAngleForTomography_;
@@ -407,6 +409,8 @@ TotemTimingDQMSource::TotemTimingDQMSource(const edm::ParameterSet &ps)
       // tokenTrack_(consumes<edm::DetSetVector<TotemTimingLocalTrack>>(
       //     ps.getParameter<edm::InputTag>("tagLocalTracks"))),
       tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"))),
+      geometryToken_(esConsumes()),
+      geometryTokenBeginRun_(esConsumes<edm::Transition::BeginRun>()),
       minimumStripAngleForTomography_(ps.getParameter<double>("minimumStripAngleForTomography")),
       maximumStripAngleForTomography_(ps.getParameter<double>("maximumStripAngleForTomography")),
       samplesForNoise_(ps.getUntrackedParameter<unsigned int>("samplesForNoise", 5)),
@@ -421,19 +425,18 @@ TotemTimingDQMSource::~TotemTimingDQMSource() {}
 
 void TotemTimingDQMSource::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   // Get detector shifts from the geometry (if present)
-  edm::ESHandle<CTPPSGeometry> geometry_;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(geometry_);
-  const CTPPSGeometry *geom = geometry_.product();
+  auto const &geom = iSetup.getData(geometryTokenBeginRun_);
+
   const TotemTimingDetId detid_top(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_BOT_RP_ID, 0, 0);
   const TotemTimingDetId detid_bot(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_TOP_RP_ID, 0, 7);
   verticalShiftTop_ = 0;
   verticalShiftBot_ = 0;
   {
-    const DetGeomDesc *det_top = geom->sensorNoThrow(detid_top);
+    const DetGeomDesc *det_top = geom.sensorNoThrow(detid_top);
     if (det_top) {
       verticalShiftTop_ = det_top->translation().y() + det_top->getDiamondDimensions().yHalfWidth;
     }
-    const DetGeomDesc *det_bot = geom->sensorNoThrow(detid_bot);
+    const DetGeomDesc *det_bot = geom.sensorNoThrow(detid_bot);
     if (det_bot)
       verticalShiftBot_ = det_bot->translation().y() + det_bot->getDiamondDimensions().yHalfWidth;
   }
@@ -479,8 +482,7 @@ std::shared_ptr<totemds::Cache> TotemTimingDQMSource::globalBeginLuminosityBlock
 
 void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
   // get event setup data
-  edm::ESHandle<CTPPSGeometry> geometry;
-  eventSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
+  auto const &geometry = eventSetup.getData(geometryToken_);
 
   // get event data
   edm::Handle<edm::DetSetVector<TotemRPLocalTrack>> stripTracks;
@@ -494,9 +496,6 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
   edm::Handle<edm::DetSetVector<TotemTimingRecHit>> timingRecHits;
   event.getByToken(tokenRecHit_, timingRecHits);
-
-  // edm::Handle<edm::DetSetVector<TotemTimingLocalTrack>> timingLocalTracks;
-  // event.getByToken(timingLocalTracks, timingLocalTracks);
 
   // check validity
   bool valid = true;
@@ -684,8 +683,8 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
             double rp_x = 0;
             double rp_y = 0;
             try {
-              rp_x = (geometry->sensor(plId_V)->translation().x() + geometry->sensor(plId_U)->translation().x()) / 2;
-              rp_y = (geometry->sensor(plId_V)->translation().y() + geometry->sensor(plId_U)->translation().y()) / 2;
+              rp_x = (geometry.sensor(plId_V)->translation().x() + geometry.sensor(plId_U)->translation().x()) / 2;
+              rp_y = (geometry.sensor(plId_V)->translation().y() + geometry.sensor(plId_U)->translation().y()) / 2;
             } catch (const cms::Exception &) {
               continue;
             }

@@ -53,6 +53,8 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<TotemRPUVPattern>> tokenUVPattern;
   edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack>> tokenLocalTrack;
 
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
+
   /// plots related to one RP
   struct PotPlots {
     MonitorElement *vfat_problem = nullptr, *vfat_missing = nullptr, *vfat_ec_bc_error = nullptr,
@@ -176,7 +178,10 @@ TotemRPDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsigned in
 //----------------------------------------------------------------------------------------------------
 
 TotemRPDQMSource::TotemRPDQMSource(const edm::ParameterSet &ps)
-    : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)) {
+    : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
+      geometryToken_(esConsumes())
+
+{
   tokenStatus = consumes<DetSetVector<TotemVFATStatus>>(ps.getParameter<edm::InputTag>("tagStatus"));
 
   tokenDigi = consumes<DetSetVector<TotemRPDigi>>(ps.getParameter<edm::InputTag>("tagDigi"));
@@ -219,8 +224,7 @@ void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
 
 void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &eventSetup) {
   // get event setup data
-  ESHandle<CTPPSGeometry> geometry;
-  eventSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
+  auto const &geometry = eventSetup.getData(geometryToken_);
 
   // get event data
   Handle<DetSetVector<TotemVFATStatus>> status;
@@ -341,7 +345,7 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
       if (!ft.isValid())
         continue;
 
-      double rp_z = geometry->rpTranslation(rpId).z();
+      double rp_z = geometry.rpTranslation(rpId).z();
 
       for (unsigned int plNum = 0; plNum < 10; ++plNum) {
         TotemRPDetId plId = rpId;
@@ -356,7 +360,7 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
         double ft_x = ft.x0() + ft.tx() * (ft_z - rp_z);
         double ft_y = ft.y0() + ft.ty() * (ft_z - rp_z);
 
-        double ft_v = geometry->globalToLocal(plId, CTPPSGeometry::Vector(ft_x, ft_y, ft_z)).y();
+        double ft_v = geometry.globalToLocal(plId, CTPPSGeometry::Vector(ft_x, ft_y, ft_z)).y();
 
         bool hasMatchingHit = false;
         const auto &hit_ds_it = hits->find(plId);
@@ -563,12 +567,12 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
       TotemRPDetId plId_U(rpId);
       plId_U.setPlane(1);
 
-      double rp_x = (geometry->sensor(plId_V)->translation().x() + geometry->sensor(plId_U)->translation().x()) / 2.;
-      double rp_y = (geometry->sensor(plId_V)->translation().y() + geometry->sensor(plId_U)->translation().y()) / 2.;
+      double rp_x = (geometry.sensor(plId_V)->translation().x() + geometry.sensor(plId_U)->translation().x()) / 2.;
+      double rp_y = (geometry.sensor(plId_V)->translation().y() + geometry.sensor(plId_U)->translation().y()) / 2.;
 
       // mean read-out direction of U and V planes
-      const auto &rod_U = geometry->localToGlobalDirection(plId_U, CTPPSGeometry::Vector(0., 1., 0.));
-      const auto &rod_V = geometry->localToGlobalDirection(plId_V, CTPPSGeometry::Vector(0., 1., 0.));
+      const auto &rod_U = geometry.localToGlobalDirection(plId_U, CTPPSGeometry::Vector(0., 1., 0.));
+      const auto &rod_V = geometry.localToGlobalDirection(plId_V, CTPPSGeometry::Vector(0., 1., 0.));
 
       double x = ft.x0() - rp_x;
       double y = ft.y0() - rp_y;
