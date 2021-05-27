@@ -55,7 +55,8 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
-  gem_pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(gemPadDigiClusterProducer_);
+  if (runME11ILT_ or runME21ILT_)
+    gem_pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(gemPadDigiClusterProducer_);
   cscToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
   gemToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
   pBadChambersToken_ = esConsumes<CSCBadChambers, CSCBadChambersRcd>();
@@ -128,11 +129,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   ev.getByToken(wire_token_, wireDigis);
 
   // input GEM pad cluster collection for upgrade scenarios
-  const GEMPadDigiClusterCollection* gemPadClusters = nullptr;
-  if (!gemPadDigiClusterProducer_.label().empty()) {
-    edm::Handle<GEMPadDigiClusterCollection> gemPadDigiClusters;
-    ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
-    gemPadClusters = gemPadDigiClusters.product();
+  if (runME11ILT_ or runME21ILT_) {
+    const GEMPadDigiClusterCollection* gemPadClusters = nullptr;
+    if (!gemPadDigiClusterProducer_.label().empty()) {
+      edm::Handle<GEMPadDigiClusterCollection> gemPadDigiClusters;
+      ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
+      gemPadClusters = gemPadDigiClusters.product();
+    }
   }
 
   // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
