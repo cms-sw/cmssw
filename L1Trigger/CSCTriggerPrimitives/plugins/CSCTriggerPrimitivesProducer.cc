@@ -129,8 +129,8 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   ev.getByToken(wire_token_, wireDigis);
 
   // input GEM pad cluster collection for upgrade scenarios
+  const GEMPadDigiClusterCollection* gemPadClusters = nullptr;
   if (runME11ILT_ or runME21ILT_) {
-    const GEMPadDigiClusterCollection* gemPadClusters = nullptr;
     if (!gemPadDigiClusterProducer_.label().empty()) {
       edm::Handle<GEMPadDigiClusterCollection> gemPadDigiClusters;
       ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
