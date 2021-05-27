@@ -18,7 +18,7 @@ import sqlalchemy.ext.declarative
 import enum
 from sqlalchemy import Enum
 
-schema_name = 'CMS_CONDITIONS'
+schema_name = 'cms_conditions'
 dbuser_name = 'cms_conditions'
 dbreader_user_name = 'cms_cond_general_r'
 dbwriter_user_name = 'cms_cond_general_w'
