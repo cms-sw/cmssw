@@ -24,38 +24,6 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
   _lowHBHE = ps.getUntrackedParameter<double>("lowHBHE", 20);
   _lowHO = ps.getUntrackedParameter<double>("lowHO", 20);
   _lowHF = ps.getUntrackedParameter<double>("lowHF", 20);
-
-  // LED calibration channels
-  std::vector<edm::ParameterSet> vLedCalibChannels =
-      ps.getParameter<std::vector<edm::ParameterSet>>("ledCalibrationChannels");
-  for (int i = 0; i <= 3; ++i) {
-    HcalSubdetector this_subdet = HcalEmpty;
-    switch (i) {
-      case 0:
-        this_subdet = HcalBarrel;
-        break;
-      case 1:
-        this_subdet = HcalEndcap;
-        break;
-      case 2:
-        this_subdet = HcalOuter;
-        break;
-      case 3:
-        this_subdet = HcalForward;
-        break;
-      default:
-        this_subdet = HcalEmpty;
-        break;
-    }
-    std::vector<int32_t> subdet_calib_ietas = vLedCalibChannels[i].getUntrackedParameter<std::vector<int32_t>>("ieta");
-    std::vector<int32_t> subdet_calib_iphis = vLedCalibChannels[i].getUntrackedParameter<std::vector<int32_t>>("iphi");
-    std::vector<int32_t> subdet_calib_depths =
-        vLedCalibChannels[i].getUntrackedParameter<std::vector<int32_t>>("depth");
-    for (unsigned int ichannel = 0; ichannel < subdet_calib_ietas.size(); ++ichannel) {
-      _ledCalibrationChannels[this_subdet].push_back(HcalDetId(
-          HcalOther, subdet_calib_ietas[ichannel], subdet_calib_iphis[ichannel], subdet_calib_depths[ichannel]));
-    }
-  }
 }
 
 /* virtual */ void LEDTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
@@ -67,6 +35,38 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
 
   edm::ESHandle<HcalDbService> dbService = es.getHandle(hcalDbServiceToken_);
   _emap = dbService->getHcalMapping();
+
+  // Book LED calibration channels from emap
+  std::vector<HcalElectronicsId> eids = _emap->allElectronicsId();
+  for (unsigned i = 0; i < eids.size(); i++) {
+    HcalElectronicsId eid = eids[i];
+    DetId id = _emap->lookup(eid);
+    if (HcalGenericDetId(id.rawId()).isHcalCalibDetId()) {
+      HcalCalibDetId calibId(id);
+      if (calibId.calibFlavor() == HcalCalibDetId::CalibrationBox) {
+        HcalSubdetector this_subdet = HcalEmpty;
+        switch (calibId.hcalSubdet()) {
+          case HcalBarrel:
+            this_subdet = HcalBarrel;
+            break;
+          case HcalEndcap:
+            this_subdet = HcalEndcap;
+            break;
+          case HcalOuter:
+            this_subdet = HcalOuter;
+            break;
+          case HcalForward:
+            this_subdet = HcalForward;
+            break;
+          default:
+            this_subdet = HcalEmpty;
+            break;
+        }
+        _ledCalibrationChannels[this_subdet].push_back(
+            HcalDetId(HcalOther, calibId.ieta(), calibId.iphi(), calibId.cboxChannel()));
+      }
+    }
+  }
 
   std::vector<uint32_t> vhashVME;
   std::vector<uint32_t> vhashuTCA;
@@ -514,6 +514,25 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
   for (HODigiCollection::const_iterator it = c_ho->begin(); it != c_ho->end(); ++it) {
     const HODataFrame digi = (const HODataFrame)(*it);
     HcalDetId did = digi.id();
+    if (did.subdet() != HcalOuter) {
+      // LED monitoring from calibration channels
+      if (did.subdet() == HcalOther) {
+        HcalOtherDetId hodid(did);
+        if (hodid.subdet() == HcalCalibration) {
+          if (std::find(_ledCalibrationChannels[HcalOuter].begin(), _ledCalibrationChannels[HcalOuter].end(), did) !=
+              _ledCalibrationChannels[HcalOuter].end()) {
+            for (int i = 0; i < digi.size(); i++) {
+              if (_ptype == fOnline) {
+                _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), e.bunchCrossing(), digi[i].adc());
+              } else if (_ptype == fLocal) {
+                _LED_ADCvsEvn_Subdet.fill(
+                    HcalDetId(HcalOuter, 1, 1, 4), e.eventAuxiliary().id().event(), digi[i].adc());
+              }
+            }
+          }
+        }
+      }
+    }
     HcalElectronicsId eid = digi.elecId();
     //double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(digi, 8.5, 0, digi.size()-1);
     CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, digi);

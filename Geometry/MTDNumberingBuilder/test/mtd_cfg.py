@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GeometryTest")
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+
+process = cms.Process("GeometryTest",Phase2C11I13M9)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
