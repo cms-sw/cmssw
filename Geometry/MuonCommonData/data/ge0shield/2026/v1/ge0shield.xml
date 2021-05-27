@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+ <ConstantsSection label="ge0shield.xml" eval="true">
+  <Constant name="zpos"       value="([mf:z1GE0]+[mf:dzGE0])"/>
+  <Constant name="rMaxGE0Pb1" value="[ge0:rMin]"/>
+  <Constant name="rMinGE0Pb1" value="([rMaxGE0Pb1] - 10.0*mm)"/>
+  <Constant name="rMinGE0PE1" value="([rMinGE0Pb1] - 50.0*mm)"/>
+  <Constant name="rMinGE0Pb2" value="([rMinGE0PE1] - 10.0*mm)"/>
+  <Constant name="rMinGE0PE2" value="([rMinGE0Pb2] - 50.0*mm)"/>
+  <Constant name="rMinGE0SS1" value="([rMinGE0PE2] - 10.0*mm)"/>
+  <Constant name="dzPb"       value="5*mm"/>
+  <Constant name="dzPE"       value="7.5*mm"/>
+  <Constant name="dzSS"       value="2.5*mm"/>
+  <Constant name="zposPb"     value="([cms:CalorBeamZ3] + [ge0:zFrGE0] + 
+  				      2*[ge0:dzGE0] + [ge0:zGpGE0] + [dzPb])"/>
+  <Constant name="zposPE"     value="([zposPb] + [dzPb] + [dzPE])"/>
+  <Constant name="zposSS"     value="([zposPE] + [dzPE] + [dzSS])"/>
+ </ConstantsSection>
+
+ <SolidSection label="ge0shield.xml">
+  <Tubs name="ShieldingAntinomyLead_1_GE0" rMin="[rMinGE0Pb1]" rMax="[rMaxGE0Pb1]" dz="[mf:dzGE0]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_1_GE0" rMin="[rMinGE0PE1]" rMax="[rMinGE0Pb1]" dz="[mf:dzGE0]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_2_GE0" rMin="[rMinGE0Pb2]" rMax="[rMinGE0PE1]" dz="[mf:dzGE0]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_2_GE0" rMin="[rMinGE0PE2]" rMax="[rMinGE0Pb2]" dz="[mf:dzGE0]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingStainlessSteel_1_GE0" rMin="[rMinGE0SS1]" rMax="[rMinGE0PE2]" dz="[mf:dzGE0]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_3_GE0" rMin="[ge0:rMin]" rMax="[ge0:rMax]" dz="[dzPb]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_3_GE0" rMin="[ge0:rMin]" rMax="[ge0:rMax]" dz="[dzPE]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingStainlessSteel_2_GE0" rMin="[ge0:rMin]" rMax="[ge0:rMax]" dz="[dzSS]" startPhi="0*deg" deltaPhi="360*deg"/>
+ </SolidSection>
+
+ <LogicalPartSection label="ge0shield.xml">
+  <LogicalPart name="ShieldingAntinomyLead_1_GE0" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_1_GE0"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_GE0" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_GE0"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_2_GE0" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_2_GE0"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_2_GE0" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_2_GE0"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingStainlessSteel_1_GE0" category="unspecified">
+   <rSolid name="ShieldingStainlessSteel_1_GE0"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_3_GE0" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_3_GE0"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_3_GE0" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_3_GE0"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingStainlessSteel_2_GE0" category="unspecified">
+   <rSolid name="ShieldingStainlessSteel_2_GE0"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+ </LogicalPartSection>
+
+ <PosPartSection label="ge0shield.xml">
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingP"/>
+   <rChild name="ge0shield:ShieldingAntinomyLead_1_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zpos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingP"/>
+   <rChild name="ge0shield:ShieldingBoronPoly_1_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zpos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingP"/>
+   <rChild name="ge0shield:ShieldingAntinomyLead_2_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zpos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingP"/>
+   <rChild name="ge0shield:ShieldingBoronPoly_2_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zpos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingP"/>
+   <rChild name="ge0shield:ShieldingStainlessSteel_1_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zpos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingP"/>
+   <rChild name="ge0shield:ShieldingAntinomyLead_3_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zposPb]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingP"/>
+   <rChild name="ge0shield:ShieldingBoronPoly_3_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zposPE]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingP"/>
+   <rChild name="ge0shield:ShieldingStainlessSteel_2_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zposSS]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingN"/>
+   <rChild name="ge0shield:ShieldingAntinomyLead_1_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zpos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingN"/>
+   <rChild name="ge0shield:ShieldingBoronPoly_1_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zpos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingN"/>
+   <rChild name="ge0shield:ShieldingAntinomyLead_2_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zpos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingN"/>
+   <rChild name="ge0shield:ShieldingBoronPoly_2_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zpos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingN"/>
+   <rChild name="ge0shield:ShieldingStainlessSteel_1_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zpos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingN"/>
+   <rChild name="ge0shield:ShieldingAntinomyLead_3_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zposPb]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingN"/>
+   <rChild name="ge0shield:ShieldingBoronPoly_3_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zposPE]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:GE0RingN"/>
+   <rChild name="ge0shield:ShieldingStainlessSteel_2_GE0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="[zposSS]"/>
+  </PosPart>
+ </PosPartSection>
+</DDDefinition>
