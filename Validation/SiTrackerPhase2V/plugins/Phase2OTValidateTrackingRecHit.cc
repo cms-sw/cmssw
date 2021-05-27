@@ -174,7 +174,7 @@ void Phase2OTValidateTrackingRecHit::fillOTHistos(const edm::Event& iEvent,
             if (simhitIt.trackId() == mId.first) {
               float dx = simhitIt.localPosition().x() - lp.x();
               float dy = simhitIt.localPosition().y() - lp.y();
-              float dist = std::sqrt(dx * dx + dy * dy);
+              float dist = dx*dx + dy*dy;
               if (!simhitClosest || dist < mind) {
                 mind = dist;
                 simhitClosest = &simhitIt;
