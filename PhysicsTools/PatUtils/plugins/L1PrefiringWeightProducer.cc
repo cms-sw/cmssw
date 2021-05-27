@@ -147,7 +147,7 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
     edm::LogError("L1PrefireWeightProducer")
         << "Photon map not found. All photons prefiring weights set to 0. " << std::endl;
   }
-  h_prefmap_photon_ = (TH2F*) file_prefiringmaps_->Get(mapphotonfullname);
+  h_prefmap_photon_ = (TH2F*)file_prefiringmaps_->Get(mapphotonfullname);
   TString mapjetfullname =
       (useEMpt_) ? "L1prefiring_jetemptvseta_" + dataeraEcal_ : "L1prefiring_jetptvseta_" + dataeraEcal_;
   if (!file_prefiringmaps_->Get(mapjetfullname)) {
@@ -166,27 +166,27 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
         << "File with muon parametrizations not found. All prefiring weights set to 0." << std::endl;
   }
   TString paramName = "L1prefiring_muonparam_0.0To0.2_" + dataeraMuon_;
-  parametrization0p0To0p2_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization0p0To0p2_ = (TF1*)file_prefiringparams_->Get(paramName);
   paramName = "L1prefiring_muonparam_0.2To0.3_" + dataeraMuon_;
-  parametrization0p2To0p3_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization0p2To0p3_ = (TF1*)file_prefiringparams_->Get(paramName);
   paramName = "L1prefiring_muonparam_0.3To0.55_" + dataeraMuon_;
-  parametrization0p3To0p55_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization0p3To0p55_ = (TF1*)file_prefiringparams_->Get(paramName);
   paramName = "L1prefiring_muonparam_0.55To0.83_" + dataeraMuon_;
-  parametrization0p55To0p83_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization0p55To0p83_ = (TF1*)file_prefiringparams_->Get(paramName);
   paramName = "L1prefiring_muonparam_0.83To1.24_" + dataeraMuon_;
-  parametrization0p83To1p24_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization0p83To1p24_ = (TF1*)file_prefiringparams_->Get(paramName);
   paramName = "L1prefiring_muonparam_1.24To1.4_" + dataeraMuon_;
-  parametrization1p24To1p4_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization1p24To1p4_ = (TF1*)file_prefiringparams_->Get(paramName);
   paramName = "L1prefiring_muonparam_1.4To1.6_" + dataeraMuon_;
-  parametrization1p4To1p6_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization1p4To1p6_ = (TF1*)file_prefiringparams_->Get(paramName);
   paramName = "L1prefiring_muonparam_1.6To1.8_" + dataeraMuon_;
-  parametrization1p6To1p8_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization1p6To1p8_ = (TF1*)file_prefiringparams_->Get(paramName);
   paramName = "L1prefiring_muonparam_1.8To2.1_" + dataeraMuon_;
-  parametrization1p8To2p1_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization1p8To2p1_ = (TF1*)file_prefiringparams_->Get(paramName);
   paramName = "L1prefiring_muonparam_2.1To2.25_" + dataeraMuon_;
-  parametrization2p1To2p25_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization2p1To2p25_ = (TF1*)file_prefiringparams_->Get(paramName);
   paramName = "L1prefiring_muonparam_2.25To2.4_" + dataeraMuon_;
-  parametrization2p25To2p4_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrization2p25To2p4_ = (TF1*)file_prefiringparams_->Get(paramName);
 
   if (parametrization0p0To0p2_ == nullptr || parametrization0p2To0p3_ == nullptr ||
       parametrization0p3To0p55_ == nullptr || parametrization0p55To0p83_ == nullptr ||
@@ -200,7 +200,7 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
   }
 
   paramName = "L1prefiring_muonparam_HotSpot_" + dataeraMuon_;
-  parametrizationHotSpot_ = (TF1*) file_prefiringparams_->Get(paramName);
+  parametrizationHotSpot_ = (TF1*)file_prefiringparams_->Get(paramName);
   file_prefiringparams_->Close();
   if ((dataeraMuon_.find("2016") != std::string::npos) && parametrizationHotSpot_ == nullptr) {
     missingInputMuon_ = true;
