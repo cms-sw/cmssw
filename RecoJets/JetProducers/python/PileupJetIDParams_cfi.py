@@ -158,7 +158,7 @@ for train in full_106x_UL18_chs.trainings:
 
 ####################################################################################################################
 full_106x_UL16_chs = full_106x_UL17_chs.clone(JetIdParams = full_106x_UL16_chs_wp)
-for train in full_106x_UL16APV_chs.trainings:
+for train in full_106x_UL16_chs.trainings:
     train.tmvaWeights = train.tmvaWeights.value().replace("UL17", "UL16")
 
 ####################################################################################################################
