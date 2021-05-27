@@ -22,13 +22,13 @@ namespace gen {
     double fMinPt;
     double fMaxPt;
     bool fAddAntiParticle;
-    double dxyMin_;
-    double dxyMax_;
-    double lxyMax_;
-    double lzMax_;
-    double ConeRadius_;
-    double ConeH_;
-    double DistanceToAPEX_;
+    double fDxyMin;
+    double fDxyMax;
+    double fLxyMax;
+    double fLzMax;
+    double fConeRadius;
+    double fConeH;
+    double fDistanceToAPEX;
   };
 
   // implementation
@@ -41,13 +41,13 @@ namespace gen {
     fMinPt = pgun_params.getParameter<double>("MinPt");                                    // ,  0.);
     fMaxPt = pgun_params.getParameter<double>("MaxPt");                                    // ,  0.);
     fAddAntiParticle = pgun_params.getParameter<bool>("AddAntiParticle");                  //, false) ;
-    dxyMin_ = pgun_params.getParameter<double>("dxyMin");
-    dxyMax_ = pgun_params.getParameter<double>("dxyMax");
-    lxyMax_ = pgun_params.getParameter<double>("LxyMax");
-    lzMax_ = pgun_params.getParameter<double>("LzMax");
-    ConeRadius_ = pgun_params.getParameter<double>("ConeRadius");
-    ConeH_ = pgun_params.getParameter<double>("ConeH");
-    DistanceToAPEX_ = pgun_params.getParameter<double>("DistanceToAPEX");
+    fDxyMin = pgun_params.getParameter<double>("dxyMin");
+    fDxyMax = pgun_params.getParameter<double>("dxyMax");
+    fLxyMax = pgun_params.getParameter<double>("LxyMax");
+    fLzMax = pgun_params.getParameter<double>("LzMax");
+    fConeRadius = pgun_params.getParameter<double>("ConeRadius");
+    fConeH = pgun_params.getParameter<double>("ConeH");
+    fDistanceToAPEX = pgun_params.getParameter<double>("DistanceToAPEX");
   }
 
   bool Py8PtAndDxyGun::generatePartonsAndHadronize() {
@@ -71,12 +71,12 @@ namespace gen {
       double lxy = 0;
 
       bool passLoop = false;
-      while (not passLoop) {
+      while (!passLoop) {
         bool passLxy = false;
         bool passLz = false;
 
         phi = (fMaxPhi - fMinPhi) * randomEngine().flat() + fMinPhi;
-        dxy = (dxyMax_ - dxyMin_) * randomEngine().flat() + dxyMin_;
+        dxy = (fDxyMax - fDxyMin) * randomEngine().flat() + fDxyMin;
         float dxysign = randomEngine().flat() - 0.5;
         if (dxysign < 0)
           dxy = -dxy;
@@ -86,37 +86,37 @@ namespace gen {
         py = pt * sin(phi);
 
         for (int i = 0; i < 10000; i++) {
-          vx = 2 * lxyMax_ * randomEngine().flat() - lxyMax_;
+          vx = 2 * fLxyMax * randomEngine().flat() - fLxyMax;
           vy = (pt * dxy + vx * py) / px;
           lxy = sqrt(vx * vx + vy * vy);
-          if (lxy < std::abs(lxyMax_) and (vx * px + vy * py) > 0) {
+          if (lxy < std::abs(fLxyMax) && (vx * px + vy * py) > 0) {
             passLxy = true;
             break;
           }
         }
 
         eta = (fMaxEta - fMinEta) * randomEngine().flat() + fMinEta;
-        double the = 2. * atan(exp(-eta));
+        double theta = 2. * atan(exp(-eta));
 
         mass = (fMasterGen->particleData).m0(particleID);
 
-        double pp = pt / sin(the);  // sqrt( ee*ee - mass*mass );
+        double pp = pt / sin(theta);  // sqrt( ee*ee - mass*mass );
         ee = sqrt(pp * pp + mass * mass);
 
-        pz = pp * cos(the);
+        pz = pp * cos(theta);
 
-        float ConeTheta = ConeRadius_ / ConeH_;
+        float coneTheta = fConeRadius / fConeH;
         for (int j = 0; j < 100; j++) {
-          vz = lzMax_ * randomEngine().flat();  // this is abs(vz)
-          float v0 = vz - DistanceToAPEX_;
-          if (v0 <= 0 or lxy * lxy / (ConeTheta * ConeTheta) > v0 * v0) {
+          vz = fLzMax * randomEngine().flat();  // this is abs(vz)
+          float v0 = vz - fDistanceToAPEX;
+          if (v0 <= 0 || lxy * lxy / (coneTheta * coneTheta) > v0 * v0) {
             passLz = true;
             break;
           }
         }
         if (pz < 0)
           vz = -vz;
-        passLoop = (passLxy and passLz);
+        passLoop = (passLxy && passLz);
 
         if (passLoop)
           break;
