@@ -5,6 +5,9 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include <algorithm>
+#include <vector>
+
 template <HcalSubdetector... subdets>
 class HcalHitFilter : public CaloVHitFilter {
 public:
