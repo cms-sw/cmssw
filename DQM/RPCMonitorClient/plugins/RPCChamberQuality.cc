@@ -100,7 +100,7 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
   for (int w = -2; w < 3; w++) {  //Loop on wheels
 
     const std::string histoName2D = fmt::format("RPCChamberQuality_Roll_vs_Sector_Wheel{}", w);
-    auto* me2D = RPCRollMapHisto::bookBarrel(ibooker, w, histoName2D, histoName2D, useRollInfo_);
+    RPCRollMapHisto::bookBarrel(ibooker, w, histoName2D, histoName2D, useRollInfo_);
 
     const std::string histoName1D = fmt::format("RPCChamberQuality_Distribution_Wheel{}", w);
     MonitorElement* me1D = ibooker.book1D(histoName1D, histoName1D, 7, 0.5, 7.5);
@@ -115,7 +115,7 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
       continue;
     const std::string histoName2D =
         fmt::format("RPCChamberQuality_Ring_vs_Segment_Disk{}", d);  //  2D histo for RPC Qtest
-    auto me2D = RPCRollMapHisto::bookEndcap(ibooker, d, histoName2D, histoName2D, useRollInfo_);
+    RPCRollMapHisto::bookEndcap(ibooker, d, histoName2D, histoName2D, useRollInfo_);
 
     const std::string histoName1D = fmt::format("RPCChamberQuality_Distribution_Disk{}", d);
     MonitorElement* me1D = ibooker.book1D(histoName1D, histoName1D, 7, 0.5, 7.5);
