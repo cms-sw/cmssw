@@ -19,7 +19,7 @@ template <typename TILES>
 PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf,
                                                       const CacheBase *cache,
                                                       edm::ConsumesCollector iC)
-    : PatternRecognitionAlgoBaseT<TILES>(conf, cache),
+    : PatternRecognitionAlgoBaseT<TILES>(conf, cache, iC),
       caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
@@ -466,6 +466,35 @@ void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco
       probs += tracksters[i].id_probabilities().size();
     }
   }
+}
+
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
+  iDesc.add<int>("algo_verbosity", 0);
+  iDesc.add<bool>("oneTracksterPerTrackSeed", false);
+  iDesc.add<bool>("promoteEmptyRegionToTrackster", false);
+  iDesc.add<bool>("out_in_dfs", true);
+  iDesc.add<int>("max_out_in_hops", 10);
+  iDesc.add<double>("min_cos_theta", 0.915);
+  iDesc.add<double>("min_cos_pointing", -1.);
+  iDesc.add<double>("root_doublet_max_distance_from_seed_squared", 9999);
+  iDesc.add<double>("etaLimitIncreaseWindow", 2.1);
+  iDesc.add<int>("skip_layers", 0);
+  iDesc.add<int>("max_missing_layers_in_trackster", 9999);
+  iDesc.add<int>("shower_start_max_layer", 9999)->setComment("make default such that no filtering is applied");
+  iDesc.add<int>("min_layers_per_trackster", 10);
+  iDesc.add<std::vector<int>>("filter_on_categories", {0});
+  iDesc.add<double>("pid_threshold", 0.)->setComment("make default such that no filtering is applied");
+  iDesc.add<double>("energy_em_over_total_threshold", -1.)
+      ->setComment("make default such that no filtering is applied");
+  iDesc.add<double>("max_longitudinal_sigmaPCA", 9999);
+  iDesc.add<double>("max_delta_time", 3.)->setComment("nsigma");
+  iDesc.add<std::string>("eid_input_name", "input");
+  iDesc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
+  iDesc.add<std::string>("eid_output_name_id", "output/id_probabilities");
+  iDesc.add<double>("eid_min_cluster_energy", 1.);
+  iDesc.add<int>("eid_n_layers", 50);
+  iDesc.add<int>("eid_n_clusters", 10);
 }
 
 template class ticl::PatternRecognitionbyCA<TICLLayerTiles>;
