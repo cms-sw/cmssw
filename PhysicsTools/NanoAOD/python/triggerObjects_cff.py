@@ -254,7 +254,9 @@ l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
 
 triggerObjectTables = cms.Sequence( unpackedPatTrigger + triggerObjectTable )
 
-(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(l1PreFiringEventWeightTable , L1PreFiringWeightMuon_Nom = None, L1PreFiringWeightMuon_SystUp = None, L1PreFiringWeightMuon_SystDn = None, L1PreFiringWeightMuon_StatUp = None, L1PreFiringWeightMuon_StatDn = None, L1PreFiringWeightJet_Nom = None, L1PreFiringWeightJet_Up = None, L1PreFiringWeightJet_Dn = None, L1PreFiringWeightPhoton_Nom = None, L1PreFiringWeightPhoton_Up = None, L1PreFiringWeightPhoton_Dn = None)
+
+#(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(l1PreFiringEventWeightTable.variables,L1PreFiringWeightMuon_Nom = None)
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(l1PreFiringEventWeightTable.variables , L1PreFiringWeightMuon_Nom = None, L1PreFiringWeightMuon_SystUp = None, L1PreFiringWeightMuon_SystDn = None, L1PreFiringWeightMuon_StatUp = None, L1PreFiringWeightMuon_StatDn = None, L1PreFiringWeightJet_Nom = None, L1PreFiringWeightJet_Up = None, L1PreFiringWeightJet_Dn = None, L1PreFiringWeightPhoton_Nom = None, L1PreFiringWeightPhoton_Up = None, L1PreFiringWeightPhoton_Dn = None)
 
 _triggerObjectTables_withL1PreFiring = triggerObjectTables.copy()
 _triggerObjectTables_withL1PreFiring.replace(triggerObjectTable, prefiringweight + l1PreFiringEventWeightTable + triggerObjectTable)
