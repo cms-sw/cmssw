@@ -455,7 +455,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
   //	book some mes...
   ib.setCurrentFolder(_subsystem + "/" + _name);
   auto scope = DQMStore::IBooker::UseLumiScope(ib);
-  meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
+  meUnknownIds1LS = ib.book1DD("UnknownIds", "UnknownIds", 1, 0, 1);
   _unknownIdsPresent = false;
 }
 
