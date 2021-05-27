@@ -41,7 +41,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 
-
 class Phase2OTValidateRecHitBase : public DQMEDAnalyzer {
 public:
   explicit Phase2OTValidateRecHitBase(const edm::ParameterSet&);
@@ -49,10 +48,10 @@ public:
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   void fillOTRecHitHistos(const PSimHit* simhitClosest,
-			  const Phase2TrackerRecHit1D* rechit,
-			  const std::map<unsigned int, SimTrack>& selectedSimTrackMap,
-			  std::map<std::string, unsigned int>& nrechitLayerMapP_primary,
-			  std::map<std::string, unsigned int>& nrechitLayerMapS_primary);
+                          const Phase2TrackerRecHit1D* rechit,
+                          const std::map<unsigned int, SimTrack>& selectedSimTrackMap,
+                          std::map<std::string, unsigned int>& nrechitLayerMapP_primary,
+                          std::map<std::string, unsigned int>& nrechitLayerMapS_primary);
 
   static void fillPSetDescription(edm::ParameterSetDescription& desc);
   void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir);

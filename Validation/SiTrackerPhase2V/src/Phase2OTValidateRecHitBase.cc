@@ -50,10 +50,10 @@ void Phase2OTValidateRecHitBase::dqmBeginRun(const edm::Run& iRun, const edm::Ev
 }
 
 void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest,
-						    const Phase2TrackerRecHit1D* rechit,
-						    const std::map<unsigned int, SimTrack>& selectedSimTrackMap,
-						    std::map<std::string, unsigned int>& nrechitLayerMapP_primary,
-						    std::map<std::string, unsigned int>& nrechitLayerMapS_primary) {
+                                                    const Phase2TrackerRecHit1D* rechit,
+                                                    const std::map<unsigned int, SimTrack>& selectedSimTrackMap,
+                                                    std::map<std::string, unsigned int>& nrechitLayerMapP_primary,
+                                                    std::map<std::string, unsigned int>& nrechitLayerMapS_primary) {
   auto detId = rechit->geographicalId();
   // Get the geomdet
   const GeomDetUnit* geomDetunit(tkGeom_->idToDetUnit(detId));
@@ -81,11 +81,11 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
     pully = (dx) / std::sqrt(lperr.yy());
   float eta = geomDetunit->surface().toGlobal(lp).eta();
   float phi = geomDetunit->surface().toGlobal(lp).phi();
-  
+
   //scale for plotting
-  dx *= phase2tkutil::cmtomicron;//this is always the case
+  dx *= phase2tkutil::cmtomicron;  //this is always the case
   if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
-    dy *= phase2tkutil::cmtomicron;//only for PSP sensors
+    dy *= phase2tkutil::cmtomicron;  //only for PSP sensors
 
     layerMEs_[key].deltaX_P->Fill(dx);
     layerMEs_[key].deltaY_P->Fill(dy);
@@ -136,8 +136,8 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
 // -- Book Histograms
 //
 void Phase2OTValidateRecHitBase::bookHistograms(DQMStore::IBooker& ibooker,
-                                            edm::Run const& iRun,
-                                            edm::EventSetup const& iSetup) {
+                                                edm::Run const& iRun,
+                                                edm::EventSetup const& iSetup) {
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
   //Now book layer wise histos
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
