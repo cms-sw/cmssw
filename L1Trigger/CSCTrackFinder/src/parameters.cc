@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CondFormats/L1TObjects
+// Package:     L1Trigger/CSCTrackFinder
 // Class  :     parameters
 //
 // Implementation:
@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "CondFormats/L1TObjects/interface/parameters.h"
+#include "parameters.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
