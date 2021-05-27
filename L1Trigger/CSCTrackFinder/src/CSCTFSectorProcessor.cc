@@ -1,7 +1,7 @@
 #include "L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
-#include "CondFormats/L1TObjects/interface/parameters.h"
+#include "parameters.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

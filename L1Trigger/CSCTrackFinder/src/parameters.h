@@ -1,11 +1,11 @@
-#ifndef CondFormats_L1TObjects_parameters_h
-#define CondFormats_L1TObjects_parameters_h
+#ifndef L1Trigger_CSCTrackFinder_parameters_h
+#define L1Trigger_CSCTrackFinder_parameters_h
 // -*- C++ -*-
 //
-// Package:     CondFormats/L1TObjects
+// Package:     L1Trigger/CSCTrackFinders
 // Class  :     parameters
 //
-/**\function parameters parameters.h "CondFormats/L1TObjects/interface/parameters.h"
+/**\function parameters parameters.h 
 
  Description: Converts info in L1MuCSCTFConfiguration to a edm::ParameterSet
 
