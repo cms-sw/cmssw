@@ -286,7 +286,7 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
       pat::PackedCandidate(p4, trk->vertex(), trk->pt(), trk->eta(), trk->phi(), id, pvSlimmedColl, pvSlimmed.key()));
 
   cands.back().setTrackHighPurity(trk->quality(reco::TrackBase::highPurity));
-
+  cands.back().setCovarianceVersion(covarianceVersion_);
   cands.back().setLostInnerHits(lostHits);
   if (trk->pt() > minPtToStoreProps_ || trkStatus == TrkStatus::VTX) {
     if (useLegacySetup_ || std::abs(id) == 11 || trkStatus == TrkStatus::VTX) {
