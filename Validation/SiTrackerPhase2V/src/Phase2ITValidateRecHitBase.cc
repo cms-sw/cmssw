@@ -153,10 +153,12 @@ void Phase2ITValidateRecHitBase::fillRechitHistos(const PSimHit* simhitClosest,
   layerMEs_[key].deltaY->Fill(dy);
   layerMEs_[key].pullX->Fill(pullx);
   layerMEs_[key].pullY->Fill(pully);
-  layerMEs_[key].deltaX_eta->Fill(eta, dx);
-  layerMEs_[key].deltaY_eta->Fill(eta, dy);
+
+  layerMEs_[key].deltaX_eta->Fill(std::abs(eta), dx);
+  layerMEs_[key].deltaY_eta->Fill(std::abs(eta), dy);
   layerMEs_[key].deltaX_phi->Fill(phi, dx);
   layerMEs_[key].deltaY_phi->Fill(phi, dy);
+
   layerMEs_[key].deltaX_clsizex->Fill(rechit->cluster()->sizeX(), dx);
   layerMEs_[key].deltaX_clsizey->Fill(rechit->cluster()->sizeY(), dx);
   layerMEs_[key].deltaY_clsizex->Fill(rechit->cluster()->sizeX(), dy);
@@ -217,10 +219,10 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   psd4.add<int>("NyBins", 100);
   psd4.add<double>("ymin", -100.0);
   psd4.add<double>("ymax", 100.0);
-  psd4.add<int>("NxBins", 82);
+  psd4.add<int>("NxBins", 41);
   psd4.add<bool>("switch", true);
   psd4.add<double>("xmax", 4.1);
-  psd4.add<double>("xmin", -4.1);
+  psd4.add<double>("xmin", 0.);
   desc.add<edm::ParameterSetDescription>("DeltaX_eta", psd4);
 
   edm::ParameterSetDescription psd4_y;
@@ -242,10 +244,10 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   psd5.add<int>("NyBins", 100);
   psd5.add<double>("ymin", -100.0);
   psd5.add<double>("ymax", 100.0);
-  psd5.add<int>("NxBins", 82);
+  psd5.add<int>("NxBins", 41);
   psd5.add<bool>("switch", true);
   psd5.add<double>("xmax", 4.1);
-  psd5.add<double>("xmin", -4.1);
+  psd5.add<double>("xmin", 0.);
   desc.add<edm::ParameterSetDescription>("DeltaY_eta", psd5);
 
   edm::ParameterSetDescription psd5_y;

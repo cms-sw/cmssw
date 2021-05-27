@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "DQM/SiTrackerPhase2/interface/TrackerPhase2HarvestingUtil.h"
 class Phase2ITRecHitHarvester : public DQMEDHarvester {
 public:
   explicit Phase2ITRecHitHarvester(const edm::ParameterSet &);
@@ -20,22 +20,24 @@ private:
   void dofitsForLayer(const std::string& iFolder, DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
   // ----------member data ---------------------------
-  std::string topFolder_;
-  unsigned int nbarrelLayers_;
-  unsigned int ndisk1Rings_;//FOR IT epix//FOR OT TEDD1 rings
-  unsigned int ndisk2Rings_;//FOR IT epix//FOR OT TEDD2 rings
-  unsigned int fitThreshold_;
-  std::string ecapdisk1Name_;//FOR IT Epix//FOR OT TEDD_1
-  std::string ecapdisk2Name_;//FOR IT Fpix//FOR OT TEDD_2
-  std::string histoPhiname_;
-  std::string deltaXvsEtaname_;
-  std::string deltaXvsPhiname_;
-  std::string deltaYvsEtaname_;
-  std::string deltaYvsPhiname_;
+  const edm::ParameterSet config_;
+  const std::string topFolder_;
+  const unsigned int nbarrelLayers_;
+  const unsigned int ndisk1Rings_;//FOR IT epix//FOR OT TEDD1 rings
+  const unsigned int ndisk2Rings_;//FOR IT epix//FOR OT TEDD2 rings
+  const unsigned int fitThreshold_;
+  const std::string ecapdisk1Name_;//FOR IT Epix//FOR OT TEDD_1
+  const std::string ecapdisk2Name_;//FOR IT Fpix//FOR OT TEDD_2
+  const std::string histoPhiname_;
+  const std::string deltaXvsEtaname_;
+  const std::string deltaXvsPhiname_;
+  const std::string deltaYvsEtaname_;
+  const std::string deltaYvsPhiname_;
 
 };
 
 Phase2ITRecHitHarvester::Phase2ITRecHitHarvester(const edm::ParameterSet & iConfig) :
+  config_(iConfig),
   topFolder_(iConfig.getParameter<std::string>("TopFolder")),
   nbarrelLayers_(iConfig.getParameter<uint32_t>("NbarrelLayers")),
   ndisk1Rings_(iConfig.getParameter<uint32_t>("NDisk1Rings")),
@@ -86,20 +88,21 @@ void Phase2ITRecHitHarvester::dofitsForLayer(const std::string& iFolder, DQMStor
 
     ibooker.cd();
     ibooker.setCurrentFolder(resFolder);
-    MonitorElement* sigmaX_eta=ibooker.book1D("resolutionXFitvseta", ";#eta;resolution X[#mum]", 81, -4.1, 4.1);
-    MonitorElement* meanX_eta=ibooker.book1D("meanresidualXFitvseta", ";#eta;Mean residual X[#mum]", 81, -4.1, 4.1);
+    MonitorElement* sigmaX_eta=phase2tkharvestutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("resXvseta"), ibooker);
+    MonitorElement* meanX_eta=phase2tkharvestutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("meanXvseta"), ibooker);
+
     gausFitslices(deltaX_eta, meanX_eta, sigmaX_eta);
 
-    MonitorElement* sigmaY_eta=ibooker.book1D("resolutionYFitvseta", ";#eta;resolution Y", 81, -4.1, 4.1);
-    MonitorElement* meanY_eta=ibooker.book1D("meanresidualYFitvseta", ";#eta;Mean residual Y", 81, -4.1, 4.1);
+    MonitorElement* sigmaY_eta=phase2tkharvestutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("resYvseta"), ibooker);
+    MonitorElement* meanY_eta=phase2tkharvestutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("meanYvseta"), ibooker);
     gausFitslices(deltaY_eta, meanY_eta, sigmaY_eta);
 
-    MonitorElement* sigmaX_phi=ibooker.book1D("resolutionXFitvsphi", ";#phi;resolution X[#mum]", 36, -M_PI, M_PI);
-    MonitorElement* meanX_phi=ibooker.book1D("meanresidualXFitvsphi", ";#phi;Mean residual X[#mum]", 36, -M_PI, M_PI);
+    MonitorElement* sigmaX_phi=phase2tkharvestutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("resXvsphi"), ibooker);
+    MonitorElement* meanX_phi=phase2tkharvestutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("meanXvsphi"), ibooker);
     gausFitslices(deltaX_phi, meanX_phi, sigmaX_phi);
 
-    MonitorElement* sigmaY_phi=ibooker.book1D("resolutionYFitvsphi", ";#phi;resolution Y", 36, -M_PI, M_PI);
-    MonitorElement* meanY_phi=ibooker.book1D("meanresidualYFitvsphi", ";#phi;Mean residual Y", 36, -M_PI, M_PI);
+    MonitorElement* sigmaY_phi=phase2tkharvestutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("resYvsphi"), ibooker);
+    MonitorElement* meanY_phi=phase2tkharvestutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("meanYvsphi"), ibooker);
     gausFitslices(deltaY_phi, meanY_phi, sigmaY_phi);
 }
 void Phase2ITRecHitHarvester::gausFitslices(MonitorElement* srcME, MonitorElement* meanME, MonitorElement* sigmaME) {
@@ -155,6 +158,80 @@ void Phase2ITRecHitHarvester::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<std::string>("ResidualXvsPhi", "Delta_X_vs_Phi");
   desc.add<std::string>("ResidualYvsEta", "Delta_Y_vs_Eta");
   desc.add<std::string>("ResidualYvsPhi", "Delta_Y_vs_Phi");
+
+  edm::ParameterSetDescription psd0;
+  psd0.add<std::string>("name", "resolutionXFitvseta");
+  psd0.add<std::string>("title", ";#eta; X-Resolution from fit [#mum]");
+  psd0.add<int>("NxBins", 41);
+  psd0.add<double>("xmax", 4.1);
+  psd0.add<double>("xmin", 0.);
+  psd0.add<bool>("switch", true);
+  desc.add<edm::ParameterSetDescription>("resXvseta", psd0);
+
+  edm::ParameterSetDescription psd1;
+  psd1.add<std::string>("name", "resolutionYFitvseta");
+  psd1.add<std::string>("title", ";#eta; Y-Resolution from fit [#mum]");
+  psd1.add<int>("NxBins", 41);
+  psd1.add<double>("xmax", 4.1);
+  psd1.add<double>("xmin", 0.);
+  psd1.add<bool>("switch", true);
+  desc.add<edm::ParameterSetDescription>("resYvseta", psd1);
+
+  edm::ParameterSetDescription psd2;
+  psd2.add<std::string>("name", "resolutionXFitvsphi");
+  psd2.add<std::string>("title", ";#phi; X-Resolution from fit [#mum]");
+  psd2.add<int>("NxBins", 36);
+  psd2.add<double>("xmax", M_PI);
+  psd2.add<double>("xmin", -M_PI);
+  psd2.add<bool>("switch", true);
+  desc.add<edm::ParameterSetDescription>("resXvsphi", psd2);
+
+  edm::ParameterSetDescription psd3;
+  psd3.add<std::string>("name", "resolutionYFitvsphi");
+  psd3.add<std::string>("title", ";#phi; Y-Resolution from fit [#mum]");
+  psd3.add<int>("NxBins", 36);
+  psd3.add<double>("xmax", M_PI);
+  psd3.add<double>("xmin", -M_PI);
+  psd3.add<bool>("switch", true);
+  desc.add<edm::ParameterSetDescription>("resYvsphi", psd3);
+
+  edm::ParameterSetDescription psd4;
+  psd4.add<std::string>("name", "meanXFitvseta");
+  psd4.add<std::string>("title", ";#eta; Mean residual X from fit [#mum]");
+  psd4.add<int>("NxBins", 41);
+  psd4.add<double>("xmax", 4.1);
+  psd4.add<double>("xmin", 0.);
+  psd4.add<bool>("switch", true);
+  desc.add<edm::ParameterSetDescription>("meanXvseta", psd4);
+
+  edm::ParameterSetDescription psd5;
+  psd5.add<std::string>("name", "meanYFitvseta");
+  psd5.add<std::string>("title", ";#eta; Mean residual Y from fit [#mum]");
+  psd5.add<int>("NxBins", 41);
+  psd5.add<double>("xmax", 4.1);
+  psd5.add<double>("xmin", 0.);
+  psd5.add<bool>("switch", true);
+  desc.add<edm::ParameterSetDescription>("meanYvseta", psd5);
+
+  edm::ParameterSetDescription psd6;
+  psd6.add<std::string>("name", "meanXFitvsphi");
+  psd6.add<std::string>("title", ";#phi; Mean residual X from fit [#mum]");
+  psd6.add<int>("NxBins", 36);
+  psd6.add<double>("xmax", M_PI);
+  psd6.add<double>("xmin", -M_PI);
+  psd6.add<bool>("switch", true);
+  desc.add<edm::ParameterSetDescription>("meanXvsphi", psd6);
+
+  edm::ParameterSetDescription psd7;
+  psd7.add<std::string>("name", "meanYFitvsphi");
+  psd7.add<std::string>("title", ";#phi; Mean residual Y from fit [#mum]");
+  psd7.add<int>("NxBins", 36);
+  psd7.add<double>("xmax", M_PI);
+  psd7.add<double>("xmin", -M_PI);
+  psd7.add<bool>("switch", true);
+  desc.add<edm::ParameterSetDescription>("meanYvsphi", psd7);
+
+
 
   desc.add<unsigned int>("NFitThreshold", 5);
   
