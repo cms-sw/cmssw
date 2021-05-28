@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 CSCGEMMatcher::CSCGEMMatcher(
     int endcap, unsigned station, unsigned chamber, const edm::ParameterSet& tmbParams, const edm::ParameterSet& luts)

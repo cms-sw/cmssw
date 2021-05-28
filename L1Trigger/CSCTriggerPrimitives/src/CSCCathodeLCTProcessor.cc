@@ -1002,9 +1002,9 @@ void CSCCathodeLCTProcessor::markBusyKeys(const int best_hstrip,
 void CSCCathodeLCTProcessor::cleanComparatorContainer(CSCCLCTDigi& clct) const {
   CSCCLCTDigi::ComparatorContainer newHits = clct.getHits();
   for (auto& p : newHits) {
-    p.erase(std::remove_if(
-                p.begin(), p.end(), [](unsigned i) -> bool { return i == CSCConstants::INVALID_HALF_STRIP; }),
-            p.end());
+    p.erase(
+        std::remove_if(p.begin(), p.end(), [](unsigned i) -> bool { return i == CSCConstants::INVALID_HALF_STRIP; }),
+        p.end());
   }
   clct.setHits(newHits);
 }
