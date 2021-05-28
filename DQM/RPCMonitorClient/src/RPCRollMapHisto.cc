@@ -12,7 +12,7 @@ MonitorElement* RPCRollMapHisto::bookBarrel(
   TH2* h = dynamic_cast<TH2*>(me->getTH1());
   h->GetXaxis()->SetNoAlphanumeric(true);
   // Set x-axis labels
-  for (int i = 1; i < 12; ++i) {
+  for (int i = 1; i <= 12; ++i) {
     me->setBinLabel(i, fmt::format("Sec{}", i), 1);
   }
 
@@ -30,21 +30,21 @@ void RPCRollMapHisto::setBarrelRollAxis(MonitorElement* me, const int wheel, con
     h->GetYaxis()->SetNoAlphanumeric(true);
 
   const std::array<const std::string, 21> labelsRoll = {
-      {"RB1in_B", "RB1in_F", "RB1out_B", "RB1out_F", "RB2in_B", "RB2in_F", "RB2out_B", "RB2out_F",
-       "",  // empty space reserved for the RB2in_M or RB2out_M
+      {"RB1in_B", "RB1in_F", "RB1out_B", "RB1out_F",
+       "RB2in_B", "RB2in_F", "RB2in_M", "RB2out_B", "RB2out_F",
        "RB3-_B",  "RB3-_F",  "RB3+_B",   "RB3+_F",   "RB4,-_B", "RB4,-_F", "RB4+_B",   "RB4+_F",
        "RB4--_B", "RB4--_F", "RB4++_B",  "RB4++_F"}};
-  const std::array<const std::string, 21> labelsCh = {{"RB1in",  "",     "RB1out", "",      "RB2in", "",      "",
-                                                       "RB2out", "",     "RB3-",   "",      "RB3+",  "",      "RB4,-",
-                                                       "",       "RB4+", "",       "RB4--", "",      "RB4++", ""}};
+  const std::array<const std::string, 21> labelsCh = {{"RB1in",  "", "RB1out", "", "RB2in", "", "",
+                                                       "RB2out", "", "RB3-", "", "RB3+",  "", "RB4,-",
+                                                       "", "RB4+", "", "RB4--", "", "RB4++", ""}};
 
-  for (int i = 0; i < 21; ++i) {
+  for (int i = 0, n=std::min(21, me->getNbinsY()); i < n; ++i) {
     const std::string label = useRollInfo ? labelsRoll[i] : labelsCh[i];
     me->setBinLabel(i + 1, label, 2);
   }
-  if (useRollInfo) {
-    const std::string label = (std::abs(wheel) == 2) ? "RB2out_M" : "RB2in_M";
-    me->setBinLabel(7, label, 2);
+  if (useRollInfo and std::abs(wheel) == 2) {
+    // We have RB2out_M for the wheel +-2, otherwise, RB2in_M as in the default array
+    me->setBinLabel(7, "RB2out_M", 2);
   }
 }
 
