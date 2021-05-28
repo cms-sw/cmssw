@@ -1,5 +1,52 @@
-import FWCore.ParameterSet.Config as cms
+from __future__ import print_function
+import calendar
+import CondCore.Utilities.conddblib as conddb
 
+#___________________________________________________________________
+def findRunStopTime(run_number):
+    con = conddb.connect(url = conddb.make_url("pro"))
+    session = con.session()
+    RunInfo = session.get_dbtype(conddb.RunInfo)
+    bestRun = session.query(RunInfo.run_number,RunInfo.start_time, RunInfo.end_time).filter(RunInfo.run_number >= run_number).first()
+    if bestRun is None:
+        raise Exception("Run %s can't be matched with an existing run in the database." % run_number)
+
+    start= bestRun[1]
+    stop = bestRun[2]
+
+    bestRunStartTime = calendar.timegm( bestRun[1].utctimetuple() ) << 32
+    bestRunStopTime  = calendar.timegm( bestRun[2].utctimetuple() ) << 32
+
+    print("run start time:",start,"(",bestRunStartTime,")")
+    print("run stop time: ",stop,"(",bestRunStopTime,")")
+
+    return bestRunStopTime
+
+import optparse
+parser = optparse.OptionParser(usage = 'Usage: %prog [options] <file> [<file> ...]\n')
+parser.add_option('-G', '--inputGT',
+                  dest = 'inputGT',
+                  default = 'auto:run2_data',
+                  help = 'Global Tag to get conditions')
+
+parser.add_option('-r', '--inputRun',
+                  dest = 'inputRun',
+                  default = 325022,
+                  help = 'run to be used')
+
+parser.add_option('-t', '--inputTime',
+                  dest = 'inputTime',
+                  default = 6614916085915320320,
+                  help = 'time to be used')
+
+parser.add_option('-e', '--enableJobReport',
+                  dest = 'empty',
+                  default = None,
+                  help = 'unused')
+
+(options, arguments) = parser.parse_args()
+
+import FWCore.ParameterSet.Config as cms
 process = cms.Process('ALCAHARVEST')
 
 # import of standard configurations
@@ -12,11 +59,14 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.AlCaHarvesting_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+##
+## configure the source with an random run
+##
 process.source = cms.Source("EmptySource",
-                            firstRun = cms.untracked.uint32(325022),
+                            firstRun = cms.untracked.uint32(options.inputRun),
                             numberEventsInRun = cms.untracked.uint32(1),
                             numberEventsInLuminosityBlock = cms.untracked.uint32(1),
-                            firstTime = cms.untracked.uint64(6614916085915320320),
+                            firstTime = cms.untracked.uint64(options.inputTime),
                             timeBetweenEvents = cms.untracked.uint64(1)
                             )
 
@@ -38,7 +88,7 @@ process.pclMetadataWriter.recordsToMap.extend(process.ALCAHARVESTSiPixelQuality_
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, options.inputGT, '')
 
 process.SiStripQuality  = cms.Path(process.ALCAHARVESTSiStripQuality)
 process.alcaSiStripQualityHarvester.CalibrationThreshold = cms.untracked.uint32(0)
