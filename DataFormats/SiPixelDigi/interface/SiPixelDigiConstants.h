@@ -1,8 +1,8 @@
 #ifndef DataFormats_SiPixelDigi_interface_SiPixelDigiConstants
 #define DataFormats_SiPixelDigi_interface_SiPixelDigiConstants
 
-#include <stdint.h>
 #include "FWCore/Utilities/interface/typedefs.h"
+#include <cstdint>
 
 using Word64 = cms_uint64_t;
 using Word32 = cms_uint32_t;
