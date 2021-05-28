@@ -157,7 +157,8 @@ public:
     TH1::AddDirectory(true);
     // ... create your hists
     TH2F* h = me->getTH2F();
-    h->FitSlicesY(nullptr, 0, -1, 0, "QNR SERIAL");
+    TF1 fgaus("fgaus", "gaus", h->GetYaxis()->GetXmin(), h->GetYaxis()->GetXmax(), TF1::EAddToList::kNo);
+    h->FitSlicesY(&fgaus, 0, -1, 0, "QNR SERIAL");
     string name(h->GetName());
     h0 = (TH1*)gDirectory->Get((name + "_0").c_str());
     h1 = (TH1*)gDirectory->Get((name + "_1").c_str());
