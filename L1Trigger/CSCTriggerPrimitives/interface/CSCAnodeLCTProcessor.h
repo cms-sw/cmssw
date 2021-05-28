@@ -74,10 +74,10 @@ public:
   void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
 
   /** Returns vector of ALCTs in the read-out time window, if any. */
-  std::vector<CSCALCTDigi> readoutALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
+  std::vector<CSCALCTDigi> readoutALCTs() const;
 
   /** Returns vector of all found ALCTs, if any. */
-  std::vector<CSCALCTDigi> getALCTs(unsigned nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
+  std::vector<CSCALCTDigi> getALCTs() const;
 
   /** read out pre-ALCTs */
   std::vector<CSCALCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
@@ -103,9 +103,6 @@ protected:
 
   /** Second best LCTs in this chamber, as found by the processor. */
   CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
-
-  /** LCTs in this chamber, as found by the processor. */
-  std::vector<std::vector<CSCALCTDigi> > ALCTContainer_;
 
   CSCShowerDigi shower_;
 
