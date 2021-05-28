@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from CommonTools.ParticleFlow.pfNoPileUpJME_cff import adapt, pfPileUpJME
-from PhysicsTools.PatAlgos.sortedPackedPrimaryVertices_cfi import sortedPackedPrimaryVertices
+from CommonTools.RecoAlgos.sortedPackedPrimaryVertices_cfi import sortedPackedPrimaryVertices
 
 packedPrimaryVertexAssociationJME = sortedPackedPrimaryVertices.clone(
   produceSortedVertices = False,
