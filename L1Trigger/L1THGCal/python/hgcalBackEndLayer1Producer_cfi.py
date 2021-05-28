@@ -58,7 +58,7 @@ constrTopological_C2d_params = cms.PSet(c2d_calib_pset,
                                         )
 
 
-be_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendLayer1Processor2DClustering'),
+be_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendStage1Processor'),
                    C2d_parameters = dummy_C2d_params.clone()
                    )
 

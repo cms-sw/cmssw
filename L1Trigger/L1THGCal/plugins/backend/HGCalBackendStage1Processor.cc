@@ -7,9 +7,9 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalClusteringImpl.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalClusteringDummyImpl.h"
 
-class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1ProcessorBase {
+class HGCalBackendStage1Processor : public HGCalBackendStage1ProcessorBase {
 public:
-  HGCalBackendLayer1Processor2DClustering(const edm::ParameterSet& conf) : HGCalBackendLayer1ProcessorBase(conf) {
+  HGCalBackendStage1Processor(const edm::ParameterSet& conf) : HGCalBackendStage1ProcessorBase(conf) {
     std::string typeCluster(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
     if (typeCluster == "dRC2d") {
       clusteringAlgorithmType_ = dRC2d;
@@ -36,6 +36,13 @@ public:
       clustering_->eventSetup(es);
     if (clusteringDummy_)
       clusteringDummy_->eventSetup(es);
+
+    /*To split jobs in fpga modules*/
+    std::unordered_map<uint32_t, std::vector<l1t::HGCalTriggerCell>> stage1_modules;
+    for (const auto& trigCell : collInput) {
+      uint32_t module = geometry_->getStage1FpgaFromModule(trigMod.moduleId());
+      stage1_modules[module].push_back(trigMod);
+    }
 
     /* create a persistent vector of pointers to the trigger-cells */
     std::vector<edm::Ptr<l1t::HGCalTriggerCell>> triggerCellsPtrs;
@@ -84,5 +91,5 @@ private:
 };
 
 DEFINE_EDM_PLUGIN(HGCalBackendLayer1Factory,
-                  HGCalBackendLayer1Processor2DClustering,
-                  "HGCalBackendLayer1Processor2DClustering");
+                  HGCalBackendStage1Processor,
+                  "HGCalBackendStage1Processor");
