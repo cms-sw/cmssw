@@ -38,16 +38,16 @@
 
 <library file="NearbyPixelClustersProducer.cc" name="NearbyPixelClustersProducer">
   <use name="TrackingTools/PatternTools"/>
+  <use name="RecoLocalTracker/ClusterParameterEstimator"/>
   <use name="RecoLocalTracker/Records"/>
-  <use name="RecoTracker/MeasurementDet"/>
   <use name="TrackingTools/TrackFitters"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="NearbyPixelClustersAnalyzer.cc" name="NearbyPixelClustersAnalyzer">
   <use name="TrackingTools/PatternTools"/>
+  <use name="RecoLocalTracker/ClusterParameterEstimator"/>
   <use name="RecoLocalTracker/Records"/>
-  <use name="RecoTracker/MeasurementDet"/>
   <use name="TrackingTools/TrackFitters"/>
   <use name="CondFormats/SiPixelObjects"/>
   <use name="CalibTracker/SiPixelESProducers"/>
