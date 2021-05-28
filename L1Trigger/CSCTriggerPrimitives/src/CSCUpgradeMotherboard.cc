@@ -240,7 +240,7 @@ void CSCUpgradeMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
 }
 
 bool CSCUpgradeMotherboard::doesALCTCrossCLCT(const CSCALCTDigi& a, const CSCCLCTDigi& c) const {
-  return cscOverlap_->doesALCTCrossCLCT(a, c, ignoreAlctCrossClct);
+  return cscOverlap_->doesALCTCrossCLCT(a, c);
 }
 
 //readout LCTs
