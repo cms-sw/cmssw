@@ -1,0 +1,291 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="caloBase.xml" eval="true">
+ <Constant name="Zpos0L"     value="2967.7*mm"/>
+ <Constant name="Rpos0L"     value="1241.7*mm"/>
+ <Constant name="Zpos0H"     value="3188.5*mm"/>
+ <Constant name="Rpos0H"     value="1363.1*mm"/>
+ <Constant name="slope0"     value="([Rpos0H]-[Rpos0L])/([Zpos0H]-[Zpos0L])"/>
+ <Constant name="ZposAL"     value="3066.7*mm"/>
+ <Constant name="RposAL"     value="1197.2*mm"/>
+ <Constant name="ZposAH"     value="3145.0*mm"/>
+ <Constant name="RposAH"     value="1275.5*mm"/>
+ <Constant name="slopeA"     value="([RposAH]-[RposAL])/([ZposAH]-[ZposAL])"/>
+ <Constant name="Zpos1L"     value="3188.5*mm"/>
+ <Constant name="Rpos1L"     value="1580.9*mm"/>
+ <Constant name="Zpos1H"     value="3839.7*mm"/>
+ <Constant name="Rpos1H"     value="1806.3*mm"/>
+ <Constant name="slope1"     value="([Rpos1H]-[Rpos1L])/([Zpos1H]-[Zpos1L])"/>
+ <Constant name="Zpos2L"     value="[Zpos1H]"/>
+ <Constant name="Rpos2L"     value="[Rpos1H]"/>
+ <Constant name="Zpos2H"     value="4525.6*mm"/>
+ <Constant name="Rpos2H"     value="2713.0*mm"/>
+ <Constant name="slope2"     value="([Rpos2H]-[Rpos2L])/([Zpos2H]-[Zpos2L])"/>
+ <Constant name="Zpos3L"     value="3153.7*mm"/>
+ <Constant name="Rpos3L"     value="300.0*mm"/>
+ <Constant name="Rpos3H"     value="314.0*mm"/>
+ <Constant name="Rmin00"     value="260.0*mm"/>
+ <Constant name="Rmax00"     value="1243.7*mm"/>
+ <Constant name="Zpos00"     value="2965.0*mm"/>
+ <Constant name="Rmax01"     value="1364.7*mm"/>
+ <Constant name="Rmax01H"    value="1589.4*mm"/>
+ <Constant name="Zpos01"     value="3185.0*mm"/>
+ <Constant name="Rmax02"     value="1816.0*mm"/>
+ <Constant name="Zpos02"     value="3837.0*mm"/>
+ <Constant name="Rmin04"     value="[cms:CalorMuonR4]"/>
+ <Constant name="Rmax04"     value="[cms:CalorMuonR2]"/>
+ <Constant name="Zpos04"     value="4522.0*mm"/>
+ <Constant name="slopeB"     value="([Rmax04]-[Rmax02])/([Zpos04]-[Zpos02])"/>
+ <Constant name="Zpos03"     value="4430.0*mm"/>
+ <Constant name="Rmax03"     value="([Rmax02]+[slopeB]*([Zpos03]-[Zpos02]))"/>
+ <Constant name="Zpos05"     value="[cms:CalorBeamZ3]"/>
+ <Constant name="Rmin10"     value="265.0*mm"/>
+ <Constant name="ZposV0"     value="3205.0*mm"/>
+ <Constant name="RposV0"     value="([Rpos1L]+[slope1]*([ZposV0]-[Zpos1L]))"/>
+ <Constant name="Rmax10"     value="1229.9*mm"/>
+ <Constant name="Rmin11"     value="285.0*mm"/>
+ <Constant name="Zpos10"     value="2987.7*mm"/>
+ <Constant name="Rmax11"     value="([Rmax10]+[slope0]*([Zpos0H]-[Zpos10]))"/>
+ <Constant name="Rmax12"     value="1178.7*mm"/>3
+ <Constant name="Zpos12"     value="3085.0*mm"/>
+ <Constant name="Rmax13"     value="1257.2*mm"/>
+ <Constant name="Zpos13"     value="3163.3*mm"/>
+ <Constant name="Zpos35"     value="4429.0*mm"/>
+ <Constant name="Rmin35"     value="361.8*mm"/>
+ <Constant name="Rmax35"     value="([Rpos1H]+[slope2]*([Zpos35]-[Zpos1H]))"/>
+ <Constant name="Zpos39"     value="5262.0*mm"/>
+ <Constant name="RmaxV0"     value="1565.4*mm"/>
+ <Constant name="Zpos31"     value="3665.1*mm"/>
+ <Constant name="Rmin31"     value="313.6*mm"/>
+ <Constant name="Rmax31"     value="([RmaxV0]+[slope1]*([Zpos31]-[ZposV0]))"/>
+ <Constant name="Zpos32"     value="3852.0*mm"/>
+ <Constant name="Rmax32"     value="1789.4*mm"/>
+ <Constant name="Zpos33"     value="4107.3*mm"/>
+ <Constant name="Rmin33"     value="383.6*mm"/>
+ <Constant name="Rmax33"     value="([Rmax32]+[slope2]*([Zpos33]-[Zpos32]))"/>
+ <Constant name="Zpos34"     value="4378.7*mm"/>
+ <Constant name="Rmin34"     value="448.4*mm"/>
+ <Constant name="Rmax34"     value="([Rmax32]+[slope2]*([Zpos34]-[Zpos32]))"/>
+ <Constant name="Zpos36"     value="4565.6*mm"/>
+ <Constant name="Rmax36"     value="2624.6*mm"/>
+ <Constant name="Zpos37"     value="5058.26*mm"/>
+ <Constant name="Rmax37"     value="2485.0*mm"/>
+ <Constant name="Zpos38"     value="5237.0*mm"/>
+ <Constant name="Rmin100"    value="[Rmin11]"/>
+ <Constant name="Rmax100"    value="[Rmax10]"/>
+ <Constant name="Zpos100"    value="[Zpos10]"/>
+ <Constant name="Zpos110"    value="[ZposAL]"/>
+</ConstantsSection>
+
+<MaterialSection label="caloBase.xml">
+  <CompositeMaterial name="CEService" density="0.4819*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.0242">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.1171">
+      <rMaterial name="materials:Insulation"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0104">
+      <rMaterial name="materials:Connector"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0068">
+      <rMaterial name="materials:StainlessSteel"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.8415">
+      <rMaterial name="materials:Air"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="CEThermalScreen" density="1.772*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.0853">
+    <rMaterial name="materials:Aluminium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0064">
+    <rMaterial name="materials:Foam"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.8546">
+    <rMaterial name="materials:Insulation"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0537">
+    <rMaterial name="materials:G10"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+<SolidSection label="caloBase.xml">
+  <Polycone name="CALO" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="-[cms:CalorBeamZ2]" rMin="[cms:CalorMuonR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:CalorBeamZ3]" rMin="[cms:CalorMuonR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:CalorBeamZ3]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:CalorBeamZ1]" rMin="[cms:CalorBeamR1]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:TrackBeamZ2]" rMin="[cms:TrackBeamR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:TrackBeamZ2]" rMin="[cms:TrackCalorR]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:TrackBeamZ2]"  rMin="[cms:TrackCalorR]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:TrackBeamZ2]"  rMin="[cms:TrackBeamR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:CalorBeamZ1]"  rMin="[cms:CalorBeamR1]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:CalorBeamZ3]"  rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:CalorBeamZ3]"  rMin="[cms:CalorMuonR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:CalorBeamZ2]"  rMin="[cms:CalorMuonR2]" rMax="[cms:CalorMuonR]"/>
+  </Polycone>
+  <Polycone name="CALOEC" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[Zpos00]" rMin="[Rmin00]" rMax="[Rmax00]"/>
+    <ZSection z="[Zpos01]" rMin="[Rmin00]" rMax="[Rmax01]"/>
+    <ZSection z="[Zpos01]" rMin="[Rmin00]" rMax="[Rmax01H]"/>
+    <ZSection z="[Zpos02]" rMin="[Rmin00]" rMax="[Rmax02]"/>
+    <ZSection z="[Zpos03]" rMin="[Rmin00]" rMax="[Rmax03]"/>
+    <ZSection z="[Zpos03]" rMin="[Rmin04]" rMax="[Rmax03]"/>
+    <ZSection z="[Zpos04]" rMin="[Rmin04]" rMax="[Rmax04]"/>
+    <ZSection z="[Zpos05]" rMin="[Rmin04]" rMax="[Rmax04]"/>
+  </Polycone>
+  <Polycone name="CALOECTSFront" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[Zpos0L]" rMin="[Rmin10]" rMax="[Rpos0L]"/>
+    <ZSection z="[Zpos0H]" rMin="[Rmin10]" rMax="[Rpos0H]"/>
+    <ZSection z="[Zpos0H]" rMin="[Rmin10]" rMax="[Rpos1L]"/>
+    <ZSection z="[ZposV0]" rMin="[Rmin10]" rMax="[RposV0]"/>
+  </Polycone>
+  <Polycone name="CALOECFront" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[Zpos10]" rMin="[Rmin11]" rMax="[Rmax10]"/>
+    <ZSection z="[Zpos0H]" rMin="[Rmin11]" rMax="[Rmax11]"/>
+    <ZSection z="[ZposV0]" rMin="[Rmin11]" rMax="[Rmax11]"/>
+  </Polycone>
+  <Polycone name="CALOECTSModerator" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[ZposAL]" rMin="[Rmin11]" rMax="[RposAL]"/>
+    <ZSection z="[ZposAH]" rMin="[Rmin11]" rMax="[RposAH]"/>
+    <ZSection z="[ZposV0]" rMin="[Rmin11]" rMax="[RposAH]"/>
+  </Polycone>
+  <Polycone name="CALOECModerator" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[Zpos12]" rMin="[Rmin11]" rMax="[Rmax12]"/>
+    <ZSection z="[Zpos13]" rMin="[Rmin11]" rMax="[Rmax13]"/>
+    <ZSection z="[ZposV0]" rMin="[Rmin11]" rMax="[Rmax13]"/>
+  </Polycone>
+  <Polycone name="CALOECSup1Moderator" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[ZposAL]" rMin="[Rmin11]" rMax="[Rpos3L]"/>
+    <ZSection z="[Zpos12]" rMin="[Rmin11]" rMax="[Rpos3L]"/>
+  </Polycone>
+  <Polycone name="CALOECSup2Moderator" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[Zpos12]" rMin="[Rmin11]" rMax="[Rpos3L]"/>
+    <ZSection z="[Zpos3L]" rMin="[Rmin11]" rMax="[Rpos3L]"/>
+    <ZSection z="[Zpos3L]" rMin="[Rmin11]" rMax="[Rpos3H]"/>
+    <ZSection z="[ZposV0]" rMin="[Rmin11]" rMax="[Rpos3H]"/>
+  </Polycone>
+  <Polycone name="CALOECTSRear" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[ZposV0]" rMin="[Rmin10]" rMax="[RposV0]"/>
+    <ZSection z="[Zpos1H]" rMin="[Rmin10]" rMax="[Rpos1H]"/>
+    <ZSection z="[Zpos35]" rMin="[Rmin10]" rMax="[Rmax35]"/>
+    <ZSection z="[Zpos35]" rMin="[Rmin35]" rMax="[Rmax35]"/>
+    <ZSection z="[Zpos2H]" rMin="[Rmin35]" rMax="[Rpos2H]"/>
+    <ZSection z="[Zpos39]" rMin="[Rmin35]" rMax="[Rpos2H]"/>
+  </Polycone>
+  <Polycone name="CALOECRear" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[ZposV0]" rMin="[Rmin11]" rMax="[RmaxV0]"/>
+    <ZSection z="[Zpos31]" rMin="[Rmin11]" rMax="[Rmax31]"/>
+    <ZSection z="[Zpos31]" rMin="[Rmin31]" rMax="[Rmax31]"/>
+    <ZSection z="[Zpos32]" rMin="[Rmin31]" rMax="[Rmax32]"/>
+    <ZSection z="[Zpos33]" rMin="[Rmin31]" rMax="[Rmax33]"/>
+    <ZSection z="[Zpos33]" rMin="[Rmin33]" rMax="[Rmax33]"/>
+    <ZSection z="[Zpos34]" rMin="[Rmin33]" rMax="[Rmax34]"/>
+    <ZSection z="[Zpos34]" rMin="[Rmin34]" rMax="[Rmax34]"/>
+    <ZSection z="[Zpos36]" rMin="[Rmin34]" rMax="[Rmax36]"/>
+    <ZSection z="[Zpos37]" rMin="[Rmin34]" rMax="[Rmax36]"/>
+    <ZSection z="[Zpos37]" rMin="[Rmin34]" rMax="[Rmax37]"/>
+    <ZSection z="[Zpos38]" rMin="[Rmin34]" rMax="[Rmax37]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="caloBase.xml">
+  <LogicalPart name="CALO" category="unspecified">
+    <rSolid name="CALO"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CALOEC" category="unspecified">
+    <rSolid name="CALOEC"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CALOECTSFront" category="unspecified">
+    <rSolid name="CALOECTSFront"/>
+    <rMaterial name="caloBase:CEThermalScreen"/>
+  </LogicalPart>
+  <LogicalPart name="CALOECFront" category="unspecified">
+    <rSolid name="CALOECFront"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CALOECTSModerator" category="unspecified">
+    <rSolid name="CALOECTSModerator"/>
+    <rMaterial name="caloBase:CEThermalScreen"/>
+  </LogicalPart>
+  <LogicalPart name="CALOECModerator" category="unspecified">
+    <rSolid name="CALOECModerator"/>
+    <rMaterial name="materials:E_Polythene"/>
+  </LogicalPart>
+  <LogicalPart name="CALOECSup1Moderator" category="unspecified">
+    <rSolid name="CALOECSup1Moderator"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="CALOECSup2Moderator" category="unspecified">
+    <rSolid name="CALOECSup2Moderator"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="CALOECTSRear" category="unspecified">
+    <rSolid name="CALOECTSRear"/>
+    <rMaterial name="caloBase:CEThermalScreen"/>
+  </LogicalPart>
+  <LogicalPart name="CALOECRear" category="unspecified">
+    <rSolid name="CALOECRear"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="caloBase.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="caloBase:CALOEC"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="caloBase:CALOEC"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALOEC"/>
+    <rChild name="caloBase:CALOECTSFront"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALOECTSFront"/>
+    <rChild name="caloBase:CALOECFront"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALOECFront"/>
+    <rChild name="caloBase:CALOECTSModerator"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALOECTSModerator"/>
+    <rChild name="caloBase:CALOECSup1Moderator"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALOECModerator"/>
+    <rChild name="caloBase:CALOECSup2Moderator"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALOECTSModerator"/>
+    <rChild name="caloBase:CALOECModerator"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALOEC"/>
+    <rChild name="caloBase:CALOECTSRear"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALOECTSRear"/>
+    <rChild name="caloBase:CALOECRear"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>
