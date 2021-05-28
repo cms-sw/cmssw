@@ -29,7 +29,7 @@
 //                           the global section
 //  outfile2 (const char*)   Output file for the part to be inserted in
 //                           the ddAlgorithm part
-//  laymin   (int)           First layer number of the HE part 
+//  laymin   (int)           First layer number of the HE part
 //                           (28 for versions: V14, V15; 26 for V16)
 //  debug    (int)           Two digit integer to set debug for each
 //                           of the outputs
@@ -99,7 +99,8 @@ public:
                int debug = 0);
 
 private:
-  void writeSilicon(const char*, const std::vector<int>&, const std::map<int, wafer>&, const std::string&, const bool&, const bool&);
+  void writeSilicon(
+      const char*, const std::vector<int>&, const std::map<int, wafer>&, const std::string&, const bool&, const bool&);
 
   const int layMax1_, layMax2_;
 };
@@ -266,10 +267,10 @@ void ConvertSiliconV0::convert(
 }
 
 void ConvertSiliconV0::writeSilicon(const char* outfile,
-				    const std::map<int, wafer>& module,
-				    const std::string& tag,
-				    const bool& mode,
-				    const bool& debug) {
+                                    const std::map<int, wafer>& module,
+                                    const std::string& tag,
+                                    const bool& mode,
+                                    const bool& debug) {
   char apost('"');
   unsigned int k1(0), k2(0);
   std::map<int, wafer>::const_iterator itr;
@@ -363,23 +364,23 @@ void ConvertSiliconV1::convert(
       } else {
         ++others;
         std::vector<std::string> items = splitString(std::string(buffer));
-	if (others == 1) {
-	  layers = std::atoi(items[0].c_str());
-	} else if (others == 2) {
-	  if (items.size() == static_cast<unsigned int>(layers)) {
-	    for (int k = 0; k < layers; ++k) {
-	      int ltype = std::atoi(items[k].c_str());
-	      if (k < layMax1_) {
-		layer1.emplace_back(ltype);
-	      } else if ((k < layMax2_) || global) {
-		layer2.emplace_back(ltype);
-	      } else {
-		layer3.emplace_back(ltype);
-	      }
-	    }
-	  } else {
-	    ++bad;
-	  }
+        if (others == 1) {
+          layers = std::atoi(items[0].c_str());
+        } else if (others == 2) {
+          if (items.size() == static_cast<unsigned int>(layers)) {
+            for (int k = 0; k < layers; ++k) {
+              int ltype = std::atoi(items[k].c_str());
+              if (k < layMax1_) {
+                layer1.emplace_back(ltype);
+              } else if ((k < layMax2_) || global) {
+                layer2.emplace_back(ltype);
+              } else {
+                layer3.emplace_back(ltype);
+              }
+            }
+          } else {
+            ++bad;
+          }
         } else if (items.size() != 8) {
           ++bad;
         } else {
@@ -389,8 +390,8 @@ void ConvertSiliconV1::convert(
           int waferV = std::atoi(items[7].c_str());
           int thck = static_cast<int>(std::find(thick, thick + 4, items[2]) - thick);
           int part = std::atoi(items[1].c_str());
-	  if ((thck < 4) && (part > 0)) 
-	    part += addType[thck];
+          if ((thck < 4) && (part > 0))
+            part += addType[thck];
           int orient = std::atoi(items[5].c_str());
           wafer waf(thck, part, orient);
           if (layer <= layMax1_) {
@@ -419,7 +420,7 @@ void ConvertSiliconV1::convert(
     if (layer3.size() > 0) {
       std::cout << "\nThere are " << layer3.size() << " of types:" << std::endl;
       for (const auto& l : layer3)
-	std::cout << " " << l;
+        std::cout << " " << l;
     }
     std::cout << std::endl << std::endl;
 
@@ -434,11 +435,11 @@ void ConvertSiliconV1::convert(
 }
 
 void ConvertSiliconV1::writeSilicon(const char* outfile,
-				    const std::vector<int>& layers,
-				    const std::map<int, wafer>& module,
-				    const std::string& tag,
-				    const bool& mode,
-				    const bool& debug) {
+                                    const std::vector<int>& layers,
+                                    const std::map<int, wafer>& module,
+                                    const std::string& tag,
+                                    const bool& mode,
+                                    const bool& debug) {
   char apost('"');
   unsigned int k0(0), k1(0), k2(0);
   std::map<int, wafer>::const_iterator itr;
@@ -447,8 +448,8 @@ void ConvertSiliconV1::writeSilicon(const char* outfile,
   std::vector<int> layerStart;
   int layer(-1);
   if (mode)
-    fOut << blank << "<Vector name=" << apost << "LayerTypes" << tag << apost << " type=" << apost << "numeric"
-         << apost << " nEntries=" << apost << layers.size() << apost << ">";
+    fOut << blank << "<Vector name=" << apost << "LayerTypes" << tag << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << layers.size() << apost << ">";
   else
     fOut << blank << "<Vector name=" << apost << "LayerTypes" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << layers.size() << apost << ">";
