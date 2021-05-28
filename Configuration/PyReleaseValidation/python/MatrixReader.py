@@ -319,7 +319,7 @@ class MatrixReader(object):
 
             self.reset(what)
 
-            if self.what != 'all' and not any(el in matrixFile for el in self.what.split(",")):
+            if self.what != 'all' and not any('_'+el in matrixFile for el in self.what.split(",")):
                 print("ignoring non-requested file",matrixFile)
                 continue
 
@@ -495,7 +495,7 @@ class MatrixReader(object):
     def prepare(self, useInput=None, refRel='', fromScratch=None):
         
         for matrixFile in self.files:
-            if self.what != 'all' and not any(el in matrixFile for el in self.what.split(",")):
+            if self.what != 'all' and not any('_'+el in matrixFile for el in self.what.split(",")):
                 print("ignoring non-requested file",matrixFile)
                 continue
             if self.what == 'all' and not self.filesDefault[matrixFile]:
