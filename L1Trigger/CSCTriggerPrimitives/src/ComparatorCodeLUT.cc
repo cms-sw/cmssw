@@ -13,9 +13,6 @@ ComparatorCodeLUT::ComparatorCodeLUT(const edm::ParameterSet& conf) {
   }
 
   clct_pattern_ = CSCPatternBank::clct_pattern_run3_;
-
-  // Verbosity level, set to 0 (no print) by default.
-  //infoV = clctParams_.getParameter<int>("verbosity");
 }
 
 void ComparatorCodeLUT::run(CSCCLCTDigi& digi, unsigned numCFEBs) const {
