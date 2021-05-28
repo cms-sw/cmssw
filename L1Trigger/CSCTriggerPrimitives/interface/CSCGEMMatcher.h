@@ -5,7 +5,7 @@
  *
  * Helper class to check if an ALCT or CLCT matches with a GEMInternalCluster
  *
- * \author Sven Dildick (TAMU)
+ * \author Sven Dildick (Rice University)
  *
  */
 
