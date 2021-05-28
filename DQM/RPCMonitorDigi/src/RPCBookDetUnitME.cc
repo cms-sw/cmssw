@@ -71,28 +71,25 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
 void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
                                       const std::string& recHitType,
                                       std::map<std::string, MonitorElement*>& meMap) {
-  std::stringstream os;
-
   for (int wheel = -2; wheel <= 2; wheel++) {
-    os.str("");
-    os << subsystemFolder_ << "/" << recHitType << "/Barrel/Wheel_" << wheel << "/SummaryBySectors";
-    ibooker.setCurrentFolder(os.str());
+    ibooker.setCurrentFolder(fmt::format("{}/{}/Barrel/Wheel_{}/SummaryBySectors", subsystemFolder_, recHitType, wheel));
 
     for (int sector = 1; sector <= 12; sector++) {
-      os.str("");
-      os << "Occupancy_Wheel_" << wheel << "_Sector_" << sector;
+      const std::string meName = fmt::format("Occupancy_Wheel_{}_Sector_{}", wheel, sector);
 
       if (sector == 9 || sector == 11)
-        meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 91, 0.5, 91.5, 15, 0.5, 15.5);
+        meMap[meName] = ibooker.book2D(meName, meName, 91, 0.5, 91.5, 15, 0.5, 15.5);
       else if (sector == 4)
-        meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 91, 0.5, 91.5, 21, 0.5, 21.5);
+        meMap[meName] = ibooker.book2D(meName, meName, 91, 0.5, 91.5, 21, 0.5, 21.5);
       else
-        meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 91, 0.5, 91.5, 17, 0.5, 17.5);
+        meMap[meName] = ibooker.book2D(meName, meName, 91, 0.5, 91.5, 17, 0.5, 17.5);
 
-      meMap[os.str()]->setAxisTitle("strip", 1);
-      RPCRollMapHisto::setBarrelRollAxis(meMap[os.str()], wheel, 2, true);
+      meMap[meName]->setAxisTitle("strip", 1);
+      RPCRollMapHisto::setBarrelRollAxis(meMap[meName], wheel, 2, true);
     }
   }
+
+  std::stringstream os;
 
   for (int region = -1; region <= 1; region++) {
     if (region == 0)
@@ -103,11 +100,7 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
       regionName = "Endcap+";
 
     for (int disk = 1; disk <= RPCMonitorDigi::numberOfDisks_; disk++) {
-      os.str("");
-      os << subsystemFolder_ << "/" << recHitType << "/" << regionName << "/Disk_" << (region * disk)
-         << "/SummaryByRings/";
-
-      ibooker.setCurrentFolder(os.str());
+      ibooker.setCurrentFolder(fmt::format("{}/{}/{}/Disk_{}/SummaryByRings/", subsystemFolder_, recHitType, regionName, region*disk));
 
       for (int ring = RPCMonitorDigi::numberOfInnerRings_; ring <= 3; ring++) {
         os.str("");
