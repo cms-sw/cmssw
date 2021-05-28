@@ -19,6 +19,7 @@ lostTracks = cms.EDProducer("PATLostTracks",
     covariancePackingSchemas = packedPFCandidates.covariancePackingSchemas,
     qualsToAutoAccept = cms.vstring("highPurity"),
     minPtToStoreProps = cms.double(0.95),
+    minPtToStoreLowQualityProps = cms.double(0.0),
     passThroughCut = cms.string("0"),
     allowMuonId = cms.bool(False),
     pvAssignment = primaryVertexAssociation.assignment,
@@ -33,4 +34,3 @@ run2_miniAOD_UL.toModify(lostTracks, passThroughCut="pt>2", allowMuonId=True, us
 
 from Configuration.Eras.Modifier_bParking_cff import bParking
 bParking.toModify(lostTracks, fillLostInnerHits = True)
-
