@@ -70,6 +70,8 @@ tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
 			  ),
                           src = cms.InputTag("updatedJets")
 )
+run2_jme_2016.toModify( tightJetId.filterParams, version = "RUN2UL16CHS" )
+run2_jme_2016.toModify( tightJetIdLepVeto.filterParams, version = "RUN2UL16CHS" )
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
   modifier.toModify( tightJetId.filterParams, version = "WINTER16" )
   modifier.toModify( tightJetIdLepVeto.filterParams, version = "WINTER16" )
@@ -101,6 +103,8 @@ tightJetIdLepVetoAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  ),
                           src = cms.InputTag("updatedJetsAK8")
 )
+run2_jme_2016.toModify( tightJetIdAK8.filterParams, version = "RUN2UL16PUPPI" )
+run2_jme_2016.toModify( tightJetIdLepVetoAK8.filterParams, version = "RUN2UL16PUPPI" )
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
   modifier.toModify( tightJetIdAK8.filterParams, version = "WINTER16" )
   modifier.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER16" )

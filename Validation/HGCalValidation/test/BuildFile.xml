@@ -1,11 +1,7 @@
-<use name="CalibFormats/HcalObjects"/>
 <use name="DataFormats/ForwardDetId"/>
-<use name="DataFormats/HcalDetId"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
-<use name="Geometry/HcalCommonData"/>
-<use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/Records"/>

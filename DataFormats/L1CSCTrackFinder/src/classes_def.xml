@@ -13,7 +13,8 @@
     <version ClassVersion="10" checksum="3445513287"/>
    </class>
 
-   <class name="csctf::TrackStub" ClassVersion="13">
+   <class name="csctf::TrackStub" ClassVersion="14">
+    <version ClassVersion="14" checksum="3081088872"/>
     <version ClassVersion="13" checksum="1877810363"/>
     <version ClassVersion="12" checksum="1100843423"/>
     <version ClassVersion="11" checksum="2137081572"/>

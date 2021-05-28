@@ -4,14 +4,11 @@
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/SiStripDigi"/>
 <use name="DataFormats/SiStripCluster"/>
-<use name="DataFormats/Common"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/SiStripObjects"/>
 <use name="CalibFormats/SiStripObjects"/>
 <use name="CalibTracker/Records"/>
 <use name="RecoLocalTracker/Records"/>
-<use name="CommonTools/UtilAlgos"/>
-<use name="CommonTools/Utils"/>
 <use name="root"/>
 <export>
   <lib name="1"/>

@@ -75,6 +75,38 @@ DetGeomDesc::DetGeomDesc(const DetGeomDesc& ref, CopyMode cm) {
   m_z = ref.m_z;
 }
 
+// Constructor from DB object PDetGeomDesc::Item
+DetGeomDesc::DetGeomDesc(const PDetGeomDesc::Item& item)
+    : m_name(item.name_),
+      m_copy(item.copy_),
+      m_isDD4hep(true),
+      m_params(item.params_),  // default unit from DD4hep
+      m_sensorType(item.sensorType_),
+      m_geographicalID(item.geographicalID_),
+      m_z(item.z_)  // converted from DD4hep to mm
+{
+  Translation trans(item.dx_, item.dy_, item.dz_);
+  m_trans = trans;
+  RotationMatrix rot(item.axx_, item.axy_, item.axz_, item.ayx_, item.ayy_, item.ayz_, item.azx_, item.azy_, item.azz_);
+  m_rot = rot;
+  // Set the m_isABox flag for the box shaped sensors, so that m_params are properly set
+  if ((m_name == DDD_CTPPS_PIXELS_SENSOR_NAME || m_name == DDD_CTPPS_PIXELS_SENSOR_NAME_2x2 ||
+       m_name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME || m_name == DDD_CTPPS_UFSD_SEGMENT_NAME ||
+       m_name.substr(0, 7) == DDD_TOTEM_TIMING_SENSOR_TMPL.substr(0, 7)) &&
+      m_params.size() > 2)
+    m_isABox = true;
+  else
+    m_isABox = false;
+  m_diamondBoxParams = computeDiamondDimensions(m_isABox, m_isDD4hep, m_params);
+}
+
+DetGeomDesc::DetGeomDesc(const PDetGeomDesc& pd) {
+  for (const auto& i : pd.container_) {
+    DetGeomDesc* gd = new DetGeomDesc(i);
+    this->addComponent(gd);
+  }
+}
+
 DetGeomDesc::~DetGeomDesc() { deepDeleteComponents(); }
 
 void DetGeomDesc::addComponent(DetGeomDesc* det) { m_container.emplace_back(det); }
@@ -122,7 +154,7 @@ void DetGeomDesc::deepDeleteComponents() {
 }
 
 std::string DetGeomDesc::computeNameWithNoNamespace(std::string_view nameFromView) const {
-  const auto& semiColonPos = nameFromView.find(":");
+  const auto& semiColonPos = nameFromView.find(':');
   const std::string name{(semiColonPos != std::string::npos ? nameFromView.substr(semiColonPos + 1) : nameFromView)};
   return name;
 }
