@@ -19,7 +19,7 @@ pfParticleNetAK4JetTags = boostedJetONNXJetTagsProducer.clone(
 )
 
 from CommonTools.PileupAlgos.Puppi_cff import puppi
-from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import primaryVertexAssociation
+from CommonTools.RecoAlgos.primaryVertexAssociation_cfi import primaryVertexAssociation
 
 # This task is not used, useful only if we run it from RECO jets (RECO/AOD)
 pfParticleNetAK4Task = cms.Task(puppi, primaryVertexAssociation, pfParticleNetAK4TagInfos,
