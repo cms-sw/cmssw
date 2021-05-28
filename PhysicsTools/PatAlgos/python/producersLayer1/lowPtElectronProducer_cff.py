@@ -67,7 +67,7 @@ from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_
                                                            genParticleMatch = "electronMatch"
                                                            )
 
-# For (~bParking & run2_miniAOD_UL): (1) rekey, (2) rerun ID, (3) apply energy regression
+# For run2_miniAOD_UL: (1) rekey, (2) rerun ID, (3) apply energy regression
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.Eras.Modifier_bParking_cff import bParking
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cff import rekeyLowPtGsfElectronSeedValueMaps
@@ -77,4 +77,4 @@ _makePatLowPtElectronsTask = makePatLowPtElectronsTask.copy()
 _makePatLowPtElectronsTask.add(rekeyLowPtGsfElectronSeedValueMaps)
 _makePatLowPtElectronsTask.add(lowPtGsfElectronID)
 _makePatLowPtElectronsTask.add(lowPtGsfElectrons)
-(~bParking & run2_miniAOD_UL).toReplaceWith(makePatLowPtElectronsTask,_makePatLowPtElectronsTask)
+run2_miniAOD_UL.toReplaceWith(makePatLowPtElectronsTask,_makePatLowPtElectronsTask)
