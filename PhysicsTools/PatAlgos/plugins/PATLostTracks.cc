@@ -195,25 +195,27 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
         trkStatus[key] = TrkStatus::VTX;
     }
   }
-  for (const auto& v0 : *lambdas){
+  for (const auto& v0 : *lambdas) {
     double protonCharge = 0;
-    for(size_t dIdx=0;dIdx<v0.numberOfDaughters(); dIdx++){
-      size_t key= (dynamic_cast<const reco::RecoChargedCandidate*>(v0.daughter(dIdx)))->track().key();
-      if(trkStatus[key]==TrkStatus::NOTUSED)  trkStatus[key]=TrkStatus::VTX;
+    for (size_t dIdx = 0; dIdx < v0.numberOfDaughters(); dIdx++) {
+      size_t key = (dynamic_cast<const reco::RecoChargedCandidate*>(v0.daughter(dIdx)))->track().key();
+      if (trkStatus[key] == TrkStatus::NOTUSED)
+        trkStatus[key] = TrkStatus::VTX;
       protonCharge += v0.daughter(dIdx)->charge() * v0.daughter(dIdx)->momentum().mag2();
     }
-    if (xiSelection_)
-    {
+    if (xiSelection_) {
       // selecting potential Xi- -> Lambda pi candidates
       TLorentzVector p4Lambda;
-      p4Lambda.SetPtEtaPhiM(v0.pt(),v0.eta(),v0.phi(), v0.mass());
-      for(unsigned int trkIndx=0; trkIndx < tracks->size(); trkIndx++){
-        reco::TrackRef trk(tracks,trkIndx);
-        if ((*trk).charge() * protonCharge < 0) continue;
+      p4Lambda.SetPtEtaPhiM(v0.pt(), v0.eta(), v0.phi(), v0.mass());
+      for (unsigned int trkIndx = 0; trkIndx < tracks->size(); trkIndx++) {
+        reco::TrackRef trk(tracks, trkIndx);
+        if ((*trk).charge() * protonCharge < 0)
+          continue;
         TLorentzVector p4pi;
-        p4pi.SetPtEtaPhiM((*trk).pt(),(*trk).eta(),(*trk).phi(), 0.13957061);
-        if ((p4Lambda+p4pi).M() < xiMassCut_){ // selecting potential Xi- candidates
-          if(trkStatus[trkIndx]==TrkStatus::NOTUSED) trkStatus[trkIndx]=TrkStatus::VTX;
+        p4pi.SetPtEtaPhiM((*trk).pt(), (*trk).eta(), (*trk).phi(), 0.13957061);
+        if ((p4Lambda + p4pi).M() < xiMassCut_) {  // selecting potential Xi- candidates
+          if (trkStatus[trkIndx] == TrkStatus::NOTUSED)
+            trkStatus[trkIndx] = TrkStatus::VTX;
         }
       }
     }
