@@ -97,6 +97,7 @@ private:
   const std::string dataeraEcal_;
   const std::string dataeraMuon_;
   const bool useEMpt_;
+  const bool doMuons_;
   const double prefiringRateSystUncEcal_;
   const double prefiringRateSystUncMuon_;
   const double jetMaxMuonFraction_;
@@ -127,6 +128,7 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
       dataeraEcal_(iConfig.getParameter<std::string>("DataEraECAL")),
       dataeraMuon_(iConfig.getParameter<std::string>("DataEraMuon")),
       useEMpt_(iConfig.getParameter<bool>("UseJetEMPt")),
+      doMuons_(iConfig.getParameter<bool>("DoMuons")),
       prefiringRateSystUncEcal_(iConfig.getParameter<double>("PrefiringRateSystematicUnctyECAL")),
       prefiringRateSystUncMuon_(iConfig.getParameter<double>("PrefiringRateSystematicUnctyMuon")),
       jetMaxMuonFraction_(iConfig.getParameter<double>("JetMaxMuonFraction")) {
@@ -298,9 +300,9 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
         }
         //Last case: if overlapping photons have a non prefiring rate smaller than the jet, don't consider the jet in the event weight, and do nothing.
       }
-    }
+    } 
     //Now calculate prefiring weights for muons
-    if (!missingInputMuon_) {
+     if (!missingInputMuon_ && doMuons_) {
       for (const auto& muon : theMuons) {
         double pt = muon.pt();
         double phi = muon.phi();
@@ -321,7 +323,7 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   // Calculate statistical and systematic uncertainty separately in the muon case
   for (const auto fluct :
        {fluctuations::upSyst, fluctuations::downSyst, fluctuations::upStat, fluctuations::downStat}) {
-    if (!missingInputMuon_) {
+    if (!missingInputMuon_ && doMuons_) {
       for (const auto& muon : theMuons) {
         double pt = muon.pt();
         double phi = muon.phi();
@@ -463,6 +465,7 @@ void L1PrefiringWeightProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<std::string>("DataEraECAL", "2017BtoF");
   desc.add<std::string>("DataEraMuon", "2016");
   desc.add<bool>("UseJetEMPt", false);
+  desc.add<bool>("DoMuons", true);
   desc.add<double>("PrefiringRateSystematicUnctyECAL", 0.2);
   desc.add<double>("PrefiringRateSystematicUnctyMuon", 0.2);
   desc.add<double>("JetMaxMuonFraction", 0.5);
