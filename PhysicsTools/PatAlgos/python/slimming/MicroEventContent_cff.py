@@ -42,6 +42,7 @@ MicroEventContent = cms.PSet(
         'drop *_*_genJets_*',
         'keep *_offlineBeamSpot_*_*',
         'keep *_offlineSlimmedPrimaryVertices_*_*',
+        'keep *_offlineSlimmedPrimaryVerticesWithBS_*_*',
         'keep patPackedCandidates_packedPFCandidates_*_*',
         'keep *_isolatedTracks_*_*',
         # low energy conversions for BPH
@@ -66,8 +67,8 @@ MicroEventContent = cms.PSet(
         'keep *_l1extraParticles_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         # stage 2 L1 trigger
-        'keep GlobalExtBlkBXVector_simGtExtUnprefireable_*_*', 
-        'keep *_gtStage2Digis__*', 
+        'keep GlobalExtBlkBXVector_simGtExtUnprefireable_*_*',
+        'keep *_gtStage2Digis__*',
         'keep *_gmtStage2Digis_Muon_*',
         'keep *_caloStage2Digis_Jet_*',
         'keep *_caloStage2Digis_Tau_*',
@@ -172,6 +173,7 @@ cms.untracked.PSet(branch = cms.untracked.string("patTriggerObjectStandAlones_sl
 cms.untracked.PSet(branch = cms.untracked.string("patPackedGenParticles_packedGenParticles__*"),splitLevel=cms.untracked.int32(99)),
 cms.untracked.PSet(branch = cms.untracked.string("patJets_slimmedJets__*"),splitLevel=cms.untracked.int32(99)),
 cms.untracked.PSet(branch = cms.untracked.string("recoVertexs_offlineSlimmedPrimaryVertices__*"),splitLevel=cms.untracked.int32(99)),
+cms.untracked.PSet(branch = cms.untracked.string("recoVertexs_offlineSlimmedPrimaryVerticesWithBS__*"),splitLevel=cms.untracked.int32(99)),
 cms.untracked.PSet(branch = cms.untracked.string("recoCaloClusters_reducedEgamma_reducedESClusters_*"),splitLevel=cms.untracked.int32(99)),
 cms.untracked.PSet(branch = cms.untracked.string("EcalRecHitsSorted_reducedEgamma_reducedEBRecHits_*"),splitLevel=cms.untracked.int32(99)),
 cms.untracked.PSet(branch = cms.untracked.string("EcalRecHitsSorted_reducedEgamma_reducedEERecHits_*"),splitLevel=cms.untracked.int32(99)),
