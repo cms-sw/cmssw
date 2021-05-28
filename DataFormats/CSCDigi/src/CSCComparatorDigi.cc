@@ -104,13 +104,15 @@ void CSCComparatorDigi::print() const {
   std::ostringstream ost;
   ost << "CSCComparatorDigi | strip " << getStrip() << " | comparator " << getComparator() << " | first time bin "
       << getTimeBin() << " | time bins on ";
-  std::copy(getTimeBinsOn().begin(), getTimeBinsOn().end(), std::ostream_iterator<int>(ost, " "));
+  std::vector<int> tbins = getTimeBinsOn();
+  std::copy(tbins.begin(), tbins.end(), std::ostream_iterator<int>(ost, " "));
   edm::LogVerbatim("CSCDigi") << ost.str();
 }
 
 std::ostream& operator<<(std::ostream& o, const CSCComparatorDigi& digi) {
   o << "CSCComparatorDigi Strip:" << digi.getStrip() << ", Comparator: " << digi.getComparator()
     << ", First Time Bin On: " << digi.getTimeBin() << ", Time Bins On: ";
-  std::copy(digi.getTimeBinsOn().begin(), digi.getTimeBinsOn().end(), std::ostream_iterator<int>(o, " "));
+  std::vector<int> tbins = digi.getTimeBinsOn();
+  std::copy(tbins.begin(), tbins.end(), std::ostream_iterator<int>(o, " "));
   return o;
 }
