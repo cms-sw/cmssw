@@ -173,12 +173,13 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
     modSum += trigCell.mipPt();
   }
 
+  double normalization = modSum;
   if (modSum > 0) {
     //Use a bit shift normalization like will be implemented in ECON, rather than floating point sum
     //Normalizes to the MSB value of the module sum
     if (bitShiftNormalization_) {
       int msb = int(log2(modSum));
-      modSum = pow(2, msb);
+      normalization = pow(2, msb);
     }
 
     //normalize inputs to module sum
@@ -186,7 +187,7 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
       int remapIndex = cellRemap_[i];
       if (remapIndex < 0)
         continue;
-      ae_inputArray[i] = mipPt[remapIndex] / modSum;
+      ae_inputArray[i] = mipPt[remapIndex] / normalization;
       //round to precision of input, if bitsPerInput_ is -1 keep full precision
       if (bitsPerInput_ > 0) {
         ae_inputArray[i] = std::round(ae_inputArray[i] * inputMaxIntSize) / inputMaxIntSize;
@@ -242,14 +243,13 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
     int remapIndex = cellRemapNoDuplicates_[i];
     if (remapIndex < 0)
       continue;
-    outputSum += *d;
+    outputSum += *d * normalization;
     ae_outputArray[remapIndex] = *d;
   }
 
+  double renormalizationFactor = 1.;
   if (preserveModuleSum_) {
-    for (uint i = 0; i < nTriggerCells_; i++) {
-      ae_outputArray[i] /= outputSum;
-    }
+    renormalizationFactor = modSum / outputSum;
   }
 
   // Add data back into trigger cells
@@ -281,7 +281,7 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
 
         GlobalPoint point = triggerTools_.getTCPosition(id);
 
-        double mipPt = ae_outputArray[i] * modSum;
+        double mipPt = ae_outputArray[i] * normalization * renormalizationFactor;
         double adc = mipPt * cosh(point.eta()) * mipToADC_conv;
         double et = mipPt * mipPtToEt_conv;
 
