@@ -48,9 +48,9 @@ void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
   const unsigned nNominalInTime(std::count_if(
       selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isNominalInTime(); }));
   const unsigned nLooseOutOfTime(std::count_if(
-      selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isLooseOutTime(); }));
+      selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isLooseOutOfTime(); }));
   const unsigned nNominalOutOfTime(std::count_if(
-      selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isNominalOutTime(); }));
+      selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isNominalOutOfTime(); }));
 
   const bool hasTwoLooseInTime(nLooseInTime >= nLooseShowers_);
   const bool hasOneNominalInTime(nNominalInTime >= nNominalShowers_);
