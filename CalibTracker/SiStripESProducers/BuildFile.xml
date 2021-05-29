@@ -1,4 +1,5 @@
 <use name="CalibFormats/SiStripObjects"/>
+<use name="CalibTracker/SiStripCommon"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/SiStripObjects"/>
 <use name="DataFormats/SiStripCommon"/>
