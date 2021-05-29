@@ -13,6 +13,7 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #ifndef TestSiStripGain_cc
 #define TestSiStripGain_cc
