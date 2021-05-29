@@ -11,7 +11,7 @@ ClusterizerUnitTesterESProducer::ClusterizerUnitTesterESProducer(const edm::Para
 
   extractNoiseGainQuality(conf, quality.get(), apvGain.get(), noises.get());
 
-  gain_ = std::make_shared<const SiStripGain>(*apvGain, 1);
+  gain_ = std::make_shared<const SiStripGain>(*apvGain, 1, reader.info());
 
   quality->cleanUp();
   quality->fillBadComponents();
