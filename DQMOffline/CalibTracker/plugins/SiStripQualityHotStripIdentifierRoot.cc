@@ -290,7 +290,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos() {
   }
   if (!gotNentries) {
     edm::LogWarning("SiStripQualityHotStripIdentifierRoot")
-        << " [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of evemnts missing"
+        << " [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of events missing"
         << std::endl;
   }
   for (; iter != iterEnd; ++iter) {
