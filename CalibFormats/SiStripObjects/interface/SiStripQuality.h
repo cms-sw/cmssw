@@ -23,7 +23,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetInfo.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <vector>
 
 class SiStripDetCabling;
