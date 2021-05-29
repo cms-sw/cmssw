@@ -9,7 +9,8 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
                                 const RPCGeometry* rpcGeo,
                                 const std::string& recHitType,
                                 std::map<std::string, MonitorElement*>& meMap) {
-  ibooker.setCurrentFolder(fmt::format("{}/{}/{}", subsystemFolder_, recHitType, RPCBookFolderStructure::folderStructure(detId)));
+  ibooker.setCurrentFolder(
+      fmt::format("{}/{}/{}", subsystemFolder_, recHitType, RPCBookFolderStructure::folderStructure(detId)));
 
   //get number of strips in current roll
   int nstrips = this->stripsInRoll(detId, rpcGeo);
@@ -33,28 +34,28 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
 
   std::string tmpStr;
 
-  tmpStr = "Occupancy_"+nameRoll;
+  tmpStr = "Occupancy_" + nameRoll;
   meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, nstrips, 0.5, nstrips + 0.5);
 
-  tmpStr = "BXDistribution_"+nameRoll;
+  tmpStr = "BXDistribution_" + nameRoll;
   meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 7, -3.5, 3.5);
 
   if (detId.region() == 0) {
-    tmpStr = "ClusterSize_"+nameRoll;
+    tmpStr = "ClusterSize_" + nameRoll;
     meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 15, 0.5, 15.5);
 
-    tmpStr = "Multiplicity_"+nameRoll;
+    tmpStr = "Multiplicity_" + nameRoll;
     meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 30, 0.5, 30.5);
 
   } else {
-    tmpStr = "ClusterSize_"+nameRoll;
+    tmpStr = "ClusterSize_" + nameRoll;
     meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 10, 0.5, 10.5);
 
-    tmpStr = "Multiplicity_"+nameRoll;
+    tmpStr = "Multiplicity_" + nameRoll;
     meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 15, 0.5, 15.5);
   }
 
-  tmpStr = "NumberOfClusters_"+nameRoll;
+  tmpStr = "NumberOfClusters_" + nameRoll;
   meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 10, 0.5, 10.5);
 }
 
@@ -62,7 +63,8 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
                                       const std::string& recHitType,
                                       std::map<std::string, MonitorElement*>& meMap) {
   for (int wheel = -2; wheel <= 2; wheel++) {
-    ibooker.setCurrentFolder(fmt::format("{}/{}/Barrel/Wheel_{}/SummaryBySectors", subsystemFolder_, recHitType, wheel));
+    ibooker.setCurrentFolder(
+        fmt::format("{}/{}/Barrel/Wheel_{}/SummaryBySectors", subsystemFolder_, recHitType, wheel));
 
     for (int sector = 1; sector <= 12; sector++) {
       const std::string meName = fmt::format("Occupancy_Wheel_{}_Sector_{}", wheel, sector);
@@ -88,7 +90,8 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
       regionName = "Endcap+";
 
     for (int disk = 1; disk <= RPCMonitorDigi::numberOfDisks_; disk++) {
-      ibooker.setCurrentFolder(fmt::format("{}/{}/{}/Disk_{}/SummaryByRings/", subsystemFolder_, recHitType, regionName, region*disk));
+      ibooker.setCurrentFolder(
+          fmt::format("{}/{}/{}/Disk_{}/SummaryByRings/", subsystemFolder_, recHitType, regionName, region * disk));
 
       for (int ring = RPCMonitorDigi::numberOfInnerRings_; ring <= 3; ring++) {
         const std::string meName1 = fmt::format("Occupancy_Disk_{}_Ring_{}_CH01-CH18", (region * disk), ring);
@@ -117,7 +120,7 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
         me2->setAxisTitle("strip", 1);
 
         for (int i = 1; i <= 18; i++) {
-          const std::string ylabel = fmt::format("R{}_CH{:02d}", ring, i+18);
+          const std::string ylabel = fmt::format("R{}_CH{:02d}", ring, i + 18);
           me2->setBinLabel(i, ylabel, 2);
         }
 
@@ -185,10 +188,8 @@ void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker& ibooker,
 
   for (int ring = RPCMonitorDigi::numberOfInnerRings_; ring <= 3; ring++) {
     const std::string meName = fmt::format("1DOccupancy_Ring_{}", ring);
-    meMap[meName] = ibooker.book1D(meName, meName,
-                                   RPCMonitorDigi::numberOfDisks_ * 2,
-                                   0.5,
-                                   (RPCMonitorDigi::numberOfDisks_ * 2.0) + 0.5);
+    meMap[meName] = ibooker.book1D(
+        meName, meName, RPCMonitorDigi::numberOfDisks_ * 2, 0.5, (RPCMonitorDigi::numberOfDisks_ * 2.0) + 0.5);
     for (int xbin = 1; xbin <= RPCMonitorDigi::numberOfDisks_ * 2; xbin++) {
       std::string label;
       if (xbin < RPCMonitorDigi::numberOfDisks_ + 1)

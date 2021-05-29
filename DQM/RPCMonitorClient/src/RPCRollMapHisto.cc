@@ -30,15 +30,14 @@ void RPCRollMapHisto::setBarrelRollAxis(MonitorElement* me, const int wheel, con
     h->GetYaxis()->SetNoAlphanumeric(true);
 
   const std::array<const std::string, 21> labelsRoll = {
-      {"RB1in_B", "RB1in_F", "RB1out_B", "RB1out_F",
-       "RB2in_B", "RB2in_F", "RB2in_M", "RB2out_B", "RB2out_F",
-       "RB3-_B",  "RB3-_F",  "RB3+_B",   "RB3+_F",   "RB4,-_B", "RB4,-_F", "RB4+_B",   "RB4+_F",
-       "RB4--_B", "RB4--_F", "RB4++_B",  "RB4++_F"}};
-  const std::array<const std::string, 21> labelsCh = {{"RB1in",  "", "RB1out", "", "RB2in", "", "",
-                                                       "RB2out", "", "RB3-", "", "RB3+",  "", "RB4,-",
-                                                       "", "RB4+", "", "RB4--", "", "RB4++", ""}};
+      {"RB1in_B",  "RB1in_F",  "RB1out_B", "RB1out_F", "RB2in_B", "RB2in_F", "RB2in_M",
+       "RB2out_B", "RB2out_F", "RB3-_B",   "RB3-_F",   "RB3+_B",  "RB3+_F",  "RB4,-_B",
+       "RB4,-_F",  "RB4+_B",   "RB4+_F",   "RB4--_B",  "RB4--_F", "RB4++_B", "RB4++_F"}};
+  const std::array<const std::string, 21> labelsCh = {{"RB1in",  "",     "RB1out", "",      "RB2in", "",      "",
+                                                       "RB2out", "",     "RB3-",   "",      "RB3+",  "",      "RB4,-",
+                                                       "",       "RB4+", "",       "RB4--", "",      "RB4++", ""}};
 
-  for (int i = 0, n=std::min(21, me->getNbinsY()); i < n; ++i) {
+  for (int i = 0, n = std::min(21, me->getNbinsY()); i < n; ++i) {
     const std::string label = useRollInfo ? labelsRoll[i] : labelsCh[i];
     me->setBinLabel(i + 1, label, 2);
   }
