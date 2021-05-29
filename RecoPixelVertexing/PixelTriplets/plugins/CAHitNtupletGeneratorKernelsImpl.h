@@ -36,8 +36,7 @@ namespace {
   constexpr uint16_t tkNotFound = std::numeric_limits<uint16_t>::max();
   constexpr float maxScore = std::numeric_limits<float>::max();
 
-}
-
+}  // namespace
 
 __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
                                       caConstants::TupleMultiplicity const *tupleMultiplicity,
