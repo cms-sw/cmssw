@@ -258,6 +258,9 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
 
     if (Gain != 1.) {
       std::vector<MonitorElement*> charge_histos = APVGain::FetchMonitor(new_charge_histos, DetId, tTopo_);
+
+      if (!Charge_Vs_Index)
+        continue;
       TH2S* chvsidx = (Charge_Vs_Index)->getTH2S();
       int bin = chvsidx->GetXaxis()->FindBin(Index);
       TH1D* Proj = chvsidx->ProjectionY("proj", bin, bin);
