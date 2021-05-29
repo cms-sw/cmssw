@@ -44,7 +44,7 @@ public:
     produces<reco::TrackExtraCollection>();
   }
 
-  ~PixelTrackProducer() override {}
+  ~PixelTrackProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

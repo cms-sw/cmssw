@@ -10,8 +10,8 @@
 #include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
 
 namespace pixelTrack {
-  constexpr uint32_t qualitySize{7};
-  enum class Quality : uint8_t { bad = 0, edup, dup, loose, strict, tight, highPurity, notQuality = qualitySize };
+  enum class Quality : uint8_t { bad = 0, edup, dup, loose, strict, tight, highPurity, notQuality };
+  constexpr uint32_t qualitySize{uint8_t(Quality::notQuality)};
   const std::string qualityName[qualitySize]{"bad", "edup", "dup", "loose", "strict", "tight", "highPurity"};
   inline Quality qualityByName(std::string const &name) {
     auto qp = std::find(qualityName, qualityName + qualitySize, name) - qualityName;
