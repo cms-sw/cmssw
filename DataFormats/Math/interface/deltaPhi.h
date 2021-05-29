@@ -65,8 +65,8 @@ namespace angle0to2pi {
 
   template <class valType>
   inline constexpr valType make0To2pi(valType angle) {
-    constexpr valType twoPi = 2._pi;
-    constexpr valType oneOverTwoPi = 1. / twoPi;
+    constexpr valType twoPi = 2. * M_PI;
+    constexpr valType oneOverTwoPi = 1. / (2. * M_PI);
     constexpr valType epsilon = 1.e-13;
 
     if ((std::abs(angle) <= epsilon) || (std::abs(twoPi - std::abs(angle)) <= epsilon))
