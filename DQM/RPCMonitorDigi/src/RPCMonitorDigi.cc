@@ -44,7 +44,7 @@ RPCMonitorDigi::RPCMonitorDigi(const edm::ParameterSet& pset)
 void RPCMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r, edm::EventSetup const& iSetup) {
   edm::LogInfo("rpcmonitordigi") << "[RPCMonitorDigi]: Begin Run ";
 
-  numberOfInnerRings_ = 4; // set default value
+  numberOfInnerRings_ = 4;  // set default value
 
   std::set<int> disk_set;
   const auto& rpcGeo = iSetup.getData(rpcGeomToken_);
