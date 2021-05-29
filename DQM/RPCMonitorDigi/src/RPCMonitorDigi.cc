@@ -44,55 +44,56 @@ RPCMonitorDigi::RPCMonitorDigi(const edm::ParameterSet& pset)
 void RPCMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r, edm::EventSetup const& iSetup) {
   edm::LogInfo("rpcmonitordigi") << "[RPCMonitorDigi]: Begin Run ";
 
-  std::set<int> disk_set, ring_set;
+  numberOfInnerRings_ = 4; // set default value
+
+  std::set<int> disk_set;
   const auto& rpcGeo = iSetup.getData(rpcGeomToken_);
 
   //loop on geometry to book all MEs
   edm::LogInfo("rpcmonitordigi") << "[RPCMonitorDigi]: Booking histograms per roll. ";
-  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeo.dets().begin(); it < rpcGeo.dets().end(); it++) {
-    if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
-      const RPCChamber* ch = dynamic_cast<const RPCChamber*>(*it);
-      std::vector<const RPCRoll*> roles = (ch->rolls());
-      if (useRollInfo_) {
-        for (std::vector<const RPCRoll*>::const_iterator r = roles.begin(); r != roles.end(); ++r) {
-          RPCDetId rpcId = (*r)->id();
+  for (auto ich : rpcGeo.dets()) {
+    const RPCChamber* ch = dynamic_cast<const RPCChamber*>(ich);
+    if (!ch)
+      continue;
+    const auto& roles = ch->rolls();
 
-          //get station and inner ring
-          if (rpcId.region() != 0) {
-            disk_set.insert(rpcId.station());
-            ring_set.insert(rpcId.ring());
-          }
+    if (useRollInfo_) {
+      for (auto roll : roles) {
+        const RPCDetId& rpcId = roll->id();
 
-          //booking all histograms
-          const std::string nameID = RPCNameHelper::rollName(rpcId);
-          if (useMuonDigis_)
-            bookRollME(ibooker, rpcId, &rpcGeo, muonFolder_, meMuonCollection[nameID]);
-          bookRollME(ibooker, rpcId, &rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
+        //get station and inner ring
+        if (rpcId.region() != 0) {
+          disk_set.insert(rpcId.station());
+          numberOfInnerRings_ = std::min(numberOfInnerRings_, rpcId.ring());
         }
-      } else {
-        RPCDetId rpcId = roles[0]->id();  //any roll would do - here I just take the first one
-        const std::string nameID = RPCNameHelper::chamberName(rpcId);
+
+        //booking all histograms
+        const std::string nameID = RPCNameHelper::rollName(rpcId);
         if (useMuonDigis_)
           bookRollME(ibooker, rpcId, &rpcGeo, muonFolder_, meMuonCollection[nameID]);
         bookRollME(ibooker, rpcId, &rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
-        if (rpcId.region() != 0) {
-          disk_set.insert(rpcId.station());
-          ring_set.insert(rpcId.ring());
-        }
+      }
+    } else {
+      const RPCDetId& rpcId = roles[0]->id();  //any roll would do - here I just take the first one
+      const std::string nameID = RPCNameHelper::chamberName(rpcId);
+      if (useMuonDigis_)
+        bookRollME(ibooker, rpcId, &rpcGeo, muonFolder_, meMuonCollection[nameID]);
+      bookRollME(ibooker, rpcId, &rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
+      if (rpcId.region() != 0) {
+        disk_set.insert(rpcId.station());
+        numberOfInnerRings_ = std::min(numberOfInnerRings_, rpcId.ring());
       }
     }
   }  //end loop on geometry to book all MEs
 
   numberOfDisks_ = disk_set.size();
-  numberOfInnerRings_ = (*ring_set.begin());
 
   //Book
   this->bookRegionME(ibooker, noiseFolder_, regionNoiseCollection);
   this->bookSectorRingME(ibooker, noiseFolder_, sectorRingNoiseCollection);
   this->bookWheelDiskME(ibooker, noiseFolder_, wheelDiskNoiseCollection);
 
-  std::string currentFolder = subsystemFolder_ + "/" + noiseFolder_;
-  ibooker.setCurrentFolder(currentFolder);
+  ibooker.setCurrentFolder(subsystemFolder_ + "/" + noiseFolder_);
 
   noiseRPCEvents_ = ibooker.book1D("RPCEvents", "RPCEvents", 1, 0.5, 1.5);
 
@@ -101,8 +102,7 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& 
     this->bookSectorRingME(ibooker, muonFolder_, sectorRingMuonCollection);
     this->bookWheelDiskME(ibooker, muonFolder_, wheelDiskMuonCollection);
 
-    currentFolder = subsystemFolder_ + "/" + muonFolder_;
-    ibooker.setCurrentFolder(currentFolder);
+    ibooker.setCurrentFolder(subsystemFolder_ + "/" + muonFolder_);
 
     muonRPCEvents_ = ibooker.book1D("RPCEvents", "RPCEvents", 1, 0.5, 1.5);
     NumberOfMuon_ = ibooker.book1D("NumberOfMuons", "Number of Muons", 11, -0.5, 10.5);
@@ -306,7 +306,7 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
     }
 
     std::vector<RPCRecHit> recHits = (*detIdIter).second;
-    int numberOfRecHits = recHits.size();
+    const int numberOfRecHits = recHits.size();
     totalNumberOfRecHits[region + 1] += numberOfRecHits;
 
     std::set<int> bxSet;

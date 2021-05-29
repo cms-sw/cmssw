@@ -87,7 +87,7 @@ MonitorElement* RPCRollMapHisto::bookEndcap(
   h->GetYaxis()->SetNoAlphanumeric(true);
 
   // Set x-axis labels
-  for (int i = 1; i < 36; ++i) {
+  for (int i = 1; i <= 36; ++i) {
     me->setBinLabel(i, fmt::format("{}", i), 1);
   }
   me->setAxisTitle("Segments", 1);
