@@ -23,8 +23,6 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetInfo.h"
 #include <cstdint>
 
@@ -33,7 +31,6 @@ public:
   using DetInfo = SiStripDetInfo::DetInfo;
 
   explicit SiStripDetInfoFileReader(){};
-  explicit SiStripDetInfoFileReader(const edm::ParameterSet&, const edm::ActivityRegistry&);
 
   explicit SiStripDetInfoFileReader(std::string filePath);
   explicit SiStripDetInfoFileReader(const SiStripDetInfoFileReader&);
