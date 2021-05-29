@@ -17,7 +17,7 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
       cms.InputTag("generalV0Candidates","Lambda"),
       ),
     minPtForTrackProperties = cms.double(0.95),
-    minPtForLowQualityTrackProperties = cms.double(0.0),
+    minPtForLowQualityTrackProperties = cms.double(0.5),
     covarianceVersion = cms.int32(0), #so far: 0 is Phase0, 1 is Phase1
 #    covariancePackingSchemas = cms.vint32(1,257,513,769,0),  # a cheaper schema in kb/ev
     covariancePackingSchemas = cms.vint32(8,264,520,776,0),   # more accurate schema +0.6kb/ev
@@ -51,3 +51,7 @@ phase2_timing.toModify(packedPFCandidates, storeTiming = True)
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 run2_miniAOD_UL.toModify(packedPFCandidates, storePfGammaEnFractions = True)
+
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+from Configuration.Eras.Modifier_bParking_cff import bParking
+(bParking | run2_miniAOD_devel).toModify(packedPFCandidates, minPtForLowQualityTrackProperties = 0.0)
