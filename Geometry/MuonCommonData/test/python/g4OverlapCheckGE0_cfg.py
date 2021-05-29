@@ -11,6 +11,9 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
 
+#if hasattr(process,'MessageLogger'):
+#    process.MessageLogger.SimG4CoreGeometry=dict()
+
 # enable Geant4 overlap check 
 process.g4SimHits.CheckGeometry = True
 
