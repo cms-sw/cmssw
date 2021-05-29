@@ -152,6 +152,8 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStrip_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAAG_cff import *
 
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngle_cff import *
+
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_cff import *
 
@@ -265,6 +267,7 @@ pathALCARECOPromptCalibProdBeamSpotHPLowPU = cms.Path(seqALCARECOPromptCalibProd
 pathALCARECOPromptCalibProdSiStrip = cms.Path(seqALCARECOPromptCalibProdSiStrip)
 pathALCARECOPromptCalibProdSiStripGains = cms.Path(seqALCARECOPromptCalibProdSiStripGains)
 pathALCARECOPromptCalibProdSiStripGainsAAG = cms.Path(seqALCARECOPromptCalibProdSiStripGainsAAG)
+pathALCARECOPromptCalibProdSiPixelLorentzAngle = cms.Path(seqALCARECOPromptCalibProdSiPixelLorentzAngle) 
 pathALCARECOPromptCalibProdSiPixelAli = cms.Path(seqALCARECOPromptCalibProdSiPixelAli)
 pathALCARECOPromptCalibProdSiPixel = cms.Path(seqALCARECOPromptCalibProdSiPixel)
 pathALCARECOPromptCalibProdEcalPedestals = cms.Path(seqALCARECOPromptCalibProdEcalPedestals)
@@ -953,7 +956,14 @@ ALCARECOStreamPromptCalibProdSiStripGainsAAG = cms.FilteredStream(
         dataTier = cms.untracked.string('ALCARECO')
         )
 
-
+ALCARECOStreamPromptCalibProdSiPixelLorentzAngle = cms.FilteredStream(
+        responsible = 'Marco Musich',
+        name = 'PromptCalibProdSiPixelLorentzAngle',
+        paths  = (pathALCARECOPromptCalibProdSiPixelLorentzAngle),
+        content = OutALCARECOPromptCalibProdSiPixelLorentzAngle.outputCommands,
+        selectEvents = OutALCARECOPromptCalibProdSiPixelLorentzAngle.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
 
 ALCARECOStreamPromptCalibProdSiPixelAli = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
