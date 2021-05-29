@@ -45,9 +45,9 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet& p)
   // Use LA-width from DB. If both (upper and this) are false LA-width is calcuated from LA-offset
   useLAWidthFromDB_ = p.getParameter<bool>("useLAWidthFromDB");
   // Use Alignment LA-offset
-  const bool useLAAlignmentOffsets = p.getParameter<bool>("useLAAlignmentOffsets");
+  const bool doLorentzFromAlignment = p.getParameter<bool>("doLorentzFromAlignment");
   char const* laLabel = "";  // standard LA, from calibration, label=""
-  if (useLAAlignmentOffsets) {
+  if (doLorentzFromAlignment) {
     laLabel = "fromAlignment";
   }
 
@@ -66,9 +66,6 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet& p)
   if (UseErrorsFromTemplates_) {
     genErrorDBObjectToken_ = c.consumes();
   }
-
-  //std::cout<<" ESProducer "<<myname<<" "<<useLAWidthFromDB_<<" "<<useLAAlignmentOffsets_<<" "
-  //	   <<UseErrorsFromTemplates_<<std::endl; //dk
 }
 
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPEGenericESProducer::produce(const TkPixelCPERecord& iRecord) {
@@ -108,8 +105,8 @@ void PixelCPEGenericESProducer::fillDescriptions(edm::ConfigurationDescriptions&
   // specific to PixelCPEGenericESProducer
   desc.add<std::string>("ComponentName", "PixelCPEGeneric");
   desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag(""));
-  desc.add<bool>("useLAAlignmentOffsets", false);
-  desc.add<bool>("DoLorentz", false);
+  desc.addOptional<bool>("useLAAlignmentOffsets", false)->setComment("deprecated");
+  desc.addOptional<bool>("DoLorentz", false)->setComment("deprecated");
   descriptions.add("_generic_default", desc);
 }
 
