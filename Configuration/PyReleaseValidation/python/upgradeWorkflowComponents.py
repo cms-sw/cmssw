@@ -915,7 +915,7 @@ class UpgradeWorkflowPremixProdLike(UpgradeWorkflowPremix,UpgradeWorkflow_ProdLi
             d = merge([stepDict[self.getStepName(step)][k]])
             tmpsteps = []
             for s in d["-s"].split(","):
-                if s == "DIGI:pdigi_valid" in s:
+                if "DIGI:pdigi_valid" in s:
                     tmpsteps.append("DIGI")
                 else:
                     tmpsteps.append(s)
