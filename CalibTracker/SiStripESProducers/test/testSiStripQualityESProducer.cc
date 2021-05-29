@@ -26,10 +26,6 @@ void testSiStripQualityESProducer::analyze(const edm::Event& e, const edm::Event
 
   char canvas[1024] = "\n&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";
 
-  //NOTE: can't guarantee this is what was used to make the SiStripQuality
-  // can difference be determined without it?
-  edm::FileInPath path("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-
   //&&&&&&&&&&&&&&&&&&
   //First Record
   //&&&&&&&&&&&&&&&&&&

@@ -53,7 +53,7 @@ namespace {
 std::unique_ptr<SiStripQuality> sistrip::badStripFromFedErr(DQMStore::IGetter& dqmStore,
                                                             const SiStripFedCabling& fedCabling,
                                                             float cutoff) {
-  edm::FileInPath path("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+  edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
   SiStripDetInfoFileReader reader(path.fullPath());
 
   auto quality = std::make_unique<SiStripQuality>(reader.info());

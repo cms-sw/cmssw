@@ -57,7 +57,7 @@ SiStripGainSimESProducer::SiStripGainSimESProducer(const edm::ParameterSet& iCon
 }
 
 std::unique_ptr<SiStripGain> SiStripGainSimESProducer::produce(const SiStripGainSimRcd& iRecord) {
-  const edm::FileInPath fp("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+  const edm::FileInPath fp(SiStripDetInfoFileReader::kDefaultFile);
   const SiStripDetInfoFileReader reader(fp.fullPath());
 
   const auto& apvGain = iRecord.get(tokenLabels_[0].token_);
