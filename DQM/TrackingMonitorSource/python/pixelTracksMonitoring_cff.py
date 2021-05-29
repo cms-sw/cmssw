@@ -41,7 +41,7 @@ for key,value in quality.items():
         locals()[label] = _trackSelector.clone( cut = cutstring )
         locals()[label].setLabel(label)
     else :
-        print label,"already configured"
+        print(label,"already configured")
 
 for key,value in quality.items():
     label = "pixelTrksMonitor"+key
