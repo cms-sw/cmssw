@@ -17,12 +17,6 @@ SiStripDetInfoFileReader& SiStripDetInfoFileReader::operator=(const SiStripDetIn
   return *this;
 }
 
-SiStripDetInfoFileReader::SiStripDetInfoFileReader(const edm::ParameterSet& pset, const edm::ActivityRegistry& ar) {
-  edm::FileInPath fp(
-      pset.getUntrackedParameter<std::string>("filePath", "CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
-  reader(fp.fullPath());
-}
-
 SiStripDetInfoFileReader::SiStripDetInfoFileReader(const SiStripDetInfoFileReader& copy) : info_{copy.info_} {}
 
 SiStripDetInfoFileReader::SiStripDetInfoFileReader(std::string filePath) { reader(filePath); }
