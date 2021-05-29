@@ -3,9 +3,10 @@
 
 <ConstantsSection label="mf.xml" eval="true">
   <Constant name="z1GE0"    value="[cms:CalorBeamZ3]"/>
-  <Constant name="z2GE0"    value="[cms:CalorBeamZ2]"/>
-  <Constant name="dzGE0"    value="138.0*mm"/>
-  <Constant name="rMinGE0"  value="[cms:CalorBeamZ3]*[etaMax:slope]"/>
+  <Constant name="dzGE0"    value="135.40*mm"/>
+  <Constant name="z2GE0"    value="([z1GE0]+2*[dzGE0])"/>
+  <Constant name="rMinGE0"  value="545.0*mm"/>
+  <Constant name="rMinfGE0" value="[cms:CalorBeamZ3]*[etaMax:slope]"/>
   <Constant name="rMinbGE0" value="[cms:CalorBeamZ2]*[etaMax:slope]"/>
   <Constant name="rMaxGE0"  value="[cms:CalorMuonR2]"/>
 </ConstantsSection>
@@ -28,10 +29,11 @@
    <ZSection z="[cms:MuonBeamZ2]"  rMin="[cms:MERmin3]" rMax="[cms:CMSR4]"/>
   </Polycone>
   <Polycone name="GE0Ring" startPhi="0*deg" deltaPhi="360*deg">
-   <ZSection z="[z1GE0]" rMin="[cms:CalorBeamR2]" rMax="[rMaxGE0]"/>
-   <ZSection z="[z2GE0]" rMin="[cms:CalorBeamR2]" rMax="[rMaxGE0]"/>
+   <ZSection z="[z1GE0]" rMin="[rMinGE0]" rMax="[rMaxGE0]"/>
+   <ZSection z="[z2GE0]" rMin="[rMinGE0]" rMax="[rMaxGE0]"/>
   </Polycone>
-  <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi="360*deg">
+  <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi=
+"360*deg">
    <ZSection z="5.641*m  " rMin="1.15*m" rMax="2.8*m  "/>
    <ZSection z="5.674*m  " rMin="1.15*m" rMax="2.8*m  "/>
    <ZSection z="5.674*m  " rMin="85*cm " rMax="2.8*m  "/>

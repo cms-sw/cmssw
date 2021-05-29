@@ -6,12 +6,12 @@
     <Constant name="rMax"   value="1730*mm"/>
     <Constant name="dZ"     value="437.5*mm"/>      <!-- Temporary Fix -->
     <Constant name="rPos"   value="([dZ] + [rMin])"/>
-    <Constant name="dzGE0"  value="112.2*mm"/>
-    <Constant name="zFrGE0" value="16.3*mm"/>
+    <Constant name="dzGE0"  value="112.9*mm"/>
+    <Constant name="zFrGE0" value="10.0*mm"/>
     <Constant name="zGpGE0" value="5.0*mm"/>
     <Constant name="zPos"   value="([cms:CalorBeamZ3] + [zFrGE0] + [dzGE0])"/>
-    <Constant name="zShift" value="41.40*mm"/>
-    <Constant name="z10"    value="101.0*mm"/> 
+    <Constant name="zShift" value="41.70*mm"/>
+    <Constant name="z10"    value="101.85*mm"/> 
     <Constant name="z20"    value="([z10]-[zShift])"/> 
     <Constant name="z30"    value="([z20]-[zShift])"/> 
     <Constant name="z40"    value="([z30]-[zShift])"/> 
