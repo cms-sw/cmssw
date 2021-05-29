@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <limits>
 
 #include <cuda_runtime.h>
 
@@ -29,6 +30,14 @@ using TupleMultiplicity = caConstants::TupleMultiplicity;
 using Quality = pixelTrack::Quality;
 using TkSoA = pixelTrack::TrackSoA;
 using HitContainer = pixelTrack::HitContainer;
+
+namespace {
+
+  constexpr uint16_t tkNotFound = std::numeric_limits<uint16_t>::max();
+  constexpr float maxScore = std::numeric_limits<float>::max();
+
+}
+
 
 __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
                                       caConstants::TupleMultiplicity const *tupleMultiplicity,
@@ -181,8 +190,8 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       continue;
     // if (thisCell.theDoubletId < 0) continue;
 
-    float mc = 10000.f;
-    uint16_t im = 60000;
+    float mc = maxScore;
+    uint16_t im = tkNotFound;
 
     /* chi2 penalize higher-pt tracks  (try rescale it?)
     auto score = [&](auto it) {
@@ -249,7 +258,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       }
     }
 
-    if (60000 == im)
+    if (tkNotFound == im)
       continue;
 
     // mark all other duplicates  (not yet, keep it loose)
@@ -745,8 +754,8 @@ __global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict_
     if (hitToTuple.size(idx) < 2)
       continue;
 
-    float mc = 10000.f;
-    uint16_t im = 60000;
+    float mc = maxScore;
+    uint16_t im = tkNotFound;
     uint32_t maxNh = 0;
 
     // find maxNh
@@ -770,7 +779,7 @@ __global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict_
       }
     }
 
-    if (60000 == im)
+    if (tkNotFound == im)
       continue;
 
     // mark worse ambiguities
@@ -805,8 +814,8 @@ __global__ void kernel_simpleTripletCleaner(
     if (hitToTuple.size(idx) < 2)
       continue;
 
-    float mc = 10000.f;
-    uint16_t im = 60000;
+    float mc = maxScore;
+    uint16_t im = tkNotFound;
 
     // choose best tip!  (should we first find best quality???)
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
@@ -817,7 +826,7 @@ __global__ void kernel_simpleTripletCleaner(
       }
     }
 
-    if (60000 == im)
+    if (tkNotFound == im)
       continue;
 
     // mark worse ambiguities

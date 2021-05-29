@@ -78,6 +78,7 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
         }
       }
       // all legacy tracks are "highPurity"
+      // setting all others bits as well (as in ckf)
       track->setQuality(reco::TrackBase::loose);
       track->setQuality(reco::TrackBase::tight);
       track->setQuality(reco::TrackBase::highPurity);
