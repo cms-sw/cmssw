@@ -15,6 +15,7 @@
 
 //Insert here the include to the algos
 #include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig),
@@ -53,7 +54,10 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifier::getNewObject(
     theIdentifier.setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries", 100));
     theIdentifier.setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip", 5));
 
-    SiStripQuality* qobj = new SiStripQuality();
+    edm::FileInPath path("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+    SiStripDetInfoFileReader reader(path.fullPath());
+
+    SiStripQuality* qobj = new SiStripQuality(reader.info());
     theIdentifier.extractBadStrips(qobj, ClusterPositionHistoMap, stripQuality_);
 
     edm::LogInfo("SiStripQualityHotStripIdentifier")
