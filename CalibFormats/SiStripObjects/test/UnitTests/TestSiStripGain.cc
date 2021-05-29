@@ -71,7 +71,7 @@ public:
     normVector.push_back(norm1);
     normVector.push_back(norm2);
 
-    edm::FileInPath fp("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+    edm::FileInPath fp(SiStripDetInfoFileReader::kDefaultFile);
     SiStripDetInfoFileReader reader(fp.fullPath());
 
     SiStripGain gain(*apvGain1, norm1, recordLabelPair1, reader.info());
@@ -88,7 +88,7 @@ public:
   }
 
   void apvGainsTest(const float &norm) {
-    edm::FileInPath fp("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+    edm::FileInPath fp(SiStripDetInfoFileReader::kDefaultFile);
     SiStripDetInfoFileReader reader(fp.fullPath());
 
     SiStripGain gain(*apvGain1, norm, reader.info());

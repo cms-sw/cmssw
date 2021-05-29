@@ -86,7 +86,7 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
             conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile", false));
         theIdentifier->setTrackerGeometry(tracker_);
 
-        edm::FileInPath path("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+        edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
         SiStripDetInfoFileReader reader(path.fullPath());
         SiStripQuality* qobj = new SiStripQuality(reader.info());
         theIdentifier->extractBadStrips(
@@ -133,7 +133,7 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
             conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile", false));
         theIdentifier2->setTrackerGeometry(tracker_);
 
-        edm::FileInPath path("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+        edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
         SiStripDetInfoFileReader reader(path.fullPath());
         SiStripQuality* qobj = new SiStripQuality(reader.info());
         theIdentifier2->extractBadAPVs(qobj, ClusterPositionHistoMap, SiStripQuality_);
@@ -186,7 +186,7 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
             parameters.getUntrackedParameter<double>("OccupancyThreshold", 1.E-5));
         theIdentifier3->setMinNumOfEvents();
 
-        edm::FileInPath path("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+        edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
         SiStripDetInfoFileReader reader(path.fullPath());
         SiStripQuality* qobj = new SiStripQuality(reader.info());
         theIdentifier3->extractBadAPVSandStrips(

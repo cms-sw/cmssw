@@ -92,7 +92,7 @@ SiStripGainESProducer::SiStripGainESProducer(const edm::ParameterSet& iConfig) :
 }
 
 std::unique_ptr<SiStripGain> SiStripGainESProducer::produce(const SiStripGainRcd& iRecord) {
-  edm::FileInPath fp("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+  edm::FileInPath fp(SiStripDetInfoFileReader::kDefaultFile);
   SiStripDetInfoFileReader reader(fp.fullPath());
 
   const auto& apvGain = gainGetters_[0]->gain(iRecord);

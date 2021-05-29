@@ -143,7 +143,7 @@ namespace {
       auto tagname = PlotBase::getTag<0>().name;
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      edm::FileInPath fp_ = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       auto theIOVsince = std::to_string(std::get<0>(iov));
@@ -204,7 +204,7 @@ namespace {
       auto tagname = PlotBase::getTag<0>().name;
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      edm::FileInPath fp_ = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       auto theIOVsince = std::to_string(std::get<0>(iov));
@@ -258,7 +258,7 @@ namespace {
     ~SiStripBadStripFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      edm::FileInPath fp_ = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
@@ -301,7 +301,7 @@ namespace {
     ~SiStripBadStripTIBFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      edm::FileInPath fp_ = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
@@ -347,7 +347,7 @@ namespace {
     ~SiStripBadStripTOBFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      edm::FileInPath fp_ = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
@@ -393,7 +393,7 @@ namespace {
     ~SiStripBadStripTIDFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      edm::FileInPath fp_ = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
@@ -439,7 +439,7 @@ namespace {
     ~SiStripBadStripTECFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      edm::FileInPath fp_ = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
@@ -865,7 +865,7 @@ namespace {
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      edm::FileInPath fp_ = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::string titleMap =
@@ -966,7 +966,7 @@ namespace {
       auto iov = tag.iovs.front();
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      edm::FileInPath path("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
       SiStripDetInfoFileReader reader(path.fullPath());
 
       SiStripQuality* siStripQuality_ = new SiStripQuality(reader.info());
@@ -1190,7 +1190,7 @@ namespace {
       // for the total
       int totNComponents[4][19][4] = {{{0}}};
 
-      edm::FileInPath path("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
       SiStripDetInfoFileReader reader(path.fullPath());
       SiStripQuality* f_siStripQuality_ = new SiStripQuality(reader.info());
       f_siStripQuality_->add(first_payload.get());
