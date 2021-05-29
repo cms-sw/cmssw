@@ -21,8 +21,8 @@ SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::Pa
     : ConditionDBWriter<SiStripBadStrip>(iConfig),
       dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel", "")),
       conf_(iConfig),
-      fp_(iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))),
+      fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))),
       Cluster_src_(iConfig.getParameter<edm::InputTag>("Cluster_src")),
       Track_src_(iConfig.getUntrackedParameter<edm::InputTag>("Track_src")),
       tracksCollection_in_EventTree(iConfig.getUntrackedParameter<bool>("RemoveTrackClusters", false)),

@@ -30,7 +30,7 @@ class SiStripDetInfoFileReader {
 public:
   using DetInfo = SiStripDetInfo::DetInfo;
 
-  constexpr static char const * const kDefaultFile = "CalibTracker/SiStripCommon/data/SiStripDetInfo.dat";
+  constexpr static char const* const kDefaultFile = "CalibTracker/SiStripCommon/data/SiStripDetInfo.dat";
   explicit SiStripDetInfoFileReader(){};
 
   explicit SiStripDetInfoFileReader(std::string filePath);
