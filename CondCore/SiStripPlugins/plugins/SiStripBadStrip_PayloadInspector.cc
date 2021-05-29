@@ -966,7 +966,10 @@ namespace {
       auto iov = tag.iovs.front();
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      SiStripQuality* siStripQuality_ = new SiStripQuality();
+      edm::FileInPath path("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader reader(path.fullPath());
+
+      SiStripQuality* siStripQuality_ = new SiStripQuality(reader.info());
       siStripQuality_->add(payload.get());
       siStripQuality_->cleanUp();
       siStripQuality_->fillBadComponents();
@@ -1187,7 +1190,9 @@ namespace {
       // for the total
       int totNComponents[4][19][4] = {{{0}}};
 
-      SiStripQuality* f_siStripQuality_ = new SiStripQuality();
+      edm::FileInPath path("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader reader(path.fullPath());
+      SiStripQuality* f_siStripQuality_ = new SiStripQuality(reader.info());
       f_siStripQuality_->add(first_payload.get());
       f_siStripQuality_->cleanUp();
       f_siStripQuality_->fillBadComponents();
@@ -1195,7 +1200,7 @@ namespace {
       // call the filler
       SiStripPI::fillBCArrays(f_siStripQuality_, f_NTkBadComponent, f_NBadComponent, m_trackerTopo);
 
-      SiStripQuality* l_siStripQuality_ = new SiStripQuality();
+      SiStripQuality* l_siStripQuality_ = new SiStripQuality(reader.info());
       l_siStripQuality_->add(last_payload.get());
       l_siStripQuality_->cleanUp();
       l_siStripQuality_->fillBadComponents();
