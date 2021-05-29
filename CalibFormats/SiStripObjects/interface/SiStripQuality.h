@@ -49,7 +49,7 @@ public:
   SiStripQuality(const SiStripQuality &) = default;
   SiStripQuality(SiStripQuality &&) = default;
 
-  ~SiStripQuality() = default;
+  ~SiStripQuality() override = default;
 
   void clear() {
     v_badstrips.clear();
