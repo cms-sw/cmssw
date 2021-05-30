@@ -209,22 +209,6 @@ void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
           else
             continue;
         } else if (trackType == "recomuonTrack") {
-          if (muon->isGlobalMuon())
-            trackref = muon->globalTrack();
-          else if (muon->isTrackerMuon()) {
-            trackref = muon->innerTrack();
-            addMatchedMuonSegments = true;
-          } else if (muon->isStandAloneMuon())
-            trackref = muon->outerTrack();
-          else if (muon->isRPCMuon())
-            trackref = muon->innerTrack();
-          else if (muon->isGEMMuon())
-            trackref = muon->innerTrack();
-          else if (muon->isME0Muon())
-            trackref = muon->innerTrack();
-          else
-            trackref = muon->muonBestTrack();
-
           if (muon->muonBestTrackType() != muon->tunePMuonBestTrackType())
             edm::LogVerbatim("MuonTrackProducer") << "\n *** PF != TuneP *** \n" << std::endl;
 
@@ -290,6 +274,24 @@ void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
                 << ", phi = " << muon->dytTrack()->phi()
                 << ", N mu hits = " << muon->dytTrack()->hitPattern().numberOfValidMuonHits()
                 << ", N trk hits = " << muon->dytTrack()->hitPattern().numberOfValidTrackerHits() << std::endl;
+
+          if (muon->isGlobalMuon() && muon->globalTrack()->hitPattern().numberOfValidMuonHits() > 0)
+            trackref = muon->globalTrack();
+          else if (muon->isTrackerMuon()) {
+            trackref = muon->innerTrack();
+            addMatchedMuonSegments = true;
+          } else if (muon->isPFMuon())
+            trackref = muon->muonBestTrack();
+          else if (muon->isStandAloneMuon())
+            trackref = muon->outerTrack();
+          else if (muon->isRPCMuon())
+            trackref = muon->innerTrack();
+          else if (muon->isGEMMuon())
+            trackref = muon->innerTrack();
+          else if (muon->isME0Muon())
+            trackref = muon->innerTrack();
+          else
+            trackref = muon->muonBestTrack();
         }
 
         edm::LogVerbatim("MuonTrackProducer") << "\t *** Selected *** ";
