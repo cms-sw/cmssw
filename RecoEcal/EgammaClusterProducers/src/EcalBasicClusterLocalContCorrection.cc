@@ -1,7 +1,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "RecoEcal/EgammaClusterProducers/interface/EcalBasicClusterLocalContCorrection.h"
+#include "EcalBasicClusterLocalContCorrection.h"
 
 #include "TVector2.h"
 
