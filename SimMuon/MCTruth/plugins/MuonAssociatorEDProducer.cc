@@ -7,12 +7,16 @@
 MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet &parset)
     : tracksTag(parset.getParameter<edm::InputTag>("tracksTag")),
       tpTag(parset.getParameter<edm::InputTag>("tpTag")),
+      tpRefVector(parset.getParameter<bool>("tpRefVector")),
       ignoreMissingTrackCollection(parset.getUntrackedParameter<bool>("ignoreMissingTrackCollection", false)),
       parset_(parset) {
   edm::LogVerbatim("MuonAssociatorEDProducer") << "constructing  MuonAssociatorEDProducer";
   produces<reco::RecoToSimCollection>();
   produces<reco::SimToRecoCollection>();
-  tpToken_ = consumes<TrackingParticleCollection>(tpTag);
+  if (tpRefVector)
+    tpRefVectorToken_ = consumes<TrackingParticleRefVector>(tpTag);
+  else
+    tpToken_ = consumes<TrackingParticleCollection>(tpTag);
   tracksToken_ = consumes<edm::View<reco::Track>>(tracksTag);
 
   /// Perform some sanity checks of the configuration
@@ -20,12 +24,13 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet &pars
   edm::LogVerbatim("MuonAssociatorEDProducer") << "\n MuonAssociatorByHits will associate reco::Tracks with "
                                                << tracksTag << "\n\t\t and TrackingParticles with " << tpTag;
   const std::string recoTracksLabel = tracksTag.label();
-  const std::string recoTracksInstance = tracksTag.instance();
 
   // check and fix inconsistent input settings
   // tracks with hits only on muon detectors
-  if (recoTracksLabel == "standAloneMuons" || recoTracksLabel == "standAloneSETMuons" ||
-      recoTracksLabel == "cosmicMuons" || recoTracksLabel == "hltL2Muons") {
+  if (recoTracksLabel == "seedsOfSTAmuons" || recoTracksLabel == "standAloneMuons" ||
+      recoTracksLabel == "refittedStandAloneMuons" || recoTracksLabel == "seedsOfDisplacedSTAmuons" ||
+      recoTracksLabel == "displacedStandAloneMuons" || recoTracksLabel == "cosmicMuons" ||
+      recoTracksLabel == "cosmicMuons1Leg" || recoTracksLabel == "hltL2Muons") {
     if (parset_.getParameter<bool>("UseTracker")) {
       edm::LogWarning("MuonAssociatorEDProducer")
           << "\n*** WARNING : inconsistent input tracksTag = " << tracksTag << "\n with UseTracker = true"
@@ -40,9 +45,11 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet &pars
     }
   }
   // tracks with hits only on tracker
-  if (recoTracksLabel == "generalTracks" || recoTracksLabel == "ctfWithMaterialTracksP5LHCNavigation" ||
-      recoTracksLabel == "hltL3TkTracksFromL2" ||
-      (recoTracksLabel == "hltL3Muons" && recoTracksInstance == "L2Seeded")) {
+  if (recoTracksLabel == "generalTracks" || recoTracksLabel == "probeTracks" || recoTracksLabel == "displacedTracks" ||
+      recoTracksLabel == "extractGemMuons" || recoTracksLabel == "extractMe0Muons" ||
+      recoTracksLabel == "ctfWithMaterialTracksP5LHCNavigation" || recoTracksLabel == "ctfWithMaterialTracksP5" ||
+      recoTracksLabel == "hltIterL3OIMuonTrackSelectionHighPurity" || recoTracksLabel == "hltIterL3MuonMerged" ||
+      recoTracksLabel == "hltIterL3MuonAndMuonFromL1Merged") {
     if (parset_.getParameter<bool>("UseMuon")) {
       edm::LogWarning("MuonAssociatorEDProducer")
           << "\n*** WARNING : inconsistent input tracksTag = " << tracksTag << "\n with UseMuon = true"
@@ -71,10 +78,27 @@ void MuonAssociatorEDProducer::endJob() {}
 void MuonAssociatorEDProducer::produce(edm::Event &event, const edm::EventSetup &setup) {
   using namespace edm;
 
+  TrackingParticleRefVector tmpTP;
+  const TrackingParticleRefVector *tmpTPptr = nullptr;
   Handle<TrackingParticleCollection> TPCollection;
+  Handle<TrackingParticleRefVector> TPCollectionRefVector;
+
+  if (tpRefVector) {
+    event.getByToken(tpRefVectorToken_, TPCollectionRefVector);
+    tmpTPptr = TPCollectionRefVector.product();
+    //
+    tmpTP = *tmpTPptr;
+  } else {
+    event.getByToken(tpToken_, TPCollection);
+    size_t nTP = TPCollection->size();
+    for (size_t i = 0; i < nTP; ++i) {
+      tmpTP.push_back(TrackingParticleRef(TPCollection, i));
+    }
+    tmpTPptr = &tmpTP;
+  }
+
   LogTrace("MuonAssociatorEDProducer") << "getting TrackingParticle collection - " << tpTag;
-  event.getByToken(tpToken_, TPCollection);
-  LogTrace("MuonAssociatorEDProducer") << "\t... size = " << TPCollection->size();
+  LogTrace("MuonAssociatorEDProducer") << "\t... size = " << tmpTPptr->size();
 
   Handle<edm::View<reco::Track>> trackCollection;
   LogTrace("MuonAssociatorEDProducer") << "getting reco::Track collection - " << tracksTag;
@@ -83,6 +107,10 @@ void MuonAssociatorEDProducer::produce(edm::Event &event, const edm::EventSetup 
     LogTrace("MuonAssociatorEDProducer") << "\t... size = " << trackCollection->size();
   else
     LogTrace("MuonAssociatorEDProducer") << "\t... NOT FOUND.";
+
+  edm::RefToBaseVector<reco::Track> tmpT;
+  for (size_t i = 0; i < trackCollection->size(); ++i)
+    tmpT.push_back(trackCollection->refAt(i));
 
   std::unique_ptr<reco::RecoToSimCollection> rts;
   std::unique_ptr<reco::SimToRecoCollection> str;
@@ -99,20 +127,18 @@ void MuonAssociatorEDProducer::produce(edm::Event &event, const edm::EventSetup 
         << "     Track collection : " << tracksTag.label() << ":" << tracksTag.instance()
         << " (size = " << trackCollection->size() << ") \n"
         << "     TrackingParticle collection : " << tpTag.label() << ":" << tpTag.instance()
-        << " (size = " << TPCollection->size() << ")";
+        << " (size = " << tmpTPptr->size() << ")";
 
-    reco::RecoToSimCollection recSimColl =
-        associatorByHits->associateRecoToSim(trackCollection, TPCollection, &event, &setup);
+    reco::RecoToSimCollection recSimColl = associatorByHits->associateRecoToSim(tmpT, tmpTP, &event, &setup);
 
     edm::LogVerbatim("MuonAssociatorEDProducer")
         << "\n >>> SimToReco association <<< \n"
         << "     TrackingParticle collection : " << tpTag.label() << ":" << tpTag.instance()
-        << " (size = " << TPCollection->size() << ") \n"
+        << " (size = " << tmpTPptr->size() << ") \n"
         << "     Track collection : " << tracksTag.label() << ":" << tracksTag.instance()
         << " (size = " << trackCollection->size() << ")";
 
-    reco::SimToRecoCollection simRecColl =
-        associatorByHits->associateSimToReco(trackCollection, TPCollection, &event, &setup);
+    reco::SimToRecoCollection simRecColl = associatorByHits->associateSimToReco(tmpT, tmpTP, &event, &setup);
 
     rts = std::make_unique<reco::RecoToSimCollection>(recSimColl);
     str = std::make_unique<reco::SimToRecoCollection>(simRecColl);

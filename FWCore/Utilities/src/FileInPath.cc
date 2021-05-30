@@ -7,7 +7,7 @@
 #include <cassert>
 #include <filesystem>
 
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Parse.h"
 #include "FWCore/Utilities/interface/resolveSymbolicLinks.h"

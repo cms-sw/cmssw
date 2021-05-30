@@ -221,6 +221,10 @@ MuonToTrackingParticleAssociatorEDProducer::MuonToTrackingParticleAssociatorEDPr
   DTHitAssociator dttruth(iConfig, consumesCollector());
   CSCHitAssociator cscruth(iConfig, consumesCollector());
 
+  edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
+      << "\n constructing MuonToTrackingParticleAssociatorEDProducer"
+      << "\n";
+
   if (iConfig.getUntrackedParameter<bool>("dumpInputCollections")) {
     diagnostics_ = std::make_unique<InputDumper>(iConfig, consumesCollector());
   }
