@@ -58,6 +58,7 @@ phase2_hgcal.toModify( theDigitizers,
                        hgceeDigitizer = cms.PSet(hgceeDigitizer),
                        hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
                        hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
+                       calotruth = cms.PSet(caloParticles), #HGCAL still needs calotruth for production mode
 )
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hfnoseDigitizer
@@ -88,6 +89,7 @@ premix_stage2.toModify(theDigitizers,
     hgceeDigitizer = dict(premixStage1 = True),
     hgchebackDigitizer = dict(premixStage1 = True),
     hgchefrontDigitizer = dict(premixStage1 = True),
+    calotruth = dict(premixStage1 = True), #HGCAL still needs calotruth for production mode
 )
 (premix_stage2 & phase2_hfnose).toModify(theDigitizers,
     hfnoseDigitizer = dict(premixStage1 = True),
@@ -104,9 +106,8 @@ theDigitizers.mergedtruth.select.signalOnlyTP = True
 
 from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
 (run3_ecalclustering | phase2_hgcal).toModify( theDigitizersValid,
-                       calotruth = cms.PSet( caloParticles ) ) # Doesn't HGCal need these also without validation?
+                       calotruth = cms.PSet( caloParticles ) )
 (premix_stage2 & phase2_hgcal).toModify(theDigitizersValid, calotruth = dict(premixStage1 = True))
-
 
 phase2_timing.toModify( theDigitizersValid.mergedtruth,
                         createInitialVertexCollection = cms.bool(True) )
