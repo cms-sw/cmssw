@@ -1,5 +1,5 @@
 #include "FWCore/PyDevParameterSet/interface/Python11ParameterSet.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 
 namespace cmspython3 {
   Python11ParameterSet::Python11ParameterSet() : theParameterSet() {}
