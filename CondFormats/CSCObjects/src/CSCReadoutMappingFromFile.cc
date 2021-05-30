@@ -1,6 +1,6 @@
-#include <CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/ParameterSet/interface/FileInPath.h>
+#include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

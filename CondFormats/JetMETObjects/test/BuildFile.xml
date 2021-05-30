@@ -3,7 +3,7 @@
 </bin>
 
 <bin name="TestCondFormatsJetMETObjectsJetCorrectorParameters" file="JetCorrectorParameters_t.cpp">
-  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
   <use name="CondFormats/JetMETObjects"/>
   <use name="cppunit"/>
 </bin>

@@ -13,7 +13,6 @@
 <use name="DataFormats/GeometryVector"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
-<use name="FWCore/ParameterSet"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/Records"/>
