@@ -10,8 +10,6 @@ CSCReadoutMappingFromFile::~CSCReadoutMappingFromFile() {}
 
 void CSCReadoutMappingFromFile::fill(std::string fileName) {
   theMappingFile = std::move(fileName);
-  //  edm::FileInPath fp = ps.getParameter<edm::FileInPath>("theMappingFile");
-  //theMappingFile = fp.fullPath();
   std::ifstream in(theMappingFile.c_str());
   std::string line;
   const std::string commentFlag = "#";
