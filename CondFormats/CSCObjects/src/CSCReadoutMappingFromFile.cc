@@ -1,17 +1,17 @@
 #include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/FileInPath.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
-CSCReadoutMappingFromFile::CSCReadoutMappingFromFile(const edm::ParameterSet& ps) { fill(ps); }
+CSCReadoutMappingFromFile::CSCReadoutMappingFromFile(std::string iName) { fill(std::move(iName)); }
 
 CSCReadoutMappingFromFile::~CSCReadoutMappingFromFile() {}
 
-void CSCReadoutMappingFromFile::fill(const edm::ParameterSet& ps) {
-  edm::FileInPath fp = ps.getParameter<edm::FileInPath>("theMappingFile");
-  theMappingFile = fp.fullPath();
+void CSCReadoutMappingFromFile::fill(std::string fileName) {
+  theMappingFile = std::move(fileName);
+  //  edm::FileInPath fp = ps.getParameter<edm::FileInPath>("theMappingFile");
+  //theMappingFile = fp.fullPath();
   std::ifstream in(theMappingFile.c_str());
   std::string line;
   const std::string commentFlag = "#";
