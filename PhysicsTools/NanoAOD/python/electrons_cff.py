@@ -470,6 +470,35 @@ run2_miniAOD_80XLegacy.toModify(electronTable.variables,
 
 )
 
+from PhysicsTools.NanoAOD.particlelevel_cff import particleLevel
+particleLevelForMatching = particleLevel.clone(
+    lepMinPt    = cms.double(3.),
+    phoMinPt = cms.double(3),
+)
+tautaggerForMatching = cms.EDProducer("GenJetTauTaggerProducer",
+                                      src = cms.InputTag('particleLevelForMatching:leptons')
+)
+
+matchingElecPhoton = cms.EDProducer("GenJetGenPartMerger",
+                                    srcJet =cms.InputTag("particleLevelForMatching:leptons"),
+                                    srcPart=cms.InputTag("particleLevelForMatching:photons"),
+                                    hasTauAnc=cms.InputTag("tautaggerForMatching"),
+)
+
+
+electronsMCMatchForTableAlt = cms.EDProducer("GenJetMatcherDRPtByDR",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
+    src         = electronTable.src,                 # final reco collection
+    matched     = cms.InputTag("matchingElecPhoton:merged"), # final mc-truth particle collection
+    mcPdgId     = cms.vint32(11,22),                 # one or more PDG ID (11 = el, 22 = pho); absolute values (see below)
+    checkCharge = cms.bool(False),              # True = require RECO and MC objects to have the same charge
+    mcStatus    = cms.vint32(),
+    maxDeltaR   = cms.double(0.3),              # Minimum deltaR for the match
+    maxDPtRel   = cms.double(0.5),              # Minimum deltaPt/Pt for the match
+    resolveAmbiguities    = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
+    resolveByMatchQuality = cms.bool(True),    # False = just match input in order; True = pick lowest deltaR pair first
+) 
+
+
 electronsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = electronTable.src,                 # final reco collection
     matched     = cms.InputTag("finalGenParticles"), # final mc-truth particle collection
@@ -482,18 +511,39 @@ electronsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt
     resolveByMatchQuality = cms.bool(True),    # False = just match input in order; True = pick lowest deltaR pair first
 )
 
+# electronOldMCTable = cms.EDProducer("CandMCMatchTableProducer",
+#     src     = electronTable.src,
+#     mcMap   = cms.InputTag("electronsMCMatchForTable"),
+#     objName = electronTable.name,
+#     objType = electronTable.name, #cms.string("Electron"),
+#     branchName = cms.string("genPart"),
+#     docString = cms.string("MC matching to status==1 electrons or photons"),
+# )
+
 electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     src     = electronTable.src,
+    mcMapDressedLep = cms.InputTag("electronsMCMatchForTableAlt"),
     mcMap   = cms.InputTag("electronsMCMatchForTable"),
+    mapTauAnc = cms.InputTag("matchingElecPhoton:hasTauAnc"),
     objName = electronTable.name,
-    objType = electronTable.name, #cms.string("Electron"),
+    objType = cms.string("ElectronDressed"), 
     branchName = cms.string("genPart"),
     docString = cms.string("MC matching to status==1 electrons or photons"),
+    genparticles     = cms.InputTag("finalGenParticles"), 
 )
+
 
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
-electronMC = cms.Sequence(electronsMCMatchForTable + electronMCTable)
+electronMCold = cms.Sequence(electronsMCMatchForTable + electronMCTable)
+electronMC = cms.Sequence(particleLevelForMatching + tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
+( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify( electronMCTable,
+                                                       mcMapDressedLep=None,
+                                                       mcMap   = cms.InputTag("electronsMCMatchForTable"),
+                                                       mapTauAnc=None,
+                                                       objType=electronTable.name,
+                                                       genparticles=None)
+( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toReplaceWith(electronMC, electronMCold)
 
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
