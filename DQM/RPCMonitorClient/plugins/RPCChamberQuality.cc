@@ -1,11 +1,11 @@
-#include <sstream>
-#include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
-#include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
-#include "DQM/RPCMonitorDigi/interface/utils.h"
-// Framework
+#include "DQM/RPCMonitorClient/interface/RPCChamberQuality.h"
+
+#include "DQM/RPCMonitorClient/interface/RPCBookFolderStructure.h"
+#include "DQM/RPCMonitorClient/interface/RPCRollMapHisto.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//DataFormats
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
+
+#include <fmt/format.h>
 
 const std::string RPCChamberQuality::xLabels_[7] = {
     "Good", "OFF", "Nois.St", "Nois.Ch", "Part.Dead", "Dead", "Bad.Shape"};
@@ -78,24 +78,17 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
 
   ibooker.setCurrentFolder(summaryDir_);
 
-  MonitorElement* me;
-  std::stringstream histoName;
-
-  rpcdqm::utils rpcUtils;
-
   for (int r = 0; r < 3; r++) {
-    histoName.str("");
-    histoName << "RPCChamberQuality_" << regions_[r];
-    me = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 7, 0.5, 7.5);
+    const std::string histoName = fmt::format("RPCChamberQuality_{}", regions_[r]);
+    MonitorElement* me = ibooker.book1D(histoName, histoName, 7, 0.5, 7.5);
 
     for (int x = 1; x < 8; x++) {
       me->setBinLabel(x, xLabels_[x - 1]);
     }
   }
 
-  histoName.str("");
-  histoName << "RPC_System_Quality_Overview";
-  me = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 7, 0.5, 7.5, 3, 0.5, 3.5);
+  MonitorElement* me =
+      ibooker.book2D("RPC_System_Quality_Overview", "RPC_System_Quality_Overview", 7, 0.5, 7.5, 3, 0.5, 3.5);
   me->setBinLabel(1, "E-", 2);
   me->setBinLabel(2, "B", 2);
   me->setBinLabel(3, "E+", 2);
@@ -106,48 +99,36 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
 
   for (int w = -2; w < 3; w++) {  //Loop on wheels
 
-    histoName.str("");
-    histoName << "RPCChamberQuality_Roll_vs_Sector_Wheel" << w;
-    me = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
+    const std::string histoName2D = fmt::format("RPCChamberQuality_Roll_vs_Sector_Wheel{}", w);
+    RPCRollMapHisto::bookBarrel(ibooker, w, histoName2D, histoName2D, useRollInfo_);
 
-    rpcUtils.labelXAxisSector(me);
-    rpcUtils.labelYAxisRoll(me, 0, w, useRollInfo_);
-
-    histoName.str("");
-    histoName << "RPCChamberQuality_Distribution_Wheel" << w;
-    me = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 7, 0.5, 7.5);
+    const std::string histoName1D = fmt::format("RPCChamberQuality_Distribution_Wheel{}", w);
+    MonitorElement* me1D = ibooker.book1D(histoName1D, histoName1D, 7, 0.5, 7.5);
 
     for (int x = 1; x < 8; x++) {
-      me->setBinLabel(x, xLabels_[x - 1]);
+      me1D->setBinLabel(x, xLabels_[x - 1]);
     }
   }  //end loop on wheels
 
   for (int d = -numberOfDisks_; d <= numberOfDisks_; d++) {  // Loop on disk
     if (d == 0)
       continue;
-    histoName.str("");
-    histoName << "RPCChamberQuality_Ring_vs_Segment_Disk" << d;  //  2D histo for RPC Qtest
-    me = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 6, 0.5, 6.5);
-    rpcUtils.labelXAxisSegment(me);
-    rpcUtils.labelYAxisRing(me, 2, useRollInfo_);
+    const std::string histoName2D =
+        fmt::format("RPCChamberQuality_Ring_vs_Segment_Disk{}", d);  //  2D histo for RPC Qtest
+    RPCRollMapHisto::bookEndcap(ibooker, d, histoName2D, histoName2D, useRollInfo_);
 
-    histoName.str("");
-    histoName << "RPCChamberQuality_Distribution_Disk" << d;
-    me = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 7, 0.5, 7.5);
+    const std::string histoName1D = fmt::format("RPCChamberQuality_Distribution_Disk{}", d);
+    MonitorElement* me1D = ibooker.book1D(histoName1D, histoName1D, 7, 0.5, 7.5);
 
     for (int x = 1; x < 8; x++) {
-      me->setBinLabel(x, xLabels_[x - 1]);
+      me1D->setBinLabel(x, xLabels_[x - 1]);
     }
   }
 }
 
 void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
-  std::stringstream meName;
-
-  meName.str("");
-  meName << prefixDir_ << "/RPCEvents";
   int rpcEvents = minEvents;
-  RpcEvents = igetter.get(meName.str());
+  RpcEvents = igetter.get(prefixDir_ + "/RPCEvents");
 
   if (RpcEvents)
     rpcEvents = (int)RpcEvents->getBinContent(1);
@@ -158,9 +139,8 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
     MonitorElement* summary[3];
 
     for (int r = 0; r < 3; r++) {
-      meName.str("");
-      meName << summaryDir_ << "/RPCChamberQuality_" << RPCChamberQuality::regions_[r];
-      summary[r] = igetter.get(meName.str());
+      const std::string meName = fmt::format("{}/RPCChamberQuality_{}", summaryDir_, RPCChamberQuality::regions_[r]);
+      summary[r] = igetter.get(meName);
 
       if (summary[r] != nullptr)
         summary[r]->Reset();
@@ -168,10 +148,9 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
 
     //Barrel
     for (int wheel = -2; wheel < 3; wheel++) {  // loop by Wheels
-      meName.str("");
-      meName << "Roll_vs_Sector_Wheel" << wheel;
+      const std::string meName = fmt::format("Roll_vs_Sector_Wheel{}", wheel);
 
-      this->performeClientOperation(meName.str(), 0, summary[1], igetter);
+      this->performeClientOperation(meName, 0, summary[1], igetter);
     }  // loop by Wheels
 
     // Endcap
@@ -179,26 +158,22 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
       if (i == 0)
         continue;
 
-      meName.str("");
-      meName << "Ring_vs_Segment_Disk" << i;
+      const std::string meName = fmt::format("Ring_vs_Segment_Disk{}", i);
 
       if (i < 0)
-        this->performeClientOperation(meName.str(), -1, summary[0], igetter);
+        this->performeClientOperation(meName, -1, summary[0], igetter);
       else
-        this->performeClientOperation(meName.str(), 1, summary[2], igetter);
+        this->performeClientOperation(meName, 1, summary[2], igetter);
     }  //loop on Disks
 
-    MonitorElement* RpcOverview = nullptr;
-    meName.str("");
-    meName << summaryDir_ << "/RPC_System_Quality_Overview";
-    RpcOverview = igetter.get(meName.str());
+    MonitorElement* RpcOverview = igetter.get(summaryDir_ + "/RPC_System_Quality_Overview");
     RpcOverview->Reset();
 
     if (RpcOverview) {  //Fill Overview ME
       for (int r = 0; r < 3; r++) {
         if (summary[r] == nullptr)
           continue;
-        double entries = summary[r]->getEntries();
+        const double entries = summary[r]->getEntries();
         if (entries == 0)
           continue;
         for (int x = 1; x <= 7; x++) {
@@ -213,58 +188,28 @@ void RPCChamberQuality::performeClientOperation(std::string MESufix,
                                                 int region,
                                                 MonitorElement* quality,
                                                 DQMStore::IGetter& igetter) {
-  MonitorElement* RCQ = nullptr;
-  MonitorElement* RCQD = nullptr;
-
-  MonitorElement* DEAD = nullptr;
-  MonitorElement* CLS = nullptr;
-  MonitorElement* MULT = nullptr;
-  MonitorElement* NoisySt = nullptr;
-  MonitorElement* Chip = nullptr;
-  MonitorElement* HV = nullptr;
-  MonitorElement* LV = nullptr;
-  std::stringstream meName;
-
-  meName.str("");
-  meName << summaryDir_ << "/RPCChamberQuality_" << MESufix;
-  RCQ = igetter.get(meName.str());
+  MonitorElement* RCQ = igetter.get(summaryDir_ + "/RPCChamberQuality_" + MESufix);
   //  if (RCQ)  RCQ->Reset();
 
-  int pos = MESufix.find_last_of('_');
-  meName.str("");
-  meName << summaryDir_ << "/RPCChamberQuality_Distribution" << MESufix.substr(pos);
-  RCQD = igetter.get(meName.str());
+  const int pos = MESufix.find_last_of('_');
+  MonitorElement* RCQD = igetter.get(summaryDir_ + "/RPCChamberQuality_Distribution" + MESufix.substr(pos));
   if (RCQD)
     RCQD->Reset();
 
   //get HV Histo
-  meName.str("");
-  meName << summaryDir_ << "/HVStatus_" << MESufix;
-  HV = igetter.get(meName.str());
+  MonitorElement* HV = igetter.get(summaryDir_ + "/HVStatus_" + MESufix);
   //get LV Histo
-  meName.str("");
-  meName << summaryDir_ << "/LVStatus_" << MESufix;
-  LV = igetter.get(meName.str());
+  MonitorElement* LV = igetter.get(summaryDir_ + "/LVStatus_" + MESufix);
   //Dead
-  meName.str("");
-  meName << summaryDir_ << "/DeadChannelFraction_" << MESufix;
-  DEAD = igetter.get(meName.str());
+  MonitorElement* DEAD = igetter.get(summaryDir_ + "/DeadChannelFraction_" + MESufix);
   //ClusterSize
-  meName.str("");
-  meName << summaryDir_ << "/ClusterSizeIn1Bin_" << MESufix;
-  CLS = igetter.get(meName.str());
+  MonitorElement* CLS = igetter.get(summaryDir_ + "/ClusterSizeIn1Bin_" + MESufix);
   //NoisyStrips
-  meName.str("");
-  meName << summaryDir_ << "/RPCNoisyStrips_" << MESufix;
-  NoisySt = igetter.get(meName.str());
+  MonitorElement* NoisySt = igetter.get(summaryDir_ + "/RPCNoisyStrips_" + MESufix);
   //Multiplicity
-  meName.str("");
-  meName << summaryDir_ << "/NumberOfDigi_Mean_" << MESufix;
-  MULT = igetter.get(meName.str());
+  MonitorElement* MULT = igetter.get(summaryDir_ + "/NumberOfDigi_Mean_" + MESufix);
   //Asymetry
-  meName.str("");
-  meName << summaryDir_ << "/AsymmetryLeftRight_" << MESufix;
-  Chip = igetter.get(meName.str());
+  MonitorElement* Chip = igetter.get(summaryDir_ + "/AsymmetryLeftRight_" + MESufix);
 
   int xBinMax, yBinMax;
 

@@ -1,28 +1,9 @@
-#include "DQM/RPCMonitorClient/interface/RPCMonitorRaw.h"
+#include "DQM/RPCMonitorDigi/interface/RPCMonitorRaw.h"
+#include "DQM/RPCMonitorDigi/interface/RPCRawDataCountsHistoMaker.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
-
 #include "DataFormats/RPCDigi/interface/ReadoutError.h"
-#include "DQM/RPCMonitorClient/interface/RPCRawDataCountsHistoMaker.h"
-
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TFile.h"
-
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <bitset>
-
-typedef std::map<std::pair<int, int>, int>::const_iterator IT;
 
 RPCMonitorRaw::RPCMonitorRaw(const edm::ParameterSet& cfg) : theConfig(cfg) {
   rpcRawDataCountsTag_ = consumes<RPCRawDataCounts>(cfg.getParameter<edm::InputTag>("rpcRawDataCountsTag"));
@@ -83,52 +64,33 @@ void RPCMonitorRaw::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   ev.getByToken(rpcRawDataCountsTag_, rawCounts);
   const RPCRawDataCounts& counts = *rawCounts.product();
 
-  //
   // record type
-  //
-  for (IT it = counts.theRecordTypes.begin(); it != counts.theRecordTypes.end(); ++it)
-    me_t[it->first.first - 790]->Fill(it->first.second, it->second);
+  for (auto cnt : counts.theRecordTypes)
+    me_t[cnt.first.first - 790]->Fill(cnt.first.second, cnt.second);
 
-  //
   // good events topology
-  //
-  for (IT it = counts.theGoodEvents.begin(); it != counts.theGoodEvents.end(); ++it)
-    me_mapGoodEvents->Fill(it->first.second, it->first.first, it->second);
+  for (auto cnt : counts.theGoodEvents)
+    me_mapGoodEvents->Fill(cnt.first.second, cnt.first.first, cnt.second);
 
-  //
   // bad events topology
-  //
-  for (IT it = counts.theBadEvents.begin(); it != counts.theBadEvents.end(); ++it)
-    me_mapBadEvents->Fill(it->first.second, it->first.first, it->second);
+  for (auto cnt : counts.theBadEvents)
+    me_mapBadEvents->Fill(cnt.first.second, cnt.first.first, cnt.second);
 
-  //
   // readout errors
-  //
-  for (IT it = counts.theReadoutErrors.begin(); it != counts.theReadoutErrors.end(); ++it) {
-    rpcrawtodigi::ReadoutError error(it->first.second);
+  for (auto cnt : counts.theReadoutErrors) {
+    rpcrawtodigi::ReadoutError error(cnt.first.second);
     LinkBoardElectronicIndex ele = error.where();
     rpcrawtodigi::ReadoutError::ReadoutErrorType type = error.type();
 
-    int fed = it->first.first;
-    me_e[fed - 790]->Fill(type, it->second);
+    int fed = cnt.first.first;
+    me_e[fed - 790]->Fill(type, cnt.second);
 
-    //
     // in addition fill location map for selected errors
-    //
     int idx = theWatchedErrorHistoPos[type] - 1;
     if (idx >= 0) {
       std::vector<MonitorElement*>& wh = theWatchedErrorHistos[fed - 790];
       MonitorElement* me = wh[idx];
-      me->Fill(ele.dccInputChannelNum, ele.tbLinkInputNum, it->second);
+      me->Fill(ele.dccInputChannelNum, ele.tbLinkInputNum, cnt.second);
     }
   }
-
-  //  for (int i=0; i<3; ++i) {
-  //    me_t[i]->update();
-  //    me_e[i]->update();
-  //    std::vector<MonitorElement* > & wh = theWatchedErrorHistos[i];
-  //    for (std::vector<MonitorElement* >::iterator it=wh.begin(); it != wh.end(); ++it) (*it)->update();
-  //  }
-  //  me_mapGoodEvents->update();
-  //  me_mapBadEvents->update();
 }

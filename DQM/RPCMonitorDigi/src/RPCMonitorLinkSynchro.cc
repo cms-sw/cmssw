@@ -1,16 +1,13 @@
-#include <memory>
-
-#include "DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h"
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroHistoMaker.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/RPCMonitorDigi/interface/RPCMonitorLinkSynchro.h"
+#include "DQM/RPCMonitorDigi/interface/RPCLinkSynchroHistoMaker.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+
+#include <memory>
 
 RPCMonitorLinkSynchro::RPCMonitorLinkSynchro(const edm::ParameterSet& cfg)
     : theConfig(cfg),
@@ -21,8 +18,6 @@ RPCMonitorLinkSynchro::RPCMonitorLinkSynchro(const edm::ParameterSet& cfg)
       consumes<RPCRawSynchro::ProdItem>(cfg.getParameter<edm::InputTag>("rpcRawSynchroProdItemTag"));
   rpcEMapToken_ = esConsumes<edm::Transition::BeginRun>();
 }
-
-RPCMonitorLinkSynchro::~RPCMonitorLinkSynchro() {}
 
 void RPCMonitorLinkSynchro::endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
   RPCLinkSynchroHistoMaker hm(theSynchroStat);
