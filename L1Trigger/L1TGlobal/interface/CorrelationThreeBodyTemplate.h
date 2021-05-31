@@ -31,7 +31,6 @@
 
 // forward declarations
 
-
 // class declaration
 class CorrelationThreeBodyTemplate : public GlobalCondition {
 public:
@@ -42,17 +41,15 @@ public:
   ///   from condition name
   CorrelationThreeBodyTemplate(const std::string&);
 
-
-  ///   from condition name, the category of first, second, and third subcondition, 
+  ///   from condition name, the category of first, second, and third subcondition,
   ///   the index of first, second, third subcondition in the cor* vector
   CorrelationThreeBodyTemplate(const std::string&,
-                                        const l1t::GtConditionCategory&,
-                                        const l1t::GtConditionCategory&,
-                                        const l1t::GtConditionCategory&,
-                                        const int,
-                                        const int,
-                                        const int);
-
+                               const l1t::GtConditionCategory&,
+                               const l1t::GtConditionCategory&,
+                               const l1t::GtConditionCategory&,
+                               const int,
+                               const int,
+                               const int);
 
   /// copy constructor
   CorrelationThreeBodyTemplate(const CorrelationThreeBodyTemplate&);
@@ -102,7 +99,9 @@ public:
   void setCond2Index(const int&);
 
   /// get / set correlation parameters
-  inline const CorrelationThreeBodyParameter* correlationThreeBodyParameter() const { return &m_correlationThreeBodyParameter; }
+  inline const CorrelationThreeBodyParameter* correlationThreeBodyParameter() const {
+    return &m_correlationThreeBodyParameter;
+  }
   void setCorrelationThreeBodyParameter(const CorrelationThreeBodyParameter& corrThreeBodyParameter);
 
   /// print the condition

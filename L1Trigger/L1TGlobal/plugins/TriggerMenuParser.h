@@ -163,7 +163,8 @@ namespace l1t {
       return m_vecCorrelationWithOverlapRemovalTemplate;
     }
 
-    void setVecCorrelationWithOverlapRemovalTemplate(const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&);
+    void setVecCorrelationWithOverlapRemovalTemplate(
+        const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&);
 
     // get / set the vectors containing the conditions for correlation templates
     //
@@ -287,7 +288,7 @@ namespace l1t {
     /// parse a correlation condition
     bool parseCorrelation(tmeventsetup::esCondition corrCond, unsigned int chipNr = 0);
 
-    /// parse a three-body correlation condition                                                                                                                    
+    /// parse a three-body correlation condition
     bool parseCorrelationThreeBody(tmeventsetup::esCondition corrCond, unsigned int chipNr = 0);
 
     /// parse a correlation condition with overlap removal
