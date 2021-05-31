@@ -1,6 +1,4 @@
 <use name="DataFormats/Common"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/MessageLogger"/>
 <export>
   <lib name="1"/>
 </export>
