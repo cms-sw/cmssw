@@ -440,15 +440,15 @@ void ElectronAnalyzer::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const
                                    "EcalIsoSum (GeV)",
                                    "Events",
                                    "ELE_LOGY E1 P");
-  h1_hcalRecHitSumEt_dr03 = bookH1(iBooker,
-                                   "hcalRecHitSumEt_dr03",
-                                   "hcal isolation sum, dR=0.3",
-                                   100,
-                                   0.0,
-                                   20.,
-                                   "HcalIsoSum (GeV)",
-                                   "Events",
-                                   "ELE_LOGY E1 P");
+  h1_hcalTowerSumEt_dr03 = bookH1(iBooker,
+                                  "hcalTowerSumEt_dr03",
+                                  "hcal isolation sum, dR=0.3",
+                                  100,
+                                  0.0,
+                                  20.,
+                                  "HcalIsoSum (GeV)",
+                                  "Events",
+                                  "ELE_LOGY E1 P");
 
   // pf isolation
   h1_PFch_dr03 = bookH1(iBooker,
@@ -691,7 +691,7 @@ void ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // isolation
     h1_tkSumPt_dr03->Fill(gsfIter->dr03TkSumPt());
     h1_ecalRecHitSumEt_dr03->Fill(gsfIter->dr03EcalRecHitSumEt());
-    h1_hcalRecHitSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt());
+    h1_hcalTowerSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt());
 
     // PF isolation
     GsfElectron::PflowIsolationVariables pfIso = gsfIter->pfIsolationVariables();

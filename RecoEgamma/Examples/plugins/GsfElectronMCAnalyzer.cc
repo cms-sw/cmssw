@@ -429,12 +429,12 @@ private:
 
   TH1F *h_ele_tkSumPt_dr03;
   TH1F *h_ele_ecalRecHitSumEt_dr03;
-  TH1F *h_ele_hcalDepth1RecHitSumEt_dr03;
-  TH1F *h_ele_hcalDepth2RecHitSumEt_dr03;
+  TH1F *h_ele_hcalDepth1TowerSumEt_dr03;
+  TH1F *h_ele_hcalDepth2TowerSumEt_dr03;
   TH1F *h_ele_tkSumPt_dr04;
   TH1F *h_ele_ecalRecHitSumEt_dr04;
-  TH1F *h_ele_hcalDepth1RecHitSumEt_dr04;
-  TH1F *h_ele_hcalDepth2RecHitSumEt_dr04;
+  TH1F *h_ele_hcalDepth1TowerSumEt_dr04;
+  TH1F *h_ele_hcalDepth2TowerSumEt_dr04;
 
   std::string outputFile_;
   edm::InputTag electronCollection_;
@@ -1836,22 +1836,22 @@ void GsfElectronMCAnalyzer::beginJob() {
   h_ele_tkSumPt_dr03->Sumw2();
   h_ele_ecalRecHitSumEt_dr03 = new TH1F("h_ele_ecalRecHitSumEt_dr03", "ecal isolation sum, dR=0.3", 100, 0.0, 20.);
   h_ele_ecalRecHitSumEt_dr03->Sumw2();
-  h_ele_hcalDepth1RecHitSumEt_dr03 =
-      new TH1F("h_ele_hcalDepth1RecHitSumEt_dr03", "hcal depth1 isolation sum, dR=0.3", 100, 0.0, 20.);
-  h_ele_hcalDepth1RecHitSumEt_dr03->Sumw2();
-  h_ele_hcalDepth2RecHitSumEt_dr03 =
-      new TH1F("h_ele_hcalDepth2RecHitSumEt_dr03", "hcal depth2 isolation sum, dR=0.3", 100, 0.0, 20.);
-  h_ele_hcalDepth2RecHitSumEt_dr03->Sumw2();
+  h_ele_hcalDepth1TowerSumEt_dr03 =
+      new TH1F("h_ele_hcalDepth1TowerSumEt_dr03", "hcal depth1 isolation sum, dR=0.3", 100, 0.0, 20.);
+  h_ele_hcalDepth1TowerSumEt_dr03->Sumw2();
+  h_ele_hcalDepth2TowerSumEt_dr03 =
+      new TH1F("h_ele_hcalDepth2TowerSumEt_dr03", "hcal depth2 isolation sum, dR=0.3", 100, 0.0, 20.);
+  h_ele_hcalDepth2TowerSumEt_dr03->Sumw2();
   h_ele_tkSumPt_dr04 = new TH1F("h_ele_tkSumPt_dr04", "tk isolation sum, dR=0.4", 100, 0.0, 20.);
   h_ele_tkSumPt_dr04->Sumw2();
   h_ele_ecalRecHitSumEt_dr04 = new TH1F("h_ele_ecalRecHitSumEt_dr04", "ecal isolation sum, dR=0.4", 100, 0.0, 20.);
   h_ele_ecalRecHitSumEt_dr04->Sumw2();
-  h_ele_hcalDepth1RecHitSumEt_dr04 =
-      new TH1F("h_ele_hcalDepth1RecHitSumEt_dr04", "hcal depth1 isolation sum, dR=0.4", 100, 0.0, 20.);
-  h_ele_hcalDepth1RecHitSumEt_dr04->Sumw2();
-  h_ele_hcalDepth2RecHitSumEt_dr04 =
-      new TH1F("h_ele_hcalDepth2RecHitSumEt_dr04", "hcal depth2 isolation sum, dR=0.4", 100, 0.0, 20.);
-  h_ele_hcalDepth2RecHitSumEt_dr04->Sumw2();
+  h_ele_hcalDepth1TowerSumEt_dr04 =
+      new TH1F("h_ele_hcalDepth1TowerSumEt_dr04", "hcal depth1 isolation sum, dR=0.4", 100, 0.0, 20.);
+  h_ele_hcalDepth1TowerSumEt_dr04->Sumw2();
+  h_ele_hcalDepth2TowerSumEt_dr04 =
+      new TH1F("h_ele_hcalDepth2TowerSumEt_dr04", "hcal depth2 isolation sum, dR=0.4", 100, 0.0, 20.);
+  h_ele_hcalDepth2TowerSumEt_dr04->Sumw2();
 
   // fbrem
   h_ele_fbrem = new TH1F("h_ele_fbrem", "ele brem fraction, mode of GSF components", 100, 0., 1.);
@@ -2840,24 +2840,24 @@ void GsfElectronMCAnalyzer::endJob() {
   h_ele_ecalRecHitSumEt_dr03->GetXaxis()->SetTitle("EcalIsoSum, cone 0.3 (GeV)");
   h_ele_ecalRecHitSumEt_dr03->GetYaxis()->SetTitle("Events");
   h_ele_ecalRecHitSumEt_dr03->Write();
-  h_ele_hcalDepth1RecHitSumEt_dr03->GetXaxis()->SetTitle("Hcal1IsoSum, cone 0.3 (GeV)");
-  h_ele_hcalDepth1RecHitSumEt_dr03->GetYaxis()->SetTitle("Events");
-  h_ele_hcalDepth1RecHitSumEt_dr03->Write();
-  h_ele_hcalDepth2RecHitSumEt_dr03->GetXaxis()->SetTitle("Hcal2IsoSum, cone 0.3 (GeV)");
-  h_ele_hcalDepth2RecHitSumEt_dr03->GetYaxis()->SetTitle("Events");
-  h_ele_hcalDepth2RecHitSumEt_dr03->Write();
+  h_ele_hcalDepth1TowerSumEt_dr03->GetXaxis()->SetTitle("Hcal1IsoSum, cone 0.3 (GeV)");
+  h_ele_hcalDepth1TowerSumEt_dr03->GetYaxis()->SetTitle("Events");
+  h_ele_hcalDepth1TowerSumEt_dr03->Write();
+  h_ele_hcalDepth2TowerSumEt_dr03->GetXaxis()->SetTitle("Hcal2IsoSum, cone 0.3 (GeV)");
+  h_ele_hcalDepth2TowerSumEt_dr03->GetYaxis()->SetTitle("Events");
+  h_ele_hcalDepth2TowerSumEt_dr03->Write();
   h_ele_tkSumPt_dr04->GetXaxis()->SetTitle("TkIsoSum, cone 0.4 (GeV/c)");
   h_ele_tkSumPt_dr04->GetYaxis()->SetTitle("Events");
   h_ele_tkSumPt_dr04->Write();
   h_ele_ecalRecHitSumEt_dr04->GetXaxis()->SetTitle("EcalIsoSum, cone 0.4 (GeV)");
   h_ele_ecalRecHitSumEt_dr04->GetYaxis()->SetTitle("Events");
   h_ele_ecalRecHitSumEt_dr04->Write();
-  h_ele_hcalDepth1RecHitSumEt_dr04->GetXaxis()->SetTitle("Hcal1IsoSum, cone 0.4 (GeV)");
-  h_ele_hcalDepth1RecHitSumEt_dr04->GetYaxis()->SetTitle("Events");
-  h_ele_hcalDepth1RecHitSumEt_dr04->Write();
-  h_ele_hcalDepth2RecHitSumEt_dr04->GetXaxis()->SetTitle("Hcal2IsoSum, cone 0.4 (GeV)");
-  h_ele_hcalDepth2RecHitSumEt_dr04->GetYaxis()->SetTitle("Events");
-  h_ele_hcalDepth2RecHitSumEt_dr04->Write();
+  h_ele_hcalDepth1TowerSumEt_dr04->GetXaxis()->SetTitle("Hcal1IsoSum, cone 0.4 (GeV)");
+  h_ele_hcalDepth1TowerSumEt_dr04->GetYaxis()->SetTitle("Events");
+  h_ele_hcalDepth1TowerSumEt_dr04->Write();
+  h_ele_hcalDepth2TowerSumEt_dr04->GetXaxis()->SetTitle("Hcal2IsoSum, cone 0.4 (GeV)");
+  h_ele_hcalDepth2TowerSumEt_dr04->GetYaxis()->SetTitle("Events");
+  h_ele_hcalDepth2TowerSumEt_dr04->Write();
 }
 
 GsfElectronMCAnalyzer::~GsfElectronMCAnalyzer() {
@@ -3581,12 +3581,12 @@ void GsfElectronMCAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
 
           h_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
           h_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
-          h_ele_hcalDepth1RecHitSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
-          h_ele_hcalDepth2RecHitSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
+          h_ele_hcalDepth1TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
+          h_ele_hcalDepth2TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
           h_ele_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt());
           h_ele_ecalRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
-          h_ele_hcalDepth1RecHitSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
-          h_ele_hcalDepth2RecHitSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt(2));
+          h_ele_hcalDepth1TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
+          h_ele_hcalDepth2TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt(2));
 
         }  // gsf electron found
 

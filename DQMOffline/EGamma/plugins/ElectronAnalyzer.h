@@ -313,17 +313,17 @@ private:
   // isolation
   MonitorElement *h1_tkSumPt_dr03;
   MonitorElement *h1_ecalRecHitSumEt_dr03;
-  MonitorElement *h1_hcalRecHitSumEt_dr03;
+  MonitorElement *h1_hcalTowerSumEt_dr03;
   MonitorElement *h1_PFch_dr03;
   MonitorElement *h1_PFem_dr03;
   MonitorElement *h1_PFnh_dr03;
-  //    MonitorElement * h1_hcalDepth1RecHitSumEt_dr03 ;
-  //    MonitorElement * h1_hcalDepth2RecHitSumEt_dr03 ;
+  //    MonitorElement * h1_hcalDepth1TowerSumEt_dr03 ;
+  //    MonitorElement * h1_hcalDepth2TowerSumEt_dr03 ;
   //    MonitorElement * h1_tkSumPt_dr04 ;
   //    MonitorElement * h1_ecalRecHitSumEt_dr04 ;
-  //    MonitorElement * h1_hcalRecHitSumEt_dr04 ;
-  ////    MonitorElement * h1_hcalDepth1RecHitSumEt_dr04 ;
-  ////    MonitorElement * h1_hcalDepth2RecHitSumEt_dr04 ;
+  //    MonitorElement * h1_hcalTowerSumEt_dr04 ;
+  ////    MonitorElement * h1_hcalDepth1TowerSumEt_dr04 ;
+  ////    MonitorElement * h1_hcalDepth2TowerSumEt_dr04 ;
 
   // di-electron mass
   MonitorElement *h1_mee;
