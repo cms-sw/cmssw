@@ -547,6 +547,8 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Digi' in step and 'Trigger' not in step:
             stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-DIGI-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+        elif 'DigiTrigger' in step: # for Phase-2
+            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1TrackTrigger,L1,DIGI2RAW,HLT:@fake2'}, stepDict[step][k]])
         elif 'Reco' in step:
             stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'AODSIM', '--eventcontent':'AODSIM'}, stepDict[step][k]])
         elif 'MiniAOD' in step:
@@ -562,6 +564,7 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     steps = [
         'Digi',
+        'DigiTrigger',
         'Reco',
         'RecoGlobal',
         'HARVEST',
@@ -572,6 +575,7 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     ],
     PU = [
         'Digi',
+        'DigiTrigger',
         'Reco',
         'RecoGlobal',
         'HARVEST',
@@ -906,6 +910,17 @@ class UpgradeWorkflowPremixProdLike(UpgradeWorkflowPremix,UpgradeWorkflow_ProdLi
         # copy steps, then apply specializations
         UpgradeWorkflowPremix.setup_(self, step, stepName, stepDict, k, properties)
         UpgradeWorkflow_ProdLike.setup_(self, step, stepName, stepDict, k, properties)
+        #
+        if 'Digi' in step:
+            d = merge([stepDict[self.getStepName(step)][k]])
+            tmpsteps = []
+            for s in d["-s"].split(","):
+                if "DIGI:pdigi_valid" in s:
+                    tmpsteps.append("DIGI")
+                else:
+                    tmpsteps.append(s)
+            d = merge([{"-s" : ",".join(tmpsteps)},d])
+            stepDict[stepName][k] = d
     def condition(self, fragment, stepList, key, hasHarvest):
         # use both conditions
         return UpgradeWorkflowPremix.condition(self, fragment, stepList, key, hasHarvest) and UpgradeWorkflow_ProdLike.condition(self, fragment, stepList, key, hasHarvest)
