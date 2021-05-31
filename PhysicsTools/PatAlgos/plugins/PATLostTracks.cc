@@ -12,8 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include "TLorentzVector.h"
-
 namespace {
   bool passesQuality(const reco::Track& trk, const std::vector<reco::TrackBase::TrackQuality>& allowedQuals) {
     for (const auto& qual : allowedQuals) {
