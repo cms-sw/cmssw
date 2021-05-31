@@ -335,12 +335,12 @@ private:
 
   TH1F *h_ele_tkSumPt_dr03;
   TH1F *h_ele_ecalRecHitSumEt_dr03;
-  TH1F *h_ele_hcalDepth1RecHitSumEt_dr03;
-  TH1F *h_ele_hcalDepth2RecHitSumEt_dr03;
+  TH1F *h_ele_hcalDepth1TowerSumEt_dr03;
+  TH1F *h_ele_hcalDepth2TowerSumEt_dr03;
   TH1F *h_ele_tkSumPt_dr04;
   TH1F *h_ele_ecalRecHitSumEt_dr04;
-  TH1F *h_ele_hcalDepth1RecHitSumEt_dr04;
-  TH1F *h_ele_hcalDepth2RecHitSumEt_dr04;
+  TH1F *h_ele_hcalDepth1TowerSumEt_dr04;
+  TH1F *h_ele_hcalDepth2TowerSumEt_dr04;
 
   // electron selection
   double minEt_;
@@ -1222,16 +1222,16 @@ void GsfElectronDataAnalyzer::beginJob() {
   // isolation
   h_ele_tkSumPt_dr03 = new TH1F("h_ele_tkSumPt_dr03", "tk isolation sum, dR=0.3", 100, 0.0, 20.);
   h_ele_ecalRecHitSumEt_dr03 = new TH1F("h_ele_ecalRecHitSumEt_dr03", "ecal isolation sum, dR=0.3", 100, 0.0, 20.);
-  h_ele_hcalDepth1RecHitSumEt_dr03 =
-      new TH1F("h_ele_hcalDepth1RecHitSumEt_dr03", "hcal depth1 isolation sum, dR=0.3", 100, 0.0, 20.);
-  h_ele_hcalDepth2RecHitSumEt_dr03 =
-      new TH1F("h_ele_hcalDepth2RecHitSumEt_dr03", "hcal depth2 isolation sum, dR=0.3", 100, 0.0, 20.);
-  h_ele_tkSumPt_dr04 = new TH1F("h_ele_tkSumPt_dr04", "hcal isolation sum", 100, 0.0, 20.);
+  h_ele_hcalDepth1TowerSumEt_dr03 =
+      new TH1F("h_ele_hcalDepth1TowerSumEt_dr03", "hcal depth1 isolation sum, dR=0.3", 100, 0.0, 20.);
+  h_ele_hcalDepth2TowerSumEt_dr03 =
+      new TH1F("h_ele_hcalDepth2TowerSumEt_dr03", "hcal depth2 isolation sum, dR=0.3", 100, 0.0, 20.);
+  h_ele_tkSumPt_dr04 = new TH1F("h_ele_tkSumPt_dr04", "trk isolation sum", 100, 0.0, 20.);
   h_ele_ecalRecHitSumEt_dr04 = new TH1F("h_ele_ecalRecHitSumEt_dr04", "ecal isolation sum, dR=0.4", 100, 0.0, 20.);
-  h_ele_hcalDepth1RecHitSumEt_dr04 =
-      new TH1F("h_ele_hcalDepth1RecHitSumEt_dr04", "hcal depth1 isolation sum, dR=0.4", 100, 0.0, 20.);
-  h_ele_hcalDepth2RecHitSumEt_dr04 =
-      new TH1F("h_ele_hcalDepth2RecHitSumEt_dr04", "hcal depth2 isolation sum, dR=0.4", 100, 0.0, 20.);
+  h_ele_hcalDepth1TowerSumEt_dr04 =
+      new TH1F("h_ele_hcalDepth1TowerSumEt_dr04", "hcal depth1 isolation sum, dR=0.4", 100, 0.0, 20.);
+  h_ele_hcalDepth2TowerSumEt_dr04 =
+      new TH1F("h_ele_hcalDepth2TowerSumEt_dr04", "hcal depth2 isolation sum, dR=0.4", 100, 0.0, 20.);
 
   // fbrem
   h_ele_fbrem = new TH1F("h_ele_fbrem", "ele brem fraction, mode", 100, 0., 1.);
@@ -1835,24 +1835,24 @@ void GsfElectronDataAnalyzer::endJob() {
   h_ele_ecalRecHitSumEt_dr03->GetXaxis()->SetTitle("EcalIsoSum, cone 0.3 (GeV)");
   h_ele_ecalRecHitSumEt_dr03->GetYaxis()->SetTitle("Events");
   h_ele_ecalRecHitSumEt_dr03->Write();
-  h_ele_hcalDepth1RecHitSumEt_dr03->GetXaxis()->SetTitle("Hcal1IsoSum, cone 0.3 (GeV)");
-  h_ele_hcalDepth1RecHitSumEt_dr03->GetYaxis()->SetTitle("Events");
-  h_ele_hcalDepth1RecHitSumEt_dr03->Write();
-  h_ele_hcalDepth2RecHitSumEt_dr03->GetXaxis()->SetTitle("Hcal2IsoSum, cone 0.3 (GeV)");
-  h_ele_hcalDepth2RecHitSumEt_dr03->GetYaxis()->SetTitle("Events");
-  h_ele_hcalDepth2RecHitSumEt_dr03->Write();
+  h_ele_hcalDepth1TowerSumEt_dr03->GetXaxis()->SetTitle("Hcal1IsoSum, cone 0.3 (GeV)");
+  h_ele_hcalDepth1TowerSumEt_dr03->GetYaxis()->SetTitle("Events");
+  h_ele_hcalDepth1TowerSumEt_dr03->Write();
+  h_ele_hcalDepth2TowerSumEt_dr03->GetXaxis()->SetTitle("Hcal2IsoSum, cone 0.3 (GeV)");
+  h_ele_hcalDepth2TowerSumEt_dr03->GetYaxis()->SetTitle("Events");
+  h_ele_hcalDepth2TowerSumEt_dr03->Write();
   h_ele_tkSumPt_dr04->GetXaxis()->SetTitle("TkIsoSum, cone 0.4 (GeV/c)");
   h_ele_tkSumPt_dr04->GetYaxis()->SetTitle("Events");
   h_ele_tkSumPt_dr04->Write();
   h_ele_ecalRecHitSumEt_dr04->GetXaxis()->SetTitle("EcalIsoSum, cone 0.4 (GeV)");
   h_ele_ecalRecHitSumEt_dr04->GetYaxis()->SetTitle("Events");
   h_ele_ecalRecHitSumEt_dr04->Write();
-  h_ele_hcalDepth1RecHitSumEt_dr04->GetXaxis()->SetTitle("Hcal1IsoSum, cone 0.4 (GeV)");
-  h_ele_hcalDepth1RecHitSumEt_dr04->GetYaxis()->SetTitle("Events");
-  h_ele_hcalDepth1RecHitSumEt_dr04->Write();
-  h_ele_hcalDepth2RecHitSumEt_dr04->GetXaxis()->SetTitle("Hcal2IsoSum, cone 0.4 (GeV)");
-  h_ele_hcalDepth2RecHitSumEt_dr04->GetYaxis()->SetTitle("Events");
-  h_ele_hcalDepth2RecHitSumEt_dr04->Write();
+  h_ele_hcalDepth1TowerSumEt_dr04->GetXaxis()->SetTitle("Hcal1IsoSum, cone 0.4 (GeV)");
+  h_ele_hcalDepth1TowerSumEt_dr04->GetYaxis()->SetTitle("Events");
+  h_ele_hcalDepth1TowerSumEt_dr04->Write();
+  h_ele_hcalDepth2TowerSumEt_dr04->GetXaxis()->SetTitle("Hcal2IsoSum, cone 0.4 (GeV)");
+  h_ele_hcalDepth2TowerSumEt_dr04->GetYaxis()->SetTitle("Events");
+  h_ele_hcalDepth2TowerSumEt_dr04->Write();
 }
 
 void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
@@ -2190,12 +2190,12 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
     h_ele_tkSumPt_dr03->Fill(gsfIter->dr03TkSumPt());
     h_ele_ecalRecHitSumEt_dr03->Fill(gsfIter->dr03EcalRecHitSumEt());
-    h_ele_hcalDepth1RecHitSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt(1));
-    h_ele_hcalDepth2RecHitSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt(2));
+    h_ele_hcalDepth1TowerSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt(1));
+    h_ele_hcalDepth2TowerSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt(2));
     h_ele_tkSumPt_dr04->Fill(gsfIter->dr04TkSumPt());
     h_ele_ecalRecHitSumEt_dr04->Fill(gsfIter->dr04EcalRecHitSumEt());
-    h_ele_hcalDepth1RecHitSumEt_dr04->Fill(gsfIter->dr04HcalTowerSumEt(1));
-    h_ele_hcalDepth2RecHitSumEt_dr04->Fill(gsfIter->dr04HcalTowerSumEt(2));
+    h_ele_hcalDepth1TowerSumEt_dr04->Fill(gsfIter->dr04HcalTowerSumEt(1));
+    h_ele_hcalDepth2TowerSumEt_dr04->Fill(gsfIter->dr04HcalTowerSumEt(2));
 
     float enrj1 = gsfIter->superCluster()->energy();
     // mee

@@ -304,15 +304,15 @@ void ElectronTagProbeAnalyzer::bookHistograms(DQMStore::IBooker& iBooker, edm::R
                                    "EcalIsoSum, cone 0.3 (GeV)",
                                    "Events",
                                    "ELE_LOGY E1 P");
-  h1_hcalRecHitSumEt_dr03 = bookH1(iBooker,
-                                   "hcalRecHitSumEt_dr03",
-                                   "hcal isolation sum, dR=0.3",
-                                   100,
-                                   0.0,
-                                   20.,
-                                   "HcalIsoSum, cone 0.3 (GeV)",
-                                   "Events",
-                                   "ELE_LOGY E1 P");
+  h1_hcalTowerSumEt_dr03 = bookH1(iBooker,
+                                  "hcalTowerSumEt_dr03",
+                                  "hcal isolation sum, dR=0.3",
+                                  100,
+                                  0.0,
+                                  20.,
+                                  "HcalIsoSum, cone 0.3 (GeV)",
+                                  "Events",
+                                  "ELE_LOGY E1 P");
 
   // di-electron mass
   setBookIndex(200);
@@ -555,7 +555,7 @@ void ElectronTagProbeAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
         // isolation
         h1_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
         h1_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
-        h1_hcalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt());
+        h1_hcalTowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt());
 
         // inv Mass with opposite sign
         bool invMassTTAlreadyFilled = false;
