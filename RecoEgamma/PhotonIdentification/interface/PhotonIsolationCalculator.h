@@ -129,8 +129,8 @@ private:
   std::array<double, 7> hcalIsoInnerRadBEE_;
   std::array<double, 7> hcalIsoOuterRadBEE_;
 
-  std::array<double, 4> hcalIsoEThresHB_;
-  std::array<double, 7> hcalIsoEThresHE_;
+  EgammaHcalIsolation::arrayHB hcalIsoEThresHB_;
+  EgammaHcalIsolation::arrayHE hcalIsoEThresHE_;
   int maxHcalSeverity_;
 
   std::vector<int> flagsEB_;

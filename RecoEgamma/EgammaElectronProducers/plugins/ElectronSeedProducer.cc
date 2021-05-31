@@ -85,9 +85,9 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
 
       hcalCfg.hbheRecHits = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheRecHits"));
 
-      hcalCfg.eThresHB = conf.getParameter<std::array<double, 4>>("recHitEThresholdHB");
+      hcalCfg.eThresHB = conf.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
       hcalCfg.maxSeverityHB = conf.getParameter<int>("maxHcalRecHitSeverity");
-      hcalCfg.eThresHE = conf.getParameter<std::array<double, 7>>("recHitEThresholdHE");
+      hcalCfg.eThresHE = conf.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
       hcalCfg.maxSeverityHE = hcalCfg.maxSeverityHB;
     }
     hcalHelper_ = std::make_unique<ElectronHcalHelper>(hcalCfg, consumesCollector());

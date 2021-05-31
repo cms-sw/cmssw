@@ -341,9 +341,9 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
     //hcalCfg_.hbheRecHits = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hbheRecHits"));
     hcalCfg_.hbheRecHits = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hbheRecHits"));
 
-    hcalCfg_.eThresHB = cfg.getParameter<std::array<double, 4>>("recHitEThresholdHB");
+    hcalCfg_.eThresHB = cfg.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
     hcalCfg_.maxSeverityHB = cfg.getParameter<int>("maxHcalRecHitSeverity");
-    hcalCfg_.eThresHE = cfg.getParameter<std::array<double, 7>>("recHitEThresholdHE");
+    hcalCfg_.eThresHE = cfg.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
     hcalCfg_.maxSeverityHE = hcalCfg_.maxSeverityHB;
   }
 
@@ -354,9 +354,9 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   //hcalCfgBc_.hbheRecHits = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hbheRecHits"));
   hcalCfgBc_.hbheRecHits = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hbheRecHits"));
 
-  hcalCfgBc_.eThresHB = cfg.getParameter<std::array<double, 4>>("recHitEThresholdHB");
+  hcalCfgBc_.eThresHB = cfg.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
   hcalCfgBc_.maxSeverityHB = cfg.getParameter<int>("maxHcalRecHitSeverity");
-  hcalCfgBc_.eThresHE = cfg.getParameter<std::array<double, 7>>("recHitEThresholdHE");
+  hcalCfgBc_.eThresHE = cfg.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
   hcalCfgBc_.maxSeverityHE = hcalCfgBc_.maxSeverityHB;
 
   hcalRun2EffDepth_ = cfg.getParameter<bool>("hcalRun2EffDepth");

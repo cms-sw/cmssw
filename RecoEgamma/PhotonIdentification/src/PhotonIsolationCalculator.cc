@@ -138,8 +138,8 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
   severityExclEB_ = severitiesEB;
   severityExclEE_ = severitiesEE;
 
-  hcalIsoEThresHB_ = conf.getParameter<std::array<double, 4>>("recHitEThresholdHB");
-  hcalIsoEThresHE_ = conf.getParameter<std::array<double, 7>>("recHitEThresholdHE");
+  hcalIsoEThresHB_ = conf.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
+  hcalIsoEThresHE_ = conf.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
   maxHcalSeverity_ = conf.getParameter<int>("maxHcalRecHitSeverity");
 }
 
@@ -553,8 +553,8 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                                          double RCone,
                                                          double RConeInner,
                                                          int depth) const {
-  const std::array<double, 4> e04{{0., 0., 0., 0.}};
-  const std::array<double, 7> e07{{0., 0., 0., 0., 0., 0., 0.}};
+  const EgammaHcalIsolation::arrayHB e04{{0., 0., 0., 0.}};
+  const EgammaHcalIsolation::arrayHE e07{{0., 0., 0., 0., 0., 0., 0.}};
 
   if constexpr (isoBC) {
     auto hcaliso = EgammaHcalIsolation(EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,

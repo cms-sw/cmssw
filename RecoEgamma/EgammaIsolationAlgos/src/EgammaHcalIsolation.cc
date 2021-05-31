@@ -24,11 +24,11 @@ EgammaHcalIsolation::EgammaHcalIsolation(InclusionRule extIncRule,
                                          double extRadius,
                                          InclusionRule intIncRule,
                                          double intRadius,
-                                         const std::array<double, 4> &eThresHB,
-                                         const std::array<double, 4> &etThresHB,
+                                         const arrayHB &eThresHB,
+                                         const arrayHB &etThresHB,
                                          int maxSeverityHB,
-                                         const std::array<double, 7> &eThresHE,
-                                         const std::array<double, 7> &etThresHE,
+                                         const arrayHE &eThresHE,
+                                         const arrayHE &etThresHE,
                                          int maxSeverityHE,
                                          const HBHERecHitCollection &mhbhe,
                                          edm::ESHandle<CaloGeometry> caloGeometry,
@@ -73,11 +73,11 @@ EgammaHcalIsolation::EgammaHcalIsolation(InclusionRule extIncRule,
                                          double extRadius,
                                          InclusionRule intIncRule,
                                          double intRadius,
-                                         const std::array<double, 4> &eThresHB,
-                                         const std::array<double, 4> &etThresHB,
+                                         const arrayHB &eThresHB,
+                                         const arrayHB &etThresHB,
                                          int maxSeverityHB,
-                                         const std::array<double, 7> &eThresHE,
-                                         const std::array<double, 7> &etThresHE,
+                                         const arrayHE &eThresHE,
+                                         const arrayHE &etThresHE,
                                          int maxSeverityHE,
                                          const HBHERecHitCollection &mhbhe,
                                          const CaloGeometry &caloGeometry,
@@ -135,7 +135,7 @@ double EgammaHcalIsolation::goodHitEnergy(const GlobalPoint &pclu,
   const int hd = hid.depth(), he = hid.ieta(), hp = hid.iphi();
   const int h1 = hd - 1;
 
-  if ((hid.subdet() == HcalBarrel and (hd < 1 or hd > 4)) or (hid.subdet() == HcalEndcap and (hd < 1 or hd > 7)))
+  if ((hid.subdet() == HcalBarrel and (hd < 1 or hd > int(eThresHB_.size()))) or (hid.subdet() == HcalEndcap and (hd < 1 or hd > int(eThresHE_.size()))))
     edm::LogWarning("EgammaHcalIsolation")
         << " hit in subdet " << hid.subdet() << " has an unaccounted for depth of " << hd << "!!";
 
