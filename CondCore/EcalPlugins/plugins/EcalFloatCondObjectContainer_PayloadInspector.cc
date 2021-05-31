@@ -131,26 +131,45 @@ namespace {
   /************************************************************************
      2d plot of ECAL FloatCondObjectContainer difference between 2 IOVs
   ************************************************************************/
-  class EcalFloatCondObjectContainerDiff : public cond::payloadInspector::PlotImage<EcalFloatCondObjectContainer> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalFloatCondObjectContainerDiffBase
+      : public cond::payloadInspector::PlotImage<EcalFloatCondObjectContainer, nIOVs, ntags> {
   public:
-    EcalFloatCondObjectContainerDiff()
-        : cond::payloadInspector::PlotImage<EcalFloatCondObjectContainer>("ECAL FloatCondObjectContainer difference") {
-      setSingleIov(false);
-    }
+    EcalFloatCondObjectContainerDiffBase()
+        : cond::payloadInspector::PlotImage<EcalFloatCondObjectContainer, nIOVs, ntags>(
+              "ECAL FloatCondObjectContainer difference") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       TH2F* barrel = new TH2F("EB", "EB difference", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p = new TH2F("EE+", "EE+ difference", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "EE- difference", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       double EBmean = 0., EBrms = 0., EEmean = 0., EErms = 0.;
       int EBtot = 0, EEtot = 0;
 
-      //      unsigned int run[2] = {0, 0}, irun = 0;
-      unsigned int run[2], irun = 0;
+      unsigned int run[2];
       float vEB[kEBChannels], vEE[kEEChannels];
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalFloatCondObjectContainer> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalFloatCondObjectContainer> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           for (int ieta = -MAX_IETA; ieta <= MAX_IETA; ieta++) {
             Double_t eta = (Double_t)ieta;
@@ -205,7 +224,6 @@ namespace {
         }        // payload
         else
           return false;
-        irun++;
       }  // loop over IOVs
 
       double vt = (double)EBtot;
@@ -233,9 +251,15 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal FloatCondObjectContainer, IOV %i - %i", run[1], run[0]));
-
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      if (ntags == 2 && len < 150) {
+        t1.SetTextSize(0.04);
+        t1.DrawLatex(
+            0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i - %i", l_tagname[0].c_str(), run[1], run[0]));
+      }
       float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
       TPad** pad = new TPad*;
@@ -251,16 +275,20 @@ namespace {
       pad[2]->cd();
       DrawEE(endc_p, pEEmin, pEEmax);
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
-
+  };   // class EcalFloatCondObjectContainerDiffBase
+  using EcalFloatCondObjectContainerDiffOneTag =
+      EcalFloatCondObjectContainerDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using EcalFloatCondObjectContainerDiffTwoTags =
+      EcalFloatCondObjectContainerDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(EcalFloatCondObjectContainer) {
   PAYLOAD_INSPECTOR_CLASS(EcalFloatCondObjectContainerPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalFloatCondObjectContainerDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalFloatCondObjectContainerDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalFloatCondObjectContainerDiffTwoTags);
 }

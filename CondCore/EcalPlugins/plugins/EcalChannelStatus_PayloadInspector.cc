@@ -388,18 +388,17 @@ namespace {
       ebmap_coarse->Draw("text,same");
 
       int len = l_tagname[0].length() + l_tagname[1].length();
-      if (ntags == 2 && len < 60) {
-        t1.SetTextSize(0.03);
-        t1.DrawLatex(0.5,
-                     0.96,
-                     Form("EB Channel Status Masks (Diff), %s IOV %i - %s  IOV %i",
-                          l_tagname[1].c_str(),
-                          run[1],
-                          l_tagname[0].c_str(),
-                          run[0]));
+      if (ntags == 2) {
+        if (len < 60) {
+          t1.SetTextSize(0.03);
+          t1.DrawLatex(
+              0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+        } else
+          t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("EB Channel Status Masks (Diff), IOV %i - IOV %i", run[1], run[0]));
       } else {
         t1.SetTextSize(0.05);
-        t1.DrawLatex(0.5, 0.96, Form("EB Channel Status Masks (Diff), IOV: %i vs %i", run[0], run[1]));
+        t1.DrawLatex(0.5, 0.96, Form("%s IOV: %i - %i", l_tagname[0].c_str(), run[1], run[0]));
       }
 
       char txt[80];
@@ -560,18 +559,18 @@ namespace {
 
       t1.SetTextColor(1);
       int len = l_tagname[0].length() + l_tagname[1].length();
-      if (ntags == 2 && len < 60) {
-        t1.SetTextSize(0.03);
-        t1.DrawLatex(0.5,
-                     0.96,
-                     Form("EE Channel Status Masks (Diff), %s IOV %i - %s  IOV %i",
-                          l_tagname[1].c_str(),
-                          run[1],
-                          l_tagname[0].c_str(),
-                          run[0]));
+      if (ntags == 2) {
+        if (len < 60) {
+          t1.SetTextSize(0.03);
+          t1.DrawLatex(
+              0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+        } else {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5, 0.96, Form("EE Channel Status Masks (Diff), IOV %i - IOV %i", run[1], run[0]));
+        }
       } else {
         t1.SetTextSize(0.05);
-        t1.DrawLatex(0.5, 0.96, Form("EE Channel Status Masks (Diff), IOV %i vs %i", run[0], run[1]));
+        t1.DrawLatex(0.5, 0.96, Form("%s IOV: %i - %i", l_tagname[0].c_str(), run[1], run[0]));
       }
 
       char txt[80];
@@ -592,9 +591,9 @@ namespace {
   using EcalChannelStatusEEDiffOneTag = EcalChannelStatusEEDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalChannelStatusEEDiffTwoTags = EcalChannelStatusEEDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
-  /*****************************************
- 2d plot of EcalChannelStatus Error Summary of 1 IOV
- ******************************************/
+  /********************************************************
+     2d plot of EcalChannelStatus Error Summary of 1 IOV
+   ********************************************************/
   class EcalChannelStatusSummaryPlot : public cond::payloadInspector::PlotImage<EcalChannelStatus> {
   public:
     EcalChannelStatusSummaryPlot()
