@@ -130,10 +130,10 @@ void l1t::TriggerMenuParser::setVecCorrelationTemplate(
   m_vecCorrelationTemplate = vecCorrelationTempl;
 }
 
-//void l1t::TriggerMenuParser::setVecCorrelationThreeBodyTemplate(
-//    const std::vector<std::vector<CorrelationThreeBodyTemplate> >& vecCorrelationThreeBodyTempl) {
-//  m_vecCorrelationThreeBodyTemplate = vecCorrelationThreeBodyTempl;
-//}
+void l1t::TriggerMenuParser::setVecCorrelationThreeBodyTemplate(
+    const std::vector<std::vector<CorrelationThreeBodyTemplate> >& vecCorrelationThreeBodyTempl) {
+  m_vecCorrelationThreeBodyTemplate = vecCorrelationThreeBodyTempl;
+}
 
 void l1t::TriggerMenuParser::setVecCorrelationWithOverlapRemovalTemplate(
     const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >& vecCorrelationWithOverlapRemovalTempl) {
@@ -311,7 +311,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                    condition.getType() == esConditionType::InvariantMassUpt) {  // Added for displaced muons
           parseCorrelation(condition, chipNr);
 
-          //parse three-body Correlation Conditions                                                                                                                         
+          //parse three-body Correlation Conditions
         } else if (condition.getType() == esConditionType::InvariantMass3) {
           parseCorrelationThreeBody(condition, chipNr);
 
@@ -2844,7 +2844,7 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
   std::string type = l1t2string(corrCond.getType());
   std::string name = l1t2string(corrCond.getName());
 
-  LogDebug("TriggerMenuParser") << " ****************************************** " << std::endl 
+  LogDebug("TriggerMenuParser") << " ****************************************** " << std::endl
                                 << "     (in parseCorrelationThreeBody) " << std::endl
                                 << " condition = " << condition << std::endl
                                 << " particle  = " << particle << std::endl
@@ -2867,8 +2867,8 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
   const int nrObj = 3;
 
   // object types and greater equal flag - filled in the loop
-  std::vector<GlobalObject> objType(nrObj);          
-  std::vector<GtConditionCategory> condCateg(nrObj); 
+  std::vector<GlobalObject> objType(nrObj);
+  std::vector<GtConditionCategory> condCateg(nrObj);
 
   // correlation flag and index in the cor*vector
   const bool corrFlag = true;
@@ -2888,16 +2888,15 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
     //
     double minV = cut.getMinimum().value;
     double maxV = cut.getMaximum().value;
-    
+
     //Scale down very large numbers out of xml
-    if (maxV > 1.0e8) maxV = 1.0e8;
-    
+    if (maxV > 1.0e8)
+      maxV = 1.0e8;
+
     if (cut.getCutType() == esCutType::Mass) {
-      LogDebug("TriggerMenuParser") << "CutType: " << cut.getCutType() 
-				    << "\tMass Cut minV = " << minV
-				    << "\tMass Cut maxV = " << maxV 
-				    << " precMin = " << cut.getMinimum().index    
-				    << " precMax = " << cut.getMaximum().index << std::endl;
+      LogDebug("TriggerMenuParser") << "CutType: " << cut.getCutType() << "\tMass Cut minV = " << minV
+                                    << "\tMass Cut maxV = " << maxV << " precMin = " << cut.getMinimum().index
+                                    << " precMax = " << cut.getMaximum().index << std::endl;
       corrThreeBodyParameter.minMassCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
       corrThreeBodyParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
       corrThreeBodyParameter.precMassCut = cut.getMinimum().index;
@@ -2905,12 +2904,12 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
     }
   }
   corrThreeBodyParameter.corrCutType = cutType;
-  
+
   // Get the three objects that form the legs
   const std::vector<esObject>& objects = corrCond.getObjects();
   if (objects.size() != 3) {
-    edm::LogError("TriggerMenuParser") << "incorrect number of objects for the correlation condition " << name 
-				       << " corrFlag " << corrFlag << std::endl;
+    edm::LogError("TriggerMenuParser") << "incorrect number of objects for the correlation condition " << name
+                                       << " corrFlag " << corrFlag << std::endl;
     return false;
   }
 
@@ -2924,7 +2923,7 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
     // check the leg type
     if (object.getType() == esObjectType::Muon) {
       // we have a muon
-      parseMuonCorr(&object, chipNr); 
+      parseMuonCorr(&object, chipNr);
       corrIndexVal[lll] = (m_corMuonTemplate[chipNr]).size() - 1;
 
       //Now set some flags for this subCondition
@@ -2933,9 +2932,9 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
 
     } else {
       edm::LogError("TriggerMenuParser") << "Checked the object Type " << object.getType()
-                                         << " for the correlation condition " << name 
-					 << ": no three muons in the event!" << std::endl;
-    }  
+                                         << " for the correlation condition " << name
+                                         << ": no three muons in the event!" << std::endl;
+    }
   }  // End loop over legs
 
   // fill the three-body correlation condition
@@ -2963,7 +2962,7 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
   // condition is not duplicate, check was done at the beginning
 
   (m_vecCorrelationThreeBodyTemplate[chipNr]).push_back(correlationThreeBodyCond);
-  
+
   //
   return true;
 }

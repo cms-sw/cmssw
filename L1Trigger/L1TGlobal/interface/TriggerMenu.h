@@ -142,11 +142,13 @@ public:
   void setVecCorrelationThreeBodyTemplate(const std::vector<std::vector<CorrelationThreeBodyTemplate> >&);
 
   //
-  inline const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >& vecCorrelationWithOverlapRemovalTemplate() const {
+  inline const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&
+  vecCorrelationWithOverlapRemovalTemplate() const {
     return m_vecCorrelationWithOverlapRemovalTemplate;
   }
 
-  void setVecCorrelationWithOverlapRemovalTemplate(const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&);
+  void setVecCorrelationWithOverlapRemovalTemplate(
+      const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&);
 
   //
   inline const std::vector<std::vector<MuonTemplate> >& corMuonTemplate() const { return m_corMuonTemplate; }
