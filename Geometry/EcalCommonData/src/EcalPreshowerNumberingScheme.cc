@@ -5,6 +5,7 @@
 
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include <sstream>
 
 //#define EDM_ML_DEBUG
 
@@ -97,6 +98,15 @@ EcalPreshowerNumberingScheme::~EcalPreshowerNumberingScheme() {
  */
 uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
   const int numberOfHierarchyLevels = baseNumber.getLevels();
+  bool dd4hep = ((numberOfHierarchyLevels == 10) && (baseNumber.getCopyNumber(numberOfHierarchyLevels - 1) == 1) &&
+                 (baseNumber.getLevelName(numberOfHierarchyLevels - 1) != "OCMS"));
+#ifdef EDM_ML_DEBUG
+  std::ostringstream st1;
+  for (int k = 0; k < numberOfHierarchyLevels; ++k)
+    st1 << ", " << baseNumber.getLevelName(k) << ":" << baseNumber.getCopyNumber(k);
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme: dd4hep " << dd4hep
+                               << " witg  geometry levels = " << numberOfHierarchyLevels << st1.str();
+#endif
   uint32_t intIndex = 0;
   if (numberOfHierarchyLevels > 0) {
     // depth index - silicon layer 1-st or 2-nd
@@ -110,25 +120,32 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
                                   << " of Presh. Si. Strip : " << baseNumber.getLevelName(0);
     }
 
-    // Access different hierarchy levels
-    static constexpr int stripHierachyLevel = 0;
-    static constexpr int boxHierachyLevel = 2;
-    static constexpr int ladderHierachyLevel = 3;
-    static constexpr int regionHierachyLevel = 5;
-
     // Z index +Z = 1 ; -Z = 2
 
-    int zs = baseNumber.getCopyNumber(regionHierachyLevel);
+    int zs = dd4hep ? baseNumber.getCopyNumber(4) : baseNumber.getCopyNumber(5);
     int zside = 2 * (1 - zs) + 1;
 
-    // box number
-    int box = baseNumber.getCopyNumber(boxHierachyLevel);
+    // box numer and ladder copy number
+    int box(0), ladd_copy(0);
+    std::string ladd("");
+    if (dd4hep) {
+      auto num1 = numbers(baseNumber.getLevelName(2));
+      box = num1.second;
+      ladd_copy = num1.first;
+      ladd = baseNumber.getLevelName(2).substr(0, 6);
+    } else {
+      box = baseNumber.getCopyNumber(2);
+      ladd_copy = baseNumber.getCopyNumber(3);
+      ladd = baseNumber.getLevelName(3).substr(0, 6);
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme::Box " << box << " Ladder " << ladd << ":"
+                                 << ladd_copy;
+#endif
 
     int x = 0, y = 0, ix, iy, id;
     int mapX[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int mapY[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    const std::string& ladd = baseNumber.getLevelName(3).substr(0, 6);
-    int ladd_copy = baseNumber.getCopyNumber(ladderHierachyLevel);
 
     if (ladd == "SFLX0a" || ladd == "SFLY0a") {
       mapX[5] = mapX[6] = mapX[7] = mapX[8] = mapX[9] = 1;
@@ -409,7 +426,7 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     }
 
     // strip number inside wafer
-    int strip = baseNumber.getCopyNumber(stripHierachyLevel);
+    int strip = baseNumber.getCopyNumber(0);
 
     if (layer == 1) {
       if (zside > 0 && y <= 20)
@@ -438,4 +455,24 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
   }
 
   return intIndex;
+}
+
+std::pair<int, int> EcalPreshowerNumberingScheme::numbers(const std::string& name) const {
+  int num1(-1), num2(-1);
+  if (name.find('#') != std::string::npos) {
+    uint32_t ip1 = name.find('#');
+    if (name.find('!') != std::string::npos) {
+      uint32_t ip2 = name.find('!');
+      num1 = ::atoi(name.substr(ip1 + 1, ip2 - ip1 - 1).c_str());
+      if (name.find('#', ip2) != std::string::npos) {
+        uint32_t ip3 = name.find('#', ip2);
+        num2 = ::atoi(name.substr(ip3 + 1, name.size() - ip3 - 1).c_str());
+      }
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme::Numbers from " << name << " are " << num1 << " and "
+                               << num2;
+#endif
+  return std::make_pair(num1, num2);
 }
