@@ -44,7 +44,7 @@
 typedef Pythia8::ParticleDataEntry* ParticleDataEntryPtr;
 #else
 typedef Pythia8::ParticleDataEntryPtr ParticleDataEntryPtr;
-#endif 
+#endif
 //
 // class declaration
 //
