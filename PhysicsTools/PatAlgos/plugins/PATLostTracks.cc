@@ -105,7 +105,7 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig)
       maxDxySigForNotReconstructedPrimary_(iConfig.getParameter<edm::ParameterSet>("pvAssignment")
                                                .getParameter<double>("maxDxySigForNotReconstructedPrimary")),
       useLegacySetup_(iConfig.getParameter<bool>("useLegacySetup")),
-      xiSelection_(iConfig.getParameter<double>("xiSelection")),
+      xiSelection_(iConfig.getParameter<bool>("xiSelection")),
       xiMassCut_(iConfig.getParameter<double>("xiMassCut")) {
   std::vector<std::string> trkQuals(iConfig.getParameter<std::vector<std::string>>("qualsToAutoAccept"));
   std::transform(
@@ -205,14 +205,14 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
     }
     if (xiSelection_) {
       // selecting potential Xi- -> Lambda pi candidates
-      TLorentzVector p4Lambda;
-      p4Lambda.SetPtEtaPhiM(v0.pt(), v0.eta(), v0.phi(), v0.mass());
+      math::XYZTLorentzVector p4Lambda(v0.px(), v0.py(), v0.pz(), sqrt(v0.momentum().mag2() + v0.mass()*v0.mass()));
+
       for (unsigned int trkIndx = 0; trkIndx < tracks->size(); trkIndx++) {
         reco::TrackRef trk(tracks, trkIndx);
         if ((*trk).charge() * protonCharge < 0)
           continue;
-        TLorentzVector p4pi;
-        p4pi.SetPtEtaPhiM((*trk).pt(), (*trk).eta(), (*trk).phi(), 0.13957061);
+
+        math::XYZTLorentzVector p4pi(trk->px(), trk->py(), trk->pz(), trk->momentum().mag2() + 0.01947995518); // pion mass ^2
         if ((p4Lambda + p4pi).M() < xiMassCut_) {  // selecting potential Xi- candidates
           if (trkStatus[trkIndx] == TrkStatus::NOTUSED)
             trkStatus[trkIndx] = TrkStatus::VTX;
