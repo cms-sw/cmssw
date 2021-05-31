@@ -116,7 +116,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   }
 
   // the track is killed by the process
-  if(tstat == sKilledByProcess) {
+  if (tstat == sKilledByProcess) {
     if (nullptr != steppingVerbose) {
       steppingVerbose->NextStep(aStep, fpSteppingManager, false);
     }
@@ -143,7 +143,6 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 
   // check G4Region
   if (sAlive == tstat) {
-
     // next logical volume and next region
     const G4LogicalVolume* lv = postStep->GetPhysicalVolume()->GetLogicalVolume();
     const G4Region* theRegion = lv->GetRegion();
@@ -154,22 +153,21 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 
     // kill out of time
     if (sAlive == tstat) {
-      if(isOutOfTimeWindow(theRegion, time)) 
-	tstat = sOutOfTime;
+      if (isOutOfTimeWindow(theRegion, time))
+        tstat = sOutOfTime;
     }
 
     // kill low-energy in volumes on demand
     if (sAlive == tstat && numberEkins > 0) {
-      if(isLowEnergy(lv, theTrack)) 
-	tstat = sLowEnergy;
+      if (isLowEnergy(lv, theTrack))
+        tstat = sLowEnergy;
     }
 
     // kill low-energy in vacuum
     if (sAlive == tstat && killBeamPipe) {
-      if(theTrack->GetKineticEnergy() < theCriticalEnergyForVacuum &&
-	 theTrack->GetDefinition()->GetPDGCharge() != 0.0 && 
-	 lv->GetMaterial()->GetDensity() <= theCriticalDensity) {
-	tstat = sLowEnergyInVacuum;
+      if (theTrack->GetKineticEnergy() < theCriticalEnergyForVacuum &&
+          theTrack->GetDefinition()->GetPDGCharge() != 0.0 && lv->GetMaterial()->GetDensity() <= theCriticalDensity) {
+        tstat = sLowEnergyInVacuum;
       }
     }
   }
@@ -322,14 +320,12 @@ void SteppingAction::PrintKilledTrack(const G4Track* aTrack, const TrackStatus& 
   rname = pv->GetLogicalVolume()->GetRegion()->GetName();
 
   const double ekin = aTrack->GetKineticEnergy();
-  if(ekin < 2*CLHEP::MeV) { return; }
+  if (ekin < 2 * CLHEP::MeV) {
+    return;
+  }
   edm::LogWarning("SimG4CoreApplication")
-      << "Track #" << aTrack->GetTrackID() << " StepN= " 
-      << aTrack->GetCurrentStepNumber() << " "
-      << aTrack->GetDefinition()->GetParticleName() 
-      << " E(MeV)=" << ekin / CLHEP::MeV
-      << " T(ns)=" << aTrack->GetGlobalTime() / CLHEP::ns 
-      << " is killed due to " << typ << "\n  LV: " << vname << " ("
-      << rname << ") at " << aTrack->GetPosition()
-      << " step(cm)=" << aTrack->GetStep()->GetStepLength()/CLHEP::cm;
+      << "Track #" << aTrack->GetTrackID() << " StepN= " << aTrack->GetCurrentStepNumber() << " "
+      << aTrack->GetDefinition()->GetParticleName() << " E(MeV)=" << ekin / CLHEP::MeV
+      << " T(ns)=" << aTrack->GetGlobalTime() / CLHEP::ns << " is killed due to " << typ << "\n  LV: " << vname << " ("
+      << rname << ") at " << aTrack->GetPosition() << " step(cm)=" << aTrack->GetStep()->GetStepLength() / CLHEP::cm;
 }
