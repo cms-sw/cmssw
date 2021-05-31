@@ -4,7 +4,10 @@ from CommonTools.RecoAlgos.sortedPFPrimaryVertices_cfi import sortedPFPrimaryVer
 primaryVertexAssociation = sortedPFPrimaryVertices.clone(
   qualityForPrimary = cms.int32(2),
   produceSortedVertices = cms.bool(False),
-  producePileUpCollection  = cms.bool(False),  
+  producePileUpCollection  = cms.bool(False),
   produceNoPileUpCollection = cms.bool(False)
 )
 
+primaryVertexWithBSAssociation = primaryVertexAssociation.clone(
+  vertices = "offlinePrimaryVerticesWithBS"
+)

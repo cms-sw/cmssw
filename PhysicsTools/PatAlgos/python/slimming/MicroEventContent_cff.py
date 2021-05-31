@@ -67,8 +67,8 @@ MicroEventContent = cms.PSet(
         'keep *_l1extraParticles_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         # stage 2 L1 trigger
-        'keep GlobalExtBlkBXVector_simGtExtUnprefireable_*_*', 
-        'keep *_gtStage2Digis__*', 
+        'keep GlobalExtBlkBXVector_simGtExtUnprefireable_*_*',
+        'keep *_gtStage2Digis__*',
         'keep *_gmtStage2Digis_Muon_*',
         'keep *_caloStage2Digis_Jet_*',
         'keep *_caloStage2Digis_Tau_*',
@@ -102,7 +102,7 @@ MicroEventContentGEN = cms.PSet(
         'keep GenLumiInfoHeader_generator_*_*',
         'keep GenLumiInfoProduct_*_*_*',
         'keep GenEventInfoProduct_generator_*_*',
-        'keep recoGenParticles_genPUProtons_*_*', 
+        'keep recoGenParticles_genPUProtons_*_*',
         'keep *_slimmedGenJetsFlavourInfos_*_*',
         'keep *_slimmedGenJets__*',
         'keep *_slimmedGenJetsAK8__*',
@@ -124,6 +124,10 @@ _lowPt_extraCommands = ['keep *_slimmedLowPtElectrons_*_*',
 (bParking | run2_miniAOD_UL).toModify(MicroEventContent,
                                       outputCommands = MicroEventContent.outputCommands + _lowPt_extraCommands)
 
+_bparking_vertices_extraCommands = ["keep *_offlineSlimmedPrimaryVerticesWithBS_*_*",]
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+(bParking | run2_miniAOD_devel).toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _bparking_vertices_extraCommands)
+
 # --- Only for 2018 data & MC
 _run2_HCAL_2018_extraCommands = ["keep *_packedPFCandidates_hcalDepthEnergyFractions_*"]
 from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
@@ -132,7 +136,7 @@ run2_HCAL_2018.toModify(MicroEventContent, outputCommands = MicroEventContent.ou
 _run3_common_extraCommands = ["drop *_packedPFCandidates_hcalDepthEnergyFractions_*"]
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _run3_common_extraCommands)
-# --- 
+# ---
 
 MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
@@ -163,6 +167,9 @@ cms.untracked.PSet(branch = cms.untracked.string("recoGenJets_slimmedGenJets__*"
 cms.untracked.PSet(branch = cms.untracked.string("patJets_slimmedJetsPuppi__*"),splitLevel=cms.untracked.int32(99)),
 cms.untracked.PSet(branch = cms.untracked.string("EcalRecHitsSorted_reducedEgamma_reducedESRecHits_*"),splitLevel=cms.untracked.int32(99)),
 ])
+
+
+# (bParking | run2_miniAOD_devel).toReplaceWith(MiniAODOverrideBranchesSplitLevel,MiniAODOverrideBranchesSplitLevelWithBs)
 
 _phase2_hgc_extraCommands = ["keep *_slimmedElectronsFromMultiCl_*_*", "keep *_slimmedPhotonsFromMultiCl_*_*"]
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
