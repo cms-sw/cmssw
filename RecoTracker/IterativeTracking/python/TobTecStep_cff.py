@@ -19,12 +19,12 @@ from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 tobTecStepSeedLayersTripl = _mod.seedingLayersEDProducer.clone(
-    layerList = cms.vstring(
+    layerList = [
     #TOB
     'TOB1+TOB2+MTOB3','TOB1+TOB2+MTOB4',
     #TOB+MTEC
     'TOB1+TOB2+MTEC1_pos','TOB1+TOB2+MTEC1_neg',
-    ),
+    ],
     TOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
@@ -122,13 +122,13 @@ fastSim.toReplaceWith(tobTecStepSeedsTripl,_fastSim_tobTecStepSeedsTripl)
 
 # PAIR SEEDING LAYERS
 tobTecStepSeedLayersPair = _mod.seedingLayersEDProducer.clone( 
-    layerList = cms.vstring('TOB1+TEC1_pos','TOB1+TEC1_neg', 
-                            'TEC1_pos+TEC2_pos','TEC1_neg+TEC2_neg', 
-                            'TEC2_pos+TEC3_pos','TEC2_neg+TEC3_neg', 
-                            'TEC3_pos+TEC4_pos','TEC3_neg+TEC4_neg', 
-                            'TEC4_pos+TEC5_pos','TEC4_neg+TEC5_neg', 
-                            'TEC5_pos+TEC6_pos','TEC5_neg+TEC6_neg', 
-                            'TEC6_pos+TEC7_pos','TEC6_neg+TEC7_neg'),
+    layerList = ['TOB1+TEC1_pos','TOB1+TEC1_neg', 
+                 'TEC1_pos+TEC2_pos','TEC1_neg+TEC2_neg', 
+                 'TEC2_pos+TEC3_pos','TEC2_neg+TEC3_neg', 
+                 'TEC3_pos+TEC4_pos','TEC3_neg+TEC4_neg', 
+                 'TEC4_pos+TEC5_pos','TEC4_neg+TEC5_neg', 
+                 'TEC5_pos+TEC6_pos','TEC5_neg+TEC6_neg', 
+                 'TEC6_pos+TEC7_pos','TEC6_neg+TEC7_neg'],
     TOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
@@ -456,14 +456,14 @@ TobTecStep = cms.Sequence(TobTecStepTask)
 ### not to interfere too much with the default configuration
 # SEEDING LAYERS
 tobTecStepSeedLayers = _mod.seedingLayersEDProducer.clone(
-    layerList = cms.vstring('TOB1+TOB2', 
+    layerList = ['TOB1+TOB2', 
         'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
         'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
         'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos', 
         'TEC5_pos+TEC6_pos', 'TEC6_pos+TEC7_pos', 
         'TEC1_neg+TEC2_neg', 'TEC2_neg+TEC3_neg', 
         'TEC3_neg+TEC4_neg', 'TEC4_neg+TEC5_neg', 
-        'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg'),
+        'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg'],
     TOB = cms.PSet(
         matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
         skipClusters = cms.InputTag('tobTecStepClusters'),

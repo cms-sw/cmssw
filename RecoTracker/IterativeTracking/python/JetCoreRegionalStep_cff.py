@@ -23,12 +23,12 @@ import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 # SEEDING LAYERS
 jetCoreRegionalStepSeedLayers = _mod.seedingLayersEDProducer.clone(
-    layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
-                            'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
-                            'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-                            'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
-                            #'BPix2+TIB1','BPix2+TIB2',
-                            'BPix3+TIB1','BPix3+TIB2'),
+    layerList = ['BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
+                 'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
+                 'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
+                 'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
+                 #'BPix2+TIB1','BPix2+TIB2',
+                 'BPix3+TIB1','BPix3+TIB2'],
     TIB = cms.PSet(
         matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
         TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))

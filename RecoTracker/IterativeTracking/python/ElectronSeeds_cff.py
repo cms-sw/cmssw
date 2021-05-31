@@ -29,7 +29,7 @@ trackingPhase2PU140.toReplaceWith(highPtTripletStepSeedClusterMask, seedClusterR
     )
 )
 trackingPhase2PU140.toReplaceWith(pixelPairStepSeedClusterMask, seedClusterRemoverPhase2.clone(
-    trajectories = cms.InputTag('detachedQuadStepSeeds'),
+    trajectories = 'detachedQuadStepSeeds',
     oldClusterRemovalInfo = cms.InputTag('highPtTripletStepSeedClusterMask')
     )
 )
@@ -55,9 +55,9 @@ pixelLessStepSeedClusterMask = seedClusterRemover.clone(
 import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 tripletElectronSeedLayers = _mod.seedingLayersEDProducer.clone(
-    layerList = cms.vstring('BPix1+BPix2+BPix3', 
-                            'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
-                            'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg'),
+    layerList = ['BPix1+BPix2+BPix3', 
+                 'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
+                 'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg'],
     BPix = cms.PSet(
     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
     HitProducer = cms.string('siPixelRecHits'),
@@ -141,11 +141,11 @@ trackingPhase2PU140.toReplaceWith(tripletElectronClusterMask, seedClusterRemover
 )
 
 pixelPairElectronSeedLayers = _mod.seedingLayersEDProducer.clone(
-    layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
-                            'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
-                            'BPix1+FPix2_pos', 'BPix1+FPix2_neg', 
-                            'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-                            'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'),
+    layerList = ['BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
+                 'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
+                 'BPix1+FPix2_pos', 'BPix1+FPix2_neg', 
+                 'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
+                 'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'],
     BPix = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
@@ -191,9 +191,9 @@ pixelPairElectronSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
 )
 
 stripPairElectronSeedLayers = _mod.seedingLayersEDProducer.clone(
-    layerList = cms.vstring('TIB1+TIB2', 'TIB1+TID1_pos', 'TIB1+TID1_neg', 'TID2_pos+TID3_pos', 'TID2_neg+TID3_neg',
-                            'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos',
-                            'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg'),
+    layerList = ['TIB1+TIB2', 'TIB1+TID1_pos', 'TIB1+TID1_neg', 'TID2_pos+TID3_pos', 'TID2_neg+TID3_neg',
+                 'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos',
+                 'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg'],
     TIB = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
     matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),

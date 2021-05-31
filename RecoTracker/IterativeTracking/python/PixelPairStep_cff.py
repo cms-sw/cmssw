@@ -16,10 +16,10 @@ import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 # SEEDING LAYERS
 pixelPairStepSeedLayers = _mod.seedingLayersEDProducer.clone(
-    layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
+    layerList = ['BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
         'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
         'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-        'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'),
+        'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'],
     BPix = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),

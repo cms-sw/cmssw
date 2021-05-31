@@ -164,7 +164,7 @@ import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 # SEEDING LAYERS
 mixedTripletStepSeedLayersB = _mod.seedingLayersEDProducer.clone(
-    layerList = cms.vstring('BPix2+BPix3+TIB1'),
+    layerList = ['BPix2+BPix3+TIB1'],
     BPix = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),

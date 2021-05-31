@@ -22,7 +22,7 @@ from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 pixelLessStepSeedLayers = _mod.seedingLayersEDProducer.clone(
-    layerList = cms.vstring(
+    layerList = [
     #TIB
     'TIB1+TIB2+MTIB3','TIB1+TIB2+MTIB4',
     #TIB+TID
@@ -47,7 +47,7 @@ pixelLessStepSeedLayers = _mod.seedingLayersEDProducer.clone(
     'TEC3_pos+TEC4_pos+MTEC5_pos','TEC3_neg+TEC4_neg+MTEC5_neg',
     'TEC3_pos+TEC5_pos+TEC6_pos', 'TEC3_neg+TEC5_neg+TEC6_neg',
     'TEC4_pos+TEC5_pos+TEC6_pos', 'TEC4_neg+TEC5_neg+TEC6_neg'    
-    ),
+    ],
     TIB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
