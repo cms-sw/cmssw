@@ -12,7 +12,7 @@
 class RPCOccupancyTest : public RPCClient {
 public:
   RPCOccupancyTest(const edm::ParameterSet &ps);
-  ~RPCOccupancyTest() override;
+  ~RPCOccupancyTest() override = default;
 
   void clientOperation() override;
   void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &) override;

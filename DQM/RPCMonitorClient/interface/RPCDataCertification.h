@@ -10,11 +10,8 @@
 
 class RPCDataCertification : public DQMEDHarvester {
 public:
-  /// Constructor
   RPCDataCertification(const edm::ParameterSet& pset);
-
-  /// Destructor
-  ~RPCDataCertification() override;
+  ~RPCDataCertification() override = default;
 
 protected:
   void beginJob() override;
@@ -32,10 +29,10 @@ private:
 
   MonitorElement* CertMap_;
   MonitorElement* totalCertFraction;
-  constexpr static int kNWheels = 5;
-  MonitorElement* certWheelFractions[kNWheels];
-  constexpr static int kNDisks = 10;
-  MonitorElement* certDiskFractions[kNDisks];
+  constexpr static int nWheels_ = 5;
+  MonitorElement* certWheelFractions[nWheels_];
+  constexpr static int nDisks_ = 10;
+  MonitorElement* certDiskFractions[nDisks_];
   std::pair<int, int> FEDRange_;
   int numberOfDisks_;
   int NumberOfFeds_;

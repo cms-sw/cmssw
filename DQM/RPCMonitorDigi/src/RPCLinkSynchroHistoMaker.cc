@@ -1,12 +1,8 @@
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroHistoMaker.h"
+#include "DQM/RPCMonitorDigi/interface/RPCLinkSynchroHistoMaker.h"
 #include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
-#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
-#include <sstream>
-#include "TH1F.h"
-#include "TH2F.h"
 #include <algorithm>
-#include <iostream>
+#include <utility>
 
 struct OrderLbSpread {
   bool operator()(const std::pair<double, unsigned int>& lb1, const std::pair<double, unsigned int>& lb2) {
@@ -67,6 +63,4 @@ void RPCLinkSynchroHistoMaker::fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTop
       hTopSpread->SetBinContent(icount + 1, itop + 1, float(spread.second.counts()[icount]));
     }
   }
-  //  for (int j=0; j<10; j++) { cout <<"topSpread["<<j<<"] = "<<topSpread[j].first<<endl; }
-  //  for (int j=0; j<10; j++) { cout <<"topOccup["<<j<<"] = "<<topOccup[j].first<<endl; }
 }

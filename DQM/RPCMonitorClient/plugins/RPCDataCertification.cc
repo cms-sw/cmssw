@@ -1,11 +1,11 @@
 #include "DQM/RPCMonitorClient/interface/RPCDataCertification.h"
+#include "DQM/RPCMonitorClient/interface/RPCSummaryMapHisto.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include <fmt/format.h>
 
 RPCDataCertification::RPCDataCertification(const edm::ParameterSet& ps) {
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
@@ -19,8 +19,6 @@ RPCDataCertification::RPCDataCertification(const edm::ParameterSet& ps) {
   init_ = false;
   defaultValue_ = 1.;
 }
-
-RPCDataCertification::~RPCDataCertification() {}
 
 void RPCDataCertification::beginJob() {}
 
@@ -75,71 +73,30 @@ void RPCDataCertification::myBooker(DQMStore::IBooker& ibooker) {
   totalCertFraction = ibooker.bookFloat("CertificationSummary");
   totalCertFraction->Fill(defaultValue_);
 
-  CertMap_ = ibooker.book2D("CertificationSummaryMap", "RPC Certification Summary Map", 15, -7.5, 7.5, 12, 0.5, 12.5);
+  CertMap_ = RPCSummaryMapHisto::book(ibooker, "CertificationSummaryMap", "RPC Certification Summary Map");
 
-  //customize the 2d histo
-  std::stringstream BinLabel;
-  for (int i = 1; i < 13; i++) {
-    BinLabel.str("");
-    BinLabel << "Sec" << i;
-    CertMap_->setBinLabel(i, BinLabel.str(), 2);
-  }
-
-  for (int i = -2; i <= 2; i++) {
-    BinLabel.str("");
-    BinLabel << "Wheel" << i;
-    CertMap_->setBinLabel(i + 8, BinLabel.str(), 1);
-  }
-
-  for (int i = 1; i <= numberOfDisks_; i++) {
-    BinLabel.str("");
-    BinLabel << "Disk" << i;
-    CertMap_->setBinLabel((i + 11), BinLabel.str(), 1);
-    BinLabel.str("");
-    BinLabel << "Disk" << -i;
-    CertMap_->setBinLabel((-i + 5), BinLabel.str(), 1);
-  }
   //fill the histo with "1" --- just for the moment
-  for (int i = 1; i <= 15; i++) {
-    for (int j = 1; j <= 12; j++) {
-      if (i == 5 || i == 11 || (j > 6 && (i < 6 || i > 10)))
-        CertMap_->setBinContent(i, j, -1);  //bins that not correspond to subdetector parts
-      else
-        CertMap_->setBinContent(i, j, defaultValue_);
-    }
-  }
+  RPCSummaryMapHisto::setBinsBarrel(CertMap_, defaultValue_);
+  RPCSummaryMapHisto::setBinsEndcap(CertMap_, defaultValue_);
 
-  if (numberOfDisks_ < 4) {
-    for (int j = 1; j <= 12; j++) {
-      CertMap_->setBinContent(1, j, -1);  //bins that not correspond to subdetector parts
-      CertMap_->setBinContent(15, j, -1);
-    }
-  }
   // book the ME
   ibooker.setCurrentFolder("RPC/EventInfo/CertificationContents");
 
-  int limit = numberOfDisks_;
-  if (numberOfDisks_ < 2)
-    limit = 2;
+  const int limit = std::max(2, numberOfDisks_);
 
-  for (int i = -1 * limit; i <= limit; i++) {  //loop on wheels and disks
-    if (i > -3 && i < kNWheels - 2) {          //wheels
-      std::stringstream streams;
-      streams << "RPC_Wheel" << i;
-      certWheelFractions[i + 2] = ibooker.bookFloat(streams.str());
+  for (int i = -limit; i <= limit; ++i) {  //loop on wheels and disks
+    if (i > -3 && i < nWheels_ - 2) {      //wheels
+      const std::string binLabel = fmt::format("RPC_Wheel{}", i);
+      certWheelFractions[i + 2] = ibooker.bookFloat(binLabel);
       certWheelFractions[i + 2]->Fill(defaultValue_);
     }
 
-    if (i == 0 || i > numberOfDisks_ || i < (-1 * numberOfDisks_))
+    if (i == 0 || i > numberOfDisks_ || i < (-numberOfDisks_))
       continue;
 
-    int offset = numberOfDisks_;
-    if (i > 0)
-      offset--;  //used to skip case equale to zero
-    if (i > -3 && i < kNDisks - 2) {
-      std::stringstream streams;
-      streams << "RPC_Disk" << i;
-      certDiskFractions[i + 2] = ibooker.bookFloat(streams.str());
+    if (i > -3 && i < nDisks_ - 2) {
+      const std::string binLabel = fmt::format("RPC_Disk{}", i);
+      certDiskFractions[i + 2] = ibooker.bookFloat(binLabel);
       certDiskFractions[i + 2]->Fill(defaultValue_);
     }
   }

@@ -1,8 +1,7 @@
 /*  \author Anna Cimmino*/
-//#include <cmath>
-#include <sstream>
 #include <DQM/RPCMonitorClient/interface/RPCOccupancyTest.h>
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/RPCRollMapHisto.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,8 +22,6 @@ RPCOccupancyTest::RPCOccupancyTest(const edm::ParameterSet& ps) {
 
   prefixDir_ = subsystemFolder + "/" + recHitTypeFolder;
 }
-
-RPCOccupancyTest::~RPCOccupancyTest() {}
 
 void RPCOccupancyTest::beginJob(std::string& workingFolder) {
   edm::LogVerbatim("rpceventsummary") << "[RPCOccupancyTest]: Begin job ";
@@ -70,7 +67,6 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
   ibooker.setCurrentFolder(globalFolder_);
 
   std::stringstream histoName;
-  rpcdqm::utils rpcUtils;
 
   histoName.str("");
   histoName << "RPC_Active_Channel_Fractions";
@@ -88,11 +84,8 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
     histoName.str("");
     histoName << "AsymmetryLeftRight_Roll_vs_Sector_Wheel" << w;
 
-    AsyMeWheel[w + 2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
-
-    rpcUtils.labelXAxisSector(AsyMeWheel[w + 2]);
-    rpcUtils.labelYAxisRoll(AsyMeWheel[w + 2], 0, w, useRollInfo_);
-
+    auto me = RPCRollMapHisto::bookBarrel(ibooker, w, histoName.str(), histoName.str(), useRollInfo_);
+    AsyMeWheel[w + 2] = dynamic_cast<MonitorElement*>(me);
   }  //end Barrel
 
   for (int d = -numberOfDisks_; d <= numberOfDisks_; d++) {
@@ -105,18 +98,8 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
 
     histoName.str("");
     histoName << "AsymmetryLeftRight_Ring_vs_Segment_Disk" << d;
-    AsyMeDisk[d + offset] = ibooker.book2D(histoName.str().c_str(),
-                                           histoName.str().c_str(),
-                                           36,
-                                           0.5,
-                                           36.5,
-                                           3 * numberOfRings_,
-                                           0.5,
-                                           3 * numberOfRings_ + 0.5);
-
-    rpcUtils.labelXAxisSegment(AsyMeDisk[d + offset]);
-    rpcUtils.labelYAxisRing(AsyMeDisk[d + offset], numberOfRings_, useRollInfo_);
-
+    auto me = RPCRollMapHisto::bookEndcap(ibooker, d, histoName.str(), histoName.str(), useRollInfo_);
+    AsyMeDisk[d + offset] = dynamic_cast<MonitorElement*>(me);
   }  //End loop on Endcap
 }
 
