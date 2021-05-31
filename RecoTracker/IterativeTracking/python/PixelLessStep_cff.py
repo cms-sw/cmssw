@@ -19,7 +19,9 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
 
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
-pixelLessStepSeedLayers = cms.EDProducer('SeedingLayersEDProducer',
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
+
+pixelLessStepSeedLayers = _mod.seedingLayersEDProducer.clone(
     layerList = cms.vstring(
     #TIB
     'TIB1+TIB2+MTIB3','TIB1+TIB2+MTIB4',

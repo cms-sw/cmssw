@@ -52,7 +52,9 @@ pixelLessStepSeedClusterMask = seedClusterRemover.clone(
     oldClusterRemovalInfo = cms.InputTag('mixedTripletStepSeedClusterMask')
 )
 
-tripletElectronSeedLayers = cms.EDProducer('SeedingLayersEDProducer',
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
+
+tripletElectronSeedLayers = _mod.seedingLayersEDProducer.clone(
     layerList = cms.vstring('BPix1+BPix2+BPix3', 
                             'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
                             'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg'),
@@ -138,7 +140,7 @@ trackingPhase2PU140.toReplaceWith(tripletElectronClusterMask, seedClusterRemover
     )
 )
 
-pixelPairElectronSeedLayers = cms.EDProducer('SeedingLayersEDProducer',
+pixelPairElectronSeedLayers = _mod.seedingLayersEDProducer.clone(
     layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
                             'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
                             'BPix1+FPix2_pos', 'BPix1+FPix2_neg', 
@@ -188,7 +190,7 @@ pixelPairElectronSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = 'pixelPairElectronHitDoublets',
 )
 
-stripPairElectronSeedLayers = cms.EDProducer('SeedingLayersEDProducer',
+stripPairElectronSeedLayers = _mod.seedingLayersEDProducer.clone(
     layerList = cms.vstring('TIB1+TIB2', 'TIB1+TID1_pos', 'TIB1+TID1_neg', 'TID2_pos+TID3_pos', 'TID2_neg+TID3_neg',
                             'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos',
                             'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg'),

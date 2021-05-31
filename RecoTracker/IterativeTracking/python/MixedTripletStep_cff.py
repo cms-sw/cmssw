@@ -160,9 +160,10 @@ _fastSim_mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer
 )
 fastSim.toReplaceWith(mixedTripletStepSeedsA,_fastSim_mixedTripletStepSeedsA)
 
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 # SEEDING LAYERS
-mixedTripletStepSeedLayersB = cms.EDProducer('SeedingLayersEDProducer',
+mixedTripletStepSeedLayersB = _mod.seedingLayersEDProducer.clone(
     layerList = cms.vstring('BPix2+BPix3+TIB1'),
     BPix = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),

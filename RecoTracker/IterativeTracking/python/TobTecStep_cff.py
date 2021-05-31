@@ -16,7 +16,9 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
 
 # TRIPLET SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
-tobTecStepSeedLayersTripl = cms.EDProducer('SeedingLayersEDProducer',
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
+
+tobTecStepSeedLayersTripl = _mod.seedingLayersEDProducer.clone(
     layerList = cms.vstring(
     #TOB
     'TOB1+TOB2+MTOB3','TOB1+TOB2+MTOB4',
@@ -119,7 +121,7 @@ _fastSim_tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_c
 fastSim.toReplaceWith(tobTecStepSeedsTripl,_fastSim_tobTecStepSeedsTripl)
 
 # PAIR SEEDING LAYERS
-tobTecStepSeedLayersPair = cms.EDProducer('SeedingLayersEDProducer',
+tobTecStepSeedLayersPair = _mod.seedingLayersEDProducer.clone( 
     layerList = cms.vstring('TOB1+TEC1_pos','TOB1+TEC1_neg', 
                             'TEC1_pos+TEC2_pos','TEC1_neg+TEC2_neg', 
                             'TEC2_pos+TEC3_pos','TEC2_neg+TEC3_neg', 
@@ -453,7 +455,7 @@ TobTecStep = cms.Sequence(TobTecStepTask)
 ### Following are specific for LowPU, they're collected here to
 ### not to interfere too much with the default configuration
 # SEEDING LAYERS
-tobTecStepSeedLayers = cms.EDProducer('SeedingLayersEDProducer',
+tobTecStepSeedLayers = _mod.seedingLayersEDProducer.clone(
     layerList = cms.vstring('TOB1+TOB2', 
         'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
         'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
