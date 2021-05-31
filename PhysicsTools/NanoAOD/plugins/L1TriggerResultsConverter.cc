@@ -136,7 +136,7 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
       edm::Handle<GlobalExtBlkBxCollection> handleExtResults;
       iEvent.getByToken(token_ext_, handleExtResults);
       if (handleExtResults->size() != 0) {
-	unprefireable_bit = handleExtResults->at(0, 0).getExternalDecision(GlobalExtBlk::maxExternalConditions - 1);
+        unprefireable_bit = handleExtResults->at(0, 0).getExternalDecision(GlobalExtBlk::maxExternalConditions - 1);
       }
     }
   } else {
