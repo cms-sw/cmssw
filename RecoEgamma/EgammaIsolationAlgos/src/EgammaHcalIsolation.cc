@@ -135,7 +135,8 @@ double EgammaHcalIsolation::goodHitEnergy(const GlobalPoint &pclu,
   const int hd = hid.depth(), he = hid.ieta(), hp = hid.iphi();
   const int h1 = hd - 1;
 
-  if ((hid.subdet() == HcalBarrel and (hd < 1 or hd > int(eThresHB_.size()))) or (hid.subdet() == HcalEndcap and (hd < 1 or hd > int(eThresHE_.size()))))
+  if ((hid.subdet() == HcalBarrel and (hd < 1 or hd > int(eThresHB_.size()))) or
+      (hid.subdet() == HcalEndcap and (hd < 1 or hd > int(eThresHE_.size()))))
     edm::LogWarning("EgammaHcalIsolation")
         << " hit in subdet " << hid.subdet() << " has an unaccounted for depth of " << hd << "!!";
 
