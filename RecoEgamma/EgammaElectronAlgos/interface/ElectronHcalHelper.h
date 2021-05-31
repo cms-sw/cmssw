@@ -32,9 +32,9 @@ public:
     // specific parameters if use rechits
     edm::EDGetTokenT<HBHERecHitCollection> hbheRecHits;
 
-    std::array<double, 4> eThresHB;
+    EgammaHcalIsolation::arrayHB eThresHB;
     int maxSeverityHB;
-    std::array<double, 7> eThresHE;
+    EgammaHcalIsolation::arrayHE eThresHE;
     int maxSeverityHE;
   };
 

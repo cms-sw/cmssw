@@ -38,17 +38,19 @@ double scaleToEt(const double &eta);
 class EgammaHcalIsolation {
 public:
   enum class InclusionRule : int { withinConeAroundCluster = 0, isBehindClusterSeed = 1 };
+  using arrayHB = std::array<double, 4>;
+  using arrayHE = std::array<double, 7>;
 
   // constructors
   EgammaHcalIsolation(InclusionRule extIncRule,
                       double extRadius,
                       InclusionRule intIncRule,
                       double intRadius,
-                      const std::array<double, 4> &eThresHB,
-                      const std::array<double, 4> &etThresHB,
+                      const arrayHB &eThresHB,
+                      const arrayHB &etThresHB,
                       int maxSeverityHB,
-                      const std::array<double, 7> &eThresHE,
-                      const std::array<double, 7> &etThresHE,
+                      const arrayHE &eThresHE,
+                      const arrayHE &etThresHE,
                       int maxSeverityHE,
                       const HBHERecHitCollection &mhbhe,
                       edm::ESHandle<CaloGeometry> caloGeometry,
@@ -61,11 +63,11 @@ public:
                       double extRadius,
                       InclusionRule intIncRule,
                       double intRadius,
-                      const std::array<double, 4> &eThresHB,
-                      const std::array<double, 4> &etThresHB,
+                      const arrayHB &eThresHB,
+                      const arrayHB &etThresHB,
                       int maxSeverityHB,
-                      const std::array<double, 7> &eThresHE,
-                      const std::array<double, 7> &etThresHE,
+                      const arrayHE &eThresHE,
+                      const arrayHE &etThresHE,
                       int maxSeverityHE,
                       const HBHERecHitCollection &mhbhe,
                       const CaloGeometry &caloGeometry,
@@ -153,12 +155,12 @@ private:
   InclusionRule intIncRule_;
   double intRadius_;
 
-  std::array<double, 4> eThresHB_;
-  std::array<double, 4> etThresHB_;
+  arrayHB eThresHB_;
+  arrayHB etThresHB_;
   int maxSeverityHB_;
 
-  std::array<double, 7> eThresHE_;
-  std::array<double, 7> etThresHE_;
+  arrayHE eThresHE_;
+  arrayHE etThresHE_;
   int maxSeverityHE_;
 
   const HBHERecHitCollection &mhbhe_;

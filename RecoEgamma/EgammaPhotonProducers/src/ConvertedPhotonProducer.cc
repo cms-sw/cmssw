@@ -167,9 +167,9 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
 
     cfgCone.hbheRecHits = hbheRecHits_;
 
-    cfgCone.eThresHB = config.getParameter<std::array<double, 4>>("recHitEThresholdHB");
+    cfgCone.eThresHB = config.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
     cfgCone.maxSeverityHB = config.getParameter<int>("maxHcalRecHitSeverity");
-    cfgCone.eThresHE = config.getParameter<std::array<double, 7>>("recHitEThresholdHE");
+    cfgCone.eThresHE = config.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
     cfgCone.maxSeverityHE = cfgCone.maxSeverityHB;
   }
 
