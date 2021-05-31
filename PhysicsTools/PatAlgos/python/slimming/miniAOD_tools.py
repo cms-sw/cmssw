@@ -612,6 +612,8 @@ def miniAOD_customizeOutput(out):
     MiniAODOverrideBranchesSplitLevelWithBs.extend([cms.untracked.PSet(branch = cms.untracked.string("recoVertexs_offlineSlimmedPrimaryVerticesWithBS__*"),splitLevel=cms.untracked.int32(99))])
 
     from Configuration.Eras.Modifier_bParking_cff import bParking
+    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+    
     out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
     (bParking | run2_miniAOD_devel).toModify(out, overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevelWithBs)
 
