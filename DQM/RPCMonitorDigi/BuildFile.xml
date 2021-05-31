@@ -14,3 +14,4 @@
 <use name="TrackingTools/TransientTrack"/>
 <use name="boost"/>
 <use name="CLHEP"/>
+<use name="DQM/RPCMonitorClient" />

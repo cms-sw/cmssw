@@ -11,6 +11,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 class RPCDqmClient : public DQMEDHarvester {
 public:
@@ -18,7 +19,7 @@ public:
   RPCDqmClient(const edm::ParameterSet &ps);
 
   /// Destructor
-  ~RPCDqmClient() override;
+  ~RPCDqmClient() override = default;
 
 protected:
   void beginJob() override;
@@ -44,7 +45,7 @@ private:
   MonitorElement *RPCEvents_;
   std::vector<RPCDetId> myDetIds_;
   std::vector<std::string> clientNames_, clientHisto_;
-  std::vector<RPCClient *> clientModules_;
+  std::vector<std::unique_ptr<RPCClient> > clientModules_;
 
   std::vector<int> clientTag_;
 

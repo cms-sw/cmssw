@@ -1,6 +1,7 @@
 #include "DQM/RPCMonitorDigi/interface/RPCTTUMonitor.h"
-//FW Core
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <fmt/format.h>
 
 //
 RPCTTUMonitor::RPCTTUMonitor(const edm::ParameterSet& iConfig) {
@@ -14,8 +15,6 @@ RPCTTUMonitor::RPCTTUMonitor(const edm::ParameterSet& iConfig) {
   m_ttBits = iConfig.getParameter<std::vector<unsigned> >("BitNumbers");
   m_maxttBits = m_ttBits.size();
 }
-
-RPCTTUMonitor::~RPCTTUMonitor() {}
 
 // ------------ method called to for each event  ------------
 void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -42,15 +41,13 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   //
   //Timing difference between RPC-PAT and DT
 
-  int dGMT(0);
-  dGMT = discriminateGMT(iEvent, iSetup);
+  const int dGMT = discriminateGMT(iEvent, iSetup);
   if (dGMT < 0)
     return;
 
   std::map<int, bool> ttuDec;
-  std::map<int, bool>::iterator decItr;
 
-  int bxX = iEvent.bunchCrossing();  // ... 1 to 3564
+  const int bxX = iEvent.bunchCrossing();  // ... 1 to 3564
 
   for (int k = 0; k < m_maxttBits; ++k) {
     for (int iebx = 0; iebx <= 2; iebx++) {
@@ -61,11 +58,11 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     //. RPC
     if (m_rpcTrigger) {
       int ndec(0);
-      int bx1 = (bxX - m_GMTcandidatesBx[0]);
-      for (decItr = ttuDec.begin(); decItr != ttuDec.end(); ++decItr) {
-        if ((*decItr).second) {
-          int bx2 = (*decItr).first;
-          float bxdiffPacTT = 1.0 * (bx1 - bx2);
+      const int bx1 = (bxX - m_GMTcandidatesBx[0]);
+      for (const auto& dec : ttuDec) {
+        if (dec.second) {
+          const int bx2 = dec.first;
+          const float bxdiffPacTT = 1.0 * (bx1 - bx2);
           m_bxDistDiffPac[k]->Fill(bxdiffPacTT);
           ++ndec;
         }
@@ -75,11 +72,11 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     //.. DT
     if (m_dtTrigger) {
       int ndec(0);
-      int bx1 = (bxX - m_DTcandidatesBx[0]);
-      for (decItr = ttuDec.begin(); decItr != ttuDec.end(); ++decItr) {
-        if ((*decItr).second) {
-          int bx2 = (*decItr).first;
-          float bxdiffDtTT = 1.0 * (bx1 - bx2);
+      const int bx1 = (bxX - m_DTcandidatesBx[0]);
+      for (const auto& dec : ttuDec) {
+        if (dec.second) {
+          const int bx2 = dec.first;
+          const float bxdiffDtTT = 1.0 * (bx1 - bx2);
           m_bxDistDiffDt[k]->Fill(bxdiffDtTT);
           ++ndec;
         }
@@ -99,7 +96,6 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   std::vector<L1GtTechnicalTrigger> ttVec = emuTTRecord->gtTechnicalTrigger();
 
-  std::vector<unsigned>::iterator bitsItr;
   int k = 0;
   //int m_BxWindow = 0;
   bool hasDataTrigger = false;
@@ -108,9 +104,9 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (ttVec.empty())
     return;
 
-  for (bitsItr = m_ttBits.begin(); bitsItr != m_ttBits.end(); ++bitsItr) {
-    hasDataTrigger = gtTTWord.at((*bitsItr));
-    m_ttBitsDecisionData->Fill((*bitsItr), (int)hasDataTrigger);
+  for (const auto& bits : m_ttBits) {
+    hasDataTrigger = gtTTWord.at(bits);
+    m_ttBitsDecisionData->Fill(bits, (int)hasDataTrigger);
 
     hasEmulatorTrigger = ttVec[k].gtTechnicalTriggerResult();
     m_ttBitsDecisionEmulator->Fill(ttVec[k].gtTechnicalTriggerBitNumber(), (int)hasEmulatorTrigger);
@@ -122,8 +118,6 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 int RPCTTUMonitor::discriminateGMT(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //.............................................................................................
-
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
   iEvent.getByToken(m_gmtReadoutLabel, pCollection);
 
@@ -132,8 +126,6 @@ int RPCTTUMonitor::discriminateGMT(const edm::Event& iEvent, const edm::EventSet
 
     return -1;
   }
-
-  //.............................................................................................
 
   int gmtDec(0);
 
@@ -147,34 +139,31 @@ int RPCTTUMonitor::discriminateGMT(const edm::Event& iEvent, const edm::EventSet
   const L1MuGMTReadoutCollection* gmtRC = pCollection.product();
 
   // get record vector
-  std::vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
   std::vector<L1MuGMTReadoutRecord> gmt_records = gmtRC->getRecords();
 
   edm::LogInfo("DiscriminateGMT") << "nRecords: " << gmt_records.size() << '\n';
 
-  for (RRItr = gmt_records.begin(); RRItr != gmt_records.end(); ++RRItr) {
-    int BxInEvent = RRItr->getBxInEvent();
-    int BxInEventNew = RRItr->getBxNr();
+  for (const auto& rr : gmt_records) {
+    const int BxInEvent = rr.getBxInEvent();
+    const int BxInEventNew = rr.getBxNr();
 
     // RPC barrel muon candidates
     int nrpcB = 0;
     int ndtB = 0;
 
-    std::vector<L1MuRegionalCand> BrlRpcCands = RRItr->getBrlRPCCands();
-    std::vector<L1MuRegionalCand> BrlDtCands = RRItr->getDTBXCands();
+    std::vector<L1MuRegionalCand> BrlRpcCands = rr.getBrlRPCCands();
+    std::vector<L1MuRegionalCand> BrlDtCands = rr.getDTBXCands();
 
-    std::vector<L1MuRegionalCand>::const_iterator RCItr;
-
-    for (RCItr = BrlRpcCands.begin(); RCItr != BrlRpcCands.end(); ++RCItr) {
-      if (!(*RCItr).empty()) {
+    for (const auto& rc : BrlRpcCands) {
+      if (!rc.empty()) {
         m_GMTcandidatesBx.push_back(BxInEventNew);
 
         nrpcB++;
       }
     }
 
-    for (RCItr = BrlDtCands.begin(); RCItr != BrlDtCands.end(); ++RCItr) {
-      if (!(*RCItr).empty()) {
+    for (const auto& rc : BrlDtCands) {
+      if (!rc.empty()) {
         m_DTcandidatesBx.push_back(BxInEventNew);
         ndtB++;
       }
@@ -213,31 +202,20 @@ void RPCTTUMonitor::discriminateDecision(bool data, bool emu, int indx) {
 
 void RPCTTUMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r, edm::EventSetup const& iSetup) {
   ibooker.setCurrentFolder(ttuFolder);
+  std::string hname;
 
   m_ttBitsDecisionData = ibooker.book1D("TechTrigger.Bits.Data", "Technical Trigger bits : Summary", 10, 23, 33);
 
   m_ttBitsDecisionEmulator =
       ibooker.book1D("TechTrigger.Bits.Emulator", "Technical Trigger bits : Summary", 10, 23, 33);
   for (int k = 0; k < m_maxttBits; ++k) {
-    std::ostringstream hname;
+    hname = fmt::format("BX.diff.PAC-TTU.bit.{}", m_ttBits[k]);
+    m_bxDistDiffPac[k] = ibooker.book1D(hname, "Timing difference between PAC and TTU", 7, -3, 3);
 
-    hname << "BX.diff.PAC-TTU.bit." << m_ttBits[k];
+    hname = fmt::format("BX.diff.DT-TTU.bit.{}", m_ttBits[k]);
+    m_bxDistDiffDt[k] = ibooker.book1D(hname, "Timing difference between DT and TTU", 7, -3, 3);
 
-    m_bxDistDiffPac[k] = ibooker.book1D(hname.str().c_str(), "Timing difference between PAC and TTU", 7, -3, 3);
-
-    hname.str("");
-
-    hname << "BX.diff.DT-TTU.bit." << m_ttBits[k];
-
-    m_bxDistDiffDt[k] = ibooker.book1D(hname.str().c_str(), "Timing difference between DT and TTU", 7, -3, 3);
-
-    hname.str("");
-
-    hname << "Emu.Ttu.Compare.bit." << m_ttBits[k];
-
-    m_dataVsemulator[k] =
-        ibooker.book1D(hname.str().c_str(), "Comparison between emulator and TT decisions", 10, 0, 10);
-
-    hname.str("");
+    hname = fmt::format("Emu.Ttu.Compare.bit.{}", m_ttBits[k]);
+    m_dataVsemulator[k] = ibooker.book1D(hname, "Comparison between emulator and TT decisions", 10, 0, 10);
   }
 }

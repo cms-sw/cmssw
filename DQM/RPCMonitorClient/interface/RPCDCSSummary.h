@@ -10,13 +10,8 @@
 
 class RPCDCSSummary : public DQMEDHarvester {
 public:
-  /// Constructor
   RPCDCSSummary(const edm::ParameterSet &);
-
-  /// Destructor
-  ~RPCDCSSummary() override;
-
-  // Operations
+  ~RPCDCSSummary() override = default;
 
 protected:
   void beginJob() override;
@@ -39,10 +34,10 @@ private:
 
   MonitorElement *DCSMap_;
   MonitorElement *totalDCSFraction;
-  constexpr static int kNWheels = 5;
-  MonitorElement *dcsWheelFractions[kNWheels];
-  constexpr static int kNDisks = 10;
-  MonitorElement *dcsDiskFractions[kNDisks];
+  constexpr static int nWheels_ = 5;
+  MonitorElement *dcsWheelFractions[nWheels_];
+  constexpr static int nDisks_ = 10;
+  MonitorElement *dcsDiskFractions[nDisks_];
   std::pair<int, int> FEDRange_;
   int numberOfDisks_;
   int NumberOfFeds_;

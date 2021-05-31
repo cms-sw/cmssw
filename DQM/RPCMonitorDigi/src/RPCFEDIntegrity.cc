@@ -1,20 +1,8 @@
 /*  \author Anna Cimmino*/
-#include <algorithm>
-#include <DQM/RPCMonitorClient/interface/RPCFEDIntegrity.h>
-#include <DQM/RPCMonitorClient/interface/RPCRawDataCountsHistoMaker.h>
-// Framework
+#include "DQM/RPCMonitorDigi/interface/RPCFEDIntegrity.h"
+
+#include "DQM/RPCMonitorDigi/interface/RPCRawDataCountsHistoMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
-#include <FWCore/Framework/interface/Event.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//DQM Services
-#include "DQMServices/Core/interface/DQMStore.h"
-
-//EventFilter
-#include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
-#include "EventFilter/RPCRawToDigi/interface/ReadoutError.h"
-
-typedef std::map<std::pair<int, int>, int>::const_iterator IT;
 
 RPCFEDIntegrity::RPCFEDIntegrity(const edm::ParameterSet& ps) {
   edm::LogVerbatim("rpcfedintegrity") << "[RPCFEDIntegrity]: Constructor";
@@ -80,12 +68,9 @@ void RPCFEDIntegrity::labelBins(MonitorElement* myMe) {
 
   if (xbins != numOfFED_)
     return;
-  std::stringstream xLabel;
 
   for (int i = 0; i < xbins; i++) {
-    xLabel.str("");
-    int fedNum = minFEDNum_ + i;
-    xLabel << fedNum;
-    myMe->setBinLabel(i + 1, xLabel.str(), 1);
+    const std::string xLabel = fmt::format("{}", minFEDNum_ + i);
+    myMe->setBinLabel(i + 1, xLabel, 1);
   }
 }

@@ -1,14 +1,13 @@
-#ifndef DQM_RPCMonitorClient_RPCLinkSynchroHistoMaker_H
-#define DQM_RPCMonitorClient_RPCLinkSynchroHistoMaker_H
+#ifndef DQM_RPCMonitorDigi_RPCLinkSynchroHistoMaker_H
+#define DQM_RPCMonitorDigi_RPCLinkSynchroHistoMaker_H
 
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
+#include "DQM/RPCMonitorDigi/interface/RPCLinkSynchroStat.h"
+#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+
+#include <TH1F.h>
+#include <TH2F.h>
+
 #include <string>
-#include <vector>
-#include <map>
-
-class TH1F;
-class TH2F;
-class RPCReadOutMapping;
 
 class RPCLinkSynchroHistoMaker {
 public:
