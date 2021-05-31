@@ -83,7 +83,6 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
       hcalCfg.onlyBehindCluster = false;
       hcalCfg.checkHcalStatus = false;
 
-      //hcalCfg.hbheRecHits = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheRecHits"));
       hcalCfg.hbheRecHits = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheRecHits"));
 
       hcalCfg.eThresHB = conf.getParameter<std::array<double, 4>>("recHitEThresholdHB");
