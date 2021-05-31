@@ -145,7 +145,9 @@ L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetup& iS
        if (store_unprefireable_bit_) {
         edm::Handle<GlobalExtBlkBxCollection> handleExtResults;
         iEvent.getByToken(token_ext_, handleExtResults);
-        unprefireable_bit = handleExtResults->at(0,0).getExternalDecision(std::max(m_triggerRulePrefireVetoBit,GlobalExtBlk::maxExternalConditions-1));
+        if (handleExtResults->size() != 0) {
+	  unprefireable_bit = handleExtResults->at(0,0).getExternalDecision(std::max(m_triggerRulePrefireVetoBit,GlobalExtBlk::maxExternalConditions-1));
+	}
        }
      } else {
 // Legacy access
