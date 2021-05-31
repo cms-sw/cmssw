@@ -22,7 +22,6 @@ from PhysicsTools.NanoAOD.isotracks_cff import *
 from PhysicsTools.NanoAOD.protons_cff import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 
-
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
         tag = cms.string("untagged"),
