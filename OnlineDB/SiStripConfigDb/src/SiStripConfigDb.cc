@@ -229,6 +229,7 @@ void SiStripConfigDb::usingDatabase() {
   // Retrieve connection params from CONFDB env. var. and override .cfg values 
   std::string user = "";
   std::string passwd = "";
+  std::string pToPrint = "******";
   std::string path = "";
   DbAccess::getDbConfiguration( user, passwd, path );
   if ( user != "" && passwd != "" && path != "" ) {
@@ -236,14 +237,14 @@ void SiStripConfigDb::usingDatabase() {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Setting \"user/passwd@path\" to \""
-       << user << "/" << passwd << "@" << path
+       << user << "/" << pToPrint << "@" << path
        << "\" using 'CONFDB' environmental variable";
     if ( dbParams_.user() != null_ || 
 	 dbParams_.passwd() != null_ || 
 	 dbParams_.path() != null_ ) { 
       ss << " (Overwriting existing value of \""
 	 << dbParams_.user() << "/" 
-	 << dbParams_.passwd() << "@" 
+	 << pToPrint << "@" 
 	 << dbParams_.path() 
 	 << "\" read from .cfg file)";
     }
@@ -258,7 +259,7 @@ void SiStripConfigDb::usingDatabase() {
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Setting \"user/passwd@path\" to \""
        << dbParams_.user() << "/" 
-       << dbParams_.passwd() << "@" 
+       << pToPrint << "@" 
        << dbParams_.path() 
        << "\" using 'ConfDb' configurable read from .cfg file";
     edm::LogVerbatim(mlConfigDb_) << ss.str();
@@ -270,7 +271,7 @@ void SiStripConfigDb::usingDatabase() {
       << " from 'CONFDB' environmental variable or .cfg file"
       << " (present value is \"" 
       << user << "/" 
-      << passwd << "@" 
+      << pToPrint << "@" 
       << path 
       << "\"). Aborting connection to database...";
     return;
@@ -359,7 +360,7 @@ void SiStripConfigDb::usingDatabase() {
     std::stringstream ss; 
     ss << "Failed to connect to database using parameters '" 
        << dbParams_.user() << "/" 
-       << dbParams_.passwd() << "@" 
+       << pToPrint << "@" 
        << dbParams_.path() 
        << "' and partitions '" 
        << dbParams_.partitionNames( dbParams_.partitionNames() ) << "'";
@@ -375,7 +376,7 @@ void SiStripConfigDb::usingDatabase() {
        << std::hex << std::setw(8) << std::setfill('0') << factory_ << std::dec
        << ", using database account with parameters '" 
        << dbParams_.user() << "/" 
-       << dbParams_.passwd() << "@" 
+       << pToPrint << "@" 
        << dbParams_.path();
     LogTrace(mlConfigDb_) << ss.str();
   } else {
@@ -384,7 +385,7 @@ void SiStripConfigDb::usingDatabase() {
       << " NULL pointer to DeviceFactory!"
       << " Unable to connect to database using connection parameters '" 
       << dbParams_.user() << "/" 
-      << dbParams_.passwd() << "@" 
+      << pToPrint << "@" 
       << dbParams_.path()
       << "' and partitions '" 
       << dbParams_.partitionNames( dbParams_.partitionNames() ) << "'";
