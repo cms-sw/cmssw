@@ -203,14 +203,15 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
     }
     if (xiSelection_) {
       // selecting potential Xi- -> Lambda pi candidates
-      math::XYZTLorentzVector p4Lambda(v0.px(), v0.py(), v0.pz(), sqrt(v0.momentum().mag2() + v0.mass()*v0.mass()));
+      math::XYZTLorentzVector p4Lambda(v0.px(), v0.py(), v0.pz(), sqrt(v0.momentum().mag2() + v0.mass() * v0.mass()));
 
       for (unsigned int trkIndx = 0; trkIndx < tracks->size(); trkIndx++) {
         reco::TrackRef trk(tracks, trkIndx);
         if ((*trk).charge() * protonCharge < 0)
           continue;
 
-        math::XYZTLorentzVector p4pi(trk->px(), trk->py(), trk->pz(), trk->momentum().mag2() + 0.01947995518); // pion mass ^2
+        math::XYZTLorentzVector p4pi(
+            trk->px(), trk->py(), trk->pz(), trk->momentum().mag2() + 0.01947995518);  // pion mass ^2
         if ((p4Lambda + p4pi).M() < xiMassCut_) {  // selecting potential Xi- candidates
           if (trkStatus[trkIndx] == TrkStatus::NOTUSED)
             trkStatus[trkIndx] = TrkStatus::VTX;
