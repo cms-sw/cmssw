@@ -13,7 +13,7 @@
  * \author: Elisa Fontanesi - Boston University                                                                                                                                                            
  *          CorrCondition and CorrWithOverlapRemovalCondition classes used as a starting point
  *                                                                                                                                                       
- */ 
+ */
 
 // system include files
 #include <iosfwd>
@@ -43,10 +43,10 @@ namespace l1t {
 
     ///     from base template condition (from event setup usually)
     CorrThreeBodyCondition(const GlobalCondition*,
-                                    const GlobalCondition*,
-                                    const GlobalCondition*,
-                                    const GlobalCondition*,
-                                    const GlobalBoard*
+                           const GlobalCondition*,
+                           const GlobalCondition*,
+                           const GlobalCondition*,
+                           const GlobalBoard*
 
     );
 
@@ -98,13 +98,12 @@ namespace l1t {
     // pointer to subconditions
     const GlobalCondition* m_gtCond0;
     const GlobalCondition* m_gtCond1;
-    const GlobalCondition* m_gtCond2; 
+    const GlobalCondition* m_gtCond2;
 
     /// pointer to uGt GlobalBoard, to be able to get the trigger objects
     const GlobalBoard* m_uGtB;
 
     const GlobalScales* m_gtScales;
-
   };
 
 }  // namespace l1t

@@ -274,12 +274,14 @@ void TriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<CorrelationThreeBodyTemplate> >::iterator itCondOnChip = m_vecCorrelationThreeBodyTemplate.begin();
+  for (std::vector<std::vector<CorrelationThreeBodyTemplate> >::iterator itCondOnChip =
+           m_vecCorrelationThreeBodyTemplate.begin();
        itCondOnChip != m_vecCorrelationThreeBodyTemplate.end();
        itCondOnChip++) {
     chipNr++;
 
-    for (std::vector<CorrelationThreeBodyTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
+    for (std::vector<CorrelationThreeBodyTemplate>::iterator itCond = itCondOnChip->begin();
+         itCond != itCondOnChip->end();
          itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
@@ -293,7 +295,8 @@ void TriggerMenu::buildGtConditionMap() {
   }
 
   chipNr = -1;
-  for (std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >::iterator itCondOnChip = m_vecCorrelationWithOverlapRemovalTemplate.begin();
+  for (std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >::iterator itCondOnChip =
+           m_vecCorrelationWithOverlapRemovalTemplate.begin();
        itCondOnChip != m_vecCorrelationWithOverlapRemovalTemplate.end();
        itCondOnChip++) {
     chipNr++;
@@ -304,7 +307,6 @@ void TriggerMenu::buildGtConditionMap() {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
   }
-
 }
 
 // set the trigger menu name
@@ -347,11 +349,13 @@ void TriggerMenu::setVecCorrelationTemplate(const std::vector<std::vector<Correl
   m_vecCorrelationTemplate = vecCorrelationTempl;
 }
 
-void TriggerMenu::setVecCorrelationThreeBodyTemplate(const std::vector<std::vector<CorrelationThreeBodyTemplate> >& vecCorrelationThreeBodyTempl) {
+void TriggerMenu::setVecCorrelationThreeBodyTemplate(
+    const std::vector<std::vector<CorrelationThreeBodyTemplate> >& vecCorrelationThreeBodyTempl) {
   m_vecCorrelationThreeBodyTemplate = vecCorrelationThreeBodyTempl;
 }
 
-void TriggerMenu::setVecCorrelationWithOverlapRemovalTemplate(const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >& vecCorrelationTempl) {
+void TriggerMenu::setVecCorrelationWithOverlapRemovalTemplate(
+    const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >& vecCorrelationTempl) {
   m_vecCorrelationWithOverlapRemovalTemplate = vecCorrelationTempl;
 }
 

@@ -32,7 +32,7 @@
 //   default
 
 CorrelationThreeBodyTemplate::CorrelationThreeBodyTemplate() : GlobalCondition() {
-  m_condCategory = l1t::CondCorrelationThreeBody; 
+  m_condCategory = l1t::CondCorrelationThreeBody;
   m_condType = l1t::Type3s;
   m_condChipNr = -1;
 
@@ -53,8 +53,8 @@ CorrelationThreeBodyTemplate::CorrelationThreeBodyTemplate() : GlobalCondition()
 
 //   from condition name
 CorrelationThreeBodyTemplate::CorrelationThreeBodyTemplate(const std::string& cName) : GlobalCondition(cName) {
-  m_condCategory = l1t::CondCorrelationThreeBody; 
-  m_condType = l1t::Type3s;  
+  m_condCategory = l1t::CondCorrelationThreeBody;
+  m_condType = l1t::Type3s;
   m_condChipNr = -1;
 
   // there are in fact three objects according to m_condType = l1t::Type3s as defined in CondFormats/L1TObjects/src/L1GtCondition.cc
@@ -76,35 +76,38 @@ CorrelationThreeBodyTemplate::CorrelationThreeBodyTemplate(const std::string& cN
 //   second sub-condition, the index of first sub-condition in the cor* vector,
 //   the index of second sub-condition in the cor* vector
 CorrelationThreeBodyTemplate::CorrelationThreeBodyTemplate(const std::string& cName,
-							   const l1t::GtConditionCategory& cond0Cat,
-							   const l1t::GtConditionCategory& cond1Cat,
-							   const l1t::GtConditionCategory& cond2Cat,
-							   const int cond0Index,
-							   const int cond1index,
-							   const int cond2index)
-  : GlobalCondition(cName),
-    m_cond0Category(cond0Cat),
-    m_cond1Category(cond1Cat),
-    m_cond2Category(cond2Cat),
-    m_cond0Index(cond0Index),
-    m_cond1Index(cond1index),
-    m_cond2Index(cond2index)
-    
+                                                           const l1t::GtConditionCategory& cond0Cat,
+                                                           const l1t::GtConditionCategory& cond1Cat,
+                                                           const l1t::GtConditionCategory& cond2Cat,
+                                                           const int cond0Index,
+                                                           const int cond1index,
+                                                           const int cond2index)
+    : GlobalCondition(cName),
+      m_cond0Category(cond0Cat),
+      m_cond1Category(cond1Cat),
+      m_cond2Category(cond2Cat),
+      m_cond0Index(cond0Index),
+      m_cond1Index(cond1index),
+      m_cond2Index(cond2index)
+
 {
   m_condCategory = l1t::CondCorrelationThreeBody;
-  m_condType = l1t::Type3s;  
+  m_condType = l1t::Type3s;
   m_condChipNr = -1;
-  
+
   // there are in fact three objects according to m_condType = l1t::Type3s as defined in CondFormats/L1TObjects/src/L1GtCondition.cc
   int nObjects = nrObjects();
-  
+
   if (nObjects > 0) {
     m_objectType.resize(nObjects);
   }
 }
 
 // copy constructor
-CorrelationThreeBodyTemplate::CorrelationThreeBodyTemplate(const CorrelationThreeBodyTemplate& cp) : GlobalCondition(cp.m_condName) { copy(cp); }
+CorrelationThreeBodyTemplate::CorrelationThreeBodyTemplate(const CorrelationThreeBodyTemplate& cp)
+    : GlobalCondition(cp.m_condName) {
+  copy(cp);
+}
 
 // destructor
 CorrelationThreeBodyTemplate::~CorrelationThreeBodyTemplate() {
@@ -118,9 +121,15 @@ CorrelationThreeBodyTemplate& CorrelationThreeBodyTemplate::operator=(const Corr
 }
 
 // set the category of the three sub-conditions
-void CorrelationThreeBodyTemplate::setCond0Category(const l1t::GtConditionCategory& condCateg) { m_cond0Category = condCateg; }
-void CorrelationThreeBodyTemplate::setCond1Category(const l1t::GtConditionCategory& condCateg) { m_cond1Category = condCateg; }
-void CorrelationThreeBodyTemplate::setCond2Category(const l1t::GtConditionCategory& condCateg) { m_cond2Category = condCateg; }
+void CorrelationThreeBodyTemplate::setCond0Category(const l1t::GtConditionCategory& condCateg) {
+  m_cond0Category = condCateg;
+}
+void CorrelationThreeBodyTemplate::setCond1Category(const l1t::GtConditionCategory& condCateg) {
+  m_cond1Category = condCateg;
+}
+void CorrelationThreeBodyTemplate::setCond2Category(const l1t::GtConditionCategory& condCateg) {
+  m_cond2Category = condCateg;
+}
 
 // set the index of the three sub-conditions in the cor* vector from menu
 void CorrelationThreeBodyTemplate::setCond0Index(const int& condIndex) { m_cond0Index = condIndex; }
@@ -128,7 +137,8 @@ void CorrelationThreeBodyTemplate::setCond1Index(const int& condIndex) { m_cond1
 void CorrelationThreeBodyTemplate::setCond2Index(const int& condIndex) { m_cond2Index = condIndex; }
 
 // set the correlation parameters of the condition
-void CorrelationThreeBodyTemplate::setCorrelationThreeBodyParameter(const CorrelationThreeBodyParameter& corrThreeBodyParameter) {
+void CorrelationThreeBodyTemplate::setCorrelationThreeBodyParameter(
+    const CorrelationThreeBodyParameter& corrThreeBodyParameter) {
   m_correlationThreeBodyParameter = corrThreeBodyParameter;
 }
 
