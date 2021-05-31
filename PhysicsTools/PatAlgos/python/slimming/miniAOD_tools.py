@@ -139,8 +139,7 @@ def miniAOD_customizeCommon(process):
 
     from PhysicsTools.PatAlgos.slimming.applySubstructure_cff import applySubstructure
     applySubstructure( process )
-
-
+    
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
@@ -613,7 +612,7 @@ def miniAOD_customizeOutput(out):
 
     from Configuration.Eras.Modifier_bParking_cff import bParking
     from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-    
+
     out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
     (bParking | run2_miniAOD_devel).toModify(out, overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevelWithBs)
 
