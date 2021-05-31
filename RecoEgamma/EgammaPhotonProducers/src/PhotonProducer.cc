@@ -459,6 +459,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1) / scRef->energy();
     }
     showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*scRef);
+    showerShape.pre7DepthHcal = false;
     newCandidate.setShowerShapeVariables(showerShape);
 
     /// fill full5x5 shower shape block
@@ -475,6 +476,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       full5x5_showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1) / full5x5_e5x5;
     }
     full5x5_showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*scRef);
+    full5x5_showerShape.pre7DepthHcal = false;
     newCandidate.full5x5_setShowerShapeVariables(full5x5_showerShape);
 
     /// get ecal photon specific corrected energy

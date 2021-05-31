@@ -406,6 +406,9 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                                        id + 1);
     }
   }
+
+  phoisolR1.pre7DepthHcal = false;
+  phoisolR2.pre7DepthHcal = false;
 }
 
 void PhotonIsolationCalculator::classify(const reco::Photon* photon,
