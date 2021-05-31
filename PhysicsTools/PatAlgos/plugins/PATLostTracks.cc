@@ -211,7 +211,7 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
           continue;
 
         math::XYZTLorentzVector p4pi(
-            trk->px(), trk->py(), trk->pz(), trk->momentum().mag2() + 0.01947995518);  // pion mass ^2
+            trk->px(), trk->py(), trk->pz(), sqrt(trk->momentum().mag2() + 0.01947995518));  // pion mass ^2
         if ((p4Lambda + p4pi).M() < xiMassCut_) {  // selecting potential Xi- candidates
           if (trkStatus[trkIndx] == TrkStatus::NOTUSED)
             trkStatus[trkIndx] = TrkStatus::VTX;
