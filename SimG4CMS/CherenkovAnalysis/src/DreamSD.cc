@@ -398,7 +398,7 @@ double DreamSD::getAverageNumberOfPhotons_(const double charge,
   double nMax = (*Rindex)[Rlength];
 
   // Max Cerenkov Angle Integral
-  double CAImax = chAngleIntegrals_.get()->GetMaxValue();
+  double CAImax = chAngleIntegrals_.get()->GetMaxEnergy();
 
   double dp = 0., ge = 0., CAImin = 0.;
 
@@ -483,13 +483,13 @@ bool DreamSD::setPbWO2MaterialProperties_(G4Material *aMaterial) {
 
   // Calculate Cherenkov angle integrals:
   // This is an ad-hoc solution (we hold it in the class, not in the material)
-  chAngleIntegrals_ = std::make_unique<G4PhysicsOrderedFreeVector>();
+  chAngleIntegrals_ = std::make_unique<G4PhysicsFreeVector>();
 
   int index = 0;
   double currentRI = RefractiveIndex[index];
   double currentPM = PhotonEnergy[index];
   double currentCAI = 0.0;
-  chAngleIntegrals_.get()->InsertValues(currentPM, currentCAI);
+  chAngleIntegrals_.get()->PutValue(0, currentPM, currentCAI);
   double prevPM = currentPM;
   double prevCAI = currentCAI;
   double prevRI = currentRI;
@@ -499,7 +499,7 @@ bool DreamSD::setPbWO2MaterialProperties_(G4Material *aMaterial) {
     currentCAI = 0.5 * (1.0 / (prevRI * prevRI) + 1.0 / (currentRI * currentRI));
     currentCAI = prevCAI + (currentPM - prevPM) * currentCAI;
 
-    chAngleIntegrals_.get()->InsertValues(currentPM, currentCAI);
+    chAngleIntegrals_.get()->PutValue(index, currentPM, currentCAI);
 
     prevPM = currentPM;
     prevCAI = currentCAI;
