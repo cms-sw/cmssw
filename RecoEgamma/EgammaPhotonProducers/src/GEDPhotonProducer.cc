@@ -687,6 +687,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.invalidHcal = (hcalHelperBc != nullptr) ? !hcalHelperBc->hasActiveHcal(*scRef) : false;
     if (hcalHelperBc != nullptr)
       showerShape.hcalTowersBehindClusters = hcalHelperBc->hcalTowersBehindClusters(*scRef);
+    showerShape.pre7DepthHcal = false;
 
     /// fill extra shower shapes
     const float spp = (!edm::isFinite(locCov[2]) ? 0. : sqrt(locCov[2]));
@@ -797,6 +798,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       full5x5_showerShape.hcalOverEcalBc[id] =
           (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1) / full5x5_e5x5 : 0.f;
     }
+    full5x5_showerShape.pre7DepthHcal = false;
     newCandidate.full5x5_setShowerShapeVariables(full5x5_showerShape);
 
     /// get ecal photon specific corrected energy

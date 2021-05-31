@@ -143,11 +143,16 @@ namespace reco {
       float e3x3;
       float e5x5;
       float maxEnergyXtal;
+      float hcalDepth1OverEcal;  // hcal over ecal energy using first hcal depth
+      float hcalDepth2OverEcal;  // hcal over ecal energy using 2nd hcal depth
+      float hcalDepth1OverEcalBc;
+      float hcalDepth2OverEcalBc;
       std::array<float, 7> hcalOverEcal;  // hcal over ecal seed cluster energy per depth (using rechits within a cone)
       std::array<float, 7>
           hcalOverEcalBc;  // hcal over ecal seed cluster energy per depth (using rechits behind clusters)
       std::vector<CaloTowerDetId> hcalTowersBehindClusters;
       bool invalidHcal;
+      bool pre7DepthHcal;
       float effSigmaRR;
       float sigmaIetaIphi;
       float sigmaIphiIphi;
@@ -174,9 +179,14 @@ namespace reco {
             e3x3(0.f),
             e5x5(0.f),
             maxEnergyXtal(0.f),
+            hcalDepth1OverEcal(0.f),
+            hcalDepth2OverEcal(0.f),
+            hcalDepth1OverEcalBc(0.f),
+            hcalDepth2OverEcalBc(0.f),
             hcalOverEcal{{0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f}},
             hcalOverEcalBc{{0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f}},
             invalidHcal(false),
+            pre7DepthHcal(true),
             effSigmaRR(std::numeric_limits<float>::max()),
             sigmaIetaIphi(std::numeric_limits<float>::max()),
             sigmaIphiIphi(std::numeric_limits<float>::max()),
@@ -203,19 +213,43 @@ namespace reco {
     void full5x5_setShowerShapeVariables(const ShowerShape& a) { full5x5_showerShapeBlock_ = a; }
 
     /// the total hadronic over electromagnetic fraction
-    float hcalOverEcal(int depth = 0) const {
-      const auto& hovere = showerShapeBlock_.hcalOverEcal;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f)
-                                          : hovere[depth - 1];
+    float hcalOverEcal(const ShowerShape& ss, int depth) const {
+      if (ss.pre7DepthHcal) {
+        if (depth == 0)
+          return ss.hcalDepth1OverEcal + ss.hcalDepth2OverEcal;
+        else if (depth == 1)
+          return ss.hcalDepth1OverEcal;
+        else if (depth == 2)
+          return ss.hcalDepth2OverEcal;
+
+        return 0.f;
+      } else {
+        const auto& hovere = ss.hcalOverEcal;
+        return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f)
+                                            : hovere[depth - 1];
+      }
     }
+    float hcalOverEcal(int depth = 0) const { return hcalOverEcal(showerShapeBlock_, depth); }
     float hadronicOverEm(int depth = 0) const { return hcalOverEcal(depth); }
 
     /// the ratio of total energy of hcal rechits behind the SC and the SC energy
-    float hcalOverEcalBc(int depth = 0) const {
-      const auto& hovere = showerShapeBlock_.hcalOverEcalBc;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f)
-                                          : hovere[depth - 1];
+    float hcalOverEcalBc(const ShowerShape& ss, int depth) const {
+      if (ss.pre7DepthHcal) {
+        if (depth == 0)
+          return ss.hcalDepth1OverEcalBc + ss.hcalDepth2OverEcalBc;
+        else if (depth == 1)
+          return ss.hcalDepth1OverEcalBc;
+        else if (depth == 2)
+          return ss.hcalDepth2OverEcalBc;
+
+        return 0.f;
+      } else {
+        const auto& hovere = ss.hcalOverEcalBc;
+        return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f)
+                                            : hovere[depth - 1];
+      }
     }
+    float hcalOverEcalBc(int depth = 0) const { return hcalOverEcalBc(showerShapeBlock_, depth); }
     float hadTowOverEm(int depth = 0) const { return hcalOverEcalBc(depth); }
 
     const std::vector<CaloTowerDetId>& hcalTowersBehindClusters() const {
@@ -225,18 +259,6 @@ namespace reco {
     /// returns false if H/E is not reliably estimated (e.g. because hcal was off or masked)
     bool hadronicOverEmValid() const { return !showerShapeBlock_.invalidHcal; }
     bool hadTowOverEmValid() const { return !showerShapeBlock_.invalidHcal; }
-
-    /// as above, but using 5x5 energy in the ecal
-    float full5x5_hcalOverEcal(int depth = 0) const {
-      const auto& hovere = full5x5_showerShapeBlock_.hcalOverEcal;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f)
-                                          : hovere[depth - 1];
-    }
-    float full5x5_hcalOverEcalBc(int depth = 0) const {
-      const auto& hovere = full5x5_showerShapeBlock_.hcalOverEcalBc;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hovere), std::end(hovere), 0.f)
-                                          : hovere[depth - 1];
-    }
 
     ///  Shower shape variables
     float e1x5() const { return showerShapeBlock_.e1x5; }
@@ -261,6 +283,14 @@ namespace reco {
     float full5x5_r1x5() const { return full5x5_showerShapeBlock_.e1x5 / full5x5_showerShapeBlock_.e5x5; }
     float full5x5_r2x5() const { return full5x5_showerShapeBlock_.e2x5 / full5x5_showerShapeBlock_.e5x5; }
     float full5x5_r9() const { return full5x5_showerShapeBlock_.e3x3 / this->superCluster()->rawEnergy(); }
+
+    /// the total hadronic over electromagnetic fraction
+    float full5x5_hcalOverEcal(int depth = 0) const { return hcalOverEcal(full5x5_showerShapeBlock_, depth); }
+    float full5x5_hadronicOverEm(int depth = 0) const { return full5x5_hcalOverEcal(depth); }
+
+    /// the ratio of total energy of hcal rechits behind the SC and the SC energy
+    float full5x5_hcalOverEcalBc(int depth = 0) const { return hcalOverEcalBc(full5x5_showerShapeBlock_, depth); }
+    float full5x5_hadTowOverEm(int depth = 0) const { return full5x5_hcalOverEcalBc(depth); }
 
     //=======================================================
     // SaturationInfo
@@ -371,8 +401,21 @@ namespace reco {
 
       //EcalRecHit isolation
       float ecalRecHitSumEt;
+      //HcalTower isolation
+      float hcalTowerSumEt;
+      //HcalDepth1Tower isolation
+      float hcalDepth1TowerSumEt;
+      //HcalDepth2Tower isolation
+      float hcalDepth2TowerSumEt;
+      //HcalTower isolation subtracting the hadronic energy in towers behind the BCs in the SC
+      float hcalTowerSumEtBc;
+      //HcalDepth1Tower isolation subtracting the hadronic energy in towers behind the BCs in the SC
+      float hcalDepth1TowerSumEtBc;
+      //HcalDepth2Tower isolation subtracting the hadronic energy in towers behind the BCs in the SC
+      float hcalDepth2TowerSumEtBc;
       std::array<float, 7> hcalRecHitSumEt;    // ...per depth, with photon footprint within a cone removed
       std::array<float, 7> hcalRecHitSumEtBc;  // ...per depth, with hcal rechits behind cluster removed
+      bool pre7DepthHcal;
       //Sum of track pT in a cone of dR
       float trkSumPtSolidCone;
       //Sum of track pT in a hollow cone of outer radius, inner radius
@@ -385,8 +428,15 @@ namespace reco {
           :
 
             ecalRecHitSumEt(0.f),
+            hcalTowerSumEt(0.f),
+            hcalDepth1TowerSumEt(0.f),
+            hcalDepth2TowerSumEt(0.f),
+            hcalTowerSumEtBc(0.f),
+            hcalDepth1TowerSumEtBc(0.f),
+            hcalDepth2TowerSumEtBc(0.f),
             hcalRecHitSumEt{{0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f}},
             hcalRecHitSumEtBc{{0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f}},
+            pre7DepthHcal(true),
             trkSumPtSolidCone(0.f),
             trkSumPtHollowCone(0.f),
             nTrkSolidCone(0),
@@ -403,17 +453,41 @@ namespace reco {
     ///Ecal isolation sum calculated from recHits
     float ecalRecHitSumEtConeDR04() const { return isolationR04_.ecalRecHitSumEt; }
     /// Hcal isolation sum for each depth excluding the region containing the rechits used for hcalOverEcal()
-    float hcalTowerSumEtConeDR04(int depth = 0) const {
-      const auto& hcaliso = isolationR04_.hcalRecHitSumEt;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f)
-                                          : hcaliso[depth - 1];
+    float hcalTowerSumEt(const IsolationVariables& iv, int depth) const {
+      if (iv.pre7DepthHcal) {
+        if (depth == 0)
+          return iv.hcalTowerSumEt;
+        else if (depth == 1)
+          return iv.hcalDepth1TowerSumEt;
+        else if (depth == 2)
+          return iv.hcalDepth2TowerSumEt;
+
+        return 0.f;
+      } else {
+        const auto& hcaliso = iv.hcalRecHitSumEt;
+        return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f)
+                                            : hcaliso[depth - 1];
+      }
     }
+    float hcalTowerSumEtConeDR04(int depth = 0) const { return hcalTowerSumEt(isolationR04_, depth); }
     /// Hcal isolation sum for each depth excluding the region containing the rechits used for hcalOverEcalBc()
-    float hcalTowerSumEtBcConeDR04(int depth = 0) const {
-      const auto& hcaliso = isolationR04_.hcalRecHitSumEtBc;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f)
-                                          : hcaliso[depth - 1];
+    float hcalTowerSumEtBc(const IsolationVariables& iv, int depth) const {
+      if (iv.pre7DepthHcal) {
+        if (depth == 0)
+          return iv.hcalTowerSumEtBc;
+        else if (depth == 1)
+          return iv.hcalDepth1TowerSumEtBc;
+        else if (depth == 2)
+          return iv.hcalDepth2TowerSumEtBc;
+
+        return 0.f;
+      } else {
+        const auto& hcaliso = iv.hcalRecHitSumEtBc;
+        return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f)
+                                            : hcaliso[depth - 1];
+      }
     }
+    float hcalTowerSumEtBcConeDR04(int depth = 0) const { return hcalTowerSumEtBc(isolationR04_, depth); }
     //  Track pT sum
     float trkSumPtSolidConeDR04() const { return isolationR04_.trkSumPtSolidCone; }
     //As above, excluding the core at the center of the cone
@@ -426,17 +500,9 @@ namespace reco {
     /// Isolation variables in cone dR=0.3
     float ecalRecHitSumEtConeDR03() const { return isolationR03_.ecalRecHitSumEt; }
     /// Hcal isolation sum for each depth excluding the region containing the rechits used for hcalOverEcal()
-    float hcalTowerSumEtConeDR03(int depth = 0) const {
-      const auto& hcaliso = isolationR03_.hcalRecHitSumEt;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f)
-                                          : hcaliso[depth - 1];
-    }
+    float hcalTowerSumEtConeDR03(int depth = 0) const { return hcalTowerSumEt(isolationR03_, depth); }
     /// Hcal isolation sum for each depth excluding the region containing the rechits used for hcalOverEcalBc()
-    float hcalTowerSumEtBcConeDR03(int depth = 0) const {
-      const auto& hcaliso = isolationR03_.hcalRecHitSumEtBc;
-      return (!(depth > 0 and depth < 8)) ? std::accumulate(std::begin(hcaliso), std::end(hcaliso), 0.f)
-                                          : hcaliso[depth - 1];
-    }
+    float hcalTowerSumEtBcConeDR03(int depth = 0) const { return hcalTowerSumEtBc(isolationR03_, depth); }
     //  Track pT sum c
     float trkSumPtSolidConeDR03() const { return isolationR03_.trkSumPtSolidCone; }
     //As above, excluding the core at the center of the cone
