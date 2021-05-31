@@ -10,10 +10,6 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <sstream>
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class SimBeamSpotObjects {
 public:
@@ -27,18 +23,6 @@ public:
   double fTimeOffset;
 
   void print(std::stringstream& ss) const;
-
-  void read(edm::ParameterSet& p) {
-    fX0 = p.getParameter<double>("X0") * cm;
-    fY0 = p.getParameter<double>("Y0") * cm;
-    fZ0 = p.getParameter<double>("Z0") * cm;
-    fSigmaZ = p.getParameter<double>("SigmaZ") * cm;
-    fAlpha = p.getParameter<double>("Alpha") * radian;
-    fPhi = p.getParameter<double>("Phi") * radian;
-    fbetastar = p.getParameter<double>("BetaStar") * cm;
-    femittance = p.getParameter<double>("Emittance") * cm;              // this is not the normalized emittance
-    fTimeOffset = p.getParameter<double>("TimeOffset") * ns * c_light;  // HepMC time units are mm
-  }
 
   COND_SERIALIZABLE;
 };
