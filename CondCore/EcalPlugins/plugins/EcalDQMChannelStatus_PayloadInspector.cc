@@ -22,8 +22,8 @@ namespace {
   enum { IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100 };         // endcaps lower and upper bounds on x and y
 
   /*******************************************************
- 2d plot of ECAL barrel DQM channel status of 1 IOV
- *******************************************************/
+     2d plot of ECAL barrel DQM channel status of 1 IOV
+  *******************************************************/
   class EcalDQMChannelStatusEBMap : public cond::payloadInspector::PlotImage<EcalDQMChannelStatus> {
   public:
     EcalDQMChannelStatusEBMap()
@@ -135,8 +135,8 @@ namespace {
   };
 
   /*******************************************************
- 2d plot of ECAL Endcap DQM channel status of 1 IOV
-*******************************************************/
+     2d plot of ECAL Endcap DQM channel status of 1 IOV
+   *******************************************************/
   class EcalDQMChannelStatusEEMap : public cond::payloadInspector::PlotImage<EcalDQMChannelStatus> {
   public:
     EcalDQMChannelStatusEEMap()
@@ -281,27 +281,44 @@ namespace {
 
   /**********************************************************************
      2d plot of ECAL barrel DQM channel status difference between 2 IOVs
-***********************************************************************/
-  class EcalDQMChannelStatusEBDiff : public cond::payloadInspector::PlotImage<EcalDQMChannelStatus> {
+  ***********************************************************************/
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalDQMChannelStatusEBDiffBase : public cond::payloadInspector::PlotImage<EcalDQMChannelStatus, nIOVs, ntags> {
   public:
-    EcalDQMChannelStatusEBDiff()
-        : cond::payloadInspector::PlotImage<EcalDQMChannelStatus>("ECAL Barrel DQM channel status difference") {
-      setSingleIov(false);
-    }
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    EcalDQMChannelStatusEBDiffBase()
+        : cond::payloadInspector::PlotImage<EcalDQMChannelStatus, nIOVs, ntags>(
+              "ECAL Barrel DQM channel status difference") {}
+    bool fill() override {
       TH2F *ebmap = new TH2F("ebmap", "", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F *ebmap_coarse = new TH2F("ebmap_coarse", "", MAX_IPHI / 20, 0, MAX_IPHI, 2, -MAX_IETA, MAX_IETA);
       Int_t ebcount = 0;
-      unsigned int run[2], irun = 0, status[kEBChannels];
-      for (auto const &iov : iovs) {
-        std::shared_ptr<EcalDQMChannelStatus> payload = fetchPayload(std::get<1>(iov));
+      unsigned int run[2], status[kEBChannels];
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalDQMChannelStatus> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
-
-          run[irun] = std::get<0>(iov);
-
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
             // check the existence of ECAL channel status, for a given ECAL barrel channel
@@ -333,8 +350,7 @@ namespace {
               }
             }
           }  // loop over cellid
-          irun++;
-        }  // if payload.get()
+        }    // if payload.get()
         else
           return false;
       }  // loop over IOV's
@@ -386,40 +402,67 @@ namespace {
       ebmap_coarse->SetMarkerSize(1.3);
       ebmap_coarse->Draw("text,same");
 
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("EB DQM Channel Status (Diff), IOV: %i vs %i", run[0], run[1]));
-
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      if (ntags == 2 && len < 58) {
+        t1.SetTextSize(0.025);
+        t1.DrawLatex(
+            0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("EB DQM Channel Status (Diff), IOV: %i vs %i", run[0], run[1]));
+      }
       char txt[80];
       sprintf(txt, "Net difference: %d channel(s)", ebcount);
       t1.SetTextColor(2);
       t1.SetTextSize(0.045);
       t1.DrawLatex(0.5, 0.91, txt);
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       c1.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalDQMChannelStatusEBDiffBase
+  using EcalDQMChannelStatusEBDiffOneTag = EcalDQMChannelStatusEBDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using EcalDQMChannelStatusEBDiffTwoTags = EcalDQMChannelStatusEBDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
   /************************************************************************
       2d plot of ECAL endcaps DQM channel status difference between 2 IOVs
- ************************************************************************/
-  class EcalDQMChannelStatusEEDiff : public cond::payloadInspector::PlotImage<EcalDQMChannelStatus> {
+  ************************************************************************/
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalDQMChannelStatusEEDiffBase : public cond::payloadInspector::PlotImage<EcalDQMChannelStatus, nIOVs, ntags> {
   public:
-    EcalDQMChannelStatusEEDiff()
-        : cond::payloadInspector::PlotImage<EcalDQMChannelStatus>("ECAL Endcaps DQM channel status difference") {
-      setSingleIov(true);
-    }
+    EcalDQMChannelStatusEEDiffBase()
+        : cond::payloadInspector::PlotImage<EcalDQMChannelStatus, nIOVs, ntags>(
+              "ECAL Endcaps DQM channel status difference") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+    bool fill() override {
       TH2F *eemap = new TH2F("eemap", "", 2 * IX_MAX, 0, 2 * IX_MAX, IY_MAX, 0, IY_MAX);
       TH2F *eemap_coarse = new TH2F("eemap_coarse", "", 2, 0, 2 * IX_MAX, 1, 0, IY_MAX);
       TH2F *eetemp = new TH2F("eetemp", "", 2 * IX_MAX, 0, 2 * IX_MAX, IY_MAX, 0, IY_MAX);
       Int_t eecount = 0;
-      unsigned int run[2], irun = 0, status[kEEChannels];
-      for (auto const &iov : iovs) {
-        std::shared_ptr<EcalDQMChannelStatus> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
+      unsigned int run[2], status[kEEChannels];
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalDQMChannelStatus> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           if (payload->endcapItems().empty())
             return false;
@@ -459,9 +502,8 @@ namespace {
                     }    //  any difference ?
                   }      //   2nd IOV, fill the plots
                 }        //    validDetId
-          irun++;
-        }  //     get the payload
-      }    //      loop over payloads
+        }                //     get the payload
+      }                  //      loop over payloads
 
       gStyle->SetOptStat(0);
       //set the background color to white
@@ -528,9 +570,15 @@ namespace {
       eemap_coarse->Draw("same,text");
 
       t1.SetTextColor(1);
-      t1.SetTextSize(0.055);
-      t1.DrawLatex(0.5, 0.96, Form("EE DQM Channel Status (Diff), IOV %i vs %i", run[0], run[1]));
-
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      if (ntags == 2 && len < 58) {
+        t1.SetTextSize(0.025);
+        t1.DrawLatex(
+            0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+      } else {
+        t1.SetTextSize(0.055);
+        t1.DrawLatex(0.5, 0.96, Form("EE DQM Channel Status (Diff), IOV %i vs %i", run[0], run[1]));
+      }
       char txt[80];
       sprintf(txt, "Net difference: %d channel(s)", eecount);
       t1.SetTextColor(2);
@@ -541,11 +589,13 @@ namespace {
       t1.DrawLatex(0.14, 0.84, "EE-");
       t1.DrawLatex(0.86, 0.84, "EE+");
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       c1.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalDQMChannelStatusEEDiffBase
+  using EcalDQMChannelStatusEEDiffOneTag = EcalDQMChannelStatusEEDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using EcalDQMChannelStatusEEDiffTwoTags = EcalDQMChannelStatusEEDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
 }  // namespace
 
@@ -553,6 +603,8 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(EcalDQMChannelStatus) {
   PAYLOAD_INSPECTOR_CLASS(EcalDQMChannelStatusEBMap);
   PAYLOAD_INSPECTOR_CLASS(EcalDQMChannelStatusEEMap);
-  PAYLOAD_INSPECTOR_CLASS(EcalDQMChannelStatusEBDiff);
-  PAYLOAD_INSPECTOR_CLASS(EcalDQMChannelStatusEEDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalDQMChannelStatusEBDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalDQMChannelStatusEBDiffTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalDQMChannelStatusEEDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalDQMChannelStatusEEDiffTwoTags);
 }

@@ -167,13 +167,13 @@ namespace {
   /**********************************************************
      2d plot of ECAL GainRatios difference between 2 IOVs
   **********************************************************/
-  class EcalGainRatiosDiff : public cond::payloadInspector::PlotImage<EcalGainRatios> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalGainRatiosDiffBase : public cond::payloadInspector::PlotImage<EcalGainRatios, nIOVs, ntags> {
   public:
-    EcalGainRatiosDiff() : cond::payloadInspector::PlotImage<EcalGainRatios>("ECAL Gain Ratios difference") {
-      setSingleIov(false);
-    }
+    EcalGainRatiosDiffBase()
+        : cond::payloadInspector::PlotImage<EcalGainRatios, nIOVs, ntags>("ECAL Gain Ratios difference") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       TH2F* barrel_12O6 =
           new TH2F("EB_12O6", "EB gain 12/6 difference", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p_12O6 =
@@ -191,11 +191,30 @@ namespace {
       TH1F* b_6O1 = new TH1F("b_6O1", "EB gain 6/1 difference", 100, -0.1, 0.1);
       TH1F* e_6O1 = new TH1F("e_6O1", "EE gain 6/1 difference", 100, -0.1, 0.1);
 
-      unsigned int run[2], irun = 0;
+      unsigned int run[2];
       float gEB[3][kEBChannels], gEE[3][kEEChannels];
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalGainRatios> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalGainRatios> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           for (int cellid = 0; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {  // loop on EB cells
@@ -245,7 +264,6 @@ namespace {
         }    //  if payload.get()
         else
           return false;
-        irun++;
       }  // loop over IOVs
 
       gStyle->SetPalette(1);
@@ -254,8 +272,15 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Gain Ratios, IOV %i - %i", run[1], run[0]));
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      if (ntags == 2 && len < 70) {
+        t1.SetTextSize(0.03);
+        t1.DrawLatex(
+            0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i - %i", l_tagname[0].c_str(), run[1], run[0]));
+      }
 
       float xmi[3] = {0.0, 0.22, 0.78};
       float xma[3] = {0.22, 0.78, 1.00};
@@ -323,15 +348,19 @@ namespace {
       st->SetX1NDC(0.6);   //new x start position
       st->SetY1NDC(0.75);  //new y start position
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalGainRatiosDiffBase
+  using EcalGainRatiosDiffOneTag = EcalGainRatiosDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using EcalGainRatiosDiffTwoTags = EcalGainRatiosDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
+
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(EcalGainRatios) {
   PAYLOAD_INSPECTOR_CLASS(EcalGainRatiosPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalGainRatiosDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalGainRatiosDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalGainRatiosDiffTwoTags);
 }
