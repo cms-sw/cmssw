@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    SimTracker/SimLinkPruner
-// Class:      SimLinkPruner
+// Package:    SimTracker/TrackAssociation
+// Class:      DigiSimLinkPruner
 //
-/**\class SimLinkPruner SimLinkPruner.cc SimTracker/SimLinkPruner/plugins/SimLinkPruner.cc
+/**\class DigiSimLinkPruner DigiSimLinkPruner.cc SimTracker/TrackAssociation/plugins/DigiSimLinkPruner.cc
 
  Description: [one line class summary]
 
@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -67,14 +67,14 @@ namespace {
 // class declaration
 //
 
-class SimLinkPruner : public edm::stream::EDProducer<> {
+class DigiSimLinkPruner : public edm::global::EDProducer<> {
 public:
-  explicit SimLinkPruner(const edm::ParameterSet&);
+  explicit DigiSimLinkPruner(const edm::ParameterSet&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
@@ -83,7 +83,7 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> siphase2OTSimLinksToken_;
 };
 
-SimLinkPruner::SimLinkPruner(const edm::ParameterSet& iConfig)
+DigiSimLinkPruner::DigiSimLinkPruner(const edm::ParameterSet& iConfig)
     : trackingParticleToken_(
           consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticles"))),
       sipixelSimLinksToken_(
@@ -104,19 +104,13 @@ SimLinkPruner::SimLinkPruner(const edm::ParameterSet& iConfig)
 }
 
 // ------------ method called to produce the data  ------------
-void SimLinkPruner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void DigiSimLinkPruner::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  edm::Handle<TrackingParticleCollection> TPCollectionH;
-
-  iEvent.getByToken(trackingParticleToken_, TPCollectionH);
-
-  auto const& tpColl = *TPCollectionH.product();
+  auto const& tpColl = iEvent.get(trackingParticleToken_);
 
   std::unordered_set<UniqueSimTrackId, UniqueSimTrackIdHash> selectedIds;
   for (TrackingParticleCollection::size_type itp = 0; itp < tpColl.size(); ++itp) {
-    TrackingParticleRef trackingParticleRef(TPCollectionH, itp);
-
     auto const& trackingParticle = tpColl[itp];
 
     // SimTracks inside TrackingParticle
@@ -128,11 +122,7 @@ void SimLinkPruner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink>> siPixelSimLinksH;
-
-  iEvent.getByToken(sipixelSimLinksToken_, siPixelSimLinksH);
-
-  auto const& sipixelLinkColl = *siPixelSimLinksH.product();
+  auto const& sipixelLinkColl = iEvent.get(sipixelSimLinksToken_);
 
   auto sipixelLinkVector = pruneByTpAssoc(sipixelLinkColl, selectedIds);
 
@@ -140,11 +130,7 @@ void SimLinkPruner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(std::move(sipixelOut), "siPixel");
 
   if (not sistripSimLinksToken_.isUninitialized()) {
-    edm::Handle<edm::DetSetVector<StripDigiSimLink>> siStripSimLinksH;
-
-    iEvent.getByToken(sistripSimLinksToken_, siStripSimLinksH);
-
-    auto const& sistripLinkColl = *siStripSimLinksH.product();
+    auto const& sistripLinkColl = iEvent.get(sistripSimLinksToken_);
 
     auto sistripLinkVector = pruneByTpAssoc(sistripLinkColl, selectedIds);
 
@@ -153,11 +139,7 @@ void SimLinkPruner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   if (not siphase2OTSimLinksToken_.isUninitialized()) {
-    edm::Handle<edm::DetSetVector<PixelDigiSimLink>> siphase2OTSimLinksH;
-
-    iEvent.getByToken(siphase2OTSimLinksToken_, siphase2OTSimLinksH);
-
-    auto const& siphase2OTLinkColl = *siphase2OTSimLinksH.product();
+    auto const& siphase2OTLinkColl = iEvent.get(siphase2OTSimLinksToken_);
 
     auto siphase2OTLinkVector = pruneByTpAssoc(siphase2OTLinkColl, selectedIds);
 
@@ -167,9 +149,9 @@ void SimLinkPruner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void SimLinkPruner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void DigiSimLinkPruner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.add<edm::InputTag>("trackingParticles");
   desc.add<edm::InputTag>("pixelSimLinkSrc", edm::InputTag("simSiPixelDigis"));
   desc.addOptional<edm::InputTag>("stripSimLinkSrc");
   desc.addOptional<edm::InputTag>("phase2OTSimLinkSrc");
@@ -178,4 +160,4 @@ void SimLinkPruner::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SimLinkPruner);
+DEFINE_FWK_MODULE(DigiSimLinkPruner);
