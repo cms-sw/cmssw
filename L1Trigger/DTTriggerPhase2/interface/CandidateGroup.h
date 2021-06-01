@@ -14,6 +14,9 @@ namespace dtbayesam {
 
   typedef std::bitset<8> qualitybits;
 
+  typedef std::shared_ptr<DTPattern> DTPatternPtr;
+  typedef std::vector<DTPatternPtr> DTPatternPtrs;
+
   class CandidateGroup {
   public:
     //Constructors and destructors
