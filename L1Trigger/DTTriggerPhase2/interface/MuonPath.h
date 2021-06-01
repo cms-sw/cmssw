@@ -32,6 +32,8 @@ public:
   void setChiSquare(float chi) { chiSquare_ = chi; }
   void setPhi(float phi) { phi_ = phi; }
   void setPhiB(float phib) { phiB_ = phib; }
+  void setPhiCMSSW(float phi_cmssw) { phicmssw_ = phi_cmssw; }
+  void setPhiBCMSSW(float phib_cmssw) { phiBcmssw_ = phib_cmssw; }
   void setXCoorCell(float x, int cell) { xCoorCell_[cell] = x; }
   void setDriftDistance(float dx, int cell) { xDriftDistance_[cell] = dx; }
   void setXWirePos(float x, int cell) { xWirePos_[cell] = x; }
@@ -55,6 +57,8 @@ public:
   float chiSquare() const { return chiSquare_; }
   float phi() const { return phi_; }
   float phiB() const { return phiB_; }
+  float phi_cmssw() const { return phicmssw_; }
+  float phiB_cmssw() const { return phiBcmssw_; }
   float xCoorCell(int cell) const { return xCoorCell_[cell]; }
   float xDriftDistance(int cell) const { return xDriftDistance_[cell]; }
   float xWirePos(int cell) const { return xWirePos_[cell]; }
@@ -113,6 +117,8 @@ private:
   float chiSquare_;
   float phi_;
   float phiB_;
+  float phicmssw_;
+  float phiBcmssw_;
 
   uint32_t rawId_;
 };

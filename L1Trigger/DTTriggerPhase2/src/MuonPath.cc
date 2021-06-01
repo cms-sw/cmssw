@@ -45,6 +45,8 @@ MuonPath::MuonPath(DTPrimitivePtrs &ptrPrimitive, int nprimUp, int nprimDown) {
   chiSquare_ = 0;
   phi_ = 0;
   phiB_ = 0;
+  phicmssw_ = 0;
+  phiBcmssw_ = 0;
 
   for (short i = 0; i < nprimitives_; i++) {
     lateralComb_[i] = LEFT;
@@ -76,6 +78,8 @@ MuonPath::MuonPath(DTPrimitives &ptrPrimitive, int nprimUp, int nprimDown) {
   chiSquare_ = 0;
   phi_ = 0;
   phiB_ = 0;
+  phicmssw_ = 0;
+  phiBcmssw_ = 0;
 
   for (short i = 0; i < nprimitives_; i++) {
     lateralComb_[i] = LEFT;
@@ -93,6 +97,8 @@ MuonPath::MuonPath(MuonPathPtr &ptr) {
   setRawId(ptr->rawId());
   setPhi(ptr->phi());
   setPhiB(ptr->phiB());
+  setPhiCMSSW(ptr->phi_cmssw());
+  setPhiBCMSSW(ptr->phiB_cmssw());
   setQuality(ptr->quality());
   setBaseChannelId(ptr->baseChannelId());
   setCellHorizontalLayout(ptr->cellLayout());
