@@ -152,7 +152,7 @@ namespace reco {
           hcalOverEcalBc;  // hcal over ecal seed cluster energy per depth (using rechits behind clusters)
       std::vector<CaloTowerDetId> hcalTowersBehindClusters;
       bool invalidHcal;
-      bool pre7DepthHcal;
+      bool pre7DepthHcal;  // to work around an ioread rule issue on legacy RECO files
       float effSigmaRR;
       float sigmaIetaIphi;
       float sigmaIphiIphi;
@@ -415,7 +415,7 @@ namespace reco {
       float hcalDepth2TowerSumEtBc;
       std::array<float, 7> hcalRecHitSumEt;    // ...per depth, with photon footprint within a cone removed
       std::array<float, 7> hcalRecHitSumEtBc;  // ...per depth, with hcal rechits behind cluster removed
-      bool pre7DepthHcal;
+      bool pre7DepthHcal;                      // to work around an ioread rule issue on legacy RECO files
       //Sum of track pT in a cone of dR
       float trkSumPtSolidCone;
       //Sum of track pT in a hollow cone of outer radius, inner radius

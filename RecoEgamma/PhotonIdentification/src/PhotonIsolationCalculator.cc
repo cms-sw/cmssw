@@ -356,7 +356,7 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   if (not hbheRecHitsTag_.isUninitialized()) {
     auto const& hbheRecHits = e.get(hbheRecHitsTag_);
 
-    for (size_t id = 0; id < 7; ++id) {
+    for (size_t id = 0; id < phoisolR1.hcalRecHitSumEt.size(); ++id) {
       phoisolR1.hcalRecHitSumEt[id] =
           calculateHcalRecHitIso<false>(pho,
                                         caloGeometry,
