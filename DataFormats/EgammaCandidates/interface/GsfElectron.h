@@ -373,7 +373,7 @@ namespace reco {
           hcalOverEcalBc;  // run3 hcal over ecal seed cluster energy per depth (using rechits behind clusters)
       std::vector<CaloTowerDetId> hcalTowersBehindClusters;
       bool invalidHcal;  // set to true if the hcal energy estimate is not valid (e.g. the corresponding tower was off or masked)
-      bool pre7DepthHcal;
+      bool pre7DepthHcal;  // to work around an ioread rule issue on legacy RECO files
       float sigmaIetaIphi;
       float eMax;
       float e2nd;
@@ -539,7 +539,7 @@ namespace reco {
       float hcalDepth2TowerSumEtBc;            // hcal depth 2 iso deposit without towers behind clusters
       std::array<float, 7> hcalRecHitSumEt;    // ...per depth, with electron footprint removed
       std::array<float, 7> hcalRecHitSumEtBc;  // ...per depth, with hcal rechit behind cluster removed
-      bool pre7DepthHcal;
+      bool pre7DepthHcal;                      // to work around an ioread rule issue on legacy RECO files
       IsolationVariables()
           : tkSumPt(0.),
             tkSumPtHEEP(0.),
