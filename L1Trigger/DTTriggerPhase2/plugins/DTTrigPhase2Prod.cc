@@ -121,7 +121,8 @@ private:
   double dT0_correlate_TP_;
   bool do_correlation_;
   int scenario_;
-  bool cmssw_for_global_;
+  int df_extended_;
+  // bool cmssw_for_global_;
   std::string geometry_tag_;
 
   // ParameterSet
