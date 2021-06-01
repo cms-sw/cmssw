@@ -130,9 +130,9 @@ void PseudoBayesGrouping::LoadPattern(TString pattern_file_name,
 	  continue;
 	// We need to correct the geometry from pattern generation to reconstruction as they use slightly displaced basis
 	else if (itHits.at(0) % 2 == 0) {
-	  p.addHit(std::make_tuple(itHits.at(0), itHits.at(1), itHits.at(2)));
+	  p->addHit(std::make_tuple(itHits.at(0), itHits.at(1), itHits.at(2)));
 	} else if (itHits.at(0) % 2 == 1) {
-	  p.addHit(std::make_tuple(itHits.at(0), itHits.at(1) - 1, itHits.at(2)));
+	  p->addHit(std::make_tuple(itHits.at(0), itHits.at(1) - 1, itHits.at(2)));
 	}
       }
     }
@@ -283,7 +283,7 @@ void PseudoBayesGrouping::LoadPattern(TString pattern_file_name,
     // }
     
     //Also creating a list of all patterns, needed later for deleting and avoid a memory leak
-    allPatterns_[MB_number][SL_shift].push_back(&p);
+    allPatterns_[MB_number][SL_shift].push_back(p);
     nPatterns_++;
   }
   if (debug_)
