@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignment.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class SurveyDataConverter : public edm::EDAnalyzer {
   typedef SurveyDataReader::MapType MapType;
@@ -31,8 +32,8 @@ class SurveyDataConverter : public edm::EDAnalyzer {
 
 public:
   explicit SurveyDataConverter(const edm::ParameterSet& iConfig);
-
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+//  SurveyDataConverter(edm::EventSetup& setup, edm::ConsumesCollector);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)override; 
   void endJob() override{};
 
 private:

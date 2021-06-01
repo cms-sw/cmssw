@@ -18,8 +18,9 @@ class TrackerTopology;
 
 class TrackerAlignment {
 public:
+  
   TrackerAlignment(const edm::EventSetup& setup, edm::ConsumesCollector);
-
+//TrackerAlignment(const edm::EventSetup& setup);// {return TrackerAlignment(const edm::EventSetup& setup, edm::ConsumesCollector);}
   ~TrackerAlignment();
 
   AlignableTracker* getAlignableTracker() { return theAlignableTracker; }
