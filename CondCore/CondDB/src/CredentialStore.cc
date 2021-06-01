@@ -154,13 +154,6 @@ std::string tname(const std::string& tableName, const std::string& schemaVersion
   return prefix + tableName;
 }
 
-std::string to_lower(const std::string& s) {
-  std::string str(s);
-  for (auto& c : str)
-    c = tolower(c);
-  return str;
-}
-
 // implementation functions and helpers
 namespace cond {
 
@@ -304,7 +297,7 @@ namespace cond {
     whereData.extend<std::string>(SCHEMA_COL);
     whereData[P_ID_COL].data<int>() = principalId;
     whereData[ROLE_COL].data<std::string>() = role;
-    whereData[SCHEMA_COL].data<std::string>() = connectionString;
+    whereData[SCHEMA_COL].data<std::string>() = to_lower(connectionString);
     std::stringstream whereClause;
     whereClause << P_ID_COL << " = :" << P_ID_COL;
     whereClause << " AND " << ROLE_COL << " = :" << ROLE_COL;
@@ -324,6 +317,42 @@ namespace cond {
       found = true;
     }
     return found;
+  }
+
+  size_t getAuthorizationEntries(const std::string& schemaVersion,
+                                 coral::ISchema& schema,
+                                 int principalId,
+                                 const std::string& role,
+                                 const std::string& connectionString) {
+    std::unique_ptr<coral::IQuery> query(schema.tableHandle(tname(AUTHORIZATION_TABLE, schemaVersion)).newQuery());
+    coral::AttributeList readBuff;
+    readBuff.extend<int>(AUTH_ID_COL);
+    coral::AttributeList whereData;
+    whereData.extend<std::string>(SCHEMA_COL);
+    std::stringstream whereClause;
+    whereClause << SCHEMA_COL << " = :" << SCHEMA_COL;
+    if (principalId >= 0) {
+      whereData.extend<int>(P_ID_COL);
+      whereClause << "AND" << P_ID_COL << " = :" << P_ID_COL;
+    }
+    if (!role.empty()) {
+      whereData.extend<std::string>(ROLE_COL);
+      whereClause << " AND " << ROLE_COL << " = :" << ROLE_COL;
+    }
+    whereData[SCHEMA_COL].data<std::string>() = connectionString;
+    if (principalId >= 0)
+      whereData[P_ID_COL].data<int>() = principalId;
+    if (!role.empty())
+      whereData[ROLE_COL].data<std::string>() = role;
+    query->defineOutput(readBuff);
+    query->addToOutputList(AUTH_ID_COL);
+    query->setCondition(whereClause.str(), whereData);
+    coral::ICursor& cursor = query->execute();
+    size_t n_entries = 0;
+    while (cursor.next()) {
+      n_entries += 1;
+    }
+    return n_entries;
   }
 
   bool getNextSequenceValue(const std::string& schemaVersion,
@@ -473,7 +502,7 @@ namespace cond {
       insertData[AUTH_ID_COL].data<int>() = next;
       insertData[P_ID_COL].data<int>() = principalId;
       insertData[ROLE_COL].data<std::string>() = role;
-      insertData[SCHEMA_COL].data<std::string>() = connectionString;
+      insertData[SCHEMA_COL].data<std::string>() = to_lower(connectionString);
       insertData[AUTH_KEY_COL].data<std::string>() = encryptedConnectionKey;
       insertData[C_ID_COL].data<int>() = connectionId;
       editor.insertRow(insertData);
@@ -1060,40 +1089,56 @@ bool cond::CredentialStore::setPermission(const std::string& principal,
   return ret;
 }
 
-bool cond::CredentialStore::unsetPermission(const std::string& principal,
-                                            const std::string& role,
-                                            const std::string& connectionString) {
-  if (cond::auth::ROLES.find(role) == cond::auth::ROLES.end()) {
+size_t cond::CredentialStore::unsetPermission(const std::string& principal,
+                                              const std::string& role,
+                                              const std::string& connectionString) {
+  if (!role.empty() && cond::auth::ROLES.find(role) == cond::auth::ROLES.end()) {
     throwException(std::string("Role ") + role + " does not exists.", "CredentialStore::unsetPermission");
   }
   CSScopedSession session(*this);
   session.start(false);
   coral::ISchema& schema = m_session->nominalSchema();
 
-  PrincipalData princData;
-  bool found = selectPrincipal(m_key.version(), schema, principal, princData);
-
-  if (!found) {
-    std::string msg = "Principal \"" + principal + "\" does not exist in the database.";
-    throwException(msg, "CredentialStore::unsetPermission");
-  }
-  m_log << "Removing permission for principal " << principal << " (id: " << princData.id << ") to access resource "
-        << connectionString << " with role " << role << std::endl;
-  coral::ITableDataEditor& editor = schema.tableHandle(tname(AUTHORIZATION_TABLE, m_key.version())).dataEditor();
   coral::AttributeList deleteData;
-  deleteData.extend<int>(P_ID_COL);
-  deleteData.extend<std::string>(ROLE_COL);
   deleteData.extend<std::string>(SCHEMA_COL);
-  deleteData[P_ID_COL].data<int>() = princData.id;
-  deleteData[ROLE_COL].data<std::string>() = role;
-  deleteData[SCHEMA_COL].data<std::string>() = connectionString;
   std::stringstream whereClause;
-  whereClause << P_ID_COL + " = :" + P_ID_COL;
-  whereClause << " AND " << ROLE_COL << " = :" << ROLE_COL;
-  whereClause << " AND " << SCHEMA_COL << " = :" << SCHEMA_COL;
-  editor.deleteRows(whereClause.str(), deleteData);
+  m_log << "Removing permissions to access resource " << connectionString;
+  if (!role.empty()) {
+    deleteData.extend<std::string>(ROLE_COL);
+    m_log << " with role " << role;
+  }
+  int princId = -1;
+  if (!principal.empty()) {
+    PrincipalData princData;
+    bool found = selectPrincipal(m_key.version(), schema, principal, princData);
+
+    if (!found) {
+      std::string msg = "Principal \"" + principal + "\" does not exist in the database.";
+      throwException(msg, "CredentialStore::unsetPermission");
+    }
+    deleteData.extend<int>(P_ID_COL);
+    princId = princData.id;
+    m_log << " by principal " << principal << " (id: " << princData.id << ")";
+  }
+
+  size_t n_e = getAuthorizationEntries(m_key.version(), schema, princId, role, connectionString);
+  m_log << ": " << n_e << " authorization entries." << std::endl;
+  if (n_e) {
+    deleteData[SCHEMA_COL].data<std::string>() = connectionString;
+    whereClause << SCHEMA_COL << " = :" << SCHEMA_COL;
+    if (!role.empty()) {
+      deleteData[ROLE_COL].data<std::string>() = role;
+      whereClause << " AND " << ROLE_COL << " = :" << ROLE_COL;
+    }
+    if (!principal.empty()) {
+      deleteData[P_ID_COL].data<int>() = princId;
+      whereClause << " AND " << P_ID_COL + " = :" + P_ID_COL;
+    }
+    coral::ITableDataEditor& editor = schema.tableHandle(tname(AUTHORIZATION_TABLE, m_key.version())).dataEditor();
+    editor.deleteRows(whereClause.str(), deleteData);
+  }
   session.close();
-  return true;
+  return n_e;
 }
 
 bool cond::CredentialStore::updateConnection(const std::string& connectionLabel,
@@ -1230,8 +1275,10 @@ bool cond::CredentialStore::selectForUser(coral_bridge::AuthenticationCredential
     auth::Cipher connCipher(authKey);
     std::string verificationString = connCipher.b64decrypt(row["CREDS." + VERIFICATION_KEY_COL].data<std::string>());
     if (verificationString == connectionLabel) {
-      destinationData.registerCredentials(
-          connectionString, role, connCipher.b64decrypt(encryptedUserName), connCipher.b64decrypt(encryptedPassword));
+      destinationData.registerCredentials(to_lower(connectionString),
+                                          role,
+                                          connCipher.b64decrypt(encryptedUserName),
+                                          connCipher.b64decrypt(encryptedPassword));
     }
   }
   session.close();
@@ -1260,7 +1307,7 @@ std::pair<std::string, std::string> cond::CredentialStore::getUserCredentials(co
   whereData.extend<std::string>(SCHEMA_COL);
   whereData.extend<std::string>(ROLE_COL);
   whereData[P_ID_COL].data<int>() = m_principalId;
-  whereData[SCHEMA_COL].data<std::string>() = connectionString;
+  whereData[SCHEMA_COL].data<std::string>() = to_lower(connectionString);
   whereData[ROLE_COL].data<std::string>() = role;
   std::stringstream whereClause;
   whereClause << "AUTHO." << C_ID_COL << "="
@@ -1446,7 +1493,7 @@ bool cond::CredentialStore::selectPermissions(const std::string& principalName,
   }
   if (!connectionString.empty()) {
     whereData.extend<std::string>(SCHEMA_COL);
-    whereData[SCHEMA_COL].data<std::string>() = connectionString;
+    whereData[SCHEMA_COL].data<std::string>() = to_lower(connectionString);
     whereClause << " AND AUTHO." << SCHEMA_COL << " = :" << SCHEMA_COL;
   }
 
@@ -1525,7 +1572,7 @@ bool cond::CredentialStore::exportAll(coral_bridge::AuthenticationCredentialSet&
       userName = cipher1.b64decrypt(encryptedUserName);
       password = cipher1.b64decrypt(encryptedPassword);
     }
-    data.registerCredentials(connectionString, role, userName, password);
+    data.registerCredentials(to_lower(connectionString), role, userName, password);
     found = true;
   }
   session.close();
