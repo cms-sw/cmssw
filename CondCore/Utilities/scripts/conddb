@@ -20,6 +20,7 @@ import socket
 
 import calendar
 import sqlalchemy
+import json
 
 from prettytable import PrettyTable
 
@@ -2630,6 +2631,67 @@ def setProtection( args ):
     logging.info(note)
     logging.info('Tag header updated. Action(s): %s' %action)
     return 0
+
+def query_object(args):
+    connection = connect(args)
+    session = connection.session()
+    if not args.tag and not args.global_tag and not args.payload:
+        logging.error('The object type for the query has not been specified.')
+        return -1
+    if (args.tag and args.global_tag) or (args.tag and args.payload) or (args.global_tag and args.payload):
+        logging.error('Only one object type for the query can be specified.')
+        return -1
+    found = 1
+    if args.tag:
+        Tag = session.get_dbtype(conddb.Tag)
+        query = session.query(Tag.description,Tag.time_type,Tag.object_type,Tag.synchronization,Tag.insertion_time,Tag.modification_time).filter(Tag.name == args.unique_key).all()
+        table = []
+        for res in query:
+            found = 0
+            table.append((args.unique_key,res[0],res[1],res[2],res[3],res[4],res[5]))
+        if found==0:
+            output_table(args,table,['Tag name','Description','Time Type','Object Type','Synchronization','Insertion Time','Modification Time']) 
+        else:
+            logging.info('Tag %s has not been found.'%args.unique_key)
+    if args.global_tag:
+        GlobalTag = session.get_dbtype(conddb.GlobalTag)
+        query =  session.query(GlobalTag.description,GlobalTag.release,GlobalTag.insertion_time,GlobalTag.snapshot_time).filter(GlobalTag.name == args.unique_key).all()
+        table = []
+        for res in query:
+            found = 0
+            table.append((args.unique_key,res[0],res[1],res[2],res[3]))
+        if found==0:
+            output_table(args,table,['Global Tag name','Description','Release','Insertion Time','Snapshot Time']) 
+        else:
+            logging.info('Global Tag %s has not been found.'%args.unique_key)
+    if args.payload:
+        Payload = session.get_dbtype(conddb.Payload)
+        query =  session.query(Payload.object_type,Payload.streamer_info,Payload.insertion_time).filter(Payload.hash == args.unique_key).all()
+        table = []
+        header = None
+        for res in query:
+            found = 0
+            streamer_info = str(res[1])
+            row = (args.unique_key,res[0],)
+            header = ['Payload hash','Object type']
+            if streamer_info != '0':
+                payload_md = json.loads(streamer_info)
+                for k in sorted(payload_md.keys()):
+                    header.append(k)
+                    row += (payload_md[k],)
+            else:
+                row += (' ',)
+                header.append('Streamer Info')
+            row += (res[2],)
+            table.append(row)
+            header.append('Insertion Time')
+        if found==0:
+            output_table(args,table,header) 
+        else:
+            logging.info('Payload %s has not been found.'%args.unique_key)
+        
+    return found
+
     
 def main():
     '''Entry point.
@@ -2789,6 +2851,13 @@ def main():
     parser_setProtection.add_argument('--credentialtype','-t', choices=[db_credential_type_map[db_key_credential_type_code][1],db_credential_type_map[db_cmsuser_credential_type_code][1]],help='The type of the credential provided. Required for "credential" option')
     parser_setProtection.add_argument('--remove','-r',action='store_true', help='Remove the specified protection')
     parser_setProtection.set_defaults(func=setProtection)
+
+    parser_query = parser_subparsers.add_parser('query', description='Query the database to get information about condition metadata')
+    parser_query.add_argument('unique_key', help="The unique key for the query")
+    parser_query.add_argument('--tag','-t',action='store_true', help="Query a tag object")
+    parser_query.add_argument('--global_tag','-gt',action='store_true', help="Query a global tag object")
+    parser_query.add_argument('--payload','-p',action='store_true', help="Query a payload object")
+    parser_query.set_defaults(func=query_object)
 
     args = parser.parse_args()
     logging.basicConfig(

@@ -44,7 +44,8 @@ void cond::RelationalAuthenticationService::RelationalAuthenticationService::set
 
 const coral::IAuthenticationCredentials&
 cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials(
-    const std::string& connectionString) const {
+    const std::string& connectionStr) const {
+  std::string connectionString = to_lower(connectionStr);
   const coral::IAuthenticationCredentials* creds = m_cache.get(connectionString);
   if (!creds) {
     std::string credsStoreConn = m_db.setUpForConnectionString(connectionString, m_authenticationPath);
@@ -65,8 +66,9 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
 }
 
 const coral::IAuthenticationCredentials&
-cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials(const std::string& connectionString,
+cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials(const std::string& connectionStr,
                                                                                     const std::string& role) const {
+  std::string connectionString = to_lower(connectionStr);
   const coral::IAuthenticationCredentials* creds = m_cache.get(connectionString, role);
   if (!creds) {
     std::string credsStoreConn = m_db.setUpForConnectionString(connectionString, m_authenticationPath);

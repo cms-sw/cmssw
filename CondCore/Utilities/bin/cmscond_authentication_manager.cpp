@@ -202,12 +202,29 @@ int cond::AuthenticationManager::execute() {
   }
 
   if (unset_perm && not_exec) {
-    std::string principal = getOptionValue<std::string>("princ_name");
-    std::string role = getOptionValue<std::string>("role");
     std::string connectionString = getOptionValue<std::string>("connectionString");
-    credDb.unsetPermission(principal, role, connectionString);
-    std::cout << "Permission for principal " << principal << " to access resource " << connectionString << " with role "
-              << role << " has been unset." << std::endl;
+    std::string principal("");
+    if (hasOptionValue("princ_name"))
+      principal = getOptionValue<std::string>("princ_name");
+    std::string role("");
+    if (hasOptionValue("role"))
+      role = getOptionValue<std::string>("role");
+    size_t n = credDb.unsetPermission(principal, role, connectionString);
+    if (n) {
+      std::cout << n << " permissions to access resource " << connectionString;
+      if (!role.empty())
+        std::cout << " with role " << role;
+      std::cout << " have been unset";
+      if (!principal.empty())
+        std::cout << " for principal " << principal << " ";
+    } else {
+      std::cout << "No Permission found to access resource " << connectionString;
+      if (!role.empty())
+        std::cout << " with role " << role;
+      if (!principal.empty())
+        std::cout << " for principal " << principal << " ";
+    }
+    std::cout << "." << std::endl;
     not_exec = false;
   }
 
