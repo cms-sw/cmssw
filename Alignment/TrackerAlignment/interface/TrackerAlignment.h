@@ -18,9 +18,8 @@ class TrackerTopology;
 
 class TrackerAlignment {
 public:
-  
-  TrackerAlignment(const edm::EventSetup& setup, edm::ConsumesCollector);
-//TrackerAlignment(const edm::EventSetup& setup);// {return TrackerAlignment(const edm::EventSetup& setup, edm::ConsumesCollector);}
+  TrackerAlignment(const TrackerTopology* tTopo, const TrackerGeometry* tGeom);
+
   ~TrackerAlignment();
 
   AlignableTracker* getAlignableTracker() { return theAlignableTracker; }
@@ -49,9 +48,6 @@ public:
 
 private:
   AlignableTracker* theAlignableTracker;
-  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
-  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> ttrackerGeometryToken_;
-
   std::string theAlignRecordName, theErrorRecordName;
 };
 #endif  //TrackerAlignment_H
