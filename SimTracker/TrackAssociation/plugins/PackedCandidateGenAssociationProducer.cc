@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,14 +38,14 @@
 // class declaration
 //
 
-class PackedCandidateGenAssociationProducer : public edm::stream::EDProducer<> {
+class PackedCandidateGenAssociationProducer : public edm::global::EDProducer<> {
 public:
   explicit PackedCandidateGenAssociationProducer(const edm::ParameterSet&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>> trackToGenToken_;
   edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> trackToPcToken_;
@@ -66,31 +66,20 @@ PackedCandidateGenAssociationProducer::PackedCandidateGenAssociationProducer(con
   produces<edm::Association<reco::GenParticleCollection>>();
 }
 
-void PackedCandidateGenAssociationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void PackedCandidateGenAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  edm::Handle<edm::Association<reco::GenParticleCollection>> htrackToGenAssoc;
-  iEvent.getByToken(trackToGenToken_, htrackToGenAssoc);
-  const auto& trackToGenAssoc = *htrackToGenAssoc;
-  auto recoGenCollection = trackToGenAssoc.ref();
+  const auto& trackToGenAssoc = iEvent.get(trackToGenToken_);
 
-  edm::Handle<edm::Association<pat::PackedCandidateCollection>> htrackToPackedCandidatesAssoc;
-  iEvent.getByToken(trackToPcToken_, htrackToPackedCandidatesAssoc);
-  const auto& trackToPackedCandidatesAssoc = *htrackToPackedCandidatesAssoc;
+  const auto& trackToPackedCandidatesAssoc = iEvent.get(trackToPcToken_);
   auto pcCollection = trackToPackedCandidatesAssoc.ref();
 
-  edm::Handle<edm::Association<reco::GenParticleCollection>> hgenToPrunedAssoc;
-  iEvent.getByToken(genToPrunedToken_, hgenToPrunedAssoc);
-  const auto& genToPrunedAssoc = *hgenToPrunedAssoc;
+  const auto& genToPrunedAssoc = iEvent.get(genToPrunedToken_);
   auto prunedCollection = genToPrunedAssoc.ref();
 
-  edm::Handle<edm::Association<reco::GenParticleCollection>> hgenToPrunedAssocWSO;
-  iEvent.getByToken(genToPrunedWSOToken_, hgenToPrunedAssocWSO);
-  const auto& genToPrunedAssocWSO = *hgenToPrunedAssocWSO;
+  const auto& genToPrunedAssocWSO = iEvent.get(genToPrunedWSOToken_);
 
-  edm::Handle<edm::View<reco::Track>> htracks;
-  iEvent.getByToken(tracksToken_, htracks);
-  const auto& tracks = *htracks;
+  const auto& tracks = iEvent.get(tracksToken_);
 
   auto out = std::make_unique<edm::Association<reco::GenParticleCollection>>(prunedCollection);
   Association<reco::GenParticleCollection>::Filler filler(*out);
