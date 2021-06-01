@@ -66,7 +66,9 @@ PackedCandidateGenAssociationProducer::PackedCandidateGenAssociationProducer(con
   produces<edm::Association<reco::GenParticleCollection>>();
 }
 
-void PackedCandidateGenAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void PackedCandidateGenAssociationProducer::produce(edm::StreamID,
+                                                    edm::Event& iEvent,
+                                                    const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   const auto& trackToGenAssoc = iEvent.get(trackToGenToken_);
