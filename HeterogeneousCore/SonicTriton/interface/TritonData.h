@@ -51,15 +51,15 @@ public:
   TritonData(const std::string& name, const TensorMetadata& model_info, TritonClient* client, const std::string& pid);
 
   //some members can be modified
-  bool setShape(const ShapeType& newShape) { return setShape(newShape, true); }
-  bool setShape(unsigned loc, int64_t val) { return setShape(loc, val, true); }
+  void setShape(const ShapeType& newShape);
+  void setShape(unsigned loc, int64_t val);
 
   //io accessors
   template <typename DT>
   TritonInputContainer<DT> allocate(bool reserve = true);
   template <typename DT>
   void toServer(TritonInputContainer<DT> ptr);
-  bool prepare();
+  void prepare();
   template <typename DT>
   TritonOutput<DT> fromServer() const;
 
@@ -86,13 +86,11 @@ private:
 
   //private accessors only used internally or by client
   unsigned fullLoc(unsigned loc) const { return loc + (noBatch_ ? 0 : 1); }
-  bool setShape(const ShapeType& newShape, bool canThrow);
-  bool setShape(unsigned loc, int64_t val, bool canThrow);
   void setBatchSize(unsigned bsize);
   void reset();
   void setResult(std::shared_ptr<Result> result) { result_ = result; }
   IO* data() { return data_.get(); }
-  bool updateMem(size_t size, bool can_throw);
+  void updateMem(size_t size);
   void computeSizes();
   void resetSizes();
   nvidia::inferenceserver::client::InferenceServerGrpcClient* client();
@@ -153,7 +151,7 @@ template <>
 template <typename DT>
 void TritonInputData::toServer(std::shared_ptr<TritonInput<DT>> ptr);
 template <>
-bool TritonOutputData::prepare();
+void TritonOutputData::prepare();
 template <>
 template <typename DT>
 TritonOutput<DT> TritonOutputData::fromServer() const;

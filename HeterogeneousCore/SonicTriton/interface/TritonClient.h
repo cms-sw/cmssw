@@ -49,9 +49,9 @@ public:
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
 protected:
-  //helper
-  bool getResults(std::shared_ptr<nvidia::inferenceserver::client::InferResult> results);
-
+  //helpers
+  void getResults(std::shared_ptr<nvidia::inferenceserver::client::InferResult> results);
+  bool checkEptr();
   void evaluate() override;
 
   void reportServerSideStats(const ServerSideStats& stats) const;

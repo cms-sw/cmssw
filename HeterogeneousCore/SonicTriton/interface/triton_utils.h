@@ -19,20 +19,6 @@ namespace triton_utils {
 
   //helper to turn triton error into exception
   void throwIfError(const Error& err, std::string_view msg);
-
-  //helper to turn triton error into warning
-  bool warnIfError(const Error& err, std::string_view msg);
-
-  //helper to do either
-  bool warnOrThrowIfError(const Error& err, std::string_view msg, bool canThrow);
-
-  //generic version w/o Error
-  void warnOrThrow(std::string_view msg, bool canThrow);
-
-#ifdef TRITON_ENABLE_GPU
-  bool cudaCheck(cudaError_t result, std::string_view msg, bool canThrow);
-#endif
-
 }  // namespace triton_utils
 
 extern template std::string triton_utils::printColl(const edm::Span<std::vector<int64_t>::const_iterator>& coll,
