@@ -186,6 +186,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
   } else {
     // secondary
     const G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
+    const double time = aTrack->GetGlobalTime();
 
     // definetly killed tracks
     if (aTrack->GetTrackStatus() == fStopAndKill) {
@@ -195,14 +196,14 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
 
     } else if (std::abs(aTrack->GetPosition().z()) >= maxZCentralCMS) {
       // very forward secondary
-      if (aTrack->GetGlobalTime() > maxTrackTimeForward) {
+      if (time > maxTrackTimeForward) {
         classification = fKill;
       } else {
         const G4Track* mother = trackAction->geant4Track();
         newTA->secondary(aTrack, *mother, 0);
       }
 
-    } else if (isItOutOfTimeWindow(reg, aTrack)) {
+    } else if (isItOutOfTimeWindow(reg, time)) {
       // time window check
       classification = fKill;
 
@@ -217,7 +218,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
       if (classification != fKill && ke <= limitEnergyForVacuum && isThisRegion(reg, lowdensRegions)) {
         classification = fKill;
 
-      } else {
+      } else if (classification != fKill) {
         // very low-energy gamma
         if (pdg == 22 && killGamma && ke < kmaxGamma) {
           classification = fKill;
@@ -434,8 +435,8 @@ bool StackingAction::rrApplicable(const G4Track* aTrack, const G4Track& mother) 
   const TrackInformation& motherInfo(extractor(mother));
 
   // Check whether mother is gamma, e+, e-
-  const int genID = std::abs(motherInfo.genParticlePID());
-  return (22 != genID && 11 != genID);
+  const int genID = motherInfo.genParticlePID();
+  return (22 != genID && 11 != std::abs(genID));
 }
 
 int StackingAction::isItFromPrimary(const G4Track& mother, int flagIn) const {
@@ -449,7 +450,7 @@ int StackingAction::isItFromPrimary(const G4Track& mother, int flagIn) const {
   return flag;
 }
 
-bool StackingAction::isItOutOfTimeWindow(const G4Region* reg, const G4Track* aTrack) const {
+bool StackingAction::isItOutOfTimeWindow(const G4Region* reg, const double& t) const {
   double tofM = maxTrackTime;
   for (unsigned int i = 0; i < numberTimes; ++i) {
     if (reg == maxTimeRegions[i]) {
@@ -457,7 +458,7 @@ bool StackingAction::isItOutOfTimeWindow(const G4Region* reg, const G4Track* aTr
       break;
     }
   }
-  return (aTrack->GetGlobalTime() > tofM);
+  return (t > tofM);
 }
 
 void StackingAction::printRegions(const std::vector<const G4Region*>& reg, const std::string& word) const {
