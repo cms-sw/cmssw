@@ -423,7 +423,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   bool bs_Available = event.getByToken(bsSrc_Token, recoBeamSpotHandle);
   reco::BeamSpot bs;
-  if (bs_Available) bs = *recoBeamSpotHandle;
+  if (bs_Available)
+    bs = *recoBeamSpotHandle;
   edm::LogVerbatim("MuonTrackValidator") << bs;
 
   std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
