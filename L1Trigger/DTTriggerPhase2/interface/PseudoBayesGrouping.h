@@ -8,6 +8,8 @@
 // ===============================================================================
 // Class declarations
 // ===============================================================================
+using namespace dtbayesam;
+
 class PseudoBayesGrouping : public MotherGrouping {
 public:
   // Constructors and destructor
