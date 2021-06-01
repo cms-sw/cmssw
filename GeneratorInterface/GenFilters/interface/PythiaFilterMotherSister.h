@@ -70,5 +70,7 @@ class PythiaFilterMotherSister : public edm::global::EDFilter<> {
 
        const double betaBoost;
        const double maxSisDisplacement;
+       const double minTrackPt;
+       const double minLeptonPt;
 };
 #endif
