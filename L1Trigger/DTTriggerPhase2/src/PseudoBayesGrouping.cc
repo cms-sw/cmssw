@@ -27,6 +27,7 @@ PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset, edm::Consumes
   allowDuplicates_ = pset.getUntrackedParameter<bool>("allowDuplicates");
   allowUncorrelatedPatterns_ = pset.getUntrackedParameter<bool>("allowUncorrelatedPatterns");
   minUncorrelatedHits_ = pset.getUntrackedParameter<int>("minUncorrelatedHits");
+  maxPathsPerMatch_ = pset.getUntrackedParameter<int>("maxPathsPerMatch");
   saveOnPlace_ = pset.getUntrackedParameter<bool>("saveOnPlace");
   setLateralities_ = pset.getUntrackedParameter<bool>("setLateralities");
   if (debug_)
