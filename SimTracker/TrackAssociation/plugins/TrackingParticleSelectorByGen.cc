@@ -259,14 +259,12 @@ void TrackingParticleSelectorByGen::produce(edm::Event &iEvent, const edm::Event
     firstEvent_ = false;
   }
 
-  edm::Handle<TrackingParticleCollection> tps;
-  iEvent.getByToken(tpToken_, tps);
+  const auto& tps = iEvent.get(tpToken_);
 
-  edm::Handle<reco::GenParticleCollection> gps;
-  iEvent.getByToken(gpToken_, gps);
+  const auto& gps = iEvent.get(gpToken_);
 
   using namespace ::helper;
-  const size_t n = gps->size();
+  const size_t n = gps.size();
   flags_.clear();
   flags_.resize(n, keepOrDropAll_);
   for (size_t j = 0; j < select_.size(); ++j) {
@@ -274,7 +272,7 @@ void TrackingParticleSelectorByGen::produce(edm::Event &iEvent, const edm::Event
     SelectCode code = sel.second;
     const StringCutObjectSelector<GenParticle> &cut = sel.first;
     for (size_t i = 0; i < n; ++i) {
-      const GenParticle &p = (*gps)[i];
+      const GenParticle &p = gps[i];
       if (cut(p)) {
         int keepOrDrop = keep;
         switch (code.keepOrDrop_) {
@@ -289,7 +287,7 @@ void TrackingParticleSelectorByGen::produce(edm::Event &iEvent, const edm::Event
         std::vector<size_t> allIndicesMo;
         switch (code.daughtersDepth_) {
           case SelectCode::kAll:
-            recursiveFlagDaughters(i, *gps, keepOrDrop, allIndicesDa);
+            recursiveFlagDaughters(i, gps, keepOrDrop, allIndicesDa);
             break;
           case SelectCode::kFirst:
             flagDaughters(p, keepOrDrop);
@@ -298,7 +296,7 @@ void TrackingParticleSelectorByGen::produce(edm::Event &iEvent, const edm::Event
         };
         switch (code.mothersDepth_) {
           case SelectCode::kAll:
-            recursiveFlagMothers(i, *gps, keepOrDrop, allIndicesMo);
+            recursiveFlagMothers(i, gps, keepOrDrop, allIndicesMo);
             break;
           case SelectCode::kFirst:
             flagMothers(p, keepOrDrop);
@@ -312,7 +310,7 @@ void TrackingParticleSelectorByGen::produce(edm::Event &iEvent, const edm::Event
   auto out = std::make_unique<TrackingParticleCollection>();
   out->reserve(n);
 
-  for (auto &&tp : *tps) {
+  for (auto &&tp : tps) {
     auto &associatedGenParticles = tp.genParticles();
 
     bool isSelected = false;
