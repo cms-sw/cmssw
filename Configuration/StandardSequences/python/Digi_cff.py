@@ -25,6 +25,8 @@ from SimMuon.Configuration.SimMuon_cff import *
 #
 from SimGeneral.Configuration.SimGeneral_cff import *
 
+from SimTracker.Configuration.SimTrackerLinks_cff import *
+
 # add updating the GEN information by default
 from Configuration.StandardSequences.Generator_cff import *
 from GeneratorInterface.Core.generatorSmeared_cfi import *
@@ -32,7 +34,7 @@ from SimGeneral.PileupInformation.genPUProtons_cfi import *
 
 doAllDigiTask = cms.Task(generatorSmeared, calDigiTask, muonDigiTask)
 pdigiTask_nogen = cms.Task(generatorSmeared, cms.TaskPlaceholder("randomEngineStateProducer"), cms.TaskPlaceholder("mix"), doAllDigiTask, addPileupInfo, genPUProtons)
-pdigiTask = cms.Task(pdigiTask_nogen, fixGenInfoTask)
+pdigiTask = cms.Task(pdigiTask_nogen, fixGenInfoTask, tpPruningTask)
 
 doAllDigi = cms.Sequence(doAllDigiTask)
 pdigi = cms.Sequence(pdigiTask)

@@ -5,7 +5,7 @@
 //
 /**\class DigiSimLinkPruner DigiSimLinkPruner.cc SimTracker/TrackAssociation/plugins/DigiSimLinkPruner.cc
 
- Description: [one line class summary]
+ Description: Produce a pruned version of the DigiSimLinks collection based on the association to a collection of TrackingParticles
 
  Implementation:
      [Notes on implementation]
@@ -156,7 +156,7 @@ void DigiSimLinkPruner::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addOptional<edm::InputTag>("stripSimLinkSrc");
   desc.addOptional<edm::InputTag>("phase2OTSimLinkSrc");
 
-  descriptions.add("pruneSimLinkDefault", desc);
+  descriptions.add("digiSimLinkPrunerDefault", desc);
 }
 
 //define this as a plug-in

@@ -124,7 +124,7 @@ void PackedCandidateGenAssociationProducer::fillDescriptions(edm::ConfigurationD
   desc.add<edm::InputTag>("trackToGenAssoc");
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
 
-  descriptions.add("packedCandidatesGenAssociation", desc);
+  descriptions.add("packedCandidatesGenAssociationDefault", desc);
 }
 
 DEFINE_FWK_MODULE(PackedCandidateGenAssociationProducer);
