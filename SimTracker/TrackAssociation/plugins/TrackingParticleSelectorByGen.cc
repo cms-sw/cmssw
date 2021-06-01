@@ -259,9 +259,9 @@ void TrackingParticleSelectorByGen::produce(edm::Event &iEvent, const edm::Event
     firstEvent_ = false;
   }
 
-  const auto& tps = iEvent.get(tpToken_);
+  const auto &tps = iEvent.get(tpToken_);
 
-  const auto& gps = iEvent.get(gpToken_);
+  const auto &gps = iEvent.get(gpToken_);
 
   using namespace ::helper;
   const size_t n = gps.size();
