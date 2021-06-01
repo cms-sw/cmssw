@@ -88,6 +88,8 @@ private:
   bool prebookEffParams;
   bool processDcsScalers;
 
+  const edm::ESGetToken<CSCCrateMap, CSCCrateMapRcd> hcrateToken_;
+
   /** Pointer to crate mapping from database **/
   const CSCCrateMap* pcrate;
 
