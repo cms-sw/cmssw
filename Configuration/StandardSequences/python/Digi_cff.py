@@ -29,6 +29,8 @@ from SimPPS.Configuration.SimPPS_cff import *
 #
 from SimGeneral.Configuration.SimGeneral_cff import *
 
+from SimTracker.Configuration.SimTrackerLinks_cff import *
+
 # add updating the GEN information by default
 from Configuration.StandardSequences.Generator_cff import *
 from GeneratorInterface.Core.generatorSmeared_cfi import *
@@ -42,7 +44,7 @@ pdigiTask_nogen = cms.Task(generatorSmeared, cms.TaskPlaceholder("randomEngineSt
 # premixing stage2 runs addPileupInfo after PreMixingModule (configured in DataMixerPreMix_cff)
 premix_stage2.toReplaceWith(pdigiTask_nogen, pdigiTask_nogen.copyAndExclude([addPileupInfo]))
 
-pdigiTask = cms.Task(pdigiTask_nogen, fixGenInfoTask)
+pdigiTask = cms.Task(pdigiTask_nogen, fixGenInfoTask, tpPruningTask)
 
 doAllDigi = cms.Sequence(doAllDigiTask)
 pdigi = cms.Sequence(pdigiTask)

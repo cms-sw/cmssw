@@ -332,7 +332,7 @@ void TrackingParticleSelectorByGen::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
   desc.add<vector<string>>("select");
 
-  descriptions.add("selectTPs", desc);
+  descriptions.add("tpSelectorByGenDefault", desc);
 }
 
 //define this as a plug-in
