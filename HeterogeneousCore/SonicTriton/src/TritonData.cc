@@ -78,38 +78,28 @@ nic::InferenceServerGrpcClient* TritonData<IO>::client() {
 
 //setters
 template <typename IO>
-bool TritonData<IO>::setShape(const TritonData<IO>::ShapeType& newShape, bool canThrow) {
-  bool result = true;
+void TritonData<IO>::setShape(const TritonData<IO>::ShapeType& newShape) {
   for (unsigned i = 0; i < newShape.size(); ++i) {
-    result &= setShape(i, newShape[i], canThrow);
+    setShape(i, newShape[i]);
   }
-  return result;
 }
 
 template <typename IO>
-bool TritonData<IO>::setShape(unsigned loc, int64_t val, bool canThrow) {
-  std::stringstream msg;
+void TritonData<IO>::setShape(unsigned loc, int64_t val) {
   unsigned locFull = fullLoc(loc);
 
   //check boundary
-  if (locFull >= fullShape_.size()) {
-    msg << name_ << " setShape(): dimension " << locFull << " out of bounds (" << fullShape_.size() << ")";
-    triton_utils::warnOrThrow(msg.str(), canThrow);
-    return false;
-  }
+  if (locFull >= fullShape_.size())
+    throw cms::Exception("TritonError") << name_ << " setShape(): dimension " << locFull << " out of bounds ("
+                                        << fullShape_.size() << ")";
 
   if (val != fullShape_[locFull]) {
-    if (dims_[locFull] == -1) {
+    if (dims_[locFull] == -1)
       fullShape_[locFull] = val;
-      return true;
-    } else {
-      msg << name_ << " setShape(): attempt to change value of non-variable shape dimension " << loc;
-      triton_utils::warnOrThrow(msg.str(), canThrow);
-      return false;
-    }
+    else
+      throw cms::Exception("TritonError")
+          << name_ << " setShape(): attempt to change value of non-variable shape dimension " << loc;
   }
-
-  return true;
 }
 
 template <typename IO>
@@ -135,28 +125,30 @@ void TritonData<IO>::resetSizes() {
 //create a memory resource if none exists;
 //otherwise, reuse the memory resource, resizing it if necessary
 template <typename IO>
-bool TritonData<IO>::updateMem(size_t size, bool canThrow) {
-  bool status = true;
+void TritonData<IO>::updateMem(size_t size) {
   if (!memResource_ or size > memResource_->size()) {
     if (useShm_ and client_->serverType() == TritonServerType::LocalCPU) {
+      //avoid unnecessarily throwing in destructor
+      if (memResource_)
+        memResource_->close();
       //need to destroy before constructing new instance because shared memory key will be reused
       memResource_.reset();
-      memResource_ = std::make_shared<TritonCpuShmResource<IO>>(this, shmName_, size, canThrow);
+      memResource_ = std::make_shared<TritonCpuShmResource<IO>>(this, shmName_, size);
     }
 #ifdef TRITON_ENABLE_GPU
     else if (useShm_ and client_->serverType() == TritonServerType::LocalGPU) {
+      //avoid unnecessarily throwing in destructor
+      if (memResource_)
+        memResource_->close();
+      //need to destroy before constructing new instance because shared memory key will be reused
       memResource_.reset();
-      memResource_ = std::make_shared<TritonGpuShmResource<IO>>(this, shmName_, size, canThrow);
+      memResource_ = std::make_shared<TritonGpuShmResource<IO>>(this, shmName_, size);
     }
 #endif
     //for remote/heap, size increases don't matter
     else if (!memResource_)
-      memResource_ = std::make_shared<TritonHeapResource<IO>>(this, shmName_, size, canThrow);
-
-    status &= memResource_->status();
+      memResource_ = std::make_shared<TritonHeapResource<IO>>(this, shmName_, size);
   }
-
-  return status;
 }
 
 //io accessors
@@ -193,11 +185,11 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
                                             << " (should be " << byteSize_ << " for " << dname_ << ")";
 
   computeSizes();
-  updateMem(totalByteSize_, true);
+  updateMem(totalByteSize_);
   for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
     memResource_->copyInput(data_in[i0].data(), i0 * byteSizePerBatch_);
   }
-  memResource_->set(true);
+  memResource_->set();
 
   //keep input data in scope
   holder_ = ptr;
@@ -205,12 +197,10 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
 
 //sets up shared memory for outputs, if possible
 template <>
-bool TritonOutputData::prepare() {
+void TritonOutputData::prepare() {
   computeSizes();
-
-  bool status = updateMem(totalByteSize_, false) && memResource_->set(false);
-
-  return status;
+  updateMem(totalByteSize_);
+  memResource_->set();
 }
 
 template <>

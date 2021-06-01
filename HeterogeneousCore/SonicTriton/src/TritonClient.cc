@@ -188,22 +188,27 @@ void TritonClient::reset() {
   }
 }
 
-bool TritonClient::getResults(std::shared_ptr<nic::InferResult> results) {
+void TritonClient::getResults(std::shared_ptr<nic::InferResult> results) {
   for (auto& [oname, output] : output_) {
     //set shape here before output becomes const
     if (output.variableDims()) {
       std::vector<int64_t> tmp_shape;
-      bool status = triton_utils::warnIfError(results->Shape(oname, &tmp_shape),
-                                              "getResults(): unable to get output shape for " + oname);
-      if (!status)
-        return status;
-      output.setShape(tmp_shape, false);
+      triton_utils::throwIfError(results->Shape(oname, &tmp_shape),
+                                 "getResults(): unable to get output shape for " + oname);
+      output.setShape(tmp_shape);
       output.computeSizes();
     }
     //extend lifetime
     output.setResult(results);
   }
+}
 
+bool TritonClient::checkEptr() {
+  std::exception_ptr eptr = std::current_exception();
+  if (eptr) {
+    finish(false, eptr);
+    return false;
+  }
   return true;
 }
 
@@ -216,65 +221,89 @@ void TritonClient::evaluate() {
   }
 
   //set up shared memory for output
-  bool prepare_status = true;
-  for (auto& element : output_) {
-    prepare_status &= element.second.prepare();
+  try {
+    for (auto& element : output_) {
+      element.second.prepare();
+    }
+  } catch (...) {
+    if (!checkEptr())
+      return;
   }
-  if (!prepare_status)
-    finish(prepare_status);
 
   // Get the status of the server prior to the request being made.
-  const auto& start_status = getServerSideStatus();
+  inference::ModelStatistics start_status;
+  try {
+    if (verbose())
+      start_status = getServerSideStatus();
+  } catch (...) {
+    if (!checkEptr())
+      return;
+  }
 
   if (mode_ == SonicMode::Async) {
     //non-blocking call
     auto t1 = std::chrono::high_resolution_clock::now();
-    bool status = triton_utils::warnIfError(
-        client_->AsyncInfer(
-            [t1, start_status, this](nic::InferResult* results) {
-              //get results
-              std::shared_ptr<nic::InferResult> results_ptr(results);
-              bool status = triton_utils::warnIfError(results_ptr->RequestStatus(), "evaluate(): unable to get result");
-              if (!status) {
-                finish(false);
-                return;
-              }
-              auto t2 = std::chrono::high_resolution_clock::now();
+    try {
+      triton_utils::throwIfError(
+          client_->AsyncInfer(
+              [t1, start_status, this](nic::InferResult* results) {
+                //get results
+                std::shared_ptr<nic::InferResult> results_ptr(results);
+                try {
+                  triton_utils::throwIfError(results_ptr->RequestStatus(), "evaluate(): unable to get result");
+                } catch (...) {
+                  if (!checkEptr())
+                    return;
+                }
+                auto t2 = std::chrono::high_resolution_clock::now();
 
-              if (!debugName_.empty())
-                edm::LogInfo(fullDebugName_)
-                    << "Remote time: " << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+                if (!debugName_.empty())
+                  edm::LogInfo(fullDebugName_)
+                      << "Remote time: " << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-              const auto& end_status = getServerSideStatus();
+                if (verbose()) {
+                  inference::ModelStatistics end_status;
+                  try {
+                    end_status = getServerSideStatus();
+                  } catch (...) {
+                    if (!checkEptr())
+                      return;
+                  }
 
-              if (verbose()) {
-                const auto& stats = summarizeServerStats(start_status, end_status);
-                reportServerSideStats(stats);
-              }
+                  const auto& stats = summarizeServerStats(start_status, end_status);
+                  reportServerSideStats(stats);
+                }
 
-              //check result
-              status = getResults(results_ptr);
+                //check result
+                try {
+                  getResults(results_ptr);
+                } catch (...) {
+                  if (!checkEptr())
+                    return;
+                }
 
-              //finish
-              finish(status);
-            },
-            options_,
-            inputsTriton_,
-            outputsTriton_),
-        "evaluate(): unable to launch async run");
-
-    //if AsyncRun failed, finish() wasn't called
-    if (!status)
-      finish(false);
+                //finish
+                finish(true);
+              },
+              options_,
+              inputsTriton_,
+              outputsTriton_),
+          "evaluate(): unable to launch async run");
+    } catch (...) {
+      //if AsyncRun failed, finish() wasn't called
+      if (!checkEptr())
+        return;
+    }
   } else {
     //blocking call
     auto t1 = std::chrono::high_resolution_clock::now();
     nic::InferResult* results;
-    bool status = triton_utils::warnIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_),
-                                            "evaluate(): unable to run and/or get result");
-    if (!status) {
-      finish(false);
-      return;
+    try {
+      triton_utils::throwIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_),
+                                 "evaluate(): unable to run and/or get result");
+    } catch (...) {
+      if (!checkEptr())
+        return;
     }
 
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -282,17 +311,28 @@ void TritonClient::evaluate() {
       edm::LogInfo(fullDebugName_) << "Remote time: "
                                    << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-    const auto& end_status = getServerSideStatus();
-
     if (verbose()) {
+      inference::ModelStatistics end_status;
+      try {
+        end_status = getServerSideStatus();
+      } catch (...) {
+        if (!checkEptr())
+          return;
+      }
+
       const auto& stats = summarizeServerStats(start_status, end_status);
       reportServerSideStats(stats);
     }
 
     std::shared_ptr<nic::InferResult> results_ptr(results);
-    status = getResults(results_ptr);
+    try {
+      getResults(results_ptr);
+    } catch (...) {
+      if (!checkEptr())
+        return;
+    }
 
-    finish(status);
+    finish(true);
   }
 }
 
@@ -357,11 +397,9 @@ TritonClient::ServerSideStats TritonClient::summarizeServerStats(const inference
 inference::ModelStatistics TritonClient::getServerSideStatus() const {
   if (verbose_) {
     inference::ModelStatisticsResponse resp;
-    bool success = triton_utils::warnIfError(
-        client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
-        "getServerSideStatus(): unable to get model statistics");
-    if (success)
-      return *(resp.model_stats().begin());
+    triton_utils::throwIfError(client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
+                               "getServerSideStatus(): unable to get model statistics");
+    return *(resp.model_stats().begin());
   }
   return inference::ModelStatistics{};
 }

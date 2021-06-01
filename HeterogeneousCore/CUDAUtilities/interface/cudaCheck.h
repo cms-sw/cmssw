@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 // CUDA headers
 #include <cuda.h>
@@ -46,6 +47,11 @@ namespace cms {
     }
 
     inline bool cudaCheck_(
+        const char* file, int line, const char* cmd, CUresult result, const std::string& description) {
+      return cudaCheck_(file, line, cmd, result, description.c_str());
+    }
+
+    inline bool cudaCheck_(
         const char* file, int line, const char* cmd, cudaError_t result, const char* description = nullptr) {
       if (LIKELY(result == cudaSuccess))
         return true;
@@ -56,6 +62,10 @@ namespace cms {
       return false;
     }
 
+    inline bool cudaCheck_(
+        const char* file, int line, const char* cmd, cudaError_t result, const std::string& description) {
+      return cudaCheck_(file, line, cmd, result, description.c_str());
+    }
   }  // namespace cuda
 }  // namespace cms
 

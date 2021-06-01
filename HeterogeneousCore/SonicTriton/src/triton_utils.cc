@@ -22,33 +22,6 @@ namespace triton_utils {
     if (!err.IsOk())
       throw cms::Exception("TritonFailure") << msg << (err.Message().empty() ? "" : ": " + err.Message());
   }
-
-  bool warnIfError(const Error& err, std::string_view msg) {
-    if (!err.IsOk())
-      edm::LogWarning("TritonWarning") << msg << (err.Message().empty() ? "" : ": " + err.Message());
-    return err.IsOk();
-  }
-
-  bool warnOrThrowIfError(const Error& err, std::string_view msg, bool canThrow) {
-    if (canThrow)
-      throwIfError(err, msg);
-    return !canThrow ? warnIfError(err, msg) : err.IsOk();
-  }
-
-  void warnOrThrow(std::string_view msg, bool canThrow) {
-    warnOrThrowIfError(Error("client-side problem"), msg, canThrow);
-  }
-
-#ifdef TRITON_ENABLE_GPU
-  bool cudaCheck(cudaError_t result, std::string_view msg, bool canThrow) {
-    if (LIKELY(result == cudaSuccess))
-      return true;
-
-    std::string cudaMsg(std::string(cudaGetErrorName(result)) + ": " + cudaGetErrorString(result));
-    warnOrThrowIfError(Error(cudaMsg), msg, canThrow);
-    return false;
-  }
-#endif
 }  // namespace triton_utils
 
 template std::string triton_utils::printColl(const edm::Span<std::vector<int64_t>::const_iterator>& coll,

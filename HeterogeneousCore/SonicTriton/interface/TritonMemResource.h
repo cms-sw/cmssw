@@ -14,16 +14,16 @@ class TritonData;
 template <typename IO>
 class TritonMemResource {
 public:
-  TritonMemResource(TritonData<IO>* data, const std::string& name, size_t size, bool canThrow);
+  TritonMemResource(TritonData<IO>* data, const std::string& name, size_t size);
   virtual ~TritonMemResource() {}
   uint8_t* addr() { return addr_; }
   size_t size() const { return size_; }
-  bool status() const { return status_; }
+  virtual void close() {}
   //used for input
   virtual void copyInput(const void* values, size_t offset) {}
   //used for output
   virtual const uint8_t* copyOutput() { return nullptr; }
-  virtual bool set(bool canThrow);
+  virtual void set();
 
 protected:
   //member variables
@@ -31,24 +31,25 @@ protected:
   std::string name_;
   size_t size_;
   uint8_t* addr_;
-  bool status_;
+  bool closed_;
 };
 
 template <typename IO>
 class TritonHeapResource : public TritonMemResource<IO> {
 public:
-  TritonHeapResource(TritonData<IO>* data, const std::string& name, size_t size, bool canThrow);
+  TritonHeapResource(TritonData<IO>* data, const std::string& name, size_t size);
   ~TritonHeapResource() override {}
   void copyInput(const void* values, size_t offset) override {}
   const uint8_t* copyOutput() override { return nullptr; }
-  bool set(bool canThrow) override { return true; }
+  void set() override {}
 };
 
 template <typename IO>
 class TritonCpuShmResource : public TritonMemResource<IO> {
 public:
-  TritonCpuShmResource(TritonData<IO>* data, const std::string& name, size_t size, bool canThrow);
+  TritonCpuShmResource(TritonData<IO>* data, const std::string& name, size_t size);
   ~TritonCpuShmResource() override;
+  void close() override;
   void copyInput(const void* values, size_t offset) override {}
   const uint8_t* copyOutput() override { return nullptr; }
 };
@@ -74,8 +75,9 @@ const uint8_t* TritonOutputCpuShmResource::copyOutput();
 template <typename IO>
 class TritonGpuShmResource : public TritonMemResource<IO> {
 public:
-  TritonGpuShmResource(TritonData<IO>* data, const std::string& name, size_t size, bool canThrow);
+  TritonGpuShmResource(TritonData<IO>* data, const std::string& name, size_t size);
   ~TritonGpuShmResource() override;
+  void close() override;
   void copyInput(const void* values, size_t offset) override {}
   const uint8_t* copyOutput() override { return nullptr; }
 
