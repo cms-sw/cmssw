@@ -32,8 +32,7 @@ class SurveyDataConverter : public edm::EDAnalyzer {
 
 public:
   explicit SurveyDataConverter(const edm::ParameterSet& iConfig);
-//  SurveyDataConverter(edm::EventSetup& setup, edm::ConsumesCollector);
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)override; 
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void endJob() override{};
 
 private:
@@ -48,6 +47,8 @@ private:
 
   void applyAPEs(TrackerAlignment& tr_align);
 
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> ttrackerGeometryToken;
   edm::ParameterSet theParameterSet;
   edm::ParameterSet MisalignScenario;
 

@@ -17,14 +17,8 @@
 
 //__________________________________________________________________
 //
-TrackerAlignment::TrackerAlignment(const edm::EventSetup& setup, edm::ConsumesCollector iC)
-    : ttopoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
-      ttrackerGeometryToken_(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
-      theAlignRecordName("TrackerAlignmentRcd"),
-      theErrorRecordName("TrackerAlignmentErrorExtendedRcd") {
-  const TrackerTopology* const tTopo = &setup.getData(ttopoToken_);
-
-  const TrackerGeometry* const tGeom = &setup.getData(ttrackerGeometryToken_);
+TrackerAlignment::TrackerAlignment(const TrackerTopology* tTopo, const TrackerGeometry* tGeom)
+    : theAlignRecordName("TrackerAlignmentRcd"), theErrorRecordName("TrackerAlignmentErrorExtendedRcd") {
   theAlignableTracker = new AlignableTracker(tGeom, tTopo);
 }
 
