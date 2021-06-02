@@ -10,17 +10,26 @@ l1tdeCSCTPGCommon = cms.PSet(
     alctNBin = cms.vuint32(6, 116, 20),
     alctMinBin = cms.vdouble(0, 0, 0),
     alctMaxBin = cms.vdouble(6, 116, 20),
-    clctVars = cms.vstring("quality", "halfstrip","quartstrip", "eighthstrip",
-                           "pattern", "run3pattern", "bend", "slope", "compcode", "quartstripbit", "eighthstripbit"),
-    clctNBin = cms.vuint32(16, 224, 448, 896, 16, 5, 2, 16, 410, 2, 2),
+    clctVars = cms.vstring(
+        # For Run-2 eras
+        "quality", "halfstrip", "pattern", "bend",
+        # Added in Run-3 eras
+        "quartstrip", "eighthstrip", "run3pattern",
+        "slope", "compcode", "quartstripbit", "eighthstripbit"),
+    clctNBin = cms.vuint32(16, 224, 16, 2, 448, 896, 5, 16, 410, 2, 2),
     clctMinBin = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-    clctMaxBin = cms.vdouble(16, 224, 448, 896, 16, 5, 2, 16, 410, 2, 2),
-    lctVars = cms.vstring( "quality", "wiregroup", "halfstrip", "quartstrip", "eighthstrip",
-                           "pattern", "run3pattern", "bend", "slope", "quartstripbit", "eighthstripbit"),
-    lctNBin = cms.vuint32(16, 116, 224, 448, 896, 16, 5, 2, 16, 2, 2),
+    clctMaxBin = cms.vdouble(16, 224, 16, 2, 448, 896, 5, 16, 410, 2, 2),
+    lctVars = cms.vstring(
+        # For Run-2 eras
+        "quality", "wiregroup", "halfstrip", "pattern", "bend",
+        # Added in Run-3 eras
+        "quartstrip", "eighthstrip", "run3pattern",
+        "slope", "quartstripbit", "eighthstripbit"),
+    lctNBin = cms.vuint32(16, 116, 224, 16, 2, 448, 896, 5, 16, 2, 2),
     lctMinBin = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-    lctMaxBin = cms.vdouble(16, 116, 224, 448, 896, 16, 5, 2, 16, 2, 2),
+    lctMaxBin = cms.vdouble(16, 116, 224, 16, 2, 448, 896, 5, 16, 2, 2),
     B904Setup = cms.bool(False),
+    isRun3 = cms.bool(False),
 )
 
 l1tdeCSCTPG = DQMEDAnalyzer(
@@ -34,3 +43,8 @@ l1tdeCSCTPG = DQMEDAnalyzer(
     emulLCT = cms.InputTag("valCscStage2Digis", "MPCSORTED"),
     dataEmul = cms.vstring("data","emul"),
 )
+
+# enable comparisons for Run-3 data members
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify( l1tdeCSCTPG,
+                      isRun3 = True)

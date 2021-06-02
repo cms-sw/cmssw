@@ -27,7 +27,8 @@ L1TdeCSCTPGClient::L1TdeCSCTPGClient(const edm::ParameterSet &ps)
       alctMaxBin_(ps.getParameter<std::vector<double>>("alctMaxBin")),
       clctMaxBin_(ps.getParameter<std::vector<double>>("clctMaxBin")),
       lctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")),
-      b904Setup_(ps.getParameter<bool>("B904Setup")) {}
+      b904Setup_(ps.getParameter<bool>("B904Setup")),
+      isRun3_(ps.getParameter<bool>("isRun3")) {}
 
 L1TdeCSCTPGClient::~L1TdeCSCTPGClient() {}
 
@@ -47,6 +48,12 @@ void L1TdeCSCTPGClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter 
 
 void L1TdeCSCTPGClient::book(DQMStore::IBooker &iBooker) {
   iBooker.setCurrentFolder(monitorDir_);
+
+ // do not analyze Run-3 properties in Run-1 and Run-2 eras
+  if (!isRun3_) {
+    clctVars_.resize(4);
+    lctVars_.resize(5);
+  }
 
   // remove the non-ME1/1 chambers from the list when b904Setup is set to true
   if (b904Setup_) {
