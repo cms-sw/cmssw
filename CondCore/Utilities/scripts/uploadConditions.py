@@ -619,8 +619,11 @@ class ConditionsUploader(object):
         if len(skippedTags) > 0: logging.warning("tags SKIPped to upload   : %s ", str(skippedTags) )
         if len(failedTags)  > 0: logging.error  ("tags FAILed  to upload   : %s ", str(failedTags) )
 
-        fileLogURL = 'https://%s/logs/dropBox/getFileLog?fileHash=%s' 
-        logging.info('file log at: %s', fileLogURL % (self.hostname,fileHash))
+        fileLogURL = 'https://cms-conddb.cern.ch/cmsDbBrowser/logs/show_cond_uploader_log/%s/%s' 
+        backend = 'Prod'
+        if self.hostname=='cms-conddb-dev.cern.ch':
+            backend = 'Prep'
+        logging.info('file log at: %s', fileLogURL % (backend,fileHash))
 
         return len(okTags)>0
 
