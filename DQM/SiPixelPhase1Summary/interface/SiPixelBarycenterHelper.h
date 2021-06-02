@@ -34,7 +34,7 @@ namespace DQMBarycenter {
                                   };
 
 
-  struct TkAlBarycenters {
+  class TkAlBarycenters {
     std::map<DQMBarycenter::PARTITION, double> Xbarycenters;
     std::map<DQMBarycenter::PARTITION, double> Ybarycenters;
     std::map<DQMBarycenter::PARTITION, double> Zbarycenters;
