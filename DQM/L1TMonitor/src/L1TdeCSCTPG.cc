@@ -30,8 +30,7 @@ L1TdeCSCTPG::L1TdeCSCTPG(const edm::ParameterSet& ps)
       clctMaxBin_(ps.getParameter<std::vector<double>>("clctMaxBin")),
       lctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")),
       b904Setup_(ps.getParameter<bool>("B904Setup")),
-      isRun3_(ps.getParameter<bool>("isRun3"))
-{}
+      isRun3_(ps.getParameter<bool>("isRun3")) {}
 
 L1TdeCSCTPG::~L1TdeCSCTPG() {}
 
