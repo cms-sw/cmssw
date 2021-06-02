@@ -55,8 +55,10 @@ private:
   edm::Service<TFileService> fs;
 
   std::string doseMap_;
+  uint32_t doseMapAlgo_;
   std::string sipmMap_;
   uint32_t nPEperMIP_;
+  double refIdark_;
 
   std::set<int> allLayers_, allIeta_;  //allIphi_
 
@@ -72,8 +74,11 @@ private:
 //
 HGCHEbackSignalScalerAnalyzer::HGCHEbackSignalScalerAnalyzer(const edm::ParameterSet& iConfig)
     : doseMap_(iConfig.getParameter<std::string>("doseMap")),
+      doseMapAlgo_(iConfig.getParameter<uint32_t>("doseMapAlgo")),      
       sipmMap_(iConfig.getParameter<std::string>("sipmMap")),
-      nPEperMIP_(iConfig.getParameter<uint32_t>("nPEperMIP")) {
+      nPEperMIP_(iConfig.getParameter<uint32_t>("nPEperMIP")),
+      refIdark_(iConfig.getParameter<uint32_t>("referenceIdark"))
+{
   usesResource("TFileService");
   fs->file().cd();
 }
@@ -149,7 +154,8 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
 
   //instantiate scaler
   HGCalSciNoiseMap scal;
-  scal.setDoseMap(doseMap_, 0);
+  scal.setDoseMap(doseMap_, doseMapAlgo_);
+  scal.setReferenceDarkCurrent(refIdark_);
   scal.setSipmMap(sipmMap_);
   scal.setGeometry(gHGCal_);
 
