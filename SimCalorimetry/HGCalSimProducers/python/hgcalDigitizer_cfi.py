@@ -61,7 +61,7 @@ HGCAL_noise_heback = cms.PSet(
     scaleByDoseAlgo = cms.uint32(0),
     scaleByDoseFactor = cms.double(1),
     doseMap = cms.string(""), #empty dose map at begin-of-life
-    noise_MIP = cms.double(1./100.)
+    noise_MIP = cms.double(1./7.)
     )
 
 HGCAL_chargeCollectionEfficiencies = cms.PSet(
