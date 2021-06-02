@@ -230,7 +230,7 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   double nonPrefiringProbaJet[3] = {1., 1., 1.};     //0: central, 1: up, 2: down
   double nonPrefiringProbaPhoton[3] = {1., 1., 1.};  //0: central, 1: up, 2: down
   double nonPrefiringProbaMuon[7] = {
-      1., 1., 1., 1., 1., 1., 1.};  //0: central, 1: up, 2: down, 3: up syst, 4: down syst, 5: up stat, 6: down stat
+      1., 1., 1., 1., 1., 1., 1.};  //0: central, 1: up, 2: down, 3: up stat, 4: down stat, 5: up syst, 6: down syst
 
   for (const auto fluct : {fluctuations::central, fluctuations::up, fluctuations::down}) {
     if (!missingInputEcal_) {
@@ -350,10 +350,10 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   iEvent.emplace(nonPrefiringProbMuonToken_, nonPrefiringProbaMuon[0]);
   iEvent.emplace(nonPrefiringProbMuonUpToken_, nonPrefiringProbaMuon[1]);
   iEvent.emplace(nonPrefiringProbMuonDownToken_, nonPrefiringProbaMuon[2]);
-  iEvent.emplace(nonPrefiringProbMuonUpSystToken_, nonPrefiringProbaMuon[3]);
-  iEvent.emplace(nonPrefiringProbMuonDownSystToken_, nonPrefiringProbaMuon[4]);
-  iEvent.emplace(nonPrefiringProbMuonUpStatToken_, nonPrefiringProbaMuon[5]);
-  iEvent.emplace(nonPrefiringProbMuonDownStatToken_, nonPrefiringProbaMuon[6]);
+  iEvent.emplace(nonPrefiringProbMuonUpStatToken_, nonPrefiringProbaMuon[3]);
+  iEvent.emplace(nonPrefiringProbMuonDownStatToken_, nonPrefiringProbaMuon[4]);
+  iEvent.emplace(nonPrefiringProbMuonUpSystToken_, nonPrefiringProbaMuon[5]);
+  iEvent.emplace(nonPrefiringProbMuonDownSystToken_, nonPrefiringProbaMuon[6]);
 }
 
 double L1PrefiringWeightProducer::getPrefiringRateEcal(double eta,
