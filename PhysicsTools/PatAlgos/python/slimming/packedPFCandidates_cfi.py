@@ -7,7 +7,7 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     originalTracks = cms.InputTag("generalTracks"),
     vertexAssociator = cms.InputTag("primaryVertexAssociation","original"),
     PuppiSrc = cms.InputTag("puppi"),
-    PuppiNoLepSrc = cms.InputTag("puppiNoLep"),    
+    PuppiNoLepSrc = cms.InputTag("puppiNoLep"),
     chargedHadronIsolation = cms.InputTag("chargedHadronPFTrackIsolation"),
     minPtForChargedHadronProperties = cms.double(3.0),
     secondaryVerticesForWhiteList = cms.VInputTag(
@@ -15,13 +15,14 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
       cms.InputTag("inclusiveCandidateSecondaryVerticesCvsL"),
       cms.InputTag("generalV0Candidates","Kshort"),
       cms.InputTag("generalV0Candidates","Lambda"),
-      ),      
+      ),
     minPtForTrackProperties = cms.double(0.95),
-    covarianceVersion = cms.int32(0), #so far: 0 is Phase0, 1 is Phase1   
-#    covariancePackingSchemas = cms.vint32(1,257,513,769,0),  # a cheaper schema in kb/ev 
+    minPtForLowQualityTrackProperties = cms.double(0.5),
+    covarianceVersion = cms.int32(0), #so far: 0 is Phase0, 1 is Phase1
+#    covariancePackingSchemas = cms.vint32(1,257,513,769,0),  # a cheaper schema in kb/ev
     covariancePackingSchemas = cms.vint32(8,264,520,776,0),   # more accurate schema +0.6kb/ev
     pfCandidateTypesForHcalDepth = cms.vint32(),
-    storeHcalDepthEndcapOnly = cms.bool(False), # switch to store info only for endcap 
+    storeHcalDepthEndcapOnly = cms.bool(False), # switch to store info only for endcap
     storeTiming = cms.bool(False),
     storePfGammaEnFractions = cms.bool(False)
 )
@@ -41,7 +42,7 @@ run2_HCAL_2018.toModify(packedPFCandidates,
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(packedPFCandidates,
-    pfCandidateTypesForHcalDepth = [], # For now, no PF cand type is considered for addition of Hcal depth energy frac 
+    pfCandidateTypesForHcalDepth = [], # For now, no PF cand type is considered for addition of Hcal depth energy frac
     storeHcalDepthEndcapOnly = False
 )
 
@@ -50,3 +51,7 @@ phase2_timing.toModify(packedPFCandidates, storeTiming = True)
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 run2_miniAOD_UL.toModify(packedPFCandidates, storePfGammaEnFractions = True)
+
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+from Configuration.Eras.Modifier_bParking_cff import bParking
+(bParking | run2_miniAOD_devel).toModify(packedPFCandidates, minPtForLowQualityTrackProperties = 0.0)
