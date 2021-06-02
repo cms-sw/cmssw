@@ -29,12 +29,20 @@ L1TdeCSCTPG::L1TdeCSCTPG(const edm::ParameterSet& ps)
       alctMaxBin_(ps.getParameter<std::vector<double>>("alctMaxBin")),
       clctMaxBin_(ps.getParameter<std::vector<double>>("clctMaxBin")),
       lctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")),
-      b904Setup_(ps.getParameter<bool>("B904Setup")) {}
+      b904Setup_(ps.getParameter<bool>("B904Setup")),
+      isRun3_(ps.getParameter<bool>("isRun3"))
+{}
 
 L1TdeCSCTPG::~L1TdeCSCTPG() {}
 
 void L1TdeCSCTPG::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&, const edm::EventSetup&) {
   iBooker.setCurrentFolder(monitorDir_);
+
+  // do not analyze Run-3 properties in Run-1 and Run-2 eras
+  if (!isRun3_) {
+    clctVars_.resize(4);
+    lctVars_.resize(5);
+  }
 
   // remove the non-ME1/1 chambers from the list when b904Setup is set to true
   if (b904Setup_) {
@@ -138,17 +146,19 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     for (auto clct = range.first; clct != range.second; clct++) {
       if (clct->isValid()) {
         chamberHistos[type]["clct_pattern_data"]->Fill(clct->getPattern());
-        chamberHistos[type]["clct_run3pattern_data"]->Fill(clct->getRun3Pattern());
         chamberHistos[type]["clct_quality_data"]->Fill(clct->getQuality());
         chamberHistos[type]["clct_halfstrip_data"]->Fill(clct->getKeyStrip());
-        chamberHistos[type]["clct_quartstrip_data"]->Fill(clct->getKeyStrip(4));
-        chamberHistos[type]["clct_eighthstrip_data"]->Fill(clct->getKeyStrip(8));
         chamberHistos[type]["clct_bend_data"]->Fill(clct->getBend());
-        chamberHistos[type]["clct_slope_data"]->Fill(clct->getSlope());
-        chamberHistos[type]["clct_compcode_data"]->Fill(clct->getCompCode());
-        if (b904Setup_) {
-          chamberHistos[type]["clct_quartstripbit_data"]->Fill(clct->getQuartStripBit());
-          chamberHistos[type]["clct_eighthstripbit_data"]->Fill(clct->getEighthStripBit());
+        if (isRun3_) {
+          chamberHistos[type]["clct_run3pattern_data"]->Fill(clct->getRun3Pattern());
+          chamberHistos[type]["clct_quartstrip_data"]->Fill(clct->getKeyStrip(4));
+          chamberHistos[type]["clct_eighthstrip_data"]->Fill(clct->getKeyStrip(8));
+          chamberHistos[type]["clct_slope_data"]->Fill(clct->getSlope());
+          chamberHistos[type]["clct_compcode_data"]->Fill(clct->getCompCode());
+          if (b904Setup_) {
+            chamberHistos[type]["clct_quartstripbit_data"]->Fill(clct->getQuartStripBit());
+            chamberHistos[type]["clct_eighthstripbit_data"]->Fill(clct->getEighthStripBit());
+          }
         }
       }
     }
@@ -163,17 +173,19 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     for (auto clct = range.first; clct != range.second; clct++) {
       if (clct->isValid()) {
         chamberHistos[type]["clct_pattern_emul"]->Fill(clct->getPattern());
-        chamberHistos[type]["clct_run3pattern_emul"]->Fill(clct->getRun3Pattern());
         chamberHistos[type]["clct_quality_emul"]->Fill(clct->getQuality());
         chamberHistos[type]["clct_halfstrip_emul"]->Fill(clct->getKeyStrip());
-        chamberHistos[type]["clct_quartstrip_emul"]->Fill(clct->getKeyStrip(4));
-        chamberHistos[type]["clct_eighthstrip_emul"]->Fill(clct->getKeyStrip(8));
         chamberHistos[type]["clct_bend_emul"]->Fill(clct->getBend());
-        chamberHistos[type]["clct_slope_emul"]->Fill(clct->getSlope());
-        chamberHistos[type]["clct_compcode_emul"]->Fill(clct->getCompCode());
-        if (b904Setup_) {
-          chamberHistos[type]["clct_quartstripbit_emul"]->Fill(clct->getQuartStripBit());
-          chamberHistos[type]["clct_eighthstripbit_emul"]->Fill(clct->getEighthStripBit());
+        if (isRun3_) {
+          chamberHistos[type]["clct_run3pattern_emul"]->Fill(clct->getRun3Pattern());
+          chamberHistos[type]["clct_quartstrip_emul"]->Fill(clct->getKeyStrip(4));
+          chamberHistos[type]["clct_eighthstrip_emul"]->Fill(clct->getKeyStrip(8));
+          chamberHistos[type]["clct_slope_emul"]->Fill(clct->getSlope());
+          chamberHistos[type]["clct_compcode_emul"]->Fill(clct->getCompCode());
+          if (b904Setup_) {
+            chamberHistos[type]["clct_quartstripbit_emul"]->Fill(clct->getQuartStripBit());
+            chamberHistos[type]["clct_eighthstripbit_emul"]->Fill(clct->getEighthStripBit());
+          }
         }
       }
     }
@@ -188,17 +200,19 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     for (auto lct = range.first; lct != range.second; lct++) {
       if (lct->isValid()) {
         chamberHistos[type]["lct_pattern_data"]->Fill(lct->getCLCTPattern());
-        chamberHistos[type]["lct_run3pattern_data"]->Fill(lct->getRun3Pattern());
         chamberHistos[type]["lct_quality_data"]->Fill(lct->getQuality());
         chamberHistos[type]["lct_wiregroup_data"]->Fill(lct->getKeyWG());
         chamberHistos[type]["lct_halfstrip_data"]->Fill(lct->getStrip());
         chamberHistos[type]["lct_bend_data"]->Fill(lct->getBend());
-        chamberHistos[type]["lct_slope_data"]->Fill(lct->getSlope());
-        chamberHistos[type]["lct_quartstrip_data"]->Fill(lct->getStrip(4));
-        chamberHistos[type]["lct_eighthstrip_data"]->Fill(lct->getStrip(8));
-        if (b904Setup_) {
-          chamberHistos[type]["lct_quartstripbit_data"]->Fill(lct->getQuartStripBit());
-          chamberHistos[type]["lct_eighthstripbit_data"]->Fill(lct->getEighthStripBit());
+        if (isRun3_) {
+          chamberHistos[type]["lct_run3pattern_data"]->Fill(lct->getRun3Pattern());
+          chamberHistos[type]["lct_slope_data"]->Fill(lct->getSlope());
+          chamberHistos[type]["lct_quartstrip_data"]->Fill(lct->getStrip(4));
+          chamberHistos[type]["lct_eighthstrip_data"]->Fill(lct->getStrip(8));
+          if (b904Setup_) {
+            chamberHistos[type]["lct_quartstripbit_data"]->Fill(lct->getQuartStripBit());
+            chamberHistos[type]["lct_eighthstripbit_data"]->Fill(lct->getEighthStripBit());
+          }
         }
       }
     }
@@ -213,17 +227,19 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     for (auto lct = range.first; lct != range.second; lct++) {
       if (lct->isValid()) {
         chamberHistos[type]["lct_pattern_emul"]->Fill(lct->getCLCTPattern());
-        chamberHistos[type]["lct_run3pattern_emul"]->Fill(lct->getRun3Pattern());
         chamberHistos[type]["lct_quality_emul"]->Fill(lct->getQuality());
         chamberHistos[type]["lct_wiregroup_emul"]->Fill(lct->getKeyWG());
         chamberHistos[type]["lct_halfstrip_emul"]->Fill(lct->getStrip());
         chamberHistos[type]["lct_bend_emul"]->Fill(lct->getBend());
-        chamberHistos[type]["lct_slope_emul"]->Fill(lct->getSlope());
-        chamberHistos[type]["lct_quartstrip_emul"]->Fill(lct->getStrip(4));
-        chamberHistos[type]["lct_eighthstrip_emul"]->Fill(lct->getStrip(8));
-        if (b904Setup_) {
-          chamberHistos[type]["lct_quartstripbit_emul"]->Fill(lct->getQuartStripBit());
-          chamberHistos[type]["lct_eighthstripbit_emul"]->Fill(lct->getEighthStripBit());
+        if (isRun3_) {
+          chamberHistos[type]["lct_run3pattern_emul"]->Fill(lct->getRun3Pattern());
+          chamberHistos[type]["lct_slope_emul"]->Fill(lct->getSlope());
+          chamberHistos[type]["lct_quartstrip_emul"]->Fill(lct->getStrip(4));
+          chamberHistos[type]["lct_eighthstrip_emul"]->Fill(lct->getStrip(8));
+          if (b904Setup_) {
+            chamberHistos[type]["lct_quartstripbit_emul"]->Fill(lct->getQuartStripBit());
+            chamberHistos[type]["lct_eighthstripbit_emul"]->Fill(lct->getEighthStripBit());
+          }
         }
       }
     }
