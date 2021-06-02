@@ -28,7 +28,7 @@ MuonPath::MuonPath() {
 }
 
 MuonPath::MuonPath(DTPrimitivePtrs &ptrPrimitive, int nprimUp, int nprimDown) {
-  if (nprimUp > 0 && nprimDown > 0)
+  if (nprimUp > 0 || nprimDown > 0)
     nprimitives_ = NUM_LAYERS_2SL;  //Instead of nprimUp + nprimDown;
   else {
     nprimitives_ = NUM_LAYERS;
@@ -61,7 +61,7 @@ MuonPath::MuonPath(DTPrimitivePtrs &ptrPrimitive, int nprimUp, int nprimDown) {
 }
 
 MuonPath::MuonPath(DTPrimitives &ptrPrimitive, int nprimUp, int nprimDown) {
-  if (nprimUp > 0 && nprimDown > 0)
+  if (nprimUp > 0 || nprimDown > 0)
     nprimitives_ = NUM_LAYERS_2SL;  //Instead of nprimUp + nprimDown;
   else {
     nprimitives_ = NUM_LAYERS;
