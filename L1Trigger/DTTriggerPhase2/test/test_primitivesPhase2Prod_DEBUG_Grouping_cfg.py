@@ -88,7 +88,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.p = cms.Path(process.CalibratedDigis *
-                     process.dtTriggerPhase2BayesPrimitiveDigis #*
-                     #process.dtTriggerPhase2StdPrimitiveDigis
+                     process.dtTriggerPhase2BayesPrimitiveDigis *
+                     process.dtTriggerPhase2StdPrimitiveDigis
 )
 process.this_is_the_end = cms.EndPath(process.out)
