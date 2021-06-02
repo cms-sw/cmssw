@@ -76,6 +76,8 @@ run2_jme_2017.toModify( tightJetIdLepVeto.filterParams, version = "WINTER17" )
 for modifier in run2_nanoAOD_106Xv1, run2_nanoAOD_106Xv2, run2_miniAOD_devel:
   modifier.toModify( tightJetId.filterParams, version = "RUN2ULCHS" )
   modifier.toModify( tightJetIdLepVeto.filterParams, version = "RUN2ULCHS" )
+(run2_jme_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( tightJetId.filterParams, version = "RUN2UL16CHS"  )
+(run2_jme_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( tightJetIdLepVeto.filterParams, version = "RUN2UL16CHS"  )
 
 
 looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
@@ -106,6 +108,8 @@ run2_jme_2017.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER17PU
 for modifier in run2_nanoAOD_106Xv1, run2_nanoAOD_106Xv2, run2_miniAOD_devel:
   modifier.toModify( tightJetIdAK8.filterParams, version = "RUN2ULPUPPI" )
   modifier.toModify( tightJetIdLepVetoAK8.filterParams, version = "RUN2ULPUPPI" )
+(run2_jme_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( tightJetIdAK8.filterParams, version = "RUN2UL16PUPPI" )
+(run2_jme_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( tightJetIdLepVetoAK8.filterParams, version = "RUN2UL16PUPPI" )
 
 
 bJetVars = cms.EDProducer("JetRegressionVarProducer",
