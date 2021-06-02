@@ -261,6 +261,14 @@ def L1TReEmulMCFromRAW(process):
     L1TReEmulFromRAW(process)
     stage2L1Trigger.toModify(process.simEmtfDigis, CSCInput = 'simCscTriggerPrimitiveDigis:MPCSORTED')
     stage2L1Trigger.toModify(process.simOmtfDigis, srcCSC   = 'simCscTriggerPrimitiveDigis:MPCSORTED')
+
+    # Temporary fix for OMTF inputs in MC re-emulation
+    run3_GEM.toModify(process.simOmtfDigis,
+        srcRPC   = 'muonRPCDigis',
+        srcDTPh  = 'bmtfDigis',
+        srcDTTh  = 'bmtfDigis'
+    )
+
     return process
 
 def L1TReEmulMCFromRAWSimEcalTP(process):
