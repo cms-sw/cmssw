@@ -18,7 +18,11 @@ namespace DQMBarycenter {
     rot_gamma = 6,
   };
 
-  enum partitions { BPix = 1, FPix_p = 2, FPix_m = 3,  };
+  enum partitions {
+    BPix = 1,
+    FPix_p = 2,
+    FPix_m = 3,
+  };
 
   enum class PARTITION {
     BPIX,   // 0 Barrel Pixel
@@ -28,11 +32,11 @@ namespace DQMBarycenter {
   };
 
   extern const PARTITION PARTITIONS[(int)PARTITION::LAST + 1];
-  const PARTITION PARTITIONS[] = {PARTITION::BPIX,
-                                  PARTITION::FPIXp,
-                                  PARTITION::FPIXm,
-                                  };
-
+  const PARTITION PARTITIONS[] = {
+      PARTITION::BPIX,
+      PARTITION::FPIXp,
+      PARTITION::FPIXm,
+  };
 
   class TkAlBarycenters {
     std::map<DQMBarycenter::PARTITION, double> Xbarycenters;
@@ -45,36 +49,26 @@ namespace DQMBarycenter {
     void computeBarycenters(const std::vector<AlignTransform>& input,
                             const TrackerTopology& tTopo,
                             const std::map<DQMBarycenter::coordinate, float>& GPR);
-    
 
     /*--------------------------------------------------------------------*/
     const std::array<double, 3> getX()
     /*--------------------------------------------------------------------*/
     {
-      return {{Xbarycenters[PARTITION::BPIX],
-               Xbarycenters[PARTITION::FPIXm],
-               Xbarycenters[PARTITION::FPIXp]
-               }};
+      return {{Xbarycenters[PARTITION::BPIX], Xbarycenters[PARTITION::FPIXm], Xbarycenters[PARTITION::FPIXp]}};
     };
 
     /*--------------------------------------------------------------------*/
     const std::array<double, 3> getY()
     /*--------------------------------------------------------------------*/
     {
-      return {{Ybarycenters[PARTITION::BPIX],
-               Ybarycenters[PARTITION::FPIXm],
-               Ybarycenters[PARTITION::FPIXp]
-               }};
+      return {{Ybarycenters[PARTITION::BPIX], Ybarycenters[PARTITION::FPIXm], Ybarycenters[PARTITION::FPIXp]}};
     };
 
     /*--------------------------------------------------------------------*/
     const std::array<double, 3> getZ()
     /*--------------------------------------------------------------------*/
     {
-      return {{Zbarycenters[PARTITION::BPIX],
-               Zbarycenters[PARTITION::FPIXm],
-               Zbarycenters[PARTITION::FPIXp]
-               }};
+      return {{Zbarycenters[PARTITION::BPIX], Zbarycenters[PARTITION::FPIXm], Zbarycenters[PARTITION::FPIXp]}};
     };
     virtual ~TkAlBarycenters() {}
   };
@@ -94,7 +88,7 @@ namespace DQMBarycenter {
       }
 
       int subid = DetId(ali.rawId()).subdetId();
-      if (subid==PixelSubdetector::PixelBarrel || subid==PixelSubdetector::PixelEndcap) {   // use only pixel
+      if (subid == PixelSubdetector::PixelBarrel || subid == PixelSubdetector::PixelEndcap) {  // use only pixel
         switch (subid) {
           case PixelSubdetector::PixelBarrel:
             Xbarycenters[PARTITION::BPIX] += (ali.translation().x());
@@ -133,7 +127,6 @@ namespace DQMBarycenter {
       Xbarycenters[p] += GPR.at(DQMBarycenter::t_x);
       Ybarycenters[p] += GPR.at(DQMBarycenter::t_y);
       Zbarycenters[p] += GPR.at(DQMBarycenter::t_z);
-
     }
   }
 }  // namespace DQMBarycenter
