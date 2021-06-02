@@ -907,7 +907,21 @@ class mc_synchro_policy( object ):
         else:
             if niovs>0:
                 ret = False
-                logging.warning('%s The destination tag is frozen - no iov can be altered.' %niovs)
+                logging.warning('The destination tag is frozen - no iov can be added.')
+        return ret, new_iovs
+
+class runmc_synchro_policy( object ):
+    def __init__(self, session1, session2, timeType, destTag):
+        self.lastFrozenSince = _get_last_frozen_since( session2, destTag ) 
+
+    def validate( self, iovs ):
+        new_iovs = {}
+        niovs = len(iovs)
+        ret = True
+        if self.lastFrozenSince is not None:
+            if niovs>0:
+                ret = False
+                logging.warning('The destination tag is frozen - no iov can be added.')
         return ret, new_iovs
 
 class offline_synchro_policy( object ):
@@ -938,12 +952,24 @@ class no_synchro_policy( object ):
 
 _synchro_map = { 'hlt': hlt_synchro_policy, 'express': hlt_synchro_policy, 'prompt': prompt_synchro_policy, 'pcl':pcl_synchro_policy, 
                  'mc': mc_synchro_policy, 'offline': offline_synchro_policy, 'any':no_synchro_policy, 'validation':no_synchro_policy,
-                 'runmc': offline_synchro_policy }
+                 'runmc': runmc_synchro_policy }
 def _get_synchro_policy( synchronization ):
     if synchronization not in _synchro_map.keys():
         raise Exception('Cannot handle synchronization %s' %synchronization)
     return _synchro_map[synchronization]
 
+def mc_validate( session, tag ):
+    IOV = session.get_dbtype(conddb.IOV)
+    niovs = session.query(IOV).filter(IOV.tag_name==tag).count()
+    if niovs>1:
+        logging.error('Validation of tag content for synchronization "mc" failed: more than one IOV found.')
+        return False
+    if niovs>0:
+        r = int(session.query(IOV.since).filter(IOV.tag_name==tag).one()[0])
+        if r!=1:
+            logging.error('Validation of tag content for synchronization "mc" failed: IOV since=%s (expected=1)' %r)
+            return False
+    return True
 
 def listTags_(args):
     connection = connect(args)
@@ -2175,6 +2201,10 @@ def edit(args):
                 if header[0] != new_header[0]:
                     action += 'Description updated'
                 if header[1] != new_header[1]:
+                    # validate the synchro requested( based on the tag IOV content )
+                    if new_header[1] ==  'mc':
+                        if not mc_validate( session, name ):
+                            return
                     if len(action): action += ', '
                     action += 'Synchronization changed'
                 if header[2] != new_header[2]:
