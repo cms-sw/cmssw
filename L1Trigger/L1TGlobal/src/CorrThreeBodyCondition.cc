@@ -310,7 +310,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
       phiIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPhiAtVtx();  //(*candMuVec)[obj0Index]->phiIndex();
       etaIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwEtaAtVtx();
       etIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPt();
-      int etaBin0 = etaIndex0;
+      etaBin0 = etaIndex0;
       if (etaBin0 < 0)
         etaBin0 = m_gtScales->getMUScales().etaBins.size() + etaBin0;  //twos complement
       // LogDebug("L1TGlobal") << "Muon phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0  << " et " << etIndex0 << std::endl;
