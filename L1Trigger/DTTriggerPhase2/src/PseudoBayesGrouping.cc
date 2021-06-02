@@ -52,8 +52,9 @@ void PseudoBayesGrouping::initialise(const edm::EventSetup& iEventSetup) {
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::initialiase using patterns file " << pattern_filename_;
   nPatterns_ = 0;
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Move all this into LoadPattern  // //Load patterns from pattern root file with expected hits information
+
+  // Moved to LoadPattern
+  // //Load patterns from pattern root file with expected hits information
   // TFile* f = TFile::Open(TString(pattern_filename_), "READ");
   // std::vector<std::vector<std::vector<int>>>* pattern_reader =
   //     (std::vector<std::vector<std::vector<int>>>*)f->Get("allPatterns");
@@ -68,13 +69,10 @@ void PseudoBayesGrouping::initialise(const edm::EventSetup& iEventSetup) {
   //                                   << nPatterns_;
   // f->Close();
   // delete f;
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  //  cout << "Initializing patterns" << endl;
 
   // Currently hard-coded. To be fixed
-  TString patterns_folder = "/afs/cern.ch/user/n/ntrevisa/public/Patterns_h287mm/";
-  // TString patterns_folder = "L1Trigger/DTTriggerPhase2/data/";
+  //TString patterns_folder = "/afs/cern.ch/user/n/ntrevisa/public/Patterns_h287mm/";
+  TString patterns_folder = "L1Trigger/DTTriggerPhase2/data/";
 
   // Load all patterns
   // MB1
@@ -93,51 +91,44 @@ void PseudoBayesGrouping::initialise(const edm::EventSetup& iEventSetup) {
   prelimMatches_ = std::make_unique<CandidateGroupPtrs>();
   allMatches_ = std::make_unique<CandidateGroupPtrs>();
   finalMatches_ = std::make_unique<CandidateGroupPtrs>();
-
-  // cout << "Patterns loaded" << endl;
-
 }
 
-// void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>::iterator itPattern) {
+//void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>::iterator itPattern) {
 void PseudoBayesGrouping::LoadPattern(TString pattern_file_name,
 				      int     MB_number,
 				      int     SL_shift) {
-
-  // if (debug_)
-  //     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::LoadPattern Loading patterns seeded by: "
-  //                                     << itPattern->at(0).at(0) << ", " << itPattern->at(0).at(1) << ", "
-  //                                     << itPattern->at(0).at(2) << ", ";
-
+  
   TFile* f = TFile::Open(pattern_file_name, "READ");
-
+  
   std::vector<std::vector<std::vector<int>>>* pattern_reader =
     (std::vector<std::vector<std::vector<int>>>*)f->Get("allPatterns");
-
+  
   for (std::vector<std::vector<std::vector<int>>>::iterator itPattern = (*pattern_reader).begin();
        itPattern != (*pattern_reader).end(); ++itPattern) {
-    
+
     if (debug_)
       LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::LoadPattern Loading patterns seeded by: "
-				     << itPattern->at(0).at(0) << ", " << itPattern->at(0).at(1) << ", "
-				     << itPattern->at(0).at(2) << ", ";
-  
-    auto p = std::make_shared<DTPattern>();
+				      << itPattern->at(0).at(0) << ", " << itPattern->at(0).at(1) << ", "
+				      << itPattern->at(0).at(2) << ", ";
+    
     // DTPattern p;
- 
+    auto p = std::make_shared<DTPattern>();
+
     //  for (auto itHits = itPattern->begin(); itHits != itPattern->end(); ++itHits) {
     bool is_seed = true;
     for (const auto& itHits : *itPattern) {
 
       //First entry is the seeding information
       if (is_seed) {
-	p = std::make_shared<DTPattern>(DTPattern(itHits.at(0), itHits.at(1), itHits.at(2)));// DTPattern(itHits.at(0), itHits.at(1), itHits.at(2));
+	//p = DTPattern(itHits.at(0), itHits.at(1), itHits.at(2));
+	p = std::make_shared<DTPattern>(DTPattern(itHits.at(0), itHits.at(1), itHits.at(2)));
 	is_seed = false;
       }
       //Other entries are the hits information
       else {
 	if (itHits.begin() == itHits.end())
 	  continue;
-	//We need to correct the geometry from pattern generation to reconstruction as they use slightly displaced basis
+	// We need to correct the geometry from pattern generation to reconstruction as they use slightly displaced basis
 	else if (itHits.at(0) % 2 == 0) {
 	  p->addHit(std::make_tuple(itHits.at(0), itHits.at(1), itHits.at(2)));
 	} else if (itHits.at(0) % 2 == 1) {
@@ -219,11 +210,82 @@ void PseudoBayesGrouping::LoadPattern(TString pattern_file_name,
 	L6L7Patterns_[MB_number][SL_shift].push_back(p);
     }
 
+    // if (p.sl1() == 0) {
+    //   if (p.sl2() == 7)
+    //     L0L7Patterns_.push_back(&p);
+    //   if (p.sl2() == 6)
+    //     L0L6Patterns_.push_back(&p);
+    //   if (p.sl2() == 5)
+    //     L0L5Patterns_.push_back(&p);
+    //   if (p.sl2() == 4)
+    //     L0L4Patterns_.push_back(&p);
+    //   if (p.sl2() == 3)
+    //     L0L3Patterns_.push_back(&p);
+    //   if (p.sl2() == 2)
+    //     L0L2Patterns_.push_back(&p);
+    //   if (p.sl2() == 1)
+    //     L0L1Patterns_.push_back(&p);
+    // }
+    // if (p.sl1() == 1) {
+    //   if (p.sl2() == 7)
+    //     L1L7Patterns_.push_back(&p);
+    //   if (p.sl2() == 6)
+    //     L1L6Patterns_.push_back(&p);
+    //   if (p.sl2() == 5)
+    //     L1L5Patterns_.push_back(&p);
+    //   if (p.sl2() == 4)
+    //     L1L4Patterns_.push_back(&p);
+    //   if (p.sl2() == 3)
+    //     L1L3Patterns_.push_back(&p);
+    //   if (p.sl2() == 2)
+    //     L1L2Patterns_.push_back(&p);
+    // }
+    // if (p.sl1() == 2) {
+    //   if (p.sl2() == 7)
+    //     L2L7Patterns_.push_back(&p);
+    //   if (p.sl2() == 6)
+    //     L2L6Patterns_.push_back(&p);
+    //   if (p.sl2() == 5)
+    //     L2L5Patterns_.push_back(&p);
+    //   if (p.sl2() == 4)
+    //     L2L4Patterns_.push_back(&p);
+    //   if (p.sl2() == 3)
+    //     L2L3Patterns_.push_back(&p);
+    // }
+    // if (p.sl1() == 3) {
+    //   if (p.sl2() == 7)
+    //     L3L7Patterns_.push_back(&p);
+    //   if (p.sl2() == 6)
+    //     L3L6Patterns_.push_back(&p);
+    //   if (p.sl2() == 5)
+    //     L3L5Patterns_.push_back(&p);
+    //   if (p.sl2() == 4)
+    //     L3L4Patterns_.push_back(&p);
+    // }
+    
+    // if (p.sl1() == 4) {
+    //   if (p.sl2() == 7)
+    //     L4L7Patterns_.push_back(&p);
+    //   if (p.sl2() == 6)
+    //     L4L6Patterns_.push_back(&p);
+    //   if (p.sl2() == 5)
+    //     L4L5Patterns_.push_back(&p);
+    // }
+    // if (p.sl1() == 5) {
+    //   if (p.sl2() == 7)
+    //     L5L7Patterns_.push_back(&p);
+    //   if (p.sl2() == 6)
+    //     L5L6Patterns_.push_back(&p);
+    // }
+    // if (p.sl1() == 6) {
+    //   if (p.sl2() == 7)
+    //     L6L7Patterns_.push_back(&p);
+    // }
+    
     //Also creating a list of all patterns, needed later for deleting and avoid a memory leak
     allPatterns_[MB_number][SL_shift].push_back(p);
     nPatterns_++;
   }
-
   if (debug_)
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::initialiase Total number of loaded patterns: "
                                     << nPatterns_;
@@ -237,16 +299,12 @@ void PseudoBayesGrouping::run(Event& iEvent,
                               const DTDigiCollection& digis,
                               MuonPathPtrs& mpaths) {
 
-  // cout << "Running bayesian gruoping" << endl;
-
   //Takes dt digis collection and does the grouping for correlated hits, it is saved in a vector of up to 8 (or 4) correlated hits
   if (debug_)
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run";
   //Do initial cleaning
-  //  cout << "Clean digis by layer" << endl;
   CleanDigisByLayer();
   //Sort digis by layer
-  // cout << "Fill digis by layer" << endl;
   FillDigisByLayer(&digis);
 
   //Sarch for patterns
@@ -260,6 +318,7 @@ void PseudoBayesGrouping::run(Event& iEvent,
     // cout << "Chamber ID = " << chamber_id << endl;
     break;
   }
+
   RecognisePatternsByLayerPairs(chamber_id);
 
   //Now sort patterns by qualities
@@ -360,12 +419,12 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
       else{
         if (debug_)
           LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run Adding hit to muon path";
-     
+	
 	qualityDTP = (qualityDTP | ref8Hit);
-
+	
 	// for (all paths --> fill them)
 	for (auto prim_it = ptrPrimitive_vector.begin(); prim_it != ptrPrimitive_vector.end(); ++prim_it){
-
+	  
 	  if (saveOnPlace_) {
 	    //This will save the primitive in a place of the vector equal to its L position
 	    prim_it->at(layerHit) = std::make_shared<DTPrimitive>((*itDTP));
@@ -378,37 +437,45 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
 	}
       }
     }
-
+    
     stringstream ss;    
 
     int n_paths = ptrPrimitive_vector.size();
 
     for (int n_path = 0; n_path < n_paths; ++n_path){
-      
-      // cout << "" << endl;
-      // cout << "Primitives:"  << endl;
-      // 	for (int i = 0; i <= 7; i++) {
-      // 	  cout << "Number = " << i;
-      // 	  cout << "Channel = "    << ptrPrimitive_vector.at(n_path).at(i)->channelId();
-      // 	  cout << "TDC = "        << ptrPrimitive_vector.at(n_path).at(i)->tdcTimeStamp();
-      // 	  cout << "Laterality = " << ptrPrimitive_vector.at(n_path).at(i)->laterality() << endl;
-      // 	  cout << "" << endl;
-      // 	}
-
-      // //Now, if there are empty spaces in the vector fill them full of daylight
-      // int ipow = 1;
-      // for (int i = 0; i <= 7; i++) {
-      // 	ipow *= 2;
-      // 	if (qualityDTP != (qualityDTP | qualitybits(1 << i))) {
-      // 	  ptrPrimitive.at(i) = std::make_shared<DTPrimitive>();
-      // 	}
-      // }
-
+     
       mpaths.emplace_back(std::make_shared<MuonPath>(ptrPrimitive_vector.at(n_path), 
 						     (short)(*itCand)->nLayerUp(), 
 						     (short)(*itCand)->nLayerDown()));
-
+      
     }
+
+    // //Only fill the DT primitives pointer if there is not one hit already in the layer
+    //   if (qualityDTP != (qualityDTP | ref8Hit)) {
+    //     if (debug_)
+    //       LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run Adding hit to muon path";
+    //     qualityDTP = (qualityDTP | ref8Hit);
+    //     if (saveOnPlace_) {
+    //       //This will save the primitive in a place of the vector equal to its L position
+    //       ptrPrimitive.at(layerHit) = std::make_shared<DTPrimitive>((*itDTP));
+    //     }
+    //     if (!saveOnPlace_) {
+    //       //This will save the primitive in order
+    //       intHit++;
+    //       ptrPrimitive.at(intHit) = std::make_shared<DTPrimitive>((*itDTP));
+    //     }
+    //   }
+    // }
+    // //Now, if there are empty spaces in the vector fill them full of daylight
+    // int ipow = 1;
+    // for (int i = 0; i <= 7; i++) {
+    //   ipow *= 2;
+    //   if (qualityDTP != (qualityDTP | qualitybits(1 << i))) {
+    //     ptrPrimitive.at(i) = std::make_shared<DTPrimitive>();
+    //   }
+    // }
+      
+      // mpaths.emplace_back(std::make_shared<MuonPath>(ptrPrimitive, (short)(*itCand)->nLayerUp(), (short)(*itCand)->nLayerDown()));
   }
 }
 
@@ -418,8 +485,6 @@ void PseudoBayesGrouping::RecognisePatternsByLayerPairs(DTChamberId chamber_ID) 
   int MB     = chamber_ID.station() - 1;
   int wheel  = chamber_ID.wheel();
   int sector = chamber_ID.sector();
-
-  // cout << "My inputs: wheel = " << wheel << ", station = " << MB << ", sector = " << sector << endl;
 
   // shift of SL3 wrt SL1 
   int shift = -1;
@@ -434,9 +499,9 @@ void PseudoBayesGrouping::RecognisePatternsByLayerPairs(DTChamberId chamber_ID) 
       shift = 0; // negative (left)
     else if (wheel == 0){
       if (sector == 1 || sector == 4 || sector == 5 || sector == 8 || sector == 9 || sector == 12)
-  	shift = 2; // positive (right)
+	shift = 2; // positive (right)
       else 
-  	shift = 0; // negative (left)
+	shift = 0; // negative (left)
     }
   }
   // MB2
@@ -447,9 +512,9 @@ void PseudoBayesGrouping::RecognisePatternsByLayerPairs(DTChamberId chamber_ID) 
       shift = 2; // positive (right)
     else if (wheel == 0){
       if (sector == 1 || sector == 4 || sector == 5 || sector == 8 || sector == 9 || sector == 12)
-  	shift = 0; // negative (left) 
+	shift = 0; // negative (left) 
       else 
-  	shift = 2; // positive (right) 
+	shift = 2; // positive (right) 
     }
   }
   // MB3
@@ -460,86 +525,27 @@ void PseudoBayesGrouping::RecognisePatternsByLayerPairs(DTChamberId chamber_ID) 
   else if (MB == 3){
     if (wheel == -1 || wheel == -2)
       if (sector == 4 || sector == 9 || sector == 11 || sector == 13)
-  	shift = 1; // no shift
+	shift = 1; // no shift
       else if (sector == 5 || sector == 6 || sector == 7 || sector == 8 || sector == 14)
-  	shift = 2; // positive (right)
+	shift = 2; // positive (right)
       else 
-  	shift = 0; // negative (left)
+	shift = 0; // negative (left)
     else if (wheel == 1 || wheel == 2)
       if (sector == 4 || sector == 9 || sector == 11 || sector == 13)
-  	shift = 1; // no shift
+	shift = 1; // no shift
       else if (sector == 1 || sector == 2 || sector == 3 || sector == 10 || sector == 12)
-  	shift = 2; // positive (right)
+	shift = 2; // positive (right)
       else
-  	shift = 0; // negative (left)
+	shift = 0; // negative (left)
     else if (wheel == 0)
       if (sector == 4 || sector == 9 || sector == 11 || sector == 13)
-  	shift = 1; // no shift
+	shift = 1; // no shift
       else if (sector == 2 || sector == 3 || sector == 5 || sector == 8 || sector == 10)
-  	shift = 2; // positive (right)
+	shift = 2; // positive (right)
       else
-  	shift = 0; // negative (left)      
+	shift = 0; // negative (left)      
     else return;
   }
-
-  // // Changing reference (left becomes right)
-
-  // // MB1
-  // if(MB == 0){
-  //   if (wheel == -1 || wheel == -2)
-  //     shift = 0; // positive (right)
-  //   else if (wheel == 1 || wheel == 2)
-  //     shift = 2; // negative (left)
-  //   else if (wheel == 0){
-  //     if (sector == 1 || sector == 4 || sector == 5 || sector == 8 || sector == 9 || sector == 12)
-  // 	shift = 0; // positive (right)
-  //     else 
-  // 	shift = 2; // negative (left)
-  //   }
-  // }
-  // // MB2
-  // else if (MB == 1){
-  //   if (wheel == -1 || wheel == -2)
-  //     shift = 2; // negative (left)
-  //   else if (wheel == 1 || wheel == 2)
-  //     shift = 0; // positive (right)
-  //   else if (wheel == 0){
-  //     if (sector == 1 || sector == 4 || sector == 5 || sector == 8 || sector == 9 || sector == 12)
-  // 	shift = 2; // negative (left) 
-  //     else 
-  // 	shift = 0; // positive (right) 
-  //   }
-  // }
-  // // MB3
-  // else if (MB == 2){
-  //   shift = 1; // shift is always 0 in MB3
-  // }
-  // // MB4
-  // else if (MB == 3){
-  //   if (wheel == -1 || wheel == -2)
-  //     if (sector == 4 || sector == 9 || sector == 11 || sector == 13)
-  // 	shift = 1; // no shift
-  //     else if (sector == 5 || sector == 6 || sector == 7 || sector == 8 || sector == 14)
-  // 	shift = 0; // positive (right)
-  //     else 
-  // 	shift = 2; // negative (left)
-  //   else if (wheel == 1 || wheel == 2)
-  //     if (sector == 4 || sector == 9 || sector == 11 || sector == 13)
-  // 	shift = 1; // no shift
-  //     else if (sector == 1 || sector == 2 || sector == 3 || sector == 10 || sector == 12)
-  // 	shift = 0; // positive (right)
-  //     else
-  // 	shift = 2; // negative (left)
-  //   else if (wheel == 0)
-  //     if (sector == 4 || sector == 9 || sector == 11 || sector == 13)
-  // 	shift = 1; // no shift
-  //     else if (sector == 2 || sector == 3 || sector == 5 || sector == 8 || sector == 10)
-  // 	shift = 0; // positive (right)
-  //     else
-  // 	shift = 2; // negative (left)      
-  //   else return;
-  // }
-
 
   //Separated from main run function for clarity. Do all pattern recognition steps
   pidx_ = 0;
@@ -580,9 +586,6 @@ void PseudoBayesGrouping::RecognisePatternsByLayerPairs(DTChamberId chamber_ID) 
   RecognisePatterns(digisinL5_, digisinL6_, L5L6Patterns_[MB][shift]);
   RecognisePatterns(digisinL5_, digisinL7_, L5L7Patterns_[MB][shift]);
   RecognisePatterns(digisinL6_, digisinL7_, L6L7Patterns_[MB][shift]);
-
-  //  cout<<"Patterns recognized" << endl;
-
 }
 
 void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDown,
