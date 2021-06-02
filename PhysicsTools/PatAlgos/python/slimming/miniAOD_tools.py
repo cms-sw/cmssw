@@ -557,8 +557,8 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
     from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
     process.load("PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff")
-    stage1L1Trigger.toModify(process.prefiringweight, DataEraECAL = "2016BtoH", DoMuons = cms.bool(False) )
-    stage2L1Trigger_2017.toModify(process.prefiringweight, DataEraECAL = "2017BtoF", DoMuons = cms.bool(False))
+    stage1L1Trigger.toModify(process.prefiringweight, DataEraECAL = "2016BtoH", JetMaxMuonFraction = -1, DoMuons = cms.bool(False) )
+    stage2L1Trigger_2017.toModify(process.prefiringweight, DataEraECAL = "2017BtoF", JetMaxMuonFraction = -1, DoMuons = cms.bool(False))
     run2_L1prefiring.toModify(task, func=lambda t: t.add(process.prefiringweight))
 
 def miniAOD_customizeMC(process):
