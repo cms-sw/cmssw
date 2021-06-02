@@ -108,10 +108,6 @@ void MuonAssociatorEDProducer::produce(edm::Event &event, const edm::EventSetup 
   else
     LogTrace("MuonAssociatorEDProducer") << "\t... NOT FOUND.";
 
-  edm::RefToBaseVector<reco::Track> tmpT;
-  for (size_t i = 0; i < trackCollection->size(); ++i)
-    tmpT.push_back(trackCollection->refAt(i));
-
   std::unique_ptr<reco::RecoToSimCollection> rts;
   std::unique_ptr<reco::SimToRecoCollection> str;
 
@@ -122,6 +118,10 @@ void MuonAssociatorEDProducer::produce(edm::Event &event, const edm::EventSetup 
     LogTrace("MuonAssociatorEDProducer") << "\n ignoring missing track collection."
                                          << "\n";
   } else {
+    edm::RefToBaseVector<reco::Track> tmpT;
+    for (size_t i = 0; i < trackCollection->size(); ++i)
+      tmpT.push_back(trackCollection->refAt(i));
+
     edm::LogVerbatim("MuonAssociatorEDProducer")
         << "\n >>> RecoToSim association <<< \n"
         << "     Track collection : " << tracksTag.label() << ":" << tracksTag.instance()
