@@ -74,28 +74,28 @@ nanoInfo_genjets = {
 # "enabled" to true if you want to store the recojet collection.
 #
 config_recojets = [
-  { 
+  {
     "jet" : "ak4calo",
     "enabled" : True,
     "inputCollection"  : "slimmedCaloJets", #Exist in MiniAOD
     "genJetsCollection": "AK4GenJetsNoNu",
-  }, 
-  { 
+  },
+  {
     "jet" : "ak4pf",
     "enabled" : False,
     "inputCollection" : "",
     "genJetsCollection": "AK4GenJetsNoNu",
     "minPtFastjet" : 0.,
-  }, 
-  { 
+  },
+  {
     "jet" : "ak4pfpuppi",
     "enabled" : True,
     "inputCollection" : "",
     "genJetsCollection": "AK4GenJetsNoNu",
     "bTagDiscriminators": bTagDiscriminatorsForAK4,
     "minPtFastjet" : 0.,
-  }, 
-  { 
+  },
+  {
     "jet" : "ak8pf",
     "enabled" : False,
     "inputCollection" : "",
@@ -210,7 +210,7 @@ CALOJETVARS = cms.PSet(P4Vars,
 #
 #
 # Reco Jets related functions
-# 
+#
 #
 #******************************************
 def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
@@ -219,7 +219,7 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
   """
 
   isPUPPIJet = True if "Puppi" in jetName else False
-  
+
   looseJetId = "looseJetId{}".format(jetName)
   setattr(proc, looseJetId, proc.looseJetId.clone(
       src = jetSrc,
@@ -237,7 +237,7 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
       ),
     )
   )
-  
+
   tightJetIdLepVeto = "tightJetIdLepVeto{}".format(jetName)
   setattr(proc, tightJetIdLepVeto, proc.tightJetIdLepVeto.clone(
       src = jetSrc,
@@ -255,10 +255,10 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
     modifier.toModify(getattr(proc, tightJetIdLepVeto).filterParams, version = "WINTER17{}".format("PUPPI" if isPUPPIJet else ""))
   run2_nanoAOD_102Xv1.toModify(getattr(proc, tightJetId).filterParams, version = "SUMMER18{}".format("PUPPI" if isPUPPIJet else "") )
   run2_nanoAOD_102Xv1.toModify(getattr(proc, tightJetIdLepVeto).filterParams, version = "SUMMER18{}".format("PUPPI" if isPUPPIJet else "") )
-  
+
   #
   # Save variables as userInts in each jet
-  # 
+  #
   patJetWithUserData = "{}WithUserData".format(jetSrc)
   getattr(proc, patJetWithUserData).userInts.tightId = cms.InputTag(tightJetId)
   getattr(proc, patJetWithUserData).userInts.tightIdLepVeto = cms.InputTag(tightJetIdLepVeto)
@@ -275,7 +275,7 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
 
   getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, jetSrc))+1, getattr(proc, tightJetId))
   getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, tightJetId))+1, getattr(proc, tightJetIdLepVeto))
-  
+
   setattr(proc,"_"+jetSequenceName+"_2016", getattr(proc,jetSequenceName).copy())
   getattr(proc,"_"+jetSequenceName+"_2016").insert(getattr(proc, "_"+jetSequenceName+"_2016").index(getattr(proc, tightJetId)), getattr(proc, looseJetId))
   for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
@@ -315,7 +315,7 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetSequence
 
   #
   # Save variables as userFloats and userInts for each jet
-  # 
+  #
   patJetWithUserData = "{}WithUserData".format(jetSrc)
   getattr(proc,patJetWithUserData).userFloats.puId_dR2Mean  = cms.InputTag("{}:dR2Mean".format(puJetIDVar))
   getattr(proc,patJetWithUserData).userFloats.puId_majW     = cms.InputTag("{}:majW".format(puJetIDVar))
@@ -366,7 +366,7 @@ def AddQGLTaggerVars(proc, jetName="", jetSrc="", jetTableName="", jetSequenceNa
 
   #
   # Save variables as userFloats and userInts for each jet
-  # 
+  #
   getattr(proc,patJetWithUserData).userFloats.qgl_axis2 = cms.InputTag(QGLTagger+":axis2")
   getattr(proc,patJetWithUserData).userFloats.qgl_ptD   = cms.InputTag(QGLTagger+":ptD")
   getattr(proc,patJetWithUserData).userInts.qgl_mult    = cms.InputTag(QGLTagger+":mult")
@@ -473,7 +473,7 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
       jetCorrFactorsSource = [jetCorrFactors],
     )
   )
-   
+
   #
   # Setup UserDataEmbedder
   #
@@ -484,7 +484,7 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
       userInts = cms.PSet(),
     )
   )
-  
+
   #
   # Filter jets with pt cut
   #
@@ -563,7 +563,7 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
 
   jetTableSequenceMCName = "jet{}MCTablesSequence".format(jetName)
   setattr(proc, jetTableSequenceMCName, cms.Sequence(getattr(proc,jetMCTable)))
-  
+
   if runOnMC:
     proc.nanoSequenceMC += getattr(proc,jetSequenceName)
     proc.nanoSequenceMC += getattr(proc,jetTableSequenceName)
@@ -581,7 +581,7 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
       proc = AddPileUpJetIDVars(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetSequenceName=jetSequenceName)
     if doQGL:
       proc = AddQGLTaggerVars(proc,jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetSequenceName=jetSequenceName, calculateQGLVars=True)
-  
+
   #
   # Save b-tagging algorithm scores. Should only be done for jet collection with b-tagging
   # calculated when reclustered or collection saved with b-tagging info in MiniAOD
@@ -596,15 +596,15 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
 def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   """
   Recluster AK4 CHS jets and replace slimmedJets
-  that is used as default to save AK4 CHS jets 
-  in NanoAODs.  
+  that is used as default to save AK4 CHS jets
+  in NanoAODs.
   """
   print("custom_jme_cff::ReclusterAK4CHSJets: Recluster AK4 PF CHS jets")
 
   #
   # Recluster AK4 CHS jets
   #
-  cfg = { 
+  cfg = {
     "jet" : "ak4pfchs",
     "inputCollection" : "",
     "genJetsCollection": "AK4GenJetsNoNu",
@@ -615,11 +615,11 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
 
   jetName = recoJetInfo.jetUpper
   patJetFinalColl = recoJetInfo.patJetFinalCollection
-  
+
   #
   # Change the input jet source for jetCorrFactorsNano
   # and updatedJets
-  # 
+  #
   proc.jetCorrFactorsNano.src=patJetFinalColl
   proc.updatedJets.jetSource=patJetFinalColl
 
@@ -683,8 +683,7 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.updatedJetsWithUserData.userInts.puId80XfullId = cms.InputTag('pileupJetId80X:fullId')
   proc.updatedJetsWithUserData.userFloats.puId80XDisc = cms.InputTag("pileupJetId80X:fullDiscriminant")
 
-  run2_jme_2016.toModify(proc.jetTable.variables, puIdDisc = Var("userFloat('puId80XDisc')",float,doc="Pilup ID discriminant with 80X (2016) training",precision=10))
-  run2_jme_2016.toModify(proc.jetTable.variables, puId = Var("userInt('puId80XfullId')",int,doc="Pileup ID flags with 80X (2016) training"))
+  run2_nanoAOD_94X2016.toModify(proc.jetTable.variables, puIdDisc = Var("userFloat('puId80XDisc')",float,doc="Pilup ID discriminant with 80X (2016) training",precision=10))
 
   for modifier in run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
     modifier.toModify(proc.jetTable.variables, puId = Var("userInt('puId80XfullId')", int, doc="Pileup ID flags with 80X (2016) training"))
@@ -702,7 +701,7 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #
   # Add variables for pileup jet ID studies.
   #
-  proc = AddPileUpJetIDVars(proc, 
+  proc = AddPileUpJetIDVars(proc,
     jetName = "",
     jetSrc = "updatedJets",
     jetTableName = "jetTable",
@@ -859,7 +858,7 @@ def AddVariablesForAK8PuppiJets(proc):
 #
 #
 # Gen Jets related functions
-# 
+#
 #
 #******************************************
 def AddNewGenJets(proc, genJetInfo):
@@ -933,8 +932,8 @@ def ReclusterAK4GenJets(proc, genJA):
   #
   # Recluster AK4 Gen jet
   #
-  cfg = { 
-    "jet" : "ak4gen",   
+  cfg = {
+    "jet" : "ak4gen",
   }
   genJetInfo = genJA.addGenJetCollection(proc, **cfg)
 
@@ -1096,7 +1095,7 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   ###########################################################################
   if runOnMC:
     process.genWeightsTable.keepAllPSWeights = True
-  
+
   return process
 
 def PrepJMECustomNanoAOD_MC(process):
