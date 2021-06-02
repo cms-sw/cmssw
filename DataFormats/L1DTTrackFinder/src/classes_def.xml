@@ -16,6 +16,9 @@
  <class name="L1Phase2MuDTPhDigi" ClassVersion="3">
   <version ClassVersion="3" checksum="1236020577"/>
  </class>
+ <class name="L1Phase2MuDTExtPhDigi"/>
+ <class name="L1Phase2MuDTThDigi"/>
+ <class name="L1Phase2MuDTExtThDigi"/>
 
  <class name="std::vector<L1MuDTChambPhDigi>"/>
  <class name="std::vector<L1MuDTChambThDigi>"/>
