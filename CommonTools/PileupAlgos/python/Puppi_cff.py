@@ -99,10 +99,12 @@ phase2_common.toModify(
     )
 )
 
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(puppi, algos = [])
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toModify(puppi,useVertexAssociation = False) # because the association is only run on cleandParticleFlow
+
 puppiNoLep = puppi.clone(
     puppiNoLep = True,
     PtMaxPhotons = 20.
     )
-
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(puppi, algos = [])
