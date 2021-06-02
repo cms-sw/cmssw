@@ -1,9 +1,9 @@
-#ifndef SiPixelPhase1Barycenter_SiPixelPhase1Barycenter_h
-#define SiPixelPhase1Barycenter_SiPixelPhase1Barycenter_h
+#ifndef DQM_SiPixelPhase1Summary_SiPixelBarycenter_h
+#define DQM_SiPixelPhase1Summary_SiPixelBarycenter_h
 // -*- C++ -*-
 //
-// Package:     SiPixelPhase1Barycenter
-// Class  :     SiPixelPhase1Barycenter
+// Package:     SiPixelPhase1Summary
+// Class  :     SiPixelBarycenter
 //
 /**
 
@@ -31,10 +31,10 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 
-class SiPixelPhase1Barycenter : public DQMEDHarvester {
+class SiPixelBarycenter : public DQMEDHarvester {
 public:
-  explicit SiPixelPhase1Barycenter(const edm::ParameterSet& conf);
-  ~SiPixelPhase1Barycenter() override;
+  explicit SiPixelBarycenter(const edm::ParameterSet& conf);
+  ~SiPixelBarycenter() override;
 
 protected:
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
