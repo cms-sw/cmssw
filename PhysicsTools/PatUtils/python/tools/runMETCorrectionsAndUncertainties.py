@@ -1606,7 +1606,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process, "primaryVertexAssociationJME"+postfix).particles = pfCandCollection
                 getattr(process, "pfPileUpJME"+postfix).PFCandidates = "tmpPFCandCollPtr"+postfix
                 getattr(process, "pfNoPileUpJME"+postfix).bottomCollection = "tmpPFCandCollPtr"+postfix
-                getattr(process, "pfNoPileUpJME"+postfix).vertexAssociation = 'primaryVertexAssociationJME'+postfix+':original'
+                getattr(process, "pfPileUpJME"+postfix).vertexAssociation = 'primaryVertexAssociationJME'+postfix+':original'
                 pfCandColl = "pfNoPileUpJME"+postfix
                 patMetModuleSequence += getattr(process, "tmpPFCandCollPtr"+postfix)
                 patMetModuleSequence += getattr(process, "pfNoPileUpJME"+postfix)
