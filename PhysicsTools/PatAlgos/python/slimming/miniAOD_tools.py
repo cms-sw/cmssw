@@ -552,17 +552,13 @@ def miniAOD_customizeCommon(process):
     process.load("RecoEgamma.EgammaTools.slimmedEgammaFromMultiCl_cff")
     phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaFromMultiClTask))
 
-    # L1 pre-firing weights for 2016, 2017, and 2018
+    # L1 pre-firing weights for 2016 and 2017
     from Configuration.Eras.Modifier_run2_L1prefiring_cff import run2_L1prefiring
     from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
     from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-    from Configuration.Eras.Modifier_stage2L1Trigger_2018_cff import stage2L1Trigger_2018
-    from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
     process.load("PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff")
-    (stage1L1Trigger & tracker_apv_vfp30_2016).toModify(process.prefiringweight, DataEraECAL = "UL2016preVFP", DataEraMuon = "2016preVFP" )
-    (stage1L1Trigger & ~tracker_apv_vfp30_2016).toModify(process.prefiringweight, DataEraECAL = "UL2016postVFP", DataEraMuon = "2016postVFP" )
-    stage2L1Trigger_2017.toModify(process.prefiringweight, DataEraECAL = "UL2017BtoF", DataEraMuon = "20172018")
-    stage2L1Trigger_2018.toModify(process.prefiringweight, DataEraECAL = "None", DataEraMuon = "20172018")
+    stage1L1Trigger.toModify(process.prefiringweight, DataEraECAL = "2016BtoH", DoMuons = cms.bool(False) )
+    stage2L1Trigger_2017.toModify(process.prefiringweight, DataEraECAL = "2017BtoF", DoMuons = cms.bool(False))
     run2_L1prefiring.toModify(task, func=lambda t: t.add(process.prefiringweight))
 
 def miniAOD_customizeMC(process):
