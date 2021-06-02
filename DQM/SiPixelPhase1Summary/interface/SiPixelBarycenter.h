@@ -45,15 +45,20 @@ protected:
                              edm::EventSetup const& c) override;
   void dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) override;
 
-private:  
+private:
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> alignmentToken_;
+  const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
+
   std::map<std::string, MonitorElement*> barycenters_;
 
   //book the barycenter histograms
   void bookBarycenterHistograms(DQMStore::IBooker& iBooker);
-  
-  //fill the barycenter histograms
-  void fillBarycenterHistograms(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, const std::vector<AlignTransform>& input, const std::vector<AlignTransform>& GPR);
 
+  //fill the barycenter histograms
+  void fillBarycenterHistograms(DQMStore::IBooker& iBooker,
+                                DQMStore::IGetter& iGetter,
+                                const std::vector<AlignTransform>& input,
+                                const std::vector<AlignTransform>& GPR);
 };
 
 #endif

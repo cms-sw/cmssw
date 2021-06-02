@@ -27,9 +27,10 @@ using namespace std;
 using namespace edm;
 
 SiPixelBarycenter::SiPixelBarycenter(const edm::ParameterSet& iConfig)
-    : DQMEDHarvester(iConfig) {
+    : DQMEDHarvester(iConfig),
+      alignmentToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
+      gprToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
   LogInfo("PixelDQM") << "SiPixelBarycenter::SiPixelBarycenter: Got DQM BackEnd interface" << endl;
-
 }
 
 SiPixelBarycenter::~SiPixelBarycenter() {
@@ -43,21 +44,15 @@ void SiPixelBarycenter::beginRun(edm::Run const& run, edm::EventSetup const& eSe
 void SiPixelBarycenter::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {}
 
 void SiPixelBarycenter::dqmEndLuminosityBlock(DQMStore::IBooker& iBooker,
-                                                 DQMStore::IGetter& iGetter,
-                                                 const edm::LuminosityBlock& lumiSeg,
-                                                 edm::EventSetup const& c) {
-                                                   
-  
+                                              DQMStore::IGetter& iGetter,
+                                              const edm::LuminosityBlock& lumiSeg,
+                                              edm::EventSetup const& c) {
   bookBarycenterHistograms(iBooker);
-  
-  edm::ESHandle<Alignments> alignment_Handle;
-  c.get<TrackerAlignmentRcd>().get(alignment_Handle);
-  
-  edm::ESHandle<Alignments> gpr_Handle;
-  c.get<GlobalPositionRcd>().get(gpr_Handle);
-    
-  fillBarycenterHistograms(iBooker, iGetter,alignment_Handle->m_align,gpr_Handle->m_align);
 
+  const Alignments* alignments = &c.getData(alignmentToken_);
+  const Alignments* gpr = &c.getData(gprToken_);
+
+  fillBarycenterHistograms(iBooker, iGetter, alignments->m_align, gpr->m_align);
 }
 //------------------------------------------------------------------
 // Used to book the barycenter histograms
@@ -74,9 +69,9 @@ void SiPixelBarycenter::bookBarycenterHistograms(DQMStore::IBooker& iBooker) {
                        3,
                        0.5,
                        3.5);
-        barycenters_[subdetector]->setBinLabel(1, "x");
-        barycenters_[subdetector]->setBinLabel(2, "y");
-        barycenters_[subdetector]->setBinLabel(3, "z");
+    barycenters_[subdetector]->setBinLabel(1, "x");
+    barycenters_[subdetector]->setBinLabel(2, "y");
+    barycenters_[subdetector]->setBinLabel(3, "z");
   }
 
   //Reset the iBooker
@@ -86,25 +81,30 @@ void SiPixelBarycenter::bookBarycenterHistograms(DQMStore::IBooker& iBooker) {
 //------------------------------------------------------------------
 // Fill the Barycenter histograms
 //------------------------------------------------------------------
-void SiPixelBarycenter::fillBarycenterHistograms(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, const std::vector<AlignTransform>& input, const std::vector<AlignTransform>& GPR) {
-  
+void SiPixelBarycenter::fillBarycenterHistograms(DQMStore::IBooker& iBooker,
+                                                 DQMStore::IGetter& iGetter,
+                                                 const std::vector<AlignTransform>& input,
+                                                 const std::vector<AlignTransform>& GPR) {
   const auto GPR_translation_pixel = GPR[0].translation();
-  const std::map<DQMBarycenter::coordinate, float> GPR_pixel = {{DQMBarycenter::t_x, GPR_translation_pixel.x()}, {DQMBarycenter::t_y, GPR_translation_pixel.y()}, {DQMBarycenter::t_z, GPR_translation_pixel.z()}};
-  
+  const std::map<DQMBarycenter::coordinate, float> GPR_pixel = {{DQMBarycenter::t_x, GPR_translation_pixel.x()},
+                                                                {DQMBarycenter::t_y, GPR_translation_pixel.y()},
+                                                                {DQMBarycenter::t_z, GPR_translation_pixel.z()}};
+
   DQMBarycenter::TkAlBarycenters barycenters;
-  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath());
+  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+      edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath());
   barycenters.computeBarycenters(input, tTopo, GPR_pixel);
-  
+
   auto Xbarycenters = barycenters.getX();
   auto Ybarycenters = barycenters.getY();
   auto Zbarycenters = barycenters.getZ();
-  
+
   //Fill histogram for each subdetector
   std::vector<std::string> subdetectors = {"BPIX", "FPIXm", "FPIXp"};
-  for(std::size_t i = 0; i < subdetectors.size(); ++i) {
-    barycenters_[subdetectors[i]]->setBinContent(1,Xbarycenters[i]);
-    barycenters_[subdetectors[i]]->setBinContent(2,Ybarycenters[i]);
-    barycenters_[subdetectors[i]]->setBinContent(3,Zbarycenters[i]);
+  for (std::size_t i = 0; i < subdetectors.size(); ++i) {
+    barycenters_[subdetectors[i]]->setBinContent(1, Xbarycenters[i]);
+    barycenters_[subdetectors[i]]->setBinContent(2, Ybarycenters[i]);
+    barycenters_[subdetectors[i]]->setBinContent(3, Zbarycenters[i]);
   }
 }
 
