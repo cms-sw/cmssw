@@ -18,7 +18,6 @@
 #include "DQM/SiPixelPhase1Summary/interface/SiPixelBarycenter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiPixelPhase1Summary/interface/SiPixelBarycenterHelper.h"
-#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <string>
 #include <iostream>
@@ -29,7 +28,8 @@ using namespace edm;
 SiPixelBarycenter::SiPixelBarycenter(const edm::ParameterSet& iConfig)
     : DQMEDHarvester(iConfig),
       alignmentToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
-      gprToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
+      gprToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
+      trackerTopologyToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
   LogInfo("PixelDQM") << "SiPixelBarycenter::SiPixelBarycenter: Got DQM BackEnd interface" << endl;
 }
 
@@ -51,8 +51,9 @@ void SiPixelBarycenter::dqmEndLuminosityBlock(DQMStore::IBooker& iBooker,
 
   const Alignments* alignments = &c.getData(alignmentToken_);
   const Alignments* gpr = &c.getData(gprToken_);
+  const TrackerTopology* tTopo = &c.getData(trackerTopologyToken_);
 
-  fillBarycenterHistograms(iBooker, iGetter, alignments->m_align, gpr->m_align);
+  fillBarycenterHistograms(iBooker, iGetter, alignments->m_align, gpr->m_align, *tTopo);
 }
 //------------------------------------------------------------------
 // Used to book the barycenter histograms
@@ -84,15 +85,14 @@ void SiPixelBarycenter::bookBarycenterHistograms(DQMStore::IBooker& iBooker) {
 void SiPixelBarycenter::fillBarycenterHistograms(DQMStore::IBooker& iBooker,
                                                  DQMStore::IGetter& iGetter,
                                                  const std::vector<AlignTransform>& input,
-                                                 const std::vector<AlignTransform>& GPR) {
+                                                 const std::vector<AlignTransform>& GPR,
+                                                 const TrackerTopology& tTopo) {
   const auto GPR_translation_pixel = GPR[0].translation();
   const std::map<DQMBarycenter::coordinate, float> GPR_pixel = {{DQMBarycenter::t_x, GPR_translation_pixel.x()},
                                                                 {DQMBarycenter::t_y, GPR_translation_pixel.y()},
                                                                 {DQMBarycenter::t_z, GPR_translation_pixel.z()}};
 
   DQMBarycenter::TkAlBarycenters barycenters;
-  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-      edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath());
   barycenters.computeBarycenters(input, tTopo, GPR_pixel);
 
   auto Xbarycenters = barycenters.getX();

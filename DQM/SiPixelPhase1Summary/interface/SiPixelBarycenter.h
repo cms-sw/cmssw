@@ -31,6 +31,9 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 class SiPixelBarycenter : public DQMEDHarvester {
 public:
   explicit SiPixelBarycenter(const edm::ParameterSet& conf);
@@ -48,6 +51,7 @@ protected:
 private:
   const edm::ESGetToken<Alignments, TrackerAlignmentRcd> alignmentToken_;
   const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
 
   std::map<std::string, MonitorElement*> barycenters_;
 
@@ -58,7 +62,8 @@ private:
   void fillBarycenterHistograms(DQMStore::IBooker& iBooker,
                                 DQMStore::IGetter& iGetter,
                                 const std::vector<AlignTransform>& input,
-                                const std::vector<AlignTransform>& GPR);
+                                const std::vector<AlignTransform>& GPR,
+                                const TrackerTopology& tTopo);
 };
 
 #endif
