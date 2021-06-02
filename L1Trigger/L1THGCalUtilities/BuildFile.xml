@@ -1,6 +1,9 @@
 <use name="FWCore/Framework"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/L1THGCal"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="SimDataFormats/CaloAnalysis"/>
 <export>
   <lib name="1"/>
 </export>
