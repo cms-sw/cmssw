@@ -421,8 +421,8 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     // implementation for advanced (2SL) grouping, no filter required..
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "Fitting 2SL at once ";
-    //mpathanalyzer_->run(iEvent, iEventSetup, muonpaths, outmpaths);
-    mpathanalyzer_->run(iEvent, iEventSetup, filteredmuonpaths, outmpaths);
+    mpathanalyzer_->run(iEvent, iEventSetup, muonpaths, outmpaths);
+    //mpathanalyzer_->run(iEvent, iEventSetup, filteredmuonpaths, outmpaths);
   }
 
 
