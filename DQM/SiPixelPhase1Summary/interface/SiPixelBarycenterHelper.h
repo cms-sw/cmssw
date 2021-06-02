@@ -1,5 +1,5 @@
-#ifndef SiPixelPhase1Barycenter_SiPixelPhase1BarycenterHelper_h
-#define SiPixelPhase1Barycenter_SiPixelPhase1BarycenterHelper_h
+#ifndef DQM_SiPixelPhase1Summary_SiPixelBarycenterHelper_h
+#define DQM_SiPixelPhase1Summary_SiPixelBarycenterHelper_h
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -87,7 +87,7 @@ namespace DQMBarycenter {
   {
     for (const auto& ali : input) {
       if (DetId(ali.rawId()).det() != DetId::Tracker) {
-        edm::LogWarning("SiPixelPhase1Barycenters::computeBarycenters")
+        edm::LogWarning("SiPixelBarycenters::computeBarycenters")
             << "Encountered invalid Tracker DetId:" << ali.rawId() << " " << DetId(ali.rawId()).det()
             << " is different from " << DetId::Tracker << "  - terminating ";
         assert(DetId(ali.rawId()).det() != DetId::Tracker);
