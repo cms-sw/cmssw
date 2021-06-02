@@ -49,7 +49,7 @@ void L1TdeCSCTPGClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter 
 void L1TdeCSCTPGClient::book(DQMStore::IBooker &iBooker) {
   iBooker.setCurrentFolder(monitorDir_);
 
- // do not analyze Run-3 properties in Run-1 and Run-2 eras
+  // do not analyze Run-3 properties in Run-1 and Run-2 eras
   if (!isRun3_) {
     clctVars_.resize(4);
     lctVars_.resize(5);
