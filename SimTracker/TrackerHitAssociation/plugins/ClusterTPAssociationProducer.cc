@@ -53,6 +53,8 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClustersToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
+  bool throwOnMissingCollections_;
+  
 };
 
 ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterSet& cfg)
@@ -69,7 +71,8 @@ ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterS
       phase2OTClustersToken_(consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(
           cfg.getParameter<edm::InputTag>("phase2OTClusterSrc"))),
       trackingParticleToken_(
-          consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))) {
+          consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))),
+      throwOnMissingCollections_(cfg.getParameter<bool>("throwOnMissingCollections")) {
   produces<ClusterTPAssociation>();
 }
 
@@ -85,6 +88,7 @@ void ClusterTPAssociationProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("stripClusterSrc", edm::InputTag("siStripClusters"));
   desc.add<edm::InputTag>("phase2OTClusterSrc", edm::InputTag("siPhase2Clusters"));
   desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.add<bool>("throwOnMissingCollections", true);
   descriptions.add("tpClusterProducerDefault", desc);
 }
 
@@ -92,15 +96,27 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   // Pixel DigiSimLink
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinks;
   //  iEvent.getByLabel(_pixelSimLinkSrc, sipixelSimLinks);
-  iEvent.getByToken(sipixelSimLinksToken_, sipixelSimLinks);
+  auto pixelSimLinksFound = iEvent.getByToken(sipixelSimLinksToken_, sipixelSimLinks);
+  if (not throwOnMissingCollections_ and not pixelSimLinksFound) {
+    auto clusterTPList = std::make_unique<ClusterTPAssociation>();
+    iEvent.put(std::move(clusterTPList));
+  }
 
   // SiStrip DigiSimLink
   edm::Handle<edm::DetSetVector<StripDigiSimLink> > sistripSimLinks;
-  iEvent.getByToken(sistripSimLinksToken_, sistripSimLinks);
+  auto stripSimLinksFound = iEvent.getByToken(sistripSimLinksToken_, sistripSimLinks);
+  if (not throwOnMissingCollections_ and not stripSimLinksFound) {
+    auto clusterTPList = std::make_unique<ClusterTPAssociation>();
+    iEvent.put(std::move(clusterTPList));
+  }
 
   // Phase2 OT DigiSimLink
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinks;
-  iEvent.getByToken(siphase2OTSimLinksToken_, siphase2OTSimLinks);
+  auto phase2OTSimLinksFound = iEvent.getByToken(siphase2OTSimLinksToken_, siphase2OTSimLinks);
+  if (not throwOnMissingCollections_ and not phase2OTSimLinksFound) {
+    auto clusterTPList = std::make_unique<ClusterTPAssociation>();
+    iEvent.put(std::move(clusterTPList));
+  }
 
   // Pixel Cluster
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
@@ -116,7 +132,11 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
   // TrackingParticle
   edm::Handle<TrackingParticleCollection> TPCollectionH;
-  iEvent.getByToken(trackingParticleToken_, TPCollectionH);
+  auto tpFound = iEvent.getByToken(trackingParticleToken_, TPCollectionH);
+  if (not throwOnMissingCollections_ and not tpFound) {
+    auto clusterTPList = std::make_unique<ClusterTPAssociation>();
+    iEvent.put(std::move(clusterTPList));
+  }
 
   auto clusterTPList = std::make_unique<ClusterTPAssociation>(TPCollectionH);
 

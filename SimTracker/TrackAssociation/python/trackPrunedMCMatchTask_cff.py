@@ -8,7 +8,8 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 prunedTpClusterProducer = tpClusterProducer.clone(
     trackingParticleSrc = cms.InputTag("prunedTrackingParticles"),
     pixelSimLinkSrc = cms.InputTag("prunedDigiSimLinks", "siPixel"),
-    stripSimLinkSrc = cms.InputTag("prunedDigiSimLinks", "siStrip")
+    stripSimLinkSrc = cms.InputTag("prunedDigiSimLinks", "siStrip"),
+    throwOnMissingCollections = cms.bool(False)
 )
 
 quickPrunedTrackAssociatorByHits = quickTrackAssociatorByHits.clone(
@@ -19,7 +20,8 @@ prunedTrackMCMatch = cms.EDProducer("MCTrackMatcher",
     trackingParticles = cms.InputTag("prunedTrackingParticles"),
     tracks = cms.InputTag("generalTracks"),
     genParticles = cms.InputTag("genParticles"),
-    associator = cms.string('quickPrunedTrackAssociatorByHits')
+    associator = cms.string('quickPrunedTrackAssociatorByHits'),
+    throwOnMissingTPCollection = cms.bool(False)
 )
 
 trackPrunedMCMatchTask = cms.Task(prunedTpClusterProducer,quickPrunedTrackAssociatorByHits,prunedTrackMCMatch)
