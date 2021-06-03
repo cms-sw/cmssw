@@ -35,7 +35,7 @@
 //
 
 @example_globalstruct Histograms___class__ {
-@example_global  ConcurrentMonitorElement histo_;
+@example_global dqm::reco::MonitorElement* histo_;
 @example_global};
 
 @example_streamclass __class__ : public DQMEDAnalyzer {
@@ -48,7 +48,7 @@ public:
 
 private:
 @example_stream  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-@example_global  void bookHistograms(DQMStore::ConcurrentBooker&,
+@example_global  void bookHistograms(DQMStore::IBooker&,
 @example_global                      edm::Run const&,
 @example_global                      edm::EventSetup const&,
 @example_global                      Histograms___class__&) const override;
@@ -117,11 +117,11 @@ __class__::~__class__() {
 @example_globalvoid __class__::dqmAnalyze(edm::Event const& iEvent,
 @example_global                           edm::EventSetup const& iSetup,
 @example_global                           Histograms___class__ const& histos) const {
-@example_global  foo();
+@example_global  histos.histo_->Fill(1.);
 @example_global}
 @example_global
 
-@example_globalvoid __class__::bookHistograms(DQMStore::ConcurrentBooker& ibook,
+@example_globalvoid __class__::bookHistograms(DQMStore::IBooker& ibook,
 @example_global                               edm::Run const& run,
 @example_global                               edm::EventSetup const& iSetup,
 @example_global                               Histograms___class__& histos) const {
