@@ -68,6 +68,8 @@ namespace pat {
     const double maxDxyForNotReconstructedPrimary_;
     const double maxDxySigForNotReconstructedPrimary_;
     const bool useLegacySetup_;
+    const bool xiSelection_;
+    const double xiMassCut_;
   };
 }  // namespace pat
 
@@ -100,7 +102,9 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig)
                                             .getParameter<double>("maxDxyForNotReconstructedPrimary")),
       maxDxySigForNotReconstructedPrimary_(iConfig.getParameter<edm::ParameterSet>("pvAssignment")
                                                .getParameter<double>("maxDxySigForNotReconstructedPrimary")),
-      useLegacySetup_(iConfig.getParameter<bool>("useLegacySetup")) {
+      useLegacySetup_(iConfig.getParameter<bool>("useLegacySetup")),
+      xiSelection_(iConfig.getParameter<bool>("xiSelection")),
+      xiMassCut_(iConfig.getParameter<double>("xiMassCut")) {
   std::vector<std::string> trkQuals(iConfig.getParameter<std::vector<std::string>>("qualsToAutoAccept"));
   std::transform(
       trkQuals.begin(), trkQuals.end(), std::back_inserter(qualsToAutoAccept_), reco::TrackBase::qualityByName);
@@ -190,10 +194,27 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
     }
   }
   for (const auto& v0 : *lambdas) {
+    double protonCharge = 0;
     for (size_t dIdx = 0; dIdx < v0.numberOfDaughters(); dIdx++) {
       size_t key = (dynamic_cast<const reco::RecoChargedCandidate*>(v0.daughter(dIdx)))->track().key();
       if (trkStatus[key] == TrkStatus::NOTUSED)
         trkStatus[key] = TrkStatus::VTX;
+      protonCharge += v0.daughter(dIdx)->charge() * v0.daughter(dIdx)->momentum().mag2();
+    }
+    if (xiSelection_) {
+      // selecting potential Xi- -> Lambda pi candidates
+      math::XYZTLorentzVector p4Lambda(v0.px(), v0.py(), v0.pz(), sqrt(v0.momentum().mag2() + v0.mass() * v0.mass()));
+
+      for (unsigned int trkIndx = 0; trkIndx < tracks->size(); trkIndx++) {
+        reco::TrackRef trk(tracks, trkIndx);
+        if ((*trk).charge() * protonCharge < 0 || trkStatus[trkIndx] != TrkStatus::NOTUSED)
+          continue;
+
+        math::XYZTLorentzVector p4pi(
+            trk->px(), trk->py(), trk->pz(), sqrt(trk->momentum().mag2() + 0.01947995518));  // pion mass ^2
+        if ((p4Lambda + p4pi).M() < xiMassCut_)
+          trkStatus[trkIndx] = TrkStatus::VTX;  // selecting potential Xi- candidates
+      }
     }
   }
   std::vector<int> mapping(tracks->size(), -1);
