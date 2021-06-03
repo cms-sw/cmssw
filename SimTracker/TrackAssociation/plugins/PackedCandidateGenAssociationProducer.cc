@@ -70,9 +70,7 @@ void PackedCandidateGenAssociationProducer::produce(edm::StreamID,
                                                     edm::Event& iEvent,
                                                     const edm::EventSetup& iSetup) const {
   using namespace edm;
-
-  const auto& trackToGenAssoc = iEvent.get(trackToGenToken_);
-
+  
   const auto& trackToPackedCandidatesAssoc = iEvent.get(trackToPcToken_);
   auto pcCollection = trackToPackedCandidatesAssoc.ref();
 
@@ -84,6 +82,17 @@ void PackedCandidateGenAssociationProducer::produce(edm::StreamID,
   const auto& tracks = iEvent.get(tracksToken_);
 
   auto out = std::make_unique<edm::Association<reco::GenParticleCollection>>(prunedCollection);
+
+  auto trackToGenAssocHandle = iEvent.getHandle(trackToGenToken_);
+  if (not trackToGenAssocHandle.isValid()) {
+    // not track to gen association available, possibly an old AODSIM, or a missing RECOSIM step
+    // early exit with an empty collection to avoid crash
+    iEvent.put(std::move(out));
+    return;
+  }
+  
+  const auto& trackToGenAssoc = *trackToGenAssocHandle;
+  
   Association<reco::GenParticleCollection>::Filler filler(*out);
 
   std::vector<int> indices(pcCollection->size(), -1);

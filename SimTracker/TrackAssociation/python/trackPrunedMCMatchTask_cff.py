@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+
 prunedTpClusterProducer = tpClusterProducer.clone(
     trackingParticleSrc = cms.InputTag("prunedTrackingParticles"),
     pixelSimLinkSrc = cms.InputTag("prunedDigiSimLinks", "siPixel"),
@@ -21,3 +23,14 @@ prunedTrackMCMatch = cms.EDProducer("MCTrackMatcher",
 )
 
 trackPrunedMCMatchTask = cms.Task(prunedTpClusterProducer,quickPrunedTrackAssociatorByHits,prunedTrackMCMatch)
+
+
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(quickTrackAssociatorByHits, quickPrunedTrackAssociatorByHits.clone(
+    useClusterTPAssociation = cms.bool(False),
+    associateStrip = cms.bool(False),
+    associatePixel = cms.bool(False),
+))
+
+fastSim.toModify(trackPrunedMCMatchTask, lambda x: x.remove(prunedTpClusterProducer))
