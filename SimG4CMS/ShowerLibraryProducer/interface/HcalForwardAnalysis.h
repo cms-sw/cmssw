@@ -71,8 +71,8 @@ private:
   void fillEvent();
   void parseDetId(int id, int& tower, int& cell, int& fiber);
   void clear();
+
   edm::Service<TFileService> theFile;
-  //TFile * theFile;
   TTree* theTree;
   int theEventCounter;
   int count;
@@ -84,5 +84,6 @@ private:
   int fiberId[10000];
   std::vector<Photon> thePhotons;
   std::vector<std::string> theNames;
+  bool fillt;
 };
 #endif
