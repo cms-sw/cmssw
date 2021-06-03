@@ -48,5 +48,4 @@ fastSim.toReplaceWith(lowPtGsfElectronSeeds,_fastSim_lowPtGsfElectronSeeds)
 from Configuration.Eras.Modifier_bParking_cff import bParking
 bParking.toModify(lowPtGsfElectronSeeds, 
     ModelThresholds = thresholds("VL"), 
-    MinPtThreshold = 0.5
 )
