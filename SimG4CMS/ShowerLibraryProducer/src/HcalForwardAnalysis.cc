@@ -51,7 +51,8 @@ HcalForwardAnalysis::~HcalForwardAnalysis() {}
 //
 
 void HcalForwardAnalysis::produce(edm::Event& iEvent, const edm::EventSetup&) {
-  if(fillt) fillEvent();
+  if (fillt)
+    fillEvent();
 }
 
 void HcalForwardAnalysis::init() {
@@ -190,17 +191,17 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
     }
   } else {
     edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons(): No Chamber hits are stored";
-    fillt=false;
+    fillt = false;
     return;
   }
   primX = primPosOnSurf.x();
   primY = primPosOnSurf.y();
   primZ = primPosOnSurf.z();
-  if (primZ < 990) {         // there were interactions before HF
+  if (primZ < 990) {  // there were interactions before HF
     edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons(): First interaction before HF";
-    fillt=false;
+    fillt = false;
     return;
-  }     
+  }
   primT = primTimeOnSurf;
   primMomX = primMomDirOnSurf.x();
   primMomY = primMomDirOnSurf.y();
@@ -209,44 +210,44 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
   double theta = primMomDirOnSurf.theta();
   double phi = primMomDirOnSurf.phi();
 
-  // my insert ----------------------------------------------------------------                 
-  double sphi   = sin(phi);
-  double cphi   = cos(phi);
+  // my insert ----------------------------------------------------------------
+  double sphi = sin(phi);
+  double cphi = cos(phi);
   double ctheta = cos(theta);
   double stheta = sin(theta);
 
-  double pex = 0, pey = 0,zv = 0;
-  double xx,yy,zz ;
+  double pex = 0, pey = 0, zv = 0;
+  double xx, yy, zz;
 
   for (unsigned int k = 0; k < LongFiberPhotons.size(); ++k) {
     HFShowerPhoton aPhoton = LongFiberPhotons[k];
     // global coordinates
-    xx =aPhoton.x();
-    yy =aPhoton.y();
-    zz =aPhoton.z();
+    xx = aPhoton.x();
+    yy = aPhoton.y();
+    zz = aPhoton.z();
 
     // local coordinates in rotated to shower axis system and vs shower origin
-    pex = xx*ctheta*cphi + yy*ctheta*sphi - zz*stheta;
-    pey = -xx*sphi + yy*cphi;
-    zv = xx*stheta*cphi + yy*stheta*sphi + zz*ctheta-primZ/ctheta;
+    pex = xx * ctheta * cphi + yy * ctheta * sphi - zz * stheta;
+    pey = -xx * sphi + yy * cphi;
+    zv = xx * stheta * cphi + yy * stheta * sphi + zz * ctheta - primZ / ctheta;
 
     double photonProdTime = aPhoton.t() - primTimeOnSurf;
-    thePhotons.push_back(Photon(1, pex,pey,zv, photonProdTime, aPhoton.lambda()));
+    thePhotons.push_back(Photon(1, pex, pey, zv, photonProdTime, aPhoton.lambda()));
   }
   for (unsigned int k = 0; k < ShortFiberPhotons.size(); ++k) {
     HFShowerPhoton aPhoton = ShortFiberPhotons[k];
     // global coordinates
-    xx =aPhoton.x();
-    yy =aPhoton.y();
-    zz =aPhoton.z();
+    xx = aPhoton.x();
+    yy = aPhoton.y();
+    zz = aPhoton.z();
 
     // local coordinates in rotated to shower axis system and vs shower origin
-    pex = xx*ctheta*cphi + yy*ctheta*sphi - zz*stheta;
-    pey = -xx*sphi + yy*cphi;
-    zv = xx*stheta*cphi + yy*stheta*sphi + zz*ctheta-primZ/ctheta;
+    pex = xx * ctheta * cphi + yy * ctheta * sphi - zz * stheta;
+    pey = -xx * sphi + yy * cphi;
+    zv = xx * stheta * cphi + yy * stheta * sphi + zz * ctheta - primZ / ctheta;
 
     double photonProdTime = aPhoton.t() - primTimeOnSurf;
-    thePhotons.push_back(Photon(2, pex,pey,zv, photonProdTime, aPhoton.lambda()));
+    thePhotons.push_back(Photon(2, pex, pey, zv, photonProdTime, aPhoton.lambda()));
   }
 }
 
