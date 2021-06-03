@@ -8,16 +8,12 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <algorithm>
@@ -146,9 +142,6 @@ const std::vector<LocalPoint> SiPixelQuality::getBadRocPositions(const uint32_t&
         if (myroc->idInDetUnit() == i) {
           LocalPixel::RocRowCol local = {39, 25};  //corresponding to center of ROC row, col
           GlobalPixel global = myroc->toGlobal(LocalPixel(local));
-          //       edm::ESHandle<TrackerGeometry> geom;
-          //     es.get<TrackerDigiGeometryRecord>().get( geom );
-          //    const TrackerGeometry& theTracker(*geom);
           const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detid));
 
           PixelTopology const* topology = &(theGeomDet->specificTopology());
