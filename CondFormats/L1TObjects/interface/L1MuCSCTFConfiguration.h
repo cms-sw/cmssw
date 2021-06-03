@@ -4,7 +4,6 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 class L1MuCSCTFConfiguration {
 private:
@@ -13,7 +12,11 @@ private:
 public:
   const std::string* configAsText(void) const throw() { return registers; }
 
-  edm::ParameterSet parameters(int sp) const;
+  using const_iterator = const std::string*;
+  const_iterator begin() const { return registers; }
+  const_iterator end() const { return registers + 12; }
+
+  const std::string& operator[](int iIndex) const { return registers[iIndex]; }
 
   L1MuCSCTFConfiguration& operator=(const L1MuCSCTFConfiguration& conf) {
     for (int sp = 0; sp < 12; sp++)
