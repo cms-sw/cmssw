@@ -61,15 +61,12 @@ private:
   const double maxrapcut;
   const double minphicut;
   const double maxphicut;
-
-  //const int status;
-  std::vector<int> motherIDs;
-  const int sisterID;
-  //const int processID;
-
   const double betaBoost;
+
+  std::vector<int> motherIDs;
+  const int sisterID;   
   const double maxSisDisplacement;
-  const double minTrackPt;
-  const double minLeptonPt;
+  std::vector<int> nephewIDs;
+  std::vector<double> minNephewPts;
 };
 #endif

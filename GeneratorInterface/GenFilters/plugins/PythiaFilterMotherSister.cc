@@ -22,13 +22,17 @@ PythiaFilterMotherSister::PythiaFilterMotherSister(const edm::ParameterSet& iCon
       maxrapcut(iConfig.getUntrackedParameter("MaxRapidity", 20.)),
       minphicut(iConfig.getUntrackedParameter("MinPhi", -3.5)),
       maxphicut(iConfig.getUntrackedParameter("MaxPhi", 3.5)),
+      betaBoost(iConfig.getUntrackedParameter("BetaBoost", 0.)),
       motherIDs(iConfig.getUntrackedParameter("MotherIDs", std::vector<int>{0})),
       sisterID(iConfig.getUntrackedParameter("SisterID", 0)),
-      betaBoost(iConfig.getUntrackedParameter("BetaBoost", 0.)),
       maxSisDisplacement(iConfig.getUntrackedParameter("MaxSisterDisplacement", -1.)),
-      minTrackPt(iConfig.getUntrackedParameter("MinTrackPt", 0.)),
-      minLeptonPt(iConfig.getUntrackedParameter("MinLeptonPt", 0.)) {
-  //now do what ever initialization is needed
+      nephewIDs(iConfig.getUntrackedParameter("NephewIDs", std::vector<int>{0})),
+      minNephewPts(iConfig.getUntrackedParameter("MinNephewPts", std::vector<double>{0.}))
+{
+   if (nephewIDs.size() != minNephewPts.size()) {
+     throw cms::Exception("BadConfig") << "PythiaFilterMotherSister: "
+                                       << "'nephewIDs' and 'minNephewPts' need same length.";
+   }
 }
 
 PythiaFilterMotherSister::~PythiaFilterMotherSister() {
@@ -68,20 +72,18 @@ bool PythiaFilterMotherSister::filter(edm::StreamID, edm::Event& iEvent, const e
                ++dau) {
             // find the daugther you're interested in
             if (abs((*dau)->pdg_id()) == abs(sisterID)) {
-              int failTrackPt = 0;
-              int failLeptonPt = 0;
+              int failNephewPt = 0;
               // check pt of the nephews
               for (HepMC::GenVertex::particle_iterator nephew = (*dau)->end_vertex()->particles_begin(HepMC::children);
                    nephew != (*dau)->end_vertex()->particles_end(HepMC::children);
                    ++nephew) {
                 int nephew_pdgId = abs((*nephew)->pdg_id());
-                if (minLeptonPt > 0. and (nephew_pdgId == 11 or nephew_pdgId == 13 or nephew_pdgId == 15))
-                  failLeptonPt += ((*nephew)->momentum().perp() < minLeptonPt);
-                if (minTrackPt > 0. and nephew_pdgId == 211)
-                  failTrackPt += ((*nephew)->momentum().perp() < minTrackPt);
+                for (unsigned int i = 0; i < nephewIDs.size(); i++) {
+                   if(nephew_pdgId == abs(nephewIDs.at(i)))
+                     failNephewPt += ((*nephew)->momentum().perp() < minNephewPts.at(i));
+                }
               }
-              if (failLeptonPt > 0 or failTrackPt > 0)
-                return false;
+              if (failNephewPt > 0) return false;
               // calculate displacement of the sister particle, from production to decay
               HepMC::GenVertex* v1 = (*dau)->production_vertex();
               HepMC::GenVertex* v2 = (*dau)->end_vertex();
