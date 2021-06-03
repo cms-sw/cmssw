@@ -101,10 +101,10 @@ bool PythiaFilterMotherSister::filter(edm::StreamID, edm::Event& iEvent, const e
 
                  for(unsigned int i=0; i<nephewIDs.size(); i++){ 
                    if(nephew_pdgId == abs(nephewIDs.at(i))) 
-                     failNephewPt = ((*nephew)->momentum().perp() < minNephewPts.at(i));
+                     failNephewPt += ((*nephew)->momentum().perp() < minNephewPts.at(i));
                  }
                }
-               if(failNephewPt) return false;
+               if(failNephewPt > 0) return false;
  
                // calculate displacement of the sister particle, from production to decay
                HepMC::GenVertex* v1   = (*dau)->production_vertex();
