@@ -748,7 +748,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     sigmatmtdOrigTrkRaw.push_back(sigmatmtdMap);
     assocOrigTrkRaw.push_back(iMap);
 
-    if ( iMap == -1 ) {
+    if (iMap == -1) {
       btlMatchChi2.push_back(-1.);
       etlMatchChi2.push_back(-1.);
       btlMatchTimeChi2.push_back(-1.);

@@ -126,8 +126,15 @@ void MTDTrackQualityMVAProducer::produce(edm::Event& ev, const edm::EventSetup& 
     if (pathLength[trackref] == -1.)
       mvaOutRaw.push_back(-1.);
     else {
-      mvaOutRaw.push_back(mva_(
-          trackref, npixBarrel, npixEndcap, btlMatchChi2, btlMatchTimeChi2, etlMatchChi2, etlMatchTimeChi2, mtdTime, pathLength));
+      mvaOutRaw.push_back(mva_(trackref,
+                               npixBarrel,
+                               npixEndcap,
+                               btlMatchChi2,
+                               btlMatchTimeChi2,
+                               etlMatchChi2,
+                               etlMatchTimeChi2,
+                               mtdTime,
+                               pathLength));
     }
   }
   fillValueMap(ev, tracksH, mvaOutRaw, mvaName);
