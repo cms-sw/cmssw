@@ -27,7 +27,7 @@ L1TdeCSCTPGClient::L1TdeCSCTPGClient(const edm::ParameterSet &ps)
       alctMaxBin_(ps.getParameter<std::vector<double>>("alctMaxBin")),
       clctMaxBin_(ps.getParameter<std::vector<double>>("clctMaxBin")),
       lctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")),
-      b904Setup_(ps.getParameter<bool>("B904Setup")),
+      B904Setup_(ps.getParameter<bool>("B904Setup")),
       isRun3_(ps.getParameter<bool>("isRun3")) {}
 
 L1TdeCSCTPGClient::~L1TdeCSCTPGClient() {}
@@ -55,8 +55,8 @@ void L1TdeCSCTPGClient::book(DQMStore::IBooker &iBooker) {
     lctVars_.resize(5);
   }
 
-  // remove the non-ME1/1 chambers from the list when b904Setup is set to true
-  if (b904Setup_) {
+  // remove the non-ME1/1 chambers from the list when B904Setup is set to true
+  if (B904Setup_) {
     chambers_.resize(1);
   }
   // do not analyze the 1/4-strip bit, 1/8-strip bit

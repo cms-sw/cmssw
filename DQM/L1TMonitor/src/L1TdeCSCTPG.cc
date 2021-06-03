@@ -29,7 +29,7 @@ L1TdeCSCTPG::L1TdeCSCTPG(const edm::ParameterSet& ps)
       alctMaxBin_(ps.getParameter<std::vector<double>>("alctMaxBin")),
       clctMaxBin_(ps.getParameter<std::vector<double>>("clctMaxBin")),
       lctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")),
-      b904Setup_(ps.getParameter<bool>("B904Setup")),
+      B904Setup_(ps.getParameter<bool>("B904Setup")),
       isRun3_(ps.getParameter<bool>("isRun3")) {}
 
 L1TdeCSCTPG::~L1TdeCSCTPG() {}
@@ -43,8 +43,8 @@ void L1TdeCSCTPG::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&, co
     lctVars_.resize(5);
   }
 
-  // remove the non-ME1/1 chambers from the list when b904Setup is set to true
-  if (b904Setup_) {
+  // remove the non-ME1/1 chambers from the list when B904Setup is set to true
+  if (B904Setup_) {
     chambers_.resize(1);
   }
   // do not analyze the 1/4-strip bit, 1/8-strip bit
@@ -110,7 +110,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = dataALCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 2;
     // ignore non-ME1/1 chambers when using B904 test-stand data
-    if (b904Setup_ and !((*it).first).isME11())
+    if (B904Setup_ and !((*it).first).isME11())
       continue;
     for (auto alct = range.first; alct != range.second; alct++) {
       if (alct->isValid()) {
@@ -125,7 +125,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = emulALCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 2;
     // ignore non-ME1/1 chambers when using B904 test-stand data
-    if (b904Setup_ and !((*it).first).isME11())
+    if (B904Setup_ and !((*it).first).isME11())
       continue;
     for (auto alct = range.first; alct != range.second; alct++) {
       if (alct->isValid()) {
@@ -140,7 +140,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = dataCLCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 2;
     // ignore non-ME1/1 chambers when using B904 test-stand data
-    if (b904Setup_ and !((*it).first).isME11())
+    if (B904Setup_ and !((*it).first).isME11())
       continue;
     for (auto clct = range.first; clct != range.second; clct++) {
       if (clct->isValid()) {
@@ -154,7 +154,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
           chamberHistos[type]["clct_eighthstrip_data"]->Fill(clct->getKeyStrip(8));
           chamberHistos[type]["clct_slope_data"]->Fill(clct->getSlope());
           chamberHistos[type]["clct_compcode_data"]->Fill(clct->getCompCode());
-          if (b904Setup_) {
+          if (B904Setup_) {
             chamberHistos[type]["clct_quartstripbit_data"]->Fill(clct->getQuartStripBit());
             chamberHistos[type]["clct_eighthstripbit_data"]->Fill(clct->getEighthStripBit());
           }
@@ -167,7 +167,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = emulCLCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 2;
     // ignore non-ME1/1 chambers when using B904 test-stand data
-    if (b904Setup_ and !((*it).first).isME11())
+    if (B904Setup_ and !((*it).first).isME11())
       continue;
     for (auto clct = range.first; clct != range.second; clct++) {
       if (clct->isValid()) {
@@ -181,7 +181,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
           chamberHistos[type]["clct_eighthstrip_emul"]->Fill(clct->getKeyStrip(8));
           chamberHistos[type]["clct_slope_emul"]->Fill(clct->getSlope());
           chamberHistos[type]["clct_compcode_emul"]->Fill(clct->getCompCode());
-          if (b904Setup_) {
+          if (B904Setup_) {
             chamberHistos[type]["clct_quartstripbit_emul"]->Fill(clct->getQuartStripBit());
             chamberHistos[type]["clct_eighthstripbit_emul"]->Fill(clct->getEighthStripBit());
           }
@@ -194,11 +194,11 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = dataLCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 2;
     // ignore non-ME1/1 chambers when using B904 test-stand data
-    if (b904Setup_ and !((*it).first).isME11())
+    if (B904Setup_ and !((*it).first).isME11())
       continue;
     for (auto lct = range.first; lct != range.second; lct++) {
       if (lct->isValid()) {
-        chamberHistos[type]["lct_pattern_data"]->Fill(lct->getCLCTPattern());
+        chamberHistos[type]["lct_pattern_data"]->Fill(lct->getPattern());
         chamberHistos[type]["lct_quality_data"]->Fill(lct->getQuality());
         chamberHistos[type]["lct_wiregroup_data"]->Fill(lct->getKeyWG());
         chamberHistos[type]["lct_halfstrip_data"]->Fill(lct->getStrip());
@@ -208,7 +208,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
           chamberHistos[type]["lct_slope_data"]->Fill(lct->getSlope());
           chamberHistos[type]["lct_quartstrip_data"]->Fill(lct->getStrip(4));
           chamberHistos[type]["lct_eighthstrip_data"]->Fill(lct->getStrip(8));
-          if (b904Setup_) {
+          if (B904Setup_) {
             chamberHistos[type]["lct_quartstripbit_data"]->Fill(lct->getQuartStripBit());
             chamberHistos[type]["lct_eighthstripbit_data"]->Fill(lct->getEighthStripBit());
           }
@@ -221,11 +221,11 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = emulLCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 2;
     // ignore non-ME1/1 chambers when using B904 test-stand data
-    if (b904Setup_ and !((*it).first).isME11())
+    if (B904Setup_ and !((*it).first).isME11())
       continue;
     for (auto lct = range.first; lct != range.second; lct++) {
       if (lct->isValid()) {
-        chamberHistos[type]["lct_pattern_emul"]->Fill(lct->getCLCTPattern());
+        chamberHistos[type]["lct_pattern_emul"]->Fill(lct->getPattern());
         chamberHistos[type]["lct_quality_emul"]->Fill(lct->getQuality());
         chamberHistos[type]["lct_wiregroup_emul"]->Fill(lct->getKeyWG());
         chamberHistos[type]["lct_halfstrip_emul"]->Fill(lct->getStrip());
@@ -235,7 +235,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
           chamberHistos[type]["lct_slope_emul"]->Fill(lct->getSlope());
           chamberHistos[type]["lct_quartstrip_emul"]->Fill(lct->getStrip(4));
           chamberHistos[type]["lct_eighthstrip_emul"]->Fill(lct->getStrip(8));
-          if (b904Setup_) {
+          if (B904Setup_) {
             chamberHistos[type]["lct_quartstripbit_emul"]->Fill(lct->getQuartStripBit());
             chamberHistos[type]["lct_eighthstripbit_emul"]->Fill(lct->getEighthStripBit());
           }
