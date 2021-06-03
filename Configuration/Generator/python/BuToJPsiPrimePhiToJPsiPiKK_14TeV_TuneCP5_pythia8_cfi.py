@@ -6,8 +6,6 @@ from Configuration.Generator.PSweightsPythia.PythiaPSweightsSettings_cfi import 
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          comEnergy = cms.double(14000.0),
-                         crossSection = cms.untracked.double(54000000000),
-                         filterEfficiency = cms.untracked.double(3.0e-4),
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
                          maxEventsToPrint = cms.untracked.int32(0),
                          pythiaPylistVerbosity = cms.untracked.int32(0),
