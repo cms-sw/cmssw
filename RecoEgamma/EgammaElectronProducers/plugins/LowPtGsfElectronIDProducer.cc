@@ -178,7 +178,7 @@ void LowPtGsfElectronIDProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("MinPtThreshold", 0.5);
   desc.add<double>("MaxPtThreshold", 15.);
   desc.add<std::string>("Version", "V1");
-  descriptions.add("lowPtGsfElectronID", desc);
+  descriptions.add("defaultLowPtGsfElectronID", desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
