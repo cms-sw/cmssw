@@ -22,7 +22,7 @@ namespace coral {
 
 inline std::string to_lower(const std::string& s) {
   std::string str(s);
-  std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c){ return std::tolower(c); });
+  std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::tolower(c); });
   return str;
 }
 
