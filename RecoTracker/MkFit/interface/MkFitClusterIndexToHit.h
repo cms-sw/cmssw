@@ -9,16 +9,12 @@ class MkFitClusterIndexToHit {
 public:
   MkFitClusterIndexToHit() = default;
 
-  std::vector<TrackingRecHit const *> &pixelHits() { return pixelHits_; }
-  std::vector<TrackingRecHit const *> const &pixelHits() const { return pixelHits_; }
-
-  std::vector<TrackingRecHit const *> &outerHits() { return outerHits_; }
-  std::vector<TrackingRecHit const *> const &outerHits() const { return outerHits_; }
+  std::vector<TrackingRecHit const*>& hits() { return hits_; }
+  std::vector<TrackingRecHit const*> const& hits() const { return hits_; }
 
 private:
   // Indexed by cluster index
-  std::vector<TrackingRecHit const *> pixelHits_;
-  std::vector<TrackingRecHit const *> outerHits_;
+  std::vector<TrackingRecHit const*> hits_;
 };
 
 #endif
