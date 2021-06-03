@@ -1,5 +1,5 @@
-#ifndef DataFormats_HFRecalibration_h
-#define DataFormats_HFRecalibration_h
+#ifndef CalibCalorimetry_HcalAlgos_HFRecalibration_h
+#define CalibCalorimetry_HcalAlgos_HFRecalibration_h
 //
 // Simple class with parameterized function provided by James Wetzel
 // to compansate for darkening of HF QP fibers

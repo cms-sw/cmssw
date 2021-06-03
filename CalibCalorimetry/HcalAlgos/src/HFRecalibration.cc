@@ -5,11 +5,10 @@
 //              evaluated using SimG4CMS/Calo/ HFDarkening
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HFRecalibration.h"
 
 // CMSSW Headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
 
