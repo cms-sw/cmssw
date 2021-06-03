@@ -144,7 +144,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
       if (applyFidCut_ || chkFibre_ < 0 || (r1 <= exp(-p * zFibre) && r2 <= probMax_)) {
         hit.depth = depth;
         hit.time = tSlice + time;
-	// Temporary fix
+        // Temporary fix
         if (!applyFidCut_) {
           hit.wavelength = wavelength[i];
           hit.momentum = momz[i];
@@ -200,8 +200,8 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
   const G4ThreeVector &globalPos = preStepPoint->GetPosition();
   G4String name = preStepPoint->GetTouchable()->GetSolid(0)->GetName();
-  double zb = std::abs(globalPos.z()-zoffset);  		 	     // from beginning of HF
-  double zv = zb - .5*gpar_[1];                  		 	     // from center of HF
+  double zb = std::abs(globalPos.z() - zoffset);  // from beginning of HF
+  double zv = zb - .5 * gpar_[1];                 // from center of HF
   G4ThreeVector localPos = G4ThreeVector(globalPos.x(), globalPos.y(), zv);
   G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformAxis(momentumDir);
   bool ok = true;
@@ -235,10 +235,10 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   if (ok && npe > 0) {
     for (int i = 0; i < npe; ++i) {
       hit.depth = depth;
-//      hit.time = tSlice + time;
-      hit.time = tSlice;     // only shower time, fiber propagation time to be set on reading library
-      hit.wavelength = wavelength[i];  
-      hit.momentum = momz[i];	       
+      //      hit.time = tSlice + time;
+      hit.time = tSlice;  // only shower time, fiber propagation time to be set on reading library
+      hit.wavelength = wavelength[i];
+      hit.momentum = momz[i];
       hit.position = globalPos;
       hits.push_back(hit);
       nHit++;
