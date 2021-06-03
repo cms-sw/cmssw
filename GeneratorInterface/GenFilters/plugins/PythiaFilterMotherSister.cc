@@ -27,12 +27,11 @@ PythiaFilterMotherSister::PythiaFilterMotherSister(const edm::ParameterSet& iCon
       sisterID(iConfig.getUntrackedParameter("SisterID", 0)),
       maxSisDisplacement(iConfig.getUntrackedParameter("MaxSisterDisplacement", -1.)),
       nephewIDs(iConfig.getUntrackedParameter("NephewIDs", std::vector<int>{0})),
-      minNephewPts(iConfig.getUntrackedParameter("MinNephewPts", std::vector<double>{0.}))
-{
-   if (nephewIDs.size() != minNephewPts.size()) {
-     throw cms::Exception("BadConfig") << "PythiaFilterMotherSister: "
-                                       << "'nephewIDs' and 'minNephewPts' need same length.";
-   }
+      minNephewPts(iConfig.getUntrackedParameter("MinNephewPts", std::vector<double>{0.})) {
+  if (nephewIDs.size() != minNephewPts.size()) {
+    throw cms::Exception("BadConfig") << "PythiaFilterMotherSister: "
+                                      << "'nephewIDs' and 'minNephewPts' need same length.";
+  }
 }
 
 PythiaFilterMotherSister::~PythiaFilterMotherSister() {
@@ -79,11 +78,12 @@ bool PythiaFilterMotherSister::filter(edm::StreamID, edm::Event& iEvent, const e
                    ++nephew) {
                 int nephew_pdgId = abs((*nephew)->pdg_id());
                 for (unsigned int i = 0; i < nephewIDs.size(); i++) {
-                   if(nephew_pdgId == abs(nephewIDs.at(i)))
-                     failNephewPt += ((*nephew)->momentum().perp() < minNephewPts.at(i));
+                  if (nephew_pdgId == abs(nephewIDs.at(i)))
+                    failNephewPt += ((*nephew)->momentum().perp() < minNephewPts.at(i));
                 }
               }
-              if (failNephewPt > 0) return false;
+              if (failNephewPt > 0)
+                return false;
               // calculate displacement of the sister particle, from production to decay
               HepMC::GenVertex* v1 = (*dau)->production_vertex();
               HepMC::GenVertex* v2 = (*dau)->end_vertex();
