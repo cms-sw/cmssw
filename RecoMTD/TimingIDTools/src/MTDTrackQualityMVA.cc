@@ -39,11 +39,9 @@ float MTDTrackQualityMVA::operator()(const reco::TrackRef& trk,
     vars.emplace(vars_[int(VarID::numberOfValidPixelBarrelHits)], npixBarrels[trk]);
     vars.emplace(vars_[int(VarID::numberOfValidPixelEndcapHits)], npixEndcaps[trk]);
     vars.emplace(vars_[int(VarID::btlMatchChi2)], btl_chi2s.contains(trk.id()) ? btl_chi2s[trk] : -1);
-    vars.emplace(vars_[int(VarID::btlMatchTimeChi2)],
-                 btl_time_chi2s.contains(trk.id()) ? btl_time_chi2s[trk] : -1);
+    vars.emplace(vars_[int(VarID::btlMatchTimeChi2)], btl_time_chi2s.contains(trk.id()) ? btl_time_chi2s[trk] : -1);
     vars.emplace(vars_[int(VarID::etlMatchChi2)], etl_chi2s.contains(trk.id()) ? etl_chi2s[trk] : -1);
-    vars.emplace(vars_[int(VarID::etlMatchTimeChi2)],
-                 etl_time_chi2s.contains(trk.id()) ? etl_time_chi2s[trk] : -1);
+    vars.emplace(vars_[int(VarID::etlMatchTimeChi2)], etl_time_chi2s.contains(trk.id()) ? etl_time_chi2s[trk] : -1);
     vars.emplace(vars_[int(VarID::mtdt)], tmtds[trk]);
     vars.emplace(vars_[int(VarID::path_len)], trk_lengths[trk]);
     return 1. / (1 + sqrt(2 / (1 + mva_->evaluate(vars, false)) - 1));  //return values between 0-1 (probability)
