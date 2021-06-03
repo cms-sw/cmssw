@@ -267,8 +267,8 @@ run2_jme_2016.toModify( jetTable.variables, puIdDisc = Var("userFloat('pileupJet
 run2_jme_2016.toModify( jetTable.variables, puId = Var("userInt('pileupJetId:fullId')",int,doc="Pileup ID flags for pre-UL trainings"))
 (run2_jme_2016 & ~tracker_apv_vfp30_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( jetTable.variables, puId = Var("userInt('puId106XUL16Id')",int,doc="Pileup ID flags with 106X (2016) training"))
 (run2_jme_2016 & ~tracker_apv_vfp30_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( jetTable.variables, puIdDisc = Var("userFloat('puId106XUL16Disc')",float,doc="Pileup ID discriminant with 106X (2016) training",precision=10))
-(run2_jme_2016 & tracker_apv_vfp30_2016 ).toModify( jetTable.variables, puId = Var("userInt('puId106XUL16APVId')",int,doc="Pileup ID flags with 106X (2016APV) training"))
-(run2_jme_2016 & tracker_apv_vfp30_2016 ).toModify( jetTable.variables, puIdDisc = Var("userFloat('puId106XUL16APVDisc')",float,doc="Pileup ID discriminant with 106X (2016APV) training",precision=10))
+(run2_jme_2016 & tracker_apv_vfp30_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( jetTable.variables, puId = Var("userInt('puId106XUL16APVId')",int,doc="Pileup ID flags with 106X (2016APV) training"))
+(run2_jme_2016 & tracker_apv_vfp30_2016 & (run2_nanoAOD_106Xv2 | run2_miniAOD_devel)).toModify( jetTable.variables, puIdDisc = Var("userFloat('puId106XUL16APVDisc')",float,doc="Pileup ID discriminant with 106X (2016APV) training",precision=10))
 run2_jme_2017.toModify( jetTable.variables, puId = Var("userInt('puId106XUL17Id')", int,doc="Pileup ID flags with 106X (2017) training"))
 run2_jme_2017.toModify( jetTable.variables, puIdDisc = Var("userFloat('puId106XUL17Disc')", float,doc="Pileup ID discriminant with 106X (2017) training",precision=10))
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
