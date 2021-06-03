@@ -64,7 +64,7 @@ private:
   const double betaBoost;
 
   std::vector<int> motherIDs;
-  const int sisterID;   
+  const int sisterID;
   const double maxSisDisplacement;
   std::vector<int> nephewIDs;
   std::vector<double> minNephewPts;
