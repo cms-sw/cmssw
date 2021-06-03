@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <TTree.h>
-#include "FWCore/Framework/interface/EventForOutput.h"
+#include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -22,7 +22,7 @@ public:
 
   /// Fill the current table, if extensions == table.extension().
   /// This parameter is used so that the fill is called first for non-extensions and then for extensions
-  void fill(const edm::EventForOutput &iEvent, TTree &tree, bool extensions);
+  void fill(const edm::OccurrenceForOutput &iWhatever, TTree &tree, bool extensions);
 
 private:
   edm::EDGetToken m_token;
@@ -44,6 +44,8 @@ private:
   std::vector<NamedBranchPtr> m_floatBranches;
   std::vector<NamedBranchPtr> m_intBranches;
   std::vector<NamedBranchPtr> m_uint8Branches;
+  std::vector<NamedBranchPtr> m_uint32Branches;
+  std::vector<NamedBranchPtr> m_doubleBranches;
   bool m_branchesBooked;
 
   template <typename T>

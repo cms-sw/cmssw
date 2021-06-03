@@ -126,6 +126,7 @@ private:
 
   std::vector<SummaryTableOutputBranches> m_runTables;
   std::vector<SummaryTableOutputBranches> m_lumiTables;
+  std::vector<TableOutputBranches> m_runFlatTables;
 
   std::vector<std::pair<std::string, edm::EDGetToken>> m_nanoMetadata;
 };
@@ -243,6 +244,11 @@ void NanoAODOutputModule::writeRun(edm::RunForOutput const& iRun) {
   for (auto& t : m_runTables)
     t.fill(iRun, *m_runTree);
 
+  for (unsigned int extensions = 0; extensions <= 1; ++extensions) {
+    for (auto& t : m_runFlatTables)
+      t.fill(iRun, *m_runTree, extensions);
+  }
+
   edm::Handle<nanoaod::UniqueString> hstring;
   for (const auto& p : m_nanoMetadata) {
     iRun.getByToken(p.second, hstring);
@@ -293,6 +299,7 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
   m_evstrings.clear();
   m_runTables.clear();
   m_lumiTables.clear();
+  m_runFlatTables.clear();
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InEvent]) {
     if (keep.first->className() == "nanoaod::FlatTable")
@@ -322,6 +329,8 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
       m_runTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
     else if (keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
       m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
+    else if (keep.first->className() == "nanoaod::FlatTable")
+      m_runFlatTables.emplace_back(keep.first, keep.second);
     else
       throw cms::Exception("Configuration",
                            "NanoAODOutputModule cannot handle class " + keep.first->className() + " in Run branch");
