@@ -16,6 +16,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 l1tdeGEMTPG = DQMEDAnalyzer(
     "L1TdeGEMTPG",
     l1tdeGEMTPGCommon,
-    data = cms.InputTag("emtfStage2Digis"),
+    data = cms.InputTag("valMuonGEMPadDigiClusters"),
     emul = cms.InputTag("valMuonGEMPadDigiClusters"),
 )
