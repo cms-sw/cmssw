@@ -9,12 +9,19 @@
 #include "TrackerInfo.h"
 #include "mkFit/IterationConfig.h"
 
+namespace {
+  bool isPlusSide(const TrackerTopology& ttopo, DetId detid) {
+    return ttopo.side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap);
+  }
+}  // namespace
+
 MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
                              const GeometricSearchTracker& tracker,
                              const TrackerTopology& ttopo,
                              std::unique_ptr<mkfit::TrackerInfo> trackerInfo,
                              std::unique_ptr<mkfit::IterationsInfo> iterationsInfo)
-    : lnc_{std::make_unique<mkfit::LayerNumberConverter>(mkfit::TkLayout::phase1)},
+    : ttopo_(&ttopo),
+      lnc_{std::make_unique<mkfit::LayerNumberConverter>(mkfit::TkLayout::phase1)},
       trackerInfo_(std::move(trackerInfo)),
       iterationsInfo_(std::move(iterationsInfo)) {
   if (geom.numberOfLayers(PixelSubdetector::PixelBarrel) != 4 ||
@@ -24,12 +31,8 @@ MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
 
   // Create DetLayer structure
   dets_.resize(lnc_->nLayers(), nullptr);
-  auto isPlusSide = [&ttopo](const DetId& detid) {
-    return ttopo.side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap);
-  };
-  auto setDet = [this, &isPlusSide](
-                    const int subdet, const int layer, const int isStereo, const DetId& detId, const DetLayer* lay) {
-    const int index = lnc_->convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detId));
+  auto setDet = [this](const int subdet, const int layer, const int isStereo, const DetId& detId, const DetLayer* lay) {
+    const int index = lnc_->convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(*ttopo_, detId));
     if (index < 0 or static_cast<unsigned>(index) >= dets_.size()) {
       throw cms::Exception("LogicError") << "Invalid mkFit layer index " << index << " for DetId " << detId.rawId()
                                          << " subdet " << subdet << " layer " << layer << " isStereo " << isStereo;
@@ -60,8 +63,7 @@ MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
   // Create "short id" aka "unique id within layer"
   detIdToShortId_.resize(lnc_->nLayers());
   for (const auto& detId : geom.detIds()) {
-    const auto ilay =
-        lnc_->convertLayerNumber(detId.subdetId(), ttopo.layer(detId), false, ttopo.isStereo(detId), isPlusSide(detId));
+    const auto ilay = mkFitLayerNumber(detId);
     auto& map = detIdToShortId_[ilay];
     const unsigned int ind = map.size();
     // Make sure the short id fits in the 12 bits...
@@ -73,3 +75,8 @@ MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
 // Explicit out-of-line because of the mkfit::LayerNumberConverter is
 // only forward declared in the header
 MkFitGeometry::~MkFitGeometry() {}
+
+int MkFitGeometry::mkFitLayerNumber(DetId detId) const {
+  return lnc_->convertLayerNumber(
+      detId.subdetId(), ttopo_->layer(detId), false, ttopo_->isStereo(detId), isPlusSide(*ttopo_, detId));
+}

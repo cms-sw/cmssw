@@ -195,7 +195,7 @@ lowPtQuadStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
 )
 trackingMkFitLowPtQuadStep.toReplaceWith(lowPtQuadStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
     seeds = 'lowPtQuadStepSeeds',
-    mkfitSeeds = 'lowPtQuadStepTrackCandidatesMkFitSeeds',
+    mkFitSeeds = 'lowPtQuadStepTrackCandidatesMkFitSeeds',
     tracks = 'lowPtQuadStepTrackCandidatesMkFit',
 ))
 

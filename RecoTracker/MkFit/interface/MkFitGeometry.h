@@ -1,6 +1,8 @@
 #ifndef RecoTracker_MkFit_MkFitGeometry_h
 #define RecoTracker_MkFit_MkFitGeometry_h
 
+#include "DataFormats/DetId/interface/DetId.h"
+
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -28,6 +30,7 @@ public:
                          std::unique_ptr<mkfit::IterationsInfo> iterationsInfo);
   ~MkFitGeometry();
 
+  int mkFitLayerNumber(DetId detId) const;
   mkfit::LayerNumberConverter const& layerNumberConverter() const { return *lnc_; }
   mkfit::TrackerInfo const& trackerInfo() const { return *trackerInfo_; }
   mkfit::IterationsInfo const& iterationsInfo() const { return *iterationsInfo_; }
@@ -35,6 +38,7 @@ public:
   unsigned int uniqueIdInLayer(int layer, unsigned int detId) const { return detIdToShortId_.at(layer).at(detId); }
 
 private:
+  const TrackerTopology* ttopo_;
   std::unique_ptr<mkfit::LayerNumberConverter> lnc_;  // for pimpl pattern
   std::unique_ptr<mkfit::TrackerInfo> trackerInfo_;
   std::unique_ptr<mkfit::IterationsInfo> iterationsInfo_;  // only temporarily here, to be moved into proper place later

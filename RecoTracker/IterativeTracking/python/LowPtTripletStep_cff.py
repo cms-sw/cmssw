@@ -261,7 +261,7 @@ lowPtTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
 )
 trackingMkFitLowPtTripletStep.toReplaceWith(lowPtTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
     seeds = 'lowPtTripletStepSeeds',
-    mkfitSeeds = 'lowPtTripletStepTrackCandidatesMkFitSeeds',
+    mkFitSeeds = 'lowPtTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'lowPtTripletStepTrackCandidatesMkFit',
 ))
 

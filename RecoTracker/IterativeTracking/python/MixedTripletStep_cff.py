@@ -311,7 +311,7 @@ mixedTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
 )
 trackingMkFitMixedTripletStep.toReplaceWith(mixedTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
     seeds = 'mixedTripletStepSeeds',
-    mkfitSeeds = 'mixedTripletStepTrackCandidatesMkFitSeeds',
+    mkFitSeeds = 'mixedTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'mixedTripletStepTrackCandidatesMkFit',
 ))
 

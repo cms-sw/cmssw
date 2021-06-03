@@ -233,7 +233,7 @@ detachedTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
 )
 trackingMkFitDetachedTripletStep.toReplaceWith(detachedTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
     seeds = 'detachedTripletStepSeeds',
-    mkfitSeeds = 'detachedTripletStepTrackCandidatesMkFitSeeds',
+    mkFitSeeds = 'detachedTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'detachedTripletStepTrackCandidatesMkFit',
 ))
 

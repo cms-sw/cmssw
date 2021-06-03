@@ -304,7 +304,7 @@ pixelLessStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
 )
 trackingMkFitPixelLessStep.toReplaceWith(pixelLessStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
     seeds = 'pixelLessStepSeeds',
-    mkfitSeeds = 'pixelLessStepTrackCandidatesMkFitSeeds',
+    mkFitSeeds = 'pixelLessStepTrackCandidatesMkFitSeeds',
     tracks = 'pixelLessStepTrackCandidatesMkFit',
 ))
 
