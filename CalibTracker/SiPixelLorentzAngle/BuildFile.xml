@@ -11,5 +11,6 @@
 <use name="DQMServices/Core"/>
 <use name="CondFormats/SiPixelObjects"/>
 <use name="CondFormats/SiPixelTransient"/>
+<use name="CondCore/DBOutputService"/>
 <use name="root"/>
 <use name="clhep"/>
