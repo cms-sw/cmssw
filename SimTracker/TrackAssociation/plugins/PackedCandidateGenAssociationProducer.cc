@@ -70,7 +70,7 @@ void PackedCandidateGenAssociationProducer::produce(edm::StreamID,
                                                     edm::Event& iEvent,
                                                     const edm::EventSetup& iSetup) const {
   using namespace edm;
-  
+
   const auto& trackToPackedCandidatesAssoc = iEvent.get(trackToPcToken_);
   auto pcCollection = trackToPackedCandidatesAssoc.ref();
 
@@ -90,9 +90,9 @@ void PackedCandidateGenAssociationProducer::produce(edm::StreamID,
     iEvent.put(std::move(out));
     return;
   }
-  
+
   const auto& trackToGenAssoc = *trackToGenAssocHandle;
-  
+
   Association<reco::GenParticleCollection>::Filler filler(*out);
 
   std::vector<int> indices(pcCollection->size(), -1);
