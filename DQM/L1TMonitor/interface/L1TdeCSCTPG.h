@@ -53,7 +53,7 @@ private:
     the Building 904 CSC test-stand. This test-stand is a single
     ME1/1 chamber.
   */
-  bool b904Setup_;
+  bool B904Setup_;
 
   bool isRun3_;
 
