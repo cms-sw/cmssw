@@ -29,8 +29,8 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -43,15 +43,15 @@
 class HcalHBHEMuonSimAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HcalHBHEMuonSimAnalyzer(const edm::ParameterSet&);
-  ~HcalHBHEMuonSimAnalyzer();
+  ~HcalHBHEMuonSimAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void beginJob() override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
   void clearVectors();
@@ -70,12 +70,14 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> tok_SimVtx_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEB_, tok_caloEE_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloHH_;
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hdcons_;
+
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
-  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+
+  const HcalDDDRecConstants* hcons_;
 
   static const int depthMax_ = 7;
   const int idMuon_ = 13;
@@ -117,20 +119,17 @@ HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfi
     maxDepth_ = depthMax_;
   else if (maxDepth_ < 1)
     maxDepth_ = 4;
-#ifdef EDM_ML_DEBUG
-  std::cout << "Labels: " << g4Label_ << ":" << ebLabel_ << ":" << eeLabel_ << ":" << hcLabel_ << "\nVerbosity "
-            << verbosity_ << " MaxDepth " << maxDepth_ << " Maximum Eta " << etaMax_ << " tMin|tMax " << tMinE_ << ":"
-            << tMaxE_ << ":" << tMinH_ << ":" << tMaxH_ << std::endl;
-#endif
-  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_hdcons_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_topo_ = esConsumes<CaloTopology, CaloTopologyRecord>();
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
-}
 
-HcalHBHEMuonSimAnalyzer::~HcalHBHEMuonSimAnalyzer() {}
+  edm::LogVerbatim("HBHEMuon") << "Labels: " << g4Label_ << ":" << ebLabel_ << ":" << eeLabel_ << ":" << hcLabel_
+                               << "\nVerbosity " << verbosity_ << " MaxDepth " << maxDepth_ << " Maximum Eta "
+                               << etaMax_ << " tMin|tMax " << tMinE_ << ":" << tMaxE_ << ":" << tMinH_ << ":" << tMaxH_;
+
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+}
 
 void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   clearVectors();
@@ -138,11 +137,6 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 #ifdef EDM_ML_DEBUG
   debug = ((verbosity_ / 10) > 0);
 #endif
-  // depthHE is the first depth index for HE for |ieta| = 16
-  // It used to be 3 for all runs preceding 2017 and 4 beyond that
-  int depthHE = (maxDepth_ <= 6) ? 3 : 4;
-
-  const HcalDDDRecConstants* hcons = &iSetup.getData(tok_hdcons_);
 
   runNumber_ = iEvent.id().run();
   eventNumber_ = iEvent.id().event();
@@ -177,9 +171,9 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   if (testN) {
     for (edm::PCaloHitContainer::const_iterator itr = pcalohh->begin(); itr != pcalohh->end(); ++itr) {
       PCaloHit hit(*itr);
-      DetId newid = HcalHitRelabeller::relabel(hit.id(), hcons);
+      DetId newid = HcalHitRelabeller::relabel(hit.id(), hcons_);
 #ifdef EDM_ML_DEBUG
-      std::cout << "Old ID " << std::hex << hit.id() << std::dec << " New " << HcalDetId(newid) << std::endl;
+      edm::LogVerbatim("HBHEMuon") << "Old ID " << std::hex << hit.id() << std::dec << " New " << HcalDetId(newid);
 #endif
       hit.setID(newid.rawId());
       calohh.push_back(hit);
@@ -191,8 +185,8 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   // get handles to calogeometry and calotopology
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const MagneticField* bField = &iSetup.getData(tok_magField_);
-  const CaloTopology* caloTopology = &iSetup.getData(tok_topo_);
-  const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
+  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology* theHBHETopology = &iSetup.getData(tok_topo_);
 
   // Loop over all SimTracks
   for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
@@ -211,12 +205,13 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
 #ifdef EDM_ML_DEBUG
       if ((verbosity_ % 10) > 0)
-        std::cout << "Track Type " << simTrkItr->type() << " Vertex " << simTrkItr->vertIndex() << " Charge "
-                  << simTrkItr->charge() << " Momentum " << simTrkItr->momentum().P() << ":"
-                  << simTrkItr->momentum().eta() << ":" << simTrkItr->momentum().phi() << " ECAL|HCAL " << trkD.okECAL
-                  << ":" << trkD.okHCAL << " Point " << trkD.pointECAL << ":" << trkD.pointHCAL << " Direction "
-                  << trkD.directionECAL.eta() << ":" << trkD.directionECAL.phi() << " | " << trkD.directionHCAL.eta()
-                  << ":" << trkD.directionHCAL.phi() << std::endl;
+        edm::LogVerbatim("HBHEMuon") << "Track Type " << simTrkItr->type() << " Vertex " << simTrkItr->vertIndex()
+                                     << " Charge " << simTrkItr->charge() << " Momentum " << simTrkItr->momentum().P()
+                                     << ":" << simTrkItr->momentum().eta() << ":" << simTrkItr->momentum().phi()
+                                     << " ECAL|HCAL " << trkD.okECAL << ":" << trkD.okHCAL << " Point "
+                                     << trkD.pointECAL << ":" << trkD.pointHCAL << " Direction "
+                                     << trkD.directionECAL.eta() << ":" << trkD.directionECAL.phi() << " | "
+                                     << trkD.directionHCAL.eta() << ":" << trkD.directionHCAL.phi();
 #endif
       bool propageback(false);
       spr::propagatedTrackDirection trkD_back = spr::propagateHCALBack(thisTrk, SimTk, SimVtx, geo, bField, debug);
@@ -234,11 +229,10 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         pMuon_.push_back(tkvx.momentum.mag());
 #ifdef EDM_ML_DEBUG
         if ((verbosity_ % 10) > 0)
-          std::cout << "Track at vertex " << tkvx.ok << " position " << tkvx.position << " Momentum "
-                    << tkvx.momentum.mag() << ":" << tkvx.momentum.eta() << ":" << tkvx.momentum.phi() << " Charge "
-                    << tkvx.charge << std::endl;
+          edm::LogVerbatim("HBHEMuon") << "Track at vertex " << tkvx.ok << " position " << tkvx.position << " Momentum "
+                                       << tkvx.momentum.mag() << ":" << tkvx.momentum.eta() << ":"
+                                       << tkvx.momentum.phi() << " Charge " << tkvx.charge;
 #endif
-
         // Energy in ECAL
         DetId isoCell;
         if (trkD.okECAL) {
@@ -257,16 +251,27 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
             theHBHETopology, closestCell, calohh, 0, 0, false, -100.0, -100.0, -100.0, -100.0, tMinH_, tMaxH_, debug);
 #ifdef EDM_ML_DEBUG
         if ((verbosity_ % 10) > 0)
-          std::cout << "eEcal " << trkD.okECAL << ":" << eEcal << " eHcal " << eHcal << std::endl;
+          edm::LogVerbatim("HBHEMuon") << "eEcal " << trkD.okECAL << ":" << eEcal << " eHcal " << eHcal;
 #endif
-
         HcalSubdetector subdet = HcalDetId(closestCell).subdet();
         int ieta = HcalDetId(closestCell).ieta();
         int iphi = HcalDetId(closestCell).iphi();
+        int zside = HcalDetId(closestCell).zside();
         bool hbhe = (std::abs(ieta) == 16);
+        int depthHE = hcons_->getMinDepth(1, 16, iphi, zside);
         std::vector<std::pair<double, int> > ehdepth;
-        spr::energyHCALCell(
-            (HcalDetId)closestCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, debug);
+        spr::energyHCALCell((HcalDetId)closestCell,
+                            calohh,
+                            ehdepth,
+                            maxDepth_,
+                            -100.0,
+                            -100.0,
+                            -100.0,
+                            -100.0,
+                            -500.0,
+                            500.0,
+                            depthHE,
+                            debug);
         for (unsigned int i = 0; i < ehdepth.size(); ++i) {
           eHcalDepth[ehdepth[i].second - 1] = ehdepth[i].first;
           HcalSubdetector subdet0 = (hbhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
@@ -276,31 +281,26 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
           activeLengthTot += actL;
 #ifdef EDM_ML_DEBUG
           if ((verbosity_ % 10) > 0)
-            std::cout << hcid0 << " E " << ehdepth[i].first << " L " << actL << std::endl;
+            edm::LogVerbatim("HBHEMuon") << hcid0 << " E " << ehdepth[i].first << " L " << actL;
 #endif
         }
 
         HcalDetId hotCell;
-#ifdef EDM_ML_DEBUG
-        double h3x3 =
-#endif
-            spr::eHCALmatrix(geo, theHBHETopology, closestCell, calohh, 1, 1, hotCell, debug);
+        double h3x3 = spr::eHCALmatrix(geo, theHBHETopology, closestCell, calohh, 1, 1, hotCell, debug);
         isHot = matchId(closestCell, hotCell);
-#ifdef EDM_ML_DEBUG
         if ((verbosity_ % 10) > 0)
-          std::cout << "hcal 3X3  < " << h3x3 << ">"
-                    << " ClosestCell <" << (HcalDetId)(closestCell) << "> hotCell id < " << hotCell << "> isHot"
-                    << isHot << std::endl;
-#endif
-
+          edm::LogVerbatim("HBHEMuon") << "hcal 3X3  < " << h3x3 << "> ClosestCell <" << (HcalDetId)(closestCell)
+                                       << "> hotCell id < " << hotCell << "> isHot" << isHot;
         if (hotCell != HcalDetId()) {
           subdet = HcalDetId(hotCell).subdet();
           ieta = HcalDetId(hotCell).ieta();
           iphi = HcalDetId(hotCell).iphi();
+          zside = HcalDetId(hotCell).zside();
           hbhe = (std::abs(ieta) == 16);
+          depthHE = hcons_->getMinDepth(1, 16, iphi, zside);
           std::vector<std::pair<double, int> > ehdepth;
           spr::energyHCALCell(
-              hotCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, tMinH_, tMaxH_, debug);
+              hotCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, tMinH_, tMaxH_, depthHE, debug);
           for (unsigned int i = 0; i < ehdepth.size(); ++i) {
             eHcalDepthHot[ehdepth[i].second - 1] = ehdepth[i].first;
             HcalSubdetector subdet0 = (hbhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
@@ -310,14 +310,14 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
             activeLengthHotTot += actL;
 #ifdef EDM_ML_DEBUG
             if ((verbosity_ % 10) > 0)
-              std::cout << hcid0 << " E " << ehdepth[i].first << " L " << actL << std::endl;
+              edm::LogVerbatim("HBHEMuon") << hcid0 << " E " << ehdepth[i].first << " L " << actL;
 #endif
           }
         }
 #ifdef EDM_ML_DEBUG
         if ((verbosity_ % 10) > 0) {
           for (int k = 0; k < depthMax_; ++k)
-            std::cout << "Depth " << k << " E " << eHcalDepth[k] << ":" << eHcalDepthHot[k] << std::endl;
+            edm::LogVerbatim("HBHEMuon") << "Depth " << k << " E " << eHcalDepth[k] << ":" << eHcalDepthHot[k];
         }
 #endif
         matchedId_.push_back(tmpmatch);
@@ -336,7 +336,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       }
     }
   }
-  if (hcalHot_.size() > 0)
+  if (!hcalHot_.empty())
     tree_->Fill();
 }
 
@@ -373,11 +373,11 @@ void HcalHBHEMuonSimAnalyzer::beginJob() {
 }
 
 void HcalHBHEMuonSimAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  const HcalDDDRecConstants& hdc = iSetup.getData(tok_HRNDC_);
+  hcons_ = &iSetup.getData(tok_ddrec_);
   actHB_.clear();
   actHE_.clear();
-  actHB_ = hdc.getThickActive(0);
-  actHE_ = hdc.getThickActive(1);
+  actHB_ = hcons_->getThickActive(0);
+  actHE_ = hcons_->getThickActive(1);
 }
 
 void HcalHBHEMuonSimAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
