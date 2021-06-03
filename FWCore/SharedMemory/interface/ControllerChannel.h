@@ -62,7 +62,9 @@ namespace edm::shared_memory {
 
       if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_))) {
         //std::cout << id_ << " FAILED waiting for external process" << std::endl;
-        throw cms::Exception("ExternalFailed");
+        throw cms::Exception("ExternalFailed")
+            << "Failed waiting for external process while setting up the process. Timed out after " << maxWaitInSeconds_
+            << " seconds.";
       } else {
         //std::cout << id_ << " done waiting for external process" << std::endl;
       }
@@ -103,6 +105,8 @@ namespace edm::shared_memory {
 
     //should only be called after calling `doTransition`
     bool shouldKeepEvent() const { return *keepEvent_; }
+
+    unsigned int maxWaitInSeconds() const { return maxWaitInSeconds_; }
 
   private:
     static BufferInfo* bufferInfo(const char* iWhich, boost::interprocess::managed_shared_memory& mem);
