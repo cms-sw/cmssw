@@ -203,8 +203,7 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
       size_t key = (dynamic_cast<const reco::RecoChargedCandidate*>(v0.daughter(dIdx)))->track().key();
       if (trkStatus[key] == TrkStatus::NOTUSED)
         trkStatus[key] = TrkStatus::VTX;
-      if (xiSelection_)
-        protonCharge += v0.daughter(dIdx)->charge() * v0.daughter(dIdx)->momentum().mag2();
+      protonCharge += v0.daughter(dIdx)->charge() * v0.daughter(dIdx)->momentum().mag2();
     }
     if (xiSelection_) {
       // selecting potential Xi- -> Lambda pi candidates
