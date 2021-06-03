@@ -21,7 +21,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class FEDRawDataCollection;
-class CSCReadoutMappingFromFile;
 class CSCChamberMap;
 
 class CSCDigiToRaw {

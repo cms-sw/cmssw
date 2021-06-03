@@ -38,7 +38,7 @@
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
