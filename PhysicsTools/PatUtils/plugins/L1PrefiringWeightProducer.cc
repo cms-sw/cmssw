@@ -56,25 +56,25 @@ private:
   const edm::EDGetTokenT<std::vector<pat::Jet> > jets_token_;
   const edm::EDGetTokenT<std::vector<pat::Muon> > muon_token_;
 
-  const edm::EDPutTokenT<double> nonPrefiringProbToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbUpToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbDownToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbUpToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbDownToken_;
 
-  const edm::EDPutTokenT<double> nonPrefiringProbJetToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbJetUpToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbJetDownToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbJetToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbJetUpToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbJetDownToken_;
 
-  const edm::EDPutTokenT<double> nonPrefiringProbPhotonToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbPhotonUpToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbPhotonDownToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbPhotonToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbPhotonUpToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbPhotonDownToken_;
 
-  const edm::EDPutTokenT<double> nonPrefiringProbMuonToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbMuonUpToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbMuonDownToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbMuonUpSystToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbMuonDownSystToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbMuonUpStatToken_;
-  const edm::EDPutTokenT<double> nonPrefiringProbMuonDownStatToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbMuonToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbMuonUpToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbMuonDownToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbMuonUpSystToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbMuonDownSystToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbMuonUpStatToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbMuonDownStatToken_;
 
   std::unique_ptr<TFile> file_prefiringmaps_;
   std::unique_ptr<TFile> file_prefiringparams_;
@@ -108,22 +108,22 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
     : photons_token_(consumes<std::vector<pat::Photon> >(iConfig.getParameter<edm::InputTag>("ThePhotons"))),
       jets_token_(consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("TheJets"))),
       muon_token_(consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("TheMuons"))),
-      nonPrefiringProbToken_(produces<double>("nonPrefiringProb")),
-      nonPrefiringProbUpToken_(produces<double>("nonPrefiringProbUp")),
-      nonPrefiringProbDownToken_(produces<double>("nonPrefiringProbDown")),
-      nonPrefiringProbJetToken_(produces<double>("nonPrefiringProbJet")),
-      nonPrefiringProbJetUpToken_(produces<double>("nonPrefiringProbJetUp")),
-      nonPrefiringProbJetDownToken_(produces<double>("nonPrefiringProbJetDown")),
-      nonPrefiringProbPhotonToken_(produces<double>("nonPrefiringProbPhoton")),
-      nonPrefiringProbPhotonUpToken_(produces<double>("nonPrefiringProbPhotonUp")),
-      nonPrefiringProbPhotonDownToken_(produces<double>("nonPrefiringProbPhotonDown")),
-      nonPrefiringProbMuonToken_(produces<double>("nonPrefiringProbMuon")),
-      nonPrefiringProbMuonUpToken_(produces<double>("nonPrefiringProbMuonUp")),
-      nonPrefiringProbMuonDownToken_(produces<double>("nonPrefiringProbMuonDown")),
-      nonPrefiringProbMuonUpSystToken_(produces<double>("nonPrefiringProbMuonSystUp")),
-      nonPrefiringProbMuonDownSystToken_(produces<double>("nonPrefiringProbMuonSystDown")),
-      nonPrefiringProbMuonUpStatToken_(produces<double>("nonPrefiringProbMuonStatUp")),
-      nonPrefiringProbMuonDownStatToken_(produces<double>("nonPrefiringProbMuonStatDown")),
+      nonPrefiringProbToken_(produces<float>("nonPrefiringProb")),
+      nonPrefiringProbUpToken_(produces<float>("nonPrefiringProbUp")),
+      nonPrefiringProbDownToken_(produces<float>("nonPrefiringProbDown")),
+      nonPrefiringProbJetToken_(produces<float>("nonPrefiringProbJet")),
+      nonPrefiringProbJetUpToken_(produces<float>("nonPrefiringProbJetUp")),
+      nonPrefiringProbJetDownToken_(produces<float>("nonPrefiringProbJetDown")),
+      nonPrefiringProbPhotonToken_(produces<float>("nonPrefiringProbPhoton")),
+      nonPrefiringProbPhotonUpToken_(produces<float>("nonPrefiringProbPhotonUp")),
+      nonPrefiringProbPhotonDownToken_(produces<float>("nonPrefiringProbPhotonDown")),
+      nonPrefiringProbMuonToken_(produces<float>("nonPrefiringProbMuon")),
+      nonPrefiringProbMuonUpToken_(produces<float>("nonPrefiringProbMuonUp")),
+      nonPrefiringProbMuonDownToken_(produces<float>("nonPrefiringProbMuonDown")),
+      nonPrefiringProbMuonUpSystToken_(produces<float>("nonPrefiringProbMuonSystUp")),
+      nonPrefiringProbMuonDownSystToken_(produces<float>("nonPrefiringProbMuonSystDown")),
+      nonPrefiringProbMuonUpStatToken_(produces<float>("nonPrefiringProbMuonStatUp")),
+      nonPrefiringProbMuonDownStatToken_(produces<float>("nonPrefiringProbMuonStatDown")),
       dataeraEcal_(iConfig.getParameter<std::string>("DataEraECAL")),
       dataeraMuon_(iConfig.getParameter<std::string>("DataEraMuon")),
       useEMpt_(iConfig.getParameter<bool>("UseJetEMPt")),
