@@ -1,8 +1,9 @@
-#include <L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h>
-#include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "parameters.h"
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cstdlib>
 #include <sstream>
@@ -198,7 +199,7 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c, const Tokens& to
     // Extract from EventSetup alternative (to the one, used in constructor) ParameterSet
     const L1MuCSCTFConfiguration& config = c.getData(tokens.config);
     // And initialize only those parameters, which left uninitialized during construction
-    readParameters(config.parameters((m_endcap - 1) * 6 + (m_sector - 1)));
+    readParameters(parameters(config, (m_endcap - 1) * 6 + (m_sector - 1)));
   }
 
   // ---------------------------------------------------------------------------

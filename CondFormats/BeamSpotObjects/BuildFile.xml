@@ -1,8 +1,6 @@
 <use name="CondFormats/Serialization"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/ParameterSet"/>
 <use name="CondFormats/Common"/>
-<use name="CLHEP"/>
 <export>
   <lib name="1"/>
 </export>

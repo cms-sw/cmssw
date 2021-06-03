@@ -204,9 +204,9 @@ class O2OJobMgr(object):
             self.session.merge(job)
             self.session.commit()
             if fr_val==1:
-                self.logger.info( "Job '%s' set 'frequent'")
+                self.logger.info( "Job '%s' set 'frequent'" %job_name)
             else:
-                self.logger.info( "Job '%s' unset 'frequent'")
+                self.logger.info( "Job '%s' unset 'frequent'" %job_name)
 
     def setConfig( self, job_name, config_filename ):
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
