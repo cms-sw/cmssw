@@ -75,7 +75,7 @@ void TSToSCAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, cons
   Handle<reco::CaloClusterCollection> LCCollection;
   iEvent.getByToken(LCCollectionToken_, LCCollection);
 
-  // associate LC and SC
+  // associate TS and SC
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
   hgcal::RecoToSimCollectionTracksters recSimColl =
       theAssociator->associateRecoToSim(TSCollection, LCCollection, SCCollection);
