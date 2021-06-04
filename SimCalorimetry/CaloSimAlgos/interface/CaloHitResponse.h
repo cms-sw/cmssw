@@ -35,8 +35,8 @@ public:
   typedef std::map<DetId, CaloSamples> AnalogSignalMap;
   // get this from somewhere external
   enum { BUNCHSPACE = 25 };
-  const double dt = 0.5;
-  const int invdt = 2;
+  constexpr static double dt = 0.5;
+  constexpr static int invdt = 2;
 
   CaloHitResponse(const CaloVSimParameterMap *parameterMap, const CaloVShape *shape);
   CaloHitResponse(const CaloVSimParameterMap *parameterMap, const CaloShapes *shapes);

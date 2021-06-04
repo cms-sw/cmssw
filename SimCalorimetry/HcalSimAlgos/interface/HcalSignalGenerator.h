@@ -11,6 +11,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalQIE1011Traits.h"
@@ -115,8 +116,17 @@ private:
     // channels get to fC by just dividing ADC/10; some require special treatment.
 
     // calibration, for future reference:  (same block for all Hcal types)
+    bool storePrecise = true;
     HcalDetId cell = digi.id();
-    CaloSamples result = CaloSamples(cell, digi.size());
+    const CaloSimParameters& parameters = theParameterMap->simParameters(cell);
+    int preciseSize(storePrecise ? parameters.readoutFrameSize() * CaloHitResponse::BUNCHSPACE * CaloHitResponse::invdt
+                                 : 0);
+    CaloSamples result = CaloSamples(cell, digi.size(), preciseSize);
+    if (storePrecise) {
+      result.setPreciseSize(preciseSize);
+      result.setPrecise(result.presamples() * CaloHitResponse::BUNCHSPACE * CaloHitResponse::invdt,
+                        CaloHitResponse::dt);
+    }
 
     // first, check if there was an overflow in this fake digi:
     bool overflow = false;

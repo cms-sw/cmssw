@@ -16,8 +16,16 @@ bool HcalSignalGenerator<HcalQIE10DigitizerTraits>::validDigi(
 template <>
 CaloSamples HcalSignalGenerator<HcalQIE10DigitizerTraits>::samplesInPE(
     const HcalSignalGenerator<HcalQIE10DigitizerTraits>::DIGI& digi) {
+  bool storePrecise = true;
   HcalDetId cell = digi.id();
-  CaloSamples result = CaloSamples(cell, digi.samples());
+  const CaloSimParameters& parameters = theParameterMap->simParameters(cell);
+  int preciseSize(storePrecise ? parameters.readoutFrameSize() * CaloHitResponse::BUNCHSPACE * CaloHitResponse::invdt
+                               : 0);
+  CaloSamples result = CaloSamples(cell, digi.samples(), preciseSize);
+  if (storePrecise) {
+    result.setPreciseSize(preciseSize);
+    result.setPrecise(result.presamples() * CaloHitResponse::BUNCHSPACE * CaloHitResponse::invdt, CaloHitResponse::dt);
+  }
 
   // first, check if there was an overflow in this fake digi:
   bool overflow = false;

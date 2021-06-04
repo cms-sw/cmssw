@@ -1,6 +1,7 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cmath>
+#include <csignal>
 #include <iostream>
 
 CaloSamples::CaloSamples() : id_(), size_(0), presamples_(0), preciseSize_(0), precisePresamples_(0) { setBlank(); }
@@ -51,6 +52,12 @@ CaloSamples &CaloSamples::operator+=(double value) {
 CaloSamples &CaloSamples::operator+=(const CaloSamples &other) {
   if (size_ != other.size_ || presamples_ != other.presamples_ || preciseSize_ != other.preciseSize_) {
     edm::LogError("CaloHitResponse") << "Mismatched calo signals ";
+    DetId id = other.id();
+    if (id.det() == DetId::Detector::Hcal) {
+      std::cout << "this: " << *this << std::endl;
+      std::cout << "other: " << other << std::endl;
+      raise(SIGSEGV);
+    }
   }
   int i;
   for (i = 0; i < size_; ++i) {
