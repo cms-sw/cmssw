@@ -258,7 +258,7 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("endcapSuperClusters",
                           {"particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower"});
 
-  descriptions.add("ecalDrivenElectronSeeds", desc);
+  descriptions.add("ecalDrivenElectronSeedsDefault", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

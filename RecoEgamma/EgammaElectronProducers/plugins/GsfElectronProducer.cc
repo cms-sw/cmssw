@@ -249,7 +249,7 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
           "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_7Feb2014.weights.xml",
       });
 
-  descriptions.add("gsfElectronProducer", desc);
+  descriptions.add("gsfElectronProducerDefault", desc);
 }
 
 namespace {
