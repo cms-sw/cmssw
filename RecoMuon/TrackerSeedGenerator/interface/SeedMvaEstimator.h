@@ -41,16 +41,9 @@ public:
 private:
   std::unique_ptr<const GBRForest> gbrForest_;
 
-  void getL1MuonVariables(const TrajectorySeed&,
-                          GlobalVector,
-                          edm::Handle<l1t::MuonBxCollection>,
-                          int minL1Qual,
-                          float&,
-                          float&) const;
-  void getL2MuonVariables(const TrajectorySeed&,
-                          GlobalVector,
-                          edm::Handle<reco::RecoChargedCandidateCollection>,
-                          float&,
-                          float&) const;
+  void getL1MuonVariables(
+      const TrajectorySeed&, GlobalVector, edm::Handle<l1t::MuonBxCollection>, int minL1Qual, float&, float&) const;
+  void getL2MuonVariables(
+      const TrajectorySeed&, GlobalVector, edm::Handle<reco::RecoChargedCandidateCollection>, float&, float&) const;
 };
 #endif
