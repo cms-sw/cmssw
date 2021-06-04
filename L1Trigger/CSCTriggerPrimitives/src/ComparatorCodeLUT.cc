@@ -83,23 +83,9 @@ void ComparatorCodeLUT::run(CSCCLCTDigi& digi, unsigned numCFEBs) const {
   const int halfstripoffset = std::get<0>(stripoffset);
   halfstrip += halfstripoffset;
 
-  // calculate the new CFEB number
-  int newCFEB = digi.getCFEB();
-
-  // case where key half-strip is on the lower edge of the CFEB
-  if (digi.getStrip() == 0 and halfstripoffset <= -1 and digi.getCFEB() > 0) {
-    newCFEB = digi.getCFEB() - 1;
-  }
-  // case where key half-strip is on the upper edge of the CFEB
-  if (digi.getStrip() == CSCConstants::NUM_HALF_STRIPS_PER_CFEB - 1 and halfstripoffset >= 1 and
-      digi.getCFEB() < numCFEBs) {
-    newCFEB = digi.getCFEB() + 1;
-  }
-
-  digi.setCFEB(newCFEB);
-
-  // store the new 1/2, 1/4 and 1/8 strip positions
-  digi.setStrip(halfstrip - digi.getCFEB() * CSCConstants::NUM_HALF_STRIPS_PER_CFEB);
+  // store the new CFEB, 1/2, 1/4 and 1/8 strip positions
+  digi.setCFEB(halfstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB);
+  digi.setStrip(halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB);
   digi.setQuartStripBit(std::get<1>(stripoffset));
   digi.setEighthStripBit(std::get<2>(stripoffset));
 
