@@ -58,7 +58,7 @@ CSCGEMMatcher::CSCGEMMatcher(
 
 unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const {
   // difference in 1/8-strip number
-  const unsigned diff = std::abs(clct.getKeyStrip(8) - cluster.getKeyStrip(8));
+  const unsigned diff = std::abs(int(clct.getKeyStrip(8)) - int(cluster.getKeyStrip(8)));
 
   unsigned slope = 0;
 
@@ -117,7 +117,8 @@ void CSCGEMMatcher::matchingClustersBX(const CSCALCTDigi& alct,
 
   // select clusters matched in time
   for (const auto& cl : clusters) {
-    if (std::abs(alct.getBX() - cl.bx()) <= maxDeltaBXALCTGEM_)
+    const unsigned diff = std::abs(int(alct.getBX()) - cl.bx());
+    if (diff <= maxDeltaBXALCTGEM_)
       output.push_back(cl);
   }
 }
@@ -131,7 +132,8 @@ void CSCGEMMatcher::matchingClustersBX(const CSCCLCTDigi& clct,
 
   // select clusters matched in time
   for (const auto& cl : clusters) {
-    if (std::abs(clct.getBX() - cl.bx()) <= maxDeltaBXCLCTGEM_)
+    const unsigned diff = std::abs(int(clct.getBX()) - cl.bx());
+    if (diff <= maxDeltaBXCLCTGEM_)
       output.push_back(cl);
   }
 }
@@ -189,7 +191,7 @@ void CSCGEMMatcher::matchingClustersLoc(const CSCCLCTDigi& clct,
 
 // match by 1/2-strip
 bool CSCGEMMatcher::matchedClusterLocHS(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const {
-  const unsigned halfStripDiff = std::abs(clct.getKeyStrip(2) - cluster.getKeyStrip(2));
+  const unsigned halfStripDiff = std::abs(int(clct.getKeyStrip(2)) - int(cluster.getKeyStrip(2)));
   const bool isME1a(station_ == 1 and clct.getKeyStrip() > CSCConstants::MAX_HALF_STRIP_ME1B);
 
   // 98% acceptance cuts
@@ -259,7 +261,7 @@ bool CSCGEMMatcher::matchedClusterLocES(const CSCCLCTDigi& clct, const GEMIntern
   // determine matching window by chamber, assuming facing chambers only are processed
   int window = chamber_ % 2 == 0 ? 20 : 40;
 
-  return abs(clct.getKeyStrip(8) - key_es + SlopeShift) < window;
+  return std::abs(clct.getKeyStrip(8) - key_es + SlopeShift) < window;
 }
 
 void CSCGEMMatcher::matchingClustersLoc(const CSCALCTDigi& alct,
