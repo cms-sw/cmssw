@@ -13,6 +13,20 @@ HGCalSciNoiseMap::HGCalSciNoiseMap()
     ignoreNoise_(false),
     refDarkCurrent_(0.5)
 {
+
+  //number of photo electrons per MIP per scintillator type (irradiated, based on testbeam results)
+  //reference is a 30*30 mm^2 tile and 2 mm^2 SiPM (with 15um pixels), at the 2 V over-voltage
+  //cf https://indico.cern.ch/event/927798/contributions/3900921/attachments/2054679/3444966/2020Jun10_sn_scenes.pdf
+  nPEperMIP_.push_back(40.2);
+  nPEperMIP_.push_back(28.6);
+
+  //full scale charge per gain
+  fscADCPerGain_.push_back(34.375);
+  fscADCPerGain_.push_back(68.75);
+
+  //lsb: adc has 10 bits -> 1024 counts at max ( >0 baseline to be handled)
+  for (auto i : fscADCPerGain_)
+    lsbPerGain_.push_back(i / 1024.);
 }
 
 //
@@ -68,11 +82,10 @@ void HGCalSciNoiseMap::setReferenceDarkCurrent(double idark) {
 }
 
 //
-std::pair<double, double> HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDetId& cellId, const double radius) {
+HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDetId& cellId, const double radius,int aimMIPtoADC, GainRange_t gain) {
 
   int layer = cellId.layer();
   bool hasDoseMap( !(getDoseMap().empty()));
-
 
   //LIGHT YIELD
   double lyScaleFactor(1.f);
@@ -119,7 +132,30 @@ std::pair<double, double> HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDet
   lyScaleFactor *= tileAreaSF*sipmAreaSF;
   noise *= sqrt(sipmAreaSF);
 
-  return std::make_pair(lyScaleFactor, noise);
+  //final signal depending on the type
+  double S( cellId.type()<=1 ? nPEperMIP_[CAST] : nPEperMIP_[MOULDED] );
+  S *= lyScaleFactor;
+
+  //determine gain to be used if required
+  if (gain == GainRange_t::AUTO) {
+    gain = GainRange_t::GAIN_2;
+    std::vector<GainRange_t> orderedGainChoice = {GainRange_t::GAIN_4};
+    for (const auto &igain : orderedGainChoice) {
+      double mipPeakADC(S / lsbPerGain_[igain]);
+      if (mipPeakADC > 1.8*aimMIPtoADC)
+        break;
+      gain = igain;
+    }
+  }
+
+  HGCalSciNoiseMap::SiPMonTileCharacteristics sipmChar;
+  sipmChar.s      = S;
+  sipmChar.lySF   = lyScaleFactor;
+  sipmChar.n      = noise;
+  sipmChar.gain   = gain;
+  sipmChar.thrADC = std::floor(S / 2. / lsbPerGain_[gain] );
+
+  return sipmChar;
 }
 
 //
