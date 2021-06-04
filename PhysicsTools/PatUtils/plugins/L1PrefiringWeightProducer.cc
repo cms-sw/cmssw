@@ -60,13 +60,9 @@ private:
   const edm::EDPutTokenT<float> nonPrefiringProbUpToken_;
   const edm::EDPutTokenT<float> nonPrefiringProbDownToken_;
 
-  const edm::EDPutTokenT<float> nonPrefiringProbJetToken_;
-  const edm::EDPutTokenT<float> nonPrefiringProbJetUpToken_;
-  const edm::EDPutTokenT<float> nonPrefiringProbJetDownToken_;
-
-  const edm::EDPutTokenT<float> nonPrefiringProbPhotonToken_;
-  const edm::EDPutTokenT<float> nonPrefiringProbPhotonUpToken_;
-  const edm::EDPutTokenT<float> nonPrefiringProbPhotonDownToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbECALToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbECALUpToken_;
+  const edm::EDPutTokenT<float> nonPrefiringProbECALDownToken_;
 
   const edm::EDPutTokenT<float> nonPrefiringProbMuonToken_;
   const edm::EDPutTokenT<float> nonPrefiringProbMuonUpToken_;
@@ -111,12 +107,9 @@ L1PrefiringWeightProducer::L1PrefiringWeightProducer(const edm::ParameterSet& iC
       nonPrefiringProbToken_(produces<float>("nonPrefiringProb")),
       nonPrefiringProbUpToken_(produces<float>("nonPrefiringProbUp")),
       nonPrefiringProbDownToken_(produces<float>("nonPrefiringProbDown")),
-      nonPrefiringProbJetToken_(produces<float>("nonPrefiringProbJet")),
-      nonPrefiringProbJetUpToken_(produces<float>("nonPrefiringProbJetUp")),
-      nonPrefiringProbJetDownToken_(produces<float>("nonPrefiringProbJetDown")),
-      nonPrefiringProbPhotonToken_(produces<float>("nonPrefiringProbPhoton")),
-      nonPrefiringProbPhotonUpToken_(produces<float>("nonPrefiringProbPhotonUp")),
-      nonPrefiringProbPhotonDownToken_(produces<float>("nonPrefiringProbPhotonDown")),
+      nonPrefiringProbECALToken_(produces<float>("nonPrefiringProbECAL")),
+      nonPrefiringProbECALUpToken_(produces<float>("nonPrefiringProbECALUp")),
+      nonPrefiringProbECALDownToken_(produces<float>("nonPrefiringProbECALDown")),
       nonPrefiringProbMuonToken_(produces<float>("nonPrefiringProbMuon")),
       nonPrefiringProbMuonUpToken_(produces<float>("nonPrefiringProbMuonUp")),
       nonPrefiringProbMuonDownToken_(produces<float>("nonPrefiringProbMuonDown")),
@@ -227,8 +220,7 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   //Probability for the event NOT to prefire, computed with the prefiring maps per object.
   //Up and down values correspond to the resulting value when shifting up/down all prefiring rates in prefiring maps.
   double nonPrefiringProba[3] = {1., 1., 1.};        //0: central, 1: up, 2: down
-  double nonPrefiringProbaJet[3] = {1., 1., 1.};     //0: central, 1: up, 2: down
-  double nonPrefiringProbaPhoton[3] = {1., 1., 1.};  //0: central, 1: up, 2: down
+  double nonPrefiringProbaECAL[3] = {1., 1., 1.};     //0: central, 1: up, 2: down
   double nonPrefiringProbaMuon[7] = {
       1., 1., 1., 1., 1., 1., 1.};  //0: central, 1: up, 2: down, 3: up stat, 4: down stat, 5: up syst, 6: down syst
 
@@ -244,7 +236,7 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
         if (fabs(eta_gam) > 3.)
           continue;
         double prefiringprob_gam = getPrefiringRateEcal(eta_gam, pt_gam, h_prefmap_photon_, fluct);
-        nonPrefiringProbaPhoton[fluct] *= (1. - prefiringprob_gam);
+        nonPrefiringProbaECAL[fluct] *= (1. - prefiringprob_gam);
       }
 
       //Now applying the prefiring maps to jets in the affected regions.
@@ -286,15 +278,14 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
         double nonprefiringprobfromoverlappingjet = 1. - getPrefiringRateEcal(eta_jet, pt_jet, h_prefmap_jet_, fluct);
 
         if (!foundOverlappingPhotons) {
-          nonPrefiringProbaJet[fluct] *= nonprefiringprobfromoverlappingjet;
+          nonPrefiringProbaECAL[fluct] *= nonprefiringprobfromoverlappingjet;
         }
         //If overlapping photons have a non prefiring rate larger than the jet, then replace these weights by the jet one
         else if (nonprefiringprobfromoverlappingphotons > nonprefiringprobfromoverlappingjet) {
           if (nonprefiringprobfromoverlappingphotons > 0.) {
-            nonPrefiringProbaJet[fluct] *= nonprefiringprobfromoverlappingjet / nonprefiringprobfromoverlappingphotons;
-            nonPrefiringProbaPhoton[fluct] *= 1 / nonprefiringprobfromoverlappingphotons;
+            nonPrefiringProbaECAL[fluct] *= nonprefiringprobfromoverlappingjet / nonprefiringprobfromoverlappingphotons;
           } else {
-            nonPrefiringProbaJet[fluct] = 0.;
+            nonPrefiringProbaECAL[fluct] = 0.;
           }
         }
         //Last case: if overlapping photons have a non prefiring rate smaller than the jet, don't consider the jet in the event weight, and do nothing.
@@ -317,7 +308,7 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   // Calculate combined weight as product of the weight for individual objects
   for (const auto fluct : {fluctuations::central, fluctuations::up, fluctuations::down}) {
     nonPrefiringProba[fluct] =
-        nonPrefiringProbaPhoton[fluct] * nonPrefiringProbaJet[fluct] * nonPrefiringProbaMuon[fluct];
+        nonPrefiringProbaECAL[fluct] * nonPrefiringProbaMuon[fluct];
   }
   // Calculate statistical and systematic uncertainty separately in the muon case
   for (const auto fluct :
@@ -340,13 +331,9 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   iEvent.emplace(nonPrefiringProbUpToken_, nonPrefiringProba[1]);
   iEvent.emplace(nonPrefiringProbDownToken_, nonPrefiringProba[2]);
 
-  iEvent.emplace(nonPrefiringProbJetToken_, nonPrefiringProbaJet[0]);
-  iEvent.emplace(nonPrefiringProbJetUpToken_, nonPrefiringProbaJet[1]);
-  iEvent.emplace(nonPrefiringProbJetDownToken_, nonPrefiringProbaJet[2]);
-
-  iEvent.emplace(nonPrefiringProbPhotonToken_, nonPrefiringProbaPhoton[0]);
-  iEvent.emplace(nonPrefiringProbPhotonUpToken_, nonPrefiringProbaPhoton[1]);
-  iEvent.emplace(nonPrefiringProbPhotonDownToken_, nonPrefiringProbaPhoton[2]);
+  iEvent.emplace(nonPrefiringProbECALToken_, nonPrefiringProbaECAL[0]);
+  iEvent.emplace(nonPrefiringProbECALUpToken_, nonPrefiringProbaECAL[1]);
+  iEvent.emplace(nonPrefiringProbECALDownToken_, nonPrefiringProbaECAL[2]);
 
   iEvent.emplace(nonPrefiringProbMuonToken_, nonPrefiringProbaMuon[0]);
   iEvent.emplace(nonPrefiringProbMuonUpToken_, nonPrefiringProbaMuon[1]);
