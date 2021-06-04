@@ -24,7 +24,9 @@ lostTracks = cms.EDProducer("PATLostTracks",
     allowMuonId = cms.bool(False),
     pvAssignment = primaryVertexAssociation.assignment,
     useLegacySetup = cms.bool(True),
-    fillLostInnerHits = cms.bool(False)
+    fillLostInnerHits = cms.bool(False),
+    xiSelection = cms.bool(False),
+    xiMassCut = cms.double(1.5)
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(lostTracks, covarianceVersion =1 )
@@ -36,4 +38,4 @@ from Configuration.Eras.Modifier_bParking_cff import bParking
 bParking.toModify(lostTracks, fillLostInnerHits = True)
 
 from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-(bParking | run2_miniAOD_devel).toModify(lostTracks, minPtToStoreLowQualityProps = 0.0)
+(bParking | run2_miniAOD_devel).toModify(lostTracks, minPtToStoreLowQualityProps = 0.0, xiSelection = True)
