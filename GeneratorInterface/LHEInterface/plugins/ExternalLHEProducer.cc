@@ -81,7 +81,7 @@ private:
 
   std::vector<std::string> makeArgs(uint32_t nEvents, unsigned int nThreads, std::uint32_t seed) const;
   int closeDescriptors(int preserve) const;
-  void executeScript(std::vector<std::string> const& args, int id) const;
+  void executeScript(std::vector<std::string> const& args, int id, bool isPost) const;
 
   void nextEvent();
   std::unique_ptr<LHERunInfoProduct> generateRunInfo(std::vector<std::string> const& files) const;
@@ -96,6 +96,7 @@ private:
   unsigned int nThreads_{1};
   std::string outputContents_;
   bool generateConcurrently_{false};
+  const std::vector<std::string> postGenerationCommand_;
 
   // Used only if nPartonMapping is in the configuration
   std::map<unsigned, std::pair<unsigned, unsigned>> nPartonMapping_{};
@@ -132,7 +133,8 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig)
       npars_(iConfig.getParameter<uint32_t>("numberOfParameters")),
       nEvents_(iConfig.getUntrackedParameter<uint32_t>("nEvents")),
       storeXML_(iConfig.getUntrackedParameter<bool>("storeXML")),
-      generateConcurrently_(iConfig.getUntrackedParameter<bool>("generateConcurrently")) {
+      generateConcurrently_(iConfig.getUntrackedParameter<bool>("generateConcurrently")),
+      postGenerationCommand_(iConfig.getUntrackedParameter<std::vector<std::string>>("postGenerationCommand")) {
   if (npars_ != args_.size())
     throw cms::Exception("ExternalLHEProducer")
         << "Problem with configuration: " << args_.size() << " script arguments given, expected " << npars_;
@@ -268,7 +270,7 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
             using namespace std::string_literals;
             auto out = path("thread"s + std::to_string(t)) / path(outputFile_);
             infiles[t] = out.native();
-            executeScript(makeArgs(nEvents, 1, seed + t), t);
+            executeScript(makeArgs(nEvents, 1, seed + t), t, false);
           } catch (...) {
             char expected = 0;
             if (exceptSet.compare_exchange_strong(expected, 1)) {
@@ -285,7 +287,18 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
     }
   } else {
     infiles = std::vector<std::string>(1, outputFile_);
-    executeScript(makeArgs(nEvents_, nThreads_, seed), 0);
+    executeScript(makeArgs(nEvents_, nThreads_, seed), 0, false);
+  }
+
+  //run post-generation command if specified
+  if (!postGenerationCommand_.empty()) {
+    std::vector<std::string> postcmd = postGenerationCommand_;
+    try {
+      postcmd[0] = edm::FileInPath(postcmd[0]).fullPath();
+    } catch (const edm::Exception& e) {
+      edm::LogWarning("ExternalLHEProducer") << postcmd[0] << " is not a relative path. Run it as a shell command.";
+    }
+    executeScript(postcmd, 0, true);
   }
 
   //fill LHEXMLProduct (streaming read directly into compressed buffer to save memory)
@@ -421,7 +434,7 @@ int ExternalLHEProducer::closeDescriptors(int preserve) const {
 }
 
 // ------------ Execute the script associated with this producer ------------
-void ExternalLHEProducer::executeScript(std::vector<std::string> const& args, int id) const {
+void ExternalLHEProducer::executeScript(std::vector<std::string> const& args, int id, bool isPost) const {
   // Fork a script, wait until it finishes.
 
   int rc = 0, rc2 = 0;
@@ -441,12 +454,19 @@ void ExternalLHEProducer::executeScript(std::vector<std::string> const& args, in
         << "Failed to set pipe file descriptor flags (errno=" << rc << ", " << strerror(rc) << ")";
   }
 
-  unsigned int argc = 1 + args.size();
+  unsigned int argc_pre = 0;
+  // For generation command the first argument gives to the scriptName
+  if (!isPost) {
+    argc_pre = 1;
+  }
+  unsigned int argc = argc_pre + args.size();
   // TODO: assert that we have a reasonable number of arguments
   char** argv = new char*[argc + 1];
-  argv[0] = strdup(scriptName_.c_str());
-  for (unsigned int i = 1; i < argc; i++) {
-    argv[i] = strdup(args[i - 1].c_str());
+  if (!isPost) {
+    argv[0] = strdup(scriptName_.c_str());
+  }
+  for (unsigned int i = 0; i < args.size(); i++) {
+    argv[argc_pre + i] = strdup(args[i].c_str());
   }
   argv[argc] = nullptr;
 
@@ -454,7 +474,7 @@ void ExternalLHEProducer::executeScript(std::vector<std::string> const& args, in
   if (pid == 0) {
     // The child process
     if (!(rc = closeDescriptors(filedes[1]))) {
-      if (generateConcurrently_) {
+      if (!isPost && generateConcurrently_) {
         using namespace std::filesystem;
         using namespace std::string_literals;
         std::error_code ec;
@@ -532,6 +552,9 @@ void ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.addUntracked<bool>("storeXML", false);
   desc.addUntracked<bool>("generateConcurrently", false)
       ->setComment("If true, run the script concurrently in separate processes.");
+  desc.addUntracked<std::vector<std::string>>("postGenerationCommand", std::vector<std::string>())
+      ->setComment(
+          "Command to run after the generation script has completed. The first argument can be a relative path.");
 
   edm::ParameterSetDescription nPartonMappingDesc;
   nPartonMappingDesc.add<unsigned>("idprup");
