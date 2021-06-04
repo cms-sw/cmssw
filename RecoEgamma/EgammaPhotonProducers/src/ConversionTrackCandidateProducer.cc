@@ -488,7 +488,7 @@ void ConversionTrackCandidateProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<double>("ValidHitBonus", 5.0);
   desc.add<double>("MissingHitPenalty", 20.0);
 
-  descriptions.add("conversionTrackCandidates", desc);
+  descriptions.add("conversionTrackCandidatesDefault", desc);
   // or use the following to generate the label from the module's C++ type
   //descriptions.addWithDefaultLabel(desc);
 }
