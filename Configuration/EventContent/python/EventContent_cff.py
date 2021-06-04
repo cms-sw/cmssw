@@ -332,6 +332,14 @@ RAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 #
+# temporary collections needed for Phase-2 RECO using RAWSIM as input
+#
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(RAWSIMEventContent,
+    outputCommands = RAWSIMEventContent.outputCommands+[
+        'keep *_sim*Digis_*_*',
+        'keep *Phase2TrackerDigi*_*_*_*'])
+#
 #
 # RAWSIMHLT Data Tier definition
 #
