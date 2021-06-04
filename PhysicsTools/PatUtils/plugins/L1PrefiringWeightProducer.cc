@@ -294,21 +294,22 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
         else if (nonprefiringprobfromoverlappingphotons > nonprefiringprobfromoverlappingjet) {
           if (nonprefiringprobfromoverlappingphotons > 0.) {
             nonPrefiringProbaJet[fluct] *= nonprefiringprobfromoverlappingjet / nonprefiringprobfromoverlappingphotons;
+            nonPrefiringProbaPhoton[fluct] *= 1 / nonprefiringprobfromoverlappingphotons;
           } else {
             nonPrefiringProbaJet[fluct] = 0.;
           }
         }
         //Last case: if overlapping photons have a non prefiring rate smaller than the jet, don't consider the jet in the event weight, and do nothing.
       }
-    } 
+    }
     //Now calculate prefiring weights for muons
-     if (!missingInputMuon_ && doMuons_) {
+    if (!missingInputMuon_ && doMuons_) {
       for (const auto& muon : theMuons) {
         double pt = muon.pt();
         double phi = muon.phi();
         double eta = muon.eta();
         // Remove crappy tracker muons which would not have prefired the L1 trigger
-        if (pt < 5 && !muon.isStandAloneMuon())
+        if (pt < 5 || !muon.isLooseMuon())
           continue;
         double prefiringprob_mu = getPrefiringRateMuon(eta, phi, pt, fluct);
         nonPrefiringProbaMuon[fluct] *= (1. - prefiringprob_mu);
@@ -329,7 +330,7 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
         double phi = muon.phi();
         double eta = muon.eta();
         // Remove crappy tracker muons which would not have prefired the L1 trigger
-        if (pt < 5 && !muon.isStandAloneMuon())
+        if (pt < 5 || !muon.isLooseMuon())
           continue;
         double prefiringprob_mu = getPrefiringRateMuon(eta, phi, pt, fluct);
         nonPrefiringProbaMuon[fluct] *= (1. - prefiringprob_mu);
