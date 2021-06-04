@@ -92,31 +92,6 @@ void ClusterTPAssociationProducer::fillDescriptions(edm::ConfigurationDescriptio
 }
 
 void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const {
-  // Pixel DigiSimLink
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinks;
-  //  iEvent.getByLabel(_pixelSimLinkSrc, sipixelSimLinks);
-  auto pixelSimLinksFound = iEvent.getByToken(sipixelSimLinksToken_, sipixelSimLinks);
-  if (not throwOnMissingCollections_ and not pixelSimLinksFound) {
-    auto clusterTPList = std::make_unique<ClusterTPAssociation>();
-    iEvent.put(std::move(clusterTPList));
-  }
-
-  // SiStrip DigiSimLink
-  edm::Handle<edm::DetSetVector<StripDigiSimLink> > sistripSimLinks;
-  auto stripSimLinksFound = iEvent.getByToken(sistripSimLinksToken_, sistripSimLinks);
-  if (not throwOnMissingCollections_ and not stripSimLinksFound) {
-    auto clusterTPList = std::make_unique<ClusterTPAssociation>();
-    iEvent.put(std::move(clusterTPList));
-  }
-
-  // Phase2 OT DigiSimLink
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinks;
-  auto phase2OTSimLinksFound = iEvent.getByToken(siphase2OTSimLinksToken_, siphase2OTSimLinks);
-  if (not throwOnMissingCollections_ and not phase2OTSimLinksFound) {
-    auto clusterTPList = std::make_unique<ClusterTPAssociation>();
-    iEvent.put(std::move(clusterTPList));
-  }
-
   // Pixel Cluster
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
   bool foundPixelClusters = iEvent.getByToken(pixelClustersToken_, pixelClusters);
@@ -128,6 +103,31 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   // Phase2 Cluster
   edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClusters;
   bool foundPhase2OTClusters = iEvent.getByToken(phase2OTClustersToken_, phase2OTClusters);
+
+  // Pixel DigiSimLink
+  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinks;
+  //  iEvent.getByLabel(_pixelSimLinkSrc, sipixelSimLinks);
+  auto pixelSimLinksFound = iEvent.getByToken(sipixelSimLinksToken_, sipixelSimLinks);
+  if (not throwOnMissingCollections_ and foundPixelClusters and not pixelSimLinksFound) {
+    auto clusterTPList = std::make_unique<ClusterTPAssociation>();
+    iEvent.put(std::move(clusterTPList));
+  }
+
+  // SiStrip DigiSimLink
+  edm::Handle<edm::DetSetVector<StripDigiSimLink> > sistripSimLinks;
+  auto stripSimLinksFound = iEvent.getByToken(sistripSimLinksToken_, sistripSimLinks);
+  if (not throwOnMissingCollections_ and foundStripClusters and not stripSimLinksFound) {
+    auto clusterTPList = std::make_unique<ClusterTPAssociation>();
+    iEvent.put(std::move(clusterTPList));
+  }
+
+  // Phase2 OT DigiSimLink
+  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinks;
+  auto phase2OTSimLinksFound = iEvent.getByToken(siphase2OTSimLinksToken_, siphase2OTSimLinks);
+  if (not throwOnMissingCollections_ and foundPhase2OTClusters and not phase2OTSimLinksFound) {
+    auto clusterTPList = std::make_unique<ClusterTPAssociation>();
+    iEvent.put(std::move(clusterTPList));
+  }
 
   // TrackingParticle
   edm::Handle<TrackingParticleCollection> TPCollectionH;
