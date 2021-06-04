@@ -5,6 +5,7 @@
 #include "L1Trigger/VertexFinder/interface/L1TrackTruthMatched.h"
 #include "L1Trigger/VertexFinder/interface/TP.h"
 
+#include <numeric>
 #include <set>
 #include <vector>
 
@@ -33,7 +34,7 @@ namespace l1tVertexFinder {
     /// Clear track vector
     void clear() { tracks_.clear(); }
     /// Compute vertex parameters
-    void computeParameters(unsigned int weightedmean = false, double highPtThreshold = 50., int highPtBehavior = -1);
+    //void computeParameters(unsigned int weightedmean = false, double highPtThreshold = 50., int highPtBehavior = -1);
     /// Contain high-pT track?
     bool hasHighPt() const { return highPt_; }
     /// highest track pT in the vertex
@@ -51,11 +52,23 @@ namespace l1tVertexFinder {
     /// True if primary vertex
     bool primaryVertex() const { return pv_; }
     /// Sum of fitted tracks transverse momentum [GeV]
-    double pT() const { return pT_; }
-    /// Tracking Particles in vertex
+    double pt() const { return pT_; }
+    /// Tracks in the vertex
     const std::vector<const T*>& tracks() const { return tracks_; }
+    /// Tracking particles asociated to the vertex
+    const std::set<const TP*>& trueTracks() const { return trueTracks_; }
+    /// set the pT [GeV] of the vertex
+    void setPt(double pt) { pT_ = pt; }
     /// Set z0 position [cm]
-    void setZ(double z) { z0_ = z; }
+    void setZ0(double z) { z0_ = z; }
+    /// Set the vertex parameters
+    void setParameters(double pt,
+                       double z0,
+                       double width = -999.,
+                       bool highPt = false,
+                       unsigned int nHighPt = -999,
+                       double highestPt = -999.,
+                       bool pv = false);
     /// Vertex z0 position [cm]
     double z0() const { return z0_; }
     /// Vertex z0 width [cm]
@@ -89,13 +102,13 @@ namespace l1tVertexFinder {
   template <typename T>
   RecoVertex<T>::RecoVertex(RecoVertex<L1Track>& vertex,
                             std::map<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const T*> trackAssociationMap) {
-    z0_ = -999.;
-    z0width_ = -999.;
-    pT_ = -999.;
-    highestPt_ = -999.;
-    pv_ = false;
-    highPt_ = false;
-    numHighPtTracks_ = 0;
+    z0_ = vertex.z0();
+    z0width_ = vertex.z0width();
+    pT_ = vertex.pt();
+    highestPt_ = vertex.highestPt();
+    pv_ = vertex.primaryVertex();
+    highPt_ = vertex.hasHighPt();
+    numHighPtTracks_ = vertex.numHighPtTracks();
     clear();
 
     // loop over base fitted tracks in reco vertex and find the corresponding TP
@@ -109,9 +122,9 @@ namespace l1tVertexFinder {
   template <typename T>
   RecoVertex<T>::RecoVertex(const l1t::Vertex& vertex,
                             std::map<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const T*> trackAssociationMap) {
-    z0_ = -999.;
+    z0_ = vertex.z0();
     z0width_ = -999.;
-    pT_ = -999.;
+    pT_ = vertex.pt();
     highestPt_ = -999.;
     pv_ = false;
     highPt_ = false;
@@ -127,40 +140,21 @@ namespace l1tVertexFinder {
   }
 
   template <typename T>
-  void RecoVertex<T>::computeParameters(unsigned int weightedmean, double highPtThreshold, int highPtBehavior) {
-    pT_ = 0.;
-    z0_ = 0.;
-    highPt_ = false;
-    highestPt_ = 0.;
-    numHighPtTracks_ = 0;
-
-    float SumZ = 0.;
-    float z0square = 0.;
-    float trackPt = 0.;
-
-    for (const T* track : tracks_) {
-      trackPt = track->pt();
-      if (trackPt > highPtThreshold) {
-        highPt_ = true;
-        numHighPtTracks_++;
-        highestPt_ = (trackPt > highestPt_) ? trackPt : highestPt_;
-        if (highPtBehavior == 0)
-          continue;  // ignore this track
-        else if (highPtBehavior == 1)
-          trackPt = highPtThreshold;  // saturate
-      }
-
-      pT_ += std::pow(trackPt, weightedmean);
-      SumZ += track->z0() * std::pow(trackPt, weightedmean);
-      z0square += track->z0() * track->z0();
-    }
-
-    z0_ = SumZ / ((weightedmean > 0) ? pT_ : tracks_.size());
-    z0square /= tracks_.size();
-    z0width_ = sqrt(std::abs(z0_ * z0_ - z0square));
+  void RecoVertex<T>::setParameters(
+      double pt, double z0, double width, bool highPt, unsigned int nHighPt, double highestPt, bool pv) {
+    pT_ = pt;
+    z0_ = z0;
+    z0width_ = width;
+    highPt_ = highPt;
+    numHighPtTracks_ = nHighPt;
+    highestPt_ = highestPt;
+    pv_ = pv;
   }
 
   // Template specializations
+  template <>
+  RecoVertexWithTP& RecoVertexWithTP::operator+=(const RecoVertexWithTP& rhs);
+
   template <>
   void RecoVertexWithTP::clear();
 
