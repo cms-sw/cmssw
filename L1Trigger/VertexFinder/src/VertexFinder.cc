@@ -115,11 +115,8 @@ namespace l1tVertexFinder {
   }
 
   float VertexFinder::centralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
-    cluster0.computeParameters(
-        settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
-    cluster1.computeParameters(
-        settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
-
+    computeAndSetVertexParameters(cluster0, {}, {});
+    computeAndSetVertexParameters(cluster1, {}, {});
     float distance = std::abs(cluster0.z0() - cluster1.z0());
     return distance;
   }

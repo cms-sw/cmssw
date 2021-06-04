@@ -87,7 +87,7 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
       vf.fastHistoLooseAssociation();
       break;
     case Algorithm::GapClustering:
-      vf.gapClustering();
+      vf.GapClustering();
       break;
     case Algorithm::AgglomerativeHierarchical:
       vf.agglomerativeHierarchicalClustering();
@@ -115,7 +115,7 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
   // //=== Store output EDM track and hardware stub collections.
   std::unique_ptr<l1t::VertexCollection> lProduct(new std::vector<l1t::Vertex>());
 
-  for (const auto& vtx : vf.Vertices()) {
+  for (const auto& vtx : vf.vertices()) {
     std::vector<edm::Ptr<l1t::Vertex::Track_t>> lVtxTracks;
     lVtxTracks.reserve(vtx.tracks().size());
     for (const auto& t : vtx.tracks())

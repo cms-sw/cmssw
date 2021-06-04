@@ -161,8 +161,8 @@ namespace l1tVertexFinder {
     const edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileupSummaryToken_;
     const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken_;
     const edm::EDGetTokenT<std::vector<reco::GenJet>> genJetsToken_;
-    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
-    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+    const edm::EDGetTokenT<std::vector<l1tVertexFinder::TP>> allMatchedTPsToken_;
+    const edm::EDGetTokenT<edm::ValueMap<l1tVertexFinder::TP>> vTPsToken_;
     std::map<std::string, edm::EDGetTokenT<TTTrackCollectionView>> l1TracksTokenMap_;
     std::map<std::string, edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>> l1TracksMapTokenMap_;
     std::map<std::string, edm::EDGetTokenT<std::vector<l1t::Vertex>>> l1VerticesTokenMap_;
@@ -208,8 +208,10 @@ namespace l1tVertexFinder {
         genParticlesToken_(
             consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
         genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJetsInputTag"))),
-        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("", ""))),
-        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
+        allMatchedTPsToken_(
+            consumes<std::vector<l1tVertexFinder::TP>>(iConfig.getParameter<edm::InputTag>("l1TracksTPInputTags"))),
+        vTPsToken_(consumes<edm::ValueMap<l1tVertexFinder::TP>>(
+            iConfig.getParameter<edm::InputTag>("l1TracksTPValueMapInputTags"))),
         outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
         printResults_(iConfig.getParameter<bool>("printResults")),
         settings_(iConfig) {
@@ -386,23 +388,13 @@ namespace l1tVertexFinder {
 
   void VertexNTupler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // Note useful info about MC truth particles and about reconstructed stubs
-    InputData inputData(iEvent,
-                        iSetup,
-                        settings_,
-                        hepMCToken_,
-                        genParticlesToken_,
-                        trackerGeometryToken_,
-                        trackerTopologyToken_,
-                        tpToken_,
-                        stubToken_,
-                        stubTruthToken_,
-                        clusterTruthToken_);
+    edm::Handle<l1tVertexFinder::InputData> inputDataHandle;
+    iEvent.getByToken(inputDataToken_, inputDataHandle);
+    InputData inputData = *inputDataHandle;
 
-    // Fill the handles which change only once per event
-    edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
-    edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
-    iEvent.getByToken(stubTruthToken_, mcTruthTTStubHandle);
-    iEvent.getByToken(clusterTruthToken_, mcTruthTTClusterHandle);
+    edm::Handle<edm::ValueMap<TP>> tpValueMapHandle;
+    iEvent.getByToken(vTPsToken_, tpValueMapHandle);
+    edm::ValueMap<TP> tpValueMap = *tpValueMapHandle;
 
     // Create collections to hold the desired objects
     std::map<std::string, std::vector<L1TrackTruthMatched>> l1TrackCollections;
