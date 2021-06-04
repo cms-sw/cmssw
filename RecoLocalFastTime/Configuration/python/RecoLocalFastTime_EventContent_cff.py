@@ -18,8 +18,6 @@ RecoLocalFastTimeRECO = cms.PSet(
 )
 #AOD content
 RecoLocalFastTimeAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring(
-        'keep *_mtdClusters_*_*',
-    )
+    outputCommands = cms.untracked.vstring()
 )
 
