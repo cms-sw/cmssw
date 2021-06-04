@@ -219,8 +219,8 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   //Probability for the event NOT to prefire, computed with the prefiring maps per object.
   //Up and down values correspond to the resulting value when shifting up/down all prefiring rates in prefiring maps.
-  double nonPrefiringProba[3] = {1., 1., 1.};        //0: central, 1: up, 2: down
-  double nonPrefiringProbaECAL[3] = {1., 1., 1.};     //0: central, 1: up, 2: down
+  double nonPrefiringProba[3] = {1., 1., 1.};      //0: central, 1: up, 2: down
+  double nonPrefiringProbaECAL[3] = {1., 1., 1.};  //0: central, 1: up, 2: down
   double nonPrefiringProbaMuon[7] = {
       1., 1., 1., 1., 1., 1., 1.};  //0: central, 1: up, 2: down, 3: up stat, 4: down stat, 5: up syst, 6: down syst
 
@@ -307,8 +307,7 @@ void L1PrefiringWeightProducer::produce(edm::Event& iEvent, const edm::EventSetu
   }
   // Calculate combined weight as product of the weight for individual objects
   for (const auto fluct : {fluctuations::central, fluctuations::up, fluctuations::down}) {
-    nonPrefiringProba[fluct] =
-        nonPrefiringProbaECAL[fluct] * nonPrefiringProbaMuon[fluct];
+    nonPrefiringProba[fluct] = nonPrefiringProbaECAL[fluct] * nonPrefiringProbaMuon[fluct];
   }
   // Calculate statistical and systematic uncertainty separately in the muon case
   for (const auto fluct :
