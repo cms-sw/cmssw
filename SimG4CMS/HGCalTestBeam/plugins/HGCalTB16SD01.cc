@@ -1,4 +1,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
@@ -42,7 +44,7 @@ HGCalTB16SD01::HGCalTB16SD01(const std::string& name,
                              const SensitiveDetectorCatalog& clg,
                              edm::ParameterSet const& p,
                              const SimTrackManager* manager)
-    : CaloSD(name, es, clg, p, manager), initialize_(true) {
+    : CaloSD(name, clg, p, manager), initialize_(true) {
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HGCalTestBeamSD");
   matName_ = m_HC.getParameter<std::string>("Material");

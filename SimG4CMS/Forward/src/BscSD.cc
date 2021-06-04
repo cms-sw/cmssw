@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Step.hh"
@@ -25,7 +26,7 @@ BscSD::BscSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
-    : TimingSD(name, es, clg, p, manager), numberingScheme(nullptr) {
+    : TimingSD(name, clg, manager), numberingScheme(nullptr) {
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BscSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");

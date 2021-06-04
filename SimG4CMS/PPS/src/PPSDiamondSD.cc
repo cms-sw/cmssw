@@ -6,6 +6,7 @@
 #include "SimG4CMS/PPS/interface/PPSDiamondSD.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
@@ -30,7 +31,7 @@ PPSDiamondSD::PPSDiamondSD(const std::string& name_,
                            const SensitiveDetectorCatalog& clg,
                            edm::ParameterSet const& p,
                            const SimTrackManager* manager)
-    : SensitiveTkDetector(name_, es, clg, p),
+    : SensitiveTkDetector(name_, clg),
       numberingScheme_(nullptr),
       hcID_(-1),
       theHC_(nullptr),

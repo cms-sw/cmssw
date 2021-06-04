@@ -10,6 +10,8 @@
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#include "G4String.hh"
