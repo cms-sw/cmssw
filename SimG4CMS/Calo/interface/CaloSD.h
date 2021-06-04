@@ -20,6 +20,7 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
@@ -44,7 +45,6 @@ class CaloSD : public SensitiveCaloDetector,
                public Observer<const EndOfEvent*> {
 public:
   CaloSD(const std::string& aSDname,
-         const edm::EventSetup& es,
          const SensitiveDetectorCatalog& clg,
          edm::ParameterSet const& p,
          const SimTrackManager*,

@@ -15,6 +15,7 @@
 // user include files
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -49,7 +50,7 @@ TotemSD::TotemSD(const std::string& name,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
-    : SensitiveTkDetector(name, es, clg, p),
+    : SensitiveTkDetector(name, clg),
       numberingScheme(nullptr),
       hcID(-1),
       theHC(nullptr),

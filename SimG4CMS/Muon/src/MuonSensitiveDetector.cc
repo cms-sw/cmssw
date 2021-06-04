@@ -22,6 +22,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "G4VProcess.hh"
 #include "G4EventManager.hh"
@@ -41,7 +42,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
                                              const SensitiveDetectorCatalog& clg,
                                              edm::ParameterSet const& p,
                                              const SimTrackManager* manager)
-    : SensitiveTkDetector(name, es, clg, p),
+    : SensitiveTkDetector(name, clg),
       thePV(nullptr),
       theHit(nullptr),
       theDetUnitId(0),

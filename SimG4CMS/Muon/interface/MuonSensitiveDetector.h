@@ -21,6 +21,9 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "CondFormats/GeometryObjects/interface/MuonOffsetMap.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 #include <string>
 
 class MuonSlaveSD;

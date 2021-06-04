@@ -31,6 +31,9 @@
 #include "SimG4CMS/Forward/interface/TotemG4HitCollection.h"
 #include "SimG4CMS/Forward/interface/TotemVDetectorOrganization.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4Track.hh"

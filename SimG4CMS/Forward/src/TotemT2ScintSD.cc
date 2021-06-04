@@ -1,5 +1,6 @@
 #include "SimG4CMS/Forward/interface/TotemT2ScintSD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4SDManager.hh"
@@ -22,7 +23,6 @@ TotemT2ScintSD::TotemT2ScintSD(const std::string& name,
                                edm::ParameterSet const& p,
                                const SimTrackManager* manager)
     : CaloSD(name,
-             es,
              clg,
              p,
              manager,

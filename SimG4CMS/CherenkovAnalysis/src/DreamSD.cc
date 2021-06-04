@@ -39,7 +39,7 @@ DreamSD::DreamSD(const std::string &name,
                  const SensitiveDetectorCatalog &clg,
                  edm::ParameterSet const &p,
                  const SimTrackManager *manager)
-    : CaloSD(name, es, clg, p, manager) {
+    : CaloSD(name, clg, p, manager) {
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
   useBirk_ = m_EC.getParameter<bool>("UseBirkLaw");
   doCherenkov_ = m_EC.getParameter<bool>("doCherenkov");
