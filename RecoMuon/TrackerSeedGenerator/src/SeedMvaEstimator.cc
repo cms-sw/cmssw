@@ -51,7 +51,7 @@ void SeedMvaEstimator::getL1MuonVariables(const TrajectorySeed& seed,
 
       float dR2tmp = reco::deltaR2(ref_L1Mu->etaAtVtx(), ref_L1Mu->phiAtVtx(), global_p.eta(), global_p.phi());
 
-      if (dR2tmp < dRdRL1SeedP*dRdRL1SeedP) {
+      if (dR2tmp < dRdRL1SeedP * dRdRL1SeedP) {
         dRdRL1SeedP = std::sqrt(dR2tmp);
         dPhidRL1SeedP = reco::deltaPhi(ref_L1Mu->phiAtVtx(), global_p.phi());
       }
@@ -69,7 +69,7 @@ void SeedMvaEstimator::getL2MuonVariables(const TrajectorySeed& seed,
 
     float dR2tmp = reco::deltaR2(*ref_L2Mu, global_p);
 
-    if (dR2tmp < dRdRL2SeedP*dRdRL2SeedP) {
+    if (dR2tmp < dRdRL2SeedP * dRdRL2SeedP) {
       dRdRL2SeedP = std::sqrt(dR2tmp);
       dPhidRL2SeedP = reco::deltaPhi(ref_L2Mu->phi(), global_p.phi());
     }
