@@ -74,17 +74,32 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+##
+## Define the tags to write
+##
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripQuality_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripGains_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripGainsAAG_dbOutput )
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelAli_dbOutput)
 process.PoolDBOutputService.toPut.extend(process.ALCAHARVESTSiPixelQuality_dbOutput)
+process.PoolDBOutputService.toPut.append(process.ALCAHARVESTBeamSpotByRun_dbOutput)
+process.PoolDBOutputService.toPut.append(process.ALCAHARVESTBeamSpotByLumi_dbOutput)
+process.PoolDBOutputService.toPut.append(process.ALCAHARVESTBeamSpotHPByRun_dbOutput)
+process.PoolDBOutputService.toPut.append(process.ALCAHARVESTBeamSpotHPByLumi_dbOutput)
 
+##
+## Define the file metadatas
+##
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripQuality_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripGains_metadata )
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripGainsAAG_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelAli_metadata)
 process.pclMetadataWriter.recordsToMap.extend(process.ALCAHARVESTSiPixelQuality_metadata)
+process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTBeamSpotByRun_metadata)
+process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTBeamSpotByLumi_metadata)
+process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTBeamSpotHPByRun_metadata)
+process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTBeamSpotHPByLumi_metadata)
+
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -94,22 +109,39 @@ process.SiStripQuality  = cms.Path(process.ALCAHARVESTSiStripQuality)
 process.alcaSiStripQualityHarvester.CalibrationThreshold = cms.untracked.uint32(0)
 
 process.SiStripGains    = cms.Path(process.ALCAHARVESTSiStripGains)
-#process.alcaSiStripGainsHarvester.
+process.alcaSiStripGainsHarvester.DQMdir=''
+process.alcaSiStripGainsHarvester.minNrEntries=0
+process.alcaSiStripGainsHarvester.GoodFracForTagProd=0
+process.alcaSiStripGainsHarvester.NClustersForTagProd=0
 
 process.SiStripGainsAAG = cms.Path(process.ALCAHARVESTSiStripGainsAAG)
-#process.alcaSiStripGainsAAGHarvester.
+process.alcaSiStripGainsAAGHarvester.minNrEntries=0
+process.alcaSiStripGainsAAGHarvester.minNrEntries=0
+process.alcaSiStripGainsAAGHarvester.GoodFracForTagProd=0
+process.alcaSiStripGainsAAGHarvester.NClustersForTagProd=0
 
 process.SiPixelAli      = cms.Path(process.ALCAHARVESTSiPixelAli)
+process.SiPixelAliMilleFileExtractor.outputBinaryFile = cms.string('')
+process.SiPixelAliPedeAlignmentProducer.algoConfig.mergeBinaryFiles=[]
 
 process.SiPixelQuality  = cms.Path(process.ALCAHARVESTSiPixelQuality)
 
 process.ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(process.dqmSaver+process.pclMetadataWriter)
+
+process.BeamSpotByRun  = cms.Path(process.ALCAHARVESTBeamSpotByRun)
+process.BeamSpotByLumi = cms.Path(process.ALCAHARVESTBeamSpotByLumi)
+process.BeamSpotHPByRun  = cms.Path(process.ALCAHARVESTBeamSpotHPByRun)
+process.BeamSpotHPByLumi = cms.Path(process.ALCAHARVESTBeamSpotHPByLumi)
 
 process.schedule = cms.Schedule(process.SiStripQuality,
                                 process.SiStripGains,    
                                 process.SiStripGainsAAG, 
                                 process.SiPixelAli,      
                                 process.SiPixelQuality,
+                                process.BeamSpotByRun,
+                                process.BeamSpotByLumi,
+                                process.BeamSpotHPByRun,
+                                process.BeamSpotHPByLumi,
                                 process.ALCAHARVESTDQMSaveAndMetadataWriter)
 
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
