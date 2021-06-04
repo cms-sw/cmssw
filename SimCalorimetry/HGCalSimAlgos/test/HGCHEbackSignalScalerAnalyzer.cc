@@ -57,7 +57,6 @@ private:
   std::string doseMap_;
   uint32_t doseMapAlgo_;
   std::string sipmMap_;
-  uint32_t nPEperMIP_;
   double refIdark_;
   std::set<int> allLayers_,allIphi_,allIeta_;
 
@@ -75,7 +74,6 @@ HGCHEbackSignalScalerAnalyzer::HGCHEbackSignalScalerAnalyzer(const edm::Paramete
     : doseMap_(iConfig.getParameter<std::string>("doseMap")),
       doseMapAlgo_(iConfig.getParameter<uint32_t>("doseMapAlgo")),      
       sipmMap_(iConfig.getParameter<std::string>("sipmMap")),
-      nPEperMIP_(iConfig.getParameter<uint32_t>("nPEperMIP")),
       refIdark_(iConfig.getParameter<double>("referenceIdark"))
 {
   usesResource("TFileService");
@@ -118,8 +116,8 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
   int minIeta( *allIeta_.begin() ),    maxIeta( *allIeta_.end() ),     nIeta(maxIeta-minIeta+1);
   int minIphi( *allIphi_.begin() ),    maxIphi( *allIphi_.end() ),     nIphi(maxIphi-minIphi+1);
 
-  TString hnames[]={"count","radius","dose","fluence","s","n","sn"};
-  TString htitles[]={"tiles","#rho [cm]","<Dose> [krad]","<Fluence> [1 MeV n_{eq}/cm^{2}]","<S> [pe]","<N> [pe]","<S/N>"};
+  TString hnames[]={"count","radius","dose","fluence","s","n","sn","lysf","gain","thr"};
+  TString htitles[]={"tiles","#rho [cm]","<Dose> [krad]","<Fluence> [1 MeV n_{eq}/cm^{2}]","<S> [pe]","<N> [pe]","<S/N>","LY SF","<Gain>","<Threshold> [ADC]"};
   for(size_t i=0; i<sizeof(hnames)/sizeof(TString); i++){
     histos_[hnames[i]+"_ieta"] = fs->make<TH2F>(hnames[i]+"_ieta",";Layer;i-#eta;"+htitles[i],nLayers,minLayer,maxLayer+1, nIeta,minIeta,maxIeta);
     histos_[hnames[i]+"_iphi"] = fs->make<TH2F>(hnames[i]+"_iphi",";Layer;i-#phi;"+htitles[i],nLayers,minLayer,maxLayer+1, nIphi,minIphi,maxIphi);
@@ -158,10 +156,13 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     double radius      = std::sqrt(std::pow(global.x(), 2) + std::pow(global.y(), 2));
     double dose        = scal.getDoseValue(DetId::HGCalHSc, layer, radius);
     double fluence     = scal.getFluenceValue(DetId::HGCalHSc, layer, radius);
-    auto dosePair      = scal.scaleByDose(scId, radius);
-    double s           = nPEperMIP_*dosePair.first;
-    double n           = dosePair.second;
-    double sn          = n>0 ? s/n : -1.;
+    auto opChar        = scal.scaleByDose(scId, radius);
+    float s           = opChar.s;
+    float n           = opChar.n;
+    float sn          = n>0 ? s/n : -1.;
+    float lysf        = opChar.lySF;
+    int gain           = opChar.gain;
+    int thrADC         = opChar.thrADC;
 
     histos_["count_ieta"]->Fill(layer,ieta,1);
     histos_["count_iphi"]->Fill(layer,iphi,1);
@@ -177,6 +178,12 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     histos_["n_iphi"]->Fill(layer,iphi,n);
     histos_["sn_ieta"]->Fill(layer,ieta,sn);
     histos_["sn_iphi"]->Fill(layer,iphi,sn);
+    histos_["lysf_ieta"]->Fill(layer,ieta,lysf);
+    histos_["lysf_iphi"]->Fill(layer,iphi,lysf);
+    histos_["gain_ieta"]->Fill(layer,ieta,gain);
+    histos_["gain_iphi"]->Fill(layer,iphi,gain);
+    histos_["thr_ieta"]->Fill(layer,ieta,thrADC);
+    histos_["thr_iphi"]->Fill(layer,iphi,thrADC);
 
     if(layerHistos_.count(layer)==0) {
       continue;
@@ -197,6 +204,12 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     layerHistos_[layer]["n_iphi"]->Fill(iphi,n);
     layerHistos_[layer]["sn_ieta"]->Fill(ieta,sn);
     layerHistos_[layer]["sn_iphi"]->Fill(iphi,sn);
+    layerHistos_[layer]["lysf_ieta"]->Fill(ieta,lysf);
+    layerHistos_[layer]["lysf_iphi"]->Fill(iphi,lysf);
+    layerHistos_[layer]["gain_ieta"]->Fill(ieta,gain);
+    layerHistos_[layer]["gain_iphi"]->Fill(iphi,gain);
+    layerHistos_[layer]["thr_ieta"]->Fill(ieta,thrADC);
+    layerHistos_[layer]["thr_iphi"]->Fill(iphi,thrADC);
   }
 
   //normalize by the number of tiles to have the mean stored

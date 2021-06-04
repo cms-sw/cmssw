@@ -1,4 +1,4 @@
-#run with: cmsRun hgchebacksignalscaler_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt nPEperMIP=21
+#run with: cmsRun test/hgchebacksignalscaler_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt geom=GeometryExtended2026D49Reco
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -6,7 +6,6 @@ from Configuration.StandardSequences.Eras import eras
 
 options = VarParsing()
 options.register("doseMap",   "",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("nPEperMIP", 21,  VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("geom", "GeometryExtended2026D49Reco",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
 
@@ -25,7 +24,6 @@ process.aged_2020     = cms.EDAnalyzer("HGCHEbackSignalScalerAnalyzer",
                                        doseMap  = cms.string( options.doseMap ),
                                        doseMapAlgo = cms.uint32( 2 ),
                                        sipmMap  = cms.string( 'SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt' ),
-                                       nPEperMIP = cms.uint32( options.nPEperMIP ),
                                        referenceIdark = cms.double( -1 ) )
 process.aged_2020_noAreaScaling = process.aged_2020.clone( doseMapAlgo = cms.uint32(2+1+4) )
 process.aged_2020_noRadScaling  = process.aged_2020.clone( doseMapAlgo = cms.uint32(2+8+16) )

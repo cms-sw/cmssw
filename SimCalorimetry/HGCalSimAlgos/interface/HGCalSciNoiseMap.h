@@ -17,10 +17,21 @@
           bit 5 - ignores the scaling of the noise with the fluence (=constant noise scenario)
           bit 6 - ignores noise
 */
+
 class HGCalSciNoiseMap : public HGCalRadiationMap {
 public:
 
+  enum TileType_t { CAST=1, MOULDED=2 };
+  enum GainRange_t { GAIN_4, GAIN_2, AUTO };
   enum NoiseMapAlgoBits_t { IGNORE_SIPMAREA, OVERRIDE_SIPMAREA, IGNORE_TILEAREA, IGNORE_DOSESCALE, IGNORE_FLUENCESCALE, IGNORE_NOISE };
+
+  struct SiPMonTileCharacteristics {
+    SiPMonTileCharacteristics() : s(0.), lySF(0.), n(0.), gain(0), thrADC(0) { }
+    float s, lySF, n;
+    unsigned short gain, thrADC;
+  };
+
+
   HGCalSciNoiseMap();
   ~HGCalSciNoiseMap(){};
 
@@ -29,11 +40,13 @@ public:
   */
   double scaleByTileArea(const HGCScintillatorDetId &, const double);
   double scaleBySipmArea(const HGCScintillatorDetId &, const double);
-  std::pair<double, double> scaleByDose(const HGCScintillatorDetId &, const double);
+  SiPMonTileCharacteristics scaleByDose(const HGCScintillatorDetId &, const double,const int aimMIPtoADC=15,const GainRange_t gain=GainRange_t::AUTO);
 
   void setDoseMap(const std::string &,const unsigned int );
   void setSipmMap(const std::string &);
   void setReferenceDarkCurrent(double idark);
+  std::vector<double> &getLSBPerGain() { return lsbPerGain_; } 
+  std::vector<double> &getMaxADCPerGain() { return fscADCPerGain_; }
 
 private:
 
@@ -41,6 +54,12 @@ private:
      @short parses the radius boundaries for the SiPM area assignment from a custom file
    */
   std::unordered_map<int, float> readSipmPars(const std::string &);
+
+  //reference signal yields
+  std::vector<double> nPEperMIP_;
+
+  //lsb and fsc per gain
+  std::vector<double> lsbPerGain_, fscADCPerGain_;
 
   //size of the reference scintillator tile
   const double refEdge_;
