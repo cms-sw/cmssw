@@ -26,3 +26,6 @@ slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
 
 from Configuration.Eras.Modifier_bParking_cff import bParking
 bParking.toModify(slimmedElectrons,dropCorrections="0")
+bParking.toModify(slimmedElectrons,dropIsolations="0")
+bParking.toModify(slimmedElectrons,dropShapes="0")
+bParking.toModify(slimmedElectrons,dropClassifications="0")
