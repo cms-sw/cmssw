@@ -787,6 +787,8 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
                 },
                 stepDict[stepName][k]
             ])
+            if "ProdLike" in self.suffix:
+                stepDict[stepNamePmx][k] = merge([{'-s': 'GEN,SIM,DIGI'},stepDict[stepNamePmx][k]])
         # setup for stage 2
         elif "Digi" in step or "Reco" in step:
             # go back to non-PU step version
@@ -923,7 +925,9 @@ class UpgradeWorkflowPremixProdLike(UpgradeWorkflowPremix,UpgradeWorkflow_ProdLi
                     tmpsteps.append("DIGI")
                 else:
                     tmpsteps.append(s)
-            d = merge([{"-s" : ",".join(tmpsteps)},d])
+            d = merge([{"-s" : ",".join(tmpsteps),
+                        "--eventcontent": "PREMIXRAW"},
+                       d])
             stepDict[stepName][k] = d
     def condition(self, fragment, stepList, key, hasHarvest):
         # use both conditions
