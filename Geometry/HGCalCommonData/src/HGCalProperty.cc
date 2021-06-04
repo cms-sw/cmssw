@@ -2,7 +2,7 @@
 
 int32_t HGCalProperty::waferProperty(const int32_t thick, const int32_t part, const int32_t orient) {
   return (((thick % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetThick) +
-          ((part % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetPartial) +
+          ((part % HGCalProperty::kHGCalFactorPartial) * HGCalProperty::kHGCalOffsetPartial) +
           ((orient % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetOrient));
 }
 
@@ -11,7 +11,7 @@ int32_t HGCalProperty::waferThick(const int32_t property) {
 }
 
 int32_t HGCalProperty::waferPartial(const int32_t property) {
-  return ((property / HGCalProperty::kHGCalOffsetPartial) % HGCalProperty::kHGCalFactor);
+  return ((property / HGCalProperty::kHGCalOffsetPartial) % HGCalProperty::kHGCalFactorPartial);
 }
 
 int32_t HGCalProperty::waferOrient(const int32_t property) {
