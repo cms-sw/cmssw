@@ -3,12 +3,13 @@ import xml.etree.ElementTree as ET
 import sys
 
 ## declare all constants here
-TARGET_LIST_OF_TAGS=['SiPixelQualityFromDbRcd_other', 'SiPixelQualityFromDbRcd_prompt', 'SiPixelQualityFromDbRcd_stuckTBM', 
+TARGET_LIST_OF_TAGS=['BeamSpotObject_ByLumi', 'BeamSpotObject_ByRun', 'BeamSpotObjectHP_ByLumi', 'BeamSpotObjectHP_ByRun',
+                     'SiPixelQualityFromDbRcd_other', 'SiPixelQualityFromDbRcd_prompt', 'SiPixelQualityFromDbRcd_stuckTBM',
                      'SiStripApvGain_pcl', 'SiStripApvGainAAG_pcl',
                      'SiStripBadStrip_pcl', 'SiPixelAli_pcl']
 TARGET_DQM_FILES=1
 TARGET_DQM_FILENAME='./DQM_V0001_R000325022__Express__PCLTest__ALCAPROMPT.root'
-TARGET_DB_FILES=7
+TARGET_DB_FILES=11
 TARGET_DB_FILENAME='sqlite_file:promptCalibConditions.db'
 TOTAL_TARGET_FILES=TARGET_DQM_FILES+TARGET_DB_FILES
 
@@ -47,16 +48,19 @@ def parseXML(xmlfile):
                 listOfInputTags.append(child.attrib['Value'])
 
     if(countDBfiles!=TARGET_DB_FILES):
-        print("ERROR! Found a not expected number of DB files",countDBfiles)
+        print("ERROR! Found an unexpected number of DB files (",countDBfiles,")")
         return -1
 
     if(countDQMfiles!=TARGET_DQM_FILES):
-        print("ERROR! Found a not expected number of DQM files",countDQMfiles)
+        print("ERROR! Found an uexpected number of DQM files (",countDQMfiles,")")
         return -1
 
     ## That's strict! 
     if(listOfInputTags!=TARGET_LIST_OF_TAGS):
-        print("ERROR! This ",[x for x in listOfTags if x not in listOfInputTags]," is the set of different tags")
+        if (listOfInputTags>TARGET_LIST_OF_TAGS):
+            print("ERROR!\n This ",[x for x in TARGET_LIST_OF_TAGS if x not in listOfInputTags]," is the set of expected tags not found in the FwdJobReport!")
+        else:
+            print("ERROR!\n This ",[x for x in listOfInputTags if x not in TARGET_LIST_OF_TAGS]," is the set of tags found in the FwkJobReport, but not expected!")
         return -1
     
     return 0
@@ -66,7 +70,7 @@ def main():
     try:
         f = open("FrameworkJobReport.xml")
     except IOError:
-        print("File not accessible")
+        print("FrameworkJobReport.xml is not accessible")
         sys.exit(1)
 
     # parse xml file
