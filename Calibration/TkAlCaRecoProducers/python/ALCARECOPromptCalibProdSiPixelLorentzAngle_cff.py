@@ -29,7 +29,7 @@ from RecoTracker.Configuration.RecoTrackerP5_cff import *
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 
-ALCARECOPixelLACalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOCalibrationTracks"),
+ALCARECOPixelLACalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOPixelLACalibrationTracks"),
                                                             TrajectoryInEvent = cms.bool(True),
                                                             NavigationSchool = cms.string("")
                                                             )
