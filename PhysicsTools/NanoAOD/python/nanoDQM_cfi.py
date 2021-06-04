@@ -815,8 +815,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                         Plot1D('L1PreFiringWeight_Nom', 'L1PreFiringWeight_Nom', 20, 0.8, 1.0, 'L1 prefiring weight nominal'),
                         Plot1D('L1PreFiringWeight_Up', 'L1PreFiringWeight_Up', 20, 0.8, 1.0, 'L1 prefiring weight uncertainy up'),
                         Plot1D('L1PreFiringWeight_Dn', 'L1PreFiringWeight_Dn', 20, 0.8, 1.0, 'L1 prefiring weight uncertainty down'),
-                        Plot1D('L1PreFiringWeightJet_Nom', 'L1PreFiringWeightJet_Nom', 20, 0.8, 1.0, 'L1 prefiring weight for jets nominal'),
-                        Plot1D('L1PreFiringWeightPhoton_Nom', 'L1PreFiringWeightPhoton_Nom', 20, 0.8, 1.0, 'L1 prefiring for photons weight nominal'),
+                        Plot1D('L1PreFiringWeightECAL_Nom', 'L1PreFiringWeightECAL_Nom', 20, 0.8, 1.0, 'L1 prefiring weight for ECAL objects nominal'),
                         Plot1D('L1PreFiringWeightMuon_Nom', 'L1PreFiringWeightMuon_Nom', 20, 0.8, 1.0, 'L1 prefiring weight for muons nominal'),
                 )
 
