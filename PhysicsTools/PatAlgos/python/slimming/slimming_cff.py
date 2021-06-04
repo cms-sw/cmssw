@@ -5,6 +5,7 @@ from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import *
 from PhysicsTools.PatAlgos.slimming.lostTracks_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices4D_cfi import *
+from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVerticesWithBS_cfi import *
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
 from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
@@ -60,6 +61,10 @@ slimmingTask = cms.Task(
     bunchSpacingProducer,
     oniaPhotonCandidates
 )
+
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+from Configuration.Eras.Modifier_bParking_cff import bParking
+(bParking | run2_miniAOD_devel).toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), offlineSlimmedPrimaryVerticesWithBS, primaryVertexWithBSAssociation))
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
