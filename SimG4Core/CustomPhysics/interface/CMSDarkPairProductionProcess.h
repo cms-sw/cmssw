@@ -32,9 +32,6 @@ public:  // with description
 
   G4double MinPrimaryEnergy(const G4ParticleDefinition*, const G4Material*) override;
 
-  // Print few lines of informations about the process: validity range,
-  void PrintInfo() override;
-
 protected:
   void InitialiseProcess(const G4ParticleDefinition*) override;
 
