@@ -3,6 +3,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
@@ -24,60 +26,17 @@ namespace l1tVertexFinder {
                        const AnalysisSettings& settings,
                        const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken,
                        const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken,
-                       edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_,
-                       edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_,
-                       const edm::EDGetTokenT<TrackingParticleCollection> tpToken,
-                       const edm::EDGetTokenT<DetSetVec> stubToken,
-                       const edm::EDGetTokenT<TTStubAssMap> stubTruthToken,
-                       const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken) {
-    vTPs_.reserve(2500);
-    vAllStubs_.reserve(35000);
-
-    // Get TrackingParticle info
-    edm::Handle<TrackingParticleCollection> tpHandle;
-    iEvent.getByToken(tpToken, tpHandle);
-
-    genPt_ = 0.;
-    genPt_PU_ = 0.;
-
-    for (unsigned int i = 0; i < tpHandle->size(); i++) {
-      TrackingParticlePtr tpPtr(tpHandle, i);
-      // Store the TrackingParticle info, using class TP to provide easy access to the most useful info.
-      TP tp(&tpHandle->at(i), settings);
-
-      if (tp.physicsCollision()) {
-        genPt_ += tp->pt();
-      } else {
-        genPt_PU_ += tp->pt();
-      }
-
-      // Only bother storing tp if it could be useful for tracking efficiency or fake rate measurements.
-      // Also create map relating edm::Ptr<TrackingParticle> to TP.
-      if (tp.use()) {
-        vTPs_.push_back(tp);
-        translateTP_[tpPtr] = &vTPs_.back();
-      }
-    }
-
-    if (settings.debug() > 0) {
-      edm::LogInfo("InputData") << "InputData::genPt in the event " << genPt_;
-    }
-
+                       const edm::EDGetTokenT<edm::View<TrackingParticle>> tpToken,
+                       const edm::EDGetTokenT<edm::ValueMap<l1tVertexFinder::TP>> tpValueMapToken,
+                       const edm::EDGetTokenT<DetSetVec> stubToken) {
     // Get the tracker geometry info needed to unpack the stub info.
-    /*edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
     iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
     const TrackerGeometry* trackerGeometry = trackerGeometryHandle.product();
 
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
     iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-    const TrackerTopology* trackerTopology = trackerTopologyHandle.product();*/
-    //        trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("",""))),
-    //        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("",""))),
-
-    const auto& trackerGeometry_ = iSetup.getData(trackerGeometryToken_);
-    const auto& trackerTopology_ = iSetup.getData(trackerTopologyToken_);
-    const TrackerGeometry* trackerGeometry = &trackerGeometry_;
-    const TrackerTopology* trackerTopology = &trackerTopology_;
+    const TrackerTopology* trackerTopology = trackerTopologyHandle.product();
 
     // Get stub info, by looping over modules and then stubs inside each module.
     // Also get the association map from stubs to tracking particles.

@@ -40,8 +40,6 @@ namespace l1tVertexFinder {
 
     /// Accessors
 
-    /// Storage for tracks out of the L1 Track finder
-    const FitTrackCollection& FitTracks() const { return fitTracks_; }
     /// Number of iterations
     unsigned int IterationsPerTrack() const { return double(iterations_) / double(fitTracks_.size()); }
     /// Storage for tracks out of the L1 Track finder
@@ -61,17 +59,17 @@ namespace l1tVertexFinder {
     }
     /// Reconstructed Primary Vertex Id
     unsigned int primaryVertexId() const { return pv_index_; }
+    /// Returns the z positions of the reconstructed primary vertices
+    const std::vector<RecoVertex<>>& vertices() const { return vertices_; }
     /// Storage for tracks out of the L1 Track finder
     const FitTrackCollection& fitTracks() const { return fitTracks_; }
-    /// Storage for tracks out of the L1 Track finder
-    unsigned int numInputTracks() const { return fitTracks_.size(); }
 
     /// Find the primary vertex
     void findPrimaryVertex();
     /// Associate the primary vertex with the real one
     void associatePrimaryVertex(double trueZ0);
     /// Gap Clustering Algorithm
-    void gapClustering();
+    void GapClustering();
     /// Find maximum distance in two clusters of tracks
     float maxDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
     /// Find minimum distance in two clusters of tracks
@@ -82,17 +80,9 @@ namespace l1tVertexFinder {
     float centralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
     /// Simple Merge Algorithm
     void agglomerativeHierarchicalClustering();
-    /// DBSCAN algorithm
-    void DBSCAN();
-    /// Principal Vertex Reconstructor algorithm
-    void PVR();
     /// Adaptive Vertex Reconstruction algorithm
     void adaptiveVertexReconstruction();
     /// High pT Vertex Algorithm
-    void HPV();
-    /// Kmeans Algorithm
-    void Kmeans();
-    /// TDR histogramming algorithmn
     void fastHistoLooseAssociation();
     /// Histogramming algorithm
     void fastHisto(const TrackerTopology* tTopo);
@@ -139,8 +129,6 @@ namespace l1tVertexFinder {
     void FastHistoLooseAssociation();
     /// Histogramming algorithm
     void FastHisto(const TrackerTopology* tTopo);
-    /// Gap Clustering Algorithm
-    void GapClustering();
     /// High pT Vertex Algorithm
     void HPV();
     /// Kmeans Algorithm
