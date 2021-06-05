@@ -23,31 +23,15 @@
 using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
-namespace {
-  constexpr int LINK_bits = 6;
-  constexpr int ROC_bits = 5;
-  constexpr int DCOL_bits = 5;
-  constexpr int PXID_bits = 8;
-  constexpr int ADC_bits = 8;
-
-  // Add phase1 constants
-  // For phase1
-  //GO BACK TO OLD VALUES. THE 48-CHAN FED DOES NOT NEED A NEW FORMAT
-  // 28/9/16 d.k.
-  constexpr int LINK_bits1 = 6;  // 7;
-  constexpr int ROC_bits1 = 5;   // 4;
-  // Special for layer 1 bpix rocs 6/9/16 d.k. THIS STAYS.
-  constexpr int COL_bits1_l1 = 6;
-  constexpr int ROW_bits1_l1 = 7;
-}  // namespace
+using namespace sipixelconstants;
 
 PixelDataFormatter::PixelDataFormatter(const SiPixelFedCablingTree* map, bool phase)
-    : theDigiCounter(0),
-      theWordCounter(0),
-      theCablingTree(map),
-      badPixelInfo(nullptr),
-      modulesToUnpack(nullptr),
-      phase1(phase) {
+    : theDigiCounter_(0),
+      theWordCounter_(0),
+      theCablingTree_(map),
+      badPixelInfo_(nullptr),
+      modulesToUnpack_(nullptr),
+      phase1_(phase) {
   int s32 = sizeof(Word32);
   int s64 = sizeof(Word64);
   int s8 = sizeof(char);
@@ -56,58 +40,33 @@ PixelDataFormatter::PixelDataFormatter(const SiPixelFedCablingTree* map, bool ph
                                 << "  size of char is: " << s8 << ", size of Word32 is: " << s32
                                 << ", size of Word64 is: " << s64 << ", send exception";
   }
-  includeErrors = false;
-  useQualityInfo = false;
-  allDetDigis = 0;
-  hasDetDigis = 0;
+  includeErrors_ = false;
+  useQualityInfo_ = false;
+  allDetDigis_ = 0;
+  hasDetDigis_ = 0;
 
-  ADC_shift = 0;
-  PXID_shift = ADC_shift + ADC_bits;
-  DCOL_shift = PXID_shift + PXID_bits;
-  ROC_shift = DCOL_shift + DCOL_bits;
-
-  if (phase1) {  // for phase 1
-    LINK_shift = ROC_shift + ROC_bits1;
-    LINK_mask = ~(~Word32(0) << LINK_bits1);
-    ROC_mask = ~(~Word32(0) << ROC_bits1);
-    // special for layer 1 ROC
-    ROW_shift = ADC_shift + ADC_bits;
-    COL_shift = ROW_shift + ROW_bits1_l1;
-    COL_mask = ~(~Word32(0) << COL_bits1_l1);
-    ROW_mask = ~(~Word32(0) << ROW_bits1_l1);
-    maxROCIndex = 8;
-
-  } else {  // for phase 0
-    LINK_shift = ROC_shift + ROC_bits;
-    LINK_mask = ~(~Word32(0) << LINK_bits);
-    ROC_mask = ~(~Word32(0) << ROC_bits);
-    maxROCIndex = 25;
-  }
-
-  DCOL_mask = ~(~Word32(0) << DCOL_bits);
-  PXID_mask = ~(~Word32(0) << PXID_bits);
-  ADC_mask = ~(~Word32(0) << ADC_bits);
-
-  if (phase1) {
-    errorcheck = std::unique_ptr<ErrorCheckerBase>(new ErrorChecker());
+  if (phase1_) {
+    maxROCIndex_ = 8;
+    errorcheck_ = std::unique_ptr<ErrorCheckerBase>(new ErrorChecker());
   } else {
-    errorcheck = std::unique_ptr<ErrorCheckerBase>(new ErrorCheckerPhase0());
+    maxROCIndex_ = 25;
+    errorcheck_ = std::unique_ptr<ErrorCheckerBase>(new ErrorCheckerPhase0());
   }
 }
 
 void PixelDataFormatter::setErrorStatus(bool ErrorStatus) {
-  includeErrors = ErrorStatus;
-  errorcheck->setErrorStatus(includeErrors);
+  includeErrors_ = ErrorStatus;
+  errorcheck_->setErrorStatus(includeErrors_);
 }
 
 void PixelDataFormatter::setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo) {
-  useQualityInfo = QualityStatus;
-  badPixelInfo = QualityInfo;
+  useQualityInfo_ = QualityStatus;
+  badPixelInfo_ = QualityInfo;
 }
 
-void PixelDataFormatter::setModulesToUnpack(const std::set<unsigned int>* moduleIds) { modulesToUnpack = moduleIds; }
+void PixelDataFormatter::setModulesToUnpack(const std::set<unsigned int>* moduleIds) { modulesToUnpack_ = moduleIds; }
 
-void PixelDataFormatter::passFrameReverter(const SiPixelFrameReverter* reverter) { theFrameReverter = reverter; }
+void PixelDataFormatter::passFrameReverter(const SiPixelFrameReverter* reverter) { theFrameReverter_ = reverter; }
 
 void PixelDataFormatter::interpretRawData(
     bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection& digis, Errors& errors) {
@@ -117,11 +76,11 @@ void PixelDataFormatter::interpretRawData(
   if (nWords == 0)
     return;
 
-  SiPixelFrameConverter converter(theCablingTree, fedId);
+  SiPixelFrameConverter converter(theCablingTree_, fedId);
 
   // check CRC bit
   const Word64* trailer = reinterpret_cast<const Word64*>(rawData.data()) + (nWords - 1);
-  if (!errorcheck->checkCRC(errorsInEvent, fedId, trailer, errors))
+  if (!errorcheck_->checkCRC(errorsInEvent, fedId, trailer, errors))
     return;
 
   // check headers
@@ -131,7 +90,7 @@ void PixelDataFormatter::interpretRawData(
   while (moreHeaders) {
     header++;
     LogTrace("") << "HEADER:  " << print(*header);
-    bool headerStatus = errorcheck->checkHeader(errorsInEvent, fedId, header, errors);
+    bool headerStatus = errorcheck_->checkHeader(errorsInEvent, fedId, header, errors);
     moreHeaders = headerStatus;
   }
 
@@ -141,12 +100,12 @@ void PixelDataFormatter::interpretRawData(
   while (moreTrailers) {
     trailer--;
     LogTrace("") << "TRAILER: " << print(*trailer);
-    bool trailerStatus = errorcheck->checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
+    bool trailerStatus = errorcheck_->checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
     moreTrailers = trailerStatus;
   }
 
   // data words
-  theWordCounter += 2 * (nWords - 2);
+  theWordCounter_ += 2 * (nWords - 2);
   LogTrace("") << "data words: " << (trailer - header - 1);
 
   int link = -1;
@@ -160,31 +119,31 @@ void PixelDataFormatter::interpretRawData(
   const Word32* ew = (const Word32*)(trailer);
   if (*(ew - 1) == 0) {
     ew--;
-    theWordCounter--;
+    theWordCounter_--;
   }
   for (auto word = bw; word < ew; ++word) {
     LogTrace("") << "DATA: " << print(*word);
 
     auto ww = *word;
     if UNLIKELY (ww == 0) {
-      theWordCounter--;
+      theWordCounter_--;
       continue;
     }
-    int nlink = (ww >> LINK_shift) & LINK_mask;
-    int nroc = (ww >> ROC_shift) & ROC_mask;
+    int nlink = getLink(ww);
+    int nroc = getROC(ww);
 
     if ((nlink != link) | (nroc != roc)) {  // new roc
       link = nlink;
       roc = nroc;
-      skipROC = LIKELY(roc < maxROCIndex)
+      skipROC = LIKELY(roc < maxROCIndex_)
                     ? false
-                    : !errorcheck->checkROC(errorsInEvent, fedId, &converter, theCablingTree, ww, errors);
+                    : !errorcheck_->checkROC(errorsInEvent, fedId, &converter, theCablingTree_, ww, errors);
       if (skipROC)
         continue;
       rocp = converter.toRoc(link, roc);
       if UNLIKELY (!rocp) {
         errorsInEvent = true;
-        errorcheck->conversionError(fedId, &converter, 2, ww, errors);
+        errorcheck_->conversionError(fedId, &converter, 2, ww, errors);
         skipROC = true;
         continue;
       }
@@ -195,13 +154,13 @@ void PixelDataFormatter::interpretRawData(
       else
         layer = 0;
 
-      if (useQualityInfo & (nullptr != badPixelInfo)) {
+      if (useQualityInfo_ & (nullptr != badPixelInfo_)) {
         short rocInDet = (short)rocp->idInDetUnit();
-        skipROC = badPixelInfo->IsRocBad(rawId, rocInDet);
+        skipROC = badPixelInfo_->IsRocBad(rawId, rocInDet);
         if (skipROC)
           continue;
       }
-      skipROC = modulesToUnpack && (modulesToUnpack->find(rawId) == modulesToUnpack->end());
+      skipROC = modulesToUnpack_ && (modulesToUnpack_->find(rawId) == modulesToUnpack_->end());
       if (skipROC)
         continue;
 
@@ -214,33 +173,32 @@ void PixelDataFormatter::interpretRawData(
     if UNLIKELY (skipROC || !rocp)
       continue;
 
-    int adc = (ww >> ADC_shift) & ADC_mask;
+    int adc = getADC(ww);
     std::unique_ptr<LocalPixel> local;
 
-    if (phase1 && layer == 1) {  // special case for layer 1ROC
+    if (phase1_ && layer == 1) {  // special case for layer 1ROC
       // for l1 roc use the roc column and row index instead of dcol and pixel index.
-      int col = (ww >> COL_shift) & COL_mask;
-      int row = (ww >> ROW_shift) & ROW_mask;
+      int col = getCol(ww);
+      int row = getRow(ww);
 
       LocalPixel::RocRowCol localCR = {row, col};  // build pixel
       if UNLIKELY (!localCR.valid()) {
         LogDebug("PixelDataFormatter::interpretRawData") << "status #3";
         errorsInEvent = true;
-        errorcheck->conversionError(fedId, &converter, 3, ww, errors);
+        errorcheck_->conversionError(fedId, &converter, 3, ww, errors);
         continue;
       }
       local = std::make_unique<LocalPixel>(localCR);  // local pixel coordinate
 
     } else {  // phase0 and phase1 except bpix layer 1
-      int dcol = (ww >> DCOL_shift) & DCOL_mask;
-      int pxid = (ww >> PXID_shift) & PXID_mask;
-
+      int dcol = getDCol(ww);
+      int pxid = getPxId(ww);
       LocalPixel::DcolPxid localDP = {dcol, pxid};
 
       if UNLIKELY (!localDP.valid()) {
         LogDebug("PixelDataFormatter::interpretRawData") << "status #3";
         errorsInEvent = true;
-        errorcheck->conversionError(fedId, &converter, 3, ww, errors);
+        errorcheck_->conversionError(fedId, &converter, 3, ww, errors);
         continue;
       }
       local = std::make_unique<LocalPixel>(localDP);  // local pixel coordinate
@@ -260,7 +218,7 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
 
   // translate digis into 32-bit raw words and store in map indexed by Fed
   for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
-    allDetDigis++;
+    allDetDigis_++;
     cms_uint32_t rawId = im->first;
     int layer = 0;
     bool barrel = PixelModuleName::isBarrel(rawId);
@@ -269,37 +227,37 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
 
     BadChannels::const_iterator detBadChannels = badChannels.find(rawId);
 
-    hasDetDigis++;
+    hasDetDigis_++;
     const DetDigis& detDigis = im->second;
     for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
-      theDigiCounter++;
+      theDigiCounter_++;
       const PixelDigi& digi = (*it);
       int fedId = 0;
 
-      if (layer == 1 && phase1)
+      if (layer == 1 && phase1_)
         fedId = digi2wordPhase1Layer1(rawId, digi, words);
       else
         fedId = digi2word(rawId, digi, words);
 
       if (fedId < 0) {
-        LogError("FormatDataException") << " digi2word returns error #" << fedId << " Ndigis: " << theDigiCounter
+        LogError("FormatDataException") << " digi2word returns error #" << fedId << " Ndigis: " << theDigiCounter_
                                         << endl
                                         << " detector: " << rawId << endl
                                         << print(digi) << endl;
       } else if (detBadChannels != badChannels.end()) {
         auto badChannel =
             std::find_if(detBadChannels->second.begin(), detBadChannels->second.end(), [&](const PixelFEDChannel& ch) {
-              return (int(ch.fed) == fedId && ch.link == getLinkId(words[fedId].back()));
+              return (int(ch.fed) == fedId && ch.link == getLink(words[fedId].back()));
             });
         if (badChannel != detBadChannels->second.end()) {
           LogError("FormatDataException") << " while marked bad, found digi for FED " << fedId << " Link "
-                                          << getLinkId(words[fedId].back()) << " on module " << rawId << endl
+                                          << getLink(words[fedId].back()) << " on module " << rawId << endl
                                           << print(digi) << endl;
         }
       }  // if (fedId)
     }    // for (DetDigis
   }      // for (Digis
-  LogTrace(" allDetDigis/hasDetDigis : ") << allDetDigis << "/" << hasDetDigis;
+  LogTrace(" allDetDigis_/hasDetDigis_ : ") << allDetDigis_ << "/" << hasDetDigis_;
 
   // fill FED error 25 words
   for (const auto& detBadChannels : badChannels) {
@@ -307,7 +265,7 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
       unsigned int FEDError25 = 25;
       Word32 word = (badChannel.link << LINK_shift) | (FEDError25 << ROC_shift);
       words[badChannel.fed].push_back(word);
-      theWordCounter++;
+      theWordCounter_++;
     }
   }
 
@@ -362,14 +320,14 @@ int PixelDataFormatter::digi2word(cms_uint32_t detId,
 
   DetectorIndex detector = {detId, digi.row(), digi.column()};
   ElectronicIndex cabling;
-  int fedId = theFrameReverter->toCabling(cabling, detector);
+  int fedId = theFrameReverter_->toCabling(cabling, detector);
   if (fedId < 0)
     return fedId;
 
   Word32 word = (cabling.link << LINK_shift) | (cabling.roc << ROC_shift) | (cabling.dcol << DCOL_shift) |
                 (cabling.pxid << PXID_shift) | (digi.adc() << ADC_shift);
   words[fedId].push_back(word);
-  theWordCounter++;
+  theWordCounter_++;
 
   return fedId;
 }
@@ -380,7 +338,7 @@ int PixelDataFormatter::digi2wordPhase1Layer1(cms_uint32_t detId,
 
   DetectorIndex detector = {detId, digi.row(), digi.column()};
   ElectronicIndex cabling;
-  int fedId = theFrameReverter->toCabling(cabling, detector);
+  int fedId = theFrameReverter_->toCabling(cabling, detector);
   if (fedId < 0)
     return fedId;
 
@@ -390,7 +348,7 @@ int PixelDataFormatter::digi2wordPhase1Layer1(cms_uint32_t detId,
   Word32 word = (cabling.link << LINK_shift) | (cabling.roc << ROC_shift) | (col << COL_shift) | (row << ROW_shift) |
                 (digi.adc() << ADC_shift);
   words[fedId].push_back(word);
-  theWordCounter++;
+  theWordCounter_++;
 
   return fedId;
 }
@@ -432,11 +390,11 @@ void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors const& error
       for (auto const& aPixelError : errorDetSet) {
         // For the time being, we extend the error handling functionality with ErrorType 25
         // In the future, we should sort out how the usage of tkerrorlist can be generalized
-        if (phase1 && aPixelError.getType() == 25) {
+        if (phase1_ && aPixelError.getType() == 25) {
           int fedId = aPixelError.getFedId();
-          const sipixelobjects::PixelFEDCabling* fed = theCablingTree->fed(fedId);
+          const sipixelobjects::PixelFEDCabling* fed = theCablingTree_->fed(fedId);
           if (fed) {
-            cms_uint32_t linkId = getLinkId(aPixelError.getWord32());
+            cms_uint32_t linkId = getLink(aPixelError.getWord32());
             const sipixelobjects::PixelFEDLink* link = fed->link(linkId);
             if (link) {
               // The "offline" 0..15 numbering is fixed by definition, also, the FrameConversion depends on it
