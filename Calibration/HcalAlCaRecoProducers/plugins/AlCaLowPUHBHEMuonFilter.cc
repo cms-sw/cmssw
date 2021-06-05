@@ -179,7 +179,7 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
               << RecMuon->innerTrack().isNonnull() << " outerTrack " << RecMuon->outerTrack().isNonnull()
               << " globalTrack " << RecMuon->globalTrack().isNonnull();
 #endif
-          if ((RecMuon->pt() < minimumMuonpT_) || fabs(RecMuon->eta() < minimumMuoneta_))
+          if ((RecMuon->pt() < minimumMuonpT_) || std::abs(RecMuon->eta()) < minimumMuoneta_)
             continue;
           if ((RecMuon->track().isNonnull()) && (RecMuon->innerTrack().isNonnull()) &&
               (RecMuon->outerTrack().isNonnull()) && (RecMuon->globalTrack().isNonnull())) {
