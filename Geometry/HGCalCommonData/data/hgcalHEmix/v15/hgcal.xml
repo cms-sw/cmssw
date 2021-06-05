@@ -15,6 +15,7 @@
   <Constant name="NumberOfCellsCoarse"   value="8"/>
   <Constant name="NPhiBinBH"             value="288"/>
   <Constant name="FirstMixedLayer"       value="9"/>
+  <Constant name="LayerRotation"         value="0*deg"/>
   <Constant name="slope1"                value="[etaMax:slope]"/>
   <Constant name="zPosV0"                value="3210.5*mm"/>
   <Constant name="rPosV0"                value="1523.3*mm"/>

@@ -36,9 +36,12 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
+
+using namespace sipixelconstants;
 
 /** \class SiPixelRawToDigi
  *  Plug-in module that performs Raw data to digi conversion 
