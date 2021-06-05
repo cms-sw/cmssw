@@ -13,7 +13,7 @@ lowPtGsfElectronID = defaultLowPtGsfElectronID.clone(
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
 from Configuration.Eras.Modifier_bParking_cff import bParking
-( run2_miniAOD_UL | bParking ).toModify(
+run2_miniAOD_UL.toModify(
     lowPtGsfElectronID,
     rho = "fixedGridRhoFastjetAll",
     ModelWeights = ["RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2020Sept15.root"],
