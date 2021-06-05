@@ -22,6 +22,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelROCsStatusAndMapping.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
@@ -51,14 +52,6 @@ namespace pixelgpudetails {
   }
 
   ////////////////////
-
-  __device__ uint32_t getLink(uint32_t ww) {
-    return ((ww >> pixelgpudetails::LINK_shift) & pixelgpudetails::LINK_mask);
-  }
-
-  __device__ uint32_t getRoc(uint32_t ww) { return ((ww >> pixelgpudetails::ROC_shift) & pixelgpudetails::ROC_mask); }
-
-  __device__ uint32_t getADC(uint32_t ww) { return ((ww >> pixelgpudetails::ADC_shift) & pixelgpudetails::ADC_mask); }
 
   __device__ bool isBarrel(uint32_t rawId) {
     return (PixelSubdetector::PixelBarrel == ((rawId >> DetId::kSubdetOffset) & DetId::kSubdetMask));
@@ -195,7 +188,7 @@ namespace pixelgpudetails {
                               uint32_t link,
                               const SiPixelROCsStatusAndMapping *cablingMap,
                               bool debug = false) {
-    uint8_t errorType = (errorWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ERROR_mask;
+    uint8_t errorType = (errorWord >> sipixelconstants::ROC_shift) & sipixelconstants::ERROR_mask;
     if (errorType < 25)
       return 0;
     bool errorFound = false;
@@ -233,7 +226,7 @@ namespace pixelgpudetails {
       case (29): {
         if (debug)
           printf("Timeout on a channel (errorType = 29)\n");
-        if ((errorWord >> pixelgpudetails::OMIT_ERR_shift) & pixelgpudetails::OMIT_ERR_mask) {
+        if ((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask) {
           if (debug)
             printf("...first errorType=29 error, this gets masked out\n");
         }
@@ -284,7 +277,7 @@ namespace pixelgpudetails {
       case 36:
       case 40: {
         uint32_t roc = 1;
-        uint32_t link = (errWord >> pixelgpudetails::LINK_shift) & pixelgpudetails::LINK_mask;
+        uint32_t link = sipixelconstants::getLink(errWord);
         uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
         if (rID_temp != gpuClustering::invalidModuleId)
           rID = rID_temp;
@@ -325,8 +318,8 @@ namespace pixelgpudetails {
       }
       case 37:
       case 38: {
-        uint32_t roc = (errWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ROC_mask;
-        uint32_t link = (errWord >> pixelgpudetails::LINK_shift) & pixelgpudetails::LINK_mask;
+        uint32_t roc = sipixelconstants::getROC(errWord);
+        uint32_t link = sipixelconstants::getLink(errWord);
         uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
         if (rID_temp != gpuClustering::invalidModuleId)
           rID = rID_temp;
@@ -378,8 +371,8 @@ namespace pixelgpudetails {
         continue;
       }
 
-      uint32_t link = getLink(ww);  // Extract link
-      uint32_t roc = getRoc(ww);    // Extract Roc in link
+      uint32_t link = sipixelconstants::getLink(ww);  // Extract link
+      uint32_t roc = sipixelconstants::getROC(ww);    // Extract Roc in link
       pixelgpudetails::DetIdGPU detId = getRawId(cablingMap, fedId, link, roc);
 
       uint8_t errorType = checkROC(ww, fedId, link, cablingMap, debug);
@@ -421,8 +414,8 @@ namespace pixelgpudetails {
       // ***special case of layer to 1 be handled here
       pixelgpudetails::Pixel localPix;
       if (layer == 1) {
-        uint32_t col = (ww >> pixelgpudetails::COL_shift) & pixelgpudetails::COL_mask;
-        uint32_t row = (ww >> pixelgpudetails::ROW_shift) & pixelgpudetails::ROW_mask;
+        uint32_t col = sipixelconstants::getCol(ww);
+        uint32_t row = sipixelconstants::getRow(ww);
         localPix.row = row;
         localPix.col = col;
         if (includeErrors) {
@@ -436,8 +429,8 @@ namespace pixelgpudetails {
         }
       } else {
         // ***conversion rules for dcol and pxid
-        uint32_t dcol = (ww >> pixelgpudetails::DCOL_shift) & pixelgpudetails::DCOL_mask;
-        uint32_t pxid = (ww >> pixelgpudetails::PXID_shift) & pixelgpudetails::PXID_mask;
+        uint32_t dcol = sipixelconstants::getDCol(ww);
+        uint32_t pxid = sipixelconstants::getPxId(ww);
         uint32_t row = pixelgpudetails::numRowsInRoc - pxid / 2;
         uint32_t col = dcol * 2 + pxid % 2;
         localPix.row = row;
@@ -454,7 +447,7 @@ namespace pixelgpudetails {
       pixelgpudetails::Pixel globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
       xx[gIndex] = globalPix.row;  // origin shifting by 1 0-159
       yy[gIndex] = globalPix.col;  // origin shifting by 1 0-415
-      adc[gIndex] = getADC(ww);
+      adc[gIndex] = sipixelconstants::getADC(ww);
       pdigi[gIndex] = pixelgpudetails::pack(globalPix.row, globalPix.col, adc[gIndex]);
       moduleId[gIndex] = detId.moduleId;
       rawIdArr[gIndex] = rawId;

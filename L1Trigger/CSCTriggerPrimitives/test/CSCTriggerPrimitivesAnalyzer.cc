@@ -73,6 +73,15 @@ private:
 
   // plots of resolution in MC
   bool mcResolutionPlots_;
+
+  /*
+    When set to True, we assume that the data comes from
+    the Building 904 CSC test-stand. This test-stand is a single
+    ME1/1 chamber.
+  */
+  bool B904Setup_;
+  // label only relevant for B904 local runs
+  std::string B904RunNumber_;
 };
 
 CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterSet &conf)
@@ -85,7 +94,9 @@ CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterS
       lctVars_(conf.getParameter<std::vector<std::string>>("lctVars")),
       dataVsEmulatorPlots_(conf.getParameter<bool>("dataVsEmulatorPlots")),
       mcEfficiencyPlots_(conf.getParameter<bool>("mcEfficiencyPlots")),
-      mcResolutionPlots_(conf.getParameter<bool>("mcResolutionPlots")) {}
+      mcResolutionPlots_(conf.getParameter<bool>("mcResolutionPlots")),
+      B904Setup_(conf.getParameter<bool>("B904Setup")),
+      B904RunNumber_(conf.getParameter<std::string>("B904RunNumber")) {}
 
 void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {
   // efficiency and resolution analysis is done here
@@ -120,7 +131,11 @@ void CSCTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
     return;
   }
 
-  TPostScript *ps = new TPostScript("CSC_data_vs_emulation.ps", 111);
+  TString runTitle = "CMS_Run_" + std::to_string(runNumber_);
+  if (B904Setup_)
+    runTitle = "B904_Cosmic_Run_" + TString(B904RunNumber_);
+
+  TPostScript *ps = new TPostScript("CSC_dataVsEmul_" + runTitle + ".ps", 111);
   TCanvas *c1 = new TCanvas("c1", "", 800, 800);
   c1->Clear();
   c1->Divide(1, 2);
@@ -208,7 +223,10 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
                                             TCanvas *c1) const {
   ps->NewPage();
 
-  const TString title(chamber + " " + lcts + " " + var + " (Run " + runNumber_ + ")");
+  TString runTitle = "(CMS Run " + std::to_string(runNumber_) + ")";
+  if (B904Setup_)
+    runTitle = "(B904 Cosmic Run " + TString(B904RunNumber_) + ")";
+  const TString title(chamber + " " + lcts + " " + var + " " + runTitle);
   c1->cd(1);
   gPad->SetGridx();
   gPad->SetGridy();

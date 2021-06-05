@@ -3,7 +3,6 @@
 
 #include <array>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/propagate_const_array.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
@@ -22,7 +21,10 @@ public:
   };
 
 #ifndef __CUDACC__
-  EcalMultifitParametersGPU(edm::ParameterSet const&);
+  EcalMultifitParametersGPU(std::vector<double> const& amplitudeEB,
+                            std::vector<double> const& amplitudeEE,
+                            std::vector<double> const& timeEB,
+                            std::vector<double> const& timeEE);
 
   ~EcalMultifitParametersGPU() = default;
 
