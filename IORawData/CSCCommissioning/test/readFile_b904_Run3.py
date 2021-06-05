@@ -28,18 +28,17 @@ process.source = cms.Source("EmptySource",
 #   changing to FED837 and RUI16 could let to pass data without disabling mapping consistency check unpacking flags
 process.rawDataCollector = cms.EDProducer('CSCFileReader',
       firstEvent  = cms.untracked.int32(0),
-      FED846 = cms.untracked.vstring('RUI01'),        
-      RUI01 = cms.untracked.vstring('/afs/cern.ch/user/b/barvic/public/cscgem_tests/csc_00000001_EmuRUI01_Local_000_210422_152923_UTC.raw')
+      FED846 = cms.untracked.vstring('RUI01'),
+      RUI01 = cms.untracked.vstring(options.inputFiles[0])
 #      FED837 = cms.untracked.vstring('RUI16'),
 #      RUI16 = cms.untracked.vstring('/afs/cern.ch/user/b/barvic/public/cscgem_tests/csc_00000001_EmuRUI01_Local_000_210519_162820_UTC.raw')
 )
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string("/tmp/barvic/csc_00000001_EmuRUI01_Local_000_210422_152923_UTC.root"),
+        fileName = cms.untracked.string(options.inputFiles[0].replace('.raw','.root')),
         outputCommands = cms.untracked.vstring("keep *")
 )
 
 process.p = cms.Path( process.rawDataCollector)
 
 process.outpath = cms.EndPath(process.FEVT)
-
