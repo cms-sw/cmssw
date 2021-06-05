@@ -24,7 +24,7 @@ run2_miniAOD_devel.toModify(
     lowPtGsfElectronID,
     ModelWeights = ["RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2020Nov28.root"],
 )
-bParking.toModify(
+(bParking & run2_miniAOD_UL).toModify(
     lowPtGsfElectronID,
     ModelWeights = ["RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2021May17.root"],
 )
