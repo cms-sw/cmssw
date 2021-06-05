@@ -46,8 +46,6 @@ l1TdeRCTfromRCT = l1TdeRCT.clone()
 l1TdeRCTfromRCT.rctSourceData = 'rctDigis'
 l1TdeRCTfromRCT.HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT_FromRCT')
 
-from DQM.L1TMonitor.L1TdeCSCTPG_cfi import *
-
 from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
 
 from DQM.L1TMonitor.L1GtHwValidation_cff import *
@@ -81,7 +79,6 @@ l1TdeRCTSeq = cms.Sequence(
 
 l1ExpertDataVsEmulator = cms.Sequence(
     l1TdeGCT +
-    l1tdeCSCTPG +
     l1TdeCSCTF +
     l1GtHwValidation +
     l1TdeRCTRun1
