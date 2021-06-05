@@ -39,7 +39,7 @@ bool CustomPDGParser::s_isRGlueball(int pdg) {
 
 bool CustomPDGParser::s_isDphoton(int pdg) {
   int pdgAbs = abs(pdg);
-  return (pdgAbs == 1072000);
+  return (pdgAbs == 1072000) || (pdgAbs == 1023);
 }
 
 bool CustomPDGParser::s_isRMeson(int pdg) {
