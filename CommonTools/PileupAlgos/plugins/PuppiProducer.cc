@@ -18,28 +18,35 @@
 #include "DataFormats/Common/interface/Association.h"
 //Main File
 #include "CommonTools/PileupAlgos/plugins/PuppiProducer.h"
-#include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
 
 // ------------------------------------------------------------------------------------------
 PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fPuppiDiagnostics = iConfig.getParameter<bool>("puppiDiagnostics");
-  fPuppiForLeptons = iConfig.getParameter<bool>("puppiForLeptons");
+  fPuppiNoLep = iConfig.getParameter<bool>("puppiNoLep");
   fUseFromPVLooseTight = iConfig.getParameter<bool>("UseFromPVLooseTight");
   fUseDZ = iConfig.getParameter<bool>("UseDeltaZCut");
   fDZCut = iConfig.getParameter<double>("DeltaZCut");
+  fEtaMinUseDZ = iConfig.getParameter<double>("EtaMinUseDeltaZ");
   fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
   fEtaMaxCharged = iConfig.getParameter<double>("EtaMaxCharged");
   fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
   fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
+  fNumOfPUVtxsForCharged = iConfig.getParameter<uint>("NumOfPUVtxsForCharged");
+  fDZCutForChargedFromPUVtxs = iConfig.getParameter<double>("DeltaZCutForChargedFromPUVtxs");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
-  fUseWeightsNoLep = iConfig.getParameter<bool>("useWeightsNoLep");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
   fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
   fVtxZCut = iConfig.getParameter<double>("vtxZCut");
-  fPuppiContainer = std::unique_ptr<PuppiContainer>(new PuppiContainer(iConfig));
+  fPuppiContainer = std::make_unique<PuppiContainer>(iConfig);
 
   tokenPFCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexName"));
+
+  fUsePUProxyValue = iConfig.getParameter<bool>("usePUProxyValue");
+
+  if (fUsePUProxyValue) {
+    puProxyValueToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("PUProxyValue"));
+  }
 
   ptokenPupOut_ = produces<edm::ValueMap<float>>();
   ptokenP4PupOut_ = produces<edm::ValueMap<LorentzVector>>();
@@ -73,11 +80,14 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(tokenVertices_, hVertexProduct);
   const reco::VertexCollection* pvCol = hVertexProduct.product();
 
-  int npv = 0;
-  const reco::VertexCollection::const_iterator vtxEnd = pvCol->end();
-  for (reco::VertexCollection::const_iterator vtxIter = pvCol->begin(); vtxEnd != vtxIter; ++vtxIter) {
-    if (!vtxIter->isFake() && vtxIter->ndof() >= fVtxNdofCut && std::abs(vtxIter->z()) <= fVtxZCut)
-      npv++;
+  double puProxyValue = 0.;
+  if (fUsePUProxyValue) {
+    puProxyValue = iEvent.get(puProxyValueToken_);
+  } else {
+    for (auto const& vtx : *pvCol) {
+      if (!vtx.isFake() && vtx.ndof() >= fVtxNdofCut && std::abs(vtx.z()) <= fVtxZCut)
+        ++puProxyValue;
+    }
   }
 
   std::vector<double> lWeights;
@@ -97,14 +107,15 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const reco::Vertex* closestVtx = nullptr;
       double pDZ = -9999;
       double pD0 = -9999;
-      int pVtxId = -9999;
-      bool lFirst = true;
+      uint pVtxId = 0;
+      bool isLepton = ((std::abs(pReco.pdgId) == 11) || (std::abs(pReco.pdgId) == 13));
       const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
       if (lPack == nullptr) {
         const reco::PFCandidate* pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
         double curdz = 9999;
         int closestVtxForUnassociateds = -9999;
         const reco::TrackRef aTrackRef = pPF->trackRef();
+        bool lFirst = true;
         for (auto const& aV : *pvCol) {
           if (lFirst) {
             if (aTrackRef.isNonnull()) {
@@ -152,18 +163,22 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         if (std::abs(pReco.charge) == 0) {
           pReco.id = 0;
         } else {
-          if (tmpFromPV == 0) {
+          if (fPuppiNoLep && isLepton)
+            pReco.id = 3;
+          else if (tmpFromPV == 0) {
             pReco.id = 2;
-          }  // 0 is associated to PU vertex
-          else if (tmpFromPV == 3) {
+            if (fNumOfPUVtxsForCharged > 0 and (pVtxId <= fNumOfPUVtxsForCharged) and
+                (std::abs(pDZ) < fDZCutForChargedFromPUVtxs))
+              pReco.id = 1;
+          } else if (tmpFromPV == 3)
             pReco.id = 1;
-          } else if (tmpFromPV == 1 || tmpFromPV == 2) {
+          else if (tmpFromPV == 1 || tmpFromPV == 2) {
             pReco.id = 0;
             if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
               pReco.id = 1;
             else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
-            else if (fUseDZ)
+            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
               pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
             else if (fUseFromPVLooseTight && tmpFromPV == 1)
               pReco.id = 2;
@@ -182,10 +197,20 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           pReco.id = 0;
         }
         if (std::abs(pReco.charge) > 0) {
-          if (lPack->fromPV() == 0) {
+          if (fPuppiNoLep && isLepton) {
+            pReco.id = 3;
+          } else if (lPack->fromPV() == 0) {
             pReco.id = 2;
-          }  // 0 is associated to PU vertex
-          else if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)) {
+            if ((fNumOfPUVtxsForCharged > 0) and (std::abs(pDZ) < fDZCutForChargedFromPUVtxs)) {
+              for (size_t puVtx_idx = 1; puVtx_idx <= fNumOfPUVtxsForCharged && puVtx_idx < pvCol->size();
+                   ++puVtx_idx) {
+                if (lPack->fromPV(puVtx_idx) >= 2) {
+                  pReco.id = 1;
+                  break;
+                }
+              }
+            }
+          } else if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)) {
             pReco.id = 1;
           } else if (lPack->fromPV() == (pat::PackedCandidate::PVTight) ||
                      lPack->fromPV() == (pat::PackedCandidate::PVLoose)) {
@@ -194,7 +219,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               pReco.id = 1;
             else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
-            else if (fUseDZ)
+            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
               pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
             else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
               pReco.id = 2;
@@ -208,7 +233,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
 
     fPuppiContainer->initialize(fRecoObjCollection);
-    fPuppiContainer->setNPV(npv);
+    fPuppiContainer->setPUProxy(puProxyValue);
 
     //Compute the weights and get the particles
     lWeights = fPuppiContainer->puppiWeights();
@@ -223,7 +248,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         throw edm::Exception(edm::errors::LogicError,
                              "PuppiProducer: cannot get weights since inputs are not PackedCandidates");
       } else {
-        if (fUseWeightsNoLep) {
+        if (fPuppiNoLep) {
           curpupweight = lPack->puppiWeightNoLep();
         } else {
           curpupweight = lPack->puppiWeight();
@@ -270,16 +295,16 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const pat::PackedCandidate* cand = dynamic_cast<const pat::PackedCandidate*>(&aCand);
       if (!cand)
         throw edm::Exception(edm::errors::LogicError, "PuppiProducer: inputs are not PackedCandidates");
-      pCand.reset(new pat::PackedCandidate(*cand));
+      pCand = std::make_unique<pat::PackedCandidate>(*cand);
     } else {
       auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(aCand.pdgId());
       const reco::PFCandidate* cand = dynamic_cast<const reco::PFCandidate*>(&aCand);
-      pfCand.reset(new reco::PFCandidate(cand ? *cand : reco::PFCandidate(aCand.charge(), aCand.p4(), id)));
+      pfCand = std::make_unique<reco::PFCandidate>(cand ? *cand : reco::PFCandidate(aCand.charge(), aCand.p4(), id));
     }
 
     // Here, we are using new weights computed and putting them in the packed candidates.
     if (fClonePackedCands && (!fUseExistingWeights)) {
-      if (fPuppiForLeptons)
+      if (fPuppiNoLep)
         pCand->setPuppiWeight(pCand->puppiWeight(), lWeights[iCand]);
       else
         pCand->setPuppiWeight(lWeights[iCand], pCand->puppiWeightNoLep());
@@ -357,18 +382,20 @@ void PuppiProducer::endJob() {}
 void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("puppiDiagnostics", false);
-  desc.add<bool>("puppiForLeptons", false);
+  desc.add<bool>("puppiNoLep", false);
   desc.add<bool>("UseFromPVLooseTight", false);
   desc.add<bool>("UseDeltaZCut", true);
   desc.add<double>("DeltaZCut", 0.3);
+  desc.add<double>("EtaMinUseDeltaZ", 0.);
   desc.add<double>("PtMaxCharged", -1.);
   desc.add<double>("EtaMaxCharged", 99999.);
   desc.add<double>("PtMaxPhotons", -1.);
   desc.add<double>("EtaMaxPhotons", 2.5);
   desc.add<double>("PtMaxNeutrals", 200.);
   desc.add<double>("PtMaxNeutralsStartSlope", 0.);
+  desc.add<uint>("NumOfPUVtxsForCharged", 0);
+  desc.add<double>("DeltaZCutForChargedFromPUVtxs", 0.2);
   desc.add<bool>("useExistingWeights", false);
-  desc.add<bool>("useWeightsNoLep", false);
   desc.add<bool>("clonePackedCands", false);
   desc.add<int>("vtxNdofCut", 4);
   desc.add<double>("vtxZCut", 24);
@@ -378,6 +405,8 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("invertPuppi", false);
   desc.add<bool>("useExp", false);
   desc.add<double>("MinPuppiWeight", .01);
+  desc.add<bool>("usePUProxyValue", false);
+  desc.add<edm::InputTag>("PUProxyValue", edm::InputTag(""));
 
   PuppiAlgo::fillDescriptionsPuppiAlgo(desc);
 

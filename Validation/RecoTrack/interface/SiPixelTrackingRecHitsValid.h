@@ -79,6 +79,9 @@ public:
                                                 const BoundPlane& plane);
 
 private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoEsToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomEsToken_;
+
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   //TrackLocalAngle *anglefinder_;
   DQMStore* dbe_;

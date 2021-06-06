@@ -61,7 +61,7 @@ void SiPixelFedCablingMapWriter::analyze(const edm::Event& iEvent, const edm::Ev
     //std::cout << "-------HERE-----------" << endl;
     //cabling = SiPixelFedCablingMapBuilder(pixelToFedAssociator_).produce(iSetup);
     //cabling = SiPixelFedCablingMapBuilder(fileName_,phase1_).produce(iSetup);
-    cabling = SiPixelFedCablingMapBuilder(fileName_).produce(iSetup);
+    cabling = SiPixelFedCablingMapBuilder(consumesCollector(), fileName_).produce(iSetup);
     //std::cout << "-------Print Map ----------- DOES NOT WORK for phase1 " << endl;
     edm::LogInfo("PRINTING MAP (Does not work for phase1: ") << cabling->print(3);
   }

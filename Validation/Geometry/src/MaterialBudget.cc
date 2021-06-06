@@ -12,9 +12,10 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "DD4hep/Filter.h"
 
 #include <iostream>
-//#define DebugLog
+#define EDM_ML_DEBUG
 
 MaterialBudget::MaterialBudget(const edm::ParameterSet& p) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudget");
@@ -62,7 +63,8 @@ void MaterialBudget::update(const BeginOfRun*) {
 
   for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
     for (unsigned int ii = 0; ii < detNames.size(); ++ii) {
-      if (strcmp(detNames[ii].c_str(), (*lvcite)->GetName().c_str()) == 0) {
+      if (strcmp(detNames[ii].c_str(),
+                 static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())).c_str()) == 0) {
         logVolumes[ii] = (*lvcite);
         kount--;
         break;
@@ -76,7 +78,7 @@ void MaterialBudget::update(const BeginOfRun*) {
   for (unsigned int ii = 0; ii < detNames.size(); ++ii) {
     std::string name("Unknown");
     if (logVolumes[ii] != nullptr)
-      name = logVolumes[ii]->GetName();
+      name = dd4hep::dd::noNamespace(logVolumes[ii]->GetName());
     edm::LogInfo("MaterialBudget") << "LV[" << ii << "] : " << detNames[ii] << " Address " << logVolumes[ii] << " | "
                                    << name;
   }
@@ -106,7 +108,7 @@ void MaterialBudget::update(const BeginOfTrack* trk) {
   phi_ = mom.phi();
   stepT = 0;
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   double theEnergy = aTrack->GetTotalEnergy();
   int theID = (int)(aTrack->GetDefinition()->GetPDGEncoding());
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Track " << aTrack->GetTrackID() << " Code " << theID
@@ -144,8 +146,9 @@ void MaterialBudget::update(const G4Step* aStep) {
   stepLen[indx] = stepT;
   radLen[indx] += (step / radl);
   intLen[indx] += (step / intl);
-#ifdef DebugLog
-  edm::LogInfo("MaterialBudget") << "MaterialBudget::Step in " << touch->GetVolume(0)->GetLogicalVolume()->GetName()
+#ifdef EDM_ML_DEBUG
+  edm::LogInfo("MaterialBudget") << "MaterialBudget::Step in "
+                                 << dd4hep::dd::noNamespace(touch->GetVolume(0)->GetLogicalVolume()->GetName())
                                  << " Index " << indx << " Step " << step << " RadL " << step / radl << " IntL "
                                  << step / intl;
 #endif
@@ -164,7 +167,7 @@ void MaterialBudget::update(const EndOfTrack* trk) {
           if (stackOrder[kk] == (int)(ii)) {
             radLen[jj] += radLen[kk];
             intLen[jj] += intLen[kk];
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
             edm::LogInfo("MaterialBudget")
                 << "MaterialBudget::Add " << kk << ":" << stackOrder[kk] << " to " << jj << ":" << stackOrder[jj]
                 << " RadL " << radLen[kk] << " : " << radLen[jj] << " IntL " << intLen[kk] << " : " << intLen[jj]
@@ -185,7 +188,7 @@ void MaterialBudget::update(const EndOfTrack* trk) {
     me400[ii]->Fill(phi_, radLen[ii]);
     me500[ii]->Fill(phi_, intLen[ii]);
     me600[ii]->Fill(phi_, stepLen[ii]);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::string name("Unknown");
     if (ii < detTypes.size())
       name = detTypes[ii];
@@ -253,7 +256,7 @@ bool MaterialBudget::stopAfter(const G4Step* aStep) {
 
   bool flag(false);
   for (unsigned int ii = 0; ii < etaRegions.size(); ++ii) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     edm::LogInfo("MaterialBudget") << " MaterialBudget::Eta " << eta_ << " in Region[" << ii << "] with "
                                    << etaRegions[ii] << " type " << regionTypes[ii] << "|" << boundaries[ii];
 #endif
@@ -265,14 +268,14 @@ bool MaterialBudget::stopAfter(const G4Step* aStep) {
         if (zz >= boundaries[ii] - 0.001)
           flag = true;
       }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
       if (flag)
         edm::LogInfo("MaterialBudget") << " MaterialBudget::Stop after R = " << rr << " and Z = " << zz;
 #endif
       break;
     }
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MaterialBudget") << " MaterialBudget:: R = " << rr << " and Z = " << zz << " Flag " << flag;
 #endif
   return flag;

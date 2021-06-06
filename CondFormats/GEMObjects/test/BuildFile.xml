@@ -1,3 +1,3 @@
 <bin file="test_serialization.cpp" name="test_GEMObjects_serialization">
-    <use name="CondFormats/GEMObjects"/>
+  <use name="CondFormats/GEMObjects"/>
 </bin>

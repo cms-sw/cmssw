@@ -1,17 +1,10 @@
-#include <iostream>
-//
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-//
 #include "Validation/RecoEgamma/plugins/ElectronConversionRejectionValidator.h"
-
-//
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-//
-
-//
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -22,11 +15,9 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
-//
-//
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -34,7 +25,9 @@
 #include "TVector3.h"
 #include "TProfile.h"
 #include "TMath.h"
-//
+
+#include <iostream>
+
 /** \class ElectronConversionRejectionValidator
  **
  **

@@ -46,7 +46,14 @@ ALCARECOTkAlCosmicsRegional0T = ALCARECOTkAlCosmicsCTF0T.clone(
     src = 'regionalCosmicTracks'
     )
 
+# AlCaReco for track based alignment using Cosmic muons reconstructed by Cosmics During Collisions Algorithm
+# (same cuts)
+ALCARECOTkAlCosmicsDuringCollisions0T = ALCARECOTkAlCosmicsCTF0T.clone(
+    src = 'cosmicDCTracks'
+    )
+
 #________________________________Sequences____________________________________
 seqALCARECOTkAlCosmicsCTF0T = cms.Sequence(ALCARECOTkAlCosmicsCTF0T)
 seqALCARECOTkAlCosmicsCosmicTF0T = cms.Sequence(ALCARECOTkAlCosmicsCosmicTF0T)
 seqALCARECOTkAlCosmicsRegional0T = cms.Sequence(ALCARECOTkAlCosmicsRegional0T)
+seqALCARECOTkAlCosmicsDuringCollisions0T = cms.Sequence(ALCARECOTkAlCosmicsDuringCollisions0T)

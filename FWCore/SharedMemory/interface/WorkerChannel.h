@@ -27,6 +27,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/Transition.h"
+#include "FWCore/SharedMemory/interface/BufferInfo.h"
 
 // forward declarations
 
@@ -47,9 +48,9 @@ namespace edm::shared_memory {
     boost::interprocess::scoped_lock<boost::interprocess::named_mutex>* accessLock() { return &lock_; }
 
     ///This can be used with ReadBuffer to keep Controller and Worker in sync
-    char* toWorkerBufferIndex() { return toWorkerBufferIndex_; }
+    BufferInfo* toWorkerBufferInfo() { return toWorkerBufferInfo_; }
     ///This can be used with WriteBuffer to keep Controller and Worker in sync
-    char* fromWorkerBufferIndex() { return fromWorkerBufferIndex_; }
+    BufferInfo* fromWorkerBufferInfo() { return fromWorkerBufferInfo_; }
 
     ///Matches the ControllerChannel::setupWorker call
     void workerSetupDone() {
@@ -94,8 +95,8 @@ namespace edm::shared_memory {
     bool* stop_;
     edm::Transition* transitionType_;
     unsigned long long* transitionID_;
-    char* toWorkerBufferIndex_;
-    char* fromWorkerBufferIndex_;
+    BufferInfo* toWorkerBufferInfo_;
+    BufferInfo* fromWorkerBufferInfo_;
     boost::interprocess::named_condition cndToController_;
     bool* keepEvent_;
     boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock_;

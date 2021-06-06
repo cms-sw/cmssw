@@ -26,7 +26,7 @@ public:
 
 private:
   edm::ParameterSet conf_;
-  edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
 
   TrackerMap* tkMap_detCab;  //0 for onTrack, 1 for offTrack, 2 for All
 };

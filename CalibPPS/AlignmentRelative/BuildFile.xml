@@ -1,0 +1,13 @@
+<use name="clhep"/>
+<use name="root"/>
+<use name="rootgraphics"/>
+
+<use name="DataFormats/CTPPSDetId"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
+<use name="Geometry/Records"/>
+<use name="DataFormats/CTPPSReco"/>
+<use name="CondFormats/PPSObjects"/>
+
+<export>
+ <lib name="1"/>
+</export>

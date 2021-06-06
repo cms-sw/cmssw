@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,6 +37,7 @@ private:
   /// Name of input digi Collection
   edm::EDGetTokenT<ME0DigiCollection> digi_token_;
   edm::InputTag digis_;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geom_token_;
 
   const ME0Geometry* geometry_;
 };
@@ -44,6 +46,7 @@ ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps) : geometry_(
   digis_ = ps.getParameter<edm::InputTag>("InputCollection");
 
   digi_token_ = consumes<ME0DigiCollection>(digis_);
+  geom_token_ = esConsumes<ME0Geometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 
   produces<ME0PadDigiCollection>();
 }
@@ -51,8 +54,7 @@ ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps) : geometry_(
 ME0PadDigiProducer::~ME0PadDigiProducer() {}
 
 void ME0PadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<ME0Geometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<ME0Geometry> hGeom = eventSetup.getHandle(geom_token_);
   geometry_ = &*hGeom;
 }
 

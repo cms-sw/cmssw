@@ -17,15 +17,14 @@
 #include "xercesc/util/PlatformUtils.hpp"
 #include "XMLAuthenticationService.h"
 
-#include <memory>
 #include <cstdlib>
-#include <fstream>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <boost/filesystem.hpp>
-#include <boost/version.hpp>
+#include <filesystem>
+#include <fstream>
+#include <memory>
+#include <sys/stat.h>
+
 #include <boost/bind.hpp>
-//#include <iostream>
 #include "CoralBase/MessageStream.h"
 
 constexpr char XML_AUTHENTICATION_FILE[] = "authentication.xml";
@@ -97,12 +96,12 @@ cond::XMLAuthenticationService::XMLAuthenticationService::~XMLAuthenticationServ
 }
 
 void cond::XMLAuthenticationService::XMLAuthenticationService::setAuthenticationPath(const std::string& inputPath) {
-  boost::filesystem::path boostAuthPath(inputPath);
-  if (boost::filesystem::is_directory(boostAuthPath)) {
-    boostAuthPath /= boost::filesystem::path(XML_AUTHENTICATION_FILE);
+  std::filesystem::path AuthPath(inputPath);
+  if (std::filesystem::is_directory(AuthPath)) {
+    AuthPath /= std::filesystem::path(XML_AUTHENTICATION_FILE);
   }
 
-  m_inputFileName = boostAuthPath.string();
+  m_inputFileName = AuthPath.string();
   reset();
 }
 
@@ -122,13 +121,9 @@ bool cond::XMLAuthenticationService::XMLAuthenticationService::processFile(const
     return false;
   }
 
-  // check the
-  boost::filesystem::path filePath(inputFileName);
-#if (BOOST_VERSION / 100000) >= 1 && ((BOOST_VERSION / 100) % 1000) >= 47
+  std::filesystem::path filePath(inputFileName);
   std::string name = filePath.filename().string();
-#else
-  std::string name = filePath.leaf();
-#endif
+
   /**
   if(name!=XML_AUTHENTICATION_FILE){
     cond::DecodingKey key;
@@ -380,17 +375,17 @@ std::set<std::string> cond::XMLAuthenticationService::XMLAuthenticationService::
   std::set<std::string> fileNames;
 
   // Try the file name as is...
-  boost::filesystem::path filePath(m_inputFileName);
-  if (boost::filesystem::exists(m_inputFileName)) {
-    if (boost::filesystem::is_directory(m_inputFileName)) {
+  std::filesystem::path filePath(m_inputFileName);
+  if (std::filesystem::exists(m_inputFileName)) {
+    if (std::filesystem::is_directory(m_inputFileName)) {
       //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
       log << coral::Error << "Provided path \"" << m_inputFileName << "\" is a directory."
           << coral::MessageStream::endmsg;
       return fileNames;
     }
-    boost::filesystem::path& fullPath = filePath.normalize();
+    std::filesystem::path fullPath = filePath.lexically_normal();
     fileNames.insert(fullPath.string());
-    if (filePath.is_complete())
+    if (filePath.is_absolute())
       return fileNames;
   }
 
@@ -403,12 +398,12 @@ std::set<std::string> cond::XMLAuthenticationService::XMLAuthenticationService::
 
   std::string searchPath(thePathVariable);
   //std::cout<<"searchPath "<<searchPath<<std::endl;
-  if (boost::filesystem::exists(searchPath)) {
-    if (!boost::filesystem::is_directory(searchPath)) {
+  if (std::filesystem::exists(searchPath)) {
+    if (!std::filesystem::is_directory(searchPath)) {
       log << coral::Debug << "Search path \"" << searchPath << "\" is not a directory." << coral::MessageStream::endmsg;
       return fileNames;
     }
-    boost::filesystem::path fullPath(searchPath);
+    std::filesystem::path fullPath(searchPath);
     fullPath /= filePath;
     fileNames.insert(fullPath.string());
   } else {

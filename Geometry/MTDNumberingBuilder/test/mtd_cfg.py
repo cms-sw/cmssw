@@ -1,23 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GeometryTest")
-# empty input service, fire 10 events
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
 
-process.load("Configuration.Geometry.GeometryExtended2026D50_cff")
-
-process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi")
-
-process.load("Geometry.MTDNumberingBuilder.mtdTopology_cfi")
-process.load("Geometry.MTDGeometryBuilder.mtdGeometry_cfi")
-process.load("Geometry.MTDGeometryBuilder.mtdParameters_cfi")
-process.mtdGeometry.applyAlignment = cms.bool(False)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
-)
-
-process.Timing = cms.Service("Timing")
+process = cms.Process("GeometryTest",Phase2C11I13M9)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -30,17 +15,47 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.MessageLogger.cerr.INFO.limit = -1
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
+process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+    limit = cms.untracked.int32(0)
+)
+process.MessageLogger.cerr.GeometricTimingDetAnalyzer = cms.untracked.PSet(
+    limit = cms.untracked.int32(-1)
+)
+process.MessageLogger.files.mtdNumberingDDD = cms.untracked.PSet(
+    DEBUG = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    ERROR = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    FWKINFO = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    INFO = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    MTDUnitTest = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1)
+    ),
+    WARNING = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    noLineBreaks = cms.untracked.bool(True),
+    threshold = cms.untracked.string('INFO')
+)
 
-process.myprint = cms.OutputModule("AsciiOutputModule")
+process.load("Configuration.Geometry.GeometryExtended2026D76_cff")
+
+process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
+
+process.load("Geometry.MTDNumberingBuilder.mtdTopology_cfi")
+process.load("Geometry.MTDGeometryBuilder.mtdParameters_cff")
+
+process.Timing = cms.Service("Timing")
 
 process.prod = cms.EDAnalyzer("GeometricTimingDetAnalyzer")
 
-process.prod1 = cms.EDAnalyzer("MTDTopologyAnalyzer")
-
-process.p1 = cms.Path(process.prod+process.prod1)
-
-process.e1 = cms.EndPath(process.myprint)
-
-
+process.p1 = cms.Path(process.prod)
 

@@ -42,6 +42,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 class BPHMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 public:

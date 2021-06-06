@@ -4,6 +4,7 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include <limits>
 
@@ -28,14 +29,15 @@ public:
     //
     // Protect against p_z=0 and calculate path length
     //
-    if
-      UNLIKELY(std::abs(theCosTheta) < std::numeric_limits<float>::min()) return std::pair<bool, double>(false, 0);
+    if UNLIKELY (std::abs(theCosTheta) < std::numeric_limits<float>::min())
+      return std::pair<bool, double>(false, 0);
 
     double dS = (plane.position().z() - theZ0) / theCosTheta;
 
     // negative logic to avoid checking for anyDirection...
-    return std::make_pair(
-        !(((thePropDir == alongMomentum) & (dS < 0.)) | ((thePropDir == oppositeToMomentum) & (dS > 0.))), dS);
+    return std::make_pair(!(((thePropDir == alongMomentum) & (dS < 0.)) |
+                            ((thePropDir == oppositeToMomentum) & (dS > 0.)) | edm::isNotFinite(dS)),
+                          dS);
   }
 
   /** Position at pathlength s from the starting point.

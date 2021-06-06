@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "DQM/EcalMonitorDbModule/interface/EcalCondDBReader.h"
 
 #include "DQM/EcalCommon/interface/MESetUtils.h"
@@ -6,6 +8,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const &_ps)
     : db_(nullptr),
@@ -89,12 +93,11 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const &_ps)
     edm::LogInfo("EcalDQM") << "Establishing DB connection";
 
   try {
-    db = std::unique_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
+    db = std::make_unique<EcalCondDBInterface>(DBName, userName, password);
   } catch (std::runtime_error &re) {
     if (!hostName.empty()) {
       try {
-        db = std::unique_ptr<EcalCondDBInterface>(
-            new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
+        db = std::make_unique<EcalCondDBInterface>(hostName, DBName, userName, password, hostPort);
       } catch (std::runtime_error &re2) {
         throw cms::Exception("DBError") << re2.what();
       }
@@ -144,10 +147,33 @@ EcalCondDBReader::~EcalCondDBReader() {
   delete meSet_;
 }
 
-void EcalCondDBReader::dqmEndJob(DQMStore::IBooker &_ibooker, DQMStore::IGetter &) {
-  meSet_->book(_ibooker);
+void EcalCondDBReader::dqmEndRun(DQMStore::IBooker &_ibooker,
+                                 DQMStore::IGetter &,
+                                 edm::Run const &,
+                                 edm::EventSetup const &_es) {
+  setElectronicsMap(_es);
+  meSet_->book(_ibooker, GetElectronicsMap());
 
   std::map<DetId, double> values(worker_->run(db_, monIOV_, formula_));
   for (std::map<DetId, double>::const_iterator vItr(values.begin()); vItr != values.end(); ++vItr)
-    meSet_->setBinContent(vItr->first, vItr->second);
+    meSet_->setBinContent(getEcalDQMSetupObjects(), vItr->first, vItr->second);
+}
+
+void EcalCondDBReader::setElectronicsMap(edm::EventSetup const &_es) {
+  edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
+  _es.get<EcalMappingRcd>().get(elecMapHandle);
+  electronicsMap = elecMapHandle.product();
+}
+
+EcalElectronicsMapping const *EcalCondDBReader::GetElectronicsMap() {
+  if (!electronicsMap)
+    throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
+  return electronicsMap;
+}
+
+ecaldqm::EcalDQMSetupObjects const EcalCondDBReader::getEcalDQMSetupObjects() {
+  if (!electronicsMap)
+    throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
+  ecaldqm::EcalDQMSetupObjects edso = {electronicsMap, nullptr, nullptr, nullptr};
+  return edso;
 }

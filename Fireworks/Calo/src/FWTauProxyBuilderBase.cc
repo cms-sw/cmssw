@@ -16,6 +16,7 @@
 #include "TGeoTube.h"
 #include "TEveJetCone.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveScalableStraightLineSet.h"
 #include "TEveTrack.h"
 

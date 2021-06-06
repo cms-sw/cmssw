@@ -348,6 +348,8 @@ trackingDQMgoodOfflinePrimaryVertices = goodOfflinePrimaryVertices.clone()
 
 # import PV resolution
 from DQM.TrackingMonitor.primaryVertexResolution_cfi import *
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(primaryVertexResolution, forceSCAL = False)
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
 # dEdx monitoring
@@ -376,7 +378,16 @@ for _eraName, _postfix, _era in _cfg.allEras():
         locals()["TrackSeedMonSequence"] = _seq
     else:
         _era.toReplaceWith(TrackSeedMonSequence, _seq)
+
+_seedingDeepCore_TrackSeedMonSequence = TrackSeedMonSequence.copy()
+_seedingDeepCore_TrackSeedMonSequence.remove(locals()["TrackSeedMonjetCoreRegionalStep"])
+#_seedingDeepCore_TrackSeedMonSequence += (locals()["TrackSeedMonjetCoreRegionalStepBarrel"])
+_seedingDeepCore_TrackSeedMonSequence += (locals()["TrackSeedMonjetCoreRegionalStepEndcap"])
+from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
+seedingDeepCore.toReplaceWith(TrackSeedMonSequence,_seedingDeepCore_TrackSeedMonSequence)
+
 TrackingDQMSourceTier0 += TrackSeedMonSequence
+
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'

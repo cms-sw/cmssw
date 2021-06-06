@@ -9,6 +9,7 @@
   \author   Giovanni Petrucciani
 */
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,6 +37,7 @@ public:
 private:
   /// Labels for input collections
   edm::EDGetTokenT<edm::View<reco::Muon>> src_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   /// Muon selection
   StringCutObjectSelector<reco::Muon> selector_;
@@ -55,11 +57,12 @@ private:
 
 MuonReSeeder::MuonReSeeder(const edm::ParameterSet &iConfig)
     : src_(consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("src"))),
+      tTopoToken_(esConsumes()),
       selector_(iConfig.existsAs<std::string>("cut") ? iConfig.getParameter<std::string>("cut") : "", true),
       layersToKeep_(iConfig.getParameter<int32_t>("layersToKeep")),
       insideOut_(iConfig.getParameter<bool>("insideOut")),
       debug_(iConfig.getUntrackedParameter<bool>("debug", false)),
-      refitter_(iConfig) {
+      refitter_(iConfig, consumesCollector()) {
   produces<std::vector<TrajectorySeed>>();
 }
 
@@ -73,8 +76,7 @@ void MuonReSeeder::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   iEvent.getByToken(src_, src);
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  const TrackerTopology &tTopo = iSetup.getData(tTopoToken_);
 
   auto out = std::make_unique<std::vector<TrajectorySeed>>();
   unsigned int nsrc = src->size();
@@ -123,7 +125,7 @@ void MuonReSeeder::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       if (!hit)
         continue;
       int subdet = hit->geographicalId().subdetId();
-      int lay = tTopo->layer(hit->geographicalId());
+      int lay = tTopo.layer(hit->geographicalId());
       if (subdet != lastSubdet || lay != lastLayer) {
         // I'm on a new layer
         if (lastHit != nullptr && taken == layersToKeep_) {

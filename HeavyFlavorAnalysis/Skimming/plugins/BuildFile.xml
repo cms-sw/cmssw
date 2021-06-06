@@ -1,5 +1,0 @@
-<library   file="Tau3MuSkim.cc" name="Tau3MuSkim">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="HeavyFlavorAnalysis/Skimming"/>
-</library>

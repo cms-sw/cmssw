@@ -5,7 +5,7 @@ function die { echo $1: status $2 ;  exit $2; }
 
 pushd ${LOCAL_TMP_DIR}
 
-export tmpdir=${LOCAL_TMP_DIR:-/tmp}
+export TMPDIR=${LOCAL_TMP_DIR:-/tmp}
 cmsRun ${LOCAL_TEST_DIR}/gen_things_cfg.py || die 'Failed generating test root file' $?
 
 rm -f a.jpg refA.jpg

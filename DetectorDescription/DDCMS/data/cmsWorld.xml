@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-
+<DDDefinition>
   <SolidSection label="cmsWorld.xml">
     <Box name="OCMS" dx="10*m" dy="10*m" dz="10*m"/>
   </SolidSection>
@@ -19,12 +18,12 @@
       <rMaterial name="materials:Air"/>
     </LogicalPart>
   </LogicalPartSection>
-
+  
   <PosPartSection label="cmsWorld.xml">
     <PosPart copyNumber="0">
       <rParent name="OCMS"/>
       <rChild name="testLogicalParts:MotherOfAllBoxes"/>
     </PosPart>
   </PosPartSection>
-
+  
 </DDDefinition>

@@ -25,7 +25,7 @@ public:
   ~QIE10Task() override {}
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 protected:
   void _process(edm::Event const&, edm::EventSetup const&) override;
@@ -36,6 +36,7 @@ protected:
   edm::InputTag _tagHF;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HFDigiCollection> _tokHF;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	cuts/constants from input
   double _cut;

@@ -27,10 +27,9 @@ void BaseTrackerRecHit::check() const {
 #endif
 
 bool BaseTrackerRecHit::hasPositionAndError() const {
+  //if det is present pos&err are available as well.
+  //    //if det() is not present (null) the hit has been read from file and not updated
   return det();
-
-  //  return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
-  //       (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
 }
 
 void BaseTrackerRecHit::getKfComponents1D(KfComponentsHolder &holder) const {

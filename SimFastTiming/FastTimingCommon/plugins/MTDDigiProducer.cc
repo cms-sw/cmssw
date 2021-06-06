@@ -56,17 +56,3 @@ void MTDDigiProducer::accumulate(PileUpEventPrincipal const& event,
     digitizer->accumulate(event, es, randomEngine_);
   }
 }
-
-//
-void MTDDigiProducer::beginRun(edm::Run const&, edm::EventSetup const& es) {
-  for (auto& digitizer : theDigitizers_) {
-    digitizer->beginRun(es);
-  }
-}
-
-//
-void MTDDigiProducer::endRun(edm::Run const&, edm::EventSetup const&) {
-  for (auto& digitizer : theDigitizers_) {
-    digitizer->endRun();
-  }
-}

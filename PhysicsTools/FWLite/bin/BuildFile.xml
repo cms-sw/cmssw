@@ -1,16 +1,20 @@
-<use   name="root"/>
-<use   name="boost"/>
-<use   name="FWCore/FWLite"/>
-<use   name="DataFormats/FWLite"/>
-<use   name="DataFormats/Luminosity"/>
-<use   name="FWCore/ParameterSetReader"/>
-<use   name="CommonTools/Utils"/>
-<use   name="PhysicsTools/FWLite"/>
-<use   name="PhysicsTools/Utilities"/>
-<use   name="PhysicsTools/SelectorUtils"/>
+<use name="boost"/>
+<use name="root"/>
+<use name="DataFormats/FWLite"/>
+<use name="DataFormats/Luminosity"/>
+<use name="FWCore/FWLite"/>
+<use name="FWCore/ParameterSetReader"/>
+<use name="PhysicsTools/FWLite"/>
 <environment>
-  <bin   file="FWLiteLumiAccess.cc"></bin>
-  <bin   file="FWLiteHistograms.cc"></bin>
-  <bin   file="FWLiteWithPythonConfig.cc"></bin>
-  <bin   file="FWLiteWithSelectorUtils.cc"></bin>
+  <bin file="FWLiteLumiAccess.cc">
+  </bin>
+
+  <bin file="FWLiteHistograms.cc">
+  </bin>
+
+  <bin file="FWLiteWithPythonConfig.cc">
+  </bin>
+
+  <bin file="FWLiteWithSelectorUtils.cc">
+  </bin>
 </environment>

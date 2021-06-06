@@ -20,13 +20,13 @@ namespace math {
   namespace cholesky {
 
     template <typename M1, typename M2>
-    inline constexpr void invert11(M1 const& src, M2& dst) {
+    inline constexpr void __attribute__((always_inline)) invert11(M1 const& src, M2& dst) {
       using F = decltype(src(0, 0));
       dst(0, 0) = F(1.0) / src(0, 0);
     }
 
     template <typename M1, typename M2>
-    inline constexpr void invert22(M1 const& src, M2& dst) {
+    inline constexpr void __attribute__((always_inline)) invert22(M1 const& src, M2& dst) {
       using F = decltype(src(0, 0));
       auto luc0 = F(1.0) / src(0, 0);
       auto luc1 = src(1, 0) * src(1, 0) * luc0;
@@ -40,7 +40,7 @@ namespace math {
     }
 
     template <typename M1, typename M2>
-    inline constexpr void invert33(M1 const& src, M2& dst) {
+    inline constexpr void __attribute__((always_inline)) invert33(M1 const& src, M2& dst) {
       using F = decltype(src(0, 0));
       auto luc0 = F(1.0) / src(0, 0);
       auto luc1 = src(1, 0);
@@ -64,7 +64,7 @@ namespace math {
     }
 
     template <typename M1, typename M2>
-    inline constexpr void invert44(M1 const& src, M2& dst) {
+    inline constexpr void __attribute__((always_inline)) invert44(M1 const& src, M2& dst) {
       using F = decltype(src(0, 0));
       auto luc0 = F(1.0) / src(0, 0);
       auto luc1 = src(1, 0);
@@ -100,7 +100,7 @@ namespace math {
     }
 
     template <typename M1, typename M2>
-    inline constexpr void invert55(M1 const& src, M2& dst) {
+    inline constexpr void __attribute__((always_inline)) invert55(M1 const& src, M2& dst) {
       using F = decltype(src(0, 0));
       auto luc0 = F(1.0) / src(0, 0);
       auto luc1 = src(1, 0);
@@ -155,7 +155,7 @@ namespace math {
     }
 
     template <typename M1, typename M2>
-    inline __attribute__((always_inline)) constexpr void invert66(M1 const& src, M2& dst) {
+    inline constexpr void __attribute__((always_inline)) invert66(M1 const& src, M2& dst) {
       using F = decltype(src(0, 0));
       auto luc0 = F(1.0) / src(0, 0);
       auto luc1 = src(1, 0);
@@ -297,7 +297,7 @@ namespace math {
 
     template <typename M1, typename M2>
     struct Inverter<M1, M2, 2> {
-      static constexpr void eval(M1 const& src, M2& dst) {
+      static constexpr void __attribute__((always_inline)) eval(M1 const& src, M2& dst) {
         invert22(src, dst);
         symmetrize22(dst);
       }
@@ -305,7 +305,7 @@ namespace math {
 
     template <typename M1, typename M2>
     struct Inverter<M1, M2, 3> {
-      static constexpr void eval(M1 const& src, M2& dst) {
+      static constexpr void __attribute__((always_inline)) eval(M1 const& src, M2& dst) {
         invert33(src, dst);
         symmetrize33(dst);
       }
@@ -313,7 +313,7 @@ namespace math {
 
     template <typename M1, typename M2>
     struct Inverter<M1, M2, 4> {
-      static constexpr void eval(M1 const& src, M2& dst) {
+      static constexpr void __attribute__((always_inline)) eval(M1 const& src, M2& dst) {
         invert44(src, dst);
         symmetrize44(dst);
       }
@@ -321,7 +321,7 @@ namespace math {
 
     template <typename M1, typename M2>
     struct Inverter<M1, M2, 5> {
-      static constexpr void eval(M1 const& src, M2& dst) {
+      static constexpr void __attribute__((always_inline)) eval(M1 const& src, M2& dst) {
         invert55(src, dst);
         symmetrize55(dst);
       }
@@ -329,7 +329,7 @@ namespace math {
 
     template <typename M1, typename M2>
     struct Inverter<M1, M2, 6> {
-      static constexpr void eval(M1 const& src, M2& dst) {
+      static constexpr void __attribute__((always_inline)) eval(M1 const& src, M2& dst) {
         invert66(src, dst);
         symmetrize66(dst);
       }
@@ -337,7 +337,8 @@ namespace math {
 
     // Eigen interface
     template <typename D1, typename D2>
-    inline constexpr void invert(Eigen::DenseBase<D1> const& src, Eigen::DenseBase<D2>& dst) {
+    inline constexpr void __attribute__((always_inline))
+    invert(Eigen::DenseBase<D1> const& src, Eigen::DenseBase<D2>& dst) {
       using M1 = Eigen::DenseBase<D1>;
       using M2 = Eigen::DenseBase<D2>;
       Inverter<M1, M2, M2::ColsAtCompileTime>::eval(src, dst);

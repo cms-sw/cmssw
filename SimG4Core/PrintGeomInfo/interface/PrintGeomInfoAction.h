@@ -18,7 +18,6 @@ class G4LogicalVolume;
 class G4VPhysicalVolume;
 class G4VSolid;
 
-typedef std::map<G4VPhysicalVolume*, G4VPhysicalVolume*, std::less<G4VPhysicalVolume*> > mpvpv;
 typedef std::multimap<G4LogicalVolume*, G4VPhysicalVolume*, std::less<G4LogicalVolume*> > mmlvpv;
 
 class PrintGeomInfoAction : public SimWatcher, public Observer<const BeginOfJob*>, public Observer<const BeginOfRun*> {
@@ -40,23 +39,26 @@ private:
   void dumpHierarchyLeafPVLV(G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& out = std::cout);
   void dumpLV(G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& out = std::cout);
   void dumpPV(G4VPhysicalVolume* pv, unsigned int leafDepth, std::ostream& out = std::cout);
-  void dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth, std::ostream& out = std::cout);
-  std::string spacesFromLeafDepth(unsigned int leafDepth);
   void dumpSolid(G4VSolid* sol, unsigned int leafDepth, std::ostream& out = std::cout);
+  void dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth, std::ostream& out = std::cout);
+  void dumpInFile();
+  void getTouch(G4VPhysicalVolume* pv, unsigned int leafDepth, unsigned int copym, std::vector<std::string>& touches);
+  std::string spacesFromLeafDepth(unsigned int leafDepth);
   G4VPhysicalVolume* getTopPV();
   G4LogicalVolume* getTopLV();
 
 private:
-  bool _dumpSummary, _dumpLVTree, _dumpLVList;
-  bool _dumpMaterial;
-  bool _dumpLV, _dumpSolid, _dumpAtts, _dumpSense;
-  bool _dumpPV, _dumpRotation, _dumpReplica, _dumpTouch;
-  std::string name;
-  int nchar;
-  std::vector<std::string> names;
-  mpvpv thePVTree;
-  G4VPhysicalVolume* theTopPV;
-  G4NavigationHistory fHistory;
+  bool dumpSummary_, dumpLVTree_, dumpLVList_, dumpMaterial_;
+  bool dumpLV_, dumpSolid_, dumpAtts_, dumpPV_;
+  bool dumpRotation_, dumpReplica_, dumpTouch_;
+  bool dumpSense_, dd4hep_;
+  std::string name_;
+  int nchar_;
+  std::string fileMat_, fileSolid_, fileLV_, filePV_, fileTouch_;
+  bool fileDetail_;
+  std::vector<std::string> names_;
+  G4VPhysicalVolume* theTopPV_;
+  G4NavigationHistory fHistory_;
 };
 
 #endif

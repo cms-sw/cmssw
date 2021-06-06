@@ -23,8 +23,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 //#include "FWCore/Framework/interface/Event.h"
 //#include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,7 +42,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
@@ -59,21 +58,15 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 #include <fstream>
 #include <map>
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-
-class ValidIsoTrkCalib : public edm::EDAnalyzer {
+class ValidIsoTrkCalib : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ValidIsoTrkCalib(const edm::ParameterSet&);
-  ~ValidIsoTrkCalib() override;
 
   //  double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
 
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
 
@@ -86,8 +79,8 @@ private:
 
   const CaloGeometry* geo;
   // nothing is done with these tags, so I leave it - cowden
-  InputTag genhbheLabel_;
-  InputTag genhoLabel_;
+  edm::InputTag genhbheLabel_;
+  edm::InputTag genhoLabel_;
   std::vector<edm::InputTag> genecalLabel_;
 
   edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
@@ -95,6 +88,9 @@ private:
   edm::EDGetTokenT<HORecHitCollection> tok_ho_;
   edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_track_;
   edm::EDGetTokenT<reco::TrackCollection> tok_track1_;
+
+  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_recalibCorrs_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   //std::string m_inputTrackLabel;
   //std::string m_hcalLabel;
@@ -188,9 +184,9 @@ private:
   // int Lumi_n;
 };
 
-ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
+ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
 
-{
   //takeAllRecHits_=iConfig.getUntrackedParameter<bool>("takeAllRecHits");
   takeGenTracks_ = iConfig.getUntrackedParameter<bool>("takeGenTracks");
 
@@ -207,6 +203,9 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
   tok_track_ =
       consumes<reco::IsolatedPixelTrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput"));
   tok_track1_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackInput"));
+
+  tok_recalibCorrs_ = esConsumes(edm::ESInputTag("", "recalibrate"));
+  tok_geom_ = esConsumes();
 
   associationConeSize_ = iConfig.getParameter<double>("associationConeSize");
   allowMissingInputs_ = iConfig.getUntrackedParameter<bool>("allowMissingInputs", true);
@@ -232,24 +231,15 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
   //taHCALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorHCALCone",0.6);
 }
 
-ValidIsoTrkCalib::~ValidIsoTrkCalib() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 // ------------ method called to for each event  ------------
 void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
   try {
-    edm::ESHandle<HcalRespCorrs> recalibCorrs;
-    iSetup.get<HcalRespCorrsRcd>().get("recalibrate", recalibCorrs);
-    respRecalib = recalibCorrs.product();
+    respRecalib = &iSetup.getData(tok_recalibCorrs_);
 
-    LogInfo("CalibConstants") << "  Loaded:  OK ";
+    edm::LogInfo("CalibConstants") << "  Loaded:  OK ";
 
   } catch (const cms::Exception& e) {
-    LogWarning("CalibConstants") << "   Not Found!! ";
+    edm::LogWarning("CalibConstants") << "   Not Found!! ";
   }
 
   edm::Handle<reco::TrackCollection> generalTracks;
@@ -272,9 +262,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(tok_hbhe_, hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  geo = pG.product();
+  geo = &iSetup.getData(tok_geom_);
 
   const HcalGeometry* gHcal = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
   //Note: even though it says HcalBarrel, we actually get the whole Hcal detector geometry!
@@ -341,8 +329,11 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     //cout<<"Point 0.3.  Matched :: pt: "<<trit->pt()<<" wholeEnergy: "<<trackE<<"  emEnergy: "<<emEnergy<<"  eta: "<<etahcal<<" phi: "<<phihcal<<endl;
     //cout<<"Point 0.4.  EM energy in cone: "<<emEnergy<<"  EtaHcal: "<<etahcal<<"  PhiHcal: "<<phihcal<<endl;
 
-    TrackDetMatchInfo info =
-        trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *trit), parameters_);
+    TrackDetMatchInfo info = trackAssociator_.associate(
+        iEvent,
+        iSetup,
+        trackAssociator_.getFreeTrajectoryState(&iSetup.getData(parameters_.bFieldToken), *trit),
+        parameters_);
 
     //float etaecal=info.trkGlobPosAtEcal.eta();
     //float phiecal=info.trkGlobPosAtEcal.phi();
@@ -543,7 +534,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             iTime = hhit->time();
 
           if (AxB_ != "3x3" && AxB_ != "5x5" && AxB_ != "Cone")
-            LogWarning(" AxB ") << "   Not supported: " << AxB_;
+            edm::LogWarning(" AxB ") << "   Not supported: " << AxB_;
 
           if (abs(DIETA) <= 2 && (abs(DIPHI) <= 2 || ((abs(MaxHit.ietahitm) > 20 && abs(DIPHI) <= 4) &&
                                                       !((abs(MaxHit.ietahitm) == 21 || abs(MaxHit.ietahitm) == 22) &&
@@ -721,17 +712,6 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 void ValidIsoTrkCalib::beginJob() {
   // if(!ReadCalibFactors(calibFactorsFileName_.c_str() )) {cout<<"Cant read file with cailib coefficients!! ---"<<endl;}
 
-  // try{
-  //   edm::ESHandle <HcalRespCorrs> recalibCorrs;
-  //   iSetup.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
-  //   respRecalib = recalibCorrs.product();
-  //
-  //   LogInfo("CalibConstants")<<"  Loaded:  OK ";
-  //
-  // }catch(const cms::Exception & e) {
-  //   LogWarning("CalibConstants")<<"   Not Found!! ";
-  // }
-
   //  rootFile = new TFile(outputFileName_.c_str(),"RECREATE");
 
   //@@@@@@@@@@@@@
@@ -806,12 +786,6 @@ void ValidIsoTrkCalib::beginJob() {
     tTree->Branch("pixPhi", pixPhi, "pixPhi[pix]/F");
     tTree->Branch("pixEta", pixEta, "pixEta[pix]/F");
   }
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void ValidIsoTrkCalib::endJob() {
-  //  rootFile->Write();
-  //rootFile->Close();
 }
 
 //define this as a plug-in

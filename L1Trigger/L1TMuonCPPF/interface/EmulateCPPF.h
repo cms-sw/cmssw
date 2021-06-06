@@ -5,6 +5,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 
 class EmulateCPPF {
 public:
@@ -24,7 +25,10 @@ private:
   // separate entities
   std::array<RecHitProcessor, 1> recHit_processors_;
 
+  const edm::EDGetToken rpcDigiToken_;
   const edm::EDGetToken recHitToken_;
+  const edm::EDGetToken rpcDigiSimLinkToken_;
+
   enum class CppfSource { File, EventSetup } cppfSource_;
   std::vector<RecHitProcessor::CppfItem> CppfVec_1;
   int MaxClusterSize_;

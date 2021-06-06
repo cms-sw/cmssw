@@ -1,7 +1,5 @@
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
-#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -10,7 +8,6 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,16 +23,22 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTimeSlewSim.h"
-#include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include <boost/foreach.hpp>
+#include <memory>
 
 //#define DebugLog
 
 HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector &iC)
-    : theGeometry(nullptr),
+    : conditionsToken_(iC.esConsumes()),
+      topoToken_(iC.esConsumes()),
+      hcalTimeSlew_delay_token_(iC.esConsumes(edm::ESInputTag("", "HBHE"))),
+      theGeometryToken(iC.esConsumes()),
+      theRecNumberToken(iC.esConsumes()),
+      qieTypesToken_(iC.esConsumes()),
+      theGeometry(nullptr),
       theRecNumber(nullptr),
       theParameterMap(ps),
       theShapes(),
@@ -101,6 +104,16 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
       injectedHitsCells_(ps.getParameter<std::vector<int>>("injectTestHitsCells")) {
   iC.consumes<std::vector<PCaloHit>>(edm::InputTag(hitsProducer_, "ZDCHITS"));
   iC.consumes<std::vector<PCaloHit>>(edm::InputTag(hitsProducer_, "HcalHits"));
+
+  if (agingFlagHB) {
+    m_HBDarkeningToken = iC.esConsumes(edm::ESInputTag("", "HB"));
+  }
+  if (agingFlagHE) {
+    m_HEDarkeningToken = iC.esConsumes(edm::ESInputTag("", "HE"));
+  }
+  if (theHOSiPMCode == 2) {
+    mcParamsToken_ = iC.esConsumes();
+  }
 
   bool doNoise = ps.getParameter<bool>("doNoise");
 
@@ -235,7 +248,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
   }
 
   if (agingFlagHF)
-    m_HFRecalibration.reset(new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
+    m_HFRecalibration = std::make_unique<HFRecalibration>(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
 }
 
 HcalDigitizer::~HcalDigitizer() {}
@@ -293,23 +306,22 @@ void HcalDigitizer::initializeEvent(edm::Event const &e, edm::EventSetup const &
   setup(eventSetup);
 
   // get the appropriate gains, noises, & widths for this event
-  edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
+  const HcalDbService *conditions = &eventSetup.getData(conditionsToken_);
 
-  theShapes.setDbService(conditions.product());
+  theShapes.setDbService(conditions);
 
-  theHBHEAmplifier->setDbService(conditions.product());
-  theHFAmplifier->setDbService(conditions.product());
-  theHOAmplifier->setDbService(conditions.product());
-  theZDCAmplifier->setDbService(conditions.product());
-  theHFQIE10Amplifier->setDbService(conditions.product());
-  theHBHEQIE11Amplifier->setDbService(conditions.product());
+  theHBHEAmplifier->setDbService(conditions);
+  theHFAmplifier->setDbService(conditions);
+  theHOAmplifier->setDbService(conditions);
+  theZDCAmplifier->setDbService(conditions);
+  theHFQIE10Amplifier->setDbService(conditions);
+  theHBHEQIE11Amplifier->setDbService(conditions);
 
-  theHFQIE10ElectronicsSim->setDbService(conditions.product());
-  theHBHEQIE11ElectronicsSim->setDbService(conditions.product());
+  theHFQIE10ElectronicsSim->setDbService(conditions);
+  theHBHEQIE11ElectronicsSim->setDbService(conditions);
 
-  theCoderFactory->setDbService(conditions.product());
-  theParameterMap.setDbService(conditions.product());
+  theCoderFactory->setDbService(conditions);
+  theParameterMap.setDbService(conditions);
 
   // initialize hits
   if (theHBHEDigitizer)
@@ -423,9 +435,7 @@ void HcalDigitizer::accumulate(edm::Event const &e, edm::EventSetup const &event
   e.getByLabel(hcalTag, hcalHandle);
   isHCAL = hcalHandle.isValid() or injectTestHits_;
 
-  edm::ESHandle<HcalTopology> htopo;
-  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology *htopoP = htopo.product();
+  const HcalTopology *htopoP = &eventSetup.getData(topoToken_);
 
   accumulateCaloHits(hcalHandle, zdcHandle, 0, engine, htopoP);
 }
@@ -444,9 +454,7 @@ void HcalDigitizer::accumulate(PileUpEventPrincipal const &e,
   e.getByLabel(hcalTag, hcalHandle);
   isHCAL = hcalHandle.isValid();
 
-  edm::ESHandle<HcalTopology> htopo;
-  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology *htopoP = htopo.product();
+  const HcalTopology *htopoP = &eventSetup.getData(topoToken_);
 
   accumulateCaloHits(hcalHandle, zdcHandle, e.bunchCrossing(), engine, htopoP);
 }
@@ -556,19 +564,13 @@ void HcalDigitizer::setup(const edm::EventSetup &es) {
   checkGeometry(es);
 
   if (agingFlagHB) {
-    edm::ESHandle<HBHEDarkening> hdark;
-    es.get<HBHEDarkeningRecord>().get("HB", hdark);
-    m_HBDarkening = &*hdark;
+    m_HBDarkening = &es.getData(m_HBDarkeningToken);
   }
   if (agingFlagHE) {
-    edm::ESHandle<HBHEDarkening> hdark;
-    es.get<HBHEDarkeningRecord>().get("HE", hdark);
-    m_HEDarkening = &*hdark;
+    m_HEDarkening = &es.getData(m_HEDarkeningToken);
   }
 
-  edm::ESHandle<HcalTimeSlew> delay;
-  es.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlew_delay_ = &*delay;
+  hcalTimeSlew_delay_ = &es.getData(hcalTimeSlew_delay_token_);
 
   theHBHEAmplifier->setTimeSlew(hcalTimeSlew_delay_);
   theHBHEQIE11Amplifier->setTimeSlew(hcalTimeSlew_delay_);
@@ -577,12 +579,8 @@ void HcalDigitizer::setup(const edm::EventSetup &es) {
 }
 
 void HcalDigitizer::checkGeometry(const edm::EventSetup &eventSetup) {
-  edm::ESHandle<CaloGeometry> geometry;
-  eventSetup.get<CaloGeometryRecord>().get(geometry);
-  theGeometry = &*geometry;
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  eventSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  theRecNumber = &*pHRNDC;
+  theGeometry = &eventSetup.getData(theGeometryToken);
+  theRecNumber = &eventSetup.getData(theRecNumberToken);
 
   if (theHBHEResponse)
     theHBHEResponse->setGeometry(theGeometry);
@@ -692,14 +690,10 @@ void HcalDigitizer::buildHFQIECells(const std::vector<DetId> &allCells, const ed
     return;
 
   // get the QIETypes
-  edm::ESHandle<HcalQIETypes> q;
-  eventSetup.get<HcalQIETypesRcd>().get(q);
-  edm::ESHandle<HcalTopology> htopo;
-  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
-
-  HcalQIETypes qieTypes(*q.product());
+  // intentional copy
+  HcalQIETypes qieTypes = eventSetup.getData(qieTypesToken_);
   if (qieTypes.topo() == nullptr) {
-    qieTypes.setTopo(htopo.product());
+    qieTypes.setTopo(&eventSetup.getData(topoToken_));
   }
 
   for (std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
@@ -732,14 +726,10 @@ void HcalDigitizer::buildHBHEQIECells(const std::vector<DetId> &allCells, const 
     return;
 
   // get the QIETypes
-  edm::ESHandle<HcalQIETypes> q;
-  eventSetup.get<HcalQIETypesRcd>().get(q);
-  edm::ESHandle<HcalTopology> htopo;
-  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
-
-  HcalQIETypes qieTypes(*q.product());
+  // intentional copy
+  HcalQIETypes qieTypes = eventSetup.getData(qieTypesToken_);
   if (qieTypes.topo() == nullptr) {
-    qieTypes.setTopo(htopo.product());
+    qieTypes.setTopo(&eventSetup.getData(topoToken_));
   }
 
   for (std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
@@ -781,14 +771,11 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId> &allCells, const e
     // FIXME pick Zecotek or hamamatsu?
   } else if (theHOSiPMCode == 2) {
     std::vector<HcalDetId> zecotekDetIds, hamamatsuDetIds;
-    edm::ESHandle<HcalMCParams> p;
-    eventSetup.get<HcalMCParamsRcd>().get(p);
-    edm::ESHandle<HcalTopology> htopo;
-    eventSetup.get<HcalRecNumberingRecord>().get(htopo);
 
-    HcalMCParams mcParams(*p.product());
+    // intentional copy
+    HcalMCParams mcParams = eventSetup.getData(mcParamsToken_);
     if (mcParams.topo() == nullptr) {
-      mcParams.setTopo(htopo.product());
+      mcParams.setTopo(&eventSetup.getData(topoToken_));
     }
 
     for (std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {

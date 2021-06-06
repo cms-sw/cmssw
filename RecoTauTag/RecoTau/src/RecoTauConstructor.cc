@@ -8,6 +8,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace reco::tau {
 
@@ -26,7 +27,7 @@ namespace reco::tau {
         minRelPhotonSumPt_outsideSignalCone_(minRelPhotonSumPt_outsideSignalCone),
         pfCands_(pfCands) {
     // Initialize tau
-    tau_.reset(new PFTau());
+    tau_ = std::make_unique<PFTau>();
 
     copyGammas_ = copyGammasFromPiZeros;
     // Initialize our Accessors

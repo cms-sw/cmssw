@@ -5,13 +5,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <boost/config/warning_disable.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/qi_rule.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/spirit/include/phoenix.hpp>
-#include <boost/phoenix/bind/bind_member_function.hpp>
-#include <boost/spirit/include/qi_grammar.hpp>
+#include <boost/variant/recursive_variant.hpp>
 
 #include <iostream>
 #include <cstdlib>
@@ -110,7 +104,7 @@ public:
   TrackerDetIdSelector(const DetId& detId, const TrackerTopology& trackerTopology)
       : _detId(detId), _trackerTopology(trackerTopology) {}
 
-  bool passSelection(std::string selectionStr) const;
+  bool passSelection(const std::string& selectionStr) const;
 };
 
 class Accessor : public boost::static_visitor<int> {
@@ -213,69 +207,6 @@ struct WalkAST {
     std::cout << ')';
   }
 };
-
-template <typename ITERATOR>
-struct TrackerDetIdSelectorGrammar : boost::spirit::qi::grammar<ITERATOR,
-                                                                ExpressionAST(),
-                                                                boost::spirit::ascii::space_type,
-                                                                boost::spirit::qi::locals<ExpressionAST> > {
-  boost::spirit::qi::rule<ITERATOR, std::string(), boost::spirit::ascii::space_type> identifierFctRule;
-
-  boost::spirit::qi::rule<ITERATOR, ExpressionAST(), boost::spirit::ascii::space_type> identifierRule, expressionRule;
-
-  boost::spirit::qi::
-      rule<ITERATOR, ExpressionAST(), boost::spirit::ascii::space_type, boost::spirit::qi::locals<ExpressionAST> >
-          comboRule;
-
-  TrackerDetIdSelectorGrammar() : TrackerDetIdSelectorGrammar::base_type(comboRule) {
-    namespace qi = boost::spirit::qi;
-    namespace ascii = boost::spirit::ascii;
-    namespace phoenix = boost::phoenix;
-
-    identifierFctRule = qi::lexeme[+qi::alpha[qi::_val += qi::_1]];
-
-    identifierRule = (qi::true_[qi::_val = 1] | qi::false_[qi::_val = 0]) | (qi::int_[qi::_val = qi::_1]) |
-                     identifierFctRule[qi::_val = qi::_1];
-
-    comboRule = (expressionRule[qi::_a = qi::_1] >>
-                 *((qi::lit("&&") >> expressionRule[qi::_a = qi::_a && qi::_1]) |
-                   (qi::lit("||") >> expressionRule[qi::_a = qi::_a || qi::_1])))[qi::_val = qi::_a];
-
-    expressionRule = qi::lit("(") >> comboRule[qi::_val = qi::_1] >> qi::lit(")") |
-                     (identifierRule >> qi::lit(">") >> identifierRule)[qi::_val = qi::_1 > qi::_2] |
-                     (identifierRule >> qi::lit(">=") >> identifierRule)[qi::_val = qi::_1 >= qi::_2] |
-                     (identifierRule >> qi::lit("<") >> identifierRule)[qi::_val = qi::_1 < qi::_2] |
-                     (identifierRule >> qi::lit("<=") >> identifierRule)[qi::_val = qi::_1 <= qi::_2] |
-                     (identifierRule >> qi::lit("==") >> identifierRule)[qi::_val = qi::_1 == qi::_2] |
-                     (identifierRule >> qi::lit("!=") >> identifierRule)[qi::_val = qi::_1 != qi::_2] |
-                     identifierRule[qi::_val = qi::_1];
-  }
-};
-
-bool TrackerDetIdSelector::passSelection(std::string selectionStr) const {
-  std::string::const_iterator begin = selectionStr.cbegin();
-  std::string::const_iterator end = selectionStr.cend();
-
-  TrackerDetIdSelectorGrammar<std::string::const_iterator> grammar;
-  ExpressionAST exprAST;
-
-  bool success = boost::spirit::qi::phrase_parse(begin, end, grammar, boost::spirit::ascii::space, exprAST);
-  if (begin != end) {
-    throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector",
-                         "parsing selection '" + selectionStr + "' failed at " +
-                             std::string(selectionStr.cbegin(), begin) + "^^^" + std::string(begin, end));
-  }
-  if (!success) {
-    throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector",
-                         "parsing selection '" + selectionStr + "' failed.");
-  }
-  /* Comment out for debugging
-    WalkAST walker(_detId,_trackerTopology);
-    walker(exprAST);
-    std::cout<<std::endl;
-    */
-  return exprAST.evaluate(_detId, _trackerTopology);
-}
 
 int ExpressionAST::evaluate(const DetId& detId, const TrackerTopology& trackerTopology) const {
   return boost::apply_visitor(Accessor(detId, trackerTopology), this->expr);

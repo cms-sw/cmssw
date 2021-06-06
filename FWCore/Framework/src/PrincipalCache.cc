@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -90,6 +91,12 @@ namespace edm {
     }
     run_ = rp->run();
     runPrincipal_ = rp;
+  }
+
+  void PrincipalCache::insert(std::unique_ptr<ProcessBlockPrincipal> pb) { processBlockPrincipal_ = std::move(pb); }
+
+  void PrincipalCache::insertForInput(std::unique_ptr<ProcessBlockPrincipal> pb) {
+    inputProcessBlockPrincipal_ = std::move(pb);
   }
 
   void PrincipalCache::insert(std::unique_ptr<LuminosityBlockPrincipal> lbp) { lumiHolder_.add(std::move(lbp)); }

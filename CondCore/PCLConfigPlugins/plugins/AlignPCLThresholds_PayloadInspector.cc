@@ -54,8 +54,8 @@ namespace {
       canvas.Modified();
       canvas.SetGrid();
 
-      auto Thresholds = std::unique_ptr<TH2F>(
-          new TH2F("Thresholds", "Alignment parameter thresholds", alignables.size(), 0, alignables.size(), 24, 0, 24));
+      auto Thresholds = std::make_unique<TH2F>(
+          "Thresholds", "Alignment parameter thresholds", alignables.size(), 0, alignables.size(), 24, 0, 24);
       Thresholds->SetStats(false);
 
       std::function<float(types, std::string, AlignPCLThresholds::coordType)> cutFunctor =

@@ -1,14 +1,12 @@
-<use   name="FWCore/Concurrency"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimDataFormats/CaloHit"/>
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/TrackingHit"/>
-<use   name="SimDataFormats/Vertex"/>
-<use   name="geant4core"/>
-<use   name="hepmc"/>
-<library   file="*.cc" name="SimG4CoreApplicationPlugins">
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="SimDataFormats/CaloHit"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="geant4core"/>
+<use name="hepmc"/>
+<library file="*.cc" name="SimG4CoreApplicationPlugins">
   <use name="SimG4Core/Application"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

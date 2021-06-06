@@ -25,9 +25,6 @@ public:
                      unsigned chamber,
                      const edm::ParameterSet& conf);
 
-  /** Constructor for use during testing. */
-  CSCMotherboardME11();
-
   /** Default destructor. */
   ~CSCMotherboardME11() override;
 
@@ -53,12 +50,8 @@ public:
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs(int me1ab) const;
 
 private:
-  std::unique_ptr<CSCMotherboardLUTME11> cscTmbLUT_;
-
   /** labels for ME1a and ME1B */
   enum { ME1B = 1, ME1A = 4 };
-
-  bool doesALCTCrossCLCT(const CSCALCTDigi& a, const CSCCLCTDigi& c) const;
 
   void correlateLCTsME11(const CSCALCTDigi& bestALCT,
                          const CSCALCTDigi& secondALCT,
@@ -66,7 +59,5 @@ private:
                          const CSCCLCTDigi& secondCLCT,
                          CSCCorrelatedLCTDigi& lct1,
                          CSCCorrelatedLCTDigi& lct2) const;
-
-  bool ignoreAlctCrossClct;
 };
 #endif

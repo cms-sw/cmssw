@@ -30,7 +30,7 @@
 
 #include "Fireworks/Core/src/FWTTreeCache.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion, bool checkGT)
     : m_name(name),
@@ -203,8 +203,8 @@ void FWFileEntry::openFile(bool checkVersion, bool checkGlobalTag) {
 
   // Connect to collection add/remove signals
   FWEventItemsManager* eiMng = (FWEventItemsManager*)FWGUIManager::getGUIManager()->getContext()->eventItemsManager();
-  eiMng->newItem_.connect(boost::bind(&FWFileEntry::NewEventItemCallIn, this, _1));
-  eiMng->removingItem_.connect(boost::bind(&FWFileEntry::RemovingEventItemCallIn, this, _1));
+  eiMng->newItem_.connect(std::bind(&FWFileEntry::NewEventItemCallIn, this, std::placeholders::_1));
+  eiMng->removingItem_.connect(std::bind(&FWFileEntry::RemovingEventItemCallIn, this, std::placeholders::_1));
   // no need to connect to goingToClearItems_ ... individual removes are emitted.
 
   if (m_event->size() == 0)

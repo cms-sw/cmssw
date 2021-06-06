@@ -88,7 +88,8 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet) {
   theTrackFinder =
       std::make_unique<MuonTrackFinder>(std::move(trajectoryBuilder),
                                         std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get()),
-                                        std::make_unique<MuonTrajectoryCleaner>(true));
+                                        std::make_unique<MuonTrajectoryCleaner>(true),
+                                        iC);
 
   produces<reco::TrackCollection>();
   produces<reco::TrackCollection>("UpdatedAtVtx");

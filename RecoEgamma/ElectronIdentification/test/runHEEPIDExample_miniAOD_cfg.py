@@ -11,7 +11,7 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
 )
 
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # NOTE: the pick the right global tag!
 #    for PHYS14 scenario PU4bx50 : global tag is ???
 #    for PHYS14 scenario PU20bx25: global tag is PHYS14_25_V1

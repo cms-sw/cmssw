@@ -52,7 +52,7 @@ private:
     const pat::MET& srcMET = (*srcMETCollection)[0];
 
     //dispatching to be sure we retrieve all the informations
-    reco::MET corrMET = corrector.getCorrectedMET(srcMET, evt, es);
+    reco::MET corrMET = corrector.getCorrectedMET(srcMET, evt);
     pat::MET outMET(corrMET, srcMET);
 
     auto product = std::make_unique<METCollection>();

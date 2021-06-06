@@ -1,22 +1,21 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 
-process = cms.Process("PROD")
+process = cms.Process("PROD",Phase2C11)
+
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-#process.load("Geometry.HGCalCommonData.testHGCV8XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D35XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D41XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D46XML_cfi")
-process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D49XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D68XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D70XML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-#process.load("Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi")
-#process.load("Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -42,31 +41,25 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prodEE = cms.EDAnalyzer("HGCalNumberingTester",
-                                NameSense     = cms.string("HGCalEESensitive"),
-                                NameDevice    = cms.string("HGCal EE"),
-                                LocalPositionX= cms.vdouble(500.0,350.0,800.0,1400.0),
-                                LocalPositionY= cms.vdouble(500.0,0.0,0.0,0.0),
-                                Increment     = cms.int32(19),
-#                               DetType       = cms.int32(1),
-                                DetType       = cms.int32(2),
-                                Reco          = cms.bool(False)
-)
+process.load("Geometry.HGCalCommonData.hgcalNumberingTesterEE_cfi")
+process.hgcalNumberingTesterEE.LocalPositionX= [500.0,350.0,800.0,1400.0]
+process.hgcalNumberingTesterEE.LocalPositionY= [500.0,0.0,0.0,0.0]
+#process.hgcalNumberingTesterEE.DetType = 1
 
-process.prodHEF = process.prodEE.clone(
+process.hgcalNumberingTesterHEF = process.hgcalNumberingTesterEE.clone(
     NameSense  = "HGCalHESiliconSensitive",
     NameDevice = "HGCal HE Front",
     Increment  = 9
 )
  
-process.prodHEB = process.prodEE.clone(
+process.hgcalNumberingTesterHEB = process.hgcalNumberingTesterEE.clone(
     NameSense  = "HGCalHEScintillatorSensitive",
     NameDevice = "HGCal HE Back",
     Increment  = 9,
-    LocalPositionX= [1000.0,1400.0,1500.0,1600.0],
-    LocalPositionY= [1000.0,0.0,0.0,0.0],
+    LocalPositionX= [1100.0,1400.0,1500.0,1600.0],
+    LocalPositionY= [1100.0,1000.0,500.0,0.0],
     DetType    = 0
 )
  
-#process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
-process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)
+#process.p1 = cms.Path(process.generator*process.hgcalNumberingTesterEE*process.hgcalNumberingTesterHEF)
+process.p1 = cms.Path(process.generator*process.hgcalNumberingTesterEE*process.hgcalNumberingTesterHEF*process.hgcalNumberingTesterHEB)

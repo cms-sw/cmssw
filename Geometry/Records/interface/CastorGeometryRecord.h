@@ -18,15 +18,15 @@
 #include "CondFormats/AlignmentRecord/interface/CastorAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "Geometry/Records/interface/PCastorRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class CastorGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<CastorGeometryRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
-                                                                               CastorAlignmentRcd,
-                                                                               CastorAlignmentErrorRcd,
-                                                                               CastorAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PCastorRcd> > {};
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             CastorAlignmentRcd,
+                                                                             CastorAlignmentErrorRcd,
+                                                                             CastorAlignmentErrorExtendedRcd,
+                                                                             GlobalPositionRcd,
+                                                                             PCastorRcd> > {};
 
 #endif /* RECORDS_CastorGEOMETRYRECORD_H */

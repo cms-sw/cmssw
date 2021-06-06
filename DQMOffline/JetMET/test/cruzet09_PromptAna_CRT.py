@@ -43,9 +43,6 @@ process.dqmSaver.referenceHandling = cms.untracked.string('all')
 #-----------------------------
 # Specify root file including reference histograms
 #-----------------------------
-#process.DQMStore.referenceFileName = '/afs/cern.ch/user/h/hatake/scratch0/dqm/CMSSW_3_1_0_pre11_DQM5/src/DQMOffline/JetMET/test/jetMETMonitoring_cruzet98154_v4.root'
-#process.DQMStore.referenceFileName = '/afs/cern.ch/user/h/hatake/scratch0/dqm/CMSSW_3_1_0_pre11_DQM5/src/DQMOffline/JetMET/test/reference.root'
-process.DQMStore.referenceFileName = 'jetMETMonitoring_cruzet100945.root'
 
 #-----------------------------
 # Locate a directory in DQMStore
@@ -61,7 +58,6 @@ process.dqmInfoJetMET = DQMEDAnalyzer('DQMEventInfo',
 process.load("DQMOffline.JetMET.dataCertificationJetMET_cff")
 process.dataCertificationJetMET = DQMEDHarvester('DataCertificationJetMET',
 #
-#--- Always define reference root file by process.DQMStore.referenceFileName
                               refFileName    = cms.untracked.string(""),
 #
 #--- 0: harvest EDM files, 1: read in DQM root file

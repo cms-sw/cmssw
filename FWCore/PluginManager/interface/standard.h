@@ -19,8 +19,8 @@
 //
 
 // system include files
+#include <filesystem>
 #include <string>
-#include <boost/filesystem/path.hpp>
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -32,8 +32,8 @@ namespace edmplugin {
 
     PluginManager::Config config();
 
-    const boost::filesystem::path& cachefileName();
-    const boost::filesystem::path& poisonedCachefileName();
+    const std::filesystem::path& cachefileName();
+    const std::filesystem::path& poisonedCachefileName();
 
     const std::string& pluginPrefix();
   }  // namespace standard

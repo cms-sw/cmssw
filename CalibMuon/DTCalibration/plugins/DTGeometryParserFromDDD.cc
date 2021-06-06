@@ -10,7 +10,7 @@ using namespace std;
 
 DTGeometryParserFromDDD::DTGeometryParserFromDDD(
     const DDCompactView* cview,
-    const MuonDDDConstants& muonConstants,
+    const MuonGeometryConstants& muonConstants,
     map<DTLayerId, std::pair<unsigned int, unsigned int> >& theLayerIdWiresMap) {
   try {
     std::string attribute = "MuStructure";
@@ -40,7 +40,7 @@ DTGeometryParserFromDDD::DTGeometryParserFromDDD(
 DTGeometryParserFromDDD::~DTGeometryParserFromDDD() {}
 
 void DTGeometryParserFromDDD::parseGeometry(DDFilteredView& fv,
-                                            const MuonDDDConstants& muonConstants,
+                                            const MuonGeometryConstants& muonConstants,
                                             map<DTLayerId, std::pair<unsigned int, unsigned int> >& theLayerIdWiresMap) {
   bool doChamber = fv.firstChild();
 
@@ -77,9 +77,9 @@ void DTGeometryParserFromDDD::parseGeometry(DDFilteredView& fv,
 }
 
 void DTGeometryParserFromDDD::buildLayer(DDFilteredView& fv,
-                                         const MuonDDDConstants& muonConstants,
+                                         const MuonGeometryConstants& muonConstants,
                                          map<DTLayerId, std::pair<unsigned int, unsigned int> >& theLayerIdWiresMap) {
-  MuonDDDNumbering mdddnum(muonConstants);
+  MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTLayerId layId(rawid);

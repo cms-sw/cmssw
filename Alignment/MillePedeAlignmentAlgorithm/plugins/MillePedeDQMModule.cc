@@ -13,25 +13,26 @@
 #include "TH1F.h"
 
 /*** Core framework functionality ***/
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-/*** Geometry ***/
-#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
-/*** Thresholds from DB ***/
-#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
+/*** Necessary Framework infrastructure ***/
+#include "FWCore/Framework/interface/ProcessBlock.h"
+#include "DataFormats/Alignment/interface/AlignmentToken.h"
 
 MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
-    : mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")) {}
+    : tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      gDetToken_(esConsumes<edm::Transition::BeginRun>()),
+      ptpToken_(esConsumes<edm::Transition::BeginRun>()),
+      aliThrToken_(esConsumes<edm::Transition::BeginRun>()),
+      mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")) {
+  consumes<AlignmentToken, edm::InProcess>(config.getParameter<edm::InputTag>("alignmentTokenSrc"));
+}
 
 MillePedeDQMModule ::~MillePedeDQMModule() {}
 
@@ -83,25 +84,20 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
   if (!setupChanged(setup))
     return;
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  setup.get<TrackerTopologyRcd>().get(tTopo);
-  edm::ESHandle<GeometricDet> geometricDet;
-  setup.get<IdealGeometryRecord>().get(geometricDet);
-  edm::ESHandle<PTrackerParameters> ptp;
-  setup.get<PTrackerParametersRcd>().get(ptp);
+  const TrackerTopology* const tTopo = &setup.getData(tTopoToken_);
+  const GeometricDet* geometricDet = &setup.getData(gDetToken_);
+  const PTrackerParameters* ptp = &setup.getData(ptpToken_);
 
   // take the thresholds from DB
-  edm::ESHandle<AlignPCLThresholds> thresholdHandle;
-  setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
-  auto thresholds_ = thresholdHandle.product();
+  const auto& thresholds_ = &setup.getData(aliThrToken_);
 
   auto myThresholds = std::make_shared<AlignPCLThresholds>();
   myThresholds->setAlignPCLThresholds(thresholds_->getNrecords(), thresholds_->getThreshold_Map());
 
   TrackerGeomBuilderFromGeometricDet builder;
 
-  const auto trackerGeometry = builder.build(&(*geometricDet), *ptp, &(*tTopo));
-  tracker_ = std::make_unique<AlignableTracker>(trackerGeometry, &(*tTopo));
+  const auto trackerGeometry = builder.build(geometricDet, *ptp, tTopo);
+  tracker_ = std::make_unique<AlignableTracker>(trackerGeometry, tTopo);
 
   const std::string labelerPlugin{"PedeLabeler"};
   edm::ParameterSet labelerConfig{};

@@ -12,11 +12,13 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TClonesArray.h"
+#include "TObjString.h"
+
 #include <iostream>
-#include <vector>
-#include <set>
 #include <map>
-#include <boost/regex.hpp>
+#include <regex>
+#include <set>
+#include <vector>
 
 inline void HERE(const char* msg) {
   if (0 && msg)
@@ -122,9 +124,9 @@ double getNeutralPVCorr(double eta, int intNPV, double area, bool isMC_) {
 // -------------------------------------------------
 
 inline unsigned int helper_findTrigger(const std::vector<std::string>& list, const std::string& name) {
-  boost::regex re(std::string("^(") + name + "|" + name + "_v\\d*)$");
+  std::regex re(std::string("^(") + name + "|" + name + "_v\\d*)$");
   for (unsigned int i = 0, n = list.size(); i < n; ++i) {
-    if (boost::regex_match(list[i], re))
+    if (std::regex_match(list[i], re))
       return i;
   }
   return list.size();
@@ -237,6 +239,7 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
       HLTlabel.ReplaceAll("HLT", "reHLT");
     tok_TrigRes_ = consumes<edm::TriggerResults>(edm::InputTag(prod, HLTlabel.Data(), an));
   }
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
 
 GammaJetAnalysis::~GammaJetAnalysis() {}
@@ -660,12 +663,11 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     HERE("get geometry");
 
     // Get geometry
-    edm::ESHandle<CaloGeometry> geoHandle;
-    evSetup.get<CaloGeometryRecord>().get(geoHandle);
-    const HcalGeometry* HBGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 1));
-    const HcalGeometry* HEGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 2));
-    const CaloSubdetectorGeometry* HOGeom = geoHandle->getSubdetectorGeometry(DetId::Hcal, 3);
-    const CaloSubdetectorGeometry* HFGeom = geoHandle->getSubdetectorGeometry(DetId::Hcal, 4);
+    const CaloGeometry* geo = &evSetup.getData(tok_geom_);
+    const HcalGeometry* HBGeom = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, 1));
+    const HcalGeometry* HEGeom = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, 2));
+    const CaloSubdetectorGeometry* HOGeom = geo->getSubdetectorGeometry(DetId::Hcal, 3);
+    const CaloSubdetectorGeometry* HFGeom = geo->getSubdetectorGeometry(DetId::Hcal, 4);
 
     HERE("work");
 

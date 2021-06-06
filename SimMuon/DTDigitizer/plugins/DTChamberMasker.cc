@@ -33,6 +33,7 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -76,6 +77,7 @@ private:
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<DTDigiCollection> m_digiToken;
+  edm::ESGetToken<MuonSystemAging, MuonSystemAgingRcd> m_agingObjToken;
   std::map<unsigned int, float> m_ChEffs;
 };
 
@@ -87,7 +89,8 @@ private:
 // constructors and destructor
 //
 DTChamberMasker::DTChamberMasker(const edm::ParameterSet &iConfig)
-    : m_digiToken(consumes<DTDigiCollection>(iConfig.getParameter<edm::InputTag>("digiTag"))) {
+    : m_digiToken(consumes<DTDigiCollection>(iConfig.getParameter<edm::InputTag>("digiTag"))),
+      m_agingObjToken(esConsumes<MuonSystemAging, MuonSystemAgingRcd>()) {
   produces<DTDigiCollection>();
 }
 
@@ -124,8 +127,7 @@ void DTChamberMasker::produce(edm::Event &event, const edm::EventSetup &conditio
 void DTChamberMasker::beginRun(edm::Run const &run, edm::EventSetup const &iSetup) {
   m_ChEffs.clear();
 
-  edm::ESHandle<MuonSystemAging> agingObj;
-  iSetup.get<MuonSystemAgingRcd>().get(agingObj);
+  edm::ESHandle<MuonSystemAging> agingObj = iSetup.getHandle(m_agingObjToken);
 
   m_ChEffs = agingObj->m_DTChambEffs;
 }

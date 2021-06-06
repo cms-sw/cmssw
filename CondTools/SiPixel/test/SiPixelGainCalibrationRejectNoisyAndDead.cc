@@ -21,9 +21,7 @@
 
 #include "SiPixelGainCalibrationRejectNoisyAndDead.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 //
@@ -58,8 +56,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
     SiPixelGainCalibrationForHLTService_.setESObjects(iSetup);
 
   //Get list of ideal detids
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* pDD = &iSetup.getData(pddToken_);
   edm::LogInfo("SiPixelCondObjOfflineBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
 
   if (record_ == "SiPixelGainCalibrationOfflineRcd") {
@@ -103,7 +100,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
     willNoisyPixBeInserted = false;
     for (TrackerGeometry::DetContainer::const_iterator mod = pDD->dets().begin(); mod != pDD->dets().end(); mod++) {
       detid = 0;
-      if (dynamic_cast<PixelGeomDetUnit const*>((*mod)) != 0)
+      if (dynamic_cast<PixelGeomDetUnit const*>((*mod)) != nullptr)
         detid = ((*mod)->geographicalId()).rawId();
       if (detid == it->first) {
         willNoisyPixBeInserted = true;
@@ -121,7 +118,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
   //Looping over all modules
   for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     detid = 0;
-    if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != 0)
+    if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != nullptr)
       detid = ((*it)->geographicalId()).rawId();
     if (detid == 0)
       continue;
@@ -434,8 +431,9 @@ void SiPixelGainCalibrationRejectNoisyAndDead::getDeadPixels() {}
 
 SiPixelGainCalibrationRejectNoisyAndDead::SiPixelGainCalibrationRejectNoisyAndDead(const edm::ParameterSet& iConfig)
     : conf_(iConfig),
-      SiPixelGainCalibrationOfflineService_(iConfig),
-      SiPixelGainCalibrationForHLTService_(iConfig),
+      pddToken_(esConsumes()),
+      SiPixelGainCalibrationOfflineService_(iConfig, consumesCollector()),
+      SiPixelGainCalibrationForHLTService_(iConfig, consumesCollector()),
       noisypixellist_(iConfig.getUntrackedParameter<std::string>("noisyPixelList", "noisypixel.txt")),
       insertnoisypixelsindb_(iConfig.getUntrackedParameter<int>("insertNoisyPixelsInDB", 1)),
       record_(iConfig.getUntrackedParameter<std::string>("record", "SiPixelGainCalibrationOfflineRcd")),
@@ -451,11 +449,5 @@ void SiPixelGainCalibrationRejectNoisyAndDead::analyze(const edm::Event& iEvent,
     getNoisyPixels();
   fillDatabase(iSetup);
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void SiPixelGainCalibrationRejectNoisyAndDead::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SiPixelGainCalibrationRejectNoisyAndDead::endJob() {}
 
 //define this as a plug-in

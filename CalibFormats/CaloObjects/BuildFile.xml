@@ -1,5 +1,7 @@
-<use   name="DataFormats/DetId"/>
-<use   name="boost"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/Common"/>
+<use name="FWCore/MessageLogger"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

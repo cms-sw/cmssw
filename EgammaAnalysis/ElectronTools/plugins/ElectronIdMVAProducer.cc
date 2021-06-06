@@ -36,6 +36,7 @@ private:
   edm::EDGetTokenT<double> eventrhoToken_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedEBRecHitCollectionToken_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedEERecHitCollectionToken_;
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   double _Rho;
   std::string method_;
@@ -57,7 +58,8 @@ private:
 //
 // constructors and destructor
 //
-ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig) {
+ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig)
+    : ecalClusterToolsESGetTokens_{consumesCollector()} {
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
   vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag"));
   electronToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag"));
@@ -128,7 +130,10 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
     dummy = reco::Vertex(p, e, 0, 0, 0);
   }
 
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
+  EcalClusterLazyTools lazyTools(iEvent,
+                                 ecalClusterToolsESGetTokens_.get(iSetup),
+                                 reducedEBRecHitCollectionToken_,
+                                 reducedEERecHitCollectionToken_);
 
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);

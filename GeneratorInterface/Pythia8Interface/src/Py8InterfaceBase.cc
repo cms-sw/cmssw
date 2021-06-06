@@ -1,10 +1,12 @@
+#include <memory>
+#include <string>
+
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
+#include "GeneratorInterface/Pythia8Interface/interface/SLHAReaderBase.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "boost/filesystem.hpp"
-#include "boost/filesystem/path.hpp"
+#include <filesystem>
 
 // EvtGen plugin
 //
@@ -54,31 +56,28 @@ namespace gen {
       if (ps.exists("evtgenUserFileEmbedded")) {
         std::vector<std::string> user_decay_lines =
             ps.getParameter<std::vector<std::string> >("evtgenUserFileEmbedded");
-        auto tmp_dir = boost::filesystem::temp_directory_path();
-        tmp_dir += "/%%%%-%%%%-%%%%-%%%%";
-        auto tmp_path = boost::filesystem::unique_path(tmp_dir);
-        std::string user_decay_tmp = std::string(tmp_path.c_str());
-        FILE* tmpf = std::fopen(user_decay_tmp.c_str(), "w");
-        if (!tmpf) {
-          edm::LogError("Py8InterfaceBase::~Py8InterfaceBase")
-              << "Py8InterfaceBase::Py8InterfaceBase fails when trying to open a temporary file for embedded user.dec "
-                 "for EvtGenPlugin. Terminating program ";
-          exit(0);
-        }
+        char tempslhaname[] = "pythia8evtgenXXXXXX";
+        int fd = mkstemp(tempslhaname);
+
         for (unsigned int i = 0; i < user_decay_lines.size(); i++) {
           user_decay_lines.at(i) += "\n";
-          std::fputs(user_decay_lines.at(i).c_str(), tmpf);
+          write(fd, user_decay_lines.at(i).c_str(), user_decay_lines.at(i).size());
         }
-        std::fclose(tmpf);
-        evtgenUserFiles.push_back(user_decay_tmp);
+        close(fd);
+        evtgenUserFiles.push_back(std::string(tempslhaname));
       }
     }
   }
 
   bool Py8InterfaceBase::readSettings(int) {
     if (!fMasterGen.get())
-      fMasterGen.reset(new Pythia);
-    fDecayer.reset(new Pythia);
+      fMasterGen = std::make_unique<Pythia>();
+    fDecayer = std::make_unique<Pythia>();
+
+    //add settings for resonance decay filter
+    fMasterGen->settings.addFlag("BiasedTauDecayer:filter", false);
+    fMasterGen->settings.addFlag("BiasedTauDecayer:eDecays", true);
+    fMasterGen->settings.addFlag("BiasedTauDecayer:muDecays", true);
 
     //add settings for resonance decay filter
     fMasterGen->settings.addFlag("ResonanceDecayFilter:filter", false);
@@ -159,18 +158,28 @@ namespace gen {
     } else if (currentParameters.exists("SLHATableForPythia8")) {
       std::string slhatable = currentParameters.getParameter<std::string>("SLHATableForPythia8");
 
-      char tempslhaname[] = "pythia8SLHAtableXXXXXX";
-      int fd = mkstemp(tempslhaname);
-      write(fd, slhatable.c_str(), slhatable.size());
-      close(fd);
+      makeTmpSLHA(slhatable);
+    } else if (currentParameters.exists("SLHATreeForPythia8")) {
+      auto slhaReaderParams = currentParameters.getParameter<edm::ParameterSet>("SLHATreeForPythia8");
+      std::unique_ptr<SLHAReaderBase> reader =
+          SLHAReaderFactory::get()->create(slhaReaderParams.getParameter<std::string>("name"), slhaReaderParams);
 
-      slhafile_ = tempslhaname;
-
-      fMasterGen->settings.mode("SLHA:readFrom", 2);
-      fMasterGen->settings.word("SLHA:file", slhafile_);
+      makeTmpSLHA(reader->getSLHA(currentParameters.getParameter<std::string>("ConfigDescription")));
     }
 
     return true;
+  }
+
+  void Py8InterfaceBase::makeTmpSLHA(const std::string& slhatable) {
+    char tempslhaname[] = "pythia8SLHAtableXXXXXX";
+    int fd = mkstemp(tempslhaname);
+    write(fd, slhatable.c_str(), slhatable.size());
+    close(fd);
+
+    slhafile_ = tempslhaname;
+
+    fMasterGen->settings.mode("SLHA:readFrom", 2);
+    fMasterGen->settings.word("SLHA:file", slhafile_);
   }
 
   bool Py8InterfaceBase::declareStableParticles(const std::vector<int>& pdgIds) {

@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
@@ -26,6 +27,8 @@
 #include <FWCore/Framework/interface/stream/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
+#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
+#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 
 #include <string>
 
@@ -81,5 +84,6 @@ private:
   edm::InputTag getDTDigiInputTag() { return DTDigiInputTag_; }
 
   edm::EDGetTokenT<DTDigiCollection> Raw_token;
+  edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> mapping_token_;
 };
 #endif

@@ -105,11 +105,13 @@ namespace L1Analysis {
 
       nMuons = 0;
       muonEt.clear();
+      muonEtUnconstrained.clear();
       muonEta.clear();
       muonPhi.clear();
       muonEtaAtVtx.clear();
       muonPhiAtVtx.clear();
       muonIEt.clear();
+      muonIEtUnconstrained.clear();
       muonIEta.clear();
       muonIPhi.clear();
       muonIEtaAtVtx.clear();
@@ -119,6 +121,7 @@ namespace L1Analysis {
       muonChg.clear();
       muonIso.clear();
       muonQual.clear();
+      muonDxy.clear();
       muonTfMuonIdx.clear();
       muonBx.clear();
 
@@ -188,11 +191,13 @@ namespace L1Analysis {
 
     unsigned short int nMuons;
     std::vector<float> muonEt;
+    std::vector<float> muonEtUnconstrained;
     std::vector<float> muonEta;
     std::vector<float> muonPhi;
     std::vector<float> muonEtaAtVtx;
     std::vector<float> muonPhiAtVtx;
     std::vector<short int> muonIEt;
+    std::vector<short int> muonIEtUnconstrained;
     std::vector<short int> muonIEta;
     std::vector<short int> muonIPhi;
     std::vector<short int> muonIEtaAtVtx;
@@ -202,6 +207,7 @@ namespace L1Analysis {
     std::vector<short int> muonChg;
     std::vector<unsigned short int> muonIso;
     std::vector<unsigned short int> muonQual;
+    std::vector<unsigned short int> muonDxy;
     std::vector<unsigned short int> muonTfMuonIdx;
     std::vector<short int> muonBx;
 

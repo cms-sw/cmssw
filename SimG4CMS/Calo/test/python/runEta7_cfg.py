@@ -1,24 +1,30 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PROD")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("PROD",Run3)
+process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
+
+#from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+#process = cms.Process("PROD",Run3_dd4hep)
+#process.load("Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff")
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff"
 )
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['run1_mc']
+from Configuration.AlCa.GlobalTag import GlobalTag 
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cerr')
+process.MessageLogger.cerr.FwkReport.reportEvery = 5
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.G4cerr=dict()
+#   process.MessageLogger.CaloSim=dict()
+#   process.MessageLogger.CaloSimX=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -57,7 +63,7 @@ process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.out_step = cms.EndPath(process.output)
 
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 #process.g4SimHits.G4Commands = ['/tracking/verbose 1']
 
 # Schedule definition

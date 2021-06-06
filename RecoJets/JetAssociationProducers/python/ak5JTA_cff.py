@@ -40,3 +40,9 @@ ak5JTA = cms.Sequence(ak5JTATask)
 
 ak5JTAExplicitTask = cms.Task(ak5JetTracksAssociatorExplicit)
 ak5JTAExplicit = cms.Sequence(ak5JTAExplicitTask)
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(ak5JetTracksAssociatorAtVertex,
+                  jets = "akCs4PFJets",
+                  tracks = "highPurityGeneralTracks"
+)

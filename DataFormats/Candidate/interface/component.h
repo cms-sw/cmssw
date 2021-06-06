@@ -36,13 +36,13 @@ namespace reco {
     struct MultipleComponents {
       static size_t numberOf(const Candidate &c) {
         const C *dc = dynamic_cast<const C *>(&c);
-        if (dc == 0)
+        if (dc == nullptr)
           return 0;
         return (dc->*S)();
       }
       static T get(const Candidate &c, size_t i) {
         const C *dc = dynamic_cast<const C *>(&c);
-        if (dc == 0)
+        if (dc == nullptr)
           return T();
         if (i < (dc->*S)())
           return (dc->*F)(i);

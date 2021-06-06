@@ -1,9 +1,9 @@
 #include "SimG4CMS/Muon/interface/MuonME0FrameRotation.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 
 #include "G4Step.hh"
 
-MuonME0FrameRotation::MuonME0FrameRotation(const MuonDDDConstants&) : MuonFrameRotation::MuonFrameRotation() {}
+MuonME0FrameRotation::MuonME0FrameRotation(const MuonGeometryConstants&) : MuonFrameRotation::MuonFrameRotation() {}
 
 MuonME0FrameRotation::~MuonME0FrameRotation() {}
 

@@ -9,14 +9,21 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Test")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
-    testConditionAccess = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('testConditionAccess.log')
+    debugModules = cms.untracked.vstring(''),
+    files = cms.untracked.PSet(
+        testConditionAccess = cms.untracked.PSet(
+
+        )
+    ),
+    testConditionAccess = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

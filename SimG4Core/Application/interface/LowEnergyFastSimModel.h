@@ -10,6 +10,8 @@
 #include "G4Region.hh"
 #include "G4Types.hh"
 
+class TrackingAction;
+
 class LowEnergyFastSimModel : public G4VFastSimulationModel {
 public:
   LowEnergyFastSimModel(const G4String& name, G4Region* region, const edm::ParameterSet& parSet);
@@ -19,8 +21,9 @@ public:
   void DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) override;
 
 private:
-  const G4double fEmax;
-  const G4Envelope* const fRegion;
+  G4double fEmax;
+  const G4Envelope* fRegion;
+  const TrackingAction* fTrackingAction;
   GFlashHitMaker fHitMaker;
   LowEnergyFastSimParam param;
 };

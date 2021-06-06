@@ -7,7 +7,7 @@
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEEEGeom.h"
 
 namespace ecaldqm {
-  EcalPnDiodeDetId pnForCrystal(DetId const &_id, char _ab) {
+  EcalPnDiodeDetId pnForCrystal(DetId const &_id, char _ab, const EcalElectronicsMapping *electronicsMap) {
     bool pnA(_ab == 'a' || _ab == 'A');
 
     if (!isCrystalId(_id))
@@ -17,7 +17,7 @@ namespace ecaldqm {
       EBDetId ebid(_id);
       int lmmod(MEEBGeom::lmmod(ebid.ieta(), ebid.iphi()));
 
-      switch (dccId(_id)) {
+      switch (dccId(_id, electronicsMap)) {
         case 10:
           switch (lmmod) {
             case 1:

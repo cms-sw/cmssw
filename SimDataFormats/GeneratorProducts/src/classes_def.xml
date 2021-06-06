@@ -41,7 +41,8 @@
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>
  </class>
-	<class name="HepMC::HeavyIon" ClassVersion="10">
+	<class name="HepMC::HeavyIon" ClassVersion="11">
+  <version ClassVersion="11" checksum="1386021189"/>
   <version ClassVersion="10" checksum="972653740"/>
  </class>
 	<class name="HepMC::PdfInfo" ClassVersion="10">
@@ -240,5 +241,12 @@
    <![CDATA[hepmc_rootio::weightcontainer_set_default_names(onfile.m_weights.size(),m_names);
    ]]>
  </ioread>        
+
+<class name="ExternalGeneratorLumiInfo" ClassVersion="3">
+  <version ClassVersion="3" checksum="2760887354"/>
+</class>
+<class name="ExternalGeneratorEventInfo" ClassVersion="3">
+  <version ClassVersion="3" checksum="2860722409"/>
+</class>
 
 </lcgdict>

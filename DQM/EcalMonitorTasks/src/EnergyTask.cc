@@ -26,9 +26,10 @@ namespace ecaldqm {
     return false;
   }
 
-  void EnergyTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("HitMapAllByLumi").reset();
+  void EnergyTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es, bool const& ByLumiResetSwitch, bool&) {
+    if (ByLumiResetSwitch) {
+      MEs_.at("HitMapAllByLumi").reset(GetElectronicsMap());
+    }
   }
 
   void EnergyTask::runOnRecHits(EcalRecHitCollection const& _hits) {
@@ -54,11 +55,11 @@ namespace ecaldqm {
 
       DetId id(hitItr->id());
 
-      meHitMap.fill(id, energy);
-      meHitMapAll.fill(id, energy);
-      meHitMapAllByLumi.fill(id, energy);
-      meHit.fill(id, energy);
-      meHitAll.fill(id, energy);
+      meHitMap.fill(getEcalDQMSetupObjects(), id, energy);
+      meHitMapAll.fill(getEcalDQMSetupObjects(), id, energy);
+      meHitMapAllByLumi.fill(getEcalDQMSetupObjects(), id, energy);
+      meHit.fill(getEcalDQMSetupObjects(), id, energy);
+      meHitAll.fill(getEcalDQMSetupObjects(), id, energy);
 
       // look for the seeds
       //       float e3x3(energy);
@@ -66,7 +67,7 @@ namespace ecaldqm {
 
       //       EcalRecHitCollection::const_iterator neighborItr;
       //       float neighborE;
-      //       std::vector<DetId> window(getTopology()->getWindow(id, 3, 3));
+      //       std::vector<DetId> window(GetTopology()->getWindow(id, 3, 3));
       //       for(std::vector<DetId>::iterator idItr(window.begin()); idItr != window.end(); ++idItr){
       // 	if((neighborItr = _hits.find(*idItr)) == _hits.end()) continue;
       //         if(isPhysicsRun_ && neighborItr->checkFlagMask(notGood)) continue;

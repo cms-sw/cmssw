@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -14,17 +15,23 @@ namespace edm {
 
 namespace edmtest {
 
-  class UTC_V1 : public edm::EDAnalyzer {
+  class UTC_V1
+      : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks, edm::WatchProcessBlock> {
   public:
     explicit UTC_V1(edm::ParameterSet const& p) : ev(0) { identifier = p.getUntrackedParameter<int>("identifier", 99); }
 
-    virtual ~UTC_V1() {}
+    ~UTC_V1() override {}
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
-    virtual void beginJob();
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    void beginJob() override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
+    void endRun(edm::Run const&, edm::EventSetup const&) override {}
+
+    void beginProcessBlock(edm::ProcessBlock const&) override;
+    void endProcessBlock(edm::ProcessBlock const&) override;
 
   private:
     int identifier;
@@ -35,9 +42,9 @@ namespace edmtest {
   public:
     explicit UTC_V2(edm::ParameterSet const& p) : ev(0) { identifier = p.getUntrackedParameter<int>("identifier", 98); }
 
-    virtual ~UTC_V2() {}
+    ~UTC_V2() override {}
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
   private:
     int identifier;

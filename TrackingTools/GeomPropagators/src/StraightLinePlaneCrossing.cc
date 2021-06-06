@@ -1,6 +1,7 @@
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 //
 // Propagation status  and path length to intersection
@@ -14,8 +15,8 @@ std::pair<bool, double> StraightLinePlaneCrossing::pathLength(const Plane& plane
   auto pz = planeNormal.dot(theP0);
   auto dS = -planeNormal.dot(theX0 - planePosition) / pz;
   // check direction
-  auto opposite2Track =
-      ((thePropDir == alongMomentum) & (dS < 0.f)) | ((thePropDir == oppositeToMomentum) & (dS > 0.f));
+  auto opposite2Track = ((thePropDir == alongMomentum) & (dS < 0.f)) |
+                        ((thePropDir == oppositeToMomentum) & (dS > 0.f)) | edm::isNotFinite(dS);
   //
   // Return result
   //

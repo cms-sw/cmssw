@@ -1,15 +1,25 @@
 #ifndef CSCCalibration_CSCConditions_h
 #define CSCCalibration_CSCConditions_h
 
+#include "CondFormats/DataRecord/interface/CSCChamberTimeCorrectionsRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBChipSpeedCorrectionRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBGasGainCorrectionRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
 #include "CondFormats/DataRecord/interface/CSCBadStripsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCBadWiresRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
+#include "CalibMuon/CSCCalibration/interface/CSCChannelMapperRecord.h"
+#include "CalibMuon/CSCCalibration/interface/CSCIndexerRecord.h"
+#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include <bitset>
 #include <vector>
 
@@ -47,7 +57,7 @@ class CSCChannelMapperBase;
 
 class CSCConditions {
 public:
-  explicit CSCConditions(const edm::ParameterSet &ps);
+  explicit CSCConditions(const edm::ParameterSet &ps, edm::ConsumesCollector);
   ~CSCConditions();
 
   /// fetch database content via EventSetup
@@ -155,6 +165,20 @@ private:
 
   edm::ESHandle<CSCIndexerBase> indexer_;
   edm::ESHandle<CSCChannelMapperBase> mapper_;
+
+  //EventSetup Tokens for Handles
+  edm::ESGetToken<CSCDBGains, CSCDBGainsRcd> gainsToken_;
+  edm::ESGetToken<CSCDBCrosstalk, CSCDBCrosstalkRcd> crosstalkToken_;
+  edm::ESGetToken<CSCDBPedestals, CSCDBPedestalsRcd> pedestalsToken_;
+  edm::ESGetToken<CSCDBNoiseMatrix, CSCDBNoiseMatrixRcd> noiseMatrixToken_;
+  edm::ESGetToken<CSCBadStrips, CSCBadStripsRcd> badStripsToken_;
+  edm::ESGetToken<CSCBadWires, CSCBadWiresRcd> badWiresToken_;
+  edm::ESGetToken<CSCBadChambers, CSCBadChambersRcd> badChambersToken_;
+  edm::ESGetToken<CSCDBChipSpeedCorrection, CSCDBChipSpeedCorrectionRcd> chipCorrectionsToken_;
+  edm::ESGetToken<CSCChamberTimeCorrections, CSCChamberTimeCorrectionsRcd> chamberTimingCorrectionsToken_;
+  edm::ESGetToken<CSCDBGasGainCorrection, CSCDBGasGainCorrectionRcd> gasGainCorrectionsToken_;
+  edm::ESGetToken<CSCIndexerBase, CSCIndexerRecord> indexerToken_;
+  edm::ESGetToken<CSCChannelMapperBase, CSCChannelMapperRecord> mapperToken_;
 
   // logical flags controlling some conditions data usage
 

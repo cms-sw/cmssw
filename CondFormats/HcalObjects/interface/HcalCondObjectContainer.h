@@ -64,7 +64,7 @@ public:
   const Item* getValues(DetId fId, bool throwOnFail = true) const;
 
   // does the object exist ?
-  const bool exists(DetId fId) const;
+  bool exists(DetId fId) const;
 
   // set the object/fill it in:
   bool addValues(const Item& myItem);
@@ -220,7 +220,7 @@ const Item* HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail
 }
 
 template <class Item>
-const bool HcalCondObjectContainer<Item>::exists(DetId fId) const {
+bool HcalCondObjectContainer<Item>::exists(DetId fId) const {
   const Item* cell = getValues(fId, false);
 
   if (cell) {

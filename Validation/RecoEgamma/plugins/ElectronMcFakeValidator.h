@@ -124,6 +124,21 @@ private:
   double popmatching_max;
   bool set_EfficiencyFlag;
   bool set_StatOverflowFlag;
+  int opv_nbin;
+  double opv_min;
+  double opv_max;
+  int ele_nbin;
+  double ele_min;
+  double ele_max;
+  int core_nbin;
+  double core_min;
+  double core_max;
+  int track_nbin;
+  double track_min;
+  double track_max;
+  int seed_nbin;
+  double seed_min;
+  double seed_max;
 
   // histos
 

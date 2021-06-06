@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,12 +26,15 @@ public:
 
 private:
   edm::ParameterSet iConfig_;
-  unsigned long long cacheID;
+  edm::ESWatcher<TRecord> watcher_;
+  edm::ESGetToken<TObject, TRecord> token_;
 };
 
 template <typename TObject, typename TObjectO, typename TRecord>
 DummyCondDBWriter<TObject, TObjectO, TRecord>::DummyCondDBWriter(const edm::ParameterSet& iConfig)
-    : iConfig_(iConfig), cacheID(0) {
+    : iConfig_(iConfig),
+      token_(esConsumes<edm::Transition::EndRun>(
+          edm::ESInputTag{"", iConfig.getUntrackedParameter<std::string>("label", "")})) {
   edm::LogInfo("DummyCondDBWriter") << "DummyCondDBWriter constructor for typename " << typeid(TObject).name()
                                     << " and record " << typeid(TRecord).name() << std::endl;
 }
@@ -44,18 +47,14 @@ DummyCondDBWriter<TObject, TObjectO, TRecord>::~DummyCondDBWriter() {
 template <typename TObject, typename TObjectO, typename TRecord>
 void DummyCondDBWriter<TObject, TObjectO, TRecord>::endRun(const edm::Run& run, const edm::EventSetup& es) {
   std::string rcdName = iConfig_.getParameter<std::string>("record");
-  std::string labelName = iConfig_.getUntrackedParameter<std::string>("label", "");
 
-  if (cacheID == es.get<TRecord>().cacheIdentifier()) {
+  if (!watcher_.check(es)) {
     edm::LogInfo("DummyCondDBWriter") << "not needed to store objects with Record " << rcdName << " at run "
                                       << run.run() << std::endl;
     return;
   }
-  cacheID = es.get<TRecord>().cacheIdentifier();
 
-  edm::ESHandle<TObject> esobj;
-  es.get<TRecord>().get(labelName, esobj);
-  TObjectO* obj = new TObjectO(*(esobj.product()));
+  auto obj = std::make_unique<TObjectO>(es.getData(token_));
   cond::Time_t Time_;
 
   //And now write  data in DB
@@ -69,7 +68,7 @@ void DummyCondDBWriter<TObject, TObjectO, TRecord>::endRun(const edm::Run& run, 
     else
       Time_ = iConfig_.getUntrackedParameter<uint32_t>("OpenIovAtTime", 1);
 
-    dbservice->writeOne(obj, Time_, rcdName);
+    dbservice->writeOne(obj.release(), Time_, rcdName);
   } else {
     edm::LogError("SiStripFedCablingBuilder") << "Service is unavailable" << std::endl;
   }

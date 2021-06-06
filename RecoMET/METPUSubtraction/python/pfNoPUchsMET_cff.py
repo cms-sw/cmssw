@@ -1,17 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-pfNoPUchsMEtSequence = cms.Sequence()
+pfNoPUchsMEtTask = cms.Task()
 
 from JetMETCorrections.Type1MET.ak4PFchsJets_cff import *
-pfNoPUchsMEtSequence += ak4PFchsJetsSequence
+pfNoPUchsMEtTask.add(ak4PFchsJetsTask)
 
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 calibratedAK4PFchsJetsForPFNoPUchsMEt = cms.EDProducer('PFJetCorrectionProducer',
     src = cms.InputTag('ak4PFchsJets'),
     correctors = cms.vstring('ak4PFchsL1FastL2L3Residual') # NOTE: use "ak4PFchsL1FastL2L3" for MC / "ak4PFchsL1FastL2L3Residual" for Data
 )
-ak4PFJetSequenceForPFNoPUchsMEt = cms.Sequence(calibratedAK4PFchsJetsForPFNoPUchsMEt)
-pfNoPUchsMEtSequence += ak4PFJetSequenceForPFNoPUchsMEt
+ak4PFJetTaskForPFNoPUchsMEt = cms.Task(calibratedAK4PFchsJetsForPFNoPUchsMEt)
+pfNoPUchsMEtTask.add(ak4PFJetTaskForPFNoPUchsMEt)
 
 from RecoJets.JetProducers.PileupJetID_cfi import *
 puJetIdForPFNoPUchsMEt = pileupJetId.clone(
@@ -19,35 +19,35 @@ puJetIdForPFNoPUchsMEt = pileupJetId.clone(
         full_53x_chs,
         cutbased
         ),
-    label = cms.string("fullId"),
-    produceJetIds = cms.bool(True),
-    runMvas = cms.bool(True),
-    jets = cms.InputTag("calibratedAK4PFchsJetsForPFNoPUchsMEt"),
-    applyJec = cms.bool(False),
-    inputIsCorrected = cms.bool(True),                                     
+    label            = "fullId",
+    produceJetIds    = True,
+    runMvas          = True,
+    jets             = "calibratedAK4PFchsJetsForPFNoPUchsMEt",
+    applyJec         = False,
+    inputIsCorrected = True,                                     
 )
-pfNoPUchsMEtSequence += puJetIdForPFNoPUchsMEt
+pfNoPUchsMEtTask.add(puJetIdForPFNoPUchsMEt)
 
 from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
-pfNoPUchsMEtSequence += type0PFMEtCorrection
+pfNoPUchsMEtTask.add(type0PFMEtCorrection)
 pfCandidateToVertexAssociationForPFNoPUchsMEt = pfCandidateToVertexAssociation.clone(
-    MaxNumberOfAssociations = cms.int32(1),	
-    doReassociation = cms.bool(False),
-    FinalAssociation = cms.untracked.int32(1),			    
-    nTrackWeight = cms.double(0.)
+    MaxNumberOfAssociations = 1,	
+    doReassociation         = False,
+    FinalAssociation        = 1,			    
+    nTrackWeight            = 0.
 )
-pfNoPUchsMEtSequence += pfCandidateToVertexAssociationForPFNoPUchsMEt
+pfNoPUchsMEtTask.add(pfCandidateToVertexAssociationForPFNoPUchsMEt)
 pfMETcorrType0ForPFNoPUchsMEt = pfMETcorrType0.clone(
-    srcPFCandidateToVertexAssociations = cms.InputTag('pfCandidateToVertexAssociationForPFNoPUchsMEt')
+    srcPFCandidateToVertexAssociations = 'pfCandidateToVertexAssociationForPFNoPUchsMEt'
 )
-pfNoPUchsMEtSequence += pfMETcorrType0ForPFNoPUchsMEt
+pfNoPUchsMEtTask.add(pfMETcorrType0ForPFNoPUchsMEt)
 
 ##from CommonTools.RecoUtils.pfcand_assomap_cfi import PFCandAssoMap
 ##pfPileUpToVertexAssociation = PFCandAssoMap.clone(
 ##    VertexTrackAssociationMap = cms.InputTag('trackToVertexAssociation'),
-##    PFCandidateCollection = cms.InputTag('pfPileUpForAK4PFchsJets')
+##    PFCandidateCollection = 'pfPileUpForAK4PFchsJets'
 ##)
-##pfNoPUchsMEtSequence += pfPileUpToVertexAssociation
+##pfNoPUchsMEtTask.add(pfPileUpToVertexAssociation)
 
 jvfJetIdForPFNoPUchsMEt = cms.EDProducer("JVFJetIdProducer",
     srcJets = cms.InputTag('calibratedAK4PFchsJetsForPFNoPUchsMEt'),                                      
@@ -59,7 +59,7 @@ jvfJetIdForPFNoPUchsMEt = cms.EDProducer("JVFJetIdProducer",
     JVFcut = cms.double(0.75),
     neutralJetOption = cms.string("noPU")
 )
-pfNoPUchsMEtSequence += jvfJetIdForPFNoPUchsMEt
+pfNoPUchsMEtTask.add(jvfJetIdForPFNoPUchsMEt)
 
 import RecoMET.METProducers.METSigParams_cfi as met_config
 pfNoPUchsMEtData = cms.EDProducer("PFNoPUMEtDataProducer",
@@ -80,7 +80,7 @@ pfNoPUchsMEtData = cms.EDProducer("PFNoPUMEtDataProducer",
     resolution = met_config.METSignificance_params,
     verbosity = cms.int32(0)     
 )
-pfNoPUchsMEtSequence += pfNoPUchsMEtData
+pfNoPUchsMEtTask.add(pfNoPUchsMEtData)
 
 pfNoPUchsMEt = cms.EDProducer("PFNoPUMEtProducer",
     srcMEt = cms.InputTag('pfMet'),
@@ -104,4 +104,5 @@ pfNoPUchsMEt = cms.EDProducer("PFNoPUMEtProducer",
     saveInputs = cms.bool(True),
     verbosity = cms.int32(0)                               
 )
-pfNoPUchsMEtSequence += pfNoPUchsMEt
+pfNoPUchsMEtTask.add(pfNoPUchsMEt)
+pfNoPUchsMEtSequence = cms.Sequence(pfNoPUchsMEtTask)

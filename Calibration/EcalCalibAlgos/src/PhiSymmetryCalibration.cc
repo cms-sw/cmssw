@@ -29,8 +29,6 @@
 
 #include "FWCore/Framework/interface/Run.h"
 
-#include "boost/filesystem/operations.hpp"
-
 using namespace std;
 #include <fstream>
 #include <iostream>

@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 SiStripRecHitConverter::SiStripRecHitConverter(edm::ParameterSet const& conf)
     : recHitConverterAlgorithm(conf, consumesCollector()),

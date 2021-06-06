@@ -9,8 +9,9 @@
 
 HGCRecHit::HGCRecHit() : CaloRecHit(), flagBits_(0) {}
 
-HGCRecHit::HGCRecHit(const DetId& id, float energy, float time, uint32_t flags, uint32_t flagBits)
-    : CaloRecHit(id, energy, time, flags), flagBits_(flagBits) {}
+HGCRecHit::HGCRecHit(
+    const DetId& id, float energy, float time, uint32_t flags, uint32_t flagBits, uint8_t son, float timeError)
+    : CaloRecHit(id, energy, time, flags), flagBits_(flagBits), signalOverSigmaNoise_(son), timeError_(timeError) {}
 
 float HGCRecHit::chi2() const {
   uint32_t rawChi2 = 0x7F & (flags() >> 4);

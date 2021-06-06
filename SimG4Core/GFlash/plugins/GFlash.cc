@@ -1,12 +1,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4Core/GFlash/interface/GFlash.h"
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
+#include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT.h"
 
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
-#include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
 #include "G4IonPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 #include "G4StoppingPhysics.hh"
@@ -30,7 +30,7 @@ GFlash::GFlash(const edm::ParameterSet &p) : PhysicsList(p), thePar(p.getParamet
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93", ver, region));
+    RegisterPhysics(new CMSEmStandardPhysics(ver, p));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics(new G4EmExtraPhysics(ver));
@@ -44,7 +44,7 @@ GFlash::GFlash(const edm::ParameterSet &p) : PhysicsList(p), thePar(p.getParamet
     RegisterPhysics(new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(new G4HadronPhysicsQGSP_FTFP_BERT(ver));
+    RegisterPhysics(new CMSHadronPhysicsFTFP_BERT(ver));
     // Stopping Physics
     RegisterPhysics(new G4StoppingPhysics(ver));
 

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
+<DDDefinition>
   <PosPartSection label="pospart">
     <PosPart copyNumber="0">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
@@ -126,8 +126,6 @@
       <rChild name="testLogicalParts:extrudedpgon"/>
       <Translation z="-8.5*m" y="5.5*m" x="0"/>
     </PosPart>
-    
-<!-- beyond this point I'm not worrying about overlaps :( -->
     <PosPart copyNumber="1">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:asphere"/>
@@ -148,6 +146,11 @@
       <rChild name="testLogicalParts:trunctubs2"/>
       <Translation z="-28.9*m" y="5.9*m" x="0."/>
     </PosPart>
+    <PosPart copyNumber="1333">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:V_1101"/>
+      <rReflectionRotation name="testRotations:ReflectionY"/>
+    </PosPart>
     <PosPart copyNumber="13">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:V_1101"/>
@@ -163,17 +166,6 @@
       <rChild name="testLogicalParts:YE1_b"/>
       <Translation z="17.4299*m" y="0.*m" x="0."/>
     </PosPart>
-    <!-- Division name="ZStopSpaceDivision" parent="testLogicalParts:ZStopSpace" axis="phi" offset="-15*deg" width="30*deg"/>
-    <PosPart copyNumber="1">
-      <rParent name="pospart:ZStopSpaceDivision"/>
-      <rChild name="testLogicalParts:ZStop_1_ZStopSpaceDivision"/>
-      <rRotation name="testRotations:cmsimIdentity"/>
-    </PosPart>
-    <PosPart copyNumber="2">
-      <rParent name="pospart:ZStopSpaceDivision"/>
-      <rChild name="testLogicalParts:ZStop_2_ZStopSpaceDivision"/>
-      <rRotation name="testRotations:cmsimIdentity"/>
-    </PosPart -->
     <PosPart copyNumber="3">
       <rParent name="testLogicalParts:ZStopSpace1"/>
       <rChild name="testLogicalParts:ZStop_1_ZStopSpaceDivision"/>

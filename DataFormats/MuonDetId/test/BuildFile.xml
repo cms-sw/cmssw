@@ -1,9 +1,12 @@
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/MuonDetId"/>
-<bin   name="testMuonDetId" file="testDTDetIds.cc,testCSCDetId.cc,testRPCDetId.cc,testRPCCompDetId.cc,testCSCTriggerNumbering.cc,testME0DetId.cc,testMuonDetId.cpp">
-  <use   name="cppunit"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/MuonDetId"/>
+<bin name="testMuonDetId" file="testDTDetIds.cc,testCSCDetId.cc,testRPCDetId.cc,testRPCCompDetId.cc,testCSCTriggerNumbering.cc,testME0DetId.cc,testMuonDetId.cpp">
+  <use name="cppunit"/>
   <flags CXXFLAGS="-O2"/>
 </bin>
-<bin   name="testCSCDetId" file="testCSCDetId.cc,testMuonDetId.cpp">
-  <use   name="cppunit"/>
+
+<bin name="testCSCDetId" file="testCSCDetId.cc,testMuonDetId.cpp">
+  <use name="cppunit"/>
 </bin>
+
+<bin name="testGEMDetId" file="testGEMDetId.cc"> </bin>

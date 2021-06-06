@@ -1,13 +1,12 @@
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 
 class GenericClusterImporter : public BlockElementImporterBase {
 public:
-  GenericClusterImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : BlockElementImporterBase(conf, sumes),
-        _src(sumes.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))) {}
+  GenericClusterImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : BlockElementImporterBase(conf, cc),
+        _src(cc.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))) {}
 
   void importToBlock(const edm::Event&, ElementList&) const override;
 

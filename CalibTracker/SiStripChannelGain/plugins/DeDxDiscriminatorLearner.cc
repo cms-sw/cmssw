@@ -23,7 +23,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -37,6 +36,7 @@ DeDxDiscriminatorLearner::DeDxDiscriminatorLearner(const edm::ParameterSet& iCon
   m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
   m_trajTrackAssociationTag =
       consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation"));
+  m_tkGeomToken = esConsumes<edm::Transition::BeginRun>();
 
   P_Min = iConfig.getParameter<double>("P_Min");
   P_Max = iConfig.getParameter<double>("P_Max");
@@ -82,11 +82,11 @@ void DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup) {
                             Charge_Max);
 
   if (useCalibration && calibGains.empty()) {
-    edm::ESHandle<TrackerGeometry> tkGeom;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
-    m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel);  //index start at the first pixel
+    const auto& tkGeom = iSetup.getData(m_tkGeomToken);
 
-    DeDxTools::makeCalibrationMap(m_calibrationPath, *tkGeom, calibGains, m_off);
+    m_off = tkGeom.offsetDU(GeomDetEnumerators::PixelBarrel);  //index start at the first pixel
+
+    DeDxTools::makeCalibrationMap(m_calibrationPath, tkGeom, calibGains, m_off);
   }
 
   //Read the calibTree if in calibTree mode
@@ -237,8 +237,7 @@ void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit,
 
 //this function is only used when we run over a calibTree instead of running over EDM files
 void DeDxDiscriminatorLearner::algoAnalyzeTheTree(const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> tkGeom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
+  const auto& tkGeom = iSetup.getData(m_tkGeomToken);
 
   unsigned int NEvent = 0;
   for (unsigned int i = 0; i < VInputFiles.size(); i++) {
@@ -321,7 +320,7 @@ void DeDxDiscriminatorLearner::algoAnalyzeTheTree(const edm::EventSetup& iSetup)
 
         int Charge = 0;
         if (useCalibration) {
-          auto& gains = calibGains[tkGeom->idToDetUnit(DetId((*rawid)[c]))->index() - m_off];
+          auto& gains = calibGains[tkGeom.idToDetUnit(DetId((*rawid)[c]))->index() - m_off];
           auto& gain = gains[(*firststrip)[c] / 128];
           for (unsigned int s = 0; s < (*nstrips)[c]; s++) {
             int StripCharge = (*amplitude)[FirstAmplitude - (*nstrips)[c] + s];

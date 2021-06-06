@@ -6,9 +6,9 @@ process.load("Geometry.ForwardCommonData.totemT22021XML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('SimG4CoreApplication')
-    process.MessageLogger.categories.append('G4cout')
-    process.MessageLogger.categories.append('ForwardGeom')
+    process.MessageLogger.SimG4CoreApplication=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.ForwardGeom=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)

@@ -7,11 +7,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
-process.MessageLogger=cms.Service("MessageLogger",
-                              destinations=cms.untracked.vstring("cout"),
-                              cout=cms.untracked.PSet(
-                              treshold=cms.untracked.string("INFO")
-                              )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        treshold = cms.untracked.string('INFO')
+    )
 )
 
 ##process.load("CondCore.DBCommon.CondDBSetup_cfi")

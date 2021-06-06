@@ -14,34 +14,32 @@ from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 #HCAL reconstruction
 import RecoLocalCalo.Configuration.hcalLocalReco_cff as _hcalLocalReco_cff
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
+from RecoLocalCalo.HcalRecAlgos.hcalChannelPropertiesESProd_cfi import *
 #
 # sequence CaloLocalReco
 #
 
-def hbheCosmic(module):
-    return module.clone(
-        tsFromDB = cms.bool(False),
-        recoParamsFromDB = cms.bool(False),
-        algorithm = dict(
-            useMahi = cms.bool(False),
-            useM2 = cms.bool(False),
-            useM3 = cms.bool(False),
-            firstSampleShift = cms.int32(-1000),
-            samplesToAdd = cms.int32(10),
-            correctForPhaseContainment = cms.bool(False),
-        ),
-        sipmQTSShift = cms.int32(-100),
-        sipmQNTStoSum = cms.int32(200),
-    )
-
-hbhereco = hbheCosmic(_hcalLocalReco_cff.hbheprereco)
+hbhereco = _hcalLocalReco_cff.hbheprereco.cpu.clone(
+    tsFromDB = False,
+    recoParamsFromDB = False,
+    algorithm = dict(
+        useMahi = False,
+        useM2 = False,
+        useM3 = False,
+        firstSampleShift = -1000,
+        samplesToAdd = 10,
+        correctForPhaseContainment = False,
+    ),
+    sipmQTSShift = -100,
+    sipmQNTStoSum = 200,
+)
 hfreco = _hcalLocalReco_cff._default_hfreco.clone(
     firstSample = 0,
     samplesToAdd = 10, ### min(10,size) in the algo
     correctForTimeslew = False,
     correctForPhaseContainment = False,
     tsFromDB = False,
-    recoParamsFromDB = cms.bool(False),
+    recoParamsFromDB = False,
     digiTimeFromDB = False,
 )
 horeco = _hcalLocalReco_cff.horeco.clone(
@@ -50,7 +48,7 @@ horeco = _hcalLocalReco_cff.horeco.clone(
     correctForTimeslew = False,
     correctForPhaseContainment = False,
     tsFromDB = False,
-    recoParamsFromDB = cms.bool(False),
+    recoParamsFromDB = False,
 )
 zdcreco = _hcalLocalReco_cff.zdcreco.clone(
 #    firstSample = 1,
@@ -65,8 +63,8 @@ from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 
 _phase1_hfreco = _hcalLocalReco_cff._phase1_hfreco.clone(
     algorithm = dict(
-        Class = cms.string("HFSimpleTimeCheck"),
-        rejectAllFailures = cms.bool(False),
+        Class = "HFSimpleTimeCheck",
+        rejectAllFailures = False,
     )
 )
 
@@ -74,7 +72,7 @@ _phase1_hfreco = _hcalLocalReco_cff._phase1_hfreco.clone(
 run2_HF_2017.toReplaceWith(hfreco, _phase1_hfreco )
 
 hfprereco = _hcalLocalReco_cff.hfprereco.clone(
-    sumAllTimeSlices = cms.bool(True)
+    sumAllTimeSlices = True
 )
 
 from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1

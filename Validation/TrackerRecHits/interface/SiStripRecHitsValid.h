@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 //only mine
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,6 +34,12 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+
+// -- for es tokens
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <string>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
@@ -123,6 +130,12 @@ protected:
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) override;
 
 private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_geomToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken, m_topoTokenBR;
+  const edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> m_SiStripDetCablingToken;
+
+  edm::ESWatcher<SiStripDetCablingRcd> watchSiStripDetCablingRcd_;
+
   TotalMEs totalMEs;
 
   bool switchNumTotrphi;
@@ -210,7 +223,6 @@ private:
 
   edm::ParameterSet conf_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
-  unsigned long long m_cacheID_;
   //const StripTopology* topol;
 
   /* static const int MAXHIT = 1000; */

@@ -6,7 +6,8 @@ DOTS=$(cudaComputeCapabilities | awk '{ print $2 }' | sort -u)
 CAPS=$(echo $DOTS | sed -e's#\.*##g')
 
 # remove existing capabilities
-sed -i $TOOL -e'\#<flags CUDA_FLAGS="-gencode arch=compute_..,code=sm_.."/>#d'
+sed -i $TOOL -e"s#-gencode arch=compute_..,code=sm_.. *##g"
+sed -i $TOOL -e"\#<flags CUDA_FLAGS=\"\"/>#d"
 
 # add support for the capabilities found on this machine
 for CAP in $CAPS; do

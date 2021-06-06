@@ -1,7 +1,7 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="MagneticField/VolumeGeometry"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="MagneticField/VolumeGeometry"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-<flags   CXXFLAGS="-Wno-format -Wno-format-contains-nul"/>
+<flags CXXFLAGS="-Wno-format -Wno-format-contains-nul"/>

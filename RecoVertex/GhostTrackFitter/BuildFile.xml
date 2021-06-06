@@ -13,5 +13,5 @@
 <use name="RecoVertex/AdaptiveVertexFit"/>
 <use name="rootmath"/>
 <export>
-   <lib name="1"/>
+  <lib name="1"/>
 </export>

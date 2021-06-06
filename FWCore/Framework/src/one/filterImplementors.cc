@@ -22,6 +22,9 @@ namespace edm {
       template class SharedResourcesUser<edm::one::EDFilterBase>;
       template class RunWatcher<edm::one::EDFilterBase>;
       template class LuminosityBlockWatcher<edm::one::EDFilterBase>;
+      template class WatchProcessBlock<edm::one::EDFilterBase>;
+      template class BeginProcessBlockProducer<edm::one::EDFilterBase>;
+      template class EndProcessBlockProducer<edm::one::EDFilterBase>;
       template class BeginRunProducer<edm::one::EDFilterBase>;
       template class EndRunProducer<edm::one::EDFilterBase>;
       template class BeginLuminosityBlockProducer<edm::one::EDFilterBase>;

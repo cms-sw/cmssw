@@ -1,7 +1,8 @@
 <environment>
-  <use   name="DataFormats/Math"/>
-  <use   name="rootmath"/>
-  <use   name="clhep"/>
-  <bin   file="testFromCMStoTB.cpp">
-  </bin>
+  <use name="DataFormats/Math"/>
+  <use name="rootmath"/>
+  <use name="clhep"/>
+  <bin file="testFromCMStoTB.cpp">
+</bin>
+
 </environment>

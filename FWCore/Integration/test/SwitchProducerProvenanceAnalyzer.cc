@@ -30,8 +30,8 @@ namespace edmtest {
   };
 
   SwitchProducerProvenanceAnalyzer::SwitchProducerProvenanceAnalyzer(edm::ParameterSet const& iConfig)
-      : inputToken1_(consumes<IntProduct>(iConfig.getParameter<edm::InputTag>("src1"))),
-        inputToken2_(consumes<IntProduct>(iConfig.getParameter<edm::InputTag>("src2"))),
+      : inputToken1_(consumes(iConfig.getParameter<edm::InputTag>("src1"))),
+        inputToken2_(consumes(iConfig.getParameter<edm::InputTag>("src2"))),
         producerPrefix_(iConfig.getParameter<std::string>("producerPrefix")),
         aliasMode_(iConfig.getParameter<bool>("aliasMode")) {}
 

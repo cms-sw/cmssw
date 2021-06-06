@@ -146,7 +146,7 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
         if (it_data->getAlgoDecisionFinal(algoBit) != it_emul->getAlgoDecisionFinal(algoBit)) {
           bool unprescaled = true;
           // check the prescale factor
-          int prescale = -999;
+          double prescale = -999;
           bool dummy = gtUtil_.getPrescaleByBit(algoBit, prescale);
           if (not dummy)
             edm::LogWarning("L1TdeStage2uGT") << "Could not find prescale value for algobit: " << algoBit << std::endl;

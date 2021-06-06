@@ -5,21 +5,9 @@
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQM/TrackingMonitor/interface/TrackEfficiencyClient.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include <iostream>
-#include <iomanip>
-#include <cstdio>
-#include <string>
-#include <sstream>
-#include <cmath>
 
 //-----------------------------------------------------------------------------------
 TrackEfficiencyClient::TrackEfficiencyClient(edm::ParameterSet const& iConfig)

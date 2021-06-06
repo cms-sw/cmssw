@@ -18,17 +18,15 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 ## message logger
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations = cms.untracked.vstring( 'cout', 'cerr' ),
-    #destinations = cms.untracked.vstring( 'cerr' ),
-    debugModules = cms.untracked.vstring( 'RawDataConverter' ),
+process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
-    threshold = cms.untracked.string( 'ERROR' )
+        threshold = cms.untracked.string('ERROR')
     ),
     cout = cms.untracked.PSet(
-    threshold = cms.untracked.string( 'INFO' )
-    )
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    ),
+    debugModules = cms.untracked.vstring('RawDataConverter')
 )
 
 

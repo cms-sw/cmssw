@@ -1,5 +1,5 @@
-#ifndef DetLayers_MTDDetTray_H
-#define DetLayers_MTDDetTray_H
+#ifndef RecoMTD_DetLayers_MTDDetTray_H
+#define RecoMTD_DetLayers_MTDDetTray_H
 
 /** \class MTDDetTray
  *  A tray of aligned equal-sized non-overlapping detectors.  

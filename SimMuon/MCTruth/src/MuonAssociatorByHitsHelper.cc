@@ -17,6 +17,7 @@ using namespace std;
 MuonAssociatorByHitsHelper::MuonAssociatorByHitsHelper(const edm::ParameterSet &conf)
     : includeZeroHitMuons(conf.getParameter<bool>("includeZeroHitMuons")),
       acceptOneStubMatchings(conf.getParameter<bool>("acceptOneStubMatchings")),
+      rejectBadGlobal(conf.getParameter<bool>("rejectBadGlobal")),
       UseTracker(conf.getParameter<bool>("UseTracker")),
       UseMuon(conf.getParameter<bool>("UseMuon")),
       AbsoluteNumberOfHits_track(conf.getParameter<bool>("AbsoluteNumberOfHits_track")),
@@ -32,7 +33,7 @@ MuonAssociatorByHitsHelper::MuonAssociatorByHitsHelper(const edm::ParameterSet &
       UseSplitting(conf.getParameter<bool>("UseSplitting")),
       ThreeHitTracksAreSpecial(conf.getParameter<bool>("ThreeHitTracksAreSpecial")),
       dumpDT(conf.getParameter<bool>("dumpDT")) {
-  edm::LogVerbatim("MuonAssociatorByHitsHelper") << "constructing  MuonAssociatorByHitsHelper" << conf.dump();
+  edm::LogVerbatim("MuonAssociatorByHitsHelper") << "\n constructing  MuonAssociatorByHitsHelper" << conf.dump();
 
   // up to the user in the other cases - print a message
   if (UseTracker)
@@ -97,7 +98,6 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
   MapOfMatchedIds tracker_matchedIds_INVALID, muon_matchedIds_INVALID;
 
   IndexAssociation outputCollection;
-  bool printRtS(true);
 
   TrackingParticleCollection tPC;
   tPC.reserve(TPCollectionH.size());
@@ -161,7 +161,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
     int n_rpc_matched_INVALID = 0;
     int n_gem_matched_INVALID = 0;
 
-    printRtS = true;
+    bool printRtS = true;
     getMatchedIds(tracker_matchedIds_valid,
                   muon_matchedIds_valid,
                   tracker_matchedIds_INVALID,
@@ -338,9 +338,11 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
         // standalone muons, global muons)
         bool matchOk = trackerOk || muonOk;
 
-        // only for global muons: match both tracker and muon stub unless
-        // (acceptOneStubMatchings==true)
-        if (!acceptOneStubMatchings && n_tracker_selected_hits != 0 && n_muon_selected_hits != 0)
+        // only for global tracks: match both tracker and muon stub (if acceptOneStubMatchings==false)
+        // depending on the muon selection reject tracks with only one stub (if rejectBadGlobal==true)
+        //
+        if (UseTracker && UseMuon && !acceptOneStubMatchings &&
+            ((n_tracker_selected_hits != 0 && n_muon_selected_hits != 0) || rejectBadGlobal))
           matchOk = trackerOk && muonOk;
 
         if (matchOk) {
@@ -355,7 +357,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
               << "   N shared hits = " << global_nshared << " (tracker: " << tracker_nshared
               << " / muon: " << muon_nshared << ")"
               << "\n"
-              << "   to: TrackingParticle " << tpindex << ", q = " << (*trpart).charge() << ", p = " << (*trpart).p()
+              << "   to TrackingParticle:  q = " << (*trpart).charge() << ", p = " << (*trpart).p()
               << ", pT = " << (*trpart).pt() << ", eta = " << (*trpart).eta() << ", phi = " << (*trpart).phi() << "\n\t"
               << " pdg code = " << (*trpart).pdgId() << ", made of " << (*trpart).numberOfHits() << " PSimHits"
               << " from " << (*trpart).g4Tracks().size() << " SimTrack:";
@@ -369,9 +371,9 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
           // print something only if this TrackingParticle shares some hits with
           // the current reco::Track
           if (global_nshared != 0)
-            edm::LogVerbatim("MuonAssociatorByHitsHelper")
+            LogTrace("MuonAssociatorByHitsHelper")
                 << "\n\t"
-                << " NOT matched to TrackingParticle " << tpindex << " with quality = " << global_quality
+                << " NOT matched to TrackingParticle, with quality = " << global_quality
                 << " (tracker: " << tracker_quality << " / muon: " << muon_quality << ")"
                 << "\n"
                 << "   N shared hits = " << global_nshared << " (tracker: " << tracker_nshared
@@ -443,7 +445,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
 
   IndexAssociation outputCollection;
 
-  bool printRtS(true);
+  bool printRtS = false;
 
   TrackingParticleCollection tPC;
   tPC.reserve(TPCollectionH.size());
@@ -506,7 +508,6 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
     int n_rpc_matched_INVALID = 0;
     int n_gem_matched_INVALID = 0;
 
-    printRtS = false;
     getMatchedIds(tracker_matchedIds_valid,
                   muon_matchedIds_valid,
                   tracker_matchedIds_INVALID,
@@ -628,7 +629,6 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
         int n_tracker_recounted_simhits = 0;
         int n_muon_simhits = 0;
         int n_global_simhits = 0;
-        //	std::vector<PSimHit> tphits;
 
         int n_tracker_selected_simhits = 0;
         int n_muon_selected_simhits = 0;
@@ -645,70 +645,6 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
         if (global_nshared == 0)
           continue;  // if this TP shares no hits with the current reco::Track
                      // loop over
-
-        // This does not work with the new TP interface
-        /*
-        for(std::vector<PSimHit>::const_iterator TPhit =
-        trpart->pSimHit_begin(); TPhit != trpart->pSimHit_end(); TPhit++) {
-          DetId dId = DetId(TPhit->detUnitId());
-          DetId::Detector detector = dId.det();
-
-          if (detector == DetId::Tracker) {
-            n_tracker_simhits++;
-
-            unsigned int subdetId = static_cast<unsigned int>(dId.subdetId());
-            if (!UsePixels && (subdetId==PixelSubdetector::PixelBarrel ||
-        subdetId==PixelSubdetector::PixelEndcap) ) continue;
-
-            SiStripDetId* stripDetId = 0;
-            if (subdetId==SiStripDetId::TIB||subdetId==SiStripDetId::TOB||
-                subdetId==SiStripDetId::TID||subdetId==SiStripDetId::TEC)
-              stripDetId= new SiStripDetId(dId);
-
-            bool newhit = true;
-            for(std::vector<PSimHit>::const_iterator TPhitOK = tphits.begin();
-        TPhitOK != tphits.end(); TPhitOK++) { DetId dIdOK =
-        DetId(TPhitOK->detUnitId());
-              //no grouped, no splitting
-              if (!UseGrouped && !UseSplitting)
-                if (tTopo->layer(dId)==tTopo->layer(dIdOK) &&
-                    dId.subdetId()==dIdOK.subdetId()) newhit = false;
-              //no grouped, splitting
-              if (!UseGrouped && UseSplitting)
-                if (tTopo->layer(dId)==tTopo->layer(dIdOK) &&
-                    dId.subdetId()==dIdOK.subdetId() &&
-                    (stripDetId==0 ||
-        stripDetId->partnerDetId()!=dIdOK.rawId())) newhit = false;
-              //grouped, no splitting
-              if (UseGrouped && !UseSplitting)
-                if ( tTopo->layer(dId)== tTopo->layer(dIdOK) &&
-                    dId.subdetId()==dIdOK.subdetId() &&
-                    stripDetId!=0 && stripDetId->partnerDetId()==dIdOK.rawId())
-                  newhit = false;
-              //grouped, splitting
-              if (UseGrouped && UseSplitting)
-                newhit = true;
-            }
-            if (newhit) {
-              tphits.push_back(*TPhit);
-            }
-            delete stripDetId;
-          }
-          else if (detector == DetId::Muon) {
-            n_muon_simhits++;
-
-            // discard BAD CSC chambers (ME4/2) from hit counting
-            if (dId.subdetId() == MuonSubdetId::CSC) {
-              if (csctruth.cscBadChambers->isInBadChamber(CSCDetId(dId))) {
-                // edm::LogVerbatim("MuonAssociatorByHitsHelper")<<"This PSimHit
-        is in a BAD CSC chamber, CSCDetId = "<<CSCDetId(dId); n_muon_simhits--;
-              }
-            }
-
-          }
-        }
-        */
-        //	n_tracker_recounted_simhits = tphits.size();
 
         // adapt to new TP interface: this gives the total number of hits in
         // tracker
@@ -810,9 +746,11 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
         // standalone muons, global muons)
         bool matchOk = trackerOk || muonOk;
 
-        // only for global muons: match both tracker and muon stub unless
-        // (acceptOneStubMatchings==true)
-        if (!acceptOneStubMatchings && n_tracker_selected_hits != 0 && n_muon_selected_hits != 0)
+        // only for global tracks: match both tracker and muon stub (if acceptOneStubMatchings==false)
+        // depending on the muon selection reject tracks with only one stub (if rejectBadGlobal==true)
+        //
+        if (UseTracker && UseMuon && !acceptOneStubMatchings &&
+            ((n_tracker_selected_hits != 0 && n_muon_selected_hits != 0) || rejectBadGlobal))
           matchOk = trackerOk && muonOk;
 
         if (matchOk) {
@@ -823,7 +761,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
               << "*************************************************************"
                  "***********************************************************"
               << "\n"
-              << "TrackingParticle " << tpindex << ", q = " << (*trpart).charge() << ", p = " << (*trpart).p()
+              << "TrackingParticle:  q = " << (*trpart).charge() << ", p = " << (*trpart).p()
               << ", pT = " << (*trpart).pt() << ", eta = " << (*trpart).eta() << ", phi = " << (*trpart).phi() << "\n"
               << " pdg code = " << (*trpart).pdgId() << ", made of " << (*trpart).numberOfHits()
               << " PSimHits, recounted " << n_global_simhits << " PSimHits"
@@ -857,7 +795,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
                      "*********************************************************"
                      "******"
                   << "\n"
-                  << "TrackingParticle " << tpindex << ", q = " << (*trpart).charge() << ", p = " << (*trpart).p()
+                  << "TrackingParticle:  q = " << (*trpart).charge() << ", p = " << (*trpart).p()
                   << ", pT = " << (*trpart).pt() << ", eta = " << (*trpart).eta() << ", phi = " << (*trpart).phi()
                   << "\n"
                   << " pdg code = " << (*trpart).pdgId() << ", made of " << (*trpart).numberOfHits()
@@ -1019,7 +957,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
         if (!SimTrackIds.empty()) {
           n_tracker_matched_valid++;
           // tracker_matchedIds_valid[iH] = SimTrackIds;
-          tracker_matchedIds_valid.push_back(new uint_SimHitIdpr_pair(iH, SimTrackIds));
+          tracker_matchedIds_valid.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, SimTrackIds));
         }
       } else {
         n_tracker_INVALID++;
@@ -1027,7 +965,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
         if (!SimTrackIds.empty()) {
           n_tracker_matched_INVALID++;
           // tracker_matchedIds_INVALID[iH] = SimTrackIds;
-          tracker_matchedIds_INVALID.push_back(new uint_SimHitIdpr_pair(iH, SimTrackIds));
+          tracker_matchedIds_INVALID.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, SimTrackIds));
         }
       }
     }
@@ -1056,7 +994,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
             if (!SimTrackIds.empty()) {
               n_dt_matched_valid++;
               // muon_matchedIds_valid[iH] = SimTrackIds;
-              muon_matchedIds_valid.push_back(new uint_SimHitIdpr_pair(iH, SimTrackIds));
+              muon_matchedIds_valid.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, SimTrackIds));
             }
           } else {
             n_dt_INVALID++;
@@ -1064,7 +1002,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
             if (!SimTrackIds.empty()) {
               n_dt_matched_INVALID++;
               // muon_matchedIds_INVALID[iH] = SimTrackIds;
-              muon_matchedIds_INVALID.push_back(new uint_SimHitIdpr_pair(iH, SimTrackIds));
+              muon_matchedIds_INVALID.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, SimTrackIds));
             }
           }
 
@@ -1131,7 +1069,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
                   if (!i_SimTrackIds.empty()) {
                     n_dt_matched_valid++;
                     // muon_matchedIds_valid[iH] = i_SimTrackIds;
-                    muon_matchedIds_valid.push_back(new uint_SimHitIdpr_pair(iH, i_SimTrackIds));
+                    muon_matchedIds_valid.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, i_SimTrackIds));
                   }
                 } else {
                   n_dt_INVALID++;
@@ -1139,7 +1077,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
                   if (!i_SimTrackIds.empty()) {
                     n_dt_matched_INVALID++;
                     // muon_matchedIds_INVALID[iH] = i_SimTrackIds;
-                    muon_matchedIds_INVALID.push_back(new uint_SimHitIdpr_pair(iH, i_SimTrackIds));
+                    muon_matchedIds_INVALID.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, i_SimTrackIds));
                   }
                 }
               } else if (printRtS)
@@ -1196,7 +1134,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
             if (!SimTrackIds.empty()) {
               n_csc_matched_valid++;
               // muon_matchedIds_valid[iH] = SimTrackIds;
-              muon_matchedIds_valid.push_back(new uint_SimHitIdpr_pair(iH, SimTrackIds));
+              muon_matchedIds_valid.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, SimTrackIds));
             }
           } else {
             n_csc_INVALID++;
@@ -1204,7 +1142,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
             if (!SimTrackIds.empty()) {
               n_csc_matched_INVALID++;
               // muon_matchedIds_INVALID[iH] = SimTrackIds;
-              muon_matchedIds_INVALID.push_back(new uint_SimHitIdpr_pair(iH, SimTrackIds));
+              muon_matchedIds_INVALID.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, SimTrackIds));
             }
           }
         }
@@ -1242,7 +1180,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
                   if (!i_SimTrackIds.empty()) {
                     n_csc_matched_valid++;
                     // muon_matchedIds_valid[iH] =  i_SimTrackIds;
-                    muon_matchedIds_valid.push_back(new uint_SimHitIdpr_pair(iH, i_SimTrackIds));
+                    muon_matchedIds_valid.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, i_SimTrackIds));
                   }
                 } else {
                   n_csc_INVALID++;
@@ -1250,7 +1188,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
                   if (!i_SimTrackIds.empty()) {
                     n_csc_matched_INVALID++;
                     // muon_matchedIds_INVALID[iH] =  i_SimTrackIds;
-                    muon_matchedIds_INVALID.push_back(new uint_SimHitIdpr_pair(iH, i_SimTrackIds));
+                    muon_matchedIds_INVALID.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, i_SimTrackIds));
                   }
                 }
               } else if (printRtS)
@@ -1303,7 +1241,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
           if (!SimTrackIds.empty()) {
             n_rpc_matched_valid++;
             // muon_matchedIds_valid[iH] = SimTrackIds;
-            muon_matchedIds_valid.push_back(new uint_SimHitIdpr_pair(iH, SimTrackIds));
+            muon_matchedIds_valid.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, SimTrackIds));
           }
         } else {
           n_rpc_INVALID++;
@@ -1311,7 +1249,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
           if (!SimTrackIds.empty()) {
             n_rpc_matched_INVALID++;
             // muon_matchedIds_INVALID[iH] = SimTrackIds;
-            muon_matchedIds_INVALID.push_back(new uint_SimHitIdpr_pair(iH, SimTrackIds));
+            muon_matchedIds_INVALID.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, SimTrackIds));
           }
         }
       }
@@ -1337,7 +1275,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
             if (!SimTrackIds.empty()) {
               n_gem_matched_valid++;
               // muon_matchedIds_valid[iH] = SimTrackIds;
-              muon_matchedIds_valid.push_back(new uint_SimHitIdpr_pair(iH, SimTrackIds));
+              muon_matchedIds_valid.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, SimTrackIds));
             }
           } else {
             n_gem_INVALID++;
@@ -1345,7 +1283,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
             if (!SimTrackIds.empty()) {
               n_gem_matched_INVALID++;
               // muon_matchedIds_INVALID[iH] = SimTrackIds;
-              muon_matchedIds_INVALID.push_back(new uint_SimHitIdpr_pair(iH, SimTrackIds));
+              muon_matchedIds_INVALID.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, SimTrackIds));
             }
           }
         } else {
@@ -1378,7 +1316,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
                   if (!i_SimTrackIds.empty()) {
                     n_gem_matched_valid++;
                     // muon_matchedIds_valid[iH] =  i_SimTrackIds;
-                    muon_matchedIds_valid.push_back(new uint_SimHitIdpr_pair(iH, i_SimTrackIds));
+                    muon_matchedIds_valid.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, i_SimTrackIds));
                   }
                 } else {
                   n_gem_INVALID++;
@@ -1386,7 +1324,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
                   if (!i_SimTrackIds.empty()) {
                     n_gem_matched_INVALID++;
                     // muon_matchedIds_INVALID[iH] =  i_SimTrackIds;
-                    muon_matchedIds_INVALID.push_back(new uint_SimHitIdpr_pair(iH, i_SimTrackIds));
+                    muon_matchedIds_INVALID.emplace_back(std::make_unique<uint_SimHitIdpr_pair>(iH, i_SimTrackIds));
                   }
                 }
               } else if (printRtS)
@@ -1438,7 +1376,7 @@ int MuonAssociatorByHitsHelper::getShared(MapOfMatchedIds &matchedIds,
   // allowed)
   for (MapOfMatchedIds::const_iterator iRecH = matchedIds.begin(); iRecH != matchedIds.end(); ++iRecH) {
     // vector of associated simhits associated to the current rechit
-    std::vector<SimHitIdpr> const &SimTrackIds = (*iRecH).second;
+    std::vector<SimHitIdpr> const &SimTrackIds = (*iRecH)->second;
 
     bool found = false;
 

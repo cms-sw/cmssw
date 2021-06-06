@@ -62,7 +62,7 @@ namespace math {
           vt_.e_ = 0;
           ++vt_.a_;
           while (vt_.gr_.size() > vt_.a_) {
-            if (vt_.gr_.adjl_[vt_.a_].size()) {
+            if (!vt_.gr_.adjl_[vt_.a_].empty()) {
               return;
             }
             ++vt_.a_;

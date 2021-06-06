@@ -1,15 +1,13 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
-static long algorithm(dd4hep::Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   // Header section
@@ -23,12 +21,11 @@ static long algorithm(dd4hep::Detector& /* description */,
   std::string childName = args.value<std::string>("ChildName");  //Children name
   double dz = args.value<double>("Dz");                          //Half length along z of the volume to be placed
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: Parameters for position"
-                               << "ing--"
-                               << " Eta " << eta << "\tPhi " << convertRadToDeg(phi) << "\tTheta "
-                               << convertRadToDeg(theta) << "\tDistance " << convertCmToMm(distance) << "/"
-                               << convertCmToMm(distanceZ) << "/" << convertCmToMm(dist) << "\tDz " << convertCmToMm(dz)
-                               << "\tcopyNumber " << copyNumber;
+  edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: Parameters for positioning-- Eta " << eta << "\tPhi "
+                               << convertRadToDeg(phi) << "\tTheta " << convertRadToDeg(theta) << "\tDistance "
+                               << cms::convert2mm(distance) << "/" << cms::convert2mm(distanceZ) << "/"
+                               << cms::convert2mm(dist) << "\tDz " << cms::convert2mm(dz) << "\tcopyNumber "
+                               << copyNumber;
   edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo:Parent " << args.parentName() << "\tChild " << childName
                                << " NameSpace " << ns.name();
 #endif
@@ -66,19 +63,19 @@ static long algorithm(dd4hep::Detector& /* description */,
   parent.placeVolume(child, copyNumber, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: " << child.name() << " number " << copyNumber
-                               << " positioned in " << parent.name() << " at (" << convertCmToMm(xpos) << ", "
-                               << convertCmToMm(ypos) << ", " << convertCmToMm(zpos) << ") with rotation: " << rotation;
+                               << " positioned in " << parent.name() << " at (" << cms::convert2mm(xpos) << ", "
+                               << cms::convert2mm(ypos) << ", " << cms::convert2mm(zpos)
+                               << ") with rotation: " << rotation;
 #endif
   xpos = (dist - dz) * sin(theta) * cos(phi);
   ypos = (dist - dz) * sin(theta) * sin(phi);
   zpos = (dist - dz) * cos(theta);
 
-  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo: Suggested Beam position "
-                           << "(" << convertCmToMm(xpos) << ", " << convertCmToMm(ypos) << ", " << convertCmToMm(zpos)
-                           << ") and (dist, eta, phi) = (" << convertCmToMm(dist - dz) << ", " << eta << ", " << phi
-                           << ")";
+  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo: Suggested Beam position (" << cms::convert2mm(xpos) << ", "
+                           << cms::convert2mm(ypos) << ", " << cms::convert2mm(zpos) << ") and (dist, eta, phi) = ("
+                           << cms::convert2mm(dist - dz) << ", " << eta << ", " << phi << ")";
 
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

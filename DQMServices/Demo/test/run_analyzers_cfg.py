@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.DQMStore = cms.Service("DQMStore", forceResetOnBeginLumi = cms.untracked.bool(True))
+process.DQMStore = cms.Service("DQMStore")
 process.MessageLogger = cms.Service("MessageLogger")
 
 process.load("DQMServices.Demo.test_cfi")
@@ -10,11 +10,13 @@ process.load("DQMServices.Demo.testonefillrun_cfi")
 process.load("DQMServices.Demo.testonelumi_cfi")
 process.load("DQMServices.Demo.testonelumifilllumi_cfi")
 process.load("DQMServices.Demo.testglobal_cfi")
+process.load("DQMServices.Demo.testglobalrunsummary_cfi")
 process.load("DQMServices.Demo.testlegacy_cfi")
 process.load("DQMServices.Demo.testlegacyfillrun_cfi")
 process.load("DQMServices.Demo.testlegacyfilllumi_cfi")
 process.test_general = cms.Sequence(process.test 
-                                  + process.testglobal)
+                                  + process.testglobal
+                                  + process.testglobalrunsummary)
 process.test_one     = cms.Sequence(process.testone
                                   + process.testonefillrun)
 process.test_legacy  = cms.Sequence(process.testonelumi + process.testonelumifilllumi
@@ -37,7 +39,9 @@ parser.register('firstEvent',           1, one, int, "See EmptySource.")
 parser.register('firstRun',             1, one, int, "See EmptySource.")
 parser.register('numberEventsInRun',    100, one, int, "See EmptySource.")
 parser.register('numberEventsInLuminosityBlock', 20, one, int, "See EmptySource.")
+parser.register('processingMode',       'RunsLumisAndEvents', one, string, "See EmptySource.")
 parser.register('nEvents',              100, one, int, "Total number of events.")
+parser.register('nLumisections',        -1, one, int, "Total number of lumisections.")
 parser.register('nThreads',             1, one, int, "Number of threads and streams.")
 parser.register('nConcurrent',          1, one, int, "Number of concurrent runs/lumis.")
 parser.register('howmany',              1, one, int, "Number of MEs to book of each type.")
@@ -50,9 +54,13 @@ process.source = cms.Source("EmptySource", numberEventsInRun = cms.untracked.uin
                             numberEventsInLuminosityBlock = cms.untracked.uint32(args.numberEventsInLuminosityBlock),
                             firstLuminosityBlock = cms.untracked.uint32(args.firstLuminosityBlock),
                             firstEvent = cms.untracked.uint32(args.firstEvent),
-                            firstRun = cms.untracked.uint32(args.firstRun))
+                            firstRun = cms.untracked.uint32(args.firstRun),
+                            processingMode = cms.untracked.string(args.processingMode))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(args.nEvents) )
+if args.nLumisections > 0:
+    process.maxLuminosityBlocks = cms.untracked.PSet( input = cms.untracked.int32(args.nLumisections) )
+
 
 process.options = cms.untracked.PSet(
   numberOfThreads = cms.untracked.uint32(args.nThreads),
@@ -65,7 +73,7 @@ process.options = cms.untracked.PSet(
 if args.nConcurrent > 1:
   process.DQMStore.assertLegacySafe = cms.untracked.bool(False)
 
-for mod in [process.test, process.testglobal, process.testone, process.testonefillrun, process.testonelumi, process.testonelumifilllumi, process.testlegacy, process.testlegacyfillrun, process.testlegacyfilllumi]:
+for mod in [process.test, process.testglobal, process.testglobalrunsummary, process.testone, process.testonefillrun, process.testonelumi, process.testonelumifilllumi, process.testlegacy, process.testlegacyfillrun, process.testlegacyfilllumi]:
   mod.howmany = args.howmany
 
 if args.noone:

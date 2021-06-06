@@ -2,40 +2,35 @@
 // finds the corresponding fast-timing det IDs and attempts to
 // assign a reasonable time guess
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "SimTracker/TrackAssociation/interface/ResolutionModel.h"
 
 #include <random>
 #include <memory>
 
-#include "SimTracker/TrackAssociation/interface/ResolutionModel.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "FWCore/Utilities/interface/isFinite.h"
-
 class EcalBarrelClusterFastTimer : public edm::global::EDProducer<> {
 public:
   EcalBarrelClusterFastTimer(const edm::ParameterSet&);
-  ~EcalBarrelClusterFastTimer() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
@@ -55,7 +50,32 @@ private:
                             const CaloSubdetectorGeometry* ecalGeom) const;
 };
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(EcalBarrelClusterFastTimer);
+
+void EcalBarrelClusterFastTimer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // ecalBarrelClusterFastTimer
+  edm::ParameterSetDescription desc;
+  desc.add<double>("ecalDepth", 7.0);
+  {
+    edm::ParameterSetDescription vpsd1;
+    vpsd1.add<std::string>("modelName", "PerfectResolutionModel");
+    std::vector<edm::ParameterSet> temp1;
+    temp1.reserve(1);
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<std::string>("modelName", "PerfectResolutionModel");
+      temp1.push_back(temp2);
+    }
+    desc.addVPSet("resolutionModels", vpsd1, temp1);
+  }
+  desc.add<edm::InputTag>("timedVertices", edm::InputTag("offlinePrimaryVertices4D"));
+  desc.add<double>("minFractionToConsider", 0.1);
+  desc.add<edm::InputTag>("ebClusters", edm::InputTag("particleFlowClusterECALUncorrected"));
+  desc.add<double>("minEnergyToConsider", 0.0);
+  desc.add<edm::InputTag>("ebTimeHits", edm::InputTag("ecalDetailedTimeRecHit", "EcalRecHitsEB"));
+  descriptions.add("ecalBarrelClusterFastTimer", desc);
+}
 
 namespace {
   const std::string resolution("Resolution");

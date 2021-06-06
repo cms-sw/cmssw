@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cmsRun reco_full_align_cfg.py &> reco_full_align.log &
+cmsRun reco_base_align_cfg.py &> reco_base_align.log &
+
+wait
+
+cmsRun reco_align_corr_cfg.py &> reco_align_corr.log

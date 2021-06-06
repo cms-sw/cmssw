@@ -1,3 +1,5 @@
-<use name="DQMOffline/RecoB"/>
+<use name="DataFormats/BTauReco"/>
+<use name="DQMServices/Core"/>
 <use name="HLTrigger/HLTcore"/>
+<use name="rootgraphics"/>
 <flags EDM_PLUGIN="1"/>

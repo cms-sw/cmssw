@@ -1,3 +1,0 @@
-<use   name="PhysicsTools/Utilities"/>
-<use   name="rootrint"/>
-<bin   name="WMuNuValidatorMacro" file="WMuNuValidatorMacro.cpp"/>

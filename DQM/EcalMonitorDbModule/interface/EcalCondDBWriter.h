@@ -13,6 +13,7 @@ public:
   ~EcalCondDBWriter() override;
 
 private:
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   // DON'T CHANGE - ORDER MATTERS IN DB

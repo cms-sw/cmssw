@@ -1,9 +1,8 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<use   name="MagneticField/Engine"/>
-<use   name="boost"/>
-<use   name="clhep"/>
-<bin   file="testTSOS.cpp"/>
-<bin   file="testProxy.cpp"/>
-<bin   file="testChurn.cpp"/>
-
+<use name="DataFormats/GeometrySurface"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="MagneticField/Engine"/>
+<use name="boost"/>
+<use name="clhep"/>
+<bin file="testTSOS.cpp"/>
+<bin file="testProxy.cpp"/>
+<bin file="testChurn.cpp"/>

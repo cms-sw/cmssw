@@ -8,10 +8,11 @@
 
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <algorithm>
+
+using namespace geant_units::operators;
 
 GEMGeometryBuilderFromCondDB::GEMGeometryBuilderFromCondDB() {}
 
@@ -25,7 +26,7 @@ void GEMGeometryBuilderFromCondDB::build(GEMGeometry& theGeometry, const RecoIde
 
   for (unsigned int id = 0; id < detids.size(); ++id) {
     GEMDetId gemid(detids[id]);
-    LogDebug("GEMGeometryBuilderFromDDD") << "GEMGeometryBuilderFromDDD adding " << gemid << std::endl;
+    LogDebug("GEMGeometryBuilder") << "GEMGeometryBuilder adding " << gemid;
     if (gemid.roll() == 0) {
       if (gemid.layer() == 0) {
         GEMSuperChamber* gsc = buildSuperChamber(rgeo, id, gemid);
@@ -100,14 +101,14 @@ void GEMGeometryBuilderFromCondDB::build(GEMGeometry& theGeometry, const RecoIde
             theGeometry.add(chamber);
           }
 
-          LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << scId << " to ring: " << std::endl;
+          LogDebug("GEMGeometryBuilder") << "Adding super chamber " << scId << " to ring:";
           ring->add(superChamber);
           theGeometry.add(superChamber);
         }  // end superChambers
 
         if (ring->nSuperChambers()) {
-          LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " << ri << " to station "
-                                                << "re " << re << " st " << st << std::endl;
+          LogDebug("GEMGeometryBuilder") << "Adding ring " << ri << " to station "
+                                         << "re " << re << " st " << st;
           station->add(ring);
           theGeometry.add(ring);
         } else {
@@ -116,7 +117,7 @@ void GEMGeometryBuilderFromCondDB::build(GEMGeometry& theGeometry, const RecoIde
       }  // end ring
 
       if (station->nRings()) {
-        LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
+        LogDebug("GEMGeometryBuilder") << "Adding station " << st << " to region " << re;
         region->add(station);
         theGeometry.add(station);
       } else {
@@ -124,7 +125,7 @@ void GEMGeometryBuilderFromCondDB::build(GEMGeometry& theGeometry, const RecoIde
       }
     }  // end station
 
-    LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
+    LogDebug("GEMGeometryBuilder") << "Adding region " << re << " to the geometry";
     theGeometry.add(region);
   }
 }
@@ -132,7 +133,7 @@ void GEMGeometryBuilderFromCondDB::build(GEMGeometry& theGeometry, const RecoIde
 GEMSuperChamber* GEMGeometryBuilderFromCondDB::buildSuperChamber(const RecoIdealGeometry& rgeo,
                                                                  unsigned int gid,
                                                                  GEMDetId detId) const {
-  LogDebug("GEMGeometryBuilderFromCondDB") << "buildSuperChamber " << detId << std::endl;
+  LogDebug("GEMGeometryBuilderFromCondDB") << "buildSuperChamber " << detId;
 
   RCPBoundPlane surf(boundPlane(rgeo, gid, detId));
 
@@ -143,7 +144,7 @@ GEMSuperChamber* GEMGeometryBuilderFromCondDB::buildSuperChamber(const RecoIdeal
 GEMChamber* GEMGeometryBuilderFromCondDB::buildChamber(const RecoIdealGeometry& rgeo,
                                                        unsigned int gid,
                                                        GEMDetId detId) const {
-  LogDebug("GEMGeometryBuilderFromCondDB") << "buildChamber " << detId << std::endl;
+  LogDebug("GEMGeometryBuilderFromCondDB") << "buildChamber " << detId;
 
   RCPBoundPlane surf(boundPlane(rgeo, gid, detId));
 
@@ -156,15 +157,16 @@ GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdeal
                                                                  GEMDetId detId) const {
   std::vector<std::string>::const_iterator strStart = rgeo.strStart(gid);
   std::string name = *(strStart);
-  LogDebug("GEMGeometryBuilderFromCondDB") << "buildEtaPartition " << name << " " << detId << std::endl;
+  LogDebug("GEMGeometryBuilderFromCondDB") << "buildEtaPartition " << name << " " << detId;
 
   std::vector<double>::const_iterator shapeStart = rgeo.shapeStart(gid);
-  float be = *(shapeStart + 0) / cm;
-  float te = *(shapeStart + 1) / cm;
-  float ap = *(shapeStart + 2) / cm;
-  float ti = *(shapeStart + 3) / cm;
+  float be = convertMmToCm(*(shapeStart + 0));
+  float te = convertMmToCm(*(shapeStart + 1));
+  float ap = convertMmToCm(*(shapeStart + 2));
+  float ti = convertMmToCm(*(shapeStart + 3));
   float nstrip = *(shapeStart + 4);
   float npad = *(shapeStart + 5);
+  float dphi = (shapeStart + 6 < rgeo.shapeEnd(gid)) ? *(shapeStart + 6) : 0.17715;
 
   std::vector<float> pars;
   pars.emplace_back(be);
@@ -172,11 +174,12 @@ GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdeal
   pars.emplace_back(ap);
   pars.emplace_back(nstrip);
   pars.emplace_back(npad);
+  pars.emplace_back(dphi);
 
   RCPBoundPlane surf(boundPlane(rgeo, gid, detId));
   GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, name, pars);
 
-  LogDebug("GEMGeometryBuilderFromCondDB") << "size " << be << " " << te << " " << ap << " " << ti << std::endl;
+  LogDebug("GEMGeometryBuilderFromCondDB") << "size " << be << " " << te << " " << ap << " " << ti;
   GEMEtaPartition* etaPartition = new GEMEtaPartition(detId, surf, e_p_specs);
   return etaPartition;
 }
@@ -185,14 +188,15 @@ GEMGeometryBuilderFromCondDB::RCPBoundPlane GEMGeometryBuilderFromCondDB::boundP
                                                                                      unsigned int gid,
                                                                                      GEMDetId detId) const {
   std::vector<double>::const_iterator shapeStart = rgeo.shapeStart(gid);
-  float be = *(shapeStart + 0) / cm;
-  float te = *(shapeStart + 1) / cm;
-  float ap = *(shapeStart + 2) / cm;
-  float ti = *(shapeStart + 3) / cm;
+  float be = convertMmToCm(*(shapeStart + 0));
+  float te = convertMmToCm(*(shapeStart + 1));
+  float ap = convertMmToCm(*(shapeStart + 2));
+  float ti = convertMmToCm(*(shapeStart + 3));
   Bounds* bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
 
   std::vector<double>::const_iterator tranStart = rgeo.tranStart(gid);
-  Surface::PositionType posResult(*(tranStart) / cm, *(tranStart + 1) / cm, *(tranStart + 2) / cm);
+  Surface::PositionType posResult(
+      convertMmToCm(*(tranStart)), convertMmToCm(*(tranStart + 1)), convertMmToCm(*(tranStart + 2)));
 
   std::vector<double>::const_iterator rotStart = rgeo.rotStart(gid);
   Surface::RotationType rotResult(*(rotStart + 0),

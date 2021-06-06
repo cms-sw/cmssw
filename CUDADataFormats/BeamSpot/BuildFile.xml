@@ -1,0 +1,11 @@
+<iftool name="cuda">
+  <use name="rootcore"/>
+  <use name="CUDADataFormats/Common"/>
+  <use name="DataFormats/BeamSpot"/>
+  <use name="DataFormats/Common"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+
+  <export>
+    <lib name="1"/>
+  </export>
+</iftool>

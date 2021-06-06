@@ -52,7 +52,7 @@ namespace edm {
 
     BranchDescription(BranchDescription const& aliasForBranch,
                       std::string const& moduleLabelAlias,
-                      std::string const& poruductInstanceAlias);
+                      std::string const& productInstanceAlias);
 
     ~BranchDescription() {}
 
@@ -84,6 +84,7 @@ namespace edm {
     bool present() const { return !transient_.dropped_; }
     bool dropped() const { return transient_.dropped_; }
     void setDropped(bool isDropped) { transient_.dropped_ = isDropped; }
+    //returns true if unscheduled (produced()==true) or using delayed reader (produced()==false)
     bool onDemand() const { return transient_.onDemand_; }
     void setOnDemand(bool isOnDemand) { transient_.onDemand_ = isOnDemand; }
     bool availableOnlyAtEndTransition() const { return transient_.availableOnlyAtEndTransition_; }
@@ -142,10 +143,10 @@ namespace edm {
       // This is set if and only if produced_ is true.
       std::string moduleName_;
 
-      // The branch name, which is currently derivable fron the other attributes.
+      // The branch name, which is currently derivable from the other attributes.
       std::string branchName_;
 
-      // The wrapped class name, which is currently derivable fron the other attributes.
+      // The wrapped class name, which is currently derivable from the other attributes.
       std::string wrappedName_;
 
       // For SwitchProducer alias, the label of the aliased-for label; otherwise empty

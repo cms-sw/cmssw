@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./tb_submit tb_config_sector_45 -run
+./tb_submit tb_config_sector_56 -run

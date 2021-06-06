@@ -1,12 +1,23 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process("HARVESTING")
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+	unitTest=True
 
 #----------------------------
 #### Histograms Source
 #----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.pbsource_cfi")
+
+if unitTest:
+   process.load("DQM.Integration.config.unittestinputsource_cfi")
+   from DQM.Integration.config.unittestinputsource_cfi import options
+else:
+   # for live online DQM in P5
+   process.load("DQM.Integration.config.pbsource_cfi")
+   from DQM.Integration.config.pbsource_cfi import options
 
 #----------------------------
 #### DQM Environment
@@ -16,6 +27,9 @@ process.dqmEnv.subSystemFolder = 'HLTpb'
 process.dqmEnv.eventInfoFolder = 'EventInfo'
 process.dqmSaver.tag = 'HLTpb'
 #process.dqmSaver.path = './HLT'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'HLTpb'
+process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 # customise for playback
@@ -72,4 +86,4 @@ process.load('DQM.HLTEvF.psMonitorClient_cfi')
 process.psChecker = process.psMonitorClient.clone()
 
 
-process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.psChecker + process.dqmEnv + process.dqmSaver )
+process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.psChecker + process.dqmEnv + process.dqmSaver + process.dqmSaverPB )

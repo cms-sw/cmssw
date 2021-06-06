@@ -2,7 +2,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Math/GenVector/PositionVector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
-// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
 GsfPFRecTrack::GsfPFRecTrack(double charge,
@@ -15,11 +14,6 @@ GsfPFRecTrack::GsfPFRecTrack(double charge,
 }
 
 void GsfPFRecTrack::addBrem(const reco::PFBrem& brem) { pfBremVec_.push_back(brem); }
-
-void GsfPFRecTrack::calculateBremPositionREP() {
-  for (unsigned j = 0; j < pfBremVec_.size(); ++j)
-    pfBremVec_[j].calculatePositionREP();
-}
 
 void GsfPFRecTrack::addConvBremPFRecTrackRef(const reco::PFRecTrackRef& pfrectracksref) {
   assoPFRecTrack_.push_back(pfrectracksref);

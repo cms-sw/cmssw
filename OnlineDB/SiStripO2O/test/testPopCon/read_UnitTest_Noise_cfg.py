@@ -8,8 +8,15 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Reader")
 
-process.MessageLogger = cms.Service("MessageLogger", 
-     destinations = cms.untracked.vstring('SiStripNoiseReader.log') 
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        SiStripNoiseReader = cms.untracked.PSet(
+
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

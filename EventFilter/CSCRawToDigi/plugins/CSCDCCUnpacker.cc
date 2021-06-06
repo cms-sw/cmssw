@@ -1,29 +1,36 @@
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCUnpacker.h"
+/** \class CSCDCCUnpacker
+ *
+ *
+ * \author Alex Tumanov
+ */
 
 //Framework stuff
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
 //FEDRawData
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 //Digi stuff
-#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -32,39 +39,21 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
-#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
-#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
-#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
-#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
-#include <EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h"
 
 #include <iostream>
 #include <sstream>
@@ -72,9 +61,55 @@
 #include <iomanip>
 #include <cstdio>
 
+class CSCMonitorInterface;
+
+class CSCDCCUnpacker : public edm::stream::EDProducer<> {
+public:
+  /// Constructor
+  CSCDCCUnpacker(const edm::ParameterSet& pset);
+
+  /// Destructor
+  ~CSCDCCUnpacker() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  /// Produce digis out of raw data
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+  /// Visualization of raw data in FED-less events (Robert Harr and Alexander Sakharov)
+  void visual_raw(int hl, int id, int run, int event, bool fedshort, bool fDump, short unsigned int* buf) const;
+
+private:
+  bool debug, printEventNumber, goodEvent, useExaminer, unpackStatusDigis;
+  bool useSelectiveUnpacking, useFormatStatus;
+
+  /// option to unpack GEM cluster data
+  bool useGEMs_;
+
+  /// option to unpack CSC shower data
+  bool useCSCShowers_;
+
+  /// Visualization of raw data
+  bool visualFEDInspect, visualFEDShort, formatedEventDump;
+  /// Suppress zeros LCTs
+  bool SuppressZeroLCT;
+
+  int numOfEvents;
+  unsigned int errorMask, examinerMask;
+  bool instantiateDQM;
+  CSCMonitorInterface* monitor;
+
+  /// Token for consumes interface & access to data
+  edm::EDGetTokenT<FEDRawDataCollection> i_token;
+  edm::ESGetToken<CSCCrateMap, CSCCrateMapRcd> crateToken;
+  edm::ESGetToken<CSCChamberMap, CSCChamberMapRcd> cscmapToken;
+};
+
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   // Tracked
   i_token = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("InputObjects"));
+  crateToken = esConsumes<CSCCrateMap, CSCCrateMapRcd>();
+  cscmapToken = esConsumes<CSCChamberMap, CSCChamberMapRcd>();
 
   useExaminer = pset.getParameter<bool>("UseExaminer");
   examinerMask = pset.getParameter<unsigned int>("ExaminerMask");
@@ -85,8 +120,10 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   /// Enable Format Status Digis
   useFormatStatus = pset.getParameter<bool>("UseFormatStatus");
 
-  // Untracked
+  useGEMs_ = pset.getParameter<bool>("useGEMs");
+  useCSCShowers_ = pset.getParameter<bool>("useCSCShowers");
 
+  // Untracked
   printEventNumber = pset.getUntrackedParameter<bool>("PrintEventNumber", true);
   debug = pset.getUntrackedParameter<bool>("Debug", false);
   instantiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
@@ -123,9 +160,18 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   if (useFormatStatus) {
     produces<CSCDCCFormatStatusDigiCollection>("MuonCSCDCCFormatStatusDigi");
   }
+
+  if (useGEMs_) {
+    produces<GEMPadDigiClusterCollection>("MuonGEMPadDigiCluster");
+  }
+
+  if (useCSCShowers_) {
+    produces<CSCShowerDigiCollection>("MuonCSCShowerDigi");
+  }
+
   //CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
-  CSCCLCTData::setDebug(debug);
+  CSCComparatorData::setDebug(debug);
   CSCEventData::setDebug(debug);
   CSCTMBData::setDebug(debug);
   CSCDCCEventData::setDebug(debug);
@@ -151,6 +197,8 @@ void CSCDCCUnpacker::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<unsigned int>("ErrorMask", 0)->setComment("# This mask simply reduces error reporting");
   desc.add<bool>("UnpackStatusDigis", false)->setComment("# Unpack general status digis?");
   desc.add<bool>("UseFormatStatus", true)->setComment("# Unpack FormatStatus digi?");
+  desc.add<bool>("useGEMs", false)->setComment("Unpack GEM trigger data");
+  desc.add<bool>("useCSCShowers", false)->setComment("Unpack CSCShower trigger data");
   desc.addUntracked<bool>("Debug", false)->setComment("# Turn on lots of output");
   desc.addUntracked<bool>("PrintEventNumber", false);
   desc.addUntracked<bool>("runDQM", false);
@@ -167,13 +215,11 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
   // Do we really have to do this every event???
   // ... Yes, because framework is more efficient than you are at caching :)
   // (But if you want to actually DO something specific WHEN the mapping changes, check out ESWatcher)
-  edm::ESHandle<CSCCrateMap> hcrate;
-  c.get<CSCCrateMapRcd>().get(hcrate);
+  edm::ESHandle<CSCCrateMap> hcrate = c.getHandle(crateToken);
   const CSCCrateMap* pcrate = hcrate.product();
 
   // Need access to CSCChamberMap for chamber<->FED/DDU mapping consistency checks
-  edm::ESHandle<CSCChamberMap> cscmap;
-  c.get<CSCChamberMapRcd>().get(cscmap);
+  edm::ESHandle<CSCChamberMap> cscmap = c.getHandle(cscmapToken);
   const CSCChamberMap* cscmapping = cscmap.product();
 
   if (printEventNumber)
@@ -199,6 +245,10 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
   auto alctStatusProduct = std::make_unique<CSCALCTStatusDigiCollection>();
 
   auto formatStatusProduct = std::make_unique<CSCDCCFormatStatusDigiCollection>();
+
+  auto gemProduct = std::make_unique<GEMPadDigiClusterCollection>();
+
+  auto showerProduct = std::make_unique<CSCShowerDigiCollection>();
 
   // If set selective unpacking mode
   // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
@@ -454,7 +504,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
             //	    if (nclct&&(cscData[iCSC].dataPresent>>5&0x1)==1) {
             if (nclct && cscData[iCSC].tmbData()) {
               if (cscData[iCSC].tmbHeader()->check()) {
-                if (cscData[iCSC].clctData()->check())
+                if (cscData[iCSC].comparatorData()->check())
                   goodTMB = true;
               } else {
                 LogTrace("CSCDCCUnpacker|CSCRawToDigi") << "one of TMB checks failed! not storing TMB digis ";
@@ -501,7 +551,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
 
             /// fill cfeb status digi
             if (unpackStatusDigis) {
-              for (icfeb = 0; icfeb < 7; ++icfeb)  ///loop over status digis
+              for (icfeb = 0; icfeb < CSCConstants::MAX_CFEBS_RUN2; ++icfeb)  ///loop over status digis
               {
                 if (cscData[iCSC].cfebData(icfeb) != nullptr)
                   cfebStatusProduct->insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
@@ -519,7 +569,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
             }
 
             /// fill wire, strip and comparator digis...
-            for (int ilayer = 1; ilayer <= 6; ++ilayer) {
+            for (int ilayer = CSCDetId::minLayerId(); ilayer <= CSCDetId::maxLayerId(); ++ilayer) {
               /// set layer, dmb and vme are valid because already checked in line 240
               // (You have to be kidding. Line 240 in whose universe?)
 
@@ -530,7 +580,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
                 wireProduct->move(std::make_pair(wireDigis.begin(), wireDigis.end()), layer);
               }
 
-              for (icfeb = 0; icfeb < 7; ++icfeb) {
+              for (icfeb = 0; icfeb < CSCConstants::MAX_CFEBS_RUN2; ++icfeb) {
                 layer = pcrate->detId(vmecrate, dmb, icfeb, ilayer);
                 if (cscData[iCSC].cfebData(icfeb) && cscData[iCSC].cfebData(icfeb)->check()) {
                   std::vector<CSCStripDigi> stripDigis;
@@ -544,7 +594,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
                 for (icfeb = 0; icfeb < nCFEBs; ++icfeb) {
                   layer = pcrate->detId(vmecrate, dmb, icfeb, ilayer);
                   std::vector<CSCComparatorDigi> comparatorDigis =
-                      cscData[iCSC].clctData()->comparatorDigis(layer.rawId(), icfeb);
+                      cscData[iCSC].comparatorData()->comparatorDigis(layer.rawId(), icfeb);
                   // Set cfeb=0, so that ME1/a and ME1/b comparators go to
                   // ring 1.
                   layer = pcrate->detId(vmecrate, dmb, 0, ilayer);
@@ -595,6 +645,12 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
     e.put(std::move(dduStatusProduct), "MuonCSCDDUStatusDigi");
     e.put(std::move(dccStatusProduct), "MuonCSCDCCStatusDigi");
     e.put(std::move(alctStatusProduct), "MuonCSCALCTStatusDigi");
+  }
+  if (useGEMs_) {
+    e.put(std::move(gemProduct), "MuonGEMPadDigiCluster");
+  }
+  if (useCSCShowers_) {
+    e.put(std::move(showerProduct), "MuonCSCShowerDigi");
   }
   if (printEventNumber)
     LogTrace("CSCDCCUnpacker|CSCRawToDigi") << "[CSCDCCUnpacker]: " << numOfEvents << " events processed ";
@@ -1583,3 +1639,6 @@ void CSCDCCUnpacker::visual_raw(
     std::cout << "Line:  " << cfeb_t1_coll[k] << std::endl;
   std::cout << "********************************************************************************" << std::endl;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CSCDCCUnpacker);

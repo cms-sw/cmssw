@@ -38,7 +38,6 @@ public:
 
   virtual std::unique_ptr<PhysicsList> make(const edm::ParameterSet&, SimActivityRegistry&) const = 0;
 
-private:
   PhysicsListMakerBase(const PhysicsListMakerBase&) = delete;
   const PhysicsListMakerBase& operator=(const PhysicsListMakerBase&) = delete;
 };

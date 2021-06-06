@@ -2,7 +2,8 @@
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
-FlagsCleanerECAL::FlagsCleanerECAL(const edm::ParameterSet& conf) : RecHitTopologicalCleanerBase(conf) {
+FlagsCleanerECAL::FlagsCleanerECAL(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+    : RecHitTopologicalCleanerBase(conf, cc) {
   const std::vector<std::string> flagnames = conf.getParameter<std::vector<std::string> >("RecHitFlagsToBeExcluded");
   v_chstatus_excl_ = StringToEnumValue<EcalRecHit::Flags>(flagnames);
 }

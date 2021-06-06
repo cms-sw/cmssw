@@ -19,7 +19,7 @@
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
@@ -33,25 +33,25 @@
 
 class MuonGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
-                                                                               DDSpecParRegistryRcd,
-                                                                               GeometryFileRcd,
-                                                                               MuonNumberingRecord,
-                                                                               DTAlignmentRcd,
-                                                                               DTAlignmentErrorRcd,
-                                                                               DTAlignmentErrorExtendedRcd,
-                                                                               CSCAlignmentRcd,
-                                                                               CSCAlignmentErrorRcd,
-                                                                               CSCAlignmentErrorExtendedRcd,
-                                                                               GEMAlignmentRcd,
-                                                                               GEMAlignmentErrorRcd,
-                                                                               GEMAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               ME0RecoGeometryRcd,
-                                                                               GEMRecoGeometryRcd,
-                                                                               RPCRecoGeometryRcd,
-                                                                               DTRecoGeometryRcd,
-                                                                               CSCRecoGeometryRcd,
-                                                                               CSCRecoDigiParametersRcd> > {};
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             DDSpecParRegistryRcd,
+                                                                             GeometryFileRcd,
+                                                                             MuonNumberingRecord,
+                                                                             DTAlignmentRcd,
+                                                                             DTAlignmentErrorRcd,
+                                                                             DTAlignmentErrorExtendedRcd,
+                                                                             CSCAlignmentRcd,
+                                                                             CSCAlignmentErrorRcd,
+                                                                             CSCAlignmentErrorExtendedRcd,
+                                                                             GEMAlignmentRcd,
+                                                                             GEMAlignmentErrorRcd,
+                                                                             GEMAlignmentErrorExtendedRcd,
+                                                                             GlobalPositionRcd,
+                                                                             ME0RecoGeometryRcd,
+                                                                             GEMRecoGeometryRcd,
+                                                                             RPCRecoGeometryRcd,
+                                                                             DTRecoGeometryRcd,
+                                                                             CSCRecoGeometryRcd,
+                                                                             CSCRecoDigiParametersRcd> > {};
 
 #endif

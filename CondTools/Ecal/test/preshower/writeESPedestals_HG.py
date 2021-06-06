@@ -8,9 +8,14 @@ process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = 'sqlite_file:ESPedestals_HG.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    debugModules = cms.untracked.vstring('*'),
-                                    destinations = cms.untracked.vstring('cout')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    debugModules = cms.untracked.vstring('*')
+)
 
 process.source = cms.Source("EmptyIOVSource",
                             firstValue = cms.uint64(1),

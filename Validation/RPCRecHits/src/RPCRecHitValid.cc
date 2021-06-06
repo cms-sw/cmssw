@@ -11,10 +11,8 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include <algorithm>
@@ -31,6 +29,9 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet &pset) {
   muonToken_ = consumes<reco::MuonCollection>(pset.getParameter<edm::InputTag>("muon"));
 
   subDir_ = pset.getParameter<std::string>("subDir");
+
+  rpcGeomToken_ = esConsumes();
+  rpcGeomTokenInRun_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void RPCRecHitValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run, edm::EventSetup const &eventSetup) {
@@ -245,8 +246,7 @@ void RPCRecHitValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &r
   }
 
   // Book roll-by-roll histograms
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  auto rpcGeom = eventSetup.getHandle(rpcGeomTokenInRun_);
 
   int nRPCRollBarrel = 0, nRPCRollEndcap = 0;
 
@@ -355,8 +355,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
   h_eventCount->Fill(1);
 
   // Get the RPC Geometry
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  auto rpcGeom = eventSetup.getHandle(rpcGeomToken_);
 
   // Retrieve SimHits from the event
   edm::Handle<edm::PSimHitContainer> simHitHandle;
@@ -428,7 +427,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
       // Count number of Barrel hits and Endcap hits
       int nRPCHitBarrel = 0;
       int nRPCHitEndcap = 0;
-      for (auto simHit : simHitsFromParticle) {
+      for (const auto &simHit : simHitsFromParticle) {
         const RPCDetId rpcDetId = static_cast<const RPCDetId>(simHit->detUnitId());
         const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(rpcDetId));
         if (!roll)
@@ -507,7 +506,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
 
   // Loop over muon simHits, fill histograms which does not need associations
   int nRefHitBarrel = 0, nRefHitEndcap = 0;
-  for (auto simHit : muonSimHits) {
+  for (const auto &simHit : muonSimHits) {
     const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(detId));
 
@@ -536,7 +535,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
 
   // Loop over punch-through simHits, fill histograms which does not need
   // associations
-  for (auto simHit : pthrSimHits) {
+  for (const auto &simHit : pthrSimHits) {
     const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(detId()));
 
@@ -629,7 +628,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
   typedef std::map<TrackPSimHitRef, RecHitIter> SimToRecHitMap;
   SimToRecHitMap simToRecHitMap;
 
-  for (auto simHit : muonSimHits) {
+  for (const auto &simHit : muonSimHits) {
     const RPCDetId simDetId = static_cast<const RPCDetId>(simHit->detUnitId());
     // const RPCRoll* simRoll = dynamic_cast<const
     // RPCRoll*>(rpcGeom->roll(simDetId));
@@ -665,7 +664,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
   // Now we have simHit-recHit mapping
   // So we can fill up relavant histograms
   int nMatchHitBarrel = 0, nMatchHitEndcap = 0;
-  for (auto match : simToRecHitMap) {
+  for (const auto &match : simToRecHitMap) {
     TrackPSimHitRef simHit = match.first;
     RecHitIter recHitIter = match.second;
 
@@ -780,7 +779,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
     // const int subsector = roll->id().subsector();
 
     bool matched = false;
-    for (auto match : simToRecHitMap) {
+    for (const auto &match : simToRecHitMap) {
       if (recHitIter == match.second) {
         matched = true;
         break;
@@ -790,7 +789,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
     if (!matched) {
       int nPunchMatched = 0;
       // Check if this recHit came from non-muon simHit
-      for (auto simHit : pthrSimHits) {
+      for (const auto &simHit : pthrSimHits) {
         const int absSimHitPType = abs(simHit->particleType());
         if (absSimHitPType == 13)
           continue;

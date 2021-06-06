@@ -6,7 +6,7 @@ process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/HGCalCommonData/data/dd4hep/cms-test-ddhgcalTB181V1-algorithm.xml'),
@@ -45,10 +45,7 @@ process.hgcalEEParametersInitialize.fromDD4Hep = cms.bool(True)
 process.hgcalHESiParametersInitialize.fromDD4Hep = cms.bool(True)
 process.hgcalHEScParametersInitialize.fromDD4Hep = cms.bool(True)
 
-process.testEE = cms.EDAnalyzer("HGCalParameterTester",
-                                Name = cms.untracked.string("HGCalEESensitive"),
-                                Mode = cms.untracked.int32(0)
-)
-
+process.load("Geometry.HGCalCommonData.hgcParameterTesterEE_cfi")
+process.hgcParameterTesterEE.Mode = 0
  
-process.p1 = cms.Path(process.generator*process.testEE)
+process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE)

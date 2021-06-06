@@ -13,14 +13,19 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/limited/EDProducerBase.h"
+#include <memory>
+
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/src/edmodule_mightGet_config.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/limited/EDProducerBase.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -46,16 +51,17 @@ namespace edm {
 
     EDProducerBase::~EDProducerBase() {}
 
-    bool EDProducerBase::doEvent(EventPrincipal const& ep,
-                                 EventSetupImpl const& ci,
+    bool EDProducerBase::doEvent(EventTransitionInfo const& info,
                                  ActivityRegistry* act,
                                  ModuleCallingContext const* mcc) {
-      Event e(ep, moduleDescription_, mcc);
+      Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();
       e.setProducer(this, &previousParentages_[streamIndex]);
       EventSignalsSentry sentry(act, mcc);
-      const EventSetup c{ci, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
+      ESParentContext parentC(mcc);
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
       this->produce(e.streamID(), e, c);
       commit_(e, &previousParentageIds_[streamIndex]);
       return true;
@@ -63,8 +69,8 @@ namespace edm {
 
     void EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nStreams = iPrealloc.numberOfStreams();
-      previousParentages_.reset(new std::vector<BranchID>[nStreams]);
-      previousParentageIds_.reset(new ParentageID[nStreams]);
+      previousParentages_ = std::make_unique<std::vector<BranchID>[]>(nStreams);
+      previousParentageIds_ = std::make_unique<ParentageID[]>(nStreams);
       preallocStreams(nStreams);
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
       preallocLumisSummary(iPrealloc.numberOfLuminosityBlocks());
@@ -75,12 +81,43 @@ namespace edm {
 
     void EDProducerBase::doEndJob() { this->endJob(); }
 
-    void EDProducerBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc, false);
+    void EDProducerBase::doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doBeginProcessBlock_(constProcessBlock);
+      processBlock.setProducer(this);
+      this->doBeginProcessBlockProduce_(processBlock);
+      commit_(processBlock);
+    }
+
+    void EDProducerBase::doAccessInputProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doAccessInputProcessBlock_(constProcessBlock);
+    }
+
+    void EDProducerBase::doEndProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlock processBlock(pbp, moduleDescription_, mcc, true);
+      processBlock.setConsumer(this);
+      ProcessBlock const& constProcessBlock = processBlock;
+      this->doEndProcessBlock_(constProcessBlock);
+      processBlock.setProducer(this);
+      this->doEndProcessBlockProduce_(processBlock);
+      commit_(processBlock);
+    }
+
+    void EDProducerBase::doBeginRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      Run r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
-      const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+      ESParentContext parentC(mcc);
+      const EventSetup c{info,
+                         static_cast<unsigned int>(Transition::BeginRun),
+                         esGetTokenIndices(Transition::BeginRun),
+                         parentC,
+                         false};
       this->doBeginRun_(cnstR, c);
       this->doBeginRunSummary_(cnstR, c);
       r.setProducer(this);
@@ -88,28 +125,29 @@ namespace edm {
       commit_(r);
     }
 
-    void EDProducerBase::doEndRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc, true);
+    void EDProducerBase::doEndRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      Run r(info, moduleDescription_, mcc, true);
       r.setConsumer(this);
       r.setProducer(this);
       Run const& cnstR = r;
+      ESParentContext parentC(mcc);
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
       this->doEndRunSummary_(r, c);
       this->doEndRunProduce_(r, c);
       this->doEndRun_(cnstR, c);
       commit_(r);
     }
 
-    void EDProducerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                                EventSetupImpl const& ci,
-                                                ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
+    void EDProducerBase::doBeginLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      LuminosityBlock lb(info, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
-      const EventSetup c{ci,
+      ESParentContext parentC(mcc);
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
+                         parentC,
                          false};
       this->doBeginLuminosityBlock_(cnstLb, c);
       this->doBeginLuminosityBlockSummary_(cnstLb, c);
@@ -118,16 +156,16 @@ namespace edm {
       commit_(lb);
     }
 
-    void EDProducerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                              EventSetupImpl const& ci,
-                                              ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
+    void EDProducerBase::doEndLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      LuminosityBlock lb(info, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       lb.setProducer(this);
       LuminosityBlock const& cnstLb = lb;
-      const EventSetup c{ci,
+      ESParentContext parentC(mcc);
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
+                         parentC,
                          false};
       this->doEndLuminosityBlockSummary_(cnstLb, c);
       this->doEndLuminosityBlockProduce_(lb, c);
@@ -137,49 +175,50 @@ namespace edm {
 
     void EDProducerBase::doBeginStream(StreamID id) { doBeginStream_(id); }
     void EDProducerBase::doEndStream(StreamID id) { doEndStream_(id); }
-    void EDProducerBase::doStreamBeginRun(StreamID id,
-                                          RunPrincipal const& rp,
-                                          EventSetupImpl const& ci,
-                                          ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc, false);
+    void EDProducerBase::doStreamBeginRun(StreamID id, RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      Run r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
-      const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+      ESParentContext parentC(mcc);
+      const EventSetup c{info,
+                         static_cast<unsigned int>(Transition::BeginRun),
+                         esGetTokenIndices(Transition::BeginRun),
+                         parentC,
+                         false};
       this->doStreamBeginRun_(id, r, c);
     }
-    void EDProducerBase::doStreamEndRun(StreamID id,
-                                        RunPrincipal const& rp,
-                                        EventSetupImpl const& ci,
-                                        ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc, true);
+    void EDProducerBase::doStreamEndRun(StreamID id, RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      Run r(info, moduleDescription_, mcc, true);
       r.setConsumer(this);
+      ESParentContext parentC(mcc);
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
       this->doStreamEndRun_(id, r, c);
       this->doStreamEndRunSummary_(id, r, c);
     }
     void EDProducerBase::doStreamBeginLuminosityBlock(StreamID id,
-                                                      LuminosityBlockPrincipal const& lbp,
-                                                      EventSetupImpl const& ci,
+                                                      LumiTransitionInfo const& info,
                                                       ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
+      LuminosityBlock lb(info, moduleDescription_, mcc, false);
       lb.setConsumer(this);
-      const EventSetup c{ci,
+      ESParentContext parentC(mcc);
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
+                         parentC,
                          false};
       this->doStreamBeginLuminosityBlock_(id, lb, c);
     }
 
     void EDProducerBase::doStreamEndLuminosityBlock(StreamID id,
-                                                    LuminosityBlockPrincipal const& lbp,
-                                                    EventSetupImpl const& ci,
+                                                    LumiTransitionInfo const& info,
                                                     ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
+      LuminosityBlock lb(info, moduleDescription_, mcc, true);
       lb.setConsumer(this);
-      const EventSetup c{ci,
+      ESParentContext parentC(mcc);
+      const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
+                         parentC,
                          false};
       this->doStreamEndLuminosityBlock_(id, lb, c);
       this->doStreamEndLuminosityBlockSummary_(id, lb, c);
@@ -208,6 +247,9 @@ namespace edm {
                                                             LuminosityBlock const& lbp,
                                                             EventSetup const& c) {}
 
+    void EDProducerBase::doBeginProcessBlock_(ProcessBlock const&) {}
+    void EDProducerBase::doAccessInputProcessBlock_(ProcessBlock const&) {}
+    void EDProducerBase::doEndProcessBlock_(ProcessBlock const&) {}
     void EDProducerBase::doBeginRun_(Run const& rp, EventSetup const& c) {}
     void EDProducerBase::doEndRun_(Run const& rp, EventSetup const& c) {}
     void EDProducerBase::doBeginRunSummary_(Run const& rp, EventSetup const& c) {}
@@ -218,6 +260,8 @@ namespace edm {
     void EDProducerBase::doBeginLuminosityBlockSummary_(LuminosityBlock const& rp, EventSetup const& c) {}
     void EDProducerBase::doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c) {}
 
+    void EDProducerBase::doBeginProcessBlockProduce_(ProcessBlock&) {}
+    void EDProducerBase::doEndProcessBlockProduce_(ProcessBlock&) {}
     void EDProducerBase::doBeginRunProduce_(Run& rp, EventSetup const& c) {}
     void EDProducerBase::doEndRunProduce_(Run& rp, EventSetup const& c) {}
     void EDProducerBase::doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}

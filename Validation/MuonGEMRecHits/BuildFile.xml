@@ -10,5 +10,5 @@
 <use name="rootcore"/>
 <use name="Validation/MuonGEMDigis"/>
 <export>
-<lib name="1"/>
+  <lib name="1"/>
 </export>

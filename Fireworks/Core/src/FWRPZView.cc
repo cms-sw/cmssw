@@ -12,7 +12,7 @@
 
 // system include files
 #include <stdexcept>
-#include <boost/bind.hpp>
+#include <functional>
 #include <memory>
 
 #include "TGLViewer.h"
@@ -103,26 +103,26 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id)
   m_axes = new TEveProjectionAxes(m_projMgr);
   m_axes->SetRnrState(m_showProjectionAxes.value());
   m_axes->SetLabelSize(m_projectionAxesLabelSize.value());
-  m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes, this));
-  m_projectionAxesLabelSize.changed_.connect(boost::bind(&FWRPZView::projectionAxesLabelSize, this));
+  m_showProjectionAxes.changed_.connect(std::bind(&FWRPZView::showProjectionAxes, this));
+  m_projectionAxesLabelSize.changed_.connect(std::bind(&FWRPZView::projectionAxesLabelSize, this));
   eventScene()->AddElement(m_axes);
 
   if (id != FWViewType::kRhoZ) {
     m_showEndcaps = new FWBoolParameter(this, "Include EndCaps", true);
-    m_showEndcaps->changed_.connect(boost::bind(&FWRPZView::setEtaRng, this));
+    m_showEndcaps->changed_.connect(std::bind(&FWRPZView::setEtaRng, this));
     m_showHF = new FWBoolParameter(this, "Include HF", true);
-    m_showHF->changed_.connect(boost::bind(&FWRPZView::setEtaRng, this));
+    m_showHF->changed_.connect(std::bind(&FWRPZView::setEtaRng, this));
   }
 
-  m_shiftOrigin.changed_.connect(boost::bind(&FWRPZView::doShiftOriginToBeamSpot, this));
+  m_shiftOrigin.changed_.connect(std::bind(&FWRPZView::doShiftOriginToBeamSpot, this));
 
-  m_fishEyeDistortion.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion, this));
+  m_fishEyeDistortion.changed_.connect(std::bind(&FWRPZView::doFishEyeDistortion, this));
 
-  m_fishEyeR.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion, this));
+  m_fishEyeR.changed_.connect(std::bind(&FWRPZView::doFishEyeDistortion, this));
 
-  m_caloDistortion.changed_.connect(boost::bind(&FWRPZView::doPreScaleDistortion, this));
-  m_muonDistortion.changed_.connect(boost::bind(&FWRPZView::doPreScaleDistortion, this));
-  m_compressMuon.changed_.connect(boost::bind(&FWRPZView::doCompression, this, _1));
+  m_caloDistortion.changed_.connect(std::bind(&FWRPZView::doPreScaleDistortion, this));
+  m_muonDistortion.changed_.connect(std::bind(&FWRPZView::doPreScaleDistortion, this));
+  m_compressMuon.changed_.connect(std::bind(&FWRPZView::doCompression, this, std::placeholders::_1));
 }
 
 FWRPZView::~FWRPZView() {
@@ -160,13 +160,17 @@ void FWRPZView::setContext(const fireworks::Context& ctx) {
   m_calo->SetAutoRange(false);
   m_calo->SetScaleAbs(true);
 
-  m_showPixelBarrel.changed_.connect(boost::bind(&FWRPZViewGeometry::showPixelBarrel, m_geometryList, _1));
-  m_showPixelEndcap.changed_.connect(boost::bind(&FWRPZViewGeometry::showPixelEndcap, m_geometryList, _1));
-  m_showTrackerBarrel.changed_.connect(boost::bind(&FWRPZViewGeometry::showTrackerBarrel, m_geometryList, _1));
-  m_showTrackerEndcap.changed_.connect(boost::bind(&FWRPZViewGeometry::showTrackerEndcap, m_geometryList, _1));
-  m_showRpcEndcap.changed_.connect(boost::bind(&FWRPZViewGeometry::showRpcEndcap, m_geometryList, _1));
-  m_showGEM.changed_.connect(boost::bind(&FWRPZViewGeometry::showGEM, m_geometryList, _1));
-  m_showME0.changed_.connect(boost::bind(&FWRPZViewGeometry::showME0, m_geometryList, _1));
+  m_showPixelBarrel.changed_.connect(
+      std::bind(&FWRPZViewGeometry::showPixelBarrel, m_geometryList, std::placeholders::_1));
+  m_showPixelEndcap.changed_.connect(
+      std::bind(&FWRPZViewGeometry::showPixelEndcap, m_geometryList, std::placeholders::_1));
+  m_showTrackerBarrel.changed_.connect(
+      std::bind(&FWRPZViewGeometry::showTrackerBarrel, m_geometryList, std::placeholders::_1));
+  m_showTrackerEndcap.changed_.connect(
+      std::bind(&FWRPZViewGeometry::showTrackerEndcap, m_geometryList, std::placeholders::_1));
+  m_showRpcEndcap.changed_.connect(std::bind(&FWRPZViewGeometry::showRpcEndcap, m_geometryList, std::placeholders::_1));
+  m_showGEM.changed_.connect(std::bind(&FWRPZViewGeometry::showGEM, m_geometryList, std::placeholders::_1));
+  m_showME0.changed_.connect(std::bind(&FWRPZViewGeometry::showME0, m_geometryList, std::placeholders::_1));
 }
 
 void FWRPZView::eventBegin() {
@@ -282,8 +286,8 @@ void FWRPZView::importElements(TEveElement* iChildren, float iLayer, TEveElement
   float oldLayer = m_projMgr->GetCurrentDepth();
   m_projMgr->SetCurrentDepth(iLayer);
   //make sure current depth is reset even if an exception is thrown
-  std::shared_ptr<TEveProjectionManager> sentry(m_projMgr,
-                                                boost::bind(&TEveProjectionManager::SetCurrentDepth, _1, oldLayer));
+  std::shared_ptr<TEveProjectionManager> sentry(
+      m_projMgr, std::bind(&TEveProjectionManager::SetCurrentDepth, std::placeholders::_1, oldLayer));
   m_projMgr->ImportElements(iChildren, iProjectedParent);
 }
 

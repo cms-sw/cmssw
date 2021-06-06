@@ -11,7 +11,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,7 +29,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 
-class HIPTwoBodyDecayAnalyzer : public edm::EDAnalyzer {
+class HIPTwoBodyDecayAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HIPTwoBodyDecayAnalyzer(const edm::ParameterSet&);
   ~HIPTwoBodyDecayAnalyzer() override;
@@ -47,6 +47,9 @@ public:
   std::vector<std::pair<std::string, short*>> shortBranches;
 
 private:
+  // es consumes
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttkbuilderToken_;
+
   enum BranchType { BranchType_short_t, BranchType_int_t, BranchType_float_t, BranchType_unknown_t };
 
   void beginJob() override;
@@ -77,15 +80,18 @@ private:
   bool actuateBranches();
 
   void analyzeTrackCollection(std::string strTrackType,
-                              edm::ESHandle<TransientTrackBuilder>& theTTBuilder,
+                              const TransientTrackBuilder& theTTBuilder,
                               edm::Handle<reco::TrackCollection>& hTrackColl,
                               bool verbose = false);
-  reco::Vertex fitDimuonVertex(edm::ESHandle<TransientTrackBuilder>& theTTBuilder,
+  reco::Vertex fitDimuonVertex(const TransientTrackBuilder& theTTBuilder,
                                edm::Handle<reco::TrackCollection>& hTrackColl,
                                bool& fitOk);
 };
 
-HIPTwoBodyDecayAnalyzer::HIPTwoBodyDecayAnalyzer(const edm::ParameterSet& iConfig) {
+HIPTwoBodyDecayAnalyzer::HIPTwoBodyDecayAnalyzer(const edm::ParameterSet& iConfig)
+    : ttkbuilderToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
+  usesResource(TFileService::kSharedResource);
+
   alcareco_trackCollToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("alcarecotracks"));
   refit1_trackCollToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("refit1tracks"));
   ctf_trackCollToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("refit2tracks"));
@@ -265,9 +271,7 @@ void HIPTwoBodyDecayAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<reco::TrackCollection> finaltracks;
   iEvent.getByToken(final_trackCollToken_, finaltracks);
 
-  edm::ESHandle<TransientTrackBuilder> theTTBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theTTBuilder);
-
+  const auto& theTTBuilder = iSetup.getData(ttkbuilderToken_);
   initializeBranches();
 
   analyzeTrackCollection("alcareco", theTTBuilder, alcarecotracks);
@@ -288,7 +292,7 @@ void HIPTwoBodyDecayAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& d
 }
 
 void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType,
-                                                     edm::ESHandle<TransientTrackBuilder>& theTTBuilder,
+                                                     const TransientTrackBuilder& theTTBuilder,
                                                      edm::Handle<reco::TrackCollection>& hTrackColl,
                                                      bool verbose) {
   if (verbose)
@@ -357,7 +361,7 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType,
       // Recalculate track momenta with this vertex as reference
       j = 0;
       for (reco::TrackCollection::const_iterator track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
-        TransientTrack t_track = theTTBuilder->build(&(*track));
+        TransientTrack t_track = theTTBuilder.build(&(*track));
         AnalyticalImpactPointExtrapolator extrapolator(t_track.field());
         TrajectoryStateOnSurface closestIn3DSpaceState =
             extrapolator.extrapolate(t_track.impactPointState(), RecoVertex::convertPos(ZVtx.position()));
@@ -404,7 +408,7 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType,
   }
 }
 
-reco::Vertex HIPTwoBodyDecayAnalyzer::fitDimuonVertex(edm::ESHandle<TransientTrackBuilder>& theTTBuilder,
+reco::Vertex HIPTwoBodyDecayAnalyzer::fitDimuonVertex(const TransientTrackBuilder& theTTBuilder,
                                                       edm::Handle<reco::TrackCollection>& hTrackColl,
                                                       bool& fitOk) {
   using namespace edm;
@@ -412,7 +416,7 @@ reco::Vertex HIPTwoBodyDecayAnalyzer::fitDimuonVertex(edm::ESHandle<TransientTra
 
   std::vector<TransientTrack> t_tks;
   for (TrackCollection::const_iterator track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
-    TransientTrack tt = theTTBuilder->build(&(*track));
+    TransientTrack tt = theTTBuilder.build(&(*track));
     t_tks.push_back(tt);
   }
 

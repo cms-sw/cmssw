@@ -6,3 +6,5 @@ from L1Trigger.L1THGCal.hgcalTowerProducer_cfi import *
 
 hgcalTower = cms.Task(hgcalTowerProducer)
 
+hgcalTowerHFNose = cms.Task(hgcalTowerProducerHFNose)
+

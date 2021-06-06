@@ -35,7 +35,6 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 //
 // class decleration
@@ -54,9 +53,10 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
 };
 
-MapTester::MapTester(const edm::ParameterSet& iConfig) {
+MapTester::MapTester(const edm::ParameterSet& iConfig) : tok_topo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()) {
   mapIOV_ = iConfig.getParameter<unsigned int>("mapIOV");
   generateTextfiles_ = iConfig.getParameter<bool>("generateTextfiles");
   generateEmap_ = iConfig.getParameter<bool>("generateEmap");
@@ -73,11 +73,10 @@ void MapTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   strftime(tempbuff, 128, "%d.%b.%Y", localtime(&myTime));
 
-  edm::ESHandle<HcalTopology> topo;
-  iSetup.get<HcalRecNumberingRecord>().get(topo);
+  const HcalTopology* topo = &iSetup.getData(tok_topo_);
 
   HcalLogicalMapGenerator mygen;
-  HcalLogicalMap mymap = mygen.createMap(&(*topo), mapIOV_);
+  HcalLogicalMap mymap = mygen.createMap(topo, mapIOV_);
 
   if (generateTextfiles_)
     mymap.printMap(mapIOV_);

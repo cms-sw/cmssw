@@ -22,7 +22,7 @@ public:
   ~DigiComparisonTask() override {}
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 protected:
   //	funcs
@@ -34,6 +34,7 @@ protected:
   edm::InputTag _tagHBHE2;
   edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE1;
   edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE2;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	emap+hashmap
   hcaldqm::electronicsmap::ElectronicsMap _ehashmapuTCA;

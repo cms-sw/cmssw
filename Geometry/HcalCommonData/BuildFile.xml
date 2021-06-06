@@ -1,8 +1,16 @@
-<use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/DDCMS"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="dd4hep"/>
-<use   name="clhep"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/Math"/>
+<use name="DetectorDescription/RegressionTest"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="SimDataFormats/CaloHit"/>
+<use name="dd4hep"/>
+<use name="clhep"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

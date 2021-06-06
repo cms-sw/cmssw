@@ -1,18 +1,18 @@
 #ifndef EgammaIsolationAlgos_EgammaTrackSelector_H
 #define EgammaIsolationAlgos_EgammaTrackSelector_H
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRange.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/View.h"
+
 #include <list>
 
 namespace egammaisolation {
 
   class EgammaTrackSelector {
   public:
-    typedef egammaisolation::EgammaRange<float> Range;
+    typedef std::pair<float, float> Range;
     typedef std::list<const reco::Track*> result_type;
     typedef edm::View<reco::Track> input_type;
     typedef reco::TrackBase::Point BeamPoint;

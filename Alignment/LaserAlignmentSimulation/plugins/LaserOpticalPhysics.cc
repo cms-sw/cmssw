@@ -13,8 +13,8 @@
 #include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
 
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 
+#include "G4EmStandardPhysics_option1.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
@@ -29,7 +29,7 @@ LaserOpticalPhysics::LaserOpticalPhysics(const edm::ParameterSet &p) : PhysicsLi
             << std::endl;
 
   // EM Physics
-  RegisterPhysics(new CMSEmStandardPhysics(ver));
+  RegisterPhysics(new G4EmStandardPhysics_option1(ver));
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics(ver));
   // Decays

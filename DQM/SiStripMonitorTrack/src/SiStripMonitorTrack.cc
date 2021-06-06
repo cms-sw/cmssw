@@ -876,7 +876,7 @@ SiStripMonitorTrack::MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::
                                            0,
                                            "");
   if (me->kind() == MonitorElement::Kind::TPROFILE)
-    me->getTH1()->SetCanExtend(TH1::kAllAxes);
+    me->setCanExtend(TH1::kAllAxes);
 
   if (!me)
     return me;
@@ -1511,7 +1511,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
   auto digi_it = digilist.find(detid);  //(digilist.isValid() ? digilist.find(detid) : digilist.end());
   // SiStripClusterInfo.stripCharges() <==> SiStripCluster.amplitudes()
   for (size_t chidx = 0; chidx < cluster->stripCharges().size(); ++chidx) {
-    if (cluster->stripCharges().at(chidx) <= 0) {
+    if (cluster->stripCharges()[chidx] <= 0) {
       continue;
     }  // nonzero amplitude
     if (stripQuality->IsStripBad(stripQuality->getRange(detid), cluster->firstStrip() + chidx)) {

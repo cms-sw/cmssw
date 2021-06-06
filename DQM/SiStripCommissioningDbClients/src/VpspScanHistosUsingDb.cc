@@ -10,9 +10,12 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb(const edm::ParameterSet& pset, DQMStore* bei, SiStripConfigDb* const db)
+VpspScanHistosUsingDb::VpspScanHistosUsingDb(const edm::ParameterSet& pset,
+                                             DQMStore* bei,
+                                             SiStripConfigDb* const db,
+                                             edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("VpspScanParameters"), bei, sistrip::VPSP_SCAN),
-      CommissioningHistosUsingDb(db, sistrip::VPSP_SCAN),
+      CommissioningHistosUsingDb(db, tTopoToken, sistrip::VPSP_SCAN),
       VpspScanHistograms(pset.getParameter<edm::ParameterSet>("VpspScanParameters"), bei) {
   LogTrace(mlDqmClient_) << "[VpspScanHistosUsingDb::" << __func__ << "]"
                          << " Constructing object...";

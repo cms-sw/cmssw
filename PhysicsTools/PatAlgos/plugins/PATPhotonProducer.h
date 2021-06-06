@@ -41,9 +41,11 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 namespace pat {
 
@@ -73,6 +75,8 @@ namespace pat {
     edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
     edm::InputTag reducedEndcapRecHitCollection_;
     edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
+
+    const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
     bool addPFClusterIso_;
     bool addPuppiIsolation_;

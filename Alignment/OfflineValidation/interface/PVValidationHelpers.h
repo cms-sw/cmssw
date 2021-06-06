@@ -20,8 +20,9 @@
 
 namespace PVValHelper {
 
-  const double max_eta_phase0 = 2.5;
-  const double max_eta_phase1 = 2.7;
+  constexpr double max_eta_phase0 = 2.5;
+  constexpr double max_eta_phase1 = 2.7;
+  constexpr double max_eta_phase2 = 4.0;
 
   // helper logarithmic bin generator
 
@@ -72,6 +73,13 @@ namespace PVValHelper {
     ladder = 5,
     modZ = 6,
     END_OF_PLOTS = 7,
+  };
+
+  enum detectorPhase {
+    phase0 = 0,
+    phase1 = 1,
+    phase2 = 2,
+    END_OF_PHASES = 3,
   };
 
   struct histodetails {

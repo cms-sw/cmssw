@@ -50,7 +50,8 @@ ntuple_digis = cms.PSet(
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
-    isSimhitComp = cms.bool(False)
+    isSimhitComp = cms.bool(False),
+    digiBXselect = cms.vuint32(2)
 )
 
 ntuple_triggercells = cms.PSet(
@@ -67,6 +68,16 @@ ntuple_triggercells = cms.PSet(
     layerWeights = layerWeights,
     thicknessCorrections = thicknessCorrections,
     FilterCellsInMulticlusters = cms.bool(False)
+)
+
+ntuple_triggersums = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerSums'),
+    TriggerSums = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
+)
+
+ntuple_econdata = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCConcentratorData'),
+    ConcentratorData = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
 )
 
 ntuple_clusters = cms.PSet(
@@ -104,6 +115,7 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_gentau,
         ntuple_digis,
         ntuple_triggercells,
+        ntuple_triggersums,
         ntuple_multiclusters,
         ntuple_towers
     )

@@ -409,16 +409,19 @@
     <version ClassVersion="3" checksum="386672900"/>
     <version ClassVersion="4" checksum="113477759"/>
   </class>
-  <class name="btagbtvdeep::SecondaryVertexFeatures" ClassVersion="3">
+  <class name="btagbtvdeep::SecondaryVertexFeatures" ClassVersion="4">
+   <version ClassVersion="4" checksum="3987593676"/>
     <version ClassVersion="3" checksum="3610780843"/>
   </class>
   <class name="btagbtvdeep::ShallowTagInfoFeatures" ClassVersion="3">
     <version ClassVersion="3" checksum="273372007"/>
   </class>
-  <class name="btagbtvdeep::NeutralCandidateFeatures" ClassVersion="3">
+  <class name="btagbtvdeep::NeutralCandidateFeatures" ClassVersion="4">
+   <version ClassVersion="4" checksum="3657612864"/>
     <version ClassVersion="3" checksum="938442516"/>
   </class>
-  <class name="btagbtvdeep::ChargedCandidateFeatures" ClassVersion="4">
+  <class name="btagbtvdeep::ChargedCandidateFeatures" ClassVersion="5">
+   <version ClassVersion="5" checksum="3385708923"/>
     <version ClassVersion="4" checksum="2173116472"/>
     <version ClassVersion="3" checksum="1302021141"/>
   </class>
@@ -432,7 +435,8 @@
     <version ClassVersion="3" checksum="2487956635"/>
     <version ClassVersion="4" checksum="3827695028"/>
   </class>
-    <class name="btagbtvdeep::DeepDoubleXFeatures" ClassVersion="3">
+    <class name="btagbtvdeep::DeepDoubleXFeatures" ClassVersion="4">
+     <version ClassVersion="4" checksum="3057931654"/>
     <version ClassVersion="3" checksum="1764960743"/>
   </class>
   <class name="btagbtvdeep::BoostedDoubleSVTagInfoFeatures" ClassVersion="3">

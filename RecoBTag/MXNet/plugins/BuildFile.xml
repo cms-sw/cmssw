@@ -1,6 +1,0 @@
-<use name="FWCore/Framework"/>
-<library file="*.cc" name="RecoBTagMXNetPlugins">
-  <use name="DataFormats/BTauReco"/>
-  <use name="PhysicsTools/MXNet"/>
-  <flags EDM_PLUGIN="1"/>
-</library>

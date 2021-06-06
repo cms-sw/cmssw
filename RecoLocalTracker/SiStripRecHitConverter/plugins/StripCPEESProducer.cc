@@ -55,13 +55,13 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet& p) {
 
   cpeNum = enumMap[type];
   parametersPSet = (p.exists("parameters") ? p.getParameter<edm::ParameterSet>("parameters") : p);
-  setWhatProduced(this, name)
-      .setConsumes(pDDToken_)
-      .setConsumes(magfieldToken_)
-      .setConsumes(lorentzAngleToken_)
-      .setConsumes(backPlaneCorrectionToken_)
-      .setConsumes(confObjToken_)
-      .setConsumes(latencyToken_);
+  auto cc = setWhatProduced(this, name);
+  pDDToken_ = cc.consumes();
+  magfieldToken_ = cc.consumes();
+  lorentzAngleToken_ = cc.consumes();
+  backPlaneCorrectionToken_ = cc.consumes();
+  confObjToken_ = cc.consumes();
+  latencyToken_ = cc.consumes();
 }
 
 std::unique_ptr<StripClusterParameterEstimator> StripCPEESProducer::produce(const TkStripCPERecord& iRecord) {

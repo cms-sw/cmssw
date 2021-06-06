@@ -49,8 +49,9 @@ namespace edm {
 
   class LuminosityBlock : public LuminosityBlockBase {
   public:
-    LuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                    ModuleDescription const& md,
+    LuminosityBlock(LumiTransitionInfo const&, ModuleDescription const&, ModuleCallingContext const*, bool isAtEnd);
+    LuminosityBlock(LuminosityBlockPrincipal const&,
+                    ModuleDescription const&,
                     ModuleCallingContext const*,
                     bool isAtEnd);
     ~LuminosityBlock() override;
@@ -133,7 +134,9 @@ namespace edm {
     template <typename PROD, typename... Args>
     void emplace(EDPutToken token, Args&&... args);
 
-    Provenance getProvenance(BranchID const& theID) const;
+    Provenance const& getProvenance(BranchID const& theID) const;
+
+    StableProvenance const& getStableProvenance(BranchID const& theID) const;
 
     void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
@@ -213,7 +216,7 @@ namespace edm {
 
   template <typename PROD>
   void LuminosityBlock::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct(
           "LuminosityBlock", typeID, provRecorder_.productInstanceLabel(token));
@@ -226,7 +229,7 @@ namespace edm {
 
   template <typename PROD>
   void LuminosityBlock::put(EDPutToken token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct(
           "LuminosityBlock", typeID, provRecorder_.productInstanceLabel(token));
@@ -344,20 +347,18 @@ namespace edm {
 
   template <typename PROD>
   Handle<PROD> LuminosityBlock::getHandle(EDGetTokenT<PROD> token) const {
-    if
-      UNLIKELY(!provRecorder_.checkIfComplete<PROD>()) {
-        principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
-      }
+    if UNLIKELY (!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
+    }
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     return convert_handle<PROD>(std::move(bh));
   }
 
   template <typename PROD>
   PROD const& LuminosityBlock::get(EDGetTokenT<PROD> token) const noexcept(false) {
-    if
-      UNLIKELY(!provRecorder_.checkIfComplete<PROD>()) {
-        principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
-      }
+    if UNLIKELY (!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
+    }
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     return *convert_handle<PROD>(std::move(bh));
   }

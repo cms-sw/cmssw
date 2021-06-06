@@ -154,4 +154,3 @@ process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
 
-process.DQMStore.referenceFileName = 'DQMOffline/Trigger/test/DQM_V0001_HLTOffline_R000000001_RelValZeeZmmMinBias.root'

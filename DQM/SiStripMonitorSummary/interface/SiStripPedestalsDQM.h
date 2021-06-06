@@ -6,35 +6,25 @@
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 
-class SiStripPedestalsDQM : public SiStripBaseCondObjDQM {
+class SiStripPedestalsDQM : public SiStripBaseCondObjDQMGet<SiStripPedestals, SiStripPedestalsRcd> {
 public:
-  SiStripPedestalsDQM(const edm::EventSetup &eSetup,
+  SiStripPedestalsDQM(edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> token,
                       edm::RunNumber_t iRun,
                       edm::ParameterSet const &hPSet,
-                      edm::ParameterSet const &fPSet);
+                      edm::ParameterSet const &fPSet,
+                      const TrackerTopology *tTopo,
+                      const TkDetMap *tkDetMap);
 
   ~SiStripPedestalsDQM() override;
 
   void getActiveDetIds(const edm::EventSetup &eSetup) override;
 
-  void fillModMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
-  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
+  void fillModMEs(const std::vector<uint32_t> &selectedDetIds) override;
+  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds) override;
 
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) override;
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_) override;
   void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) override;
-
-  unsigned long long getCache(const edm::EventSetup &eSetup) override {
-    return eSetup.get<SiStripPedestalsRcd>().cacheIdentifier();
-  }
-
-  void getConditionObject(const edm::EventSetup &eSetup) override {
-    eSetup.get<SiStripPedestalsRcd>().get(pedestalHandle_);
-    cacheID_memory = cacheID_current;
-  }
-
-private:
-  edm::ESHandle<SiStripPedestals> pedestalHandle_;
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_) override;
 };
 
 #endif

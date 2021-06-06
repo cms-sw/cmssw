@@ -27,6 +27,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+
 class FilterTrackerOn : public edm::EDFilter {
 public:
   explicit FilterTrackerOn(const edm::ParameterSet&);
@@ -38,4 +41,5 @@ private:
   void endJob() override;
 
   int minModulesWithHVoff_;
+  edm::ESGetToken<SiStripDetVOff, SiStripDetVOffRcd> detVOffToken_;
 };

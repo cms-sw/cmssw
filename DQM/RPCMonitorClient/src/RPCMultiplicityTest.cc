@@ -1,17 +1,12 @@
 /*
  *  \author Anna Cimmino
  */
-#include "DQM/RPCMonitorDigi/interface/utils.h"
 #include <DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h>
+#include <DQM/RPCMonitorClient/interface/RPCRollMapHisto.h>
+#include "DQM/RPCMonitorClient/interface/utils.h"
 
-// Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//DQMServices
-#include "DQMServices/Core/interface/DQMNet.h"
-// Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-
-#include <sstream>
 
 RPCMultiplicityTest::RPCMultiplicityTest(const edm::ParameterSet& ps) {
   edm::LogVerbatim("multiplicity") << "[RPCMultiplicityTest]: Constructor";
@@ -22,8 +17,6 @@ RPCMultiplicityTest::RPCMultiplicityTest(const edm::ParameterSet& ps) {
   testMode_ = ps.getUntrackedParameter<bool>("testMode", false);
 }
 
-RPCMultiplicityTest::~RPCMultiplicityTest() {}
-
 void RPCMultiplicityTest::beginJob(std::string& workingFolder) {
   edm::LogVerbatim("multiplicity") << "[RPCMultiplicityTest]: Begin job";
   globalFolder_ = workingFolder;
@@ -33,17 +26,14 @@ void RPCMultiplicityTest::myBooker(DQMStore::IBooker& ibooker) {
   ibooker.setCurrentFolder(globalFolder_);
 
   std::stringstream histoName;
-  rpcdqm::utils rpcUtils;
 
   for (int i = -2; i <= 2; i++) {  //loop on wheels and disks
 
     histoName.str("");
     histoName << "NumberOfDigi_Mean_Roll_vs_Sector_Wheel" << i;
 
-    MULTWheel[i + 2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
-
-    rpcUtils.labelXAxisSector(MULTWheel[i + 2]);
-    rpcUtils.labelYAxisRoll(MULTWheel[i + 2], 0, i, useRollInfo_);
+    auto me = RPCRollMapHisto::bookBarrel(ibooker, i, histoName.str(), histoName.str(), useRollInfo_);
+    MULTWheel[i + 2] = dynamic_cast<MonitorElement*>(me);
 
     if (testMode_) {
       histoName.str("");
@@ -63,16 +53,8 @@ void RPCMultiplicityTest::myBooker(DQMStore::IBooker& ibooker) {
 
     histoName.str("");
     histoName << "NumberOfDigi_Mean_Ring_vs_Segment_Disk" << d;
-    MULTDisk[d + offset] = ibooker.book2D(histoName.str().c_str(),
-                                          histoName.str().c_str(),
-                                          36,
-                                          0.5,
-                                          36.5,
-                                          3 * numberOfRings_,
-                                          0.5,
-                                          3 * numberOfRings_ + 0.5);
-    rpcUtils.labelXAxisSegment(MULTDisk[d + offset]);
-    rpcUtils.labelYAxisRing(MULTDisk[d + offset], numberOfRings_, useRollInfo_);
+    auto me = RPCRollMapHisto::bookEndcap(ibooker, d, histoName.str(), histoName.str(), useRollInfo_);
+    MULTDisk[d + offset] = dynamic_cast<MonitorElement*>(me);
 
     if (testMode_) {
       histoName.str("");

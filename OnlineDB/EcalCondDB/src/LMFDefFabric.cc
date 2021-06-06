@@ -144,6 +144,11 @@ LMFRunTag LMFDefFabric::getRunTagFromID(int id) const {
 
 int LMFDefFabric::getRunTagID(std::string tag, int version) const { return getRunTag(tag, version).getID(); }
 
+template <typename T, typename U>
+inline T &unique_static_cast(U &i) {
+  return *(static_cast<T *>(i.get()));
+}
+
 void LMFDefFabric::initialize() noexcept(false) {
   _lmfColors.clear();
   _lmfTrigTypes.clear();
@@ -152,15 +157,13 @@ void LMFDefFabric::initialize() noexcept(false) {
   _lmfSeqVersions.clear();
   _lmfCorrVersions.clear();
   if ((m_env != nullptr) && (m_conn != nullptr)) {
-    boost::ptr_list<LMFUnique> listOfObjects;
-    boost::ptr_list<LMFUnique>::const_iterator i;
-    boost::ptr_list<LMFUnique>::const_iterator e;
-    listOfObjects = LMFColor(m_env, m_conn).fetchAll();
-    i = listOfObjects.begin();
-    e = listOfObjects.end();
+    auto listOfObjects = LMFColor(m_env, m_conn).fetchAll();
+    auto i = listOfObjects.begin();
+    auto e = listOfObjects.end();
+
     while (i != e) {
-      const LMFColor *c = static_cast<const LMFColor *>(&(*i));
-      _lmfColors.push_back(*c);
+      const LMFColor &c = unique_static_cast<const LMFColor>(*i);
+      _lmfColors.push_back(c);
       i++;
     }
     listOfObjects.clear();
@@ -168,8 +171,8 @@ void LMFDefFabric::initialize() noexcept(false) {
     i = listOfObjects.begin();
     e = listOfObjects.end();
     while (i != e) {
-      const LMFTrigType *c = static_cast<const LMFTrigType *>(&(*i));
-      _lmfTrigTypes.push_back(*c);
+      const LMFTrigType &c = unique_static_cast<const LMFTrigType>(*i);
+      _lmfTrigTypes.push_back(c);
       i++;
     }
     listOfObjects.clear();
@@ -177,8 +180,8 @@ void LMFDefFabric::initialize() noexcept(false) {
     i = listOfObjects.begin();
     e = listOfObjects.end();
     while (i != e) {
-      const LMFRunTag *c = static_cast<const LMFRunTag *>(&(*i));
-      _lmfRunTags.push_back(*c);
+      const LMFRunTag &c = unique_static_cast<const LMFRunTag>(*i);
+      _lmfRunTags.push_back(c);
       i++;
     }
     listOfObjects.clear();
@@ -186,8 +189,8 @@ void LMFDefFabric::initialize() noexcept(false) {
     i = listOfObjects.begin();
     e = listOfObjects.end();
     while (i != e) {
-      const LMFPrimVers *c = static_cast<const LMFPrimVers *>(&(*i));
-      _lmfPrimVersions.push_back(*c);
+      const LMFPrimVers &c = unique_static_cast<const LMFPrimVers>(*i);
+      _lmfPrimVersions.push_back(c);
       i++;
     }
     listOfObjects.clear();
@@ -195,8 +198,8 @@ void LMFDefFabric::initialize() noexcept(false) {
     i = listOfObjects.begin();
     e = listOfObjects.end();
     while (i != e) {
-      const LMFCorrVers *c = static_cast<const LMFCorrVers *>(&(*i));
-      _lmfCorrVersions.push_back(*c);
+      const LMFCorrVers &c = unique_static_cast<const LMFCorrVers>(*i);
+      _lmfCorrVersions.push_back(c);
       i++;
     }
     listOfObjects.clear();
@@ -204,8 +207,8 @@ void LMFDefFabric::initialize() noexcept(false) {
     i = listOfObjects.begin();
     e = listOfObjects.end();
     while (i != e) {
-      const LMFSeqVers *c = static_cast<const LMFSeqVers *>(&(*i));
-      _lmfSeqVersions.push_back(*c);
+      const LMFSeqVers &c = unique_static_cast<const LMFSeqVers>(*i);
+      _lmfSeqVersions.push_back(c);
       i++;
     }
     listOfObjects.clear();

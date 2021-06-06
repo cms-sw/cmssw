@@ -1,11 +1,33 @@
 #ifndef SimCalorimetry_EcalSimProducers_EcalDigiProducer_h
 #define SimCalorimetry_EcalSimProducers_EcalDigiProducer_h
 
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
+#include "CondFormats/DataRecord/interface/ESGainRcd.h"
+#include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/ESObjects/interface/ESGain.h"
+#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
+#include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "DataFormats/Math/interface/Error.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
@@ -16,6 +38,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
+#include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
 #include <vector>
 
 typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer;
@@ -25,13 +48,11 @@ typedef CaloTDigitizer<ESOldDigitizerTraits> ESOldDigitizer;
 class ESDigitizer;
 
 class APDSimParameters;
-class EBHitResponse;
 class EEHitResponse;
 class ESHitResponse;
 class CaloHitResponse;
 class EcalSimParameterMap;
 class EcalCoder;
-class EcalElectronicsSim;
 class ESElectronicsSim;
 class ESElectronicsSimFast;
 class EcalBaseSignalGenerator;
@@ -98,6 +119,18 @@ private:
   const std::string m_ESdigiCollection;
   const std::string m_hitsProducerTag;
 
+  const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> m_pedestalsToken;
+  const edm::ESGetToken<EcalIntercalibConstantsMC, EcalIntercalibConstantsMCRcd> m_icalToken;
+  const edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> m_laserToken;
+  const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> m_agcToken;
+  const edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> m_grToken;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_geometryToken;
+  edm::ESGetToken<ESGain, ESGainRcd> m_esGainToken;
+  edm::ESGetToken<ESMIPToGeVConstant, ESMIPToGeVConstantRcd> m_esMIPToGeVToken;
+  edm::ESGetToken<ESPedestals, ESPedestalsRcd> m_esPedestalsToken;
+  edm::ESGetToken<ESIntercalibConstants, ESIntercalibConstantsRcd> m_esMIPsToken;
+  edm::ESWatcher<CaloGeometryRecord> m_geometryWatcher;
+
   bool m_useLCcorrection;
 
   const bool m_apdSeparateDigi;
@@ -141,10 +174,13 @@ private:
   std::unique_ptr<EBDigitizer> m_BarrelDigitizer;
   std::unique_ptr<EEDigitizer> m_EndcapDigitizer;
 
-  std::unique_ptr<EcalElectronicsSim> m_ElectronicsSim;
+  typedef CaloTSamples<float, 10> EcalSamples;
+
+  typedef EcalElectronicsSim<EcalCoder, EcalSamples, EcalDataFrame> EcalElectronicsSim_Ph1;
+  std::unique_ptr<EcalElectronicsSim_Ph1> m_ElectronicsSim;
   std::unique_ptr<EcalCoder> m_Coder;
 
-  std::unique_ptr<EcalElectronicsSim> m_APDElectronicsSim;
+  std::unique_ptr<EcalElectronicsSim_Ph1> m_APDElectronicsSim;
   std::unique_ptr<EcalCoder> m_APDCoder;
 
   const CaloGeometry *m_Geometry;

@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Calo/interface/HFNoseNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include <iostream>
 
 //#define EDM_ML_DEBUG
@@ -21,15 +22,11 @@ uint32_t HFNoseNumberingScheme::getUnitID(
   wt = 1.0;
   int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
   if (cell >= 0) {
-    waferType = module / 1000000;
-    waferU = module % 100;
-    if ((module / 10000) % 10 > 0)
-      waferU = -waferU;
-    waferV = (module / 100) % 100;
-    if ((module / 100000) % 10 > 0)
-      waferV = -waferV;
-    cellU = cell % 100;
-    cellV = (cell / 100) % 100;
+    waferType = HGCalTypes::getUnpackedType(module);
+    waferU = HGCalTypes::getUnpackedU(module);
+    waferV = HGCalTypes::getUnpackedV(module);
+    cellU = HGCalTypes::getUnpackedCellU(cell);
+    cellV = HGCalTypes::getUnpackedCellV(cell);
   } else if (mode_ == HGCalGeometryMode::Hexagon8Full) {
     double xx = (pos.z() > 0) ? pos.x() : -pos.x();
     hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt);

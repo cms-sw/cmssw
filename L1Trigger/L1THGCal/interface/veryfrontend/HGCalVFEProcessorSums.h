@@ -6,12 +6,8 @@
 #include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalVFELinearizationImpl.h"
 #include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalVFESummationImpl.h"
 #include "L1Trigger/L1THGCal/interface/HGCalVFECompressionImpl.h"
-
-#include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
-#include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
-
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerCellCalibration.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 class HGCalVFEProcessorSums : public HGCalVFEProcessorBase {
 public:
@@ -22,10 +18,17 @@ public:
            const edm::EventSetup& es) override;
 
 private:
-  std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationImpl_;
+  std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationSiImpl_;
+  std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationScImpl_;
   std::unique_ptr<HGCalVFESummationImpl> vfeSummationImpl_;
-  std::unique_ptr<HGCalVFECompressionImpl> vfeCompressionImpl_;
-  std::unique_ptr<HGCalTriggerCellCalibration> calibration_;
+  std::unique_ptr<HGCalVFECompressionImpl> vfeCompressionLDMImpl_;
+  std::unique_ptr<HGCalVFECompressionImpl> vfeCompressionHDMImpl_;
+  std::unique_ptr<HGCalTriggerCellCalibration> calibrationEE_;
+  std::unique_ptr<HGCalTriggerCellCalibration> calibrationHEsi_;
+  std::unique_ptr<HGCalTriggerCellCalibration> calibrationHEsc_;
+  std::unique_ptr<HGCalTriggerCellCalibration> calibrationNose_;
+
+  HGCalTriggerTools triggerTools_;
 };
 
 #endif

@@ -25,18 +25,18 @@
 
 namespace {
 
-  class SiStripDetVOff_LV : public cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff, int> {
+  using namespace cond::payloadInspector;
+
+  class SiStripDetVOff_LV : public TimeHistoryPlot<SiStripDetVOff, int> {
   public:
-    SiStripDetVOff_LV()
-        : cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff, int>("Nr of mod with LV OFF vs time", "nLVOff") {}
+    SiStripDetVOff_LV() : TimeHistoryPlot<SiStripDetVOff, int>("Nr of mod with LV OFF vs time", "nLVOff") {}
 
     int getFromPayload(SiStripDetVOff& payload) override { return payload.getLVoffCounts(); }
   };
 
-  class SiStripDetVOff_HV : public cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff, int> {
+  class SiStripDetVOff_HV : public TimeHistoryPlot<SiStripDetVOff, int> {
   public:
-    SiStripDetVOff_HV()
-        : cond::payloadInspector::TimeHistoryPlot<SiStripDetVOff, int>("Nr of mod with HV OFF vs time", "nHVOff") {}
+    SiStripDetVOff_HV() : TimeHistoryPlot<SiStripDetVOff, int>("Nr of mod with HV OFF vs time", "nHVOff") {}
 
     int getFromPayload(SiStripDetVOff& payload) override { return payload.getHVoffCounts(); }
   };
@@ -44,18 +44,16 @@ namespace {
   /************************************************
     TrackerMap of Module VOff
   *************************************************/
-  class SiStripDetVOff_IsModuleVOff_TrackerMap : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
+  class SiStripDetVOff_IsModuleVOff_TrackerMap : public PlotImage<SiStripDetVOff, SINGLE_IOV> {
   public:
-    SiStripDetVOff_IsModuleVOff_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff>("Tracker Map IsModuleVOff") {
-      setSingleIov(true);
-    }
+    SiStripDetVOff_IsModuleVOff_TrackerMap() : PlotImage<SiStripDetVOff, SINGLE_IOV>("Tracker Map IsModuleVOff") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripIsModuleVOff"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripIsModuleVOff");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of VOff modules (HV or LV), payload : " + std::get<1>(iov);
       tmap->setTitle(titleMap);
@@ -79,18 +77,16 @@ namespace {
   /************************************************
     TrackerMap of Module HVOff
   *************************************************/
-  class SiStripDetVOff_IsModuleHVOff_TrackerMap : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
+  class SiStripDetVOff_IsModuleHVOff_TrackerMap : public PlotImage<SiStripDetVOff, SINGLE_IOV> {
   public:
-    SiStripDetVOff_IsModuleHVOff_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff>("Tracker Map IsModuleHVOff") {
-      setSingleIov(true);
-    }
+    SiStripDetVOff_IsModuleHVOff_TrackerMap() : PlotImage<SiStripDetVOff, SINGLE_IOV>("Tracker Map IsModuleHVOff") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripIsModuleHVOff"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripIsModuleHVOff");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of HV Off modules, payload : " + std::get<1>(iov);
       tmap->setTitle(titleMap);
@@ -114,18 +110,16 @@ namespace {
   /************************************************
     TrackerMap of Module LVOff
   *************************************************/
-  class SiStripDetVOff_IsModuleLVOff_TrackerMap : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
+  class SiStripDetVOff_IsModuleLVOff_TrackerMap : public PlotImage<SiStripDetVOff, SINGLE_IOV> {
   public:
-    SiStripDetVOff_IsModuleLVOff_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff>("Tracker Map IsModuleLVOff") {
-      setSingleIov(true);
-    }
+    SiStripDetVOff_IsModuleLVOff_TrackerMap() : PlotImage<SiStripDetVOff, SINGLE_IOV>("Tracker Map IsModuleLVOff") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripIsModuleLVOff"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripIsModuleLVOff");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of LV Off modules, payload : " + std::get<1>(iov);
       tmap->setTitle(titleMap);
@@ -150,18 +144,81 @@ namespace {
     test class
   *************************************************/
 
-  class SiStripDetVOffTest : public cond::payloadInspector::Histogram1D<SiStripDetVOff> {
+  namespace SiStripDetVOffPI {
+    enum type { t_LV = 0, t_HV = 1, t_V };
+  }
+
+  template <SiStripDetVOffPI::type my_type>
+  class SiStripDetVOffListOfModules : public Histogram1DD<SiStripDetVOff, SINGLE_IOV> {
+  public:
+    SiStripDetVOffListOfModules()
+        : Histogram1DD<SiStripDetVOff, SINGLE_IOV>(
+              "SiStrip Off modules", "SiStrip Off modules", 15148, 0., 15148., "DetId of VOff module") {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<SiStripDetVOff> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          std::vector<uint32_t> detid;
+          payload->getDetIds(detid);
+          int i = 0;  // count modules
+
+          //std::cout.precision(1);
+
+          for (const auto& d : detid) {
+            switch (my_type) {
+              case SiStripDetVOffPI::t_LV: {
+                if (payload->IsModuleLVOff(d)) {
+                  //std::cout << "is LV: " << i << " " << std::fixed << double(d) << std::endl;
+                  fillWithBinAndValue(i, double(d));
+                }
+                break;
+              }
+              case SiStripDetVOffPI::t_HV: {
+                if (payload->IsModuleHVOff(d)) {
+                  //std::cout << "is HV: " << i << " " << std::fixed << double(d) << std::endl;
+                  fillWithBinAndValue(i, double(d));
+                }
+                break;
+              }
+              case SiStripDetVOffPI::t_V: {
+                if (payload->IsModuleVOff(d)) {
+                  //std::cout << "is V: " << i << " " << std::fixed << double(d) << std::endl;
+                  fillWithBinAndValue(i, double(d));
+                }
+                break;
+              }
+              default:
+                edm::LogError("SiStripDetVOffListOfModules") << "Unrecognized type: " << my_type << std::endl;
+                break;
+            }     // switch
+            i++;  // increase counting of modules
+          }       // loop on detids
+        }         // if gets the payload
+      }           // loop on iovs
+      return true;
+    }  // fill()
+  };
+
+  using SiStripVOffListOfModules = SiStripDetVOffListOfModules<SiStripDetVOffPI::t_V>;
+  using SiStripLVOffListOfModules = SiStripDetVOffListOfModules<SiStripDetVOffPI::t_LV>;
+  using SiStripHVOffListOfModules = SiStripDetVOffListOfModules<SiStripDetVOffPI::t_HV>;
+
+  /************************************************
+    test class
+  *************************************************/
+
+  class SiStripDetVOffTest : public Histogram1D<SiStripDetVOff, SINGLE_IOV> {
   public:
     SiStripDetVOffTest()
-        : cond::payloadInspector::Histogram1D<SiStripDetVOff>(
-              "SiStrip DetVOff test", "SiStrip DetVOff test", 10, 0.0, 10.0),
+        : Histogram1D<SiStripDetVOff, SINGLE_IOV>("SiStrip DetVOff test", "SiStrip DetVOff test", 10, 0.0, 10.0),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      Base::setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripDetVOff> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<uint32_t> detid;
@@ -203,17 +260,16 @@ namespace {
     Plot DetVOff by region 
   *************************************************/
 
-  class SiStripDetVOffByRegion : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
+  class SiStripDetVOffByRegion : public PlotImage<SiStripDetVOff, SINGLE_IOV> {
   public:
     SiStripDetVOffByRegion()
-        : cond::payloadInspector::PlotImage<SiStripDetVOff>("SiStrip DetVOff By Region"),
+        : PlotImage<SiStripDetVOff, SINGLE_IOV>("SiStrip DetVOff By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
       std::vector<uint32_t> detid;
@@ -241,10 +297,10 @@ namespace {
 
       TCanvas canvas("DetVOff Partion summary", "SiStripDetVOff region summary", 1200, 1000);
       canvas.cd();
-      auto h_HV = std::unique_ptr<TH1F>(new TH1F(
-          "HVbyRegion", "SiStrip HV/LV summary by region;; modules with HV off", mapHV.size(), 0., mapHV.size()));
-      auto h_LV = std::unique_ptr<TH1F>(new TH1F(
-          "LVbyRegion", "SiStrip HV/LV summary by region;; modules with LV off", mapLV.size(), 0., mapLV.size()));
+      auto h_HV = std::make_unique<TH1F>(
+          "HVbyRegion", "SiStrip HV/LV summary by region;; modules with HV off", mapHV.size(), 0., mapHV.size());
+      auto h_LV = std::make_unique<TH1F>(
+          "LVbyRegion", "SiStrip HV/LV summary by region;; modules with LV off", mapLV.size(), 0., mapLV.size());
 
       h_HV->SetStats(false);
       h_LV->SetStats(false);
@@ -348,8 +404,8 @@ namespace {
       h_LV.get()->GetYaxis()->SetTitleOffset(999);
 
       //draw an axis on the left side
-      auto l_axis = std::unique_ptr<TGaxis>(
-          new TGaxis(gPad->GetUxmin(), gPad->GetUymin(), gPad->GetUxmin(), gPad->GetUymax(), 0, extrema.second, 510));
+      auto l_axis = std::make_unique<TGaxis>(
+          gPad->GetUxmin(), gPad->GetUymin(), gPad->GetUxmin(), gPad->GetUymax(), 0, extrema.second, 510);
       l_axis->SetLineColor(kRed);
       l_axis->SetTextColor(kRed);
       l_axis->SetLabelColor(kRed);
@@ -359,8 +415,8 @@ namespace {
       l_axis->Draw();
 
       //draw an axis on the right side
-      auto r_axis = std::unique_ptr<TGaxis>(new TGaxis(
-          gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(), 0, extrema.second, 510, "+L"));
+      auto r_axis = std::make_unique<TGaxis>(
+          gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(), 0, extrema.second, 510, "+L");
       r_axis->SetLineColor(kBlue);
       r_axis->SetTextColor(kBlue);
       r_axis->SetLabelColor(kBlue);
@@ -388,5 +444,8 @@ PAYLOAD_INSPECTOR_MODULE(SiStripDetVOff) {
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOff_IsModuleLVOff_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOff_IsModuleHVOff_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOffTest);
+  PAYLOAD_INSPECTOR_CLASS(SiStripVOffListOfModules);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLVOffListOfModules);
+  PAYLOAD_INSPECTOR_CLASS(SiStripHVOffListOfModules);
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOffByRegion);
 }

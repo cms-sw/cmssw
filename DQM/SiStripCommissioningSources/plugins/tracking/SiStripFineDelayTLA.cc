@@ -5,12 +5,10 @@
 #include "DQM/SiStripCommissioningSources/plugins/tracking/SiStripFineDelayTLA.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -23,14 +21,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 using namespace std;
-SiStripFineDelayTLA::SiStripFineDelayTLA(edm::ParameterSet const& conf) : conf_(conf) {}
+SiStripFineDelayTLA::SiStripFineDelayTLA(edm::ParameterSet const& conf, edm::ConsumesCollector iC)
+    : conf_(conf), tkGeomToken_(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {}
 
-void SiStripFineDelayTLA::init(const edm::Event& e, const edm::EventSetup& es) {
-  // get geometry
-  edm::ESHandle<TrackerGeometry> estracker;
-  es.get<TrackerDigiGeometryRecord>().get(estracker);
-  tracker = &(*estracker);
-}
+void SiStripFineDelayTLA::init(const edm::Event& e, const edm::EventSetup& es) { tracker = &es.getData(tkGeomToken_); }
 
 // Virtual destructor needed.
 SiStripFineDelayTLA::~SiStripFineDelayTLA() {}

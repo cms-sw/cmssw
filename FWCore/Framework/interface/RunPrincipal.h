@@ -76,6 +76,8 @@ namespace edm {
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
 
+    void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
+
     MergeableRunProductMetadata* mergeableRunProductMetadata() { return mergeableRunProductMetadataPtr_.get(); }
 
     void preReadFile();

@@ -1,5 +1,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //===================================================================
 // Author: Federico Ferri - INFN Milano, Bicocca university

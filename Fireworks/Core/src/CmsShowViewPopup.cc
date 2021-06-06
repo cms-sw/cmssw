@@ -12,7 +12,7 @@
 
 // system include files
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 #include <cassert>
 #include "TGLabel.h"
 #include "TGButton.h"
@@ -51,7 +51,7 @@ CmsShowViewPopup::CmsShowViewPopup(
       m_colorManager(iCMgr),
       m_viewBase(nullptr),
       m_eveWindow(nullptr) {
-  m_colorManager->colorsHaveChanged_.connect(boost::bind(&CmsShowViewPopup::backgroundColorWasChanged, this));
+  m_colorManager->colorsHaveChanged_.connect(std::bind(&CmsShowViewPopup::backgroundColorWasChanged, this));
 
   SetCleanup(kDeepCleanup);
 

@@ -23,11 +23,18 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -38,6 +45,7 @@
 
 class SiStripDetVOff;
 class SiStripDetCabling;
+class RunInfo;
 
 class SiStripDcsInfo : public edm::EDAnalyzer {
 public:
@@ -55,7 +63,7 @@ private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   void bookStatus(DQMStore& dqm_store);
-  void readStatus(edm::EventSetup const&);
+  void readStatus(edm::EventSetup const&, int transition);
   void readCabling(edm::EventSetup const&);
   void addBadModules(DQMStore& dqm_store);
   void fillStatus(DQMStore& dqm_store);
@@ -72,11 +80,9 @@ private:
   };
 
   std::map<std::string, SubDetMEs> SubDetMEsMap{};
-  unsigned long long m_cacheIDCabling_{};
   unsigned long long m_cacheIDDcs_{};
   bool bookedStatus_{false};
 
-  edm::ESHandle<SiStripDetVOff> siStripDetVOff_{};
   int nFEDConnected_{};
 
   int nLumiAnalysed_{};
@@ -86,6 +92,11 @@ private:
   static constexpr float MinAcceptableDcsDetFrac_{0.90};
   static constexpr float MaxAcceptableBadDcsLumi_{2};
 
-  edm::ESHandle<SiStripDetCabling> detCabling_{};
+  const SiStripDetCabling* detCabling_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken0_, tTopoToken1_, tTopoToken2_, tTopoToken3_;
+  edm::ESGetToken<SiStripDetVOff, SiStripDetVOffRcd> detVOffToken0_, detVOffToken1_, detVOffToken2_;
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;  // beginRun
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 };
 #endif

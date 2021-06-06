@@ -41,27 +41,27 @@ namespace ecaldqm {
 
         EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
 
-        bool doMask(meQualitySummary.maskMatches(id, mask, statusManager_));
+        bool doMask(meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
-        float entries(sOccupancy.getBinContent(id));
+        float entries(sOccupancy.getBinContent(getEcalDQMSetupObjects(), id));
 
-        float chid(sMEMChId.getBinContent(id));
-        float gain(sMEMGain.getBinContent(id));
+        float chid(sMEMChId.getBinContent(getEcalDQMSetupObjects(), id));
+        float gain(sMEMGain.getBinContent(getEcalDQMSetupObjects(), id));
 
-        float blocksize(sMEMBlockSize.getBinContent(id));
-        float towerid(sMEMTowerId.getBinContent(id));
+        float blocksize(sMEMBlockSize.getBinContent(getEcalDQMSetupObjects(), id));
+        float towerid(sMEMTowerId.getBinContent(getEcalDQMSetupObjects(), id));
 
         if (entries + gain + chid + blocksize + towerid < 1.) {
-          meQualitySummary.setBinContent(id, doMask ? kMUnknown : kUnknown);
+          meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMUnknown : kUnknown);
           continue;
         }
 
         float chErr((gain + chid + blocksize + towerid) / (entries + gain + chid + blocksize + towerid));
 
         if (chErr > errFractionThreshold_)
-          meQualitySummary.setBinContent(id, doMask ? kMBad : kBad);
+          meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMBad : kBad);
         else
-          meQualitySummary.setBinContent(id, doMask ? kMGood : kGood);
+          meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMGood : kGood);
       }
     }
   }

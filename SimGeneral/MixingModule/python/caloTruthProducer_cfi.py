@@ -16,7 +16,7 @@ caloParticles = cms.PSet(
             hgc = cms.VInputTag(
                 cms.InputTag('g4SimHits','HGCHitsEE'),
                 cms.InputTag('g4SimHits','HGCHitsHEfront'),
-                cms.InputTag('g4SimHits','HcalHits')
+                cms.InputTag('g4SimHits','HGCHitsHEback')
             ),
 #            hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits')),
 #            ecal = cms.VInputTag(
@@ -35,20 +35,14 @@ caloParticles = cms.PSet(
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(caloParticles, premixStage1 = True)
 
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
-phase2_hgcalV9.toModify(
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toModify(
     caloParticles,
-    simHitCollections = dict(hgc = {2 : cms.InputTag('g4SimHits','HGCHitsHEback')} ),
-)
-
-#from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
-#phase2_hfnose.toModify(
-#    caloParticles,
-#    simHitCollections = dict(
-#        hgc = caloParticles.simHitCollections.hgc + [cms.InputTag('g4SimHits','HFNoseHits')],
+    simHitCollections = dict(
+        hgc = caloParticles.simHitCollections.hgc + [cms.InputTag('g4SimHits','HFNoseHits')],
 #        hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits'))
-#    )
-#)
+    )
+)
 
 from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
 run3_ecalclustering.toModify(

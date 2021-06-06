@@ -73,6 +73,7 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep *_simCaloStage2Digis_*_*',
         'keep *_simGmtDigis_*_*',
         "keep *_simBmtfDigis_*_*",
+        "keep *_simKBmtfDigis_*_*",
         "keep *_simOmtfDigis_*_*",
         "keep *_simEmtfDigis_*_*",
         "keep *_simGmtStage2Digis_*_*",
@@ -114,6 +115,17 @@ stage2L1Trigger.toModify(L1TriggerRECO, func=_appendStage2Digis)
 stage2L1Trigger.toModify(L1TriggerAOD, func=_appendStage2Digis)
 stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendStage2Digis)
 
+## Run-3 EMTF and GMT showers
+def _appendRun3ShowerDigis(obj):
+    run3ShowerDigis = [
+        "keep *_simEmtfShowers_*_*",
+        'keep *_simGmtShowerDigis_*_*',
+        ]
+    obj.outputCommands += run3ShowerDigis
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+(stage2L1Trigger & run3_common).toModify(L1TriggerFEVTDEBUG, func=_appendRun3ShowerDigis)
+
 # adding HGCal L1 trigger digis
 def _appendHGCalDigis(obj):
     l1HGCalDigis = [
@@ -153,3 +165,59 @@ def _appendME0Digis(obj):
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify(L1TriggerFEVTDEBUG, func=_appendME0Digis)
+
+# adding phase2 trigger
+def _appendPhase2Digis(obj):
+    l1Phase2Digis = [
+        "keep *_simKBmtfDigis_*_*",
+        'keep *_hgcalVFEProducerhgcalConcentratorProducer_*_*',
+        'keep *_hgcalBackEndLayer1Producer_*_*',
+        'keep *_hgcalBackEndLayer2Producer_*_*',
+        'keep *_hgcalTowerMapProducer_*_*',
+        'keep *_hgcalTowerProducer_*_*',
+        'keep *_L1EGammaClusterEmuProducer_*_*',
+        'keep *_l1EGammaEEProducer_*_*',
+        'keep *_L1TkPrimaryVertex_*_*',
+        'keep *_L1TkElectronsCrystal_*_*',
+        'keep *_L1TkElectronsLooseCrystal_*_*',
+        'keep *_L1TkElectronsEllipticMatchCrystal_*_*',
+        'keep *_L1TkIsoElectronsCrystal_*_*',
+        'keep *_L1TkPhotonsCrystal_*_*',
+        'keep *_L1TkElectronsHGC_*_*',
+        'keep *_L1TkElectronsEllipticMatchHGC_*_*',
+        'keep *_L1TkIsoElectronsHGC_*_*',
+        'keep *_L1TkPhotonsHGC_*_*',
+        'keep *_L1TkMuons_*_*',
+        'keep *_pfClustersFromL1EGClusters_*_*',
+        'keep *_pfClustersFromCombinedCaloHCal_*_*',
+        'keep *_pfClustersFromCombinedCaloHF_*_*',
+        'keep *_pfClustersFromHGC3DClusters_*_*',
+        'keep *_pfTracksFromL1TracksBarrel_*_*',
+        'keep *_l1pfProducerBarrel_*_*',
+        'keep *_pfTracksFromL1TracksHGCal_*_*',
+        'keep *_l1pfProducerHGCal_*_*',
+        'keep *_l1pfProducerHGCalNoTK_*_*',
+        'keep *_l1pfProducerHF_*_*',
+        'keep *_l1pfCandidates_*_*',
+        'keep *_ak4PFL1Calo_*_*',
+        'keep *_ak4PFL1PF_*_*',
+        'keep *_ak4PFL1Puppi_*_*',
+        'keep *_ak4PFL1CaloCorrected_*_*',
+        'keep *_ak4PFL1PFCorrected_*_*',
+        'keep *_ak4PFL1PuppiCorrected_*_*',
+        'keep *_Phase1L1TJetProducer_*_*', 
+        'keep *_Phase1L1TJetCalibrator_*_*',
+        'keep *_l1PFMetCalo_*_*',
+        'keep *_l1PFMetPF_*_*',
+        'keep *_l1PFMetPuppi_*_*',
+        'keep *_l1NNTauProducer_*_*',
+        'keep *_l1NNTauProducerPuppi_*_*',
+        'keep *_TTStubsFromPhase2TrackerDigis_*_*',
+        'keep *_TTClustersFromPhase2TrackerDigis_*_*',
+        'keep *_TTTracksFromExtendedTrackletEmulation_*_*',
+        'keep *_TTTracksFromTrackletEmulation_*_*',
+        ]
+    obj.outputCommands += l1Phase2Digis
+
+from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
+phase2_muon.toModify(L1TriggerFEVTDEBUG, func=_appendPhase2Digis)

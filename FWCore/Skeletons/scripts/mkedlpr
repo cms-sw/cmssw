@@ -16,10 +16,6 @@ if  sys.version_info < (2, 6):
 # package modules
 from FWCore.Skeletons.cms import generate
 
-def tmpl_dir():
-    "Return location of template directory wrt script location"
-    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
-
 def pkg_help():
     "mkedlpr help function"
     msg  = '\nmkedlpr script generates CMS EDLooper code'
@@ -48,10 +44,10 @@ def pkg_help():
     msg += '\n'
     return msg
 
-def config(tmpl, pkg_help, tmpl_dir):
+def config(tmpl, pkg_help):
     "Parse input arguments to mk-script"
     kwds  = {'author': '', 'tmpl': tmpl,
-             'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
+             'args': {}, 'debug': False}
     etags = []
     args  = []
     if  len(sys.argv) >= 2: # user give us arguments
@@ -96,4 +92,4 @@ def config(tmpl, pkg_help, tmpl_dir):
     return kwds
 
 if __name__ == '__main__':
-    generate(config('EDLooper', pkg_help(), tmpl_dir()))
+    generate(config('EDLooper', pkg_help()))

@@ -41,16 +41,18 @@ namespace {
   *************************************************/
   class RunInfoTest : public cond::payloadInspector::Histogram1D<RunInfo> {
   public:
-    RunInfoTest() : cond::payloadInspector::Histogram1D<RunInfo>("Test RunInfo", "Test RunInfo", 10, 0.0, 10.0) {
+    RunInfoTest() : cond::payloadInspector::Histogram1D<RunInfo>("Test RunInfo", "Test RunInfo", 1, 0.0, 1.0) {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
-      std::shared_ptr<RunInfo> payload = Base::fetchPayload(std::get<1>(iov));
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<RunInfo> payload = Base::fetchPayload(std::get<1>(iov));
 
-      if (payload.get()) {
-        payload->printAllValues();
+        if (payload.get()) {
+          payload->printAllValues();
+        }
       }
       return true;
     }
@@ -66,6 +68,8 @@ namespace {
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      gStyle->SetPaintTextFormat("g");
+
       auto iov = iovs.front();
       std::shared_ptr<RunInfo> payload = fetchPayload(std::get<1>(iov));
 
@@ -74,30 +78,27 @@ namespace {
 
       gStyle->SetHistMinimumZero();
 
-      canvas.SetTopMargin(0.08);
+      canvas.SetTopMargin(0.13);
       canvas.SetBottomMargin(0.06);
       canvas.SetLeftMargin(0.3);
       canvas.SetRightMargin(0.02);
       canvas.Modified();
       canvas.SetGrid();
 
-      auto h2_RunInfoParameters = std::unique_ptr<TH2F>(new TH2F("Parameters", "", 1, 0.0, 1.0, 11, 0, 11.));
-      auto h2_RunInfoState = std::unique_ptr<TH2F>(new TH2F("State", "", 1, 0.0, 1.0, 11, 0, 11.));
+      auto h2_RunInfoParameters = std::make_unique<TH2F>("Parameters", "", 1, 0.0, 1.0, 11, 0, 11.);
+      auto h2_RunInfoState = std::make_unique<TH2F>("State", "", 1, 0.0, 1.0, 11, 0, 11.);
       h2_RunInfoParameters->SetStats(false);
       h2_RunInfoState->SetStats(false);
 
-      float fieldIntensity = RunInfoPI::theBField(payload->m_avg_current);
-
-      std::function<float(RunInfoPI::parameters)> cutFunctor = [&payload,
-                                                                fieldIntensity](RunInfoPI::parameters my_param) {
+      std::function<float(RunInfoPI::parameters)> cutFunctor = [&payload](RunInfoPI::parameters my_param) {
         float ret(-999.);
         switch (my_param) {
           case RunInfoPI::m_run:
             return float(payload->m_run);
           case RunInfoPI::m_start_time_ll:
-            return float(payload->m_start_time_ll);
+            return float(payload->m_start_time_ll * 1.0e-6);
           case RunInfoPI::m_stop_time_ll:
-            return float(payload->m_stop_time_ll);
+            return float(payload->m_stop_time_ll * 1.0e-6);
           case RunInfoPI::m_start_current:
             return payload->m_start_current;
           case RunInfoPI::m_stop_current:
@@ -108,10 +109,10 @@ namespace {
             return payload->m_max_current;
           case RunInfoPI::m_min_current:
             return payload->m_min_current;
-          case RunInfoPI::m_run_intervall_micros:
-            return payload->m_run_intervall_micros;
+          case RunInfoPI::m_run_interval_seconds:
+            return RunInfoPI::runDuration(payload);
           case RunInfoPI::m_BField:
-            return fieldIntensity;
+            return RunInfoPI::theBField(payload->m_avg_current);  //fieldIntensity;
           case RunInfoPI::m_fedIN:
             return float((payload->m_fed_in).size());
           case RunInfoPI::END_OF_TYPES:
@@ -123,6 +124,8 @@ namespace {
 
       h2_RunInfoParameters->GetXaxis()->SetBinLabel(1, "Value");
       h2_RunInfoState->GetXaxis()->SetBinLabel(1, "Value");
+
+      RunInfoPI::state theState;
 
       unsigned int yBin = 11;
       for (int foo = RunInfoPI::m_run; foo != RunInfoPI::END_OF_TYPES; foo++) {
@@ -136,13 +139,16 @@ namespace {
           if ((payload->m_avg_current) <= -1) {
             // go in error state
             h2_RunInfoState->SetBinContent(1, yBin, 0.);
+            theState = RunInfoPI::invalid;
           } else {
             // all is OK
             h2_RunInfoState->SetBinContent(1, yBin, 1.);
+            theState = RunInfoPI::valid;
           }
         } else {
           // this is a fake payload
           h2_RunInfoState->SetBinContent(1, yBin, 0.9);
+          theState = RunInfoPI::fake;
         }
         yBin--;
       }
@@ -168,11 +174,36 @@ namespace {
       t1.SetTextSize(0.03);
       t1.DrawLatex(0.1, 0.98, "RunInfo parameters:");
       t1.DrawLatex(0.1, 0.95, "payload:");
+      t1.DrawLatex(0.1, 0.92, "start time:");
+      t1.DrawLatex(0.1, 0.89, "end time:");
 
       t1.SetTextFont(42);
       t1.SetTextColor(4);
       t1.DrawLatex(0.37, 0.982, Form("IOV %s", std::to_string(+std::get<0>(iov)).c_str()));
       t1.DrawLatex(0.21, 0.952, Form(" %s", (std::get<1>(iov)).c_str()));
+      t1.DrawLatex(0.23, 0.922, Form(" %s", (RunInfoPI::runStartTime(payload)).c_str()));
+      t1.DrawLatex(0.23, 0.892, Form(" %s", (RunInfoPI::runEndTime(payload)).c_str()));
+
+      TPaveText ksPt(0, 0, 0.35, 0.04, "NDC");
+      ksPt.SetBorderSize(0);
+      ksPt.SetFillColor(0);
+      const char* textToAdd;
+      switch (theState) {
+        case RunInfoPI::fake:
+          textToAdd = "This is a fake RunInfoPayload";
+          break;
+        case RunInfoPI::valid:
+          textToAdd = "This is a valid RunInfoPayload";
+          break;
+        case RunInfoPI::invalid:
+          textToAdd = "This is an invalid RunInfoPayload";
+          break;
+        default:
+          throw cms::Exception("PayloadInspector") << "an invalid state has been found";
+      }
+
+      ksPt.AddText(textToAdd);
+      ksPt.Draw();
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -184,31 +215,31 @@ namespace {
   /************************************************
     time history of Magnet currents from RunInfo
   *************************************************/
-
   template <RunInfoPI::parameters param>
-  class RunInfoCurrentHistory : public cond::payloadInspector::HistoryPlot<RunInfo, float> {
+  class RunInfoCurrentHistory : public cond::payloadInspector::HistoryPlot<RunInfo, std::pair<bool, float> > {
   public:
     RunInfoCurrentHistory()
-        : cond::payloadInspector::HistoryPlot<RunInfo, float>(getStringFromTypeEnum(param),
-                                                              getStringFromTypeEnum(param) + " value") {}
+        : cond::payloadInspector::HistoryPlot<RunInfo, std::pair<bool, float> >(
+              getStringFromTypeEnum(param), getStringFromTypeEnum(param) + " value") {}
     ~RunInfoCurrentHistory() override = default;
 
-    float getFromPayload(RunInfo& payload) override {
+    std::pair<bool, float> getFromPayload(RunInfo& payload) override {
+      bool isRealRun = ((payload.m_run) != -1);
       float fieldIntensity = RunInfoPI::theBField(payload.m_avg_current);
 
       switch (param) {
         case RunInfoPI::m_start_current:
-          return payload.m_start_current;
+          return std::make_pair(isRealRun, payload.m_start_current);
         case RunInfoPI::m_stop_current:
-          return payload.m_stop_current;
+          return std::make_pair(isRealRun, payload.m_stop_current);
         case RunInfoPI::m_avg_current:
-          return payload.m_avg_current;
+          return std::make_pair(isRealRun, payload.m_avg_current);
         case RunInfoPI::m_max_current:
-          return payload.m_max_current;
+          return std::make_pair(isRealRun, payload.m_max_current);
         case RunInfoPI::m_min_current:
-          return payload.m_min_current;
+          return std::make_pair(isRealRun, payload.m_min_current);
         case RunInfoPI::m_BField:
-          return fieldIntensity;
+          return std::make_pair(isRealRun, fieldIntensity);
         default:
           edm::LogWarning("LogicError") << "Unknown parameter: " << param;
           break;

@@ -6,6 +6,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 // SimpleConfigurable replacement
@@ -50,7 +52,7 @@ HectorProducer::HectorProducer(edm::ParameterSet const &p)
                                              "service\n"
                                              "in the configuration file or remove the modules that require it.";
   }
-  edm::LogInfo("SimTransportHectorProducer") << "Hector is created";
+  edm::LogVerbatim("SimTransportHectorProducer") << "Hector is created";
 }
 
 HectorProducer::~HectorProducer() {}
@@ -70,7 +72,7 @@ void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
 
   ++m_evtAnalysed;
 
-  edm::LogInfo("SimTransportHectorProducer") << "produce evt " << m_evtAnalysed;
+  edm::LogVerbatim("SimTransportHectorProducer") << "produce evt " << m_evtAnalysed;
 
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   iEvent.getByToken(m_HepMC, HepMCEvt);
@@ -100,29 +102,28 @@ void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
     m_Hector->filterD1(rootEngine);
   }
   evt_ = m_Hector->addPartToHepMC(evt_);
-  if (m_verbosity) {
+  if (m_verbosity)
     evt_->print();
-  }
 
-  edm::LogInfo("SimTransportHectorProducer") << "new HepMC product ";
+  edm::LogVerbatim("SimTransportHectorProducer") << "new HepMC product ";
 
   unique_ptr<edm::HepMCProduct> NewProduct(new edm::HepMCProduct());
   NewProduct->addHepMCData(evt_);
 
   iEvent.put(std::move(NewProduct));
 
-  edm::LogInfo("SimTransportHectorProducer") << "new LHCTransportLinkContainer ";
+  edm::LogVerbatim("SimTransportHectorProducer") << "new LHCTransportLinkContainer ";
   unique_ptr<edm::LHCTransportLinkContainer> NewCorrespondenceMap(new edm::LHCTransportLinkContainer());
   edm::LHCTransportLinkContainer thisLink(m_Hector->getCorrespondenceMap());
   (*NewCorrespondenceMap).swap(thisLink);
 
   if (m_verbosity) {
-    for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); i++)
-      LogDebug("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
+    for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); ++i)
+      edm::LogVerbatim("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
   }
 
   iEvent.put(std::move(NewCorrespondenceMap));
-  edm::LogInfo("SimTransportHectorProducer") << "produce end ";
+  edm::LogVerbatim("SimTransportHectorProducer") << "produce end ";
 }
 
 DEFINE_FWK_MODULE(HectorProducer);

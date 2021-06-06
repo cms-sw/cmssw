@@ -1,15 +1,13 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
-static long algorithm(dd4hep::Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   // Header section
@@ -26,13 +24,11 @@ static long algorithm(dd4hep::Detector& /* description */,
   if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
     childName = idNameSpace + childName;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parameters for position"
-                               << "ing--"
-                               << " Eta " << eta << "\tTheta " << convertRadToDeg(theta) << "\tShifts "
-                               << convertCmToMm(shiftX) << ", " << convertCmToMm(shiftY) << " along x, y "
-                               << "axes; \tZoffest " << convertCmToMm(zoffset) << "\tRadial Distance "
-                               << convertCmToMm(dist) << "\tTilt angle " << convertRadToDeg(tilt) << "\tcopyNumber "
-                               << copyNumber;
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parameters for positioning-- Eta " << eta << "\tTheta "
+                               << convertRadToDeg(theta) << "\tShifts " << cms::convert2mm(shiftX) << ", "
+                               << cms::convert2mm(shiftY) << " along x, y axes; \tZoffest " << cms::convert2mm(zoffset)
+                               << "\tRadial Distance " << cms::convert2mm(dist) << "\tTilt angle "
+                               << convertRadToDeg(tilt) << "\tcopyNumber " << copyNumber;
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parent " << args.parentName() << "\tChild " << childName
                                << " NameSpace " << idNameSpace;
 #endif
@@ -57,11 +53,11 @@ static long algorithm(dd4hep::Detector& /* description */,
   mother.placeVolume(child, copyNumber, dd4hep::Transform3D(rot, tran));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: " << child.name() << " number " << copyNumber << " positioned in "
-                               << mother.name() << " at (" << convertCmToMm(x) << ", " << convertCmToMm(y) << ", "
-                               << convertCmToMm(z) << ") with " << rot;
+                               << mother.name() << " at (" << cms::convert2mm(x) << ", " << cms::convert2mm(y) << ", "
+                               << cms::convert2mm(z) << ") with " << rot;
 #endif
 
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

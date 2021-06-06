@@ -143,9 +143,11 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet &p) {
   m_UseT0 = p.getParameter<bool>("UseT0");  // CB check for a better way to do it
 
   if (not cfgConfig) {
-    cc.setConsumes(m_dttpgParamsToken).setConsumes(m_ccb_confToken).setConsumes(m_keyListToken);
+    m_dttpgParamsToken = cc.consumes();
+    m_ccb_confToken = cc.consumes();
+    m_keyListToken = cc.consumes();
     if (m_UseT0) {
-      cc.setConsumes(m_t0iToken);
+      m_t0iToken = cc.consumes();
     }
   }
 }
@@ -159,7 +161,7 @@ DTConfigDBProducer::~DTConfigDBProducer() {}
 std::unique_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManagerRcd &iRecord) {
   using namespace edm;
 
-  std::unique_ptr<DTConfigManager> dtConfig = std::unique_ptr<DTConfigManager>(new DTConfigManager());
+  std::unique_ptr<DTConfigManager> dtConfig = std::make_unique<DTConfigManager>();
   DTConfigManager &dttpgConfig = *(dtConfig.get());
 
   // DB specific requests

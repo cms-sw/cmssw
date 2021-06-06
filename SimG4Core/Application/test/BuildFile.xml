@@ -1,17 +1,17 @@
 <environment>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="boost_serialization"/>
-  <library   file="SimHitCaloHitDumper.cc" name="SimHitCaloHitDumper">
-    <use   name="SimDataFormats/TrackingHit"/>
-    <use   name="SimDataFormats/CaloHit"/>
-    <flags   EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="boost_serialization"/>
+  <library file="SimHitCaloHitDumper.cc" name="SimHitCaloHitDumper">
+    <use name="SimDataFormats/TrackingHit"/>
+    <use name="SimDataFormats/CaloHit"/>
+    <flags EDM_PLUGIN="1"/>
   </library>
-  <library   file="SimTrackSimVertexDumper.cc" name="SimTrackSimVertexDumper">
-    <use   name="SimDataFormats/GeneratorProducts"/>
-    <use   name="SimDataFormats/Track"/>
-    <use   name="SimDataFormats/Vertex"/>
-    <flags   EDM_PLUGIN="1"/>
+
+  <library file="SimTrackSimVertexDumper.cc" name="SimTrackSimVertexDumper">
+    <use name="SimDataFormats/GeneratorProducts"/>
+    <use name="SimDataFormats/Track"/>
+    <use name="SimDataFormats/Vertex"/>
+    <flags EDM_PLUGIN="1"/>
   </library>
+
 </environment>

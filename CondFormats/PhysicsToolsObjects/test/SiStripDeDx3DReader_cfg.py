@@ -9,14 +9,21 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("DeDxMipReader")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
-    fedcablingReader = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('SiStripDeDx3DReader.log')
+    debugModules = cms.untracked.vstring(''),
+    fedcablingReader = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO')
+    ),
+    files = cms.untracked.PSet(
+        SiStripDeDx3DReader = cms.untracked.PSet(
+
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

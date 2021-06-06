@@ -21,7 +21,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -79,6 +79,11 @@ private:
   std::unique_ptr<HcalHF_S9S1algorithm> hfS8S1_;
   std::unique_ptr<HcalHF_PETalgorithm> hfPET_;
   std::unique_ptr<HFStripFilter> hfStripFilter_;
+
+  // ES tokens
+  edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> qualToken_;
+  edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> sevToken_;
 };
 
 //
@@ -140,6 +145,11 @@ HFPhase1Reconstructor::HFPhase1Reconstructor(const edm::ParameterSet& conf)
 
   // Register the product
   produces<HFRecHitCollection>();
+
+  // ES tokens
+  conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
+  qualToken_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
+  sevToken_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
 }
 
 HFPhase1Reconstructor::~HFPhase1Reconstructor() {
@@ -165,16 +175,9 @@ void HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventS
   using namespace edm;
 
   // Fetch the calibrations
-  ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
-
-  ESHandle<HcalChannelQuality> p;
-  eventSetup.get<HcalChannelQualityRcd>().get("withTopo", p);
-  const HcalChannelQuality* myqual = p.product();
-
-  ESHandle<HcalSeverityLevelComputer> mycomputer;
-  eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
-  const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
+  const HcalDbService* conditions = &eventSetup.getData(conditionsToken_);
+  const HcalChannelQuality* myqual = &eventSetup.getData(qualToken_);
+  const HcalSeverityLevelComputer* mySeverity = &eventSetup.getData(sevToken_);
 
   // Get the input data
   Handle<HFPreRecHitCollection> preRecHits;

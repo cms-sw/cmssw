@@ -25,15 +25,14 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
   HGCalGeometry* geom = new HGCalGeometry(topology);
   unsigned int numberOfCells = topology.totalGeomModules();  // both sides
   unsigned int numberExpected = topology.allGeomModules();
-  HGCalGeometryMode::GeometryMode mode = topology.geomMode();
-  parametersPerShape_ = ((mode == HGCalGeometryMode::Trapezoid) ? (int)HGCalGeometry::k_NumberOfParametersPerTrd
-                                                                : (int)HGCalGeometry::k_NumberOfParametersPerHex);
+  parametersPerShape_ = (topology.tileTrapezoid() ? (int)HGCalGeometry::k_NumberOfParametersPerTrd
+                                                  : (int)HGCalGeometry::k_NumberOfParametersPerHex);
   uint32_t numberOfShapes =
-      ((mode == HGCalGeometryMode::Trapezoid) ? HGCalGeometry::k_NumberOfShapesTrd : HGCalGeometry::k_NumberOfShapes);
+      (topology.tileTrapezoid() ? HGCalGeometry::k_NumberOfShapesTrd : HGCalGeometry::k_NumberOfShapes);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Number of Cells " << numberOfCells << ":" << numberExpected << " for sub-detector "
                                 << topology.subDetector() << " Shapes " << numberOfShapes << ":" << parametersPerShape_
-                                << " mode " << mode;
+                                << " mode " << topology.geomMode();
 #endif
   geom->allocateCorners(numberOfCells);
   geom->allocatePar(numberOfShapes, parametersPerShape_);
@@ -55,7 +54,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
     unsigned int kount(0);
     edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader:: Z:Layer " << zside << ":" << layer << " z " << mytr.h3v.z();
 #endif
-    if ((mode == HGCalGeometryMode::Hexagon) || (mode == HGCalGeometryMode::HexagonFull)) {
+    if (topology.waferHexagon6()) {
       ForwardSubdetector subdet = topology.subDetector();
       for (int wafer = 0; wafer < topology.dddConstants().sectors(); ++wafer) {
         std::string code[2] = {"False", "True"};
@@ -63,7 +62,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
           int type = topology.dddConstants().waferTypeT(wafer);
           if (type != 1)
             type = 0;
-          DetId detId = (DetId)(HGCalDetId(subdet, zside, layer, type, wafer, 0));
+          DetId detId = static_cast<DetId>(HGCalDetId(subdet, zside, layer, type, wafer, 0));
           const auto& w = topology.dddConstants().waferPosition(wafer, true);
           double xx = (zside > 0) ? w.first : -w.first;
           CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
@@ -85,25 +84,31 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
 #endif
         }
       }
-    } else if (mode == HGCalGeometryMode::Trapezoid) {
+    } else if (topology.tileTrapezoid()) {
       int indx = topology.dddConstants().layerIndex(layer, true);
-      int irad = topology.dddConstants().getParameter()->iradMinBH_[indx];
+      int ring = topology.dddConstants().getParameter()->iradMinBH_[indx];
       int nphi = topology.dddConstants().getParameter()->scintCells(layer);
       int type = topology.dddConstants().getParameter()->scintType(layer);
       for (int md = topology.dddConstants().getParameter()->firstModule_[indx];
            md <= topology.dddConstants().getParameter()->lastModule_[indx];
            ++md) {
         for (int iphi = 1; iphi <= nphi; ++iphi) {
-          DetId detId = (DetId)(HGCScintillatorDetId(type, layer, zside * irad, iphi));
-          const auto& w = topology.dddConstants().locateCellTrap(layer, irad, iphi, true);
+          HGCScintillatorDetId id(type, layer, zside * ring, iphi);
+          std::pair<int, int> typm = topology.dddConstants().tileType(layer, ring, 0);
+          if (typm.first >= 0) {
+            id.setType(typm.first);
+            id.setSiPM(typm.second);
+          }
+          DetId detId = static_cast<DetId>(id);
+          const auto& w = topology.dddConstants().locateCellTrap(layer, ring, iphi, true);
           double xx = (zside > 0) ? w.first : -w.first;
           CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
           const HepGeom::Transform3D ht3d(mytr.hr, h3v);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::rad:phi:type " << irad * zside << ":" << iphi << ":"
+          edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::rad:phi:type " << ring * zside << ":" << iphi << ":"
                                         << type << " DetId " << HGCScintillatorDetId(detId) << " " << std::hex
-                                        << detId.rawId() << std::dec << " transf " << ht3d.getTranslation() << " and "
-                                        << ht3d.getRotation();
+                                        << detId.rawId() << std::dec << " transf " << ht3d.getTranslation() << " R "
+                                        << ht3d.getTranslation().perp() << " and " << ht3d.getRotation();
 #endif
           HGCalParameters::hgtrap vol = topology.dddConstants().getModule(md, false, true);
           params[FlatTrd::k_dZ] = vol.dz;
@@ -120,7 +125,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
           ++kount;
 #endif
         }
-        ++irad;
+        ++ring;
       }
     } else {
       DetId::Detector det = topology.detector();

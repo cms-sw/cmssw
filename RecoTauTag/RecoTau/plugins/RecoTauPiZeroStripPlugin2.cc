@@ -12,9 +12,8 @@
  */
 
 #include <algorithm>
+#include <functional>
 #include <memory>
-
-#include "boost/bind.hpp"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 
@@ -26,6 +25,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
@@ -303,8 +303,7 @@ namespace reco {
       if (combineStrips_ && output.size() > 1) {
         PiZeroVector stripCombinations;
         // Sort the output by descending pt
-        output.sort(
-            output.begin(), output.end(), boost::bind(&RecoTauPiZero::pt, _1) > boost::bind(&RecoTauPiZero::pt, _2));
+        output.sort(output.begin(), output.end(), [&](auto& arg1, auto& arg2) { return arg1.pt() > arg2.pt(); });
         // Get the end of interesting set of strips to try and combine
         PiZeroVector::const_iterator end_iter = takeNElements(output.begin(), output.end(), maxStrips_);
 

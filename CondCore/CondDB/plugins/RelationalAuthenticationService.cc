@@ -10,15 +10,14 @@
 #include "CoralKernel/Property.h"
 #include "CoralKernel/Context.h"
 //
-#include <memory>
 #include <cstdlib>
-#include <fstream>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <boost/filesystem.hpp>
-#include <boost/version.hpp>
+#include <fstream>
+#include <memory>
+#include <sys/stat.h>
+
 #include <boost/bind.hpp>
-//#include <iostream>
+
 #include "CoralBase/MessageStream.h"
 
 cond::RelationalAuthenticationService::RelationalAuthenticationService::RelationalAuthenticationService(
@@ -45,7 +44,8 @@ void cond::RelationalAuthenticationService::RelationalAuthenticationService::set
 
 const coral::IAuthenticationCredentials&
 cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials(
-    const std::string& connectionString) const {
+    const std::string& connectionStr) const {
+  std::string connectionString = to_lower(connectionStr);
   const coral::IAuthenticationCredentials* creds = m_cache.get(connectionString);
   if (!creds) {
     std::string credsStoreConn = m_db.setUpForConnectionString(connectionString, m_authenticationPath);
@@ -66,8 +66,9 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
 }
 
 const coral::IAuthenticationCredentials&
-cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials(const std::string& connectionString,
+cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials(const std::string& connectionStr,
                                                                                     const std::string& role) const {
+  std::string connectionString = to_lower(connectionStr);
   const coral::IAuthenticationCredentials* creds = m_cache.get(connectionString, role);
   if (!creds) {
     std::string credsStoreConn = m_db.setUpForConnectionString(connectionString, m_authenticationPath);
@@ -85,6 +86,10 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
     cond::throwException(msg, "cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials");
   }
   return *creds;
+}
+
+std::string cond::RelationalAuthenticationService::RelationalAuthenticationService::principalName() {
+  return m_db.keyPrincipalName();
 }
 
 DEFINE_CORALSERVICE(cond::RelationalAuthenticationService::RelationalAuthenticationService,

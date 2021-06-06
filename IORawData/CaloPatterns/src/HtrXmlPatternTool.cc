@@ -4,9 +4,9 @@
 #include "HtrXmlPatternWriter.h"
 #include "TFile.h"
 #include "TH1.h"
-#include <iostream>
+#include <filesystem>
 #include <fstream>
-#include "boost/filesystem/operations.hpp"
+#include <iostream>
 
 HtrXmlPatternTool::HtrXmlPatternTool(HtrXmlPatternToolParameters* params) {
   m_params = params;
@@ -107,7 +107,7 @@ void HtrXmlPatternTool::Fill(const HcalElectronicsId HEID, HODigiCollection::con
     std::cerr << "Bad (crate): (" << HEID.readoutVMECrateId() << ")" << std::endl;
 }
 
-void HtrXmlPatternTool::prepareDirs() { boost::filesystem::create_directory(m_params->m_output_directory); }
+void HtrXmlPatternTool::prepareDirs() { std::filesystem::create_directory(m_params->m_output_directory); }
 
 void HtrXmlPatternTool::writeXML() {
   std::cout << "Writing XML..." << std::endl;

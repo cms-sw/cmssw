@@ -1,12 +1,14 @@
 Sharing ESSource: class=DoodadESSource label=''
 Sharing ESSource: class=DoodadESSource label=''
 Sharing ESSource: class=DoodadESSource label=''
-preLockEventSetupGet    GadgetRcd  edmtest::Doodad  abcd
-postLockEventSetupGet    GadgetRcd  edmtest::Doodad  abcd
-postEventSetupGet    GadgetRcd  edmtest::Doodad  abcd
+++++++++ starting: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ starting: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
 got data of type "edmtest::Doodad" with name "abcd" in record GadgetRcd
-preLockEventSetupGet    GadgetRcd  edmtest::Doodad  abc
-postLockEventSetupGet    GadgetRcd  edmtest::Doodad  abc
-postEventSetupGet    GadgetRcd  edmtest::Doodad  abc
+++++++++ starting: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ starting: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
 got data of type "edmtest::Doodad" with name "abc" in record GadgetRcd
 got data of type "edmtest::Doodad" with name "abc" in record GadgetRcd

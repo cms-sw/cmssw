@@ -1,4 +1,5 @@
-<use   name="tbb"/>
+<use name="FWCore/Utilities" source_only="1"/>
+<use name="tbb"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

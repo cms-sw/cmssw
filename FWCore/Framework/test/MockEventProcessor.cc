@@ -205,6 +205,10 @@ namespace edm {
 
   void MockEventProcessor::doErrorStuff() { output_ << "\tdoErrorStuff\n"; }
 
+  void MockEventProcessor::beginProcessBlock(bool& beginProcessBlockSucceeded) {}
+  void MockEventProcessor::inputProcessBlocks() {}
+  void MockEventProcessor::endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded) {}
+
   void MockEventProcessor::beginRun(ProcessHistoryID const& phid,
                                     RunNumber_t run,
                                     bool& globalTransitionSucceeded,

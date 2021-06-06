@@ -23,12 +23,14 @@ from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 cosmicMuons = cms.EDProducer("TracksToTrajectories",
                                   Type = cms.string("CosmicMuonsForAlignment"),
                                   Tracks = cms.InputTag("cosmicMuons"),
-                                  TrackTransformer = cms.PSet(	TrackerRecHitBuilder = cms.string('WithTrackAngle'),
-                                                              	MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-                                                                MTDRecHitBuilder = cms.string('MTDRecHitBuilder'),
-                                                              	RefitRPCHits = cms.bool(True)
-                                                               )
-                                   )
+                                  TrackTransformer = cms.PSet(
+					TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+     					MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+        				MTDRecHitBuilder = cms.string('MTDRecHitBuilder'),
+     					RefitRPCHits = cms.bool(True)
+                                  )
+                             )
 
-MuAlCosmics = cosmicMuons.clone()
-MuAlCosmics.Tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics","StandAlone")
+MuAlCosmics = cosmicMuons.clone(
+    Tracks = "ALCARECOMuAlGlobalCosmics:StandAlone"
+)

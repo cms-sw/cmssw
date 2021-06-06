@@ -15,7 +15,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+class TrackerTopology;
 namespace cms {
   class ClusterMTCCFilter : public edm::EDFilter {
   public:
@@ -32,6 +34,7 @@ namespace cms {
     std::vector<uint32_t> ModulesToBeExcluded;
     // unsigned int: generalized_layer: 10*subdetId + layer
     std::map<unsigned int, std::vector<SiStripCluster> > clusters_in_subcomponents;
+    edm::ESGetToken<TrackerTopology, IdealGeometryRecord> tTopoToken_;
   };
 }  // namespace cms
 #endif

@@ -2,18 +2,17 @@
 #define COMMONTOOLS_PUPPI_PUPPICONTAINER_H_
 
 #include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
-#include "CommonTools/PileupAlgos/interface/RecoObj.h"
 #include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
+#include "CommonTools/PileupAlgos/interface/RecoObj.h"
 
 class PuppiContainer {
 public:
   PuppiContainer(const edm::ParameterSet &iConfig);
   ~PuppiContainer();
   void initialize(const std::vector<RecoObj> &iRecoObjects);
-  void setNPV(int iNPV) { fNPV = iNPV; }
+  void setPUProxy(double const iPUProxy) { fPUProxy = iPUProxy; }
 
   std::vector<PuppiCandidate> const &pfParticles() const { return fPFParticles; }
-  std::vector<PuppiCandidate> const &pvParticles() const { return fChargedPV; }
   std::vector<double> const &puppiWeights();
   const std::vector<double> &puppiRawAlphas() { return fRawAlphas; }
   const std::vector<double> &puppiAlphas() { return fVals; }
@@ -43,7 +42,8 @@ protected:
   bool fPuppiDiagnostics;
   const std::vector<RecoObj> *fRecoParticles;
   std::vector<PuppiCandidate> fPFParticles;
-  std::vector<PuppiCandidate> fChargedPV;
+  std::vector<PuppiCandidate> fPFParticlesForVar;
+  std::vector<PuppiCandidate> fPFParticlesForVarChargedPV;
   std::vector<double> fWeights;
   std::vector<double> fVals;
   std::vector<double> fRawAlphas;
@@ -61,8 +61,7 @@ protected:
   double fPtMaxNeutrals;
   double fPtMaxNeutralsStartSlope;
   int fNAlgos;
-  int fNPV;
-  double fPVFrac;
+  double fPUProxy;
   std::vector<PuppiAlgo> fPuppiAlgo;
 };
 #endif

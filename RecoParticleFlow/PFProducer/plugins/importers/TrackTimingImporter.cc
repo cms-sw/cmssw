@@ -1,34 +1,33 @@
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // this doesn't actually import anything,
 // but rather applies time stamps to tracks after they are all inserted
 
 class TrackTimingImporter : public BlockElementImporterBase {
 public:
-  TrackTimingImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : BlockElementImporterBase(conf, sumes),
+  TrackTimingImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : BlockElementImporterBase(conf, cc),
         useTimeQuality_(conf.existsAs<edm::InputTag>("timeQualityMap")),
         timeQualityThreshold_(useTimeQuality_ ? conf.getParameter<double>("timeQualityThreshold") : -99.),
-        srcTime_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMap"))),
-        srcTimeError_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMap"))),
+        srcTime_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMap"))),
+        srcTimeError_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMap"))),
         srcTimeQuality_(useTimeQuality_
-                            ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeQualityMap"))
+                            ? cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeQualityMap"))
                             : edm::EDGetTokenT<edm::ValueMap<float>>()),
-        srcTimeGsf_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMapGsf"))),
-        srcTimeErrorGsf_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMapGsf"))),
-        srcTimeQualityGsf_(useTimeQuality_ ? sumes.consumes<edm::ValueMap<float>>(
-                                                 conf.getParameter<edm::InputTag>("timeQualityMapGsf"))
-                                           : edm::EDGetTokenT<edm::ValueMap<float>>()),
+        srcTimeGsf_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMapGsf"))),
+        srcTimeErrorGsf_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMapGsf"))),
+        srcTimeQualityGsf_(
+            useTimeQuality_ ? cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeQualityMapGsf"))
+                            : edm::EDGetTokenT<edm::ValueMap<float>>()),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   void importToBlock(const edm::Event&, ElementList&) const override;

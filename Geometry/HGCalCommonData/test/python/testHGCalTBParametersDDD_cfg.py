@@ -7,7 +7,7 @@ process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -33,9 +33,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun        = cms.untracked.uint32(1)
 )
  
-process.testEE = cms.EDAnalyzer("HGCalParameterTester",
-                                Name = cms.untracked.string("HGCalEESensitive"),
-                                Mode = cms.untracked.int32(0)
-)
+process.load("Geometry.HGCalCommonData.hgcParameterTesterEE_cfi")
+process.hgcParameterTesterEE.Mode = 0
  
-process.p1 = cms.Path(process.generator*process.testEE)
+process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE)

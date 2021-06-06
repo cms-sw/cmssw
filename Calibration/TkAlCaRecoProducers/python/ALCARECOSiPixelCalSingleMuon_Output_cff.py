@@ -11,7 +11,6 @@ OutALCARECOSiPixelCalSingleMuon_noDrop = cms.PSet(
       'keep *_*riggerResults_*_HLT'
      )
 )
-import copy
 
-OutALCARECOSiPixelCalSingleMuon=copy.deepcopy(OutALCARECOSiPixelCalSingleMuon_noDrop)
+OutALCARECOSiPixelCalSingleMuon=OutALCARECOSiPixelCalSingleMuon_noDrop.clone()
 OutALCARECOSiPixelCalSingleMuon.outputCommands.insert(0, "drop *")

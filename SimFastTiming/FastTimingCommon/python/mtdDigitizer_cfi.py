@@ -34,8 +34,8 @@ _barrel_MTDDigitizer = cms.PSet(
         SigmaClock                 = cms.double(0.015), # [ns]
         CorrelationCoefficient     = cms.double(1.),
         SmearTimeForOOTtails       = cms.bool(True),
-        Npe_to_pC                  = cms.double(0.016), # [pC] 
-        Npe_to_V                   = cms.double(0.0064),# [V] 
+        Npe_to_pC                  = cms.double(0.016), # [pC]
+        Npe_to_V                   = cms.double(0.0064),# [V]
 
         # n bits for the ADC 
         adcNbits          = cms.uint32(10),
@@ -66,12 +66,15 @@ _endcap_MTDDigitizer = cms.PSet(
         meVPerMIP         = cms.double(0.085), # from HGCal
         ),
     ElectronicsSimulation = cms.PSet(
-        bxTime             = cms.double(25),
-        etaResolution      = cms.string("0.03+0.0025*x"), # This is just a dummy dependence on eta.
+        bxTime               = cms.double(25),
+        IntegratedLuminosity = cms.double(1000.),      # [1/fb]
+        FluenceVsRadius      = cms.string("1.937*TMath::Power(x,-1.706)"),
+        LGADGainVsFluence    = cms.string("TMath::Min(15.,30.-x)"),
+        TimeResolution2      = cms.string("0.0225/x"), # [ns^2]
         # n bits for the ADC 
-        adcNbits           = cms.uint32(8),
+        adcNbits             = cms.uint32(8),
         # n bits for the TDC
-        tdcNbits           = cms.uint32(11),
+        tdcNbits             = cms.uint32(11),
         # ADC saturation
         adcSaturation_MIP  = cms.double(25),
         # for different thickness
@@ -80,6 +83,9 @@ _endcap_MTDDigitizer = cms.PSet(
         toaLSB_ns          = cms.double(0.013),
         )
 )
+
+from Configuration.Eras.Modifier_phase2_etlV4_cff import phase2_etlV4
+phase2_etlV4.toModify(_endcap_MTDDigitizer.DeviceSimulation, meVPerMIP = 0.015 )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 for _m in [_barrel_MTDDigitizer, _endcap_MTDDigitizer]:
@@ -94,4 +100,3 @@ mtdDigitizer = cms.PSet(
     barrelDigitizer = _barrel_MTDDigitizer,
     endcapDigitizer = _endcap_MTDDigitizer
 )
-

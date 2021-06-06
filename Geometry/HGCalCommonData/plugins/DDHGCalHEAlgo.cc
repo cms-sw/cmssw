@@ -3,7 +3,7 @@
 // Description: Geometry factory class for HGCal (Mix)
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -17,6 +17,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 #include <cmath>
@@ -26,7 +27,7 @@
 #include <vector>
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 class DDHGCalHEAlgo : public DDAlgorithm {
 public:
@@ -65,6 +66,9 @@ private:
   HGCalGeomTools geomTools_;
   std::unique_ptr<HGCalWaferType> waferType_;
 
+  static constexpr double tol1_ = 0.01;
+  static constexpr double tol2_ = 0.00001;
+
   std::vector<std::string> wafers_;        // Wafers
   std::vector<std::string> materials_;     // Materials
   std::vector<std::string> names_;         // Names
@@ -77,6 +81,7 @@ private:
   std::vector<int> layerSense_;            // Content of a layer (sensitive?)
   int firstLayer_;                         // Copy # of the first sensitive layer
   int absorbMode_;                         // Absorber mode
+  int sensitiveMode_;                      // Sensitive mode
   std::vector<std::string> materialsTop_;  // Materials of top layers
   std::vector<std::string> namesTop_;      // Names of top layers
   std::vector<double> layerThickTop_;      // Thickness of the top sections
@@ -133,9 +138,7 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments& nArgs,
   materials_ = vsArgs["MaterialNames"];
   names_ = vsArgs["VolumeNames"];
   thick_ = vArgs["Thickness"];
-  for (unsigned int i = 0; i < materials_.size(); ++i) {
-    copyNumber_.emplace_back(1);
-  }
+  copyNumber_.resize(materials_.size(), 1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materials_.size() << " types of volumes";
   for (unsigned int i = 0; i < names_.size(); ++i)
@@ -155,9 +158,10 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments& nArgs,
   layerSense_ = dbl_to_int(vArgs["LayerSense"]);
   firstLayer_ = (int)(nArgs["FirstLayer"]);
   absorbMode_ = (int)(nArgs["AbsorberMode"]);
+  sensitiveMode_ = (int)(nArgs["SensitiveMode"]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "First Layer " << firstLayer_ << " and "
-                                << "Absober mode " << absorbMode_;
+                                << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_;
 #endif
   layerCenter_ = dbl_to_int(vArgs["LayerCenter"]);
 #ifdef EDM_ML_DEBUG
@@ -187,9 +191,7 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments& nArgs,
   namesTop_ = vsArgs["TopVolumeNames"];
   layerThickTop_ = vArgs["TopLayerThickness"];
   layerTypeTop_ = dbl_to_int(vArgs["TopLayerType"]);
-  for (unsigned int i = 0; i < materialsTop_.size(); ++i) {
-    copyNumberTop_.emplace_back(1);
-  }
+  copyNumberTop_.resize(materialsTop_.size(), 1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materialsTop_.size() << " types of volumes in the top part";
   for (unsigned int i = 0; i < materialsTop_.size(); ++i)
@@ -204,9 +206,7 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments& nArgs,
   layerTypeBot_ = dbl_to_int(vArgs["BottomLayerType"]);
   layerSenseBot_ = dbl_to_int(vArgs["BottomLayerSense"]);
   layerThickBot_ = vArgs["BottomLayerThickness"];
-  for (unsigned int i = 0; i < materialsBot_.size(); ++i) {
-    copyNumberBot_.emplace_back(1);
-  }
+  copyNumberBot_.resize(materialsBot_.size(), 1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materialsBot_.size() << " types of volumes in the bottom part";
   for (unsigned int i = 0; i < materialsBot_.size(); ++i)
@@ -288,7 +288,6 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
 #endif
   double zi(zMinBlock_);
   int laymin(0);
-  const double tol(0.01);
   for (unsigned int i = 0; i < layers_.size(); i++) {
     double zo = zi + layerThick_[i];
     double routF = HGCalGeomTools::radius(zi, zFrontT_, rMaxFront_, slopeT_);
@@ -315,7 +314,7 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
         std::vector<double> pgonZ, pgonRin, pgonRout;
         if (layerSense_[ly] == 0 || absorbMode_ == 0) {
           double rmax =
-              (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol;
+              (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1_;
           pgonZ.emplace_back(-hthick);
           pgonZ.emplace_back(hthick);
           pgonRin.emplace_back(rinB);
@@ -337,7 +336,7 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
                                  pgonRout);
           for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
             pgonZ[isec] -= zz;
-            pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol;
+            pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol1_;
           }
         }
         DDSolid solid =
@@ -351,14 +350,18 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
       } else {
-        DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rinB, routF, 0.0, 2._pi);
+        double rins = (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
+        double routs =
+            (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
+        DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rins, routs, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name() << " Tubs made of " << matName
-                                      << " of dimensions " << rinB << ", " << routF << ", " << hthick
-                                      << ", 0.0, 360.0 and positioned in: " << glog.name() << " number " << copy;
+                                      << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs
+                                      << ", " << hthick << ", 0.0, 360.0 and positioned in: " << glog.name()
+                                      << " number " << copy;
 #endif
-        positionMix(glog, name, copy, thick_[ii], matter, rinB, rMixLayer_[i], routF, zz, cpv);
+        positionMix(glog, name, copy, thick_[ii], matter, rins, rMixLayer_[i], routs, zz, cpv);
       }
       DDTranslation r1(0, 0, zz);
       DDRotation rot;
@@ -366,20 +369,20 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
       ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at " << r1 << " with " << rot;
+                                    << module.name() << " at " << r1 << " with no rotation";
 #endif
       zz += hthick;
     }  // End of loop over layers in a block
     zi = zo;
     laymin = laymax;
-    if (std::abs(thickTot - layerThick_[i]) < 0.00001) {
-    } else if (thickTot > layerThick_[i]) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than " << thickTot
-                                 << ": thickness of all its "
-                                 << "components **** ERROR ****";
-    } else if (thickTot < layerThick_[i]) {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " does not match with "
-                                   << thickTot << " of the components";
+    if (std::abs(thickTot - layerThick_[i]) >= tol2_) {
+      if (thickTot > layerThick_[i]) {
+        edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than " << thickTot
+                                   << ": thickness of all its components **** ERROR ****";
+      } else {
+        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " does not match with "
+                                     << thickTot << " of the components";
+      }
     }
   }  // End of loop over blocks
 }
@@ -417,7 +420,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog1.name() << " number 1 positioned in " << glog.name()
-                                << " at " << tran << " with " << rot;
+                                << " at " << tran << " with no rotation";
 #endif
   double thickTot(0), zpos(-hthick);
   for (unsigned int ly = 0; ly < layerTypeTop_.size(); ++ly) {
@@ -447,19 +450,19 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     cpv.position(glog2, glog1, copy, r1, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Position " << glog2.name() << " number " << copy << " in "
-                                  << glog1.name() << " at " << r1 << " with " << rot;
+                                  << glog1.name() << " at " << r1 << " with no rotation";
 #endif
     ++copyNumberTop_[ii];
     zpos += hthickl;
   }
-  if (std::abs(thickTot - thick) < 0.00001) {
-  } else if (thickTot > thick) {
-    edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
-                               << ": thickness of all its components in "
-                               << "the top part **** ERROR ****";
-  } else if (thickTot < thick) {
-    edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
-                                 << " of the components in top part";
+  if (std::abs(thickTot - thick) >= tol2_) {
+    if (thickTot > thick) {
+      edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
+                                 << ": thickness of all its components in the top part **** ERROR ****";
+    } else {
+      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
+                                   << " of the components in top part";
+    }
   }
 
   // Make the bottom part next
@@ -473,7 +476,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog1.name() << " number 1 positioned in " << glog.name()
-                                << " at " << tran << " with " << rot;
+                                << " at " << tran << " with no rotation";
 #endif
   thickTot = 0;
   zpos = -hthick;
@@ -504,7 +507,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     cpv.position(glog2, glog1, copy, r1, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Position " << glog2.name() << " number " << copy << " in "
-                                  << glog1.name() << " at " << r1 << " with " << rot;
+                                  << glog1.name() << " at " << r1 << " with no rotation";
 #endif
     if (layerSenseBot_[ly] != 0) {
 #ifdef EDM_ML_DEBUG
@@ -516,14 +519,14 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     zpos += hthickl;
     ++copyNumberBot_[ii];
   }
-  if (std::abs(thickTot - thick) < 0.00001) {
-  } else if (thickTot > thick) {
-    edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
-                               << ": thickness of all its components in "
-                               << "the top part **** ERROR ****";
-  } else if (thickTot < thick) {
-    edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
-                                 << " of the components in top part";
+  if (std::abs(thickTot - thick) >= tol2_) {
+    if (thickTot > thick) {
+      edm::LogError("HGCalGeom") << "Thickness of the partition " << thick << " is smaller than " << thickTot
+                                 << ": thickness of all its components in the top part **** ERROR ****";
+    } else {
+      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick << " does not match with " << thickTot
+                                   << " of the components in top part";
+    }
   }
 }
 
@@ -548,24 +551,22 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog,
                                 << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_);
 #endif
   for (int u = -N; u <= N; ++u) {
-    int iu = std::abs(u);
     for (int v = -N; v <= N; ++v) {
-      int iv = std::abs(v);
       int nr = 2 * v;
       int nc = -2 * u + v;
       double xpos = xyoff.first + nc * r;
       double ypos = xyoff.second + nr * dy;
       std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
+      int iu = std::abs(u);
+      int iv = std::abs(v);
       ++ntot;
 #endif
       if (corner.first > 0) {
         int type = waferType_->getType(xpos, ypos, zpos);
-        int copy = type * 1000000 + iv * 100 + iu;
-        if (u < 0)
-          copy += 10000;
-        if (v < 0)
-          copy += 100000;
+        int copy = HGCalTypes::packTypeUV(type, u, v);
+        if (layertype > 1)
+          type += 3;
 #ifdef EDM_ML_DEBUG
         if (iu > ium)
           ium = iu;
@@ -585,14 +586,12 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog,
 #endif
           DDTranslation tran(xpos, ypos, 0.0);
           DDRotation rotation;
-          if (layertype > 1)
-            type += 3;
           DDName name = DDName(DDSplit(wafers_[type]).first, DDSplit(wafers_[type]).second);
           cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
           ++ntype[type];
           edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << name << " number " << copy << " positioned in "
-                                        << glog.ddname() << " at " << tran << " with " << rotation;
+                                        << glog.ddname() << " at " << tran << " with no rotation";
 #endif
         }
       }

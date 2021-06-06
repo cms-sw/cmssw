@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# -*-SH-*-
-#
 # Default Parameters
 #
 #   Purpose: extraction of energy deposition and muon matching information

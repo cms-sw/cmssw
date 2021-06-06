@@ -18,6 +18,8 @@
 //---------------------
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 class HcalCalibrator : public edm::EDAnalyzer {
 public:
@@ -68,6 +70,9 @@ private:
 
   std::string mOutputCorCoefFileName;
   std::string mHistoFileName;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
 
   const CaloGeometry* mTheCaloGeometry;
   const HcalTopology* mTheHcalTopology;

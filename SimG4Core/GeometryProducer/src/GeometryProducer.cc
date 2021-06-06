@@ -23,11 +23,13 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "G4RunManagerKernel.hh"
 #include "G4TransportationManager.hh"
 
 #include <iostream>
+#include <memory>
 
 static void createWatchers(const edm::ParameterSet &iP,
                            SimActivityRegistry &iReg,
@@ -59,12 +61,15 @@ static void createWatchers(const edm::ParameterSet &iP,
 
 GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
     : m_kernel(nullptr),
-      m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
-      m_pUseSensitiveDetectors(p.getParameter<bool>("UseSensitiveDetectors")),
       m_attach(nullptr),
       m_p(p),
-      m_firstRun(true) {
+      m_pDD(nullptr),
+      m_pDD4hep(nullptr),
+      m_firstRun(true),
+      m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
+      m_pUseSensitiveDetectors(p.getParameter<bool>("UseSensitiveDetectors")),
+      m_pGeoFromDD4hep(false) {
   // Look for an outside SimActivityRegistry
   // this is used by the visualization code
   edm::Service<SimActivityRegistry> otherRegistry;
@@ -101,7 +106,7 @@ void GeometryProducer::beginLuminosityBlock(edm::LuminosityBlock &, edm::EventSe
   //     updateMagneticField( es );
 }
 
-void GeometryProducer::beginRun(const edm::Run &, const edm::EventSetup &) {}
+void GeometryProducer::beginRun(const edm::Run &run, const edm::EventSetup &es) { updateMagneticField(es); }
 
 void GeometryProducer::endRun(const edm::Run &, const edm::EventSetup &) {}
 
@@ -110,32 +115,44 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
     return;
   m_firstRun = false;
 
-  edm::LogInfo("GeometryProducer") << "Producing G4 Geom";
+  edm::LogVerbatim("GeometryProducer") << "Producing G4 Geom";
 
   m_kernel = G4RunManagerKernel::GetRunManagerKernel();
   if (m_kernel == nullptr)
     m_kernel = new G4RunManagerKernel();
-  edm::LogInfo("GeometryProducer") << " GeometryProducer initializing ";
+  edm::LogVerbatim("GeometryProducer") << " GeometryProducer initializing ";
   // DDDWorld: get the DDCV from the ES and use it to build the World
-  edm::ESTransientHandle<DDCompactView> pDD;
-  es.get<IdealGeometryRecord>().get(pDD);
+  if (m_pGeoFromDD4hep) {
+    edm::ESTransientHandle<cms::DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+    m_pDD4hep = pDD.product();
+  } else {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+    m_pDD = pDD.product();
+  }
 
-  G4LogicalVolumeToDDLogicalPartMap map_;
-  SensitiveDetectorCatalog catalog_;
-  const DDDWorld *world = new DDDWorld(&(*pDD), map_, catalog_, false);
-  m_registry.dddWorldSignal_(world);
+  SensitiveDetectorCatalog catalog;
+  const DDDWorld *dddworld = new DDDWorld(m_pDD, m_pDD4hep, catalog, 1, false, false);
+  G4VPhysicalVolume *world = dddworld->GetWorldVolume();
+  if (nullptr != world)
+    edm::LogVerbatim("GeometryProducer") << " World Volume: " << world->GetName();
+  m_kernel->DefineWorldVolume(world, true);
 
+  m_registry.dddWorldSignal_(dddworld);
+
+  edm::LogVerbatim("GeometryProducer") << " Magnetic field initialisation";
   updateMagneticField(es);
 
   if (m_pUseSensitiveDetectors) {
     edm::LogInfo("GeometryProducer") << " instantiating sensitive detectors ";
     // instantiate and attach the sensitive detectors
-    m_trackManager = std::unique_ptr<SimTrackManager>(new SimTrackManager);
+    m_trackManager = std::make_unique<SimTrackManager>();
     if (m_attach == nullptr)
       m_attach = new AttachSD;
     {
       std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *>> sensDets =
-          m_attach->create(es, catalog_, m_p, m_trackManager.get(), m_registry);
+          m_attach->create(es, catalog, m_p, m_trackManager.get(), m_registry);
 
       m_sensTkDets.swap(sensDets.first);
       m_sensCaloDets.swap(sensDets.second);

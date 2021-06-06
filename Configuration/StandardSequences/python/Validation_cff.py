@@ -36,7 +36,9 @@ prevalidationNoHLT = cms.Sequence( cms.SequencePlaceholder("mix") * globalPreval
 prevalidation = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
-prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence * egammaValidationMiniAOD)
+prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence 
+                                    * photonMiniAODValidationSequence * egammaValidationMiniAOD
+                                    * produceDenoms)
 
 _prevalidation_fastsim = prevalidation.copy()
 for _entry in [hltassociation]:

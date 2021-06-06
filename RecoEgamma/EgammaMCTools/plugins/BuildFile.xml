@@ -1,11 +1,11 @@
 <export>
 </export>
-<library   name="PFClusterMatchedToPhotonsSelector_plugins" file="PFClusterMatchedToPhotonsSelector.cc">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="DataFormats/Common"/>
-  <use   name="DataFormats/Math"/>
-  <use   name="DataFormats/ParticleFlowReco"/>
-  <use   name="DataFormats/HepMCCandidate"/>
-  <use   name="SimDataFormats/TrackingAnalysis"/>
+<library name="PFClusterMatchedToPhotonsSelector_plugins" file="PFClusterMatchedToPhotonsSelector.cc">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/Math"/>
+  <use name="DataFormats/ParticleFlowReco"/>
+  <use name="DataFormats/HepMCCandidate"/>
+  <use name="SimDataFormats/TrackingAnalysis"/>
 </library>

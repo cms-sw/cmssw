@@ -37,11 +37,12 @@ private:
   }
 
   const edm::EDGetTokenT<edm::HepMCProduct> srcToken_;
+  const edm::ParameterSet pset_;
 
   reco::Particle::Point genVertex_;
 
-  Rivet::RivetAnalysis* rivetAnalysis_;
-  Rivet::AnalysisHandler analysisHandler_;
+  Rivet::RivetAnalysis* rivetAnalysis_ = nullptr;
+  std::unique_ptr<Rivet::AnalysisHandler> analysisHandler_;
 };
 
 #endif

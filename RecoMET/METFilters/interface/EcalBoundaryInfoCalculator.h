@@ -4,7 +4,7 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
@@ -226,7 +226,7 @@ private:
   }
 
   CdOrientation goBackOneCell(CdOrientation currDirection, EcalDetId prev, CaloNavigator<EcalDetId>* theEcalNav) const {
-    std::map<CdOrientation, CdOrientation>::iterator oIt = oppositeDirs.find(currDirection);
+    auto oIt = oppositeDirs.find(currDirection);
     CdOrientation oppDirection = none;
     if (oIt != oppositeDirs.end()) {
       oppDirection = oIt->second;

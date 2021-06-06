@@ -17,8 +17,11 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/getProducerParameterSet.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -29,7 +32,9 @@
 #include <vector>
 
 namespace edmtest {
-  class TestFindProduct : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+
+  class TestFindProduct
+      : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks, edm::WatchProcessBlock> {
   public:
     explicit TestFindProduct(edm::ParameterSet const& pset);
     virtual ~TestFindProduct();
@@ -39,6 +44,8 @@ namespace edmtest {
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginProcessBlock(edm::ProcessBlock const&) override;
+    void endProcessBlock(edm::ProcessBlock const&) override;
     void endJob() override;
 
   private:
@@ -49,9 +56,16 @@ namespace edmtest {
     bool getByTokenFirst_;
     std::vector<edm::InputTag> inputTagsView_;
     bool runProducerParameterCheck_;
+    bool testGetterOfProducts_;
+
     std::vector<edm::InputTag> inputTagsUInt64_;
     std::vector<edm::InputTag> inputTagsEndLumi_;
     std::vector<edm::InputTag> inputTagsEndRun_;
+    std::vector<edm::InputTag> inputTagsBeginProcessBlock_;
+    std::vector<edm::InputTag> inputTagsEndProcessBlock_;
+    std::vector<edm::InputTag> inputTagsEndProcessBlock2_;
+    std::vector<edm::InputTag> inputTagsEndProcessBlock3_;
+    std::vector<edm::InputTag> inputTagsEndProcessBlock4_;
 
     std::vector<edm::EDGetTokenT<IntProduct>> tokens_;
     std::vector<edm::EDGetTokenT<IntProduct>> tokensNotFound_;
@@ -59,6 +73,14 @@ namespace edmtest {
     std::vector<edm::EDGetTokenT<UInt64Product>> tokensUInt64_;
     std::vector<edm::EDGetTokenT<IntProduct>> tokensEndLumi_;
     std::vector<edm::EDGetTokenT<IntProduct>> tokensEndRun_;
+    std::vector<edm::EDGetTokenT<IntProduct>> tokensBeginProcessBlock_;
+    std::vector<edm::EDGetTokenT<IntProduct>> tokensEndProcessBlock_;
+    std::vector<edm::EDGetToken> tokensEndProcessBlock2_;
+    std::vector<edm::EDGetTokenT<IntProduct>> tokensEndProcessBlock3_;
+    std::vector<edm::EDGetTokenT<IntProduct>> tokensEndProcessBlock4_;
+
+    edm::GetterOfProducts<IntProduct> getterOfProducts_;
+
   };  // class TestFindProduct
 
   //--------------------------------------------------------------------
@@ -72,13 +94,28 @@ namespace edmtest {
         inputTagsNotFound_(),
         getByTokenFirst_(pset.getUntrackedParameter<bool>("getByTokenFirst", false)),
         inputTagsView_(),
-        runProducerParameterCheck_(pset.getUntrackedParameter<bool>("runProducerParameterCheck", false)) {
+        runProducerParameterCheck_(pset.getUntrackedParameter<bool>("runProducerParameterCheck", false)),
+        testGetterOfProducts_(pset.getUntrackedParameter<bool>("testGetterOfProducts", false)),
+        getterOfProducts_(edm::ProcessMatch("*"), this, edm::InProcess) {
+    if (testGetterOfProducts_) {
+      callWhenNewProductsRegistered(getterOfProducts_);
+    }
     std::vector<edm::InputTag> emptyTagVector;
     inputTagsNotFound_ = pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsNotFound", emptyTagVector);
     inputTagsView_ = pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsView", emptyTagVector);
     inputTagsUInt64_ = pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsUInt64", emptyTagVector);
     inputTagsEndLumi_ = pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsEndLumi", emptyTagVector);
     inputTagsEndRun_ = pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsEndRun", emptyTagVector);
+    inputTagsBeginProcessBlock_ =
+        pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsBeginProcessBlock", emptyTagVector);
+    inputTagsEndProcessBlock_ =
+        pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsEndProcessBlock", emptyTagVector);
+    inputTagsEndProcessBlock2_ =
+        pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsEndProcessBlock2", emptyTagVector);
+    inputTagsEndProcessBlock3_ =
+        pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsEndProcessBlock3", emptyTagVector);
+    inputTagsEndProcessBlock4_ =
+        pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsEndProcessBlock4", emptyTagVector);
 
     for (auto const& tag : inputTags_) {
       tokens_.push_back(consumes<IntProduct>(tag));
@@ -97,6 +134,21 @@ namespace edmtest {
     }
     for (auto const& tag : inputTagsEndRun_) {
       tokensEndRun_.push_back(consumes<IntProduct, edm::InRun>(tag));
+    }
+    for (auto const& tag : inputTagsBeginProcessBlock_) {
+      tokensBeginProcessBlock_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+    }
+    for (auto const& tag : inputTagsEndProcessBlock_) {
+      tokensEndProcessBlock_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+    }
+    for (auto const& tag : inputTagsEndProcessBlock2_) {
+      tokensEndProcessBlock2_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+    }
+    for (auto const& tag : inputTagsEndProcessBlock3_) {
+      tokensEndProcessBlock3_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+    }
+    for (auto const& tag : inputTagsEndProcessBlock4_) {
+      tokensEndProcessBlock4_.push_back(consumes<IntProduct, edm::InProcess>(tag));
     }
   }
 
@@ -208,6 +260,58 @@ namespace edmtest {
     for (auto const& token : tokensEndRun_) {
       run.getByToken(token, h);
       sum_ += h->value;
+    }
+  }
+
+  void TestFindProduct::beginProcessBlock(edm::ProcessBlock const& processBlock) {
+    for (auto const& token : tokensBeginProcessBlock_) {
+      sum_ += processBlock.get(token).value;
+    }
+    if (testGetterOfProducts_) {
+      std::vector<edm::Handle<IntProduct>> handles;
+      getterOfProducts_.fillHandles(processBlock, handles);
+      for (auto const& intHandle : handles) {
+        sum_ += intHandle->value;
+      }
+    }
+  }
+
+  void TestFindProduct::endProcessBlock(edm::ProcessBlock const& processBlock) {
+    std::vector<int> values;
+    for (auto const& token : tokensEndProcessBlock_) {
+      int value = processBlock.get(token).value;
+      values.push_back(value);
+      sum_ += value;
+    }
+    edm::Handle<IntProduct> h;
+    unsigned int i = 0;
+    for (auto val : values) {
+      if (i < tokensEndProcessBlock2_.size()) {
+        processBlock.getByToken(tokensEndProcessBlock2_[i], h);
+        if (h->value != val + 2) {
+          throw cms::Exception("TestFail") << "TestFindProduct::endProcessBlock 2, received unexpected value";
+        }
+      }
+      if (i < tokensEndProcessBlock3_.size()) {
+        processBlock.getByToken(tokensEndProcessBlock3_[i], h);
+        if (h->value != val + 3) {
+          throw cms::Exception("TestFail") << "TestFindProduct::endProcessBlock 3, received unexpected value";
+        }
+      }
+      if (i < tokensEndProcessBlock4_.size()) {
+        h = processBlock.getHandle(tokensEndProcessBlock4_[i]);
+        if (h->value != val + 4) {
+          throw cms::Exception("TestFail") << "TestFindProduct::endProcessBlock 4, received unexpected value";
+        }
+      }
+      ++i;
+    }
+    if (testGetterOfProducts_) {
+      std::vector<edm::Handle<IntProduct>> handles;
+      getterOfProducts_.fillHandles(processBlock, handles);
+      for (auto const& intHandle : handles) {
+        sum_ += intHandle->value;
+      }
     }
   }
 

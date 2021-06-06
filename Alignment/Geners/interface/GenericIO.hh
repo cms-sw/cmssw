@@ -151,7 +151,7 @@ namespace gs {
   struct GenericReader<Stream, State, T, Int2Type<IOTraits<int>::ISPOD>> {
     inline static bool readIntoPtr(T *&ptr, Stream &str, State *, const bool processClassId) {
       CPP11_auto_ptr<T> myptr;
-      if (ptr == 0)
+      if (ptr == nullptr)
         myptr = CPP11_auto_ptr<T>(new T());
       if (processClassId) {
         static const ClassId current(ClassId::makeId<T>());
@@ -161,7 +161,7 @@ namespace gs {
       read_pod(str, ptr ? ptr : myptr.get());
       if (str.fail())
         return false;
-      if (ptr == 0)
+      if (ptr == nullptr)
         ptr = myptr.release();
       return true;
     }

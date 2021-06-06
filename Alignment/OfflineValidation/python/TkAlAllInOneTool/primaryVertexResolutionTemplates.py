@@ -39,13 +39,25 @@ process.offlinePrimaryVerticesFromRefittedTrks.TrackLabel                       
 process.offlinePrimaryVerticesFromRefittedTrks.vertexCollections.maxDistanceToBeam              = 1
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxNormalizedChi2             = 20
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minSiliconLayersWithHits      = 5
-process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0 
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0
+# as it was prior to https://github.com/cms-sw/cmssw/commit/c8462ae4313b6be3bbce36e45373aa6e87253c59
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Error                    = 1.0
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxDzError                    = 1.0
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayersWithHits        = 2   
+
+# Use compressions settings of TFile
+# see https://root.cern.ch/root/html534/TFile.html#TFile:SetCompressionSettings
+# settings = 100 * algorithm + level
+# level is from 1 (small) to 9 (large compression)
+# algo: 1 (ZLIB), 2 (LMZA)
+# see more about compression & performance: https://root.cern.ch/root/html534/guides/users-guide/InputOutput.html#compression-and-performance
+compressionSettings = 207
 
 ###################################################################
 # The PV resolution module
 ###################################################################
 process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
+                                                 compressionSettings = cms.untracked.int32(compressionSettings),
                                                  storeNtuple         = cms.bool(False),
                                                  vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
                                                  trackCollection     = cms.InputTag("TrackRefitter"),		

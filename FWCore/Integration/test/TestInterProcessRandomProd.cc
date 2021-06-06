@@ -31,9 +31,9 @@ namespace testinter {
   struct StreamCache {
     StreamCache(const std::string& iConfig, int id)
         : id_{id},
-          channel_("testProd", id_),
-          readBuffer_{channel_.sharedMemoryName(), channel_.fromWorkerBufferIndex()},
-          writeBuffer_{std::string("Rand") + channel_.sharedMemoryName(), channel_.toWorkerBufferIndex()},
+          channel_("testProd", id_, 60),
+          readBuffer_{channel_.sharedMemoryName(), channel_.fromWorkerBufferInfo()},
+          writeBuffer_{std::string("Rand") + channel_.sharedMemoryName(), channel_.toWorkerBufferInfo()},
           deserializer_{readBuffer_},
           bl_deserializer_{readBuffer_},
           randSerializer_{writeBuffer_} {

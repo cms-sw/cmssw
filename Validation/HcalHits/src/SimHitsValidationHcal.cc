@@ -1,6 +1,5 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Validation/HcalHits/interface/SimHitsValidationHcal.h"
 
 //#define DebugLog
@@ -12,6 +11,7 @@ SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet &ps) {
   testNumber_ = ps.getParameter<bool>("TestNumber");
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_));
+  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
 
   edm::LogVerbatim("HitsValidationHcal") << "Module Label: " << g4Label_ << "   Hits: " << hcalHits_
                                          << " TestNumbering " << testNumber_;
@@ -20,9 +20,8 @@ SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet &ps) {
 SimHitsValidationHcal::~SimHitsValidationHcal() {}
 
 void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  es.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons = &(*pHRNDC);
+  const auto &pHRNDC = es.getData(tok_HRNDC_);
+  hcons = &pHRNDC;
   maxDepthHB_ = hcons->getMaxDepth(0);
   maxDepthHE_ = hcons->getMaxDepth(1);
   maxDepthHF_ = hcons->getMaxDepth(2);

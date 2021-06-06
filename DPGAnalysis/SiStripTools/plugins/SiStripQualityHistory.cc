@@ -70,6 +70,7 @@ private:
 
   RunHistogramManager m_rhm;
   const std::vector<edm::ParameterSet> _monitoredssq;
+  std::vector<edm::ESGetToken<SiStripQuality, SiStripQualityRcd>> _ssqTokens;
   const unsigned int _mode;
   const bool m_run;
   const unsigned int m_maxLS;
@@ -92,7 +93,7 @@ private:
 //
 SiStripQualityHistory::SiStripQualityHistory(const edm::ParameterSet& iConfig)
     : m_rhm(consumesCollector()),
-      _monitoredssq(iConfig.getParameter<std::vector<edm::ParameterSet> >("monitoredSiStripQuality")),
+      _monitoredssq(iConfig.getParameter<std::vector<edm::ParameterSet>>("monitoredSiStripQuality")),
       _mode(iConfig.getUntrackedParameter<unsigned int>("granularityMode", Module)),
       m_run(iConfig.getParameter<bool>("runProcess")),
       m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin", 100)),
@@ -103,8 +104,10 @@ SiStripQualityHistory::SiStripQualityHistory(const edm::ParameterSet& iConfig)
 
   edm::Service<TFileService> tfserv;
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = _monitoredssq.begin(); ps != _monitoredssq.end(); ++ps) {
-    std::string name = ps->getParameter<std::string>("name");
+  for (const auto& ps : _monitoredssq) {
+    _ssqTokens.emplace_back(
+        esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"", ps.getParameter<std::string>("ssqLabel")}));
+    std::string name = ps.getParameter<std::string>("name");
     //    _history[name] = tfserv->make<TGraph>();
     //    _history[name]->SetName(name.c_str());     _history[name]->SetTitle(name.c_str());
 
@@ -132,41 +135,38 @@ SiStripQualityHistory::~SiStripQualityHistory() {
 void SiStripQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //  edm::LogInfo("EventProcessing") << "event being processed";
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = _monitoredssq.begin(); ps != _monitoredssq.end(); ++ps) {
-    std::string name = ps->getParameter<std::string>("name");
-    std::string label = ps->getParameter<std::string>("ssqLabel");
+  for (std::size_t iMon = 0; iMon != _monitoredssq.size(); ++iMon) {
+    std::string name = _monitoredssq[iMon].getParameter<std::string>("name");
+    const auto& ssq = iSetup.getData(_ssqTokens[iMon]);
 
-    edm::ESHandle<SiStripQuality> ssq;
-    iSetup.get<SiStripQualityRcd>().get(label, ssq);
-
-    std::vector<SiStripQuality::BadComponent> bads = ssq->getBadComponentList();
+    std::vector<SiStripQuality::BadComponent> bads = ssq.getBadComponentList();
 
     LogDebug("BadComponents") << bads.size() << " bad components found";
 
     int nbad = 0;
 
     if (_mode == Module || _mode == Fiber || _mode == APV) {
-      for (std::vector<SiStripQuality::BadComponent>::const_iterator bc = bads.begin(); bc != bads.end(); ++bc) {
+      for (const auto& bc : bads) {
         if (_mode == Module) {
-          if (bc->BadModule)
+          if (bc.BadModule)
             ++nbad;
         } else if (_mode == Fiber) {
           for (int fiber = 1; fiber < 5; fiber *= 2) {
-            if ((bc->BadFibers & fiber) > 0)
+            if ((bc.BadFibers & fiber) > 0)
               ++nbad;
           }
         } else if (_mode == APV) {
           for (int apv = 1; apv < 33; apv *= 2) {
-            if ((bc->BadApvs & apv) > 0)
+            if ((bc.BadApvs & apv) > 0)
               ++nbad;
           }
         }
       }
     } else if (_mode == Strip) {
-      SiStripBadStrip::ContainerIterator dbegin = ssq->getDataVectorBegin();
-      SiStripBadStrip::ContainerIterator dend = ssq->getDataVectorEnd();
+      SiStripBadStrip::ContainerIterator dbegin = ssq.getDataVectorBegin();
+      SiStripBadStrip::ContainerIterator dend = ssq.getDataVectorEnd();
       for (SiStripBadStrip::ContainerIterator data = dbegin; data < dend; ++data) {
-        nbad += ssq->decode(*data).range;
+        nbad += ssq.decode(*data).range;
       }
     }
 
@@ -180,10 +180,8 @@ void SiStripQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup
   m_rhm.beginRun(iRun);
 
   // loop on all the SiStripQuality objects to be monitored
-
-  for (std::vector<edm::ParameterSet>::const_iterator ps = _monitoredssq.begin(); ps != _monitoredssq.end(); ++ps) {
-    std::string name = ps->getParameter<std::string>("name");
-    std::string label = ps->getParameter<std::string>("ssqLabel");
+  for (std::size_t iMon = 0; iMon != _monitoredssq.size(); ++iMon) {
+    std::string name = _monitoredssq[iMon].getParameter<std::string>("name");
 
     if (m_badmodrun.find(name) != m_badmodrun.end()) {
       if (m_badmodrun[name] && *m_badmodrun[name]) {
@@ -194,37 +192,36 @@ void SiStripQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup
     }
 
     if (m_run) {
-      edm::ESHandle<SiStripQuality> ssq;
-      iSetup.get<SiStripQualityRcd>().get(label, ssq);
+      const auto& ssq = iSetup.getData(_ssqTokens[iMon]);
 
-      std::vector<SiStripQuality::BadComponent> bads = ssq->getBadComponentList();
+      std::vector<SiStripQuality::BadComponent> bads = ssq.getBadComponentList();
 
       LogDebug("BadComponents") << bads.size() << " bad components found";
 
       int nbad = 0;
 
       if (_mode == Module || _mode == Fiber || _mode == APV) {
-        for (std::vector<SiStripQuality::BadComponent>::const_iterator bc = bads.begin(); bc != bads.end(); ++bc) {
+        for (const auto& bc : bads) {
           if (_mode == Module) {
-            if (bc->BadModule)
+            if (bc.BadModule)
               ++nbad;
           } else if (_mode == Fiber) {
             for (int fiber = 1; fiber < 5; fiber *= 2) {
-              if ((bc->BadFibers & fiber) > 0)
+              if ((bc.BadFibers & fiber) > 0)
                 ++nbad;
             }
           } else if (_mode == APV) {
             for (int apv = 1; apv < 33; apv *= 2) {
-              if ((bc->BadApvs & apv) > 0)
+              if ((bc.BadApvs & apv) > 0)
                 ++nbad;
             }
           }
         }
       } else if (_mode == Strip) {
-        SiStripBadStrip::ContainerIterator dbegin = ssq->getDataVectorBegin();
-        SiStripBadStrip::ContainerIterator dend = ssq->getDataVectorEnd();
+        SiStripBadStrip::ContainerIterator dbegin = ssq.getDataVectorBegin();
+        SiStripBadStrip::ContainerIterator dend = ssq.getDataVectorEnd();
         for (SiStripBadStrip::ContainerIterator data = dbegin; data < dend; ++data) {
-          nbad += ssq->decode(*data).range;
+          nbad += ssq.decode(*data).range;
         }
       }
 

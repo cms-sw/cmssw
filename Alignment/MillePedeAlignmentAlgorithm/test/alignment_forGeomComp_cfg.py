@@ -14,7 +14,7 @@ process.options = cms.untracked.PSet(
 
 # initialize  MessageLogger
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.alignment = cms.untracked.PSet(
+process.MessageLogger.files.alignment = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(
         limit = cms.untracked.int32(-1)
         ),
@@ -31,12 +31,9 @@ process.MessageLogger.alignment = cms.untracked.PSet(
     Alignment = cms.untracked.PSet(
         limit = cms.untracked.int32(-1),
         reportEvery = cms.untracked.int32(1)
-        )
+        ),
+    enableStatistics = cms.untracked.bool(True)
     )
-process.MessageLogger.cerr.placeholder = cms.untracked.bool(True)
-process.MessageLogger.destinations = ['alignment']
-process.MessageLogger.statistics = ['alignment']
-process.MessageLogger.categories = ['Alignment']
 
 
 # initialize magnetic field

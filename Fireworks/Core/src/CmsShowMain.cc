@@ -11,8 +11,10 @@
 //
 
 // system include files
+#include <memory>
+
 #include <sstream>
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/program_options.hpp>
 #include <cstring>
 
@@ -352,18 +354,18 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
   CmsShowTaskExecutor::TaskFunctor f;
   // first check if port is not occupied
   if (vm.count(kPortCommandOpt)) {
-    f = boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>());
+    f = std::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>());
     startupTasks()->addTask(f);
   }
   if (!geometryFilename().empty()) {
-    f = boost::bind(&CmsShowMainBase::loadGeometry, this);
+    f = std::bind(&CmsShowMainBase::loadGeometry, this);
     startupTasks()->addTask(f);
   }
-  f = boost::bind(&CmsShowMainBase::setupViewManagers, this);
+  f = std::bind(&CmsShowMainBase::setupViewManagers, this);
   startupTasks()->addTask(f);
 
   if (vm.count(kLiveCommandOpt)) {
-    f = boost::bind(&CmsShowMain::setLiveMode, this);
+    f = std::bind(&CmsShowMain::setLiveMode, this);
     startupTasks()->addTask(f);
   }
 
@@ -372,23 +374,23 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
     m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
   }
 
-  f = boost::bind(&CmsShowMain::setupDataHandling, this);
+  f = std::bind(&CmsShowMain::setupDataHandling, this);
   startupTasks()->addTask(f);
 
   if (vm.count(kLoopOpt))
     setPlayLoop();
 
   if (eveMode) {
-    f = boost::bind(&CmsShowMainBase::setupDebugSupport, this);
+    f = std::bind(&CmsShowMainBase::setupDebugSupport, this);
     startupTasks()->addTask(f);
   }
   if (vm.count(kChainCommandOpt)) {
-    f = boost::bind(
+    f = std::bind(
         &CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator.get(), vm[kChainCommandOpt].as<unsigned int>());
     startupTasks()->addTask(f);
   }
   if (vm.count(kPlayOpt)) {
-    f = boost::bind(&CmsShowMainBase::setupAutoLoad, this, vm[kPlayOpt].as<float>());
+    f = std::bind(&CmsShowMainBase::setupAutoLoad, this, vm[kPlayOpt].as<float>());
     startupTasks()->addTask(f);
   }
 
@@ -420,7 +422,7 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
   }
 
   if (vm.count(kPortCommandOpt)) {
-    f = boost::bind(&CmsShowMain::connectSocket, this);
+    f = std::bind(&CmsShowMain::connectSocket, this);
     startupTasks()->addTask(f);
   }
 
@@ -561,8 +563,8 @@ void CmsShowMain::appendData() {
 
 void CmsShowMain::openDataViaURL() {
   if (m_searchFiles.get() == nullptr) {
-    m_searchFiles = std::unique_ptr<CmsShowSearchFiles>(
-        new CmsShowSearchFiles("", "Open Remote Data Files", guiManager()->getMainFrame(), 500, 400));
+    m_searchFiles =
+        std::make_unique<CmsShowSearchFiles>("", "Open Remote Data Files", guiManager()->getMainFrame(), 500, 400);
     m_searchFiles->CenterOnParent(kTRUE, TGTransientFrame::kBottomRight);
   }
   std::string chosenFile = m_searchFiles->chooseFileFromURL();
@@ -644,14 +646,17 @@ void CmsShowMain::setupDataHandling() {
   guiManager()->updateStatus("Setting up data handling...");
 
   // navigator filtering  ->
-  m_navigator->fileChanged_.connect(boost::bind(&CmsShowMain::fileChangedSlot, this, _1));
-  m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, guiManager(), _1));
-  m_navigator->filterStateChanged_.connect(boost::bind(&CmsShowMain::navigatorChangedFilterState, this, _1));
-  m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering, this, _1));
+  m_navigator->fileChanged_.connect(std::bind(&CmsShowMain::fileChangedSlot, this, std::placeholders::_1));
+  m_navigator->editFiltersExternally_.connect(
+      std::bind(&FWGUIManager::updateEventFilterEnable, guiManager(), std::placeholders::_1));
+  m_navigator->filterStateChanged_.connect(
+      std::bind(&CmsShowMain::navigatorChangedFilterState, this, std::placeholders::_1));
+  m_navigator->postFiltering_.connect(std::bind(&CmsShowMain::postFiltering, this, std::placeholders::_1));
 
   // navigator fitlering <-
-  guiManager()->showEventFilterGUI_.connect(boost::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator.get(), _1));
-  guiManager()->filterButtonClicked_.connect(boost::bind(&CmsShowMain::filterButtonClicked, this));
+  guiManager()->showEventFilterGUI_.connect(
+      std::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator.get(), std::placeholders::_1));
+  guiManager()->filterButtonClicked_.connect(std::bind(&CmsShowMain::filterButtonClicked, this));
 
   // Data handling. File related and therefore not in the base class.
   if (guiManager()->getAction(cmsshow::sOpenData) != nullptr)
@@ -713,7 +718,7 @@ void CmsShowMain::setLoadedAnyInputFileAfterStartup() {
 }
 
 void CmsShowMain::setupSocket(unsigned int iSocket) {
-  m_monitor = std::unique_ptr<TMonitor>(new TMonitor);
+  m_monitor = std::make_unique<TMonitor>();
   TServerSocket* server = new TServerSocket(iSocket, kTRUE);
   if (server->GetErrorCode()) {
     fwLog(fwlog::kError) << "CmsShowMain::setupSocket, can't create socket on port " << iSocket << "." << std::endl;
@@ -832,8 +837,8 @@ void CmsShowMain::postFiltering(bool doDraw) {
 
 void CmsShowMain::setLiveMode() {
   m_live = true;
-  m_liveTimer.reset(new SignalTimer());
-  m_liveTimer->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode, this));
+  m_liveTimer = std::make_unique<SignalTimer>();
+  m_liveTimer->timeout_.connect(std::bind(&CmsShowMain::checkLiveMode, this));
 
   Window_t rootw, childw;
   Int_t root_x, root_y, win_x, win_y;

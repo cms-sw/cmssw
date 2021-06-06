@@ -34,7 +34,7 @@ process.intProducer1 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(1), 
 process.intProducer3 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string("foo"),value=cms.int32(2))))
 
 process.intProducerAlias = SwitchProducerTest(
-    test1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer1")),
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer1")),
     test2 = cms.EDAlias(intProducer3 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string(""), toProductInstance = cms.string("")),
                                                  cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )

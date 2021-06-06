@@ -33,7 +33,7 @@ for year in lumiFiles.keys():
     intLumis[year] = 0
     with open(lumiFiles[year].format(base=base), "r") as fi:
         for line in fi:
-            in len(line) == 0:
+            if len(line) == 0:
                 continue
             line = line.strip()
             run, lumi = line.split(" ")
@@ -61,7 +61,7 @@ def runToLumi(whichRun, fromYear, inclusive=False):
 
 def whichYear(run):
     thisYear = -1
-    years = runs.keys()
+    years = list(runs.keys())
     years.sort()
     for year in years:
         if min(runs[year]) <= run:

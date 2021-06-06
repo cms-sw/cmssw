@@ -24,7 +24,7 @@
 //
 //  ---------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELstatistics.h"
+#include "FWCore/MessageService/src/ELstatistics.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
@@ -37,6 +37,33 @@
 // Possible Traces:
 // #define ELstatisticsCONSTRUCTOR_TRACE
 // #define ELstatsLOG_TRACE
+
+namespace {
+  std::string summarizeContext(const std::string& c) {
+    if (c.substr(0, 4) != "Run:")
+      return c;
+    std::istringstream is(c);
+    std::string runWord;
+    int run;
+    is >> runWord >> run;
+    if (!is)
+      return c;
+    if (runWord != "Run:")
+      return c;
+    std::string eventWord;
+    int event;
+    is >> eventWord >> event;
+    if (!is)
+      return c;
+    if (eventWord != "Event:")
+      return c;
+    std::ostringstream os;
+    os << run << "/" << event;
+    return os.str();
+  }
+}  // namespace
+
+using namespace edm::messagelogger;
 
 namespace edm {
   namespace service {
@@ -124,29 +151,6 @@ namespace edm {
     // Methods invoked by the ELadministrator
     // ----------------------------------------------------------------------
 
-    static std::string summarizeContext(const std::string& c) {
-      if (c.substr(0, 4) != "Run:")
-        return c;
-      std::istringstream is(c);
-      std::string runWord;
-      int run;
-      is >> runWord >> run;
-      if (!is)
-        return c;
-      if (runWord != "Run:")
-        return c;
-      std::string eventWord;
-      int event;
-      is >> eventWord >> event;
-      if (!is)
-        return c;
-      if (eventWord != "Event:")
-        return c;
-      std::ostringstream os;
-      os << run << "/" << event;
-      return os.str();
-    }
-
     bool ELstatistics::log(const edm::ErrorObj& msg) {
 #ifdef ELstatsLOG_TRACE
       std::cerr << "  =:=:=: Log to an ELstatistics\n";
@@ -210,7 +214,7 @@ namespace edm {
 
     void ELstatistics::zero() { limits.zero(); }  // zero()
 
-    ELstring ELstatistics::formSummary(ELmap_stats& stats) {
+    std::string ELstatistics::formSummary(ELmap_stats& stats) {
       // Major changes 8/16/07 mf, including making this
       // a static member function instead of a free function
 
@@ -338,7 +342,7 @@ namespace edm {
 
     }  // formSummary()
 
-    void ELstatistics::summary(std::ostream& os, const ELstring& title) {
+    void ELstatistics::summary(std::ostream& os, std::string_view title) {
       os << title << std::endl << formSummary(stats) << std::flush;
       updatedStats = false;
 

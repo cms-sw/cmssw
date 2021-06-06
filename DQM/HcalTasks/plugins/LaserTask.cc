@@ -3,7 +3,8 @@
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
-LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
+LaserTask::LaserTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   _nevents = ps.getUntrackedParameter<int>("nevents", 2000);
 
   //	tags
@@ -59,8 +60,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   DQTask::bookHistograms(ib, r, es);
 
-  edm::ESHandle<HcalDbService> dbService;
-  es.get<HcalDbRecord>().get(dbService);
+  edm::ESHandle<HcalDbService> dbService = es.getHandle(hcalDbServiceToken_);
   _emap = dbService->getHcalMapping();
 
   std::vector<uint32_t> vhashVME;
@@ -800,12 +800,15 @@ void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection>& col, std::vect
   }
 }
 
-/* virtual */ void LaserTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void LaserTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  auto lumiCache = luminosityBlockCache(lb.index());
+  _currentLS = lumiCache->currentLS;
+
   if (_ptype == fLocal)
     return;
   this->_dump();
 
-  DQTask::dqmEndLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 /* virtual */ bool LaserTask::_isApplicable(edm::Event const& e) {

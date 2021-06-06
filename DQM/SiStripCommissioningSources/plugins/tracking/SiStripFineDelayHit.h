@@ -24,6 +24,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <TrackingTools/PatternTools/interface/Trajectory.h>
 #include "DQM/SiStripCommissioningSources/plugins/tracking/SiStripFineDelayTLA.h"
+#include <CondFormats/SiStripObjects/interface/SiStripFedCabling.h>
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include <CondFormats/SiStripObjects/interface/SiStripNoises.h>
+#include <CondFormats/DataRecord/interface/SiStripFedCablingRcd.h>
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -84,6 +88,11 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clustersToken_;
   edm::EDGetTokenT<std::vector<Trajectory> > trackToken_;
   std::map<uint32_t, uint32_t> connectionMap_;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
 };
 
 #endif

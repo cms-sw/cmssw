@@ -25,6 +25,11 @@ public:
   void setID(uint32_t unitID, double timeSlice, int trackID, uint16_t depth = 0);
   void reset();
 
+  void setTrackID(int trackID) { theTrackID = trackID; }
+  bool hasFineTrackID() const { return theFineTrackID != -1; }
+  void setFineTrackID(int fineTrackID) { theFineTrackID = fineTrackID; }
+  int fineTrackID() const { return hasFineTrackID() ? theFineTrackID : theTrackID; }
+
   bool operator==(const CaloHitID&) const;
   bool operator<(const CaloHitID&) const;
   bool operator>(const CaloHitID&) const;
@@ -37,6 +42,7 @@ private:
   uint16_t theDepth;
   float timeSliceUnit;
   bool ignoreTrackID;
+  int theFineTrackID;
 };
 
 std::ostream& operator<<(std::ostream&, const CaloHitID&);

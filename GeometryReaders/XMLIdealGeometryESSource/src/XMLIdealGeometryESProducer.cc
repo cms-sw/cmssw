@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
@@ -23,12 +24,13 @@ public:
 
 private:
   const std::string rootDDName_;  // this must be the form namespace:name
-  edm::ESGetToken<FileBlob, GeometryFileRcd> blobToken_;
+  const edm::ESGetToken<FileBlob, GeometryFileRcd> blobToken_;
 };
 
 XMLIdealGeometryESProducer::XMLIdealGeometryESProducer(const edm::ParameterSet& iConfig)
-    : rootDDName_(iConfig.getParameter<std::string>("rootDDName")) {
-  setWhatProduced(this).setConsumes(blobToken_, edm::ESInputTag("", iConfig.getParameter<std::string>("label")));
+    : rootDDName_(iConfig.getParameter<std::string>("rootDDName")),
+      blobToken_(setWhatProduced(this).consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("label")))) {
+  usesResources({{edm::ESSharedResourceNames::kDDGeometry}});
 }
 
 XMLIdealGeometryESProducer::ReturnType XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {

@@ -9,7 +9,7 @@
 //
 
 #include "TEveGeoNode.h"
-
+#include "TEveGeoShape.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"

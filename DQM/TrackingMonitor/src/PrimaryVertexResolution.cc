@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -13,6 +12,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
@@ -59,11 +59,13 @@ private:
                                                    const TransientTrackBuilder& ttBuilder,
                                                    const reco::BeamSpot& beamspot);
 
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbToken_;
   edm::EDGetTokenT<reco::VertexCollection> vertexSrc_;
   edm::EDGetTokenT<reco::BeamSpot> beamspotSrc_;
   edm::EDGetTokenT<LumiScalersCollection> lumiScalersSrc_;
+  edm::EDGetTokenT<OnlineLuminosityRecord> metaDataSrc_;
+  const bool forceSCAL_;
   std::string rootFolder_;
-  std::string transientTrackBuilder_;
 
   AdaptiveVertexFitter fitter_;
 
@@ -288,7 +290,7 @@ private:
 
     void calculateAndFillResolution(const std::vector<reco::TransientTrack>& tracks,
                                     size_t nvertices,
-                                    const LumiScalersCollection& lumiScalers,
+                                    float lumi,
                                     std::mt19937& engine,
                                     AdaptiveVertexFitter& fitter);
 
@@ -324,11 +326,13 @@ private:
 };
 
 PrimaryVertexResolution::PrimaryVertexResolution(const edm::ParameterSet& iConfig)
-    : vertexSrc_(consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc"))),
+    : ttbToken_(esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("transientTrackBuilder")))),
+      vertexSrc_(consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc"))),
       beamspotSrc_(consumes<reco::BeamSpot>(iConfig.getUntrackedParameter<edm::InputTag>("beamspotSrc"))),
       lumiScalersSrc_(consumes<LumiScalersCollection>(iConfig.getUntrackedParameter<edm::InputTag>("lumiScalersSrc"))),
+      metaDataSrc_(consumes<OnlineLuminosityRecord>(iConfig.getUntrackedParameter<edm::InputTag>("metaDataSrc"))),
+      forceSCAL_(iConfig.getUntrackedParameter<bool>("forceSCAL")),
       rootFolder_(iConfig.getUntrackedParameter<std::string>("rootFolder")),
-      transientTrackBuilder_(iConfig.getUntrackedParameter<std::string>("transientTrackBuilder")),
       binningX_(iConfig),
       binningY_(iConfig),
       hPV_(binningX_, binningY_),
@@ -341,6 +345,8 @@ void PrimaryVertexResolution::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.addUntracked<edm::InputTag>("vertexSrc", edm::InputTag("trackingDQMgoodOfflinePrimaryVertices"));
   desc.addUntracked<edm::InputTag>("beamspotSrc", edm::InputTag("offlineBeamSpot"));
   desc.addUntracked<edm::InputTag>("lumiScalersSrc", edm::InputTag("scalersRawToDigi"));
+  desc.addUntracked<edm::InputTag>("metaDataSrc", edm::InputTag("onlineMetaDataDigis"));
+  desc.addUntracked<bool>("forceSCAL", true);
   desc.addUntracked<std::string>("rootFolder", "OfflinePV/Resolution");
   desc.addUntracked<std::string>("transientTrackBuilder", "TransientTrackBuilder");
 
@@ -384,23 +390,28 @@ void PrimaryVertexResolution::bookHistograms(DQMStore::IBooker& iBooker, edm::Ru
 }
 
 void PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<reco::VertexCollection> hvertices;
-  iEvent.getByToken(vertexSrc_, hvertices);
+  edm::Handle<reco::VertexCollection> hvertices = iEvent.getHandle(vertexSrc_);
   const reco::VertexCollection& vertices = *hvertices;
   if (vertices.empty())
     return;
 
-  edm::Handle<reco::BeamSpot> hbeamspot;
-  iEvent.getByToken(beamspotSrc_, hbeamspot);
+  edm::Handle<reco::BeamSpot> hbeamspot = iEvent.getHandle(beamspotSrc_);
   const reco::BeamSpot& beamspot = *hbeamspot;
 
-  edm::Handle<LumiScalersCollection> hscalers;
-  iEvent.getByToken(lumiScalersSrc_, hscalers);
-  const LumiScalersCollection& lumiScalers = *hscalers;
+  float lumi = -1.;
+  if (forceSCAL_) {
+    edm::Handle<LumiScalersCollection> lumiScalers = iEvent.getHandle(lumiScalersSrc_);
+    if (lumiScalers.isValid() && !lumiScalers->empty()) {
+      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      lumi = scalit->instantLumi();
+    }
+  } else {
+    edm::Handle<OnlineLuminosityRecord> metaData = iEvent.getHandle(metaDataSrc_);
+    if (metaData.isValid())
+      lumi = metaData->instLumi();
+  }
 
-  edm::ESHandle<TransientTrackBuilder> ttBuilderHandle;
-  iSetup.get<TransientTrackRecord>().get(transientTrackBuilder_, ttBuilderHandle);
-  const TransientTrackBuilder& ttBuilder = *ttBuilderHandle;
+  const TransientTrackBuilder& ttBuilder = iSetup.getData(ttbToken_);
 
   // deterministic seed from the event number
   // should not bias the result as the event number is already
@@ -413,7 +424,7 @@ void PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::Event
   const auto nvertices = vertices.size();
   if (thePV.tracksSize() >= 4) {
     auto sortedTracks = sortTracksByPt(thePV, ttBuilder, beamspot);
-    hPV_.calculateAndFillResolution(sortedTracks, nvertices, lumiScalers, engine_, fitter_);
+    hPV_.calculateAndFillResolution(sortedTracks, nvertices, lumi, engine_, fitter_);
   }
   ++iPV;
 
@@ -421,7 +432,7 @@ void PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::Event
   for (auto endPV = cend(vertices); iPV != endPV; ++iPV) {
     if (iPV->tracksSize() >= 4) {
       auto sortedTracks = sortTracksByPt(*iPV, ttBuilder, beamspot);
-      hOtherV_.calculateAndFillResolution(sortedTracks, nvertices, lumiScalers, engine_, fitter_);
+      hOtherV_.calculateAndFillResolution(sortedTracks, nvertices, lumi, engine_, fitter_);
     }
   }
 }
@@ -451,7 +462,7 @@ std::vector<reco::TransientTrack> PrimaryVertexResolution::sortTracksByPt(const 
 
 void PrimaryVertexResolution::Plots::calculateAndFillResolution(const std::vector<reco::TransientTrack>& tracks,
                                                                 size_t nvertices,
-                                                                const LumiScalersCollection& lumiScalers,
+                                                                float lumi,
                                                                 std::mt19937& engine,
                                                                 AdaptiveVertexFitter& fitter) {
   const size_t end = tracks.size() % 2 == 0 ? tracks.size() : tracks.size() - 1;
@@ -499,9 +510,7 @@ void PrimaryVertexResolution::Plots::calculateAndFillResolution(const std::vecto
     hDiff_Z_.fill(res, res.avgz());
   }
 
-  if (!lumiScalers.empty()) {
-    hDiff_instLumiScal_.fill(res, lumiScalers.front().instantLumi());
-  }
+  hDiff_instLumiScal_.fill(res, lumi);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

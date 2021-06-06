@@ -13,6 +13,7 @@
 //                   A. Di Mattia   (PCL multi stream processing and monitoring)
 //                   M. Delcourt    (monitoring)
 //                   M. Musich      (migration to thread-safe DQMStore access)
+//                   P. David       (merge ShallowGainCalibration with SiStripGainsPCLWorker)
 //
 //  Created:  Wed, 12 Apr 2017 14:46:48 GMT
 //
@@ -40,7 +41,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -87,7 +87,6 @@ public:
 private:
   void beginJob() override;
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &, APVGain::APVGainHistograms &) const override;
-  void endJob() override;
   void checkBookAPVColls(const TrackerGeometry *bareTkGeomPtr, APVGain::APVGainHistograms &histograms) const;
 
   std::vector<std::string> dqm_tag_;
@@ -113,39 +112,13 @@ private:
   std::string m_calibrationMode;         /*!< Type of statistics for the calibration */
   std::vector<std::string> VChargeHisto; /*!< Charge monitor plots to be output */
 
-  //Data members for processing
+  edm::EDGetTokenT<edm::View<reco::Track>> m_tracks_token;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> m_association_token;
 
-  edm::EDGetTokenT<std::vector<bool> > TrigTech_token_;
-  edm::EDGetTokenT<std::vector<double> > trackchi2ndof_token_;
-  edm::EDGetTokenT<std::vector<float> > trackp_token_;
-  edm::EDGetTokenT<std::vector<float> > trackpt_token_;
-  edm::EDGetTokenT<std::vector<double> > tracketa_token_;
-  edm::EDGetTokenT<std::vector<double> > trackphi_token_;
-  edm::EDGetTokenT<std::vector<unsigned int> > trackhitsvalid_token_;
-  edm::EDGetTokenT<std::vector<int> > trackalgo_token_;
-  edm::EDGetTokenT<std::vector<int> > trackindex_token_;
-  edm::EDGetTokenT<std::vector<unsigned int> > rawid_token_;
-  edm::EDGetTokenT<std::vector<double> > localdirx_token_;
-  edm::EDGetTokenT<std::vector<double> > localdiry_token_;
-  edm::EDGetTokenT<std::vector<double> > localdirz_token_;
-  edm::EDGetTokenT<std::vector<unsigned short> > firststrip_token_;
-  edm::EDGetTokenT<std::vector<unsigned short> > nstrips_token_;
-  edm::EDGetTokenT<std::vector<bool> > saturation_token_;
-  edm::EDGetTokenT<std::vector<bool> > overlapping_token_;
-  edm::EDGetTokenT<std::vector<bool> > farfromedge_token_;
-  edm::EDGetTokenT<std::vector<unsigned int> > charge_token_;
-  edm::EDGetTokenT<std::vector<double> > path_token_;
-  edm::EDGetTokenT<std::vector<double> > chargeoverpath_token_;
-  edm::EDGetTokenT<std::vector<unsigned char> > amplitude_token_;
-  edm::EDGetTokenT<std::vector<double> > gainused_token_;
-  edm::EDGetTokenT<std::vector<double> > gainusedTick_token_;
-
-  std::string EventPrefix_;  //("");
-  std::string EventSuffix_;  //("");
-  std::string TrackPrefix_;  //("track");
-  std::string TrackSuffix_;  //("");
-  std::string CalibPrefix_;  //("GainCalibration");
-  std::string CalibSuffix_;  //("");
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomTokenBR_, tkGeomToken_;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
 
   // maps histograms index to topology
   std::map<unsigned int, APVloc> theTopologyMap;

@@ -6,25 +6,29 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 
+#include <cstdio>
 #include <fstream>
-#include <stdio.h>
 #include <iostream>
-
-using namespace std;
 
 SiPixel2DTemplateDBObjectUploader::SiPixel2DTemplateDBObjectUploader(const edm::ParameterSet& iConfig)
     : theTemplateCalibrations(iConfig.getParameter<vstring>("siPixelTemplateCalibrations")),
       theTemplateBaseString(iConfig.getParameter<std::string>("theTemplateBaseString")),
       theVersion(iConfig.getParameter<double>("Version")),
       theMagField(iConfig.getParameter<double>("MagField")),
-      theTemplIds(iConfig.getParameter<std::vector<uint32_t> >("templateIds")) {}
+      theBarrelLocations(iConfig.getParameter<std::vector<std::string> >("barrelLocations")),
+      theEndcapLocations(iConfig.getParameter<std::vector<std::string> >("endcapLocations")),
+      theBarrelTemplateIds(iConfig.getParameter<std::vector<uint32_t> >("barrelTemplateIds")),
+      theEndcapTemplateIds(iConfig.getParameter<std::vector<uint32_t> >("endcapTemplateIds")),
+      useVectorIndices(iConfig.getUntrackedParameter<bool>("useVectorIndices", false)) {}
 
 SiPixel2DTemplateDBObjectUploader::~SiPixel2DTemplateDBObjectUploader() {}
 
@@ -40,8 +44,6 @@ void SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const 
 
   // Set the number of templates to be passed to the dbobject
   obj->setNumOfTempl(theTemplateCalibrations.size());
-  cout << obj->numOfTempl() << endl;
-  cout << theVersion << endl;
   // Set the version of the template dbobject - this is an external parameter
   obj->setVersion(theVersion);
 
@@ -49,12 +51,9 @@ void SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const 
   for (m = 0; m < obj->numOfTempl(); ++m) {
     edm::FileInPath file(theTemplateCalibrations[m].c_str());
     tempfile = (file.fullPath()).c_str();
-
     std::ifstream in_file(tempfile, std::ios::in);
-
     if (in_file.is_open()) {
-      //edm::LogInfo("Template Info") << "Opened Template File: " << file.fullPath().c_str();
-      cout << "Opened Template File: " << file.fullPath().c_str() << "\n";
+      edm::LogInfo("Template Info") << "Opened Template File: " << file.fullPath().c_str();
 
       // Local variables
       char title_char[80], c;
@@ -72,7 +71,6 @@ void SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const 
         iter = 78;
       }
       title_char[iter + 1] = '\n';
-
       for (j = 0; j < 80; j += 4) {
         temp.c[0] = title_char[j];
         temp.c[1] = title_char[j + 1];
@@ -93,387 +91,153 @@ void SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const 
       in_file.close();
     } else {
       // If file didn't open, report this
-      //edm::LogError("SiPixel2DTemplateDBObjectUploader") << "Error opening File" << tempfile;
-      cout << "Error opening File " << tempfile << "\n";
+      edm::LogError("SiPixel2DTemplateDBObjectUploader") << "Error opening File" << tempfile;
     }
   }
 
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
+  //get the event setup
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* tGeo = pDD.product();
 
-  short templids[52];
-  for (int k = 0; k < 52; k++) {
-    templids[k] = (short)theTemplIds[k];
+  // Use the TrackerTopology class for layer/disk etc. number
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* tTopo = tTopoHandle.product();
+
+  // Check if we are using Phase-1 or Phase-2 geometry
+  int phase = 0;
+  if (pDD->isThere(GeomDetEnumerators::P1PXB) && pDD->isThere(GeomDetEnumerators::P1PXEC) == true) {
+    phase = 1;
+  } else if (pDD->isThere(GeomDetEnumerators::P2PXB) && pDD->isThere(GeomDetEnumerators::P2PXEC) == true) {
+    phase = 2;
   }
+  std::cout << "Phase-" << phase << " geometry is used" << std::endl;
 
+  //Loop over the detector elements and put template IDs in place
   for (const auto& it : pDD->detUnits()) {
-    if (it != 0) {
+    if (it != nullptr) {
       // Here is the actual looping step over all DetIds:
       DetId detid = it->geographicalId();
-      const DetId detidc = it->geographicalId();
-
-      unsigned int layer = 0, disk = 0, side = 0, blade = 0, panel = 0, module = 0;
+      unsigned int layer = 0, ladder = 0, disk = 0, side = 0, blade = 0, panel = 0, module = 0;
+      // Some extra variables that can be used for Phase 1 - comment in if needed
+      // unsigned int shl=0, sec=0, half=0, flipped=0, ring=0;
+      short thisID = 10000;
+      unsigned int iter;
 
       // Now we sort them into the Barrel and Endcap:
-      if (detid.subdetId() == 1) {
-        layer = tTopo->pxbLayer(detidc.rawId());
-        module = tTopo->pxbModule(detidc.rawId());
+      //Barrel Pixels first
+      if ((phase == 1 && detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
+          (phase == 2 && tGeo->geomDetSubDetector(detid.subdetId()) == GeomDetEnumerators::P2PXB)) {
+        std::cout << "--- IN THE BARREL ---\n";
 
-        if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-          if (layer == 1) {
-            if (module == 1) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[0]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 2) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[1]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 3) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[2]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 4) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[3]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 5) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[4]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 6) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[5]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 7) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[6]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 8) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[7]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-          }
-          if (layer == 2) {
-            if (module == 1) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[8]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 2) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[9]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 3) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[10]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 4) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[11]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 5) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[12]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 6) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[13]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 7) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[14]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 8) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[15]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-          }
-          if (layer == 3) {
-            if (module == 1) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[16]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 2) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[17]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 3) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[18]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 4) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[19]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 5) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[20]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 6) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[21]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 7) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[22]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-            if (module == 8) {
-              if (!(*obj).putTemplateID(detid.rawId(), templids[23]))
-                //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-            }
-          }
-          // ----- debug:
-          //cout<<"This is a barrel element with: layer "<<layer<<", ladder "<<ladder<<" and module "<<module<<".\n"; //Uncomment to read out exact position of each element.
-          // -----
+        //Get the layer, ladder, and module corresponding to this detID
+        layer = tTopo->pxbLayer(detid.rawId());
+        ladder = tTopo->pxbLadder(detid.rawId());
+        module = tTopo->pxbModule(detid.rawId());
+        /*
+				// Comment these in if needed
+				PixelBarrelName pbn(detid, tTopo, phase);
+				shl    = pbn.shell();
+				sec    = pbn.sectorName();
+				half   = pbn.isHalfModule();
+				// This tells if we are on a flipped ladder (in the inner radius, closer to beam)
+				flipped = (phase ? layer==4 : layer%2) ? ladder%2==0 : ladder%2==1;
+				*/
+        if (useVectorIndices) {
+          --layer;
+          --ladder;
+          --module;
         }
+
+        //Assign template IDs
+        //Loop over all the barrel locations
+        for (iter = 0; iter < theBarrelLocations.size(); ++iter) {
+          //get the string of this barrel location
+          std::string loc_string = theBarrelLocations[iter];
+          //find where the delimiters are
+          unsigned int first_delim_pos = loc_string.find("_");
+          unsigned int second_delim_pos = loc_string.find("_", first_delim_pos + 1);
+          //get the layer, ladder, and module as unsigned ints
+          unsigned int checklayer = (unsigned int)stoi(loc_string.substr(0, first_delim_pos));
+          unsigned int checkladder =
+              (unsigned int)stoi(loc_string.substr(first_delim_pos + 1, second_delim_pos - first_delim_pos - 1));
+          unsigned int checkmodule = (unsigned int)stoi(loc_string.substr(second_delim_pos + 1, 5));
+          //check them against the desired layer, ladder, and module
+          if (ladder == checkladder && layer == checklayer && module == checkmodule)
+            //if they match, set the template ID
+            thisID = (short)theBarrelTemplateIds[iter];
+        }
+
+        if (thisID == 10000 || (!(*obj).putTemplateID(detid.rawId(), thisID)))
+          std::cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
+        // ----- debug:
+        std::cout << "This is a barrel element with: layer " << layer << ", ladder " << ladder << " and module "
+                  << module << ".\n";  //Uncomment to read out exact position of each element.
+                                       // -----
       }
-      if (detid.subdetId() == 2) {
-        disk = tTopo->pxfDisk(detidc.rawId());      //1,2,3
-        blade = tTopo->pxfBlade(detidc.rawId());    //1-24
-        side = tTopo->pxfSide(detidc.rawId());      //size=1 for -z, 2 for +z
-        panel = tTopo->pxfPanel(detidc.rawId());    //panel=1,2
-        module = tTopo->pxfModule(detidc.rawId());  // plaquette
+      //Now endcaps
+      else if ((phase == 1 && detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) ||
+               (phase == 2 && tGeo->geomDetSubDetector(detid.subdetId()) == GeomDetEnumerators::P2PXEC)) {
+        std::cout << "--- IN AN ENDCAP ---\n";
 
-        //short temp123abc = (short) theTemplIds[1];
-        if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
-          if (side == 1) {
-            if (disk == 1) {
-              if (panel == 1) {
-                if (module == 1) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[24]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 2) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[25]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 3) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[26]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 4) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[27]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-              }
-              if (panel == 2) {
-                if (module == 1) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[40]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 2) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[41]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 3) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[42]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-              }
-            }
-            if (disk == 2) {
-              if (panel == 1) {
-                if (module == 1) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[28]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 2) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[29]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 3) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[30]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 4) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[31]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-              }
-              if (panel == 2) {
-                if (module == 1) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[43]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 2) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[44]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 3) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[45]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-              }
-            }
-          }
-          if (side == 2) {
-            if (disk == 1) {
-              if (panel == 1) {
-                if (module == 1) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[32]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 2) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[33]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 3) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[34]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 4) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[35]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-              }
-              if (panel == 2) {
-                if (module == 1) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[46]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 2) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[47]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 3) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[48]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-              }
-            }
-            if (disk == 2) {
-              if (panel == 1) {
-                if (module == 1) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[36]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 2) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[37]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 3) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[38]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 4) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[39]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-              }
-              if (panel == 2) {
-                if (module == 1) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[49]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 2) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[50]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-                if (module == 3) {
-                  if (!(*obj).putTemplateID(detid.rawId(), templids[51]))
-                    //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-                    cout << " Could not fill barrel det unit" << side << ", disk " << disk << ", blade " << blade
-                         << ", panel " << panel << " and module " << module << ".\n";
-                }
-              }
-            }
-          }
-
-          // ----- debug:
-          //cout<<"This is an endcap element with: side "<<side<<", disk "<<disk<<", blade "<<blade<<", panel "<<panel<<" and module "<<module<<".\n"; //Uncomment to read out exact position of each element.
-          // -----
+        //Get the DetId's disk, blade, side, panel, and module
+        disk = tTopo->pxfDisk(detid.rawId());    //1,2,3
+        blade = tTopo->pxfBlade(detid.rawId());  //1-56 (Ring 1 is 1-22, Ring 2 is 23-56)
+        side = tTopo->pxfSide(detid.rawId());    //side=1 for -z, 2 for +z
+        panel = tTopo->pxfPanel(detid.rawId());  //panel=1,2
+        /*
+				// Comment these in if needed
+				PixelEndcapName pen(detid, tTopo, phase);
+				shl    = pen.halfCylinder();
+				ring   = pen.ringName(); //1,2 This is for Phase I
+				*/
+        if (useVectorIndices) {
+          --disk;
+          --blade;
+          --side;
+          --panel;
         }
+
+        //Assign IDs
+
+        //Loop over all the endcap locations
+        for (iter = 0; iter < theEndcapLocations.size(); ++iter) {
+          //get the string of this barrel location
+          std::string loc_string = theEndcapLocations[iter];
+          //find where the delimiters are
+          unsigned int first_delim_pos = loc_string.find("_");
+          unsigned int second_delim_pos = loc_string.find("_", first_delim_pos + 1);
+          unsigned int third_delim_pos = loc_string.find("_", second_delim_pos + 1);
+          //get the disk, blade, side, panel, and module as unsigned ints
+          unsigned int checkdisk = (unsigned int)stoi(loc_string.substr(0, first_delim_pos));
+          unsigned int checkblade =
+              (unsigned int)stoi(loc_string.substr(first_delim_pos + 1, second_delim_pos - first_delim_pos - 1));
+          unsigned int checkside =
+              (unsigned int)stoi(loc_string.substr(second_delim_pos + 1, third_delim_pos - second_delim_pos - 1));
+          unsigned int checkpanel = (unsigned int)stoi(loc_string.substr(third_delim_pos + 1, 5));
+          //check them against the desired disk, blade, side, panel, and module
+          if (disk == checkdisk && blade == checkblade && side == checkside && panel == checkpanel)
+            //if they match, set the template ID
+            thisID = (short)theEndcapTemplateIds[iter];
+        }
+
+        if (thisID == 10000 || (!(*obj).putTemplateID(detid.rawId(), thisID)))
+          std::cout << " Could not fill endcap det unit" << side << ", disk " << disk << ", blade " << blade
+                    << ", and panel " << panel << ".\n";
+        // ----- debug:
+        std::cout << "This is an endcap element with: side " << side << ", disk " << disk << ", blade " << blade
+                  << ", and panel " << panel << ".\n";  //Uncomment to read out exact position of each element.
+                                                        // -----
+      } else {
+        continue;
       }
 
-      //cout<<"The DetID: "<<detid.rawId()<<" is mapped to the template: "<<mapnum<<".\n\n";
-
-      //else
-      //if ( ! (*obj).putTemplateID( detid.rawId(),templids[1] ) )
-      //edm::LogInfo("Template Info") << " Could not fill barrel det unit";
-      //cout << "ERROR! OH NO!\n";
+      //Print out the assignment of this detID
+      short mapnum;
+      std::cout << "checking map:\n";
+      mapnum = (*obj).getTemplateID(detid.rawId());
+      std::cout << "The DetID: " << detid.rawId() << " is mapped to the template: " << mapnum << ".\n\n";
     }
   }
 

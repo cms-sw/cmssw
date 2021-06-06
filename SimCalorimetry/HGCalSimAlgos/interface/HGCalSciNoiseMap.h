@@ -18,18 +18,18 @@ public:
   /**
      @short returns the signal scaling and the noise
   */
-  double scaleByTileArea(const HGCScintillatorDetId&, const radiiVec&);
-  double scaleBySipmArea(const HGCScintillatorDetId&, const double&);
-  std::pair<double, double> scaleByDose(const HGCScintillatorDetId&, const radiiVec&);
+  double scaleByTileArea(const HGCScintillatorDetId &, const double);
+  double scaleBySipmArea(const HGCScintillatorDetId &, const double);
+  std::pair<double, double> scaleByDose(const HGCScintillatorDetId &, const double);
 
-  radiiVec computeRadius(const HGCScintillatorDetId&);
-  void setSipmMap(const std::string&);
+  void setSipmMap(const std::string &);
 
 private:
-  std::unordered_map<int, float> readSipmPars(const std::string&);
+  std::unordered_map<int, float> readSipmPars(const std::string &);
 
   //size of the reference scintillator tile
   const double refEdge_;
+
   //sipm size boundaries
   std::unordered_map<int, float> sipmMap_;
 };

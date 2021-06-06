@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/METReco/interface/MET.h"
@@ -21,7 +21,6 @@
 
 #include "RecoMET/METPUSubtraction/interface/MvaMEtUtilities.h"
 
-//#include <TMatrixD.h>
 #include <Math/SMatrix.h>
 
 #include <string>

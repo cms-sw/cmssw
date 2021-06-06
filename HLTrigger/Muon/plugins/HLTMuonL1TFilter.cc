@@ -7,21 +7,15 @@
  */
 
 #include "HLTMuonL1TFilter.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/Utilities/interface/EDMException.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "TMath.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "TMath.h"
 
 #include <vector>
 

@@ -21,9 +21,10 @@
 #include "G4VProcess.hh"
 #include "G4Trap.hh"
 
-#include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
+#include <memory>
 
 //#define EDM_ML_DEBUG
 
@@ -37,7 +38,7 @@ HGCalSD::HGCalSD(const std::string& name,
              clg,
              p,
              manager,
-             (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
+             static_cast<float>(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")),
       hgcons_(nullptr),
       slopeMin_(0),
@@ -128,16 +129,27 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   const G4VTouchable* touch = preStepPoint->GetTouchable();
 
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_;
+  printDetectorLevels(touch);
+#endif
   //determine the exact position in global coordinates in the mass geometry
   G4ThreeVector hitPoint = preStepPoint->GetPosition();
   float globalZ = touch->GetTranslation(0).z();
   int iz(globalZ > 0 ? 1 : -1);
 
-  int layer, module, cell;
-  if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
+  int layer(0), module(-1), cell(-1);
+  if (geom_mode_ == HGCalGeometryMode::Hexagon8Module) {
+    if (touch->GetHistoryDepth() > levelT2_) {
+      layer = touch->GetReplicaNumber(4);
+      module = touch->GetReplicaNumber(3);
+      cell = touch->GetReplicaNumber(1);
+    } else {
+      layer = touch->GetReplicaNumber(2);
+      module = touch->GetReplicaNumber(1);
+    }
+  } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
     layer = touch->GetReplicaNumber(0);
-    module = -1;
-    cell = -1;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_
                                << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":"
@@ -207,9 +219,9 @@ void HGCalSD::update(const BeginOfJob* job) {
                                << mouseBite;
 #endif
 
-    numberingScheme_.reset(new HGCalNumberingScheme(*hgcons_, mydet_, nameX_));
+    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_);
     if (rejectMB_)
-      mouseBite_.reset(new HGCMouseBite(*hgcons_, angles_, mouseBiteCut_, waferRot_));
+      mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
   } else {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }
@@ -224,9 +236,13 @@ bool HGCalSD::filterHit(CaloG4Hit* aHit, double time) {
 uint32_t HGCalSD::setDetUnitId(int layer, int module, int cell, int iz, G4ThreeVector& pos) {
   uint32_t id = numberingScheme_ ? numberingScheme_->getUnitID(layer, module, cell, iz, pos, weight_) : 0;
   if (cornerMinMask_ > 2) {
-    if (hgcons_->maskCell(DetId(id), cornerMinMask_))
+    if (hgcons_->maskCell(DetId(id), cornerMinMask_)) {
       id = 0;
+      ignoreRejection();
+    }
   }
+  if ((geom_mode_ == HGCalGeometryMode::Hexagon8File) || (geom_mode_ == HGCalGeometryMode::Hexagon8Module) || (id == 0))
+    ignoreRejection();
   return id;
 }
 

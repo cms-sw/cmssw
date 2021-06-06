@@ -8,8 +8,6 @@
  *
  */
 
-#include <boost/bind.hpp>
-
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Association.h"

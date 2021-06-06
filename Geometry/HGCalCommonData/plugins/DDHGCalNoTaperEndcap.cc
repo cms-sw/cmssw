@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -16,12 +16,11 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 class DDHGCalNoTaperEndcap : public DDAlgorithm {
 public:
   DDHGCalNoTaperEndcap(void);
-  ~DDHGCalNoTaperEndcap(void) override;
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -52,8 +51,6 @@ DDHGCalNoTaperEndcap::DDHGCalNoTaperEndcap() {
   edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap test: Creating an instance";
 }
 
-DDHGCalNoTaperEndcap::~DDHGCalNoTaperEndcap() {}
-
 void DDHGCalNoTaperEndcap::initialize(const DDNumericArguments& nArgs,
                                       const DDVectorArguments& vArgs,
                                       const DDMapArguments&,
@@ -69,16 +66,36 @@ void DDHGCalNoTaperEndcap::initialize(const DDNumericArguments& nArgs,
   m_startCopyNo = int(nArgs["startCopyNo"]);
   m_incrCopyNo = int(nArgs["incrCopyNo"]);
   m_childName = sArgs["ChildName"];
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Tilt Angle " << m_tiltAngle << " Invert " << m_invert << " R " << m_rMin << ":"
+                                << m_rMax << " Offset " << m_zoffset << ":" << m_xyoffset << " N " << m_n << " Copy "
+                                << m_startCopyNo << ":" << m_incrCopyNo << " Child " << m_childName;
+#endif
+
   m_idNameSpace = DDCurrentNamespace::ns();
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << m_idNameSpace << "\tParent "
                                 << parent().name();
+#endif
 }
 
 void DDHGCalNoTaperEndcap::execute(DDCompactView& cpv) {
   int lastCopyNo = m_startCopyNo;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Create quarter 1:1";
+#endif
   lastCopyNo = createQuarter(cpv, 1, 1, lastCopyNo);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Create quarter -1:1";
+#endif
   lastCopyNo = createQuarter(cpv, -1, 1, lastCopyNo);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Create quarter -1:-1";
+#endif
   lastCopyNo = createQuarter(cpv, -1, -1, lastCopyNo);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Create quarter 1:-1";
+#endif
   createQuarter(cpv, 1, -1, lastCopyNo);
 }
 
@@ -135,8 +152,9 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant, int y
         }
 
         DDTranslation tran(offsetX, offsetY, offsetZ);
+#ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "Module " << copyNo << ": location = " << tran << " Rotation " << rotation;
-
+#endif
         DDName parentName = parent().name();
         cpv.position(DDName(m_childName), parentName, copyNo, tran, rotation);
 

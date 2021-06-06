@@ -3,9 +3,14 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/CSCDigitizer/src/CSCDigitizer.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 class CSCStripConditions;
 
@@ -22,8 +27,11 @@ public:
 private:
   CSCDigitizer theDigitizer;
   CSCStripConditions *theStripConditions;
-  std::string geometryType;
+
   edm::EDGetTokenT<CrossingFrame<PSimHit>> cf_token;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geom_Token;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfield_Token;
+  edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdt_Token;
 };
 
 #endif

@@ -5,8 +5,11 @@
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
@@ -21,11 +24,8 @@ class PileUpEventPrincipal;
 class EcalTimeMapDigitizer;
 
 namespace edm {
-  class Event;
-  class EventSetup;
   template <typename T>
   class Handle;
-  class ParameterSet;
 }  // namespace edm
 
 class EcalTimeDigiProducer : public DigiAccumulatorMixMod {
@@ -40,26 +40,23 @@ public:
 
 private:
   typedef edm::Handle<std::vector<PCaloHit>> HitsHandle;
-  void accumulateCaloHits(HitsHandle const &ebHandle, HitsHandle const &eeHandle, int bunchCrossing);
+  void accumulateCaloHits(HitsHandle const &ebHandle, int bunchCrossing);
 
   void checkGeometry(const edm::EventSetup &eventSetup);
 
   void updateGeometry();
 
   const std::string m_EBdigiCollection;
-  const std::string m_EEdigiCollection;
   const edm::InputTag m_hitsProducerTagEB;
-  const edm::InputTag m_hitsProducerTagEE;
   const edm::EDGetTokenT<std::vector<PCaloHit>> m_hitsProducerTokenEB;
-  const edm::EDGetTokenT<std::vector<PCaloHit>> m_hitsProducerTokenEE;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_geometryToken;
+  edm::ESWatcher<CaloGeometryRecord> m_geometryWatcher;
 
 private:
   int m_timeLayerEB;
-  int m_timeLayerEE;
   const CaloGeometry *m_Geometry;
 
   EcalTimeMapDigitizer *m_BarrelDigitizer;
-  EcalTimeMapDigitizer *m_EndcapDigitizer;
 };
 
 #endif

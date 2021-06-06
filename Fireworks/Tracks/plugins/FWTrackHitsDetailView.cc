@@ -35,8 +35,7 @@
 #include "Fireworks/Tracks/plugins/FWTrackHitsDetailView.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
-// boost includes
-#include "boost/bind.hpp"
+#include <functional>
 
 FWTrackHitsDetailView::FWTrackHitsDetailView()
     : m_modules(nullptr),
@@ -61,7 +60,8 @@ void FWTrackHitsDetailView::build(const FWModelId& id, const reco::Track* track)
     m_sliderListener = new FWIntValueListener();
     TQObject::Connect(
         m_slider, "PositionChanged(Int_t)", "FWIntValueListenerBase", m_sliderListener, "setValue(Int_t)");
-    m_sliderListener->valueChanged_.connect(boost::bind(&FWTrackHitsDetailView::transparencyChanged, this, _1));
+    m_sliderListener->valueChanged_.connect(
+        std::bind(&FWTrackHitsDetailView::transparencyChanged, this, std::placeholders::_1));
   }
 
   {

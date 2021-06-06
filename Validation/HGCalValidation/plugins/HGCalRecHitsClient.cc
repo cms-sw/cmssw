@@ -6,8 +6,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -19,16 +17,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCalRecHitsClient : public DQMEDHarvester {
 private:
   //member data
-  std::string nameDetector_;
-  int verbosity_;
+  const std::string nameDetector_;
+  const int verbosity_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> ddc_token_;
   unsigned int layers_;
 
 public:
@@ -39,25 +36,18 @@ public:
   void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
   virtual void runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
 
-  int recHitsEndjob(const std::vector<MonitorElement *> &hcalMEs);
+  int recHitsEndjob(const std::vector<MonitorElement *> &hgcalMEs);
 };
 
 HGCalRecHitsClient::HGCalRecHitsClient(const edm::ParameterSet &iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
-      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)) {}
+      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
+      ddc_token_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})) {}
 
 void HGCalRecHitsClient::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
-  if (nameDetector_ == "HCal") {
-    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-    iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-    const HcalDDDRecConstants *hcons = &(*pHRNDC);
-    layers_ = hcons->getMaxDepth(1);
-  } else {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
-    const HGCalDDDConstants &hgcons_ = (*pHGDC);
-    layers_ = hgcons_.layers(true);
-  }
+  const HGCalDDDConstants &hgcons_ = iSetup.getData(ddc_token_);
+  layers_ = hgcons_.layers(true);
 }
 
 void HGCalRecHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) { runClient_(ib, ig); }

@@ -43,6 +43,7 @@ class DetLayer;
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
 class NavigationSchool;
+class TrackingGeometry;
 
 class ConversionSeedFinder {
 public:

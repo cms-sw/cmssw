@@ -22,7 +22,7 @@ def getMVASelectors(postfix):
             classifiers = []
             if typeName == "ClassifierMerger":
                 classifiers = mod.inputClassifiers.value()
-            elif "TrackMVAClassifier" in typeName or "TrackLwtnnClassifier" in typeName:
+            elif "TrackMVAClassifier" in typeName or "TrackLwtnnClassifier" or "TrackTfClassifier" in typeName:
                 classifiers = [iterName]
             if len(classifiers) > 0:
                 ret[iterName] = (iterName+"Tracks", classifiers)

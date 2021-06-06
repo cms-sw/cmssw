@@ -19,6 +19,7 @@
 #include <chrono>
 #include <iostream>
 #include <random>
+#include <boost/range/adaptor/indexed.hpp>
 
 // ROOT include files
 #include "TTree.h"
@@ -29,6 +30,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -102,6 +104,9 @@ private:
   // counters
   int ievt;
   int itrks;
+
+  // compression settings
+  const int compressionSettings_;
 
   // switch to keep the ntuple
   bool storeNtuple_;
@@ -256,7 +261,8 @@ private:
 };
 
 SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
-    : storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
+    : compressionSettings_(iConfig.getUntrackedParameter<int>("compressionSettings", -1)),
+      storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
       intLumi_(iConfig.getUntrackedParameter<double>("intLumi", 0.)),
       debug_(iConfig.getUntrackedParameter<bool>("Debug", false)),
       pvsTag_(iConfig.getParameter<edm::InputTag>("vtxCollection")),
@@ -295,9 +301,7 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
   // assigned randomly-enough
   engine_.seed(iEvent.id().event() + (iEvent.id().luminosityBlock() << 10) + (iEvent.id().run() << 20));
 
-  // Fill general info
-  h_runNumber->Fill(iEvent.id().run());
-
+  // first check if the event passes the run control
   bool passesRunControl = false;
 
   if (runControl_) {
@@ -314,6 +318,9 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
     if (!passesRunControl)
       return;
   }
+
+  // Fill general info
+  h_runNumber->Fill(iEvent.id().run());
 
   ievt++;
   edm::Handle<edm::TriggerResults> hltresults;
@@ -625,7 +632,7 @@ void SplitVertexResolution::beginRun(edm::Run const& run, edm::EventSetup const&
     auto times = getRunTime(iSetup);
 
     if (debug_) {
-      const time_t start_time = times.first / 1000000;
+      const time_t start_time = times.first / 1.0e+6;
       edm::LogInfo("SplitVertexResolution")
           << RunNumber_ << " has start time: " << times.first << " - " << times.second << std::endl;
       edm::LogInfo("SplitVertexResolution")
@@ -640,6 +647,10 @@ void SplitVertexResolution::beginJob() {
   ievt = 0;
   itrks = 0;
 
+  if (compressionSettings_ > 0) {
+    outfile_->file().SetCompressionSettings(compressionSettings_);
+  }
+
   // luminosity histo
   TFileDirectory EventFeatures = outfile_->mkdir("EventFeatures");
   h_lumiFromConfig =
@@ -651,8 +662,9 @@ void SplitVertexResolution::beginJob() {
                                              runControlNumbers_.size(),
                                              0.,
                                              runControlNumbers_.size());
-  for (const auto r : runControlNumbers_) {
-    h_runFromConfig->SetBinContent(r + 1, r);
+
+  for (const auto& run : runControlNumbers_ | boost::adaptors::indexed(1)) {
+    h_runFromConfig->SetBinContent(run.index(), run.value());
   }
 
   // resolutions
@@ -1077,7 +1089,7 @@ statmode::fitParams SplitVertexResolution::fitResiduals(TH1* hist, bool singleTi
   float mean = hist->GetMean();
   float sigma = hist->GetRMS();
 
-  if (TMath::IsNaN(mean) || TMath::IsNaN(sigma)) {
+  if (edm::isNotFinite(mean) || edm::isNotFinite(sigma)) {
     mean = 0;
     //sigma= - hist->GetXaxis()->GetBinLowEdge(1) + hist->GetXaxis()->GetBinLowEdge(hist->GetNbinsX()+1);
     sigma = -minHist + maxHist;

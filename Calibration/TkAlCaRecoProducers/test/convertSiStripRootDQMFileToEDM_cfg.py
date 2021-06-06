@@ -10,7 +10,6 @@ process = cms.Process("CONV")
 #process.load("DQMServices.Core.test.MessageLogger_cfi")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
 
 

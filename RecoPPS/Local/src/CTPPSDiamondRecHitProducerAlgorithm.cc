@@ -6,8 +6,10 @@
 *
 ****************************************************************************/
 
-#include "RecoPPS/Local/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
+#include <memory>
+
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "RecoPPS/Local/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -17,7 +19,7 @@ CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm(const e
 
 void CTPPSDiamondRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib) {
   calib_ = calib;
-  calib_fct_.reset(new reco::FormulaEvaluator(calib_.formula()));
+  calib_fct_ = std::make_unique<reco::FormulaEvaluator>(calib_.formula());
 }
 
 void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
@@ -37,9 +39,10 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     z_pos = det->parentZPosition();  // retrieve the plane position;
 
     // parameters stand for half the size
-    const float x_width = 2.0 * det->params().at(0);
-    const float y_width = 2.0 * det->params().at(1);
-    const float z_width = 2.0 * det->params().at(2);
+    const auto& diamondDimensions = det->getDiamondDimensions();
+    const float x_width = 2.0 * diamondDimensions.xHalfWidth;
+    const float y_width = 2.0 * diamondDimensions.yHalfWidth;
+    const float z_width = 2.0 * diamondDimensions.zHalfWidth;
 
     // retrieve the timing calibration part for this channel
     const int sector = detid.arm(), station = detid.station(), plane = detid.plane(), channel = detid.channel();

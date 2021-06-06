@@ -28,7 +28,7 @@ Implementation:
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 
 #include <memory>
 
@@ -45,15 +45,16 @@ private:
   const edm::EDGetTokenT<reco::BasicClusterCollection> endcapClusterToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitToken_;
+
+  LazyTools::ESGetTokens esGetTokens_;
 };
 
 testEcalClusterLazyTools::testEcalClusterLazyTools(const edm::ParameterSet& ps)
-    : barrelClusterToken_(
-          consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("barrelClusterCollection"))),
-      endcapClusterToken_(
-          consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusterCollection"))),
-      barrelRecHitToken_(consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("barrelRecHitCollection"))),
-      endcapRecHitToken_(consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("endcapRecHitCollection"))) {}
+    : barrelClusterToken_(consumes(ps.getParameter<edm::InputTag>("barrelClusterCollection"))),
+      endcapClusterToken_(consumes(ps.getParameter<edm::InputTag>("endcapClusterCollection"))),
+      barrelRecHitToken_(consumes(ps.getParameter<edm::InputTag>("barrelRecHitCollection"))),
+      endcapRecHitToken_(consumes(ps.getParameter<edm::InputTag>("endcapRecHitCollection"))),
+      esGetTokens_{consumesCollector()} {}
 
 void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   edm::Handle<reco::BasicClusterCollection> pEBClusters;
@@ -64,7 +65,7 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
   ev.getByToken(endcapClusterToken_, pEEClusters);
   const reco::BasicClusterCollection* eeClusters = pEEClusters.product();
 
-  LazyTools lazyTools(ev, es, barrelRecHitToken_, endcapRecHitToken_);
+  LazyTools lazyTools(ev, esGetTokens_.get(es), barrelRecHitToken_, endcapRecHitToken_);
 
   std::cout << "========== BARREL ==========" << std::endl;
   for (auto const& clus : *ebClusters) {
@@ -101,9 +102,9 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
     std::cout << std::endl;
     std::vector<float> vLat = lazyTools.lat(clus);
     std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
-    std::vector<float> vCov = lazyTools.covariances(clus);
+    const auto& vCov = lazyTools.covariances(clus);
     std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
-    std::vector<float> vLocCov = lazyTools.localCovariances(clus);
+    const auto& vLocCov = lazyTools.localCovariances(clus);
     std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
     std::cout << "zernike20................ " << lazyTools.zernike20(clus) << std::endl;
     std::cout << "zernike42................ " << lazyTools.zernike42(clus) << std::endl;
@@ -131,9 +132,9 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
     std::cout << "e2nd..................... " << lazyTools.e2nd(clus) << std::endl;
     std::vector<float> vLat = lazyTools.lat(clus);
     std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
-    std::vector<float> vCov = lazyTools.covariances(clus);
+    const auto& vCov = lazyTools.covariances(clus);
     std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
-    std::vector<float> vLocCov = lazyTools.localCovariances(clus);
+    const auto& vLocCov = lazyTools.localCovariances(clus);
     std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
     std::cout << "zernike20................ " << lazyTools.zernike20(clus) << std::endl;
     std::cout << "zernike42................ " << lazyTools.zernike42(clus) << std::endl;

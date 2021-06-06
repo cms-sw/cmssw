@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/ProcessBlockIndex.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -84,6 +85,31 @@ namespace edm {
 
         //When threaded we will have a container for N items whre N is # of streams
         std::vector<C*> caches_;
+      };
+
+      template <typename T, typename C>
+      class InputProcessBlockCacheHolder : public virtual T {
+      public:
+        InputProcessBlockCacheHolder() = default;
+        InputProcessBlockCacheHolder(InputProcessBlockCacheHolder const&) = delete;
+        InputProcessBlockCacheHolder& operator=(InputProcessBlockCacheHolder const&) = delete;
+        ~InputProcessBlockCacheHolder() override {}
+
+      protected:
+        // Not implemented yet
+        // const C* inputProcessBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
+
+      private:
+        // Not yet fully implemented, will never get called
+        // THINK ABOUT HOW TO CLEAR CACHES!!!
+        void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
+          caches_.push_back(accessInputProcessBlock(pb));
+        }
+
+        // Not yet fully implemented, will never get called
+        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) const = 0;
+
+        std::vector<std::shared_ptr<C>> caches_;
       };
 
       template <typename T, typename C>
@@ -148,7 +174,7 @@ namespace edm {
         RunSummaryCacheHolder() = default;
         RunSummaryCacheHolder(RunSummaryCacheHolder<T, C> const&) = delete;
         RunSummaryCacheHolder<T, C>& operator=(RunSummaryCacheHolder<T, C> const&) = delete;
-        ~RunSummaryCacheHolder() noexcept(false){};
+        ~RunSummaryCacheHolder() noexcept(false) override{};
 
       private:
         friend class EndRunSummaryProducer<T, C>;
@@ -218,6 +244,50 @@ namespace edm {
       };
 
       template <typename T>
+      class WatchProcessBlock : public virtual T {
+      public:
+        WatchProcessBlock() = default;
+        WatchProcessBlock(WatchProcessBlock const&) = delete;
+        WatchProcessBlock& operator=(WatchProcessBlock const&) = delete;
+        ~WatchProcessBlock() noexcept(false) override {}
+
+      private:
+        void doBeginProcessBlock_(ProcessBlock const&) final;
+        void doEndProcessBlock_(ProcessBlock const&) final;
+
+        virtual void beginProcessBlock(ProcessBlock const&) const {}
+        virtual void endProcessBlock(ProcessBlock const&) const {}
+      };
+
+      template <typename T>
+      class BeginProcessBlockProducer : public virtual T {
+      public:
+        BeginProcessBlockProducer() = default;
+        BeginProcessBlockProducer(BeginProcessBlockProducer const&) = delete;
+        BeginProcessBlockProducer& operator=(BeginProcessBlockProducer const&) = delete;
+        ~BeginProcessBlockProducer() noexcept(false) override{};
+
+      private:
+        void doBeginProcessBlockProduce_(ProcessBlock&) final;
+
+        virtual void beginProcessBlockProduce(edm::ProcessBlock&) const = 0;
+      };
+
+      template <typename T>
+      class EndProcessBlockProducer : public virtual T {
+      public:
+        EndProcessBlockProducer() = default;
+        EndProcessBlockProducer(EndProcessBlockProducer const&) = delete;
+        EndProcessBlockProducer& operator=(EndProcessBlockProducer const&) = delete;
+        ~EndProcessBlockProducer() noexcept(false) override{};
+
+      private:
+        void doEndProcessBlockProduce_(ProcessBlock&) final;
+
+        virtual void endProcessBlockProduce(edm::ProcessBlock&) const = 0;
+      };
+
+      template <typename T>
       class BeginRunProducer : public virtual T {
       public:
         BeginRunProducer() = default;
@@ -251,7 +321,7 @@ namespace edm {
         EndRunSummaryProducer() = default;
         EndRunSummaryProducer(EndRunSummaryProducer const&) = delete;
         EndRunSummaryProducer& operator=(EndRunSummaryProducer const&) = delete;
-        ~EndRunSummaryProducer() noexcept(false){};
+        ~EndRunSummaryProducer() noexcept(false) override{};
 
       private:
         void doEndRunProduce_(Run& rp, EventSetup const& c) final {
@@ -293,7 +363,7 @@ namespace edm {
         EndLuminosityBlockSummaryProducer() = default;
         EndLuminosityBlockSummaryProducer(EndLuminosityBlockSummaryProducer const&) = delete;
         EndLuminosityBlockSummaryProducer& operator=(EndLuminosityBlockSummaryProducer const&) = delete;
-        ~EndLuminosityBlockSummaryProducer() noexcept(false){};
+        ~EndLuminosityBlockSummaryProducer() noexcept(false) override{};
 
       private:
         void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) final {

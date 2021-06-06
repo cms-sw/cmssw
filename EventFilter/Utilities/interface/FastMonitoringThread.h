@@ -2,104 +2,122 @@
 #define EVF_FASTMONITORINGTHREAD
 
 #include "EventFilter/Utilities/interface/FastMonitor.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"  //state enums?
 
 #include <iostream>
+#include <memory>
+
 #include <vector>
 #include <thread>
 #include <mutex>
 
 namespace evf {
 
+  constexpr int nReservedModules = 64;
+  constexpr int nSpecialModules = 10;
+  constexpr int nReservedPaths = 1;
+
+  namespace FastMonState {
+    enum Macrostate;
+  }
+
   class FastMonitoringService;
+
+  template <typename T>
+  struct ContainableAtomic {
+    ContainableAtomic() : m_value{} {}
+    ContainableAtomic(T iValue) : m_value(iValue) {}
+    ContainableAtomic(ContainableAtomic<T> const& iOther) : m_value(iOther.m_value.load()) {}
+    ContainableAtomic<T>& operator=(T iValue) {
+      m_value.store(iValue, std::memory_order_relaxed);
+      return *this;
+    }
+    operator T() { return m_value.load(std::memory_order_relaxed); }
+
+    std::atomic<T> m_value;
+  };
+
+  struct FastMonEncoding {
+    FastMonEncoding(unsigned int res) : reserved_(res), current_(reserved_), currentReserved_(0) {
+      if (reserved_)
+        dummiesForReserved_ = new edm::ModuleDescription[reserved_];
+      //	  completeReservedWithDummies();
+    }
+    ~FastMonEncoding() {
+      if (reserved_)
+        delete[] dummiesForReserved_;
+    }
+    //trick: only encode state when sending it over (i.e. every sec)
+    int encode(const void* add) const {
+      std::unordered_map<const void*, int>::const_iterator it = quickReference_.find(add);
+      return (it != quickReference_.end()) ? (*it).second : 0;
+    }
+
+    //this allows to init path list in beginJob, but strings used later are not in the same memory
+    //position. Therefore path address lookup will be updated when snapshot (encode) is called
+    //with this we can remove ugly path legend update in preEventPath, but will still need a check
+    //that any event has been processed (any path will do)
+    int encodeString(const std::string* add) {
+      std::unordered_map<const void*, int>::const_iterator it = quickReference_.find((void*)add);
+      if (it == quickReference_.end()) {
+        //try to match by string content (encode only used
+        auto it = quickReferencePreinit_.find(*add);
+        if (it == quickReferencePreinit_.end())
+          return 0;
+        else {
+          //overwrite pointer in decoder and add to reference
+          decoder_[(*it).second] = (void*)add;
+          quickReference_[(void*)add] = (*it).second;
+          quickReferencePreinit_.erase(it);
+          return encode((void*)add);
+        }
+      }
+      return (*it).second;
+    }
+
+    const void* decode(unsigned int index) { return decoder_[index]; }
+    void fillReserved(const void* add, unsigned int i) {
+      //	  translation_[*name]=current_;
+      quickReference_[add] = i;
+      if (decoder_.size() <= i)
+        decoder_.push_back(add);
+      else
+        decoder_[currentReserved_] = add;
+    }
+    void updateReserved(const void* add) {
+      fillReserved(add, currentReserved_);
+      currentReserved_++;
+    }
+    void completeReservedWithDummies() {
+      for (unsigned int i = currentReserved_; i < reserved_; i++)
+        fillReserved(dummiesForReserved_ + i, i);
+    }
+    void update(const void* add) {
+      //	  translation_[*name]=current_;
+      quickReference_[add] = current_;
+      decoder_.push_back(add);
+      current_++;
+    }
+
+    void updatePreinit(std::string const& add) {
+      //	  translation_[*name]=current_;
+      quickReferencePreinit_[add] = current_;
+      decoder_.push_back((void*)&add);
+      current_++;
+    }
+
+    unsigned int vecsize() { return decoder_.size(); }
+    std::unordered_map<const void*, int> quickReference_;
+    std::unordered_map<std::string, int> quickReferencePreinit_;
+    std::vector<const void*> decoder_;
+    unsigned int reserved_;
+    int current_;
+    int currentReserved_;
+    edm::ModuleDescription* dummiesForReserved_;
+  };
 
   class FastMonitoringThread {
   public:
-    // a copy of the Framework/EventProcessor states
-    enum Macrostate {
-      sInit = 0,
-      sJobReady,
-      sRunGiven,
-      sRunning,
-      sStopping,
-      sShuttingDown,
-      sDone,
-      sJobEnded,
-      sError,
-      sErrorEnded,
-      sEnd,
-      sInvalid,
-      MCOUNT
-    };
-
-    enum InputState {
-      inIgnore = 0,
-      inInit,
-      inWaitInput,
-      inNewLumi,
-      inNewLumiBusyEndingLS,
-      inNewLumiIdleEndingLS,
-      inRunEnd,
-      inProcessingFile,
-      inWaitChunk,
-      inChunkReceived,
-      inChecksumEvent,
-      inCachedEvent,
-      inReadEvent,
-      inReadCleanup,
-      inNoRequest,
-      inNoRequestWithIdleThreads,
-      inNoRequestWithGlobalEoL,
-      inNoRequestWithEoLThreads,
-      //supervisor thread and worker threads state
-      inSupFileLimit,
-      inSupWaitFreeChunk,
-      inSupWaitFreeChunkCopying,
-      inSupWaitFreeThread,
-      inSupWaitFreeThreadCopying,
-      inSupBusy,
-      inSupLockPolling,
-      inSupLockPollingCopying,
-      inSupNoFile,
-      inSupNewFile,
-      inSupNewFileWaitThreadCopying,
-      inSupNewFileWaitThread,
-      inSupNewFileWaitChunkCopying,
-      inSupNewFileWaitChunk,
-      //combined with inWaitInput
-      inWaitInput_fileLimit,
-      inWaitInput_waitFreeChunk,
-      inWaitInput_waitFreeChunkCopying,
-      inWaitInput_waitFreeThread,
-      inWaitInput_waitFreeThreadCopying,
-      inWaitInput_busy,
-      inWaitInput_lockPolling,
-      inWaitInput_lockPollingCopying,
-      inWaitInput_runEnd,
-      inWaitInput_noFile,
-      inWaitInput_newFile,
-      inWaitInput_newFileWaitThreadCopying,
-      inWaitInput_newFileWaitThread,
-      inWaitInput_newFileWaitChunkCopying,
-      inWaitInput_newFileWaitChunk,
-      //combined with inWaitChunk
-      inWaitChunk_fileLimit,
-      inWaitChunk_waitFreeChunk,
-      inWaitChunk_waitFreeChunkCopying,
-      inWaitChunk_waitFreeThread,
-      inWaitChunk_waitFreeThreadCopying,
-      inWaitChunk_busy,
-      inWaitChunk_lockPolling,
-      inWaitChunk_lockPollingCopying,
-      inWaitChunk_runEnd,
-      inWaitChunk_noFile,
-      inWaitChunk_newFile,
-      inWaitChunk_newFileWaitThreadCopying,
-      inWaitChunk_newFileWaitThread,
-      inWaitChunk_newFileWaitChunkCopying,
-      inWaitChunk_newFileWaitChunk,
-      inCOUNT
-    };
-
     struct MonitorData {
       //fastpath global monitorables
       jsoncollector::IntJ fastMacrostateJ_;
@@ -129,10 +147,22 @@ namespace evf {
       unsigned int microstateBins_;
       unsigned int inputstateBins_;
 
+      //global state
+      std::atomic<FastMonState::Macrostate> macrostate_;
+
+      //per stream
+      std::vector<ContainableAtomic<const std::string*>> ministate_;
+      std::vector<ContainableAtomic<const void*>> microstate_;
+      std::vector<ContainableAtomic<unsigned char>> microstateAcqFlag_;
+      std::vector<ContainableAtomic<const void*>> threadMicrostate_;
+
+      FastMonEncoding encModule_;
+      std::vector<FastMonEncoding> encPath_;
+
       //unsigned int prescaleindex_; // ditto
 
-      MonitorData() {
-        fastMacrostateJ_ = FastMonitoringThread::sInit;
+      MonitorData() : encModule_(nReservedModules) {
+        fastMacrostateJ_ = FastMonState::sInit;
         fastThroughputJ_ = 0;
         fastAvgLeadTimeJ_ = 0;
         fastFilesProcessedJ_ = 0;
@@ -199,7 +229,7 @@ namespace evf {
 
     void resetFastMonitor(std::string const& microStateDefPath, std::string const& fastMicroStateDefPath) {
       std::string defGroup = "data";
-      jsonMonitor_.reset(new jsoncollector::FastMonitor(microStateDefPath, defGroup, false));
+      jsonMonitor_ = std::make_unique<jsoncollector::FastMonitor>(microStateDefPath, defGroup, false);
       if (!fastMicroStateDefPath.empty())
         jsonMonitor_->addFastPathDefinition(fastMicroStateDefPath, defGroup, false);
     }
@@ -209,10 +239,14 @@ namespace evf {
       m_thread = std::make_shared<std::thread>(fp, cp);
     }
     void stop() {
-      assert(m_thread);
-      m_stoprequest = true;
-      m_thread->join();
+      if (m_thread.get()) {
+        m_stoprequest = true;
+        m_thread->join();
+        m_thread.reset();
+      }
     }
+
+    ~FastMonitoringThread() { stop(); }
 
   private:
     std::atomic<bool> m_stoprequest;

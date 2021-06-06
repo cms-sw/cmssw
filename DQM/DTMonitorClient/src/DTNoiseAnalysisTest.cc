@@ -7,19 +7,18 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTNoiseAnalysisTest.h>
+#include "DQM/DTMonitorClient/src/DTNoiseAnalysisTest.h"
 
 // Framework
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
-#include <DataFormats/MuonDetId/interface/DTLayerId.h>
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -30,7 +29,8 @@
 using namespace edm;
 using namespace std;
 
-DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps) {
+DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") << "[DTNoiseAnalysisTest]: Constructor";
 
   // get the cfi parameters
@@ -53,7 +53,7 @@ DTNoiseAnalysisTest::~DTNoiseAnalysisTest() {
 
 void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
   // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 }
 
 void DTNoiseAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,

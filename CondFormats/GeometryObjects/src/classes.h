@@ -1,7 +1,5 @@
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-#include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
-#include "CondFormats/GeometryObjects/interface/PGeometricTimingDetExtra.h"
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
@@ -12,3 +10,5 @@
 #include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
 #include "CondFormats/GeometryObjects/interface/EcalSimulationParameters.h"
 #include "CondFormats/GeometryObjects/interface/PHGCalParameters.h"
+#include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
+#include "CondFormats/GeometryObjects/interface/MuonOffsetMap.h"

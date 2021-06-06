@@ -20,6 +20,7 @@ class CTPPSLHCInfoESSource : public edm::ESProducer, public edm::EventSetupRecor
 public:
   CTPPSLHCInfoESSource(const edm::ParameterSet &);
   edm::ESProducts<std::unique_ptr<LHCInfo>> produce(const LHCInfoRcd &);
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
@@ -30,6 +31,7 @@ private:
 
   edm::EventRange m_validityRange;
   double m_beamEnergy;
+  double m_betaStar;
   double m_xangle;
 
   bool m_insideValidityRange;
@@ -42,10 +44,27 @@ CTPPSLHCInfoESSource::CTPPSLHCInfoESSource(const edm::ParameterSet &conf)
     : m_label(conf.getParameter<std::string>("label")),
       m_validityRange(conf.getParameter<edm::EventRange>("validityRange")),
       m_beamEnergy(conf.getParameter<double>("beamEnergy")),
+      m_betaStar(conf.getParameter<double>("betaStar")),
       m_xangle(conf.getParameter<double>("xangle")),
       m_insideValidityRange(false) {
   setWhatProduced(this, m_label);
   findingRecord<LHCInfoRcd>();
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void CTPPSLHCInfoESSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<std::string>("label", "")->setComment("label of the LHCInfo record");
+
+  desc.add<edm::EventRange>("validityRange", edm::EventRange())->setComment("interval of validity");
+
+  desc.add<double>("beamEnergy", 0.)->setComment("beam energy");
+  desc.add<double>("betaStar", 0.)->setComment("beta*");
+  desc.add<double>("xangle", 0.)->setComment("crossing angle");
+
+  descriptions.add("ctppsLHCInfoESSource", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -85,9 +104,11 @@ edm::ESProducts<std::unique_ptr<LHCInfo>> CTPPSLHCInfoESSource::produce(const LH
 
   if (m_insideValidityRange) {
     output->setEnergy(m_beamEnergy);
+    output->setBetaStar(m_betaStar);
     output->setCrossingAngle(m_xangle);
   } else {
     output->setEnergy(0.);
+    output->setBetaStar(0.);
     output->setCrossingAngle(0.);
   }
 

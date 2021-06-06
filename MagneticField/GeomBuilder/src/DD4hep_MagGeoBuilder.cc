@@ -23,7 +23,6 @@
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
-#include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -358,7 +357,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   buildMagVolumes(bVolumes_, bInterpolators);
 
   // Build MagBLayers
-  for (auto ilay : layers) {
+  for (const auto& ilay : layers) {
     mBLayers_.push_back(ilay.buildMagBLayer());
   }
   LogTrace("MagGeoBuilder") << "*** BARREL ********************************************" << newln
@@ -373,7 +372,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   buildMagVolumes(eVolumes_, eInterpolators);
 
   // Build the MagESectors
-  for (auto isec : sectors) {
+  for (const auto& isec : sectors) {
     mESectors_.push_back(isec.buildMagESector());
   }
   LogTrace("MagGeoBuilder") << "*** ENDCAP ********************************************" << newln
@@ -392,9 +391,9 @@ void MagGeoBuilder::buildMagVolumes(const handles& volumes, map<string, MagProvi
     if (interpolators.find(vol->magFile) != interpolators.end()) {
       mp = interpolators[vol->magFile];
     } else {
-      edm::LogError("MagGeoBuilder|buildMagVolumes")
-          << "No interpolator found for file " << vol->magFile << " vol: " << vol->volumeno << "\n"
-          << interpolators.size();
+      edm::LogError("MagGeoBuilder") << "No interpolator found for file " << vol->magFile << " vol: " << vol->volumeno
+                                     << "\n"
+                                     << interpolators.size();
     }
 
     // Search for [volume,sector] in the list of scaling factors; sector = 0 handled as wildcard
@@ -410,8 +409,8 @@ void MagGeoBuilder::buildMagVolumes(const handles& volumes, map<string, MagProvi
     if (isf != theScalingFactors_.end()) {
       sf = (*isf).second;
 
-      LogTrace("MagGeoBuilder|buildMagVolumes") << "Applying scaling factor " << sf << " to " << vol->volumeno << "["
-                                                << vol->copyno << "] (key:" << key << ")";
+      LogTrace("MagGeoBuilder") << "Applying scaling factor " << sf << " to " << vol->volumeno << "[" << vol->copyno
+                                << "] (key:" << key << ")";
     }
 
     const GloballyPositioned<float>* gpos = vol->placement();

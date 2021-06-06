@@ -3,10 +3,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-#process.load("Geometry.HGCalCommonData.testHGCV8XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D35XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D41XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D46XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D49XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D68XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D70XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D71XML_cfi")
 process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
@@ -15,9 +15,10 @@ process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load("Geometry.HGCalCommonData.hgcGeometryTester_cfi")
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -43,8 +44,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prod = cms.EDAnalyzer("HGCGeometryTester",
-                              SquareType = cms.untracked.bool(False),
-)
-
-process.p1 = cms.Path(process.generator*process.prod)
+process.p1 = cms.Path(process.generator*process.hgcGeometryTester)

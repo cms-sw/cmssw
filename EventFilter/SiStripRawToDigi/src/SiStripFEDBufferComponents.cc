@@ -1353,8 +1353,6 @@ namespace sistrip {
     return (!majorityAddressErrorForFEUnit(feUnit) && feEnabled(feUnit) && !feOverflow(feUnit));
   }
 
-  bool FEDBufferBase::doChecks() const { return (doTrackerSpecialHeaderChecks() && doDAQHeaderAndTrailerChecks()); }
-
   std::string FEDBufferBase::checkSummary() const {
     std::ostringstream summary;
     summary << "Check buffer type valid: " << (checkBufferFormat() ? "passed" : "FAILED") << std::endl;

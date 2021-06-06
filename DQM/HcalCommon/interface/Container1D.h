@@ -17,8 +17,8 @@
 #include "DQM/HcalCommon/interface/Utilities.h"
 #include "DQM/HcalCommon/interface/ValueQuantity.h"
 
-#include "boost/unordered_map.hpp"
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace hcaldqm {
@@ -228,7 +228,7 @@ namespace hcaldqm {
   protected:
     virtual void customize(MonitorElement *);
 
-    typedef boost::unordered_map<uint32_t, MonitorElement *> MEMap;
+    typedef std::unordered_map<uint32_t, MonitorElement *> MEMap;
     MEMap _mes;
     mapper::HashMapper _hashmap;
     quantity::Quantity *_qx;

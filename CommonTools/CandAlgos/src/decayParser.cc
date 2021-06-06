@@ -11,6 +11,10 @@
 // $Id: decayParser.cc,v 1.1 2009/03/03 13:50:55 llista Exp $
 //
 #include "CommonTools/CandAlgos/interface/decayParser.h"
+
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
+
 #include <vector>
 
 using namespace boost::spirit;

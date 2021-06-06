@@ -7,27 +7,17 @@ CSCUpgradeAnodeLCTProcessor::CSCUpgradeAnodeLCTProcessor(unsigned endcap,
                                                          unsigned chamber,
                                                          const edm::ParameterSet& conf)
     : CSCAnodeLCTProcessor(endcap, station, sector, subsector, chamber, conf) {
-  if (!isSLHC_)
+  if (!runPhase2_)
     edm::LogError("CSCUpgradeAnodeLCTProcessor|ConfigError")
-        << "+++ Upgrade CSCUpgradeAnodeLCTProcessor constructed while isSLHC_ is not set! +++\n";
+        << "+++ Upgrade CSCUpgradeAnodeLCTProcessor constructed while runPhase2_ is not set! +++\n";
 
-  if (!enableAlctSLHC_)
+  if (!enableAlctPhase2_)
     edm::LogError("CSCUpgradeAnodeLCTProcessor|ConfigError")
-        << "+++ Upgrade CSCUpgradeAnodeLCTProcessor constructed while enableAlctSLHC_ is not set! +++\n";
-}
-
-CSCUpgradeAnodeLCTProcessor::CSCUpgradeAnodeLCTProcessor() : CSCAnodeLCTProcessor() {
-  if (!isSLHC_)
-    edm::LogError("CSCUpgradeAnodeLCTProcessor|ConfigError")
-        << "+++ Upgrade CSCUpgradeAnodeLCTProcessor constructed while isSLHC_ is not set! +++\n";
-
-  if (!enableAlctSLHC_)
-    edm::LogError("CSCUpgradeAnodeLCTProcessor|ConfigError")
-        << "+++ Upgrade CSCUpgradeAnodeLCTProcessor constructed while enableAlctSLHC_ is not set! +++\n";
+        << "+++ Upgrade CSCUpgradeAnodeLCTProcessor constructed while enableAlctPhase2_ is not set! +++\n";
 }
 
 void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic() {
-  int ghost_cleared[CSCConstants::MAX_NUM_WIRES][2];
+  int ghost_cleared[CSCConstants::MAX_NUM_WIREGROUPS][2];
 
   for (int key_wire = 0; key_wire < numWireGroups; key_wire++) {
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
@@ -36,7 +26,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic() {
       // Non-empty wire group.
       int qual_this = quality[key_wire][i_pattern];
       if (qual_this > 0) {
-        if (isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
+        if (runPhase2_ and runME21ILT_ and isME21_)
           qual_this = (qual_this & 0x03);
         // Previous wire.
         int dt = -1;
@@ -47,7 +37,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic() {
           else
             dt = first_bx[key_wire] - first_bx[key_wire - 1];
           // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
-          if (isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
+          if (runPhase2_ and runME21ILT_ and isME21_)
             qual_prev = (qual_prev & 0x03);
 
           // Cancel this wire
@@ -84,7 +74,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic() {
           else
             dt = first_bx[key_wire] - first_bx[key_wire + 1];
           // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
-          if (isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
+          if (runPhase2_ and runME21ILT_ and isME21_)
             qual_next = (qual_next & 0x03);
           // Same cancellation logic as for the previous wire.
           if (dt == 0) {
@@ -127,7 +117,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wi
     // Non-empty wire group.
     int qual_this = quality[key_wire][i_pattern];
     if (qual_this > 0) {
-      if (isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
+      if (runPhase2_ and runME21ILT_ and isME21_)
         qual_this = (qual_this & 0x03);
       // Previous wire.
       int dt = -1;
@@ -150,7 +140,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wi
         else
           dt = first_bx[key_wire] - first_bx_prev;
         // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
-        if (isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
+        if (runPhase2_ and runME21ILT_ and isME21_)
           qual_prev = (qual_prev & 0x03);
 
         // Cancel this wire
@@ -195,7 +185,7 @@ int CSCUpgradeAnodeLCTProcessor::getTempALCTQuality(int temp_quality) const {
   // on pattern_thresh.
   int Q;
   // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
-  if (temp_quality == 3 and isSLHC_ and (runME21ILT_ or runME31Up_ or runME41Up_))
+  if (temp_quality == 3 and runPhase2_ and runME21ILT_ and isME21_)
     Q = 4;
   else if (temp_quality > 3)
     Q = temp_quality - 3;

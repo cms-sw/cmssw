@@ -6,15 +6,18 @@ from RecoEgamma.EgammaPhotonProducers.propOppoMomentumWithMaterialForElectrons_c
 #TrajectoryBuilder
 from RecoTracker.CkfPattern.CkfTrajectoryBuilder_cff import *
 import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
-TrajectoryBuilderForConversions = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone()
-TrajectoryBuilderForConversions.estimator = 'eleLooseChi2'
-TrajectoryBuilderForConversions.TTRHBuilder = 'WithTrackAngle'
-TrajectoryBuilderForConversions.updator = 'KFUpdator'
-TrajectoryBuilderForConversions.propagatorAlong = 'alongMomElePropagator'
-TrajectoryBuilderForConversions.propagatorOpposite = 'oppositeToMomElePropagator'
-TrajectoryBuilderForConversions.trajectoryFilter.refToPSet_ = 'TrajectoryFilterForConversions'
-TrajectoryBuilderForConversions.maxCand = 5
-TrajectoryBuilderForConversions.lostHitPenalty = 30.
-TrajectoryBuilderForConversions.intermediateCleaning = True
-TrajectoryBuilderForConversions.alwaysUseInvalidHits = True
-TrajectoryBuilderForConversions.seedAs5DHit  = False
+from RecoEgamma.EgammaPhotonProducers.trajectoryFilterForConversions_cfi import TrajectoryFilterForConversions
+
+TrajectoryBuilderForConversions = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone(
+    estimator            = 'eleLooseChi2',
+    TTRHBuilder          = 'WithTrackAngle',
+    updator              = 'KFUpdator',
+    propagatorAlong      = 'alongMomElePropagator',
+    propagatorOpposite   = 'oppositeToMomElePropagator',
+    trajectoryFilter     = dict(refToPSet_ = 'TrajectoryFilterForConversions'),
+    maxCand              = 5,
+    lostHitPenalty       = 30.,
+    intermediateCleaning = True,
+    alwaysUseInvalidHits = True,
+    seedAs5DHit          = False
+)

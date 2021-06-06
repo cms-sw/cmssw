@@ -22,8 +22,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+// Configuration via eventsetup:
+#include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
+
+#include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
+#include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
+
+#include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
+#include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
+
+#include "CondFormats/DataRecord/interface/L1RPCBxOrConfigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
 
 // L1RpcTrigger specific includes
 #include "L1Trigger/RPCTrigger/interface/RPCConeBuilderFromES.h"
@@ -77,6 +90,12 @@ private:
 
   const edm::EDPutTokenT<std::vector<RPCDigiL1Link>> m_brlLinksPutToken;
   const edm::EDPutTokenT<std::vector<RPCDigiL1Link>> m_fwdLinksPutToken;
+  const edm::ESGetToken<L1RPCConfig, L1RPCConfigRcd> m_configToken;
+  const edm::ESGetToken<L1RPCConeBuilder, L1RPCConeBuilderRcd> m_coneBuilderToken;
+  const edm::ESGetToken<L1RPCConeDefinition, L1RPCConeDefinitionRcd> m_coneDefinitionToken;
+  const edm::ESGetToken<L1RPCHwConfig, L1RPCHwConfigRcd> m_hwConfigToken;
+  const edm::ESGetToken<L1RPCBxOrConfig, L1RPCBxOrConfigRcd> m_BxOrConfigToken;
+  const edm::ESGetToken<L1RPCHsbConfig, L1RPCHsbConfigRcd> m_hsbConfigToken;
 };
 
 #endif

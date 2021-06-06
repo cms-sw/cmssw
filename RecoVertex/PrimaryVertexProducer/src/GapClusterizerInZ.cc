@@ -60,3 +60,8 @@ vector<vector<reco::TransientTrack> > GapClusterizerInZ::clusterize(const vector
 
   return clusters;
 }
+
+void GapClusterizerInZ::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<double>("zSeparation", 1.0);
+  desc.addUntracked<bool>("verbose", false);
+}

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoJets/JetProducers/interface/NjettinessAdder.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -104,7 +106,7 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig)
       break;
   };
 
-  routine_ = std::unique_ptr<fastjet::contrib::Njettiness>(new fastjet::contrib::Njettiness(*axesDef, *measureDef));
+  routine_ = std::make_unique<fastjet::contrib::Njettiness>(*axesDef, *measureDef);
 }
 
 void NjettinessAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

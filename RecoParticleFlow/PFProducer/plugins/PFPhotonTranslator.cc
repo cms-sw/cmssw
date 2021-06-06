@@ -2,34 +2,27 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "CommonTools/ParticleFlow/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCoreFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
 
 class CaloGeometry;
 class CaloTopology;
@@ -141,6 +134,10 @@ private:
   edm::ESHandle<CaloTopology> theCaloTopo_;
   edm::ESHandle<CaloGeometry> theCaloGeom_;
 
+  // Mustache SC parameters
+  edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
+  const EcalMustacheSCParameters *mustacheSCParams_;
+
   bool emptyIsOk_;
 };
 
@@ -186,6 +183,8 @@ PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet &iConfig) {
   else
     emptyIsOk_ = false;
 
+  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
+
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_);
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_);
   produces<reco::SuperClusterCollection>(PFSuperClusterCollection_);
@@ -198,6 +197,7 @@ PFPhotonTranslator::~PFPhotonTranslator() {}
 
 void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //cout << "NEW EVENT"<<endl;
+  mustacheSCParams_ = &iSetup.getData(ecalMustacheSCParametersToken_);
 
   auto basicClusters_p = std::make_unique<reco::BasicClusterCollection>();
 
@@ -1005,7 +1005,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
 
     reco::Photon::PflowIDVariables myPFVariables;
 
-    reco::Mustache myMustache;
+    reco::Mustache myMustache(mustacheSCParams_);
     myMustache.MustacheID(
         *(myPhoton.parentSuperCluster()), myPFVariables.nClusterOutsideMustache, myPFVariables.etOutsideMustache);
     myPFVariables.mva = pfPhotonMva_[iphot];

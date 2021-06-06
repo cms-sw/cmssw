@@ -12,7 +12,10 @@ using namespace edm;
 
 GlobalDetLayerGeometryESProducer::GlobalDetLayerGeometryESProducer(const edm::ParameterSet& p) {
   std::string myName = p.getParameter<std::string>("ComponentName");
-  setWhatProduced(this, myName).setConsumes(trackerToken_).setConsumes(muonToken_).setConsumes(mtdToken_);
+  auto cc = setWhatProduced(this, myName);
+  trackerToken_ = cc.consumes();
+  muonToken_ = cc.consumes();
+  mtdToken_ = cc.consumes();
 }
 
 GlobalDetLayerGeometryESProducer::~GlobalDetLayerGeometryESProducer() {}
@@ -29,7 +32,7 @@ std::unique_ptr<DetLayerGeometry> GlobalDetLayerGeometryESProducer::produce(cons
       LogInfo("GlobalDetLayergGeometryBuilder") << "No MTD geometry is available.";
     }
   } else {
-    LogInfo("GlobalDetLayerGeometryBuilder") << "No MTDDigiGeometryRecord is available.";
+    LogInfo("GlobalDetLayerGeometryBuilder") << "No MTDRecoGeometryRecord is available.";
   }
 
   // if we've got MTD initialize it

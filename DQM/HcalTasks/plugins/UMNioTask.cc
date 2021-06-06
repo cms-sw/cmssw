@@ -3,7 +3,8 @@
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
-UMNioTask::UMNioTask(edm::ParameterSet const& ps) : DQTask(ps) {
+UMNioTask::UMNioTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   _tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE", edm::InputTag("hcalDigis"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
   _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
@@ -32,8 +33,7 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   DQTask::bookHistograms(ib, r, es);
 
-  edm::ESHandle<HcalDbService> dbService;
-  es.get<HcalDbRecord>().get(dbService);
+  edm::ESHandle<HcalDbService> dbService = es.getHandle(hcalDbServiceToken_);
   _emap = dbService->getHcalMapping();
 
   _cEventType.initialize(_name,
@@ -131,8 +131,8 @@ int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
     _cTotalChargeProfile.fill(it->id(), _currentLS, sumQ);
   }
 }
-/* virtual */ void UMNioTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::dqmEndLuminosityBlock(lb, es);
+/* virtual */ void UMNioTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(UMNioTask);

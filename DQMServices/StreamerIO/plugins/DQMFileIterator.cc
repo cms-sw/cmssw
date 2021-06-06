@@ -1,19 +1,19 @@
-#include "DQMFileIterator.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/TimeOfDay.h"
-
-#include <boost/regex.hpp>
-#include <boost/format.hpp>
-#include <boost/range.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-
+#include <filesystem>
+#include <iterator>
 #include <memory>
 #include <string>
-#include <iterator>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/algorithm/string.hpp>
+#include <boost/range.hpp>
+#include <boost/regex.hpp>
+#include <fmt/printf.h>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "DQMFileIterator.h"
 
 namespace dqmservices {
 
@@ -45,7 +45,7 @@ namespace dqmservices {
     if (boost::starts_with(datafn, "/"))
       return datafn;
 
-    boost::filesystem::path p(run_path);
+    std::filesystem::path p(run_path);
     p /= datafn;
     return p.string();
   }
@@ -94,8 +94,8 @@ namespace dqmservices {
     std::vector<std::string> tokens;
     boost::split(tokens, runInputDir_, boost::is_any_of(":"));
 
-    for (auto token : tokens) {
-      runPath_.push_back(boost::str(boost::format("%s/run%06d") % token % runNumber_));
+    for (const auto& token : tokens) {
+      runPath_.push_back(fmt::sprintf("%s/run%06d", token, runNumber_));
     }
 
     eor_.loaded = false;
@@ -175,18 +175,20 @@ namespace dqmservices {
       return;
 
     ptree doc;
-    doc.put(str(boost::format("extra.lumi_seen.lumi%06d") % lumi.file_ls), lumi.state);
+    doc.put(fmt::sprintf("extra.lumi_seen.lumi%06d", lumi.file_ls), lumi.state);
     mon_->outputUpdate(doc);
   }
 
-  std::time_t DQMFileIterator::mtimeHash() const {
-    std::time_t mtime_now = 0;
+  unsigned DQMFileIterator::mtimeHash() const {
+    unsigned mtime_now = 0;
 
-    for (auto path : runPath_) {
-      if (!boost::filesystem::exists(path))
+    for (const auto& path : runPath_) {
+      if (!std::filesystem::exists(path))
         continue;
 
-      mtime_now = mtime_now ^ boost::filesystem::last_write_time(path);
+      auto write_time = std::filesystem::last_write_time(path);
+      mtime_now =
+          mtime_now ^ std::chrono::duration_cast<std::chrono::microseconds>(write_time.time_since_epoch()).count();
     }
 
     return mtime_now;
@@ -205,7 +207,7 @@ namespace dqmservices {
     }
 
     // check if directory changed
-    std::time_t mtime_now = mtimeHash();
+    auto mtime_now = mtimeHash();
 
     if ((!ignoreTimers) && (last_ms < forceFileCheckTimeoutMillis_) && (mtime_now == runPathMTime_)) {
       // logFileAction("Directory hasn't changed.");
@@ -217,13 +219,13 @@ namespace dqmservices {
     runPathMTime_ = mtime_now;
     runPathLastCollect_ = now;
 
-    using boost::filesystem::directory_entry;
-    using boost::filesystem::directory_iterator;
+    using std::filesystem::directory_entry;
+    using std::filesystem::directory_iterator;
 
     std::string fn_eor;
 
-    for (auto runPath : runPath_) {
-      if (!boost::filesystem::exists(runPath)) {
+    for (const auto& runPath : runPath_) {
+      if (!std::filesystem::exists(runPath)) {
         logFileAction("Directory does not exist: ", runPath);
 
         continue;

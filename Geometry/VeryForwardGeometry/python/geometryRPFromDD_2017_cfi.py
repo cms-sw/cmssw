@@ -140,5 +140,6 @@ XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/dat
 
 ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
     verbosity = cms.untracked.uint32(1),
+    isRun2 = cms.bool(True),
     compactViewTag = cms.string('XMLIdealGeometryESSource_CTPPS')
 )

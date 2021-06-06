@@ -27,6 +27,7 @@ struct ComparePairs {
 
 /*****************************************************************************/
 PixelVertexProducerMedian::PixelVertexProducerMedian(const edm::ParameterSet& ps) : theConfig(ps) {
+  thePtMin = theConfig.getParameter<double>("PtMin");
   produces<reco::VertexCollection>();
 }
 
@@ -34,14 +35,12 @@ PixelVertexProducerMedian::PixelVertexProducerMedian(const edm::ParameterSet& ps
 PixelVertexProducerMedian::~PixelVertexProducerMedian() {}
 
 /*****************************************************************************/
-void PixelVertexProducerMedian::produce(edm::Event& ev, const edm::EventSetup& es) {
+void PixelVertexProducerMedian::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const {
   // Get pixel tracks
   edm::Handle<reco::TrackCollection> trackCollection;
   std::string trackCollectionName = theConfig.getParameter<std::string>("TrackCollection");
   ev.getByLabel(trackCollectionName, trackCollection);
   const reco::TrackCollection tracks_ = *(trackCollection.product());
-
-  thePtMin = theConfig.getParameter<double>("PtMin");
 
   // Select tracks
   std::vector<const reco::Track*> tracks;

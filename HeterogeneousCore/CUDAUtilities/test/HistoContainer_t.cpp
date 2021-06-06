@@ -25,51 +25,73 @@ void go() {
   constexpr int N = 12000;
   T v[N];
 
+  using HistR = HistoContainer<T, NBINS, -1, S>;
   using Hist = HistoContainer<T, NBINS, N, S>;
   using Hist4 = HistoContainer<T, NBINS, N, S, uint16_t, 4>;
+  std::cout << "HistoContainerR " << HistR::nbits() << ' ' << HistR::nbins() << ' ' << HistR::totbins() << ' '
+            << HistR::ctNOnes() << ' ' << HistR::ctCapacity() << ' ' << (rmax - rmin) / HistR::nbins() << std::endl;
+  std::cout << "bins " << int(Hist::bin(0)) << ' ' << int(Hist::bin(rmin)) << ' ' << int(Hist::bin(rmax)) << std::endl;
+
   std::cout << "HistoContainer " << Hist::nbits() << ' ' << Hist::nbins() << ' ' << Hist::totbins() << ' '
-            << Hist::capacity() << ' ' << (rmax - rmin) / Hist::nbins() << std::endl;
+            << Hist::ctCapacity() << ' ' << (rmax - rmin) / Hist::nbins() << std::endl;
   std::cout << "bins " << int(Hist::bin(0)) << ' ' << int(Hist::bin(rmin)) << ' ' << int(Hist::bin(rmax)) << std::endl;
   std::cout << "HistoContainer4 " << Hist4::nbits() << ' ' << Hist4::nbins() << ' ' << Hist4::totbins() << ' '
-            << Hist4::capacity() << ' ' << (rmax - rmin) / Hist::nbins() << std::endl;
+            << Hist4::ctCapacity() << ' ' << (rmax - rmin) / Hist::nbins() << std::endl;
   for (auto nh = 0; nh < 4; ++nh)
     std::cout << "bins " << int(Hist4::bin(0)) + Hist4::histOff(nh) << ' ' << int(Hist::bin(rmin)) + Hist4::histOff(nh)
               << ' ' << int(Hist::bin(rmax)) + Hist4::histOff(nh) << std::endl;
 
+  uint32_t mem[N];
+  HistR hr;
+  typename HistR::View view{&hr, nullptr, mem, -1, N};
+  hr.initStorage(view);
+  std::cout << "HistoContainerR " << hr.capacity() << std::endl;
+  assert(hr.capacity() == N);
   Hist h;
   Hist4 h4;
+  assert(h.capacity() == N);
+  assert(h4.capacity() == N);
+
   for (int it = 0; it < 5; ++it) {
     for (long long j = 0; j < N; j++)
       v[j] = rgen(eng);
     if (it == 2)
       for (long long j = N / 2; j < N / 2 + N / 4; j++)
         v[j] = 4;
+    hr.zero();
     h.zero();
     h4.zero();
+    assert(hr.size() == 0);
     assert(h.size() == 0);
     assert(h4.size() == 0);
     for (long long j = 0; j < N; j++) {
+      hr.count(v[j]);
       h.count(v[j]);
       if (j < 2000)
         h4.count(v[j], 2);
       else
         h4.count(v[j], j % 4);
     }
+    assert(hr.size() == 0);
     assert(h.size() == 0);
     assert(h4.size() == 0);
+    hr.finalize();
     h.finalize();
     h4.finalize();
     assert(h.size() == N);
     assert(h4.size() == N);
     for (long long j = 0; j < N; j++) {
+      hr.fill(v[j], j);
       h.fill(v[j], j);
       if (j < 2000)
         h4.fill(v[j], j, 2);
       else
         h4.fill(v[j], j, j % 4);
     }
+    assert(hr.off[0] == 0);
     assert(h.off[0] == 0);
     assert(h4.off[0] == 0);
+    assert(hr.size() == N);
     assert(h.size() == N);
     assert(h4.size() == N);
 
@@ -79,6 +101,11 @@ void go() {
       if (i != j && T(v[t1] - v[t2]) <= 0)
         std::cout << "for " << i << ':' << v[k] << " failed " << v[t1] << ' ' << v[t2] << std::endl;
     };
+
+    for (uint32_t i = 0; i < Hist::nbins(); ++i) {
+      assert(h.size(i) == hr.size(i));
+      assert(*h.begin(i) == *hr.begin(i));
+    }
 
     for (uint32_t i = 0; i < Hist::nbins(); ++i) {
       if (0 == h.size(i))

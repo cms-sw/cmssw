@@ -5,15 +5,17 @@
 
 #include <memory>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/one/EDAnalyzer.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Math/interface/Rounding.h"
 
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <iostream>
 #include <string>
@@ -22,6 +24,7 @@
 #include <vector>
 
 using namespace std;
+using namespace cms_rounding;
 
 class DTGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
@@ -37,10 +40,14 @@ private:
   const int dashedLineWidth_;
   const string dashedLine_;
   const string myName_;
+  double tolerance_;
 };
 
 DTGeometryAnalyzer::DTGeometryAnalyzer(const edm::ParameterSet& iConfig)
-    : dashedLineWidth_(104), dashedLine_(string(dashedLineWidth_, '-')), myName_("DTGeometryAnalyzer") {}
+    : dashedLineWidth_(104),
+      dashedLine_(string(dashedLineWidth_, '-')),
+      myName_("DTGeometryAnalyzer"),
+      tolerance_(iConfig.getUntrackedParameter<double>("tolerance", 1.e-23)) {}
 
 DTGeometryAnalyzer::~DTGeometryAnalyzer() {}
 
@@ -83,7 +90,7 @@ void DTGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     cout << "Layer " << det->id() << " SL " << det->superLayer()->id() << " chamber " << det->chamber()->id()
          << " Topology W/H/L: " << topo.cellWidth() << "/" << topo.cellHeight() << "/" << topo.cellLenght()
          << " first/last/# wire " << topo.firstChannel() << "/" << topo.lastChannel() << "/" << topo.channels()
-         << " Position " << surf.position() << " normVect " << surf.normalVector()
+         << " Position " << surf.position() << " normVect " << roundVecIfNear0(surf.normalVector(), tolerance_)
          << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness() << "/"
          << surf.bounds().length() << endl;
   }
@@ -93,8 +100,9 @@ void DTGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   for (auto det : pDD->superLayers()) {
     const BoundPlane& surf = det->surface();
     cout << "SuperLayer " << det->id() << " chamber " << det->chamber()->id() << " Position " << surf.position()
-         << " normVect " << surf.normalVector() << " bounds W/H/L: " << surf.bounds().width() << "/"
-         << surf.bounds().thickness() << "/" << surf.bounds().length() << endl;
+         << " normVect " << roundVecIfNear0(surf.normalVector(), tolerance_)
+         << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness() << "/"
+         << surf.bounds().length() << endl;
   }
 
   // check chamber
@@ -103,9 +111,9 @@ void DTGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     //cout << "Chamber " << (*det)->geographicalId().det() << endl;
     const BoundPlane& surf = det->surface();
     //cout << "surf " << &surf <<  endl;
-    cout << "Chamber " << det->id() << " Position " << surf.position() << " normVect " << surf.normalVector()
-         << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness() << "/"
-         << surf.bounds().length() << endl;
+    cout << "Chamber " << det->id() << " Position " << surf.position() << " normVect "
+         << roundVecIfNear0(surf.normalVector(), tolerance_) << " bounds W/H/L: " << surf.bounds().width() << "/"
+         << surf.bounds().thickness() << "/" << surf.bounds().length() << endl;
   }
   cout << "END " << dashedLine_ << endl;
 

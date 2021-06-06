@@ -2,7 +2,6 @@
 
 conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2021_mc --destdb GeometryFileExtended2021.db
 conddb --yes --db myfile.db copy TKRECO_Geometry_TagXX                  --destdb TKRECO_Geometry.db
-conddb --yes --db myfile.db copy TKExtra_Geometry_TagXX                 --destdb TKExtra_Geometry.db
 conddb --yes --db myfile.db copy TKParameters_Geometry_TagXX            --destdb TKParameters_Geometry.db
 conddb --yes --db myfile.db copy EBRECO_Geometry_TagXX                  --destdb EBRECO_Geometry.db
 conddb --yes --db myfile.db copy EERECO_Geometry_TagXX                  --destdb EERECO_Geometry.db

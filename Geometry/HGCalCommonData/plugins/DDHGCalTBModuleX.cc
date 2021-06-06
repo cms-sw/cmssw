@@ -4,7 +4,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -16,9 +16,10 @@
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 class DDHGCalTBModuleX : public DDAlgorithm {
 public:
@@ -350,11 +351,7 @@ void DDHGCalTBModuleX::positionSensitive(double zpos,
           double rpos = std::sqrt(xpos * xpos + ypos * ypos);
           DDTranslation tran(xpos, ypos, zpos);
           DDRotation rotation;
-          int copy = inr * 100 + inc;
-          if (nc < 0)
-            copy += 10000;
-          if (nr < 0)
-            copy += 100000;
+          int copy = HGCalTypes::packTypeUV(0, nc, nr);
           DDName name, nameX;
           if (type == 1) {
             nameX = DDName(DDSplit(covers_[0]).first, DDSplit(covers_[0]).second);

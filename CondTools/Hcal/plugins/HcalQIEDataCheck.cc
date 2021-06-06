@@ -7,6 +7,9 @@ HcalQIEDataCheck::HcalQIEDataCheck(edm::ParameterSet const& ps) {
   checkemapflag = ps.getUntrackedParameter<bool>("checkEmap", false);
   validateflag = ps.getUntrackedParameter<bool>("validateQIEs", false);
   //  epsilon = ps.getUntrackedParameter<double>("deltaQIE",0);
+  m_tok1 = esConsumes<HcalQIEData, HcalQIEDataRcd>(edm::ESInputTag("", "update"));
+  m_tok2 = esConsumes<HcalQIEData, HcalQIEDataRcd>(edm::ESInputTag("", "reference"));
+  m_tokmap = esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(edm::ESInputTag("", "reference"));
 }
 
 HcalQIEDataCheck::~HcalQIEDataCheck() {}
@@ -14,17 +17,9 @@ HcalQIEDataCheck::~HcalQIEDataCheck() {}
 void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   using namespace edm::eventsetup;
 
-  edm::ESHandle<HcalQIEData> newQIEs;
-  es.get<HcalQIEDataRcd>().get("update", newQIEs);
-  const HcalQIEData* myNewQIEs = newQIEs.product();
-
-  edm::ESHandle<HcalQIEData> refQIEs;
-  es.get<HcalQIEDataRcd>().get("reference", refQIEs);
-  const HcalQIEData* myRefQIEs = refQIEs.product();
-
-  edm::ESHandle<HcalElectronicsMap> refEMap;
-  es.get<HcalElectronicsMapRcd>().get("reference", refEMap);
-  const HcalElectronicsMap* myRefEMap = refEMap.product();
+  const HcalQIEData* myNewQIEs = &es.getData(m_tok1);
+  const HcalQIEData* myRefQIEs = &es.getData(m_tok2);
+  const HcalElectronicsMap* myRefEMap = &es.getData(m_tokmap);
 
   if (dumpupdate != "null") {
     std::ofstream outStream(dumpupdate.c_str());

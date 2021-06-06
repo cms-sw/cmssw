@@ -9,8 +9,8 @@
 #include <iomanip>  // dump for JK
 #include <iostream>
 #include <cstdio>
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
-#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/interface/cscPackerCompare.h"
 
 #ifdef LOCAL_UNPACK
 bool CSCTMBData::debug = false;
@@ -23,14 +23,14 @@ CSCTMBData::CSCTMBData()
       theB0CLine(0),
       theE0FLine(0),
       theTMBHeader(2007, 0x50c3),
-      theCLCTData(&theTMBHeader),
+      theComparatorData(&theTMBHeader),
       theTMBScopeIsPresent(false),
       theTMBScope(nullptr),
       theTMBMiniScopeIsPresent(false),
       theTMBMiniScope(nullptr),
       theBlockedCFEBIsPresent(false),
       theTMBBlockedCFEB(nullptr),
-      theTMBTrailer(theTMBHeader.sizeInWords() + theCLCTData.sizeInWords(), 2007),
+      theTMBTrailer(theTMBHeader.sizeInWords() + theComparatorData.sizeInWords(), 2007),
       size_(0),
       cWordCnt(0),
       theRPCDataIsPresent(false) {}
@@ -40,33 +40,33 @@ CSCTMBData::CSCTMBData(int firmwareVersion, int firmwareRevision, int cfebs)
       theB0CLine(0),
       theE0FLine(0),
       theTMBHeader(firmwareVersion, firmwareRevision),
-      theCLCTData(&theTMBHeader),
+      theComparatorData(&theTMBHeader),
       theTMBScopeIsPresent(false),
       theTMBScope(nullptr),
       theTMBMiniScopeIsPresent(false),
       theTMBMiniScope(nullptr),
       theBlockedCFEBIsPresent(false),
       theTMBBlockedCFEB(nullptr),
-      theTMBTrailer(theTMBHeader.sizeInWords() + theCLCTData.sizeInWords(), firmwareVersion),
+      theTMBTrailer(theTMBHeader.sizeInWords() + theComparatorData.sizeInWords(), firmwareVersion),
       size_(0),
       cWordCnt(0),
       theRPCDataIsPresent(false) {
   theTMBHeader.setNCFEBs(cfebs);
-  theCLCTData = CSCCLCTData(&theTMBHeader);
-  theTMBTrailer = CSCTMBTrailer(theTMBHeader.sizeInWords() + theCLCTData.sizeInWords(), firmwareVersion);
+  theComparatorData = CSCComparatorData(&theTMBHeader);
+  theTMBTrailer = CSCTMBTrailer(theTMBHeader.sizeInWords() + theComparatorData.sizeInWords(), firmwareVersion);
 }
 
 CSCTMBData::CSCTMBData(const uint16_t* buf)
     : theOriginalBuffer(buf),
       theTMBHeader(2007, 0x50c3),
-      theCLCTData(&theTMBHeader),
+      theComparatorData(&theTMBHeader),
       theTMBScopeIsPresent(false),
       theTMBScope(nullptr),
       theTMBMiniScopeIsPresent(false),
       theTMBMiniScope(nullptr),
       theBlockedCFEBIsPresent(false),
       theTMBBlockedCFEB(nullptr),
-      theTMBTrailer(theTMBHeader.sizeInWords() + theCLCTData.sizeInWords(), 2007),
+      theTMBTrailer(theTMBHeader.sizeInWords() + theComparatorData.sizeInWords(), 2007),
       theRPCDataIsPresent(false) {
   size_ = UnpackTMB(buf);
 }
@@ -78,7 +78,7 @@ CSCTMBData::CSCTMBData(const CSCTMBData& data)
       theB0CLine(data.theB0CLine),
       theE0FLine(data.theE0FLine),
       theTMBHeader(data.theTMBHeader),
-      theCLCTData(data.theCLCTData),
+      theComparatorData(data.theComparatorData),
       theRPCData(data.theRPCData),
       theTMBScopeIsPresent(data.theTMBScopeIsPresent),
       theTMBMiniScopeIsPresent(data.theTMBMiniScopeIsPresent),
@@ -204,12 +204,13 @@ int CSCTMBData::UnpackTMB(const uint16_t* buf) {
   int currentPosition = theTMBHeader.sizeInWords();
   int theFirmwareVersion = theTMBHeader.FirmwareVersion();
 
-  theCLCTData = CSCCLCTData(theTMBHeader.NCFEBs(), theTMBHeader.NTBins(), buf + e0bLine + 1, theFirmwareVersion);
+  theComparatorData =
+      CSCComparatorData(theTMBHeader.NCFEBs(), theTMBHeader.NTBins(), buf + e0bLine + 1, theFirmwareVersion);
 
-  if (!theCLCTData.check()) {
+  if (!theComparatorData.check()) {
     LogTrace("CSCTMBData|CSCRawToDigi") << "+++ CSCTMBData warning: Bad CLCT data";
   } else {
-    currentPosition += theCLCTData.sizeInWords();
+    currentPosition += theComparatorData.sizeInWords();
   }
 
   //int i = currentPosition-1;
@@ -394,9 +395,9 @@ std::bitset<22> CSCTMBData::nextCRC22_D16(const std::bitset<16>& D, const std::b
 boost::dynamic_bitset<> CSCTMBData::pack() {
   boost::dynamic_bitset<> result =
       bitset_utilities::ushortToBitset(theTMBHeader.sizeInWords() * 16, theTMBHeader.data());
-  boost::dynamic_bitset<> clctData =
-      bitset_utilities::ushortToBitset(theCLCTData.sizeInWords() * 16, theCLCTData.data());
-  result = bitset_utilities::append(result, clctData);
+  boost::dynamic_bitset<> comparatorData =
+      bitset_utilities::ushortToBitset(theComparatorData.sizeInWords() * 16, theComparatorData.data());
+  result = bitset_utilities::append(result, comparatorData);
   boost::dynamic_bitset<> newResult = result;
   //  theTMBTrailer.setCRC(TMBCRCcalc());
 

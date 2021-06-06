@@ -5,25 +5,12 @@
  <class name="PGeometricDet::Item"/>
  <class name="std::vector<PGeometricDet::Item>"/>
 
- <class name="PGeometricDetExtra" class_version="0">
-   <field name="pgdes_" mapping="blob"/>
- </class>
- <class name="PGeometricDetExtra::Item"/>
- <class name="std::vector<PGeometricDetExtra::Item>"/>
-
  <class name="PGeometricTimingDet" class_version="0">
    <field name="pgeomdets_" mapping="blob"/>
  </class>
  <class name="PGeometricTimingDet::Item"/>
  <class name="std::vector<PGeometricTimingDet::Item>"/>
 
- <class name="PGeometricTimingDetExtra" class_version="0">
-   <field name="pgdes_" mapping="blob"/>
- </class>
- <class name="PGeometricTimingDetExtra::Item"/>
- <class name="std::vector<PGeometricTimingDetExtra::Item>"/>
-
- 
  <class name="PCaloGeometry" class_version="0">
    <field name="m_translation" mapping="blob"/>
    <field name="m_dimension" mapping="blob"/>
@@ -206,6 +193,15 @@
    <field name="matNames_"              mapping="blob"/>
    <field name="dzs_"                   mapping="blob"/>
  </class>
+ <class name="MuonOffsetMap" class_version="0"> 
+   <field name="muonMap_"         mapping="blob"/>
+ </class>
+
+ <class name="PDetGeomDesc" class_version="0">
+   <field name="container_" mapping="blob"/>
+ </class>
+ <class name="PDetGeomDesc::Item"/>
+ <class name="std::vector<PDetGeomDesc::Item>"/>
 
 </lcgdict> 
 

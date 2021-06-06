@@ -19,6 +19,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "boost/range/iterator_range.hpp"
 #include <sstream>
@@ -190,6 +193,16 @@ public:
                     jpt::MatchedTracks& muons,
                     jpt::MatchedTracks& elecs,
                     bool& validMatches);
+  double correction(const reco::Jet&,
+                    const reco::Jet&,
+                    const edm::Event&,
+                    const edm::EventSetup&,
+                    const reco::TrackRefVector& tracksinvert,
+                    const reco::TrackRefVector& tracksincalo,
+                    P4&,
+                    jpt::MatchedTracks& pions,
+                    jpt::MatchedTracks& muons,
+                    jpt::MatchedTracks& elecs);
 
   /// Scalar correction method
   double correction(const reco::Jet&,
@@ -243,6 +256,15 @@ public:
   bool matchTracks(const reco::Jet&,
                    const edm::Event&,
                    const edm::EventSetup&,
+                   jpt::MatchedTracks& pions,
+                   jpt::MatchedTracks& muons,
+                   jpt::MatchedTracks& elecs);
+
+  void matchTracks(const reco::Jet&,
+                   const edm::Event&,
+                   const edm::EventSetup&,
+                   const reco::TrackRefVector& tracksinvert,
+                   const reco::TrackRefVector& tracksincalo,
                    jpt::MatchedTracks& pions,
                    jpt::MatchedTracks& muons,
                    jpt::MatchedTracks& elecs);
@@ -322,16 +344,22 @@ protected:
   /// Get RECO muons
   bool getMuons(const edm::Event&, edm::Handle<RecoMuons>&) const;
 
+  bool getMuons(const edm::Event&, edm::Handle<pat::MuonCollection>&) const;
+
   /// Get RECO electrons
   bool getElectrons(const edm::Event&, edm::Handle<RecoElectrons>&, edm::Handle<RecoElectronIds>&) const;
 
+  bool getElectrons(const edm::Event&, edm::Handle<pat::ElectronCollection>&) const;
+
   /// Matches tracks to RECO muons
   bool matchMuons(TrackRefs::const_iterator&, const edm::Handle<RecoMuons>&) const;
+  bool matchMuons(TrackRefs::const_iterator&, const edm::Handle<pat::MuonCollection>&) const;
 
   /// Matches tracks to RECO electrons
   bool matchElectrons(TrackRefs::const_iterator&,
                       const edm::Handle<RecoElectrons>&,
                       const edm::Handle<RecoElectronIds>&) const;
+  bool matchElectrons(TrackRefs::const_iterator&, const edm::Handle<pat::ElectronCollection>&) const;
 
   /// Check on track quality
   bool failTrackQuality(TrackRefs::const_iterator&) const;
@@ -368,6 +396,7 @@ protected:
 protected:
   // Some general configuration
   bool verbose_;
+  bool usePAT_;
   bool vectorial_;
   bool vecResponse_;
   bool useInConeTracks_;
@@ -392,6 +421,8 @@ protected:
   edm::InputTag muons_;
   edm::InputTag electrons_;
   edm::InputTag electronIds_;
+  edm::InputTag patmuons_;
+  edm::InputTag patelectrons_;
 
   // Filter tracks by quality
   reco::TrackBase::TrackQuality trackQuality_;
@@ -400,6 +431,12 @@ protected:
   const jpt::Map response_;
   const jpt::Map efficiency_;
   const jpt::Map leakage_;
+
+  // Muon/Electron
+  double muonPtmatch_;
+  double muonEtamatch_;
+  double muonPhimatch_;
+  double electronDRmatch_;
 
   // Mass
   double pionMass_;
@@ -422,10 +459,12 @@ protected:
 private:
   edm::EDGetTokenT<reco::JetTracksAssociation::Container> input_jetTracksAtVertex_token_;
   edm::EDGetTokenT<reco::JetTracksAssociation::Container> input_jetTracksAtCalo_token_;
-  edm::EDGetTokenT<RecoMuons> inut_reco_muons_token_;
+  edm::EDGetTokenT<RecoMuons> input_reco_muons_token_;
   edm::EDGetTokenT<reco::VertexCollection> input_pvCollection_token_;
   edm::EDGetTokenT<RecoElectrons> input_reco_elecs_token_;
   edm::EDGetTokenT<RecoElectronIds> input_reco_elec_ids_token_;
+  edm::EDGetTokenT<pat::MuonCollection> input_pat_muons_token_;
+  edm::EDGetTokenT<pat::ElectronCollection> input_pat_elecs_token_;
 };
 
 // ---------- Inline methods ----------

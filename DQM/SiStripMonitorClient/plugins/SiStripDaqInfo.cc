@@ -8,16 +8,10 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
 //Run Info
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
 // FED cabling and numbering
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include <cassert>
@@ -29,7 +23,10 @@
 #include <string>
 #include <vector>
 
-SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const&) {
+SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const&)
+    : fedCablingToken_{esConsumes<edm::Transition::BeginRun>()},
+      tTopoToken_{esConsumes<edm::Transition::BeginRun>()},
+      runInfoToken_{esConsumes<edm::Transition::BeginRun>()} {
   edm::LogInfo("SiStripDaqInfo") << "SiStripDaqInfo::Deleting SiStripDaqInfo ";
 }
 
@@ -68,7 +65,7 @@ void SiStripDaqInfo::bookStatus(DQMStore& dqm_store) {
   for (auto const& det : det_types) {
     std::string const me_name{"SiStrip_" + det};
     SubDetMEs local_mes{dqm_store.bookFloat(me_name), 0};
-    subDetMEsMap_.emplace(det, std::move(local_mes));
+    subDetMEsMap_.emplace(det, local_mes);
   }
   bookedStatus_ = true;
   dqm_store.cd();
@@ -94,12 +91,8 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
   edm::LogInfo("SiStripDaqInfo") << "SiStripDaqInfo:: Begining of Run";
 
   // Check latest Fed cabling and create TrackerMapCreator
-  unsigned long long cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
-  if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;
-
-    eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-
+  if (fedCablingWatcher_.check(eSetup)) {
+    fedCabling_ = &eSetup.getData(fedCablingToken_);
     readFedIds(fedCabling_, eSetup);
   }
   auto& dqm_store = *edm::Service<DQMStore>{};
@@ -116,14 +109,10 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
   constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
   constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
 
-  auto runInfoRec = eSetup.tryToGet<RunInfoRcd>();
-  if (!runInfoRec)
+  if (!eSetup.tryToGet<RunInfoRcd>())
     return;
-
-  edm::ESHandle<RunInfo> sumFED;
-  runInfoRec->get(sumFED);
-
-  if (!sumFED.isValid())
+  auto sumFED = eSetup.getHandle(runInfoToken_);
+  if (!sumFED)
     return;
 
   auto const& fedsInIds = sumFED->m_fed_in;
@@ -145,11 +134,9 @@ void SiStripDaqInfo::analyze(edm::Event const& event, edm::EventSetup const& eSe
 //
 // -- Read Sub Detector FEDs
 //
-void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabling, edm::EventSetup const& iSetup) {
+void SiStripDaqInfo::readFedIds(const SiStripFedCabling* fedcabling, edm::EventSetup const& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const auto tTopo = &iSetup.getData(tTopoToken_);
 
   auto feds = fedCabling_->fedIds();
 
@@ -176,9 +163,7 @@ void SiStripDaqInfo::readSubdetFedFractions(DQMStore& dqm_store,
                                             std::vector<int> const& fed_ids,
                                             edm::EventSetup const& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const auto tTopo = &iSetup.getData(tTopoToken_);
 
   constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
   constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};

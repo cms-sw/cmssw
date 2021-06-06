@@ -1,5 +1,5 @@
-#ifndef CSCBadCFEBTimeSlice_h
-#define CSCBadCFEBTimeSlice_h
+#ifndef EventFilter_CSCRawToDigi_CSCBadCFEBTimeSlice_h
+#define EventFilter_CSCRawToDigi_CSCBadCFEBTimeSlice_h
 
 #include "EventFilter/CSCRawToDigi/interface/CSCBadCFEBWord.h"
 #include <iosfwd>

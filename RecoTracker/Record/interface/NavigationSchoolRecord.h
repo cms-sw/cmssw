@@ -7,10 +7,10 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class NavigationSchoolRecord : public edm::eventsetup::DependentRecordImplementation<
                                    NavigationSchoolRecord,
-                                   boost::mpl::vector<IdealMagneticFieldRecord, TrackerRecoGeometryRecord> > {};
+                                   edm::mpl::Vector<IdealMagneticFieldRecord, TrackerRecoGeometryRecord> > {};
 
 #endif

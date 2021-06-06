@@ -1,5 +1,3 @@
-<bin   file="cscRawToDigiTest.cpp">
-  <use   name="EventFilter/CSCRawToDigi"/>
-  <use   name="DataFormats/CSCDigi"/>
-  <use   name="FWCore/MessageService"/>
+<bin file="cscRawToDigiTest.cpp">
+  <use name="EventFilter/CSCRawToDigi"/>
 </bin>

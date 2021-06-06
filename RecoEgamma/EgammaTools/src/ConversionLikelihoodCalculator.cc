@@ -1,5 +1,7 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+
 ConversionLikelihoodCalculator::ConversionLikelihoodCalculator() {
   reader_ = std::make_unique<TMVA::Reader>("!Color:Silent");
 

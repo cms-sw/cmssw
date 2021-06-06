@@ -30,6 +30,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 
 namespace {
   class ProductAdder {
@@ -122,7 +123,7 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
   }
 
   if (doRunInfo) {
-    cc.setConsumes(runInfoToken_, edm::ESInputTag{"", runInfoTagName});
+    runInfoToken_ = cc.consumes(edm::ESInputTag{"", runInfoTagName});
   }
 }
 

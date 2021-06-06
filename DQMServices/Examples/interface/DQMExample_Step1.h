@@ -35,7 +35,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 // Conversions
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 
 // Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"

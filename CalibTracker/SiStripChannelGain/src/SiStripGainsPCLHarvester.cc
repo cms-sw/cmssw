@@ -2,12 +2,6 @@
 #include <memory>
 
 // CMSSW includes
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibTracker/Records/interface/SiStripGainRcd.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
@@ -19,8 +13,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -35,14 +27,7 @@
 
 //********************************************************************************//
 SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps)
-    : doStoreOnDB(false),
-      GOOD(0),
-      BAD(0),
-      MASKED(0),
-      NStripAPVs(0),
-      NPixelDets(0),
-      bareTkGeomPtr_(nullptr),
-      tTopo_(nullptr) {
+    : doStoreOnDB(false), GOOD(0), BAD(0), MASKED(0), NStripAPVs(0), NPixelDets(0) {
   m_Record = ps.getUntrackedParameter<std::string>("Record", "SiStripApvGainRcd");
   CalibrationLevel = ps.getUntrackedParameter<int>("CalibrationLevel", 0);
   MinNrEntries = ps.getUntrackedParameter<double>("minNrEntries", 20);
@@ -63,6 +48,11 @@ SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps)
   dqm_tag_.push_back("IsoMuon");     // statistic collection from Isolated Muon @ 3.8 T
   dqm_tag_.push_back("IsoMuon0T");   // statistic collection from Isolated Muon @ 0 T
   dqm_tag_.push_back("Harvest");     // statistic collection: Harvest
+
+  tTopoToken_ = esConsumes<edm::Transition::BeginRun>();
+  tkGeomToken_ = esConsumes<edm::Transition::BeginRun>();
+  gainToken_ = esConsumes<edm::Transition::BeginRun>();
+  qualityToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 //********************************************************************************//
@@ -74,15 +64,13 @@ void SiStripGainsPCLHarvester::beginRun(edm::Run const& run, const edm::EventSet
   this->checkBookAPVColls(iSetup);  // check whether APV colls are booked and do so if not yet done
   this->checkAndRetrieveTopology(iSetup);
 
-  edm::ESHandle<SiStripGain> gainHandle;
-  iSetup.get<SiStripGainRcd>().get(gainHandle);
+  const auto gainHandle = iSetup.getHandle(gainToken_);
   if (!gainHandle.isValid()) {
     edm::LogError("SiStripGainPCLHarvester") << "gainHandle is not valid\n";
     exit(0);
   }
 
-  edm::ESHandle<SiStripQuality> SiStripQuality_;
-  iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
+  const auto& stripQuality = iSetup.getData(qualityToken_);
 
   for (unsigned int a = 0; a < APVsCollOrdered.size(); a++) {
     std::shared_ptr<stAPVGain> APV = APVsCollOrdered[a];
@@ -90,7 +78,7 @@ void SiStripGainsPCLHarvester::beginRun(edm::Run const& run, const edm::EventSet
     if (APV->SubDet == PixelSubdetector::PixelBarrel || APV->SubDet == PixelSubdetector::PixelEndcap)
       continue;
 
-    APV->isMasked = SiStripQuality_->IsApvBad(APV->DetId, APV->APVId);
+    APV->isMasked = stripQuality.IsApvBad(APV->DetId, APV->APVId);
 
     if (gainHandle->getNumberOfTags() != 2) {
       edm::LogError("SiStripGainPCLHarvester") << "NUMBER OF GAIN TAG IS EXPECTED TO BE 2\n";
@@ -167,10 +155,11 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
       APVGain::monHnames(VChargeHisto, doChargeMonitorPerPlane, "newG2");
   for (unsigned int i = 0; i < cnames.size(); i++) {
     MonitorElement* monitor = ibooker_.book1DD((cnames[i]).first, (cnames[i]).second.c_str(), 100, 0., 1000.);
+    int thick = APVGain::thickness((cnames[i]).first);
     int id = APVGain::subdetectorId((cnames[i]).first);
     int side = APVGain::subdetectorSide((cnames[i]).first);
     int plane = APVGain::subdetectorPlane((cnames[i]).first);
-    new_charge_histos.push_back(APVGain::APVmon(id, side, plane, monitor));
+    new_charge_histos.push_back(APVGain::APVmon(thick, id, side, plane, monitor));
   }
 
   int MPVbin = 300;
@@ -269,6 +258,9 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
 
     if (Gain != 1.) {
       std::vector<MonitorElement*> charge_histos = APVGain::FetchMonitor(new_charge_histos, DetId, tTopo_);
+
+      if (!Charge_Vs_Index)
+        continue;
       TH2S* chvsidx = (Charge_Vs_Index)->getTH2S();
       int bin = chvsidx->GetXaxis()->FindBin(Index);
       TH1D* Proj = chvsidx->ProjectionY("proj", bin, bin);
@@ -516,8 +508,7 @@ bool SiStripGainsPCLHarvester::IsGoodLandauFit(double* FitResults) {
 //********************************************************************************//
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
-  es.get<TrackerDigiGeometryRecord>().get(tkGeom_);
-  const TrackerGeometry* newBareTkGeomPtr = &(*tkGeom_);
+  auto newBareTkGeomPtr = &es.getData(tkGeomToken_);
   if (newBareTkGeomPtr == bareTkGeomPtr_)
     return;  // already filled APVColls, nothing changed
 
@@ -627,9 +618,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
 
 void SiStripGainsPCLHarvester::checkAndRetrieveTopology(const edm::EventSetup& setup) {
   if (!tTopo_) {
-    edm::ESHandle<TrackerTopology> TopoHandle;
-    setup.get<TrackerTopologyRcd>().get(TopoHandle);
-    tTopo_ = TopoHandle.product();
+    tTopo_ = &setup.getData(tTopoToken_);
   }
 }
 
@@ -664,7 +653,7 @@ bool SiStripGainsPCLHarvester::produceTagFilter(const MonitorElement* Charge_Vs_
 
 //********************************************************************************//
 std::unique_ptr<SiStripApvGain> SiStripGainsPCLHarvester::getNewObject(const MonitorElement* Charge_Vs_Index) {
-  std::unique_ptr<SiStripApvGain> obj = std::unique_ptr<SiStripApvGain>(new SiStripApvGain());
+  std::unique_ptr<SiStripApvGain> obj = std::make_unique<SiStripApvGain>();
 
   if (!produceTagFilter(Charge_Vs_Index)) {
     edm::LogWarning("SiStripGainsPCLHarvester")

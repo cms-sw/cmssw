@@ -30,11 +30,11 @@ namespace edm {
   public:
     struct Def {};
 
-    TypeIDBase() : t_(&(typeid(Def))) {}
+    constexpr TypeIDBase() noexcept : t_(&(typeid(Def))) {}
 
-    explicit TypeIDBase(const std::type_info& t) : t_(&t) {}
+    constexpr explicit TypeIDBase(const std::type_info& t) noexcept : t_(&t) {}
 
-    explicit TypeIDBase(const std::type_info* t) : t_(t == nullptr ? &(typeid(Def)) : t) {}
+    constexpr explicit TypeIDBase(const std::type_info* t) noexcept : t_(t == nullptr ? &(typeid(Def)) : t) {}
 
     // ---------- const member functions ---------------------
 
@@ -47,7 +47,7 @@ namespace edm {
     bool operator==(const TypeIDBase& b) const { return (*t_) == *(b.t_); }
 
   protected:
-    const std::type_info& typeInfo() const { return *t_; }
+    constexpr const std::type_info& typeInfo() const { return *t_; }
 
   private:
     //const TypeIDBase& operator=(const TypeIDBase&); // stop default

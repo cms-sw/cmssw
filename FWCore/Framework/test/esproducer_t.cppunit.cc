@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 #include "FWCore/Framework/interface/es_Label.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
@@ -26,8 +26,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "tbb/task_scheduler_init.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
 
 #include <memory>
 #include <optional>
@@ -67,7 +66,7 @@ class testEsproducer : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
+  void setUp() { m_scheduler = std::make_unique<edm::ThreadsController>(1); }
   void tearDown() {}
 
   void registerTest();
@@ -83,7 +82,7 @@ public:
   void dataProxyProviderTest();
 
 private:
-  edm::propagate_const<std::unique_ptr<tbb::task_scheduler_init>> m_scheduler;
+  edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
 
   class Test1Producer : public ESProducer {
   public:
@@ -194,7 +193,7 @@ void testEsproducer::registerTest() {
 }
 
 void testEsproducer::getFromTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -207,11 +206,12 @@ void testEsproducer::getFromTest() {
   auto pFinder = std::make_shared<DummyFinder>();
   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
+  edm::ESParentContext parentC;
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -220,7 +220,7 @@ void testEsproducer::getFromTest() {
 }
 
 void testEsproducer::getfromShareTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -230,11 +230,12 @@ void testEsproducer::getfromShareTest() {
   auto pFinder = std::make_shared<DummyFinder>();
   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
+  edm::ESParentContext parentC;
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -243,7 +244,7 @@ void testEsproducer::getfromShareTest() {
 }
 
 void testEsproducer::getfromUniqueTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -253,11 +254,12 @@ void testEsproducer::getfromUniqueTest() {
   auto pFinder = std::make_shared<DummyFinder>();
   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
+  edm::ESParentContext parentC;
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -266,7 +268,7 @@ void testEsproducer::getfromUniqueTest() {
 }
 
 void testEsproducer::getfromOptionalTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -275,11 +277,12 @@ void testEsproducer::getfromOptionalTest() {
   auto pFinder = std::make_shared<DummyFinder>();
   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
+  edm::ESParentContext parentC;
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -289,7 +292,7 @@ void testEsproducer::getfromOptionalTest() {
 
 void testEsproducer::labelTest() {
   try {
-    EventSetupsController controller;
+    SynchronousEventSetupsController controller;
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -299,11 +302,12 @@ void testEsproducer::labelTest() {
     auto pFinder = std::make_shared<DummyFinder>();
     provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
+    edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
       pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
       controller.eventSetupForInstance(edm::IOVSyncValue(time));
-      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get("foo", pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
@@ -348,7 +352,7 @@ private:
 };
 
 void testEsproducer::decoratorTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -357,11 +361,12 @@ void testEsproducer::decoratorTest() {
   auto pFinder = std::make_shared<DummyFinder>();
   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
+  edm::ESParentContext parentC;
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
     edm::ESHandle<DummyData> pDummy;
 
     CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_pre);
@@ -392,7 +397,7 @@ private:
 };
 
 void testEsproducer::dependsOnTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -401,11 +406,12 @@ void testEsproducer::dependsOnTest() {
   auto pFinder = std::make_shared<DummyFinder>();
   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
+  edm::ESParentContext parentC;
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
     edm::ESHandle<DummyData> pDummy;
 
     eventSetup.get<DepRecord>().get(pDummy);
@@ -417,7 +423,7 @@ void testEsproducer::dependsOnTest() {
 void testEsproducer::failMultipleRegistration() { MultiRegisterProducer dummy; }
 
 void testEsproducer::forceCacheClearTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -429,7 +435,8 @@ void testEsproducer::forceCacheClearTest() {
   const edm::Timestamp time(1);
   pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
   controller.eventSetupForInstance(edm::IOVSyncValue(time));
-  const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+  edm::ESParentContext parentC;
+  const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
   {
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
@@ -439,7 +446,8 @@ void testEsproducer::forceCacheClearTest() {
   provider.forceCacheClear();
   controller.eventSetupForInstance(edm::IOVSyncValue(time));
   {
-    const edm::EventSetup eventSetup2(provider.eventSetupImpl(), 0, nullptr, false);
+    edm::ESParentContext parentC;
+    const edm::EventSetup eventSetup2(provider.eventSetupImpl(), 0, nullptr, parentC, false);
     edm::ESHandle<DummyData> pDummy;
     eventSetup2.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -454,10 +462,14 @@ namespace {
 
     class TestProxy : public DataProxy {
     public:
-      void const* getImpl(EventSetupRecordImpl const&, DataKey const&, edm::EventSetupImpl const*) override {
-        return nullptr;
-      }
+      void prefetchAsyncImpl(edm::WaitingTaskHolder,
+                             EventSetupRecordImpl const&,
+                             DataKey const&,
+                             edm::EventSetupImpl const*,
+                             edm::ServiceToken const&,
+                             edm::ESParentContext const&) override {}
       void invalidateCache() override {}
+      void const* getAfterPrefetchImpl() const override { return nullptr; }
     };
 
     DataKey dataKeyDummy_0_;

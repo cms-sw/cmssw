@@ -24,7 +24,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
@@ -75,6 +74,9 @@ private:
   std::ostream* openPerLut1(HcalElectronicsId eid);
   std::ostream* openPerLut2(HcalElectronicsId eid);
   std::ostream* openChecksums();
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tokdb_;
+  edm::ESGetToken<HcalTPGCoder, HcalTPGRecord> tokhcalCode_;
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> tokcaloCode_;
   std::ostream* oc_;
 };
 // ----------member data ---------------------------
@@ -90,6 +92,9 @@ HcalLuttoDB::HcalLuttoDB(const edm::ParameterSet& iConfig) {
   targetfirmware_ = iConfig.getParameter<std::string>("targetfirmware");
   filePerCrate_ = iConfig.getUntrackedParameter<bool>("filePerCrate", true);
   fileformat_ = iConfig.getParameter<std::string>("filePrefix");
+  tokdb_ = esConsumes<HcalDbService, HcalDbRecord>();
+  tokhcalCode_ = esConsumes<HcalTPGCoder, HcalTPGRecord>();
+  tokcaloCode_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();
 }
 
 HcalLuttoDB::~HcalLuttoDB() {}
@@ -269,14 +274,11 @@ void HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::LogInfo("Hcal") << "Beginning dump of Hcal TPG LUTS (this may take a minute or two)";
 
   const HcalElectronicsMap* Map_;
-  ESHandle<HcalDbService> pSetup;
-  iSetup.get<HcalDbRecord>().get(pSetup);
+  const HcalDbService* pSetup = &iSetup.getData(tokdb_);
   Map_ = pSetup->getHcalMapping();
   // get the conditions, for the decoding
-  edm::ESHandle<HcalTPGCoder> inputCoder;
-  iSetup.get<HcalTPGRecord>().get(inputCoder);
-  edm::ESHandle<CaloTPGTranscoder> outTranscoder;
-  iSetup.get<CaloTPGRecord>().get(outTranscoder);
+  const HcalTPGCoder* inputCoder = &iSetup.getData(tokhcalCode_);
+  const CaloTPGTranscoder* outTranscoder = &iSetup.getData(tokcaloCode_);
 
   std::vector<HcalElectronicsId> allEID = Map_->allElectronicsId();
   std::vector<HcalElectronicsId>::iterator itreid;

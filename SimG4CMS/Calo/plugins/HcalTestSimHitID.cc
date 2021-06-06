@@ -18,6 +18,10 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include <memory>
@@ -43,6 +47,9 @@ private:
   const int maxEvent_;
   int nevt_;
   edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hrdd_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 };
 
 HcalTestSimHitID::HcalTestSimHitID(const edm::ParameterSet& ps)
@@ -54,6 +61,9 @@ HcalTestSimHitID::HcalTestSimHitID(const edm::ParameterSet& ps)
       nevt_(0) {
   // register for data access
   toks_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_));
+  tok_hrdd_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>();
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   std::cout << "HcalTestSimHitID::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent: " << maxEvent_
             << " Numbering scheme: " << testN_ << " (0 normal; 1 test)\n";
@@ -66,19 +76,21 @@ void HcalTestSimHitID::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.addUntracked<bool>("testNumbering", false);
   desc.addUntracked<bool>("dumpHits", false);
   desc.addUntracked<int>("maxEvent", 100);
-  descriptions.add("hcalGeometryDetIdTester", desc);
+  descriptions.add("hcalTestSimHitID", desc);
 }
 
 void HcalTestSimHitID::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   ++nevt_;
   std::cout << "HcalTestSimHitID::Serial # " << nevt_ << " Run # " << e.id().run() << " Event # " << e.id().event()
             << std::endl;
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iS.get<HcalRecNumberingRecord>().get(pHRNDC);
-  const HcalDDDRecConstants* hcr = static_cast<const HcalDDDRecConstants*>(&(*pHRNDC));
-  edm::ESHandle<HcalTopology> htopo;
-  iS.get<HcalRecNumberingRecord>().get(htopo);
+  edm::ESHandle<HcalDDDRecConstants> pHRNDC = iS.getHandle(tok_hrdd_);
+  const HcalDDDRecConstants* hcr = pHRNDC.product();
+  edm::ESHandle<HcalTopology> htopo = iS.getHandle(tok_topo_);
   const HcalTopology* theHBHETopology = htopo.product();
+  edm::ESHandle<CaloGeometry> geom = iS.getHandle(tok_geom_);
+  const CaloGeometry* caloGeom = geom.product();
+  const HcalGeometry* hcalGeom =
+      static_cast<const HcalGeometry*>(caloGeom->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   if (nevt_ <= maxEvent_) {
     std::vector<PCaloHit> hcHits;
@@ -94,15 +106,21 @@ void HcalTestSimHitID::analyze(const edm::Event& e, const edm::EventSetup& iS) {
       for (unsigned int i = 0; i < hits.size(); i++) {
         unsigned int id = hits[i].id();
         HcalDetId hid;
+        GlobalPoint p1, p2;
         if (testN_) {
+          p1 = hcalGeom->getPosition(id, true);
           hid = HcalDetId(HcalHitRelabeller::relabel(id, hcr));
         } else {
           hid = HcalDetId(id);
         }
+        p2 = hcalGeom->getPosition(DetId(hid));
         if (theHBHETopology->validHcal(hid)) {
           ++good;
-          if (dumpHits_)
+          if (dumpHits_) {
             std::cout << "Hit[" << i << "] " << hid << " \n";
+            if (testN_)
+              std::cout << "Test " << p1 << " from HcalDetId " << p2 << "\n";
+          }
         } else {
           std::cout << "Hit[" << i << "] " << hid << " ***** ERROR *****\n";
         }

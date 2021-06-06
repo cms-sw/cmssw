@@ -23,7 +23,7 @@ DQMCertEGamma = cms.Sequence(egammaDataCertificationTask)
 DQMCertTrigger = cms.Sequence(dqmOfflineTriggerCert)
 
 DQMCertMuon = cms.Sequence(dtDAQInfo * rpcDaqInfo * cscDaqInfo *
-                           dtDCSByLumiSummary * rpcDCSSummary * cscDcsInfo *
+                           rpcDCSSummary * cscDcsInfo *
                            dtCertificationSummary * rpcDataCertification * cscCertificationInfo)
 
 DQMCertEcal = cms.Sequence(ecalDaqInfoTask * ecalPreshowerDaqInfoTask *

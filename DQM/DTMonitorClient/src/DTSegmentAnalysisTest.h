@@ -13,17 +13,18 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <memory>
 #include <iostream>
@@ -54,8 +55,6 @@ public:
   /// Perform client diagnostic operations
   void performClientDiagnostic(DQMStore::IGetter &);
 
-  void endRun(edm::Run const &run, edm::EventSetup const &c) override;
-
 protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
@@ -63,8 +62,10 @@ protected:
                              edm::LuminosityBlock const &,
                              edm::EventSetup const &) override;
 
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, edm::EventSetup const &);
+
 private:
-  int nevents;
+  int nLSs;
   unsigned int nLumiSegs;
   // switch on for detailed analysis
   bool detailedAnalysis;
@@ -78,17 +79,15 @@ private:
   bool bookingdone;
 
   edm::ParameterSet parameters;
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry *muonGeom;
 
   // the histograms
   std::map<std::pair<int, int>, MonitorElement *> chi2Histos;
   std::map<std::pair<int, int>, MonitorElement *> segmRecHitHistos;
   std::map<int, MonitorElement *> summaryHistos;
-  bool normalizeHistoPlots;
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
-  // hlt DQM mode
-  bool hltDQMMode;
 };
 
 #endif

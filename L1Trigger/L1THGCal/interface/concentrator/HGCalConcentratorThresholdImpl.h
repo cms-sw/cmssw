@@ -11,7 +11,8 @@ public:
   HGCalConcentratorThresholdImpl(const edm::ParameterSet& conf);
 
   void select(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,
-              std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput);
+              std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput,
+              std::vector<l1t::HGCalTriggerCell>& trigCellVecNotSelected);
 
   void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
 

@@ -57,7 +57,7 @@ namespace edm {
         processHistoryRegistry_(new ProcessHistoryRegistry),
         branchIDListHelper_(desc.branchIDListHelper_),
         thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
-        processGUID_(createGlobalIdentifier()),
+        processGUID_(createGlobalIdentifier(true)),
         time_(),
         newRun_(true),
         newLumi_(true),
@@ -266,6 +266,8 @@ namespace edm {
     }
   }
 
+  bool InputSource::readProcessBlock() { return false; }
+
   void InputSource::readRun_(RunPrincipal& runPrincipal) {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
@@ -334,11 +336,11 @@ namespace edm {
   }
 
   void InputSource::issueReports(EventID const& eventID, StreamID streamID) {
-    if (isInfoEnabled()) {
-      LogVerbatim("FwkReport") << "Begin processing the " << readCount_ << suffix(readCount_) << " record. Run "
-                               << eventID.run() << ", Event " << eventID.event() << ", LumiSection "
-                               << eventID.luminosityBlock() << " on stream " << streamID.value() << " at "
-                               << std::setprecision(3) << TimeOfDay();
+    if (isFwkInfoEnabled()) {
+      LogFwkVerbatim("FwkReport") << "Begin processing the " << readCount_ << suffix(readCount_) << " record. Run "
+                                  << eventID.run() << ", Event " << eventID.event() << ", LumiSection "
+                                  << eventID.luminosityBlock() << " on stream " << streamID.value() << " at "
+                                  << std::setprecision(3) << TimeOfDay();
     }
     if (!statusFileName_.empty()) {
       std::ofstream statusFile(statusFileName_.c_str());

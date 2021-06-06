@@ -32,12 +32,13 @@ HFShowerParam::HFShowerParam(const std::string& name,
                              edm::ParameterSet const& p)
     : hcalConstants_(hcons), fillHisto_(false) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
+  edm::ParameterSet m_HF2 = m_HF.getParameter<edm::ParameterSet>("HFShowerBlock");
   pePerGeV_ = m_HF.getParameter<double>("PEPerGeV");
   trackEM_ = m_HF.getParameter<bool>("TrackEM");
   bool useShowerLibrary = m_HF.getParameter<bool>("UseShowerLibrary");
   bool useGflash = m_HF.getParameter<bool>("UseHFGflash");
   edMin_ = m_HF.getParameter<double>("EminLibrary");
-  onlyLong_ = m_HF.getParameter<bool>("OnlyLong");
+  onlyLong_ = m_HF2.getParameter<bool>("OnlyLong");
   ref_index_ = m_HF.getParameter<double>("RefIndex");
   double lambdaMean = m_HF.getParameter<double>("LambdaMean");
   aperture_ = cos(asin(m_HF.getParameter<double>("Aperture")));

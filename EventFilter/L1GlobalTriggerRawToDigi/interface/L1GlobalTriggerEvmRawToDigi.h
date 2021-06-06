@@ -29,6 +29,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/typedefs.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
 
 // forward declarations
 class L1GtfeWord;
@@ -76,6 +82,12 @@ private:
   /// FED Id for GT EVM record
   /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
   int m_evmGtFedId;
+
+  /// EventSetup Token for L1GtBoardMaps
+  const edm::ESGetToken<L1GtBoardMaps, L1GtBoardMapsRcd> m_l1GtBMToken;
+
+  /// EventSetup Token for L1GtParameters
+  edm::ESGetToken<L1GtParameters, L1GtParametersRcd> m_l1GtParamToken;
 
   /// mask for active boards
   cms_uint16_t m_activeBoardsMaskGt;

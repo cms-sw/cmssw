@@ -5,8 +5,6 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
-#include <iostream>
-#include <iomanip>
 
 //#define EDM_ML_DEBUG
 
@@ -32,6 +30,7 @@ bool CaloSimParametersFromDD::build(const DDCompactView* cpv, CaloSimulationPara
   DDFilteredView fv(*cpv, filter);
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
+  edm::LogVerbatim("HCalGeom") << "Filtered view " << &fv << " after filter with " << sv.size() << " contents";
 
   php.caloNames_ = getNames("Calorimeter", sv, false);
   php.levels_ = getNumbers("Levels", sv, false);
@@ -98,7 +97,7 @@ std::vector<std::string> CaloSimParametersFromDD::getNames(const std::string& st
     int nval = fvec.size();
     if ((nval < 1) && (!ignore)) {
       edm::LogError("HCalGeom") << "CaloSimParametersFromDD: # of " << str << " bins " << nval << " < 1 ==> illegal ";
-      throw cms::Exception("Unknown", "CaloSimParametersFromDD") << "nval < 2 for array " << str << "\n";
+      throw cms::Exception("Unknown", "CaloSimParametersFromDD") << "nval < 1 for array " << str << "\n";
     }
 
     return fvec;

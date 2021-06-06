@@ -12,7 +12,10 @@ OccurrenceTraits:
 #include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
@@ -20,6 +23,7 @@ OccurrenceTraits:
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include <string>
 
@@ -33,11 +37,13 @@ namespace edm {
   template <>
   class OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> {
   public:
-    typedef EventPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    using MyPrincipal = EventPrincipal;
+    using TransitionInfoType = EventTransitionInfo;
+    using Context = StreamContext;
     static BranchType constexpr branchType_ = InEvent;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = true;
+    static Transition constexpr transition_ = Transition::Event;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kEvent);
@@ -64,11 +70,13 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    typedef GlobalContext Context;
+    using MyPrincipal = RunPrincipal;
+    using TransitionInfoType = RunTransitionInfo;
+    using Context = GlobalContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginRun;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kBeginRun,
@@ -103,11 +111,13 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    using MyPrincipal = RunPrincipal;
+    using TransitionInfoType = RunTransitionInfo;
+    using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginRun;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kBeginRun);
@@ -141,11 +151,13 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    using MyPrincipal = RunPrincipal;
+    using TransitionInfoType = RunTransitionInfo;
+    using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::EndRun;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kEndRun);
@@ -179,11 +191,13 @@ namespace edm {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    typedef GlobalContext Context;
+    using MyPrincipal = RunPrincipal;
+    using TransitionInfoType = RunTransitionInfo;
+    using Context = GlobalContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::EndRun;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kEndRun,
@@ -218,11 +232,13 @@ namespace edm {
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef GlobalContext Context;
+    using MyPrincipal = LuminosityBlockPrincipal;
+    using TransitionInfoType = LumiTransitionInfo;
+    using Context = GlobalContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginLuminosityBlock;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kBeginLuminosityBlock,
@@ -257,11 +273,13 @@ namespace edm {
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    using MyPrincipal = LuminosityBlockPrincipal;
+    using TransitionInfoType = LumiTransitionInfo;
+    using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginLuminosityBlock;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kBeginLuminosityBlock);
@@ -295,11 +313,13 @@ namespace edm {
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef StreamContext Context;
+    using MyPrincipal = LuminosityBlockPrincipal;
+    using TransitionInfoType = LumiTransitionInfo;
+    using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::EndLuminosityBlock;
 
     static StreamContext const* context(StreamContext const* s, GlobalContext const*) { return s; }
 
@@ -335,11 +355,13 @@ namespace edm {
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
-    typedef GlobalContext Context;
+    using MyPrincipal = LuminosityBlockPrincipal;
+    using TransitionInfoType = LumiTransitionInfo;
+    using Context = GlobalContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
     static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::EndLuminosityBlock;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kEndLuminosityBlock,
@@ -370,5 +392,117 @@ namespace edm {
     }
     static const char* transitionName() { return "end global LuminosityBlock"; }
   };
+
+  template <>
+  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin> {
+  public:
+    using MyPrincipal = ProcessBlockPrincipal;
+    using TransitionInfoType = ProcessBlockTransitionInfo;
+    using Context = GlobalContext;
+    static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::BeginProcessBlock;
+
+    static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
+      return GlobalContext(GlobalContext::Transition::kBeginProcessBlock,
+                           LuminosityBlockID(),
+                           RunIndex::invalidRunIndex(),
+                           LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                           Timestamp::invalidTimestamp(),
+                           processContext);
+    }
+
+    static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->preBeginProcessBlockSignal_(*globalContext);
+    }
+    static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->postBeginProcessBlockSignal_(*globalContext);
+    }
+    static void preModuleSignal(ActivityRegistry* a,
+                                GlobalContext const* globalContext,
+                                ModuleCallingContext const* moduleCallingContext) {
+      a->preModuleBeginProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static void postModuleSignal(ActivityRegistry* a,
+                                 GlobalContext const* globalContext,
+                                 ModuleCallingContext const* moduleCallingContext) {
+      a->postModuleBeginProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static const char* transitionName() { return "begin ProcessBlock"; }
+  };
+
+  template <>
+  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionProcessBlockInput> {
+  public:
+    using MyPrincipal = ProcessBlockPrincipal;
+    using TransitionInfoType = ProcessBlockTransitionInfo;
+    using Context = GlobalContext;
+    static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::AccessInputProcessBlock;
+
+    static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
+      return GlobalContext(GlobalContext::Transition::kAccessInputProcessBlock,
+                           LuminosityBlockID(),
+                           RunIndex::invalidRunIndex(),
+                           LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                           Timestamp::invalidTimestamp(),
+                           processContext);
+    }
+
+    static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->preAccessInputProcessBlockSignal_(*globalContext);
+    }
+    static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->postAccessInputProcessBlockSignal_(*globalContext);
+    }
+    static void preModuleSignal(ActivityRegistry* a,
+                                GlobalContext const* globalContext,
+                                ModuleCallingContext const* moduleCallingContext) {
+      a->preModuleAccessInputProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static void postModuleSignal(ActivityRegistry* a,
+                                 GlobalContext const* globalContext,
+                                 ModuleCallingContext const* moduleCallingContext) {
+      a->postModuleAccessInputProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static const char* transitionName() { return "access input ProcessBlock"; }
+  };
+
+  template <>
+  class OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd> {
+  public:
+    using MyPrincipal = ProcessBlockPrincipal;
+    using TransitionInfoType = ProcessBlockTransitionInfo;
+    using Context = GlobalContext;
+    static bool constexpr isEvent_ = false;
+    static Transition constexpr transition_ = Transition::EndProcessBlock;
+
+    static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
+      return GlobalContext(GlobalContext::Transition::kEndProcessBlock,
+                           LuminosityBlockID(),
+                           RunIndex::invalidRunIndex(),
+                           LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                           Timestamp::invalidTimestamp(),
+                           processContext);
+    }
+
+    static void preScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->preEndProcessBlockSignal_(*globalContext);
+    }
+    static void postScheduleSignal(ActivityRegistry* a, GlobalContext const* globalContext) {
+      a->postEndProcessBlockSignal_(*globalContext);
+    }
+    static void preModuleSignal(ActivityRegistry* a,
+                                GlobalContext const* globalContext,
+                                ModuleCallingContext const* moduleCallingContext) {
+      a->preModuleEndProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static void postModuleSignal(ActivityRegistry* a,
+                                 GlobalContext const* globalContext,
+                                 ModuleCallingContext const* moduleCallingContext) {
+      a->postModuleEndProcessBlockSignal_(*globalContext, *moduleCallingContext);
+    }
+    static const char* transitionName() { return "end ProcessBlock"; }
+  };
+
 }  // namespace edm
 #endif

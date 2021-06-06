@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "RecoEcal/EgammaClusterAlgos/interface/PFECALSuperClusterAlgo.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
@@ -21,7 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -51,8 +52,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   isOOTCollection_ = iConfig.getParameter<bool>("isOOTCollection");
   superClusterAlgo_.setIsOOTCollection(isOOTCollection_);
 
-  superClusterAlgo_.setTokens(iConfig, consumesCollector());
-
   std::string _typename = iConfig.getParameter<std::string>("ClusteringType");
   if (_typename == ClusterType__BOX) {
     _theclusteringtype = PFECALSuperClusterAlgo::kBOX;
@@ -62,6 +61,10 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
     throw cms::Exception("InvalidClusteringType") << "You have not chosen a valid clustering type,"
                                                   << " please choose from \"Box\" or \"Mustache\"!";
   }
+  superClusterAlgo_.setClusteringType(_theclusteringtype);
+  superClusterAlgo_.setUseDynamicDPhi(iConfig.getParameter<bool>("useDynamicDPhiWindow"));
+  // clusteringType and useDynamicDPhi need to be defined before setting the tokens in order to esConsume only the necessary records
+  superClusterAlgo_.setTokens(iConfig, consumesCollector());
 
   std::string _weightname = iConfig.getParameter<std::string>("EnergyWeight");
   if (_weightname == EnergyWeight__Raw) {
@@ -79,8 +82,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   // parameters for clustering
   bool seedThresholdIsET = iConfig.getParameter<bool>("seedThresholdIsET");
 
-  bool useDynamicDPhi = iConfig.getParameter<bool>("useDynamicDPhiWindow");
-
   double threshPFClusterSeedBarrel = iConfig.getParameter<double>("thresh_PFClusterSeedBarrel");
   double threshPFClusterBarrel = iConfig.getParameter<double>("thresh_PFClusterBarrel");
 
@@ -93,19 +94,14 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   double phiwidthSuperClusterEndcap = iConfig.getParameter<double>("phiwidth_SuperClusterEndcap");
   double etawidthSuperClusterEndcap = iConfig.getParameter<double>("etawidth_SuperClusterEndcap");
 
-  //double threshPFClusterMustacheOutBarrel = iConfig.getParameter<double>("thresh_PFClusterMustacheOutBarrel");
-  //double threshPFClusterMustacheOutEndcap = iConfig.getParameter<double>("thresh_PFClusterMustacheOutEndcap");
-
   double doSatelliteClusterMerge = iConfig.getParameter<bool>("doSatelliteClusterMerge");
   double satelliteClusterSeedThreshold = iConfig.getParameter<double>("satelliteClusterSeedThreshold");
   double satelliteMajorityFraction = iConfig.getParameter<double>("satelliteMajorityFraction");
   bool dropUnseedable = iConfig.getParameter<bool>("dropUnseedable");
 
   superClusterAlgo_.setVerbosityLevel(verbose_);
-  superClusterAlgo_.setClusteringType(_theclusteringtype);
   superClusterAlgo_.setEnergyWeighting(_theenergyweight);
   superClusterAlgo_.setUseETForSeeding(seedThresholdIsET);
-  superClusterAlgo_.setUseDynamicDPhi(useDynamicDPhi);
 
   superClusterAlgo_.setThreshSuperClusterEt(iConfig.getParameter<double>("thresh_SCEt"));
 
@@ -125,8 +121,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   superClusterAlgo_.setSatelliteThreshold(satelliteClusterSeedThreshold);
   superClusterAlgo_.setMajorityFraction(satelliteMajorityFraction);
   superClusterAlgo_.setDropUnseedable(dropUnseedable);
-  //superClusterAlgo_.setThreshPFClusterMustacheOutBarrel( threshPFClusterMustacheOutBarrel );
-  //superClusterAlgo_.setThreshPFClusterMustacheOutEndcap( threshPFClusterMustacheOutEndcap );
 
   //Load the ECAL energy calibration
   thePFEnergyCalibration_ = std::make_shared<PFEnergyCalibration>();
@@ -164,6 +158,8 @@ void PFECALSuperClusterProducer::beginLuminosityBlock(LuminosityBlock const& iL,
 }
 
 void PFECALSuperClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // update SC parameters
+  superClusterAlgo_.updateSCParams(iSetup);
   // do clustering
   superClusterAlgo_.loadAndSortPFClusters(iEvent);
   superClusterAlgo_.run();
@@ -304,20 +300,7 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("phiwidth_SuperClusterEndcap", 0.6);
   desc.add<bool>("useDynamicDPhiWindow", true);
   desc.add<std::string>("PFSuperClusterCollectionBarrel", "particleFlowSuperClusterECALBarrel");
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<bool>("isHLT", false);
-    psd0.add<bool>("applySigmaIetaIphiBug", false);
-    psd0.add<edm::InputTag>("ecalRecHitsEE", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
-    psd0.add<edm::InputTag>("ecalRecHitsEB", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
-    psd0.add<std::string>("regressionKeyEB", "pfscecal_EBCorrection_offline_v1");
-    psd0.add<std::string>("regressionKeyEE", "pfscecal_EECorrection_offline_v1");
-    psd0.add<std::string>("uncertaintyKeyEB", "pfscecal_EBUncertainty_offline_v1");
-    psd0.add<std::string>("uncertaintyKeyEE", "pfscecal_EEUncertainty_offline_v1");
-    psd0.add<edm::InputTag>("vertexCollection", edm::InputTag("offlinePrimaryVertices"));
-    psd0.add<double>("eRecHitThreshold", 1.);
-    desc.add<edm::ParameterSetDescription>("regressionConfig", psd0);
-  }
+  desc.add<edm::ParameterSetDescription>("regressionConfig", SCEnergyCorrectorSemiParm::makePSetDescription());
   desc.add<bool>("applyCrackCorrections", false);
   desc.add<double>("satelliteClusterSeedThreshold", 50.0);
   desc.add<double>("etawidth_SuperClusterBarrel", 0.04);

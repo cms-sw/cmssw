@@ -6,7 +6,7 @@
 #include <cmath>
 #include "CommonTools/Utils/interface/DynArray.h"
 #include <iterator>
-#include <boost/function_output_iterator.hpp>
+#include <boost/iterator/function_output_iterator.hpp>
 
 #include "vdt/vdtMath.h"
 
@@ -69,11 +69,10 @@ void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFClus
     const auto rh_rawenergy = rhf.energy;
     const auto rh_energy = rh_rawenergy * rh_fraction;
 #ifdef PF_DEBUG
-    if
-      UNLIKELY(edm::isNotFinite(rh_energy)) {
-        throw cms::Exception("PFClusterAlgo") << "rechit " << refhit.detId() << " has a NaN energy... "
-                                              << "The input of the particle flow clustering seems to be corrupted.";
-      }
+    if UNLIKELY (edm::isNotFinite(rh_energy)) {
+      throw cms::Exception("PFClusterAlgo") << "rechit " << refhit.detId() << " has a NaN energy... "
+                                            << "The input of the particle flow clustering seems to be corrupted.";
+    }
 #endif
     cl_energy += rh_energy;
     // If time resolution is given, calculated weighted average

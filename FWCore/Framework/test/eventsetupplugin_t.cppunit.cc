@@ -62,7 +62,8 @@ void testEventsetupplugin::finderTest()
 {
   doInit();
   EventSetupsController esController;
-  EventSetupProvider provider(&activityRegistry);
+  tbb::task_arena taskArena(1);
+  EventSetupProvider provider(&activityRegistry, &taskArena);
 
   edm::ParameterSet dummyFinderPSet;
   dummyFinderPSet.addParameter("@module_type", std::string("LoadableDummyFinder"));

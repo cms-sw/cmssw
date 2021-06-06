@@ -111,12 +111,17 @@ namespace reco {
     virtual bool isLinkedToDisplacedVertex() const { return false; }
 
     // Glowinski & Gouzevitch
-    void setMultilinks(const PFMultiLinksTC& ml) { multilinks_ = ml; }
-    void setIsValidMultilinks(bool isVal) { multilinks_.isValid = isVal; }
-    void setMultilinksList(const PFMultilinksType& links) { multilinks_.linkedClusters = links; }
+    void setMultilinks(const PFMultiLinksTC& ml, Type type) { multilinks_[type] = ml; }
+    void setIsValidMultilinks(bool isVal, Type type) { multilinks_[type].isValid = isVal; }
 
-    bool isMultilinksValide() const { return multilinks_.isValid; }
-    const PFMultilinksType& getMultilinks() const { return multilinks_.linkedClusters; }
+    bool isMultilinksValide(Type type) const {
+      const auto& it = multilinks_.find(type);
+      if (it != multilinks_.end())
+        return it->second.isValid;
+      else
+        return false;  // no multilinks_ for the specified type
+    }
+    const PFMultilinksType& getMultilinks(Type type) const { return multilinks_.at(type).linkedClusters; }
     // ! Glowinski & Gouzevitch
 
     /// do we have a valid time information
@@ -145,7 +150,8 @@ namespace reco {
     unsigned index_;
 
     // Glowinski & Gouzevitch
-    PFMultiLinksTC multilinks_;
+    // PFMultiLinks for each different link target type
+    std::map<reco::PFBlockElement::Type, PFMultiLinksTC> multilinks_;
     // ! Glowinski & Gouzevitch
 
     /// timing information (valid if timeError_ >= 0)

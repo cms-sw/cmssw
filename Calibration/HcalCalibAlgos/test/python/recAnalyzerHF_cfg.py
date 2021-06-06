@@ -6,7 +6,7 @@ process.load('Calibration.HcalCalibAlgos.recAnalyzerHF_cfi')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('AnalyzerHF')
+    process.MessageLogger.AnalyzerHF=dict()
 
 # import of standard configurations
 process.maxEvents = cms.untracked.PSet(

@@ -1,0 +1,8 @@
+<lcgdict>
+    <enum name="calo::common::tags::Ptr"/>
+    <enum name="calo::common::tags::Vec"/>
+    <enum name="calo::common::tags::DevPtr"/>
+    <class name="calo::common::AddSize<calo::common::tags::Ptr>"/>
+    <class name="calo::common::AddSize<calo::common::tags::Vec>"/>
+    <class name="calo::common::AddSize<calo::common::tags::DevPtr>"/>
+</lcgdict>

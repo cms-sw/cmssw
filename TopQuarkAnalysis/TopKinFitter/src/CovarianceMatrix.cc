@@ -2,6 +2,7 @@
 
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscResolutions,
                                    const std::vector<edm::ParameterSet>& bResolutions,

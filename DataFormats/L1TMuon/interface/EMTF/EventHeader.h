@@ -34,6 +34,8 @@ namespace l1t {
             me4(-99),
             cppf(-99),
             cppf_crc(-99),
+            gem(-99),
+            gem_crc(-99),
             format_errors(0),
             dataword(-99){};
 
@@ -62,6 +64,8 @@ namespace l1t {
       void set_me4(int bits) { me4 = bits; }
       void set_cppf(int bits) { cppf = bits; }
       void set_cppf_crc(int bits) { cppf_crc = bits; }
+      void set_gem(int bits) { gem = bits; }
+      void set_gem_crc(int bits) { gem_crc = bits; }
       void add_format_error() { format_errors += 1; }
       void set_dataword(uint64_t bits) { dataword = bits; }
 
@@ -88,6 +92,8 @@ namespace l1t {
       int ME4() const { return me4; }
       int CPPF() const { return cppf; }
       int CPPF_CRC() const { return cppf_crc; }
+      int GEM() const { return gem; }
+      int GEM_CRC() const { return gem_crc; }
       int Format_errors() const { return format_errors; }
       uint64_t Dataword() const { return dataword; }
 
@@ -115,6 +121,8 @@ namespace l1t {
       int me4;
       int cppf;
       int cppf_crc;
+      int gem;
+      int gem_crc;
       int format_errors;
       uint64_t dataword;
 

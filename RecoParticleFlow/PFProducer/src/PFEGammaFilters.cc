@@ -168,11 +168,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
 }
 
 bool PFEGammaFilters::isElectron(const reco::GsfElectron& electron) const {
-  unsigned int nmisshits = electron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-  if (nmisshits > ele_missinghits_)
-    return false;
-
-  return true;
+  return electron.gsfTrack()->missingInnerHits() <= ele_missinghits_;
 }
 
 bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
@@ -236,7 +232,6 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
       bool goodTrack = PFTrackAlgoTools::isGoodForEGM(trackref->algo());
       // iter0, iter1, iter2, iter3 = Algo < 3
       // algo 4,5,6,7
-      int nexhits = trackref->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
       bool trackIsFromPrimaryVertex = false;
       for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end();
@@ -248,7 +243,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
       }
 
       // probably we could now remove the algo request??
-      if (goodTrack && nexhits == 0 && trackIsFromPrimaryVertex) {
+      if (goodTrack && trackref->missingInnerHits() == 0 && trackIsFromPrimaryVertex) {
         float p_trk = trackref->p();
         SumExtraKfP += p_trk;
         iextratrack++;
@@ -261,16 +256,16 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
         }
         if (debugSafeForJetMET)
           cout << " The ecalGsf cluster is not isolated: >0 KF extra with algo < 3"
-               << " Algo " << trackref->algo() << " nexhits " << nexhits << " trackIsFromPrimaryVertex "
-               << trackIsFromPrimaryVertex << endl;
+               << " Algo " << trackref->algo() << " trackref->missingInnerHits() " << trackref->missingInnerHits()
+               << " trackIsFromPrimaryVertex " << trackIsFromPrimaryVertex << endl;
         if (debugSafeForJetMET)
           cout << " My track PT " << trackref->pt() << endl;
 
       } else {
         if (debugSafeForJetMET)
           cout << " Tracks from PU "
-               << " Algo " << trackref->algo() << " nexhits " << nexhits << " trackIsFromPrimaryVertex "
-               << trackIsFromPrimaryVertex << endl;
+               << " Algo " << trackref->algo() << " trackref->missingInnerHits() " << trackref->missingInnerHits()
+               << " trackIsFromPrimaryVertex " << trackIsFromPrimaryVertex << endl;
         if (debugSafeForJetMET)
           cout << " My track PT " << trackref->pt() << endl;
       }
@@ -435,7 +430,7 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   }
   {
     edm::ParameterSetDescription psd;
-    psd.add<bool>("enableProtections", false);
+    psd.add<bool>("enableProtections", true);
     psd.add<std::vector<double>>("full5x5_sigmaIetaIeta",  // EB, EE; 94Xv2 cut-based medium id
                                  {0.0106, 0.0387});
     psd.add<std::vector<double>>("eInvPInv", {0.184, 0.0721});
@@ -460,7 +455,7 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   {
     edm::ParameterSetDescription psd;
     psd.add<double>("solidConeTrkIsoSlope", 0.3);
-    psd.add<bool>("enableProtections", false);
+    psd.add<bool>("enableProtections", true);
     psd.add<double>("solidConeTrkIsoOffset", 10.0);
     iDesc.add<edm::ParameterSetDescription>("photon_protectionsForBadHcal", psd);
   }

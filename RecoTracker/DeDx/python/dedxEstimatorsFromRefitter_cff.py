@@ -2,37 +2,38 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 
-RefitterForDeDx = TrackRefitter.clone()
-RefitterForDeDx.TrajectoryInEvent = True
+RefitterForDeDx = TrackRefitter.clone(
+    TrajectoryInEvent = True
+)
 
 from RecoTracker.DeDx.dedxEstimators_cff import *
 
-dedxHitInfo.tracks=cms.InputTag("RefitterForDeDx")
-dedxHitInfo.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
+dedxHitInfo.tracks="RefitterForDeDx"
+dedxHitInfo.trajectoryTrackAssociation = "RefitterForDeDx"
 
-dedxHarmonic2.tracks=cms.InputTag("RefitterForDeDx")
-dedxHarmonic2.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
+dedxHarmonic2.tracks="RefitterForDeDx"
+dedxHarmonic2.trajectoryTrackAssociation = "RefitterForDeDx"
 
-dedxTruncated40.tracks=cms.InputTag("RefitterForDeDx")
-dedxTruncated40.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
+dedxTruncated40.tracks="RefitterForDeDx"
+dedxTruncated40.trajectoryTrackAssociation = "RefitterForDeDx"
 
-dedxMedian.tracks=cms.InputTag("RefitterForDeDx")
-dedxMedian.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
+dedxMedian.tracks="RefitterForDeDx"
+dedxMedian.trajectoryTrackAssociation = "RefitterForDeDx"
 
-dedxUnbinned.tracks=cms.InputTag("RefitterForDeDx")
-dedxUnbinned.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
+dedxUnbinned.tracks="RefitterForDeDx"
+dedxUnbinned.trajectoryTrackAssociation = "RefitterForDeDx"
 
-dedxDiscrimProd.tracks=cms.InputTag("RefitterForDeDx")
-dedxDiscrimProd.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
+dedxDiscrimProd.tracks="RefitterForDeDx"
+dedxDiscrimProd.trajectoryTrackAssociation = "RefitterForDeDx"
 
-dedxDiscrimBTag.tracks=cms.InputTag("RefitterForDeDx")
-dedxDiscrimBTag.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
+dedxDiscrimBTag.tracks="RefitterForDeDx"
+dedxDiscrimBTag.trajectoryTrackAssociation = "RefitterForDeDx"
 
-dedxDiscrimSmi.tracks=cms.InputTag("RefitterForDeDx")
-dedxDiscrimSmi.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
+dedxDiscrimSmi.tracks="RefitterForDeDx"
+dedxDiscrimSmi.trajectoryTrackAssociation = "RefitterForDeDx"
 
-dedxDiscrimASmi.tracks=cms.InputTag("RefitterForDeDx")
-dedxDiscrimASmi.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
+dedxDiscrimASmi.tracks="RefitterForDeDx"
+dedxDiscrimASmi.trajectoryTrackAssociation = "RefitterForDeDx"
 
 doAlldEdXEstimatorsTask = cms.Task(RefitterForDeDx, dedxTruncated40, dedxHarmonic2, dedxHitInfo )
 doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)

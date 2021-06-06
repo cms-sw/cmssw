@@ -44,7 +44,7 @@ FittedEntry::FittedEntry(ALIstring name, float value, float sigma) {
   ALIint point = -1;
   ALIint pointold = 0;
   for (;;) {
-    point = name.find(".", point + 1);
+    point = name.find('.', point + 1);
     if (point == -1)
       break;
     theOptOName += "/" + name.substr(pointold, point - pointold);

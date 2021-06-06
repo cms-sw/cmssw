@@ -1,6 +1,5 @@
 #ifndef PhysicsTools_Utilities_Composition_h
 #define PhysicsTools_Utilities_Composition_h
-#include <boost/static_assert.hpp>
 
 namespace funct {
   template <typename A, typename B>

@@ -21,9 +21,13 @@
 #include <sstream>
 #include <memory>
 
-class TrackerTopology;
-class SiStripDetCabling;
-class TrackerGeometry;
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
 class SiStripGainCosmicCalculator : public ConditionDBWriter<SiStripApvGain> {
 public:
@@ -52,13 +56,17 @@ private:
   std::map<uint32_t, double> thickness_map;  // map of detector id to respective thickness
   std::vector<uint32_t> SelectedDetIds;
   std::vector<uint32_t> detModulesToBeExcluded;
-  SiStripDetCabling const* siStripDetCabling = nullptr;
-  TrackerGeometry const* tkGeom = nullptr;
   unsigned int MinNrEntries;
   double MaxChi2OverNDF;
   bool outputHistogramsInRootFile;
   TString outputFileName;
   bool printdebug_;
-  const TrackerTopology* tTopo;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const TrackerTopology* tTopo_ = nullptr;
+  const SiStripDetCabling* siStripDetCabling_ = nullptr;
+  const TrackerGeometry* tkGeom_ = nullptr;
 };
 #endif

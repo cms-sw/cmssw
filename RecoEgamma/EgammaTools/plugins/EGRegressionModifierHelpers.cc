@@ -1,12 +1,24 @@
 #include "RecoEgamma/EgammaTools/plugins/EGRegressionModifierHelpers.h"
 
-std::vector<const GBRForestD*> retrieveGBRForests(edm::EventSetup const& evs, std::vector<std::string> const& names) {
-  std::vector<const GBRForestD*> items;
-  edm::ESHandle<GBRForestD> handle;
+EGRegressionModifierCondTokens::EGRegressionModifierCondTokens(edm::ParameterSet const& config,
+                                                               std::string const& regressionKey,
+                                                               std::string const& uncertaintyKey,
+                                                               edm::ConsumesCollector& cc) {
+  for (auto const& name : config.getParameter<std::vector<std::string>>(regressionKey)) {
+    mean.push_back(cc.esConsumes<GBRForestD, GBRDWrapperRcd>(edm::ESInputTag("", name)));
+  }
+  for (auto const& name : config.getParameter<std::vector<std::string>>(uncertaintyKey)) {
+    sigma.push_back(cc.esConsumes<GBRForestD, GBRDWrapperRcd>(edm::ESInputTag("", name)));
+  }
+}
 
-  for (auto const& name : names) {
-    evs.get<GBRDWrapperRcd>().get(name, handle);
-    items.push_back(handle.product());
+std::vector<const GBRForestD*> retrieveGBRForests(
+    edm::EventSetup const& evs, std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd>> const& tokens) {
+  std::vector<const GBRForestD*> items;
+
+  items.reserve(tokens.size());
+  for (auto const& token : tokens) {
+    items.push_back(&evs.getData(token));
   }
 
   return items;

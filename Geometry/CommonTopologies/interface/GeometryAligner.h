@@ -19,7 +19,7 @@
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
@@ -33,13 +33,13 @@ class AlignmentSurfaceDeformations;
 class GeometryAligner : public DetPositioner {
 public:
   template <class C>
-  void applyAlignments(C* geometry,
+  void applyAlignments(const C* geometry,
                        const Alignments* alignments,
                        const AlignmentErrorsExtended* alignmentErrors,
                        const AlignTransform& globalCoordinates);
 
   template <class C>
-  void attachSurfaceDeformations(C* geometry, const AlignmentSurfaceDeformations* surfaceDeformations);
+  void attachSurfaceDeformations(const C* geometry, const AlignmentSurfaceDeformations* surfaceDeformations);
 
   inline void removeGlobalTransform(const Alignments* alignments,
                                     const AlignmentErrorsExtended* alignmentErrors,
@@ -49,7 +49,7 @@ public:
 };
 
 template <class C>
-void GeometryAligner::applyAlignments(C* geometry,
+void GeometryAligner::applyAlignments(const C* geometry,
                                       const Alignments* alignments,
                                       const AlignmentErrorsExtended* alignmentErrors,
                                       const AlignTransform& globalCoordinates) {
@@ -117,7 +117,8 @@ void GeometryAligner::applyAlignments(C* geometry,
 }
 
 template <class C>
-void GeometryAligner::attachSurfaceDeformations(C* geometry, const AlignmentSurfaceDeformations* surfaceDeformations) {
+void GeometryAligner::attachSurfaceDeformations(const C* geometry,
+                                                const AlignmentSurfaceDeformations* surfaceDeformations) {
   edm::LogInfo("Alignment") << "@SUB=GeometryAligner::attachSurfaceDeformations"
                             << "Starting to attach surface deformations.";
 

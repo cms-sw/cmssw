@@ -2,9 +2,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/JetMETObjects/interface/MEtXYcorrectParameters.h"
 #include "CondFormats/JetMETObjects/interface/Utilities.h"
-#include "JetMETCorrections/Objects/interface/MEtXYcorrectRecord.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -12,6 +10,8 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include <TString.h>
+
+#include <memory>
 
 int MultShiftMETcorrDBInputProducer::translateTypeToAbsPdgId(reco::PFCandidate::ParticleType type) {
   switch (type) {
@@ -41,8 +41,14 @@ MultShiftMETcorrDBInputProducer::MultShiftMETcorrDBInputProducer(const edm::Para
   mSampleType = (cfg.exists("sampleType")) ? cfg.getParameter<std::string>("sampleType") : "MC";
   mIsData = cfg.getParameter<bool>("isData");
 
-  pflow_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("srcPFlow"));
-  vertices_ = consumes<edm::View<reco::Vertex> >(cfg.getParameter<edm::InputTag>("vertexCollection"));
+  pflow_ = consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("srcPFlow"));
+  vertices_ = consumes<edm::View<reco::Vertex>>(cfg.getParameter<edm::InputTag>("vertexCollection"));
+  mMEtXYcorParaColl_ =
+      esConsumes<MEtXYcorrectParametersCollection, MEtXYcorrectRecord>(edm::ESInputTag("", mPayloadName));
+
+  edm::InputTag srcWeights = cfg.getParameter<edm::InputTag>("srcWeights");
+  if (!srcWeights.label().empty())
+    weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
 
   etaMin_.clear();
   etaMax_.clear();
@@ -54,8 +60,7 @@ MultShiftMETcorrDBInputProducer::~MultShiftMETcorrDBInputProducer() {}
 
 void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Get para.s from DB
-  edm::ESHandle<MEtXYcorrectParametersCollection> MEtXYcorParaColl;
-  es.get<MEtXYcorrectRecord>().get(mPayloadName, MEtXYcorParaColl);
+  edm::ESHandle<MEtXYcorrectParametersCollection> MEtXYcorParaColl = es.getHandle(mMEtXYcorParaColl_);
 
   // get the sections from Collection (pair of section and METCorr.Par class)
   std::vector<MEtXYcorrectParametersCollection::key_type> keys;
@@ -63,7 +68,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
   MEtXYcorParaColl->validKeys(keys);
 
   //get primary vertices
-  edm::Handle<edm::View<reco::Vertex> > hpv;
+  edm::Handle<edm::View<reco::Vertex>> hpv;
   evt.getByToken(vertices_, hpv);
   if (!hpv.isValid()) {
     edm::LogError("MultShiftMETcorrDBInputProducer::produce") << "could not find vertex collection ";
@@ -75,8 +80,12 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
   }
   int ngoodVertices = goodVertices.size();
 
-  edm::Handle<edm::View<reco::Candidate> > particleFlow;
+  edm::Handle<edm::View<reco::Candidate>> particleFlow;
   evt.getByToken(pflow_, particleFlow);
+
+  edm::Handle<edm::ValueMap<float>> weights;
+  if (!weightsToken_.isUninitialized())
+    evt.getByToken(weightsToken_, weights);
 
   //loop over all constituent types and sum each correction
   //std::unique_ptr<CorrMETData> metCorr(new CorrMETData());
@@ -130,8 +139,9 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
       if (abs(c.pdgId()) ==
           translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(MEtXYcorParams.definitions().PtclType()))) {
         if ((c.eta() > MEtXYcorParams.record(0).xMin(0)) and (c.eta() < MEtXYcorParams.record(0).xMax(0))) {
-          counts_ += 1;
-          sumPt_ += c.pt();
+          float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
+          counts_ += (weight > 0);
+          sumPt_ += c.pt() * weight;
           continue;
         }
       }
@@ -153,8 +163,8 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
           << "parVar: " << parVar << " is not reserved !!!\n";
     }
 
-    formula_x_.reset(new TF1("corrPx", MEtXYcorParams.definitions().formula().c_str()));
-    formula_y_.reset(new TF1("corrPy", MEtXYcorParams.definitions().formula().c_str()));
+    formula_x_ = std::make_unique<TF1>("corrPx", MEtXYcorParams.definitions().formula().c_str());
+    formula_y_ = std::make_unique<TF1>("corrPy", MEtXYcorParams.definitions().formula().c_str());
 
     for (unsigned i(0); i < MEtXYcorParams.record(0).nParameters(); i++) {
       formula_x_->SetParameter(i, MEtXYcorParams.record(0).parameter(i));

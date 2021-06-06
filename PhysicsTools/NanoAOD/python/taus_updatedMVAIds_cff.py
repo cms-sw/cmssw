@@ -4,8 +4,9 @@ import FWCore.ParameterSet.Config as cms
 # Used only in some eras
 from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
+
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 ### MVAIso 2017v2
 ## DBoldDM
@@ -168,10 +169,11 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Seq = cms.Sequence(
 ### Define new anit-e discriminants (2018)
 antiElectronDiscrMVA6_version = "MVA"
 ## Raw
-from RecoTauTag.RecoTau.PATTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
-from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
+from RecoTauTag.RecoTau.patTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
 patTauDiscriminationByElectronRejectionMVA62018Raw = patTauDiscriminationAgainstElectronMVA6.clone(
+    PATTauProducer = 'slimmedTaus',
     Prediscriminants = noPrediscriminants, #already selected for MiniAOD
+    srcElectrons = 'slimmedElectrons',
     vetoEcalCracks = False, #keep tau candidates in EB-EE cracks
     mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_wGwoGSF_BL',
     mvaName_NoEleMatch_wGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_NoEleMatch_wGwoGSF_EC',
@@ -247,7 +249,9 @@ patTauDiscriminationByElectronRejectionMVA62018 = patTauDiscriminantCutMultiplex
 antiElectronDiscrMVA6v1_version = "MVA6v1"
 ## Raw
 patTauDiscriminationByElectronRejectionMVA62015Raw = patTauDiscriminationAgainstElectronMVA6.clone(
+    PATTauProducer = 'slimmedTaus',
     Prediscriminants = noPrediscriminants, #already selected for MiniAOD
+    srcElectrons = 'slimmedElectrons',
     vetoEcalCracks = True, #don't keep tau candidates in EB-EE cracks for v1
     mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6v1_version+'_gbr_NoEleMatch_wGwoGSF_BL',
     mvaName_NoEleMatch_wGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6v1_version+'_gbr_NoEleMatch_wGwoGSF_EC',
@@ -287,7 +291,9 @@ _patTauDiscriminationByElectronRejection2015Seq = cms.Sequence(
     +patTauDiscriminationByElectronRejectionMVA62015
 )
 patTauDiscriminationByElectronRejectionSeq = _patTauDiscriminationByElectronRejection2015Seq.copy()
-(~run2_miniAOD_80XLegacy).toReplaceWith(patTauDiscriminationByElectronRejectionSeq,
+for era in [run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,\
+            run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1]:
+    era.toReplaceWith(patTauDiscriminationByElectronRejectionSeq,
                       _patTauDiscriminationByElectronRejection2018Seq)
 
 
@@ -403,8 +409,33 @@ _tauIDSourcesWithAntiE2015 = cms.PSet(
     _antiETauIDSources2015
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWithAntiE2015
-(~run2_miniAOD_80XLegacy).toModify(slimmedTausUpdated,
+for era in [run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,\
+            run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1]:
+    era.toModify(slimmedTausUpdated,
                  tauIDSources = _tauIDSourcesWithAntiE2018
+    )
+
+## anti-electron in dead-ECal regions
+from RecoTauTag.RecoTau.patTauDiscriminationAgainstElectronDeadECAL_cfi import patTauDiscriminationAgainstElectronDeadECAL
+patTauDiscriminationAgainstElectronDeadECALForNano = patTauDiscriminationAgainstElectronDeadECAL.clone(
+    PATTauProducer = 'slimmedTaus',
+    Prediscriminants = noPrediscriminants
+)
+_patTauMVAIDsSeqWithAntiEdeadECal = patTauMVAIDsSeq.copy()
+_patTauMVAIDsSeqWithAntiEdeadECal += patTauDiscriminationAgainstElectronDeadECALForNano
+_tauIDSourcesWithAntiEdeadECal = cms.PSet(
+    slimmedTausUpdated.tauIDSources.clone(),
+    againstElectronDeadECALForNano = cms.PSet(
+        inputTag = cms.InputTag("patTauDiscriminationAgainstElectronDeadECALForNano"),
+        workingPointIndex = cms.int32(-99)
+    )
+)
+for era in [run2_miniAOD_80XLegacy,run2_nanoAOD_92X,run2_nanoAOD_94XMiniAODv1,\
+            run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,\
+            run2_nanoAOD_106Xv1]:
+    era.toReplaceWith(patTauMVAIDsSeq,_patTauMVAIDsSeqWithAntiEdeadECal)
+    era.toModify(slimmedTausUpdated,
+                 tauIDSources = _tauIDSourcesWithAntiEdeadECal
     )
 
 

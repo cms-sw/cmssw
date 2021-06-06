@@ -16,6 +16,10 @@
 
 namespace hgc = hgc_digi;
 
+namespace hgc_digi {
+  typedef std::array<float, 6> FEADCPulseShape;
+}
+
 template <class DFr>
 class HGCFEElectronics {
 public:
@@ -33,6 +37,7 @@ public:
   inline void runShaper(DFr& dataFrame,
                         hgc::HGCSimHitData& chargeColl,
                         hgc::HGCSimHitData& toa,
+                        const hgc_digi::FEADCPulseShape& adcPulse,
                         CLHEP::HepRandomEngine* engine,
                         uint32_t thrADC = 0,
                         float lsbADC = -1,
@@ -41,11 +46,11 @@ public:
                         int thickness = 1) {
     switch (fwVersion_) {
       case SIMPLE: {
-        runSimpleShaper(dataFrame, chargeColl, thrADC, lsbADC, gainIdx, maxADC);
+        runSimpleShaper(dataFrame, chargeColl, thrADC, lsbADC, gainIdx, maxADC, adcPulse);
         break;
       }
       case WITHTOT: {
-        runShaperWithToT(dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness);
+        runShaperWithToT(dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, adcPulse);
         break;
       }
       default: {
@@ -53,6 +58,17 @@ public:
         break;
       }
     }
+  }
+  inline void runShaper(DFr& dataFrame,
+                        hgc::HGCSimHitData& chargeColl,
+                        hgc::HGCSimHitData& toa,
+                        CLHEP::HepRandomEngine* engine,
+                        uint32_t thrADC = 0,
+                        float lsbADC = -1,
+                        uint32_t gainIdx = 0,
+                        float maxADC = -1,
+                        int thickness = 1) {
+    runShaper(dataFrame, chargeColl, toa, adcPulse_, engine, thrADC, lsbADC, gainIdx, maxADC, thickness);
   }
 
   void SetNoiseValues(const std::vector<float>& noise_fC) {
@@ -87,8 +103,17 @@ public:
   /**
      @short applies a shape to each time sample and propagates the tails to the subsequent time samples
    */
+  void runSimpleShaper(DFr& dataFrame,
+                       hgc::HGCSimHitData& chargeColl,
+                       uint32_t thrADC,
+                       float lsbADC,
+                       uint32_t gainIdx,
+                       float maxADC,
+                       const hgc_digi::FEADCPulseShape& adcPulse);
   void runSimpleShaper(
-      DFr& dataFrame, hgc::HGCSimHitData& chargeColl, uint32_t thrADC, float lsbADC, uint32_t gainIdx, float maxADC);
+      DFr& dataFrame, hgc::HGCSimHitData& chargeColl, uint32_t thrADC, float lsbADC, uint32_t gainIdx, float maxADC) {
+    runSimpleShaper(dataFrame, chargeColl, thrADC, lsbADC, gainIdx, maxADC, adcPulse_);
+  }
 
   /**
      @short implements pulse shape and switch to time over threshold including deadtime
@@ -101,12 +126,29 @@ public:
                         float lsbADC,
                         uint32_t gainIdx,
                         float maxADC,
-                        int thickness);
+                        int thickness,
+                        const hgc_digi::FEADCPulseShape& adcPulse);
+  void runShaperWithToT(DFr& dataFrame,
+                        hgc::HGCSimHitData& chargeColl,
+                        hgc::HGCSimHitData& toa,
+                        CLHEP::HepRandomEngine* engine,
+                        uint32_t thrADC,
+                        float lsbADC,
+                        uint32_t gainIdx,
+                        float maxADC,
+                        int thickness) {
+    runShaperWithToT(dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, adcPulse_);
+  }
 
   /**
      @short returns how ToT will be computed
    */
   uint32_t toaMode() const { return toaMode_; }
+
+  /**
+     @short getter for the default ADC pulse configured by python
+   */
+  hgc_digi::FEADCPulseShape& getDefaultADCPulse() { return adcPulse_; }
 
   /**
      @short DTOR
@@ -116,7 +158,7 @@ public:
 private:
   //private members
   uint32_t fwVersion_;
-  std::array<float, 6> adcPulse_, pulseAvgT_;
+  hgc_digi::FEADCPulseShape adcPulse_, pulseAvgT_;
   std::array<float, 3> tdcForToAOnset_fC_;
   std::vector<float> tdcChargeDrainParameterisation_;
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_, adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_,

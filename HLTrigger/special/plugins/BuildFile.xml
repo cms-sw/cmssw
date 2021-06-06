@@ -5,7 +5,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/EcalObjects"/>
-<use name="CondFormats/L1TObjects"/>
+<use name="CondFormats/RunInfo"/>
 <use name="DataFormats/CSCDigi"/>
 <use name="DataFormats/CSCRecHit"/>
 <use name="DataFormats/CTPPSDetId"/>
@@ -25,7 +25,6 @@
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/MuonDetId"/>
-<use name="DataFormats/MuonReco"/>
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/TCDS"/>
 <use name="DataFormats/TrackReco"/>
@@ -43,14 +42,12 @@
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/EcalAlgo"/>
-<use name="Geometry/EcalMapping"/>
 <use name="Geometry/RPCGeometry"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="RecoEcal/EgammaClusterAlgos"/>
 <use name="RecoEcal/EgammaCoreTools"/>
-<use name="RecoMuon/TrackingTools"/>
-<use name="SimGeneral/HepPDTRecord"/>
+<use name="TrackingTools/Records"/>
 <use name="TrackingTools/TransientTrack"/>
 <flags EDM_PLUGIN="1"/>

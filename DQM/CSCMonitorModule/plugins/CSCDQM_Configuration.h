@@ -21,6 +21,7 @@
 
 #include <string>
 #include <sstream>
+#include <functional>
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
@@ -43,9 +44,6 @@
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/comparison/equal.hpp>
-
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 
 #include <boost/timer.hpp>
 
@@ -256,26 +254,26 @@ namespace cscdqm {
         */
 
     /** Get MO Globally */
-    boost::function<bool(const HistoDef& histoT, MonitorObject*&)> fnGetHisto;
+    std::function<bool(const HistoDef& histoT, MonitorObject*&)> fnGetHisto;
 
     /** Pointers to Cache Functions */
-    boost::function<bool(const HistoId id, MonitorObject*& mo)> fnGetCacheEMUHisto;
-    boost::function<bool(const HistoId id, const HwId& id1, MonitorObject*& mo)> fnGetCacheFEDHisto;
-    boost::function<bool(const HistoId id, const HwId& id1, MonitorObject*& mo)> fnGetCacheDDUHisto;
-    boost::function<bool(const HistoId id, const HwId& id1, const HwId& id2, const HwId& id3, MonitorObject*& mo)>
+    std::function<bool(const HistoId id, MonitorObject*& mo)> fnGetCacheEMUHisto;
+    std::function<bool(const HistoId id, const HwId& id1, MonitorObject*& mo)> fnGetCacheFEDHisto;
+    std::function<bool(const HistoId id, const HwId& id1, MonitorObject*& mo)> fnGetCacheDDUHisto;
+    std::function<bool(const HistoId id, const HwId& id1, const HwId& id2, const HwId& id3, MonitorObject*& mo)>
         fnGetCacheCSCHisto;
-    boost::function<bool(const HistoId id, MonitorObject*& mo)> fnGetCacheParHisto;
-    boost::function<void(const HistoDef& histoT, MonitorObject*&)> fnPutHisto;
-    boost::function<bool(unsigned int&, unsigned int&, unsigned int&)> fnNextBookedCSC;
-    boost::function<bool(unsigned int&, unsigned int&)> fnIsBookedCSC;
-    boost::function<bool(unsigned int&)> fnIsBookedDDU;
-    boost::function<bool(unsigned int&)> fnIsBookedFED;
+    std::function<bool(const HistoId id, MonitorObject*& mo)> fnGetCacheParHisto;
+    std::function<void(const HistoDef& histoT, MonitorObject*&)> fnPutHisto;
+    std::function<bool(unsigned int&, unsigned int&, unsigned int&)> fnNextBookedCSC;
+    std::function<bool(unsigned int&, unsigned int&)> fnIsBookedCSC;
+    std::function<bool(unsigned int&)> fnIsBookedDDU;
+    std::function<bool(unsigned int&)> fnIsBookedFED;
 
     /** Pointer to Collection Book Function */
-    boost::function<MonitorObject*(const HistoBookRequest&)> fnBook;
+    std::function<MonitorObject*(const HistoBookRequest&)> fnBook;
 
     /** Pointer to CSC Det Id function */
-    boost::function<bool(const unsigned int, const unsigned int, CSCDetId&)> fnGetCSCDetId;
+    std::function<bool(const unsigned int, const unsigned int, CSCDetId&)> fnGetCSCDetId;
 
     /** Parameter Getters */
     BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_GETTER_MACRO, _, CONFIG_PARAMETERS_SEQ)

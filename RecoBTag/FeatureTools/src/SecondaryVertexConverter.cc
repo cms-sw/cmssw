@@ -16,6 +16,7 @@ namespace btagbtvdeep {
                     const bool flip) {
     math::XYZVector jet_dir = jet.momentum().Unit();
     sv_features.pt = sv.pt();
+    sv_features.ptrel = sv.pt() / jet.pt();
     sv_features.deltaR = catch_infs_and_bound(std::fabs(reco::deltaR(sv, jet_dir)) - 0.5, 0, -2, 0);
     sv_features.mass = sv.mass();
     sv_features.ntracks = sv.numberOfDaughters();

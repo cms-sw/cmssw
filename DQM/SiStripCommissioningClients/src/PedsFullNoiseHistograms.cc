@@ -2,10 +2,12 @@
 #include "CondFormats/SiStripObjects/interface/PedsFullNoiseAnalysis.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/PedsFullNoiseAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/PedsFullNoiseSummaryFactory.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 #include "TProfile.h"
@@ -18,7 +20,7 @@ using namespace sistrip;
 PedsFullNoiseHistograms::PedsFullNoiseHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(
           pset.getParameter<edm::ParameterSet>("PedsFullNoiseParameters"), bei, sistrip::PEDS_FULL_NOISE) {
-  factory_ = unique_ptr<PedsFullNoiseSummaryFactory>(new PedsFullNoiseSummaryFactory);
+  factory_ = std::make_unique<PedsFullNoiseSummaryFactory>();
   LogTrace(mlDqmClient_) << "[PedsFullNoiseHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

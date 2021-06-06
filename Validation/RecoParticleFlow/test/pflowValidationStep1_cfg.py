@@ -53,7 +53,6 @@ process.pfNoPileUp = cms.EDProducer("TPPileUpPFCandidatesOnPFCandidates",
                                         enable = cms.bool(True),
                                         topCollection = cms.InputTag("pfPileUp"),
                                         name = cms.untracked.string('pileUpOnPFCandidates'),
-                                        verbose = cms.untracked.bool(False)
 )
 process.pfPileUp = cms.EDProducer("PFPileUp",
                                       Enable = cms.bool(True),

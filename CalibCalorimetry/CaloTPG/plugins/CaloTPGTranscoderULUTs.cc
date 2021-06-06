@@ -106,7 +106,10 @@ CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig)
       lsbQIE11(iConfig.getParameter<edm::ParameterSet>("tpScales")
                    .getParameter<edm::ParameterSet>("HBHE")
                    .getParameter<double>("LSBQIE11")) {
-  setWhatProduced(this).setConsumes(lutMetadataToken).setConsumes(theTrigTowerGeometryToken).setConsumes(topoToken);
+  auto cc = setWhatProduced(this);
+  lutMetadataToken = cc.consumes();
+  theTrigTowerGeometryToken = cc.consumes();
+  topoToken = cc.consumes();
 }
 
 CaloTPGTranscoderULUTs::~CaloTPGTranscoderULUTs() {

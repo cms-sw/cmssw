@@ -170,13 +170,11 @@ process.load('RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer
 process.load('Calibration.EcalAlCaRecoProducers.pdfSystematics_cff')
 
 process.MessageLogger.cerr = cms.untracked.PSet(
-    optionalPSet = cms.untracked.bool(True),
     INFO = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     ),
     noTimeStamps = cms.untracked.bool(False),
     FwkReport = cms.untracked.PSet(
-    optionalPSet = cms.untracked.bool(True),
     reportEvery = cms.untracked.int32(1000),
     limit = cms.untracked.int32(10000000)
     ),
@@ -184,15 +182,9 @@ process.MessageLogger.cerr = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
     ),
     Root_NoDictionary = cms.untracked.PSet(
-                 optionalPSet = cms.untracked.bool(True),
                  limit = cms.untracked.int32(0)
                  ),
-    FwkJob = cms.untracked.PSet(
-    optionalPSet = cms.untracked.bool(True),
-    limit = cms.untracked.int32(0)
-    ),
     FwkSummary = cms.untracked.PSet(
-    optionalPSet = cms.untracked.bool(True),
     reportEvery = cms.untracked.int32(1),
     limit = cms.untracked.int32(10000000)
     ),
@@ -298,7 +290,7 @@ else:
             print("[INFO] Using GT POSTLS162_V5::All")
             process.GlobalTag.globaltag = 'POSTLS162_V5::All'
         else:
-            from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+            from Configuration.AlCa.GlobalTag import GlobalTag
             process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
             if(options.files==""):
                 process.source.fileNames=[ 'root://cms-xrd-global.cern.ch//store/data/Run2012D/DoubleElectron/AOD/15Apr2014-v1/00000/0EA11D35-0CD5-E311-862E-0025905A6070.root' ]

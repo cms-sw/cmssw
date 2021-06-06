@@ -2,7 +2,7 @@
 #define CkfPattern_TempTrajectory_H
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
+#include "DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"

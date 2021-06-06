@@ -17,14 +17,13 @@ public:
   virtual std::unique_ptr<SiStripHashedDetId> produce(const SiStripHashedDetIdRcd&);
 
 private:
-  edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
 };
 
 using namespace sistrip;
 
-SiStripHashedDetIdFakeESSource::SiStripHashedDetIdFakeESSource(const edm::ParameterSet& pset) {
-  setWhatProduced(this).setConsumes(geomDetToken_);
-}
+SiStripHashedDetIdFakeESSource::SiStripHashedDetIdFakeESSource(const edm::ParameterSet& pset)
+    : geomDetToken_(setWhatProduced(this).consumes()) {}
 
 SiStripHashedDetIdFakeESSource::~SiStripHashedDetIdFakeESSource() {}
 

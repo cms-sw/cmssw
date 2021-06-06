@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
@@ -47,6 +48,7 @@ private:
   edm::InputTag tagUVPattern;
 
   edm::EDGetTokenT<edm::DetSetVector<TotemRPUVPattern>> patternCollectionToken;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken;
 
   /// A watcher to detect geometry changes.
   edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher;
@@ -67,6 +69,7 @@ TotemRPLocalTrackFitter::TotemRPLocalTrackFitter(const edm::ParameterSet &conf)
     : verbosity_(conf.getParameter<int>("verbosity")), fitter_(conf) {
   tagUVPattern = conf.getParameter<edm::InputTag>("tagUVPattern");
   patternCollectionToken = consumes<DetSetVector<TotemRPUVPattern>>(tagUVPattern);
+  geometryToken = esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>();
 
   produces<DetSetVector<TotemRPLocalTrack>>();
 }
@@ -78,8 +81,7 @@ void TotemRPLocalTrackFitter::produce(edm::Event &e, const edm::EventSetup &setu
     LogVerbatim("TotemRPLocalTrackFitter") << ">> TotemRPLocalTrackFitter::produce";
 
   // get geometry
-  edm::ESHandle<CTPPSGeometry> geometry;
-  setup.get<VeryForwardRealGeometryRecord>().get(geometry);
+  edm::ESHandle<CTPPSGeometry> geometry = setup.getHandle(geometryToken);
 
   if (geometryWatcher.check(setup))
     fitter_.reset();

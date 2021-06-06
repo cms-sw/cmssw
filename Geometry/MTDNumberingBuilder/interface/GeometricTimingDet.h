@@ -2,11 +2,12 @@
 #define Geometry_MTDNumberingBuilder_GeometricTimingDet_H
 
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include <Math/Rotation3D.h>
+#include <Math/Vector3D.h>
 
 #include <vector>
 #include <memory>
@@ -16,6 +17,10 @@
 
 class DDFilteredView;
 
+namespace cms {
+  class DDFilteredView;
+}
+
 /**
  * Composite class GeometricTimingDet. A composite can contain other composites, and so on;
  * You can understand what you are looking at via enum.
@@ -23,18 +28,16 @@ class DDFilteredView;
 
 class GeometricTimingDet {
 public:
-  using NavRange = DDExpandedView::NavRange;
+  using NavRange = std::pair<int const*, size_t>;
   using ConstGeometricTimingDetContainer = std::vector<GeometricTimingDet const*>;
   using GeometricTimingDetContainer = std::vector<GeometricTimingDet*>;
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 
 #ifdef PoolAlloc
-  using GeoHistory = std::vector<DDExpandedNode, PoolAlloc<DDExpandedNode> >;
   using nav_type = std::vector<int, PoolAlloc<int> >;
 #else
-  using GeoHistory = std::vector<DDExpandedNode>;
-  using nav_type = DDExpandedView::nav_type;
+  using nav_type = std::vector<int>;
 #endif
 
   using Position = Surface::PositionType;
@@ -43,7 +46,7 @@ public:
   //
   // more can be added; please add at the end!
   //
-  typedef enum GTDEnumType {
+  using GeometricTimingEnumType = enum GTDEnumType {
     unknown = 100,
     MTD = 0,
     BTL = 1,
@@ -57,12 +60,13 @@ public:
     ETLRing = 9,
     ETLModule = 10,
     ETLSensor = 11
-  } GeometricTimingEnumType;
+  };
 
   /**
-   * Constructors to be used when looping over DDD
+   * Constructors to be used when looping over DD
    */
   GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumType dd);
+  GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingEnumType dd);
   GeometricTimingDet(const PGeometricTimingDet::Item& onePGD, GeometricTimingEnumType dd);
 
   /**
@@ -95,7 +99,8 @@ public:
   double phi() const { return phi_; }
   double rho() const { return rho_; }
 
-  DDSolidShape const& shape() const { return shape_; }
+  LegacySolidShape shape() const { return cms::dd::value(cms::LegacySolidShapeMap, shape_); }
+  cms::DDSolidShape shape_dd4hep() const { return shape_; }
   GeometricTimingEnumType type() const { return type_; }
   std::string const& name() const { return ddname_; }
   // internal representaion
@@ -165,7 +170,7 @@ private:
   double phi_;
   double rho_;
   RotationMatrix rot_;
-  DDSolidShape shape_;
+  cms::DDSolidShape shape_;
   nav_type ddd_;
   std::string ddname_;
   GeometricTimingEnumType type_;

@@ -6,7 +6,6 @@
 #include <string>
 #include <algorithm>
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace l1tp2 {
 
@@ -21,7 +20,7 @@ namespace l1tp2 {
     inline float hovere() const { return hovere_; };
     inline float isolation() const { return iso_; };
     inline float puCorrPt() const { return puCorrPt_; };
-    std::vector<std::vector<float>>& associated_l1EGs() { return associated_l1EGs_; };
+    const std::vector<std::vector<float>>& associated_l1EGs() const { return associated_l1EGs_; };
 
     void setExperimentalParams(const std::map<std::string, float>& params) { experimentalParams_ = params; };
     void setAssociated_l1EGs(const std::vector<std::vector<float>> l1EGs) { associated_l1EGs_ = l1EGs; };
@@ -33,12 +32,13 @@ namespace l1tp2 {
       if (iter != experimentalParams_.end()) {
         return iter->second;
       } else {
-        edm::LogWarning("CaloJet") << "Error: no mapping for ExperimentalParam: " << name << std::endl;
+        warningNoMapping(name);
         return -99.;
       }
     };
 
   private:
+    static void warningNoMapping(std::string const&);
     // pT calibrated to get
     float calibratedPt_;
     // HCal energy in region behind cluster (for size, look in producer) / ECal energy in cluster

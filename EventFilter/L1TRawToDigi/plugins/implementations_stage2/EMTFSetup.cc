@@ -41,6 +41,7 @@ namespace l1t {
       prod.produces<EMTFTrackCollection>();
       prod.produces<CSCCorrelatedLCTDigiCollection>();
       prod.produces<CPPFDigiCollection>();
+      prod.produces<GEMPadDigiClusterCollection>();
     }
 
     std::unique_ptr<UnpackerCollections> EMTFSetup::getCollections(edm::Event& e) {
@@ -61,21 +62,25 @@ namespace l1t {
           UnpackerFactory::get()->make("stage2::emtf::CountersBlockUnpacker");             // Unpack "Block of Counters"
       auto emtf_me_unp = UnpackerFactory::get()->make("stage2::emtf::MEBlockUnpacker");    // Unpack "ME Data Record"
       auto emtf_rpc_unp = UnpackerFactory::get()->make("stage2::emtf::RPCBlockUnpacker");  // Unpack "RPC Data Record"
+      auto emtf_gem_unp = UnpackerFactory::get()->make("stage2::emtf::GEMBlockUnpacker");  // Unpack "GEM Data Record"
+      // auto emtf_me0_unp = UnpackerFactory::get()->make("stage2::emtf::ME0BlockUnpacker"); // Unpack "ME0 Data Record"
       auto emtf_sp_unp =
           UnpackerFactory::get()->make("stage2::emtf::SPBlockUnpacker");  // Unpack "SP Output Data Record"
       auto emtf_trailers_unp =
           UnpackerFactory::get()->make("stage2::emtf::TrailersBlockUnpacker");  // Unpack "Event Record Trailer"
 
-      emtf_me_unp->setAlgoVersion(
-          fw);  // Currently only the CSC LCT unpacking needs the firmware version, can add others as needed - AWB 09.04.18
+      // Currently only the CSC LCT unpacking needs the firmware version, can add others as needed - AWB 09.04.18
+      emtf_me_unp->setAlgoVersion(fw);
 
       // Index of res is block->header().getID(), matching block_patterns_ in src/Block.cc
-      res[511] = emtf_headers_unp;
-      res[2] = emtf_counters_unp;
-      res[3] = emtf_me_unp;
-      res[4] = emtf_rpc_unp;
-      res[101] = emtf_sp_unp;
-      res[255] = emtf_trailers_unp;
+      res[l1t::mtf7::EvHd] = emtf_headers_unp;
+      res[l1t::mtf7::CnBlk] = emtf_counters_unp;
+      res[l1t::mtf7::ME] = emtf_me_unp;
+      res[l1t::mtf7::RPC] = emtf_rpc_unp;
+      res[l1t::mtf7::GEM] = emtf_gem_unp;
+      // res[l1t::mtf7::ME0]  = emtf_me0_unp;
+      res[l1t::mtf7::SPOut] = emtf_sp_unp;
+      res[l1t::mtf7::EvTr] = emtf_trailers_unp;
 
       return res;
     }  // End virtual UnpackerMap getUnpackers

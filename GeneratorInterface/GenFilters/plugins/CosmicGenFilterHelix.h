@@ -29,6 +29,9 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include <TObjArray.h>
 
 #include <vector>
@@ -59,12 +62,14 @@ private:
   const Propagator *getPropagator(const edm::EventSetup &setup) const;
   // ----------member data ---------------------------
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropToken;
+
   edm::EDGetTokenT<edm::HepMCProduct> theSrcToken;
-  const std::vector<int> theIds;        /// requested Ids
-  const std::vector<int> theCharges;    /// charges, parallel to theIds
-  const std::string thePropagatorName;  // tag to get propagator from ESetup
-  const double theMinP2;                /// minimal momentum^2 after propagation to cylinder
-  const double theMinPt2;               /// minimal transverse^2 momentum after propagation to cylinder
+  const std::vector<int> theIds;      /// requested Ids
+  const std::vector<int> theCharges;  /// charges, parallel to theIds
+  const double theMinP2;              /// minimal momentum^2 after propagation to cylinder
+  const double theMinPt2;             /// minimal transverse^2 momentum after propagation to cylinder
 
   Cylinder::ConstCylinderPointer theTargetCylinder;  /// target cylinder, around z-axis
   Plane::ConstPlanePointer theTargetPlaneMin;        /// plane closing cylinder at 'negative' side

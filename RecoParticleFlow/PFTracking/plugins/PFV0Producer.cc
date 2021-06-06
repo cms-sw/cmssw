@@ -6,13 +6,12 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 using namespace std;
 using namespace edm;
 using namespace reco;
-PFV0Producer::PFV0Producer(const ParameterSet& iConfig) : pfTransformer_(nullptr) {
+PFV0Producer::PFV0Producer(const ParameterSet& iConfig)
+    : pfTransformer_(nullptr), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFV0Collection>();
   produces<reco::PFRecTrackCollection>();
 
@@ -67,8 +66,7 @@ void PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void PFV0Producer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  auto const& magneticField = &iSetup.getData(magneticFieldToken_);
   pfTransformer_ = new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
   pfTransformer_->OnlyProp();
 }

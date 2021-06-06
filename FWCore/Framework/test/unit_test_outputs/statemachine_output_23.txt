@@ -31,7 +31,6 @@ Machine parameters:  mode = NOMERGE
 	throwing
 	respondToCloseInputFile
 	closeInputFile
-	closeOutputFiles
 caught test exception
 
 Machine parameters:  mode = FULLMERGE

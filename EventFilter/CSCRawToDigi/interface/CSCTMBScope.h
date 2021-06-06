@@ -5,8 +5,8 @@
 //_______________________________________
 //
 
-#ifndef CSCTMBScope_h
-#define CSCTMBScope_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBScope_h
+#define EventFilter_CSCRawToDigi_CSCTMBScope_h
 
 #ifndef LOCAL_UNPACK
 #include <atomic>

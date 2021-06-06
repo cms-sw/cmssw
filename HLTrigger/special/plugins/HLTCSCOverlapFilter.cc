@@ -1,20 +1,19 @@
 #include "HLTCSCOverlapFilter.h"
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 HLTCSCOverlapFilter::HLTCSCOverlapFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
+      muonGeometryRecordToken_(esConsumes()),
       m_input(iConfig.getParameter<edm::InputTag>("input")),
       m_minHits(iConfig.getParameter<unsigned int>("minHits")),
       m_xWindow(iConfig.getParameter<double>("xWindow")),
@@ -101,7 +100,7 @@ bool HLTCSCOverlapFilter::hltFilter(edm::Event& iEvent,
       std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_next = chamber_tohit.find(next_id);
       if (chamber_next != chamber_tohit.end() && chamber_next->second.size() >= m_minHits) {
         if (!got_cscGeometry) {
-          iSetup.get<MuonGeometryRecord>().get(cscGeometry);
+          cscGeometry = iSetup.getHandle(muonGeometryRecordToken_);
           got_cscGeometry = true;
         }
 

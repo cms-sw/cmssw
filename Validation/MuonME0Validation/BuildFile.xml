@@ -1,5 +1,4 @@
 <use name="boost"/>
-<use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/GEMDigi"/>
 <use name="DataFormats/GEMRecHit"/>
 <use name="DataFormats/Scalers"/>
@@ -15,5 +14,5 @@
 <use name="DQMServices/Core"/>
 <use name="rootcore"/>
 <export>
-   <lib name="1"/>
+  <lib name="1"/>
 </export>

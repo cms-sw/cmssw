@@ -3,87 +3,85 @@ import FWCore.ParameterSet.Config as cms
 # NEW CLUSTERS (remove previously used clusters)
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
 lowPtForwardTripletStepClusters = trackClusterRemover.clone(
-    maxChi2          = cms.double(9.0),
-    trajectories     = cms.InputTag("initialStepTracks"),
-    pixelClusters    = cms.InputTag("siPixelClusters"),
-    stripClusters    = cms.InputTag("siStripClusters"),
-    overrideTrkQuals = cms.InputTag('initialStepSelector','initialStep'),
-    TrackQuality     = cms.string('highPurity'),
+    maxChi2          = 9.0,
+    trajectories     = 'initialStepTracks',
+    pixelClusters    = 'siPixelClusters',
+    stripClusters    = 'siStripClusters',
+    overrideTrkQuals = 'initialStepSelector:initialStep',
+    TrackQuality     = 'highPurity',
 )
-
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-lowPtForwardTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
-lowPtForwardTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('lowPtForwardTripletStepClusters')
-lowPtForwardTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('lowPtForwardTripletStepClusters')
-lowPtForwardTripletStepSeedLayers.layerList = cms.vstring('BPix1+BPix2+FPix1_pos', 
-                                                    'BPix1+BPix2+FPix1_neg', 
-                                                    'BPix1+FPix1_pos+FPix2_pos', 
-                                                    'BPix1+FPix1_neg+FPix2_neg')
-
+lowPtForwardTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone(
+    BPix = dict(skipClusters = cms.InputTag('lowPtForwardTripletStepClusters')),
+    FPix = dict(skipClusters = cms.InputTag('lowPtForwardTripletStepClusters')),
+    layerList = ['BPix1+BPix2+FPix1_pos', 
+                 'BPix1+BPix2+FPix1_neg', 
+                 'BPix1+FPix1_pos+FPix2_pos', 
+                 'BPix1+FPix1_neg+FPix2_neg']
+)
 
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
 lowPtForwardTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
     RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
-    ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
-    RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
-    ptMin = 0.2,
-    originRadius = 0.03,
-    nSigmaZ = 4.0
+	ComponentName     = 'GlobalRegionProducerFromBeamSpot',
+	RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
+	ptMin        = 0.2,
+	originRadius = 0.03,
+	nSigmaZ      = 4.0)
+    ),
+    OrderedHitsFactoryPSet = dict(
+	SeedingLayers = 'lowPtForwardTripletStepSeedLayers'
     )
-    )
-    )
-lowPtForwardTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'lowPtForwardTripletStepSeedLayers'
+)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 lowPtForwardTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
-
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 lowPtForwardTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     #maxLostHits = 1, ## use LostHitFraction filter instead
     minimumNumberOfHits = 3,
-    minPt = 0.1
-    )
+    minPt               = 0.1
+)
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 lowPtForwardTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
-    ComponentName = cms.string('lowPtForwardTripletStepChi2Est'),
-    nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    ComponentName = 'lowPtForwardTripletStepChi2Est',
+    nSigma        = 3.0,
+    MaxChi2       = 9.0
 )
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtForwardTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('lowPtForwardTripletStepTrajectoryFilter')),
-    clustersToSkip = cms.InputTag('lowPtForwardTripletStepClusters'),
-    maxCand = 3,
-    estimator = cms.string('lowPtForwardTripletStepChi2Est')
-    )
+    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('lowPtForwardTripletStepTrajectoryFilter')),
+    clustersToSkip         = cms.InputTag('lowPtForwardTripletStepClusters'),
+    maxCand                = 3,
+    estimator              = 'lowPtForwardTripletStepChi2Est'
+)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 lowPtForwardTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src = cms.InputTag('lowPtForwardTripletStepSeeds'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('lowPtForwardTripletStepTrajectoryBuilder')),
+    src                       = 'lowPtForwardTripletStepSeeds',
+    TrajectoryBuilderPSet     = cms.PSet(refToPSet_ = cms.string('lowPtForwardTripletStepTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
-    useHitsSplitting = True
-    )
+    useHitsSplitting          = True
+)
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 lowPtForwardTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    src = 'lowPtForwardTripletStepTrackCandidates',
-    AlgorithmName = cms.string('lowPtTripletStep')
-    )
-
+    src           = 'lowPtForwardTripletStepTrackCandidates',
+    AlgorithmName = 'lowPtTripletStep'
+)
 
 # Final selection
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

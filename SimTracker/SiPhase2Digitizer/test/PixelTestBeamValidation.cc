@@ -20,7 +20,7 @@
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
 // system
 #include <algorithm>
@@ -32,6 +32,8 @@
 using cms_units::operators::operator""_deg;
 // Analogously to CMSUnits (no um defined, using inverse)
 constexpr double operator""_inv_um(long double length) { return length * 1e4; }
+// Energy (keV) -- to be used with the PSimHit::energyLoss with energy in GeV
+constexpr double operator""_inv_keV(long double energy_in_GeV) { return energy_in_GeV * 1e6; }
 
 using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
 
@@ -39,6 +41,8 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
     : config_(iConfig),
       geomType_(iConfig.getParameter<std::string>("GeometryType")),
       //phiValues(iConfig.getParameter<std::vector<double> >("PhiAngles")),
+      thresholdInElectrons_(iConfig.getParameter<double>("ThresholdInElectrons")),
+      electronsPerADC_(iConfig.getParameter<double>("ElectronsPerADC")),
       tracksEntryAngleX_(
           iConfig.getUntrackedParameter<std::vector<double>>("TracksEntryAngleX", std::vector<double>())),
       tracksEntryAngleY_(
@@ -48,6 +52,9 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
           consumes<edm::DetSetVector<PixelDigiSimLink>>(iConfig.getParameter<edm::InputTag>("PixelDigiSimSource"))),
       simTrackToken_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("SimTrackSource"))) {
   LogDebug("PixelTestBeamValidation") << ">>> Construct PixelTestBeamValidation ";
+
+  // The value to be used for ToT == 0 in electrons
+  electronsAtToT0_ = 0.5 * (thresholdInElectrons_ + electronsPerADC_);
 
   const std::vector<edm::InputTag> psimhit_v(config_.getParameter<std::vector<edm::InputTag>>("PSimHitSource"));
 
@@ -87,6 +94,10 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
                                             << "Invalid number of elements in 'TracksEntryAngle" << label_v.first
                                             << ".size()' = " << label_v.second->size() << ". Valid sizes are 1 or 2.";
     }
+    // convert the angles into its tangent (the check is going to be done
+    // against the tangent dx/dz and dy/dz)
+    (*label_v.second)[0] = std::tan((*label_v.second)[0]);
+    (*label_v.second)[1] = std::tan((*label_v.second)[1]);
     active_entry_angles_[conversor[label_v.first]] =
         std::pair<double, double>({(*label_v.second)[0], (*label_v.second)[1]});
   }
@@ -94,12 +105,12 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
   if (prov_ref_m.size() != 0) {
     // The algorithm is defined in the implementation of _check_input_angles_
     use_this_track_ = std::bind(&PixelTestBeamValidation::_check_input_angles_, this, std::placeholders::_1);
-    //edm::LogInfo("Configuration") << "Considering hits from tracks entering the detectors between\n "
-    std::cout << "Configuration "
-              << "Considering hits from tracks entering the detectors between\n "
-              << "\tX-plane: (" << active_entry_angles_[0].first << "," << active_entry_angles_[0].second << ") rad. "
-              << "\tY-plane: (" << active_entry_angles_[1].first << "," << active_entry_angles_[1].second << ") rad. "
-              << std::endl;
+    edm::LogInfo("Configuration") << "Considering hits from tracks entering the detectors between\n "
+                                  << "Considering hits from tracks entering the detectors between\n "
+                                  << "\tX-plane: (" << std::atan(active_entry_angles_[0].first) << ","
+                                  << std::atan(active_entry_angles_[0].second) << ") rad. "
+                                  << "\tY-plane: (" << std::atan(active_entry_angles_[1].first) << ","
+                                  << std::atan(active_entry_angles_[1].second) << ") rad. ";
   } else {
     // There is no requiremnt, so always process it
     use_this_track_ = [](const PSimHit*) -> bool { return true; };
@@ -186,160 +197,146 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
     // Get the relevant histo key
     const auto& me_unit = meUnit_(tkDetUnit->type().isBarrel(), layer, topo->side(detId));
 
-    // Find simulated digis links on this det unit
-    const auto& it_simdigilink = simdigis->find(detId);
-    if (it_simdigilink == simdigis->end()) {
-      // FIXME: CHeck if there is any digi ... Should not
+    // Get the id of the detector unit
+    const unsigned int detId_raw = detId.rawId();
+
+    // Loop over the simhits to obtain the list of PSimHits created
+    // in this detector unit
+    std::vector<const PSimHit*> it_simhits;
+
+    for (const auto* sh_c : simhits) {
+      for (const auto& sh : *sh_c) {
+        if (sh.detUnitId() == detId_raw) {
+          it_simhits.push_back(&sh);  //insert and/or reserve (?)
+        }
+      }
+    }
+
+    if (it_simhits.size() == 0) {
       continue;
     }
 
-    // Find created RAW digis on this det unit
+    // Find RAW digis (digis) created in this det unit
     const auto& it_digis = digis->find(detId);
-    /*if(it_digilink == digis->end())
-        {
-            // FIXME: CHeck if there is any digi ... Should not
-            //continue;
-        }*/
+
     //std::cout << "DETECTOR: " << tkDetUnit->type().name() << " ME UNIT: " << me_unit << std::endl;
 
-    // Loop over the simulated digi links to obtain the list channels
-    // illuminated by each trackId. Use the trackIds to get the PSimHit
-    // (the actual particle deposits per detector unit) and try to match them
-    // with the raw digi, using the channels associated with the trackIds
-    std::map<unsigned int, std::set<int>> stracks_channels;
-    for (const auto& dhsim : *it_simdigilink) {
-      const int current_channel = dhsim.channel();
-      // Already processed (ignoring fractions in the same pixel channel)
-      if (stracks_channels.find(dhsim.SimTrackId()) != stracks_channels.end()) {
-        if (stracks_channels[dhsim.SimTrackId()].find(current_channel) != stracks_channels[dhsim.SimTrackId()].end()) {
-          continue;
-        }
+    // Loop over the list of PSimHits (i.e. the deposits created
+    // by the primary+secundaries) to check if they are associated with
+    // some digi, that is, if the simdigi link exists and to obtain the list
+    // of channels illuminated
+    for (const auto* psh : it_simhits) {
+      // Check user conditions to accept the hits
+      if (!use_this_track_(psh)) {
+        continue;
       }
-      // Create/update the list of channels created by this
-      // simtrackId: remember primaries and secondaries share the same id
-      stracks_channels[dhsim.SimTrackId()].insert(current_channel);
-    }
+      // Fill some sim histograms
+      const GlobalPoint tk_ep_gbl(dunit->surface().toGlobal(psh->entryPoint()));
+      vME_track_XYMap_->Fill(tk_ep_gbl.x(), tk_ep_gbl.y());
+      vME_track_RZMap_->Fill(tk_ep_gbl.z(), std::hypot(tk_ep_gbl.x(), tk_ep_gbl.y()));
+      vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(psh->momentumAtEntry().x(), psh->momentumAtEntry().z()));
+      vME_track_dydzAngle_[me_unit]->Fill(std::atan2(psh->momentumAtEntry().y(), psh->momentumAtEntry().z()));
 
-    // Loop over each trackId to get the list of PSimHits (i.e. the deposits created
-    // by the primary+secundaries)
-    for (const auto& st_ch : stracks_channels) {
-      // -- Get the set of simulated hits from this trackid.
-      // -- Each Particle SimHit (PSimHit) is defining a particle passing through the detector unit
-      const std::vector<const PSimHit*> current_psimhits =
-          get_simhits_from_trackid_(st_ch.first, detId.rawId(), simhits);
-      //const auto current_pixel(PixelDigi::channelToPixel(ch));
+      // Obtain the detected position of the sim particle:
+      // the middle point between the entry and the exit
+      const auto psh_pos = tkDetUnit->specificTopology().measurementPosition(psh->localPosition());
 
-      // -- Loop over the PSimHits and match with the digi clusters
-      for (const auto* ps : current_psimhits) {
-        // Check user conditions to accept the hits
-        if (!use_this_track_(ps)) {
+      // MC Cluster finding: get the channels illuminated during digitization by this PSimHit
+      // based on MC truth info (simdigi links)
+      const auto psh_channels = get_illuminated_channels_(*psh, detId, simdigis);
+
+      // Get the total charge for this cluster size
+      // and obtain the center of the cluster using a charge-weighted mean
+      int cluster_tot = 0;
+      double cluster_tot_elec = 0.0;
+      int cluster_size = 0;
+      std::pair<std::set<int>, std::set<int>> cluster_size_xy;
+      std::pair<double, double> cluster_position({0.0, 0.0});
+      std::set<int> used_channel;
+      for (const auto& ch : psh_channels) {
+        // Not re-using the digi XXX
+        if (used_channel.find(ch) != used_channel.end()) {
           continue;
         }
-        // Fill some sim histograms
-        const GlobalPoint tk_ep_gbl(dunit->surface().toGlobal(ps->entryPoint()));
-        vME_track_XYMap_->Fill(tk_ep_gbl.x(), tk_ep_gbl.y());
-        vME_track_RZMap_->Fill(tk_ep_gbl.z(), std::hypot(tk_ep_gbl.x(), tk_ep_gbl.y()));
-        vME_track_dxdzAngle_[me_unit]->Fill(ps->thetaAtEntry());
-        vME_track_dydzAngle_[me_unit]->Fill(ps->phiAtEntry());
+        const PixelDigi& current_digi = get_digi_from_channel_(ch, it_digis);
+        used_channel.insert(ch);
+        // Fill the digi histograms
+        vME_digi_charge1D_[me_unit]->Fill(current_digi.adc());
+        // Fill maps: get the position in the sensor local frame to convert into global
+        const LocalPoint digi_local_pos(
+            tkDetUnit->specificTopology().localPosition(MeasurementPoint(current_digi.row(), current_digi.column())));
+        const GlobalPoint digi_global_pos(dunit->surface().toGlobal(digi_local_pos));
+        vME_digi_XYMap_->Fill(digi_global_pos.x(), digi_global_pos.y());
+        vME_digi_RZMap_->Fill(digi_global_pos.z(), std::hypot(digi_global_pos.x(), digi_global_pos.y()));
+        // Create the MC-cluster
+        cluster_tot += current_digi.adc();
+        // Assign the middle value between the threshold and the ElectronPerADC parameter
+        // to the first bin in order to allow ToT = 0 (valid value)
+        const double pixel_charge_elec =
+            (bool(current_digi.adc()) ? (current_digi.adc() * electronsPerADC_) : electronsAtToT0_);
+        cluster_tot_elec += pixel_charge_elec;
+        // Use the center of the pixel
+        cluster_position.first += pixel_charge_elec * (current_digi.row() + 0.5);
+        cluster_position.second += pixel_charge_elec * (current_digi.column() + 0.5);
+        // Size
+        cluster_size_xy.first.insert(current_digi.row());
+        cluster_size_xy.second.insert(current_digi.column());
+        ++cluster_size;
+      }
 
-        // Obtain the detected position of the sim particle:
-        // the middle point between the entry and the exit
-        const auto psh_pos = tkDetUnit->specificTopology().measurementPosition(ps->localPosition());
+      // Be careful here, there is 1 entry per each simhit
+      vME_clsize1D_[me_unit]->Fill(cluster_size);
+      vME_clsize1Dx_[me_unit]->Fill(cluster_size_xy.first.size());
+      vME_clsize1Dy_[me_unit]->Fill(cluster_size_xy.second.size());
 
-        // Build the digi MC-truth clusters by matching each Particle
-        // sim hit position pixel cell. The matching condition:
-        //   - a digi is created by the i-PSimHit if PsimHit_{pixel}+-1
+      // mean weighted
+      cluster_position.first /= cluster_tot_elec;
+      cluster_position.second /= cluster_tot_elec;
 
-        // Get the total charge for this cluster size
-        // and obtain the center of the cluster using a charge-weighted mean
-        int cluster_tot = 0;
-        int cluster_size = 0;
-        std::pair<std::set<int>, std::set<int>> cluster_size_xy;
-        std::pair<double, double> cluster_position({0.0, 0.0});
-        std::set<int> used_channel;
-        for (const auto& ch : st_ch.second) {
-          // Not re-using the digi
-          if (used_channel.find(ch) != used_channel.end()) {
-            continue;
-          }
-          // Digi was created by the current psimhit?
-          // Accepting +-2 pixel -- XXX: Actually the entryPoint-exitPoint
-          // could provide the extension of the cluster
-          //if( ! channel_iluminated_by_(psh_pos,ch,2.0) )
-          // XXX FIXME: CHANGE the loop in order to use get_illuminated_pixels_ XXX
-          if (!channel_iluminated_by_(*ps, ch, tkDetUnit)) {
-            continue;
-          }
-          const PixelDigi& current_digi = get_digi_from_channel_(ch, it_digis);
-          used_channel.insert(ch);
-          // Fill the digi histograms
-          vME_digi_charge1D_[me_unit]->Fill(current_digi.adc());
-          // Fill maps: get the position in the sensor local frame to convert into global
-          const LocalPoint digi_local_pos(
-              tkDetUnit->specificTopology().localPosition(MeasurementPoint(current_digi.row(), current_digi.column())));
-          const GlobalPoint digi_global_pos(dunit->surface().toGlobal(digi_local_pos));
-          vME_digi_XYMap_->Fill(digi_global_pos.x(), digi_global_pos.y());
-          vME_digi_RZMap_->Fill(digi_global_pos.z(), std::hypot(digi_global_pos.x(), digi_global_pos.y()));
-          // Create the MC-cluster
-          cluster_tot += current_digi.adc();
-          // Use the center of the pixel
-          cluster_position.first += current_digi.adc() * (current_digi.row() + 0.5);
-          cluster_position.second += current_digi.adc() * (current_digi.column() + 0.5);
-          // Size
-          cluster_size_xy.first.insert(current_digi.row());
-          cluster_size_xy.second.insert(current_digi.column());
-          ++cluster_size;
-        }
-        // Be careful here, there is 1 entry per each simhit
-        vME_clsize1D_[me_unit]->Fill(cluster_size);
-        vME_clsize1Dx_[me_unit]->Fill(cluster_size_xy.first.size());
-        vME_clsize1Dy_[me_unit]->Fill(cluster_size_xy.second.size());
+      // -- XXX Be careful, secondaries with already used the digis
+      //        are going the be lost (then lost on efficiency)
+      // Efficiency --> It was found a cluster of digis?
+      const bool is_cluster_present = (cluster_size > 0);
 
-        // mean weighted
-        cluster_position.first /= double(cluster_tot);
-        cluster_position.second /= double(cluster_tot);
-
-        // -- XXX Be careful, secondaries with already used the digis
-        //        are going the be lost (then lost on efficiency)
-        // Efficiency --> It was found a cluster of digis?
-        const bool is_cluster_present = (cluster_size > 0);
-
-        // Get topology info of the module sensor
-        //-const int n_rows = tkDetUnit->specificTopology().nrows();
-        //-const int n_cols = tkDetUnit->specificTopology().ncolumns();
-        const auto pitch = tkDetUnit->specificTopology().pitch();
-        // Residuals, convert them to longitud units (so far, in units of row, col)
-        const double dx_um = (psh_pos.x() - cluster_position.first) * pitch.first * 1.0_inv_um;
-        const double dy_um = (psh_pos.y() - cluster_position.second) * pitch.second * 1.0_inv_um;
+      // Get topology info of the module sensor
+      //-const int n_rows = tkDetUnit->specificTopology().nrows();
+      //-const int n_cols = tkDetUnit->specificTopology().ncolumns();
+      const auto pitch = tkDetUnit->specificTopology().pitch();
+      // Residuals, convert them to longitud units (so far, in units of row, col)
+      const double dx_um = (psh_pos.x() - cluster_position.first) * pitch.first * 1.0_inv_um;
+      const double dy_um = (psh_pos.y() - cluster_position.second) * pitch.second * 1.0_inv_um;
+      if (is_cluster_present) {
+        vME_charge1D_[me_unit]->Fill(cluster_tot);
+        vME_charge_elec1D_[me_unit]->Fill(cluster_tot_elec);
+        vME_dx1D_[me_unit]->Fill(dx_um);
+        vME_dy1D_[me_unit]->Fill(dy_um);
+        vME_dxy2D_[me_unit]->Fill(dx_um, dy_um);
+        // The track energy loss corresponding to that cluster
+        vME_sim_cluster_charge_[me_unit]->Fill(psh->energyLoss() * 1.0_inv_keV, cluster_tot_elec);
+      }
+      // Histograms per cell
+      for (unsigned int i = 0; i < vME_position_cell_[me_unit].size(); ++i) {
+        // Convert the PSimHit center position to the IxI-cell
+        const std::pair<double, double> icell_psh = pixel_cell_transformation_(psh_pos, i, pitch);
+        // Efficiency: (PSimHit matched to a digi-cluster)/PSimHit
+        vME_eff_cell_[me_unit][i]->Fill(
+            icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, is_cluster_present);
+        vME_pshpos_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um);
+        // Digi clusters related histoos
         if (is_cluster_present) {
-          vME_charge1D_[me_unit]->Fill(cluster_tot);
-          vME_dx1D_[me_unit]->Fill(dx_um);
-          vME_dy1D_[me_unit]->Fill(dy_um);
-        }
-        // Histograms per cell
-        for (unsigned int i = 0; i < vME_position_cell_[me_unit].size(); ++i) {
-          // Convert the PSimHit center position to the IxI-cell
-          const std::pair<double, double> icell_psh = pixel_cell_transformation_(psh_pos, i, pitch);
-          // Efficiency: (PSimHit matched to a digi-cluster)/PSimHit
-          vME_eff_cell_[me_unit][i]->Fill(
-              icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, is_cluster_present);
-          vME_pshpos_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um);
-          // Digi clusters related histoos
-          if (is_cluster_present) {
-            // Convert to the i-cell
-            //const std::pair<double,double> icell_digi_cluster   = pixel_cell_transformation_(cluster_position,i,pitch);
-            // Position
-            vME_position_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um);
-            // Residuals
-            vME_dx_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, dx_um);
-            vME_dy_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, dy_um);
-            // Charge
-            vME_charge_cell_[me_unit][i]->Fill(
-                icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot);
-            // Cluster size
-            vME_clsize_cell_[me_unit][i]->Fill(
-                icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_size);
-          }
+          // Convert to the i-cell
+          //const std::pair<double,double> icell_digi_cluster   = pixel_cell_transformation_(cluster_position,i,pitch);
+          // Position
+          vME_position_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um);
+          // Residuals
+          vME_dx_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, dx_um);
+          vME_dy_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, dy_um);
+          // Charge
+          vME_charge_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot);
+          vME_charge_elec_cell_[me_unit][i]->Fill(
+              icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_tot_elec);
+          // Cluster size
+          vME_clsize_cell_[me_unit][i]->Fill(icell_psh.first * 1.0_inv_um, icell_psh.second * 1.0_inv_um, cluster_size);
         }
       }
     }
@@ -429,6 +426,8 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
           setupH1D_(ibooker, "ClusterSize1Dy", "MC-truth DIGI cluster size in Y;Cluster size;N_{clusters}");
       vME_charge1D_[me_unit] =
           setupH1D_(ibooker, "Charge1D", "MC-truth DIGI cluster charge;Cluster charge [ToT];N_{clusters}");
+      vME_charge_elec1D_[me_unit] =
+          setupH1D_(ibooker, "ChargeElec1D", "MC-truth DIGI cluster charge;Cluster charge [Electrons];N_{clusters}");
       vME_track_dxdzAngle_[me_unit] = setupH1D_(
           ibooker,
           "TrackAngleDxdz",
@@ -440,8 +439,16 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
       vME_dx1D_[me_unit] = setupH1D_(
           ibooker, "Dx1D", "MC-truth DIGI cluster residuals X;x_{PSimHit}-x^{cluster}_{digi} [#mum];N_{digi clusters}");
       vME_dy1D_[me_unit] = setupH1D_(
-          ibooker, "Dy1D", "MC-truth DIGI cluster residual Ys;y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
+          ibooker, "Dy1D", "MC-truth DIGI cluster residual Y;y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
+      vME_dxy2D_[me_unit] = setupH2D_(ibooker,
+                                      "Dxy2D",
+                                      "MC-truth DIGI cluster residuals;x_{PSimHit}-x^{cluster}_{digi} "
+                                      "[#mum];y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
       vME_digi_charge1D_[me_unit] = setupH1D_(ibooker, "DigiCharge1D", "Digi charge;digi charge [ToT];N_{digi}");
+      vME_sim_cluster_charge_[me_unit] =
+          setupH2D_(ibooker,
+                    "SimClusterCharge",
+                    "PSimHit Energy deposit vs. Cluster Charge;deposited E_{sim} [keV];cluster_{charge} [Electrons];");
 
       // The histos per cell
       // Prepare the ranges: 0- whole sensor, 1- cell 1x1, 2-cell 2x2,
@@ -483,6 +490,11 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                                          cell + "MC-truth charge;x [#mum];y [#mum];<ToT>",
                                                          xranges[i],
                                                          yranges[i]));
+        vME_charge_elec_cell_[me_unit].push_back(setupProf2D_(ibooker,
+                                                              "Charge_elec_" + std::to_string(i),
+                                                              cell + "MC-truth charge;x [#mum];y [#mum];<Electrons>",
+                                                              xranges[i],
+                                                              yranges[i]));
         vME_dx_cell_[me_unit].push_back(setupProf2D_(ibooker,
                                                      "Dx_" + std::to_string(i),
                                                      cell + "MC-truth residuals;x [#mum];y [#mum];<#Deltax [#mum]>",
@@ -495,9 +507,8 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                                      yranges[i]));
       }
 
-      std::cout << "PixelTestBeamValidation"
-                << "Booking Histograms in: " << folder_name << " ME UNIT:" << me_unit << std::endl;
-      edm::LogInfo("PixelTestBeamValidation") << "Booking Histograms in: " << folder_name << std::endl;
+      edm::LogInfo("PixelTestBeamValidation") << "Booking Histograms in: " << folder_name << " ME UNIT:" << me_unit;
+      edm::LogInfo("PixelTestBeamValidation") << "Booking Histograms in: " << folder_name;
     }
   }
 }
@@ -680,6 +691,25 @@ bool PixelTestBeamValidation::channel_iluminated_by_(const PSimHit& ps,
   return false;
 }
 
+std::set<int> PixelTestBeamValidation::get_illuminated_channels_(const PSimHit& ps,
+                                                                 const DetId& detid,
+                                                                 const edm::DetSetVector<PixelDigiSimLink>* simdigis) {
+  // Find simulated digi links (simdigis) created in this det unit
+  const auto& it_simdigilink = simdigis->find(detid);
+
+  if (it_simdigilink == simdigis->end()) {
+    return std::set<int>();
+  }
+
+  std::set<int> channels;
+  for (const auto& hdsim : *it_simdigilink) {
+    if (ps.trackId() == hdsim.SimTrackId()) {
+      channels.insert(hdsim.channel());
+    }
+  }
+  return channels;
+}
+
 std::set<std::pair<int, int>> PixelTestBeamValidation::get_illuminated_pixels_(const PSimHit& ps,
                                                                                const PixelGeomDetUnit* tkDetUnit) {
   auto ps_key = reinterpret_cast<std::uintptr_t>(&ps);
@@ -695,8 +725,12 @@ std::set<std::pair<int, int>> PixelTestBeamValidation::get_illuminated_pixels_(c
   const double max_x = std::max(ps.entryPoint().x(), ps.exitPoint().x());
   const double max_y = std::max(ps.entryPoint().y(), ps.exitPoint().y());
   // Get the position in readout units for each point
-  const auto min_pos = tkDetUnit->specificTopology().measurementPosition(LocalPoint(min_x, min_y));
-  const auto max_pos = tkDetUnit->specificTopology().measurementPosition(LocalPoint(max_x, max_y));
+  const auto min_pos_pre = tkDetUnit->specificTopology().measurementPosition(LocalPoint(min_x, min_y));
+  const auto max_pos_pre = tkDetUnit->specificTopology().measurementPosition(LocalPoint(max_x, max_y));
+  // Adding a unit at each side in order to include charge migration
+  const MeasurementPoint min_pos(std::max(0.0, min_pos_pre.x() - 1.0), std::max(0.0, min_pos_pre.y() - 1.0));
+  const MeasurementPoint max_pos(std::min(max_pos_pre.x() + 1.0, tkDetUnit->specificTopology().nrows() - 1.0),
+                                 std::min(max_pos_pre.y() + 1.0, tkDetUnit->specificTopology().ncolumns() - 1.0));
   // Count how many cells has passed. Use the most conservative rounding:
   // round for maximums and int (floor) for minimums
   //const int ncells_x = std::round(max_pos.x())-std::floor(min_pos.x());
@@ -723,11 +757,12 @@ std::set<std::pair<int, int>> PixelTestBeamValidation::get_illuminated_pixels_(c
 bool PixelTestBeamValidation::_check_input_angles_(const PSimHit* psimhit) {
   // Create a vector to check against the range map where
   // X axis is in the key 0, Y axis in the key 1
-  const std::vector<double> theta_phi({psimhit->thetaAtEntry(), psimhit->phiAtEntry()});
+  const std::vector<double> entry_tan({psimhit->momentumAtEntry().x() / psimhit->momentumAtEntry().z(),
+                                       psimhit->momentumAtEntry().y() / psimhit->momentumAtEntry().z()});
 
   for (const auto& axis_ranges : active_entry_angles_) {
-    if (axis_ranges.second.first > theta_phi[axis_ranges.first] ||
-        axis_ranges.second.second < theta_phi[axis_ranges.first]) {
+    if (axis_ranges.second.first > entry_tan[axis_ranges.first] ||
+        axis_ranges.second.second < entry_tan[axis_ranges.first]) {
       return false;
     }
   }

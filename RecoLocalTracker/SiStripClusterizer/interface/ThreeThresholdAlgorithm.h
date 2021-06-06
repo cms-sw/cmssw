@@ -12,8 +12,6 @@ public:
   void clusterizeDetUnit(const edm::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const override;
   void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const override;
 
-  Det stripByStripBegin(uint32_t id) const override;
-
   // LazyGetter interface
   void stripByStripAdd(State& state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) const override;
   void stripByStripEnd(State& state, std::vector<SiStripCluster>& out) const override;
@@ -30,13 +28,13 @@ private:
   template <class T>
   void clusterizeDetUnit_(const T&, output_t::TSFastFiller&) const;
 
-  ThreeThresholdAlgorithm(float,
+  ThreeThresholdAlgorithm(const edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd>&,
                           float,
                           float,
+                          float,
                           unsigned,
                           unsigned,
                           unsigned,
-                          std::string qualityLabel,
                           bool removeApvShots,
                           float minGoodCharge);
 

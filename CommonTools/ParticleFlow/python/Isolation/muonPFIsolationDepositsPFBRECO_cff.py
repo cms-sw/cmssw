@@ -10,10 +10,11 @@ muPFIsoDepositNeutralPFBRECO=isoDepositReplace('pfSelectedMuonsPFBRECO','pfAllNe
 muPFIsoDepositGammaPFBRECO=isoDepositReplace('pfSelectedMuonsPFBRECO','pfAllPhotonsPFBRECO')
 muPFIsoDepositPUPFBRECO=isoDepositReplace('pfSelectedMuonsPFBRECO','pfPileUpAllChargedParticlesPFBRECO')
 
-muonPFIsolationDepositsPFBRECOSequence = cms.Sequence(
-    muPFIsoDepositChargedPFBRECO+
-    muPFIsoDepositChargedAllPFBRECO+
-    muPFIsoDepositGammaPFBRECO+
-    muPFIsoDepositNeutralPFBRECO+
+muonPFIsolationDepositsPFBRECOTask = cms.Task(
+    muPFIsoDepositChargedPFBRECO,
+    muPFIsoDepositChargedAllPFBRECO,
+    muPFIsoDepositGammaPFBRECO,
+    muPFIsoDepositNeutralPFBRECO,
     muPFIsoDepositPUPFBRECO
     )
+muonPFIsolationDepositsPFBRECOSequence = cms.Sequence(muonPFIsolationDepositsPFBRECOTask)

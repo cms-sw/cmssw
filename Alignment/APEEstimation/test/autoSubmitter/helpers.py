@@ -51,7 +51,7 @@ status_map[STATE_LOCAL_WAITING] = "waiting for APE saving"
 status_map[STATE_LOCAL_DONE] = "APE saving done"
 status_map[STATE_LOCAL_FAILED] = "APE saving failed"
 status_map[STATE_FINISHED] = "finished"
-status_map[STATE_INVALID_CONDITIONS] = "invalid conditions defined"
+status_map[STATE_INVALID_CONDITIONS] = "invalid configuration"
 
 records = {}
 records["Alignments"] = "TrackerAlignmentRcd"
@@ -61,9 +61,36 @@ records["TrackerSurfaceDeformations"] = "TrackerSurfaceDeformationRcd"
 records["SiPixelTemplateDBObject"] = "SiPixelTemplateDBObjectRcd"
 records["BeamSpotObjects"] = "BeamSpotObjectsRcd"
 
+def rootFileValid(path):
+    from ROOT import TFile
+    result = True
+    file = TFile(path)
+    result &= file.GetSize() > 0
+    result &= not file.TestBit(TFile.kRecovered)
+    result &= not file.IsZombie()
+    return result
+
+if not 'MODULEPATH' in os.environ:
+    f = open(os.environ['MODULESHOME'] + "/init/.modulespath", "r")
+    path = []
+    for line in f.readlines():
+        line = re.sub("#.*$", '', line)
+        if line != '':
+            path.append(line)
+    os.environ['MODULEPATH'] = ':'.join(path)
+
+if not 'LOADEDMODULES' in os.environ:
+    os.environ['LOADEDMODULES'] = ''
+    
+def module(*args):
+    if type(args[0]) == type([]):
+        args = args[0]
+    else:
+        args = list(args)
+    (output, error) = subprocess.Popen(['/usr/bin/modulecmd', 'python'] + args, stdout=subprocess.PIPE).communicate()
+    exec(output)
 
 def enableCAF(switch):
-    exec(open('/usr/share/Modules/init/python.py').read()) # enable running module command
     if switch:
         module('load', 'lxbatch/tzero')
     else:
@@ -114,6 +141,17 @@ def replaceShortcuts(toScan):
             return value.format(*match.groups())
     # no match
     return toScan
+
+def allFilesExist(dataset):
+    passed = True
+    missingFiles = []
+    for fileName in dataset.fileList:
+        if not os.path.isfile(fileName):
+            passed = False
+            missingFiles.append(fileName)
+    return passed, missingFiles
+    
+
 
 def hasValidSource(condition):
     if condition["connect"].startswith("frontier://FrontierProd/"):

@@ -58,12 +58,12 @@ ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer(const edm::Para
 
   edm::LogInfo("ClusterShapeHitFilterESProducer") << " with name: " << componentName;
 
-  setWhatProduced(this, componentName)
-      .setConsumes(fieldToken_)
-      .setConsumes(geoToken_)
-      .setConsumes(topolToken_)
-      .setConsumes(pixelToken_)
-      .setConsumes(stripToken_);
+  auto cc = setWhatProduced(this, componentName);
+  fieldToken_ = cc.consumes();
+  geoToken_ = cc.consumes();
+  topolToken_ = cc.consumes();
+  pixelToken_ = cc.consumes();
+  stripToken_ = cc.consumes();
 }
 
 /*****************************************************************************/

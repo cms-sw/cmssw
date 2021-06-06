@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -24,7 +23,9 @@ private:
 };
 
 TkDetMapESProducer::TkDetMapESProducer(const edm::ParameterSet&) {
-  setWhatProduced(this).setConsumes(tTopoToken_).setConsumes(geomDetToken_);
+  auto cc = setWhatProduced(this);
+  tTopoToken_ = cc.consumes();
+  geomDetToken_ = cc.consumes();
 }
 
 namespace {

@@ -36,6 +36,8 @@ public:
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
 private:
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> const l1MuTriggerScalesRcdToken_;
+
   /// input tag identifying the product containing muons
   edm::InputTag candTag_;
   edm::EDGetTokenT<l1extra::L1MuonParticleCollection> candToken_;

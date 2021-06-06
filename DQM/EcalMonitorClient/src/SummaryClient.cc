@@ -40,12 +40,12 @@ namespace ecaldqm {
 
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
       int dccid(iDCC + 1);
-      meReportSummaryContents.fill(dccid, -1.);
+      meReportSummaryContents.fill(getEcalDQMSetupObjects(), dccid, -1.);
     }
 
-    meReportSummary.fill(-1.);
+    meReportSummary.fill(getEcalDQMSetupObjects(), -1.);
 
-    meReportSummaryMap.reset(-1.);
+    meReportSummaryMap.reset(GetElectronicsMap(), -1.);
   }
 
   void SummaryClient::producePlots(ProcessType _pType) {
@@ -54,9 +54,9 @@ namespace ecaldqm {
 
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
       int dccid(iDCC + 1);
-      meReportSummaryContents.fill(dccid, -1.);
+      meReportSummaryContents.fill(getEcalDQMSetupObjects(), dccid, -1.);
     }
-    meReportSummary.fill(-1.);
+    meReportSummary.fill(getEcalDQMSetupObjects(), -1.);
 
     MESet const& sIntegrityByLumi(sources_.at("IntegrityByLumi"));
     MESet const& sDesyncByLumi(sources_.at("DesyncByLumi"));
@@ -66,8 +66,9 @@ namespace ecaldqm {
     double integrityByLumi[nDCC];
     double rawDataByLumi[nDCC];
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
-      integrityByLumi[iDCC] = sIntegrityByLumi.getBinContent(iDCC + 1);
-      rawDataByLumi[iDCC] = sDesyncByLumi.getBinContent(iDCC + 1) + sFEByLumi.getBinContent(iDCC + 1);
+      integrityByLumi[iDCC] = sIntegrityByLumi.getBinContent(getEcalDQMSetupObjects(), iDCC + 1);
+      rawDataByLumi[iDCC] = sDesyncByLumi.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) +
+                            sFEByLumi.getBinContent(getEcalDQMSetupObjects(), iDCC + 1);
     }
 
     MESet& meQualitySummary(MEs_.at("QualitySummary"));
@@ -97,28 +98,31 @@ namespace ecaldqm {
     MESet const& sBXTCC(sources_.at("BXTCC"));
     std::vector<bool> hasMismatchDCC(nDCC, false);
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
-      if (sBXSRP.getBinContent(iDCC + 1) > 50. || sBXTCC.getBinContent(iDCC + 1) > 50.)  // "any" = 50
+      if (sBXSRP.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50. ||
+          sBXTCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50.)  // "any" = 50
         hasMismatchDCC[iDCC] = true;
     }
 
     // Get RawData mask
     uint32_t mask(1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR);
 
-    MESet::iterator qEnd(meQualitySummary.end());
-    for (MESet::iterator qItr(meQualitySummary.beginChannel()); qItr != qEnd; qItr.toNextChannel()) {
+    MESet::iterator qEnd(meQualitySummary.end(GetElectronicsMap()));
+    for (MESet::iterator qItr(meQualitySummary.beginChannel(GetElectronicsMap())); qItr != qEnd;
+         qItr.toNextChannel(GetElectronicsMap())) {
       DetId id(qItr->getId());
-      unsigned iDCC(dccId(id) - 1);
+      unsigned iDCC(dccId(id, GetElectronicsMap()) - 1);
 
       // Initialize individual Quality Summaries
       // NOTE: These represent quality over *cumulative* statistics
-      int integrity(sIntegrity ? (int)sIntegrity->getBinContent(id) : kUnknown);
-      int presample(sPresample ? (int)sPresample->getBinContent(id) : kUnknown);
-      int hotcell(sHotCell ? (int)sHotCell->getBinContent(id) : kUnknown);
-      int timing(sTiming ? (int)sTiming->getBinContent(id) : kUnknown);
-      int trigprim(sTriggerPrimitives ? (int)sTriggerPrimitives->getBinContent(id) : kUnknown);
-      int rawdata(sRawData.getBinContent(id));
+      int integrity(sIntegrity ? (int)sIntegrity->getBinContent(getEcalDQMSetupObjects(), id) : kUnknown);
+      int presample(sPresample ? (int)sPresample->getBinContent(getEcalDQMSetupObjects(), id) : kUnknown);
+      int hotcell(sHotCell ? (int)sHotCell->getBinContent(getEcalDQMSetupObjects(), id) : kUnknown);
+      int timing(sTiming ? (int)sTiming->getBinContent(getEcalDQMSetupObjects(), id) : kUnknown);
+      int trigprim(sTriggerPrimitives ? (int)sTriggerPrimitives->getBinContent(getEcalDQMSetupObjects(), id)
+                                      : kUnknown);
+      int rawdata(sRawData.getBinContent(getEcalDQMSetupObjects(), id));
 
-      double rawdataLS(sFEStatusErrMapByLumi.getBinContent(id));  // Includes FE=Disabled
+      double rawdataLS(sFEStatusErrMapByLumi.getBinContent(getEcalDQMSetupObjects(), id));  // Includes FE=Disabled
 
       // If there are no RawData or Integrity errors in this LS, set them back to GOOD
       //if(integrity == kBad && integrityByLumi[iDCC] == 0.) integrity = kGood;
@@ -161,7 +165,7 @@ namespace ecaldqm {
 
       // Keep running count of good channels in RawData only: Uses LS stats only.
       // LS-based reports only use RawData as input to save on having to run other workers
-      bool isMasked(meQualitySummary.maskMatches(id, mask, statusManager_));
+      bool isMasked(meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
       if (rawdataLS == 0. || isMasked) {  // channel != kBad in rawdata
         dccGoodRaw[iDCC] += 1.;
         totalGoodRaw += 1.;
@@ -241,9 +245,9 @@ namespace ecaldqm {
       int dccid(iDCC + 1);
       float frac(dccGood[iDCC] / dccChannels[iDCC]);
       float fracRaw(dccGoodRaw[iDCC] / dccChannels[iDCC]);
-      meReportSummaryMap.setBinContent(dccid, frac);
+      meReportSummaryMap.setBinContent(getEcalDQMSetupObjects(), dccid, frac);
       float fracLS(onlineMode_ ? frac : fracRaw);
-      meReportSummaryContents.fill(dccid, fracLS);  // reported by LS
+      meReportSummaryContents.fill(getEcalDQMSetupObjects(), dccid, fracLS);  // reported by LS
 
       if (1. - frac > fedBadFraction_)
         nBad += 1.;
@@ -251,12 +255,12 @@ namespace ecaldqm {
 
     float totalGoodLS(onlineMode_ ? totalGood : totalGoodRaw);
     if (totalChannels > 0.)
-      meReportSummary.fill(totalGoodLS / totalChannels);  // reported by LS
+      meReportSummary.fill(getEcalDQMSetupObjects(), totalGoodLS / totalChannels);  // reported by LS
 
     if (onlineMode_) {
       if (totalChannels > 0.)
-        MEs_.at("GlobalSummary").setBinContent(1, totalGood / totalChannels);
-      MEs_.at("NBadFEDs").setBinContent(1, nBad);
+        MEs_.at("GlobalSummary").setBinContent(getEcalDQMSetupObjects(), 1, totalGood / totalChannels);
+      MEs_.at("NBadFEDs").setBinContent(getEcalDQMSetupObjects(), 1, nBad);
     }
 
   }  // producePlots()

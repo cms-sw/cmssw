@@ -1,4 +1,0 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="CondFormats/Calibration"/>
-<use   name="FWCore/Framework"/>
-<use   name="CondFormats/DataRecord"/>

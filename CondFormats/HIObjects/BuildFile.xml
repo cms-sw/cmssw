@@ -1,8 +1,6 @@
-<use   name="CondFormats/Common"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="FWCore/Framework"/>
-<use   name="boost_serialization"/>
-
+<use name="CondFormats/Serialization"/>
+<use name="FWCore/Utilities"/>
+<use name="boost_serialization"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

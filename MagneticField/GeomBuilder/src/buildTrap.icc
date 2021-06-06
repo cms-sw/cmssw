@@ -4,36 +4,29 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void volumeHandle::buildTrap() {
-  LogTrace("magneticfield::volumeHandle") << "Building trapezoid surfaces...: ";
-
-  DDTrap trap(solid);  //FIXME
-
-  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
-  // convertUnits should be defined appropriately.
-  double x1 = convertUnits(trap.x1());
-  double x2 = convertUnits(trap.x2());
-  double x3 = convertUnits(trap.x3());
-  double x4 = convertUnits(trap.x4());
-  double y1 = convertUnits(trap.y1());
-  double y2 = convertUnits(trap.y2());
-  double theta = trap.theta();
-  double phi = trap.phi();
-  double halfZ = convertUnits(trap.halfZ());
-  double alpha1 = trap.alpha1();
-  double alpha2 = trap.alpha2();
-
-  LogTrace("magneticfield::volumeHandle")
-      << "x1 " << x1 << newln << "x2 " << x2 << newln << "x3 " << x3 << newln << "x4 " << x4 << newln << "y1 " << y1
-      << newln << "y2 " << y2 << newln << "theta  " << theta << newln << "phi    " << phi << newln << "halfZ  " << halfZ
-      << newln << "alpha1 " << alpha1 << newln << "alpha2 " << alpha2;
+void volumeHandle::buildTrap(double x1,
+                             double x2,
+                             double x3,
+                             double x4,
+                             double y1,
+                             double y2,
+                             double theta,
+                             double phi,
+                             double halfZ,
+                             double alpha1,
+                             double alpha2) {
+  LogTrace("MagGeoBuilder") << "Building trapezoid surfaces...: ";
+  LogTrace("MagGeoBuilder") << "x1 " << x1 << newln << "x2 " << x2 << newln << "x3 " << x3 << newln << "x4 " << x4
+                            << newln << "y1 " << y1 << newln << "y2 " << y2 << newln << "theta  " << theta << newln
+                            << "phi    " << phi << newln << "halfZ  " << halfZ << newln << "alpha1 " << alpha1 << newln
+                            << "alpha2 " << alpha2;
 
   // Just check assumptions on parameters...
   if (debug) {
     const double epsilon = 1e-5;
     if (theta > epsilon || phi > epsilon || y1 - y2 > epsilon || x1 - x3 > epsilon || x2 - x4 > epsilon ||
         alpha1 - alpha2 > epsilon) {
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: unexpected trapezoid parameters.";
+      LogTrace("MagGeoBuilder") << "*** WARNING: unexpected trapezoid parameters.";
     }
   }
 
@@ -69,25 +62,25 @@ void volumeHandle::buildTrap() {
   GlobalPoint pos_phiplus(refPlane->toGlobal(LocalPoint(-halfX, 0., 0.)));
   GlobalPoint pos_phiminus(refPlane->toGlobal(LocalPoint(halfX, 0., 0.)));
 
-  LogTrace("magneticfield::volumeHandle")
-      << "RN            " << theRN << newln  // RN line needs extra space to line up
-      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << newln << "pos_inner    "
-      << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << newln << "pos_zplus    " << pos_zplus << " "
-      << pos_zplus.perp() << " " << pos_zplus.phi() << newln << "pos_zminus   " << pos_zminus << " "
-      << pos_zminus.perp() << " " << pos_zminus.phi() << newln << "pos_phiplus  " << pos_phiplus << " "
-      << pos_phiplus.perp() << " " << pos_phiplus.phi() << newln << "pos_phiminus " << pos_phiminus << " "
-      << pos_phiminus.perp() << " " << pos_phiminus.phi();
+  LogTrace("MagGeoBuilder") << "RN            " << theRN << newln  // RN line needs extra space to line up
+                            << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi()
+                            << newln << "pos_inner    " << pos_inner << " " << pos_inner.perp() << " "
+                            << pos_inner.phi() << newln << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp()
+                            << " " << pos_zplus.phi() << newln << "pos_zminus   " << pos_zminus << " "
+                            << pos_zminus.perp() << " " << pos_zminus.phi() << newln << "pos_phiplus  " << pos_phiplus
+                            << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << newln << "pos_phiminus "
+                            << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi();
 
   // Check ordering.
   if (debug) {
     if (pos_outer.perp() < pos_inner.perp()) {
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for trapezoid";
+      LogTrace("MagGeoBuilder") << "*** WARNING: pos_outer < pos_inner for trapezoid";
     }
     if (pos_zplus.z() < pos_zminus.z()) {
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for trapezoid";
+      LogTrace("MagGeoBuilder") << "*** WARNING: pos_zplus < pos_zminus for trapezoid";
     }
     if (Geom::Phi<float>(pos_phiplus.phi() - pos_phiminus.phi()) < 0.) {
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for trapezoid";
+      LogTrace("MagGeoBuilder") << "*** WARNING: pos_phiplus < pos_phiminus for trapezoid";
     }
   }
 
@@ -96,7 +89,7 @@ void volumeHandle::buildTrap() {
   GlobalVector y_phiminusV = (refPlane->toGlobal(LocalVector((tan(alpha1) * y1 + (x2 - x1) / 2.), y1, 0.)));
   GlobalVector y_phiminus = y_phiminusV.unit();
 
-  LogTrace("magneticfield::volumeHandle") << "y_phiplus  " << y_phiplus << newln << "y_phiminus " << y_phiminus;
+  LogTrace("MagGeoBuilder") << "y_phiplus  " << y_phiplus << newln << "y_phiminus " << y_phiminus;
 
   Surface::RotationType rot_R(planeZAxis, planeXAxis);
   Surface::RotationType rot_Z(planeXAxis, planeYAxis);
@@ -124,16 +117,15 @@ void volumeHandle::buildTrap() {
   } else {
     thePhiMin = min((pos_phiminus + y_phiminusV).phi(), (pos_phiminus - y_phiminusV).phi());
   }
-  LogTrace("magneticfield::volumeHandle")
-      << "rot_R    " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_Z    "
-      << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_phi+ "
-      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << newln << "rot_phi- "
-      << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-      << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi();
+  LogTrace("MagGeoBuilder") << "rot_R    " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_Z    "
+                            << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_phi+ "
+                            << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+                            << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << newln << "rot_phi- "
+                            << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+                            << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi();
   if (debug) {
     if (std::abs(surfaces[phiminus]->position().phi() - thePhiMin) > 1e-5) {
-      LogTrace("magneticfield::volumeHandle") << " Trapez. phiMin = " << thePhiMin;
+      LogTrace("MagGeoBuilder") << " Trapez. phiMin = " << thePhiMin;
     }
   }
 }

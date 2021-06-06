@@ -63,6 +63,8 @@ private:
   edm::EDGetTokenT<EBSrFlagCollection> srFlagsEBInToken_;
   edm::EDGetTokenT<EESrFlagCollection> srFlagsEEInToken_;
 
+  EcalReadoutTools::ESGetTokens const ecalReadoutToolsESGetTokens_;
+
   // input tags
   edm::InputTag digisIn_;
   edm::InputTag recHits_;
@@ -80,7 +82,8 @@ private:
 //
 // constructors and destructor
 //
-HLTRechitsToDigis::HLTRechitsToDigis(const edm::ParameterSet& iConfig) {
+HLTRechitsToDigis::HLTRechitsToDigis(const edm::ParameterSet& iConfig)
+    : ecalReadoutToolsESGetTokens_{iConfig, consumesCollector()} {
   //region to do rechit digi matching
   region_ = stringToRegion(iConfig.getParameter<std::string>("region"));
 
@@ -157,7 +160,7 @@ void HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup
   // output collections
   std::unique_ptr<EBSrFlagCollection> outputEBSrFlagCollection(new EBSrFlagCollection);
   std::unique_ptr<EESrFlagCollection> outputEESrFlagCollection(new EESrFlagCollection);
-  EcalReadoutTools ecalReadOutTool(iEvent, setup);
+  EcalReadoutTools ecalReadOutTool(iEvent, setup, ecalReadoutToolsESGetTokens_);
 
   // calibrated rechits
   Handle<EcalRecHitCollection> recHitsHandle;

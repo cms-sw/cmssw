@@ -17,7 +17,6 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "TMath.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -31,6 +30,7 @@
 //
 HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
+      l1MuTriggerScalesRcdToken_(esConsumes()),
       candTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
       candToken_(consumes<l1extra::L1MuonParticleCollection>(candTag_)),
       previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
@@ -130,9 +130,7 @@ bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent,
     csctfTracks = csctfTracksHandle.product();
 
     // read scales for every event (fast, no need to cache this)
-    ESHandle<L1MuTriggerScales> scales;
-    iSetup.get<L1MuTriggerScalesRcd>().get(scales);
-    l1MuTriggerScales = scales.product();
+    l1MuTriggerScales = &iSetup.getData(l1MuTriggerScalesRcdToken_);
   }
 
   // get hold of muons that fired the previous level

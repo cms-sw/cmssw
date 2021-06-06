@@ -246,8 +246,8 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker &ibooker,
       std::string histoName =
           Form("mSumCaloPt_%s%.3g_%s%.3g", lc, abs(edge_pseudorapidity[ieta]), rc, abs(edge_pseudorapidity[ieta + 1]));
       for (int id = 0; id < 2; id++) {
-        if (histoName.find(".") != std::string::npos) {
-          histoName.replace(histoName.find("."), 1, "p");
+        if (histoName.find('.') != std::string::npos) {
+          histoName.replace(histoName.find('.'), 1, "p");
         }
       }
       mSumPFPtEtaDep[ieta] = ibooker.book1D(
@@ -275,8 +275,8 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker &ibooker,
         std::string histoName = Form(
             "Dist_vsCent_%s%.3g_%s%.3g", lc, abs(edge_pseudorapidity[ieta]), rc, abs(edge_pseudorapidity[ieta + 1]));
         for (int id = 0; id < 2; id++) {
-          if (histoName.find(".") != std::string::npos) {
-            histoName.replace(histoName.find("."), 1, "p");
+          if (histoName.find('.') != std::string::npos) {
+            histoName.replace(histoName.find('.'), 1, "p");
           }
         }
         std::string rhoName = "rho";
@@ -482,8 +482,8 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker &ibooker,
       std::string histoName =
           Form("mSumCaloPt_%s%.3g_%s%.3g", lc, abs(edge_pseudorapidity[ieta]), rc, abs(edge_pseudorapidity[ieta + 1]));
       for (int id = 0; id < 2; id++) {
-        if (histoName.find(".") != std::string::npos) {
-          histoName.replace(histoName.find("."), 1, "p");
+        if (histoName.find('.') != std::string::npos) {
+          histoName.replace(histoName.find('.'), 1, "p");
         }
       }
       mSumCaloPtEtaDep[ieta] = ibooker.book1D(histoName.c_str(),

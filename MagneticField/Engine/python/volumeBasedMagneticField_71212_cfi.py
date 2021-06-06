@@ -34,7 +34,6 @@ VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESP
     version = cms.string('grid_1103l_071212_2t'),
     geometryVersion = cms.int32(71212),
     debugBuilder = cms.untracked.bool(False),
-    cacheLastVolume = cms.untracked.bool(True),
     scalingVolumes = cms.vint32(),
     scalingFactors = cms.vdouble(),
     gridFiles = cms.VPSet(

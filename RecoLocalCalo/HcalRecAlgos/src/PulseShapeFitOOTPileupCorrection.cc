@@ -1,6 +1,8 @@
-#include <iostream>
-#include <cmath>
 #include <climits>
+#include <cmath>
+#include <iostream>
+#include <memory>
+
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
@@ -95,14 +97,14 @@ void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShap
 
 void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape &ps, unsigned nSamples) {
   ++cntsetPulseShape;
-  psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(
-      ps, pedestalConstraint_, timeConstraint_, addPulseJitter_, pulseJitter_, timeMean_, pedMean_, nSamples));
-  spfunctor_ = std::unique_ptr<ROOT::Math::Functor>(
-      new ROOT::Math::Functor(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3));
-  dpfunctor_ = std::unique_ptr<ROOT::Math::Functor>(
-      new ROOT::Math::Functor(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5));
-  tpfunctor_ = std::unique_ptr<ROOT::Math::Functor>(
-      new ROOT::Math::Functor(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7));
+  psfPtr_ = std::make_unique<FitterFuncs::PulseShapeFunctor>(
+      ps, pedestalConstraint_, timeConstraint_, addPulseJitter_, pulseJitter_, timeMean_, pedMean_, nSamples);
+  spfunctor_ =
+      std::make_unique<ROOT::Math::Functor>(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3);
+  dpfunctor_ =
+      std::make_unique<ROOT::Math::Functor>(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
+  tpfunctor_ =
+      std::make_unique<ROOT::Math::Functor>(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
 }
 
 constexpr char const *varNames[] = {"time", "energy", "time1", "energy1", "time2", "energy2", "ped"};
@@ -117,10 +119,10 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double *energyArr,
                                                     const double *noiseArrSq,
                                                     unsigned int soi) const {
   double tsMAX = 0;
-  double tmpx[HcalConst::maxSamples], tmpy[HcalConst::maxSamples], tmperry[HcalConst::maxSamples],
-      tmperry2[HcalConst::maxSamples], tmpslew[HcalConst::maxSamples];
+  double tmpx[hcal::constants::maxSamples], tmpy[hcal::constants::maxSamples], tmperry[hcal::constants::maxSamples],
+      tmperry2[hcal::constants::maxSamples], tmpslew[hcal::constants::maxSamples];
   double tstrig = 0;  // in fC
-  for (unsigned int i = 0; i < HcalConst::maxSamples; ++i) {
+  for (unsigned int i = 0; i < hcal::constants::maxSamples; ++i) {
     tmpx[i] = i;
     tmpy[i] = energyArr[i] - pedenArr[i];
     //Add Time Slew !!! does this need to be pedestal subtracted
@@ -171,7 +173,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double *energyArr,
     useTriple = true;
   }
 
-  timevalfit -= (int(soi) - HcalConst::shiftTS) * HcalConst::nsPerBX;
+  timevalfit -= (int(soi) - hcal::constants::shiftTS) * hcal::constants::nsPerBX;
 
   /*
    if(chi2 > ts345Chi2_)   { //fails do two pulse chi2 for TS5 
@@ -308,17 +310,18 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo &channe
   const unsigned int soi = channelData.soi();
 
   // initialize arrays to be zero
-  double chargeArr[HcalConst::maxSamples] = {}, pedArr[HcalConst::maxSamples] = {}, gainArr[HcalConst::maxSamples] = {};
-  double energyArr[HcalConst::maxSamples] = {}, pedenArr[HcalConst::maxSamples] = {};
-  double noiseADCArr[HcalConst::maxSamples] = {};
-  double noiseArrSq[HcalConst::maxSamples] = {};
-  double noisePHArr[HcalConst::maxSamples] = {};
+  double chargeArr[hcal::constants::maxSamples] = {}, pedArr[hcal::constants::maxSamples] = {},
+         gainArr[hcal::constants::maxSamples] = {};
+  double energyArr[hcal::constants::maxSamples] = {}, pedenArr[hcal::constants::maxSamples] = {};
+  double noiseADCArr[hcal::constants::maxSamples] = {};
+  double noiseArrSq[hcal::constants::maxSamples] = {};
+  double noisePHArr[hcal::constants::maxSamples] = {};
   double tsTOT = 0, tstrig = 0;  // in fC
   double tsTOTen = 0;            // in GeV
 
   // go over the time slices
   for (unsigned int ip = 0; ip < cssize; ++ip) {
-    if (ip >= (unsigned)HcalConst::maxSamples)
+    if (ip >= (unsigned)hcal::constants::maxSamples)
       continue;  // Too many samples than what we wanna fit (10 is enough...) -> skip them
 
     //      const int capid = channelData.capid(); // not needed

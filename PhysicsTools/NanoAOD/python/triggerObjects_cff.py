@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
-from Configuration.Eras.Modifier_run2_HLTconditions_2017_cff import run2_HLTconditions_2017
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from PhysicsTools.NanoAOD.common_cff import ExtVar
+from PhysicsTools.NanoAOD.nano_eras_cff import *
+from PhysicsTools.NanoAOD.common_cff import *
 import copy
 
 unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
@@ -219,7 +217,17 @@ run2_HLTconditions_2016.toModify(
 )
 
 from PhysicsTools.PatUtils.L1ECALPrefiringWeightProducer_cff import prefiringweight
-run2_HLTconditions_2016.toModify(prefiringweight, DataEra = cms.string("2016BtoH"))
+#Next line will be updated once we get UL2016 maps
+run2_jme_2016.toModify( prefiringweight, DataEra = cms.string("2016BtoH"))
+#Next line is for UL2017 maps 
+run2_jme_2017.toModify( prefiringweight, DataEra = cms.string("UL2017BtoF"))
+#For pre-UL 2017 reprocessing, one should use the original maps and no muon jet protection  
+for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+    modifier.toModify( prefiringweight, DataEra = cms.string("2017BtoF"))
+    modifier.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
+#For pre-UL 2016 reprocessing, same thing
+run2_nanoAOD_94X2016.toModify( prefiringweight, DataEra = cms.string("2016BtoH") )
+run2_nanoAOD_94X2016.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
 
 l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
     variables = cms.PSet(

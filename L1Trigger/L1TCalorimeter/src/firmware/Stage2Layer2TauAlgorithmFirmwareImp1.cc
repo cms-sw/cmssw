@@ -458,11 +458,11 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::dosorting(std::vector<l1t::Tau>&
 
   // put all 12 candidates in the original tau vector, removing zero energy ones
   taus.clear();
-  for (l1t::Tau acctau : accumEtaPos) {
+  for (const l1t::Tau& acctau : accumEtaPos) {
     if (acctau.hwPt() > 0)
       taus.push_back(acctau);
   }
-  for (l1t::Tau acctau : accumEtaNeg) {
+  for (const l1t::Tau& acctau : accumEtaNeg) {
     if (acctau.hwPt() > 0)
       taus.push_back(acctau);
   }

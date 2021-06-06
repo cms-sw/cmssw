@@ -61,11 +61,11 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -79,7 +79,7 @@
 // ecal / hcal
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -131,9 +131,6 @@ private:
   void buildTree();
   void clearTrackVectors();
 
-  double deltaPhi(double v1, double v2);
-  double deltaR(double eta1, double phi1, double eta2, double phi2);
-
   static constexpr int nEtaBins_ = 4;
   static constexpr int nPBins_ = 21;
   std::array<double, nPBins_ + 1> genPartPBins_;
@@ -164,6 +161,12 @@ private:
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEE_;
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloHH_;
   const edm::EDGetTokenT<edm::TriggerResults> tok_trigger_;
+
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
 
   const double minTrackP_, maxTrackEta_, maxNearTrackP_;
   const int debugEcalSimInfo_;
@@ -350,6 +353,11 @@ IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig)
       tok_caloEE_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"))),
       tok_caloHH_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"))),
       tok_trigger_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"))),
+      tok_geom_(esConsumes()),
+      tok_caloTopology_(esConsumes()),
+      tok_topo_(esConsumes()),
+      tok_ecalChStatus_(esConsumes()),
+      tok_sevlv_(esConsumes()),
       minTrackP_(iConfig.getUntrackedParameter<double>("minTrackP", 10.0)),
       maxTrackEta_(iConfig.getUntrackedParameter<double>("maxTrackEta", 5.0)),
       maxNearTrackP_(iConfig.getUntrackedParameter<double>("maxNearTrackP", 1.0)),
@@ -360,7 +368,7 @@ IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig)
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   edm::ConsumesCollector iC = consumesCollector();
   parameters_.loadParameters(parameters, iC);
-  trackAssociator_ = std::unique_ptr<TrackDetectorAssociator>(new TrackDetectorAssociator());
+  trackAssociator_ = std::make_unique<TrackDetectorAssociator>();
   trackAssociator_->useDefaultPropagator();
 
   if (myverbose_ >= 0) {
@@ -487,21 +495,14 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
   // Get the collection handles
   ///////////////////////////////////////////////
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const CaloSubdetectorGeometry* gEB = (geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
   const CaloSubdetectorGeometry* gEE = (geo->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
   const CaloSubdetectorGeometry* gHB = (geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
   const CaloSubdetectorGeometry* gHE = (geo->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
 
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology* caloTopology = theCaloTopology.product();
-
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
+  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology* theHBHETopology = &iSetup.getData(tok_topo_);
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
@@ -509,9 +510,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
 
   // Retrieve the good/bad ECAL channels from the DB
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
-  const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
+  const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
 
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_hbhe_, hbhe);
@@ -620,7 +619,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
   ////////////////////////////
   std::unique_ptr<TrackerHitAssociator> associate;
   if (doMC_)
-    associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
+    associate = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
 
   nTRK = 0;
   nRawTRK = 0;
@@ -630,6 +629,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
   nMissEcal = 0;
   nMissHcal = 0;
 
+  const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
   for (trkItr = trkCollection->begin(); trkItr != trkCollection->end(); ++trkItr) {
     nRawTRK++;
 
@@ -670,7 +670,8 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
     // Find track trajectory
     ////////////////////////////////////////////
 
-    const FreeTrajectoryState fts1 = trackAssociator_->getFreeTrajectoryState(iSetup, *pTrack);
+    const FreeTrajectoryState fts1 =
+        trackAssociator_->getFreeTrajectoryState(&iSetup.getData(parameters_.bFieldToken), *pTrack);
 
     TrackDetMatchInfo info1 = trackAssociator_->associate(iEvent, iSetup, fts1, parameters_);
 
@@ -724,7 +725,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     double drFromLeadJet = 999.0;
     if (useJetTrigger_) {
-      double dphi = deltaPhi(phi1, leadL1JetPhi);
+      double dphi = reco::deltaPhi(phi1, leadL1JetPhi);
       double deta = eta1 - leadL1JetEta;
       drFromLeadJet = sqrt(dphi * dphi + deta * deta);
     }
@@ -759,33 +760,17 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
     // NxN cluster
     double e3x3 = -999.0;
     double trkEcalEne = -999.0;
-    edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-    iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
 
     if (std::abs(point1.eta()) < 1.479) {
       const DetId isoCell = gEB->getClosestCell(point1);
-      e3x3 = spr::eECALmatrix(isoCell,
-                              barrelRecHitsHandle,
-                              endcapRecHitsHandle,
-                              *theEcalChStatus,
-                              geo,
-                              caloTopology,
-                              sevlv.product(),
-                              1,
-                              1)
+      e3x3 = spr::eECALmatrix(
+                 isoCell, barrelRecHitsHandle, endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, sevlv, 1, 1)
                  .first;
       trkEcalEne = spr::eCaloSimInfo(iEvent, geo, pcaloeb, pcaloee, SimTk, SimVtx, pTrack, *associate);
     } else {
       const DetId isoCell = gEE->getClosestCell(point1);
-      e3x3 = spr::eECALmatrix(isoCell,
-                              barrelRecHitsHandle,
-                              endcapRecHitsHandle,
-                              *theEcalChStatus,
-                              geo,
-                              caloTopology,
-                              sevlv.product(),
-                              1,
-                              1)
+      e3x3 = spr::eECALmatrix(
+                 isoCell, barrelRecHitsHandle, endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, sevlv, 1, 1)
                  .first;
       trkEcalEne = spr::eCaloSimInfo(iEvent, geo, pcaloeb, pcaloee, SimTk, SimVtx, pTrack, *associate);
     }
@@ -1739,20 +1724,6 @@ void IsolatedTracksCone::printTrack(const reco::Track* pTrack) {
       p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
     }
   }
-}
-
-double IsolatedTracksCone::deltaPhi(double v1, double v2) {
-  // Computes the correctly normalized phi difference
-  // v1, v2 = phi of object 1 and 2
-  double diff = std::abs(v2 - v1);
-  double corr = 2.0 * M_PI - diff;
-  return ((diff < M_PI) ? diff : corr);
-}
-
-double IsolatedTracksCone::deltaR(double eta1, double phi1, double eta2, double phi2) {
-  double deta = eta1 - eta2;
-  double dphi = deltaPhi(phi1, phi2);
-  return std::sqrt(deta * deta + dphi * dphi);
 }
 
 //define this as a plug-in

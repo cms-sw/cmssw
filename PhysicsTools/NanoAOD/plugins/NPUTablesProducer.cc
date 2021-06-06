@@ -10,13 +10,15 @@
 
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 class NPUTablesProducer : public edm::global::EDProducer<> {
 public:
   NPUTablesProducer(edm::ParameterSet const& params)
       : npuTag_(consumes<std::vector<PileupSummaryInfo>>(params.getParameter<edm::InputTag>("src"))),
         pvTag_(consumes<std::vector<reco::Vertex>>(params.getParameter<edm::InputTag>("pvsrc"))),
-        vz_(params.getParameter<std::vector<double>>("zbins")) {
+        vz_(params.getParameter<std::vector<double>>("zbins")),
+        savePtHatMax_(params.getParameter<bool>("savePtHatMax")) {
     produces<nanoaod::FlatTable>();
   }
 
@@ -47,6 +49,8 @@ public:
     float pudensity = 0;
     float gpudensity = 0;
 
+    float pthatmax = 0;
+
     for (unsigned int ibx = 0; ibx < npuProd.size(); ibx++) {
       if (npuProd[ibx].getBunchCrossing() == 0) {
         bx0 = ibx;
@@ -64,6 +68,12 @@ public:
             gpudensity++;
         }
         gpudensity /= (20.0 * (*(zbin) - *(zbin - 1)));
+
+        if (savePtHatMax_) {
+          if (!npuProd[ibx].getPU_pT_hats().empty()) {
+            pthatmax = *max_element(npuProd[ibx].getPU_pT_hats().begin(), npuProd[ibx].getPU_pT_hats().end());
+          }
+        }
       }
     }
     unsigned int eoot = 0;
@@ -77,18 +87,18 @@ public:
     out.addColumnValue<float>("nTrueInt",
                               nt,
                               "the true mean number of the poisson distribution for this event from which the number "
-                              "of interactions each bunch crossing has been sampled",
-                              nanoaod::FlatTable::FloatColumn);
+                              "of interactions each bunch crossing has been sampled");
     out.addColumnValue<int>(
         "nPU",
         npu,
-        "the number of pileup interactions that have been added to the event in the current bunch crossing",
-        nanoaod::FlatTable::IntColumn);
-    out.addColumnValue<int>("sumEOOT", eoot, "number of early out of time pileup", nanoaod::FlatTable::IntColumn);
-    out.addColumnValue<int>("sumLOOT", loot, "number of late out of time pileup", nanoaod::FlatTable::IntColumn);
-    out.addColumnValue<float>("pudensity", pudensity, "PU vertices / mm", nanoaod::FlatTable::FloatColumn);
-    out.addColumnValue<float>(
-        "gpudensity", gpudensity, "Generator-level PU vertices / mm", nanoaod::FlatTable::FloatColumn);
+        "the number of pileup interactions that have been added to the event in the current bunch crossing");
+    out.addColumnValue<int>("sumEOOT", eoot, "number of early out of time pileup");
+    out.addColumnValue<int>("sumLOOT", loot, "number of late out of time pileup");
+    out.addColumnValue<float>("pudensity", pudensity, "PU vertices / mm");
+    out.addColumnValue<float>("gpudensity", gpudensity, "Generator-level PU vertices / mm");
+    if (savePtHatMax_) {
+      out.addColumnValue<float>("pthatmax", pthatmax, "Maximum pt-hat");
+    }
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -98,6 +108,7 @@ public:
     desc.add<edm::InputTag>("pvsrc", edm::InputTag("offlineSlimmedPrimaryVertices"))->setComment("tag for the PVs");
     desc.add<std::vector<double>>("zbins", {})
         ->setComment("Z bins to compute the generator-level number of PU vertices per mm");
+    desc.add<bool>("savePtHatMax", false)->setComment("Store maximum pt-hat of PU");
     descriptions.add("puTable", desc);
   }
 
@@ -106,6 +117,8 @@ protected:
   const edm::EDGetTokenT<std::vector<reco::Vertex>> pvTag_;
 
   const std::vector<double> vz_;
+
+  bool savePtHatMax_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

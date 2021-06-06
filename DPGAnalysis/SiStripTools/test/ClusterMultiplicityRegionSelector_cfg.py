@@ -118,9 +118,9 @@ process.multiplicitycorrAfter.correlationConfigurations = cms.VPSet(
 
 process.eventtimedistributionAfter= process.eventtimedistribution.clone()
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 
 process.GlobalTag = GlobalTag(process.GlobalTag,options.globalTag, '')
 

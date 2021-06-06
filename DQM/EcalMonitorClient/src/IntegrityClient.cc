@@ -44,8 +44,9 @@ namespace ecaldqm {
 
     // Fill Channel Status Map MEs
     // Record is checked for updates at every endLumi and filled here
-    MESet::iterator chSEnd(meChStatus.end());
-    for (MESet::iterator chSItr(meChStatus.beginChannel()); chSItr != chSEnd; chSItr.toNextChannel()) {
+    MESet::iterator chSEnd(meChStatus.end(GetElectronicsMap()));
+    for (MESet::iterator chSItr(meChStatus.beginChannel(GetElectronicsMap())); chSItr != chSEnd;
+         chSItr.toNextChannel(GetElectronicsMap())) {
       DetId id(chSItr->getId());
 
       EcalChannelStatusMap::const_iterator chIt(nullptr);
@@ -67,27 +68,28 @@ namespace ecaldqm {
 
     }  // Channel Status Map
 
-    MESet::iterator qEnd(meQuality.end());
-    MESet::const_iterator occItr(sOccupancy);
-    for (MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()) {
+    MESet::iterator qEnd(meQuality.end(GetElectronicsMap()));
+    MESet::const_iterator occItr(GetElectronicsMap(), sOccupancy);
+    for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd;
+         qItr.toNextChannel(GetElectronicsMap())) {
       occItr = qItr;
 
       DetId id(qItr->getId());
 
-      bool doMask(meQuality.maskMatches(id, mask, statusManager_));
+      bool doMask(meQuality.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
       float entries(occItr->getBinContent());
 
-      float gain(sGain.getBinContent(id));
-      float chid(sChId.getBinContent(id));
-      float gainswitch(sGainSwitch.getBinContent(id));
+      float gain(sGain.getBinContent(getEcalDQMSetupObjects(), id));
+      float chid(sChId.getBinContent(getEcalDQMSetupObjects(), id));
+      float gainswitch(sGainSwitch.getBinContent(getEcalDQMSetupObjects(), id));
 
-      float towerid(sTowerId.getBinContent(id));
-      float blocksize(sBlockSize.getBinContent(id));
+      float towerid(sTowerId.getBinContent(getEcalDQMSetupObjects(), id));
+      float blocksize(sBlockSize.getBinContent(getEcalDQMSetupObjects(), id));
 
       if (entries + gain + chid + gainswitch + towerid + blocksize < 1.) {
         qItr->setBinContent(doMask ? kMUnknown : kUnknown);
-        meQualitySummary.setBinContent(id, doMask ? kMUnknown : kUnknown);
+        meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMUnknown : kUnknown);
         continue;
       }
 
@@ -96,10 +98,10 @@ namespace ecaldqm {
 
       if (chErr > errFractionThreshold_) {
         qItr->setBinContent(doMask ? kMBad : kBad);
-        meQualitySummary.setBinContent(id, doMask ? kMBad : kBad);
+        meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMBad : kBad);
       } else {
         qItr->setBinContent(doMask ? kMGood : kGood);
-        meQualitySummary.setBinContent(id, doMask ? kMGood : kGood);
+        meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMGood : kGood);
       }
     }
 
@@ -109,16 +111,21 @@ namespace ecaldqm {
     MESet const& sBXTCC(sources_.at("BXTCC"));
     std::vector<bool> hasMismatchDCC(nDCC, false);
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
-      if (sBXSRP.getBinContent(iDCC + 1) > 50. || sBXTCC.getBinContent(iDCC + 1) > 50.)  // "any" => 50
+      if (sBXSRP.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50. ||
+          sBXTCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50.)  // "any" => 50
         hasMismatchDCC[iDCC] = true;
     }
     // Analyze mismatch statistics
-    for (MESet::iterator qsItr(meQualitySummary.beginChannel()); qsItr != meQualitySummary.end();
-         qsItr.toNextChannel()) {
+    for (MESet::iterator qsItr(meQualitySummary.beginChannel(GetElectronicsMap()));
+         qsItr != meQualitySummary.end(GetElectronicsMap());
+         qsItr.toNextChannel(GetElectronicsMap())) {
       DetId id(qsItr->getId());
-      unsigned iDCC(dccId(id) - 1);
+      unsigned iDCC(dccId(id, GetElectronicsMap()) - 1);
       if (hasMismatchDCC[iDCC])
-        meQualitySummary.setBinContent(id, meQualitySummary.maskMatches(id, mask, statusManager_) ? kMBad : kBad);
+        meQualitySummary.setBinContent(
+            getEcalDQMSetupObjects(),
+            id,
+            meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
     }
 
   }  // producePlots()

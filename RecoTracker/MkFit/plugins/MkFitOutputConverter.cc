@@ -190,7 +190,8 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
                     const int subdet, const int layer, const int isStereo, const DetId& detId, const DetLayer* lay) {
     const int index = lnc.convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detId));
     if (index < 0 or static_cast<unsigned>(index) >= dets.size()) {
-      throw cms::Exception("LogicError") << "Invalid mkFit layer index " << index << " for DetId " << detId
+      throw cms::Exception("LogicError") << "Invalid mkFit layer index " << index << " for det rawId " << detId.rawId()
+                                         << " "
                                          << " subdet " << subdet << " layer " << layer << " isStereo " << isStereo;
     }
     dets[index] = lay;

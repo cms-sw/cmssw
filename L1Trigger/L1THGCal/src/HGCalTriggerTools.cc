@@ -195,6 +195,18 @@ bool HGCalTriggerTools::isSilicon(const DetId& id) const {
   return silicon;
 }
 
+HGCalTriggerTools::SubDetectorType HGCalTriggerTools::getSubDetectorType(const DetId& id) const {
+  SubDetectorType subdet;
+  if (!isScintillator(id)) {
+    if (isEm(id))
+      subdet = HGCalTriggerTools::hgcal_silicon_CEE;
+    else
+      subdet = HGCalTriggerTools::hgcal_silicon_CEH;
+  } else
+    subdet = HGCalTriggerTools::hgcal_scintillator;
+  return subdet;
+}
+
 int HGCalTriggerTools::zside(const DetId& id) const {
   int zside = 0;
   if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose) {
@@ -335,8 +347,7 @@ DetId HGCalTriggerTools::simToReco(const DetId& simid, const HGCalTopology& topo
   DetId recoid(0);
   const auto& dddConst = topo.dddConstants();
   // V9
-  if (dddConst.geomMode() == HGCalGeometryMode::Hexagon8 || dddConst.geomMode() == HGCalGeometryMode::Hexagon8Full ||
-      dddConst.geomMode() == HGCalGeometryMode::Trapezoid) {
+  if (dddConst.waferHexagon8() || dddConst.tileTrapezoid()) {
     recoid = simid;
   }
   // V8

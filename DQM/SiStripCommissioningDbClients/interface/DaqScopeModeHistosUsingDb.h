@@ -6,7 +6,10 @@
 
 class DaqScopeModeHistosUsingDb : public CommissioningHistosUsingDb, public DaqScopeModeHistograms {
 public:
-  DaqScopeModeHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  DaqScopeModeHistosUsingDb(const edm::ParameterSet& pset,
+                            DQMStore*,
+                            SiStripConfigDb* const,
+                            edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~DaqScopeModeHistosUsingDb() override;
 

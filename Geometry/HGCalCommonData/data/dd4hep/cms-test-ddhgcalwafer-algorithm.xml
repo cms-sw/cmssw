@@ -25,6 +25,7 @@
     <Include ref="Geometry/HGCalCommonData/test/cms.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v8/hgcal.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v8/hgcalwafer.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v8/hgcalpos.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/dd4hep/world.xml"/>
   </IncludeSection>
   

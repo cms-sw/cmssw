@@ -17,8 +17,6 @@ process.load("DQM.DTMonitorModule.test.inputsource_live_cfi")
 #### DQM Environment
 #----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference.root'
-#process.DQMStore.referenceFileName = "DT_reference.root"
 process.dqmRunConfig.collectorHost = 'fu-c2f11-23-01.cms'
 process.dqmSaver.path = "./"
 
@@ -67,7 +65,7 @@ print("Running with run type = ", process.runType.getRunType())
 #----------------------------
 
 if (process.runType.getRunType() == process.runType.pp_run):
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference_pp.root'
+    pass
 
 
 #----------------------------
@@ -75,7 +73,7 @@ if (process.runType.getRunType() == process.runType.pp_run):
 #----------------------------
 
 if (process.runType.getRunType() == process.runType.cosmic_run):
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference_cosmic.root'
+    pass
 
 
 #----------------------------
@@ -90,7 +88,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     
     process.dtDigiMonitor.ResetCycle = cms.untracked.int32(9999)
 
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference_hi.root'
 
 
 ### process customisations included here
@@ -98,17 +95,17 @@ from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
 ### DT slice test specific customisations
-if (process.dtDqmConfig.getProcessAB7Digis()) :
+if (process.dtDqmConfig.getProcessAB7Digis() or \
+    process.dtDqmConfig.getProcessAB7TPs()) :
     from DQM.DTMonitorModule.slice_test_customizations_cff import *
-    process = customise_for_slice_test(process)
+    process = customise_for_slice_test(process,
+                                       process.dtDqmConfig.getProcessAB7Digis(),
+                                       process.dtDqmConfig.getProcessAB7TPs())
 
 ### DT digi customisation
 if (process.dtDqmConfig.getRunWithLargeTB()) :
     process.dtDigiMonitor.maxTTMounts = 6400
 
 if (process.dtDqmConfig.getProcessAB7Digis()) :
-
-    if (process.dtDqmConfig.getRunWithLargeTB()) :
-        process.dtAB7DigiMonitor.maxTTMounts = 6400
-
+    process.dtAB7DigiMonitor.maxTTMounts = 6400
     process.dtAB7DigiMonitor.tdcPedestal = process.dtDqmConfig.getTBTDCPedestal()

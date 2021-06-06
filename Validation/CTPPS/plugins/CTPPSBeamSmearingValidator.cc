@@ -34,7 +34,7 @@ private:
 
   std::string outputFile_;
 
-  std::unique_ptr<TH1D> h_de_vtx_x_, h_de_vtx_y_, h_de_vtx_z_;
+  std::unique_ptr<TH1D> h_de_vtx_x_, h_de_vtx_y_, h_de_vtx_z_, h_de_vtx_t_;
 
   struct SectorPlots {
     std::unique_ptr<TH1D> h_de_th_x, h_de_th_y, h_de_p;
@@ -68,7 +68,8 @@ CTPPSBeamSmearingValidator::CTPPSBeamSmearingValidator(const edm::ParameterSet &
       outputFile_(iConfig.getParameter<string>("outputFile")),
       h_de_vtx_x_(new TH1D("h_de_vtx_x", ";#Delta vtx_{x}   (mm)", 100, 0., 0.)),
       h_de_vtx_y_(new TH1D("h_de_vtx_y", ";#Delta vtx_{y}   (mm)", 100, 0., 0.)),
-      h_de_vtx_z_(new TH1D("h_de_vtx_z", ";#Delta vtx_{z}   (mm)", 100, 0., 0.)) {}
+      h_de_vtx_z_(new TH1D("h_de_vtx_z", ";#Delta vtx_{z}   (mm)", 100, 0., 0.)),
+      h_de_vtx_t_(new TH1D("h_de_vtx_t", ";#Delta vtx_{t}   (mm)", 100, 0., 0.)) {}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -94,6 +95,7 @@ void CTPPSBeamSmearingValidator::analyze(const edm::Event &iEvent, const edm::Ev
     h_de_vtx_x_->Fill(vn.x() - vo.x());
     h_de_vtx_y_->Fill(vn.y() - vo.y());
     h_de_vtx_z_->Fill(vn.z() - vo.z());
+    h_de_vtx_t_->Fill(vn.t() - vo.t());
   }
 
   // particles
@@ -143,6 +145,7 @@ void CTPPSBeamSmearingValidator::endJob() {
   h_de_vtx_x_->Write();
   h_de_vtx_y_->Write();
   h_de_vtx_z_->Write();
+  h_de_vtx_t_->Write();
 
   gDirectory = f_out->mkdir("sector 45");
   sectorPlots_[0].write();

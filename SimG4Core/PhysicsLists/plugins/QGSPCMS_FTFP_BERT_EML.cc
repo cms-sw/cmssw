@@ -1,5 +1,4 @@
 #include "QGSPCMS_FTFP_BERT_EML.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -10,6 +9,7 @@
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 #include "G4HadronicProcessStore.hh"
+#include "G4EmStandardPhysics_option1.hh"
 
 #include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
 
@@ -24,17 +24,18 @@ QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(const edm::ParameterSet& p) : Physi
   double minQGSP = p.getParameter<double>("EminQGSP") * CLHEP::GeV;
   double maxFTFP = p.getParameter<double>("EmaxFTFP") * CLHEP::GeV;
   double maxBERTpi = p.getParameter<double>("EmaxBERTpi") * CLHEP::GeV;
-  edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-                              << "QGSP_FTFP_BERT_EML \n Flags for EM Physics " << emPhys << ", for Hadronic Physics "
-                              << hadPhys << " and tracking cut " << tracking << "   t(ns)= " << timeLimit / CLHEP::ns
-                              << "\n  transition energy Bertini/FTFP from " << minFTFP / CLHEP::GeV << " to "
-                              << maxBERTpi / CLHEP::GeV << ":" << maxBERT / CLHEP::GeV << " GeV"
-                              << "\n  transition energy FTFP/QGSP from " << minQGSP / CLHEP::GeV << " to "
-                              << maxFTFP / CLHEP::GeV << " GeV";
+  edm::LogVerbatim("PhysicsList") << "You are using the simulation engine: "
+                                  << "QGSP_FTFP_BERT_EML \n Flags for EM Physics " << emPhys
+                                  << ", for Hadronic Physics " << hadPhys << " and tracking cut " << tracking
+                                  << "   t(ns)= " << timeLimit / CLHEP::ns << "\n  transition energy Bertini/FTFP from "
+                                  << minFTFP / CLHEP::GeV << " to " << maxBERTpi / CLHEP::GeV << ":"
+                                  << maxBERT / CLHEP::GeV << " GeV"
+                                  << "\n  transition energy FTFP/QGSP from " << minQGSP / CLHEP::GeV << " to "
+                                  << maxFTFP / CLHEP::GeV << " GeV";
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new CMSEmStandardPhysics(ver));
+    RegisterPhysics(new G4EmStandardPhysics_option1(ver));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);

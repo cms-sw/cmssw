@@ -1,21 +1,65 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaIsoHcalDetIdCollectionProducer.h"
+// -*- C++ -*-
+//
+// Package:    EgammaIsoHcalDetIdCollectionProducer
+// Class:      EgammaIsoHcalDetIdCollectionProducer
+//
+/**\class EgammaIsoHcalDetIdCollectionProducer 
+Original author: Sam Harper (RAL)
+ 
+Make a collection of detids to be kept tipically in a AOD rechit collection
+Modified from the ECAL version "InterestingDetIdCollectionProducer" to be HCAL
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+*/
 
 #include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EGHcalRecHitSelector.h"
+
+class EgammaIsoHcalDetIdCollectionProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EgammaIsoHcalDetIdCollectionProducer(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  void beginRun(edm::Run const&, const edm::EventSetup&) final;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // ----------member data ---------------------------
+  const edm::EDGetTokenT<HBHERecHitCollection> recHitsToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> superClustersToken_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> elesToken_;
+  const edm::EDGetTokenT<reco::PhotonCollection> phosToken_;
+
+  std::string interestingDetIdCollection_;
+
+  float minSCEt_;
+  float minEleEt_;
+  float minPhoEt_;
+
+  EGHcalRecHitSelector hcalHitSelector_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EgammaIsoHcalDetIdCollectionProducer);
 
 EgammaIsoHcalDetIdCollectionProducer::EgammaIsoHcalDetIdCollectionProducer(const edm::ParameterSet& iConfig)
-    : hcalHitSelector_(iConfig.getParameter<edm::ParameterSet>("hitSelection")) {
-  recHitsToken_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"));
-  elesToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("elesLabel"));
-
-  phosToken_ = consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("phosLabel"));
-
-  superClustersToken_ =
-      consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("superClustersLabel"));
-
+    : recHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("recHitsLabel"))},
+      superClustersToken_{consumes(iConfig.getParameter<edm::InputTag>("superClustersLabel"))},
+      elesToken_{consumes(iConfig.getParameter<edm::InputTag>("elesLabel"))},
+      phosToken_{consumes(iConfig.getParameter<edm::InputTag>("phosLabel"))},
+      hcalHitSelector_(iConfig.getParameter<edm::ParameterSet>("hitSelection"), consumesCollector()) {
   minSCEt_ = iConfig.getParameter<double>("minSCEt");
   minEleEt_ = iConfig.getParameter<double>("minEleEt");
   minPhoEt_ = iConfig.getParameter<double>("minPhoEt");
@@ -46,17 +90,10 @@ void EgammaIsoHcalDetIdCollectionProducer::beginRun(edm::Run const& run, const e
 
 // ------------ method called to produce the data  ------------
 void EgammaIsoHcalDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<reco::SuperClusterCollection> superClusters;
-  iEvent.getByToken(superClustersToken_, superClusters);
-
-  edm::Handle<reco::GsfElectronCollection> eles;
-  iEvent.getByToken(elesToken_, eles);
-
-  edm::Handle<reco::PhotonCollection> phos;
-  iEvent.getByToken(phosToken_, phos);
-
-  edm::Handle<HBHERecHitCollection> recHits;
-  iEvent.getByToken(recHitsToken_, recHits);
+  auto superClusters = iEvent.getHandle(superClustersToken_);
+  auto eles = iEvent.getHandle(elesToken_);
+  auto phos = iEvent.getHandle(phosToken_);
+  auto recHits = iEvent.getHandle(recHitsToken_);
 
   std::vector<DetId> indexToStore;
   indexToStore.reserve(100);

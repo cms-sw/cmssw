@@ -46,8 +46,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -68,6 +66,7 @@ namespace cms {
         useRecHits_(iConfig.getParameter<bool>("useRecHits")) {
     muonToken_ = consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muonInputTag"));
     beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
+    magFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
     edm::ParameterSet trackAssociatorParams = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
     edm::ConsumesCollector iC = consumesCollector();
@@ -85,17 +84,16 @@ namespace cms {
     edm::Handle<reco::BeamSpot> beamSpot;
     iEvent.getByToken(beamSpotToken_, beamSpot);
 
-    edm::ESHandle<MagneticField> magneticField;
-    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+    const MagneticField& magneticField = iSetup.getData(magFieldToken_);
 
-    double bfield = magneticField->inTesla(GlobalPoint(0., 0., 0.)).z();
+    double bfield = magneticField.inTesla(GlobalPoint(0., 0., 0.)).z();
 
     std::vector<reco::MuonMETCorrectionData> muCorrDataList;
 
     for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
       double deltax = 0.0;
       double deltay = 0.0;
-      determine_deltax_deltay(deltax, deltay, *muon, bfield, iEvent, iSetup);
+      determine_deltax_deltay(deltax, deltay, *muon, bfield, magneticField, iEvent, iSetup);
 
       reco::MuonMETCorrectionData::Type muCorrType = decide_correction_type(*muon, beamSpot->position());
 
@@ -118,6 +116,7 @@ namespace cms {
                                                         double& deltay,
                                                         const reco::Muon& muon,
                                                         double bfield,
+                                                        const MagneticField& magneticField,
                                                         edm::Event& iEvent,
                                                         const edm::EventSetup& iSetup) {
     reco::TrackRef mu_track;
@@ -129,7 +128,7 @@ namespace cms {
       mu_track = muon.outerTrack();
 
     TrackDetMatchInfo info = trackAssociator_.associate(
-        iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *mu_track), trackAssociatorParameters_);
+        iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(&magneticField, *mu_track), trackAssociatorParameters_);
 
     MuonMETAlgo alg;
     alg.GetMuDepDeltas(

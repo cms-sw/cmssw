@@ -68,7 +68,6 @@ public:
   explicit MEtoEDMConverter(const edm::ParameterSet&);
   ~MEtoEDMConverter() override;
   void beginJob() override;
-  void endJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   std::shared_ptr<meedm::Void> globalBeginRun(edm::Run const&, const edm::EventSetup&) const override;
   void globalEndRun(edm::Run const&, const edm::EventSetup&) override;

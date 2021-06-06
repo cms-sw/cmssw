@@ -9,14 +9,14 @@ from .HIPixel3PrimTracks_cfi import *
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
 #######################################################################
 from RecoHI.HiTracking.hiPixelLessStep_cff import hiPixelLessStepClusters
-hiTobTecStepClusters = hiPixelLessStepClusters.clone()
-hiTobTecStepClusters.trajectories = cms.InputTag("hiPixelLessStepTracks")
-hiTobTecStepClusters.overrideTrkQuals = cms.InputTag('hiPixelLessStepSelector','hiPixelLessStep')
-
+hiTobTecStepClusters = hiPixelLessStepClusters.clone(
+    trajectories = "hiPixelLessStepTracks",
+    overrideTrkQuals = 'hiPixelLessStepSelector:hiPixelLessStep'
+)
 # TRIPLET SEEDING LAYERS
-tobTecStepSeedLayersTripl.TOB.skipClusters   = cms.InputTag('hiTobTecStepClusters')
-tobTecStepSeedLayersTripl.MTOB.skipClusters   = cms.InputTag('hiTobTecStepClusters')
-tobTecStepSeedLayersTripl.MTEC.skipClusters   = cms.InputTag('hiTobTecStepClusters')
+tobTecStepSeedLayersTripl.TOB.skipClusters   = 'hiTobTecStepClusters'
+tobTecStepSeedLayersTripl.MTOB.skipClusters   = 'hiTobTecStepClusters'
+tobTecStepSeedLayersTripl.MTEC.skipClusters   = 'hiTobTecStepClusters'
 
 # Triplet TrackingRegion
 from RecoHI.HiTracking.hiMixedTripletStep_cff import hiMixedTripletStepTrackingRegionsA as _hiMixedTripletStepTrackingRegionsA
@@ -31,8 +31,8 @@ hiTobTecStepTrackingRegionsTripl = _hiMixedTripletStepTrackingRegionsA.clone(Reg
 tobTecStepHitDoubletsTripl.clusterCheck = ""
 tobTecStepHitDoubletsTripl.trackingRegions = "hiTobTecStepTrackingRegionsTripl"
 
-tobTecStepSeedLayersPair.TOB.skipClusters   = cms.InputTag('hiTobTecStepClusters')
-tobTecStepSeedLayersPair.TEC.skipClusters   = cms.InputTag('hiTobTecStepClusters')
+tobTecStepSeedLayersPair.TOB.skipClusters   = 'hiTobTecStepClusters'
+tobTecStepSeedLayersPair.TEC.skipClusters   = 'hiTobTecStepClusters'
 
 # Pair TrackingRegion
 hiTobTecStepTrackingRegionsPair = hiTobTecStepTrackingRegionsTripl.clone(RegionPSet=dict(
@@ -52,7 +52,7 @@ tobTecStepTrajectoryFilter.minimumNumberOfHits = 5
 tobTecStepTrajectoryFilter.minPt = 0.85
 
 # MAKING OF TRACK CANDIDATES
-tobTecStepTrackCandidates.clustersToSkip = cms.InputTag('hiTobTecStepClusters')
+tobTecStepTrackCandidates.clustersToSkip = 'hiTobTecStepClusters'
 
 # TRACK FITTING
 hiTobTecStepTracks = tobTecStepTracks.clone()
@@ -60,41 +60,41 @@ hiTobTecStepTracks = tobTecStepTracks.clone()
 # Final selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiTobTecStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src='hiTobTecStepTracks',
-    useAnyMVA = cms.bool(False),
-    GBRForestLabel = cms.string('HIMVASelectorIter13'),
-    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
-    trackSelectors= cms.VPSet(
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-    name = 'hiTobTecStepLoose',
-    applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
-    ), #end of pset
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-    name = 'hiTobTecStepTight',
-    preFilterName = 'hiTobTecStepLoose',
-    applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
-    minMVA = cms.double(-0.2)
-    ),
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-    name = 'hiTobTecStep',
-    preFilterName = 'hiTobTecStepTight',
-    applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
-    minMVA = cms.double(-0.09)
-    ),
+    src = 'hiTobTecStepTracks',
+    useAnyMVA = False,
+    GBRForestLabel = 'HIMVASelectorIter13',
+    GBRForestVars = ['chi2perdofperlayer', 'nhits', 'nlayers', 'eta'],
+    trackSelectors = cms.VPSet(
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+           name = 'hiTobTecStepLoose',
+           applyAdaptedPVCuts = False,
+           useMVA = False,
+       ), #end of pset
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+           name = 'hiTobTecStepTight',
+           preFilterName = 'hiTobTecStepLoose',
+           applyAdaptedPVCuts = False,
+           useMVA = False,
+           minMVA = -0.2
+       ),
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+           name = 'hiTobTecStep',
+           preFilterName = 'hiTobTecStepTight',
+           applyAdaptedPVCuts = False,
+           useMVA = False,
+           minMVA = -0.09
+       ),
     ) #end of vpset
-    ) #end of clone
+) #end of clone
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiTobTecStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers=cms.VInputTag(cms.InputTag('hiTobTecStepTracks')),
-    hasSelector=cms.vint32(1),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiTobTecStepSelector","hiTobTecStep")),
+    TrackProducers = ['hiTobTecStepTracks'],
+    hasSelector = [1],
+    selectedTrackQuals = ["hiTobTecStepSelector:hiTobTecStep"],
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False),
-    )
+)
 
 
 hiTobTecStepTask = cms.Task(hiTobTecStepClusters,

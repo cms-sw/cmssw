@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "TGFrame.h"
 
@@ -47,17 +47,17 @@ FWSummaryManager::FWSummaryManager(TGFrame* iParent,
                                    FWModelChangeManager* cm,
                                    FWColorManager* colorm)
     : m_guiManager(gm), m_colorManager(colorm), m_itemChanged(false) {
-  colorm->colorsHaveChanged_.connect(boost::bind(&FWSummaryManager::colorsChanged, this));
-  sm->selectionChanged_.connect(boost::bind(&FWSummaryManager::selectionChanged, this, _1));
-  eim->newItem_.connect(boost::bind(&FWSummaryManager::newItem, this, _1));
-  eim->goingToClearItems_.connect(boost::bind(&FWSummaryManager::removeAllItems, this));
-  eim->goingToClearItems_.connect(boost::bind(&FWModelChangeManager::itemsGoingToBeClearedSlot, cm));
+  colorm->colorsHaveChanged_.connect(std::bind(&FWSummaryManager::colorsChanged, this));
+  sm->selectionChanged_.connect(std::bind(&FWSummaryManager::selectionChanged, this, std::placeholders::_1));
+  eim->newItem_.connect(std::bind(&FWSummaryManager::newItem, this, std::placeholders::_1));
+  eim->goingToClearItems_.connect(std::bind(&FWSummaryManager::removeAllItems, this));
+  eim->goingToClearItems_.connect(std::bind(&FWModelChangeManager::itemsGoingToBeClearedSlot, cm));
 
   m_pack = new TGVerticalFrame(iParent);
   m_pack->SetLayoutManager(new FWCompactVerticalLayout(m_pack));
   const unsigned int backgroundColor = 0x2f2f2f;
   m_pack->SetBackgroundColor(backgroundColor);
-  cm->changeSignalsAreDone_.connect(boost::bind(&FWSummaryManager::changesDone, this));
+  cm->changeSignalsAreDone_.connect(std::bind(&FWSummaryManager::changesDone, this));
 }
 
 // FWSummaryManager::FWSummaryManager(const FWSummaryManager& rhs)
@@ -89,8 +89,8 @@ void FWSummaryManager::newItem(FWEventItem* iItem) {
   m_collectionWidgets.push_back(lst);
   bool backgroundIsWhite = m_colorManager->backgroundColorIndex() == FWColorManager::kWhiteIndex;
   lst->setBackgroundToWhite(backgroundIsWhite);
-  iItem->goingToBeDestroyed_.connect(boost::bind(&FWSummaryManager::itemDestroyed, this, _1));
-  iItem->itemChanged_.connect(boost::bind(&FWSummaryManager::itemChanged, this, _1));
+  iItem->goingToBeDestroyed_.connect(std::bind(&FWSummaryManager::itemDestroyed, this, std::placeholders::_1));
+  iItem->itemChanged_.connect(std::bind(&FWSummaryManager::itemChanged, this, std::placeholders::_1));
   lst->Connect("requestForInfo(FWEventItem*)", "FWSummaryManager", this, "requestForInfo(FWEventItem*)");
   lst->Connect("requestForFilter(FWEventItem*)", "FWSummaryManager", this, "requestForFilter(FWEventItem*)");
   lst->Connect("requestForErrorInfo(FWEventItem*)", "FWSummaryManager", this, "requestForError(FWEventItem*)");

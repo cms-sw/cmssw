@@ -6,18 +6,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
-#include "CondFormats/DataRecord/interface/EcalPulseShapesRcd.h"
-#include "CondFormats/DataRecord/interface/EcalPulseCovariancesRcd.h"
-
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 #include <FWCore/ParameterSet/interface/EmptyGroupDescription.h>
@@ -59,6 +47,17 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   addPedestalUncertaintyEB_ = ps.getParameter<double>("addPedestalUncertaintyEB");
   addPedestalUncertaintyEE_ = ps.getParameter<double>("addPedestalUncertaintyEE");
   simplifiedNoiseModelForGainSwitch_ = ps.getParameter<bool>("simplifiedNoiseModelForGainSwitch");
+  pedsToken_ = c.esConsumes<EcalPedestals, EcalPedestalsRcd>();
+  gainsToken_ = c.esConsumes<EcalGainRatios, EcalGainRatiosRcd>();
+  noiseConvariancesToken_ = c.esConsumes<EcalSamplesCorrelation, EcalSamplesCorrelationRcd>();
+  pulseShapesToken_ = c.esConsumes<EcalPulseShapes, EcalPulseShapesRcd>();
+  pulseConvariancesToken_ = c.esConsumes<EcalPulseCovariances, EcalPulseCovariancesRcd>();
+  sampleMaskToken_ = c.esConsumes<EcalSampleMask, EcalSampleMaskRcd>();
+  grpsToken_ = c.esConsumes<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd>();
+  wgtsToken_ = c.esConsumes<EcalTBWeights, EcalTBWeightsRcd>();
+  timeCorrBiasToken_ = c.esConsumes<EcalTimeBiasCorrections, EcalTimeBiasCorrectionsRcd>();
+  itimeToken_ = c.esConsumes<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd>();
+  offtimeToken_ = c.esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>();
 
   // algorithm to be used for timing
   auto const& timeAlgoName = ps.getParameter<std::string>("timealgo");
@@ -66,7 +65,13 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     timealgo_ = ratioMethod;
   else if (timeAlgoName == "WeightsMethod")
     timealgo_ = weightsMethod;
-  else if (timeAlgoName != "None")
+  else if (timeAlgoName == "crossCorrelationMethod") {
+    timealgo_ = crossCorrelationMethod;
+    double startTime = ps.getParameter<double>("crossCorrelationStartTime");
+    double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
+    double targetTimePrecision = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
+    computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime, targetTimePrecision);
+  } else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
   // ratio method parameters
@@ -108,29 +113,29 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
 
 void EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es) {
   // common setup
-  es.get<EcalGainRatiosRcd>().get(gains);
-  es.get<EcalPedestalsRcd>().get(peds);
+  gains = es.getHandle(gainsToken_);
+  peds = es.getHandle(pedsToken_);
 
   // for the multifit method
   if (!ampErrorCalculation_)
     multiFitMethod_.disableErrorCalculation();
-  es.get<EcalSamplesCorrelationRcd>().get(noisecovariances);
-  es.get<EcalPulseShapesRcd>().get(pulseshapes);
-  es.get<EcalPulseCovariancesRcd>().get(pulsecovariances);
+  noisecovariances = es.getHandle(noiseConvariancesToken_);
+  pulseshapes = es.getHandle(pulseShapesToken_);
+  pulsecovariances = es.getHandle(pulseConvariancesToken_);
 
   // weights parameters for the time
-  es.get<EcalWeightXtalGroupsRcd>().get(grps);
-  es.get<EcalTBWeightsRcd>().get(wgts);
+  grps = es.getHandle(grpsToken_);
+  wgts = es.getHandle(wgtsToken_);
 
   // which of the samples need be used
-  es.get<EcalSampleMaskRcd>().get(sampleMaskHand_);
+  sampleMaskHand_ = es.getHandle(sampleMaskToken_);
 
   // for the ratio method
-  es.get<EcalTimeCalibConstantsRcd>().get(itime);
-  es.get<EcalTimeOffsetConstantRcd>().get(offtime);
+  itime = es.getHandle(itimeToken_);
+  offtime = es.getHandle(offtimeToken_);
 
   // for the time correction methods
-  es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
+  timeCorrBias_ = es.getHandle(timeCorrBiasToken_);
 
   int nnoise = SampleVector::RowsAtCompileTime;
   SampleMatrix& noisecorEBg12 = noisecors_[1][0];
@@ -473,7 +478,19 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         }
         uncalibRecHit.setJitter(timerh);
         uncalibRecHit.setJitterError(0.);  // not computed with weights
-      } else {                             // no time method;
+
+      } else if (timealgo_ == crossCorrelationMethod) {
+        std::vector<double> amplitudes(activeBX.size());
+        for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
+          amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
+
+        float jitterError = 0.;
+        float jitter = computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError);
+
+        uncalibRecHit.setJitter(jitter);
+        uncalibRecHit.setJitterError(jitterError);
+
+      } else {  // no time method;
         uncalibRecHit.setJitter(0.);
         uncalibRecHit.setJitterError(0.);
       }
@@ -662,6 +679,9 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
       edm::ParameterDescription<bool>("kPoorRecoFlagEE", false, true) and
       edm::ParameterDescription<double>("chi2ThreshEB_", 65.0, true) and
       edm::ParameterDescription<double>("chi2ThreshEE_", 50.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and
       edm::ParameterDescription<edm::ParameterSetDescription>("EcalPulseShapeParameters", psd0, true));
 
   return psd;

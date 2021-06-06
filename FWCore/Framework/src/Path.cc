@@ -1,9 +1,11 @@
 
 #include "FWCore/Framework/src/Path.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
@@ -213,9 +215,8 @@ namespace edm {
     pathStatusInserterWorker_ = pathStatusInserterWorker;
   }
 
-  void Path::processOneOccurrenceAsync(WaitingTask* iTask,
-                                       EventPrincipal const& iEP,
-                                       EventSetupImpl const& iES,
+  void Path::processOneOccurrenceAsync(WaitingTaskHolder iTask,
+                                       EventTransitionInfo const& iInfo,
                                        ServiceToken const& iToken,
                                        StreamID const& iStreamID,
                                        StreamContext const* iStreamContext) {
@@ -233,20 +234,21 @@ namespace edm {
 
     if (workers_.empty()) {
       ServiceRegistry::Operate guard(iToken);
-      finished(std::exception_ptr(), iStreamContext, iEP, iES, iStreamID);
+      finished(std::exception_ptr(), iStreamContext, iInfo, iStreamID);
       return;
     }
 
-    runNextWorkerAsync(0, iEP, iES, iToken, iStreamID, iStreamContext);
+    runNextWorkerAsync(0, iInfo, iToken, iStreamID, iStreamContext, *iTask.group());
   }
 
   void Path::workerFinished(std::exception_ptr const* iException,
                             unsigned int iModuleIndex,
-                            EventPrincipal const& iEP,
-                            EventSetupImpl const& iES,
+                            EventTransitionInfo const& iInfo,
                             ServiceToken const& iToken,
                             StreamID const& iID,
-                            StreamContext const* iContext) {
+                            StreamContext const* iContext,
+                            tbb::task_group& iGroup) {
+    EventPrincipal const& iEP = iInfo.principal();
     ServiceRegistry::Operate guard(iToken);
 
     //This call also allows the WorkerInPath to update statistics
@@ -265,12 +267,14 @@ namespace edm {
       CMS_SA_ALLOW try {
         std::ostringstream ost;
         ost << iEP.id();
+        ModuleDescription const* desc = worker.getWorker()->description();
+        assert(desc != nullptr);
         shouldContinue = handleWorkerFailure(*pEx,
                                              iModuleIndex,
                                              /*isEvent*/ true,
                                              /*isBegin*/ true,
                                              InEvent,
-                                             worker.getWorker()->description(),
+                                             *desc,
                                              ost.str());
         //If we didn't rethrow, then we effectively skipped
         worker.skipWorker(iEP);
@@ -292,7 +296,7 @@ namespace edm {
     if (shouldContinue and nextIndex < workers_.size()) {
       if (not worker.runConcurrently()) {
         --modulesToRun_;
-        runNextWorkerAsync(nextIndex, iEP, iES, iToken, iID, iContext);
+        runNextWorkerAsync(nextIndex, iInfo, iToken, iID, iContext, iGroup);
         return;
       }
     }
@@ -309,14 +313,13 @@ namespace edm {
     }
     if (--modulesToRun_ == 0) {
       //The path should only be marked as finished once all outstanding modules finish
-      finished(finalException, iContext, iEP, iES, iID);
+      finished(finalException, iContext, iInfo, iID);
     }
   }
 
   void Path::finished(std::exception_ptr iException,
                       StreamContext const* iContext,
-                      EventPrincipal const& iEP,
-                      EventSetupImpl const& iES,
+                      EventTransitionInfo const& iInfo,
                       StreamID const& streamID) {
     updateCounters(state_);
     recordStatus(failedModuleIndex_, state_);
@@ -329,7 +332,7 @@ namespace edm {
       }
       std::exception_ptr jException =
           pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-              iEP, iES, streamID, ParentContext(iContext), iContext);
+              iInfo, streamID, ParentContext(iContext), iContext);
       if (jException && not iException) {
         iException = jException;
       }
@@ -343,11 +346,11 @@ namespace edm {
   }
 
   void Path::runNextWorkerAsync(unsigned int iNextModuleIndex,
-                                EventPrincipal const& iEP,
-                                EventSetupImpl const& iES,
+                                EventTransitionInfo const& iInfo,
                                 ServiceToken const& iToken,
                                 StreamID const& iID,
-                                StreamContext const* iContext) {
+                                StreamContext const* iContext,
+                                tbb::task_group& iGroup) {
     //Figure out which next modules can run concurrently
     const int firstModuleIndex = iNextModuleIndex;
     int lastModuleIndex = firstModuleIndex;
@@ -355,13 +358,13 @@ namespace edm {
       ++lastModuleIndex;
     }
     for (; lastModuleIndex >= firstModuleIndex; --lastModuleIndex) {
-      auto nextTask = make_waiting_task(
-          tbb::task::allocate_root(),
-          [this, lastModuleIndex, &iEP, &iES, iID, iContext, token = iToken](std::exception_ptr const* iException) {
-            this->workerFinished(iException, lastModuleIndex, iEP, iES, token, iID, iContext);
-          });
+      ServiceWeakToken weakToken = iToken;
+      auto nextTask = make_waiting_task([this, lastModuleIndex, info = iInfo, iID, iContext, weakToken, &iGroup](
+                                            std::exception_ptr const* iException) {
+        this->workerFinished(iException, lastModuleIndex, info, weakToken.lock(), iID, iContext, iGroup);
+      });
       workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-          nextTask, iEP, iES, iToken, iID, iContext);
+          WaitingTaskHolder(iGroup, nextTask), iInfo, iToken, iID, iContext);
     }
   }
 

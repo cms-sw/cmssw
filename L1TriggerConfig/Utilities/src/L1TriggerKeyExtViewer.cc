@@ -47,7 +47,7 @@ void L1TriggerKeyExtViewer::analyze(const edm::Event& iEvent, const edm::EventSe
   for (; itr != end; ++itr) {
     std::string recordType = itr->first;
     std::string objectKey = itr->second;
-    std::string recordName(recordType, 0, recordType.find_first_of("@"));
+    std::string recordName(recordType, 0, recordType.find_first_of('@'));
     cout << " record " << recordName << " key: " << itr->second << endl;
   }
 

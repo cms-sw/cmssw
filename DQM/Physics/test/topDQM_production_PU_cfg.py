@@ -98,9 +98,9 @@ process.content = cms.EDAnalyzer("EventContentAnalyzer")
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-#process.MessageLogger.categories.append('TopSingleLeptonDQM'   )
+#
 #process.MessageLogger.cerr.TopSingleLeptonDQM    = cms.untracked.PSet(limit = cms.untracked.int32(1))
-#process.MessageLogger.categories.append('TopDiLeptonOfflineDQM')
+#
 #process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cms.untracked.int32(1))
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
@@ -208,9 +208,7 @@ process.content = cms.EDAnalyzer("EventContentAnalyzer")
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('TopSingleLeptonDQM'   )
 process.MessageLogger.cerr.TopSingleLeptonDQM    = cms.untracked.PSet(limit = cms.untracked.int32(1))
-process.MessageLogger.categories.append('TopDiLeptonOfflineDQM')
 process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cms.untracked.int32(1))
 
 

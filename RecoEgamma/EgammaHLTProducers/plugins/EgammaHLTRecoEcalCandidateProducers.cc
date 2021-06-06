@@ -66,7 +66,7 @@ void EgammaHLTRecoEcalCandidateProducers::fillDescriptions(edm::ConfigurationDes
 
 void EgammaHLTRecoEcalCandidateProducers::produce(edm::StreamID sid,
                                                   edm::Event& theEvent,
-                                                  const edm::EventSetup& theEventSetup) const {
+                                                  const edm::EventSetup&) const {
   using namespace edm;
 
   //

@@ -32,8 +32,9 @@ public:
   ~DigiTask() override {}
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const &,
+                                                             edm::EventSetup const &) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 protected:
   void _process(edm::Event const &, edm::EventSetup const &) override;
@@ -45,6 +46,7 @@ protected:
   edm::EDGetTokenT<QIE11DigiCollection> _tokQIE11;
   edm::EDGetTokenT<HODigiCollection> _tokHO;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
   double _thresh_unihf;

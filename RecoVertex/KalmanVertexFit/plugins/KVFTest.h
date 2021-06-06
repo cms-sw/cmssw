@@ -15,25 +15,27 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/SimpleVertexTree.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include <TFile.h>
 
 /**
    * This is a very simple test analyzer mean to test the KalmanVertexFitter
    */
 
-class KVFTest : public edm::EDAnalyzer {
+class KVFTest : public edm::one::EDAnalyzer<> {
 public:
   explicit KVFTest(const edm::ParameterSet&);
   ~KVFTest() override;
@@ -45,6 +47,9 @@ public:
 
 private:
   TrackingVertex getSimVertex(const edm::Event& iEvent) const;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> estoken_MF;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> estoken_TTB;
 
   edm::ParameterSet theConfig;
   edm::ParameterSet kvfPSet;

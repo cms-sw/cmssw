@@ -24,12 +24,12 @@ hiMixedTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
 )
 
 # SEEDING LAYERS
-mixedTripletStepSeedLayersA.layerList = cms.vstring('BPix1+BPix2+BPix3', 'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
-                                        'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', 
-                                        'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg')
-mixedTripletStepSeedLayersA.BPix.skipClusters = cms.InputTag('hiMixedTripletStepClusters')
-mixedTripletStepSeedLayersA.FPix.skipClusters = cms.InputTag('hiMixedTripletStepClusters')
-mixedTripletStepSeedLayersA.TEC.skipClusters = cms.InputTag('hiMixedTripletStepClusters')
+mixedTripletStepSeedLayersA.layerList = ['BPix1+BPix2+BPix3', 'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
+                                         'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', 
+                                         'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg']
+mixedTripletStepSeedLayersA.BPix.skipClusters = 'hiMixedTripletStepClusters'
+mixedTripletStepSeedLayersA.FPix.skipClusters = 'hiMixedTripletStepClusters'
+mixedTripletStepSeedLayersA.TEC.skipClusters = 'hiMixedTripletStepClusters'
 
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
@@ -53,8 +53,8 @@ mixedTripletStepHitDoubletsA.clusterCheck = ""
 mixedTripletStepHitDoubletsA.trackingRegions = "hiMixedTripletStepTrackingRegionsA"
 
 # SEEDING LAYERS
-mixedTripletStepSeedLayersB.BPix.skipClusters = cms.InputTag('hiMixedTripletStepClusters')
-mixedTripletStepSeedLayersB.TIB.skipClusters = cms.InputTag('hiMixedTripletStepClusters')
+mixedTripletStepSeedLayersB.BPix.skipClusters = 'hiMixedTripletStepClusters'
+mixedTripletStepSeedLayersB.TIB.skipClusters = 'hiMixedTripletStepClusters'
 
 hiMixedTripletStepTrackingRegionsB = hiMixedTripletStepTrackingRegionsA.clone(RegionPSet=dict(
      originRadius = 1.0,
@@ -81,41 +81,41 @@ hiMixedTripletStepTracks = mixedTripletStepTracks.clone()
 # Final selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src='hiMixedTripletStepTracks',
-    useAnyMVA = cms.bool(False),
-    GBRForestLabel = cms.string('HIMVASelectorIter11'),
-    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
-    trackSelectors= cms.VPSet(
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-    name = 'hiMixedTripletStepLoose',
-    applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
-    ), #end of pset
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-    name = 'hiMixedTripletStepTight',
-    preFilterName = 'hiMixedTripletStepLoose',
-    applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
-    minMVA = cms.double(-0.2)
-    ),
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-    name = 'hiMixedTripletStep',
-    preFilterName = 'hiMixedTripletStepTight',
-    applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
-    minMVA = cms.double(-0.09)
-    ),
+    src = 'hiMixedTripletStepTracks',
+    useAnyMVA = False,
+    GBRForestLabel = 'HIMVASelectorIter11',
+    GBRForestVars = ['chi2perdofperlayer', 'nhits', 'nlayers', 'eta'],
+    trackSelectors = cms.VPSet(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+            name = 'hiMixedTripletStepLoose',
+            applyAdaptedPVCuts = False,
+            useMVA = False,
+        ), #end of pset
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+            name = 'hiMixedTripletStepTight',
+            preFilterName = 'hiMixedTripletStepLoose',
+            applyAdaptedPVCuts = False,
+            useMVA = False,
+            minMVA = -0.2
+        ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+            name = 'hiMixedTripletStep',
+            preFilterName = 'hiMixedTripletStepTight',
+            applyAdaptedPVCuts = False,
+            useMVA = False,
+            minMVA = -0.09
+        ),
     ) #end of vpset
-    ) #end of clone
+) #end of clone
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiMixedTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers=cms.VInputTag(cms.InputTag('hiMixedTripletStepTracks')),
-    hasSelector=cms.vint32(1),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiMixedTripletStepSelector","hiMixedTripletStep")),
+    TrackProducers = ['hiMixedTripletStepTracks'],
+    hasSelector = [1],
+    selectedTrackQuals = ["hiMixedTripletStepSelector:hiMixedTripletStep"],
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False),
-    )
+)
 
 hiMixedTripletStepTask = cms.Task(
                                 hiMixedTripletStepClusters,

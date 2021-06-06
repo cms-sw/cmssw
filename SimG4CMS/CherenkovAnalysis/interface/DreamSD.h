@@ -4,7 +4,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 
-#include "G4PhysicsOrderedFreeVector.hh"
+#include "G4PhysicsFreeVector.hh"
+
+#include <DD4hep/DD4hepUnits.h>
 
 #include <map>
 
@@ -50,7 +52,7 @@ private:
   bool setPbWO2MaterialProperties_(G4Material *aMaterial);
 
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
-  static constexpr double k_ScaleFromDD4HepToG4 = 10.0;
+  static constexpr double k_ScaleFromDD4HepToG4 = 1.0 / dd4hep::mm;
 
   bool useBirk_, doCherenkov_, readBothSide_, dd4hep_;
   double birk1_, birk2_, birk3_;
@@ -60,7 +62,7 @@ private:
   int side_;
 
   /// Table of Cherenkov angle integrals vs photon momentum
-  std::unique_ptr<G4PhysicsOrderedFreeVector> chAngleIntegrals_;
+  std::unique_ptr<G4PhysicsFreeVector> chAngleIntegrals_;
   G4MaterialPropertiesTable *materialPropertiesTable_;
 
   int nphotons_;

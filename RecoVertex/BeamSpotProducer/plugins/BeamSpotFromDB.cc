@@ -23,16 +23,14 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
-BeamSpotFromDB::BeamSpotFromDB(const edm::ParameterSet& iConfig) {}
+BeamSpotFromDB::BeamSpotFromDB(const edm::ParameterSet& iConfig)
+    : m_beamToken(esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>()) {}
 
 BeamSpotFromDB::~BeamSpotFromDB() {}
 
 void BeamSpotFromDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<BeamSpotObjects> beamhandle;
-  iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
+  edm::ESHandle<BeamSpotObjects> beamhandle = iSetup.getHandle(m_beamToken);
   const BeamSpotObjects* mybeamspot = beamhandle.product();
 
   std::cout << " for runs: " << iEvent.id().run() << " - " << iEvent.id().run() << std::endl;

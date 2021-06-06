@@ -2,6 +2,7 @@
 <use name="PhysicsTools/FWLite"/>
 <use name="CaloOnlineTools/HcalOnlineDb"/>
 <environment>
-  <bin file="hcalLUT.cc"></bin>
-</environment>
+  <bin file="hcalLUT.cc">
+</bin>
 
+</environment>

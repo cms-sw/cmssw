@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // simulated vertex
@@ -43,7 +43,7 @@ class TH2;
 //
 typedef reco::TrackBase::ParameterVector ParameterVector;
 
-class TrackParameterAnalyzer : public edm::EDAnalyzer {
+class TrackParameterAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackParameterAnalyzer(const edm::ParameterSet&);
   ~TrackParameterAnalyzer() override;

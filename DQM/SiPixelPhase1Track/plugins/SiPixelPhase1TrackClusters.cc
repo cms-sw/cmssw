@@ -17,7 +17,6 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -32,11 +31,16 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
+#include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
+
 namespace {
 
   class SiPixelPhase1TrackClusters final : public SiPixelPhase1Base {
     enum {
       ON_TRACK_CHARGE,
+      ON_TRACK_CORRECTEDCHARGE,
+      TEMPLATE_CORRECTION,
       ON_TRACK_BIGPIXELCHARGE,
       ON_TRACK_NOTBIGPIXELCHARGE,
       ON_TRACK_SIZE,
@@ -54,6 +58,10 @@ namespace {
       SIZE_VS_ETA_ON_TRACK_INNER,
       ON_TRACK_CHARGE_OUTER,
       ON_TRACK_CHARGE_INNER,
+      ON_TRACK_CORRECTEDCHARGE_OUTER,
+      ON_TRACK_CORRECTEDCHARGE_INNER,
+      TEMPLATE_CORRECTION_OUTER,
+      TEMPLATE_CORRECTION_INNER,
 
       ON_TRACK_SHAPE_OUTER,
       ON_TRACK_SHAPE_INNER,
@@ -75,14 +83,24 @@ namespace {
 
   public:
     explicit SiPixelPhase1TrackClusters(const edm::ParameterSet& conf);
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
     const bool applyVertexCut_;
+    const SiPixelTemplateDBObject* templateDBobject_;
+    std::vector<SiPixelTemplateStore> thePixelTemp_;
+    const TrackerTopology* tkTpl = nullptr;
 
     edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
     edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
     edm::EDGetTokenT<SiPixelClusterShapeCache> pixelClusterShapeCacheToken_;
+
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+    edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> clusterShapeHitFilterToken_;
+
+    edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> templateDBobjectToken_;
   };
 
   SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& iConfig)
@@ -95,6 +113,24 @@ namespace {
 
     pixelClusterShapeCacheToken_ =
         consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCache"));
+
+    trackerTopoToken_ = esConsumes<edm::Transition::BeginRun>();
+    trackerGeomToken_ = esConsumes<edm::Transition::BeginRun>();
+    clusterShapeHitFilterToken_ =
+        esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"));
+    templateDBobjectToken_ = esConsumes<edm::Transition::BeginRun>();
+  }
+
+  void SiPixelPhase1TrackClusters::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+    //get topology
+    tkTpl = &iSetup.getData(trackerTopoToken_);
+
+    // Initialize 1D templates
+    templateDBobject_ = &iSetup.getData(templateDBobjectToken_);
+    if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_))
+      edm::LogError("SiPixelPhase1TrackClusters")
+          << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
+          << (*templateDBobject_).version() << std::endl;
   }
 
   void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -107,17 +143,7 @@ namespace {
       return;
     }
 
-    // get geometry
-    edm::ESHandle<TrackerGeometry> tracker;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-    assert(tracker.isValid());
-
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-    auto const& tkTpl = *tTopoHandle;
-
-    edm::ESHandle<ClusterShapeHitFilter> shapeFilterH;
-    iSetup.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", shapeFilterH);
+    edm::ESHandle<ClusterShapeHitFilter> shapeFilterH = iSetup.getHandle(clusterShapeHitFilterToken_);
     auto const& shapeFilter = *shapeFilterH;
 
     edm::Handle<reco::VertexCollection> vertices;
@@ -135,6 +161,8 @@ namespace {
       edm::LogWarning("SiPixelPhase1TrackClusters") << "track collection is not valid";
       return;
     }
+
+    SiPixelTemplate templ(thePixelTemp_);
 
     edm::Handle<SiPixelClusterShapeCache> pixelClusterShapeCacheH;
     iEvent.getByToken(pixelClusterShapeCacheToken_, pixelClusterShapeCacheH);
@@ -180,8 +208,8 @@ namespace {
 
         // PXB_L4 IS IN THE OTHER WAY
         // CAN BE XORed BUT LETS KEEP THINGS SIMPLE
-        bool iAmOuter = ((tkTpl.pxbLadder(id) % 2 == 1) && tkTpl.pxbLayer(id) != 4) ||
-                        ((tkTpl.pxbLadder(id) % 2 != 1) && tkTpl.pxbLayer(id) == 4);
+        bool iAmOuter = ((tkTpl->pxbLadder(id) % 2 == 1) && tkTpl->pxbLayer(id) != 4) ||
+                        ((tkTpl->pxbLadder(id) % 2 != 1) && tkTpl->pxbLayer(id) == 4);
 
         auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
         if (!pixhit)
@@ -216,6 +244,18 @@ namespace {
 
         // correct charge for track impact angle
         auto charge = cluster.charge() * ltp.absdz();
+        //Correct charge with Template1D
+        float cotAlpha = ltp.dxdz();
+        float cotBeta = ltp.dydz();
+        float locBx = 1.;
+        if (cotBeta < 0.)
+          locBx = -1.;
+        float locBz = locBx;
+        if (cotAlpha < 0.)
+          locBz = -locBx;
+        templ.interpolate(templateDBobject_->getTemplateID(id), cotAlpha, cotBeta, locBz, locBx);
+        auto charge_cor = (charge * templ.qscale()) / templ.r_qMeas_qTrue();
+        auto tmpl = templ.qscale() / templ.r_qMeas_qTrue();
 
         auto clustgp = pixhit->globalPosition();  // from rechit
 
@@ -256,6 +296,8 @@ namespace {
 
         histo[ON_TRACK_NCLUSTERS].fill(id, &iEvent);
         histo[ON_TRACK_CHARGE].fill(charge, id, &iEvent);
+        histo[ON_TRACK_CORRECTEDCHARGE].fill(charge_cor, id, &iEvent);
+        histo[TEMPLATE_CORRECTION].fill(tmpl, id, &iEvent);
         histo[ON_TRACK_SIZE].fill(cluster.size(), id, &iEvent);
 
         histo[ON_TRACK_POSITIONB].fill(clustgp.z(), clustgp.phi(), id, &iEvent);
@@ -268,9 +310,13 @@ namespace {
           if (iAmOuter) {
             histo[SIZE_VS_ETA_ON_TRACK_OUTER].fill(etatk, cluster.sizeY(), id, &iEvent);
             histo[ON_TRACK_CHARGE_OUTER].fill(charge, id, &iEvent);
+            histo[ON_TRACK_CORRECTEDCHARGE_OUTER].fill(charge_cor, id, &iEvent);
+            histo[TEMPLATE_CORRECTION_OUTER].fill(tmpl, id, &iEvent);
           } else {
             histo[SIZE_VS_ETA_ON_TRACK_INNER].fill(etatk, cluster.sizeY(), id, &iEvent);
             histo[ON_TRACK_CHARGE_INNER].fill(charge, id, &iEvent);
+            histo[ON_TRACK_CORRECTEDCHARGE_INNER].fill(charge_cor, id, &iEvent);
+            histo[TEMPLATE_CORRECTION_INNER].fill(tmpl, id, &iEvent);
           }
         }
       }

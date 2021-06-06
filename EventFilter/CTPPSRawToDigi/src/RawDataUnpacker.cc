@@ -30,7 +30,7 @@ int RawDataUnpacker::run(int fedId,
     return 1;
   }
 
-  fedInfoColl.push_back(TotemFEDInfo(fedId));
+  fedInfoColl.emplace_back(fedId);
 
   return processOptoRxFrame((const word *)data.data(), size_in_words, fedInfoColl.back(), &coll);
 }

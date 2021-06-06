@@ -1,46 +1,61 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 class GeneralTracksImporter : public BlockElementImporterBase {
 public:
-  GeneralTracksImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : BlockElementImporterBase(conf, sumes),
-        src_(sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
-        muons_(sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
-        trackQuality_((conf.existsAs<std::string>("trackQuality"))
-                          ? reco::TrackBase::qualityByName(conf.getParameter<std::string>("trackQuality"))
-                          : reco::TrackBase::highPurity),
-        DPtovPtCut_(conf.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
-        NHitCut_(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
+  GeneralTracksImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : BlockElementImporterBase(conf, cc),
+        src_(cc.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
+        vetoEndcap_(conf.getParameter<bool>("vetoEndcap")),
+        muons_(cc.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
+        trackQuality_(reco::TrackBase::qualityByName(conf.getParameter<std::string>("trackQuality"))),
+        DPtovPtCut_(conf.getParameter<std::vector<double>>("DPtOverPtCuts_byTrackAlgo")),
+        NHitCut_(conf.getParameter<std::vector<unsigned>>("NHitCuts_byTrackAlgo")),
         useIterTracking_(conf.getParameter<bool>("useIterativeTracking")),
-        cleanBadConvBrems_(
-            conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false) {
-    bool postMuonCleaning =
-        conf.existsAs<bool>("postMuonCleaning") ? conf.getParameter<bool>("postMuonCleaning") : false;
-    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf, postMuonCleaning));
+        cleanBadConvBrems_(conf.getParameter<bool>("cleanBadConvertedBrems")),
+        muonMaxDPtOPt_(conf.getParameter<double>("muonMaxDPtOPt")) {
+    if (vetoEndcap_) {
+      vetoMode_ = conf.getParameter<unsigned>("vetoMode");
+      switch (vetoMode_) {
+        case pfRecTrackCollection:
+          vetoPFTracksSrc_ = cc.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+          break;
+        case ticlSeedingRegion:
+          vetoTICLSeedingSrc_ =
+              cc.consumes<std::vector<TICLSeedingRegion>>(conf.getParameter<edm::InputTag>("vetoSrc"));
+          tracksSrc_ = cc.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
+          break;
+        case pfCandidateCollection:
+          vetoPFCandidatesSrc_ = cc.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+          break;
+      }  // switch
+    }
   }
 
   void importToBlock(const edm::Event&, ElementList&) const override;
 
 private:
-  int muAssocToTrack(const reco::TrackRef& trackref, const edm::Handle<reco::MuonCollection>& muonh) const;
-
-  edm::EDGetTokenT<reco::PFRecTrackCollection> src_;
-  edm::EDGetTokenT<reco::MuonCollection> muons_;
+  const edm::EDGetTokenT<reco::PFRecTrackCollection> src_;
+  const bool vetoEndcap_;
+  const edm::EDGetTokenT<reco::MuonCollection> muons_;
   const reco::TrackBase::TrackQuality trackQuality_;
   const std::vector<double> DPtovPtCut_;
   const std::vector<unsigned> NHitCut_;
   const bool useIterTracking_, cleanBadConvBrems_;
-  std::unique_ptr<PFMuonAlgo> pfmu_;
+  const double muonMaxDPtOPt_;
+  unsigned int vetoMode_;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> vetoPFTracksSrc_;
+  edm::EDGetTokenT<std::vector<TICLSeedingRegion>> vetoTICLSeedingSrc_;
+  edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> vetoPFCandidatesSrc_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, GeneralTracksImporter, "GeneralTracksImporter");
@@ -48,7 +63,41 @@ DEFINE_EDM_PLUGIN(BlockElementImporterFactory, GeneralTracksImporter, "GeneralTr
 void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {
   typedef BlockElementImporterBase::ElementList::value_type ElementType;
   auto tracks = e.getHandle(src_);
-  auto muons = e.getHandle(muons_);
+
+  typedef std::pair<edm::ProductID, unsigned> TrackProdIDKey;
+  std::vector<TrackProdIDKey> vetoed;
+  if (vetoEndcap_) {
+    switch (vetoMode_) {
+      case pfRecTrackCollection: {
+        const auto& vetoes = e.get(vetoPFTracksSrc_);
+        for (const auto& veto : vetoes)
+          vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+        break;
+      }
+      case ticlSeedingRegion: {
+        const auto& vetoes = e.get(vetoTICLSeedingSrc_);
+        auto tracksH = e.getHandle(tracksSrc_);
+        for (const auto& veto : vetoes) {
+          assert(veto.collectionID == tracksH.id());
+          reco::TrackRef trkref = reco::TrackRef(tracksH, veto.index);
+          vetoed.emplace_back(tracksH.id(), veto.index);  // track prod id and key
+        }
+        break;
+      }
+      case pfCandidateCollection: {
+        const auto& vetoes = e.get(vetoPFCandidatesSrc_);
+        for (const auto& veto : vetoes) {
+          if (veto.trackRef().isNull())
+            continue;
+          vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+        }
+        break;
+      }
+    }  // switch
+    std::sort(vetoed.begin(), vetoed.end());
+  }
+  const auto muonH = e.getHandle(muons_);
+  const auto muons = *muonH;
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(), true);
   reco::MuonRef muonref;
@@ -92,9 +141,9 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
     if (tk_elem != TKs_end) {
       mask[std::distance(tracks->cbegin(), track)] = false;
       // check and update if this track is a muon
-      const int muId = muAssocToTrack((*tk_elem)->trackRef(), muons);
+      const int muId = PFMuonAlgo::muAssocToTrack((*tk_elem)->trackRef(), muons);
       if (muId != -1) {
-        muonref = reco::MuonRef(muons, muId);
+        muonref = reco::MuonRef(muonH, muId);
         if (PFMuonAlgo::isLooseMuon(muonref) || PFMuonAlgo::isMuon(muonref)) {
           static_cast<reco::PFBlockElementTrack*>(tk_elem->get())->setMuonRef(muonref);
         }
@@ -113,12 +162,13 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
     muonref = reco::MuonRef();
     pftrackref = reco::PFRecTrackRef(tracks, idx);
     // Get the eventual muon associated to this track
-    const int muId = muAssocToTrack(pftrackref->trackRef(), muons);
+    const int muId = PFMuonAlgo::muAssocToTrack(pftrackref->trackRef(), muons);
     bool thisIsAPotentialMuon = false;
     if (muId != -1) {
-      muonref = reco::MuonRef(muons, muId);
-      thisIsAPotentialMuon = ((pfmu_->hasValidTrack(muonref, true) && PFMuonAlgo::isLooseMuon(muonref)) ||
-                              (pfmu_->hasValidTrack(muonref, false) && PFMuonAlgo::isMuon(muonref)));
+      muonref = reco::MuonRef(muonH, muId);
+      thisIsAPotentialMuon =
+          ((PFMuonAlgo::hasValidTrack(muonref, true, muonMaxDPtOPt_) && PFMuonAlgo::isLooseMuon(muonref)) ||
+           (PFMuonAlgo::hasValidTrack(muonref, false, muonMaxDPtOPt_) && PFMuonAlgo::isMuon(muonref)));
     }
     if (thisIsAPotentialMuon || PFTrackAlgoTools::goodPtResolution(
                                     pftrackref->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, trackQuality_)) {
@@ -129,16 +179,23 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
       }
       if (muId != -1)
         trkElem->setMuonRef(muonref);
-      elems.emplace_back(trkElem);
+      //
+      // if _vetoEndcap is false, add this trk automatically.
+      // if _vetoEndcap is true, veto against the hgcal region tracks or charged PF candidates.
+      // when simPF is used, we don't veto tracks with muonref even if they are in the hgcal region.
+      //
+      if (!vetoEndcap_)
+        elems.emplace_back(trkElem);
+      else {
+        TrackProdIDKey trk = std::make_pair(pftrackref->trackRef().id(), pftrackref->trackRef().key());
+        auto lower = std::lower_bound(vetoed.begin(), vetoed.end(), trk);
+        bool inVetoList = (lower != vetoed.end() && *lower == trk);
+        if (!inVetoList || (vetoMode_ == pfRecTrackCollection && muonref.isNonnull())) {
+          elems.emplace_back(trkElem);
+        } else
+          delete trkElem;
+      }
     }
   }
   elems.shrink_to_fit();
-}
-
-int GeneralTracksImporter::muAssocToTrack(const reco::TrackRef& trackref,
-                                          const edm::Handle<reco::MuonCollection>& muonh) const {
-  auto muon = std::find_if(muonh->cbegin(), muonh->cend(), [&](const reco::Muon& m) {
-    return (m.track().isNonnull() && m.track() == trackref);
-  });
-  return (muon != muonh->cend() ? std::distance(muonh->cbegin(), muon) : -1);
 }

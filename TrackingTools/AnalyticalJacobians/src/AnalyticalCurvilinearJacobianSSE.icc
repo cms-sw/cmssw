@@ -50,7 +50,7 @@ void AnalyticalCurvilinearJacobian::computeFullJacobian(const GlobalTrajectoryPa
   Vec4D tt = t * t;
   tt = mathSSE::sqrt(hadd(tt, tt));
 
-#ifdef CMS_USE_AVX
+#ifdef CMS_USE_AVX2
   const __m256d neg = _mm256_setr_pd(-0.0, 0.0, -0.0, 0.0);
   Vec4D res(_mm256_xor_pd(neg, _mm256_div_pd(_mm256_shuffle_pd(t.vec, t.vec, 5), tt.vec)));
   Vec2D u1(res.xy());

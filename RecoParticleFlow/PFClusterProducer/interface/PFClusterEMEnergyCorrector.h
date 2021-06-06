@@ -21,7 +21,9 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
+#include "CondFormats/GBRForest/interface/GBRForestD.h"
+
+#include <vector>
 
 class PFClusterEMEnergyCorrector {
 public:
@@ -44,6 +46,9 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> recHitsEB_;
   edm::EDGetTokenT<EcalRecHitCollection> recHitsEE_;
   edm::EDGetTokenT<unsigned int> bunchSpacing_;
+
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+  const EcalReadoutTools::ESGetTokens ecalReadoutToolsESGetTokens_;
 
   std::vector<std::string> condnames_mean_;
   std::vector<std::string> condnames_sigma_;
@@ -86,6 +91,12 @@ private:
   double sigmalimhighEE_;
   double sigmaoffsetEE_;
   double sigmascaleEE_;
+
+private:
+  std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd> > forestMeanTokens_25ns_;
+  std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd> > forestSigmaTokens_25ns_;
+  std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd> > forestMeanTokens_50ns_;
+  std::vector<edm::ESGetToken<GBRForestD, GBRDWrapperRcd> > forestSigmaTokens_50ns_;
 };
 
 #endif

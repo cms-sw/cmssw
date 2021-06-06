@@ -78,7 +78,7 @@ void TrackerGeometryAnalyzer ::setTrackerGeometry(const edm::EventSetup& setup) 
 
   TrackerGeomBuilderFromGeometricDet trackerGeometryBuilder;
   trackerGeometry = trackerGeometryBuilder.build(&(*geometricDet), *trackerParams, trackerTopology);
-  alignableObjectId_ = AlignableObjectId{trackerGeometry, nullptr, nullptr};
+  alignableObjectId_ = AlignableObjectId{trackerGeometry, nullptr, nullptr, nullptr};
 }
 
 //_____________________________________________________________________________

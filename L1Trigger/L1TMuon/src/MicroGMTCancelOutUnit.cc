@@ -57,7 +57,7 @@ namespace l1t {
       if (mode == cancelmode::coordinate) {
         getCoordinateCancelBits(coll2, coll1);  // in case of a tie coll1 muon wins
       } else {
-        getTrackAddrCancelBits(coll1, coll2);
+        getTrackAddrCancelBits(mode, coll1, coll2);
       }
 
       coll1.clear();
@@ -92,7 +92,7 @@ namespace l1t {
       if (mode == cancelmode::coordinate) {
         getCoordinateCancelBits(coll1, coll2);
       } else {
-        getTrackAddrCancelBits(coll1, coll2);
+        getTrackAddrCancelBits(mode, coll1, coll2);
       }
       coll1.clear();
       coll2.clear();
@@ -127,7 +127,7 @@ namespace l1t {
       if (mode == cancelmode::coordinate) {
         getCoordinateCancelBits(coll1, coll2);
       } else {
-        getTrackAddrCancelBits(coll1, coll2);
+        getTrackAddrCancelBits(mode, coll1, coll2);
       }
       coll1.clear();
       coll2.clear();
@@ -194,86 +194,18 @@ namespace l1t {
     }
   }
 
-  void MicroGMTCancelOutUnit::getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInternalMuon>>& coll1,
+  void MicroGMTCancelOutUnit::getTrackAddrCancelBits(cancelmode mode,
+                                                     std::vector<std::shared_ptr<GMTInternalMuon>>& coll1,
                                                      std::vector<std::shared_ptr<GMTInternalMuon>>& coll2) {
     if (coll1.empty() || coll2.empty()) {
       return;
     }
     // Address based cancel out for BMTF
     if ((*coll1.begin())->trackFinderType() == tftype::bmtf && (*coll2.begin())->trackFinderType() == tftype::bmtf) {
-      for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
-        std::map<int, int> trkAddr_w1 = (*mu_w1)->origin().trackAddress();
-        int wheelNum_w1 = trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kWheelNum];
-        int wheelSide_w1 = trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kWheelSide];
-        std::vector<int> stations_w1;
-        stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat1]);
-        stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat2]);
-        stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat3]);
-        stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
-        //std::cout << "Track address 1: wheelSide (1 == negative side): " << wheelSide_w1 << ", wheelNum: " << wheelNum_w1 << ", stations1234: 0x" << hex << stations_w1[0] << stations_w1[1] << stations_w1[2] << stations_w1[3] << dec << std::endl;
-
-        for (auto mu_w2 = coll2.begin(); mu_w2 != coll2.end(); ++mu_w2) {
-          std::map<int, int> trkAddr_w2 = (*mu_w2)->origin().trackAddress();
-          int wheelNum_w2 = trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kWheelNum];
-          int wheelSide_w2 = trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kWheelSide];
-          std::vector<int> stations_w2;
-          stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat1]);
-          stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat2]);
-          stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat3]);
-          stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
-          //std::cout << "Track address 2: wheelSide (1 == negative side): " << wheelSide_w2 << ", wheelNum: " << wheelNum_w2 << ", stations1234: 0x" << hex << stations_w2[0] << stations_w2[1] << stations_w2[2] << stations_w2[3] << dec << std::endl;
-
-          int nMatchedStations = 0;
-          // search for duplicates in stations 2-4
-          for (int i = 1; i < 4; ++i) {
-            if (wheelSide_w1 == wheelSide_w2) {  // both tracks are on the same detector side
-              if (wheelNum_w1 == wheelNum_w2) {  // both tracks have the same reference wheel
-                if ((stations_w1[i] == 0x0 && stations_w2[i] == 0x2) ||
-                    (stations_w1[i] == 0x1 && stations_w2[i] == 0x3) ||
-                    (stations_w1[i] == 0x4 && stations_w2[i] == 0x0) ||
-                    (stations_w1[i] == 0x5 && stations_w2[i] == 0x1) ||
-                    (stations_w1[i] == 0x8 && stations_w2[i] == 0xA) ||
-                    (stations_w1[i] == 0x9 && stations_w2[i] == 0xB) ||
-                    (stations_w1[i] == 0xC && stations_w2[i] == 0x8) ||
-                    (stations_w1[i] == 0xD && stations_w2[i] == 0x9)) {
-                  ++nMatchedStations;
-                }
-              } else if (wheelNum_w1 == wheelNum_w2 - 1) {  // track 2 is one wheel higher than track 1
-                if ((stations_w1[i] == 0x0 && stations_w2[i] == 0xA) ||
-                    (stations_w1[i] == 0x1 && stations_w2[i] == 0xB) ||
-                    (stations_w1[i] == 0x4 && stations_w2[i] == 0x8) ||
-                    (stations_w1[i] == 0x5 && stations_w2[i] == 0x9)) {
-                  ++nMatchedStations;
-                }
-              } else if (wheelNum_w1 == wheelNum_w2 + 1) {  // track 2 is one wheel lower than track 1
-                if ((stations_w1[i] == 0x8 && stations_w2[i] == 0x2) ||
-                    (stations_w1[i] == 0x9 && stations_w2[i] == 0x3) ||
-                    (stations_w1[i] == 0xC && stations_w2[i] == 0x0) ||
-                    (stations_w1[i] == 0xD && stations_w2[i] == 0x1)) {
-                  ++nMatchedStations;
-                }
-              }
-            } else {
-              if (wheelNum_w1 == 0 &&
-                  wheelNum_w2 == 0) {  // both tracks are on either side of the central wheel (+0 and -0)
-                if ((stations_w1[i] == 0x8 && stations_w2[i] == 0xA) ||
-                    (stations_w1[i] == 0x9 && stations_w2[i] == 0xB) ||
-                    (stations_w1[i] == 0xC && stations_w2[i] == 0x8) ||
-                    (stations_w1[i] == 0xD && stations_w2[i] == 0x9)) {
-                  ++nMatchedStations;
-                }
-              }
-            }
-          }
-          //std::cout << "Shared hits found: " << nMatchedStations << std::endl;
-          if (nMatchedStations > 0) {
-            if ((*mu_w1)->origin().hwQual() >= (*mu_w2)->origin().hwQual()) {
-              (*mu_w2)->setHwCancelBit(1);
-            } else {
-              (*mu_w1)->setHwCancelBit(1);
-            }
-          }
-        }
+      if (mode == cancelmode::tracks) {
+        getTrackAddrCancelBitsOrigBMTF(coll1, coll2);
+      } else if (mode == cancelmode::kftracks) {
+        getTrackAddrCancelBitsKfBMTF(coll1, coll2);
       }
       // Address based cancel out for EMTF
     } else if (((*coll1.begin())->trackFinderType() == tftype::emtf_pos &&
@@ -334,6 +266,170 @@ namespace l1t {
     } else {
       edm::LogError("Cancel out not implemented")
           << "Address based cancel out is currently only implemented for the barrel track finder.";
+    }
+  }
+
+  void MicroGMTCancelOutUnit::getTrackAddrCancelBitsOrigBMTF(std::vector<std::shared_ptr<GMTInternalMuon>>& coll1,
+                                                             std::vector<std::shared_ptr<GMTInternalMuon>>& coll2) {
+    for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
+      std::map<int, int> trkAddr_w1 = (*mu_w1)->origin().trackAddress();
+      int wheelNum_w1 = trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kWheelNum];
+      int wheelSide_w1 = trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kWheelSide];
+      std::vector<int> stations_w1;
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat1]);
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat2]);
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat3]);
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
+      //std::cout << "Track address 1: wheelSide (1 == negative side): " << wheelSide_w1 << ", wheelNum: " << wheelNum_w1 << ", stations1234: 0x" << hex << stations_w1[0] << stations_w1[1] << stations_w1[2] << stations_w1[3] << dec << std::endl;
+
+      for (auto mu_w2 = coll2.begin(); mu_w2 != coll2.end(); ++mu_w2) {
+        std::map<int, int> trkAddr_w2 = (*mu_w2)->origin().trackAddress();
+        int wheelNum_w2 = trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kWheelNum];
+        int wheelSide_w2 = trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kWheelSide];
+        std::vector<int> stations_w2;
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat1]);
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat2]);
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat3]);
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
+        //std::cout << "Track address 2: wheelSide (1 == negative side): " << wheelSide_w2 << ", wheelNum: " << wheelNum_w2 << ", stations1234: 0x" << hex << stations_w2[0] << stations_w2[1] << stations_w2[2] << stations_w2[3] << dec << std::endl;
+
+        int nMatchedStations = 0;
+        // search for duplicates in stations 2-4
+        for (int i = 1; i < 4; ++i) {
+          if (wheelSide_w1 == wheelSide_w2) {  // both tracks are on the same detector side
+            if (wheelNum_w1 == wheelNum_w2) {  // both tracks have the same reference wheel
+              if ((stations_w1[i] == 0x0 && stations_w2[i] == 0x2) ||
+                  (stations_w1[i] == 0x1 && stations_w2[i] == 0x3) ||
+                  (stations_w1[i] == 0x4 && stations_w2[i] == 0x0) ||
+                  (stations_w1[i] == 0x5 && stations_w2[i] == 0x1) ||
+                  (stations_w1[i] == 0x8 && stations_w2[i] == 0xA) ||
+                  (stations_w1[i] == 0x9 && stations_w2[i] == 0xB) ||
+                  (stations_w1[i] == 0xC && stations_w2[i] == 0x8) ||
+                  (stations_w1[i] == 0xD && stations_w2[i] == 0x9)) {
+                ++nMatchedStations;
+              }
+            } else if (wheelNum_w1 == wheelNum_w2 - 1) {  // track 2 is one wheel higher than track 1
+              if ((stations_w1[i] == 0x0 && stations_w2[i] == 0xA) ||
+                  (stations_w1[i] == 0x1 && stations_w2[i] == 0xB) ||
+                  (stations_w1[i] == 0x4 && stations_w2[i] == 0x8) ||
+                  (stations_w1[i] == 0x5 && stations_w2[i] == 0x9)) {
+                ++nMatchedStations;
+              }
+            } else if (wheelNum_w1 == wheelNum_w2 + 1) {  // track 2 is one wheel lower than track 1
+              if ((stations_w1[i] == 0x8 && stations_w2[i] == 0x2) ||
+                  (stations_w1[i] == 0x9 && stations_w2[i] == 0x3) ||
+                  (stations_w1[i] == 0xC && stations_w2[i] == 0x0) ||
+                  (stations_w1[i] == 0xD && stations_w2[i] == 0x1)) {
+                ++nMatchedStations;
+              }
+            }
+          } else {
+            if (wheelNum_w1 == 0 &&
+                wheelNum_w2 == 0) {  // both tracks are on either side of the central wheel (+0 and -0)
+              if ((stations_w1[i] == 0x8 && stations_w2[i] == 0xA) ||
+                  (stations_w1[i] == 0x9 && stations_w2[i] == 0xB) ||
+                  (stations_w1[i] == 0xC && stations_w2[i] == 0x8) ||
+                  (stations_w1[i] == 0xD && stations_w2[i] == 0x9)) {
+                ++nMatchedStations;
+              }
+            }
+          }
+        }
+        //std::cout << "Shared hits found: " << nMatchedStations << std::endl;
+        if (nMatchedStations > 0) {
+          if ((*mu_w1)->origin().hwQual() >= (*mu_w2)->origin().hwQual()) {
+            (*mu_w2)->setHwCancelBit(1);
+          } else {
+            (*mu_w1)->setHwCancelBit(1);
+          }
+        }
+      }
+    }
+  }
+
+  void MicroGMTCancelOutUnit::getTrackAddrCancelBitsKfBMTF(std::vector<std::shared_ptr<GMTInternalMuon>>& coll1,
+                                                           std::vector<std::shared_ptr<GMTInternalMuon>>& coll2) {
+    for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
+      std::map<int, int> trkAddr_w1 = (*mu_w1)->origin().trackAddress();
+      int wheelNum_w1 = trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kWheelNum];
+      int wheelSide_w1 = trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kWheelSide];
+      std::vector<int> stations_w1;
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat1]);
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat2]);
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat3]);
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
+      //std::cout << "Track address 1: wheelSide (1 == negative side): " << wheelSide_w1 << ", wheelNum: " << wheelNum_w1 << ", stations1234: 0x" << hex << stations_w1[0] << stations_w1[1] << stations_w1[2] << stations_w1[3] << dec << std::endl;
+      //std::cout << "Muon1 eta: " << (*mu_w1)->hwEta() << " phi: " << (*mu_w1)->hwGlobalPhi() << " pT: " << (*mu_w1)->hwPt() << " qual: " << (*mu_w1)->origin().hwQual() << std::endl;
+
+      for (auto mu_w2 = coll2.begin(); mu_w2 != coll2.end(); ++mu_w2) {
+        std::map<int, int> trkAddr_w2 = (*mu_w2)->origin().trackAddress();
+        int wheelNum_w2 = trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kWheelNum];
+        int wheelSide_w2 = trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kWheelSide];
+        std::vector<int> stations_w2;
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat1]);
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat2]);
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat3]);
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
+        // std::cout << "Track address 2: wheelSide (1 == negative side): " << wheelSide_w2 << ", wheelNum: " << wheelNum_w2 << ", stations1234: 0x" << hex << stations_w2[0] << stations_w2[1] << stations_w2[2] << stations_w2[3] << dec << std::endl;
+        // std::cout << "Muon2 eta: " << (*mu_w2)->hwEta() << " phi: " << (*mu_w2)->hwGlobalPhi() << " pT: " << (*mu_w2)->hwPt() << " qual: " << (*mu_w2)->origin().hwQual() << std::endl;
+
+        int nMatchedStations = 0;
+        // search for duplicates in stations 1-3
+        for (int i = 0; i < 3; ++i) {
+          if (wheelSide_w1 == wheelSide_w2) {  // both tracks are on the same detector side
+            if (wheelNum_w1 == wheelNum_w2) {  // both tracks have the same reference wheel
+              if ((stations_w1[i] == 0x2 && stations_w2[i] == 0x0) ||
+                  (stations_w1[i] == 0x3 && stations_w2[i] == 0x1) ||
+                  (stations_w1[i] == 0x0 && stations_w2[i] == 0x4) ||
+                  (stations_w1[i] == 0x1 && stations_w2[i] == 0x5) ||
+                  (stations_w1[i] == 0xA && stations_w2[i] == 0x8) ||
+                  (stations_w1[i] == 0xB && stations_w2[i] == 0x9) ||
+                  (stations_w1[i] == 0x8 && stations_w2[i] == 0xC) ||
+                  (stations_w1[i] == 0x9 && stations_w2[i] == 0xD)) {
+                ++nMatchedStations;
+              }
+            } else if (wheelNum_w1 == wheelNum_w2 - 1) {  // track 2 is one wheel higher than track 1
+              if ((stations_w1[i] == 0xA && stations_w2[i] == 0x0) ||
+                  (stations_w1[i] == 0xB && stations_w2[i] == 0x1) ||
+                  (stations_w1[i] == 0x8 && stations_w2[i] == 0x4) ||
+                  (stations_w1[i] == 0x9 && stations_w2[i] == 0x5)) {
+                ++nMatchedStations;
+              }
+            } else if (wheelNum_w1 == wheelNum_w2 + 1) {  // track 2 is one wheel lower than track 1
+              if ((stations_w1[i] == 0x2 && stations_w2[i] == 0x8) ||
+                  (stations_w1[i] == 0x3 && stations_w2[i] == 0x9) ||
+                  (stations_w1[i] == 0x0 && stations_w2[i] == 0xC) ||
+                  (stations_w1[i] == 0x1 && stations_w2[i] == 0xD)) {
+                ++nMatchedStations;
+              }
+            }
+          } else {  // If one muon in 0+ and one muon in 0- (0+ and 0- are physically the same wheel), however wheel 0 is not split in kalman algorithm
+            if (wheelNum_w1 == 0 && wheelNum_w2 == 1) {
+              if ((stations_w1[i] == 0xA && stations_w2[i] == 0x0) ||
+                  (stations_w1[i] == 0xB && stations_w2[i] == 0x1) ||
+                  (stations_w1[i] == 0x8 && stations_w2[i] == 0x4) ||
+                  (stations_w1[i] == 0x9 && stations_w2[i] == 0x5)) {
+                ++nMatchedStations;
+              }
+            } else if (wheelNum_w1 == 1 && wheelNum_w2 == 0) {
+              if ((stations_w1[i] == 0x2 && stations_w2[i] == 0x8) ||
+                  (stations_w1[i] == 0x3 && stations_w2[i] == 0x9) ||
+                  (stations_w1[i] == 0x0 && stations_w2[i] == 0xC) ||
+                  (stations_w1[i] == 0x1 && stations_w2[i] == 0xD)) {
+                ++nMatchedStations;
+              }
+            }
+          }
+        }
+        //std::cout << "Shared hits found: " << nMatchedStations << std::endl;
+        if (nMatchedStations > 0) {
+          if ((*mu_w1)->origin().hwQual() >= (*mu_w2)->origin().hwQual()) {
+            (*mu_w2)->setHwCancelBit(1);
+          } else {
+            (*mu_w1)->setHwCancelBit(1);
+          }
+        }
+      }
     }
   }
 

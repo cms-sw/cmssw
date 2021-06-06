@@ -13,12 +13,16 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 //____________________________________________________________________________||
-CommonMETData METAlgo::run(const edm::View<reco::Candidate>& candidates, double globalThreshold) {
+CommonMETData METAlgo::run(const edm::View<reco::Candidate>& candidates,
+                           double globalThreshold,
+                           edm::ValueMap<float> const* weights) {
   math::XYZTLorentzVector p4;
-  for (auto cand = candidates.begin(); cand != candidates.end(); ++cand) {
-    if (!(cand->et() > globalThreshold))
+  for (auto const& candPtr : candidates.ptrs()) {
+    const reco::Candidate* cand = candPtr.get();
+    float weight = (weights != nullptr) ? (*weights)[candPtr] : 1.0;
+    if (!(cand->et() * weight > globalThreshold))
       continue;
-    p4 += cand->p4();
+    p4 += cand->p4() * weight;
   }
   math::XYZTLorentzVector met = -p4;
 
@@ -33,10 +37,12 @@ CommonMETData METAlgo::run(const edm::View<reco::Candidate>& candidates, double 
   ret.met = met.Pt();
 
   double et = 0.0;
-  for (auto cand = candidates.begin(); cand != candidates.end(); ++cand) {
-    if (!(cand->et() > globalThreshold))
+  for (auto const& candPtr : candidates.ptrs()) {
+    const reco::Candidate* cand = candPtr.get();
+    float weight = (weights != nullptr) ? (*weights)[candPtr] : 1.0;
+    if (!(cand->et() * weight > globalThreshold))
       continue;
-    et += cand->et();
+    et += cand->et() * weight;
   }
 
   ret.sumet = et;

@@ -42,6 +42,11 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 class IsolatedPixelTrackCandidateL1TProducer : public edm::stream::EDProducer<> {
 public:
   IsolatedPixelTrackCandidateL1TProducer(const edm::ParameterSet& ps);
@@ -67,6 +72,8 @@ private:
   const edm::EDGetTokenT<l1t::TauBxCollection> tok_l1_;
   const edm::EDGetTokenT<reco::VertexCollection> tok_vert_;
   const std::vector<edm::EDGetTokenT<reco::TrackCollection> > toks_pix_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   const std::string bfield_;
   const double prelimCone_;

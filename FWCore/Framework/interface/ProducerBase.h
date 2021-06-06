@@ -2,7 +2,7 @@
 #define FWCore_Framework_ProducerBase_h
 
 /*----------------------------------------------------------------------
-  
+
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
@@ -24,6 +24,7 @@ namespace edm {
   class ProductRegistry;
   class Event;
   class LuminosityBlock;
+  class ProcessBlock;
   class Run;
 
   class EDProducer;
@@ -48,6 +49,10 @@ namespace edm {
   namespace producerbasehelper {
     template <typename P>
     struct PrincipalTraits;
+    template <>
+    struct PrincipalTraits<ProcessBlock> {
+      static constexpr int kBranchType = InProcess;
+    };
     template <>
     struct PrincipalTraits<Run> {
       static constexpr int kBranchType = InRun;

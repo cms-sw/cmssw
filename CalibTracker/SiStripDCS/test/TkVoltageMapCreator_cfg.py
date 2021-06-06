@@ -4,14 +4,15 @@ process = cms.Process("HVTKMapsCreator")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
-process.MessageLogger.infos.threshold = cms.untracked.string("INFO")
-process.MessageLogger.infos.default = cms.untracked.PSet(
-    limit = cms.untracked.int32(10000000)
+process.MessageLogger.files.infos = cms.untracked.PSet(
+    threshold = cms.untracked.string("INFO"),
+    default = cms.untracked.PSet(
+        limit = cms.untracked.int32(10000000)
+    ),
+    FwkReport = cms.untracked.PSet(
+        reportEvery = cms.untracked.int32(10000)
     )
-process.MessageLogger.infos.FwkReport = cms.untracked.PSet(
-    reportEvery = cms.untracked.int32(10000)
-    )
+)
 process.MessageLogger.cerr.threshold = cms.untracked.string("WARNING")
 
 

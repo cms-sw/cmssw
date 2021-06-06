@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
@@ -68,7 +69,7 @@ void RPixPlaneCombinatoryTracking::getPlaneCombinations(const std::vector<uint32
 
   // store the combination and permute bitmask
   do {
-    planeCombinations.push_back(std::vector<uint32_t>());
+    planeCombinations.emplace_back();
     for (uint32_t i = 0; i < numberOfPlanes; ++i) {  // [0..numberOfPlanes-1] integers
       if (bitmask[i])
         planeCombinations.back().push_back(inputPlaneList.at(i));
@@ -338,7 +339,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
             LocalPoint residuals(xResidual, yResidual, 0.);
             math::Error<3>::type globalError = hit.globalError;
             LocalPoint pulls(xResidual / std::sqrt(globalError[0][0]), yResidual / std::sqrt(globalError[1][1]), 0.);
-            fittedRecHit.reset(new CTPPSPixelFittedRecHit(hit.recHit, pointOnDet, residuals, pulls));
+            fittedRecHit = std::make_unique<CTPPSPixelFittedRecHit>(hit.recHit, pointOnDet, residuals, pulls);
             fittedRecHit->setIsRealHit(true);
           }
         }
@@ -346,7 +347,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
         LocalPoint fakePoint;
         LocalError fakeError;
         CTPPSPixelRecHit fakeRecHit(fakePoint, fakeError);
-        fittedRecHit.reset(new CTPPSPixelFittedRecHit(fakeRecHit, pointOnDet, fakePoint, fakePoint));
+        fittedRecHit = std::make_unique<CTPPSPixelFittedRecHit>(fakeRecHit, pointOnDet, fakePoint, fakePoint);
       }
 
       bestTrack.addHit(tmpPlaneId, *fittedRecHit);

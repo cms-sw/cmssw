@@ -1,9 +1,9 @@
-<use   name="Utilities/StorageFactory"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Catalog"/>
-<use   name="rootcore"/>
+<use name="Utilities/StorageFactory"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Catalog"/>
+<use name="rootcore"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

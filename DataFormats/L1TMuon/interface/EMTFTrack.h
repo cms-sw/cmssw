@@ -13,6 +13,14 @@
 
 namespace l1t {
 
+  namespace emtf {
+    // Want a scoped enum, not necessarily a strongly-typed enum.
+    // This is because of all the casting that will be required throughout legacy code
+    // (usage will likely rely on implicit integer casting)
+    enum class EMTFCSCStation { ME1 = 0, ME2, ME3, ME4 };
+    enum class EMTFCSCSection { ME1sub1 = 0, ME1sub2, ME2, ME3, ME4 };
+  }  // namespace emtf
+
   struct EMTFPtLUT {
     uint64_t address;
     uint16_t mode;
@@ -41,6 +49,7 @@ namespace l1t {
           mode(-99),
           mode_CSC(0),
           mode_RPC(0),
+          mode_GEM(0),
           mode_neighbor(0),
           mode_inv(-99),
           rank(-99),
@@ -51,6 +60,8 @@ namespace l1t {
           second_bx(-99),
           pt(-99),
           pt_XML(-99),
+          pt_dxy(-99),
+          dxy(-99),
           zone(-99),
           ph_num(-99),
           ph_q(-99),
@@ -61,6 +72,8 @@ namespace l1t {
           phi_loc(-99),
           phi_glob(-999),
           gmt_pt(-99),
+          gmt_pt_dxy(-99),
+          gmt_dxy(-99),
           gmt_phi(-999),
           gmt_eta(-999),
           gmt_quality(-99),
@@ -79,6 +92,7 @@ namespace l1t {
       numHits = 0;
       mode_CSC = 0;
       mode_RPC = 0;
+      mode_GEM = 0;
       mode_neighbor = 0;
     }
 
@@ -89,6 +103,8 @@ namespace l1t {
         mode_CSC |= (1 << (4 - hit.Station()));
       if (hit.Is_RPC())
         mode_RPC |= (1 << (4 - hit.Station()));
+      if (hit.Is_GEM())
+        mode_GEM |= (1 << (4 - hit.Station()));
       if (hit.Neighbor())
         mode_neighbor |= (1 << (4 - hit.Station()));
     }
@@ -107,11 +123,6 @@ namespace l1t {
     EMTFHitCollection Hits() const { return _Hits; }
     std::vector<unsigned int> HitIdx() const { return _HitIdx; }
 
-    void set_Road(const EMTFRoad& bits) { _Road = bits; }
-    void set_RoadIdx(unsigned int bits) { _RoadIdx = bits; }
-    EMTFRoad Road() const { return _Road; }
-    unsigned int RoadIdx() const { return _RoadIdx; }
-
     void set_PtLUT(EMTFPtLUT bits) { _PtLUT = bits; }
     EMTFPtLUT PtLUT() const { return _PtLUT; }
 
@@ -128,6 +139,8 @@ namespace l1t {
     void set_second_bx(int bits) { second_bx = bits; }
     void set_pt(float val) { pt = val; }
     void set_pt_XML(float val) { pt_XML = val; }
+    void set_pt_dxy(float val) { pt_dxy = val; }
+    void set_dxy(float val) { dxy = val; }
     void set_zone(int bits) { zone = bits; }
     void set_ph_num(int bits) { ph_num = bits; }
     void set_ph_q(int bits) { ph_q = bits; }
@@ -138,6 +151,8 @@ namespace l1t {
     void set_phi_loc(float val) { phi_loc = val; }
     void set_phi_glob(float val) { phi_glob = val; }
     void set_gmt_pt(int bits) { gmt_pt = bits; }
+    void set_gmt_pt_dxy(int bits) { gmt_pt_dxy = bits; }
+    void set_gmt_dxy(int bits) { gmt_dxy = bits; }
     void set_gmt_phi(int bits) { gmt_phi = bits; }
     void set_gmt_eta(int bits) { gmt_eta = bits; }
     void set_gmt_quality(int bits) { gmt_quality = bits; }
@@ -151,6 +166,7 @@ namespace l1t {
     int Mode() const { return mode; }
     int Mode_CSC() const { return mode_CSC; }
     int Mode_RPC() const { return mode_RPC; }
+    int Mode_GEM() const { return mode_GEM; }
     int Mode_neighbor() const { return mode_neighbor; }
     int Mode_inv() const { return mode_inv; }
     int Rank() const { return rank; }
@@ -161,6 +177,8 @@ namespace l1t {
     int Second_BX() const { return second_bx; }
     float Pt() const { return pt; }
     float Pt_XML() const { return pt_XML; }
+    float Pt_dxy() const { return pt_dxy; }
+    float Dxy() const { return dxy; }
     int Zone() const { return zone; }
     int Ph_num() const { return ph_num; }
     int Ph_q() const { return ph_q; }
@@ -171,6 +189,8 @@ namespace l1t {
     float Phi_loc() const { return phi_loc; }
     float Phi_glob() const { return phi_glob; }
     int GMT_pt() const { return gmt_pt; }
+    int GMT_pt_dxy() const { return gmt_pt_dxy; }
+    int GMT_dxy() const { return gmt_dxy; }
     int GMT_phi() const { return gmt_phi; }
     int GMT_eta() const { return gmt_eta; }
     int GMT_quality() const { return gmt_quality; }
@@ -182,17 +202,15 @@ namespace l1t {
     EMTFHitCollection _Hits;
     std::vector<unsigned int> _HitIdx;
 
-    EMTFRoad _Road;
-    unsigned int _RoadIdx;
-
     EMTFPtLUT _PtLUT;
 
-    int endcap;         //    +/-1.  For ME+ and ME-.
-    int sector;         //  1 -  6.
-    int sector_idx;     //  0 - 11.  0 - 5 for ME+, 6 - 11 for ME-.
-    int mode;           //  0 - 15.
-    int mode_CSC;       //  0 - 15, CSC-only
-    int mode_RPC;       //  0 - 15, RPC-only
+    int endcap;      //    +/-1.  For ME+ and ME-.
+    int sector;      //  1 -  6.
+    int sector_idx;  //  0 - 11.  0 - 5 for ME+, 6 - 11 for ME-.
+    int mode;        //  0 - 15.
+    int mode_CSC;    //  0 - 15, CSC-only
+    int mode_RPC;    //  0 - 15, RPC-only
+    int mode_GEM;  //  0 - 15, GEM-only // TODO: verify if needed when including GEM, also start the good habit of documenting these
     int mode_neighbor;  // 0 - 15, only neighbor hits
     int mode_inv;       // 15 -  0.
     int rank;           //  0 - 127  (Range? - AWB 03.03.17)
@@ -203,6 +221,8 @@ namespace l1t {
     int second_bx;      // -3 - +3.
     float pt;           //  0 - 255
     float pt_XML;       //  0 - 999
+    float pt_dxy;       //  0 - 127
+    float dxy;          //  0 -  3
     int zone;           //  0 -  3.
     int ph_num;
     int ph_q;
@@ -213,6 +233,8 @@ namespace l1t {
     float phi_loc;   // -22 - 60  (Range? - AWB 03.03.17)
     float phi_glob;  //  +/-180.
     int gmt_pt;
+    int gmt_pt_dxy;
+    int gmt_dxy;
     int gmt_phi;
     int gmt_eta;
     int gmt_quality;

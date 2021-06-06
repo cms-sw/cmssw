@@ -11,16 +11,19 @@ import time
 import re
 
 defaultEOSRootPath = '/eos/cms/store/lhe'
-defaultEOSLoadPath = 'root://eoscms/'
-defaultEOSlistCommand = 'xrd eoscms dirlist '
-defaultEOSmkdirCommand = 'xrd eoscms mkdir '
-defaultEOSfeCommand = 'xrd eoscms existfile '
+if "CMSEOS_LHE_ROOT_DIRECTORY" in os.environ:
+  defaultEOSRootPath = os.environ["CMSEOS_LHE_ROOT_DIRECTORY"]
+defaultEOSLoadPath = 'root://eoscms.cern.ch/'
+defaultEOSlistCommand = 'xrdfs '+defaultEOSLoadPath+' ls '
+defaultEOSmkdirCommand = 'xrdfs '+defaultEOSLoadPath+' mkdir '
+defaultEOSfeCommand = 'xrdfs '+defaultEOSLoadPath+' stat -q IsReadable '
+defaultEOSchecksumCommand = 'xrdfs '+defaultEOSLoadPath+' query checksum '
 defaultEOScpCommand = 'xrdcp -np '
 
 def findXrdDir(theDirRecord):
 
     elements = theDirRecord.split(' ')
-    if len(elements) > 1:
+    if len(elements):
         return elements[-1].rstrip('\n').split('/')[-1]
     else:
         return None
@@ -52,7 +55,7 @@ def lastArticle():
     return max(artList)
 
 
-def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
+def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt, force=False):
 
     inUploadScript = ''
     index = 0
@@ -63,9 +66,9 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
         addFile = True
         additionalOption = ''  
         theCommand = defaultEOSfeCommand+' '+newFileName
-        exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
+        exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE, universal_newlines=True)
         result = exeFullList.stdout.readlines()
-        if result[0].rstrip('\n') == 'The file exists.':
+        if [line for line in result if ("flags:" in line.lower()) and ("isreadable" in line.lower())] and (not force):
             addFile = False
             print('File '+newFileName+' already exists: do you want to overwrite? [y/n]')
             reply = raw_input()
@@ -82,8 +85,8 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
             if reallyDoIt:
                 exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
                 exeRealUpload.communicate()
-                eosCheckSumCommand = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select find --checksum ' + uploadPath + '/' + str(realFileName) + ' | awk \'{print $2}\' | cut -d= -f2'
-                exeEosCheckSum = subprocess.Popen(eosCheckSumCommand ,shell=True, stdout=subprocess.PIPE)
+                eosCheckSumCommand = defaultEOSchecksumCommand + uploadPath + '/' + str(realFileName) + ' | awk \'{print $2}\' | cut -d= -f2'
+                exeEosCheckSum = subprocess.Popen(eosCheckSumCommand ,shell=True, stdout=subprocess.PIPE, universal_newlines=True)
                 EosCheckSum = exeEosCheckSum.stdout.read()
                 assert exeEosCheckSum.wait() == 0
                # print 'checksum: eos = ' + EosCheckSum + 'orig file = ' + checkSumList[index] + '\n'
@@ -95,7 +98,7 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
                     print('please try to re-upload file ' + str(realFileName) + ' to EOS.\n')
                 else:
                     print('Checksum OK for file ' + str(realFileName))
-        index = index+1            
+        index = index+1
  
 # launch the upload shell script        
 
@@ -131,11 +134,13 @@ if __name__ == '__main__':
     parser.add_option('-u', '--update', 
                       help='Update the article <Id>' ,
                       default=0,
+                      type=int,
                       dest='artIdUp')                      
 
     parser.add_option('-l', '--list', 
                       help='List the files in article <Id>' ,
                       default=0,
+                      type=int,
                       dest='artIdLi')                     
     
     parser.add_option('-d', '--dry-run',
@@ -149,6 +154,12 @@ if __name__ == '__main__':
                       action='store_true',
                       default=False,
                       dest='compress')
+
+    parser.add_option('--force',
+                      help='Force update if file already exists.',
+                      action='store_true',
+                      default=False,
+                      dest='force')
 
     (options,args) = parser.parse_args()
 
@@ -213,7 +224,7 @@ if __name__ == '__main__':
                 theCheckIntegrityCommand = 'xmllint -noout '+f
                 exeCheckIntegrity = subprocess.Popen(["/bin/sh","-c", theCheckIntegrityCommand])
                 intCode = exeCheckIntegrity.wait()
-                if(intCode is not 0):
+                if(intCode != 0):
                     raise Exception('Input file '+f+ ' is corrupted')
             if reallyDoIt and options.compress:
               print("Compressing file",f)
@@ -226,11 +237,14 @@ if __name__ == '__main__':
         if reallyDoIt and options.compress:
           theList = theCompressedFilesList
         for f in theList:
-            exeCheckSum = subprocess.Popen(["/afs/cern.ch/cms/caf/bin/cms_adler32",f], stdout=subprocess.PIPE) 
-            getCheckSum = subprocess.Popen(["awk", "{print $1}"], stdin=exeCheckSum.stdout, stdout=subprocess.PIPE)
-            exeCheckSum.stdout.close()
-            output,err = getCheckSum.communicate()
-            theCheckSumList.append(output)
+            try:
+                exeCheckSum = subprocess.Popen(["/afs/cern.ch/cms/caf/bin/cms_adler32",f], stdout=subprocess.PIPE, universal_newlines=True)
+                getCheckSum = subprocess.Popen(["awk", "{print $1}"], stdin=exeCheckSum.stdout, stdout=subprocess.PIPE, universal_newlines=True)
+                exeCheckSum.stdout.close()
+                output,err = getCheckSum.communicate()
+                theCheckSumList.append(output.strip())
+            except:
+                theCheckSumList.append("missing-adler32")
 
     newArt = 0
     uploadPath = ''
@@ -268,7 +282,7 @@ if __name__ == '__main__':
 
 
     if newArt > 0:
-        fileUpload(uploadPath,theList, theCheckSumList, reallyDoIt)
+        fileUpload(uploadPath,theList, theCheckSumList, reallyDoIt, options.force)
         listPath = defaultEOSRootPath+'/'+str(newArt)
         print('')
         print('Listing the '+str(newArt)+' article content after upload:')

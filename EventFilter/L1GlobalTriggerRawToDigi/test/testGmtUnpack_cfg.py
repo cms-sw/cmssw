@@ -12,21 +12,20 @@ process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtTextToRaw_cfi")
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('l1GtUnpack'), ## DEBUG mode
-
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'), ## DEBUG mode
-
-        DEBUG = cms.untracked.PSet( ## DEBUG mode, all messages
-
+        DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        #          untracked PSet DEBUG = { untracked int32 limit = 10}  // DEBUG mode, max 10 messages
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-        )
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
     ),
-    destinations = cms.untracked.vstring('cout')
+    debugModules = cms.untracked.vstring('l1GtUnpack')
 )
 
 process.source = cms.Source("EmptySource",

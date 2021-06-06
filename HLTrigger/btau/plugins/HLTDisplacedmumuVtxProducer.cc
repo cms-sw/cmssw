@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -11,18 +10,13 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "HLTDisplacedmumuVtxProducer.h"
 
 using namespace edm;
@@ -33,10 +27,12 @@ using namespace trigger;
 // constructors and destructor
 //
 HLTDisplacedmumuVtxProducer::HLTDisplacedmumuVtxProducer(const edm::ParameterSet& iConfig)
-    : srcTag_(iConfig.getParameter<edm::InputTag>("Src")),
+    : transientTrackRecordToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      srcTag_(iConfig.getParameter<edm::InputTag>("Src")),
       srcToken_(consumes<reco::RecoChargedCandidateCollection>(srcTag_)),
       previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
       previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
+      matchToPrevious_(iConfig.getParameter<bool>("matchToPrevious")),
       maxEta_(iConfig.getParameter<double>("MaxEta")),
       minPt_(iConfig.getParameter<double>("MinPt")),
       minPtPair_(iConfig.getParameter<double>("MinPtPair")),
@@ -52,6 +48,7 @@ void HLTDisplacedmumuVtxProducer::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("Src", edm::InputTag("hltL3MuonCandidates"));
   desc.add<edm::InputTag>("PreviousCandTag", edm::InputTag(""));
+  desc.add<bool>("matchToPrevious", true);
   desc.add<double>("MaxEta", 2.5);
   desc.add<double>("MinPt", 0.0);
   desc.add<double>("MinPtPair", 0.0);
@@ -70,9 +67,8 @@ void HLTDisplacedmumuVtxProducer::produce(edm::StreamID, edm::Event& iEvent, con
   Handle<RecoChargedCandidateCollection> mucands;
   iEvent.getByToken(srcToken_, mucands);
 
-  //get the transient track builder:
-  edm::ESHandle<TransientTrackBuilder> theB;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+  // get the transient track builder
+  auto const& theB = iSetup.getHandle(transientTrackRecordToken_);
 
   std::unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
 
@@ -85,10 +81,12 @@ void HLTDisplacedmumuVtxProducer::produce(edm::StreamID, edm::Event& iEvent, con
 
   // get the objects passing the previous filter
   Handle<TriggerFilterObjectWithRefs> previousCands;
-  iEvent.getByToken(previousCandToken_, previousCands);
+  if (matchToPrevious_)
+    iEvent.getByToken(previousCandToken_, previousCands);
 
   vector<RecoChargedCandidateRef> vPrevCands;
-  previousCands->getObjects(TriggerMuon, vPrevCands);
+  if (matchToPrevious_)
+    previousCands->getObjects(TriggerMuon, vPrevCands);
 
   for (cand1 = mucands->begin(); cand1 != mucands->end(); cand1++) {
     TrackRef tk1 = cand1->get<TrackRef>();
@@ -96,7 +94,7 @@ void HLTDisplacedmumuVtxProducer::produce(edm::StreamID, edm::Event& iEvent, con
                                        << ", eta= " << cand1->eta() << ", hits= " << tk1->numberOfValidHits();
 
     //first check if this muon passed the previous filter
-    if (!checkPreviousCand(tk1, vPrevCands))
+    if (matchToPrevious_ && !checkPreviousCand(tk1, vPrevCands))
       continue;
 
     // cuts
@@ -115,7 +113,7 @@ void HLTDisplacedmumuVtxProducer::produce(edm::StreamID, edm::Event& iEvent, con
           << " 2nd muon in loop: q*pt= " << cand2->charge() * cand2->pt() << ", eta= " << cand2->eta()
           << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
       //first check if this muon passed the previous filter
-      if (!checkPreviousCand(tk2, vPrevCands))
+      if (matchToPrevious_ && !checkPreviousCand(tk2, vPrevCands))
         continue;
 
       // cuts

@@ -19,7 +19,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 using namespace edm;
 using namespace std;
@@ -50,6 +49,7 @@ namespace {
 
 HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
+      idealMagneticFieldRecordToken_(esConsumes()),
       beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
       beamspotToken_(consumes<reco::BeamSpot>(beamspotTag_)),
       candTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
@@ -290,8 +290,7 @@ bool HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent,
   }    //end of using normal TrajectorySeeds
 
   // Needed for DCA calculation
-  ESHandle<MagneticField> bFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+  auto const& bFieldHandle = iSetup.getHandle(idealMagneticFieldRecordToken_);
 
   // look at all mucands,  check cuts and add to filter object
   int n = 0;

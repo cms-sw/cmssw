@@ -1,16 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process("L1TStage2DQM", Run2_2018)
+import sys
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("L1TStage2DQM", Run3)
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
 
 #--------------------------------------------------
 # Event Source and Condition
 
-# Live Online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
+else:
+    # Live Online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # # Testing in lxplus
 # process.load("DQM.Integration.config.fileinputsource_cfi")
+# from DQM.Integration.config.fileinputsource_cfi import options
 # process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
@@ -31,9 +42,11 @@ process.load("DQM.Integration.config.environment_cfi")
 
 process.dqmEnv.subSystemFolder = "L1T"
 process.dqmSaver.tag = "L1T"
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "L1T"
+process.dqmSaverPB.runNumber = options.runNumber
 
-process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver)
+process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver * process.dqmSaverPB)
 
 #--------------------------------------------------
 # Standard Unpacking Path
@@ -102,7 +115,6 @@ process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
 
 # Cosmic run
 if (process.runType.getRunType() == process.runType.cosmic_run):
-    process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference_cosmic.root"
     # Remove Quality Tests for L1T Muon Subsystems since they are not optimized yet for cosmics
     process.l1tStage2MonitorClient.remove(process.l1TStage2uGMTQualityTests)
     process.l1tStage2MonitorClient.remove(process.l1TStage2EMTFQualityTests)
@@ -113,13 +125,12 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 
 # Heavy-Ion run
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference_hi.root"
     process.onlineMetaDataDigis.onlineMetaDataInputLabel = cms.InputTag("rawDataRepacker")
     process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = cms.InputTag("rawDataRepacker")
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
     process.ctppsPixelDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ecalDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
@@ -127,7 +138,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.muonGEMDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.tcdsDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataRepacker")

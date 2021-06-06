@@ -1,10 +1,12 @@
-#ifndef CSCVTMBHeaderFormat_h
-#define CSCVTMBHeaderFormat_h
+#ifndef EventFilter_CSCRawToDigi_CSCVTMBHeaderFormat_h
+#define EventFilter_CSCRawToDigi_CSCVTMBHeaderFormat_h
 
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include <vector>
 #include <iosfwd>
 #include <strings.h>
@@ -55,6 +57,7 @@ public:
   virtual void addALCT1(const CSCALCTDigi& digi) = 0;
   virtual void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) = 0;
   virtual void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) = 0;
+  virtual void addShower(const CSCShowerDigi& digi) = 0;
 
   virtual void print(std::ostream& os) const = 0;
 

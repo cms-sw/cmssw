@@ -1,9 +1,10 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="root"/>
-<use   name="RecoLocalMuon/DTRecHit"/>
-<use   name="MagneticField/Records"/>
-<use   name="MagneticField/Engine"/>
-<library   file="*.cc" name="RecoLocalMuonDTRecHitPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="root"/>
+<use name="DataFormats/DTRecHit"/>
+<use name="RecoLocalMuon/DTRecHit"/>
+<use name="MagneticField/Records"/>
+<use name="MagneticField/Engine"/>
+<library file="*.cc" name="RecoLocalMuonDTRecHitPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

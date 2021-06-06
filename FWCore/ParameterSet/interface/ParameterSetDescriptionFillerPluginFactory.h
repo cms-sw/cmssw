@@ -50,4 +50,8 @@ namespace edm {
   static const edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::DescriptionFillerForESProducers<type> > \
       EDM_PLUGIN_SYM(s_filler, __LINE__)(#type)
 
+#define DEFINE_DESC_FILLER_FOR_EDLOOPERS(type)                                                                    \
+  static const edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::DescriptionFillerForEDLoopers<type> > \
+      EDM_PLUGIN_SYM(s_filler, __LINE__)(#type)
+
 #endif

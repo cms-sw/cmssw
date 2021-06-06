@@ -24,6 +24,7 @@ protected:
   void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &run, const edm::EventSetup &es) override;
 
 private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken;
   // TIB  ADC
   MonitorElement *meAdcTIBLayer1Extzp_[3];
   MonitorElement *meAdcTIBLayer2Extzp_[3];

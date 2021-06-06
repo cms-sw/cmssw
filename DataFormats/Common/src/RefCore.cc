@@ -96,29 +96,30 @@ namespace edm {
     return product;
   }
 
-  WrapperBase const* RefCore::getThinnedProductPtr(std::type_info const& type,
-                                                   unsigned int& thinnedKey,
-                                                   EDProductGetter const* prodGetter) const {
+  std::tuple<WrapperBase const*, unsigned int> RefCore::getThinnedProductPtr(std::type_info const& type,
+                                                                             unsigned int key,
+                                                                             EDProductGetter const* prodGetter) const {
     ProductID tId = id();
-    WrapperBase const* product = prodGetter->getThinnedProduct(tId, thinnedKey);
+    std::optional product = prodGetter->getThinnedProduct(tId, key);
 
-    if (product == nullptr) {
+    if (not product.has_value()) {
       productNotFoundException(type);
     }
-    if (!(type == product->dynamicTypeInfo())) {
-      wrongTypeException(type, product->dynamicTypeInfo());
+    WrapperBase const* wrapper = std::get<WrapperBase const*>(*product);
+    if (!(type == wrapper->dynamicTypeInfo())) {
+      wrongTypeException(type, wrapper->dynamicTypeInfo());
     }
-    return product;
+    return *product;
   }
 
-  bool RefCore::isThinnedAvailable(unsigned int thinnedKey, EDProductGetter const* prodGetter) const {
+  bool RefCore::isThinnedAvailable(unsigned int key, EDProductGetter const* prodGetter) const {
     ProductID tId = id();
     if (!tId.isValid() || prodGetter == nullptr) {
       //another thread may have changed it
       return nullptr != productPtr();
     }
-    WrapperBase const* product = prodGetter->getThinnedProduct(tId, thinnedKey);
-    return product != nullptr;
+    std::optional product = prodGetter->getThinnedProduct(tId, key);
+    return product.has_value();
   }
 
   void RefCore::productNotFoundException(std::type_info const& type) const {

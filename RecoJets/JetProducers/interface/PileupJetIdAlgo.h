@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 
 // ----------------------------------------------------------------------------------------------------
 class PileupJetIdAlgo {
@@ -70,7 +70,7 @@ public:
     std::vector<std::string> const& tmvaVariables() const { return tmvaVariables_; }
     std::vector<std::vector<std::string>> const& tmvaEtaVariables() const { return tmvaEtaVariables_; }
 
-    typedef float array_t[3][4][4];
+    typedef float array_t[3][5][4];
     array_t const& mvacut() const { return mvacut_; }
     array_t const& rmsCut() const { return rmsCut_; }
     array_t const& betaStarCut() const { return betaStarCut_; }
@@ -89,9 +89,9 @@ public:
     std::vector<std::string> tmvaVariables_;
     std::vector<std::vector<std::string>> tmvaEtaVariables_;
 
-    float mvacut_[3][4][4];       //Keep the array fixed
-    float rmsCut_[3][4][4];       //Keep the array fixed
-    float betaStarCut_[3][4][4];  //Keep the array fixed
+    float mvacut_[3][5][4];       //Keep the array fixed
+    float rmsCut_[3][5][4];       //Keep the array fixed
+    float betaStarCut_[3][5][4];  //Keep the array fixed
 
     std::map<std::string, std::string> tmvaNames_;
   };

@@ -21,7 +21,7 @@ namespace clangcms {
           llvm::SmallString<100> buf;
           llvm::raw_svector_ostream os(buf);
           I->getTemplateArgs().get(J).print(mgr.getASTContext().getPrintingPolicy(), os);
-          std::string rname = os.str();
+          std::string rname = os.str().str();
           std::string fname("plugins.txt.unsorted");
           std::string ostring = rname + "\n";
           support::writeLog(ostring, fname);

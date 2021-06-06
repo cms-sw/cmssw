@@ -14,7 +14,7 @@
 
 // user include files
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 #include <stack>
 #ifdef PERFTOOL_GEO_TABLE
 #include <google/profiler.h>

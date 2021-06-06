@@ -127,6 +127,14 @@ private:
                                  LASGlobalData<LASCoordinateSet>&,
                                  LASBarrelAlignmentParameterSet&);
 
+  /// Tokens for ESconsumes
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
+  const edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> stripPedestalsToken_;
+
   /// counter for the total number of events processed
   int theEvents;
 

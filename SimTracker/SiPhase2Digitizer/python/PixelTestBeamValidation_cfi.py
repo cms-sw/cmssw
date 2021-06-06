@@ -18,6 +18,11 @@ Charge1D = cms.PSet(
     xmin = cms.double(-0.5),
     xmax = cms.double(199.5)
     )
+ChargeElec1D = cms.PSet(
+    Nxbins = cms.int32(300),
+    xmin = cms.double(0),
+    xmax = cms.double(120.0e3)
+    )
 DigiCharge1D = cms.PSet(
     Nxbins = cms.int32(17),
     xmin = cms.double(-0.5),
@@ -42,6 +47,22 @@ Dy1D = cms.PSet(
     Nxbins = cms.int32(300),
     xmin = cms.double(-150),
     xmax = cms.double(150)
+    )
+Dxy2D = cms.PSet(
+    Nxbins = cms.int32(Nx),
+    Nybins = cms.int32(Ny),
+    xmin   = cms.double(-50),
+    xmax   = cms.double(50),
+    ymin   = cms.double(-150),
+    ymax   = cms.double(150)
+    )
+SimClusterCharge = cms.PSet(
+    Nxbins = cms.int32(300),
+    Nybins = cms.int32(201),
+    xmin   = cms.double(0.),
+    xmax   = cms.double(300.),
+    ymin   = cms.double(0),
+    ymax   = cms.double(120.5e3)
     )
 TrackXY = cms.PSet(
     Nxbins = cms.int32(1250),
@@ -95,6 +116,9 @@ Dy = cms.PSet(
     )
 
 dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
+    # WARNING: be sure it is the same value used with the Pixel3DDigitizer
+    ThresholdInElectrons = cms.double(1000.0),
+    ElectronsPerADC   = cms.double(1600.0),
     TracksEntryAngleX = cms.untracked.vdouble(-np.radians(2.0),np.radians(2.0)),
     TracksEntryAngleY = cms.untracked.vdouble(-np.radians(2.0),np.radians(2.0)),
     TopFolderName = cms.string("PixelCell"),
@@ -119,6 +143,7 @@ dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
     ClusterSize1Dx = ClusterSize1D.clone(),
     ClusterSize1Dy = ClusterSize1D.clone(),
     Charge1D = Charge1D.clone(),
+    ChargeElec1D = ChargeElec1D.clone(),
     TrackAngleDxdz = TrackAngleDxdz.clone(),
     TrackAngleDydz = TrackAngleDydz.clone(),
     TrackXY = TrackXY.clone(),
@@ -127,7 +152,9 @@ dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
     DigiRZ = TrackRZ.clone(),
     Dx1D = Dx1D.clone(),
     Dy1D = Dy1D.clone(),
+    Dxy2D = Dxy2D.clone(),
     DigiCharge1D = DigiCharge1D.clone(),
+    SimClusterCharge = SimClusterCharge.clone(),
 
     Position_0 = Position.clone(),
     Position_1 = Position.clone(),
@@ -148,6 +175,10 @@ dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
     Charge_0 = Charge.clone(),
     Charge_1 = Charge.clone(),
     Charge_2 = Charge.clone(),
+    
+    Charge_elec_0 = Charge.clone(),
+    Charge_elec_1 = Charge.clone(),
+    Charge_elec_2 = Charge.clone(),
     
     Dx_0 = Dx.clone(),
     Dx_1 = Dx.clone(),

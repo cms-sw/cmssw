@@ -13,7 +13,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HcalValidation')
+    process.MessageLogger.HcalValidation=dict()
 
 
 process.source = cms.Source("PoolSource",

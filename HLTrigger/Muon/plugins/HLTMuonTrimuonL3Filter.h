@@ -17,6 +17,8 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -34,6 +36,7 @@ public:
 private:
   static bool triggeredByLevel2(const reco::TrackRef& track, std::vector<reco::RecoChargedCandidateRef>& vcands);
 
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> const idealMagneticFieldRecordToken_;
   edm::InputTag beamspotTag_;
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
   edm::InputTag candTag_;                                             // input tag identifying product contains muons

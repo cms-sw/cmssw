@@ -8,11 +8,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
-#include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
 
 #include <algorithm>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -116,7 +116,7 @@ int main(int argc, char** argv) try {
     return 0;
   }
 
-  using boost::filesystem::path;
+  using std::filesystem::path;
 
   /*if(argc == 1) {
     std::cerr << "Requires at least one argument.  Please pass either one directory or a list of files (all in the same directory)." << std::endl;
@@ -132,7 +132,7 @@ int main(int argc, char** argv) try {
     path directory(requestedPaths[0]);
     std::vector<std::string> files;
     bool removeMissingFiles = false;
-    if (boost::filesystem::is_directory(directory)) {
+    if (std::filesystem::is_directory(directory)) {
       if (requestedPaths.size() > 1) {
         std::cerr << "if a directory is given then only one argument is allowed" << std::endl;
         return 1;
@@ -141,13 +141,13 @@ int main(int argc, char** argv) try {
       //if asked to look at whole directory, then we can also remove missing files
       removeMissingFiles = true;
 
-      boost::filesystem::directory_iterator file(directory);
-      boost::filesystem::directory_iterator end;
+      std::filesystem::directory_iterator file(directory);
+      std::filesystem::directory_iterator end;
 
       path cacheFile(directory);
       cacheFile /= standard::cachefileName();
 
-      std::time_t cacheLastChange(0);
+      std::filesystem::file_time_type cacheLastChange = std::filesystem::file_time_type::min();
       if (exists(cacheFile)) {
         cacheLastChange = last_write_time(cacheFile);
       }
@@ -170,10 +170,10 @@ int main(int argc, char** argv) try {
       }
     } else {
       //we have files
-      directory = directory.branch_path();
+      directory = directory.parent_path();
       for (std::vector<std::string>::iterator it = requestedPaths.begin(), itEnd = requestedPaths.end(); it != itEnd;
            ++it) {
-        boost::filesystem::path f(*it);
+        std::filesystem::path f(*it);
         if (!exists(f)) {
           std::cerr << "the file '" << f.string() << "' does not exist" << std::endl;
           return 1;
@@ -182,7 +182,7 @@ int main(int argc, char** argv) try {
           std::cerr << "either one directory or a list of files are allowed as arguments" << std::endl;
           return 1;
         }
-        if (directory != f.branch_path()) {
+        if (directory != f.parent_path()) {
           std::cerr << "all files must have be in the same directory (" << directory.string()
                     << ")\n"
                        " the file "

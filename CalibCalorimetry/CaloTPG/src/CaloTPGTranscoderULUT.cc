@@ -88,7 +88,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
         }
     } else {
       for (unsigned int i = threshold; i < lutsize; ++i)
-        outputLUT_[index][i] = version == 0 ? linearRctLUT[i] : linearNctLUT[i];
+        outputLUT_[index][i] = version == 1 ? linearNctLUT[i] : linearRctLUT[i];
     }
 
     double eta_low = 0., eta_high = 0.;
@@ -126,7 +126,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
       for (unsigned int i = 0; i < lutsize; ++i) {
         if (outputLUT_[index][i] != tpg) {
           tpg = outputLUT_[index][i];
-          hcaluncomp_[index][tpg] = lsb_factor_ * i / (version == 0 ? rct_factor_ : nct_factor_);
+          hcaluncomp_[index][tpg] = lsb_factor_ * i / (version == 1 ? nct_factor_ : rct_factor_);
         }
       }
     }

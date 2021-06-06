@@ -26,6 +26,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -97,6 +98,8 @@ private:
   const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticles_;
   const edm::EDGetTokenT<EcalRecHitCollection> ebRecHits_;
   const edm::EDGetTokenT<EcalRecHitCollection> eeRecHits_;
+
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   // to hold ID decisions and categories
   std::vector<int> mvaPasses_;
@@ -172,11 +175,12 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
       genParticles_(consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticles"))),
       ebRecHits_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection"))),
       eeRecHits_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection"))),
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       mvaPasses_(nPhoMaps_),
       mvaValues_(nValMaps_),
       mvaCats_(nCats_),
       variableHelper_(consumesCollector()),
-      mvaVarMngr_(iConfig.getParameter<std::string>("variableDefinition")),
+      mvaVarMngr_(iConfig.getParameter<std::string>("variableDefinition"), MVAVariableHelper::indexMap()),
       nVars_(mvaVarMngr_.getNVars()),
       vars_(nVars_),
       doEnergyMatrix_(iConfig.getParameter<bool>("doEnergyMatrix")),
@@ -250,7 +254,8 @@ void PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::unique_ptr<noZS::EcalClusterLazyTools> lazyTools;
   if (doEnergyMatrix_) {
     // Configure Lazy Tools, which will compute 5x5 quantities
-    lazyTools = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, ebRecHits_, eeRecHits_);
+    lazyTools = std::make_unique<noZS::EcalClusterLazyTools>(
+        iEvent, ecalClusterToolsESGetTokens_.get(iSetup), ebRecHits_, eeRecHits_);
   }
 
   // Fill with true number of pileup

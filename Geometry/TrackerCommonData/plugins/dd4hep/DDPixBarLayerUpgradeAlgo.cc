@@ -5,7 +5,7 @@
 
 using namespace cms_units::operators;
 
-static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e, dd4hep::SensitiveDetector&) {
+static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   std::string parentName = args.parentName();
@@ -22,7 +22,7 @@ static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e, d
   std::string coolMat = args.value<std::string>("CoolMaterial");
   std::string tubeMat = args.value<std::string>("CoolTubeMaterial");
   std::string coolMatHalf = args.value<std::string>("CoolMaterialHalf");
-  std::string tubeMatHalf = args.value<std::string>("CoolTubeMaterial");
+  std::string tubeMatHalf = args.value<std::string>("CoolTubeMaterialHalf");
   double phiFineTune = args.value<double>("PitchFineTune");
   double rOuterFineTune = args.value<double>("OuterOffsetFineTune");
   double rInnerFineTune = args.value<double>("InnerOffsetFineTune");

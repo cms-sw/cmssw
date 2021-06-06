@@ -17,6 +17,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -31,13 +33,14 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 //#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -145,6 +148,9 @@ namespace cms {
     //
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_gtRec_;
     edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNorm_;
+
+    edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respCorr_;
+    edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> tok_l1gt_;
 
     bool theRecalib;
   };

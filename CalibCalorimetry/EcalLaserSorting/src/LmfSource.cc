@@ -446,7 +446,7 @@ void LmfSource::checkFileNames() {
     if (fileName.compare(0, sizeof(s) - 1, s) == 0) {  //file: prefix => to strip
       fileName.erase(fileName.begin(), fileName.begin() + sizeof(s) - 1);
     }
-    if (fileName.find_first_of(":") != string::npos) {
+    if (fileName.find_first_of(':') != string::npos) {
       throw cms::Exception("LmfSource") << "Character ':' is not allowed in paths specified fileNames "
                                         << "parameter. Please note only local file (or NFS, AFS)"
                                         << " is supported (no rfio, no /store)";

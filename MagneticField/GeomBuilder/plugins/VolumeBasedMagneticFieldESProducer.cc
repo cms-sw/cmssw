@@ -29,11 +29,11 @@ namespace magneticfield {
 
     std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
 
-  private:
     // forbid copy ctor and assignment op.
     VolumeBasedMagneticFieldESProducer(const VolumeBasedMagneticFieldESProducer&) = delete;
     const VolumeBasedMagneticFieldESProducer& operator=(const VolumeBasedMagneticFieldESProducer&) = delete;
 
+  private:
     const bool debug_;
     const bool useParametrizedTrackerField_;
     const MagFieldConfig conf_;
@@ -52,17 +52,15 @@ VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm
       conf_{iConfig, debug_},
       version_{iConfig.getParameter<std::string>("version")} {
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
-  cc.setConsumes(cpvToken_, edm::ESInputTag{"", "magfield"});
+  cpvToken_ = cc.consumes(edm::ESInputTag{"", "magfield"});
   if (useParametrizedTrackerField_) {
-    cc.setConsumes(paramFieldToken_, edm::ESInputTag{"", iConfig.getParameter<string>("paramLabel")});
+    paramFieldToken_ = cc.consumes(edm::ESInputTag{"", iConfig.getParameter<string>("paramLabel")});
   }
 }
 
 // ------------ method called to produce the data  ------------
 std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord) {
-  if (debug_) {
-    edm::LogPrint("VolumeBasedMagneticFieldESProducer") << "VolumeBasedMagneticFieldESProducer::produce() " << version_;
-  }
+  LogTrace("MagGeoBuilder") << "VolumeBasedMagneticFieldESProducer::produce() " << version_;
 
   auto cpv = iRecord.getTransientHandle(cpvToken_);
   MagGeoBuilderFromDDD builder(conf_.version, conf_.geometryVersion, debug_);

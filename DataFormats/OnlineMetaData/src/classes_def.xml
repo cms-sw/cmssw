@@ -4,7 +4,8 @@
     <field name="romanPotNames_" transient="true"/>
     <field name="statusNames_" transient="true"/>
   </class>
-  <class name="DCSRecord" ClassVersion="3">
+  <class name="DCSRecord" ClassVersion="4">
+    <version ClassVersion="4" checksum="920984468"/>
     <version ClassVersion="3" checksum="2537350258"/>
     <field name="partitionNames_" transient="true"/>
   </class>

@@ -40,7 +40,7 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataTyp
     TauDiscriminationProducerBase(const edm::ParameterSet& iConfig)
     : moduleLabel_(iConfig.getParameter<std::string>("@module_label")) {
   // tau collection to discriminate
-  TauProducer_ = iConfig.getParameter<edm::InputTag>(getProducerString<TauType>());
+  TauProducer_ = iConfig.getParameter<edm::InputTag>(getTauTypeString() + "Producer");
   Tau_token = consumes<TauCollection>(TauProducer_);
 
   // prediscriminant operator
@@ -172,7 +172,7 @@ template <class TauType, class TauDiscriminator, class TauDiscriminatorDataType,
 void TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataType, ConsumeType>::
     fillProducerDescriptions(edm::ParameterSetDescription& desc) {
   // helper function, it fills the description of the Producers parameter
-  desc.add<edm::InputTag>(getProducerString<TauType>(), edm::InputTag("fixme"));
+  desc.add<edm::InputTag>(getTauTypeString() + "Producer", edm::InputTag("fixme"));
   {
     edm::ParameterSetDescription pset_prediscriminants;
     pset_prediscriminants.add<std::string>("BooleanOperator", "AND");
@@ -191,14 +191,15 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDa
   }
 }
 
-// template specialiazation to get the correct (PF/PAT)TauProducer names
-template <>
-std::string getProducerString<PFTau>() {
-  return "PFTauProducer";
-}
-template <>
-std::string getProducerString<pat::Tau>() {
-  return "PATTauProducer";
+template <class TauType, class TauDiscriminator, class TauDiscriminatorDataType, class ConsumeType>
+std::string
+TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataType, ConsumeType>::getTauTypeString() {
+  if (std::is_same<TauType, reco::PFTau>::value)
+    return "PFTau";
+  if (std::is_same<TauType, pat::Tau>::value)
+    return "PATTau";
+  throw cms::Exception("TauDiscriminationProducerBase")
+      << "Unsupported TauType used. You must use either PFTau or PATTau.";
 }
 
 // compile our desired types and make available to linker

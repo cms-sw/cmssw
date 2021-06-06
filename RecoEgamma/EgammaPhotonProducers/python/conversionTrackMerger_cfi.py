@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 conversionTrackMerger = cms.EDProducer("ConversionTrackMerger",
     # minimum shared fraction to be called duplicate
     ShareFrac = cms.double(0.19),
-    TrackProducer1 = cms.string(''),
-    TrackProducer2 = cms.string(''),
+    TrackProducer1 = cms.InputTag(''),
+    TrackProducer2 = cms.InputTag(''),
     allowFirstHitShare = cms.bool(True),
     checkCharge = cms.bool(True),
     minProb = cms.double(1e-6),

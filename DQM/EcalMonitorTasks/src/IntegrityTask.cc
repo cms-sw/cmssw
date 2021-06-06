@@ -6,10 +6,14 @@
 namespace ecaldqm {
   IntegrityTask::IntegrityTask() : DQWorkerTask() {}
 
-  void IntegrityTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("MapByLumi").reset();
-    MEs_.at("ByLumi").reset();
+  void IntegrityTask::beginEvent(edm::Event const& _evt,
+                                 edm::EventSetup const& _es,
+                                 bool const& ByLumiResetSwitch,
+                                 bool&) {
+    if (ByLumiResetSwitch) {
+      MEs_.at("MapByLumi").reset(GetElectronicsMap());
+      MEs_.at("ByLumi").reset(GetElectronicsMap());
+    }
   }
 
   template <typename IDCollection>
@@ -42,14 +46,14 @@ namespace ecaldqm {
     MESet& meTrendNErrors(MEs_.at("TrendNErrors"));
 
     std::for_each(_ids.begin(), _ids.end(), [&](typename IDCollection::value_type const& id) {
-      set->fill(id);
-      int dccid(dccId(id));
-      meByLumi.fill(dccid);
-      meTotal.fill(dccid);
+      set->fill(getEcalDQMSetupObjects(), id);
+      int dccid(dccId(id, GetElectronicsMap()));
+      meByLumi.fill(getEcalDQMSetupObjects(), dccid);
+      meTotal.fill(getEcalDQMSetupObjects(), dccid);
       // Fill Integrity Errors Map with channel errors for this lumi
-      meMapByLumi.fill(id);
+      meMapByLumi.fill(getEcalDQMSetupObjects(), id);
 
-      meTrendNErrors.fill(double(timestamp_.iLumi), 1.);
+      meTrendNErrors.fill(getEcalDQMSetupObjects(), double(timestamp_.iLumi), 1.);
     });
   }
 
@@ -76,23 +80,23 @@ namespace ecaldqm {
     MESet& meTrendNErrors(MEs_.at("TrendNErrors"));
 
     std::for_each(_ids.begin(), _ids.end(), [&](EcalElectronicsIdCollection::value_type const& id) {
-      set->fill(id);
+      set->fill(getEcalDQMSetupObjects(), id);
       int dccid(id.dccId());
       double nCrystals(0.);
-      std::vector<DetId> chIds(getElectronicsMap()->dccTowerConstituents(dccid, id.towerId()));
+      std::vector<DetId> chIds(GetElectronicsMap()->dccTowerConstituents(dccid, id.towerId()));
       if (dccid <= kEEmHigh + 1 || dccid >= kEEpLow + 1)
         nCrystals = chIds.size();
       else
         nCrystals = 25.;
-      meByLumi.fill(dccid, nCrystals);
-      meTotal.fill(dccid, nCrystals);
+      meByLumi.fill(getEcalDQMSetupObjects(), dccid, nCrystals);
+      meTotal.fill(getEcalDQMSetupObjects(), dccid, nCrystals);
       // Fill Integrity Errors Map with tower errors for this lumi
       // Since binned by crystal for compatibility with channel errors,
       // fill with constituent channels of tower
       for (std::vector<DetId>::iterator chItr(chIds.begin()); chItr != chIds.end(); ++chItr)
-        meMapByLumi.fill(*chItr);
+        meMapByLumi.fill(getEcalDQMSetupObjects(), *chItr);
 
-      meTrendNErrors.fill(double(timestamp_.iLumi), nCrystals);
+      meTrendNErrors.fill(getEcalDQMSetupObjects(), double(timestamp_.iLumi), nCrystals);
     });
   }
 

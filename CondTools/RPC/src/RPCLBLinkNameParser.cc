@@ -1,7 +1,7 @@
 #include "CondTools/RPC/interface/RPCLBLinkNameParser.h"
 
 #include <sstream>
-
+#include <algorithm>
 #include "FWCore/Utilities/interface/Exception.h"
 
 void RPCLBLinkNameParser::parse(std::string const& name, RPCLBLink& lb_link) {
@@ -50,7 +50,7 @@ void RPCLBLinkNameParser::parse(std::string const& name, RPCLBLink& lb_link) {
   pos = next;
 
   // (region) side
-  pos = name.find("_", pos);
+  pos = name.find('_', pos);
   if (pos == std::string::npos || (pos += 2) >= size)
     throw cms::Exception("InvalidLinkBoardName") << "Name too short: " << name;
   switch (name.at(pos)) {

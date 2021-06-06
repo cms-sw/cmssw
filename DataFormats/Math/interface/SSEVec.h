@@ -6,9 +6,9 @@
 #if defined(__GNUC__)
 #include <x86intrin.h>
 #define CMS_USE_SSE
-#ifdef __AVX__
-#define CMS_USE_AVX
-#endif /* __AVX__ */
+#ifdef __AVX2__
+#define CMS_USE_AVX2
+#endif /* __AVX2__ */
 #endif /* defined(__GNUC__) */
 #endif /* !defined(__arm__) && !defined(__aarch64__) && !defined(__MIC__) */
 
@@ -63,7 +63,7 @@ namespace mathSSE {
   }
 #endif  // CMS_USE_SSE
 
-#ifdef CMS_USE_AVX
+#ifdef CMS_USE_AVX2
   inline __m256d __attribute__((always_inline)) __attribute__((pure)) _mm256_dot_pd(__m256d v1, __m256d v2) {
     __m256d mul = _mm256_mul_pd(v1, v2);
     mul = _mm256_hadd_pd(mul, mul);
@@ -92,7 +92,7 @@ namespace mathSSE {
     return __m256d(_mm256_xor_si256(__m256i(ret), neg));
   }
 
-#endif  //  CMS_USE_AVX
+#endif  //  CMS_USE_AVX2
 
   template <typename T>
   struct OldVec {
@@ -101,7 +101,7 @@ namespace mathSSE {
     T theZ;
     T theW;
   } __attribute__((aligned(16)));
-#ifdef CMS_USE_AVX
+#ifdef CMS_USE_AVX2
   template <>
   struct OldVec<double> {
     double theX;
@@ -235,7 +235,7 @@ namespace mathSSE {
     }
   };
 
-#ifdef CMS_USE_AVX
+#ifdef CMS_USE_AVX2
   template <>
   union Mask4<double> {
     __m256d vec;
@@ -380,7 +380,7 @@ namespace mathSSE {
     double operator[](unsigned int n) const { return arr[n]; }
   };
 
-#ifdef CMS_USE_AVX
+#ifdef CMS_USE_AVX2
 }  // namespace mathSSE
 #include "private/AVXVec.h"
 
@@ -473,7 +473,7 @@ namespace mathSSE {
     __m128 v2 = _mm_cvtpd_ps(ivec.vec[1]);
     vec = _mm_shuffle_ps(vec, v2, _MM_SHUFFLE(1, 0, 1, 0));
   }
-#endif  // CMS_USE_AVX
+#endif  // CMS_USE_AVX2
 
 #endif  // CMS_USE_SSE
 
@@ -602,7 +602,7 @@ inline float cross(mathSSE::Vec2F a, mathSSE::Vec2F b) { return a.arr[0] * b.arr
 //
 
 inline mathSSE::Vec2D::Vec2(Vec4D v4) {
-#ifdef CMS_USE_AVX
+#ifdef CMS_USE_AVX2
   vec = _mm256_castpd256_pd128(v4.vec);
 #else
   vec = v4.vec[0];
@@ -671,7 +671,7 @@ inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   return s;
 }
 
-#ifndef CMS_USE_AVX
+#ifndef CMS_USE_AVX2
 // double op 3d
 
 #ifdef __SSE3__
@@ -781,7 +781,7 @@ inline double __attribute__((always_inline)) __attribute__((pure)) dotxy(mathSSE
   return dot(a.xy(), b.xy());
 }
 
-#endif  // CMS_USE_AVX
+#endif  // CMS_USE_AVX2
 
 // sqrt
 namespace mathSSE {
@@ -797,7 +797,7 @@ namespace mathSSE {
   inline Vec2D sqrt(Vec2D v) {
     return _mm_sqrt_pd(v.vec);
   }
-#ifdef CMS_USE_AVX
+#ifdef CMS_USE_AVX2
   template <>
   inline Vec4D sqrt(Vec4D v) {
     return _mm256_sqrt_pd(v.vec);

@@ -18,15 +18,15 @@
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "Geometry/Records/interface/PZdcRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class ZDCGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<ZDCGeometryRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
-                                                                               ZDCAlignmentRcd,
-                                                                               ZDCAlignmentErrorRcd,
-                                                                               ZDCAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PZdcRcd> > {};
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             ZDCAlignmentRcd,
+                                                                             ZDCAlignmentErrorRcd,
+                                                                             ZDCAlignmentErrorExtendedRcd,
+                                                                             GlobalPositionRcd,
+                                                                             PZdcRcd> > {};
 
 #endif /* RECORDS_ZDCGEOMETRYRECORD_H */

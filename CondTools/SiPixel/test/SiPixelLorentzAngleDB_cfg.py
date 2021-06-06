@@ -8,16 +8,16 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SiPixelInclusiveBuilder")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
-process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string("INFO"))
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.cout = dict(enable = True, threshold = "INFO")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #hptopo
 
 #process.load("Configuration.StandardSequences.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_design']
 print(process.GlobalTag.globaltag)
 process.load("Configuration.StandardSequences.GeometryDB_cff")

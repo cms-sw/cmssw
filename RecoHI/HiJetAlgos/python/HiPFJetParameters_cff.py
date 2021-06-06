@@ -4,13 +4,12 @@ import FWCore.ParameterSet.Config as cms
 import RecoJets.JetProducers.PFJetParameters_cfi
 HiPFJetDefaults = RecoJets.JetProducers.PFJetParameters_cfi.PFJetParameters.clone(
     doPUOffsetCorr = False,
-    doAreaFastjet = True,
-    doRhoFastjet = True,
+    doAreaFastjet  = True,
+    doRhoFastjet   = True,
     doPVCorrection = False,
-    jetPtMin = 10,
-    Ghost_EtaMax = 6.5,
-    # this parameter is missing from PFJetParameters for some reason
-    Rho_EtaMax = cms.double(4.5)
+    jetPtMin       = 10,
+    Ghost_EtaMax   = 6.5,
+    Rho_EtaMax     = 4.5
 )
 
 ## add non-uniform fastjet settings

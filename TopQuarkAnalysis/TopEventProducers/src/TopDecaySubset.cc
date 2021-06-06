@@ -245,7 +245,7 @@ TopDecaySubset::ShowerModel TopDecaySubset::checkShowerModel(edm::Event& event) 
 
   std::string moduleName = "";
   if (genEvtInfoProduct.isValid()) {
-    const edm::Provenance& prov = event.getProvenance(genEvtInfoProduct.id());
+    const edm::StableProvenance& prov = event.getStableProvenance(genEvtInfoProduct.id());
     moduleName = edm::moduleName(prov, event.processHistory());
   }
 

@@ -205,7 +205,6 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     const TrackCandidate* theTC = &(*i);
     PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
-    const TrackCandidate::range& recHitVec = theTC->recHits();
 
     //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
 
@@ -219,8 +218,8 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
     TransientTrackingRecHit::RecHitContainer hits;
 
-    for (edm::OwnVector<TrackingRecHit>::const_iterator i = recHitVec.first; i != recHitVec.second; i++) {
-      hits.push_back(theBuilder->build(&(*i)));
+    for (auto const& recHit : theTC->recHits()) {
+      hits.push_back(theBuilder->build(&recHit));
     }
 
     //call the fitter

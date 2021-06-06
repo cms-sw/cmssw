@@ -14,7 +14,7 @@
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDSimulationConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -31,9 +31,11 @@
 #include "G4ParticleTypes.hh"
 
 // STL headers
-#include <vector>
+#include <memory>
+
 #include <iostream>
 #include <mutex>
+#include <vector>
 
 //#define DebugLog
 
@@ -51,13 +53,13 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   iSetup.get<HcalSimNumberingRecord>().get(hdc);
   hcalConstants = hdc.product();
 
-  edm::ESHandle<HcalDDDSimulationConstants> hdsc;
+  edm::ESHandle<HcalSimulationConstants> hdsc;
   iSetup.get<HcalSimNumberingRecord>().get(hdsc);
-  const HcalDDDSimulationConstants* hsps = hdsc.product();
+  const HcalSimulationConstants* hsps = hdsc.product();
 
   std::string name = "HcalHits";
-  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));
-  hfshower.reset(new HFShowerLibrary(name, hcalConstants, hsps->hcalsimpar(), fast));
+  numberingFromDDD = std::make_unique<HcalNumberingFromDDD>(hcalConstants);
+  hfshower = std::make_unique<HFShowerLibrary>(name, hcalConstants, hsps->hcalsimpar(), fast);
 
   //only one thread can be allowed to setup the G4 physics table.
   std::call_once(initializeOnce, []() {

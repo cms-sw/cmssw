@@ -6,10 +6,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
@@ -23,7 +19,8 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-KVFTrackUpdate::KVFTrackUpdate(const edm::ParameterSet& iConfig) {
+KVFTrackUpdate::KVFTrackUpdate(const edm::ParameterSet& iConfig)
+    : estoken_TTB(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
   token_tracks = consumes<TrackCollection>(iConfig.getParameter<InputTag>("TrackLabel"));
   token_beamSpot = consumes<BeamSpot>(iConfig.getParameter<InputTag>("beamSpotLabel"));
 }
@@ -49,15 +46,14 @@ void KVFTrackUpdate::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     edm::LogInfo("RecoVertex/KVFTrackUpdate") << "Found: " << (*tks).size() << " reconstructed tracks"
                                               << "\n";
-    std::cout << "got " << (*tks).size() << " tracks " << std::endl;
+    edm::LogPrint("RecoVertex/KVFTrackUpdate") << "got " << (*tks).size() << " tracks " << std::endl;
 
     // Transform Track to TransientTrack
 
     //get the builder:
-    edm::ESHandle<TransientTrackBuilder> theB;
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+    const auto& theB = &iSetup.getData(estoken_TTB);
     //do the conversion:
-    std::vector<TransientTrack> t_tks = (*theB).build(tks);
+    std::vector<TransientTrack> t_tks = theB->build(tks);
 
     edm::LogInfo("RecoVertex/KVFTrackUpdate") << "Found: " << t_tks.size() << " reconstructed tracks"
                                               << "\n";
@@ -77,10 +73,10 @@ void KVFTrackUpdate::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     SingleTrackVertexConstraint stvc;
     for (unsigned int i = 0; i < t_tks.size(); i++) {
       SingleTrackVertexConstraint::BTFtuple a = stvc.constrain(t_tks[i], glbPos, glbErrPos);
-      std::cout << "Chi2: " << a.get<2>() << std::endl;
+      edm::LogPrint("RecoVertex/KVFTrackUpdate") << "Chi2: " << std::get<2>(a) << std::endl;
       if (recoBeamSpotHandle.isValid()) {
         SingleTrackVertexConstraint::BTFtuple b = stvc.constrain(t_tks[i], *recoBeamSpotHandle);
-        std::cout << "Chi2: " << b.get<2>() << std::endl;
+        edm::LogPrint("RecoVertex/KVFTrackUpdate") << "Chi2: " << std::get<2>(b) << std::endl;
       }
     }
   }

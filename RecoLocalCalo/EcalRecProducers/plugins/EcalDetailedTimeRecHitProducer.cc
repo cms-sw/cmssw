@@ -18,17 +18,16 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 #include <cmath>
+#include <iostream>
+#include <memory>
+
 #include <vector>
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -46,6 +45,8 @@ EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::Parame
 
   ebTimeDigiCollection_ = consumes<EcalTimeDigiCollection>(ps.getParameter<edm::InputTag>("EBTimeDigiCollection"));
   eeTimeDigiCollection_ = consumes<EcalTimeDigiCollection>(ps.getParameter<edm::InputTag>("EETimeDigiCollection"));
+
+  caloGeometry_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   EBDetailedTimeRecHitCollection_ = ps.getParameter<std::string>("EBDetailedTimeRecHitCollection");
   EEDetailedTimeRecHitCollection_ = ps.getParameter<std::string>("EEDetailedTimeRecHitCollection");
@@ -73,8 +74,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
   using namespace edm;
   using namespace reco;
 
-  edm::ESHandle<CaloGeometry> hGeometry;
-  es.get<CaloGeometryRecord>().get(hGeometry);
+  edm::ESHandle<CaloGeometry> hGeometry = es.getHandle(caloGeometry_);
 
   m_geometry = hGeometry.product();
 
@@ -137,7 +137,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         if (!(*VertexHandle).empty())  //at least 1 vertex
         {
           const reco::Vertex* myVertex = &(*VertexHandle)[0];
-          vertex.reset(new GlobalPoint(myVertex->x(), myVertex->y(), myVertex->z()));
+          vertex = std::make_unique<GlobalPoint>(myVertex->x(), myVertex->y(), myVertex->z());
         }
       }
 
@@ -150,7 +150,8 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         {
           assert((*VertexHandle)[0].vertexId() == 0);
           const SimVertex* myVertex = &(*VertexHandle)[0];
-          vertex.reset(new GlobalPoint(myVertex->position().x(), myVertex->position().y(), myVertex->position().z()));
+          vertex = std::make_unique<GlobalPoint>(
+              myVertex->position().x(), myVertex->position().y(), myVertex->position().z());
         }
       }
     }

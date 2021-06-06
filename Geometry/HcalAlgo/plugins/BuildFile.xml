@@ -1,10 +1,11 @@
-<library   file="*.cc" name="GeometryHcalAlgoPlugin">
- <use   name="DetectorDescription/Parser"/>
- <use   name="FWCore/PluginManager"/>
- <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="GeometryHcalAlgoPlugin">
+  <use name="DetectorDescription/Core"/>
+  <use name="FWCore/PluginManager"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="DD4hep_GeometryHcalAlgoPlugins" file="dd4hep/*.cc">
+  <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/DDCMS"/>
   <use name="dd4hep"/>
   <lib name="Geom"/>

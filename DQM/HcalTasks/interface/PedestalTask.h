@@ -20,19 +20,20 @@
 
 class PedestalTask : public hcaldqm::DQTask {
 public:
-  PedestalTask(edm::ParameterSet const&);
+  PedestalTask(edm::ParameterSet const &);
   ~PedestalTask() override {}
 
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const &,
+                                                             edm::EventSetup const &) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndRun(edm::Run const &, edm::EventSetup const &) override;
 
 protected:
   //	funcs
-  void _process(edm::Event const&, edm::EventSetup const&) override;
+  void _process(edm::Event const &, edm::EventSetup const &) override;
   void _resetMonitors(hcaldqm::UpdateFreq) override;
-  bool _isApplicable(edm::Event const&) override;
+  bool _isApplicable(edm::Event const &) override;
   virtual void _dump();
 
   //	tags and tokens
@@ -46,6 +47,7 @@ protected:
   edm::EDGetTokenT<HODigiCollection> _tokHO;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   std::vector<hcaldqm::flag::Flag> _vflags;
   enum PedestalFlag { fMsn = 0, fBadM = 1, fBadR = 2, nPedestalFlag = 3 };

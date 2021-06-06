@@ -1,9 +1,10 @@
-#ifndef PixelUnpackingRegions_H
-#define PixelUnpackingRegions_H
+#ifndef EventFilter_SiPixelRawToDigi_interface_PixelUnpackingRegions_h
+#define EventFilter_SiPixelRawToDigi_interface_PixelUnpackingRegions_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -12,6 +13,8 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <cmath>
@@ -119,6 +122,8 @@ private:
   math::XYZPoint beamSpot_;
 
   edm::ESWatcher<SiPixelFedCablingMapRcd> watcherSiPixelFedCablingMap_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 };
 
-#endif
+#endif  // EventFilter_SiPixelRawToDigi_interface_PixelUnpackingRegions_h

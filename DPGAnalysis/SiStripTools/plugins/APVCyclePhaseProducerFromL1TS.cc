@@ -69,11 +69,12 @@ private:
 
   // ----------member data ---------------------------
 
+  const bool m_ignoreDB;
   edm::ESWatcher<SiStripConfObjectRcd> m_eswatcher;
   edm::EDGetTokenT<Level1TriggerScalersCollection> _l1tscollectionToken;
   edm::EDGetTokenT<TCDSRecord> _tcdsRecordToken;
-  const bool m_ignoreDB;
-  const std::string m_rcdLabel;
+  edm::ESGetToken<SiStripConfObject, SiStripConfObjectRcd> _confObjectToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> _tTopoToken;
   std::vector<std::string> _defpartnames;
   std::vector<int> _defphases;
   bool _useEC0;
@@ -103,12 +104,17 @@ private:
 // constructors and destructor
 //
 APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::ParameterSet& iConfig)
-    : m_eswatcher(),
+    : m_ignoreDB(iConfig.getUntrackedParameter<bool>("ignoreDB", false)),
+      m_eswatcher(),
       _l1tscollectionToken(
           consumes<Level1TriggerScalersCollection>(iConfig.getParameter<edm::InputTag>("l1TSCollection"))),
       _tcdsRecordToken(consumes<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
-      m_ignoreDB(iConfig.getUntrackedParameter<bool>("ignoreDB", false)),
-      m_rcdLabel(iConfig.getUntrackedParameter<std::string>("recordLabel", "apvphaseoffsets")),
+      _confObjectToken((!m_ignoreDB)
+                           ? decltype(_confObjectToken){esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{
+                                 "", iConfig.getUntrackedParameter<std::string>("recordLabel", "apvphaseoffsets")})}
+                           : decltype(_confObjectToken){}),
+      _tTopoToken((!m_ignoreDB) ? decltype(_tTopoToken){esConsumes<edm::Transition::BeginRun>()}
+                                : decltype(_tTopoToken){}),
       _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
       _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
       _useEC0(iConfig.getUntrackedParameter<bool>("useEC0", false)),
@@ -150,21 +156,17 @@ void APVCyclePhaseProducerFromL1TS::beginRun(const edm::Run& iRun, const edm::Ev
   // update the parameters from DB
 
   if (!m_ignoreDB && m_eswatcher.check(iSetup)) {
-    edm::ESHandle<SiStripConfObject> confObj;
-    iSetup.get<SiStripConfObjectRcd>().get(m_rcdLabel, confObj);
-
-    edm::ESHandle<TrackerTopology> tTopo;
-    iSetup.get<TrackerTopologyRcd>().get(tTopo);
+    const auto& confObj = iSetup.getData(_confObjectToken);
 
     std::stringstream summary;
-    confObj->printDebug(summary, tTopo.product());
+    confObj.printDebug(summary, &iSetup.getData(_tTopoToken));
     LogDebug("SiStripConfObjectSummary") << summary.str();
 
-    _defpartnames = confObj->get<std::vector<std::string> >("defaultPartitionNames");
-    _defphases = confObj->get<std::vector<int> >("defaultPhases");
-    _useEC0 = confObj->get<bool>("useEC0");
-    m_badRun = confObj->get<bool>("badRun");
-    _magicOffset = confObj->get<int>("magicOffset");
+    _defpartnames = confObj.get<std::vector<std::string> >("defaultPartitionNames");
+    _defphases = confObj.get<std::vector<int> >("defaultPhases");
+    _useEC0 = confObj.get<bool>("useEC0");
+    m_badRun = confObj.get<bool>("badRun");
+    _magicOffset = confObj.get<int>("magicOffset");
 
     std::stringstream ss;
     printConfiguration(ss);

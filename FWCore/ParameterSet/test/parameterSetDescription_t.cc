@@ -6,10 +6,12 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"
 #include "FWCore/ParameterSet/interface/IfExistsDescription.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterWildcardWithSpecifics.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginMacros.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginFactoryMacros.h"
@@ -295,7 +297,62 @@ namespace testParameterSetDescription {
     return;
   }
 
+  void testWildcardWithExceptions() {
+    {
+      edm::ParameterSetDescription set;
+
+      edm::ParameterSetDescription wild;
+      wild.addUntracked<unsigned>("n11", 1);
+
+      edm::ParameterSetDescription except_;
+      except_.addUntracked<double>("f", 3.14);
+      std::map<std::string, edm::ParameterSetDescription> excptions = {{"special", except_}};
+      edm::ParameterWildcardWithSpecifics w("*", edm::RequireZeroOrMore, true, wild, std::move(excptions));
+      set.addNode(w);
+      edm::ParameterSet pset;
+      testDesc(w, set, pset, true, true);
+      edm::ParameterSet nested1;
+      nested1.addUntrackedParameter<unsigned>("n11", 3);
+      pset.addParameter<edm::ParameterSet>("nested1", nested1);
+      testDesc(w, set, pset, true, true);
+      edm::ParameterSet special;
+      special.addUntrackedParameter<double>("f", 5);
+      pset.addParameter<edm::ParameterSet>("special", special);
+      testDesc(w, set, pset, true, true);
+    }
+
+    {
+      edm::ParameterSetDescription set;
+
+      edm::ParameterSetDescription wild;
+      wild.add<unsigned>("n11", 1);
+
+      edm::ParameterSetDescription except_;
+      except_.add<double>("f", 3.14);
+      std::map<std::string, edm::ParameterSetDescription> excptions = {{"special", except_}};
+      edm::ParameterWildcardWithSpecifics w("*", edm::RequireZeroOrMore, true, wild, std::move(excptions));
+      set.addNode(w);
+      edm::ParameterSet pset;
+      testDesc(w, set, pset, true, true);
+      edm::ParameterSet nested1;
+      nested1.addParameter<unsigned>("n11", 3);
+      pset.addParameter<edm::ParameterSet>("nested1", nested1);
+      testDesc(w, set, pset, true, true);
+      edm::ParameterSet special;
+      special.addParameter<double>("f", 5);
+      pset.addParameter<edm::ParameterSet>("special", special);
+      testDesc(w, set, pset, true, true);
+    }
+  }
+
   // ---------------------------------------------------------------------------------
+
+  void testAllowedValues() {
+    // Duplicate case values not allowed
+    edm::ParameterSetDescription psetDesc;
+    psetDesc.ifValue(edm::ParameterDescription<std::string>("sswitch", "a", true),
+                     edm::allowedValues<std::string>("a", "h", "z"));
+  }
 
   void testSwitch() {
     // Duplicate case values not allowed
@@ -1715,7 +1772,9 @@ int main(int, char**) try {
   psetDesc.validate(pset);
 
   testParameterSetDescription::testWildcards();
+  testParameterSetDescription::testWildcardWithExceptions();
   testParameterSetDescription::testSwitch();
+  testParameterSetDescription::testAllowedValues();
   testParameterSetDescription::testXor();
   testParameterSetDescription::testOr();
   testParameterSetDescription::testAnd();

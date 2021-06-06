@@ -56,18 +56,16 @@ private:
 
 public:
   // size of ID bits
-  static const int vfatVerV3_ = 3;        // VFAT v3
-  static const int vfatTypeV3_ = 11;      // VFAT v3
-  static const int chipIdBits_ = 12;      // ID size from VFat
-  static const int chipIdMask_ = 0xfff;   // chipId mask for 12 bits
-  static const int gebIdBits_ = 5;        // ID size from GEB
-  static const int maxGEBs_ = 32;         // 5 bits for GEB id
-  static const int maxAMCs_ = 16;         // 4 bits for AMC no.
-  static const int maxVFatGE0_ = 12;      // vFat per eta partition, not known yet for ME0
-  static const int maxVFatGE11_ = 3;      // vFat per eta partition in GE11
-  static const int maxVFatGE21_ = 6;      // vFat per eta partition in GE21
-  static const int maxChan_ = 128;        // channels per vFat
-  static const int amcBX_ = 25;           // amc BX to get strip bx
-  static const int maxEtaPartition_ = 8;  // etaPartitions in chamber
+  static const int vfatVerV3_ = 3;       // VFAT v3
+  static const int vfatTypeV3_ = 11;     // VFAT v3
+  static const int chipIdMask_ = 0xfff;  // chipId mask for 12 bits
+  static const int maxGEBs_ = 24;        // 5 bits for GEB id
+  static const int maxGEB1_ = 12;        // 5 bits for GEB id
+  static const int maxGEB2_ = 12;        // 5 bits for GEB id
+  static const int maxAMCs_ = 15;        // 4 bits for AMC no.
+  static const int maxVFatGE0_ = 12;     // vFat per eta partition, not known yet for ME0
+  static const int maxVFatGE11_ = 3;     // vFat per eta partition in GE11
+  static const int maxVFatGE21_ = 6;     // vFat per eta partition in GE21
+  static const int maxChan_ = 128;       // channels per vFat
 };
 #endif  // GEMeMap_H

@@ -3,10 +3,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-MaterialBudgetTree::MaterialBudgetTree(std::shared_ptr<MaterialBudgetData> data, const std::string& filename)
+MaterialBudgetTree::MaterialBudgetTree(std::shared_ptr<MaterialBudgetData> data, const std::string &filename)
     : MaterialBudgetFormat(data) {
-  theFile = std::make_unique<TFile>(filename.c_str(), "RECREATE");
-  theFile->cd();
+  fname = filename;
   book();
 }
 
@@ -112,8 +111,6 @@ void MaterialBudgetTree::fillPerStep() {}
 void MaterialBudgetTree::fillEndTrack() {
   t_MB = theData->getTotalMB();
   t_IL = theData->getTotalIL();
-  //  t_Eta = theData->getEta();
-  //  t_Phi = theData->getPhi();
 
   t_ParticleID = theData->getID();
   t_ParticlePt = theData->getPt();
@@ -204,16 +201,28 @@ void MaterialBudgetTree::fillEndTrack() {
     }
   }
 
-  theTree->Fill();
+  if (theData->getNumberOfSteps() != 0) {
+    Int_t ssize = theTree->Fill();
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetTree: Filling Tree " << ssize << " bytes";
+  } else {
+    edm::LogWarning("MaterialBudget") << "MaterialBudgetTree: Event with 0 steps not recorded";
+  }
 }
 
 void MaterialBudgetTree::endOfRun() {
   // Prefered method to include any instruction
   // once all the tracks are done
 
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetTree Writing TTree to ROOT file";
+  TFile *outFile = new TFile(fname.c_str(), "RECREATE");
+  outFile->mkdir("TEST");
 
-  theFile->cd();
-  theTree->Write();
-  theFile->Close();
+  if (theTree) {
+    TTree *t1 = theTree->CloneTree();
+    t1->Write();
+    edm::LogWarning("MaterialBudget") << "TTree Written " << t1;
+  } else {
+    edm::LogError("MaterialBudget") << "Material Budget Tree: Tree Pointer Null";
+  }
+
+  delete outFile;
 }

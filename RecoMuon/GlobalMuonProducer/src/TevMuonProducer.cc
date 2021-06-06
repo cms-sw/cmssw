@@ -33,7 +33,7 @@ using namespace reco;
 //
 // constructor with config
 //
-TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
+TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) : tTopoToken(esConsumes()) {
   LogDebug("Muon|RecoMuon|TevMuonProducer") << "constructor called" << endl;
 
   // GLB Muon Collection Label
@@ -92,9 +92,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   theRefitter->setServices(theService->eventSetup());
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  eventSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  const TrackerTopology* tTopo = &eventSetup.getData(tTopoToken);
 
   // Take the GLB muon container(s)
   Handle<reco::TrackCollection> glbMuons;

@@ -3,7 +3,6 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include <cmath>
-#include <boost/lexical_cast.hpp>
 
 void LA_Filler_Fitter::fill(TTree* tree, Book& book) const {
   TTREE_FOREACH_ENTRY(tree) {

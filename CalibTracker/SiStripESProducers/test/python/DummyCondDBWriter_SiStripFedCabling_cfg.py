@@ -8,11 +8,17 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Builder")
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     debugModules = cms.untracked.vstring('siStripFedCablingDummyDBWriter'),
-    threshold = cms.untracked.string('DEBUG'),
-    destinations = cms.untracked.vstring('CablingBuilder.log')
+    files = cms.untracked.PSet(
+        CablingBuilder = cms.untracked.PSet(
+
+        )
+    ),
+    threshold = cms.untracked.string('DEBUG')
 )
 
 process.maxEvents = cms.untracked.PSet(

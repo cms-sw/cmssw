@@ -10,6 +10,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include "SharedResourcesRegistry.h"
 
@@ -24,18 +26,18 @@ namespace edm {
 
   EDFilter::~EDFilter() {}
 
-  bool EDFilter::doEvent(EventPrincipal const& ep,
-                         EventSetupImpl const& c,
-                         ActivityRegistry* act,
-                         ModuleCallingContext const* mcc) {
+  bool EDFilter::doEvent(EventTransitionInfo const& info, ActivityRegistry* act, ModuleCallingContext const* mcc) {
     bool rc = false;
-    Event e(ep, moduleDescription_, mcc);
+    Event e(info, moduleDescription_, mcc);
     e.setConsumer(this);
     e.setProducer(this, &previousParentage_);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act, mcc);
+    ESParentContext parentC(mcc);
     rc = this->filter(
-        e, EventSetup{c, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false});
+        e,
+        EventSetup{
+            info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false});
     commit_(e, &previousParentageId_);
     return rc;
   }
@@ -49,52 +51,58 @@ namespace edm {
 
   void EDFilter::doEndJob() { this->endJob(); }
 
-  void EDFilter::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) {
-    Run r(rp, moduleDescription_, mcc, false);
+  void EDFilter::doBeginRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    Run r(info, moduleDescription_, mcc, false);
     r.setConsumer(this);
     Run const& cnstR = r;
-    this->beginRun(
-        cnstR,
-        EventSetup{c, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false});
+    ESParentContext parentC(mcc);
+    this->beginRun(cnstR,
+                   EventSetup{info,
+                              static_cast<unsigned int>(Transition::BeginRun),
+                              esGetTokenIndices(Transition::BeginRun),
+                              parentC,
+                              false});
     commit_(r);
     return;
   }
 
-  void EDFilter::doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc) {
-    Run r(rp, moduleDescription_, mcc, true);
+  void EDFilter::doEndRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    Run r(info, moduleDescription_, mcc, true);
     r.setConsumer(this);
     Run const& cnstR = r;
+    ESParentContext parentC(mcc);
     this->endRun(
         cnstR,
-        EventSetup{c, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false});
+        EventSetup{
+            info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false});
     commit_(r);
     return;
   }
 
-  void EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                        EventSetupImpl const& c,
-                                        ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
+  void EDFilter::doBeginLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    LuminosityBlock lb(info, moduleDescription_, mcc, false);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
+    ESParentContext parentC(mcc);
     this->beginLuminosityBlock(cnstLb,
-                               EventSetup{c,
+                               EventSetup{info,
                                           static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                                           esGetTokenIndices(Transition::BeginLuminosityBlock),
+                                          parentC,
                                           false});
     commit_(lb);
   }
 
-  void EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                      EventSetupImpl const& c,
-                                      ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
+  void EDFilter::doEndLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    LuminosityBlock lb(info, moduleDescription_, mcc, true);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
+    ESParentContext parentC(mcc);
     this->endLuminosityBlock(cnstLb,
-                             EventSetup{c,
+                             EventSetup{info,
                                         static_cast<unsigned int>(Transition::EndLuminosityBlock),
                                         esGetTokenIndices(Transition::EndLuminosityBlock),
+                                        parentC,
                                         false});
     commit_(lb);
     return;

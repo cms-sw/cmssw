@@ -26,7 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include "DataFormats/Common/interface/ErrorSummaryEntry.h"
 #include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
 
 //
@@ -101,6 +101,7 @@ public:
   // ---------- member data ---------------------------
   uint32_t m_prescale;  // default threshold, after which messages in each Category start to be logarithmically prescaled
   CategoryMap m_data;   // map each category name to its prescale data
+  edm::EDPutTokenT<std::vector<edm::ErrorSummaryEntry>> m_putToken;
 };
 
 // system include files
@@ -128,7 +129,7 @@ HLTLogMonitorFilter::HLTLogMonitorFilter(const edm::ParameterSet& config) : m_pr
     addCategory(name, threshold);
   }
 
-  produces<std::vector<edm::ErrorSummaryEntry> >();
+  m_putToken = produces<std::vector<edm::ErrorSummaryEntry>>();
 }
 
 HLTLogMonitorFilter::~HLTLogMonitorFilter() = default;
@@ -151,7 +152,7 @@ bool HLTLogMonitorFilter::filter(edm::Event& event, const edm::EventSetup& setup
   bool accept = false;
   std::string category;
 
-  std::vector<edm::ErrorSummaryEntry> errorSummary{edm::LoggedErrorsSummary(event.streamID().value())};
+  std::vector<edm::messagelogger::ErrorSummaryEntry> errorSummary{edm::LoggedErrorsSummary(event.streamID().value())};
   for (auto const& entry : errorSummary) {
     // split the message category
     typedef boost::split_iterator<std::string::const_iterator> splitter;
@@ -169,11 +170,19 @@ bool HLTLogMonitorFilter::filter(edm::Event& event, const edm::EventSetup& setup
   }
 
   // harvest the errors, but only if the filter will accept the event
-  std::unique_ptr<std::vector<edm::ErrorSummaryEntry> > errors(new std::vector<edm::ErrorSummaryEntry>());
+  std::vector<edm::ErrorSummaryEntry> errors;
   if (accept) {
-    errors->swap(errorSummary);
+    errors.reserve(errorSummary.size());
+    std::transform(errorSummary.begin(), errorSummary.end(), std::back_inserter(errors), [](auto& iEntry) {
+      edm::ErrorSummaryEntry entry;
+      entry.category = std::move(iEntry.category);
+      entry.module = std::move(iEntry.module);
+      entry.severity = edm::ELseverityLevel(iEntry.severity.getLevel());
+      entry.count = iEntry.count;
+      return entry;
+    });
   }
-  event.put(std::move(errors));
+  event.emplace(m_putToken, std::move(errors));
 
   return accept;
 }

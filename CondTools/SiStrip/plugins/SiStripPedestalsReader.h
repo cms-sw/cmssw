@@ -31,5 +31,6 @@ public:
 
 private:
   uint32_t printdebug_;
+  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
 };
 #endif

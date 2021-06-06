@@ -1,5 +1,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 
@@ -7,8 +9,6 @@
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
 
 ConditionHelper::ConditionHelper() : params_cache_id_(0ULL), forest_cache_id_(0ULL) {}
 
@@ -83,4 +83,9 @@ unsigned int ConditionHelper::get_pc_lut_version() const {
   } else {
     return 2;  // Starting September 26, 2018 with run 323556 (data only, not in MC)
   }
+}
+
+unsigned int ConditionHelper::get_pc_lut_version_unchecked() const {
+  // See comment in get_pc_lut_version()
+  return params_->PhiMatchWindowSt1_;
 }

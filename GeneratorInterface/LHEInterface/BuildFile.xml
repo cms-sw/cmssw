@@ -1,23 +1,17 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
 <use name="Utilities/Xerces"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="Utilities/StorageFactory"/>
 <use name="hepmc"/>
 <use name="boost"/>
-<use name="sigcpp"/>
 <use name="xerces-c"/>
 <use name="rootmath"/>
-<use name="libhepml"/>
 <use name="fastjet"/>
 <use name="xz"/>
+<use name="hdf5"/>
+<use name="highfive"/>
 <export>
-	<use name="FWCore/ParameterSet"/>
-	<use name="FWCore/PluginManager"/>
-	<use name="boost"/>
-	<use name="sigcpp"/>
-	<use name="hepmc"/>
-	<lib name="GeneratorInterfaceLHEInterface"/>
+  <lib name="1"/>
 </export>

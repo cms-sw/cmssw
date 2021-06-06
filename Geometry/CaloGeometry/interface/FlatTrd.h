@@ -65,8 +65,12 @@ public:
 
   GlobalPoint const& getPosition() const override { return m_global; }
   GlobalPoint getPosition(const Pt3D& local) const override;
-  virtual float etaPos() const { return m_global.eta(); }
-  virtual float phiPos() const { return m_global.phi(); }
+  float etaPos() const override { return m_global.eta(); }
+  float phiPos() const override { return m_global.phi(); }
+  float etaSpan() const override;
+  float phiSpan() const override;
+  float zPos() const { return m_global.z(); }
+  float dz() const { return param()[k_dZ]; }
   Pt3D getLocal(const GlobalPoint& global) const;
 
   // Return thetaAxis polar angle of axis of the crystal

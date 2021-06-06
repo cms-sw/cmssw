@@ -24,6 +24,6 @@
 
 class HcalCalibrationQIEDataRcd : public edm::eventsetup::DependentRecordImplementation<
                                       HcalCalibrationQIEDataRcd,
-                                      boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                                      edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

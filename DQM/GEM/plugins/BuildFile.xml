@@ -1,20 +1,11 @@
 <library file="*.cc" name="DQMGEMPlugins">
-	<flags EDM_PLUGIN="1"/>
-
-	<use name="FWCore/Framework"/>
-	<use name="FWCore/ParameterSet"/>
-	<use name="FWCore/Utilities"/>
-
-	<use name="DQMServices/Core"/>
-
-	<use name="DataFormats/Common"/>
-	<use name="DataFormats/MuonDetId"/>
-	<use name="DataFormats/GEMDigi"/>
-	<use name="DataFormats/GEMRecHit"/>
-	
-	<use name="Geometry/Records"/>
-        <use name="Geometry/CommonDetUnit"/>
-        <use name="Geometry/GEMGeometry"/>
-
-	<use name="DQM/GEM"/>
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DQM/GEM"/>
+  <use name="DQMServices/Core"/>
+  <use name="DataFormats/GEMDigi"/>
+  <use name="DataFormats/GEMRecHit"/>
+  <use name="Validation/MuonGEMHits"/>
 </library>

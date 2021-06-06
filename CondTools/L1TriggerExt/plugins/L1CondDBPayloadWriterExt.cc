@@ -14,6 +14,7 @@ L1CondDBPayloadWriterExt::L1CondDBPayloadWriterExt(const edm::ParameterSet& iCon
       m_logTransactions(iConfig.getParameter<bool>("logTransactions")),
       m_newL1TriggerKeyListExt(iConfig.getParameter<bool>("newL1TriggerKeyListExt")) {
   //now do what ever initialization is needed
+  key_token = esConsumes<L1TriggerKeyExt, L1TriggerKeyExtRcd>();
 }
 
 L1CondDBPayloadWriterExt::~L1CondDBPayloadWriterExt() {
@@ -38,18 +39,16 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
 
   // Write L1TriggerKeyExt to ORCON with no IOV
   std::string token;
-  ESHandle<L1TriggerKeyExt> key;
-
+  L1TriggerKeyExt key;
   // Before calling writePayload(), check if TSC key is already in
   // L1TriggerKeyListExt.  writePayload() will not catch this situation in
   // the case of dummy configurations.
   bool triggerKeyOK = true;
   try {
     // Get L1TriggerKeyExt
-    iSetup.get<L1TriggerKeyExtRcd>().get(key);
-
+    key = iSetup.get<L1TriggerKeyExtRcd>().get(key_token);
     if (!m_overwriteKeys) {
-      triggerKeyOK = oldKeyList.token(key->tscKey()).empty();
+      triggerKeyOK = oldKeyList.token(key.tscKey()).empty();
     }
   } catch (l1t::DataAlreadyPresentException& ex) {
     triggerKeyOK = false;
@@ -57,7 +56,7 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
   }
 
   if (triggerKeyOK && m_writeL1TriggerKeyExt) {
-    edm::LogVerbatim("L1-O2O") << "Object key for L1TriggerKeyExtRcd@L1TriggerKeyExt: " << key->tscKey();
+    edm::LogVerbatim("L1-O2O") << "Object key for L1TriggerKeyExtRcd@L1TriggerKeyExt: " << key.tscKey();
     token = m_writer.writePayload(iSetup, "L1TriggerKeyExtRcd@L1TriggerKeyExt");
   }
 
@@ -68,15 +67,15 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
     // Record token in L1TriggerKeyListExt
     if (m_writeL1TriggerKeyExt) {
       keyList = new L1TriggerKeyListExt(oldKeyList);
-      if (!(keyList->addKey(key->tscKey(), token, m_overwriteKeys))) {
-        throw cond::Exception("L1CondDBPayloadWriter: TSC key " + key->tscKey() + " already in L1TriggerKeyListExt");
+      if (!(keyList->addKey(key.tscKey(), token, m_overwriteKeys))) {
+        throw cond::Exception("L1CondDBPayloadWriter: TSC key " + key.tscKey() + " already in L1TriggerKeyListExt");
       }
     }
 
     if (m_writeConfigData) {
       // Loop over record@type in L1TriggerKeyExt
-      L1TriggerKeyExt::RecordToKey::const_iterator it = key->recordToKeyMap().begin();
-      L1TriggerKeyExt::RecordToKey::const_iterator end = key->recordToKeyMap().end();
+      L1TriggerKeyExt::RecordToKey::const_iterator it = key.recordToKeyMap().begin();
+      L1TriggerKeyExt::RecordToKey::const_iterator end = key.recordToKeyMap().end();
 
       for (; it != end; ++it) {
         // Do nothing if object key is null.

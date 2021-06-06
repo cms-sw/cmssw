@@ -31,6 +31,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 // system
 #include <string>
@@ -91,6 +92,11 @@ private:
   //bool channel_iluminated_by_(const MeasurementPoint & localpos,int channel, double tolerance) const;
   bool channel_iluminated_by_(const PSimHit &localpos, int channel, const PixelGeomDetUnit *tkDet);
 
+  // The list of channels illuminated by the PSimHit
+  std::set<int> get_illuminated_channels_(const PSimHit &ps,
+                                          const DetId &detid,
+                                          const edm::DetSetVector<PixelDigiSimLink> *simdigis);
+
   // The list of pixels illuminated by the PSimHit
   std::set<std::pair<int, int>> get_illuminated_pixels_(const PSimHit &ps, const PixelGeomDetUnit *tkDetUnit);
 
@@ -132,13 +138,17 @@ private:
   std::map<int, MonitorElement *> vME_clsize1Dx_;
   std::map<int, MonitorElement *> vME_clsize1Dy_;
   std::map<int, MonitorElement *> vME_charge1D_;
+  std::map<int, MonitorElement *> vME_charge_elec1D_;
   std::map<int, MonitorElement *> vME_track_dxdz_;
   std::map<int, MonitorElement *> vME_track_dydz_;
   std::map<int, MonitorElement *> vME_track_dxdzAngle_;
   std::map<int, MonitorElement *> vME_track_dydzAngle_;
   std::map<int, MonitorElement *> vME_dx1D_;
   std::map<int, MonitorElement *> vME_dy1D_;
+  std::map<int, MonitorElement *> vME_dxy2D_;
   std::map<int, MonitorElement *> vME_digi_charge1D_;
+  std::map<int, MonitorElement *> vME_digi_chargeElec1D_;
+  std::map<int, MonitorElement *> vME_sim_cluster_charge_;
   // --- cell histograms per subdector , each element on the
   //     vector 0: total, 1: 1x1, 2: 2x2, (3: 3x3, 4: 4x4)?
   std::map<int, std::vector<MonitorElement *>> vME_pshpos_cell_;
@@ -146,6 +156,7 @@ private:
   std::map<int, std::vector<MonitorElement *>> vME_eff_cell_;
   std::map<int, std::vector<MonitorElement *>> vME_clsize_cell_;
   std::map<int, std::vector<MonitorElement *>> vME_charge_cell_;
+  std::map<int, std::vector<MonitorElement *>> vME_charge_elec_cell_;
   std::map<int, std::vector<MonitorElement *>> vME_dx_cell_;
   std::map<int, std::vector<MonitorElement *>> vME_dy_cell_;
 
@@ -157,6 +168,11 @@ private:
   // Geometry to use
   std::string geomType_;
 
+  // The threshold and the conversion between ToT to electrons (Be carefull, this should
+  // be using the same value used in the digitization module)
+  double thresholdInElectrons_;
+  double electronsPerADC_;
+  double electronsAtToT0_;
   // The tracks entry angle to accept (if any)
   std::vector<double> tracksEntryAngleX_;
   std::vector<double> tracksEntryAngleY_;

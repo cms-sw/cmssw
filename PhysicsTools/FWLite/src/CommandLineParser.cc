@@ -50,7 +50,7 @@ void CommandLineParser::parseArguments(int argc, char **argv, bool returnArgs) {
   for (int loop = 1; loop < argc; ++loop) {
     string arg = argv[loop];
     m_fullArgVec.push_back(arg);
-    string::size_type where = arg.find_first_of("=");
+    string::size_type where = arg.find_first_of('=');
     if (string::npos != where) {
       if (_setVariableFromString(arg)) {
         continue;
@@ -62,7 +62,7 @@ void CommandLineParser::parseArguments(int argc, char **argv, bool returnArgs) {
       exit(0);
     }  // tag=value strings
     else if (arg.at(0) == '-') {
-      string::size_type where = arg.find_first_not_of("-");
+      string::size_type where = arg.find_first_not_of('-');
       if (string::npos == where) {
         // a poorly formed option
         cerr << "Don't understand: " << arg << endl;
@@ -147,7 +147,7 @@ void CommandLineParser::split(SVec &retval, string line, string match, bool igno
 }
 
 void CommandLineParser::removeComment(string &line) {
-  string::size_type location = line.find("#");
+  string::size_type location = line.find('#');
   if (string::npos != location) {
     // we've got a comment.  Strip it out
     line = line.substr(0, location - 1);
@@ -311,7 +311,7 @@ void CommandLineParser::printOptionValues() {
 }
 
 bool CommandLineParser::_setVariableFromString(const string &arg, bool dontOverrideChange, int offset) {
-  string::size_type where = arg.find_first_of("=", offset + 1);
+  string::size_type where = arg.find_first_of('=', offset + 1);
   string varname = arg.substr(offset, where - offset);
   string value = arg.substr(where + 1);
   lowercaseString(varname);

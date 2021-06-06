@@ -6,9 +6,9 @@ process.load("Geometry.HcalAlgo.testGeomHcalXtal_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cerr')
-    process.MessageLogger.categories.append('G4cout')
-    process.MessageLogger.categories.append('HCalGeom')
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.HCalGeom=dict()
 
 process.source = cms.Source("EmptySource")
 

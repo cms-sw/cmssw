@@ -2,11 +2,12 @@
 #define RecoMuon_MuonIdentification_MuonKinkFinder_h
 
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 
 class MuonKinkFinder {
 public:
-  MuonKinkFinder(const edm::ParameterSet &iConfig);
+  MuonKinkFinder(const edm::ParameterSet &iConfig, edm::ConsumesCollector &iC);
   ~MuonKinkFinder();
 
   // set event setup

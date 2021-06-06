@@ -1,9 +1,3 @@
-/*
- *
- * Generates PYQUEN HepMC events
- *
-*/
-
 #include <iostream>
 #include <ctime>
 
@@ -35,7 +29,7 @@ HepMC::IO_HEPEVT hepevtio;
 const std::vector<std::string> PyquenHadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6,
                                                                        gen::FortranInstance::kFortranInstance};
 
-PyquenHadronizer ::PyquenHadronizer(const ParameterSet& pset)
+PyquenHadronizer ::PyquenHadronizer(const ParameterSet& pset, edm::ConsumesCollector&& iC)
     : BaseHadronizer(pset),
       pset_(pset),
       abeamtarget_(pset.getParameter<double>("aBeamTarget")),
@@ -56,10 +50,23 @@ PyquenHadronizer ::PyquenHadronizer(const ParameterSet& pset)
       qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
       qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
       maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint", 1)),
+      fVertex_(nullptr),
       pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false)),
       pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
       pythia6Service_(new Pythia6Service(pset)),
       filterType_(pset.getUntrackedParameter<string>("filterType", "None")) {
+  if (pset.exists("signalVtx"))
+    signalVtx_ = pset.getUntrackedParameter<std::vector<double> >("signalVtx");
+
+  if (signalVtx_.size() == 4) {
+    if (!fVertex_)
+      fVertex_ = new HepMC::FourVector();
+    LogDebug("EventSignalVertex") << "Setting event signal vertex "
+                                  << " x = " << signalVtx_.at(0) << " y = " << signalVtx_.at(1)
+                                  << "  z= " << signalVtx_.at(2) << " t = " << signalVtx_.at(3) << endl;
+    fVertex_->set(signalVtx_.at(0), signalVtx_.at(1), signalVtx_.at(2), signalVtx_.at(3));
+  }
+
   // Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   LogDebug("PYLISTverbosity") << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << endl;
@@ -73,12 +80,14 @@ PyquenHadronizer ::PyquenHadronizer(const ParameterSet& pset)
 
   if (embedding_) {
     cflag_ = 0;
-    src_ = pset.getParameter<InputTag>("backgroundLabel");
+    src_ = iC.consumes<CrossingFrame<edm::HepMCProduct> >(
+        pset.getUntrackedParameter<edm::InputTag>("backgroundLabel", edm::InputTag("mix", "generatorSmeared")));
   }
   selector_ = HiGenEvtSelectorFactory::get(filterType_, pset);
 
   int cm = 1, va, vb, vc;
   PYQVER(cm, va, vb, vc);
+  //HepMC::HEPEVT_Wrapper::set_max_number_entries(4000);
 }
 
 //_____________________________________________________________________
@@ -122,13 +131,47 @@ bool PyquenHadronizer::generatePartonsAndHadronize() {
   // at this part, need to overwrite filter() in
   // PyquenGeneratorFilter
 
-  const edm::Event& e = getEDMEvent();
-
   if (embedding_) {
-    Handle<HepMCProduct> input;
-    e.getByLabel(src_, input);
-    const HepMC::GenEvent* inev = input->GetEvent();
+    const edm::Event& e = getEDMEvent();
+    HepMC::GenVertex* genvtx = nullptr;
+    const HepMC::GenEvent* inev = nullptr;
+    Handle<CrossingFrame<HepMCProduct> > cf;
+    e.getByToken(src_, cf);
+    MixCollection<HepMCProduct> mix(cf.product());
+    if (mix.size() < 1) {
+      throw cms::Exception("MatchVtx") << "Mixing has " << mix.size() << " sub-events, should have been at least 1"
+                                       << endl;
+    }
+    const HepMCProduct& bkg = mix.getObject(0);
+    if (!(bkg.isVtxGenApplied())) {
+      throw cms::Exception("MatchVtx") << "Input background does not have smeared vertex!" << endl;
+    } else {
+      inev = bkg.GetEvent();
+    }
+
+    genvtx = inev->signal_process_vertex();
+
+    if (!genvtx)
+      throw cms::Exception("MatchVtx") << "Input background does not have signal process vertex!" << endl;
+
+    double aX, aY, aZ, aT;
+
+    aX = genvtx->position().x();
+    aY = genvtx->position().y();
+    aZ = genvtx->position().z();
+    aT = genvtx->position().t();
+
+    if (!fVertex_) {
+      fVertex_ = new HepMC::FourVector();
+    }
+
+    //LogInfo("MatchVtx")
+    std::cout << " setting vertex "
+              << " aX " << aX << " aY " << aY << " aZ " << aZ << " aT " << aT << endl;
+    fVertex_->set(aX, aY, aZ, aT);
+
     const HepMC::HeavyIon* hi = inev->heavy_ion();
+
     if (hi) {
       bfixed_ = hi->impact_parameter();
       evtPlane_ = hi->event_plane_angle();
@@ -169,6 +212,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize() {
   call_pyhepc(1);
 
   // event information
+  // hepevtio.set_trust_mothers_before_daughters(true);
   HepMC::GenEvent* evt = hepevtio.read_next_event();
 
   evt->set_signal_process_id(pypars.msti[0]);  // type of the process
@@ -178,8 +222,15 @@ bool PyquenHadronizer::generatePartonsAndHadronize() {
     rotateEvtPlane(evt, evtPlane_);
   add_heavy_ion_rec(evt);
 
-  HepMC::HEPEVT_Wrapper::check_hepevt_consistency();
-  //std::cout<<"Entries number: "<<HepMC::HEPEVT_Wrapper::number_entries() <<" Max. entries "<<HepMC::HEPEVT_Wrapper::max_number_entries()<<std::endl;
+  if (fVertex_) {
+    // Copy the HepMC::GenEvent
+    std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(evt));
+
+    HepMCEvt->applyVtxGen(fVertex_);
+    evt = new HepMC::GenEvent((*HepMCEvt->GetEvent()));
+  }
+
+  //  HepMC::HEPEVT_Wrapper::check_hepevt_consistency();
 
   event().reset(evt);
 

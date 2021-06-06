@@ -26,18 +26,10 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -64,11 +56,11 @@ private:
     int layer;
   };
 
-  virtual void beginJob() override {}
-  virtual void endJob() override {}
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override {}
+  void endJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   template <class T1, class T2>
   void recHitValidation(DetId& detId, int layer, const T1* geom, T2 it);
@@ -79,7 +71,9 @@ private:
   // ----------member data ---------------------------
   const std::string nameDetector_;
   edm::EDGetToken recHitSource_;
-  const bool ifNose_, ifHCAL_, ifLayer_;
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcaldd_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcGeom_;
+  const bool ifNose_, ifLayer_;
   const int verbosity_, nbinR_, nbinZ_, nbinEta_, nLayers_;
   const double rmin_, rmax_, zmin_, zmax_, etamin_, etamax_;
   unsigned int layers_;
@@ -95,7 +89,6 @@ private:
 HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("detectorName")),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
-      ifHCAL_(iConfig.getUntrackedParameter<bool>("ifHCAL", false)),
       ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       nbinR_(iConfig.getUntrackedParameter<int>("nBinR", 300)),
@@ -116,18 +109,16 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
   if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive") ||
       (nameDetector_ == "HGCalHEScintillatorSensitive") || (nameDetector_ == "HGCalHFNoseSensitive")) {
     recHitSource_ = consumes<HGCRecHitCollection>(temp);
-  } else if (nameDetector_ == "HCal") {
-    if (ifHCAL_)
-      recHitSource_ = consumes<HBHERecHitCollection>(temp);
-    else
-      recHitSource_ = consumes<HGCRecHitCollection>(temp);
   } else {
     throw cms::Exception("BadHGCRecHitSource") << "HGCal DetectorName given as " << nameDetector_ << " must be: "
-                                               << "\"HGCalHESiliconSensitive\", \"HGCalHESiliconSensitive\", "
-                                               << "\"HGCalHEScintillatorSensitive\", or \"HCal\"!";
+                                               << "\"HGCalHESiliconSensitive\", \"HGCalHESiliconSensitive\", or "
+                                               << "\"HGCalHEScintillatorSensitive\"!";
   }
   edm::LogVerbatim("HGCalValidation") << "Initialize HGCalRecHitStudy for " << nameDetector_ << " with i/p tag " << temp
-                                      << " Flag " << ifHCAL_ << ":" << ifNose_ << ":" << verbosity_;
+                                      << " Flag " << ifNose_ << ":" << verbosity_;
+  tok_hgcaldd_ =
+      esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_});
+  tok_hgcGeom_ = esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_});
 }
 
 void HGCalRecHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -135,7 +126,6 @@ void HGCalRecHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<std::string>("detectorName", "HGCalEESensitive");
   desc.add<edm::InputTag>("source", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.addUntracked<bool>("ifNose", false);
-  desc.addUntracked<bool>("ifHCAL", false);
   desc.addUntracked<bool>("ifLayer", false);
   desc.addUntracked<int>("verbosity", 0);
   desc.addUntracked<int>("nBinR", 300);
@@ -157,78 +147,32 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   bool ok(true);
   unsigned int ntot(0), nused(0);
-  if (nameDetector_ == "HCal") {
-    edm::ESHandle<CaloGeometry> geom;
-    iSetup.get<CaloGeometryRecord>().get(geom);
-    if (!geom.isValid())
-      edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    const CaloGeometry* geom0 = geom.product();
+  edm::Handle<HGCRecHitCollection> hbhecoll;
+  iEvent.getByToken(recHitSource_, hbhecoll);
+  edm::ESHandle<HGCalGeometry> geom = iSetup.getHandle(tok_hgcGeom_);
+  if (!geom.isValid())
+    edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
+  const HGCalGeometry* geom0 = geom.product();
 
-    if (ifHCAL_) {
-      edm::Handle<HBHERecHitCollection> hbhecoll;
-      iEvent.getByToken(recHitSource_, hbhecoll);
-      if (hbhecoll.isValid()) {
-        if (verbosity_ > 0)
-          edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << hbhecoll->size() << " element(s)";
-        for (const auto& it : *(hbhecoll.product())) {
-          DetId detId = it.id();
-          ntot++;
-          if (detId.subdetId() == static_cast<int>(HcalEndcap)) {
-            nused++;
-            int layer = HcalDetId(detId).depth();
-            recHitValidation(detId, layer, geom0, &it);
-          }
-        }
-      } else {
-        ok = false;
-        edm::LogWarning("HGCalValidation") << "HBHERecHitCollection Handle does not exist !!!";
-      }
-    } else {
-      edm::Handle<HGCRecHitCollection> hbhecoll;
-      iEvent.getByToken(recHitSource_, hbhecoll);
-      if (hbhecoll.isValid()) {
-        if (verbosity_ > 0)
-          edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << hbhecoll->size() << " element(s)";
-        for (const auto& it : *(hbhecoll.product())) {
-          DetId detId = it.id();
-          ntot++;
-          nused++;
-          int layer = HcalDetId(detId).depth();
-          recHitValidation(detId, layer, geom0, &it);
-        }
-      } else {
-        ok = false;
-        edm::LogWarning("HGCalValidation") << "HGChebRecHitCollection Handle does not exist !!!";
-      }
+  edm::Handle<HGCRecHitCollection> theRecHitContainers;
+  iEvent.getByToken(recHitSource_, theRecHitContainers);
+  if (theRecHitContainers.isValid()) {
+    if (verbosity_ > 0)
+      edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theRecHitContainers->size() << " element(s)";
+    for (const auto& it : *(theRecHitContainers.product())) {
+      ntot++;
+      nused++;
+      DetId detId = it.id();
+      int layer = (ifNose_ ? HFNoseDetId(detId).layer()
+                           : ((detId.det() == DetId::Forward)
+                                  ? HGCalDetId(detId).layer()
+                                  : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
+                                                                      : HGCSiliconDetId(detId).layer())));
+      recHitValidation(detId, layer, geom0, &it);
     }
   } else {
-    edm::ESHandle<HGCalGeometry> geom;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
-    if (!geom.isValid())
-      edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    const HGCalGeometry* geom0 = geom.product();
-
-    edm::Handle<HGCRecHitCollection> theRecHitContainers;
-    iEvent.getByToken(recHitSource_, theRecHitContainers);
-    if (theRecHitContainers.isValid()) {
-      if (verbosity_ > 0)
-        edm::LogVerbatim("HGCalValidation")
-            << nameDetector_ << " with " << theRecHitContainers->size() << " element(s)";
-      for (const auto& it : *(theRecHitContainers.product())) {
-        ntot++;
-        nused++;
-        DetId detId = it.id();
-        int layer = (ifNose_ ? HFNoseDetId(detId).layer()
-                             : ((detId.det() == DetId::Forward)
-                                    ? HGCalDetId(detId).layer()
-                                    : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
-                                                                        : HGCSiliconDetId(detId).layer())));
-        recHitValidation(detId, layer, geom0, &it);
-      }
-    } else {
-      ok = false;
-      edm::LogWarning("HGCalValidation") << "HGCRecHitCollection Handle does not exist !!!";
-    }
+    ok = false;
+    edm::LogWarning("HGCalValidation") << "HGCRecHitCollection Handle does not exist !!!";
   }
   if (ok)
     fillHitsInfo();
@@ -303,18 +247,10 @@ void HGCalRecHitStudy::fillHitsInfo(HitsInfo& hits) {
 }
 
 void HGCalRecHitStudy::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
-  if (nameDetector_ == "HCal") {
-    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-    iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-    const HcalDDDRecConstants* hcons = &(*pHRNDC);
-    layers_ = hcons->getMaxDepth(1);
-  } else {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
-    const HGCalDDDConstants& hgcons_ = (*pHGDC);
-    layers_ = hgcons_.layers(true);
-    firstLayer_ = hgcons_.firstLayer();
-  }
+  edm::ESHandle<HGCalDDDConstants> pHGDC = iSetup.getHandle(tok_hgcaldd_);
+  const HGCalDDDConstants& hgcons_ = (*pHGDC);
+  layers_ = hgcons_.layers(true);
+  firstLayer_ = hgcons_.firstLayer();
 
   edm::LogVerbatim("HGCalValidation") << "Finds " << layers_ << " layers for " << nameDetector_;
 

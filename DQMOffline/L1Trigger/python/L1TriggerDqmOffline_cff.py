@@ -159,7 +159,8 @@ l1TriggerEmulatorOffline = cms.Sequence(
 # DQM Offline Step 1 sequence
 l1TriggerDqmOffline = cms.Sequence(
                                 l1TriggerOffline
-                                * l1tRate_Offline
+                                #* l1tRate_Offline #Disabled for the moment as agreed on 
+                                # https://github.com/cms-sw/cmssw/issues/25090#issuecomment-789016559
                                 * l1tSync_Offline
                                 * l1TriggerEmulatorOffline
                                 )
@@ -213,6 +214,7 @@ l1TriggerMuonDqmOfflineClient = cms.Sequence()
 #l1TriggerOnline.remove(l1tMonitorOnline)
 #
 l1tMonitorStage1Online.remove(bxTiming)
+l1tMonitorStage1Online.remove(l1tGt) #Following https://github.com/cms-sw/cmssw/issues/25090#issuecomment-789201888
 #l1tMonitorOnline.remove(l1tDttf)
 #l1tMonitorOnline.remove(l1tCsctf)
 #l1tMonitorOnline.remove(l1tRpctf)
@@ -343,11 +345,12 @@ Stage2l1tMuonOffline = cms.Sequence(
 
 ##############################################################################
 # Emulator sequences
+Stage2l1TriggerEmulatorOnlineTask = cms.Task(valHcalTriggerPrimitiveDigis)
 Stage2l1TriggerEmulatorOnline = cms.Sequence(
-                                 valHcalTriggerPrimitiveDigis +
                                  Stage2L1HardwareValidation +
                                  l1tStage2EmulatorOnlineDQM +
-                                 dqmEnvL1TEMU
+                                 dqmEnvL1TEMU,
+                                 Stage2l1TriggerEmulatorOnlineTask
                                 )
 # Do not include the uGT emulation online DQM module in the offline
 # sequence since the large 2D histograms cause crashes at the T0.

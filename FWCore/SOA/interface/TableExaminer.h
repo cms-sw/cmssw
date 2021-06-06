@@ -40,27 +40,27 @@ namespace edm {
 
       // ---------- const member functions ---------------------
 
-      size_t size() const override final { return m_table->size(); }
+      size_t size() const final { return m_table->size(); }
 
-      void const* columnAddress(unsigned int iColumnIndex) const override final {
+      void const* columnAddress(unsigned int iColumnIndex) const final {
         return m_table->columnAddressByIndex(iColumnIndex);
       }
 
-      std::vector<std::type_index> columnTypes() const override final {
+      std::vector<std::type_index> columnTypes() const final {
         std::vector<std::type_index> returnValue;
         returnValue.reserve(T::kNColumns);
         columnTypesImpl<0, T::kNColumns>(returnValue);
         return returnValue;
       }
 
-      std::vector<std::pair<char const*, std::type_index>> columnDescriptions() const override final {
+      std::vector<std::pair<char const*, std::type_index>> columnDescriptions() const final {
         std::vector<std::pair<char const*, std::type_index>> returnValue;
         returnValue.reserve(T::kNColumns);
         columnDescImpl<0, T::kNColumns>(returnValue);
         return returnValue;
       }
 
-      const std::type_info* typeID() const override final { return &typeid(T); }
+      const std::type_info* typeID() const final { return &typeid(T); }
 
     private:
       template <int I, int S>

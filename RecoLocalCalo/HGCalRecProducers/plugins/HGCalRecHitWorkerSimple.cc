@@ -1,17 +1,26 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalRecHitWorkerSimple.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <memory>
+
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
-HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : HGCalRecHitWorkerBaseClass(ps) {
-  rechitMaker_.reset(new HGCalRecHitSimpleAlgo());
-  tools_.reset(new hgcal::RecHitTools());
+HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
+    : HGCalRecHitWorkerBaseClass(ps, iC),
+      caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      ee_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalEESensitive"))),
+      hef_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
+      hfnose_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))) {
+  rechitMaker_ = std::make_unique<HGCalRecHitSimpleAlgo>();
+  tools_ = std::make_unique<hgcal::RecHitTools>();
   constexpr float keV2GeV = 1e-6;
+
   // HGCee constants
   hgcEE_keV2DIGI_ = ps.getParameter<double>("HGCEE_keV2DIGI");
   hgcEE_fCPerMIP_ = ps.getParameter<std::vector<double> >("HGCEE_fCPerMIP");
@@ -56,7 +65,8 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
     rcorr_.push_back(1.0 / corr);
   }
   // here for scintillator
-  rcorrscint_ = ps.getParameter<double>("sciThicknessCorrection");
+  rcorrscint_ = 1.0 / ps.getParameter<double>("sciThicknessCorrection");
+
   //This is for the index position in CE_H silicon thickness cases
   deltasi_index_regemfac_ = ps.getParameter<int>("deltasi_index_regemfac");
   const auto& rcorrnose = ps.getParameter<std::vector<double> >("thicknessNoseCorrection");
@@ -87,26 +97,24 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : 
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
-  tools_->getEventSetup(es);
-  rechitMaker_->set(es);
+  const CaloGeometry& geom = es.getData(caloGeomToken_);
+  tools_->setGeometry(geom);
+  rechitMaker_->set(geom);
   if (hgcEE_isSiFE_) {
-    edm::ESHandle<HGCalGeometry> hgceeGeoHandle;
-    es.get<IdealGeometryRecord>().get("HGCalEESensitive", hgceeGeoHandle);
-    ddds_[0] = &(hgceeGeoHandle->topology().dddConstants());
+    const HGCalGeometry& hgceeGeoHandle = es.getData(ee_geometry_token_);
+    ddds_[0] = &(hgceeGeoHandle.topology().dddConstants());
   } else {
     ddds_[0] = nullptr;
   }
   if (hgcHEF_isSiFE_) {
-    edm::ESHandle<HGCalGeometry> hgchefGeoHandle;
-    es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive", hgchefGeoHandle);
+    edm::ESHandle<HGCalGeometry> hgchefGeoHandle = es.getHandle(hef_geometry_token_);
     ddds_[1] = &(hgchefGeoHandle->topology().dddConstants());
   } else {
     ddds_[1] = nullptr;
   }
   ddds_[2] = nullptr;
   if (hgcHFNose_isSiFE_) {
-    edm::ESHandle<HGCalGeometry> hgchfnoseGeoHandle;
-    es.get<IdealGeometryRecord>().get("HGCalHFNoseSensitive", hgchfnoseGeoHandle);
+    edm::ESHandle<HGCalGeometry> hgchfnoseGeoHandle = es.getHandle(hfnose_geometry_token_);
     ddds_[3] = &(hgchfnoseGeoHandle->topology().dddConstants());
   } else {
     ddds_[3] = nullptr;
@@ -165,6 +173,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
           break;
       }
   }
+
   switch (idtype) {
     case hgcee:
       rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_));
@@ -180,7 +189,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
       break;
     case hgcbh:
       rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
-      sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer];
+      sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer] * rcorrscint_;
       break;
     case hgchfnose:
       rechitMaker_->setADCToGeVConstant(float(hgchfnoseUncalib2GeV_));

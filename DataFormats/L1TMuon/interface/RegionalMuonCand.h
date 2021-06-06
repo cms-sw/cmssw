@@ -45,7 +45,7 @@ namespace l1t {
 
     RegionalMuonCand()
         : m_hwPt(0),
-          m_hwPt2(0),
+          m_hwPtUnconstrained(0),
           m_hwDXY(0),
           m_hwPhi(0),
           m_hwEta(0),
@@ -59,7 +59,7 @@ namespace l1t {
 
     RegionalMuonCand(int pt, int phi, int eta, int sign, int signvalid, int quality, int processor, tftype trackFinder)
         : m_hwPt(pt),
-          m_hwPt2(0),
+          m_hwPtUnconstrained(0),
           m_hwDXY(0),
           m_hwPhi(phi),
           m_hwEta(eta),
@@ -107,7 +107,7 @@ namespace l1t {
                      tftype trackFinder,
                      std::map<int, int> trackAddress)
         : m_hwPt(pt),
-          m_hwPt2(0),
+          m_hwPtUnconstrained(0),
           m_hwDXY(0),
           m_hwPhi(phi),
           m_hwEta(eta),
@@ -125,7 +125,7 @@ namespace l1t {
     /// Set compressed pT as transmitted by hardware LSB = 0.5 (9 bits)
     void setHwPt(int bits) { m_hwPt = bits; };
     /// Set compressed second displaced  pT as transmitted by hardware LSB = 1.0 (8 bits)
-    void setHwPt2(int bits) { m_hwPt2 = bits; };
+    void setHwPtUnconstrained(int bits) { m_hwPtUnconstrained = bits; };
     /// Set compressed impact parameter with respect to beamspot (4 bits)
     void setHwDXY(int bits) { m_hwDXY = bits; };
     /// Set compressed relative phi as transmitted by hardware LSB = 2*pi/576 (8 bits)
@@ -160,7 +160,7 @@ namespace l1t {
     /// Get compressed pT (returned int * 0.5 = pT (GeV))
     const int hwPt() const { return m_hwPt; };
     /// Get second compressed pT (returned int * 1.0 = pT (GeV))
-    const int hwPt2() const { return m_hwPt2; };
+    const int hwPtUnconstrained() const { return m_hwPtUnconstrained; };
     /// Get compressed impact parameter (4 bits)
     const int hwDXY() const { return m_hwDXY; };
     /// Get compressed local phi (returned int * 2*pi/576 = local phi in rad)
@@ -201,7 +201,7 @@ namespace l1t {
 
   private:
     int m_hwPt;
-    int m_hwPt2;
+    int m_hwPtUnconstrained;
     int m_hwDXY;
     int m_hwPhi;
     int m_hwEta;

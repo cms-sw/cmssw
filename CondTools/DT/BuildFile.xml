@@ -1,13 +1,11 @@
-<use   name="CondCore/CondDB"/>
-<use   name="CondFormats/DTObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CoralBase"/>
-<use   name="DataFormats/Provenance"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="CondCore/DBOutputService"/>
-<use   name="RelationalAccess"/>
-
+<use name="CondCore/CondDB"/>
+<use name="CondFormats/DTObjects"/>
+<use name="CoralBase"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CondCore/DBOutputService"/>
+<use name="RelationalAccess"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

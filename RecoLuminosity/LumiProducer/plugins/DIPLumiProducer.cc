@@ -56,9 +56,6 @@ Description: A essource/esproducer for lumi values from DIP via runtime logger D
 #include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem/operations.hpp"
-
 DIPLumiProducer::DIPLumiProducer(const edm::ParameterSet& iConfig)
     : m_connectStr(""), m_summarycachedrun(0), m_detailcachedrun(0), m_cachesize(0) {
   setWhatProduced(this, &DIPLumiProducer::produceSummary);

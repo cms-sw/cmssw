@@ -23,11 +23,14 @@ QCD_dumpconf:
 QCDPU_reco:
 	cd ${TMPDIR} && ${RELVALCMD} QCDPU reco 0
 
-ZMM_reco:
-	cd ${TMPDIR} && ${RELVALCMD} ZMM reco 0
+ZMMPU_reco:
+	cd ${TMPDIR} && ${RELVALCMD} ZMMPU reco 0
 
-MinBias_reco:
-	cd ${TMPDIR} && ${RELVALCMD} MinBias reco 0
+ZEEPU_reco:
+	cd ${TMPDIR} && ${RELVALCMD} ZEEPU reco 0
+
+TenTauPU_reco:
+	cd ${TMPDIR} && ${RELVALCMD} TenTauPU reco 0
 
 NuGunPU_reco:
 	cd ${TMPDIR} && ${RELVALCMD} NuGunPU reco 0
@@ -43,13 +46,17 @@ QCDPU_dqm:
 	rm -f ${TMPDIR}/QCDPU/DQM*.root
 	cd ${TMPDIR} && ${RELVALCMD} QCDPU dqm 0
 
-ZMM_dqm:
-	rm -f ${TMPDIR}/ZMM/DQM*.root
-	cd ${TMPDIR} && ${RELVALCMD} ZMM dqm 0
+ZMMPU_dqm:
+	rm -f ${TMPDIR}/ZMMPU/DQM*.root
+	cd ${TMPDIR} && ${RELVALCMD} ZMMPU dqm 0
 
-MinBias_dqm:
-	rm -f ${TMPDIR}/MinBias/DQM*.root
-	cd ${TMPDIR} && ${RELVALCMD} MinBias dqm 0
+ZEEPU_dqm:
+	rm -f ${TMPDIR}/ZEEPU/DQM*.root
+	cd ${TMPDIR} && ${RELVALCMD} ZEEPU dqm 0
+
+TenTauPU_dqm:
+	rm -f ${TMPDIR}/TenTauPU/DQM*.root
+	cd ${TMPDIR} && ${RELVALCMD} TenTauPU dqm 0
 
 NuGunPU_dqm:
 	rm -f ${TMPDIR}/NuGunPU/DQM*.root
@@ -58,41 +65,35 @@ NuGunPU_dqm:
 .PHONY: plots # Enable re-running plots
 
 plots:
-	rm -Rf plots	
+	rm -Rf plots
 	python test/compare.py \
 	    --sample FlatQCD_noPU:${TMPDIR}/QCD/${DQM_MC}.root:${TMPDIR}/QCD/${DQM_MC}.root \
 		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/${DQM_MC}.root:${TMPDIR}/QCDPU/${DQM_MC}.root \
 		--sample NuGunPU:${TMPDIR}/NuGunPU/${DQM_MC}.root:${TMPDIR}/NuGunPU/${DQM_MC}.root \
-		--doResponsePlots --doOffsetPlots
-		
+		--doResponsePlots --doOffsetPlots --doMETPlots --doPFCandPlots
+
 QCD_plots:
-	rm -Rf plots	
+	rm -Rf plots
 	python test/compare.py \
 	    --sample FlatQCD_noPU:${TMPDIR}/QCD/${DQM_MC}.root:${TMPDIR}/QCD/${DQM_MC}.root \
-		--doResponsePlots --doOffsetPlots
+		--doResponsePlots --doOffsetPlots --doMETPlots --doPFCandPlots
 
 QCDPU_plots:
-	rm -Rf plots	
+	rm -Rf plots
 	python test/compare.py \
 		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/${DQM_MC}.root:${TMPDIR}/QCDPU/${DQM_MC}.root \
-		--doResponsePlots --doOffsetPlots
-		
+		--doResponsePlots --doOffsetPlots --doMETPlots --doPFCandPlots
+
 NuGunPU_plots:
-	rm -Rf plots	
+	rm -Rf plots
 	python test/compare.py \
 		--sample NuGunPU:${TMPDIR}/NuGunPU/${DQM_MC}.root:${TMPDIR}/NuGunPU/${DQM_MC}.root \
-		--doResponsePlots --doOffsetPlots
-		
+		--doResponsePlots --doOffsetPlots --doMETPlots --doPFCandPlots
 
 plots_with_ref:
-	rm -Rf plots	
+	rm -Rf plots
 	python test/compare.py \
 		--sample FlatQCD_noPU:${TMPDIR}/QCD/${DQM_MC}.root:${TMPDIR}/QCD_ref/${DQM_MC}.root \
 		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/${DQM_MC}.root:${TMPDIR}/QCDPU_ref/${DQM_MC}.root \
 		--sample NuGunPU:${TMPDIR}/NuGunPU/${DQM_MC}.root:${TMPDIR}/NuGunPU_ref/${DQM_MC}.root \
-		--doResponsePlots --doOffsetPlots
-
-#		--sample MinBias:${TMPDIR}/MinBias/${DQM_MC}.root:${TMPDIR}/MinBias/${DQM_MC}.root \
-#		--sample ZMM:${TMPDIR}/ZMM/${DQM_MC}.root:${TMPDIR}/ZMM/${DQM_MC}.root \
-#		--doResponsePlots --doOffsetPlots
-
+		--doResponsePlots --doOffsetPlots --doMETPlots --doPFCandPlots

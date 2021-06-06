@@ -1,15 +1,11 @@
-#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/DetFactoryHelper.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
 
-static long algorithm(dd4hep::Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   // Header section of original DDHCalLinearXY.h
@@ -30,9 +26,9 @@ static long algorithm(dd4hep::Detector& /* description */,
     ++k;
   }
   edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: Number along X/Y " << numberX << "/" << numberY
-                               << "\tDelta along X/Y " << convertCmToMm(deltaX) << "/" << convertCmToMm(deltaY)
-                               << "\tCentre (" << convertCmToMm(centre[0]) << ", " << convertCmToMm(centre[1]) << ","
-                               << convertCmToMm(centre[2]);
+                               << "\tDelta along X/Y " << cms::convert2mm(deltaX) << "/" << cms::convert2mm(deltaY)
+                               << "\tCentre (" << cms::convert2mm(centre[0]) << ", " << cms::convert2mm(centre[1])
+                               << "," << cms::convert2mm(centre[2]);
 #endif
   double xoff = centre[0] - (numberX - 1) * 0.5 * deltaX;
   double yoff = centre[1] - (numberY - 1) * 0.5 * deltaY;
@@ -47,8 +43,8 @@ static long algorithm(dd4hep::Detector& /* description */,
         parent.placeVolume(ns.volume(child), copy, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: " << child << " number " << copy << " positioned in "
-                                     << parent.name() << " at (" << convertCmToMm(xoff + i * deltaX) << ", "
-                                     << convertCmToMm(yoff + j * deltaY) << ", " << convertCmToMm(centre[2])
+                                     << parent.name() << " at (" << cms::convert2mm((xoff + i * deltaX)) << ", "
+                                     << cms::convert2mm((yoff + j * deltaY)) << ", " << cms::convert2mm(centre[2])
                                      << ") with no rotation";
 #endif
       } else {
@@ -58,7 +54,7 @@ static long algorithm(dd4hep::Detector& /* description */,
       }
     }
   }
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

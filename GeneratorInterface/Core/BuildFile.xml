@@ -1,15 +1,15 @@
-<use   name="FWCore/Concurrency"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/Framework"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="GeneratorInterface/LHEInterface"/>
-<use   name="heppdt"/>
-<use   name="boost"/>
-<use   name="clhep"/>
-<use   name="lhapdf"/>
-<use   name="f77compiler"/>
-<use   name="root"/>
+<use name="FWCore/Concurrency"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/Framework"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="GeneratorInterface/LHEInterface"/>
+<use name="heppdt"/>
+<use name="boost"/>
+<use name="clhep"/>
+<use name="lhapdf"/>
+<use name="f77compiler"/>
+<use name="root"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

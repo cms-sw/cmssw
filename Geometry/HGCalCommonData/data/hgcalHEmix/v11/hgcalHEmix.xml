@@ -44,6 +44,7 @@
       1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2</Vector>
     <Numeric name="FirstLayer"       value="[hgcal:FirstMixedLayer]"/>
     <Numeric name="AbsorberMode"     value="1"/>
+    <Numeric name="SensitiveMode"    value="0"/>
     <Vector name="TopMaterialNames" type="string" nEntries="6">
       materials:Air, materials:Cables, materials:Air,
       materials:H_Scintillator, materials:Epoxy,

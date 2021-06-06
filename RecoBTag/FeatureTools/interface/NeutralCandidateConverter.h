@@ -30,8 +30,31 @@ namespace btagbtvdeep {
                                         const float& drminpfcandsv,
                                         const float& jetR,
                                         NeutralCandidateFeatures& n_pf_features) {
+    const auto* patJet = dynamic_cast<const pat::Jet*>(&jet);
+
+    if (!patJet) {
+      throw edm::Exception(edm::errors::InvalidReference) << "Input is not a pat::Jet.";
+    }
+    // Do Subjets
+    if (patJet->nSubjetCollections() > 0) {
+      auto subjets = patJet->subjets();
+      // sort by pt
+      std::sort(subjets.begin(), subjets.end(), [](const edm::Ptr<pat::Jet>& p1, const edm::Ptr<pat::Jet>& p2) {
+        return p1->pt() > p2->pt();
+      });
+      n_pf_features.drsubjet1 = !subjets.empty() ? reco::deltaR(*n_pf, *subjets.at(0)) : -1;
+      n_pf_features.drsubjet2 = subjets.size() > 1 ? reco::deltaR(*n_pf, *subjets.at(1)) : -1;
+    } else {
+      n_pf_features.drsubjet1 = -1;
+      n_pf_features.drsubjet2 = -1;
+    }
+
+    // Jet relative vars
     n_pf_features.ptrel = catch_infs_and_bound(n_pf->pt() / jet.pt(), 0, -1, 0, -1);
+    n_pf_features.ptrel_noclip = n_pf->pt() / jet.pt();
     n_pf_features.deltaR = catch_infs_and_bound(reco::deltaR(*n_pf, jet), 0, -0.6, 0, -0.6);
+    n_pf_features.deltaR_noclip = reco::deltaR(*n_pf, jet);
+    n_pf_features.erel = n_pf->energy() / jet.energy();
     n_pf_features.isGamma = 0;
     if (std::abs(n_pf->pdgId()) == 22)
       n_pf_features.isGamma = 1;

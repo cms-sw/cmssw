@@ -665,7 +665,6 @@ namespace edm {
       msg << "  </PerformanceSummary>\n"
           << "</PerformanceReport>\n";
       msg << std::flush;
-      //LogInfo("FwkJob") << msg.str();
     }
   }
 
@@ -687,7 +686,6 @@ namespace edm {
       msg << "  </PerformanceModule>\n"
           << "</PerformanceReport>\n";
       msg << std::flush;
-      //LogInfo("FwkJob") << msg.str();
     }
   }
 

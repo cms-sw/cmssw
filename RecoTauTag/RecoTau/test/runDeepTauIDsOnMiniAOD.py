@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 # options.parseArguments()
 updatedTauName = "slimmedTausNewID"
 minimalOutput = True
-eventsToProcess = 1
+eventsToProcess = 100
 nThreads = 1
 
 process = cms.Process('TauID')
@@ -22,24 +22,33 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '
 
 # Input source
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
-    # File from dataset DY1JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8
-    ' /store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/40000/A256C80D-0943-E811-998E-7CD30AB0522C.root'
+    # File from dataset TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8
+    '/store/mc/RunIISummer20UL18MiniAOD/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/00000/009636D7-07B2-DB49-882D-C251FD62CCE7.root'
 ))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProcess) )
 
 # Add new TauIDs
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
-tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
+toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
+           # "deepTau2017v1",
+           "deepTau2017v2p1",
+           # "DPFTau_2016_v0",
+           # "DPFTau_2016_v1",
+           "againstEle2018",
+           ]
+tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug = False,
                     updatedTauName = updatedTauName,
-                    toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
-                               # "deepTau2017v1",
-                               "deepTau2017v2p1",
-                               # "DPFTau_2016_v0",
-                               # "DPFTau_2016_v1",
-                               "againstEle2018",
-                               ])
+                    toKeep = toKeep)
 tauIdEmbedder.runTauID()
+#Another tau collection with updated tauIDs
+postfix = "Ver2"
+tauIdEmbedder2 = tauIdConfig.TauIDEmbedder(process, debug = False,
+                    originalTauName = "slimmedTaus", #one can run on top of other collection than default "slimmedTaus"
+                    updatedTauName = updatedTauName+postfix,
+                    postfix = postfix, # defaut "", specify non-trivial postfix if tool is run more than one time
+                    toKeep = toKeep)
+tauIdEmbedder2.runTauID()
 
 # Output definition
 process.out = cms.OutputModule("PoolOutputModule",
@@ -55,11 +64,14 @@ if not minimalOutput:
      process.out.outputCommands = MINIAODSIMEventContent.outputCommands
      process.out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
 process.out.outputCommands.append("keep *_"+updatedTauName+"_*_*")
+process.out.outputCommands.append("keep *_"+updatedTauName+postfix+"_*_*")
 
 # Path and EndPath definitions
 process.p = cms.Path(
     process.rerunMvaIsolationSequence *
     getattr(process,updatedTauName)
+    * getattr(process,"rerunMvaIsolationSequence"+postfix) *
+    getattr(process,updatedTauName+postfix)
 )
 process.endjob = cms.EndPath(process.endOfProcess)
 process.outpath = cms.EndPath(process.out)

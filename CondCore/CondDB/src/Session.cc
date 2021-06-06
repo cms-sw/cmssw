@@ -79,20 +79,14 @@ namespace cond {
       return m_session->iovSchema().tagTable().select(tag);
     }
 
-    //IOVProxy Session::iovProxy(){
+    //bool Session::getIovRange(const std::string& tag,
+    //                          cond::Time_t begin,
+    //                          cond::Time_t end,
+    //                          std::vector<std::tuple<cond::Time_t, cond::Hash> >& range) {
     //  m_session->openIovDb();
-    //  IOVProxy proxy( m_session );
-    //  return proxy;
+    //  boost::posix_time::ptime snapshotTime;
+    //  return m_session->iovSchema().iovTable().getRange(tag, begin, end, snapshotTime, range);
     //}
-
-    bool Session::getIovRange(const std::string& tag,
-                              cond::Time_t begin,
-                              cond::Time_t end,
-                              std::vector<std::tuple<cond::Time_t, cond::Hash> >& range) {
-      m_session->openIovDb();
-      boost::posix_time::ptime snapshotTime;
-      return m_session->iovSchema().iovTable().getRange(tag, begin, end, snapshotTime, range);
-    }
 
     IOVEditor Session::createIov(const std::string& payloadType,
                                  const std::string& tag,
@@ -204,13 +198,13 @@ namespace cond {
       return proxy;
     }
 
-    cond::RunInfo_t Session::getCurrentRun() {
+    cond::RunInfo_t Session::getLastRun() {
       if (!m_session->transaction.get())
         throwException("The transaction is not active.", "Session::getRunInfo");
-      RunInfoProxy proxy(m_session);
-      boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-      proxy.load(now, now);
-      return proxy.get(now);
+      m_session->openRunInfoDb();
+      cond::RunInfo_t ret;
+      ret.run = m_session->runInfoSchema().runInfoTable().getLastInserted(ret.start, ret.end);
+      return ret;
     }
 
     RunInfoEditor Session::editRunInfo() {

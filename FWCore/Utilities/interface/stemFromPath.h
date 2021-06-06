@@ -10,7 +10,7 @@ namespace edm {
   // object lives long enough.
   //
   // The reason to have our own function instead of
-  // std/boost::filesystem is that tehcnically these paths are not
+  // std::filesystem is that tehcnically these paths are not
   // filesystem paths, but paths in CMS LFN/PFN space that (may) have
   // different rules.
   std::string_view stemFromPath(std::string_view path);

@@ -54,6 +54,7 @@
 //
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -74,12 +75,12 @@ namespace edm {
   class ProcessingController;
   class ActivityRegistry;
 
-  class EDLooperBase {
+  class EDLooperBase : public EDConsumerBase {
   public:
     enum Status { kContinue, kStop };
 
     EDLooperBase();
-    virtual ~EDLooperBase() noexcept(false);
+    ~EDLooperBase() noexcept(false) override;
 
     EDLooperBase(EDLooperBase const&) = delete;             // Disallow copying and moving
     EDLooperBase& operator=(EDLooperBase const&) = delete;  // Disallow copying and moving

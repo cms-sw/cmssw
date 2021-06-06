@@ -123,7 +123,7 @@ EntryData* EntryMgr::findEntry(const std::vector<ALIstring>& wl) {
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIstring EntryMgr::extractShortName(const ALIstring& name) {
-  ALIint isl = name.rfind("/");
+  ALIint isl = name.rfind('/');
   if (isl == -1) {
     return name;
   } else {

@@ -3,6 +3,7 @@
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include <DD4hep/DD4hepUnits.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -165,7 +166,7 @@ bool CocoaDBMgr::DumpCocoaResults() {
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO(OpticalObject* opto) {
-  std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO " << opto->name() << std::endl;
+  LogDebug("Alignment") << " CocoaDBMgr::GetOptAlignInfoFromOptO " << opto->name();
   OpticalAlignInfo data;
   data.ID_ = opto->getCmsswID();
   data.type_ = opto->type();
@@ -177,48 +178,80 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO(OpticalObject* opto) {
   centreLocal = parentRmGlobInv * centreLocal;
 
   const std::vector<Entry*>& theCoordinateEntryVector = opto->CoordinateEntryList();
-  std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO starting coord " << std::endl;
+  LogDebug("Alignment") << " CocoaDBMgr::GetOptAlignInfoFromOptO starting coord ";
+  if (theCoordinateEntryVector.size() == 6) {
+    const Entry* const translationX = theCoordinateEntryVector.at(0);
+    OpticalAlignParam translationXDataForDB;
+    translationXDataForDB.name_ = translationX->name();
+    translationXDataForDB.dim_type_ = translationX->type();
+    translationXDataForDB.value_ = centreLocal.x() * dd4hep::m;              // m in COCOA, dd4hep unit in DB
+    translationXDataForDB.error_ = GetEntryError(translationX) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
+    translationXDataForDB.quality_ = translationX->quality();
+    data.x_ = translationXDataForDB;
 
-  data.x_.value_ = centreLocal.x() / 100.;  // in cm
-  std::cout << " matrix " << Fit::GetAtWAMatrix() << std::endl;
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << " " << theCoordinateEntryVector[0]->fitPos() << std::endl;
-  data.x_.error_ = GetEntryError(theCoordinateEntryVector[0]) / 100.;  // in cm
+    const Entry* const translationY = theCoordinateEntryVector.at(1);
+    OpticalAlignParam translationYDataForDB;
+    translationYDataForDB.name_ = translationY->name();
+    translationYDataForDB.dim_type_ = translationY->type();
+    translationYDataForDB.value_ = centreLocal.y() * dd4hep::m;              // m in COCOA, dd4hep unit in DB
+    translationYDataForDB.error_ = GetEntryError(translationY) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
+    translationYDataForDB.quality_ = translationY->quality();
+    data.y_ = translationYDataForDB;
 
-  data.y_.value_ = centreLocal.y() / 100.;  // in cm
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << " " << theCoordinateEntryVector[1]->fitPos() << std::endl;
-  data.y_.error_ = GetEntryError(theCoordinateEntryVector[1]) / 100.;  // in cm
+    const Entry* const translationZ = theCoordinateEntryVector.at(2);
+    OpticalAlignParam translationZDataForDB;
+    translationZDataForDB.name_ = translationZ->name();
+    translationZDataForDB.dim_type_ = translationZ->type();
+    translationZDataForDB.value_ = centreLocal.z() * dd4hep::m;              // m in COCOA, dd4hep unit in DB
+    translationZDataForDB.error_ = GetEntryError(translationZ) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
+    translationZDataForDB.quality_ = translationZ->quality();
+    data.z_ = translationZDataForDB;
 
-  data.z_.value_ = centreLocal.z() / 100.;  // in cm
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << " " << theCoordinateEntryVector[2]->fitPos() << std::endl;
-  data.z_.error_ = GetEntryError(theCoordinateEntryVector[2]) / 100.;  // in cm
+    //----- angles in local coordinates
+    std::vector<double> anglocal = opto->getLocalRotationAngles(theCoordinateEntryVector);
+    if (anglocal.size() == 3) {
+      const Entry* const rotationX = theCoordinateEntryVector.at(3);
+      OpticalAlignParam rotationXDataForDB;
+      rotationXDataForDB.name_ = rotationX->name();
+      rotationXDataForDB.dim_type_ = rotationX->type();
+      rotationXDataForDB.value_ = anglocal.at(0);
+      rotationXDataForDB.error_ = GetEntryError(rotationX);
+      rotationXDataForDB.quality_ = rotationX->quality();
+      data.angx_ = rotationXDataForDB;
 
-  //----- angles in local coordinates
-  std::vector<double> anglocal = opto->getLocalRotationAngles(theCoordinateEntryVector);
+      const Entry* const rotationY = theCoordinateEntryVector.at(4);
+      OpticalAlignParam rotationYDataForDB;
+      rotationYDataForDB.name_ = rotationY->name();
+      rotationYDataForDB.dim_type_ = rotationY->type();
+      rotationYDataForDB.value_ = anglocal.at(1);
+      rotationYDataForDB.error_ = GetEntryError(rotationY);
+      rotationYDataForDB.quality_ = rotationY->quality();
+      data.angy_ = rotationYDataForDB;
 
-  data.angx_.value_ = anglocal[0] * 180. / M_PI;  // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[3]->fitPos() << std::endl;
-  data.angx_.error_ = GetEntryError(theCoordinateEntryVector[3]) * 180. / M_PI;  // in deg;
+      const Entry* const rotationZ = theCoordinateEntryVector.at(5);
+      OpticalAlignParam rotationZDataForDB;
+      rotationZDataForDB.name_ = rotationZ->name();
+      rotationZDataForDB.dim_type_ = rotationZ->type();
+      rotationZDataForDB.value_ = anglocal.at(2);
+      rotationZDataForDB.error_ = GetEntryError(rotationZ);
+      rotationZDataForDB.quality_ = rotationZ->quality();
+      data.angz_ = rotationZDataForDB;
+    }
+  }
 
-  data.angy_.value_ = anglocal[1] * 180. / M_PI;  // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[4]->fitPos() << std::endl;
-  data.angy_.error_ = GetEntryError(theCoordinateEntryVector[4]) * 180. / M_PI;  // in deg;;
-
-  data.angz_.value_ = anglocal[2] * 180. / M_PI;  // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[5]->fitPos() << std::endl;
-  data.angz_.error_ = GetEntryError(theCoordinateEntryVector[5]) * 180. / M_PI;  // in deg;
-
-  const std::vector<Entry*>& theExtraEntryVector = opto->ExtraEntryList();
   std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO starting entry " << std::endl;
-
-  std::vector<Entry*>::const_iterator ite;
-  for (ite = theExtraEntryVector.begin(); ite != theExtraEntryVector.end(); ++ite) {
+  for (const auto& myDBExtraEntry : opto->ExtraEntryList()) {
     OpticalAlignParam extraEntry;
-    extraEntry.name_ = (*ite)->name();
-    extraEntry.dim_type_ = (*ite)->type();
-    extraEntry.value_ = (*ite)->value();
-    extraEntry.error_ = (*ite)->sigma();
-    extraEntry.quality_ = (*ite)->quality();
-    data.extraEntries_.push_back(extraEntry);
+    extraEntry.name_ = myDBExtraEntry->name();
+    extraEntry.dim_type_ = myDBExtraEntry->type();
+    extraEntry.value_ = myDBExtraEntry->value();
+    extraEntry.error_ = myDBExtraEntry->sigma();
+    if (extraEntry.dim_type_ == "centre" || extraEntry.dim_type_ == "length") {
+      extraEntry.value_ *= dd4hep::m;  // m in COCOA, dd4hep unit in DB
+      extraEntry.error_ *= dd4hep::m;  // m in COCOA, dd4hep unit in DB
+    }
+    extraEntry.quality_ = myDBExtraEntry->quality();
+    data.extraEntries_.emplace_back(extraEntry);
     std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO done extra entry " << extraEntry.name_ << std::endl;
   }
 
@@ -330,12 +363,15 @@ AlignTransformErrorExtended* CocoaDBMgr::GetAlignInfoErrorFromOptO(OpticalObject
   CLHEP::HepMatrix errm(3, 3);
   const std::vector<Entry*>& theCoordinateEntryVector = opto->CoordinateEntryList();
   std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptOfill errm " << opto->name() << std::endl;
-  errm(0, 0) = GetEntryError(theCoordinateEntryVector[0]) / 100.;                               // in cm
-  errm(1, 1) = GetEntryError(theCoordinateEntryVector[1]) / 100.;                               // in cm
-  errm(2, 2) = GetEntryError(theCoordinateEntryVector[2]) / 100.;                               // in cm
-  errm(0, 1) = GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[1]) / 100.;  // in cm
-  errm(0, 2) = GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[2]) / 100.;  // in cm
-  errm(1, 2) = GetEntryError(theCoordinateEntryVector[1], theCoordinateEntryVector[2]) / 100.;  // in cm
+  errm(0, 0) = GetEntryError(theCoordinateEntryVector[0]) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
+  errm(1, 1) = GetEntryError(theCoordinateEntryVector[1]) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
+  errm(2, 2) = GetEntryError(theCoordinateEntryVector[2]) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
+  errm(0, 1) = GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[1]) *
+               dd4hep::m;  // m in COCOA, dd4hep unit in DB
+  errm(0, 2) = GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[2]) *
+               dd4hep::m;  // m in COCOA, dd4hep unit in DB
+  errm(1, 2) = GetEntryError(theCoordinateEntryVector[1], theCoordinateEntryVector[2]) *
+               dd4hep::m;  // m in COCOA, dd4hep unit in DB
   //   errm(1,0) = errm(0,1);
   // errm(2,0) = errm(0,2);
   // errm(2,1) = errm(1,2);

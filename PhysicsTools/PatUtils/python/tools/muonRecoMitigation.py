@@ -62,11 +62,13 @@ def muonRecoMitigation(process,
     
     # now cleaning ================================
     cleanedPFCandCollection=cleanCollName+postfix
+
     if runOnMiniAOD:
-        cleanedPFCandProducer = cms.EDProducer("CandPtrProjector", 
-                                               src = cms.InputTag(pfCandCollection),
-                                               veto = cms.InputTag(badMuonCollection)
-                                               )
+        import CommonTools.CandAlgos.candPtrProjector_cfi as _mod
+        cleanedPFCandProducer = _mod.candPtrProjector.clone(
+                                               src  = pfCandCollection,
+                                               veto = badMuonCollection
+                                         )
     else:
         cleanedPFCandProducer = cms.EDProducer("PFCandPtrProjector", 
                                                src = cms.InputTag(pfCandCollection),

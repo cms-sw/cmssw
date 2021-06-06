@@ -9,6 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 class GEMCheckGeometry : public DQMEDAnalyzer {
 public:
@@ -25,6 +27,7 @@ private:
   double minPhi_;
   double maxPhi_;
   bool detailPlot_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
 };
 
 #endif

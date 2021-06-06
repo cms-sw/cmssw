@@ -41,16 +41,23 @@ namespace testPtr {
 
   struct TestGetter : public edm::EDProductGetter {
     edm::WrapperBase const* hold_;
-    virtual edm::WrapperBase const* getIt(edm::ProductID const&) const override { return hold_; }
-    virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const&, unsigned int&) const override {
-      return nullptr;
+    edm::WrapperBase const* getIt(edm::ProductID const&) const override { return hold_; }
+    std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(edm::ProductID const&,
+                                                                                       unsigned int) const override {
+      return std::nullopt;
     }
 
-    virtual void getThinnedProducts(edm::ProductID const& pid,
-                                    std::vector<edm::WrapperBase const*>& wrappers,
-                                    std::vector<unsigned int>& keys) const override {}
+    void getThinnedProducts(edm::ProductID const& pid,
+                            std::vector<edm::WrapperBase const*>& wrappers,
+                            std::vector<unsigned int>& keys) const override {}
 
-    virtual unsigned int transitionIndex_() const override { return 0U; }
+    edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const&,
+                                              unsigned int,
+                                              edm::ProductID const&) const override {
+      return std::monostate{};
+    }
+
+    unsigned int transitionIndex_() const override { return 0U; }
 
     TestGetter() : hold_() {}
   };
@@ -74,11 +81,11 @@ void testPtrVector::check() {
   std::vector<Inherit1> v1(2, Inherit1());
   std::vector<Inherit2> v2(2, Inherit2());
 
-  TestHandle<std::vector<Inherit1> > h1(&v1, ProductID(1, 1));
+  TestHandle<std::vector<Inherit1>> h1(&v1, ProductID(1, 1));
   PtrVector<Inherit1> rv1;
   rv1.push_back(Ptr<Inherit1>(h1, 0));
   rv1.push_back(Ptr<Inherit1>(h1, 1));
-  TestHandle<std::vector<Inherit2> > h2(&v2, ProductID(1, 2));
+  TestHandle<std::vector<Inherit2>> h2(&v2, ProductID(1, 2));
   PtrVector<Inherit2> rv2;
   rv2.push_back(Ptr<Inherit2>(h2, 0));
   rv2.push_back(Ptr<Inherit2>(h2, 1));

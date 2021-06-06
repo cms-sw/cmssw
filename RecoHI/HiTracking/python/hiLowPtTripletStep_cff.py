@@ -24,9 +24,10 @@ hiLowPtTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-hiLowPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
-hiLowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiLowPtTripletStepClusters')
-hiLowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiLowPtTripletStepClusters')
+hiLowPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone(
+    BPix = dict(skipClusters = cms.InputTag('hiLowPtTripletStepClusters')),
+    FPix = dict(skipClusters = cms.InputTag('hiLowPtTripletStepClusters'))
+)
 
 # SEEDS
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
@@ -69,9 +70,9 @@ hiLowPtTripletStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
 )
 
 from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
-hiLowPtTripletStepTracksHitDoubletsCA = hiLowPtTripletStepTracksHitDoublets.clone()
-hiLowPtTripletStepTracksHitDoubletsCA.layerPairs = [0,1]
-
+hiLowPtTripletStepTracksHitDoubletsCA = hiLowPtTripletStepTracksHitDoublets.clone(
+    layerPairs = [0,1]
+)
 hiLowPtTripletStepTracksHitTripletsCA = _caHitTripletEDProducer.clone(
     doublets = "hiLowPtTripletStepTracksHitDoubletsCA",
     extraHitRPhitolerance = hiLowPtTripletStepTracksHitTriplets.extraHitRPhitolerance,
@@ -116,7 +117,7 @@ trackingPhase1.toModify(hiLowPtTripletStepPixelTracks,
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
 hiLowPtTripletStepSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
         InputCollection = 'hiLowPtTripletStepPixelTracks'
-  )
+)
 
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -125,109 +126,109 @@ hiLowPtTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajector
     maxLostHits = 1,
     minimumNumberOfHits = 6,
     minPt = 0.4
-    )
+)
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 hiLowPtTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
-        ComponentName = cms.string('hiLowPtTripletStepChi2Est'),
-            nSigma = cms.double(3.0),
-            MaxChi2 = cms.double(9.0)
-        )
+        ComponentName = 'hiLowPtTripletStepChi2Est',
+            nSigma  = 3.0,
+            MaxChi2 = 9.0
+)
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiLowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiLowPtTripletStepTrajectoryFilter')),
+    trajectoryFilter = dict(refToPSet_ = 'hiLowPtTripletStepTrajectoryFilter'),
     maxCand = 3,
-    estimator = cms.string('hiLowPtTripletStepChi2Est'),
+    estimator = 'hiLowPtTripletStepChi2Est',
     maxDPhiForLooperReconstruction = cms.double(2.0),
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
     # of the outermost Tracker barrel layer (with B=3.8T)  
     maxPtForLooperReconstruction = cms.double(0.7)
-    )
+)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiLowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src = cms.InputTag('hiLowPtTripletStepSeeds'),
+    src = 'hiLowPtTripletStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiLowPtTripletStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'hiLowPtTripletStepTrajectoryBuilder'),
     clustersToSkip = cms.InputTag('hiLowPtTripletStepClusters'),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
-    )
+)
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiLowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'hiLowPtTripletStepTrackCandidates',
-    AlgorithmName = cms.string('lowPtTripletStep'),
-    Fitter=cms.string('FlexibleKFFittingSmoother')
-    )
+    AlgorithmName = 'lowPtTripletStep',
+    Fitter='FlexibleKFFittingSmoother'
+)
 
 
 
 # Final selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src='hiLowPtTripletStepTracks',
-    useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('HIMVASelectorIter5'),
-    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'relpterr', 'nhits', 'nlayers', 'eta']),
+    src = 'hiLowPtTripletStepTracks',
+    useAnyMVA = True,
+    GBRForestLabel = 'HIMVASelectorIter5',
+    GBRForestVars = ['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'relpterr', 'nhits', 'nlayers', 'eta'],
     trackSelectors= cms.VPSet(
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-    name = 'hiLowPtTripletStepLoose',
-    useMVA = cms.bool(False)
-    ), #end of pset
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-    name = 'hiLowPtTripletStepTight',
-    preFilterName = 'hiLowPtTripletStepLoose',
-    useMVA = cms.bool(True),
-    minMVA = cms.double(-0.58)
-    ),
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-    name = 'hiLowPtTripletStep',
-    preFilterName = 'hiLowPtTripletStepTight',
-    useMVA = cms.bool(True),
-    minMVA = cms.double(0.35)
-    ),
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+           name = 'hiLowPtTripletStepLoose',
+           useMVA = False
+       ), #end of pset
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+           name = 'hiLowPtTripletStepTight',
+           preFilterName = 'hiLowPtTripletStepLoose',
+           useMVA = True,
+           minMVA = -0.58
+       ),
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+           name = 'hiLowPtTripletStep',
+           preFilterName = 'hiLowPtTripletStepTight',
+           useMVA = True,
+           minMVA = 0.35
+       ),
     ) #end of vpset
-    ) #end of clone
+) #end of clone
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(hiLowPtTripletStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiLowPtTripletStepSelector, useAnyMVA = False)
 trackingPhase1.toModify(hiLowPtTripletStepSelector, trackSelectors= cms.VPSet(
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-    name = 'hiLowPtTripletStepLoose',
-    useMVA = cms.bool(False)
+        name = 'hiLowPtTripletStepLoose',
+        useMVA = False
     ), #end of pset
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-    name = 'hiLowPtTripletStepTight',
-    preFilterName = 'hiLowPtTripletStepLoose',
-    useMVA = cms.bool(False),
-    minMVA = cms.double(-0.58)
+        name = 'hiLowPtTripletStepTight',
+        preFilterName = 'hiLowPtTripletStepLoose',
+        useMVA = False,
+        minMVA = -0.58
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-    name = 'hiLowPtTripletStep',
-    preFilterName = 'hiLowPtTripletStepTight',
-    useMVA = cms.bool(False),
-    minMVA = cms.double(0.35)
+        name = 'hiLowPtTripletStep',
+        preFilterName = 'hiLowPtTripletStepTight',
+        useMVA = False,
+        minMVA = 0.35
     ),
-    ) #end of vpset
+  ) #end of vpset
 )
 
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiLowPtTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.VInputTag(cms.InputTag('hiLowPtTripletStepTracks')),
-    hasSelector=cms.vint32(1),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiLowPtTripletStepSelector","hiLowPtTripletStep")),
+    TrackProducers = ['hiLowPtTripletStepTracks'],
+    hasSelector = [1],
+    selectedTrackQuals = ["hiLowPtTripletStepSelector:hiLowPtTripletStep"],
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False),
     #writeOnlyTrkQuals = True
-    )
+)
 
 # Final sequence
 

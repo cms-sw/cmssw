@@ -17,6 +17,9 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
+#include "SimDataFormats/GeneratorProducts/interface/ExternalGeneratorLumiInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/ExternalGeneratorEventInfo.h"
+
 #include <HepMC/GenRanges.h>
 
 //needed for backward compatibility between HepMC 2.06.xx and 2.05.yy

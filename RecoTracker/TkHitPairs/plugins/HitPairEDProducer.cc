@@ -202,7 +202,7 @@ namespace {
 
     auto beginRegion(const TrackingRegion* region, LayerHitMapCache*) {
       auto filler = intermediateHitDoublets_->beginRegion(region);
-      return std::make_tuple(&(filler.layerHitMapCache()), std::move(filler));
+      return std::make_tuple(&(filler.layerHitMapCache()), filler);
     }
 
     void fill(IntermediateHitDoublets::RegionFiller& filler,

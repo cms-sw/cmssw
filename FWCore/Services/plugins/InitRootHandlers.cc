@@ -18,9 +18,12 @@
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
+#include "tbb/concurrent_unordered_set.h"
 #include "tbb/task.h"
 #include "tbb/task_scheduler_observer.h"
-#include "tbb/concurrent_unordered_set.h"
+#include "tbb/global_control.h"
+#include <memory>
+
 #include <thread>
 #include <sys/wait.h>
 #include <sstream>
@@ -73,7 +76,9 @@ namespace edm {
       public:
         typedef tbb::concurrent_unordered_set<pthread_t> Container_type;
 
-        ThreadTracker() : tbb::task_scheduler_observer() { observe(true); }
+        ThreadTracker() : tbb::task_scheduler_observer() { observe(); }
+        ~ThreadTracker() override = default;
+
         void on_scheduler_entry(bool) override {
           // ensure thread local has been allocated; not necessary on Linux with
           // the current cmsRun linkage, but could be an issue if the platform
@@ -83,6 +88,7 @@ namespace edm {
           edm::CurrentModuleOnThread::getCurrentModuleOnThread();
           threadIDs_.insert(pthread_self());
         }
+        void on_scheduler_exit(bool) override {}
         const Container_type& IDs() { return threadIDs_; }
 
       private:
@@ -94,7 +100,13 @@ namespace edm {
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void stacktraceFromThread();
-      static const ThreadTracker::Container_type& threadIDs() { return threadTracker_.IDs(); }
+      static const ThreadTracker::Container_type& threadIDs() {
+        static const ThreadTracker::Container_type empty;
+        if (threadTracker_) {
+          return threadTracker_->IDs();
+        }
+        return empty;
+      }
       static int stackTracePause() { return stackTracePause_; }
 
       static std::vector<std::array<char, moduleBufferSize>> moduleListBuffers_;
@@ -115,13 +127,14 @@ namespace edm {
       static int parentToChild_[2];
       static int childToParent_[2];
       static std::unique_ptr<std::thread> helperThread_;
-      static ThreadTracker threadTracker_;
+      static std::unique_ptr<ThreadTracker> threadTracker_;
       static int stackTracePause_;
 
       bool unloadSigHandler_;
       bool resetErrHandler_;
       bool loadAllDictionaries_;
       bool autoLibraryLoader_;
+      bool interactiveDebug_;
       std::shared_ptr<const void> sigBusHandler_;
       std::shared_ptr<const void> sigSegvHandler_;
       std::shared_ptr<const void> sigIllHandler_;
@@ -152,7 +165,8 @@ namespace {
             }) != substrs.end());
   }
 
-  constexpr std::array<const char* const, 8> in_message{
+  //Contents of a message which should be reported as an INFO not a ERROR
+  constexpr std::array<const char* const, 9> in_message{
       {"no dictionary for class",
        "already in TClassTable",
        "matrix not positive definite",
@@ -160,18 +174,21 @@ namespace {
        "Problems declaring payload",
        "Announced number of args different from the real number of argument passed",  // Always printed if gDebug>0 - regardless of whether warning message is real.
        "nbins is <=0 - set to nbins = 1",
-       "nbinsy is <=0 - set to nbinsy = 1"}};
+       "nbinsy is <=0 - set to nbinsy = 1",
+       "tbb::global_control is limiting"}};
 
-  constexpr std::array<const char* const, 6> in_location{{"Fit",
+  //Location generating messages which should be reported as an INFO not a ERROR
+  constexpr std::array<const char* const, 7> in_location{{"Fit",
                                                           "TDecompChol::Solve",
                                                           "THistPainter::PaintInit",
                                                           "TUnixSystem::SetDisplay",
                                                           "TGClient::GetFontByName",
-                                                          "Inverter::Dinv"}};
+                                                          "Inverter::Dinv",
+                                                          "RTaskArenaWrapper"}};
 
-  constexpr std::array<const char* const, 3> in_message_print{{"number of iterations was insufficient",
-                                                               "bad integrand behavior",
-                                                               "integral is divergent, or slowly convergent"}};
+  constexpr std::array<const char* const, 3> in_message_print_error{{"number of iterations was insufficient",
+                                                                     "bad integrand behavior",
+                                                                     "integral is divergent, or slowly convergent"}};
 
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
     bool die = false;
@@ -255,7 +272,7 @@ namespace {
     // These are a special case because we do not want them to
     // be fatal, but we do want an error to print.
     bool alreadyPrinted = false;
-    if (find_if_string(el_message, in_message_print)) {
+    if (find_if_string(el_message, in_message_print_error)) {
       el_severity = edm::RootHandlers::SeverityLevel::kInfo;
       edm::LogError("Root_Error") << el_location << el_message;
       alreadyPrinted = true;
@@ -738,18 +755,28 @@ namespace edm {
     int InitRootHandlers::parentToChild_[2] = {-1, -1};
     int InitRootHandlers::childToParent_[2] = {-1, -1};
     std::unique_ptr<std::thread> InitRootHandlers::helperThread_;
+    std::unique_ptr<InitRootHandlers::ThreadTracker> InitRootHandlers::threadTracker_;
     int InitRootHandlers::stackTracePause_ = 300;
     std::vector<std::array<char, moduleBufferSize>> InitRootHandlers::moduleListBuffers_;
     std::atomic<std::size_t> InitRootHandlers::nextModule_(0), InitRootHandlers::doneModules_(0);
-    InitRootHandlers::ThreadTracker InitRootHandlers::threadTracker_;
 
     InitRootHandlers::InitRootHandlers(ParameterSet const& pset, ActivityRegistry& iReg)
         : RootHandlers(),
           unloadSigHandler_(pset.getUntrackedParameter<bool>("UnloadRootSigHandler")),
           resetErrHandler_(pset.getUntrackedParameter<bool>("ResetRootErrHandler")),
           loadAllDictionaries_(pset.getUntrackedParameter<bool>("LoadAllDictionaries")),
-          autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool>("AutoLibraryLoader")) {
+          autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool>("AutoLibraryLoader")),
+          interactiveDebug_(pset.getUntrackedParameter<bool>("InteractiveDebug")) {
       stackTracePause_ = pset.getUntrackedParameter<int>("StackTracePauseTime");
+
+      if (not threadTracker_) {
+        threadTracker_ = std::make_unique<ThreadTracker>();
+        iReg.watchPostEndJob([]() {
+          if (threadTracker_) {
+            threadTracker_->observe(false);
+          }
+        });
+      }
 
       if (unloadSigHandler_) {
         // Deactivate all the Root signal handlers and restore the system defaults
@@ -822,7 +849,9 @@ namespace edm {
       // Enable Root implicit multi-threading
       bool imt = pset.getUntrackedParameter<bool>("EnableIMT");
       if (imt && not ROOT::IsImplicitMTEnabled()) {
-        ROOT::EnableImplicitMT();
+        //cmsRun uses global_control to set the number of allowed threads to use
+        // we need to tell ROOT the same value in order to avoid unnecessary warnings
+        ROOT::EnableImplicitMT(tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism));
       }
     }
 
@@ -839,6 +868,8 @@ namespace edm {
           iter = TIter(gROOT->GetListOfFiles());
         }
       }
+      //disengage from TBB to avoid possible at exit problems
+      threadTracker_.reset();
     }
 
     void InitRootHandlers::willBeUsingThreads() {
@@ -868,6 +899,10 @@ namespace edm {
           ->setComment(
               "If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which "
               "attempts to do a clean shutdown.");
+      desc.addUntracked<bool>("InteractiveDebug", false)
+          ->setComment(
+              "If True, leave gdb attached to cmsRun after a crash; "
+              "if False, attach gdb, print a stack trace, and quit gdb");
       desc.addUntracked<int>("DebugLevel", 0)->setComment("Sets ROOT's gDebug value.");
       desc.addUntracked<int>("StackTracePauseTime", 300)
           ->setComment("Seconds to pause other threads during stack trace.");
@@ -887,16 +922,18 @@ namespace edm {
         //In that case, we are already all setup
         return;
       }
-      if (snprintf(pidString_,
-                   pidStringLength_ - 1,
-                   "date; gdb -quiet -p %d 2>&1 <<EOF |\n"
-                   "set width 0\n"
-                   "set height 0\n"
-                   "set pagination no\n"
-                   "thread apply all bt\n"
-                   "EOF\n"
-                   "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'",
-                   getpid()) >= pidStringLength_) {
+      std::string gdbcmd{"date; gdb -quiet -p %d"};
+      if (!interactiveDebug_) {
+        gdbcmd +=
+            " 2>&1 <<EOF |\n"
+            "set width 0\n"
+            "set height 0\n"
+            "set pagination no\n"
+            "thread apply all bt\n"
+            "EOF\n"
+            "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'";
+      }
+      if (snprintf(pidString_, pidStringLength_ - 1, gdbcmd.c_str(), getpid()) >= pidStringLength_) {
         std::ostringstream sstr;
         sstr << "Unable to pre-allocate stacktrace handler information";
         edm::Exception except(edm::errors::OtherCMS, sstr.str());
@@ -933,7 +970,7 @@ namespace edm {
         throw except;
       }
 
-      helperThread_.reset(new std::thread(stacktraceHelperThread));
+      helperThread_ = std::make_unique<std::thread>(stacktraceHelperThread);
       helperThread_->detach();
     }
 

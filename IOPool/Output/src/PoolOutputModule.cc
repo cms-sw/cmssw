@@ -15,7 +15,7 @@
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -46,6 +46,7 @@ namespace edm {
         compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel")),
         compressionAlgorithm_(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
         basketSize_(pset.getUntrackedParameter<int>("basketSize")),
+        eventAuxBasketSize_(pset.getUntrackedParameter<int>("eventAuxiliaryBasketSize")),
         eventAutoFlushSize_(pset.getUntrackedParameter<int>("eventAutoFlushCompressedSize")),
         splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel") + 1, 99)),
         basketOrder_(pset.getUntrackedParameter<std::string>("sortBaskets")),
@@ -57,11 +58,10 @@ namespace edm {
         initializedFromInput_(false),
         outputFileCount_(0),
         inputFileCount_(0),
-        childIndex_(0U),
-        numberOfDigitsInIndex_(0U),
         branchParents_(),
         branchChildren_(),
         overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
+        compactEventAuxiliary_(pset.getUntrackedParameter<bool>("compactEventAuxiliary")),
         rootOutputFile_(),
         statusFileName_() {
     if (pset.getUntrackedParameter<bool>("writeStatusFile")) {
@@ -180,16 +180,18 @@ namespace edm {
     OutputItemList& outputItemList = selectedOutputItemList_[branchType];
     AuxItem& auxItem = auxItems_[branchType];
 
+    auto basketSize = (InEvent == branchType) ? eventAuxBasketSize_ : basketSize_;
+
     // Fill AuxItem
     if (theInputTree != nullptr && !overrideInputFileSplitLevels_) {
       TBranch* auxBranch = theInputTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
       if (auxBranch) {
         auxItem.basketSize_ = auxBranch->GetBasketSize();
       } else {
-        auxItem.basketSize_ = basketSize_;
+        auxItem.basketSize_ = basketSize;
       }
     } else {
-      auxItem.basketSize_ = basketSize_;
+      auxItem.basketSize_ = basketSize;
     }
 
     // Fill outputItemList with an entry for each branch.
@@ -246,6 +248,10 @@ namespace edm {
   void PoolOutputModule::respondToOpenInputFile(FileBlock const& fb) {
     if (!initializedFromInput_) {
       for (int i = InEvent; i < NumBranchTypes; ++i) {
+        if (i == InProcess) {
+          // ProcessBlock output not implemented yet
+          continue;
+        }
         BranchType branchType = static_cast<BranchType>(i);
         TTree* theInputTree =
             (branchType == InEvent ? fb.tree() : (branchType == InLumi ? fb.lumiTree() : fb.runTree()));
@@ -285,6 +291,7 @@ namespace edm {
   void PoolOutputModule::writeRun(RunForOutput const& r) { rootOutputFile_->writeRun(r); }
 
   void PoolOutputModule::reallyCloseFile() {
+    writeEventAuxiliary();
     fillDependencyGraph();
     branchParents_.clear();
     startEndFile();
@@ -321,6 +328,7 @@ namespace edm {
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
   void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
   void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
+  void PoolOutputModule::writeEventAuxiliary() { rootOutputFile_->writeEventAuxiliary(); }
   void PoolOutputModule::finishEndFile() {
     rootOutputFile_->finishEndFile();
     rootOutputFile_ = nullptr;
@@ -344,12 +352,6 @@ namespace edm {
     std::ostringstream lfilename;
     ofilename << fileBase;
     lfilename << logicalFileName();
-    if (numberOfDigitsInIndex_) {
-      ofilename << '_' << std::setw(numberOfDigitsInIndex_) << std::setfill('0') << childIndex_;
-      if (!logicalFileName().empty()) {
-        lfilename << '_' << std::setw(numberOfDigitsInIndex_) << std::setfill('0') << childIndex_;
-      }
-    }
     if (outputFileCount_) {
       ofilename << std::setw(3) << std::setfill('0') << outputFileCount_;
       if (!logicalFileName().empty()) {
@@ -396,7 +398,7 @@ namespace edm {
     }
   }
 
-  void PoolOutputModule::preActionBeforeRunEventAsync(WaitingTask* iTask,
+  void PoolOutputModule::preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                       ModuleCallingContext const& iModuleCallingContext,
                                                       Principal const& iPrincipal) const {
     if (DropAll != dropMetaData_) {
@@ -440,8 +442,11 @@ namespace edm {
             "If over maximum, new output file will be started at next input file transition.");
     desc.addUntracked<int>("compressionLevel", 9)->setComment("ROOT compression level of output file.");
     desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
-        ->setComment("Algorithm used to compress data in the ROOT output file, allowed values are ZLIB and LZMA");
+        ->setComment(
+            "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, and ZSTD");
     desc.addUntracked<int>("basketSize", 16384)->setComment("Default ROOT basket size in output file.");
+    desc.addUntracked<int>("eventAuxiliaryBasketSize", 16384)
+        ->setComment("Default ROOT basket size in output file for EventAuxiliary branch.");
     desc.addUntracked<int>("eventAutoFlushCompressedSize", 20 * 1024 * 1024)
         ->setComment(
             "Set ROOT auto flush stored data size (in bytes) for event TTree. The value sets how large the compressed "
@@ -459,6 +464,11 @@ namespace edm {
         ->setComment(
             "True:  Allow fast copying, if possible.\n"
             "False: Disable fast copying.");
+    desc.addUntracked<bool>("compactEventAuxiliary", false)
+        ->setComment(
+            "False: Write EventAuxiliary as we go like any other event metadata branch.\n"
+            "True:  Optimize the file layout be deferring writing the EventAuxiliary branch until the output file is "
+            "closed.");
     desc.addUntracked<bool>("overrideInputFileSplitLevels", false)
         ->setComment(
             "False: Use branch split levels and basket sizes from input file, if possible.\n"

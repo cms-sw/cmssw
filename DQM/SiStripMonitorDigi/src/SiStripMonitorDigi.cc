@@ -3,6 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
+//         Updated:  May 2020, Suvankar Roy Chowdhury
 #include <fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -14,7 +15,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
@@ -36,7 +37,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /* mia: but is there not a smarter way ?!?!?! */
@@ -177,6 +177,16 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig)
 
   gtEvmToken_ = consumes<L1GlobalTriggerEvmReadoutRecord>(edm::InputTag("gtEvmDigis"));
 
+  if (show_mechanical_structure_view) {
+    tTopoTokenRun_ = esConsumes<edm::Transition::BeginRun>();
+    tkDetMapTokenRun_ = esConsumes<edm::Transition::BeginRun>();
+    SiStripDetCablingTokenRun_ = esConsumes<edm::Transition::BeginRun>();
+  }
+  if (subdetswitchtotdigifailureon) {
+    runInfoTokenRun_ = esConsumes<edm::Transition::BeginRun>();
+  }
+  tTopoToken_ = esConsumes();
+
   // Create DCS Status
   bool checkDCS = conf_.getParameter<bool>("UseDCSFiltering");
   if (checkDCS)
@@ -185,11 +195,11 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig)
     dcsStatus_ = nullptr;
 
   //initialize boolean for the data-presence check (needed for TotalNumberOfDigisFailure histogram)
-  isStableBeams = false;
   SBTransitionDone = false;
   SBDeclaredAt = 0;
   ignoreFirstNLumisections_ = TMath::Max(0, ParametersTotDigiFailure.getParameter<int32_t>("ignoreFirstNLumisections"));
   integrateNLumisections_ = TMath::Max(1, ParametersTotDigiFailure.getParameter<int32_t>("integrateNLumisections"));
+  vecSubDetTotDigiProfLS.reserve(7);
 }
 //------------------------------------------------------------------------------------------
 
@@ -224,8 +234,6 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
     if (m_cacheID_ != cacheID) {
       m_cacheID_ = cacheID;
     }
-    edm::ESHandle<SiStripDetCabling> detCabling_;
-    es.get<SiStripDetCablingRcd>().get(detCabling_);
 
     //nFEDConnected = 0;
     nFedTIB = 0;
@@ -239,8 +247,7 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
     //const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
 
     if (auto runInfoRec = es.tryToGet<RunInfoRcd>()) {
-      edm::ESHandle<RunInfo> sumFED;
-      runInfoRec->get(sumFED);
+      edm::ESHandle<RunInfo> sumFED = runInfoRec->getHandle(runInfoTokenRun_);
 
       if (sumFED.isValid()) {
         std::vector<int> FedsInIds = sumFED->m_fed_in;
@@ -267,42 +274,41 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::beginLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
-  if (subdetswitchtotdigifailureon) {
-    isStableBeams = false;
-    //integrate stats over several LS to prevent eventual low trigger rates
-    if (digiFailureMEs.SubDetTotDigiProfLS && lb.id().luminosityBlock() % integrateNLumisections_ == 0)
-      digiFailureMEs.SubDetTotDigiProfLS->Reset();
-  }
+std::shared_ptr<bool> SiStripMonitorDigi::globalBeginLuminosityBlock(const edm::LuminosityBlock& lb,
+                                                                     const edm::EventSetup& es) const {
+  bool isStableBeams = false;
+  return std::make_shared<bool>(isStableBeams);
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
+void SiStripMonitorDigi::globalEndLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
+  unsigned int currentLS = lb.id().luminosityBlock();
+  const bool isStableBeams = luminosityBlockCache(lb.index());
   if (subdetswitchtotdigifailureon && isStableBeams && !SBTransitionDone) {
-    SBDeclaredAt = (int)lb.id().luminosityBlock();
+    SBDeclaredAt = (int)currentLS;
     SBTransitionDone = true;
   }
 
-  if (subdetswitchtotdigifailureon && lb.id().luminosityBlock() % integrateNLumisections_ == 0) {
+  if (subdetswitchtotdigifailureon && currentLS % integrateNLumisections_ == 0) {
     int nFeds[6] = {96, 96, 84, 15, 15, 134};  // tec- , tec+ , tib , tid- , tid+ , tob
     int nFedsConnected[6] = {nFedTECm, nFedTECp, nFedTIB, nFedTIDm, nFedTIDp, nFedTOB};
 
     if (digiFailureMEs.SubDetTotDigiProfLS) {
       for (int ibin = 1; ibin < 7; ibin++) {
-        float value = digiFailureMEs.SubDetTotDigiProfLS->getBinContent(ibin);
+        //the vector now has the sum from previous integrateNLumisections_
+        //whereas digiFailureMEs.SubDetTotDigiProfLS now has sum for all LS upto now.
+        float value = digiFailureMEs.SubDetTotDigiProfLS->getBinContent(ibin) - vecSubDetTotDigiProfLS[ibin];
+        vecSubDetTotDigiProfLS[ibin] = digiFailureMEs.SubDetTotDigiProfLS->getBinContent(ibin);
 
         float fillvalue = 2;
         if (isStableBeams
             //	     && (int)lb.id().luminosityBlock() > ignoreFirstNLumisections_     //ignore first X lumisections for HV rampup
-            && ((int)lb.id().luminosityBlock() - SBDeclaredAt) > ignoreFirstNLumisections_ &&
+            && ((int)currentLS - SBDeclaredAt) > ignoreFirstNLumisections_ &&
             (float)nFedsConnected[ibin - 1] / nFeds[ibin - 1] > 0.5 && value < 50.) {
           fillvalue = 1.01;
         }
-
         //account for integrated LS: fill previous bins as well
-        for (int fillbin = (int)lb.id().luminosityBlock() - integrateNLumisections_ + 1;
-             fillbin <= (int)lb.id().luminosityBlock();
-             fillbin++)
+        for (int fillbin = (int)currentLS - integrateNLumisections_ + 1; fillbin <= (int)currentLS; fillbin++)
           digiFailureMEs.SubDetDigiFailures2D->Fill(fillbin, ibin - 1, fillvalue);
       }
     }
@@ -312,15 +318,11 @@ void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, cons
 void SiStripMonitorDigi::createMEs(DQMStore::IBooker& ibooker, const edm::EventSetup& es) {
   if (show_mechanical_structure_view) {
     //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    es.get<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
-    edm::ESHandle<TkDetMap> tkDetMapHandle;
-    es.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-    const TkDetMap* tkDetMap = tkDetMapHandle.product();
+    const TrackerTopology* const tTopo = &es.getData(tTopoTokenRun_);
+    const TkDetMap* tkDetMap = &es.getData(tkDetMapTokenRun_);
 
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
-    es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
+    SiStripDetCabling_ = &es.getData(SiStripDetCablingTokenRun_);
 
     // get list of active detectors from SiStripDetCabling
     std::vector<uint32_t> activeDets;
@@ -450,7 +452,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker& ibooker, const edm::EventS
       ShotsVsTimeApvShotsGlobal->setAxisTitle("Time (s)", 1);
       ShotsVsTimeApvShotsGlobal->setAxisTitle("# Apv Shots", 2);
       if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::Kind::TPROFILE)
-        ShotsVsTimeApvShotsGlobal->getTH1()->SetCanExtend(TH1::kAllAxes);
+        ShotsVsTimeApvShotsGlobal->setCanExtend(TH1::kAllAxes);
     }
 
     //cumulative number of Strips in APV shots
@@ -576,9 +578,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     return;
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
 
   TotalNShots = 0;
 
@@ -809,6 +809,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
   }
 
+  bool& isStableBeams = *luminosityBlockCache(iEvent.getLuminosityBlock().index());
   if (subdetswitchtotdigifailureon) {
     //check Stable beams bit
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvm_handle;
@@ -983,7 +984,7 @@ SiStripMonitorDigi::MonitorElement* SiStripMonitorDigi::bookMETrend(DQMStore::IB
 
   me->setAxisTitle("Lumisection", 1);
   if (me->kind() == MonitorElement::Kind::TPROFILE)
-    me->getTH1()->SetCanExtend(TH1::kAllAxes);
+    me->setCanExtend(TH1::kAllAxes);
   return me;
 }
 
@@ -1190,7 +1191,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker& ibooker, std::string
     subdetMEs.SubDetTotDigiProf->setAxisTitle("Lumisection", 1);
 
     if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::Kind::TPROFILE)
-      subdetMEs.SubDetTotDigiProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+      subdetMEs.SubDetTotDigiProf->setCanExtend(TH1::kAllAxes);
   }
 
   // Number of Digi vs Bx - Profile
@@ -1304,7 +1305,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker& ibooker, std::string
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("Time (s)", 1);
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("# Apv Shots", 2);
     if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::Kind::TPROFILE)
-      subdetMEs.SubDetNApvShotsProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+      subdetMEs.SubDetNApvShotsProf->setCanExtend(TH1::kAllAxes);
   }
 
   SubDetMEsMap[label] = subdetMEs;

@@ -19,6 +19,8 @@
 #include "GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc"
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 
+#include <memory>
+
 #include <vector>
 #include <cstdio>
 #include <cstring>
@@ -33,13 +35,10 @@ public:
       : _hepmcCollection(consumes<HepMCProduct>(cfg.getParameter<edm::InputTag>("HepMCCollection"))),
         _lheRunInfo(consumes<LHERunInfoProduct, edm::InRun>(cfg.getParameter<edm::InputTag>("LHERunInfo"))) {
     usesResource("Rivet");
-
-    _HTXS = new Rivet::HiggsTemplateCrossSections();
-
-    _isFirstEvent = true;
     _prodMode = cfg.getParameter<string>("ProductionMode");
     m_HiggsProdMode = HTXS::UNKNOWN;
-
+    _HTXS = nullptr;
+    _analysisHandler = nullptr;
     produces<HTXS::HiggsClassification>("HiggsClassification").setBranchAlias("HiggsClassification");
   }
 
@@ -52,10 +51,9 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
   edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfo;
 
-  Rivet::AnalysisHandler _analysisHandler;
+  std::unique_ptr<Rivet::AnalysisHandler> _analysisHandler;
   Rivet::HiggsTemplateCrossSections* _HTXS;
 
-  bool _isFirstEvent;
   std::string _prodMode;
   HTXS::HiggsProdMode m_HiggsProdMode;
 
@@ -108,13 +106,13 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
         } else if (nBs == 2 && nHs == 1 && nZs == 0) {
           m_HiggsProdMode = HTXS::BBH;
         }
-
-        _HTXS->setHiggsProdMode(m_HiggsProdMode);
       }
     }
 
-    if (_isFirstEvent) {
-      _analysisHandler.addAnalysis(_HTXS);
+    if (!_HTXS || !_HTXS->hasProjection("FS")) {
+      _analysisHandler = std::make_unique<Rivet::AnalysisHandler>();
+      _HTXS = new Rivet::HiggsTemplateCrossSections();
+      _analysisHandler->addAnalysis(_HTXS);
 
       // set the production mode if not done already
       if (_prodMode == "GGF")
@@ -152,8 +150,7 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       }
 
       // initialize rivet analysis
-      _analysisHandler.init(*myGenEvent);
-      _isFirstEvent = false;
+      _analysisHandler->init(*myGenEvent);
     }
 
     // classify the event
@@ -166,7 +163,10 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   }
 }
 
-void HTXSRivetProducer::endRun(edm::Run const& iRun, edm::EventSetup const& es) { _HTXS->printClassificationSummary(); }
+void HTXSRivetProducer::endRun(edm::Run const& iRun, edm::EventSetup const& es) {
+  if (_HTXS)
+    _HTXS->printClassificationSummary();
+}
 
 void HTXSRivetProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& es) {
   if (_prodMode == "AUTO") {

@@ -15,8 +15,8 @@ process.load('SimG4Core.Application.g4SimHits_cfi')
 process.load('IOMC.RandomEngine.IOMC_cff')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HCalGeom')
-    process.MessageLogger.categories.append('HcalSim')
+    process.MessageLogger.HCalGeom=dict()
+    process.MessageLogger.HcalSim=dict()
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('hcaltb06.root')
@@ -115,7 +115,7 @@ process.common_maximum_timex = cms.PSet(
     )
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.g4SimHits.Physics.Region = 'HcalRegion'
 process.g4SimHits.Physics.DefaultCutValue = 1.
 

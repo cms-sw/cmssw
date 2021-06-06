@@ -29,7 +29,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -60,8 +59,8 @@ BoostIODBReader<DataType, RecordType>::BoostIODBReader(const edm::ParameterSet& 
 
 template <class DataType, class RecordType>
 void BoostIODBReader<DataType, RecordType>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<DataType> p;
-  iSetup.get<RecordType>().get(p);
+  edm::ESGetToken<DataType, RecordType> tok = esConsumes<DataType, RecordType>();
+  const DataType* p = &iSetup.getData(tok);
 
   std::ofstream of(outputFile_.c_str(), std::ios_base::binary);
   if (!of.is_open())

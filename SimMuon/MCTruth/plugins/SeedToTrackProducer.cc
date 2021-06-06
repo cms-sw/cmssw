@@ -77,8 +77,6 @@ void SeedToTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   edm::Handle<edm::View<TrajectorySeed>> seedHandle;
   iEvent.getByToken(L2seedsTagS_, seedHandle);
 
-  int countRH = 0;
-
   // now  loop on the seeds :
   for (unsigned int i = 0; i < L2seeds->size(); i++) {
     // get the kinematic extrapolation from the seed
@@ -134,10 +132,8 @@ void SeedToTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
     // fill the seed segments in the track
     unsigned int nHitsAdded = 0;
-    for (TrajectorySeed::recHitContainer::const_iterator itRecHits = (L2seeds->at(i)).recHits().first;
-         itRecHits != (L2seeds->at(i)).recHits().second;
-         ++itRecHits, ++countRH) {
-      TrackingRecHit *hit = (itRecHits)->clone();
+    for (auto const &recHit : L2seeds->at(i).recHits()) {
+      TrackingRecHit *hit = recHit.clone();
       theTrack.appendHitPattern(*hit, ttopo);
       selectedTrackHits->push_back(hit);
       nHitsAdded++;

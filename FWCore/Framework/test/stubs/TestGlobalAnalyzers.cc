@@ -1,8 +1,8 @@
 
 /*----------------------------------------------------------------------
 
-Toy edm::global::EDAnalyzer modules of 
-edm::*Cache templates 
+Toy edm::global::EDAnalyzer modules of
+edm::*Cache templates
 for testing purposes only.
 
 ----------------------------------------------------------------------*/
@@ -18,6 +18,7 @@ for testing purposes only.
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -157,7 +158,13 @@ namespace edmtest {
     class LumiIntAnalyzer : public edm::global::EDAnalyzer<edm::LuminosityBlockCache<Cache>> {
     public:
       explicit LumiIntAnalyzer(edm::ParameterSet const& p)
-          : trans_(p.getParameter<int>("transitions")), cvalue_(p.getParameter<int>("cachevalue")) {}
+          : trans_(p.getParameter<int>("transitions")), cvalue_(p.getParameter<int>("cachevalue")) {
+        // just to create a data dependence
+        auto const& tag = p.getParameter<edm::InputTag>("moduleLabel");
+        if (not tag.label().empty()) {
+          consumes<unsigned int, edm::InLumi>(tag);
+        }
+      }
       const unsigned int trans_;
       const unsigned int cvalue_;
       mutable std::atomic<unsigned int> m_count{0};
@@ -300,6 +307,138 @@ namespace edmtest {
       }
     };
 
+    class ProcessBlockIntAnalyzer : public edm::global::EDAnalyzer<edm::WatchProcessBlock,
+                                                                   edm::StreamCache<UnsafeCache>,
+                                                                   edm::RunCache<UnsafeCache>> {
+    public:
+      explicit ProcessBlockIntAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {
+        {
+          auto tag = p.getParameter<edm::InputTag>("consumesBeginProcessBlock");
+          if (not tag.label().empty()) {
+            getTokenBegin_ = consumes<unsigned int, edm::InProcess>(tag);
+          }
+        }
+        {
+          auto tag = p.getParameter<edm::InputTag>("consumesEndProcessBlock");
+          if (not tag.label().empty()) {
+            getTokenEnd_ = consumes<unsigned int, edm::InProcess>(tag);
+          }
+        }
+      }
+
+      void beginJob() override {
+        if (m_count != 0) {
+          throw cms::Exception("transitions")
+              << "ProcessBlockIntAnalyzer::beginJob transition " << m_count << " but it was supposed to be " << 0;
+        }
+        ++m_count;
+      }
+
+      std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
+        if (m_count < 1) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::beginStream transition " << m_count
+                                              << " but it was supposed to be at least 1";
+        }
+        ++m_count;
+        return std::make_unique<UnsafeCache>();
+      }
+
+      void beginProcessBlock(edm::ProcessBlock const& processBlock) const override {
+        if (m_count != 5) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::beginProcessBlock transition " << m_count
+                                              << " but it was supposed to be " << 5;
+        }
+        ++m_count;
+
+        const unsigned int valueToGet = 11;
+        if (not getTokenBegin_.isUninitialized()) {
+          if (processBlock.get(getTokenBegin_) != valueToGet) {
+            throw cms::Exception("BadValue")
+                << "expected " << valueToGet << " but got " << processBlock.get(getTokenBegin_);
+          }
+        }
+      }
+
+      std::shared_ptr<UnsafeCache> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override {
+        if (m_count < 6u) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::globalBeginRun transition " << m_count
+                                              << " but it was supposed to be at least 6";
+        }
+        ++m_count;
+        return std::make_shared<UnsafeCache>();
+      }
+
+      void analyze(edm::StreamID iID, edm::Event const&, edm::EventSetup const&) const override {
+        if (m_count < 7u) {
+          throw cms::Exception("out of sequence") << "analyze before beginProcessBlock " << m_count;
+        }
+        ++m_count;
+      }
+
+      void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {
+        if (m_count < 15u) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::globalEndRun transition " << m_count
+                                              << " but it was supposed to be at least 15";
+        }
+        ++m_count;
+      }
+
+      void endProcessBlock(edm::ProcessBlock const& processBlock) const override {
+        if (m_count != 646u) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::endProcessBlock transition " << m_count
+                                              << " but it was supposed to be " << 646;
+        }
+        ++m_count;
+        {
+          const unsigned int valueToGet = 11;
+          if (not getTokenBegin_.isUninitialized()) {
+            if (processBlock.get(getTokenBegin_) != valueToGet) {
+              throw cms::Exception("BadValue")
+                  << "expected " << valueToGet << " but got " << processBlock.get(getTokenBegin_);
+            }
+          }
+        }
+        {
+          const unsigned int valueToGet = 21;
+          if (not getTokenEnd_.isUninitialized()) {
+            if (processBlock.get(getTokenEnd_) != valueToGet) {
+              throw cms::Exception("BadValue")
+                  << "expected " << valueToGet << " but got " << processBlock.get(getTokenEnd_);
+            }
+          }
+        }
+      }
+
+      void endStream(edm::StreamID) const override {
+        if (m_count < 647u) {
+          throw cms::Exception("transitions") << "ProcessBlockIntAnalyzer::endStream transition " << m_count
+                                              << " but it was supposed to be at least 647";
+        }
+        ++m_count;
+      }
+
+      void endJob() override {
+        if (m_count != 651u) {
+          throw cms::Exception("transitions")
+              << "ProcessBlockIntAnalyzer::endJob transition " << m_count << " but it was supposed to be " << 651;
+        }
+        ++m_count;
+      }
+
+      ~ProcessBlockIntAnalyzer() {
+        if (m_count != trans_) {
+          throw cms::Exception("transitions")
+              << "ProcessBlockIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;
+        }
+      }
+
+    private:
+      const unsigned int trans_;
+      mutable std::atomic<unsigned int> m_count{0};
+      edm::EDGetTokenT<unsigned int> getTokenBegin_;
+      edm::EDGetTokenT<unsigned int> getTokenEnd_;
+    };
+
   }  // namespace global
 }  // namespace edmtest
 
@@ -308,3 +447,4 @@ DEFINE_FWK_MODULE(edmtest::global::RunIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::global::LumiIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::global::RunSummaryIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::global::LumiSummaryIntAnalyzer);
+DEFINE_FWK_MODULE(edmtest::global::ProcessBlockIntAnalyzer);

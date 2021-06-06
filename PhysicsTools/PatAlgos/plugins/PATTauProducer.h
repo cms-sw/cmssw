@@ -40,6 +40,8 @@
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataMerger.h"
 
+#include "RecoTauTag/RecoTau/interface/PositionAtECalEntranceComputer.h"
+
 #include <string>
 
 typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> >
@@ -125,6 +127,8 @@ namespace pat {
                                              size_t,
                                              const edm::Handle<reco::TauDiscriminatorContainer>&,
                                              int);
+
+    PositionAtECalEntranceComputer posAtECalEntranceComputer_;
   };
 
 }  // namespace pat

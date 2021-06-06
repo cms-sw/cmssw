@@ -20,11 +20,8 @@
 //
 // ----------------------------------------------------------------------
 
-#ifndef ELSTRING_H
-#include "FWCore/MessageLogger/interface/ELstring.h"
-#endif
-
 #include <list>
+#include <string>
 
 namespace edm {
 
@@ -33,7 +30,7 @@ namespace edm {
   class ELdestination;
   typedef std::list<ELdestination *> ELlist_dest;
 
-  typedef std::list<ELstring> ELlist_string;
+  typedef std::list<std::string> ELlist_string;
 
   // ----------------------------------------------------------------------
 

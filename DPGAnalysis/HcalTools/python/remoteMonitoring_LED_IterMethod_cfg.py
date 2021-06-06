@@ -419,14 +419,18 @@ process.hcalDigis= cms.EDProducer("HcalRawToDigi",
 process.p = cms.Path(process.hcalDigis*process.Analyzer)
 
 process.MessageLogger = cms.Service("MessageLogger",
-     categories   = cms.untracked.vstring(''),
-     destinations = cms.untracked.vstring('cout'),
-     debugModules = cms.untracked.vstring('*'),
-     cout = cms.untracked.PSet(
-         threshold = cms.untracked.string('WARNING'),
-	 WARNING = cms.untracked.PSet(limit = cms.untracked.int32(0))
-     )
- )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        WARNING = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING')
+    ),
+    debugModules = cms.untracked.vstring('*')
+)
 
 
 

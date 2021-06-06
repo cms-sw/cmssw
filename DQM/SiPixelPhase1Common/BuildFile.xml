@@ -1,16 +1,11 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="DQMServices/Core"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="CalibTracker/Records"/>
-<use   name="Alignment/TrackerAlignment"/>
-<use   name="CondFormats/GeometryObjects"/>
-<use   name="CondFormats/SiPixelObjects"/>
-<use   name="CommonTools/TriggerUtils"/>
-
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DQMServices/Core"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="CommonTools/TriggerUtils"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

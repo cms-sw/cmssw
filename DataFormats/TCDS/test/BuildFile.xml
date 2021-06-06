@@ -1,4 +1,4 @@
-<use   name="cppunit"/>
-<use   name="DataFormats/TCDS"/>
-<bin   name="testDataFormatsTCDS" file="testRunner.cpp,tcdsRecord_t.cpp">
+<use name="cppunit"/>
+<use name="DataFormats/TCDS"/>
+<bin name="testDataFormatsTCDS" file="testRunner.cpp,tcdsRecord_t.cpp">
 </bin>

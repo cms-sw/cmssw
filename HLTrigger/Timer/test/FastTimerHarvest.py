@@ -29,7 +29,6 @@ process.DQMFileSaverOutput = cms.EndPath( process.fastTimerServiceClient + proce
 
 if options.multirun:
     # multirun harvesting
-    process.DQMStore.collateHistograms  = True
     process.dqmSaver.saveByRun      = -1
     process.dqmSaver.saveAtJobEnd   = True
     process.dqmSaver.forceRunNumber = 999999

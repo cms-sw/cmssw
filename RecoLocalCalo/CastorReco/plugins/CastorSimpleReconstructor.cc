@@ -6,15 +6,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibFormats/CastorObjects/interface/CastorCoderDb.h"
 #include "CalibFormats/CastorObjects/interface/CastorCalibrations.h"
-#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
-#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
-#include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
-#include "CondFormats/CastorObjects/interface/CastorRecoParams.h"
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
 #include "CondFormats/CastorObjects/interface/CastorChannelStatus.h"
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
-#include "CondFormats/CastorObjects/interface/CastorSaturationCorrs.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -36,6 +30,7 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
       setSaturationFlag_(conf.getParameter<bool>("setSaturationFlag")),
       doSaturationCorr_(conf.getParameter<bool>("doSaturationCorr")) {
   tok_input_ = consumes<CastorDigiCollection>(conf.getParameter<edm::InputTag>("digiLabel"));
+  tok_conditions_ = esConsumes<CastorDbService, CastorDbRecord>();
 
   std::string subd = conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(), "CASTOR")) {
@@ -46,14 +41,19 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
     edm::LogWarning("CastorSimpleReconstructor")
         << "CastorSimpleReconstructor is not associated with CASTOR subdetector!" << std::endl;
   }
+  if (tsFromDB_) {
+    tok_recoParams_ = esConsumes<CastorRecoParams, CastorRecoParamsRcd>();
+  }
+  if (doSaturationCorr_) {
+    tok_satCorr_ = esConsumes<CastorSaturationCorrs, CastorSaturationCorrsRcd>();
+  }
 }
 
 CastorSimpleReconstructor::~CastorSimpleReconstructor() {}
 
 void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   // get conditions
-  edm::ESHandle<CastorDbService> conditions;
-  eventSetup.get<CastorDbRecord>().get(conditions);
+  edm::ESHandle<CastorDbService> conditions = eventSetup.getHandle(tok_conditions_);
   const CastorQIEShape* shape = conditions->getCastorShape();  // this one is generic
 
   CastorCalibrations calibrations;
@@ -61,7 +61,7 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
   // try to get the TS windows from the db
   edm::ESHandle<CastorRecoParams> recoparams;
   if (tsFromDB_) {
-    eventSetup.get<CastorRecoParamsRcd>().get(recoparams);
+    recoparams = eventSetup.getHandle(tok_recoParams_);
     if (!recoparams.isValid()) {
       tsFromDB_ = false;
       edm::LogWarning("CastorSimpleReconstructor")
@@ -74,7 +74,7 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
   // try to get the saturation correction constants from the db
   edm::ESHandle<CastorSaturationCorrs> satcorr;
   if (doSaturationCorr_) {
-    eventSetup.get<CastorSaturationCorrsRcd>().get(satcorr);
+    satcorr = eventSetup.getHandle(tok_satCorr_);
     if (!satcorr.isValid()) {
       doSaturationCorr_ = false;
       edm::LogWarning("CastorSimpleReconstructor") << "Could not handle the CastorSaturationCorrsRcd correctly. We'll "

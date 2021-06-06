@@ -43,6 +43,14 @@ void HcalAmplifier::amplify(CaloSamples& frame, CLHEP::HepRandomEngine* engine) 
     theIonFeedbackSim->addThermalNoise(frame, engine);
   }
   pe2fC(frame);
+
+  if (frame.id().det() == DetId::Hcal && ((frame.id().subdetId() == HcalGenericDetId::HcalGenBarrel) ||
+                                          (frame.id().subdetId() == HcalGenericDetId::HcalGenEndcap))) {
+    const HcalSimParameters& params = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(frame.id()));
+    if (params.delayQIE() > 0)
+      applyQIEdelay(frame, params.delayQIE());
+  }
+
   // don't bother for blank signals
   if (theTimeSlewSim && frame.size() > 4 && frame[4] > 1.e-6) {
     theTimeSlewSim->delay(frame, engine, theTimeSlew);
@@ -58,6 +66,27 @@ void HcalAmplifier::amplify(CaloSamples& frame, CLHEP::HepRandomEngine* engine) 
 void HcalAmplifier::pe2fC(CaloSamples& frame) const {
   const CaloSimParameters& parameters = theParameterMap->simParameters(frame.id());
   frame *= parameters.photoelectronsToAnalog(frame.id());
+}
+
+void HcalAmplifier::applyQIEdelay(CaloSamples& cs, int delayQIE) const {
+  DetId detId(cs.id());
+  int maxbin = cs.size();
+  int precisebin = cs.preciseSize();
+  CaloSamples data(detId, maxbin, precisebin);  // make a temporary copy
+  data = cs;
+  data.setBlank();
+  data.resetPrecise();
+
+  for (int i = 0; i < precisebin; i++) {
+    if (i < 2 * delayQIE)
+      data.preciseAtMod(i) += 0.;
+    else
+      data.preciseAtMod(i) += cs.preciseAt(i - 2 * delayQIE);
+    int samplebin = (int)i * maxbin / precisebin;
+    data[samplebin] += data.preciseAt(i);
+  }
+
+  cs = data;  // update the sample
 }
 
 void HcalAmplifier::addPedestals(CaloSamples& frame, CLHEP::HepRandomEngine* engine) const {

@@ -18,7 +18,7 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 
 #include <sys/stat.h>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/algorithm/string.hpp>
 
 namespace evf {
@@ -84,7 +84,7 @@ namespace evf {
       std::string content;
       jsoncollector::JSONSerializer::serialize(&outJsonDef_, content);
       jsoncollector::FileIO::writeStringToFile(outTmpJsonDefName, content);
-      boost::filesystem::rename(outTmpJsonDefName, outJsonDefName);
+      std::filesystem::rename(outTmpJsonDefName, outJsonDefName);
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 
@@ -109,13 +109,15 @@ namespace evf {
         EvFOutputModuleType(ps),
         ps_(ps),
         streamLabel_(ps.getParameter<std::string>("@module_label")),
-        trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))) {
+        trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
+        psetToken_(consumes<edm::SendJobHeader::ParameterSetMap, edm::InRun>(
+            ps.getUntrackedParameter<edm::InputTag>("psetMap"))) {
     //replace hltOutoputA with stream if the HLT menu uses this convention
     std::string testPrefix = "hltOutput";
     if (streamLabel_.find(testPrefix) == 0)
       streamLabel_ = std::string("stream") + streamLabel_.substr(testPrefix.size());
 
-    if (streamLabel_.find("_") != std::string::npos) {
+    if (streamLabel_.find('_') != std::string::npos) {
       throw cms::Exception("EvFOutputModule") << "Underscore character is reserved can not be used for stream names in "
                                                  "FFF, but was detected in stream name -: "
                                               << streamLabel_;
@@ -138,7 +140,9 @@ namespace evf {
     edm::ParameterSetDescription desc;
     edm::StreamerOutputModuleCommon::fillDescription(desc);
     EvFOutputModuleType::fillDescription(desc);
-    descriptions.addDefault(desc);
+    desc.addUntracked<edm::InputTag>("psetMap", {"hltPSetMap"})
+        ->setComment("Optionally allow the map of ParameterSets to be calculated externally.");
+    descriptions.add("evfOutputModule", desc);
   }
 
   void EvFOutputModule::beginRun(edm::RunForOutput const& run) {
@@ -153,13 +157,16 @@ namespace evf {
     uint32 preamble_adler32 = 1;
     edm::BranchIDLists const* bidlPtr = branchIDLists();
 
+    auto psetMapHandle = run.getHandle(psetToken_);
+
     std::unique_ptr<InitMsgBuilder> init_message =
         jsonWriter_->streamerCommon_.serializeRegistry(*jsonWriter_->streamerCommon_.getSerializerBuffer(),
                                                        *bidlPtr,
                                                        *thinnedAssociationsHelper(),
                                                        OutputModule::processName(),
                                                        description().moduleLabel(),
-                                                       moduleDescription().mainParameterSetID());
+                                                       moduleDescription().mainParameterSetID(),
+                                                       psetMapHandle.isValid() ? psetMapHandle.product() : nullptr);
 
     //Let us turn it into a View
     InitMsgView view(init_message->startAddress());
@@ -199,7 +206,7 @@ namespace evf {
                                               << " expected:" << preamble_adler32 << " obtained:" << adler32c;
     } else {
       LogDebug("EvFOutputModule") << "Ini file checksum -: " << streamLabel_ << " " << adler32c;
-      boost::filesystem::rename(openIniFileName, edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
+      std::filesystem::rename(openIniFileName, edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
     }
   }
 
@@ -245,12 +252,11 @@ namespace evf {
 
     if (jsonWriter_->processed_.value() != 0) {
       struct stat istat;
-      boost::filesystem::path openDatFilePath = lumiWriter->getFilePath();
+      std::filesystem::path openDatFilePath = lumiWriter->getFilePath();
       stat(openDatFilePath.string().c_str(), &istat);
       jsonWriter_->filesize_ = istat.st_size;
-      boost::filesystem::rename(
-          openDatFilePath.string().c_str(),
-          edm::Service<evf::EvFDaqDirector>()->getDatFilePath(iLB.luminosityBlock(), streamLabel_));
+      std::filesystem::rename(openDatFilePath.string().c_str(),
+                              edm::Service<evf::EvFDaqDirector>()->getDatFilePath(iLB.luminosityBlock(), streamLabel_));
       jsonWriter_->filelist_ = openDatFilePath.filename().string();
     } else {
       //remove empty file when no event processing has occurred

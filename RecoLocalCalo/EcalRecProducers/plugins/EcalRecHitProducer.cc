@@ -19,9 +19,6 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -55,6 +52,8 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) {
   ebFEToBeRecoveredToken_ = consumes<std::set<EcalTrigTowerDetId>>(ps.getParameter<edm::InputTag>("ebFEToBeRecovered"));
 
   eeFEToBeRecoveredToken_ = consumes<std::set<EcalScDetId>>(ps.getParameter<edm::InputTag>("eeFEToBeRecovered"));
+
+  ecalChannelStatusToken_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
 
   std::string componentType = ps.getParameter<std::string>("algo");
   edm::ConsumesCollector c{consumesCollector()};
@@ -127,8 +126,7 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     detIds = pEBDetId.product();
 
     if (detIds) {
-      edm::ESHandle<EcalChannelStatus> chStatus;
-      es.get<EcalChannelStatusRcd>().get(chStatus);
+      edm::ESHandle<EcalChannelStatus> chStatus = es.getHandle(ecalChannelStatusToken_);
       for (std::set<EBDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it) {
         // get channel status map to treat dead VFE separately
         EcalChannelStatusMap::const_iterator chit = chStatus->find(*it);
@@ -163,8 +161,7 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     detIds = pEEDetId.product();
 
     if (detIds) {
-      edm::ESHandle<EcalChannelStatus> chStatus;
-      es.get<EcalChannelStatusRcd>().get(chStatus);
+      edm::ESHandle<EcalChannelStatus> chStatus = es.getHandle(ecalChannelStatusToken_);
       for (std::set<EEDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it) {
         // get channel status map to treat dead VFE separately
         EcalChannelStatusMap::const_iterator chit = chStatus->find(*it);

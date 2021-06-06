@@ -30,22 +30,24 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 // forward declarations
 
 namespace edm {
   class ModuleCallingContext;
+  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
   class ProductResolverIndexAndSkipBit;
   class ActivityRegistry;
-  class ProductRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
 
   namespace maker {
     template <typename T>
@@ -67,6 +69,8 @@ namespace edm {
       friend class edm::maker::ModuleHolderT;
 
       EDAnalyzerAdaptorBase();
+      EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&) = delete;                   // stop default
+      const EDAnalyzerAdaptorBase& operator=(const EDAnalyzerAdaptorBase&) = delete;  // stop default
       virtual ~EDAnalyzerAdaptorBase();
 
       // ---------- const member functions ---------------------
@@ -76,6 +80,8 @@ namespace edm {
       // ---------- member functions ---------------------------
       const ModuleDescription& moduleDescription() const { return moduleDescription_; }
 
+      virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       bool wantsStreamRuns() const { return true; }
@@ -98,12 +104,16 @@ namespace edm {
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const;
 
+      std::vector<ESProxyIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const;
+      std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const;
+
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
       void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
 
       const EDConsumerBase* consumer() const;
 
-      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+      void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
+                                           std::vector<ModuleProcessName>& modulesInPreviousProcesses,
                                            ProductRegistry const& preg,
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                            std::string const& processName) const;
@@ -113,51 +123,40 @@ namespace edm {
       std::vector<ConsumesInfo> consumesInfo() const;
 
     private:
-      EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&) = delete;  // stop default
-
-      const EDAnalyzerAdaptorBase& operator=(const EDAnalyzerAdaptorBase&) = delete;  // stop default
-
-      bool doEvent(EventPrincipal const& ep, EventSetupImpl const& c, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int) {}
 
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
-                                                    ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
+                                                    ModuleCallingContext const&,
+                                                    Principal const&) const {}
 
       virtual void setupStreamModules() = 0;
-      void doBeginJob();
+      virtual void doBeginJob() = 0;
       virtual void doEndJob() = 0;
 
       void doBeginStream(StreamID id);
       void doEndStream(StreamID id);
-      void doStreamBeginRun(StreamID id, RunPrincipal const& ep, EventSetupImpl const& c, ModuleCallingContext const*);
+      void doStreamBeginRun(StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
       virtual void setupRun(EDAnalyzerBase*, RunIndex) = 0;
-      void doStreamEndRun(StreamID id, RunPrincipal const& ep, EventSetupImpl const& c, ModuleCallingContext const*);
+      void doStreamEndRun(StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
       virtual void streamEndRunSummary(EDAnalyzerBase*, edm::Run const&, edm::EventSetup const&) = 0;
 
-      void doStreamBeginLuminosityBlock(StreamID id,
-                                        LuminosityBlockPrincipal const& ep,
-                                        EventSetupImpl const& c,
-                                        ModuleCallingContext const*);
+      void doStreamBeginLuminosityBlock(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
       virtual void setupLuminosityBlock(EDAnalyzerBase*, LuminosityBlockIndex) = 0;
-      void doStreamEndLuminosityBlock(StreamID id,
-                                      LuminosityBlockPrincipal const& ep,
-                                      EventSetupImpl const& c,
-                                      ModuleCallingContext const*);
+      void doStreamEndLuminosityBlock(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
       virtual void streamEndLuminosityBlockSummary(EDAnalyzerBase*,
                                                    edm::LuminosityBlock const&,
                                                    edm::EventSetup const&) = 0;
 
-      virtual void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*) = 0;
-      virtual void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*) = 0;
-      virtual void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                          EventSetupImpl const& c,
-                                          ModuleCallingContext const*) = 0;
-      virtual void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                        EventSetupImpl const& c,
-                                        ModuleCallingContext const*) = 0;
+      virtual void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+      virtual void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+      virtual void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
+      virtual void doBeginRun(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+      virtual void doEndRun(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+      virtual void doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+      virtual void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);

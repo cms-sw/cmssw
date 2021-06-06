@@ -7,7 +7,6 @@
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="Geometry/VeryForwardRPTopology"/>
 <use name="DataFormats/ProtonReco"/>
-
 <library name="ValidationCTPPSPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

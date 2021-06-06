@@ -6,12 +6,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 using namespace std;
 using namespace edm;
-LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig) : pfTransformer_(nullptr) {
+LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig)
+    : pfTransformer_(nullptr), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFRecTrackCollection>();
 
   std::vector<InputTag> tags = iConfig.getParameter<vector<InputTag> >("TkColList");
@@ -51,8 +50,7 @@ void LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void LightPFTrackProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  auto const& magneticField = &iSetup.getData(magneticFieldToken_);
   pfTransformer_ = new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
   pfTransformer_->OnlyProp();
 }

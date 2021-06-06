@@ -45,12 +45,12 @@ PFTauPrimaryVertexProducerBase::PFTauPrimaryVertexProducerBase(const edm::Parame
   }
   // Build a string cut if desired
   if (iConfig.exists("cut"))
-    cut_.reset(new StringCutObjectSelector<reco::PFTau>(iConfig.getParameter<std::string>("cut")));
+    cut_ = std::make_unique<StringCutObjectSelector<reco::PFTau>>(iConfig.getParameter<std::string>("cut"));
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   produces<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::VertexRef>>>();
   produces<reco::VertexCollection>("PFTauPrimaryVertices");
 
-  vertexAssociator_.reset(new reco::tau::RecoTauVertexAssociator(qualityCutsPSet_, consumesCollector()));
+  vertexAssociator_ = std::make_unique<reco::tau::RecoTauVertexAssociator>(qualityCutsPSet_, consumesCollector());
 }
 
 PFTauPrimaryVertexProducerBase::~PFTauPrimaryVertexProducerBase() {}
@@ -191,6 +191,7 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
         // Refit the vertex
         TransientVertex transVtx;
         std::vector<reco::TransientTrack> transTracks;
+        transTracks.reserve(nonTauTracks.size());
         for (const auto track : nonTauTracks) {
           transTracks.push_back(transTrackBuilder->build(*track));
         }
@@ -202,6 +203,13 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
             transVtx = avf.vertex(transTracks);
           } else {
             transVtx = avf.vertex(transTracks, *beamSpot);
+          }
+          if (!transVtx.isValid()) {
+            fitOK = false;
+          } else {
+            //MB: protect against rare cases when transVtx is valid but its position is ill-defined
+            if (!std::isfinite(transVtx.position().z()))  //MB: it is enough to check one coordinate (?)
+              fitOK = false;
           }
         } else
           fitOK = false;
@@ -228,52 +236,9 @@ edm::ParameterSetDescription PFTauPrimaryVertexProducerBase::getDescriptionsBase
     desc.addVPSet("discriminators", vpsd1);
   }
 
-  {
-    edm::ParameterSetDescription pset_signalQualityCuts;
-    pset_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
-    pset_signalQualityCuts.add<double>("minTrackPt", 0.5);
-    pset_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-    pset_signalQualityCuts.add<double>("maxTrackChi2", 100.0);
-    pset_signalQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-    pset_signalQualityCuts.add<double>("minGammaEt", 1.0);
-    pset_signalQualityCuts.add<unsigned int>("minTrackHits", 3);
-    pset_signalQualityCuts.add<double>("minNeutralHadronEt", 30.0);
-    pset_signalQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
-    pset_signalQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-    edm::ParameterSetDescription pset_vxAssocQualityCuts;
-    pset_vxAssocQualityCuts.add<double>("minTrackPt", 0.5);
-    pset_vxAssocQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-    pset_vxAssocQualityCuts.add<double>("maxTrackChi2", 100.0);
-    pset_vxAssocQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-    pset_vxAssocQualityCuts.add<double>("minGammaEt", 1.0);
-    pset_vxAssocQualityCuts.add<unsigned int>("minTrackHits", 3);
-    pset_vxAssocQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
-    pset_vxAssocQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-    edm::ParameterSetDescription pset_isolationQualityCuts;
-    pset_isolationQualityCuts.add<double>("maxDeltaZ", 0.2);
-    pset_isolationQualityCuts.add<double>("minTrackPt", 1.0);
-    pset_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-    pset_isolationQualityCuts.add<double>("maxTrackChi2", 100.0);
-    pset_isolationQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-    pset_isolationQualityCuts.add<double>("minGammaEt", 1.5);
-    pset_isolationQualityCuts.add<unsigned int>("minTrackHits", 8);
-    pset_isolationQualityCuts.add<double>("maxTransverseImpactParameter", 0.03);
-    pset_isolationQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-    edm::ParameterSetDescription pset_qualityCuts;
-    pset_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts", pset_signalQualityCuts);
-    pset_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts", pset_vxAssocQualityCuts);
-    pset_qualityCuts.add<edm::ParameterSetDescription>("isolationQualityCuts", pset_isolationQualityCuts);
-    pset_qualityCuts.add<std::string>("leadingTrkOrPFCandOption", "leadPFCand");
-    pset_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
-    pset_qualityCuts.add<edm::InputTag>("primaryVertexSrc", edm::InputTag("offlinePrimaryVertices"));
-    pset_qualityCuts.add<bool>("vertexTrackFiltering", false);
-    pset_qualityCuts.add<bool>("recoverLeadingTrk", false);
-
-    desc.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
-  }
+  edm::ParameterSetDescription desc_qualityCuts;
+  reco::tau::RecoTauQualityCuts::fillDescriptions(desc_qualityCuts);
+  desc.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
 
   desc.add<std::string>("cut", "pt > 18.0 & abs(eta)<2.3");
   desc.add<int>("Algorithm", 0);

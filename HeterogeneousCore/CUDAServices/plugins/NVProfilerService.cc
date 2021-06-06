@@ -12,7 +12,7 @@
 #include <tbb/concurrent_vector.h>
 #include <tbb/enumerable_thread_specific.h>
 
-#include <boost/format.hpp>
+#include <fmt/printf.h>
 
 #include <cuda_profiler_api.h>
 #include <nvToolsExt.h>
@@ -210,6 +210,10 @@ public:
   void postModuleConstruction(edm::ModuleDescription const&);
 
   // these signal pair are guaranteed to be called by the same thread
+  void preModuleDestruction(edm::ModuleDescription const&);
+  void postModuleDestruction(edm::ModuleDescription const&);
+
+  // these signal pair are guaranteed to be called by the same thread
   void preModuleBeginJob(edm::ModuleDescription const&);
   void postModuleBeginJob(edm::ModuleDescription const&);
 
@@ -400,6 +404,10 @@ NVProfilerService::NVProfilerService(edm::ParameterSet const& config, edm::Activ
   registry.watchPostModuleConstruction(this, &NVProfilerService::postModuleConstruction);
 
   // these signal pair are guaranteed to be called by the same thread
+  registry.watchPreModuleDestruction(this, &NVProfilerService::preModuleDestruction);
+  registry.watchPostModuleDestruction(this, &NVProfilerService::postModuleDestruction);
+
+  // these signal pair are guaranteed to be called by the same thread
   registry.watchPreModuleBeginJob(this, &NVProfilerService::preModuleBeginJob);
   registry.watchPostModuleBeginJob(this, &NVProfilerService::postModuleBeginJob);
 
@@ -502,7 +510,7 @@ void NVProfilerService::preallocate(edm::service::SystemBounds const& bounds) {
   // create the NVTX domains for per-EDM-stream transitions
   stream_domain_.resize(concurrentStreams);
   for (unsigned int sid = 0; sid < concurrentStreams; ++sid) {
-    stream_domain_[sid] = nvtxDomainCreate((boost::format("EDM Stream %d") % sid).str().c_str());
+    stream_domain_[sid] = nvtxDomainCreate(fmt::sprintf("EDM Stream %d", sid).c_str());
   }
 
   event_.resize(concurrentStreams);
@@ -813,6 +821,24 @@ void NVProfilerService::preModuleConstruction(edm::ModuleDescription const& desc
 }
 
 void NVProfilerService::postModuleConstruction(edm::ModuleDescription const& desc) {
+  if (not skipFirstEvent_) {
+    auto mid = desc.id();
+    nvtxDomainRangeEnd(global_domain_, global_modules_[mid]);
+    global_modules_[mid] = nvtxInvalidRangeId;
+  }
+}
+
+void NVProfilerService::preModuleDestruction(edm::ModuleDescription const& desc) {
+  if (not skipFirstEvent_) {
+    auto mid = desc.id();
+    global_modules_.grow_to_at_least(mid + 1);
+    auto const& label = desc.moduleLabel();
+    auto const& msg = label + " destruction";
+    global_modules_[mid] = nvtxDomainRangeStartColor(global_domain_, msg.c_str(), labelColor(label));
+  }
+}
+
+void NVProfilerService::postModuleDestruction(edm::ModuleDescription const& desc) {
   if (not skipFirstEvent_) {
     auto mid = desc.id();
     nvtxDomainRangeEnd(global_domain_, global_modules_[mid]);

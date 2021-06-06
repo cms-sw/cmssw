@@ -9,26 +9,19 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void volumeHandle::buildTruncTubs() {
-  LogTrace("magneticfield::volumeHandle") << "Building TruncTubs surfaces...: ";
-
-  DDTruncTubs tubs(solid);
-
-  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
-  // convertUnits should be defined appropriately.
-  double zhalf = convertUnits(tubs.zHalf());            // half of the z-Axis
-  double rIn = convertUnits(tubs.rIn());                // inner radius
-  double rOut = convertUnits(tubs.rOut());              // outer radius
-  double startPhi = tubs.startPhi();                    // angular start of the tube-section
-  double deltaPhi = tubs.deltaPhi();                    // angular span of the tube-section
-  double cutAtStart = convertUnits(tubs.cutAtStart());  // truncation at begin of the tube-section
-  double cutAtDelta = convertUnits(tubs.cutAtDelta());  // truncation at end of the tube-section
-  bool cutInside = tubs.cutInside();                    // true, if truncation is on the inner side of the tube-section
-
-  LogTrace("magneticfield::volumeHandle")
-      << "zhalf      " << zhalf << newln << "rIn        " << rIn << newln << "rOut       " << rOut << newln
-      << "startPhi   " << startPhi << newln << "deltaPhi   " << deltaPhi << newln << "cutAtStart " << cutAtStart
-      << newln << "cutAtDelta " << cutAtDelta << newln << "cutInside  " << cutInside;
+void volumeHandle::buildTruncTubs(double zhalf,
+                                  double rIn,
+                                  double rOut,
+                                  double startPhi,
+                                  double deltaPhi,
+                                  double cutAtStart,
+                                  double cutAtDelta,
+                                  bool cutInside) {
+  LogTrace("MagGeoBuilder") << "Building TruncTubs surfaces...: ";
+  LogTrace("MagGeoBuilder") << "zhalf      " << zhalf << newln << "rIn        " << rIn << newln << "rOut       " << rOut
+                            << newln << "startPhi   " << startPhi << newln << "deltaPhi   " << deltaPhi << newln
+                            << "cutAtStart " << cutAtStart << newln << "cutAtDelta " << cutAtDelta << newln
+                            << "cutInside  " << cutInside;
 
   //
   //  GlobalVector planeXAxis = refPlane->toGlobal(LocalVector( 1, 0, 0));
@@ -86,14 +79,14 @@ void volumeHandle::buildTruncTubs() {
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);
 
   if (debug) {
-    LogTrace("magneticfield::volumeHandle")
-        << "pos_Rplane    " << pos_Rplane << " " << pos_Rplane.perp() << " " << pos_Rplane.phi() << newln
-        << "rot_R         " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-        << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)).phi() << newln << "cyl radius     " << rCyl;
+    LogTrace("MagGeoBuilder") << "pos_Rplane    " << pos_Rplane << " " << pos_Rplane.perp() << " " << pos_Rplane.phi()
+                              << newln << "rot_R         " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.))
+                              << " phi " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)).phi() << newln
+                              << "cyl radius     " << rCyl;
 
     //   // Check ordering.
     if ((pos_Rplane.perp() < rCyl) != cutInside) {
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner ";
+      LogTrace("MagGeoBuilder") << "*** WARNING: pos_outer < pos_inner ";
     }
   }
   // Save volume boundaries

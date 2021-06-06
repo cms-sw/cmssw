@@ -8,7 +8,7 @@ from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
             #relValTTbar
-            '/store/relval/CMSSW_11_0_0_pre4/RelValProdTTbar/AODSIM/106X_mcRun1_realistic_v3-v1/20000/26A4F099-D3A0-0C47-9E05-408C49CFD404.root'
+            '/store/relval/CMSSW_11_0_0/RelValTTbar_14TeV/GEN-SIM/110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/22BAADDB-EE84-794F-9A5D-812F341D8075.root'
         )
 )
 

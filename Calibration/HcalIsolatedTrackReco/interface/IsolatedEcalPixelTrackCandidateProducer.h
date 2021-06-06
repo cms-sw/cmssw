@@ -13,6 +13,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 //
 // class decleration
 //
@@ -30,6 +33,7 @@ private:
   const edm::EDGetTokenT<EcalRecHitCollection> tok_ee;
   const edm::EDGetTokenT<EcalRecHitCollection> tok_eb;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_trigcand;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
   const double coneSizeEta0_;
   const double coneSizeEta1_;
   const double hitCountEthrEB_;

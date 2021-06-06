@@ -27,7 +27,6 @@ class DDAHcalModuleAlgo : public DDAlgorithm {
 public:
   // Constructor and Destructor
   DDAHcalModuleAlgo();  // const std::string & name);
-  ~DDAHcalModuleAlgo() override;
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -41,21 +40,23 @@ protected:
   void positionSensitive(DDLogicalPart& glog, DDCompactView& cpv);
 
 private:
-  std::string tile;                    // Scintillator tile
-  std::vector<std::string> materials;  // Materials
-  std::vector<std::string> names;      // Names
-  std::vector<double> thick;           // Thickness of the material
-  std::vector<int> copyNumber;         // Initial copy numbers
-  std::vector<int> layers;             // Number of layers in a section
-  std::vector<double> layerThick;      // Thickness of each section
-  std::vector<int> layerType;          // Type of the layer
-  std::vector<int> layerSense;         // Content of a layer (sensitive?)
-  std::vector<double> widths;          // Width (passive, active)
-  std::vector<double> heights;         // Heights (passive, active)
-  std::vector<int> tileN;              // # of tiles (along x, y)
-  std::vector<double> tileStep;        // Separation between tiles (x, y)
-  double zMinBlock;                    // Starting z-value of the block
-  std::string idNameSpace;             // Namespace of this and ALL sub-parts
+  static constexpr double tol_ = 0.00001;
+
+  std::string tile_;                    // Scintillator tile
+  std::vector<std::string> materials_;  // Materials
+  std::vector<std::string> names_;      // Names
+  std::vector<double> thick_;           // Thickness of the material
+  std::vector<int> copyNumber_;         // Initial copy numbers
+  std::vector<int> layers_;             // Number of layers in a section
+  std::vector<double> layerThick_;      // Thickness of each section
+  std::vector<int> layerType_;          // Type of the layer
+  std::vector<int> layerSense_;         // Content of a layer (sensitive?)
+  std::vector<double> widths_;          // Width (passive, active)
+  std::vector<double> heights_;         // Heights (passive, active)
+  std::vector<int> tileN_;              // # of tiles (along x, y)
+  std::vector<double> tileStep_;        // Separation between tiles (x, y)
+  double zMinBlock_;                    // Starting z-value of the block
+  std::string idNameSpace_;             // Namespace of this and ALL sub-parts
 };
 
 DDAHcalModuleAlgo::DDAHcalModuleAlgo() {
@@ -64,64 +65,60 @@ DDAHcalModuleAlgo::DDAHcalModuleAlgo() {
 #endif
 }
 
-DDAHcalModuleAlgo::~DDAHcalModuleAlgo() {}
-
 void DDAHcalModuleAlgo::initialize(const DDNumericArguments& nArgs,
                                    const DDVectorArguments& vArgs,
                                    const DDMapArguments&,
                                    const DDStringArguments& sArgs,
                                    const DDStringVectorArguments& vsArgs) {
-  tile = sArgs["TileName"];
+  tile_ = sArgs["TileName"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: Tile " << tile;
+  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: Tile " << tile_;
 #endif
-  materials = vsArgs["MaterialNames"];
-  names = vsArgs["VolumeNames"];
-  thick = vArgs["Thickness"];
-  for (unsigned int i = 0; i < materials.size(); ++i) {
-    copyNumber.emplace_back(1);
-  }
+  materials_ = vsArgs["MaterialNames"];
+  names_ = vsArgs["VolumeNames"];
+  thick_ = vArgs["Thickness"];
+  copyNumber_.resize(materials_.size(), 1);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << materials.size() << " types of volumes";
-  for (unsigned int i = 0; i < names.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names[i] << " of thickness " << thick[i]
-                                  << " filled with " << materials[i] << " first copy number " << copyNumber[i];
+  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << materials_.size() << " types of volumes";
+  for (unsigned int i = 0; i < names_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names_[i] << " of thickness " << thick_[i]
+                                  << " filled with " << materials_[i] << " first copy number " << copyNumber_[i];
 #endif
-  layers = dbl_to_int(vArgs["Layers"]);
-  layerThick = vArgs["LayerThick"];
+  layers_ = dbl_to_int(vArgs["Layers"]);
+  layerThick_ = vArgs["LayerThick"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << layers.size() << " blocks";
-  for (unsigned int i = 0; i < layers.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick[i] << " with " << layers[i]
+  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << layers_.size() << " blocks";
+  for (unsigned int i = 0; i < layers_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick_[i] << " with " << layers_[i]
                                   << " layers";
 #endif
-  layerType = dbl_to_int(vArgs["LayerType"]);
-  layerSense = dbl_to_int(vArgs["LayerSense"]);
+  layerType_ = dbl_to_int(vArgs["LayerType"]);
+  layerSense_ = dbl_to_int(vArgs["LayerSense"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << layerType.size() << " layers";
-  for (unsigned int i = 0; i < layerType.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerType[i] << " sensitive class "
-                                  << layerSense[i];
+  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << layerType_.size() << " layers";
+  for (unsigned int i = 0; i < layerType_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerType_[i] << " sensitive class "
+                                  << layerSense_[i];
 #endif
-  widths = vArgs["Widths"];
-  heights = vArgs["Heights"];
+  widths_ = vArgs["Widths"];
+  heights_ = vArgs["Heights"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << widths.size() << " sizes for width "
+  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << widths_.size() << " sizes for width "
                                 << "and height:";
-  for (unsigned int i = 0; i < widths.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << widths[i] << ":" << heights[i];
+  for (unsigned int i = 0; i < widths_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << widths_[i] << ":" << heights_[i];
 #endif
-  tileN = dbl_to_int(vArgs["TileN"]);
-  tileStep = vArgs["TileStep"];
+  tileN_ = dbl_to_int(vArgs["TileN"]);
+  tileStep_ = vArgs["TileStep"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << tileN.size() << " tile positioning parameters";
-  for (unsigned int i = 0; i < tileN.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << tileN[i] << ":" << tileStep[i];
+  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << tileN_.size() << " tile positioning parameters";
+  for (unsigned int i = 0; i < tileN_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << " [" << i << "] " << tileN_[i] << ":" << tileStep_[i];
 #endif
-  zMinBlock = nArgs["zMinBlock"];
-  idNameSpace = DDCurrentNamespace::ns();
+  zMinBlock_ = nArgs["zMinBlock"];
+  idNameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock << "  NameSpace " << idNameSpace;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock_ << "  NameSpace " << idNameSpace_;
 #endif
 }
 
@@ -143,83 +140,84 @@ void DDAHcalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo test: \t\tInside Layers";
 #endif
-  double zi(zMinBlock);
+  double zi(zMinBlock_);
   int laymin(0);
-  for (unsigned int i = 0; i < layers.size(); i++) {
-    double zo = zi + layerThick[i];
-    int laymax = laymin + layers[i];
+  for (unsigned int i = 0; i < layers_.size(); i++) {
+    double zo = zi + layerThick_[i];
+    int laymax = laymin + layers_[i];
     double zz = zi;
     double thickTot(0);
     for (int ly = laymin; ly < laymax; ++ly) {
-      int ii = layerType[ly];
-      int copy = copyNumber[ii];
-      zz += (0.5 * thick[ii]);
-      thickTot += thick[ii];
+      int ii = layerType_[ly];
+      int copy = copyNumber_[ii];
+      zz += (0.5 * thick_[ii]);
+      thickTot += thick_[ii];
 
-      std::string name = "HGCal" + names[ii] + std::to_string(copy);
+      std::string name = "HGCal" + names_[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo test: Layer " << ly << ":" << ii << " Front " << zi
-                                    << " Back " << zo << " superlayer thickness " << layerThick[i];
+                                    << " Back " << zo << " superlayer thickness " << layerThick_[i];
 #endif
-      DDName matName(DDSplit(materials[ii]).first, DDSplit(materials[ii]).second);
+      DDName matName(DDSplit(materials_[ii]).first, DDSplit(materials_[ii]).second);
       DDMaterial matter(matName);
       DDLogicalPart glog;
-      if (layerSense[ly] == 0) {
+      if (layerSense_[ly] == 0) {
         DDSolid solid =
-            DDSolidFactory::box(DDName(name, idNameSpace), 0.5 * widths[0], 0.5 * heights[0], 0.5 * thick[ii]);
+            DDSolidFactory::box(DDName(name, idNameSpace_), 0.5 * widths_[0], 0.5 * heights_[0], 0.5 * thick_[ii]);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << solid.name() << " Box made of " << matName
-                                      << " of dimensions " << 0.5 * widths[0] << ", " << 0.5 * heights[0] << ", "
-                                      << 0.5 * thick[ii];
+                                      << " of dimensions " << 0.5 * widths_[0] << ", " << 0.5 * heights_[0] << ", "
+                                      << 0.5 * thick_[ii];
 #endif
       } else {
         DDSolid solid =
-            DDSolidFactory::box(DDName(name, idNameSpace), 0.5 * widths[1], 0.5 * heights[1], 0.5 * thick[ii]);
+            DDSolidFactory::box(DDName(name, idNameSpace_), 0.5 * widths_[1], 0.5 * heights_[1], 0.5 * thick_[ii]);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << solid.name() << " Box made of " << matName
-                                      << " of dimensions " << 0.5 * widths[1] << ", " << 0.5 * heights[1] << ", "
-                                      << 0.5 * thick[ii];
+                                      << " of dimensions " << 0.5 * widths_[1] << ", " << 0.5 * heights_[1] << ", "
+                                      << 0.5 * thick_[ii];
 #endif
         positionSensitive(glog, cpv);
       }
       DDTranslation r1(0, 0, zz);
       DDRotation rot;
       cpv.position(glog, module, copy, r1, rot);
-      ++copyNumber[ii];
+      ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << glog.name() << " number " << copy << " positioned in "
                                     << module.name() << " at " << r1 << " with " << rot;
 #endif
-      zz += (0.5 * thick[ii]);
+      zz += (0.5 * thick_[ii]);
     }  // End of loop over layers in a block
     zi = zo;
     laymin = laymax;
-    if (fabs(thickTot - layerThick[i]) < 0.00001) {
-    } else if (thickTot > layerThick[i]) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " is smaller than thickness "
-                                 << thickTot << " of all its components **** ERROR ****\n";
-    } else if (thickTot < layerThick[i]) {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick[i] << " does not match with "
-                                   << thickTot << " of the components\n";
+    if (fabs(thickTot - layerThick_[i]) > tol_) {
+      if (thickTot > layerThick_[i]) {
+        edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than thickness "
+                                   << thickTot << " of all its components **** ERROR ****\n";
+      } else {
+        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " does not match with "
+                                     << thickTot << " of the components\n";
+      }
     }
   }  // End of loop over blocks
 }
 
 void DDAHcalModuleAlgo::positionSensitive(DDLogicalPart& glog, DDCompactView& cpv) {
-  int ncol = tileN[0] / 2;
-  int nrow = tileN[1] / 2;
+  int ncol = tileN_[0] / 2;
+  int nrow = tileN_[1] / 2;
 #ifdef EDM_ML_DEBUG
   int kount(0);
   edm::LogVerbatim("HGCalGeom") << glog.ddname() << " Row " << nrow << " Column " << ncol;
 #endif
   for (int nr = -nrow; nr <= nrow; ++nr) {
     int inr = (nr >= 0) ? nr : -nr;
-    double ypos = (nr >= 0) ? (inr - 0.5) * tileStep[1] : -(inr - 0.5) * tileStep[1];
+    double ypos = (nr >= 0) ? (inr - 0.5) * tileStep_[1] : -(inr - 0.5) * tileStep_[1];
     for (int nc = -ncol; nc <= ncol; ++nc) {
       int inc = (nc >= 0) ? nc : -nc;
-      double xpos = (nc >= 0) ? (inc - 0.5) * tileStep[0] : -(inc - 0.5) * tileStep[0];
+      double xpos = (nc >= 0) ? (inc - 0.5) * tileStep_[0] : -(inc - 0.5) * tileStep_[0];
       if (nr != 0 && nc != 0) {
         DDTranslation tran(xpos, ypos, 0.0);
         DDRotation rotation;
@@ -228,7 +226,7 @@ void DDAHcalModuleAlgo::positionSensitive(DDLogicalPart& glog, DDCompactView& cp
           copy += AHCalParameters::kRowColumn_;
         if (nr < 0)
           copy += AHCalParameters::kSignRowColumn_;
-        DDName name = DDName(DDSplit(tile).first, DDSplit(tile).second);
+        DDName name = DDName(DDSplit(tile_).first, DDSplit(tile_).second);
         cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
         kount++;

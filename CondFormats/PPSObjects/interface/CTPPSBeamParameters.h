@@ -49,13 +49,16 @@ public:
   double getVtxOffsetX45() const;
   double getVtxOffsetY45() const;
   double getVtxOffsetZ45() const;
+  double getVtxOffsetT45() const;
   double getVtxOffsetX56() const;
   double getVtxOffsetY56() const;
   double getVtxOffsetZ56() const;
+  double getVtxOffsetT56() const;
 
   double getVtxStddevX() const;
   double getVtxStddevY() const;
   double getVtxStddevZ() const;
+  double getVtxStddevT() const;
 
   // Setters
 
@@ -80,13 +83,16 @@ public:
   void setVtxOffsetX45(double offset);
   void setVtxOffsetY45(double offset);
   void setVtxOffsetZ45(double offset);
+  void setVtxOffsetT45(double offset);
   void setVtxOffsetX56(double offset);
   void setVtxOffsetY56(double offset);
   void setVtxOffsetZ56(double offset);
+  void setVtxOffsetT56(double offset);
 
   void setVtxStddevX(double stddev);
   void setVtxStddevY(double stddev);
   void setVtxStddevZ(double stddev);
+  void setVtxStddevT(double stddev);
 
   void printInfo(std::stringstream &s);
 
@@ -108,12 +114,14 @@ private:
   double vtx_offset_x_45_, vtx_offset_x_56_;  // cm
   double vtx_offset_y_45_, vtx_offset_y_56_;  // cm
   double vtx_offset_z_45_, vtx_offset_z_56_;  // cm
+  double vtx_offset_t_45_, vtx_offset_t_56_;  // cm
 
   // the following variables might possibly be in another CMS record already,
   // but we might want to keep them for completeness/independence
   double vtx_stddev_x_;  // cm
   double vtx_stddev_y_;  // cm
   double vtx_stddev_z_;  // cm
+  double vtx_stddev_t_;  // cm
 
   COND_SERIALIZABLE;
 };

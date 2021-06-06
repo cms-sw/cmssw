@@ -20,9 +20,10 @@ std::string getBasePath(const std::string& path) {
 CalibrationHistosUsingDb::CalibrationHistosUsingDb(const edm::ParameterSet& pset,
                                                    DQMStore* bei,
                                                    SiStripConfigDb* const db,
+                                                   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken,
                                                    const sistrip::RunType& task)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("CalibrationParameters"), bei, task),
-      CommissioningHistosUsingDb(db, task),
+      CommissioningHistosUsingDb(db, tTopoToken, task),
       CalibrationHistograms(pset.getParameter<edm::ParameterSet>("CalibrationParameters"), bei, task) {
   LogTrace(mlDqmClient_) << "[CalibrationHistosUsingDb::" << __func__ << "]"
                          << " Constructing object...";

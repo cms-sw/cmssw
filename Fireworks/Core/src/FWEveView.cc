@@ -11,7 +11,7 @@
 //
 
 #include <RVersion.h>
-#include <boost/bind.hpp>
+#include <functional>
 #include <stdexcept>
 #include <string>
 
@@ -137,28 +137,28 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
   m_eventInfoLevel.addEntry(1, "Run / event");
   m_eventInfoLevel.addEntry(2, "Run / event / lumi");
   m_eventInfoLevel.addEntry(3, "Full");
-  m_eventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel, m_overlayEventInfo, _1));
+  m_eventInfoLevel.changed_.connect(std::bind(&FWEventAnnotation::setLevel, m_overlayEventInfo, std::placeholders::_1));
 
   m_overlayLogo = new CmsAnnotation(embeddedViewer, 0.02, 0.98);
   m_overlayLogo->setVisible(false);
-  m_drawCMSLogo.changed_.connect(boost::bind(&CmsAnnotation::setVisible, m_overlayLogo, _1));
+  m_drawCMSLogo.changed_.connect(std::bind(&CmsAnnotation::setVisible, m_overlayLogo, std::placeholders::_1));
 
   m_cameraGuide = new TGLCameraGuide(0.9, 0.1, 0.08);
   m_cameraGuide->SetState(TGLOverlayElement::kInvisible);
   embeddedViewer->AddOverlayElement(m_cameraGuide);
-  m_showCameraGuide.changed_.connect(boost::bind(&FWEveView::cameraGuideChanged, this));
+  m_showCameraGuide.changed_.connect(std::bind(&FWEveView::cameraGuideChanged, this));
 
-  m_pointSmooth.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged, this));
-  m_pointSize.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged, this));
-  m_lineSmooth.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged, this));
-  m_lineWidth.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged, this));
-  m_lineOutlineScale.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged, this));
-  m_lineWireframeScale.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged, this));
+  m_pointSmooth.changed_.connect(std::bind(&FWEveView::pointLineScalesChanged, this));
+  m_pointSize.changed_.connect(std::bind(&FWEveView::pointLineScalesChanged, this));
+  m_lineSmooth.changed_.connect(std::bind(&FWEveView::pointLineScalesChanged, this));
+  m_lineWidth.changed_.connect(std::bind(&FWEveView::pointLineScalesChanged, this));
+  m_lineOutlineScale.changed_.connect(std::bind(&FWEveView::pointLineScalesChanged, this));
+  m_lineWireframeScale.changed_.connect(std::bind(&FWEveView::pointLineScalesChanged, this));
 
   // create scale for view  ..
   m_viewContext->setEnergyScale(m_localEnergyScale.get());
-  m_useGlobalEnergyScale.changed_.connect(boost::bind(&FWEveView::useGlobalEnergyScaleChanged, this));
-  m_localEnergyScale->parameterChanged_.connect(boost::bind(&FWEveView::setupEnergyScale, this));
+  m_useGlobalEnergyScale.changed_.connect(std::bind(&FWEveView::useGlobalEnergyScaleChanged, this));
+  m_localEnergyScale->parameterChanged_.connect(std::bind(&FWEveView::setupEnergyScale, this));
 }
 
 FWEveView::~FWEveView() {

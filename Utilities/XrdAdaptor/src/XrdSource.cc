@@ -1,6 +1,8 @@
 
 // See http://stackoverflow.com/questions/12523122/what-is-glibcxx-use-nanosleep-all-about
 #define _GLIBCXX_USE_NANOSLEEP
+#include <memory>
+
 #include <thread>
 #include <chrono>
 #include <atomic>
@@ -36,8 +38,11 @@ using namespace XrdAdaptor;
 // inactive anyway!) can even timeout.  Rather than wait around for
 // a few minutes in the main thread, this class asynchronously closes
 // and deletes the XrdCl::File
-class DelayedClose : boost::noncopyable, public XrdCl::ResponseHandler {
+class DelayedClose : public XrdCl::ResponseHandler {
 public:
+  DelayedClose(const DelayedClose &) = delete;
+  DelayedClose &operator=(const DelayedClose &) = delete;
+
   DelayedClose(std::shared_ptr<XrdCl::File> fh, const std::string &id, const std::string &site)
       : m_fh(std::move(fh)), m_id(id), m_site(site) {
     if (m_fh && m_fh->IsOpen()) {
@@ -138,7 +143,7 @@ private:
       // On exit from the block, make sure m_status is set; it needs to be set before we notify threads.
       std::unique_ptr<char, std::function<void(char *)>> exit_guard(nullptr, [&](char *) {
         if (!l_state->m_status)
-          l_state->m_status.reset(new XrdCl::XRootDStatus(XrdCl::stError, XrdCl::errInternal));
+          l_state->m_status = std::make_unique<XrdCl::XRootDStatus>(XrdCl::stError, XrdCl::errInternal);
       });
       if (!status) {
         return;
@@ -212,7 +217,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
 }
 
 bool Source::getHostname(const std::string &id, std::string &hostname) {
-  size_t pos = id.find(":");
+  size_t pos = id.find(':');
   hostname = id;
   if ((pos != std::string::npos) && (pos > 0)) {
     hostname = id.substr(0, pos);
@@ -240,7 +245,7 @@ bool Source::getHostname(const std::string &id, std::string &hostname) {
 
 bool Source::getDomain(const std::string &host, std::string &domain) {
   getHostname(host, domain);
-  size_t pos = domain.find(".");
+  size_t pos = domain.find('.');
   if (pos != std::string::npos && (pos < domain.size())) {
     domain = domain.substr(pos + 1);
   }

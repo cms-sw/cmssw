@@ -17,23 +17,22 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include <fstream>
 #include <sstream>
 #include <map>
 #include <vector>
 
-using namespace reco;
 //
 // constructors and destructor
 //
 namespace cms {
   HcalConstantsASCIIWriter::HcalConstantsASCIIWriter(const edm::ParameterSet& iConfig) {
+    tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+    tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
     // get name of output file with histogramms
     file_input = "Calibration/HcalCalibAlgos/data/" + iConfig.getParameter<std::string>("fileInput") + ".txt";
     file_output = "Calibration/HcalCalibAlgos/data/" + iConfig.getParameter<std::string>("fileOutput") + ".txt";
@@ -63,14 +62,10 @@ namespace cms {
   void HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::cout << " Start HcalConstantsASCIIWriter::analyze " << std::endl;
 
-    edm::ESHandle<HcalRespCorrs> r;
-    iSetup.get<HcalRespCorrsRcd>().get(r);
-    HcalRespCorrs* oldRespCorrs = new HcalRespCorrs(*r.product());
+    HcalRespCorrs* oldRespCorrs = new HcalRespCorrs(iSetup.getData(tok_resp_));
     //    std::vector<DetId> dd = oldRespCorrs->getAllChannels();
 
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    const CaloGeometry* geo = pG.product();
+    const CaloGeometry* geo = &iSetup.getData(tok_geom_);
     //   iSetup.get<HcalDbRecord>().get(conditions);
 
     std::vector<DetId> did = geo->getValidDetIds();

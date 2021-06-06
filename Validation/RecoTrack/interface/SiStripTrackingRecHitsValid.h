@@ -32,6 +32,7 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -45,6 +46,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //--- for SimHit association
@@ -246,9 +248,15 @@ public:
 protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) override;
-  const MagneticField* magfield2_;
 
 private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_geomToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken, m_topoTokenBR;
+  const edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> m_SiStripDetCablingToken;
+  const edm::ESGetToken<StripClusterParameterEstimator, TkStripCPERecord> m_stripCPEToken;
+
+  edm::ESWatcher<SiStripDetCablingRcd> watchSiStripDetCablingRcd_;
+
   DQMStore* dbe_;
   bool runStandalone;
   bool outputMEsInRootFile;
@@ -385,9 +393,6 @@ private:
   std::map<std::string, StereoAndMatchedMEs> StereoAndMatchedMEsMap;
   std::map<std::string, std::vector<uint32_t> > LayerDetMap;
   std::map<std::string, std::vector<uint32_t> > StereoAndMatchedDetMap;
-
-  edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
-
   std::pair<LocalPoint, LocalVector> projectHit(const PSimHit& hit,
                                                 const StripGeomDetUnit* stripDet,
                                                 const BoundPlane& plane);
@@ -429,7 +434,6 @@ private:
 
   edm::ParameterSet conf_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
-  unsigned long long m_cacheID_;
   edm::ParameterSet Parameters;
 
   RecHitProperties rechitpro;
@@ -437,7 +441,7 @@ private:
   void rechitanalysis(LocalVector ldir,
                       const TrackingRecHit* rechit,
                       const StripGeomDetUnit* stripdet,
-                      edm::ESHandle<StripClusterParameterEstimator> stripcpe,
+                      const StripClusterParameterEstimator* stripcpe,
                       TrackerHitAssociator& associate,
                       bool simplehit1or2D);
 
@@ -446,7 +450,7 @@ private:
                               const TrackingRecHit* rechit,
                               const GluedGeomDet* gluedDet,
                               TrackerHitAssociator& associate,
-                              edm::ESHandle<StripClusterParameterEstimator> stripcpe,
+                              const StripClusterParameterEstimator* stripcpe,
                               const MatchStatus matchedmonorstereo);
 
   float track_rapidity;

@@ -1,5 +1,12 @@
-<library   file="*.cc" name="SimTrackerSiStripDigitizerPlugins">
-  <use   name="SimTracker/SiStripDigitizer"/>
-  <use   name="SimGeneral/PreMixingModule"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="SimTrackerSiStripDigitizerPlugins">
+  <use name="FWCore/Framework"/>
+  <use name="MagneticField/Engine"/>
+  <use name="MagneticField/Records"/>
+  <use name="RecoLocalTracker/SiStripZeroSuppression"/>
+  <use name="SimTracker/Common"/>
+  <use name="SimTracker/SiStripDigitizer"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="SimGeneral/MixingModule"/>
+  <use name="SimGeneral/PreMixingModule"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

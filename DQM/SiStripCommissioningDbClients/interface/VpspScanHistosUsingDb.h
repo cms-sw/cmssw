@@ -7,7 +7,10 @@
 
 class VpspScanHistosUsingDb : public CommissioningHistosUsingDb, public VpspScanHistograms {
 public:
-  VpspScanHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  VpspScanHistosUsingDb(const edm::ParameterSet& pset,
+                        DQMStore*,
+                        SiStripConfigDb* const,
+                        edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~VpspScanHistosUsingDb() override;
 

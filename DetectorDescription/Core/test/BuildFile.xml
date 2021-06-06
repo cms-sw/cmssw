@@ -1,22 +1,26 @@
-<use   name="DetectorDescription/Core"/>
-<use   name="boost"/>
-<use   name="rootmath"/>
-<use   name="cppunit"/>
-<use   name="FWCore/ParameterSet"/>
-<bin   name="testCore" file="testRunner.cpp,DDIsValid.cppunit.cc">
+<use name="DetectorDescription/Core"/>
+<use name="boost"/>
+<use name="rootmath"/>
+<use name="cppunit"/>
+<use name="FWCore/ParameterSet"/>
+<bin name="testCore" file="testRunner.cpp,DDIsValid.cppunit.cc">
 </bin>
-<bin   name="testDDName" file="testRunner.cpp,DDName.cppunit.cc">
+
+<bin name="testDDName" file="testRunner.cpp,DDName.cppunit.cc">
 </bin>
-<bin   name="testStrVector" file="testRunner.cpp,DDStrVector.cppunit.cc">
+
+<bin name="testStrVector" file="testRunner.cpp,DDStrVector.cppunit.cc">
 </bin>
-<bin   name="testDDFilter" file="DDFilter.cppunit.cc,testRunner.cpp"/>
-<bin   name="testShapes" file="testShapes.cpp">
+
+<bin name="testDDFilter" file="DDFilter.cppunit.cc,testRunner.cpp"/>
+<bin name="testShapes" file="testShapes.cpp">
 </bin>
-<bin   name="testUnits" file="testRunner.cpp,DDUnits.cppunit.cc">
+
+<bin file="clhepToROOTMath.cpp">
 </bin>
-<bin   file="clhepToROOTMath.cpp">
+
+<bin file="test_DDRotation.cpp">
 </bin>
-<bin   file="test_DDRotation.cpp">
-</bin>
-<bin  file="Singleton_.cpp">
+
+<bin file="Singleton_.cpp">
 </bin>

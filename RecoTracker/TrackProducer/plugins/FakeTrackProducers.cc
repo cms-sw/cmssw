@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -45,19 +46,23 @@ public:
 private:
   /// Labels for input collections
   edm::EDGetTokenT<std::vector<T>> src_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
 
   /// Muon selection
   //StringCutObjectSelector<T> selector_;
 
   const PTrajectoryStateOnDet &getState(const TrajectorySeed &seed) const { return seed.startingState(); }
   const PTrajectoryStateOnDet &getState(const TrackCandidate &seed) const { return seed.trajectoryStateOnDet(); }
-  TrajectorySeed::range getHits(const TrajectorySeed &seed) const { return seed.recHits(); }
-  TrajectorySeed::range getHits(const TrackCandidate &seed) const { return seed.recHits(); }
 };
 
 template <typename T>
 FakeTrackProducer<T>::FakeTrackProducer(const edm::ParameterSet &iConfig)
-    : src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src")))
+    : src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src"))),
+      geometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      trackerTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>())
 //,selector_(iConfig.existsAs<std::string>("cut") ? iConfig.getParameter<std::string>("cut") : "", true)
 {
   produces<std::vector<reco::Track>>();
@@ -70,12 +75,9 @@ void FakeTrackProducer<T>::produce(edm::Event &iEvent, const edm::EventSetup &iS
   using namespace edm;
   using namespace std;
 
-  edm::ESHandle<TrackerGeometry> theGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
-  edm::ESHandle<MagneticField> theMagField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-  edm::ESHandle<TrackerTopology> httopo;
-  iSetup.get<TrackerTopologyRcd>().get(httopo);
+  edm::ESHandle<TrackerGeometry> theGeometry = iSetup.getHandle(geometryToken_);
+  edm::ESHandle<MagneticField> theMagField = iSetup.getHandle(magFieldToken_);
+  edm::ESHandle<TrackerTopology> httopo = iSetup.getHandle(trackerTopoToken_);
   const TrackerTopology &ttopo = *httopo;
 
   Handle<vector<T>> src;
@@ -105,11 +107,11 @@ void FakeTrackProducer<T>::produce(edm::Event &iEvent, const edm::EventSetup &iS
     reco::Track::Vector p(gp.x(), gp.y(), gp.z());
     int charge = state.localParameters().charge();
     out->push_back(reco::Track(1.0, 1.0, x, p, charge, reco::Track::CovarianceMatrix()));
-    TrajectorySeed::range hits = getHits(mu);
-    out->back().appendHits(hits.first, hits.second, ttopo);
+    auto hits = mu.recHits();
+    out->back().appendHits(hits.begin(), hits.end(), ttopo);
     // Now Track Extra
-    const TrackingRecHit *hit0 = &*hits.first;
-    const TrackingRecHit *hit1 = &*(hits.second - 1);
+    const TrackingRecHit *hit0 = &*hits.begin();
+    const TrackingRecHit *hit1 = &*(hits.end() - 1);
     const GeomDet *det0 = theGeometry->idToDet(hit0->geographicalId());
     const GeomDet *det1 = theGeometry->idToDet(hit1->geographicalId());
     if (det0 == nullptr || det1 == nullptr) {
@@ -136,8 +138,8 @@ void FakeTrackProducer<T>::produce(edm::Event &iEvent, const edm::EventSetup &iS
     out->back().setExtra(reco::TrackExtraRef(rTrackExtras, outEx->size() - 1));
     reco::TrackExtra &ex = outEx->back();
     auto const firstHitIndex = outHits->size();
-    for (OwnVector<TrackingRecHit>::const_iterator it2 = hits.first; it2 != hits.second; ++it2) {
-      outHits->push_back(*it2);
+    for (auto const &it2 : hits) {
+      outHits->push_back(it2);
     }
     ex.setHits(rHits, firstHitIndex, outHits->size() - firstHitIndex);
   }

@@ -1,66 +1,144 @@
-#include "RecoParticleFlow/PFSimProducer/plugins/ConvBremSeedProducer.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/TangentPlane.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/ConvBremSeed.h"
+#include "DataFormats/ParticleFlowReco/interface/ConvBremSeedFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBrem.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
+#include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
+#include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
+#include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
+#include "FastSimulation/TrajectoryManager/interface/InsideBoundsMeasurementEstimator.h"
+#include "FastSimulation/TrajectoryManager/interface/LocalMagneticField.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "TMath.h"
 
-///RECORD NEEDED
-#include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include <memory>
 
-///ESHANDLES
-#include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+class ConvBremSeedProducer : public edm::stream::EDProducer<> {
+public:
+  explicit ConvBremSeedProducer(const edm::ParameterSet&);
 
-///COLLECTION
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/ParticleFlowReco/interface/ConvBremSeed.h"
-#include "DataFormats/ParticleFlowReco/interface/ConvBremSeedFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBrem.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-///PROPAGATION TOOLS
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "DataFormats/GeometrySurface/interface/Surface.h"
-#include "DataFormats/GeometrySurface/interface/TangentPlane.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "FastSimulation/TrajectoryManager/interface/InsideBoundsMeasurementEstimator.h"
-#include "FastSimulation/TrajectoryManager/interface/LocalMagneticField.h"
-#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+private:
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void initializeLayerMap();
+  std::vector<const DetLayer*> theLayerMap;
+  TrajectoryStateOnSurface makeTrajectoryState(const DetLayer* layer,
+                                               const ParticlePropagator& pp,
+                                               const MagneticField* field) const;
+  const DetLayer* detLayer(const TrackerLayer& layer, float zpos) const;
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+  bool isGsfTrack(const reco::Track&, const TrackingRecHit*);
+
+  int GoodCluster(const BaseParticlePropagator& bpg,
+                  const reco::PFClusterCollection& pfc,
+                  float minep,
+                  bool sec = false);
+
+  std::vector<bool> sharedHits(const std::vector<std::pair<TrajectorySeed, std::pair<GlobalVector, float> > >&);
+
+  edm::ParameterSet conf_;
+  const GeometricSearchTracker* geomSearchTracker_;
+  const TrackerInteractionGeometry* geometry_;
+  const TrackerGeometry* tracker_;
+  const MagneticField* magfield_;
+  const MagneticFieldMap* fieldMap_;
+  const PropagatorWithMaterial* propagator_;
+  const KFUpdator* kfUpdator_;
+  const TransientTrackingRecHitBuilder* hitBuilder_;
+  std::vector<const DetLayer*> layerMap_;
+  int negLayerOffset_;
+  ///B field
+  math::XYZVector B_;
+
+  // Event setup tokens
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geomSearchTrackerToken_;
+  const edm::ESGetToken<TrackerInteractionGeometry, TrackerInteractionGeometryRecord> geometryToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_beginRun_;
+  const edm::ESGetToken<MagneticFieldMap, MagneticFieldMapRecord> magFieldMapToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> hitBuilderToken_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ConvBremSeedProducer);
+
+void ConvBremSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // convBremSeeds
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("pixelRecHits", edm::InputTag("gsPixelRecHits"));
+  desc.add<edm::InputTag>("matchedrecHits", edm::InputTag("gsStripRecHits", "matchedRecHit"));
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+  desc.add<edm::InputTag>("rphirecHits", edm::InputTag("gsStripRecHits", "rphiRecHit"));
+  desc.add<edm::InputTag>("PFClusters", edm::InputTag("particleFlowClusterECAL"));
+  desc.add<edm::InputTag>("PFRecTrackLabel", edm::InputTag("pfTrackElec"));
+}
 
 using namespace edm;
 using namespace std;
 using namespace reco;
 
 ConvBremSeedProducer::ConvBremSeedProducer(const ParameterSet& iConfig)
-    : conf_(iConfig), fieldMap_(nullptr), layerMap_(56, static_cast<const DetLayer*>(nullptr)), negLayerOffset_(27) {
+    : conf_(iConfig),
+      fieldMap_(nullptr),
+      layerMap_(56, static_cast<const DetLayer*>(nullptr)),
+      negLayerOffset_(27),
+      magFieldToken_(esConsumes()),
+      geomSearchTrackerToken_(esConsumes<edm::Transition::BeginRun>()),
+      geometryToken_(esConsumes<edm::Transition::BeginRun>()),
+      trackerToken_(esConsumes<edm::Transition::BeginRun>()),
+      magFieldToken_beginRun_(esConsumes<edm::Transition::BeginRun>()),
+      magFieldMapToken_(esConsumes<edm::Transition::BeginRun>()),
+      hitBuilderToken_(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", conf_.getParameter<string>("TTRHBuilder")))) {
   produces<ConvBremSeedCollection>();
 }
-
-ConvBremSeedProducer::~ConvBremSeedProducer() {}
 
 void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   LogDebug("ConvBremSeedProducerProducer") << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run();
 
-  float pfmass = 0.0005;
+  constexpr float pfmass = 0.0005;
 
   ///INPUT COLLECTIONS
 
@@ -76,8 +154,6 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   ///STRIP
   Handle<SiStripRecHit2DCollection> rphirecHits;
   iEvent.getByLabel(conf_.getParameter<InputTag>("rphirecHits"), rphirecHits);
-  Handle<SiStripRecHit2DCollection> stereorecHits;
-  iEvent.getByLabel(conf_.getParameter<InputTag>("stereorecHits"), stereorecHits);
   Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
   iEvent.getByLabel(conf_.getParameter<InputTag>("matchedrecHits"), matchedrecHits);
 
@@ -169,30 +245,30 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
           continue;
         TrajectoryStateOnSurface trajState = makeTrajectoryState(tkLayer, PP, &mf);
 
-        std::vector<DetWithState> compat = tkLayer->compatibleDets(trajState, alongProp, est);
+        auto compat = tkLayer->compatibleDets(trajState, alongProp, est);
         vector<long int> temp;
         if (compat.empty())
           continue;
 
-        for (std::vector<DetWithState>::const_iterator i = compat.begin(); i != compat.end(); i++) {
+        for (auto i = compat.begin(); i != compat.end(); i++) {
           long int detid = i->first->geographicalId().rawId();
 
           if (!GeomDetEnumerators::isTrackerPixel(tkLayer->subDetector())) {
-            StDetMatch DetMatch = (rphirecHits.product())->find((detid));
-            MatDetMatch MDetMatch = (matchedrecHits.product())->find((detid));
+            auto DetMatch = (rphirecHits.product())->find((detid));
+            auto MDetMatch = (matchedrecHits.product())->find((detid));
 
             long int DetID = (DetMatch != rphirecHits->end()) ? detid : 0;
 
             if ((MDetMatch != matchedrecHits->end()) && !MDetMatch->empty()) {
               long int pii = MDetMatch->begin()->monoId();
-              StDetMatch CDetMatch = (rphirecHits.product())->find((pii));
+              auto CDetMatch = (rphirecHits.product())->find((pii));
               DetID = (CDetMatch != rphirecHits->end()) ? pii : 0;
             }
 
             temp.push_back(DetID);
 
           } else {
-            PiDetMatch DetMatch = (pixelHits.product())->find((detid));
+            auto DetMatch = (pixelHits.product())->find((detid));
             long int DetID = (DetMatch != pixelHits->end()) ? detid : 0;
             temp.push_back(DetID);
           }
@@ -233,32 +309,31 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     float sineta_brem = sinh(eta_br);
 
     //OUTPUT COLLECTION
-    edm::ESHandle<MagneticField> bfield;
-    iSetup.get<IdealMagneticFieldRecord>().get(bfield);
+    auto bfield = iSetup.getHandle(magFieldToken_);
     float nomField = bfield->nominalValue();
 
     TransientTrackingRecHit::ConstRecHitContainer glob_hits;
     OwnVector<TrackingRecHit> loc_hits;
     for (unsigned int i = 0; i < tripl.size(); i++) {
-      StDetMatch DetMatch1 = (rphirecHits.product())->find(tripl[i][0]);
-      StDetMatch DetMatch2 = (rphirecHits.product())->find(tripl[i][1]);
-      StDetMatch DetMatch3 = (rphirecHits.product())->find(tripl[i][2]);
+      auto DetMatch1 = (rphirecHits.product())->find(tripl[i][0]);
+      auto DetMatch2 = (rphirecHits.product())->find(tripl[i][1]);
+      auto DetMatch3 = (rphirecHits.product())->find(tripl[i][2]);
       if ((DetMatch1 == rphirecHits->end()) || (DetMatch2 == rphirecHits->end()) || (DetMatch3 == rphirecHits->end()))
         continue;
-      StDetSet DetSet1 = *DetMatch1;
-      StDetSet DetSet2 = *DetMatch2;
-      StDetSet DetSet3 = *DetMatch3;
+      auto DetSet1 = *DetMatch1;
+      auto DetSet2 = *DetMatch2;
+      auto DetSet3 = *DetMatch3;
 
-      for (StDetSet::const_iterator it1 = DetSet1.begin(); it1 != DetSet1.end(); ++it1) {
+      for (auto it1 = DetSet1.begin(); it1 != DetSet1.end(); ++it1) {
         GlobalPoint gp1 = tracker_->idToDet(tripl[i][0])->surface().toGlobal(it1->localPosition());
 
         bool tak1 = isGsfTrack(gsfRecHits, &(*it1));
 
-        for (StDetSet::const_iterator it2 = DetSet2.begin(); it2 != DetSet2.end(); ++it2) {
+        for (auto it2 = DetSet2.begin(); it2 != DetSet2.end(); ++it2) {
           GlobalPoint gp2 = tracker_->idToDet(tripl[i][1])->surface().toGlobal(it2->localPosition());
           bool tak2 = isGsfTrack(gsfRecHits, &(*it2));
 
-          for (StDetSet::const_iterator it3 = DetSet3.begin(); it3 != DetSet3.end(); ++it3) {
+          for (auto it3 = DetSet3.begin(); it3 != DetSet3.end(); ++it3) {
             //  ips++;
             GlobalPoint gp3 = tracker_->idToDet(tripl[i][2])->surface().toGlobal(it3->localPosition());
             bool tak3 = isGsfTrack(gsfRecHits, &(*it3));
@@ -342,32 +417,20 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 }
 
 void ConvBremSeedProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
-  ESHandle<GeometricSearchTracker> track;
-  iSetup.get<TrackerRecoGeometryRecord>().get(track);
-  geomSearchTracker_ = track.product();
+  geomSearchTracker_ = &iSetup.getData(geomSearchTrackerToken_);
 
-  ESHandle<TrackerInteractionGeometry> theTrackerInteractionGeometry;
-  iSetup.get<TrackerInteractionGeometryRecord>().get(theTrackerInteractionGeometry);
-  geometry_ = theTrackerInteractionGeometry.product();
+  geometry_ = &iSetup.getData(geometryToken_);
 
-  ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  tracker_ = tracker.product();
+  tracker_ = &iSetup.getData(trackerToken_);
 
-  ESHandle<MagneticField> magfield;
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-  magfield_ = magfield.product();
+  magfield_ = &iSetup.getData(magFieldToken_beginRun_);
   B_ = magfield_->inTesla(GlobalPoint(0, 0, 0));
 
-  ESHandle<MagneticFieldMap> fieldMap;
-  iSetup.get<MagneticFieldMapRecord>().get(fieldMap);
-  fieldMap_ = fieldMap.product();
+  fieldMap_ = &iSetup.getData(magFieldMapToken_);
 
-  ESHandle<TransientTrackingRecHitBuilder> hitBuilder;
-  iSetup.get<TransientRecHitRecord>().get(conf_.getParameter<string>("TTRHBuilder"), hitBuilder);
-  hitBuilder_ = hitBuilder.product();
+  hitBuilder_ = &iSetup.getData(hitBuilderToken_);
 
-  propagator_ = new PropagatorWithMaterial(alongMomentum, 0.0005, &(*magfield));
+  propagator_ = new PropagatorWithMaterial(alongMomentum, 0.0005, magfield_);
   kfUpdator_ = new KFUpdator();
 }
 
@@ -498,15 +561,10 @@ vector<bool> ConvBremSeedProducer::sharedHits(const vector<pair<TrajectorySeed, 
           continue;
         //    if (unclean[iu].second.second *unclean[iu2].second.second >0)continue;
 
-        TrajectorySeed::const_iterator sh = unclean[iu].first.recHits().first;
-        TrajectorySeed::const_iterator sh_end = unclean[iu].first.recHits().second;
-
         unsigned int shar = 0;
-        for (; sh != sh_end; ++sh) {
-          TrajectorySeed::const_iterator sh2 = unclean[iu2].first.recHits().first;
-          TrajectorySeed::const_iterator sh2_end = unclean[iu2].first.recHits().second;
-          for (; sh2 != sh2_end; ++sh2) {
-            if ((*sh).sharesInput(&(*sh2), TrackingRecHit::all))
+        for (auto const& sh : unclean[iu].first.recHits()) {
+          for (auto const& sh2 : unclean[iu2].first.recHits()) {
+            if (sh.sharesInput(&sh2, TrackingRecHit::all))
 
               shar++;
           }

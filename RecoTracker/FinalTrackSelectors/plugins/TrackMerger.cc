@@ -1,9 +1,4 @@
 #include "TrackMerger.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -24,17 +19,23 @@
 #define PRINT LogTrace("")
 #endif
 
-TrackMerger::TrackMerger(const edm::ParameterSet &iConfig)
+TrackMerger::TrackMerger(const edm::ParameterSet &iConfig, edm::ConsumesCollector cc)
     : useInnermostState_(iConfig.getParameter<bool>("useInnermostState")),
-      theBuilderName(iConfig.getParameter<std::string>("ttrhBuilderName")) {}
+      debug_(false),
+      theBuilderName(iConfig.getParameter<std::string>("ttrhBuilderName")),
+      geometryToken_(cc.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      magFieldToken_(cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      builderToken_(
+          cc.esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", theBuilderName))),
+      trackerTopoToken_(cc.esConsumes<TrackerTopology, TrackerTopologyRcd>()) {}
 
 TrackMerger::~TrackMerger() {}
 
 void TrackMerger::init(const edm::EventSetup &iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-  iSetup.get<TransientRecHitRecord>().get(theBuilderName, theBuilder);
-  iSetup.get<TrackerTopologyRcd>().get(theTrkTopo);
+  theGeometry = iSetup.getHandle(geometryToken_);
+  theMagField = iSetup.getHandle(magFieldToken_);
+  theBuilder = iSetup.getHandle(builderToken_);
+  theTrkTopo = iSetup.getHandle(trackerTopoToken_);
 }
 
 TrackCandidate TrackMerger::merge(const reco::Track &inner,
@@ -193,7 +194,7 @@ void TrackMerger::sortByHitPosition(const GlobalVector &v,
   for (unsigned int i = 0; i < nhits; ++i)
     ttrh[i] = theBuilder->build(hits[i]);
   std::sort(ttrh.begin(), ttrh.end(), GlobalMomentumSort(v));
-  for (auto hit : ttrh)
+  for (const auto &hit : ttrh)
     ownHits.push_back(*hit);
 }
 

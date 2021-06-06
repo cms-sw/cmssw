@@ -262,20 +262,30 @@ phase2_muon.toModify( theMixObjects,
         pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonME0Hits' ]
     )
 )
+
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify( theMixObjects,
+    mixSH = dict(
+        input = list(filter(lambda x: type(x) == type(cms.InputTag("","")) and x != cms.InputTag("g4SimHits","MuonME0Hits"), theMixObjects.mixSH.input)),
+        subdets = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.subdets)),
+        crossingFrames = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.crossingFrames))
+    )
+)
+(premix_stage1 & phase2_GE0).toModify(theMixObjects,
+    mixSH = dict(
+        pcrossingFrames = list(filter(lambda x: x != 'MuonME0Hits', theMixObjects.mixSH.pcrossingFrames))
+    )
+)
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theMixObjects,
     mixCH = dict(
         input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()),
-                                              cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()) ],
+                                              cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()),
+                                              cms.InputTag("g4SimHits",hgchebackDigitizer.hitCollection.value()) ],
         subdets = theMixObjects.mixCH.subdets + [ hgceeDigitizer.hitCollection.value(),
-                                                  hgchefrontDigitizer.hitCollection.value() ],
-    )
-)
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
-phase2_hgcalV9.toModify( theMixObjects,
-    mixCH = dict(
-        input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgchebackDigitizer.hitCollection.value()) ],
-        subdets = theMixObjects.mixCH.subdets + [ hgchebackDigitizer.hitCollection.value() ],
+                                                  hgchefrontDigitizer.hitCollection.value(),
+                                                  hgchebackDigitizer.hitCollection.value() ],
     )
 )
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
@@ -292,5 +302,14 @@ phase2_timing_layer.toModify( theMixObjects,
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","FastTimerHitsBarrel"), cms.InputTag("g4SimHits","FastTimerHitsEndcap") ],
         subdets = theMixObjects.mixSH.subdets + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ],
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ]
+    )
+)
+
+from Configuration.Eras.Modifier_ctpps_2021_cff import ctpps_2021
+ctpps_2021.toModify( theMixObjects,
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","TotemHitsRP"),cms.InputTag("g4SimHits","CTPPSPixelHits") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'TotemHitsRP', 'CTPPSPixelHits' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'TotemHitsRP' , 'CTPPSPixelHits']
     )
 )

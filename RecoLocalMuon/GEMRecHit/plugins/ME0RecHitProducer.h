@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
 
@@ -58,6 +59,9 @@ private:
 
   // The reconstruction algorithm
   std::unique_ptr<ME0RecHitBaseAlgo> theAlgo;
+
+  //EventSetup Token for ME0Geometry
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> m_me0GeomToken;
 };
 
 #endif

@@ -30,8 +30,10 @@
 #include "TH2F.h"
 
 #include <map>
-#include <vector>
+#include <memory>
+
 #include <fstream>
+#include <vector>
 
 #include <mutex>
 
@@ -89,6 +91,10 @@ private:
   void analyzeSimHits(const edm::Event& ev, const edm::EventSetup& es) const;
   void analyzeRecTracks(const edm::Event& ev, const edm::EventSetup& es) const;
 
+  /// Tokens for ESconsumes
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> csfToken_;
+
   TFile* file;
 
   const bool hasSimHits;
@@ -136,12 +142,14 @@ void PixelClusterShapeExtractor::init() {
                                 (eyMax + 2)));
       }
   }
-  theMutex.reset(new std::mutex[hspc.size()]);
+  theMutex = std::make_unique<std::mutex[]>(hspc.size());
 }
 
 /*****************************************************************************/
 PixelClusterShapeExtractor::PixelClusterShapeExtractor(const edm::ParameterSet& pset)
-    : hasSimHits(pset.getParameter<bool>("hasSimHits")),
+    : topoToken_(esConsumes()),
+      csfToken_(esConsumes(edm::ESInputTag("", "ClusterShapeHitFilter"))),
+      hasSimHits(pset.getParameter<bool>("hasSimHits")),
       hasRecTracks(pset.getParameter<bool>("hasRecTracks")),
       noBPIX1(pset.getParameter<bool>("noBPIX1")),
       tracks_token(hasRecTracks ? consumes<reco::TrackCollection>(pset.getParameter<edm::InputTag>("tracks"))
@@ -298,13 +306,8 @@ void PixelClusterShapeExtractor::processPixelRecHits(const SiPixelRecHitCollecti
 
 /*****************************************************************************/
 void PixelClusterShapeExtractor::analyzeSimHits(const edm::Event& ev, const edm::EventSetup& es) const {
-  edm::ESHandle<ClusterShapeHitFilter> shape;
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", shape);
-  auto const& theClusterShape = *shape.product();
-
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  auto const& tkTpl = *tTopoHandle;
+  auto const& theClusterShape = es.getData(csfToken_);
+  auto const& tkTpl = es.getData(topoToken_);
 
   edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;
   ev.getByToken(clusterShapeCache_token, clusterShapeCache);
@@ -327,13 +330,8 @@ void PixelClusterShapeExtractor::analyzeSimHits(const edm::Event& ev, const edm:
 
 /*****************************************************************************/
 void PixelClusterShapeExtractor::analyzeRecTracks(const edm::Event& ev, const edm::EventSetup& es) const {
-  edm::ESHandle<ClusterShapeHitFilter> shape;
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", shape);
-  auto const& theClusterShape = *shape.product();
-
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  auto const& tkTpl = *tTopoHandle;
+  auto const& theClusterShape = es.getData(csfToken_);
+  auto const& tkTpl = es.getData(topoToken_);
 
   // Get tracks
   edm::Handle<reco::TrackCollection> tracks;

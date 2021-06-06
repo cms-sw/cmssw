@@ -1,0 +1,9 @@
+<use name="CalibTracker/SiStripCommon"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/Records"/> 
+<use name="Geometry/TrackerGeometryBuilder"/>
+<flags EDM_PLUGIN="1"/>

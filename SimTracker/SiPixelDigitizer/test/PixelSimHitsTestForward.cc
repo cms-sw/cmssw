@@ -74,6 +74,9 @@ private:
   // ----------member data ---------------------------
   const static bool PRINT = true;
 
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken;
+
   TFile *hFile;
   TH1F *heloss1, *heloss2, *heloss3, *hdetunit, *hpabs, *hpid, *htof, *htid;
   TH1F *hpixid, *hpixsubid, *hlayerid, *hladder1id, *hladder2id, *hladder3id, *hz1id, *hz2id, *hz3id;
@@ -120,6 +123,9 @@ PixelSimHitsTestForward::PixelSimHitsTestForward(const edm::ParameterSet &iConfi
   //daemon.operator->();
 
   cout << " Construct PixelSimHitsTestForward " << endl;
+
+  trackerTopoToken = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 }
 
 PixelSimHitsTestForward::~PixelSimHitsTestForward() {
@@ -252,8 +258,7 @@ void PixelSimHitsTestForward::beginJob() {
 // ------------ method called to produce the data  ------------
 void PixelSimHitsTestForward::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = iSetup.getHandle(trackerTopoToken);
 
   const double PI = 3.142;
 
@@ -262,8 +267,7 @@ void PixelSimHitsTestForward::analyze(const edm::Event &iEvent, const edm::Event
     cout << " Analyze PixelSimHitsTestForward " << endl;
 
   // Get event setup (to get global transformation)
-  edm::ESHandle<TrackerGeometry> geom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle<TrackerGeometry> geom = iSetup.getHandle(trackerGeomToken);
   const TrackerGeometry &theTracker(*geom);
 
   // Get input data

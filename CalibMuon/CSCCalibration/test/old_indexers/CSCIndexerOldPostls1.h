@@ -50,8 +50,8 @@
  */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <boost/tuple/tuple.hpp>
 #include <iosfwd>
+#include <tuple>
 #include <utility>  // for pair
 #include <vector>
 
@@ -60,10 +60,10 @@ public:
   typedef uint16_t IndexType;
   typedef uint32_t LongIndexType;
 
-  typedef boost::tuple<CSCDetId,   // id
-                       IndexType,  // HV segment
-                       IndexType   // chip
-                       >
+  typedef std::tuple<CSCDetId,   // id
+                     IndexType,  // HV segment
+                     IndexType   // chip
+                     >
       GasGainTuple;
 
   static const IndexType MAX_CHAMBER_INDEX = 540;

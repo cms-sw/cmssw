@@ -15,6 +15,7 @@ from RecoMET.METFilters.BadPFMuonFilter_cfi import BadPFMuonFilter
 BadPFMuonTagger = BadPFMuonFilter.clone(
     PFCandidates = cms.InputTag("packedPFCandidates"),
     muons = cms.InputTag("slimmedMuons"),
+    vtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
     taggingMode = True,
 )
 
@@ -23,6 +24,7 @@ from RecoMET.METFilters.BadChargedCandidateFilter_cfi import BadChargedCandidate
 BadChargedCandidateTagger = BadChargedCandidateFilter.clone(
     PFCandidates = cms.InputTag("packedPFCandidates"),
     muons = cms.InputTag("slimmedMuons"),
+    vtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
     taggingMode = True,
 )
 

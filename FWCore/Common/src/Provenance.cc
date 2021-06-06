@@ -8,7 +8,7 @@ namespace edm {
   static std::string const source("source");
   static std::string const triggerResultsInserter("TriggerResultsInserter");
 
-  ParameterSet const& parameterSet(Provenance const& provenance, ProcessHistory const& history) {
+  ParameterSet const& parameterSet(StableProvenance const& provenance, ProcessHistory const& history) {
     ProcessConfiguration pc;
     history.getConfigurationForProcess(provenance.processName(), pc);
     ParameterSet const& processParameterSet = *pset::Registry::instance()->getMapped(pc.parameterSetID());
@@ -24,7 +24,7 @@ namespace edm {
     return processParameterSet.getParameterSet(label);
   }
 
-  std::string moduleName(Provenance const& provenance, ProcessHistory const& history) {
+  std::string moduleName(StableProvenance const& provenance, ProcessHistory const& history) {
     // Trigger results ia a special case
     if (provenance.moduleLabel() == triggerResults) {
       return triggerResultsInserter;

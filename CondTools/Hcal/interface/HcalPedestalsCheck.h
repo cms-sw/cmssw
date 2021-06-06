@@ -16,7 +16,6 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -55,6 +54,9 @@ private:
   bool validatepedestalsflag;
   bool checkemapflag;
   double epsilon;
+  edm::ESGetToken<HcalPedestals, HcalPedestalsRcd> m_tok1;
+  edm::ESGetToken<HcalPedestals, HcalPedestalsRcd> m_tok2;
+  edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> m_tokmap;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestals> &);
 };
 #endif

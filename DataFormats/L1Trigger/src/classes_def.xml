@@ -56,6 +56,7 @@
   </class>
   <class name="l1t::EtSumBxCollection"/>
   <class name="std::vector<l1t::EtSum>"/>
+  <class name="edm::Wrapper<std::vector<l1t::EtSum>>"/>
   <class name="edm::Wrapper<l1t::EtSumBxCollection>"/>
   <class name="l1t::EtSumRef"/>
   <class name="edm::Wrapper<l1t::EtSumRef>"/>
@@ -80,7 +81,8 @@
   <class name="l1t::TauVectorRef"/>
   <class name="edm::Wrapper<l1t::TauVectorRef>"/>
 
-  <class name="l1t::Muon" ClassVersion="17">
+  <class name="l1t::Muon" ClassVersion="18">
+   <version ClassVersion="18" checksum="2723313197"/>
    <version ClassVersion="17" checksum="3946815604"/>
    <version ClassVersion="16" checksum="1302394108"/>
    <version ClassVersion="15" checksum="957467775"/>
@@ -90,6 +92,7 @@
    <version ClassVersion="11" checksum="2449295419"/>
    <version ClassVersion="10" checksum="1956355507"/>
   </class>
+  <class name="edm::Ptr<l1t::Muon>"/>
   <class name="l1t::MuonBxCollection"/>
   <class name="std::vector<l1t::Muon>"/>
   <class name="edm::Wrapper<l1t::MuonBxCollection>"/>
@@ -99,6 +102,20 @@
   <class name="edm::Wrapper<l1t::MuonRefVector>"/>
   <class name="l1t::MuonVectorRef"/>
   <class name="edm::Wrapper<l1t::MuonVectorRef>"/>
+
+  <class name="l1t::MuonShower" ClassVersion="10">
+   <version ClassVersion="10" checksum="3869296059"/>
+  </class>
+  <class name="edm::Ptr<l1t::MuonShower>"/>
+  <class name="l1t::MuonShowerBxCollection"/>
+  <class name="std::vector<l1t::MuonShower>"/>
+  <class name="edm::Wrapper<l1t::MuonShowerBxCollection>"/>
+  <class name="l1t::MuonShowerRef"/>
+  <class name="edm::Wrapper<l1t::MuonShowerRef>"/>
+  <class name="l1t::MuonShowerRefVector"/>
+  <class name="edm::Wrapper<l1t::MuonShowerRefVector>"/>
+  <class name="l1t::MuonShowerVectorRef"/>
+  <class name="edm::Wrapper<l1t::MuonShowerVectorRef>"/>
 
   <class name="l1t::CaloSpare" ClassVersion="13">
    <version ClassVersion="13" checksum="50826133"/>
@@ -260,5 +277,12 @@
   <class name="l1t::L1DataEmulResultBxCollection"/>
   <class name="std::vector<l1t::L1DataEmulResult>"/>
   <class name="edm::Wrapper<l1t::L1DataEmulResultBxCollection>"/>
+
+  <class name="edm::Ptr<l1t::L1Candidate>"/>
+
+  <class name="l1t::Vertex" ClassVersion="3">
+    <version ClassVersion="3" checksum="514139083"/>
+  </class>
+  <class name="std::vector<l1t::Vertex>"/>
 
 </lcgdict>

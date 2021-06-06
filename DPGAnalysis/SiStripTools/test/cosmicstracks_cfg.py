@@ -25,7 +25,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 
 #----------------------------------------------------------------
 
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.enable = cms.untracked.bool(True)
 process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
@@ -34,7 +34,7 @@ process.MessageLogger.cout.FwkReport = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(10000)
     )
 
-process.MessageLogger.cerr.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cerr.enable = cms.untracked.bool(True)
 process.MessageLogger.cerr.threshold = cms.untracked.string("WARNING")
 process.MessageLogger.cerr.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
@@ -108,8 +108,8 @@ process.TFileService = cms.Service('TFileService',
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 #

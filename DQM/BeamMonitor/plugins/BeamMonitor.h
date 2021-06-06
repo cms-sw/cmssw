@@ -24,6 +24,7 @@
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
+#include "CondCore/DBOutputService/interface/OnlineDBOutputService.h"
 #include <fstream>
 
 //
@@ -36,6 +37,8 @@ public:
 
 protected:
   // BeginRun
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+
   void bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) override;
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
@@ -68,10 +71,13 @@ private:
   const double dzMin_;
   const double dzMax_;
   std::string monitorName_;
+  std::string recordName_;                  // output BeamSpotOnline Record name
   edm::EDGetTokenT<reco::BeamSpot> bsSrc_;  // beam spot
   edm::EDGetTokenT<reco::TrackCollection> tracksLabel_;
-  edm::EDGetTokenT<reco::VertexCollection> pvSrc_;  // primary vertex
-  edm::EDGetTokenT<edm::TriggerResults> hltSrc_;    //hlt collection
+  edm::EDGetTokenT<reco::VertexCollection> pvSrc_;                      // primary vertex
+  edm::EDGetTokenT<edm::TriggerResults> hltSrc_;                        //hlt collection
+  edm::Service<cond::service::OnlineDBOutputService> onlineDbService_;  // DB service
+  int DBloggerReturn_;                                                  // DB logger return value
 
   int fitNLumi_;
   int fitPVNLumi_;
@@ -110,7 +116,7 @@ private:
   int countGapLumi_;
 
   bool processed_;
-
+  bool useLockRecords_;
   // ----------member data ---------------------------
 
   //   std::vector<BSTrkParameters> fBSvector;

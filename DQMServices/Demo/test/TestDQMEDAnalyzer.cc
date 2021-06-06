@@ -276,6 +276,58 @@ private:
 };
 DEFINE_FWK_MODULE(TestDQMGlobalEDAnalyzer);
 
+class TestDQMGlobalRunSummaryEDAnalyzer : public DQMGlobalRunSummaryEDAnalyzer<TestHistograms, int> {
+public:
+  explicit TestDQMGlobalRunSummaryEDAnalyzer(const edm::ParameterSet& iConfig)
+      : folder_(iConfig.getParameter<std::string>("folder")),
+        howmany_(iConfig.getParameter<int>("howmany")),
+        myvalue_(iConfig.getParameter<double>("value")) {}
+  ~TestDQMGlobalRunSummaryEDAnalyzer() override{};
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("folder", "Global/testglobal")->setComment("Where to put all the histograms");
+    desc.add<int>("howmany", 1)->setComment("How many copies of each ME to put");
+    desc.add<double>("value", 1)->setComment("Which value to use on the third axis (first two are lumi and run)");
+    descriptions.add("testglobalrunsummary", desc);
+  }
+
+private:
+  std::shared_ptr<int> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
+    return std::make_shared<int>(0);
+  }
+
+  void bookHistograms(DQMStore::IBooker& ibooker,
+                      edm::Run const&,
+                      edm::EventSetup const&,
+                      TestHistograms& h) const override {
+    h.folder = this->folder_;
+    h.howmany = this->howmany_;
+    h.bookall(ibooker);
+  }
+
+  void dqmAnalyze(edm::Event const& iEvent, edm::EventSetup const&, TestHistograms const& h) const override {
+    h.fillall(iEvent.luminosityBlock(), iEvent.run(), myvalue_);
+  }
+
+  void streamEndRunSummary(edm::StreamID, edm::Run const&, edm::EventSetup const&, int* runSummaryCache) const override {
+    (*runSummaryCache) += 1;
+  }
+
+  void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int* runSummaryCache) const override {}
+
+  void dqmEndRun(edm::Run const& run,
+                 edm::EventSetup const& setup,
+                 TestHistograms const& h,
+                 int const& runSummaryCache) const override {}
+
+private:
+  std::string folder_;
+  int howmany_;
+  double myvalue_;
+};
+DEFINE_FWK_MODULE(TestDQMGlobalRunSummaryEDAnalyzer);
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 class TestLegacyEDAnalyzer : public edm::EDAnalyzer {
 public:

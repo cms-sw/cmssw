@@ -21,7 +21,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 
 #include <vector>
@@ -34,13 +34,16 @@ public:
   void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const final;
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
+  edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord> const tCPE_;
+
   edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> token_;
-  edm::ESInputTag cpeTag_;
 };
 
 Phase2TrackerRecHits::Phase2TrackerRecHits(edm::ParameterSet const& conf)
-    : token_(consumes<Phase2TrackerCluster1DCollectionNew>(conf.getParameter<edm::InputTag>("src"))),
-      cpeTag_(conf.getParameter<edm::ESInputTag>("Phase2StripCPE")) {
+    : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      tCPE_(esConsumes(conf.getParameter<edm::ESInputTag>("Phase2StripCPE"))),
+      token_(consumes<Phase2TrackerCluster1DCollectionNew>(conf.getParameter<edm::InputTag>("src"))) {
   produces<Phase2TrackerRecHit1DCollectionNew>();
 }
 
@@ -50,13 +53,10 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
   event.getByToken(token_, clusters);
 
   // load the cpe via the eventsetup
-  edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpe;
-  eventSetup.get<TkStripCPERecord>().get(cpeTag_, cpe);
+  const auto& cpe = &eventSetup.getData(tCPE_);
 
   // Get the geometry
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  eventSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
-  const TrackerGeometry* tkGeom(&(*geomHandle));
+  const TrackerGeometry* tkGeom = &eventSetup.getData(tTrackerGeom_);
 
   // Global container for the RecHits of each module
   auto outputRecHits = std::make_unique<Phase2TrackerRecHit1DCollectionNew>();

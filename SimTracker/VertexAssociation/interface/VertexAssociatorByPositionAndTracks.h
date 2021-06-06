@@ -1,7 +1,7 @@
 #ifndef SimTracker_VertexAssociation_VertexAssociatorByPositionAndTracks_h
 #define SimTracker_VertexAssociation_VertexAssociatorByPositionAndTracks_h
 
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociatorBaseImpl.h"
 
 /**

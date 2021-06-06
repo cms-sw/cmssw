@@ -9,9 +9,9 @@ from RecoHI.HiTracking.HiTracking_cff import *    # two additional steps
 # Egamma
 from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
 from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
-ecalDrivenElectronSeeds.SeedConfiguration.SCEtCut = cms.double(15.0)
-ecalDrivenGsfElectrons.preselection.minSCEtBarrel = cms.double(15.0)
-ecalDrivenGsfElectrons.preselection.minSCEtEndcaps = cms.double(15.0)
+ecalDrivenElectronSeeds.SCEtCut = 15.0
+ecalDrivenGsfElectrons.preselection.minSCEtBarrel = 15.0
+ecalDrivenGsfElectrons.preselection.minSCEtEndcaps = 15.0
 
 # Jet Reconstruction
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
@@ -106,4 +106,4 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(globalRecoPbPb_wConformalPixelTask
 
 # Modify zero-suppression sequence here
 from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
-siStripZeroSuppression.storeCM = cms.bool(True)
+siStripZeroSuppression.storeCM = True

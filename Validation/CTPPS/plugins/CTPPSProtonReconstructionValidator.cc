@@ -38,6 +38,7 @@ private:
   void endJob() override;
 
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtons_;
+  edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticsESToken_;
   double chiSqCut_;
   std::string outputFile_;
 
@@ -70,6 +71,7 @@ using namespace edm;
 
 CTPPSProtonReconstructionValidator::CTPPSProtonReconstructionValidator(const edm::ParameterSet& iConfig)
     : tokenRecoProtons_(consumes<reco::ForwardProtonCollection>(iConfig.getParameter<edm::InputTag>("tagRecoProtons"))),
+      opticsESToken_(esConsumes()),
       chiSqCut_(iConfig.getParameter<double>("chiSqCut")),
       outputFile_(iConfig.getParameter<string>("outputFile")) {}
 
@@ -77,11 +79,10 @@ CTPPSProtonReconstructionValidator::CTPPSProtonReconstructionValidator(const edm
 
 void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get conditions
-  edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
-  iSetup.get<CTPPSInterpolatedOpticsRcd>().get(hOpticalFunctions);
+  const auto& opticalFunctions = iSetup.getData(opticsESToken_);
 
   // stop if conditions invalid
-  if (hOpticalFunctions->empty())
+  if (opticalFunctions.empty())
     return;
 
   // get input
@@ -105,19 +106,19 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
         continue;
 
       // try to get optics for the RP
-      auto it = hOpticalFunctions->find(rpId);
-      if (it == hOpticalFunctions->end())
+      if (opticalFunctions.count(rpId) == 0)
         continue;
+      const auto& func = opticalFunctions.at(rpId);
 
       // do propagation
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_in_beam = {0., 0., 0., 0., 0.};
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_out_beam;
-      it->second.transport(k_in_beam, k_out_beam);
+      func.transport(k_in_beam, k_out_beam);
 
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_in = {
           -pr.vx(), -pr.thetaX(), pr.vy(), pr.thetaY(), pr.xi()};  // conversions: CMS --> LHC convention
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_out;
-      it->second.transport(k_in, k_out);
+      func.transport(k_in, k_out);
 
       // fill plots
       const double de_x = (k_out.x - k_out_beam.x) * 10. - tr->x();  // conversions: cm --> mm

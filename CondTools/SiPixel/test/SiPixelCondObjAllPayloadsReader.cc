@@ -3,20 +3,21 @@
 #include "CondTools/SiPixel/test/SiPixelCondObjAllPayloadsReader.h"
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 namespace cms {
-  SiPixelCondObjAllPayloadsReader::SiPixelCondObjAllPayloadsReader(const edm::ParameterSet& conf) : conf_(conf) {
+  SiPixelCondObjAllPayloadsReader::SiPixelCondObjAllPayloadsReader(const edm::ParameterSet& conf)
+      : conf_(conf), tkGeomToken_(esConsumes()) {
     std::string payloadType = conf.getParameter<std::string>("payloadType");
     if (strcmp(payloadType.c_str(), "HLT") == 0) {
-      SiPixelGainCalibrationService_ = new SiPixelGainCalibrationForHLTService(conf);
+      SiPixelGainCalibrationService_ = std::make_unique<SiPixelGainCalibrationForHLTService>(conf, consumesCollector());
     } else if (strcmp(payloadType.c_str(), "Offline") == 0) {
-      SiPixelGainCalibrationService_ = new SiPixelGainCalibrationOfflineService(conf);
+      SiPixelGainCalibrationService_ =
+          std::make_unique<SiPixelGainCalibrationOfflineService>(conf, consumesCollector());
     } else if (strcmp(payloadType.c_str(), "Full") == 0) {
-      SiPixelGainCalibrationService_ = new SiPixelGainCalibrationService(conf);
+      SiPixelGainCalibrationService_ = std::make_unique<SiPixelGainCalibrationService>(conf, consumesCollector());
     }
   }
 
@@ -36,7 +37,7 @@ namespace cms {
         << "[SiPixelCondObjAllPayloadsReader::beginJob] End Reading CondObjects" << std::endl;
 
     // Get the Geometry
-    iSetup.get<TrackerDigiGeometryRecord>().get(tkgeom);
+    const TrackerGeometry* tkgeom = &iSetup.getData(tkGeomToken_);
     edm::LogInfo("SiPixelCondObjAllPayloadsReader")
         << " There are " << tkgeom->dets().size() << " detectors" << std::endl;
 
@@ -64,7 +65,7 @@ namespace cms {
       DetId detIdObject(detid);
       const PixelGeomDetUnit* _PixelGeomDetUnit =
           dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
-      if (_PixelGeomDetUnit == 0) {
+      if (_PixelGeomDetUnit == nullptr) {
         edm::LogError("SiPixelCondObjDisplay") << "[SiPixelCondObjAllPayloadsReader::beginJob] the detID " << detid
                                                << " doesn't seem to belong to Tracker" << std::endl;
         continue;
@@ -109,9 +110,6 @@ namespace cms {
     edm::LogInfo("SiPixelCondObjAllPayloadsReader")
         << "[SiPixelCondObjAllPayloadsReader::analyze] ---> PIXEL Channels " << nchannels << std::endl;
   }
-
-  // ------------ method called once each job just before starting event loop  ------------
-  void SiPixelCondObjAllPayloadsReader::beginJob() {}
 
   // ------------ method called once each job just after ending the event loop  ------------
   void SiPixelCondObjAllPayloadsReader::endJob() { std::cout << " ---> End job " << std::endl; }

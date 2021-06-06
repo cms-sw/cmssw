@@ -2,8 +2,6 @@
 
 #include "CalibFormats/CastorObjects/interface/CastorCalibrations.h"
 #include "CalibFormats/CastorObjects/interface/CastorCoderDb.h"
-#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
-#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
@@ -18,7 +16,7 @@ CastorTTRecord::CastorTTRecord(const edm::ParameterSet &ps) {
   ttpBits_ = ps.getParameter<std::vector<unsigned int>>("ttpBits");
   TrigNames_ = ps.getParameter<std::vector<std::string>>("TriggerBitNames");
   TrigThresholds_ = ps.getParameter<std::vector<double>>("TriggerThresholds");
-
+  conditionsToken_ = esConsumes<CastorDbService, CastorDbRecord>();
   reweighted_gain = 1.0;
 
   produces<L1GtTechnicalTriggerRecord>();
@@ -69,8 +67,7 @@ void CastorTTRecord::getEnergy_fC(double energy[16][14],
   // std::endl;
 
   // Get Conditions
-  edm::ESHandle<CastorDbService> conditions;
-  eventSetup.get<CastorDbRecord>().get(conditions);
+  edm::ESHandle<CastorDbService> conditions = eventSetup.getHandle(conditionsToken_);
   const CastorQIEShape *shape = conditions->getCastorShape();  // this one is generic
 
   for (int isec = 0; isec < 16; isec++)

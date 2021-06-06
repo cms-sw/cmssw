@@ -20,8 +20,6 @@
 #include <string>
 #include "TMath.h"
 
-#include <iostream>
-
 TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig)
     : doAllPlots(iConfig.getParameter<bool>("doAllPlots")),
       doAllSeedPlots(iConfig.getParameter<bool>("doSeedParameterHistos")),
@@ -525,7 +523,7 @@ void TrackBuildingAnalyzer::analyze(const edm::Event& iEvent,
   //double qoverp       = tsAtClosestApproachSeed.trackStateAtPCA().charge()/p.mag();
   //double theta        = p.theta();
   //double lambda       = M_PI/2-p.theta();
-  double numberOfHits = candidate.recHits().second - candidate.recHits().first;
+  double numberOfHits = candidate.nHits();
   double dxy = (-v.x() * sin(p.phi()) + v.y() * cos(p.phi()));
   double dz = v.z() - (v.x() * p.x() + v.y() * p.y()) / p.perp() * p.z() / p.perp();
 
@@ -601,7 +599,7 @@ void TrackBuildingAnalyzer::analyze(const edm::Event& iEvent,
   //double qoverp       = tsAtClosestApproachTrackCand.trackStateAtPCA().charge()/p.mag();
   //double theta        = p.theta();
   //double lambda       = M_PI/2-p.theta();
-  double numberOfHits = candidate.recHits().second - candidate.recHits().first;
+  double numberOfHits = candidate.nRecHits();
   double dxy = (-v.x() * sin(p.phi()) + v.y() * cos(p.phi()));
 
   double dz = v.z() - (v.x() * p.x() + v.y() * p.y()) / p.perp() * p.z() / p.perp();

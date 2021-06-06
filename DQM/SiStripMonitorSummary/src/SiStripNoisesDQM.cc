@@ -1,70 +1,53 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripNoisesDQM.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "TCanvas.h"
-
-// -----
-SiStripNoisesDQM::SiStripNoisesDQM(const edm::EventSetup &eSetup,
+SiStripNoisesDQM::SiStripNoisesDQM(edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken,
                                    edm::RunNumber_t iRun,
                                    edm::ParameterSet const &hPSet,
-                                   edm::ParameterSet const &fPSet)
-    : SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet) {
-  gainRenormalisation_ = hPSet_.getParameter<bool>("GainRenormalisation");
-  simGainRenormalisation_ = hPSet_.getParameter<bool>("SimGainRenormalisation");
-  if (gainRenormalisation_ && !simGainRenormalisation_) {
-    eSetup.get<SiStripApvGainRcd>().get(gainHandle_);
-  }
-  if (simGainRenormalisation_) {
-    eSetup.get<SiStripApvGainSimRcd>().get(gainHandle_);
-  }
-
+                                   edm::ParameterSet const &fPSet,
+                                   const TrackerTopology *tTopo,
+                                   const TkDetMap *tkDetMap,
+                                   const SiStripApvGain *gainHandle)
+    : SiStripBaseCondObjDQMGet<SiStripNoises, SiStripNoisesRcd>{noiseToken, iRun, hPSet, fPSet, tTopo},
+      gainHandle_{gainHandle} {
   // Build the Histo_TkMap:
   if (HistoMaps_On_) {
-    edm::ESHandle<TkDetMap> tkDetMapHandle;
-    eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SiStrip/Histo_Map", "MeanNoise_TkMap", 0.);
+    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMap, "SiStrip/Histo_Map", "MeanNoise_TkMap", 0.);
   }
 }
-// -----
 
-// -----
 SiStripNoisesDQM::~SiStripNoisesDQM() {}
-// -----
 
-// -----
 void SiStripNoisesDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
   getConditionObject(eSetup);
-  noiseHandle_->getDetIds(activeDetIds);
+  condObj_->getDetIds(activeDetIds);
 }
 
-// -----
-void SiStripNoisesDQM::fillMEsForDet(const ModMEs &_selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) {
+void SiStripNoisesDQM::fillMEsForDet(const ModMEs &_selModME_, uint32_t selDetId_) {
   ModMEs selModME_ = _selModME_;
   std::vector<uint32_t> DetIds;
-  noiseHandle_->getDetIds(DetIds);
+  condObj_->getDetIds(DetIds);
 
-  SiStripNoises::Range noiseRange = noiseHandle_->getRange(selDetId_);
+  const auto noiseRange = condObj_->getRange(selDetId_);
 
   int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
-  getModMEs(selModME_, selDetId_, tTopo);
+  getModMEs(selModME_, selDetId_);
 
   float gainFactor;
   float stripnoise;
 
   SiStripApvGain::Range gainRange;
-  if (gainRenormalisation_ || simGainRenormalisation_) {
+  if (gainHandle_) {
     gainRange = gainHandle_->getRange(selDetId_);
   }
 
   for (int istrip = 0; istrip < nStrip; ++istrip) {
-    if (gainRenormalisation_ || simGainRenormalisation_)
+    if (gainHandle_)
       gainFactor = gainHandle_->getStripGain(istrip, gainRange) ? gainHandle_->getStripGain(istrip, gainRange) : 1.;
     else
       gainFactor = 1;
 
-    stripnoise = noiseHandle_->getNoise(istrip, noiseRange) / gainFactor;
+    stripnoise = condObj_->getNoise(istrip, noiseRange) / gainFactor;
     if (CondObj_fillId_ == "onlyProfile" || CondObj_fillId_ == "ProfileAndCumul") {
       selModME_.ProfileDistr->Fill(istrip + 1, stripnoise);
     }
@@ -83,7 +66,7 @@ void SiStripNoisesDQM::fillMEsForDet(const ModMEs &_selModME_, uint32_t selDetId
 // should be avoided...
 
 void SiStripNoisesDQM::fillMEsForLayer(
-    /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, const TrackerTopology *tTopo) {
+    /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_) {
   // ----
   int subdetectorId_ = ((selDetId_ >> 25) & 0x7);
 
@@ -95,13 +78,13 @@ void SiStripNoisesDQM::fillMEsForLayer(
   }
   // ----
 
-  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_, tTopo).second);
+  const auto selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_).second);
   ModMEs selME_;
   if (selMEsMapIter_ != SummaryMEsMap_.end())
     selME_ = selMEsMapIter_->second;
-  getSummaryMEs(selME_, selDetId_, tTopo);
+  getSummaryMEs(selME_, selDetId_);
 
-  SiStripNoises::Range noiseRange = noiseHandle_->getRange(selDetId_);
+  const auto noiseRange = condObj_->getRange(selDetId_);
   int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
   float stripnoise = -1.;
@@ -109,7 +92,7 @@ void SiStripNoisesDQM::fillMEsForLayer(
   int Nbadstrips = 0;
 
   SiStripApvGain::Range gainRange;
-  if (gainRenormalisation_ || simGainRenormalisation_) {
+  if (gainHandle_) {
     gainRange = gainHandle_->getRange(selDetId_);
   }
   float gainFactor = 1;
@@ -122,16 +105,16 @@ void SiStripNoisesDQM::fillMEsForLayer(
     hSummaryOfProfile_description = hPSet_.getParameter<std::string>("SummaryOfProfile_description");
 
     std::string hSummaryOfProfile_name;
-    hSummaryOfProfile_name = hidmanager.createHistoLayer(
-        hSummaryOfProfile_description, "layer", getLayerNameAndId(selDetId_, tTopo).first, "");
+    hSummaryOfProfile_name =
+        hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer", getLayerNameAndId(selDetId_).first, "");
   }
   if (hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel")) {
     std::string hSummaryOfCumul_description;
     hSummaryOfCumul_description = hPSet_.getParameter<std::string>("Cumul_description");
 
     std::string hSummaryOfCumul_name;
-    hSummaryOfCumul_name = hidmanager.createHistoLayer(
-        hSummaryOfCumul_description, "layer", getStringNameAndId(selDetId_, tTopo).first, "");
+    hSummaryOfCumul_name =
+        hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer", getStringNameAndId(selDetId_).first, "");
   }
   if (hPSet_.getParameter<bool>("FillSummaryAtLayerLevel")) {
     // --> cumul summary
@@ -139,18 +122,17 @@ void SiStripNoisesDQM::fillMEsForLayer(
     hSummary_description = hPSet_.getParameter<std::string>("Summary_description");
 
     std::string hSummary_name;
-    hSummary_name =
-        hidmanager.createHistoLayer(hSummary_description, "layer", getLayerNameAndId(selDetId_, tTopo).first, "");
+    hSummary_name = hidmanager.createHistoLayer(hSummary_description, "layer", getLayerNameAndId(selDetId_).first, "");
   }
 
   for (int istrip = 0; istrip < nStrip; ++istrip) {
-    if (gainRenormalisation_ || simGainRenormalisation_) {
+    if (gainHandle_) {
       gainFactor = gainHandle_->getStripGain(istrip, gainRange) ? gainHandle_->getStripGain(istrip, gainRange) : 1.;
     } else {
       gainFactor = 1.;
     }
 
-    stripnoise = noiseHandle_->getNoise(istrip, noiseRange) / gainFactor;
+    stripnoise = condObj_->getNoise(istrip, noiseRange) / gainFactor;
     meanNoise += stripnoise;
     if (hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel")) {
       if (CondObj_fillId_ == "onlyProfile" || CondObj_fillId_ == "ProfileAndCumul") {
@@ -176,7 +158,7 @@ void SiStripNoisesDQM::fillMEsForLayer(
     // get detIds belonging to same layer to fill X-axis with detId-number
 
     std::vector<uint32_t> sameLayerDetIds_;
-    sameLayerDetIds_ = GetSameLayerDetId(activeDetIds, selDetId_, tTopo);
+    sameLayerDetIds_ = GetSameLayerDetId(activeDetIds, selDetId_);
 
     std::vector<uint32_t>::const_iterator ibound =
         lower_bound(sameLayerDetIds_.begin(), sameLayerDetIds_.end(), selDetId_);

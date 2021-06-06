@@ -53,7 +53,7 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerToken_;
-  edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkStripCPERecord> phase2TrackerCPEToken_;
+  edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord> phase2TrackerCPEToken_;
 
   MeasurementTrackerImpl::BadStripCutsDet badStripCuts_;
 
@@ -125,13 +125,13 @@ MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterS
 
   std::tie(pixelQualityFlags_, pixelQualityDebugFlags_) = pixelFlags(p);
   if (pixelQualityFlags_ != 0) {
-    c.setConsumes(pixelQualityToken_);
-    c.setConsumes(pixelCablingToken_);
+    pixelQualityToken_ = c.consumes();
+    pixelCablingToken_ = c.consumes();
   }
 
   std::tie(stripQualityFlags_, stripQualityDebugFlags_) = stripFlags(p);
   if (stripQualityFlags_ != 0) {
-    c.setConsumes(stripQualityToken_, edm::ESInputTag("", p.getParameter<std::string>("SiStripQualityLabel")));
+    stripQualityToken_ = c.consumes(edm::ESInputTag("", p.getParameter<std::string>("SiStripQualityLabel")));
     if (stripQualityFlags_ & MeasurementTrackerImpl::BadStrips) {
       auto makeBadStripCuts = [](edm::ParameterSet const &pset) {
         return StMeasurementConditionSet::BadStripCuts(pset.getParameter<uint32_t>("maxBad"),
@@ -146,18 +146,18 @@ MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterS
     }
   }
 
-  c.setConsumes(pixelCPEToken_, edm::ESInputTag("", p.getParameter<std::string>("PixelCPE")));
-  c.setConsumes(stripCPEToken_, edm::ESInputTag("", p.getParameter<std::string>("StripCPE")));
-  c.setConsumes(hitMatcherToken_, edm::ESInputTag("", p.getParameter<std::string>("HitMatcher")));
-  c.setConsumes(trackerTopologyToken_);
-  c.setConsumes(trackerGeomToken_);
-  c.setConsumes(geometricSearchTrackerToken_);
+  pixelCPEToken_ = c.consumes(edm::ESInputTag("", p.getParameter<std::string>("PixelCPE")));
+  stripCPEToken_ = c.consumes(edm::ESInputTag("", p.getParameter<std::string>("StripCPE")));
+  hitMatcherToken_ = c.consumes(edm::ESInputTag("", p.getParameter<std::string>("HitMatcher")));
+  trackerTopologyToken_ = c.consumes();
+  trackerGeomToken_ = c.consumes();
+  geometricSearchTrackerToken_ = c.consumes();
 
   //FIXME:: just temporary solution for phase2!
   auto phase2 = p.getParameter<std::string>("Phase2StripCPE");
   if (not phase2.empty()) {
     usePhase2_ = true;
-    c.setConsumes(phase2TrackerCPEToken_, edm::ESInputTag("", phase2));
+    phase2TrackerCPEToken_ = c.consumes(edm::ESInputTag("", phase2));
   }
 }
 

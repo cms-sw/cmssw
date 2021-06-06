@@ -30,7 +30,6 @@
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -60,6 +59,7 @@ MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset)
   thePatternRecognition = new MuonSeedOrcaPatternRecognition(pset, iC);
 
   beamspotToken = consumes<reco::BeamSpot>(theBeamSpotTag);
+  magFieldToken = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
 // Destructor
@@ -74,8 +74,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   // create the pointer to the Seed container
   auto output = std::make_unique<TrajectorySeedCollection>();
 
-  edm::ESHandle<MagneticField> field;
-  eSetup.get<IdealMagneticFieldRecord>().get(field);
+  edm::ESHandle<MagneticField> field = eSetup.getHandle(magFieldToken);
   theSeedFinder->setBField(&*field);
 
   reco::BeamSpot beamSpot;
@@ -108,8 +107,18 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 void MuonSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setAllowAnything();
+  desc.add<edm::InputTag>("beamSpotTag", edm::InputTag("offlineBeamSpot"));
+  desc.add<bool>("scaleDT", true);
+  desc.add<edm::InputTag>("CSCRecSegmentLabel", edm::InputTag("cscSegments"));
+  desc.add<edm::InputTag>("DTRecSegmentLabel", edm::InputTag("dt4DSegments"));
+  desc.add<edm::InputTag>("ME0RecSegmentLabel", edm::InputTag("me0Segments"));
   desc.add<bool>("EnableDTMeasurement", true);
   desc.add<bool>("EnableCSCMeasurement", true);
   desc.add<bool>("EnableME0Measurement", false);
-  descriptions.add("produceMuons", desc);
+  desc.add<std::vector<double>>("crackEtas", {0.2, 1.6, 1.7});
+  desc.add<double>("crackWindow", 0.04);
+  desc.add<double>("deltaPhiSearchWindow", 0.25);
+  desc.add<double>("deltaEtaSearchWindow", 0.2);
+  desc.add<double>("deltaEtaCrackSearchWindow", 0.25);
+  descriptions.add("muonSeedGenerator", desc);
 }

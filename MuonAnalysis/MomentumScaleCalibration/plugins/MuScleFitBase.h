@@ -23,6 +23,7 @@ public:
         probabilitiesFile_(iConfig.getUntrackedParameter<std::string>("ProbabilitiesFile", "")),
         theMuonType_(iConfig.getParameter<int>("MuonType")),
         theMuonLabel_(iConfig.getParameter<edm::InputTag>("MuonLabel")),
+        theCompressionSettings_(iConfig.getUntrackedParameter<int>("compressionSettings", -1)),
         theRootFileName_(iConfig.getUntrackedParameter<std::string>("OutputFileName")),
         theGenInfoRootFileName_(
             iConfig.getUntrackedParameter<std::string>("OutputGenInfoFileName", "genSimRecoPlots.root")),
@@ -45,6 +46,7 @@ protected:
 
   int theMuonType_;
   edm::InputTag theMuonLabel_;
+  int theCompressionSettings_;
   std::string theRootFileName_;
   std::string theGenInfoRootFileName_;
 

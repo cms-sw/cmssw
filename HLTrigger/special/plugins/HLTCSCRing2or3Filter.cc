@@ -3,18 +3,14 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 HLTCSCRing2or3Filter::HLTCSCRing2or3Filter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
+      muonGeometryRecordToken_(esConsumes()),
       m_input(iConfig.getParameter<edm::InputTag>("input")),
       m_minHits(iConfig.getParameter<unsigned int>("minHits")),
       m_xWindow(iConfig.getParameter<double>("xWindow")),
@@ -65,7 +61,7 @@ bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent,
        ++chamber_iter) {
     if (chamber_iter->second.size() >= m_minHits) {
       if (!got_cscGeometry) {
-        iSetup.get<MuonGeometryRecord>().get(cscGeometry);
+        cscGeometry = iSetup.getHandle(muonGeometryRecordToken_);
         got_cscGeometry = true;
       }
 

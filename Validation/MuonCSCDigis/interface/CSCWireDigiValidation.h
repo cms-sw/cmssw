@@ -10,7 +10,7 @@
 
 class CSCWireDigiValidation : public CSCBaseValidation {
 public:
-  CSCWireDigiValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC, bool doSim);
+  CSCWireDigiValidation(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC);
   ~CSCWireDigiValidation() override;
   void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -18,7 +18,7 @@ public:
 
 private:
   edm::EDGetTokenT<CSCWireDigiCollection> wires_Token_;
-  bool doSim_;
+  edm::InputTag inputTag_;
   MonitorElement *theTimeBinPlots[10];
   MonitorElement *theNDigisPerLayerPlots[10];
   MonitorElement *theResolutionPlots[10];

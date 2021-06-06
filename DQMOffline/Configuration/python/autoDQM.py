@@ -67,7 +67,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 
             'trackingZeroBias': ['DQMOfflineTrackingMinBias',
                        'PostDQMOffline',
-                       'DQMHarvestTracking+DQMCertTracking'],
+                       'DQMHarvestTrackingZeroBias+DQMCertTracking'],
 
 	    'hlt': ['DQMOfflineTrigger',
 		    'PostDQMOffline',
@@ -101,6 +101,15 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                       'PostDQMOffline',
                       'DQMHarvestHcal2'],
 
+            'hcalOnly': ['DQMOfflineHcalOnly',
+                         'PostDQMOffline',
+                         'DQMHarvestHcal'],
+
+            'hcal2Only': ['DQMOfflineHcal2Only',
+                          'PostDQMOffline',
+                          'DQMHarvestHcal2'],
+
+
             'jetmet': ['DQMOfflineJetMET',
                        'PostDQMOffline',
                        'DQMHarvestJetMET+DQMCertJetMET'],
@@ -109,6 +118,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                      'PostDQMOffline',
                      'DQMHarvestEcal+DQMCertEcal'],
 
+            'ecalOnly': ['DQMOfflineEcalOnly',
+                         'PostDQMOffline',
+                         'DQMHarvestEcal+DQMCertEcal'],
+
             'egamma': ['DQMOfflineEGamma',
                        'PostDQMOffline',
                        'DQMHarvestEGamma+DQMCertEGamma'],
@@ -116,7 +129,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
             'ctpps': ['DQMOfflineCTPPS',
                       'PostDQMOffline',
                       'DQMHarvestCTPPS'],
-            
+
             'btag': ['DQMOfflineBTag',
                      'PostDQMOffline',
                      'DQMHarvestBTag'],
@@ -141,8 +154,8 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                        'PostDQMOffline',
                        'HLTMonitoringClient'],
 
-            'HLTMonPA': ['HLTMonitoringPA', 
-			 'PostDQMOffline', 
+            'HLTMonPA': ['HLTMonitoringPA',
+			 'PostDQMOffline',
 			 'HLTMonitoringClientPA'],
 
             'express': ['@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal',
@@ -177,12 +190,16 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                            'PostDQMOffline',
                            'DQMHarvestNanoAOD'],
 
-            'pfDQM': ['DQMOfflinePF',
+            'nanogenDQM': ['DQMOfflineNanoGen',
+                           'PostDQMOffline',
+                           'DQMHarvestNanoAOD'],
+
+            'pfDQM': ['DQMOfflinePF+DQMOfflinePFExtended',
                       'PostDQMOffline',
                       'DQMHarvestPF'],
 
-#            'standardDQM': ['@dcs+@DQMMessageLogger+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@hlt+@btag+@beam+@physics+@HLTMon',
-             'standardDQM': ['DQMOffline',
+#           'standardDQM': ['@dcs+@DQMMessageLogger+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@hlt+@btag+@beam+@physics+@HLTMon',
+            'standardDQM': ['DQMOffline',
                             'PostDQMOffline',
                             'dqmHarvesting'],
 
@@ -194,8 +211,8 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                          'PostDQMOffline',
                          'dqmHarvestingExtraHLT'],
 
-#            'standardDQMFakeHLT': ['@dcs+@DQMMessageLogger+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@btag+@beam+@physics',
-             'standardDQMFakeHLT': ['DQMOfflineFakeHLT',
+#           'standardDQMFakeHLT': ['@dcs+@DQMMessageLogger+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@btag+@beam+@physics',
+            'standardDQMFakeHLT': ['DQMOfflineFakeHLT',
                                    'PostDQMOffline',
                                    'dqmHarvestingFakeHLT'],
 
@@ -217,4 +234,3 @@ autoDQM['phase2'] = ['','','']
 for i in [0,2]:
     autoDQM['phase2'][i] = '+'.join([autoDQM[m][i] for m in _phase2_allowed])
 autoDQM['phase2'][1] = 'PostDQMOffline'
-

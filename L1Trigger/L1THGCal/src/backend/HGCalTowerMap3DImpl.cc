@@ -13,14 +13,14 @@ void HGCalTowerMap3DImpl::buildTowerMap3D(const std::vector<edm::Ptr<l1t::HGCalT
                                           l1t::HGCalTowerBxCollection& towers) {
   l1t::HGCalTowerMap towerMap;
 
-  for (auto map : towerMapsPtrs) {
+  for (const auto& map : towerMapsPtrs) {
     if (towerMap.layer() == 0)
       towerMap = (*map);
     else
       towerMap += (*map);
   }
 
-  for (auto tower : towerMap.towers()) {
+  for (const auto& tower : towerMap.towers()) {
     // FIXME: make this threshold configurable
     if (tower.second.pt() > 0)
       towers.push_back(0, tower.second);

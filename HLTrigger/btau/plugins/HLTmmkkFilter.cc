@@ -2,29 +2,20 @@
 #include <cmath>
 #include <vector>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "DataFormats/Math/interface/deltaPhi.h"
-
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "HLTmmkkFilter.h"
 
 using namespace edm;
@@ -35,6 +26,8 @@ using namespace trigger;
 // ----------------------------------------------------------------------
 HLTmmkkFilter::HLTmmkkFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
+      transientTrackRecordToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      idealMagneticFieldRecordToken_(esConsumes()),
       muCandTag_(iConfig.getParameter<edm::InputTag>("MuCand")),
       muCandToken_(consumes<reco::RecoChargedCandidateCollection>(muCandTag_)),
       trkCandTag_(iConfig.getParameter<edm::InputTag>("TrackCand")),
@@ -98,18 +91,15 @@ bool HLTmmkkFilter::hltFilter(edm::Event& iEvent,
   unique_ptr<CandidateCollection> output(new CandidateCollection());
   unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
 
-  //get the transient track builder:
-  edm::ESHandle<TransientTrackBuilder> theB;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+  // get the transient track builder
+  auto const& theB = iSetup.getHandle(transientTrackRecordToken_);
 
-  //get the beamspot position
+  // get the beamspot position
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByToken(beamSpotToken_, recoBeamSpotHandle);
   const reco::BeamSpot& vertexBeamSpot = *recoBeamSpotHandle;
 
-  ESHandle<MagneticField> bFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
-
+  auto const& bFieldHandle = iSetup.getHandle(idealMagneticFieldRecordToken_);
   const MagneticField* magField = bFieldHandle.product();
 
   TSCBLBuilderNoMaterial blsBuilder;

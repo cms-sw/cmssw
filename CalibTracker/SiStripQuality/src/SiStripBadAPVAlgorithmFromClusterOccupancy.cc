@@ -29,7 +29,7 @@ SiStripBadAPVAlgorithmFromClusterOccupancy::~SiStripBadAPVAlgorithmFromClusterOc
 
 void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* siStripQuality,
                                                                 HistoMap& DM,
-                                                                edm::ESHandle<SiStripQuality>& inSiStripQuality) {
+                                                                const SiStripQuality* inSiStripQuality) {
   LogTrace("SiStripBadAPVAlgorithmFromClusterOccupancy")
       << "[SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs] " << std::endl;
 
@@ -450,7 +450,7 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiStripQuality
                                                                   std::vector<Apv>& medianValues,
                                                                   std::pair<double, double>* MeanAndRms,
                                                                   std::vector<unsigned int>& BadStripList,
-                                                                  edm::ESHandle<SiStripQuality>& InSiStripQuality) {
+                                                                  const SiStripQuality* InSiStripQuality) {
   int Moduleposition;
   uint32_t Detid;
 

@@ -57,13 +57,18 @@ private:
   unsigned long long cacheId_quality_, cacheId_geom_;
   std::vector<reco::PFCluster> badAreasC_;
   std::vector<reco::PFRecHit> badAreasRH_;
+
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hQualityToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> hGeomToken_;
 };
 
 PFBadHcalPseudoClusterProducer::PFBadHcalPseudoClusterProducer(const edm::ParameterSet& ps)
     : enabled_(ps.getParameter<bool>("enable")),
       debug_(ps.getUntrackedParameter<bool>("debug", false)),
       cacheId_quality_(0),
-      cacheId_geom_(0) {
+      cacheId_geom_(0),
+      hQualityToken_(esConsumes(edm::ESInputTag("", "withTopo"))),
+      hGeomToken_(esConsumes()) {
   produces<std::vector<reco::PFCluster>>();
   produces<std::vector<reco::PFRecHit>>("hits");
 }
@@ -74,12 +79,10 @@ void PFBadHcalPseudoClusterProducer::init(const EventSetup& iSetup) {
   badAreasC_.clear();
   badAreasRH_.clear();
 
-  edm::ESHandle<HcalChannelQuality> hQuality_;
-  iSetup.get<HcalChannelQualityRcd>().get("withTopo", hQuality_);
+  hQuality_ = iSetup.getHandle(hQualityToken_);
   const HcalChannelQuality& chanquality = *hQuality_;
 
-  edm::ESHandle<CaloGeometry> hGeom_;
-  iSetup.get<CaloGeometryRecord>().get(hGeom_);
+  hGeom_ = iSetup.getHandle(hGeomToken_);
   const CaloGeometry& caloGeom = *hGeom_;
   const CaloSubdetectorGeometry* hbGeom = caloGeom.getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
   const CaloSubdetectorGeometry* heGeom = caloGeom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
@@ -164,7 +167,7 @@ void PFBadHcalPseudoClusterProducer::produce(edm::Event& iEvent, const edm::Even
 
 void PFBadHcalPseudoClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("enable", false)
+  desc.add<bool>("enable", true)
       ->setComment("activate the module (if false, it doesn't check the DB and produces an empty collection)");
   desc.addUntracked<bool>("debug", false);
   descriptions.add("particleFlowBadHcalPseudoCluster", desc);

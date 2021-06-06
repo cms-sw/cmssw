@@ -11,10 +11,12 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+
 namespace ecaldqm {
   EcalLogicID ecalID();
   EcalLogicID subdetID(EcalSubdetector);
-  EcalLogicID crystalID(DetId const &);
+  EcalLogicID crystalID(DetId const &, EcalElectronicsMapping const *);
   EcalLogicID towerID(EcalElectronicsId const &);
   EcalLogicID memChannelID(EcalPnDiodeDetId const &);
   EcalLogicID memTowerID(EcalElectronicsId const &);

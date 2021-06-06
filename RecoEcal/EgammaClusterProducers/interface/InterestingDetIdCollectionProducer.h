@@ -35,9 +35,16 @@ The following classes of "interesting id" are considered
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannelRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 class CaloTopology;
 class EcalSeverityLevelAlgo;
@@ -54,6 +61,10 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;
   edm::EDGetTokenT<reco::BasicClusterCollection> basicClustersToken_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevLVToken_;
+  edm::ESGetToken<EcalNextToDeadChannel, EcalNextToDeadChannelRcd> nextToDeadToken_;
+
   std::string interestingDetIdCollection_;
   int minimalEtaSize_;
   int minimalPhiSize_;

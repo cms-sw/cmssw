@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,11 +22,14 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhContainer.h"
 
 #include <vector>
 #include <string>
@@ -38,6 +41,7 @@ class DTChamberId;
 class DTRecSegment4D;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
+class L1Phase2MuDTPhDigi;
 class DTTPGCompareUnit;
 class DTTimeEvolutionHisto;
 
@@ -70,8 +74,11 @@ private:
                      std::vector<L1MuDTChambPhDigi> const* phOutTrigs,
                      std::vector<L1MuDTChambThDigi> const* thTrigs);
 
+  /// Run analysis on Phase2 readout for SliceTest
+  void runAB7Analysis(std::vector<L1Phase2MuDTPhDigi> const* phTrigs);
+
   /// Get the Top folder (different between Physics and TP and TM)
-  std::string& topFolder(std::string const& type) { return baseFolder[type == "TM"]; }
+  std::string& topFolder(std::string const& type) { return m_baseFolder[type == "TM"]; }
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
@@ -84,34 +91,39 @@ private:
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
   void setQLabelsTheta(MonitorElement* me, short int iaxis);
+  void setQLabelsPh2(MonitorElement* me, short int iaxis);
 
-  int nEvents;
-  int nEventsInLS;
-  int nLumis;
+  int m_nEvents;
+  int m_nEventsInLS;
+  int m_nLumis;
 
-  std::string baseFolder[2];
-  bool tpMode;
-  bool detailedAnalysis;
-  bool processTM;
+  std::string m_baseFolder[2];
+  bool m_tpMode;
+  bool m_detailedAnalysis;
 
-  int targetBXTM;
-  int bestAccRange;
+  bool m_processTM;
+  bool m_processAB7;
 
-  edm::ParameterSet theParams;
-  DTTrigGeomUtils* theTrigGeomUtils;
-  std::vector<std::string> theTypes;
+  int m_targetBXTM;
+  int m_bestAccRange;
 
-  std::map<uint32_t, DTTPGCompareUnit> theCompMapIn;
-  std::map<uint32_t, DTTPGCompareUnit> theCompMapOut;
-  std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
-  std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
-  std::map<uint32_t, DTTimeEvolutionHisto*> trendHistos;
-  MonitorElement* nEventMonitor;
+  edm::ParameterSet m_params;
+  DTTrigGeomUtils* m_trigGeomUtils;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* geom;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_phiIn_Token_;
-  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_phiOut_Token_;
-  edm::EDGetTokenT<L1MuDTChambThContainer> tm_theta_Token_;
-  edm::EDGetTokenT<DTLocalTriggerCollection> trig_Token_;
+  std::vector<std::string> m_types;
+
+  std::map<uint32_t, DTTPGCompareUnit> m_compMapIn;
+  std::map<uint32_t, DTTPGCompareUnit> m_compMapOut;
+  std::map<uint32_t, std::map<std::string, MonitorElement*> > m_chamberHistos;
+  std::map<uint32_t, DTTimeEvolutionHisto*> m_trendHistos;
+  MonitorElement* m_nEventMonitor;
+
+  edm::EDGetTokenT<L1MuDTChambPhContainer> m_tm_phiIn_Token;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> m_tm_phiOut_Token;
+  edm::EDGetTokenT<L1MuDTChambThContainer> m_tm_theta_Token;
+  edm::EDGetTokenT<L1Phase2MuDTPhContainer> m_ab7_phi_Token;
 };
 
 #endif

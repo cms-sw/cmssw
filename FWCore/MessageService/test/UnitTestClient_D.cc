@@ -14,8 +14,8 @@ namespace edmtest {
   ) {
     edm::LogWarning("cat_A") << "This message should not appear in "
                              << "the framework job report";
-    edm::LogWarning("FwkJob") << "<Message>This message should appear in "
-                              << "the framework job report</Message>";
+    edm::LogWarning("FwkTest") << "<Message>This message should appear in "
+                               << "the framework job report</Message>";
     edm::LogWarning("special") << "This message should appear in "
                                << "restrict but the others should not";
 

@@ -80,12 +80,12 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > &tableMa
     getline(fin, line);
 
     if (line.find("TBMHeader") != npos) {
-      loc1 = line.find("(");
+      loc1 = line.find('(');
       if (loc1 == npos) {
         cout << __LINE__ << "]\t" << mthn << "'(' not found after TBMHeader.\n";
         break;
       }
-      loc2 = line.find(")", loc1 + 1);
+      loc2 = line.find(')', loc1 + 1);
       if (loc2 == npos) {
         cout << __LINE__ << "]\t" << mthn << "')' not found after TBMHeader.\n";
         break;
@@ -112,12 +112,12 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > &tableMa
       pulseTrain[i] = levelEncoder(pixelTBMHeader[0]);
       ++i;
     } else if (line.find("ROCHeader") != std::string::npos) {
-      loc1 = line.find("(");
+      loc1 = line.find('(');
       if (loc1 == npos) {
         cout << __LINE__ << "]\t" << mthn << "'(' not found after ROCHeader.\n";
         break;
       }
-      loc2 = line.find(")", loc1 + 1);
+      loc2 = line.find(')', loc1 + 1);
       if (loc2 == npos) {
         cout << __LINE__ << "]\t" << mthn << "')' not found after ROCHeader.\n";
         break;
@@ -133,22 +133,22 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > &tableMa
       pulseTrain[i] = levelEncoder(LastDAC);
       ++i;
     } else if (line.find("PixelHit") != std::string::npos) {
-      loc1 = line.find("(");
+      loc1 = line.find('(');
       if (loc1 == npos) {
         cout << __LINE__ << "]\t" << mthn << "'(' not found after PixelHit.\n";
         break;
       }
-      loc2 = line.find(",", loc1 + 1);
+      loc2 = line.find(',', loc1 + 1);
       if (loc2 == npos) {
         cout << __LINE__ << "]\t" << mthn << "',' not found after the first argument of PixelHit.\n";
         break;
       }
-      loc3 = line.find(",", loc2 + 1);
+      loc3 = line.find(',', loc2 + 1);
       if (loc3 == npos) {
         cout << __LINE__ << "]\t" << mthn << "'.' not found after the second argument of PixelHit.\n";
         break;
       }
-      loc4 = line.find(")", loc3 + 1);
+      loc4 = line.find(')', loc3 + 1);
       if (loc4 == npos) {
         cout << __LINE__ << "]\t" << mthn << "')' not found after the third argument of PixelHit.\n";
         break;
@@ -179,12 +179,12 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > &tableMa
       ++i;
 
     } else if (line.find("TBMTrailer") != std::string::npos) {
-      loc1 = line.find("(");
+      loc1 = line.find('(');
       if (loc1 == npos) {
         cout << __LINE__ << "]\t" << mthn << "'(' not found after TBMTrailer.\n";
         break;
       }
-      loc2 = line.find(")", loc1 + 1);
+      loc2 = line.find(')', loc1 + 1);
       if (loc2 == npos) {
         cout << __LINE__ << "]\t" << mthn << "')' not found after TBMTrailer.\n";
         break;
@@ -244,12 +244,12 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename) {
     getline(fin, line);
 
     if (line.find("TBMHeader") != npos) {
-      loc1 = line.find("(");
+      loc1 = line.find('(');
       if (loc1 == npos) {
         cout << __LINE__ << "]\t" << mthn << "'(' not found after TBMHeader.\n";
         break;
       }
-      loc2 = line.find(")", loc1 + 1);
+      loc2 = line.find(')', loc1 + 1);
       if (loc2 == npos) {
         cout << __LINE__ << "]\t" << mthn << "')' not found after TBMHeader.\n";
         break;
@@ -276,12 +276,12 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename) {
       pulseTrain[i] = levelEncoder(pixelTBMHeader[0]);
       ++i;
     } else if (line.find("ROCHeader") != std::string::npos) {
-      loc1 = line.find("(");
+      loc1 = line.find('(');
       if (loc1 == npos) {
         cout << __LINE__ << "]\t" << mthn << "'(' not found after ROCHeader.\n";
         break;
       }
-      loc2 = line.find(")", loc1 + 1);
+      loc2 = line.find(')', loc1 + 1);
       if (loc2 == npos) {
         cout << __LINE__ << "]\t" << mthn << "')' not found after ROCHeader.\n";
         break;
@@ -297,22 +297,22 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename) {
       pulseTrain[i] = levelEncoder(LastDAC);
       ++i;
     } else if (line.find("PixelHit") != std::string::npos) {
-      loc1 = line.find("(");
+      loc1 = line.find('(');
       if (loc1 == npos) {
         cout << __LINE__ << "]\t" << mthn << "'(' not found after PixelHit.\n";
         break;
       }
-      loc2 = line.find(",", loc1 + 1);
+      loc2 = line.find(',', loc1 + 1);
       if (loc2 == npos) {
         cout << __LINE__ << "]\t" << mthn << "',' not found after the first argument of PixelHit.\n";
         break;
       }
-      loc3 = line.find(",", loc2 + 1);
+      loc3 = line.find(',', loc2 + 1);
       if (loc3 == npos) {
         cout << __LINE__ << "]\t" << mthn << "'.' not found after the second argument of PixelHit.\n";
         break;
       }
-      loc4 = line.find(")", loc3 + 1);
+      loc4 = line.find(')', loc3 + 1);
       if (loc4 == npos) {
         cout << __LINE__ << "]\t" << mthn << "')' not found after the third argument of PixelHit.\n";
         break;
@@ -343,12 +343,12 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename) {
       ++i;
 
     } else if (line.find("TBMTrailer") != std::string::npos) {
-      loc1 = line.find("(");
+      loc1 = line.find('(');
       if (loc1 == npos) {
         cout << __LINE__ << "]\t" << mthn << "'(' not found after TBMTrailer.\n";
         break;
       }
-      loc2 = line.find(")", loc1 + 1);
+      loc2 = line.find(')', loc1 + 1);
       if (loc2 == npos) {
         cout << __LINE__ << "]\t" << mthn << "')' not found after TBMTrailer.\n";
         break;

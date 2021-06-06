@@ -90,8 +90,8 @@ void TrackAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, const
                                << "\n";
     reco::SimToRecoCollection simRecColl = theAssociator->associateSimToReco(trackCollection, TPCollection);
 
-    rts.reset(new reco::RecoToSimCollection(recSimColl));
-    str.reset(new reco::SimToRecoCollection(simRecColl));
+    rts = std::make_unique<reco::RecoToSimCollection>(recSimColl);
+    str = std::make_unique<reco::SimToRecoCollection>(simRecColl);
 
     iEvent.put(std::move(rts));
     iEvent.put(std::move(str));

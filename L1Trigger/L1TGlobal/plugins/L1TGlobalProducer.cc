@@ -21,14 +21,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
-
-#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h"
-#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
@@ -55,12 +48,18 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
       ->setComment("InputTag for Calo Trigger EtSum (required parameter:  default value is invalid)");
   desc.add<edm::InputTag>("ExtInputTag", edm::InputTag(""))
       ->setComment("InputTag for external conditions (not required, but recommend to specify explicitly in config)");
-  desc.add<edm::InputTag>("AlgoBlkInputTag", edm::InputTag("gtDigis"))
-      ->setComment("InputTag for unpacked Algblk (required only if GetPrescaleColumnFromData set to true)");
+  desc.add<edm::InputTag>("AlgoBlkInputTag", edm::InputTag("hltGtStage2Digis"))
+      ->setComment(
+          "InputTag for unpacked Algblk (required only if GetPrescaleColumnFromData orRequireMenuToMatchAlgoBlkInput "
+          "set to true)");
   desc.add<bool>("GetPrescaleColumnFromData", false)
       ->setComment("Get prescale column from unpacked GlobalAlgBck. Otherwise use value specified in PrescaleSet");
   desc.add<bool>("AlgorithmTriggersUnprescaled", false)
       ->setComment("not required, but recommend to specify explicitly in config");
+  desc.add<bool>("RequireMenuToMatchAlgoBlkInput", true)
+      ->setComment(
+          "This requires that the L1 menu record to match the menu used to produce the inputed L1 results, should be "
+          "true when used by the HLT to produce the object map");
   desc.add<bool>("AlgorithmTriggersUnmasked", false)
       ->setComment("not required, but recommend to specify explicitly in config");
   // These parameters have well defined  default values and are not currently
@@ -107,6 +106,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_printL1Menu(parSet.getUntrackedParameter<bool>("PrintL1Menu")),
       m_isDebugEnabled(edm::isDebugEnabled()),
       m_getPrescaleColumnFromData(parSet.getParameter<bool>("GetPrescaleColumnFromData")),
+      m_requireMenuToMatchAlgoBlkInput(parSet.getParameter<bool>("RequireMenuToMatchAlgoBlkInput")),
       m_algoblkInputTag(parSet.getParameter<edm::InputTag>("AlgoBlkInputTag")) {
   m_egInputToken = consumes<BXVector<EGamma>>(m_egInputTag);
   m_tauInputToken = consumes<BXVector<Tau>>(m_tauInputTag);
@@ -114,8 +114,14 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_sumInputToken = consumes<BXVector<EtSum>>(m_sumInputTag);
   m_muInputToken = consumes<BXVector<Muon>>(m_muInputTag);
   m_extInputToken = consumes<BXVector<GlobalExtBlk>>(m_extInputTag);
-  if (m_getPrescaleColumnFromData)
+  m_l1GtStableParToken = esConsumes<L1TGlobalParameters, L1TGlobalParametersRcd>();
+  m_l1GtMenuToken = esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
+  if (!(m_algorithmTriggersUnprescaled && m_algorithmTriggersUnmasked)) {
+    m_l1GtPrescaleVetosToken = esConsumes<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd>();
+  }
+  if (m_getPrescaleColumnFromData || m_requireMenuToMatchAlgoBlkInput) {
     m_algoblkInputToken = consumes<BXVector<GlobalAlgBlk>>(m_algoblkInputTag);
+  }
 
   if (m_verbosity) {
     LogTrace("L1TGlobalProducer") << "\nInput tag for muon collection from uGMT:         " << m_muInputTag
@@ -219,9 +225,9 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_currentLumi = 0;
 
   // Set default, initial, dummy prescale factor table
-  std::vector<std::vector<int>> temp_prescaleTable;
+  std::vector<std::vector<double>> temp_prescaleTable;
 
-  temp_prescaleTable.push_back(std::vector<int>());
+  temp_prescaleTable.push_back(std::vector<double>());
   m_initialPrescaleFactorsAlgoTrig = temp_prescaleTable;
 }
 
@@ -239,8 +245,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   unsigned long long l1GtParCacheID = evSetup.get<L1TGlobalParametersRcd>().cacheIdentifier();
 
   if (m_l1GtParCacheID != l1GtParCacheID) {
-    edm::ESHandle<L1TGlobalParameters> l1GtStablePar;
-    evSetup.get<L1TGlobalParametersRcd>().get(l1GtStablePar);
+    edm::ESHandle<L1TGlobalParameters> l1GtStablePar = evSetup.getHandle(m_l1GtStableParToken);
     m_l1GtStablePar = l1GtStablePar.product();
     const GlobalParamsHelper* data = GlobalParamsHelper::readFromEventSetup(m_l1GtStablePar);
 
@@ -291,9 +296,23 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
     const GlobalParamsHelper* data = GlobalParamsHelper::readFromEventSetup(m_l1GtStablePar);
 
-    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-    evSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
+    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu = evSetup.getHandle(m_l1GtMenuToken);
     const L1TUtmTriggerMenu* utml1GtMenu = l1GtMenu.product();
+
+    if (m_requireMenuToMatchAlgoBlkInput) {
+      edm::Handle<BXVector<GlobalAlgBlk>> m_uGtAlgBlk;
+      iEvent.getByToken(m_algoblkInputToken, m_uGtAlgBlk);
+      if (m_uGtAlgBlk->size() >= 1) {
+        if ((*m_uGtAlgBlk)[0].getL1FirmwareUUID() != static_cast<int>(utml1GtMenu->getFirmwareUuidHashed())) {
+          throw cms::Exception("ConditionsError")
+              << " Error L1 menu loaded in via conditions does not match the L1 actually run "
+              << (*m_uGtAlgBlk)[0].getL1FirmwareUUID() << " vs " << utml1GtMenu->getFirmwareUuidHashed()
+              << ". This means that the mapping of the names to the bits may be incorrect. Please check the "
+                 "L1TUtmTriggerMenuRcd record supplied. Unless you know what you are doing, do not simply disable this "
+                 "check via the config as this a major error and the indication of something very wrong";
+        }
+      }
+    }
 
     // Instantiate Parser
     TriggerMenuParser gtParser = TriggerMenuParser();
@@ -366,16 +385,16 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
   // Only get event record if not unprescaled and not unmasked
   if (!(m_algorithmTriggersUnprescaled && m_algorithmTriggersUnmasked)) {
-    unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1TGlobalPrescalesVetosRcd>().cacheIdentifier();
+    unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1TGlobalPrescalesVetosFractRcd>().cacheIdentifier();
 
     if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
-      edm::ESHandle<L1TGlobalPrescalesVetos> l1GtPrescalesVetoes;
-      evSetup.get<L1TGlobalPrescalesVetosRcd>().get(l1GtPrescalesVetoes);
-      const L1TGlobalPrescalesVetos* es = l1GtPrescalesVetoes.product();
-      m_l1GtPrescalesVetoes = PrescalesVetosHelper::readFromEventSetup(es);
+      edm::ESHandle<L1TGlobalPrescalesVetosFract> l1GtPrescalesFractVetoes =
+          evSetup.getHandle(m_l1GtPrescaleVetosToken);
+      const L1TGlobalPrescalesVetosFract* es = l1GtPrescalesFractVetoes.product();
+      m_l1GtPrescalesVetosFract = PrescalesVetosFractHelper::readFromEventSetup(es);
 
-      m_prescaleFactorsAlgoTrig = &(m_l1GtPrescalesVetoes->prescaleTable());
-      m_triggerMaskVetoAlgoTrig = &(m_l1GtPrescalesVetoes->triggerMaskVeto());
+      m_prescaleFactorsAlgoTrig = &(m_l1GtPrescalesVetosFract->prescaleTable());
+      m_triggerMaskVetoAlgoTrig = &(m_l1GtPrescalesVetosFract->triggerMaskVeto());
 
       m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
     }
@@ -521,7 +540,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     pfAlgoSetIndex = max;
   }
 
-  const std::vector<int>& prescaleFactorsAlgoTrig = (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
+  const std::vector<double>& prescaleFactorsAlgoTrig = (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
 
   // For now, set masks according to prescale value of 0
   m_initialTriggerMaskAlgoTrig.clear();

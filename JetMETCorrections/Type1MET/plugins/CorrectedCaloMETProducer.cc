@@ -49,7 +49,7 @@ private:
 
     const reco::CaloMET& srcMET = (*srcMETCollection)[0];
 
-    reco::CaloMET outMET = corrector.getCorrectedCaloMET(srcMET, evt, es);
+    reco::CaloMET outMET = corrector.getCorrectedCaloMET(srcMET, evt);
 
     std::unique_ptr<METCollection> product(new METCollection);
     product->push_back(outMET);

@@ -4,13 +4,12 @@
 #include <vector>
 #include <fstream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondFormats/Common/interface/FileBlob.h"
@@ -18,39 +17,43 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 namespace edmtest {
-  class DQMXMLFileEventSetupAnalyzer : public edm::EDAnalyzer {
+  class DQMXMLFileEventSetupAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit DQMXMLFileEventSetupAnalyzer(const edm::ParameterSet& pset);
     explicit DQMXMLFileEventSetupAnalyzer(int i);
     ~DQMXMLFileEventSetupAnalyzer() override;
     void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&);
 
   private:
+    const edm::ESGetToken<FileBlob, DQMXMLFileRcd> fileBlobToken_;
     bool init_;
     std::string labelToGet_;
   };
 
   DQMXMLFileEventSetupAnalyzer::DQMXMLFileEventSetupAnalyzer(const edm::ParameterSet& ps)
-      : labelToGet_(ps.getParameter<std::string>("labelToGet")) {
+      : fileBlobToken_(
+            esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ps.getParameter<std::string>("labelToGet")))),
+        labelToGet_(ps.getParameter<std::string>("labelToGet")) {
     init_ = false;
-    //std::cout << "DQMXMLFileEventSetupAnalyzer(const edm::ParameterSet &ps)" << std::endl;
+    edm::LogPrint("DQMXMLFileEventSetupAnalyzer")
+        << "DQMXMLFileEventSetupAnalyzer(const edm::ParameterSet &ps)" << std::endl;
   }
 
   DQMXMLFileEventSetupAnalyzer::DQMXMLFileEventSetupAnalyzer(int i) {
     init_ = false;
-    //std::cout << "DQMXMLFileEventSetupAnalyzer(int i) " << i << std::endl;
+    edm::LogPrint("DQMXMLFileEventSetupAnalyzer") << "DQMXMLFileEventSetupAnalyzer(int i) " << i << std::endl;
   }
 
   DQMXMLFileEventSetupAnalyzer::~DQMXMLFileEventSetupAnalyzer() {
     init_ = false;
-    //std::cout << "~DQMXMLFileEventSetupAnalyzer" << std::endl;
+    edm::LogPrint("DQMXMLFileEventSetupAnalyzer") << "~DQMXMLFileEventSetupAnalyzer" << std::endl;
   }
 
   void DQMXMLFileEventSetupAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) { return; }
 
   void DQMXMLFileEventSetupAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-    //std::cout << "DQMXMLFileEventSetupAnalyzer::beginRun()" << std::endl;
+    edm::LogPrint("DQMXMLFileEventSetupAnalyzer") << "DQMXMLFileEventSetupAnalyzer::beginRun()" << std::endl;
     if (!init_) {
       init_ = true;
       edm::eventsetup::EventSetupRecordKey recordKey(
@@ -59,9 +62,9 @@ namespace edmtest {
         throw cms::Exception("Record not found") << "Record \"DQMXMLFileRcd"
                                                  << "\" does not exist!" << std::endl;
       }
-      edm::ESHandle<FileBlob> rootgeo;
-      iSetup.get<DQMXMLFileRcd>().get(labelToGet_, rootgeo);
-      //std::cout<<"XML FILE IN MEMORY 1 with label " << labelToGet_ <<std::endl;
+
+      const auto& rootgeo = &iSetup.getData(fileBlobToken_);
+      edm::LogPrint("DQMXMLFileEventSetupAnalyzer") << "XML FILE IN MEMORY 1 with label " << labelToGet_ << std::endl;
       std::unique_ptr<std::vector<unsigned char> > tb1((*rootgeo).getUncompressedBlob());
       //here you can implement the stream for putting the TFile on disk...
       std::string outfile1("XML1_retrieved.xml");

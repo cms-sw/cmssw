@@ -15,6 +15,7 @@
 class MaterialAccountingDetector {
   friend class MaterialAccountingTrack;
   friend class TrackingMaterialAnalyser;
+  friend class DD4hep_TrackingMaterialAnalyser;
 
 public:
   MaterialAccountingDetector(void)

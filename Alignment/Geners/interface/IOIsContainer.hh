@@ -19,7 +19,7 @@ namespace gs {
     static Two test(...);
 
   public:
-    enum { value = sizeof(IOIsContainer<T>::template test<T>(0)) == 1 };
+    enum { value = sizeof(IOIsContainer<T>::template test<T>(nullptr)) == 1 };
   };
 
   // Char strings get a special treatment

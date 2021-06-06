@@ -1,0 +1,12 @@
+<use name="CalibTracker/SiPhase2TrackerESProducers" source_only="1"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiPhase2TrackerObjects"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
+<library file="*.cc" name="CalibTrackerSiPhase2TrackerESProducersPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

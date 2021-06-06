@@ -7,7 +7,10 @@
 
 class PedestalsHistosUsingDb : public CommissioningHistosUsingDb, public PedestalsHistograms {
 public:
-  PedestalsHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  PedestalsHistosUsingDb(const edm::ParameterSet& pset,
+                         DQMStore*,
+                         SiStripConfigDb* const,
+                         edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~PedestalsHistosUsingDb() override;
 

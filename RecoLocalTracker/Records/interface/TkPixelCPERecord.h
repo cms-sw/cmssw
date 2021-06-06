@@ -13,16 +13,16 @@
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 #include "CalibTracker/Records/interface/SiPixel2DTemplateDBObjectESProducerRcd.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class TkPixelCPERecord
     : public edm::eventsetup::DependentRecordImplementation<TkPixelCPERecord,
-                                                            boost::mpl::vector<TrackerDigiGeometryRecord,
-                                                                               IdealMagneticFieldRecord,
-                                                                               SiPixelLorentzAngleRcd,
-                                                                               SiPixelGenErrorDBObjectRcd,
-                                                                               SiPixelTemplateDBObjectESProducerRcd,
-                                                                               SiPixel2DTemplateDBObjectESProducerRcd,
-                                                                               TrackerTopologyRcd> > {};
+                                                            edm::mpl::Vector<TrackerDigiGeometryRecord,
+                                                                             IdealMagneticFieldRecord,
+                                                                             SiPixelLorentzAngleRcd,
+                                                                             SiPixelGenErrorDBObjectRcd,
+                                                                             SiPixelTemplateDBObjectESProducerRcd,
+                                                                             SiPixel2DTemplateDBObjectESProducerRcd,
+                                                                             TrackerTopologyRcd> > {};
 
 #endif

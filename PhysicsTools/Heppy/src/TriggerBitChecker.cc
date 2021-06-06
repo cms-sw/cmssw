@@ -88,7 +88,7 @@ namespace heppy {
   void TriggerBitChecker::rmstar() {
     std::vector<pathStruct>::iterator itp, bgp = paths_.begin(), edp = paths_.end();
     for (itp = bgp; itp != edp; ++itp) {
-      std::string::size_type idx = itp->pathName.find("*");
+      std::string::size_type idx = itp->pathName.find('*');
       if (idx != std::string::npos)
         itp->pathName.erase(idx);
     }

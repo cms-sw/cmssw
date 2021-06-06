@@ -9,17 +9,6 @@ def _swapOfflineBSwithOnline(process):
     process.offlineBeamSpot = onlineBeamSpotProducer.clone()
     return process
 
-def _addLumiProducer(process):
-    if not hasattr(process,'lumiProducer'):
-        #unscheduled.. 
-        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
-        process.lumiProducer=lumiProducer
-    #if it's scheduled
-    if hasattr(process, 'reconstruction_step'):
-        process.reconstruction_step+=process.lumiProducer
-
-    return process
-
 def _overridesFor50ns(process):
     process.bunchSpacingProducer.bunchSpacingOverride = cms.uint32(50)
     process.bunchSpacingProducer.overrideBunchSpacing = cms.bool(True)
@@ -99,15 +88,24 @@ def customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process):
     _customise_PPonAATrackingOnlyDQM(process)
     return process
 
-# 2021 equivalents
+# Run3 equivalents
+def _hcalCustomsRun3(process):
+    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHENegativeNoise",8)
+    return process
+
 def customisePostEra_Run3(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018(process)
+    #add Run3 HCAL setting
+    _hcalCustomsRun3(process)
     return process
 
 def customisePostEra_Run3_express_trackingOnly(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018_express_trackingOnly(process)
+    #add Run3 HCAL setting
+    _hcalCustomsRun3(process)
     return process
 
 ##############################################################################
@@ -150,7 +148,6 @@ def customiseExpress(process):
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
-    process = _addLumiProducer(process)
 
     return process
 
@@ -171,8 +168,6 @@ def customiseExpressHI(process):
 ##############################################################################
 def customisePromptHI(process):
     process = customiseCommonHI(process)
-
-    process = _addLumiProducer(process)
 
     return process
 

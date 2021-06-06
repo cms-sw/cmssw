@@ -13,3 +13,8 @@ mahiParameters = cms.PSet(
     deltaChiSqThresh  = cms.double(1e-3),
     nnlsThresh        = cms.double(1e-11)
 )
+
+from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+#--- >= Run3 modification:
+(run3_HB & run2_HE_2017).toModify(mahiParameters, chiSqSwitch = -1)

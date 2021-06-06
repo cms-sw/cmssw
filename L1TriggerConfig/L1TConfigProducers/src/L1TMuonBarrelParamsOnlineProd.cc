@@ -15,7 +15,8 @@ using namespace XERCES_CPP_NAMESPACE;
 
 class L1TMuonBarrelParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams> {
 private:
-  bool transactionSafe;
+  const bool transactionSafe;
+  const edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> baseSettings_token;
 
 public:
   std::unique_ptr<const L1TMuonBarrelParams> newObject(const std::string& objectKey,
@@ -26,15 +27,14 @@ public:
 };
 
 L1TMuonBarrelParamsOnlineProd::L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet& iConfig)
-    : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams>(iConfig) {
-  transactionSafe = iConfig.getParameter<bool>("transactionSafe");
-}
+    : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams>(iConfig),
+      transactionSafe(iConfig.getParameter<bool>("transactionSafe")),
+      baseSettings_token(wrappedSetWhatProduced(iConfig).consumes()) {}
 
 std::unique_ptr<const L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
     const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) {
   const L1TMuonBarrelParamsRcd& baseRcd = record.template getRecord<L1TMuonBarrelParamsRcd>();
-  edm::ESHandle<L1TMuonBarrelParams> baseSettings;
-  baseRcd.get(baseSettings);
+  auto const& baseSettings = baseRcd.get(baseSettings_token);
 
   if (objectKey.empty()) {
     edm::LogError("L1-O2O: L1TMuonBarrelParamsOnlineProd") << "Key is empty, returning empty L1TMuonBarrelParams";
@@ -42,12 +42,12 @@ std::unique_ptr<const L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObj
       throw std::runtime_error("SummaryForFunctionManager: BMTF  | Faulty  | Empty objectKey");
     else {
       edm::LogError("L1-O2O: L1TMuonBarrelParamsOnlineProd") << "returning unmodified prototype of L1TMuonBarrelParams";
-      return std::make_unique<const L1TMuonBarrelParams>(*(baseSettings.product()));
+      return std::make_unique<const L1TMuonBarrelParams>(baseSettings);
     }
   }
 
-  std::string tscKey = objectKey.substr(0, objectKey.find(":"));
-  std::string rsKey = objectKey.substr(objectKey.find(":") + 1, std::string::npos);
+  std::string tscKey = objectKey.substr(0, objectKey.find(':'));
+  std::string rsKey = objectKey.substr(objectKey.find(':') + 1, std::string::npos);
 
   edm::LogInfo("L1-O2O: L1TMuonBarrelParamsOnlineProd")
       << "Producing L1TMuonBarrelParams with TSC key = " << tscKey << " and RS key = " << rsKey;
@@ -79,28 +79,28 @@ std::unique_ptr<const L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObj
       throw std::runtime_error(std::string("SummaryForFunctionManager: BMTF  | Faulty  | ") + e.what());
     else {
       edm::LogError("L1-O2O: L1TMuonBarrelParamsOnlineProd") << "returning unmodified prototype of L1TMuonBarrelParams";
-      return std::make_unique<const L1TMuonBarrelParams>(*(baseSettings.product()));
+      return std::make_unique<const L1TMuonBarrelParams>(baseSettings);
     }
   }
 
   // for debugging dump the configs to local files
   {
-    std::ofstream output(std::string("/tmp/").append(hw_key.substr(0, hw_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(hw_key.substr(0, hw_key.find('/'))).append(".xml"));
     output << hw_payload;
     output.close();
   }
   {
-    std::ofstream output(std::string("/tmp/").append(algo_key.substr(0, algo_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(algo_key.substr(0, algo_key.find('/'))).append(".xml"));
     output << algo_payload;
     output.close();
   }
   {
-    std::ofstream output(std::string("/tmp/").append(mp7_key.substr(0, mp7_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(mp7_key.substr(0, mp7_key.find('/'))).append(".xml"));
     output << mp7_payload;
     output.close();
   }
   {
-    std::ofstream output(std::string("/tmp/").append(amc13_key.substr(0, amc13_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(amc13_key.substr(0, amc13_key.find('/'))).append(".xml"));
     output << amc13_payload;
     output.close();
   }
@@ -131,11 +131,11 @@ std::unique_ptr<const L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObj
       throw std::runtime_error(std::string("SummaryForFunctionManager: BMTF  | Faulty  | ") + e.what());
     else {
       edm::LogError("L1-O2O: L1TMuonBarrelParamsOnlineProd") << "returning unmodified prototype of L1TMuonBarrelParams";
-      return std::make_unique<const L1TMuonBarrelParams>(*(baseSettings.product()));
+      return std::make_unique<const L1TMuonBarrelParams>(baseSettings);
     }
   }
 
-  L1TMuonBarrelParamsHelper m_params_helper(*(baseSettings.product()));
+  L1TMuonBarrelParamsHelper m_params_helper(baseSettings);
   try {
     m_params_helper.configFromDB(parsedXMLs);
   } catch (std::runtime_error& e) {
@@ -144,7 +144,7 @@ std::unique_ptr<const L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObj
       throw std::runtime_error(std::string("SummaryForFunctionManager: BMTF  | Faulty  | ") + e.what());
     else {
       edm::LogError("L1-O2O: L1TMuonBarrelParamsOnlineProd") << "returning unmodified prototype of L1TMuonBarrelParams";
-      return std::make_unique<const L1TMuonBarrelParams>(*(baseSettings.product()));
+      return std::make_unique<const L1TMuonBarrelParams>(baseSettings);
     }
   }
 

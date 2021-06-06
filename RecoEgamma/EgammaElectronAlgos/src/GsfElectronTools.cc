@@ -1,10 +1,9 @@
-#include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 namespace egamma {
 
@@ -15,24 +14,23 @@ namespace egamma {
   //=======================================================================================
 
   std::pair<TrackRef, float> getClosestCtfToGsf(GsfTrackRef const& gsfTrackRef,
-                                                edm::Handle<reco::TrackCollection> const& ctfTracksH) {
+                                                edm::Handle<reco::TrackCollection> const& ctfTracksH,
+                                                edm::soa::EtaPhiTableView trackTable) {
     float maxFracShared = 0;
     TrackRef ctfTrackRef = TrackRef();
     const TrackCollection* ctfTrackCollection = ctfTracksH.product();
 
-    // get the Hit Pattern for the gsfTrack
+    float gsfEta = gsfTrackRef->eta();
+    float gsfPhi = gsfTrackRef->phi();
     const HitPattern& gsfHitPattern = gsfTrackRef->hitPattern();
+
+    constexpr float dR2 = 0.3 * 0.3;
 
     unsigned int counter = 0;
     for (auto ctfTkIter = ctfTrackCollection->begin(); ctfTkIter != ctfTrackCollection->end(); ctfTkIter++, counter++) {
-      double dEta = gsfTrackRef->eta() - ctfTkIter->eta();
-      double dPhi = gsfTrackRef->phi() - ctfTkIter->phi();
-      double pi = acos(-1.);
-      if (std::abs(dPhi) > pi)
-        dPhi = 2 * pi - std::abs(dPhi);
-
       // dont want to look at every single track in the event!
-      if (sqrt(dEta * dEta + dPhi * dPhi) > 0.3)
+      using namespace edm::soa::col;
+      if (reco::deltaR2(gsfEta, gsfPhi, trackTable.get<Eta>(counter), trackTable.get<Phi>(counter)) > dR2)
         continue;
 
       unsigned int shared = 0;
@@ -95,7 +93,7 @@ namespace egamma {
 
     }  //ctfTrack iterator
 
-    return make_pair(ctfTrackRef, maxFracShared);
+    return {ctfTrackRef, maxFracShared};
   }
 
 }  // namespace egamma

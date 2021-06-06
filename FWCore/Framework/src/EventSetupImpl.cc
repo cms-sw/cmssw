@@ -23,7 +23,7 @@
 
 namespace edm {
 
-  EventSetupImpl::EventSetupImpl() {}
+  EventSetupImpl::EventSetupImpl(tbb::task_arena* iArena) : taskArena_{iArena} {}
 
   EventSetupImpl::~EventSetupImpl() {}
 
@@ -44,7 +44,8 @@ namespace edm {
 
   std::optional<eventsetup::EventSetupRecordGeneric> EventSetupImpl::find(const eventsetup::EventSetupRecordKey& iKey,
                                                                           unsigned int iTransitionID,
-                                                                          ESProxyIndex const* getTokenIndices) const {
+                                                                          ESProxyIndex const* getTokenIndices,
+                                                                          ESParentContext const& iParent) const {
     auto lb = std::lower_bound(keysBegin_, keysEnd_, iKey);
     if (lb == keysEnd_ || iKey != *lb) {
       return std::nullopt;
@@ -53,7 +54,7 @@ namespace edm {
     if (recordImpls_[index] == nullptr) {
       return std::nullopt;
     }
-    return eventsetup::EventSetupRecordGeneric(recordImpls_[index], iTransitionID, getTokenIndices, this);
+    return eventsetup::EventSetupRecordGeneric(recordImpls_[index], iTransitionID, getTokenIndices, this, &iParent);
   }
 
   eventsetup::EventSetupRecordImpl const* EventSetupImpl::findImpl(const eventsetup::EventSetupRecordKey& iKey) const {
@@ -63,6 +64,13 @@ namespace edm {
     }
     auto index = std::distance(keysBegin_, lb);
     return recordImpls_[index];
+  }
+
+  eventsetup::EventSetupRecordImpl const* EventSetupImpl::findImpl(ESRecordIndex iKey) const {
+    if UNLIKELY (iKey.value() == ESRecordIndex::invalidValue()) {
+      return nullptr;
+    }
+    return recordImpls_[iKey.value()];
   }
 
   void EventSetupImpl::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const {

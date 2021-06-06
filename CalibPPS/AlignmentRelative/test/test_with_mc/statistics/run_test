@@ -1,0 +1,47 @@
+#!/bin/bash
+
+events=(
+	"1E2"
+	"4E2"
+	"1E3"
+	"4E3"
+	"1E5"
+)
+
+repetitions="10"
+
+#----------------------------------------------------------------------------------------------------
+
+for n_events in ${events[*]}
+do
+	for rep in `seq $repetitions`
+	do
+		dir="data/sector:56/opt:sr/trdist:default/$n_events/$rep/iteration:1"
+
+		echo "* $dir"
+
+		mkdir -p "$dir"
+
+		cat "template_cfg.py" | sed "\
+				s|\$seed|$rep|;\
+				s|\$max_events|$n_events|;\
+				s|\$output_iteration|results_iteration_|;\
+				s|\$output_expanded|results_expanded_|;\
+				s|\$output_factored|results_factored_|;\
+			" > "$dir/cfg.py"
+
+		cd "$dir"
+		cmsRun "cfg.py" &> "log" &
+		cd - &> /dev/null
+	done
+done
+
+wait
+
+echo "* analysis"
+cd "data"
+$CMSSW_BASE/test/$SCRAM_ARCH/ppsTrackBasedAligAnalRes \
+	./results_factored_Jan.xml\
+	./results_factored_Ideal.xml\
+	./results_expanded_Jan.xml\
+	./results_expanded_Ideal.xml

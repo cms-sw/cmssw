@@ -19,7 +19,7 @@
 // $Id: L1TriggerKeyRcd.h,v 1.1 2007/08/22 14:20:13 jbrooke Exp $
 //
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -28,7 +28,6 @@
 //class L1TriggerKeyRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TriggerKeyRcd> {};
 
 class L1TriggerKeyRcd
-    : public edm::eventsetup::DependentRecordImplementation<L1TriggerKeyRcd, boost::mpl::vector<L1TriggerKeyListRcd> > {
-};
+    : public edm::eventsetup::DependentRecordImplementation<L1TriggerKeyRcd, edm::mpl::Vector<L1TriggerKeyListRcd> > {};
 
 #endif

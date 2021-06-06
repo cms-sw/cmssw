@@ -1,16 +1,14 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
+using namespace angle_units::operators;
 
-using namespace cms_units::operators;
-
-static long algorithm(dd4hep::Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   std::string nsName = static_cast<std::string>(ns.name());
@@ -29,7 +27,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   edm::LogVerbatim("HGCalGeom") << childNames.size() << " children: " << childNames[0] << "; " << childNames[1]
                                 << " positioned in " << nCellsRow.size() << " rows and " << nColumns
                                 << " columns with lowest column at " << nBottomY << " in mother " << parentName
-                                << " of size " << waferSize;
+                                << " of size " << cms::convert2mm(waferSize);
   for (unsigned int k = 0; k < nCellsRow.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] Ncells " << nCellsRow[k] << " Edge rotations " << angleEdges[2 * k]
                                   << ":" << angleEdges[2 * k + 1] << " Type of edge cells " << detectorType[2 * k]
@@ -59,8 +57,7 @@ static long algorithm(dd4hep::Detector& /* description */,
       dd4hep::Rotation3D rotation;
       if (irot != 0) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: Creating "
-                                      << "rotation "
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: Creating rotation "
                                       << "\t90, " << irot << ", 90, " << (irot + 90) << ", 0, 0";
 #endif
         double phix = convertDegToRad(irot);
@@ -71,17 +68,18 @@ static long algorithm(dd4hep::Detector& /* description */,
       double xpos = dx * nx;
       nx += incAlongX;
       dd4hep::Position tran(xpos, ypos, 0);
-      int copy = cellType * 1000 + kount;
+      int copy = HGCalTypes::packCellType6(cellType, kount);
       mother.placeVolume(ns.volume(namx), copy, dd4hep::Transform3D(rotation, tran));
       ++kount;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer: " << name << " number " << copy << " positioned in " << parentName
-                                    << " at " << tran << " with " << rotation;
+                                    << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos) << ",0) with "
+                                    << rotation;
 #endif
     }
     ny += incAlongY;
   }
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

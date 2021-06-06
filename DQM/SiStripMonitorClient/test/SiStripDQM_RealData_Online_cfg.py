@@ -29,7 +29,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 #process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 # 3.8T field 
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.prefer("VolumeBasedMagneticFieldESProducer")
 
 #-------------------------------------------------
@@ -92,7 +92,6 @@ process.SiStripClients = cms.Sequence(
 # DQM Environment
 #-----------------------------
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.referenceFileName = '/home/dqmdevlocal/reference/sistrip_reference.root'
 process.DQM.filter = '^SiStrip(/[^/]+){0,5}$'
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")

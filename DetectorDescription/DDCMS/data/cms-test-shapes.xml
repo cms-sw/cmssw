@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug>
-    <debug_shapes/>
+    <!--debug_shapes/>
     <debug_includes/>
     <debug_rotations/>
     <debug_includes/>
     <debug_volumes/>
     <debug_constants/>
-    <debug_namespaces/>
+    <debug_namespaces/-->
     <debug_placements/>
-    <debug_algorithms/>
+    <!--debug_algorithms/>
     <debug_materials/>
-    <debug_visattr/>
+    <debug_visattr/-->
   </debug>
   
   <open_geometry/>
-  <close_geometry/>
+  <!--close_geometry/-->
 
   <ConstantsSection label="" eval="true">
     <Constant name="world_x" value="5*m"/>

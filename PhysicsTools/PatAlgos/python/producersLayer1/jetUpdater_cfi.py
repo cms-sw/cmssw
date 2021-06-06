@@ -25,6 +25,8 @@ updatedPatJets = cms.EDProducer("PATJetUpdater",
       userFunctions = cms.vstring(),
       userFunctionLabels = cms.vstring()
     ),
+    # sort
+    sort                 = cms.bool(True),
     # jet energy corrections
     addJetCorrFactors    = cms.bool(True),
     jetCorrFactorsSource = cms.VInputTag(cms.InputTag("updatedPatJetCorrFactors") ),

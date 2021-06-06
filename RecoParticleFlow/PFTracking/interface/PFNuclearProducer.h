@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 class PFTrackTransformer;
 class PFNuclearProducer : public edm::stream::EDProducer<> {
@@ -28,5 +30,7 @@ private:
   PFTrackTransformer *pfTransformer_;
   double likelihoodCut_;
   std::vector<edm::EDGetTokenT<reco::NuclearInteractionCollection> > nuclearContainers_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 };
 #endif

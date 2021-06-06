@@ -1,10 +1,10 @@
-<use   name="Geometry/GEMGeometry"/>
-<use   name="Geometry/GEMGeometryBuilder"/>
-<use   name="Geometry/Records"/>
-<use   name="FWCore/Framework"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="GEMGeometryAnalyzer.cc" name="GEMGeometryAnalyzer">
-</library>
-<library   file="ME0GeometryAnalyzer.cc" name="ME0GeometryAnalyzer">
+<use name="Geometry/GEMGeometry"/>
+<use name="Geometry/GEMGeometryBuilder"/>
+<use name="Geometry/Records"/>
+<use name="FWCore/Framework"/>
+<flags EDM_PLUGIN="1"/>
+<library file="GEMGeometryAnalyzer.cc" name="GEMGeometryAnalyzer">
 </library>
 
+<library file="ME0GeometryAnalyzer.cc" name="ME0GeometryAnalyzer">
+</library>

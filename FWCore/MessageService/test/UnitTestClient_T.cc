@@ -34,7 +34,7 @@ namespace edmtest {
         edm::LogError("summary") << "At ev = " << ev << "FreshErrorsExist() returns false"
                                  << " which is unexpected";
       }
-      std::vector<edm::ErrorSummaryEntry> v = edm::LoggedErrorsSummary(index);
+      auto v = edm::LoggedErrorsSummary(index);
       printLES(v);
     }
     if (ev == 15) {
@@ -44,18 +44,17 @@ namespace edmtest {
         edm::LogError("summary") << "At ev = " << ev << "FreshErrorsExist() returns false"
                                  << " which is unexpected";
       }
-      std::vector<edm::ErrorSummaryEntry> v = edm::LoggedErrorsOnlySummary(index);
+      auto v = edm::LoggedErrorsOnlySummary(index);
       printLES(v);
     }
     ev++;
   }
 
-  void UTC_T2::printLES(std::vector<edm::ErrorSummaryEntry> const& v) {
+  void UTC_T2::printLES(std::vector<edm::messagelogger::ErrorSummaryEntry> const& v) {
     std::ostringstream s;
-    typedef std::vector<edm::ErrorSummaryEntry>::const_iterator IT;
-    IT end = v.end();
+    auto end = v.end();
     s << "Error Summary Vector with " << v.size() << " entries:\n";
-    for (IT i = v.begin(); i != end; ++i) {
+    for (auto i = v.begin(); i != end; ++i) {
       s << "Category " << i->category << "   Module " << i->module << "   Severity " << (i->severity).getName()
         << "   Count " << i->count << "\n";
     }

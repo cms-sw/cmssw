@@ -1,5 +1,5 @@
-#ifndef CSCBadCFEBWord_h
-#define CSCBadCFEBWord_h
+#ifndef EventFilter_CSCRawToDigi_CSCBadCFEBWord_h
+#define EventFilter_CSCRawToDigi_CSCBadCFEBWord_h
 
 /**
  * When a time slice is bad, it only has four words, and they all start with "B"

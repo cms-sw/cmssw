@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function RunOneTest()
+{
+    local dir="$1"
+
+    cd "$dir"
+    ./run_test
+}
+
+RunOneTest "test_modify_singular_modes" &
+
+RunOneTest "test_with_data" &
+
+RunOneTest "test_with_mc/iterations" &
+RunOneTest "test_with_mc/simple" &
+RunOneTest "test_with_mc/statistics" &

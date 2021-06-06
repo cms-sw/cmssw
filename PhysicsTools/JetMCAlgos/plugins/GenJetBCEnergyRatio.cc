@@ -21,7 +21,7 @@
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+#include "DataFormats/JetMatching/interface/JetFlavour.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Candidate/interface/Candidate.h"

@@ -20,10 +20,8 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
 // Geometry
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
@@ -54,6 +52,8 @@ CosmicClusterProducer::CosmicClusterProducer(const edm::ParameterSet& ps) {
 
   ebUHitsToken_ = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("barrelUncalibHits"));
   eeUHitsToken_ = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("endcapUncalibHits"));
+
+  caloGeometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   // The names of the produced cluster collections
   barrelClusterCollection_ = ps.getParameter<std::string>("barrelClusterCollection");
@@ -144,8 +144,7 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event& evt,
   const EcalUncalibratedRecHitCollection* uhitCollection_p = uhits_h.product();
 
   // get the geometry and topology from the event setup:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  edm::ESHandle<CaloGeometry> geoHandle = es.getHandle(caloGeometryToken_);
 
   const CaloSubdetectorGeometry* geometry_p;
   std::unique_ptr<CaloSubdetectorTopology> topology_p;

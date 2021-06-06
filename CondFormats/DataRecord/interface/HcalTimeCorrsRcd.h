@@ -24,6 +24,6 @@
 
 class HcalTimeCorrsRcd : public edm::eventsetup::DependentRecordImplementation<
                              HcalTimeCorrsRcd,
-                             boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                             edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

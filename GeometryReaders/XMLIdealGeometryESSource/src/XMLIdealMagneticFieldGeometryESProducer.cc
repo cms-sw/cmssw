@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
+
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
@@ -44,6 +46,7 @@ private:
 
 XMLIdealMagneticFieldGeometryESProducer::XMLIdealMagneticFieldGeometryESProducer(const edm::ParameterSet& iConfig)
     : rootDDName_(iConfig.getParameter<std::string>("rootDDName")), label_(iConfig.getParameter<std::string>("label")) {
+  usesResources({{edm::ESSharedResourceNames::kDDGeometry}});
   setWhatProduced(this);
 }
 

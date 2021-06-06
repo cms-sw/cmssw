@@ -48,7 +48,7 @@ namespace {
   public:
     TH1Reader(const edm::ParameterSet& iPSet, DQMStore& iStore, bool iSetLumiFlag)
         : m_store(&iStore),
-          m_element(0),
+          m_element(nullptr),
           m_runs(iPSet.getUntrackedParameter<std::vector<int> >("runs")),
           m_lumis(iPSet.getUntrackedParameter<std::vector<int> >("lumis")),
           m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),
@@ -61,9 +61,9 @@ namespace {
       m_name = iPSet.getUntrackedParameter<std::string>("name") + extension;
     }
 
-    virtual ~TH1Reader(){};
+    ~TH1Reader() override{};
 
-    void read(int run, int lumi) {
+    void read(int run, int lumi) override {
       double expected_mean = -1, expected_entries = -1;
       for (unsigned int i = 0; i < m_runs.size(); i++) {
         if (m_runs[i] == run && m_lumis[i] == lumi) {
@@ -74,7 +74,7 @@ namespace {
       assert(expected_entries != -1 || !"Unexpected run/lumi!");
 
       m_element = m_store->get(m_name);
-      if (0 == m_element) {
+      if (nullptr == m_element) {
         throw cms::Exception("MissingElement") << "The element: " << m_name << " was not found";
       }
       TH1* hist = m_element->getTH1();
@@ -107,19 +107,19 @@ namespace {
 class DummyReadDQMStore : public edm::EDAnalyzer {
 public:
   explicit DummyReadDQMStore(const edm::ParameterSet&);
-  ~DummyReadDQMStore();
+  ~DummyReadDQMStore() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   std::vector<std::shared_ptr<ReaderBase> > m_runReaders;

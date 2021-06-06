@@ -210,7 +210,7 @@ namespace LHCInfoImpl {
             break;
         }
       }
-      targetPayload.reset(new LHCInfo());
+      targetPayload = std::make_unique<LHCInfo>();
       targetPayload->setFillNumber(currentFill);
       targetPayload->setBunchesInBeam1(bunches1);
       targetPayload->setBunchesInBeam2(bunches2);

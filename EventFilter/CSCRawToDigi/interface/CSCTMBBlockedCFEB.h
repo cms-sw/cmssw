@@ -5,8 +5,8 @@
 //_______________________________________
 //
 
-#ifndef CSCTMBBlockedCFEB_h
-#define CSCTMBBlockedCFEB_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBBlockedCFEB_h
+#define EventFilter_CSCRawToDigi_CSCTMBBlockedCFEB_h
 #include <vector>
 #include <cstdint>
 

@@ -11,16 +11,15 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-
 #include <set>
 
 #include <sys/types.h>
 #include <csignal>
 
 EcalDetIdToBeRecoveredProducer::EcalDetIdToBeRecoveredProducer(const edm::ParameterSet& ps) {
+  ecalMappingToken_ = esConsumes<EcalElectronicsMapping, EcalMappingRcd, edm::Transition::BeginRun>();
+  channelStatusToken_ = esConsumes<EcalChannelStatusMap, EcalChannelStatusRcd, edm::Transition::BeginRun>();
+  ttMapToken_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord, edm::Transition::BeginRun>();
   // SRP collections
   ebSrFlagToken_ = consumes<EBSrFlagCollection>(ps.getParameter<edm::InputTag>("ebSrFlagCollection"));
   eeSrFlagToken_ = consumes<EESrFlagCollection>(ps.getParameter<edm::InputTag>("eeSrFlagCollection"));
@@ -58,15 +57,13 @@ EcalDetIdToBeRecoveredProducer::EcalDetIdToBeRecoveredProducer(const edm::Parame
 EcalDetIdToBeRecoveredProducer::~EcalDetIdToBeRecoveredProducer() {}
 
 void EcalDetIdToBeRecoveredProducer::beginRun(edm::Run const& run, const edm::EventSetup& es) {
-  edm::ESHandle<EcalElectronicsMapping> pEcalMapping;
-  es.get<EcalMappingRcd>().get(pEcalMapping);
+  edm::ESHandle<EcalElectronicsMapping> pEcalMapping = es.getHandle(ecalMappingToken_);
   ecalMapping_ = pEcalMapping.product();
 
-  edm::ESHandle<EcalChannelStatusMap> pChStatus;
-  es.get<EcalChannelStatusRcd>().get(pChStatus);
+  edm::ESHandle<EcalChannelStatusMap> pChStatus = es.getHandle(channelStatusToken_);
   chStatus_ = pChStatus.product();
 
-  es.get<IdealGeometryRecord>().get(ttMap_);
+  ttMap_ = es.getHandle(ttMapToken_);
 }
 
 // fuction return true if "coll" have "item"

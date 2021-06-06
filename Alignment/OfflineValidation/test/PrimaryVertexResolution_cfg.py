@@ -18,9 +18,9 @@ def best_match(rcd):
     '''
     find out where to best match the input conditions
     '''
-    print rcd
+    print(rcd)
     for pattern, string in connection_map:
-        print pattern, fnmatch(rcd, pattern)
+        print(pattern, fnmatch(rcd, pattern))
         if fnmatch(rcd, pattern):
             return string
 
@@ -52,14 +52,14 @@ options.register ('GlobalTag',
 
 options.parseArguments()
 
-print "conditionGT       : ", options.GlobalTag
-print "conditionOverwrite: ", options.records
-print "external conditions:", options.external
-print "outputFile        : ", options.outputRootFile
-print "maxEvents         : ", options.maxEvents
+print("conditionGT       : ", options.GlobalTag)
+print("conditionOverwrite: ", options.records)
+print("external conditions:", options.external)
+print("outputFile        : ", options.outputRootFile)
+print("maxEvents         : ", options.maxEvents)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
+process.MessageLogger.cerr = cms.untracked.PSet(enable = cms.untracked.bool(False))
 process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
         reportEvery = cms.untracked.int32(1000) # every 100th only
         #    limit = cms.untracked.int32(10)       # or limit to 10 printouts...
@@ -68,7 +68,7 @@ process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
 
 process.load('Configuration/StandardSequences/Services_cff')
@@ -137,6 +137,9 @@ process.offlinePrimaryVerticesFromRefittedTrks.vertexCollections.maxDistanceToBe
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxNormalizedChi2             = 20
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minSiliconLayersWithHits      = 5
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Significance             = 5.0 
+# as it was prior to https://github.com/cms-sw/cmssw/commit/c8462ae4313b6be3bbce36e45373aa6e87253c59
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxD0Error                    = 1.0
+process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.maxDzError                    = 1.0
 process.offlinePrimaryVerticesFromRefittedTrks.TkFilterParameters.minPixelLayersWithHits        = 2   
 
 ###################################################################
@@ -154,7 +157,7 @@ process.HLTFilter = triggerResultsFilter.clone(
 # The analysis module
 ###################################################################
 process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
-                                    TkTag  = cms.string('TrackRefitter'),
+                                    TkTag  = cms.InputTag('TrackRefitter'),
                                     isCosmics = cms.bool(False)
                                     )
 

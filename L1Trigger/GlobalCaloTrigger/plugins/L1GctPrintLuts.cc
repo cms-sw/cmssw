@@ -6,16 +6,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// Trigger configuration includes
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
-#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
-#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
-
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
@@ -45,6 +35,10 @@ L1GctPrintLuts::L1GctPrintLuts(const edm::ParameterSet& iConfig)
     m_jetEtCalibLuts.push_back(nextLut);
     nextLut.reset(new L1GctJetEtCalibrationLut());
   }
+  m_jfParsToken = esConsumes<L1GctJetFinderParams, L1GctJetFinderParamsRcd>();
+  m_etScaleToken = esConsumes<L1CaloEtScale, L1JetEtScaleRcd>();
+  m_htMissScaleToken = esConsumes<L1CaloEtScale, L1HtMissScaleRcd>();
+  m_hfRingEtScaleToken = esConsumes<L1CaloEtScale, L1HfRingEtScaleRcd>();
 }
 
 L1GctPrintLuts::~L1GctPrintLuts() {
@@ -158,16 +152,10 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c) {
 
   if (success == 0) {
     // get data from EventSetup
-    edm::ESHandle<L1GctJetFinderParams> jfPars;
-    c.get<L1GctJetFinderParamsRcd>().get(jfPars);  // which record?
-    edm::ESHandle<L1CaloEtScale> hfRingEtScale;
-    c.get<L1HfRingEtScaleRcd>().get(hfRingEtScale);  // which record?
-    edm::ESHandle<L1CaloEtScale> htMissScale;
-    c.get<L1HtMissScaleRcd>().get(htMissScale);  // which record?
-                                                 //     edm::ESHandle< L1GctChannelMask > chanMask ;
-    //     c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
-    edm::ESHandle<L1CaloEtScale> etScale;
-    c.get<L1JetEtScaleRcd>().get(etScale);  // which record?
+    edm::ESHandle<L1GctJetFinderParams> jfPars = c.getHandle(m_jfParsToken);
+    edm::ESHandle<L1CaloEtScale> hfRingEtScale = c.getHandle(m_hfRingEtScaleToken);
+    edm::ESHandle<L1CaloEtScale> htMissScale = c.getHandle(m_htMissScaleToken);
+    edm::ESHandle<L1CaloEtScale> etScale = c.getHandle(m_etScaleToken);
 
     if (jfPars.product() == nullptr) {
       success = -1;

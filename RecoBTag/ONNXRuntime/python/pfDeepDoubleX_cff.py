@@ -4,3 +4,5 @@ from RecoBTag.ONNXRuntime.pfDeepDoubleCvLJetTags_cfi import pfDeepDoubleCvLJetTa
 
 from RecoBTag.ONNXRuntime.pfMassIndependentDeepDoubleXJetTags_cff import *
 
+from RecoBTag.ONNXRuntime.pfMassIndependentDeepDoubleXV2JetTags_cff import *
+

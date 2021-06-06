@@ -85,7 +85,7 @@ vector<BPHRecoConstCandPtr> BPHDecayToResFlyingBuilder::build() {
   recList.reserve(nRec);
   for (iRec = 0; iRec < nRec; ++iRec) {
     BPHRecoConstCandPtr ctmp = tmpList[iRec];
-    BPHRecoCandidate* cptr = const_cast<BPHRecoCandidate*>(ctmp->clone());
+    BPHRecoCandidate* cptr = ctmp->clone();
     BPHRecoConstCandPtr cand(cptr);
     // fit for flying reconstruction
     // indipendent from other particles

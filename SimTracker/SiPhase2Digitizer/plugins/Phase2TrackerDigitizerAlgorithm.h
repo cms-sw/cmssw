@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
@@ -16,6 +16,11 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/DigitizerUtility.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
+// Units and Constants
+#include "DataFormats/Math/interface/CMSUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
 // forward declarations
 // For the random numbers
 namespace CLHEP {
@@ -24,11 +29,6 @@ namespace CLHEP {
   class RandFlat;
 }  // namespace CLHEP
 
-namespace edm {
-  class EventSetup;
-  class ParameterSet;
-}  // namespace edm
-
 class DetId;
 class GaussianTailNoiseGenerator;
 class SiG4UniversalFluctuation;
@@ -36,12 +36,26 @@ class SiPixelFedCablingMap;
 class SiPixelGainCalibrationOfflineSimService;
 class SiPixelLorentzAngle;
 class SiPixelQuality;
+class SiPhase2OuterTrackerLorentzAngle;
 class TrackerGeometry;
 class TrackerTopology;
 
+// REMEMBER CMS conventions:
+// -- Energy: GeV
+// -- momentum: GeV/c
+// -- mass: GeV/c^2
+// -- Distance, position: cm
+// -- Time: ns
+// -- Angles: radian
+// Some constants in convenient units
+constexpr double c_cm_ns = CLHEP::c_light * CLHEP::ns / CLHEP::cm;
+constexpr double c_inv = 1.0 / c_cm_ns;
+
 class Phase2TrackerDigitizerAlgorithm {
 public:
-  Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common, const edm::ParameterSet& conf_specific);
+  Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
+                                  const edm::ParameterSet& conf_specific,
+                                  edm::ConsumesCollector iC);
   virtual ~Phase2TrackerDigitizerAlgorithm();
 
   // initialization that cannot be done in the constructor
@@ -54,24 +68,31 @@ public:
                                  const size_t inputBeginGlobalIndex,
                                  const uint32_t tofBin,
                                  const Phase2TrackerGeomDetUnit* pixdet,
-                                 const GlobalVector& bfield) = 0;
+                                 const GlobalVector& bfield);
   virtual void digitize(const Phase2TrackerGeomDetUnit* pixdet,
                         std::map<int, DigitizerUtility::DigiSimInfo>& digi_map,
                         const TrackerTopology* tTopo);
+  virtual bool select_hit(const PSimHit& hit, double tCorr, double& sigScale) const { return true; }
+  virtual bool isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo, float charge, float thr) const {
+    return true;
+  }
 
   // For premixing
   void loadAccumulator(uint32_t detId, const std::map<int, float>& accumulator);
 
 protected:
-  // Accessing Lorentz angle from DB:
-  edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
+  // Accessing Inner Tracker Lorentz angle from DB:
+  const SiPixelLorentzAngle* siPixelLorentzAngle_;
+
+  // Accessing Outer Tracker Lorentz angle from DB:
+  const SiPhase2OuterTrackerLorentzAngle* siPhase2OTLorentzAngle_;
 
   // Accessing Dead pixel modules from DB:
-  edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
+  const SiPixelQuality* siPixelBadModule_;
 
   // Accessing Map and Geom:
-  edm::ESHandle<SiPixelFedCablingMap> fedCablingMap_;
-  edm::ESHandle<TrackerGeometry> geom_;
+  const SiPixelFedCablingMap* fedCablingMap_;
+  const TrackerGeometry* geom_;
   struct SubdetEfficiencies {
     SubdetEfficiencies(const edm::ParameterSet& conf);
     std::vector<double> barrel_efficiencies;
@@ -163,24 +184,19 @@ protected:
 
   //-- additional member functions
   // Private methods
-  void primary_ionization(const PSimHit& hit,
-                          std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const;
-  void drift(const PSimHit& hit,
-             const Phase2TrackerGeomDetUnit* pixdet,
-             const GlobalVector& bfield,
-             const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
-             std::vector<DigitizerUtility::SignalPoint>& collection_points) const;
-  void induce_signal(const PSimHit& hit,
-                     const size_t hitIndex,
-                     const uint32_t tofBin,
-                     const Phase2TrackerGeomDetUnit* pixdet,
-                     const std::vector<DigitizerUtility::SignalPoint>& collection_points);
-  void fluctuateEloss(int particleId,
-                      float momentum,
-                      float eloss,
-                      float length,
-                      int NumberOfSegments,
-                      std::vector<float>& elossVector) const;
+  virtual std::vector<DigitizerUtility::EnergyDepositUnit> primary_ionization(const PSimHit& hit) const;
+  virtual std::vector<DigitizerUtility::SignalPoint> drift(
+      const PSimHit& hit,
+      const Phase2TrackerGeomDetUnit* pixdet,
+      const GlobalVector& bfield,
+      const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const;
+  virtual void induce_signal(const PSimHit& hit,
+                             const size_t hitIndex,
+                             const uint32_t tofBin,
+                             const Phase2TrackerGeomDetUnit* pixdet,
+                             const std::vector<DigitizerUtility::SignalPoint>& collection_points);
+  virtual std::vector<float> fluctuateEloss(
+      int particleId, float momentum, float eloss, float length, int NumberOfSegments) const;
   virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet);
   virtual void add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet);
   virtual void add_noisy_cells(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
@@ -216,10 +232,6 @@ protected:
   // convert signal in electrons to ADC counts
   int convertSignalToAdc(uint32_t detID, float signal_in_elec, float threshold);
 
-  double calcQ(float x) const {
-    auto xx = std::min(0.5f * x * x, 12.5f);
-    return 0.5 * (1.0 - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + 0.2733f / (1.f + 0.147f * xx)))), x));
-  }
   bool pixelFlag_;
 };
 #endif

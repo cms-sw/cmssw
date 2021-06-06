@@ -38,6 +38,12 @@ pfClusteringHBHEHFTask = cms.Task(particleFlowRecHitHBHE,
                                   particleFlowClusterHCAL)
 pfClusteringHBHEHF = cms.Sequence(pfClusteringHBHEHFTask)
 
+pfClusteringHBHEHFOnlyTask = cms.Task(particleFlowRecHitHBHEOnly,
+                                      particleFlowRecHitHF,
+                                      particleFlowClusterHBHEOnly,
+                                      particleFlowClusterHF,
+                                      particleFlowClusterHCALOnly)
+
 pfClusteringHOTask = cms.Task(particleFlowRecHitHO,particleFlowClusterHO)
 pfClusteringHO = cms.Sequence(pfClusteringHOTask)
 
@@ -78,4 +84,4 @@ from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toReplaceWith(particleFlowClusterECALTask,
                                   _phase2_timing_particleFlowClusterECALTask)
 phase2_timing.toModify(particleFlowClusterECAL,
-                            inputECAL = cms.InputTag('particleFlowTimeAssignerECAL'))
+                            inputECAL = 'particleFlowTimeAssignerECAL')

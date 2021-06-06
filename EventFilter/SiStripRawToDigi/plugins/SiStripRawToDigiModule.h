@@ -4,9 +4,11 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Utilities/interface/Visibility.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include <string>
 #include <cstdint>
 
@@ -17,6 +19,7 @@ namespace sistrip {
   class RawToDigiUnpacker;
 }
 class SiStripFedCabling;
+class TrackerTopology;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiModule.h
@@ -33,7 +36,6 @@ namespace sistrip {
     RawToDigiModule(const edm::ParameterSet&);
     ~RawToDigiModule() override;
 
-    void beginRun(const edm::Run&, const edm::EventSetup&) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
     void endStream() override;
 
@@ -42,13 +44,16 @@ namespace sistrip {
 
     RawToDigiUnpacker* rawToDigi_;
     edm::EDGetTokenT<FEDRawDataCollection> token_;
-    const SiStripFedCabling* cabling_;
-    uint32_t cacheId_;
+    const SiStripFedCabling* cabling_ = nullptr;
     bool extractCm_;
     bool doFullCorruptBufferChecks_;
 
     //March 2012: add flag for disabling APVe check in configuration
     bool doAPVEmulatorCheck_;
+
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+    edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
   };
 
 }  // namespace sistrip

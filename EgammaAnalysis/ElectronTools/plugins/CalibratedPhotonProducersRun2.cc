@@ -12,9 +12,11 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "EgammaAnalysis/ElectronTools/interface/PhotonEnergyCalibratorRun2.h"
 
-#include <vector>
-#include <random>
+#include <memory>
+
 #include <TRandom2.h>
+#include <random>
+#include <vector>
 
 template <typename T>
 class CalibratedPhotonProducerRun2T : public edm::stream::EDProducer<> {
@@ -36,7 +38,7 @@ CalibratedPhotonProducerRun2T<T>::CalibratedPhotonProducerRun2T(const edm::Param
                          conf.getParameter<bool>("isSynchronization"),
                          conf.getParameter<std::string>("correctionFile")) {
   if (conf.existsAs<bool>("semiDeterministic") && conf.getParameter<bool>("semiDeterministic")) {
-    theSemiDeterministicRng.reset(new TRandom2());
+    theSemiDeterministicRng = std::make_unique<TRandom2>();
     theEnCorrectorRun2.initPrivateRng(theSemiDeterministicRng.get());
   }
   produces<std::vector<T> >();

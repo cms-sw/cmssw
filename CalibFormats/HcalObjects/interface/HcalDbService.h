@@ -57,7 +57,7 @@ public:
   const HcalQIEType* getHcalQIEType(const HcalGenericDetId& fId) const;
   const HcalSiPMParameter* getHcalSiPMParameter(const HcalGenericDetId& fId) const;
   const HcalSiPMCharacteristics* getHcalSiPMCharacteristics() const;
-  const HcalTPChannelParameter* getHcalTPChannelParameter(const HcalGenericDetId& fId) const;
+  const HcalTPChannelParameter* getHcalTPChannelParameter(const HcalGenericDetId& fId, bool throwOnFail = true) const;
   const HcalTPParameters* getHcalTPParameters() const;
   const HcalMCParam* getHcalMCParam(const HcalGenericDetId& fId) const;
   const HcalRecoParam* getHcalRecoParam(const HcalGenericDetId& fId) const;

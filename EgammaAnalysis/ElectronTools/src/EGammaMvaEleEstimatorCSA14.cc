@@ -283,7 +283,7 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron &ele,
   fMVAVar_detacalo = ele.deltaEtaSeedClusterTrackAtCalo();
 
   // Pure ECAL -> shower shapes
-  std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
+  const auto &vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
   if (edm::isFinite(vCov[0]))
     fMVAVar_see = sqrt(vCov[0]);  //EleSigmaIEtaIEta
   else

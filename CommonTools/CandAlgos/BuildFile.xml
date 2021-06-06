@@ -1,7 +1,8 @@
-<use   name="SimGeneral/HepPDTRecord"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/PatCandidates"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="CommonTools/CandUtils"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

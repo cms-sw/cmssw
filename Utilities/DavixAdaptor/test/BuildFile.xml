@@ -1,21 +1,28 @@
-<use   name="Utilities/StorageFactory"/>
-<use   name="FWCore/ParameterSet"/>
-<bin   file="davixcheck.cpp" name="test_DavixCheck_http">
+<use name="Utilities/StorageFactory"/>
+<bin file="davixcheck.cpp" name="test_DavixCheck_http">
 </bin>
-<bin   file="davixread.cpp" name="test_DavixRead_http">
+
+<bin file="davixread.cpp" name="test_DavixRead_http">
 </bin>
-<bin   file="davixreadv.cpp" name="test_DavixReadV_http">
+
+<bin file="davixreadv.cpp" name="test_DavixReadV_http">
 </bin>
-<bin   file="davixreadwrongurl.cpp" name="test_DavixReadWrongUrl_http">
+
+<bin file="davixreadwrongurl.cpp" name="test_DavixReadWrongUrl_http">
 </bin>
-<bin   file="davixreadfilenotfound.cpp" name="test_DavixReadFileNotFound_http">
+
+<bin file="davixreadfilenotfound.cpp" name="test_DavixReadFileNotFound_http">
 </bin>
-<bin   file="http.cpp" name="test_StorageFactory_Http">
+
+<bin file="http.cpp" name="test_StorageFactory_Http">
 </bin>
-<bin   file="http2.cpp" name="test_StorageFactory_Http2">
+
+<bin file="http2.cpp" name="test_StorageFactory_Http2">
 </bin>
-<bin   file="http3.cpp" name="test_StorageFactory_Http3">
+
+<bin file="http3.cpp" name="test_StorageFactory_Http3">
   <flags NO_TESTRUN="1"/>
 </bin>
-<bin   file="http4.cpp" name="test_StorageFactory_Http4">
+
+<bin file="http4.cpp" name="test_StorageFactory_Http4">
 </bin>

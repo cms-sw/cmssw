@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
 #include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Solid.h"
@@ -63,6 +64,15 @@ const DDLogicalPart& DDCompactView::root() const { return rep_->root(); }
 
 const DDPosData* DDCompactView::worldPosition() const { return worldpos_.get(); }
 
+const std::vector<double>& DDCompactView::vector(std::string_view iKey) const {
+  auto itFind = vectors_.find(std::string(iKey));
+  if (itFind != vectors_.end()) {
+    return itFind->second;
+  }
+  static const std::vector<double> s_empty;
+  return s_empty;
+}
+
 void DDCompactView::position(const DDLogicalPart& self,
                              const DDLogicalPart& parent,
                              const std::string& copyno,
@@ -99,6 +109,20 @@ void DDCompactView::lockdown() {
   DDLogicalPart::StoreT::instance().swap(lpStore_);
   DDSpecifics::StoreT::instance().swap(specStore_);
   DDRotation::StoreT::instance().swap(rotStore_);
+
+  //Deal with DDVectors
+  DDVector::iterator<DDVector> vit;
+  DDVector::iterator<DDVector> ved(DDVector::end());
+
+  for (; vit != ved; ++vit) {
+    if (vit->isDefined().second) {
+      DDName vname(vit->name());
+      vectors_.emplace(vname.name(), vit->values());
+    }
+  }
+  // NOTE: would be good to clear DDVector's container at this time
+  // to avoid mixing with other DDCompactViews. Unclear if that is
+  // safe to do.
 
   // FIXME: lock the global stores.
   DDMaterial::StoreT::instance().setReadOnly(false);

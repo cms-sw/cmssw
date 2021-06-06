@@ -10,16 +10,16 @@
 
 class CSCCLCTDigiValidation : public CSCBaseValidation {
 public:
-  CSCCLCTDigiValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC);
+  CSCCLCTDigiValidation(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC);
   ~CSCCLCTDigiValidation() override;
   void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
   edm::EDGetTokenT<CSCCLCTDigiCollection> clcts_Token_;
-
+  edm::InputTag inputTag_;
   MonitorElement *theTimeBinPlots[10];
-  MonitorElement *theNDigisPerLayerPlots[10];
+  MonitorElement *theNDigisPerChamberPlots[10];
   MonitorElement *theNDigisPerEventPlot;
 };
 

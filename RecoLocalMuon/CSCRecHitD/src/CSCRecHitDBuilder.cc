@@ -11,6 +11,7 @@
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
+#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
@@ -124,8 +125,16 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
     for (auto const& s_hit : cscStripHit) {
       for (auto const& w_hit : cscWireHit) {
         CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
-
-        bool isInFiducial = make2DHits_->isHitInFiducial(layer, rechit);
+        // Store rechit as a Local Point:
+        LocalPoint rhitlocal = rechit.localPosition();
+        float yreco = rhitlocal.y();
+        bool isInFiducial = false;
+        //in me1/1 chambers the strip cut region is at local y = 30 cm, +-5 cm area around it proved to be a suitabla region for omiting the check
+        if ((sDetId.station() == 1) && (sDetId.ring() == 1 || sDetId.ring() == 4) && (fabs(yreco + 30.) < 5.)) {
+          isInFiducial = true;
+        } else {
+          isInFiducial = make2DHits_->isHitInFiducial(layer, rechit);
+        }
         if (isInFiducial) {
           hitsInLayer.push_back(rechit);
           hits_in_layer++;

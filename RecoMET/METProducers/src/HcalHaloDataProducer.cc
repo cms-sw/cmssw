@@ -12,7 +12,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-HcalHaloDataProducer::HcalHaloDataProducer(const edm::ParameterSet& iConfig) {
+HcalHaloDataProducer::HcalHaloDataProducer(const edm::ParameterSet& iConfig) : HcalAlgo(consumesCollector()) {
   //RecHit Level
   IT_EBRecHit = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
   IT_EERecHit = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
@@ -31,14 +31,14 @@ HcalHaloDataProducer::HcalHaloDataProducer(const edm::ParameterSet& iConfig) {
   hbherechit_token_ = consumes<HBHERecHitCollection>(IT_HBHERecHit);
   hfrechit_token_ = consumes<HFRecHitCollection>(IT_HFRecHit);
   calotower_token_ = consumes<CaloTowerCollection>(IT_CaloTowers);
+  calogeometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   produces<HcalHaloData>();
 }
 
 void HcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //Get CaloGeometry
-  edm::ESHandle<CaloGeometry> TheCaloGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCaloGeometry);
+  edm::ESHandle<CaloGeometry> TheCaloGeometry = iSetup.getHandle(calogeometry_token_);
 
   //Get CaloTowers
   edm::Handle<CaloTowerCollection> TheCaloTowers;
@@ -63,7 +63,6 @@ void HcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByToken(hfrechit_token_, TheHFRecHits);
 
   // Run the HcalHaloAlgo to reconstruct the HcalHaloData object
-  HcalHaloAlgo HcalAlgo;
   HcalAlgo.SetRecHitEnergyThresholds(HBRecHitEnergyThreshold, HERecHitEnergyThreshold);
   HcalAlgo.SetPhiWedgeThresholds(SumHcalEnergyThreshold, NHitsHcalThreshold);
 

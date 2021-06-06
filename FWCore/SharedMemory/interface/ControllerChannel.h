@@ -29,6 +29,7 @@
 // user include files
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/SharedMemory/interface/BufferInfo.h"
 
 // forward declarations
 
@@ -38,7 +39,7 @@ namespace edm::shared_memory {
     /** iName is used as the base for the shared memory name. The full name uses iID as well as getpid() to create the value sharedMemoryName().
      iID allows multiple ControllChannels to use the same base name iName.
      */
-    ControllerChannel(std::string const& iName, int iID);
+    ControllerChannel(std::string const& iName, int iID, unsigned int iMaxWaitInSeconds);
     ~ControllerChannel();
     ControllerChannel(const ControllerChannel&) = delete;
     const ControllerChannel& operator=(const ControllerChannel&) = delete;
@@ -48,7 +49,7 @@ namespace edm::shared_memory {
     // ---------- member functions ---------------------------
 
     /** setupWorker must be called only once and done before any calls to doTransition. The functor iF should setup values associated
-     with shared memory use, such as manipulating the value from toWorkerBufferIndex(). The call to setupWorker proper synchronizes
+     with shared memory use, such as manipulating the value from toWorkerBufferInfo(). The call to setupWorker proper synchronizes
      the Controller and Worker processes.
      */
     template <typename F>
@@ -59,9 +60,11 @@ namespace edm::shared_memory {
       using namespace boost::posix_time;
       //std::cout << id_ << " waiting for external process" << std::endl;
 
-      if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(60))) {
+      if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_))) {
         //std::cout << id_ << " FAILED waiting for external process" << std::endl;
-        throw cms::Exception("ExternalFailed");
+        throw cms::Exception("ExternalFailed")
+            << "Failed waiting for external process while setting up the process. Timed out after " << maxWaitInSeconds_
+            << " seconds.";
       } else {
         //std::cout << id_ << " done waiting for external process" << std::endl;
       }
@@ -83,9 +86,9 @@ namespace edm::shared_memory {
     }
 
     ///This can be used with WriteBuffer to keep Controller and Worker in sync
-    char* toWorkerBufferIndex() { return toWorkerBufferIndex_; }
+    BufferInfo* toWorkerBufferInfo() { return toWorkerBufferInfo_; }
     ///This can be used with ReadBuffer to keep Controller and Worker in sync
-    char* fromWorkerBufferIndex() { return fromWorkerBufferIndex_; }
+    BufferInfo* fromWorkerBufferInfo() { return fromWorkerBufferInfo_; }
 
     void stopWorker() {
       //std::cout <<"stopWorker"<<std::endl;
@@ -103,8 +106,10 @@ namespace edm::shared_memory {
     //should only be called after calling `doTransition`
     bool shouldKeepEvent() const { return *keepEvent_; }
 
+    unsigned int maxWaitInSeconds() const { return maxWaitInSeconds_; }
+
   private:
-    static char* bufferIndex(const char* iWhich, boost::interprocess::managed_shared_memory& mem);
+    static BufferInfo* bufferInfo(const char* iWhich, boost::interprocess::managed_shared_memory& mem);
 
     std::string uniqueName(std::string iBase) const;
 
@@ -114,10 +119,11 @@ namespace edm::shared_memory {
 
     // ---------- member data --------------------------------
     int id_;
+    unsigned int maxWaitInSeconds_;
     std::string smName_;
     boost::interprocess::managed_shared_memory managed_sm_;
-    char* toWorkerBufferIndex_;
-    char* fromWorkerBufferIndex_;
+    BufferInfo* toWorkerBufferInfo_;
+    BufferInfo* fromWorkerBufferInfo_;
 
     boost::interprocess::named_mutex mutex_;
     boost::interprocess::named_condition cndFromMain_;

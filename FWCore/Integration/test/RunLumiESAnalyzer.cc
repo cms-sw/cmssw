@@ -81,13 +81,11 @@ namespace edmtest {
   };
 
   RunLumiESAnalyzer::RunLumiESAnalyzer(edm::ParameterSet const&)
-      : esToken_{esConsumes<IOVTestInfo, ESTestRecordC>(edm::ESInputTag("", ""))},
-        tokenBeginRun_{esConsumes<IOVTestInfo, ESTestRecordC, edm::Transition::BeginRun>(edm::ESInputTag("", ""))},
-        tokenBeginLumi_{
-            esConsumes<IOVTestInfo, ESTestRecordC, edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", ""))},
-        tokenEndLumi_{
-            esConsumes<IOVTestInfo, ESTestRecordC, edm::Transition::EndLuminosityBlock>(edm::ESInputTag("", ""))},
-        tokenEndRun_{esConsumes<IOVTestInfo, ESTestRecordC, edm::Transition::EndRun>(edm::ESInputTag("", ""))} {}
+      : esToken_{esConsumes(edm::ESInputTag("", ""))},
+        tokenBeginRun_{esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ""))},
+        tokenBeginLumi_{esConsumes<edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", ""))},
+        tokenEndLumi_{esConsumes<edm::Transition::EndLuminosityBlock>(edm::ESInputTag("", ""))},
+        tokenEndRun_{esConsumes<edm::Transition::EndRun>(edm::ESInputTag("", ""))} {}
 
   std::unique_ptr<UnsafeCache> RunLumiESAnalyzer::beginStream(edm::StreamID iID) const {
     return std::make_unique<UnsafeCache>();

@@ -18,10 +18,6 @@
 //         Created:  Sun Nov 13 11:43:40 EST 2005
 //
 
-// system include files
-#include "boost/bind.hpp"
-#include "boost/mem_fn.hpp"
-
 // user include files
 #include "SimG4Core/Notification/interface/Signaler.h"
 
@@ -93,12 +89,9 @@ public:
   ///forwards our signals to slots connected to iOther
   void connect(SimActivityRegistry& iOther);
 
-private:
-  SimActivityRegistry(const SimActivityRegistry&) = delete;  // stop default
-
-  const SimActivityRegistry& operator=(const SimActivityRegistry&) = delete;  // stop default
-
-  // ---------- member data --------------------------------
+  // stop default
+  SimActivityRegistry(const SimActivityRegistry&) = delete;
+  const SimActivityRegistry& operator=(const SimActivityRegistry&) = delete;
 };
 
 #endif

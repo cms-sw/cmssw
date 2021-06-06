@@ -220,7 +220,7 @@ void RawToDigiConverter::run(const VFATFrameCollection &input,
         // skip masked channels
         if (!anMa.fullMask && anMa.maskedChannels.find(ch) == anMa.maskedChannels.end()) {
           DetSet<TotemRPDigi> &digiDetSet = rpData.find_or_insert(detId);
-          digiDetSet.push_back(TotemRPDigi(offset + ch));
+          digiDetSet.emplace_back(offset + ch);
         }
       }
     }

@@ -36,8 +36,7 @@ using std::ofstream;
 // constructors and destructor
 //
 L1CaloInputScalesGenerator::L1CaloInputScalesGenerator(const edm::ParameterSet& iConfig)
-
-{
+    : transcoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>()), tokens_(consumesCollector()) {
   //now do what ever initialization is needed
 }
 
@@ -54,11 +53,9 @@ L1CaloInputScalesGenerator::~L1CaloInputScalesGenerator() {
 void L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  ESHandle<CaloTPGTranscoder> caloTPGTranscoder;
-  iSetup.get<CaloTPGRecord>().get(caloTPGTranscoder);
+  ESHandle<CaloTPGTranscoder> caloTPGTranscoder = iSetup.getHandle(transcoderToken_);
 
-  EcalTPGScale* ecalTPGScale = new EcalTPGScale();
-  ecalTPGScale->setEventSetup(iSetup);
+  EcalTPGScale ecalTPGScale(tokens_, iSetup);
 
   double output;
   ofstream scalesFile("L1CaloInputScales_cfi.py");
@@ -78,7 +75,7 @@ void L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::Ev
     EcalSubdetector subdet = (absIeta <= 17) ? EcalBarrel : EcalEndcap;
     // 8 bits of input energy
     for (unsigned short input = 0; input <= 0xFF; input++) {
-      output = ecalTPGScale->getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(1, subdet, absIeta, 1));
+      output = ecalTPGScale.getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(1, subdet, absIeta, 1));
       scalesFile << setprecision(8) << output;
       nEntries++;
 
@@ -105,7 +102,7 @@ void L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::Ev
     // 8 bits of input energy
     for (unsigned short input = 0; input <= 0xFF; input++) {
       // negative eta
-      output = ecalTPGScale->getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(-1, subdet, absIeta, 2));
+      output = ecalTPGScale.getTPGInGeV((unsigned int)input, EcalTrigTowerDetId(-1, subdet, absIeta, 2));
       scalesFile << setprecision(8) << output;
       nEntries++;
 

@@ -10,7 +10,7 @@
 //         Created:  Fri Jul  8 00:40:37 CEST 2011
 //
 
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "TFile.h"
 #include "TSystem.h"
@@ -33,7 +33,7 @@ TGeoManager* FWGeometryTableViewManager_GetGeoManager() { return FWGeometryTable
 FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr, std::string fileName, std::string geoName)
     : FWViewManagerBase(), m_fileName(fileName), m_TGeoName(geoName) {
   FWGUIManager::ViewBuildFunctor f;
-  f = boost::bind(&FWGeometryTableViewManager::buildView, this, _1, _2);
+  f = std::bind(&FWGeometryTableViewManager::buildView, this, std::placeholders::_1, std::placeholders::_2);
   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kGeometryTable), f);
   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kOverlapTable), f);
 }
@@ -54,7 +54,7 @@ FWViewBase* FWGeometryTableViewManager::buildView(TEveWindowSlot* iParent, const
 
   view->setBackgroundColor();
   m_views.push_back(std::shared_ptr<FWGeometryTableViewBase>(view));
-  view->beingDestroyed_.connect(boost::bind(&FWGeometryTableViewManager::beingDestroyed, this, _1));
+  view->beingDestroyed_.connect(std::bind(&FWGeometryTableViewManager::beingDestroyed, this, std::placeholders::_1));
 
   return view.get();
 }

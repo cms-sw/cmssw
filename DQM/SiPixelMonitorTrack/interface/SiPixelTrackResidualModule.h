@@ -14,10 +14,11 @@
 #ifndef SiPixelMonitorTrack_SiPixelTrackResidualModule_h
 #define SiPixelMonitorTrack_SiPixelTrackResidualModule_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <cstdint>
 
 namespace edm {
@@ -34,7 +35,7 @@ public:
   ~SiPixelTrackResidualModule();
 
   void book(const edm::ParameterSet &,
-            edm::EventSetup const &,
+            const TrackerTopology *,
             DQMStore::IBooker &,
             bool reducedSet = true,
             int type = 0,

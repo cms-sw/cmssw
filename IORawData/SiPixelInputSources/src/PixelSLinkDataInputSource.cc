@@ -201,11 +201,11 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet &ps
       m_eventnumber_shift(0) {
   produces<FEDRawDataCollection>();
 
-  if (m_fileindex >= fileNames().size()) {
+  if (m_fileindex >= fileNames(0).size()) {
     edm::LogInfo("") << "no more file to read " << std::endl;
     return;  // ???
   }
-  std::string currentfilename = fileNames()[m_fileindex];
+  std::string currentfilename = fileNames(0)[m_fileindex];
   edm::LogInfo("") << "now examining file " << currentfilename;
   m_fileindex++;
   // reading both castor and other ('normal'/dcap) files.
@@ -256,7 +256,7 @@ bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID &id,
   Storage &m_file = *storage;
 
   // create product (raw data)
-  buffers.reset(new FEDRawDataCollection);
+  buffers = std::make_unique<FEDRawDataCollection>();
 
   //  uint32_t currenteventnumber = (m_data >> 32)&0x00ffffff;
   uint32_t eventnumber = (m_data >> 32) & 0x00ffffff;

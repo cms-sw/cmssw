@@ -14,7 +14,6 @@ correctedHybridSuperClusters = cms.EDProducer("EgammaSCCorrectionMaker",
     applyCrackCorrection = cms.bool(True),
     crackCorrectorName = cms.string('EcalClusterCrackCorrection'),
     applyLocalContCorrection= cms.bool(True),
-    localContCorrectorName = cms.string('EcalBasicClusterLocalContCorrection'),                                          
     # energy correction
     hyb_fCorrPset = cms.PSet(
 
@@ -31,5 +30,6 @@ correctedHybridSuperClusters = cms.EDProducer("EgammaSCCorrectionMaker",
 )
 
 
-uncleanedOnlyCorrectedHybridSuperClusters =correctedHybridSuperClusters.clone()
-uncleanedOnlyCorrectedHybridSuperClusters.rawSuperClusterProducer = cms.InputTag("hybridSuperClusters","uncleanOnlyHybridSuperClusters")
+uncleanedOnlyCorrectedHybridSuperClusters =correctedHybridSuperClusters.clone(
+    rawSuperClusterProducer = "hybridSuperClusters:uncleanOnlyHybridSuperClusters"
+)

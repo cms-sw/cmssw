@@ -98,6 +98,21 @@ void l1t::GlobalScales::setLUT_Pt(const std::string& lutName, std::vector<long l
   return;
 }
 
+// Added for displaced muons
+void l1t::GlobalScales::setLUT_Upt(const std::string& lutName, std::vector<long long> lut, unsigned int precision) {
+  if (m_lut_Upt.count(lutName) != 0) {
+    LogTrace("GlobalScales") << "      LUT \"" << lutName << "\"already exists in the LUT map- not inserted!"
+                             << std::endl;
+    return;
+  }
+
+  // Insert this LUT into the Table
+  m_lut_Upt.insert(std::map<std::string, std::vector<long long>>::value_type(lutName, lut));
+  m_Prec_Upt.insert(std::map<std::string, unsigned int>::value_type(lutName, precision));
+
+  return;
+}
+
 void l1t::GlobalScales::setLUT_Cosh(const std::string& lutName, std::vector<long long> lut, unsigned int precision) {
   if (m_lut_Cosh.count(lutName) != 0) {
     LogTrace("GlobalScales") << "      LUT \"" << lutName << "\"already exists in the LUT map- not inserted!"
@@ -176,7 +191,7 @@ long long l1t::GlobalScales::getLUT_DeltaEta(std::string lutName, int element) c
   //first check whether this LUT exists
   if (m_lut_DeltaEta.find(lutName) == m_lut_DeltaEta.end()) {
     //does not exist. Check for oppoisite ordering
-    std::size_t pos = lutName.find("-");
+    std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
     name += "-";
     name += lutName.substr(0, pos);
@@ -209,7 +224,7 @@ unsigned int l1t::GlobalScales::getPrec_DeltaEta(const std::string& lutName) con
     value = m_Prec_DeltaEta.find(lutName)->second;
   } else {
     //does not exist. Check for oppoisite ordering
-    std::size_t pos = lutName.find("-");
+    std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
     name += "-";
     name += lutName.substr(0, pos);
@@ -230,7 +245,7 @@ long long l1t::GlobalScales::getLUT_DeltaPhi(std::string lutName, int element) c
   //first check whether this LUT exists
   if (m_lut_DeltaPhi.find(lutName) == m_lut_DeltaPhi.end()) {
     //does not exist. Check for oppoisite ordering
-    std::size_t pos = lutName.find("-");
+    std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
     name += "-";
     name += lutName.substr(0, pos);
@@ -263,7 +278,7 @@ unsigned int l1t::GlobalScales::getPrec_DeltaPhi(const std::string& lutName) con
     value = m_Prec_DeltaPhi.find(lutName)->second;
   } else {
     //does not exist. Check for oppoisite ordering
-    std::size_t pos = lutName.find("-");
+    std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
     name += "-";
     name += lutName.substr(0, pos);
@@ -303,13 +318,40 @@ unsigned int l1t::GlobalScales::getPrec_Pt(const std::string& lutName) const {
   return value;
 }
 
+// Added for displaced muons
+long long l1t::GlobalScales::getLUT_Upt(const std::string& lutName, int element) const {
+  long long value = 0;
+
+  if (element < 0) {
+    edm::LogError("GlobalScales") << "Error: Negative index, " << element << ", requested for Upt LUT ( " << lutName
+                                  << ")" << std::endl;
+  } else if (element >= (int)m_lut_Upt.find(lutName)->second.size()) {
+    edm::LogError("GlobalScales") << "Error: Element Requested " << element << " too large for Upt LUT (" << lutName
+                                  << ") size = " << m_lut_Upt.find(lutName)->second.size() << std::endl;
+  } else {
+    value = m_lut_Upt.find(lutName)->second.at(element);
+  }
+  return value;
+}
+// Added for displaced muons
+unsigned int l1t::GlobalScales::getPrec_Upt(const std::string& lutName) const {
+  unsigned int value = 0;
+
+  if (m_Prec_Upt.find(lutName) != m_Prec_Upt.end()) {
+    value = m_Prec_Upt.find(lutName)->second;
+  } else {
+    edm::LogError("GlobalScales") << "Warning: LUT " << lutName << " for Upt not found" << std::endl;
+  }
+  return value;
+}
+
 long long l1t::GlobalScales::getLUT_DeltaEta_Cosh(std::string lutName, int element) const {
   long long value = 0;
 
   //first check whether this LUT exists
   if (m_lut_Cosh.find(lutName) == m_lut_Cosh.end()) {
     //does not exist. Check for oppoisite ordering
-    std::size_t pos = lutName.find("-");
+    std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
     name += "-";
     name += lutName.substr(0, pos);
@@ -342,7 +384,7 @@ unsigned int l1t::GlobalScales::getPrec_DeltaEta_Cosh(const std::string& lutName
     value = m_Prec_Cosh.find(lutName)->second;
   } else {
     //does not exist. Check for oppoisite ordering
-    std::size_t pos = lutName.find("-");
+    std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
     name += "-";
     name += lutName.substr(0, pos);
@@ -363,7 +405,7 @@ long long l1t::GlobalScales::getLUT_DeltaPhi_Cos(std::string lutName, int elemen
   //first check whether this LUT exists
   if (m_lut_Cos.find(lutName) == m_lut_Cos.end()) {
     //does not exist. Check for oppoisite ordering
-    std::size_t pos = lutName.find("-");
+    std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
     name += "-";
     name += lutName.substr(0, pos);
@@ -439,7 +481,7 @@ unsigned int l1t::GlobalScales::getPrec_DeltaPhi_Cos(const std::string& lutName)
     value = m_Prec_Cos.find(lutName)->second;
   } else {
     //does not exist. Check for oppoisite ordering
-    std::size_t pos = lutName.find("-");
+    std::size_t pos = lutName.find('-');
     std::string name = lutName.substr(pos + 1);
     name += "-";
     name += lutName.substr(0, pos);
@@ -520,6 +562,11 @@ void l1t::GlobalScales::dumpAllLUTs(std::ostream& myCout) const {
        itr++) {
     dumpLUT(myCout, 8, itr->first);
   }
+  // Added for displaced muons
+  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Upt.begin(); itr != m_lut_Upt.end();
+       itr++) {
+    dumpLUT(myCout, 8, itr->first);
+  }
 }
 
 void l1t::GlobalScales::dumpLUT(std::ostream& myCout, int LUTtype, std::string name) const {
@@ -571,6 +618,12 @@ void l1t::GlobalScales::dumpLUT(std::ostream& myCout, int LUTtype, std::string n
       dumpV = m_lut_Pt.find(name)->second;
       prec = m_Prec_Pt.find(name)->second;
       type = "Pt";
+      break;
+    }
+    case 9: {  // Added for displaced muons
+      dumpV = m_lut_Upt.find(name)->second;
+      prec = m_Prec_Upt.find(name)->second;
+      type = "Upt";
       break;
     }
   }
@@ -668,6 +721,14 @@ void l1t::GlobalScales::print(std::ostream& myCout) const {
 
   myCout << " Pt:      ";
   for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Pt.begin(); itr != m_lut_Pt.end();
+       itr++) {
+    myCout << " " << itr->first;
+  }
+  myCout << std::endl;
+
+  // Added for displaced muons
+  myCout << " Upt:      ";
+  for (std::map<std::string, std::vector<long long>>::const_iterator itr = m_lut_Upt.begin(); itr != m_lut_Upt.end();
        itr++) {
     myCout << " " << itr->first;
   }

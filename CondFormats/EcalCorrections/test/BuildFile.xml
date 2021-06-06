@@ -1,6 +1,6 @@
-<use   name="CondFormats/EcalCorrections"/>
-<bin   name="testEcalShowerContainmentCorrections" file="testEcalShowerContaimentCorrections.cc">
-  <use   name="cppunit"/>
+<use name="CondFormats/EcalCorrections"/>
+<bin name="testEcalShowerContainmentCorrections" file="testEcalShowerContaimentCorrections.cc">
+  <use name="cppunit"/>
 </bin>
 
 <bin file="testSerializationEcalCorrections.cpp">

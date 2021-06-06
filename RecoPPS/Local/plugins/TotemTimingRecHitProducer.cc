@@ -18,6 +18,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -44,8 +45,9 @@ private:
 
   /// Input digi collection
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingDigi> > digiToken_;
-  /// Label to timing calibration tag
-  edm::ESInputTag timingCalibrationTag_;
+  ///EventSetup Tokens
+  edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> timingCalibrationToken_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
   /// Digi-to-rechits transformation algorithm
   TotemTimingRecHitProducerAlgorithm algo_;
   /// Timing calibration parameters watcher
@@ -54,7 +56,9 @@ private:
 
 TotemTimingRecHitProducer::TotemTimingRecHitProducer(const edm::ParameterSet& iConfig)
     : digiToken_(consumes<edm::DetSetVector<TotemTimingDigi> >(iConfig.getParameter<edm::InputTag>("digiTag"))),
-      timingCalibrationTag_(iConfig.getParameter<std::string>("timingCalibrationTag")),
+      timingCalibrationToken_(esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>(
+          edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")))),
+      geometryToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       algo_(iConfig) {
   produces<edm::DetSetVector<TotemTimingRecHit> >();
 }
@@ -70,14 +74,12 @@ void TotemTimingRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetu
   if (!digis->empty()) {
     // check for timing calibration parameters update
     if (calibWatcher_.check(iSetup)) {
-      edm::ESHandle<PPSTimingCalibration> hTimingCalib;
-      iSetup.get<PPSTimingCalibrationRcd>().get(timingCalibrationTag_, hTimingCalib);
+      edm::ESHandle<PPSTimingCalibration> hTimingCalib = iSetup.getHandle(timingCalibrationToken_);
       algo_.setCalibration(*hTimingCalib);
     }
 
     // get the geometry
-    edm::ESHandle<CTPPSGeometry> geometry;
-    iSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
+    edm::ESHandle<CTPPSGeometry> geometry = iSetup.getHandle(geometryToken_);
 
     // produce the rechits collection
     algo_.build(*geometry, *digis, *pOut);

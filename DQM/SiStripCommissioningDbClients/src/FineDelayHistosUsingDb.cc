@@ -20,10 +20,15 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FineDelayHistosUsingDb::FineDelayHistosUsingDb(const edm::ParameterSet& pset, DQMStore* bei, SiStripConfigDb* const db)
+FineDelayHistosUsingDb::FineDelayHistosUsingDb(const edm::ParameterSet& pset,
+                                               DQMStore* bei,
+                                               SiStripConfigDb* const db,
+                                               edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken,
+                                               edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("FineDelayParameters"), bei, sistrip::FINE_DELAY),
-      CommissioningHistosUsingDb(db, sistrip::FINE_DELAY),
+      CommissioningHistosUsingDb(db, tTopoToken, sistrip::FINE_DELAY),
       SamplingHistograms(pset.getParameter<edm::ParameterSet>("FineDelayParameters"), bei, sistrip::FINE_DELAY),
+      tkGeomToken_{tkGeomToken},
       tracker_(nullptr) {
   LogTrace(mlDqmClient_) << "[FineDelayHistosUsingDb::" << __func__ << "]"
                          << " Constructing object...";
@@ -41,10 +46,7 @@ FineDelayHistosUsingDb::~FineDelayHistosUsingDb() {
 /** */
 void FineDelayHistosUsingDb::configure(const edm::ParameterSet& pset, const edm::EventSetup& setup) {
   CommissioningHistosUsingDb::configure(pset, setup);
-  // get geometry
-  edm::ESHandle<TrackerGeometry> estracker;
-  setup.get<TrackerDigiGeometryRecord>().get(estracker);
-  tracker_ = &(*estracker);
+  tracker_ = &setup.getData(tkGeomToken_);
   SamplingHistograms::configure(pset, setup);
   cosmic_ = this->pset().getParameter<bool>("cosmic");
 }

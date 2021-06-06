@@ -204,12 +204,12 @@ namespace pat {
           // Need to trigger unpacking in iOther
           p4_(new PolarLorentzVector(iOther.polarP4())),
           p4c_(new LorentzVector(iOther.p4())),
-          vertex_(new Point(iOther.vertex())),
-          dxy_(iOther.dxy_),
-          dz_(iOther.dz_),
-          dphi_(iOther.dphi_),
-          deta_(iOther.deta_),
-          dtrkpt_(iOther.dtrkpt_),
+          vertex_((iOther.vertex_ ? new Point(iOther.vertex()) : nullptr)),
+          dxy_(vertex_ ? iOther.dxy_ : 0),
+          dz_(vertex_ ? iOther.dz_ : 0),
+          dphi_(vertex_ ? iOther.dphi_ : 0),
+          deta_(vertex_ ? iOther.deta_ : 0),
+          dtrkpt_(vertex_ ? iOther.dtrkpt_ : 0),
           track_(iOther.track_ ? new reco::Track(*iOther.track_) : nullptr),
           pdgId_(iOther.pdgId_),
           qualityFlags_(iOther.qualityFlags_),
@@ -650,6 +650,7 @@ namespace pat {
       covarianceSchema_ = quality;
       normalizedChi2_ = tk.normalizedChi2();
       setHits(tk);
+      maybeUnpackBoth();
       packBoth();
       packCovariance(covariance, false);
     }

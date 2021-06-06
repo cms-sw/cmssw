@@ -12,11 +12,6 @@
 // general plotting helpers
 #include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 
-// edm stuff
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
-
 // Tracker Geometry/Topology  stuff
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -24,8 +19,8 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 
 // Pixel names
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 
 // C++ stuff
 #include <cassert>
@@ -82,7 +77,7 @@ void GeometryInterface::load(edm::EventSetup const& iSetup) {
   loadFromSiPixelCoordinates(trackerGeometry, trackerTopology, siPixelFedCablingMap, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
-  for (auto e : ids)
+  for (const auto& e : ids)
     log << "+++ column: " << e.first << " ok " << bool(extractors[e.second]) << " min " << min_value[e.second]
         << " max " << max_value[e.second] << "\n";
   is_loaded = true;

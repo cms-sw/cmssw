@@ -2,6 +2,8 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include <cmath>
+#include <memory>
+
 #include <unordered_map>
 
 #include "vdt/vdtMath.h"
@@ -9,6 +11,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
@@ -16,8 +19,8 @@
 
 class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
 public:
-  Cluster3DPCACalculator(const edm::ParameterSet& conf)
-      : PFCPositionCalculatorBase(conf),
+  Cluster3DPCACalculator(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : PFCPositionCalculatorBase(conf, cc),
         updateTiming_(conf.getParameter<bool>("updateTiming")),
         pca_(new TPrincipal(3, "D")) {}
   Cluster3DPCACalculator(const Cluster3DPCACalculator&) = delete;
@@ -38,13 +41,13 @@ private:
 DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory, Cluster3DPCACalculator, "Cluster3DPCACalculator");
 
 void Cluster3DPCACalculator::calculateAndSetPosition(reco::PFCluster& cluster) {
-  pca_.reset(new TPrincipal(3, "D"));
+  pca_ = std::make_unique<TPrincipal>(3, "D");
   calculateAndSetPositionActual(cluster);
 }
 
 void Cluster3DPCACalculator::calculateAndSetPositions(reco::PFClusterCollection& clusters) {
   for (reco::PFCluster& cluster : clusters) {
-    pca_.reset(new TPrincipal(3, "D"));
+    pca_ = std::make_unique<TPrincipal>(3, "D");
     calculateAndSetPositionActual(cluster);
   }
 }

@@ -20,6 +20,13 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+namespace {
+  void throwWrongRecordType(const edm::TypeIDBase& aFromToken, const edm::eventsetup::EventSetupRecordKey& aRecord) {
+    throw cms::Exception("WrongRecordType") << "A ESGetTokenGeneric token using the record " << aFromToken.name()
+                                            << " was passed to record " << aRecord.type().name();
+  }
+}  // namespace
+
 namespace edm {
   namespace eventsetup {
 
@@ -29,8 +36,21 @@ namespace edm {
 
     EventSetupRecord::~EventSetupRecord() {}
 
-    bool EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
-      return impl_->doGet(aKey, eventSetupImpl_, aGetTransiently);
+    bool EventSetupRecord::doGet(const ESGetTokenGeneric& aToken, bool aGetTransiently) const {
+      if UNLIKELY (aToken.transitionID() != transitionID()) {
+        throwWrongTransitionID();
+      }
+      if UNLIKELY (aToken.recordType() != key().type()) {
+        throwWrongRecordType(aToken.recordType(), key());
+      }
+      auto proxyIndex = getTokenIndices_[aToken.index().value()];
+      if UNLIKELY (proxyIndex.value() == std::numeric_limits<int>::max()) {
+        return false;
+      }
+
+      const ComponentDescription* cd = nullptr;
+      DataKey const* dk = nullptr;
+      return nullptr != impl_->getFromProxyAfterPrefetch(proxyIndex, aGetTransiently, cd, dk);
     }
 
     bool EventSetupRecord::wasGotten(const DataKey& aKey) const { return impl_->wasGotten(aKey); }
@@ -70,13 +90,24 @@ namespace edm {
       iException.addContext(ost.str());
     }
 
-    std::exception_ptr EventSetupRecord::makeInvalidTokenException(EventSetupRecordKey const& iRecordKey,
-                                                                   TypeTag const& iDataKey) {
+    std::exception_ptr EventSetupRecord::makeUninitializedTokenException(EventSetupRecordKey const& iRecordKey,
+                                                                         TypeTag const& iDataKey) {
       cms::Exception ex("InvalidESGetToken");
       ex << "Attempted to get data using an invalid token of type ESGetToken<" << iDataKey.name() << ","
          << iRecordKey.name()
          << ">.\n"
             "Please call consumes to properly initialize the token.";
+      return std::make_exception_ptr(ex);
+    }
+
+    std::exception_ptr EventSetupRecord::makeInvalidTokenException(EventSetupRecordKey const& iRecordKey,
+                                                                   TypeTag const& iDataKey,
+                                                                   unsigned int iTransitionID) {
+      cms::Exception ex("InvalidESGetToken");
+      ex << "Attempted to get data using an invalid token of type ESGetToken<" << iDataKey.name() << ","
+         << iRecordKey.name() << "> that had transition ID set (" << iTransitionID
+         << ") but not the index.\n"
+            "This should not happen, please contact core framework developers.";
       return std::make_exception_ptr(ex);
     }
 

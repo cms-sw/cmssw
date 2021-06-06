@@ -38,9 +38,11 @@ namespace edm {
   namespace eventsetup {
 
     EventSetupProvider::EventSetupProvider(ActivityRegistry const* activityRegistry,
+                                           tbb::task_arena* taskArena,
                                            unsigned subProcessIndex,
                                            const PreferredProviderInfo* iInfo)
         : activityRegistry_(activityRegistry),
+          taskArena_(taskArena),
           mustFinishConfiguration_(true),
           subProcessIndex_(subProcessIndex),
           preferredProviderInfo_((nullptr != iInfo) ? (new PreferredProviderInfo(*iInfo)) : nullptr),
@@ -696,7 +698,7 @@ namespace edm {
 
       if (needNewEventSetupImpl) {
         //cannot use make_shared because constructor is private
-        eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl);
+        eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl(taskArena_));
         newEventSetupImpl = true;
         eventSetupImpl_->setKeyIters(recordKeys_.begin(), recordKeys_.end());
 
@@ -752,7 +754,7 @@ namespace edm {
       ESRecordsToProxyIndices ret(recordKeys_);
 
       unsigned int index = 0;
-      for (auto provider : recordProviders_) {
+      for (const auto& provider : recordProviders_) {
         index = ret.dataKeysInRecord(
             index, provider->key(), provider->registeredDataKeys(), provider->componentsForRegisteredDataKeys());
       }

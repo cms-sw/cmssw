@@ -1,3 +1,4 @@
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include <cassert>
 #include <iomanip>
@@ -29,7 +30,8 @@ CSCCFEBSCAControllerWord::CSCCFEBSCAControllerWord(unsigned short frame)
 }
 
 CSCCFEBDataWord *CSCCFEBTimeSlice::timeSample(int layer, int channel, bool isDCFEB) const {
-  assert(layer >= 1 && layer <= 6);
+  assert(layer >= CSCDetId::minLayerId());
+  assert(layer <= CSCDetId::maxLayerId());
   assert(channel >= 1 && channel <= 16);
   int layerIndex = layerInverseGrayCode[layer - 1];
 
@@ -50,7 +52,7 @@ CSCCFEBSCAControllerWord CSCCFEBTimeSlice::scaControllerWord(int layer) const {
 }
 
 void CSCCFEBTimeSlice::setControllerWord(const CSCCFEBSCAControllerWord &controllerWord) {
-  for (int layer = 1; layer <= 6; ++layer) {
+  for (int layer = CSCDetId::minLayerId(); layer <= CSCDetId::maxLayerId(); ++layer) {
     for (int channel = 1; channel <= 16; ++channel) {
       const unsigned short *shortWord = reinterpret_cast<const unsigned short *>(&controllerWord);
       timeSample(layer, channel)->controllerData = (*shortWord >> (channel - 1)) & 1;
@@ -68,7 +70,7 @@ unsigned CSCCFEBTimeSlice::calcCRC() const {
 
 std::ostream &operator<<(std::ostream &os, const CSCCFEBTimeSlice &slice) {
   for (int ichannel = 1; ichannel <= 16; ++ichannel) {
-    for (int ilayer = 1; ilayer <= 6; ++ilayer) {
+    for (int ilayer = CSCDetId::minLayerId(); ilayer <= CSCDetId::maxLayerId(); ++ilayer) {
       //unsigned index = (ilayer-1) + (ichannel-1)*6;
       //int value = (slice.timeSample(index))->adcCounts - 560;
       int value = (slice.timeSample(ilayer, ichannel))->adcCounts - 560;

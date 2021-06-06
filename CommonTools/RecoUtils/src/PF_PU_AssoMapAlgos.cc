@@ -13,7 +13,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
 
 using namespace edm;
 using namespace std;

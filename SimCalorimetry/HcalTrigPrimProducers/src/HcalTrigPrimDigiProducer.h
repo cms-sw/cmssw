@@ -3,10 +3,25 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
+#include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+
 #include <vector>
 
 class HcalTrigPrimDigiProducer : public edm::stream::EDProducer<> {
@@ -15,6 +30,7 @@ public:
   ~HcalTrigPrimDigiProducer() override {}
 
   /**Produces the EDM products,*/
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
@@ -30,6 +46,9 @@ private:
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
 
+  bool overrideDBweightsAndFilterHE_;
+  bool overrideDBweightsAndFilterHB_;
+
   /// input tag for FEDRawDataCollection
   edm::InputTag inputTagFEDRaw_;
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
@@ -44,6 +63,13 @@ private:
 
   bool HFEMB_;
   edm::ParameterSet LongShortCut_;
+  edm::ESGetToken<HcalTPGCoder, HcalTPGRecord> tok_tpgCoder_;
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> tok_tpgTranscoder_;
+  edm::ESGetToken<HcalLutMetadata, HcalLutMetadataRcd> tok_lutMetadata_;
+  edm::ESGetToken<HcalTrigTowerGeometry, CaloGeometryRecord> tok_trigTowerGeom_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_hcalTopo_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_beginRun_;
 };
 
 #endif

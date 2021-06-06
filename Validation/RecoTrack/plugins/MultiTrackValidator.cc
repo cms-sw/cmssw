@@ -47,10 +47,12 @@ namespace {
 }  // namespace
 
 MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset)
-    : associators(pset.getUntrackedParameter<std::vector<edm::InputTag>>("associators")),
-      label(pset.getParameter<std::vector<edm::InputTag>>("label")),
+    : tTopoEsToken(esConsumes()),
       parametersDefiner(pset.getParameter<std::string>("parametersDefiner")),
+      tpDefinerEsToken(esConsumes(edm::ESInputTag("", parametersDefiner))),
       parametersDefinerIsCosmic_(parametersDefiner == "CosmicParametersDefinerForTP"),
+      associators(pset.getUntrackedParameter<std::vector<edm::InputTag>>("associators")),
+      label(pset.getParameter<std::vector<edm::InputTag>>("label")),
       ignoremissingtkcollection_(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection", false)),
       useAssociators_(pset.getParameter<bool>("UseAssociators")),
       calculateDrSingleCollection_(pset.getUntrackedParameter<bool>("calculateDrSingleCollection")),
@@ -340,6 +342,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook,
   }    // end loop ww
 }
 
+#ifdef EDM_ML_DEBUG
 namespace {
   void ensureEffIsSubsetOfFake(const TrackingParticleRefVector& eff, const TrackingParticleRefVector& fake) {
     // If efficiency RefVector is empty, don't check the product ids
@@ -373,6 +376,7 @@ namespace {
     }
   }
 }  // namespace
+#endif
 
 const TrackingVertex::LorentzVector* MultiTrackValidator::getSimPVPosition(
     const edm::Handle<TrackingVertexCollection>& htv) const {
@@ -429,8 +433,9 @@ void MultiTrackValidator::tpParametersAndSelection(
     for (size_t j = 0; j < tPCeff.size(); ++j) {
       const TrackingParticleRef& tpr = tPCeff[j];
 
-      TrackingParticle::Vector momentum = parametersDefinerTP.momentum(event, setup, tpr);
-      TrackingParticle::Point vertex = parametersDefinerTP.vertex(event, setup, tpr);
+      auto const& rec = parametersDefinerTP.momentumAndVertex(event, setup, tpr);
+      TrackingParticle::Vector const& momentum = std::get<0>(rec);
+      TrackingParticle::Point const& vertex = std::get<1>(rec);
       if (doSimPlots_) {
         histoProducerAlgo_->fill_generic_simTrack_histos(
             histograms.histoProducerAlgo, momentum, vertex, tpr->eventId().bunchCrossing());
@@ -461,9 +466,7 @@ void MultiTrackValidator::tpParametersAndSelection(
 
       if (tpSelector(tp)) {
         selected_tPCeff.push_back(j);
-        TrackingParticle::Vector momentum = parametersDefinerTP.momentum(event, setup, tpr);
-        TrackingParticle::Point vertex = parametersDefinerTP.vertex(event, setup, tpr);
-        momVert_tPCeff.emplace_back(momentum, vertex);
+        momVert_tPCeff.emplace_back(parametersDefinerTP.momentumAndVertex(event, setup, tpr));
       }
       ++j;
     }
@@ -586,14 +589,11 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
                              << "====================================================\n"
                              << "\n";
 
-  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTPHandle;
-  setup.get<TrackAssociatorRecord>().get(parametersDefiner, parametersDefinerTPHandle);
+  const auto& parametersDefinerTPHandle = setup.getHandle(tpDefinerEsToken);
   //Since we modify the object, we must clone it
   auto parametersDefinerTP = parametersDefinerTPHandle->clone();
 
-  edm::ESHandle<TrackerTopology> httopo;
-  setup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology& ttopo = *httopo;
+  const TrackerTopology& ttopo = setup.getData(tTopoEsToken);
 
   // FIXME: we really need to move to edm::View for reading the
   // TrackingParticles... Unfortunately it has non-trivial
@@ -609,6 +609,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
   const bool tp_effic_refvector = label_tp_effic.isUninitialized();
   if (!tp_effic_refvector) {
     event.getByToken(label_tp_effic, TPCollectionHeff);
+    tmpTPeff.reserve(TPCollectionHeff->size());
     for (size_t i = 0, size = TPCollectionHeff->size(); i < size; ++i) {
       tmpTPeff.push_back(TrackingParticleRef(TPCollectionHeff, i));
     }
@@ -620,6 +621,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
   if (!label_tp_fake.isUninitialized()) {
     edm::Handle<TrackingParticleCollection> TPCollectionHfake;
     event.getByToken(label_tp_fake, TPCollectionHfake);
+    tmpTPfake.reserve(TPCollectionHfake->size());
     for (size_t i = 0, size = TPCollectionHfake->size(); i < size; ++i) {
       tmpTPfake.push_back(TrackingParticleRef(TPCollectionHfake, i));
     }
@@ -633,7 +635,9 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
   TrackingParticleRefVector const& tPCeff = *tmpTPeffPtr;
   TrackingParticleRefVector const& tPCfake = *tmpTPfakePtr;
 
+#ifdef EDM_ML_DEBUG
   ensureEffIsSubsetOfFake(tPCeff, tPCfake);
+#endif
 
   if (parametersDefinerIsCosmic_) {
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
@@ -798,6 +802,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
 
         // The associator interfaces really need to be fixed...
         edm::RefToBaseVector<reco::Track> trackRefs;
+        // trackRefs.vectorHolder()->reserve(trackCollection.size());  NOT a good idea
         for (edm::View<Track>::size_type i = 0; i < trackCollection.size(); ++i) {
           trackRefs.push_back(trackCollection.refAt(i));
         }

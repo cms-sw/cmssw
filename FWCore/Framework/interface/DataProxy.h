@@ -21,14 +21,18 @@
 
 // system include files
 #include <atomic>
+#include <memory>
 
 // user include files
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 // forward declarations
 namespace edm {
   class ActivityRegistry;
   class EventSetupImpl;
+  class ServiceToken;
+  class ESParentContext;
 
   namespace eventsetup {
     struct ComponentDescription;
@@ -45,16 +49,20 @@ namespace edm {
       // ---------- const member functions ---------------------
       bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
 
-      void doGet(EventSetupRecordImpl const&,
-                 DataKey const&,
-                 bool iTransiently,
-                 ActivityRegistry const*,
-                 EventSetupImpl const*) const;
+      void prefetchAsync(WaitingTaskHolder,
+                         EventSetupRecordImpl const&,
+                         DataKey const&,
+                         EventSetupImpl const*,
+                         ServiceToken const&,
+                         ESParentContext const&) const;
+
       void const* get(EventSetupRecordImpl const&,
                       DataKey const&,
                       bool iTransiently,
                       ActivityRegistry const*,
-                      EventSetupImpl const*) const;
+                      EventSetupImpl const*,
+                      ESParentContext const&) const;
+      void const* getAfterPrefetch(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently) const;
 
       ///returns the description of the DataProxyProvider which owns this Proxy
       ComponentDescription const* providerDescription() const { return description_; }
@@ -78,7 +86,12 @@ namespace edm {
           the pointer must be a pointer to that base class interface and not a pointer to an inheriting class
           instance.
           */
-      virtual void const* getImpl(EventSetupRecordImpl const&, DataKey const& iKey, EventSetupImpl const*) = 0;
+      virtual void prefetchAsyncImpl(WaitingTaskHolder,
+                                     EventSetupRecordImpl const&,
+                                     DataKey const& iKey,
+                                     EventSetupImpl const*,
+                                     ServiceToken const&,
+                                     ESParentContext const&) = 0;
 
       /** indicates that the Proxy should invalidate any cached information
           as that information has 'expired' (i.e. we have moved to a new IOV)
@@ -91,6 +104,10 @@ namespace edm {
           invalidateCache().
           */
       virtual void invalidateTransientCache();
+
+      /** used to retrieve the data from the implementation. The data is then cached locally.
+       */
+      virtual void const* getAfterPrefetchImpl() const = 0;
 
       void clearCacheIsValid();
 

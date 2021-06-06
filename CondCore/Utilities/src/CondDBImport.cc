@@ -54,6 +54,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(Alignments)
         IMPORT_PAYLOAD_CASE(AlignPCLThresholds)
         IMPORT_PAYLOAD_CASE(BeamSpotObjects)
+        IMPORT_PAYLOAD_CASE(BeamSpotOnlineObjects)
         IMPORT_PAYLOAD_CASE(CSCBadChambers)
         IMPORT_PAYLOAD_CASE(CSCBadStrips)
         IMPORT_PAYLOAD_CASE(CSCBadWires)
@@ -264,7 +265,6 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(PCaloGeometry)
         IMPORT_PAYLOAD_CASE(HcalParameters)
         IMPORT_PAYLOAD_CASE(PGeometricDet)
-        IMPORT_PAYLOAD_CASE(PGeometricDetExtra)
         IMPORT_PAYLOAD_CASE(PTrackerParameters)
         IMPORT_PAYLOAD_CASE(PHGCalParameters)
         //IMPORT_PAYLOAD_CASE( PerformancePayload )
@@ -297,6 +297,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(RPFlatParams)
         IMPORT_PAYLOAD_CASE(RecoIdealGeometry)
         IMPORT_PAYLOAD_CASE(RunInfo)
+        IMPORT_PAYLOAD_CASE(SiPhase2OuterTrackerLorentzAngle)
         IMPORT_PAYLOAD_CASE(SiPixelCalibConfiguration)
         IMPORT_PAYLOAD_CASE(SiPixelCPEGenericErrorParm)
         IMPORT_PAYLOAD_CASE(SiPixelFedCablingMap)
@@ -310,6 +311,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(SiPixelQualityProbabilities)
         IMPORT_PAYLOAD_CASE(SiPixelTemplateDBObject)
         IMPORT_PAYLOAD_CASE(SiPixel2DTemplateDBObject)
+        IMPORT_PAYLOAD_CASE(SiPixelVCal)
         IMPORT_PAYLOAD_CASE(SiStripApvGain)
         IMPORT_PAYLOAD_CASE(SiStripApvSimulationParameters)
         IMPORT_PAYLOAD_CASE(SiStripBadStrip)
@@ -335,6 +337,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(EcalCondObjectContainer<EcalXtalGroupId>)
         IMPORT_PAYLOAD_CASE(EcalCondObjectContainer<float>)
         IMPORT_PAYLOAD_CASE(L1TGlobalPrescalesVetos)
+        IMPORT_PAYLOAD_CASE(L1TGlobalPrescalesVetosFract)
         if (inputTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>") {
           match = true;
           const PhysicsTools::Calibration::Histogram3D<double, double, double, double>& obj =

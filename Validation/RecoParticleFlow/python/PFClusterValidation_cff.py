@@ -1,4 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-from Validation.RecoParticleFlow.PFCluster_cfi import pfclusterAnalyzer
+from Validation.RecoParticleFlow.pfClusterValidation_cfi import pfClusterValidation
  
-pfClusterValidationSequence = cms.Sequence( pfclusterAnalyzer )
+pfClusterValidationSequence = cms.Sequence( pfClusterValidation )
+
+pfClusterCaloOnlyValidation = pfClusterValidation.clone(
+    pflowClusterHCAL = 'particleFlowClusterHCALOnly',
+)
+
+pfClusterCaloOnlyValidationSequence = cms.Sequence( pfClusterCaloOnlyValidation )

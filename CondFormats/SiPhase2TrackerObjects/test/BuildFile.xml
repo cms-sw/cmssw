@@ -1,0 +1,3 @@
+<bin file="testSerializationSiPhase2TrackerObjects.cpp">
+  <use   name="CondFormats/SiPhase2TrackerObjects"/>
+</bin>

@@ -1,0 +1,97 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------------------------
+
+# set defaults
+test_only="y"
+use_lxbatch="n"
+queue="1nd"
+
+#----------------------------------------------------------------------------------------------------
+
+function PrintUsage()
+{
+	echo "USAGE: submit <options> [config]"
+	echo "OPTIONS:"
+	echo "    -test             prepare jobs but do not execute"
+	echo "    -run              prepare jobs and execute"
+	echo "    -local            execute jobs locally"
+	echo "    -batch, -lxbatch  submit jobs to LXBATCH"
+	echo "    -submit           abbreviation of -run and -batch"
+	echo "    -queue <q>        use LXBATCH queue <q>, implies -batch option"
+}
+
+#----------------------------------------------------------------------------------------------------
+
+# load code
+source "tb_code"
+
+#----------------------------------------------------------------------------------------------------
+# parse command line
+
+while [ -n "$1" ]
+do
+	case "$1" in
+		"-h" | "--help")
+			PrintUsage
+			exit 0
+			;;
+
+		"-test")
+			test_only="y"
+			;;
+
+		"-run")
+			test_only="n"
+			;;
+
+		"-local")
+			use_lxbatch="n"
+			;;
+
+		"-batch" | "-lxbatch")
+			use_lxbatch="y"
+			;;
+
+		"-queue")
+			shift
+			queue="$1"
+			use_lxbatch="y"
+			;;
+
+		"-submit")
+			test_only="n"
+			use_lxbatch="y"
+			;;
+
+		-*)
+			echo "ERROR: unknown option '$1'."
+			PrintUsage
+			exit 1
+			;;
+
+		*)
+			if [ -n "$input_config" ]
+			then
+				echo "ERROR: only one config can be used at at time."
+				exit 1
+			fi
+			input_config="$1"
+			;;
+
+	esac
+
+	shift
+done
+
+#----------------------------------------------------------------------------------------------------
+# source config
+
+if [ ! -f "$input_config" ]
+then
+	echo "ERROR: can't read config file '$input_config'."
+	PrintUsage
+	exit 1
+fi
+
+source "$input_config"

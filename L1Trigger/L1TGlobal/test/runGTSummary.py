@@ -15,7 +15,7 @@ process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 
 ##process.load('L1Trigger/L1TGlobal/debug_messages_cfi')
 ## process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
-#process.MessageLogger.categories.append('l1t|Global')
+#
 #process.MessageLogger.debugModules = cms.untracked.vstring('*')
 #process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 

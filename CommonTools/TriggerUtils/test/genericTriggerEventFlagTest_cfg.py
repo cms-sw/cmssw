@@ -4,7 +4,7 @@ process = cms.Process( "TEST" )
 
 ## Logging
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append( 'GenericTriggerEventFlag' )
+
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.cerr.GenericTriggerEventFlag = cms.untracked.PSet( limit = cms.untracked.int32( -1 ) )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool( True ) )

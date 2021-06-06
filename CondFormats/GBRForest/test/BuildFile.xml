@@ -1,0 +1,3 @@
+<bin file="testSerializationGBRForest.cpp">
+  <use name="CondFormats/GBRForest"/>
+</bin>

@@ -1,6 +1,4 @@
 <lcgdict>
-  <class name="edm::Wrapper<TsosVectorCollection>" persistent="false"/>
-  <class name="TsosVectorCollection"/>
 <!-- <class name="LASCommissioningData"/> -->
 <!-- <class name="LASGlobalLoop"/> -->
   <class name="LASGlobalData<int>"/>

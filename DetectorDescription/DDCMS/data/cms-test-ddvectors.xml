@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug>
-    <debug_shapes/>
-    <!--debug_includes/>
+    <!--debug_shapes/>
+    <debug_includes/>
     <debug_rotations/>
-    <debug_includes/-->
+    <debug_includes/>
     <debug_volumes/>
     <debug_constants/>
     <debug_materials/>
     <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
-    <!--debug_visattr/-->
-    <debug_specpars/>
+    <debug_visattr/>
+    <debug_specpars/-->
   </debug>
   
   <open_geometry/>

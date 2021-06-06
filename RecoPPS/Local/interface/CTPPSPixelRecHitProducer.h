@@ -18,6 +18,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
@@ -25,6 +26,9 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "RecoPPS/Local/interface/RPixClusterToHit.h"
+
+#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
+#include "CondFormats/DataRecord/interface/PPSPixelTopologyRcd.h"
 
 class CTPPSPixelRecHitProducer : public edm::stream::EDProducer<> {
 public:
@@ -42,10 +46,13 @@ private:
 
   edm::InputTag src_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelCluster>> tokenCTPPSPixelCluster_;
+  edm::ESGetToken<PPSPixelTopology, PPSPixelTopologyRcd> pixelTopologyToken_;
 
   RPixClusterToHit cluster2hit_;
 
-  void run(const edm::DetSetVector<CTPPSPixelCluster> &input, edm::DetSetVector<CTPPSPixelRecHit> &output);
+  void run(const edm::DetSetVector<CTPPSPixelCluster> &input,
+           edm::DetSetVector<CTPPSPixelRecHit> &output,
+           const PPSPixelTopology &ppt);
 };
 
 #endif

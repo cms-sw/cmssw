@@ -66,6 +66,7 @@ from Validation.MuonGEMHits.PostProcessor_cff import *
 from Validation.MuonGEMDigis.PostProcessor_cff import *
 from Validation.MuonGEMRecHits.PostProcessor_cff import *
 from Validation.MuonME0Validation.PostProcessor_cff import *
+from Validation.MuonCSCDigis.PostProcessor_cff import *
 from Validation.HGCalValidation.HGCalPostProcessor_cff import *
 from Validation.MtdValidation.MtdPostProcessor_cff import *
 
@@ -83,12 +84,15 @@ postValidation_muons = cms.Sequence(
     + MuonGEMRecHitsPostProcessors
     + MuonME0DigisPostProcessors
     + MuonME0SegPostProcessors
+    + MuonCSCDigisPostProcessors
     + rpcRecHitPostValidation_step
 )
 
 postValidation_JetMET = cms.Sequence(
     METPostProcessor
 )
+
+postValidation_ECAL = cms.Sequence()
 
 postValidation_HCAL = cms.Sequence(
       hcalSimHitsPostProcessor
@@ -113,8 +117,13 @@ postValidationOuterTracker = cms.Sequence( OuterTracker_harvestingV )
 
 _phase1_postValidation = postValidation.copy()
 _phase1_postValidation += siPixelPhase1OfflineDQM_harvestingV
+
+_phase1_postValidation_trackingOnly = postValidation_trackingOnly.copy()
+_phase1_postValidation_trackingOnly += siPixelPhase1OfflineDQM_harvestingV
+
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toReplaceWith( postValidation, _phase1_postValidation )
+phase1Pixel.toReplaceWith( postValidation_trackingOnly, _phase1_postValidation_trackingOnly)
 
 _run3_postValidation = postValidation.copy()
 _run3_postValidation += MuonGEMHitsPostProcessors
@@ -127,9 +136,16 @@ _phase2_postValidation += MuonME0DigisPostProcessors
 _phase2_postValidation += MuonME0SegPostProcessors
 _phase2_postValidation += trackerphase2ValidationHarvesting
 
+_phase2_ge0_postValidation = _run3_postValidation.copy()
+_phase2_ge0_postValidation += hgcalPostProcessor
+_phase2_ge0_postValidation += trackerphase2ValidationHarvesting
+
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+(phase2_GE0 & phase2_hgcal).toReplaceWith( postValidation, _phase2_ge0_postValidation )
+phase2_GE0.toReplaceWith( postValidation_muons, postValidation_muons.copyAndExclude([MuonME0DigisPostProcessors, MuonME0SegPostProcessors]) )

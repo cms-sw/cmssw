@@ -17,7 +17,9 @@ DTSegAnalyzer = cms.EDAnalyzer("DTSegAnalyzer",
         wirePropCorrType = cms.int32(0),
         doWirePropCorrection = cms.bool(False),
         doT0Correction = cms.bool(True),
-        debug = cms.untracked.bool(False)
+        debug = cms.untracked.bool(False),
+        tTrigLabel = cms.string(''),
+        t0Label = cms.string('')
     ),
     recHits1DLabel = cms.string('dt1DRecHits')
 )

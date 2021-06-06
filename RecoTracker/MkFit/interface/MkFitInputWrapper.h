@@ -17,10 +17,10 @@ namespace mkfit {
 class MkFitInputWrapper {
 public:
   MkFitInputWrapper();
-  MkFitInputWrapper(MkFitHitIndexMap&& hitIndexMap,
-                    std::vector<mkfit::HitVec>&& hits,
-                    mkfit::TrackVec&& seeds,
-                    mkfit::LayerNumberConverter&& lnc);
+  MkFitInputWrapper(MkFitHitIndexMap hitIndexMap,
+                    std::vector<mkfit::HitVec> hits,
+                    mkfit::TrackVec seeds,
+                    mkfit::LayerNumberConverter const& lnc);
   ~MkFitInputWrapper();
 
   MkFitInputWrapper(MkFitInputWrapper const&) = delete;

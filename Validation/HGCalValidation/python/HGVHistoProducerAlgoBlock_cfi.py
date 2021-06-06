@@ -18,9 +18,14 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     nintPt = cms.int32(100),
 
     #parameters for phi
-    minPhi  = cms.double(-4.),
-    maxPhi  = cms.double(4.),
-    nintPhi = cms.int32(100),
+    minPhi  = cms.double(-3.2),
+    maxPhi  = cms.double(3.2),
+    nintPhi = cms.int32(80),
+
+    #parameters for counting mixed hits clusters
+    minMixedHitsSimCluster = cms.double(0.),
+    maxMixedHitsSimCluster = cms.double(800.),
+    nintMixedHitsSimCluster = cms.int32(100),
 
     #parameters for counting mixed hits clusters
     minMixedHitsCluster = cms.double(0.),
@@ -42,6 +47,11 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     maxZpos = cms.double(550.),
     nintZpos = cms.int32(1100),
 
+    #Parameters for the total number of simclusters per layer
+    minTotNsimClsperlay = cms.double(0.),
+    maxTotNsimClsperlay = cms.double(50.),
+    nintTotNsimClsperlay = cms.int32(50),
+
     #Parameters for the total number of layer clusters per layer
     minTotNClsperlay = cms.double(0.),
     maxTotNClsperlay = cms.double(50.),
@@ -56,8 +66,8 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     #1. calo particle to layer clusters association per layer
     #2. layer cluster to calo particles association per layer
     minScore = cms.double(0.),
-    maxScore = cms.double(4.01),
-    nintScore = cms.int32(200),
+    maxScore = cms.double(1.02),
+    nintScore = cms.int32(51),
 
     #Parameters for shared energy fraction. That is:
     #1. Fraction of each of the layer clusters energy related to a
@@ -68,10 +78,15 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     maxSharedEneFrac = cms.double(1.),
     nintSharedEneFrac = cms.int32(100),
 
-    #Same as above for multiclusters
-    minMCLSharedEneFrac = cms.double(0.),
-    maxMCLSharedEneFrac = cms.double(1.0),
-    nintMCLSharedEneFrac = cms.int32(100),
+    #Same as above for tracksters
+    minTSTSharedEneFrac = cms.double(0.),
+    maxTSTSharedEneFrac = cms.double(1.0),
+    nintTSTSharedEneFrac = cms.int32(100),
+
+    #Parameters for the total number of simclusters per thickness
+    minTotNsimClsperthick = cms.double(0.),
+    maxTotNsimClsperthick = cms.double(800.),
+    nintTotNsimClsperthick = cms.int32(100),
 
     #Parameters for the total number of layer clusters per thickness
     minTotNClsperthick = cms.double(0.),
@@ -118,31 +133,31 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     maxCellsEneDensperthick = cms.double(100.),
     nintCellsEneDensperthick = cms.int32(200),
 
-    #Parameters for the total number of multiclusters per event
+    #Parameters for the total number of tracksters per event
     #We always treet one event as two events, one in +z one in -z
-    minTotNMCLs = cms.double(0.),
-    maxTotNMCLs = cms.double(50.),
-    nintTotNMCLs = cms.int32(50),
+    minTotNTSTs = cms.double(0.),
+    maxTotNTSTs = cms.double(50.),
+    nintTotNTSTs = cms.int32(50),
 
-    #Parameters for the total number of layer clusters in multicluster
-    minTotNClsinMCLs = cms.double(0.),
-    maxTotNClsinMCLs = cms.double(400.),
-    nintTotNClsinMCLs = cms.int32(100),
+    #Parameters for the total number of layer clusters in trackster
+    minTotNClsinTSTs = cms.double(0.),
+    maxTotNClsinTSTs = cms.double(400.),
+    nintTotNClsinTSTs = cms.int32(100),
 
-    #Parameters for the total number of layer clusters in multicluster per layer
-    minTotNClsinMCLsperlayer = cms.double(0.),
-    maxTotNClsinMCLsperlayer = cms.double(50.),
-    nintTotNClsinMCLsperlayer = cms.int32(50),
+    #Parameters for the total number of layer clusters in trackster per layer
+    minTotNClsinTSTsperlayer = cms.double(0.),
+    maxTotNClsinTSTsperlayer = cms.double(50.),
+    nintTotNClsinTSTsperlayer = cms.int32(50),
 
-    #Parameters for the multiplicity of layer clusters in multicluster
+    #Parameters for the multiplicity of layer clusters in trackster
     minMplofLCs = cms.double(0.),
     maxMplofLCs = cms.double(20.),
     nintMplofLCs = cms.int32(20),
 
     #Parameters for cluster size
-    minSizeCLsinMCLs = cms.double(0.),
-    maxSizeCLsinMCLs = cms.double(50.),
-    nintSizeCLsinMCLs = cms.int32(50),
+    minSizeCLsinTSTs = cms.double(0.),
+    maxSizeCLsinTSTs = cms.double(50.),
+    nintSizeCLsinTSTs = cms.int32(50),
 
     #Parameters for the energy of a cluster per multiplicity
     minClEnepermultiplicity  = cms.double(0.),
@@ -165,4 +180,3 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     nintZ = cms.int32(1100)
 
 )
-

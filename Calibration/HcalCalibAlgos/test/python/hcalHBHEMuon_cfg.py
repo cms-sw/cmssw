@@ -14,7 +14,7 @@ process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("Calibration.HcalCalibAlgos.hcalHBHEMuon_cfi")
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HBHEMuon')
+    process.MessageLogger.HBHEMuon=dict()
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",

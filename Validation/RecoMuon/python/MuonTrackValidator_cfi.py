@@ -10,8 +10,8 @@ muonTrackValidator = DQMEDAnalyzer("MuonTrackValidator",
     # define the TrackingParticleSelector for evaluation of efficiency
     muonTPSelector = cms.PSet(muonTPSet),
     # input TrackingParticle collections
-    label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
-    label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),
+    label_tp = cms.InputTag("mix","MergedTrackTruth"),
+    label_tp_refvector = cms.bool(False),
     label_pileupinfo = cms.InputTag("addPileupInfo"),
     #
     # input reco::Track collection
@@ -54,9 +54,10 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( muonTrackValidator, useGEMs = cms.bool(True) )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( muonTrackValidator, useME0 = cms.bool(True) )
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify( muonTrackValidator, useME0 = cms.bool(False) )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(muonTrackValidator,
-    label_tp_effic = "mixData:MergedTrackTruth",
-    label_tp_fake = "mixData:MergedTrackTruth",
+    label_tp = "mixData:MergedTrackTruth"
 )

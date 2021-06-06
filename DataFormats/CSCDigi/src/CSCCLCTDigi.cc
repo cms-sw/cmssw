@@ -14,17 +14,22 @@
 enum Pattern_Info { NUM_LAYERS = 6, CLCT_PATTERN_WIDTH = 11 };
 
 /// Constructors
-CSCCLCTDigi::CSCCLCTDigi(const int valid,
-                         const int quality,
-                         const int pattern,
-                         const int striptype,
-                         const int bend,
-                         const int strip,
-                         const int cfeb,
-                         const int bx,
-                         const int trknmb,
-                         const int fullbx,
-                         const int compCode)
+CSCCLCTDigi::CSCCLCTDigi(const uint16_t valid,
+                         const uint16_t quality,
+                         const uint16_t pattern,
+                         const uint16_t striptype,
+                         const uint16_t bend,
+                         const uint16_t strip,
+                         const uint16_t cfeb,
+                         const uint16_t bx,
+                         const uint16_t trknmb,
+                         const uint16_t fullbx,
+                         const int16_t compCode,
+                         const Version version,
+                         const bool run3_quart_strip_bit,
+                         const bool run3_eighth_strip_bit,
+                         const uint16_t run3_pattern,
+                         const uint16_t run3_slope)
     : valid_(valid),
       quality_(quality),
       pattern_(pattern),
@@ -35,7 +40,12 @@ CSCCLCTDigi::CSCCLCTDigi(const int valid,
       bx_(bx),
       trknmb_(trknmb),
       fullbx_(fullbx),
-      compCode_(compCode) {
+      compCode_(compCode),
+      run3_quart_strip_bit_(run3_quart_strip_bit),
+      run3_eighth_strip_bit_(run3_eighth_strip_bit),
+      run3_pattern_(run3_pattern),
+      run3_slope_(run3_slope),
+      version_(version) {
   hits_.resize(NUM_LAYERS);
   for (auto& p : hits_) {
     p.resize(CLCT_PATTERN_WIDTH);
@@ -43,22 +53,8 @@ CSCCLCTDigi::CSCCLCTDigi(const int valid,
 }
 
 /// Default
-CSCCLCTDigi::CSCCLCTDigi()
-    : valid_(0),
-      quality_(0),
-      pattern_(0),
-      striptype_(0),
-      bend_(0),
-      strip_(0),
-      cfeb_(0),
-      bx_(0),
-      trknmb_(0),
-      fullbx_(0),
-      compCode_(-1) {
-  hits_.resize(NUM_LAYERS);
-  for (auto& p : hits_) {
-    p.resize(CLCT_PATTERN_WIDTH);
-  }
+CSCCLCTDigi::CSCCLCTDigi() {
+  clear();  // set contents to zero
 }
 
 /// Clears this CLCT.
@@ -73,7 +69,13 @@ void CSCCLCTDigi::clear() {
   bx_ = 0;
   trknmb_ = 0;
   fullbx_ = 0;
+  // Run-3 variables
   compCode_ = -1;
+  run3_quart_strip_bit_ = false;
+  run3_eighth_strip_bit_ = false;
+  run3_pattern_ = 0;
+  run3_slope_ = 0;
+  version_ = Version::Legacy;
   hits_.clear();
   hits_.resize(NUM_LAYERS);
   for (auto& p : hits_) {
@@ -81,14 +83,27 @@ void CSCCLCTDigi::clear() {
   }
 }
 
-int CSCCLCTDigi::getKeyStrip(int n) const {
+// slope in number of half-strips/layer
+float CSCCLCTDigi::getFractionalSlope() const {
+  if (isRun3()) {
+    // 4-bit slope
+    float slope[17] = {
+        0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 2.0, 2.5};
+    return (2 * getBend() - 1) * slope[getSlope()];
+  } else {
+    int slope[11] = {0, 0, -8, 8, -6, 6, -4, 4, -2, 2, 0};
+    return float(slope[getPattern()] / 5.);
+  }
+}
+
+uint16_t CSCCLCTDigi::getKeyStrip(const uint16_t n) const {
   // 10-bit case for strip data word
   if (compCode_ != -1 and n == 8) {
-    return getKeyStrip(4) * 2 + getEightStrip();
+    return getKeyStrip(4) * 2 + getEighthStripBit();
   }
   // 9-bit case for strip data word
   else if (compCode_ != -1 and n == 4) {
-    return getKeyStrip(2) * 2 + getQuartStrip();
+    return getKeyStrip(2) * 2 + getQuartStripBit();
   }
   // 8-bit case for strip data word (all other cases)
   else {
@@ -96,27 +111,18 @@ int CSCCLCTDigi::getKeyStrip(int n) const {
   }
 }
 
-int CSCCLCTDigi::getStrip() const { return strip_ & kHalfStripMask; }
-
-bool CSCCLCTDigi::getQuartStrip() const { return (strip_ >> kQuartStripShift) & kQuartStripMask; }
-
-bool CSCCLCTDigi::getEightStrip() const { return (strip_ >> kEightStripShift) & kEightStripMask; }
-
-void CSCCLCTDigi::setQuartStrip(const bool quartStrip) {
-  // clear the old value
-  strip_ &= ~(kQuartStripMask << kQuartStripShift);
-
-  // set the new value
-  strip_ |= quartStrip << kQuartStripShift;
+/// return the fractional strip (middle of the strip)
+float CSCCLCTDigi::getFractionalStrip(const uint16_t n) const {
+  if (compCode_ != -1 and n == 8) {
+    return 0.125f * (getKeyStrip(n) + 0.5);
+  } else if (compCode_ != -1 and n == 4) {
+    return 0.25f * (getKeyStrip(n) + 0.5);
+  } else {
+    return 0.5f * (getKeyStrip(n) + 0.5);
+  }
 }
 
-void CSCCLCTDigi::setEightStrip(const bool eightStrip) {
-  // clear the old value
-  strip_ &= ~(kEightStripMask << kEightStripShift);
-
-  // set the new value
-  strip_ |= eightStrip << kEightStripShift;
-}
+void CSCCLCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Version::Run3 : Version::Legacy; }
 
 bool CSCCLCTDigi::operator>(const CSCCLCTDigi& rhs) const {
   // Several versions of CLCT sorting criteria were used before 2008.
@@ -124,24 +130,40 @@ bool CSCCLCTDigi::operator>(const CSCCLCTDigi& rhs) const {
   // the latest one, used in TMB-07 firmware (w/o distrips).
   bool returnValue = false;
 
-  int quality1 = getQuality();
-  int quality2 = rhs.getQuality();
-  // The bend-direction bit pid[0] is ignored (left and right bends have
-  // equal quality).
-  int pattern1 = getPattern() & 14;
-  int pattern2 = rhs.getPattern() & 14;
+  uint16_t quality1 = getQuality();
+  uint16_t quality2 = rhs.getQuality();
 
-  // Better-quality CLCTs are preferred.
-  // If two qualities are equal, larger pattern id (i.e., straighter pattern)
-  // is preferred; left- and right-bend patterns are considered to be of
-  // the same quality.
-  // If both qualities and pattern id's are the same, lower keystrip
-  // is preferred.
-  if ((quality1 > quality2) || (quality1 == quality2 && pattern1 > pattern2) ||
-      (quality1 == quality2 && pattern1 == pattern2 && getKeyStrip() < rhs.getKeyStrip())) {
-    returnValue = true;
+  // Run-3 case
+  if (version_ == Version::Run3) {
+    // Better-quality CLCTs are preferred.
+    // If two qualities are equal, smaller bending is preferred;
+    // left- and right-bend patterns are considered to be of
+    // the same quality. This corresponds to "pattern" being smaller!!!
+    // If both qualities and pattern id's are the same, lower keystrip
+    // is preferred.
+    if ((quality1 > quality2) || (quality1 == quality2 && getPattern() < rhs.getPattern()) ||
+        (quality1 == quality2 && getPattern() == rhs.getPattern() && getKeyStrip() < rhs.getKeyStrip())) {
+      returnValue = true;
+    }
   }
+  // Legacy case:
+  else {
+    // The bend-direction bit pid[0] is ignored (left and right bends have
+    // equal quality).
+    uint16_t pattern1 = getPattern() & 14;
+    uint16_t pattern2 = rhs.getPattern() & 14;
 
+    // Better-quality CLCTs are preferred.
+    // If two qualities are equal, larger pattern id (i.e., straighter pattern)
+    // is preferred; left- and right-bend patterns are considered to be of
+    // the same quality.
+    // If both qualities and pattern id's are the same, lower keystrip
+    // is preferred.
+    if ((quality1 > quality2) || (quality1 == quality2 && pattern1 > pattern2) ||
+        (quality1 == quality2 && pattern1 == pattern2 && getKeyStrip() < rhs.getKeyStrip())) {
+      returnValue = true;
+    }
+  }
   return returnValue;
 }
 
@@ -149,7 +171,7 @@ bool CSCCLCTDigi::operator==(const CSCCLCTDigi& rhs) const {
   // Exact equality.
   bool returnValue = false;
   if (isValid() == rhs.isValid() && getQuality() == rhs.getQuality() && getPattern() == rhs.getPattern() &&
-      getKeyStrip() == rhs.getKeyStrip() && getStripType() == rhs.getStripType() && getBend() == getBend() &&
+      getKeyStrip() == rhs.getKeyStrip() && getStripType() == rhs.getStripType() && getBend() == rhs.getBend() &&
       getBX() == rhs.getBX() && getCompCode() == rhs.getCompCode()) {
     returnValue = true;
   }

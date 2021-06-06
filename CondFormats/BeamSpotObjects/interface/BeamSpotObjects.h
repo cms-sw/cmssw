@@ -109,7 +109,7 @@ public:
   /// print beam spot parameters
   void print(std::stringstream& ss) const;
 
-private:
+protected:
   double position_[3];
   double sigmaZ_;
   double beamwidthX_;

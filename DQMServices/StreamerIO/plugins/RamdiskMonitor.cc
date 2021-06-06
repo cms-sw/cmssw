@@ -1,25 +1,22 @@
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include <filesystem>
+#include <map>
+#include <vector>
+#include <sys/stat.h>
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <fmt/printf.h>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/range.hpp>
+#include <boost/regex.hpp>
 
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-
 #include "DQMServices/StreamerIO/plugins/DQMFileIterator.h"
-
-#include <vector>
-#include <map>
-#include <sys/stat.h>
-
-#include <boost/regex.hpp>
-#include <boost/format.hpp>
-#include <boost/range.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace dqm {
   namespace rdm {
@@ -65,14 +62,14 @@ namespace dqm {
       : runNumber_{ps.getUntrackedParameter<unsigned int>("runNumber")},
         runInputDir_{ps.getUntrackedParameter<std::string>("runInputDir")},
         streamLabels_{ps.getUntrackedParameter<std::vector<std::string>>("streamLabels")},
-        runPath_{str(boost::format("%s/run%06d") % runInputDir_ % runNumber_)}
+        runPath_{fmt::sprintf("%s/run%06d", runInputDir_, runNumber_)}
 
   {}
 
   RamdiskMonitor::~RamdiskMonitor(){};
 
   void RamdiskMonitor::bookHistograms(DQMStore::IBooker &ib, edm::Run const &, edm::EventSetup const &) {
-    for (auto stream : streamLabels_) {
+    for (const auto &stream : streamLabels_) {
       edm::LogInfo("RamdiskMonitor") << "Booking: " << stream;
 
       ib.cd();
@@ -110,7 +107,7 @@ namespace dqm {
     if (global_start_ != 0)
       return global_start_;
 
-    std::string run_global = str(boost::format("%s/.run%06d.global") % runInputDir_ % runNumber_);
+    std::string run_global = fmt::sprintf("%s/.run%06d.global", runInputDir_, runNumber_);
     struct stat st;
     if (::stat(run_global.c_str(), &st) != 0) {
       edm::LogWarning("RamdiskMonitor") << "Stat failed: " << run_global;
@@ -176,8 +173,8 @@ namespace dqm {
   std::shared_ptr<dqm::rdm::Empty> RamdiskMonitor::globalBeginLuminosityBlock(edm::LuminosityBlock const &,
                                                                               edm::EventSetup const &eSetup) const {
     // search filesystem to find available lumi section files
-    using boost::filesystem::directory_entry;
-    using boost::filesystem::directory_iterator;
+    using std::filesystem::directory_entry;
+    using std::filesystem::directory_iterator;
 
     directory_iterator dend;
     for (directory_iterator di(runPath_); di != dend; ++di) {

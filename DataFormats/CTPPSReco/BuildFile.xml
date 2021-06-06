@@ -2,10 +2,11 @@
 <use name="DataFormats/CTPPSDigi"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/Math"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="DataFormats/GeometryVector"/>
 <use name="rootsmatrix"/>
 <use name="rootmath"/>
 <use name="rootphysics"/>
-
 <export>
   <lib name="1"/>
 </export>

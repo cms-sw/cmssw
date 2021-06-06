@@ -72,6 +72,13 @@ def OptionsFromItems(items):
 
     #now adjust the given parameters before passing it to the ConfigBuilder
 
+    # concurrency options
+    nStreams = options.nStreams if options.nStreams != '0' else options.nThreads
+    if options.nConcurrentLumis == '0':
+        options.nConcurrentLumis = '1' if nStreams == '1' else '2'
+    if options.nConcurrentIOVs == '0':
+        options.nConcurrentIOVs = options.nConcurrentLumis
+
     #trail a "/" to dirin and dirout
     if options.dirin!='' and (not options.dirin.endswith('/')):    options.dirin+='/'
     if options.dirout!='' and (not options.dirout.endswith('/')):  options.dirout+='/'

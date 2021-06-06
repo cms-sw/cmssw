@@ -28,6 +28,8 @@ DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig) {
   tok_HF_ = consumes<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>>(hfRecHitName_);
   tok_HO_ = consumes<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>>(hoRecHitName_);
   tok_Vertex_ = consumes<reco::VertexCollection>(pvCollName_);
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
 
 DiJetAnalyzer::~DiJetAnalyzer() {}
@@ -77,12 +79,11 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   }
 
   // Get geometry
-  edm::ESHandle<CaloGeometry> geoHandle;
-  evSetup.get<CaloGeometryRecord>().get(geoHandle);
-  const HcalGeometry* HBGeom = static_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 1));
-  const HcalGeometry* HEGeom = static_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 2));
-  const CaloSubdetectorGeometry* HOGeom = geoHandle->getSubdetectorGeometry(DetId::Hcal, 3);
-  const CaloSubdetectorGeometry* HFGeom = geoHandle->getSubdetectorGeometry(DetId::Hcal, 4);
+  const CaloGeometry* geo = &evSetup.getData(tok_geom_);
+  const HcalGeometry* HBGeom = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, 1));
+  const HcalGeometry* HEGeom = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, 2));
+  const CaloSubdetectorGeometry* HOGeom = geo->getSubdetectorGeometry(DetId::Hcal, 3);
+  const CaloSubdetectorGeometry* HFGeom = geo->getSubdetectorGeometry(DetId::Hcal, 4);
 
   int HBHE_n = 0;
   for (edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>::const_iterator ith = hbhereco->begin();

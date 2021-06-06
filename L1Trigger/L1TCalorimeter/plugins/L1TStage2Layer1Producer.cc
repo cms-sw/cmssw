@@ -30,6 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer1FirmwareFactory.h"
@@ -86,6 +87,10 @@ private:
   std::vector<edm::EDGetToken> ecalToken_;  // this is a crazy way to store multi-BX info
   std::vector<edm::EDGetToken> hcalToken_;  // should be replaced with a BXVector< > or similar
 
+  edm::ESGetToken<L1CaloEcalScale, L1CaloEcalScaleRcd> ecalScaleToken_;
+  edm::ESGetToken<L1CaloHcalScale, L1CaloHcalScaleRcd> hcalScaleToken_;
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderToken_;
+  edm::ESGetToken<CaloParams, L1TCaloParamsRcd> paramsToken_;
   // parameters
   unsigned long long paramsCacheId_;
   unsigned fwv_;
@@ -113,7 +118,13 @@ L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps)
     ecalToken_[ibx] = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalToken"));
     hcalToken_[ibx] = consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalToken"));
   }
-
+  if (rctConditions_) {
+    ecalScaleToken_ = esConsumes<L1CaloEcalScale, L1CaloEcalScaleRcd>();
+    hcalScaleToken_ = esConsumes<L1CaloHcalScale, L1CaloHcalScaleRcd>();
+  } else {
+    decoderToken_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();
+  }
+  paramsToken_ = esConsumes<CaloParams, L1TCaloParamsRcd, edm::Transition::BeginRun>();
   // placeholder for the parameters
   params_ = new CaloParamsHelper;
 
@@ -135,10 +146,10 @@ void L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup&
   edm::ESHandle<CaloTPGTranscoder> decoder;
 
   if (rctConditions_) {
-    iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
-    iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+    ecalScale = iSetup.getHandle(ecalScaleToken_);
+    hcalScale = iSetup.getHandle(hcalScaleToken_);
   } else {
-    iSetup.get<CaloTPGRecord>().get(decoder);
+    decoder = iSetup.getHandle(decoderToken_);
   }
 
   LogDebug("L1TDebug") << "First BX=" << bxFirst_ << ", last BX=" << bxLast_ << ", LSB(E)=" << params_->towerLsbE()
@@ -321,8 +332,7 @@ void L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup con
   if (id != paramsCacheId_) {
     paramsCacheId_ = id;
 
-    edm::ESHandle<CaloParams> paramsHandle;
-    iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
+    edm::ESHandle<CaloParams> paramsHandle = iSetup.getHandle(paramsToken_);
 
     // replace our local copy of the parameters with a new one using placement new
     params_->~CaloParamsHelper();

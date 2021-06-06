@@ -17,8 +17,8 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
@@ -117,7 +117,7 @@ int SiPixelDataQuality::getDetId(MonitorElement *mE) {
   int detId = 0;
 
   if (mEName.find("_3") != string::npos) {
-    string detIdString = mEName.substr((mEName.find_last_of("_")) + 1, 9);
+    string detIdString = mEName.substr((mEName.find_last_of('_')) + 1, 9);
     std::istringstream isst;
     isst.str(detIdString);
     isst >> detId;
@@ -305,7 +305,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(
     return;
 
   string currDir = iBooker.pwd();
-  string dname = currDir.substr(currDir.find_last_of("/") + 1);
+  string dname = currDir.substr(currDir.find_last_of('/') + 1);
 
   if ((!Tier0Flag && dname.find("Module_") != string::npos) ||
       (Tier0Flag && (dname.find("Ladder_") != string::npos || dname.find("Blade_") != string::npos))) {
@@ -790,7 +790,7 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore::IGetter &iGett
 void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
                                                DQMStore::IGetter &iGetter,
                                                bool init,
-                                               edm::ESHandle<SiPixelFedCablingMap> theCablingMap,
+                                               const SiPixelFedCablingMap *theCablingMap,
                                                int nFEDs,
                                                bool Tier0Flag,
                                                int lumisec) {
@@ -896,7 +896,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
     string currDir = iBooker.pwd();
     if (currDir.find("Reference") != string::npos || currDir.find("Additional") != string::npos)
       return;
-    string dname = currDir.substr(currDir.find_last_of("/") + 1);
+    string dname = currDir.substr(currDir.find_last_of('/') + 1);
     if (dname.find("Module_") != string::npos && currDir.find("Reference") == string::npos) {
       vector<string> meVec = iGetter.getMEs();
       int detId = -1;
@@ -916,7 +916,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
             modCounter_++;
             detId = getDetId(me);
             for (int fedid = 0; fedid != 40; ++fedid) {
-              SiPixelFrameConverter converter(theCablingMap.product(), fedid);
+              SiPixelFrameConverter converter(theCablingMap, fedid);
               uint32_t newDetId = detId;
               if (converter.hasDetUnit(newDetId)) {
                 fedId = fedid;

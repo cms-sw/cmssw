@@ -41,9 +41,10 @@
 #include <cmath>
 #include <map>
 #include <set>
+#include <mutex>
 
-#include <cub/util_debug.cuh>
-#include <cub/host/mutex.cuh>
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/deviceAllocatorStatus.h"
 
 /// CUB namespace
 namespace notcub {
@@ -122,6 +123,7 @@ namespace notcub {
     struct BlockDescriptor {
       void *d_ptr;                     // Device pointer
       size_t bytes;                    // Size of allocation in bytes
+      size_t bytesRequested;           // CMS: requested allocatoin size (for monitoring only)
       unsigned int bin;                // Bin enumeration
       int device;                      // device ordinal
       cudaStream_t associated_stream;  // Associated associated_stream
@@ -129,12 +131,19 @@ namespace notcub {
 
       // Constructor (suitable for searching maps for a specific block, given its pointer and device)
       BlockDescriptor(void *d_ptr, int device)
-          : d_ptr(d_ptr), bytes(0), bin(INVALID_BIN), device(device), associated_stream(nullptr), ready_event(nullptr) {}
+          : d_ptr(d_ptr),
+            bytes(0),
+            bytesRequested(0),  // CMS
+            bin(INVALID_BIN),
+            device(device),
+            associated_stream(nullptr),
+            ready_event(nullptr) {}
 
       // Constructor (suitable for searching maps for a range of suitable blocks, given a device)
       BlockDescriptor(int device)
           : d_ptr(nullptr),
             bytes(0),
+            bytesRequested(0),  // CMS
             bin(INVALID_BIN),
             device(device),
             associated_stream(nullptr),
@@ -160,12 +169,7 @@ namespace notcub {
     /// BlockDescriptor comparator function interface
     typedef bool (*Compare)(const BlockDescriptor &, const BlockDescriptor &);
 
-    class TotalBytes {
-    public:
-      size_t free;
-      size_t live;
-      TotalBytes() { free = live = 0; }
-    };
+    // CMS: Moved TotalBytes to deviceAllocatorStatus.h
 
     /// Set type for cached blocks (ordered by size)
     typedef std::multiset<BlockDescriptor, Compare> CachedBlocks;
@@ -174,7 +178,8 @@ namespace notcub {
     typedef std::multiset<BlockDescriptor, Compare> BusyBlocks;
 
     /// Map type of device ordinals to the number of cached bytes cached by each device
-    typedef std::map<int, TotalBytes> GpuCachedBytes;
+    // CMS: Moved definition to deviceAllocatorStatus.h
+    using GpuCachedBytes = cms::cuda::allocator::GpuCachedBytes;
 
     //---------------------------------------------------------------------
     // Utility functions
@@ -219,7 +224,8 @@ namespace notcub {
     // Fields
     //---------------------------------------------------------------------
 
-    cub::Mutex mutex;  /// Mutex for thread-safety
+    // CMS: use std::mutex instead of cub::Mutex, declare mutable
+    mutable std::mutex mutex;  /// Mutex for thread-safety
 
     unsigned int bin_growth;  /// Geometric growth factor for bin-sizes
     unsigned int min_bin;     /// Minimum bin enumeration
@@ -298,17 +304,19 @@ namespace notcub {
      */
     cudaError_t SetMaxCachedBytes(size_t max_cached_bytes) {
       // Lock
-      mutex.Lock();
+      // CMS: use RAII instead of (un)locking explicitly
+      std::unique_lock mutex_locker(mutex);
 
       if (debug)
-        _CubLog("Changing max_cached_bytes (%lld -> %lld)\n",
-                (long long)this->max_cached_bytes,
-                (long long)max_cached_bytes);
+        // CMS: use raw printf
+        printf("Changing max_cached_bytes (%lld -> %lld)\n",
+               (long long)this->max_cached_bytes,
+               (long long)max_cached_bytes);
 
       this->max_cached_bytes = max_cached_bytes;
 
-      // Unlock
-      mutex.Unlock();
+      // Unlock (redundant, kept for style uniformity)
+      mutex_locker.unlock();
 
       return cudaSuccess;
     }
@@ -326,19 +334,22 @@ namespace notcub {
         size_t bytes,                          ///< [in] Minimum number of bytes for the allocation
         cudaStream_t active_stream = nullptr)  ///< [in] The stream to be associated with this allocation
     {
+      // CMS: use RAII instead of (un)locking explicitly
+      std::unique_lock<std::mutex> mutex_locker(mutex, std::defer_lock);
       *d_ptr = nullptr;
       int entrypoint_device = INVALID_DEVICE_ORDINAL;
       cudaError_t error = cudaSuccess;
 
       if (device == INVALID_DEVICE_ORDINAL) {
-        if (CubDebug(error = cudaGetDevice(&entrypoint_device)))
-          return error;
+        // CMS: throw exception on error
+        cudaCheck(error = cudaGetDevice(&entrypoint_device));
         device = entrypoint_device;
       }
 
       // Create a block descriptor for the requested allocation
       bool found = false;
       BlockDescriptor search_key(device);
+      search_key.bytesRequested = bytes;  // CMS
       search_key.associated_stream = active_stream;
       NearestPowerOf(search_key.bin, search_key.bytes, bin_growth, bytes);
 
@@ -350,7 +361,7 @@ namespace notcub {
         search_key.bytes = bytes;
       } else {
         // Search for a suitable cached allocation: lock
-        mutex.Lock();
+        mutex_locker.lock();
 
         if (search_key.bin < min_bin) {
           // Bin is less than minimum bin: round up
@@ -376,10 +387,12 @@ namespace notcub {
             // Remove from free blocks
             cached_bytes[device].free -= search_key.bytes;
             cached_bytes[device].live += search_key.bytes;
+            cached_bytes[device].liveRequested += search_key.bytesRequested;  // CMS
 
             if (debug)
               // CMS: improved debug message
-              _CubLog(
+              // CMS: use raw printf
+              printf(
                   "\tDevice %d reused cached block at %p (%lld bytes) for stream %lld, event %lld (previously "
                   "associated with stream %lld, event %lld).\n",
                   device,
@@ -398,24 +411,25 @@ namespace notcub {
         }
 
         // Done searching: unlock
-        mutex.Unlock();
+        mutex_locker.unlock();
       }
 
       // Allocate the block if necessary
       if (!found) {
         // Set runtime's current device to specified device (entrypoint may not be set)
         if (device != entrypoint_device) {
-          if (CubDebug(error = cudaGetDevice(&entrypoint_device)))
-            return error;
-          if (CubDebug(error = cudaSetDevice(device)))
-            return error;
+          // CMS: throw exception on error
+          cudaCheck(error = cudaGetDevice(&entrypoint_device));
+          cudaCheck(error = cudaSetDevice(device));
         }
 
         // Attempt to allocate
-        if (CubDebug(error = cudaMalloc(&search_key.d_ptr, search_key.bytes)) == cudaErrorMemoryAllocation) {
+        // CMS: silently ignore errors and retry or pass them to the caller
+        if ((error = cudaMalloc(&search_key.d_ptr, search_key.bytes)) == cudaErrorMemoryAllocation) {
           // The allocation attempt failed: free all cached blocks on device and retry
           if (debug)
-            _CubLog(
+            // CMS: use raw printf
+            printf(
                 "\tDevice %d failed to allocate %lld bytes for stream %lld, retrying after freeing cached allocations",
                 device,
                 (long long)search_key.bytes,
@@ -425,7 +439,7 @@ namespace notcub {
           cudaGetLastError();   // Reset CUDART's error
 
           // Lock
-          mutex.Lock();
+          mutex_locker.lock();
 
           // Iterate the range of free blocks on the same device
           BlockDescriptor free_key(device);
@@ -437,16 +451,18 @@ namespace notcub {
             // on the current device
 
             // Free device memory and destroy stream event.
-            if (CubDebug(error = cudaFree(block_itr->d_ptr)))
+            // CMS: silently ignore errors and pass them to the caller
+            if ((error = cudaFree(block_itr->d_ptr)))
               break;
-            if (CubDebug(error = cudaEventDestroy(block_itr->ready_event)))
+            if ((error = cudaEventDestroy(block_itr->ready_event)))
               break;
 
             // Reduce balance and erase entry
             cached_bytes[device].free -= block_itr->bytes;
 
             if (debug)
-              _CubLog(
+              // CMS: use raw printf
+              printf(
                   "\tDevice %d freed %lld bytes.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks "
                   "(%lld bytes) outstanding.\n",
                   device,
@@ -462,41 +478,42 @@ namespace notcub {
           }
 
           // Unlock
-          mutex.Unlock();
+          mutex_locker.unlock();
 
           // Return under error
           if (error)
             return error;
 
           // Try to allocate again
-          if (CubDebug(error = cudaMalloc(&search_key.d_ptr, search_key.bytes)))
-            return error;
+          // CMS: throw exception on error
+          cudaCheck(error = cudaMalloc(&search_key.d_ptr, search_key.bytes));
         }
 
         // Create ready event
-        if (CubDebug(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming)))
-          return error;
+        // CMS: throw exception on error
+        cudaCheck(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming));
 
         // Insert into live blocks
-        mutex.Lock();
+        mutex_locker.lock();
         live_blocks.insert(search_key);
         cached_bytes[device].live += search_key.bytes;
-        mutex.Unlock();
+        cached_bytes[device].liveRequested += search_key.bytesRequested;  // CMS
+        mutex_locker.unlock();
 
         if (debug)
           // CMS: improved debug message
-          _CubLog(
-              "\tDevice %d allocated new device block at %p (%lld bytes associated with stream %lld, event %lld).\n",
-              device,
-              search_key.d_ptr,
-              (long long)search_key.bytes,
-              (long long)search_key.associated_stream,
-              (long long)search_key.ready_event);
+          // CMS: use raw printf
+          printf("\tDevice %d allocated new device block at %p (%lld bytes associated with stream %lld, event %lld).\n",
+                 device,
+                 search_key.d_ptr,
+                 (long long)search_key.bytes,
+                 (long long)search_key.associated_stream,
+                 (long long)search_key.ready_event);
 
         // Attempt to revert back to previous device if necessary
         if ((entrypoint_device != INVALID_DEVICE_ORDINAL) && (entrypoint_device != device)) {
-          if (CubDebug(error = cudaSetDevice(entrypoint_device)))
-            return error;
+          // CMS: throw exception on error
+          cudaCheck(error = cudaSetDevice(entrypoint_device));
         }
       }
 
@@ -504,11 +521,12 @@ namespace notcub {
       *d_ptr = search_key.d_ptr;
 
       if (debug)
-        _CubLog("\t\t%lld available blocks cached (%lld bytes), %lld live blocks outstanding(%lld bytes).\n",
-                (long long)cached_blocks.size(),
-                (long long)cached_bytes[device].free,
-                (long long)live_blocks.size(),
-                (long long)cached_bytes[device].live);
+        // CMS: use raw printf
+        printf("\t\t%lld available blocks cached (%lld bytes), %lld live blocks outstanding(%lld bytes).\n",
+               (long long)cached_blocks.size(),
+               (long long)cached_bytes[device].free,
+               (long long)live_blocks.size(),
+               (long long)cached_bytes[device].live);
 
       return error;
     }
@@ -538,15 +556,17 @@ namespace notcub {
     cudaError_t DeviceFree(int device, void *d_ptr) {
       int entrypoint_device = INVALID_DEVICE_ORDINAL;
       cudaError_t error = cudaSuccess;
+      // CMS: use RAII instead of (un)locking explicitly
+      std::unique_lock<std::mutex> mutex_locker(mutex, std::defer_lock);
 
       if (device == INVALID_DEVICE_ORDINAL) {
-        if (CubDebug(error = cudaGetDevice(&entrypoint_device)))
-          return error;
+        // CMS: throw exception on error
+        cudaCheck(error = cudaGetDevice(&entrypoint_device));
         device = entrypoint_device;
       }
 
       // Lock
-      mutex.Lock();
+      mutex_locker.lock();
 
       // Find corresponding block descriptor
       bool recached = false;
@@ -557,6 +577,7 @@ namespace notcub {
         search_key = *block_itr;
         live_blocks.erase(block_itr);
         cached_bytes[device].live -= search_key.bytes;
+        cached_bytes[device].liveRequested -= search_key.bytesRequested;  // CMS
 
         // Keep the returned allocation if bin is valid and we won't exceed the max cached threshold
         if ((search_key.bin != INVALID_BIN) && (cached_bytes[device].free + search_key.bytes <= max_cached_bytes)) {
@@ -567,7 +588,8 @@ namespace notcub {
 
           if (debug)
             // CMS: improved debug message
-            _CubLog(
+            // CMS: use raw printf
+            printf(
                 "\tDevice %d returned %lld bytes at %p from associated stream %lld, event %lld.\n\t\t %lld available "
                 "blocks cached (%lld bytes), %lld live blocks outstanding. (%lld bytes)\n",
                 device,
@@ -584,31 +606,29 @@ namespace notcub {
 
       // First set to specified device (entrypoint may not be set)
       if (device != entrypoint_device) {
-        if (CubDebug(error = cudaGetDevice(&entrypoint_device)))
-          return error;
-        if (CubDebug(error = cudaSetDevice(device)))
-          return error;
+        // CMS: throw exception on error
+        cudaCheck(error = cudaGetDevice(&entrypoint_device));
+        cudaCheck(error = cudaSetDevice(device));
       }
 
       if (recached) {
         // Insert the ready event in the associated stream (must have current device set properly)
-        if (CubDebug(error = cudaEventRecord(search_key.ready_event, search_key.associated_stream)))
-          return error;
+        // CMS: throw exception on error
+        cudaCheck(error = cudaEventRecord(search_key.ready_event, search_key.associated_stream));
       }
 
       // Unlock
-      mutex.Unlock();
+      mutex_locker.unlock();
 
       if (!recached) {
         // Free the allocation from the runtime and cleanup the event.
-        if (CubDebug(error = cudaFree(d_ptr)))
-          return error;
-        if (CubDebug(error = cudaEventDestroy(search_key.ready_event)))
-          return error;
+        // CMS: throw exception on error
+        cudaCheck(error = cudaFree(d_ptr));
+        cudaCheck(error = cudaEventDestroy(search_key.ready_event));
 
         if (debug)
           // CMS: improved debug message
-          _CubLog(
+          printf(
               "\tDevice %d freed %lld bytes at %p from associated stream %lld, event %lld.\n\t\t  %lld available "
               "blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
               device,
@@ -624,8 +644,8 @@ namespace notcub {
 
       // Reset device
       if ((entrypoint_device != INVALID_DEVICE_ORDINAL) && (entrypoint_device != device)) {
-        if (CubDebug(error = cudaSetDevice(entrypoint_device)))
-          return error;
+        // CMS: throw exception on error
+        cudaCheck(error = cudaSetDevice(entrypoint_device));
       }
 
       return error;
@@ -647,8 +667,8 @@ namespace notcub {
       cudaError_t error = cudaSuccess;
       int entrypoint_device = INVALID_DEVICE_ORDINAL;
       int current_device = INVALID_DEVICE_ORDINAL;
-
-      mutex.Lock();
+      // CMS: use RAII instead of (un)locking explicitly
+      std::unique_lock<std::mutex> mutex_locker(mutex);
 
       while (!cached_blocks.empty()) {
         // Get first block
@@ -656,28 +676,31 @@ namespace notcub {
 
         // Get entry-point device ordinal if necessary
         if (entrypoint_device == INVALID_DEVICE_ORDINAL) {
-          if (CubDebug(error = cudaGetDevice(&entrypoint_device)))
+          // CMS: silently ignore errors and pass them to the caller
+          if ((error = cudaGetDevice(&entrypoint_device)))
             break;
         }
 
         // Set current device ordinal if necessary
         if (begin->device != current_device) {
-          if (CubDebug(error = cudaSetDevice(begin->device)))
+          // CMS: silently ignore errors and pass them to the caller
+          if ((error = cudaSetDevice(begin->device)))
             break;
           current_device = begin->device;
         }
 
         // Free device memory
-        if (CubDebug(error = cudaFree(begin->d_ptr)))
+        // CMS: silently ignore errors and pass them to the caller
+        if ((error = cudaFree(begin->d_ptr)))
           break;
-        if (CubDebug(error = cudaEventDestroy(begin->ready_event)))
+        if ((error = cudaEventDestroy(begin->ready_event)))
           break;
 
         // Reduce balance and erase entry
         cached_bytes[current_device].free -= begin->bytes;
 
         if (debug)
-          _CubLog(
+          printf(
               "\tDevice %d freed %lld bytes.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld "
               "bytes) outstanding.\n",
               current_device,
@@ -690,21 +713,28 @@ namespace notcub {
         cached_blocks.erase(begin);
       }
 
-      mutex.Unlock();
+      mutex_locker.unlock();
 
       // Attempt to revert back to entry-point device if necessary
       if (entrypoint_device != INVALID_DEVICE_ORDINAL) {
-        if (CubDebug(error = cudaSetDevice(entrypoint_device)))
-          return error;
+        // CMS: throw exception on error
+        cudaCheck(error = cudaSetDevice(entrypoint_device));
       }
 
       return error;
     }
 
+    // CMS: give access to cache allocation status
+    GpuCachedBytes CacheStatus() const {
+      std::unique_lock mutex_locker(mutex);
+      return cached_bytes;
+    }
+
     /**
      * \brief Destructor
      */
-    virtual ~CachingDeviceAllocator() {
+    // CMS: make the destructor not virtual
+    ~CachingDeviceAllocator() {
       if (!skip_cleanup)
         FreeAllCached();
     }

@@ -3,7 +3,8 @@
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
 
-RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
+RawTask::RawTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   _tagFEDs = ps.getUntrackedParameter<edm::InputTag>("tagFEDs", edm::InputTag("rawDataCollector"));
   _tagReport = ps.getUntrackedParameter<edm::InputTag>("tagReport", edm::InputTag("hcalDigis"));
   _calibProcessing = ps.getUntrackedParameter<bool>("calibProcessing", false);
@@ -23,8 +24,7 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   DQTask::bookHistograms(ib, r, es);
 
   //	GET WHAT YOU NEED
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
   std::vector<uint32_t> vVME;
   std::vector<uint32_t> vuTCA;
@@ -234,6 +234,11 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	extract some info
   int bx = e.bunchCrossing();
 
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
+  _xQuality.reset();
+  _xQuality = lumiCache->xQuality;
+
   /*
 	 *	For Calibration/Abort Gap Processing
 	 *	check if the #channels taht are bad from the unpacker 
@@ -408,19 +413,19 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void RawTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::dqmBeginLuminosityBlock(lb, es);
-
+std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                    edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
   //	_cBadQualityvsLS.extendAxisRange(_currentLS);
-
-  //	ONLINE ONLY!
-  if (_ptype != fOnline)
-    return;
   //	_cSummaryvsLS_FED.extendAxisRange(_currentLS);
   //	_cSummaryvsLS.extendAxisRange(_currentLS);
 }
 
-/* virtual */ void RawTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void RawTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  auto lumiCache = luminosityBlockCache(lb.index());
+  _currentLS = lumiCache->currentLS;
+  _evsPerLS = lumiCache->EvtCntLS;
+
   if (_ptype != fOnline)
     return;
 
@@ -485,7 +490,7 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _xBadQLS.reset();
 
   //	in the end always do the DQTask::endLumi
-  DQTask::dqmEndLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(RawTask);

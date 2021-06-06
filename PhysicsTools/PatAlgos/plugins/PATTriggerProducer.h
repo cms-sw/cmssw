@@ -142,7 +142,7 @@ namespace pat {
         map_[filter].push_back(PathAndFlags(path, pathIndex, lastFilter, l3Filter));
       }
       std::map<std::string, std::vector<PathAndFlags> > map_;
-      const std::vector<PathAndFlags> empty_;
+      const std::vector<PathAndFlags> empty_ = {};
     };
     ModuleLabelToPathAndFlags moduleLabelToPathAndFlags_;
   };

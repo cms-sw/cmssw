@@ -20,7 +20,7 @@
 #include <memory>
 #include <atomic>
 #include <unistd.h>
-#include "tbb/task_scheduler_init.h"
+#include "tbb/task_arena.h"
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -58,7 +58,7 @@ TestNThreadsChecker::TestNThreadsChecker(const edm::ParameterSet& iConfig, edm::
     : m_nExpectedThreads(iConfig.getUntrackedParameter<unsigned int>("nExpectedThreads")) {
   unsigned int expectedThreads = m_nExpectedThreads;
   if (expectedThreads == 0) {
-    expectedThreads = tbb::task_scheduler_init::default_num_threads();
+    expectedThreads = tbb::this_task_arena::max_concurrency();
   }
 
   //now do what ever initialization is needed

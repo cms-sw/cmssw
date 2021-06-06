@@ -23,8 +23,6 @@ namespace reco {
 
   class ConvBremSeed : public TrajectorySeed {
   public:
-    typedef edm::OwnVector<TrackingRecHit> recHitContainer;
-
     ConvBremSeed() {}
     ~ConvBremSeed() override {}
 

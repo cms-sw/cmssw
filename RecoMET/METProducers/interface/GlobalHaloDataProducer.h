@@ -23,6 +23,7 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -204,6 +205,9 @@ namespace reco {
     edm::EDGetTokenT<CSCHaloData> cschalo_token_;
     edm::EDGetTokenT<EcalHaloData> ecalhalo_token_;
     edm::EDGetTokenT<HcalHaloData> hcalhalo_token_;
+    edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscgeometry_token_;
+    edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globaltrackinggeometry_token_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> calogeometry_token_;
 
     float EcalMinMatchingRadius;
     float EcalMaxMatchingRadius;

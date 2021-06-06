@@ -1,8 +1,7 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
@@ -53,160 +52,6 @@ namespace reco::tau {
 
   // Quality cut implementations
   namespace qcuts {
-
-    bool ptMin(const TrackBaseRef& track, double cut) {
-      LogDebug("TauQCuts") << "<ptMin>: Pt = " << track->pt() << ", cut = " << cut;
-      return (track->pt() > cut);
-    }
-
-    bool ptMin_cand(const Candidate& cand, double cut) {
-      LogDebug("TauQCuts") << "<ptMin_cand>: Pt = " << cand.pt() << ", cut = " << cut;
-      return (cand.pt() > cut);
-    }
-
-    bool etMin_cand(const Candidate& cand, double cut) {
-      LogDebug("TauQCuts") << "<etMin_cand>: Et = " << cand.et() << ", cut = " << cut;
-      return (cand.et() > cut);
-    }
-
-    bool trkPixelHits(const Track* track, int cut) {
-      // For some reason, the number of hits is signed
-      LogDebug("TauQCuts") << "<trkPixelHits>: #Pxl hits = " << track->hitPattern().numberOfValidPixelHits()
-                           << ", cut = " << cut;
-      return (track->hitPattern().numberOfValidPixelHits() >= cut);
-    }
-
-    bool trkPixelHits_cand(const Candidate& cand, int cut) {
-      // For some reason, the number of hits is signed
-      auto track = getTrack(cand);
-      if (track) {
-        LogDebug("TauQCuts") << "<trkPixelHits_cand>: #Pxl hits = " << trkPixelHits(track, cut) << ", cut = " << cut;
-        return trkPixelHits(track, cut);
-      } else {
-        LogDebug("TauQCuts") << "<trkPixelHits_cand>: #Pxl hits = N/A, cut = " << cut;
-        return false;
-      }
-    }
-
-    bool trkTrackerHits(const Track* track, int cut) {
-      LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits()
-                           << ", cut = " << cut;
-      return (track->hitPattern().numberOfValidHits() >= cut);
-    }
-
-    bool trkTrackerHits_cand(const Candidate& cand, int cut) {
-      auto track = getTrack(cand);
-      if (track) {
-        LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits()
-                             << ", cut = " << cut;
-        return trkTrackerHits(track, cut);
-      } else {
-        LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = N/A, cut = " << cut;
-        return false;
-      }
-    }
-
-    bool trkTransverseImpactParameter(const Track* track, const reco::VertexRef* pv, double cut) {
-      if (pv->isNull()) {
-        edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in "
-                                              << "RecoTauQualityCuts is invalid. - trkTransverseImpactParameter";
-        return false;
-      }
-      LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta()
-                           << ", phi = " << track->phi();
-      LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y()
-                           << ", z = " << (*pv)->position().z();
-      LogDebug("TauQCuts") << "--> dxy = " << std::fabs(track->dxy((*pv)->position())) << " (cut = " << cut << ")";
-      return (std::fabs(track->dxy((*pv)->position())) <= cut);
-    }
-
-    bool trkTransverseImpactParameter_cand(const Candidate& cand, const reco::VertexRef* pv, double cut) {
-      auto track = getTrack(cand);
-      if (track) {
-        return trkTransverseImpactParameter(track, pv, cut);
-      } else {
-        LogDebug("TauQCuts") << "<trkTransverseImpactParameter_cand>: dXY = N/A, cut = " << cut;
-        return false;
-      }
-    }
-
-    bool trkLongitudinalImpactParameter(const TrackBase* track, const reco::VertexRef* pv, double cut) {
-      if (pv->isNull()) {
-        edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in "
-                                              << "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
-        return false;
-      }
-      LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta()
-                           << ", phi = " << track->phi();
-      LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y()
-                           << ", z = " << (*pv)->position().z();
-      LogDebug("TauQCuts") << "--> dz = " << std::fabs(track->dz((*pv)->position())) << " (cut = " << cut << ")";
-      return (std::fabs(track->dz((*pv)->position())) <= cut);
-    }
-
-    bool trkLongitudinalImpactParameter_cand(const Candidate& cand, const reco::VertexRef* pv, double cut) {
-      auto track = getTrack(cand);
-      if (track) {
-        return trkLongitudinalImpactParameter(track, pv, cut);
-      } else {
-        LogDebug("TauQCuts") << "<trkLongitudinalImpactParameter_cand>: dZ = N/A, cut = " << cut;
-        return false;
-      }
-    }
-
-    /// DZ cut, with respect to the current lead rack
-    bool trkLongitudinalImpactParameterWrtTrack(const Track* track,
-                                                const Track* leadTrack,
-                                                const reco::VertexRef* pv,
-                                                double cut) {
-      if (!leadTrack) {
-        edm::LogError("QCutsNoValidLeadTrack")
-            << "Lead track Ref in "
-            << "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameterWrtTrack";
-        return false;
-      }
-      return (std::fabs(track->dz((*pv)->position()) - leadTrack->dz((*pv)->position())) <= cut);
-    }
-
-    bool trkLongitudinalImpactParameterWrtTrack_cand(const Candidate& cand,
-                                                     const reco::Track* leadTrack,
-                                                     const reco::VertexRef* pv,
-                                                     double cut) {
-      auto track = getTrack(cand);
-      if (track)
-        return trkLongitudinalImpactParameterWrtTrack(track, leadTrack, pv, cut);
-      else
-        return false;
-    }
-
-    bool minTrackVertexWeight(const TrackBaseRef& track, const reco::VertexRef* pv, double cut) {
-      if (pv->isNull()) {
-        edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in "
-                                              << "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
-        return false;
-      }
-      LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta()
-                           << ", phi = " << track->phi();
-      LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y()
-                           << ", z = " << (*pv)->position().z();
-      LogDebug("TauQCuts") << "--> trackWeight = " << (*pv)->trackWeight(track) << " (cut = " << cut << ")";
-      return ((*pv)->trackWeight(track) >= cut);
-    }
-
-    bool minTrackVertexWeight(const TrackRef& track, const reco::VertexRef* pv, double cut) {
-      if (pv->isNull()) {
-        edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in "
-                                              << "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
-        return false;
-      }
-      LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta()
-                           << ", phi = " << track->phi();
-      LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y()
-                           << ", z = " << (*pv)->position().z();
-      LogDebug("TauQCuts") << "--> trackWeight = " << (*pv)->trackWeight(track) << " (cut = " << cut << ")";
-      return ((*pv)->trackWeight(track) >= cut);
-    }
-
     bool minPackedCandVertexWeight(const pat::PackedCandidate& pCand, const reco::VertexRef* pv, double cut) {
       if (pv->isNull()) {
         edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in "
@@ -229,68 +74,6 @@ namespace reco::tau {
       LogDebug("TauQCuts") << "--> trackWeight from packedCand = " << weight << " (cut = " << cut << ")";
       return (weight >= cut);
     }
-
-    bool minTrackVertexWeight_cand(const Candidate& cand, const reco::VertexRef* pv, double cut) {
-      auto track = getTrackRef(cand);
-      if (track.isNonnull()) {
-        return minTrackVertexWeight(track, pv, cut);
-      }
-      auto gsfTrack = getGsfTrackRef(cand);
-      if (gsfTrack.isNonnull()) {
-        return minTrackVertexWeight(gsfTrack, pv, cut);
-      }
-
-      const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
-      if (pCand != nullptr && cand.charge() != 0) {
-        return minPackedCandVertexWeight(*pCand, pv, cut);
-      }
-      LogDebug("TauQCuts") << "<minTrackVertexWeight_cand>: weight = N/A, cut = " << cut;
-      return false;
-    }
-
-    bool trkChi2(const Track* track, double cut) {
-      LogDebug("TauQCuts") << "<trkChi2>: chi^2 = " << track->normalizedChi2() << ", cut = " << cut;
-      return (track->normalizedChi2() <= cut);
-    }
-
-    bool trkChi2_cand(const Candidate& cand, double cut) {
-      auto track = getTrack(cand);
-      if (track) {
-        LogDebug("TauQCuts") << "<trkChi2_cand>: chi^2 = " << track->normalizedChi2() << ", cut = " << cut;
-        return trkChi2(track, cut);
-      } else {
-        LogDebug("TauQCuts") << "<trkChi2_cand>: chi^2 = N/A, cut = " << cut;
-        return false;
-      }
-    }
-
-    // And a set of qcuts
-    bool AND(const TrackBaseRef& track, const RecoTauQualityCuts::TrackQCutFuncCollection& cuts) {
-      for (auto const& func : cuts) {
-        if (!func(track))
-          return false;
-      }
-      return true;
-    }
-
-    bool AND_cand(const Candidate& cand, const RecoTauQualityCuts::CandQCutFuncCollection& cuts) {
-      for (auto const& func : cuts) {
-        if (!func(cand))
-          return false;
-      }
-      return true;
-    }
-
-    // Get the set of Q cuts for a given type (i.e. gamma)
-    bool mapAndCutByType(const Candidate& cand, const RecoTauQualityCuts::CandQCutFuncMap& funcMap) {
-      // Find the cuts that for this particle type
-      RecoTauQualityCuts::CandQCutFuncMap::const_iterator cuts = funcMap.find(std::abs(cand.pdgId()));
-      // Return false if we dont' know how to deal with this particle type
-      if (cuts == funcMap.end())
-        return false;
-      return AND_cand(cand, cuts->second);  // Otherwise AND all the cuts
-    }
-
   }  // namespace qcuts
 
   RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet& qcuts) {
@@ -558,6 +341,52 @@ namespace reco::tau {
       // Set null
       leadTrack_ = nullptr;
     }
+  }
+
+  void RecoTauQualityCuts::fillDescriptions(edm::ParameterSetDescription& desc_qualityCuts) {
+    edm::ParameterSetDescription desc_signalQualityCuts;
+    desc_signalQualityCuts.add<double>("minTrackPt", 0.5);
+    desc_signalQualityCuts.add<double>("maxTrackChi2", 100.0);
+    desc_signalQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
+    desc_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
+    desc_signalQualityCuts.add<double>("maxDeltaZToLeadTrack", -1.0);  // by default disabled
+    desc_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);  // by default disabled
+    desc_signalQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+    desc_signalQualityCuts.add<unsigned int>("minTrackHits", 3);
+    desc_signalQualityCuts.add<double>("minGammaEt", 1.0);
+    desc_signalQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+    desc_signalQualityCuts.add<double>("minNeutralHadronEt", 30.0);
+
+    edm::ParameterSetDescription desc_isolationQualityCuts;
+    desc_isolationQualityCuts.add<double>("minTrackPt", 1.0);
+    desc_isolationQualityCuts.add<double>("maxTrackChi2", 100.0);
+    desc_isolationQualityCuts.add<double>("maxTransverseImpactParameter", 0.03);
+    desc_isolationQualityCuts.add<double>("maxDeltaZ", 0.2);
+    desc_isolationQualityCuts.add<double>("maxDeltaZToLeadTrack", -1.0);  // by default disabled
+    desc_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0);  // by default disabled
+    desc_isolationQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+    desc_isolationQualityCuts.add<unsigned int>("minTrackHits", 8);
+    desc_isolationQualityCuts.add<double>("minGammaEt", 1.5);
+    desc_isolationQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+    edm::ParameterSetDescription desc_vxAssocQualityCuts;
+    desc_vxAssocQualityCuts.add<double>("minTrackPt", 0.5);
+    desc_vxAssocQualityCuts.add<double>("maxTrackChi2", 100.0);
+    desc_vxAssocQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
+    desc_vxAssocQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+    desc_vxAssocQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+    desc_vxAssocQualityCuts.add<unsigned int>("minTrackHits", 3);
+    desc_vxAssocQualityCuts.add<double>("minGammaEt", 1.0);
+    desc_vxAssocQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+    desc_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts", desc_signalQualityCuts);
+    desc_qualityCuts.add<edm::ParameterSetDescription>("isolationQualityCuts", desc_isolationQualityCuts);
+    desc_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts", desc_vxAssocQualityCuts);
+    desc_qualityCuts.add<edm::InputTag>("primaryVertexSrc", edm::InputTag("offlinePrimaryVertices"));
+    desc_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
+    desc_qualityCuts.add<bool>("vertexTrackFiltering", false);
+    desc_qualityCuts.add<bool>("recoverLeadingTrk", false);
+    desc_qualityCuts.add<std::string>("leadingTrkOrPFCandOption", "leadPFCand");
   }
 
 }  // end namespace reco::tau

@@ -3,6 +3,5 @@
   <use name="FWCore/ParameterSet"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/ParticleFlowCandidate"/>
-  <use name="DataFormats/EgammaCandidates"/>
-<flags EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

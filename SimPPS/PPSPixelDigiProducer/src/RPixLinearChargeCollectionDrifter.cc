@@ -1,14 +1,13 @@
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixLinearChargeCollectionDrifter.h"
-#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
-#include <iostream>
-#include <vector>
 
-RPixLinearChargeCollectionDrifter::RPixLinearChargeCollectionDrifter(const edm::ParameterSet &params, uint32_t det_id) {
+RPixLinearChargeCollectionDrifter::RPixLinearChargeCollectionDrifter(const edm::ParameterSet &params,
+                                                                     uint32_t det_id,
+                                                                     const PPSPixelTopology &ppt) {
   verbosity_ = params.getParameter<int>("RPixVerbosity");
 
   GeV_per_electron_ = params.getParameter<double>("RPixGeVPerElectron");
   charge_cloud_sigmas_vect_ = params.getParameter<std::vector<double> >("RPixInterSmearing");
-  det_thickness_ = CTPPSPixelTopology().detThickness();
+  det_thickness_ = ppt.getThickness();
   det_id_ = det_id;
 }
 
@@ -21,8 +20,8 @@ std::vector<RPixSignalPoint> RPixLinearChargeCollectionDrifter::Drift(
     temp_[i].setSigma(getSigma_(energy_deposition[i].Position().z()));
     temp_[i].setCharge(energy_deposition[i].Energy() / GeV_per_electron_);
     if (verbosity_ > 1) {
-      edm::LogInfo("RPixLinearChargeCollectionDrifter")
-          << det_id_ << " :" << temp_[i].Position() << " " << temp_[i].Sigma() << " " << temp_[i].Charge();
+      edm::LogInfo("PPS") << "RPixLinearChargeCollectionDrifter " << det_id_ << " :" << temp_[i].Position() << " "
+                          << temp_[i].Sigma() << " " << temp_[i].Charge();
     }
   }
   return temp_;

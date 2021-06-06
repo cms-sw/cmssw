@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -99,6 +100,7 @@ private:
 
   edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken;
   edm::EDGetTokenT<FastTrackerRecHitRefCollection> simHit2RecHitMapToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken;
 
   bool usePixel;
   bool useStrip;
@@ -137,9 +139,11 @@ void FastTrackDeDxProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
     : simHitsToken(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHits"))),
       simHit2RecHitMapToken(
-          consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap"))) {
+          consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap"))),
+      tkGeomToken(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
   produces<ValueMap<DeDxData>>();
 
+  auto cCollector = consumesCollector();
   string estimatorName = iConfig.getParameter<string>("estimator");
   if (estimatorName == "median")
     m_estimator = std::unique_ptr<BaseDeDxEstimator>(new MedianDeDxEstimator(iConfig));
@@ -149,13 +153,13 @@ FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
     m_estimator = std::unique_ptr<BaseDeDxEstimator>(new TruncatedAverageDeDxEstimator(iConfig));
   //else if(estimatorName == "unbinnedFit")         m_estimator = std::unique_ptr<BaseDeDxEstimator> (new UnbinnedFitDeDxEstimator(iConfig));//estimator used in FullSimVersion
   else if (estimatorName == "productDiscrim")
-    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new ProductDeDxDiscriminator(iConfig));
+    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new ProductDeDxDiscriminator(iConfig, cCollector));
   else if (estimatorName == "btagDiscrim")
-    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new BTagLikeDeDxDiscriminator(iConfig));
+    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new BTagLikeDeDxDiscriminator(iConfig, cCollector));
   else if (estimatorName == "smirnovDiscrim")
-    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new SmirnovDeDxDiscriminator(iConfig));
+    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new SmirnovDeDxDiscriminator(iConfig, cCollector));
   else if (estimatorName == "asmirnovDiscrim")
-    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new ASmirnovDeDxDiscriminator(iConfig));
+    m_estimator = std::unique_ptr<BaseDeDxEstimator>(new ASmirnovDeDxDiscriminator(iConfig, cCollector));
   else
     throw cms::Exception("fastsim::SimplifiedGeometry::FastTrackDeDxProducer.cc") << " estimator name does not exist";
 

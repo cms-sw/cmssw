@@ -14,6 +14,7 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
+from DQMOffline.Muon.gem_dqm_offline_source_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
@@ -34,12 +35,23 @@ DQMOfflineL1TEgamma = cms.Sequence( l1TriggerEgDqmOffline )
 DQMOfflineL1TMuon = cms.Sequence( l1TriggerMuonDqmOffline )
 
 #DPGs
-DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
-				es_dqm_source_offline )
+DQMOfflineEcalOnly = cms.Sequence(
+    ecalOnly_dqm_source_offline +
+    es_dqm_source_offline )
 
+DQMOfflineEcal = cms.Sequence(
+    ecal_dqm_source_offline +
+    es_dqm_source_offline )
+
+#offline version of the online DQM: used in validation/certification
 DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
 
+# offline DQM: used in Release validation
 DQMOfflineHcal2 = cms.Sequence( HcalDQMOfflineSequence )
+
+DQMOfflineHcalOnly = cms.Sequence( hcalOnlyOfflineSourceSequence )
+
+DQMOfflineHcal2Only = cms.Sequence( RecHitsDQMOffline )
 
 DQMOfflineTrackerStrip = cms.Sequence( SiStripDQMTier0 )
 
@@ -48,6 +60,11 @@ DQMOfflineTrackerPixel = cms.Sequence( 	siPixelOfflineDQM_source )
 DQMOfflineMuonDPG = cms.Sequence( dtSources *
                                   rpcTier0Source *
                                   cscSources )
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+_run3_GEM_DQMOfflineMuonDPG = DQMOfflineMuonDPG.copy()
+_run3_GEM_DQMOfflineMuonDPG += gemSources
+run3_GEM.toReplaceWith(DQMOfflineMuonDPG, _run3_GEM_DQMOfflineMuonDPG)
 
 DQMOfflineCASTOR = cms.Sequence( castorSources )
 
@@ -140,10 +157,12 @@ DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
 
 #DQMOfflineCommon
 from DQM.TrackingMonitorSource.pixelTracksMonitoring_cff import *
+from DQMOffline.RecoB.PixelVertexMonitor_cff import *
 from DQM.SiOuterTracker.OuterTrackerSourceConfig_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 
-DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring )
+DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring *
+                                        pixelPVMonitor )
 
 DQMOuterTracker = cms.Sequence( DQMOfflineDCS *
                                 OuterTrackerSource *
@@ -210,10 +229,14 @@ DQMOfflineMuon = cms.Sequence( dtSources *
                                muonMonitors
                               )
 
+_run3_GEM_DQMOfflineMuon = DQMOfflineMuon.copy()
+_run3_GEM_DQMOfflineMuon += gemSources
+run3_GEM.toReplaceWith(DQMOfflineMuon, _run3_GEM_DQMOfflineMuon)
+
 #Taus not created in pp conditions for HI
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 _DQMOfflineTAU = cms.Sequence()
-pp_on_AA_2018.toReplaceWith(DQMOfflineTAU, _DQMOfflineTAU)
+pp_on_AA.toReplaceWith(DQMOfflineTAU, _DQMOfflineTAU)
 
 
 # miniAOD DQM validation
@@ -231,11 +254,13 @@ DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*muonMonitor
 PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*topPhysicsminiAOD)
 PostDQMOffline = cms.Sequence()
 
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
-    pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise yet
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
+    pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise (yet)
 ]))
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM
 DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 #PostDQMOfflineNanoAOD = cms.Sequence(nanoDQM)
+from PhysicsTools.NanoAOD.nanogenDQM_cff import nanogenDQM
+DQMOfflineNanoGen = cms.Sequence(nanogenDQM)

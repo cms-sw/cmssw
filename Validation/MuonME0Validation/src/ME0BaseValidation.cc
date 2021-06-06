@@ -16,6 +16,7 @@ ME0BaseValidation::ME0BaseValidation(const edm::ParameterSet &ps) {
   layerLabel.push_back("4");
   layerLabel.push_back("5");
   layerLabel.push_back("6");
+  geomToken_ = esConsumes<ME0Geometry, MuonGeometryRecord>();
 }
 
 ME0BaseValidation::~ME0BaseValidation() {}

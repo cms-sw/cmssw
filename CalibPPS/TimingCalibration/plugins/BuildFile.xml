@@ -1,0 +1,9 @@
+<library name="CalibPPSTimingCalibrationPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DQMServices/Core"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="CondCore/DBOutputService"/>
+  <use name="CondFormats/PPSObjects"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/VeryForwardGeometryBuilder"/>
+</library>

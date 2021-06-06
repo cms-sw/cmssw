@@ -24,7 +24,7 @@ to use this plugin.
 // user include files
 #include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/GenericHandle.h"
@@ -41,7 +41,7 @@ to use this plugin.
 
 #include "ProductInfo.h"
 
-class IOExerciser : public edm::OutputModule {
+class IOExerciser : public edm::one::OutputModule<edm::WatchInputFiles> {
 public:
   explicit IOExerciser(const edm::ParameterSet&);
   ~IOExerciser() override;
@@ -58,6 +58,7 @@ private:
   void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
 
   void respondToOpenInputFile(edm::FileBlock const& fb) override;
+  void respondToCloseInputFile(edm::FileBlock const& fb) override {}
 
   // ----------internal implementation functions---------------------------
   void computeProducts(edm::EventForOutput const& e, TokenMap const& tokens);
@@ -82,7 +83,8 @@ private:
 // constructors and destructor
 //
 IOExerciser::IOExerciser(const edm::ParameterSet& pset)
-    : OutputModule(pset),
+    : edm::one::OutputModuleBase(pset),
+      edm::one::OutputModule<edm::WatchInputFiles>(pset),
       m_tokens(),
       m_fetchedProducts(false),
       m_eventsTree(nullptr),
@@ -290,7 +292,7 @@ void IOExerciser::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
           "will read out all event data, not just the selected branches.  Setting to 10\n"
           "will cause it to read out one event in 10.  Setting it to zero would mean to\n"
           "disable trigger behavior completely.  Defaults to 0.");
-  OutputModule::fillDescription(desc);
+  edm::one::OutputModule<edm::WatchInputFiles>::fillDescription(desc);
   descriptions.add("IOExerciser", desc);
 }
 

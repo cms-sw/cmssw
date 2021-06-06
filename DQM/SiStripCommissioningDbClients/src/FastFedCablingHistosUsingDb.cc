@@ -12,10 +12,11 @@ using namespace sistrip;
 /** */
 FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb(const edm::ParameterSet& pset,
                                                          DQMStore* bei,
-                                                         SiStripConfigDb* const db)
+                                                         SiStripConfigDb* const db,
+                                                         edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken)
     : CommissioningHistograms(
           pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"), bei, sistrip::FAST_CABLING),
-      CommissioningHistosUsingDb(db, sistrip::FAST_CABLING),
+      CommissioningHistosUsingDb(db, tTopoToken, sistrip::FAST_CABLING),
       FastFedCablingHistograms(pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"), bei) {
   LogTrace(mlDqmClient_) << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
                          << " Constructing object...";

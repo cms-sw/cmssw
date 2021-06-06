@@ -7,10 +7,9 @@ process.options = cms.untracked.PSet(
 #  wantSummary = cms.untracked.bool(True),
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
-process.MessageLogger.categories.extend(["GetManyWithoutRegistration","GetByLabelWithoutRegistration"])
+
 _messageSettings = cms.untracked.PSet(
                 reportEvery = cms.untracked.int32(1),
-                            optionalPSet = cms.untracked.bool(True),
                             limit = cms.untracked.int32(10000000)
                         )
 process.MessageLogger.cerr.GetManyWithoutRegistration = _messageSettings

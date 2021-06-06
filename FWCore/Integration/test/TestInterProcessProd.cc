@@ -19,8 +19,8 @@ namespace testinter {
   struct StreamCache {
     StreamCache(const std::string& iConfig, int id)
         : id_{id},
-          channel_("testProd", id_),
-          readBuffer_{channel_.sharedMemoryName(), channel_.fromWorkerBufferIndex()},
+          channel_("testProd", id_, 60),
+          readBuffer_{channel_.sharedMemoryName(), channel_.fromWorkerBufferInfo()},
           deserializer_{readBuffer_},
           br_deserializer_{readBuffer_},
           er_deserializer_{readBuffer_},

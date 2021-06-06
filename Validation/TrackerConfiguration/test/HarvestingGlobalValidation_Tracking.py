@@ -29,7 +29,6 @@ process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring()
 )
 
-process.DQMStore.collateHistograms = False
 
 process.dqmSaver.convention = 'Offline'
 #Settings equivalent to 'RelVal' convention:
@@ -48,7 +47,6 @@ process.options = cms.untracked.PSet(
 # Other statements
 
 #Adding DQMFileSaver to the message logger configuration
-process.MessageLogger.categories.append('DQMFileSaver')
 process.MessageLogger.cout.DQMFileSaver = cms.untracked.PSet(
        limit = cms.untracked.int32(1000000)
        )

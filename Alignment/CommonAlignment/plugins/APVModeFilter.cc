@@ -42,7 +42,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -74,6 +73,9 @@ private:
 
   // ----------member data ---------------------------
 
+  // esConsumes
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+
   /// bits of interest for the APV mode
   static constexpr std::array<size_t, 2> bits_ = {{1, 3}};
   static constexpr BitMask deco_ = BitMask(0);   /// deco mode bit mask (0000)
@@ -96,7 +98,8 @@ constexpr APVModeFilter::BitMask APVModeFilter::multi_;
 // constructors and destructor
 //
 APVModeFilter::APVModeFilter(const edm::ParameterSet& iConfig)
-    : mode_(convertMode(iConfig.getUntrackedParameter<std::string>("apvMode"))) {
+    : latencyToken_(esConsumes<edm::Transition::BeginRun>()),
+      mode_(convertMode(iConfig.getUntrackedParameter<std::string>("apvMode"))) {
   edm::LogInfo("Alignment") << "@SUB=APVModeFilter::APVModeFilter"
                             << "Selecting events with APV mode '"
                             << iConfig.getUntrackedParameter<std::string>("apvMode") << "'.";
@@ -111,10 +114,8 @@ bool APVModeFilter::filter(edm::Event&, const edm::EventSetup&) { return mode_ =
 
 // ------------ method called when starting to processes a run  ------------
 void APVModeFilter::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<SiStripLatency> siStripLatency;
-  iSetup.get<SiStripLatencyRcd>().get(siStripLatency);
-  auto product = siStripLatency.product();
-  modeCurrentRun_ = convertMode(product->singleMode());
+  const auto& siStripLatency = &iSetup.getData(latencyToken_);
+  modeCurrentRun_ = convertMode(siStripLatency->singleMode());
 }
 
 APVModeFilter::BitMask APVModeFilter::convertMode(const std::string& mode) const {

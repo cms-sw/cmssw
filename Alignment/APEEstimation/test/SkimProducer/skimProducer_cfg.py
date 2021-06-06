@@ -32,8 +32,7 @@ process = cms.Process("ApeSkim")
 ## Message Logger
 ##
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.categories.append('AlignmentTrackSelector')
-#process.MessageLogger.categories.append('')
+process.MessageLogger.AlignmentTrackSelector=dict()
 process.MessageLogger.cerr.INFO.limit = 0
 process.MessageLogger.cerr.default.limit = -1
 process.MessageLogger.cerr.AlignmentTrackSelector = cms.untracked.PSet(limit = cms.untracked.int32(-1))
@@ -68,9 +67,9 @@ trackSelection = "SingleMu"
 globalTag = None
 outputPath = None # can also be specified. If that is done, files are copied to this path afterwards
 
-if "iov" in  options.sample:
+if "iov" in options.sample:
     ## Configure here for campaigns with many different datasets (such as multi-IOV)
-    iovNo = int(options.sample.split("iov")[1])
+    iovNo = options.sample.split("iov")[1]
     process.load("Alignment.APEEstimation.samples.")
     outputName = ".root"
     outputPath = None

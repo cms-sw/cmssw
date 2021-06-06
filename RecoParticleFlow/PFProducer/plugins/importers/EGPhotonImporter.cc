@@ -1,12 +1,12 @@
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
 #include "RecoParticleFlow/PFProducer/interface/PhotonSelectorAlgo.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoParticleFlow/PFProducer/interface/PFBlockElementSCEqual.h"
+
+#include <memory>
 
 #include <unordered_map>
 
@@ -28,9 +28,9 @@ private:
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, EGPhotonImporter, "EGPhotonImporter");
 
-EGPhotonImporter::EGPhotonImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-    : BlockElementImporterBase(conf, sumes),
-      _src(sumes.consumes<reco::PhotonCollection>(conf.getParameter<edm::InputTag>("source"))),
+EGPhotonImporter::EGPhotonImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+    : BlockElementImporterBase(conf, cc),
+      _src(cc.consumes<reco::PhotonCollection>(conf.getParameter<edm::InputTag>("source"))),
       _selectionTypes({{"SeparateDetectorIso", EGPhotonImporter::SeparateDetectorIso},
                        {"CombinedDetectorIso", EGPhotonImporter::CombinedDetectorIso}}),
       _superClustersArePF(conf.getParameter<bool>("superClustersArePF")) {
@@ -47,17 +47,17 @@ EGPhotonImporter::EGPhotonImporter(const edm::ParameterSet& conf, edm::ConsumesC
   const float hoe = selDef.getParameter<double>("HoverE");
   const float loose_hoe = selDef.getParameter<double>("LooseHoverE");
   const float combIso = selDef.getParameter<double>("combIsoConstTerm");
-  _selector.reset(new PhotonSelectorAlgo((float)_selectionChoice,
-                                         minEt,
-                                         trackIso_const,
-                                         trackIso_slope,
-                                         ecalIso_const,
-                                         ecalIso_slope,
-                                         hcalIso_const,
-                                         hcalIso_slope,
-                                         hoe,
-                                         combIso,
-                                         loose_hoe));
+  _selector = std::make_unique<PhotonSelectorAlgo>((float)_selectionChoice,
+                                                   minEt,
+                                                   trackIso_const,
+                                                   trackIso_slope,
+                                                   ecalIso_const,
+                                                   ecalIso_slope,
+                                                   hcalIso_const,
+                                                   hcalIso_slope,
+                                                   hoe,
+                                                   combIso,
+                                                   loose_hoe);
 }
 
 void EGPhotonImporter::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {

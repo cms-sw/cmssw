@@ -24,13 +24,16 @@ class TrackerTopology;
 class PixelDigi;
 class Phase2TrackerDigi;
 class TrackerGeometry;
-
+class TrackerDigiGeometryRecord;
+class TrackerTopologyRcd;
 class Phase2TrackerValidateDigi : public DQMEDAnalyzer {
 public:
   explicit Phase2TrackerValidateDigi(const edm::ParameterSet&);
   ~Phase2TrackerValidateDigi() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  std::string getHistoId(uint32_t det_id, bool flag);
 
   struct DigiMEs {
     MonitorElement* SimTrackPt;
@@ -96,7 +99,7 @@ private:
   float tofUpperCut_;
   float tofLowerCut_;
 
-  void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool flag);
+  void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, bool flag);
   unsigned int getSimTrackId(const edm::DetSetVector<PixelDigiSimLink>* simLinks,
                              const DetId& detId,
                              unsigned int& channel);
@@ -104,15 +107,17 @@ private:
   bool isPrimary(const SimTrack& simTrk, const PSimHit& simHit);
 
   void fillHistogram(MonitorElement* th1, MonitorElement* th2, MonitorElement* th3, float val, int primary);
-  int fillSimHitInfo(const edm::Event& iEvent, const SimTrack simTrk, const edm::ESHandle<TrackerGeometry> gHandle);
+  int fillSimHitInfo(const edm::Event& iEvent, const SimTrack simTrk);
+
   bool findOTDigi(unsigned int detid, unsigned int id);
+
   bool findITPixelDigi(unsigned int detid, unsigned int id);
   void fillOTBXInfo();
   void fillITPixelBXInfo();
   void fillHitsPerTrack();
 
   edm::ParameterSet config_;
-  std::map<unsigned int, DigiMEs> layerMEs;
+  std::map<std::string, DigiMEs> layerMEs;
 
   bool pixelFlag_;
   std::string geomType_;
@@ -125,23 +130,24 @@ private:
   edm::InputTag simTrackSrc_;
   edm::InputTag simVertexSrc_;
 
-  const edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi> > otDigiToken_;
-  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > otDigiSimLinkToken_;
-  const edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > itPixelDigiToken_;
-  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > itPixelDigiSimLinkToken_;
-  //  const edm::EDGetTokenT< edm::PSimHitContainer > psimHitToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi>> otDigiToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> otDigiSimLinkToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> itPixelDigiToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> itPixelDigiSimLinkToken_;
   const edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
   const edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
-  std::vector<edm::EDGetTokenT<edm::PSimHitContainer> > simHitTokens_;
-
-  edm::Handle<edm::DetSetVector<PixelDigi> > itPixelDigiHandle_;
-  edm::Handle<edm::DetSetVector<Phase2TrackerDigi> > otDigiHandle_;
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > itPixelSimLinkHandle_;
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > otSimLinkHandle_;
+  const edm::DetSetVector<PixelDigiSimLink>* otSimLink_;
+  const edm::DetSetVector<PixelDigiSimLink>* itSimLink_;
+  const edm::DetSetVector<Phase2TrackerDigi>* otdigis_;
+  const edm::DetSetVector<PixelDigi>* itdigis_;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> simHitTokens_;
   edm::Handle<edm::PSimHitContainer> simHits;
   edm::Handle<edm::SimTrackContainer> simTracks;
   edm::Handle<edm::SimVertexContainer> simVertices;
-  edm::ESHandle<TrackerTopology> tTopoHandle_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const TrackerGeometry* tkGeom_ = nullptr;
+  const TrackerTopology* tTopo_ = nullptr;
 
   const float GeVperElectron;  // 3.7E-09
   const float cval;            // cm/ns

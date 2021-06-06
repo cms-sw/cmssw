@@ -35,12 +35,12 @@ HGCalTriggerGeometryESProducer::HGCalTriggerGeometryESProducer(const edm::Parame
       isV9Geometry_(iConfig.getParameter<bool>("isV9Geometry")) {
   auto cc = setWhatProduced(this);
   if (isV9Geometry_) {
-    cc.setConsumes(ee_geometry_token_, edm::ESInputTag{"", "HGCalEESensitive"})
-        .setConsumes(hsi_geometry_token_, edm::ESInputTag{"", "HGCalHESiliconSensitive"})
-        .setConsumes(hsc_geometry_token_, edm::ESInputTag{"", "HGCalHEScintillatorSensitive"})
-        .setConsumes(nose_geometry_token_, edm::ESInputTag{"", "HGCalHFNoseSensitive"});
+    ee_geometry_token_ = cc.consumes(edm::ESInputTag{"", "HGCalEESensitive"});
+    hsi_geometry_token_ = cc.consumes(edm::ESInputTag{"", "HGCalHESiliconSensitive"});
+    hsc_geometry_token_ = cc.consumes(edm::ESInputTag{"", "HGCalHEScintillatorSensitive"});
+    nose_geometry_token_ = cc.consumes(edm::ESInputTag{"", "HGCalHFNoseSensitive"});
   } else {
-    cc.setConsumes(calo_geometry_token_);
+    calo_geometry_token_ = cc.consumes();
   }
 }
 

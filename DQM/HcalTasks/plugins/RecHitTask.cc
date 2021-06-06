@@ -5,7 +5,8 @@ using namespace hcaldqm;
 using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
 
-RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
+RecHitTask::RecHitTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   _tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE", edm::InputTag("hbhereco"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("horeco"));
   _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hfreco"));
@@ -33,8 +34,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   DQTask::bookHistograms(ib, r, es);
 
   //	GET WHAT YOU NEED
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
 
   std::vector<uint32_t> vVME;
@@ -455,7 +455,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	book some mes...
   ib.setCurrentFolder(_subsystem + "/" + _name);
   auto scope = DQMStore::IBooker::UseLumiScope(ib);
-  meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
+  meUnknownIds1LS = ib.book1DD("UnknownIds", "UnknownIds", 1, 0, 1);
   _unknownIdsPresent = false;
 }
 
@@ -492,6 +492,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   //	extract some info per event
   int bx = e.bunchCrossing();
+
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
 
   //  To fill histograms outside of the loop, you need to determine if there were
   //  any valid det ids first
@@ -534,7 +537,8 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _cTimingvsEnergy_SubdetPM.fill(did, energy, timing);
     _cOccupancy_depth.fill(did);
     did.subdet() == HcalBarrel ? did.ieta() > 0 ? ehbp += energy : ehbm += energy
-                               : did.ieta() > 0 ? ehep += energy : ehem += energy;
+    : did.ieta() > 0           ? ehep += energy
+                               : ehem += energy;
 
     //	ONLINE ONLY!
     if (_ptype == fOnline) {
@@ -860,13 +864,17 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void RecHitTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::dqmBeginLuminosityBlock(lb, es);
+std::shared_ptr<hcaldqm::Cache> RecHitTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                       edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void RecHitTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void RecHitTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   if (_ptype != fOnline)
     return;
+
+  auto lumiCache = luminosityBlockCache(lb.index());
+  _currentLS = lumiCache->currentLS;
 
   //
   //	GENERATE STATUS ONLY FOR ONLINE
@@ -934,7 +942,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   //	in the end always do the DQTask::endLumi
-  DQTask::dqmEndLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(RecHitTask);

@@ -1,3 +1,9 @@
+///////////////////////////////////////
+//
+// data catalogs are filled in "parse"
+//
+///////////////////////////////////////
+
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "FWCore/Services/src/SiteLocalConfigService.h"
@@ -70,8 +76,7 @@ namespace edm {
 
     SiteLocalConfigService::SiteLocalConfigService(ParameterSet const &pset)
         : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl", defaultURL())),
-          m_dataCatalog(),
-          m_fallbackDataCatalog(),
+          m_dataCatalogs(),
           m_frontierConnect(),
           m_rfioType("castor"),
           m_connected(false),
@@ -127,6 +132,15 @@ namespace edm {
       if (pset.exists("debugLevel")) {
         m_debugLevel = pset.getUntrackedParameter<unsigned int>("debugLevel");
       }
+      if (pset.exists("overrideUseLocalConnectString")) {
+        m_useLocalConnectString = pset.getUntrackedParameter<bool>("overrideUseLocalConnectString");
+      }
+      if (pset.exists("overrideLocalConnectPrefix")) {
+        m_localConnectPrefix = pset.getUntrackedParameter<std::string>("overrideLocalConnectPrefix");
+      }
+      if (pset.exists("overrideLocalConnectSuffix")) {
+        m_localConnectSuffix = pset.getUntrackedParameter<std::string>("overrideLocalConnectSuffix");
+      }
     }
 
     SiteLocalConfigService::~SiteLocalConfigService() {
@@ -136,31 +150,20 @@ namespace edm {
       }
     }
 
-    std::string const SiteLocalConfigService::dataCatalog(void) const {
+    std::vector<std::string> const &SiteLocalConfigService::dataCatalogs(void) const {
       if (!m_connected) {
         //throw cms::Exception("Incomplete configuration")
         //    << "Valid site-local-config not found at " << m_url;
         // Return PoolFileCatalog.xml for now
-        return "file:PoolFileCatalog.xml";
+        static std::vector<std::string> const tmp{"file:PoolFileCatalog.xml"};
+        return tmp;
       }
 
-      if (m_dataCatalog.empty()) {
-        throw cms::Exception("Incomplete configuration") << "Did not find catalog in event-data section in " << m_url;
+      if (m_dataCatalogs.empty()) {
+        throw cms::Exception("Incomplete configuration") << "Did not find catalogs in event-data section in " << m_url;
       }
 
-      return m_dataCatalog;
-    }
-
-    std::string const SiteLocalConfigService::fallbackDataCatalog(void) const {
-      if (!m_connected) {
-        //throw cms::Exception("Incomplete configuration")
-        //    << "Valid site-local-config not found at " << m_url;
-        // Return PoolFileCatalog.xml for now
-        return "file:PoolFileCatalog.xml";
-      }
-
-      // Note: Unlike the dataCatalog, the fallbackDataCatalog may be empty!
-      return m_fallbackDataCatalog;
+      return m_dataCatalogs;
     }
 
     std::string const SiteLocalConfigService::frontierConnect(std::string const &servlet) const {
@@ -214,7 +217,7 @@ namespace edm {
         //  frontier://(serverurl=cmsfrontier.cern.ch:8000/FrontierInt)/CMS_COND_ECAL
         std::string::size_type startservlet = proto.length();
         // if user supplied extra parenthesized options, stop servlet there
-        std::string::size_type endservlet = input.find("(", startservlet);
+        std::string::size_type endservlet = input.find('(', startservlet);
         if (endservlet == std::string::npos) {
           endservlet = input.rfind('/', input.length());
         }
@@ -265,6 +268,9 @@ namespace edm {
     }
 
     std::string const &SiteLocalConfigService::siteName() const { return m_siteName; }
+    bool SiteLocalConfigService::useLocalConnectString() const { return m_useLocalConnectString; }
+    std::string const &SiteLocalConfigService::localConnectPrefix() const { return m_localConnectPrefix; }
+    std::string const &SiteLocalConfigService::localConnectSuffix() const { return m_localConnectSuffix; }
 
     void SiteLocalConfigService::parse(std::string const &url) {
       tinyxml2::XMLDocument doc;
@@ -285,6 +291,9 @@ namespace edm {
       //     <frontier-connect>
       //       ... frontier-interpreted server/proxy xml ...
       //     </frontier-connect>
+      //     <local-connect>
+      //       <connectString prefix="anything1" suffix="anything2"/>
+      //     </local-connect>
       //   </calib-data>
       //   <source-config>
       //     <cache-temp-dir name="/a/b/c"/>
@@ -311,10 +320,11 @@ namespace edm {
           if (eventData) {
             auto catalog = eventData->FirstChildElement("catalog");
             if (catalog) {
-              m_dataCatalog = safe(catalog->Attribute("url"));
+              m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
               catalog = catalog->NextSiblingElement("catalog");
-              if (catalog) {
-                m_fallbackDataCatalog = safe(catalog->Attribute("url"));
+              while (catalog) {
+                m_dataCatalogs.push_back(safe(catalog->Attribute("url")));
+                catalog = catalog->NextSiblingElement("catalog");
               }
             }
             auto rfiotype = eventData->FirstChildElement("rfiotype");
@@ -334,8 +344,22 @@ namespace edm {
             if (frontierConnect) {
               m_frontierConnect = _toParenString(*frontierConnect);
             }
+            auto localConnect = calibData->FirstChildElement("local-connect");
+            if (localConnect) {
+              if (frontierConnect) {
+                throw cms::Exception("Illegal site local configuration")
+                    << "It is illegal to include both frontier-connect and local-connect in the same XML file";
+              }
+              m_useLocalConnectString = true;
+              auto connectString = localConnect->FirstChildElement("connectString");
+              if (connectString) {
+                m_localConnectPrefix = safe(connectString->Attribute("prefix"));
+                m_localConnectSuffix = safe(connectString->Attribute("suffix"));
+              }
+            }
           }
         }
+
         // Parsing of the source config section
         {
           auto sourceConfig = site->FirstChildElement("source-config");
@@ -470,7 +494,9 @@ namespace edm {
           ->setComment(
               "Provide an alternate listing of statistics to send (comma separated list; current options are 'dn' or "
               "'nodn').  If left blank, all information is snet (including DNs).");
-
+      desc.addOptionalUntracked<bool>("overrideUseLocalConnectString");
+      desc.addOptionalUntracked<std::string>("overrideLocalConnectPrefix");
+      desc.addOptionalUntracked<std::string>("overrideLocalConnectSuffix");
       descriptions.add("SiteLocalConfigService", desc);
     }
   }  // namespace service

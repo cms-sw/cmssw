@@ -5,15 +5,20 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DuplicateTrackType.h"
 
 class dso_hidden TrackMerger {
 public:
-  TrackMerger(const edm::ParameterSet &iConfig);
+  TrackMerger(const edm::ParameterSet &iConfig, edm::ConsumesCollector);
   ~TrackMerger();
 
   void init(const edm::EventSetup &iSetup);
@@ -28,6 +33,10 @@ private:
   std::string theBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   edm::ESHandle<TrackerTopology> theTrkTopo;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> builderToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
 
   void addSecondTrackHits(std::vector<const TrackingRecHit *> &hits, const reco::Track &outer) const;
   void sortByHitPosition(const GlobalVector &v,

@@ -4,18 +4,16 @@
 // Tracks with bad pt resolution (suspected fakes) are dropped and not in either collection
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
-
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-//#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -35,9 +33,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
+#include <memory>
 #include <unordered_map>
 
 class HGCalTrackCollectionProducer : public edm::stream::EDProducer<> {
@@ -60,10 +56,14 @@ private:
   //  const bool _useFirstLayerOnly; // always true now
 
   // variables needed for copied extrapolation
-  edm::ESHandle<MagneticField> bField_;
-  edm::ESHandle<TrackerGeometry> tkGeom_;
-  std::array<std::string, 1> hgc_names_;                       // 3 --> 1; extrapolate to hgcee only
-  std::array<edm::ESHandle<HGCalGeometry>, 1> hgcGeometries_;  // 3 --> 1; extrapolate to hgcee only
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkerGeomToken_;
+  const MagneticField* bField_;
+  const TrackerGeometry* tkGeom_;
+  std::array<std::string, 1> hgc_names_;  // 3 --> 1; extrapolate to hgcee only
+  std::array<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>, 1>
+      hgcGeometryTokens_;                              // 3 --> 1; extrapolate to hgcee only
+  std::array<const HGCalGeometry*, 1> hgcGeometries_;  // 3 --> 1; extrapolate to hgcee only
   std::array<std::vector<ReferenceCountingPointer<BoundDisk> >, 1> plusSurface_,
       minusSurface_;  // 3 --> 1; extrapolate to hgcee only
   std::unique_ptr<PropagatorWithMaterial> mat_prop_;
@@ -79,12 +79,17 @@ HGCalTrackCollectionProducer::HGCalTrackCollectionProducer(const edm::ParameterS
                         : reco::TrackBase::highPurity),
       DPtovPtCut_(iConfig.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
       NHitCut_(iConfig.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
-      useIterTracking_(iConfig.getParameter<bool>("useIterativeTracking")) {
+      useIterTracking_(iConfig.getParameter<bool>("useIterativeTracking")),
+      magneticFieldToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
+      tkerGeomToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
   LogDebug("HGCalTrackCollectionProducer")
       << " HGCalTrackCollectionProducer::HGCalTrackCollectionProducer " << std::endl;
 
   const edm::ParameterSet& geoconf = iConfig.getParameterSet("hgcalGeometryNames");
   hgc_names_[0] = geoconf.getParameter<std::string>("HGC_ECAL");
+  for (unsigned i = 0; i < hgcGeometryTokens_.size(); i++) {
+    hgcGeometryTokens_[i] = esConsumes<edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", hgc_names_[i]));
+  }
 
   produces<reco::PFRecTrackCollection>("TracksInHGCal");
   produces<reco::PFRecTrackCollection>("TracksNotInHGCal");
@@ -95,15 +100,15 @@ HGCalTrackCollectionProducer::HGCalTrackCollectionProducer(const edm::ParameterS
 void HGCalTrackCollectionProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) {
   constexpr float m_pion = 0.1396;
   // get dependencies for setting up propagator
-  es.get<IdealMagneticFieldRecord>().get(bField_);
-  es.get<TrackerDigiGeometryRecord>().get(tkGeom_);
+  bField_ = &es.getData(magneticFieldToken_);
+  tkGeom_ = &es.getData(tkerGeomToken_);
   // get HGC geometries (assume that layers are ordered in Z!)
   for (unsigned i = 0; i < hgcGeometries_.size(); ++i) {
-    es.get<IdealGeometryRecord>().get(hgc_names_[i], hgcGeometries_[i]);
+    hgcGeometries_[i] = &es.getData(hgcGeometryTokens_[i]);
   }
 
   // make propagator
-  mat_prop_.reset(new PropagatorWithMaterial(alongMomentum, m_pion, bField_.product()));
+  mat_prop_ = std::make_unique<PropagatorWithMaterial>(alongMomentum, m_pion, bField_);
   // setup HGC layers for track propagation
   Surface::RotationType rot;  //unit rotation matrix
   for (unsigned i = 0; i < hgcGeometries_.size(); ++i) {
@@ -145,7 +150,7 @@ void HGCalTrackCollectionProducer::produce(edm::Event& evt, const edm::EventSetu
       continue;
     bool found = false;
     const TrajectoryStateOnSurface myTSOS =
-        trajectoryStateTransform::outerStateOnSurface(*(track->trackRef()), *(tkGeom_.product()), bField_.product());
+        trajectoryStateTransform::outerStateOnSurface(*(track->trackRef()), *tkGeom_, bField_);
     auto detbegin = myTSOS.globalPosition().z() > 0 ? plusSurface_.begin() : minusSurface_.begin();
     auto detend = myTSOS.globalPosition().z() > 0 ? plusSurface_.end() : minusSurface_.end();
     for (auto det = detbegin; det != detend; ++det) {

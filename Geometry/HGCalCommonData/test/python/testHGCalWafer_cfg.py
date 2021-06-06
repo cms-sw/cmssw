@@ -2,11 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-#process.load("Geometry.HGCalCommonData.testHGCV8XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D35XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D41XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D46XML_cfi")
-process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D49XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D68XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D70XML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
@@ -14,7 +13,7 @@ process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -40,16 +39,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prodEE = cms.EDAnalyzer("HGCalWaferTester",
-                                NameSense     = cms.string("HGCalEESensitive"),
-                                NameDevice    = cms.string("HGCal EE"),
-                                Reco          = cms.bool(False)
-)
+process.load("Geometry.HGCalCommonData.hgcalWaferTesterEE_cfi")
 
-process.prodHEF = process.prodEE.clone(
+process.hgcalWaferTesterHEF = process.hgcalWaferTesterEE.clone(
     NameSense  = "HGCalHESiliconSensitive",
     NameDevice = "HGCal HE Front",
 )
  
  
-process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
+process.p1 = cms.Path(process.generator*process.hgcalWaferTesterEE*process.hgcalWaferTesterHEF)

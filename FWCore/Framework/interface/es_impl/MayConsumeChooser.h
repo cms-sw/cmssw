@@ -43,8 +43,8 @@ namespace edm::eventsetup::impl {
       return func_(this->tagGetter(), iRecord.getTransientHandle(token_));
     }
 
-    virtual EventSetupRecordKey recordKey() const noexcept final { return EventSetupRecordKey::makeKey<RCD>(); }
-    virtual TypeTag productType() const noexcept final { return DataKey::makeTypeTag<PRODUCT>(); }
+    EventSetupRecordKey recordKey() const noexcept final { return EventSetupRecordKey::makeKey<RCD>(); }
+    TypeTag productType() const noexcept final { return DataKey::makeTypeTag<PRODUCT>(); }
 
     // ---------- static member functions --------------------
 

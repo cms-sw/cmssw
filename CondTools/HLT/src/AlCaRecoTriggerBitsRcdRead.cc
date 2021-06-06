@@ -15,8 +15,10 @@
 ///
 ///////////////////////////////////////////////////////////////////////
 
-#include <string>
+#include <memory>
+
 #include <map>
+#include <string>
 //#include <vector>
 #include <sstream>
 #include <fstream>
@@ -54,6 +56,7 @@ private:
   void printMap(edm::RunNumber_t firstRun, edm::RunNumber_t lastRun, const AlCaRecoTriggerBits &triggerMap) const;
 
   // members
+  edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> triggerBitsToken_;
   const OutputType outputType_;
   edm::ESWatcher<AlCaRecoTriggerBitsRcd> watcher_;
   edm::RunNumber_t firstRun_;
@@ -67,7 +70,10 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 AlCaRecoTriggerBitsRcdRead::AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet &cfg)
-    : outputType_(this->stringToEnum(cfg.getUntrackedParameter<std::string>("outputType"))), firstRun_(0), lastRun_(0) {
+    : triggerBitsToken_(esConsumes<edm::Transition::BeginRun>()),
+      outputType_(this->stringToEnum(cfg.getUntrackedParameter<std::string>("outputType"))),
+      firstRun_(0),
+      lastRun_(0) {
   //   edm::LogInfo("") << "@SUB=AlCaRecoTriggerBitsRcdRead"
   // 		   << cfg.getParameter<std::string>("@module_label");
 
@@ -84,7 +90,7 @@ AlCaRecoTriggerBitsRcdRead::AlCaRecoTriggerBitsRcdRead(const edm::ParameterSet &
       break;
   }
   if (!fileName.empty()) {
-    output_.reset(new std::ofstream(fileName.c_str()));
+    output_ = std::make_unique<std::ofstream>(fileName.c_str());
     if (!output_->good()) {
       edm::LogError("IOproblem") << "Could not open output file " << fileName << ".";
       output_.reset();
@@ -117,8 +123,7 @@ void AlCaRecoTriggerBitsRcdRead::beginRun(const edm::Run &run, const edm::EventS
       this->printMap(firstRun_, lastRun_, lastTriggerBits_);
 
     // Get AlCaRecoTriggerBits from EventSetup:
-    edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
-    iSetup.get<AlCaRecoTriggerBitsRcd>().get(triggerBits);
+    const auto &triggerBits = &iSetup.getData(triggerBitsToken_);
     lastTriggerBits_ = *triggerBits;  // copy for later use
     firstRun_ = run.run();            // keep track where it started
   }

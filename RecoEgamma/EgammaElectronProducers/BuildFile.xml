@@ -1,0 +1,11 @@
+<use name="CommonTools/BaseParticlePropagator"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/GsfTrackReco"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="DataFormats/TrackReco"/>
+<use name="RecoEcal/EgammaCoreTools"/>
+<export>
+  <lib name="RecoEgammaEgammaElectronProducers"/>
+</export>

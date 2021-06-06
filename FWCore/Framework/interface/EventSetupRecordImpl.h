@@ -40,7 +40,9 @@ through the 'validityInterval' method.
 #include "FWCore/Framework/interface/NoProxyException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
@@ -57,7 +59,7 @@ through the 'validityInterval' method.
 // forward declarations
 namespace cms {
   class Exception;
-}
+}  // namespace cms
 
 namespace edm {
 
@@ -65,6 +67,8 @@ namespace edm {
   class ESHandleExceptionFactory;
   class ESInputTag;
   class EventSetupImpl;
+  class ServiceToken;
+  class ESParentContext;
 
   namespace eventsetup {
     struct ComponentDescription;
@@ -82,8 +86,12 @@ namespace edm {
 
       ValidityInterval validityInterval() const;
 
-      ///returns false if no data available for key
-      bool doGet(DataKey const& aKey, EventSetupImpl const*, bool aGetTransiently = false) const;
+      ///prefetch the data to setup for subsequent calls to getImplementation
+      void prefetchAsync(WaitingTaskHolder iTask,
+                         ESProxyIndex iProxyIndex,
+                         EventSetupImpl const*,
+                         ServiceToken const&,
+                         ESParentContext) const;
 
       /**returns true only if someone has already requested data for this key
           and the data was retrieved
@@ -141,6 +149,8 @@ namespace edm {
 
       void validate(ComponentDescription const*, ESInputTag const&) const;
 
+      ActivityRegistry const* activityRegistry() const noexcept { return activityRegistry_; }
+
       void addTraceInfoToCmsException(cms::Exception& iException,
                                       char const* iName,
                                       ComponentDescription const*,
@@ -153,13 +163,20 @@ namespace edm {
       void const* getFromProxy(DataKey const& iKey,
                                ComponentDescription const*& iDesc,
                                bool iTransientAccessOnly,
+                               ESParentContext const&,
                                EventSetupImpl const* = nullptr) const;
 
       void const* getFromProxy(ESProxyIndex iProxyIndex,
                                bool iTransientAccessOnly,
                                ComponentDescription const*& iDesc,
                                DataKey const*& oGottenKey,
+                               ESParentContext const&,
                                EventSetupImpl const* = nullptr) const;
+
+      void const* getFromProxyAfterPrefetch(ESProxyIndex iProxyIndex,
+                                            bool iTransientAccessOnly,
+                                            ComponentDescription const*& iDesc,
+                                            DataKey const*& oGottenKey) const;
 
       template <typename DataT>
       void getImplementation(DataT const*& iData,
@@ -167,10 +184,11 @@ namespace edm {
                              ComponentDescription const*& iDesc,
                              bool iTransientAccessOnly,
                              std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory,
+                             ESParentContext const& iParent,
                              EventSetupImpl const* iEventSetupImpl) const {
         DataKey dataKey(DataKey::makeTypeTag<DataT>(), iName, DataKey::kDoNotCopyMemory);
 
-        void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly, iEventSetupImpl);
+        void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly, iParent, iEventSetupImpl);
         if (nullptr == pValue) {
           whyFailedFactory = makeESHandleExceptionFactory([=] {
             NoProxyException<DataT> ex(this->key(), dataKey);
@@ -198,7 +216,7 @@ namespace edm {
         }
         assert(iProxyIndex.value() > -1 and
                iProxyIndex.value() < static_cast<ESProxyIndex::Value_t>(keysForProxies_.size()));
-        void const* pValue = this->getFromProxy(iProxyIndex, iTransientAccessOnly, oDesc, dataKey, iEventSetupImpl);
+        void const* pValue = this->getFromProxyAfterPrefetch(iProxyIndex, iTransientAccessOnly, oDesc, dataKey);
         if (nullptr == pValue) {
           whyFailedFactory = makeESHandleExceptionFactory([=] {
             NoProxyException<DataT> ex(this->key(), *dataKey);

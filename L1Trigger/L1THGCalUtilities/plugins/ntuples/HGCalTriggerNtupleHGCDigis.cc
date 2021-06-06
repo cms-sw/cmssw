@@ -31,6 +31,9 @@ private:
   bool is_Simhit_comp_;
   edm::EDGetToken SimHits_inputee_, SimHits_inputfh_, SimHits_inputbh_;
 
+  std::vector<unsigned int> digiBXselect_;
+  static constexpr unsigned kDigiSize_ = 5;
+
   HGCalTriggerTools triggerTools_;
 
   int hgcdigi_n_;
@@ -42,8 +45,8 @@ private:
   std::vector<float> hgcdigi_eta_;
   std::vector<float> hgcdigi_phi_;
   std::vector<float> hgcdigi_z_;
-  std::vector<uint32_t> hgcdigi_data_;
-  std::vector<int> hgcdigi_isadc_;
+  std::vector<std::vector<uint32_t>> hgcdigi_data_;
+  std::vector<std::vector<int>> hgcdigi_isadc_;
   std::vector<float> hgcdigi_simenergy_;
   // V8 detid scheme
   std::vector<int> hgcdigi_wafer_;
@@ -64,7 +67,8 @@ private:
   std::vector<float> bhdigi_eta_;
   std::vector<float> bhdigi_phi_;
   std::vector<float> bhdigi_z_;
-  std::vector<uint32_t> bhdigi_data_;
+  std::vector<std::vector<uint32_t>> bhdigi_data_;
+  std::vector<std::vector<int>> bhdigi_isadc_;
   std::vector<float> bhdigi_simenergy_;
 
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
@@ -74,6 +78,20 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCDigis, "HGCalT
 
 HGCalTriggerNtupleHGCDigis::HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {
   is_Simhit_comp_ = conf.getParameter<bool>("isSimhitComp");
+  digiBXselect_ = conf.getParameter<std::vector<unsigned int>>("digiBXselect");
+
+  if (digiBXselect_.empty()) {
+    throw cms::Exception("BadInitialization") << "digiBXselect vector is empty";
+  }
+  if (*std::max_element(digiBXselect_.begin(), digiBXselect_.end()) >= kDigiSize_) {
+    throw cms::Exception("BadInitialization")
+        << "digiBXselect vector requests a BX outside of maximum size of digis (" << kDigiSize_ << " BX)";
+  }
+  //sort and check for duplicates
+  std::sort(digiBXselect_.begin(), digiBXselect_.end());
+  if (std::unique(digiBXselect_.begin(), digiBXselect_.end()) != digiBXselect_.end()) {
+    throw cms::Exception("BadInitialization") << "digiBXselect vector contains duplicate BX values";
+  }
 }
 
 void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
@@ -87,6 +105,12 @@ void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
     SimHits_inputfh_ = collector.consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("fhSimHits"));
     SimHits_inputbh_ = collector.consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("bhSimHits"));
   }
+
+  hgcdigi_data_.resize(digiBXselect_.size());
+  hgcdigi_isadc_.resize(digiBXselect_.size());
+  bhdigi_data_.resize(digiBXselect_.size());
+  bhdigi_isadc_.resize(digiBXselect_.size());
+
   tree.Branch("hgcdigi_n", &hgcdigi_n_, "hgcdigi_n/I");
   tree.Branch("hgcdigi_id", &hgcdigi_id_);
   tree.Branch("hgcdigi_subdet", &hgcdigi_subdet_);
@@ -96,8 +120,16 @@ void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
   tree.Branch("hgcdigi_eta", &hgcdigi_eta_);
   tree.Branch("hgcdigi_phi", &hgcdigi_phi_);
   tree.Branch("hgcdigi_z", &hgcdigi_z_);
-  tree.Branch("hgcdigi_data", &hgcdigi_data_);
-  tree.Branch("hgcdigi_isadc", &hgcdigi_isadc_);
+  std::string bname;
+  auto withBX([&bname](char const* vname, unsigned int bx) -> char const* {
+    bname = std::string(vname) + "_BX" + to_string(bx);
+    return bname.c_str();
+  });
+  for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
+    unsigned int bxi = digiBXselect_[i];
+    tree.Branch(withBX("hgcdigi_data", bxi), &hgcdigi_data_[i]);
+    tree.Branch(withBX("hgcdigi_isadc", bxi), &hgcdigi_isadc_[i]);
+  }
   // V9 detid scheme
   tree.Branch("hgcdigi_waferu", &hgcdigi_waferu_);
   tree.Branch("hgcdigi_waferv", &hgcdigi_waferv_);
@@ -119,7 +151,11 @@ void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
   tree.Branch("bhdigi_eta", &bhdigi_eta_);
   tree.Branch("bhdigi_phi", &bhdigi_phi_);
   tree.Branch("bhdigi_z", &bhdigi_z_);
-  tree.Branch("bhdigi_data", &bhdigi_data_);
+  for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
+    unsigned int bxi = digiBXselect_[i];
+    tree.Branch(withBX("bhdigi_data", bxi), &bhdigi_data_[i]);
+    tree.Branch(withBX("bhdigi_isadc", bxi), &bhdigi_isadc_[i]);
+  }
   if (is_Simhit_comp_)
     tree.Branch("bhdigi_simenergy", &bhdigi_simenergy_);
 }
@@ -156,8 +192,10 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
   hgcdigi_eta_.reserve(hgcdigi_n_);
   hgcdigi_phi_.reserve(hgcdigi_n_);
   hgcdigi_z_.reserve(hgcdigi_n_);
-  hgcdigi_data_.reserve(hgcdigi_n_);
-  hgcdigi_isadc_.reserve(hgcdigi_n_);
+  for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
+    hgcdigi_data_[i].reserve(hgcdigi_n_);
+    hgcdigi_isadc_[i].reserve(hgcdigi_n_);
+  }
   if (triggerGeometry_->isV9Geometry()) {
     hgcdigi_waferu_.reserve(hgcdigi_n_);
     hgcdigi_waferv_.reserve(hgcdigi_n_);
@@ -180,10 +218,13 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
   bhdigi_eta_.reserve(bhdigi_n_);
   bhdigi_phi_.reserve(bhdigi_n_);
   bhdigi_z_.reserve(bhdigi_n_);
+  for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
+    bhdigi_data_[i].reserve(bhdigi_n_);
+    bhdigi_isadc_[i].reserve(bhdigi_n_);
+  }
   if (is_Simhit_comp_)
     bhdigi_simenergy_.reserve(bhdigi_n_);
 
-  const int kIntimeSample = 2;
   for (const auto& digi : ee_digis) {
     const DetId id(digi.id());
     hgcdigi_id_.emplace_back(id.rawId());
@@ -194,7 +235,10 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     hgcdigi_eta_.emplace_back(cellpos.eta());
     hgcdigi_phi_.emplace_back(cellpos.phi());
     hgcdigi_z_.emplace_back(cellpos.z());
-    hgcdigi_data_.emplace_back(digi[kIntimeSample].data());
+    for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
+      hgcdigi_data_[i].emplace_back(digi[digiBXselect_[i]].data());
+      hgcdigi_isadc_[i].emplace_back(!digi[digiBXselect_[i]].mode());
+    }
     if (triggerGeometry_->isV9Geometry()) {
       const HGCSiliconDetId idv9(digi.id());
       hgcdigi_waferu_.emplace_back(idv9.waferU());
@@ -208,10 +252,6 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
       hgcdigi_wafertype_.emplace_back(idv8.waferType());
       hgcdigi_cell_.emplace_back(idv8.cell());
     }
-    int is_adc = 0;
-    if (!(digi[kIntimeSample].mode()))
-      is_adc = 1;
-    hgcdigi_isadc_.emplace_back(is_adc);
     if (is_Simhit_comp_) {
       double hit_energy = 0;
       auto itr = simhits_ee.find(id);
@@ -231,7 +271,10 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     hgcdigi_eta_.emplace_back(cellpos.eta());
     hgcdigi_phi_.emplace_back(cellpos.phi());
     hgcdigi_z_.emplace_back(cellpos.z());
-    hgcdigi_data_.emplace_back(digi[kIntimeSample].data());
+    for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
+      hgcdigi_data_[i].emplace_back(digi[digiBXselect_[i]].data());
+      hgcdigi_isadc_[i].emplace_back(!digi[digiBXselect_[i]].mode());
+    }
     if (triggerGeometry_->isV9Geometry()) {
       const HGCSiliconDetId idv9(digi.id());
       hgcdigi_waferu_.emplace_back(idv9.waferU());
@@ -245,10 +288,6 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
       hgcdigi_wafertype_.emplace_back(idv8.waferType());
       hgcdigi_cell_.emplace_back(idv8.cell());
     }
-    int is_adc = 0;
-    if (!(digi[kIntimeSample].mode()))
-      is_adc = 1;
-    hgcdigi_isadc_.emplace_back(is_adc);
     if (is_Simhit_comp_) {
       double hit_energy = 0;
       auto itr = simhits_fh.find(id);
@@ -269,7 +308,10 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     bhdigi_eta_.emplace_back(cellpos.eta());
     bhdigi_phi_.emplace_back(cellpos.phi());
     bhdigi_z_.emplace_back(cellpos.z());
-    bhdigi_data_.emplace_back(digi[kIntimeSample].data());
+    for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
+      bhdigi_data_[i].emplace_back(digi[digiBXselect_[i]].data());
+      bhdigi_isadc_[i].emplace_back(!digi[digiBXselect_[i]].mode());
+    }
     if (triggerGeometry_->isV9Geometry()) {
       const HGCScintillatorDetId idv9(digi.id());
       bhdigi_ieta_.emplace_back(idv9.ietaAbs());
@@ -347,8 +389,10 @@ void HGCalTriggerNtupleHGCDigis::clear() {
   hgcdigi_eta_.clear();
   hgcdigi_phi_.clear();
   hgcdigi_z_.clear();
-  hgcdigi_data_.clear();
-  hgcdigi_isadc_.clear();
+  for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
+    hgcdigi_data_[i].clear();
+    hgcdigi_isadc_[i].clear();
+  }
   if (is_Simhit_comp_)
     hgcdigi_simenergy_.clear();
 
@@ -362,7 +406,10 @@ void HGCalTriggerNtupleHGCDigis::clear() {
   bhdigi_eta_.clear();
   bhdigi_phi_.clear();
   bhdigi_z_.clear();
-  bhdigi_data_.clear();
+  for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
+    bhdigi_data_[i].clear();
+    bhdigi_isadc_[i].clear();
+  }
   if (is_Simhit_comp_)
     bhdigi_simenergy_.clear();
 }

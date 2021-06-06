@@ -11,11 +11,12 @@ from RecoEgamma.EgammaPhotonProducers.conversions_cfi import *
 conversionTask = cms.Task(conversions)
 conversionSequence = cms.Sequence(conversionTask)
 
-oldegConversions = conversions.clone()
-oldegConversions.scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters")
-oldegConversions.bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
-oldegConversions.scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
-oldegConversions.bcEndcapCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
-oldegConversions.conversionIOTrackProducer = cms.string('ckfInOutTracksFromOldEGConversions')
-oldegConversions.conversionOITrackProducer = cms.string('ckfOutInTracksFromOldEGConversions')
+oldegConversions = conversions.clone(
+    scHybridBarrelProducer    = "correctedHybridSuperClusters",
+    bcBarrelCollection        = "hybridSuperClusters:hybridBarrelBasicClusters",
+    scIslandEndcapProducer    = "correctedMulti5x5SuperClustersWithPreshower",
+    bcEndcapCollection        = "multi5x5SuperClusters:multi5x5EndcapBasicClusters",
+    conversionIOTrackProducer = 'ckfInOutTracksFromOldEGConversions',
+    conversionOITrackProducer = 'ckfOutInTracksFromOldEGConversions'
+)
 oldegConversionSequence = cms.Sequence(oldegConversions)

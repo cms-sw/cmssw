@@ -1,9 +1,5 @@
-<flags CXXFLAGS="-g -DDEBUG -O3 -Wall -std=c++17" />
-
-<use name="root" />
+<flags CXXFLAGS="-g -DDEBUG -O3 -Wall -std=c++17"/>
+<use name="root"/>
 <use name="rootgraphics"/>
-
-<lib name="stdc++fs" />
-
-<bin name="DMRtrends" file="DMRtrends.cc" />
-
+<lib name="stdc++fs"/>
+<bin name="DMRtrends" file="DMRtrends.cc"/>

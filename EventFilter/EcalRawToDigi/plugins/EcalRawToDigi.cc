@@ -7,10 +7,6 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -114,41 +110,58 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf)
   edm::InputTag dataLabel = conf.getParameter<edm::InputTag>("InputLabel");
   edm::InputTag fedsLabel = conf.getParameter<edm::InputTag>("FedLabel");
 
-  // Producer products :
-  produces<EBDigiCollection>("ebDigis");
-  produces<EEDigiCollection>("eeDigis");
-  produces<EBSrFlagCollection>();
-  produces<EESrFlagCollection>();
-  produces<EcalRawDataCollection>();
-  produces<EcalPnDiodeDigiCollection>();
-  produces<EcalTrigPrimDigiCollection>("EcalTriggerPrimitives");
-  produces<EcalPSInputDigiCollection>("EcalPseudoStripInputs");
+  // Producer products
+  if (headerUnpacking_) {
+    produces<EcalRawDataCollection>();
+  }
 
-  // Integrity for xtal data
-  produces<EBDetIdCollection>("EcalIntegrityGainErrors");
-  produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
-  produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
+  if (feUnpacking_) {
+    produces<EBDigiCollection>("ebDigis");
+    produces<EEDigiCollection>("eeDigis");
 
-  // Integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
-  produces<EEDetIdCollection>("EcalIntegrityGainErrors");
-  produces<EEDetIdCollection>("EcalIntegrityGainSwitchErrors");
-  produces<EEDetIdCollection>("EcalIntegrityChIdErrors");
+    // Integrity for xtal data
+    produces<EBDetIdCollection>("EcalIntegrityGainErrors");
+    produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
+    produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
 
-  // Integrity Errors
-  produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityZSXtalIdErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
+    // Integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
+    produces<EEDetIdCollection>("EcalIntegrityGainErrors");
+    produces<EEDetIdCollection>("EcalIntegrityGainSwitchErrors");
+    produces<EEDetIdCollection>("EcalIntegrityChIdErrors");
+
+    // Integrity Errors
+    produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
+    produces<EcalElectronicsIdCollection>("EcalIntegrityZSXtalIdErrors");
+    produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
+
+    //
+    produces<EcalPnDiodeDigiCollection>();
+  }
+
+  if (srpUnpacking_) {
+    produces<EBSrFlagCollection>();
+    produces<EESrFlagCollection>();
+  }
+
+  if (tccUnpacking_) {
+    produces<EcalTrigPrimDigiCollection>("EcalTriggerPrimitives");
+    produces<EcalPSInputDigiCollection>("EcalPseudoStripInputs");
+  }
 
   // Mem channels' integrity
-  produces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityMemBlockSizeErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityMemChIdErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityMemGainErrors");
+  if (memUnpacking_) {
+    produces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors");
+    produces<EcalElectronicsIdCollection>("EcalIntegrityMemBlockSizeErrors");
+    produces<EcalElectronicsIdCollection>("EcalIntegrityMemChIdErrors");
+    produces<EcalElectronicsIdCollection>("EcalIntegrityMemGainErrors");
+  }
 
   dataToken_ = consumes<FEDRawDataCollection>(dataLabel);
   if (REGIONAL_) {
     fedsToken_ = consumes<EcalListOfFEDS>(fedsLabel);
   }
+  chStatusToken_ = esConsumes<EcalChannelStatusMap, EcalChannelStatusRcd, edm::Transition::BeginRun>();
+  ecalMappingToken_ = esConsumes<EcalElectronicsMapping, EcalMappingRcd>();
 
   // Build a new Electronics mapper and parse default map file
   myMap_ = new EcalElectronicsMapper(numbXtalTSamples_, numbTriggerTSamples_);
@@ -275,8 +288,7 @@ void EcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
 
 void EcalRawToDigi::beginRun(const edm::Run&, const edm::EventSetup& es) {
   // channel status database
-  edm::ESHandle<EcalChannelStatusMap> pChStatus;
-  es.get<EcalChannelStatusRcd>().get(pChStatus);
+  edm::ESHandle<EcalChannelStatusMap> pChStatus = es.getHandle(chStatusToken_);
   theUnpacker_->setChannelStatusDB(pChStatus.product());
 
   // uncomment following line to print list of crystals with bad status
@@ -292,16 +304,14 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 
   if (first_) {
     watcher_.check(es);
-    edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-    es.get<EcalMappingRcd>().get(ecalmapping);
+    edm::ESHandle<EcalElectronicsMapping> ecalmapping = es.getHandle(ecalMappingToken_);
     myMap_->setEcalElectronicsMapping(ecalmapping.product());
 
     first_ = false;
 
   } else {
     if (watcher_.check(es)) {
-      edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-      es.get<EcalMappingRcd>().get(ecalmapping);
+      edm::ESHandle<EcalElectronicsMapping> ecalmapping = es.getHandle(ecalMappingToken_);
       myMap_->deletePointers();
       myMap_->resetPointers();
       myMap_->setEcalElectronicsMapping(ecalmapping.product());

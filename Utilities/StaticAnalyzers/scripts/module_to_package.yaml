@@ -1,0 +1,366 @@
+Alignment/CommonAlignmentProducer:
+- AlignmentProducerAsAnalyzer
+- ObjectSelector<TrackConfigSelector, std::vector<reco::Track, std::allocator<reco::Track>
+  >, NonNullNumberSelector, helper::NullPostProcessor<std::vector<reco::Track, std::allocator<reco::Track>
+  >, edm::stream::EDFilter<> >, helper::TrackCollectionStoreManager, helper::TrackSelectorBase,
+  reco::modules::NoEventSetupInit<TrackConfigSelector> >
+Alignment/LaserAlignment:
+- LaserAlignmentEventFilter
+Alignment/MuonAlignmentAlgorithms:
+- MuonMillepedeTrackRefitter
+CommonTools/RecoAlgos:
+- ObjectSelector<CosmicTrackingParticleSelector, std::vector<TrackingParticle, std::allocator<TrackingParticle>
+  >, NonNullNumberSelector, helper::NullPostProcessor<std::vector<TrackingParticle,
+  std::allocator<TrackingParticle> >, edm::EDFilter>, helper::CollectionStoreManager<std::vector<TrackingParticle,
+  std::allocator<TrackingParticle> >, helper::IteratorToObjectConverter<std::vector<TrackingParticle,
+  std::allocator<TrackingParticle> > > >, helper::ObjectSelectorBase<std::vector<TrackingParticle,
+  std::allocator<TrackingParticle> >, edm::EDFilter>, reco::modules::NoEventSetupInit<CosmicTrackingParticleSelector>
+  >
+CommonTools/RecoUtils:
+- PFCand_AssoMap
+Configuration/Skimming:
+- LeptonSkimming
+DQM/CSCMonitorModule:
+- CSCMonitorModule
+DQM/CTPPS:
+- TotemTimingDQMSource
+DQM/DTMonitorModule:
+- DTResolutionAnalysisTask
+DQM/EcalMonitorTasks:
+- EcalDQMonitorTask
+DQM/EcalPreshowerMonitorModule:
+- ESDaqInfoTask
+DQM/L1TMonitor:
+- L1TdeRCT
+DQMOffline/Muon:
+- CSCOfflineMonitor
+EgammaAnalysis/ElectronTools:
+- CalibratedElectronProducerRun2T
+- CalibratedElectronProducerRun2T<pat::Electron>
+- CalibratedElectronProducerRun2T<reco::GsfElectron>
+EventFilter/HcalRawToDigi:
+- HcalRawToDigiGPU
+EventFilter/L1TRawToDigi:
+- omtf::OmtfPacker
+- omtf::OmtfUnpacker
+EventFilter/RPCRawToDigi:
+- RPCUnpackingModule
+FastSimulation/MuonSimHitProducer:
+- MuonSimHitProducer
+FastSimulation/SimplifiedGeometryPropagator:
+- FastSimProducer
+- FastTrackDeDxProducer
+FastSimulation/Tracking:
+- TrackCandidateProducer
+- TrajectorySeedProducer
+FastSimulation/TrackingRecHitProducer:
+- FastTrackerRecHitMatcher
+- TrackingRecHitProducer
+GeneratorInterface/GenFilters:
+- CosmicGenFilterHelix
+- PythiaFilterIsolatedTrack
+GeneratorInterface/RivetInterface:
+- GenParticles2HepMCConverter
+HLTrigger/HLTfilters:
+- HLTLevel1GTSeed
+- TriggerResultsFilterFromDB
+HLTrigger/JetMET:
+- PixelJetPuId
+HLTrigger/btau:
+- HLTDisplacedmumuVtxProducer
+- HLTDisplacedmumumuVtxProducer
+- HLTDisplacedtktkVtxProducer
+- HLTDisplacedtktktkVtxProducer
+- HLTmumutkVtxProducer
+- HLTmumutktkVtxProducer
+HLTrigger/special:
+- HLTEcalPhiSymFilter
+- HLTRechitsToDigis
+- HLTRegionalEcalResonanceFilter
+L1Trigger/GlobalTriggerAnalyzer:
+- L1GtTrigReport
+L1Trigger/HardwareValidation:
+- L1Comparator
+L1Trigger/L1CaloTrigger:
+- L1EGCrystalClusterEmulatorProducer
+L1Trigger/L1TGlobal:
+- L1TGlobalPrescaler
+L1Trigger/L1THGCal:
+- HFNoseVFEProducer
+- HGCalBackendLayer1Producer
+- HGCalBackendLayer2Producer
+- HGCalConcentratorProducer
+- HGCalTowerMapProducer
+- HGCalTowerProducer
+- HGCalVFEProducer
+L1Trigger/L1TMuonBarrel:
+- L1TMuonBarrelKalmanStubProducer
+- L1TMuonBarrelTrackProducer
+L1Trigger/L1TMuonEndCap:
+- L1TMuonEndCapTrackProducer
+L1Trigger/L1TTwinMux:
+- L1TTwinMuxProducer
+L1Trigger/Phase2L1ParticleFlow:
+- PFClusterProducer
+- PFTrackProducer
+L1Trigger/RPCTechnicalTrigger:
+- RPCTechnicalTrigger
+L1Trigger/RegionalCaloTrigger:
+- L1RCTProducer
+L1Trigger/TrackFindingTracklet:
+- L1FPGATrackProducer
+Mixing/Base:
+- edm::BMixingModule
+MuonAnalysis/MomentumScaleCalibration:
+- MuScleFitMuonProducer
+PhysicsTools/HepMCCandAlgos:
+- GenParticlePruner
+PhysicsTools/IsolationAlgos:
+- CandIsoDepositProducer
+PhysicsTools/NanoAOD:
+- L1TriggerResultsConverter
+PhysicsTools/PatAlgos:
+- pat::JetCorrFactorsProducer
+- pat::PATElectronProducer
+- pat::PATElectronSlimmer
+- pat::PATGenericParticleProducer
+- pat::PATIsolatedTrackProducer
+- pat::PATJetProducer
+- pat::PATJetSlimmer
+- pat::PATMETProducer
+- pat::PATMuonProducer
+- pat::PATMuonSlimmer
+- pat::PATPhotonProducer
+- pat::PATPhotonSlimmer
+- pat::PATTauProducer
+- pat::PATTauSlimmer
+- pat::PATTriggerProducer
+- pat::TauJetCorrFactorsProducer
+RecoBTag/PixelCluster:
+- PixelClusterTagInfoProducer
+RecoBTag/SoftLepton:
+- SoftLepton
+- SoftPFElectronTagInfoProducer
+- SoftPFMuonTagInfoProducer
+RecoBTau/JetTagComputer:
+- JetTagProducer
+RecoEcal/EgammaClusterProducers:
+- EgammaSCCorrectionMaker
+RecoEgamma/EgammaElectronProducers:
+- GEDGsfElectronFinalizer
+- GsfElectronProducer
+- LowPtGsfElectronFinalizer
+- LowPtGsfElectronIDProducer
+- LowPtGsfElectronSeedProducer
+RecoEgamma/EgammaPhotonProducers:
+- ConversionTrackCandidateProducer
+- GEDPhotonProducer
+- PhotonProducer
+- TrackProducer
+- TrackProducerWithSCAssociation
+RecoEgamma/Examples:
+- SiStripElectronAnalyzer
+- SimplePhotonAnalyzer
+RecoHGCal/TICL:
+- TrackstersProducer
+RecoHI/HiEgammaAlgos:
+- HiEgammaSCCorrectionMaker
+- HiSpikeCleaner
+- photonIsolationHIProducer
+RecoHI/HiEvtPlaneAlgos:
+- EvtPlaneProducer
+- HiEvtPlaneFlatProducer
+RecoHI/HiTracking:
+- HIPixelClusterVtxProducer
+- HIProtoTrackFilterProducer
+RecoJets/JetAssociationProducers:
+- JetTracksAssociatorAtCaloFace
+- TrackExtrapolator
+RecoJets/JetProducers:
+- JetIDProducer
+- PileupJetIdProducer
+- QGTagger
+RecoLocalCalo/EcalRecProducers:
+- EcalRecHitProducerGPU
+- EcalUncalibRecHitProducer
+RecoLocalCalo/HGCalRecProducers:
+- HGCalLayerClusterProducer
+- HGCalMultiClusterProducer
+- HGCalRecHitProducer
+- HGCalUncalibRecHitProducer
+RecoLocalCalo/HcalRecProducers:
+- HBHERecHitProducerGPU
+RecoLocalFastTime/FTLClusterizer:
+- MTDClusterProducer
+RecoLocalFastTime/FTLRecProducers:
+- MTDRecHitProducer
+- MTDTrackingRecHitProducer
+RecoLocalMuon/DTRecHit:
+- DTRecHitProducer
+RecoLocalMuon/DTSegment:
+- DTRecSegment2DProducer
+- DTRecSegment4DProducer
+- DTSegment4DT0Corrector
+RecoLocalMuon/GEMCSCSegment:
+- GEMCSCSegmentProducer
+RecoLocalMuon/RPCRecHit:
+- RPCRecHitProducer
+RecoLocalTracker/SiPixelClusterizer:
+- SiPixelClusterProducer
+RecoLocalTracker/SiStripClusterizer:
+- SiStripClusterizerFromRaw
+RecoLocalTracker/SiStripZeroSuppression:
+- SiStripZeroSuppression
+RecoLocalTracker/SubCollectionProducers:
+- HITrackClusterRemover
+- HLTTrackClusterRemoverNew
+- JetCoreClusterSplitter
+- PixelClusterSelectorTopBottom
+- SeedClusterRemover
+- SeedClusterRemoverPhase2
+- StripClusterSelectorTopBottom
+RecoMET/METFilters:
+- EEBadScFilter
+- EcalBadCalibFilter
+- EcalDeadCellBoundaryEnergyFilter
+- EcalLaserCorrFilter
+RecoMET/METPUSubtraction:
+- cms::PFMETProducer
+- reco::PFMETProducerMVA
+RecoMET/METProducers:
+- reco::CSCHaloDataProducer
+RecoMTD/TrackExtender:
+- TrackExtenderWithMTDT
+- TrackExtenderWithMTDT<std::vector<reco::Track, std::allocator<reco::Track> > >
+RecoMuon/CosmicMuonProducer:
+- CosmicMuonProducer
+RecoMuon/GlobalMuonProducer:
+- TevMuonProducer
+RecoMuon/GlobalTrackingTools:
+- GlobalTrackQualityProducer
+RecoMuon/L2MuonIsolationProducer:
+- L2MuonIsolationProducer
+RecoMuon/L2MuonProducer:
+- L2MuonProducer
+RecoMuon/L3MuonIsolationProducer:
+- L3MuonCombinedRelativeIsolationProducer
+RecoMuon/MuonIdentification:
+- MuonIdProducer
+- MuonTimingProducer
+RecoMuon/MuonIsolationProducers:
+- MuIsoDepositProducer
+RecoMuon/StandAloneMuonProducer:
+- StandAloneMuonProducer
+RecoMuon/TrackerSeedGenerator:
+- TSGForOIFromL2
+- TSGFromL2Muon
+RecoParticleFlow/PFClusterProducer:
+- CorrectedECALPFClusterProducer
+- PFMultiDepthClusterProducer
+- PFRecHitProducer
+RecoParticleFlow/PFProducer:
+- PFBlockProducer
+- PFEGammaProducer
+- PFProducer
+RecoParticleFlow/PFSimProducer:
+- PFSimParticleProducer
+RecoParticleFlow/PFTracking:
+- GoodSeedProducer
+- HGCalTrackCollectionProducer
+- LightPFTrackProducer
+- PFConversionProducer
+- PFDisplacedTrackerVertexProducer
+- PFDisplacedVertexCandidateProducer
+- PFDisplacedVertexProducer
+- PFElecTkProducer
+- PFNuclearProducer
+- PFV0Producer
+RecoPixelVertexing/PixelLowPtUtilities:
+- PixelTrackProducer
+- PixelVertexProducerClusters
+- SiPixelClusterShapeCacheProducer
+RecoPixelVertexing/PixelTrackFitting:
+- PixelFitterByConformalMappingAndLineProducer
+- PixelFitterByHelixProjectionsProducer
+RecoPixelVertexing/PixelVertexFinding:
+- FastPrimaryVertexProducer
+- FastPrimaryVertexWithWeightsProducer
+RecoTauTag/RecoTau:
+- PFTauPrimaryVertexProducerBase
+- PFTauSecondaryVertexProducer
+- PFTauTransverseImpactParameters
+RecoTracker/ConversionSeedGenerators:
+- PhotonConversionTrajectorySeedProducerFromQuadruplets
+- PhotonConversionTrajectorySeedProducerFromSingleLeg
+RecoTracker/DeDx:
+- DeDxEstimatorProducer
+RecoTracker/FinalTrackSelectors:
+- MultiTrackSelector
+RecoTracker/MeasurementDet:
+- MeasurementTrackerEventProducer
+RecoTracker/SingleTrackPattern:
+- cms::CosmicTrackFinder
+RecoTracker/SpecialSeedGenerators:
+- CosmicSeedGenerator
+- CtfSpecialSeedGenerator
+- OutsideInMuonSeeder
+- SimpleCosmicBONSeeder
+RecoTracker/TkHitPairs:
+- HitPairEDProducer
+RecoTracker/TkSeedGenerator:
+- DeepCoreSeedGenerator
+- MultiHitFromChi2EDProducer
+- SeedGeneratorFromProtoTracksEDProducer
+- SeedGeneratorFromRegionHitsEDProducer
+RecoTracker/TkSeedingLayers:
+- SeedingLayersEDProducer
+RecoTracker/TkTrackingRegions:
+- PixelInactiveAreaTrackingRegionsSeedingLayersProducer
+RecoTracker/TrackProducer:
+- DAFTrackProducer
+- GsfTrackProducer
+- GsfTrackRefitter
+- TrackRefitter
+RecoVertex/PrimaryVertexProducer:
+- PrimaryVertexProducer
+RecoVertex/V0Producer:
+- V0Producer
+SimCalorimetry/EcalSelectiveReadoutProducers:
+- EcalSelectiveReadoutProducer
+SimCalorimetry/EcalTrigPrimProducers:
+- EcalTrigPrimProducer
+SimCalorimetry/EcalZeroSuppressionProducers:
+- ESZeroSuppressionProducer
+SimG4Core/Application:
+- OscarMTProducer
+SimGeneral/TrackingAnalysis:
+- TrackingParticleNumberOfLayersProducer
+SimMuon/CSCDigitizer:
+- CSCDigiProducer
+SimMuon/MCTruth:
+- MuonAssociatorEDProducer
+- MuonToTrackingParticleAssociatorEDProducer
+- SeedToTrackProducer
+SimMuon/RPCDigitizer:
+- RPCandIRPCDigiProducer
+SimPPS/PPSSimTrackProducer:
+- PPSSimTrackProducer
+SimPPS/RPDigiProducer:
+- RPDigiProducer
+SimTracker/TrackAssociation:
+- TrackTimeValueMapProducer
+SimTracker/TrackAssociatorProducers:
+- TrackAssociatorByChi2Producer
+- TrackAssociatorByHitsProducer
+- TrackAssociatorByPositionProducer
+Validation/DTRecHits:
+- DTRecHitQuality
+- DTSegment2DQuality
+- DTSegment2DSLPhiQuality
+- DTSegment4DQuality
+Validation/HGCalValidation:
+- HGCalHitValidation
+- HGCalValidator
+Validation/RecoTrack:
+- MultiTrackValidator
+- TrackFromSeedProducer

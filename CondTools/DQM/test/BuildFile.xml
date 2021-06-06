@@ -1,0 +1,12 @@
+<environment>
+  <bin name="testCondToolsDQMUpload" file="testPayloadWriting.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash CondTools/DQM/test test_write.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+
+  <bin name="testCondToolsDQMRead" file="testPayloadReading.cpp">
+    <flags PRE_TEST="testCondToolsDQMUpload"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash CondTools/DQM/test test_read.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+</environment>

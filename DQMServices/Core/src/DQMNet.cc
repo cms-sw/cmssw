@@ -1,5 +1,4 @@
 #include "DQMServices/Core/interface/DQMNet.h"
-#include "DQMServices/Core/src/DQMError.h"
 #include "classlib/iobase/InetServerSocket.h"
 #include "classlib/iobase/LocalServerSocket.h"
 #include "classlib/iobase/Filename.h"
@@ -20,6 +19,8 @@
 #include <cassert>
 #include <cfloat>
 #include <cinttypes>
+
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #if __APPLE__
 #define MESSAGE_SIZE_LIMIT (1 * 1024 * 1024)
@@ -968,11 +969,9 @@ void DQMNet::startLocalServer(int port) {
     // FIXME: Abort instead?
     logme() << "ERROR: Failed to start server at port " << port << ": " << e.explain() << std::endl;
 
-    raiseDQMError("DQMNet::startLocalServer",
-                  "Failed to start server at port"
-                  " %d: %s",
-                  port,
-                  e.explain().c_str());
+    throw cms::Exception("DQMNet::startLocalServer") << "Failed to start server at port " <<
+
+        port << ": " << e.explain().c_str();
   }
 
   logme() << "INFO: DQM server started at port " << port << std::endl;
@@ -998,11 +997,8 @@ void DQMNet::startLocalServer(const char *path) {
     // FIXME: Abort instead?
     logme() << "ERROR: Failed to start server at path " << path << ": " << e.explain() << std::endl;
 
-    raiseDQMError("DQMNet::startLocalServer",
-                  "Failed to start server at path"
-                  " %s: %s",
-                  path,
-                  e.explain().c_str());
+    throw cms::Exception("DQMNet::startLocalServer")
+        << "Failed to start server at path " << path << ": " << e.explain().c_str();
   }
 
   logme() << "INFO: DQM server started at path " << path << std::endl;

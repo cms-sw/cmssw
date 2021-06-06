@@ -30,7 +30,6 @@
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -122,6 +121,7 @@ private:
   edm::EDGetTokenT<HFDigiCollection> tok_hfdigi_;
   edm::EDGetTokenT<QIE10DigiCollection> tok_qie10digi_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_gtRec_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
 };
 
 // constructors and destructor
@@ -162,6 +162,8 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_
   tok_qie10digi_ = consumes<QIE10DigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"));
   tok_gtRec_ = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"));
 
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+
   // Read correction factors
   std::ifstream infile(cfile.c_str());
   if (!infile.is_open()) {
@@ -184,14 +186,14 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_
       }
     }
     infile.close();
-    edm::LogInfo("RecAnalyzer") << "Reads " << nrec << " correction factors for " << ndets << " detIds";
+    edm::LogVerbatim("RecAnalyzer") << "Reads " << nrec << " correction factors for " << ndets << " detIds";
     theRecalib_ = (ndets > 0);
   }
 
-  edm::LogInfo("RecAnalyzer") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_ << " (NZS) "
-                              << runNZS_ << " and with " << ieta.size() << " detId for full histogram";
-  edm::LogInfo("RecAnalyzer") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_ << ":"
-                              << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
+  edm::LogVerbatim("RecAnalyzer") << " Flags (ReCalib): " << theRecalib_ << " (IgnoreL1): " << ignoreL1_ << " (NZS) "
+                                  << runNZS_ << " and with " << ieta.size() << " detId for full histogram";
+  edm::LogVerbatim("RecAnalyzer") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_ << ":"
+                                  << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
   for (unsigned int k = 0; k < ieta.size(); ++k) {
     HcalSubdetector subd =
         ((std::abs(ieta[k]) > 29) ? HcalForward
@@ -201,11 +203,11 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_
                                                                    : (depth[k] == 4) ? HcalOuter : HcalBarrel);
     unsigned int id = (HcalDetId(subd, ieta[k], iphi[k], depth[k])).rawId();
     hcalID_.push_back(id);
-    edm::LogInfo("RecAnalyzer") << "DetId[" << k << "] " << HcalDetId(id);
+    edm::LogVerbatim("RecAnalyzer") << "DetId[" << k << "] " << HcalDetId(id);
   }
-  edm::LogInfo("RecAnalyzer") << "Select on " << trigbit_.size() << " L1 Trigger selection";
+  edm::LogVerbatim("RecAnalyzer") << "Select on " << trigbit_.size() << " L1 Trigger selection";
   for (unsigned int k = 0; k < trigbit_.size(); ++k)
-    edm::LogInfo("RecAnalyzer") << "Bit[" << k << "] " << trigbit_[k];
+    edm::LogVerbatim("RecAnalyzer") << "Bit[" << k << "] " << trigbit_[k];
 }
 
 RecAnalyzerMinbias::~RecAnalyzerMinbias() {}
@@ -350,63 +352,59 @@ void RecAnalyzerMinbias::beginRun(edm::Run const&, edm::EventSetup const& iS) {
   if (!init_) {
     init_ = true;
     if (fillHist_) {
-      edm::ESHandle<HcalTopology> htopo;
-      iS.get<IdealGeometryRecord>().get(htopo);
-      if (htopo.isValid()) {
-        const HcalTopology* hcaltopology = htopo.product();
+      const HcalTopology* hcaltopology = &iS.getData(tok_htopo_);
 
-        char name[700], title[700];
-        // For HB
-        int maxDepthHB = hcaltopology->maxDepthHB();
-        int nbinHB = (Noise_) ? 18 : int(2000 * eHighHB_);
-        double x_min = (Noise_) ? -3. : 0.;
-        double x_max = (Noise_) ? 3. : 2. * eHighHB_;
-        for (int eta = -50; eta < 50; eta++) {
-          for (int phi = 0; phi < 100; phi++) {
-            for (int depth = 1; depth <= maxDepthHB; depth++) {
-              HcalDetId cell(HcalBarrel, eta, phi, depth);
-              if (hcaltopology->valid(cell)) {
-                sprintf(name, "HBeta%dphi%ddep%d", eta, phi, depth);
-                sprintf(title, "HB #eta %d #phi %d depth %d", eta, phi, depth);
-                TH1D* h = fs_->make<TH1D>(name, title, nbinHB, x_min, x_max);
-                histHC_[cell] = h;
-              }
+      char name[700], title[700];
+      // For HB
+      int maxDepthHB = hcaltopology->maxDepthHB();
+      int nbinHB = (Noise_) ? 18 : int(2000 * eHighHB_);
+      double x_min = (Noise_) ? -3. : 0.;
+      double x_max = (Noise_) ? 3. : 2. * eHighHB_;
+      for (int eta = -50; eta < 50; eta++) {
+        for (int phi = 0; phi < 100; phi++) {
+          for (int depth = 1; depth <= maxDepthHB; depth++) {
+            HcalDetId cell(HcalBarrel, eta, phi, depth);
+            if (hcaltopology->valid(cell)) {
+              sprintf(name, "HBeta%dphi%ddep%d", eta, phi, depth);
+              sprintf(title, "HB #eta %d #phi %d depth %d", eta, phi, depth);
+              TH1D* h = fs_->make<TH1D>(name, title, nbinHB, x_min, x_max);
+              histHC_[cell] = h;
             }
           }
         }
-        // For HE
-        int maxDepthHE = hcaltopology->maxDepthHE();
-        int nbinHE = (Noise_) ? 18 : int(2000 * eHighHE_);
-        x_min = (Noise_) ? -3. : 0.;
-        x_max = (Noise_) ? 3. : 2. * eHighHE_;
-        for (int eta = -50; eta < 50; eta++) {
-          for (int phi = 0; phi < 100; phi++) {
-            for (int depth = 1; depth <= maxDepthHE; depth++) {
-              HcalDetId cell(HcalEndcap, eta, phi, depth);
-              if (hcaltopology->valid(cell)) {
-                sprintf(name, "HEeta%dphi%ddep%d", eta, phi, depth);
-                sprintf(title, "HE #eta %d #phi %d depth %d", eta, phi, depth);
-                TH1D* h = fs_->make<TH1D>(name, title, nbinHE, x_min, x_max);
-                histHC_[cell] = h;
-              }
+      }
+      // For HE
+      int maxDepthHE = hcaltopology->maxDepthHE();
+      int nbinHE = (Noise_) ? 18 : int(2000 * eHighHE_);
+      x_min = (Noise_) ? -3. : 0.;
+      x_max = (Noise_) ? 3. : 2. * eHighHE_;
+      for (int eta = -50; eta < 50; eta++) {
+        for (int phi = 0; phi < 100; phi++) {
+          for (int depth = 1; depth <= maxDepthHE; depth++) {
+            HcalDetId cell(HcalEndcap, eta, phi, depth);
+            if (hcaltopology->valid(cell)) {
+              sprintf(name, "HEeta%dphi%ddep%d", eta, phi, depth);
+              sprintf(title, "HE #eta %d #phi %d depth %d", eta, phi, depth);
+              TH1D* h = fs_->make<TH1D>(name, title, nbinHE, x_min, x_max);
+              histHC_[cell] = h;
             }
           }
         }
-        // For HF
-        int maxDepthHF = 4;
-        int nbinHF = (Noise_) ? 200 : int(2000 * eHighHF_);
-        x_min = (Noise_) ? -10. : 0.;
-        x_max = (Noise_) ? 10. : 2. * eHighHF_;
-        for (int eta = -50; eta < 50; eta++) {
-          for (int phi = 0; phi < 100; phi++) {
-            for (int depth = 1; depth <= maxDepthHF; depth++) {
-              HcalDetId cell(HcalForward, eta, phi, depth);
-              if (hcaltopology->valid(cell)) {
-                sprintf(name, "HFeta%dphi%ddep%d", eta, phi, depth);
-                sprintf(title, "Energy (HF #eta %d #phi %d depth %d)", eta, phi, depth);
-                TH1D* h = fs_->make<TH1D>(name, title, nbinHF, x_min, x_max);
-                histHC_[cell] = h;
-              }
+      }
+      // For HF
+      int maxDepthHF = 4;
+      int nbinHF = (Noise_) ? 200 : int(2000 * eHighHF_);
+      x_min = (Noise_) ? -10. : 0.;
+      x_max = (Noise_) ? 10. : 2. * eHighHF_;
+      for (int eta = -50; eta < 50; eta++) {
+        for (int phi = 0; phi < 100; phi++) {
+          for (int depth = 1; depth <= maxDepthHF; depth++) {
+            HcalDetId cell(HcalForward, eta, phi, depth);
+            if (hcaltopology->valid(cell)) {
+              sprintf(name, "HFeta%dphi%ddep%d", eta, phi, depth);
+              sprintf(title, "Energy (HF #eta %d #phi %d depth %d)", eta, phi, depth);
+              TH1D* h = fs_->make<TH1D>(name, title, nbinHF, x_min, x_max);
+              histHC_[cell] = h;
             }
           }
         }
@@ -453,7 +451,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     edm::Handle<QIE11DigiCollection> qie11digi;
     iEvent.getByToken(tok_qie11digi_, qie11digi);
     if (qie11digi.isValid()) {
-      for (QIE11DataFrame const& digi : *(qie11digi.product())) {
+      for (QIE11DataFrame const digi : *(qie11digi.product())) {
         double amplitudefullTSs = 0.;
         if (HcalDetId(digi.id()).subdet() == HcalBarrel) {
           for (int i = 0; i < digi.samples(); i++)
@@ -490,7 +488,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     edm::Handle<QIE10DigiCollection> qie10digi;
     iEvent.getByToken(tok_qie10digi_, qie10digi);
     if (qie10digi.isValid()) {
-      for (QIE10DataFrame const& digi : *(qie10digi.product())) {
+      for (QIE10DataFrame const digi : *(qie10digi.product())) {
         double amplitudefullTSs = 0.;
         if (HcalDetId(digi.id()).subdet() == HcalForward) {
           for (int i = 0; i < digi.samples(); i++)
@@ -583,7 +581,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
         }
       }
       if (!ok) {
-        edm::LogInfo("RecAnalyzer") << "No passed L1 Trigger found";
+        edm::LogVerbatim("RecAnalyzer") << "No passed L1 Trigger found";
       }
     }
   }

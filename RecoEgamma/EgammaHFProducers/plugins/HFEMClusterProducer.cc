@@ -5,14 +5,34 @@
 // $Id: HFEMClusterProducer.cc,v 1.2 2007/09/19 Kevin Klapoetke
 //
 
-#include <iostream>
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "RecoEgamma/EgammaHFProducers/plugins/HFEMClusterProducer.h"
+
+#include "HFClusterAlgo.h"
+
+class HFEMClusterProducer : public edm::stream::EDProducer<> {
+public:
+  explicit HFEMClusterProducer(edm::ParameterSet const& conf);
+  void produce(edm::Event& e, edm::EventSetup const& iSetup) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) final { algo_.resetForRun(); }
+
+private:
+  const edm::EDGetTokenT<HFRecHitCollection> hfreco_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  HFClusterAlgo algo_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HFEMClusterProducer);
+
 using namespace reco;
 HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf)
-    : hfreco_(consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("hits"))) {
+    : hfreco_(consumes(conf.getParameter<edm::InputTag>("hits"))), geometryToken_{esConsumes()} {
   produces<reco::HFEMClusterShapeCollection>();
   produces<reco::BasicClusterCollection>();
   produces<reco::SuperClusterCollection>();
@@ -28,12 +48,8 @@ HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf)
 }
 
 void HFEMClusterProducer::produce(edm::Event& e, edm::EventSetup const& iSetup) {
-  edm::Handle<HFRecHitCollection> hf_hits;
-
-  e.getByToken(hfreco_, hf_hits);
-
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<CaloGeometryRecord>().get(geometry);
+  auto const& hf_hits = e.get(hfreco_);
+  auto const& geometry = iSetup.getData(geometryToken_);
 
   // create return data
   auto retdata1 = std::make_unique<HFEMClusterShapeCollection>();
@@ -41,7 +57,7 @@ void HFEMClusterProducer::produce(edm::Event& e, edm::EventSetup const& iSetup) 
 
   algo_.isMC(!e.isRealData());
 
-  algo_.clusterize(*hf_hits, *geometry, *retdata1, *retdata2);
+  algo_.clusterize(hf_hits, geometry, *retdata1, *retdata2);
   edm::OrphanHandle<reco::SuperClusterCollection> SupHandle;
   edm::OrphanHandle<reco::HFEMClusterShapeCollection> ShapeHandle;
 

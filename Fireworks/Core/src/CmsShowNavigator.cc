@@ -10,7 +10,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 // system include files
-#include "boost/bind.hpp"
+#include <functional>
 #include "boost/regex.hpp"
 #include "TROOT.h"
 #include "TTree.h"
@@ -58,7 +58,7 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain& main)
       m_main(main),
       m_guiFilter(nullptr) {
   m_guiFilter = new FWGUIEventFilter(this);
-  filterStateChanged_.connect(boost::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, _1));
+  filterStateChanged_.connect(std::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, std::placeholders::_1));
 }
 
 CmsShowNavigator::~CmsShowNavigator() { delete m_guiFilter; }

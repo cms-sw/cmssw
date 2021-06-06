@@ -112,6 +112,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
+#include <memory>
+
 #include <vector>
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -556,16 +558,16 @@ MuScleFit::MuScleFit(const edm::ParameterSet& pset) : MuScleFitBase(pset), total
   MuScleFitUtils::massWindowHalfWidth[2][4] = 0.2;
   MuScleFitUtils::massWindowHalfWidth[2][5] = 0.2;
 
-  muonSelector_.reset(new MuScleFitMuonSelector(theMuonLabel_,
-                                                theMuonType_,
-                                                PATmuons_,
-                                                MuScleFitUtils::resfind,
-                                                MuScleFitUtils::speedup,
-                                                genParticlesName_,
-                                                compareToSimTracks_,
-                                                simTracksCollection_,
-                                                MuScleFitUtils::sherpa_,
-                                                debug_));
+  muonSelector_ = std::make_unique<MuScleFitMuonSelector>(theMuonLabel_,
+                                                          theMuonType_,
+                                                          PATmuons_,
+                                                          MuScleFitUtils::resfind,
+                                                          MuScleFitUtils::speedup,
+                                                          genParticlesName_,
+                                                          compareToSimTracks_,
+                                                          simTracksCollection_,
+                                                          MuScleFitUtils::sherpa_,
+                                                          debug_);
 
   MuScleFitUtils::backgroundHandler =
       new BackgroundHandler(pset.getParameter<std::vector<int> >("BgrFitType"),
@@ -654,7 +656,11 @@ void MuScleFit::beginOfJobInConstructor()
     std::stringstream ss;
     ss << i;
     std::string rootFileName = ss.str() + "_" + theRootFileName_;
-    theFiles_.push_back(new TFile(rootFileName.c_str(), "RECREATE"));
+    if (theCompressionSettings_ > -1) {
+      theFiles_.push_back(new TFile(rootFileName.c_str(), "RECREATE", "", theCompressionSettings_));
+    } else {
+      theFiles_.push_back(new TFile(rootFileName.c_str(), "RECREATE"));
+    }
   }
   if (debug_ > 0)
     std::cout << "[MuScleFit]: Root file created" << std::endl;
@@ -1219,6 +1225,7 @@ void MuScleFit::duringFastLoop() {
       double deltalike;
       if (loopCounter == 0) {
         std::vector<double> initpar;
+        initpar.reserve((int)(MuScleFitUtils::parResol.size()));
         for (int i = 0; i < (int)(MuScleFitUtils::parResol.size()); i++) {
           initpar.push_back(MuScleFitUtils::parResol[i]);
         }

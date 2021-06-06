@@ -7,6 +7,8 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 #include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 
 namespace l1t {
@@ -21,6 +23,8 @@ namespace l1t {
       virtual EtSumBxCollection* getEtSums(const unsigned int copy) { return nullptr; }
       virtual JetBxCollection* getJets(const unsigned int copy) { return nullptr; }
       virtual TauBxCollection* getTaus(const unsigned int copy) { return nullptr; }
+
+      virtual EcalTrigPrimDigiCollection* getEcalDigisBx(const unsigned int copy) { return nullptr; };
     };
   }  // namespace stage2
 }  // namespace l1t

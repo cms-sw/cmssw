@@ -1,20 +1,11 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
-#from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
-#process = cms.Process('HGCGeomAnalysis',Phase2C4)
-#process.load('Configuration.Geometry.GeometryExtended2026D35_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
-
-from Configuration.Eras.Era_Phase2C8_cff import Phase2C8
-process = cms.Process('HGCGeomAnalysis',Phase2C8)
-process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-
-#from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-#process = cms.Process('HGCGeomAnalysis',Phase2C9)
-#process.load('Configuration.Geometry.GeometryExtended2026D46_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D46Reco_cff')
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
+#process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -24,29 +15,21 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load('Configuration.StandardSequences.Digi_cff')
-process.load('Configuration.StandardSequences.SimL1Emulator_cff')
-process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
-### setup HGCal local reco
-# get uncalibrechits with weights method
-process.load("RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi")
-process.HGCalUncalibRecHit.HGCEEdigiCollection  = 'hgcalDigis:EE'
-process.HGCalUncalibRecHit.HGCHEFdigiCollection = 'hgcalDigis:HEfront'
-
-# get rechits e.g. from the weights
-process.load("RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi")
-process.HGCalRecHit.HGCEEuncalibRecHitCollection  = 'HGCalUncalibRecHit:HGCEEUncalibRecHits'
-process.HGCalRecHit.HGCHEFuncalibRecHitCollection = 'HGCalUncalibRecHit:HGCHEFUncalibRecHits'
-
-
-process.HGCalRecoLocal = cms.Sequence(process.HGCalUncalibRecHit +
-                                      process.HGCalRecHit )
+process.load('Configuration.StandardSequences.Digi_cff')
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
+process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
+process.load('Configuration.StandardSequences.DigiToRaw_cff')
+process.load('HLTrigger.Configuration.HLT_Fake2_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('Configuration.StandardSequences.L1Reco_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.StandardSequences.RecoSim_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2000)
@@ -67,45 +50,15 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications')
 )
 
-
-# Output definitiond
-process.output = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-#    outputCommands = cms.untracked.vstring('keep *'),
-    fileName = cms.untracked.string('file:testHGCalBHValid.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
-    ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('generation_step')
-    )
-)
-
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        ValidHGCal = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-    ),
-    categories = cms.untracked.vstring('HcalSim',
-        'ValidHGCal'),
-    destinations = cms.untracked.vstring('cout','cerr')
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.ValidHGCal=dict()
+    process.MessageLogger.HcalSim=dict()
 
 # Additional output definition
 process.load('Validation.HGCalValidation.hgcalBHValidation_cfi')
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcBHValid.root'),
+                                   fileName = cms.string('hgcBHValidD83.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
@@ -113,7 +66,7 @@ process.TFileService = cms.Service("TFileService",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
@@ -134,6 +87,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 
 #Modified to produce hgceedigis
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
+process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 #Following Removes Mag Field
 process.g4SimHits.UseMagneticField = False
@@ -146,20 +100,28 @@ process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
+process.L1TrackTrigger_step = cms.Path(process.L1TrackTrigger)
 process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.recotest_step = cms.Path(process.HGCalRecoLocal)
+process.raw2digi_step = cms.Path(process.RawToDigi)
+process.L1Reco_step = cms.Path(process.L1Reco)
+process.reconstruction_step = cms.Path(process.localreco)
+process.recosim_step = cms.Path(process.recosim)
 process.analysis_step = cms.Path(process.hgcalBHAnalysis)
-process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.recotest_step,process.analysis_step)
-#process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.digi2raw_step,process.recotest_step,process.analysis_step)
-#process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.recotest_step,process.analysis_step)
+process.schedule = cms.Schedule(process.generation_step,
+				process.simulation_step,
+				process.digitisation_step,
+                                process.L1simulation_step,
+                                process.L1TrackTrigger_step,
+                                process.digi2raw_step,
+                                process.raw2digi_step,
+                                process.L1Reco_step,
+                                process.reconstruction_step,
+                                process.recosim_step,
+                                process.analysis_step,
+				)
+
 # filter all path with the production filter sequence
 for path in process.paths:
-        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
-
-for label, prod in six.iteritems(process.producers_()):
-        if prod.type_() == "OscarMTProducer":
-            # ugly hack
-            prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"
+        if getattr(process,path)._seq is not None: getattr(process,path)._seq = process.ProductionFilterSequence * getattr(process,path)._seq

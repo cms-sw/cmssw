@@ -116,7 +116,7 @@ int HcalHPDRBXMap::iphiloRBX(int index) {
         << " RBX index " << index << " is invalid in HcalHPDRBXMap::iphiloRBX().\n";
 
   // get the list of HPD indices in the RBX
-  boost::array<int, NUM_HPDS_PER_RBX> arr;
+  std::array<int, NUM_HPDS_PER_RBX> arr;
   indicesHPDfromRBX(index, arr);
 
   // return the lowest iphi of the first HPD
@@ -154,7 +154,7 @@ int HcalHPDRBXMap::iphihiRBX(int index) {
         << " RBX index " << index << " is invalid in HcalHPDRBXMap::iphihiRBX().\n";
 
   // get the list of HPD indices in the RBX
-  boost::array<int, NUM_HPDS_PER_RBX> arr;
+  std::array<int, NUM_HPDS_PER_RBX> arr;
   indicesHPDfromRBX(index, arr);
 
   // return the highest iphi of the last HPD
@@ -162,7 +162,7 @@ int HcalHPDRBXMap::iphihiRBX(int index) {
 }
 
 // returns the list of HPD indices found in a given RBX
-void HcalHPDRBXMap::indicesHPDfromRBX(int rbxindex, boost::array<int, NUM_HPDS_PER_RBX>& hpdindices) {
+void HcalHPDRBXMap::indicesHPDfromRBX(int rbxindex, std::array<int, NUM_HPDS_PER_RBX>& hpdindices) {
   if (!isValidRBX(rbxindex))
     throw edm::Exception(edm::errors::LogicError)
         << " RBX index " << rbxindex << " is invalid in HcalHPDRBXMap::indicesHPD().\n";

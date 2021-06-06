@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -116,6 +117,7 @@ private:
   std::vector<int> layerReadout;  // Don't readout layer if entry is 0 (Layer number 1 in the numbering scheme is idx 0)
   bool mergeDigis;                // Keep only one digi at the same chamber, strip, partition, and BX
   edm::EDGetTokenT<ME0DigiPreRecoCollection> token;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geom_token_;
 
   bool useBuiltinGeo;
   const ME0Geometry* geometry;
@@ -275,7 +277,8 @@ ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps)
       maxBXReadout(ps.getParameter<int>("maxBXReadout")),
       layerReadout(ps.getParameter<std::vector<int>>("layerReadout")),
       mergeDigis(ps.getParameter<bool>("mergeDigis")),
-      token(consumes<ME0DigiPreRecoCollection>(edm::InputTag(ps.getParameter<std::string>("inputCollection")))) {
+      token(consumes<ME0DigiPreRecoCollection>(edm::InputTag(ps.getParameter<std::string>("inputCollection")))),
+      geom_token_(esConsumes<ME0Geometry, MuonGeometryRecord, edm::Transition::BeginRun>()) {
   produces<ME0DigiPreRecoCollection>();
   produces<ME0DigiPreRecoMap>();
 
@@ -312,8 +315,7 @@ ME0ReDigiProducer::~ME0ReDigiProducer() {
 
 void ME0ReDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
   // set geometry
-  edm::ESHandle<ME0Geometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<ME0Geometry> hGeom = eventSetup.getHandle(geom_token_);
   geometry = &*hGeom;
 
   const auto& chambers = geometry->chambers();

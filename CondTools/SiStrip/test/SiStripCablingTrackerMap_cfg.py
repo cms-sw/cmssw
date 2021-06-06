@@ -4,11 +4,18 @@ process = cms.Process("TrackerMapProd")
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
     cablingReader = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('cablingMap.log')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring(''),
+    files = cms.untracked.PSet(
+        cablingMap = cms.untracked.PSet(
+
+        )
+    )
 )
 
 import CalibTracker.Configuration.Common.PoolDBESSource_cfi

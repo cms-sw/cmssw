@@ -2,13 +2,6 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
@@ -25,6 +18,16 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet& ps, edm:
   EELaserMAX_ = ps.getParameter<double>("EELaserMAX");
 
   skipTimeCalib_ = ps.getParameter<bool>("skipTimeCalib");
+
+  icalToken_ = c.esConsumes<EcalIntercalibConstants, EcalIntercalibConstantsRcd>();
+  if (!skipTimeCalib_) {
+    itimeToken_ = c.esConsumes<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd>();
+    offtimeToken_ = c.esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>();
+  }
+  agcToken_ = c.esConsumes<EcalADCToGeVConstant, EcalADCToGeVConstantRcd>();
+  chStatusToken_ = c.esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  if (laserCorrection_)
+    laserToken_ = c.esConsumes<EcalLaserDbService, EcalLaserDbRecord>();
 
   // Traslate string representation of flagsMapDBReco into enum values
   const edm::ParameterSet& p = ps.getParameter<edm::ParameterSet>("flagsMapDBReco");
@@ -54,17 +57,17 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet& ps, edm:
 }
 
 void EcalRecHitWorkerSimple::set(const edm::EventSetup& es) {
-  es.get<EcalIntercalibConstantsRcd>().get(ical);
+  ical = es.getHandle(icalToken_);
 
   if (!skipTimeCalib_) {
-    es.get<EcalTimeCalibConstantsRcd>().get(itime);
-    es.get<EcalTimeOffsetConstantRcd>().get(offtime);
+    itime = es.getHandle(itimeToken_);
+    offtime = es.getHandle(offtimeToken_);
   }
 
-  es.get<EcalADCToGeVConstantRcd>().get(agc);
-  es.get<EcalChannelStatusRcd>().get(chStatus);
+  agc = es.getHandle(agcToken_);
+  chStatus = es.getHandle(chStatusToken_);
   if (laserCorrection_)
-    es.get<EcalLaserDbRecord>().get(laser);
+    laser = es.getHandle(laserToken_);
 }
 
 bool EcalRecHitWorkerSimple::run(const edm::Event& evt,

@@ -4,7 +4,8 @@
   <class name="CoreSimTrack" ClassVersion="10">
    <version ClassVersion="10" checksum="3936841839"/>
   </class>
-  <class name="SimTrack" ClassVersion="11">
+  <class name="SimTrack" ClassVersion="12">
+   <version ClassVersion="12" checksum="3470347245"/>
    <version ClassVersion="11" checksum="1785575744"/>
    <version ClassVersion="10" checksum="1430205451"/>
   </class>

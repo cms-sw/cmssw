@@ -25,13 +25,16 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    suppressWarning = cms.untracked.vstring('TrackRefitter'),
-    suppressInfo = cms.untracked.vstring('TrackRefitter'),
-    suppressDebug = cms.untracked.vstring('TrackRefitter'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('ERROR')
     ),
-    destinations = cms.untracked.vstring('cout')
+    suppressDebug = cms.untracked.vstring('TrackRefitter'),
+    suppressInfo = cms.untracked.vstring('TrackRefitter'),
+    suppressWarning = cms.untracked.vstring('TrackRefitter')
 )
 
 # Conditions (Global Tag is used here):

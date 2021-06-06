@@ -257,8 +257,8 @@ if len(modulesTypes) > 1:
 moduleType = modulesTypes.pop()
 
 spacing = '  ';
-print('#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>')
-print('#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>')
+print('#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"')
+print('#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"')
 print()
 print('void')
 print(moduleType + '::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {')
@@ -273,6 +273,8 @@ for label, module in six.iteritems(modules):
   print(newSpacing + 'edm::ParameterSetDescription desc;')
   printParameterSetDescription(newSpacing, 'desc', module, 0)
   print(newSpacing + 'descriptions.add("' + label + '", desc);')
+  print(newSpacing + '// or use the following to generate the label from the module\'s C++ type')
+  print(newSpacing + '//descriptions.addWithDefaultLabel(desc);')
   if len(modules) > 1:
     print(spacing+'}')
 print('}')

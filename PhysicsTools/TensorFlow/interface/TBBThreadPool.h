@@ -13,9 +13,9 @@
 
 #include "tensorflow/core/lib/core/threadpool.h"
 
-#include "tbb/task_scheduler_init.h"
 #include "tbb/task_arena.h"
 #include "tbb/task_group.h"
+#include "tbb/global_control.h"
 
 namespace tensorflow {
 
@@ -27,7 +27,9 @@ namespace tensorflow {
     }
 
     explicit TBBThreadPool(int nThreads = -1)
-        : nThreads_(nThreads > 0 ? nThreads : tbb::task_scheduler_init::default_num_threads()), numScheduleCalled_(0) {
+        : nThreads_(nThreads > 0 ? nThreads
+                                 : tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism)),
+          numScheduleCalled_(0) {
       // when nThreads is zero or smaller, use the default value determined by tbb
     }
 

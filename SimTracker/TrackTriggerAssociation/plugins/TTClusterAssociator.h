@@ -7,6 +7,7 @@
  *
  *  \author Nicola Pozzobon
  *  \date   2013, Jul 19
+ *  (tidy up: Ian Tomalin, 2020)
  *
  */
 
@@ -52,21 +53,17 @@ public:
 
 private:
   /// Data members
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > thePixelDigiSimLinkHandle;
-  edm::Handle<std::vector<TrackingParticle> > TrackingParticleHandle;
+  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > thePixelDigiSimLinkHandle_;
+  edm::Handle<std::vector<TrackingParticle> > trackingParticleHandle_;
 
-  std::vector<edm::InputTag> TTClustersInputTags;
+  std::vector<edm::InputTag> ttClustersInputTags_;
 
-  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > digisimLinkToken;
-  edm::EDGetTokenT<std::vector<TrackingParticle> > tpToken;
-  //std::vector< edm::EDGetTokenT< edm::DetSetVector< TTCluster< T > > > > TTClustersTokens;
-  std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<T> > > > TTClustersTokens;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > digisimLinkToken_;
+  edm::EDGetTokenT<std::vector<TrackingParticle> > tpToken_;
+  std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<T> > > > ttClustersTokens_;
 
-  //    const StackedTrackerGeometry                           *theStackedTrackers;
-  //unsigned int                                           ADCThreshold;
-
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  edm::ESHandle<TrackerTopology> theTrackerTopology;
+  edm::ESHandle<TrackerGeometry> theTrackerGeometry_;
+  edm::ESHandle<TrackerTopology> theTrackerTopology_;
 
   /// Mandatory methods
   void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
@@ -85,16 +82,16 @@ private:
 /// Constructors
 template <typename T>
 TTClusterAssociator<T>::TTClusterAssociator(const edm::ParameterSet& iConfig) {
-  digisimLinkToken =
+  digisimLinkToken_ =
       consumes<edm::DetSetVector<PixelDigiSimLink> >(iConfig.getParameter<edm::InputTag>("digiSimLinks"));
-  tpToken = consumes<std::vector<TrackingParticle> >(iConfig.getParameter<edm::InputTag>("trackingParts"));
+  tpToken_ = consumes<std::vector<TrackingParticle> >(iConfig.getParameter<edm::InputTag>("trackingParts"));
 
-  TTClustersInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTClusters");
+  ttClustersInputTags_ = iConfig.getParameter<std::vector<edm::InputTag> >("TTClusters");
 
-  for (auto iTag = TTClustersInputTags.begin(); iTag != TTClustersInputTags.end(); iTag++) {
-    TTClustersTokens.push_back(consumes<edmNew::DetSetVector<TTCluster<T> > >(*iTag));
+  for (const auto& iTag : ttClustersInputTags_) {
+    ttClustersTokens_.push_back(consumes<edmNew::DetSetVector<TTCluster<T> > >(iTag));
 
-    produces<TTClusterAssociationMap<T> >((*iTag).instance());
+    produces<TTClusterAssociationMap<T> >(iTag.instance());
   }
 }
 
@@ -106,8 +103,8 @@ TTClusterAssociator<T>::~TTClusterAssociator() {}
 template <typename T>
 void TTClusterAssociator<T>::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   /// Get the geometry
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-  iSetup.get<TrackerTopologyRcd>().get(theTrackerTopology);
+  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry_);
+  iSetup.get<TrackerTopologyRcd>().get(theTrackerTopology_);
 
   /// Print some information when loaded
   edm::LogInfo("TTClusterAssociator< ") << templateNameFinder<T>() << " > loaded.";

@@ -1,11 +1,10 @@
+<use name="boost"/>
+<use name="clhep"/>
+<use name="geant4core"/>
+<use name="heppdt"/>
+<use name="FWCore/MessageLogger"/>
+<use name="SimG4Core/MagneticField"/>
+<use name="SimG4Core/Physics"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-<use   name="FWCore/MessageLogger"/>
-<use   name="SimG4Core/Physics"/>
-<use   name="SimG4Core/MagneticField"/>
-<use   name="geant4core"/>
-<use   name="clhep"/>
-<use   name="heppdt"/>
-<use   name="boost"/>
-#<use   name="expat"/>

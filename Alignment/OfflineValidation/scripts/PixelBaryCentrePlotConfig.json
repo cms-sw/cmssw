@@ -1,0 +1,9 @@
+{
+    "pixelDataBase": "frontier://FrontierProd/CMS_CONDITIONS",
+    "pixelLocalReco": "SiPixelTemplateDBObject_38T_v16_offline",
+    "substructures": {"BPIX":"BPIX","FPIX":"FPIX"},
+    "baryCentreLabels": {"rereco":"Legacy reprocessing",
+                              "prompt":"Alignment during data taking",
+                              "EOY":"End-of-Year Re-reconstruction"},
+    "colorScheme": {"rereco":419,"prompt":600,"EOY":632}
+}

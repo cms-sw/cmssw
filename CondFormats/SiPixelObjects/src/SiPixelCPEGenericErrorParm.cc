@@ -1,5 +1,4 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <fstream>
 
 void SiPixelCPEGenericErrorParm::fillCPEGenericErrorParm(double version, std::string file) {

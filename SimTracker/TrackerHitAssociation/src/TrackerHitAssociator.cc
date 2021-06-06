@@ -426,7 +426,7 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
                                  << " last strip = " << last - 1 << std::endl
                                  << " detID = " << detID << " DETSET size = " << link_detset.data.size() << std::endl;
       int channel;
-      for (auto linkiter : link_detset.data) {
+      for (const auto& linkiter : link_detset.data) {
         channel = (int)(linkiter.channel());
         if (channel >= first && channel < last) {
           LogDebug("TrkHitAssocDbg") << "Channel = " << std::setw(4) << linkiter.channel()

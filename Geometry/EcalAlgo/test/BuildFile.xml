@@ -1,0 +1,12 @@
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/EcalAlgo"/>
+<use name="Geometry/EcalCommonData"/>
+<use name="root"/>
+<library file="*.cc" name="EcalAlgoEcalCellParameterDump">
+  <flags EDM_PLUGIN="1"/>
+</library>

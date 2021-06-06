@@ -21,7 +21,6 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELlist.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
@@ -45,7 +44,7 @@ namespace edm {
   public:
     // --- birth/death:
     //
-    ErrorObj(const ELseverityLevel& sev, const ELstring& id, bool verbatim = false);
+    ErrorObj(const messagelogger::ELseverityLevel& sev, std::string_view id, bool verbatim = false);
     ErrorObj(const ErrorObj& orig);  // Same serial number and everything!
     virtual ~ErrorObj();
 
@@ -55,21 +54,21 @@ namespace edm {
     //
     int serial() const;
     const ELextendedID& xid() const;
-    const ELstring& idOverflow() const;
+    const std::string& idOverflow() const;
     time_t timestamp() const;
     const ELlist_string& items() const;
     bool reactedTo() const;
-    ELstring fullText() const;
-    ELstring context() const;
+    std::string fullText() const;
+    const std::string& context() const;
     bool is_verbatim() const;
 
     // mutators:
     //
-    virtual void setSeverity(const ELseverityLevel& sev);
-    virtual void setID(const ELstring& ID);
-    virtual void setModule(const ELstring& module);
-    virtual void setSubroutine(const ELstring& subroutine);
-    virtual void setContext(const std::string_view& context);
+    virtual void setSeverity(const messagelogger::ELseverityLevel& sev);
+    virtual void setID(std::string_view ID);
+    virtual void setModule(std::string_view module);
+    virtual void setSubroutine(std::string_view subroutine);
+    virtual void setContext(std::string_view context);
 
     // -----  Methods for ErrorLog or for physicists logging errors:
     //
@@ -78,12 +77,14 @@ namespace edm {
     ErrorObj& opltlt(const char s[]);
     inline ErrorObj& operator<<(std::ostream& (*f)(std::ostream&));
     inline ErrorObj& operator<<(std::ios_base& (*f)(std::ios_base&));
+    template <typename... Args>
+    inline ErrorObj& format(std::string_view fmt, Args const&... args);
 
-    virtual ErrorObj& emitToken(const ELstring& txt);
+    virtual ErrorObj& emitToken(std::string_view txt);
 
     // ---  mutators for use by ELadministrator and ELtsErrorLog
     //
-    virtual void set(const ELseverityLevel& sev, const ELstring& id);
+    virtual void set(const messagelogger::ELseverityLevel& sev, std::string_view id);
     virtual void clear();
     virtual void setReactedTo(bool r);
 
@@ -92,11 +93,11 @@ namespace edm {
     //
     int mySerial;
     ELextendedID myXid;
-    ELstring myIdOverflow;
+    std::string myIdOverflow;
     time_t myTimestamp;
     ELlist_string myItems;
     bool myReactedTo;
-    ELstring myContext;
+    std::string myContext;
     std::ostringstream myOs;
     std::string emptyString;
     bool verbatim;

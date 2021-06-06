@@ -6,11 +6,11 @@ from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFa
 
 doPileup = cms.bool(True)
 
-ak4CaloJetsPUCorr           =ak4CaloJets.clone           (doPUOffsetCorr = doPileup)
+ak4CaloJetsPUCorr =ak4CaloJets.clone(doPUOffsetCorr = doPileup)
 ak4CaloJets.doAreaFastjet = True
 
 fixedGridRhoFastjetCentralCalo = fixedGridRhoFastjetAllCalo.clone(
-    maxRapidity = cms.double(2.5)
+    maxRapidity = 2.5
     )
 
 recoJetsTask   =cms.Task(fixedGridRhoFastjetAllCalo,

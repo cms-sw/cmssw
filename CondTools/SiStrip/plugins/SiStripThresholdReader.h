@@ -31,5 +31,6 @@ public:
 
 private:
   uint32_t printdebug_;
+  edm::ESGetToken<SiStripThreshold, SiStripThresholdRcd> thresholdToken_;
 };
 #endif

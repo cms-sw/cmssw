@@ -18,18 +18,18 @@
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorExtendedRcd.h"
 #include "Geometry/Records/interface/PHcalRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class HcalGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<HcalGeometryRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
-                                                                               HcalParametersRcd,
-                                                                               HcalSimNumberingRecord,
-                                                                               HcalRecNumberingRecord,
-                                                                               HcalAlignmentRcd,
-                                                                               HcalAlignmentErrorRcd,
-                                                                               HcalAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PHcalRcd> > {};
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             HcalParametersRcd,
+                                                                             HcalSimNumberingRecord,
+                                                                             HcalRecNumberingRecord,
+                                                                             HcalAlignmentRcd,
+                                                                             HcalAlignmentErrorRcd,
+                                                                             HcalAlignmentErrorExtendedRcd,
+                                                                             GlobalPositionRcd,
+                                                                             PHcalRcd> > {};
 
 #endif /* RECORDS_HCALGEOMETRYRECORD_H */

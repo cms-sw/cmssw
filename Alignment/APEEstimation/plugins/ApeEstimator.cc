@@ -111,7 +111,6 @@
 /////////
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -181,6 +180,9 @@ private:
 
   // ----------member data ---------------------------
   const edm::ParameterSet parameterSet_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleDepRcd> lorentzAngleToken_;
+
   std::map<unsigned int, TrackerSectorStruct> m_tkSector_;
   TrackerDetectorStruct tkDetector_;
   SiStripClusterInfo siStripClusterInfo_;
@@ -219,6 +221,8 @@ private:
 //
 ApeEstimator::ApeEstimator(const edm::ParameterSet& iConfig)
     : parameterSet_(iConfig),
+      magFieldToken_(esConsumes()),
+      lorentzAngleToken_(esConsumes()),
       siStripClusterInfo_(consumesCollector(), std::string("")),
       tjTagToken_(
           consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
@@ -1623,8 +1627,8 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
 
     siStripClusterInfo_.setCluster(stripCluster, rawId);
 
-    const std::vector<uint8_t>::const_iterator stripChargeL(siStripClusterInfo_.stripCharges().begin());
-    const std::vector<uint8_t>::const_iterator stripChargeR(--(siStripClusterInfo_.stripCharges().end()));
+    auto stripChargeL = siStripClusterInfo_.stripCharges().begin();
+    auto stripChargeR = siStripClusterInfo_.stripCharges().end() - 1;
     const std::pair<uint16_t, uint16_t> stripChargeLR = std::make_pair(*stripChargeL, *stripChargeR);
 
     hitParams.chargeStrip = siStripClusterInfo_.charge();
@@ -1658,16 +1662,11 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
       return hitParams;
     }
 
-    edm::ESHandle<MagneticField> magFieldHandle;
-    iSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-
-    edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
-    iSetup.get<SiStripLorentzAngleDepRcd>().get(lorentzAngleHandle);  //MODIFIED BY LOIC QUERTENMONT
+    const MagneticField* magField = &iSetup.getData(magFieldToken_);
+    const SiStripLorentzAngle* lorentzAngle = &iSetup.getData(lorentzAngleToken_);
 
     const StripGeomDetUnit* stripDet = (const StripGeomDetUnit*)(&detUnit);
-    const MagneticField* magField(magFieldHandle.product());
     LocalVector bField = (stripDet->surface()).toLocal(magField->inTesla(stripDet->surface().position()));
-    const SiStripLorentzAngle* lorentzAngle(lorentzAngleHandle.product());
     float tanLorentzAnglePerTesla = lorentzAngle->getLorentzAngle(stripDet->geographicalId().rawId());
 
     float dirX = -tanLorentzAnglePerTesla * bField.y();
@@ -2572,14 +2571,14 @@ bool ApeEstimator::isHit2D(const TrackingRecHit& hit) const {
           const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
           return (this->isHit2D(pH->originalHit()));  // depends on original...
         } else {
-          edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
-                                      << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
-                                      << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
+          edm::LogError("UnknownType") << "@SUB=ApeEstimator::isHit2D"
+                                       << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
+                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
         }
       }
     } else {  // not tracker??
-      edm::LogWarning("DetectorMismatch") << "@SUB=AlignmentTrackSelector::isHit2D"
+      edm::LogWarning("DetectorMismatch") << "@SUB=ApeEstimator::isHit2D"
                                           << "Hit not in tracker with 'official' dimension >=2.";
       return true;  // dimension() >= 2 so accept that...
     }

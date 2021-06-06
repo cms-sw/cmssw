@@ -15,9 +15,11 @@
 #include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
+#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
-#include "ETLDetLayerGeometryBuilder.h"
-#include "BTLDetLayerGeometryBuilder.h"
+#include "RecoMTD/DetLayers/interface/ETLDetLayerGeometryBuilder.h"
+#include "RecoMTD/DetLayers/interface/BTLDetLayerGeometryBuilder.h"
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,26 +39,25 @@ public:
 
 private:
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
 };
 
 using namespace edm;
 
 MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::ParameterSet& p) {
-  setWhatProduced(this).setConsumes(geomToken_);
+  auto cc = setWhatProduced(this);
+  geomToken_ = cc.consumes();
+  mtdtopoToken_ = cc.consumes();
 }
 
 std::unique_ptr<MTDDetLayerGeometry> MTDDetLayerGeometryESProducer::produce(const MTDRecoGeometryRecord& record) {
   auto mtdDetLayerGeometry = std::make_unique<MTDDetLayerGeometry>();
+  auto mtd = record.getHandle(geomToken_);
+  auto mtdtopo = record.getHandle(mtdtopoToken_);
 
-  if (auto mtd = record.getHandle(geomToken_)) {
-    // Build BTL layers
-    mtdDetLayerGeometry->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*mtd));
-    // Build ETL layers
-    mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*mtd));
-  } else {
-    const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetLayerGeometryESProducer";
-    LogInfo(metname) << "No MTD geometry is available.";
-  }
+  //The BTL and ETL builders are now called internally by the MTDDetLayerGeometry.
+  //This allows external plugings to use and build the object.
+  mtdDetLayerGeometry->buildLayers(&(*mtd), &(*mtdtopo));
 
   // Sort layers properly
   mtdDetLayerGeometry->sortLayers();

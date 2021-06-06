@@ -1,0 +1,24 @@
+#!/bin/bash
+
+mkdir -p "data"
+cd "data"
+
+tag="test_input"
+cat "../template_tba_cfg.py" | sed "\
+		s|\$misalignment_file|input.xml|;\
+		s|\$output_iteration|${tag}_results_iteration_|;\
+		s|\$output_cumulative|${tag}_results_cumulative_|;\
+	" > "${tag}_cfg.py"
+cmsRun "${tag}_cfg.py" &> "${tag}.log"
+
+tag="msm"
+cp "../template_msm_cfg.py" "${tag}_cfg.py"
+cmsRun "${tag}_cfg.py" &> "${tag}.log"
+
+tag="test_output"
+cat "../template_tba_cfg.py" | sed "\
+		s|\$misalignment_file|data/output.xml|;\
+		s|\$output_iteration|${tag}_results_iteration_|;\
+		s|\$output_cumulative|${tag}_results_cumulative_|;\
+	" > "${tag}_cfg.py"
+cmsRun "${tag}_cfg.py" &> "${tag}.log"

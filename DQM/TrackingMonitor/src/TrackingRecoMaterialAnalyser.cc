@@ -16,13 +16,11 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cassert>
 #include <unordered_map>
@@ -40,13 +38,13 @@ public:
   ~TrackingRecoMaterialAnalyser() override;
 
 private:
-  inline bool isDoubleSided(SiStripDetId strip_id) {
-    return ((strip_id.subDetector() != SiStripDetId::UNKNOWN) && strip_id.glued());
-  }
+  inline bool isDoubleSided(const TrackerTopology *tTopo, DetId id) { return (tTopo->glued(id)); }
   TrackTransformer refitter_;
   const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
   const edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryTokenRun_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   bool usePV_;
   std::string folder_;
   std::unordered_map<std::string, MonitorElement *> histosOriEta_;
@@ -68,10 +66,12 @@ private:
 
 //-------------------------------------------------------------------------
 TrackingRecoMaterialAnalyser::TrackingRecoMaterialAnalyser(const edm::ParameterSet &iPSet)
-    : refitter_(iPSet),
+    : refitter_(iPSet, consumesCollector()),
       tracksToken_(consumes<reco::TrackCollection>(iPSet.getParameter<edm::InputTag>("tracks"))),
       beamspotToken_(consumes<reco::BeamSpot>(iPSet.getParameter<edm::InputTag>("beamspot"))),
       verticesToken_(mayConsume<reco::VertexCollection>(iPSet.getParameter<edm::InputTag>("vertices"))),
+      trackerGeometryTokenRun_(esConsumes<edm::Transition::BeginRun>()),
+      tTopoToken_(esConsumes()),
       usePV_(iPSet.getParameter<bool>("usePV")),
       folder_(iPSet.getParameter<std::string>("folder")),
       histo_RZ_(nullptr),
@@ -96,8 +96,7 @@ void TrackingRecoMaterialAnalyser::bookHistograms(DQMStore::IBooker &ibook,
                                                   edm::Run const &,
                                                   edm::EventSetup const &setup) {
   using namespace std;
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  setup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+  const TrackerGeometry &trackerGeometry = setup.getData(trackerGeometryTokenRun_);
 
   ibook.setCurrentFolder(folder_);
 
@@ -156,7 +155,7 @@ void TrackingRecoMaterialAnalyser::bookHistograms(DQMStore::IBooker &ibook,
   char title[50];
   char key[20];
   for (unsigned int det = 1; det < sDETS.size(); ++det) {
-    for (unsigned int sub_det = 1; sub_det <= trackerGeometry->numberOfLayers(det); ++sub_det) {
+    for (unsigned int sub_det = 1; sub_det <= trackerGeometry.numberOfLayers(det); ++sub_det) {
       memset(title, 0, sizeof(title));
       snprintf(title, sizeof(title), "Original_RadLen_vs_Eta_%s%d", sDETS[det].data(), sub_det);
       snprintf(key, sizeof(key), "%s%d", sDETS[det].data(), sub_det);
@@ -177,15 +176,13 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event &event, const edm::E
 
   refitter_.setServices(setup);
 
-  Handle<TrackCollection> tracks;
-  Handle<VertexCollection> vertices;
-  ESHandle<TrackerTopology> trk_topology;
+  Handle<TrackCollection> tracks = event.getHandle(tracksToken_);
+  Handle<VertexCollection> vertices = event.getHandle(verticesToken_);
 
   // Get the TrackerTopology
-  setup.get<TrackerTopologyRcd>().get(trk_topology);
+  const TrackerTopology *const tTopo = &setup.getData(tTopoToken_);
 
   // Get Tracks
-  event.getByToken(tracksToken_, tracks);
   if (!tracks.isValid() || tracks->empty()) {
     LogInfo("TrackingRecoMaterialAnalyser") << "Invalid or empty track collection" << endl;
     return;
@@ -198,15 +195,13 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event &event, const edm::E
   };
 
   // Get BeamSpot
-  Handle<BeamSpot> beamSpot;
-  event.getByToken(beamspotToken_, beamSpot);
+  Handle<BeamSpot> beamSpot = event.getHandle(beamspotToken_);
   // Bail out if missing
   if (!beamSpot.isValid())
     return;
 
   reco::Vertex::Point pv(beamSpot->position());
   if (usePV_) {
-    event.getByToken(verticesToken_, vertices);
     if (vertices.isValid() && !vertices->empty()) {
       // Since we need to use eta and Z information from the tracks, in
       // order not to have the reco material distribution washed out due
@@ -236,7 +231,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event &event, const edm::E
   //   the track, which is seldom the case, according to the current direction
   TrajectoryStateOnSurface current_tsos;
   DetId current_det;
-  for (auto const track : *tracks) {
+  for (auto const &track : *tracks) {
     if (!selector(track, pv))
       continue;
     auto const &inner = track.innerMomentum();
@@ -295,23 +290,23 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event &event, const edm::E
         // scaling of 0.5. The actual plane is built few lines below:
         // http://cmslxr.fnal.gov/dxr/CMSSW_8_0_5/source/Geometry/TrackerGeometryBuilder/src/TrackerGeomBuilderFromGeometricDet.cc#287
 
-        if (isDoubleSided(current_det)) {
+        if (isDoubleSided(tTopo, current_det)) {
           LogTrace("TrackingRecoMaterialAnalyser")
-              << "Eta: " << track.eta() << " " << sDETS[current_det.subdetId()] << trk_topology->layer(current_det)
+              << "Eta: " << track.eta() << " " << sDETS[current_det.subdetId()] << tTopo->layer(current_det)
               << " has ori_radLen: " << ori_radLen << " and ori_xi: " << xi << " and has radLen: " << radLen
               << "  and xi: " << xi << endl;
           ori_radLen *= 2.;
           radLen *= 2.;
         }
 
-        histosOriEta_[sDETS[current_det.subdetId()] + to_string(trk_topology->layer(current_det))]->Fill(
+        histosOriEta_[sDETS[current_det.subdetId()] + to_string(tTopo->layer(current_det))]->Fill(
             current_tsos.globalPosition().eta(), ori_radLen);
-        histosEta_[sDETS[current_det.subdetId()] + to_string(trk_topology->layer(current_det))]->Fill(
+        histosEta_[sDETS[current_det.subdetId()] + to_string(tTopo->layer(current_det))]->Fill(
             current_tsos.globalPosition().eta(), radLen);
         histo_RZ_Ori_->Fill(current_tsos.globalPosition().z(), current_tsos.globalPosition().perp(), ori_radLen);
         histo_RZ_->Fill(current_tsos.globalPosition().z(), current_tsos.globalPosition().perp(), radLen);
         LogInfo("TrackingRecoMaterialAnalyser")
-            << "Eta: " << track.eta() << " " << sDETS[current_det.subdetId()] << trk_topology->layer(current_det)
+            << "Eta: " << track.eta() << " " << sDETS[current_det.subdetId()] << tTopo->layer(current_det)
             << " has ori_radLen: " << ori_radLen << " and ori_xi: " << xi << " and has radLen: " << radLen
             << "  and xi: " << xi << endl;
       }

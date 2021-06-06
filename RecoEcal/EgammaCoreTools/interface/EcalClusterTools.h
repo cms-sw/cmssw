@@ -55,6 +55,9 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 
 class DetId;
 class CaloTopology;
@@ -180,15 +183,14 @@ public:
                                 bool logW = true,
                                 float w0 = 4.7);
 
-  // return a vector v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
+  // return an array v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
+  static std::array<float, 3> covariances(const reco::BasicCluster &cluster,
+                                          const EcalRecHitCollection *recHits,
+                                          const CaloTopology *topology,
+                                          const CaloGeometry *geometry,
+                                          float w0 = 4.7);
 
-  static std::vector<float> covariances(const reco::BasicCluster &cluster,
-                                        const EcalRecHitCollection *recHits,
-                                        const CaloTopology *topology,
-                                        const CaloGeometry *geometry,
-                                        float w0 = 4.7);
-
-  // return a vector v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
+  // return an array v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
   //this function calculates differences in eta/phi in units of crystals not global eta/phi
   //this is gives better performance in the crack regions of the calorimeter but gives otherwise identical results to covariances function
   //   except that it doesnt need an eta based correction funtion in the endcap
@@ -196,15 +198,18 @@ public:
   //
   //Warning: covIEtaIEta has been studied by egamma, but so far covIPhiIPhi hasnt been studied extensively so there could be a bug in
   //         the covIPhiIEta or covIPhiIPhi calculations. I dont think there is but as it hasnt been heavily used, there might be one
-  static std::vector<float> localCovariances(const reco::BasicCluster &cluster,
-                                             const EcalRecHitCollection *recHits,
-                                             const CaloTopology *topology,
-                                             float w0 = 4.7);
-
-  static std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster,
+  static std::array<float, 3> localCovariances(const reco::BasicCluster &cluster,
                                                const EcalRecHitCollection *recHits,
                                                const CaloTopology *topology,
-                                               float w0 = 4.7);
+                                               float w0 = EgammaLocalCovParamDefaults::kRelEnCut,
+                                               const EcalPFRecHitThresholds *thresholds = nullptr,
+                                               float multEB = 0.0,
+                                               float multEE = 0.0);
+
+  static std::array<float, 3> scLocalCovariances(const reco::SuperCluster &cluster,
+                                                 const EcalRecHitCollection *recHits,
+                                                 const CaloTopology *topology,
+                                                 float w0 = 4.7);
 
   // cluster second moments with respect to principal axes:
   static Cluster2ndMoments cluster2ndMoments(const reco::BasicCluster &basicCluster,
@@ -954,11 +959,11 @@ std::pair<float, float> EcalClusterToolsT<noZS>::mean5x5PositionInXY(const reco:
 }
 
 template <bool noZS>
-std::vector<float> EcalClusterToolsT<noZS>::covariances(const reco::BasicCluster &cluster,
-                                                        const EcalRecHitCollection *recHits,
-                                                        const CaloTopology *topology,
-                                                        const CaloGeometry *geometry,
-                                                        float w0) {
+std::array<float, 3> EcalClusterToolsT<noZS>::covariances(const reco::BasicCluster &cluster,
+                                                          const EcalRecHitCollection *recHits,
+                                                          const CaloTopology *topology,
+                                                          const CaloGeometry *geometry,
+                                                          float w0) {
   float e_5x5 = e5x5(cluster, recHits, topology);
   float covEtaEta, covEtaPhi, covPhiPhi;
   if (e_5x5 >= 0.) {
@@ -1019,10 +1024,7 @@ std::vector<float> EcalClusterToolsT<noZS>::covariances(const reco::BasicCluster
     covEtaPhi = 0;
     covPhiPhi = 0;
   }
-  std::vector<float> v;
-  v.push_back(covEtaEta);
-  v.push_back(covEtaPhi);
-  v.push_back(covPhiPhi);
+  std::array<float, 3> v{{covEtaEta, covEtaPhi, covPhiPhi}};
   return v;
 }
 
@@ -1031,10 +1033,13 @@ std::vector<float> EcalClusterToolsT<noZS>::covariances(const reco::BasicCluster
 //it also does not require any eta correction function in the endcap
 //it is multipled by an approprate crystal size to ensure it gives similar values to covariances(...)
 template <bool noZS>
-std::vector<float> EcalClusterToolsT<noZS>::localCovariances(const reco::BasicCluster &cluster,
-                                                             const EcalRecHitCollection *recHits,
-                                                             const CaloTopology *topology,
-                                                             float w0) {
+std::array<float, 3> EcalClusterToolsT<noZS>::localCovariances(const reco::BasicCluster &cluster,
+                                                               const EcalRecHitCollection *recHits,
+                                                               const CaloTopology *topology,
+                                                               float w0,
+                                                               const EcalPFRecHitThresholds *thresholds,
+                                                               float multEB,
+                                                               float multEE) {
   float e_5x5 = e5x5(cluster, recHits, topology);
   float covEtaEta, covEtaPhi, covPhiPhi;
 
@@ -1059,12 +1064,27 @@ std::vector<float> EcalClusterToolsT<noZS>::localCovariances(const reco::BasicCl
 
     bool isBarrel = seedId.subdetId() == EcalBarrel;
     const double crysSize = isBarrel ? barrelCrysSize : endcapCrysSize;
+    float mult = isBarrel ? multEB : multEE;  // we will multiply PF RecHit threshold by mult.
+                                              // mult = 1 should work reasonably well for noise cleaning.
+    // dedicated studies showed mult=1.25 works best for Run3 in endcap, where noise is high.
+    // If no noise cleaning is intended then put mult=0.
 
     CaloRectangle rectangle{-2, 2, -2, 2};
     for (auto const &detId : rectangle(seedId, *topology)) {
       float frac = getFraction(v_id, detId);
       float energy = recHitEnergy(detId, recHits) * frac;
-      if (energy <= 0)
+
+      if ((thresholds == nullptr) && (mult != 0.0)) {
+        throw cms::Exception("EmptyPFRechHitThresColl")
+            << "In EcalClusterTools::localCovariances, if EcalPFRecHitThresholds==nulptr, then multEB and multEE "
+               "should be 0 as well.";
+      }
+      float rhThres = 0.0;
+      if (thresholds != nullptr) {
+        rhThres = (*thresholds)[detId];  // access PFRechit thresholds for noise cleaning
+      }
+
+      if (energy <= (rhThres * mult))
         continue;
 
       float dEta = getNrCrysDiffInEta(detId, seedId) - mean5x5PosInNrCrysFromSeed.first;
@@ -1101,10 +1121,7 @@ std::vector<float> EcalClusterToolsT<noZS>::localCovariances(const reco::BasicCl
     covEtaPhi = 0;
     covPhiPhi = 0;
   }
-  std::vector<float> v;
-  v.push_back(covEtaEta);
-  v.push_back(covEtaPhi);
-  v.push_back(covPhiPhi);
+  std::array<float, 3> v{{covEtaEta, covEtaPhi, covPhiPhi}};
   return v;
 }
 
@@ -1360,10 +1377,10 @@ float EcalClusterToolsT<noZS>::getDPhiEndcap(const DetId &crysId, float meanX, f
 }
 
 template <bool noZS>
-std::vector<float> EcalClusterToolsT<noZS>::scLocalCovariances(const reco::SuperCluster &cluster,
-                                                               const EcalRecHitCollection *recHits,
-                                                               const CaloTopology *topology,
-                                                               float w0) {
+std::array<float, 3> EcalClusterToolsT<noZS>::scLocalCovariances(const reco::SuperCluster &cluster,
+                                                                 const EcalRecHitCollection *recHits,
+                                                                 const CaloTopology *topology,
+                                                                 float w0) {
   const reco::BasicCluster bcluster = *(cluster.seed());
 
   float e_5x5 = e5x5(bcluster, recHits, topology);
@@ -1429,11 +1446,7 @@ std::vector<float> EcalClusterToolsT<noZS>::scLocalCovariances(const reco::Super
     covPhiPhi = 0;
   }
 
-  std::vector<float> v;
-  v.push_back(covEtaEta);
-  v.push_back(covEtaPhi);
-  v.push_back(covPhiPhi);
-
+  std::array<float, 3> v{{covEtaEta, covEtaPhi, covPhiPhi}};
   return v;
 }
 

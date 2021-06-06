@@ -32,8 +32,6 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackAssParam.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
@@ -172,9 +170,6 @@ public:
 
   /// set eta track segments used to form the muon candidate
   void setTSeta(const std::vector<const L1MuBMTrackSegEta*>& tsList);
-
-  /// convert  pt value in GeV to pt code
-  unsigned int triggerScale(float value, const edm::EventSetup& c) const;
 
   /// assignment operator
   L1MuBMTrack& operator=(const L1MuBMTrack&);

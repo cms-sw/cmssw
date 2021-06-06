@@ -6,18 +6,20 @@ class SiPixelRocStatus {
 public:
   SiPixelRocStatus();
   ~SiPixelRocStatus();
+
   void fillDIGI();
-  void updateDIGI(unsigned int hits);
   void fillFEDerror25();
 
-  // stuckTBM
-  bool isFEDerror25() { return isFEDerror25_; }
+  void updateDIGI(unsigned int hits);
+  void updateFEDerror25(bool fedError25);
 
   // occpancy
   unsigned int digiOccROC();
+  // FEDerror25 for stuckTBM
+  bool isFEDerror25();
 
 private:
-  unsigned int fDC;
+  unsigned int fDC_;
   bool isFEDerror25_;
 };
 

@@ -1,12 +1,11 @@
 #include "CalibTracker/SiStripLorentzAngle/plugins/EnsembleCalibrationLA.h"
 #include "CalibTracker/SiStripCommon/interface/Book.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <TChain.h>
 #include <TFile.h>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
+#include <regex>
 
 namespace sistrip {
 
@@ -19,7 +18,8 @@ namespace sistrip {
         nbins(conf.getParameter<unsigned>("NBins")),
         lowBin(conf.getParameter<double>("LowBin")),
         highBin(conf.getParameter<double>("HighBin")),
-        vMethods(conf.getParameter<std::vector<int> >("Methods")) {}
+        vMethods(conf.getParameter<std::vector<int> >("Methods")),
+        tTopoToken_(esConsumes<edm::Transition::EndRun>()) {}
 
   void EnsembleCalibrationLA::endJob() {
     Book book("la_ensemble");
@@ -43,9 +43,7 @@ namespace sistrip {
   }
 
   void EnsembleCalibrationLA::endRun(const edm::Run&, const edm::EventSetup& eSetup) {
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-    tTopo_ = tTopoHandle.product();
+    tTopo_ = &eSetup.getData(tTopoToken_);
   }
 
   void EnsembleCalibrationLA::write_ensembles_text(const Book& book) {
@@ -62,12 +60,12 @@ namespace sistrip {
       std::string label;
       {
         std::cout << ensemble.first << std::endl;
-        boost::regex format(".*(T[IO]B)_layer(\\d)([as])_(.*)");
-        if (boost::regex_match(ensemble.first, format)) {
-          const bool TIB = "TIB" == boost::regex_replace(ensemble.first, format, "\\1");
-          const bool stereo = "s" == boost::regex_replace(ensemble.first, format, "\\3");
-          const unsigned layer = boost::lexical_cast<unsigned>(boost::regex_replace(ensemble.first, format, "\\2"));
-          label = boost::regex_replace(ensemble.first, format, "\\4");
+        std::regex format(".*(T[IO]B)_layer(\\d)([as])_(.*)");
+        if (std::regex_match(ensemble.first, format)) {
+          const bool TIB = "TIB" == std::regex_replace(ensemble.first, format, "\\1");
+          const bool stereo = "s" == std::regex_replace(ensemble.first, format, "\\3");
+          const unsigned layer = boost::lexical_cast<unsigned>(std::regex_replace(ensemble.first, format, "\\2"));
+          label = std::regex_replace(ensemble.first, format, "\\4");
           index = LA_Filler_Fitter::layer_index(TIB, stereo, layer);
 
           calibrations[label].slopes[index] = line.second.first;

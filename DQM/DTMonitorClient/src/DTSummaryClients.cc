@@ -7,12 +7,12 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTSummaryClients.h>
+#include "DQM/DTMonitorClient/src/DTSummaryClients.h"
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -103,7 +103,7 @@ void DTSummaryClients::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
 
   } else {
-    LogError("DTDQM|DTMonitorClient|DTSummaryClients")
+    LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients")
         << "Data Integrity Summary not found with name: DT/00-DataIntegrity/DataIntegritySummary" << endl;
   }
 
@@ -140,7 +140,7 @@ void DTSummaryClients::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       totalStatus += (48. - nFailingChambers) / 48.;
     } else {
       occupancyFound = false;
-      LogError("DTDQM|DTMonitorClient|DTSummaryClients")
+      LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients")
           << " Wheel Occupancy Summary not found with name: " << str.str() << endl;
     }
   }

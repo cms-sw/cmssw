@@ -1,5 +1,3 @@
-<use name="DataFormats/VertexReco"/>
-<use name="Fireworks/Core"/>
 <use name="rootcore"/>
 <use name="opengl"/>
 <use name="rooteve"/>

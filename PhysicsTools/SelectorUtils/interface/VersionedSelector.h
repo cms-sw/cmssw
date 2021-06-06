@@ -29,6 +29,7 @@
 
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/SelectorUtils/interface/CandidateCut.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"

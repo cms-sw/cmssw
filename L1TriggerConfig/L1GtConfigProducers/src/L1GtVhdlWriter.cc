@@ -16,11 +16,9 @@
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlWriter.h"
 
 // system include files
+#include <filesystem>
 #include <iostream>
 #include <sys/stat.h>
-
-// user include files
-#include "boost/filesystem.hpp"
 
 //   base class
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -102,7 +100,7 @@ void L1GtVhdlWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   channelVector.push_back("-- ca10: free");
 
   // check, weather output directory exists and create it on the fly if not
-  if (boost::filesystem::is_directory(outputDir_)) {
+  if (std::filesystem::is_directory(outputDir_)) {
     std::cout << std::endl << "Ok - Output directory exists!" << std::endl;
   } else {
     if (!mkdir(outputDir_.c_str(), 0666))

@@ -78,12 +78,6 @@ public:
   virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) = 0;
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) = 0;
 
-  /**
-     @short actions at the start/end of run
-  */
-  virtual void beginRun(const edm::EventSetup& es) = 0;
-  virtual void endRun() = 0;
-
   const std::string& name() const { return name_; }
 
 protected:

@@ -35,6 +35,7 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
+         {'Associations': ['TTTrackTruthPair', 'edm::Wrapper.+edm::AssociationMap.+TrackingParticle']},
          {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
          {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
                                        '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
@@ -47,7 +48,7 @@ equivDict = \
          {'BTauReco'              : ['reco::.*SoftLeptonTagInfo', 'reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo','reco::TemplatedSecondaryVertexTagInfo', 'reco::CATopJetProperties','reco::HTTTopJetProperties']},
          {'CastorReco'            : ['reco::CastorJet']},
          {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour','reco::MatchedPartons']},
-         {'RecoCandidate'         : ['reco::Candidate','edm::Wrapper.+edm::AssociationMap.+TrackingParticle']},
+         {'RecoCandidate'         : ['reco::Candidate']},
          {'TrackingAnalysis'      : ['TrackingParticle']},
          {'Egamma'                : ['reco::ElectronID']},
          {'TopObjects'            : ['reco::CATopJetProperties']},
@@ -60,7 +61,7 @@ equivDict = \
          {'MuonReco'              : ['reco::Muon(Ref|)(Vector|)']},
          {'MuonSeed'              : ['L3MuonTrajectorySeed']},
          {'HepMCCandidate'        : ['reco::GenParticle.*']},
-         {'L1Trigger'             : ['l1extra::L1.+Particle']},
+         {'L1Trigger'             : ['l1extra::L1.+Particle', 'l1t::Vertex']},
          {'TrackInfo'             : ['reco::TrackingRecHitInfo']},
          {'EgammaCandidates'      : ['reco::GsfElectron.*','reco::Photon.*']},
          {'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate', 'reco::HcalIsolatedTrackCandidate']},
@@ -78,6 +79,7 @@ equivDict = \
          {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
+         {'HGCRecHit'             : ['constHGCRecHit','HGCRecHit']},
          {'SiPixelObjects'        : ['SiPixelQuality.*']},
      ]
 
@@ -203,7 +205,7 @@ def searchClassDefXml ():
             # skip complaining about this
             foundEquiv = False
             for equivRE in regexList:
-                #print "searching %s for %s" % (equivRE[1], className)
+                #print("searching %s for %s" % (equivRE[1], className))
                 if equivRE[0].search (className):
                     foundEquiv = True
                     break

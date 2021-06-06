@@ -17,7 +17,7 @@ gamIsoDepositHcalDepth1FromTowers= cms.EDProducer("CandIsoDepositProducer",
     trackType = cms.string('candidate'),
     ExtractorPSet = cms.PSet( GamIsoHcalFromTowersExtractorBlock )
 )
-gamIsoDepositHcalDepth1FromTowers.ExtractorPSet.hcalDepth = cms.int32(1)
+gamIsoDepositHcalDepth1FromTowers.ExtractorPSet.hcalDepth = 1
 
 gamIsoDepositHcalDepth2FromTowers = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("photons"),
@@ -25,5 +25,5 @@ gamIsoDepositHcalDepth2FromTowers = cms.EDProducer("CandIsoDepositProducer",
     trackType = cms.string('candidate'),
     ExtractorPSet = cms.PSet( GamIsoHcalFromTowersExtractorBlock )
 )
-gamIsoDepositHcalDepth2FromTowers.ExtractorPSet.hcalDepth = cms.int32(2)
+gamIsoDepositHcalDepth2FromTowers.ExtractorPSet.hcalDepth = 2
 

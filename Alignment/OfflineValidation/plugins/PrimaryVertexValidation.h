@@ -34,12 +34,12 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -54,6 +54,12 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 //
 // ancyllary enum for
@@ -68,6 +74,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 public:
   explicit PrimaryVertexValidation(const edm::ParameterSet&);
   ~PrimaryVertexValidation() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginJob() override;
@@ -75,7 +82,7 @@ private:
   void endJob() override;
   bool isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const;
   std::pair<long long, long long> getRunTime(const edm::EventSetup& iSetup) const;
-  bool isHit2D(const TrackingRecHit& hit) const;
+  bool isHit2D(const TrackingRecHit& hit, const PVValHelper::detectorPhase& thePhase) const;
   bool hasFirstLayerPixelHits(const reco::TransientTrack& track);
   std::pair<bool, bool> pixelHitsCheck(const reco::TransientTrack& track);
   Measurement1D getMedian(TH1F* histo);
@@ -128,7 +135,6 @@ private:
   inline double square(double x) { return x * x; }
 
   // ----------member data ---------------------------
-  edm::ParameterSet theConfig;
   int Nevt_;
 
   std::unique_ptr<TrackFilterForPVFindingBase> theTrackFilter_;
@@ -138,6 +144,16 @@ private:
   static const int nMaxBins_ = 100;  // maximum number of bookable histograms
 
   // Output
+
+  // tokens form the EventSetup
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeomToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttkToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+
+  const int compressionSettings_;  // determines the ROOT compression settings in TFileService
   bool storeNtuple_;
   bool lightNtupleSwitch_;  // switch to keep only info for daily validation
   bool useTracksFromRecoVtx_;
@@ -159,7 +175,7 @@ private:
   double pOfProbe_;
   double etaOfProbe_;
   double nHitsOfProbe_;
-  bool isPhase1_;
+  PVValHelper::detectorPhase phase_;
 
   // actual number of histograms
   int nBins_;
@@ -186,12 +202,13 @@ private:
   //=======================
   void SetVarToZero();
 
-  static const int nMaxtracks_ = 1000;
+  static const int nMaxtracks_ = 10000;
   static const int cmToum = 10000;
   static const int nPtBins_ = 48;
 
+  // use the maximum of each of the three phases
   unsigned int nLadders_ = 20;
-  unsigned int nModZ_ = 8;
+  unsigned int nModZ_ = 9;
 
   // pT binning as in paragraph 3.2 of CMS-PAS-TRK-10-005 (https://cds.cern.ch/record/1279383/files/TRK-10-005-pas.pdf)
 
@@ -291,6 +308,7 @@ private:
   TH1F* h_etaMax;
   TH1F* h_nbins;
   TH1F* h_nLadders;
+  TH1F* h_nModZ;
   TH1F* h_pTinfo;
 
   std::map<unsigned int, std::pair<long long, long long> > runNumbersTimesLog_;

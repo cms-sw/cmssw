@@ -43,13 +43,14 @@ public:
                          int ncols,
                          float pitchx,
                          float pitchy,
-                         bool upgradeGeometry,
-                         int ROWS_PER_ROC,       // Num of Rows per ROC
-                         int COLS_PER_ROC,       // Num of Cols per ROC
-                         int BIG_PIX_PER_ROC_X,  // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
-                         int BIG_PIX_PER_ROC_Y,  // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+                         int ROWS_PER_ROC,  // Num of Rows per ROC
+                         int COLS_PER_ROC,  // Num of Cols per ROC
                          int ROCS_X,
-                         int ROCS_Y)
+                         int ROCS_Y,
+                         float GAPxInterpad,  // Value given in cm
+                         float GAPxBorder,    // Value given in cm
+                         float GAPyInterpad,  // Value given in cm
+                         float GAPyBorder)    // Value given in cm
       : m_pitchx(pitchx),
         m_pitchy(pitchy),
         m_nrows(nrows),
@@ -58,15 +59,17 @@ public:
         m_COLS_PER_ROC(COLS_PER_ROC),  // Num of Cols per ROC
         m_ROCS_X(ROCS_X),              // 2 for SLHC
         m_ROCS_Y(ROCS_Y),              // 8 for SLHC
-        m_upgradeGeometry(upgradeGeometry) {
-    setOffset(BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y, ROWS_PER_ROC, COLS_PER_ROC);
+        m_GAPxInterpad(GAPxInterpad),
+        m_GAPxBorder(GAPxBorder),
+        m_GAPyInterpad(GAPyInterpad),
+        m_GAPyBorder(GAPyBorder) {
+    m_xoffset = -(m_nrows / 2.) * m_pitchx;
+    m_yoffset = -(m_ncols / 2.) * m_pitchy;
+    m_GAPxInterpadFrac = m_GAPxInterpad / m_pitchx;
+    m_GAPxBorderFrac = m_GAPxBorder / m_pitchx;
+    m_GAPyInterpadFrac = m_GAPyInterpad / m_pitchy;
+    m_GAPyBorderFrac = m_GAPyBorder / m_pitchy;
   }
-
-  // Edge of the active sensor with respect to the center
-  void setOffset(const int& BIG_PIX_PER_ROC_X,
-                 const int& BIG_PIX_PER_ROC_Y,
-                 const int& ROWS_PER_ROC,
-                 const int& COLS_PER_ROC);
 
   // Topology interface, go from Masurement to Local module corrdinates
   // pixel coordinates (mp) -> cm (LocalPoint)
@@ -79,8 +82,10 @@ public:
   }
 
   // PixelTopology interface.
-  // Transform LocalPoint in cm to measurement in pitch units.
   std::pair<float, float> pixel(const LocalPoint& p) const override;
+
+  //check whether LocalPoint is inside the pixel active area
+  bool isInPixel(const LocalPoint& p) const;
 
   // Errors
   // Error in local (cm) from the masurement errors
@@ -90,7 +95,6 @@ public:
 
   //-------------------------------------------------------------
   // Transform LocalPoint to channel. Call pixel()
-  //
   int channel(const LocalPoint& lp) const override {
     std::pair<float, float> p = pixel(lp);
     return MTDChannelIdentifier::pixelToChannel(int(p.first), int(p.second));
@@ -115,48 +119,31 @@ public:
   }
 
   //-------------------------------------------------------------
+  // Return the BIG pixel information for a given pixel
+  bool isItBigPixelInX(const int ixbin) const override { return false; }
+
+  bool isItBigPixelInY(const int iybin) const override { return false; }
+
+  //-------------------------------------------------------------
+  // Return BIG pixel flag in a given pixel range
+  bool containsBigPixelInX(int ixmin, int ixmax) const override { return false; }
+
+  bool containsBigPixelInY(int iymin, int iymax) const override { return false; }
+
+  // Check whether the pixel is at the edge of the module
+  bool isItEdgePixelInX(int ixbin) const override { return ((ixbin == 0) | (ixbin == (m_nrows - 1))); }
+
+  bool isItEdgePixelInY(int iybin) const override { return ((iybin == 0) | (iybin == (m_ncols - 1))); }
+
+  bool isItEdgePixel(int ixbin, int iybin) const override {
+    return (isItEdgePixelInX(ixbin) | isItEdgePixelInY(iybin));
+  }
+
+  //-------------------------------------------------------------
   // Transform measurement to local coordinates individually in each dimension
   //
   float localX(const float mpX) const override;
   float localY(const float mpY) const override;
-
-  //-------------------------------------------------------------
-  // Return the BIG pixel information for a given pixel
-  //
-  bool isItBigPixelInX(const int ixbin) const override {
-    return ((m_upgradeGeometry) ? (false) : ((ixbin == 79) | (ixbin == 80)));
-  }
-
-  bool isItBigPixelInY(const int iybin) const override {
-    if
-      UNLIKELY(m_upgradeGeometry) return false;
-    else {
-      int iybin0 = iybin % 52;
-      return ((iybin0 == 0) | (iybin0 == 51));
-      // constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
-      // return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
-    }
-  }
-
-  //-------------------------------------------------------------
-  // Return BIG pixel flag in a given pixel range
-  //
-  bool containsBigPixelInX(int ixmin, int ixmax) const override {
-    return m_upgradeGeometry ? false : ((ixmin <= 80) & (ixmax >= 79));
-  }
-  bool containsBigPixelInY(int iymin, int iymax) const override {
-    return m_upgradeGeometry ? false
-                             : (isItBigPixelInY(iymin) || isItBigPixelInY(iymax) || (iymin / 52) != (iymax / 52));
-  }
-
-  //-------------------------------------------------------------
-  // Check whether the pixel is at the edge of the module
-  //
-  bool isItEdgePixelInX(int ixbin) const override { return ((ixbin == 0) | (ixbin == (m_nrows - 1))); }
-  bool isItEdgePixelInY(int iybin) const override { return ((iybin == 0) | (iybin == (m_ncols - 1))); }
-  bool isItEdgePixel(int ixbin, int iybin) const override {
-    return (isItEdgePixelInX(ixbin) | isItEdgePixelInY(iybin));
-  }
 
   //------------------------------------------------------------------
   // Return pitch
@@ -175,6 +162,14 @@ public:
   int colsperroc() const override { return m_COLS_PER_ROC; }
   float xoffset() const { return m_xoffset; }
   float yoffset() const { return m_yoffset; }
+  float gapxInterpad() const { return m_GAPxInterpad; }  // Value returned in cm
+  float gapyInterpad() const { return m_GAPyInterpad; }  // Value returned in cm
+  float gapxBorder() const { return m_GAPxBorder; }      // Value returned in cm
+  float gapyBorder() const { return m_GAPyBorder; }      // Value returned in cm
+  float gapxInterpadFrac() const { return m_GAPxInterpadFrac; }
+  float gapyInterpadFrac() const { return m_GAPyInterpadFrac; }
+  float gapxBorderFrac() const { return m_GAPxBorderFrac; }
+  float gapyBorderFrac() const { return m_GAPyBorderFrac; }
 
 private:
   float m_pitchx;
@@ -187,7 +182,14 @@ private:
   int m_COLS_PER_ROC;
   int m_ROCS_X;
   int m_ROCS_Y;
-  bool m_upgradeGeometry;
+  float m_GAPxInterpad;
+  float m_GAPxBorder;
+  float m_GAPyInterpad;
+  float m_GAPyBorder;
+  float m_GAPxInterpadFrac;
+  float m_GAPxBorderFrac;
+  float m_GAPyInterpadFrac;
+  float m_GAPyBorderFrac;
 };
 
 #endif

@@ -5,7 +5,8 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-#include <boost/bind.hpp>
+#include <functional>
+#include <memory>
 
 #include "TGLWidget.h"
 #include "TGMsgBox.h"
@@ -77,7 +78,7 @@ void CmsShowMainBase::setupActions() {
   // init TGSlider state before signals are connected
   m_guiManager->setDelayBetweenEvents(m_playDelay);
 
-  m_navigatorPtr->newEvent_.connect(boost::bind(&CmsShowMainBase::eventChangedSlot, this));
+  m_navigatorPtr->newEvent_.connect(std::bind(&CmsShowMainBase::eventChangedSlot, this));
   if (m_guiManager->getAction(cmsshow::sNextEvent) != nullptr)
     m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doNextEvent));
   if (m_guiManager->getAction(cmsshow::sPreviousEvent) != nullptr)
@@ -92,16 +93,18 @@ void CmsShowMainBase::setupActions() {
   if (m_guiManager->getAction(cmsshow::sQuit) != nullptr)
     m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::quit));
 
-  m_guiManager->changedEventId_.connect(boost::bind(&CmsShowMainBase::goToRunEvent, this, _1, _2, _3));
+  m_guiManager->changedEventId_.connect(std::bind(
+      &CmsShowMainBase::goToRunEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   m_guiManager->playEventsAction()->started_.connect(sigc::mem_fun(*this, &CmsShowMainBase::playForward));
   m_guiManager->playEventsBackwardsAction()->started_.connect(sigc::mem_fun(*this, &CmsShowMainBase::playBackward));
   m_guiManager->loopAction()->started_.connect(sigc::mem_fun(*this, &CmsShowMainBase::setPlayLoopImp));
   m_guiManager->loopAction()->stopped_.connect(sigc::mem_fun(*this, &CmsShowMainBase::unsetPlayLoopImp));
-  m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMainBase::setPlayDelay, this, _1));
+  m_guiManager->changedDelayBetweenEvents_.connect(
+      std::bind(&CmsShowMainBase::setPlayDelay, this, std::placeholders::_1));
   m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this, &CmsShowMainBase::stopPlaying));
   m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this, &CmsShowMainBase::stopPlaying));
 
-  m_autoLoadTimer->timeout_.connect(boost::bind(&CmsShowMainBase::autoLoadNewEvent, this));
+  m_autoLoadTimer->timeout_.connect(std::bind(&CmsShowMainBase::autoLoadNewEvent, this));
 }
 
 void CmsShowMainBase::setupViewManagers() {
@@ -114,7 +117,7 @@ void CmsShowMainBase::setupViewManagers() {
   auto tableViewManager = std::make_shared<FWTableViewManager>(guiManager());
   configurationManager()->add(std::string("Tables"), tableViewManager.get());
   viewManager()->add(tableViewManager);
-  eiManager()->goingToClearItems_.connect(boost::bind(&FWTableViewManager::removeAllItems, tableViewManager.get()));
+  eiManager()->goingToClearItems_.connect(std::bind(&FWTableViewManager::removeAllItems, tableViewManager.get()));
 
   auto triggerTableViewManager = std::make_shared<FWTriggerTableViewManager>(guiManager());
   configurationManager()->add(std::string("TriggerTables"), triggerTableViewManager.get());
@@ -203,25 +206,29 @@ void CmsShowMainBase::setup(FWNavigatorBase *navigator,
 
   m_colorManager->initialize();
   m_contextPtr->initEveElements();
-  m_guiManager.reset(new FWGUIManager(m_contextPtr, m_viewManager.get(), m_navigatorPtr));
+  m_guiManager = std::make_unique<FWGUIManager>(m_contextPtr, m_viewManager.get(), m_navigatorPtr);
 
-  m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot, m_changeManager.get(), _1));
+  m_eiManager->newItem_.connect(
+      std::bind(&FWModelChangeManager::newItemSlot, m_changeManager.get(), std::placeholders::_1));
 
-  m_eiManager->newItem_.connect(boost::bind(&FWViewManagerManager::registerEventItem, m_viewManager.get(), _1));
+  m_eiManager->newItem_.connect(
+      std::bind(&FWViewManagerManager::registerEventItem, m_viewManager.get(), std::placeholders::_1));
   m_configurationManager->add("EventItems", m_eiManager.get());
   m_configurationManager->add("GUI", m_guiManager.get());
   m_configurationManager->add("EventNavigator", m_navigatorPtr);
   m_configurationManager->add("CommonPreferences",
                               m_contextPtr->commonPrefs());  // must be after GUIManager in alphabetical order
 
-  m_guiManager->writeToConfigurationFile_.connect(boost::bind(&CmsShowMainBase::writeToConfigFile, this, _1));
+  m_guiManager->writeToConfigurationFile_.connect(
+      std::bind(&CmsShowMainBase::writeToConfigFile, this, std::placeholders::_1));
 
-  m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::reloadConfiguration, this, _1));
+  m_guiManager->loadFromConfigurationFile_.connect(
+      std::bind(&CmsShowMainBase::reloadConfiguration, this, std::placeholders::_1));
   m_guiManager->loadPartialFromConfigurationFile_.connect(
-      boost::bind(&CmsShowMainBase::partialLoadConfiguration, this, _1));
+      std::bind(&CmsShowMainBase::partialLoadConfiguration, this, std::placeholders::_1));
 
   m_guiManager->writePartialToConfigurationFile_.connect(
-      boost::bind(&CmsShowMainBase::partialWriteToConfigFile, this, _1));
+      std::bind(&CmsShowMainBase::partialWriteToConfigFile, this, std::placeholders::_1));
 
   std::string macPath(gSystem->Getenv("CMSSW_BASE"));
   macPath += "/src/Fireworks/Core/macros";
@@ -233,7 +240,7 @@ void CmsShowMainBase::setup(FWNavigatorBase *navigator,
   }
   gROOT->SetMacroPath((std::string("./:") + macPath).c_str());
 
-  m_startupTasks->tasksCompleted_.connect(boost::bind(&FWGUIManager::clearStatus, m_guiManager.get()));
+  m_startupTasks->tasksCompleted_.connect(std::bind(&FWGUIManager::clearStatus, m_guiManager.get()));
 }
 
 void CmsShowMainBase::writeToConfigFile(const std::string &name) {

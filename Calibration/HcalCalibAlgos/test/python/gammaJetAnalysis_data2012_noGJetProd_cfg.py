@@ -10,7 +10,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run1_data']
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.categories+=cms.untracked.vstring('GammaJetAnalysis')
+process.MessageLogger.GammaJetAnalysis=dict()
 process.MessageLogger.cerr.FwkReport.reportEvery=cms.untracked.int32(1000)
 
 #load the analyzer

@@ -19,7 +19,7 @@
 // $Id: L1GctJetFinderParamsRcd.h,v 1.2 2008/03/03 07:09:47 wsun Exp $
 //
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -30,6 +30,6 @@
 //class L1GctJetFinderParamsRcd : public edm::eventsetup::EventSetupRecordImplementation<L1GctJetFinderParamsRcd> {};
 class L1GctJetFinderParamsRcd : public edm::eventsetup::DependentRecordImplementation<
                                     L1GctJetFinderParamsRcd,
-                                    boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd, L1CaloGeometryRecord> > {};
+                                    edm::mpl::Vector<L1TriggerKeyListRcd, L1TriggerKeyRcd, L1CaloGeometryRecord> > {};
 
 #endif

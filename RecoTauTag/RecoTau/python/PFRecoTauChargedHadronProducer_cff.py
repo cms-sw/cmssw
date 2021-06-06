@@ -11,7 +11,7 @@ ak4PFJetsRecoTauChargedHadrons = pfRecoTauChargedHadronProducer.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
-    outputSelection = cms.string('pt > %1.1f' % PFTauQualityCuts.signalQualityCuts.minTrackPt.value()), # CV: apply minimum Pt cut as sanity check
+    outputSelection = 'pt > %1.1f' % PFTauQualityCuts.signalQualityCuts.minTrackPt.value(), # CV: apply minimum Pt cut as sanity check
     builders = cms.VPSet(
         builders.chargedPFCandidates,
         builders.tracks,

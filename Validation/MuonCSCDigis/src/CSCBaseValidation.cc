@@ -1,8 +1,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
 
-CSCBaseValidation::CSCBaseValidation(const edm::InputTag &inputTag)
-    : theInputTag(inputTag), theSimHitMap(nullptr), theCSCGeometry(nullptr) {}
+CSCBaseValidation::CSCBaseValidation(const edm::ParameterSet &ps)
+    : doSim_(ps.getParameter<bool>("doSim")), theSimHitMap(nullptr), theCSCGeometry(nullptr) {}
 
 const CSCLayer *CSCBaseValidation::findLayer(int detId) const {
   assert(theCSCGeometry != nullptr);

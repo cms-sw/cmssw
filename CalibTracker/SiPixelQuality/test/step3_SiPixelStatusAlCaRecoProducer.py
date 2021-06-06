@@ -7,8 +7,8 @@ process = cms.Process('PCL',Run2_2017)
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
-process.MessageLogger.categories.append('HLTrigReport')
-process.MessageLogger.categories.append('L1GtTrigReport')
+process.MessageLogger.HLTrigReport=dict()
+process.MessageLogger.L1GtTrigReport=dict()
 process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound'),
     wantSummary = cms.untracked.bool(True)

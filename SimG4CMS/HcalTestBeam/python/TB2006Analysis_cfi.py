@@ -46,7 +46,7 @@ def testbeam2006(process):
     process.g4SimHits.NonBeamEvent = True
     process.g4SimHits.UseMagneticField = False
 
-    process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
+    process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
     process.g4SimHits.Physics.Region = 'HcalRegion'
     process.g4SimHits.Physics.MaxTrackTime = cms.double(1000.0)
 
@@ -64,6 +64,7 @@ def testbeam2006(process):
 
     process.g4SimHits.CaloSD.EminHits = cms.vdouble(0.0,0.0,0.0,0.0)
     process.g4SimHits.CaloSD.TmaxHits = cms.vdouble(1000.0,1000.0,1000.0,1000.0)
+    process.g4SimHits.CaloTrkProcessing.TestBeam = True
 
     process.g4SimHits.HCalSD.UseShowerLibrary    = False
     process.g4SimHits.HCalSD.UseHF   = False

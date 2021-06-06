@@ -1,17 +1,16 @@
-<use   name="CoralBase"/>
-<use   name="DQMServices/Core"/>
-<use   name="DQM/EcalCommon"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="Utilities/Xerces"/>
-<use   name="CondCore/DBOutputService"/>
+<use name="CoralBase"/>
+<use name="DQMServices/Core"/>
+<use name="DQM/EcalCommon"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="Utilities/Xerces"/>
 <use name="OnlineDB/EcalCondDB"/>
-<use   name="RelationalAccess"/>
-<use   name="rootcore"/>
-<use   name="rootgraphics"/>
-<use   name="xerces-c"/>
+<use name="RelationalAccess"/>
+<use name="rootcore"/>
+<use name="rootgraphics"/>
+<use name="xerces-c"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

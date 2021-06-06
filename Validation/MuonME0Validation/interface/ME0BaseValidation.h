@@ -10,7 +10,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,6 +34,7 @@ protected:
   std::vector<double> RangeZR_;
   edm::EDGetToken InputTagToken_;
   int nBinXY_;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geomToken_;
 
 private:
 };

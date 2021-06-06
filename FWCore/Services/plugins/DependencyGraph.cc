@@ -6,7 +6,7 @@
  *
  * Use GraphViz dot to generate an SVG representation of the dependencies:
  *
- *   dot -v -Tsvg dependency.gv -o dependency.svg
+ *   dot -v -Tsvg dependency.dot -o dependency.svg
  *
  */
 
@@ -159,7 +159,7 @@ const char *DependencyGraph::edmModuleType(edm::ModuleDescription const &module)
 
 void DependencyGraph::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("fileName", "dependency.gv");
+  desc.addUntracked<std::string>("fileName", "dependency.dot");
   desc.addUntracked<std::vector<std::string>>("highlightModules", {});
   desc.addUntracked<bool>("showPathDependencies", true);
   descriptions.add("DependencyGraph", desc);
@@ -222,7 +222,7 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
     boost::get_property(m_graph, boost::graph_graph_attribute)["labelloc"] = "top";
 
     // create graph vertices associated to all modules in the process
-    auto size = pathsAndConsumes.allModules().size();
+    auto size = pathsAndConsumes.largestModuleID() - boost::num_vertices(m_graph) + 1;
     for (size_t i = 0; i < size; ++i)
       boost::add_vertex(m_graph);
 
@@ -237,7 +237,7 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
     boost::get_property(graph, boost::graph_graph_attribute)["labelloc"] = "top";
 
     // create graph vertices associated to all modules in the subprocess
-    auto size = pathsAndConsumes.allModules().size();
+    auto size = pathsAndConsumes.largestModuleID() - boost::num_vertices(m_graph) + 1;
     for (size_t i = 0; i < size; ++i)
       boost::add_vertex(graph);
   }

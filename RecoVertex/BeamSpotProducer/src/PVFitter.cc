@@ -40,6 +40,8 @@ ________________________________________________________________**/
 #include "TMinuitMinimizer.h"
 
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 using namespace std;
 
@@ -84,15 +86,36 @@ void PVFitter::initialize(const edm::ParameterSet& iConfig, edm::ConsumesCollect
   // preset quality cut to "infinite"
   dynamicQualityCut_ = 1.e30;
 
-  hPVx = std::unique_ptr<TH2F>(
-      new TH2F("hPVx", "PVx vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_));
-  hPVy = std::unique_ptr<TH2F>(
-      new TH2F("hPVy", "PVy vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_));
+  hPVx = std::make_unique<TH2F>("hPVx", "PVx vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
+  hPVy = std::make_unique<TH2F>("hPVy", "PVy vs PVz distribution", 200, -maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
   hPVx->SetDirectory(nullptr);
   hPVy->SetDirectory(nullptr);
 }
 
 PVFitter::~PVFitter() {}
+
+void PVFitter::fillDescription(edm::ParameterSetDescription& iDesc) {
+  edm::ParameterSetDescription pvFitter;
+
+  pvFitter.addUntracked<bool>("Debug");
+  pvFitter.addUntracked<edm::InputTag>("VertexCollection", edm::InputTag("offlinePrimaryVertices"));
+  pvFitter.addUntracked<bool>("Apply3DFit");
+  pvFitter.addUntracked<unsigned int>("maxNrStoredVertices");
+  pvFitter.addUntracked<unsigned int>("minNrVerticesForFit");
+  pvFitter.addUntracked<double>("minVertexNdf");
+  pvFitter.addUntracked<double>("maxVertexNormChi2");
+  pvFitter.addUntracked<unsigned int>("minVertexNTracks");
+  pvFitter.addUntracked<double>("minVertexMeanWeight");
+  pvFitter.addUntracked<double>("maxVertexR");
+  pvFitter.addUntracked<double>("maxVertexZ");
+  pvFitter.addUntracked<double>("errorScale");
+  pvFitter.addUntracked<double>("nSigmaCut");
+  pvFitter.addUntracked<bool>("FitPerBunchCrossing");
+  pvFitter.addUntracked<bool>("useOnlyFirstPV");
+  pvFitter.addUntracked<double>("minSumPt");
+
+  iDesc.add<edm::ParameterSetDescription>("PVFitter", pvFitter);
+}
 
 void PVFitter::readEvent(const edm::Event& iEvent) {
   //------ Primary Vertices

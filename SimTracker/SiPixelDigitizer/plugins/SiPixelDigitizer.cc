@@ -28,7 +28,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
@@ -41,14 +40,12 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -57,7 +54,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
@@ -90,9 +86,11 @@ namespace cms {
         _pixeldigialgo(),
         hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),
         trackerContainers(iConfig.getParameter<std::vector<std::string> >("RoutList")),
-        geometryType(iConfig.getParameter<std::string>("PixGeometryType")),
         pilotBlades(iConfig.exists("enablePilotBlades") ? iConfig.getParameter<bool>("enablePilotBlades") : false),
-        NumberOfEndcapDisks(iConfig.exists("NumPixelEndcap") ? iConfig.getParameter<int>("NumPixelEndcap") : 2) {
+        NumberOfEndcapDisks(iConfig.exists("NumPixelEndcap") ? iConfig.getParameter<int>("NumPixelEndcap") : 2),
+        tTopoToken_(iC.esConsumes()),
+        pDDToken_(iC.esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("PixGeometryType")))),
+        pSetupToken_(iC.esConsumes()) {
     edm::LogInfo("PixelDigitizer ") << "Enter the Pixel Digitizer";
 
     const std::string alias("simSiPixelDigis");
@@ -112,7 +110,7 @@ namespace cms {
              "in the configuration file or remove the modules that require it.";
     }
 
-    _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig));
+    _pixeldigialgo = std::make_unique<SiPixelDigitizerAlgorithm>(iConfig, iC);
     if (NumberOfEndcapDisks != 2)
       producesCollector.produces<PixelFEDChannelCollection>();
   }
@@ -130,9 +128,7 @@ namespace cms {
     if (hSimHits.isValid()) {
       std::set<unsigned int> detIds;
       std::vector<PSimHit> const& simHits = *hSimHits.product();
-      edm::ESHandle<TrackerTopology> tTopoHand;
-      iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-      const TrackerTopology* tTopo = tTopoHand.product();
+      const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
       for (std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd;
            ++it, ++globalSimHitIndex) {
         unsigned int detId = (*it).detUnitId();
@@ -177,11 +173,9 @@ namespace cms {
     randomEngine_ = &rng->getEngine(e.streamID());
 
     _pixeldigialgo->initializeEvent();
-    iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
-    iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
-    edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-    const TrackerTopology* tTopo = tTopoHand.product();
+    pDD = &iSetup.getData(pDDToken_);
+    pSetup = &iSetup.getData(pSetupToken_);
+    const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
     // FIX THIS! We only need to clear and (re)fill this map when the geometry type IOV changes.  Use ESWatcher to determine this.
     if (true) {  // Replace with ESWatcher
@@ -250,9 +244,7 @@ namespace cms {
 
   // ------------ method called to produce the data  ------------
   void SiPixelDigitizer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-    const TrackerTopology* tTopo = tTopoHand.product();
+    const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;

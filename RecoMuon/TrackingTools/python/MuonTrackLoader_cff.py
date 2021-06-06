@@ -4,32 +4,34 @@ from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 from TrackingTools.GeomPropagators.SmartPropagator_cff import *
 from RecoMuon.TrackingTools.MuonUpdatorAtVertex_cff import *
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
-Chi2EstimatorForMuonTrackLoader = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
-Chi2EstimatorForMuonTrackLoader.ComponentName = cms.string('Chi2EstimatorForMuonTrackLoader')
-Chi2EstimatorForMuonTrackLoader.nSigma = 3.0
-Chi2EstimatorForMuonTrackLoader.MaxChi2 = 100000.0
+Chi2EstimatorForMuonTrackLoader = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
+    ComponentName = 'Chi2EstimatorForMuonTrackLoader',
+    nSigma = 3.0,
+    MaxChi2 = 100000.0
+)
 
 import TrackingTools.TrackFitters.KFTrajectorySmoother_cfi
 KFSmootherForMuonTrackLoader = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
-    errorRescaling = cms.double(10.0),
-    minHits = cms.int32(3),
-    ComponentName = cms.string('KFSmootherForMuonTrackLoader'),
-    Estimator = cms.string('Chi2EstimatorForMuonTrackLoader'),
-    Updator = cms.string('KFUpdator'),
-    Propagator = cms.string('SmartPropagatorAnyRK')
+    errorRescaling = 10.0,
+    minHits        = 3,
+    ComponentName  = 'KFSmootherForMuonTrackLoader',
+    Estimator      = 'Chi2EstimatorForMuonTrackLoader',
+    Updator        = 'KFUpdator',
+    Propagator     = 'SmartPropagatorAnyRK'
 )
+
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 # FastSim doesn't use Runge Kute for propagation
 fastSim.toModify(KFSmootherForMuonTrackLoader,
                  Propagator = "SmartPropagatorAny")
 
 KFSmootherForMuonTrackLoaderL3 = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
-    errorRescaling = cms.double(10.0),
-    minHits = cms.int32(3),
-    ComponentName = cms.string('KFSmootherForMuonTrackLoaderL3'),
-    Estimator = cms.string('Chi2EstimatorForMuonTrackLoader'),
-    Updator = cms.string('KFUpdator'),
-    Propagator = cms.string('SmartPropagatorAnyOpposite')
+    errorRescaling = 10.0,
+    minHits        = 3,
+    ComponentName  = 'KFSmootherForMuonTrackLoaderL3',
+    Estimator      = 'Chi2EstimatorForMuonTrackLoader',
+    Updator        = 'KFUpdator',
+    Propagator     = 'SmartPropagatorAnyOpposite'
 )
 
 MuonTrackLoaderForSTA = cms.PSet(
@@ -87,4 +89,3 @@ MuonTrackLoaderForCosmic = cms.PSet(
         TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
-

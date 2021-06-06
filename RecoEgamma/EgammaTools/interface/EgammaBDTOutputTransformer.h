@@ -16,8 +16,8 @@ public:
   double operator()(const double rawVal) const { return offset_ + scale_ * vdt::fast_sin(rawVal); }
 
 private:
-  const double offset_;
-  const double scale_;
+  double offset_;
+  double scale_;
 };
 
 #endif

@@ -133,7 +133,4 @@ process.p = cms.Path(
     *(process.ca15PFJets+process.caHEPTopTagJets)*process.jetFlavourInfosCA15PFJets*process.printEventCA15PFJets
 )
 
-process.MessageLogger.destinations = cms.untracked.vstring('cout','cerr')
-#process.MessageLogger.cout = cms.PSet(
-#    threshold = cms.untracked.string('ERROR')
-#)
+#process.MessageLogger.cout = dict( enable = True, threshold = 'ERROR')

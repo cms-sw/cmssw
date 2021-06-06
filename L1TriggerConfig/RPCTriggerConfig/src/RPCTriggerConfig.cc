@@ -75,7 +75,7 @@ RPCTriggerConfig::RPCTriggerConfig(const edm::ParameterSet& iConfig) {
 
   edm::FileInPath fp(dataDir + "pacPat_t0sc0sg0.xml");
   std::string patternsDirNameUnstriped = fp.fullPath();
-  m_patternsDir = patternsDirNameUnstriped.substr(0, patternsDirNameUnstriped.find_last_of("/") + 1);
+  m_patternsDir = patternsDirNameUnstriped.substr(0, patternsDirNameUnstriped.find_last_of('/') + 1);
 }
 
 RPCTriggerConfig::~RPCTriggerConfig() {

@@ -1,379 +1,325 @@
-<library   file="EcalTPGWeightGroup_PayloadInspector.cc" name="EcalTPGWeightGroup_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGWeightGroup_PayloadInspector.cc" name="EcalTPGWeightGroup_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGLutGroup_PayloadInspector.cc" name="EcalTPGLutGroup_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGLutGroup_PayloadInspector.cc" name="EcalTPGLutGroup_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalDQMTowerStatus_PayloadInspector.cc" name="EcalDQMTowerStatus_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalDQMTowerStatus_PayloadInspector.cc" name="EcalDQMTowerStatus_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalWeightXtalGroups_PayloadInspector.cc" name="EcalWeightXtalGroups_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalWeightXtalGroups_PayloadInspector.cc" name="EcalWeightXtalGroups_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGFineGrainStripEE_PayloadInspector.cc" name="EcalTPGFineGrainStripEE_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGFineGrainStripEE_PayloadInspector.cc" name="EcalTPGFineGrainStripEE_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGFineGrainEBGroup_PayloadInspector.cc" name="EcalTPGFineGrainEBGroup_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGFineGrainEBGroup_PayloadInspector.cc" name="EcalTPGFineGrainEBGroup_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGFineGrainEBIdMap_PayloadInspector.cc" name="EcalTPGFineGrainEBIdMap_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGFineGrainEBIdMap_PayloadInspector.cc" name="EcalTPGFineGrainEBIdMap_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGFineGrainTowerEE_PayloadInspector.cc" name="EcalTPGFineGrainTowerEE_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGFineGrainTowerEE_PayloadInspector.cc" name="EcalTPGFineGrainTowerEE_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalDCSTowerStatus_PayloadInspector.cc" name="EcalDCSTowerStatus_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalDCSTowerStatus_PayloadInspector.cc" name="EcalDCSTowerStatus_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalDAQTowerStatus_PayloadInspector.cc" name="EcalDAQTowerStatus_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalDAQTowerStatus_PayloadInspector.cc" name="EcalDAQTowerStatus_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalSRSettings_PayloadInspector.cc" name="EcalSRSettings_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalSRSettings_PayloadInspector.cc" name="EcalSRSettings_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalDCUTemperatures_PayloadInspector.cc" name="EcalDCUTemperatures_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalDCUTemperatures_PayloadInspector.cc" name="EcalDCUTemperatures_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalPTMTemperatures_PayloadInspector.cc" name="EcalPTMTemperatures_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalPTMTemperatures_PayloadInspector.cc" name="EcalPTMTemperatures_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTimeCalibErrors_PayloadInspector.cc" name="EcalTimeCalibErrors_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTimeCalibErrors_PayloadInspector.cc" name="EcalTimeCalibErrors_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTimeCalibConstants_PayloadInspector.cc" name="EcalTimeCalibConstants_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTimeCalibConstants_PayloadInspector.cc" name="EcalTimeCalibConstants_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalLaserAlphas_PayloadInspector.cc" name="EcalLaserAlphas_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalLaserAlphas_PayloadInspector.cc" name="EcalLaserAlphas_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalLaserAPDPNRatiosRef_PayloadInspector.cc" name="EcalLaserAPDPNRatiosRef_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalLaserAPDPNRatiosRef_PayloadInspector.cc" name="EcalLaserAPDPNRatiosRef_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalIntercalibErrors_PayloadInspector.cc" name="EcalIntercalibErrors_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalIntercalibErrors_PayloadInspector.cc" name="EcalIntercalibErrors_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalPFRecHitThresholds_PayloadInspector.cc" name="EcalPFRecHitThresholds_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalPFRecHitThresholds_PayloadInspector.cc" name="EcalPFRecHitThresholds_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalIntercalibConstantsMC_PayloadInspector.cc" name="EcalIntercalibConstantsMC_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalIntercalibConstantsMC_PayloadInspector.cc" name="EcalIntercalibConstantsMC_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGWeightIdMap_PayloadInspector.cc" name="EcalTPGWeightIdMap_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGWeightIdMap_PayloadInspector.cc" name="EcalTPGWeightIdMap_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalClusterLocalContCorrParameters_PayloadInspector.cc" name="EcalClusterLocalContCorrParameters_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalClusterLocalContCorrParameters_PayloadInspector.cc" name="EcalClusterLocalContCorrParameters_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalClusterEnergyUncertaintyParameters_PayloadInspector.cc" name="EcalClusterEnergyUncertaintyParameters_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalClusterEnergyUncertaintyParameters_PayloadInspector.cc" name="EcalClusterEnergyUncertaintyParameters_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalClusterEnergyCorrectionParameters_PayloadInspector.cc" name="EcalClusterEnergyCorrectionParameters_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalClusterEnergyCorrectionParameters_PayloadInspector.cc" name="EcalClusterEnergyCorrectionParameters_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalClusterEnergyCorrectionObjectSpecificParameters_PayloadInspector.cc" name="EcalClusterEnergyCorrectionObjectSpecificParameters_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalClusterEnergyCorrectionObjectSpecificParameters_PayloadInspector.cc" name="EcalClusterEnergyCorrectionObjectSpecificParameters_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalClusterCrackCorrParameters_PayloadInspector.cc" name="EcalClusterCrackCorrParameters_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalClusterCrackCorrParameters_PayloadInspector.cc" name="EcalClusterCrackCorrParameters_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalWeightSet_PayloadInspector.cc" name="EcalWeightSet_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalWeightSet_PayloadInspector.cc" name="EcalWeightSet_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalSampleMask_PayloadInspector.cc" name="EcalSampleMask_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalSampleMask_PayloadInspector.cc" name="EcalSampleMask_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTimeOffsetConstant_PayloadInspector.cc" name="EcalTimeOffsetConstant_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTimeOffsetConstant_PayloadInspector.cc" name="EcalTimeOffsetConstant_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalSamplesCorrelation_PayloadInspector.cc" name="EcalSamplesCorrelation_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalSamplesCorrelation_PayloadInspector.cc" name="EcalSamplesCorrelation_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTimeBiasCorrections_PayloadInspector.cc" name="EcalTimeBiasCorrections_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTimeBiasCorrections_PayloadInspector.cc" name="EcalTimeBiasCorrections_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGLutIdMap_PayloadInspector.cc" name="EcalTPGLutIdMap_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGLutIdMap_PayloadInspector.cc" name="EcalTPGLutIdMap_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGPhysicsConst_PayloadInspector.cc" name="EcalTPGPhysicsConst_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGPhysicsConst_PayloadInspector.cc" name="EcalTPGPhysicsConst_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalADCToGeVConstant_PayloadInspector.cc" name="EcalADCToGeVConstant_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalADCToGeVConstant_PayloadInspector.cc" name="EcalADCToGeVConstant_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalDQMChannelStatus_PayloadInspector.cc" name="EcalDQMChannelStatus_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalDQMChannelStatus_PayloadInspector.cc" name="EcalDQMChannelStatus_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalPyUtils.cc" name="EcalPyUtils">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="DataFormats/EcalDetId"/>
-  <use   name="boost"/>
+<library file="EcalPyUtils.cc" name="EcalPyUtils">
+  <use name="CondCore/Utilities"/>
+  <use name="CondFormats/EcalObjects"/>
+  <use name="CondTools/Ecal"/>
+  <use name="DataFormats/EcalDetId"/>
+  <use name="boost"/>
 </library>
 
-<library   file="EcalPedestals_PayloadInspector.cc" name="EcalPedestals_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalPedestals_PayloadInspector.cc" name="EcalPedestals_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalChannelStatus_PayloadInspector.cc" name="EcalChannelStatus_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalChannelStatus_PayloadInspector.cc" name="EcalChannelStatus_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalIntercalibConstants_PayloadInspector.cc" name="EcalIntercalibConstants_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
-</library> 
-
-<library   file="EcalLaserAPDPNRatios_PayloadInspector.cc" name="EcalLaserAPDPNRatios_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalIntercalibConstants_PayloadInspector.cc" name="EcalIntercalibConstants_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalGainRatios_PayloadInspector.cc" name="EcalGainRatios_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalLaserAPDPNRatios_PayloadInspector.cc" name="EcalLaserAPDPNRatios_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalAlignment_PayloadInspector.cc" name="EcalAlignment_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalGainRatios_PayloadInspector.cc" name="EcalGainRatios_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalFloatCondObjectContainer_PayloadInspector.cc" name="EcalFloatCondObjectContainer_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalAlignment_PayloadInspector.cc" name="EcalAlignment_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalLinearCorrections_PayloadInspector.cc" name="EcalLinearCorrections_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalFloatCondObjectContainer_PayloadInspector.cc" name="EcalFloatCondObjectContainer_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalPulseCovariances_PayloadInspector.cc" name="EcalPulseCovariances_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalLinearCorrections_PayloadInspector.cc" name="EcalLinearCorrections_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalPulseShapes_PayloadInspector.cc" name="EcalPulseShapes_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalPulseCovariances_PayloadInspector.cc" name="EcalPulseCovariances_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalSimPulseShape_PayloadInspector.cc" name="EcalSimPulseShape_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalPulseShapes_PayloadInspector.cc" name="EcalPulseShapes_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGCrystalStatus_PayloadInspector.cc" name="EcalTPGCrystalStatus_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalSimPulseShape_PayloadInspector.cc" name="EcalSimPulseShape_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGStripStatus_PayloadInspector.cc" name="EcalTPGStripStatus_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGCrystalStatus_PayloadInspector.cc" name="EcalTPGCrystalStatus_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGTowerStatus_PayloadInspector.cc" name="EcalTPGTowerStatus_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGStripStatus_PayloadInspector.cc" name="EcalTPGStripStatus_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGLinearizationConst_PayloadInspector.cc" name="EcalTPGLinearizationConst_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGTowerStatus_PayloadInspector.cc" name="EcalTPGTowerStatus_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="EcalTPGPedestals_PayloadInspector.cc" name="EcalTPGPedestals_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/EcalObjects"/>
+<library file="EcalTPGLinearizationConst_PayloadInspector.cc" name="EcalTPGLinearizationConst_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="ESChannelStatus_PayloadInspector.cc" name="ESChannelStatus_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/ESObjects"/>
+<library file="EcalTPGPedestals_PayloadInspector.cc" name="EcalTPGPedestals_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/EcalObjects"/>
 </library>
 
-<library   file="ESIntercalibConstants_PayloadInspector.cc" name="ESIntercalibConstants_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
-  <use   name="CondFormats/ESObjects"/>
+<library file="ESChannelStatus_PayloadInspector.cc" name="ESChannelStatus_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/ESObjects"/>
 </library>
 
+<library file="ESIntercalibConstants_PayloadInspector.cc" name="ESIntercalibConstants_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/ESObjects"/>
+</library>

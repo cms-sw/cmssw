@@ -22,8 +22,10 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
-class HGCGraph;
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 namespace ticl {
   class SeedingRegionByTracks final : public SeedingRegionAlgoBase {
@@ -35,6 +37,8 @@ namespace ticl {
 
     void makeRegions(const edm::Event& ev, const edm::EventSetup& es, std::vector<TICLSeedingRegion>& result) override;
 
+    static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
   private:
     void buildFirstLayers();
 
@@ -42,11 +46,14 @@ namespace ticl {
     std::once_flag initializeGeometry_;
     const HGCalDDDConstants* hgcons_;
     const StringCutObjectSelector<reco::Track> cutTk_;
-    inline static const std::string detectorName_ = "HGCalEESensitive";
+    const std::string detector_;
     edm::ESHandle<Propagator> propagator_;
     const std::string propName_;
     edm::ESHandle<MagneticField> bfield_;
     std::unique_ptr<GeomDet> firstDisk_[2];
+    edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hdc_token_;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfield_token_;
+    edm::ESGetToken<Propagator, TrackingComponentsRecord> propagator_token_;
   };
 }  // namespace ticl
 #endif

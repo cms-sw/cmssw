@@ -15,7 +15,7 @@
 ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps)
     : digiToken_(consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection"))),
       rechitCollection_(ps.getParameter<std::string>("ESrechitCollection")),
-      worker_{ESRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps)} {
+      worker_{ESRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps, consumesCollector())} {
   produces<ESRecHitCollection>(rechitCollection_);
 }
 

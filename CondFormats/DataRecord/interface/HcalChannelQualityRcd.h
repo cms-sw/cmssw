@@ -7,5 +7,5 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 class HcalChannelQualityRcd : public edm::eventsetup::DependentRecordImplementation<
                                   HcalChannelQualityRcd,
-                                  boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                                  edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 #endif

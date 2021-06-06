@@ -65,25 +65,14 @@ akPu5CaloJets = cms.EDProducer(
     rParam       = cms.double(0.5)
     )
 akPu5CaloJets.radiusPU = 0.5
+akPu5CaloJets.puPtMin  = 10
 
-akPu7CaloJets = cms.EDProducer(
-    "FastjetJetProducer",
-    HiCaloJetParameters,
-    AnomalousCellParameters,
-    MultipleAlgoIteratorBlock,
-    jetAlgorithm = cms.string("AntiKt"),
-    rParam       = cms.double(0.7)
-    )
-akPu7CaloJets.radiusPU = 0.7
-
-
-akPu5CaloJets.puPtMin = cms.double(10)
-akPu1CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.1), puPtMin = 4)
-akPu2CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.2), puPtMin = 4)
-akPu3CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.3), puPtMin = 6)
-akPu4CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.4), puPtMin = 8)
-akPu6CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.6), puPtMin = 12)
-akPu7CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.7), puPtMin = 14)
+akPu1CaloJets = akPu5CaloJets.clone(rParam = 0.1, puPtMin = 4)
+akPu2CaloJets = akPu5CaloJets.clone(rParam = 0.2, puPtMin = 4)
+akPu3CaloJets = akPu5CaloJets.clone(rParam = 0.3, puPtMin = 6)
+akPu4CaloJets = akPu5CaloJets.clone(rParam = 0.4, puPtMin = 8)
+akPu6CaloJets = akPu5CaloJets.clone(rParam = 0.6, puPtMin = 12)
+akPu7CaloJets = akPu5CaloJets.clone(rParam = 0.7, puPtMin = 14)
 
 ak5CaloJets = cms.EDProducer(
     "FastjetJetProducer",
@@ -94,12 +83,13 @@ ak5CaloJets = cms.EDProducer(
     rParam       = cms.double(0.5)
     )
 ak5CaloJets.doPUOffsetCorr = False
-ak1CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.1))
-ak2CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.2))
-ak3CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.3))
-ak4CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.4))
-ak6CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.6))
-ak7CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.7))
+
+ak1CaloJets = ak5CaloJets.clone(rParam = 0.1)
+ak2CaloJets = ak5CaloJets.clone(rParam = 0.2)
+ak3CaloJets = ak5CaloJets.clone(rParam = 0.3)
+ak4CaloJets = ak5CaloJets.clone(rParam = 0.4)
+ak6CaloJets = ak5CaloJets.clone(rParam = 0.6)
+ak7CaloJets = ak5CaloJets.clone(rParam = 0.7)
 
 
 ## Default Sequence

@@ -89,108 +89,39 @@ void EnergyRingsTableProducer::produce(edm::Event& iEvent, const edm::EventSetup
     numdaughterspt03.push_back(numDaughtersPt03);
   }                                                                            //end of jet loop
   auto tab = std::make_unique<nanoaod::FlatTable>(ncand, name_, false, true);  //extension to Jet collection set to true
-  tab->addColumn<int>(
-      "numDaughtersPt03", numdaughterspt03, "number of jet daughters with pT>0.3 GeV", nanoaod::FlatTable::IntColumn);
+  tab->addColumn<int>("numDaughtersPt03", numdaughterspt03, "number of jet daughters with pT>0.3 GeV");
 
-  tab->addColumn<float>("EmFractionEnergyRing0",
-                        EmFractionEnergyRings[0],
-                        "Em energy fraction in ring in dR 0-0.05",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("EmFractionEnergyRing1",
-                        EmFractionEnergyRings[1],
-                        "Em energy fraction in ring in dR 0.05-0.1",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("EmFractionEnergyRing2",
-                        EmFractionEnergyRings[2],
-                        "Em energy fraction in ring in dR 0.1-0.2",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("EmFractionEnergyRing3",
-                        EmFractionEnergyRings[3],
-                        "Em energy fraction in ring in dR 0.2-0.3",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("EmFractionEnergyRing4",
-                        EmFractionEnergyRings[4],
-                        "Em energy fraction in ring in dR 0.3-0.4",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("EmFractionEnergyRing5",
-                        EmFractionEnergyRings[5],
-                        "Em energy fraction in ring in dR 0.4 overflow",
-                        nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("EmFractionEnergyRing0", EmFractionEnergyRings[0], "Em energy fraction in ring in dR 0-0.05");
+  tab->addColumn<float>("EmFractionEnergyRing1", EmFractionEnergyRings[1], "Em energy fraction in ring in dR 0.05-0.1");
+  tab->addColumn<float>("EmFractionEnergyRing2", EmFractionEnergyRings[2], "Em energy fraction in ring in dR 0.1-0.2");
+  tab->addColumn<float>("EmFractionEnergyRing3", EmFractionEnergyRings[3], "Em energy fraction in ring in dR 0.2-0.3");
+  tab->addColumn<float>("EmFractionEnergyRing4", EmFractionEnergyRings[4], "Em energy fraction in ring in dR 0.3-0.4");
+  tab->addColumn<float>(
+      "EmFractionEnergyRing5", EmFractionEnergyRings[5], "Em energy fraction in ring in dR 0.4 overflow");
 
-  tab->addColumn<float>("ChFractionEnergyRing0",
-                        ChFractionEnergyRings[0],
-                        "Ch energy fraction in ring in dR 0-0.05",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ChFractionEnergyRing1",
-                        ChFractionEnergyRings[1],
-                        "Ch energy fraction in ring in dR 0.05-0.1",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ChFractionEnergyRing2",
-                        ChFractionEnergyRings[2],
-                        "Ch energy fraction in ring in dR 0.1-0.2",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ChFractionEnergyRing3",
-                        ChFractionEnergyRings[3],
-                        "Ch energy fraction in ring in dR 0.2-0.3",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ChFractionEnergyRing4",
-                        ChFractionEnergyRings[4],
-                        "Ch energy fraction in ring in dR 0.3-0.4",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("ChFractionEnergyRing5",
-                        ChFractionEnergyRings[5],
-                        "Ch energy fraction in ring in dR 0.4 overflow",
-                        nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("ChFractionEnergyRing0", ChFractionEnergyRings[0], "Ch energy fraction in ring in dR 0-0.05");
+  tab->addColumn<float>("ChFractionEnergyRing1", ChFractionEnergyRings[1], "Ch energy fraction in ring in dR 0.05-0.1");
+  tab->addColumn<float>("ChFractionEnergyRing2", ChFractionEnergyRings[2], "Ch energy fraction in ring in dR 0.1-0.2");
+  tab->addColumn<float>("ChFractionEnergyRing3", ChFractionEnergyRings[3], "Ch energy fraction in ring in dR 0.2-0.3");
+  tab->addColumn<float>("ChFractionEnergyRing4", ChFractionEnergyRings[4], "Ch energy fraction in ring in dR 0.3-0.4");
+  tab->addColumn<float>(
+      "ChFractionEnergyRing5", ChFractionEnergyRings[5], "Ch energy fraction in ring in dR 0.4 overflow");
 
-  tab->addColumn<float>("MuFractionEnergyRing0",
-                        MuFractionEnergyRings[0],
-                        "Mu energy fraction in ring in dR 0-0.05",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("MuFractionEnergyRing1",
-                        MuFractionEnergyRings[1],
-                        "Mu energy fraction in ring in dR 0.05-0.1",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("MuFractionEnergyRing2",
-                        MuFractionEnergyRings[2],
-                        "Mu energy fraction in ring in dR 0.1-0.2",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("MuFractionEnergyRing3",
-                        MuFractionEnergyRings[3],
-                        "Mu energy fraction in ring in dR 0.2-0.3",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("MuFractionEnergyRing4",
-                        MuFractionEnergyRings[4],
-                        "Mu energy fraction in ring in dR 0.3-0.4",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("MuFractionEnergyRing5",
-                        MuFractionEnergyRings[5],
-                        "Mu energy fraction in ring in dR 0.4 overflow",
-                        nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("MuFractionEnergyRing0", MuFractionEnergyRings[0], "Mu energy fraction in ring in dR 0-0.05");
+  tab->addColumn<float>("MuFractionEnergyRing1", MuFractionEnergyRings[1], "Mu energy fraction in ring in dR 0.05-0.1");
+  tab->addColumn<float>("MuFractionEnergyRing2", MuFractionEnergyRings[2], "Mu energy fraction in ring in dR 0.1-0.2");
+  tab->addColumn<float>("MuFractionEnergyRing3", MuFractionEnergyRings[3], "Mu energy fraction in ring in dR 0.2-0.3");
+  tab->addColumn<float>("MuFractionEnergyRing4", MuFractionEnergyRings[4], "Mu energy fraction in ring in dR 0.3-0.4");
+  tab->addColumn<float>(
+      "MuFractionEnergyRing5", MuFractionEnergyRings[5], "Mu energy fraction in ring in dR 0.4 overflow");
 
-  tab->addColumn<float>("NeFractionEnergyRing0",
-                        NeFractionEnergyRings[0],
-                        "Ne energy fraction in ring in dR 0-0.05",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("NeFractionEnergyRing1",
-                        NeFractionEnergyRings[1],
-                        "Ne energy fraction in ring in dR 0.05-0.1",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("NeFractionEnergyRing2",
-                        NeFractionEnergyRings[2],
-                        "Ne energy fraction in ring in dR 0.1-0.2",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("NeFractionEnergyRing3",
-                        NeFractionEnergyRings[3],
-                        "Ne energy fraction in ring in dR 0.2-0.3",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("NeFractionEnergyRing4",
-                        NeFractionEnergyRings[4],
-                        "Ne energy fraction in ring in dR 0.3-0.4",
-                        nanoaod::FlatTable::FloatColumn);
-  tab->addColumn<float>("NeFractionEnergyRing5",
-                        NeFractionEnergyRings[5],
-                        "Ne energy fraction in ring in dR 0.4 overflow",
-                        nanoaod::FlatTable::FloatColumn);
+  tab->addColumn<float>("NeFractionEnergyRing0", NeFractionEnergyRings[0], "Ne energy fraction in ring in dR 0-0.05");
+  tab->addColumn<float>("NeFractionEnergyRing1", NeFractionEnergyRings[1], "Ne energy fraction in ring in dR 0.05-0.1");
+  tab->addColumn<float>("NeFractionEnergyRing2", NeFractionEnergyRings[2], "Ne energy fraction in ring in dR 0.1-0.2");
+  tab->addColumn<float>("NeFractionEnergyRing3", NeFractionEnergyRings[3], "Ne energy fraction in ring in dR 0.2-0.3");
+  tab->addColumn<float>("NeFractionEnergyRing4", NeFractionEnergyRings[4], "Ne energy fraction in ring in dR 0.3-0.4");
+  tab->addColumn<float>(
+      "NeFractionEnergyRing5", NeFractionEnergyRings[5], "Ne energy fraction in ring in dR 0.4 overflow");
 
   iEvent.put(std::move(tab));
 }

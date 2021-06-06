@@ -14,6 +14,7 @@ GEMRecHitMatcher::GEMRecHitMatcher(const edm::ParameterSet& pset, edm::ConsumesC
   gemDigiMatcher_.reset(new GEMDigiMatcher(pset, std::move(iC)));
 
   gemRecHitToken_ = iC.consumes<GEMRecHitCollection>(gemRecHit.getParameter<edm::InputTag>("inputTag"));
+  geomToken_ = iC.esConsumes<GEMGeometry, MuonGeometryRecord>();
 }
 
 void GEMRecHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -21,12 +22,7 @@ void GEMRecHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   iEvent.getByToken(gemRecHitToken_, gemRecHitH_);
 
-  iSetup.get<MuonGeometryRecord>().get(gem_geom_);
-  if (gem_geom_.isValid()) {
-    gemGeometry_ = &*gem_geom_;
-  } else {
-    std::cout << "+++ Info: GEM geometry is unavailable. +++\n";
-  }
+  gemGeometry_ = &iSetup.getData(geomToken_);
 }
 
 /// do the matching
@@ -60,7 +56,7 @@ void GEMRecHitMatcher::matchRecHitsToSimTrack(const GEMRecHitCollection& rechits
 
     for (auto d = rechits_in_det.first; d != rechits_in_det.second; ++d) {
       if (verbose())
-        cout << "recHit " << p_id << " " << *d << endl;
+        edm::LogInfo("GEMDigiMatcher") << "recHit " << p_id << " " << *d << endl;
 
       // check that the rechit is within BX range
       if (d->BunchX() < minBX_ || d->BunchX() > maxBX_)
@@ -80,7 +76,7 @@ void GEMRecHitMatcher::matchRecHitsToSimTrack(const GEMRecHitCollection& rechits
       if (!stripFound)
         continue;
       if (verbose())
-        cout << "oki" << endl;
+        edm::LogInfo("GEMDigiMatcher") << "oki" << endl;
 
       recHits_.push_back(*d);
       detid_to_recHits_[id].push_back(*d);

@@ -40,9 +40,12 @@ CTPPSBeamParameters::CTPPSBeamParameters()
       vtx_offset_y_56_(0.),
       vtx_offset_z_45_(0.),
       vtx_offset_z_56_(0.),
+      vtx_offset_t_45_(0.),
+      vtx_offset_t_56_(0.),
       vtx_stddev_x_(0.),
       vtx_stddev_y_(0.),
-      vtx_stddev_z_(0.) {}
+      vtx_stddev_z_(0.),
+      vtx_stddev_t_(0.) {}
 
 // Destructor
 CTPPSBeamParameters::~CTPPSBeamParameters() {}
@@ -70,13 +73,16 @@ double CTPPSBeamParameters::getHalfXangleY56() const { return half_crossing_angl
 double CTPPSBeamParameters::getVtxOffsetX45() const { return vtx_offset_x_45_; }
 double CTPPSBeamParameters::getVtxOffsetY45() const { return vtx_offset_y_45_; }
 double CTPPSBeamParameters::getVtxOffsetZ45() const { return vtx_offset_z_45_; }
+double CTPPSBeamParameters::getVtxOffsetT45() const { return vtx_offset_t_45_; }
 double CTPPSBeamParameters::getVtxOffsetX56() const { return vtx_offset_x_56_; }
 double CTPPSBeamParameters::getVtxOffsetY56() const { return vtx_offset_y_56_; }
 double CTPPSBeamParameters::getVtxOffsetZ56() const { return vtx_offset_z_56_; }
+double CTPPSBeamParameters::getVtxOffsetT56() const { return vtx_offset_t_56_; }
 
 double CTPPSBeamParameters::getVtxStddevX() const { return vtx_stddev_x_; }
 double CTPPSBeamParameters::getVtxStddevY() const { return vtx_stddev_y_; }
 double CTPPSBeamParameters::getVtxStddevZ() const { return vtx_stddev_z_; }
+double CTPPSBeamParameters::getVtxStddevT() const { return vtx_stddev_t_; }
 
 // Setters
 
@@ -101,13 +107,16 @@ void CTPPSBeamParameters::setHalfXangleY56(double angle) { half_crossing_angle_y
 void CTPPSBeamParameters::setVtxOffsetX45(double offset) { vtx_offset_x_45_ = offset; }
 void CTPPSBeamParameters::setVtxOffsetY45(double offset) { vtx_offset_y_45_ = offset; }
 void CTPPSBeamParameters::setVtxOffsetZ45(double offset) { vtx_offset_z_45_ = offset; }
+void CTPPSBeamParameters::setVtxOffsetT45(double offset) { vtx_offset_t_45_ = offset; }
 void CTPPSBeamParameters::setVtxOffsetX56(double offset) { vtx_offset_x_56_ = offset; }
 void CTPPSBeamParameters::setVtxOffsetY56(double offset) { vtx_offset_y_56_ = offset; }
 void CTPPSBeamParameters::setVtxOffsetZ56(double offset) { vtx_offset_z_56_ = offset; }
+void CTPPSBeamParameters::setVtxOffsetT56(double offset) { vtx_offset_t_56_ = offset; }
 
 void CTPPSBeamParameters::setVtxStddevX(double stddev) { vtx_stddev_x_ = stddev; }
 void CTPPSBeamParameters::setVtxStddevY(double stddev) { vtx_stddev_y_ = stddev; }
 void CTPPSBeamParameters::setVtxStddevZ(double stddev) { vtx_stddev_z_ = stddev; }
+void CTPPSBeamParameters::setVtxStddevT(double stddev) { vtx_stddev_t_ = stddev; }
 
 void CTPPSBeamParameters::printInfo(std::stringstream& s) {
   s << "\n Beam parameters : \n"
@@ -128,12 +137,15 @@ void CTPPSBeamParameters::printInfo(std::stringstream& s) {
     << "\n   vtx_offset_x_45 = " << vtx_offset_x_45_ << " cm"
     << "\n   vtx_offset_y_45 = " << vtx_offset_y_45_ << " cm"
     << "\n   vtx_offset_z_45 = " << vtx_offset_z_45_ << " cm"
+    << "\n   vtx_offset_t_45 = " << vtx_offset_t_45_ << " cm"
     << "\n   vtx_offset_x_56 = " << vtx_offset_x_56_ << " cm"
     << "\n   vtx_offset_y_56 = " << vtx_offset_y_56_ << " cm"
     << "\n   vtx_offset_z_56 = " << vtx_offset_z_56_ << " cm"
+    << "\n   vtx_offset_t_56 = " << vtx_offset_t_56_ << " cm"
     << "\n   vtx_stddev_x = " << vtx_stddev_x_ << " cm"
     << "\n   vtx_stddev_y = " << vtx_stddev_y_ << " cm"
-    << "\n   vtx_stddev_z = " << vtx_stddev_z_ << " cm" << std::endl;
+    << "\n   vtx_stddev_z = " << vtx_stddev_z_ << " cm"
+    << "\n   vtx_stddev_t = " << vtx_stddev_t_ << " cm" << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& os, CTPPSBeamParameters info) {

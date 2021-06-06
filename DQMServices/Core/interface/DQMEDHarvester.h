@@ -43,6 +43,7 @@ namespace edm {
 class DQMEDHarvester
     : public edm::one::EDProducer<edm::EndLuminosityBlockProducer,
                                   edm::EndRunProducer,
+                                  edm::EndProcessBlockProducer,
                                   edm::one::WatchLuminosityBlocks,
                                   edm::one::WatchRuns,
                                   // for uncontrolled DQMStore access, and that EDM does not even attempt to
@@ -55,10 +56,12 @@ public:
 
 protected:
   DQMStore *dqmstore_;
+  edm::GetterOfProducts<DQMToken> jobmegetter_;
   edm::GetterOfProducts<DQMToken> runmegetter_;
   edm::GetterOfProducts<DQMToken> lumimegetter_;
   edm::EDPutTokenT<DQMToken> lumiToken_;
   edm::EDPutTokenT<DQMToken> runToken_;
+  edm::EDPutTokenT<DQMToken> jobToken_;
 
 public:
   DQMEDHarvester(edm::ParameterSet const &iConfig) {
@@ -71,18 +74,22 @@ public:
     // TODO: Run/Lumi suffix should not be needed, complain to CMSSW core in case.
     lumiToken_ = produces<DQMToken, edm::Transition::EndLuminosityBlock>(outputgeneration + "Lumi");
     runToken_ = produces<DQMToken, edm::Transition::EndRun>(outputgeneration + "Run");
+    jobToken_ = produces<DQMToken, edm::Transition::EndProcessBlock>(outputgeneration + "Job");
 
     // Use explicitly specified inputs, but if there are none...
     auto inputtags =
         iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("inputMEs", std::vector<edm::InputTag>());
     if (inputtags.empty()) {
       // ... use all RECO MEs.
+      inputtags.push_back(edm::InputTag("", inputgeneration + "Job"));
       inputtags.push_back(edm::InputTag("", inputgeneration + "Run"));
       inputtags.push_back(edm::InputTag("", inputgeneration + "Lumi"));
     }
+    jobmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InProcess);
     runmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InRun);
     lumimegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InLumi);
     callWhenNewProductsRegistered([this](edm::BranchDescription const &bd) {
+      jobmegetter_(bd);
       runmegetter_(bd);
       lumimegetter_(bd);
     });
@@ -135,7 +142,7 @@ public:
 
   void endRun(edm::Run const &, edm::EventSetup const &) override{};
 
-  void endJob() final {
+  void endProcessBlockProduce(edm::ProcessBlock &) final {
     dqmstore_->meBookerGetter([this](DQMStore::IBooker &b, DQMStore::IGetter &g) {
       b.setScope(MonitorElementData::Scope::JOB);
       this->dqmEndJob(b, g);

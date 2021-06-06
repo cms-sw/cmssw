@@ -7,6 +7,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "HcalZSAlgoRealistic.h"
@@ -31,6 +32,7 @@ private:
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
   edm::EDGetTokenT<QIE10DigiCollection> tok_hfQIE10_;
   edm::EDGetTokenT<QIE11DigiCollection> tok_hbheQIE11_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_;
 };
 
 #endif

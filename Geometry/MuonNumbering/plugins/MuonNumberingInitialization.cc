@@ -34,12 +34,11 @@ public:
   ReturnType produce(const MuonNumberingRecord&);
 
 private:
-  edm::ESGetToken<DDCompactView, IdealGeometryRecord> geomToken_;
+  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> geomToken_;
 };
 
-MuonNumberingInitialization::MuonNumberingInitialization(const edm::ParameterSet&) {
-  setWhatProduced(this).setConsumes(geomToken_);
-}
+MuonNumberingInitialization::MuonNumberingInitialization(const edm::ParameterSet&)
+    : geomToken_{setWhatProduced(this).consumes()} {}
 
 MuonNumberingInitialization::ReturnType MuonNumberingInitialization::produce(const MuonNumberingRecord& iRecord) {
   edm::ESTransientHandle<DDCompactView> pDD = iRecord.getTransientHandle(geomToken_);

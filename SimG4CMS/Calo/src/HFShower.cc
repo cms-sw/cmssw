@@ -26,7 +26,8 @@ HFShower::HFShower(const std::string &name,
     : hcalConstant_(hcons), chkFibre_(chk) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut_ = m_HF.getParameter<bool>("ApplyFiducialCut");
-  probMax_ = m_HF.getParameter<double>("ProbMax");
+  edm::ParameterSet m_HF2 = m_HF.getParameter<edm::ParameterSet>("HFShowerBlock");
+  probMax_ = m_HF2.getParameter<double>("ProbMax");
 
   edm::LogVerbatim("HFShower") << "HFShower:: Maximum probability cut off " << probMax_ << " Check flag " << chkFibre_;
 

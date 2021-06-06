@@ -1,5 +1,5 @@
-#ifndef CSCDMBTrailer2005_h
-#define CSCDMBTrailer2005_h
+#ifndef EventFilter_CSCRawToDigi_CSCDMBTrailer2005_h
+#define EventFilter_CSCRawToDigi_CSCDMBTrailer2005_h
 
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"

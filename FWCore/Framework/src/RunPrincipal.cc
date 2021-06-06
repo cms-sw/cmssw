@@ -4,6 +4,8 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/src/ProductPutOrMergerBase.h"
 
 namespace edm {
   RunPrincipal::RunPrincipal(std::shared_ptr<RunAuxiliary> aux,
@@ -34,12 +36,23 @@ namespace edm {
   }
 
   void RunPrincipal::put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
-    putOrMerge(bd, std::move(edp));
+    put_(bd, std::move(edp));
   }
 
   void RunPrincipal::put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const {
     auto phb = getProductResolverByIndex(index);
-    phb->putOrMergeProduct(std::move(edp));
+    dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(edp));
+  }
+
+  void RunPrincipal::putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase> prod) const {
+    if (prod.get() == nullptr) {
+      throw edm::Exception(edm::errors::InsertFailure, "Null Pointer")
+          << "putOrMerge: Cannot put because unique_ptr to product is null."
+          << "\n";
+    }
+    auto phb = getExistingProduct(bd.branchID());
+    assert(phb);
+    dynamic_cast<ProductPutOrMergerBase const*>(phb)->putOrMergeProduct(std::move(prod));
   }
 
   unsigned int RunPrincipal::transitionIndex_() const { return index().value(); }

@@ -7,6 +7,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "CommonTools/Utils/interface/KinematicTables.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -80,7 +82,7 @@ private:
   void link(const reco::TrackBaseRef& el1,
             const reco::TrackBaseRef& el2,
             double& dist,
-            GlobalPoint& P,
+            GlobalPoint& crossing_point,
             reco::PFDisplacedVertexCandidate::VertexLinkTest& linktest);
 
   /// Compute missing links in the displacedVertexCandidates
@@ -150,6 +152,8 @@ private:
 
   // Tracker geometry for extrapolation
   const MagneticField* magField_;
+
+  edm::soa::PtEtaPhiTable track_table_;
 };
 
 #endif

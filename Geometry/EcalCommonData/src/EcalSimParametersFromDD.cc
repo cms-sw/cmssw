@@ -1,5 +1,4 @@
 #include "CondFormats/GeometryObjects/interface/EcalSimulationParameters.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
@@ -10,8 +9,6 @@
 #include <iomanip>
 
 //#define EDM_ML_DEBUG
-
-using namespace geant_units::operators;
 
 template <typename T>
 void myPrint(std::string value, const std::vector<T>& vec) {
@@ -159,14 +156,14 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv,
   mypar.filter(refs, attribute, name);
   fv.mergedSpecifics(refs);
   while (fv.firstChild()) {
-    const std::string name{fv.name().data(), fv.name().size()};
-    const std::string matName{cms::dd::noNamespace(fv.materialName()).data(),
-                              cms::dd::noNamespace(fv.materialName()).size()};
+    const std::string name{dd4hep::dd::noNamespace(fv.name()).data(), dd4hep::dd::noNamespace(fv.name()).size()};
+    const std::string matName{dd4hep::dd::noNamespace(fv.materialName()).data(),
+                              dd4hep::dd::noNamespace(fv.materialName()).size()};
     if (std::find(php.lvNames_.begin(), php.lvNames_.end(), name) == php.lvNames_.end()) {
       php.matNames_.emplace_back(matName);
       php.lvNames_.emplace_back(name);
       const std::vector<double>& paras = fv.parameters();
-      double dz = (fv.isATrapezoid()) ? convertCmToMm(2 * paras[0]) : 0.0;
+      double dz = (dd4hep::isA<dd4hep::Trap>(fv.solid())) ? ((2.0 * paras[0]) / dd4hep::mm) : 0.0;
       php.dzs_.emplace_back(dz);
     }
   };

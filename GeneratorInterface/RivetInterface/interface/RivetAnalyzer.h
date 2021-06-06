@@ -47,24 +47,28 @@ private:
   void normalizeTree();
 
   edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
-  bool _useExternalWeight;
   bool _useLHEweights;
-  int _LHEweightNumber;
-  bool _useGENweights;
-  int _GENweightNumber;
+  double _weightCap;
+  double _NLOSmearing;
+  bool _skipMultiWeights;
+  std::string _selectMultiWeights;
+  std::string _deselectMultiWeights;
+  std::string _setNominalWeightName;
   edm::EDGetTokenT<LHEEventProduct> _LHECollection;
   edm::EDGetTokenT<GenEventInfoProduct> _genEventInfoCollection;
   edm::EDGetTokenT<GenLumiInfoHeader> _genLumiInfoToken;
   edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfoToken;
-  Rivet::AnalysisHandler _analysisHandler;
+  std::unique_ptr<Rivet::AnalysisHandler> _analysisHandler;
   bool _isFirstEvent;
   std::string _outFileName;
+  std::vector<std::string> _analysisNames;
   bool _doFinalize;
   bool _produceDQM;
   const edm::InputTag _lheLabel;
   double _xsection;
   std::vector<std::string> _weightNames;
   std::vector<std::string> _lheWeightNames;
+  std::vector<std::string> _cleanedWeightNames;
 
   DQMStore *dbe;
   std::vector<MonitorElement *> _mes;

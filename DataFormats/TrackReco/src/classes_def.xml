@@ -485,6 +485,8 @@
      <class name="std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > > >"/>
      <class name="edm::Wrapper<std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > > > >"/>
 
+    <class name="edm::Association<std::vector<reco::TrackExtra>>"/>
+    <class name="edm::Wrapper<edm::Association<std::vector<reco::TrackExtra>>>"/>
 
    <class name="reco::DeDxHitInfo::DeDxHitInfoContainer" ClassVersion="2">
     <version ClassVersion="2" checksum="3964047764"/>

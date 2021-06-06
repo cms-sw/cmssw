@@ -7,10 +7,10 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class TrackerCPERecord : public edm::eventsetup::DependentRecordImplementation<
                              TrackerCPERecord,
-                             boost::mpl::vector<TrackerDigiGeometryRecord, IdealMagneticFieldRecord> > {};
+                             edm::mpl::Vector<TrackerDigiGeometryRecord, IdealMagneticFieldRecord> > {};
 
 #endif

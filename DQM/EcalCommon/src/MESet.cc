@@ -33,8 +33,8 @@ namespace ecaldqm {
         lumiFlag_(false),
         batchMode_(false),
         active_(false) {
-    if (path_.empty() || path_.find("/") == std::string::npos ||
-        (otype_ != binning::kChannel && path_.find("/") == path_.size() - 1))
+    if (path_.empty() || path_.find('/') == std::string::npos ||
+        (otype_ != binning::kChannel && path_.find('/') == path_.size() - 1))
       throw_(_path + " cannot be used for ME path name");
 
     switch (kind_) {
@@ -95,7 +95,10 @@ namespace ecaldqm {
       mes_[iME]->setAxisTitle(_title, _axis);
   }
 
-  void MESet::reset(double _content /* = 0.*/, double _err /* = 0.*/, double _entries /* = 0.*/) {
+  void MESet::reset(EcalElectronicsMapping const *electronicsMap,
+                    double _content /* = 0.*/,
+                    double _err /* = 0.*/,
+                    double _entries /* = 0.*/) {
     if (!active_)
       return;
 
@@ -164,7 +167,10 @@ namespace ecaldqm {
     return path.Data();
   }
 
-  bool MESet::maskMatches(DetId const &_id, uint32_t _mask, StatusManager const *_statusManager) const {
+  bool MESet::maskMatches(DetId const &_id,
+                          uint32_t _mask,
+                          StatusManager const *_statusManager,
+                          EcalTrigTowerConstituentsMap const *trigTowerMap) const {
     if (!_statusManager)
       return false;
 
@@ -187,7 +193,7 @@ namespace ecaldqm {
           return true;
 
         if (searchNeighborsInTower) {
-          std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttId));
+          std::vector<DetId> ids(trigTowerMap->constituentsOf(ttId));
           for (std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr)
             if ((_statusManager->getStatus(idItr->rawId()) & _mask) != 0)
               return true;
@@ -230,7 +236,7 @@ namespace ecaldqm {
 
       case EcalTriggerTower: {
         EcalTrigTowerDetId ttId(_id);
-        std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttId));
+        std::vector<DetId> ids(trigTowerMap->constituentsOf(ttId));
         for (std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr)
           if ((_statusManager->getStatus(idItr->rawId()) & _mask) != 0)
             return true;
@@ -334,14 +340,17 @@ namespace ecaldqm {
     return *this;
   }
 
-  MESet::const_iterator::const_iterator(MESet const &_meSet, DetId const &_id) : bin_() {
+  MESet::const_iterator::const_iterator(EcalElectronicsMapping const *electronicsMap,
+                                        MESet const &_meSet,
+                                        DetId const &_id)
+      : bin_() {
     binning::ObjectType otype(_meSet.getObjType());
-    unsigned iME(binning::findPlotIndex(otype, _id));
+    unsigned iME(binning::findPlotIndex(electronicsMap, otype, _id));
     if (iME == unsigned(-1))
       return;
 
     binning::BinningType btype(_meSet.getBinType());
-    int bin(binning::findBin2D(otype, btype, _id));
+    int bin(binning::findBin2D(electronicsMap, otype, btype, _id));
     if (bin == 0)
       return;
 
@@ -401,12 +410,12 @@ namespace ecaldqm {
     return *this;
   }
 
-  MESet::const_iterator &MESet::const_iterator::toNextChannel() {
+  MESet::const_iterator &MESet::const_iterator::toNextChannel(const EcalElectronicsMapping *electronicsMap) {
     if (!bin_.getMESet())
       return *this;
     do
       operator++();
-    while (bin_.iME != unsigned(-1) && !bin_.isChannel());
+    while (bin_.iME != unsigned(-1) && !bin_.isChannel(electronicsMap));
 
     return *this;
   }
@@ -487,14 +496,3 @@ namespace ecaldqm {
     return true;
   }
 }  // namespace ecaldqm
-
-namespace boost {
-  template <>
-  inline ecaldqm::MESet *new_clone<ecaldqm::MESet>(ecaldqm::MESet const &_s) {
-    return _s.clone();
-  }
-  template <>
-  void delete_clone<ecaldqm::MESet>(ecaldqm::MESet const *_s) {
-    checked_delete(_s);
-  }
-}  // namespace boost

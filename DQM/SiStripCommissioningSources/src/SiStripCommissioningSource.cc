@@ -1,6 +1,5 @@
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSource.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/Averages.h"
@@ -24,7 +23,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,7 +51,7 @@ using namespace sistrip;
 //
 SiStripCommissioningSource::SiStripCommissioningSource(const edm::ParameterSet& pset)
     : dqm_(nullptr),
-      fedCabling_(nullptr),
+      fedCablingToken_(esConsumes<edm::Transition::BeginRun>()),
       fecCabling_(nullptr),
       inputModuleLabel_(pset.getParameter<std::string>("InputModuleLabel")),
       inputModuleLabelAlt_(pset.existsAs<std::string>("InputModuleLabelAlt")
@@ -96,6 +94,14 @@ SiStripCommissioningSource::SiStripCommissioningSource(const edm::ParameterSet& 
                          << " Constructing object...";
   tasks_.clear();
   tasks_.resize(1024, VecOfTasks(96, static_cast<CommissioningTask*>(nullptr)));
+
+  if (task_ == sistrip::NOISE) {
+    noiseToken_ = esConsumes();
+  }
+  if (task_ == sistrip::NOISE || task_ == sistrip::CALIBRATION_SCAN || task_ == sistrip::CALIBRATION_SCAN_DECO ||
+      task_ == sistrip::CALIBRATION || task_ == sistrip::CALIBRATION_DECO) {
+    pedestalToken_ = esConsumes();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -145,12 +151,11 @@ void SiStripCommissioningSource::beginRun(edm::Run const& run, const edm::EventS
 
   // ---------- FED and FEC cabling ----------
 
-  edm::ESHandle<SiStripFedCabling> fed_cabling;
-  setup.get<SiStripFedCablingRcd>().get(fed_cabling);
-  fedCabling_ = const_cast<SiStripFedCabling*>(fed_cabling.product());
+  const auto& fed_cabling = setup.getData(fedCablingToken_);
+  fedCabling_ = const_cast<SiStripFedCabling*>(&fed_cabling);
   LogDebug(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"
                          << "Initialized FED cabling. Number of FEDs is " << fedCabling_->fedIds().size();
-  fecCabling_ = new SiStripFecCabling(*fed_cabling);
+  fecCabling_ = new SiStripFecCabling(fed_cabling);
   if (fecCabling_->crates().empty()) {
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -981,17 +986,17 @@ void SiStripCommissioningSource::createTasks(sistrip::RunType run_type, const ed
           } else if (task_ == sistrip::PEDS_ONLY) {
             tasks_[iconn->fedId()][iconn->fedCh()] = new PedsOnlyTask(dqm(), *iconn);
           } else if (task_ == sistrip::NOISE) {
-            tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask(dqm(), *iconn);
+            tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask(dqm(), *iconn, pedestalToken_, noiseToken_);
           } else if (task_ == sistrip::PEDS_FULL_NOISE) {
             tasks_[iconn->fedId()][iconn->fedCh()] = new PedsFullNoiseTask(dqm(), *iconn, parameters_);
           } else if (task_ == sistrip::DAQ_SCOPE_MODE) {
             tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask(dqm(), *iconn, parameters_);
           } else if (task_ == sistrip::CALIBRATION_SCAN || task_ == sistrip::CALIBRATION_SCAN_DECO) {
             tasks_[iconn->fedId()][iconn->fedCh()] =
-                new CalibrationScanTask(dqm(), *iconn, task_, filename_.c_str(), run_, setup);
+                new CalibrationScanTask(dqm(), *iconn, task_, filename_.c_str(), run_, setup.getData(pedestalToken_));
           } else if (task_ == sistrip::CALIBRATION || task_ == sistrip::CALIBRATION_DECO) {
             tasks_[iconn->fedId()][iconn->fedCh()] =
-                new CalibrationTask(dqm(), *iconn, task_, filename_.c_str(), run_, setup);
+                new CalibrationTask(dqm(), *iconn, task_, filename_.c_str(), run_, setup.getData(pedestalToken_));
           } else if (task_ == sistrip::UNDEFINED_RUN_TYPE) {
             edm::LogWarning(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"
                                           << " Undefined CommissioningTask"
@@ -1104,7 +1109,7 @@ void SiStripCommissioningSource::directory(std::stringstream& dir, uint32_t run_
   std::stringstream ip;
   //for ( uint16_t ii = 0; ii < 4; ++ii ) {
   while (pos != std::string::npos) {
-    std::string::size_type tmp = host_ip.find(".", pos);
+    std::string::size_type tmp = host_ip.find('.', pos);
     if (tmp != std::string::npos) {
       ip << std::setw(3) << std::setfill('0') << host_ip.substr(pos, tmp - pos) << ".";
       pos = tmp + 1;  // skip the delimiter "."

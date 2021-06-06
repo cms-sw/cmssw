@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -26,15 +27,15 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    std::vector<int> runsToGetDataFor_;
-    std::vector<int> expectedValues_;
-    edm::ESGetToken<ESTestDataA, ESTestRecordA> token_;
+    std::vector<int> const runsToGetDataFor_;
+    std::vector<int> const expectedValues_;
+    edm::ESGetToken<ESTestDataA, ESTestRecordA> const token_;
   };
 
   ESTestAnalyzerA::ESTestAnalyzerA(edm::ParameterSet const& pset)
       : runsToGetDataFor_(pset.getParameter<std::vector<int>>("runsToGetDataFor")),
         expectedValues_(pset.getUntrackedParameter<std::vector<int>>("expectedValues")),
-        token_(esConsumes<ESTestDataA, ESTestRecordA>()) {
+        token_(esConsumes()) {
     assert(expectedValues_.empty() or expectedValues_.size() == runsToGetDataFor_.size());
   }
 
@@ -138,15 +139,26 @@ namespace edmtest {
     explicit ESTestAnalyzerAZ(edm::ParameterSet const&);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
-    std::vector<int> runsToGetDataFor_;
+    std::vector<int> const runsToGetDataFor_;
+    std::vector<int> const expectedValuesA_;
+    std::vector<int> const expectedValuesZ_;
   };
 
   ESTestAnalyzerAZ::ESTestAnalyzerAZ(edm::ParameterSet const& pset)
-      : runsToGetDataFor_(pset.getParameter<std::vector<int>>("runsToGetDataFor")) {}
+      : runsToGetDataFor_(pset.getParameter<std::vector<int>>("runsToGetDataFor")),
+        expectedValuesA_(pset.getUntrackedParameter<std::vector<int>>("expectedValuesA")),
+        expectedValuesZ_(pset.getUntrackedParameter<std::vector<int>>("expectedValuesZ")) {
+    assert(expectedValuesA_.empty() or expectedValuesA_.size() == runsToGetDataFor_.size());
+    assert(expectedValuesZ_.empty() or expectedValuesZ_.size() == runsToGetDataFor_.size());
+  }
 
   void ESTestAnalyzerAZ::analyze(edm::Event const& ev, edm::EventSetup const& es) {
-    if (std::find(runsToGetDataFor_.begin(), runsToGetDataFor_.end(), ev.run()) != runsToGetDataFor_.end()) {
+    auto found = std::find(runsToGetDataFor_.begin(), runsToGetDataFor_.end(), ev.run());
+
+    if (found != runsToGetDataFor_.end()) {
       ESTestRecordA const& recA = es.get<ESTestRecordA>();
       edm::ESHandle<ESTestDataA> dataA;
       recA.get("foo", dataA);
@@ -157,7 +169,35 @@ namespace edmtest {
 
       edm::LogAbsolute("ESTestAnalyzerAZ") << "ESTestAnalyzerAZ: process = " << moduleDescription().processName()
                                            << ": Data values = " << dataA->value() << "  " << dataZ->value();
+
+      if (not expectedValuesA_.empty()) {
+        if (expectedValuesA_[found - runsToGetDataFor_.begin()] != dataA->value()) {
+          throw cms::Exception("TestError")
+              << "Exptected value for A " << expectedValuesA_[found - runsToGetDataFor_.begin()] << " but saw "
+              << dataA->value();
+        }
+      }
+
+      if (not expectedValuesZ_.empty()) {
+        if (expectedValuesZ_[found - runsToGetDataFor_.begin()] != dataZ->value()) {
+          throw cms::Exception("TestError")
+              << "Exptected value for Z " << expectedValuesZ_[found - runsToGetDataFor_.begin()] << " but saw "
+              << dataZ->value();
+        }
+      }
     }
+  }
+
+  void ESTestAnalyzerAZ::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setComment("Test module for the EventSetup");
+    desc.add<std::vector<int>>("runsToGetDataFor")
+        ->setComment("ID number for each Run for which we should get EventSetup data.");
+    desc.addUntracked<std::vector<int>>("expectedValuesA", std::vector<int>())
+        ->setComment("EventSetup value for ESTestDataA:foo expected for each Run. If empty, no values compared.");
+    desc.addUntracked<std::vector<int>>("expectedValuesZ", std::vector<int>())
+        ->setComment("EventSetup value for ESTestDataZ:foo expected for each Run. If empty, no values compared.");
+    descriptions.addDefault(desc);
   }
 
   class ESTestAnalyzerJ : public edm::stream::EDAnalyzer<> {
@@ -174,6 +214,39 @@ namespace edmtest {
                                         << ": Data values = " << dataJ->value();
   }
 
+  class ESTestAnalyzerL : public edm::stream::EDAnalyzer<> {
+  public:
+    explicit ESTestAnalyzerL(edm::ParameterSet const& iConfig)
+        : edToken_(consumes(iConfig.getParameter<edm::InputTag>("src"))), esToken_(esConsumes()) {}
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    edm::EDGetTokenT<IntProduct> edToken_;
+    edm::ESGetToken<ESTestDataJ, ESTestRecordJ> esToken_;
+  };
+
+  void ESTestAnalyzerL::analyze(edm::Event const& ev, edm::EventSetup const& es) {
+    auto const& intData = ev.get(edToken_);
+    auto const& dataJ = es.getData(esToken_);
+    edm::LogAbsolute("ESTestAnalyzerJ") << "ESTestAnalyzerL: process = " << moduleDescription().processName()
+                                        << ": ED value " << intData.value << ": ES value = " << dataJ.value();
+  }
+
+  class ESTestAnalyzerIncorrectConsumes : public edm::stream::EDAnalyzer<> {
+  public:
+    explicit ESTestAnalyzerIncorrectConsumes(edm::ParameterSet const& iConfig){};
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    edm::ESGetToken<ESTestDataJ, ESTestRecordJ> esToken_;
+  };
+
+  void ESTestAnalyzerIncorrectConsumes::analyze(edm::Event const& ev, edm::EventSetup const& es) {
+    esToken_ = esConsumes();
+    edm::LogAbsolute("ESTestAnalyzerIncorrectConsumes")
+        << "Succeeded to call esConsumes() in analyze(), should not happen!";
+  }
+
 }  // namespace edmtest
 using namespace edmtest;
 DEFINE_FWK_MODULE(ESTestAnalyzerA);
@@ -181,3 +254,5 @@ DEFINE_FWK_MODULE(ESTestAnalyzerB);
 DEFINE_FWK_MODULE(ESTestAnalyzerK);
 DEFINE_FWK_MODULE(ESTestAnalyzerAZ);
 DEFINE_FWK_MODULE(ESTestAnalyzerJ);
+DEFINE_FWK_MODULE(ESTestAnalyzerL);
+DEFINE_FWK_MODULE(ESTestAnalyzerIncorrectConsumes);

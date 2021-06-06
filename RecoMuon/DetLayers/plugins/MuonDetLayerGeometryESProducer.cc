@@ -54,12 +54,12 @@ private:
 using namespace edm;
 
 MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::ParameterSet& p) {
-  setWhatProduced(this)
-      .setConsumes(dtToken_)
-      .setConsumes(cscToken_)
-      .setConsumes(gemToken_)
-      .setConsumes(me0Token_)
-      .setConsumes(rpcToken_);
+  auto cc = setWhatProduced(this);
+  dtToken_ = cc.consumes();
+  cscToken_ = cc.consumes();
+  gemToken_ = cc.consumes();
+  me0Token_ = cc.consumes();
+  rpcToken_ = cc.consumes();
 }
 
 std::unique_ptr<MuonDetLayerGeometry> MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord& record) {

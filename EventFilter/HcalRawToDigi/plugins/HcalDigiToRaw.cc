@@ -1,8 +1,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
@@ -23,7 +21,8 @@ HcalDigiToRaw::HcalDigiToRaw(edm::ParameterSet const& conf)
       tok_hf_(consumes<HFDigiCollection>(hfTag_)),
       tok_calib_(consumes<HcalCalibDigiCollection>(calibTag_)),
       tok_zdc_(consumes<ZDCDigiCollection>(zdcTag_)),
-      tok_htp_(consumes<HcalTrigPrimDigiCollection>(trigTag_)) {
+      tok_htp_(consumes<HcalTrigPrimDigiCollection>(trigTag_)),
+      tok_dbService_(esConsumes<HcalDbService, HcalDbRecord>()) {
   produces<FEDRawDataCollection>();
 }
 
@@ -67,8 +66,7 @@ void HcalDigiToRaw::produce(edm::StreamID id, edm::Event& e, const edm::EventSet
       colls.tpCont = htp.product();
   }
   // get the mapping
-  edm::ESHandle<HcalDbService> pSetup;
-  es.get<HcalDbRecord>().get(pSetup);
+  edm::ESHandle<HcalDbService> pSetup = es.getHandle(tok_dbService_);
   const HcalElectronicsMap* readoutMap = pSetup->getHcalMapping();
   // Step B: Create empty output
   auto raw = std::make_unique<FEDRawDataCollection>();

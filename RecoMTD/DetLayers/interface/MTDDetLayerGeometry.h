@@ -1,5 +1,5 @@
-#ifndef DetLayers_MTDDetLayerGeometry_h
-#define DetLayers_MTDDetLayerGeometry_h
+#ifndef RecoMTD_DetLayers_MTDDetLayerGeometry_h
+#define RecoMTD_DetLayers_MTDDetLayerGeometry_h
 
 /** \class MTDDetLayerGeometry
  *
@@ -11,6 +11,9 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+
 #include <vector>
 #include <map>
 
@@ -50,6 +53,11 @@ public:
   /// return the DetLayer which correspond to a certain DetId
   const DetLayer* idToLayer(const DetId& detId) const override;
 
+  // Added to allow building the MTDDetLayer from external plugins
+  void buildLayers(const MTDGeometry* geo, const MTDTopology* mtopo);
+
+  void sortLayers();
+
 private:
   /// Add ETL layers
   /// etllayers.first=forward (+Z), etllayers.second=backward (-Z)
@@ -60,8 +68,6 @@ private:
   void addBTLLayers(const std::vector<DetLayer*>& btllayers);
 
   DetId makeDetLayerId(const DetLayer* detLayer) const;
-
-  void sortLayers();
 
   std::vector<const DetLayer*> etlLayers_fw;
   std::vector<const DetLayer*> etlLayers_bk;

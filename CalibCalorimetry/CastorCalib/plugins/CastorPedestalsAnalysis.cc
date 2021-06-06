@@ -16,6 +16,9 @@ CastorPedestalsAnalysis::CastorPedestalsAnalysis(const edm::ParameterSet& ps)
   firstTS = ps.getUntrackedParameter<int>("firstTS", 0);
   lastTS = ps.getUntrackedParameter<int>("lastTS", 9);
   firsttime = true;
+
+  tok_cond_ = esConsumes<CastorDbService, CastorDbRecord>();
+  tok_map_ = esConsumes<CastorElectronicsMap, CastorElectronicsMapRcd>();
 }
 
 CastorPedestalsAnalysis::~CastorPedestalsAnalysis() {
@@ -250,15 +253,10 @@ CastorPedestalsAnalysis::~CastorPedestalsAnalysis() {
 
 // ------------ method called to for each event  ------------
 void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  using namespace edm;
-  using namespace std;
-
   edm::Handle<CastorDigiCollection> castor;
   e.getByLabel(castorDigiCollectionTag, castor);
 
-  edm::ESHandle<CastorDbService> conditions;
-  iSetup.get<CastorDbRecord>().get(conditions);
-
+  auto conditions = &iSetup.getData(tok_cond_);
   const CastorQIEShape* shape = conditions->getCastorShape();
 
   if (firsttime) {
@@ -290,9 +288,7 @@ void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup
     // dephist[2] = new TH2F("Pedestals (ADC)","Depth 3",89, -44, 44, 72, .5, 72.5);
     // dephist[3] = new TH2F("Pedestals (ADC)","Depth 4",89, -44, 44, 72, .5, 72.5);
 
-    edm::ESHandle<CastorElectronicsMap> refEMap;
-    iSetup.get<CastorElectronicsMapRcd>().get(refEMap);
-    const CastorElectronicsMap* myRefEMap = refEMap.product();
+    const CastorElectronicsMap* myRefEMap = &iSetup.getData(tok_map_);
     std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
     for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); ++it) {
       HcalGenericDetId mygenid(it->rawId());
@@ -301,8 +297,7 @@ void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup
         HcalCastorDetId chanid(mygenid.rawId());
         a.detid = chanid;
         a.usedflag = false;
-        string type;
-        type = "CASTOR";
+        std::string type = "CASTOR";
         for (int i = 0; i != 4; i++) {
           a.cap[i] = 0;
           a.capfc[i] = 0;

@@ -14,14 +14,14 @@ ME0RecHitProducer::ME0RecHitProducer(const edm::ParameterSet& config)
   produces<ME0RecHitCollection>();
 
   m_token = consumes<ME0DigiPreRecoCollection>(config.getParameter<edm::InputTag>("me0DigiLabel"));
+  m_me0GeomToken = esConsumes<ME0Geometry, MuonGeometryRecord>();
 }
 
 ME0RecHitProducer::~ME0RecHitProducer() = default;
 
 void ME0RecHitProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   // Get the ME0 Geometry
-  edm::ESHandle<ME0Geometry> me0Geom;
-  setup.get<MuonGeometryRecord>().get(me0Geom);
+  edm::ESHandle<ME0Geometry> me0Geom = setup.getHandle(m_me0GeomToken);
 
   // Get the digis from the event
 

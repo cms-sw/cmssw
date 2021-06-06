@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
-
+from SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi import *
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import *
 import SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi
 assoc2secStepTk = SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi.trackingParticleRecoTrackAsssociation.clone()

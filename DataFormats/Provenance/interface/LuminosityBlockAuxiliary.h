@@ -23,7 +23,11 @@ namespace edm {
                              Timestamp const& theTime,
                              Timestamp const& theEndTime)
         : processHistoryID_(), id_(theRun, theLumi), beginTime_(theTime), endTime_(theEndTime) {}
+    LuminosityBlockAuxiliary(LuminosityBlockAuxiliary&&) = default;
+    LuminosityBlockAuxiliary(LuminosityBlockAuxiliary const&) = default;
     ~LuminosityBlockAuxiliary() {}
+    LuminosityBlockAuxiliary& operator=(LuminosityBlockAuxiliary&&) = default;
+    LuminosityBlockAuxiliary& operator=(LuminosityBlockAuxiliary const&) = default;
     void write(std::ostream& os) const;
     ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
     void setProcessHistoryID(ProcessHistoryID const& phid) { processHistoryID_ = phid; }

@@ -5,13 +5,13 @@
 #include "DD4hep/Objects.h"
 #include "DD4hep/Shapes.h"
 #include "DD4hep/Volumes.h"
-#include "tbb/concurrent_unordered_map.h"
-#include "tbb/concurrent_vector.h"
+#include <unordered_map>
+#include <vector>
 
 namespace cms {
 
   class DDParsingContext;
-  using DDVectorsMap = tbb::concurrent_unordered_map<std::string, tbb::concurrent_vector<double>>;
+  using DDVectorsMap = std::unordered_map<std::string, std::vector<double>>;
 
   class DDNamespace {
   public:
@@ -51,9 +51,13 @@ namespace cms {
     void addConstantNS(const std::string& name, const std::string& value, const std::string& type) const;
 
     dd4hep::Material material(const std::string& name) const;
+
     dd4hep::Solid solid(const std::string& name) const;
     dd4hep::Solid addSolid(const std::string& name, dd4hep::Solid solid) const;
     dd4hep::Solid addSolidNS(const std::string& name, dd4hep::Solid solid) const;
+
+    dd4hep::Assembly assembly(const std::string& name) const;
+    dd4hep::Assembly addAssembly(dd4hep::Assembly asmb) const;
 
     dd4hep::Volume volume(const std::string& name, bool exc = true) const;
     dd4hep::Volume addVolume(dd4hep::Volume vol) const;
@@ -66,8 +70,10 @@ namespace cms {
     DDParsingContext* setContext() { return m_context; }
 
     std::string_view name() const { return m_name; }
+    std::string noNamespace(const std::string&) const;
 
     std::vector<double> vecDbl(const std::string& name) const;
+    std::vector<float> vecFloat(const std::string& name) const;
 
   private:
     DDParsingContext* m_context = nullptr;

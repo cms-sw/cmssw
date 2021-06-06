@@ -4,19 +4,19 @@
 #ifndef __RecoHGCal_TICL_PRbyCA_H__
 #define __RecoHGCal_TICL_PRbyCA_H__
 #include <memory>  // unique_ptr
-#include "RecoHGCal/TICL/plugins/PatternRecognitionAlgoBase.h"
+#include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-
-class HGCGraph;
+#include "HGCGraph.h"
 
 namespace ticl {
-  class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
+  template <typename TILES>
+  class PatternRecognitionbyCA final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
-    PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache);
+    PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector iC);
     ~PatternRecognitionbyCA() override;
 
-    void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input,
+    void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                         std::vector<Trackster>& result,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
@@ -25,20 +25,32 @@ namespace ticl {
                                      std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation,
                                      const edm::ProductID& collectionID) const;
 
+    static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+
   private:
     void mergeTrackstersTRK(const std::vector<Trackster>&,
                             const std::vector<reco::CaloCluster>&,
                             std::vector<Trackster>&,
                             std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const;
-    const std::unique_ptr<HGCGraph> theGraph_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+    const std::unique_ptr<HGCGraphT<TILES>> theGraph_;
     const bool oneTracksterPerTrackSeed_;
     const bool promoteEmptyRegionToTrackster_;
     const bool out_in_dfs_;
     const unsigned int max_out_in_hops_;
     const float min_cos_theta_;
     const float min_cos_pointing_;
+    const float root_doublet_max_distance_from_seed_squared_;
     const float etaLimitIncreaseWindow_;
-    const int missing_layers_;
+    const int skip_layers_;
+    const int max_missing_layers_in_trackster_;
+    bool check_missing_layers_ = false;
+    const unsigned int shower_start_max_layer_;
+    const unsigned int min_layers_per_trackster_;
+    const std::vector<int> filter_on_categories_;
+    const double pid_threshold_;
+    const double energy_em_over_total_threshold_;
+    const double max_longitudinal_sigmaPCA_;
     const int min_clusters_per_ntuplet_;
     const float max_delta_time_;
     const std::string eidInputName_;
@@ -53,5 +65,6 @@ namespace ticl {
 
     static const int eidNFeatures_ = 3;
   };
+
 }  // namespace ticl
 #endif

@@ -7,7 +7,6 @@
 #include <memory>
 
 #include "tbb/concurrent_unordered_map.h"
-#include <boost/utility.hpp>
 
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -18,13 +17,16 @@ namespace XrdAdaptor {
   class QualityMetricSource;
   class QualityMetricUniqueSource;
 
-  class QualityMetricWatch : boost::noncopyable {
+  class QualityMetricWatch {
     friend class QualityMetricSource;
 
   public:
     QualityMetricWatch() : m_parent1(nullptr), m_parent2(nullptr) {}
     QualityMetricWatch(QualityMetricWatch &&);
     ~QualityMetricWatch();
+
+    QualityMetricWatch(const QualityMetricWatch &) = delete;
+    QualityMetricWatch &operator=(const QualityMetricWatch &) = delete;
 
     void swap(QualityMetricWatch &);
 
@@ -35,12 +37,15 @@ namespace XrdAdaptor {
     edm::propagate_const<QualityMetric *> m_parent2;
   };
 
-  class QualityMetric : boost::noncopyable {
+  class QualityMetric {
     friend class QualityMetricWatch;
 
   public:
     QualityMetric(timespec now, int default_value = 260);
     unsigned get();
+
+    QualityMetric(const QualityMetric &) = delete;
+    QualityMetric &operator=(const QualityMetric &) = delete;
 
   private:
     void finishWatch(timespec now, int ms);

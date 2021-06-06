@@ -58,8 +58,9 @@ allPixelTracksFitter = trackFitter.clone(
     TTRHBuilder = 'TTRHBuilderWithoutAngle4PixelTriplets'
 )
 
-allPixelTracksSequence = cms.Sequence(
-    allPixelTracksFitter +
-    clusterShapeTrackFilter +
+allPixelTracksTask = cms.Task(
+    allPixelTracksFitter,
+    clusterShapeTrackFilter,
     allPixelTracks
 )
+allPixelTracksSequence = cms.Sequence(allPixelTracksTask)

@@ -22,6 +22,7 @@ public:
                        bool intimeOnly,
                        bool chargedOnly,
                        bool stableOnly,
+                       bool notConvertedOnly,
                        const std::vector<int>& pdgId = std::vector<int>(),
                        double minPhi = -3.2,
                        double maxPhi = 3.2)
@@ -39,6 +40,7 @@ public:
         intimeOnly_(intimeOnly),
         chargedOnly_(chargedOnly),
         stableOnly_(stableOnly),
+        notConvertedOnly_(notConvertedOnly),
         pdgId_(pdgId) {
     if (minPhi >= maxPhi) {
       throw cms::Exception("Configuration")
@@ -101,6 +103,19 @@ public:
       }
     }
 
+    // select only particles which did not convert/decay before the calorimeter
+    // in case of electrons, bremsstrahlung is usually the cause, thus this selection is skipped
+    if (std::abs(pdgid) != 11) {
+      if (notConvertedOnly_) {
+        if (cp.g4Tracks()[0].getPositionAtBoundary() == math::XYZTLorentzVectorF(0, 0, 0, 0)) {
+          return false;
+        }
+        if (cp.g4Tracks()[0].getMomentumAtBoundary() == math::XYZTLorentzVectorF(0, 0, 0, 0)) {
+          return false;
+        }
+      }
+    }
+
     auto etaOk = [&](const CaloParticle& p) -> bool {
       float eta = etaFromXYZ(p.px(), p.py(), p.pz());
       return (eta >= minRapidity_) & (eta <= maxRapidity_);
@@ -132,6 +147,7 @@ private:
   bool intimeOnly_;
   bool chargedOnly_;
   bool stableOnly_;
+  bool notConvertedOnly_;
   std::vector<int> pdgId_;
 };
 
@@ -158,6 +174,7 @@ namespace reco {
                                     cfg.getParameter<bool>("intimeOnlyCP"),
                                     cfg.getParameter<bool>("chargedOnlyCP"),
                                     cfg.getParameter<bool>("stableOnlyCP"),
+                                    cfg.getParameter<bool>("notConvertedOnlyCP"),
                                     cfg.getParameter<std::vector<int> >("pdgIdCP"),
                                     cfg.getParameter<double>("minPhiCP"),
                                     cfg.getParameter<double>("maxPhiCP"));

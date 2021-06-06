@@ -1,4 +1,5 @@
 #include "CommonTools/ParticleFlow/plugins/DeltaBetaWeights.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DeltaBetaWeights::DeltaBetaWeights(const edm::ParameterSet& iConfig)
     : src_(iConfig.getParameter<edm::InputTag>("src")),

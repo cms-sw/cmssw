@@ -14,6 +14,8 @@ public:
     tile_[globalBin(eta, phi)].push_back(layerClusterId);
   }
 
+  int typeT() const { return T::type; }
+
   int etaBin(float eta) const {
     constexpr float etaRange = T::maxEta - T::minEta;
     static_assert(etaRange >= 0.f);
@@ -29,6 +31,14 @@ public:
     int phiBin = (normPhi + M_PI) * r;
 
     return phiBin;
+  }
+
+  std::array<int, 4> searchBoxEtaPhi(float etaMin, float etaMax, float phiMin, float phiMax) const {
+    int etaBinMin = etaBin(etaMin);
+    int etaBinMax = etaBin(etaMax);
+    int phiBinMin = phiBin(phiMin);
+    int phiBinMax = phiBin(phiMax);
+    return std::array<int, 4>({{etaBinMin, etaBinMax, phiBinMin, phiBinMax}});
   }
 
   int globalBin(int etaBin, int phiBin) const { return phiBin + etaBin * T::nPhiBins; }
@@ -51,6 +61,11 @@ namespace ticl {
   using TICLLayerTile = TICLLayerTileT<TileConstants>;
   using Tiles = std::array<TICLLayerTile, TileConstants::nLayers>;
   using TracksterTiles = std::array<TICLLayerTile, TileConstants::iterations>;
+
+  using TICLLayerTileHFNose = TICLLayerTileT<TileConstantsHFNose>;
+  using TilesHFNose = std::array<TICLLayerTileHFNose, TileConstantsHFNose::nLayers>;
+  using TracksterTilesHFNose = std::array<TICLLayerTileHFNose, TileConstantsHFNose::iterations>;
+
 }  // namespace ticl
 
 template <typename T>
@@ -68,5 +83,7 @@ private:
 
 using TICLLayerTiles = TICLGenericTile<ticl::Tiles>;
 using TICLTracksterTiles = TICLGenericTile<ticl::TracksterTiles>;
+using TICLLayerTilesHFNose = TICLGenericTile<ticl::TilesHFNose>;
+using TICLTracksterTilesHFNose = TICLGenericTile<ticl::TracksterTilesHFNose>;
 
 #endif

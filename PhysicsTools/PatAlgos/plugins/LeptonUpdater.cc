@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 #include "DataFormats/Common/interface/View.h"
 
@@ -162,7 +163,7 @@ void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event &iEvent, edm::Even
     if (computeMiniIso_) {
       const auto &params = miniIsoParams(lep);
       pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc.product(),
-                                                         lep.p4(),
+                                                         lep.polarP4(),
                                                          params[0],
                                                          params[1],
                                                          params[2],
@@ -181,9 +182,15 @@ void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event &iEvent, edm::Even
       float signPV = 1.;
       float signBS = 1.;
       if (beamSpotIsValid) {
-        signBS = copysign(1., lep.bestTrack()->dxy(beamSpot));
+        if constexpr (std::is_same_v<T, pat::Electron>)
+          signBS = copysign(1., lep.gsfTrack()->dxy(beamSpot));
+        else
+          signBS = copysign(1., lep.bestTrack()->dxy(beamSpot));
       }
-      signPV = copysign(1., lep.bestTrack()->dxy(pv.position()));
+      if constexpr (std::is_same_v<T, pat::Electron>)
+        signPV = copysign(1., lep.gsfTrack()->dxy(pv.position()));
+      else
+        signPV = copysign(1., lep.bestTrack()->dxy(pv.position()));
       lep.setDB(abs(lep.dB(T::PV2D)) * signPV, lep.edB(T::PV2D), T::PV2D);
       lep.setDB(abs(lep.dB(T::BS2D)) * signBS, lep.edB(T::BS2D), T::BS2D);
     }

@@ -70,7 +70,6 @@ process.qTester = DQMQualityTester(
  )
 
 
-process.DQMStore.collateHistograms = True
 process.EDMtoMEConverter.convertOnEndLumi = False
 process.EDMtoMEConverter.convertOnEndRun = True
 

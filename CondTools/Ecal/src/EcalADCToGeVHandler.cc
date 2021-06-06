@@ -153,11 +153,11 @@ void popcon::EcalADCToGeVHandler::getNewObjects() {
       }
       for (int iPart = 0; iPart < 2; iPart++) {  //  EB, EE
         fxml >> bid;
-        std::size_t begin = bid.find_first_of(">");
-        std::size_t end = bid.find_last_of("<");
+        std::size_t begin = bid.find_first_of('>');
+        std::size_t end = bid.find_last_of('<');
         begin++;
         std::string str2 = bid.substr(begin, end - begin);
-        std::size_t endmantissa = str2.find("e");
+        std::size_t endmantissa = str2.find('e');
         std::string mantissa = str2.substr(0, endmantissa);
         std::size_t string_size = str2.size();
         std::string exponent = str2.substr(endmantissa + 1, string_size);

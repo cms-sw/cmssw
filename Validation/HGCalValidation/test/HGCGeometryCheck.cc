@@ -9,10 +9,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
-#include "Geometry/HcalCommonData/interface/HcalCellType.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -26,7 +23,6 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"
-#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
 #include <TH2.h>
@@ -40,20 +36,20 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
-  virtual void beginJob() override;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(edm::Event const &, edm::EventSetup const &) override;
-  virtual void endRun(edm::Run const &, edm::EventSetup const &) override {}
+  void beginJob() override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void endRun(edm::Run const &, edm::EventSetup const &) override {}
   virtual void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
   virtual void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) {}
 
 private:
   edm::EDGetTokenT<PHGCalValidInfo> g4Token_;
   std::vector<std::string> geometrySource_;
+  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > tok_hgcGeom_;
 
   //HGCal geometry scheme
   std::vector<const HGCalDDDConstants *> hgcGeometry_;
-  const HcalDDDSimConstants *hcons_;
 
   //histogram related stuff
   TH2F *heedzVsZ, *hefdzVsZ, *hebdzVsZ;
@@ -63,11 +59,15 @@ private:
   static constexpr double mmTocm_ = 0.1;
 };
 
-HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(0) {
+HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) {
   usesResource(TFileService::kSharedResource);
 
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
   geometrySource_ = cfg.getUntrackedParameter<std::vector<std::string> >("geometrySource");
+  for (const auto &name : geometrySource_) {
+    tok_hgcGeom_.emplace_back(
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+  }
 
   edm::LogVerbatim("HGCalValid") << "HGCGeometryCheck:: use information from "
                                  << cfg.getParameter<edm::InputTag>("g4Source") << " and " << geometrySource_.size()
@@ -77,7 +77,7 @@ HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(0) {
 }
 
 void HGCGeometryCheck::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive", "Hcal"};
+  std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"};
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::vector<std::string> >("geometrySource", names);
   desc.add<edm::InputTag>("g4Source", edm::InputTag("g4SimHits", "HGCalInfoLayer"));
@@ -105,25 +105,12 @@ void HGCGeometryCheck::beginJob() {
 void HGCGeometryCheck::beginRun(const edm::Run &, const edm::EventSetup &iSetup) {
   //initiating hgc geometry
   for (size_t i = 0; i < geometrySource_.size(); i++) {
-    if (geometrySource_[i].find("Hcal") != std::string::npos) {
-      edm::ESHandle<HcalDDDSimConstants> pHRNDC;
-      iSetup.get<HcalSimNumberingRecord>().get(pHRNDC);
-      if (pHRNDC.isValid()) {
-        hcons_ = &(*pHRNDC);
-        hgcGeometry_.push_back(0);
-        edm::LogVerbatim("HGCalValid") << "Initialize geometry for " << geometrySource_[i];
-      } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for " << geometrySource_[i];
-      }
+    edm::ESHandle<HGCalDDDConstants> hgcGeom = iSetup.getHandle(tok_hgcGeom_[i]);
+    if (hgcGeom.isValid()) {
+      hgcGeometry_.push_back(hgcGeom.product());
+      edm::LogVerbatim("HGCalValid") << "Initialize geometry for " << geometrySource_[i];
     } else {
-      edm::ESHandle<HGCalDDDConstants> hgcGeom;
-      iSetup.get<IdealGeometryRecord>().get(geometrySource_[i], hgcGeom);
-      if (hgcGeom.isValid()) {
-        hgcGeometry_.push_back(hgcGeom.product());
-        edm::LogVerbatim("HGCalValid") << "Initialize geometry for " << geometrySource_[i];
-      } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for " << geometrySource_[i];
-      }
+      edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for " << geometrySource_[i];
     }
   }
 }
@@ -190,26 +177,8 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &
           hebzVsLayer->Fill(layer, zz);
           hebrVsLayer->Fill(layer, rr);
         }
-
-      } else if (hitDet.at(i) == (unsigned int)(DetId::Hcal)) {
-        int subdet, zside, depth, eta, phi, lay;
-        HcalTestNumbering::unpackHcalIndex(hitIdx.at(i), subdet, zside, depth, eta, phi, lay);
-        HcalCellType::HcalCell cell = hcons_->cell(subdet, zside, lay, eta, phi);
-        double zp = cell.rz / 10;  //mm --> cm
-        if (zside == 0)
-          zp = -zp;
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalValid") << "Info[" << i << "] Detector Information " << hitDet[i] << ":" << subdet << ":"
-                                       << zside << ":" << depth << ":" << eta << ":" << phi << ":" << lay << " z " << zp
-                                       << ":" << zz << " R " << rr;
-#endif
-        hebdzVsZ->Fill(zp, (zz - zp));
-        hebzVsLayer->Fill(lay, zz);
-        hebrVsLayer->Fill(lay, rr);
       }
-
     }  //end G4 hits
-
   } else {
     edm::LogWarning("HGCalValid") << "No PHGCalInfo " << std::endl;
   }

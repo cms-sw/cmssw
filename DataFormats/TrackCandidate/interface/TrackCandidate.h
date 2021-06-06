@@ -3,9 +3,10 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
+#include "DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "FWCore/Utilities/interface/Range.h"
 
 #include <utility>
 
@@ -23,8 +24,6 @@ only the second is compulsory,the other three can be empty / not present
 class TrackCandidate {
 public:
   typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
-  typedef RecHitContainer::const_iterator const_iterator;
-  typedef std::pair<const_iterator, const_iterator> range;
 
   TrackCandidate()
       : rh_(), seed_(), state_(), seedRef_(), nLoops_(0), stopReason_((uint8_t)StopReason::UNINITIALIZED) {}
@@ -55,7 +54,8 @@ public:
 
   PTrajectoryStateOnDet const& trajectoryStateOnDet() const { return state_; }
 
-  range recHits() const { return std::make_pair(rh_.begin(), rh_.end()); }
+  edm::Range<RecHitContainer::const_iterator> recHits() const { return {rh_.begin(), rh_.end()}; }
+  auto nRecHits() const { return rh_.size(); }
 
   TrajectorySeed const& seed() const { return seed_; }
 

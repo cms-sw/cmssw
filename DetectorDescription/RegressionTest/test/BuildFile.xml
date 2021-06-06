@@ -8,6 +8,7 @@
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
 </bin>
+
 <bin file="testDoc.cpp">
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/Parser"/>
@@ -19,6 +20,7 @@
   <use name="FWCore/Utilities"/>
   <use name="Utilities/Xerces"/>
 </bin>
+
 <bin name="dumpDDCompactView" file="dumpDDCompactView.cpp">
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/Parser"/>
@@ -29,11 +31,13 @@
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
 </bin>
+
 <bin name="testNew" file="testNew.cpp">
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/Parser"/>
   <use name="DetectorDescription/RegressionTest"/>
 </bin>
+
 <bin name="testDDCompactView" file="testDDCompactView.cpp">
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/Parser"/>
@@ -44,9 +48,10 @@
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
 </bin>
+
 <bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDDErrorReport">
-  <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_DDErrorReport.sh" />
-  <use   name="FWCore/Utilities" />
+  <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_DDErrorReport.sh"/>
+  <use name="FWCore/Utilities"/>
 </bin>
 
 <bin file="DDCompareCPV.cpp">
@@ -113,17 +118,16 @@
 </bin>
 
 <bin file="const_dump.cpp">
- <use name="DetectorDescription/Core"/>
- <use name="DetectorDescription/RegressionTest"/>
- <use name="DetectorDescription/Parser"/>
- <use name="xerces-c"/>
- <use name="FWCore/Framework"/>
- <use name="FWCore/Utilities"/>
- <use name="FWCore/PluginManager"/>
- <use name="FWCore/ServiceRegistry"/>
- <use name="FWCore/MessageLogger"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/RegressionTest"/>
+  <use name="DetectorDescription/Parser"/>
+  <use name="xerces-c"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/MessageLogger"/>
 </bin>
 
-<library file="tutorial.cc"  name="DetectorDescriptionTutorial">
+<library file="tutorial.cc" name="DetectorDescriptionTutorial">
   <use name="DetectorDescription/RegressionTest"/>
 </library>

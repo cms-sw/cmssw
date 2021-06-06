@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/Logger.h"
 #include <string>
 #include <map>
 #include <mutex>
@@ -44,6 +45,12 @@ namespace cond {
       cond::persistency::Session session() const;
 
       //
+      void lockRecords();
+
+      //
+      void releaseLocks();
+
+      //
       void startTransaction();
       void commitTransaction();
 
@@ -57,13 +64,13 @@ namespace cond {
         if (!payload)
           throwException("Provided payload pointer is invalid.", "PoolDBOutputService::writeOne");
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-        std::cout << "WriteOne: opening trans..." << std::endl;
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
         Hash thePayloadHash("");
         try {
           this->initDB();
           Record& myrecord = this->lookUpRecord(recordName);
+          m_logger.logInfo() << "Tag mapped to record " << recordName << ": " << myrecord.m_tag;
           bool newTag = isNewTagRequest(recordName);
           if (myrecord.m_onlyAppendUpdatePolicy && !newTag) {
             cond::TagInfo_t tInfo;
@@ -72,10 +79,11 @@ namespace cond {
             if (lastSince == cond::time::MAX_VAL)
               lastSince = 0;
             if (time <= lastSince) {
-              edm::LogInfo(MSGSOURCE) << "Won't append iov with since " << std::to_string(time)
-                                      << ", because is less or equal to last available since = " << lastSince;
+              m_logger.logInfo() << "Won't append iov with since " << std::to_string(time)
+                                 << ", because is less or equal to last available since = " << lastSince;
               if (m_autoCommit)
                 doCommitTransaction();
+              scope.close();
               return thePayloadHash;
             }
           }
@@ -88,7 +96,7 @@ namespace cond {
           }
           if (m_autoCommit) {
             if (m_writeTransactionDelay) {
-              edm::LogWarning(MSGSOURCE) << "Waiting " << m_writeTransactionDelay << "s before commit the changes...";
+              m_logger.logWarning() << "Waiting " << m_writeTransactionDelay << "s before commit the changes...";
               ::sleep(m_writeTransactionDelay);
             }
             doCommitTransaction();
@@ -116,7 +124,6 @@ namespace cond {
         if (!myrecord.m_isNewTag) {
           cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
         }
-        std::cout << "createNewIOV: opening trans..." << std::endl;
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
         try {
@@ -129,12 +136,6 @@ namespace cond {
         scope.close();
       }
 
-      // this one we need to avoid to adapt client code around... to be removed in the long term!
-      //void createNewIOV(const std::string& firstPayloadId,
-      //                  cond::Time_t firstSinceTime,
-      //                  cond::Time_t firstTillTime,
-      //                  const std::string& recordName);
-
       //
       template <typename T>
       void appendSinceTime(const T* payloadObj, cond::Time_t sinceTime, const std::string& recordName) {
@@ -146,7 +147,6 @@ namespace cond {
           cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
                                "PoolDBOutputService::appendSinceTime");
         }
-        std::cout << "appendSinceTime: opening trans..." << std::endl;
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
         try {
@@ -192,6 +192,8 @@ namespace cond {
 
       void forceInit();
 
+      cond::persistency::Logger& logger() { return m_logger; }
+
     private:
       struct Record {
         Record()
@@ -212,13 +214,7 @@ namespace cond {
       //
       bool getTagInfo(const std::string& recordName, cond::TagInfo_t& result);
 
-      /**
-      void createNewIOV(const std::string& firstPayloadId,
-                        const std::string payloadType,
-                        cond::Time_t firstSinceTime,
-                        cond::Time_t firstTillTime,
-                        const std::string& recordName);
-      **/
+      //
       void createNewIOV(const std::string& firstPayloadId,
                         const std::string payloadType,
                         cond::Time_t firstSinceTime,
@@ -228,11 +224,6 @@ namespace cond {
       // Note: the iov index appended to MUST pre-existing and the existing
       // conditions data are retrieved from the DB
       //
-      /**
-      void appendSinceTime(const std::string& payloadId,
-                           cond::Time_t sinceTime,
-                           const std::string& recordName);
-      **/
       bool appendSinceTime(const std::string& payloadId, cond::Time_t sinceTime, Record& record);
 
       //use these to control transaction interval
@@ -250,10 +241,9 @@ namespace cond {
       cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
 
     private:
-      static constexpr const char* const MSGSOURCE = "PoolDBOuputService";
+      cond::persistency::Logger m_logger;
       std::recursive_mutex m_mutex;
       cond::TimeType m_timetype;
-      //std::string m_timetypestr;
       std::vector<cond::Time_t> m_currentTimes;
 
       cond::persistency::ConnectionPool m_connection;
@@ -264,8 +254,6 @@ namespace cond {
       bool m_dbInitialised;
 
       std::map<std::string, Record> m_records;
-      //std::vector<std::pair<std::string, std::string> > m_newtags;
-      //bool m_closeIOV;
       std::map<std::string, cond::UserLogInfo> m_logheaders;
 
     };  //PoolDBOutputService

@@ -134,7 +134,7 @@ void DQMProtobufReader::beginLuminosityBlock(edm::LuminosityBlock& lb) {
   lb.put(std::move(json_product), "sourceJsonPath");
 
   if (flagLoadFiles_) {
-    if (!boost::filesystem::exists(path)) {
+    if (!std::filesystem::exists(path)) {
       fiterator_.logFileAction("Data file is missing ", path);
       fiterator_.logLumiState(currentLumi_, "error: data file missing");
       return;
@@ -168,7 +168,7 @@ void DQMProtobufReader::load(DQMStore* store, std::string filename) {
   FileInputStream fin(filedescriptor);
   GzipInputStream input(&fin);
   CodedInputStream input_coded(&input);
-  input_coded.SetTotalBytesLimit(1024 * 1024 * 1024, -1);
+  input_coded.SetTotalBytesLimit(1024 * 1024 * 1024);
   if (!dqmstore_message.ParseFromCodedStream(&input_coded)) {
     edm::LogError("DQMProtobufReader") << "Fatal parsing file '" << filename << "'";
   }

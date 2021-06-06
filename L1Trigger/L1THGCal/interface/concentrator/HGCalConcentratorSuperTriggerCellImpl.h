@@ -20,7 +20,10 @@ public:
     triggerTools_.eventSetup(es);
     coarseTCmapping_.eventSetup(es);
     superTCmapping_.eventSetup(es);
-    calibration_.eventSetup(es);
+    calibrationEE_.eventSetup(es);
+    calibrationHEsi_.eventSetup(es);
+    calibrationHEsc_.eventSetup(es);
+    calibrationNose_.eventSetup(es);
   }
 
 private:
@@ -29,13 +32,14 @@ private:
     oneBitFraction,
     equalShare,
   };
+
   EnergyDivisionType energyDivisionType_;
   static constexpr int kHighDensityThickness_ = 0;
   static constexpr int kOddNumberMask_ = 1;
 
   HGCalTriggerTools triggerTools_;
   bool fixedDataSizePerHGCROC_;
-  bool coarsenTriggerCells_;
+  std::vector<unsigned> coarsenTriggerCells_;
   HGCalCoarseTriggerCellMapping coarseTCmapping_;
   HGCalCoarseTriggerCellMapping superTCmapping_;
 
@@ -47,7 +51,10 @@ private:
   //Parameters for energyDivisionType_ = equalShare
   static constexpr int kTriggerCellsForDivision_ = 4;
 
-  HGCalTriggerCellCalibration calibration_;
+  HGCalTriggerCellCalibration calibrationEE_;
+  HGCalTriggerCellCalibration calibrationHEsi_;
+  HGCalTriggerCellCalibration calibrationHEsc_;
+  HGCalTriggerCellCalibration calibrationNose_;
   HGCalVFECompressionImpl vfeCompression_;
 
   class SuperTriggerCell {

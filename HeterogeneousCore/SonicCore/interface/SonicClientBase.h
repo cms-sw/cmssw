@@ -1,48 +1,68 @@
 #ifndef HeterogeneousCore_SonicCore_SonicClientBase
 #define HeterogeneousCore_SonicCore_SonicClientBase
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicDispatcher.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicDispatcherPseudoAsync.h"
 
 #include <string>
 #include <chrono>
 #include <exception>
+#include <memory>
+#include <optional>
+
+enum class SonicMode { Sync = 1, Async = 2, PseudoAsync = 3 };
 
 class SonicClientBase {
 public:
+  //constructor
+  SonicClientBase(const edm::ParameterSet& params, const std::string& debugName, const std::string& clientName);
+
   //destructor
   virtual ~SonicClientBase() = default;
 
-  void setDebugName(const std::string& debugName) { debugName_ = debugName; }
   const std::string& debugName() const { return debugName_; }
+  const std::string& clientName() const { return clientName_; }
+  SonicMode mode() const { return mode_; }
 
   //main operation
-  virtual void dispatch(edm::WaitingTaskWithArenaHolder holder) = 0;
+  virtual void dispatch(edm::WaitingTaskWithArenaHolder holder) { dispatcher_->dispatch(std::move(holder)); }
+
+  //alternate operation when ExternalWork is not used
+  virtual void dispatch() { dispatcher_->dispatch(); }
+
+  //helper: does nothing by default
+  virtual void reset() {}
+
+  //provide base params
+  static void fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry = true);
 
 protected:
+  void setMode(SonicMode mode);
+
   virtual void evaluate() = 0;
 
-  void setStartTime() {
-    if (debugName_.empty())
-      return;
-    t0_ = std::chrono::high_resolution_clock::now();
-  }
+  void start(edm::WaitingTaskWithArenaHolder holder);
 
-  void finish(std::exception_ptr eptr = std::exception_ptr{}) {
-    if (!debugName_.empty()) {
-      auto t1 = std::chrono::high_resolution_clock::now();
-      edm::LogInfo(debugName_) << "Client time: "
-                               << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0_).count();
-    }
-    holder_.doneWaiting(eptr);
-  }
+  void start();
+
+  void finish(bool success, std::exception_ptr eptr = std::exception_ptr{});
 
   //members
-  edm::WaitingTaskWithArenaHolder holder_;
+  SonicMode mode_;
+  std::unique_ptr<SonicDispatcher> dispatcher_;
+  unsigned allowedTries_, tries_;
+  std::optional<edm::WaitingTaskWithArenaHolder> holder_;
 
   //for logging/debugging
-  std::string debugName_;
+  std::string debugName_, clientName_, fullDebugName_;
   std::chrono::time_point<std::chrono::high_resolution_clock> t0_;
+
+  friend class SonicDispatcher;
+  friend class SonicDispatcherPseudoAsync;
 };
 
 #endif

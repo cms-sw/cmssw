@@ -147,6 +147,8 @@ namespace edm {
   class RandomNumberGenerator {
   public:
     RandomNumberGenerator() {}
+    RandomNumberGenerator(RandomNumberGenerator const&) = delete;
+    RandomNumberGenerator const& operator=(RandomNumberGenerator const&) = delete;
     virtual ~RandomNumberGenerator();
 
     /// Use the next 2 functions to get the random number engine.
@@ -203,10 +205,6 @@ namespace edm {
 
     /// For debugging purposes only.
     virtual void print(std::ostream& os) const = 0;
-
-  private:
-    RandomNumberGenerator(RandomNumberGenerator const&) = delete;
-    RandomNumberGenerator const& operator=(RandomNumberGenerator const&) = delete;
   };
 }  // namespace edm
 #endif

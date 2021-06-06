@@ -83,12 +83,12 @@ public:
   using ValMapToken = edm::EDGetTokenT<edm::ValueMap<MapType>>;
   using ValueMaps = std::unordered_map<std::string, ValMapToken>;
   struct electron_config {
-    edm::EDGetTokenT<edm::View<pat::Electron>> tok_electron_src;
+    edm::EDGetTokenT<edm::View<reco::GsfElectron>> tok_electron_src;
     ValueMaps tok_valuemaps;
   };
 
   struct photon_config {
-    edm::EDGetTokenT<edm::View<pat::Photon>> tok_photon_src;
+    edm::EDGetTokenT<edm::View<reco::Photon>> tok_photon_src;
     ValueMaps tok_valuemaps;
   };
 
@@ -123,7 +123,7 @@ EGExtraInfoModifierFromValueMaps<MapType, OutputType>::EGExtraInfoModifierFromVa
     const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
     if (electrons.exists(electronSrc))
       e_conf.tok_electron_src =
-          cc.consumes<edm::View<pat::Electron>>(electrons.getParameter<edm::InputTag>(electronSrc));
+          cc.consumes<edm::View<reco::GsfElectron>>(electrons.getParameter<edm::InputTag>(electronSrc));
 
     const std::vector<std::string> parameters = electrons.getParameterNames();
     for (const std::string& name : parameters) {
@@ -137,7 +137,7 @@ EGExtraInfoModifierFromValueMaps<MapType, OutputType>::EGExtraInfoModifierFromVa
   if (conf.exists("photon_config")) {
     const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
     if (photons.exists(photonSrc))
-      ph_conf.tok_photon_src = cc.consumes<edm::View<pat::Photon>>(photons.getParameter<edm::InputTag>(photonSrc));
+      ph_conf.tok_photon_src = cc.consumes<edm::View<reco::Photon>>(photons.getParameter<edm::InputTag>(photonSrc));
     const std::vector<std::string> parameters = photons.getParameterNames();
     for (const std::string& name : parameters) {
       if (std::string(photonSrc) == name)
@@ -160,26 +160,26 @@ void EGExtraInfoModifierFromValueMaps<MapType, OutputType>::setEvent(const edm::
   ele_idx = pho_idx = 0;
 
   if (!e_conf.tok_electron_src.isUninitialized()) {
-    edm::Handle<edm::View<pat::Electron>> eles;
-    evt.getByToken(e_conf.tok_electron_src, eles);
+    auto eles = evt.getHandle(e_conf.tok_electron_src);
 
     eles_by_oop.resize(eles->size());
     std::copy(eles->ptrs().begin(), eles->ptrs().end(), eles_by_oop.begin());
   }
 
-  for (auto const& itr : e_conf.tok_valuemaps)
-    evt.getByToken(itr.second, ele_vmaps[itr.second.index()]);
+  for (auto const& itr : e_conf.tok_valuemaps) {
+    ele_vmaps[itr.second.index()] = evt.getHandle(itr.second);
+  }
 
   if (!ph_conf.tok_photon_src.isUninitialized()) {
-    edm::Handle<edm::View<pat::Photon>> phos;
-    evt.getByToken(ph_conf.tok_photon_src, phos);
+    auto phos = evt.getHandle(ph_conf.tok_photon_src);
 
     phos_by_oop.resize(phos->size());
     std::copy(phos->ptrs().begin(), phos->ptrs().end(), phos_by_oop.begin());
   }
 
-  for (auto const& itr : ph_conf.tok_valuemaps)
-    evt.getByToken(itr.second, pho_vmaps[itr.second.index()]);
+  for (auto const& itr : ph_conf.tok_valuemaps) {
+    pho_vmaps[itr.second.index()] = evt.getHandle(itr.second);
+  }
 }
 
 namespace {

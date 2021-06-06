@@ -156,6 +156,7 @@
  <class name="std::vector<std::vector<edm::ParameterSetID > >"/>
  <class name="std::map<edm::ParameterSetID,edm::ParameterSetBlob>"/>
  <class name="std::pair<edm::ParameterSetID,edm::ParameterSetBlob>"/>
+ <class name="std::pair<const edm::ParameterSetID,edm::ParameterSetBlob>"/>
  <class name="edm::ProcessConfigurationID"/>
  <class name="std::vector<edm::ProcessConfigurationID>"/>
  <class name="edm::ParentageID"/>
@@ -208,7 +209,10 @@
 
  <class name="std::vector<TFormula*>"/>
 
- <class name="edm::ThinnedAssociationBranches"/>
+ <class name="edm::ThinnedAssociationBranches" ClassVersion="5">
+  <version ClassVersion="5" checksum="3178849990"/>
+  <version ClassVersion="4" checksum="377132180"/>
+ </class>
  <class name="std::vector<edm::ThinnedAssociationBranches>"/>
  <class name="edm::ThinnedAssociationsHelper" ClassVersion="10">
   <version ClassVersion="10" checksum="3444973106"/>

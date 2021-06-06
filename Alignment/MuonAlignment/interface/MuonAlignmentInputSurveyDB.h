@@ -31,7 +31,7 @@
 class MuonAlignmentInputSurveyDB : public MuonAlignmentInputMethod {
 public:
   MuonAlignmentInputSurveyDB();
-  MuonAlignmentInputSurveyDB(std::string dtLabel, std::string cscLabel);
+  MuonAlignmentInputSurveyDB(std::string dtLabel, std::string cscLabel, std::string idealLabel);
   ~MuonAlignmentInputSurveyDB() override;
 
   // ---------- const member functions ---------------------
@@ -54,7 +54,7 @@ private:
 
   // ---------- member data --------------------------------
 
-  std::string m_dtLabel, m_cscLabel;
+  std::string m_dtLabel, m_cscLabel, idealGeometryLabel;
 };
 
 #endif

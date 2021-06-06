@@ -1,4 +1,6 @@
-<use   name="CalibCalorimetry/EcalLaserAnalyzer"/>
-<library   file="*.cc" name="CalibCalorimetryEcalLaserAnalyzerPlugin">
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="CalibCalorimetryEcalLaserAnalyzerPlugin">
+  <use name="CalibCalorimetry/EcalLaserAnalyzer"/>
+  <use name="FWCore/Framework"/>
+  <use name="Geometry/EcalMapping"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

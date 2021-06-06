@@ -83,8 +83,6 @@ MEtoEDMConverter::~MEtoEDMConverter() = default;
 
 void MEtoEDMConverter::beginJob() {}
 
-void MEtoEDMConverter::endJob() {}
-
 std::shared_ptr<meedm::Void> MEtoEDMConverter::globalBeginRun(edm::Run const& iRun,
                                                               const edm::EventSetup& iSetup) const {
   return std::shared_ptr<meedm::Void>();

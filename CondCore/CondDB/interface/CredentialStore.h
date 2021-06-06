@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <sstream>
 //
 #include "CoralBase/MessageStream.h"
 
@@ -17,6 +18,13 @@ namespace coral {
   class IConnection;
 
 }  // namespace coral
+
+std::string to_lower(const std::string& s) {
+  std::string str(s);
+  for (auto& c : str)
+    c = tolower(c);
+  return str;
+}
 
 namespace coral_bridge {
 
@@ -105,7 +113,7 @@ namespace cond {
                        const std::string& connectionString,
                        const std::string& connectionLabel);
 
-    bool unsetPermission(const std::string& principal, const std::string& role, const std::string& connectionString);
+    size_t unsetPermission(const std::string& principal, const std::string& role, const std::string& connectionString);
 
     bool updateConnection(const std::string& connectionLabel, const std::string& userName, const std::string& password);
 
@@ -135,9 +143,16 @@ namespace cond {
                            const std::string& connectionString,
                            std::vector<Permission>& destination);
 
+    std::pair<std::string, std::string> getUserCredentials(const std::string& connectionString,
+                                                           const std::string& role);
+
     bool exportAll(coral_bridge::AuthenticationCredentialSet& data);
 
+    const std::string& serviceName();
+
     const std::string& keyPrincipalName();
+
+    std::string log();
 
   private:
     friend class CSScopedSession;
@@ -160,6 +175,7 @@ namespace cond {
     std::shared_ptr<coral::IConnection> m_connection;
     std::shared_ptr<coral::ISession> m_session;
 
+    std::string m_authenticatedPrincipal;
     int m_principalId;
     // the key used to encrypt the db credentials accessibles by the owner of the authenticated key.
     std::string m_principalKey;
@@ -168,6 +184,8 @@ namespace cond {
     const auth::ServiceCredentials* m_serviceData;
 
     auth::DecodingKey m_key;
+
+    std::stringstream m_log;
   };
 
 }  // namespace cond

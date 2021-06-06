@@ -12,7 +12,7 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
 
-  explicit SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig);
+  explicit SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig, edm::ConsumesCollector&&);
   ~SiStripPopConPedestalsHandlerFromDQM() override;
   // interface methods: implemented in template
   void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
@@ -27,7 +27,8 @@ private:
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
-SiStripPopConPedestalsHandlerFromDQM::SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig)
+SiStripPopConPedestalsHandlerFromDQM::SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig,
+                                                                           edm::ConsumesCollector&&)
     : SiStripDQMPopConSourceHandler<SiStripPedestals>(iConfig),
       fp_{iConfig.getUntrackedParameter<edm::FileInPath>(
           "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))},

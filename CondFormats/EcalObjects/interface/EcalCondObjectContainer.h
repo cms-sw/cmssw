@@ -71,8 +71,6 @@ public:
     return ee_.end();
   }
 
-  inline const_iterator begin() const { return eb_.begin(); }
-
   inline const_iterator end() const { return ee_.end(); }
 
   inline void setValue(const uint32_t id, const Item &item) { (*this)[id] = item; }

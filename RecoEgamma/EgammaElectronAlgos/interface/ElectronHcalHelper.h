@@ -1,22 +1,24 @@
-
 #ifndef ElectronHcalHelper_h
 #define ElectronHcalHelper_h
 
-class EgammaHcalIsolation;
-class EgammaTowerIsolation;
-
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
+class ConsumesCollector;
 class EgammaHadTower;
+class HcalTopology;
+class HcalChannelQuality;
+class CaloTowerConstituentsMap;
 
 class ElectronHcalHelper {
 public:
@@ -37,10 +39,9 @@ public:
     double hOverEHFMinE;
   };
 
-  ElectronHcalHelper(const Configuration &);
-  void checkSetup(const edm::EventSetup &);
-  void readEvent(const edm::Event &);
-  ~ElectronHcalHelper();
+  ElectronHcalHelper(const Configuration &cfg, edm::ConsumesCollector &&cc);
+
+  void beginEvent(const edm::Event &, const edm::EventSetup &);
 
   double hcalESum(const reco::SuperCluster &, const std::vector<CaloTowerDetId> *excludeTowers = nullptr) const;
   double hcalESumDepth1(const reco::SuperCluster &, const std::vector<CaloTowerDetId> *excludeTowers = nullptr) const;
@@ -48,9 +49,13 @@ public:
   double hOverEConeSize() const { return cfg_.hOverEConeSize; }
 
   // Behind clusters
-  std::vector<CaloTowerDetId> hcalTowersBehindClusters(const reco::SuperCluster &sc) const;
-  double hcalESumDepth1BehindClusters(const std::vector<CaloTowerDetId> &towers) const;
-  double hcalESumDepth2BehindClusters(const std::vector<CaloTowerDetId> &towers) const;
+  inline auto hcalTowersBehindClusters(const reco::SuperCluster &sc) const { return egamma::towersOf(sc, *towerMap_); }
+  inline auto hcalESumDepth1BehindClusters(const std::vector<CaloTowerDetId> &towers) const {
+    return egamma::depth1HcalESum(towers, *towersFromCollection_);
+  }
+  inline auto hcalESumDepth2BehindClusters(const std::vector<CaloTowerDetId> &towers) const {
+    return egamma::depth2HcalESum(towers, *towersFromCollection_);
+  }
 
   // forward EgammaHadTower methods, if checkHcalStatus is enabled, using towers and H/E
   // otherwise, return true
@@ -59,18 +64,21 @@ public:
 private:
   const Configuration cfg_;
 
-  // event setup data (rechits strategy)
-  unsigned long long caloGeomCacheId_;
-  edm::ESHandle<CaloGeometry> caloGeom_;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalChannelQualityToken_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalTopologyToken_;
+  edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> towerMapToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 
   // event data (rechits strategy)
-  EgammaHcalIsolation *hcalIso_;
+  std::unique_ptr<EgammaHcalIsolation> hcalIso_ = nullptr;
 
   // event data (towers strategy)
-  EgammaTowerIsolation *towerIso1_;
-  EgammaTowerIsolation *towerIso2_;
-  EgammaHadTower *hadTower_;
+  std::unique_ptr<EgammaTowerIsolation> towerIso1_ = nullptr;
+  std::unique_ptr<EgammaTowerIsolation> towerIso2_ = nullptr;
   CaloTowerCollection const *towersFromCollection_ = nullptr;
+  CaloTowerConstituentsMap const *towerMap_ = nullptr;
+  HcalChannelQuality const *hcalQuality_ = nullptr;
+  HcalTopology const *hcalTopology_ = nullptr;
 };
 
 #endif

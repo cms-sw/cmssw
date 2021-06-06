@@ -1,20 +1,20 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="clhep"/>
-<use   name="boost"/>
-<use   name="DQMServices/Core"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="MagneticField/Records"/>
-<use   name="MagneticField/Engine"/>
-<use   name="SimDataFormats/Vertex"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="SimTracker/Common"/>
-<use   name="SimTracker/Records"/>
-<use   name="root"/>
-<use   name="SimTracker/TrackAssociation"/>
-<use   name="SimTracker/TrackerHitAssociation"/>
-<lib   name="MathMore"/>
-<library   file="*.cc" name="ValidationRecoMuonPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Framework"/>
+<use name="DataFormats/TrackReco"/>
+<use name="clhep"/>
+<use name="boost"/>
+<use name="DQMServices/Core"/>
+<use name="FWCore/ParameterSet"/>
+<use name="MagneticField/Records"/>
+<use name="MagneticField/Engine"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimTracker/Common"/>
+<use name="SimTracker/Records"/>
+<use name="root"/>
+<use name="SimTracker/TrackAssociation"/>
+<use name="SimTracker/TrackerHitAssociation"/>
+<lib name="MathMore"/>
+<library file="*.cc" name="ValidationRecoMuonPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

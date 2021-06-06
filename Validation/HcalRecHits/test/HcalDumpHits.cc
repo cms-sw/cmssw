@@ -5,7 +5,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -49,6 +48,7 @@ private:
   const edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitSource_;
   const edm::EDGetTokenT<HFRecHitCollection> hfRecHitSource_;
   const edm::EDGetTokenT<HORecHitCollection> hoRecHitSource_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
   const HcalDDDRecConstants* hcons_;
 };
 
@@ -58,8 +58,9 @@ HcalDumpHits::HcalDumpHits(const edm::ParameterSet& iConfig)
       hfDigiSource_(consumes<QIE10DigiCollection>(iConfig.getParameter<edm::InputTag>("hfDigiSource"))),
       hoDigiSource_(consumes<HODigiCollection>(iConfig.getParameter<edm::InputTag>("hoDigiSource"))),
       hbheRecHitSource_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheRecHitSource"))),
-      hfRecHitSource_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfRecHitSource"))),
+      hfRecHitSource_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfR(ecHitSource"))),
       hoRecHitSource_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoRecHitSource"))),
+      tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
       hcons_(nullptr) {}
 
 void HcalDumpHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -74,11 +75,7 @@ void HcalDumpHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   descriptions.add("hcalDumpHits", desc);
 }
 
-void HcalDumpHits::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons_ = &(*pHRNDC);
-}
+void HcalDumpHits::beginRun(const edm::Run&, const edm::EventSetup& iSetup) { hcons_ = &iSetup.getData(tok_HRNDC_); }
 
 void HcalDumpHits::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   // first SimHits

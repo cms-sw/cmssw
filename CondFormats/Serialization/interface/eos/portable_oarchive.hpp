@@ -85,7 +85,8 @@
  */
 /*****************************************************************************/
 
-#pragma once
+#ifndef CondFormats_Serialization_portable_oarchive_hpp
+#define CondFormats_Serialization_portable_oarchive_hpp
 
 #include <ostream>
 
@@ -493,3 +494,5 @@ BOOST_SERIALIZATION_REGISTER_ARCHIVE(eos::polymorphic_portable_oarchive)
 // }  // namespace boost
 //
 // #endif
+
+#endif

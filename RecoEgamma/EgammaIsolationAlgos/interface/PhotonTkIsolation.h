@@ -11,13 +11,11 @@
 
 //C++ includes
 #include <string>
-#
+
 //CMSSW includes
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
 
 class PhotonTkIsolation {
 public:

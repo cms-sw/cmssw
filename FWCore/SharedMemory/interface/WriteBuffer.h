@@ -29,6 +29,7 @@
 
 // user include files
 #include "FWCore/SharedMemory/interface/buffer_names.h"
+#include "FWCore/SharedMemory/interface/BufferInfo.h"
 
 // forward declarations
 
@@ -36,14 +37,14 @@ namespace edm::shared_memory {
   class WriteBuffer {
   public:
     /** iUniqueName : must be unique for all processes running on a system.
-        iBufferIndex : is a pointer to a shared_memory address where the same address needs to be shared by ReadBuffer and WriteBuffer.
+        iBufferInfo : is a pointer to a shared_memory address where the same address needs to be shared by ReadBuffer and WriteBuffer.
     */
 
-    WriteBuffer(std::string const& iUniqueName, char* iBufferIndex)
-        : bufferSize_{0}, buffer_{nullptr}, bufferIndex_{iBufferIndex} {
+    WriteBuffer(std::string const& iUniqueName, BufferInfo* iBufferInfo)
+        : bufferSize_{0}, buffer_{nullptr}, bufferInfo_{iBufferInfo} {
       bufferNames_[0] = iUniqueName + buffer_names::kBuffer0;
       bufferNames_[1] = iUniqueName + buffer_names::kBuffer1;
-      assert(bufferIndex_);
+      assert(bufferInfo_);
     }
     WriteBuffer(const WriteBuffer&) = delete;
     const WriteBuffer& operator=(const WriteBuffer&) = delete;
@@ -66,7 +67,7 @@ namespace edm::shared_memory {
     // ---------- member data --------------------------------
     std::size_t bufferSize_;
     char* buffer_;
-    char* bufferIndex_;
+    BufferInfo* bufferInfo_;
     std::array<std::string, 2> bufferNames_;
     std::unique_ptr<boost::interprocess::managed_shared_memory> sm_;
   };

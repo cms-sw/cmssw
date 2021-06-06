@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "CommonTools/ParticleFlow/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/ValidHandle.h"
@@ -28,8 +28,6 @@ class LowPtGsfElectronSCProducer : public edm::stream::EDProducer<> {
 public:
   explicit LowPtGsfElectronSCProducer(const edm::ParameterSet&);
 
-  ~LowPtGsfElectronSCProducer() override;
-
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -57,11 +55,7 @@ LowPtGsfElectronSCProducer::LowPtGsfElectronSCProducer(const edm::ParameterSet& 
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-LowPtGsfElectronSCProducer::~LowPtGsfElectronSCProducer() {}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-void LowPtGsfElectronSCProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+void LowPtGsfElectronSCProducer::produce(edm::Event& event, const edm::EventSetup&) {
   // Input GsfPFRecTracks collection
   auto gsfPfRecTracks = edm::makeValid(event.getHandle(gsfPfRecTracks_));
 

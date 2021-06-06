@@ -4,6 +4,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
         'Geometry/CMSCommonData/data/materials.xml',
         'Geometry/CMSCommonData/data/rotations.xml',
+        'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
         'Geometry/CMSCommonData/data/extend/v2/cmsextent.xml',
         'Geometry/CMSCommonData/data/cms/2026/v1/cms.xml',
         'Geometry/CMSCommonData/data/eta3/etaMax.xml',

@@ -1,5 +1,5 @@
-<use   name="oracle"/>
-<use   name="oracleocci"/>
+<use name="oracle"/>
+<use name="oracleocci"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

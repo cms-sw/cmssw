@@ -1,3 +1,3 @@
 <bin file="testSerializationCalibration.cpp">
-    <use   name="CondFormats/Calibration"/>
+  <use name="CondFormats/Calibration"/>
 </bin>

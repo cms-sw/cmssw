@@ -32,8 +32,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
@@ -86,6 +86,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
       reducedBarrelRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_)),
       reducedEndcapRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")),
       reducedEndcapRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_)),
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       // PFCluster Isolation maps
       addPFClusterIso_(iConfig.getParameter<bool>("addPFClusterIso")),
       addPuppiIsolation_(iConfig.getParameter<bool>("addPuppiIsolation")),
@@ -251,8 +252,10 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::InputTag reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
   edm::InputTag reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
   //EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
-  EcalClusterLazyTools lazyTools(
-      iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
+  EcalClusterLazyTools lazyTools(iEvent,
+                                 ecalClusterToolsESGetTokens_.get(iSetup),
+                                 reducedBarrelRecHitCollectionToken_,
+                                 reducedEndcapRecHitCollectionToken_);
 
   // for conversion veto selection
   edm::Handle<reco::ConversionCollection> hConversions;
@@ -380,10 +383,8 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         if (itElectron->gsfTrack() == i->gsfTrackRef()) {
           Matched = true;
         } else {
-          for (reco::GsfTrackRefVector::const_iterator it = itElectron->ambiguousGsfTracksBegin();
-               it != itElectron->ambiguousGsfTracksEnd();
-               it++) {
-            MatchedToAmbiguousGsfTrack |= (bool)(i->gsfTrackRef() == (*it));
+          for (auto const& it : itElectron->ambiguousGsfTracks()) {
+            MatchedToAmbiguousGsfTrack |= (bool)(i->gsfTrackRef() == it);
           }
         }
 
@@ -449,7 +450,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
           if (addMVAVariables_) {
             // add missing mva variables
-            std::vector<float> vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
+            const auto& vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
             anElectron.setMvaVariables(vCov[1], ip3d);
           }
           // PFClusterIso
@@ -680,7 +681,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
       if (addMVAVariables_) {
         // add mva variables
-        std::vector<float> vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
+        const auto& vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
         anElectron.setMvaVariables(vCov[1], ip3d);
       }
 
@@ -991,7 +992,7 @@ void PATElectronProducer::setElectronMiniIso(Electron& anElectron, const PackedC
   pat::PFIsolation miniiso;
   if (anElectron.isEE())
     miniiso = pat::getMiniPFIsolation(pc,
-                                      anElectron.p4(),
+                                      anElectron.polarP4(),
                                       miniIsoParamsE_[0],
                                       miniIsoParamsE_[1],
                                       miniIsoParamsE_[2],
@@ -1003,7 +1004,7 @@ void PATElectronProducer::setElectronMiniIso(Electron& anElectron, const PackedC
                                       miniIsoParamsE_[8]);
   else
     miniiso = pat::getMiniPFIsolation(pc,
-                                      anElectron.p4(),
+                                      anElectron.polarP4(),
                                       miniIsoParamsB_[0],
                                       miniIsoParamsB_[1],
                                       miniIsoParamsB_[2],
@@ -1201,29 +1202,24 @@ void PATElectronProducer::embedHighLevel(pat::Electron& anElectron,
                                          reco::BeamSpot& beamspot,
                                          bool beamspotIsValid) {
   // Correct to PV
-
   // PV2D
-  std::pair<bool, Measurement1D> result =
-      IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
-  double d0_corr = result.second.value();
-  double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
-  anElectron.setDB(d0_corr, d0_err, pat::Electron::PV2D);
+  anElectron.setDB(track->dxy(primaryVertex.position()),
+                   track->dxyError(primaryVertex.position(), primaryVertex.covariance()),
+                   pat::Electron::PV2D);
 
   // PV3D
-  result = IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
-  d0_corr = result.second.value();
-  d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
+  std::pair<bool, Measurement1D> result =
+      IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
+  double d0_corr = result.second.value();
+  double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
   anElectron.setDB(d0_corr, d0_err, pat::Electron::PV3D);
 
   // Correct to beam spot
+  // BS2D
+  anElectron.setDB(track->dxy(beamspot), track->dxyError(beamspot), pat::Electron::BS2D);
+
   // make a fake vertex out of beam spot
   reco::Vertex vBeamspot(beamspot.position(), beamspot.covariance3D());
-
-  // BS2D
-  result = IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);
-  d0_corr = result.second.value();
-  d0_err = beamspotIsValid ? result.second.error() : -1.0;
-  anElectron.setDB(d0_corr, d0_err, pat::Electron::BS2D);
 
   // BS3D
   result = IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);

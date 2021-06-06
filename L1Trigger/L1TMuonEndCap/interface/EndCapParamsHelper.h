@@ -31,8 +31,6 @@
 // initialized with.  That is responsibility of the calling code.
 //
 
-#include "TXMLEngine.h"
-
 namespace l1t {
 
   class EndCapParamsHelper {

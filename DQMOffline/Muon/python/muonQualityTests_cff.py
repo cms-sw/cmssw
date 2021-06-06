@@ -47,5 +47,3 @@ muonQualityTests_miniAOD = cms.Sequence(muonSourcesQualityTests*
                                         muonClientsQualityTests*
                                         muonTestSummary*
                                         triggerMatchEffPlotterTightMiniAOD)
-
-

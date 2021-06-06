@@ -1,14 +1,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 #include "TrackstersPCA.h"
-#include "TPrincipal.h"
 
 #include <iostream>
+#include <set>
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
 void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
                                  const std::vector<reco::CaloCluster> &layerClusters,
+                                 const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                                  double z_limit_em,
                                  bool energyWeight) {
   LogDebug("TrackstersPCA_Eigen") << "------- Eigen -------" << std::endl;
@@ -40,6 +43,10 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
     sigmasEigen << 0., 0., 0.;
     Eigen::Matrix3d covM = Eigen::Matrix3d::Zero();
 
+    std::vector<float> times;
+    std::vector<float> timeErrors;
+    std::set<uint32_t> usedLC;
+
     for (size_t i = 0; i < N; ++i) {
       auto fraction = 1.f / trackster.vertex_multiplicity(i);
       trackster.addToRawEnergy(layerClusters[trackster.vertices(i)].energy() * fraction);
@@ -52,9 +59,21 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
       fillPoint(layerClusters[trackster.vertices(i)], weight);
       for (size_t j = 0; j < 3; ++j)
         barycenter[j] += point[j];
+
+      // Add timing from layerClusters not already used
+      if ((usedLC.insert(trackster.vertices(i))).second) {
+        float timeE = layerClustersTime.get(trackster.vertices(i)).second;
+        if (timeE > 0.f) {
+          times.push_back(layerClustersTime.get(trackster.vertices(i)).first);
+          timeErrors.push_back(1. / pow(timeE, 2));
+        }
+      }
     }
     if (energyWeight && trackster.raw_energy())
       barycenter /= trackster.raw_energy();
+
+    hgcalsimclustertime::ComputeClusterTime timeEstimator;
+    std::pair<float, float> timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
 
     // Compute the Covariance Matrix and the sum of the squared weights, used
     // to compute the correct normalization.
@@ -100,6 +119,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
 
     // Add trackster attributes
     trackster.setBarycenter(ticl::Trackster::Vector(barycenter));
+    trackster.setTimeAndError(timeTrackster.first, timeTrackster.second);
     trackster.fillPCAVariables(
         eigenvalues_fromEigen, eigenvectors_fromEigen, sigmas, sigmasEigen, 3, ticl::Trackster::PCAOrdering::ascending);
 
@@ -110,6 +130,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
     LogDebug("TrackstersPCA") << "raw_pt: " << trackster.raw_pt() << std::endl;
     LogDebug("TrackstersPCA") << "Means:          " << barycenter[0] << ", " << barycenter[1] << ", " << barycenter[2]
                               << std::endl;
+    LogDebug("TrackstersPCA") << "Time:          " << trackster.time() << " +/- " << trackster.timeError() << std::endl;
     LogDebug("TrackstersPCA") << "EigenValues from Eigen/Tr(cov): " << eigenvalues_fromEigen[2] / covM.trace() << ", "
                               << eigenvalues_fromEigen[1] / covM.trace() << ", "
                               << eigenvalues_fromEigen[0] / covM.trace() << std::endl;

@@ -89,7 +89,7 @@ parser.add_option("--fast",
                   default=False)
 
 parser.add_option("--runsAndWeightsForMC",
-                  help="Assign run numbers to MC source according to relatieve weights. [(run1,weight1),...,(runN,weightN)])",
+                  help="Assign run numbers to MC source according to relative weights. [(run1,weight1),...,(runN,weightN)])",
                   default=None,
                   dest="runsAndWeightsForMC")
 
@@ -97,6 +97,16 @@ parser.add_option("--runsScenarioForMC",
                   help="Load a scenario to set run numbers in MC.)",
                   default=None,
                   dest="runsScenarioForMC")
+
+parser.add_option("--runsAndWeightsForMCIntegerWeights",
+                  help="Assign run numbers to MC source according to relative weights where weighting is determined by the number of times the run number appears. [(run1,run2,...,runN)])",
+                  default=None,
+                  dest="runsAndWeightsForMCIntegerWeights")
+
+parser.add_option("--runsScenarioForMCIntegerWeights",
+                  help="Load a scenario to set run numbers in MC with integer IOV weights.)",
+                  default=None,
+                  dest="runsScenarioForMCIntegerWeights")
 
 parser.add_option("--runUnscheduled",
                   help="Automatically convert configuration to run unscheduled the EDProducers/EDFilters that were scheduled",
@@ -385,16 +395,21 @@ expertSettings.add_option("--timeoutOutput",
 
 expertSettings.add_option("--nThreads",
                           help="How many threads should CMSSW use (default is 1)",
-                          default="1",
+                          default=defaultOptions.nThreads,
                           dest='nThreads'
                           )
 expertSettings.add_option("--nStreams",
-                          help="How many streams should CMSSW use (default is 0 which makes it same as nThreads)",
-                          default="0",
+                          help="How many streams should CMSSW use if nThreads > 1 (default is 0 which makes it same as nThreads)",
+                          default=defaultOptions.nStreams,
                           dest='nStreams'
                           )
 expertSettings.add_option("--nConcurrentLumis",
-                          help="How many concurrent LuminosityBlocks should CMSSW use (default is 1)",
-                          default="1",
+                          help="How many concurrent LuminosityBlocks should CMSSW use if nThreads > 1 (default is 0 which means 1 for 1 stream and 2 for >= 2 streams)",
+                          default=defaultOptions.nConcurrentLumis,
                           dest='nConcurrentLumis'
+                          )
+expertSettings.add_option("--nConcurrentIOVs",
+                          help="How many concurrent IOVs should CMSSW use if nThreads > 1 (default is 1)",
+                          default=defaultOptions.nConcurrentIOVs,
+                          dest='nConcurrentIOVs'
                           )

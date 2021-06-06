@@ -7,11 +7,11 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObjectRcd.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class SiPixel2DTemplateDBObjectESProducerRcd
     : public edm::eventsetup::DependentRecordImplementation<
           SiPixel2DTemplateDBObjectESProducerRcd,
-          boost::mpl::vector<IdealMagneticFieldRecord, SiPixel2DTemplateDBObjectRcd> > {};
+          edm::mpl::Vector<IdealMagneticFieldRecord, SiPixel2DTemplateDBObjectRcd> > {};
 
 #endif

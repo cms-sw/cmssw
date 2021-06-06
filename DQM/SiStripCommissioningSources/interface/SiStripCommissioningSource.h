@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -14,6 +15,10 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -91,6 +96,7 @@ private:  // ---------- Private methods ----------
   DQMStore* dqm_;
 
   /** */
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
   SiStripFedCabling* fedCabling_;
 
   /** */
@@ -156,6 +162,9 @@ private:  // ---------- Private methods ----------
 
   /** parameters to pass to the tasks */
   edm::ParameterSet parameters_;
+
+  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
 };
 
 #endif  // DQM_SiStripCommissioningSources_SiStripCommissioningSource_H

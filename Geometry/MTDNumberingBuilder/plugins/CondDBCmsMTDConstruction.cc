@@ -3,7 +3,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
-#include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
+#include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDD.h"
 
 using namespace cms;
 

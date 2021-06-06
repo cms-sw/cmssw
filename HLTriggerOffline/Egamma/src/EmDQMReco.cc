@@ -1,4 +1,18 @@
-////////////////////////////////////////////////////////////////////////////
+#include <iostream>
+#include <string>
+#include <memory>
+
+#include <fmt/printf.h>
+
+////////////////////////////////////////////////////////////////////////////////
+//                           Root include files                               //
+////////////////////////////////////////////////////////////////////////////////
+#include <TDirectory.h>
+#include <TFile.h>
+#include <TH1F.h>
+#include <Math/VectorUtil.h>
+
+////////////////////////////////////////////////////////////////////////////////
 //                    Header file for this                                    //
 ////////////////////////////////////////////////////////////////////////////////
 #include "HLTriggerOffline/Egamma/interface/EmDQMReco.h"
@@ -6,40 +20,26 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                    Collaborating Class Header                              //
 ////////////////////////////////////////////////////////////////////////////////
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-//#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include <boost/format.hpp>
-////////////////////////////////////////////////////////////////////////////////
-//                           Root include files                               //
-////////////////////////////////////////////////////////////////////////////////
-#include "TDirectory.h"
-#include "TFile.h"
-#include "TH1F.h"
-#include <Math/VectorUtil.h>
-#include <iostream>
-#include <string>
 using namespace ROOT::Math::VectorUtil;
 
 //----------------------------------------------------------------------
@@ -55,20 +55,20 @@ EmDQMReco::FourVectorMonitorElements::FourVectorMonitorElements(EmDQMReco *_pare
   std::string histTitle;
 
   // et
-  histName = boost::str(boost::format(histogramNameTemplate) % "et");
-  histTitle = boost::str(boost::format(histogramTitleTemplate) % "E_{T}");
+  histName = fmt::sprintf(histogramNameTemplate, "et");
+  histTitle = fmt::sprintf(histogramTitleTemplate, "E_{T}");
   etMonitorElement =
       iBooker.book1D(histName.c_str(), histTitle.c_str(), parent->plotBins, parent->plotPtMin, parent->plotPtMax);
 
   // eta
-  histName = boost::str(boost::format(histogramNameTemplate) % "eta");
-  histTitle = boost::str(boost::format(histogramTitleTemplate) % "#eta");
+  histName = fmt::sprintf(histogramNameTemplate, "eta");
+  histTitle = fmt::sprintf(histogramTitleTemplate, "#eta");
   etaMonitorElement =
       iBooker.book1D(histName.c_str(), histTitle.c_str(), parent->plotBins, -parent->plotEtaMax, parent->plotEtaMax);
 
   // phi
-  histName = boost::str(boost::format(histogramNameTemplate) % "phi");
-  histTitle = boost::str(boost::format(histogramTitleTemplate) % "#phi");
+  histName = fmt::sprintf(histogramNameTemplate, "phi");
+  histTitle = fmt::sprintf(histogramTitleTemplate, "#phi");
   phiMonitorElement =
       iBooker.book1D(histName.c_str(), histTitle.c_str(), parent->plotBins, -parent->plotPhiMax, parent->plotPhiMax);
 }
@@ -258,27 +258,27 @@ void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun,
 
   // reco
   // (note that reset(..) must be used to set the value of the scoped_ptr...)
-  histReco.reset(new FourVectorMonitorElements(this,
-                                               iBooker,
-                                               "reco_%s",  // pattern for histogram name
-                                               "%s of " + pdgIdString + "s"));
+  histReco = std::make_unique<FourVectorMonitorElements>(this,
+                                                         iBooker,
+                                                         "reco_%s",  // pattern for histogram name
+                                                         "%s of " + pdgIdString + "s");
 
   //--------------------
 
   // monpath
-  histRecoMonpath.reset(new FourVectorMonitorElements(this,
-                                                      iBooker,
-                                                      "reco_%s_monpath",  // pattern for histogram name
-                                                      "%s of " + pdgIdString + "s monpath"));
+  histRecoMonpath = std::make_unique<FourVectorMonitorElements>(this,
+                                                                iBooker,
+                                                                "reco_%s_monpath",  // pattern for histogram name
+                                                                "%s of " + pdgIdString + "s monpath");
 
   //--------------------
 
   // TODO: WHAT ARE THESE HISTOGRAMS FOR ? THEY SEEM NEVER REFERENCED ANYWHERE
   // IN THIS FILE... final X monpath
-  histMonpath.reset(new FourVectorMonitorElements(this,
-                                                  iBooker,
-                                                  "final_%s_monpath",  // pattern for histogram name
-                                                  "Final %s Monpath"));
+  histMonpath = std::make_unique<FourVectorMonitorElements>(this,
+                                                            iBooker,
+                                                            "final_%s_monpath",  // pattern for histogram name
+                                                            "Final %s Monpath");
 
   //--------------------
 
@@ -322,7 +322,7 @@ void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun,
     //    iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
     //    phiHist.push_back(tmphisto);
 
-    standardHist.push_back(new FourVectorMonitorElements(
+    standardHist.push_back(std::make_unique<FourVectorMonitorElements>(
         this,
         iBooker,
         theHLTCollectionLabels[i].label() + "%s_all",  // histogram name
@@ -353,7 +353,7 @@ void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun,
     //    tmphisto =
     //    iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
     //    phiHistMatchReco.push_back(tmphisto);
-    histMatchReco.push_back(new FourVectorMonitorElements(
+    histMatchReco.push_back(std::make_unique<FourVectorMonitorElements>(
         this,
         iBooker,
         theHLTCollectionLabels[i].label() + "%s_RECO_matched",  // histogram name
@@ -387,7 +387,7 @@ void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun,
     //    iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
     //    phiHistMatchRecoMonPath.push_back(tmphisto);
 
-    histMatchRecoMonPath.push_back(new FourVectorMonitorElements(
+    histMatchRecoMonPath.push_back(std::make_unique<FourVectorMonitorElements>(
         this,
         iBooker,
         theHLTCollectionLabels[i].label() + "%s_RECO_matched_monpath",  // histogram name
@@ -419,7 +419,7 @@ void EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun,
     //    iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
     //    histPhiOfHltObjMatchToReco.push_back(tmphisto);
 
-    histHltObjMatchToReco.push_back(new FourVectorMonitorElements(
+    histHltObjMatchToReco.push_back(std::make_unique<FourVectorMonitorElements>(
         this,
         iBooker,
         theHLTCollectionLabels[i].label() + "%s_reco",  // histogram name
@@ -830,7 +830,7 @@ void HistoFillerReco<T>::fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &
   //  bool foundAllMatches = false;
   //  unsigned int numOfHLTobjectsMatched = 0;
   for (unsigned int i = 0; i < recoecalcands.size(); i++) {
-    dqm->standardHist[n].fill(recoecalcands[i]->p4());
+    dqm->standardHist[n]->fill(recoecalcands[i]->p4());
 
     ////////////////////////////////////////////////////////////
     //  Plot isolation variables (show the not-yet-cut        //
@@ -886,7 +886,7 @@ void HistoFillerReco<T>::fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &
         //        histPhiOfHltObjMatchToReco[n]->Fill(
         //        recoecalcands[closestRecoEcalCandIndex]->phi() );
 
-        dqm->histHltObjMatchToReco[n].fill(recoecalcands[closestRecoEcalCandIndex]->p4());
+        dqm->histHltObjMatchToReco[n]->fill(recoecalcands[closestRecoEcalCandIndex]->p4());
 
         // Also store isolation info
         if (n + 1 < dqm->numOfHLTCollectionLabels) {  // can't plot beyond last
@@ -945,13 +945,13 @@ void HistoFillerReco<T>::fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &
       //      ethistmatchreco[n] ->Fill( sortedReco[i].et()  );
       //      etahistmatchreco[n]->Fill( sortedReco[i].eta() );
       //      phiHistMatchReco[n]->Fill( sortedReco[i].phi() );
-      dqm->histMatchReco[n].fill(sortedReco[i].p4());
+      dqm->histMatchReco[n]->fill(sortedReco[i].p4());
 
       if (plotMonpath) {
         //        ethistmatchrecomonpath[n]->Fill( sortedReco[i].et() );
         //        etahistmatchrecomonpath[n]->Fill( sortedReco[i].eta() );
         //        phiHistMatchRecoMonPath[n]->Fill( sortedReco[i].phi() );
-        dqm->histMatchRecoMonPath[n].fill(sortedReco[i].p4());
+        dqm->histMatchRecoMonPath[n]->fill(sortedReco[i].p4());
       }
       ////////////////////////////////////////////////////////////
       //  Plot isolation variables (show the not-yet-cut        //

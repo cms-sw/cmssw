@@ -1,5 +1,6 @@
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -23,8 +24,7 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
 
     edm::service::SiteLocalConfigService slc(pset);
 
-    CHECK(slc.dataCatalog() == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
-    CHECK(slc.fallbackDataCatalog().empty());
+    CHECK(slc.dataCatalogs()[0] == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
     REQUIRE(slc.sourceCacheTempDir() != nullptr);
     CHECK(*slc.sourceCacheTempDir() == "/a/b/c");
     CHECK(slc.sourceCacheMinFree() == nullptr);
@@ -47,6 +47,9 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     CHECK(slc.statisticsInfo()->size() == 1);
     CHECK(slc.statisticsInfo()->find("dn") != slc.statisticsInfo()->end());
     CHECK(slc.siteName() == "DUMMY");
+    REQUIRE(slc.useLocalConnectString() == true);
+    REQUIRE(slc.localConnectPrefix() == "Test:Prefix");
+    REQUIRE(slc.localConnectSuffix() == "Test.Suffix");
   }
 
   SECTION("overrides") {
@@ -64,11 +67,13 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     pset.addUntrackedParameter<bool>("overridePrefetching", false);
     pset.addUntrackedParameter<std::string>("overrideStatisticsDestination", "");
     pset.addUntrackedParameter<std::vector<std::string> >("overrideStatisticsInfo", {{"nodn"}});
+    pset.addUntrackedParameter<bool>("overrideUseLocalConnectString", false);
+    pset.addUntrackedParameter<std::string>("overrideLocalConnectPrefix", "OverridePrefix");
+    pset.addUntrackedParameter<std::string>("overrideLocalConnectSuffix", "OverrideSuffix");
 
     edm::service::SiteLocalConfigService slc(pset);
 
-    CHECK(slc.dataCatalog() == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
-    CHECK(slc.fallbackDataCatalog().empty());
+    CHECK(slc.dataCatalogs()[0] == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
     REQUIRE(slc.sourceCacheTempDir() != nullptr);
     CHECK(*slc.sourceCacheTempDir() == "/a/d");
     REQUIRE(slc.sourceCacheMinFree() != nullptr);
@@ -92,5 +97,16 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     CHECK(slc.statisticsInfo()->size() == 1);
     CHECK(slc.statisticsInfo()->find("nodn") != slc.statisticsInfo()->end());
     CHECK(slc.siteName() == "DUMMY");
+    REQUIRE(slc.useLocalConnectString() == false);
+    REQUIRE(slc.localConnectPrefix() == "OverridePrefix");
+    REQUIRE(slc.localConnectSuffix() == "OverrideSuffix");
+  }
+
+  SECTION("throwtest-site-local-config.testfile") {
+    edm::ParameterSet pset;
+    pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl",
+                                            dirString + "/throwtest-site-local-config.testfile");
+
+    REQUIRE_THROWS_AS(edm::service::SiteLocalConfigService(pset), cms::Exception);
   }
 }

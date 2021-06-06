@@ -3,7 +3,8 @@
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
-PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
+PedestalTask::PedestalTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   //	tags
   _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
@@ -35,8 +36,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
       return;
   DQTask::bookHistograms(ib, r, es);
 
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
   std::vector<uint32_t> vhashVME;
   std::vector<uint32_t> vhashuTCA;
@@ -922,8 +922,9 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _xPedEntries1LS.reset();
 }
 
-/* virtual */ void PedestalTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::dqmBeginLuminosityBlock(lb, es);
+std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                         edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
 /* virtual */ void PedestalTask::dqmEndRun(edm::Run const& r, edm::EventSetup const&) {
@@ -936,12 +937,17 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
     return;
 }
 
-/* virtual */ void PedestalTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void PedestalTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  auto lumiCache = luminosityBlockCache(lb.index());
+  _currentLS = lumiCache->currentLS;
+  _xQuality.reset();
+  _xQuality = lumiCache->xQuality;
+
   if (_ptype == fLocal)
     return;
   this->_dump();
 
-  DQTask::dqmEndLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 /* virtual */ void PedestalTask::_process(edm::Event const& e, edm::EventSetup const& es) {
@@ -955,6 +961,9 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _logger.dqmthrow("Collection QIE10DigiCollection isn't available" + _tagQIE10.label() + " " + _tagQIE10.instance());
   if (!e.getByToken(_tokQIE11, c_QIE11))
     _logger.dqmthrow("Collection QIE11DigiCollection isn't available" + _tagQIE11.label() + " " + _tagQIE11.instance());
+
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
 
   int nHB(0), nHE(0), nHO(0), nHF(0);
   for (QIE11DigiCollection::const_iterator it = c_QIE11->begin(); it != c_QIE11->end(); ++it) {

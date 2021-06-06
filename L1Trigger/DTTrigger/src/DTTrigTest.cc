@@ -58,6 +58,7 @@ DTTrigTest::DTTrigTest(const ParameterSet& pset) : my_trig(nullptr) {
   my_params = pset;
   if (my_debug)
     cout << "[DTTrigTest] Constructor executed!!!" << endl;
+  my_trig = new DTTrig(my_params, consumesCollector());
 }
 
 DTTrigTest::~DTTrigTest() {
@@ -194,7 +195,6 @@ void DTTrigTest::beginJob() {
 
 void DTTrigTest::beginRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup) {
   if (!my_trig) {
-    my_trig = new DTTrig(my_params, consumesCollector());
     my_trig->createTUs(iEventSetup);
     if (my_debug)
       cout << "[DTTrigTest] TU's Created" << endl;

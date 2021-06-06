@@ -33,6 +33,7 @@
 //#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -71,6 +72,8 @@ private:
   edm::EDGetTokenT<SiPixelClusterCollectionNew> tPixelClusters;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
   edm::EDPutTokenT<SiPixelClusterCollectionNew> tPutPixelClusters;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   // TO DO: maybe allow a map of pointers?
   std::unique_ptr<SiPixelGainCalibrationServiceBase> theSiPixelGainCalibration_;
   const std::string clusterMode_;                      // user's choice of the clusterizer

@@ -1,40 +1,44 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 
-const int CSCPatternBank::alct_pattern_envelope[CSCConstants::MAX_WIRES_IN_PATTERN] = {
-    0, 0, 0, 1, 1, 2, 3, 3, 4, 4, 4, 5, 5, 5};
-
-const int CSCPatternBank::alct_keywire_offset[2][CSCConstants::MAX_WIRES_IN_PATTERN] = {
+const int CSCPatternBank::alct_keywire_offset_[2][CSCConstants::ALCT_PATTERN_WIDTH] = {
     //Keywire offset for ME1 and ME2
-    {-2, -1, 0, -1, 0, 0, 0, 1, 0, 1, 2, 0, 1, 2},
+    {-2, -1, 0, 1, 2},
 
     //Keywire offset for ME3 and ME4
-    {2, 1, 0, 1, 0, 0, 0, -1, 0, -1, -2, 0, -1, -2}};
+    {2, 1, 0, -1, -2}};
 
-const int CSCPatternBank::alct_pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
+const CSCPatternBank::LCTPatterns CSCPatternBank::alct_pattern_legacy_ = {
     // Accelerator pattern
     // For beam-halo muons or displaced muons from long-lived particles
-    {0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0},
+    {{0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}},
 
     // Collision pattern A
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {{1, 1, 1, 0, 0}, {0, 1, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 1, 0}, {0, 0, 1, 1, 1}, {0, 0, 1, 1, 1}},
 
     // Collision pattern B
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+    {{1, 1, 1, 0, 0}, {0, 1, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 1, 0}, {0, 0, 1, 1, 1}, {0, 0, 1, 1, 1}}};
 
-const int CSCPatternBank::alct_pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
+const CSCPatternBank::LCTPatterns CSCPatternBank::alct_pattern_r1_ = {
     // Accelerator pattern
-    {0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0},
+    {{0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}},
 
     // Collision pattern A
-    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0},
+    {{0, 1, 1, 0, 0}, {0, 1, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 1, 0}, {0, 0, 1, 1, 0}},
 
     // Collision pattern B
-    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0}};
+    {{0, 1, 1, 0, 0}, {0, 1, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 1, 0}, {0, 0, 1, 1, 0}}};
+
+double CSCPatternBank::getLegacyPosition(int pattern) {
+  double PositionList[CSCConstants::NUM_CLCT_PATTERNS] = {
+      0.0, 0.0, -0.60, 0.60, -0.64, 0.64, -0.23, 0.23, -0.21, 0.21, 0.0};  // offset in the strip number for each pattern
+
+  return PositionList[pattern];
+}
 
 const int CSCPatternBank::clct_pattern_offset_[CSCConstants::CLCT_PATTERN_WIDTH] = {
     -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5};
 
-const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
+const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
     // pid=0: no pattern found
     {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -51,16 +55,17 @@ const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 11},
     },
-    // pid=2: right-bending (large)
+    // pid=2: left-bending (large)
     {
-        {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-        {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0},
-        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-        {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
-        {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
-        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11},
+        //      0  1  2  3  4  5  6  7  8  9  A
+        /*L1*/ {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+        /*L2*/ {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0},
+        /*L3*/ {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+        /*L4*/ {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
+        /*L5*/ {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+        /*L6*/ {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11},
     },
-    // pid=3: left-bending (large)
+    // pid=3: right-bending (large)
     {
         {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
@@ -69,7 +74,7 @@ const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 11},
     },
-    // pid=4: right-bending (medium)
+    // pid=4: left-bending (medium)
     {
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0},
         {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0},
@@ -78,7 +83,7 @@ const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
         {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 9},
     },
-    // pid=5: left-bending (medium)
+    // pid=5: right-bending (medium)
     {
         {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
@@ -87,7 +92,7 @@ const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0},
         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 9},
     },
-    // pid=6: right-bending (medium)
+    // pid=6: left-bending (medium)
     {
         {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0},
         {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
@@ -96,7 +101,7 @@ const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
         {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 7},
     },
-    // pid=7: left-bending (medium)
+    // pid=7: right-bending (medium)
     {
         {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0},
@@ -105,7 +110,7 @@ const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 7},
     },
-    // pid=8: right-bending (small)
+    // pid=8: left-bending (small)
     {
         {0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0},
         {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
@@ -114,7 +119,7 @@ const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
         {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
         {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 5},
     },
-    // pid=9: left-bending (small)
+    // pid=9: right-bending (small)
     {
         {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0},
@@ -133,7 +138,7 @@ const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_legacy_ = {
     // pid's=B-F are not yet defined
 };
 
-const CSCPatternBank::CLCTPatterns CSCPatternBank::clct_pattern_run3_ = {
+const CSCPatternBank::LCTPatterns CSCPatternBank::clct_pattern_run3_ = {
     // pid 0
     {
         {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},

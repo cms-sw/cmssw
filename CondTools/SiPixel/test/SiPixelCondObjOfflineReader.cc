@@ -5,18 +5,20 @@
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 namespace cms {
-  SiPixelCondObjOfflineReader::SiPixelCondObjOfflineReader(const edm::ParameterSet& conf) : conf_(conf) {
+  SiPixelCondObjOfflineReader::SiPixelCondObjOfflineReader(const edm::ParameterSet& conf)
+      : conf_(conf), tkGeomToken_(esConsumes()) {
     if (conf_.getParameter<bool>("useSimRcd"))
-      SiPixelGainCalibrationService_ = new SiPixelGainCalibrationOfflineSimService(conf_);
+      SiPixelGainCalibrationService_ =
+          std::make_unique<SiPixelGainCalibrationOfflineSimService>(conf_, consumesCollector());
     else
-      SiPixelGainCalibrationService_ = new SiPixelGainCalibrationOfflineService(conf_);
+      SiPixelGainCalibrationService_ =
+          std::make_unique<SiPixelGainCalibrationOfflineService>(conf_, consumesCollector());
   }
 
   void SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -37,7 +39,7 @@ namespace cms {
         << "[SiPixelCondObjOfflineReader::beginJob] End Reading CondObjOfflineects" << std::endl;
 
     // Get the Geometry
-    iSetup.get<TrackerDigiGeometryRecord>().get(tkgeom);
+    const TrackerGeometry* tkgeom = &iSetup.getData(tkGeomToken_);
     edm::LogInfo("SiPixelCondObjOfflineReader") << " There are " << tkgeom->dets().size() << " detectors" << std::endl;
 
     // Get the list of DetId's
@@ -91,7 +93,7 @@ namespace cms {
       DetId detIdObject(detid);
       const PixelGeomDetUnit* _PixelGeomDetUnit =
           dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
-      if (_PixelGeomDetUnit == 0) {
+      if (_PixelGeomDetUnit == nullptr) {
         edm::LogError("SiPixelCondObjOfflineDisplay") << "[SiPixelCondObjOfflineReader::beginJob] the detID " << detid
                                                       << " doesn't seem to belong to Tracker" << std::endl;
         continue;
@@ -198,9 +200,6 @@ namespace cms {
     std::cout << "         in FPIX " << _TH1F_Pedestals_fpix->GetMean() << " with rms "
               << _TH1F_Pedestals_fpix->GetRMS() << std::endl;
   }
-
-  // ------------ method called once each job just before starting event loop  ------------
-  void SiPixelCondObjOfflineReader::beginJob() {}
 
   // ------------ method called once each job just after ending the event loop  ------------
   void SiPixelCondObjOfflineReader::endJob() { std::cout << " ---> End job " << std::endl; }

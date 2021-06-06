@@ -2,7 +2,7 @@
 #define __RecoEgamma_ElectronIdentification_ElectronMVAEstimator_H__
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 
 #include <memory>
 #include <string>

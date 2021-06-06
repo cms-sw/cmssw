@@ -9,6 +9,7 @@
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 #include <string>
 #include <vector>
@@ -18,8 +19,7 @@
 class DDHGCalWafer8 : public DDAlgorithm {
 public:
   // Constructor and Destructor
-  DDHGCalWafer8();
-  ~DDHGCalWafer8() override;
+  DDHGCalWafer8() {}
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -32,21 +32,12 @@ private:
   double waferSize_;                    // Wafer size
   double waferT_;                       // Wafer thickness
   double waferSepar_;                   // Sensor separation
-  double mouseBite_;                    // MouseBite radius
   int nCells_;                          // Half number of cells along u-v axis
   int cellType_;                        // Cell Type (0,1,2: Fine, Course 2/3)
   std::string material_;                // Material name for module with gap
   std::vector<std::string> cellNames_;  // Name of the cells
   std::string nameSpace_;               // Namespace to be used
 };
-
-DDHGCalWafer8::DDHGCalWafer8() {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Creating an instance";
-#endif
-}
-
-DDHGCalWafer8::~DDHGCalWafer8() {}
 
 void DDHGCalWafer8::initialize(const DDNumericArguments& nArgs,
                                const DDVectorArguments&,
@@ -56,7 +47,6 @@ void DDHGCalWafer8::initialize(const DDNumericArguments& nArgs,
   waferSize_ = nArgs["WaferSize"];
   waferT_ = nArgs["WaferThick"];
   waferSepar_ = nArgs["SensorSeparation"];
-  mouseBite_ = nArgs["MouseBite"];
   nCells_ = (int)(nArgs["NCells"]);
   cellType_ = (int)(nArgs["CellType"]);
   material_ = sArgs["Material"];
@@ -64,20 +54,15 @@ void DDHGCalWafer8::initialize(const DDNumericArguments& nArgs,
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Wafer 2r " << waferSize_ << " T " << waferT_ << " Half Separation "
-                                << waferSepar_ << " Mouse bite radius " << mouseBite_ << " Cells/Wafer " << nCells_
-                                << " Cell Type " << cellType_ << " Material " << material_ << " Names "
-                                << parent().name() << " NameSpace " << nameSpace_ << " # of cells "
-                                << cellNames_.size();
+                                << waferSepar_ << " Cells/Wafer " << nCells_ << " Cell Type " << cellType_
+                                << " Material " << material_ << " Names " << parent().name() << " NameSpace "
+                                << nameSpace_ << ": # of cells " << cellNames_.size();
   for (unsigned int k = 0; k < cellNames_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Cell[" << k << "] " << cellNames_[k];
 #endif
 }
 
 void DDHGCalWafer8::execute(DDCompactView& cpv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalWafer8...";
-#endif
-
   static const double sqrt3 = std::sqrt(3.0);
   double rM = 0.5 * (waferSize_ + waferSepar_);
   double RM2 = rM / sqrt3;
@@ -101,12 +86,16 @@ void DDHGCalWafer8::execute(DDCompactView& cpv) {
                                 << " and " << xM.size() << " edges";
   for (unsigned int k = 0; k < xM.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << xM[k] << ":" << yM[k];
+  int counter(0);
 #endif
 
   DDRotation rot;
   for (int u = 0; u < 2 * nCells_; ++u) {
     for (int v = 0; v < 2 * nCells_; ++v) {
       if (((v - u) < nCells_) && (u - v) <= nCells_) {
+#ifdef EDM_ML_DEBUG
+        counter++;
+#endif
         int n2 = nCells_ / 2;
         double yp = (u - 0.5 * v - n2) * 2 * r;
         double xp = (1.5 * (v - nCells_) + 1.0) * R;
@@ -136,15 +125,18 @@ void DDHGCalWafer8::execute(DDCompactView& cpv) {
         else if (v == 0)
           cell = 6;
         DDTranslation tran(xp, yp, 0);
-        int copy = (cellType_ * 100 + v) * 100 + u;
+        int copy = HGCalTypes::packCellTypeUV(cellType_, u, v);
         cpv.position(DDName(cellNames_[cell]), glog, copy, tran, rot);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: " << cellNames_[cell] << " number " << copy << " position in "
-                                      << glog.name() << " at " << tran << " with " << rot;
+                                      << glog.name() << " at " << tran << " with no rotation";
 #endif
       }
     }
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "\nDDHGCalWafer8::Counter : " << counter << "\n===============================\n";
+#endif
 }
 
 DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHGCalWafer8, "hgcal:DDHGCalWafer8");

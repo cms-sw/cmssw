@@ -21,7 +21,7 @@
 #include <stdlib.h>  // for setenv; <cstdlib> is likely to fail
 #include <string>
 #include <unistd.h>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 class testmakepset : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testmakepset);
@@ -240,7 +240,7 @@ void testmakepset::fileinpathAux() {
       std::string const src("/src");
       std::string local = localBase + src;
       std::string localFile = local + "/Geometry/TrackerSimData/data/trackersens.xml";
-      if (!boost::filesystem::exists(localFile))
+      if (!std::filesystem::exists(localFile))
         CPPUNIT_ASSERT(topo.location() != edm::FileInPath::Local);
       else
         std::cerr << "Disabling test against local path for trackersens.xml as package is checked out in this test"

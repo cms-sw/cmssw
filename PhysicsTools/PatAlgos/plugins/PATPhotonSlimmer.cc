@@ -48,6 +48,7 @@ namespace pat {
         reducedEndcapRecHitCollectionToken_;
     const bool modifyPhoton_;
     std::unique_ptr<pat::ObjectModifier<pat::Photon>> photonModifier_;
+    const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
   };
 
 }  // namespace pat
@@ -72,7 +73,8 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet& iConfig)
           consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
       reducedEndcapRecHitCollectionToken_(
           consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection"))),
-      modifyPhoton_(iConfig.getParameter<bool>("modifyPhotons")) {
+      modifyPhoton_(iConfig.getParameter<bool>("modifyPhotons")),
+      ecalClusterToolsESGetTokens_{consumesCollector()} {
   if (modifyPhoton_) {
     const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
     photonModifier_ = std::make_unique<pat::ObjectModifier<pat::Photon>>(mod_config, consumesCollector());
@@ -101,8 +103,10 @@ void pat::PATPhotonSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& i
     iEvent.getByToken(pf2pc_, pf2pc);
     iEvent.getByToken(pc_, pc);
   }
-  noZS::EcalClusterLazyTools lazyToolsNoZS(
-      iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
+  noZS::EcalClusterLazyTools lazyToolsNoZS(iEvent,
+                                           ecalClusterToolsESGetTokens_.get(iSetup),
+                                           reducedBarrelRecHitCollectionToken_,
+                                           reducedEndcapRecHitCollectionToken_);
 
   auto out = std::make_unique<std::vector<pat::Photon>>();
   out->reserve(src->size());
@@ -192,7 +196,7 @@ void pat::PATPhotonSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& i
       }
     }
     if (saveNonZSClusterShapes_(photon)) {
-      std::vector<float> vCov = lazyToolsNoZS.localCovariances(*(photon.superCluster()->seed()));
+      const auto& vCov = lazyToolsNoZS.localCovariances(*(photon.superCluster()->seed()));
       float r9 = lazyToolsNoZS.e3x3(*(photon.superCluster()->seed())) / photon.superCluster()->rawEnergy();
       float sigmaIetaIeta = (!edm::isNotFinite(vCov[0])) ? sqrt(vCov[0]) : 0;
       float sigmaIetaIphi = vCov[1];

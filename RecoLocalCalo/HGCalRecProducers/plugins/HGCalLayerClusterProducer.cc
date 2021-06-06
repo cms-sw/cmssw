@@ -87,10 +87,11 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
 
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
   if (detector == "HFNose") {
-    algo = HGCalLayerClusterAlgoFactory::get()->create("HFNoseCLUE", pluginPSet);
+    algo = HGCalLayerClusterAlgoFactory::get()->create("HFNoseCLUE", pluginPSet, consumesCollector());
     algo->setAlgoId(algoId, true);
   } else {
-    algo = HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet);
+    algo = HGCalLayerClusterAlgoFactory::get()->create(
+        pluginPSet.getParameter<std::string>("type"), pluginPSet, consumesCollector());
     algo->setAlgoId(algoId);
   }
 
@@ -132,8 +133,6 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>),
       clusters_sharing(new std::vector<reco::BasicCluster>);
   auto density = std::make_unique<Density>();
-
-  algo->reset();
 
   algo->getEventSetup(es);
 
@@ -246,6 +245,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
       clusterPtrsSharing.push_back(ptr);
     }
   }
+  algo->reset();
 }
 
-#endif
+#endif  //__RecoLocalCalo_HGCRecProducers_HGCalLayerClusterProducer_H__

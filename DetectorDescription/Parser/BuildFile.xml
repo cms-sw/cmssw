@@ -1,12 +1,11 @@
-<use   name="DetectorDescription/Core"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/Utilities"/>
-<use   name="Utilities/Xerces"/>
-<use   name="boost"/>
-<use   name="clhepheader"/>
-<use   name="rootmath"/>
-<use   name="xerces-c"/>
+<use name="DetectorDescription/Core"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="Utilities/Xerces"/>
+<use name="boost"/>
+<use name="clhepheader"/>
+<use name="rootmath"/>
+<use name="xerces-c"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

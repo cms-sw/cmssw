@@ -11,7 +11,8 @@ public:
   CastorGainWidthsPopConAnalyzer(const edm::ParameterSet& pset)
       : popcon::PopConAnalyzer<CastorGainWidthsHandler>(pset),
         m_populator(pset),
-        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        m_tok(esConsumes<CastorGainWidths, CastorGainWidthsRcd>()) {}
 
 private:
   void endJob() override {
@@ -22,9 +23,7 @@ private:
   void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
-    edm::ESHandle<CastorGainWidths> objecthandle;
-    esetup.get<CastorGainWidthsRcd>().get(objecthandle);
-    myDBObject = new CastorGainWidths(*objecthandle.product());
+    myDBObject = new CastorGainWidths(esetup.getData(m_tok));
   }
 
   void write() { m_populator.write(m_source); }
@@ -32,6 +31,7 @@ private:
 private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
+  edm::ESGetToken<CastorGainWidths, CastorGainWidthsRcd> m_tok;
 
   CastorGainWidths* myDBObject;
 };

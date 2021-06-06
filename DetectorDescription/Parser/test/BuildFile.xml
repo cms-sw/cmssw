@@ -1,13 +1,12 @@
 <bin file="TestIntegration.cpp" name="DetectorDescriptionParserTE">
-   <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/Parser/test run_testDoc.sh" />
-   <use name="FWCore/Utilities"/>
+  <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/Parser/test run_testDoc.sh"/>
+  <use name="FWCore/Utilities"/>
 </bin>
 
 <bin name="testmat" file="testmat.cpp">
- <use name="DetectorDescription/Parser"/>
- <use name="FWCore/MessageLogger"/>
- <use name="FWCore/ParameterSetReader"/>
- <use name="FWCore/PluginManager"/>
- <use name="FWCore/ServiceRegistry"/>
- <use name="FWCore/Utilities"/>
+  <use name="DetectorDescription/Parser"/>
+  <use name="FWCore/ParameterSetReader"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
 </bin>

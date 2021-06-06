@@ -1,21 +1,17 @@
 #ifndef L1Trigger_TrackerDTC_Stub_h
 #define L1Trigger_TrackerDTC_Stub_h
 
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
+#include "L1Trigger/TrackerDTC/interface/Setup.h"
 
 #include <utility>
 #include <vector>
 
 namespace trackerDTC {
 
-  class Settings;
-  class Module;
-
   // representation of a stub
   class Stub {
   public:
-    Stub(Settings* settings, Module* module, const TTStubRef& ttStubRef);
+    Stub(const edm::ParameterSet&, const Setup&, SensorModule*, const TTStubRef&);
     ~Stub() {}
 
     // underlying TTStubRef
@@ -24,10 +20,6 @@ namespace trackerDTC {
     bool valid() const { return valid_; }
     // stub bend in quarter pitch units
     int bend() const { return bend_; }
-    // outer tracker dtc routing block id [0-1]
-    int blockId() const;
-    // outer tracker dtc routing block channel id [0-35]
-    int channelId() const;
     // bit accurate representation of Stub
     TTDTC::BV frame(int region) const;
     // checks stubs region assignment
@@ -42,11 +34,13 @@ namespace trackerDTC {
     TTDTC::BV formatTMTT(int region) const;
 
     // stores, calculates and provides run-time constants
-    Settings* settings_;
+    const Setup* setup_;
+    // representation of an outer tracker sensormodule
+    SensorModule* sm_;
     // underlying TTStubRef
     TTStubRef ttStubRef_;
-    // representation of an outer tracker sensormodule
-    Module* module_;
+    // chosen TT algorithm
+    bool hybrid_;
     // passes pt and eta cut
     bool valid_;
     // column number in pitch units

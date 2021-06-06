@@ -1,8 +1,35 @@
-#include "DPGAnalysis/Skims/interface/DetStatus.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/OnlineMetaData/interface/DCSRecord.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+
+class DetStatus : public edm::stream::EDFilter<> {
+public:
+  DetStatus(const edm::ParameterSet&);
+  ~DetStatus() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+
+  bool verbose_;
+  bool applyfilter_;
+  bool AndOr_;
+  std::vector<std::string> DetNames_;
+  std::bitset<DcsStatus::nPartitions> requestedPartitions_;
+  unsigned int DetMap_;
+  edm::EDGetTokenT<DcsStatusCollection> scalersToken_;
+  edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
+
+  bool checkForDCSStatus(const DcsStatusCollection& dcsStatus);
+  bool checkForDCSRecord(const DCSRecord& dcsRecod);
+};
 
 using namespace std;
 
@@ -13,7 +40,7 @@ DetStatus::DetStatus(const edm::ParameterSet& pset) {
   verbose_ = pset.getUntrackedParameter<bool>("DebugOn", false);
   AndOr_ = pset.getParameter<bool>("AndOr");
   applyfilter_ = pset.getParameter<bool>("ApplyFilter");
-  DetNames_ = pset.getParameter<std::vector<std::string> >("DetectorType");
+  DetNames_ = pset.getParameter<std::vector<std::string>>("DetectorType");
 
   // build a map
   DetMap_ = 0;
@@ -148,6 +175,16 @@ bool DetStatus::filter(edm::Event& evt, edm::EventSetup const& es)
   }
 
   return accepted;
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void DetStatus::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("DebugOn", false);
+  desc.add<bool>("AndOr", true);
+  desc.add<bool>("ApplyFilter", true);
+  desc.add<std::vector<std::string>>("DetectorType", {});
+  descriptions.add("detStatus", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

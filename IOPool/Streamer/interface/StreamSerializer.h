@@ -16,6 +16,7 @@
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 // Data structure to be shared by all output modules for event serialization
@@ -75,6 +76,11 @@ namespace edm {
     int serializeRegistry(SerializeDataBuffer &data_buffer,
                           const BranchIDLists &branchIDLists,
                           ThinnedAssociationsHelper const &thinnedAssociationsHelper);
+
+    int serializeRegistry(SerializeDataBuffer &data_buffer,
+                          const BranchIDLists &branchIDLists,
+                          ThinnedAssociationsHelper const &thinnedAssociationsHelper,
+                          SendJobHeader::ParameterSetMap const &psetMap);
 
     int serializeEvent(SerializeDataBuffer &data_buffer,
                        EventForOutput const &event,

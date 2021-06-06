@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerRunOneDigiBase.h"
 
@@ -16,6 +17,8 @@
 
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
 namespace edm {
   class Event;
@@ -43,5 +46,7 @@ private:
 
   edm::ESHandle<EcalGainRatios> pRatio;
   edm::ESHandle<EcalPedestals> pedHandle;
+  edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> ratiosToken_;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedestalsToken_;
 };
 #endif

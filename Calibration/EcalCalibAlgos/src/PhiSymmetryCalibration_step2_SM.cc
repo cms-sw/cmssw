@@ -13,8 +13,8 @@
 #include "TH1F.h"
 #include "TFile.h"
 
+#include <filesystem>
 #include <fstream>
-#include "boost/filesystem/operations.hpp"
 
 using namespace std;
 
@@ -63,7 +63,7 @@ void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se) {
   /// if a miscalibration was applied, load it, if not put it to 1
   if (have_initial_miscalib_) {
     EcalCondHeader h;
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
     fs::path p(initialmiscalibfile_.c_str());
     if (!fs::exists(p))
       edm::LogError("PhiSym") << "File not found: " << initialmiscalibfile_ << endl;
@@ -85,7 +85,7 @@ void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se) {
   // if not put them to one
   if (reiteration_) {
     EcalCondHeader h;
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
     fs::path p(oldcalibfile_.c_str());
     if (!fs::exists(p))
       edm::LogError("PhiSym") << "File not found: " << oldcalibfile_ << endl;

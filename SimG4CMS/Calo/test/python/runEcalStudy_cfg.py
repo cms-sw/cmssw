@@ -15,8 +15,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_mc']
 
-#if 'MessageLogger' in process.__dict__:
-#    process.MessageLogger.categories.append('HitStudy')
+#
+#    
 
 
 process.load("IOMC.RandomEngine.IOMC_cff")

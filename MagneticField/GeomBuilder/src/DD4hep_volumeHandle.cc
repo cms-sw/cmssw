@@ -14,9 +14,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DetectorDescription/DDCMS/interface/DDShapes.h"
-
-#include "MagneticField/Layers/interface/MagVerbosity.h"
+#include <DD4hep/DD4hepUnits.h>
 
 #include <string>
 #include <iterator>
@@ -26,12 +24,20 @@ using namespace std;
 using namespace magneticfield;
 using namespace edm;
 
+using DDBox = dd4hep::Box;
+using DDTrap = dd4hep::Trap;
+using DDTubs = dd4hep::Tube;
+using DDCons = dd4hep::ConeSegment;
+using DDTruncTubs = dd4hep::TruncatedTube;
+
 volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool debugVal)
-    : BaseVolumeHandle(expand2Pi, debugVal), theShape(fv.legacyShape(cms::dd::getCurrentShape(fv))), solid(fv) {
+    : BaseVolumeHandle(expand2Pi, debugVal), theShape(fv.legacyShape(fv.shape())), solid(fv) {
   name = fv.name();
   copyno = fv.copyNum();
   const auto *const transArray = fv.trans();
-  center_ = GlobalPoint(transArray[0], transArray[1], transArray[2]);
+
+  // Convert from DD4hep units to cm
+  center_ = GlobalPoint(transArray[0] / dd4hep::cm, transArray[1] / dd4hep::cm, transArray[2] / dd4hep::cm);
 
   // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
   string volName = name;
@@ -43,46 +49,114 @@ volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool d
   }
   referencePlane(fv);
   switch (theShape) {
-    case DDSolidShape::ddbox:
-      buildBox();
-      break;
-    case DDSolidShape::ddtrap:
-      buildTrap();
-      break;
-    case DDSolidShape::ddcons:
-      buildCons();
-      break;
-    case DDSolidShape::ddtubs:
-      buildTubs();
-      break;
-    case DDSolidShape::ddtrunctubs:
-      buildTruncTubs();
-      break;
+    case DDSolidShape::ddbox: {
+      DDBox box(solid.solid());
+      // Convert from DD4hep units to cm
+      double halfX = box.x() / dd4hep::cm;
+      double halfY = box.y() / dd4hep::cm;
+      double halfZ = box.z() / dd4hep::cm;
+      buildBox(halfX, halfY, halfZ);
+    } break;
+    case DDSolidShape::ddtrap: {
+      DDTrap trap(solid.solid());
+      double x1 = trap.bottomLow1() / dd4hep::cm;
+      double x2 = trap.topLow1() / dd4hep::cm;
+      double x3 = trap.bottomLow2() / dd4hep::cm;
+      double x4 = trap.topLow2() / dd4hep::cm;
+      double y1 = trap.high1() / dd4hep::cm;
+      double y2 = trap.high2() / dd4hep::cm;
+      double theta = trap.theta();
+      double phi = trap.phi();
+      double halfZ = trap.dZ() / dd4hep::cm;
+      double alpha1 = trap.alpha1();
+      double alpha2 = trap.alpha2();
+      buildTrap(x1, x2, x3, x4, y1, y2, theta, phi, halfZ, alpha1, alpha2);
+    } break;
+
+    case DDSolidShape::ddcons: {
+      DDCons cons(solid.solid());
+      double zhalf = cons.dZ() / dd4hep::cm;
+      double rInMinusZ = cons.rMin1() / dd4hep::cm;
+      double rOutMinusZ = cons.rMax1() / dd4hep::cm;
+      double rInPlusZ = cons.rMin2() / dd4hep::cm;
+      double rOutPlusZ = cons.rMax2() / dd4hep::cm;
+      double startPhi = cons.startPhi();
+      double deltaPhi = reco::deltaPhi(cons.endPhi(), startPhi);
+      buildCons(zhalf, rInMinusZ, rOutMinusZ, rInPlusZ, rOutPlusZ, startPhi, deltaPhi);
+    } break;
+    case DDSolidShape::ddtubs: {
+      DDTubs tubs(solid.solid());
+      double zhalf = tubs.dZ() / dd4hep::cm;
+      double rIn = tubs.rMin() / dd4hep::cm;
+      double rOut = tubs.rMax() / dd4hep::cm;
+      double startPhi = tubs.startPhi();
+      double deltaPhi = tubs.endPhi() - startPhi;
+      buildTubs(zhalf, rIn, rOut, startPhi, deltaPhi);
+    } break;
+    case DDSolidShape::ddpseudotrap: {
+      vector<double> d = solid.parameters();
+
+      // The pseudo-trapezoid parameters are:
+      // d[0] -- x1
+      // d[1] -- x2
+      // d[2] -- y1
+      // d[3] -- y2
+      // d[4] -- halfZ
+      // d[5] -- radius
+      // d[6] -- atMinusZ (0 or 1)
+      // Note all are lengths except for the last one. The lengths come from
+      // DD4hep in DD4hep units and must be converted to cm for use.
+
+      if (d.size() >= 7)
+        LogTrace("MagGeoBuilder") << " Pseudo trap params raw =  " << d[0] << ", " << d[1] << ", " << d[2] << ", "
+                                  << d[3] << ", " << d[4] << ", " << d[5] << ", " << d[6];
+
+      // Convert all but last parameter to cm (last one is a boolean).
+      transform(d.begin(), --(d.end()), d.begin(), [](double val) { return val / dd4hep::cm; });
+
+      if (d.size() >= 7)
+        LogTrace("MagGeoBuilder") << " Pseudo trap params converted =  " << d[0] << ", " << d[1] << ", " << d[2] << ", "
+                                  << d[3] << ", " << d[4] << ", " << d[5] << ", " << d[6];
+
+      buildPseudoTrap(d[0], d[1], d[2], d[3], d[4], d[5], static_cast<bool>(d[6]));
+    } break;
+    case DDSolidShape::ddtrunctubs: {
+      DDTruncTubs tubs(solid.solid());
+      double zhalf = tubs.dZ() / dd4hep::cm;               // half of the z-Axis
+      double rIn = tubs.rMin() / dd4hep::cm;               // inner radius
+      double rOut = tubs.rMax() / dd4hep::cm;              // outer radius
+      double startPhi = tubs.startPhi();                   // angular start of the tube-section
+      double deltaPhi = tubs.deltaPhi();                   // angular span of the tube-section
+      double cutAtStart = tubs.cutAtStart() / dd4hep::cm;  // truncation at begin of the tube-section
+      double cutAtDelta = tubs.cutAtDelta() / dd4hep::cm;  // truncation at end of the tube-section
+      bool cutInside = tubs.cutInside();  // true, if truncation is on the inner side of the tube-section
+      buildTruncTubs(zhalf, rIn, rOut, startPhi, deltaPhi, cutAtStart, cutAtDelta, cutInside);
+    } break;
     default:
       LogError("magneticfield::volumeHandle")
           << "ctor: Unexpected shape # " << static_cast<int>(theShape) << " for vol " << name;
   }
 
-  // Get material for this volume
-  if (fv.materialName() == "Iron")
+  // The only materials used in the geometry are: materials:Air, d=0.001214; materials:Iron, d=7.87
+  if (fv.volume().material().density() > 3.)
     isIronFlag = true;
 
   if (debug) {
-    LogTrace("magneticfield::volumeHandle") << " RMin =  " << theRMin << newln << " RMax =  " << theRMax;
+    LogTrace("MagGeoBuilder") << " RMin =  " << theRMin << newln << " RMax =  " << theRMax;
 
     if (theRMin < 0 || theRN < theRMin || theRMax < theRN)
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: wrong RMin/RN/RMax";
+      LogTrace("MagGeoBuilder") << "*** WARNING: wrong RMin/RN/RMax";
 
-    LogTrace("magneticfield::volumeHandle")
-        << "Summary: " << name << " " << copyno << " shape = " << theShape << " trasl " << center() << " R "
-        << center().perp() << " phi " << center().phi() << " magFile " << magFile << " Material= " << fv.materialName()
-        << " isIron= " << isIronFlag << " masterSector= " << masterSector;
+    LogTrace("MagGeoBuilder") << "Summary: " << name << " " << copyno << " shape = " << theShape << " trasl "
+                              << center() << " R " << center().perp() << " phi " << center().phi() << " magFile "
+                              << magFile << " Material= " << fv.materialName() << " isIron= " << isIronFlag
+                              << " masterSector= " << masterSector;
 
-    LogTrace("magneticfield::volumeHandle") << " Orientation of surfaces:";
+    LogTrace("MagGeoBuilder") << " Orientation of surfaces:";
     std::string sideName[3] = {"positiveSide", "negativeSide", "onSurface"};
     for (int i = 0; i < 6; ++i) {
       if (surfaces[i] != nullptr)
-        LogTrace("magneticfield::volumeHandle") << "  " << i << ":" << sideName[surfaces[i]->side(center_, 0.3)];
+        LogTrace("MagGeoBuilder") << "  " << i << ":" << sideName[surfaces[i]->side(center_, 0.3)];
     }
   }
 }
@@ -126,7 +200,7 @@ void volumeHandle::referencePlane(const cms::DDFilteredView &fv) {
   refRot.GetComponents(x, y, z);
   if (debug) {
     if (x.Cross(y).Dot(z) < 0.5) {
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: Rotation is not RH ";
+      LogTrace("MagGeoBuilder") << "*** WARNING: Rotation is not RH ";
     }
   }
 
@@ -145,22 +219,21 @@ void volumeHandle::referencePlane(const cms::DDFilteredView &fv) {
 
   // Check correct orientation
   if (debug) {
-    LogTrace("magneticfield::volumeHandle") << "Refplane pos  " << refPlane->position();
+    LogTrace("MagGeoBuilder") << "Refplane pos  " << refPlane->position();
 
     // See comments above for the conventions for orientation.
     LocalVector globalZdir(0., 0., 1.);  // Local direction of the axis along global Z
 
-    /* Preserve in case pseudotrap is needed again
     if (theShape == DDSolidShape::ddpseudotrap) {
       globalZdir = LocalVector(0., 1., 0.);
     }
-    */
+
     if (refPlane->toGlobal(globalZdir).z() < 0.) {
       globalZdir = -globalZdir;
     }
     float chk = refPlane->toGlobal(globalZdir).dot(GlobalVector(0, 0, 1));
     if (chk < .999)
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING RefPlane check failed!***" << chk;
+      LogTrace("MagGeoBuilder") << "*** WARNING RefPlane check failed!***" << chk;
   }
 }
 
@@ -182,22 +255,9 @@ std::vector<VolumeSide> volumeHandle::sides() const {
   return result;
 }
 
-// The files included below are used here and in the old DD version of this file.
-// To allow them to be used in both places, they call a "convertUnits" function
-// that is defined differently between old and new DD.
-// For the old DD, another version of this function converts mm to cm.
-
-namespace {
-  template <class NumType>
-  inline constexpr NumType convertUnits(NumType centimeters) {
-    return (centimeters);
-  }
-}  // namespace
-
-using namespace cms::dd;
-
 #include "buildBox.icc"
 #include "buildTrap.icc"
 #include "buildTubs.icc"
 #include "buildCons.icc"
+#include "buildPseudoTrap.icc"
 #include "buildTruncTubs.icc"

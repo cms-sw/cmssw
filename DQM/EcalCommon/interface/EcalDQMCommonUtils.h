@@ -6,7 +6,6 @@
 #include <iomanip>
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
@@ -120,39 +119,39 @@ namespace ecaldqm {
   extern double const etaBound;
 
   // returns DCC ID (1 - 54)
-  unsigned dccId(DetId const &);
+  unsigned dccId(DetId const &, EcalElectronicsMapping const *);
   unsigned dccId(EcalElectronicsId const &);
 
   unsigned memDCCId(unsigned);     // convert from dccId skipping DCCs without MEM
   unsigned memDCCIndex(unsigned);  // reverse conversion
 
   // returns TCC ID (1 - 108)
-  unsigned tccId(DetId const &);
-  unsigned tccId(EcalElectronicsId const &);
+  unsigned tccId(DetId const &, EcalElectronicsMapping const *);
+  unsigned tccId(EcalElectronicsId const &, EcalElectronicsMapping const *);
 
   // returns the data tower id - pass only
-  unsigned towerId(DetId const &);
+  unsigned towerId(DetId const &, EcalElectronicsMapping const *);
   unsigned towerId(EcalElectronicsId const &);
 
-  unsigned ttId(DetId const &);
-  unsigned ttId(EcalElectronicsId const &);
+  unsigned ttId(DetId const &, EcalElectronicsMapping const *);
+  unsigned ttId(EcalElectronicsId const &, EcalElectronicsMapping const *);
 
-  unsigned rtHalf(DetId const &);
+  unsigned rtHalf(DetId const &, EcalElectronicsMapping const *);
 
   std::pair<unsigned, unsigned> innerTCCs(unsigned);
   std::pair<unsigned, unsigned> outerTCCs(unsigned);
 
   std::vector<DetId> scConstituents(EcalScDetId const &);
 
-  EcalPnDiodeDetId pnForCrystal(DetId const &, char);
+  EcalPnDiodeDetId pnForCrystal(DetId const &, char, EcalElectronicsMapping const *);
 
   unsigned dccId(std::string const &);
   std::string smName(unsigned);
 
   int zside(DetId const &);
 
-  double eta(EBDetId const &);
-  double eta(EEDetId const &);
+  double eta(EBDetId const &, CaloGeometry const *);
+  double eta(EEDetId const &, CaloGeometry const *);
   double phi(EBDetId const &);
   double phi(EEDetId const &);
   double phi(EcalTrigTowerDetId const &);
@@ -169,22 +168,6 @@ namespace ecaldqm {
   unsigned nSuperCrystals(unsigned);
 
   bool ccuExists(unsigned, unsigned);
-
-  bool checkElectronicsMap(bool = true);
-  EcalElectronicsMapping const *getElectronicsMap();
-  void setElectronicsMap(EcalElectronicsMapping const *);
-
-  bool checkTrigTowerMap(bool = true);
-  EcalTrigTowerConstituentsMap const *getTrigTowerMap();
-  void setTrigTowerMap(EcalTrigTowerConstituentsMap const *);
-
-  bool checkGeometry(bool = true);
-  CaloGeometry const *getGeometry();
-  void setGeometry(CaloGeometry const *);
-
-  bool checkTopology(bool = true);
-  CaloTopology const *getTopology();
-  void setTopology(CaloTopology const *);
 }  // namespace ecaldqm
 
 #endif

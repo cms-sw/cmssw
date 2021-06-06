@@ -10,9 +10,6 @@ from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
 # generate CTF track candidates ############
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi 
 ckfTrackCandidatesPixelLess = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('GroupedCkfTrajectoryBuilder')),
-    src = cms.InputTag('globalPixelLessSeeds')
-    )
-
-
-
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'GroupedCkfTrajectoryBuilder'),
+    src = 'globalPixelLessSeeds'
+)

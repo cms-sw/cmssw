@@ -5,22 +5,11 @@
 // Institute: IIHE-VUB
 //=============================================================================
 //*****************************************************************************
-//C++ includes
-#include <vector>
-#include <functional>
-//ROOT includes
-#include <Math/VectorUtil.h>
 
-//CMSSW includes
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
-using namespace ROOT::Math::VectorUtil;
+#include <Math/VectorUtil.h>
 
 ElectronTkIsolation::ElectronTkIsolation(double extRadius,
                                          double intRadiusBarrel,
@@ -58,7 +47,6 @@ std::pair<int, double> ElectronTkIsolation::getIso(const reco::Track* tmpTrack) 
   int counter = 0;
   double ptSum = 0.;
   //Take the electron track
-  //reco::GsfTrackRef tmpTrack = electron->gsfTrack() ;
   math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum();
   double tmpElectronEtaAtVertex = (*tmpTrack).eta();
 

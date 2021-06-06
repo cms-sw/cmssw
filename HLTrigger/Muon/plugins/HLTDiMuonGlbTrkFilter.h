@@ -5,6 +5,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -20,6 +22,7 @@ public:
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
 private:
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> const idealMagneticFieldRecordToken_;
   // WARNING: two input collection represent should be aligned and represent
   // the same list of muons, just stored in different containers
   edm::InputTag m_muonsTag;                             // input collection of muons

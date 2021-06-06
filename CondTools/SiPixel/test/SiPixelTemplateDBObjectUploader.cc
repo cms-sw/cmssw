@@ -6,18 +6,29 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+
+#include <cstdio>
 #include <fstream>
+#include <iostream>
 
 SiPixelTemplateDBObjectUploader::SiPixelTemplateDBObjectUploader(const edm::ParameterSet& iConfig)
     : theTemplateCalibrations(iConfig.getParameter<vstring>("siPixelTemplateCalibrations")),
       theTemplateBaseString(iConfig.getParameter<std::string>("theTemplateBaseString")),
       theVersion(iConfig.getParameter<double>("Version")),
       theMagField(iConfig.getParameter<double>("MagField")),
-      theDetIds(iConfig.getParameter<std::vector<uint32_t> >("detIds")),
-      theTemplIds(iConfig.getParameter<std::vector<uint32_t> >("templateIds")) {}
+      theBarrelLocations(iConfig.getParameter<std::vector<std::string> >("barrelLocations")),
+      theEndcapLocations(iConfig.getParameter<std::vector<std::string> >("endcapLocations")),
+      theBarrelTemplateIds(iConfig.getParameter<std::vector<uint32_t> >("barrelTemplateIds")),
+      theEndcapTemplateIds(iConfig.getParameter<std::vector<uint32_t> >("endcapTemplateIds")),
+      useVectorIndices(iConfig.getUntrackedParameter<bool>("useVectorIndices", false)) {}
 
 SiPixelTemplateDBObjectUploader::~SiPixelTemplateDBObjectUploader() {}
 
@@ -25,25 +36,19 @@ void SiPixelTemplateDBObjectUploader::beginJob() {}
 
 void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::EventSetup& es) {
   //--- Make the POOL-ORA object to store the database object
-  SiPixelTemplateDBObject* obj = new SiPixelTemplateDBObject;
-
-  // Local variables
-  const char* tempfile;
-  int m;
+  SiPixelTemplateDBObject obj;
 
   // Set the number of templates to be passed to the dbobject
-  obj->setNumOfTempl(theTemplateCalibrations.size());
+  obj.setNumOfTempl(theTemplateCalibrations.size());
 
   // Set the version of the template dbobject - this is an external parameter
-  obj->setVersion(theVersion);
+  obj.setVersion(theVersion);
 
   // Open the template file(s)
-  for (m = 0; m < obj->numOfTempl(); ++m) {
+  for (int m = 0; m < obj.numOfTempl(); ++m) {
     edm::FileInPath file(theTemplateCalibrations[m].c_str());
-    tempfile = (file.fullPath()).c_str();
-
-    std::ifstream in_file(tempfile, std::ios::in);
-
+    auto tempfile = (file.fullPath());
+    std::ifstream in_file(tempfile.c_str(), std::ios::in);
     if (in_file.is_open()) {
       edm::LogInfo("Template Info") << "Opened Template File: " << file.fullPath().c_str();
 
@@ -51,7 +56,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       char title_char[80], c;
       SiPixelTemplateDBObject::char2float temp;
       float tempstore;
-      int iter, j;
+      int iter, j, k;
 
       // Templates contain a header char - we must be clever about storing this
       for (iter = 0; (c = in_file.get()) != '\n'; ++iter) {
@@ -63,21 +68,32 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
         iter = 78;
       }
       title_char[iter + 1] = '\n';
-
       for (j = 0; j < 80; j += 4) {
         temp.c[0] = title_char[j];
         temp.c[1] = title_char[j + 1];
         temp.c[2] = title_char[j + 2];
         temp.c[3] = title_char[j + 3];
-        obj->push_back(temp.f);
-        obj->setMaxIndex(obj->maxIndex() + 1);
+        obj.push_back(temp.f);
+        obj.setMaxIndex(obj.maxIndex() + 1);
+      }
+
+      // Check if the magnetic field is the same as in the header of the input files
+      for (k = 0; k < 80; k++) {
+        if ((title_char[k] == '@') && (title_char[k - 1] == 'T')) {
+          double localMagField = (((int)title_char[k - 4]) - 48) * 10 + ((int)title_char[k - 2]) - 48;
+          if (theMagField != localMagField) {
+            std::cout << "\n -------- WARNING -------- \n Magnetic field in the cfg is " << theMagField
+                      << "T while it is " << title_char[k - 4] << title_char[k - 2] << title_char[k - 1]
+                      << " in the header \n ------------------------- \n " << std::endl;
+          }
+        }
       }
 
       // Fill the dbobject
       in_file >> tempstore;
       while (!in_file.eof()) {
-        obj->setMaxIndex(obj->maxIndex() + 1);
-        obj->push_back(tempstore);
+        obj.setMaxIndex(obj.maxIndex() + 1);
+        obj.push_back(tempstore);
         in_file >> tempstore;
       }
 
@@ -88,55 +104,160 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
     }
   }
 
+  // Get the event setup
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* tGeo = pDD.product();
 
-  for (unsigned int i = 0; i < theDetIds.size(); ++i) {
-    short s_detid = (short)theDetIds[i];
-    short templid = (short)theTemplIds[i];
+  // Use the TrackerTopology class for layer/disk etc. number
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* tTopo = tTopoHandle.product();
 
-    DetId theDetid(s_detid);
-    if (s_detid != 0 && s_detid != 1 && s_detid != 2) {
-      if (!(*obj).putTemplateID(theDetid.rawId(), templid)) {
-        edm::LogInfo("Template Info") << " Could not fill specified det unit: " << theDetid;
+  // Check if we are using Phase-1 or Phase-2 geometry
+  int phase = 0;
+  if (pDD->isThere(GeomDetEnumerators::P1PXB) && pDD->isThere(GeomDetEnumerators::P1PXEC) == true) {
+    phase = 1;
+  } else if (pDD->isThere(GeomDetEnumerators::P2PXB) && pDD->isThere(GeomDetEnumerators::P2PXEC) == true) {
+    phase = 2;
+  }
+  std::cout << "Phase-" << phase << " geometry is used \n" << std::endl;
+
+  //Loop over the detector elements and put template IDs in place
+  for (const auto& it : pDD->detUnits()) {
+    if (it != nullptr) {
+      // Here is the actual looping step over all DetIds:
+      DetId detid = it->geographicalId();
+      unsigned int layer = 0, ladder = 0, disk = 0, side = 0, blade = 0, panel = 0, module = 0;
+      // Some extra variables that can be used for Phase 1 - comment in if needed
+      // unsigned int shl=0, sec=0, half=0, flipped=0, ring=0;
+      short thisID = 10000;
+      unsigned int iter;
+
+      // Now we sort them into the Barrel and Endcap:
+      //Barrel Pixels first
+      if ((phase == 1 && detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
+          (phase == 2 && tGeo->geomDetSubDetector(detid.subdetId()) == GeomDetEnumerators::P2PXB)) {
+        std::cout << "--- IN THE BARREL ---\n";
+
+        //Get the layer, ladder, and module corresponding to this detID
+        layer = tTopo->pxbLayer(detid.rawId());
+        ladder = tTopo->pxbLadder(detid.rawId());
+        module = tTopo->pxbModule(detid.rawId());
+        /*
+				// Comment these in if needed
+				PixelBarrelName pbn(detid, tTopo, phase);
+				shl    = pbn.shell();
+				sec    = pbn.sectorName();
+				half   = pbn.isHalfModule();
+				// This tells if we are on a flipped ladder (in the inner radius, closer to beam)
+				flipped = (phase ? layer==4 : layer%2) ? ladder%2==0 : ladder%2==1;
+				*/
+        if (useVectorIndices) {
+          --layer;
+          --ladder;
+          --module;
+        }
+
+        //Assign template IDs
+        //Loop over all the barrel locations
+        for (iter = 0; iter < theBarrelLocations.size(); ++iter) {
+          //get the string of this barrel location
+          std::string loc_string = theBarrelLocations[iter];
+          //find where the delimiters are
+          unsigned int first_delim_pos = loc_string.find("_");
+          unsigned int second_delim_pos = loc_string.find("_", first_delim_pos + 1);
+          //get the layer, ladder, and module as unsigned ints
+          unsigned int checklayer = (unsigned int)stoi(loc_string.substr(0, first_delim_pos));
+          unsigned int checkladder =
+              (unsigned int)stoi(loc_string.substr(first_delim_pos + 1, second_delim_pos - first_delim_pos - 1));
+          unsigned int checkmodule = (unsigned int)stoi(loc_string.substr(second_delim_pos + 1, 5));
+          //check them against the desired layer, ladder, and module
+          if (ladder == checkladder && layer == checklayer && module == checkmodule)
+            //if they match, set the template ID
+            thisID = (short)theBarrelTemplateIds[iter];
+        }
+
+        if (thisID == 10000 || (!obj.putTemplateID(detid.rawId(), thisID)))
+          std::cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
+        // ----- debug:
+        std::cout << "This is a barrel element with: layer " << layer << ", ladder " << ladder << " and module "
+                  << module << ".\n";  //Uncomment to read out exact position of each element.
+                                       // -----
       }
-    } else {
-      edm::LogInfo("DetUnit Info") << " There are " << pDD->detUnits().size() << " detectors";
-    }
-    for (const auto& it : pDD->detUnits()) {
-      if (dynamic_cast<PixelGeomDetUnit const*>(it) != 0) {
-        DetId detid = it->geographicalId();
+      //Now endcaps
+      else if ((phase == 1 && detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) ||
+               (phase == 2 && tGeo->geomDetSubDetector(detid.subdetId()) == GeomDetEnumerators::P2PXEC)) {
+        std::cout << "--- IN AN ENDCAP ---\n";
 
-        if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) &&
-            (detid.subdetId() == s_detid || s_detid == 0)) {
-          if (!(*obj).putTemplateID(detid.rawId(), templid))
-            edm::LogInfo("Template Info") << " Could not fill barrel det unit";
+        //Get the DetId's disk, blade, side, panel, and module
+        disk = tTopo->pxfDisk(detid.rawId());    //1,2,3
+        blade = tTopo->pxfBlade(detid.rawId());  //1-56 (Ring 1 is 1-22, Ring 2 is 23-56)
+        side = tTopo->pxfSide(detid.rawId());    //side=1 for -z, 2 for +z
+        panel = tTopo->pxfPanel(detid.rawId());  //panel=1,2
+        /*
+				// Comment these in if needed
+				PixelEndcapName pen(detid, tTopo, phase);
+				shl    = pen.halfCylinder();
+				ring   = pen.ringName(); //1,2 This is for Phase I
+				*/
+        if (useVectorIndices) {
+          --disk;
+          --blade;
+          --side;
+          --panel;
         }
-        if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) &&
-            (detid.subdetId() == s_detid || s_detid == 0)) {
-          if (!(*obj).putTemplateID(detid.rawId(), templid))
-            edm::LogInfo("Template Info") << " Could not fill endcap det unit";
+
+        //Assign IDs
+
+        //Loop over all the endcap locations
+        for (iter = 0; iter < theEndcapLocations.size(); ++iter) {
+          //get the string of this barrel location
+          std::string loc_string = theEndcapLocations[iter];
+          //find where the delimiters are
+          unsigned int first_delim_pos = loc_string.find("_");
+          unsigned int second_delim_pos = loc_string.find("_", first_delim_pos + 1);
+          unsigned int third_delim_pos = loc_string.find("_", second_delim_pos + 1);
+          //get the disk, blade, side, panel, and module as unsigned ints
+          unsigned int checkdisk = (unsigned int)stoi(loc_string.substr(0, first_delim_pos));
+          unsigned int checkblade =
+              (unsigned int)stoi(loc_string.substr(first_delim_pos + 1, second_delim_pos - first_delim_pos - 1));
+          unsigned int checkside =
+              (unsigned int)stoi(loc_string.substr(second_delim_pos + 1, third_delim_pos - second_delim_pos - 1));
+          unsigned int checkpanel = (unsigned int)stoi(loc_string.substr(third_delim_pos + 1, 5));
+          //check them against the desired disk, blade, side, panel, and module
+          if (disk == checkdisk && blade == checkblade && side == checkside && panel == checkpanel)
+            //if they match, set the template ID
+            thisID = (short)theEndcapTemplateIds[iter];
         }
+
+        if (thisID == 10000 || (!obj.putTemplateID(detid.rawId(), thisID)))
+          std::cout << " Could not fill endcap det unit" << side << ", disk " << disk << ", blade " << blade
+                    << ", and panel " << panel << ".\n";
+        // ----- debug:
+        std::cout << "This is an endcap element with: side " << side << ", disk " << disk << ", blade " << blade
+                  << ", and panel " << panel << ".\n";  //Uncomment to read out exact position of each element.
+                                                        // -----
       } else {
-        //edm::LogInfo("Template Info")<< "Detid is Pixel but neither bpix nor fpix";
+        continue;
       }
+
+      //Print out the assignment of this detID
+      short mapnum;
+      std::cout << "checking map:\n";
+      mapnum = obj.getTemplateID(detid.rawId());
+      std::cout << "The DetID: " << detid.rawId() << " is mapped to the template: " << mapnum << ".\n\n";
     }
   }
-
-  // Uncomment to output the contents of the db object at the end of the job
-  //	std::cout << *obj << std::endl;
-  //std::map<unsigned int,short> templMap=(*obj).getTemplateIDs();
-  //for(std::map<unsigned int,short>::const_iterator it=templMap.begin(); it!=templMap.end();++it)
-  //std::cout<< "Map:\n"<< "DetId: "<< it->first << " TemplateID: "<< it->second <<"\n";
 
   //--- Create a new IOV
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (!poolDbService.isAvailable())  // Die if not available
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   if (poolDbService->isNewTagRequest("SiPixelTemplateDBObjectRcd"))
-    poolDbService->writeOne(obj, poolDbService->beginOfTime(), "SiPixelTemplateDBObjectRcd");
+    poolDbService->writeOne(&obj, poolDbService->beginOfTime(), "SiPixelTemplateDBObjectRcd");
   else
-    poolDbService->writeOne(obj, poolDbService->currentTime(), "SiPixelTemplateDBObjectRcd");
+    poolDbService->writeOne(&obj, poolDbService->currentTime(), "SiPixelTemplateDBObjectRcd");
 }
 
 void SiPixelTemplateDBObjectUploader::endJob() {}

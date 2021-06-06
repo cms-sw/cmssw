@@ -1,3 +1,4 @@
+#include "CommonTools/Utils/interface/LazyConstructed.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -8,6 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
 
 class LowPtGsfElectronCoreProducer : public edm::global::EDProducer<> {
@@ -34,7 +36,7 @@ LowPtGsfElectronCoreProducer::LowPtGsfElectronCoreProducer(const edm::ParameterS
       superClusterRefs_(consumes<edm::ValueMap<SuperClusterRef> >(config.getParameter<edm::InputTag>("superClusters"))),
       putToken_(produces<reco::GsfElectronCoreCollection>()) {}
 
-void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
+void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup&) const {
   // Output collection
   reco::GsfElectronCoreCollection electrons;
 
@@ -42,6 +44,8 @@ void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, con
   auto gsfPfRecTracksHandle = event.getHandle(gsfPfRecTracksToken_);
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
   auto const& superClusterRefs = event.get(superClusterRefs_);
+
+  auto ctfTrackVariables = makeLazy<edm::soa::EtaPhiTable>(*ctfTracksHandle);
 
   // Create ElectronCore objects
   for (size_t ipfgsf = 0; ipfgsf < gsfPfRecTracksHandle->size(); ++ipfgsf) {
@@ -58,7 +62,7 @@ void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, con
     }
 
     // Add GSF(PF) track information
-    auto ctfpair = egamma::getClosestCtfToGsf(electrons.back().gsfTrack(), ctfTracksHandle);
+    auto ctfpair = egamma::getClosestCtfToGsf(electrons.back().gsfTrack(), ctfTracksHandle, ctfTrackVariables.value());
     electrons.back().setCtfTrack(ctfpair.first, ctfpair.second);
 
     // Add super cluster information

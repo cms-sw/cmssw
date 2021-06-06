@@ -17,9 +17,9 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
@@ -315,7 +315,7 @@ int SiPixelInformationExtractor::getDetId(MonitorElement *mE) {
   int detId = 0;
 
   if (mEName.find("_3") != string::npos) {
-    string detIdString = mEName.substr((mEName.find_last_of("_")) + 1, 9);
+    string detIdString = mEName.substr((mEName.find_last_of('_')) + 1, 9);
     std::istringstream isst;
     isst.str(detIdString);
     isst >> detId;
@@ -348,7 +348,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
                                                   bool init,
                                                   float noiseRate_,
                                                   int noiseRateDenominator_,
-                                                  edm::ESHandle<SiPixelFedCablingMap> theCablingMap) {
+                                                  const SiPixelFedCablingMap *theCablingMap) {
   if (init) {
     endOfModules_ = false;
     nevents_ = noiseRateDenominator_;
@@ -365,7 +365,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
     myfile_ << "Noise summary, ran over " << nevents_ << " events, threshold was set to " << noiseRate_ << std::endl;
   }
   string currDir = iBooker.pwd();
-  string dname = currDir.substr(currDir.find_last_of("/") + 1);
+  string dname = currDir.substr(currDir.find_last_of('/') + 1);
 
   if (dname.find("Module_") != string::npos) {
     vector<string> meVec = iGetter.getMEs();
@@ -447,7 +447,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
         std::vector<std::pair<std::pair<int, int>, float>> noisyPixels = (*it).second;
         // now convert into online conventions:
         for (int fedid = 0; fedid <= 40; ++fedid) {
-          SiPixelFrameConverter converter(theCablingMap.product(), fedid);
+          SiPixelFrameConverter converter(theCablingMap, fedid);
           uint32_t newDetId = detid;
           if (converter.hasDetUnit(newDetId)) {
             realfedID = fedid;
@@ -486,7 +486,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
             counter++;
 
             sipixelobjects::ElectronicIndex cabling;
-            SiPixelFrameConverter formatter(theCablingMap.product(), realfedID);
+            SiPixelFrameConverter formatter(theCablingMap, realfedID);
             sipixelobjects::DetectorIndex detector = {detid, offlineRow, offlineColumn};
             formatter.toCabling(cabling, detector);
             // cabling should now contain cabling.roc and cabling.dcol  and

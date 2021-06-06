@@ -6,11 +6,17 @@
  *
  */
 
-#include <memory>
 #include "cppunit/extensions/HelperMacros.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Framework/interface/Callback.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
+
+#include <memory>
 #include <cassert>
 
 namespace callbacktest {
@@ -28,15 +34,42 @@ namespace callbacktest {
     double value_;
   };
 
-  struct Record {};
+  struct Record {
+    void setImpl(void const* iImpl,
+                 unsigned int transitionID,
+                 void const* getTokenIndices,
+                 void const* iEventSetupImpl,
+                 void const* ESParentContext,
+                 bool requireTokens) {}
+    constexpr static bool allowConcurrentIOVs_ = false;
+  };
+
+  struct Queue {
+    template <typename T>
+    void push(tbb::task_group&, T&& iT) {
+      iT();
+    }
+  };
 
   struct Base {
     template <typename A, typename B>
-    void updateFromMayConsumes(A const&, B const&) {}
+    std::optional<std::vector<edm::ESProxyIndex>> updateFromMayConsumes(A const&, B const&) const {
+      return {};
+    }
+    static constexpr edm::ESProxyIndex const* getTokenIndices(unsigned int) { return nullptr; }
+    static constexpr edm::ESRecordIndex const* getTokenRecordIndices(unsigned int) { return nullptr; }
+    static constexpr size_t numberOfTokenIndices(unsigned int) { return 0; }
+    static constexpr bool hasMayConsumes() { return false; }
+    static edm::eventsetup::ComponentDescription const& description() {
+      static const edm::eventsetup::ComponentDescription s_description;
+      return s_description;
+    }
+
+    Queue queue() { return Queue(); }
   };
 
   struct UniquePtrProd : public Base {
-    UniquePtrProd() : value_(0) {}
+    constexpr UniquePtrProd() : value_(0) {}
     std::unique_ptr<Data> method(const Record&) { return std::make_unique<Data>(++value_); }
 
     int value_;
@@ -62,10 +95,29 @@ namespace callbacktest {
       ++double_.value_;
       return products(dataT, doubleT);
     }
+
     Data data_;
     Double double_;
   };
 }  // namespace callbacktest
+
+EVENTSETUP_RECORD_REG(callbacktest::Record);
+
+namespace {
+  template <typename CALLBACK>
+  void call(CALLBACK& iCallback) {
+    edm::ActivityRegistry ar;
+    edm::eventsetup::EventSetupRecordImpl rec(edm::eventsetup::EventSetupRecordKey::makeKey<callbacktest::Record>(),
+                                              &ar);
+    edm::FinalWaitingTask task;
+    tbb::task_group group;
+    edm::ServiceToken token;
+    iCallback.prefetchAsync(edm::WaitingTaskHolder(group, &task), &rec, nullptr, token, edm::ESParentContext{});
+    do {
+      group.wait();
+    } while (not task.done());
+  }
+}  // namespace
 
 using namespace callbacktest;
 using namespace edm::eventsetup;
@@ -80,18 +132,21 @@ class testCallback : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
+  void setUp() { m_scheduler = std::make_unique<edm::ThreadsController>(1); }
   void tearDown() {}
 
   void uniquePtrTest();
   void sharedPtrTest();
   void ptrProductsTest();
+
+private:
+  edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testCallback);
 
-typedef Callback<UniquePtrProd, std::unique_ptr<Data>, Record> UniquePtrCallback;
+using UniquePtrCallback = Callback<UniquePtrProd, std::unique_ptr<Data>, Record>;
 
 void testCallback::uniquePtrTest() {
   UniquePtrProd prod;
@@ -104,16 +159,15 @@ void testCallback::uniquePtrTest() {
   std::unique_ptr<Data> handle2;
   callback2->holdOntoPointer(&handle2);
 
-  Record record;
   callback.newRecordComing();
-  callback(record);
+  call(callback);
   CPPUNIT_ASSERT(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == 1);
   assert(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
 
   //since haven't cleared, should not have changed
-  callback(record);
+  call(callback);
   CPPUNIT_ASSERT(prod.value_ == 1);
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
 
@@ -121,24 +175,24 @@ void testCallback::uniquePtrTest() {
 
   callback.newRecordComing();
 
-  callback(record);
+  call(callback);
   CPPUNIT_ASSERT(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == 2);
   assert(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
 
-  (*callback2)(record);
+  call(*callback2);
   CPPUNIT_ASSERT(handle2->value_ == 3);
   CPPUNIT_ASSERT(handle->value_ == 2);
 
-  callback(record);
-  (*callback2)(record);
+  call(callback);
+  call(*callback2);
   CPPUNIT_ASSERT(handle2->value_ == 3);
   CPPUNIT_ASSERT(handle->value_ == 2);
 
   callback2->newRecordComing();
-  callback(record);
-  (*callback2)(record);
+  call(callback);
+  call(*callback2);
   CPPUNIT_ASSERT(handle2->value_ == 4);
   CPPUNIT_ASSERT(handle->value_ == 2);
 }
@@ -153,21 +207,20 @@ void testCallback::sharedPtrTest() {
 
   callback.holdOntoPointer(&handle);
 
-  Record record;
   callback.newRecordComing();
-  callback(record);
+  call(callback);
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
 
   //since haven't cleared, should not have changed
-  callback(record);
+  call(callback);
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
 
   handle.reset();
   callback.newRecordComing();
 
-  callback(record);
+  call(callback);
   CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
   CPPUNIT_ASSERT(prod.ptr_->value_ == 2);
 }
@@ -185,20 +238,19 @@ void testCallback::ptrProductsTest() {
   callback.holdOntoPointer(&handle);
   callback.holdOntoPointer(&doubleHandle);
 
-  Record record;
   callback.newRecordComing();
-  callback(record);
+  call(callback);
   CPPUNIT_ASSERT(handle.get() == &(prod.data_));
   CPPUNIT_ASSERT(prod.data_.value_ == 1);
 
   //since haven't cleared, should not have changed
-  callback(record);
+  call(callback);
   CPPUNIT_ASSERT(handle.get() == &(prod.data_));
   CPPUNIT_ASSERT(prod.data_.value_ == 1);
 
   callback.newRecordComing();
 
-  callback(record);
+  call(callback);
   CPPUNIT_ASSERT(handle.get() == &(prod.data_));
   CPPUNIT_ASSERT(prod.data_.value_ == 2);
 }

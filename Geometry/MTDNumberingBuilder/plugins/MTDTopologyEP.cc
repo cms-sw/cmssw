@@ -1,4 +1,5 @@
-#include "FWCore/Utilities/interface/Exception.h"
+//#define EDM_ML_DEBUG
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -6,12 +7,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
 
 #include <memory>
-//#define EDM_ML_DEBUG
 
 class MTDTopologyEP : public edm::ESProducer {
 public:
@@ -24,15 +25,13 @@ public:
   ReturnType produce(const MTDTopologyRcd&);
 
 private:
-  void fillParameters(const PMTDParameters&, int&, MTDTopology::BTLValues&, MTDTopology::ETLValues&);
+  void fillParameters(const PMTDParameters&, int& mtdTopologyMode, MTDTopology::ETLValues&);
 
   const edm::ESGetToken<PMTDParameters, PMTDParametersRcd> token_;
 };
 
 MTDTopologyEP::MTDTopologyEP(const edm::ParameterSet& conf)
-    : token_{setWhatProduced(this).consumesFrom<PMTDParameters, PMTDParametersRcd>(edm::ESInputTag())} {
-  edm::LogInfo("MTD") << "MTDTopologyEP::MTDTopologyEP";
-}
+    : token_{setWhatProduced(this).consumesFrom<PMTDParameters, PMTDParametersRcd>(edm::ESInputTag())} {}
 
 void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription ttc;
@@ -40,51 +39,75 @@ void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& description
 }
 
 MTDTopologyEP::ReturnType MTDTopologyEP::produce(const MTDTopologyRcd& iRecord) {
-  edm::LogInfo("MTDTopologyEP") << "MTDTopologyEP::produce(const MTDTopologyRcd& iRecord)";
-
   int mtdTopologyMode;
-  MTDTopology::BTLValues btlVals;
   MTDTopology::ETLValues etlVals;
 
-  fillParameters(iRecord.get(token_), mtdTopologyMode, btlVals, etlVals);
+  fillParameters(iRecord.get(token_), mtdTopologyMode, etlVals);
 
-  return std::make_unique<MTDTopology>(mtdTopologyMode, btlVals, etlVals);
+  return std::make_unique<MTDTopology>(mtdTopologyMode, etlVals);
 }
 
-void MTDTopologyEP::fillParameters(const PMTDParameters& ptp,
-                                   int& mtdTopologyMode,
-                                   MTDTopology::BTLValues& btlVals,
-                                   MTDTopology::ETLValues& etlVals) {
+void MTDTopologyEP::fillParameters(const PMTDParameters& ptp, int& mtdTopologyMode, MTDTopology::ETLValues& etlVals) {
   mtdTopologyMode = ptp.topologyMode_;
 
-  btlVals.sideStartBit_ = ptp.vitems_[0].vpars_[0];    // 16
-  btlVals.layerStartBit_ = ptp.vitems_[0].vpars_[1];   // 16
-  btlVals.trayStartBit_ = ptp.vitems_[0].vpars_[2];    // 8
-  btlVals.moduleStartBit_ = ptp.vitems_[0].vpars_[3];  // 2
-  btlVals.sideMask_ = ptp.vitems_[0].vpars_[4];        // 0xF
-  btlVals.layerMask_ = ptp.vitems_[0].vpars_[5];       // 0xF
-  btlVals.trayMask_ = ptp.vitems_[0].vpars_[6];        // 0xFF
-  btlVals.moduleMask_ = ptp.vitems_[0].vpars_[7];      // 0x3F
+  // for legacy geometry scenarios no topology informastion is stored, only for newer ETL 2-discs layout
 
-  etlVals.sideStartBit_ = ptp.vitems_[1].vpars_[0];
-  etlVals.layerStartBit_ = ptp.vitems_[1].vpars_[1];
-  etlVals.ringStartBit_ = ptp.vitems_[1].vpars_[2];
-  etlVals.moduleStartBit_ = ptp.vitems_[1].vpars_[3];
-  etlVals.sideMask_ = ptp.vitems_[1].vpars_[4];
-  etlVals.layerMask_ = ptp.vitems_[1].vpars_[5];
-  etlVals.ringMask_ = ptp.vitems_[1].vpars_[6];
-  etlVals.moduleMask_ = ptp.vitems_[1].vpars_[7];
+  if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
+    return;
+  }
+
+  // Check on the internal consistency of thr ETL layout information provided by parameters
+
+  for (size_t it = 3; it <= 9; it++) {
+    if (ptp.vitems_[it].vpars_.size() != ptp.vitems_[2].vpars_.size()) {
+      throw cms::Exception("MTDTopologyEP") << "Inconsistent size of ETL structure arrays";
+    }
+  }
+
+  MTDTopology::ETLfaceLayout tmpFace;
+
+  // Front Face (0), starting with type Right (2)
+
+  tmpFace.idDiscSide_ = 0;  // ETL front side
+  tmpFace.idDetType1_ = 2;  // ETL module type right
+
+  tmpFace.start_copy_[0] = ptp.vitems_[3].vpars_;  // start_copy_FR
+  tmpFace.start_copy_[1] = ptp.vitems_[2].vpars_;  // start_copy_FL
+  tmpFace.offset_[0] = ptp.vitems_[7].vpars_;      // offset_FR
+  tmpFace.offset_[1] = ptp.vitems_[6].vpars_;      // offset_FL
+
+  etlVals.emplace_back(tmpFace);
+
+  // Back Face (1), starting with type Left (1)
+
+  tmpFace.idDiscSide_ = 1;  // ETL back side
+  tmpFace.idDetType1_ = 1;  // ETL module type left
+
+  tmpFace.start_copy_[0] = ptp.vitems_[4].vpars_;  // start_copy_BL
+  tmpFace.start_copy_[1] = ptp.vitems_[5].vpars_;  // start_copy_BR
+  tmpFace.offset_[0] = ptp.vitems_[8].vpars_;      // offset_BL
+  tmpFace.offset_[1] = ptp.vitems_[9].vpars_;      // offset_BR
+
+  etlVals.emplace_back(tmpFace);
 
 #ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MTDTopologyEP") << " Topology mode = " << mtdTopologyMode << "\n";
+  auto print_array = [&](std::vector<int> vector) {
+    std::stringstream ss;
+    for (auto const& elem : vector) {
+      ss << " " << elem;
+    }
+    ss << "\n";
+    return ss.str();
+  };
 
-  edm::LogInfo("MTDTopologyEP") << "BTL values = " << btlVals.sideStartBit_ << " " << btlVals.layerStartBit_ << " "
-                                << btlVals.trayStartBit_ << " " << btlVals.moduleStartBit_ << " " << std::hex
-                                << btlVals.sideMask_ << " " << std::hex << btlVals.layerMask_ << " " << std::hex
-                                << btlVals.trayMask_ << " " << std::hex << btlVals.moduleMask_ << " ";
-  edm::LogInfo("MTDTopologyEP") << "ETL values = " << etlVals.sideStartBit_ << " " << etlVals.layerStartBit_ << " "
-                                << etlVals.ringStartBit_ << " " << etlVals.moduleStartBit_ << " " << std::hex
-                                << etlVals.sideMask_ << " " << std::hex << etlVals.layerMask_ << " " << std::hex
-                                << etlVals.ringMask_ << " " << std::hex << etlVals.moduleMask_ << " ";
+  for (auto const& ilay : etlVals) {
+    edm::LogVerbatim("MTDTopologyEP") << " disc face = " << ilay.idDiscSide_ << " start det type = " << ilay.idDetType1_
+                                      << "\n start_copy[0]= " << print_array(ilay.start_copy_[0])
+                                      << "\n start_copy[1]= " << print_array(ilay.start_copy_[1])
+                                      << "\n offset[0]= " << print_array(ilay.offset_[0])
+                                      << "\n offset[1]= " << print_array(ilay.offset_[1]);
+  }
 
 #endif
 }

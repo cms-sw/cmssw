@@ -2,9 +2,8 @@
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/Filter.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
+#include <DD4hep/Filter.h>
 
 bool TrackerParametersFromDD::build(const DDCompactView* cvp, PTrackerParameters& ptp) {
   for (int subdet = 1; subdet <= 6; ++subdet) {
@@ -12,40 +11,30 @@ bool TrackerParametersFromDD::build(const DDCompactView* cvp, PTrackerParameters
     sstm << "Subdetector" << subdet;
     std::string name = sstm.str();
 
-    if (DDVectorGetter::check(name)) {
-      std::vector<int> subdetPars = dbl_to_int(DDVectorGetter::get(name));
+    auto const& v = cvp->vector(name);
+    if (!v.empty()) {
+      std::vector<int> subdetPars = dbl_to_int(v);
       putOne(subdet, subdetPars, ptp);
     }
   }
 
-  ptp.vpars = dbl_to_int(DDVectorGetter::get("vPars"));
+  ptp.vpars = dbl_to_int(cvp->vector("vPars"));
 
   return true;
 }
 
-bool TrackerParametersFromDD::build(const cms::DDCompactView* cvp, PTrackerParameters& ptp) {
-  cms::DDVectorsMap vmap = cvp->detector()->vectors();
+bool TrackerParametersFromDD::build(const cms::DDCompactView* cpv, PTrackerParameters& ptp) {
+  const auto& vmap = cpv->detector()->vectors();
   for (int subdet = 1; subdet <= 6; ++subdet) {
-    std::stringstream sstm;
-    sstm << "Subdetector" << subdet;
-    std::string name = sstm.str();
-    for (auto const& it : vmap) {
-      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), name)) {
-        std::vector<int> subdetPars;
-        for (const auto& i : it.second)
-          subdetPars.emplace_back(std::round(i));
-        putOne(subdet, subdetPars, ptp);
-      }
-    }
+    const auto& v = vmap.at("trackerParameters:Subdetector" + std::to_string(subdet));
+    std::vector<int> subdetPars;
+    std::transform(v.begin(), v.end(), std::back_inserter(subdetPars), [](int i) -> int { return std::round(i); });
+    putOne(subdet, subdetPars, ptp);
   }
 
-  auto it = vmap.find("vPars");
-  if (it != end(vmap)) {
-    std::vector<int> tmpVec;
-    for (const auto& i : it->second)
-      tmpVec.emplace_back(std::round(i));
-    ptp.vpars = tmpVec;
-  }
+  // get "vPars" parameter block from XMLs.
+  const auto& vPars = vmap.at("trackerParameters:vPars");
+  std::transform(vPars.begin(), vPars.end(), std::back_inserter(ptp.vpars), [](int i) -> int { return std::round(i); });
 
   return true;
 }

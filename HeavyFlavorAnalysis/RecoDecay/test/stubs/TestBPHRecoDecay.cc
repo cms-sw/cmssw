@@ -21,6 +21,7 @@
 #include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
 #include <TH1.h>
 #include <TFile.h>
+#include <TMath.h>
 
 #include <set>
 #include <string>
@@ -417,7 +418,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     // apply kinematic fit
     for (iBs = 0; iBs < nBs; ++iBs) {
       // get candidate and cast constness away
-      BPHRecoCandidate* cptr(const_cast<BPHRecoCandidate*>(lBs[iBs].get()));
+      const BPHRecoCandidate* cptr = lBs[iBs].get();
       cptr->kinematicTree("JPsi", 3.096916, 0.000040);
     }
     for (iBs = 0; iBs < nBs; ++iBs)
@@ -452,7 +453,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     // apply kinematic fit
     for (iBu = 0; iBu < nBu; ++iBu) {
       // get candidate and cast constness away
-      BPHRecoCandidate* cptr(const_cast<BPHRecoCandidate*>(lBu[iBu].get()));
+      const BPHRecoCandidate* cptr = lBu[iBu].get();
       cptr->kinematicTree("JPsi", 3.096916, 0.000040);
     }
     for (iBu = 0; iBu < nBu; ++iBu)

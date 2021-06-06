@@ -25,8 +25,9 @@ public:
   ~TPTask() override {}
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const &,
+                                                             edm::EventSetup const &) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 protected:
   void _process(edm::Event const &, edm::EventSetup const &) override;
@@ -40,6 +41,7 @@ protected:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokDataL1Rec;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmul;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmulNoTDCCut;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	flag vector
   std::vector<hcaldqm::flag::Flag> _vflags;

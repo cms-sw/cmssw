@@ -48,6 +48,8 @@ void CSCDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
   const CSCStripDigiCollection& strips = *stripDigisH_.product();
   const CSCWireDigiCollection& wires = *wireDigisH_.product();
 
+  clear();
+
   // now match the digis
   matchComparatorsToSimTrack(comparators);
   matchStripsToSimTrack(strips);
@@ -55,16 +57,6 @@ void CSCDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
 }
 
 void CSCDigiMatcher::matchComparatorsToSimTrack(const CSCComparatorDigiCollection& comparators) {
-  for (auto detUnitIt = comparators.begin(); detUnitIt != comparators.end(); ++detUnitIt) {
-    const CSCDetId& id = (*detUnitIt).first;
-    const auto& range = (*detUnitIt).second;
-    for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
-      if (id.station() == 1 and (id.ring() == 1 or id.ring() == 4))
-        if (verboseComparator_)
-          cout << "CSCid " << id << " Comparator digi (comparator, comparator, Tbin ) " << (*digiIt) << endl;
-    }
-  }
-
   const auto& det_ids = muonSimHitMatcher_->detIds(0);
   for (const auto& id : det_ids) {
     CSCDetId layer_id(id);
@@ -79,7 +71,7 @@ void CSCDigiMatcher::matchComparatorsToSimTrack(const CSCComparatorDigiCollectio
     const auto& comp_digis_in_det = comparators.get(layer_id);
     for (auto c = comp_digis_in_det.first; c != comp_digis_in_det.second; ++c) {
       if (verboseComparator_)
-        cout << "sdigi " << layer_id << " (comparator, comparator, Tbin ) " << *c << endl;
+        edm::LogInfo("CSCDigiMatcher") << "sdigi " << layer_id << " (comparator, comparator, Tbin ) " << *c;
 
       // check that the first BX for this digi wasn't too early or too late
       if (c->getTimeBin() < minBXComparator_ || c->getTimeBin() > maxBXComparator_)
@@ -91,7 +83,7 @@ void CSCDigiMatcher::matchComparatorsToSimTrack(const CSCComparatorDigiCollectio
         continue;
 
       if (verboseComparator_)
-        cout << "Matched comparator " << *c << endl;
+        edm::LogInfo("CSCDigiMatcher") << "Matched comparator " << *c;
       detid_to_comparators_[id].push_back(*c);
       chamber_to_comparators_[layer_id.chamberId().rawId()].push_back(*c);
     }
@@ -105,7 +97,7 @@ void CSCDigiMatcher::matchStripsToSimTrack(const CSCStripDigiCollection& strips)
     for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
       if (id.station() == 1 and (id.ring() == 1 or id.ring() == 4))
         if (verboseStrip_)
-          cout << "CSCid " << id << " Strip digi (strip, strip, Tbin ) " << (*digiIt) << endl;
+          edm::LogInfo("CSCDigiMatcher") << "CSCid " << id << " Strip digi (strip, strip, Tbin ) " << (*digiIt);
     }
   }
 
@@ -123,7 +115,7 @@ void CSCDigiMatcher::matchStripsToSimTrack(const CSCStripDigiCollection& strips)
     const auto& strip_digis_in_det = strips.get(layer_id);
     for (auto c = strip_digis_in_det.first; c != strip_digis_in_det.second; ++c) {
       if (verboseStrip_)
-        cout << "sdigi " << layer_id << " (strip, Tbin ) " << *c << endl;
+        edm::LogInfo("CSCDigiMatcher") << "sdigi " << layer_id << " (strip, Tbin ) " << *c;
 
       int strip = c->getStrip();  // strips are counted from 1
       // check that it matches a strip that was hit by SimHits from our track
@@ -131,7 +123,7 @@ void CSCDigiMatcher::matchStripsToSimTrack(const CSCStripDigiCollection& strips)
         continue;
 
       if (verboseStrip_)
-        cout << "Matched strip " << *c << endl;
+        edm::LogInfo("CSCDigiMatcher") << "Matched strip " << *c;
       detid_to_strips_[id].push_back(*c);
       chamber_to_strips_[layer_id.chamberId().rawId()].push_back(*c);
     }
@@ -152,6 +144,9 @@ void CSCDigiMatcher::matchWiresToSimTrack(const CSCWireDigiCollection& wires) {
 
     const auto& wire_digis_in_det = wires.get(layer_id);
     for (auto w = wire_digis_in_det.first; w != wire_digis_in_det.second; ++w) {
+      if (verboseStrip_)
+        edm::LogInfo("CSCDigiMatcher") << "wdigi " << layer_id << " (wire, Tbin ) " << *w;
+
       // check that the first BX for this digi wasn't too early or too late
       if (w->getTimeBin() < minBXWire_ || w->getTimeBin() > maxBXWire_)
         continue;
@@ -162,7 +157,7 @@ void CSCDigiMatcher::matchWiresToSimTrack(const CSCWireDigiCollection& wires) {
         continue;
 
       if (verboseStrip_)
-        cout << "Matched wire digi " << *w << endl;
+        edm::LogInfo("CSCDigiMatcher") << "Matched wire digi " << *w << endl;
       detid_to_wires_[id].push_back(*w);
       chamber_to_wires_[layer_id.chamberId().rawId()].push_back(*w);
     }
@@ -331,14 +326,10 @@ std::set<int> CSCDigiMatcher::comparatorsInChamber(unsigned int detid, int max_g
   if (max_gap_to_fill > 0) {
     int prev = -111;
     for (const auto& s : result) {
-      //cout<<"gap "<<s<<" - "<<prev<<" = "<<s - prev<<"  added 0";
       if (s - prev > 1 && s - prev - 1 <= max_gap_to_fill) {
-        //int sz = result.size();
         for (int fill_s = prev + 1; fill_s < s; ++fill_s)
           result.insert(fill_s);
-        //cout<<result.size() - sz;
       }
-      //cout<<" elems"<<endl;
       prev = s;
     }
   }
@@ -355,14 +346,10 @@ std::set<int> CSCDigiMatcher::stripsInChamber(unsigned int detid, int max_gap_to
   if (max_gap_to_fill > 0) {
     int prev = -111;
     for (const auto& s : result) {
-      //cout<<"gap "<<s<<" - "<<prev<<" = "<<s - prev<<"  added 0";
       if (s - prev > 1 && s - prev - 1 <= max_gap_to_fill) {
-        //int sz = result.size();
         for (int fill_s = prev + 1; fill_s < s; ++fill_s)
           result.insert(fill_s);
-        //cout<<result.size() - sz;
       }
-      //cout<<" elems"<<endl;
       prev = s;
     }
   }
@@ -387,4 +374,15 @@ std::set<int> CSCDigiMatcher::wiregroupsInChamber(unsigned int detid, int max_ga
     }
   }
   return result;
+}
+
+void CSCDigiMatcher::clear() {
+  detid_to_comparators_.clear();
+  chamber_to_comparators_.clear();
+
+  detid_to_strips_.clear();
+  chamber_to_strips_.clear();
+
+  detid_to_wires_.clear();
+  chamber_to_wires_.clear();
 }

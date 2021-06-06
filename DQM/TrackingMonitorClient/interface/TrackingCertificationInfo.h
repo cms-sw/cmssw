@@ -19,19 +19,22 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <map>
 
 class SiStripDetCabling;
+class SiStripDetCablingRcd;
+class RunInfo;
+class RunInfoRcd;
 
 class TrackingCertificationInfo : public DQMEDHarvester {
 public:
@@ -86,7 +89,6 @@ private:
 
   MonitorElement* TrackingLSCertification;
 
-  edm::ESHandle<SiStripDetCabling> detCabling_;
   edm::ParameterSet pSet_;
 
   bool trackingCertificationBooked_;
@@ -99,6 +101,12 @@ private:
   bool checkPixelFEDs_;
 
   unsigned long long m_cacheID_;
+
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+  const RunInfo* sumFED_ = nullptr;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  edm::ESWatcher<SiStripDetCablingRcd> fedDetCablingWatcher_;
+  const SiStripDetCabling* detCabling_;
 
   std::vector<std::string> SubDetFolder;
 };

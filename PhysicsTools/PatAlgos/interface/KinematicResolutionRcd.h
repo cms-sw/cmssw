@@ -19,9 +19,9 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class KinematicResolutionRcd
     : public edm::eventsetup::DependentRecordImplementation<KinematicResolutionRcd,
-                                                            boost::mpl::vector<IdealMagneticFieldRecord> > {};
+                                                            edm::mpl::Vector<IdealMagneticFieldRecord> > {};
 #endif

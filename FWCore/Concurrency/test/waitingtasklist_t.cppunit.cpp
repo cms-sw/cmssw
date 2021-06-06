@@ -15,10 +15,6 @@
 #include "tbb/task.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
-#define CXX_THREAD_AVAILABLE
-#endif
-
 class WaitingTaskList_test : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(WaitingTaskList_test);
   CPPUNIT_TEST(addThenDone);
@@ -43,12 +39,12 @@ namespace {
   public:
     TestCalledTask(std::atomic<bool>& iCalled, std::exception_ptr& iPtr) : m_called(iCalled), m_ptr(iPtr) {}
 
-    tbb::task* execute() {
+    void execute() final {
       if (exceptionPtr()) {
         m_ptr = *exceptionPtr();
       }
       m_called = true;
-      return nullptr;
+      return;
     }
 
   private:
@@ -59,9 +55,9 @@ namespace {
   class TestValueSetTask : public edm::WaitingTask {
   public:
     TestValueSetTask(std::atomic<bool>& iValue) : m_value(iValue) {}
-    tbb::task* execute() {
+    void execute() final {
       CPPUNIT_ASSERT(m_value);
-      return nullptr;
+      return;
     }
 
   private:
@@ -77,20 +73,16 @@ void WaitingTaskList_test::addThenDone() {
   {
     std::exception_ptr excPtr;
 
-    auto waitTask = edm::make_empty_waiting_task();
-    waitTask->set_ref_count(2);
-    //NOTE: allocate_child does NOT increment the ref_count of waitTask!
-    auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr};
+    auto t = new TestCalledTask{called, excPtr};
 
-    waitList.add(t);
+    tbb::task_group group;
+    waitList.add(edm::WaitingTaskHolder(group, t));
 
     usleep(10);
-    __sync_synchronize();
     CPPUNIT_ASSERT(false == called);
 
     waitList.doneWaiting(std::exception_ptr{});
-    waitTask->wait_for_all();
-    __sync_synchronize();
+    group.wait();
     CPPUNIT_ASSERT(true == called);
     CPPUNIT_ASSERT(bool(excPtr) == false);
   }
@@ -101,18 +93,17 @@ void WaitingTaskList_test::addThenDone() {
   {
     std::exception_ptr excPtr;
 
-    auto waitTask = edm::make_empty_waiting_task();
-    waitTask->set_ref_count(2);
+    auto t = new TestCalledTask{called, excPtr};
 
-    auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr};
+    tbb::task_group group;
 
-    waitList.add(t);
+    waitList.add(edm::WaitingTaskHolder(group, t));
 
     usleep(10);
     CPPUNIT_ASSERT(false == called);
 
     waitList.doneWaiting(std::exception_ptr{});
-    waitTask->wait_for_all();
+    group.wait();
     CPPUNIT_ASSERT(true == called);
     CPPUNIT_ASSERT(bool(excPtr) == false);
   }
@@ -124,15 +115,14 @@ void WaitingTaskList_test::doneThenAdd() {
 
   edm::WaitingTaskList waitList;
   {
-    auto waitTask = edm::make_empty_waiting_task();
-    waitTask->set_ref_count(2);
+    tbb::task_group group;
 
-    auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr};
+    auto t = new TestCalledTask{called, excPtr};
 
     waitList.doneWaiting(std::exception_ptr{});
 
-    waitList.add(t);
-    waitTask->wait_for_all();
+    waitList.add(edm::WaitingTaskHolder(group, t));
+    group.wait();
     CPPUNIT_ASSERT(true == called);
     CPPUNIT_ASSERT(bool(excPtr) == false);
   }
@@ -145,18 +135,17 @@ void WaitingTaskList_test::addThenDoneFailed() {
   {
     std::exception_ptr excPtr;
 
-    auto waitTask = edm::make_empty_waiting_task();
-    waitTask->set_ref_count(2);
+    auto t = new TestCalledTask{called, excPtr};
 
-    auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr};
+    tbb::task_group group;
 
-    waitList.add(t);
+    waitList.add(edm::WaitingTaskHolder(group, t));
 
     usleep(10);
     CPPUNIT_ASSERT(false == called);
 
     waitList.doneWaiting(std::make_exception_ptr(std::string("failed")));
-    waitTask->wait_for_all();
+    group.wait();
     CPPUNIT_ASSERT(true == called);
     CPPUNIT_ASSERT(bool(excPtr) == true);
   }
@@ -168,65 +157,52 @@ void WaitingTaskList_test::doneThenAddFailed() {
 
   edm::WaitingTaskList waitList;
   {
-    auto waitTask = edm::make_empty_waiting_task();
-    waitTask->set_ref_count(2);
-
-    auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr};
+    auto t = new TestCalledTask{called, excPtr};
 
     waitList.doneWaiting(std::make_exception_ptr(std::string("failed")));
 
-    waitList.add(t);
-    waitTask->wait_for_all();
+    tbb::task_group group;
+
+    waitList.add(edm::WaitingTaskHolder(group, t));
+    group.wait();
     CPPUNIT_ASSERT(true == called);
     CPPUNIT_ASSERT(bool(excPtr) == true);
   }
 }
 
 namespace {
-#if defined(CXX_THREAD_AVAILABLE)
   void join_thread(std::thread* iThread) {
     if (iThread->joinable()) {
       iThread->join();
     }
   }
-#endif
 }  // namespace
 
 void WaitingTaskList_test::stressTest() {
-#if defined(CXX_THREAD_AVAILABLE)
-  std::atomic<bool> called{false};
-  std::exception_ptr excPtr;
   edm::WaitingTaskList waitList;
+  tbb::task_group group;
 
   unsigned int index = 1000;
   const unsigned int nTasks = 10000;
   while (0 != --index) {
-    called = false;
-    auto waitTask = edm::make_empty_waiting_task();
-    waitTask->set_ref_count(3);
-    tbb::task* pWaitTask = waitTask.get();
-
+    edm::FinalWaitingTask waitTask;
+    auto* pWaitTask = &waitTask;
     {
-      std::thread makeTasksThread([&waitList, pWaitTask, &called, &excPtr] {
+      edm::WaitingTaskHolder waitTaskH(group, pWaitTask);
+      std::thread makeTasksThread([&waitList, waitTaskH] {
         for (unsigned int i = 0; i < nTasks; ++i) {
-          auto t = new (tbb::task::allocate_additional_child_of(*pWaitTask)) TestCalledTask{called, excPtr};
-          waitList.add(t);
+          waitList.add(waitTaskH);
         }
-
-        pWaitTask->decrement_ref_count();
       });
       std::shared_ptr<std::thread>(&makeTasksThread, join_thread);
 
-      std::thread doneWaitThread([&waitList, &called, pWaitTask] {
-        called = true;
-        waitList.doneWaiting(std::exception_ptr{});
-        pWaitTask->decrement_ref_count();
-      });
+      std::thread doneWaitThread([&waitList, waitTaskH] { waitList.doneWaiting(std::exception_ptr{}); });
       std::shared_ptr<std::thread>(&doneWaitThread, join_thread);
     }
-    waitTask->wait_for_all();
+    do {
+      group.wait();
+    } while (not waitTask.done());
   }
-#endif
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(WaitingTaskList_test);

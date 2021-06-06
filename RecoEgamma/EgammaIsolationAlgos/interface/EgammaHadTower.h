@@ -4,9 +4,7 @@
 // Finds the towers behind a super-cluster using the CaloTowerConstituentMap
 // Florian Beaudette 22 Jun 2011
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
@@ -14,23 +12,22 @@
 
 class HcalChannelQuality;
 
-class EgammaHadTower {
-public:
-  enum HoeMode { SingleTower = 0, TowersBehindCluster = 1 };
+namespace egamma {
+  enum class HoeMode { SingleTower = 0, TowersBehindCluster = 1 };
 
-  EgammaHadTower(const edm::EventSetup& es, HoeMode mode = SingleTower);
-  double getDepth1HcalESum(const std::vector<CaloTowerDetId>& towers, CaloTowerCollection const&) const;
-  double getDepth2HcalESum(const std::vector<CaloTowerDetId>& towers, CaloTowerCollection const&) const;
-  std::vector<CaloTowerDetId> towersOf(const reco::SuperCluster& sc) const;
-  CaloTowerDetId towerOf(const reco::CaloCluster& cluster) const;
-  bool hasActiveHcal(const std::vector<CaloTowerDetId>& towers) const;
+  double depth1HcalESum(std::vector<CaloTowerDetId> const& towers, CaloTowerCollection const&);
+  double depth2HcalESum(std::vector<CaloTowerDetId> const& towers, CaloTowerCollection const&);
 
-private:
-  const CaloTowerConstituentsMap* towerMap_;
-  HoeMode mode_;
-  unsigned int nMaxClusters_;
-  const HcalChannelQuality* hcalQuality_;
-  const HcalTopology* hcalTopology_;
-};
+  std::vector<CaloTowerDetId> towersOf(reco::SuperCluster const& sc,
+                                       CaloTowerConstituentsMap const& towerMap,
+                                       HoeMode mode = HoeMode::SingleTower);
+
+  CaloTowerDetId towerOf(reco::CaloCluster const& cluster, CaloTowerConstituentsMap const& towerMap);
+
+  bool hasActiveHcal(std::vector<CaloTowerDetId> const& towers,
+                     CaloTowerConstituentsMap const& towerMap,
+                     HcalChannelQuality const& hcalQuality,
+                     HcalTopology const& hcalTopology);
+};  // namespace egamma
 
 #endif

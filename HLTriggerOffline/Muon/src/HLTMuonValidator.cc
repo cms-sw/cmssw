@@ -12,6 +12,7 @@
 // system include files
 #include <iostream>
 #include <memory>
+#include <tuple>
 
 // user include files
 #include "HLTriggerOffline/Muon/interface/HLTMuonPlotter.h"
@@ -28,7 +29,6 @@
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TPRegexp.h"
-#include "boost/tuple/tuple.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 //////// Define the interface ////////////////////////////////////////////////
@@ -55,9 +55,9 @@ private:
   // Member Variables
   std::vector<HLTMuonPlotter> analyzers_;
   HLTConfigProvider hltConfig_;
-  boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-               edm::EDGetTokenT<reco::GenParticleCollection>,
-               edm::EDGetTokenT<reco::MuonCollection>>
+  std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+             edm::EDGetTokenT<reco::GenParticleCollection>,
+             edm::EDGetTokenT<reco::MuonCollection>>
       myTokens_;
 };
 

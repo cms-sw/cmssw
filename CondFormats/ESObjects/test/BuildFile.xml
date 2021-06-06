@@ -1,3 +1,3 @@
 <bin file="testSerializationESObjects.cpp">
-    <use   name="CondFormats/ESObjects"/>
+  <use name="CondFormats/ESObjects"/>
 </bin>

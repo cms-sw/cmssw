@@ -18,17 +18,17 @@
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace edm;
 
-DTDAQInfo::DTDAQInfo(const ParameterSet& pset) {
+DTDAQInfo::DTDAQInfo(const ParameterSet& pset)
+    : mappingToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
+      runInfoToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
   bookingdone = false;
   checkUros = pset.getUntrackedParameter<bool>("checkUros", true);
 }
@@ -41,7 +41,7 @@ void DTDAQInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
                                       edm::EventSetup const& setup) {
   if (!bookingdone) {
     // retrieve the mapping
-    setup.get<DTReadOutMappingRcd>().get(mapping);
+    mapping = &setup.getData(mappingToken_);
 
     // book the ME
     // global fraction
@@ -80,9 +80,8 @@ void DTDAQInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
     daqMap->Reset();
     //get fed summary information
-    ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
-    vector<int> fedInIDs = sumFED->m_fed_in;
+    auto sumFED = runInfoRec->get(runInfoToken_);
+    const vector<int> fedInIDs = sumFED.m_fed_in;
 
     // the range of DT feds
     static const int FEDIDmin = FEDNumbering::MINDTFEDID;

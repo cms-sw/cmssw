@@ -29,7 +29,7 @@ namespace edm {
   class DelayedReader {
   public:
     virtual ~DelayedReader();
-    std::unique_ptr<WrapperBase> getProduct(BranchID const& k,
+    std::shared_ptr<WrapperBase> getProduct(BranchID const& k,
                                             EDProductGetter const* ep,
                                             ModuleCallingContext const* mcc = nullptr);
 
@@ -44,7 +44,7 @@ namespace edm {
     postEventReadFromSourceSignal() const = 0;
 
   private:
-    virtual std::unique_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) = 0;
+    virtual std::shared_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) = 0;
     virtual void mergeReaders_(DelayedReader*) = 0;
     virtual void reset_() = 0;
     virtual std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources_() const;

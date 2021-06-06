@@ -41,5 +41,5 @@ void IOVPayloadAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
   //std::cout <<" tinfo name="<<tinfo.name<<" token="<<tinfo.lastPayloadToken<<std::endl;
   //}
 }
-void IOVPayloadAnalyzer::endJob() {}
+void IOVPayloadAnalyzer::endJob() { std::cout << "End of job..." << std::endl; }
 DEFINE_FWK_MODULE(IOVPayloadAnalyzer);

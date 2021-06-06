@@ -6,10 +6,19 @@ process = cms.Process('TimingAnalyzer')
 #import FWCore.MessageLogger.MessageLogger_cfi
 
 #Logger
-process.MessageLogger = cms.Service ( "MessageLogger",
-  destinations = cms.untracked.vstring ( "debug.log" ),
-  debuglog = cms.untracked.PSet ( threshold = cms.untracked.string ( "DEBUG" ) ),
-  debugModules = cms.untracked.vstring ( "*" )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring('*'),
+    debuglog = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    files = cms.untracked.PSet(
+        debug = cms.untracked.PSet(
+
+        )
+    )
 )
 
 #Input file

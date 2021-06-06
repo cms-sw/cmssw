@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
@@ -22,6 +23,8 @@
 
 #include "RecoPPS/Local/interface/RPixDetPatternFinder.h"
 #include "RecoPPS/Local/interface/RPixDetTrackFinder.h"
+
+#include <memory>
 
 #include <string>
 #include <vector>
@@ -53,6 +56,7 @@ private:
 
   edm::InputTag inputTag_;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> tokenCTPPSPixelRecHit_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> tokenCTPPSGeometry_;
   edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
   uint32_t numberOfPlanesPerPot_;
   std::vector<uint32_t> listOfAllPlanes_;
@@ -66,7 +70,7 @@ private:
 //------------------------------------------------------------------------------------------------//
 
 CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterSet &parameterSet) {
-  inputTag_ = parameterSet.getParameter<std::string>("label");
+  inputTag_ = parameterSet.getParameter<edm::InputTag>("tag");
   verbosity_ = parameterSet.getUntrackedParameter<int>("verbosity");
   maxHitPerRomanPot_ = parameterSet.getParameter<int>("maxHitPerRomanPot");
   maxHitPerPlane_ = parameterSet.getParameter<int>("maxHitPerPlane");
@@ -79,7 +83,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
 
   // pattern algorithm selector
   if (patternFinderAlgorithm == "RPixRoadFinder") {
-    patternFinder_ = std::unique_ptr<RPixRoadFinder>(new RPixRoadFinder(parameterSet));
+    patternFinder_ = std::make_unique<RPixRoadFinder>(parameterSet);
   } else {
     throw cms::Exception("CTPPSPixelLocalTrackProducer")
         << "Pattern finder algorithm" << patternFinderAlgorithm << " does not exist";
@@ -92,7 +96,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
 
   //tracking algorithm selector
   if (trackFitterAlgorithm == "RPixPlaneCombinatoryTracking") {
-    trackFinder_ = std::unique_ptr<RPixPlaneCombinatoryTracking>(new RPixPlaneCombinatoryTracking(parameterSet));
+    trackFinder_ = std::make_unique<RPixPlaneCombinatoryTracking>(parameterSet);
   } else {
     throw cms::Exception("CTPPSPixelLocalTrackProducer")
         << "Tracking fitter algorithm" << trackFitterAlgorithm << " does not exist";
@@ -100,7 +104,8 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
   trackFinder_->setListOfPlanes(listOfAllPlanes_);
   trackFinder_->initialize();
 
-  tokenCTPPSPixelRecHit_ = consumes<edm::DetSetVector<CTPPSPixelRecHit>>(edm::InputTag(inputTag_));
+  tokenCTPPSPixelRecHit_ = consumes<edm::DetSetVector<CTPPSPixelRecHit>>(inputTag_);
+  tokenCTPPSGeometry_ = esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>();
 
   produces<edm::DetSetVector<CTPPSPixelLocalTrack>>();
 }
@@ -114,8 +119,8 @@ CTPPSPixelLocalTrackProducer::~CTPPSPixelLocalTrackProducer() {}
 void CTPPSPixelLocalTrackProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<std::string>("label", "ctppsPixelRecHits")
-      ->setComment("label of the RecHits input for the tracking algorithm");
+  desc.add<edm::InputTag>("tag", edm::InputTag("ctppsPixelRecHits"))
+      ->setComment("inputTag of the RecHits input for the tracking algorithm");
   desc.add<std::string>("patternFinderAlgorithm", "RPixRoadFinder")->setComment("algorithm type for pattern finder");
   desc.add<std::string>("trackFinderAlgorithm", "RPixPlaneCombinatoryTracking")
       ->setComment("algorithm type for track finder");
@@ -152,8 +157,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
   edm::DetSetVector<CTPPSPixelRecHit> recHitVector(*recHits);
 
   // get geometry
-  edm::ESHandle<CTPPSGeometry> geometryHandler;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(geometryHandler);
+  edm::ESHandle<CTPPSGeometry> geometryHandler = iSetup.getHandle(tokenCTPPSGeometry_);
   const CTPPSGeometry &geometry = *geometryHandler;
   geometryWatcher_.check(iSetup);
 

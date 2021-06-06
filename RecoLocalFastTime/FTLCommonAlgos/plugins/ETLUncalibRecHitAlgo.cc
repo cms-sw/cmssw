@@ -1,6 +1,8 @@
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDUncalibratedRecHitAlgoBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CommonTools/Utils/interface/FormulaEvaluator.h"
+
 class ETLUncalibRecHitAlgo : public ETLUncalibratedRecHitAlgoBase {
 public:
   /// Constructor
@@ -11,7 +13,7 @@ public:
         adcLSB_(adcSaturation_ / (1 << adcNBits_)),
         toaLSBToNS_(conf.getParameter<double>("toaLSB_ns")),
         tofDelay_(conf.getParameter<double>("tofDelay")),
-        timeError_(conf.getParameter<double>("timeResolutionInNs")) {}
+        timeError_(conf.getParameter<std::string>("timeResolutionInNs")) {}
 
   /// Destructor
   ~ETLUncalibRecHitAlgo() override {}
@@ -29,25 +31,37 @@ private:
   const double adcLSB_;
   const double toaLSBToNS_;
   const double tofDelay_;
-  const double timeError_;
+  const reco::FormulaEvaluator timeError_;
 };
 
 FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataFrame) const {
   constexpr int iSample = 2;  //only in-time sample
   const auto& sample = dataFrame.sample(iSample);
 
-  double amplitude = double(sample.data()) * adcLSB_;
+  const std::array<double, 1> amplitudeV = {{double(sample.data()) * adcLSB_}};
+  // NB: Here amplitudeV is defined as an array in order to be used
+  //     below as an input to FormulaEvaluator::evaluate.
   double time = double(sample.toa()) * toaLSBToNS_ - tofDelay_;
   unsigned char flag = 0;
 
-  LogDebug("ETLUncalibRecHit") << "ADC+: set the charge to: " << amplitude << ' ' << sample.data() << ' ' << adcLSB_
+  LogDebug("ETLUncalibRecHit") << "ADC+: set the charge to: " << amplitudeV[0] << ' ' << sample.data() << ' ' << adcLSB_
                                << ' ' << std::endl;
   LogDebug("ETLUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() << ' ' << toaLSBToNS_ << ' '
                                << std::endl;
-  LogDebug("ETLUncalibRecHit") << "Final uncalibrated amplitude : " << amplitude << std::endl;
+  LogDebug("ETLUncalibRecHit") << "Final uncalibrated amplitude : " << amplitudeV[0] << std::endl;
 
-  return FTLUncalibratedRecHit(
-      dataFrame.id(), dataFrame.row(), dataFrame.column(), {amplitude, 0.f}, {time, 0.f}, timeError_, flag);
+  const std::array<double, 1> emptyV = {{0.}};
+  double timeError = timeError_.evaluate(amplitudeV, emptyV);
+
+  return FTLUncalibratedRecHit(dataFrame.id(),
+                               dataFrame.row(),
+                               dataFrame.column(),
+                               {amplitudeV[0], 0.f},
+                               {time, 0.f},
+                               timeError,
+                               -1.f,
+                               -1.f,
+                               flag);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

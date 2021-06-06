@@ -23,10 +23,7 @@
 #include "TVirtualX.h"
 #include "TObject.h"
 //#include "TMatrixD.h"
-#define SDIM2 10    /* number of samples for cristal */
-#define PLSHDIM 650 /* size of the pulse shape array */
-                    //double pulseShape( Double_t x[1], Double_t par[4] ) ;
-                    //
+
 struct matrice {
   int nb_lignes;
   int nb_colonnes;
@@ -38,11 +35,14 @@ matrice cree_mat_prod(matrice, matrice);
 void fill_mat(matrice, matrice);
 matrice fill_mat_int(matrice, matrice, matrice);
 
-#define dimmat 30
-#define dimout 10
-#define nbmax_cell 1000
-
 class TFParams : public TObject {
+public:
+  static constexpr unsigned int dimmat = 30;
+  static constexpr unsigned int dimout = 10;
+  static constexpr unsigned int nbmax_cell = 1000;
+  static constexpr int SDIM2 = 10;
+  static constexpr int PLSHDIM = 650;
+
 private:
   int ns;        // number of samples
   int nsmin;     // beginning of fit
@@ -57,6 +57,8 @@ private:
   int METHODE;
 
 public:
+  /* number of samples for cristal */
+  /* size of the pulse shape array */
   TFParams(int size = SDIM2, int size_sh = PLSHDIM);
   ~TFParams() override{};
   double fitpj(double **, double *, double **, double noise_val, int debug);

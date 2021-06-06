@@ -54,9 +54,7 @@ process.load("Validation.HcalRecHits.HcalRecHitParam_cfi")
 process.load("Validation.CaloTowers.CaloTowersParam_cfi")
 process.calotowersAnalyzer.outputFile = cms.untracked.string('CaloTowersValidationRelVal.root')
 
-
-process.load("Validation.RecoParticleFlow.PFCluster_cfi")
-process.pfclusterAnalyzer.outputFile = cms.untracked.string('PFcluster.root')
+process.load("Validation.RecoParticleFlow.pfClusterValidation_cfi")
 
 #------------- CUSTOMIZATION - replace hbhereco with hbheprereco
 delattr(process,"hbhereco")
@@ -98,7 +96,7 @@ process.p = cms.Path(
     process.HcalSimHitsAnalyser *
     process.hcaldigisAnalyzer *
     process.calotowersAnalyzer *
-    process.pfclusterAnalyzer *
+    process.pfClusterValidation *
     process.hcalRecoAnalyzer *
     #
     process.MEtoEDMConverter

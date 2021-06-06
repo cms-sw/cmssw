@@ -28,12 +28,12 @@ process.two = cms.EDProducer("IntProducer",
 
 process.getOne = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(1),
-    moduleLabel = cms.untracked.string('one')
+    moduleLabel = cms.untracked.InputTag('one')
 )
 
 process.getTwo = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(2),
-    moduleLabel = cms.untracked.string('two')
+    moduleLabel = cms.untracked.InputTag('two')
 )
 
 process.t = cms.Task(process.one, process.two)

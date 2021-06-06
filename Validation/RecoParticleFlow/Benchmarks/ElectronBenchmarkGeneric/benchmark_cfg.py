@@ -39,7 +39,6 @@ process.pfNoPileUp = cms.EDProducer("TPPileUpPFCandidatesOnPFCandidates",
     bottomCollection = cms.InputTag("particleFlow"),
     topCollection = cms.InputTag("pfPileUp"),
     name = cms.untracked.string('pileUpOnPFCandidates'),
-    verbose = cms.untracked.bool(False)
 )
 
 
@@ -73,89 +72,36 @@ process.p = cms.Path(process.electronBenchmarkGeneric)
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    suppressInfo = cms.untracked.vstring(),
-    debugs = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    suppressDebug = cms.untracked.vstring(),
-    cout = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    cerr_stats = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        output = cms.untracked.string('cerr'),
-        optionalPSet = cms.untracked.bool(True)
-    ),
-    warnings = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    default = cms.untracked.PSet(
-
-    ),
-    statistics = cms.untracked.vstring('cerr_stats'),
     cerr = cms.untracked.PSet(
+        FwkReport = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(100)
+        ),
+        FwkSummary = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(1)
+        ),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
+        Root_NoDictionary = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000)
+        ),
         noTimeStamps = cms.untracked.bool(False),
-        FwkReport = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(100),
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(10000000)
-        ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(10000000)
-        ),
-        Root_NoDictionary = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(0)
-        ),
         threshold = cms.untracked.string('INFO'),
-        FwkJob = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(0)
-        ),
-        FwkSummary = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1),
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(10000000)
-        ),
-        optionalPSet = cms.untracked.bool(True)
+        enableStatistics = cms.untracked.bool(True),
+        statisticsThreshold = cms.untracked.string('WARNING')
     ),
-    FrameworkJobReport = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        optionalPSet = cms.untracked.bool(True),
-        FwkJob = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(10000000)
-        )
-    ),
-    suppressWarning = cms.untracked.vstring(),
-    errors = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    destinations = cms.untracked.vstring('warnings', 
-        'errors', 
-        'infos', 
-        'debugs', 
-        'cout', 
-        'cerr'),
     debugModules = cms.untracked.vstring(),
-    infos = cms.untracked.PSet(
-        optionalPSet = cms.untracked.bool(True),
-        Root_NoDictionary = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
-            limit = cms.untracked.int32(0)
-        ),
-        placeholder = cms.untracked.bool(True)
+    default = cms.untracked.PSet(
+
     ),
-    categories = cms.untracked.vstring('FwkJob', 
-        'FwkReport', 
-        'FwkSummary', 
-        'Root_NoDictionary'),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport')
+    suppressDebug = cms.untracked.vstring(),
+    suppressInfo = cms.untracked.vstring(),
+    suppressWarning = cms.untracked.vstring()
 )
 
 
@@ -170,9 +116,7 @@ process.DQM = cms.Service("DQM",
 
 process.DQMStore = cms.Service("DQMStore",
     verboseQT = cms.untracked.int32(0),
-    referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0),
-    collateHistograms = cms.untracked.bool(False)
 )
 
 

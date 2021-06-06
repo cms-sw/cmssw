@@ -787,8 +787,8 @@ int main(int argc, char** argv) {
         std::string skipped;
         getline(filterFile, skipped);
         //--- Special: remove any trailing whitespace ---//
-        size_t spos = skipped.find_first_not_of(" ");
-        size_t epos = skipped.find_last_not_of(" ");
+        size_t spos = skipped.find_first_not_of(' ');
+        size_t epos = skipped.find_last_not_of(' ');
         if (spos != std::string::npos && epos != std::string::npos) {
           skipped = skipped.substr(spos, epos);
           squareOne.push_back(skipped);
@@ -796,7 +796,7 @@ int main(int argc, char** argv) {
       }
     } else {  //--- Assume the file is a comma-separated list of modules ---//
       size_t strStart = 0;
-      for (size_t itr = startHere.find(",", 0); itr != std::string::npos; itr = startHere.find(",", itr)) {
+      for (size_t itr = startHere.find(',', 0); itr != std::string::npos; itr = startHere.find(',', itr)) {
         std::string skipped = startHere.substr(strStart, (itr - strStart));
         itr++;
         strStart = itr;
@@ -815,8 +815,8 @@ int main(int argc, char** argv) {
         std::string skipped;
         getline(excludeModFile, skipped);
         //--- Special: remove any trailing whitespace ---//
-        size_t spos = skipped.find_first_not_of(" ");
-        size_t epos = skipped.find_last_not_of(" ");
+        size_t spos = skipped.find_first_not_of(' ');
+        size_t epos = skipped.find_last_not_of(' ');
         if (spos != std::string::npos && epos != std::string::npos) {
           skipped = skipped.substr(spos, epos + 1);
           skipTimingMod.push_back(skipped);
@@ -824,7 +824,7 @@ int main(int argc, char** argv) {
       }
     } else {  //--- Assume the file is a comma-separated list of modules ---//
       size_t strStart = 0;
-      for (size_t itr = excludeModName.find(",", 0); itr != std::string::npos; itr = excludeModName.find(",", itr)) {
+      for (size_t itr = excludeModName.find(',', 0); itr != std::string::npos; itr = excludeModName.find(',', itr)) {
         std::string skipped = excludeModName.substr(strStart, (itr - strStart));
         itr++;
         strStart = itr;
@@ -844,8 +844,8 @@ int main(int argc, char** argv) {
         std::string skipped;
         getline(excludePathFile, skipped);
         //--- Special: remove any trailing whitespace ---//
-        size_t spos = skipped.find_first_not_of(" ");
-        size_t epos = skipped.find_last_not_of(" ");
+        size_t spos = skipped.find_first_not_of(' ');
+        size_t epos = skipped.find_last_not_of(' ');
         if (spos != std::string::npos && epos != std::string::npos) {
           skipped = skipped.substr(spos, epos + 1);
           skipTimingPath.push_back(skipped);
@@ -853,7 +853,7 @@ int main(int argc, char** argv) {
       }
     } else {  //--- Assume the file is a comma-separated list of paths ---//
       size_t strStart = 0;
-      for (size_t itr = excludePathName.find(",", 0); itr != std::string::npos; itr = excludePathName.find(",", itr)) {
+      for (size_t itr = excludePathName.find(',', 0); itr != std::string::npos; itr = excludePathName.find(',', itr)) {
         std::string skipped = excludePathName.substr(strStart, (itr - strStart));
         itr++;
         strStart = itr;
@@ -873,8 +873,8 @@ int main(int argc, char** argv) {
         std::string modname;
         getline(modPrintFile, modname);
         //--- Special: remove any trailing whitespace ---//
-        size_t spos = modname.find_first_not_of(" ");
-        size_t epos = modname.find_last_not_of(" ");
+        size_t spos = modname.find_first_not_of(' ');
+        size_t epos = modname.find_last_not_of(' ');
         if (spos != std::string::npos && epos != std::string::npos) {
           modname = modname.substr(spos, epos + 1);
           modInterested.push_back(modname);
@@ -882,7 +882,7 @@ int main(int argc, char** argv) {
       }
     } else {  //--- Assume the file is a comma-separated list of modules ---//
       size_t strStart = 0;
-      for (size_t itr = modPrintName.find(",", 0); itr != std::string::npos; itr = modPrintName.find(",", itr)) {
+      for (size_t itr = modPrintName.find(',', 0); itr != std::string::npos; itr = modPrintName.find(',', itr)) {
         std::string modname = modPrintName.substr(strStart, (itr - strStart));
         itr++;
         strStart = itr;
@@ -899,10 +899,10 @@ int main(int argc, char** argv) {
     unsigned int strStart = 0;
     numberOfspecificTotalTime = 0;
 
-    for (size_t itr = strSpecificTotalTime.find("A", 0); itr != std::string::npos;
-         itr = strSpecificTotalTime.find("A", itr)) {
+    for (size_t itr = strSpecificTotalTime.find('A', 0); itr != std::string::npos;
+         itr = strSpecificTotalTime.find('A', itr)) {
       std::string strSpecificTimePair = strSpecificTotalTime.substr(strStart, (itr - strStart));
-      size_t commaPos = strSpecificTimePair.find(",", 0);
+      size_t commaPos = strSpecificTimePair.find(',', 0);
       std::pair<double, double> specificTimePair;
       specificTimePair.first = atof(strSpecificTimePair.substr(0, commaPos).c_str());
       specificTimePair.second =
@@ -914,7 +914,7 @@ int main(int argc, char** argv) {
     }
     //--- Fill the last entry ---//
     std::string strSpecificTimePair = strSpecificTotalTime.substr(strStart, strSpecificTotalTime.length() - strStart);
-    size_t commaPos = strSpecificTimePair.find(",", 0);
+    size_t commaPos = strSpecificTimePair.find(',', 0);
     std::pair<double, double> specificTimePair;
     specificTimePair.first = atof(strSpecificTimePair.substr(0, commaPos).c_str());
     specificTimePair.second =

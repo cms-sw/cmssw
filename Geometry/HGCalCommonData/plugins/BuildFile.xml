@@ -1,43 +1,41 @@
 <library name="GeometryHGCalCommonDataPlugin" file="DD*.cc">
-  <use   name="CondFormats/GeometryObjects"/>
-  <use   name="DetectorDescription/Core"/>
-  <use   name="DetectorDescription/Parser"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="Geometry/HGCalCommonData"/>
-  <use   name="Geometry/Records"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="Geometry/HGCalCommonData"/>
+  <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library name="GeometryHGCalCommonDataESModules" file="HGCal*.cc"> 
-  <use   name="DetectorDescription/Core"/>
-  <use   name="DetectorDescription/DDCMS"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="Geometry/HGCalCommonData"/>
-  <use   name="Geometry/Records"/>
-  <use   name="dd4hep"/>
+<library name="GeometryHGCalCommonDataESModules" file="HGCal*.cc">
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="Geometry/HGCalCommonData"/>
+  <use name="Geometry/Records"/>
+  <use name="dd4hep"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library name="GeometryHGCalCommonDataFastTimeESModules" file="FastTime*.cc"> 
-  <use   name="DetectorDescription/Core"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="Geometry/HGCalCommonData"/>
-  <use   name="Geometry/Records"/>
+<library name="GeometryHGCalCommonDataFastTimeESModules" file="FastTime*.cc">
+  <use name="DetectorDescription/Core"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="Geometry/HGCalCommonData"/>
+  <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="DD4hep_GeometryHGCalCommonDataPlugins" file="dd4hep/*.cc">
   <use name="DetectorDescription/DDCMS"/>
-  <use   name="Geometry/HGCalCommonData"/>
+  <use name="Geometry/HGCalCommonData"/>
   <use name="dd4hep"/>
   <lib name="Geom"/>
   <flags DD4HEP_PLUGIN="1"/>

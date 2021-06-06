@@ -38,7 +38,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -175,10 +174,6 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::LogInfo("ModuleNumbering") << "begins";
 
-  // output file
-  std::ofstream Output("ModuleNumbering.log", std::ios::out);
-  //
-
   // reset counters
   iOK = 0;
   iERROR = 0;
@@ -188,9 +183,7 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // get the GeometricDet
   //
   edm::ESHandle<GeometricDet> rDD;
-  edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
   iSetup.get<IdealGeometryRecord>().get(rDD);
-  iSetup.get<IdealGeometryRecord>().get(rDDE);
   edm::LogInfo("ModuleNumbering") << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
   edm::LogInfo("ModuleNumbering") << "    radLength " << rDD.product()->radLength() << "\n"
                                   << "           xi " << rDD.product()->xi() << "\n"
@@ -208,8 +201,11 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size()
                                   << std::endl;
-  CmsTrackerDebugNavigator nav(*rDDE.product());
-  nav.dump(*rDD.product(), *rDDE.product());
+  // output file
+  const std::string& outputFileName =
+      (!rDD.product()->isFromDD4hep() ? "ModuleNumbering.log" : "ModuleNumbering_dd4hep.log");
+  std::ofstream Output(outputFileName, std::ios::out);
+
   //
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
@@ -220,7 +216,7 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   std::map<uint32_t, const GeometricDet*> mapDetIdToGeometricDet;
 
   for (auto& module : modules) {
-    mapDetIdToGeometricDet[module->geographicalID().rawId()] = module;
+    mapDetIdToGeometricDet[module->geographicalId().rawId()] = module;
   }
 
   // Debug variables
@@ -313,7 +309,7 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                     Output << std::endl << std::endl;
                     Output << " ******** myDet Id = " << myDetId << " (" << binary_myDetId << ")" << std::endl;
                     //
-                    unsigned int rawid = mapDetIdToGeometricDet[myDetId]->geographicalID().rawId();
+                    unsigned int rawid = mapDetIdToGeometricDet[myDetId]->geographicalId().rawId();
                     std::bitset<32> binary_detid(rawid);
                     GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
                     //
@@ -509,7 +505,7 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                     Output << std::endl << std::endl;
                     Output << " ******** myDet Id = " << myDetId << " (" << binary_myDetId << ")" << std::endl;
                     //
-                    unsigned int rawid = mapDetIdToGeometricDet[myDetId]->geographicalID().rawId();
+                    unsigned int rawid = mapDetIdToGeometricDet[myDetId]->geographicalId().rawId();
                     std::bitset<32> binary_detid(rawid);
                     GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
                     //
@@ -696,7 +692,7 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                   Output << std::endl << std::endl;
                   Output << " ******** myDet Id = " << myDetId << " (" << binary_myDetId << ")" << std::endl;
                   //
-                  unsigned int rawid = mapDetIdToGeometricDet[myDetId]->geographicalID().rawId();
+                  unsigned int rawid = mapDetIdToGeometricDet[myDetId]->geographicalId().rawId();
                   std::bitset<32> binary_detid(rawid);
                   GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
                   //
@@ -916,7 +912,7 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                       Output << std::endl << std::endl;
                       Output << " ******** myDet Id = " << myDetId << " (" << binary_myDetId << ")" << std::endl;
                       //
-                      unsigned int rawid = mapDetIdToGeometricDet[myDetId]->geographicalID().rawId();
+                      unsigned int rawid = mapDetIdToGeometricDet[myDetId]->geographicalId().rawId();
                       std::bitset<32> binary_detid(rawid);
                       GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
                       //

@@ -2,8 +2,8 @@
 #define FWCore_Framework_ProductRegistryHelper_h
 
 /*----------------------------------------------------------------------
-  
-ProductRegistryHelper: 
+
+ProductRegistryHelper:
 
 ----------------------------------------------------------------------*/
 
@@ -49,7 +49,7 @@ namespace edm {
     };
 
     struct BranchAliasSetter {
-      BranchAliasSetter(TypeLabelItem& iItem, EDPutToken iToken) : value_(iItem), token_(std::move(iToken)) {}
+      BranchAliasSetter(TypeLabelItem& iItem, EDPutToken iToken) : value_(iItem), token_(iToken) {}
 
       BranchAliasSetter& setBranchAlias(std::string alias) {
         value_.branchAlias_ = std::move(alias);
@@ -162,6 +162,9 @@ namespace edm {
       recordProvenanceList_.push_back(recordProvenance and B == Transition::Event);
       return BranchAliasSetter{typeLabelList_.back(), EDPutToken{index}};
     }
+
+    virtual bool hasAbilityToProduceInBeginProcessBlocks() const { return false; }
+    virtual bool hasAbilityToProduceInEndProcessBlocks() const { return false; }
 
     virtual bool hasAbilityToProduceInBeginRuns() const { return false; }
     virtual bool hasAbilityToProduceInEndRuns() const { return false; }

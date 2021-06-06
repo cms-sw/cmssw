@@ -46,6 +46,8 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   // M.M. 2017/09/29
   // Hardcoded Tracker Global Position Record
   // Without accessing the ES, it is not possible to access to the GPR with the PI technology,
@@ -62,26 +64,34 @@ namespace {
   // Size of the movement over all partitions
   //******************************************//
 
-  template <AlignmentPI::coordinate coord>
-  class TrackerAlignmentComparatorBase : public cond::payloadInspector::PlotImage<Alignments> {
+  template <AlignmentPI::coordinate coord, int ntags, IOVMultiplicity nIOVs>
+  class TrackerAlignmentComparatorBase : public PlotImage<Alignments, nIOVs, ntags> {
   public:
     TrackerAlignmentComparatorBase()
-        : cond::payloadInspector::PlotImage<Alignments>("comparison of " + AlignmentPI::getStringFromCoordinate(coord) +
-                                                        " coordinate between two geometries") {}
+        : PlotImage<Alignments, nIOVs, ntags>("comparison of " + AlignmentPI::getStringFromCoordinate(coord) +
+                                              " coordinate between two geometries") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<Alignments> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<Alignments> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<Alignments> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<Alignments> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -124,11 +134,11 @@ namespace {
 
       //std::unique_ptr<TH1F> compare = std::unique_ptr<TH1F>(new TH1F("comparison",Form("Comparison of %s;DetId index; #Delta%s %s",s_coord.c_str(),s_coord.c_str(),unit.c_str()),ref_ali.size(),-0.5,ref_ali.size()-0.5));
       std::unique_ptr<TH1F> compare =
-          std::unique_ptr<TH1F>(new TH1F("comparison",
-                                         Form(";Detector Id index; #Delta%s %s", s_coord.c_str(), unit.c_str()),
-                                         ref_ali.size(),
-                                         -0.5,
-                                         ref_ali.size() - 0.5));
+          std::make_unique<TH1F>("comparison",
+                                 Form(";Detector Id index; #Delta%s %s", s_coord.c_str(), unit.c_str()),
+                                 ref_ali.size(),
+                                 -0.5,
+                                 ref_ali.size() - 0.5);
 
       std::vector<int> boundaries;
       AlignmentPI::partitions currentPart = AlignmentPI::BPix;
@@ -261,7 +271,7 @@ namespace {
       t1.SetTextColor(kBlue);
       t1.DrawLatex(0.6, 0.93, Form("IOV %s - %s ", lastIOVsince.c_str(), firstIOVsince.c_str()));
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
@@ -269,16 +279,10 @@ namespace {
   };
 
   template <AlignmentPI::coordinate coord>
-  class TrackerAlignmentCompare : public TrackerAlignmentComparatorBase<coord> {
-  public:
-    TrackerAlignmentCompare() : TrackerAlignmentComparatorBase<coord>() { this->setSingleIov(false); }
-  };
+  using TrackerAlignmentCompare = TrackerAlignmentComparatorBase<coord, 1, MULTI_IOV>;
 
   template <AlignmentPI::coordinate coord>
-  class TrackerAlignmentCompareTwoTags : public TrackerAlignmentComparatorBase<coord> {
-  public:
-    TrackerAlignmentCompareTwoTags() : TrackerAlignmentComparatorBase<coord>() { this->setTwoTags(true); }
-  };
+  using TrackerAlignmentCompareTwoTags = TrackerAlignmentComparatorBase<coord, 2, SINGLE_IOV>;
 
   typedef TrackerAlignmentCompare<AlignmentPI::t_x> TrackerAlignmentCompareX;
   typedef TrackerAlignmentCompare<AlignmentPI::t_y> TrackerAlignmentCompareY;
@@ -301,16 +305,15 @@ namespace {
   //******************************************//
 
   template <AlignmentPI::partitions q>
-  class TrackerAlignmentSummary : public cond::payloadInspector::PlotImage<Alignments> {
+  class TrackerAlignmentSummary : public PlotImage<Alignments, SINGLE_IOV> {
   public:
     TrackerAlignmentSummary()
-        : cond::payloadInspector::PlotImage<Alignments>("Comparison of all coordinates between two geometries for " +
-                                                        getStringFromPart(q)) {
-      setSingleIov(false);
-    }
+        : PlotImage<Alignments, SINGLE_IOV>("Comparison of all coordinates between two geometries for " +
+                                            getStringFromPart(q)) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto sorted_iovs = tag.iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
@@ -446,7 +449,7 @@ namespace {
 
       int c_index = 1;
 
-      auto legend = std::unique_ptr<TLegend>(new TLegend(0.14, 0.93, 0.55, 0.98));
+      auto legend = std::make_unique<TLegend>(0.14, 0.93, 0.55, 0.98);
       legend->AddEntry(
           diffs[AlignmentPI::t_x].get(),
           ("#DeltaIOV: " + std::to_string(std::get<0>(lastiov)) + "-" + std::to_string(std::get<0>(firstiov))).c_str(),
@@ -498,10 +501,10 @@ namespace {
   //******************************************//
 
   template <AlignmentPI::coordinate coord>
-  class BPixBarycenterHistory : public cond::payloadInspector::HistoryPlot<Alignments, float> {
+  class BPixBarycenterHistory : public HistoryPlot<Alignments, float> {
   public:
     BPixBarycenterHistory()
-        : cond::payloadInspector::HistoryPlot<Alignments, float>(
+        : HistoryPlot<Alignments, float>(
               " Barrel Pixel " + AlignmentPI::getStringFromCoordinate(coord) + " positions vs time",
               AlignmentPI::getStringFromCoordinate(coord) + " position [cm]") {}
     ~BPixBarycenterHistory() override = default;
@@ -561,15 +564,13 @@ namespace {
   /************************************************
     Display of Tracker Detector barycenters
   *************************************************/
-  class TrackerAlignmentBarycenters : public cond::payloadInspector::PlotImage<Alignments> {
+  class TrackerAlignmentBarycenters : public PlotImage<Alignments, SINGLE_IOV> {
   public:
-    TrackerAlignmentBarycenters()
-        : cond::payloadInspector::PlotImage<Alignments>("Display of Tracker Alignment Barycenters") {
-      setSingleIov(true);
-    }
+    TrackerAlignmentBarycenters() : PlotImage<Alignments, SINGLE_IOV>("Display of Tracker Alignment Barycenters") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<Alignments> payload = fetchPayload(std::get<1>(iov));
       unsigned int run = std::get<0>(iov);
 
@@ -584,10 +585,10 @@ namespace {
       canvas.SetGrid();
 
       auto h2_BarycenterParameters =
-          std::unique_ptr<TH2F>(new TH2F("Parameters", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.));
+          std::make_unique<TH2F>("Parameters", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.);
 
       auto h2_uncBarycenterParameters =
-          std::unique_ptr<TH2F>(new TH2F("Parameters2", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.));
+          std::make_unique<TH2F>("Parameters2", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.);
 
       h2_BarycenterParameters->SetStats(false);
       h2_BarycenterParameters->SetTitle(nullptr);
@@ -688,29 +689,38 @@ namespace {
   /************************************************
     Comparator of Tracker Detector barycenters
   *************************************************/
-  class TrackerAlignmentBarycentersComparatorBase : public cond::payloadInspector::PlotImage<Alignments> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class TrackerAlignmentBarycentersComparatorBase : public PlotImage<Alignments, nIOVs, ntags> {
   public:
     TrackerAlignmentBarycentersComparatorBase()
-        : cond::payloadInspector::PlotImage<Alignments>("Comparison of Tracker Alignment Barycenters") {}
+        : PlotImage<Alignments, nIOVs, ntags>("Comparison of Tracker Alignment Barycenters") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
       unsigned int first_run = std::get<0>(firstiov);
-
-      auto lastiov = sorted_iovs.back();
       unsigned int last_run = std::get<0>(lastiov);
 
-      std::shared_ptr<Alignments> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<Alignments> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::vector<AlignTransform> last_alignments = last_payload->m_align;
 
-      std::shared_ptr<Alignments> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<Alignments> first_payload = this->fetchPayload(std::get<1>(firstiov));
       std::vector<AlignTransform> first_alignments = first_payload->m_align;
 
       isInitialPhase0 = (first_alignments.size() == AlignmentPI::phase0size) ? true : false;
@@ -739,8 +749,8 @@ namespace {
       canvas.Modified();
       canvas.SetGrid();
 
-      auto h2_BarycenterDiff = std::unique_ptr<TH2F>(
-          new TH2F("Parameters diff", "SubDetector Barycenter Difference", 3, 0.0, 3.0, 6, 0, 6.));
+      auto h2_BarycenterDiff =
+          std::make_unique<TH2F>("Parameters diff", "SubDetector Barycenter Difference", 3, 0.0, 3.0, 6, 0, 6.);
 
       h2_BarycenterDiff->SetStats(false);
       h2_BarycenterDiff->SetTitle(nullptr);
@@ -782,7 +792,7 @@ namespace {
       t1.DrawLatex(0.5, 0.96, Form("Tracker Alignment Barycenters Diff, IOV %i - IOV %i", last_run, first_run));
       t1.SetTextSize(0.025);
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
@@ -793,44 +803,43 @@ namespace {
     bool isFinalPhase0;
   };
 
-  class TrackerAlignmentBarycentersCompare : public TrackerAlignmentBarycentersComparatorBase {
-  public:
-    TrackerAlignmentBarycentersCompare() : TrackerAlignmentBarycentersComparatorBase() { this->setSingleIov(false); }
-  };
-
-  class TrackerAlignmentBarycentersCompareTwoTags : public TrackerAlignmentBarycentersComparatorBase {
-  public:
-    TrackerAlignmentBarycentersCompareTwoTags() : TrackerAlignmentBarycentersComparatorBase() {
-      this->setTwoTags(true);
-    }
-  };
+  using TrackerAlignmentBarycentersCompare = TrackerAlignmentBarycentersComparatorBase<1, MULTI_IOV>;
+  using TrackerAlignmentBarycentersCompareTwoTags = TrackerAlignmentBarycentersComparatorBase<2, SINGLE_IOV>;
 
   /************************************************
     Comparator of Pixel Tracker Detector barycenters
   *************************************************/
-  class PixelBarycentersComparatorBase : public cond::payloadInspector::PlotImage<Alignments> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class PixelBarycentersComparatorBase : public PlotImage<Alignments, nIOVs, ntags> {
   public:
-    PixelBarycentersComparatorBase()
-        : cond::payloadInspector::PlotImage<Alignments>("Comparison of Pixel Barycenters") {}
+    PixelBarycentersComparatorBase() : PlotImage<Alignments, nIOVs, ntags>("Comparison of Pixel Barycenters") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
       unsigned int first_run = std::get<0>(firstiov);
-
-      auto lastiov = sorted_iovs.back();
       unsigned int last_run = std::get<0>(lastiov);
 
-      std::shared_ptr<Alignments> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<Alignments> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::vector<AlignTransform> last_alignments = last_payload->m_align;
 
-      std::shared_ptr<Alignments> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<Alignments> first_payload = this->fetchPayload(std::get<1>(firstiov));
       std::vector<AlignTransform> first_alignments = first_payload->m_align;
 
       TCanvas canvas("Pixel Barycenter Summary", "Pixel Barycenter summary", 1200, 1200);
@@ -896,15 +905,15 @@ namespace {
       unsigned int index(0);
       for (const auto &piece : structures) {
         const char *name = piece.c_str();
-        histos[index] = std::unique_ptr<TH2F>(
-            new TH2F(name,
-                     Form("%s x-y Barycenter Difference;x_{%s}-x_{TOB} [mm];y_{%s}-y_{TOB} [mm]", name, name, name),
-                     100,
-                     -3.,
-                     3.,
-                     100,
-                     -3.,
-                     3.));
+        histos[index] = std::make_unique<TH2F>(
+            name,
+            Form("%s x-y Barycenter Difference;x_{%s}-x_{TOB} [mm];y_{%s}-y_{TOB} [mm]", name, name, name),
+            100,
+            -3.,
+            3.,
+            100,
+            -3.,
+            3.);
 
         histos[index]->SetStats(false);
         histos[index]->SetTitle(nullptr);
@@ -918,8 +927,8 @@ namespace {
         index++;
       }
 
-      auto h2_ZBarycenterDiff = std::unique_ptr<TH2F>(new TH2F(
-          "Pixel_z_diff", "Pixel z-Barycenter Difference;; z_{Pixel-Ideal} -z_{TOB} [mm]", 3, -0.5, 2.5, 100, -10., 10.));
+      auto h2_ZBarycenterDiff = std::make_unique<TH2F>(
+          "Pixel_z_diff", "Pixel z-Barycenter Difference;; z_{Pixel-Ideal} -z_{TOB} [mm]", 3, -0.5, 2.5, 100, -10., 10.);
       h2_ZBarycenterDiff->SetStats(false);
       h2_ZBarycenterDiff->SetTitle(nullptr);
       h2_ZBarycenterDiff->GetXaxis()->SetBinLabel(1, "FPIX -");
@@ -1029,7 +1038,7 @@ namespace {
         t1.DrawLatex(c - 1, z0f + 1., Form("(%.2f)", z0f));
       }
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
@@ -1040,15 +1049,8 @@ namespace {
     bool isFinalPhase0;
   };
 
-  class PixelBarycentersCompare : public PixelBarycentersComparatorBase {
-  public:
-    PixelBarycentersCompare() : PixelBarycentersComparatorBase() { this->setSingleIov(false); }
-  };
-
-  class PixelBarycentersCompareTwoTags : public PixelBarycentersComparatorBase {
-  public:
-    PixelBarycentersCompareTwoTags() : PixelBarycentersComparatorBase() { this->setTwoTags(true); }
-  };
+  using PixelBarycentersCompare = PixelBarycentersComparatorBase<1, MULTI_IOV>;
+  using PixelBarycentersCompareTwoTags = PixelBarycentersComparatorBase<2, SINGLE_IOV>;
 
 }  // namespace
 

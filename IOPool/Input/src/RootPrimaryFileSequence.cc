@@ -12,6 +12,7 @@
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -50,7 +51,7 @@ namespace edm {
 
     // Prestage the files
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
-      StorageFactory::get()->stagein(fileName());
+      StorageFactory::get()->stagein(fileNames()[0]);
     }
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
@@ -79,7 +80,9 @@ namespace edm {
       }
     } else {
       if (!nextFile()) {
-        assert(0);
+        // handle case with last file bad and
+        // skipBadFiles true
+        return std::unique_ptr<FileBlock>();
       }
     }
     if (!rootFile()) {
@@ -110,7 +113,7 @@ namespace edm {
 
   RootPrimaryFileSequence::RootFileSharedPtr RootPrimaryFileSequence::makeRootFile(std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(fileName(),
+    return std::make_shared<RootFile>(fileNames()[0],
                                       input_.processConfiguration(),
                                       logicalFileName(),
                                       filePtr,
@@ -143,20 +146,29 @@ namespace edm {
   }
 
   bool RootPrimaryFileSequence::nextFile() {
-    if (!noMoreFiles())
-      setAtNextFile();
-    if (noMoreFiles()) {
-      return false;
-    }
+    do {
+      if (!noMoreFiles())
+        setAtNextFile();
+      if (noMoreFiles()) {
+        return false;
+      }
 
-    initFile(input_.skipBadFiles());
+      initFile(input_.skipBadFiles());
+      if (rootFile()) {
+        break;
+      }
+      // If we are not skipping bad files and the file
+      // open failed, then initFile should have thrown
+      assert(input_.skipBadFiles());
+    } while (true);
 
     if (not rootFile()) {
       return false;
     }
+
     // make sure the new product registry is compatible with the main one
     std::string mergeInfo =
-        input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileName(), branchesMustMatch_);
+        input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileNames()[0], branchesMustMatch_);
     if (!mergeInfo.empty()) {
       throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::nextFile()") << mergeInfo;
     }
@@ -174,7 +186,7 @@ namespace edm {
     if (rootFile()) {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo =
-          input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileName(), branchesMustMatch_);
+          input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileNames()[0], branchesMustMatch_);
       if (!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::previousEvent()") << mergeInfo;
       }

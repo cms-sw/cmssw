@@ -164,12 +164,6 @@ namespace edm {
       BASE::setNewLumi();
       return newFile ? BASE::IsFile : BASE::IsRun;
     }
-    if (BASE::processingMode() == BASE::Runs) {
-      return newFile ? BASE::IsFile : BASE::IsRun;
-    }
-    if (BASE::processingMode() == BASE::RunsAndLumis) {
-      return newFile ? BASE::IsFile : BASE::IsLumi;
-    }
     // Same Run
     if (BASE::newLumi() || eventID_.luminosityBlock() != oldEventID.luminosityBlock()) {
       // New Lumi

@@ -3,14 +3,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "laserAlignmentT0ProducerProcess" )
 
-process.MessageLogger = cms.Service( "MessageLogger",
-  cerr = cms.untracked.PSet(
-    threshold = cms.untracked.string( 'ERROR' )
-  ),
-  cout = cms.untracked.PSet(
-    threshold = cms.untracked.string( 'INFO' )
-  ),
-  destinations = cms.untracked.vstring( 'cout', 'cerr' )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        threshold = cms.untracked.string('ERROR')
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 process.source = cms.Source( "PoolSource",

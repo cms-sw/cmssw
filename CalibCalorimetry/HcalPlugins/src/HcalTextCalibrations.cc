@@ -9,7 +9,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
@@ -36,52 +35,54 @@ HcalTextCalibrations::HcalTextCalibrations(const edm::ParameterSet& iConfig)
     mInputs[objectName] = fp.fullPath();
     //   std::cout << objectName << " with file " << fp.fullPath() << std::endl;
     if (objectName == "Pedestals") {
-      setWhatProduced(this, &HcalTextCalibrations::producePedestals).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::producePedestals).consumes();
       findingRecord<HcalPedestalsRcd>();
     } else if (objectName == "PedestalWidths") {
-      setWhatProduced(this, &HcalTextCalibrations::producePedestalWidths).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::producePedestalWidths).consumes();
       findingRecord<HcalPedestalWidthsRcd>();
     } else if (objectName == "EffectivePedestals") {
-      setWhatProduced(this, &HcalTextCalibrations::produceEffectivePedestals, edm::es::Label("effective"))
-          .setConsumes(mTokens[objectName]);
+      mTokens[objectName] =
+          setWhatProduced(this, &HcalTextCalibrations::produceEffectivePedestals, edm::es::Label("effective"))
+              .consumes();
       findingRecord<HcalPedestalsRcd>();
     } else if (objectName == "EffectivePedestalWidths") {
-      setWhatProduced(this, &HcalTextCalibrations::produceEffectivePedestalWidths, edm::es::Label("effective"))
-          .setConsumes(mTokens[objectName]);
+      mTokens[objectName] =
+          setWhatProduced(this, &HcalTextCalibrations::produceEffectivePedestalWidths, edm::es::Label("effective"))
+              .consumes();
       findingRecord<HcalPedestalWidthsRcd>();
     } else if (objectName == "Gains") {
-      setWhatProduced(this, &HcalTextCalibrations::produceGains).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceGains).consumes();
       findingRecord<HcalGainsRcd>();
     } else if (objectName == "GainWidths") {
-      setWhatProduced(this, &HcalTextCalibrations::produceGainWidths).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceGainWidths).consumes();
       findingRecord<HcalGainWidthsRcd>();
     } else if (objectName == "QIEData") {
-      setWhatProduced(this, &HcalTextCalibrations::produceQIEData).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceQIEData).consumes();
       findingRecord<HcalQIEDataRcd>();
     } else if (objectName == "QIETypes") {
-      setWhatProduced(this, &HcalTextCalibrations::produceQIETypes).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceQIETypes).consumes();
       findingRecord<HcalQIETypesRcd>();
     } else if (objectName == "ChannelQuality") {
-      setWhatProduced(this, &HcalTextCalibrations::produceChannelQuality, edm::es::Label("withTopo"))
-          .setConsumes(mTokens[objectName]);
+      mTokens[objectName] =
+          setWhatProduced(this, &HcalTextCalibrations::produceChannelQuality, edm::es::Label("withTopo")).consumes();
       findingRecord<HcalChannelQualityRcd>();
     } else if (objectName == "ZSThresholds") {
-      setWhatProduced(this, &HcalTextCalibrations::produceZSThresholds).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceZSThresholds).consumes();
       findingRecord<HcalZSThresholdsRcd>();
     } else if (objectName == "RespCorrs") {
-      setWhatProduced(this, &HcalTextCalibrations::produceRespCorrs).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceRespCorrs).consumes();
       findingRecord<HcalRespCorrsRcd>();
     } else if (objectName == "LUTCorrs") {
-      setWhatProduced(this, &HcalTextCalibrations::produceLUTCorrs).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceLUTCorrs).consumes();
       findingRecord<HcalLUTCorrsRcd>();
     } else if (objectName == "PFCorrs") {
-      setWhatProduced(this, &HcalTextCalibrations::producePFCorrs).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::producePFCorrs).consumes();
       findingRecord<HcalPFCorrsRcd>();
     } else if (objectName == "TimeCorrs") {
-      setWhatProduced(this, &HcalTextCalibrations::produceTimeCorrs).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceTimeCorrs).consumes();
       findingRecord<HcalTimeCorrsRcd>();
     } else if (objectName == "L1TriggerObjects") {
-      setWhatProduced(this, &HcalTextCalibrations::produceL1TriggerObjects).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceL1TriggerObjects).consumes();
       findingRecord<HcalL1TriggerObjectsRcd>();
     } else if (objectName == "ElectronicsMap") {
       setWhatProduced(this, &HcalTextCalibrations::produceElectronicsMap);
@@ -90,10 +91,10 @@ HcalTextCalibrations::HcalTextCalibrations(const edm::ParameterSet& iConfig)
       setWhatProduced(this, &HcalTextCalibrations::produceFrontEndMap);
       findingRecord<HcalFrontEndMapRcd>();
     } else if (objectName == "ValidationCorrs") {
-      setWhatProduced(this, &HcalTextCalibrations::produceValidationCorrs).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceValidationCorrs).consumes();
       findingRecord<HcalValidationCorrsRcd>();
     } else if (objectName == "LutMetadata") {
-      setWhatProduced(this, &HcalTextCalibrations::produceLutMetadata).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceLutMetadata).consumes();
       findingRecord<HcalLutMetadataRcd>();
     } else if (objectName == "DcsValues") {
       setWhatProduced(this, &HcalTextCalibrations::produceDcsValues);
@@ -102,31 +103,31 @@ HcalTextCalibrations::HcalTextCalibrations(const edm::ParameterSet& iConfig)
       setWhatProduced(this, &HcalTextCalibrations::produceDcsMap);
       findingRecord<HcalDcsMapRcd>();
     } else if (objectName == "RecoParams") {
-      setWhatProduced(this, &HcalTextCalibrations::produceRecoParams).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceRecoParams).consumes();
       findingRecord<HcalRecoParamsRcd>();
     } else if (objectName == "TimingParams") {
-      setWhatProduced(this, &HcalTextCalibrations::produceTimingParams).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceTimingParams).consumes();
       findingRecord<HcalTimingParamsRcd>();
     } else if (objectName == "LongRecoParams") {
-      setWhatProduced(this, &HcalTextCalibrations::produceLongRecoParams).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceLongRecoParams).consumes();
       findingRecord<HcalLongRecoParamsRcd>();
     } else if (objectName == "ZDCLowGainFractions") {
-      setWhatProduced(this, &HcalTextCalibrations::produceZDCLowGainFractions).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceZDCLowGainFractions).consumes();
       findingRecord<HcalZDCLowGainFractionsRcd>();
     } else if (objectName == "MCParams") {
-      setWhatProduced(this, &HcalTextCalibrations::produceMCParams).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceMCParams).consumes();
       findingRecord<HcalMCParamsRcd>();
     } else if (objectName == "FlagHFDigiTimeParams") {
-      setWhatProduced(this, &HcalTextCalibrations::produceFlagHFDigiTimeParams).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceFlagHFDigiTimeParams).consumes();
       findingRecord<HcalFlagHFDigiTimeParamsRcd>();
     } else if (objectName == "SiPMParameters") {
-      setWhatProduced(this, &HcalTextCalibrations::produceSiPMParameters).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceSiPMParameters).consumes();
       findingRecord<HcalSiPMParametersRcd>();
     } else if (objectName == "SiPMCharacteristics") {
       setWhatProduced(this, &HcalTextCalibrations::produceSiPMCharacteristics);
       findingRecord<HcalSiPMCharacteristicsRcd>();
     } else if (objectName == "TPChannelParameters") {
-      setWhatProduced(this, &HcalTextCalibrations::produceTPChannelParameters).setConsumes(mTokens[objectName]);
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceTPChannelParameters).consumes();
       findingRecord<HcalTPChannelParametersRcd>();
     } else if (objectName == "TPParameters") {
       setWhatProduced(this, &HcalTextCalibrations::produceTPParameters);

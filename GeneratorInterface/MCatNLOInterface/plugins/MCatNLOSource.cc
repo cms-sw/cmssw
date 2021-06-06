@@ -1,9 +1,11 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
+#include <memory>
+
+#include <memory>
 #include <sstream>
 #include <string>
-#include <memory>
 
 #include <boost/bind.hpp>
 
@@ -42,7 +44,7 @@ MCatNLOSource::MCatNLOSource(const edm::ParameterSet &params, const edm::InputSo
       nEvents(0),
       ihpro(0),
       processCode(params.getParameter<int>("processCode")) {
-  std::vector<std::string> allFileNames = fileNames();
+  std::vector<std::string> allFileNames = fileNames(0);
 
   // Only one filename
   if (allFileNames.size() != 1)
@@ -57,7 +59,7 @@ MCatNLOSource::MCatNLOSource(const edm::ParameterSet &params, const edm::InputSo
   fileName.erase(0, 5);
 
   // open input file
-  reader.reset(new std::ifstream(fileName.c_str()));
+  reader = std::make_unique<std::ifstream>(fileName.c_str());
 
   produces<LHEEventProduct>();
   produces<LHERunInfoProduct, edm::Transition::BeginRun>();

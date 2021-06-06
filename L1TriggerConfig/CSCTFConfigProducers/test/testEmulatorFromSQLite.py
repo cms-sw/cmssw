@@ -66,9 +66,10 @@ process.es_prefer_l1conddb = cms.ESPrefer("PoolDBESSource","l1conddb")
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['*']
-process.MessageLogger.categories = ['*']
-process.MessageLogger.destinations = ['cout']
+
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     threshold = cms.untracked.string('INFO'),
     DEBUG=cms.untracked.PSet(
         limit=cms.untracked.int32(-1)

@@ -120,7 +120,7 @@ namespace l1t {
           // The intermediate muons of the uGMT (FED number 1402) do not
           // have coordinates estimated at the vertex in the RAW data.
           // The corresponding bits are set to zero.
-          MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, 1402, getAlgoVersion());
+          MuonRawDigiTranslator::fillIntermediateMuon(mu, raw_data_00_31, raw_data_32_63, getAlgoVersion());
 
           LogDebug("L1T") << "Mu" << nWord / 2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt()
                           << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge()

@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
-process = cms.Process("PROD",Phase2C4)
+from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+process = cms.Process("PROD",Phase2C11)
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D35Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D71Reco_cff")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -14,7 +14,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

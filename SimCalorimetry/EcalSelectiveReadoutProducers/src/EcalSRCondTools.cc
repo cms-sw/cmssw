@@ -13,7 +13,6 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
-#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
 
@@ -58,7 +57,8 @@ constexpr int dccNum[12][12] = {
 
 using namespace std;
 
-EcalSRCondTools::EcalSRCondTools(const edm::ParameterSet& ps) : ps_(ps), done_(false) {}
+EcalSRCondTools::EcalSRCondTools(const edm::ParameterSet& ps)
+    : ps_(ps), hSrToken_(esConsumes<EcalSRSettings, EcalSRSettingsRcd>()), done_(false) {}
 
 EcalSRCondTools::~EcalSRCondTools() {}
 
@@ -107,8 +107,7 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
     db->writeOne(sr, firstSinceTime, "EcalSRSettingsRcd");
     done_ = true;
   } else {  //read mode
-    edm::ESHandle<EcalSRSettings> hSr;
-    es.get<EcalSRSettingsRcd>().get(hSr);
+    edm::ESHandle<EcalSRSettings> hSr = es.getHandle(hSrToken_);
     if (!hSr.isValid()) {
       cout << "EcalSRSettings record not found. Check the Cond DB Global tag.\n";
     } else {

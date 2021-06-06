@@ -1,7 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "CommonTools/ParticleFlow/interface/PFClusterWidthAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
@@ -10,21 +10,15 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
 
 class DetId;
 namespace edm {
@@ -137,6 +131,10 @@ private:
   std::map<reco::GsfTrackRef, reco::SuperClusterRef> scMap_;
   std::map<reco::GsfTrackRef, float> gsfMvaMap_;
 
+  // Mustache SC parameters
+  edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
+  const EcalMustacheSCParameters* mustacheSCParams_;
+
   bool emptyIsOk_;
 };
 
@@ -176,6 +174,8 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
   else
     emptyIsOk_ = false;
 
+  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
+
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_);
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_);
   produces<reco::SuperClusterCollection>(PFSuperClusterCollection_);
@@ -188,6 +188,8 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
 PFElectronTranslator::~PFElectronTranslator() {}
 
 void PFElectronTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  mustacheSCParams_ = &iSetup.getData(ecalMustacheSCParametersToken_);
+
   auto gsfElectronCores_p = std::make_unique<reco::GsfElectronCoreCollection>();
 
   auto gsfElectrons_p = std::make_unique<reco::GsfElectronCollection>();
@@ -672,7 +674,7 @@ void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection&
     myMvaInput.hadEnergy = pfCandidate.electronExtraRef()->hadEnergy();
 
     // Mustache
-    reco::Mustache myMustache;
+    reco::Mustache myMustache(mustacheSCParams_);
     myMustache.MustacheID(
         *(myElectron.parentSuperCluster()), myMvaInput.nClusterOutsideMustache, myMvaInput.etOutsideMustache);
 

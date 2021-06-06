@@ -4,7 +4,7 @@
 
 #include <vector>
 
-template <typename TIn, typename TCol, nanoaod::FlatTable::ColumnType CT>
+template <typename TIn, typename TCol>
 class NativeArrayTableProducer : public edm::stream::EDProducer<> {
 public:
   NativeArrayTableProducer(edm::ParameterSet const& params)
@@ -23,7 +23,7 @@ public:
     const auto& in = *src;
     auto out = std::make_unique<nanoaod::FlatTable>(in.size(), name_, false, false);
     out->setDoc(doc_);
-    (*out).template addColumn<TCol>(this->name_, in, this->doc_, CT);
+    (*out).template addColumn<TCol>(this->name_, in, this->doc_);
     iEvent.put(std::move(out));
   }
 
@@ -33,10 +33,10 @@ protected:
   const edm::EDGetTokenT<TIn> src_;
 };
 
-typedef NativeArrayTableProducer<std::vector<float>, float, nanoaod::FlatTable::FloatColumn> FloatArrayTableProducer;
-typedef NativeArrayTableProducer<std::vector<double>, float, nanoaod::FlatTable::FloatColumn> DoubleArrayTableProducer;
-typedef NativeArrayTableProducer<std::vector<int>, int, nanoaod::FlatTable::IntColumn> IntArrayTableProducer;
-typedef NativeArrayTableProducer<std::vector<bool>, uint8_t, nanoaod::FlatTable::UInt8Column> BoolArrayTableProducer;
+typedef NativeArrayTableProducer<std::vector<float>, float> FloatArrayTableProducer;
+typedef NativeArrayTableProducer<std::vector<double>, float> DoubleArrayTableProducer;
+typedef NativeArrayTableProducer<std::vector<int>, int> IntArrayTableProducer;
+typedef NativeArrayTableProducer<std::vector<bool>, bool> BoolArrayTableProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(FloatArrayTableProducer);

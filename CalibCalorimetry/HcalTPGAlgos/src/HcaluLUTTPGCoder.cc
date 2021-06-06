@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
@@ -62,6 +61,8 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder()
       cosh_ieta_28_HE_high_depths_{},
       cosh_ieta_29_HE_{},
       allLinear_{},
+      contain1TSHB_{},
+      contain1TSHE_{},
       linearLSB_QIE8_{},
       linearLSB_QIE11_{},
       linearLSB_QIE11Overlap_{} {}
@@ -75,6 +76,8 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) 
   FG_HF_thresholds_ = {0, 0};
   bitToMask_ = 0;
   allLinear_ = false;
+  contain1TSHB_ = false;
+  contain1TSHE_ = false;
   linearLSB_QIE8_ = 1.;
   linearLSB_QIE11_ = 1.;
   linearLSB_QIE11Overlap_ = 1.;
@@ -155,7 +158,7 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
   std::getline(file, buffer);
   std::getline(file, buffer);
 
-  unsigned int index = buffer.find("H", 0);
+  unsigned int index = buffer.find('H', 0);
   while (index < buffer.length()) {
     std::string subdetStr = buffer.substr(index, 2);
     if (subdetStr == "HB")
@@ -167,7 +170,7 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
     //TODO Check subdet
     //else exception
     index += 2;
-    index = buffer.find("H", index);
+    index = buffer.find('H', index);
   }
 
   // Get upper/lower ranges for ieta/iphi/depth
@@ -334,6 +337,43 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
   make_cosh_ieta_map();
 
+  // Here we will determine if we are using new version of TPs (1TS)
+  // i.e. are we using a new pulse filter scheme.
+  const HcalElectronicsMap* emap = conditions.getHcalMapping();
+
+  int lastHBRing = topo_->lastHBRing();
+  int lastHERing = topo_->lastHERing();
+
+  // First, determine if we should configure for the filter scheme
+  // Check the tp version to make this determination
+  bool foundHB = false;
+  bool foundHE = false;
+  bool newHBtp = false;
+  bool newHEtp = false;
+  std::vector<HcalElectronicsId> vIds = emap->allElectronicsIdTrigger();
+  for (std::vector<HcalElectronicsId>::const_iterator eId = vIds.begin(); eId != vIds.end(); eId++) {
+    // The first HB or HE id is enough to tell whether to use new scheme in HB or HE
+    if (foundHB and foundHE)
+      break;
+
+    HcalTrigTowerDetId hcalTTDetId(emap->lookupTrigger(*eId));
+    if (hcalTTDetId.null())
+      continue;
+
+    int aieta = abs(hcalTTDetId.ieta());
+    int tp_version = hcalTTDetId.version();
+
+    if (aieta <= lastHBRing) {
+      foundHB = true;
+      if (tp_version > 1)
+        newHBtp = true;
+    } else if (aieta > lastHBRing and aieta < lastHERing) {
+      foundHE = true;
+      if (tp_version > 1)
+        newHEtp = true;
+    }
+  }
+
   for (const auto& id : metadata->getAllChannels()) {
     if (not(id.det() == DetId::Hcal and topo_->valid(id)))
       continue;
@@ -415,12 +455,19 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       int granularity = meta->getLutGranularity();
 
       double correctionPhaseNS = conditions.getHcalRecoParam(cell)->correctionPhaseNS();
+
+      if (qieType == QIE11) {
+        if (overrideDBweightsAndFilterHB_ and cell.ietaAbs() <= lastHBRing)
+          correctionPhaseNS = containPhaseNSHB_;
+        else if (overrideDBweightsAndFilterHE_ and cell.ietaAbs() > lastHBRing)
+          correctionPhaseNS = containPhaseNSHE_;
+      }
       for (unsigned int adc = 0; adc < SIZE; ++adc) {
         if (isMasked)
           lut[adc] = 0;
         else {
           double nonlinearityCorrection = 1.0;
-          double containmentCorrection2TSCorrected = 1.0;
+          double containmentCorrection = 1.0;
           // SiPM nonlinearity was not corrected in 2017
           // and containment corrections  were not
           // ET-dependent prior to 2018
@@ -429,28 +476,38 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             // Use the 1-TS containment correction to estimate the charge of the pulse
             // from the individual samples
             double correctedCharge = containmentCorrection1TS * adc2fC(adc);
-            containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
+            double containmentCorrection2TSCorrected =
+                pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
             if (qieType == QIE11) {
+              // When contain1TS_ is set, it should still only apply for QIE11-related things
+              if ((((contain1TSHB_ and overrideDBweightsAndFilterHB_) or newHBtp) and cell.ietaAbs() <= lastHBRing) or
+                  (((contain1TSHE_ and overrideDBweightsAndFilterHE_) or newHEtp) and cell.ietaAbs() > lastHBRing)) {
+                containmentCorrection = containmentCorrection1TS;
+              } else {
+                containmentCorrection = containmentCorrection2TSCorrected;
+              }
+
               const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
               HcalSiPMnonlinearity corr(
                   conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
               const double fcByPE = siPMParameter.getFCByPE();
               const double effectivePixelsFired = correctedCharge / fcByPE;
               nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
+            } else {
+              containmentCorrection = containmentCorrection2TSCorrected;
             }
           }
           if (allLinear_)
+            lut[adc] = (LutElement)std::min(
+                std::max(0,
+                         int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection * containmentCorrection /
+                             linearLSB / cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))),
+                MASK);
+          else
             lut[adc] = (LutElement)std::min(std::max(0,
                                                      int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection *
-                                                         containmentCorrection2TSCorrected / linearLSB /
-                                                         cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))),
+                                                         containmentCorrection / nominalgain_ / granularity)),
                                             MASK);
-          else
-            lut[adc] =
-                (LutElement)std::min(std::max(0,
-                                              int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection *
-                                                  containmentCorrection2TSCorrected / nominalgain_ / granularity)),
-                                     MASK);
 
           if (qieType == QIE11) {
             if (adc >= mipMin and adc < mipMax)

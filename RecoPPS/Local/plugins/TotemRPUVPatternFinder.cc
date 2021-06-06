@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -46,6 +47,9 @@ private:
   edm::InputTag tagRecHit;
   edm::EDGetTokenT<edm::DetSetVector<TotemRPRecHit>> detSetVectorTotemRPRecHitToken;
 
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryToken;
+  edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher;
+
   unsigned int verbosity;
 
   /// minimal required number of active planes per projection to even start track recognition
@@ -75,8 +79,6 @@ private:
   /// exceptional settings: RP Id --> settings
   std::map<unsigned int, RPSettings> exceptionalSettings;
 
-  edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher;
-
   /// executes line recognition in a projection
   void recognizeAndSelect(TotemRPUVPattern::ProjectionType proj,
                           double z0,
@@ -95,6 +97,7 @@ using namespace edm;
 
 TotemRPUVPatternFinder::TotemRPUVPatternFinder(const edm::ParameterSet &conf)
     : tagRecHit(conf.getParameter<edm::InputTag>("tagRecHit")),
+      ctppsGeometryToken(esConsumes()),
       verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
       minPlanesPerProjectionToSearch(conf.getParameter<unsigned int>("minPlanesPerProjectionToSearch")),
       minPlanesPerProjectionToFit(conf.getParameter<unsigned int>("minPlanesPerProjectionToFit")),
@@ -164,10 +167,9 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
         << ">> TotemRPUVPatternFinder::produce " << event.id().run() << ":" << event.id().event();
 
   // geometry
-  ESHandle<CTPPSGeometry> geometry;
-  es.get<VeryForwardRealGeometryRecord>().get(geometry);
+  const auto &geometry = es.getData(ctppsGeometryToken);
   if (geometryWatcher.check(es))
-    lrcgn->resetGeometry(geometry.product());
+    lrcgn->resetGeometry(&geometry);
 
   // get input
   edm::Handle<edm::DetSetVector<TotemRPRecHit>> input;
@@ -206,9 +208,9 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
   }
 
   // track recognition pot by pot
-  for (auto it : rpData) {
+  for (auto const &it : rpData) {
     CTPPSDetId rpId(it.first);
-    RPData &data = it.second;
+    RPData const &data = it.second;
 
     // merge default and exceptional settings (if available)
     unsigned int minPlanesPerProjectionToFit_U = minPlanesPerProjectionToFit;
@@ -253,7 +255,7 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
     DetSet<TotemRPUVPattern> &patterns = patternsVector.find_or_insert(rpId);
 
     // "typical" z0 for the RP
-    double z0 = geometry->rp(rpId)->translation().z();
+    double z0 = geometry.rp(rpId)->translation().z();
 
     // u then v recognition
     recognizeAndSelect(TotemRPUVPattern::projU, z0, threshold_U, minPlanesPerProjectionToFit_U, data.hits_U, patterns);

@@ -1,7 +1,6 @@
 <library file="*.cc" name="CondFormatsRecoMuonObjectsTest">
   <use name="CondFormats/RecoMuonObjects"/>
   <use name="CondCore/DBOutputService"/>
-  <use name="FWCore/MessageLogger"/>
   <use name="Geometry/DTGeometry"/>
   <use name="Geometry/CSCGeometry"/>
   <use name="Geometry/Records"/>

@@ -35,83 +35,68 @@
 
 #include <vector>
 
-namespace CorrectedMETProducer_namespace
-{
+namespace CorrectedMETProducer_namespace {
   template <typename T>
-  reco::Candidate::LorentzVector correctedP4(const T& rawMEt, const CorrMETData& correction)
-  {
+  reco::Candidate::LorentzVector correctedP4(const T& rawMEt, const CorrMETData& correction) {
     double correctedMEtPx = rawMEt.px() + correction.mex;
     double correctedMEtPy = rawMEt.py() + correction.mey;
-    double correctedMEtPt = sqrt(correctedMEtPx*correctedMEtPx + correctedMEtPy*correctedMEtPy);
+    double correctedMEtPt = sqrt(correctedMEtPx * correctedMEtPx + correctedMEtPy * correctedMEtPy);
     return reco::Candidate::LorentzVector(correctedMEtPx, correctedMEtPy, 0., correctedMEtPt);
   }
 
   template <typename T>
-  double correctedSumEt(const T& rawMEt, const CorrMETData& correction)
-  {
+  double correctedSumEt(const T& rawMEt, const CorrMETData& correction) {
     return rawMEt.sumEt() + correction.sumet;
   }
 
   template <typename T>
-  class CorrectedMETFactoryT
-  {
-    public:
-
-     T operator()(const T&, const CorrMETData&) const
-     {
-       assert(0); // "place-holder" for template instantiations for concrete T types only, **not** to be called
-     }
+  class CorrectedMETFactoryT {
+  public:
+    T operator()(const T&, const CorrMETData&) const {
+      assert(0);  // "place-holder" for template instantiations for concrete T types only, **not** to be called
+    }
   };
-}
+}  // namespace CorrectedMETProducer_namespace
 
-template<typename T>
-class CorrectedMETProducerT : public edm::stream::EDProducer<>  
-{
+template <typename T>
+class CorrectedMETProducerT : public edm::stream::EDProducer<> {
   typedef std::vector<T> METCollection;
 
- public:
-
+public:
   explicit CorrectedMETProducerT(const edm::ParameterSet& cfg)
-    : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-      algorithm_(0)
-  {
+      : moduleLabel_(cfg.getParameter<std::string>("@module_label")), algorithm_(0) {
     token_ = consumes<METCollection>(cfg.getParameter<edm::InputTag>("src"));
 
     algorithm_ = new METCorrectionAlgorithm(cfg, consumesCollector());
 
     produces<METCollection>("");
   }
-  ~CorrectedMETProducerT()
-  {
-    delete algorithm_;
-  }
-    
+  ~CorrectedMETProducerT() { delete algorithm_; }
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("src",edm::InputTag("corrPfMetType1", "type1"));
-    descriptions.add(defaultModuleLabel<CorrectedMETProducerT<T> >(),desc);
+    desc.add<edm::InputTag>("src", edm::InputTag("corrPfMetType1", "type1"));
+    descriptions.add(defaultModuleLabel<CorrectedMETProducerT<T> >(), desc);
   }
 
- private:
-
-  void produce(edm::Event& evt, const edm::EventSetup& es)
-  {
+private:
+  void produce(edm::Event& evt, const edm::EventSetup& es) {
     std::unique_ptr<METCollection> correctedMEtCollection(new METCollection);
 
     edm::Handle<METCollection> rawMEtCollection;
     evt.getByToken(token_, rawMEtCollection);
 
-    for ( typename METCollection::const_iterator rawMEt = rawMEtCollection->begin();
-	  rawMEt != rawMEtCollection->end(); ++rawMEt ) {
-      CorrMETData correction = algorithm_->compMETCorrection(evt, es);
+    for (typename METCollection::const_iterator rawMEt = rawMEtCollection->begin(); rawMEt != rawMEtCollection->end();
+         ++rawMEt) {
+      CorrMETData correction = algorithm_->compMETCorrection(evt);
 
-      static const CorrectedMETProducer_namespace::CorrectedMETFactoryT<T> correctedMET_factory {};
+      static const CorrectedMETProducer_namespace::CorrectedMETFactoryT<T> correctedMET_factory{};
       T correctedMEt = correctedMET_factory(*rawMEt, correction);
 
       correctedMEtCollection->push_back(correctedMEt);
     }
-	  
-//--- add collection of MET objects with Type 1 / Type 1 + 2 corrections applied to the event
+
+    //--- add collection of MET objects with Type 1 / Type 1 + 2 corrections applied to the event
     evt.put(std::move(correctedMEtCollection));
   }
 
@@ -119,10 +104,7 @@ class CorrectedMETProducerT : public edm::stream::EDProducer<>
 
   edm::EDGetTokenT<METCollection> token_;
 
-  METCorrectionAlgorithm* algorithm_; // algorithm for computing Type 1 / Type 1 + 2 MET corrections
+  METCorrectionAlgorithm* algorithm_;  // algorithm for computing Type 1 / Type 1 + 2 MET corrections
 };
 
 #endif
-
- 
-

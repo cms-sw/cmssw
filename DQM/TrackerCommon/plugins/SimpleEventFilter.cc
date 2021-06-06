@@ -1,6 +1,5 @@
 #include "DQM/TrackerCommon/plugins/SimpleEventFilter.h"
-#include <iostream>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 // -- Constructor
 //
@@ -19,8 +18,9 @@ bool SimpleEventFilter::filter(edm::Event &, edm::EventSetup const &) {
   bool ret = true;
   if (nEvent_ % nInterval_ != 0)
     ret = false;
-  if (verbose_ && !ret)
-    std::cout << ">>> filtering event" << nEvent_ << std::endl;
+  //if (verbose_ && !ret)
+  if (!ret)
+    edm::LogInfo("SimpleEventFilter") << ">>> filtering event" << nEvent_ << std::endl;
   return ret;
 }
 

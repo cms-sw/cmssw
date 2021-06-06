@@ -18,12 +18,12 @@
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
 #include "FWCore/Framework/test/DummyRecord.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
 
 #include "cppunit/extensions/HelperMacros.h"
-#include "tbb/task_scheduler_init.h"
 
 #include <memory>
 #include <string>
@@ -54,20 +54,20 @@ class testfullChain : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
+  void setUp() { m_scheduler = std::make_unique<edm::ThreadsController>(1); }
   void tearDown() {}
 
   void getfromDataproxyproviderTest();
 
 private:
-  edm::propagate_const<std::unique_ptr<tbb::task_scheduler_init>> m_scheduler;
+  edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testfullChain);
 
 void testfullChain::getfromDataproxyproviderTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -78,10 +78,11 @@ void testfullChain::getfromDataproxyproviderTest() {
   auto proxyProvider = std::make_shared<DummyProxyProvider>();
   provider.add(proxyProvider);
 
+  edm::ESParentContext pc;
   for (unsigned int iTime = 1; iTime != 6; ++iTime) {
     const Timestamp time(iTime);
     controller.eventSetupForInstance(IOVSyncValue(time));
-    EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+    EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, pc, false);
     ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());

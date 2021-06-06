@@ -173,21 +173,22 @@ valStage1GtDigis.TechnicalTriggersInputTags = cms.VInputTag(
                                                     cms.InputTag('valRpcTechTrigDigis'),
                                                     cms.InputTag('valHcalTechTrigDigis')                                         )
 
-# L1 Trigger sequences
-ValL1MuTriggerPrimitives = cms.Sequence(valCscTriggerPrimitiveDigis+valDtTriggerPrimitiveDigis)
-ValL1MuTrackFinders = cms.Sequence(valCsctfTrackDigis*valCsctfDigis*valDttfDigis)
+# L1 Trigger tasks
+ValL1MuTriggerPrimitives = cms.Task(valCscTriggerPrimitiveDigis,valDtTriggerPrimitiveDigis)
+ValL1MuTrackFinders = cms.Task(valCsctfTrackDigis,valCsctfDigis,valDttfDigis)
 
-ValL1TechnicalTriggers = cms.Sequence(valRpcTechTrigDigis+valHcalTechTrigDigis)
+ValL1TechnicalTriggers = cms.Task(valRpcTechTrigDigis,valHcalTechTrigDigis)
 
-ValL1Emulator = cms.Sequence(
+ValL1Emulator = cms.Task(
     valEcalTriggerPrimitiveDigis
-    *valHcalTriggerPrimitiveDigis
-    *valHcalTTPDigis
-    *valRctDigis
-    *valGctDigis
-    *ValL1MuTriggerPrimitives*ValL1MuTrackFinders*valRpcTriggerDigis*valGmtDigis
-    *ValL1TechnicalTriggers
-    *valGtDigis)
+    ,valHcalTriggerPrimitiveDigis
+    ,valHcalTTPDigis
+    ,valRctDigis
+    ,valGctDigis
+    ,ValL1MuTriggerPrimitives,ValL1MuTrackFinders,valRpcTriggerDigis,valGmtDigis
+    ,ValL1TechnicalTriggers
+    ,valGtDigis
+)
 
 
 

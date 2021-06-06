@@ -7,10 +7,16 @@
 <use name="fastjet"/>
 <use name="ktjet"/>
 <use name="EgammaAnalysis/ElectronTools"/>
+<use name="CommonTools/CandUtils"/>
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Math"/>
+<use name="FWCore/Common"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <use name="boost"/>
 <use name="lhapdf"/>
 <export>
   <lib name="1"/>
 </export>
-
-

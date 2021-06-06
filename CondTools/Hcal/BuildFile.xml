@@ -1,16 +1,14 @@
-<use   name="boost"/>
-<use   name="FWCore/Framework"/>
-<use   name="Utilities/Xerces"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="CalibCalorimetry/CastorCalib"/>
-<use   name="CondFormats/HcalObjects"/>
-<use   name="CondFormats/CastorObjects"/>
-<use   name="CalibFormats/HcalObjects"/>
-<use   name="CalibFormats/CastorObjects"/>
-<use   name="RelationalAccess"/>
-<use   name="CondCore/PopCon"/>
-<use   name="xerces-c"/>
+<use name="FWCore/Framework"/>
+<use name="Utilities/Xerces"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="CalibCalorimetry/HcalAlgos"/>
+<use name="CalibCalorimetry/CastorCalib"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="CondFormats/CastorObjects"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="RelationalAccess"/>
+<use name="CondCore/PopCon"/>
+<use name="xerces-c"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

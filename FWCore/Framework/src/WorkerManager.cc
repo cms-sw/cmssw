@@ -30,6 +30,16 @@ namespace edm {
         unscheduled_(*areg),
         lastSetupEventPrincipal_(nullptr) {}  // WorkerManager::WorkerManager
 
+  void WorkerManager::deleteModuleIfExists(std::string const& moduleLabel) {
+    auto worker = workerReg_.get(moduleLabel);
+    if (worker != nullptr) {
+      auto eraseBeg = std::remove(allWorkers_.begin(), allWorkers_.end(), worker);
+      allWorkers_.erase(eraseBeg, allWorkers_.end());
+      unscheduled_.removeWorker(worker);
+      workerReg_.deleteModule(moduleLabel);
+    }
+  }
+
   Worker* WorkerManager::getWorker(ParameterSet& pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
@@ -80,19 +90,23 @@ namespace edm {
 
   void WorkerManager::beginJob(ProductRegistry const& iRegistry,
                                eventsetup::ESRecordsToProxyIndices const& iESIndices) {
+    auto const processBlockLookup = iRegistry.productLookup(InProcess);
     auto const runLookup = iRegistry.productLookup(InRun);
     auto const lumiLookup = iRegistry.productLookup(InLumi);
     auto const eventLookup = iRegistry.productLookup(InEvent);
     if (!allWorkers_.empty()) {
-      auto const& processName = allWorkers_[0]->description().processName();
+      auto const& processName = allWorkers_[0]->description()->processName();
+      auto processBlockModuleToIndicies = processBlockLookup->indiciesForModulesInProcess(processName);
       auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
       auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
       auto eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
       for (auto& worker : allWorkers_) {
+        worker->updateLookup(InProcess, *processBlockLookup);
         worker->updateLookup(InRun, *runLookup);
         worker->updateLookup(InLumi, *lumiLookup);
         worker->updateLookup(InEvent, *eventLookup);
         worker->updateLookup(iESIndices);
+        worker->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
         worker->resolvePutIndicies(InRun, runModuleToIndicies);
         worker->resolvePutIndicies(InLumi, lumiModuleToIndicies);
         worker->resolvePutIndicies(InEvent, eventModuleToIndicies);
@@ -122,14 +136,17 @@ namespace edm {
     }
   }
 
-  void WorkerManager::setupOnDemandSystem(Principal& ep, EventSetupImpl const& es) {
+  void WorkerManager::setupResolvers(Principal& ep) {
     this->resetAll();
-    unscheduled_.setEventSetup(es);
     if (&ep != lastSetupEventPrincipal_) {
       UnscheduledConfigurator config(allWorkers_.begin(), allWorkers_.end(), &(unscheduled_.auxiliary()));
       ep.setupUnscheduled(config);
       lastSetupEventPrincipal_ = &ep;
     }
+  }
+
+  void WorkerManager::setupOnDemandSystem(EventTransitionInfo const& info) {
+    unscheduled_.setEventTransitionInfo(info);
   }
 
 }  // namespace edm

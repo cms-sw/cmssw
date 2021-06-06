@@ -1,4 +1,6 @@
 #include "PhysicsTools/TagAndProbe/interface/TagProbeFitter.h"
+#include <memory>
+
 #include <stdexcept>
 //#include "TagProbeFitter.h"
 
@@ -570,7 +572,7 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
     const RooArgSet* dataObs = data->get(0);
     // remove everything which is not a dependency of the pdf
     RooArgSet* obs = w->pdf("simPdf")->getObservables(dataObs);
-    bdata.reset(new RooDataHist("data_binned", "data_binned", *obs, *data));
+    bdata = std::make_unique<RooDataHist>("data_binned", "data_binned", *obs, *data);
     w->import(*bdata);
     data = w->data("data_binned");
     delete obs;

@@ -1,32 +1,48 @@
-/** \class HFRecoEcalCandidateProducers
- *
- *  \author Kevin Klapoetke (Minnesota)
- *
- * $Id:
- *
- */
-
-#include <iostream>
-#include <vector>
-#include <memory>
-
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 //
+// Package:    EgammaHFProducers
+// Class:      HFRecoEcalCandidateProducers
+//
+/**\class HFRecoEcalCandidateProducers.cc  
+*/
+//
+// Original Author:  Kevin Klapoetke University of Minnesota
+//         Created:  Wed 26 Sept 2007
+// $Id:
+//
+//
+
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-#include "RecoEgamma/EgammaHFProducers/plugins/HLTHFRecoEcalCandidateProducer.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "HFRecoEcalCandidateAlgo.h"
+#include "HFValueStruct.h"
+
+#include <vector>
+#include <memory>
+
+class HLTHFRecoEcalCandidateProducer : public edm::global::EDProducer<> {
+public:
+  explicit HLTHFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+
+private:
+  const edm::InputTag hfclusters_, vertices_;
+  const int HFDBversion_;
+  const std::vector<double> HFDBvector_;
+  const double Cut2D_;
+  const double defaultSlope2D_;
+  const reco::HFValueStruct hfvars_;
+  const HFRecoEcalCandidateAlgo algo_;
+};
 
 HLTHFRecoEcalCandidateProducer::HLTHFRecoEcalCandidateProducer(edm::ParameterSet const& conf)
     : hfclusters_(conf.getParameter<edm::InputTag>("hfclusters")),

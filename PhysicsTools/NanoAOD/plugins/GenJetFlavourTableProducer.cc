@@ -12,8 +12,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfo.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
@@ -87,9 +87,8 @@ void GenJetFlavourTableProducer::produce(edm::Event& iEvent, const edm::EventSet
   }
 
   auto tab = std::make_unique<nanoaod::FlatTable>(ncand, name_, false, true);
-  tab->addColumn<int>("partonFlavour", partonFlavour, "flavour from parton matching", nanoaod::FlatTable::IntColumn);
-  tab->addColumn<uint8_t>(
-      "hadronFlavour", hadronFlavour, "flavour from hadron ghost clustering", nanoaod::FlatTable::UInt8Column);
+  tab->addColumn<int>("partonFlavour", partonFlavour, "flavour from parton matching");
+  tab->addColumn<uint8_t>("hadronFlavour", hadronFlavour, "flavour from hadron ghost clustering");
 
   iEvent.put(std::move(tab));
 }

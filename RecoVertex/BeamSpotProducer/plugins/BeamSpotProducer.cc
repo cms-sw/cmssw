@@ -7,8 +7,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -21,6 +19,7 @@ BeamSpotProducer::BeamSpotProducer(const edm::ParameterSet& iConf) {
                                               << "\n";
 
   //fVerbose=conf.getUntrackedParameter<bool>("verbose", false);
+  m_beamToken = esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>();
 
   produces<reco::BeamSpot>();
 }
@@ -46,8 +45,7 @@ void BeamSpotProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   //try {
   edm::LogInfo("RecoVertex/BeamSpotProducer") << "Reconstructing event number: " << iEvent.id() << "\n";
 
-  edm::ESHandle<BeamSpotObjects> beamhandle;
-  iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
+  edm::ESHandle<BeamSpotObjects> beamhandle = iSetup.getHandle(m_beamToken);
   const BeamSpotObjects* spotDB = beamhandle.product();
 
   // translate from BeamSpotObjects to reco::BeamSpot

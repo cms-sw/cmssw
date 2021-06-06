@@ -11,6 +11,10 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 
 #include <memory>
@@ -36,6 +40,9 @@ private:
 
   ///Produce the PFRecTrack collection
   void produce(edm::Event&, const edm::EventSetup&) override;
+
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 
   ///PFTrackTransformer
   std::unique_ptr<PFTrackTransformer> pfTransformer_;

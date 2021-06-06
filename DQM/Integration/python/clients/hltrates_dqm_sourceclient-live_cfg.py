@@ -9,6 +9,7 @@ process.load("DQMServices.Core.DQM_cfg")
 
 #### leave the following few lines uncommented for online running
 process.load("DQM.Integration.config.inputsource_cfi")
+from DQM.Integration.config.inputsource_cfi import options
 process.load("DQM.Integration.config.environment_cfi")
 #process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputHLTDQMResults')
 
@@ -32,9 +33,11 @@ process.load("DQM.Integration.config.environment_cfi")
 #process.DQMEventStreamHttpReader.sourceURL = cms.string('http://srv-c2c07-13.cms:11100/urn:xdaq-application:lid=50')
 
 # old, not used
-#process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/hlt_reference.root"
 
 process.dqmSaver.tag = "HLTRates"
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'HLTRates'
+process.dqmSaverPB.runNumber = options.runNumber
 
 #process.load("Configuration.StandardSequences.GeometryPilot2_cff")
 #process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -101,7 +104,7 @@ process.trRateMon.LuminositySegmentSize = cms.untracked.double(2.3)
 process.rateMon = cms.EndPath(process.hltPreTrigResRateMon *process.trRateMon)
 
 
-process.pp = cms.Path(process.dqmEnv+process.dqmSaver)
+process.pp = cms.Path(process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
 
 process.dqmEnv.subSystemFolder = 'HLT/TrigResults'
 #process.hltResults.plotAll = True

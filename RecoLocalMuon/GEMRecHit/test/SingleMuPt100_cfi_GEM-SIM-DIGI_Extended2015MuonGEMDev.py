@@ -24,7 +24,7 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
@@ -69,24 +69,23 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 ### Code/Configuration with thanks to Tim Cox                     
 ##################################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append("GEMGeometryBuilderFromDDD")
-process.MessageLogger.categories.append("ME0GeometryBuilderFromDDD")
-process.MessageLogger.categories.append("RPCGeometryBuilderFromDDD")
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.files.junk = dict()
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
     default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
     GEMGeometryBuilderFromDDD = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    ME0GeometryBuilderFromDDD = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    RPCGeometryBuilderFromDDD = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    ME0GeometryBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    RPCGeometryBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
 )
 ##################################################################
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 # process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 

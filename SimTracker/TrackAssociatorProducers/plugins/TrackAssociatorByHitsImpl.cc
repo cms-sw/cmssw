@@ -342,10 +342,10 @@ RecoToSimCollectionSeed TrackAssociatorByHitsImpl::associateRecoToSim(
   for (edm::View<TrajectorySeed>::const_iterator seed = sC.begin(); seed != sC.end(); seed++, tindex++) {
     matchedIds.clear();
     int ri = 0;  //valid rechits
-    int nsimhit = seed->recHits().second - seed->recHits().first;
+    int nsimhit = seed->nHits();
     LogTrace("TrackAssociator") << "\nNEW SEED - seed number " << tindex << " # valid=" << nsimhit;
     getMatchedIds<edm::OwnVector<TrackingRecHit>::const_iterator>(
-        matchedIds, SimTrackIds, ri, seed->recHits().first, seed->recHits().second, associate.get());
+        matchedIds, SimTrackIds, ri, seed->recHits().begin(), seed->recHits().end(), associate.get());
 
     //save id for the track
     std::vector<SimHitIdpr> idcachev;
@@ -360,7 +360,7 @@ RecoToSimCollectionSeed TrackAssociatorByHitsImpl::associateRecoToSim(
         //if electron subtract double counting
         if (abs(t->pdgId()) == 11 && (t->g4Track_end() - t->g4Track_begin()) > 1) {
           nshared -= getDoubleCount<edm::OwnVector<TrackingRecHit>::const_iterator>(
-              seed->recHits().first, seed->recHits().second, associate.get(), *t);
+              seed->recHits().begin(), seed->recHits().end(), associate.get(), *t);
         }
 
         if (AbsoluteNumberOfHits)
@@ -412,10 +412,9 @@ SimToRecoCollectionSeed TrackAssociatorByHitsImpl::associateSimToReco(
   int tindex = 0;
   for (edm::View<TrajectorySeed>::const_iterator seed = sC.begin(); seed != sC.end(); seed++, tindex++) {
     int ri = 0;  //valid rechits
-    LogTrace("TrackAssociator") << "\nNEW SEED - seed number " << tindex
-                                << " # valid=" << seed->recHits().second - seed->recHits().first;
+    LogTrace("TrackAssociator") << "\nNEW SEED - seed number " << tindex << " # valid=" << seed->nHits();
     getMatchedIds<edm::OwnVector<TrackingRecHit>::const_iterator>(
-        matchedIds, SimTrackIds, ri, seed->recHits().first, seed->recHits().second, associate.get());
+        matchedIds, SimTrackIds, ri, seed->recHits().begin(), seed->recHits().end(), associate.get());
 
     //save id for the track
     std::vector<SimHitIdpr> idcachev;

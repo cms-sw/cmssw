@@ -11,8 +11,7 @@ ________________________________________________________________**/
 #include <string>
 // CMS
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Luminosity/interface/PixelClusterCountsInEvent.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

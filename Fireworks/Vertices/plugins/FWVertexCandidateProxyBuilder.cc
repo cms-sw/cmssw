@@ -35,6 +35,7 @@
 #include "TEveBoxSet.h"
 #include "TGeoSphere.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveVSDStructs.h"
 
 class FWVertexCandidateProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::VertexCompositePtrCandidate> {

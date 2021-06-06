@@ -23,9 +23,12 @@ hltGsfTrackValidator = hltMultiTrackValidator.clone(
 )
 
 from Validation.RecoTrack.TrackValidation_cff import trackingParticlesElectron
+hltMultiTrackValidationGsfTracksTask = cms.Task(
+   hltTPClusterProducer
+   , hltTrackAssociatorByHits
+   , trackingParticlesElectron
+ )
 hltMultiTrackValidationGsfTracks = cms.Sequence(
-    hltTPClusterProducer
-    + hltTrackAssociatorByHits
-    + cms.ignore(trackingParticlesElectron)    
-    + hltGsfTrackValidator
+    hltGsfTrackValidator,
+    hltMultiTrackValidationGsfTracksTask
 )    

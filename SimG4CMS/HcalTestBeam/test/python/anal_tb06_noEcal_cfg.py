@@ -11,7 +11,8 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('tb_pi_50gevNOECAL.root')
 )
 
-process.MessageLogger.destinations = cms.untracked.vstring("tb_pi_50gevNOECAL.txt")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.tb_pi_50gevNOECAL = dict(extension="txt")
 
 process.common_beam_direction_parameters.MinE = cms.double(50.0)
 process.common_beam_direction_parameters.MaxE = cms.double(50.0)

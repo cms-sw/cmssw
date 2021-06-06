@@ -4,6 +4,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -20,15 +21,14 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 public:
   PFECALHashNavigator() {}
 
-  PFECALHashNavigator(const edm::ParameterSet& iConfig) : PFRecHitNavigatorBase(iConfig) {
-    crossBarrelEndcapBorder_ = iConfig.getParameter<bool>("crossBarrelEndcapBorder");
-
-    neighbourmapcalculated_ = false;
-  }
+  PFECALHashNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitNavigatorBase(iConfig, cc),
+        neighbourmapcalculated_(false),
+        crossBarrelEndcapBorder_(iConfig.getParameter<bool>("crossBarrelEndcapBorder")),
+        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
 
     const CaloSubdetectorGeometry* ebTmp = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
     const CaloSubdetectorGeometry* eeTmp = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
@@ -344,6 +344,9 @@ protected:
 
   /// if true, navigation will cross the barrel-endcap border
   bool crossBarrelEndcapBorder_;
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 
 #endif

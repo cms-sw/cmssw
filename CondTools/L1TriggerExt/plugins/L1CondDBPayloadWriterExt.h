@@ -10,7 +10,12 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
 #include "CondTools/L1TriggerExt/interface/DataWriterExt.h"
+
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 
 class L1CondDBPayloadWriterExt : public edm::EDAnalyzer {
 public:
@@ -25,6 +30,9 @@ private:
   // ----------member data ---------------------------
   l1t::DataWriterExt m_writer;
   // std::string m_tag ; // tag is known by PoolDBOutputService
+
+  // token to access object key
+  edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> key_token;
 
   // set to false to write config data without valid TSC key
   bool m_writeL1TriggerKeyExt;

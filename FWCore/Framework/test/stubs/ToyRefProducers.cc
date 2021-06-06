@@ -41,8 +41,7 @@ namespace edmtest {
 
   public:
     explicit IntVecRefVectorProducer(edm::ParameterSet const& p)
-        : target_{consumes<std::vector<int>>(p.getParameter<edm::InputTag>("target"))},
-          select_(p.getParameter<int>("select")) {
+        : target_{consumes(p.getParameter<edm::InputTag>("target"))}, select_(p.getParameter<int>("select")) {
       produces<product_type>();
     }
     virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
@@ -87,7 +86,7 @@ namespace edmtest {
 
   public:
     explicit IntVecRefToBaseVectorProducer(edm::ParameterSet const& p)
-        : target_{consumes<edm::View<int>>(p.getParameter<edm::InputTag>("target"))} {
+        : target_{consumes(p.getParameter<edm::InputTag>("target"))} {
       produces<product_type>();
     }
     virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
@@ -120,7 +119,7 @@ namespace edmtest {
 
   public:
     explicit IntVecPtrVectorProducer(edm::ParameterSet const& p)
-        : target_{consumes<edm::View<int>>(p.getParameter<edm::InputTag>("target"))} {
+        : target_{consumes(p.getParameter<edm::InputTag>("target"))} {
       produces<product_type>();
     }
     virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
@@ -154,7 +153,7 @@ namespace edmtest {
 
   public:
     explicit IntVecStdVectorPtrProducer(edm::ParameterSet const& p)
-        : target_(consumes<edm::View<int>>(p.getParameter<edm::InputTag>("target"))) {
+        : target_(consumes(p.getParameter<edm::InputTag>("target"))) {
       produces<product_type>();
     }
     virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;

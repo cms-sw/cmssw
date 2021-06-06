@@ -7,7 +7,10 @@
 
 class PedsOnlyHistosUsingDb : public CommissioningHistosUsingDb, public PedsOnlyHistograms {
 public:
-  PedsOnlyHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  PedsOnlyHistosUsingDb(const edm::ParameterSet& pset,
+                        DQMStore*,
+                        SiStripConfigDb* const,
+                        edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~PedsOnlyHistosUsingDb() override;
 

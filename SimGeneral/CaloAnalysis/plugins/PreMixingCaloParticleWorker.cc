@@ -121,7 +121,7 @@ void PreMixingCaloParticleWorker::add(const SimClusterCollection &clusters,
   }
 
   // Add energies
-  for (const auto elem : energy) {
+  for (const auto &elem : energy) {
     totalEnergy_[elem.first] += elem.second;
   }
 }

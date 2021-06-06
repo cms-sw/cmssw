@@ -10,18 +10,21 @@ import FWCore.Framework.test.cmsExceptionsFatal_cff
 process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 
 process.MessageLogger = cms.Service("MessageLogger",
-   destinations = cms.untracked.vstring('u33d_all'),
-    statistics = cms.untracked.vstring('u33d_all'),
-    categories = cms.untracked.vstring('cat_A'), 
-    suppressInfo = cms.untracked.vstring('ssm_2a'), 
-    debugModules = cms.untracked.vstring('ssm_1b'), 
-    u33d_all = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noTimeStamps = cms.untracked.bool(True),
-        default = cms.untracked.PSet(
-                    limit = cms.untracked.int32(-1)
-        ),
+    suppressInfo = cms.untracked.vstring('ssm_2a'),
+    debugModules = cms.untracked.vstring('ssm_1b'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
     ),
+    files = cms.untracked.PSet(
+        u33d_all = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG'),
+            noTimeStamps = cms.untracked.bool(True),
+            default = cms.untracked.PSet(
+                        limit = cms.untracked.int32(-1)
+            ),
+            enableStatistics = cms.untracked.bool(True)
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

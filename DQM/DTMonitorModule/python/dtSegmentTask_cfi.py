@@ -10,12 +10,6 @@ dtSegmentAnalysisMonitor = DQMEDAnalyzer('DTSegmentAnalysisTask',
                                           checkNoisyChannels = cms.untracked.bool(True),
                                           # switch off uneeded histograms
                                           detailedAnalysis = cms.untracked.bool(False),
-                                          # # of bins in the time histos
-                                          nTimeBins = cms.untracked.int32(100),
-                                          # # of LS per bin in the time histos
-                                          nLSTimeBin = cms.untracked.int32(15),
-                                          # switch on/off sliding bins in time histos
-                                          slideTimeBins = cms.untracked.bool(True),
                                           # top folder for the histograms in DQMStore
                                           topHistoFolder = cms.untracked.string("DT/02-Segments"),
                                           # hlt DQM mode

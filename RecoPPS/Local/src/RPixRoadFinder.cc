@@ -75,8 +75,7 @@ void RPixRoadFinder::findPattern() {
                                       theRotationTMatrix(2, 2));
 
       math::Error<3>::type globalError = ROOT::Math::SimilarityT(theRotationTMatrix, localError);
-      PointInPlane thePointAndRecHit = {globalV, globalError, it_rh, myid};
-      temp_all_hits.push_back(thePointAndRecHit);
+      temp_all_hits.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
     }
   }
 

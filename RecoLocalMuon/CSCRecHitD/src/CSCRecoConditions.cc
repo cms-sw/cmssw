@@ -3,7 +3,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <iostream>
 
-CSCRecoConditions::CSCRecoConditions(const edm::ParameterSet& ps) : theConditions(ps) {}
+CSCRecoConditions::CSCRecoConditions(const edm::ParameterSet& ps, edm::ConsumesCollector cc) : theConditions(ps, cc) {}
 
 CSCRecoConditions::~CSCRecoConditions() {}
 

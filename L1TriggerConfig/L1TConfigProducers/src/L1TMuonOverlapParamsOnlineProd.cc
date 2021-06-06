@@ -22,6 +22,7 @@ public:
 
 L1TMuonOverlapParamsOnlineProd::L1TMuonOverlapParamsOnlineProd(const edm::ParameterSet& iConfig)
     : L1ConfigOnlineProdBaseExt<L1TMuonOverlapParamsO2ORcd, L1TMuonOverlapParams>(iConfig) {
+  wrappedSetWhatProduced(iConfig);
   transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 

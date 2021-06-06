@@ -2,7 +2,6 @@
 #define ConversionLikelihoodCalculator_h
 
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 
 #include "TMVA/Reader.h"
 #include <memory>

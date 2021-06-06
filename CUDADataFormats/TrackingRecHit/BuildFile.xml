@@ -1,0 +1,10 @@
+<use name="cuda"/>
+<use name="rootcore"/>
+<use name="CUDADataFormats/Common"/>
+<use name="CUDADataFormats/SiPixelCluster"/>
+<use name="DataFormats/Common"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
+<export>
+    <lib name="1"/>
+</export>

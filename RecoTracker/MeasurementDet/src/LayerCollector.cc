@@ -9,7 +9,7 @@ vector<const DetLayer*> LayerCollector::allLayers(const FTS& aFts) const {
 
   FTS myFts(aFts.parameters());
 
-  vector<const DetLayer*> nextLayers = finder()->startingLayers(myFts, deltaR(), deltaZ());
+  vector<const DetLayer*> nextLayers = theStartingLayerFinder(myFts, deltaR(), deltaZ());
 
   vector<const DetLayer*> dummy;
 

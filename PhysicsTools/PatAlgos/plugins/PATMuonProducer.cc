@@ -516,7 +516,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //tcMETmuCorValueMap  = *tcMETmuCorValueMap_h;
     }
 
-    if (embedPfEcalEnergy_) {
+    if (embedPfEcalEnergy_ || embedPFCandidate_) {
       // get the PFCandidates of type muons
       iEvent.getByToken(pfMuonToken_, pfMuons);
     }
@@ -604,19 +604,29 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (embedTcMETMuonCorrs_)
         aMuon.embedTcMETMuonCorrs((*tcMETMuonCorrs)[muonRef]);
 
-      if (embedPfEcalEnergy_) {
-        aMuon.setPfEcalEnergy(-99.0);
+      if (embedPfEcalEnergy_ || embedPFCandidate_) {
+        if (embedPfEcalEnergy_)
+          aMuon.setPfEcalEnergy(-99.0);
+        unsigned index = 0;
         for (const reco::PFCandidate& pfmu : *pfMuons) {
           if (pfmu.muonRef().isNonnull()) {
             if (pfmu.muonRef().id() != muonRef.id())
               throw cms::Exception("Configuration")
                   << "Muon reference within PF candidates does not point to the muon collection." << std::endl;
             if (pfmu.muonRef().key() == muonRef.key()) {
-              aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
+              reco::PFCandidateRef pfRef(pfMuons, index);
+              aMuon.setPFCandidateRef(pfRef);
+              if (embedPfEcalEnergy_)
+                aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
+              if (embedPFCandidate_)
+                aMuon.embedPFCandidate();
+              break;
             }
           }
+          index++;
         }
       }
+
       if (addInverseBeta_) {
         aMuon.readTimeExtra((*muonsTimeExtra)[muonRef]);
       }
@@ -866,7 +876,7 @@ void PATMuonProducer::fillMuon(Muon& aMuon,
 
 void PATMuonProducer::setMuonMiniIso(Muon& aMuon, const PackedCandidateCollection* pc) {
   pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc,
-                                                     aMuon.p4(),
+                                                     aMuon.polarP4(),
                                                      miniIsoParams_[0],
                                                      miniIsoParams_[1],
                                                      miniIsoParams_[2],
@@ -883,8 +893,8 @@ double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, double r
   double mindr(miniIsoParams_[0]);
   double maxdr(miniIsoParams_[1]);
   double kt_scale(miniIsoParams_[2]);
-  double drcut = pat::miniIsoDr(muon.p4(), mindr, maxdr, kt_scale);
-  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho, area);
+  double drcut = pat::miniIsoDr(muon.polarP4(), mindr, maxdr, kt_scale);
+  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.polarP4(), drcut, rho, area);
 }
 
 double PATMuonProducer::puppiCombinedIsolation(const pat::Muon& muon, const pat::PackedCandidateCollection* pc) {

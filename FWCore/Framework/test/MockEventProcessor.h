@@ -36,6 +36,7 @@ namespace edm {
     edm::LuminosityBlockNumber_t nextLuminosityBlockID();
 
     void readFile();
+    bool fileBlockValid() { return true; }
     void closeInputFile(bool cleaningUpAfterException);
     void openOutputFiles();
     void closeOutputFiles();
@@ -50,6 +51,10 @@ namespace edm {
     bool shouldWeCloseOutput() const;
 
     void doErrorStuff();
+
+    void beginProcessBlock(bool& beginProcessBlockSucceeded);
+    void inputProcessBlocks();
+    void endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded);
 
     void beginRun(ProcessHistoryID const& phid,
                   RunNumber_t run,

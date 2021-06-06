@@ -26,7 +26,7 @@ namespace edm {
   ProcessHistoryID const& OccurrenceForOutput::processHistoryID() const { return principal().processHistoryID(); }
 
   Provenance OccurrenceForOutput::getProvenance(BranchID const& bid) const {
-    return provRecorder_.principal().getProvenance(bid, moduleCallingContext_);
+    return provRecorder_.principal().getProvenance(bid);
   }
 
   void OccurrenceForOutput::getAllProvenance(std::vector<Provenance const*>& provenances) const {

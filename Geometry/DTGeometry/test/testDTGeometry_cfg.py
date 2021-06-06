@@ -19,7 +19,9 @@ process.source = cms.Source("EmptySource")
 
 process.out = cms.OutputModule("AsciiOutputModule")
 
-process.prod = cms.EDAnalyzer("DTGeometryAnalyzer")
+process.prod = cms.EDAnalyzer("DTGeometryAnalyzer",
+                              tolerance = cms.untracked.double(1.0e-23)
+                             )
 
 process.p1 = cms.Path(process.prod)
 

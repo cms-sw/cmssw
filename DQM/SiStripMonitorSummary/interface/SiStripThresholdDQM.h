@@ -6,35 +6,27 @@
 #include "CondFormats/DataRecord/interface/SiStripThresholdRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 
-class SiStripThresholdDQM : public SiStripBaseCondObjDQM {
+class SiStripThresholdDQM : public SiStripBaseCondObjDQMGet<SiStripThreshold, SiStripThresholdRcd> {
 public:
-  SiStripThresholdDQM(const edm::EventSetup &eSetup,
+  SiStripThresholdDQM(edm::ESGetToken<SiStripThreshold, SiStripThresholdRcd> token,
                       edm::RunNumber_t iRun,
                       edm::ParameterSet const &hPSet,
-                      edm::ParameterSet const &fPSet);
+                      edm::ParameterSet const &fPSet,
+                      const TrackerTopology *tTopo,
+                      const TkDetMap *tkDetMap);
 
   ~SiStripThresholdDQM() override;
 
   void getActiveDetIds(const edm::EventSetup &eSetup) override;
 
-  void fillModMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
-  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
+  void fillModMEs(const std::vector<uint32_t> &selectedDetIds) override;
+  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds) override;
 
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) override;
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_) override;
   void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) override;
-
-  unsigned long long getCache(const edm::EventSetup &eSetup) override {
-    return eSetup.get<SiStripThresholdRcd>().cacheIdentifier();
-  }
-
-  void getConditionObject(const edm::EventSetup &eSetup) override {
-    eSetup.get<SiStripThresholdRcd>().get(thresholdHandle_);
-    cacheID_memory = cacheID_current;
-  }
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_) override;
 
 private:
-  edm::ESHandle<SiStripThreshold> thresholdHandle_;
   std::string WhichThreshold;
 };
 

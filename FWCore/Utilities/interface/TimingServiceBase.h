@@ -28,6 +28,8 @@ namespace edm {
   class TimingServiceBase {
   public:
     TimingServiceBase();
+    TimingServiceBase(const TimingServiceBase&) = delete;                   // stop default
+    const TimingServiceBase& operator=(const TimingServiceBase&) = delete;  // stop default
     virtual ~TimingServiceBase();
 
     // ---------- member functions ---------------------------
@@ -45,10 +47,6 @@ namespace edm {
     static double jobStartTime() { return s_jobStartTime; }
 
   private:
-    TimingServiceBase(const TimingServiceBase&) = delete;  // stop default
-
-    const TimingServiceBase& operator=(const TimingServiceBase&) = delete;  // stop default
-
     static double s_jobStartTime;
   };
 }  // namespace edm

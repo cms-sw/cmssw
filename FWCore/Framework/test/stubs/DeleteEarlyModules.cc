@@ -41,7 +41,7 @@ namespace edmtest {
   class DeleteEarlyReader : public edm::global::EDAnalyzer<> {
   public:
     DeleteEarlyReader(edm::ParameterSet const& pset)
-        : getToken_(consumes<DeleteEarly>(pset.getUntrackedParameter<edm::InputTag>("tag"))) {}
+        : getToken_(consumes(pset.getUntrackedParameter<edm::InputTag>("tag"))) {}
 
     void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const override { e.get(getToken_); }
 

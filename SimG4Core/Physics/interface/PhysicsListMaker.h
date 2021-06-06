@@ -40,7 +40,6 @@ public:
     return returnValue;
   }
 
-private:
   PhysicsListMaker(const PhysicsListMaker&) = delete;
   const PhysicsListMaker& operator=(const PhysicsListMaker&) = delete;
 };

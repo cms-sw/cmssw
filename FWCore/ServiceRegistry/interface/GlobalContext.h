@@ -30,11 +30,15 @@ namespace edm {
   public:
     enum class Transition {
       kBeginJob,
+      kBeginProcessBlock,
+      kAccessInputProcessBlock,
       kBeginRun,
       kBeginLuminosityBlock,
       kEndLuminosityBlock,
       kEndRun,
+      kEndProcessBlock,
       kEndJob,
+      kWriteProcessBlock,
       kWriteRun,
       kWriteLuminosityBlock
     };
@@ -49,7 +53,8 @@ namespace edm {
     Transition transition() const { return transition_; }
     bool isAtEndTransition() const {
       return transition() == Transition::kEndLuminosityBlock or transition() == Transition::kEndRun or
-             transition() == Transition::kWriteRun or transition() == Transition::kWriteLuminosityBlock;
+             transition() == Transition::kEndProcessBlock or transition() == Transition::kWriteRun or
+             transition() == Transition::kWriteLuminosityBlock or transition() == Transition::kWriteProcessBlock;
     }
 
     LuminosityBlockID const& luminosityBlockID() const { return luminosityBlockID_; }

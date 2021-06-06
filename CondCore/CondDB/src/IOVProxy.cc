@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "SessionImpl.h"
 
@@ -75,11 +77,11 @@ namespace cond {
     IOVArray::IOVArray() : m_array(new IOVContainer) {}
 
     IOVArray::IOVArray(const IOVArray& rhs) : m_array(), m_tagInfo(rhs.m_tagInfo) {
-      m_array.reset(new IOVContainer(*rhs.m_array));
+      m_array = std::make_unique<IOVContainer>(*rhs.m_array);
     }
 
     IOVArray& IOVArray::operator=(const IOVArray& rhs) {
-      m_array.reset(new IOVContainer(*rhs.m_array));
+      m_array = std::make_unique<IOVContainer>(*rhs.m_array);
       m_tagInfo = rhs.m_tagInfo;
       return *this;
     }
@@ -142,14 +144,14 @@ namespace cond {
 
       checkTransaction("IOVProxyNew::load");
 
-      std::string dummy;
+      int dummy;
       if (!m_session->iovSchema().tagTable().select(tagName,
                                                     m_data->tagInfo.timeType,
                                                     m_data->tagInfo.payloadType,
                                                     m_data->tagInfo.synchronizationType,
                                                     m_data->tagInfo.endOfValidity,
-                                                    dummy,
-                                                    m_data->tagInfo.lastValidatedTime)) {
+                                                    m_data->tagInfo.lastValidatedTime,
+                                                    dummy)) {
         throwException("Tag \"" + tagName + "\" has not been found in the database.", "IOVProxy::load");
       }
       m_data->tagInfo.name = tagName;
@@ -178,7 +180,7 @@ namespace cond {
     IOVArray IOVProxy::selectAll(const boost::posix_time::ptime& snapshottime) {
       if (!m_data.get())
         throwException("No tag has been loaded.", "IOVProxy::selectAll");
-      checkTransaction("IOVProxy::load");
+      checkTransaction("IOVProxy::selectAll");
       IOVArray ret;
       ret.m_tagInfo = m_data->tagInfo;
       m_session->iovSchema().iovTable().select(
@@ -197,15 +199,25 @@ namespace cond {
       if (!m_data.get())
         throwException("No tag has been loaded.", "IOVProxy::selectRange");
 
-      // clear
-      reset();
-
-      checkTransaction("IOVProxy::loadRange");
+      checkTransaction("IOVProxy::selectRange");
 
       IOVArray ret;
       ret.m_tagInfo = m_data->tagInfo;
       m_session->iovSchema().iovTable().getRange(m_data->tagInfo.name, begin, end, snapshotTime, *ret.m_array);
       return ret;
+    }
+
+    bool IOVProxy::selectRange(const cond::Time_t& begin, const cond::Time_t& end, IOVContainer& destination) {
+      if (!m_data.get())
+        throwException("No tag has been loaded.", "IOVProxy::selectRange");
+
+      checkTransaction("IOVProxy::selectRange");
+
+      boost::posix_time::ptime no_time;
+      size_t prevSize = destination.size();
+      m_session->iovSchema().iovTable().getRange(m_data->tagInfo.name, begin, end, no_time, destination);
+      size_t niov = destination.size() - prevSize;
+      return niov > 0;
     }
 
     //void IOVProxy::reload(){

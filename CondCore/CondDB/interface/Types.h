@@ -13,7 +13,7 @@
 //
 
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/functional/hash.hpp>
+#include <functional>
 //
 #include "CondCore/CondDB/interface/Time.h"
 
@@ -123,7 +123,7 @@ namespace cond {
     std::size_t hashvalue() const {
       // Derived from CondDB v1 TagMetadata implementation.
       // Unique Keys constructed with Record and Labels - allowing for multiple references of the same Tag in a GT
-      boost::hash<std::string> hasher;
+      std::hash<std::string> hasher;
       std::string key = recordName();
       if (!recordLabel().empty())
         key = key + "_" + recordLabel();
@@ -137,8 +137,15 @@ namespace cond {
   };
 
   struct RunInfo_t {
+    RunInfo_t() : run(0), start(), end() {}
     RunInfo_t(const std::tuple<long long unsigned int, boost::posix_time::ptime, boost::posix_time::ptime>& data)
         : run(std::get<0>(data)), start(std::get<1>(data)), end(std::get<2>(data)) {}
+    bool isOnGoing() {
+      if (run == 0)
+        return false;
+      auto now = boost::posix_time::second_clock::universal_time();
+      return (start < now) && (end == start);
+    }
     Time_t run;
     boost::posix_time::ptime start;
     boost::posix_time::ptime end;

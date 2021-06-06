@@ -164,3 +164,4 @@ containerID(patTaus.tauIDSources, "hpsPFTauDiscriminationByMVA6ElectronRejection
     ["againstElectronTightMVA6", "_Tight"],
     ["againstElectronVTightMVA6", "_VTight"]
     ])
+singleID(patTaus.tauIDSources, "hpsPFTauDiscriminationByDeadECALElectronRejection", "againstElectronDeadECAL")

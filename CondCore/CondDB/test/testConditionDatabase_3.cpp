@@ -47,7 +47,6 @@ int run(const std::string& connectionString) {
       editor.insert(cond::time::lumiTime(400, 11), p0);
       editor.insert(cond::time::lumiTime(400, 12), p1);
       editor.insert(cond::time::lumiTime(400, 13), p0);
-      //editor.insert( cond::time::lumiTime(9000, 11), p1 );
       std::cout << "> inserted iovs..." << std::endl;
       editor.flush();
       std::cout << "> iov changes flushed..." << std::endl;
@@ -59,11 +58,18 @@ int run(const std::string& connectionString) {
     ::sleep(2);
     session.transaction().start();
 
-    IOVProxy pxn = session.readIov("MyNewIOV");
-    IOVArray arr0 = pxn.selectAll();
+    auto arr0 = session.readIov("MyNewIOV").selectAll();
+    std::cout << "# Selecting all iovs..." << std::endl;
     for (auto iiov : arr0) {
       std::cout << "# since=" << iiov.since << " till:" << iiov.till << std::endl;
     }
+    auto arr1 = session.readIov("MyNewIOV").selectRange(cond::time::lumiTime(100, 15), cond::time::lumiTime(300, 15));
+    std::cout << "# Selecting range (" << cond::time::lumiTime(100, 15) << "," << cond::time::lumiTime(300, 15) << ")"
+              << std::endl;
+    for (auto iiov : arr1) {
+      std::cout << "# since=" << iiov.since << " till:" << iiov.till << std::endl;
+    }
+    auto pxn = session.readIov("MyNewIOV");
     std::vector<cond::Time_t> inputTimes{10,
                                          cond::time::lumiTime(100, 15),
                                          cond::time::lumiTime(100, 25),
@@ -77,13 +83,12 @@ int run(const std::string& connectionString) {
                                          cond::time::lumiTime(400, 11),
                                          cond::time::lumiTime(400, 12),
                                          cond::time::lumiTime(400, 13)};
-    //cond::time::lumiTime(10000, 15), cond::time::lumiTime(10000, 16), cond::time::lumiTime(10000, 17) };
     for (auto t : inputTimes) {
       cond::Iov_t iiov = pxn.getInterval(t);
-      std::cout << "#New: target=" << t << " since=" << iiov.since << " till:" << iiov.till << std::endl;
+      std::cout << "#Target=" << t << " since=" << iiov.since << " till:" << iiov.till << std::endl;
     }
 
-    std::cout << "#New: nqueries:" << pxn.numberOfQueries() << std::endl;
+    std::cout << "#Nqueries:" << pxn.numberOfQueries() << std::endl;
 
     session.transaction().commit();
 
@@ -96,11 +101,11 @@ int run(const std::string& connectionString) {
       iov = iovP.getInterval(t);
       ppn.initializeForNewIOV();
       ppn.make();
-      std::cout << "NewPP: target=" << t << " since=" << iov.since << " till:" << iov.till << std::endl;
+      std::cout << "PP: target=" << t << " since=" << iov.since << " till:" << iov.till << std::endl;
     }
     session.transaction().commit();
 
-    std::cout << "#NewPP: nqueries:" << iovP.numberOfQueries() << std::endl;
+    std::cout << "#PP: nqueries:" << iovP.numberOfQueries() << std::endl;
 
   } catch (const std::exception& e) {
     std::cout << "ERROR: " << e.what() << std::endl;

@@ -6,6 +6,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/TSGForOI.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <memory>
 
@@ -328,7 +329,7 @@ void TSGForOI::findSeedsOnLayer(const TrackerTopology* tTopo,
         dets.front().second.rescaleError(errorSFHitless);
         PTrajectoryStateOnDet const& ptsod =
             trajectoryStateTransform::persistentState(tsosOnLayer, detOnLayer->geographicalId().rawId());
-        TrajectorySeed::recHitContainer rHC;
+        TrajectorySeed::RecHitContainer rHC;
         out->push_back(TrajectorySeed(ptsod, rHC, oppositeToMomentum));
         LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: TSOD (Hitless) done " << endl;
         numSeedsMade++;

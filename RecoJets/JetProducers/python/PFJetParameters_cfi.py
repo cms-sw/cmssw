@@ -11,8 +11,8 @@ PFJetParameters = cms.PSet(
     # pileup with offset correction
     doPUOffsetCorr = cms.bool(False),
     # if pileup is false, these are not read:
-    #nSigmaPU = cms.double(1.0),
-    #radiusPU = cms.double(0.5),  
+    nSigmaPU       = cms.double(1.0),
+    radiusPU       = cms.double(0.5),  
     # fastjet-style pileup     
     doAreaFastjet       = cms.bool( True ),
     doRhoFastjet        = cms.bool( False),

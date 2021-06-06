@@ -38,7 +38,6 @@
 class EgammaHLTR9IDProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTR9IDProducer(const edm::ParameterSet&);
-  ~EgammaHLTR9IDProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
@@ -49,19 +48,18 @@ private:
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEBToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEEToken_;
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 };
 
 EgammaHLTR9IDProducer::EgammaHLTR9IDProducer(const edm::ParameterSet& config)
-    : recoEcalCandidateProducer_(
-          consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
-      ecalRechitEBToken_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("ecalRechitEB"))),
-      ecalRechitEEToken_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("ecalRechitEE"))) {
+    : recoEcalCandidateProducer_(consumes(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+      ecalRechitEBToken_(consumes(config.getParameter<edm::InputTag>("ecalRechitEB"))),
+      ecalRechitEEToken_(consumes(config.getParameter<edm::InputTag>("ecalRechitEE"))),
+      ecalClusterToolsESGetTokens_{consumesCollector()} {
   //register your products
   produces<reco::RecoEcalCandidateIsolationMap>();
   produces<reco::RecoEcalCandidateIsolationMap>("r95x5");
 }
-
-EgammaHLTR9IDProducer::~EgammaHLTR9IDProducer() {}
 
 void EgammaHLTR9IDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -77,8 +75,9 @@ void EgammaHLTR9IDProducer::produce(edm::StreamID sid, edm::Event& iEvent, const
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);
 
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_);
-  noZS::EcalClusterLazyTools lazyTools5x5(iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_);
+  auto const& ecalClusterToolsESData = ecalClusterToolsESGetTokens_.get(iSetup);
+  EcalClusterLazyTools lazyTools(iEvent, ecalClusterToolsESData, ecalRechitEBToken_, ecalRechitEEToken_);
+  noZS::EcalClusterLazyTools lazyTools5x5(iEvent, ecalClusterToolsESData, ecalRechitEBToken_, ecalRechitEEToken_);
   reco::RecoEcalCandidateIsolationMap r9Map(recoecalcandHandle);
   reco::RecoEcalCandidateIsolationMap r95x5Map(recoecalcandHandle);
   for (unsigned int iRecoEcalCand = 0; iRecoEcalCand < recoecalcandHandle->size(); iRecoEcalCand++) {

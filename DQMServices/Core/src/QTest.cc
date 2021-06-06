@@ -1,6 +1,5 @@
 #include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/src/DQMError.h"
 #include "Math/ProbFuncMathCore.h"
 #include "TMath.h"
 #include <cmath>
@@ -22,10 +21,7 @@ void QCriterion::init() {
   verbose_ = 0;  // 0 = silent, 1 = algorithmic failures, 2 = info
 }
 
-float QCriterion::runTest(const MonitorElement* /* me */) {
-  raiseDQMError("QCriterion", "virtual runTest method called");
-  return 0.;
-}
+float QCriterion::runTest(const MonitorElement* /* me */) { return 0.; }
 //===================================================//
 //================ QUALITY TESTS ====================//
 //==================================================//

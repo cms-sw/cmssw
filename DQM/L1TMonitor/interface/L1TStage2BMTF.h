@@ -4,7 +4,7 @@
 /*
  * \file L1TStage2BMTF.h
  * \Author Esmaeel Eskandari Tadavani
- * \December 2015 
+ * \December 2015
 */
 
 // system requirements
@@ -95,7 +95,7 @@ private:
   MonitorElement* bmtf_hwQual_bx;
 
   MonitorElement* bmtf_hwDXY;
-  MonitorElement* bmtf_hwPt2;
+  MonitorElement* bmtf_hwPtUnconstrained;
 
   /* MonitorElement* bmtf_twinmuxInput_PhiBX; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhi; */

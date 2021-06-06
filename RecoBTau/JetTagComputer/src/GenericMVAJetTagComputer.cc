@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iostream>
-#include <string>
 #include <memory>
+#include <string>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,7 +19,7 @@ using namespace PhysicsTools;
 static std::vector<std::string> getCalibrationLabels(const edm::ParameterSet &params,
                                                      std::unique_ptr<TagInfoMVACategorySelector> &selector) {
   if (params.getParameter<bool>("useCategories")) {
-    selector = std::unique_ptr<TagInfoMVACategorySelector>(new TagInfoMVACategorySelector(params));
+    selector = std::make_unique<TagInfoMVACategorySelector>(params);
 
     return selector->getCategoryLabels();
   } else {
@@ -31,12 +31,11 @@ static std::vector<std::string> getCalibrationLabels(const edm::ParameterSet &pa
   }
 }
 
-GenericMVAJetTagComputer::Tokens::Tokens(const edm::ParameterSet &params, edm::ESConsumesCollector &&cc) {
-  cc.setConsumes(calib_, edm::ESInputTag{"", params.getParameter<std::string>("recordLabel")});
-}
+GenericMVAJetTagComputer::Tokens::Tokens(const edm::ParameterSet &params, edm::ESConsumesCollector &&cc)
+    : calib_(cc.consumes(edm::ESInputTag{"", params.getParameter<std::string>("recordLabel")})) {}
 
 GenericMVAJetTagComputer::GenericMVAJetTagComputer(const edm::ParameterSet &params, Tokens tokens)
-    : computerCache_(getCalibrationLabels(params, categorySelector_)), tokens_{std::move(tokens)} {}
+    : computerCache_(getCalibrationLabels(params, categorySelector_)), tokens_{tokens} {}
 
 GenericMVAJetTagComputer::~GenericMVAJetTagComputer() {}
 

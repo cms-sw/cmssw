@@ -1,7 +1,7 @@
-<use   name="DataFormats/Provenance"/>
-<use   name="DataFormats/Common"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Utilities"/>
+<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Common"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

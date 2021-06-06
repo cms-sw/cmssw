@@ -15,6 +15,7 @@
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 #include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
@@ -50,6 +51,7 @@ private:
   edm::InputTag endcapEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHitsToken_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHitsToken_;
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   std::unique_ptr<EnergyUncertaintyPhotonSpecific> photonUncertaintyCalculator_;
 };

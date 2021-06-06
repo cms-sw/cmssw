@@ -24,10 +24,10 @@ photonEcalPFClusterIsolationProducer = cms.EDProducer('PhotonEcalPFClusterIsolat
                                                       energyEndcap = cms.double(0)
                                                       )
 
-ootPhotonEcalPFClusterIsolationProducer = photonEcalPFClusterIsolationProducer.clone()
-ootPhotonEcalPFClusterIsolationProducer.candidateProducer = cms.InputTag('ootPhotonsTmp')
-ootPhotonEcalPFClusterIsolationProducer.pfClusterProducer = cms.InputTag('particleFlowClusterOOTECAL')
-
+ootPhotonEcalPFClusterIsolationProducer = photonEcalPFClusterIsolationProducer.clone(
+    candidateProducer = 'ootPhotonsTmp',
+    pfClusterProducer = 'particleFlowClusterOOTECAL'
+)
 electronHcalPFClusterIsolationProducer = cms.EDProducer('ElectronHcalPFClusterIsolationProducer',
                                                         candidateProducer = cms.InputTag('gedGsfElectronsTmp'),
                                                         pfClusterProducerHCAL = cms.InputTag('particleFlowClusterHCAL'),
@@ -54,9 +54,9 @@ photonHcalPFClusterIsolationProducer = cms.EDProducer('PhotonHcalPFClusterIsolat
                                                       energyEndcap = cms.double(0)
                                                       )
 
-ootPhotonHcalPFClusterIsolationProducer = photonHcalPFClusterIsolationProducer.clone()
-ootPhotonHcalPFClusterIsolationProducer.candidateProducer = cms.InputTag('ootPhotonsTmp')
-
+ootPhotonHcalPFClusterIsolationProducer = photonHcalPFClusterIsolationProducer.clone(
+    candidateProducer = 'ootPhotonsTmp'
+)
 pfClusterIsolationTask = cms.Task(
     electronEcalPFClusterIsolationProducer ,
     photonEcalPFClusterIsolationProducer ,

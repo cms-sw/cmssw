@@ -133,7 +133,7 @@ def addExtraPuppiMETCorrections(process,
     from PhysicsTools.PatUtils.tools.corMETFromMuonAndEG import corMETFromMuonAndEG
     #EG correction for puppi, muon correction done right above
     corMETFromMuonAndEG(process,
-                        pfCandCollection="puppiForMET",
+                        metType="Puppi",
                         electronCollection=unCleanElectronCollection,
                         photonCollection=unCleanPhotonCollection,
                         corElectronCollection=cleanElectronCollection,
@@ -175,6 +175,7 @@ def addExtraPuppiMETCorrections(process,
     process.puppiMuonCorrection = cms.EDProducer("ShiftedParticleMETcorrInputProducer",
                         srcOriginal = cms.InputTag(unCleanPFCandidateCollection),
                         srcShifted = cms.InputTag(cleanPFCandidateCollection),
+                        srcWeights = cms.InputTag("")
                                   )
 
     task.add(process.puppiMuonCorrection)

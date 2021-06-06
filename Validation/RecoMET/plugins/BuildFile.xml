@@ -1,14 +1,12 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="DQMServices/Core"/>
-<use   name="root"/>
-<use   name="DataFormats/METReco"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/EgammaCandidates"/>
-<use   name="DataFormats/PatCandidates"/>
-
-<library   file="*.cc" name="ValidationRecoMETPlugin">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="DQMServices/Core"/>
+<use name="root"/>
+<use name="DataFormats/METReco"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/PatCandidates"/>
+<library file="*.cc" name="ValidationRecoMETPlugin">
+  <flags EDM_PLUGIN="1"/>
 </library>
-

@@ -221,8 +221,12 @@ MuonToTrackingParticleAssociatorEDProducer::MuonToTrackingParticleAssociatorEDPr
   DTHitAssociator dttruth(iConfig, consumesCollector());
   CSCHitAssociator cscruth(iConfig, consumesCollector());
 
+  edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
+      << "\n constructing MuonToTrackingParticleAssociatorEDProducer"
+      << "\n";
+
   if (iConfig.getUntrackedParameter<bool>("dumpInputCollections")) {
-    diagnostics_.reset(new InputDumper(iConfig, consumesCollector()));
+    diagnostics_ = std::make_unique<InputDumper>(iConfig, consumesCollector());
   }
 }
 
@@ -254,16 +258,16 @@ void MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event &iEvent, con
   // the resources own the memory.
 
   // Tracker hit association
-  trackertruth_.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
+  trackertruth_ = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
   // CSC hit association
-  csctruth_.reset(new CSCHitAssociator(iEvent, iSetup, config_));
+  csctruth_ = std::make_unique<CSCHitAssociator>(iEvent, iSetup, config_);
   // DT hit association
   printRtS = false;
-  dttruth_.reset(new DTHitAssociator(iEvent, iSetup, config_, printRtS));
+  dttruth_ = std::make_unique<DTHitAssociator>(iEvent, iSetup, config_, printRtS);
   // RPC hit association
-  rpctruth_.reset(new RPCHitAssociator(iEvent, iSetup, config_));
+  rpctruth_ = std::make_unique<RPCHitAssociator>(iEvent, iSetup, config_);
   // GEM hit association
-  gemtruth_.reset(new GEMHitAssociator(iEvent, iSetup, config_));
+  gemtruth_ = std::make_unique<GEMHitAssociator>(iEvent, iSetup, config_);
 
   MuonAssociatorByHitsHelper::Resources resources = {
       tTopo, trackertruth_.get(), csctruth_.get(), dttruth_.get(), rpctruth_.get(), gemtruth_.get(), {}};

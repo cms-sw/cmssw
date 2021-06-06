@@ -66,6 +66,9 @@ private:
 
   edm::EDGetTokenT<CrossingFrame<PSimHit> > btlSimHitsToken_;
 
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+
   // --- histograms declaration
 
   MonitorElement* meNevents_;
@@ -103,6 +106,8 @@ BtlSimHitsValidation::BtlSimHitsValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
   btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("inputTag"));
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
 
 BtlSimHitsValidation::~BtlSimHitsValidation() {}
@@ -112,12 +117,10 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   using namespace edm;
   using namespace geant_units::operators;
 
-  edm::ESHandle<MTDGeometry> geometryHandle;
-  iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
+  auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  edm::ESHandle<MTDTopology> topologyHandle;
-  iSetup.get<MTDTopologyRcd>().get(topologyHandle);
+  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
 
   auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));

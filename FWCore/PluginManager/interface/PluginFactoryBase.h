@@ -26,7 +26,7 @@
 #include <atomic>
 #include "tbb/concurrent_unordered_map.h"
 #include "tbb/concurrent_vector.h"
-
+#include "FWCore/Utilities/interface/zero_allocator.h"
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 // user include files
@@ -37,6 +37,8 @@ namespace edmplugin {
   class PluginFactoryBase {
   public:
     PluginFactoryBase() {}
+    PluginFactoryBase(const PluginFactoryBase&) = delete;                   // stop default
+    const PluginFactoryBase& operator=(const PluginFactoryBase&) = delete;  // stop default
     virtual ~PluginFactoryBase();
 
     struct PluginMakerInfo {
@@ -59,7 +61,7 @@ namespace edmplugin {
       std::atomic<void*> m_ptr;
     };
 
-    typedef tbb::concurrent_vector<PluginMakerInfo> PMakers;
+    typedef tbb::concurrent_vector<PluginMakerInfo, edm::zero_allocator<PluginMakerInfo>> PMakers;
     typedef tbb::concurrent_unordered_map<std::string, PMakers> Plugins;
 
     // ---------- const member functions ---------------------
@@ -102,10 +104,6 @@ namespace edmplugin {
     void registerPMaker(void* iPMaker, const std::string& iName);
 
   private:
-    PluginFactoryBase(const PluginFactoryBase&) = delete;  // stop default
-
-    const PluginFactoryBase& operator=(const PluginFactoryBase&) = delete;  // stop default
-
     void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const;
     // ---------- member data --------------------------------
     Plugins m_plugins;

@@ -100,7 +100,3 @@ process.o = cms.EndPath(process.out + process.dqmSaver)
 #process.add_(cms.Service("Tracer",
 #  dumpPathsAndConsumes = cms.untracked.bool(True)
 #))
-
-# from FWCore.ParameterSet.Utilities import convertToUnscheduled
-# process = convertToUnscheduled(process)
-

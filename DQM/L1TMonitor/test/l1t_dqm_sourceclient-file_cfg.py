@@ -82,7 +82,6 @@ process.dqmEnv.subSystemFolder = 'L1T'
 
 if l1DqmEnv == 'live' :
     process.load("DQM.Integration.test.environment_cfi")
-    process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
     #
     # load and configure modules via Global Tag
@@ -287,25 +286,19 @@ process.schedule.remove(process.l1tSyncPath)
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1tGt']
-process.MessageLogger.categories.append('L1TGT')
-process.MessageLogger.destinations = ['L1TDQM_errors',
-                                      'L1TDQM_warnings',
-                                      'L1TDQM_info',
-                                      'L1TDQM_debug'
-                                      ]
 
-process.MessageLogger.L1TDQM_errors = cms.untracked.PSet(
+process.MessageLogger.files.L1TDQM_errors = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
        )
 
-process.MessageLogger.L1TDQM_warnings = cms.untracked.PSet(
+process.MessageLogger.files.L1TDQM_warnings = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) )
         )
 
-process.MessageLogger.L1TDQM_info = cms.untracked.PSet(
+process.MessageLogger.files.L1TDQM_info = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -313,7 +306,7 @@ process.MessageLogger.L1TDQM_info = cms.untracked.PSet(
         L1TGT = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
         )
 
-process.MessageLogger.L1TDQM_debug = cms.untracked.PSet(
+process.MessageLogger.files.L1TDQM_debug = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

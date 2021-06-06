@@ -1,4 +1,4 @@
-<bin   name="TestTCPReceiver" file="TestTCPReceiver.cpp">
+<bin name="TestTCPReceiver" file="TestTCPReceiver.cpp">
   <flags NO_TESTRUN="1"/>
-  <use   name="RecoLuminosity/TCPReceiver"/>
+  <use name="RecoLuminosity/TCPReceiver"/>
 </bin>

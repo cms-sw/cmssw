@@ -17,16 +17,13 @@ using namespace reco;
 
 CombinedMVAV2JetTagComputer::Tokens::Tokens(const edm::ParameterSet &params, edm::ESConsumesCollector &&cc) {
   if (params.getParameter<bool>("useCondDB")) {
-    cc.setConsumes(
-        gbrForest_,
-        edm::ESInputTag{
-            "",
-            params.existsAs<std::string>("gbrForestLabel") ? params.getParameter<std::string>("gbrForestLabel") : ""});
+    gbrForest_ = cc.consumes(edm::ESInputTag{
+        "", params.existsAs<std::string>("gbrForestLabel") ? params.getParameter<std::string>("gbrForestLabel") : ""});
   }
   const auto &inputComputerNames = params.getParameter<std::vector<std::string> >("jetTagComputers");
   computers_.resize(inputComputerNames.size());
   for (size_t i = 0; i < inputComputerNames.size(); ++i) {
-    cc.setConsumes(computers_[i], edm::ESInputTag{"", inputComputerNames[i]});
+    computers_[i] = cc.consumes(edm::ESInputTag{"", inputComputerNames[i]});
   }
 }
 

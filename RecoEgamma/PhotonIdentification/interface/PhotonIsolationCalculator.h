@@ -8,9 +8,8 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-#include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 

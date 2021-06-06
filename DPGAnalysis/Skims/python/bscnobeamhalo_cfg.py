@@ -4,8 +4,8 @@ process = cms.Process("SKIM")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # activate the following lines to get some output
-#process.MessageLogger.destinations = cms.untracked.vstring("cout")
-#process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string("INFO"))
+#process.MessageLogger.cerr.enable = False
+#process.MessageLogger.cout = dict(enable = True, threshold = "INFO")
 process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )

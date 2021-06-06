@@ -34,6 +34,8 @@ void FEConfigMainInfo::clear() {
   m_tim_id = 0;
   m_spi_id = 0;
   m_bst_id = 0;
+  m_coke_id = 0;
+  m_wei2_id = 0;
 
   m_db_time = Tm();
 }
@@ -113,8 +115,9 @@ void FEConfigMainInfo::prepareWrite() noexcept(false) {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL(
         "INSERT INTO fe_config_main (conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, "
-        "wei_conf_id, spi_conf_id, tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, tag, version, description) "
-        " VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10, :11, :12, :13, :14, :15 )");
+        "wei_conf_id, spi_conf_id, tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, coke_conf_id, wei2_conf_id, "
+        "tag, version, description) "
+        " VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10, :11, :12, :13, :14, :15, :16, :17 )");
 
     m_writeStmt->setInt(1, next_id);
     m_ID = next_id;
@@ -143,9 +146,11 @@ void FEConfigMainInfo::writeDB() noexcept(false) {
     m_writeStmt->setInt(10, this->getBxtId());
     m_writeStmt->setInt(11, this->getBttId());
     m_writeStmt->setInt(12, this->getBstId());
-    m_writeStmt->setString(13, this->getConfigTag());
-    m_writeStmt->setInt(14, this->getVersion());
-    m_writeStmt->setString(15, this->getDescription());
+    m_writeStmt->setInt(13, this->getCokeId());
+    m_writeStmt->setInt(14, this->getWei2Id());
+    m_writeStmt->setString(15, this->getConfigTag());
+    m_writeStmt->setInt(16, this->getVersion());
+    m_writeStmt->setString(17, this->getDescription());
     m_writeStmt->executeUpdate();
 
   } catch (SQLException& e) {
@@ -194,7 +199,10 @@ void FEConfigMainInfo::setByID(int id) noexcept(false) {
   try {
     Statement* stmt = m_conn->createStatement();
 
-    stmt->setSQL("SELECT * FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
+    stmt->setSQL(
+        "SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, spi_conf_id, "
+        "tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, coke_conf_id, wei2_conf_id, tag, version, description, "
+        "db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
     stmt->setInt(1, id);
 
     ResultSet* rset = stmt->executeQuery();
@@ -211,10 +219,12 @@ void FEConfigMainInfo::setByID(int id) noexcept(false) {
       setBxtId(rset->getInt(10));
       setBttId(rset->getInt(11));
       setBstId(rset->getInt(12));
-      setConfigTag(rset->getString(13));
-      setVersion(rset->getInt(14));
-      setDescription(rset->getString(15));
-      Date dbdate = rset->getDate(16);
+      setCokeId(rset->getInt(13));
+      setWei2Id(rset->getInt(14));
+      setConfigTag(rset->getString(15));
+      setVersion(rset->getInt(16));
+      setDescription(rset->getString(17));
+      Date dbdate = rset->getDate(18);
       setDBTime(dh.dateToTm(dbdate));
       m_ID = id;
     } else {
@@ -243,7 +253,10 @@ void FEConfigMainInfo::fetchData(FEConfigMainInfo* result) noexcept(false) {
   }
 
   try {
-    m_readStmt->setSQL("SELECT * FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
+    m_readStmt->setSQL(
+        "SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, spi_conf_id, "
+        "tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, coke_conf_id, wei2_conf_id, tag, version, description, "
+        "db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
 
     std::cout << " ### 2 getId from FEConfigMainInfo = " << result->getId() << std::endl;
 
@@ -266,11 +279,13 @@ void FEConfigMainInfo::fetchData(FEConfigMainInfo* result) noexcept(false) {
     setBxtId(rset->getInt(10));
     setBttId(rset->getInt(11));
     setBstId(rset->getInt(12));
+    setCokeId(rset->getInt(13));
+    setWei2Id(rset->getInt(14));
 
-    result->setConfigTag(rset->getString(13));
-    result->setVersion(rset->getInt(14));
-    result->setDescription(rset->getString(15));
-    Date dbdate = rset->getDate(16);
+    result->setConfigTag(rset->getString(15));
+    result->setVersion(rset->getInt(16));
+    result->setDescription(rset->getString(17));
+    Date dbdate = rset->getDate(18);
     result->setDBTime(dh.dateToTm(dbdate));
 
   } catch (SQLException& e) {

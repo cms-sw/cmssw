@@ -9,20 +9,30 @@ namespace {
 }
 
 FTLRecHit::FTLRecHit()
-    : id_(DetId()),
-      energy_(-1.f),
-      time_(-1.f),
-      timeError_(-1.f),
-      row_(0),
-      column_(0),
-      flagBits_(std::numeric_limits<unsigned char>::max()) {}
+    : FTLRecHit(DetId(), 0, 0, -1.f, -1.f, -1.f, -1.f, -1.f, std::numeric_limits<unsigned char>::max()) {}
 
-FTLRecHit::FTLRecHit(const DetId& id, float energy, float time, float timeError, uint32_t flagBits)
-    : id_(id), energy_(energy), time_(time), timeError_(timeError), row_(0), column_(0), flagBits_(flagBits) {}
+FTLRecHit::FTLRecHit(const DetId& id,
+                     uint8_t row,
+                     uint8_t column,
+                     float energy,
+                     float time,
+                     float timeError,
+                     float position,
+                     float positionError,
+                     uint32_t flagBits)
+    : id_(id),
+      energy_(energy),
+      time_(time),
+      timeError_(timeError),
+      position_(position),
+      positionError_(positionError),
+      row_(row),
+      column_(column),
+      flagBits_(flagBits) {}
 
 FTLRecHit::FTLRecHit(
-    const DetId& id, uint8_t row, uint8_t column, float energy, float time, float timeError, uint32_t flagBits)
-    : id_(id), energy_(energy), time_(time), timeError_(timeError), row_(row), column_(column), flagBits_(flagBits) {}
+    const DetId& id, float energy, float time, float timeError, float position, float positionError, uint32_t flagBits)
+    : FTLRecHit(id, 0, 0, energy, time, timeError, position, positionError, flagBits) {}
 
 bool FTLRecHit::isTimeValid() const {
   if (timeError() < 0)

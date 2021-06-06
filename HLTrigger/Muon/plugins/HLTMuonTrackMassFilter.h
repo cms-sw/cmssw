@@ -7,6 +7,8 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <vector>
 
@@ -30,6 +32,7 @@ private:
                    const reco::RecoChargedCandidateRef& trackRef) const;
 
 private:
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> const idealMagneticFieldRecordToken_;
   edm::InputTag beamspotTag_;                                             ///< beamspot used for quality cuts
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;                        ///< beamspot used for quality cuts
   edm::InputTag muonTag_;                                                 ///< RecoChargedCandidateCollection (muons)

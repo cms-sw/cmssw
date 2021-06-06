@@ -6,21 +6,11 @@
 #include <iostream>
 #include <memory>
 
-// FWCore
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 // DQM
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 class SiPixelDaqInfo : public DQMEDHarvester {
@@ -53,6 +43,7 @@ private:
 
   // define Token(-s)
   edm::EDGetTokenT<FEDRawDataCollection> daqSourceToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 };
 
 #endif

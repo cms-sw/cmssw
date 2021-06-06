@@ -30,16 +30,12 @@ public:
   std::shared_ptr<const QGLikelihoodSystematicsObject> produce(const QGLikelihoodSystematicsRcd&);
 
 private:
-  edm::ESGetToken<QGLikelihoodSystematicsObject, QGLikelihoodSystematicsRcd> token_;
+  const edm::ESGetToken<QGLikelihoodSystematicsObject, QGLikelihoodSystematicsRcd> token_;
 };
 
-QGLikelihoodSystematicsESProducer::QGLikelihoodSystematicsESProducer(const edm::ParameterSet& iConfig) {
-  //the following line is needed to tell the framework what
-  // data is being produced
-  std::string label(iConfig.getParameter<std::string>("@module_label"));
-  auto algo = iConfig.getParameter<std::string>("algo");
-  setWhatProduced(this, label).setConsumes(token_, edm::ESInputTag{"", algo});
-}
+QGLikelihoodSystematicsESProducer::QGLikelihoodSystematicsESProducer(const edm::ParameterSet& iConfig)
+    : token_(setWhatProduced(this, iConfig.getParameter<std::string>("@module_label"))
+                 .consumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("algo")})) {}
 
 // Produce the data
 std::shared_ptr<const QGLikelihoodSystematicsObject> QGLikelihoodSystematicsESProducer::produce(

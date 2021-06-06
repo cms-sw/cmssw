@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
-    <ConstantsSection label="CTPPS_Stations_Assembly.xml">
+    <ConstantsSection label="CTPPS_Stations_Assembly.xml" eval="true">
         <!--positions of the stations from the IP5 to the first element of the station-->
         <!--coordinate system is relative to CMS 1 (z>0) and 2 (z<0)-->
         <Constant name="CTPPS_210_Left_Station_Position_z" value="202769*mm"/>

@@ -90,7 +90,7 @@ void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
     std::vector<fastjet::PseudoJet> lClusterParticles;
     float lepPt(-1), lepEta(-1), lepPhi(-1);
     int lepId(-1);
-    for (auto const d : itJet.daughterPtrVector()) {
+    for (auto const &d : itJet.daughterPtrVector()) {
       fastjet::PseudoJet p(d->px(), d->py(), d->pz(), d->energy());
       lClusterParticles.emplace_back(p);
     }

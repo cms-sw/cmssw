@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -35,7 +36,6 @@ namespace edm {
 
   class ModuleCallingContext;
   class ActivityRegistry;
-  class WaitingTask;
   class WaitingTaskWithArenaHolder;
 
   namespace maker {
@@ -53,6 +53,8 @@ namespace edm {
       friend class edm::WorkerT;
 
       EDFilterAdaptorBase();
+      EDFilterAdaptorBase(const EDFilterAdaptorBase&) = delete;                   // stop default
+      const EDFilterAdaptorBase& operator=(const EDFilterAdaptorBase&) = delete;  // stop default
 
       // ---------- const member functions ---------------------
 
@@ -66,22 +68,17 @@ namespace edm {
       using ProducingModuleAdaptorBase<EDFilterBase>::commit;
 
     private:
-      EDFilterAdaptorBase(const EDFilterAdaptorBase&) = delete;  // stop default
+      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
 
-      const EDFilterAdaptorBase& operator=(const EDFilterAdaptorBase&) = delete;  // stop default
-
-      bool doEvent(EventPrincipal const&, EventSetupImpl const&, ActivityRegistry*, ModuleCallingContext const*);
-
-      void doAcquire(EventPrincipal const&,
-                     EventSetupImpl const&,
+      void doAcquire(EventTransitionInfo const&,
                      ActivityRegistry*,
                      ModuleCallingContext const*,
                      WaitingTaskWithArenaHolder&);
 
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
-                                                    ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
+                                                    ModuleCallingContext const&,
+                                                    Principal const&) const {}
     };
   }  // namespace stream
 }  // namespace edm

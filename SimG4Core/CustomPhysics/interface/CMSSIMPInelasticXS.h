@@ -27,11 +27,11 @@ public:
 
   void BuildPhysicsTable(const G4ParticleDefinition&) override;
 
-private:
-  void Initialise(G4int Z, G4DynamicParticle* dp = nullptr, const char* = nullptr);
-
   CMSSIMPInelasticXS& operator=(const CMSSIMPInelasticXS& right) = delete;
   CMSSIMPInelasticXS(const CMSSIMPInelasticXS&) = delete;
+
+private:
+  void Initialise(G4int Z, G4DynamicParticle* dp = nullptr, const char* = nullptr);
 
   G4NeutronInelasticXS* nXsection;
   const G4ParticleDefinition* neutron;

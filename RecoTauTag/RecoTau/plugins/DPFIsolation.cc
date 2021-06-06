@@ -74,9 +74,7 @@ public:
   }
 
 private:
-  tensorflow::Tensor getPredictions(edm::Event& event,
-                                    const edm::EventSetup& es,
-                                    edm::Handle<TauCollection> taus) override {
+  tensorflow::Tensor getPredictions(edm::Event& event, edm::Handle<TauCollection> taus) override {
     edm::Handle<pat::PackedCandidateCollection> pfcands;
     event.getByToken(pfcandToken_, pfcands);
 
@@ -142,7 +140,7 @@ private:
 
       std::vector<unsigned int> signalCandidateInds;
 
-      for (const auto c : tau.signalCands())
+      for (const auto& c : tau.signalCands())
         signalCandidateInds.push_back(getPFCandidateIndex(pfcands, c));
 
       // Use of setZero results in warnings in eigen library during compilation.

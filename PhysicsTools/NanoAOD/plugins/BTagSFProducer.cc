@@ -227,10 +227,7 @@ void BTagSFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         EventWt *= SF;
       }
 
-      out->addColumnValue<float>(discShortNames_[iDisc],
-                                 EventWt,
-                                 "b-tag event weight for " + discShortNames_[iDisc],
-                                 nanoaod::FlatTable::FloatColumn);
+      out->addColumnValue<float>(discShortNames_[iDisc], EventWt, "b-tag event weight for " + discShortNames_[iDisc]);
     }
   }
 

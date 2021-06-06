@@ -1,0 +1,13 @@
+<library file="*.cc" name="CalibPPSAlignmentPlugins">
+  <flags EDM_PLUGIN="1"/>
+  <use name="DQMServices/Core"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>  
+  <use name="DataFormats/CTPPSDetId"/>
+  <use name="DataFormats/CTPPSReco"/>
+  <use name="CondFormats/PPSObjects"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="rootcore"/>
+  <use name="rootgraphics"/>
+</library>

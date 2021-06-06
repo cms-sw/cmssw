@@ -115,6 +115,7 @@ int cond::AuthenticationManager::execute() {
   bool import = hasOptionValue("import");
   bool exp = hasOptionValue("export");
 
+  bool not_exec = true;
   CredentialStore credDb;
 
   if (drop) {
@@ -122,84 +123,112 @@ int cond::AuthenticationManager::execute() {
     std::string userName = getOptionValue<std::string>("userName");
     std::string password = cond::getpassForUser(userName);
     credDb.drop(connectionString, userName, password);
-    return 0;
+    std::cout << "Credential Repository in " << connectionString << " has been dropped." << std::endl;
+    not_exec = false;
   }
 
   std::string service("");
-  if (create) {
+  if (create && not_exec) {
     service = getOptionValue<std::string>("service");
     std::string userName = getOptionValue<std::string>("userName");
     std::string password = cond::getpassForUser(userName);
     std::string credsStore = credDb.setUpForService(service, authPath);
     credDb.createSchema(credsStore, userName, password);
-    return 0;
+    std::cout << "Credential Repository for service " << service << " has been created." << std::endl;
+    not_exec = false;
   }
 
   if (reset_admin || update_princ || update_conn || remove_princ || remove_conn || set_perm || unset_perm || import ||
       list_conn || list_princ || list_perm || exp) {
     service = getOptionValue<std::string>("service");
     std::string credsStore = credDb.setUpForService(service, authPath);
+    std::cout << "Authenticated principal " << credDb.keyPrincipalName() << std::endl;
     std::cout << "Connecting with credential repository in \"" << credsStore << "\"" << std::endl;
   }
 
-  if (reset_admin) {
+  if (reset_admin && not_exec) {
     std::string userName = getOptionValue<std::string>("userName");
     std::string password = cond::getpassForUser(userName);
     credDb.resetAdmin(userName, password);
-    return 0;
+    std::cout << "Admin access to service " << credDb.serviceName() << " has been reset." << std::endl;
+    not_exec = false;
   }
 
-  if (update_princ) {
+  if (update_princ && not_exec) {
     bool adminOpt = hasOptionValue("admin");
     std::string key = getOptionValue<std::string>("key");
     auth::DecodingKey pk;
     pk.init(key, auth::COND_KEY);
     credDb.updatePrincipal(pk.principalName(), pk.principalKey(), adminOpt);
-    return 0;
+    std::cout << "Principal " << pk.principalName() << " has been updated." << std::endl;
+    not_exec = false;
   }
 
-  if (update_conn) {
+  if (update_conn && not_exec) {
     std::string userName = getOptionValue<std::string>("userName");
     std::string password = cond::getpassForUser(userName);
     std::string connectionLabel = schemaLabel(service, userName);
     if (hasOptionValue("connectionLabel")) {
       connectionLabel = getOptionValue<std::string>("connectionLabel");
     }
-    std::cout << "Updating credentials for connection label \"" << connectionLabel << "\"" << std::endl;
     credDb.updateConnection(connectionLabel, userName, password);
-    return 0;
+    std::cout << "Credentials for connection " << connectionLabel << " have been updated." << std::endl;
+    not_exec = false;
   }
 
-  if (remove_princ) {
+  if (remove_princ && not_exec) {
     std::string principal = getOptionValue<std::string>("princ_name");
     credDb.removePrincipal(principal);
-    return 0;
+    std::cout << "Principal " << principal << " has been removed." << std::endl;
+    not_exec = false;
   }
 
-  if (remove_conn) {
+  if (remove_conn && not_exec) {
     std::string connectionLabel = getOptionValue<std::string>("connectionLabel");
     credDb.removeConnection(connectionLabel);
-    return 0;
+    std::cout << "Connection " << connectionLabel << " has been removed." << std::endl;
+    not_exec = false;
   }
 
-  if (set_perm) {
+  if (set_perm && not_exec) {
     std::string principal = getOptionValue<std::string>("princ_name");
     std::string role = getOptionValue<std::string>("role");
     std::string connectionString = getOptionValue<std::string>("connectionString");
     std::string connectionLabel = getOptionValue<std::string>("connectionLabel");
     credDb.setPermission(principal, role, connectionString, connectionLabel);
-    return 0;
+    std::cout << "Permission for principal " << principal << " to access resource " << connectionString << " with role "
+              << role << " has been set." << std::endl;
+    not_exec = false;
   }
 
-  if (unset_perm) {
-    std::string principal = getOptionValue<std::string>("princ_name");
-    std::string role = getOptionValue<std::string>("role");
+  if (unset_perm && not_exec) {
     std::string connectionString = getOptionValue<std::string>("connectionString");
-    credDb.unsetPermission(principal, role, connectionString);
-    return 0;
+    std::string principal("");
+    if (hasOptionValue("princ_name"))
+      principal = getOptionValue<std::string>("princ_name");
+    std::string role("");
+    if (hasOptionValue("role"))
+      role = getOptionValue<std::string>("role");
+    size_t n = credDb.unsetPermission(principal, role, connectionString);
+    if (n) {
+      std::cout << n << " permissions to access resource " << connectionString;
+      if (!role.empty())
+        std::cout << " with role " << role;
+      std::cout << " have been unset";
+      if (!principal.empty())
+        std::cout << " for principal " << principal << " ";
+    } else {
+      std::cout << "No Permission found to access resource " << connectionString;
+      if (!role.empty())
+        std::cout << " with role " << role;
+      if (!principal.empty())
+        std::cout << " for principal " << principal << " ";
+    }
+    std::cout << "." << std::endl;
+    not_exec = false;
   }
 
-  if (import) {
+  if (import && not_exec) {
     bool forceUp = hasOptionValue("force_update");
     std::string fileName = getOptionValue<std::string>("import");
     std::string principal = getOptionValue<std::string>("princ_name");
@@ -210,10 +239,12 @@ int cond::AuthenticationManager::execute() {
     }
     std::cout << "Importing " << source.data().size() << " connection items." << std::endl;
     credDb.importForPrincipal(principal, source, forceUp);
-    return 0;
+    std::cout << "Credential set for principal " << principal << " has been imported from file " << fileName
+              << std::endl;
+    not_exec = false;
   }
 
-  if (list_conn) {
+  if (list_conn && not_exec) {
     std::map<std::string, std::pair<std::string, std::string> > data;
     credDb.listConnections(data);
     std::cout << "Found " << data.size() << " connection(s)." << std::endl;
@@ -269,10 +300,10 @@ int cond::AuthenticationManager::execute() {
       std::cout << std::setw(connectionLabelW) << connectionLabel << "  " << std::setw(userNameW) << userName << "  "
                 << std::setw(passwordW) << password << std::endl;
     }
-    return 0;
+    not_exec = false;
   }
 
-  if (list_princ) {
+  if (list_princ && not_exec) {
     std::vector<std::string> data;
     credDb.listPrincipals(data);
     std::cout << "Found " << data.size() << " principal(s)." << std::endl;
@@ -292,10 +323,10 @@ int cond::AuthenticationManager::execute() {
     for (std::vector<std::string>::const_iterator iP = data.begin(); iP != data.end(); ++iP) {
       std::cout << std::setw(principalW) << *iP << std::endl;
     }
-    return 0;
+    not_exec = false;
   }
 
-  if (list_perm) {
+  if (list_perm && not_exec) {
     std::vector<CredentialStore::Permission> data;
     std::string pName("");
     std::string role("");
@@ -348,10 +379,10 @@ int cond::AuthenticationManager::execute() {
       std::cout << std::setw(roleW) << iP->role << "  " << std::setw(connectionLabelW) << iP->connectionLabel
                 << std::endl;
     }
-    return 0;
+    not_exec = false;
   }
 
-  if (exp) {
+  if (exp && not_exec) {
     std::string fileName = getOptionValue<std::string>("export");
     coral_bridge::AuthenticationCredentialSet data;
     credDb.exportAll(data);
@@ -389,11 +420,17 @@ int cond::AuthenticationManager::execute() {
       }
     }
     xmlFile.close();
-    return 0;
+    not_exec = false;
   }
 
-  std::cout << "ERROR: no command specified." << std::endl;
-
+  if (not_exec) {
+    std::cout << "ERROR: no command specified." << std::endl;
+    return 1;
+  }
+  if (hasDebug()) {
+    std::cout << "LOGS from the Credential Store:" << std::endl;
+    std::cout << credDb.log() << std::endl;
+  }
   return 0;
 }
 

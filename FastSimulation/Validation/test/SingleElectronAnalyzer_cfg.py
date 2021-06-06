@@ -111,6 +111,7 @@ for layer in process.fastSimProducer.detectorDefinition.BarrelLayers:
     layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
     layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
-process.MessageLogger.destinations = ['detailedInfo.txt']
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.detailedInfo=dict(extension='txt')
 
 

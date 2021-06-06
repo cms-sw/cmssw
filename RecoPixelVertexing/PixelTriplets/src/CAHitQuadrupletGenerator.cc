@@ -31,8 +31,10 @@ CAHitQuadrupletGenerator::CAHitQuadrupletGenerator(const edm::ParameterSet& cfg,
       fitFastCircle(cfg.getParameter<bool>("fitFastCircle")),
       fitFastCircleChi2Cut(cfg.getParameter<bool>("fitFastCircleChi2Cut")),
       useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
-      caThetaCut(cfg.getParameter<double>("CAThetaCut")),
-      caPhiCut(cfg.getParameter<double>("CAPhiCut")),
+      caThetaCut(cfg.getParameter<double>("CAThetaCut"),
+                 cfg.getParameter<std::vector<edm::ParameterSet>>("CAThetaCut_byTriplets")),
+      caPhiCut(cfg.getParameter<double>("CAPhiCut"),
+               cfg.getParameter<std::vector<edm::ParameterSet>>("CAPhiCut_byTriplets")),
       caHardPtCut(cfg.getParameter<double>("CAHardPtCut")) {
   edm::ParameterSet comparitorPSet = cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
@@ -48,6 +50,18 @@ void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& de
   desc.add<bool>("useBendingCorrection", false);
   desc.add<double>("CAThetaCut", 0.00125);
   desc.add<double>("CAPhiCut", 10);
+
+  edm::ParameterSetDescription validatorCACut;
+  validatorCACut.add<string>("seedingLayers", "BPix1+BPix2+BPix3");
+  validatorCACut.add<double>("cut", 0.00125);
+  std::vector<edm::ParameterSet> defaultCACutVector;
+  edm::ParameterSet defaultCACut;
+  defaultCACut.addParameter<string>("seedingLayers", "");
+  defaultCACut.addParameter<double>("cut", -1.);
+  defaultCACutVector.push_back(defaultCACut);
+  desc.addVPSet("CAThetaCut_byTriplets", validatorCACut, defaultCACutVector);
+  desc.addVPSet("CAPhiCut_byTriplets", validatorCACut, defaultCACutVector);
+
   desc.add<double>("CAHardPtCut", 0);
   desc.addOptional<bool>("CAOnlyOneLastHitPerLayerFilter")
       ->setComment(
@@ -78,7 +92,7 @@ namespace {
         auto vertexIndex = 0;
         auto foundVertex = std::find(g.theLayers.begin(), g.theLayers.end(), layers[i][j].name());
         if (foundVertex == g.theLayers.end()) {
-          g.theLayers.emplace_back(layers[i][j].name(), layers[i][j].hits().size());
+          g.theLayers.emplace_back(layers[i][j].name(), layers[i][j].detLayer()->seqNum(), layers[i][j].hits().size());
           vertexIndex = g.theLayers.size() - 1;
         } else {
           vertexIndex = foundVertex - g.theLayers.begin();
@@ -161,6 +175,8 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
     foundQuadruplets.clear();
     if (index == 0) {
       createGraphStructure(layers, g);
+      caThetaCut.setCutValuesByLayerIds(g);
+      caPhiCut.setCutValuesByLayerIds(g);
     } else {
       clearGraphStructure(layers, g);
     }

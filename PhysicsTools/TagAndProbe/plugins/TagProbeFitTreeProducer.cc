@@ -112,7 +112,7 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
     // For unbiased efficiency we also need the collection of all probes
     if (makeMCUnbiasTree_) {
       allProbesToken_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("allProbes"));
-      mcUnbiasFiller_.reset(new tnp::BaseTreeFiller("mcUnbias_tree", iConfig, consumesCollector()));
+      mcUnbiasFiller_ = std::make_unique<tnp::BaseTreeFiller>("mcUnbias_tree", iConfig, consumesCollector());
     }
   }
 
@@ -122,7 +122,7 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
   if (iConfig.existsAs<edm::ParameterSet>("tagFlags"))
     tagPSet.addParameter<edm::ParameterSet>("flags", iConfig.getParameter<edm::ParameterSet>("tagFlags"));
   if (!tagPSet.empty()) {
-    tagFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, tagPSet, consumesCollector(), "tag_"));
+    tagFiller_ = std::make_unique<tnp::BaseTreeFiller>(*treeFiller_, tagPSet, consumesCollector(), "tag_");
   }
   edm::ParameterSet mcPSet;
   if (iConfig.existsAs<edm::ParameterSet>("mcVariables"))
@@ -130,7 +130,7 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
   if (iConfig.existsAs<edm::ParameterSet>("mcFlags"))
     mcPSet.addParameter<edm::ParameterSet>("flags", iConfig.getParameter<edm::ParameterSet>("mcFlags"));
   if (!mcPSet.empty()) {
-    mcFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, mcPSet, consumesCollector(), "mc_"));
+    mcFiller_ = std::make_unique<tnp::BaseTreeFiller>(*treeFiller_, mcPSet, consumesCollector(), "mc_");
   }
   edm::ParameterSet pairPSet;
   if (iConfig.existsAs<edm::ParameterSet>("pairVariables"))
@@ -138,7 +138,7 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
   if (iConfig.existsAs<edm::ParameterSet>("pairFlags"))
     pairPSet.addParameter<edm::ParameterSet>("flags", iConfig.getParameter<edm::ParameterSet>("pairFlags"));
   if (!pairPSet.empty()) {
-    pairFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, pairPSet, consumesCollector(), "pair_"));
+    pairFiller_ = std::make_unique<tnp::BaseTreeFiller>(*treeFiller_, pairPSet, consumesCollector(), "pair_");
   }
 }
 

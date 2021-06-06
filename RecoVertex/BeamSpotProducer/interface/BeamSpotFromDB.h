@@ -19,6 +19,10 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 class BeamSpotFromDB : public edm::EDAnalyzer {
 public:
@@ -29,6 +33,7 @@ private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
+  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> m_beamToken;
 };
 
 #endif

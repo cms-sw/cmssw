@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -20,7 +21,6 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/GEMDigiSimLink/interface/GEMDigiSimLink.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -37,8 +37,6 @@ namespace CLHEP {
 
 class GEMDigiProducer : public edm::stream::EDProducer<> {
 public:
-  typedef edm::DetSetVector<StripDigiSimLink> StripDigiSimLinks;
-
   typedef edm::DetSetVector<GEMDigiSimLink> GEMDigiSimLinks;
 
   explicit GEMDigiProducer(const edm::ParameterSet& ps);
@@ -54,6 +52,7 @@ public:
 private:
   //Name of Collection used for create the XF
   edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geom_token_;
 
   const GEMGeometry* geometry_;
 
@@ -62,7 +61,6 @@ private:
 
 GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps) : gemDigiModule_(std::make_unique<GEMDigiModule>(ps)) {
   produces<GEMDigiCollection>();
-  produces<StripDigiSimLinks>("GEM");
   produces<GEMDigiSimLinks>("GEM");
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -76,6 +74,7 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps) : gemDigiModule_(s
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
 
   cf_token = consumes<CrossingFrame<PSimHit> >(edm::InputTag(mix_, collection_));
+  geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 GEMDigiProducer::~GEMDigiProducer() = default;
@@ -137,8 +136,7 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
 }
 
 void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<GEMGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  edm::ESHandle<GEMGeometry> hGeom = eventSetup.getHandle(geom_token_);
   gemDigiModule_->setGeometry(&*hGeom);
   geometry_ = &*hGeom;
 }
@@ -154,7 +152,6 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   // Create empty output
   auto digis = std::make_unique<GEMDigiCollection>();
-  auto stripDigiSimLinks = std::make_unique<StripDigiSimLinks>();
   auto gemDigiSimLinks = std::make_unique<GEMDigiSimLinks>();
 
   // arrange the hits by eta partition
@@ -175,13 +172,11 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
     gemDigiModule_->simulate(roll, simHits, engine);
     gemDigiModule_->fillDigis(rawId, *digis);
-    (*stripDigiSimLinks).insert(gemDigiModule_->stripDigiSimLinks());
     (*gemDigiSimLinks).insert(gemDigiModule_->gemDigiSimLinks());
   }
 
   // store them in the event
   e.put(std::move(digis));
-  e.put(std::move(stripDigiSimLinks), "GEM");
   e.put(std::move(gemDigiSimLinks), "GEM");
 }
 

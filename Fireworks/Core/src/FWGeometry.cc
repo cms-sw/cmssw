@@ -1,10 +1,12 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TPRegexp.h"
 #include "TSystem.h"
 #include "TGeoArb8.h"
 #include "TObjArray.h"
+#include "TObjString.h"
 #include "TPRegexp.h"
 
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -14,8 +16,10 @@
 // AMT deprication of tracker specific DetIds
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
@@ -189,8 +193,8 @@ void FWGeometry::loadMap(const char* iFileName) {
   TNamed* ttopology = static_cast<TNamed*>(file->Get("TrackerTopology"));
   if (ttopology) {
     std::string xml = ttopology->GetTitle();
-    m_trackerTopology = std::unique_ptr<TrackerTopology>(
-        new TrackerTopology(StandaloneTrackerTopology::fromTrackerParametersXMLString(xml)));
+    m_trackerTopology =
+        std::make_unique<TrackerTopology>(StandaloneTrackerTopology::fromTrackerParametersXMLString(xml));
   }
 
   file->Close();

@@ -28,13 +28,18 @@ namespace ecaldqm {
     return false;
   }
 
-  void PresampleTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Fill separate MEs with only 10 LSs worth of stats
-    // Used to correctly fill Presample Trend plots:
-    // 1 pt:10 LS in Trend plots
-    mePedestalByLS = &MEs_.at("PedestalByLS");
-    if (timestamp_.iLumi % 10 == 0)
-      mePedestalByLS->reset();
+  void PresampleTask::beginEvent(edm::Event const& _evt,
+                                 edm::EventSetup const& _es,
+                                 bool const& ByLumiResetSwitch,
+                                 bool&) {
+    if (ByLumiResetSwitch) {
+      // Fill separate MEs with only 10 LSs worth of stats
+      // Used to correctly fill Presample Trend plots:
+      // 1 pt:10 LS in Trend plots
+      mePedestalByLS = &MEs_.at("PedestalByLS");
+      if (timestamp_.iLumi % 10 == 0)
+        mePedestalByLS->reset(GetElectronicsMap());
+    }
   }
 
   template <typename DigiCollection>
@@ -69,8 +74,8 @@ namespace ecaldqm {
       }  // PulseMaxCheck
 
       for (int iSample(0); iSample < nSamples_; ++iSample) {
-        mePedestal.fill(id, double(dataFrame.sample(iSample).adc()));
-        mePedestalByLS->fill(id, double(dataFrame.sample(iSample).adc()));
+        mePedestal.fill(getEcalDQMSetupObjects(), id, double(dataFrame.sample(iSample).adc()));
+        mePedestalByLS->fill(getEcalDQMSetupObjects(), id, double(dataFrame.sample(iSample).adc()));
       }
 
     }  // _digis loop

@@ -49,8 +49,7 @@ getattr(process,"pfNoJet"+postfix).enable = True
 # to use tau-cleaned jet collection uncomment the following:
 #getattr(process,"pfNoTau"+postfix).enable = True
 
-# verbose flags for the PF2PAT modules
-getattr(process,"pfNoMuonJME"+postfix).verbose = False
+# verbose flags for the PF2PAT modules, if any:
 
 # enable delta beta correction for muon selection in PF2PAT?
 getattr(process,"pfIsolatedMuons"+postfix).doDeltaBetaCorrection = cms.bool(False)

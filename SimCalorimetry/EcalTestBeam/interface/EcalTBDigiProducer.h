@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoTBCalo/EcalTBTDCReconstructor/interface/EcalTBTDCRecInfoAlgo.h"
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
 #include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
@@ -39,6 +40,7 @@ private:
   std::string m_ecalTBInfoLabel;
   std::string m_EBdigiFinalTag;
   std::string m_EBdigiTempTag;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_geometryToken;
 
   bool m_doPhaseShift;
   double m_thisPhaseShift;

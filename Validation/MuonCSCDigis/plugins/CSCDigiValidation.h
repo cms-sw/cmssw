@@ -3,13 +3,14 @@
 
 // user include files
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 
 class CSCStripDigiValidation;
@@ -17,6 +18,7 @@ class CSCWireDigiValidation;
 class CSCComparatorDigiValidation;
 class CSCALCTDigiValidation;
 class CSCCLCTDigiValidation;
+class CSCStubEfficiencyValidation;
 
 class CSCDigiValidation : public DQMEDAnalyzer {
 public:
@@ -30,11 +32,16 @@ private:
   PSimHitMap theSimHitMap;
   CSCGeometry *theCSCGeometry;
 
+  // validation modules
   std::unique_ptr<CSCStripDigiValidation> theStripDigiValidation;
   std::unique_ptr<CSCWireDigiValidation> theWireDigiValidation;
   std::unique_ptr<CSCComparatorDigiValidation> theComparatorDigiValidation;
   std::unique_ptr<CSCALCTDigiValidation> theALCTDigiValidation;
   std::unique_ptr<CSCCLCTDigiValidation> theCLCTDigiValidation;
+  std::unique_ptr<CSCStubEfficiencyValidation> theStubEfficiencyValidation;
+
+  // geometry
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
 };
 
 #endif

@@ -40,6 +40,14 @@ options.register ('runkey',
           VarParsing.VarParsing.varType.string,
           "Run Keys of CMS")
 
+# Parameter for frontierKey
+
+options.register ('runUniqueKey',
+          'InValid',
+          VarParsing.VarParsing.multiplicity.singleton,
+          VarParsing.VarParsing.varType.string,
+          "Unique run key from RCMS for Frontier")
+
 options.parseArguments()
 
 # Fix to allow scram to compile

@@ -1,3 +1,7 @@
+# This config does not work with the version of DD4hep that uses Geant4 units. This config performs a comparison
+# with a reference geometry which might use the ROOT units convention. This mismatch somehow triggers a ROOT exception.
+# We don't currently have a fix for this problem.
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('VALID')
@@ -7,13 +11,21 @@ process.source = cms.Source('EmptySource')
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
-                                            appendToDataLabel = cms.string('MUON')
-                                            )
+
+process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+
+process.MessageLogger = cms.Service("MessageLogger",
+                                destinations = cms.untracked.vstring('myLog'),
+                                myLog = cms.untracked.PSet(
+                                threshold = cms.untracked.string('INFO'),
+                                )
+                            )
 
 process.DTGeometryESProducer = cms.ESProducer("DTGeometryESProducer",
-                                              DDDetector = cms.ESInputTag('','MUON'),
+                                              DDDetector = cms.ESInputTag('',''),
                                               appendToDataLabel = cms.string(''),
                                               applyAlignment = cms.bool(False),
                                               alignmentsLabel = cms.string(''),
@@ -22,23 +34,20 @@ process.DTGeometryESProducer = cms.ESProducer("DTGeometryESProducer",
                                               fromDDD = cms.bool(True)
                                               )
 
+process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
+                                                 appendToDataLabel = cms.string('')
+)
+
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('MUON')
+                                                     appendToDataLabel = cms.string('')
                                                      )
 
-process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
-                                                 label = cms.string('MUON'),
-                                                 key = cms.string('MuonCommonNumbering')
-                                                 )
+process.muonGeometryConstants.fromDD4Hep = True
 
-#
-# Note: Please, download the geometry file from a location
-#       specified by Fireworks/Geometry/data/download.url
-#
-# For example: wget http://cmsdoc.cern.ch/cms/data/CMSSW/Fireworks/Geometry/data/v4/cmsGeom10.root
-#
+
 process.valid = cms.EDAnalyzer("DTGeometryValidate",
-                               infileName = cms.untracked.string('cmsGeom10.root'),
+
+                               infileName = cms.untracked.string('Geometry/DTGeometryBuilder/data/cmsRecoGeom-2021.root'),
                                outfileName = cms.untracked.string('validateDTGeometry.root'),
                                tolerance = cms.untracked.int32(7)
                                )

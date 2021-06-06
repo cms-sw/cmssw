@@ -1,17 +1,13 @@
 #include "Validation/TrackerRecHits/interface/SiStripRecHitsValid.h"
 
 //needed for the geometry:
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //--- for RecHit
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -26,9 +22,12 @@ using namespace edm;
 
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps)
-    : conf_(ps),
-      trackerHitAssociatorConfig_(ps, consumesCollector()),
-      m_cacheID_(0)
+    : m_geomToken(esConsumes()),
+      m_topoToken(esConsumes()),
+      m_topoTokenBR(esConsumes<edm::Transition::BeginRun>()),
+      m_SiStripDetCablingToken(esConsumes<edm::Transition::BeginRun>()),
+      conf_(ps),
+      trackerHitAssociatorConfig_(ps, consumesCollector())
 // matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
 // rphiRecHits_( ps.getParameter<edm::InputTag>("rphiRecHits") ),
 // stereoRecHits_( ps.getParameter<edm::InputTag>("stereoRecHits") )
@@ -162,9 +161,7 @@ SiStripRecHitsValid::~SiStripRecHitsValid() {}
 
 //--------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) {
-  unsigned long long cacheID = es.get<SiStripDetCablingRcd>().cacheIdentifier();
-  if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;
+  if (watchSiStripDetCablingRcd_.check(es)) {
     edm::LogInfo("SiStripRecHitsValid") << "SiStripRecHitsValid::beginRun: "
                                         << " Creating MEs for new Cabling ";
 
@@ -176,9 +173,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &es.getData(m_topoToken);
 
   // Step A: Get Inputs
   edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
@@ -198,9 +193,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
   TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
-  edm::ESHandle<TrackerGeometry> pDD;
-  es.get<TrackerDigiGeometryRecord>().get(pDD);
-  const TrackerGeometry& tracker(*pDD);
+  const TrackerGeometry& tracker = es.getData(m_geomToken);
 
   SiStripHistoId hidmanager;
   SiStripFolderOrganizer fold_organ;
@@ -406,6 +399,10 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,
         closest = &m;
       }
     }
+
+    if (!closest)
+      return;
+
     rechitpro.bunch = closest->eventId().bunchCrossing();
     rechitpro.event = closest->eventId().event();
     rechitpro.resx = rechitpro.x - closest->localPosition().x();
@@ -516,12 +513,10 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
 //--------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::createMEs(DQMStore::IBooker& ibooker, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &es.getData(m_topoTokenBR);
 
   // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
-  es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
+  const auto& SiStripDetCabling_ = &es.getData(m_SiStripDetCablingToken);
 
   // get list of active detectors from SiStripDetCabling
   std::vector<uint32_t> activeDets;

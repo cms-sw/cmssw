@@ -1,5 +1,5 @@
-#ifndef DetLayers_MTDTrayBarrelLayer_H
-#define DetLayers_MTDTrayBarrelLayer_H
+#ifndef RecoMTD_DetLayers_MTDTrayBarrelLayer_H
+#define RecoMTD_DetLayers_MTDTrayBarrelLayer_H
 
 /** \class MTDTrayBarrelLayer
  *  A cylinder composed of half-trays. Represents Barrel Timing Layer.

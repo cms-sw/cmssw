@@ -19,6 +19,7 @@ static const char* b64str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy
 
 static const std::string KEY_HEADER("Cond_Authentication_Key");
 
+static const std::string VERSIONPREFIX("V=");
 static const std::string NAMEPREFIX("N=");
 static const std::string KEYPREFIX("K=");
 static const std::string OWNERPREFIX("O=");
@@ -95,6 +96,7 @@ std::string cond::auth::KeyGenerator::makeWithRandomSize(size_t maxSize) {
 
 std::string cond::auth::DecodingKey::templateFile() {
   std::stringstream s;
+  s << VERSIONPREFIX << KEY_FMT_VERSION << std::endl;
   s << NAMEPREFIX << "<principal_name>" << std::endl;
   s << OWNERPREFIX << "<owner_name, optional>" << std::endl;
   s << KEYPREFIX << "<key, leave empty if generated>" << std::endl;
@@ -116,6 +118,7 @@ size_t cond::auth::DecodingKey::init(const std::string& keyFileName, const std::
   m_fileName = keyFileName;
   m_pwd = password;
   m_mode = readMode;
+  m_version.clear();
   m_principalName.clear();
   m_principalKey.clear();
   m_owner.clear();
@@ -141,7 +144,9 @@ size_t cond::auth::DecodingKey::init(const std::string& keyFileName, const std::
         std::string line;
         getline(str, line, LineSeparator);
         if (line.size() > 3) {
-          if (line.substr(0, 2) == NAMEPREFIX) {
+          if (line.substr(0, 2) == VERSIONPREFIX) {
+            m_version = line.substr(2);
+          } else if (line.substr(0, 2) == NAMEPREFIX) {
             m_principalName = line.substr(2);
           } else if (line.substr(0, 2) == KEYPREFIX) {
             m_principalKey = line.substr(2);
@@ -193,6 +198,7 @@ size_t cond::auth::DecodingKey::createFromInputFile(const std::string& inputFile
     std::string msg("Provided input file name is empty.");
     throwException(msg, "DecodingKey::readFromInputFile");
   }
+  m_version.clear();
   m_principalName.clear();
   m_principalKey.clear();
   m_owner.clear();
@@ -205,7 +211,9 @@ size_t cond::auth::DecodingKey::createFromInputFile(const std::string& inputFile
       getline(inputFile, line);
       params.clear();
       if (line.size() > 3) {
-        if (line.substr(0, 2) == NAMEPREFIX) {
+        if (line.substr(0, 2) == VERSIONPREFIX) {
+          m_version = line.substr(2);
+        } else if (line.substr(0, 2) == NAMEPREFIX) {
           m_principalName = line.substr(2);
         } else if (line.substr(0, 2) == KEYPREFIX) {
           m_principalKey = line.substr(2);
@@ -237,6 +245,7 @@ size_t cond::auth::DecodingKey::createFromInputFile(const std::string& inputFile
 }
 
 void cond::auth::DecodingKey::list(std::ostream& out) {
+  out << VERSIONPREFIX << m_version << std::endl;
   out << NAMEPREFIX << m_principalName << std::endl;
   out << KEYPREFIX << m_principalKey << std::endl;
   out << OWNERPREFIX << m_owner << std::endl;
@@ -254,6 +263,9 @@ void cond::auth::DecodingKey::flush() {
   if (outFile.is_open()) {
     std::stringstream content;
     content << KEY_HEADER << LineSeparator;
+    if (!m_version.empty()) {
+      content << VERSIONPREFIX << m_version << LineSeparator;
+    }
     if (!m_principalName.empty()) {
       content << NAMEPREFIX << m_principalName << LineSeparator;
     }

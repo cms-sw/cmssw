@@ -57,7 +57,8 @@ namespace edm {
     class ComponentMaker : public ComponentMakerBase<T> {
     public:
       ComponentMaker() {}
-      //virtual ~ComponentMaker();
+      ComponentMaker(const ComponentMaker&) = delete;                   // stop default
+      const ComponentMaker& operator=(const ComponentMaker&) = delete;  // stop default
       typedef typename T::base_type base_type;
 
       // ---------- const member functions ---------------------
@@ -70,10 +71,6 @@ namespace edm {
 
       // ---------- member functions ---------------------------
     private:
-      ComponentMaker(const ComponentMaker&) = delete;  // stop default
-
-      const ComponentMaker& operator=(const ComponentMaker&) = delete;  // stop default
-
       void setDescription(DataProxyProvider* iProv, const ComponentDescription& iDesc) const {
         iProv->setDescription(iDesc);
       }

@@ -69,21 +69,21 @@ void AlignmentMonitorBase::duringLoop(const edm::Event &iEvent,
 void AlignmentMonitorBase::endOfLoop() { afterAlignment(); }
 
 TFileDirectory *AlignmentMonitorBase::directory(std::string dir) {
-  std::string::size_type lastPos = dir.find_first_not_of("/", 0);
-  std::string::size_type pos = dir.find_first_of("/", lastPos);
+  std::string::size_type lastPos = dir.find_first_not_of('/', 0);
+  std::string::size_type pos = dir.find_first_of('/', lastPos);
   std::vector<std::string> dirs;
 
   bool isIter = false;
   if (dir.substr(lastPos, pos - lastPos) == std::string("iterN")) {
     isIter = true;
-    lastPos = dir.find_first_not_of("/", pos);
-    pos = dir.find_first_of("/", lastPos);
+    lastPos = dir.find_first_not_of('/', pos);
+    pos = dir.find_first_of('/', lastPos);
   }
 
   while (std::string::npos != pos || std::string::npos != lastPos) {
     dirs.push_back(dir.substr(lastPos, pos - lastPos));
-    lastPos = dir.find_first_not_of("/", pos);
-    pos = dir.find_first_of("/", lastPos);
+    lastPos = dir.find_first_not_of('/', pos);
+    pos = dir.find_first_of('/', lastPos);
   }
 
   std::map<std::vector<std::string>, TFileDirectory *> *theMap;

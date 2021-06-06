@@ -10,13 +10,16 @@
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "DQMStreamerReader.h"
 
-#include <fstream>
-#include <queue>
 #include <cstdlib>
-#include <boost/regex.hpp>
+#include <filesystem>
+#include <fstream>
+#include <memory>
+#include <queue>
+
+#include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/range.hpp>
-#include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <IOPool/Streamer/interface/DumpTools.h>
@@ -96,7 +99,7 @@ namespace dqmservices {
     std::string path = entry.get_data_path();
 
     file_.lumi_ = entry;
-    file_.streamFile_.reset(new edm::StreamerInputFile(path));
+    file_.streamFile_ = std::make_unique<edm::StreamerInputFile>(path);
 
     InitMsgView const* header = getHeaderMsg();
     if (isFirstFile_) {
@@ -158,7 +161,7 @@ namespace dqmservices {
     DQMFileIterator::LumiEntry currentLumi = fiterator_.open();
     std::string p = currentLumi.get_data_path();
 
-    if (boost::filesystem::exists(p)) {
+    if (std::filesystem::exists(p)) {
       try {
         openFileImp_(currentLumi);
         return true;

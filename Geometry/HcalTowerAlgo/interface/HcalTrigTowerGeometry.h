@@ -15,13 +15,13 @@ public:
   std::vector<HcalTrigTowerDetId> towerIds(const HcalDetId& cellId) const;
   std::vector<HcalDetId> detIds(const HcalTrigTowerDetId&) const;
 
-  int firstHFTower(int version) const { return (version == 0) ? (29) : (30); }
+  int firstHFTower(int version) const { return (version == 1) ? (30) : (29); }
 
   /// where this tower begins and ends in eta
   void towerEtaBounds(int ieta, int version, double& eta1, double& eta2) const;
 
   /// number of towers (version dependent)
-  int nTowers(int version) const { return (version == 0) ? (32) : (41); }
+  int nTowers(int version) const { return (version == 1) ? (41) : (32); }
 
   // get the topology pointer
   const HcalTopology& topology() const { return *theTopology; }

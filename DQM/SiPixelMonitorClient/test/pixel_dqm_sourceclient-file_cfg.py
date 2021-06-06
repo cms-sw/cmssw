@@ -4,7 +4,7 @@ process = cms.Process("SIPIXELDQM")
 
 ##----## Geometry and other global parameters:
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 ###process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 
 ##----## Reco:
@@ -26,7 +26,6 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 ##----## Central DQM:
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.referenceFileName = 'tmp/pixel_reference.root'
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'

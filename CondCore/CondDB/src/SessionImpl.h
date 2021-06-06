@@ -33,7 +33,7 @@ namespace cond {
       bool gtDbExists = false;
       bool gtDbOpen = false;
       bool runInfoDbExists = false;
-      bool runInfoDbOpen = true;
+      bool runInfoDbOpen = false;
       size_t clients = 0;
     };
 
@@ -43,7 +43,9 @@ namespace cond {
 
     public:
       SessionImpl();
-      SessionImpl(std::shared_ptr<coral::ISessionProxy>& session, const std::string& connectionString);
+      SessionImpl(std::shared_ptr<coral::ISessionProxy>& session,
+                  const std::string& connectionString,
+                  const std::string& principalName);
 
       ~SessionImpl();
 
@@ -65,14 +67,17 @@ namespace cond {
     public:
       // allows for session shared among more services. To be changed to unique_ptr when we stop needing this feature.
       std::shared_ptr<coral::ISessionProxy> coralSession;
-      // not really useful outside the ORA bridging...
+      std::string sessionHash;
       std::string connectionString;
+      std::string principalName;
+      std::set<std::string> lockedTags;
       std::unique_ptr<ITransaction> transaction;
       std::unique_ptr<IIOVSchema> iovSchemaHandle;
       std::unique_ptr<IGTSchema> gtSchemaHandle;
       std::unique_ptr<IRunInfoSchema> runInfoSchemaHandle;
 
     private:
+      void releaseTagLocks();
       std::recursive_mutex transactionMutex;
       std::unique_lock<std::recursive_mutex> transactionLock;
     };

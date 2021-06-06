@@ -1,9 +1,7 @@
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/Common"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/StdDictionaries"/>
-<use   name="DataFormats/Math"/>
-<use   name="boost"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Math"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

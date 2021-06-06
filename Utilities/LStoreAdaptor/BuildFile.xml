@@ -1,11 +1,10 @@
 <export>
-  <lib   name="1"/>
-  <flags   CPPDEFINES="_FILE_OFFSET_BITS=64"/>
+  <lib name="1"/>
+  <flags CPPDEFINES="_FILE_OFFSET_BITS=64"/>
 </export>
-<use   name="Utilities/StorageFactory"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="boost"/>
-<use   name="boost_filesystem"/>
-<use   name="boost_regex"/>
-<flags   CPPDEFINES="_FILE_OFFSET_BITS=64"/>
+<use name="Utilities/StorageFactory"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/MessageLogger"/>
+<use name="boost"/>
+<use name="boost_regex"/>
+<flags CPPDEFINES="_FILE_OFFSET_BITS=64"/>

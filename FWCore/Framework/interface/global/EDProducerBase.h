@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 // forward declarations
 
@@ -36,9 +37,7 @@ namespace edm {
   class StreamID;
   class GlobalSchedule;
   class ActivityRegistry;
-  class ProductRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
   class WaitingTaskWithArenaHolder;
 
   namespace maker {
@@ -68,15 +67,16 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
+      virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsGlobalRuns() const = 0;
       virtual bool wantsGlobalLuminosityBlocks() const = 0;
       virtual bool wantsStreamRuns() const = 0;
       virtual bool wantsStreamLuminosityBlocks() const = 0;
 
     private:
-      bool doEvent(EventPrincipal const&, EventSetupImpl const&, ActivityRegistry*, ModuleCallingContext const*);
-      void doAcquire(EventPrincipal const&,
-                     EventSetupImpl const&,
+      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      void doAcquire(EventTransitionInfo const&,
                      ActivityRegistry*,
                      ModuleCallingContext const*,
                      WaitingTaskWithArenaHolder&);
@@ -84,27 +84,20 @@ namespace edm {
       void doBeginJob();
       void doEndJob();
 
-      void doBeginStream(StreamID id);
-      void doEndStream(StreamID id);
-      void doStreamBeginRun(StreamID id, RunPrincipal const& ep, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doStreamEndRun(StreamID id, RunPrincipal const& ep, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doStreamBeginLuminosityBlock(StreamID id,
-                                        LuminosityBlockPrincipal const& ep,
-                                        EventSetupImpl const& c,
-                                        ModuleCallingContext const*);
-      void doStreamEndLuminosityBlock(StreamID id,
-                                      LuminosityBlockPrincipal const& ep,
-                                      EventSetupImpl const& c,
-                                      ModuleCallingContext const*);
+      void doBeginStream(StreamID);
+      void doEndStream(StreamID);
+      void doStreamBeginRun(StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
+      void doStreamEndRun(StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
+      void doStreamBeginLuminosityBlock(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
+      void doStreamEndLuminosityBlock(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
 
-      void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetupImpl const& c,
-                                  ModuleCallingContext const*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetupImpl const& c,
-                                ModuleCallingContext const*);
+      void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
+      void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
+      void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
+      void doBeginRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      void doEndRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      void doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
+      void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
 
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
@@ -118,7 +111,7 @@ namespace edm {
 
       virtual void produce(StreamID, Event&, EventSetup const&) const = 0;
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
                                                     Principal const& iPrincipal) const {}
 
@@ -138,6 +131,9 @@ namespace edm {
       virtual void doStreamEndLuminosityBlock_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c);
       virtual void doStreamEndLuminosityBlockSummary_(StreamID id, LuminosityBlock const& lbp, EventSetup const& c);
 
+      virtual void doBeginProcessBlock_(ProcessBlock const&);
+      virtual void doAccessInputProcessBlock_(ProcessBlock const&);
+      virtual void doEndProcessBlock_(ProcessBlock const&);
       virtual void doBeginRun_(Run const& rp, EventSetup const& c);
       virtual void doBeginRunSummary_(Run const& rp, EventSetup const& c);
       virtual void doEndRunSummary_(Run const& rp, EventSetup const& c);
@@ -147,6 +143,8 @@ namespace edm {
       virtual void doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c);
       virtual void doEndLuminosityBlock_(LuminosityBlock const& lb, EventSetup const& c);
 
+      virtual void doBeginProcessBlockProduce_(ProcessBlock&);
+      virtual void doEndProcessBlockProduce_(ProcessBlock&);
       virtual void doBeginRunProduce_(Run& rp, EventSetup const& c);
       virtual void doEndRunProduce_(Run& rp, EventSetup const& c);
       virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);

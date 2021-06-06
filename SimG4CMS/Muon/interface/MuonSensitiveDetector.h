@@ -19,6 +19,7 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "CondFormats/GeometryObjects/interface/MuonOffsetMap.h"
 
 #include <string>
 
@@ -59,7 +60,7 @@ private:
   MuonSlaveSD* slaveMuon;
   MuonSimHitNumberingScheme* numbering;
   MuonSubDetector* detector;
-  MuonFrameRotation* theRotation;
+  const MuonFrameRotation* theRotation;
   MuonG4Numbering* g4numbering;
 
   bool newHit(const G4Step*);

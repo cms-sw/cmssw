@@ -7,11 +7,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
@@ -58,7 +53,7 @@ public:
   void fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
                              DQMStore::IGetter &iGetter,
                              bool init,
-                             edm::ESHandle<SiPixelFedCablingMap> theCablingMap,
+                             const SiPixelFedCablingMap *theCablingMap,
                              int nFEDs,
                              bool Tier0Flag,
                              int lumisec);
@@ -82,7 +77,6 @@ private:
   std::ofstream myfile_;
   int nevents_;
   bool endOfModules_;
-  edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
 
   // Final combined Data Quality Flags:
   MonitorElement *SummaryReportMap;

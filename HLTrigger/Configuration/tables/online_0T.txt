@@ -91,8 +91,8 @@ AlCa_EcalPhiSym_v*					# JIRA: CMSHLT-541
 AlCa_EcalPi0EBonly_v*					# JIRA: CMSHLT-541
 AlCa_EcalPi0EEonly_v*					# JIRA: CMSHLT-541
 AlCa_Ele23_WPVeryLoose_Gsf_v*				# JIRA: CMSHLT-541, CMSHLT-566
-AlCa_LumiPixels_Random_v*				# JIRA: CMSHLT-541
-AlCa_LumiPixels_ZeroBias_v*				# JIRA: CMSHLT-541
+AlCa_LumiPixelsCounts_Random_v*				# CMSHLT-2114
+AlCa_LumiPixelsCounts_ZeroBias_v*			# CMSHLT-2114
 AlCa_RPCMuonNoHits_v*					# JIRA: CMSHLT-541
 AlCa_RPCMuonNormalisation_v*				# JIRA: CMSHLT-541
 AlCa_RPCMuonNoTriggers_v*				# JIRA: CMSHLT-541
@@ -154,7 +154,8 @@ EcalCalibrationOutput
 RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output
-ALCALUMIPIXELSOutput
+ALCALumiPixelCountsExpressOutput			#	CMSHLT-2114
+ALCALumiPixelCountsPromptOutput				#	CMSHLT-2114
 ALCAELECTRONOutput					# JIRA: CMSHLT-366, renamed
 ExpressOutput
 LookAreaOutput

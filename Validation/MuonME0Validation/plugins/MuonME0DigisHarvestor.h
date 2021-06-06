@@ -2,7 +2,6 @@
 #define MuonME0DigisHarvestor_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"

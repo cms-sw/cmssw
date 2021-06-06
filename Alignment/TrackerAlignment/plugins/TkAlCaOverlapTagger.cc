@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,6 +34,7 @@ public:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   edm::InputTag src_;
   edm::InputTag srcClust_;
   bool rejectBadMods_;
@@ -44,7 +44,8 @@ private:
 };
 
 TkAlCaOverlapTagger::TkAlCaOverlapTagger(const edm::ParameterSet& iConfig)
-    : src_(iConfig.getParameter<edm::InputTag>("src")),
+    : topoToken_(esConsumes()),
+      src_(iConfig.getParameter<edm::InputTag>("src")),
       srcClust_(iConfig.getParameter<edm::InputTag>("Clustersrc")),
       rejectBadMods_(iConfig.getParameter<bool>("rejectBadMods")),
       BadModsList_(iConfig.getParameter<std::vector<uint32_t> >("BadMods")) {
@@ -55,9 +56,7 @@ TkAlCaOverlapTagger::~TkAlCaOverlapTagger() {}
 
 void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* tTopo = &iSetup.getData(topoToken_);
 
   edm::Handle<TrajTrackAssociationCollection> assoMap;
   iEvent.getByLabel(src_, assoMap);

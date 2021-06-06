@@ -1,7 +1,6 @@
 #include "TransientTrackBuilderESProducer.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "boost/mpl/vector.hpp"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,7 +11,9 @@
 using namespace edm;
 
 TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(const edm::ParameterSet& p) {
-  setWhatProduced(this, p.getParameter<std::string>("ComponentName")).setConsumes(magToken_).setConsumes(geomToken_);
+  auto cc = setWhatProduced(this, p.getParameter<std::string>("ComponentName"));
+  magToken_ = cc.consumes();
+  geomToken_ = cc.consumes();
 }
 
 std::unique_ptr<TransientTrackBuilder> TransientTrackBuilderESProducer::produce(const TransientTrackRecord& iRecord) {

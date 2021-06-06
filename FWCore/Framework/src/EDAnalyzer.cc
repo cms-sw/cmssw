@@ -11,6 +11,7 @@
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 
 #include "SharedResourcesRegistry.h"
 
@@ -20,6 +21,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 namespace edm {
   EDAnalyzer::~EDAnalyzer() {}
@@ -27,15 +29,14 @@ namespace edm {
     SharedResourcesRegistry::instance()->registerSharedResource(SharedResourcesRegistry::kLegacyModuleResourceName);
   }
 
-  bool EDAnalyzer::doEvent(EventPrincipal const& ep,
-                           EventSetupImpl const& ci,
-                           ActivityRegistry* act,
-                           ModuleCallingContext const* mcc) {
-    Event e(ep, moduleDescription_, mcc);
+  bool EDAnalyzer::doEvent(EventTransitionInfo const& info, ActivityRegistry* act, ModuleCallingContext const* mcc) {
+    Event e(info, moduleDescription_, mcc);
     e.setConsumer(this);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act, mcc);
-    const EventSetup c{ci, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
+    ESParentContext parentC(mcc);
+    const EventSetup c{
+        info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
     this->analyze(e, c);
     return true;
   }
@@ -49,44 +50,47 @@ namespace edm {
 
   void EDAnalyzer::doEndJob() { this->endJob(); }
 
-  bool EDAnalyzer::doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
-    Run r(rp, moduleDescription_, mcc, false);
+  bool EDAnalyzer::doBeginRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    Run r(info, moduleDescription_, mcc, false);
     r.setConsumer(this);
+    ESParentContext parentC(mcc);
     const EventSetup c{
-        ci, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+        info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC, false};
     this->beginRun(r, c);
     return true;
   }
 
-  bool EDAnalyzer::doEndRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) {
-    Run r(rp, moduleDescription_, mcc, true);
+  bool EDAnalyzer::doEndRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    Run r(info, moduleDescription_, mcc, true);
     r.setConsumer(this);
-    const EventSetup c{ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+    ESParentContext parentC(mcc);
+    const EventSetup c{
+        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
     this->endRun(r, c);
     return true;
   }
 
-  bool EDAnalyzer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                          EventSetupImpl const& ci,
-                                          ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
+  bool EDAnalyzer::doBeginLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    LuminosityBlock lb(info, moduleDescription_, mcc, false);
     lb.setConsumer(this);
-    const EventSetup c{ci,
+    ESParentContext parentC(mcc);
+    const EventSetup c{info,
                        static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                        esGetTokenIndices(Transition::BeginLuminosityBlock),
+                       parentC,
                        false};
     this->beginLuminosityBlock(lb, c);
     return true;
   }
 
-  bool EDAnalyzer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                        EventSetupImpl const& ci,
-                                        ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
+  bool EDAnalyzer::doEndLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    LuminosityBlock lb(info, moduleDescription_, mcc, true);
     lb.setConsumer(this);
-    const EventSetup c{ci,
+    ESParentContext parentC(mcc);
+    const EventSetup c{info,
                        static_cast<unsigned int>(Transition::EndLuminosityBlock),
                        esGetTokenIndices(Transition::EndLuminosityBlock),
+                       parentC,
                        false};
     this->endLuminosityBlock(lb, c);
     return true;

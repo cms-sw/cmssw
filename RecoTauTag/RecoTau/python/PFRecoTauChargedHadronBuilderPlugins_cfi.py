@@ -56,11 +56,11 @@ tracks = cms.PSet(
 
 # Produce a ChargedHadron candidate for high Pt PFNeutralHadrons
 PFNeutralHadrons = chargedPFCandidates.clone(
-    name = cms.string("PFNeutralHadrons"),
-    plugin = cms.string("PFRecoTauChargedHadronFromPFCandidatePlugin"),
+    name = "PFNeutralHadrons",
+    plugin = "PFRecoTauChargedHadronFromPFCandidatePlugin",
     # process PFNeutralHadrons
     # (numbering scheme defined in DataFormats/ParticleFlowCandidate/interface/PFCandidate.h)
-    chargedHadronCandidatesParticleIds = cms.vint32(5),
-    minMergeChargedHadronPt = cms.double(0.),
-    verbosity = cms.int32(0)
+    chargedHadronCandidatesParticleIds = [5],
+    minMergeChargedHadronPt = 0.,
+    verbosity = 0
 )

@@ -43,6 +43,7 @@ public:
 
 private:
   void pe2fC(CaloSamples& frame) const;
+  void applyQIEdelay(CaloSamples& frame, int delayQIE) const;
   void addPedestals(CaloSamples& frame, CLHEP::HepRandomEngine*) const;
   void makeNoise(HcalGenericDetId::HcalGenericSubdetector hcalSubDet,
                  const HcalCalibrationWidths& width,

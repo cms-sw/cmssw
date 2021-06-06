@@ -2,8 +2,6 @@
 #define _SiStripQualityChecker_h_
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>
@@ -14,6 +12,7 @@
 #include <string>
 
 class TkDetMap;
+class TrackerTopology;
 class SiStripDetCabling;
 
 class SiStripQualityChecker {
@@ -27,10 +26,13 @@ public:
   void bookStatus(DQMStore& dqm_store);
   void resetStatus();
   void fillDummyStatus();
-  void fillStatus(DQMStore& dqm_store, const edm::ESHandle<SiStripDetCabling>& cabling, const edm::EventSetup& eSetup);
+  void fillStatus(DQMStore& dqm_store,
+                  const SiStripDetCabling* cabling,
+                  const TkDetMap* tkDetMap,
+                  const TrackerTopology* tTopo);
   void fillStatusAtLumi(DQMStore& dqm_store);
   void printStatusReport();
-  void fillFaultyModuleStatus(DQMStore& dqm_store, const edm::EventSetup& eSetup);
+  void fillFaultyModuleStatus(DQMStore& dqm_store, const TrackerTopology* tTopo);
 
 private:
   struct SubDetMEs {
@@ -40,12 +42,9 @@ private:
     std::string detectorTag;
   };
 
-  void fillDetectorStatus(DQMStore& dqm_store, const edm::ESHandle<SiStripDetCabling>& cabling);
-  void fillSubDetStatus(DQMStore& dqm_store,
-                        const edm::ESHandle<SiStripDetCabling>& cabling,
-                        SubDetMEs& mes,
-                        unsigned int xbin,
-                        float& gflag);
+  void fillDetectorStatus(DQMStore& dqm_store, const SiStripDetCabling* cabling);
+  void fillSubDetStatus(
+      DQMStore& dqm_store, const SiStripDetCabling* cabling, SubDetMEs& mes, unsigned int xbin, float& gflag);
   void getModuleStatus(DQMStore& dqm_store,
                        std::vector<MonitorElement*>& layer_mes,
                        int& errdet,

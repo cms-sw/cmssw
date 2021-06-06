@@ -1,4 +1,6 @@
 #include <iostream>
+#include <memory>
+
 //
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -60,7 +62,7 @@
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 //
 //#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 //
@@ -3161,7 +3163,7 @@ void PhotonValidator::dqmBeginRun(edm::Run const& r, edm::EventSetup const& theE
                                           << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
 
-  thePhotonMCTruthFinder_.reset(new PhotonMCTruthFinder());
+  thePhotonMCTruthFinder_ = std::make_unique<PhotonMCTruthFinder>();
 }
 
 void PhotonValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {

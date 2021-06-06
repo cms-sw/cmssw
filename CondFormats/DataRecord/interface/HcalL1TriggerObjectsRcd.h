@@ -24,6 +24,6 @@
 
 class HcalL1TriggerObjectsRcd : public edm::eventsetup::DependentRecordImplementation<
                                     HcalL1TriggerObjectsRcd,
-                                    boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                                    edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

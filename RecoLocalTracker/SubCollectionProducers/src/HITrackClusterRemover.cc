@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -46,6 +45,7 @@ public:
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
   struct ParamBlock {
     ParamBlock() : isSet_(false), usesCharge_(false) {}
     ParamBlock(const edm::ParameterSet &iConfig)
@@ -143,7 +143,8 @@ void HITrackClusterRemover::readPSet(
 }
 
 HITrackClusterRemover::HITrackClusterRemover(const ParameterSet &iConfig)
-    : doTracks_(iConfig.exists("trajectories")),
+    : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      doTracks_(iConfig.exists("trajectories")),
       doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
       doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
       mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
@@ -318,13 +319,8 @@ void HITrackClusterRemover::process(OmniClusterRef const &ocluster, SiStripDetId
   if (pblocks_[subdet - 1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet - 1].maxSize_))
     return;
   if (!fromTrack) {
-    int clusCharge = 0;
-    for (std::vector<uint8_t>::const_iterator iAmp = cluster->amplitudes().begin(); iAmp != cluster->amplitudes().end();
-         ++iAmp) {
-      clusCharge += *iAmp;
-    }
     if (pblocks_[subdet - 1].cutOnStripCharge_ &&
-        (clusCharge > (pblocks_[subdet - 1].minGoodStripCharge_ * sensorThickness(detid))))
+        (cluster->charge() > (pblocks_[subdet - 1].minGoodStripCharge_ * sensorThickness(detid))))
       return;
   }
 
@@ -415,8 +411,7 @@ void HITrackClusterRemover::process(const TrackingRecHit *hit, unsigned char chi
 void HITrackClusterRemover::produce(Event &iEvent, const EventSetup &iSetup) {
   ProductID pixelOldProdID, stripOldProdID;
 
-  edm::ESHandle<TrackerGeometry> tgh;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tgh);
+  const auto &tgh = &iSetup.getData(tTrackerGeom_);
 
   Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
   if (doPixel_) {
@@ -530,7 +525,7 @@ void HITrackClusterRemover::produce(Event &iEvent, const EventSetup &iSetup) {
         auto hit = *(hb + h);
         if (!hit->isValid())
           continue;
-        process(hit, chi2sX5[h], tgh.product());
+        process(hit, chi2sX5[h], tgh);
       }
     }
   }

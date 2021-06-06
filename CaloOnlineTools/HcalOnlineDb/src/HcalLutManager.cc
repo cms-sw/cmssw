@@ -387,11 +387,11 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
         _cfg.depth = row->idepth;
         _cfg.crate = row->crate;
         _cfg.slot = row->slot;
-        if (row->topbottom.find("t") != std::string::npos)
+        if (row->topbottom.find('t') != std::string::npos)
           _cfg.topbottom = 1;
-        else if (row->topbottom.find("b") != std::string::npos)
+        else if (row->topbottom.find('b') != std::string::npos)
           _cfg.topbottom = 0;
-        else if (row->topbottom.find("u") != std::string::npos)
+        else if (row->topbottom.find('u') != std::string::npos)
           _cfg.topbottom = 2;
         else
           edm::LogWarning("HcalLutManager") << "fpga out of range...";
@@ -561,11 +561,11 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromA
       _cfg.depth = row->idepth;
       _cfg.crate = row->crate;
       _cfg.slot = row->slot;
-      if (row->topbottom.find("t") != std::string::npos)
+      if (row->topbottom.find('t') != std::string::npos)
         _cfg.topbottom = 1;
-      else if (row->topbottom.find("b") != std::string::npos)
+      else if (row->topbottom.find('b') != std::string::npos)
         _cfg.topbottom = 0;
-      else if (row->topbottom.find("u") != std::string::npos)
+      else if (row->topbottom.find('u') != std::string::npos)
         _cfg.topbottom = 2;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";
@@ -782,11 +782,11 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
       _cfg.depth = row->idepth;
       _cfg.crate = row->crate;
       _cfg.slot = row->slot;
-      if (row->topbottom.find("t") != std::string::npos)
+      if (row->topbottom.find('t') != std::string::npos)
         _cfg.topbottom = 1;
-      else if (row->topbottom.find("b") != std::string::npos)
+      else if (row->topbottom.find('b') != std::string::npos)
         _cfg.topbottom = 0;
-      else if (row->topbottom.find("u") != std::string::npos)
+      else if (row->topbottom.find('u') != std::string::npos)
         _cfg.topbottom = 2;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";
@@ -862,11 +862,11 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getHEFineGrainLUTs(std::s
       _cfg.depth = row->idepth;
       _cfg.crate = row->crate;
       _cfg.slot = row->slot;
-      if (row->topbottom.find("t") != std::string::npos)
+      if (row->topbottom.find('t') != std::string::npos)
         _cfg.topbottom = 1;
-      else if (row->topbottom.find("b") != std::string::npos)
+      else if (row->topbottom.find('b') != std::string::npos)
         _cfg.topbottom = 0;
-      else if (row->topbottom.find("u") != std::string::npos)
+      else if (row->topbottom.find('u') != std::string::npos)
         _cfg.topbottom = 2;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";
@@ -960,11 +960,11 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
     _cfg.depth = row->idepth;
     _cfg.crate = row->crate;
     _cfg.slot = row->slot;
-    if (row->topbottom.find("t") != std::string::npos)
+    if (row->topbottom.find('t') != std::string::npos)
       _cfg.topbottom = 1;
-    else if (row->topbottom.find("b") != std::string::npos)
+    else if (row->topbottom.find('b') != std::string::npos)
       _cfg.topbottom = 0;
-    else if (row->topbottom.find("u") != std::string::npos)
+    else if (row->topbottom.find('u') != std::string::npos)
       _cfg.topbottom = 2;
     else
       edm::LogWarning("HcalLutManager") << "fpga out of range...";
@@ -978,6 +978,9 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
     _cfg.generalizedindex = _cfg.iphi * 10000 + (row->ieta > 0) * 100 + abs(row->ieta);  //is this used for anything?
 
     _cfg.lut = _coder.getCompressionLUT(_detid);
+    auto pWeight = conditions->getHcalTPChannelParameter(_detid, false);
+    if (pWeight)
+      _cfg.weight = pWeight->getauxi1();
 
     int crot = 100 * row->crate + row->slot;
     unsigned int size = _cfg.lut.size();
@@ -1042,11 +1045,11 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
       _cfg.depth = row->idepth;
       _cfg.crate = row->crate;
       _cfg.slot = row->slot;
-      if (row->topbottom.find("t") != std::string::npos)
+      if (row->topbottom.find('t') != std::string::npos)
         _cfg.topbottom = 1;
-      else if (row->topbottom.find("b") != std::string::npos)
+      else if (row->topbottom.find('b') != std::string::npos)
         _cfg.topbottom = 0;
-      else if (row->topbottom.find("u") != std::string::npos)
+      else if (row->topbottom.find('u') != std::string::npos)
         _cfg.topbottom = 2;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";
@@ -1741,9 +1744,9 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getZdcLutXml(std::string 
       _cfg.depth = row->idepth;  // int
       _cfg.crate = row->crate;
       _cfg.slot = row->slot;
-      if (row->topbottom.find("t") != std::string::npos)
+      if (row->topbottom.find('t') != std::string::npos)
         _cfg.topbottom = 1;
-      else if (row->topbottom.find("b") != std::string::npos)
+      else if (row->topbottom.find('b') != std::string::npos)
         _cfg.topbottom = 0;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";

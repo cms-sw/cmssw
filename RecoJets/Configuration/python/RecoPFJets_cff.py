@@ -14,7 +14,7 @@ from RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi import ak8PFJets
 
 
 fixedGridRhoFastjetCentral = fixedGridRhoFastjetAll.clone(
-    maxRapidity = cms.double(2.5)
+    maxRapidity = 2.5
     )
 
 fixedGridRhoFastjetCentralChargedPileUp = fixedGridRhoFastjetAll.clone(
@@ -84,21 +84,28 @@ recoPFJetsWithSubstructureTask=cms.Task(
     )
 recoPFJetsWithSubstructure=cms.Sequence(recoPFJetsWithSubstructureTask)
 
-from RecoHI.HiJetAlgos.HiRecoPFJets_cff import PFTowers, akPu3PFJets, akPu4PFJets, kt4PFJetsForRho, hiFJRhoProducer, akCs4PFJets, pfNoPileUpJMEHI
- 
+from RecoHI.HiJetAlgos.HiRecoPFJets_cff import PFTowers, akPu3PFJets, akPu4PFJets, kt4PFJetsForRho, ak4PFJetsForFlow, akCs4PFJets, pfEmptyCollection, hiFJRhoFlowModulation, hiPuRho, hiPFCandCleanerforJets
+from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
+
+
 recoPFJetsHITask =cms.Task(fixedGridRhoAll,
                            fixedGridRhoFastjetAll,
                            fixedGridRhoFastjetCentral,
                            fixedGridRhoFastjetCentralChargedPileUp,
                            fixedGridRhoFastjetCentralNeutral,
-                           pfNoPileUpJMEHI,
+                           pfEmptyCollection,
                            ak4PFJets,
                            ak4PFJetsCHS,
                            PFTowers,			   
                            akPu3PFJets,
                            akPu4PFJets,
                            kt4PFJetsForRho,
+                           hiPFCandCleanerforJets,
+                           ak4PFJetsForFlow,
                            hiFJRhoProducer,
+                           hiPuRho,
+                           hiFJRhoFlowModulation,
                            akCs4PFJets
    )
 recoPFJetsHI   = cms.Sequence(recoPFJetsHITask)
+ 

@@ -32,6 +32,10 @@ public:
   }
 
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
+    // if we run booking multiple times because there are multiple runs in a
+    // job, this is needed to make sure all existing MEs are in a valid state
+    // before the booking code runs.
+    edm::Service<DQMStore>()->initLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
     edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
     dqmBeginRun(run, setup);
     edm::Service<DQMStore>()->bookTransaction(
@@ -41,10 +45,11 @@ public:
         },
         this->moduleDescription().id(),
         this->getCanSaveByLumi());
+    edm::Service<DQMStore>()->initLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
     edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
   }
 
-  void accumulate(edm::Event const& event, edm::EventSetup const& setup) {
+  void accumulate(edm::Event const& event, edm::EventSetup const& setup) override {
     auto& lumi = event.getLuminosityBlock();
     edm::Service<dqm::legacy::DQMStore>()->enterLumi(
         lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());

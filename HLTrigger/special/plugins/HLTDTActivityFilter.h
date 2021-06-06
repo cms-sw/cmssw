@@ -22,15 +22,15 @@ Description: Filter to select events with activity in the muon barrel system
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 // c++ header files
 #include <bitset>
@@ -64,6 +64,8 @@ private:
   enum activityType { DCC = 0, DDU = 1, RPC = 2, DIGI = 3 };
 
   // ----------member data ---------------------------
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> const muonGeometryRecordToken_;
 
   edm::InputTag inputTag_[4];
   bool process_[4];

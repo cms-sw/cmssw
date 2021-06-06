@@ -1,0 +1,22 @@
+<library   name="CalibPPSAlignmentRelativePlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+
+  <use name="hepmc"/>
+  <use name="clhep"/>
+
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
+
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/CTPPSDetId"/>
+  <use name="DataFormats/CTPPSReco"/>
+
+  <use name="Geometry/VeryForwardRPTopology"/>
+  <use name="Geometry/VeryForwardGeometryBuilder"/>
+  <use name="Geometry/Records"/>
+
+  <use name="CalibPPS/AlignmentRelative"/>
+</library>

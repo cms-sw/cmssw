@@ -13,12 +13,13 @@
 // system include files
 #include <algorithm>
 #include <iostream>
-#include <string>
+#include <memory>
+
 #include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
-#include <boost/filesystem.hpp>
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
@@ -27,7 +28,6 @@
 #include "TProfile.h"
 
 // user include files
-#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
@@ -41,6 +41,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 #include "format.h"
 
@@ -284,7 +286,15 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
       m_presentHistoryIndex(0),
       m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
       m_fullNameBufferPtr(&m_fullNameBuffer),
-      m_indicesTree(nullptr) {}
+      m_indicesTree(nullptr) {
+  // Declare dependencies for all Lumi and Run tokens here. In
+  // principle could use the keep statements, but then DQMToken would
+  // have to be made persistent (transient products are ignored),
+  // which would lead to a need to (finally) remove underscores from
+  // DQM module labels.
+  consumesMany<DQMToken, edm::InLumi>();
+  consumesMany<DQMToken, edm::InRun>();
+}
 
 // DQMRootOutputModule::DQMRootOutputModule(const DQMRootOutputModule& rhs)
 // {
@@ -315,10 +325,10 @@ bool DQMRootOutputModule::isFileOpen() const { return nullptr != m_file.get(); }
 void DQMRootOutputModule::openFile(edm::FileBlock const&) {
   //NOTE: I need to also set the I/O performance settings
 
-  m_file = std::unique_ptr<TFile>(new TFile(m_fileName.c_str(),
-                                            "RECREATE",
-                                            "1"  //This is the file format version number
-                                            ));
+  m_file = std::make_unique<TFile>(m_fileName.c_str(),
+                                   "RECREATE",
+                                   "1"  //This is the file format version number
+  );
 
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
@@ -329,7 +339,7 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
                                    std::string(),
                                    "DQMRootOutputModule",
                                    description().moduleLabel(),
-                                   std::move(guid),
+                                   guid,
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
@@ -555,7 +565,7 @@ void DQMRootOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.addOptionalUntracked<int>("splitLevel", 99)
       ->setComment("UNUSED Only here to allow older configurations written for PoolOutputModule to work.");
   const std::vector<std::string> keep = {"drop *", "keep DQMToken_*_*_*"};
-  edm::OutputModule::fillDescription(desc, keep);
+  edm::one::OutputModule<>::fillDescription(desc, keep);
 
   edm::ParameterSetDescription dataSet;
   dataSet.setAllowAnything();

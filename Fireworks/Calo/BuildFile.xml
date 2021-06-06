@@ -2,11 +2,11 @@
 <use name="DataFormats/CaloTowers"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/EcalDetId"/>
-<use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/FWLite"/>
 <use name="DataFormats/JetReco"/>
+<use name="DataFormats/TauReco"/>
 <use name="Fireworks/Core"/>
 <use name="Fireworks/Tracks"/>
 <use name="boost_system"/>

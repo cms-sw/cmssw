@@ -1,9 +1,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
-#include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <algorithm>
 #include <iostream>
@@ -123,11 +121,11 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
   }    // loop over confs
 }
 
-void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs, edm::ConsumesCollector& sumes) {
+void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs, edm::ConsumesCollector& cc) {
   importers_.reserve(confs.size());
   for (const auto& conf : confs) {
     const std::string& importerName = conf.getParameter<std::string>("importerName");
-    importers_.emplace_back(BlockElementImporterFactory::get()->create(importerName, conf, sumes));
+    importers_.emplace_back(BlockElementImporterFactory::get()->create(importerName, conf, cc));
   }
 }
 

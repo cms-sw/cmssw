@@ -14,7 +14,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run2_mc']
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HcalIsoTrack')
+    process.MessageLogger.HcalIsoTrack=dict()
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)

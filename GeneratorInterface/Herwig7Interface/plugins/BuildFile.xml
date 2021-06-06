@@ -1,10 +1,10 @@
 <use name="SimDataFormats/GeneratorProducts"/>
-<use name="herwigpp"/>
+<use name="herwig7"/>
 <use name="GeneratorInterface/Herwig7Interface"/>
 <library name="GeneratorInterfaceHerwig7HadronizerPlugins" file="Herwig7Hadronizer.cc">
-	<use name="GeneratorInterface/Core"/>
-	<use name="GeneratorInterface/ExternalDecays"/>
-	<use name="boost"/>
-	<use name="thepeg"/>
-	<flags EDM_PLUGIN="1"/>
+  <use name="GeneratorInterface/Core"/>
+  <use name="GeneratorInterface/ExternalDecays"/>
+  <use name="boost"/>
+  <use name="thepeg"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

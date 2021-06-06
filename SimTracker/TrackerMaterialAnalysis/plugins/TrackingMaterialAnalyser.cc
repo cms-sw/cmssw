@@ -6,7 +6,8 @@
 #include <stdexcept>
 #include <cstring>
 #include <cstdlib>
-#include <boost/format.hpp>
+
+#include <fmt/printf.h>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -77,20 +78,27 @@ void TrackingMaterialAnalyser::saveParameters(const char* name) {
   for (unsigned int i = 0; i < m_groups.size(); ++i) {
     MaterialAccountingGroup& layer = *(m_groups[i]);
     std::cout << layer.name() << std::endl;
-    std::cout << boost::format("\tnumber of hits:               %9d") % layer.tracks() << std::endl;
-    std::cout << boost::format("\tnormalized segment length:    %9.1f ± %9.1f cm") % layer.averageLength() %
-                     layer.sigmaLength()
+    std::cout << fmt::sprintf("\tnumber of hits:               %9d", layer.tracks()) << std::endl;
+    std::cout << fmt::sprintf(
+                     "\tnormalized segment length:    %9.1f ± %9.1f cm", layer.averageLength(), layer.sigmaLength())
               << std::endl;
-    std::cout << boost::format("\tnormalized radiation lengths: %9.3f ± %9.3f") % layer.averageRadiationLengths() %
-                     layer.sigmaRadiationLengths()
+    std::cout << fmt::sprintf("\tnormalized radiation lengths: %9.3f ± %9.3f",
+                              layer.averageRadiationLengths(),
+                              layer.sigmaRadiationLengths())
               << std::endl;
-    std::cout << boost::format("\tnormalized energy loss:       %6.5fe-03 ± %6.5fe-03 GeV") %
-                     layer.averageEnergyLoss() % layer.sigmaEnergyLoss()
+    std::cout << fmt::sprintf("\tnormalized energy loss:       %6.5fe-03 ± %6.5fe-03 GeV",
+                              layer.averageEnergyLoss(),
+                              layer.sigmaEnergyLoss())
               << std::endl;
-    parameters << boost::format("%-20s\t%7d\t%5.1f ± %5.1f cm\t%6.4f ± %6.4f \t%6.4fe-03 ± %6.4fe-03 GeV") %
-                      layer.name() % layer.tracks() % layer.averageLength() % layer.sigmaLength() %
-                      layer.averageRadiationLengths() % layer.sigmaRadiationLengths() % layer.averageEnergyLoss() %
-                      layer.sigmaEnergyLoss()
+    parameters << fmt::sprintf("%-20s\t%7d\t%5.1f ± %5.1f cm\t%6.4f ± %6.4f \t%6.4fe-03 ± %6.4fe-03 GeV",
+                               layer.name(),
+                               layer.tracks(),
+                               layer.averageLength(),
+                               layer.sigmaLength(),
+                               layer.averageRadiationLengths(),
+                               layer.sigmaRadiationLengths(),
+                               layer.averageEnergyLoss(),
+                               layer.sigmaEnergyLoss())
                << std::endl;
   }
   std::cout << std::endl;

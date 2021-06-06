@@ -1,19 +1,7 @@
-void volumeHandle::buildTubs() {
-  LogTrace("magneticfield::volumeHandle") << "Building tubs surfaces...: ";
-
-  DDTubs tubs(solid);
-
-  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
-  // convertUnits should be defined appropriately.
-  double zhalf = convertUnits(tubs.zhalf());
-  double rIn = convertUnits(tubs.rIn());
-  double rOut = convertUnits(tubs.rOut());
-  double startPhi = tubs.startPhi();
-  double deltaPhi = tubs.deltaPhi();
-
-  LogTrace("magneticfield::volumeHandle")
-      << "zhalf    " << zhalf << newln << "rIn      " << rIn << newln << "rOut     " << rOut << newln << "startPhi "
-      << startPhi << newln << "deltaPhi " << deltaPhi;
+void volumeHandle::buildTubs(double zhalf, double rIn, double rOut, double startPhi, double deltaPhi) {
+  LogTrace("MagGeoBuilder") << "Building tubs surfaces...: ";
+  LogTrace("MagGeoBuilder") << "zhalf    " << zhalf << newln << "rIn      " << rIn << newln << "rOut     " << rOut
+                            << newln << "startPhi " << startPhi << newln << "deltaPhi " << deltaPhi;
 
   // recalculate center: (for a DDTubs, DDD gives 0,0,Z)
   double rCentr = (rIn + rOut) / 2.;
@@ -37,7 +25,7 @@ void volumeHandle::buildTubs() {
   if (debug) {
     if (dynamic_cast<const Cylinder*>(&(*surfaces[outer]))->radius() <
         dynamic_cast<const Cylinder*>(&(*surfaces[inner]))->radius()) {
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner ";
+      LogTrace("MagGeometry") << "*** WARNING: pos_outer < pos_inner ";
     }
   }
   // Save volume boundaries

@@ -35,13 +35,11 @@ namespace edm {
       : frozen_(false),
         productProduced_(),
         anyProductProduced_(false),
-        eventProductLookup_(new ProductResolverIndexHelper),
-        lumiProductLookup_(new ProductResolverIndexHelper),
-        runProductLookup_(new ProductResolverIndexHelper),
-        eventNextIndexValue_(0),
-        lumiNextIndexValue_(0),
-        runNextIndexValue_(0),
-
+        productLookups_{{std::make_unique<ProductResolverIndexHelper>(),
+                         std::make_unique<ProductResolverIndexHelper>(),
+                         std::make_unique<ProductResolverIndexHelper>(),
+                         std::make_unique<ProductResolverIndexHelper>()}},
+        nextIndexValues_(),
         branchIDToIndex_() {
     for (bool& isProduced : productProduced_)
       isProduced = false;
@@ -54,13 +52,10 @@ namespace edm {
     anyProductProduced_ = false;
 
     // propagate_const<T> has no reset() function
-    eventProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
-    lumiProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
-    runProductLookup_ = std::make_unique<ProductResolverIndexHelper>();
-
-    eventNextIndexValue_ = 0;
-    lumiNextIndexValue_ = 0;
-    runNextIndexValue_ = 0;
+    for (auto& iterProductLookup : productLookups_) {
+      iterProductLookup = std::make_unique<ProductResolverIndexHelper>();
+    }
+    nextIndexValues_.fill(0);
 
     branchIDToIndex_.clear();
   }
@@ -119,7 +114,8 @@ namespace edm {
     BranchDescription bd(productDesc, labelAlias, instanceAlias);
     std::pair<ProductList::iterator, bool> ret = productList_.insert(std::make_pair(BranchKey(bd), bd));
     assert(ret.second);
-    transient_.aliasToOriginal_.emplace_back(labelAlias, productDesc.moduleLabel());
+    transient_.aliasToOriginal_.emplace_back(
+        PRODUCT_TYPE, productDesc.unwrappedTypeID(), labelAlias, instanceAlias, productDesc.moduleLabel());
     addCalled(bd, false);
   }
 
@@ -147,19 +143,11 @@ namespace edm {
   }
 
   std::shared_ptr<ProductResolverIndexHelper const> ProductRegistry::productLookup(BranchType branchType) const {
-    if (branchType == InEvent)
-      return transient_.eventProductLookup();
-    if (branchType == InLumi)
-      return transient_.lumiProductLookup();
-    return transient_.runProductLookup();
+    return get_underlying_safe(transient_.productLookups_[branchType]);
   }
 
   std::shared_ptr<ProductResolverIndexHelper> ProductRegistry::productLookup(BranchType branchType) {
-    if (branchType == InEvent)
-      return transient_.eventProductLookup();
-    if (branchType == InLumi)
-      return transient_.lumiProductLookup();
-    return transient_.runProductLookup();
+    return get_underlying_safe(transient_.productLookups_[branchType]);
   }
 
   void ProductRegistry::setFrozen(bool initializeLookupInfo) {
@@ -308,7 +296,7 @@ namespace edm {
                                                std::set<TypeID> const* elementTypesConsumed,
                                                std::string const* processName) {
     std::map<TypeID, TypeID> containedTypeMap;
-    std::map<TypeID, std::vector<TypeWithDict> > containedTypeToBaseTypesMap;
+    std::map<TypeID, std::vector<TypeWithDict>> containedTypeToBaseTypesMap;
 
     std::vector<std::string> missingDictionaries;
     std::vector<std::string> branchNamesForMissing;
@@ -451,13 +439,15 @@ namespace edm {
       throwMissingDictionariesException(missingDictionaries, context, producedTypes, branchNamesForMissing);
     }
 
-    productLookup(InEvent)->setFrozen();
-    productLookup(InLumi)->setFrozen();
-    productLookup(InRun)->setFrozen();
+    for (auto& iterProductLookup : transient_.productLookups_) {
+      iterProductLookup->setFrozen();
+    }
 
-    transient_.eventNextIndexValue_ = productLookup(InEvent)->nextIndexValue();
-    transient_.lumiNextIndexValue_ = productLookup(InLumi)->nextIndexValue();
-    transient_.runNextIndexValue_ = productLookup(InRun)->nextIndexValue();
+    unsigned int indexIntoNextIndexValue = 0;
+    for (auto const& iterProductLookup : transient_.productLookups_) {
+      transient_.nextIndexValues_[indexIntoNextIndexValue] = iterProductLookup->nextIndexValue();
+      ++indexIntoNextIndexValue;
+    }
 
     for (auto const& product : productList_) {
       auto const& desc = product.second;
@@ -468,13 +458,64 @@ namespace edm {
     }
     checkDictionariesOfConsumedTypes(
         productTypesConsumed, elementTypesConsumed, containedTypeMap, containedTypeToBaseTypesMap);
+
+    addElementTypesForAliases(elementTypesConsumed, containedTypeMap, containedTypeToBaseTypesMap);
+  }
+
+  void ProductRegistry::addElementTypesForAliases(
+      std::set<TypeID> const* elementTypesConsumed,
+      std::map<TypeID, TypeID> const& containedTypeMap,
+      std::map<TypeID, std::vector<TypeWithDict>> const& containedTypeToBaseTypesMap) {
+    Transients::AliasToOriginalVector elementAliases;
+    for (auto& item : transient_.aliasToOriginal_) {
+      auto iterContainedType = containedTypeMap.find(std::get<Transients::kType>(item));
+      if (iterContainedType == containedTypeMap.end()) {
+        edm::Exception ex(errors::LogicError);
+        ex << "containedTypeMap did not contain " << std::get<Transients::kType>(item).className()
+           << " that is used in EDAlias " << std::get<Transients::kModuleLabel>(item)
+           << ".\nThis should not happen, contact framework developers";
+        ex.addContext("Calling ProductRegistry::initializeLookupTables()");
+        throw ex;
+      }
+      auto const& containedTypeID = iterContainedType->second;
+      bool const hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
+      if (not hasContainedType) {
+        continue;
+      }
+
+      if (elementTypesConsumed->find(containedTypeID) != elementTypesConsumed->end()) {
+        elementAliases.emplace_back(ELEMENT_TYPE,
+                                    containedTypeID,
+                                    std::get<Transients::kModuleLabel>(item),
+                                    std::get<Transients::kProductInstanceName>(item),
+                                    std::get<Transients::kAliasForModuleLabel>(item));
+      }
+
+      auto iterBaseTypes = containedTypeToBaseTypesMap.find(containedTypeID);
+      if (iterBaseTypes == containedTypeToBaseTypesMap.end()) {
+        continue;
+      }
+      for (TypeWithDict const& baseType : iterBaseTypes->second) {
+        TypeID baseTypeID(baseType.typeInfo());
+        if (elementTypesConsumed->find(baseTypeID) != elementTypesConsumed->end()) {
+          elementAliases.emplace_back(ELEMENT_TYPE,
+                                      baseTypeID,
+                                      std::get<Transients::kModuleLabel>(item),
+                                      std::get<Transients::kProductInstanceName>(item),
+                                      std::get<Transients::kAliasForModuleLabel>(item));
+        }
+      }
+    }
+    transient_.aliasToOriginal_.insert(transient_.aliasToOriginal_.end(),
+                                       std::make_move_iterator(elementAliases.begin()),
+                                       std::make_move_iterator(elementAliases.end()));
   }
 
   void ProductRegistry::checkDictionariesOfConsumedTypes(
       std::set<TypeID> const* productTypesConsumed,
       std::set<TypeID> const* elementTypesConsumed,
       std::map<TypeID, TypeID> const& containedTypeMap,
-      std::map<TypeID, std::vector<TypeWithDict> >& containedTypeToBaseTypesMap) {
+      std::map<TypeID, std::vector<TypeWithDict>>& containedTypeToBaseTypesMap) {
     std::vector<std::string> missingDictionaries;
     std::set<std::string> consumedTypesWithMissingDictionaries;
 
@@ -569,6 +610,29 @@ namespace edm {
     return itFind->second;
   }
 
+  std::vector<std::string> ProductRegistry::aliasToModules(KindOfType kindOfType,
+                                                           TypeID const& type,
+                                                           std::string_view moduleLabel,
+                                                           std::string_view productInstanceName) const {
+    auto aliasFields = [](auto const& item) {
+      return std::tie(std::get<Transients::kKind>(item),
+                      std::get<Transients::kType>(item),
+                      std::get<Transients::kModuleLabel>(item),
+                      std::get<Transients::kProductInstanceName>(item));
+    };
+    auto const target = std::tuple(kindOfType, type, moduleLabel, productInstanceName);
+    auto found =
+        std::lower_bound(transient_.aliasToOriginal_.begin(),
+                         transient_.aliasToOriginal_.end(),
+                         target,
+                         [aliasFields](auto const& item, auto const& target) { return aliasFields(item) < target; });
+    std::vector<std::string> ret;
+    for (; found != transient_.aliasToOriginal_.end() and aliasFields(*found) == target; ++found) {
+      ret.emplace_back(std::get<Transients::kAliasForModuleLabel>(*found));
+    }
+    return ret;
+  }
+
   void ProductRegistry::print(std::ostream& os) const {
     for (auto const& product : productList_) {
       os << product.second << "\n-----\n";
@@ -576,18 +640,10 @@ namespace edm {
   }
 
   ProductResolverIndex const& ProductRegistry::getNextIndexValue(BranchType branchType) const {
-    if (branchType == InEvent)
-      return transient_.eventNextIndexValue_;
-    if (branchType == InLumi)
-      return transient_.lumiNextIndexValue_;
-    return transient_.runNextIndexValue_;
+    return transient_.nextIndexValues_[branchType];
   }
 
   ProductResolverIndex& ProductRegistry::nextIndexValue(BranchType branchType) {
-    if (branchType == InEvent)
-      return transient_.eventNextIndexValue_;
-    if (branchType == InLumi)
-      return transient_.lumiNextIndexValue_;
-    return transient_.runNextIndexValue_;
+    return transient_.nextIndexValues_[branchType];
   }
 }  // namespace edm

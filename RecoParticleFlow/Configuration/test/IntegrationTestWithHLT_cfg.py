@@ -133,10 +133,10 @@ process.schedule.append(process.outpath)
 # Keep the logging output to a nice level #
 # process.Timing =  cms.Service("Timing")
 process.load("FWCore/MessageService/MessageLogger_cfi")
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.categories.append('HLTrigReport')
+process.MessageLogger.L1GtTrigReport=dict()
+process.MessageLogger.HLTrigReport=dict()
 #process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt","cout")
-#process.MessageLogger.categories.append("FamosManager")
+#
 #process.MessageLogger.cout = cms.untracked.PSet(threshold=cms.untracked.string("INFO"),
 #                                                default=cms.untracked.PSet(limit=cms.untracked.int32(0)),
 #                                                FamosManager=cms.untracked.PSet(limit=cms.untracked.int32(100000)))

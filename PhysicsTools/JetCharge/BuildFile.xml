@@ -1,7 +1,7 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="clhep"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/TrackReco"/>
+<use name="clhep"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

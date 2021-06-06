@@ -70,22 +70,19 @@ void MuonIDTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::
   }
 
   auto tab = std::make_unique<nanoaod::FlatTable>(ncand, name_, false, true);
-  tab->addColumn<uint8_t>("tightId", tight, "POG Tight muon ID", nanoaod::FlatTable::BoolColumn);
+  tab->addColumn<bool>("tightId", tight, "POG Tight muon ID");
   tab->addColumn<uint8_t>(
       "highPtId",
       highPt,
-      "POG highPt muon ID (1 = tracker high pT, 2 = global high pT, which includes tracker high pT)",
-      nanoaod::FlatTable::UInt8Column);
-  tab->addColumn<uint8_t>(
+      "POG highPt muon ID (1 = tracker high pT, 2 = global high pT, which includes tracker high pT)");
+  tab->addColumn<bool>(
       "softId",
       soft,
-      "POG Soft muon ID (using the relaxed cuts in the data Run 2016 B-F periods, and standard cuts elsewhere)",
-      nanoaod::FlatTable::BoolColumn);
-  tab->addColumn<uint8_t>(
+      "POG Soft muon ID (using the relaxed cuts in the data Run 2016 B-F periods, and standard cuts elsewhere)");
+  tab->addColumn<bool>(
       "mediumId",
       medium,
-      "POG Medium muon ID (using the relaxed cuts in the data Run 2016 B-F periods, and standard cuts elsewhere)",
-      nanoaod::FlatTable::BoolColumn);
+      "POG Medium muon ID (using the relaxed cuts in the data Run 2016 B-F periods, and standard cuts elsewhere)");
 
   iEvent.put(std::move(tab));
 }

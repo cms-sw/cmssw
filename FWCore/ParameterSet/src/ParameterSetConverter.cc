@@ -10,7 +10,7 @@ ParameterSetConverter.cc
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 #include <iterator>
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ParameterSet/interface/split.h"
+#include "FWCore/ParameterSet/src/split.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {

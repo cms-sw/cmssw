@@ -6,9 +6,14 @@ process.CondDBCommon.connect = 'sqlite_file:EcalSRSettings_beam2015_option1_v00_
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                        debugModules = cms.untracked.vstring('*'),
-                                        destinations = cms.untracked.vstring('cout')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    debugModules = cms.untracked.vstring('*')
+)
 
 process.source = cms.Source("EmptyIOVSource",
                                 firstValue = cms.uint64(1),

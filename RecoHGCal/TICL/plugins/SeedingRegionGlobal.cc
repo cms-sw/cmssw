@@ -26,3 +26,7 @@ void SeedingRegionGlobal::makeRegions(const edm::Event &ev,
     result.emplace_back(GlobalPoint(0., 0., 0.), GlobalVector(0., 0., 0.), i, -1, edm::ProductID());
   }
 }
+
+void SeedingRegionGlobal::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  SeedingRegionAlgoBase::fillPSetDescription(desc);
+}

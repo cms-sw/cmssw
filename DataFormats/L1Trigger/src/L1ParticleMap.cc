@@ -370,6 +370,7 @@ const L1EtMissParticle* L1ParticleMap::etMissParticleInCombo(int aIndexInCombo, 
 std::vector<const reco::LeafCandidate*> L1ParticleMap::candidateCombo(const L1IndexCombo& aCombo) const {
   std::vector<const reco::LeafCandidate*> tmp;
 
+  tmp.reserve(numOfObjects());
   for (int i = 0; i < numOfObjects(); ++i) {
     tmp.push_back(candidateInCombo(i, aCombo));
   }

@@ -11,6 +11,7 @@ from DQM.HcalTasks.OfflineHarvestingSequence_hi import *
 from DQM.DTMonitorClient.dtDQMOfflineClients_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_collisions_cff import *
+from DQMOffline.Muon.gem_dqm_offline_client_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
 DQMNone = cms.Sequence()
@@ -27,6 +28,11 @@ DQMOfflineHeavyIons_SecondStepHcal = cms.Sequence( hcalOfflineHarvesting )
 DQMOfflineHeavyIons_SecondStepMuonDPG = cms.Sequence(  dtClients *
                                                       rpcTier0Client *
                                                       cscOfflineCollisionsClients )
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+_run3_GEM_DQMOfflineHeavyIons_SecondStepMuonDPG = DQMOfflineHeavyIons_SecondStepMuonDPG.copy()
+_run3_GEM_DQMOfflineHeavyIons_SecondStepMuonDPG += gemClients
+run3_GEM.toReplaceWith(DQMOfflineHeavyIons_SecondStepMuonDPG, _run3_GEM_DQMOfflineHeavyIons_SecondStepMuonDPG)
 
 DQMOfflineHeavyIons_SecondStepFED = cms.Sequence( dqmFEDIntegrityClient )
 

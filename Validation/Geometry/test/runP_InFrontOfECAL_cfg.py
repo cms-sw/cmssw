@@ -29,16 +29,18 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        FwkJob = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        FwkJob = cms.untracked.PSet( ## but FwkJob category - those unlimitted
-            limit = cms.untracked.int32(-1)
-        )
-    ),
-    categories = cms.untracked.vstring('FwkJob'),
-    destinations = cms.untracked.vstring('cout')
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.source = cms.Source("PoolSource",
@@ -51,6 +53,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.p1 = cms.Path(process.g4SimHits)
 process.g4SimHits.UseMagneticField = False
+process.g4SimHits.StackingAction.TrackNeutrino = True
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False

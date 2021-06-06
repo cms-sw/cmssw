@@ -1,5 +1,5 @@
 
-#include "FWCore/ParameterSet/interface/ORGroupDescription.h"
+#include "FWCore/ParameterSet/src/ORGroupDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 

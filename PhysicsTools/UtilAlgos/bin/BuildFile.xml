@@ -1,11 +1,12 @@
-<use   name="root"/>
-<use   name="boost_program_options"/>
-<use   name="PhysicsTools/FWLite"/>
-<use   name="PhysicsTools/UtilAlgos"/>
-<use   name="FWCore/ParameterSetReader"/>
-
+<use name="boost_program_options"/>
+<use name="root"/>
+<use name="FWCore/ParameterSetReader"/>
+<use name="PhysicsTools/UtilAlgos"/>
+<use name="PhysicsTools/FWLite"/>
 <environment>
-  <bin   file="FWLiteWithBasicAnalyzer.cc"></bin>
-  <bin   file="mergeTFileServiceHistograms.cpp"></bin>
-</environment>
+  <bin file="FWLiteWithBasicAnalyzer.cc">
+  </bin>
 
+  <bin file="mergeTFileServiceHistograms.cpp">
+  </bin>
+</environment>

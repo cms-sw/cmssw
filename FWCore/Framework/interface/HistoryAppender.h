@@ -13,6 +13,8 @@ namespace edm {
   class HistoryAppender {
   public:
     HistoryAppender();
+    HistoryAppender(HistoryAppender const&) = delete;
+    HistoryAppender& operator=(HistoryAppender const&) = delete;
 
     // Used to append the current process to the process history
     // when necessary. Optimized to cache the results so it
@@ -22,9 +24,6 @@ namespace edm {
                                                                  ProcessConfiguration const& pc);
 
   private:
-    HistoryAppender(HistoryAppender const&) = delete;
-    HistoryAppender& operator=(HistoryAppender const&) = delete;
-
     // Throws if the new process name is already in the process
     // process history
     void checkProcessHistory(ProcessHistory const& ph, ProcessConfiguration const& pc) const;

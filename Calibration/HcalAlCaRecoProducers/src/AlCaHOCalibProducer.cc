@@ -76,13 +76,11 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/FWLite/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -149,10 +147,9 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 // class decleration
 //
 
-class AlCaHOCalibProducer : public edm::EDProducer {
+class AlCaHOCalibProducer : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   explicit AlCaHOCalibProducer(const edm::ParameterSet&);
-  ~AlCaHOCalibProducer() override;
 
   typedef Basic3DVector<float> PositionType;
   typedef Basic3DVector<float> DirectionType;
@@ -163,8 +160,6 @@ private:
   void beginJob() override;
   void endJob() override;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  //  void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void fillHOStore(const reco::TrackRef& ncosm,
                    HOCalibVariables& tmpHOCalib,
                    std::unique_ptr<HOCalibVariableCollection>& hostore,
@@ -173,7 +168,9 @@ private:
                    edm::Handle<reco::TrackCollection> cosmicmuon,
                    edm::View<reco::Muon>::const_iterator muon1,
                    const edm::Event& iEvent,
-                   const edm::EventSetup& iSetup);
+                   const CaloSubdetectorGeometry*,
+                   const MagneticField&);
+
   void findHOEtaPhi(int iphsect, int& ietaho, int& iphiho);
   //  virtual void endRun(edm::Run const &, edm::EventSetup const &) override;
   // ----------member data ---------------------------
@@ -212,6 +209,11 @@ private:
   edm::EDGetTokenT<HORecHitCollection> tok_ho_;
   edm::EDGetTokenT<CaloTowerCollection> tok_tower_;
 
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> tok_hcalChStatus_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> tok_hcalSevLvlComputer_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+
   bool m_hbinfo;
   int m_startTS;
   int m_endTS;
@@ -229,8 +231,7 @@ private:
 
   //hcal severity ES
   const HcalChannelQuality* theHcalChStatus;
-  //  edm::ESHandle<HcalChannelQuality> theHcalChStatus;
-  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
+  const HcalSeverityLevelComputer* theHcalSevLvlComputer;
   int Nevents;
 };
 
@@ -246,6 +247,7 @@ private:
 // constructors and destructor
 //
 AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
   //register your products
 
   m_hbinfo = iConfig.getUntrackedParameter<bool>("hbinfo", false);
@@ -264,6 +266,11 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig) {
   tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
   tok_tower_ = consumes<CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("towerInput"));
 
+  tok_hcalChStatus_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_hcalSevLvlComputer_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+
   produces<HOCalibVariableCollection>("HOCalibVariableCollection").setBranchAlias("HOCalibVariableCollection");
 
   if (m_occupancy) {
@@ -277,11 +284,6 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig) {
           fs->make<TH2F>(title, title, netamx + 1, -netamx - 0.5, netamx / 2 + 0.5, nphimx, 0.5, nphimx + 0.5);
     }
   }
-}
-
-AlCaHOCalibProducer::~AlCaHOCalibProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -298,6 +300,8 @@ void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if (Nevents % 5000 == 1)
     edm::LogInfo("HOCalib") << "AlCaHOCalibProducer Processing event # " << Nevents << " " << Noccu << " " << irun
                             << " " << iEvent.id().event();
+
+  theHcalChStatus = &iSetup.getData(tok_hcalChStatus_);
 
   auto hostore = std::make_unique<HOCalibVariableCollection>();
 
@@ -341,6 +345,14 @@ void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if (muonOK) {
     int Noccu_old = Noccu;
     edm::View<reco::Muon>::const_iterator muon1;
+
+    theHcalSevLvlComputer = &iSetup.getData(tok_hcalSevLvlComputer_);
+
+    MagneticField const& magField = iSetup.getData(tok_magField_);
+
+    const CaloGeometry& geo = iSetup.getData(tok_geom_);
+    const CaloSubdetectorGeometry* gHO = geo.getSubdetectorGeometry(DetId::Hcal, HcalOuter);
+
     if (m_cosmic) {
       int indx(0);
       for (reco::TrackCollection::const_iterator ncosm = cosmicmuon->begin(); ncosm != cosmicmuon->end();
@@ -350,14 +362,14 @@ void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         if ((*ncosm).normalizedChi2() > 30.0)
           continue;
         reco::TrackRef tRef = reco::TrackRef(cosmicmuon, indx);
-        fillHOStore(tRef, tmpHOCalib, hostore, Noccu_old, indx, cosmicmuon, muon1, iEvent, iSetup);
+        fillHOStore(tRef, tmpHOCalib, hostore, Noccu_old, indx, cosmicmuon, muon1, iEvent, gHO, magField);
       }
     } else {
       for (muon1 = collisionmuon->begin(); muon1 < collisionmuon->end(); muon1++) {
         if ((!muon1->isGlobalMuon()) || (!muon1->isTrackerMuon()))
           continue;
         reco::TrackRef ncosm = muon1->innerTrack();
-        fillHOStore(ncosm, tmpHOCalib, hostore, Noccu_old, 0, cosmicmuon, muon1, iEvent, iSetup);
+        fillHOStore(ncosm, tmpHOCalib, hostore, Noccu_old, 0, cosmicmuon, muon1, iEvent, gHO, magField);
       }
     }
   }
@@ -382,19 +394,6 @@ void AlCaHOCalibProducer::endJob() {
   edm::LogInfo("HOCalib") << " AlCaHOCalibProducer processed event " << Nevents;
 }
 
-// ------------ method called once each run just after ending the event loop  ------------
-//void AlCaHOCalibProducer::endRun(edm::Run const & run, edm::EventSetup & es) {}
-// ------------ method called once each run before starting event loop  ------------
-//void AlCaHOCalibProducer::beginRun(edm::Run const & run, const edm::EventSetup & es) {}
-
-void AlCaHOCalibProducer::beginLuminosityBlock(const edm::LuminosityBlock& lBlock, const edm::EventSetup& es) {
-  edm::ESHandle<HcalChannelQuality> hcalChStatus;
-  es.get<HcalChannelQualityRcd>().get("withTopo", hcalChStatus);
-  theHcalChStatus = hcalChStatus.product();
-
-  return;
-}
-
 void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
                                       HOCalibVariables& tmpHOCalib,
                                       std::unique_ptr<HOCalibVariableCollection>& hostore,
@@ -403,16 +402,9 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
                                       edm::Handle<reco::TrackCollection> cosmicmuon,
                                       edm::View<reco::Muon>::const_iterator muon1,
                                       const edm::Event& iEvent,
-                                      const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
-  const CaloSubdetectorGeometry* gHO = geo->getSubdetectorGeometry(DetId::Hcal, HcalOuter);
-
+                                      const CaloSubdetectorGeometry* gHO,
+                                      const MagneticField& magField) {
   // Get Hcal Severity Level Computer, so that the severity of each rechit flag/status may be determined
-  //  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
-  iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
-  const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
 
   int charge = ncosm->charge();
 
@@ -575,10 +567,8 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
       tmpHOCalib.therr = outercov(1, 1);  //thetaError();
       tmpHOCalib.pherr = outercov(2, 2);  //phi0Error();
     }
-    edm::ESHandle<MagneticField> theMagField;
-    iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
-    SteppingHelixPropagator myHelix(&*theMagField, anyDirection);
+    SteppingHelixPropagator myHelix(&magField, anyDirection);
     myHelix.setMaterialMode(false);
     myHelix.applyRadX0Correction(true);
     double phiho = trkpos.phi();
@@ -606,7 +596,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
       GlobalVector zLocal = xLocal.cross(yLocal).unit();
       //    GlobalVector zLocal(cos(phirot), sin(phirot), 0.0);
 
-      FreeTrajectoryState freetrajectorystate_ = getFreeTrajectoryState(*ncosm, &(*theMagField), iiner, samedir);
+      FreeTrajectoryState freetrajectorystate_ = getFreeTrajectoryState(*ncosm, &(magField), iiner, samedir);
 
       Surface::RotationType rot(xLocal, yLocal, zLocal);
 
@@ -893,7 +883,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
               // Get Channel Quality information for the given detID
               unsigned theStatusValue = theHcalChStatus->getValues(id)->getValue();
               // Now get severity of problems for the given detID, based on the rechit flag word and the channel quality status value
-              int hitSeverity = hcalSevLvlComputer->getSeverityLevel(id, (*jk).flags(), theStatusValue);
+              int hitSeverity = theHcalSevLvlComputer->getSeverityLevel(id, (*jk).flags(), theStatusValue);
               tmpHOCalib.hoflag = hitSeverity;
               int crphi = tmpphi + 6;
               if (crphi > 72)

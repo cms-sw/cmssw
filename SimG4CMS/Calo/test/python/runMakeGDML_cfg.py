@@ -17,8 +17,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cout')
-    process.MessageLogger.categories.append('G4cerr')
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.G4cerr=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

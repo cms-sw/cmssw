@@ -26,10 +26,12 @@ bool PreshowerAndECALLinker::linkPrefilter(const reco::PFBlockElement* elem1, co
   switch (elem1->type()) {
     case reco::PFBlockElement::PS1:
     case reco::PFBlockElement::PS2:
-      result = (elem1->isMultilinksValide() && !elem1->getMultilinks().empty());
+      result = (elem1->isMultilinksValide(elem2->type()) && !elem1->getMultilinks(elem2->type()).empty() &&
+                elem2->isMultilinksValide(elem1->type()));
       break;
     case reco::PFBlockElement::ECAL:
-      result = (elem2->isMultilinksValide() && !elem2->getMultilinks().empty());
+      result = (elem2->isMultilinksValide(elem1->type()) && !elem2->getMultilinks(elem1->type()).empty() &&
+                elem1->isMultilinksValide(elem2->type()));
       break;
     default:
       break;
@@ -54,8 +56,8 @@ double PreshowerAndECALLinker::testLink(const reco::PFBlockElement* elem1, const
   }
   // Check if the linking has been done using the KDTree algo
   // Glowinski & Gouzevitch
-  if (useKDTree_ && pselem->isMultilinksValide()) {  // KDTree algo
-    const reco::PFMultilinksType& multilinks = pselem->getMultilinks();
+  if (useKDTree_ && pselem->isMultilinksValide(ecalelem->type())) {  // KDTree algo
+    const reco::PFMultilinksType& multilinks = pselem->getMultilinks(ecalelem->type());
     const reco::PFCluster::REPPoint& ecalreppos = ecalref->positionREP();
     const math::XYZPoint& ecalxyzpos = ecalref->position();
     const math::XYZPoint& psxyzpos = psref->position();

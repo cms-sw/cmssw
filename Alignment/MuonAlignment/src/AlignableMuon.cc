@@ -11,29 +11,39 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include <Geometry/DTGeometry/interface/DTLayer.h>
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
-
-// Muon  components
-#include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
-#include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
-#include "Alignment/MuonAlignment/interface/AlignableDTStation.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
-#include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
+// Muon  components
 #include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
+#include "Alignment/MuonAlignment/interface/AlignableDTStation.h"
+#include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
+#include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
 #include "Alignment/MuonAlignment/interface/AlignableCSCEndcap.h"
+#include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
+#include "Alignment/MuonAlignment/interface/AlignableCSCRing.h"
+#include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
+#include "Alignment/MuonAlignment/interface/AlignableGEMEndcap.h"
+#include "Alignment/MuonAlignment/interface/AlignableGEMStation.h"
+#include "Alignment/MuonAlignment/interface/AlignableGEMRing.h"
+#include "Alignment/MuonAlignment/interface/AlignableGEMSuperChamber.h"
+
+#include <iostream>
 
 //--------------------------------------------------------------------------------------------------
-AlignableMuon::AlignableMuon(const DTGeometry* dtGeometry, const CSCGeometry* cscGeometry)
+AlignableMuon::AlignableMuon(const DTGeometry* dtGeometry,
+                             const CSCGeometry* cscGeometry,
+                             const GEMGeometry* gemGeometry)
     : AlignableComposite(0, align::AlignableMuon),  // cannot yet set id, use 0
-      alignableObjectId_(nullptr, dtGeometry, cscGeometry) {
+      alignableObjectId_(nullptr, dtGeometry, cscGeometry, gemGeometry) {
   // Build the muon barrel
   buildDTBarrel(dtGeometry);
 
   // Build the muon end caps
   buildCSCEndcap(cscGeometry);
+  buildGEMEndcap(gemGeometry);
 
   // Set links to mothers recursively
   recursiveSetMothers(this);
@@ -52,12 +62,15 @@ AlignableMuon::~AlignableMuon() {
 }
 
 //------------------------------------------------------------------------------
-void AlignableMuon::update(const DTGeometry* dtGeometry, const CSCGeometry* cscGeometry) {
+void AlignableMuon::update(const DTGeometry* dtGeometry,
+                           const CSCGeometry* cscGeometry,
+                           const GEMGeometry* gemGeometry) {
   // update the muon barrel
   buildDTBarrel(dtGeometry, /* update = */ true);
 
   // update the muon end caps
   buildCSCEndcap(cscGeometry, /* update = */ true);
+  buildGEMEndcap(gemGeometry, /* update = */ true);
 
   edm::LogInfo("Alignment") << "@SUB=AlignableMuon::update"
                             << "Updating alignable muon objects DONE";
@@ -267,6 +280,63 @@ void AlignableMuon::buildCSCEndcap(const CSCGeometry* pCSC, bool update) {
 }
 
 //--------------------------------------------------------------------------------------------------
+void AlignableMuon::buildGEMEndcap(const GEMGeometry* pGEM, bool update) {
+  LogDebug("Position") << "Constructing AlignableGEMEndcap";
+  std::vector<AlignableGEMStation*> tmpGEMStationsInEndcap;
+  for (int iec = -1; iec < 2; iec = iec + 2) {
+    std::vector<AlignableGEMRing*> tmpGEMRingsInStation;
+
+    for (int ist = 0; ist < 3; ist++) {
+      if (ist == 0)
+        continue;  //Run3 GEM dosen't have ME0
+      if (ist == 2)
+        continue;  //Run3 GEM dosen't have GE2/1
+      std::vector<AlignableGEMSuperChamber*> tmpGEMSuperChambersInRing;
+      int iri = 1;
+      int iChamber{0};
+      auto vc = pGEM->superChambers();
+      for (const auto& det : vc) {
+        GEMDetId gemId = det->id();
+        int ec = gemId.region();
+        int st = gemId.station();
+        int ri = gemId.ring();
+
+        if (iec == ec && ist == st && iri == ri) {
+          if (update) {
+            theGEMEndcaps[iec == -1 ? 0 : 1]->station(ist - 1).ring(iri - 1).superChamber(iChamber).update(det);
+          } else {
+            AlignableGEMSuperChamber* tmpGEMSuperChamber = new AlignableGEMSuperChamber(det);
+            tmpGEMSuperChambersInRing.push_back(tmpGEMSuperChamber);
+          }
+          ++iChamber;
+        }
+      }
+      if (!update) {
+        if (!tmpGEMSuperChambersInRing.empty()) {
+          theGEMSuperChambers.insert(
+              theGEMSuperChambers.end(), tmpGEMSuperChambersInRing.begin(), tmpGEMSuperChambersInRing.end());
+          AlignableGEMRing* tmpGEMRing = new AlignableGEMRing(tmpGEMSuperChambersInRing);
+          tmpGEMRingsInStation.push_back(tmpGEMRing);
+          tmpGEMSuperChambersInRing.clear();
+        }
+      }
+      if (!update) {
+        AlignableGEMStation* tmpGEMStation = new AlignableGEMStation(tmpGEMRingsInStation);
+        theGEMRings.insert(theGEMRings.end(), tmpGEMRingsInStation.begin(), tmpGEMRingsInStation.end());
+        tmpGEMStationsInEndcap.push_back(tmpGEMStation);
+        tmpGEMRingsInStation.clear();
+      }
+    }
+    if (!update) {
+      AlignableGEMEndcap* tmpEndcap = new AlignableGEMEndcap(tmpGEMStationsInEndcap);
+      theGEMStations.insert(theGEMStations.end(), tmpGEMStationsInEndcap.begin(), tmpGEMStationsInEndcap.end());
+      theGEMEndcaps.push_back(tmpEndcap);
+      tmpGEMStationsInEndcap.clear();
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
 align::Alignables AlignableMuon::DTLayers() {
   align::Alignables result;
 
@@ -373,6 +443,71 @@ align::Alignables AlignableMuon::CSCEndcaps() {
 }
 
 //__________________________________________________________________________________________________
+align::Alignables AlignableMuon::GEMEtaPartitions() {
+  align::Alignables result;
+  align::Alignables superChambers = GEMSuperChambers();
+  for (align::Alignables::const_iterator superChamberIter = superChambers.begin();
+       superChamberIter != superChambers.end();
+       ++superChamberIter) {
+    align::Alignables chambers = (*superChamberIter)->components();
+    for (align::Alignables::const_iterator chamberIter = chambers.begin(); chamberIter != chambers.end();
+         ++chamberIter) {
+      align::Alignables etaPartitions = (*chamberIter)->components();
+      for (align::Alignables::const_iterator etaPartitionIter = etaPartitions.begin();
+           etaPartitionIter != etaPartitions.end();
+           ++etaPartitionIter) {
+        result.push_back(*etaPartitionIter);
+      }
+    }
+  }
+  return result;
+}
+
+//__________________________________________________________________________________________________
+align::Alignables AlignableMuon::GEMChambers() {
+  align::Alignables result;
+  align::Alignables superChambers = GEMSuperChambers();
+  for (align::Alignables::const_iterator superChamberIter = superChambers.begin();
+       superChamberIter != superChambers.end();
+       ++superChamberIter) {
+    align::Alignables chambers = (*superChamberIter)->components();
+    for (align::Alignables::const_iterator chamberIter = chambers.begin(); chamberIter != chambers.end();
+         ++chamberIter) {
+      result.push_back(*chamberIter);
+    }
+  }
+  return result;
+}
+
+//__________________________________________________________________________________________________
+align::Alignables AlignableMuon::GEMSuperChambers() {
+  align::Alignables result;
+  copy(theGEMSuperChambers.begin(), theGEMSuperChambers.end(), back_inserter(result));
+  return result;
+}
+
+//__________________________________________________________________________________________________
+align::Alignables AlignableMuon::GEMRings() {
+  align::Alignables result;
+  copy(theGEMRings.begin(), theGEMRings.end(), back_inserter(result));
+  return result;
+}
+
+//__________________________________________________________________________________________________
+align::Alignables AlignableMuon::GEMStations() {
+  align::Alignables result;
+  copy(theGEMStations.begin(), theGEMStations.end(), back_inserter(result));
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+align::Alignables AlignableMuon::GEMEndcaps() {
+  align::Alignables result;
+  copy(theGEMEndcaps.begin(), theGEMEndcaps.end(), back_inserter(result));
+  return result;
+}
+
+//__________________________________________________________________________________________________
 void AlignableMuon::recursiveSetMothers(Alignable* alignable) {
   for (const auto& iter : alignable->components()) {
     iter->setMother(alignable);
@@ -454,6 +589,35 @@ AlignmentErrorsExtended* AlignableMuon::cscAlignmentErrorsExtended(void) {
   std::copy(cscEndCap2Errors->m_alignError.begin(),
             cscEndCap2Errors->m_alignError.end(),
             back_inserter(tmpAlignmentErrorsExtended->m_alignError));
+
+  return tmpAlignmentErrorsExtended;
+}
+
+//__________________________________________________________________________________________________
+Alignments* AlignableMuon::gemAlignments(void) {
+  Alignments* gemEndCap1 = this->GEMEndcaps().front()->alignments();
+  Alignments* gemEndCap2 = this->GEMEndcaps().back()->alignments();
+  Alignments* tmpAlignments = new Alignments();
+  std::copy(gemEndCap1->m_align.begin(), gemEndCap1->m_align.end(), back_inserter(tmpAlignments->m_align));
+  std::copy(gemEndCap2->m_align.begin(), gemEndCap2->m_align.end(), back_inserter(tmpAlignments->m_align));
+  std::sort(tmpAlignments->m_align.begin(), tmpAlignments->m_align.end());
+
+  return tmpAlignments;
+}
+//__________________________________________________________________________________________________
+AlignmentErrorsExtended* AlignableMuon::gemAlignmentErrorsExtended(void) {
+  // Retrieve muon endcaps alignment errors
+  AlignmentErrorsExtended* gemEndCap1Errors = this->GEMEndcaps().front()->alignmentErrors();
+  AlignmentErrorsExtended* gemEndCap2Errors = this->GEMEndcaps().back()->alignmentErrors();
+  AlignmentErrorsExtended* tmpAlignmentErrorsExtended = new AlignmentErrorsExtended();
+
+  std::copy(gemEndCap1Errors->m_alignError.begin(),
+            gemEndCap1Errors->m_alignError.end(),
+            back_inserter(tmpAlignmentErrorsExtended->m_alignError));
+  std::copy(gemEndCap2Errors->m_alignError.begin(),
+            gemEndCap2Errors->m_alignError.end(),
+            back_inserter(tmpAlignmentErrorsExtended->m_alignError));
+  std::sort(tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end());
 
   return tmpAlignmentErrorsExtended;
 }

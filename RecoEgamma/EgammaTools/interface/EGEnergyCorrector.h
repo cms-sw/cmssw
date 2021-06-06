@@ -12,50 +12,41 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
+#include <array>
 
 class GBRForest;
 
 class EGEnergyCorrector {
 public:
-  EGEnergyCorrector();
   ~EGEnergyCorrector();
 
   void Initialize(const edm::EventSetup &iSetup, std::string regweights, bool weightsFromDB = false);
-  Bool_t IsInitialized() const { return fIsInitialized; }
+  bool IsInitialized() const { return fIsInitialized; }
 
   std::pair<double, double> CorrectedEnergyWithError(const reco::Photon &p,
                                                      const reco::VertexCollection &vtxcol,
                                                      EcalClusterLazyTools &clustertools,
-                                                     const edm::EventSetup &es);
-  std::pair<double, double> CorrectedEnergyWithError(const reco::GsfElectron &e,
-                                                     const reco::VertexCollection &vtxcol,
-                                                     EcalClusterLazyTools &clustertools,
-                                                     const edm::EventSetup &es);
+                                                     CaloGeometry const &caloGeometry);
 
   std::pair<double, double> CorrectedEnergyWithErrorV3(const reco::Photon &p,
                                                        const reco::VertexCollection &vtxcol,
                                                        double rho,
                                                        EcalClusterLazyTools &clustertools,
-                                                       const edm::EventSetup &es,
+                                                       CaloGeometry const &caloGeometry,
                                                        bool applyRescale = false);
-  std::pair<double, double> CorrectedEnergyWithErrorV3(const reco::GsfElectron &e,
-                                                       const reco::VertexCollection &vtxcol,
-                                                       double rho,
-                                                       EcalClusterLazyTools &clustertools,
-                                                       const edm::EventSetup &es);
 
 protected:
-  const GBRForest *fReadereb;
-  const GBRForest *fReaderebvariance;
-  const GBRForest *fReaderee;
-  const GBRForest *fReadereevariance;
+  const GBRForest *fReadereb = nullptr;
+  const GBRForest *fReaderebvariance = nullptr;
+  const GBRForest *fReaderee = nullptr;
+  const GBRForest *fReadereevariance = nullptr;
 
-  Bool_t fIsInitialized;
-  Bool_t fOwnsForests;
-  Float_t *fVals;
+  bool fIsInitialized = false;
+  bool fOwnsForests = false;
+  std::array<float, 73> fVals;
 };
 
 #endif

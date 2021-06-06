@@ -5,7 +5,8 @@
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
-QIE10Task::QIE10Task(edm::ParameterSet const& ps) : DQTask(ps) {
+QIE10Task::QIE10Task(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   //	tags
   _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagQIE10", edm::InputTag("hcalDigis"));
   _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
@@ -24,8 +25,7 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps) : DQTask(ps) {
   DQTask::bookHistograms(ib, r, es);
 
   //	GET WHAT YOU NEED
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
 
   unsigned int nTS = _ptype == fLocal ? 10 : 6;
@@ -154,9 +154,9 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps) : DQTask(ps) {
   _ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 }
 
-/* virtual */ void QIE10Task::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void QIE10Task::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   //	finish
-  DQTask::dqmEndLuminosityBlock(lb, es);
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 /* virtual */ void QIE10Task::_process(edm::Event const& e, edm::EventSetup const&) {

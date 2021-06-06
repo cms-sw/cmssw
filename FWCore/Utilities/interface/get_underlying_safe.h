@@ -30,6 +30,7 @@
 // user include files
 
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
 
 // forward declarations
 
@@ -37,35 +38,66 @@ namespace edm {
 
   // for std::shared_ptr
   template <typename T>
-  std::shared_ptr<T>& get_underlying_safe(propagate_const<std::shared_ptr<T>>& iP) {
+  constexpr std::shared_ptr<T>& get_underlying_safe(propagate_const<std::shared_ptr<T>>& iP) {
     return get_underlying(iP);
   }
   template <typename T>
-  std::shared_ptr<T const> get_underlying_safe(propagate_const<std::shared_ptr<T>> const& iP) {
+  constexpr std::shared_ptr<T const> get_underlying_safe(propagate_const<std::shared_ptr<T>> const& iP) {
     std::shared_ptr<T const> copy = get_underlying(iP);
+    return copy;
+  }
+
+  template <typename T>
+  constexpr std::shared_ptr<T[]>& get_underlying_safe(propagate_const_array<std::shared_ptr<T[]>>& iP) {
+    return get_underlying(iP);
+  }
+  template <typename T>
+  constexpr std::shared_ptr<T const []> get_underlying_safe(propagate_const_array<std::shared_ptr<T[]>> const& iP) {
+    std::shared_ptr<T const[]> copy = get_underlying(iP);
     return copy;
   }
 
   // for bare pointer
   template <typename T>
-  T*& get_underlying_safe(propagate_const<T*>& iP) {
+  constexpr T*& get_underlying_safe(propagate_const<T*>& iP) {
     return get_underlying(iP);
   }
   template <typename T>
-  T const* get_underlying_safe(propagate_const<T*> const& iP) {
+  constexpr T const* get_underlying_safe(propagate_const<T*> const& iP) {
+    T const* copy = get_underlying(iP);
+    return copy;
+  }
+
+  template <typename T>
+  constexpr T* get_underlying_safe(propagate_const_array<T[]>& iP) {
+    return get_underlying(iP);
+  }
+  template <typename T>
+  constexpr T const* get_underlying_safe(propagate_const_array<T[]> const& iP) {
     T const* copy = get_underlying(iP);
     return copy;
   }
 
   // for std::unique_ptr
   template <typename T>
-  std::unique_ptr<T>& get_underlying_safe(propagate_const<std::unique_ptr<T>>& iP) {
+  constexpr std::unique_ptr<T>& get_underlying_safe(propagate_const<std::unique_ptr<T>>& iP) {
     return get_underlying(iP);
   }
-  // This template below will deliberately not compile.
+  // the template below will deliberately not compile.
   template <typename T>
-  std::unique_ptr<T const> get_underlying_safe(propagate_const<std::unique_ptr<T>> const& iP) {
+  constexpr std::unique_ptr<T const> get_underlying_safe(propagate_const<std::unique_ptr<T>> const& iP) {
     std::unique_ptr<T const> copy = get_underlying(iP);
+    return copy;
+  }
+
+  template <typename T>
+  constexpr std::unique_ptr<T[]>& get_underlying_safe(propagate_const_array<std::unique_ptr<T[]>>& iP) {
+    return get_underlying(iP);
+  }
+  // the template below will deliberately not compile.
+  template <typename T>
+  constexpr std::unique_ptr<T const []> get_underlying_safe(propagate_const_array<std::unique_ptr<T[]>> const& iP) {
+    std::unique_ptr<T const[]> copy = get_underlying(iP);
     return copy;
   }
 

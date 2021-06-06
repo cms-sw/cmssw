@@ -1,7 +1,7 @@
 #ifndef SimDataFormats_EncodedEventId_H
 #define SimDataFormats_EncodedEventId_H 1
 
-#include <TMath.h>
+#include <cmath>
 #include <ostream>
 #include <cstdint>
 
@@ -16,7 +16,7 @@ public:
   explicit EncodedEventId(uint32_t id);
   /// Create an id, filling the bunch crossing and event infomrations
   EncodedEventId(int bunchX, int event) {
-    id_ = TMath::Abs(bunchX) << bunchXStartBit_ | event;
+    id_ = std::abs(bunchX) << bunchXStartBit_ | event;
     if (bunchX < 0)
       id_ = id_ | bunchNegMask_;
   }
@@ -28,7 +28,7 @@ public:
   }
   /// get the contents of the subdetector field (should be protected?)
   int event() const { return int(id_ & 0xFFFF); }
-  uint32_t operator()() { return id_; }
+  uint32_t operator()() const { return id_; }
   /// get the raw id
   uint32_t rawId() const { return id_; }
   /// equality

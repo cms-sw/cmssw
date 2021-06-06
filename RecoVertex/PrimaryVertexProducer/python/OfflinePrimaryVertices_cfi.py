@@ -15,6 +15,8 @@ offlinePrimaryVertices = cms.EDProducer(
         minPixelLayersWithHits=cms.int32(2),
         minSiliconLayersWithHits = cms.int32(5),
         maxD0Significance = cms.double(4.0), 
+        maxD0Error = cms.double(1.0), 
+        maxDzError = cms.double(1.0), 
         minPt = cms.double(0.0),
         maxEta = cms.double(2.4),
         trackQuality = cms.string("any")
@@ -35,11 +37,13 @@ offlinePrimaryVertices = cms.EDProducer(
                chi2cutoff = cms.double(2.5),
                minNdof=cms.double(2.0),
                useBeamConstraint = cms.bool(True),
-               maxDistanceToBeam = cms.double(1.0)
+               maxDistanceToBeam = cms.double(1.0),
                )
       ]
-    )
-                                        
+    ),
+    
+    isRecoveryIteration = cms.bool(False),
+    recoveryVtxCollection = cms.InputTag("")
 
                                         
 )
@@ -60,10 +64,12 @@ phase2_tracker.toModify(offlinePrimaryVertices,
                         TkFilterParameters = dict(maxEta = 4.0))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(offlinePrimaryVertices,
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(offlinePrimaryVertices,
                TkFilterParameters = dict(
                    maxD0Significance = 2.0,
+                   maxD0Error = 10.0, 
+                   maxDzError = 10.0, 
                    minPixelLayersWithHits=3,
                    minPt = 0.7,
                    trackQuality = "highPurity"
@@ -83,6 +89,8 @@ highBetaStar_2018.toModify(offlinePrimaryVertices,
          minPixelLayersWithHits = 1,
          minSiliconLayersWithHits = 3,
          maxD0Significance = 7.0,
+         maxD0Error = 10.0, 
+         maxDzError = 10.0, 
          maxEta = 2.5
      ),
      vertexCollections = {

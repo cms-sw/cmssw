@@ -162,10 +162,12 @@ void SurveyInputCSCfromPins::analyze(const edm::Event &, const edm::EventSetup &
 
     edm::ESHandle<DTGeometry> dtGeometry;
     edm::ESHandle<CSCGeometry> cscGeometry;
+    edm::ESHandle<GEMGeometry> gemGeometry;
     iSetup.get<MuonGeometryRecord>().get(dtGeometry);
     iSetup.get<MuonGeometryRecord>().get(cscGeometry);
+    iSetup.get<MuonGeometryRecord>().get(gemGeometry);
 
-    AlignableMuon *theAlignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
+    AlignableMuon *theAlignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
     AlignableNavigator *theAlignableNavigator = new AlignableNavigator(theAlignableMuon);
 
     const auto &theEndcaps = theAlignableMuon->CSCEndcaps();

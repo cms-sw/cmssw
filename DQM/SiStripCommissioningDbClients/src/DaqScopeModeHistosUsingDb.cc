@@ -11,10 +11,11 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 DaqScopeModeHistosUsingDb::DaqScopeModeHistosUsingDb(const edm::ParameterSet& pset,
                                                      DQMStore* bei,
-                                                     SiStripConfigDb* const db)
+                                                     SiStripConfigDb* const db,
+                                                     edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken)
     : CommissioningHistograms(
           pset.getParameter<edm::ParameterSet>("DaqScopeModeParameters"), bei, sistrip::DAQ_SCOPE_MODE),
-      CommissioningHistosUsingDb(db, sistrip::DAQ_SCOPE_MODE),
+      CommissioningHistosUsingDb(db, tTopoToken, sistrip::DAQ_SCOPE_MODE),
       DaqScopeModeHistograms(pset.getParameter<edm::ParameterSet>("DaqScopeModeParameters"), bei) {
   LogTrace(mlDqmClient_) << "[DaqScopeModeHistosUsingDb::" << __func__ << "]"
                          << " Constructing object...";

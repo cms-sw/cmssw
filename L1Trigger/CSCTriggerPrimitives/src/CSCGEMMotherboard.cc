@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboard.h"
 
 CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
@@ -9,16 +11,12 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
     : CSCUpgradeMotherboard(endcap, station, sector, subsector, chamber, conf),
       maxDeltaBXPad_(tmbParams_.getParameter<int>("maxDeltaBXPad")),
       maxDeltaBXCoPad_(tmbParams_.getParameter<int>("maxDeltaBXCoPad")),
-      useOldLCTDataFormat_(tmbParams_.getParameter<bool>("useOldLCTDataFormat")),
       promoteALCTGEMpattern_(tmbParams_.getParameter<bool>("promoteALCTGEMpattern")),
-      promoteALCTGEMquality_(tmbParams_.getParameter<bool>("promoteALCTGEMquality")),
-      doLCTGhostBustingWithGEMs_(tmbParams_.getParameter<bool>("doLCTGhostBustingWithGEMs")) {
+      promoteALCTGEMquality_(tmbParams_.getParameter<bool>("promoteALCTGEMquality")) {
   // super chamber has layer=0!
   gemId = GEMDetId(theRegion, 1, theStation, 0, theChamber, 0).rawId();
 
-  const edm::ParameterSet coPadParams(station == 1 ? conf.getParameter<edm::ParameterSet>("copadParamGE11")
-                                                   : conf.getParameter<edm::ParameterSet>("copadParamGE21"));
-  coPadProcessor.reset(new GEMCoPadProcessor(theRegion, theStation, theChamber, coPadParams));
+  coPadProcessor = std::make_unique<GEMCoPadProcessor>(theRegion, theStation, theChamber, conf);
 
   maxDeltaPadL1_ = (theParity ? tmbParams_.getParameter<int>("maxDeltaPadL1Even")
                               : tmbParams_.getParameter<int>("maxDeltaPadL1Odd"));
@@ -26,24 +24,42 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
                               : tmbParams_.getParameter<int>("maxDeltaPadL2Odd"));
 }
 
-CSCGEMMotherboard::CSCGEMMotherboard() : CSCUpgradeMotherboard() {}
-
 CSCGEMMotherboard::~CSCGEMMotherboard() {}
 
 void CSCGEMMotherboard::clear() {
   CSCUpgradeMotherboard::clear();
+  gemCoPadV.clear();
+  coPadProcessor->clear();
   pads_.clear();
   coPads_.clear();
 }
 
-void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id) {
+void CSCGEMMotherboard::processGEMClusters(const GEMPadDigiClusterCollection* gemClusters) {
+  std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
+  coPadProcessor->declusterize(gemClusters, *gemPads);
+
+  gemCoPadV = coPadProcessor->run(gemPads.get());
+
+  processGEMPads(gemPads.get());
+  processGEMCoPads();
+}
+
+void CSCGEMMotherboard::processGEMPads(const GEMPadDigiCollection* gemPads) {
   pads_.clear();
-  const auto& superChamber(gem_g->superChamber(id));
+  const auto& superChamber(gem_g->superChamber(gemId));
   for (const auto& ch : superChamber->chambers()) {
     for (const auto& roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
       auto pads_in_det = gemPads->get(roll_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
+        // ignore 16-partition GE2/1 pads
+        if (roll->isGE21() and pad->nPartitions() == GEMPadDigi::GE21SplitStrip)
+          continue;
+
+        // ignore invalid pads
+        if (!pad->isValid())
+          continue;
+
         const int bx_shifted(CSCConstants::LCT_CENTRAL_BX + pad->bx());
         // consider matches with BX difference +1/0/-1
         for (int bx = bx_shifted - maxDeltaBXPad_; bx <= bx_shifted + maxDeltaBXPad_; ++bx) {
@@ -54,10 +70,15 @@ void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, uns
   }
 }
 
-void CSCGEMMotherboard::retrieveGEMCoPads() {
+void CSCGEMMotherboard::processGEMCoPads() {
   coPads_.clear();
   for (const auto& copad : gemCoPadV) {
     GEMDetId detId(theRegion, 1, theStation, 0, theChamber, 0);
+
+    // ignore 16-partition GE2/1 pads
+    if (detId.isGE21() and copad.first().nPartitions() == GEMPadDigi::GE21SplitStrip)
+      continue;
+
     // only consider matches with same BX
     coPads_[CSCConstants::LCT_CENTRAL_BX + copad.bx(1)].emplace_back(detId.rawId(), copad);
   }
@@ -98,15 +119,19 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 
   // make a new LCT
   CSCCorrelatedLCTDigi thisLCT;
-  if (not alct.isValid() and not clct.isValid()) {
-    LogTrace("CSCGEMCMotherboard") << "Warning!!! either ALCT or CLCT not valid, return invalid LCT \n";
+  if (!alct.isValid() and !clct.isValid()) {
+    edm::LogError("CSCGEMCMotherboard") << "Warning!!! neither ALCT nor CLCT valid, return invalid LCT";
     return thisLCT;
   }
 
   // Determine the case and assign properties depending on the LCT dataformat (old/new)
   if (alct.isValid() and clct.isValid() and gem1.isValid() and not gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
-    quality = findQualityGEM(alct, clct, 1);
+    if (runCCLUT_) {
+      quality = qualityAssignment_->findQualityGEMv2(alct, clct, 1);
+    } else {
+      quality = qualityAssignment_->findQualityGEMv1(alct, clct, 1);
+    }
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
@@ -116,9 +141,21 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setGEM1(gem1);
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCTGEM);
     valid = doesWiregroupCrossStrip(keyWG, keyStrip) ? 1 : 0;
+    if (runCCLUT_) {
+      thisLCT.setRun3(true);
+      // 4-bit slope value derived with the CCLUT algorithm
+      thisLCT.setSlope(clct.getSlope());
+      thisLCT.setQuartStripBit(clct.getQuartStripBit());
+      thisLCT.setEighthStripBit(clct.getEighthStripBit());
+      thisLCT.setRun3Pattern(clct.getRun3Pattern());
+    }
   } else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
-    quality = findQualityGEM(alct, clct, 2);
+    if (runCCLUT_) {
+      quality = qualityAssignment_->findQualityGEMv2(alct, clct, 2);
+    } else {
+      quality = qualityAssignment_->findQualityGEMv1(alct, clct, 2);
+    }
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
     keyWG = alct.getKeyWG();
@@ -129,6 +166,14 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setGEM2(gem2.second());
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCT2GEM);
     valid = doesWiregroupCrossStrip(keyWG, keyStrip) ? 1 : 0;
+    if (runCCLUT_) {
+      thisLCT.setRun3(true);
+      // 4-bit slope value derived with the CCLUT algorithm
+      thisLCT.setSlope(clct.getSlope());
+      thisLCT.setQuartStripBit(clct.getQuartStripBit());
+      thisLCT.setEighthStripBit(clct.getEighthStripBit());
+      thisLCT.setRun3Pattern(clct.getRun3Pattern());
+    }
   } else if (alct.isValid() and gem2.isValid() and not clct.isValid()) {
     //in ME11
     //ME1b: keyWG >15,
@@ -144,20 +189,28 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
         p = CSCPart::ME1A;
     }
 
+    // min pad number is always 0
+    // max pad number is 191 or 383, depending on the station
+    assert(gem2.pad(1) >= 0);
+    assert(gem2.pad(2) >= 0);
+    assert(gem2.pad(1) < maxPads());
+    assert(gem2.pad(2) < maxPads());
+
     const auto& mymap1 = getLUT()->get_gem_pad_to_csc_hs(theParity, p);
     // GEM pad number is counting from 1
     // keyStrip from mymap:  for ME1b 0-127 and for ME1a 0-95
     // keyStrip for CLCT: for ME1b 0-127 and for ME1a 128-223
-    keyStrip = mymap1[gem2.pad(2) - 1];
-    if (p == CSCPart::ME1A and keyStrip <= CSCConstants::MAX_HALF_STRIP_ME1B)
+    keyStrip = mymap1.at(gem2.pad(2));
+    if (p == CSCPart::ME1A and keyStrip <= CSCConstants::MAX_HALF_STRIP_ME1B) {
       keyStrip += CSCConstants::MAX_HALF_STRIP_ME1B + 1;
+    }
     keyWG = alct.getKeyWG();
 
     if ((not doesWiregroupCrossStrip(keyWG, keyStrip)) and p == CSCPart::ME1B and keyWG <= 15) {
       //try ME1A as strip and WG do not cross
       p = CSCPart::ME1A;
       const auto& mymap2 = getLUT()->get_gem_pad_to_csc_hs(theParity, p);
-      keyStrip = mymap2[gem2.pad(2) - 1] + CSCConstants::MAX_HALF_STRIP_ME1B + 1;
+      keyStrip = mymap2.at(gem2.pad(2)) + CSCConstants::MAX_HALF_STRIP_ME1B + 1;
     }
 
     pattern = promoteALCTGEMpattern_ ? 10 : 0;
@@ -169,29 +222,38 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
     valid = true;
   } else if (clct.isValid() and gem2.isValid() and not alct.isValid()) {
+    // min roll number is always 1
+    // max roll number is 8 or 16, depending on the station
+    assert(gem2.roll() >= GEMDetId::minRollId);
+    assert(gem2.roll() <= maxRolls());
+
     const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(theParity);
     pattern = encodePattern(clct.getPattern());
     quality = promoteCLCTGEMquality_ ? 15 : 11;
     bx = gem2.bx(1) + CSCConstants::LCT_CENTRAL_BX;
     keyStrip = clct.getKeyStrip();
     // choose the corresponding wire-group in the middle of the partition
-    keyWG = mymap2[gem2.roll() - 1];
+    keyWG = mymap2.at(gem2.roll() - 1);
     bend = clct.getBend();
     thisLCT.setCLCT(clct);
     thisLCT.setGEM1(gem2.first());
     thisLCT.setGEM2(gem2.second());
     thisLCT.setType(CSCCorrelatedLCTDigi::CLCT2GEM);
     valid = true;
+    if (runCCLUT_) {
+      thisLCT.setRun3(true);
+      // 4-bit slope value derived with the CCLUT algorithm
+      thisLCT.setSlope(clct.getSlope());
+      thisLCT.setQuartStripBit(clct.getQuartStripBit());
+      thisLCT.setEighthStripBit(clct.getEighthStripBit());
+      thisLCT.setRun3Pattern(clct.getRun3Pattern());
+    }
   }
 
   if (valid == 0)
     LogTrace("CSCGEMCMotherboard") << "Warning!!! wiregroup and strip pair are not crossing each other"
                                    << " detid " << cscId_ << " with wiregroup " << keyWG << "keyStrip " << keyStrip
                                    << " \n";
-
-  // in Run-3 we plan to use the synchronization error bit
-  // to denote the presence of exotic signatures in the chamber
-  unsigned int syncErr = useHighMultiplicityBits_ ? highMultiplicityBits_ : 0;
 
   // fill the rest of the properties
   thisLCT.setTrknmb(trknmb);
@@ -204,7 +266,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   thisLCT.setBX(bx);
   thisLCT.setMPCLink(0);
   thisLCT.setBX0(0);
-  thisLCT.setSyncErr(syncErr);
+  // Not used in Run-2. Will not be assigned in Run-3
+  thisLCT.setSyncErr(0);
   thisLCT.setCSCID(theTrigChamber);
 
   // future work: add a section that produces LCTs according
@@ -221,7 +284,7 @@ bool CSCGEMMotherboard::isPadInOverlap(int roll) const {
     // overlap region are WGs 10-15
     if ((i < 10) or (i > 15))
       continue;
-    if ((mymap[i].first <= roll) and (roll <= mymap[i].second))
+    if ((mymap.at(i).first <= roll) and (roll <= mymap.at(i).second))
       return true;
   }
   return false;
@@ -240,8 +303,8 @@ int CSCGEMMotherboard::getRoll(const GEMPadDigiId& p) const { return GEMDetId(p.
 int CSCGEMMotherboard::getRoll(const GEMCoPadDigiId& p) const { return p.second.roll(); }
 
 std::pair<int, int> CSCGEMMotherboard::getRolls(const CSCALCTDigi& alct) const {
-  return std::make_pair((getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.getKeyWG()].first,
-                        (getLUT()->get_csc_wg_to_gem_roll(theParity))[alct.getKeyWG()].second);
+  const auto& mymap(getLUT()->get_csc_wg_to_gem_roll(theParity));
+  return mymap.at(alct.getKeyWG());
 }
 
 float CSCGEMMotherboard::getPad(const GEMPadDigi& p) const { return p.pad(); }
@@ -257,13 +320,12 @@ float CSCGEMMotherboard::getPad(const CSCCLCTDigi& clct, enum CSCPart part) cons
   //ME1A part, convert halfstrip from 128-223 to 0-95
   if (part == CSCPart::ME1A and keyStrip > CSCConstants::MAX_HALF_STRIP_ME1B)
     keyStrip = keyStrip - CSCConstants::MAX_HALF_STRIP_ME1B - 1;
-  return 0.5 * (mymap[keyStrip].first + mymap[keyStrip].second);
+  return 0.5 * (mymap.at(keyStrip).first + mymap.at(keyStrip).second);
 }
 
-void CSCGEMMotherboard::setupGeometry() {
-  CSCUpgradeMotherboard::setupGeometry();
-  generator_->setGEMGeometry(gem_g);
-}
+int CSCGEMMotherboard::maxPads() const { return gem_g->superChamber(gemId)->chamber(1)->etaPartition(1)->npads(); }
+
+int CSCGEMMotherboard::maxRolls() const { return gem_g->superChamber(gemId)->chamber(1)->nEtaPartitions(); }
 
 void CSCGEMMotherboard::printGEMTriggerPads(int bx_start, int bx_stop, enum CSCPart part) {
   LogTrace("CSCGEMMotherboard") << "------------------------------------------------------------------------"
@@ -305,97 +367,6 @@ void CSCGEMMotherboard::printGEMTriggerCoPads(int bx_start, int bx_stop, enum CS
         LogTrace("CSCGEMMotherboard") << std::endl;
     }
   }
-}
-
-unsigned int CSCGEMMotherboard::findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int gemlayers) const {
-  // Either ALCT or CLCT is invalid
-  if (!(aLCT.isValid()) || !(cLCT.isValid())) {
-    // No CLCT
-    if (aLCT.isValid() && !(cLCT.isValid()))
-      return LCT_Quality::NO_CLCT;
-
-    // No ALCT
-    else if (!(aLCT.isValid()) && cLCT.isValid())
-      return LCT_Quality::NO_ALCT;
-
-    // No ALCT and no CLCT
-    else
-      return LCT_Quality::INVALID;
-  }
-  // Both ALCT and CLCT are valid
-  else {
-    const int pattern(cLCT.getPattern());
-
-    // Layer-trigger in CLCT
-    if (pattern == 1)
-      return LCT_Quality::CLCT_LAYER_TRIGGER;
-
-    // Multi-layer pattern in CLCT
-    else {
-      // ALCT quality is the number of layers hit minus 3.
-      bool a4 = false;
-
-      // Case of ME11 with GEMs: require 4 layers for ALCT
-      if (theStation == 1)
-        a4 = aLCT.getQuality() >= 1;
-
-      // Case of ME21 with GEMs: require 4 layers for ALCT+GEM
-      if (theStation == 2)
-        a4 = aLCT.getQuality() + gemlayers >= 1;
-
-      // CLCT quality is the number of layers hit.
-      const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and gemlayers >= 1));
-
-      // quality = 4; "reserved for low-quality muons in future"
-
-      // marginal anode and cathode
-      if (!a4 && !c4)
-        return LCT_Quality::MARGINAL_ANODE_CATHODE;
-
-      // HQ anode, but marginal cathode
-      else if (a4 && !c4)
-        return LCT_Quality::HQ_ANODE_MARGINAL_CATHODE;
-
-      // HQ cathode, but marginal anode
-      else if (!a4 && c4)
-        return LCT_Quality::HQ_CATHODE_MARGINAL_ANODE;
-
-      // HQ muon, but accelerator ALCT
-      else if (a4 && c4) {
-        if (aLCT.getAccelerator())
-          return LCT_Quality::HQ_ACCEL_ALCT;
-
-        else {
-          // quality =  9; "reserved for HQ muons with future patterns
-          // quality = 10; "reserved for HQ muons with future patterns
-
-          // High quality muons are determined by their CLCT pattern
-          if (pattern == 2 || pattern == 3)
-            return LCT_Quality::HQ_PATTERN_2_3;
-
-          else if (pattern == 4 || pattern == 5)
-            return LCT_Quality::HQ_PATTERN_4_5;
-
-          else if (pattern == 6 || pattern == 7)
-            return LCT_Quality::HQ_PATTERN_6_7;
-
-          else if (pattern == 8 || pattern == 9)
-            return LCT_Quality::HQ_PATTERN_8_9;
-
-          else if (pattern == 10)
-            return LCT_Quality::HQ_PATTERN_10;
-
-          else {
-            if (infoV >= 0)
-              edm::LogWarning("L1CSCTPEmulatorWrongValues")
-                  << "+++ findQuality: Unexpected CLCT pattern id = " << pattern << "+++\n";
-            return LCT_Quality::INVALID;
-          }
-        }
-      }
-    }
-  }
-  return LCT_Quality::INVALID;
 }
 
 template <>

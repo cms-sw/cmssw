@@ -18,13 +18,15 @@
 
 // system include files
 #include <cmath>
+#include <vector>
 #include <utility>
 #include <algorithm>
 
 // user include files
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -35,6 +37,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -45,8 +48,8 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalChannelProperties.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalChannelPropertiesRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEPulseShapeFlag.h"
 
@@ -75,7 +78,7 @@ namespace {
     inline RawChargeFromSample(const int sipmQTSShift,
                                const int sipmQNTStoSum,
                                const HcalDbService& cond,
-                               const HcalDetId id,
+                               const HcalChannelProperties& properties,
                                const CaloSamples& cs,
                                const int soi,
                                const DFrame& frame,
@@ -90,24 +93,23 @@ namespace {
     inline RawChargeFromSample(const int sipmQTSShift,
                                const int sipmQNTStoSum,
                                const HcalDbService& cond,
-                               const HcalDetId id,
+                               const HcalChannelProperties& properties,
                                const CaloSamples& cs,
                                const int soi,
                                const QIE11DataFrame& frame,
                                const int maxTS)
-        : siPMParameter_(*cond.getHcalSiPMParameter(id)),
+        : siPMParameter_(*properties.siPMParameter),
           fcByPE_(siPMParameter_.getFCByPE()),
           corr_(cond.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter_.getType())) {
       if (fcByPE_ <= 0.0)
-        throw cms::Exception("HBHEPhase1BadDB") << "Invalid fC/PE conversion factor for SiPM " << id << std::endl;
+        throw cms::Exception("HBHEPhase1BadDB") << "Invalid fC/PE conversion factor" << std::endl;
 
-      const HcalCalibrations& calib = cond.getHcalCalibrations(id);
       const int firstTS = std::max(soi + sipmQTSShift, 0);
       const int lastTS = std::min(firstTS + sipmQNTStoSum, maxTS);
       double sipmQ = 0.0;
 
       for (int ts = firstTS; ts < lastTS; ++ts) {
-        const double pedestal = calib.pedestal(frame[ts].capid());
+        const float pedestal = properties.pedsAndGains[frame[ts].capid()].pedestal(false);
         sipmQ += (cs[ts] - pedestal);
       }
 
@@ -242,6 +244,39 @@ namespace {
         psPulseShape.getParameter<bool>("TriangleIgnoreSlow"),
         setLegacyFlags);
   }
+
+  // Determine array index shift so that a partial copy
+  // of an array maps index "soi" into index "soiWanted"
+  // under the constraint that there must be no out of
+  // bounds access.
+  const int determineIndexShift(const int soi, const int nRead, const int soiWanted, const int nReadWanted) {
+    assert(nReadWanted <= nRead);
+    if (soi < 0 || soi >= nRead)
+      return 0;
+    else
+      return std::clamp(soi - soiWanted, 0, nRead - nReadWanted);
+  }
+
+  // Function for packing TDC data from the QIE11 data frame.
+  // We want to pack five 6-bit TDC counts so that the soi
+  // falls on index 3.
+  uint32_t packTDCData(const QIE11DataFrame& frame, const int soi) {
+    using namespace CaloRecHitAuxSetter;
+
+    const unsigned six_bits_mask = 0x3f;
+    const int soiWanted = 3;
+    const int nRead = frame.size();
+    const int nTSToCopy = std::min(5, nRead);
+    const int tsShift = determineIndexShift(soi, nRead, soiWanted, nTSToCopy);
+
+    uint32_t packed = 0;
+    for (int ts = 0; ts < nTSToCopy; ++ts)
+      setField(&packed, six_bits_mask, ts * 6, frame[ts + tsShift].tdc());
+
+    // Set bit 30 indicating presence of TDC values
+    setBit(&packed, 30, true);
+    return packed;
+  }
 }  // namespace
 
 //
@@ -287,7 +322,6 @@ private:
   edm::EDGetTokenT<QIE11DigiCollection> tok_qie11_;
   std::unique_ptr<AbsHBHEPhase1Algo> reco_;
   std::unique_ptr<AbsHcalAlgoData> recoConfig_;
-  std::unique_ptr<HcalRecoParams> paramTS_;
 
   // Status bit setters
   const HBHENegativeEFilter* negEFilter_;  // We don't manage this pointer
@@ -296,29 +330,37 @@ private:
   std::unique_ptr<HBHEPulseShapeFlagSetter> hbhePulseShapeFlagSetterQIE8_;
   std::unique_ptr<HBHEPulseShapeFlagSetter> hbhePulseShapeFlagSetterQIE11_;
 
+  // ES tokens
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
+  edm::ESGetToken<HcalChannelPropertiesVec, HcalChannelPropertiesRecord> propertiesToken_;
+  edm::ESGetToken<HBHENegativeEFilter, HBHENegativeEFilterRcd> negToken_;
+  edm::ESGetToken<HcalFrontEndMap, HcalFrontEndMapRcd> feMapToken_;
+
   // For the function below, arguments "infoColl" and/or "rechits"
   // are allowed to be null.
   template <class DataFrame, class Collection>
   void processData(const Collection& coll,
+                   const HcalTopology& htopo,
                    const HcalDbService& cond,
-                   const HcalChannelQuality& qual,
-                   const HcalSeverityLevelComputer& severity,
+                   const HcalChannelPropertiesVec& prop,
                    const bool isRealData,
                    HBHEChannelInfo* info,
                    HBHEChannelInfoCollection* infoColl,
-                   HBHERecHitCollection* rechits,
-                   const bool use8ts);
+                   HBHERecHitCollection* rechits);
 
   // Methods for setting rechit status bits
   void setAsicSpecificBits(const HBHEDataFrame& frame,
                            const HcalCoder& coder,
                            const HBHEChannelInfo& info,
                            const HcalCalibrations& calib,
+                           int soi,
                            HBHERecHit* rh);
   void setAsicSpecificBits(const QIE11DataFrame& frame,
                            const HcalCoder& coder,
                            const HBHEChannelInfo& info,
                            const HcalCalibrations& calib,
+                           int soi,
                            HBHERecHit* rh);
   void setCommonStatusBits(const HBHEChannelInfo& info, const HcalCalibrations& calib, HBHERecHit* rh);
 
@@ -348,7 +390,7 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
       setNoiseFlagsQIE11_(conf.getParameter<bool>("setNoiseFlagsQIE11")),
       setPulseShapeFlagsQIE8_(conf.getParameter<bool>("setPulseShapeFlagsQIE8")),
       setPulseShapeFlagsQIE11_(conf.getParameter<bool>("setPulseShapeFlagsQIE11")),
-      reco_(parseHBHEPhase1AlgoDescription(conf.getParameter<edm::ParameterSet>("algorithm"))),
+      reco_(parseHBHEPhase1AlgoDescription(conf.getParameter<edm::ParameterSet>("algorithm"), consumesCollector())),
       negEFilter_(nullptr) {
   // Check that the reco algorithm has been successfully configured
   if (!reco_.get())
@@ -383,6 +425,15 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
 
   if (makeRecHits_)
     produces<HBHERecHitCollection>();
+
+  // ES tokens
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  conditionsToken_ = esConsumes<HcalDbService, HcalDbRecord>();
+  propertiesToken_ = esConsumes<HcalChannelPropertiesVec, HcalChannelPropertiesRecord>();
+  if (setNegativeFlagsQIE8_ || setNegativeFlagsQIE11_)
+    negToken_ = esConsumes<HBHENegativeEFilter, HBHENegativeEFilterRcd>();
+  if (setNoiseFlagsQIE8_ || setNoiseFlagsQIE11_)
+    feMapToken_ = esConsumes<HcalFrontEndMap, HcalFrontEndMapRcd, edm::Transition::BeginRun>();
 }
 
 HBHEPhase1Reconstructor::~HBHEPhase1Reconstructor() {
@@ -395,14 +446,13 @@ HBHEPhase1Reconstructor::~HBHEPhase1Reconstructor() {
 //
 template <class DFrame, class Collection>
 void HBHEPhase1Reconstructor::processData(const Collection& coll,
+                                          const HcalTopology& htopo,
                                           const HcalDbService& cond,
-                                          const HcalChannelQuality& qual,
-                                          const HcalSeverityLevelComputer& severity,
+                                          const HcalChannelPropertiesVec& prop,
                                           const bool isRealData,
                                           HBHEChannelInfo* channelInfo,
                                           HBHEChannelInfoCollection* infos,
-                                          HBHERecHitCollection* rechits,
-                                          const bool use8ts_) {
+                                          HBHERecHitCollection* rechits) {
   // If "saveDroppedInfos_" flag is set, fill the info with something
   // meaningful even if the database tells us to drop this channel.
   // Note that this flag affects only "infos", the rechits are still
@@ -421,10 +471,11 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     if (!(subdet == HcalSubdetector::HcalBarrel || subdet == HcalSubdetector::HcalEndcap))
       continue;
 
+    // Look up the channel properties. This lookup is O(1).
+    const HcalChannelProperties& properties(prop.at(htopo.detId2denseId(cell)));
+
     // Check if the database tells us to drop this channel
-    const HcalChannelStatus* mydigistatus = qual.getValues(cell.rawId());
-    const bool taggedBadByDb = severity.dropChannel(mydigistatus->getValue());
-    if (taggedBadByDb && skipDroppedChannels)
+    if (properties.taggedBadByDb && skipDroppedChannels)
       continue;
 
     // Check if the channel is zero suppressed
@@ -435,23 +486,18 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     if (dropByZS && skipDroppedChannels)
       continue;
 
-    // Basic ADC decoding tools
-    const HcalRecoParam* param_ts = paramTS_->getValues(cell.rawId());
-    const HcalCalibrations& calib = cond.getHcalCalibrations(cell);
-    const HcalCalibrationWidths& calibWidth = cond.getHcalCalibrationWidths(cell);
-    const HcalQIECoder* channelCoder = cond.getHcalCoder(cell);
-    const HcalQIEShape* shape = cond.getHcalShape(channelCoder);
-    const HcalCoderDb coder(*channelCoder, *shape);
+    // ADC decoding tool
+    const HcalCoderDb coder(*properties.channelCoder, *properties.shape);
 
     const bool saveEffectivePeds = channelInfo->hasEffectivePedestals();
-    const HcalSiPMParameter& siPMParameter(*cond.getHcalSiPMParameter(cell));
-    const double fcByPE = siPMParameter.getFCByPE();
+    const double fcByPE = properties.siPMParameter->getFCByPE();
     double darkCurrent = 0.;
     double lambda = 0.;
+    const double noisecorr = properties.siPMParameter->getauxi2();
     if (!saveEffectivePeds || saveInfos_) {
       // needed for the dark current in the M2 in alternative of the effectivePed
-      darkCurrent = siPMParameter.getDarkCurrent();
-      lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(siPMParameter.getType());
+      darkCurrent = properties.siPMParameter->getDarkCurrent();
+      lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(properties.siPMParameter->getType());
     }
 
     // ADC to fC conversion
@@ -461,8 +507,8 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     // Prepare to iterate over time slices
     const int nRead = cs.size();
     const int maxTS = std::min(nRead, static_cast<int>(HBHEChannelInfo::MAXSAMPLES));
-    const int soi = tsFromDB_ ? param_ts->firstSample() : frame.presamples();
-    const RawChargeFromSample<DFrame> rcfs(sipmQTSShift_, sipmQNTStoSum_, cond, cell, cs, soi, frame, maxTS);
+    const int soi = tsFromDB_ ? properties.paramTs->firstSample() : frame.presamples();
+    const RawChargeFromSample<DFrame> rcfs(sipmQTSShift_, sipmQNTStoSum_, cond, properties, cs, soi, frame, maxTS);
     int soiCapid = 4;
 
     // Typical expected cases:
@@ -486,17 +532,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
       // and configure the TS shift for filling
       // HBHEChannelInfo from the data frame.
       nTSToCopy = 8;
-      tsShift = soi - soiWanted;
-
-      // Check that the shift will not result in
-      // accessing time slices out of bounds
-      if (tsShift < 0)
-        tsShift = 0;
-      else {
-        const int nExcessTS = nRead - nTSToCopy;
-        if (tsShift > nExcessTS)
-          tsShift = nExcessTS;
-      }
+      tsShift = determineIndexShift(soi, nRead, soiWanted, nTSToCopy);
     }
 
     // Go over time slices and fill the samples
@@ -505,24 +541,29 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
       auto s(frame[inputTS]);
       const uint8_t adc = s.adc();
       const int capid = s.capid();
-      //optionally store "effective" pedestal (measured with bias voltage on)
-      // = QIE contribution + SiPM contribution (from dark current + crosstalk)
-      const double pedestal = saveEffectivePeds ? calib.effpedestal(capid) : calib.pedestal(capid);
-      const double pedestalWidth = saveEffectivePeds ? calibWidth.effpedestal(capid) : calibWidth.pedestal(capid);
-      const double gain = calib.respcorrgain(capid);
-      const double gainWidth = calibWidth.gain(capid);
-      //always use QIE-only pedestal for this computation
-      const double rawCharge = rcfs.getRawCharge(cs[inputTS], calib.pedestal(capid));
+      const HcalPipelinePedestalAndGain& pAndGain(properties.pedsAndGains.at(capid));
+
+      // Always use QIE-only pedestal for this computation
+      const double rawCharge = rcfs.getRawCharge(cs[inputTS], pAndGain.pedestal(false));
       const float t = getTDCTimeFromSample(s);
-      const float dfc = getDifferentialChargeGain(*channelCoder, *shape, adc, capid, channelInfo->hasTimeInfo());
-      channelInfo->setSample(copyTS, adc, dfc, rawCharge, pedestal, pedestalWidth, gain, gainWidth, t);
+      const float dfc = getDifferentialChargeGain(
+          *properties.channelCoder, *properties.shape, adc, capid, channelInfo->hasTimeInfo());
+      channelInfo->setSample(copyTS,
+                             adc,
+                             dfc,
+                             rawCharge,
+                             pAndGain.pedestal(saveEffectivePeds),
+                             pAndGain.pedestalWidth(saveEffectivePeds),
+                             pAndGain.gain(),
+                             pAndGain.gainWidth(),
+                             t);
       if (inputTS == soi)
         soiCapid = capid;
     }
 
     // Fill the overall channel info items
     const int fitSoi = soi - tsShift;
-    const int pulseShapeID = param_ts->pulseShapeID();
+    const int pulseShapeID = properties.paramTs->pulseShapeID();
     const std::pair<bool, bool> hwerr = findHWErrors(frame, maxTS);
     channelInfo->setChannelInfo(cell,
                                 pulseShapeID,
@@ -532,9 +573,10 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
                                 darkCurrent,
                                 fcByPE,
                                 lambda,
+                                noisecorr,
                                 hwerr.first,
                                 hwerr.second,
-                                taggedBadByDb || dropByZS);
+                                properties.taggedBadByDb || dropByZS);
 
     // If needed, add the channel info to the output collection
     const bool makeThisRechit = !channelInfo->isDropped();
@@ -545,11 +587,11 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     if (rechits && makeThisRechit) {
       const HcalRecoParam* pptr = nullptr;
       if (recoParamsFromDB_)
-        pptr = param_ts;
-      HBHERecHit rh = reco_->reconstruct(*channelInfo, pptr, calib, isRealData);
+        pptr = properties.paramTs;
+      HBHERecHit rh = reco_->reconstruct(*channelInfo, pptr, *properties.calib, isRealData);
       if (rh.id().rawId()) {
-        setAsicSpecificBits(frame, coder, *channelInfo, calib, &rh);
-        setCommonStatusBits(*channelInfo, calib, &rh);
+        setAsicSpecificBits(frame, coder, *channelInfo, *properties.calib, soi, &rh);
+        setCommonStatusBits(*channelInfo, *properties.calib, &rh);
         rechits->push_back(rh);
       }
     }
@@ -564,6 +606,7 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(const HBHEDataFrame& frame,
                                                   const HcalCoder& coder,
                                                   const HBHEChannelInfo& info,
                                                   const HcalCalibrations& calib,
+                                                  int /* soi */,
                                                   HBHERecHit* rh) {
   if (setNoiseFlagsQIE8_)
     hbheFlagSetterQIE8_->rememberHit(*rh);
@@ -573,12 +616,15 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(const HBHEDataFrame& frame,
 
   if (setNegativeFlagsQIE8_)
     runHBHENegativeEFilter(info, rh);
+
+  rh->setAuxTDC(0U);
 }
 
 void HBHEPhase1Reconstructor::setAsicSpecificBits(const QIE11DataFrame& frame,
                                                   const HcalCoder& coder,
                                                   const HBHEChannelInfo& info,
                                                   const HcalCalibrations& calib,
+                                                  const int soi,
                                                   HBHERecHit* rh) {
   if (setNoiseFlagsQIE11_)
     hbheFlagSetterQIE11_->rememberHit(*rh);
@@ -588,6 +634,8 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(const QIE11DataFrame& frame,
 
   if (setNegativeFlagsQIE11_)
     runHBHENegativeEFilter(info, rh);
+
+  rh->setAuxTDC(packTDCData(frame, soi));
 }
 
 void HBHEPhase1Reconstructor::runHBHENegativeEFilter(const HBHEChannelInfo& info, HBHERecHit* rh) {
@@ -605,25 +653,15 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
   using namespace edm;
 
   // Get the Hcal topology
-  ESHandle<HcalTopology> htopo;
-  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
-  paramTS_->setTopo(htopo.product());
+  const HcalTopology* htopo = &eventSetup.getData(htopoToken_);
 
   // Fetch the calibrations
-  ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
-
-  ESHandle<HcalChannelQuality> p;
-  eventSetup.get<HcalChannelQualityRcd>().get("withTopo", p);
-
-  ESHandle<HcalSeverityLevelComputer> mycomputer;
-  eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
+  const HcalDbService* conditions = &eventSetup.getData(conditionsToken_);
+  const HcalChannelPropertiesVec* prop = &eventSetup.getData(propertiesToken_);
 
   // Configure the negative energy filter
-  ESHandle<HBHENegativeEFilter> negEHandle;
   if (setNegativeFlagsQIE8_ || setNegativeFlagsQIE11_) {
-    eventSetup.get<HBHENegativeEFilterRcd>().get(negEHandle);
-    negEFilter_ = negEHandle.product();
+    negEFilter_ = &eventSetup.getData(negToken_);
   }
 
   // Find the input data
@@ -660,8 +698,7 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
       hbheFlagSetterQIE8_->Clear();
 
     HBHEChannelInfo channelInfo(false, false);
-    processData<HBHEDataFrame>(
-        *hbDigis, *conditions, *p, *mycomputer, isData, &channelInfo, infos.get(), out.get(), use8ts_);
+    processData<HBHEDataFrame>(*hbDigis, *htopo, *conditions, *prop, isData, &channelInfo, infos.get(), out.get());
     if (setNoiseFlagsQIE8_)
       hbheFlagSetterQIE8_->SetFlagsFromRecHits(*out);
   }
@@ -671,8 +708,7 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
       hbheFlagSetterQIE11_->Clear();
 
     HBHEChannelInfo channelInfo(true, saveEffectivePedestal_);
-    processData<QIE11DataFrame>(
-        *heDigis, *conditions, *p, *mycomputer, isData, &channelInfo, infos.get(), out.get(), use8ts_);
+    processData<QIE11DataFrame>(*heDigis, *htopo, *conditions, *prop, isData, &channelInfo, infos.get(), out.get());
     if (setNoiseFlagsQIE11_)
       hbheFlagSetterQIE11_->SetFlagsFromRecHits(*out);
   }
@@ -686,10 +722,6 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
 
 // ------------ method called when starting to processes a run  ------------
 void HBHEPhase1Reconstructor::beginRun(edm::Run const& r, edm::EventSetup const& es) {
-  edm::ESHandle<HcalRecoParams> p;
-  es.get<HcalRecoParamsRcd>().get(p);
-  paramTS_ = std::make_unique<HcalRecoParams>(*p.product());
-
   if (reco_->isConfigurable()) {
     recoConfig_ = fetchHcalAlgoData(algoConfigClass_, es);
     if (!recoConfig_.get())
@@ -702,15 +734,15 @@ void HBHEPhase1Reconstructor::beginRun(edm::Run const& r, edm::EventSetup const&
   }
 
   if (setNoiseFlagsQIE8_ || setNoiseFlagsQIE11_) {
-    edm::ESHandle<HcalFrontEndMap> hfemap;
-    es.get<HcalFrontEndMapRcd>().get(hfemap);
-    if (hfemap.isValid()) {
+    if (auto handle = es.getHandle(feMapToken_)) {
+      const HcalFrontEndMap& hfemap = *handle;
       if (setNoiseFlagsQIE8_)
-        hbheFlagSetterQIE8_->SetFrontEndMap(hfemap.product());
+        hbheFlagSetterQIE8_->SetFrontEndMap(&hfemap);
       if (setNoiseFlagsQIE11_)
-        hbheFlagSetterQIE11_->SetFrontEndMap(hfemap.product());
-    } else
+        hbheFlagSetterQIE11_->SetFrontEndMap(&hfemap);
+    } else {
       edm::LogWarning("EventSetup") << "HBHEPhase1Reconstructor failed to get HcalFrontEndMap!" << std::endl;
+    }
   }
 
   reco_->beginRun(r, es);

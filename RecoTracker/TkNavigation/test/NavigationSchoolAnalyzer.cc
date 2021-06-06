@@ -20,7 +20,6 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -38,11 +37,13 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
+#include <DataFormats/ForwardDetId/interface/BTLDetId.h>
+#include <DataFormats/ForwardDetId/interface/ETLDetId.h>
+
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 // class definition
 class NavigationSchoolAnalyzer : public edm::EDAnalyzer {
@@ -77,6 +78,12 @@ void NavigationSchoolAnalyzer::print(std::ostream& os, const DetLayer* dl) {
   if (GeomDetEnumerators::isTracker(dl->subDetector())) {
     LorW = tTopo->layer(tag->geographicalId());
     side = tTopo->side(tag->geographicalId());
+  } else if (dl->subDetector() == GeomDetEnumerators::TimingEndcap) {
+    ETLDetId id(dl->basicComponents().front()->geographicalId().rawId());
+    LorW = id.nDisc();
+    //The MTD side returns 0 for the negative side and 1 for the positive side
+    //In order to be comp
+    side = id.mtdSide() + 1;
   } else {
     switch (dl->subDetector()) {
       case GeomDetEnumerators::DT:

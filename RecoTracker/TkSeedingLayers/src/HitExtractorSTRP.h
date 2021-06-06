@@ -8,6 +8,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 
 #include <vector>
 #include <tuple>
@@ -44,6 +45,11 @@ namespace ctfseeding {
       hasStereoHits = true;
       theStereoHits = iC.consumes<SiStripRecHit2DCollection>(m);
     }
+
+    void useVectorHits(const edm::InputTag& m, edm::ConsumesCollector& iC) {
+      hasVectorHits = true;
+      theVectorHits = iC.consumes<VectorHitCollection>(m);
+    }
     void useRingSelector(int minRing, int maxRing);
     void useSimpleRphiHitsCleaner(bool use) { hasSimpleRphiHitsCleaner = use; }
 
@@ -72,6 +78,7 @@ namespace ctfseeding {
     bool ringRange(int ring) const;
 
     typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > SkipClustersCollection;
+    typedef edm::ContainerMask<Phase2TrackerCluster1DCollectionNew> SkipPhase2ClustersCollection;
     void useSkipClusters_(const edm::InputTag& m, edm::ConsumesCollector& iC) override;
 
   private:
@@ -81,12 +88,15 @@ namespace ctfseeding {
     double minAbsZ;
     int theMinRing, theMaxRing;
     edm::EDGetTokenT<SkipClustersCollection> theSkipClusters;
+    edm::EDGetTokenT<SkipPhase2ClustersCollection> theSkipPhase2Clusters;
     edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> theMatchedHits;
     edm::EDGetTokenT<SiStripRecHit2DCollection> theRPhiHits;
     edm::EDGetTokenT<SiStripRecHit2DCollection> theStereoHits;
+    edm::EDGetTokenT<VectorHitCollection> theVectorHits;
     bool hasMatchedHits;
     bool hasRPhiHits;
     bool hasStereoHits;
+    bool hasVectorHits;
     bool hasRingSelector;
     bool hasSimpleRphiHitsCleaner;
     bool failProjection;

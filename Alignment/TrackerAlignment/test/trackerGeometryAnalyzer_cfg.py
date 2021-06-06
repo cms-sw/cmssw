@@ -6,26 +6,32 @@ process = cms.Process("TrackerGeometryAnalyzer")
 # Logging
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
-  #statistics   = cms.untracked.vstring('trackerGeometryAnalyzer'),
-  destinations = cms.untracked.vstring('trackerGeometryAnalyzer'),
-  categories   = cms.untracked.vstring(
-    'TrackerGeometryAnalyzer',
-    'AlignableBuildProcess'
-    #'AlignableMap'
-  ),
-
-  trackerGeometryAnalyzer = cms.untracked.PSet(
-    INFO    = cms.untracked.PSet(limit = cms.untracked.int32( 0)),
-    DEBUG   = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
-    WARNING = cms.untracked.PSet(limit = cms.untracked.int32( 0)),
-    ERROR   = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
-
-    threshold = cms.untracked.string('DEBUG'),
-    
-    TrackerGeometryAnalyzer = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
-    AlignableBuildProcess   = cms.untracked.PSet(limit = cms.untracked.int32(-1))
-    #AlignableMap            = cms.untracked.PSet(limit = cms.untracked.int32(-1))
-  )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        trackerGeometryAnalyzer = cms.untracked.PSet(
+            AlignableBuildProcess = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            ERROR = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            TrackerGeometryAnalyzer = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            WARNING = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            threshold = cms.untracked.string('DEBUG')
+        )
+    )
 )
 
 #===============================================================================

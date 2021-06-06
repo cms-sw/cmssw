@@ -1,7 +1,0 @@
-<use name="FWCore/Framework"/>
-<library file="*.cc" name="RecoBTagTensorFlowPlugins">
-  <use name="DataFormats/BTauReco"/>
-  <use name="RecoBTag/TensorFlow"/>
-  <use name="PhysicsTools/TensorFlow"/>
-  <flags EDM_PLUGIN="1"/>
-</library>

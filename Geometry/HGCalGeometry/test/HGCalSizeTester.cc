@@ -43,9 +43,7 @@ HGCalSizeTester::~HGCalSizeTester() {}
 void HGCalSizeTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
-  HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
-  if ((mode == HGCalGeometryMode::Hexagon) || (mode == HGCalGeometryMode::HexagonFull)) {
-  } else {
+  if (!geom->topology().waferHexagon6()) {
     DetId::Detector det;
     if (name == "HGCalHESiliconSensitive")
       det = DetId::HGCalHSi;

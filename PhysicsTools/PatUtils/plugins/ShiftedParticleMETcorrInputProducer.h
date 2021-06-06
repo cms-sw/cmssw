@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/Common/interface/View.h"
@@ -36,6 +37,7 @@ private:
 
   const edm::EDGetTokenT<CandidateView> srcOriginalToken_;
   const edm::EDGetTokenT<CandidateView> srcShiftedToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
 };
 
 #endif

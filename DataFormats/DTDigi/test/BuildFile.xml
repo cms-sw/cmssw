@@ -1,7 +1,5 @@
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/DTDigi"/>
-<use   name="DataFormats/DetId"/>
-<bin   name="testDTDigis" file="testDTDigis.cpp">
-  <use   name="cppunit"/>
-  <use   name="DataFormats/FEDRawData"/>
+<use name="FWCore/Framework"/>
+<use name="DataFormats/DTDigi"/>
+<bin name="testDTDigis" file="testDTDigis.cpp">
+  <use name="cppunit"/>
 </bin>

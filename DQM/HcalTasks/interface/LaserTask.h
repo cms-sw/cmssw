@@ -35,7 +35,7 @@ public:
         this->_dump();
     }
   }
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 protected:
   //	funcs
@@ -54,6 +54,7 @@ protected:
   edm::EDGetTokenT<HODigiCollection> _tokHO;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   enum LaserFlag { fBadTiming = 0, fMissingLaserMon = 1, nLaserFlag = 2 };
   std::vector<hcaldqm::flag::Flag> _vflags;

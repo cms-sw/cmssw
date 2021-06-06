@@ -31,9 +31,6 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-
 #ifdef StripSubClusterShapeFilterBase_COUNTERS
 #define INC_COUNTER(X) X++;
 #else
@@ -137,7 +134,12 @@ namespace {
 /*****************************************************************************/
 StripSubClusterShapeFilterBase::StripSubClusterShapeFilterBase(const edm::ParameterSet &iCfg,
                                                                edm::ConsumesCollector &iC)
-    : label_(iCfg.getUntrackedParameter<std::string>("label", "")),
+    : topoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      csfToken_(
+          iC.esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"))),
+      geomToken_(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      stripNoiseToken_(iC.esConsumes<SiStripNoises, SiStripNoisesRcd>()),
+      label_(iCfg.getUntrackedParameter<std::string>("label", "")),
       maxNSat_(iCfg.getParameter<uint32_t>("maxNSat")),
       trimMaxADC_(iCfg.getParameter<double>("trimMaxADC")),
       trimMaxFracTotal_(iCfg.getParameter<double>("trimMaxFracTotal")),
@@ -322,14 +324,12 @@ bool StripSubClusterShapeFilterBase::testLastHit(const TrackingRecHit *hit,
 
 void StripSubClusterShapeFilterBase::setEventBase(const edm::Event &event, const edm::EventSetup &es) {
   // Get tracker geometry
-  es.get<TrackerDigiGeometryRecord>().get(theTracker);
-
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", theFilter);
+  theTracker = es.getHandle(geomToken_);
+  theFilter = es.getHandle(csfToken_);
 
   //Retrieve tracker topology from geometry
-  es.get<TrackerTopologyRcd>().get(theTopology);
-
-  es.get<SiStripNoisesRcd>().get(theNoise);
+  theTopology = es.getHandle(topoToken_);
+  theNoise = es.getHandle(stripNoiseToken_);
 }
 
 /*****************************************************************************/

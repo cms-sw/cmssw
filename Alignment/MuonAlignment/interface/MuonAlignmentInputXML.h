@@ -32,7 +32,7 @@
 
 class MuonAlignmentInputXML : public MuonAlignmentInputMethod {
 public:
-  MuonAlignmentInputXML(const std::string &fileName);
+  MuonAlignmentInputXML(const std::string &fileName, std::string idealLabel);
   ~MuonAlignmentInputXML() override;
 
   // ---------- const member functions ---------------------
@@ -96,7 +96,7 @@ private:
                            std::map<Alignable *, Alignable *> &alitoideal) const;
 
   // ---------- member data --------------------------------
-  std::string m_fileName;
+  std::string m_fileName, idealGeometryLabel;
 
   XMLCh *str_operation;
   XMLCh *str_collection;

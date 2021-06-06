@@ -1,7 +1,7 @@
 #ifndef HLTrigger_HLTfilters_TriggerExpressionOperators_h
 #define HLTrigger_HLTfilters_TriggerExpressionOperators_h
 
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 
 namespace triggerExpression {
@@ -15,7 +15,7 @@ namespace triggerExpression {
     void init(const Data& data) override { m_arg->init(data); }
 
   protected:
-    boost::scoped_ptr<Evaluator> m_arg;
+    std::unique_ptr<Evaluator> m_arg;
   };
 
   // abstract binary operator
@@ -30,8 +30,8 @@ namespace triggerExpression {
     }
 
   protected:
-    boost::scoped_ptr<Evaluator> m_arg1;
-    boost::scoped_ptr<Evaluator> m_arg2;
+    std::unique_ptr<Evaluator> m_arg1;
+    std::unique_ptr<Evaluator> m_arg2;
   };
 
   // concrete operators

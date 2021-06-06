@@ -8,7 +8,7 @@
 #include <fstream>
 #include <cassert>
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "TEveWindow.h"
 #include "TGComboBox.h"
@@ -51,7 +51,7 @@ FWTriggerTableView::FWTriggerTableView(TEveWindowSlot* iParent, FWViewType::ETyp
       m_vert(nullptr),
       m_tableWidget(nullptr),
       m_processList(nullptr) {
-  m_regex.changed_.connect(boost::bind(&FWTriggerTableView::dataChanged, this));
+  m_regex.changed_.connect(std::bind(&FWTriggerTableView::dataChanged, this));
 
   m_eveWindow = iParent->MakeFrame(nullptr);
   TGCompositeFrame* frame = m_eveWindow->GetGUICompositeFrame();

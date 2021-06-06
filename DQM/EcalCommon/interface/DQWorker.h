@@ -12,6 +12,11 @@
 
 #include "tbb/concurrent_unordered_map.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+
 namespace edm {
   class Run;
   class LuminosityBlock;
@@ -63,6 +68,27 @@ namespace ecaldqm {
     virtual void bookMEs(DQMStore::IBooker &);
     virtual void releaseMEs();
 
+    // old ecaldqmGetSetupObjects (old global vars)
+    // These are objects obtained from EventSetup and stored
+    // inside each module (which inherit from DQWorker).
+    // Before, EcalCommon functions could access these through
+    // global functions, but now we need to pass them from the
+    // modules to functions in EcalCommon, such as in
+    // EcalDQMCommonUtils, MESetBinningUtils, all MESets, etc.
+    //
+    // The global variables were removed as they were against
+    // CMSSW rules, and potentially led to undefined behavior
+    // (data race) at IOV boundaries. They also relied on a mutex
+    // which leads to poor multi-threading performance.
+    // Original issue here:
+    // https://github.com/cms-sw/cmssw/issues/28858
+    void setSetupObjects(edm::EventSetup const &);
+    EcalElectronicsMapping const *GetElectronicsMap();
+    EcalTrigTowerConstituentsMap const *GetTrigTowerMap();
+    CaloGeometry const *GetGeometry();
+    CaloTopology const *GetTopology();
+    EcalDQMSetupObjects const getEcalDQMSetupObjects();
+
     void setTime(time_t _t) { timestamp_.now = _t; }
     void setRunNumber(edm::RunNumber_t _r) { timestamp_.iRun = _r; }
     void setLumiNumber(edm::LuminosityBlockNumber_t _l) { timestamp_.iLumi = _l; }
@@ -84,6 +110,9 @@ namespace ecaldqm {
     // common parameters
     bool onlineMode_;
     bool willConvertToEDM_;
+
+  private:
+    EcalDQMSetupObjects edso_;
   };
 
   typedef DQWorker *(*WorkerFactory)();

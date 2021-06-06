@@ -9,6 +9,6 @@
 class FWTGeoRecoGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<
           FWTGeoRecoGeometryRecord,
-          boost::mpl::vector<GlobalTrackingGeometryRecord, CaloGeometryRecord, TrackerTopologyRcd> > {};
+          edm::mpl::Vector<GlobalTrackingGeometryRecord, CaloGeometryRecord, TrackerTopologyRcd> > {};
 
 #endif  // GEOMETRY_FWTGEORECO_GEOMETRY_RECORD_H

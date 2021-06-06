@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -58,19 +58,31 @@
 // Class declaration
 //
 
-class SiStripFEDMonitorPlugin : public DQMOneLumiEDAnalyzer<> {
+//class SiStripFEDMonitorPlugin : public DQMOneLumiEDAnalyzer<> {
+
+namespace sifedmon {
+  struct LumiErrors {
+    std::vector<unsigned int> nTotal;
+    std::vector<unsigned int> nErrors;
+  };
+}  // namespace sifedmon
+class SiStripFEDMonitorPlugin : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<sifedmon::LumiErrors> > {
 public:
   explicit SiStripFEDMonitorPlugin(const edm::ParameterSet&);
   ~SiStripFEDMonitorPlugin() override;
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
-  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
+
+  std::shared_ptr<sifedmon::LumiErrors> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                   const edm::EventSetup& iSetup) const override;
+
+  void globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& iSetup) override;
+
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   //update the cabling if necessary
-  void updateCabling(const edm::EventSetup& eventSetup);
+  void updateCabling(const SiStripFedCablingRcd& cablingRcd);
 
   static bool pairComparison(const std::pair<unsigned int, unsigned int>& pair1,
                              const std::pair<unsigned int, unsigned int>& pair2);
@@ -96,8 +108,12 @@ private:
   //print debug messages when problems are found: 1=error debug, 2=light debug, 3=full debug
   unsigned int printDebug_;
   //FED cabling
-  uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
+
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
 
   //add parameter to save computing time if TkHistoMap/Median/FeMajCheck are not enabled
   bool doTkHistoMap_;
@@ -110,8 +126,10 @@ private:
   //need class member for lumi histograms
   FEDErrors fedErrors_;
   unsigned int maxFedBufferSize_;
-
   bool fullDebugMode_;
+
+  bool enableFEDerrLumi_;
+  MonitorElement* lumiErrfac_;
 };
 
 //
@@ -124,7 +142,10 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
       fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms", false)),
       fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber", false)),
       printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages", 1)),
-      cablingCacheId_(0),
+      fedCablingWatcher_(this, &SiStripFEDMonitorPlugin::updateCabling),
+      fedCablingToken_(esConsumes<>()),
+      tTopoToken_(esConsumes<>()),
+      tkDetMapToken_(esConsumes<edm::Transition::BeginRun>()),
       maxFedBufferSize_(0),
       fullDebugMode_(iConfig.getUntrackedParameter<bool>("FullDebugMode", false)) {
   std::string subFolderName = iConfig.getUntrackedParameter<std::string>("HistogramFolderName", "ReadoutView");
@@ -133,6 +154,11 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
   heToken_ = consumes<EventWithHistory>(edm::InputTag("consecutiveHEs"));
 
+  if (iConfig.exists("ErrorFractionByLumiBlockHistogramConfig")) {
+    const edm::ParameterSet& ps =
+        iConfig.getUntrackedParameter<edm::ParameterSet>("ErrorFractionByLumiBlockHistogramConfig");
+    enableFEDerrLumi_ = (ps.exists("Enabled") ? ps.getUntrackedParameter<bool>("Enabled") : true);
+  }
   //print config to debug log
   std::ostringstream debugStream;
   if (printDebug_ > 1) {
@@ -171,13 +197,8 @@ SiStripFEDMonitorPlugin::~SiStripFEDMonitorPlugin() {}
 
 // ------------ method called to for each event  ------------
 void SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  //update cabling
-  updateCabling(iSetup);
+  const auto tTopo = &iSetup.getData(tTopoToken_);
+  fedCablingWatcher_.check(iSetup);
 
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
@@ -190,6 +211,11 @@ void SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, const edm::Event
 
   edm::Handle<EventWithHistory> he;
   iEvent.getByToken(heToken_, he);
+
+  //get the fedErrors object for each LS
+  auto lumiErrors = luminosityBlockCache(iEvent.getLuminosityBlock().index());
+  auto& nToterr = lumiErrors->nTotal;
+  auto& nErr = lumiErrors->nErrors;
 
   if (he.isValid() && !he.failedToGet()) {
     fedErrors_.fillEventProperties(he->deltaBX());
@@ -305,7 +331,9 @@ void SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, const edm::Event
                                   fedHists_.getFedvsAPVpointer(),
                                   lNTotBadChannels,
                                   lNTotBadActiveChannels,
-                                  lNBadChannels_perFEDID);
+                                  lNBadChannels_perFEDID,
+                                  nToterr,
+                                  nErr);
     fedHists_.fillFEDHistograms(fedErrors_, lSize, fullDebugMode_, aLumiSection, lNBadChannels_perFEDID);
   }  //loop over FED IDs
 
@@ -455,34 +483,53 @@ void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
                                              const edm::EventSetup& eSetup) {
   ibooker.setCurrentFolder(folderName_);
 
-  edm::ESHandle<TkDetMap> tkDetMapHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-  const TkDetMap* tkDetMap = tkDetMapHandle.product();
-
+  const auto tkDetMap = &eSetup.getData(tkDetMapToken_);
   fedHists_.bookTopLevelHistograms(ibooker, tkDetMap);
 
   if (fillAllDetailedHistograms_)
     fedHists_.bookAllFEDHistograms(ibooker, fullDebugMode_);
-}
 
-void SiStripFEDMonitorPlugin::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                                                      const edm::EventSetup& context) {
-  fedErrors_.initialiseLumiBlock();
-}
-
-void SiStripFEDMonitorPlugin::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                                                    const edm::EventSetup& context) {
-  fedHists_.fillLumiHistograms(fedErrors_.getLumiErrors());
-}
-
-void SiStripFEDMonitorPlugin::updateCabling(const edm::EventSetup& eventSetup) {
-  uint32_t currentCacheId = eventSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
-  if (cablingCacheId_ != currentCacheId) {
-    edm::ESHandle<SiStripFedCabling> cablingHandle;
-    eventSetup.get<SiStripFedCablingRcd>().get(cablingHandle);
-    cabling_ = cablingHandle.product();
-    cablingCacheId_ = currentCacheId;
+  if (enableFEDerrLumi_) {
+    ibooker.cd();
+    ibooker.setCurrentFolder("SiStrip/ReadoutView/PerLumiSection");
+    {
+      auto scope = DQMStore::IBooker::UseRunScope(ibooker);
+      lumiErrfac_ =
+          ibooker.book1D("lumiErrorFraction", "Fraction of error per lumi section vs subdetector", 6, 0.5, 6.5);
+      lumiErrfac_->setAxisTitle("SubDetId", 1);
+      lumiErrfac_->setBinLabel(1, "TECB");
+      lumiErrfac_->setBinLabel(2, "TECF");
+      lumiErrfac_->setBinLabel(3, "TIB");
+      lumiErrfac_->setBinLabel(4, "TIDB");
+      lumiErrfac_->setBinLabel(5, "TIDF");
+      lumiErrfac_->setBinLabel(6, "TOB");
+    }
+  } else {
+    lumiErrfac_ = nullptr;
   }
+}
+
+std::shared_ptr<sifedmon::LumiErrors> SiStripFEDMonitorPlugin::globalBeginLuminosityBlock(
+    const edm::LuminosityBlock& lumi, const edm::EventSetup& iSetup) const {
+  auto lumiErrors = std::make_shared<sifedmon::LumiErrors>();
+  lumiErrors->nTotal.resize(6, 0);
+  lumiErrors->nErrors.resize(6, 0);
+  return lumiErrors;
+}
+
+void SiStripFEDMonitorPlugin::globalEndLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                       const edm::EventSetup& iSetup) {
+  auto lumiErrors = luminosityBlockCache(lumi.index());
+  if (enableFEDerrLumi_ && lumiErrfac_) {
+    for (unsigned int iD(0); iD < lumiErrors->nTotal.size(); iD++) {
+      if (lumiErrors->nTotal[iD] > 0)
+        lumiErrfac_->Fill(iD + 1, static_cast<float>(lumiErrors->nErrors[iD]) / lumiErrors->nTotal[iD]);
+    }
+  }
+}
+
+void SiStripFEDMonitorPlugin::updateCabling(const SiStripFedCablingRcd& cablingRcd) {
+  cabling_ = &cablingRcd.get(fedCablingToken_);
 }
 
 //

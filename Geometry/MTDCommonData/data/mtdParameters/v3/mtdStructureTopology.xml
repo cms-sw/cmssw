@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<SpecParSection label="mtdStructureTopology.xml">
+
+<SpecPar name="btlStructure">
+   <PartSelector path="//BarrelTimingLayer"/>
+   <PartSelector path="//Layer1Timing"/>
+   <PartSelector path="//BModule1Layer1.*ZTimingwafer"/>
+   <PartSelector path="//BModule17Layer1.*ZTimingwafer"/>
+   <PartSelector path="//BModule33Layer1.*ZTimingwafer"/>
+   <Parameter name="MtdDDStructure" value="BarrelTimingLayer"/>
+</SpecPar>
+<SpecPar name="etlStructure">
+   <PartSelector path="//EndcapTimingLayer"/>
+   <PartSelector path="//Disc1Timing"/>
+   <PartSelector path="//Disc2Timing"/>
+   <PartSelector path="//EModule_Timingactive"/>
+   <Parameter name="MtdDDStructure" value="EndcapTimingLayer"/>
+</SpecPar>
+
+<SpecPar name="mtdNumbering">
+  <PartSelector path="//etl:EndcapTimingLayer"/>
+  <PartSelector path="//btl:BarrelTimingLayer"/>
+  <Parameter name="OnlyForMTDRecNumbering" value="MTD" eval="false"/>
+  <Parameter name="TopologyMode" value="MTDTopologyMode::btlv1etlv5" eval="false"/>
+</SpecPar>
+
+
+</SpecParSection>
+</DDDefinition>

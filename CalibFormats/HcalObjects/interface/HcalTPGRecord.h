@@ -24,6 +24,6 @@
 
 class HcalTPGRecord : public edm::eventsetup::DependentRecordImplementation<
                           HcalTPGRecord,
-                          boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord, HcalDbRecord> > {};
+                          edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord, HcalDbRecord> > {};
 
 #endif

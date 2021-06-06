@@ -63,6 +63,8 @@ public:
   RegistryIterator getRegistryVectorBegin() const { return indexes.begin(); }
   RegistryIterator getRegistryVectorEnd() const { return indexes.end(); }
 
+  static inline float getRawNoise(const uint16_t& strip, const Range& range) { return decode(strip, range); }
+
   static inline float getNoiseFast(const uint16_t& strip, const Range& range) {
     return 0.1f * float(decode(strip, range));
   }

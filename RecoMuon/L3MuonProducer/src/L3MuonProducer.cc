@@ -58,7 +58,7 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   // instantiate the concrete trajectory builder in the Track Finder
   auto mtl = std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get());
   auto l3mtb = std::make_unique<L3MuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
-  theTrackFinder = std::make_unique<MuonTrackFinder>(std::move(l3mtb), std::move(mtl));
+  theTrackFinder = std::make_unique<MuonTrackFinder>(std::move(l3mtb), std::move(mtl), iC);
 
   theL2SeededTkLabel =
       trackLoaderParameters.getUntrackedParameter<std::string>("MuonSeededTracksInstance", std::string());
@@ -265,7 +265,6 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
       psd1.add<double>("EtaR_UpperLimit_Par1", 0.25);
       psd1.add<double>("EtaR_UpperLimit_Par2", 0.15);
       psd1.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
-      psd1.add<double>("EscapePt", 3.0);
       psd1.add<bool>("Pt_fixed", false);
       psd0.add<edm::ParameterSetDescription>("MuonTrackingRegionBuilder", psd1);
     }

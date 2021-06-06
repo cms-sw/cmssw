@@ -20,10 +20,11 @@
 #include <iostream>
 #include <memory>
 #include "TFile.h"
+#include <mutex>
 
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESSourceDataProxyBase.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "DataFormats/FWLite/interface/EventSetup.h"
 #include "DataFormats/FWLite/interface/Record.h"
@@ -35,6 +36,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/SourceFactory.h"
+
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
 
 // forward declarations
 namespace edm {
@@ -61,29 +65,34 @@ namespace {
     cms::Exception* m_exception;
   };
 
-  class FWLiteProxy : public edm::eventsetup::DataProxy {
+  class FWLiteProxy : public edm::eventsetup::ESSourceDataProxyBase {
   public:
-    FWLiteProxy(const TypeID& iTypeID, const fwlite::Record* iRecord) : m_type(iTypeID), m_record(iRecord) {}
+    FWLiteProxy(const TypeID& iTypeID, const fwlite::Record* iRecord, edm::SerialTaskQueue* iQueue, std::mutex* iMutex)
+        : edm::eventsetup::ESSourceDataProxyBase(iQueue, iMutex), m_type(iTypeID), m_record(iRecord), m_data{nullptr} {}
 
-    const void* getImpl(const edm::eventsetup::EventSetupRecordImpl&,
-                        const edm::eventsetup::DataKey& iKey,
-                        edm::EventSetupImpl const*) override {
+    void prefetch(const edm::eventsetup::DataKey& iKey, edm::EventSetupRecordDetails) final {
       assert(iKey.type() == m_type);
 
       FWLiteESGenericHandle h(m_type);
       m_record->get(h, iKey.name().value());
+      m_data = h.m_data;
 
       if (nullptr != h.m_exception) {
         throw *(h.m_exception);
       }
-      return h.m_data;
     }
 
-    void invalidateCache() override {}
+    void invalidateCache() override {
+      edm::eventsetup::ESSourceDataProxyBase::invalidateCache();
+      m_data = nullptr;
+    }
+
+    void const* getAfterPrefetchImpl() const final { return m_data; }
 
   private:
     TypeID m_type;
     const fwlite::Record* m_record;
+    void const* m_data;
   };
 }  // namespace
 
@@ -107,6 +116,8 @@ private:
   std::unique_ptr<TFile> m_file;
   fwlite::EventSetup m_es;
   std::map<EventSetupRecordKey, fwlite::RecordID> m_keyToID;
+  edm::SerialTaskQueue m_queue;
+  std::mutex m_mutex;
 };
 
 FWLiteESSource::FWLiteESSource(edm::ParameterSet const& iPS)
@@ -130,7 +141,7 @@ edm::eventsetup::DataProxyProvider::KeyedProxiesVector FWLiteESSource::registerP
     HCTypeTag tt = HCTypeTag::findType(it->first);
     if (tt != HCTypeTag()) {
       edm::eventsetup::DataKey dk(tt, edm::eventsetup::IdTags(it->second.c_str()));
-      keyedProxiesVector.emplace_back(dk, std::make_shared<FWLiteProxy>(TypeID(tt.value()), &rec));
+      keyedProxiesVector.emplace_back(dk, std::make_shared<FWLiteProxy>(TypeID(tt.value()), &rec, &m_queue, &m_mutex));
     } else {
       LogDebug("UnknownESType") << "The type '" << it->first << "' is unknown in this job";
       std::cout << "    *****FAILED*****" << std::endl;

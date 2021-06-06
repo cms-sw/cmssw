@@ -102,33 +102,26 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
   }
 }
 
-unsigned int HLTPrescaleProvider::prescaleValue(const edm::Event& iEvent,
-                                                const edm::EventSetup& iSetup,
-                                                const std::string& trigger) {
-  const int set(prescaleSet(iEvent, iSetup));
-  if (set < 0) {
-    return 1;
-  } else {
-    return hltConfigProvider_.prescaleValue(static_cast<unsigned int>(set), trigger);
+template <>
+FractionalPrescale HLTPrescaleProvider::convertL1PS<FractionalPrescale>(double val) const {
+  int numer = static_cast<int>(val * kL1PrescaleDenominator_ + 0.5);
+  static constexpr double kL1RoundingEpsilon = 0.001;
+  if (std::abs(numer - val * kL1PrescaleDenominator_) > kL1RoundingEpsilon) {
+    edm::LogWarning("ValueError") << " Error, L1 prescale val " << val
+                                  << "does not appear to precisely expressable as int / " << kL1PrescaleDenominator_
+                                  << ", using a FractionalPrescale is a loss of precision";
   }
+
+  return {numer, kL1PrescaleDenominator_};
 }
 
-std::pair<int, int> HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
-                                                        const edm::EventSetup& iSetup,
-                                                        const std::string& trigger) {
-  // start with setting both L1T and HLT prescale values to 0
-  std::pair<int, int> result(std::pair<int, int>(0, 0));
-
-  // get HLT prescale (possible if HLT prescale set index is correctly found)
-  const int set(prescaleSet(iEvent, iSetup));
-  if (set < 0) {
-    result.second = -1;
-  } else {
-    result.second = static_cast<int>(hltConfigProvider_.prescaleValue(static_cast<unsigned int>(set), trigger));
-  }
-
+double HLTPrescaleProvider::getL1PrescaleValue(const edm::Event& iEvent,
+                                               const edm::EventSetup& iSetup,
+                                               const std::string& trigger) {
   // get L1T prescale - works only for those hlt trigger paths with
   // exactly one L1GT seed module which has exactly one L1T name as seed
+
+  double result = -1;
 
   const unsigned int l1tType(hltConfigProvider_.l1tType());
   if (l1tType == 1) {
@@ -136,12 +129,12 @@ std::pair<int, int> HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent
     const unsigned int nL1GTSeedModules(hltConfigProvider_.hltL1GTSeeds(trigger).size());
     if (nL1GTSeedModules == 0) {
       // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
-      result.first = 1;
+      result = 1;
     } else if (nL1GTSeedModules == 1) {
       l1GtUtils_->getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
       const std::string l1tname(hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second);
       int l1error(0);
-      result.first = l1GtUtils_->prescaleFactor(iEvent, l1tname, l1error);
+      result = l1GtUtils_->prescaleFactor(iEvent, l1tname, l1error);
       if (l1error != 0) {
         if (count_[1] < countMax) {
           count_[1] += 1;
@@ -154,7 +147,7 @@ std::pair<int, int> HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent
               << " For seeds being complex logical expressions, try the new method 'prescaleValuesInDetail'."
               << std::endl;
         }
-        result.first = -1;
+        result = -1;
       }
     } else {
       /// error - can't handle properly multiple L1GTSeed modules
@@ -169,18 +162,18 @@ std::pair<int, int> HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent
             << nL1GTSeedModules << ", with L1 seeds: " << dump
             << ". (Note: at most one L1GTSeed module is allowed for a proper determination of the L1T prescale!)";
       }
-      result.first = -1;
+      result = -1;
     }
   } else if (l1tType == 2) {
     checkL1TGlobalUtil();
     const unsigned int nL1TSeedModules(hltConfigProvider_.hltL1TSeeds(trigger).size());
     if (nL1TSeedModules == 0) {
       // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
-      result.first = 1;
+      result = 1;
     } else if (nL1TSeedModules == 1) {
       //    l1tGlobalUtil_->retrieveL1Event(iEvent,iSetup);
       const std::string l1tname(hltConfigProvider_.hltL1TSeeds(trigger).at(0));
-      bool l1error(!l1tGlobalUtil_->getPrescaleByName(l1tname, result.first));
+      bool l1error(!l1tGlobalUtil_->getPrescaleByName(l1tname, result));
       if (l1error) {
         if (count_[1] < countMax) {
           count_[1] += 1;
@@ -193,7 +186,7 @@ std::pair<int, int> HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent
               << " For seeds being complex logical expressions, try the new method 'prescaleValuesInDetail'."
               << std::endl;
         }
-        result.first = -1;
+        result = -1;
       }
     } else {
       /// error - can't handle properly multiple L1TSeed modules
@@ -208,34 +201,22 @@ std::pair<int, int> HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent
             << nL1TSeedModules << ", with L1T seeds: " << dump
             << ". (Note: at most one L1TSeed module is allowed for a proper determination of the L1T prescale!)";
       }
-      result.first = -1;
+      result = -1;
     }
   } else {
     if (count_[1] < countMax) {
       count_[1] += 1;
       edm::LogError("HLTPrescaleProvider") << " Unknown L1T Type " << l1tType << " - can not determine L1T prescale! ";
     }
-    result.first = -1;
+    result = -1;
   }
 
   return result;
 }
 
-std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::prescaleValuesInDetail(
+std::vector<std::pair<std::string, double> > HLTPrescaleProvider::getL1PrescaleValueInDetail(
     const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) {
-  std::pair<std::vector<std::pair<std::string, int> >, int> result;
-  result.first.clear();
-
-  // get HLT prescale (possible if HLT prescale set index is correctly found)
-  const int set(prescaleSet(iEvent, iSetup));
-  if (set < 0) {
-    result.second = -1;
-  } else {
-    result.second = static_cast<int>(hltConfigProvider_.prescaleValue(static_cast<unsigned int>(set), trigger));
-  }
-
-  // get L1T prescale - works only for those hlt trigger paths with
-  // exactly one L1GT seed module
+  std::vector<std::pair<std::string, double> > result;
 
   const unsigned int l1tType(hltConfigProvider_.l1tType());
   if (l1tType == 1) {
@@ -244,14 +225,19 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
     const unsigned int nL1GTSeedModules(hltConfigProvider_.hltL1GTSeeds(trigger).size());
     if (nL1GTSeedModules == 0) {
       // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
-      result.first.clear();
+      result.clear();
     } else if (nL1GTSeedModules == 1) {
       l1GtUtils_->getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
       const std::string l1tname(hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second);
       L1GtUtils::LogicalExpressionL1Results l1Logical(l1tname, *l1GtUtils_);
       l1Logical.logicalExpressionRunUpdate(iEvent.getRun(), iSetup, l1tname);
       const std::vector<std::pair<std::string, int> >& errorCodes(l1Logical.errorCodes(iEvent));
-      result.first = l1Logical.prescaleFactors();
+      auto resultInt = l1Logical.prescaleFactors();
+      result.clear();
+      for (const auto& entry : resultInt) {
+        result.push_back(entry);
+      }
+
       int l1error(l1Logical.isValid() ? 0 : 1);
       for (auto const& errorCode : errorCodes) {
         l1error += std::abs(errorCode.second);
@@ -264,13 +250,12 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
                   << l1tname << "' using L1GtUtils: " << std::endl
                   << " isValid=" << l1Logical.isValid() << " l1tname/error/prescale " << errorCodes.size() << std::endl;
           for (unsigned int i = 0; i < errorCodes.size(); ++i) {
-            message << " " << i << ":" << errorCodes[i].first << "/" << errorCodes[i].second << "/"
-                    << result.first[i].second;
+            message << " " << i << ":" << errorCodes[i].first << "/" << errorCodes[i].second << "/" << result[i].second;
           }
           message << ".";
           edm::LogError("HLTPrescaleProvider") << message.str();
         }
-        result.first.clear();
+        result.clear();
       }
     } else {
       /// error - can't handle properly multiple L1GTSeed modules
@@ -285,27 +270,27 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
             << nL1GTSeedModules << ", with L1 seeds: " << dump
             << ". (Note: at most one L1GTSeed module is allowed for a proper determination of the L1T prescale!)";
       }
-      result.first.clear();
+      result.clear();
     }
   } else if (l1tType == 2) {
     checkL1TGlobalUtil();
     const unsigned int nL1TSeedModules(hltConfigProvider_.hltL1TSeeds(trigger).size());
     if (nL1TSeedModules == 0) {
       // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
-      result.first.clear();
+      result.clear();
     } else if (nL1TSeedModules == 1) {
       //    l1tGlobalUtil_->retrieveL1Event(iEvent,iSetup);
       std::string l1tname(hltConfigProvider_.hltL1TSeeds(trigger).at(0));
       GlobalLogicParser l1tGlobalLogicParser = GlobalLogicParser(l1tname);
       const std::vector<GlobalLogicParser::OperandToken> l1tSeeds = l1tGlobalLogicParser.expressionSeedsOperandList();
       int l1error(0);
-      int l1tPrescale(-1);
+      double l1tPrescale(-1);
       for (auto const& i : l1tSeeds) {
         const string& l1tSeed = i.tokenName;
         if (!l1tGlobalUtil_->getPrescaleByName(l1tSeed, l1tPrescale)) {
           l1error += 1;
         }
-        result.first.push_back(std::pair<std::string, int>(l1tSeed, l1tPrescale));
+        result.push_back(std::pair<std::string, double>(l1tSeed, l1tPrescale));
       }
       if (l1error != 0) {
         if (count_[3] < countMax) {
@@ -319,12 +304,12 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
           for (unsigned int i = 0; i < l1tSeeds.size(); ++i) {
             const string& l1tSeed = l1tSeeds[i].tokenName;
             message << " " << i << ":" << l1tSeed << "/" << l1tGlobalUtil_->getPrescaleByName(l1tSeed, l1tPrescale)
-                    << "/" << result.first[i].second;
+                    << "/" << result[i].second;
           }
           message << ".";
           edm::LogError("HLTPrescaleProvider") << message.str();
         }
-        result.first.clear();
+        result.clear();
       }
     } else {
       /// error - can't handle properly multiple L1TSeed modules
@@ -339,14 +324,14 @@ std::pair<std::vector<std::pair<std::string, int> >, int> HLTPrescaleProvider::p
             << nL1TSeedModules << ", with L1T seeds: " << dump
             << ". (Note: at most one L1TSeed module is allowed for a proper determination of the L1T prescale!)";
       }
-      result.first.clear();
+      result.clear();
     }
   } else {
     if (count_[3] < countMax) {
       count_[3] += 1;
       edm::LogError("HLTPrescaleProvider") << " Unknown L1T Type " << l1tType << " - can not determine L1T prescale! ";
     }
-    result.first.clear();
+    result.clear();
   }
 
   return result;
@@ -374,4 +359,12 @@ void HLTPrescaleProvider::checkL1TGlobalUtil() const {
                                              "the module configuration does not use the era properly\n"
                                              "or input is from mixed eras";
   }
+}
+
+template <>
+unsigned int HLTPrescaleProvider::prescaleValue<unsigned int>(const edm::Event& iEvent,
+                                                              const edm::EventSetup& iSetup,
+                                                              const std::string& trigger) {
+  const int set(prescaleSet(iEvent, iSetup));
+  return set < 0 ? 1 : hltConfigProvider_.prescaleValue<unsigned int>(static_cast<unsigned int>(set), trigger);
 }

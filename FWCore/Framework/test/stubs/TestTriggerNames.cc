@@ -183,7 +183,7 @@ namespace edmtest {
       // Test this by getting this parameter set and verifying the trigger
       // paths are the correct size.
       if (!streamerSource_) {
-        ParameterSet const& trigpset = parameterSet(*prod[index].provenance(), e.processHistory());
+        ParameterSet const& trigpset = parameterSet(prod[index].provenance()->stable(), e.processHistory());
         Strings trigpaths = trigpset.getParameter<Strings>("@trigger_paths");
         if (trigpaths.size() != expected_trigger_previous_.size()) {
           throw cms::Exception("Test Failure")

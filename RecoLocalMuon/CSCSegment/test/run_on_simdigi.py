@@ -50,17 +50,12 @@ process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStrip
 # LogTrace output goes to cout; all other output to "junk.log"
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-##process.MessageLogger.categories.append("CSCGeometry")
-process.MessageLogger.categories.append("CSCRecHit")
-process.MessageLogger.categories.append("CSCSegAlgoST")
-##process.MessageLogger.categories.append("CSCRecHitDBuilder")
-##process.MessageLogger.categories.append("CSCMake2DRecHit")
-## process.MessageLogger.categories.append("CSCHitFromStripOnly")
-## process.MessageLogger.categories.append("CSCRecoConditions")
 # module label is something like "muonCSCDigis"...
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.files.junk = dict()
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
     default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) )

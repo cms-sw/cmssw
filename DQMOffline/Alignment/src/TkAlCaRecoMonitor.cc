@@ -3,8 +3,6 @@
  *
  */
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -18,13 +16,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include <DataFormats/Math/interface/deltaR.h>
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 
 #include <string>
-//#include <sstream>
 #include "TLorentzVector.h"
 
-TkAlCaRecoMonitor::TkAlCaRecoMonitor(const edm::ParameterSet &iConfig) {
+TkAlCaRecoMonitor::TkAlCaRecoMonitor(const edm::ParameterSet &iConfig)
+    : tkGeomToken_(esConsumes()), mfToken_(esConsumes()) {
   conf_ = iConfig;
   trackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer"));
   referenceTrackProducer_ =
@@ -206,14 +205,12 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
     return;
   }
 
-  edm::ESHandle<TrackerGeometry> geometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometry);
+  const auto &geometry = iSetup.getHandle(tkGeomToken_);
   if (!geometry.isValid()) {
     edm::LogError("Alignment") << "invalid geometry found in event setup!";
   }
 
-  edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const auto &magneticField = iSetup.getHandle(mfToken_);
   if (!magneticField.isValid()) {
     edm::LogError("Alignment") << "invalid magnetic field configuration encountered!";
     return;

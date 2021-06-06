@@ -14,7 +14,7 @@ l1tdeStage2BmtfSecond.regionalMuonCollection2Title = cms.untracked.string("BMTF2
 l1tdeStage2BmtfSecond.summaryTitle = cms.untracked.string("Summary of comparison between BMTF2 muons and BMTF2 emulator muons")
 l1tdeStage2BmtfSecond.ignoreBin = cms.untracked.vint32(ignoreBinsDeStage2Bmtf)
 l1tdeStage2BmtfSecond.verbose = cms.untracked.bool(False)
-l1tdeStage2BmtfSecond.isBmtf = cms.untracked.bool(True)
+l1tdeStage2BmtfSecond.hasDisplacementInfo = cms.untracked.bool(True)
 
 
 

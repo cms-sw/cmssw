@@ -1,7 +1,7 @@
-<library   file="*.cc" name="GeometryMuonCommonDataPlugin">
- <use   name="DetectorDescription/Parser"/>
- <use   name="FWCore/PluginManager"/>
- <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="GeometryMuonCommonDataPlugin">
+  <use name="DetectorDescription/Core"/>
+  <use name="FWCore/PluginManager"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="DD4hep_GeometryMuonCommonDataPlugins" file="dd4hep/*.cc">

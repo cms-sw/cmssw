@@ -76,7 +76,7 @@ _positionCalcHF_cross_nodepth = cms.PSet(
 )
 
 _positionCalcHF_all_nodepth = _positionCalcHF_cross_nodepth.clone(
-    posCalcNCrystals = cms.int32(-1)
+    posCalcNCrystals = -1
     )
 
 #pf clusters

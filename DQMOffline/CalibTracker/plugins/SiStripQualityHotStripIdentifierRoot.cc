@@ -23,8 +23,6 @@
 
 SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig),
-      m_cacheID_(0),
-      dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel", "")),
       UseInputDB_(iConfig.getUntrackedParameter<bool>("UseInputDB", false)),
       conf_(iConfig),
       tracker_(nullptr),
@@ -33,7 +31,13 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
       dirpath(iConfig.getUntrackedParameter<std::string>("rootDirPath", "")),
       TotNumberOfEvents(0),
       MeanNumberOfCluster(0),
-      calibrationthreshold(iConfig.getUntrackedParameter<uint32_t>("CalibrationThreshold", 10000)) {
+      calibrationthreshold(iConfig.getUntrackedParameter<uint32_t>("CalibrationThreshold", 10000)),
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      tkGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      stripQualityToken_(UseInputDB_
+                             ? decltype(stripQualityToken_)(esConsumes<edm::Transition::BeginRun>(
+                                   edm::ESInputTag{"", iConfig.getUntrackedParameter<std::string>("dataLabel", "")}))
+                             : decltype(stripQualityToken_){}) {
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
   if (!filename.empty()) {
@@ -232,23 +236,10 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
 }
 
 void SiStripQualityHotStripIdentifierRoot::algoBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tTopo = tTopoHandle.product();
-
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeom);
-  tracker_ = &(*theTrackerGeom);
-
-  if (UseInputDB_) {
-    unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
-
-    if (m_cacheID_ == cacheID)
-      return;
-
-    m_cacheID_ = cacheID;
-
-    iSetup.get<SiStripQualityRcd>().get(dataLabel_, SiStripQuality_);
+  tTopo = &iSetup.getData(tTopoToken_);
+  tracker_ = &iSetup.getData(tkGeomToken_);
+  if (UseInputDB_ && stripQualityWatcher_.check(iSetup)) {
+    SiStripQuality_ = &iSetup.getData(stripQualityToken_);
   }
 }
 
@@ -299,7 +290,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos() {
   }
   if (!gotNentries) {
     edm::LogWarning("SiStripQualityHotStripIdentifierRoot")
-        << " [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of evemnts missing"
+        << " [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of events missing"
         << std::endl;
   }
   for (; iter != iterEnd; ++iter) {

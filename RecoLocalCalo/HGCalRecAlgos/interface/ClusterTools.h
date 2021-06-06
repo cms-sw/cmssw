@@ -9,6 +9,8 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -58,6 +60,8 @@ namespace hgcal {
 
     RecHitTools rhtools_;
     const edm::EDGetTokenT<HGCRecHitCollection> eetok, fhtok, bhtok;
+    const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+
     const HGCRecHitCollection *eerh_, *fhrh_, *bhrh_;
   };
 }  // namespace hgcal

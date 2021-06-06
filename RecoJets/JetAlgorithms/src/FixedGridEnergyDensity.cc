@@ -11,6 +11,7 @@ using namespace std;
 float FixedGridEnergyDensity::fixedGridRho(EtaRegion etaRegion) {
   //define the phi bins
   vector<float> phibins;
+  phibins.reserve(10);
   for (int i = 0; i < 10; i++)
     phibins.push_back(-TMath::Pi() + (2 * i + 1) * TMath::TwoPi() / 20.);
   //define the eta bins

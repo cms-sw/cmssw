@@ -2,8 +2,9 @@
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include <boost/filesystem.hpp>
-#include <iostream>
+#include <filesystem>
+
+#include <string>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -11,9 +12,8 @@
 namespace {
   class TestSiteLocalConfig : public edm::SiteLocalConfig {
   public:
-    TestSiteLocalConfig(std::string catalog) : m_catalog(std::move(catalog)) {}
-    std::string const dataCatalog(void) const final { return m_catalog; }
-    std::string const fallbackDataCatalog(void) const final { return std::string(); }
+    TestSiteLocalConfig(std::vector<std::string> catalogs) : m_catalogs(std::move(catalogs)) {}
+    std::vector<std::string> const& dataCatalogs(void) const final { return m_catalogs; }
     std::string const lookupCalibConnect(std::string const& input) const final { return std::string(); }
     std::string const rfioType(void) const final { return std::string(); }
 
@@ -31,13 +31,14 @@ namespace {
       return nullptr;
     }
     std::set<std::string> const* statisticsInfo() const final { return nullptr; }
-    std::string const& siteName(void) const final {
-      static const std::string s_value = "TEST";
-      return s_value;
-    }
+    std::string const& siteName(void) const final { return m_emptyString; }
+    bool useLocalConnectString() const final { return false; }
+    std::string const& localConnectPrefix() const final { return m_emptyString; }
+    std::string const& localConnectSuffix() const final { return m_emptyString; }
 
   private:
-    std::string m_catalog;
+    std::vector<std::string> m_catalogs;
+    std::string m_emptyString;
   };
 }  // namespace
 
@@ -45,18 +46,19 @@ TEST_CASE("FileLocator", "[filelocator]") {
   std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
   std::string CMSSW_RELEASE_BASE(std::getenv("CMSSW_RELEASE_BASE"));
   std::string file_name("/src/FWCore/Catalog/test/simple_catalog.xml");
-  std::string full_file_name = boost::filesystem::exists((CMSSW_BASE + file_name).c_str())
+  std::string full_file_name = std::filesystem::exists((CMSSW_BASE + file_name).c_str())
                                    ? CMSSW_BASE + file_name
                                    : CMSSW_RELEASE_BASE + file_name;
 
   //create the services
-  edm::ServiceToken tempToken(edm::ServiceRegistry::createContaining(std::unique_ptr<edm::SiteLocalConfig>(
-      new TestSiteLocalConfig(std::string("trivialcatalog_file:") + full_file_name + "?protocol=xrd"))));
+  std::vector<std::string> tmp{std::string("trivialcatalog_file:") + full_file_name + "?protocol=xrd"};
+  edm::ServiceToken tempToken(
+      edm::ServiceRegistry::createContaining(std::unique_ptr<edm::SiteLocalConfig>(new TestSiteLocalConfig(tmp))));
 
   //make the services available
   SECTION("standard") {
     edm::ServiceRegistry::Operate operate(tempToken);
-    edm::FileLocator fl("", false);
+    edm::FileLocator fl("", 0);
 
     const std::array<const char*, 7> lfn = {{"/bha/bho",
                                              "bha",
@@ -82,11 +84,11 @@ TEST_CASE("FileLocator", "[filelocator]") {
     edm::ServiceRegistry::Operate operate(tempToken);
 
     std::string override_file_name("/src/FWCore/Catalog/test/override_catalog.xml");
-    std::string override_full_file_name = boost::filesystem::exists((CMSSW_BASE + override_file_name).c_str())
+    std::string override_full_file_name = std::filesystem::exists((CMSSW_BASE + override_file_name).c_str())
                                               ? CMSSW_BASE + override_file_name
                                               : CMSSW_RELEASE_BASE + override_file_name;
 
-    edm::FileLocator fl(("trivialcatalog_file:" + override_full_file_name + "?protocol=override").c_str(), false);
+    edm::FileLocator fl(("trivialcatalog_file:" + override_full_file_name + "?protocol=override").c_str());
 
     std::array<const char*, 8> lfn = {{"/store/group/bha/bho",
                                        "/bha/bho",

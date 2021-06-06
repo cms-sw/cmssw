@@ -3,6 +3,7 @@
 
 // system headers
 #include <unistd.h>
+#include <pthread.h>
 
 // C++ headers
 #include <chrono>
@@ -455,9 +456,33 @@ private:
   std::vector<ResourcesPerJob> run_summary_;  // whole event time accounting per-run
   std::mutex summary_mutex_;                  // synchronise access to the summary objects across different threads
 
-  // per-thread quantities, lazily allocated
-  tbb::enumerable_thread_specific<Measurement, tbb::cache_aligned_allocator<Measurement>, tbb::ets_key_per_instance>
-      threads_;
+  //
+  struct ThreadGuard {
+    struct specific_t {
+      specific_t(AtomicResources& r) : resource_(r), live_(true) {}
+      ~specific_t() = default;
+
+      Measurement measurement_;
+      AtomicResources& resource_;
+      std::atomic<bool> live_;
+    };
+
+    ThreadGuard();
+    ~ThreadGuard() = default;
+
+    static void retire_thread(void* t);
+    static std::shared_ptr<specific_t>* ptr(void* p);
+
+    bool register_thread(FastTimerService::AtomicResources& r);
+    Measurement& thread();
+    void finalize();
+
+    tbb::concurrent_vector<std::shared_ptr<specific_t>> thread_resources_;
+    pthread_key_t key_;
+  };
+
+  //
+  ThreadGuard guard_;
 
   // atomic variables to keep track of the completion of each step, process by process
   std::unique_ptr<std::atomic<unsigned int>[]> subprocess_event_check_;

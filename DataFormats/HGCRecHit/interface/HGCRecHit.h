@@ -67,7 +67,13 @@ public:
 
   HGCRecHit();
   // by default a recHit is greated with no flag
-  HGCRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t flagBits = 0);
+  HGCRecHit(const DetId& id,
+            float energy,
+            float time,
+            uint32_t flags = 0,
+            uint32_t flagBits = 0,
+            uint8_t son = 0,
+            float timeError = 0.f);
   /// get the id
   // For the moment not returning a specific id for subdetector
   DetId id() const { return DetId(detid()); }
@@ -100,6 +106,9 @@ public:
 
   /// check if one of the flags in a set is true
   bool checkFlags(const std::vector<int>& flagsvec) const;
+
+  //added for validation
+  uint32_t flagBits() const { return flagBits_; }
 
 private:
   /// store rechit condition (see Flags enum) in a bit-wise way

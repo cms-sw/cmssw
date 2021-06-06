@@ -4,6 +4,7 @@
  * \author M.Schmitt, Northwestern
  */
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <cstdint>
@@ -18,6 +19,10 @@ bool CSCStripDigi::operator==(const CSCStripDigi& digi) const {
     return false;
   return true;
 }
+
+/// Get the CFEB number. Counts from 0.
+// originally defined in EventFilter/CSCRawToDigi/src/CSCComparatorData.cc
+int CSCStripDigi::getCFEB() const { return (strip - 1) / CSCConstants::NUM_STRIPS_PER_CFEB; }
 
 void CSCStripDigi::setADCCounts(const std::vector<int>& vADCCounts) {
   bool badVal = false;

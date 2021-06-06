@@ -2,8 +2,8 @@
  * documented at  http://www.physics.ohio-state.edu/~cms/ddu/
  */
 
-#ifndef CSCDDUHeader_h
-#define CSCDDUHeader_h
+#ifndef EventFilter_CSCRawToDigi_CSCDDUHeader_h
+#define EventFilter_CSCRawToDigi_CSCDDUHeader_h
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
 #include <cstring>
 #include <cstdint>

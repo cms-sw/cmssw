@@ -3,6 +3,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
+#include <memory>
 
 using namespace edm;
 using namespace std;
@@ -25,7 +26,7 @@ PythiaDauFilter::PythiaDauFilter(const edm::ParameterSet& iConfig)
   // create pythia8 instance to access particle data
   edm::LogInfo("PythiaDauFilter::PythiaDauFilter") << "Creating pythia8 instance for particle properties" << endl;
   if (!fLookupGen.get())
-    fLookupGen.reset(new Pythia());
+    fLookupGen = std::make_unique<Pythia>();
 }
 
 PythiaDauFilter::~PythiaDauFilter() {

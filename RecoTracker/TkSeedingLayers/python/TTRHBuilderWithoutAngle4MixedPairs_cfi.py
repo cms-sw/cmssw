@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi 
-myTTRHBuilderWithoutAngle4MixedPairs = RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi.ttrhbwr.clone()
-myTTRHBuilderWithoutAngle4MixedPairs.StripCPE = 'Fake'
-myTTRHBuilderWithoutAngle4MixedPairs.ComponentName = 'TTRHBuilderWithoutAngle4MixedPairs'
-
+myTTRHBuilderWithoutAngle4MixedPairs = RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi.ttrhbwr.clone(
+    StripCPE      = 'Fake',
+    ComponentName = 'TTRHBuilderWithoutAngle4MixedPairs'
+)

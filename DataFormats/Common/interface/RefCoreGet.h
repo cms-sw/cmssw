@@ -103,17 +103,19 @@ namespace edm {
 
   namespace refcore {
     template <typename T>
-    inline T const* getThinnedProduct_(RefCore const& ref,
-                                       unsigned int& thinnedKey,
-                                       EDProductGetter const* prodGetter) {
-      WrapperBase const* product = ref.getThinnedProductPtr(typeid(T), thinnedKey, prodGetter);
+    inline std::tuple<T const*, unsigned int> getThinnedProduct_(RefCore const& ref,
+                                                                 unsigned int key,
+                                                                 EDProductGetter const* prodGetter) {
+      auto [product, thinnedKey] = ref.getThinnedProductPtr(typeid(T), key, prodGetter);
       Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(product);
-      return wrapper->product();
+      return std::tuple(wrapper->product(), thinnedKey);
     }
   }  // namespace refcore
 
   template <typename T>
-  inline T const* getThinnedProduct(RefCore const& ref, unsigned int& thinnedKey, EDProductGetter const* prodGetter) {
+  inline std::tuple<T const*, unsigned int> getThinnedProduct(RefCore const& ref,
+                                                              unsigned int key,
+                                                              EDProductGetter const* prodGetter) {
     // The pointer to a thinned collection will never be cached
     // T const* p = static_cast<T const*>(ref.productPtr());
     // if (p != 0) return p;
@@ -121,7 +123,7 @@ namespace edm {
     if (ref.isTransient()) {
       ref.nullPointerForTransientException(typeid(T));
     }
-    return refcore::getThinnedProduct_<T>(ref, thinnedKey, prodGetter);
+    return refcore::getThinnedProduct_<T>(ref, key, prodGetter);
   }
 }  // namespace edm
 #endif

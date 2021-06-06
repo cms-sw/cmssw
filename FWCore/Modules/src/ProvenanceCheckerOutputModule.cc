@@ -12,7 +12,7 @@
 
 // system include files
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -29,7 +29,7 @@ namespace edm {
   class ModuleCallingContext;
   class ParameterSet;
 
-  class ProvenanceCheckerOutputModule : public OutputModule {
+  class ProvenanceCheckerOutputModule : public one::OutputModule<> {
   public:
     // We do not take ownership of passed stream.
     explicit ProvenanceCheckerOutputModule(ParameterSet const& pset);
@@ -53,7 +53,8 @@ namespace edm {
   //
   // constructors and destructor
   //
-  ProvenanceCheckerOutputModule::ProvenanceCheckerOutputModule(ParameterSet const& pset) : OutputModule(pset) {}
+  ProvenanceCheckerOutputModule::ProvenanceCheckerOutputModule(ParameterSet const& pset)
+      : one::OutputModuleBase(pset), one::OutputModule<>(pset) {}
 
   // ProvenanceCheckerOutputModule::ProvenanceCheckerOutputModule(ProvenanceCheckerOutputModule const& rhs)
   // {
@@ -103,7 +104,7 @@ namespace edm {
     std::set<BranchID> missingProductProvenance;
 
     std::map<BranchID, const BranchDescription*> idToBranchDescriptions;
-    for (auto const product : keptProducts()[InEvent]) {
+    for (auto const& product : keptProducts()[InEvent]) {
       BranchDescription const* branchDescription = product.first;
       BranchID branchID = branchDescription->branchID();
       idToBranchDescriptions[branchID] = branchDescription;
@@ -185,7 +186,7 @@ namespace edm {
   //
   void ProvenanceCheckerOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
-    OutputModule::fillDescription(desc);
+    one::OutputModule<>::fillDescription(desc);
     descriptions.add("provenanceChecker", desc);
   }
 }  // namespace edm

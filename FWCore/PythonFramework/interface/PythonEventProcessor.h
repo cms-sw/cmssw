@@ -30,6 +30,8 @@ class PythonProcessDesc;
 class PythonEventProcessor {
 public:
   PythonEventProcessor(PyBind11ProcessDesc const&);
+  PythonEventProcessor(const PythonEventProcessor&) = delete;                   // stop default
+  const PythonEventProcessor& operator=(const PythonEventProcessor&) = delete;  // stop default
   ~PythonEventProcessor();
   // ---------- const member functions ---------------------
   /// Return the number of events this EventProcessor has tried to process
@@ -51,10 +53,6 @@ public:
   void run();
 
 private:
-  PythonEventProcessor(const PythonEventProcessor&) = delete;  // stop default
-
-  const PythonEventProcessor& operator=(const PythonEventProcessor&) = delete;  // stop default
-
   // ---------- member data --------------------------------
   int forcePluginSetupFirst_;
   edm::EventProcessor processor_;

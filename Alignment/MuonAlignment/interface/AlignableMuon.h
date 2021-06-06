@@ -17,6 +17,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 class CSCGeometry;
+class GEMGeometry;
 
 // Classes that will be used to construct the muon
 class AlignableDTBarrel;
@@ -27,20 +28,24 @@ class AlignableCSCEndcap;
 class AlignableCSCStation;
 class AlignableCSCRing;
 class AlignableCSCChamber;
+class AlignableGEMEndcap;
+class AlignableGEMStation;
+class AlignableGEMRing;
+class AlignableGEMSuperChamber;
 
 /// Constructor of the full muon geometry.
 
 class AlignableMuon : public AlignableComposite {
 public:
   /// Constructor from geometries
-  AlignableMuon(const DTGeometry*, const CSCGeometry*);
+  AlignableMuon(const DTGeometry*, const CSCGeometry*, const GEMGeometry*);
 
   /// Destructor
   ~AlignableMuon() override;
 
   /// Updater using DTGeometry and CSCGeometry.
   /// The given geometries have to match the current ones.
-  void update(const DTGeometry*, const CSCGeometry*);
+  void update(const DTGeometry*, const CSCGeometry*, const GEMGeometry*);
 
   /// Return all components
   const align::Alignables& components() const final { return theMuonComponents; }
@@ -60,6 +65,12 @@ public:
   align::Alignables CSCStations();
   align::Alignables CSCRings();
   align::Alignables CSCEndcaps();
+  align::Alignables GEMEtaPartitions();
+  align::Alignables GEMChambers();
+  align::Alignables GEMSuperChambers();
+  align::Alignables GEMStations();
+  align::Alignables GEMRings();
+  align::Alignables GEMEndcaps();
 
   /// Get DT alignments sorted by DetId
   Alignments* dtAlignments();
@@ -70,8 +81,12 @@ public:
   /// Get CSC alignments sorted by DetId
   Alignments* cscAlignments();
 
+  Alignments* gemAlignments();
+
   /// Get CSC alignment errors sorted by DetId
   AlignmentErrorsExtended* cscAlignmentErrorsExtended();
+
+  AlignmentErrorsExtended* gemAlignmentErrorsExtended();
 
   /// Return muon alignable object ID provider derived from the muon system geometry
   const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
@@ -100,6 +115,8 @@ private:
   /// Build muon end caps
   void buildCSCEndcap(const CSCGeometry*, bool update = false);
 
+  void buildGEMEndcap(const GEMGeometry*, bool update = false);
+
   /// Set mothers recursively
   void recursiveSetMothers(Alignable* alignable);
 
@@ -116,6 +133,11 @@ private:
   std::vector<AlignableCSCStation*> theCSCStations;
   std::vector<AlignableCSCRing*> theCSCRings;
   std::vector<AlignableCSCEndcap*> theCSCEndcaps;
+
+  std::vector<AlignableGEMSuperChamber*> theGEMSuperChambers;
+  std::vector<AlignableGEMStation*> theGEMStations;
+  std::vector<AlignableGEMRing*> theGEMRings;
+  std::vector<AlignableGEMEndcap*> theGEMEndcaps;
 
   align::Alignables theMuonComponents;
 };

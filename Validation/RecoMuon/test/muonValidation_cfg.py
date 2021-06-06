@@ -25,7 +25,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.outpath = cms.EndPath(process.out)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories = ['TrackAssociator', 'TrackValidator']
+
 process.MessageLogger.debugModules = ['*']
 process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'),
@@ -40,7 +40,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     )
 )
 process.MessageLogger.cerr = cms.untracked.PSet(
-    placeholder = cms.untracked.bool(True)
+    enable = cms.untracked.bool(False)
 )
 
 process.load('Configuration/StandardSequences/RawToDigi_cff')

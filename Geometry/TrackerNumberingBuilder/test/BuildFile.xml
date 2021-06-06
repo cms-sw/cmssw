@@ -1,16 +1,17 @@
-<use   name="Geometry/TrackerNumberingBuilder"/>
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/Records"/>
-<use   name="DataFormats/TrackerCommon"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
+<use name="FWCore/Framework"/>
+<use name="Geometry/Records"/>
+<use name="DataFormats/TrackerCommon"/>
+<library file="ModuleNumbering.cc" name="ModuleNumbering">
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
 
-<library   file="ModuleNumbering.cc" name="ModuleNumbering">
-  <use name="Geometry/TrackerGeometryBuilder"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="GeometricDetAnalyzer.cc" name="testGeometryTrackerNumberingBuilder">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="GeometricDetAnalyzer.cc" name="testGeometryTrackerNumberingBuilder">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="TrackerTopologyAnalyzer.cc" name="TrackerTopologyAnalyzer">
+
+<library file="TrackerTopologyAnalyzer.cc" name="TrackerTopologyAnalyzer">
   <use name="Geometry/TrackerGeometryBuilder"/>
-  <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

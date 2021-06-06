@@ -31,6 +31,15 @@
 #include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
+class DetIdAssociator;
+class DetIdAssociatorRecord;
+class CaloGeometry;
+class CaloGeometryRecord;
+class GlobalTrackingGeometry;
+class GlobalTrackingGeometryRecord;
+class MagneticField;
+class IdealMagneticFieldRecord;
+
 class TrackAssociatorParameters {
 public:
   TrackAssociatorParameters() {}
@@ -109,5 +118,15 @@ public:
   edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEBToken;
   edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEEToken;
   edm::EDGetTokenT<edm::PCaloHitContainer> simHcalHitsToken;
+
+  edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> ecalDetIdAssociatorToken;
+  edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> hcalDetIdAssociatorToken;
+  edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> hoDetIdAssociatorToken;
+  edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> caloDetIdAssociatorToken;
+  edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> muonDetIdAssociatorToken;
+  edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> preshowerDetIdAssociatorToken;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theCaloGeometryToken;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theTrackingGeometryToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken;
 };
 #endif

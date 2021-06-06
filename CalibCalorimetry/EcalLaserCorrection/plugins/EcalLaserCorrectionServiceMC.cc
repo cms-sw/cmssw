@@ -22,12 +22,16 @@
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosMCRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 class EcalLaserCorrectionServiceMC : public edm::ESProducer {
 public:
   EcalLaserCorrectionServiceMC(const edm::ParameterSet&);
   ~EcalLaserCorrectionServiceMC() override;
 
   std::shared_ptr<EcalLaserDbService> produce(const EcalLaserDbRecordMC&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   using HostType = edm::ESProductHost<EcalLaserDbService,
@@ -50,11 +54,11 @@ EcalLaserCorrectionServiceMC::EcalLaserCorrectionServiceMC(const edm::ParameterS
   // data is being produced
   // setWhatProduced (this, (dependsOn (&EcalLaserCorrectionServiceMC::apdpnCallback)));
 
-  setWhatProduced(this)
-      .setConsumes(alphaToken_)
-      .setConsumes(apdpnRefToken_)
-      .setConsumes(apdpnToken_)
-      .setConsumes(linearToken_);
+  auto cc = setWhatProduced(this);
+  alphaToken_ = cc.consumes();
+  apdpnRefToken_ = cc.consumes();
+  apdpnToken_ = cc.consumes();
+  linearToken_ = cc.consumes();
 
   //now do what ever other initialization is needed
 }
@@ -64,6 +68,10 @@ EcalLaserCorrectionServiceMC::~EcalLaserCorrectionServiceMC() {}
 //
 // member functions
 //
+void EcalLaserCorrectionServiceMC::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.add("EcalLaserCorrectionServiceMC", desc);
+}
 
 // ------------ method called to produce the data  ------------
 std::shared_ptr<EcalLaserDbService> EcalLaserCorrectionServiceMC::produce(const EcalLaserDbRecordMC& record) {

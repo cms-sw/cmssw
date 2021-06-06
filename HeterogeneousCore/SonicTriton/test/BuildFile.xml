@@ -1,0 +1,9 @@
+<environment>
+  <test name="TestHeterogeneousCoreSonicTritonProducer" command="${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/unittest.sh ${LOCALTOP}"/>
+  <library file="*.cc" name="testHeterogenousCoreSonicTriton">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Framework"/>
+    <use name="HeterogeneousCore/SonicTriton"/>
+  </library>
+</environment>

@@ -18,25 +18,28 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 
 #include <string>
 #include <map>
 #include <vector>
 
 class DTGeometry;
-class DTTimeEvolutionHisto;
+class DTStatusFlag;
 
-class DTSegmentAnalysisTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTSegmentAnalysisTask : public DQMEDAnalyzer {
 public:
   /// Constructor
   DTSegmentAnalysisTask(const edm::ParameterSet& pset);
@@ -50,10 +53,6 @@ public:
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
-  /// Summary
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
-
 protected:
   // Book the histograms
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -63,15 +62,18 @@ private:
   bool detailedAnalysis;
 
   // Get the DT Geometry
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
 
-  // Lable of 4D segments in the event
+  // Get the status Map
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> statusMapToken_;
+  const DTStatusFlag* statusMap;
+
+  // Label of 4D segments in the event
   edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Get the map of noisy channels
   bool checkNoisyChannels;
-
-  edm::ParameterSet parameters;
 
   // book the histos
   void bookHistos(DQMStore::IBooker& ibooker, DTChamberId chamberId);
@@ -81,18 +83,8 @@ private:
   //  the histos
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
   std::map<int, MonitorElement*> summaryHistos;
-  std::map<int, std::map<int, DTTimeEvolutionHisto*> > histoTimeEvol;
 
   int nevents;
-  int nEventsInLS;
-  DTTimeEvolutionHisto* hNevtPerLS;
-
-  // # of bins in the time histos
-  int nTimeBins;
-  // # of LS per bin in the time histos
-  int nLSTimeBin;
-  // switch on/off sliding bins in time histos
-  bool slideTimeBins;
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
   // hlt DQM mode

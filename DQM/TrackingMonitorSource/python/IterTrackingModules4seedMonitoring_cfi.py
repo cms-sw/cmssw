@@ -123,6 +123,19 @@ seedMonitoring['tobTecStep'] = cms.PSet(
     clusterMax       = cms.double(100000),
 )
 
+seedMonitoring['displacedGeneralStep'] = cms.PSet(
+    seedInputTag     = cms.InputTag("displacedGeneralStepSeeds"),
+    trackCandInputTag= cms.InputTag("displacedGeneralStepTrackCandidates"),
+    trackSeedSizeBin = cms.int32(400),
+    trackSeedSizeMin = cms.double(0),
+    trackSeedSizeMax = cms.double(100000),
+    TCSizeMax        = cms.double(199.5),
+    clusterLabel     = cms.vstring('Strip'),
+    clusterBin       = cms.int32(100),
+    clusterMax       = cms.double(100000),
+)
+
+
 seedMonitoring['muonSeededStepInOut'] = cms.PSet(
     seedInputTag      = cms.InputTag("muonSeededSeedsInOut"),
     trackCandInputTag = cms.InputTag("muonSeededTrackCandidatesInOut"),
@@ -172,6 +185,42 @@ seedMonitoring['jetCoreRegionalStep'] = cms.PSet(
     RegionCandidates     = cms.InputTag("jetsForCoreTracking"),
     trajCandPerSeedBin   = cms.int32(50),
     trajCandPerSeedMax   = cms.double(49.5),
+)
+
+seedMonitoring['jetCoreRegionalStepBarrel'] = cms.PSet(
+    seedInputTag         = cms.InputTag("jetCoreRegionalStepSeedsBarrel"),
+    trackCandInputTag    = cms.InputTag("jetCoreRegionalStepBarrelTrackCandidates"),
+    trackSeedSizeBin     = cms.int32(100),
+    trackSeedSizeMin     = cms.double(-0.5),
+    trackSeedSizeMax     = cms.double(199.5),
+    clusterLabel         = cms.vstring('Tot'),
+    clusterBin           = cms.int32(100),
+    clusterMax           = cms.double(100000),
+    RegionProducer       = cms.InputTag("jetCoreRegionalStepBarrelTrackingRegions"),
+    RegionCandidates     = cms.InputTag("jetsForCoreTrackingBarrel"),
+    trajCandPerSeedBin   = cms.int32(50),
+    trajCandPerSeedMax   = cms.double(49.5),
+    doMVAPlots           = cms.bool(True),
+    TrackProducerForMVA  = cms.InputTag("jetCoreRegionalStepBarrelTracks"),
+    MVAProducers         = cms.InputTag("jetCoreRegionalBarrelStep"),
+)
+
+seedMonitoring['jetCoreRegionalStepEndcap'] = cms.PSet(
+    seedInputTag         = cms.InputTag("jetCoreRegionalStepSeedsEndcap"),
+    trackCandInputTag    = cms.InputTag("jetCoreRegionalStepEndcapTrackCandidates"),
+    trackSeedSizeBin     = cms.int32(100),
+    trackSeedSizeMin     = cms.double(-0.5),
+    trackSeedSizeMax     = cms.double(199.5),
+    clusterLabel         = cms.vstring('Tot'),
+    clusterBin           = cms.int32(100),
+    clusterMax           = cms.double(100000),
+    RegionProducer       = cms.InputTag("jetCoreRegionalStepEndcapTrackingRegions"),
+    RegionCandidates     = cms.InputTag("jetsForCoreTrackingEndcap"),
+    trajCandPerSeedBin   = cms.int32(50),
+    trajCandPerSeedMax   = cms.double(49.5),
+    doMVAPlots           = cms.bool(True),
+    TrackProducerForMVA  = cms.InputTag("jetCoreRegionalStepEndcapTracks"),
+    MVAProducers         = cms.InputTag("jetCoreRegionalEndcapStep"),
 )
 
 for _eraName, _postfix, _era in _cfg.allEras():

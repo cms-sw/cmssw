@@ -48,6 +48,26 @@ namespace edm {
     constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord>&&) noexcept = default;
     constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord> const&) noexcept = default;
 
+    template <typename ADAPTER>
+    constexpr explicit ESGetToken(ADAPTER&& iAdapter) : ESGetToken(iAdapter.template consumes<ESProduct, ESRecord>()) {}
+
+    template <typename ADAPTER>
+    constexpr ESGetToken<ESProduct, ESRecord>& operator=(ADAPTER&& iAdapter) noexcept {
+      ESGetToken<ESProduct, ESRecord> temp(std::forward<ADAPTER>(iAdapter));
+      return (*this = std::move(temp));
+    }
+
+    //protect against templated version being a better match
+    constexpr ESGetToken(ESGetToken<ESProduct, ESRecord>& iOther)
+        : ESGetToken(const_cast<const ESGetToken<ESProduct, ESRecord>&>(iOther)) {}
+    constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord>& iOther) noexcept {
+      return (*this = const_cast<ESGetToken<ESProduct, ESRecord> const&>(iOther));
+    }
+    constexpr ESGetToken(ESGetToken<ESProduct, ESRecord> const&& iOther) : ESGetToken(iOther) {}
+    constexpr ESGetToken<ESProduct, ESRecord>& operator=(ESGetToken<ESProduct, ESRecord> const&& iOther) noexcept {
+      return (*this = iOther);
+    }
+
     constexpr unsigned int transitionID() const noexcept { return m_transitionID; }
     constexpr bool isInitialized() const noexcept { return transitionID() != std::numeric_limits<unsigned int>::max(); }
     constexpr ESTokenIndex index() const noexcept { return m_index; }

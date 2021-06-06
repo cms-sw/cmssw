@@ -1,4 +1,5 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "RecoLocalCalo/HcalRecAlgos/src/HcalTDCReco.h"
@@ -6,7 +7,6 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCorrectionFunctions.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include <algorithm>
@@ -17,21 +17,23 @@
 
 constexpr double MaximumFractionalError = 0.002;  // 0.2% error allowed from this source
 
-HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS)
+HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew,
+                                     bool correctForPulse,
+                                     float phaseNS,
+                                     edm::ConsumesCollector iC)
     : correctForTimeslew_(correctForTimeslew),
       correctForPulse_(correctForPulse),
       phaseNS_(phaseNS),
+      delayToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "HBHE"))),
       runnum_(0),
       setLeakCorrection_(false),
       puCorrMethod_(0) {
   hcalTimeSlew_delay_ = nullptr;
-  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError);
+  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError, iC);
 }
 
 void HcalSimpleRecAlgo::beginRun(edm::EventSetup const& es) {
-  edm::ESHandle<HcalTimeSlew> delay;
-  es.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlew_delay_ = &*delay;
+  hcalTimeSlew_delay_ = &es.getData(delayToken_);
 
   pulseCorr_->beginRun(es);
 }

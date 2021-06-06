@@ -1,0 +1,10 @@
+#ifndef CondFormats_EcalObjects_EcalCATIAGainRatios_h
+#define CondFormats_EcalObjects_EcalCATIAGainRatios_h
+
+#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
+
+typedef float EcalCATIAGainRatio;
+typedef EcalFloatCondObjectContainer EcalCATIAGainRatioMap;
+typedef EcalCATIAGainRatioMap EcalCATIAGainRatios;
+
+#endif

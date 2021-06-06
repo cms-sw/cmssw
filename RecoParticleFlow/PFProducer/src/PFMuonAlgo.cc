@@ -1,26 +1,18 @@
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonCocktails.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include <iostream>
+#include <memory>
 
 using namespace std;
 using namespace reco;
 using namespace boost;
-
-namespace {
-
-  template <class T>
-  T getParameter(edm::ParameterSet const& pset, std::string&& name, T&& defaultValue) {
-    return pset.exists(name) ? pset.getParameter<T>(name) : defaultValue;
-  }
-
-}  // namespace
 
 PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig, bool postMuonCleaning)
 
@@ -31,27 +23,27 @@ PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig, bool postMuonCleaning)
       pfPunchThroughHadronCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
       pfAddedMuonCandidates_(std::make_unique<reco::PFCandidateCollection>()),
 
-      maxDPtOPt_(getParameter<double>(iConfig, "maxDPtOPt", 1.0)),
-      trackQuality_(reco::TrackBase::qualityByName(getParameter<std::string>(iConfig, "trackQuality", "highPurity"))),
-      errorCompScale_(getParameter<double>(iConfig, "ptErrorScale", 8.0)),
+      maxDPtOPt_(iConfig.getParameter<double>("maxDPtOPt")),
+      trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"))),
+      errorCompScale_(iConfig.getParameter<double>("ptErrorScale")),
 
       postCleaning_(postMuonCleaning),  // disable by default (for HLT)
-      eventFractionCleaning_(getParameter<double>(iConfig, "eventFractionForCleaning", 0.5)),
-      minPostCleaningPt_(getParameter<double>(iConfig, "minPtForPostCleaning", 20.)),
-      eventFactorCosmics_(getParameter<double>(iConfig, "eventFactorForCosmics", 10.)),
-      metSigForCleaning_(getParameter<double>(iConfig, "metSignificanceForCleaning", 3.)),
-      metSigForRejection_(getParameter<double>(iConfig, "metSignificanceForRejection", 4.)),
-      metFactorCleaning_(getParameter<double>(iConfig, "metFactorForCleaning", 4.)),
-      eventFractionRejection_(getParameter<double>(iConfig, "eventFractionForRejection", 0.8)),
-      metFactorRejection_(getParameter<double>(iConfig, "metFactorForRejection", 4.)),
-      metFactorHighEta_(getParameter<double>(iConfig, "metFactorForHighEta", 25.)),
-      ptFactorHighEta_(getParameter<double>(iConfig, "ptFactorForHighEta", 2.)),
-      metFactorFake_(getParameter<double>(iConfig, "metFactorForFakes", 4.)),
-      minPunchThroughMomentum_(getParameter<double>(iConfig, "minMomentumForPunchThrough", 100.)),
-      minPunchThroughEnergy_(getParameter<double>(iConfig, "minEnergyForPunchThrough", 100.)),
-      punchThroughFactor_(getParameter<double>(iConfig, "punchThroughFactor", 3.)),
-      punchThroughMETFactor_(getParameter<double>(iConfig, "punchThroughMETFactor", 4.)),
-      cosmicRejDistance_(getParameter<double>(iConfig, "cosmicRejectionDistance", 1.)) {}
+      eventFractionCleaning_(iConfig.getParameter<double>("eventFractionForCleaning")),
+      minPostCleaningPt_(iConfig.getParameter<double>("minPtForPostCleaning")),
+      eventFactorCosmics_(iConfig.getParameter<double>("eventFactorForCosmics")),
+      metSigForCleaning_(iConfig.getParameter<double>("metSignificanceForCleaning")),
+      metSigForRejection_(iConfig.getParameter<double>("metSignificanceForRejection")),
+      metFactorCleaning_(iConfig.getParameter<double>("metFactorForCleaning")),
+      eventFractionRejection_(iConfig.getParameter<double>("eventFractionForRejection")),
+      metFactorRejection_(iConfig.getParameter<double>("metFactorForRejection")),
+      metFactorHighEta_(iConfig.getParameter<double>("metFactorForHighEta")),
+      ptFactorHighEta_(iConfig.getParameter<double>("ptFactorForHighEta")),
+      metFactorFake_(iConfig.getParameter<double>("metFactorForFakes")),
+      minPunchThroughMomentum_(iConfig.getParameter<double>("minMomentumForPunchThrough")),
+      minPunchThroughEnergy_(iConfig.getParameter<double>("minEnergyForPunchThrough")),
+      punchThroughFactor_(iConfig.getParameter<double>("punchThroughFactor")),
+      punchThroughMETFactor_(iConfig.getParameter<double>("punchThroughMETFactor")),
+      cosmicRejDistance_(iConfig.getParameter<double>("cosmicRejectionDistance")) {}
 
 bool PFMuonAlgo::isMuon(const reco::PFBlockElement& elt) {
   const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
@@ -353,11 +345,11 @@ bool PFMuonAlgo::isTightMuonPOG(const reco::MuonRef& muonRef) {
   return true;
 }
 
-bool PFMuonAlgo::hasValidTrack(const reco::MuonRef& muonRef, bool loose) {
+bool PFMuonAlgo::hasValidTrack(const reco::MuonRef& muonRef, bool loose, double maxDPtOPt) {
   if (loose)
     return !muonTracks(muonRef).empty();
   else
-    return !goodMuonTracks(muonRef).empty();
+    return !muonTracks(muonRef, maxDPtOPt).empty();
 }
 
 void PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef) {
@@ -484,28 +476,31 @@ void PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef) {
   return;
 }
 
-std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::goodMuonTracks(const reco::MuonRef& muon, bool includeSA) {
-  return muonTracks(muon, includeSA, maxDPtOPt_);
+int PFMuonAlgo::muAssocToTrack(const reco::TrackRef& trackref, const reco::MuonCollection& muons) {
+  auto muon = std::find_if(muons.cbegin(), muons.cend(), [&](const reco::Muon& m) {
+    return (m.track().isNonnull() && m.track() == trackref);
+  });
+  return (muon != muons.cend() ? std::distance(muons.cbegin(), muon) : -1);
 }
 
 std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::MuonRef& muon,
-                                                                  bool includeSA,
-                                                                  double dpt) {
+                                                                  double maxDPtOPt,
+                                                                  bool includeSA) {
   std::vector<reco::Muon::MuonTrackTypePair> out;
 
   if (muon->globalTrack().isNonnull() && muon->globalTrack()->pt() > 0)
-    if (muon->globalTrack()->ptError() / muon->globalTrack()->pt() < dpt)
+    if (muon->globalTrack()->ptError() / muon->globalTrack()->pt() < maxDPtOPt)
       out.emplace_back(muon->globalTrack(), reco::Muon::CombinedTrack);
 
   if (muon->innerTrack().isNonnull() && muon->innerTrack()->pt() > 0)
-    if (muon->innerTrack()->ptError() / muon->innerTrack()->pt() < dpt)  //Here Loose!@
+    if (muon->innerTrack()->ptError() / muon->innerTrack()->pt() < maxDPtOPt)  //Here Loose!@
       out.emplace_back(muon->innerTrack(), reco::Muon::InnerTrack);
 
   bool pickyExists = false;
   double pickyDpt = 99999.;
   if (muon->pickyTrack().isNonnull() && muon->pickyTrack()->pt() > 0) {
     pickyDpt = muon->pickyTrack()->ptError() / muon->pickyTrack()->pt();
-    if (pickyDpt < dpt)
+    if (pickyDpt < maxDPtOPt)
       out.emplace_back(muon->pickyTrack(), reco::Muon::Picky);
     pickyExists = true;
   }
@@ -514,7 +509,7 @@ std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::Mu
   double dytDpt = 99999.;
   if (muon->dytTrack().isNonnull() && muon->dytTrack()->pt() > 0) {
     dytDpt = muon->dytTrack()->ptError() / muon->dytTrack()->pt();
-    if (dytDpt < dpt)
+    if (dytDpt < maxDPtOPt)
       out.emplace_back(muon->dytTrack(), reco::Muon::DYT);
     dytExists = true;
   }
@@ -526,12 +521,12 @@ std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::Mu
   if (muon->tpfmsTrack().isNonnull() && muon->tpfmsTrack()->pt() > 0) {
     double tpfmsDpt = muon->tpfmsTrack()->ptError() / muon->tpfmsTrack()->pt();
     if (((pickyExists && tpfmsDpt < pickyDpt) || (!pickyExists)) &&
-        ((dytExists && tpfmsDpt < dytDpt) || (!dytExists)) && tpfmsDpt < dpt)
+        ((dytExists && tpfmsDpt < dytDpt) || (!dytExists)) && tpfmsDpt < maxDPtOPt)
       out.emplace_back(muon->tpfmsTrack(), reco::Muon::TPFMS);
   }
 
   if (includeSA && muon->outerTrack().isNonnull())
-    if (muon->outerTrack()->ptError() / muon->outerTrack()->pt() < dpt)
+    if (muon->outerTrack()->ptError() / muon->outerTrack()->pt() < maxDPtOPt)
       out.emplace_back(muon->outerTrack(), reco::Muon::OuterTrack);
 
   return out;
@@ -561,9 +556,9 @@ bool PFMuonAlgo::reconstructMuon(reco::PFCandidate& candidate, const reco::MuonR
   //jet environment often the track is badly measured. In this case
   //we should not apply Dpt/Pt<1
 
-  std::vector<reco::Muon::MuonTrackTypePair> validTracks = goodMuonTracks(muon);
+  std::vector<reco::Muon::MuonTrackTypePair> validTracks = muonTracks(muon, maxDPtOPt_);
   if (!allowLoose)
-    validTracks = goodMuonTracks(muon);
+    validTracks = muonTracks(muon, maxDPtOPt_);
   else
     validTracks = muonTracks(muon);
 
@@ -613,16 +608,7 @@ void PFMuonAlgo::changeTrack(reco::PFCandidate& candidate, const MuonTrackTypePa
   candidate.setParticleType(reco::PFCandidate::mu);
   //    candidate.setTrackRef( bestTrack );
   candidate.setMuonTrackType(trackType);
-  if (trackType == reco::Muon::InnerTrack)
-    candidate.setVertexSource(PFCandidate::kTrkMuonVertex);
-  else if (trackType == reco::Muon::CombinedTrack)
-    candidate.setVertexSource(PFCandidate::kComMuonVertex);
-  else if (trackType == reco::Muon::TPFMS)
-    candidate.setVertexSource(PFCandidate::kTPFMSMuonVertex);
-  else if (trackType == reco::Muon::Picky)
-    candidate.setVertexSource(PFCandidate::kPickyMuonVertex);
-  else if (trackType == reco::Muon::DYT)
-    candidate.setVertexSource(PFCandidate::kDYTMuonVertex);
+  candidate.setVertex(bestTrack->vertex());
 }
 
 reco::Muon::MuonTrackTypePair PFMuonAlgo::getTrackWithSmallestError(
@@ -655,27 +641,27 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection* cands) {
   if (pfCosmicsMuonCleanedCandidates_.get())
     pfCosmicsMuonCleanedCandidates_->clear();
   else
-    pfCosmicsMuonCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfCosmicsMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfCleanedTrackerAndGlobalMuonCandidates_.get())
     pfCleanedTrackerAndGlobalMuonCandidates_->clear();
   else
-    pfCleanedTrackerAndGlobalMuonCandidates_.reset(new reco::PFCandidateCollection);
+    pfCleanedTrackerAndGlobalMuonCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfFakeMuonCleanedCandidates_.get())
     pfFakeMuonCleanedCandidates_->clear();
   else
-    pfFakeMuonCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfFakeMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfPunchThroughMuonCleanedCandidates_.get())
     pfPunchThroughMuonCleanedCandidates_->clear();
   else
-    pfPunchThroughMuonCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfPunchThroughMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   if (pfPunchThroughHadronCleanedCandidates_.get())
     pfPunchThroughHadronCleanedCandidates_->clear();
   else
-    pfPunchThroughHadronCleanedCandidates_.reset(new reco::PFCandidateCollection);
+    pfPunchThroughHadronCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
 
   pfPunchThroughHadronCleanedCandidates_->clear();
 
@@ -742,7 +728,19 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
   if (pfAddedMuonCandidates_.get())
     pfAddedMuonCandidates_->clear();
   else
-    pfAddedMuonCandidates_.reset(new reco::PFCandidateCollection);
+    pfAddedMuonCandidates_ = std::make_unique<reco::PFCandidateCollection>();
+
+  // do not recover muons if they are in the veto list
+  typedef std::pair<edm::ProductID, unsigned> TrackProdIDKey;
+  std::vector<TrackProdIDKey> vetoed;
+  if (vetoes_) {
+    for (const auto& veto : *vetoes_) {
+      if (veto.trackRef().isNull())
+        continue;
+      vetoed.emplace_back(veto.trackRef().id(), veto.trackRef().key());
+    }
+    std::sort(vetoed.begin(), vetoed.end());
+  }
 
   for (unsigned imu = 0; imu < muons->size(); ++imu) {
     reco::MuonRef muonRef(muons, imu);
@@ -776,13 +774,21 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
         break;
     }
 
+    if (!vetoed.empty()) {
+      TrackProdIDKey trk = std::make_pair(muonRef->track().id(), muonRef->track().key());
+      auto lower = std::lower_bound(vetoed.begin(), vetoed.end(), trk);
+      bool inVetoList = (lower != vetoed.end() && *lower == trk);
+      if (inVetoList)
+        used = true;
+    }
+
     if (used || hadron || (!muonRef.isNonnull()))
       continue;
 
     TrackMETComparator comparator(METX_, METY_);
     //Low pt dont need to be cleaned
 
-    std::vector<reco::Muon::MuonTrackTypePair> tracks = goodMuonTracks(muonRef, true);
+    std::vector<reco::Muon::MuonTrackTypePair> tracks = muonTracks(muonRef, maxDPtOPt_, true);
     //If there is at least 1 track choice  try to change the track
     if (!tracks.empty()) {
       //Find tracks that change dramatically MET or Pt
@@ -818,7 +824,7 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
 }
 
 std::pair<double, double> PFMuonAlgo::getMinMaxMET2(const reco::PFCandidate& pfc) {
-  std::vector<reco::Muon::MuonTrackTypePair> tracks = goodMuonTracks((pfc.muonRef()), true);
+  std::vector<reco::Muon::MuonTrackTypePair> tracks = muonTracks((pfc.muonRef()), maxDPtOPt_, true);
 
   double METXNO = METX_ - pfc.px();
   double METYNO = METY_ - pfc.py();
@@ -850,7 +856,7 @@ bool PFMuonAlgo::cleanMismeasured(reco::PFCandidate& pfc, unsigned int i) {
   //Low pt dont need to be cleaned
   if (pfc.pt() < minPostCleaningPt_)
     return false;
-  std::vector<reco::Muon::MuonTrackTypePair> tracks = goodMuonTracks(pfc.muonRef(), false);
+  std::vector<reco::Muon::MuonTrackTypePair> tracks = muonTracks(pfc.muonRef(), maxDPtOPt_, false);
 
   //If there is more than 1 track choice  try to change the track
   if (tracks.size() > 1) {

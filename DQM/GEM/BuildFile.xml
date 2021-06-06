@@ -1,3 +1,12 @@
+<use name="boost"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DQMServices/Core"/>
+<use name="DataFormats/GEMDigi"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="Validation/MuonGEMHits"/>
 <export>
-	<lib name="1"/>
+  <lib name="1"/>
 </export>

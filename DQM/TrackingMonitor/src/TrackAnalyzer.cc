@@ -64,6 +64,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
       doEffFromHitPatternVsBX_(iConfig.getParameter<bool>("doEffFromHitPatternVsBX")),
       doEffFromHitPatternVsLUMI_(iConfig.getParameter<bool>("doEffFromHitPatternVsLUMI")),
       pvNDOF_(iConfig.getParameter<int>("pvNDOF")),
+      forceSCAL_(iConfig.getParameter<bool>("forceSCAL")),
       useBPixLayer1_(iConfig.getParameter<bool>("useBPixLayer1")),
       minNumberOfPixelsPerCluster_(iConfig.getParameter<int>("minNumberOfPixelsPerCluster")),
       minPixelClusterCharge_(iConfig.getParameter<double>("minPixelClusterCharge")),
@@ -81,10 +82,12 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig, edm::ConsumesColl
   edm::InputTag primaryVertexInputTag = iConfig.getParameter<edm::InputTag>("primaryVertex");
   edm::InputTag pixelClusterInputTag = iConfig.getParameter<edm::InputTag>("pixelCluster4lumi");
   edm::InputTag scalInputTag = iConfig.getParameter<edm::InputTag>("scal");
+  edm::InputTag metaDataInputTag = iConfig.getParameter<edm::InputTag>("metadata");
   beamSpotToken_ = iC.consumes<reco::BeamSpot>(bsSrc);
   pvToken_ = iC.consumes<reco::VertexCollection>(primaryVertexInputTag);
   pixelClustersToken_ = iC.mayConsume<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterInputTag);
   lumiscalersToken_ = iC.mayConsume<LumiScalersCollection>(scalInputTag);
+  metaDataToken_ = iC.mayConsume<OnlineLuminosityRecord>(metaDataInputTag);
 
   if (doAllPlots_ || doEffFromHitPatternVsPU_ || doEffFromHitPatternVsBX_ || doEffFromHitPatternVsLUMI_) {
     trackerGeometryToken_ = iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
@@ -308,7 +311,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker& iboo
   }
 }
 
-#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
+#include "DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h"
 void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker& ibooker) {
   // parameters from the configuration
   std::string QualName = conf_->getParameter<std::string>("Quality");
@@ -1102,11 +1105,10 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
 void TrackAnalyzer::setNumberOfGoodVertices(const edm::Event& iEvent) {
   good_vertices_ = 0;
 
-  edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle;
-  iEvent.getByToken(pvToken_, recoPrimaryVerticesHandle);
+  edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle = iEvent.getHandle(pvToken_);
   if (recoPrimaryVerticesHandle.isValid())
     if (!recoPrimaryVerticesHandle->empty())
-      for (auto v : *recoPrimaryVerticesHandle)
+      for (const auto& v : *recoPrimaryVerticesHandle)
         if (v.ndof() >= pvNDOF_ && !v.isFake())
           ++good_vertices_;
 }
@@ -1116,16 +1118,22 @@ void TrackAnalyzer::setBX(const edm::Event& iEvent) { bx_ = iEvent.bunchCrossing
 void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // as done by pixelLumi http://cmslxr.fnal.gov/source/DQM/PixelLumi/plugins/PixelLumiDQM.cc
 
-  edm::Handle<LumiScalersCollection> lumiScalers;
-  iEvent.getByToken(lumiscalersToken_, lumiScalers);
-  if (lumiScalers.isValid() && !lumiScalers->empty()) {
-    LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
-    scal_lumi_ = scalit->instantLumi();
-  } else
-    scal_lumi_ = -1;
+  if (forceSCAL_) {
+    edm::Handle<LumiScalersCollection> lumiScalers = iEvent.getHandle(lumiscalersToken_);
+    if (lumiScalers.isValid() && !lumiScalers->empty()) {
+      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      scal_lumi_ = scalit->instantLumi();
+    } else
+      scal_lumi_ = -1;
+  } else {
+    edm::Handle<OnlineLuminosityRecord> metaData = iEvent.getHandle(metaDataToken_);
+    if (metaData.isValid())
+      scal_lumi_ = metaData->instLumi();
+    else
+      scal_lumi_ = -1;
+  }
 
-  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
-  iEvent.getByToken(pixelClustersToken_, pixelClusters);
+  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters = iEvent.getHandle(pixelClustersToken_);
   if (pixelClusters.isValid()) {
     TrackerTopology const& tTopo = iSetup.getData(trackerTopologyToken_);
 
@@ -1273,8 +1281,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   if (doDCAPlots_ || doBSPlots_ || doSIPPlots_ || doAllPlots_) {
-    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    iEvent.getByToken(beamSpotToken_, recoBeamSpotHandle);
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle = iEvent.getHandle(beamSpotToken_);
     const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
     DistanceOfClosestApproachError->Fill(track.dxyError());
@@ -1309,8 +1316,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   if (doDCAPlots_ || doPVPlots_ || doSIPPlots_ || doAllPlots_) {
-    edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle;
-    iEvent.getByToken(pvToken_, recoPrimaryVerticesHandle);
+    edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle = iEvent.getHandle(pvToken_);
     if (recoPrimaryVerticesHandle.isValid() && !recoPrimaryVerticesHandle->empty()) {
       const reco::Vertex& pv = (*recoPrimaryVerticesHandle)[0];
 
@@ -1734,30 +1740,6 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibo
     tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #eta", 1);
     tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #phi", 2);
 
-    histname = "TkEtaPhi_Ratio_byFoldingmap_" + histTag;
-    tkmes.TkEtaPhi_Ratio_byFoldingmap =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #phi", 2);
-
-    histname = "TkEtaPhi_Ratio_byFoldingmap_op_" + histTag;
-    tkmes.TkEtaPhi_Ratio_byFoldingmap_op =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #phi", 2);
-
-    histname = "TkEtaPhi_RelativeDifference_byFoldingmap_" + histTag;
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #phi", 2);
-
-    histname = "TkEtaPhi_RelativeDifference_byFoldingmap_op_" + histTag;
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #phi", 2);
-
     histname = "TrackQoverP_" + histTag;
     tkmes.TrackQoverP = ibooker.book1D(histname, histname, 10 * TrackQBin, TrackQMin, TrackQMax);
     tkmes.TrackQoverP->setAxisTitle("Track QoverP", 1);
@@ -2014,38 +1996,8 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 
     if (Folder == "Tr") {
       tkmes.TrackEtaPhiInverted->Fill(eta, -1 * phi);
-      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, 3.141592654 + -1 * phi);
-      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, -1 * phi - 3.141592654);
-      tkmes.TkEtaPhi_Ratio_byFoldingmap->divide(tkmes.TrackEtaPhi, tkmes.TrackEtaPhiInverted, 1., 1., "");
-      tkmes.TkEtaPhi_Ratio_byFoldingmap_op->divide(tkmes.TrackEtaPhi, tkmes.TrackEtaPhiInvertedoutofphase, 1., 1., "");
-
-      int nx = tkmes.TrackEtaPhi->getNbinsX();
-      int ny = tkmes.TrackEtaPhi->getNbinsY();
-
-      //NOTE: for full reproducibility when using threads, this loop needs to be
-      // a critical section
-      for (int ii = 1; ii <= nx; ii++) {
-        for (int jj = 1; jj <= ny; jj++) {
-          double Sum1 = tkmes.TrackEtaPhi->getBinContent(ii, jj) + tkmes.TrackEtaPhiInverted->getBinContent(ii, jj);
-          double Sum2 =
-              tkmes.TrackEtaPhi->getBinContent(ii, jj) + tkmes.TrackEtaPhiInvertedoutofphase->getBinContent(ii, jj);
-
-          double Sub1 = tkmes.TrackEtaPhi->getBinContent(ii, jj) - tkmes.TrackEtaPhiInverted->getBinContent(ii, jj);
-          double Sub2 =
-              tkmes.TrackEtaPhi->getBinContent(ii, jj) - tkmes.TrackEtaPhiInvertedoutofphase->getBinContent(ii, jj);
-
-          if (Sum1 == 0 || Sum2 == 0) {
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setBinContent(ii, jj, 1);
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setBinContent(ii, jj, 1);
-          } else {
-            double ratio1 = Sub1 / Sum1;
-            double ratio2 = Sub2 / Sum2;
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setBinContent(ii, jj, ratio1);
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setBinContent(ii, jj, ratio2);
-          }
-        }
-      }
-
+      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, M_PI - phi);
+      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, -(phi + M_PI));
       //pT histograms to create efficiency vs pT plot, only for the most inefficient region.
 
       if (eta < 0. && phi < -1.6) {
@@ -2259,7 +2211,7 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore::IBooker& ibooker) {
   std::vector<std::string> subdetectors = conf_->getParameter<std::vector<std::string> >("subdetectors");
   int detBin = conf_->getParameter<int>("subdetectorBin");
 
-  for (auto det : subdetectors) {
+  for (const auto& det : subdetectors) {
     // hits properties
     ibooker.setCurrentFolder(TopFolder_ + "/HitProperties/" + det);
 

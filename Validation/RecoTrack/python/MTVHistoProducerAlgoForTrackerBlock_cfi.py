@@ -82,8 +82,8 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     #
     # dR_jet
     mindrj = cms.double(0.001),
-    maxdrj = cms.double(0.1),
-    nintdrj = cms.int32(50),
+    maxdrj = cms.double(0.5),
+    nintdrj = cms.int32(100),
     #
     # chi2/ndof
     minChi2 = cms.double(0),
@@ -141,6 +141,7 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     seedingLayerSets = cms.vstring(),
 
     doMTDPlots = cms.untracked.bool(False), # meant to be switch on in Phase2 workflows
+    doDzPVcutPlots = cms.untracked.bool(True)
 )
 
 def _modifyForPhase1(pset):

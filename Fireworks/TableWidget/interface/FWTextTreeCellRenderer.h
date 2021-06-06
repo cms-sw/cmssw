@@ -12,6 +12,7 @@
 #include "TGPicture.h"
 #include "TSystem.h"
 #include "TGClient.h"
+#include "TVirtualX.h"
 
 class FWTextTreeCellRenderer : public FWTextTableCellRenderer {
 protected:

@@ -13,24 +13,26 @@ process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout', 'G4cerr', 'HGCalGeom'),
-    debugModules = cms.untracked.vstring('*'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        G4cerr = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         ),
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
         HGCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-        )
+        ),
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
     ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.load("IOMC.RandomEngine.IOMC_cff")

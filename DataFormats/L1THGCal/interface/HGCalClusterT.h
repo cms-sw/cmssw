@@ -6,7 +6,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
-#include "DataFormats/L1THGCal/interface/ClusterShapes.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
@@ -102,9 +101,6 @@ namespace l1t {
     const GlobalPoint& centre() const { return centre_; }
     const GlobalPoint& centreProj() const { return centreProj_; }
 
-    // FIXME: will need to fix places where the shapes are directly accessed
-    // Right now keep shapes() getter as non-const
-    ClusterShapes& shapes() { return shapes_; }
     double hOverE() const {
       double pt_em = 0.;
       double pt_had = 0.;
@@ -227,8 +223,6 @@ namespace l1t {
     float layer90percent_ = 0.;
     float triggerCells67percent_ = 0.;
     float triggerCells90percent_ = 0.;
-
-    ClusterShapes shapes_;
 
     void updateP4AndPosition(const edm::Ptr<C>& c, bool updateCentre = true, float fraction = 1.) {
       double cMipt = c->mipPt() * fraction;

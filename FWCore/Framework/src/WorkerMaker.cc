@@ -58,6 +58,11 @@ namespace edm {
       MakeModuleParams const& p,
       signalslot::Signal<void(ModuleDescription const&)>& pre,
       signalslot::Signal<void(ModuleDescription const&)>& post) const {
+    // Add process_name for SwitchProducer
+    if (p.pset_->getParameter<std::string>("@module_type") == "SwitchProducer") {
+      p.pset_->addUntrackedParameter("@process_name", p.processConfiguration_->processName());
+    }
+
     ConfigurationDescriptions descriptions(baseType(), p.pset_->getParameter<std::string>("@module_type"));
     fillDescriptions(descriptions);
     try {

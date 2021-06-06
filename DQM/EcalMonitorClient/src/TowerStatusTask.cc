@@ -50,13 +50,13 @@ namespace ecaldqm {
         for (unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++) {
           if (daqHndl->barrel(id).getStatusCode() != 0) {
             EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
-            daqStatus_[dccId(ttid) - 1] -= 25. / 1700.;
+            daqStatus_[dccId(ttid, GetElectronicsMap()) - 1] -= 25. / 1700.;
           }
         }
         for (unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++) {
           if (daqHndl->endcap(id).getStatusCode() != 0) {
             EcalScDetId scid(EcalScDetId::unhashIndex(id));
-            unsigned dccid(dccId(scid));
+            unsigned dccid(dccId(scid, GetElectronicsMap()));
             daqStatus_[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
           }
         }
@@ -73,13 +73,13 @@ namespace ecaldqm {
         for (unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++) {
           if (dcsHndl->barrel(id).getStatusCode() != 0) {
             EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
-            dcsStatus_[dccId(ttid) - 1] -= 25. / 1700.;
+            dcsStatus_[dccId(ttid, GetElectronicsMap()) - 1] -= 25. / 1700.;
           }
         }
         for (unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++) {
           if (dcsHndl->endcap(id).getStatusCode() != 0) {
             EcalScDetId scid(EcalScDetId::unhashIndex(id));
-            unsigned dccid(dccId(scid));
+            unsigned dccid(dccId(scid, GetElectronicsMap()));
             dcsStatus_[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
           }
         }
@@ -103,19 +103,19 @@ namespace ecaldqm {
     meSummaryMap = &MEs_.at(_type + "SummaryMap");
     meContents = &MEs_.at(_type + "Contents");
 
-    meSummary->reset(-1.);
+    meSummary->reset(GetElectronicsMap(), -1.);
     meSummaryMap->resetAll(-1.);
-    meSummaryMap->reset();
-    meContents->reset(-1.);
+    meSummaryMap->reset(GetElectronicsMap());
+    meContents->reset(GetElectronicsMap(), -1.);
 
     float totalFraction(0.);
     for (int iDCC(0); iDCC < nDCC; iDCC++) {
-      meSummaryMap->setBinContent(iDCC + 1, _status[iDCC]);
-      meContents->fill(iDCC + 1, _status[iDCC]);
+      meSummaryMap->setBinContent(getEcalDQMSetupObjects(), iDCC + 1, _status[iDCC]);
+      meContents->fill(getEcalDQMSetupObjects(), iDCC + 1, _status[iDCC]);
       totalFraction += _status[iDCC] / nCrystals(iDCC + 1);
     }
 
-    meSummary->fill(totalFraction);
+    meSummary->fill(getEcalDQMSetupObjects(), totalFraction);
   }
 
   DEFINE_ECALDQM_WORKER(TowerStatusTask);

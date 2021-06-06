@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 LowPtDimuonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_Mu30_TkMu11_v",  # Run2
-        "HLT_Mu17_TkMu8_DZ_v",# Run2
-        "HLT_Mu17_Mu8_DZ_v"  # Run2
+#        "HLT_Mu30_TkMu11_v",  # Run2
+#        "HLT_Mu17_TkMu8_DZ_v",# Run2
+#        "HLT_Mu17_Mu8_DZ_v"  # Run2
         #"HLT_Mu17_Mu8_v",    # Run1
         #"HLT_Mu17_TkMu8_v",  # Run1
         #"HLT_Mu22_TkMu8_v"   # Run1

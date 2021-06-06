@@ -1,0 +1,18 @@
+<lcgdict>
+
+  <class name="GBRForest" class_version = "0">
+    <field name="fTrees" mapping="blob"/>
+  </class>
+  <class name="std::vector<GBRTree>"/>
+  <class name="GBRTree"/>
+  <class name="GBRForest2D" class_version = "0">
+    <field name="fTrees" mapping="blob"/>
+  </class>
+  <class name="std::vector<GBRTree2D>"/>
+  <class name="GBRTree2D"/>  
+  <class name="GBRForestD">
+    <field name="fTrees" mapping="blob"/>
+  </class>
+  <class name="std::vector<GBRTreeD>"/>
+  <class name="GBRTreeD"/>    
+</lcgdict>   

@@ -81,6 +81,12 @@ namespace align {
     AlignableCSCRing,
     AlignableCSCChamber,
     AlignableCSCLayer,  // = 110
+    AlignableGEMEndcap,
+    AlignableGEMStation,
+    AlignableGEMRing,
+    AlignableGEMSuperChamber,
+    AlignableGEMChamber,
+    AlignableGEMEtaPartition,
     AlignableMuon,
 
     Detector,  // = 112 (what for?)

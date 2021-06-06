@@ -20,5 +20,5 @@ clusterShapeExtractor = cms.EDAnalyzer("PixelClusterShapeExtractor",
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(clusterShapeExtractor,
-    pixelSimLinkSrc = cms.InputTag('simSiPixelDigis', 'Pixel'),
+    pixelSimLinkSrc = 'simSiPixelDigis:Pixel'
 )

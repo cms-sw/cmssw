@@ -11,9 +11,13 @@
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerRunOneDigiBase.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRatioMethodAlgo.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
 namespace edm {
   class Event;
@@ -38,9 +42,12 @@ public:
 protected:
   // determie which of the samples must actually be used by ECAL local reco
   edm::ESHandle<EcalSampleMask> sampleMaskHand_;
+  edm::ESGetToken<EcalSampleMask, EcalSampleMaskRcd> sampleMaskToken_;
 
   edm::ESHandle<EcalPedestals> peds;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedsToken_;
   edm::ESHandle<EcalGainRatios> gains;
+  edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> gainsToken_;
 
   double pedVec[3];
   double pedRMSVec[3];

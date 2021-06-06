@@ -23,9 +23,11 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 
 using namespace edm::stream;
 //
@@ -93,6 +95,17 @@ std::vector<edm::ProductResolverIndexAndSkipBit> const& EDAnalyzerAdaptorBase::i
   return m_streamModules[0]->itemsToGetFrom(iType);
 }
 
+std::vector<edm::ESProxyIndex> const& EDAnalyzerAdaptorBase::esGetTokenIndicesVector(edm::Transition iTrans) const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->esGetTokenIndicesVector(iTrans);
+}
+
+std::vector<edm::ESRecordIndex> const& EDAnalyzerAdaptorBase::esGetTokenRecordIndicesVector(
+    edm::Transition iTrans) const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->esGetTokenRecordIndicesVector(iTrans);
+}
+
 void EDAnalyzerAdaptorBase::updateLookup(BranchType iType,
                                          ProductResolverIndexHelper const& iHelper,
                                          bool iPrefetchMayGet) {
@@ -110,12 +123,14 @@ void EDAnalyzerAdaptorBase::updateLookup(eventsetup::ESRecordsToProxyIndices con
 const edm::EDConsumerBase* EDAnalyzerAdaptorBase::consumer() const { return m_streamModules[0]; }
 
 void EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(
-    std::vector<ModuleDescription const*>& modules,
+    std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
+    std::vector<ModuleProcessName>& modulesInPreviousProcesses,
     ProductRegistry const& preg,
     std::map<std::string, ModuleDescription const*> const& labelsToDesc,
     std::string const& processName) const {
   assert(not m_streamModules.empty());
-  return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
+  return m_streamModules[0]->modulesWhoseProductsAreConsumed(
+      modules, modulesInPreviousProcesses, preg, labelsToDesc, processName);
 }
 
 void EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& processName) {
@@ -129,77 +144,84 @@ std::vector<edm::ConsumesInfo> EDAnalyzerAdaptorBase::consumesInfo() const {
   return m_streamModules[0]->consumesInfo();
 }
 
-bool EDAnalyzerAdaptorBase::doEvent(EventPrincipal const& ep,
-                                    EventSetupImpl const& ci,
+bool EDAnalyzerAdaptorBase::doEvent(EventTransitionInfo const& info,
                                     ActivityRegistry* act,
                                     ModuleCallingContext const* mcc) {
+  EventPrincipal const& ep = info.principal();
   assert(ep.streamID() < m_streamModules.size());
   auto mod = m_streamModules[ep.streamID()];
   Event e(ep, moduleDescription_, mcc);
   e.setConsumer(mod);
+  ESParentContext parentC(mcc);
   const EventSetup c{
-      ci, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), false};
+      info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC, false};
   EventSignalsSentry sentry(act, mcc);
   mod->analyze(e, c);
   return true;
 }
-void EDAnalyzerAdaptorBase::doBeginJob() {}
 
 void EDAnalyzerAdaptorBase::doBeginStream(StreamID id) { m_streamModules[id]->beginStream(id); }
 void EDAnalyzerAdaptorBase::doEndStream(StreamID id) { m_streamModules[id]->endStream(); }
 
 void EDAnalyzerAdaptorBase::doStreamBeginRun(StreamID id,
-                                             RunPrincipal const& rp,
-                                             EventSetupImpl const& ci,
+                                             RunTransitionInfo const& info,
                                              ModuleCallingContext const* mcc) {
+  RunPrincipal const& rp = info.principal();
   auto mod = m_streamModules[id];
   setupRun(mod, rp.index());
 
   Run r(rp, moduleDescription_, mcc, false);
-  const EventSetup c{
-      ci, static_cast<unsigned int>(Transition::BeginRun), mod->esGetTokenIndices(Transition::BeginRun), false};
+  ESParentContext parentC(mcc);
+  const EventSetup c{info,
+                     static_cast<unsigned int>(Transition::BeginRun),
+                     mod->esGetTokenIndices(Transition::BeginRun),
+                     parentC,
+                     false};
   r.setConsumer(mod);
   mod->beginRun(r, c);
 }
 
 void EDAnalyzerAdaptorBase::doStreamEndRun(StreamID id,
-                                           RunPrincipal const& rp,
-                                           EventSetupImpl const& ci,
+                                           RunTransitionInfo const& info,
                                            ModuleCallingContext const* mcc) {
   auto mod = m_streamModules[id];
-  Run r(rp, moduleDescription_, mcc, true);
+  Run r(info, moduleDescription_, mcc, true);
   r.setConsumer(mod);
+  ESParentContext parentC(mcc);
   const EventSetup c{
-      ci, static_cast<unsigned int>(Transition::EndRun), mod->esGetTokenIndices(Transition::EndRun), false};
+      info, static_cast<unsigned int>(Transition::EndRun), mod->esGetTokenIndices(Transition::EndRun), parentC, false};
   mod->endRun(r, c);
   streamEndRunSummary(mod, r, c);
 }
 
 void EDAnalyzerAdaptorBase::doStreamBeginLuminosityBlock(StreamID id,
-                                                         LuminosityBlockPrincipal const& lbp,
-                                                         EventSetupImpl const& ci,
+                                                         LumiTransitionInfo const& info,
                                                          ModuleCallingContext const* mcc) {
+  LuminosityBlockPrincipal const& lbp = info.principal();
   auto mod = m_streamModules[id];
   setupLuminosityBlock(mod, lbp.index());
 
   LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
   lb.setConsumer(mod);
-  const EventSetup c{ci,
+  ESParentContext parentC(mcc);
+  const EventSetup c{info,
                      static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                      mod->esGetTokenIndices(Transition::BeginLuminosityBlock),
+                     parentC,
                      false};
   mod->beginLuminosityBlock(lb, c);
 }
 void EDAnalyzerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
-                                                       LuminosityBlockPrincipal const& lbp,
-                                                       EventSetupImpl const& ci,
+                                                       LumiTransitionInfo const& info,
                                                        ModuleCallingContext const* mcc) {
   auto mod = m_streamModules[id];
-  LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
+  LuminosityBlock lb(info, moduleDescription_, mcc, true);
   lb.setConsumer(mod);
-  const EventSetup c{ci,
+  ESParentContext parentC(mcc);
+  const EventSetup c{info,
                      static_cast<unsigned int>(Transition::EndLuminosityBlock),
                      mod->esGetTokenIndices(Transition::EndLuminosityBlock),
+                     parentC,
                      false};
   mod->endLuminosityBlock(lb, c);
   streamEndLuminosityBlockSummary(mod, lb, c);

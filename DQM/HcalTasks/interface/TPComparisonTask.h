@@ -23,7 +23,7 @@ public:
   ~TPComparisonTask() override {}
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 protected:
   //	funcs
@@ -35,6 +35,7 @@ protected:
   edm::InputTag _tag2;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tok1;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tok2;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	tmp flags
   bool _skip1x1;

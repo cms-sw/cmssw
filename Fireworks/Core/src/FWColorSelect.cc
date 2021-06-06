@@ -10,7 +10,7 @@
     After creation, connect to signal method ColorSelected(Pixel_t) in
     FWColorSelect to receive colour changes.
  */
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "TGLayout.h"
 #include "TGClient.h"
@@ -300,7 +300,7 @@ FWColorSelect::FWColorSelect(
   fFireworksPopup->InitContent(fLabel.c_str(), colors);
   fFireworksPopup->Connect("ColorSelected(Color_t)", "FWColorSelect", this, "SetColorByIndex(Color_t)");
 
-  fColorManager->colorsHaveChanged_.connect(boost::bind(&FWColorSelect::UpdateColors, this));
+  fColorManager->colorsHaveChanged_.connect(std::bind(&FWColorSelect::UpdateColors, this));
 }
 
 FWColorSelect::~FWColorSelect() { delete fFireworksPopup; }

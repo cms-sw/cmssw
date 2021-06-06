@@ -2,6 +2,7 @@
 #define MESetBinningUtils_H
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 #include <string>
 
@@ -125,27 +126,27 @@ namespace ecaldqm {
       }
     };
 
-    AxisSpecs getBinning(ObjectType, BinningType, bool, int, unsigned);
+    AxisSpecs getBinning(EcalElectronicsMapping const *, ObjectType, BinningType, bool, int, unsigned);
 
-    int findBin1D(ObjectType, BinningType, DetId const &);
-    int findBin1D(ObjectType, BinningType, EcalElectronicsId const &);
-    int findBin1D(ObjectType, BinningType, int);
+    int findBin1D(EcalElectronicsMapping const *, ObjectType, BinningType, DetId const &);
+    int findBin1D(EcalElectronicsMapping const *, ObjectType, BinningType, EcalElectronicsId const &);
+    int findBin1D(EcalElectronicsMapping const *, ObjectType, BinningType, int);
 
-    int findBin2D(ObjectType, BinningType, DetId const &);
-    int findBin2D(ObjectType, BinningType, EcalElectronicsId const &);
-    int findBin2D(ObjectType, BinningType, int);
+    int findBin2D(EcalElectronicsMapping const *, ObjectType, BinningType, DetId const &);
+    int findBin2D(EcalElectronicsMapping const *, ObjectType, BinningType, EcalElectronicsId const &);
+    int findBin2D(EcalElectronicsMapping const *, ObjectType, BinningType, int);
 
-    unsigned findPlotIndex(ObjectType, DetId const &);
-    unsigned findPlotIndex(ObjectType, EcalElectronicsId const &);
-    unsigned findPlotIndex(ObjectType, int, BinningType _btype = kDCC);
+    unsigned findPlotIndex(EcalElectronicsMapping const *, ObjectType, DetId const &);
+    unsigned findPlotIndex(EcalElectronicsMapping const *, ObjectType, EcalElectronicsId const &);
+    unsigned findPlotIndex(EcalElectronicsMapping const *, ObjectType, int, BinningType _btype = kDCC);
 
     ObjectType getObject(ObjectType, unsigned);
 
     unsigned getNObjects(ObjectType);
 
-    bool isValidIdBin(ObjectType, BinningType, unsigned, int);
+    bool isValidIdBin(EcalElectronicsMapping const *, ObjectType, BinningType, unsigned, int);
 
-    std::string channelName(uint32_t, BinningType _btype = kDCC);
+    std::string channelName(EcalElectronicsMapping const *, uint32_t, BinningType _btype = kDCC);
 
     uint32_t idFromName(std::string const &);
     uint32_t idFromBin(ObjectType, BinningType, unsigned, int);
@@ -165,18 +166,18 @@ namespace ecaldqm {
 
     AxisSpecs getBinningEB_(BinningType, bool, int);
     AxisSpecs getBinningEE_(BinningType, bool, int, int);
-    AxisSpecs getBinningSM_(BinningType, bool, unsigned, int);
+    AxisSpecs getBinningSM_(BinningType, bool, unsigned, int, EcalElectronicsMapping const *);
     AxisSpecs getBinningSMMEM_(BinningType, bool, unsigned, int);
     AxisSpecs getBinningEcal_(BinningType, bool, int);
     AxisSpecs getBinningMEM_(BinningType, bool, int, int);
 
-    int findBinCrystal_(ObjectType, DetId const &, int = -1);
-    int findBinCrystal_(ObjectType, EcalElectronicsId const &);
-    int findBinTriggerTower_(ObjectType, DetId const &);
-    int findBinPseudoStrip_(ObjectType, DetId const &);
+    int findBinCrystal_(EcalElectronicsMapping const *, ObjectType, DetId const &, int = -1);
+    int findBinCrystal_(EcalElectronicsMapping const *, ObjectType, EcalElectronicsId const &);
+    int findBinTriggerTower_(EcalElectronicsMapping const *, ObjectType, DetId const &);
+    int findBinPseudoStrip_(EcalElectronicsMapping const *, ObjectType, DetId const &);
     int findBinRCT_(ObjectType, DetId const &);
-    int findBinSuperCrystal_(ObjectType, DetId const &, int = -1);
-    int findBinSuperCrystal_(ObjectType, EcalElectronicsId const &);
+    int findBinSuperCrystal_(EcalElectronicsMapping const *, ObjectType, DetId const &, int = -1);
+    int findBinSuperCrystal_(EcalElectronicsMapping const *, ObjectType, EcalElectronicsId const &);
   }  // namespace binning
 }  // namespace ecaldqm
 

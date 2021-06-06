@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -58,11 +58,16 @@ private:
 
   DQMStore *dqmStore_;
   edm::ParameterSet conf_;
-  edm::ESHandle<SiStripDetCabling> detCabling_;
-  edm::ESHandle<SiStripQuality> stripQuality_;
+  const SiStripDetCabling *detCabling_;
+  const SiStripQuality *stripQuality_;
 
   std::map<uint32_t, MonitorElement *> QualityMEs;
   std::string dataLabel_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
+  edm::ESWatcher<SiStripQualityRcd> qualityWatcher_;
 
   unsigned long long m_cacheID_;
 };

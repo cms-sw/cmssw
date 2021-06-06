@@ -18,7 +18,6 @@
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
-#include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
@@ -30,7 +29,9 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
+#include "DataFormats/Math/interface/Rounding.h"
+#include <DD4hep/DD4hepUnits.h>
 
 //#define EDM_ML_DEBUG
 
@@ -39,13 +40,13 @@ using namespace cms;
 class DD4hep_TestMTDIdealGeometry : public edm::one::EDAnalyzer<> {
 public:
   explicit DD4hep_TestMTDIdealGeometry(const edm::ParameterSet&);
-  ~DD4hep_TestMTDIdealGeometry() = default;
+  ~DD4hep_TestMTDIdealGeometry() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
 
-  void theBaseNumber(const std::vector<std::pair<std::string, uint32_t>>& gh);
+  void theBaseNumber(cms::DDFilteredView& fv);
 
 private:
   const edm::ESInputTag tag_;
@@ -62,7 +63,7 @@ private:
 
 using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 using angle_units::operators::convertRadToDeg;
-using geant_units::operators::convertCmToMm;
+using cms_rounding::roundIfNear0;
 
 DD4hep_TestMTDIdealGeometry::DD4hep_TestMTDIdealGeometry(const edm::ParameterSet& iConfig)
     : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
@@ -120,11 +121,11 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   edm::LogVerbatim("Geometry").log([&specs](auto& log) {
     log << "Filtered DD SpecPar Registry size: " << specs.size() << "\n";
     for (const auto& t : specs) {
-      log << "\nRegExps { ";
-      for (const auto& ki : t->paths)
+      log << "\nSpecPar " << t.first << ":\nRegExps { ";
+      for (const auto& ki : t.second->paths)
         log << ki << " ";
       log << "};\n ";
-      for (const auto& kl : t->spars) {
+      for (const auto& kl : t.second->spars) {
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
           log << kil << " ";
@@ -138,29 +139,26 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   bool isBarrel = true;
   bool exitLoop = false;
   uint32_t level(0);
-  std::vector<std::pair<std::string, uint32_t>> geoHistory;
 
   do {
-    uint32_t clevel = fv.navPos().size();
-    uint32_t ccopy = (clevel > 1 ? fv.copyNum() : 0);
-    geoHistory.resize(clevel);
-    geoHistory[clevel - 1] = std::pair<std::string, uint32_t>(static_cast<std::string>(fv.name()), ccopy);
-
-    if (fv.name() == "BarrelTimingLayer") {
+    if (dd4hep::dd::noNamespace(fv.name()) == "BarrelTimingLayer") {
       isBarrel = true;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
-    } else if (fv.name() == "EndcapTimingLayer") {
+    } else if (dd4hep::dd::noNamespace(fv.name()) == "EndcapTimingLayer") {
       isBarrel = false;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
     }
 
     std::stringstream ss;
-    auto print_path = [&](std::vector<std::pair<std::string, uint32_t>>& theHistory) {
-      ss << " - ";
-      for (const auto& t : theHistory) {
-        ss << t.first;
+
+    theBaseNumber(fv);
+
+    auto print_path = [&]() {
+      ss << " - OCMS[0]/";
+      for (int ii = thisN_.getLevels() - 1; ii-- > 0;) {
+        ss << thisN_.getLevelName(ii);
         ss << "[";
-        ss << t.second;
+        ss << thisN_.getCopyNumber(ii);
         ss << "]/";
       }
     };
@@ -170,7 +168,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
       write = false;
       exitLoop = true;
     }
-    if (fv.name() == ddTopNodeName_) {
+    if (dd4hep::dd::noNamespace(fv.name()) == ddTopNodeName_) {
       write = true;
       level = fv.navPos().size();
     }
@@ -184,11 +182,10 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
     // Actions for MTD volumes: searchg for sensitive detectors
 
     if (write) {
-      print_path(geoHistory);
+      print_path();
 
 #ifdef EDM_ML_DEBUG
-      edm::LogInfo("DD4hep_TestMTDIdealGeometry") << level << " " << clevel << " " << fv.name() << " " << ccopy << "\n"
-                                                  << fv.path();
+      edm::LogInfo("DD4hep_TestMTDIdealGeometry") << fv.path();
 #endif
 
       edm::LogInfo("DD4hep_TestMTDPath") << ss.str();
@@ -196,8 +193,8 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
       bool isSens = false;
 
       for (auto const& t : specs) {
-        for (auto const& it : t->paths) {
-          if (dd::compareEqual(fv.name(), dd::realTopName(it))) {
+        for (auto const& it : t.second->paths) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(fv.name()), dd4hep::dd::realTopName(it))) {
             isSens = true;
             break;
           }
@@ -209,8 +206,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         // Test of numbering scheme for sensitive detectors
         //
 
-        theBaseNumber(geoHistory);
-
+        std::stringstream sunitt;
         std::stringstream snum;
 
         if (isBarrel) {
@@ -218,6 +214,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           BTLDetId theId(btlNS_.getUnitID(thisN_));
           int hIndex = theId.hashedIndex(lay);
           BTLDetId theNewId(theId.getUnhashedIndex(hIndex, lay));
+          sunitt << theId.rawId();
           snum << theId << "\n layout type = " << static_cast<int>(lay) << "\n ieta        = " << theId.ieta(lay)
                << "\n iphi        = " << theId.iphi(lay) << "\n hashedIndex = " << theId.hashedIndex(lay)
                << "\n BTLDetId hI = " << theNewId;
@@ -239,6 +236,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           snum << "\n";
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
+          sunitt << theId.rawId();
           snum << theId;
         }
         edm::LogInfo("DD4hep_TestMTDNumbering") << snum.str();
@@ -249,29 +247,32 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
 
         std::stringstream spos;
 
-        if (!fv.isABox()) {
+        auto fround = [&](double in) {
+          std::stringstream ss;
+          ss << std::fixed << std::setw(14) << roundIfNear0(in);
+          return ss.str();
+        };
+
+        if (!dd4hep::isA<dd4hep::Box>(fv.solid())) {
           throw cms::Exception("TestMTDIdealGeometry") << "MTD sensitive element not a DDBox";
           break;
         }
-        dd::DDBox mySens(fv);
-        spos << "Solid shape name: " << DDSolidShapesName::name(fv.legacyShape(dd::getCurrentShape(fv))) << "\n";
-        spos << "Box dimensions: " << std::setw(14) << std::fixed << convertCmToMm(mySens.halfX()) << " "
-             << std::setw(14) << convertCmToMm(mySens.halfY()) << " " << std::setw(14) << convertCmToMm(mySens.halfZ())
-             << "\n";
+        dd4hep::Box mySens(fv.solid());
+        spos << "Solid shape name: " << DDSolidShapesName::name(fv.legacyShape(fv.shape())) << "\n";
+        spos << "Box dimensions: " << fround(mySens.x() / dd4hep::mm) << " " << fround(mySens.y() / dd4hep::mm) << " "
+             << fround(mySens.z() / dd4hep::mm) << "\n";
 
         DD3Vector x, y, z;
         fv.rotation().GetComponents(x, y, z);
-        spos << "Translation vector components: " << std::setw(14) << std::fixed << convertCmToMm(fv.translation().x())
-             << " " << std::setw(14) << convertCmToMm(fv.translation().y()) << " " << std::setw(14)
-             << convertCmToMm(fv.translation().z()) << " "
+        spos << "Translation vector components: " << fround(fv.translation().x() / dd4hep::mm) << " "
+             << fround(fv.translation().y() / dd4hep::mm) << " " << fround(fv.translation().z() / dd4hep::mm) << " "
              << "\n";
-        spos << "Rotation matrix components: " << std::setw(14) << x.X() << " " << std::setw(14) << x.Y() << " "
-             << std::setw(14) << x.Z() << " " << std::setw(14) << y.X() << " " << std::setw(14) << y.Y() << " "
-             << std::setw(14) << y.Z() << " " << std::setw(14) << z.X() << " " << std::setw(14) << z.Y() << " "
-             << std::setw(14) << z.Z() << "\n";
+        spos << "Rotation matrix components: " << fround(x.X()) << " " << fround(x.Y()) << " " << fround(x.Z()) << " "
+             << fround(y.X()) << " " << fround(y.Y()) << " " << fround(y.Z()) << " " << fround(z.X()) << " "
+             << fround(z.Y()) << " " << fround(z.Z()) << "\n";
 
         DD3Vector zeroLocal(0., 0., 0.);
-        DD3Vector cn1Local(mySens.halfX(), mySens.halfY(), mySens.halfZ());
+        DD3Vector cn1Local(mySens.x(), mySens.y(), mySens.z());
         double distLocal = cn1Local.R();
         DD3Vector zeroGlobal = (fv.rotation())(zeroLocal) + fv.translation();
         DD3Vector cn1Global = (fv.rotation())(cn1Local) + fv.translation();
@@ -279,37 +280,39 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
             std::sqrt(std::pow(zeroGlobal.X() - cn1Global.X(), 2) + std::pow(zeroGlobal.Y() - cn1Global.Y(), 2) +
                       std::pow(zeroGlobal.Z() - cn1Global.Z(), 2));
 
-        spos << "Center global   = " << std::setw(14) << convertCmToMm(zeroGlobal.X()) << std::setw(14)
-             << convertCmToMm(zeroGlobal.Y()) << std::setw(14) << convertCmToMm(zeroGlobal.Z())
-             << " r = " << std::setw(14) << convertCmToMm(zeroGlobal.Rho()) << " phi = " << std::setw(14)
-             << convertRadToDeg(zeroGlobal.Phi()) << "\n";
+        spos << "Center global   = " << fround(zeroGlobal.X() / dd4hep::mm) << fround(zeroGlobal.Y() / dd4hep::mm)
+             << fround(zeroGlobal.Z() / dd4hep::mm) << " r = " << fround(zeroGlobal.Rho() / dd4hep::mm)
+             << " phi = " << fround(convertRadToDeg(zeroGlobal.Phi())) << "\n";
 
-        spos << "Corner 1 local  = " << std::setw(14) << convertCmToMm(cn1Local.X()) << std::setw(14)
-             << convertCmToMm(cn1Local.Y()) << std::setw(14) << convertCmToMm(cn1Local.Z())
-             << " DeltaR = " << std::setw(14) << convertCmToMm(distLocal) << "\n";
+        spos << "Corner 1 local  = " << fround(cn1Local.X() / dd4hep::mm) << fround(cn1Local.Y() / dd4hep::mm)
+             << fround(cn1Local.Z() / dd4hep::mm) << " DeltaR = " << fround(distLocal / dd4hep::mm) << "\n";
 
-        spos << "Corner 1 global = " << std::setw(14) << convertCmToMm(cn1Global.X()) << std::setw(14)
-             << convertCmToMm(cn1Global.Y()) << std::setw(14) << convertCmToMm(cn1Global.Z())
-             << " DeltaR = " << std::setw(14) << convertCmToMm(distGlobal) << "\n";
+        spos << "Corner 1 global = " << fround(cn1Global.X() / dd4hep::mm) << fround(cn1Global.Y() / dd4hep::mm)
+             << fround(cn1Global.Z() / dd4hep::mm) << " DeltaR = " << fround(distGlobal / dd4hep::mm) << "\n";
 
         spos << "\n";
-        if (std::fabs(convertCmToMm(distGlobal - distLocal)) > 1.e-6) {
+        if (std::fabs(distGlobal - distLocal) / dd4hep::mm > 1.e-6) {
           spos << "DIFFERENCE IN DISTANCE \n";
         }
+        sunitt << fround(zeroGlobal.X() / dd4hep::mm) << fround(zeroGlobal.Y() / dd4hep::mm)
+               << fround(zeroGlobal.Z() / dd4hep::mm) << fround(cn1Global.X() / dd4hep::mm)
+               << fround(cn1Global.Y() / dd4hep::mm) << fround(cn1Global.Z() / dd4hep::mm);
         edm::LogInfo("DD4hep_TestMTDPosition") << spos.str();
+
+        edm::LogVerbatim("MTDUnitTest") << sunitt.str();
       }
     }
   } while (fv.next(0));
 }
 
-void DD4hep_TestMTDIdealGeometry::theBaseNumber(const std::vector<std::pair<std::string, uint32_t>>& gh) {
+void DD4hep_TestMTDIdealGeometry::theBaseNumber(cms::DDFilteredView& fv) {
   thisN_.reset();
-  thisN_.setSize(gh.size());
+  thisN_.setSize(fv.navPos().size());
 
-  for (auto t = gh.rbegin(); t != gh.rend(); ++t) {
-    std::string name;
-    name.assign(t->first);
-    int copyN(t->second);
+  for (uint ii = 0; ii < fv.navPos().size(); ii++) {
+    std::string name((fv.geoHistory()[ii])->GetName());
+    name.assign(name.erase(name.rfind('_')));
+    int copyN(fv.copyNos()[ii]);
     thisN_.addLevel(name, copyN);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DD4hep_TestMTDIdealGeometry") << name << " " << copyN;

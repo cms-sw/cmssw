@@ -1,5 +1,7 @@
 #include "PFClusterProducer.h"
 
+#include <memory>
+
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
 #define LOGWARN(x) edm::LogWarning(x)
@@ -15,11 +17,13 @@
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
     : _prodInitClusters(conf.getUntrackedParameter<bool>("prodInitialClusters", false)) {
   _rechitsLabel = consumes<reco::PFRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsSource"));
+  edm::ConsumesCollector cc = consumesCollector();
+
   //setup rechit cleaners
   const edm::VParameterSet& cleanerConfs = conf.getParameterSetVector("recHitCleaners");
   for (const auto& conf : cleanerConfs) {
     const std::string& cleanerName = conf.getParameter<std::string>("algoName");
-    _cleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(cleanerName, conf));
+    _cleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(cleanerName, conf, cc));
   }
 
   if (conf.exists("seedCleaners")) {
@@ -27,11 +31,9 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
 
     for (const auto& conf : seedcleanerConfs) {
       const std::string& seedcleanerName = conf.getParameter<std::string>("algoName");
-      _seedcleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(seedcleanerName, conf));
+      _seedcleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(seedcleanerName, conf, cc));
     }
   }
-
-  edm::ConsumesCollector sumes = consumesCollector();
 
   // setup seed finding
   const edm::ParameterSet& sfConf = conf.getParameterSet("seedFinder");
@@ -40,18 +42,18 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
   //setup topo cluster builder
   const edm::ParameterSet& initConf = conf.getParameterSet("initialClusteringStep");
   const std::string& initName = initConf.getParameter<std::string>("algoName");
-  _initialClustering = InitialClusteringStepFactory::get()->create(initName, initConf, sumes);
+  _initialClustering = InitialClusteringStepFactory::get()->create(initName, initConf, cc);
   //setup pf cluster builder if requested
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if (!pfcConf.empty()) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-    _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf);
+    _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf, cc);
   }
   //setup (possible) recalcuation of positions
   const edm::ParameterSet& pConf = conf.getParameterSet("positionReCalc");
   if (!pConf.empty()) {
     const std::string& pName = pConf.getParameter<std::string>("algoName");
-    _positionReCalc = PFCPositionCalculatorFactory::get()->create(pName, pConf);
+    _positionReCalc = PFCPositionCalculatorFactory::get()->create(pName, pConf, cc);
   }
   // see if new need to apply corrections, setup if there.
   const edm::ParameterSet& cConf = conf.getParameterSet("energyCorrector");
@@ -107,7 +109,7 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   LOGVERB("PFClusterProducer::produce()") << *_initialClustering;
 
   auto pfClusters = std::make_unique<reco::PFClusterCollection>();
-  pfClusters.reset(new reco::PFClusterCollection);
+  pfClusters = std::make_unique<reco::PFClusterCollection>();
   if (_pfClusterBuilder) {  // if we've defined a re-clustering step execute it
     _pfClusterBuilder->buildClusters(*initialClusters, seedable, *pfClusters);
     LOGVERB("PFClusterProducer::produce()") << *_pfClusterBuilder;

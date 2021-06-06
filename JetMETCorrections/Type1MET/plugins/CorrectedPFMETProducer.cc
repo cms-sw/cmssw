@@ -62,7 +62,7 @@ private:
 
     const reco::PFMET& srcMET = (*srcMETCollection)[0];
 
-    reco::PFMET outMET = corrector.getCorrectedPFMET(srcMET, evt, es);
+    reco::PFMET outMET = corrector.getCorrectedPFMET(srcMET, evt);
 
     std::unique_ptr<METCollection> product(new METCollection);
     product->push_back(outMET);

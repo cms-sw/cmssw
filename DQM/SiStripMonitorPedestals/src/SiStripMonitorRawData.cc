@@ -43,7 +43,7 @@ SiStripMonitorRawData::SiStripMonitorRawData(edm::ParameterSet const &iConfig)
     : BadFedNumber(nullptr),
       dqmStore_(edm::Service<DQMStore>().operator->()),
       conf_(iConfig),
-      m_cacheID_(0)
+      detCablingToken_(esConsumes<edm::Transition::BeginRun>())
 
 {
   // retrieve producer name of input StripDigiCollection
@@ -66,15 +66,13 @@ SiStripMonitorRawData::~SiStripMonitorRawData() {
 void SiStripMonitorRawData::bookHistograms(DQMStore::IBooker &ibooker,
                                            const edm::Run &run,
                                            const edm::EventSetup &eSetup) {
-  unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
-
   if (BadFedNumber)
     BadFedNumber->Reset();
-  if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;
-    eSetup.get<SiStripDetCablingRcd>().get(detcabling);
+
+  if (detCablingWatcher_.check(eSetup)) {
     SelectedDetIds.clear();
-    detcabling->addActiveDetectorsRawIds(SelectedDetIds);
+    const auto &detcabling = eSetup.getData(detCablingToken_);
+    detcabling.addActiveDetectorsRawIds(SelectedDetIds);
 
     edm::LogInfo("SiStripMonitorRawData") << "SiStripMonitorRawData::bookHistograms: "
                                           << " Creating MEs for new Cabling ";
@@ -92,7 +90,7 @@ void SiStripMonitorRawData::analyze(edm::Event const &iEvent, edm::EventSetup co
   edm::LogInfo("SiStripMonitorRawData") << "SiStripMonitorRawData::analyze: Run " << iEvent.id().run() << " Event "
                                         << iEvent.id().event();
 
-  iSetup.get<SiStripDetCablingRcd>().get(detcabling);
+  const auto &detcabling = iSetup.getData(detCablingToken_);
 
   // get DigiCollection object from Event
   edm::Handle<edm::DetSetVector<SiStripRawDigi>> digi_collection;
@@ -103,7 +101,7 @@ void SiStripMonitorRawData::analyze(edm::Event const &iEvent, edm::EventSetup co
        ++idetid) {
     std::vector<edm::DetSet<SiStripRawDigi>>::const_iterator digis = digi_collection->find((*idetid));
     if (digis == digi_collection->end() || digis->data.empty() || digis->data.size() > 768) {
-      std::vector<const FedChannelConnection *> fed_conns = detcabling->getConnections((*idetid));
+      std::vector<const FedChannelConnection *> fed_conns = detcabling.getConnections((*idetid));
       for (unsigned int k = 0; k < fed_conns.size(); k++) {
         if (fed_conns[k] && fed_conns[k]->isConnected()) {
           float fed_id = fed_conns[k]->fedId() + 0.01 * fed_conns[k]->fedCh();

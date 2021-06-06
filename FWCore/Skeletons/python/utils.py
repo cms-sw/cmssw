@@ -20,6 +20,20 @@ import subprocess
 # template tag pattern
 TAG = re.compile(r'[a-zA-Z0-9]')
 
+def template_directory():
+    "Return location of template directory"
+    mkTemplates = "src/FWCore/Skeletons/mkTemplates"
+    # Check developer area first
+    if "CMSSW_BASE" in os.environ:
+        ret = os.path.join(os.environ["CMSSW_BASE"], mkTemplates)
+        if os.path.exists(ret):
+            return ret
+    # Then release area
+    ret = os.path.join(os.environ["CMSSW_RELEASE_BASE"], mkTemplates)
+    if not os.path.exists(ret):
+        raise Exception("Did not find 'FWCore/Skeletons/mkTemplates' directory in the developer area nor in the release area")
+    return ret
+
 def parse_word(word):
     "Parse word which contas double underscore tag"
     output = set()

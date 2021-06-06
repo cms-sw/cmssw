@@ -14,6 +14,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeCathodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTContainer.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCALCTCrossCLCT.h"
 
 // generic container type
 namespace {
@@ -42,9 +43,6 @@ public:
                         unsigned chamber,
                         const edm::ParameterSet& conf);
 
-  //Default constructor for testing
-  CSCUpgradeMotherboard();
-
   ~CSCUpgradeMotherboard() override;
 
   // Empty the LCT container
@@ -71,10 +69,6 @@ public:
   /** get CSCPart from HS, station, ring number **/
   enum CSCPart getCSCPart(int keystrip) const;
 
-  // functions to setup geometry and LUTs
-  void setupGeometry();
-  void debugLUTs();
-
   // run TMB with GEM pad clusters as input
   void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc) override;
 
@@ -89,6 +83,9 @@ protected:
                      CSCCorrelatedLCTDigi& lct1,
                      CSCCorrelatedLCTDigi& lct2) const;
 
+  // special cases for ME1/1 (when GEMs are not used)
+  bool doesALCTCrossCLCT(const CSCALCTDigi& a, const CSCCLCTDigi& c) const;
+
   Parity theParity;
 
   void setPrefIndex();
@@ -96,8 +93,6 @@ protected:
   /** for the case when more than 2 LCTs/BX are allowed;
       maximum match window = 15 */
   LCTContainer allLCTs;
-
-  std::unique_ptr<CSCUpgradeMotherboardLUTGenerator> generator_;
 
   /** "preferential" index array in matching window for cross-BX sorting */
   int pref[CSCConstants::MAX_LCT_TBINS];
@@ -114,8 +109,10 @@ protected:
   // debug gem matching
   bool debug_matching;
 
-  // check look-up-tables
-  bool debug_luts;
+  // ignore unphysical ALCT-CLCT matches
+  bool ignoreAlctCrossClct;
+
+  std::unique_ptr<CSCALCTCrossCLCT> cscOverlap_;
 };
 
 template <class S>

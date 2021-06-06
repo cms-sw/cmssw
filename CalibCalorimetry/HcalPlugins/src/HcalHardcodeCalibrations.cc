@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -169,17 +168,20 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
     if (hb_recalib) {
-      hb_recalibration.reset(new HBHERecalibration(iLumi,
-                                                   iConfig.getParameter<double>("HBreCalibCutoff"),
-                                                   iConfig.getParameter<edm::FileInPath>("HBmeanenergies").fullPath()));
+      hb_recalibration =
+          std::make_unique<HBHERecalibration>(iLumi,
+                                              iConfig.getParameter<double>("HBreCalibCutoff"),
+                                              iConfig.getParameter<edm::FileInPath>("HBmeanenergies").fullPath());
     }
     if (he_recalib) {
-      he_recalibration.reset(new HBHERecalibration(iLumi,
-                                                   iConfig.getParameter<double>("HEreCalibCutoff"),
-                                                   iConfig.getParameter<edm::FileInPath>("HEmeanenergies").fullPath()));
+      he_recalibration =
+          std::make_unique<HBHERecalibration>(iLumi,
+                                              iConfig.getParameter<double>("HEreCalibCutoff"),
+                                              iConfig.getParameter<edm::FileInPath>("HEmeanenergies").fullPath());
     }
     if (hf_recalib && !iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock").empty())
-      hf_recalibration.reset(new HFRecalibration(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
+      hf_recalibration =
+          std::make_unique<HFRecalibration>(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
 
 #ifdef DebugLog
     std::cout << " HcalHardcodeCalibrations:  iLumi = " << iLumi << std::endl;
@@ -193,86 +195,88 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
     std::cout << "Load parameters for " << objectName << std::endl;
 #endif
     if ((objectName == "Pedestals") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::producePedestals).setConsumes(topoTokens_[kPedestals]);
+      topoTokens_[kPedestals] = setWhatProduced(this, &HcalHardcodeCalibrations::producePedestals).consumes();
       findingRecord<HcalPedestalsRcd>();
     }
     if ((objectName == "PedestalWidths") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::producePedestalWidths).setConsumes(topoTokens_[kPedestalWidths]);
+      topoTokens_[kPedestalWidths] = setWhatProduced(this, &HcalHardcodeCalibrations::producePedestalWidths).consumes();
       findingRecord<HcalPedestalWidthsRcd>();
     }
     if ((objectName == "EffectivePedestals") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceEffectivePedestals, edm::es::Label("effective"))
-          .setConsumes(topoTokens_[kEffectivePedestals]);
+      topoTokens_[kEffectivePedestals] =
+          setWhatProduced(this, &HcalHardcodeCalibrations::produceEffectivePedestals, edm::es::Label("effective"))
+              .consumes();
       findingRecord<HcalPedestalsRcd>();
     }
     if ((objectName == "EffectivePedestalWidths") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceEffectivePedestalWidths, edm::es::Label("effective"))
-          .setConsumes(topoTokens_[kEffectivePedestalWidths]);
+      topoTokens_[kEffectivePedestalWidths] =
+          setWhatProduced(this, &HcalHardcodeCalibrations::produceEffectivePedestalWidths, edm::es::Label("effective"))
+              .consumes();
       findingRecord<HcalPedestalWidthsRcd>();
     }
     if ((objectName == "Gains") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceGains).setConsumes(topoTokens_[kGains]);
+      topoTokens_[kGains] = setWhatProduced(this, &HcalHardcodeCalibrations::produceGains).consumes();
       findingRecord<HcalGainsRcd>();
     }
     if ((objectName == "GainWidths") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceGainWidths).setConsumes(topoTokens_[kGainWidths]);
+      topoTokens_[kGainWidths] = setWhatProduced(this, &HcalHardcodeCalibrations::produceGainWidths).consumes();
       findingRecord<HcalGainWidthsRcd>();
     }
     if ((objectName == "QIEData") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceQIEData).setConsumes(topoTokens_[kQIEData]);
+      topoTokens_[kQIEData] = setWhatProduced(this, &HcalHardcodeCalibrations::produceQIEData).consumes();
       findingRecord<HcalQIEDataRcd>();
     }
     if ((objectName == "QIETypes") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceQIETypes).setConsumes(topoTokens_[kQIETypes]);
+      topoTokens_[kQIETypes] = setWhatProduced(this, &HcalHardcodeCalibrations::produceQIETypes).consumes();
       findingRecord<HcalQIETypesRcd>();
     }
     if ((objectName == "ChannelQuality") || (objectName == "channelQuality") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceChannelQuality).setConsumes(topoTokens_[kChannelQuality]);
+      topoTokens_[kChannelQuality] = setWhatProduced(this, &HcalHardcodeCalibrations::produceChannelQuality).consumes();
       findingRecord<HcalChannelQualityRcd>();
     }
     if ((objectName == "ElectronicsMap") || (objectName == "electronicsMap") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceElectronicsMap).setConsumes(topoTokens_[kElectronicsMap]);
+      topoTokens_[kElectronicsMap] = setWhatProduced(this, &HcalHardcodeCalibrations::produceElectronicsMap).consumes();
       findingRecord<HcalElectronicsMapRcd>();
     }
     if ((objectName == "ZSThresholds") || (objectName == "zsThresholds") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceZSThresholds).setConsumes(topoTokens_[kZSThresholds]);
+      topoTokens_[kZSThresholds] = setWhatProduced(this, &HcalHardcodeCalibrations::produceZSThresholds).consumes();
       findingRecord<HcalZSThresholdsRcd>();
     }
     if ((objectName == "RespCorrs") || (objectName == "ResponseCorrection") || all) {
       auto c = setWhatProduced(this, &HcalHardcodeCalibrations::produceRespCorrs);
-      c.setConsumes(topoTokens_[kRespCorrs]);
+      topoTokens_[kRespCorrs] = c.consumes();
       if (he_recalibration) {
-        c.setConsumes(heDarkeningToken_, edm::ESInputTag("", "HE"));
+        heDarkeningToken_ = c.consumes(edm::ESInputTag("", "HE"));
       }
       if (hb_recalibration) {
-        c.setConsumes(hbDarkeningToken_, edm::ESInputTag("", "HB"));
+        hbDarkeningToken_ = c.consumes(edm::ESInputTag("", "HB"));
       }
       findingRecord<HcalRespCorrsRcd>();
     }
     if ((objectName == "LUTCorrs") || (objectName == "LUTCorrection") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceLUTCorrs).setConsumes(topoTokens_[kLUTCorrs]);
+      topoTokens_[kLUTCorrs] = setWhatProduced(this, &HcalHardcodeCalibrations::produceLUTCorrs).consumes();
       findingRecord<HcalLUTCorrsRcd>();
     }
     if ((objectName == "PFCorrs") || (objectName == "PFCorrection") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::producePFCorrs).setConsumes(topoTokens_[kPFCorrs]);
+      topoTokens_[kPFCorrs] = setWhatProduced(this, &HcalHardcodeCalibrations::producePFCorrs).consumes();
       findingRecord<HcalPFCorrsRcd>();
     }
     if ((objectName == "TimeCorrs") || (objectName == "TimeCorrection") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceTimeCorrs).setConsumes(topoTokens_[kTimeCorrs]);
+      topoTokens_[kTimeCorrs] = setWhatProduced(this, &HcalHardcodeCalibrations::produceTimeCorrs).consumes();
       findingRecord<HcalTimeCorrsRcd>();
     }
     if ((objectName == "L1TriggerObjects") || (objectName == "L1Trigger") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceL1TriggerObjects)
-          .setConsumes(topoTokens_[kL1TriggerObjects]);
+      topoTokens_[kL1TriggerObjects] =
+          setWhatProduced(this, &HcalHardcodeCalibrations::produceL1TriggerObjects).consumes();
       findingRecord<HcalL1TriggerObjectsRcd>();
     }
     if ((objectName == "ValidationCorrs") || (objectName == "ValidationCorrection") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceValidationCorrs)
-          .setConsumes(topoTokens_[kValidationCorrs]);
+      topoTokens_[kValidationCorrs] =
+          setWhatProduced(this, &HcalHardcodeCalibrations::produceValidationCorrs).consumes();
       findingRecord<HcalValidationCorrsRcd>();
     }
     if ((objectName == "LutMetadata") || (objectName == "lutMetadata") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceLutMetadata).setConsumes(topoTokens_[kLutMetadata]);
+      topoTokens_[kLutMetadata] = setWhatProduced(this, &HcalHardcodeCalibrations::produceLutMetadata).consumes();
       findingRecord<HcalLutMetadataRcd>();
     }
     if ((objectName == "DcsValues") || all) {
@@ -284,33 +288,33 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       findingRecord<HcalDcsMapRcd>();
     }
     if ((objectName == "RecoParams") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceRecoParams).setConsumes(topoTokens_[kRecoParams]);
+      topoTokens_[kRecoParams] = setWhatProduced(this, &HcalHardcodeCalibrations::produceRecoParams).consumes();
       findingRecord<HcalRecoParamsRcd>();
     }
     if ((objectName == "LongRecoParams") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceLongRecoParams).setConsumes(topoTokens_[kLongRecoParams]);
+      topoTokens_[kLongRecoParams] = setWhatProduced(this, &HcalHardcodeCalibrations::produceLongRecoParams).consumes();
       findingRecord<HcalLongRecoParamsRcd>();
     }
     if ((objectName == "ZDCLowGainFractions") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceZDCLowGainFractions)
-          .setConsumes(topoTokens_[kZDCLowGainFractions]);
+      topoTokens_[kZDCLowGainFractions] =
+          setWhatProduced(this, &HcalHardcodeCalibrations::produceZDCLowGainFractions).consumes();
       findingRecord<HcalZDCLowGainFractionsRcd>();
     }
     if ((objectName == "MCParams") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceMCParams).setConsumes(topoTokens_[kMCParams]);
+      topoTokens_[kMCParams] = setWhatProduced(this, &HcalHardcodeCalibrations::produceMCParams).consumes();
       findingRecord<HcalMCParamsRcd>();
     }
     if ((objectName == "FlagHFDigiTimeParams") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceFlagHFDigiTimeParams)
-          .setConsumes(topoTokens_[kFlagHFDigiTimeParams]);
+      topoTokens_[kFlagHFDigiTimeParams] =
+          setWhatProduced(this, &HcalHardcodeCalibrations::produceFlagHFDigiTimeParams).consumes();
       findingRecord<HcalFlagHFDigiTimeParamsRcd>();
     }
     if ((objectName == "FrontEndMap") || (objectName == "frontEndMap") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceFrontEndMap).setConsumes(topoTokens_[kFrontEndMap]);
+      topoTokens_[kFrontEndMap] = setWhatProduced(this, &HcalHardcodeCalibrations::produceFrontEndMap).consumes();
       findingRecord<HcalFrontEndMapRcd>();
     }
     if ((objectName == "SiPMParameters") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceSiPMParameters).setConsumes(topoTokens_[kSiPMParameters]);
+      topoTokens_[kSiPMParameters] = setWhatProduced(this, &HcalHardcodeCalibrations::produceSiPMParameters).consumes();
       findingRecord<HcalSiPMParametersRcd>();
     }
     if ((objectName == "SiPMCharacteristics") || all) {
@@ -318,8 +322,8 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       findingRecord<HcalSiPMCharacteristicsRcd>();
     }
     if ((objectName == "TPChannelParameters") || all) {
-      setWhatProduced(this, &HcalHardcodeCalibrations::produceTPChannelParameters)
-          .setConsumes(topoTokens_[kTPChannelParameters]);
+      topoTokens_[kTPChannelParameters] =
+          setWhatProduced(this, &HcalHardcodeCalibrations::produceTPChannelParameters).consumes();
       findingRecord<HcalTPChannelParametersRcd>();
     }
     if ((objectName == "TPParameters") || all) {
@@ -880,6 +884,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hb.add<int>("recoShape", 105);
   desc_hb.add<double>("photoelectronsToAnalog", 0.0);
   desc_hb.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
+  desc_hb.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_hb.add<bool>("doRadiationDamage", false);
   desc.add<edm::ParameterSetDescription>("hb", desc_hb);
 
@@ -904,6 +909,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hbUpgrade.add<int>("recoShape", 206);
   desc_hbUpgrade.add<double>("photoelectronsToAnalog", 57.5);
   desc_hbUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
+  desc_hbUpgrade.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.26}));
   desc_hbUpgrade.add<bool>("doRadiationDamage", true);
   desc_hbUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_hbRaddam);
   desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
@@ -921,6 +927,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_he.add<int>("recoShape", 105);
   desc_he.add<double>("photoelectronsToAnalog", 0.0);
   desc_he.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
+  desc_he.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_he.add<bool>("doRadiationDamage", false);
   desc.add<edm::ParameterSetDescription>("he", desc_he);
 
@@ -945,6 +952,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_heUpgrade.add<int>("recoShape", 206);
   desc_heUpgrade.add<double>("photoelectronsToAnalog", 57.5);
   desc_heUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
+  desc_heUpgrade.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.26}));
   desc_heUpgrade.add<bool>("doRadiationDamage", true);
   desc_heUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_heRaddam);
   desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
@@ -962,6 +970,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hf.add<int>("recoShape", 301);
   desc_hf.add<double>("photoelectronsToAnalog", 0.0);
   desc_hf.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
+  desc_hf.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_hf.add<bool>("doRadiationDamage", false);
   desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
@@ -978,6 +987,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hfUpgrade.add<int>("recoShape", 301);
   desc_hfUpgrade.add<double>("photoelectronsToAnalog", 0.0);
   desc_hfUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
+  desc_hfUpgrade.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_hfUpgrade.add<bool>("doRadiationDamage", false);
   desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
 
@@ -1001,6 +1011,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_ho.add<int>("recoShape", 201);
   desc_ho.add<double>("photoelectronsToAnalog", 4.0);
   desc_ho.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
+  desc_ho.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_ho.add<bool>("doRadiationDamage", false);
   desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 

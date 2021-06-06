@@ -16,6 +16,7 @@
 #include <FWCore/Framework/interface/ConsumesCollector.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "L1Trigger/L1TTwinMux/interface/L1TTwinMuxAlgorithm.h"
 
@@ -39,6 +40,7 @@ private:
   edm::EDGetToken m_dtdigi, m_dtthetadigi, m_rpcsource;
   ///Event Setup Handler
   edm::ESHandle<L1TTwinMuxParams> tmParamsHandle;
+  edm::ESGetToken<L1TTwinMuxParams, L1TTwinMuxParamsRcd> m_tmParamsToken;
 };
 
 L1TTwinMuxProducer::L1TTwinMuxProducer(const edm::ParameterSet& pset) {
@@ -48,6 +50,7 @@ L1TTwinMuxProducer::L1TTwinMuxProducer(const edm::ParameterSet& pset) {
   m_dtdigi = consumes<L1MuDTChambPhContainer>(pset.getParameter<edm::InputTag>("DTDigi_Source"));
   m_dtthetadigi = consumes<L1MuDTChambThContainer>(pset.getParameter<edm::InputTag>("DTThetaDigi_Source"));
   m_rpcsource = consumes<RPCDigiCollection>(pset.getParameter<edm::InputTag>("RPC_Source"));
+  m_tmParamsToken = esConsumes<L1TTwinMuxParams, L1TTwinMuxParamsRcd>();
 
   produces<L1MuDTChambPhContainer>();
   produces<L1MuDTChambThContainer>();
@@ -56,8 +59,7 @@ L1TTwinMuxProducer::L1TTwinMuxProducer(const edm::ParameterSet& pset) {
 void L1TTwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   std::unique_ptr<L1TTwinMuxAlgorithm> m_l1tma(new L1TTwinMuxAlgorithm());
   ///Check consistency of the paramters
-  const L1TTwinMuxParamsRcd& tmParamsRcd = c.get<L1TTwinMuxParamsRcd>();
-  tmParamsRcd.get(tmParamsHandle);
+  tmParamsHandle = c.getHandle(m_tmParamsToken);
   const L1TTwinMuxParams& tmParams = *tmParamsHandle.product();
 
   ///Only RPC: the emulator's output consist from rpc->dy primitives only

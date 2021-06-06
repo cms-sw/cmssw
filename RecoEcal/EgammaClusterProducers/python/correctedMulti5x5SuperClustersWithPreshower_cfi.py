@@ -14,7 +14,6 @@ correctedMulti5x5SuperClustersWithPreshower = cms.EDProducer("EgammaSCCorrection
     applyCrackCorrection = cms.bool(True),
     crackCorrectorName = cms.string('EcalClusterCrackCorrection'),
     applyLocalContCorrection= cms.bool(False),
-    localContCorrectorName = cms.string('EcalBasicClusterLocalContCorrection'),
     # energy correction
     fix_fCorrPset = cms.PSet(
        brLinearLowThr = cms.double(0.9),
@@ -34,5 +33,6 @@ correctedMulti5x5SuperClustersWithPreshower = cms.EDProducer("EgammaSCCorrection
 )
 
 
-uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower = correctedMulti5x5SuperClustersWithPreshower.clone()
-uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.rawSuperClusterProducer = cms.InputTag("uncleanedOnlyMulti5x5SuperClustersWithPreshower")
+uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower = correctedMulti5x5SuperClustersWithPreshower.clone(
+    rawSuperClusterProducer = "uncleanedOnlyMulti5x5SuperClustersWithPreshower"
+)

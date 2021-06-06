@@ -9,6 +9,7 @@
 /**
  * Adds GeometricTimingDets representing final modules to the previous level
  */
+template <class FilteredView>
 class CmsMTDConstruction {
 public:
   CmsMTDConstruction();
@@ -18,15 +19,15 @@ public:
   static bool mtdOrderRR(const GeometricTimingDet* a, const GeometricTimingDet* b);
   static bool mtdOrderPhi(const GeometricTimingDet* a, const GeometricTimingDet* b);
 
-  void buildBTLModule(DDFilteredView&, GeometricTimingDet*, const std::string&);
-  void buildETLModule(DDFilteredView&, GeometricTimingDet*, const std::string&);
+  void buildBTLModule(FilteredView&, GeometricTimingDet*);
+  void buildETLModule(FilteredView&, GeometricTimingDet*);
 
-  GeometricTimingDet* buildSubdet(DDFilteredView&, GeometricTimingDet*, const std::string&);
-  GeometricTimingDet* buildLayer(DDFilteredView&, GeometricTimingDet*, const std::string&);
+  GeometricTimingDet* buildSubdet(FilteredView&);
+  GeometricTimingDet* buildLayer(FilteredView&);
 
   void baseNumberFromHistory(const DDGeoHistory& gh);
 
-  bool isETLtdr(DDFilteredView&);
+  bool isETLtdr(FilteredView&);
 
 protected:
   CmsMTDStringToEnum theCmsMTDStringToEnum;

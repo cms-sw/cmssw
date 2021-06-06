@@ -1,18 +1,17 @@
 #ifndef DQM_RPCMonitorClient_DQMDaqInfo_H
 #define DQM_RPCMonitorClient_DQMDaqInfo_H
 
-// system include files
-#include <iostream>
-#include <fstream>
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+
+#include <utility>
 
 class RPCDaqInfo : public DQMEDHarvester {
 public:
   explicit RPCDaqInfo(const edm::ParameterSet &);
-  ~RPCDaqInfo() override;
+  ~RPCDaqInfo() override = default;
 
 protected:
   void beginJob() override;
@@ -25,12 +24,16 @@ protected:
 private:
   void myBooker(DQMStore::IBooker &);
 
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+
   bool init_;
 
   MonitorElement *DaqFraction_;
   MonitorElement *DaqMap_;
-  MonitorElement *daqWheelFractions[5];
-  MonitorElement *daqDiskFractions[10];
+  constexpr static int nWheels_ = 5;
+  MonitorElement *daqWheelFractions[nWheels_];
+  constexpr static int nDisks_ = 10;
+  MonitorElement *daqDiskFractions[nDisks_];
 
   std::pair<int, int> FEDRange_;
 

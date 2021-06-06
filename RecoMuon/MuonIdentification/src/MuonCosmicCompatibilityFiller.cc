@@ -27,8 +27,6 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonCosmicCompatibilityFiller.h"
@@ -94,6 +92,7 @@ MuonCosmicCompatibilityFiller::MuonCosmicCompatibilityFiller(const edm::Paramete
 
   cosmicToken_ = iC.consumes<reco::MuonCollection>(inputCosmicMuonCollection_);
   vertexToken_ = iC.consumes<reco::VertexCollection>(inputVertexCollection_);
+  geometryToken_ = iC.esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>();
 }
 
 MuonCosmicCompatibilityFiller::~MuonCosmicCompatibilityFiller() {}
@@ -273,8 +272,7 @@ bool MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent,
   iEvent.getByToken(cosmicToken_, muonHandle);
 
   // Global Tracking Geometry
-  ESHandle<GlobalTrackingGeometry> trackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+  ESHandle<GlobalTrackingGeometry> trackingGeometry = iSetup.getHandle(geometryToken_);
 
   // PV
   math::XYZPoint RefVtx;

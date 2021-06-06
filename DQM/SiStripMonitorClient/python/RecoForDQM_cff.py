@@ -12,7 +12,7 @@ siPixelDigis.InputLabel = 'source'
 
 # Local Reco ####    
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
-#DefaultClusterizer.QualityLabel = ''   #not needed to specify it is used as default
+#DefaultClusterizer.ConditionsLabel = ''   #not needed to specify it is used as default
 
 # Track Reconstruction ########
 from RecoTracker.Configuration.RecoTracker_cff import *

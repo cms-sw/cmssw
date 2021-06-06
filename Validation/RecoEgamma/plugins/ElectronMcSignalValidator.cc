@@ -156,6 +156,26 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   set_EfficiencyFlag = histosSet.getParameter<bool>("EfficiencyFlag");
   set_StatOverflowFlag = histosSet.getParameter<bool>("StatOverflowFlag");
 
+  opv_nbin = histosSet.getParameter<int>("NbinOPV");
+  opv_min = histosSet.getParameter<double>("OPV_min");
+  opv_max = histosSet.getParameter<double>("OPV_max");
+
+  ele_nbin = histosSet.getParameter<int>("NbinELE");
+  ele_min = histosSet.getParameter<double>("ELE_min");
+  ele_max = histosSet.getParameter<double>("ELE_max");
+
+  core_nbin = histosSet.getParameter<int>("NbinCORE");
+  core_min = histosSet.getParameter<double>("CORE_min");
+  core_max = histosSet.getParameter<double>("CORE_max");
+
+  track_nbin = histosSet.getParameter<int>("NbinTRACK");
+  track_min = histosSet.getParameter<double>("TRACK_min");
+  track_max = histosSet.getParameter<double>("TRACK_max");
+
+  seed_nbin = histosSet.getParameter<int>("NbinSEED");
+  seed_min = histosSet.getParameter<double>("SEED_min");
+  seed_max = histosSet.getParameter<double>("SEED_max");
+
   // so to please coverity...
   h1_mcNum = nullptr;
   h1_eleNum = nullptr;
@@ -571,18 +591,19 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
   h1_gamNum = bookH1withSumw2(iBooker, "mcNum_gam", "# mc gammas", fhits_nbin, 0., fhits_max, "N_{gen #gamma}");
 
   // rec event collections sizes
-  h1_recEleNum = bookH1(iBooker, "recEleNum", "# rec electrons", 11, -0.5, 10.5, "N_{ele}");
-  h1_recCoreNum = bookH1(iBooker, "recCoreNum", "# rec electron cores", 21, -0.5, 20.5, "N_{core}");
-  h1_recTrackNum = bookH1(iBooker, "recTrackNum", "# rec gsf tracks", 41, -0.5, 40.5, "N_{track}");
-  h1_recSeedNum = bookH1(iBooker, "recSeedNum", "# rec electron seeds", 101, -0.5, 100.5, "N_{seed}");
-  h1_recOfflineVertices =
-      bookH1(iBooker, "recOfflineVertices", "# rec Offline Primary Vertices", 81, -0.5, 161.5, "N_{Vertices}");
+  h1_recEleNum = bookH1(iBooker, "recEleNum", "# rec electrons", ele_nbin, ele_min, ele_max, "N_{ele}");
+  h1_recCoreNum = bookH1(iBooker, "recCoreNum", "# rec electron cores", core_nbin, core_min, core_max, "N_{core}");
+  h1_recTrackNum = bookH1(iBooker, "recTrackNum", "# rec gsf tracks", track_nbin, track_min, track_max, "N_{track}");
+  h1_recSeedNum = bookH1(iBooker, "recSeedNum", "# rec electron seeds", seed_nbin, seed_min, seed_max, "N_{seed}");
+  h1_recOfflineVertices = bookH1(
+      iBooker, "recOfflineVertices", "# rec Offline Primary Vertices", opv_nbin, opv_min, opv_max, "N_{Vertices}");
+
   h2_scl_EoEtrueVsrecOfflineVertices = bookH2(iBooker,
                                               "scl_EoEtrueVsrecOfflineVertices",
                                               "E/Etrue vs number of primary vertices",
-                                              10,
-                                              0.,
-                                              50.,
+                                              opv_nbin,  // 10,
+                                              opv_min,   // 0.,
+                                              opv_max,   // 50.,
                                               50,
                                               0.,
                                               2.5,
@@ -591,9 +612,9 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
   h2_scl_EoEtrueVsrecOfflineVertices_barrel = bookH2(iBooker,
                                                      "scl_EoEtrueVsrecOfflineVertices_barrel",
                                                      "E/Etrue vs number of primary , barrel",
-                                                     10,
-                                                     0.,
-                                                     50.,
+                                                     opv_nbin,  // 10,
+                                                     opv_min,   // 0.,
+                                                     opv_max,   // 50.,
                                                      50,
                                                      0.,
                                                      2.5,
@@ -602,9 +623,9 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
   h2_scl_EoEtrueVsrecOfflineVertices_endcaps = bookH2(iBooker,
                                                       "scl_EoEtrueVsrecOfflineVertices_endcaps",
                                                       "E/Etrue vs number of primary , endcaps",
-                                                      10,
-                                                      0.,
-                                                      50.,
+                                                      opv_nbin,  // 10,
+                                                      opv_min,   // 0.,
+                                                      opv_max,   // 50.,
                                                       50,
                                                       0.,
                                                       2.5,

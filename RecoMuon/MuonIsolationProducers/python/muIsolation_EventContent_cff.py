@@ -14,17 +14,13 @@ import FWCore.ParameterSet.Config as cms
 
 # -*-TCL-*-
 #define FEVT/REC/AOD pieces
-#Full event
-RecoMuonIsolationFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_muIsoDepositTk_*_*', 
-        'keep *_muIsoDepositCalByAssociatorTowers_*_*', 
-        'keep *_muIsoDepositCalByAssociatorHits_*_*', 
-        'keep *_muIsoDepositJets_*_*', 
-        'keep *_muGlobalIsoDepositCtfTk_*_*', 
-        'keep *_muGlobalIsoDepositCalByAssociatorTowers_*_*', 
-        'keep *_muGlobalIsoDepositCalByAssociatorHits_*_*', 
-        'keep *_muGlobalIsoDepositJets_*_*')
+
+#AOD part of the event
+#cleaned-up, includes only the objects produced in the standard reco "muIsolation" sequence
+RecoMuonIsolationAOD = cms.PSet(
+    outputCommands = cms.untracked.vstring()
 )
+
 #RECO part of the event
 RecoMuonIsolationRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_muIsoDepositTk_*_*', 
@@ -36,16 +32,14 @@ RecoMuonIsolationRECO = cms.PSet(
         'keep *_muGlobalIsoDepositCalByAssociatorHits_*_*', 
         'keep *_muGlobalIsoDepositJets_*_*')
 )
-#AOD part of the event
-#cleaned-up, includes only the objects produced in the standard reco "muIsolation" sequence
-RecoMuonIsolationAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring(
-#    'keep *_muIsoDepositTk_*_*', 
-#    'keep *_muIsoDepositCalByAssociatorTowers_*_*', 
-#    'keep *_muIsoDepositCalByAssociatorHits_*_*', 
-#    'keep *_muIsoDepositJets_*_*'
-    )
+RecoMuonIsolationRECO.outputCommands.extend(RecoMuonIsolationAOD.outputCommands)
+
+#Full event
+RecoMuonIsolationFEVT = cms.PSet(
+    outputCommands = cms.untracked.vstring()
 )
+RecoMuonIsolationFEVT.outputCommands.extend(RecoMuonIsolationRECO.outputCommands)
+
 #Full event
 RecoMuonIsolationParamGlobal = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_muParamGlobalIsoDepositGsTk_*_*', 
@@ -56,5 +50,3 @@ RecoMuonIsolationParamGlobal = cms.PSet(
         'keep *_muParamGlobalIsoDepositCalByAssociatorHits_*_*', 
         'keep *_muParamGlobalIsoDepositJets_*_*')
 )
-
-

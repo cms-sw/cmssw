@@ -12,6 +12,7 @@
 
 // system include files
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TGeoBBox.h"
 #include "TGeoTube.h"
 

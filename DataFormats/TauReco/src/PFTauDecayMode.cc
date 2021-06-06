@@ -1,4 +1,5 @@
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace reco {
   PFTauDecayMode::PFTauDecayMode(const VertexCompositeCandidate& chargedPions,

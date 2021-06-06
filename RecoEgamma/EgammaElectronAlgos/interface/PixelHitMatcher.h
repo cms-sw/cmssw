@@ -49,15 +49,12 @@ public:
                   float phi2maxB,
                   float phi2minF,
                   float phi2maxF,
-                  float z2minB,
                   float z2maxB,
-                  float r2minF,
                   float r2maxF,
-                  float rMinI,
                   float rMaxI,
                   bool useRecoVertex);
 
-  void setES(const MagneticField*, const TrackerGeometry* trackerGeometry);
+  void setES(MagneticField const&, TrackerGeometry const& trackerGeometry);
 
   std::vector<SeedWithInfo> operator()(const std::vector<const TrajectorySeedCollection*>& seedsV,
                                        const GlobalPoint& xmeas,
@@ -71,7 +68,7 @@ public:
 
 private:
   struct BarrelMeasurementEstimator {
-    bool operator()(const GlobalPoint& vprim, const TrajectoryStateOnSurface& ts, const GlobalPoint& gp) const;
+    bool operator()(const GlobalPoint& vprim, const TrajectoryStateOnSurface&, const GlobalPoint&, int charge) const;
 
     float thePhiMin;
     float thePhiMax;
@@ -80,7 +77,7 @@ private:
   };
 
   struct ForwardMeasurementEstimator {
-    bool operator()(const GlobalPoint& vprim, const TrajectoryStateOnSurface& ts, const GlobalPoint& gp) const;
+    bool operator()(const GlobalPoint& vprim, const TrajectoryStateOnSurface&, const GlobalPoint&, int charge) const;
 
     float thePhiMin;
     float thePhiMax;
@@ -94,8 +91,8 @@ private:
   BarrelMeasurementEstimator meas2ndBLayer;
   ForwardMeasurementEstimator meas1stFLayer;
   ForwardMeasurementEstimator meas2ndFLayer;
-  std::unique_ptr<PropagatorWithMaterial> prop1stLayer;
-  std::unique_ptr<PropagatorWithMaterial> prop2ndLayer;
+  std::unique_ptr<PropagatorWithMaterial> prop1stLayer = nullptr;
+  std::unique_ptr<PropagatorWithMaterial> prop2ndLayer = nullptr;
   const MagneticField* theMagField;
   const TrackerGeometry* theTrackerGeometry;
   const bool useRecoVertex_;

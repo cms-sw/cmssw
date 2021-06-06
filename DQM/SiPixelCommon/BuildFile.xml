@@ -1,8 +1,11 @@
-<use   name="boost"/>
-<use   name="FWCore/Framework"/>
-<use   name="DQMServices/Core"/>
-<use   name="DataFormats/SiPixelDetId"/>
-
+<use name="boost"/>
+<use name="DQMServices/Core"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

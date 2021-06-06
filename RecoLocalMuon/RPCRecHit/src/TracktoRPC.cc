@@ -4,11 +4,11 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoLocalMuon/RPCRecHit/interface/TracktoRPC.h"
 #include "RecoLocalMuon/RPCRecHit/src/DTStationIndex.h"
 #include "RecoLocalMuon/RPCRecHit/src/DTObjectMap.h"
@@ -18,10 +18,7 @@
 #include <ctime>
 #include <TMath.h>
 
-bool TracktoRPC::ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::EventSetup &iSetup) {
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-
+bool TracktoRPC::ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const RPCGeometry *rpcGeo) {
   const GeomDet *whichdet3 = rpcGeo->idToDet(rpcid.rawId());
   const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(whichdet3);
   float locx = LocalP.x(), locy = LocalP.y();  //, locz=LocalP.z();
@@ -54,35 +51,37 @@ bool TracktoRPC::ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::E
     return false;
 }
 
-TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
-                       const edm::EventSetup &iSetup,
-                       bool debug,
-                       const edm::ParameterSet &iConfig,
-                       const edm::InputTag &tracklabel) {
-  _ThePoints = std::make_unique<RPCRecHitCollection>();
+TracktoRPC::TracktoRPC(const edm::ParameterSet &iConfig, const edm::InputTag &tracklabel, edm::ConsumesCollector iC)
+    : rpcGeoToken_(iC.esConsumes()),
+      dtGeoToken_(iC.esConsumes()),
+      dtMapToken_(iC.esConsumes()),
+      cscGeoToken_(iC.esConsumes()),
+      cscMapToken_(iC.esConsumes()),
+      propagatorToken_(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))) {
+  if (tracklabel.label().find("cosmic") == 0)
+    theTrackTransformer = std::make_unique<TrackTransformerForCosmicMuons>(iConfig);
+  else if (tracklabel.label().find("globalCosmic") == 0)
+    theTrackTransformer = std::make_unique<TrackTransformerForCosmicMuons>(iConfig);
+  else
+    theTrackTransformer = std::make_unique<TrackTransformer>(iConfig, iC);
+}
+
+std::unique_ptr<RPCRecHitCollection> TracktoRPC::thePoints(reco::TrackCollection const *alltracks,
+                                                           edm::EventSetup const &iSetup,
+                                                           bool debug) {
+  auto _ThePoints = std::make_unique<RPCRecHitCollection>();
   // if(alltracks->empty()) return;
 
-  if (tracklabel.label().find("cosmic") == 0)
-    theTrackTransformer = new TrackTransformerForCosmicMuons(iConfig);
-  else if (tracklabel.label().find("globalCosmic") == 0)
-    theTrackTransformer = new TrackTransformerForCosmicMuons(iConfig);
-  else
-    theTrackTransformer = new TrackTransformer(iConfig);
   theTrackTransformer->setServices(iSetup);
 
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  edm::ESHandle<DTGeometry> dtGeo;
-  edm::ESHandle<DTObjectMap> dtMap;
-  edm::ESHandle<CSCGeometry> cscGeo;
-  edm::ESHandle<CSCObjectMap> cscMap;
+  const RPCGeometry *rpcGeo = &iSetup.getData(rpcGeoToken_);
+  const DTGeometry *dtGeo = &iSetup.getData(dtGeoToken_);
+  const DTObjectMap *dtMap = &iSetup.getData(dtMapToken_);
+  const CSCGeometry *cscGeo = &iSetup.getData(cscGeoToken_);
+  const CSCObjectMap *cscMap = &iSetup.getData(cscMapToken_);
+  const Propagator *propagator = &iSetup.getData(propagatorToken_);
 
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", thePropagator);
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  iSetup.get<MuonGeometryRecord>().get(dtGeo);
-  iSetup.get<MuonGeometryRecord>().get(dtMap);
-  iSetup.get<MuonGeometryRecord>().get(cscGeo);
-  iSetup.get<MuonGeometryRecord>().get(cscMap);
-
+  edm::OwnVector<RPCRecHit> RPCPointVector;
   std::vector<uint32_t> rpcput;
   double MaxD = 999.;
 
@@ -150,15 +149,15 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
                 if (dtS == 14)
                   dtS = 10;
                 DTStationIndex theindex(0, dtW, dtS, dtT);
-                std::set<RPCDetId> rollsForThisDT = dtMap->getRolls(theindex);
+                const std::set<RPCDetId> &rollsForThisDT = dtMap->getRolls(theindex);
                 for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin(); iteraRoll != rollsForThisDT.end();
                      iteraRoll++) {
                   const RPCRoll *rollasociated = rpcGeo->roll(*iteraRoll);
 
                   TrajectoryStateOnSurface ptss =
-                      thePropagator->propagate(upd2, rpcGeo->idToDet(rollasociated->id())->surface());
+                      propagator->propagate(upd2, rpcGeo->idToDet(rollasociated->id())->surface());
                   if (ptss.isValid())
-                    if (ValidRPCSurface(rollasociated->id().rawId(), ptss.localPosition(), iSetup)) {
+                    if (ValidRPCSurface(rollasociated->id().rawId(), ptss.localPosition(), rpcGeo)) {
                       rpcrollCounter[rollasociated->id().rawId()]++;
                       bool check = true;
                       std::vector<uint32_t>::iterator rpcroll;
@@ -205,16 +204,16 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
                   Ri = 1;
 
                 CSCStationIndex theindex(En, St, Ri, rpcSegment);
-                std::set<RPCDetId> rollsForThisCSC = cscMap->getRolls(theindex);
+                const std::set<RPCDetId> &rollsForThisCSC = cscMap->getRolls(theindex);
                 for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();
                      iteraRoll != rollsForThisCSC.end();
                      iteraRoll++) {
                   const RPCRoll *rollasociated = rpcGeo->roll(*iteraRoll);
 
                   TrajectoryStateOnSurface ptss =
-                      thePropagator->propagate(upd2, rpcGeo->idToDet(rollasociated->id())->surface());
+                      propagator->propagate(upd2, rpcGeo->idToDet(rollasociated->id())->surface());
                   if (ptss.isValid())
-                    if (ValidRPCSurface(rollasociated->id().rawId(), ptss.localPosition(), iSetup)) {
+                    if (ValidRPCSurface(rollasociated->id().rawId(), ptss.localPosition(), rpcGeo)) {
                       rpcrollCounter[rollasociated->id().rawId()]++;
                       bool check = true;
                       std::vector<uint32_t>::iterator rpcroll;
@@ -337,9 +336,9 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
               TrajectoryMeasurement tMt = trajectory->closestMeasurement(dcPoint);
               const TrajectoryStateOnSurface &upd2 = (tMt).updatedState();
               if (upd2.isValid()) {
-                TrajectoryStateOnSurface ptss = thePropagator->propagate(upd2, rpcGeo->idToDet(*rpcroll2)->surface());
+                TrajectoryStateOnSurface ptss = propagator->propagate(upd2, rpcGeo->idToDet(*rpcroll2)->surface());
                 if (ptss.isValid())
-                  if (ValidRPCSurface(*rpcroll2, ptss.localPosition(), iSetup)) {
+                  if (ValidRPCSurface(*rpcroll2, ptss.localPosition(), rpcGeo)) {
                     float rpcGPX = ptss.globalPosition().x();
                     float rpcGPY = ptss.globalPosition().y();
                     float rpcGPZ = ptss.globalPosition().z();
@@ -393,9 +392,9 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
               TrajectoryMeasurement tMt = trajectory->closestMeasurement(dcPoint);
               const TrajectoryStateOnSurface &upd2 = (tMt).updatedState();
               if (upd2.isValid()) {
-                TrajectoryStateOnSurface ptss = thePropagator->propagate(upd2, rpcGeo->idToDet(*rpcroll2)->surface());
+                TrajectoryStateOnSurface ptss = propagator->propagate(upd2, rpcGeo->idToDet(*rpcroll2)->surface());
                 if (ptss.isValid())
-                  if (ValidRPCSurface(*rpcroll2, ptss.localPosition(), iSetup)) {
+                  if (ValidRPCSurface(*rpcroll2, ptss.localPosition(), rpcGeo)) {
                     float rpcGPX = ptss.globalPosition().x();
                     float rpcGPY = ptss.globalPosition().y();
                     float rpcGPZ = ptss.globalPosition().z();
@@ -443,6 +442,6 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
     if (debug)
       std::cout << "last steps OK!! " << std::endl;
   }
-}
 
-TracktoRPC::~TracktoRPC() {}
+  return _ThePoints;
+}

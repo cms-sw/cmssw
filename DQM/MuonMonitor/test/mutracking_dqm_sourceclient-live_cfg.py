@@ -101,10 +101,14 @@ process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring('cout'),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    )
 )
-                                                          )
 
 process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)
 

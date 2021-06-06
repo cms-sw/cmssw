@@ -39,17 +39,18 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  virtual void beginJob() override {}
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
   void plotHits(const edm::Handle<edm::PSimHitContainer>&, const int);
 
 private:
   edm::Service<TFileService> fs_;
-  std::string g4Label_, barrelHit_, endcapHit_;
-  edm::EDGetTokenT<edm::PSimHitContainer> tok_hitBarrel_, tok_hitEndcap_;
+  const std::string g4Label_, barrelHit_, endcapHit_;
+  const edm::ESGetToken<FastTimeDDDConstants, IdealGeometryRecord> tok_ftg_;
   const FastTimeDDDConstants* ftcons_;
+  edm::EDGetTokenT<edm::PSimHitContainer> tok_hitBarrel_, tok_hitEndcap_;
   TH1D *hsimE_[2], *hsimT_[2], *hcell_[2];
   TH2D *hsimP_[2], *hsimM_[2];
 };
@@ -58,7 +59,8 @@ FTSimHitTest::FTSimHitTest(const edm::ParameterSet& ps)
     : g4Label_(ps.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits")),
       barrelHit_(ps.getUntrackedParameter<std::string>("HitCollection", "FastTimerHitsBarrel")),
       endcapHit_(ps.getUntrackedParameter<std::string>("HitCollection", "FastTimerHitsEndcap")),
-      ftcons_(0) {
+      tok_ftg_(esConsumes<FastTimeDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{})),
+      ftcons_(nullptr) {
   usesResource(TFileService::kSharedResource);
 
   tok_hitBarrel_ = consumes<edm::PSimHitContainer>(edm::InputTag(g4Label_, barrelHit_));
@@ -76,10 +78,7 @@ void FTSimHitTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 }
 
 void FTSimHitTest::beginRun(edm::Run const&, edm::EventSetup const& es) {
-  edm::ESHandle<FastTimeDDDConstants> fdc;
-  es.get<IdealGeometryRecord>().get(fdc);
-  if (fdc.isValid())
-    ftcons_ = &(*fdc);
+  ftcons_ = &es.getData(tok_ftg_);
 
   //Histograms for Sim Hits
   std::string detector[2] = {"Barrel", "Endcap"};

@@ -59,7 +59,7 @@ namespace edm {
     }
 
   private:
-    std::unique_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) override;
+    std::shared_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) override;
     void mergeReaders_(DelayedReader* other) override { nextReader_ = other; }
     void reset_() override { nextReader_ = nullptr; }
     std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources_() const override;

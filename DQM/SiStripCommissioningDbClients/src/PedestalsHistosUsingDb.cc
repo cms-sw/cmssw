@@ -11,9 +11,12 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistosUsingDb::PedestalsHistosUsingDb(const edm::ParameterSet& pset, DQMStore* bei, SiStripConfigDb* const db)
+PedestalsHistosUsingDb::PedestalsHistosUsingDb(const edm::ParameterSet& pset,
+                                               DQMStore* bei,
+                                               SiStripConfigDb* const db,
+                                               edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("PedestalsParameters"), bei, sistrip::PEDESTALS),
-      CommissioningHistosUsingDb(db, sistrip::PEDESTALS),
+      CommissioningHistosUsingDb(db, tTopoToken, sistrip::PEDESTALS),
       PedestalsHistograms(pset.getParameter<edm::ParameterSet>("PedestalsParameters"), bei) {
   LogTrace(mlDqmClient_) << "[PedestalsHistosUsingDb::" << __func__ << "]"
                          << " Constructing object...";

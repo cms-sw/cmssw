@@ -19,10 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/JetCollection.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
@@ -62,7 +59,7 @@ private:
   edm::InputTag jetsLabel_;
   edm::InputTag pfCandidatesLabel_;
 
-  edm::EDGetTokenT<reco::JetView> m_theJetToken;
+  edm::EDGetTokenT<reco::CandidateView> m_theJetToken;
   edm::EDGetTokenT<reco::PFCandidateCollection> m_thePFCandidateToken;
 };
 

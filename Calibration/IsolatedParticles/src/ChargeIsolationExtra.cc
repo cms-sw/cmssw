@@ -41,7 +41,8 @@ namespace spr {
 
       bool trkQuality = pTrack2->quality(trackQuality_);
       if ((trkItr2 != trkItr) && trkQuality) {
-        const FreeTrajectoryState fts2 = associator.getFreeTrajectoryState(iSetup, *pTrack2);
+        const FreeTrajectoryState fts2 =
+            associator.getFreeTrajectoryState(&iSetup.getData(parameters_.bFieldToken), *pTrack2);
         TrackDetMatchInfo info2 = associator.associate(iEvent, iSetup, fts2, parameters_);
         const GlobalPoint point2(info2.trkGlobPosAtEcal.x(), info2.trkGlobPosAtEcal.y(), info2.trkGlobPosAtEcal.z());
 
@@ -131,7 +132,8 @@ namespace spr {
 
       bool trkQuality = pTrack2->quality(trackQuality_);
       if ((trkItr2 != trkItr) && trkQuality) {
-        const FreeTrajectoryState fts2 = associator.getFreeTrajectoryState(iSetup, *pTrack2);
+        const FreeTrajectoryState fts2 =
+            associator.getFreeTrajectoryState(&iSetup.getData(parameters_.bFieldToken), *pTrack2);
         TrackDetMatchInfo info2 = associator.associate(iEvent, iSetup, fts2, parameters_);
         const GlobalPoint point2(info2.trkGlobPosAtEcal.x(), info2.trkGlobPosAtEcal.y(), info2.trkGlobPosAtEcal.z());
 
@@ -204,7 +206,8 @@ namespace spr {
 
       bool trkQuality = pTrack2->quality(trackQuality_);
       if ((trkItr2 != trkItr) && trkQuality) {
-        const FreeTrajectoryState fts2 = associator.getFreeTrajectoryState(iSetup, *pTrack2);
+        const FreeTrajectoryState fts2 =
+            associator.getFreeTrajectoryState(&iSetup.getData(parameters_.bFieldToken), *pTrack2);
         TrackDetMatchInfo info2 = associator.associate(iEvent, iSetup, fts2, parameters_);
         const GlobalPoint point2(info2.trkGlobPosAtHcal.x(), info2.trkGlobPosAtHcal.y(), info2.trkGlobPosAtHcal.z());
 

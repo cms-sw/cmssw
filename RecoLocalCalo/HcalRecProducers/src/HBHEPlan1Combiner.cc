@@ -18,7 +18,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -57,6 +57,9 @@ private:
 
   // Other members
   std::unique_ptr<AbsPlan1RechitCombiner> combiner_;
+
+  // ES tokens
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
 };
 
 //
@@ -73,6 +76,9 @@ HBHEPlan1Combiner::HBHEPlan1Combiner(const edm::ParameterSet& conf)
   // Consumes and produces statements
   tok_rechits_ = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheInput"));
   produces<HBHERecHitCollection>();
+
+  // ES tokens
+  htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
 }
 
 HBHEPlan1Combiner::~HBHEPlan1Combiner() {
@@ -89,12 +95,11 @@ void HBHEPlan1Combiner::produce(edm::Event& iEvent, const edm::EventSetup& event
   using namespace edm;
 
   // Get the Hcal topology
-  ESHandle<HcalTopology> htopo;
-  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
-  combiner_->setTopo(htopo.product());
+  const HcalTopology& htopo = eventSetup.getData(htopoToken_);
+  combiner_->setTopo(&htopo);
 
   // Are we using "Plan 1" geometry?
-  const bool plan1Mode = ignorePlan1Topology_ ? usePlan1Mode_ : htopo->getMergePositionFlag();
+  const bool plan1Mode = ignorePlan1Topology_ ? usePlan1Mode_ : htopo.getMergePositionFlag();
 
   // Find the input rechit collection
   Handle<HBHERecHitCollection> inputRechits;

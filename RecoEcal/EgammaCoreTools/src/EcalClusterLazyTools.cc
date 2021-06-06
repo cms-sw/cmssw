@@ -8,66 +8,49 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
-
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 EcalClusterLazyToolsBase::EcalClusterLazyToolsBase(const edm::Event &ev,
-                                                   const edm::EventSetup &es,
-                                                   edm::EDGetTokenT<EcalRecHitCollection> token1,
-                                                   edm::EDGetTokenT<EcalRecHitCollection> token2)
-    : geometry_(&edm::get<CaloGeometry, CaloGeometryRecord>(es)),
-      topology_(&edm::get<CaloTopology, CaloTopologyRecord>(es)),
-      ebRecHits_(&edm::get(ev, token1)),
-      eeRecHits_(&edm::get(ev, token2)) {
-  getIntercalibConstants(es);
-  getADCToGeV(es);
-  getLaserDbService(es);
-}
-
-EcalClusterLazyToolsBase::EcalClusterLazyToolsBase(const edm::Event &ev,
-                                                   const edm::EventSetup &es,
+                                                   ESData const &esData,
                                                    edm::EDGetTokenT<EcalRecHitCollection> token1,
                                                    edm::EDGetTokenT<EcalRecHitCollection> token2,
-                                                   edm::EDGetTokenT<EcalRecHitCollection> token3)
-    : geometry_(&edm::get<CaloGeometry, CaloGeometryRecord>(es)),
-      topology_(&edm::get<CaloTopology, CaloTopologyRecord>(es)),
+                                                   std::optional<edm::EDGetTokenT<EcalRecHitCollection>> token3)
+    : geometry_(&esData.caloGeometry),
+      topology_(&esData.caloTopology),
       ebRecHits_(&edm::get(ev, token1)),
       eeRecHits_(&edm::get(ev, token2)) {
-  const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  if (geometryES) {
-    ecalPS_topology_ = std::make_shared<EcalPreshowerTopology>();
-  } else {
-    edm::LogInfo("subdetector geometry not available") << "EcalPreshower geometry is missing" << std::endl;
+  if (token3) {
+    if (geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower)) {
+      ecalPS_topology_ = std::make_unique<EcalPreshowerTopology>();
+    } else {
+      edm::LogInfo("subdetector geometry not available") << "EcalPreshower geometry is missing" << std::endl;
+    }
+
+    getESRecHits(ev, *token3);
   }
 
-  esRHToken_ = token3;
-  getESRecHits(ev);
-
-  getIntercalibConstants(es);
-  getADCToGeV(es);
-  getLaserDbService(es);
+  // get IC's
+  ical = &esData.ecalIntercalibConstants;
+  icalMap = &ical->getMap();
+  // get ADCtoGeV
+  agc = &esData.ecalADCToGeV;
+  // transp corrections
+  laser = &esData.ecalLaserDbService;
 }
 
-void EcalClusterLazyToolsBase::getESRecHits(const edm::Event &ev) {
-  edm::Handle<EcalRecHitCollection> pESRecHits;
-  ev.getByToken(esRHToken_, pESRecHits);
+void EcalClusterLazyToolsBase::getESRecHits(const edm::Event &ev,
+                                            edm::EDGetTokenT<EcalRecHitCollection> const &esRecHitsToken) {
+  auto pESRecHits = ev.getHandle(esRecHitsToken);
   esRecHits_ = pESRecHits.product();
   // make the map of rechits
   rechits_map_.clear();
   if (pESRecHits.isValid()) {
-    EcalRecHitCollection::const_iterator it;
-    for (it = pESRecHits->begin(); it != pESRecHits->end(); ++it) {
+    for (auto it = pESRecHits->begin(); it != pESRecHits->end(); ++it) {
       // remove bad ES rechits
       std::vector<int> badf = {
           EcalRecHit::ESFlags::kESDead,  // 1
@@ -88,22 +71,6 @@ void EcalClusterLazyToolsBase::getESRecHits(const edm::Event &ev) {
       rechits_map_.insert(std::make_pair(it->id(), *it));
     }
   }
-}
-
-void EcalClusterLazyToolsBase::getIntercalibConstants(const edm::EventSetup &es) {
-  // get IC's
-  es.get<EcalIntercalibConstantsRcd>().get(ical);
-  icalMap = &ical->getMap();
-}
-
-void EcalClusterLazyToolsBase::getADCToGeV(const edm::EventSetup &es) {
-  // get ADCtoGeV
-  es.get<EcalADCToGeVConstantRcd>().get(agc);
-}
-
-void EcalClusterLazyToolsBase::getLaserDbService(const edm::EventSetup &es) {
-  // transp corrections
-  es.get<EcalLaserDbRecord>().get(laser);
 }
 
 const EcalRecHitCollection *EcalClusterLazyToolsBase::getEcalRecHitCollection(const reco::BasicCluster &cluster) const {
@@ -128,7 +95,7 @@ float EcalClusterLazyToolsBase::BasicClusterSeedTime(const reco::BasicCluster &c
   const EcalRecHitCollection *recHits = getEcalRecHitCollection(cluster);
 
   DetId id = cluster.seed();
-  EcalRecHitCollection::const_iterator theSeedHit = recHits->find(id);
+  auto theSeedHit = recHits->find(id);
   //  std::cout << "the seed of the BC has time: "
   //<< (*theSeedHit).time()
   //<< "and energy: " << (*theSeedHit).energy() << " collection size: " << recHits->size()
@@ -139,7 +106,7 @@ float EcalClusterLazyToolsBase::BasicClusterSeedTime(const reco::BasicCluster &c
 
 // error-weighted average of time from constituents of basic cluster
 float EcalClusterLazyToolsBase::BasicClusterTime(const reco::BasicCluster &cluster, const edm::Event &ev) {
-  std::vector<std::pair<DetId, float> > clusterComponents = (cluster).hitsAndFractions();
+  auto clusterComponents = (cluster).hitsAndFractions();
   //std::cout << "BC has this many components: " << clusterComponents.size() << std::endl; // GF debug
 
   const EcalRecHitCollection *recHits = getEcalRecHitCollection(cluster);
@@ -148,18 +115,16 @@ float EcalClusterLazyToolsBase::BasicClusterTime(const reco::BasicCluster &clust
   float weightedTsum = 0;
   float sumOfWeights = 0;
 
-  for (std::vector<std::pair<DetId, float> >::const_iterator detitr = clusterComponents.begin();
-       detitr != clusterComponents.end();
-       detitr++) {
+  for (auto detitr = clusterComponents.begin(); detitr != clusterComponents.end(); detitr++) {
     //      EcalRecHitCollection::const_iterator theSeedHit = recHits->find (id); // trash this
-    EcalRecHitCollection::const_iterator oneHit = recHits->find((detitr->first));
+    auto oneHit = recHits->find((detitr->first));
 
     // in order to get back the ADC counts from the recHit energy, three ingredients are necessary:
     // 1) get laser correction coefficient
     float lasercalib = 1.;
     lasercalib = laser->getLaserCorrection(detitr->first, ev.time());
     // 2) get intercalibration
-    EcalIntercalibConstantMap::const_iterator icalit = icalMap->find(detitr->first);
+    auto icalit = icalMap->find(detitr->first);
     EcalIntercalibConstant icalconst = 1.;
     if (icalit != icalMap->end()) {
       icalconst = (*icalit);
@@ -212,11 +177,6 @@ float EcalClusterLazyToolsBase::BasicClusterTime(const reco::BasicCluster &clust
 // get BasicClusterSeedTime of the seed basic cluser of the supercluster
 float EcalClusterLazyToolsBase::SuperClusterSeedTime(const reco::SuperCluster &cluster) {
   return BasicClusterSeedTime((*cluster.seed()));
-}
-
-// get BasicClusterTime of the seed basic cluser of the supercluster
-float EcalClusterLazyToolsBase::SuperClusterTime(const reco::SuperCluster &cluster, const edm::Event &ev) {
-  return BasicClusterTime((*cluster.seed()), ev);
 }
 
 // get Preshower effective sigmaIRIR

@@ -22,24 +22,6 @@ process.maxEvents = cms.untracked.PSet(
 process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
 
 
-process.MessageLogger = cms.Service("MessageLogger",
-    categories   = cms.untracked.vstring("MagneticField"),
-    destinations = cms.untracked.vstring("cout"),
-    cout = cms.untracked.PSet(  
-    noLineBreaks = cms.untracked.bool(True),
-    threshold = cms.untracked.string("WARNING"),
-    WARNING = cms.untracked.PSet(
-      limit = cms.untracked.int32(0)
-    ),
-    MagneticField = cms.untracked.PSet(
-     limit = cms.untracked.int32(1)
-    )
-  )
-)
-
-process.testField  = cms.EDAnalyzer("testMagneticField")
-process.p1 = cms.Path(process.testField)
-
 
 ### Activate the check of finding volumes at random points.
 ### This test is useful during developlment of new geometries to check

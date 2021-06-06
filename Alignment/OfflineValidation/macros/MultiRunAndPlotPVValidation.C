@@ -36,14 +36,21 @@
 #include <vector>
 
 /*!
+ * \def some convenient I/O
+ */
+#define logInfo std::cout << "INFO: "
+#define logWarning std::cout << "WARNING: "
+#define logError std::cout << "ERROR!!! "
+
+/*!
  * \def boolean to decide if it is in debug mode
  */
-#define DEBUG true
+#define VERBOSE false
 
 /*!
  * \def number of workers
  */
-const size_t nWorkers = 10;
+const size_t nWorkers = 20;
 
 /*!
  * \def basically the y-values of a TGraph
@@ -172,7 +179,7 @@ namespace pv {
                   alignmentTrend higherr,
                   alignmentTrend chi2,
                   alignmentTrend KS) {
-      std::cout << "pv::wrappedTrends c'tor" << std::endl;
+      logInfo << "pv::wrappedTrends c'tor" << std::endl;
 
       m_mean = mean;
       m_low = low;
@@ -230,7 +237,7 @@ namespace pv {
       m_times = times;
       m_useRMS = useRMS;
 
-      std::cout << "pv::bundle c'tor: " << dataTypeLabel << " member: " << m_datatypelabel << std::endl;
+      logInfo << "pv::bundle c'tor: " << dataTypeLabel << " member: " << m_datatypelabel << std::endl;
 
       // make sure you don't use them at the same time
       if (lumiaxisformat || timeaxisformat) {
@@ -238,16 +245,16 @@ namespace pv {
       }
 
       if (lumiaxisformat) {
-        std::cout << "is lumiaxis format" << std::endl;
+        logInfo << "is lumiaxis format" << std::endl;
         m_axis_types.set(0);
       } else if (timeaxisformat) {
-        std::cout << "is timeaxis format" << std::endl;
+        logInfo << "is timeaxis format" << std::endl;
         m_axis_types.set(1);
       } else {
-        std::cout << "is runaxis format" << std::endl;
+        logInfo << "is runaxis format" << std::endl;
       }
 
-      std::cout << m_axis_types << std::endl;
+      logInfo << m_axis_types << std::endl;
 
       m_totalLumi = lumiMapByRun.rbegin()->second;
     }
@@ -262,12 +269,12 @@ namespace pv {
     bool isTimeAxis() const { return m_axis_types.test(1); }
     bool isUsingRMS() const { return m_useRMS; }
     void printAll() {
-      std::cout << "dataType      " << m_datatype << std::endl;
-      std::cout << "dataTypeLabel " << m_datatypelabel << std::endl;
+      logInfo << "dataType      " << m_datatype << std::endl;
+      logInfo << "dataTypeLabel " << m_datatypelabel << std::endl;
       if (this->isLumiAxis())
-        std::cout << "is lumi axis" << std::endl;
+        logInfo << "is lumi axis" << std::endl;
       if (this->isTimeAxis())
-        std::cout << "is time axis" << std::endl;
+        logInfo << "is time axis" << std::endl;
     }
 
   private:
@@ -427,7 +434,8 @@ struct outTrends {
 void MultiRunPVValidation(TString namesandlabels = "",
                           bool lumi_axis_format = false,
                           bool time_axis_format = false,
-                          bool useRMS = true);
+                          bool useRMS = true,
+                          TString lumiInputFile = "");
 outTrends processData(size_t iter,
                       std::vector<int> intersection,
                       const Int_t nDirs_,
@@ -513,7 +521,8 @@ std::vector<std::string> split(const std::string &s, char delimiter)
 //
 ///////////////////////////////////
 
-void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool time_axis_format, bool useRMS) {
+void MultiRunPVValidation(
+    TString namesandlabels, bool lumi_axis_format, bool time_axis_format, bool useRMS, TString lumiInputFile) {
   TStopwatch timer;
   timer.Start();
 
@@ -525,24 +534,22 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
 
   // consistency check, we cannot do plot vs lumi if time_axis
   if (lumi_axis_format && time_axis_format) {
-    std::cout << "##########################################################################################"
-              << std::endl;
-    std::cout << "msg-i: MultiRunPVValidation(): you're requesting both summary vs lumi and vs time, " << std::endl;
-    std::cout << "       this combination is inconsistent --> exiting!" << std::endl;
-    //return;
+    logError << "##########################################################################################"
+             << std::endl;
+    logError << "msg-i: MultiRunPVValidation(): you're requesting both summary vs lumi and vs time, " << std::endl;
+    logError << "       this combination is inconsistent --> exiting!" << std::endl;
     exit(EXIT_FAILURE);
   }
 
   // preload the dates from file
   std::map<int, TDatime> times;
-
   if (time_axis_format) {
     std::ifstream infile("times.txt");
 
     if (!infile) {
-      std::cout << "missing input file :(" << std::endl;
-      std::cout << " -- exiting" << std::endl;
-      return;
+      logError << "Required time axis options, but missing input times file :(" << std::endl;
+      logError << " -- exiting" << std::endl;
+      exit(EXIT_FAILURE);
     }
 
     std::string line;
@@ -553,7 +560,7 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
         break;
       }  // error
 
-      //std::cout<<a<<"  "<<b<<"   "<<c<<"   "<<std::endl;
+      //logInfo<<a<<"  "<<b<<"   "<<c<<"   "<<std::endl;
 
       int run = std::stoi(a);
       auto tokens_b = split(b, '-');
@@ -568,7 +575,7 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
       int minute = std::stoi(tokens_c1[2]);
       int second = std::stoi(tokens_c1[2]);
 
-      //std::cout<<run<<" "<<year<<" "<<month<<" "<<day<<" "<<hour<<" "<<minute<<" "<<second<<" "<<std::endl;
+      //logInfo<<run<<" "<<year<<" "<<month<<" "<<day<<" "<<hour<<" "<<minute<<" "<<second<<" "<<std::endl;
 
       TDatime da(year, month, day, hour, minute, second);
       times[run] = da;
@@ -590,8 +597,8 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
       DirList->Add(aFileLegPair->At(0));
       LabelList->Add(aFileLegPair->At(1));
     } else {
-      std::cout << "Please give file name and legend entry in the following form:\n"
-                << " filename1=legendentry1,filename2=legendentry2\n";
+      logError << "Please give file name and legend entry in the following form:\n"
+               << " filename1=legendentry1,filename2=legendentry2\n";
     }
   }
 
@@ -601,8 +608,6 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
 
   std::vector<int> intersection;
   std::vector<double> runs;
-  std::vector<double> lumiByRun;
-  std::map<int, double> lumiMapByRun;
   std::vector<double> x_ticks;
   std::vector<double> ex_ticks = {0.};
 
@@ -619,7 +624,7 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
     TObjString *dir = (TObjString *)DirList->At(j);
     LegLabels[j] = legend->String();
     dirs[j] = (dir->String()).Data();
-    cout << "MultiRunPVValidation(): label[" << j << "]" << LegLabels[j] << endl;
+    logInfo << "MultiRunPVValidation(): label[" << j << "]" << LegLabels[j] << endl;
 
     std::vector<int> currentList = list_files(dirs[j]);
     std::vector<int> tempSwap;
@@ -640,9 +645,49 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
     tempSwap.clear();
   }
 
+  // prelod the lumi from file
+  std::vector<double> lumiByRun;
+  std::map<int, double> lumiMapByRun;
+
+  bool useLumiByFile = (lumiInputFile.Length() > 0);
+
+  if (lumi_axis_format && useLumiByFile) {
+    std::ifstream lumifile(lumiInputFile.Data());
+    if (!lumifile) {
+      logError << "Required luminosity from file, but missing input file :(" << std::endl;
+      logError << " -- exiting" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
+    std::string line;
+    double lumiSoFar = 0.0;
+    while (std::getline(lumifile, line)) {
+      std::istringstream iss(line);
+      std::string a, b;
+      if (!(iss >> a >> b)) {
+        break;
+      }  // error
+      int run = std::stoi(a);
+      double lumi = std::stod(b) / 1000.;
+
+      // check if the run is in the list
+      if (std::find(intersection.begin(), intersection.end(), run) != intersection.end()) {
+        lumiByRun.push_back(lumiSoFar + lumi);
+        lumiMapByRun[run] = (lumiSoFar + lumi);
+      } else {
+        logWarning << " Run: " << run << " is not found in the intersection" << std::endl;
+      }
+      // fill the lumi so far irrespective if the run is in the intersection or not
+      // this corrects the global scale
+      lumiSoFar += lumi;
+
+      logInfo << run << " ====> lumi so far: " << lumiSoFar << std::endl;
+    }
+  }
+
   // debug only
   for (UInt_t index = 0; index < intersection.size(); index++) {
-    std::cout << index << " " << intersection[index] << std::endl;
+    logInfo << index << " " << intersection[index] << std::endl;
   }
 
   // book the vectors of values
@@ -690,13 +735,13 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
 
   //std::function<void()> f_processData = std::bind(processData,1,intersection,nDirs_,dirs,LegLabels,lumiSoFar,runs,lumiByRun,lumiMapByRun,useRMS,dxyPhiMeans_,dxyPhiHi_,dxyPhiLo_,dxyEtaMeans_,dxyEtaHi_,dxyEtaLo_,dzPhiMeans_,dzPhiHi_,dzPhiLo_,dzEtaMeans_,dzEtaHi_,dzEtaLo_,dxyVect,dzVect);
 
-  std::cout << " pre do-stuff: " << runs.size() << std::endl;
+  logInfo << " pre do-stuff: " << runs.size() << std::endl;
 
   //we should use std::bind to create a functor and then pass it to the procPool
   auto f_processData = std::bind(processData, _1, intersection, nDirs_, dirs, LegLabels, useRMS);
 
   //f_processData(0);
-  //std::cout<<" post do-stuff: " <<  runs.size() << std::endl;
+  //logInfo<<" post do-stuff: " <<  runs.size() << std::endl;
 
   TProcPool procPool(std::min(nWorkers, intersection.size()));
   std::vector<size_t> range(std::min(nWorkers, intersection.size()));
@@ -711,7 +756,9 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
 
   // re-assemble everything together
   for (auto extractedTrend : extracts) {
-    std::cout << "lumiSoFar: " << lumiSoFar << "/fb" << std::endl;
+    if (!useLumiByFile) {
+      logInfo << "lumiSoFar: " << lumiSoFar << "/fb" << std::endl;
+    }
 
     runs.insert(std::end(runs), std::begin(extractedTrend.m_runs), std::end(extractedTrend.m_runs));
 
@@ -719,9 +766,11 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
     // we need to re-sum the luminosity so far
 
     for (const auto &run : extractedTrend.m_runs) {
-      std::cout << run << " " << lumiSoFar + extractedTrend.m_lumiMapByRun[run] << std::endl;
-      lumiByRun.push_back(lumiSoFar + extractedTrend.m_lumiMapByRun[run]);
-      lumiMapByRun[run] = (lumiSoFar + extractedTrend.m_lumiMapByRun[run]);
+      if (!useLumiByFile) {
+        logInfo << run << " ====> lumi so far: " << lumiSoFar + extractedTrend.m_lumiMapByRun[run] << std::endl;
+        lumiByRun.push_back(lumiSoFar + extractedTrend.m_lumiMapByRun[run]);
+        lumiMapByRun[run] = (lumiSoFar + extractedTrend.m_lumiMapByRun[run]);
+      }
     }
 
     lumiSoFar += (extractedTrend.m_lumiSoFar / 1000.);
@@ -823,8 +872,10 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
       dxyEtaHiErr_[label].push_back(std::abs(dxyEtaHi_[label][it] - dxyEtaMeans_[label][it]));
       dxyEtaLoErr_[label].push_back(std::abs(dxyEtaLo_[label][it] - dxyEtaMeans_[label][it]));
 
-      std::cout << "label: " << label << " means:" << dxyEtaMeans_[label][it] << " low: " << dxyEtaLo_[label][it]
+      if (VERBOSE) {
+        logInfo << "label: " << label << " means:" << dxyEtaMeans_[label][it] << " low: " << dxyEtaLo_[label][it]
                 << " loErr: " << dxyEtaLoErr_[label][it] << std::endl;
+      }
 
       dzPhiHiErr_[label].push_back(std::abs(dzPhiHi_[label][it] - dzPhiMeans_[label][it]));
       dzPhiLoErr_[label].push_back(std::abs(dzPhiLo_[label][it] - dzPhiMeans_[label][it]));
@@ -835,7 +886,7 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
 
   // just check runs are ordered
   //for(const auto &run : runs){
-  //  std::cout<<" "<< run ;
+  //  logInfo<<" "<< run ;
   // }
 
   // main function call
@@ -930,7 +981,24 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
   if (lumi_axis_format) {
     theType = "luminosity";
     theTypeLabel = "Processed luminosity [1/fb]";
-    x_ticks = lumiByRun;
+    if (!useLumiByFile) {
+      x_ticks = lumiByRun;
+    } else {
+      // x_ticks = lumiByRun; (generally it's wrong)
+      // in case we are passing the luminosity per run by file, need to re-check the map
+      // in order to fill the x ticks of the graph only for the run which actually pass the selection
+      double lastLumi(0.);
+      for (const auto &iRun : runs) {
+        if (lumiMapByRun.find(iRun) != lumiMapByRun.end()) {
+          x_ticks.push_back(lumiMapByRun[iRun]);
+          lastLumi = x_ticks.back();
+        } else {
+          // if the run is not find in the lumiMapByRun we just use the lumi of
+          // the last run analyzed (so we assume that run has lumi=0)
+          x_ticks.push_back(lastLumi);
+        }
+      }
+    }
   } else {
     if (!time_axis_format) {
       theType = "run number";
@@ -1009,8 +1077,11 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
 
   for (Int_t j = 0; j < nDirs_; j++) {
     // check on the sanity
-    std::cout << "x_ticks.size()= " << x_ticks.size() << " dxyPhiMeans_[LegLabels[" << j
-              << "]].size()=" << dxyPhiMeans_[LegLabels[j]].size() << std::endl;
+    logInfo << "x_ticks.size()= " << x_ticks.size() << " dxyPhiMeans_[LegLabels[" << j
+            << "]].size()=" << dxyPhiMeans_[LegLabels[j]].size() << std::endl;
+
+    // otherwise something very bad has happened
+    assert(x_ticks.size() == dxyPhiMeans_[LegLabels[j]].size());
 
     // *************************************
     // dxy vs phi
@@ -1621,28 +1692,28 @@ void MultiRunPVValidation(TString namesandlabels, bool lumi_axis_format, bool ti
 
   gSystem->mkdir("Biases");
   TString processline = ".! mv Bias*.p* ./Biases/";
-  std::cout << "Executing: \n" << processline << "\n" << std::endl;
+  logInfo << "Executing: \n" << processline << "\n" << std::endl;
   gROOT->ProcessLine(processline.Data());
   gSystem->Sleep(100);
   processline.Clear();
 
   gSystem->mkdir("ResolutionsVsPt");
   processline = ".! mv ResolutionsVsPt*.p* ./ResolutionsVsPt/";
-  std::cout << "Executing: \n" << processline << "\n" << std::endl;
+  logInfo << "Executing: \n" << processline << "\n" << std::endl;
   gROOT->ProcessLine(processline.Data());
   gSystem->Sleep(100);
   processline.Clear();
 
   gSystem->mkdir("Resolutions");
   processline = ".! mv Resolutions*.p* ./Resolutions/";
-  std::cout << "Executing: \n" << processline << "\n" << std::endl;
+  logInfo << "Executing: \n" << processline << "\n" << std::endl;
   gROOT->ProcessLine(processline.Data());
   gSystem->Sleep(100);
   processline.Clear();
 
   gSystem->mkdir("Pulls");
   processline = ".! mv Pulls*.p* ./Pulls/";
-  std::cout << "Executing: \n" << processline << "\n" << std::endl;
+  logInfo << "Executing: \n" << processline << "\n" << std::endl;
   gROOT->ProcessLine(processline.Data());
   gSystem->Sleep(100);
   processline.Clear();
@@ -1698,7 +1769,7 @@ void outputGraphs(const pv::wrappedTrends &allInputs,
   g_mean->SetMarkerStyle(pv::markers[index]);
   g_mean->SetMarkerColor(pv::colors[index]);
   g_mean->SetLineColor(pv::colors[index]);
-  g_mean->SetMarkerSize(1.5);
+  g_mean->SetMarkerSize(1.);
   g_high->SetLineColor(pv::colors[index]);
   g_low->SetLineColor(pv::colors[index]);
   beautify(g_mean);
@@ -1745,11 +1816,11 @@ void outputGraphs(const pv::wrappedTrends &allInputs,
   g_mean->GetYaxis()->SetTitle(Form("#LT d_{%s}(#%s) #GT [#mum]", coord, kin));
   g_mean->GetYaxis()->SetRangeUser(-ampl, ampl);
 
-  std::cout << "===================================================================================================="
-            << std::endl;
-  std::cout << mybundle.getTotalLumi() << std::endl;
-  std::cout << "===================================================================================================="
-            << std::endl;
+  logInfo << "===================================================================================================="
+          << std::endl;
+  logInfo << "Total Luminosity: " << mybundle.getTotalLumi() << std::endl;
+  logInfo << "===================================================================================================="
+          << std::endl;
 
   g_asym->SetName(Form("gerr_bias_d%s_%s_%s", coord, kin, label.Data()));
   g_asym->SetTitle(Form("Bias of d_{%s}(#%s) vs %s", coord, kin, mybundle.getDataType()));
@@ -1849,7 +1920,7 @@ void outputGraphs(const pv::wrappedTrends &allInputs,
 
   h_RMS[index]->SetLineColor(pv::colors[index]);
   h_RMS[index]->SetLineWidth(2);
-  h_RMS[index]->SetMarkerSize(1.5);
+  h_RMS[index]->SetMarkerSize(1.);
   h_RMS[index]->SetMarkerStyle(pv::markers[index]);
   h_RMS[index]->SetMarkerColor(pv::colors[index]);
   adjustmargins(rms_canv);
@@ -1865,7 +1936,7 @@ void outputGraphs(const pv::wrappedTrends &allInputs,
   // at the last file re-loop
   if (index == (mybundle.getNObjects() - 1)) {
     auto theMax = getMaximumFromArray(array);
-    std::cout << "the max for d" << coord << "(" << kin << ") RMS is " << theMax << std::endl;
+    logInfo << "the max for d" << coord << "(" << kin << ") RMS is " << theMax << std::endl;
 
     for (Int_t k = 0; k < mybundle.getNObjects(); k++) {
       //h_RMS[k]->GetYaxis()->SetRangeUser(-theMax*0.45,theMax*1.40);
@@ -1907,12 +1978,12 @@ std::vector<int> list_files(const char *dirname, const char *ext)
     while ((file = (TSystemFile *)next())) {
       fname = file->GetName();
       if (!file->IsDirectory() && fname.EndsWith(ext) && fname.BeginsWith("PVValidation")) {
-        //std::cout << fname.Data() << std::endl;
+        //logInfo << fname.Data() << std::endl;
         TObjArray *bits = fname.Tokenize("_");
         TString theRun = bits->At(2)->GetName();
-        //std::cout << theRun << std::endl;
+        //logInfo << theRun << std::endl;
         TString formatRun = (theRun.ReplaceAll(".root", "")).ReplaceAll("_", "");
-        //std::cout << dirname << " "<< formatRun.Atoi() << std::endl;
+        //logInfo << dirname << " "<< formatRun.Atoi() << std::endl;
         theRunNumbers.push_back(formatRun.Atoi());
       }
     }
@@ -2013,7 +2084,7 @@ void arrangeOutCanvas(TCanvas *canv,
             // }
             auto my_view = checkTheView(theTitle);
 
-            //std::cout<<" ----------------------------------> " << theTitle << " view: " << my_view <<  std::endl;
+            //logInfo<<" ----------------------------------> " << theTitle << " view: " << my_view <<  std::endl;
 
             switch (my_view) {
               case pv::dxyphi:
@@ -2142,7 +2213,7 @@ void makeNewXAxis(TH1 *h)
     axmax = 8;
     ndiv = 510;
   } else {
-    std::cout << "unrecognized variable" << std::endl;
+    logError << "unrecognized variable" << std::endl;
   }
 
   // Remove the current axis
@@ -2301,7 +2372,7 @@ void cmsPrel(TPad *pad, size_t ipads) {
   UInt_t h;
   latex->GetTextExtent(w, h, "Internal (13 TeV)");
   float size = w / (W / ipads);
-  //std::cout<<w<<" "<<" "<<W<<" "<<size<<std::endl;
+  //logInfo<<w<<" "<<" "<<W<<" "<<size<<std::endl;
   float posXCMS_ = posX_ - size * (1 + 0.025 * ipads);
 
   latex->SetTextAlign(33);
@@ -2380,7 +2451,7 @@ TH1F *DrawConstantGraph(TGraph *graph, Int_t iter, Double_t theConst)
   Double_t xmin = graph->GetXaxis()->GetXmin();  //TMath::MinElement(graph->GetN(),graph->GetX());
   Double_t xmax = graph->GetXaxis()->GetXmax();  //TMath::MaxElement(graph->GetN(),graph->GetX());
 
-  //std::cout<<xmin<<" : "<<xmax<<std::endl;
+  //logInfo<<xmin<<" : "<<xmax<<std::endl;
 
   TH1F *hzero = new TH1F(Form("hconst_%s_%i", graph->GetName(), iter),
                          Form("hconst_%s_%i", graph->GetName(), iter),
@@ -2651,7 +2722,7 @@ Double_t getMaximumFromArray(TObjArray *array)
     TMath::Quantiles(maxima.size(), nq, &(maxima[0]), yq, xq);
 
     //for(int q=0;q<nq;q++){
-    //  std::cout<<q<<" "<<xq[q]<<" "<<yq[q]<<std::endl;
+    //  logInfo<<q<<" "<<xq[q]<<" "<<yq[q]<<std::endl;
     //}
 
     //for (const auto &element : maxima){
@@ -2663,8 +2734,8 @@ Double_t getMaximumFromArray(TObjArray *array)
 
     theMaxForThisHist = yq[80];
 
-    std::cout << "rms_maxima[" << i << "]" << rms_maxima << " mean maxima[" << mean_maxima
-              << "] purged maximum:" << theMaxForThisHist << std::endl;
+    logInfo << "rms_maxima[" << i << "]: " << rms_maxima << " mean maxima[" << mean_maxima
+            << "] purged maximum:" << theMaxForThisHist << std::endl;
 
     if (theMaxForThisHist > theMaximum)
       theMaximum = theMaxForThisHist;
@@ -2672,7 +2743,7 @@ Double_t getMaximumFromArray(TObjArray *array)
     /*
     if( (static_cast<TH1*>(array->At(i)))->GetMaximum() > theMaximum){
       theMaximum = (static_cast<TH1*>(array->At(i)))->GetMaximum();
-      //cout<<"i= "<<i<<" theMaximum="<<theMaximum<<endl;
+      //logInfo<<"i= "<<i<<" theMaximum="<<theMaximum<<endl;
     }
     */
   }
@@ -2697,12 +2768,12 @@ void superImposeIOVBoundaries(TCanvas *c,
   std::vector<int> vruns;
   for (auto const &imap : lumiMapByRun) {
     vruns.push_back(imap.first);
-    //std::cout<<" run:" << imap.first << " lumi: "<< imap.second << std::endl;
+    //logInfo<<" run:" << imap.first << " lumi: "<< imap.second << std::endl;
   }
 
   //std::vector<vint> truns;
   for (auto const &imap : timeMap) {
-    std::cout << " run:" << imap.first << " time: " << imap.second.Convert() << std::endl;
+    logInfo << " run:" << imap.first << " time: " << imap.second.Convert() << std::endl;
   }
 
   /* Run-2 Ultra-Legacy ReReco IOVs (from tag SiPixelTemplateDBObject_38T_v16_offline)
@@ -2798,7 +2869,7 @@ void superImposeIOVBoundaries(TCanvas *c,
     if (lumi_axis_format) {
       if (closestrun < 0)
         continue;
-      //std::cout<< "natural boundary: " << IOVboundaries[IOV] << " closest:" << closestrun << std::endl;
+      //logInfo<< "natural boundary: " << IOVboundaries[IOV] << " closest:" << closestrun << std::endl;
 
       a_lines[IOV] = new TArrow(
           lumiMapByRun.at(closestrun), (c->GetUymin()), lumiMapByRun.at(closestrun), c->GetUymax(), 0.5, "|>");
@@ -2815,7 +2886,7 @@ void superImposeIOVBoundaries(TCanvas *c,
     } else if (time_axis_format) {
       if (closestrun < 0)
         continue;
-      std::cout << "natural boundary: " << IOVboundaries[IOV] << " closest:" << closestrun << std::endl;
+      logInfo << "natural boundary: " << IOVboundaries[IOV] << " closest:" << closestrun << std::endl;
       a_lines[IOV] = new TArrow(
           timeMap.at(closestrun).Convert(), (c->GetUymin()), timeMap.at(closestrun).Convert(), c->GetUymax(), 0.5, "|>");
 
@@ -2888,7 +2959,7 @@ void superImposeIOVBoundaries(TCanvas *c,
     } else {
       _sx = rx * (IOVboundaries[IOV] - rx1) + x1ndc;  //-0.05
     }
-    Double_t _dx = _sx + 0.05;
+    Double_t _dx = _sx + 0.03;
 
     Int_t index = IOV % 5;
     // if(IOV<5)
@@ -2937,7 +3008,7 @@ outTrends processData(size_t iter,
   unsigned int first = iter * pitch;
   unsigned int last = (iter == (effSize - 1)) ? intersection.size() : ((iter + 1) * pitch);
 
-  std::cout << "iter:" << iter << "| pitch: " << pitch << " [" << first << "-" << last << ")" << std::endl;
+  logInfo << "iter:" << iter << "| pitch: " << pitch << " [" << first << "-" << last << ")" << std::endl;
 
   ret.m_index = iter;
 
@@ -2948,7 +3019,9 @@ outTrends processData(size_t iter,
     //if(intersection.at(n)!=283946)
     //  continue;
 
-    std::cout << "iter: " << iter << " " << n << " " << intersection.at(n) << std::endl;
+    if (VERBOSE) {
+      logInfo << "iter: " << iter << " " << n << " " << intersection.at(n) << std::endl;
+    }
 
     TFile *fins[nDirs_];
 
@@ -2997,15 +3070,17 @@ outTrends processData(size_t iter,
 
       fins[j] = new TFile(Form("%s/PVValidation_%s_%i.root", dirs[j], stem.c_str(), intersection[n]));
       if (fins[j]->IsZombie()) {
-        std::cout << Form("%s/PVValidation_%s_%i.root", dirs[j], stem.c_str(), intersection[n])
-                  << " is a Zombie! cannot combine" << std::endl;
+        logError << Form("%s/PVValidation_%s_%i.root", dirs[j], stem.c_str(), intersection[n])
+                 << " is a Zombie! cannot combine" << std::endl;
         areAllFilesOK = false;
         lastOpen = j;
         break;
       }
 
-      std::cout << Form("%s/PVValidation_%s_%i.root", dirs[j], stem.c_str(), intersection[n])
+      if (VERBOSE) {
+        logInfo << Form("%s/PVValidation_%s_%i.root", dirs[j], stem.c_str(), intersection[n])
                 << " has size: " << fins[j]->GetSize() << " b ";
+      }
 
       // sanity check
       TH1F *h_tracks = (TH1F *)fins[j]->Get("PVValidation/EventFeatures/h_nTracks");
@@ -3013,7 +3088,7 @@ outTrends processData(size_t iter,
         TH1F *h_lumi = (TH1F *)fins[j]->Get("PVValidation/EventFeatures/h_lumiFromConfig");
         double lumi = h_lumi->GetBinContent(1);
         ret.m_lumiSoFar += lumi;
-        //std::cout<<"lumi: "<<lumi
+        //logInfo<<"lumi: "<<lumi
         //	 <<" ,lumi so far: "<<lumiSoFar<<std::endl;
 
         //outfile<<"run "<<intersection[n]<<" lumi: "<<lumi
@@ -3021,8 +3096,9 @@ outTrends processData(size_t iter,
       }
 
       Double_t numEvents = h_tracks->GetEntries();
+
       if (numEvents < 2500) {
-        std::cout << "excluding " << intersection[n] << " because it has less than 2.5k events" << std::endl;
+        logWarning << "excluding run " << intersection[n] << " because it has less than 2.5k events" << std::endl;
         areAllFilesOK = false;
         lastOpen = j;
         break;
@@ -3066,7 +3142,7 @@ outTrends processData(size_t iter,
 
       auto dxyPhiBiases = getBiases(dxyPhiMeanTrend[j]);
 
-      //std::cout<<"\n" <<j<<" "<< LegLabels[j] << " dxy(phi) mean: "<< dxyPhiBiases.getWeightedMean()
+      //logInfo<<"\n" <<j<<" "<< LegLabels[j] << " dxy(phi) mean: "<< dxyPhiBiases.getWeightedMean()
       //       <<" dxy(phi) max: "<< dxyPhiBiases.getMax()
       //       <<" dxy(phi) min: "<< dxyPhiBiases.getMin()
       //       << std::endl;
@@ -3075,7 +3151,7 @@ outTrends processData(size_t iter,
       ret.m_dxyPhiChi2[LegLabels[j]].push_back(TMath::Log10(dxyPhiBiases.getNormChi2()));
       ret.m_dxyPhiKS[LegLabels[j]].push_back(dxyPhiBiases.getKSScore());
 
-      //std::cout<<"\n" <<j<<" "<< LegLabels[j] << " dxy(phi) ks score: "<< dxyPhiBiases.getKSScore() << std::endl;
+      //logInfo<<"\n" <<j<<" "<< LegLabels[j] << " dxy(phi) ks score: "<< dxyPhiBiases.getKSScore() << std::endl;
 
       useRMS
           ? ret.m_dxyPhiLo[LegLabels[j]].push_back(dxyPhiBiases.getWeightedMean() - 2 * dxyPhiBiases.getWeightedRMS())
@@ -3117,8 +3193,8 @@ outTrends processData(size_t iter,
       ret.m_dxyVect[LegLabels[j]].push_back(getUnrolledHisto(dxyIntegralTrend[j]));
       ret.m_dzVect[LegLabels[j]].push_back(getUnrolledHisto(dzIntegralTrend[j]));
 
-      //std::cout<<std::endl;
-      //std::cout<<" n. bins: "<< dxyVect[LegLabels[j]].back().get_n_bins()
+      //logInfo<<std::endl;
+      //logInfo<<" n. bins: "<< dxyVect[LegLabels[j]].back().get_n_bins()
       //       <<" y-min:   "<< dxyVect[LegLabels[j]].back().get_y_min()
       //       <<" y-max:   "<< dxyVect[LegLabels[j]].back().get_y_max() << std::endl;
 
@@ -3156,7 +3232,7 @@ outTrends processData(size_t iter,
 
     if (!areAllFilesOK) {
       // do all the necessary deletions
-      std::cout << "\n====> not all files are OK" << std::endl;
+      logWarning << "====> not all files are OK" << std::endl;
 
       for (int i = 0; i < lastOpen; i++) {
         fins[i]->Close();
@@ -3169,7 +3245,9 @@ outTrends processData(size_t iter,
       ret.m_lumiMapByRun[intersection.at(n)] = ret.m_lumiSoFar / 1000.;
     }
 
-    std::cout << "I am still here - runs.size(): " << ret.m_runs.size() << std::endl;
+    if (VERBOSE) {
+      logInfo << "I am still here - runs.size(): " << ret.m_runs.size() << std::endl;
+    }
 
     // Bias plots
 
@@ -3295,7 +3373,9 @@ outTrends processData(size_t iter,
     delete PullsCanvas;
     delete ResolutionsVsPt;
 
-    std::cout << std::endl;
+    if (VERBOSE) {
+      logInfo << std::endl;
+    }
   }
 
   return ret;

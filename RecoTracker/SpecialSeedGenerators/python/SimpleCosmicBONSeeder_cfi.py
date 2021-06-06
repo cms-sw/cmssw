@@ -29,8 +29,9 @@ def makeSimpleCosmicSeedLayers(*layers):
     #print "SEEDING LAYER LIST = ", layerList
     return layerList
 
-layerInfo = RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi.layerInfo.clone()
-layerInfo.TEC.useSimpleRphiHitsCleaner = False
+layerInfo = RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi.layerInfo.clone(
+    TEC = dict(useSimpleRphiHitsCleaner = False)
+)
 layerList = makeSimpleCosmicSeedLayers('ALL'),
 
 simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",

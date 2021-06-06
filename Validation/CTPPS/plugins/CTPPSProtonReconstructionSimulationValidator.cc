@@ -27,6 +27,8 @@
 #include "TProfile.h"
 #include "TGraphErrors.h"
 
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+
 #include <map>
 #include <string>
 
@@ -53,7 +55,7 @@ private:
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsSingleRP_;
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
 
-  std::string lhcInfoLabel_;
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoESToken_;
 
   std::string outputFile_;
 
@@ -76,20 +78,20 @@ private:
 
     PlotGroup()
         : h_de_xi(new TH1D("", ";#xi_{reco} - #xi_{simu}", 100, 0., 0.)),
-          p_de_xi_vs_xi_simu(new TProfile("", ";#xi_{simu};#xi_{reco} - #xi_{simu}", 19, 0.015, 0.205)),
+          p_de_xi_vs_xi_simu(new TProfile("", ";#xi_{simu};#xi_{reco} - #xi_{simu}", 50, 0., 0.25)),
           h_xi_reco_vs_xi_simu(new TH2D("", ";#xi_{simu};#xi_{reco}", 100, 0., 0.30, 100, 0., 0.30)),
 
           h_de_th_x(new TH1D("", ";#theta_{x,reco} - #theta_{x,simu}", 100, 0., 0.)),
-          p_de_th_x_vs_xi_simu(new TProfile("", ";#xi_{simu};#theta_{x,reco} - #theta_{x,simu}", 19, 0.015, 0.205)),
+          p_de_th_x_vs_xi_simu(new TProfile("", ";#xi_{simu};#theta_{x,reco} - #theta_{x,simu}", 50, 0., 0.25)),
 
           h_de_th_y(new TH1D("", ";#theta_{y,reco} - #theta_{y,simu}", 100, 0., 0.)),
-          p_de_th_y_vs_xi_simu(new TProfile("", ";#xi_{simu};#theta_{y,reco} - #theta_{y,simu}", 19, 0.015, 0.205)),
+          p_de_th_y_vs_xi_simu(new TProfile("", ";#xi_{simu};#theta_{y,reco} - #theta_{y,simu}", 50, 0., 0.25)),
 
           h_de_vtx_y(new TH1D("", ";vtx_{y,reco} - vtx_{y,simu}   (mm)", 100, 0., 0.)),
-          p_de_vtx_y_vs_xi_simu(new TProfile("", ";#xi_{simu};vtx_{y,reco} - vtx_{y,simu} (mm)", 19, 0.015, 0.205)),
+          p_de_vtx_y_vs_xi_simu(new TProfile("", ";#xi_{simu};vtx_{y,reco} - vtx_{y,simu} (mm)", 50, 0., 0.25)),
 
           h_de_t(new TH1D("", ";t_{reco} - t_{simu}", 100, -1., +1.)),
-          p_de_t_vs_xi_simu(new TProfile("", ";xi_{simu};t_{reco} - t_{simu}", 19, 0.015, 0.205)),
+          p_de_t_vs_xi_simu(new TProfile("", ";xi_{simu};t_{reco} - t_{simu}", 50, 0., 0.25)),
           p_de_t_vs_t_simu(new TProfile("", ";t_{simu};t_{reco} - t_{simu}", 20, 0., 5.)) {}
 
     static TGraphErrors profileToRMSGraph(TProfile *p, const char *name = "") {
@@ -144,6 +146,38 @@ private:
   };
 
   std::map<unsigned int, std::map<unsigned int, PlotGroup>> plots_;
+
+  struct DoubleArmPlotGroup {
+    std::unique_ptr<TH2D> h2_t_sh_vs_vtx_t, h2_t_dh_vs_vtx_z;
+    std::unique_ptr<TH1D> h_t_sh_minus_vtx_t, h_t_dh_minus_vtx_z;
+
+    DoubleArmPlotGroup()
+        : h2_t_sh_vs_vtx_t(new TH2D("", ";vtx_t   (mm);(t_56 + t_45)/2   (mm)", 100, -250., +250., 100, -250., +250.)),
+          h2_t_dh_vs_vtx_z(new TH2D("", ";vtx_z   (mm);(t_56 - t_45)/2   (mm)", 100, -250., +250., 100, -250., +250.)),
+          h_t_sh_minus_vtx_t(new TH1D("", ";(t_56 + t_45)/2 - vtx_t   (mm)", 100, -100., +100.)),
+          h_t_dh_minus_vtx_z(new TH1D("", ";(t_56 - t_45)/2 - vtx_z   (mm)", 100, -100., +100.)) {}
+
+    void fill(double time_45, double time_56, double vtx_z, double vtx_t) {
+      const double t_sum_half = (time_56 + time_45) / 2. * CLHEP::c_light;
+      const double t_dif_half = (time_56 - time_45) / 2. * CLHEP::c_light;
+
+      h2_t_sh_vs_vtx_t->Fill(vtx_t, t_sum_half);
+      h_t_sh_minus_vtx_t->Fill(t_sum_half - vtx_t);
+
+      h2_t_dh_vs_vtx_z->Fill(vtx_z, t_dif_half);
+      h_t_dh_minus_vtx_z->Fill(t_dif_half - vtx_z);
+    }
+
+    void write() const {
+      h2_t_sh_vs_vtx_t->Write("h2_t_sh_vs_vtx_t");
+      h_t_sh_minus_vtx_t->Write("h_t_sh_minus_vtx_t");
+
+      h2_t_dh_vs_vtx_z->Write("h2_t_dh_vs_vtx_z");
+      h_t_dh_minus_vtx_z->Write("h_t_dh_minus_vtx_z");
+    }
+  };
+
+  DoubleArmPlotGroup double_arm_plots_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -164,15 +198,14 @@ CTPPSProtonReconstructionSimulationValidator::CTPPSProtonReconstructionSimulatio
           consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
       tokenRecoProtonsMultiRP_(
           consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
-      lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
+      lhcInfoESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
       outputFile_(iConfig.getParameter<string>("outputFile")) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get conditions
-  edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
+  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
 
   // get input
   edm::Handle<edm::HepMCProduct> hHepMCBeforeSmearing;
@@ -246,13 +279,13 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
     }
   }
 
-  // do comparison
+  // single-arm comparison
   for (const auto &handle : {hRecoProtonsSingleRP, hRecoProtonsMultiRP}) {
     for (const auto &rec_pr : *handle) {
       if (!rec_pr.validFit())
         continue;
 
-      unsigned int idx;
+      unsigned int idx = 12345;
 
       bool mom_set = false;
       FourVector mom;
@@ -261,7 +294,8 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
         idx = 0;
         mom_set = proton_45_set;
         mom = mom_45;
-      } else {
+      }
+      if (rec_pr.lhcSector() == reco::ForwardProton::LHCSector::sector56) {
         idx = 1;
         mom_set = proton_56_set;
         mom = mom_56;
@@ -282,9 +316,33 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
       if (rec_pr.method() == reco::ForwardProton::ReconstructionMethod::multiRP)
         meth_idx = 1;
 
-      fillPlots(meth_idx, idx, rec_pr, vtx, mom, *hLHCInfo);
+      fillPlots(meth_idx, idx, rec_pr, vtx, mom, lhcInfo);
     }
   }
+
+  // double-arm comparison
+  bool time_set_45 = false, time_set_56 = false;
+  double time_45 = 0., time_56 = 0.;
+  for (const auto &rec_pr : *hRecoProtonsMultiRP) {
+    if (!rec_pr.validFit())
+      continue;
+
+    // skip protons with no timing information
+    if (rec_pr.timeError() < 1E-3)
+      continue;
+
+    if (rec_pr.lhcSector() == reco::ForwardProton::LHCSector::sector45) {
+      time_set_45 = true;
+      time_45 = rec_pr.time();
+    }
+    if (rec_pr.lhcSector() == reco::ForwardProton::LHCSector::sector56) {
+      time_set_56 = true;
+      time_56 = rec_pr.time();
+    }
+  }
+
+  if (time_set_45 && time_set_56)
+    double_arm_plots_.fill(time_45, time_56, vtx.z(), vtx.t());
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -343,6 +401,9 @@ void CTPPSProtonReconstructionSimulationValidator::endJob() {
       eit.second.write();
     }
   }
+
+  gDirectory = f_out->mkdir("double arm");
+  double_arm_plots_.write();
 }
 
 //----------------------------------------------------------------------------------------------------

@@ -11,30 +11,27 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Aristotelis Kyriakis
+// Original Author:  Aristotelis Kyriakis NCSR "Demokritos" Athens
+//                    D Maletic, "Vinca" Belgrade
 //         Created:  May 26 13:22:06 CEST 2009
 //
 //
 
-// user include files
-#include "RecoEgamma/Examples/plugins/SimplePi0DiscAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
-#include <iostream>
+
 #include "TMath.h"
 #include "TFile.h"
 #include "TH1F.h"
@@ -42,7 +39,46 @@
 #include "TH2F.h"
 #include "TProfile.h"
 #include "TTree.h"
+
 #include <iostream>
+
+class SimplePi0DiscAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit SimplePi0DiscAnalyzer(const edm::ParameterSet& conf);
+
+  ~SimplePi0DiscAnalyzer() override;
+
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  // ----------member data ---------------------------
+
+  std::string photonCollectionProducer_;
+  std::string photonCollection_;
+
+  std::string outputFile_;
+  TFile* rootFile_;
+
+  TH1F* hConv_ntracks_;
+
+  TH1F* hAll_nnout_Assoc_;
+  TH1F* hAll_nnout_NoConv_Assoc_;
+  TH1F* hBarrel_nnout_Assoc_;
+  TH1F* hBarrel_nnout_NoConv_Assoc_;
+  TH1F* hEndcNoPresh_nnout_Assoc_;
+  TH1F* hEndcNoPresh_nnout_NoConv_Assoc_;
+  TH1F* hEndcWithPresh_nnout_Assoc_;
+  TH1F* hEndcWithPresh_nnout_NoConv_Assoc_;
+  TH1F* hAll_nnout_NoConv_Assoc_R9_;
+  TH1F* hBarrel_nnout_NoConv_Assoc_R9_;
+  TH1F* hEndcNoPresh_nnout_NoConv_Assoc_R9_;
+  TH1F* hEndcWithPresh_nnout_NoConv_Assoc_R9_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SimplePi0DiscAnalyzer);
 
 using namespace reco;
 
@@ -147,7 +183,7 @@ void SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
     std::cout << "Photon Id = " << iPho - photons.begin() << " with Et = " << Photon_et << " Eta = " << Photon_eta
               << " Phi = " << Photon_phi << " R9 = " << Photon_r9 << " and conv_id = " << isPhotConv << std::endl;
 
-    SuperClusterRef it_super = localPho.superCluster();  // get the SC related to the Photon candidate
+    auto it_super = localPho.superCluster();  // get the SC related to the Photon candidate
 
     //    hConv_ntracks_->Fill(Ntrk_conv);
 
@@ -198,5 +234,3 @@ void SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
     //    PhoInd++;
   }  // End Loop over Photons
 }
-//define this as a plug-in
-DEFINE_FWK_MODULE(SimplePi0DiscAnalyzer);

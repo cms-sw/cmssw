@@ -6,10 +6,21 @@
 #include <string>
 #include <vector>
 #include <bitset>
-#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvSimulationParameters.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 class TrackerTopology;
 
@@ -74,19 +85,26 @@ private:
   typedef std::map<unsigned int, std::vector<std::pair<const PSimHit*, int>>, std::less<unsigned int>> simhit_map;
   typedef simhit_map::iterator simhit_map_iterator;
 
-  const std::string gainLabel;
   const std::string hitsProducer;
   const vstring trackerContainers;
   const std::string ZSDigi;
   const std::string SCDigi;
   const std::string VRDigi;
   const std::string PRDigi;
-  const std::string geometryType;
   const bool useConfFromDB;
   const bool zeroSuppression;
   const bool makeDigiSimLinks_;
   const bool includeAPVSimulation_;
   const double fracOfEventsToSimAPV_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> pSetupToken_;
+  const edm::ESGetToken<SiStripGain, SiStripGainSimRcd> gainToken_;
+  const edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
+  const edm::ESGetToken<SiStripThreshold, SiStripThresholdRcd> thresholdToken_;
+  const edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  edm::ESGetToken<SiStripApvSimulationParameters, SiStripApvSimulationParametersRcd> apvSimulationParametersToken_;
 
   ///< Whether or not to create the association to sim truth collection. Set in configuration.
   /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.
@@ -101,8 +119,8 @@ private:
 
   std::unique_ptr<SiStripDigitizerAlgorithm> theDigiAlgo;
   std::map<uint32_t, std::vector<int>> theDetIdList;
-  edm::ESHandle<TrackerGeometry> pDD;
-  edm::ESHandle<MagneticField> pSetup;
+  const TrackerGeometry* pDD = nullptr;
+  const MagneticField* pSetup = nullptr;
   std::map<unsigned int, StripGeomDetUnit const*> detectorUnits;
   CLHEP::HepRandomEngine* randomEngine_ = nullptr;
   std::vector<std::pair<int, std::bitset<6>>> theAffectedAPVvector;

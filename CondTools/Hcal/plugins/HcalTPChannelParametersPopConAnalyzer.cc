@@ -9,7 +9,8 @@ public:
   HcalTPChannelParametersPopConAnalyzer(const edm::ParameterSet& pset)
       : popcon::PopConAnalyzer<HcalTPChannelParametersHandler>(pset),
         m_populator(pset),
-        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        m_tok(esConsumes<HcalTPChannelParameters, HcalTPChannelParametersRcd>()) {}
 
 private:
   void endJob() override {
@@ -20,9 +21,7 @@ private:
   void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
-    edm::ESHandle<HcalTPChannelParameters> objecthandle;
-    esetup.get<HcalTPChannelParametersRcd>().get(objecthandle);
-    myDBObject = new HcalTPChannelParameters(*objecthandle.product());
+    myDBObject = new HcalTPChannelParameters(esetup.getData(m_tok));
   }
 
   void write() { m_populator.write(m_source); }
@@ -30,6 +29,7 @@ private:
 private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
+  edm::ESGetToken<HcalTPChannelParameters, HcalTPChannelParametersRcd> m_tok;
 
   HcalTPChannelParameters* myDBObject;
 };

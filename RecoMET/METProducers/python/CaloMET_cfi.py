@@ -11,10 +11,10 @@ caloMet = cms.EDProducer(
     )
 
 ##____________________________________________________________________________||
-caloMetBEFO = caloMet.clone()
-caloMetBEFO.src = "towerMakerWithHO"
-caloMetBEFO.alias = 'caloMetBEFO'
-
+caloMetBEFO = caloMet.clone(
+    src   = "towerMakerWithHO",
+    alias = 'caloMetBEFO'
+)
 ##____________________________________________________________________________||
 caloMetBE = cms.EDProducer(
     "CaloMETProducer",
@@ -26,8 +26,8 @@ caloMetBE = cms.EDProducer(
 )
 
 ##____________________________________________________________________________||
-caloMetBEO = caloMetBE.clone()
-caloMetBEO.src = "towerMakerWithHO"
-caloMetBEO.alias = 'caloMetBEO'
-
+caloMetBEO = caloMetBE.clone(
+    src   = "towerMakerWithHO",
+    alias = 'caloMetBEO'
+)
 ##____________________________________________________________________________||

@@ -38,7 +38,7 @@ JetCorrectionESChain::JetCorrectionESChain(edm::ParameterSet const& fParameters)
   auto cc = setWhatProduced(this, label);
   tokens_.resize(correctors.size());
   for (size_t i = 0; i < correctors.size(); ++i) {
-    cc.setConsumes(tokens_[i], edm::ESInputTag{"", correctors[i]});
+    tokens_[i] = cc.consumes(edm::ESInputTag{"", correctors[i]});
   }
 }
 

@@ -55,8 +55,8 @@ import FastSimulation.SimplifiedGeometryPropagator.FastTrackDeDxProducer_cfi
 fastSim.toReplaceWith(dedxHarmonic2,
     FastSimulation.SimplifiedGeometryPropagator.FastTrackDeDxProducer_cfi.FastTrackDeDxProducer.clone(
         ShapeTest = False,
-        simHit2RecHitMap = cms.InputTag("fastMatchedTrackerRecHits","simHit2RecHitMap"),
-        simHits = cms.InputTag("fastSimProducer","TrackerHits"),
+        simHit2RecHitMap = "fastMatchedTrackerRecHits:simHit2RecHitMap",
+        simHits = "fastSimProducer:TrackerHits",
     )
 )
 
@@ -69,26 +69,19 @@ dedxPixelAndStripHarmonic2T085 = dedxHarmonic2.clone(
         exponent  = -2.0, # Harmonic02
 )
 
-dedxTruncated40 = dedxHarmonic2.clone()
-dedxTruncated40.estimator =  cms.string('truncated')
+dedxTruncated40 = dedxHarmonic2.clone(estimator = 'truncated')
 
-dedxMedian  = dedxHarmonic2.clone()
-dedxMedian.estimator =  cms.string('median')
+dedxMedian = dedxHarmonic2.clone(estimator = 'median')
 
-dedxUnbinned = dedxHarmonic2.clone()
-dedxUnbinned.estimator =  cms.string('unbinnedFit')
+dedxUnbinned = dedxHarmonic2.clone(estimator = 'unbinnedFit')
 
-dedxDiscrimProd =  dedxHarmonic2.clone()
-dedxDiscrimProd.estimator = cms.string('productDiscrim')
+dedxDiscrimProd =  dedxHarmonic2.clone(estimator = 'productDiscrim')
 
-dedxDiscrimBTag         = dedxHarmonic2.clone()
-dedxDiscrimBTag.estimator = cms.string('btagDiscrim')
+dedxDiscrimBTag = dedxHarmonic2.clone(estimator = 'btagDiscrim')
 
-dedxDiscrimSmi         = dedxHarmonic2.clone()
-dedxDiscrimSmi.estimator = cms.string('smirnovDiscrim')
+dedxDiscrimSmi  = dedxHarmonic2.clone(estimator = 'smirnovDiscrim')
 
-dedxDiscrimASmi         = dedxHarmonic2.clone()
-dedxDiscrimASmi.estimator = cms.string('asmirnovDiscrim')
+dedxDiscrimASmi = dedxHarmonic2.clone(estimator = 'asmirnovDiscrim')
 
 doAlldEdXEstimatorsTask = cms.Task(dedxTruncated40 , dedxHarmonic2 , dedxPixelHarmonic2 , dedxPixelAndStripHarmonic2T085 , dedxHitInfo)
 doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)

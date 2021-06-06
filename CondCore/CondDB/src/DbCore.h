@@ -29,6 +29,7 @@
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/TableDescription.h"
 #include "RelationalAccess/ITable.h"
+#include "RelationalAccess/IColumn.h"
 #include "RelationalAccess/ITableDataEditor.h"
 #include "RelationalAccess/IBulkOperation.h"
 #include "RelationalAccess/IBulkOperation.h"
@@ -225,7 +226,7 @@ namespace cond {
       }
 
       void addStaticCondition(const std::string& condition) {
-        if (m_clause.size() > 0) {
+        if (!m_clause.empty()) {
           m_clause += " AND ";
         }
         m_clause += condition;

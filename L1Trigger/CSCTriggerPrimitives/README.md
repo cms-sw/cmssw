@@ -25,7 +25,7 @@ The C++ code is located in `L1Trigger/CSCTriggerPrimitives/src/` and `L1Trigger/
 
 The `plugins/` directory contains the producer module `CSCTriggerPrimitivesProducer`. The `CSCTriggerPrimitivesReader` should be used for firmware vs emulator comparisons.
 
-The `src/` directory contains the builder `CSCTriggerPrimitivesBuilder`, processors (`CSCAnodeLCTProcessor`,  `CSCCathodeLCTProcessor`, `GEMCoPadProcessor`), motherboards (`CSCMotherboard` and similar names), a muon port card (`CSCMuonPortCard`), auxiliary classes to produce and access look-up-tables (`CSCUpgradeMotherboardLUT` and `CSCUpgradeMotherboardLUTGenerator`) and a module to fit a straight line to comparator digis (`CSCComparatorDigiFitter`). Trigger patterns are stored in `CSCPatternBank`.
+The `src/` directory contains the builder `CSCTriggerPrimitivesBuilder`, processors (`CSCAnodeLCTProcessor`,  `CSCCathodeLCTProcessor`, `GEMCoPadProcessor`), motherboards (`CSCMotherboard` and similar names), a muon port card (`CSCMuonPortCard`), auxiliary classes to produce and access look-up-tables (`CSCUpgradeMotherboardLUT` and `CSCUpgradeMotherboardLUTGenerator`). Trigger patterns are stored in `CSCPatternBank`.
 
 The `CSCTriggerPrimitivesBuilder` instantiates the TMBs for each chamber and the MPCs for each trigger sector. TMBs and MPC are organized in trigger sectors. A trigger sector has 9 associated TMBs and a single MPC. Once instantiated, the TMBs are configured and run according to settings defined `cscTriggerPrimitiveDigis_cfi` (see Configuration). After running the TMB the ALCT/CLCT/LCT collections are read out and put into the event. After all TMBs are run, the MPCs produce LCTs to be sent to the OMTF and EMTF.
 
@@ -37,7 +37,7 @@ The `CSCMuonPortCard` class collects LCTs from a trigger sector and relays them 
 
 The `CSCUpgradeMotherboardLUTGenerator` and `CSCUpgradeMotherboardLUT` produce and contain look-up-tables that are used in the CSC upgrade algorithm and/or the GEM-CSC algorithm.
 
-The `CSCComparatorDigiFitter` is a relatively new feature in CSC trigger. It fits a straight line to a set of comparator digis associated to an LCT. The fitted LCT position has a resolution which is better by about a factor 2 than for non-fitted LCTs. This module will at some point be integrated into the `CSCCathodeLCTProcessor` to produce CLCTs with a better position resolution. Better LCT position is critical to reconstruct L1 muons for displaced signatures, one of the cornerstones of the Phase-2 muon upgrade.
+A new class is `CSCComparatorCodeLUT` which provides access to look-up-tables for improved local bending and position in Run-3 (CCLUT). Better LCT position and bending is critical to reconstruct L1 muons for displaced signatures, one of the cornerstones of the Phase-2 muon upgrade.
 
 The `test/` directory contains python configuration to test the CSC local trigger and analyzer the data.
 
@@ -45,7 +45,7 @@ The `test/` directory contains python configuration to test the CSC local trigge
 
 The configuration for the CSC local trigger is `cscTriggerPrimitiveDigis_cfi`. By default it is integrated into the standard L1 sequence which can be found [here](https://github.com/cms-sw/cmssw/blob/master/L1Trigger/L1TMuon/python/simDigis_cff.py#L15-L20). When emulating ALCTs/CLCTs/LCTs on simulated wire and comparator digis, the inputs are `"simMuonCSCDigis:MuonCSCWireDigi"` and `"simMuonCSCDigis:MuonCSCComparatorDigi"` respectively. When re-emulating ALCTs/CLCTs/LCTs from unpacked wire and comparator digis - from real LHC data, or GIF++ test-beam data - the inputs are `"muonCSCDigis:MuonCSCWireDigi"` and `"muonCSCDigis:MuonCSCComparatorDigi"` respectively. The configuration of the CSC local trigger as part of the standard L1 sequence on data can be found [here](https://github.com/cms-sw/cmssw/blob/master/L1Trigger/Configuration/python/ValL1Emulator_cff.py#L88-L96).
 
-Besides the input collections, the configuration has parameter sets for the ALCT processors (`alctParam`), CLCT processors (`clctParam`), GEM copad processors (`copadParam`), TMBs (`tmbParam`) and MPCs (`mpcRun2`). A parameter set for common settings is also available (`commonParam`). Parameter sets for upgraded versions of algorithms (more suited for high-luminosity conditions than older versions) are given a label `SLHC` typically. Through the `eras` formalism the upgrades can be switched on.
+Besides the input collections, the configuration has parameter sets for the ALCT processors (`alctParam`), CLCT processors (`clctParam`), GEM copad processors (`copadParam`), TMBs (`tmbParam`) and MPCs (`mpcRun2`). A parameter set for common settings is also available (`commonParam`). Parameter sets for upgraded versions of algorithms (more suited for high-luminosity conditions than older versions) are given a label `Phase2` typically. Through the `eras` formalism the upgrades can be switched on.
 
 The Run-2 era (`run2_common`) customizes the default algorithm for updates carried out during Long Shutdown 1. The main difference between Run-1 and Run-2 for the trigger is the unganging of strips in the ME1a subdetector.
 
@@ -77,7 +77,7 @@ A important property of ALCTs/CLCTs/LCTs is the timing, given by the bunch cross
 
 The emulator in CMSSW uses the same convention. However, for a long time the emulator would set BX0 to 6 for ALCT, CLCT and LCT. The convention in CMSSW was changed in this [pull request](https://github.com/cms-sw/cmssw/pull/22288) for the entire trigger system. In older CMSSW  releases (e.g. CMSSW_10_1_X and earlier) you will find ALCTs, CLCTs and LCTs at BX0 = 6.
 
-ALCTs constructed with the ALCT processor have BX0=8 throughout the simulation. However, right before they are read out, the BX0 is shifted by -5 BX to BX0=3 so that they agree with the firmware. CLCTs constructed with the CLCT processor have BX0=7. However, when they are used in the `CSCMotherboard` to be correlated to ALCTs, they are shifted by +1 BX to BX0=8. That ensures that ALCT and CLCT timing follow the same definition in the correlation algorithm. LCTs constructed with the `CSCMotherboard` have BX0=8.  The central timing, among various other system settings, is hard-coded in [CSCConstants](https://github.com/cms-sw/cmssw/blob/master/L1Trigger/CSCCommonTrigger/interface/CSCConstants.h).
+ALCTs constructed with the ALCT processor have BX0=8 throughout the simulation. However, right before they are read out, the BX0 is shifted by -5 BX to BX0=3 so that they agree with the firmware. CLCTs constructed with the CLCT processor have BX0=7. However, when they are used in the `CSCMotherboard` to be correlated to ALCTs, they are shifted by +1 BX to BX0=8. That ensures that ALCT and CLCT timing follow the same definition in the correlation algorithm. LCTs constructed with the `CSCMotherboard` have BX0=8.  The central timing, among various other system settings, is hard-coded in CSCConstants.h.
 
 ## History
 
@@ -96,3 +96,8 @@ Recent work includes:
 * The removal of outdated classes `CSCTriggerGeometry` and `CSCTriggerGeomManager` (https://github.com/cms-sw/cmssw/pull/21655)
 * The removal of a lot of outdated code (https://github.com/cms-sw/cmssw/pull/24171), which was used for very early MC studies (early 2000s) or to emulate beam-test data from the Magnet Test and Cosmic Challenge (MTCC - 2006). In case you need to look back at this code, please look at the [CMSSW_10_2_X branch](https://github.com/cms-sw/cmssw/tree/CMSSW_10_2_X/L1Trigger/CSCTriggerPrimitives).
 * The removal of an outdated DQM module (https://github.com/cms-sw/cmssw/pull/24196).
+* The removal of pre-2007 code (https://github.com/cms-sw/cmssw/pull/24254)
+* Implementation of a common baseboard class (https://github.com/cms-sw/cmssw/pull/24403)
+* Update GE1/1-ME1/1 and GE2/1-ME2/1 local triggers (https://github.com/cms-sw/cmssw/pull/27957, https://github.com/cms-sw/cmssw/pull/28334, https://github.com/cms-sw/cmssw/pull/28605)
+* Improvements to the CLCT algorithm following data vs emulator studies Summer and Fall of 2018 (https://github.com/cms-sw/cmssw/pull/25165)
+* Implementation of the CCLUT algorithm (https://github.com/cms-sw/cmssw/pull/28044, https://github.com/cms-sw/cmssw/pull/28600, https://github.com/cms-sw/cmssw/pull/29205, https://github.com/cms-sw/cmssw/pull/28846)

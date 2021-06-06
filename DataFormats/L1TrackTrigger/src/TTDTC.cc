@@ -11,13 +11,12 @@ TTDTC::TTDTC(int numRegions, int numOverlappingRegions, int numDTCsPerRegion)
       numOverlappingRegions_(numOverlappingRegions),
       numDTCsPerRegion_(numDTCsPerRegion),
       numDTCsPerTFP_(numOverlappingRegions * numDTCsPerRegion),
-      streams_(numRegions_ * numDTCsPerRegion_ * numOverlappingRegions_) {}
-
-// Access to product configurations
-int TTDTC::numRegions() const { return numRegions_; }
-int TTDTC::numDTCBoards() const { return numDTCsPerRegion_; }
-int TTDTC::numDTCChannel() const { return numOverlappingRegions_; }
-int TTDTC::numTFPChannel() const { return numDTCsPerTFP_; }
+      regions_(numRegions_),
+      channels_(numDTCsPerTFP_),
+      streams_(numRegions_ * numDTCsPerTFP_) {
+  iota(regions_.begin(), regions_.end(), 0);
+  iota(channels_.begin(), channels_.end(), 0);
+}
 
 // write one specific stream of TTStubRefs using DTC identifier (region[0-8], board[0-23], channel[0-1])
 // dtcRegions aka detector regions are defined by tk layout
@@ -40,19 +39,7 @@ void TTDTC::setStream(int dtcRegion, int dtcBoard, int dtcChannel, const Stream&
                 << "(" << dtcChannel << ") is out of range 0 to " << numOverlappingRegions_ - 1 << ".";
     throw exception;
   }
-  streams_[index(dtcRegion, dtcBoard, dtcChannel)] = move(stream);
-}
-
-// all TFP identifier (region[0-8], channel[0-47])
-vector<int> TTDTC::tfpRegions() const {
-  vector<int> vec(numRegions_);
-  iota(vec.begin(), vec.end(), 0);
-  return vec;
-}
-vector<int> TTDTC::tfpChannels() const {
-  vector<int> vec(numDTCsPerTFP_);
-  iota(vec.begin(), vec.end(), 0);
-  return vec;
+  streams_[index(dtcRegion, dtcBoard, dtcChannel)] = stream;
 }
 
 // read one specific stream of TTStubRefs using TFP identifier (region[0-8], channel[0-47])
@@ -75,36 +62,28 @@ const TTDTC::Stream& TTDTC::stream(int tfpRegion, int tfpChannel) const {
   return streams_.at(index(tfpRegion, tfpChannel));
 }
 
-// converts dtc id into tk layout scheme
-int TTDTC::tkLayoutId(int dtcId) const {
-  // check argument
-  if (dtcId < 0 || dtcId >= numDTCsPerRegion_ * numRegions_) {
-    cms::Exception exception("out_of_range");
-    exception.addContext("TTDTC::tkLayoutId");
-    exception << "Used DTC Id (" << dtcId << ") is out of range 0 to " << numDTCsPerRegion_ * numRegions_ - 1 << ".";
-    throw exception;
-  }
-  const int slot = dtcId % numSlots_;
-  const int region = dtcId / numDTCsPerRegion_;
-  const int side = (dtcId % numDTCsPerRegion_) / numSlots_;
-  return (side * numRegions_ + region) * numSlots_ + slot + 1;
+// total number of frames
+int TTDTC::size() const {
+  auto all = [](int& sum, const Stream& stream) { return sum += stream.size(); };
+  return accumulate(streams_.begin(), streams_.end(), 0, all);
 }
 
-// converts tk layout id into dtc id
-int TTDTC::dtcId(int tkLayoutId) const {
-  // check argument
-  if (tkLayoutId <= 0 || tkLayoutId > numDTCsPerRegion_ * numRegions_) {
-    cms::Exception exception("out_of_range");
-    exception.addContext("TTDTC::dtcId");
-    exception << "Used TKLayout Id (" << tkLayoutId << ") is out of range 1 to " << numDTCsPerRegion_ * numRegions_
-              << ".";
-    throw exception;
-  }
-  const int tkId = tkLayoutId - 1;
-  const int side = tkId / (numRegions_ * numSlots_);
-  const int region = (tkId % (numRegions_ * numSlots_)) / numSlots_;
-  const int slot = tkId % numSlots_;
-  return region * numDTCsPerRegion_ + side * numSlots_ + slot;
+// total number of stubs
+int TTDTC::nStubs() const {
+  auto stubs = [](int& sum, const Frame& frame) { return sum += frame.first.isNonnull(); };
+  int n(0);
+  for (const Stream& stream : streams_)
+    n += accumulate(stream.begin(), stream.end(), 0, stubs);
+  return n;
+}
+
+// total number of gaps
+int TTDTC::nGaps() const {
+  auto gaps = [](int& sum, const Frame& frame) { return sum += frame.first.isNull(); };
+  int n(0);
+  for (const Stream& stream : streams_)
+    n += accumulate(stream.begin(), stream.end(), 0, gaps);
+  return n;
 }
 
 // converts DTC identifier (region[0-8], board[0-23], channel[0-1]) into streams_ index [0-431]

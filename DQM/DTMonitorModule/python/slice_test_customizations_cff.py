@@ -1,9 +1,14 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms                                                
 
-def customise_for_slice_test(process): 
+def customise_for_slice_test(process, enableDigis, enableTPs):
 
-    print("[customise_for_slice_test]: cloning unpacker and DTDigiTask + customising AB7 sequence")
+    print("[customise_for_slice_test]: cloning unpacker and DTDigiTask + customising AB7 sequence and TP monitoring")
+
+    # Firstly, increase the cut on # of digis/chamber
+    # to consider it noisy for the legacy DTDigiTask
+
+    process.dtDigiMonitor.maxTDCHitsPerChamber = 5000
 
     # This is commented out as the AB7 unpacker is not in CMSSW
     # at present, the following lines need to be uncommented in the P5 setup
@@ -16,19 +21,31 @@ def customise_for_slice_test(process):
 
     from EventFilter.DTRawToDigi.dturosunpacker_cfi import dturosunpacker
     process.dtAB7Unpacker = dturosunpacker.clone()
+
+    if hasattr(process,"dtDQMTask"):
+        print("[customise_for_slice_test]: extending dtDQMTask sequence to include AB7 unpacker")
+        process.dtDQMTask.replace(process.dtDigiMonitor, process.dtDigiMonitor
+                                                         + process.dtAB7Unpacker)
+
+    if enableDigis:
     
-    from DQM.DTMonitorModule.dtDigiTask_cfi import dtDigiMonitor
-    process.dtAB7DigiMonitor = dtDigiMonitor.clone()
+        from DQM.DTMonitorModule.dtDigiTask_cfi import dtDigiMonitor
+        process.dtAB7DigiMonitor = dtDigiMonitor.clone()
 
-    process.dtAB7DigiMonitor.dtDigiLabel = cms.InputTag("dtAB7Unpacker")
-    process.dtAB7DigiMonitor.sliceTestMode = True
+        process.dtAB7DigiMonitor.dtDigiLabel = cms.InputTag("dtAB7Unpacker")
+        process.dtAB7DigiMonitor.sliceTestMode = True
+        process.dtAB7DigiMonitor.maxTDCHitsPerChamber = 5000
 
-    process.dtAB7DigiMonitor.performPerWireT0Calibration = False
+        process.dtAB7DigiMonitor.performPerWireT0Calibration = False
 
-    if hasattr(process,"dtDQMTask") :
-        print("[customise_for_slice_test]: extending dtDQMTask sequence to include AB7 monitoring")
-        process.dtDQMTask.replace(process.dtDigiMonitor, process.dtDigiMonitor +\
-                                                         process.dtAB7Unpacker +\
-                                                         process.dtAB7DigiMonitor) 
+        if hasattr(process,"dtAB7Unpacker"):
+            print("[customise_for_slice_test]: extending dtDQMTask sequence to include AB7 digi monitoring")
+            process.dtDQMTask.replace(process.dtAB7Unpacker, process.dtAB7Unpacker
+                                                             + process.dtAB7DigiMonitor)
+
+    if enableTPs:
+
+        print("[customise_for_slice_test]: customise dtTriggerBaseMonitor to include AB7 TP monitoring")
+        process.dtTriggerBaseMonitor.processAB7 = True
 
     return process

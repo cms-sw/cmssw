@@ -121,7 +121,6 @@ process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.dqmSaver.workflow = "/" + fileini.CMSSWVER + "/RelVal/TrigVal"
-process.DQMStore.collateHistograms = False
 process.DQMStore.verbose=0
 process.options = cms.untracked.PSet(
 	wantSummary	= cms.untracked.bool( True ),

@@ -37,3 +37,28 @@ const GEMChamber* GEMSuperChamber::chamber(int isl) const {
   }
   return nullptr;
 }
+
+float GEMSuperChamber::computeDeltaPhi(const LocalPoint& position, const LocalVector& direction) const {
+  auto extrap = [](const LocalPoint& point, const LocalVector& dir, double extZ) -> LocalPoint {
+    if (dir.z() == 0)
+      return LocalPoint(0.f, 0.f, extZ);
+    double extX = point.x() + extZ * dir.x() / dir.z();
+    double extY = point.y() + extZ * dir.y() / dir.z();
+    return LocalPoint(extX, extY, extZ);
+  };
+  if (nChambers() < 2) {
+    return 0.f;
+  }
+
+  const float beginOfChamber = chamber(1)->position().z();
+  const float centerOfChamber = this->position().z();
+  const float endOfChamber = chamber(nChambers())->position().z();
+
+  LocalPoint projHigh =
+      extrap(position, direction, (centerOfChamber < 0 ? -1.0 : 1.0) * (endOfChamber - centerOfChamber));
+  LocalPoint projLow =
+      extrap(position, direction, (centerOfChamber < 0 ? -1.0 : 1.0) * (beginOfChamber - centerOfChamber));
+  auto globLow = toGlobal(projLow);
+  auto globHigh = toGlobal(projHigh);
+  return globHigh.phi() - globLow.phi();  //Geom::phi automatically normalizes to [-pi, pi]
+}

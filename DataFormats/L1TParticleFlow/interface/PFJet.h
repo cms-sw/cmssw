@@ -43,5 +43,6 @@ namespace l1t {
 
   typedef std::vector<l1t::PFJet> PFJetCollection;
   typedef edm::Ref<l1t::PFJetCollection> PFJetRef;
+  typedef std::vector<l1t::PFJetRef> PFJetVectorRef;
 }  // namespace l1t
 #endif

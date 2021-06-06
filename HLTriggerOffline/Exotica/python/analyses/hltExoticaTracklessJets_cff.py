@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 TracklessJetsPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_SingleCentralPFJet170_CFMax0p1_v",
-        "HLT_DiCentralPFJet170_CFMax0p1_v",
-        "HLT_DiCentralPFJet220_CFMax0p3_v",
-        "HLT_DiCentralPFJet330_CFMax0p5_v",
-        "HLT_DiCentralPFJet170_v",
-        "HLT_DiCentralPFJet430_v"
+#        "HLT_SingleCentralPFJet170_CFMax0p1_v",
+#        "HLT_DiCentralPFJet170_CFMax0p1_v",
+#        "HLT_DiCentralPFJet220_CFMax0p3_v",
+#        "HLT_DiCentralPFJet330_CFMax0p5_v",
+#        "HLT_DiCentralPFJet170_v",
+#        "HLT_DiCentralPFJet430_v"
         ),
     recPFJetLabel   = cms.InputTag("ak4PFJets"),
     recCaloJetLabel = cms.InputTag("ak4CaloJets"),

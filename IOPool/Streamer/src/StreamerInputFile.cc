@@ -59,7 +59,7 @@ namespace edm {
         currProto_(0),
         newHeader_(false),
         endOfFile_(false) {
-    openStreamerFile(names.at(0).fileName(), names.at(0).logicalFileName());
+    openStreamerFile(names.at(0).fileName(0), names.at(0).logicalFileName());
     ++currentFile_;
     readStartMessage();
     currRun_ = startMsg_->run();
@@ -188,9 +188,10 @@ namespace edm {
 
   bool StreamerInputFile::openNextFile() {
     if (currentFile_ <= streamerNames_.size() - 1) {
-      FDEBUG(10) << "Opening file " << streamerNames_.at(currentFile_).fileName().c_str() << std::endl;
+      FDEBUG(10) << "Opening file " << streamerNames_.at(currentFile_).fileNames()[0].c_str() << std::endl;
 
-      openStreamerFile(streamerNames_.at(currentFile_).fileName(), streamerNames_.at(currentFile_).logicalFileName());
+      openStreamerFile(streamerNames_.at(currentFile_).fileNames()[0],
+                       streamerNames_.at(currentFile_).logicalFileName());
 
       // If start message was already there, then compare the
       // previous and new headers
@@ -212,7 +213,7 @@ namespace edm {
     //Values from new Header should match up
     if (currRun_ != startMsg_->run() || currProto_ != startMsg_->protocolVersion()) {
       throw Exception(errors::MismatchedInputFiles, "StreamerInputFile::compareHeader")
-          << "File " << streamerNames_.at(currentFile_).fileName()
+          << "File " << streamerNames_.at(currentFile_).fileNames()[0]
           << "\nhas different run number or protocol version than previous\n";
       return false;
     }

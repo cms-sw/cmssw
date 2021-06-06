@@ -184,7 +184,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
   // First, interpolate the template needed to analyze this cluster
   // check to see of the track direction is in the physical range of the loaded template
 
-  if (id > 0) {  //if id == 0 bypass interpolation (used in calibration)
+  if (id >= 0) {  //if id < 0 bypass interpolation (used in calibration)
     if (!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
       if (theVerboseLevel > 2) {
         LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha

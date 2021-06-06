@@ -45,7 +45,7 @@ namespace cond {
                                    boost::posix_time::ptime& snapshotTime) {
       Query<VALIDITY, DESCRIPTION, RELEASE, SNAPSHOT_TIME> q(m_schema);
       q.addCondition<NAME>(name);
-      for (auto row : q)
+      for (const auto& row : q)
         std::tie(validity, description, release, snapshotTime) = row;
 
       return q.retrievedRows();

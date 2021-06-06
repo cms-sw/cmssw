@@ -5,9 +5,9 @@
 
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include <sstream>
 
-#include <iostream>
-using namespace std;
+//#define EDM_ML_DEBUG
 
 EcalPreshowerNumberingScheme::EcalPreshowerNumberingScheme() : EcalNumberingScheme() {
   // For SFLX2a, we use copy# 1-3
@@ -84,22 +84,36 @@ EcalPreshowerNumberingScheme::EcalPreshowerNumberingScheme() : EcalNumberingSche
     L1ay[i] = vL1ay[i];
   }
 
-  edm::LogInfo("EcalGeom") << "Creating EcalPreshowerNumberingScheme";
+  edm::LogVerbatim("EcalGeom") << "Creating EcalPreshowerNumberingScheme";
 }
 
 EcalPreshowerNumberingScheme::~EcalPreshowerNumberingScheme() {
-  edm::LogInfo("EcalGeom") << "Deleting EcalPreshowerNumberingScheme";
+  edm::LogVerbatim("EcalGeom") << "Deleting EcalPreshowerNumberingScheme";
 }
 
+/*
+ * Compute the Ecal Preshower DetId.
+ * General NB: if possible, it would be way better to just access the DetID from a hash map from G4 Volume, 
+ * rather than recomputing it for each SimHit - see Tracker.
+ */
 uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
-  int level = baseNumber.getLevels();
+  const int numberOfHierarchyLevels = baseNumber.getLevels();
+  bool dd4hep = ((numberOfHierarchyLevels == 10) && (baseNumber.getCopyNumber(numberOfHierarchyLevels - 1) == 1) &&
+                 (baseNumber.getLevelName(numberOfHierarchyLevels - 1) != "OCMS"));
+#ifdef EDM_ML_DEBUG
+  std::ostringstream st1;
+  for (int k = 0; k < numberOfHierarchyLevels; ++k)
+    st1 << ", " << baseNumber.getLevelName(k) << ":" << baseNumber.getCopyNumber(k);
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme: dd4hep " << dd4hep
+                               << " witg  geometry levels = " << numberOfHierarchyLevels << st1.str();
+#endif
   uint32_t intIndex = 0;
-  if (level > 0) {
+  if (numberOfHierarchyLevels > 0) {
     // depth index - silicon layer 1-st or 2-nd
     int layer = 0;
-    if (baseNumber.getLevelName(0) == "SFSX") {
+    if (baseNumber.getLevelName(0).find("SFSX") != std::string::npos) {
       layer = 1;
-    } else if (baseNumber.getLevelName(0) == "SFSY") {
+    } else if (baseNumber.getLevelName(0).find("SFSY") != std::string::npos) {
       layer = 2;
     } else {
       edm::LogWarning("EcalGeom") << "EcalPreshowerNumberingScheme: Wrong name"
@@ -107,17 +121,31 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     }
 
     // Z index +Z = 1 ; -Z = 2
-    int zside = baseNumber.getCopyNumber("EREG");
-    zside = 2 * (1 - zside) + 1;
 
-    // box number
-    int box = baseNumber.getCopyNumber(2);
+    int zs = dd4hep ? baseNumber.getCopyNumber(4) : baseNumber.getCopyNumber(5);
+    int zside = 2 * (1 - zs) + 1;
+
+    // box numer and ladder copy number
+    int box(0), ladd_copy(0);
+    std::string ladd("");
+    if (dd4hep) {
+      auto num1 = numbers(baseNumber.getLevelName(2));
+      box = num1.second;
+      ladd_copy = num1.first;
+      ladd = baseNumber.getLevelName(2).substr(0, 6);
+    } else {
+      box = baseNumber.getCopyNumber(2);
+      ladd_copy = baseNumber.getCopyNumber(3);
+      ladd = baseNumber.getLevelName(3).substr(0, 6);
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme::Box " << box << " Ladder " << ladd << ":"
+                                 << ladd_copy;
+#endif
 
     int x = 0, y = 0, ix, iy, id;
     int mapX[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int mapY[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    const std::string& ladd = baseNumber.getLevelName(3);
-    int ladd_copy = baseNumber.getCopyNumber(3);
 
     if (ladd == "SFLX0a" || ladd == "SFLY0a") {
       mapX[5] = mapX[6] = mapX[7] = mapX[8] = mapX[9] = 1;
@@ -414,14 +442,37 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
 
     intIndex = ESDetId(strip, x, y, layer, zside).rawId();
 
-    LogDebug("EcalGeom") << "EcalPreshowerNumberingScheme : zside " << zside << " Ladd " << ladd
-                         << " ladd_copy: " << ladd_copy << " box " << box << " x " << x << " y " << y << " layer "
-                         << layer << " strip " << strip << " UnitID 0x" << std::hex << intIndex << std::dec;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme : zside " << zs << ":" << zside << " Ladd " << ladd
+                                 << " ladd_copy: " << ladd_copy << " box " << box << " x " << x << " y " << y
+                                 << " layer " << layer << " strip " << strip << " UnitID 0x" << std::hex << intIndex
+                                 << std::dec;
 
-    for (int ich = 0; ich < level; ich++) {
-      LogDebug("EcalGeom") << "Name = " << baseNumber.getLevelName(ich) << " copy = " << baseNumber.getCopyNumber(ich);
-    }
+    for (int ich = 0; ich < numberOfHierarchyLevels; ich++)
+      edm::LogVerbatim("EcalGeom") << "Name = " << baseNumber.getLevelName(ich)
+                                   << " copy = " << baseNumber.getCopyNumber(ich);
+#endif
   }
 
   return intIndex;
+}
+
+std::pair<int, int> EcalPreshowerNumberingScheme::numbers(const std::string& name) const {
+  int num1(-1), num2(-1);
+  if (name.find('#') != std::string::npos) {
+    uint32_t ip1 = name.find('#');
+    if (name.find('!') != std::string::npos) {
+      uint32_t ip2 = name.find('!');
+      num1 = ::atoi(name.substr(ip1 + 1, ip2 - ip1 - 1).c_str());
+      if (name.find('#', ip2) != std::string::npos) {
+        uint32_t ip3 = name.find('#', ip2);
+        num2 = ::atoi(name.substr(ip3 + 1, name.size() - ip3 - 1).c_str());
+      }
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalPreshowerNumberingScheme::Numbers from " << name << " are " << num1 << " and "
+                               << num2;
+#endif
+  return std::make_pair(num1, num2);
 }

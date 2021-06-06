@@ -9,6 +9,22 @@
 
 namespace l1t {
   enum block_t { MP7 = 0, CTP7, MTF7 };
+  namespace mtf7 {
+    enum mtf7_block_t {
+      // The "0b" prefix indicates binary; the block header id is stored in decimal.
+      // Bits are the left-most bit (D15) of every 16-bit word in the format document.
+      // Bottom-to-top in the document maps to left-to-right in each of the bit pattern.
+      EvHd = 0b000111111111,  ///< Event Record Header   : block->header().getID() = 511
+      CnBlk = 0b0010,         ///< Block of Counters     : block->header().getID() = 2
+      ME = 0b0011,            ///< ME Data Record        : block->header().getID() = 3
+      RPC = 0b0100,           ///< RPC Data Record       : block->header().getID() = 4
+      GEM = 0b0111,           ///< GEM Data Record       : block->header().getID() = 7
+      // FIXME, not currently defined... guess? JS - 01.07.20
+      ME0 = 0b0110,        ///< ME0 Data Record       : block->header().getID() = 6
+      SPOut = 0b01100101,  ///< SP Output Data Record : block->header().getID() = 101
+      EvTr = 0b11111111    ///< Event Record Trailer  : block->header().getID() = 255
+    };
+  }
 
   class BlockHeader {
   public:
@@ -124,10 +140,30 @@ namespace l1t {
     static constexpr unsigned counter_size = 4;
     static constexpr unsigned trailer_size = 8;
 
-    // maximum of the block length (64bits) and bit patterns of the
-    // first bits (of 16bit words)
-    static constexpr unsigned max_block_length_ = 3;
-    static const std::vector<unsigned int> block_patterns_;
+    /// Start of the EMTF DAQ payload, in number of 64-bit words
+    static constexpr unsigned DAQ_PAYLOAD_OFFSET = 4;
+    /// Maximum number of BX per MTF7 payload
+    static constexpr unsigned MAX_BX_PER_PAYLOAD = 8;
+    /// Maximum number of CSC words per MTF7 payload per bx: 9 links/sectors, 6 stations, 2 LCTs
+    static constexpr unsigned ME_MAX_PER_BX = 108;
+    /// Maximum number of RPC words per MTF7 payload per bx: 7 links/sectors, 6 stations, 2 segments
+    static constexpr unsigned RPC_MAX_PER_BX = 84;
+    /// Maximum number of GE1/1 words per MTF7 payload per bx: 7 GE1/1 links, 2 layers, 8 clusters
+    static constexpr unsigned GE11_MAX_PER_BX = 112;
+    /// TODO: Maximum number of GE2/1 words per MTF7 payload per bx: ?? GE2/1 links, 2 layers, ?? clusters
+    static constexpr unsigned GE21_MAX_PER_BX = 0;
+    /// TODO: Maximum number of ME0 words per MTF7 payload per bx: ?? ME0 links, ?? layers, ?? clusters
+    static constexpr unsigned ME0_MAX_PER_BX = 0;
+    /// Maximum number of SPz words per MTF7 payload per bx: 3 tracks, 2 words per track
+    static constexpr unsigned SP_MAX_PER_BX = 6;
+    /// Maximum number of 64-bit words in the EMTF payload
+    static constexpr unsigned PAYLOAD_MAX_SIZE =
+        MAX_BX_PER_PAYLOAD *
+            (ME_MAX_PER_BX + RPC_MAX_PER_BX + GE11_MAX_PER_BX + GE21_MAX_PER_BX + ME0_MAX_PER_BX + SP_MAX_PER_BX) +
+        (trailer_size / 4);
+
+    static constexpr unsigned max_block_length_ = 3;         ///< maximum of the block length (64bits)
+    static const std::vector<unsigned int> block_patterns_;  ///< bit patterns of the first bits (of 16bit words)
 
     int count(unsigned int pattern, unsigned int length) const;
     bool valid(unsigned int pattern) const;

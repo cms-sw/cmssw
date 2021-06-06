@@ -6,6 +6,10 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 
 // Forward Declarations
 class ApvAnalysisFactory;
@@ -18,7 +22,10 @@ class SiStripRawDigi;
  */
 class NoiseTask : public CommissioningTask {
 public:
-  NoiseTask(DQMStore *, const FedChannelConnection &);
+  NoiseTask(DQMStore *,
+            const FedChannelConnection &,
+            edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken,
+            edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken);
   ~NoiseTask() override;
 
 private:
@@ -30,6 +37,8 @@ private:
   std::vector<HistoSet> cm_;
 
   ApvAnalysisFactory *pApvFactory_;
+  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
 };
 
 #endif  // DQM_SISTRIPCOMMISSIONINGSOURCES_NOISETASK_H

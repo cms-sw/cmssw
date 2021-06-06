@@ -131,7 +131,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
   double ip = 0;
-  int mishits = electron->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+  int mishits = electron->gsfTrack()->missingInnerHits();
   double tkIso = electron->dr03TkSumPt();
   double ecalIso = electron->dr04EcalRecHitSumEt();
   double hcalIso = electron->dr04HcalTowerSumEt();
@@ -449,7 +449,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron,
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
   double ip = 0;
-  int mishits = electron->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+  int mishits = electron->gsfTrack()->missingInnerHits();
   double tkIso = electron->dr03TkSumPt();
   double ecalIso = electron->dr04EcalRecHitSumEt();
   double ecalIsoPed = (electron->isEB()) ? std::max(0., ecalIso - 1.) : ecalIso;

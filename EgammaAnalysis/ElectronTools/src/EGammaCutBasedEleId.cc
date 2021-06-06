@@ -1,6 +1,7 @@
 #include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEffectiveArea.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "CommonTools/Egamma/interface/ConversionTools.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 #include <algorithm>
 

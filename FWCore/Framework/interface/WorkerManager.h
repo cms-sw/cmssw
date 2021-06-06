@@ -11,6 +11,7 @@
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
@@ -22,6 +23,7 @@
 #include <vector>
 
 namespace edm {
+  class EventTransitionInfo;
   class ExceptionCollector;
   class StreamID;
   class StreamContext;
@@ -40,6 +42,9 @@ namespace edm {
     WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
                   std::shared_ptr<ActivityRegistry> actReg,
                   ExceptionToActionTable const& actions);
+
+    void deleteModuleIfExists(std::string const& moduleLabel);
+
     void addToUnscheduledWorkers(ParameterSet& pset,
                                  ProductRegistry& preg,
                                  PreallocationConfiguration const* prealloc,
@@ -49,31 +54,23 @@ namespace edm {
                                  std::vector<std::string>& shouldBeUsedLabels);
 
     template <typename T, typename U>
-    void processOneOccurrence(typename T::MyPrincipal& principal,
-                              EventSetupImpl const& eventSetup,
-                              StreamID streamID,
-                              typename T::Context const* topContext,
-                              U const* context,
-                              bool cleaningUpAfterException = false);
-    template <typename T, typename U>
-    void processOneOccurrenceAsync(WaitingTask* task,
-                                   typename T::MyPrincipal& principal,
-                                   EventSetupImpl const& eventSetup,
-                                   ServiceToken const& token,
-                                   StreamID streamID,
+    void processOneOccurrenceAsync(WaitingTaskHolder,
+                                   typename T::TransitionInfoType&,
+                                   ServiceToken const&,
+                                   StreamID,
                                    typename T::Context const* topContext,
                                    U const* context);
 
     template <typename T>
-    void processAccumulatorsAsync(WaitingTask* task,
-                                  typename T::MyPrincipal const& ep,
-                                  EventSetupImpl const& es,
-                                  ServiceToken const& token,
-                                  StreamID streamID,
-                                  ParentContext const& parentContext,
-                                  typename T::Context const* context);
+    void processAccumulatorsAsync(WaitingTaskHolder,
+                                  typename T::TransitionInfoType const&,
+                                  ServiceToken const&,
+                                  StreamID,
+                                  ParentContext const&,
+                                  typename T::Context const*);
 
-    void setupOnDemandSystem(Principal& principal, EventSetupImpl const& es);
+    void setupResolvers(Principal& principal);
+    void setupOnDemandSystem(EventTransitionInfo const&);
 
     void beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProxyIndices const&);
     void endJob();
@@ -105,55 +102,24 @@ namespace edm {
   };
 
   template <typename T, typename U>
-  void WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
-                                           EventSetupImpl const& es,
-                                           StreamID streamID,
-                                           typename T::Context const* topContext,
-                                           U const* context,
-                                           bool cleaningUpAfterException) {
-    this->resetAll();
-
-    auto waitTask = make_empty_waiting_task();
-    waitTask->increment_ref_count();
-    processOneOccurrenceAsync<T, U>(
-        waitTask.get(), ep, es, ServiceRegistry::instance().presentToken(), streamID, topContext, context);
-    waitTask->wait_for_all();
-    if (waitTask->exceptionPtr() != nullptr) {
-      try {
-        convertException::wrap([&]() { std::rethrow_exception(*(waitTask->exceptionPtr())); });
-      } catch (cms::Exception& ex) {
-        if (ex.context().empty()) {
-          addContextAndPrintException(
-              "Calling function WorkerManager::processOneOccurrence", ex, cleaningUpAfterException);
-        } else {
-          addContextAndPrintException("", ex, cleaningUpAfterException);
-        }
-        throw;
-      }
-    }
-  }
-
-  template <typename T, typename U>
-  void WorkerManager::processOneOccurrenceAsync(WaitingTask* task,
-                                                typename T::MyPrincipal& ep,
-                                                EventSetupImpl const& es,
+  void WorkerManager::processOneOccurrenceAsync(WaitingTaskHolder task,
+                                                typename T::TransitionInfoType& info,
                                                 ServiceToken const& token,
                                                 StreamID streamID,
                                                 typename T::Context const* topContext,
                                                 U const* context) {
     //make sure the unscheduled items see this run or lumi transition
-    unscheduled_.runNowAsync<T, U>(task, ep, es, token, streamID, topContext, context);
+    unscheduled_.runNowAsync<T, U>(std::move(task), info, token, streamID, topContext, context);
   }
 
   template <typename T>
-  void WorkerManager::processAccumulatorsAsync(WaitingTask* task,
-                                               typename T::MyPrincipal const& ep,
-                                               EventSetupImpl const& es,
+  void WorkerManager::processAccumulatorsAsync(WaitingTaskHolder task,
+                                               typename T::TransitionInfoType const& info,
                                                ServiceToken const& token,
                                                StreamID streamID,
                                                ParentContext const& parentContext,
                                                typename T::Context const* context) {
-    unscheduled_.runAccumulatorsAsync<T>(task, ep, es, token, streamID, parentContext, context);
+    unscheduled_.runAccumulatorsAsync<T>(std::move(task), info, token, streamID, parentContext, context);
   }
 }  // namespace edm
 

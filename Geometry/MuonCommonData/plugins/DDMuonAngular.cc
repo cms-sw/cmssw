@@ -13,10 +13,14 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+
+using namespace angle_units::operators;
+
+//#define EDM_ML_DEBUG
 
 class DDMuonAngular : public DDAlgorithm {
 public:
@@ -44,10 +48,6 @@ private:
   std::string idNameSpace;  //Namespace of this and ALL sub-parts
   std::string childName;    //Children name
 };
-
-using namespace geant_units::operators;
-
-//#define EDM_ML_DEBUG
 
 DDMuonAngular::DDMuonAngular() {
 #ifdef EDM_ML_DEBUG

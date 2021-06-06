@@ -9,7 +9,7 @@ RootOutputTree.h // used by ROOT output modules
 
 #include <string>
 #include <vector>
-
+#include <set>
 #include <memory>
 
 #include "FWCore/Utilities/interface/BranchType.h"

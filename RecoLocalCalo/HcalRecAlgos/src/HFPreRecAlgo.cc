@@ -1,18 +1,18 @@
 #include <algorithm>
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFPreRecAlgo.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalChannelProperties.h"
 
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
 HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
                                       const int tsToUse,
                                       const HcalCoder& coder,
-                                      const HcalCalibrations& calib) const {
+                                      const HcalChannelProperties& properties) const {
   // Scrap the trailing edge time for now -- until the front-end
   // FPGA firmware is finalized and the description of the FPGA
   // output becomes available
@@ -35,9 +35,10 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
     for (int ts = 0; ts < nRead; ++ts) {
       const QIE10DataFrame::Sample s(digi[ts]);
       const int capid = s.capid();
-      const float q = cs[ts] - calib.pedestal(capid);
+      const HcalPipelinePedestalAndGain& pAndGain(properties.pedsAndGains.at(capid));
+      const float q = cs[ts] - pAndGain.pedestal(false);
       charge += q;
-      energy += q * calib.respcorrgain(capid);
+      energy += q * pAndGain.gain();
       if (ts < nStore)
         raw[ts] = s.wideRaw();
     }
@@ -52,8 +53,9 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
   } else if (0 <= tsToUse && tsToUse < nRead) {
     const QIE10DataFrame::Sample s(digi[tsToUse]);
     const int capid = s.capid();
-    const float charge = cs[tsToUse] - calib.pedestal(capid);
-    const float energy = charge * calib.respcorrgain(capid);
+    const HcalPipelinePedestalAndGain& pAndGain(properties.pedsAndGains.at(capid));
+    const float charge = cs[tsToUse] - pAndGain.pedestal(false);
+    const float energy = charge * pAndGain.gain();
     const float timeRising = HcalSpecialTimes::getTDCTime(s.le_tdc());
 
     // Figure out the window in the raw data

@@ -14,7 +14,7 @@ namespace reco {
   /// \brief Track Element.
   ///
   /// this class contains a reference to a PFRecTrack
-  class PFBlockElementBrem : public PFBlockElement {
+  class PFBlockElementBrem final : public PFBlockElement {
   public:
     PFBlockElementBrem() {}
 

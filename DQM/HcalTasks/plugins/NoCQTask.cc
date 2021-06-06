@@ -3,7 +3,8 @@
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
 
-NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
+NoCQTask::NoCQTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   _tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE", edm::InputTag("hcalDigis"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
   _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
@@ -22,8 +23,7 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
 /* virtual */ void NoCQTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
   DQTask::bookHistograms(ib, r, es);
 
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
 
   _cTimingCut_depth.initialize(_name,
@@ -125,12 +125,13 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void NoCQTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::dqmBeginLuminosityBlock(lb, es);
+std::shared_ptr<hcaldqm::Cache> NoCQTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                     edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void NoCQTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::dqmEndLuminosityBlock(lb, es);
+/* virtual */ void NoCQTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(NoCQTask);

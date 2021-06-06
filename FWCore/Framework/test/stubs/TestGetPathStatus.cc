@@ -35,8 +35,8 @@ namespace edmtest {
   TestGetPathStatus::TestGetPathStatus(edm::ParameterSet const& pset)
       : expectedStates_(pset.getParameter<std::vector<int>>("expectedStates")),
         expectedIndexes_(pset.getParameter<std::vector<unsigned int>>("expectedIndexes")),
-        tokenPathStatus_(consumes<edm::PathStatus>(pset.getParameter<edm::InputTag>("pathStatusTag"))),
-        tokenEndPathStatus_(consumes<edm::EndPathStatus>(pset.getParameter<edm::InputTag>("endPathStatusTag"))) {}
+        tokenPathStatus_(consumes(pset.getParameter<edm::InputTag>("pathStatusTag"))),
+        tokenEndPathStatus_(consumes(pset.getParameter<edm::InputTag>("endPathStatusTag"))) {}
 
   void TestGetPathStatus::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const {
     auto const& pathStatus = event.get(tokenPathStatus_);

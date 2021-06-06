@@ -59,9 +59,9 @@ namespace {
   class FlexibleKFFittingSmootherESProducer : public edm::ESProducer {
   public:
     FlexibleKFFittingSmootherESProducer(const edm::ParameterSet& p) {
-      setWhatProduced(this, p.getParameter<std::string>("ComponentName"))
-          .setConsumes(standardToken_, edm::ESInputTag("", p.getParameter<std::string>("standardFitter")))
-          .setConsumes(looperToken_, edm::ESInputTag("", p.getParameter<std::string>("looperFitter")));
+      auto cc = setWhatProduced(this, p.getParameter<std::string>("ComponentName"));
+      standardToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("standardFitter")));
+      looperToken_ = cc.consumes(edm::ESInputTag("", p.getParameter<std::string>("looperFitter")));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

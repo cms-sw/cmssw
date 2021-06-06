@@ -6,10 +6,14 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <memory>
 
 class FileBlob {
 public:
-  FileBlob(){};
+  FileBlob() {
+    compressed = false;
+    isize = 0;
+  };
   /// constructor from file to read
   FileBlob(const std::string &fname, bool zip);
   /// constructor from  stream to read

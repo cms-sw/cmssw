@@ -32,9 +32,9 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
 #include <string>
@@ -46,7 +46,8 @@
 using namespace std;
 using namespace edm;
 
-SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig) : conf_(iConfig), firstLumi(true) {
+SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig)
+    : DQMEDHarvester(iConfig), conf_(iConfig), firstLumi(true) {
   LogInfo("PixelDQM") << "SiPixelPhase1Summary::SiPixelPhase1Summary: Got DQM BackEnd interface" << endl;
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   runOnEndLumi_ = conf_.getParameter<bool>("RunOnEndLumi");
@@ -55,7 +56,7 @@ SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig) : c
   std::vector<edm::ParameterSet> mapPSets = conf_.getParameter<std::vector<edm::ParameterSet> >("SummaryMaps");
 
   //Go through the configuration file and add in
-  for (auto const mapPSet : mapPSets) {
+  for (auto const& mapPSet : mapPSets) {
     summaryPlotName_[mapPSet.getParameter<std::string>("MapName")] = mapPSet.getParameter<std::string>("MapHist");
   }
   deadRocThresholds_ = conf_.getParameter<std::vector<double> >("DeadROCErrorThreshold");
@@ -132,7 +133,7 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker& iBooker) {
 
   iBooker.setCurrentFolder("PixelPhase1/Summary");
   //Book the summary plots for the variables as described in the config file
-  for (auto mapInfo : summaryPlotName_) {
+  for (const auto& mapInfo : summaryPlotName_) {
     auto name = mapInfo.first;
     summaryMap_[name] = iBooker.book2D("pixel" + name + "Summary", "Pixel " + name + " Summary", 12, 0, 12, 4, 0, 4);
   }
@@ -265,7 +266,7 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker& iBooker) {
   reportSummary = iBooker.bookFloat("reportSummary");
 
   //Now set up axis and bin labels
-  for (auto summaryMapEntry : summaryMap_) {
+  for (const auto& summaryMapEntry : summaryMap_) {
     if (summaryMapEntry.first == "Grand")
       continue;
     auto summaryMap = summaryMapEntry.second;
@@ -327,7 +328,7 @@ void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker& iBooker) {
 //------------------------------------------------------------------
 void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
   //Firstly, we will fill the regular summary maps.
-  for (auto mapInfo : summaryPlotName_) {
+  for (const auto& mapInfo : summaryPlotName_) {
     auto name = mapInfo.first;
     std::ostringstream histNameStream;
     std::string histName;
@@ -509,7 +510,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
             i + 1,
             j + 1,
             1);  // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
-        for (auto const mapInfo : summaryPlotName_) {  //Check summary maps
+        for (auto const& mapInfo : summaryPlotName_) {  //Check summary maps
           auto name = mapInfo.first;
           if (summaryMap_[name] == nullptr) {
             edm::LogWarning("SiPixelPhase1Summary") << "Summary " << name << " does not exist!";

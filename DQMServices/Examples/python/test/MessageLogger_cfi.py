@@ -228,12 +228,6 @@ MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(10000000)
         )
     ),
-    FrameworkJobReport = cms.untracked.PSet(
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(10000000)
-        )
-    ),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport'),
     categories = cms.untracked.vstring('FwkJob', 
         'MEtoEDMConverter_MEtoEDMConverter', 
         'MEtoEDMConverter_endJob', 

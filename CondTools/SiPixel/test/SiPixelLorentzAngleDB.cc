@@ -60,7 +60,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
       << " There are " << pDD->detUnits().size() << " detectors (old)" << std::endl;
 
   for (const auto& it : pDD->detUnits()) {
-    if (dynamic_cast<PixelGeomDetUnit const*>(it) != 0) {
+    if (dynamic_cast<PixelGeomDetUnit const*>(it) != nullptr) {
       DetId detid = it->geographicalId();
       const DetId detidc = it->geographicalId();
 

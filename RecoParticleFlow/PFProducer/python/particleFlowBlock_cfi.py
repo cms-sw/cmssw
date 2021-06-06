@@ -19,7 +19,8 @@ particleFlowBlock = cms.EDProducer(
                   gsfsAreSecondary = cms.bool(False),
                   superClustersArePF = cms.bool(True) ),
         cms.PSet( importerName = cms.string("ConvBremTrackImporter"),
-                  source = cms.InputTag("pfTrackElec") ),
+                  source = cms.InputTag("pfTrackElec"),
+                  vetoEndcap = cms.bool(False)),
         cms.PSet( importerName = cms.string("SuperClusterImporter"),
                   source_eb = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
                   source_ee = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
@@ -29,24 +30,29 @@ particleFlowBlock = cms.EDProducer(
                   minPTforBypass = cms.double(100.0),
                   superClustersArePF = cms.bool(True) ),
         cms.PSet( importerName = cms.string("ConversionTrackImporter"),
-                  source = cms.InputTag("pfConversions") ),
+                  source = cms.InputTag("pfConversions"),
+                  vetoEndcap = cms.bool(False)),
         # V0's not actually used in particle flow block building so far
         #cms.PSet( importerName = cms.string("V0TrackImporter"),
-        #          source = cms.InputTag("pfV0") ),
+        #          source = cms.InputTag("pfV0"),
+        #          vetoEndcap = cms.bool(False)),
         #NuclearInteraction's also come in Loose and VeryLoose varieties
         cms.PSet( importerName = cms.string("NuclearInteractionTrackImporter"),
-                  source = cms.InputTag("pfDisplacedTrackerVertex") ),
+                  source = cms.InputTag("pfDisplacedTrackerVertex"),
+                  vetoEndcap = cms.bool(False)),
         #for best timing GeneralTracksImporter should come after
         # all secondary track importers
         cms.PSet( importerName = cms.string("GeneralTracksImporter"),
                   source = cms.InputTag("pfTrack"),
+                  vetoEndcap = cms.bool(False),
                   muonSrc = cms.InputTag("muons1stStep"),
 		  trackQuality = cms.string("highPurity"),
                   cleanBadConvertedBrems = cms.bool(True),
                   useIterativeTracking = cms.bool(True),
                   DPtOverPtCuts_byTrackAlgo = cms.vdouble(10.0,10.0,10.0,
                                                            10.0,10.0,5.0),
-                  NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3,3)
+                  NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3,3),
+                  muonMaxDPtOPt = cms.double(1)
                   ),
         # secondary GSF tracks are also turned off
         #cms.PSet( importerName = cms.string("GSFTrackImporter"),
@@ -68,7 +74,6 @@ particleFlowBlock = cms.EDProducer(
                   source = cms.InputTag("particleFlowClusterHF") ),
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
                   source = cms.InputTag("particleFlowClusterPS") ),
-
         ),
 
     #linking definitions
@@ -92,12 +97,15 @@ particleFlowBlock = cms.EDProducer(
                   linkType   = cms.string("TRACK:HCAL"),
                   useKDTree  = cms.bool(True),
                   trajectoryLayerEntrance = cms.string("HCALEntrance"),
-                  trajectoryLayerExit = cms.string("HCALExit")),
+                  trajectoryLayerExit = cms.string("HCALExit"),
+                  nMaxHcalLinksPerTrack = cms.int32(1) # the max hcal links per track (negative values: no restriction)
+        ),
         cms.PSet( linkerName = cms.string("TrackAndHOLinker"),
                   linkType   = cms.string("TRACK:HO"),
                   useKDTree  = cms.bool(False) ),
         cms.PSet( linkerName = cms.string("ECALAndHCALLinker"),
                   linkType   = cms.string("ECAL:HCAL"),
+                  minAbsEtaEcal = cms.double(2.5),
                   useKDTree  = cms.bool(False) ),
         cms.PSet( linkerName = cms.string("HCALAndHOLinker"),
                   linkType   = cms.string("HCAL:HO"),
@@ -149,6 +157,8 @@ egamma_lowPt_exclusive.toModify(_scImporter,
                                 minSuperClusterPt = 1.0,
                                 minPTforBypass = 0.0)
 
+#
+# kill pfTICL tracks
 def _findIndicesByModule(name):
    ret = []
    for i, pset in enumerate(particleFlowBlock.elementImporters):
@@ -156,37 +166,24 @@ def _findIndicesByModule(name):
             ret.append(i)
    return ret
 
-
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-# kill tracks in the HGCal
-_insertGeneralTracksImporter = {}
-for idx in _findIndicesByModule('GeneralTracksImporter'):
-    _insertGeneralTracksImporter[idx] = dict(
-        importerName = cms.string('GeneralTracksImporterWithVeto'),
-        veto = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
+_insertTrackImportersWithVeto = {}
+_trackImporters = ['GeneralTracksImporter','ConvBremTrackImporter',
+                   'ConversionTrackImporter','NuclearInteractionTrackImporter']
+for importer in _trackImporters:
+  for idx in _findIndicesByModule(importer):
+    _insertTrackImportersWithVeto[idx] = dict(
+      vetoEndcap = True,
+      vetoMode = cms.uint32(2), # pfTICL candidate list
+      vetoSrc = cms.InputTag("pfTICL")
     )
 phase2_hgcal.toModify(
     particleFlowBlock,
-    elementImporters = _insertGeneralTracksImporter
+    elementImporters = _insertTrackImportersWithVeto
 )
-### for later
-#_phase2_hgcal_Linkers.append(
-#    cms.PSet( linkerName = cms.string("SCAndHGCalLinker"),
-#              linkType   = cms.string("SC:HGCAL"),
-#              useKDTree  = cms.bool(False),
-#              SuperClusterMatchByRef = cms.bool(True) )
-#)
-#_phase2_hgcal_Linkers.append(
-#    cms.PSet( linkerName = cms.string("HGCalAndBREMLinker"),
-#              linkType   = cms.string("HGCAL:BREM"),
-#              useKDTree  = cms.bool(False) )
-#)
-#_phase2_hgcal_Linkers.append(
-#    cms.PSet( linkerName = cms.string("GSFAndHGCalLinker"),
-#                  linkType   = cms.string("GSF:HGCAL"),
-#                  useKDTree  = cms.bool(False) )
-#)
 
+#
+# append track-HF linkers
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 _addTrackHFLinks = particleFlowBlock.linkDefinitions.copy()
 _addTrackHFLinks.append(
@@ -194,20 +191,26 @@ _addTrackHFLinks.append(
             linkType   = cms.string("TRACK:HFEM"),
             useKDTree  = cms.bool(True),
             trajectoryLayerEntrance = cms.string("VFcalEntrance"),
-            trajectoryLayerExit = cms.string(""))
-  )
+            trajectoryLayerExit = cms.string(""),
+            nMaxHcalLinksPerTrack = cms.int32(-1) # Keep all track-HFEM links
+          )
+)
 _addTrackHFLinks.append(
   cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
             linkType   = cms.string("TRACK:HFHAD"),
             useKDTree  = cms.bool(True),
             trajectoryLayerEntrance = cms.string("VFcalEntrance"),
-            trajectoryLayerExit = cms.string(""))
+            trajectoryLayerExit = cms.string(""),
+            nMaxHcalLinksPerTrack = cms.int32(-1) # Keep all track-HFHAD links for now
+          )
 )
 phase2_tracker.toModify(
     particleFlowBlock,
     linkDefinitions = _addTrackHFLinks
 )
 
+#
+# for precision timing
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _addTiming = particleFlowBlock.elementImporters.copy()
 _addTiming.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),

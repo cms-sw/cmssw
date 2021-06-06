@@ -10,8 +10,13 @@ process.CondDB.connect = 'sqlite_file:EcalLin.db'
 #process.CondDB.connect = 'oracle://cms_orcoff_prep/CMS_CONDITIONS'
 
 process.MessageLogger = cms.Service("MessageLogger",
-  debugModules = cms.untracked.vstring('*'),
-  destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.source = cms.Source("EmptyIOVSource",

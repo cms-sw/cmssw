@@ -2,10 +2,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-MuonKinkFinder::MuonKinkFinder(const edm::ParameterSet &iConfig)
+MuonKinkFinder::MuonKinkFinder(const edm::ParameterSet &iConfig, edm::ConsumesCollector &iC)
     : diagonalOnly_(iConfig.getParameter<bool>("diagonalOnly")),
       usePosition_(iConfig.getParameter<bool>("usePosition")),
-      refitter_(iConfig) {}
+      refitter_(iConfig, iC) {}
 
 MuonKinkFinder::~MuonKinkFinder() {}
 

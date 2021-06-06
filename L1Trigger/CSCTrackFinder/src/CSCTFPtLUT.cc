@@ -20,15 +20,7 @@ bool CSCTFPtLUT::lut_read_in = false;
 // CSCTFPtMethods CSCTFPtLUT::ptMethods;
 
 ///KK
-#include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
-
-#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
 // info for getPtScale() pt scale in GeV
 // low edges of pt bins
@@ -92,7 +84,17 @@ const int CSCTFPtLUT::dEtaCut_Open[24] = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
 
 const int CSCTFPtLUT::getPtbyMLH = 0xFFFF;  // all modes on
 
-CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es) : read_pt_lut(true), isBinary(false) {
+CSCTFPtLUT::Tokens CSCTFPtLUT::consumes(edm::ConsumesCollector iC) {
+  Tokens tok;
+  if (not lut_read_in) {
+    tok.ptLUT = iC.esConsumes();
+  }
+  tok.scales = iC.esConsumes();
+  tok.ptScale = iC.esConsumes();
+  return tok;
+}
+
+CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es, const Tokens& tokens) : read_pt_lut(true), isBinary(false) {
   pt_method = 34;
   //std::cout << "pt_method from 4 " << std::endl;
   lowQualityFlag = 4;
@@ -100,23 +102,16 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es) : read_pt_lut(true), isBinary(
   if (!lut_read_in) {
     pt_lut = new ptdat[1 << 21];
 
-    edm::ESHandle<L1MuCSCPtLut> ptLUT;
-    es.get<L1MuCSCPtLutRcd>().get(ptLUT);
-    const L1MuCSCPtLut* myConfigPt_ = ptLUT.product();
+    const L1MuCSCPtLut& myConfigPt_ = es.getData(tokens.ptLUT);
 
-    memcpy((void*)pt_lut, (void*)myConfigPt_->lut(), (1 << 21) * sizeof(ptdat));
+    memcpy((void*)pt_lut, (void*)myConfigPt_.lut(), (1 << 21) * sizeof(ptdat));
 
     lut_read_in = true;
   }
-  edm::ESHandle<L1MuTriggerScales> scales;
-  es.get<L1MuTriggerScalesRcd>().get(scales);
-  trigger_scale = scales.product();
+  trigger_scale = &es.getData(tokens.scales);
+  trigger_ptscale = &es.getData(tokens.ptScale);
 
-  edm::ESHandle<L1MuTriggerPtScale> ptScale;
-  es.get<L1MuTriggerPtScaleRcd>().get(ptScale);
-  trigger_ptscale = ptScale.product();
-
-  ptMethods = CSCTFPtMethods(ptScale.product());
+  ptMethods = CSCTFPtMethods(trigger_ptscale);
 }
 ///
 
@@ -234,7 +229,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
   double Pi = acos(-1.);
   float etaR = 0, ptR_front = 0, ptR_rear = 0, dphi12R = 0, dphi23R = 0;
   int charge12, charge23;
-  unsigned type, mode, eta, fr, quality, charge, absPhi12, absPhi23;
+  unsigned mode, eta, fr, quality, charge, absPhi12, absPhi23;
 
   mode = address.track_mode;
 
@@ -386,7 +381,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
             }
             if (bestLH_front_max > best_LH_front) {
               best_pt_front = ptR_front_max;
-              best_LH_front = bestLH_front_max;
             }
             ptR_front = best_pt_front;
 
@@ -398,7 +392,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
             }
             if (bestLH_rear_max > best_LH_rear) {
               best_pt_rear = ptR_rear_max;
-              best_LH_rear = bestLH_rear_max;
             }
             ptR_rear = best_pt_rear;
           } else {
@@ -965,7 +958,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
       case 9:
       case 10:
       case 13:  // ME1-ME4
-        type = mode - 5;
 
         if (charge)
           absPhi12 = address.delta_phi();
@@ -1059,6 +1051,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
   if (pt_method <= 5) {  //here we have only pt_methods less or equal to 5
     // mode definition you could find at https://twiki.cern.ch/twiki/pub/Main/PtLUTs/mode_codes.xls
     // it is valid till the end 2010
+    unsigned type;
 
     //  kluge to use 2-stn track in overlap region
     //  see also where this routine is called, and encode LUTaddress, and assignPT
@@ -1483,7 +1476,7 @@ void CSCTFPtLUT::readLUT() {
     unsigned short temp = 0;
     while (!PtLUT.eof() && i < 1 << CSCBitWidths::kPtAddressWidth) {
       PtLUT >> temp;
-      pt_lut[i++] = (*reinterpret_cast<ptdat*>(&temp));
+      pt_lut[i++] = temp;
     }
     PtLUT.close();
   }

@@ -2,10 +2,12 @@
 #define DETECTOR_DESCRIPTION_CORE_DDNAME_H
 
 #include <iosfwd>
-#include <map>
 #include <string>
 #include <utility>
-#include <vector>
+
+#include "FWCore/Utilities/interface/StdPairHasher.h"
+#include <tbb/concurrent_vector.h>
+#include <tbb/concurrent_unordered_map.h>
 
 class DDCurrentNamespace;
 
@@ -15,8 +17,9 @@ class DDCurrentNamespace;
 class DDName {
 public:
   using id_type = int;
-  using Registry = std::map<std::pair<std::string, std::string>, id_type>;
-  using IdToName = std::vector<Registry::const_iterator>;
+  using key_type = std::pair<const std::string, std::string>;
+  using Registry = tbb::concurrent_unordered_map<key_type, id_type, edm::StdPairHasher>;
+  using IdToName = tbb::concurrent_vector<Registry::const_iterator>;
 
   //! Constructs a DDName with name \a name and assigns \a name to the namespace \a ns.
   DDName(const std::string& name, const std::string& ns);
@@ -47,7 +50,7 @@ public:
 private:
   id_type id_;
 
-  static Registry::iterator registerName(const std::pair<std::string, std::string>& s);
+  static Registry::const_iterator registerName(const std::pair<std::string, std::string>& s);
 };
 
 std::ostream& operator<<(std::ostream& os, const DDName& n);

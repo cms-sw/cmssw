@@ -60,7 +60,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCComparatorData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
@@ -90,6 +90,10 @@ private:
   edm::EDGetTokenT<CSCCLCTDigiCollection> cl_token;
   edm::EDGetTokenT<CSCRecHit2DCollection> rh_token;
   edm::EDGetTokenT<CSCSegmentCollection> se_token;
+
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+
+  const edm::ESGetToken<CSCCrateMap, CSCCrateMapRcd> hcrateToken_;
 
   // modules
   void doOccupancies(edm::Handle<CSCStripDigiCollection> strips,

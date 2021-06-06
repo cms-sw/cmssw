@@ -4,9 +4,6 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -46,16 +43,23 @@ namespace DeDxTools {
   int getCharge(const SiStripCluster* cluster,
                 int& nSatStrip,
                 const GeomDetUnit& detUnit,
-                const std::vector<std::vector<float> >& calibGains,
+                const std::vector<std::vector<float>>& calibGains,
                 const unsigned int& m_off);
   void makeCalibrationMap(const std::string& m_calibrationPath,
                           const TrackerGeometry& tkGeom,
-                          std::vector<std::vector<float> >& calibGains,
+                          std::vector<std::vector<float>>& calibGains,
                           const unsigned int& m_off);
-  void buildDiscrimMap(edm::Run const& run,
-                       const edm::EventSetup& iSetup,
-                       std::string Reccord,
-                       std::string ProbabilityMode,
+
+  using H3DD = PhysicsTools::Calibration::HistogramD3D;
+  using ESGetTokenH3DDVariant = std::variant<edm::ESGetToken<H3DD, SiStripDeDxMip_3D_Rcd>,
+                                             edm::ESGetToken<H3DD, SiStripDeDxPion_3D_Rcd>,
+                                             edm::ESGetToken<H3DD, SiStripDeDxKaon_3D_Rcd>,
+                                             edm::ESGetToken<H3DD, SiStripDeDxProton_3D_Rcd>,
+                                             edm::ESGetToken<H3DD, SiStripDeDxElectron_3D_Rcd>>;
+  ESGetTokenH3DDVariant esConsumes(std::string const& Reccord, edm::ConsumesCollector&);
+  PhysicsTools::Calibration::HistogramD3D const& getHistogramD3D(edm::EventSetup const&, ESGetTokenH3DDVariant const&);
+  void buildDiscrimMap(PhysicsTools::Calibration::HistogramD3D const&,
+                       std::string const& ProbabilityMode,
                        TH3F*& Prob_ChargePath);
   bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize);
   bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it);

@@ -12,7 +12,7 @@ L2MuonTrajectorySeed::L2MuonTrajectorySeed() : TrajectorySeed() {}
 
 // Constructor
 L2MuonTrajectorySeed::L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
-                                           recHitContainer const& rh,
+                                           RecHitContainer const& rh,
                                            PropagationDirection dir,
                                            l1extra::L1MuonParticleRef l1Ref)
     : TrajectorySeed(ptsos, rh, dir) {
@@ -20,7 +20,7 @@ L2MuonTrajectorySeed::L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
 }
 
 L2MuonTrajectorySeed::L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
-                                           recHitContainer const& rh,
+                                           RecHitContainer const& rh,
                                            PropagationDirection dir,
                                            l1t::MuonRef l1Ref)
     : TrajectorySeed(ptsos, rh, dir) {

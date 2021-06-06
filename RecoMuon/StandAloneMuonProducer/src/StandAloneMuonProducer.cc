@@ -80,7 +80,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
     trajectoryBuilder =
         std::make_unique<StandAloneMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
   }
-  theTrackFinder = std::make_unique<MuonTrackFinder>(std::move(trajectoryBuilder), std::move(trackLoader));
+  theTrackFinder = std::make_unique<MuonTrackFinder>(std::move(trajectoryBuilder), std::move(trackLoader), iC);
 
   setAlias(parameterSet.getParameter<std::string>("@module_label"));
 

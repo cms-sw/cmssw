@@ -21,9 +21,14 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring('cout'),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO'))
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
+)
 
 process.dump = cms.EDAnalyzer("DumpFEDRawDataProduct",
                               feds = cms.untracked.vint32(770, 771, 772, 773, 774, 775),

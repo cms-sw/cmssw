@@ -12,6 +12,7 @@ Forward declarations of types in the EDM.
 
 namespace edm {
   class PrincipalGetAdapter;
+  class ConfigurationDescriptions;
   class ConsumesCollector;
   class DelayedReader;
   class EDAnalyzer;
@@ -23,23 +24,30 @@ namespace edm {
   class EventPrincipal;
   class EventSetup;
   class EventSetupImpl;
+  class EventTransitionInfo;
   class FileBlock;
   class InputSource;
   struct InputSourceDescription;
   class LuminosityBlock;
   class LuminosityBlockForOutput;
   class LuminosityBlockPrincipal;
+  class LumiTransitionInfo;
   class OutputModule;
   struct OutputModuleDescription;
   class ParameterSet;
+  class ParameterSetDescription;
   class Principal;
   class PrincipalCache;
   class PrincipalGetAdapter;
+  class ProcessBlock;
+  class ProcessBlockPrincipal;
+  class ProcessBlockTransitionInfo;
   class ProcessNameSelector;
   class ProductRegistryHelper;
   class Run;
   class RunForOutput;
   class RunPrincipal;
+  class RunTransitionInfo;
   class Schedule;
   class StreamID;
   class TypeID;

@@ -3,7 +3,6 @@
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalTTPTriggerRecord::HcalTTPTriggerRecord(const edm::ParameterSet& ps) {

@@ -20,11 +20,14 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDataFrameFilter.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
 
 class HcalRawToDigi : public edm::stream::EDProducer<> {
 public:
@@ -35,6 +38,8 @@ public:
 
 private:
   edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_;
+  edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> tok_electronicsMap_;
   HcalUnpacker unpacker_;
   HcalDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;

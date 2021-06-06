@@ -1,7 +1,6 @@
 #ifndef GeometryHGCalGeometryHGCalGeometryLoader_h
 #define GeometryHGCalGeometryHGCalGeometryLoader_h
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatHexagon.h"
 

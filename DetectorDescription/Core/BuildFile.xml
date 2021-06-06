@@ -1,9 +1,12 @@
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="boost"/>
-<use   name="clhep"/>
-<use   name="rootmath"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/PluginManager"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Math"/>
+<use name="boost"/>
+<use name="clhep"/>
+<use name="rootmath"/>
+<use name="tbb"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

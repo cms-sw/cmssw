@@ -8,7 +8,6 @@
 #include "printUniqueNames.h"
 #include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
 #include "MagneticField/Layers/interface/MagBRod.h"
-#include "MagneticField/Layers/interface/MagVerbosity.h"
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 #include <iostream>

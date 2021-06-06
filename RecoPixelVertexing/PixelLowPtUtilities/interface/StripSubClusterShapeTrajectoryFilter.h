@@ -9,6 +9,8 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 
 class ClusterShapeHitFilter;
 class TrackerTopology;
@@ -39,6 +41,12 @@ protected:
                    const GlobalPoint &gpos,
                    const GlobalVector &gdir,
                    bool mustProject = false) const;
+
+  // esConsumes tokens
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> csfToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> stripNoiseToken_;
 
   // who am i
   std::string label_;

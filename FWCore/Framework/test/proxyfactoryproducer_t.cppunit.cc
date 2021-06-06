@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
-#include "FWCore/Framework/interface/ProxyFactoryTemplate.h"
+#include "FWCore/Framework/test/ProxyFactoryTemplate.h"
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,8 +28,11 @@ public:
   DummyProxy() {}
 
 protected:
-  const value_type* make(const record_type&, const DataKey&) { return static_cast<const value_type*>(nullptr); }
-  void invalidateCache() {}
+  const value_type* make(const record_type&, const DataKey&) override {
+    return static_cast<const value_type*>(nullptr);
+  }
+  void invalidateCache() override {}
+  void const* getAfterPrefetchImpl() const override { return nullptr; }
 };
 
 class Test1Producer : public ESProxyFactoryProducer {

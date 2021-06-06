@@ -14,14 +14,10 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout', 'G4cerr', 'SimTrackManager'),
-#    debugModules = cms.untracked.vstring('*'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -31,9 +27,13 @@ process.MessageLogger = cms.Service("MessageLogger",
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
         SimTrackManager = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-        )
+        ),
+        enable = cms.untracked.bool(True)
     )
 )
 

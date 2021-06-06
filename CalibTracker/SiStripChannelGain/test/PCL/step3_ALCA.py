@@ -53,10 +53,9 @@ process.source = cms.Source("PoolSource",
 # Uncomment to turn on verbosity output
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #process.MessageLogger.threshold = cms.untracked.string('INFO')
-#process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
 #process.MessageLogger.debugModules = cms.untracked.vstring("*")
-#process.MessageLogger.destinations = cms.untracked.vstring('cout')
-#process.MessageLogger.cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
+#process.MessageLogger.cerr.enable = False
+#process.MessageLogger.cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'), enable = cms.untracked.bool(True))
 
 #process.Tracer = cms.Service("Tracer")
 

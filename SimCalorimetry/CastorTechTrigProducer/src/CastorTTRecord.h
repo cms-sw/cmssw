@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
@@ -36,6 +39,7 @@ private:
   std::vector<unsigned int> ttpBits_;
   std::vector<std::string> TrigNames_;
   std::vector<double> TrigThresholds_;
+  edm::ESGetToken<CastorDbService, CastorDbRecord> conditionsToken_;
 
   double reweighted_gain;
 };

@@ -1,12 +1,14 @@
 #include <functional>
-#include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
-#include "RecoTauTag/RecoTau/interface/ConeTools.h"
+#include <memory>
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoTauTag/RecoTau/interface/ConeTools.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
+#include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
@@ -155,9 +157,9 @@ public:
     // Get the quality cuts specific to the isolation region
     edm::ParameterSet isolationQCuts = qualityCutsPSet_.getParameterSet("isolationQualityCuts");
 
-    qcuts_.reset(new tau::RecoTauQualityCuts(isolationQCuts));
+    qcuts_ = std::make_unique<tau::RecoTauQualityCuts>(isolationQCuts);
 
-    vertexAssociator_.reset(new tau::RecoTauVertexAssociator(qualityCutsPSet_, consumesCollector()));
+    vertexAssociator_ = std::make_unique<tau::RecoTauVertexAssociator>(qualityCutsPSet_, consumesCollector());
 
     if (deltaBetaNeeded_ || weightsNeeded_) {
       // Factorize the isolation QCuts into those that are used to
@@ -178,9 +180,9 @@ public:
                                                          isolationQCuts.getParameter<double>("minGammaEt"));
       }
 
-      pileupQcutsPUTrackSelection_.reset(new tau::RecoTauQualityCuts(puFactorizedIsoQCuts.first));
+      pileupQcutsPUTrackSelection_ = std::make_unique<tau::RecoTauQualityCuts>(puFactorizedIsoQCuts.first);
 
-      pileupQcutsGeneralQCuts_.reset(new tau::RecoTauQualityCuts(puFactorizedIsoQCuts.second));
+      pileupQcutsGeneralQCuts_ = std::make_unique<tau::RecoTauQualityCuts>(puFactorizedIsoQCuts.second);
 
       pfCandSrc_ = pset.getParameter<edm::InputTag>("particleFlowSrc");
       pfCand_token = consumes<edm::View<reco::Candidate>>(pfCandSrc_);
@@ -188,7 +190,7 @@ public:
       vertex_token = consumes<reco::VertexCollection>(vertexSrc_);
       deltaBetaCollectionCone_ = pset.getParameter<double>("isoConeSizeForDeltaBeta");
       std::string deltaBetaFactorFormula = pset.getParameter<string>("deltaBetaFactor");
-      deltaBetaFormula_.reset(new TFormula("DB_corr", deltaBetaFactorFormula.c_str()));
+      deltaBetaFormula_ = std::make_unique<TFormula>("DB_corr", deltaBetaFactorFormula.c_str());
     }
 
     applyRhoCorrection_ = pset.getParameter<bool>("applyRhoCorrection");
@@ -660,52 +662,9 @@ void PFRecoTauDiscriminationByIsolationContainer::fillDescriptions(edm::Configur
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
 
-  {
-    edm::ParameterSetDescription pset_signalQualityCuts;
-    pset_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
-    pset_signalQualityCuts.add<double>("minTrackPt", 0.5);
-    pset_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-    pset_signalQualityCuts.add<double>("maxTrackChi2", 100.0);
-    pset_signalQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-    pset_signalQualityCuts.add<double>("minGammaEt", 1.0);
-    pset_signalQualityCuts.add<unsigned int>("minTrackHits", 3);
-    pset_signalQualityCuts.add<double>("minNeutralHadronEt", 30.0);
-    pset_signalQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
-    pset_signalQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-    edm::ParameterSetDescription pset_vxAssocQualityCuts;
-    pset_vxAssocQualityCuts.add<double>("minTrackPt", 0.5);
-    pset_vxAssocQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-    pset_vxAssocQualityCuts.add<double>("maxTrackChi2", 100.0);
-    pset_vxAssocQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-    pset_vxAssocQualityCuts.add<double>("minGammaEt", 1.0);
-    pset_vxAssocQualityCuts.add<unsigned int>("minTrackHits", 3);
-    pset_vxAssocQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
-    pset_vxAssocQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-    edm::ParameterSetDescription pset_isolationQualityCuts;
-    pset_isolationQualityCuts.add<double>("maxDeltaZ", 0.2);
-    pset_isolationQualityCuts.add<double>("minTrackPt", 1.0);
-    pset_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0);
-    pset_isolationQualityCuts.add<double>("maxTrackChi2", 100.0);
-    pset_isolationQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
-    pset_isolationQualityCuts.add<double>("minGammaEt", 1.5);
-    pset_isolationQualityCuts.add<unsigned int>("minTrackHits", 8);
-    pset_isolationQualityCuts.add<double>("maxTransverseImpactParameter", 0.03);
-    pset_isolationQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
-
-    edm::ParameterSetDescription pset_qualityCuts;
-    pset_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts", pset_signalQualityCuts);
-    pset_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts", pset_vxAssocQualityCuts);
-    pset_qualityCuts.add<edm::ParameterSetDescription>("isolationQualityCuts", pset_isolationQualityCuts);
-    pset_qualityCuts.add<std::string>("leadingTrkOrPFCandOption", "leadPFCand");
-    pset_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
-    pset_qualityCuts.add<edm::InputTag>("primaryVertexSrc", edm::InputTag("offlinePrimaryVertices"));
-    pset_qualityCuts.add<bool>("vertexTrackFiltering", false);
-    pset_qualityCuts.add<bool>("recoverLeadingTrk", false);
-
-    desc.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
-  }
+  edm::ParameterSetDescription desc_qualityCuts;
+  reco::tau::RecoTauQualityCuts::fillDescriptions(desc_qualityCuts);
+  desc.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
 
   desc.add<double>("minTauPtForNoIso", -99.0);
   desc.add<edm::InputTag>("vertexSrc", edm::InputTag("offlinePrimaryVertices"));

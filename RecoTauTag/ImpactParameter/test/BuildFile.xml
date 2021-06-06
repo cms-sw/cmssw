@@ -1,9 +1,9 @@
-<use   name="clhep"/>
-<use   name="rootgraphics"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/BTauReco"/>
-<library   file="TauImpactParameterTest.cc" name="TauImpactParameterTest">
-  <flags   EDM_PLUGIN="1"/>
+<use name="clhep"/>
+<use name="rootgraphics"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/BTauReco"/>
+<library file="TauImpactParameterTest.cc" name="TauImpactParameterTest">
+  <flags EDM_PLUGIN="1"/>
 </library>

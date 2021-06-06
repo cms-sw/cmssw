@@ -561,8 +561,8 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         string prov_ID_label = currentDiscriminatorContainerIdName_[idx].second;
         bool found = false;
         if (prov_cfg_label == "rawValues" || prov_cfg_label == "workingPoints") {
-          const std::vector<string> psetsFromProvenance =
-              edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<string>>(prov_cfg_label);
+          const std::vector<string> psetsFromProvenance = edm::parameterSet(prov->stable(), iEvent.processHistory())
+                                                              .getParameter<std::vector<string>>(prov_cfg_label);
           for (size_t i = 0; i < psetsFromProvenance.size(); ++i) {
             if (psetsFromProvenance[i] == prov_ID_label) {
               // using negative indices for raw values
@@ -575,7 +575,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           }
         } else if (prov_cfg_label == "IDdefinitions" || prov_cfg_label == "IDWPdefinitions") {
           const std::vector<edm::ParameterSet> psetsFromProvenance =
-              edm::parameterSet(*prov, iEvent.processHistory())
+              edm::parameterSet(prov->stable(), iEvent.processHistory())
                   .getParameter<std::vector<edm::ParameterSet>>(prov_cfg_label);
           for (size_t i = 0; i < psetsFromProvenance.size(); ++i) {
             if (psetsFromProvenance[i].getParameter<string>("IDname") == prov_ID_label) {
@@ -592,9 +592,10 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           try {
             int i = std::stoi(prov_ID_label);
             if (prov_cfg_label == "direct_rawValues")
-              currentDiscriminatorContainerToken_[idx].second = -i;
+              currentDiscriminatorContainerToken_[idx].second = -1 - i;
             else
               currentDiscriminatorContainerToken_[idx].second = i;
+            found = true;
           } catch (std::invalid_argument const& e) {
             throw cms::Exception("Configuration") << "TauTagValidation: Direct access to ID container requested, so "
                                                      "argument of 'idLabel' must be convertable to int!\n";

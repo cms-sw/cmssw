@@ -14,6 +14,6 @@
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 
 class CastorTPGRecord
-    : public edm::eventsetup::DependentRecordImplementation<CastorTPGRecord, boost::mpl::vector<CastorDbRecord> > {};
+    : public edm::eventsetup::DependentRecordImplementation<CastorTPGRecord, edm::mpl::Vector<CastorDbRecord> > {};
 
 #endif

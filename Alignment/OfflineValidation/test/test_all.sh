@@ -9,9 +9,12 @@ if test -f "validation_config.ini"; then
     rm -f validation_config.ini
 fi
 
+cmsRun ${LOCAL_TEST_DIR}/DiMuonVertexValidation_cfg.py maxEvents=10 || die "Failure running DiMuonVertexValidation_cfg.py" $?
+
 ## copy into local sqlite file the ideal alignment
 echo "COPYING locally Ideal Alignment ..."
 conddb --yes --db pro copy TrackerAlignment_Upgrade2017_design_v4 --destdb myfile.db
+conddb --yes --db pro copy TrackerAlignmentErrorsExtended_Upgrade2017_design_v0 --destdb myfile.db
 
 echo "GENERATING all-in-one tool configuration ..."
 cat <<EOF >> validation_config.ini
@@ -29,6 +32,7 @@ style = 2001
 title = express
 globaltag = 92X_dataRun2_Express_v2
 condition TrackerAlignmentRcd =  sqlite_file:myfile.db,TrackerAlignment_Upgrade2017_design_v4
+condition TrackerAlignmentErrorExtendedRcd = sqlite_file:myfile.db,TrackerAlignmentErrorsExtended_Upgrade2017_design_v0
 color = 2
 style = 2402
 
@@ -149,5 +153,15 @@ split some_split_validation - prompt :
 split some_split_validation - express :
 EOF
 
-echo "TESTING all-in-one tool ..."
+echo " TESTING all-in-one tool ..."
 validateAlignments.py -c validation_config.ini -N testingAllInOneTool --dryRun || die "Failure running all-in-one test" $?
+
+printf "\n\n"
+
+echo " TESTING Primary Vertex Validation run-by-run submission ..."
+submitPVValidationJobs.py -j UNIT_TEST -D /HLTPhysics/Run2016C-TkAlMinBias-07Dec2018-v1/ALCARECO -i ${LOCAL_TEST_DIR}/testPVValidation_Relvals_DATA.ini -r --unitTest || die "Failure running PV Validation run-by-run submission" $?
+
+printf "\n\n"
+
+echo " TESTING Split Vertex Validation submission ..."
+submitPVResolutionJobs.py -j UNIT_TEST -D /JetHT/Run2018C-TkAlMinBias-12Nov2019_UL2018-v2/ALCARECO -i ${LOCAL_TEST_DIR}/PVResolutionExample.ini --unitTest || die "Failure running Split Vertex Validation submission" $?

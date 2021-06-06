@@ -35,8 +35,8 @@ namespace edm::eventsetup::test {
     WorkingDummyProxy(const DummyData* iDummy) : data_(iDummy) {}
 
   protected:
-    const value_type* make(const record_type&, const DataKey&) { return data_; }
-    void invalidateCache() {}
+    const value_type* make(const record_type&, const DataKey&) final { return data_; }
+    void const* getAfterPrefetchImpl() const final { return data_; }
 
   private:
     const DummyData* data_;

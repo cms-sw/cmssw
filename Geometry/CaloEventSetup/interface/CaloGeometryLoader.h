@@ -8,6 +8,7 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
+#include "DD4hep/DD4hepUnits.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include <string>
 #include <vector>
@@ -25,8 +26,8 @@ public:
   using ParVec = CaloSubdetectorGeometry::ParVec;
   using ParVecVec = CaloSubdetectorGeometry::ParVecVec;
 
-  static constexpr double k_ScaleFromDDDtoGeant = 0.1;
-  static constexpr double k_ScaleFromDD4HeptoGeant = 1.0;
+  static constexpr double k_ScaleFromDDD = 0.1;
+  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
 
   CaloGeometryLoader<T>() {}
 

@@ -11,8 +11,6 @@
 #include <DataFormats/VertexReco/interface/VertexFwd.h>
 
 //Headers for services and tools
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "TMath.h"
@@ -20,20 +18,21 @@
 #include "TVector3.h"
 #include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 Onia2MuMuPAT::Onia2MuMuPAT(const edm::ParameterSet &iConfig)
     : muons_(consumes<edm::View<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
       thebeamspot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotTag"))),
       thePVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexTag"))),
+      magneticFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      theTTBuilderToken_(
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
       higherPuritySelection_(iConfig.getParameter<std::string>("higherPuritySelection")),
       lowerPuritySelection_(iConfig.getParameter<std::string>("lowerPuritySelection")),
-      dimuonSelection_(
-          iConfig.existsAs<std::string>("dimuonSelection") ? iConfig.getParameter<std::string>("dimuonSelection") : ""),
+      dimuonSelection_(iConfig.getParameter<std::string>("dimuonSelection")),
       addCommonVertex_(iConfig.getParameter<bool>("addCommonVertex")),
       addMuonlessPrimaryVertex_(iConfig.getParameter<bool>("addMuonlessPrimaryVertex")),
       resolveAmbiguity_(iConfig.getParameter<bool>("resolvePileUpAmbiguity")),
@@ -42,11 +41,6 @@ Onia2MuMuPAT::Onia2MuMuPAT(const edm::ParameterSet &iConfig)
       (edm::InputTag) "generalTracks");  //if that is not true, we will raise an exception
   revtxbs_ = consumes<reco::BeamSpot>((edm::InputTag) "offlineBeamSpot");
   produces<pat::CompositeCandidateCollection>();
-}
-
-Onia2MuMuPAT::~Onia2MuMuPAT() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -69,9 +63,7 @@ void Onia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   Vertex thePrimaryV;
   Vertex theBeamSpotV;
 
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-  const MagneticField *field = magneticField.product();
+  const MagneticField &field = iSetup.getData(magneticFieldToken_);
 
   Handle<BeamSpot> theBeamSpot;
   iEvent.getByToken(thebeamspot_, theBeamSpot);
@@ -89,8 +81,7 @@ void Onia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   Handle<View<pat::Muon>> muons;
   iEvent.getByToken(muons_, muons);
 
-  edm::ESHandle<TransientTrackBuilder> theTTBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theTTBuilder);
+  edm::ESHandle<TransientTrackBuilder> theTTBuilder = iSetup.getHandle(theTTBuilderToken_);
   KalmanVertexFitter vtxFitter(true);
   TrackCollection muonLess;
 
@@ -135,7 +126,7 @@ void Onia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
         CachingVertex<5> VtxForInvMass = vtxFitter.vertex(t_tks);
 
         Measurement1D MassWErr(jpsi.M(), -9999.);
-        if (field->nominalValue() > 0) {
+        if (field.nominalValue() > 0) {
           MassWErr = massCalculator.invariantMass(VtxForInvMass, muMasses);
         } else {
           myVertex = TransientVertex();  // with no arguments it is invalid
@@ -167,11 +158,11 @@ void Onia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
                     GlobalPoint(myVertex.position().x(), myVertex.position().y(), myVertex.position().z()),
                     GlobalVector(myCand.px(), myCand.py(), myCand.pz()),
                     TrackCharge(0),
-                    &(*magneticField)),
+                    &(field)),
                 GlobalTrajectoryParameters(GlobalPoint(bs.position().x(), bs.position().y(), bs.position().z()),
                                            GlobalVector(bs.dxdz(), bs.dydz(), 1.),
                                            TrackCharge(0),
-                                           &(*magneticField)));
+                                           &(field)));
             float extrapZ = -9E20;
             if (status)
               extrapZ = ttmd.points().first.z();
@@ -238,7 +229,7 @@ void Onia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
                     }
                 }
                 if (muonLess.size() > 1 && muonLess.size() < thePrimaryV.tracksSize()) {
-                  pvs = revertex.makeVertices(muonLess, *pvbeamspot, iSetup);
+                  pvs = revertex.makeVertices(muonLess, *pvbeamspot, *theTTBuilder);
                   if (!pvs.empty()) {
                     Vertex muonLessPV = Vertex(pvs.front());
                     thePrimaryV = muonLessPV;
@@ -423,20 +414,20 @@ void Onia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   iEvent.put(std::move(oniaOutput));
 }
 
-bool Onia2MuMuPAT::isAbHadron(int pdgID) {
+bool Onia2MuMuPAT::isAbHadron(int pdgID) const {
   if (abs(pdgID) == 511 || abs(pdgID) == 521 || abs(pdgID) == 531 || abs(pdgID) == 5122)
     return true;
   return false;
 }
 
-bool Onia2MuMuPAT::isAMixedbHadron(int pdgID, int momPdgID) {
+bool Onia2MuMuPAT::isAMixedbHadron(int pdgID, int momPdgID) const {
   if ((abs(pdgID) == 511 && abs(momPdgID) == 511 && pdgID * momPdgID < 0) ||
       (abs(pdgID) == 531 && abs(momPdgID) == 531 && pdgID * momPdgID < 0))
     return true;
   return false;
 }
 
-std::pair<int, float> Onia2MuMuPAT::findJpsiMCInfo(reco::GenParticleRef genJpsi) {
+std::pair<int, float> Onia2MuMuPAT::findJpsiMCInfo(reco::GenParticleRef genJpsi) const {
   int momJpsiID = 0;
   float trueLife = -99.;
 
@@ -492,11 +483,21 @@ std::pair<int, float> Onia2MuMuPAT::findJpsiMCInfo(reco::GenParticleRef genJpsi)
   return result;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void Onia2MuMuPAT::beginJob() {}
+void Onia2MuMuPAT::fillDescriptions(edm::ConfigurationDescriptions &iDescriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("muons");
+  desc.add<edm::InputTag>("beamSpotTag");
+  desc.add<edm::InputTag>("primaryVertexTag");
+  desc.add<std::string>("higherPuritySelection");
+  desc.add<std::string>("lowerPuritySelection");
+  desc.add<std::string>("dimuonSelection", "");
+  desc.add<bool>("addCommonVertex");
+  desc.add<bool>("addMuonlessPrimaryVertex");
+  desc.add<bool>("resolvePileUpAmbiguity");
+  desc.add<bool>("addMCTruth");
 
-// ------------ method called once each job just after ending the event loop  ------------
-void Onia2MuMuPAT::endJob() {}
+  iDescriptions.addDefault(desc);
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(Onia2MuMuPAT);

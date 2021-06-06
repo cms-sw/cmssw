@@ -38,11 +38,9 @@ process.dqmSaver.saveAtJobEnd = True
 
 ######################################################################################
 ### include your reference file
-process.DQMStore.referenceFileName = 'ref.root'
 
 ######################################################################################
 ### set this in order to add up histograms that already exist
-#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
 ######################################################################################
 ### loading of root files into DQMStore (stripping out Run and RunSummary)

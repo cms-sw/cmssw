@@ -5,6 +5,7 @@
 
 #include "SimDataFormats/CaloTest/interface/HcalTestHistoClass.h"
 #include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
 #include <iostream>

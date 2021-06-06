@@ -10,7 +10,9 @@ from RecoBTag.Combined.deepFlavour_cff import *
 from RecoBTag.ONNXRuntime.pfDeepFlavour_cff import *
 from RecoBTag.ONNXRuntime.pfDeepDoubleX_cff import *
 from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import *
-from RecoBTag.MXNet.pfParticleNet_cff import *
+from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import *
+from RecoBTag.ONNXRuntime.pfParticleNet_cff import *
+from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import *
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 from RecoBTag.PixelCluster.pixelClusterTagInfos_cfi import *
 

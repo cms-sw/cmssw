@@ -6,6 +6,9 @@
 
 #include <clang/AST/Attr.h>
 #include <clang/AST/ExprCXX.h>
+
+#include <memory>
+
 #include "ConstCastChecker.h"
 #include "CmsSupport.h"
 
@@ -27,11 +30,14 @@ namespace clangcms {
       cname = CRD->getQualifiedNameAsString();
     if (clang::ento::ExplodedNode *errorNode = C.generateErrorNode()) {
       if (!BT)
-        BT.reset(new clang::ento::BugType(this, "const_cast used on pointer to class", "ConstThreadSafety"));
+        BT = std::make_unique<clang::ento::BugType>(this, "const_cast used on pointer to class", "ConstThreadSafety");
       std::string buf;
       llvm::raw_string_ostream os(buf);
       os << "const_cast was used, this may result in thread-unsafe code.";
-      std::unique_ptr<clang::ento::BugReport> R = llvm::make_unique<clang::ento::BugReport>(*BT, os.str(), errorNode);
+      std::unique_ptr<clang::ento::PathSensitiveBugReport> PSBR =
+          std::make_unique<clang::ento::PathSensitiveBugReport>(*BT, llvm::StringRef(os.str()), errorNode);
+      std::unique_ptr<clang::ento::BasicBugReport> R =
+          std::make_unique<clang::ento::BasicBugReport>(*BT, llvm::StringRef(os.str()), PSBR->getLocation());
       R->addRange(CE->getSourceRange());
       if (!m_exception.reportConstCast(*R, C))
         return;

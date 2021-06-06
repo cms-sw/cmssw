@@ -216,10 +216,7 @@ Trajectory DAFTrackProducerAlgorithm::fit(
     const TrajectoryFitter* theFitter,
     Trajectory vtraj) const {
   //creating a new trajectory starting from the direction of the seed of the input one and the hits
-  Trajectory newVec = theFitter->fitOne(
-      TrajectorySeed(PTrajectoryStateOnDet(), BasicTrajectorySeed::recHitContainer(), vtraj.seed().direction()),
-      hits.first,
-      hits.second);
+  Trajectory newVec = theFitter->fitOne(TrajectorySeed({}, {}, vtraj.seed().direction()), hits.first, hits.second);
 
   if (newVec.isValid())
     return newVec;
@@ -369,10 +366,9 @@ void DAFTrackProducerAlgorithm::filter(const TrajectoryFitter* fitter,
   LogDebug("DAFTrackProducerAlgorithm") << "starting tsos for final refitting " << curstartingTSOS;
   //curstartingTSOS.rescaleError(100);
 
-  output = fitter->fit(
-      TrajectorySeed(PTrajectoryStateOnDet(), BasicTrajectorySeed::recHitContainer(), input.front().seed().direction()),
-      hits,
-      TrajectoryStateWithArbitraryError()(curstartingTSOS));
+  output = fitter->fit(TrajectorySeed({}, {}, input.front().seed().direction()),
+                       hits,
+                       TrajectoryStateWithArbitraryError()(curstartingTSOS));
 
   LogDebug("DAFTrackProducerAlgorithm") << "After filtering " << output.size() << " trajectories";
 }

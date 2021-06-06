@@ -61,10 +61,10 @@ SmartPropagatorESProducer::SmartPropagatorESProducer(const ParameterSet& paramet
 
   theEpsilon = parameterSet.getParameter<double>("Epsilon");
 
-  setWhatProduced(this, myname)
-      .setConsumes(magToken_)
-      .setConsumes(trackerToken_, edm::ESInputTag("", parameterSet.getParameter<string>("TrackerPropagator")))
-      .setConsumes(muonToken_, edm::ESInputTag("", parameterSet.getParameter<string>("MuonPropagator")));
+  auto cc = setWhatProduced(this, myname);
+  magToken_ = cc.consumes();
+  trackerToken_ = cc.consumes(edm::ESInputTag("", parameterSet.getParameter<string>("TrackerPropagator")));
+  muonToken_ = cc.consumes(edm::ESInputTag("", parameterSet.getParameter<string>("MuonPropagator")));
 }
 
 SmartPropagatorESProducer::~SmartPropagatorESProducer() {}

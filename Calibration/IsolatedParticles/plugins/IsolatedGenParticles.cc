@@ -44,12 +44,12 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -59,7 +59,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -119,10 +119,6 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endJob() override {}
 
-  double deltaPhi(double v1, double v2);
-  double deltaR(double eta1, double phi1, double eta2, double phi2);
-  double deltaR2(double eta1, double phi1, double eta2, double phi2);
-
   void fillTrack(
       GlobalPoint &posVec, math::XYZTLorentzVector &momVec, GlobalPoint &posECAL, int pdgId, bool okECAL, bool accpet);
   void fillIsolatedTrack(math::XYZTLorentzVector &momVec, GlobalPoint &posECAL, int pdgId);
@@ -157,6 +153,12 @@ private:
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extTauJet_;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extCenJet_;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extFwdJet_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
 
   TH1I *h_L1AlgoNames;
   TH1I *h_NEventProc;
@@ -362,6 +364,12 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet &iConfig)
                                << " a_neutIsoR " << a_neutIsoR_ << " a_mipR " << a_mipR_ << " debug " << verbosity_
                                << " debugL1Info " << debugL1Info_ << "\n"
                                << " Isolation Flag " << a_Isolation_ << " with cut " << pCutIsolate_ << " GeV";
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_pdt_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
 }
 
 void IsolatedGenParticles::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -392,14 +400,10 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
   clearTreeVectors();
 
   nEventProc++;
-
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField *bField = bFieldH.product();
+  const MagneticField *bField = &iSetup.getData(tok_magField_);
 
   // get particle data table
-  edm::ESHandle<ParticleDataTable> pdt;
-  iSetup.getData(pdt);
+  const HepPDT::ParticleDataTable *pdt = &iSetup.getData(tok_pdt_);
 
   // get handle to HEPMCProduct
   edm::Handle<edm::HepMCProduct> hepmc;
@@ -409,17 +413,9 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
   else
     iEvent.getByToken(tok_genParticles_, genParticles);
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry *geo = pG.product();
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology *caloTopology = theCaloTopology.product();
-
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology *theHBHETopology = htopo.product();
+  const CaloGeometry *geo = &iSetup.getData(tok_geom_);
+  const CaloTopology *caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology *theHBHETopology = &iSetup.getData(tok_topo_);
 
   //===================== save L1 Trigger information =======================
   // get L1TriggerReadout records
@@ -809,27 +805,6 @@ void IsolatedGenParticles::beginJob() {
   bookHistograms();
 }
 
-double IsolatedGenParticles::deltaPhi(double v1, double v2) {
-  // Computes the correctly normalized phi difference
-  // v1, v2 = phi of object 1 and 2
-
-  double diff = std::abs(v2 - v1);
-  double corr = 2 * M_PI - diff;
-  return ((diff < M_PI) ? diff : corr);
-}
-
-double IsolatedGenParticles::deltaR(double eta1, double phi1, double eta2, double phi2) {
-  double deta = eta1 - eta2;
-  double dphi = deltaPhi(phi1, phi2);
-  return std::sqrt(deta * deta + dphi * dphi);
-}
-
-double IsolatedGenParticles::deltaR2(double eta1, double phi1, double eta2, double phi2) {
-  double deta = eta1 - eta2;
-  double dphi = deltaPhi(phi1, phi2);
-  return deta * deta + dphi * dphi;
-}
-
 void IsolatedGenParticles::fillTrack(
     GlobalPoint &posVec, math::XYZTLorentzVector &momVec, GlobalPoint &posECAL, int pdgId, bool okECAL, bool accept) {
   if (accept) {
@@ -841,7 +816,7 @@ void IsolatedGenParticles::fillTrack(
     if (okECAL) {
       double phi1 = momVec.phi();
       double phi2 = (posECAL - posVec).phi();
-      double dphi = deltaPhi(phi1, phi2);
+      double dphi = reco::deltaPhi(phi1, phi2);
       double deta = momVec.eta() - (posECAL - posVec).eta();
       t_isoTrkDPhiAll->push_back(dphi);
       t_isoTrkDEtaAll->push_back(deta);

@@ -98,7 +98,7 @@ namespace edm {
     }
     edm::Timestamp const& lastTimestamp() const { return endTime_; }
 
-    void setNextSyncValue(IOVSyncValue iValue) { nextSyncValue_ = std::move(iValue); }
+    void setNextSyncValue(IOVSyncValue const& iValue) { nextSyncValue_ = iValue; }
 
     const IOVSyncValue nextSyncValue() const { return nextSyncValue_; }
 

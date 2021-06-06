@@ -13,6 +13,7 @@
 //
 // Original Author:  Ianna Osborne
 //         Created:  Wed, 16 Jan 2019 10:19:37 GMT
+//         Modified by Sergio Lo Meo (sergio.lo.meo@cern.ch) Mon, 31 August 2020
 //
 //
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -27,7 +28,6 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -36,7 +36,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
@@ -78,7 +79,7 @@ private:
   edm::ESGetToken<Alignments, GlobalPositionRcd> m_globalPositionToken;
   edm::ESGetToken<Alignments, DTAlignmentRcd> m_alignmentsToken;
   edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> m_alignmentErrorsToken;
-  edm::ESGetToken<MuonNumbering, MuonNumberingRecord> m_mdcToken;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> m_mdcToken;
   edm::ESGetToken<DDDetector, IdealGeometryRecord> m_cpvToken;
   edm::ESGetToken<DDSpecParRegistry, DDSpecParRegistryRcd> m_registryToken;
   const ESInputTag m_tag;
@@ -109,7 +110,7 @@ DTGeometryESProducer::DTGeometryESProducer(const ParameterSet& iConfig)
   }
 
   if (m_fromDDD) {
-    m_mdcToken = cc.consumesFrom<MuonNumbering, MuonNumberingRecord>(edm::ESInputTag{});
+    m_mdcToken = cc.consumesFrom<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});
     m_cpvToken = cc.consumesFrom<DDDetector, IdealGeometryRecord>(m_tag);
     m_registryToken = cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(m_tag);
   }
@@ -133,34 +134,24 @@ std::shared_ptr<DTGeometry> DTGeometryESProducer::produce(const MuonGeometryReco
       host->ifRecordChanges<DTRecoGeometryRcd>(record, [this, &host](auto const& rec) { setupDBGeometry(rec, host); });
     }
   }
-  //
-  // Called whenever the alignments or alignment errors change
-  //
+
   if (m_applyAlignment) {
-    // m_applyAlignment is scheduled for removal.
-    // Ideal geometry obtained by using 'fake alignment' (with m_applyAlignment = true)
-    edm::ESHandle<Alignments> globalPosition;
-    record.getRecord<GlobalPositionRcd>().get(m_alignmentsLabel, globalPosition);
-    edm::ESHandle<Alignments> alignments;
-    record.getRecord<DTAlignmentRcd>().get(m_alignmentsLabel, alignments);
-    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-    record.getRecord<DTAlignmentErrorExtendedRcd>().get(m_alignmentsLabel, alignmentErrors);
-    // Only apply alignment if values exist
-    if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
+    const auto& globalPosition = record.get(m_globalPositionToken);
+    const auto& alignments = record.get(m_alignmentsToken);
+    const auto& alignmentErrors = record.get(m_alignmentErrorsToken);
+
+    if (alignments.empty() && alignmentErrors.empty() && globalPosition.empty()) {
       edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"
-                             << "Alignment(Error)s and global position (label '" << m_alignmentsLabel
-                             << "') empty: Geometry producer (label "
-                             << "'" << m_myLabel << "') assumes fake and does not apply.";
+                             << "Alignment and global position errors";
+
     } else {
       GeometryAligner aligner;
-      aligner.applyAlignments<DTGeometry>(&(*host),
-                                          &(*alignments),
-                                          &(*alignmentErrors),
-                                          align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
+      aligner.applyAlignments<DTGeometry>(
+          &(*host), &alignments, &alignmentErrors, align::DetectorGlobalPosition(globalPosition, DetId(DetId::Muon)));
     }
   }
 
-  return host;  // automatically converts to std::shared_ptr<DTGeometry>
+  return host;
 }
 
 void DTGeometryESProducer::setupGeometry(const MuonNumberingRecord& record, shared_ptr<HostType>& host) {
@@ -184,10 +175,8 @@ void DTGeometryESProducer::setupGeometry(const MuonNumberingRecord& record, shar
 
 void DTGeometryESProducer::setupDBGeometry(const DTRecoGeometryRcd& record, std::shared_ptr<HostType>& host) {
   // host->clear();
-
   // edm::ESHandle<RecoIdealGeometry> rig;
   // record.get(rig);
-
   // DTGeometryBuilderFromCondDB builder;
   // builder.build(host, *rig);
 }

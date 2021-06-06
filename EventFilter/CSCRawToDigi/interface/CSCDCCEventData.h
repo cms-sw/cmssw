@@ -1,7 +1,7 @@
 /// 01/20/05 A.Tumanov
 
-#ifndef CSCDCCEventData_h
-#define CSCDCCEventData_h
+#ifndef EventFilter_CSCRawToDigi_CSCDCCEventData_h
+#define EventFilter_CSCRawToDigi_CSCDCCEventData_h
 
 #include <vector>
 #include <boost/dynamic_bitset.hpp>

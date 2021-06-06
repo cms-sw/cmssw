@@ -9,17 +9,16 @@
 <use name="RecoBTag/SecondaryVertex"/>
 <use name="boost"/>
 <library file="TemplatedSecondaryVertexProducer.cc BVertexFilter.cc BtoCharmDecayVertexMerger.cc BoostedDoubleSVProducer.cc" name="RecoBTagSecondaryVertexProducer">
-   <use name="DataFormats/BeamSpot"/>
-   <use name="TrackingTools/Records"/>
-   <use name="TrackingTools/TransientTrack"/>
-   <use name="RecoVertex/ConfigurableVertexReco"/>
-   <use name="RecoVertex/GhostTrackFitter"/>
-   <use name="fastjet"/>
-   <use name="fastjet-contrib"/>
-   <flags EDM_PLUGIN="1"/>
+  <use name="TrackingTools/Records"/>
+  <use name="TrackingTools/TransientTrack"/>
+  <use name="RecoVertex/ConfigurableVertexReco"/>
+  <use name="RecoVertex/GhostTrackFitter"/>
+  <use name="fastjet"/>
+  <use name="fastjet-contrib"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="JetTagESProducers.cc" name="RecoBTagSecondaryVertexESProducers">
-   <use name="RecoBTau/JetTagComputer"/>
-   <flags EDM_PLUGIN="1"/>
+  <use name="RecoBTau/JetTagComputer"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

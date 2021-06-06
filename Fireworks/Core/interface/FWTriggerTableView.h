@@ -13,8 +13,6 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWStringParameter.h"
 
-#include <boost/unordered_map.hpp>
-
 // forward declarations
 class TGFrame;
 class TGCompositeFrame;

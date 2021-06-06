@@ -17,20 +17,21 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
 #include <iostream>
@@ -65,7 +66,8 @@ protected:
                        int nbins,
                        float min,
                        float max,
-                       bool isVDCorr = false);
+                       bool isVDCorr = false,
+                       bool makeRings = false);
 
   /// DQM Client Diagnostic
   void dqmEndLuminosityBlock(DQMStore::IBooker&,
@@ -96,7 +98,7 @@ private:
   float maxGoodT0Sigma;
   float minBadT0Sigma;
 
-  edm::ESHandle<DTMtime> mTime;
+  edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeMapToken_;
   const DTMtime* mTimeMap_;
 
   bool bookingdone;
@@ -105,6 +107,7 @@ private:
   MonitorElement* glbT0Summary;
 
   std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
+  std::map<int, std::map<int, std::map<std::string, MonitorElement*> > > wheelRingHistos;
   std::map<std::string, MonitorElement*> summaryHistos;
   std::map<std::string, MonitorElement*> allwheelHistos;
 };

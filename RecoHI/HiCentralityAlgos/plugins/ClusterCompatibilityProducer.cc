@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -42,6 +43,7 @@ public:
 
 private:
   edm::EDGetTokenT<SiPixelRecHitCollection> inputToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
   edm::InputTag inputTag_;  // input tag identifying product containing pixel clusters
   double minZ_;             // beginning z-vertex position
   double maxZ_;             // end z-vertex position
@@ -68,6 +70,7 @@ ClusterCompatibilityProducer::ClusterCompatibilityProducer(const edm::ParameterS
       maxZ_(config.getParameter<double>("maxZ")),
       zStep_(config.getParameter<double>("zStep")) {
   inputToken_ = consumes<SiPixelRecHitCollection>(inputTag_);
+  trackerToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   LogDebug("") << "Using the " << inputTag_ << " input collection";
   produces<reco::ClusterCompatibility>();
 }
@@ -83,8 +86,7 @@ void ClusterCompatibilityProducer::produce(edm::Event &iEvent, const edm::EventS
 
   // get tracker geometry
   if (hRecHits.isValid()) {
-    edm::ESHandle<TrackerGeometry> trackerHandle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+    edm::ESHandle<TrackerGeometry> trackerHandle = iSetup.getHandle(trackerToken_);
     const TrackerGeometry *tgeo = trackerHandle.product();
     const SiPixelRecHitCollection *hits = hRecHits.product();
 

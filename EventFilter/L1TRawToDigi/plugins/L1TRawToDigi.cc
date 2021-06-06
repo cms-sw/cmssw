@@ -215,13 +215,13 @@ namespace l1t {
         if (ctp7_mode_) {
           LogDebug("L1T") << "Using CTP7 mode";
           // CTP7 uses userData in AMC header
-          payload.reset(new CTP7Payload(start, end, amc.header()));
+          payload = std::make_unique<CTP7Payload>(start, end, amc.header());
         } else if (mtf7_mode_) {
           LogDebug("L1T") << "Using MTF7 mode";
-          payload.reset(new MTF7Payload(start, end));
+          payload = std::make_unique<MTF7Payload>(start, end);
         } else {
           LogDebug("L1T") << "Using MP7 mode";
-          payload.reset(new MP7Payload(start, end, legacy_mc));
+          payload = std::make_unique<MP7Payload>(start, end, legacy_mc);
         }
         unsigned fw = payload->getAlgorithmFWVersion();
         unsigned board = amc.blockHeader().getBoardID();

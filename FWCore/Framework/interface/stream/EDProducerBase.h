@@ -50,6 +50,8 @@ namespace edm {
       typedef EDProducerAdaptorBase ModuleType;
 
       EDProducerBase();
+      EDProducerBase(const EDProducerBase&) = delete;                   // stop default
+      const EDProducerBase& operator=(const EDProducerBase&) = delete;  // stop default
       ~EDProducerBase() override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
@@ -60,10 +62,6 @@ namespace edm {
       ModuleDescription const& moduleDescription() const { return *moduleDescriptionPtr_; }
 
     private:
-      EDProducerBase(const EDProducerBase&) = delete;  // stop default
-
-      const EDProducerBase& operator=(const EDProducerBase&) = delete;  // stop default
-
       virtual void beginStream(StreamID) {}
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}

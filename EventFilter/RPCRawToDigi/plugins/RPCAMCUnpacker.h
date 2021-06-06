@@ -7,6 +7,7 @@
 #include "CondFormats/RPCObjects/interface/RPCAMCLink.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCAMC13Record.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class Event;
@@ -18,7 +19,7 @@ namespace edm {
 
 class RPCAMCUnpacker {
 public:
-  RPCAMCUnpacker(edm::ParameterSet const&, edm::ProducesCollector);
+  RPCAMCUnpacker(edm::ParameterSet const&, edm::ConsumesCollector, edm::ProducesCollector);
   virtual ~RPCAMCUnpacker();
 
   static void fillDescription(edm::ParameterSetDescription& desc);

@@ -28,9 +28,9 @@
     <Include ref="Geometry/CMSCommonData/data/cmsCalo.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/dd4hep/escon.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/dd4hep/esalgo.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/fastTiming.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/fastTimingEndcap.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/v6/fastTimingElement.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/v6/noTaper.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/v6/noTaperEndcap.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/v6/noTaperElement.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/dd4hep/world.xml"/>
    </IncludeSection>
 

@@ -15,9 +15,9 @@
 //   author: J.P. Chou, Brown
 //
 
-#include "boost/array.hpp"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include <vector>
+#include <array>
 
 class HcalHPDRBXMap {
 public:
@@ -66,7 +66,7 @@ public:
   // returns a list of HPD indices found in a given RBX
   // exception is thrown if rbxindex is invalid
   // HPD indices are ordered in phi-space
-  void static indicesHPDfromRBX(int rbxindex, boost::array<int, NUM_HPDS_PER_RBX>& hpdindices);
+  void static indicesHPDfromRBX(int rbxindex, std::array<int, NUM_HPDS_PER_RBX>& hpdindices);
 
   // returns the RBX index given an HPD index
   // exception is thrown if hpdindex is invalid

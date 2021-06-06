@@ -114,7 +114,7 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
     out.addr4_1 = mu.trackSubAddress(l1t::RegionalMuonCand::kStat4);
     out.wheel_1 = mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide) * (1 << 2) +
                   mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
-    out.ptSTA_1 = mu.hwPt2();
+    out.ptSTA_1 = mu.hwPtUnconstrained();
   }
 
   if (tracks.size() > 1) {
@@ -135,7 +135,7 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
     out.wheel_2 = mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide) * (1 << 2) +
                   mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
 
-    out.ptSTA_2 = mu.hwPt2();
+    out.ptSTA_2 = mu.hwPtUnconstrained();
   }
 
   if (tracks.size() > 2) {
@@ -155,7 +155,7 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
     out.addr4_3 = mu.trackSubAddress(l1t::RegionalMuonCand::kStat4);
     out.wheel_3 = mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide) * (1 << 2) +
                   mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
-    out.ptSTA_3 = mu.hwPt2();
+    out.ptSTA_3 = mu.hwPtUnconstrained();
   }
   return out;
 }
@@ -223,6 +223,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanSectorProcessor::cleanNeighbor(const L
   L1MuKBMTrackCollection out;
 
   for (const auto& track1 : coll1) {
+    /*
     if (verbose_)
       printf(
           "Pre Track charge=%d pt=%f eta=%f phi=%f curvature=%d curvature STA =%d stubs=%d bitmask=%d rank=%d chi=%d "
@@ -239,7 +240,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanSectorProcessor::cleanNeighbor(const L
           track1.approxChi2(),
           track1.pt(),
           track1.ptUnconstrained());
-
+    */
     bool keep = true;
     for (const auto& track2 : coll2) {
       if (!track1.overlapTrack(track2))
@@ -253,6 +254,12 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanSectorProcessor::cleanNeighbor(const L
     }
     if (keep)
       out.push_back(track1);
+    else {
+      L1MuKBMTrack temp = track1;
+      temp.setPtEtaPhi(0, 0, 0);
+      temp.setRank(0);
+      out.push_back(temp);
+    }
   }
 
   return out;
@@ -292,6 +299,12 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanSectorProcessor::cleanNeighbors(const 
 
     if (keep)
       out.push_back(track1);
+    else {
+      L1MuKBMTrack temp = track1;
+      temp.setPtEtaPhi(0, 0, 0);
+      temp.setRank(0);
+      out.push_back(temp);
+    }
   }
 
   return out;

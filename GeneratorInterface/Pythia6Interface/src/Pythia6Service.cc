@@ -10,7 +10,7 @@
 #include <boost/bind.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include "CLHEP/Random/RandomEngine.h"
 
@@ -324,13 +324,13 @@ void Pythia6Service::setPYUPDAParams(bool afterPyinit) {
 void Pythia6Service::setSLHAFromHeader(const std::vector<std::string>& lines) {
   std::set<std::string> blocks;
   unsigned int model = 0, subModel = 0;
+  char tempslhaname[] = "pythia6slhaXXXXXX";
+  int fd = mkstemp(tempslhaname);
 
-  std::string fnamest = boost::filesystem::unique_path().string();
-  const char* fname = fnamest.c_str();
-  std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
   std::string block;
+  std::stringstream f_info;
   for (std::vector<std::string>::const_iterator iter = lines.begin(); iter != lines.end(); ++iter) {
-    file << *iter;
+    f_info << *iter;
 
     std::string line = *iter;
     std::transform(line.begin(), line.end(), line.begin(), (int (*)(int))std::toupper);
@@ -386,7 +386,8 @@ void Pythia6Service::setSLHAFromHeader(const std::vector<std::string>& lines) {
       }
     }
   }
-  file.close();
+  write(fd, f_info.str().c_str(), f_info.str().size());
+  close(fd);
 
   if (blocks.count("SMINPUTS"))
     pydat1_.paru[102 - 1] =
@@ -402,8 +403,8 @@ void Pythia6Service::setSLHAFromHeader(const std::vector<std::string>& lines) {
 	call_pygive("IMSS(22)=24");
 */
 
-  openSLHA(fname);
-  std::remove(fname);
+  openSLHA(tempslhaname);
+  std::remove(tempslhaname);
 
   if (model || blocks.count("HIGMIX") || blocks.count("SBOTMIX") || blocks.count("STOPMIX") ||
       blocks.count("STAUMIX") || blocks.count("AMIX") || blocks.count("NMIX") || blocks.count("UMIX") ||

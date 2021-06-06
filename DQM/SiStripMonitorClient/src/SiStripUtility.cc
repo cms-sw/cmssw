@@ -9,9 +9,9 @@
 //
 int SiStripUtility::getMEList(std::string const& name, std::vector<std::string>& values) {
   values.clear();
-  auto prefix_str = name.substr(0, (name.find(":")));
+  auto prefix_str = name.substr(0, (name.find(':')));
   prefix_str += "/";
-  auto const temp_str = name.substr(name.find(":") + 1);
+  auto const temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   for (auto& value : values) {
     value.insert(0, prefix_str);
@@ -23,9 +23,9 @@ int SiStripUtility::getMEList(std::string const& name, std::vector<std::string>&
 //
 int SiStripUtility::getMEList(std::string const& name, std::string& dir_path, std::vector<std::string>& values) {
   values.clear();
-  dir_path = name.substr(0, (name.find(":")));
+  dir_path = name.substr(0, (name.find(':')));
   dir_path += "/";
-  auto const temp_str = name.substr(name.find(":") + 1);
+  auto const temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   return values.size();
 }
@@ -34,9 +34,9 @@ int SiStripUtility::getMEList(std::string const& name, std::string& dir_path, st
 bool SiStripUtility::checkME(std::string const& name, std::string const& me_name, std::string& full_path) {
   if (name.find(name) == std::string::npos)
     return false;
-  auto prefix_str = name.substr(0, (name.find(":")));
+  auto prefix_str = name.substr(0, (name.find(':')));
   prefix_str += "/";
-  auto const temp_str = name.substr(name.find(":") + 1);
+  auto const temp_str = name.substr(name.find(':') + 1);
   std::vector<std::string> values;
   split(temp_str, values, ",");
   for (auto const& value : values) {
@@ -251,7 +251,7 @@ void SiStripUtility::getMEValue(MonitorElement const* me, std::string& val) {
 //
 bool SiStripUtility::goToDir(DQMStore& dqm_store, std::string const& name) {
   std::string currDir = dqm_store.pwd();
-  std::string dirName = currDir.substr(currDir.find_last_of("/") + 1);
+  std::string dirName = currDir.substr(currDir.find_last_of('/') + 1);
   if (dirName.find(name) == 0) {
     return true;
   }
@@ -272,7 +272,7 @@ bool SiStripUtility::goToDir(DQMStore& dqm_store, std::string const& name) {
 
 bool SiStripUtility::goToDir(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string const& name) {
   std::string currDir = ibooker.pwd();
-  std::string dirName = currDir.substr(currDir.find_last_of("/") + 1);
+  std::string dirName = currDir.substr(currDir.find_last_of('/') + 1);
   if (dirName.find(name) == 0) {
     return true;
   }

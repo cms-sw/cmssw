@@ -14,7 +14,7 @@
 
 //------------------------------------------------------------------------------
 AlignmentProducerAsAnalyzer::AlignmentProducerAsAnalyzer(const edm::ParameterSet& config)
-    : AlignmentProducerBase{config} {
+    : AlignmentProducerBase{config}, token_(produces<AlignmentToken, edm::Transition::EndProcessBlock>()) {
   usesResource(TFileService::kSharedResource);
 
   tjTkAssociationMapToken_ = consumes<TrajTrackAssociationCollection>(tjTkAssociationMapTag_);
@@ -28,17 +28,7 @@ AlignmentProducerAsAnalyzer::AlignmentProducerAsAnalyzer(const edm::ParameterSet
 void AlignmentProducerAsAnalyzer::beginJob() {}
 
 //------------------------------------------------------------------------------
-void AlignmentProducerAsAnalyzer::endJob() {
-  terminateProcessing();
-  if (!finish()) {
-    edm::LogError("Alignment") << "@SUB=AlignmentProducerAsAnalyzer::endJob"
-                               << "Did not process any events, do not dare to store to DB.";
-  }
-
-  // message is used by the MillePede log parser to check the end of the job
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducerAsAnalyzer::endJob"
-                            << "Finished alignment producer job.";
-}
+void AlignmentProducerAsAnalyzer::endJob() {}
 
 //------------------------------------------------------------------------------
 void AlignmentProducerAsAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
@@ -60,8 +50,23 @@ void AlignmentProducerAsAnalyzer::endLuminosityBlock(const edm::LuminosityBlock&
   endLuminosityBlockImpl(lumiBlock, setup);
 }
 
+void AlignmentProducerAsAnalyzer::endProcessBlockProduce(edm::ProcessBlock& processBlock) {
+  const AlignmentToken valueToPut{};
+  processBlock.emplace(token_, valueToPut);
+
+  terminateProcessing();
+  if (!finish()) {
+    edm::LogError("Alignment") << "@SUB=AlignmentProducerAsAnalyzer::endJob"
+                               << "Did not process any events, do not dare to store to DB.";
+  }
+
+  // message is used by the MillePede log parser to check the end of the job
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducerAsAnalyzer::endJob"
+                            << "Finished alignment producer job.";
+}
+
 //------------------------------------------------------------------------------
-void AlignmentProducerAsAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+void AlignmentProducerAsAnalyzer::accumulate(edm::Event const& event, edm::EventSetup const& setup) {
   processEvent(event, setup);
 }
 

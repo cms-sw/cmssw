@@ -20,7 +20,7 @@ namespace CLHEP {
 
 class BTLElectronicsSim {
 public:
-  BTLElectronicsSim(const edm::ParameterSet& pset);
+  BTLElectronicsSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC);
 
   void getEvent(const edm::Event& evt) {}
 

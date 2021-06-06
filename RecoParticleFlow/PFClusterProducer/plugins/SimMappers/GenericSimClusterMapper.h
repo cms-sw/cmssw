@@ -10,9 +10,9 @@ class GenericSimClusterMapper : public InitialClusteringStepBase {
   typedef GenericSimClusterMapper B2DGT;
 
 public:
-  GenericSimClusterMapper(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : InitialClusteringStepBase(conf, sumes) {
-    _simClusterToken = sumes.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
+  GenericSimClusterMapper(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : InitialClusteringStepBase(conf, cc) {
+    _simClusterToken = cc.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
   }
   ~GenericSimClusterMapper() override = default;
   GenericSimClusterMapper(const B2DGT&) = delete;

@@ -22,6 +22,7 @@
 #include <string>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GtDefinitions.h"
 
 /// board types in GT
 enum L1GtBoardType { GTFE, FDL, PSB, GMT, TCS, TIM, BoardNull };
@@ -88,26 +89,6 @@ std::string l1GtPsbQuadEnumToString(const L1GtPsbQuad&);
 /// TypeBptx: BPTX (logical result only; definition in BPTX system)
 /// TypeExternal: external conditions (logical result only; definition in L1 GT external systems)
 /// Type2CorrWithOverlapRemoval: three particles, first two with spatial correlations among them, third used for removal if overlap
-enum L1GtConditionType {
-  TypeNull,
-  Type1s,
-  Type2s,
-  Type2wsc,
-  Type2cor,
-  Type3s,
-  Type4s,
-  TypeETM,
-  TypeETT,
-  TypeHTT,
-  TypeHTM,
-  TypeJetCounts,
-  TypeCastor,
-  TypeHfBitCounts,
-  TypeHfRingEtSums,
-  TypeBptx,
-  TypeExternal,
-  Type2corWithOverlapRemoval
-};
 
 struct L1GtConditionTypeStringToEnum {
   const char* label;
@@ -116,22 +97,6 @@ struct L1GtConditionTypeStringToEnum {
 
 L1GtConditionType l1GtConditionTypeStringToEnum(const std::string&);
 std::string l1GtConditionTypeEnumToString(const L1GtConditionType&);
-
-/// condition categories
-enum L1GtConditionCategory {
-  CondNull,
-  CondMuon,
-  CondCalo,
-  CondEnergySum,
-  CondJetCounts,
-  CondCorrelation,
-  CondCastor,
-  CondHfBitCounts,
-  CondHfRingEtSums,
-  CondBptx,
-  CondExternal,
-  CondCorrelationWithOverlapRemoval
-};
 
 struct L1GtConditionCategoryStringToEnum {
   const char* label;

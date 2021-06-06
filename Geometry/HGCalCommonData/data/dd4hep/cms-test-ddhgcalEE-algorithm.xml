@@ -22,6 +22,7 @@
   <IncludeSection>
     <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml"/>
     <Include ref="Geometry/CMSCommonData/data/extend/v2/cmsextent.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cms/2026/v1/cms.xml"/>
     <Include ref="Geometry/CMSCommonData/data/eta3/etaMax.xml"/>
@@ -33,7 +34,6 @@
     <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalEE/v9/hgcalEE.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/dd4hep/world.xml"/>
   </IncludeSection>
   
 </DDDefinition>

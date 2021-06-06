@@ -5,22 +5,32 @@
 //
 // Original Author:  Michele Pioppi
 
-#include "RecoParticleFlow/PFTracking/interface/ElectronSeedMerger.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include <string>
+
+class ElectronSeedMerger : public edm::global::EDProducer<> {
+public:
+  explicit ElectronSeedMerger(const edm::ParameterSet&);
+
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  const edm::EDGetTokenT<reco::ElectronSeedCollection> ecalSeedToken_;
+  edm::EDGetTokenT<reco::ElectronSeedCollection> tkSeedToken_;
+};
 
 using namespace edm;
 using namespace std;
 using namespace reco;
 
-ElectronSeedMerger::ElectronSeedMerger(const ParameterSet& iConfig) : conf_(iConfig) {
-  LogInfo("ElectronSeedMerger") << "Electron SeedMerger  started  ";
-
-  ecalSeedToken_ = consumes<ElectronSeedCollection>(iConfig.getParameter<InputTag>("EcalBasedSeeds"));
+ElectronSeedMerger::ElectronSeedMerger(const ParameterSet& iConfig)
+    : ecalSeedToken_{consumes<ElectronSeedCollection>(iConfig.getParameter<InputTag>("EcalBasedSeeds"))} {
   edm::InputTag tkSeedLabel_ = iConfig.getParameter<InputTag>("TkBasedSeeds");
   if (!tkSeedLabel_.label().empty())
     tkSeedToken_ = consumes<ElectronSeedCollection>(tkSeedLabel_);
@@ -28,17 +38,8 @@ ElectronSeedMerger::ElectronSeedMerger(const ParameterSet& iConfig) : conf_(iCon
   produces<ElectronSeedCollection>();
 }
 
-ElectronSeedMerger::~ElectronSeedMerger() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
-
 // ------------ method called to produce the data  ------------
-void ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup) {
+void ElectronSeedMerger::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const {
   //CREATE OUTPUT COLLECTION
   auto output = std::make_unique<ElectronSeedCollection>();
 
@@ -72,26 +73,20 @@ void ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup) {
       if (AlreadyMatched)
         continue;
 
-      //HITS FOR ECAL SEED
-      TrajectorySeed::const_iterator eh = e_beg->recHits().first;
-      TrajectorySeed::const_iterator eh_end = e_beg->recHits().second;
-
       //HITS FOR TK SEED
       unsigned int hitShared = 0;
       unsigned int hitSeed = 0;
-      for (; eh != eh_end; ++eh) {
-        if (!eh->isValid())
+      for (auto const& eh : e_beg->recHits()) {
+        if (!eh.isValid())
           continue;
         hitSeed++;
         bool Shared = false;
-        TrajectorySeed::const_iterator th = TSeed[it].recHits().first;
-        TrajectorySeed::const_iterator th_end = TSeed[it].recHits().second;
-        for (; th != th_end; ++th) {
-          if (!th->isValid())
+        for (auto const& th : TSeed[it].recHits()) {
+          if (!th.isValid())
             continue;
           //CHECK THE HIT COMPATIBILITY: put back sharesInput
           // as soon Egamma solves the bug on the seed collection
-          if (eh->sharesInput(&(*th), TrackingRecHit::all))
+          if (eh.sharesInput(&th, TrackingRecHit::all))
             Shared = true;
           //   if(eh->geographicalId() == th->geographicalId() &&
           // 	     (eh->localPosition() - th->localPosition()).mag() < 0.001) Shared=true;
@@ -121,3 +116,5 @@ void ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup) {
   //PUT THE MERGED COLLECTION IN THE EVENT
   iEvent.put(std::move(output));
 }
+
+DEFINE_FWK_MODULE(ElectronSeedMerger);

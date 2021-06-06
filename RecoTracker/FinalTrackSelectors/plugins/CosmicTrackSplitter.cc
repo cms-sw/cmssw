@@ -37,12 +37,13 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -97,6 +98,8 @@ namespace reco {
 
       edm::ESHandle<TrackerGeometry> theGeometry;
       edm::ESHandle<MagneticField> theMagField;
+      edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokenGeometry;
+      edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenMagField;
 
       TrackCandidate makeCandidate(const reco::Track &tk,
                                    std::vector<TrackingRecHit *>::iterator hitsBegin,
@@ -122,6 +125,8 @@ namespace reco {
       tokenTracks = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
       tokenTrajTrack =
           consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag"));
+      tokenGeometry = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+      tokenMagField = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
       LogDebug("CosmicTrackSplitter") << "sanity check";
 
@@ -148,8 +153,8 @@ namespace reco {
       iEvent.getByToken(tokenTrajTrack, m_TrajTracksMap);
 
       // read from EventSetup
-      iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
-      iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+      theGeometry = iSetup.getHandle(tokenGeometry);
+      theMagField = iSetup.getHandle(tokenMagField);
 
       // prepare output collection
       auto output = std::make_unique<TrackCandidateCollection>();
@@ -411,10 +416,9 @@ namespace reco {
 
 #ifdef EDM_ML_DEBUG
       LogDebug("CosmicTrackSplitter") << "   dumping the hits now: ";
-      for (TrackCandidate::range hitR = cand.recHits(); hitR.first != hitR.second; ++hitR.first) {
-        auto const &tmp = *hitR.first;
-        LogTrace("CosmicTrackSplitter") << "     hit detid = " << hitR.first->geographicalId().rawId()
-                                        << ", type  = " << typeid(tmp).name();
+      for (auto const &hit : cand.recHits()) {
+        LogTrace("CosmicTrackSplitter") << "     hit detid = " << hit.geographicalId().rawId()
+                                        << ", type  = " << typeid(hit).name();
       }
 #endif
 

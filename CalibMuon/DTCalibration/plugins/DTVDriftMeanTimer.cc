@@ -13,7 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include "CalibMuon/DTCalibration/interface/DTMeanTimerFitter.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"

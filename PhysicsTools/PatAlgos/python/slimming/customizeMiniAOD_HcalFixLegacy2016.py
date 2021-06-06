@@ -44,7 +44,7 @@ def loadJetMETBTag(process):
     process.load('RecoBTag.Configuration.RecoBTag_cff')
     task.add(process.btaggingTask)
 
-    process.load("RecoMET.METProducers.PFMET_cfi")
+    process.load("RecoMET.METProducers.pfMet_cfi")
     task.add(process.pfMet)
 
 

@@ -21,7 +21,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
@@ -51,7 +50,8 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   edm::ConsumesCollector iC = consumesCollector();
   theTrackFinder = std::make_unique<MuonTrackFinder>(
       std::make_unique<GlobalCosmicMuonTrajectoryBuilder>(tbpar, theService.get(), iC),
-      std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get()));
+      std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get()),
+      iC);
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();

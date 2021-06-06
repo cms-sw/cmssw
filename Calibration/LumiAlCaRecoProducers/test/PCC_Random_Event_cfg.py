@@ -66,7 +66,6 @@ process.siPixelDigisForLumi = cms.EDProducer("SiPixelRawToDigi",
     Regions = cms.PSet(
 
     ),
-    Timing = cms.untracked.bool(False),
     UsePhase1 = cms.bool(False),
     UsePilotBlade = cms.bool(False),
     UseQualityInfo = cms.bool(False),
@@ -110,11 +109,6 @@ process.pathALCARECOLumiPixels = cms.Path(process.seqALCARECOLumiPixels)
 process.ALCARECOStreamPromptCalibProdOutPath = cms.EndPath(process.ALCARECOStreamPromptCalibProdPCC)
 
 process.MessageLogger = cms.Service("MessageLogger",
-    FrameworkJobReport = cms.untracked.PSet(
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(10000000),
-            optionalPSet = cms.untracked.bool(True)
-        ),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -177,7 +171,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     errors = cms.untracked.PSet(
         placeholder = cms.untracked.bool(True)
     ),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport'),
     infos = cms.untracked.PSet(
         Root_NoDictionary = cms.untracked.PSet(
             limit = cms.untracked.int32(0),

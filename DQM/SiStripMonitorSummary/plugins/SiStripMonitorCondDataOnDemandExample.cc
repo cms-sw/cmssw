@@ -31,8 +31,9 @@
 //
 // ----- Constructor
 //
-SiStripMonitorCondDataOnDemandExample::SiStripMonitorCondDataOnDemandExample(edm::ParameterSet const &iConfig)
-    : conf_(iConfig) {}
+SiStripMonitorCondDataOnDemandExample::SiStripMonitorCondDataOnDemandExample(edm::ParameterSet const &iConfig) {
+  condDataMonitoring_ = std::make_unique<SiStripClassToMonitorCondData>(iConfig, consumesCollector());
+}
 // -----
 
 //
@@ -46,9 +47,7 @@ SiStripMonitorCondDataOnDemandExample::~SiStripMonitorCondDataOnDemandExample() 
 //
 void SiStripMonitorCondDataOnDemandExample::beginRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   eventCounter_ = 0;
-  condDataMonitoring_ = new SiStripClassToMonitorCondData(conf_);
   condDataMonitoring_->beginRun(run.run(), eSetup);
-
 }  // beginRun
 // -----
 
@@ -85,7 +84,7 @@ void SiStripMonitorCondDataOnDemandExample::analyze(edm::Event const &iEvent, ed
 // ----- endRun
 //
 void SiStripMonitorCondDataOnDemandExample::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  condDataMonitoring_->endRun(eSetup);
+  condDataMonitoring_->save();
 
 }  // endRun
 // -----

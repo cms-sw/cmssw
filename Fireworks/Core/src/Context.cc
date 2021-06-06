@@ -24,7 +24,7 @@
 #include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 using namespace fireworks;
 

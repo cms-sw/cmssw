@@ -22,8 +22,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "boost/math/special_functions/sign.hpp"
-
 #include <iomanip>
 
 namespace {
@@ -365,7 +363,8 @@ namespace {
           status = RangeStatus::underflow_notOK;
         }
       } else {
-        if (boost::math::sign(pcvalue) == boost::math::sign(trackvalue)) {
+        //Check if both numbers have same sign or both are zero.
+        if (pcvalue * trackvalue > 0 || pcvalue == trackvalue) {
           if (T::wouldBeDenorm(tmp)) {
             status = RangeStatus::denormal;
           } else {

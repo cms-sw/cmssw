@@ -40,18 +40,9 @@ private:
   std::optional<edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord>> ppToken_;
   std::optional<edm::ESGetToken<SiStripRecHitMatcher, TkStripCPERecord>> mpToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
-  std::optional<edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkStripCPERecord>> p2OTToken_;
+  std::optional<edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord>> p2OTToken_;
   bool const computeCoarseLocalPositionFromDisk_;
 };
-
-namespace {
-  template <typename T, typename R>
-  void setConsumes(edm::ESConsumesCollector& iCollector,
-                   std::optional<edm::ESGetToken<T, R>>& iToken,
-                   std::string const& iLabel) {
-    iToken = iCollector.consumesFrom<T, R>(edm::ESInputTag("", iLabel));
-  }
-}  // namespace
 
 using namespace edm;
 
@@ -59,26 +50,26 @@ TkTransientTrackingRecHitBuilderESProducer::TkTransientTrackingRecHitBuilderESPr
     : computeCoarseLocalPositionFromDisk_(p.getParameter<bool>("ComputeCoarseLocalPositionFromDisk")) {
   std::string const myname = p.getParameter<std::string>("ComponentName");
   auto c = setWhatProduced(this, myname);
-  c.setConsumes(geomToken_);
+  geomToken_ = c.consumes();
 
   std::string const sname = p.getParameter<std::string>("StripCPE");
   if (sname != "Fake") {
-    setConsumes(c, spToken_, sname);
+    spToken_ = c.consumes(edm::ESInputTag("", sname));
   }
 
   std::string const pname = p.getParameter<std::string>("PixelCPE");
   if (pname != "Fake") {
-    setConsumes(c, ppToken_, pname);
+    ppToken_ = c.consumes(edm::ESInputTag("", pname));
   }
 
   auto const mname = p.getParameter<std::string>("Matcher");
   if (mname != "Fake") {
-    setConsumes(c, mpToken_, mname);
+    mpToken_ = c.consumes(edm::ESInputTag("", mname));
   }
 
   auto const P2otname = p.getParameter<std::string>("Phase2StripCPE");
   if (!P2otname.empty()) {
-    setConsumes(c, p2OTToken_, P2otname);
+    p2OTToken_ = c.consumes(edm::ESInputTag("", P2otname));
   }
 }
 

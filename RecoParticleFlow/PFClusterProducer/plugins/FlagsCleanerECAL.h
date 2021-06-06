@@ -2,10 +2,11 @@
 #define __FlagsCleanerECAL_H__
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class FlagsCleanerECAL : public RecHitTopologicalCleanerBase {
 public:
-  FlagsCleanerECAL(const edm::ParameterSet& conf);
+  FlagsCleanerECAL(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
   FlagsCleanerECAL(const FlagsCleanerECAL&) = delete;
   FlagsCleanerECAL& operator=(const FlagsCleanerECAL&) = delete;
 

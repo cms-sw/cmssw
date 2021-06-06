@@ -9,6 +9,7 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetIdToModule.h"
 
+#include "tbb/concurrent_unordered_set.h"
 #include <fstream>
 #include <iostream>
 #include <regex>
@@ -64,6 +65,7 @@ private:
   std::unordered_map<unsigned, unsigned> wafer_to_module_;
   std::unordered_multimap<unsigned, unsigned> module_to_wafers_;
   std::unordered_map<unsigned, unsigned> links_per_module_;
+  mutable tbb::concurrent_unordered_set<unsigned> cache_missing_wafers_;
 
   // Disconnected modules and layers
   std::unordered_set<unsigned> disconnected_modules_;
@@ -111,6 +113,7 @@ HGCalTriggerGeometryV9Imp2::HGCalTriggerGeometryV9Imp2(const edm::ParameterSet& 
 void HGCalTriggerGeometryV9Imp2::reset() {
   wafer_to_module_.clear();
   module_to_wafers_.clear();
+  cache_missing_wafers_.clear();
 }
 
 void HGCalTriggerGeometryV9Imp2::initialize(const CaloGeometry* calo_geometry) {
@@ -268,13 +271,20 @@ unsigned HGCalTriggerGeometryV9Imp2::getModuleFromTriggerCell(const unsigned tri
       int waferu = trigger_cell_trig_id.waferU();
       int waferv = trigger_cell_trig_id.waferV();
       unsigned layer_with_offset = layerWithOffset(trigger_cell_id);
-      auto module_itr = wafer_to_module_.find(packLayerWaferId(layer_with_offset, waferu, waferv));
+      unsigned packed_wafer = packLayerWaferId(layer_with_offset, waferu, waferv);
+      auto module_itr = wafer_to_module_.find(packed_wafer);
       if (module_itr == wafer_to_module_.end()) {
-        throw cms::Exception("BadGeometry")
-            << trigger_cell_trig_id << "HGCalTriggerGeometry: Wafer (" << waferu << "," << waferv
-            << ") is not mapped to any trigger module. The module mapping should be modified. \n";
+        // return missing modules as disconnected (id=0)
+        module = 0;
+        auto insert_itr = cache_missing_wafers_.emplace(packed_wafer);
+        if (insert_itr.second) {
+          edm::LogWarning("HGCalTriggerGeometry")
+              << "Found missing wafer (layer=" << layer_with_offset << " u=" << waferu << " v=" << waferv
+              << ") in trigger modules mapping";
+        }
+      } else {
+        module = module_itr->second;
       }
-      module = module_itr->second;
     }
     module_id =
         HGCalDetId((ForwardSubdetector)subdet_old, zside, layer, tc_type, module, HGCalDetId::kHGCalCellMask).rawId();

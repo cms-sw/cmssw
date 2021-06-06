@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -102,7 +102,6 @@ private:
   uint16_t firstHeaderBit_;
   uint16_t firstTrailerBit_;
 
-  sistrip::SpyUtilities utility_;
   sistrip::SpyUtilities::FrameQuality frameQuality_;
 
   std::ofstream outfile_[20];
@@ -110,6 +109,12 @@ private:
   std::map<std::string, unsigned int> outfileMap_;
 
   bool writeCabling_;
+
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  const SiStripFedCabling* fedCabling_;
+  edm::ESWatcher<SiStripFedCablingRcd> cablingWatcher_;
+  void updateFedCabling(const SiStripFedCablingRcd& rcd);
 };
 
 using edm::LogError;
@@ -138,7 +143,10 @@ SiStripSpyMonitorModule::SiStripSpyMonitorModule(const edm::ParameterSet& iConfi
       firstHeaderBit_(0),
       firstTrailerBit_(0),
       outfileNames_(iConfig.getUntrackedParameter<std::vector<std::string> >("OutputErrors")),
-      writeCabling_(iConfig.getUntrackedParameter<bool>("WriteCabling", false)) {
+      writeCabling_(iConfig.getUntrackedParameter<bool>("WriteCabling", false)),
+      tkDetMapToken_(esConsumes<edm::Transition::BeginRun>()),
+      fedCablingToken_(esConsumes<>()),
+      cablingWatcher_(this, &SiStripSpyMonitorModule::updateFedCabling) {
   spyScopeRawDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(spyScopeRawDigisTag_);
   spyPedSubtrDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(spyPedSubtrDigisTag_);
 
@@ -177,6 +185,10 @@ SiStripSpyMonitorModule::~SiStripSpyMonitorModule() {
   outfileNames_.clear();
 }
 
+void SiStripSpyMonitorModule::updateFedCabling(const SiStripFedCablingRcd& rcd) {
+  fedCabling_ = &rcd.get(fedCablingToken_);
+}
+
 void SiStripSpyMonitorModule::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
   evt_ = 0;
   firstHeaderBit_ = 0;
@@ -191,10 +203,7 @@ void SiStripSpyMonitorModule::bookHistograms(DQMStore::IBooker& ibooker,
   LogInfo("SiStripSpyMonitorModule") << " Histograms will be written in " << folderName_
                                      << ". Current folder is : " << ibooker.pwd() << std::endl;
 
-  edm::ESHandle<TkDetMap> tkDetMapHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-  const TkDetMap* tkDetMap = tkDetMapHandle.product();
-
+  const auto tkDetMap = &eSetup.getData(tkDetMapToken_);
   //this propagates dqm_ to the histoclass, must be called !
   histManager_.bookTopLevelHistograms(ibooker, tkDetMap);
 
@@ -210,13 +219,13 @@ void SiStripSpyMonitorModule::bookHistograms(DQMStore::IBooker& ibooker,
 // ------------ method called to for each event  ------------
 void SiStripSpyMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //update cabling and pedestals
-  const SiStripFedCabling* lCabling = utility_.getCabling(iSetup);
+  cablingWatcher_.check(iSetup);
   if (evt_ == 0 && writeCabling_) {
     std::ofstream lOutCabling;
     lOutCabling.open("trackerDetId_FEDIdChNum_list.txt", std::ios::out);
     for (uint16_t lFedId = sistrip::FED_ID_MIN; lFedId <= sistrip::FED_ID_MAX; ++lFedId) {   //loop on feds
       for (uint16_t lFedChannel = 0; lFedChannel < sistrip::FEDCH_PER_FED; lFedChannel++) {  //loop on channels
-        const FedChannelConnection& lConnection = lCabling->fedConnection(lFedId, lFedChannel);
+        const FedChannelConnection& lConnection = fedCabling_->fedConnection(lFedId, lFedChannel);
         if (!lConnection.isConnected())
           continue;
         uint32_t lDetId = lConnection.detId();
@@ -321,7 +330,7 @@ void SiStripSpyMonitorModule::analyze(const edm::Event& iEvent, const edm::Event
 
       uint32_t lFedIndex = sistrip::FEDCH_PER_FED * lFedId + lFedChannel;
 
-      const FedChannelConnection& lConnection = lCabling->fedConnection(lFedId, lFedChannel);
+      const FedChannelConnection& lConnection = fedCabling_->fedConnection(lFedId, lFedChannel);
 
       if (!lConnection.isConnected())
         continue;

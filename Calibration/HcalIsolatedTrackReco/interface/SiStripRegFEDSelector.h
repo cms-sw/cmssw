@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -20,23 +19,22 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 
 class SiStripRegFEDSelector : public edm::EDProducer {
 public:
   SiStripRegFEDSelector(const edm::ParameterSet&);
   ~SiStripRegFEDSelector() override;
 
-  edm::ESHandle<SiStripRegionCabling> strip_cabling;
-
-  double delta_;
-
-  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
-
 private:
   void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
+
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
+  const edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  const edm::ESGetToken<SiStripRegionCabling, SiStripRegionCablingRcd> tok_strip_;
+  const double delta_;
 };
 
 #endif

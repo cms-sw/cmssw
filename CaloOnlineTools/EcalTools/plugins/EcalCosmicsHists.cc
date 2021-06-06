@@ -14,7 +14,7 @@
 #include "CaloOnlineTools/EcalTools/plugins/EcalCosmicsHists.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
@@ -1307,6 +1307,7 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
 std::vector<bool> EcalCosmicsHists::determineTriggers(const edm::Event& iEvent, const edm::EventSetup& eventSetup) {
   std::vector<bool> l1Triggers;  //DT,CSC,RPC,HCAL,ECAL
                                  //0 , 1 , 2 , 3  , 4
+  l1Triggers.reserve(5);
   for (int i = 0; i < 5; i++)
     l1Triggers.push_back(false);
 

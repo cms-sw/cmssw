@@ -14,7 +14,6 @@
 
 #include "TkDetUtil.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
-#include <boost/function.hpp>
 
 using namespace std;
 

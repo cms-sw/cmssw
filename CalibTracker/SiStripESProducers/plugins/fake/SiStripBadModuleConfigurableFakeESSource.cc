@@ -45,18 +45,17 @@ private:
   bool m_printDebug;
   bool m_doByAPVs;
   SiStripDetInfoFileReader m_detInfoFileReader;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackTopoToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackTopoToken_;
 
   std::vector<uint32_t> selectDetectors(const TrackerTopology* tTopo, const std::vector<uint32_t>& detIds) const;
   std::vector<std::pair<uint32_t, std::vector<uint32_t>>> selectAPVs() const;
 };
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-SiStripBadModuleConfigurableFakeESSource::SiStripBadModuleConfigurableFakeESSource(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this).setConsumes(trackTopoToken_);
+SiStripBadModuleConfigurableFakeESSource::SiStripBadModuleConfigurableFakeESSource(const edm::ParameterSet& iConfig)
+    : trackTopoToken_(setWhatProduced(this).consumes()) {
   findingRecord<SiStripBadModuleRcd>();
 
   m_badComponentList = iConfig.getUntrackedParameter<Parameters>("BadComponentList");
@@ -121,7 +120,7 @@ SiStripBadModuleConfigurableFakeESSource::ReturnType SiStripBadModuleConfigurabl
         << "[produce] number of selected dets to be removed " << selAPVs.size() << std::endl;
 
     std::stringstream ss;
-    for (const auto selId : selAPVs) {
+    for (const auto& selId : selAPVs) {
       SiStripQuality::InputVector theSiStripVector;
       auto the_detid = selId.first;
 

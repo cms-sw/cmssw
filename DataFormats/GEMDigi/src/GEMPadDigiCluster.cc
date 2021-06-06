@@ -1,13 +1,18 @@
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
 #include <iostream>
 
-GEMPadDigiCluster::GEMPadDigiCluster(std::vector<uint16_t> pads, int bx) : v_(pads), bx_(bx) {}
+GEMPadDigiCluster::GEMPadDigiCluster(std::vector<uint16_t> pads,
+                                     int16_t bx,
+                                     enum GEMSubDetId::Station station,
+                                     unsigned nPart)
+    : v_(pads), bx_(bx), station_(station), part_(nPart) {}
 
-GEMPadDigiCluster::GEMPadDigiCluster() : v_(std::vector<uint16_t>()), bx_(-99) {}
+GEMPadDigiCluster::GEMPadDigiCluster()
+    : v_(std::vector<uint16_t>()), bx_(-99), station_(GEMSubDetId::Station::GE11), part_(NumberPartitions::GE11) {}
 
 // Comparison
 bool GEMPadDigiCluster::operator==(const GEMPadDigiCluster& digi) const {
-  return v_ == digi.pads() and bx_ == digi.bx();
+  return v_ == digi.pads() and bx_ == digi.bx() and station_ == digi.station();
 }
 
 // Comparison
@@ -23,13 +28,23 @@ bool GEMPadDigiCluster::operator<(const GEMPadDigiCluster& digi) const {
     return digi.bx() < bx_;
 }
 
-bool GEMPadDigiCluster::isValid() const { return !v_.empty() and bx_ != -99; }
+bool GEMPadDigiCluster::isValid() const {
+  // empty clusters are always invalid
+  if (v_.empty())
+    return false;
+
+  uint16_t invalid = GE11InValid;
+  if (station_ == GEMSubDetId::Station::GE21) {
+    invalid = GE21InValid;
+  }
+  return v_[0] != invalid;
+}
 
 std::ostream& operator<<(std::ostream& o, const GEMPadDigiCluster& digi) {
-  o << " bx: " << digi.bx() << " pads: ";
+  o << " bx: " << digi.bx() << " pads: [";
   for (auto p : digi.pads())
     o << " " << p;
-  o << std::endl;
+  o << "]";
   return o;
 }
 

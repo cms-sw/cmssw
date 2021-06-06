@@ -17,40 +17,35 @@
 
 class TkDetMap;
 class TrackerTopology;
-namespace edm {
-  class EventSetup;
-}
+class SiStripQuality;
+class GeometricDet;
 
 class SiStripTrackerMapCreator {
 public:
   typedef dqm::harvesting::MonitorElement MonitorElement;
   typedef dqm::harvesting::DQMStore DQMStore;
 
-  SiStripTrackerMapCreator(edm::EventSetup const& eSetup);
+  SiStripTrackerMapCreator(const SiStripDetCabling* detCabling, const TkDetMap* tkDetMap, const TrackerTopology* tTopo);
   bool readConfiguration();
 
-  void create(edm::ParameterSet const& tkmapPset,
-              DQMStore& dqm_store,
-              std::string const& htype,
-              edm::EventSetup const& eSetup);
+  void create(edm::ParameterSet const& tkmapPset, DQMStore& dqm_store, std::string const& htype);
   void createForOffline(edm::ParameterSet const& tkmapPset,
                         DQMStore& dqm_store,
                         std::string& htype,
-                        edm::EventSetup const& eSetup);
-  void createInfoFile(std::vector<std::string> const& map_names, TTree* tkinfo_tree, DQMStore& dqm_store);
+                        const SiStripQuality*);
+  void createInfoFile(std::vector<std::string> const& map_names,
+                      TTree* tkinfo_tree,
+                      DQMStore& dqm_store,
+                      const GeometricDet* geomDet);
 
 private:
   void paintTkMapFromAlarm(uint32_t det_id,
-                           const TrackerTopology* tTopo,
                            DQMStore& dqm_store,
                            bool isBad,
                            std::map<unsigned int, std::string>& badmodmap);
-  void setTkMapFromHistogram(DQMStore& dqm_store, std::string const& htype, edm::EventSetup const& eSetup);
-  void setTkMapFromAlarm(DQMStore& dqm_store, edm::EventSetup const& eSetup);
-  uint16_t getDetectorFlagAndComment(DQMStore* dqm_store,
-                                     uint32_t det_id,
-                                     TrackerTopology const* tTopo,
-                                     std::ostringstream& comment);
+  void setTkMapFromHistogram(DQMStore& dqm_store, std::string const& htype);
+  void setTkMapFromAlarm(DQMStore& dqm_store, const SiStripQuality* stripQuality);
+  uint16_t getDetectorFlagAndComment(DQMStore* dqm_store, uint32_t det_id, std::ostringstream& comment);
 
   void paintTkMapFromHistogram(MonitorElement const* me,
                                std::string const& map_type,
@@ -60,8 +55,8 @@ private:
   uint16_t getDetectorFlag(uint32_t const det_id) {
     return detFlag_.find(det_id) != detFlag_.end() ? detFlag_[det_id] : 0;
   }
-  void printBadModuleList(std::map<unsigned int, std::string> const& badmodmap, edm::EventSetup const& eSetup);
-  void printTopModules(std::vector<std::pair<float, uint32_t>>& topNmodVec, edm::EventSetup const& eSetup);
+  void printBadModuleList(std::map<unsigned int, std::string> const& badmodmap);
+  void printTopModules(std::vector<std::pair<float, uint32_t>>& topNmodVec);
 
   std::unique_ptr<TrackerMap> trackerMap_{nullptr};
   std::string sRunNumber;
@@ -71,13 +66,11 @@ private:
   float tkMapMax_;
   float tkMapMin_;
   float meanToMaxFactor_{2.5};
-  bool useSSQuality_;
   bool ResidualsRMS_;
-  std::string ssqLabel_;
   int nDet_;
+  const SiStripDetCabling* detCabling_;
   TkDetMap const* tkDetMap_;
-  edm::EventSetup const& eSetup_;
-  edm::ESHandle<SiStripDetCabling> detCabling_;
+  const TrackerTopology* tTopo_;
   DetId cachedDetId_{};
   int16_t cachedLayer_{};
   std::map<uint32_t, uint16_t> detFlag_;

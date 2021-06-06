@@ -10,11 +10,11 @@
 //         Created:  Tue Sep 14 13:28:13 CEST 2010
 //
 
-#include <boost/bind.hpp>
+#include <functional>
 #include "TEveScene.h"
 #include "TEveManager.h"
 #include "TEveCompound.h"
-
+#include "TEveGeoShape.h"
 #include "Fireworks/Core/interface/FWViewGeometryList.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/Context.h"
@@ -31,9 +31,9 @@ FWViewGeometryList::FWViewGeometryList(const fireworks::Context& context, bool p
     m_colorComp[i]->CSCApplyMainTransparencyToMatchingChildren();
   }
   m_colorConnection =
-      context.colorManager()->geomColorsHaveChanged_.connect(boost::bind(&FWViewGeometryList::updateColors, this));
+      context.colorManager()->geomColorsHaveChanged_.connect(std::bind(&FWViewGeometryList::updateColors, this));
   m_transpConnection = context.colorManager()->geomTransparencyHaveChanged_.connect(
-      boost::bind(&FWViewGeometryList::updateTransparency, this, _1));
+      std::bind(&FWViewGeometryList::updateTransparency, this, std::placeholders::_1));
 }
 
 FWViewGeometryList::~FWViewGeometryList() {

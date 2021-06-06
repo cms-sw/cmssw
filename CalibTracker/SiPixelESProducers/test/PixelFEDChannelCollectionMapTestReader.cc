@@ -2,12 +2,9 @@
 #include <iostream>
 #include <map>
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "CalibTracker/Records/interface/SiPixelFEDChannelContainerESProducerRcd.h"
 
@@ -25,11 +22,15 @@ private:
   // ----------member data ---------------------------
   const bool printdebug_;
   const std::string formatedOutput_;
+  edm::ESGetToken<PixelFEDChannelCollectionMap, SiPixelFEDChannelContainerESProducerRcd>
+      pixelFEDChannelCollectionMapToken_;
 };
 
 PixelFEDChannelCollectionMapTestReader::PixelFEDChannelCollectionMapTestReader(edm::ParameterSet const& p)
     : printdebug_(p.getUntrackedParameter<bool>("printDebug", true)),
-      formatedOutput_(p.getUntrackedParameter<std::string>("outputFile", "")) {
+      formatedOutput_(p.getUntrackedParameter<std::string>("outputFile", "")),
+      pixelFEDChannelCollectionMapToken_(
+          esConsumes<PixelFEDChannelCollectionMap, SiPixelFEDChannelContainerESProducerRcd>()) {
   edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "PixelFEDChannelCollectionMapTestReader" << std::endl;
 }
 
@@ -53,11 +54,9 @@ void PixelFEDChannelCollectionMapTestReader::analyze(const edm::Event& e, const 
   }
 
   //this part gets the handle of the event source and the record (i.e. the Database)
-  edm::ESHandle<PixelFEDChannelCollectionMap> PixelFEDChannelCollectionMapHandle;
-  edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "got eshandle" << std::endl;
-
-  context.get<SiPixelFEDChannelContainerESProducerRcd>().get(PixelFEDChannelCollectionMapHandle);
-  edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "got context" << std::endl;
+  edm::ESHandle<PixelFEDChannelCollectionMap> PixelFEDChannelCollectionMapHandle =
+      context.getHandle(pixelFEDChannelCollectionMapToken_);
+  edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "got eshandle and context" << std::endl;
 
   const PixelFEDChannelCollectionMap* thePixelFEDChannelCollectionMap = PixelFEDChannelCollectionMapHandle.product();
   edm::LogInfo("PixelFEDChannelCollectionMapTestReader") << "got SiPixelFEDChannelContainer* " << std::endl;

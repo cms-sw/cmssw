@@ -2,7 +2,7 @@ import socket
 from CondCore.CondDB.CondDB_cfi import *
 '''Helper procedure that loads mva inputs from database'''
 
-CondDBTauConnection = CondDB.clone( connect = cms.string( 'frontier://FrontierProd/CMS_CONDITIONS' ) )
+CondDBTauConnection = CondDB.clone( connect = 'frontier://FrontierProd/CMS_CONDITIONS' )
 
 loadRecoTauTagMVAsFromPrepDB = cms.ESSource( "PoolDBESSource",
                                              CondDBTauConnection,
@@ -42,6 +42,9 @@ tauIdDiscrMVA_trainings_run2_2017 = {
     'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017",
     'tauIdMVAIsoDBnewDMwLT2017' : "tauIdMVAIsoDBnewDMwLT2017",
     'tauIdMVAIsoDBoldDMdR0p3wLT2017' : "tauIdMVAIsoDBoldDMdR0p3wLT2017",
+}
+tauIdDiscrMVA_trainings_phase2 = {
+    'tauIdMVAIsoPhase2_v1' : "tauIdMVAIsoPhase2",
 }
 tauIdDiscrMVA_WPs = {
     'tauIdMVAoldDMwoLT' : {
@@ -174,6 +177,17 @@ tauIdDiscrMVA_WPs_run2_2017 = {
         'Eff40' : "DBoldDMdR0p3wLTEff40"
     }
 }
+tauIdDiscrMVA_WPs_phase2 = {
+    'tauIdMVAIsoPhase2_v1' : {
+        'Eff95' : "Phase2Eff95",
+        'Eff90' : "Phase2Eff90",
+        'Eff80' : "Phase2Eff80",
+        'Eff70' : "Phase2Eff70",
+        'Eff60' : "Phase2Eff60",
+        'Eff50' : "Phase2Eff50",
+        'Eff40' : "Phase2Eff40"
+    }
+}
 tauIdDiscrMVA_mvaOutput_normalizations = {
     'tauIdMVAoldDMwoLT' : "mvaOutput_normalization_oldDMwoLT",
     'tauIdMVAoldDMwLT'  : "mvaOutput_normalization_oldDMwLT",
@@ -197,6 +211,10 @@ tauIdDiscrMVA_mvaOutput_normalizations_run2_2017 = {
     'tauIdMVAIsoDBnewDMwLT2017' : "mvaOutput_normalization",
     'tauIdMVAIsoDBoldDMdR0p3wLT2017' : "mvaOutput_normalization"
 }
+tauIdDiscrMVA_mvaOutput_normalizations_phase2 = {
+    'tauIdMVAIsoPhase2_v1' : "mvaOutput_normalization",
+}
+
 tauIdDiscrMVA_version = "v1"
 for training, gbrForestName in tauIdDiscrMVA_trainings.items():
     loadRecoTauTagMVAsFromPrepDB.toGet.append(
@@ -297,6 +315,31 @@ for ver2017 in tauIdDiscrMVA_2017_version:
 	    )
         )
 
+# MVAIso Phase2
+for training, gbrForestName in tauIdDiscrMVA_trainings_phase2.items():
+    loadRecoTauTagMVAsFromPrepDB.toGet.append(
+        cms.PSet(
+            record = cms.string('GBRWrapperRcd'),
+            tag = cms.string("RecoTauTag_%s" % (gbrForestName)),
+            label = cms.untracked.string("RecoTauTag_%s" % (training))
+        )
+    )
+    for WP in tauIdDiscrMVA_WPs_phase2[training].keys():
+        loadRecoTauTagMVAsFromPrepDB.toGet.append(
+            cms.PSet(
+                record = cms.string('PhysicsTGraphPayloadRcd'),
+                tag = cms.string("RecoTauTag_%s_WP%s" % (gbrForestName, WP)),
+                label = cms.untracked.string("RecoTauTag_%s_WP%s" % (training, WP))
+            )
+         )
+    loadRecoTauTagMVAsFromPrepDB.toGet.append(
+        cms.PSet(
+            record = cms.string('PhysicsTFormulaPayloadRcd'),
+            tag = cms.string("RecoTauTag_%s_mvaOutput_normalization" % (gbrForestName)),
+            label = cms.untracked.string("RecoTauTag_%s_mvaOutput_normalization" % (training))
+       )
+    )
+
 ####
 ## register anti-electron discriminator MVA
 # MVA5
@@ -386,7 +429,41 @@ for category, gbrForestName in antiElectronDiscrMVA6_categories.items():
                 label = cms.untracked.string("RecoTauTag_antiElectronMVA6%s_%s_WP%s" % (antiElectronDiscrMVA6_2017_version, gbrForestName, WP))
             )
         )
-    
+
+# MVA6 phase2
+antiElectronDiscrMVA_phase2_categories = {
+     '0' : "gbr_NoEleMatch_woGwoGSF_BL",
+     '2' : "gbr_NoEleMatch_wGwoGSF_BL",
+     '5' : "gbr_woGwGSF_BL",
+     '7' : "gbr_wGwGSF_BL",
+     '8' : "gbr_NoEleMatch_woGwoGSF_FWEC",
+     '9' : "gbr_NoEleMatch_woGwoGSF_VFWEC",
+    '10' : "gbr_NoEleMatch_wGwoGSF_FWEC",
+    '11' : "gbr_NoEleMatch_wGwoGSF_VFWEC",
+    '13' : "gbr_woGwGSF_FWEC",
+    '14' : "gbr_woGwGSF_VFWEC",
+    '15' : "gbr_wGwGSF_FWEC",
+    '16' : "gbr_wGwGSF_VFWEC"
+}
+antiElectronDiscrMVA_phase2_WPs = [ "Eff98", "Eff90", "Eff80", "Eff70", "Eff60" ]
+antiElectronDiscrMVA_phase2_version = "v1"
+for category, gbrForestName in antiElectronDiscrMVA_phase2_categories.items():
+    loadRecoTauTagMVAsFromPrepDB.toGet.append(
+        cms.PSet(
+            record = cms.string('GBRWrapperRcd'),
+            tag = cms.string("RecoTauTag_antiElectronPhase2MVA6%s_%s" % (antiElectronDiscrMVA_phase2_version, gbrForestName)),
+            label = cms.untracked.string("RecoTauTag_antiElectronPhase2MVA6%s_%s" % (antiElectronDiscrMVA_phase2_version, gbrForestName))
+        )
+    )
+    for WP in antiElectronDiscrMVA_phase2_WPs:
+        loadRecoTauTagMVAsFromPrepDB.toGet.append(
+            cms.PSet(
+                record = cms.string('PhysicsTGraphPayloadRcd'),
+                tag = cms.string("RecoTauTag_antiElectronPhase2MVA6%s_%s_WP%s" % (antiElectronDiscrMVA_phase2_version, gbrForestName, WP)),
+                label = cms.untracked.string("RecoTauTag_antiElectronPhase2MVA6%s_%s_WP%s" % (antiElectronDiscrMVA_phase2_version, gbrForestName, WP))
+            )
+        )
+
 ####
 # register anti-muon discriminator MVA
 antiMuonDiscrMVA_WPs = [ "eff99_5", "eff99_0", "eff98_0" ]

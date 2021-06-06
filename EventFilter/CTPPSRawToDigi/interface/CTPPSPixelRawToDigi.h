@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
@@ -33,6 +34,8 @@ private:
   edm::ParameterSet config_;
 
   edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
+
+  edm::ESGetToken<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd> CTPPSPixelDAQMapping_;
 
   std::set<unsigned int> fedIds_;
 

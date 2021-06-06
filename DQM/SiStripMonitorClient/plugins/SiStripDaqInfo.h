@@ -23,11 +23,16 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -37,6 +42,7 @@
 
 class SiStripFedCabling;
 class TrackerTopology;
+class RunInfo;
 
 class SiStripDaqInfo : public edm::EDAnalyzer {
 public:
@@ -49,7 +55,7 @@ private:
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
-  void readFedIds(edm::ESHandle<SiStripFedCabling> const& fedcabling, edm::EventSetup const& iSetup);
+  void readFedIds(const SiStripFedCabling* fedcabling, edm::EventSetup const& iSetup);
   void readSubdetFedFractions(DQMStore& dqm_store, std::vector<int> const& fed_ids, edm::EventSetup const& iSetup);
   void bookStatus(DQMStore& dqm_store);
   void fillDummyStatus(DQMStore& dqm_store);
@@ -66,10 +72,13 @@ private:
 
   std::map<std::string, SubDetMEs> subDetMEsMap_;
 
-  unsigned long long m_cacheID_{};
   int nFedTotal_{};
   bool bookedStatus_{false};
 
-  edm::ESHandle<SiStripFedCabling> fedCabling_;
+  const SiStripFedCabling* fedCabling_;
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 };
 #endif
