@@ -24,13 +24,16 @@ void storeTracks(Ev& ev, const TWH& tracksWithHits, const TrackerTopology& ttopo
 
   int cc = 0, nTracks = tracksWithHits.size();
 
+  trackExtras->resize(nTracks);
+  tracks->reserve(nTracks);
+  recHits->reserve(4 * nTracks);
+
   for (int i = 0; i < nTracks; i++) {
     reco::Track* track = tracksWithHits[i].first;
     const auto& hits = tracksWithHits[i].second;
 
     for (unsigned int k = 0; k < hits.size(); k++) {
-      auto* hit = hits[k]->clone();
-
+      auto* hit = hits[k]->clone();  // need to clone (at least if from SoA)
       track->appendHitPattern(*hit, ttopo);
       recHits->push_back(hit);
     }
@@ -44,17 +47,16 @@ void storeTracks(Ev& ev, const TWH& tracksWithHits, const TrackerTopology& ttopo
 
   edm::RefProd<TrackingRecHitCollection> hitCollProd(ohRH);
   for (int k = 0; k < nTracks; k++) {
-    reco::TrackExtra theTrackExtra{};
+    auto& aTrackExtra = (*trackExtras)[k];
 
     //fill the TrackExtra with TrackingRecHitRef
-    unsigned int nHits = tracks->at(k).numberOfValidHits();
-    theTrackExtra.setHits(hitCollProd, cc, nHits);
+    unsigned int nHits = (*tracks)[k].numberOfValidHits();
+    aTrackExtra.setHits(hitCollProd, cc, nHits);
     cc += nHits;
     AlgebraicVector5 v = AlgebraicVector5(0, 0, 0, 0, 0);
     reco::TrackExtra::TrajParams trajParams(nHits, LocalTrajectoryParameters(v, 1.));
     reco::TrackExtra::Chi2sFive chi2s(nHits, 0);
-    theTrackExtra.setTrajParams(std::move(trajParams), std::move(chi2s));
-    trackExtras->push_back(theTrackExtra);
+    aTrackExtra.setTrajParams(std::move(trajParams), std::move(chi2s));
   }
 
   LogDebug("TrackProducer") << "put the collection of TrackExtra in the event"
@@ -63,7 +65,7 @@ void storeTracks(Ev& ev, const TWH& tracksWithHits, const TrackerTopology& ttopo
 
   for (int k = 0; k < nTracks; k++) {
     const reco::TrackExtraRef theTrackExtraRef(ohTE, k);
-    (tracks->at(k)).setExtra(theTrackExtraRef);
+    (*tracks)[k].setExtra(theTrackExtraRef);
   }
 
   ev.put(std::move(tracks));
