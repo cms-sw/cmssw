@@ -17,6 +17,7 @@ namespace cAHitNtupletGenerator {
     unsigned long long nCells;
     unsigned long long nTuples;
     unsigned long long nFitTracks;
+    unsigned long long nLooseTracks;
     unsigned long long nGoodTracks;
     unsigned long long nUsedHits;
     unsigned long long nDupHits;
@@ -51,7 +52,7 @@ namespace cAHitNtupletGenerator {
     Region quadruplet;
   };
 
-  // params
+  // params (FIXME: thi si a POD: so no constructor no traling _  and no const as params_ is already const)
   struct Params {
     Params(bool onGPU,
            uint32_t minHitsPerNtuplet,
@@ -68,6 +69,8 @@ namespace cAHitNtupletGenerator {
            bool doZ0Cut,
            bool doPtCut,
            bool doSharedHitCut,
+           bool dupPassThrough,
+           bool useSimpleTripletCleaner,
            float ptmin,
            float CAThetaCutBarrel,
            float CAThetaCutForward,
@@ -91,6 +94,8 @@ namespace cAHitNtupletGenerator {
           doZ0Cut_(doZ0Cut),
           doPtCut_(doPtCut),
           doSharedHitCut_(doSharedHitCut),
+          dupPassThrough_(dupPassThrough),
+          useSimpleTripletCleaner_(useSimpleTripletCleaner),
           ptmin_(ptmin),
           CAThetaCutBarrel_(CAThetaCutBarrel),
           CAThetaCutForward_(CAThetaCutForward),
@@ -114,6 +119,8 @@ namespace cAHitNtupletGenerator {
     const bool doZ0Cut_;
     const bool doPtCut_;
     const bool doSharedHitCut_;
+    const bool dupPassThrough_;
+    const bool useSimpleTripletCleaner_;
     const float ptmin_;
     const float CAThetaCutBarrel_;
     const float CAThetaCutForward_;

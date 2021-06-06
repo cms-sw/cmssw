@@ -71,6 +71,8 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
                cfg.getParameter<bool>("doZ0Cut"),
                cfg.getParameter<bool>("doPtCut"),
                cfg.getParameter<bool>("doSharedHitCut"),
+               cfg.getParameter<bool>("dupPassThrough"),
+               cfg.getParameter<bool>("useSimpleTripletCleaner"),
                cfg.getParameter<double>("ptmin"),
                cfg.getParameter<double>("CAThetaCutBarrel"),
                cfg.getParameter<double>("CAThetaCutForward"),
@@ -154,6 +156,8 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
   desc.add<bool>("doPtCut", true);
   desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
   desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
+  desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
+  desc.add<bool>("useSimpleTripletCleaner", false)->setComment("use alternate implementation");
 
   edm::ParameterSetDescription trackQualityCuts;
   trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
