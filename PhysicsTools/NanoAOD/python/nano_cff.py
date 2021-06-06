@@ -7,6 +7,7 @@ from PhysicsTools.NanoAOD.muons_cff import *
 from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.NanoAOD.boostedTaus_cff import *
 from PhysicsTools.NanoAOD.electrons_cff import *
+from PhysicsTools.NanoAOD.lowPtElectrons_cff import *
 from PhysicsTools.NanoAOD.photons_cff import *
 from PhysicsTools.NanoAOD.globals_cff import *
 from PhysicsTools.NanoAOD.extraflags_cff import *
@@ -106,10 +107,10 @@ l1bits=cms.EDProducer("L1TriggerResultsConverter", src=cms.InputTag("gtStage2Dig
 (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(l1bits, storeUnprefireableBit=False)
 
 nanoSequenceCommon = cms.Sequence(
-        nanoMetadata + jetSequence + muonSequence + tauSequence + boostedTauSequence + electronSequence+photonSequence+vertexSequence+
+        nanoMetadata + jetSequence + muonSequence + tauSequence + boostedTauSequence + electronSequence + lowPtElectronSequence + photonSequence+vertexSequence+
         isoTrackSequence + jetLepSequence + # must be after all the leptons
         linkedObjects  +
-        jetTables + muonTables + tauTables + boostedTauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + isoTrackTables
+        jetTables + muonTables + tauTables + boostedTauTables + electronTables + lowPtElectronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + isoTrackTables
         )
 #remove boosted tau from previous eras
 (run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toReplaceWith(nanoSequenceCommon, nanoSequenceCommon.copyAndExclude([boostedTauSequence, boostedTauTables]))
@@ -119,7 +120,7 @@ nanoSequenceOnlyData = cms.Sequence(protonTables + lhcInfoTable)
 
 nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyData + nanoSequenceOnlyFullSim)
 
-nanoSequenceFS = cms.Sequence(genParticleSequence + genVertexTables + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + photonMC + tauMC + boostedTauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genVertexTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
+nanoSequenceFS = cms.Sequence(genParticleSequence + genVertexTables + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + lowPtElectronMC + photonMC + tauMC + boostedTauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genVertexTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
 (run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
     run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
