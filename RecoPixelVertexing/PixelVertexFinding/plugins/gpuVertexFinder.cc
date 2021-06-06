@@ -1,6 +1,3 @@
-#ifndef RecoPixelVertexing_PixelVertexFinding_plugins_gpuVertexFinderImpl_h
-#define RecoPixelVertexing_PixelVertexFinding_plugins_gpuVertexFinderImpl_h
-
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include "gpuClusterTracksByDensity.h"
@@ -39,7 +36,7 @@ namespace gpuVertexFinder {
 
       if (nHits < 4)
         continue;  // no triplets
-      if (quality[idx] != pixelTrack::Quality::loose)
+      if (quality[idx] < pixelTrack::Quality::highPurity)
         continue;
 
       auto pt = tracks.pt(idx);
@@ -188,5 +185,3 @@ namespace gpuVertexFinder {
   }
 
 }  // namespace gpuVertexFinder
-
-#endif  // RecoPixelVertexing_PixelVertexFinding_plugins_gpuVertexFinderImpl_h

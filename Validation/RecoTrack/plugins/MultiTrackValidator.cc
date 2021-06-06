@@ -1033,13 +1033,16 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
       size_t n_selTrack_dr = 0;
 
       //calculate dR for tracks
+      declareDynArray(float, trackCollection.size(), dR_trk);
+      declareDynArray(float, trackCollection.size(), dR_trk_jet);
+#ifndef NO_TRACK_DR
+      // this accounts for most of the time spent in MTV and it is used to fill just one histo that is of doubtful usefulness but (maybe) for the whole collection
       const edm::View<Track>* trackCollectionDr = &trackCollection;
       if (calculateDrSingleCollection_) {
         trackCollectionDr = trackCollectionForDrCalculation.product();
       }
-      declareDynArray(float, trackCollection.size(), dR_trk);
-      declareDynArray(float, trackCollection.size(), dR_trk_jet);
       trackDR(trackCollection, *trackCollectionDr, dR_trk, dR_trk_jet, coresVector);
+#endif
 
       for (View<Track>::size_type i = 0; i < trackCollection.size(); ++i) {
         auto track = trackCollection.refAt(i);
