@@ -35,6 +35,7 @@ namespace {
 
   constexpr uint16_t tkNotFound = std::numeric_limits<uint16_t>::max();
   constexpr float maxScore = std::numeric_limits<float>::max();
+  constexpr float nSigma2 = 25.f;
 
 }  // namespace
 
@@ -224,10 +225,10 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
 #endif
         auto opj = tracks->stateAtBS.state(jt)(2);
         auto ctj = tracks->stateAtBS.state(jt)(3);
-        auto dct = 25.f * (tracks->stateAtBS.covariance(jt)(12) + e2cti);
+        auto dct = nSigma2 * (tracks->stateAtBS.covariance(jt)(12) + e2cti);
         if ((cti - ctj) * (cti - ctj) > dct)
           continue;
-        auto dop = 25.f * (tracks->stateAtBS.covariance(jt)(9) + e2opi);
+        auto dop = nSigma2 * (tracks->stateAtBS.covariance(jt)(9) + e2opi);
         if ((opi - opj) * (opi - opj) > dop)
           continue;
         if ((qj < qi) || (qj == qi && score(it) < score(jt)))
@@ -424,10 +425,6 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
       continue;
 
     assert(quality[it] == pixelTrack::Quality::bad);
-
-    // FIXME remove....
-    if (quality[it] != pixelTrack::Quality::bad)
-      printf("big mess\n");
 
     // mark doublets as bad
     if (nhits < 3)
@@ -660,10 +657,10 @@ __global__ void kernel_rejectDuplicate(TrackingRecHit2DSOAView const *__restrict
           continue;
         auto opj = tracks.stateAtBS.state(jt)(2);
         auto ctj = tracks.stateAtBS.state(jt)(3);
-        auto dct = 25.f * (tracks.stateAtBS.covariance(jt)(12) + e2cti);
+        auto dct = nSigma2 * (tracks.stateAtBS.covariance(jt)(12) + e2cti);
         if ((cti - ctj) * (cti - ctj) > dct)
           continue;
-        auto dop = 25.f * (tracks.stateAtBS.covariance(jt)(9) + e2opi);
+        auto dop = nSigma2 * (tracks.stateAtBS.covariance(jt)(9) + e2opi);
         if ((opi - opj) * (opi - opj) > dop)
           continue;
         auto nhj = foundNtuplets.size(jt);
