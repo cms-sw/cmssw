@@ -10,9 +10,18 @@ public:
 
   using MonitorMap = std::unordered_map<uint32_t, dqm::reco::MonitorElement*>;
 
-  // hardcode 4 BPix layers
   int nlay;
-  int nModules_[4];
+  std::vector<int> nModules_;
+  std::vector<std::string> BPixnewmodulename_;
+  std::vector<int> BPixnewDetIds_;
+  std::vector<int> BPixnewModule_;
+  std::vector<int> BPixnewLayer_;
+
+  std::vector<std::string> FPixnewmodulename_;
+  std::vector<int> FPixnewDetIds_;
+  std::vector<int> FPixnewDisk_;
+  std::vector<int> FPixnewBlade_;
+  std::unordered_map<uint32_t, std::vector<uint32_t> > detIdsList;
 
   MonitorMap h_drift_depth_adc_;
   MonitorMap h_drift_depth_adc2_;
