@@ -28,6 +28,8 @@ class SensitiveDetectorMakerBase {
 public:
   explicit SensitiveDetectorMakerBase(){};
   virtual ~SensitiveDetectorMakerBase(){};
+  SensitiveDetectorMakerBase(const SensitiveDetectorMakerBase&) = delete;
+  const SensitiveDetectorMakerBase& operator=(const SensitiveDetectorMakerBase&) = delete;
 
   // ---------- const member functions ---------------------
   virtual SensitiveDetector* make(const std::string& iname,
@@ -36,10 +38,6 @@ public:
                                   const edm::ParameterSet& p,
                                   const SimTrackManager* man,
                                   SimActivityRegistry& reg) const = 0;
-
-private:
-  SensitiveDetectorMakerBase(const SensitiveDetectorMakerBase&) = delete;
-  const SensitiveDetectorMakerBase& operator=(const SensitiveDetectorMakerBase&) = delete;
 };
 
 #endif
