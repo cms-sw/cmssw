@@ -62,7 +62,6 @@ static void createWatchers(const edm::ParameterSet &iP,
 GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
     : m_kernel(nullptr),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
-      m_attach(nullptr),
       m_p(p),
       m_pDD(nullptr),
       m_pDD4hep(nullptr),
@@ -79,10 +78,7 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
   produces<int>();
 }
 
-GeometryProducer::~GeometryProducer() {
-  delete m_attach;
-  delete m_kernel;
-}
+GeometryProducer::~GeometryProducer() { delete m_kernel; }
 
 void GeometryProducer::updateMagneticField(edm::EventSetup const &es) {
   if (m_pUseMagneticField) {
@@ -148,11 +144,9 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
     edm::LogInfo("GeometryProducer") << " instantiating sensitive detectors ";
     // instantiate and attach the sensitive detectors
     m_trackManager = std::make_unique<SimTrackManager>();
-    if (m_attach == nullptr)
-      m_attach = new AttachSD;
     {
       std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *>> sensDets =
-          m_attach->create(es, catalog, m_p, m_trackManager.get(), m_registry);
+          sim::attachSD(es, catalog, m_p, m_trackManager.get(), m_registry);
 
       m_sensTkDets.swap(sensDets.first);
       m_sensCaloDets.swap(sensDets.second);
