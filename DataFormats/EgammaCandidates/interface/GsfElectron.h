@@ -862,9 +862,9 @@ class GsfElectron : public RecoCandidate
     //bool isMomentumCorrected() const { return corrections_.isMomentumCorrected ; }
     float caloEnergy() const { return correctedEcalEnergy() ; }
     bool isEnergyScaleCorrected() const { return isEcalEnergyCorrected() ; }
-    void correctEcalEnergy(float newEnergy, float newEnergyError, bool rescaleDependentValues = true)
+    void correctEcalEnergy(float newEnergy, float newEnergyError, bool corrEovP = true)
      {
-      setCorrectedEcalEnergy(newEnergy,rescaleDependentValues) ;
+      setCorrectedEcalEnergy(newEnergy, corrEovP) ;
       setEcalEnergyError(newEnergyError) ;
      }
     void correctMomentum( const LorentzVector & p4, float trackMomentumError, float p4Error )
