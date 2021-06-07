@@ -36,8 +36,8 @@
 //
 //             For plotting on the same canvas plots with different
 //             prefixes residing in the same file with approrprate text
-//   PlotTwoHists(infile, prefix1, text1, prefix2, text2, text0, type, iname,
-//                lumi, ener, drawStatBox, save);
+//  PlotTwoHists(infile, prefix1, text1, prefix2, text2, text0, type, iname,
+//               lumi, ener, drawStatBox, save);
 //      Defaults: type=0; iname=2; lumi=0; ener=13; drawStatBox=true;
 //                save=0;
 //      Note prefixN, textN have the same meaning as prefix and text for set N
@@ -46,8 +46,8 @@
 //               =1 plots MPV of response vs RBX #
 //
 //             For plotting stored histograms from CalibTree
-//   PlotFiveHists(infile, text0, prefix0, type, iname, drawStatBox, normalize,
-//                 save, prefix1, text1, prefix2, text2, prefix3, text3,
+//  PlotFiveHists(infile, text0, prefix0, type, iname, drawStatBox, normalize,
+//                save, prefix1, text1, prefix2, text2, prefix3, text3,
 //                 prefix4, text4, prefix5, text5);
 //      Defaults: type=0; iname=0; drawStatBox=true; normalize=false;
 //                save=0; prefixN=""; textN=""; (for N > 0)
@@ -1222,6 +1222,7 @@ void PlotHistEta(const char* infile,
     int eta = (k > numb2) ? (k - numb2) : (k - numb2 - 1);
     sprintf(name, "%s%s%d%d", prefix.c_str(), name0.c_str(), iene, k);
     TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
+    std::cout << name << " at " << hist1 << std::endl;
     if (hist1 != nullptr) {
       TH1D* hist = (TH1D*)(hist1->Clone());
       double ymin(0.90);
@@ -1928,8 +1929,8 @@ void PlotHistCorrFactor(char* infile,
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
   }
-  int colors[6] = {1, 6, 4, 7, 2, 9};
-  int mtype[6] = {20, 21, 22, 23, 24, 33};
+  int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+  int mtype[7] = {20, 21, 22, 23, 24, 33, 25};
   int nbin = etamax - etamin + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
