@@ -78,7 +78,7 @@ _mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
 
 from Configuration.Eras.Modifier_bParking_cff import bParking
 _bParking_slimmingTask = cms.Task(slimmingTask.copy(),packedCandidateToGenAssociationTask)
-bParking.roReplaceWith(slimmingTask,_bParking_slimmingTask)
+bParking.toReplaceWith(slimmingTask,_bParking_slimmingTask)
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
