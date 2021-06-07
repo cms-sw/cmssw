@@ -49,7 +49,7 @@ SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps)
   dqm_tag_.push_back("IsoMuon0T");   // statistic collection from Isolated Muon @ 0 T
   dqm_tag_.push_back("Harvest");     // statistic collection: Harvest
 
-  tTopoToken_ = esConsumes<edm::Transition::BeginRun>();
+  tTopoToken_ = esConsumes<edm::Transition::EndRun>();
   tkGeomToken_ = esConsumes<edm::Transition::BeginRun>();
   gainToken_ = esConsumes<edm::Transition::BeginRun>();
   qualityToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -62,7 +62,6 @@ void SiStripGainsPCLHarvester::beginRun(edm::Run const& run, const edm::EventSet
   static constexpr float defaultGainTick = 690. / 640.;
 
   this->checkBookAPVColls(iSetup);  // check whether APV colls are booked and do so if not yet done
-  this->checkAndRetrieveTopology(iSetup);
 
   const auto gainHandle = iSetup.getHandle(gainToken_);
   if (!gainHandle.isValid()) {
@@ -257,7 +256,7 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
       continue;  // avoid to loop over Pixel det id
 
     if (Gain != 1.) {
-      std::vector<MonitorElement*> charge_histos = APVGain::FetchMonitor(new_charge_histos, DetId, tTopo_);
+      std::vector<MonitorElement*> charge_histos = APVGain::FetchMonitor(new_charge_histos, DetId, tTopo_.get());
 
       if (!Charge_Vs_Index)
         continue;
@@ -616,12 +615,6 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
   bareTkGeomPtr_ = newBareTkGeomPtr;
 }
 
-void SiStripGainsPCLHarvester::checkAndRetrieveTopology(const edm::EventSetup& setup) {
-  if (!tTopo_) {
-    tTopo_ = &setup.getData(tTopoToken_);
-  }
-}
-
 //********************************************************************************//
 bool SiStripGainsPCLHarvester::produceTagFilter(const MonitorElement* Charge_Vs_Index) {
   // The goal of this function is to check wether or not there is enough statistics
@@ -705,4 +698,8 @@ void SiStripGainsPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& 
 }
 
 //********************************************************************************//
-void SiStripGainsPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const& isetup) {}
+void SiStripGainsPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const& isetup) {
+  if (!tTopo_) {
+    tTopo_ = std::make_unique<TrackerTopology>(isetup.getData(tTopoToken_));
+  }
+}
