@@ -38,7 +38,6 @@ slimmingTask = cms.Task(
     offlineSlimmedPrimaryVertices,
     primaryVertexAssociation,
     genParticlesTask,
-    packedCandidateToGenAssociationTask,
     selectedPatTrigger,
     slimmedPatTrigger,
     slimmedCaloJets,
@@ -76,6 +75,10 @@ from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_
 _mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
 (pp_on_AA_2018 | _mAOD).toReplaceWith(slimmingTask,
                                       slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
+
+from Configuration.Eras.Modifier_bParking_cff import bParking
+_bParking_slimmingTask = cms.Task(slimmingTask.copy(),packedCandidateToGenAssociationTask)
+bParking.roReplaceWith(slimmingTask,_bParking_slimmingTask)
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
