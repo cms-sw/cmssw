@@ -7,7 +7,7 @@ from PhysicsTools.NanoAOD.common_cff import *
 ################################################################################
 
 from RecoEgamma.EgammaTools.lowPtElectronModifier_cfi import lowPtElectronModifier
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtRegressionModifier
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cff import lowPtRegressionModifier
 modifiedLowPtElectrons = cms.EDProducer(
     "ModifiedElectronProducer",
     src = cms.InputTag("slimmedLowPtElectrons"),
