@@ -126,9 +126,14 @@ void HLTExoticaPlotter::analyze(const bool &isPassTrigger,
     totalobjectssize++;
   totalobjectssize *= countobjects.size();
   // Fill the histos if pass the trigger (just the two with higher pt)
+  unsigned int jaux = 0;
+  // jaux is being used as a dedicated counter to avoid getting
+  // a non-existent element inside dxys
+  // more information in the issue https://github.com/cms-sw/cmssw/issues/32550
   for (size_t j = 0; j < matches.size(); ++j) {
     // Is this object owned by this trigger? If not we are not interested...
     if (_objectsType.find(matches[j].pdgId()) == _objectsType.end()) {
+      ++jaux;
       continue;
     }
 
@@ -149,8 +154,10 @@ void HLTExoticaPlotter::analyze(const bool &isPassTrigger,
     }
 
     if (!dxys.empty() &&
-        (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON || objType == EVTColContainer::MUTRK))
-      this->fillHist(isPassTrigger, source, objTypeStr, "Dxy", dxys[j]);
+        (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON || objType == EVTColContainer::MUTRK)){
+      this->fillHist(isPassTrigger, source, objTypeStr, "Dxy", dxys[jaux]);
+      ++jaux;
+    }
 
     if (countobjects[objType] == 0) {
       if (!(TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT")) || source != "gen") {
