@@ -105,13 +105,11 @@ theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
 
 from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
-(run3_ecalclustering | phase2_hgcal).toModify( theDigitizersValid,
-                       calotruth = cms.PSet( caloParticles ) )
-(premix_stage2 & phase2_hgcal).toModify(theDigitizersValid, calotruth = dict(premixStage1 = True))
+run3_ecalclustering.toModify( theDigitizersValid, 
+                              calotruth = cms.PSet( caloParticles ) )
 
 phase2_timing.toModify( theDigitizersValid.mergedtruth,
                         createInitialVertexCollection = cms.bool(True) )
-
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 def _customizePremixStage1(mod):
