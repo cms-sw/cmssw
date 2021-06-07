@@ -17,6 +17,10 @@ fastSim.toModify(slimmedMuonTrackExtras, outputClusters = False)
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(slimmedMuonTrackExtras, outputClusters = False)
 
+# lower minimum pt for B-parking
+from Configuration.Eras.Modifier_bParking_cff import bParking
+bParking.toModify(slimmedMuonTrackExtras, cut = "pt > 3.0")
+
 # full set of track extras not available in existing AOD
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
