@@ -23,7 +23,6 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset,
   dTanPsi_correlate_TP_ = pset.getUntrackedParameter<double>("dTanPsi_correlate_TP");
   minx_match_2digis_ = pset.getUntrackedParameter<double>("minx_match_2digis");
   chi2corTh_ = pset.getUntrackedParameter<double>("chi2corTh");
-  // cmssw_for_global_ = pset.getUntrackedParameter<bool>("cmssw_for_global");
   geometry_tag_ = pset.getUntrackedParameter<std::string>("geometry_tag");
 
   if (debug_)
@@ -269,7 +268,6 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             double phiB = -999.;
             double phi_cmssw  = -999.;
             double phiB_cmssw = -999.;
-            // if (cmssw_for_global_) {
 	    double z = 0;
 	    if (ChId.station() >= 3)
 	      z = Z_SHIFT_MB4;
@@ -283,11 +281,10 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 	    phi_cmssw = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
 	    double psi = atan(NewSlope);
 	    phiB_cmssw = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi_cmssw : -psi - phi_cmssw;
-	    //} else {
+
 	    auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), 0, pos, tanpsi);
 	    phi = global_coords[0];
 	    phiB = global_coords[1];
-            // }
 
             if (!clean_chi2_correlation_)
               outMPaths.emplace_back(ChId.rawId(),
