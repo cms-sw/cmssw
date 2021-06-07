@@ -699,7 +699,7 @@ subjetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 ### Era dependent customization
 run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
-
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify( fatJetMCTable.variables, genJetAK8Idx = Var("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().key():-1", int, doc="index of matched gen AK8 jet"))
 from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
 qgtagger=QGTagger.clone(srcJets="updatedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
 
