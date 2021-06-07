@@ -184,9 +184,9 @@ int CSCUpgradeAnodeLCTProcessor::getTempALCTQuality(int temp_quality) const {
   // Quality definition changed on 22 June 2007: it no longer depends
   // on pattern_thresh.
   int Q;
-  // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
+  // hack to run the Phase-II GE2/1-ME2/1 with 3-layer ALCTs
   if (temp_quality == 3 and runPhase2_ and runME21ILT_ and isME21_)
-    Q = 4;
+    Q = 1;
   else if (temp_quality > 3)
     Q = temp_quality - 3;
   else
