@@ -72,6 +72,8 @@ recoPFJetsHIpostAODTask = cms.Task(
 
 from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets,ak4PFJetsCHS
+ak4PFJets.src = "pfEmptyCollection"
+ak4PFJetsCHS.src = "pfEmptyCollection"
 _recoPFJetsHIpostAODTask = recoPFJetsHIpostAODTask.copy()
 _recoPFJetsHIpostAODTask.add(ak4PFJets,ak4PFJetsCHS)
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(recoPFJetsHIpostAODTask, _recoPFJetsHIpostAODTask)
