@@ -6,14 +6,16 @@ namespace hgcal {
   LayerClusterToSimTracksterAssociatorBaseImpl::LayerClusterToSimTracksterAssociatorBaseImpl(){};
   LayerClusterToSimTracksterAssociatorBaseImpl::~LayerClusterToSimTracksterAssociatorBaseImpl(){};
 
-  hgcal::RecoToSimCollection LayerClusterToSimTracksterAssociatorBaseImpl::associateRecoToSim(
-      const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<ticl::TracksterCollection> &cPCH) const {
-    return hgcal::RecoToSimCollection();
+  hgcal::RecoToSimTracksterCollection LayerClusterToSimTracksterAssociatorBaseImpl::associateRecoToSim(
+      const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<ticl::TracksterCollection> &sTCH,
+      const edm::Handle<CaloParticleCollection>& cPCH, const hgcal::RecoToSimCollection &lCToCPs,
+      const edm::Handle<SimClusterCollection>& sCCH, const hgcal::RecoToSimCollectionWithSimClusters &lCToSCs) const {
+    return hgcal::RecoToSimTracksterCollection();
   }
 
-  hgcal::SimToRecoCollection LayerClusterToSimTracksterAssociatorBaseImpl::associateSimToReco(
-      const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH) const {
-    return hgcal::SimToRecoCollection();
+  hgcal::SimTracksterToRecoCollection LayerClusterToSimTracksterAssociatorBaseImpl::associateSimToReco(
+      const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<ticl::TracksterCollection> &sTCH) const {
+    return hgcal::SimTracksterToRecoCollection();
   }
 
 }  // namespace hgcal
