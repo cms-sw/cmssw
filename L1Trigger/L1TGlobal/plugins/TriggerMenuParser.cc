@@ -668,7 +668,6 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
   std::map<std::string, unsigned int> precisions;
   getPrecisions(precisions, scaleMap);
   for (std::map<std::string, unsigned int>::const_iterator cit = precisions.begin(); cit != precisions.end(); cit++) {
-    //std::cout << cit->first << " = " << cit->second << "\n";
     hasPrecision = true;
   }
 
@@ -2599,7 +2598,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         corrParameter.chargeCorrelation = 1;  //ignore charge correlation
     } else {
       //
-      //  Unitl utm has method to calculate these, do the integer value calculation with precision.
+      //  Until utm has method to calculate these, do the integer value calculation with precision.
       //
       double minV = cut.getMinimum().value;
       double maxV = cut.getMaximum().value;
@@ -2677,10 +2676,10 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
   // loop over legs
   for (size_t jj = 0; jj < objects.size(); jj++) {
     const esObject object = objects.at(jj);
-    //std::cout << "      obj name = " << object.getName() << "\n";
-    //std::cout << "      obj type = " << object.getType() << "\n";
-    //std::cout << "      obj op = " << object.getComparisonOperator() << "\n";
-    //std::cout << "      obj bx = " << object.getBxOffset() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj name = " << object.getName() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj type = " << object.getType() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj op = " << object.getComparisonOperator() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj bx = " << object.getBxOffset() << "\n";
 
     // check the leg type
     if (object.getType() == esObjectType::Muon) {
@@ -2916,9 +2915,9 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
   // Loop over legs
   for (size_t lll = 0; lll < objects.size(); lll++) {
     const esObject object = objects.at(lll);
-    //std::cout << "      obj name = " << object.getName() << "\n";
-    //std::cout << "      obj type = " << object.getType() << "\n";
-    //std::cout << "      obj bx = " << object.getBxOffset() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj name = " << object.getName() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj type = " << object.getType() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj bx = " << object.getBxOffset() << "\n";
 
     // check the leg type
     if (object.getType() == esObjectType::Muon) {
@@ -3108,14 +3107,14 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
     return false;
   }
 
-  // loop over legs
+  // Loop over legs
   for (size_t jj = 0; jj < objects.size(); jj++) {
     const esObject& object = objects.at(jj);
-    //std::cout << "      obj name = " << object.getName() << "\n";
-    //std::cout << "      obj type = " << object.getType() << "\n";
-    //std::cout << "      obj op = " << object.getComparisonOperator() << "\n";
-    //std::cout << "      obj bx = " << object.getBxOffset() << "\n";
-    //std::cout << "type = done" << std::endl;
+    LogDebug("TriggerMenuParser") << "      obj name = " << object.getName() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj type = " << object.getType() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj op = " << object.getComparisonOperator() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj bx = " << object.getBxOffset() << "\n";
+    LogDebug("TriggerMenuParser") << "type = done" << std::endl;
 
     // check the leg type
     if (object.getType() == esObjectType::Muon) {
