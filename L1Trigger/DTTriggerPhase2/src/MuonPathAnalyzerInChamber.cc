@@ -204,7 +204,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
     DTChamberId ChId(thisLId.wheel(), thisLId.station(), thisLId.sector());
 
     if (thisLId.station() >= 3)
-      z = Z_SHIFT_MB4;
+      z += Z_SHIFT_MB4;
 
     DTSuperLayerId MuonPathSLId(thisLId.wheel(), thisLId.station(), thisLId.sector(), thisLId.superLayer());
 
@@ -289,7 +289,14 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
       shift_for_lut = int(10 * shiftinfo_[wireId3.rawId()] * INCREASED_RES_POS_POW);
     }
     else {
-      shift_for_lut = int(10 * 0.5*(shiftinfo_[wireId1.rawId()] + shiftinfo_[wireId3.rawId()]) * INCREASED_RES_POS_POW);      
+      // shift_for_lut = int(10 * 0.5*(shiftinfo_[wireId1.rawId()] + shiftinfo_[wireId3.rawId()]) * INCREASED_RES_POS_POW);      
+      int shift_sl1 = int(round(shiftinfo_[wireId1.rawId()] * INCREASED_RES_POS_POW * 10));
+      int shift_sl3 = int(round(shiftinfo_[wireId3.rawId()] * INCREASED_RES_POS_POW * 10));
+      if (shift_sl1 < shift_sl3) {
+	shift_for_lut = shift_sl1;
+      } 
+      else
+	shift_for_lut = shift_sl3;
     }
     x_lut = double(jm_x)*10.*INCREASED_RES_POS_POW - shift_for_lut;    // position in cm * precision in JM RF
     // x_lut /=  (10. * INCREASED_RES_POS_POW); // position in cm w.r.t center of the chamber
