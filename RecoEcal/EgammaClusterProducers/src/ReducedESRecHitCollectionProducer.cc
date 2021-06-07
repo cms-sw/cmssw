@@ -1,17 +1,60 @@
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
-#include "RecoEcal/EgammaClusterProducers/interface/ReducedESRecHitCollectionProducer.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/transform.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
+
+#include <iostream>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
+
+class ReducedESRecHitCollectionProducer : public edm::stream::EDProducer<> {
+public:
+  ReducedESRecHitCollectionProducer(const edm::ParameterSet& pset);
+  ~ReducedESRecHitCollectionProducer() override;
+  void beginRun(edm::Run const&, const edm::EventSetup&) final;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void collectIds(const ESDetId strip1, const ESDetId strip2, const int& row = 0);
+
+private:
+  const EcalPreshowerGeometry* geometry_p;
+  std::unique_ptr<CaloSubdetectorTopology> topology_p;
+
+  double scEtThresh_;
+
+  edm::EDGetTokenT<ESRecHitCollection> InputRecHitES_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> InputSuperClusterEE_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  std::string OutputLabelES_;
+  std::vector<edm::EDGetTokenT<DetIdCollection>> interestingDetIdCollections_;
+  std::vector<edm::EDGetTokenT<DetIdCollection>>
+      interestingDetIdCollectionsNotToClean_;  //theres a hard coded cut on rec-hit quality which some collections would prefer not to have...
+
+  std::set<DetId> collectedIds_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ReducedESRecHitCollectionProducer);
 
 using namespace edm;
 using namespace std;
