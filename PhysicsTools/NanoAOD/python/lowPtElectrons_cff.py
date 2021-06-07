@@ -23,9 +23,9 @@ updatedLowPtElectrons = cms.EDProducer(
     vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
     computeMiniIso = cms.bool(True),
     fixDxySign = cms.bool(False),
-    pfCandsForMiniIso = cms.InputTag(""),
-    miniIsoParamsB = cms.vdouble(),
-    miniIsoParamsE = cms.vdouble(),
+    pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
+    miniIsoParamsB = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsB,
+    miniIsoParamsE = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsE,
 )
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cff import lowPtGsfElectronID
