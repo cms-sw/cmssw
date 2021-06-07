@@ -12,7 +12,7 @@
 
 #include "TFile.h"
 #include <ROOT/RNTuple.hxx>
-using ROOT::Experimental::RCollectionNTuple;
+using ROOT::Experimental::RCollectionNTupleWriter;
 using ROOT::Experimental::RNTupleWriter;
 
 #include "PhysicsTools/NanoAOD/plugins/EventStringOutputFields.h"
@@ -64,7 +64,7 @@ private:
   // https://github.com/root-project/root/issues/7861
   // RNTupleFieldPtr<edm::ParameterSetID> m_psetId;
   // RNTupleFieldPtr<edm::ParameterSetBlob> m_psetBlob;
-  std::shared_ptr<RCollectionNTuple> m_collection;
+  std::shared_ptr<RCollectionNTupleWriter> m_collection;
   RNTupleFieldPtr<std::string> m_psetId;
   RNTupleFieldPtr<std::string> m_psetBlob;
   std::unique_ptr<RNTupleWriter> m_ntuple;
@@ -78,7 +78,7 @@ public:
 
 private:
   void createFields(TFile& file);
-  std::shared_ptr<RCollectionNTuple> m_procHist;
+  std::shared_ptr<RCollectionNTupleWriter> m_procHist;
 
   RNTupleFieldPtr<std::string> m_phId;
   std::unique_ptr<RNTupleWriter> m_ntuple;

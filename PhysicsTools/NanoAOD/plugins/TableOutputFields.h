@@ -11,7 +11,7 @@
 
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
-using ROOT::Experimental::RCollectionNTuple;
+using ROOT::Experimental::RCollectionNTupleWriter;
 using ROOT::Experimental::RNTupleModel;
 using ROOT::Experimental::RNTupleWriter;
 
@@ -110,7 +110,7 @@ public:
 
 private:
   std::string m_collectionName;
-  std::shared_ptr<RCollectionNTuple> m_collection;
+  std::shared_ptr<RCollectionNTupleWriter> m_collection;
   TableOutputFields m_main;
   std::vector<TableOutputFields> m_extensions;
 };
