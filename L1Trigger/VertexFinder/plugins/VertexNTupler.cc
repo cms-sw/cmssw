@@ -176,7 +176,8 @@ namespace l1tVertexFinder {
     // storage class for configuration parameters
     AnalysisSettings settings_;
 
-    edm::Service<TFileService> fs_;
+    //edm::Service<TFileService> fs_;
+
     // Histograms for Vertex Reconstruction
 
     float numTrueInteractions_, hepMCVtxZ0_, genVtxZ0_;
@@ -200,6 +201,8 @@ namespace l1tVertexFinder {
     std::vector<std::vector<float>> l1Vertices_extra_z0_;
     std::vector<std::vector<float>> l1Vertices_extra_z0_etaWeighted_;
     std::vector<std::vector<float>> l1Vertices_extra_sumPt_;
+
+    bool available_;  // ROOT file for histograms is open.
   };
 
   VertexNTupler::VertexNTupler(const edm::ParameterSet& iConfig)
@@ -212,7 +215,7 @@ namespace l1tVertexFinder {
             consumes<std::vector<l1tVertexFinder::TP>>(iConfig.getParameter<edm::InputTag>("l1TracksTPInputTags"))),
         vTPsToken_(consumes<edm::ValueMap<l1tVertexFinder::TP>>(
             iConfig.getParameter<edm::InputTag>("l1TracksTPValueMapInputTags"))),
-        outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
+        //outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
         printResults_(iConfig.getParameter<bool>("printResults")),
         settings_(iConfig) {
     const std::vector<std::string> trackBranchNames(
@@ -221,6 +224,13 @@ namespace l1tVertexFinder {
         iConfig.getParameter<std::vector<edm::InputTag>>("l1TracksInputTags"));
     const std::vector<edm::InputTag> trackMapInputTags(
         iConfig.getParameter<std::vector<edm::InputTag>>("l1TracksTruthMapInputTags"));
+
+    edm::Service<TFileService> fs_;
+    available_ = fs_.isAvailable();
+    if (not available_)
+      return;  // No ROOT file open.
+
+    outputTree_ = fs_->make<TTree>("l1VertexReco", "L1 vertex-related info");
 
     if (trackBranchNames.size() != trackInputTags.size())
       throw cms::Exception("The number of track branch names (" + std::to_string(trackBranchNames.size()) +
