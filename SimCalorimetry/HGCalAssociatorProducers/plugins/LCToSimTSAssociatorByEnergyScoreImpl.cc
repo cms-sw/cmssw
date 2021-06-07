@@ -2,48 +2,94 @@
 //
 
 #include "LCToSimTSAssociatorByEnergyScoreImpl.h"
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
+#include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 LCToSimTSAssociatorByEnergyScoreImpl::LCToSimTSAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
-    bool hardScatterOnly,
-    std::shared_ptr<hgcal::RecHitTools> recHitTools)
-    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), productGetter_(&productGetter) {
-  layers_ = recHitTools_->lastLayerBH();
+    bool hardScatterOnly)
+    : hardScatterOnly_(hardScatterOnly), productGetter_(&productGetter) {
 }
 
 
-hgcal::RecoToSimCollection LCToSimTSAssociatorByEnergyScoreImpl::associateRecoToSim(
-    const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<ticl::TracksterCollection> &sTCH) const {
-  hgcal::RecoToSimCollection returnValue(productGetter_);
-/*
-  for (size_t lcId = 0; lcId < cCCH.size(); ++lcId) {
-    for (const auto tst : sTCH) {
-      if (tst.seedID() == )
+hgcal::RecoToSimTracksterCollection LCToSimTSAssociatorByEnergyScoreImpl::associateRecoToSim(
+    const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<ticl::TracksterCollection> &sTCH,
+    const edm::Handle<CaloParticleCollection>& cPCH, const hgcal::RecoToSimCollection &lCToCPs,
+    const edm::Handle<SimClusterCollection>& sCCH, const hgcal::RecoToSimCollectionWithSimClusters &lCToSCs) const {
+  hgcal::RecoToSimTracksterCollection returnValue(productGetter_);
 
+  const auto simTracksters = *sTCH.product();
 
+  for (size_t lcId = 0; lcId < cCCH.product()->size(); ++lcId) {
+    const edm::Ref<reco::CaloClusterCollection> lcRef(cCCH, lcId);
+    for (size_t tsId = 0; tsId < simTracksters.size(); ++tsId) {
+      if (simTracksters[tsId].seedID() == cPCH.id()) {
+        const auto& cpIt = lCToCPs.find(lcRef);
+        if (cpIt == lCToCPs.end()) {
+          LogDebug("LCToSimTSAssociatorByEnergyScoreImpl")
+            << "layerCluster Id " << lcId << " not found in CaloParticle association map\n";
+          continue;
+        }
 
+        const edm::Ref<CaloParticleCollection> cpRef(cPCH, simTracksters[tsId].seedIndex());
+        const auto& cps = cpIt->val;
+        const auto cpPair = std::find_if(std::begin(cps), std::end(cps),
+                                         [&cpRef](const std::pair<edm::Ref<CaloParticleCollection>, float>& p) {
+                         return p.first == cpRef;
+                       });
+        if (cpPair == cps.end()) {
+          LogDebug("LCToSimTSAssociatorByEnergyScoreImpl")
+            << "CaloParticle Id " << simTracksters[tsId].seedIndex() << " not found in LayerCluster association map\n";
+          continue;
+        }
+        else {
+          LogDebug("LCToSimTSAssociatorByEnergyScoreImpl")
+            << "layerCluster Id: \t" << lcId << "\t CP Id: \t" << cpPair->first << "\t score \t" << cpPair->second << "\n";
+          // Fill AssociationMap
+          returnValue.insert(lcRef,  // Ref to LC
+                             std::make_pair(edm::Ref<ticl::TracksterCollection>(sTCH, tsId), // Pair <Ref to TS, score>
+                                            cpPair->second));
+        }
+      } else if (simTracksters[tsId].seedID() == sCCH.id()) {
+        const auto& scIt = lCToSCs.find(lcRef);
+        if (scIt == lCToSCs.end()) {
+          LogDebug("LCToSimTSAssociatorByEnergyScoreImpl")
+            << "layerCluster Id " << lcId << " not found in SimCluster association map\n";
+          continue;
+        }
 
-    for (auto& cpPair : cpsInLayerCluster[lcId]) {
-      LogDebug("LCToSimTSAssociatorByEnergyScoreImpl")
-          << "layerCluster Id: \t" << lcId << "\t CP id: \t" << cpPair.first << "\t score \t" << cpPair.second << "\n";
-      // Fill AssociationMap
-      returnValue.insert(edm::Ref<reco::CaloClusterCollection>(cCCH, lcId),  // Ref to LC
-                         std::make_pair(edm::Ref<CaloParticleCollection>(cPCH, cpPair.first),
-                                        cpPair.second)  // Pair <Ref to CP, score>
-      );
-    }
-  }
-*/
+        const edm::Ref<SimClusterCollection> scRef(sCCH, simTracksters[tsId].seedIndex());
+        const auto& scs = scIt->val;
+        const auto scPair = std::find_if(std::begin(scs), std::end(scs),
+                                         [&scRef](const std::pair<edm::Ref<SimClusterCollection>, float>& p) {
+                         return p.first == scRef;
+                       });
+        if (scPair == scs.end()) {
+          LogDebug("LCToSimTSAssociatorByEnergyScoreImpl")
+            << "SimCluster Id " << simTracksters[tsId].seedIndex() << " not found in LayerCluster association map\n";
+          continue;
+        }
+        else {
+          LogDebug("LCToSimTSAssociatorByEnergyScoreImpl")
+            << "layerCluster Id: \t" << lcId << "\t SC Id: \t" << scPair->first << "\t score \t" << scPair->second << "\n";
+          // Fill AssociationMap
+          returnValue.insert(lcRef,  // Ref to LC
+                             std::make_pair(edm::Ref<ticl::TracksterCollection>(sTCH, tsId), // Pair <Ref to TS, score>
+                                            scPair->second));
+        }
+      }
+    } // end loop over simTracksters
+  } // end loop over layerClusters
+
   return returnValue;
 }
 
-hgcal::SimToRecoCollection LCToSimTSAssociatorByEnergyScoreImpl::associateSimToReco(
-    const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
-  hgcal::SimToRecoCollection returnValue(productGetter_);
+hgcal::SimTracksterToRecoCollection LCToSimTSAssociatorByEnergyScoreImpl::associateSimToReco(
+    const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<ticl::TracksterCollection> &sTCH) const {
+  hgcal::SimTracksterToRecoCollection returnValue(productGetter_);
 /*
-  const auto& links = makeConnections(cCCH, cPCH);
   const auto& cPOnLayer = std::get<1>(links);
   for (size_t cpId = 0; cpId < cPOnLayer.size(); ++cpId) {
     for (size_t layerId = 0; layerId < cPOnLayer[cpId].size(); ++layerId) {

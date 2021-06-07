@@ -23,15 +23,19 @@ namespace hgcal {
 
     // ---------- const member functions ---------------------
     /// Associate a LayerCluster to SimTracksters
-    hgcal::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                  const edm::Handle<ticl::TracksterCollection> &stCH) const {
-      return m_impl->associateRecoToSim(cCCH, stCH);
+    hgcal::RecoToSimTracksterCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCCH,
+                                                  const edm::Handle<ticl::TracksterCollection> &stCH,
+                                                  const edm::Handle<CaloParticleCollection>& cPCH,
+                                                  const hgcal::RecoToSimCollection &lCToCPs,
+                                                  const edm::Handle<SimClusterCollection>& sCCH,
+                                                  const hgcal::RecoToSimCollectionWithSimClusters &lCToSCs) const {
+      return m_impl->associateRecoToSim(cCCH, stCH, cPCH, lCToCPs, sCCH, lCToSCs);
     };
 
     /// Associate a SimTrackster to LayerClusters
-    hgcal::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                  const edm::Handle<CaloParticleCollection> &cPCH) const {
-      return m_impl->associateSimToReco(cCCH, cPCH);
+    hgcal::SimTracksterToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCCH,
+                                                  const edm::Handle<ticl::TracksterCollection> &sTCH) const {
+      return m_impl->associateSimToReco(cCCH, sTCH);
     }
 
   private:
