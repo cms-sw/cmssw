@@ -155,8 +155,8 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
   float best_chi2 = 99999.;
   int added_lat = 0; 
 
-  // for (int i = 0; i < totalNumValLateralities_; i++) {  // LOOP for all lateralities:
-  for (int i = 0; i < (int)lateralities_.size(); i++) {  // LOOP for all lateralities:
+  // LOOP for all lateralities:
+  for (int i = 0; i < (int)lateralities_.size(); i++) {  
 
     if (debug_)
       LogDebug("MuonPathAnalyzerInChamber") << "DTp2:analyze \t\t\t\t\t Start with combination " << i;
@@ -226,26 +226,19 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
       jm_x += mPath->tanPhi() * (11.1 + 0.65); 
       jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(jm_x, 0., z + 11.75));
       SL_for_LUT = 1;
-      cout << "Local Point = " << LocalPoint(jm_x, 0., z + 11.75) << endl;
-      cout << "Input to local point = " << jm_x << " " << z << endl;
     }
     else if (hits_in_SL1 <= 2 && hits_in_SL3 > 2){
       // Uncorrelated or confirmed with 3 or 4 hits in SL3: propagate to SL3
       jm_x -= mPath->tanPhi() * (11.1 + 0.65); 
       jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(jm_x, 0., z - 11.75));
       SL_for_LUT = 3;
-      cout << "Local Point = " << LocalPoint(jm_x, 0., z - 11.75) << endl;
-      cout << "Input to local point = " << jm_x << " " << z << endl;
     }
-    else if (hits_in_SL1 > 2 && hits_in_SL3 > 2){ // || hits_in_SL1 >= 2 && hits_in_SL3 > 2){
+    else if (hits_in_SL1 > 2 && hits_in_SL3 > 2){
       // Correlated: stay at chamber center
       jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(jm_x, 0., z));
-      cout << "Local Point = " << LocalPoint(jm_x, 0., z) << endl;
-      cout << "Input to local point = " << jm_x << " " << z << endl;
     }
     else {
       // Not interesting
-      cout << "Not interesting" << endl;
       continue;
     }
     
@@ -255,8 +248,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
     // Updating muon-path horizontal position
     mPath->setHorizPos(jm_x);
 
-    //    GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(MuonPathSLId)->toGlobal(LocalPoint(jm_x, 0., z));
-    //jm_x is already extrapolated to the middle of the SL
+    // Adjusting sector names for MB4
     int thisec = MuonPathSLId.sector();
     if (thisec == 13)
       thisec = 4;
@@ -268,10 +260,8 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
     double psi = atan(mPath->tanPhi());
     mPath->setPhiCMSSW(phi_cmssw);
     mPath->setPhiBCMSSW(hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi_cmssw : -psi - phi_cmssw);
-    cout << "global coordinates from CMSSW: " << phi_cmssw << " - " << (hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi_cmssw : -psi - phi_cmssw) << endl;
     
     // Global coordinates from LUTs (firmware-like)
-    cout << "global coordinates from FW" << endl;
     double phi  = -999.;
     double phiB = -999.;
     double x_lut, slope_lut;
@@ -289,7 +279,6 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
       shift_for_lut = int(10 * shiftinfo_[wireId3.rawId()] * INCREASED_RES_POS_POW);
     }
     else {
-      // shift_for_lut = int(10 * 0.5*(shiftinfo_[wireId1.rawId()] + shiftinfo_[wireId3.rawId()]) * INCREASED_RES_POS_POW);      
       int shift_sl1 = int(round(shiftinfo_[wireId1.rawId()] * INCREASED_RES_POS_POW * 10));
       int shift_sl3 = int(round(shiftinfo_[wireId3.rawId()] * INCREASED_RES_POS_POW * 10));
       if (shift_sl1 < shift_sl3) {
@@ -299,20 +288,13 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
 	shift_for_lut = shift_sl3;
     }
     x_lut = double(jm_x)*10.*INCREASED_RES_POS_POW - shift_for_lut;    // position in cm * precision in JM RF
-    // x_lut /=  (10. * INCREASED_RES_POS_POW); // position in cm w.r.t center of the chamber
-    slope_lut = - (double(mPath->tanPhi()) * INCREASED_RES_SLOPE_POW);
+    slope_lut = -(double(mPath->tanPhi()) * INCREASED_RES_SLOPE_POW);
 
     auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), SL_for_LUT, x_lut, slope_lut);
     phi  = global_coords[0];
     phiB = global_coords[1];
     mPath->setPhi(phi);
     mPath->setPhiB(phiB);
-    cout << "FW-like global coordinates: " << phi << " - " << phiB << endl;
-
-    // double phi = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
-    // double psi = atan(mPath->tanPhi());
-    // mPath->setPhi(jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1));
-    // mPath->setPhiB(hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi);
 
     if (mPath->chiSquare() < best_chi2 && mPath->chiSquare() > 0) {
       mpAux = std::make_shared<MuonPath>(mPath);
@@ -428,11 +410,6 @@ void MuonPathAnalyzerInChamber::buildLateralities(MuonPathPtr &mpath) {
 void MuonPathAnalyzerInChamber::setLateralitiesInMP(MuonPathPtr &mpath, TLateralities lat) {
   for (int i = 0; i < 8; i++)
     mpath->primitive(i)->setLaterality(lat[i]);
-  // LATERAL_CASES tmp[NUM_LAYERS_2SL];
-  // for (int i = 0; i < 8; i++)
-  //   tmp[i] = lat[i];
-
-  // mpath->setLateralComb(tmp);
 }
 
 void MuonPathAnalyzerInChamber::setWirePosAndTimeInMP(MuonPathPtr &mpath) {
@@ -635,7 +612,6 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPathPtr &mpath,
 
     // If a hit is too close to the wire, set its corresponding "swap" flag to 1
     if (abs(rectdriftvdrift[lay]) < 3){
-      cout << "Reconstructed hit position at less than 3 mm wrt wire!" << endl;
       swap_laterality[lay] = 1;
     }
 
@@ -688,7 +664,6 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPathPtr &mpath,
       }
       if (already_there == 0){
 	lateralities_.push_back(additional_lateralities[k]);
-	cout << "I added one laterality!" << endl;
       }
     }
     additional_lateralities.clear();

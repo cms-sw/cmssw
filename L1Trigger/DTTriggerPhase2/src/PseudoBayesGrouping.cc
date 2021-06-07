@@ -37,9 +37,6 @@ PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset, edm::Consumes
 PseudoBayesGrouping::~PseudoBayesGrouping() {
   if (debug_)
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping:: destructor";
-  // for (std::vector<DTPattern*>::iterator pat_it = allPatterns_.begin(); pat_it != allPatterns_.end(); pat_it++) {
-  //   delete (*pat_it);
-  // }
 }
 
 // ============================================================================
@@ -52,26 +49,6 @@ void PseudoBayesGrouping::initialise(const edm::EventSetup& iEventSetup) {
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::initialiase using patterns file " << pattern_filename_;
   nPatterns_ = 0;
 
-
-  // Moved to LoadPattern
-  // //Load patterns from pattern root file with expected hits information
-  // TFile* f = TFile::Open(TString(pattern_filename_), "READ");
-  // std::vector<std::vector<std::vector<int>>>* pattern_reader =
-  //     (std::vector<std::vector<std::vector<int>>>*)f->Get("allPatterns");
-  // for (std::vector<std::vector<std::vector<int>>>::iterator itPattern = (*pattern_reader).begin();
-  //      itPattern != (*pattern_reader).end();
-  //      ++itPattern) {
-  //   //Loops over all patterns in the loop and constructs the Pattern object for each one
-  //   LoadPattern(itPattern);
-  // }
-  // if (debug_)
-  //   LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::initialiase Total number of loaded patterns: "
-  //                                   << nPatterns_;
-  // f->Close();
-  // delete f;
-
-  // Currently hard-coded. To be fixed
-  //TString patterns_folder = "/afs/cern.ch/user/n/ntrevisa/public/Patterns_h287mm/";
   TString patterns_folder = "L1Trigger/DTTriggerPhase2/data/";
 
   // Load all patterns
@@ -93,7 +70,6 @@ void PseudoBayesGrouping::initialise(const edm::EventSetup& iEventSetup) {
   finalMatches_ = std::make_unique<CandidateGroupPtrs>();
 }
 
-//void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>::iterator itPattern) {
 void PseudoBayesGrouping::LoadPattern(TString pattern_file_name,
 				      int     MB_number,
 				      int     SL_shift) {
@@ -111,20 +87,17 @@ void PseudoBayesGrouping::LoadPattern(TString pattern_file_name,
 				      << itPattern->at(0).at(0) << ", " << itPattern->at(0).at(1) << ", "
 				      << itPattern->at(0).at(2) << ", ";
     
-    // DTPattern p;
     auto p = std::make_shared<DTPattern>();
 
-    //  for (auto itHits = itPattern->begin(); itHits != itPattern->end(); ++itHits) {
     bool is_seed = true;
     for (const auto& itHits : *itPattern) {
 
-      //First entry is the seeding information
+      // First entry is the seeding information
       if (is_seed) {
-	//p = DTPattern(itHits.at(0), itHits.at(1), itHits.at(2));
 	p = std::make_shared<DTPattern>(DTPattern(itHits.at(0), itHits.at(1), itHits.at(2)));
 	is_seed = false;
       }
-      //Other entries are the hits information
+      // Other entries are the hits information
       else {
 	if (itHits.begin() == itHits.end())
 	  continue;
@@ -136,8 +109,8 @@ void PseudoBayesGrouping::LoadPattern(TString pattern_file_name,
 	}
       }
     }
-    //Classified by seeding layers for optimized search later
-    //TODO::This can be vastly improved using std::bitset<8>, for example
+    // Classified by seeding layers for optimized search later
+    // TODO::This can be vastly improved using std::bitset<8>, for example
     if (p->sl1() == 0) {
       if (p->sl2() == 7)
 	L0L7Patterns_[MB_number][SL_shift].push_back(p);
@@ -210,78 +183,6 @@ void PseudoBayesGrouping::LoadPattern(TString pattern_file_name,
 	L6L7Patterns_[MB_number][SL_shift].push_back(p);
     }
 
-    // if (p.sl1() == 0) {
-    //   if (p.sl2() == 7)
-    //     L0L7Patterns_.push_back(&p);
-    //   if (p.sl2() == 6)
-    //     L0L6Patterns_.push_back(&p);
-    //   if (p.sl2() == 5)
-    //     L0L5Patterns_.push_back(&p);
-    //   if (p.sl2() == 4)
-    //     L0L4Patterns_.push_back(&p);
-    //   if (p.sl2() == 3)
-    //     L0L3Patterns_.push_back(&p);
-    //   if (p.sl2() == 2)
-    //     L0L2Patterns_.push_back(&p);
-    //   if (p.sl2() == 1)
-    //     L0L1Patterns_.push_back(&p);
-    // }
-    // if (p.sl1() == 1) {
-    //   if (p.sl2() == 7)
-    //     L1L7Patterns_.push_back(&p);
-    //   if (p.sl2() == 6)
-    //     L1L6Patterns_.push_back(&p);
-    //   if (p.sl2() == 5)
-    //     L1L5Patterns_.push_back(&p);
-    //   if (p.sl2() == 4)
-    //     L1L4Patterns_.push_back(&p);
-    //   if (p.sl2() == 3)
-    //     L1L3Patterns_.push_back(&p);
-    //   if (p.sl2() == 2)
-    //     L1L2Patterns_.push_back(&p);
-    // }
-    // if (p.sl1() == 2) {
-    //   if (p.sl2() == 7)
-    //     L2L7Patterns_.push_back(&p);
-    //   if (p.sl2() == 6)
-    //     L2L6Patterns_.push_back(&p);
-    //   if (p.sl2() == 5)
-    //     L2L5Patterns_.push_back(&p);
-    //   if (p.sl2() == 4)
-    //     L2L4Patterns_.push_back(&p);
-    //   if (p.sl2() == 3)
-    //     L2L3Patterns_.push_back(&p);
-    // }
-    // if (p.sl1() == 3) {
-    //   if (p.sl2() == 7)
-    //     L3L7Patterns_.push_back(&p);
-    //   if (p.sl2() == 6)
-    //     L3L6Patterns_.push_back(&p);
-    //   if (p.sl2() == 5)
-    //     L3L5Patterns_.push_back(&p);
-    //   if (p.sl2() == 4)
-    //     L3L4Patterns_.push_back(&p);
-    // }
-    
-    // if (p.sl1() == 4) {
-    //   if (p.sl2() == 7)
-    //     L4L7Patterns_.push_back(&p);
-    //   if (p.sl2() == 6)
-    //     L4L6Patterns_.push_back(&p);
-    //   if (p.sl2() == 5)
-    //     L4L5Patterns_.push_back(&p);
-    // }
-    // if (p.sl1() == 5) {
-    //   if (p.sl2() == 7)
-    //     L5L7Patterns_.push_back(&p);
-    //   if (p.sl2() == 6)
-    //     L5L6Patterns_.push_back(&p);
-    // }
-    // if (p.sl1() == 6) {
-    //   if (p.sl2() == 7)
-    //     L6L7Patterns_.push_back(&p);
-    // }
-    
     //Also creating a list of all patterns, needed later for deleting and avoid a memory leak
     allPatterns_[MB_number][SL_shift].push_back(p);
     nPatterns_++;
@@ -315,13 +216,12 @@ void PseudoBayesGrouping::run(Event& iEvent,
   for (const auto& detUnitIt : digis){
     const DTLayerId layer_Id = detUnitIt.first;
     chamber_id = layer_Id.superlayerId().chamberId();
-    // cout << "Chamber ID = " << chamber_id << endl;
     break;
   }
 
   RecognisePatternsByLayerPairs(chamber_id);
 
-  //Now sort patterns by qualities
+  // Now sort patterns by qualities
   std::sort(prelimMatches_->begin(), prelimMatches_->end(), CandPointGreat());
   if (debug_ && !prelimMatches_->empty()) {
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run Pattern qualities before cleaning: ";
@@ -407,7 +307,6 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
 	  }
 	  if (!saveOnPlace_) {
 	    //This will save the primitive in order
-	    //intHit++;
 	    tmpPrimitive.at(intHit) = std::make_shared<DTPrimitive>((*itDTP));
 	  }
 	  // Now add the new path to the vector of paths 
@@ -449,33 +348,6 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
 						     (short)(*itCand)->nLayerDown()));
       
     }
-
-    // //Only fill the DT primitives pointer if there is not one hit already in the layer
-    //   if (qualityDTP != (qualityDTP | ref8Hit)) {
-    //     if (debug_)
-    //       LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run Adding hit to muon path";
-    //     qualityDTP = (qualityDTP | ref8Hit);
-    //     if (saveOnPlace_) {
-    //       //This will save the primitive in a place of the vector equal to its L position
-    //       ptrPrimitive.at(layerHit) = std::make_shared<DTPrimitive>((*itDTP));
-    //     }
-    //     if (!saveOnPlace_) {
-    //       //This will save the primitive in order
-    //       intHit++;
-    //       ptrPrimitive.at(intHit) = std::make_shared<DTPrimitive>((*itDTP));
-    //     }
-    //   }
-    // }
-    // //Now, if there are empty spaces in the vector fill them full of daylight
-    // int ipow = 1;
-    // for (int i = 0; i <= 7; i++) {
-    //   ipow *= 2;
-    //   if (qualityDTP != (qualityDTP | qualitybits(1 << i))) {
-    //     ptrPrimitive.at(i) = std::make_shared<DTPrimitive>();
-    //   }
-    // }
-      
-      // mpaths.emplace_back(std::make_shared<MuonPath>(ptrPrimitive, (short)(*itCand)->nLayerUp(), (short)(*itCand)->nLayerDown()));
   }
 }
 
@@ -707,7 +579,7 @@ void PseudoBayesGrouping::ReCleanPatternsAndDigis() {
     for (auto cand_it = prelimMatches_->begin(); cand_it != prelimMatches_->end(); cand_it++) {
       if (*(*cand_it) == *(*itSel) && allowDuplicates_)
         continue;
-      for (const auto& dt_it : (*itSel)->candHits()) {  //.begin(); dt_it != (*itSel)->candHits().end(); dt_it++) {
+      for (const auto& dt_it : (*itSel)->candHits()) {
         (*cand_it)->removeHit((*dt_it));
       }
     }
