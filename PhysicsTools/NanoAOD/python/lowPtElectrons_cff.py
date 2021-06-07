@@ -16,10 +16,22 @@ modifiedLowPtElectrons = cms.EDProducer(
     )
 )
 
+import PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi
+updatedLowPtElectrons = cms.EDProducer(
+    "PATElectronUpdater",
+    src = cms.InputTag("modifiedLowPtElectrons"),
+    vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    computeMiniIso = cms.bool(True),
+    fixDxySign = cms.bool(False),
+    pfCandsForMiniIso = cms.InputTag(""),
+    miniIsoParamsB = cms.vdouble(),
+    miniIsoParamsE = cms.vdouble(),
+)
+
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cff import lowPtGsfElectronID
 lowPtPATElectronID = lowPtGsfElectronID.clone(
     usePAT = True,
-    electrons = "modifiedLowPtElectrons",
+    electrons = "updatedLowPtElectrons",
     unbiased = "",
     ModelWeights = [
         'RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2020Nov28.root',
@@ -30,8 +42,8 @@ lowPtPATElectronID = lowPtGsfElectronID.clone(
 
 isoForLowPtEle = cms.EDProducer(
     "EleIsoValueMapProducer",
-    src = cms.InputTag("modifiedLowPtElectrons"),
-    relative = cms.bool(False),
+    src = cms.InputTag("updatedLowPtElectrons"),
+    relative = cms.bool(True),
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
     rho_PFIso = cms.InputTag("fixedGridRhoFastjetAll"),
     EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
@@ -40,7 +52,7 @@ isoForLowPtEle = cms.EDProducer(
 
 updatedLowPtElectronsWithUserData = cms.EDProducer(
     "PATElectronUserDataEmbedder",
-    src = cms.InputTag("modifiedLowPtElectrons"),
+    src = cms.InputTag("updatedLowPtElectrons"),
     userFloats = cms.PSet(
         ID = cms.InputTag("lowPtPATElectronID"),
         miniIsoChg = cms.InputTag("isoForLowPtEle:miniIsoChg"),
@@ -78,9 +90,9 @@ lowPtElectronTable = cms.EDProducer(
         unbiased = Var("electronID('unbiased')",float,doc="ElectronSeed, pT- and dxy- agnostic BDT (raw) score"),
         ptbiased = Var("electronID('ptbiased')",float,doc="ElectronSeed, pT- and dxy- dependent BDT (raw) score"),
         # Isolation
-        miniPFRelIso_chg = Var("userFloat('miniIsoChg')/pt",float,
+        miniPFRelIso_chg = Var("userFloat('miniIsoChg')",float,
                                doc="mini PF relative isolation, charged component"),
-        miniPFRelIso_all = Var("userFloat('miniIsoAll')/pt",float,
+        miniPFRelIso_all = Var("userFloat('miniIsoAll')",float,
                                doc="mini PF relative isolation, total (with scaled rho*EA PU corrections)"),
         # Conversions
         convVeto = Var("passConversionVeto()",bool,doc="pass conversion veto"),
@@ -102,8 +114,6 @@ lowPtElectronTable = cms.EDProducer(
         dxyErr = Var("edB('PV2D')",float,doc="dxy uncertainty, in cm",precision=6),
         dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
-        ip3d = Var("abs(dB('PV3D'))",float,doc="3D impact parameter wrt first PV, in cm",precision=10),
-        sip3d = Var("abs(dB('PV3D')/edB('PV3D'))",float,doc="3D impact parameter significance wrt first PV, in cm",precision=10),
         # Cross-referencing
         #jetIdx
         #photonIdx
@@ -177,6 +187,7 @@ lowPtElectronMCTable = cms.EDProducer(
 ################################################################################
 
 lowPtElectronSequence = cms.Sequence(modifiedLowPtElectrons
+                                     +updatedLowPtElectrons
                                      +lowPtPATElectronID
                                      +isoForLowPtEle
                                      +updatedLowPtElectronsWithUserData
