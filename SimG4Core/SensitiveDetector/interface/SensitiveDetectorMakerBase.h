@@ -13,6 +13,7 @@
 
 // system include files
 #include <string>
+#include <memory>
 
 // forward declarations
 class SimActivityRegistry;
@@ -32,12 +33,12 @@ public:
   const SensitiveDetectorMakerBase& operator=(const SensitiveDetectorMakerBase&) = delete;
 
   // ---------- const member functions ---------------------
-  virtual SensitiveDetector* make(const std::string& iname,
-                                  const edm::EventSetup& es,
-                                  const SensitiveDetectorCatalog& clg,
-                                  const edm::ParameterSet& p,
-                                  const SimTrackManager* man,
-                                  SimActivityRegistry& reg) const = 0;
+  virtual std::unique_ptr<SensitiveDetector> make(const std::string& iname,
+                                                  const edm::EventSetup& es,
+                                                  const SensitiveDetectorCatalog& clg,
+                                                  const edm::ParameterSet& p,
+                                                  const SimTrackManager* man,
+                                                  SimActivityRegistry& reg) const = 0;
 };
 
 #endif

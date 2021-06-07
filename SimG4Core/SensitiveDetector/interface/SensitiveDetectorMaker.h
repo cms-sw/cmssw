@@ -35,15 +35,15 @@ public:
   const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete;
 
   // ---------- const member functions ---------------------
-  SensitiveDetector* make(const std::string& iname,
-                          const edm::EventSetup& es,
-                          const SensitiveDetectorCatalog& clg,
-                          const edm::ParameterSet& p,
-                          const SimTrackManager* man,
-                          SimActivityRegistry& reg) const override {
-    T* sd = new T(iname, es, clg, p, man);
-    SimActivityRegistryEnroller::enroll(reg, sd);
-    return static_cast<SensitiveDetector*>(sd);
+  std::unique_ptr<SensitiveDetector> make(const std::string& iname,
+                                          const edm::EventSetup& es,
+                                          const SensitiveDetectorCatalog& clg,
+                                          const edm::ParameterSet& p,
+                                          const SimTrackManager* man,
+                                          SimActivityRegistry& reg) const override {
+    auto sd = std::make_unique<T>(iname, es, clg, p, man);
+    SimActivityRegistryEnroller::enroll(reg, sd.get());
+    return sd;
   };
 };
 
