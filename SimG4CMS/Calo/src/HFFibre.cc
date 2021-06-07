@@ -135,7 +135,7 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
     }
     zFibre = length;  // from beginning of abs (full length)
     if (fromEndAbs > 0) {
-      zFibre -= gpar[1];  // length from end of HF
+      zFibre -= gpar[1];  // Never, as fromEndAbs=0 (M.K. ?)
     } else {
       double zz = 0.5 * gpar[1] + point.z();  // depth of point of photon emission (from beginning of HF)
       zFibre -= zz;                           // length of fiber from point of photon emission
