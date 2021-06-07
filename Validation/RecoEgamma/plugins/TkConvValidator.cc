@@ -1232,7 +1232,7 @@ void TkConvValidator::dqmBeginRun(edm::Run const& r, edm::EventSetup const& theE
   thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
 }
 
-void TkConvValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const& ) { delete thePhotonMCTruthFinder_; }
+void TkConvValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const&) { delete thePhotonMCTruthFinder_; }
 
 void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) {
   thePhotonMCTruthFinder_->clear();

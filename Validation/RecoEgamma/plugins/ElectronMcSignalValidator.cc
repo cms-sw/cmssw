@@ -51,8 +51,7 @@
 using namespace reco;
 
 ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &conf) : ElectronDqmAnalyzerBase(conf) {
-
-  mcTruthCollection_ = consumes<reco::GenParticleCollection>(conf.getParameter<edm::InputTag>("mcTruthCollection"));  
+  mcTruthCollection_ = consumes<reco::GenParticleCollection>(conf.getParameter<edm::InputTag>("mcTruthCollection"));
   electronCollection_ = consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollection"));
   electronCoreCollection_ =
       consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollection"));
