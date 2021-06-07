@@ -655,17 +655,17 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
           if (cond0Categ == CondMuon) {
             cond0Condition = &((corrMuon[iChip])[cond0Ind]);
           } else {
-            std::cout << "No muon0 to evaluate three-body correlation condition";
+            LogDebug("L1TGlobal") << "No muon0 to evaluate three-body correlation condition";
           }
           if (cond1Categ == CondMuon) {
             cond1Condition = &((corrMuon[iChip])[cond1Ind]);
           } else {
-            std::cout << "No muon1 to evaluate three-body correlation condition";
+            LogDebug("L1TGlobal") << "No muon1 to evaluate three-body correlation condition";
           }
           if (cond2Categ == CondMuon) {
             cond2Condition = &((corrMuon[iChip])[cond2Ind]);
           } else {
-            std::cout << "No muon2 to evaluate three-body correlation condition";
+            LogDebug("L1TGlobal") << "No muon2 to evaluate three-body correlation condition";
           }
 
           CorrThreeBodyCondition* correlationThreeBodyCond =
