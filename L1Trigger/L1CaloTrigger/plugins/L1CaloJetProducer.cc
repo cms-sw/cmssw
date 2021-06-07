@@ -495,9 +495,9 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet &iConfig)
                                   << int(tauCalibrationsHGCal.size()) << "\n";
   }
 
-  isoTauBarrel.SetParameter(0, 0.25);
-  isoTauBarrel.SetParameter(1, 0.85);
-  isoTauBarrel.SetParameter(2, 0.094);
+  isoTauBarrel.SetParameter(0, 0.30);
+  isoTauBarrel.SetParameter(1, 0.31);
+  isoTauBarrel.SetParameter(2, 0.040);
   isoTauHGCal.SetParameter(0, 0.34);
   isoTauHGCal.SetParameter(1, 0.35);
   isoTauHGCal.SetParameter(2, 0.051);
