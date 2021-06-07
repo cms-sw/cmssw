@@ -56,4 +56,4 @@ class MuonSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
   }
 };
 
-DEFINE_EDM_PLUGIN(SensitiveDetectorPluginFactory, MuonSensitiveDetectorBuilder, "MuonSensitiveDetector");
+DEFINE_SENSITIVEDETECTORBUILDER(MuonSensitiveDetectorBuilder, MuonSensitiveDetector);

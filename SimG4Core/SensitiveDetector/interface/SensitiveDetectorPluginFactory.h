@@ -12,4 +12,7 @@ typedef edmplugin::PluginFactory<SensitiveDetectorMakerBase *()> SensitiveDetect
 
 #define DEFINE_SENSITIVEDETECTOR(type) \
   DEFINE_EDM_PLUGIN(SensitiveDetectorPluginFactory, SensitiveDetectorMaker<type>, #type)
+
+#define DEFINE_SENSITIVEDETECTORBUILDER(type, name) DEFINE_EDM_PLUGIN(SensitiveDetectorPluginFactory, type, #name)
+
 #endif
