@@ -375,12 +375,10 @@ namespace edm {
   void ConcurrentGeneratorFilter<HAD, DEC>::globalEndLuminosityBlockProduce(LuminosityBlock& lumi,
                                                                             EventSetup const&,
                                                                             gen::GenLumiSummary const* iSummary) const {
-    // Advance the random number generator so next begin lumi starts with new seed
-    Service<RandomNumberGenerator> rng;
-    rng->getEngine(lumi.index()).flat();
 
     lumi.put(std::move(iSummary->lumiInfo_));
   }
+
   template <class HAD, class DEC>
   void ConcurrentGeneratorFilter<HAD, DEC>::streamEndRun(StreamID id, Run const& run, EventSetup const&) const {
     auto rCache = this->runCache(run.index());
