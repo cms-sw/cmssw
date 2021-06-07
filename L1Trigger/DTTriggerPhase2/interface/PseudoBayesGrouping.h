@@ -30,7 +30,6 @@ public:
 
 private:
   // Private methods
-  //  void LoadPattern(std::vector<std::vector<std::vector<int>>>::iterator itPattern);
   void LoadPattern(TString pattern_file_name, int MB_number_input, int SL_shift);
   void FillDigisByLayer(const DTDigiCollection* digis);
   void CleanDigisByLayer();
