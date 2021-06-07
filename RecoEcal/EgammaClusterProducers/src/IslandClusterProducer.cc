@@ -1,39 +1,87 @@
-// C/C++ headers
-#include <iostream>
-#include <vector>
-#include <memory>
-
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
-
-// Reconstruction Classes
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
-
-// Geometry
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-
-// EgammaCoreTools
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
-// Class header file
-#include "RecoEcal/EgammaClusterProducers/interface/IslandClusterProducer.h"
+#include <ctime>
+#include <iostream>
+#include <memory>
+#include <vector>
+
+class IslandClusterProducer : public edm::stream::EDProducer<> {
+public:
+  IslandClusterProducer(const edm::ParameterSet& ps);
+
+  ~IslandClusterProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  int nMaxPrintout_;  // max # of printouts
+  int nEvt_;          // internal counter of events
+
+  IslandClusterAlgo::VerbosityLevel verbosity;
+
+  edm::EDGetTokenT<EcalRecHitCollection> barrelRecHits_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapRecHits_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+
+  std::string barrelClusterCollection_;
+  std::string endcapClusterCollection_;
+
+  std::string clustershapecollectionEB_;
+  std::string clustershapecollectionEE_;
+
+  //BasicClusterShape AssociationMap
+  std::string barrelClusterShapeAssociation_;
+  std::string endcapClusterShapeAssociation_;
+
+  PositionCalc posCalculator_;  // position calculation algorithm
+  ClusterShapeAlgo shapeAlgo_;  // cluster shape algorithm
+  IslandClusterAlgo* island_p;
+
+  bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
+
+  const EcalRecHitCollection* getCollection(edm::Event& evt, const edm::EDGetTokenT<EcalRecHitCollection>& token);
+
+  void clusterizeECALPart(edm::Event& evt,
+                          const edm::EventSetup& es,
+                          const edm::EDGetTokenT<EcalRecHitCollection>& token,
+                          const std::string& clusterCollection,
+                          const std::string& clusterShapeAssociation,
+                          const IslandClusterAlgo::EcalPart& ecalPart);
+
+  void outputValidationInfo(reco::CaloClusterPtrVector& clusterPtrVector);
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(IslandClusterProducer);
 
 IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps) {
   // The verbosity level

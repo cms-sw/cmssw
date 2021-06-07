@@ -1,34 +1,59 @@
-// C/C++ headers
-#include <iostream>
-#include <vector>
-#include <memory>
-
-// Framework
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
-
-// Reconstruction Classes
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
-
-// Geometry
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
-
-// Class header file
-#include "RecoEcal/EgammaClusterProducers/interface/HybridClusterProducer.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
+#include <iostream>
+#include <memory>
+#include <vector>
+
+class HybridClusterProducer : public edm::stream::EDProducer<> {
+public:
+  HybridClusterProducer(const edm::ParameterSet& ps);
+
+  ~HybridClusterProducer() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  int nEvt_;  // internal counter of events
+
+  std::string basicclusterCollection_;
+  std::string superclusterCollection_;
+
+  edm::EDGetTokenT<EcalRecHitCollection> hitsToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevLvToken_;
+
+  HybridClusterAlgo* hybrid_p;  // clustering algorithm
+  PositionCalc posCalculator_;  // position calculation algorithm
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HybridClusterProducer);
 
 HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps) {
   basicclusterCollection_ = ps.getParameter<std::string>("basicclusterCollection");

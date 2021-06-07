@@ -1,22 +1,55 @@
-#include "RecoEcal/EgammaClusterProducers/interface/ReducedRecHitCollectionProducer.h"
+// -*- C++ -*-
+//
+// Package:    ReducedRecHitCollectionProducer
+// Class:      ReducedRecHitCollectionProducer
+//
+/**\class ReducedRecHitCollectionProducer ReducedRecHitCollectionProducer.cc Calibration/EcalAlCaRecoProducers/src/ReducedRecHitCollectionProducer.cc
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-
-#include "Geometry/Records/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-
-#include "FWCore/Utilities/interface/transform.h"
+Original author: Paolo Meridiani PH/CMG
+ 
+Implementation:
+ <Notes on implementation>
+*/
 
 #include <iostream>
+#include <memory>
+
+#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+
+class ReducedRecHitCollectionProducer : public edm::stream::EDProducer<> {
+public:
+  //! ctor
+  explicit ReducedRecHitCollectionProducer(const edm::ParameterSet&);
+  ~ReducedRecHitCollectionProducer() override;
+  //! producer
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;
+  std::vector<edm::EDGetTokenT<DetIdCollection>> interestingDetIdCollections_;
+  std::string reducedHitsCollection_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ReducedRecHitCollectionProducer);
 
 ReducedRecHitCollectionProducer::ReducedRecHitCollectionProducer(const edm::ParameterSet& iConfig) {
   recHitsToken_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsLabel"));
