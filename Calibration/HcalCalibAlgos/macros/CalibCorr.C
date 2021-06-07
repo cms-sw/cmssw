@@ -214,7 +214,7 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
                   << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
     } else {  // 21pu (June, 2021)
       const double CONST_COR_COEF[6] = {0.989727, 0.981923, 0.97571, 0.562475, 0.467947, 0.411831};
-      const double LINEAR_COR_COEF[6] = {-0.0469558, -0.125805, -0.251383, -0.0668994, -0.0964236, -0.0947158 };
+      const double LINEAR_COR_COEF[6] = {-0.0469558, -0.125805, -0.251383, -0.0668994, -0.0964236, -0.0947158};
       const double SQUARE_COR_COEF[6] = {0, 0, 0.0399785, 0.00610104, 0.00952528, 0.0100645};
       const int PU_IETA_1 = 7;
       const int PU_IETA_2 = 16;
@@ -456,13 +456,13 @@ bool CalibCorrFactor::readCorrFactor(const char* fname) {
           float corrf = std::atof(items[3].c_str());
           double scale = getFactor(std::abs(ieta));
           cfactors_[std::pair<int, int>(ieta, depth)] = scale * corrf;
-          if (ieta > etamp_ && depth == 1) 
+          if (ieta > etamp_ && depth == 1)
             etamp_ = ieta;
-	  if (ieta == etamp_ && depth < depMax_)
+          if (ieta == etamp_ && depth < depMax_)
             cfacmp_[depth] = scale * corrf;
           if (ieta < etamn_ && depth == 1)
             etamn_ = ieta;
-	  if (ieta == etamn_ && depth < depMax_)
+          if (ieta == etamn_ && depth < depMax_)
             cfacmn_[depth] = scale * corrf;
         }
       }
@@ -470,7 +470,7 @@ bool CalibCorrFactor::readCorrFactor(const char* fname) {
       std::cout << "Reads total of " << all << " and " << good << " good records"
                 << " Max eta (z>0) " << etamp_ << " eta (z<0) " << etamn_ << std::endl;
       for (int i = 0; i < depMax_; ++i)
-	std::cout << "[" << i << "] C+ " << cfacmp_[i] << " C- " << cfacmn_[i] << std::endl;
+        std::cout << "[" << i << "] C+ " << cfacmp_[i] << " C- " << cfacmn_[i] << std::endl;
       if (good > 0)
         ok = true;
     }
