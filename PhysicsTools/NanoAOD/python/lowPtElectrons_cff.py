@@ -194,12 +194,7 @@ lowPtElectronMC = cms.Sequence(
 # Modifiers
 ################################################################################
 
-_modifiers = ( run2_miniAOD_80XLegacy |
-               run2_nanoAOD_94XMiniAODv1 |
-               run2_nanoAOD_94XMiniAODv2 |
-               run2_nanoAOD_94X2016 |
-               run2_nanoAOD_102Xv1 |
-               run2_nanoAOD_106Xv1 )
-(_modifiers).toReplaceWith(lowPtElectronSequence,cms.Sequence())
-(_modifiers).toReplaceWith(lowPtElectronTables,cms.Sequence())
-(_modifiers).toReplaceWith(lowPtElectronMC,cms.Sequence())
+_modifiers = ~(run2_nanoAOD_106Xv2 | run2_nanoAOD_devel)
+_modifiers.toReplaceWith(lowPtElectronSequence,cms.Sequence())
+_modifiers.toReplaceWith(lowPtElectronTables,cms.Sequence())
+_modifiers.toReplaceWith(lowPtElectronMC,cms.Sequence())
