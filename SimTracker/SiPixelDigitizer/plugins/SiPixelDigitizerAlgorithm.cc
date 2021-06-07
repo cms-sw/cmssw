@@ -157,7 +157,7 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
     if (!notFound.empty()) {
       for (const auto& entry : notFound) {
         edm::LogError("SiPixelFEDChannelContainer")
-            << "The requested scenario: " << entry << " is not found in the map!!" << std::endl;
+            << "The requested scenario: " << entry << " is not found in the map!! \n";
       }
       throw cms::Exception("SiPixelDigitizerAlgorithm") << "Found: " << notFound.size()
                                                         << " missing scenario(s) in SiPixelStatusScenariosRcd while "
@@ -350,9 +350,9 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 }
 
 std::map<int, SiPixelDigitizerAlgorithm::CalParameters, std::less<int> > SiPixelDigitizerAlgorithm::initCal() const {
-  using std::cerr;
-  using std::cout;
-  using std::endl;
+  //  using std::cerr;
+  //  using std::cout;
+  //  using std::endl;
 
   std::map<int, SiPixelDigitizerAlgorithm::CalParameters, std::less<int> > calmap;
   // Prepare for the analog amplitude miss-calibration
@@ -366,18 +366,19 @@ std::map<int, SiPixelDigitizerAlgorithm::CalParameters, std::less<int> > SiPixel
 
     in_file.open(filename, std::ios::in);  // in C++
     if (in_file.bad()) {
-      cout << " File not found " << endl;
+      edm::LogInfo("PixelDigitizer ") << " File not found \n ";
       return calmap;  // signal error
     }
-    cout << " file opened : " << filename << endl;
+    edm::LogInfo("PixelDigitizer ") << " file opened : " << filename << "\n";
 
     char line[500];
     for (int i = 0; i < 3; i++) {
       in_file.getline(line, 500, '\n');
-      cout << line << endl;
+      edm::LogInfo("PixelDigitizer ") << line << "\n";
     }
 
-    cout << " test map" << endl;
+    edm::LogInfo("PixelDigitizer ") << " test map"
+                                    << "\n";
 
     float par0, par1, par2, par3;
     int colid, rowid;
@@ -386,17 +387,19 @@ std::map<int, SiPixelDigitizerAlgorithm::CalParameters, std::less<int> > SiPixel
     for (int i = 0; i < (52 * 80); i++) {  // loop over tracks
       in_file >> par0 >> par1 >> par2 >> par3 >> name >> colid >> rowid;
       if (in_file.bad()) {  // check for errors
-        cerr << "Cannot read data file" << endl;
+        edm::LogError("PixelDigitizer") << "Cannot read data file for calmap"
+                                        << "\n";
         return calmap;
       }
       if (in_file.eof() != 0) {
-        cerr << in_file.eof() << " " << in_file.gcount() << " " << in_file.fail() << " " << in_file.good()
-             << " end of file " << endl;
+        edm::LogError("PixelDigitizer") << "calmap " << in_file.eof() << " " << in_file.gcount() << " "
+                                        << in_file.fail() << " " << in_file.good() << " end of file "
+                                        << "\n";
         return calmap;
       }
 
-      //cout << " line " << i << " " <<par0<<" "<<par1<<" "<<par2<<" "<<par3<<" "
-      //   <<colid<<" "<<rowid<<endl;
+      //edm::LogInfo("PixelDigitizer ") << " line " << i << " " <<par0<<" "<<par1<<" "<<par2<<" "<<par3<<" "
+      //   <<colid<<" "<<rowid<<"\n";
 
       CalParameters onePix;
       onePix.p0 = par0;
@@ -411,15 +414,16 @@ std::map<int, SiPixelDigitizerAlgorithm::CalParameters, std::less<int> > SiPixel
       // Testing the index conversion, can be skipped
       std::pair<int, int> p = PixelIndices::channelToPixelROC(chan);
       if (rowid != p.first)
-        cout << " wrong channel row " << rowid << " " << p.first << endl;
+        edm::LogInfo("PixelDigitizer ") << " wrong channel row " << rowid << " " << p.first << "\n";
       if (colid != p.second)
-        cout << " wrong channel col " << colid << " " << p.second << endl;
+        edm::LogInfo("PixelDigitizer ") << " wrong channel col " << colid << " " << p.second << "\n";
 
     }  // pixel loop in a ROC
 
-    cout << " map size  " << calmap.size() << " max " << calmap.max_size() << " " << calmap.empty() << endl;
+    edm::LogInfo("PixelDigitizer ") << " map size  " << calmap.size() << " max " << calmap.max_size() << " "
+                                    << calmap.empty() << "\n";
 
-    //     cout << " map size  " << calmap.size()  << endl;
+    //     edm::LogInfo("PixelDigitizer ") << " map size  " << calmap.size()  << "\n";
     //     map<int,CalParameters,std::less<int> >::iterator ix,it;
     //     map<int,CalParameters,std::less<int> >::const_iterator ip;
     //     for (ix = calmap.begin(); ix != calmap.end(); ++ix) {
@@ -428,7 +432,7 @@ std::map<int, SiPixelDigitizerAlgorithm::CalParameters, std::less<int> > SiPixel
     //       it  = calmap.find(i);
     //       CalParameters y  = (*it).second;
     //       CalParameters z = (*ix).second;
-    //       cout << i <<" "<<p.first<<" "<<p.second<<" "<<y.p0<<" "<<z.p0<<" "<<calmap[i].p0<<endl;
+    //       edm::LogInfo("PixelDigitizer ") << i <<" "<<p.first<<" "<<p.second<<" "<<y.p0<<" "<<z.p0<<" "<<calmap[i].p0<<"\n";
 
     //       //int dummy=0;
     //       //cin>>dummy;
@@ -814,6 +818,7 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
                     inputEnd,
                     *ssbegin,
                     simHitGlobalIndex,
+                    inputBeginGlobalIndex,
                     tofBin,
                     pixdet,
                     collection_points);  // 1st 3 args needed only for SimHit<-->Digi link
@@ -1287,7 +1292,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     //  <<ionization_points[i].energy()<<" "
     //  <<hit.particleType()<<" "<<hit.pabs()<<" "<<hit.energyLoss()<<" "
     //  <<hit.entryPoint()<<" "<<hit.exitPoint()
-    //  <<std::endl;
+    //  <<"\n";
 
     if (DriftDistance < 0.) {
       DriftDistance = 0.;
@@ -1342,6 +1347,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
                                               std::vector<PSimHit>::const_iterator inputEnd,
                                               const PSimHit& hit,
                                               const size_t hitIndex,
+                                              const size_t FirstHitIndex,
                                               const unsigned int tofBin,
                                               const PixelGeomDetUnit* pixdet,
                                               const std::vector<SignalPoint>& collection_points) {
@@ -1376,7 +1382,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
     //if(SigmaX==0 || SigmaY==0) {
     //cout<<SigmaX<<" "<<SigmaY
     //   << " cloud " << i->position().x() << " " << i->position().y() << " "
-    //   << i->sigma_x() << " " << i->sigma_y() << " " << i->amplitude()<<std::endl;
+    //   << i->sigma_x() << " " << i->sigma_y() << " " << i->amplitude()<<"\n";
     //}
 
 #ifdef TP_DEBUG
@@ -1522,14 +1528,59 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
   // Fill the global map with all hit pixels from this event
 
   bool reweighted = false;
+  //  size_t ReferenceIndex4CR=0;
   if (UseReweighting) {
     if (hit.processType() == 0) {
+      //      ReferenceIndex4CR=hitIndex;
       reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight(
           hit, hit_signal, hitIndex, tofBin, topol, detID, theSignal, hit.processType(), makeDigiSimLinks_);
     } else {
-      // If it's not the primary particle, use the first hit in the collection as SimHit, which should be the corresponding primary.
-      reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight(
-          (*inputBegin), hit_signal, hitIndex, tofBin, topol, detID, theSignal, hit.processType(), makeDigiSimLinks_);
+      // As it is not the primary particle, check if the first hit in the SimHit collection corresponding to the same simulated track
+      if ((*inputBegin).trackId() == hit.trackId()) {
+        //            ReferenceIndex4CR=FirstHitIndex;
+        reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight(
+            (*inputBegin), hit_signal, hitIndex, tofBin, topol, detID, theSignal, hit.processType(), makeDigiSimLinks_);
+      } else {
+        // loop on all the hit from the 1st of the collection to the hit itself to find the Primary particle of the same trackId
+        uint32_t detId = pixdet->geographicalId().rawId();
+        size_t localIndex = FirstHitIndex;
+        bool find_the_primary = false;
+        for (std::vector<PSimHit>::const_iterator ssbegin = inputBegin; localIndex < hitIndex;
+             ++ssbegin, ++localIndex) {
+          if ((*ssbegin).detUnitId() != detId) {
+            continue;
+          }
+          if ((*ssbegin).trackId() == hit.trackId() && !find_the_primary) {
+            // what to do if we find the same trackId but w/o being Primary particle ?
+            if ((*ssbegin).processType() == 0) {
+              //                      ReferenceIndex4CR=localIndex;
+              reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight((*ssbegin),
+                                                                                           hit_signal,
+                                                                                           hitIndex,
+                                                                                           tofBin,
+                                                                                           topol,
+                                                                                           detID,
+                                                                                           theSignal,
+                                                                                           hit.processType(),
+                                                                                           makeDigiSimLinks_);
+              find_the_primary = true;
+            }
+          }
+        }
+        if (!find_the_primary) {
+          // we haven't found a hit associated to the same trackId --> use the 1st hit of the collection then
+          //              ReferenceIndex4CR=FirstHitIndex;
+          reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight((*inputBegin),
+                                                                                       hit_signal,
+                                                                                       hitIndex,
+                                                                                       tofBin,
+                                                                                       topol,
+                                                                                       detID,
+                                                                                       theSignal,
+                                                                                       hit.processType(),
+                                                                                       makeDigiSimLinks_);
+        }
+      }
     }
   }
   if (!reweighted) {
