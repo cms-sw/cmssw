@@ -375,7 +375,6 @@ namespace edm {
   void ConcurrentGeneratorFilter<HAD, DEC>::globalEndLuminosityBlockProduce(LuminosityBlock& lumi,
                                                                             EventSetup const&,
                                                                             gen::GenLumiSummary const* iSummary) const {
-
     lumi.put(std::move(iSummary->lumiInfo_));
   }
 
