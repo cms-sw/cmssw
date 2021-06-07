@@ -28,12 +28,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MuonSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
-  SensitiveDetector* make(const std::string& iname,
-                          const edm::EventSetup& es,
-                          const SensitiveDetectorCatalog& clg,
-                          const edm::ParameterSet& p,
-                          const SimTrackManager* man,
-                          SimActivityRegistry& reg) const override {
+  std::unique_ptr<SensitiveDetector> make(const std::string& iname,
+                                          const edm::EventSetup& es,
+                                          const SensitiveDetectorCatalog& clg,
+                                          const edm::ParameterSet& p,
+                                          const SimTrackManager* man,
+                                          SimActivityRegistry& reg) const override {
     edm::ESHandle<MuonOffsetMap> mom;
     es.get<IdealGeometryRecord>().get(mom);
     const MuonOffsetMap* offmap = (mom.isValid()) ? mom.product() : nullptr;
@@ -49,9 +49,9 @@ class MuonSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
     bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
     //
 
-    MuonSensitiveDetector* sd = new MuonSensitiveDetector(
+    auto sd = std::make_unique<MuonSensitiveDetector>(
         iname, offmap, *mdc, clg, ePersistentCutGeV, allMuonsPersistent, printHits, dd4hep, man);
-    SimActivityRegistryEnroller::enroll(reg, sd);
+    SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
 };
