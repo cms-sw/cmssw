@@ -63,7 +63,7 @@ from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSuperClusters_cff import
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronCores_cff import *
 
 # Low pT electrons
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import *
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cff import lowPtGsfElectrons
 
 # Low pT Electron value maps
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cff import lowPtGsfElectronSeedValueMaps
