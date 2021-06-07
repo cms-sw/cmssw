@@ -174,7 +174,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_recCoreNum_ = nullptr;
   h1_recTrackNum_ = nullptr;
   h1_recSeedNum_ = nullptr;
-  h1_recOfflineVertices_ = nullptr;  
+  h1_recOfflineVertices_ = nullptr;
 
   h1_matchingObjectEta = nullptr;
   h1_matchingObjectAbsEta = nullptr;
@@ -2415,7 +2415,6 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   auto gsfElectronTracks = iEvent.getHandle(electronTrackCollection_);
   auto gsfElectronSeeds = iEvent.getHandle(electronSeedCollection_);
 
-
   auto isoFromDepsTk03Handle = iEvent.getHandle(isoFromDepsTk03Tag_);
   auto isoFromDepsTk04Handle = iEvent.getHandle(isoFromDepsTk04Tag_);
   auto isoFromDepsEcalFull03Handle = iEvent.getHandle(isoFromDepsEcalFull03Tag_);
@@ -2447,7 +2446,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   h1_recCoreNum_->Fill((*gsfElectronCores).size());
   h1_recTrackNum_->Fill((*gsfElectronTracks).size());
   h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
-  h1_recOfflineVertices_->Fill((*vertexCollectionHandle).size());  
+  h1_recOfflineVertices_->Fill((*vertexCollectionHandle).size());
 
   // all rec electrons
   reco::GsfElectronCollection::const_iterator gsfIter;
