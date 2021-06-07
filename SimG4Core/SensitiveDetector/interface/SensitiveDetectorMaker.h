@@ -31,6 +31,8 @@ template <class T>
 class SensitiveDetectorMaker : public SensitiveDetectorMakerBase {
 public:
   explicit SensitiveDetectorMaker(){};
+  SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete;
+  const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete;
 
   // ---------- const member functions ---------------------
   SensitiveDetector* make(const std::string& iname,
@@ -43,10 +45,6 @@ public:
     SimActivityRegistryEnroller::enroll(reg, sd);
     return static_cast<SensitiveDetector*>(sd);
   };
-
-private:
-  SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete;
-  const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete;
 };
 
 #endif
