@@ -74,7 +74,7 @@ from Configuration.Eras.Modifier_bParking_cff import bParking
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cff import rekeyLowPtGsfElectronSeedValueMaps
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cff import lowPtGsfElectronID
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtGsfElectrons
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cff import lowPtGsfElectrons
 
 _makePatLowPtElectronsTask = makePatLowPtElectronsTask.copy()
 _makePatLowPtElectronsTask.add(rekeyLowPtGsfElectronSeedValueMaps)
