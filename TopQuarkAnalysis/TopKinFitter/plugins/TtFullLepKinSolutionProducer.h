@@ -409,7 +409,7 @@ inline void TtFullLepKinSolutionProducer::produce(edm::Event& evt, const edm::Ev
     //create dmummy vector
     std::vector<int> idcs;
     idcs.reserve(6);
- for (int i = 0; i < 6; ++i)
+    for (int i = 0; i < 6; ++i)
       idcs.push_back(-1);
 
     idcsV.push_back(idcs);

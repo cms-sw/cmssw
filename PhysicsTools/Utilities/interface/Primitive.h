@@ -155,8 +155,8 @@ namespace funct {
   //  /
 
   template <TYPXT2,
-            bool bint = not::std::is_same<PRIMIT(X, B), UndefinedIntegral>::value,
-            bool aint = not::std::is_same<PRIMIT(X, A), UndefinedIntegral>::value>
+            bool bint = not ::std::is_same<PRIMIT(X, B), UndefinedIntegral>::value,
+            bool aint = not ::std::is_same<PRIMIT(X, A), UndefinedIntegral>::value>
   struct PartIntegral {
     typedef UndefinedIntegral type;
     GET(PROD_S(A, B), type());
@@ -213,8 +213,8 @@ namespace funct {
   //  /
 
   template <TYPXT2,
-            bool bint = not::std::is_same<PRIMIT(X, RATIO(NUM(1), B)), UndefinedIntegral>::value,
-            bool aint = not::std::is_same<PRIMIT(X, A), UndefinedIntegral>::value>
+            bool bint = not ::std::is_same<PRIMIT(X, RATIO(NUM(1), B)), UndefinedIntegral>::value,
+            bool aint = not ::std::is_same<PRIMIT(X, A), UndefinedIntegral>::value>
   struct PartIntegral2 {
     typedef UndefinedIntegral type;
     GET(RATIO_S(A, B), type());
