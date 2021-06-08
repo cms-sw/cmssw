@@ -154,7 +154,7 @@ void HLTExoticaPlotter::analyze(const bool &isPassTrigger,
     }
 
     if (!dxys.empty() &&
-        (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON || objType == EVTColContainer::MUTRK)){
+        (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON || objType == EVTColContainer::MUTRK)) {
       this->fillHist(isPassTrigger, source, objTypeStr, "Dxy", dxys[jaux]);
       ++jaux;
     }
