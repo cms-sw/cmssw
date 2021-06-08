@@ -119,6 +119,12 @@ MicroEventContentGEN = cms.PSet(
     )
 )
 
+# keep displaced objects for b-parking era
+from Configuration.Eras.Modifier_bParking_cff import bParking
+_bparking_displaced_extraCommands = ['keep recoTracks_displacedGlobalMuons_*_*', 
+                                     'keep recoTracks_displacedTracks_*_*',]
+bParking.toModify(MicroEventContent,outputCommands = MicroEventContent.outputCommands + _bparking_displaced_extraCommands)
+
 # --- Only for 2018 data & MC
 _run2_HCAL_2018_extraCommands = ["keep *_packedPFCandidates_hcalDepthEnergyFractions_*"]
 from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
