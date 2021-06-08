@@ -51,7 +51,7 @@ alctPhase2 = alctPhase1.clone(
 )
 
 alctPhase2GEM = alctPhase2.clone(
-    alctNplanesHitPattern = 3
+    alctNplanesHitPattern = 4
 )
 
 alctPSets = cms.PSet(
