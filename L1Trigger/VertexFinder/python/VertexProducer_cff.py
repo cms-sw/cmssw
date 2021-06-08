@@ -30,7 +30,10 @@ VertexProducer = cms.EDProducer('VertexProducer',
         # chi2dof < 5 for tracks with Pt > 10
         FH_DoTightChi2 = cms.bool(False),
         # FastHisto algorithm histogram parameters (min,max,width) [cm]
-        FH_HistogramParameters = cms.vdouble(-14.95, 15.0, 0.1),
+        # TDR settings: [-14.95, 15.0, 0.1]
+        # L1TkPrimaryVertexProducer: [-30.0, 30.0, 0.09983361065]
+        # Firmware: [-14.4, 14.4, 0.4]
+        FH_HistogramParameters = cms.vdouble(-30.0, 30.0, 0.09983361065),
         # The number of vertixes to return (i.e. N windows with the highest combined pT)
         FH_NVtx = cms.uint32(10),
         # FastHisto algorithm assumed vertex half-width [cm]
@@ -53,7 +56,8 @@ VertexProducer = cms.EDProducer('VertexProducer',
         #   -1 = tracks are valid
         #   0 = tracks are mismeasured and ignored/truncated
         #   1 = tracks are mismeasured and saturate at VxMaxTrackPt
-        VxMaxTrackPtBehavior = cms.int32(1),
+        # Option '0' was used for the TDR, but '1' is used for the firmware
+        VxMaxTrackPtBehavior = cms.int32(0),
         # Maximum chi2 of tracks used to create vertex
         VxMaxTrackChi2 = cms.double(100.),
         # Minimum number of stubs associated to a track

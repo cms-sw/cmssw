@@ -45,11 +45,17 @@ namespace cond {
       retVal.since = std::get<0>(*m_current);
       auto next = m_current;
       next++;
-
+      if (next == m_parent->m_array->end()) {
+        retVal.till = cond::time::MAX_VAL;
+      } else {
+        retVal.till = cond::time::tillTimeFromNextSince(std::get<0>(*next), m_parent->m_tagInfo.timeType);
+      }
       // default is the end of validity when set...
-      retVal.till = m_parent->m_tagInfo.endOfValidity;
-      retVal.till = cond::time::tillTimeFromNextSince(std::get<0>(*next), m_parent->m_tagInfo.timeType);
+      if (retVal.till > m_parent->m_tagInfo.endOfValidity) {
+        retVal.till = m_parent->m_tagInfo.endOfValidity;
+      }
       retVal.payloadId = std::get<1>(*m_current);
+
       return retVal;
     }
 

@@ -20,13 +20,14 @@ namespace l1tVertexFinder {
 
   class VertexFinder {
   public:
-    // Copy fitted tracks collection into class
+    /// Constructor and destructor
     VertexFinder(FitTrackCollection& fitTracks, const AlgoSettings& settings) {
       fitTracks_ = fitTracks;
       settings_ = &settings;
     }
     ~VertexFinder() {}
 
+    /// Helper structs/classes
     struct SortTracksByZ0 {
       inline bool operator()(const L1Track track0, const L1Track track1) { return (track0.z0() < track1.z0()); }
     };
@@ -37,8 +38,14 @@ namespace l1tVertexFinder {
       }
     };
 
-    /// Returns the z positions of the reconstructed primary vertices
-    const std::vector<RecoVertex<>>& Vertices() const { return vertices_; }
+    /// Accessors
+
+    /// Number of iterations
+    unsigned int IterationsPerTrack() const { return double(iterations_) / double(fitTracks_.size()); }
+    /// Storage for tracks out of the L1 Track finder
+    unsigned int numInputTracks() const { return fitTracks_.size(); }
+    /// Number of iterations
+    unsigned int NumIterations() const { return iterations_; }
     /// Number of reconstructed vertices
     unsigned int numVertices() const { return vertices_.size(); }
     /// Reconstructed Primary Vertex
@@ -52,17 +59,17 @@ namespace l1tVertexFinder {
     }
     /// Reconstructed Primary Vertex Id
     unsigned int primaryVertexId() const { return pv_index_; }
+    /// Returns the z positions of the reconstructed primary vertices
+    const std::vector<RecoVertex<>>& vertices() const { return vertices_; }
     /// Storage for tracks out of the L1 Track finder
     const FitTrackCollection& fitTracks() const { return fitTracks_; }
-    /// Storage for tracks out of the L1 Track finder
-    unsigned int numInputTracks() const { return fitTracks_.size(); }
 
     /// Find the primary vertex
     void findPrimaryVertex();
     /// Associate the primary vertex with the real one
     void associatePrimaryVertex(double trueZ0);
     /// Gap Clustering Algorithm
-    void gapClustering();
+    void GapClustering();
     /// Find maximum distance in two clusters of tracks
     float maxDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
     /// Find minimum distance in two clusters of tracks
@@ -73,27 +80,19 @@ namespace l1tVertexFinder {
     float centralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
     /// Simple Merge Algorithm
     void agglomerativeHierarchicalClustering();
-    /// DBSCAN algorithm
-    void DBSCAN();
-    /// Principal Vertex Reconstructor algorithm
-    void PVR();
     /// Adaptive Vertex Reconstruction algorithm
     void adaptiveVertexReconstruction();
     /// High pT Vertex Algorithm
-    void HPV();
-    /// Kmeans Algorithm
-    void Kmeans();
-    /// TDR histogramming algorithmn
     void fastHistoLooseAssociation();
     /// Histogramming algorithm
     void fastHisto(const TrackerTopology* tTopo);
-    /// Sort Vertices in pT
+    /// Sort vertices in pT
     void SortVerticesInPt() {
       std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {
-        return (vertex0.pT() > vertex1.pT());
+        return (vertex0.pt() > vertex1.pt());
       });
     }
-    /// Sort Vertices in z
+    /// Sort vertices in z
     void SortVerticesInZ0() {
       std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {
         return (vertex0.z0() < vertex1.z0());
@@ -111,6 +110,37 @@ namespace l1tVertexFinder {
         value += stride;
       }
     }
+
+    /// Vertexing algorithms
+
+    /// Adaptive Vertex Reconstruction algorithm
+    void AdaptiveVertexReconstruction();
+    /// Simple Merge Algorithm
+    void AgglomerativeHierarchicalClustering();
+    /// Find distance between centres of two clusters
+    float CentralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
+    /// Compute the vertex parameters
+    void computeAndSetVertexParameters(RecoVertex<>& vertex,
+                                       const std::vector<float>& bin_centers,
+                                       const std::vector<unsigned int>& counts);
+    /// DBSCAN algorithm
+    void DBSCAN();
+    /// TDR histogramming algorithmn
+    void FastHistoLooseAssociation();
+    /// Histogramming algorithm
+    void FastHisto(const TrackerTopology* tTopo);
+    /// High pT Vertex Algorithm
+    void HPV();
+    /// Kmeans Algorithm
+    void Kmeans();
+    /// Find maximum distance in two clusters of tracks
+    float MaxDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
+    /// Find minimum distance in two clusters of tracks
+    float MinDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
+    /// Find average distance in two clusters of tracks
+    float MeanDistance(RecoVertex<> cluster0, RecoVertex<> cluster1);
+    /// Principal Vertex Reconstructor algorithm
+    void PVR();
 
   private:
     const AlgoSettings* settings_;

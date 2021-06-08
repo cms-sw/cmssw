@@ -80,12 +80,6 @@ private:
   // switch to for enabling checking against the list of bad chambers
   bool checkBadChambers_;
 
-  // write out all CLCTs
-  bool writeOutAllCLCTs_;
-
-  // write out all ALCTs
-  bool writeOutAllALCTs_;
-
   // Write out pre-triggers
   bool savePreTriggers_;
 
