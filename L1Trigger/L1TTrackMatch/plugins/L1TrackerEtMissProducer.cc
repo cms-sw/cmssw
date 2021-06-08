@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -55,13 +54,15 @@ private:
 
   const edm::EDGetTokenT<TkPrimaryVertexCollection> pvToken_;
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
 //constructor//
 L1TrackerEtMissProducer::L1TrackerEtMissProducer(const edm::ParameterSet& iConfig)
     : pvToken_(consumes<TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
       trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
-          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))) {
+          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
   maxZ0_ = (float)iConfig.getParameter<double>("maxZ0");
   deltaZ_ = (float)iConfig.getParameter<double>("deltaZ");
   chi2dofMax_ = (float)iConfig.getParameter<double>("chi2dofMax");
@@ -88,9 +89,7 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   std::unique_ptr<TkEtMissCollection> METCollection(new TkEtMissCollection);
 
   // Tracker Topology
-  edm::ESHandle<TrackerTopology> tTopoHandle_;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
-  const TrackerTopology* tTopo = tTopoHandle_.product();
+  const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
 
   edm::Handle<TkPrimaryVertexCollection> L1VertexHandle;
   iEvent.getByToken(pvToken_, L1VertexHandle);
@@ -151,8 +150,8 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     for (unsigned int istub = 0; istub < (unsigned int)theStubs.size(); istub++) {
       DetId detId(theStubs.at(istub)->getDetId());
       if (detId.det() == DetId::Detector::Tracker) {
-        if ((detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3) ||
-            (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9))
+        if ((detId.subdetId() == StripSubdetector::TOB && tTopo.tobLayer(detId) <= 3) ||
+            (detId.subdetId() == StripSubdetector::TID && tTopo.tidRing(detId) <= 9))
           nPS++;
       }
     }

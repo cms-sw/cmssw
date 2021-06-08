@@ -1,0 +1,33 @@
+<lcgdict>
+  <class name="l1tVertexFinder::InputData"/>
+  <class name="l1tVertexFinder::Vertex"/>
+  <class name="l1tVertexFinder::TP"/>
+  <class name="l1tVertexFinder::Stub"/>
+  <class name="std::map<DetId,DetId>"/>
+  <class name="edm::Ptr<l1tVertexFinder::Stub>"/>
+  <class name="edm::Ptr<l1tVertexFinder::TP>"/>
+  <class name="edm::RefToBase<TrackingParticle>"/>
+  <class name="edm::reftobase::BaseHolder<TrackingParticle>"/>
+  <class name="std::map<edm::Ptr<TrackingParticle>,edm::RefToBase<TrackingParticle> >"/>
+  <class name="edm::ValueMap<edm::Ptr<l1tVertexFinder::Stub> >"/>
+  <class name="edm::ValueMap<edm::Ptr<l1tVertexFinder::TP> >"/>
+  <class name="edm::ValueMap<l1tVertexFinder::Stub>"/>
+  <class name="edm::ValueMap<l1tVertexFinder::TP>"/>
+  <class name="std::vector<l1tVertexFinder::Stub>"/>
+  <class name="std::vector<l1tVertexFinder::TP>"/>
+  <class name="std::vector<l1tVertexFinder::Vertex>"/>
+  <class name="std::vector<edm::Ptr<l1tVertexFinder::Stub> >"/>
+  <class name="std::vector<edm::Ptr<l1tVertexFinder::TP> >"/>
+  <class name="edm::Wrapper<l1tVertexFinder::Vertex>"/>
+  <class name="edm::Wrapper<l1tVertexFinder::TP>"/>
+  <class name="edm::Wrapper<l1tVertexFinder::Stub>"/>
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<l1tVertexFinder::Stub> > >"/>
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<l1tVertexFinder::TP> > >"/>
+  <class name="edm::Wrapper<edm::ValueMap<l1tVertexFinder::Stub> >"/>
+  <class name="edm::Wrapper<edm::ValueMap<l1tVertexFinder::TP> >"/>
+  <class name="edm::Wrapper<std::map<DetId,DetId>>"/>
+  <class name="edm::Wrapper<std::vector<l1tVertexFinder::Stub>>"/>
+  <class name="edm::Wrapper<std::vector<l1tVertexFinder::TP>>"/>
+  <class name="edm::Wrapper<std::vector<l1tVertexFinder::Vertex>>"/>
+  <class name="edm::Wrapper<l1tVertexFinder::InputData>"/>
+</lcgdict>

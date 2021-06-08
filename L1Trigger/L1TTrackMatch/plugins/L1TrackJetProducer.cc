@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -62,6 +61,8 @@ private:
   // ----------member data ---------------------------
 
   const EDGetTokenT<vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+
   vector<Ptr<L1TTTrackType> > L1TrkPtrs_;
   vector<int> zBinCount_;
   vector<int> ttrk_;
@@ -100,7 +101,8 @@ private:
 
 L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
     : trackToken_(
-          consumes<vector<TTTrack<Ref_Phase2TrackerDigi_> > >(iConfig.getParameter<InputTag>("L1TrackInputTag"))) {
+          consumes<vector<TTTrack<Ref_Phase2TrackerDigi_> > >(iConfig.getParameter<InputTag>("L1TrackInputTag"))),
+      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
   trkZMax_ = (float)iConfig.getParameter<double>("trk_zMax");
   trkPtMax_ = (float)iConfig.getParameter<double>("trk_ptMax");
   trkPtMin_ = (float)iConfig.getParameter<double>("trk_ptMin");
@@ -144,11 +146,7 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
   unique_ptr<TkJetCollection> L1L1TrackJetProducer(new TkJetCollection);
 
   // For TTStubs
-  ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  ESHandle<TrackerGeometry> tGeomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology &tTopo = iSetup.getData(tTopoToken_);
 
   edm::Handle<vector<TTTrack<Ref_Phase2TrackerDigi_> > > TTTrackHandle;
   iEvent.getByToken(trackToken_, TTTrackHandle);
@@ -174,8 +172,8 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     for (int istub = 0; istub < trk_nstubs; istub++) {  // loop over the stubs
       DetId detId(trkPtr->getStubRefs().at(istub)->getDetId());
       if (detId.det() == DetId::Detector::Tracker) {
-        if ((detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3) ||
-            (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9))
+        if ((detId.subdetId() == StripSubdetector::TOB && tTopo.tobLayer(detId) <= 3) ||
+            (detId.subdetId() == StripSubdetector::TID && tTopo.tidRing(detId) <= 9))
           trk_nPS++;
       }
     }

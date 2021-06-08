@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -78,13 +77,15 @@ private:
 
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
   edm::EDGetTokenT<TkPrimaryVertexCollection> pvToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
 // constructor
 L1TrackFastJetProducer::L1TrackFastJetProducer(const edm::ParameterSet& iConfig)
     : trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-      pvToken_(consumes<TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))) {
+      pvToken_(consumes<TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))),
+      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
   trkZMax_ = (float)iConfig.getParameter<double>("trk_zMax");
   trkChi2dofMax_ = (float)iConfig.getParameter<double>("trk_chi2dofMax");
   trkBendChi2Max_ = iConfig.getParameter<double>("trk_bendChi2Max");
@@ -115,11 +116,7 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::vector<TTTrack<Ref_Phase2TrackerDigi_> >::const_iterator iterL1Track;
 
   // Tracker Topology
-  edm::ESHandle<TrackerTopology> tTopoHandle_;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
-  const TrackerTopology* tTopo = tTopoHandle_.product();
-  ESHandle<TrackerGeometry> tGeomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
+  const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
 
   edm::Handle<TkPrimaryVertexCollection> TkPrimaryVertexHandle;
   iEvent.getByToken(pvToken_, TkPrimaryVertexHandle);
@@ -159,9 +156,9 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       DetId detId(theStubs.at(istub)->getDetId());
       bool tmp_isPS = false;
       if (detId.det() == DetId::Detector::Tracker) {
-        if (detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3)
+        if (detId.subdetId() == StripSubdetector::TOB && tTopo.tobLayer(detId) <= 3)
           tmp_isPS = true;
-        else if (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9)
+        else if (detId.subdetId() == StripSubdetector::TID && tTopo.tidRing(detId) <= 9)
           tmp_isPS = true;
       }
       if (tmp_isPS)
