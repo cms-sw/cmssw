@@ -50,7 +50,7 @@
 #include <memory>
 
 #include <string>
-        #include <vector>
+#include <vector>
 
 typedef std::pair<edm::ProcessHistoryID, std::vector<int>> TauIDConfigCache;
 

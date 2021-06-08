@@ -208,8 +208,9 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker &iBooker,
     double max = _parametersDxy[2];
     h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
   } else if (variable.find("MaxPt") != std::string::npos) {
-    std::string desc =
-        (variable == "MaxPt1") ? "Leading" : (variable == "MaxPt2") ? "Next-to-Leading" : "Next-to-next-to-Leading";
+    std::string desc = (variable == "MaxPt1")   ? "Leading"
+                       : (variable == "MaxPt2") ? "Next-to-Leading"
+                                                : "Next-to-next-to-Leading";
     std::string title = "pT of " + desc + " " + sourceUpper + " " + objType +
                         " "
                         "where event pass the " +
