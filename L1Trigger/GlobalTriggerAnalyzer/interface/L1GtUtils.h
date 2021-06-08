@@ -540,12 +540,12 @@ L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
                      UseEventSetupIn useEventSetupIn)
     : L1GtUtils(iC, useEventSetupIn) {
   m_l1GtUtilsHelper = std::make_unique<L1GtUtilsHelper>(pset,
-                                              iC,
-                                              useL1GtTriggerMenuLite,
-                                              module,
-                                              l1GtRecordInputTag,
-                                              l1GtReadoutRecordInputTag,
-                                              l1GtTriggerMenuLiteInputTag);
+                                                        iC,
+                                                        useL1GtTriggerMenuLite,
+                                                        module,
+                                                        l1GtRecordInputTag,
+                                                        l1GtReadoutRecordInputTag,
+                                                        l1GtTriggerMenuLiteInputTag);
 }
 
 #endif /*GlobalTriggerAnalyzer_L1GtUtils_h*/
