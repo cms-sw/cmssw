@@ -194,13 +194,13 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
     vector<int> layerstubssector(N_SECTOR * (N_LAYER + N_DISK), 0);
 
     for (int j = 0; j < ev.nstubs(); j++) {
-      L1TStub stub = ev.stub(j);
+      const L1TStub& stub = ev.stub(j);
       unsigned int isector = stub.region();
       if (isector != k) {
         continue;
       }
 
-      string dtc = stub.DTClink();
+      const string& dtc = stub.DTClink();
 
       layerstubs[stub.layerdisk()]++;
       layerstubssector[isector * (N_LAYER + N_DISK) + stub.layerdisk()]++;

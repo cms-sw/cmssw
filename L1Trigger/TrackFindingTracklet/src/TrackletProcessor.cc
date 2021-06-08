@@ -478,7 +478,7 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
           }
         }
 
-        if (tedata.regions_.size() > 0) {
+        if (!tedata.regions_.empty()) {
           ntedata++;
           goodtedata = true;
         }
