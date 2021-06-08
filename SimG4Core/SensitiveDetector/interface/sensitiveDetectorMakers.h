@@ -26,11 +26,12 @@
 
 // user include files
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorMakerBase.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // forward declarations
 
 namespace sim {
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> sensitiveDetectorMakers(
-      std::vector<std::string> const& chosenMakers);
+      edm::ConsumesCollector, std::vector<std::string> const& chosenMakers);
 }
 #endif

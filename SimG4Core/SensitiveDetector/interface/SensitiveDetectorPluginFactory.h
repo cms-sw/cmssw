@@ -5,10 +5,11 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorMakerBase.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorMaker.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 
-typedef edmplugin::PluginFactory<SensitiveDetectorMakerBase *()> SensitiveDetectorPluginFactory;
+typedef edmplugin::PluginFactory<SensitiveDetectorMakerBase *(edm::ConsumesCollector)> SensitiveDetectorPluginFactory;
 
 #define DEFINE_SENSITIVEDETECTOR(type) \
   DEFINE_EDM_PLUGIN(SensitiveDetectorPluginFactory, SensitiveDetectorMaker<type>, #type)
