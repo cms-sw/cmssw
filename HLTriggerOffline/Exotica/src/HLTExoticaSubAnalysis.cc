@@ -712,21 +712,21 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
         this->fillHist("rec", objTypeStr, "SumEt", theSumEt[objType]);
       }
 
-      if(objType == 11){
+      if (objType == 11) {
         float dxyRec = trkObjs[objType].at(jel)->dxy(cols->bs->position());
         this->fillHist("rec", objTypeStr, "Dxy", dxyRec);
         dxys.push_back(dxyRec);
         ++jel;
       }
 
-      if(objType == 13){
+      if (objType == 13) {
         float dxyRec = trkObjs[objType].at(jmu)->dxy(cols->bs->position());
         this->fillHist("rec", objTypeStr, "Dxy", dxyRec);
         dxys.push_back(dxyRec);
         ++jmu;
       }
 
-      if(objType == 130){
+      if (objType == 130) {
         float dxyRec = trkObjs[objType].at(jmutrk)->dxy(cols->bs->position());
         this->fillHist("rec", objTypeStr, "Dxy", dxyRec);
         dxys.push_back(dxyRec);
