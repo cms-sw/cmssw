@@ -19,7 +19,7 @@ namespace coral {
 
 }  // namespace coral
 
-std::string to_lower(const std::string& s) {
+inline std::string to_lower(const std::string& s) {
   std::string str(s);
   for (auto& c : str)
     c = tolower(c);
