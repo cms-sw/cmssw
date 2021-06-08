@@ -16,6 +16,7 @@
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "SimG4Core/SensitiveDetector/interface/sensitiveDetectorMakers.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -145,8 +146,9 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
     // instantiate and attach the sensitive detectors
     m_trackManager = std::make_unique<SimTrackManager>();
     {
+      auto makers = sim::sensitiveDetectorMakers(std::vector<std::string>());
       std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *>> sensDets =
-          sim::attachSD(es, catalog, m_p, m_trackManager.get(), m_registry);
+          sim::attachSD(makers, es, catalog, m_p, m_trackManager.get(), m_registry);
 
       m_sensTkDets.swap(sensDets.first);
       m_sensCaloDets.swap(sensDets.second);
