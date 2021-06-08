@@ -362,7 +362,7 @@ void FlavourHistograms<T>::fill(const int& flavour, const T& variable, const T& 
 
 template <class T>
 void FlavourHistograms<T>::fill(const int& flavour, const T* variable) const {
-  if (theArrayDimension == 0) {
+  if (theArrayDimension == nullptr) {
     // single variable
     fillVariable(flavour, *variable, 1.);
   } else {

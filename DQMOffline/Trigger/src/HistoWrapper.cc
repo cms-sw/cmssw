@@ -20,7 +20,7 @@ MonitorElement* HistoWrapper::book1D(DQMStore::IBooker& iBooker, TString const &
     MonitorElement* me = iBooker.book1D(name, title, nchX, lowX, highX);
     return me;
   }
-  return 0;
+  return nullptr;
 }
 
 MonitorElement* HistoWrapper::book2D(DQMStore::IBooker& iBooker, TString const &name, TString const &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int level){
@@ -30,6 +30,6 @@ MonitorElement* HistoWrapper::book2D(DQMStore::IBooker& iBooker, TString const &
     MonitorElement* me = iBooker.book2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
     return me;
   }
-  return 0;
+  return nullptr;
 }
 
