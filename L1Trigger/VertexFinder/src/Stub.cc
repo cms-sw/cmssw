@@ -4,6 +4,30 @@ namespace l1tVertexFinder {
 
   //=== Store useful info about this stub.
 
+  Stub::Stub()
+      : settings_(nullptr),
+        phi_(0.),
+        r_(0.),
+        z_(0.),
+        idDet_(0),
+        moduleMinR_(0.),
+        moduleMaxR_(0.),
+        moduleMinPhi_(0.),
+        moduleMaxPhi_(0.),
+        moduleMinZ_(0.),
+        moduleMaxZ_(0.),
+        psModule_(false),
+        layerId_(0),
+        endcapRing_(0),
+        barrel_(false),
+        sigmaPerp_(0.),
+        sigmaPar_(0.),
+        stripPitch_(0.),
+        stripLength_(0.),
+        nStrips_(0),
+        sensorWidth_(0.),
+        outerModuleAtSmallerR_(false) {}
+
   Stub::Stub(const TTStubRef& ttStubRef,
              const AnalysisSettings& settings,
              const TrackerGeometry* trackerGeometry,
@@ -30,32 +54,21 @@ namespace l1tVertexFinder {
   }
 
   //=== Note which tracking particle(s), if any, produced this stub.
-  //=== The 1st argument is a map relating TrackingParticles to TP.
-
-  void Stub::fillTruth(const std::map<edm::Ptr<TrackingParticle>, const TP*>& translateTP,
-                       edm::Handle<TTStubAssMap> mcTruthTTStubHandle,
+  void Stub::fillTruth(edm::Handle<TTStubAssMap> mcTruthTTStubHandle,
                        edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle) {
     const TTStubRef& ttStubRef(*this);  // Cast to base class
 
     //--- Fill assocTP_ info. If both clusters in this stub were produced by the same single tracking particle, find out which one it was.
 
-    assocTP_ = nullptr;
-
     // Require same TP contributed to both clusters.
     if (mcTruthTTStubHandle->isGenuine(ttStubRef)) {
-      edm::Ptr<TrackingParticle> tpPtr = mcTruthTTStubHandle->findTrackingParticlePtr(ttStubRef);
-      auto it = translateTP.find(tpPtr);
-      if (it != translateTP.end()) {
-        assocTP_ = it->second;
-        // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
-      }
+      assocTP_ = mcTruthTTStubHandle->findTrackingParticlePtr(ttStubRef);
     }
 
     // Fill assocTPs_ info.
-
     if (settings_->stubMatchStrict()) {
       // We consider only stubs in which this TP contributed to both clusters.
-      if (assocTP_ != nullptr)
+      if (!assocTP_.isNull())
         assocTPs_.insert(assocTP_);
     } else {
       // We consider stubs in which this TP contributed to either cluster.
@@ -68,11 +81,7 @@ namespace l1tVertexFinder {
             mcTruthTTClusterHandle->findTrackingParticlePtrs(ttClusterRef);
 
         for (const edm::Ptr<TrackingParticle>& tpPtr : vecTpPtr) {
-          auto it = translateTP.find(tpPtr);
-          if (it != translateTP.end()) {
-            assocTPs_.insert(it->second);
-            // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
-          }
+          assocTPs_.insert(tpPtr);
         }
       }
     }

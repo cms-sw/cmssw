@@ -2,15 +2,12 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
 L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
-  hepMCInputTag = cms.InputTag("generator"),
+  inputDataInputTag = cms.InputTag("InputDataProducer","InputData"),
   genParticleInputTag = cms.InputTag("genParticles",""),
-  tpInputTag = cms.InputTag("mix", "MergedTrackTruth"),
-  stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
-  stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
-  clusterTruthInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
-
   l1TracksInputTags    = cms.VInputTag( VertexProducer.l1TracksInputTag ),
   l1TracksTruthMapInputTags = cms.VInputTag( cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks") ),
+  l1TracksTPInputTags = cms.InputTag("TPStubValueMapProducer:allMatchedTPs"),
+  l1TracksTPValueMapInputTags = cms.InputTag("TPStubValueMapProducer:TPs"),
   l1TracksBranchNames  = cms.vstring('hybrid'),
   l1VertexInputTags   = cms.VInputTag( cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()) ),
   l1VertexTrackInputs = cms.vstring('hybrid'),
@@ -63,6 +60,6 @@ L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
   VertexReconstruction = VertexProducer.VertexReconstruction,
 
   # Debug printout
-  debug  = cms.uint32(0),
+  debug  = VertexProducer.debug,
   printResults = cms.bool(False)
 )
