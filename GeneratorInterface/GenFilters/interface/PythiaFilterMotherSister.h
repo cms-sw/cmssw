@@ -62,13 +62,12 @@ class PythiaFilterMotherSister : public edm::global::EDFilter<> {
        const double maxrapcut;
        const double minphicut;
        const double maxphicut;
+       const double betaBoost;
 
-       //const int status; 
        std::vector<int> motherIDs;
        const int sisterID;   
-       //const int processID;    
-
-       const double betaBoost;
        const double maxSisDisplacement;
+       std::vector<int> nephewIDs;
+       std::vector<double> minNephewPts;
 };
 #endif
