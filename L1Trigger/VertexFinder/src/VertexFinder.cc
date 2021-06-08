@@ -4,7 +4,60 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
-  void VertexFinder::gapClustering() {
+  void VertexFinder::computeAndSetVertexParameters(RecoVertex<>& vertex,
+                                                   const std::vector<float>& bin_centers,
+                                                   const std::vector<unsigned int>& counts) {
+    double pt = 0.;
+    double z0 = 0.;
+    double z0width = 0.;
+    bool highPt = false;
+    double highestPt = 0.;
+    unsigned int numHighPtTracks = 0;
+
+    float SumZ = 0.;
+    float z0square = 0.;
+    float trackPt = 0.;
+
+    std::vector<double> bin_pt(bin_centers.size(), 0.0);
+    unsigned int ibin = 0;
+    unsigned int itrack = 0;
+
+    for (const L1Track* track : vertex.tracks()) {
+      itrack++;
+      trackPt = track->pt();
+      if (trackPt > settings_->vx_TrackMaxPt()) {
+        highPt = true;
+        numHighPtTracks++;
+        highestPt = (trackPt > highestPt) ? trackPt : highestPt;
+        if (settings_->vx_TrackMaxPtBehavior() == 0)
+          continue;  // ignore this track
+        else if (settings_->vx_TrackMaxPtBehavior() == 1)
+          trackPt = settings_->vx_TrackMaxPt();  // saturate
+      }
+
+      pt += std::pow(trackPt, settings_->vx_weightedmean());
+      if (bin_centers.empty() && counts.empty()) {
+        SumZ += track->z0() * std::pow(trackPt, settings_->vx_weightedmean());
+        z0square += track->z0() * track->z0();
+      } else {
+        bin_pt[ibin] += std::pow(trackPt, settings_->vx_weightedmean());
+        if (itrack == counts[ibin]) {
+          SumZ += bin_centers[ibin] * bin_pt[ibin];
+          z0square += bin_centers[ibin] * bin_centers[ibin];
+          itrack = 0;
+          ibin++;
+        }
+      }
+    }
+
+    z0 = SumZ / ((settings_->vx_weightedmean() > 0) ? pt : vertex.numTracks());
+    z0square /= vertex.numTracks();
+    z0width = sqrt(std::abs(z0 * z0 - z0square));
+
+    vertex.setParameters(pt, z0, z0width, highPt, numHighPtTracks, highestPt);
+  }
+
+  void VertexFinder::GapClustering() {
     sort(fitTracks_.begin(), fitTracks_.end(), SortTracksByZ0());
     iterations_ = 0;
     RecoVertex Vertex;
@@ -14,8 +67,7 @@ namespace l1tVertexFinder {
       if ((i + 1 < fitTracks_.size() and fitTracks_[i + 1].z0() - fitTracks_[i].z0() > settings_->vx_distance()) or
           i == fitTracks_.size() - 1) {
         if (Vertex.numTracks() >= settings_->vx_minTracks()) {
-          Vertex.computeParameters(
-              settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+          computeAndSetVertexParameters(Vertex, {}, {});
           vertices_.push_back(Vertex);
         }
         Vertex.clear();
@@ -63,11 +115,8 @@ namespace l1tVertexFinder {
   }
 
   float VertexFinder::centralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
-    cluster0.computeParameters(
-        settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
-    cluster1.computeParameters(
-        settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
-
+    computeAndSetVertexParameters(cluster0, {}, {});
+    computeAndSetVertexParameters(cluster1, {}, {});
     float distance = std::abs(cluster0.z0() - cluster1.z0());
     return distance;
   }
@@ -119,8 +168,7 @@ namespace l1tVertexFinder {
 
     for (RecoVertex clust : vClusters) {
       if (clust.numTracks() >= settings_->vx_minTracks()) {
-        clust.computeParameters(
-            settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+        computeAndSetVertexParameters(clust, {}, {});
         vertices_.push_back(clust);
       }
     }
@@ -182,8 +230,7 @@ namespace l1tVertexFinder {
           if (find(saved.begin(), saved.end(), id) == saved.end())
             vertex.insert(&fitTracks_[id]);
         }
-        vertex.computeParameters(
-            settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+        computeAndSetVertexParameters(vertex, {}, {});
         if (vertex.numTracks() >= settings_->vx_minTracks())
           vertices_.push_back(vertex);
       }
@@ -246,8 +293,7 @@ namespace l1tVertexFinder {
         for (const L1Track& track : acceptedTracks) {
           vertex.insert(&track);
         }
-        vertex.computeParameters(
-            settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+        computeAndSetVertexParameters(vertex, {}, {});
         vertices_.push_back(vertex);
       }
       if (settings_->debug() > 2)
@@ -312,8 +358,7 @@ namespace l1tVertexFinder {
         for (const L1Track& track : acceptedTracks) {
           vertex.insert(&track);
         }
-        vertex.computeParameters(
-            settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+        computeAndSetVertexParameters(vertex, {}, {});
         vertices_.push_back(vertex);
       }
 
@@ -343,10 +388,8 @@ namespace l1tVertexFinder {
       }
     }
 
-    vertex.computeParameters(
-        settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
-
-    vertex.setZ(z);
+    computeAndSetVertexParameters(vertex, {}, {});
+    vertex.setZ0(z);
     vertices_.push_back(vertex);
   }
 
@@ -358,7 +401,7 @@ namespace l1tVertexFinder {
 
     for (unsigned int i = 0; i < NumberOfClusters; ++i) {
       float ClusterCentre = -15. + ClusterSeparation * (i + 0.5);
-      vertices_[i].setZ(ClusterCentre);
+      vertices_[i].setZ0(ClusterCentre);
     }
     unsigned int iterations = 0;
     // Initialise Clusters
@@ -388,8 +431,7 @@ namespace l1tVertexFinder {
       }
       for (unsigned int i = 0; i < NumberOfClusters; ++i) {
         if (vertices_[i].numTracks() >= settings_->vx_minTracks())
-          vertices_[i].computeParameters(
-              settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+          computeAndSetVertexParameters(vertices_[i], {}, {});
       }
       iterations++;
     }
@@ -400,8 +442,8 @@ namespace l1tVertexFinder {
     pv_index_ = 0;
 
     for (unsigned int i = 0; i < vertices_.size(); ++i) {
-      if (vertices_[i].pT() > vertexPt) {
-        vertexPt = vertices_[i].pT();
+      if (vertices_[i].pt() > vertexPt) {
+        vertexPt = vertices_[i].pt();
         pv_index_ = i;
       }
     }
@@ -429,12 +471,11 @@ namespace l1tVertexFinder {
           vertex.insert(&track);
         }
       }
-      vertex.computeParameters(
-          settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
-      vertex.setZ(z);
-      if (vertex.pT() > vxPt) {
+      computeAndSetVertexParameters(vertex, {}, {});
+      vertex.setZ0(z);
+      if (vertex.pt() > vxPt) {
         leading_vertex = vertex;
-        vxPt = vertex.pT();
+        vxPt = vertex.pt();
       }
     }
 
@@ -518,12 +559,16 @@ namespace l1tVertexFinder {
 
     // Compute the sums
     // sliding windows ... sum_i_i+(w-1) where i in (0,nbins-w) and w is the window size
+    std::vector<float> bin_centers(settings_->vx_windowSize(), 0.0);
+    std::vector<unsigned int> counts(settings_->vx_windowSize(), 0);
     for (unsigned int i = 0; i < sums.size(); i++) {
       for (unsigned int j = 0; j < settings_->vx_windowSize(); j++) {
+        bin_centers[j] = settings_->vx_histogram_min() + ((i + j) * settings_->vx_histogram_binwidth()) +
+                         (0.5 * settings_->vx_histogram_binwidth());
+        counts[j] = hist.at(i + j).numTracks();
         sums.at(i) += hist.at(i + j);
       }
-      sums.at(i).computeParameters(
-          settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+      computeAndSetVertexParameters(sums.at(i), bin_centers, counts);
     }
 
     // Find the maxima of the sums
@@ -538,8 +583,8 @@ namespace l1tVertexFinder {
         // Skip this window if it will already be returned
         if (find(found.begin(), found.end(), i) != found.end())
           continue;
-        if (sums.at(i).pT() > sigma_max) {
-          sigma_max = sums.at(i).pT();
+        if (sums.at(i).pt() > sigma_max) {
+          sigma_max = sums.at(i).pt();
           imax = i;
         }
       }
