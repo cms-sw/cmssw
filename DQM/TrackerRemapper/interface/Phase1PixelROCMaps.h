@@ -32,7 +32,7 @@
 namespace PixelROCMapHelper {
   void draw_line(double x1, double x2, double y1, double y2, int width, int style, int color);
   void dress_plot(
-      TCanvas& canv, TH2* h, int lay, int ring, int phase, bool half_shift, bool mark_zero, bool standard_palette);
+      TPad*& canv, TH2* h, int lay, int ring, int phase, bool half_shift, bool mark_zero, bool standard_palette);
 }  // namespace PixelROCMapHelper
 
 /*--------------------------------------------------------------------
@@ -111,9 +111,9 @@ public:
   // Forward declarations
   void fillWholeModule(const uint32_t& detid, double value);
   void fillSelectedRocs(const uint32_t& detid, const std::bitset<16>& theROCs, double value);
-  void drawBarrelMaps(TCanvas& canvas);
-  void drawForwardMaps(TCanvas& canvas);
-  void drawMaps(TCanvas& canvas);
+  void drawBarrelMaps(TCanvas& canvas, const std::string& text = "");
+  void drawForwardMaps(TCanvas& canvas, const std::string& text = "");
+  void drawMaps(TCanvas& canvas, const std::string& text = "");
 
   inline std::array<std::shared_ptr<TH2D>, 4> getLayerMaps() { return h_bpix_maps; }
   inline std::array<std::shared_ptr<TH2D>, 2> getRingMaps() { return h_fpix_maps; }
