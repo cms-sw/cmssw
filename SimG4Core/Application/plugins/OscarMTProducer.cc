@@ -31,7 +31,6 @@
 #include <iostream>
 #include <memory>
 
-        
 namespace edm {
   class StreamID;
 }
