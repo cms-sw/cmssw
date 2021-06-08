@@ -8,7 +8,9 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset, edm::ConsumesCollector &iC, std::shared_ptr<GlobalCoordsObtainer> & globalcoordsobtainer)
+MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset,
+                                                     edm::ConsumesCollector &iC,
+                                                     std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer)
     : MuonPathAnalyzer(pset, iC),
       debug_(pset.getUntrackedParameter<bool>("debug")),
       chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
@@ -68,12 +70,10 @@ void MuonPathAnalyzerInChamber::run(edm::Event &iEvent,
   // fit per SL (need to allow for multiple outputs for a single mpath)
   int nMuonPath_counter = 0;
   for (auto muonpath = muonpaths.begin(); muonpath != muonpaths.end(); ++muonpath) {
-
     if (debug_) {
       LogDebug("MuonPathAnalyzerInChamber")
-	<< "Full path: "
-	<< nMuonPath_counter << " , " << muonpath->get()->nprimitives() << " , " 
-	<< muonpath->get()->nprimitivesUp() << " , " << muonpath->get()->nprimitivesDown();
+          << "Full path: " << nMuonPath_counter << " , " << muonpath->get()->nprimitives() << " , "
+          << muonpath->get()->nprimitivesUp() << " , " << muonpath->get()->nprimitivesDown();
     }
     ++nMuonPath_counter;
 
@@ -88,28 +88,29 @@ void MuonPathAnalyzerInChamber::run(edm::Event &iEvent,
     muonpathDown_ptr->setNPrimitivesUp(0);
     muonpathDown_ptr->setNPrimitivesDown(muonpath->get()->nprimitivesDown());
 
-    for (int n = 0; n < muonpath->get()->nprimitives(); ++n){
+    for (int n = 0; n < muonpath->get()->nprimitives(); ++n) {
       DTPrimitivePtr prim = muonpath->get()->primitive(n);
       // UP
-      if (prim->superLayerId() == 3){
-	muonpathUp_ptr->setPrimitive(prim, n);
+      if (prim->superLayerId() == 3) {
+        muonpathUp_ptr->setPrimitive(prim, n);
       }
       // DOWN
-      else if (prim->superLayerId() == 1){
-	muonpathDown_ptr->setPrimitive(prim, n);
+      else if (prim->superLayerId() == 1) {
+        muonpathDown_ptr->setPrimitive(prim, n);
       }
       // NOT UP NOR DOWN
-      else continue;
+      else
+        continue;
     }
 
     analyze(*muonpath, outmuonpaths);
 
-    if (splitPathPerSL_){
+    if (splitPathPerSL_) {
       if (muonpathUp_ptr->nprimitivesUp() > 1 && muonpath->get()->nprimitivesDown() > 0)
-	analyze(muonpathUp_ptr, outmuonpaths);
+        analyze(muonpathUp_ptr, outmuonpaths);
 
       if (muonpathDown_ptr->nprimitivesDown() > 1 && muonpath->get()->nprimitivesUp() > 0)
-	analyze(muonpathDown_ptr, outmuonpaths);
+        analyze(muonpathDown_ptr, outmuonpaths);
     }
   }
 }
@@ -153,11 +154,10 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
   std::shared_ptr<MuonPath> mpAux;
   int bestI = -1;
   float best_chi2 = 99999.;
-  int added_lat = 0; 
+  int added_lat = 0;
 
   // LOOP for all lateralities:
-  for (int i = 0; i < (int)lateralities_.size(); i++) {  
-
+  for (int i = 0; i < (int)lateralities_.size(); i++) {
     if (debug_)
       LogDebug("MuonPathAnalyzerInChamber") << "DTp2:analyze \t\t\t\t\t Start with combination " << i;
 
@@ -213,37 +213,37 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
     int hits_in_SL3 = 0;
     for (int i = 0; i < mPath->nprimitives(); i++) {
       if (mPath->primitive(i)->isValidTime()) {
-	if (i <= 3) ++hits_in_SL1;
-	else if (i > 3) ++hits_in_SL3;
+        if (i <= 3)
+          ++hits_in_SL1;
+        else if (i > 3)
+          ++hits_in_SL3;
       }
     }
 
     int SL_for_LUT = 0;
     // Depending on which SL has hits, propagate jm_x to SL1, SL3, or to the center of the chamber
     GlobalPoint jm_x_cmssw_global;
-    if (hits_in_SL1 > 2 && hits_in_SL3 <= 2){
+    if (hits_in_SL1 > 2 && hits_in_SL3 <= 2) {
       // Uncorrelated or confirmed with 3 or 4 hits in SL1: propagate to SL1
-      jm_x += mPath->tanPhi() * (11.1 + 0.65); 
+      jm_x += mPath->tanPhi() * (11.1 + 0.65);
       jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(jm_x, 0., z + 11.75));
       SL_for_LUT = 1;
-    }
-    else if (hits_in_SL1 <= 2 && hits_in_SL3 > 2){
+    } else if (hits_in_SL1 <= 2 && hits_in_SL3 > 2) {
       // Uncorrelated or confirmed with 3 or 4 hits in SL3: propagate to SL3
-      jm_x -= mPath->tanPhi() * (11.1 + 0.65); 
+      jm_x -= mPath->tanPhi() * (11.1 + 0.65);
       jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(jm_x, 0., z - 11.75));
       SL_for_LUT = 3;
-    }
-    else if (hits_in_SL1 > 2 && hits_in_SL3 > 2){
+    } else if (hits_in_SL1 > 2 && hits_in_SL3 > 2) {
       // Correlated: stay at chamber center
       jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(jm_x, 0., z));
-    }
-    else {
+    } else {
       // Not interesting
       continue;
     }
-    
+
     // Protection against non-converged fits
-    if (isnan(jm_x)) continue;
+    if (isnan(jm_x))
+      continue;
 
     // Updating muon-path horizontal position
     mPath->setHorizPos(jm_x);
@@ -260,9 +260,9 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
     double psi = atan(mPath->tanPhi());
     mPath->setPhiCMSSW(phi_cmssw);
     mPath->setPhiBCMSSW(hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi_cmssw : -psi - phi_cmssw);
-    
+
     // Global coordinates from LUTs (firmware-like)
-    double phi  = -999.;
+    double phi = -999.;
     double phiB = -999.;
     double x_lut, slope_lut;
     DTSuperLayerId MuonPathSLId1(thisLId.wheel(), thisLId.station(), thisLId.sector(), 1);
@@ -272,26 +272,23 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
 
     // use SL_for_LUT to decide the shift: x-axis origin for LUTs is left chamber side
     double shift_for_lut = 0.;
-    if (SL_for_LUT == 1){
+    if (SL_for_LUT == 1) {
       shift_for_lut = int(10 * shiftinfo_[wireId1.rawId()] * INCREASED_RES_POS_POW);
-    }
-    else if (SL_for_LUT == 3){
+    } else if (SL_for_LUT == 3) {
       shift_for_lut = int(10 * shiftinfo_[wireId3.rawId()] * INCREASED_RES_POS_POW);
-    }
-    else {
+    } else {
       int shift_sl1 = int(round(shiftinfo_[wireId1.rawId()] * INCREASED_RES_POS_POW * 10));
       int shift_sl3 = int(round(shiftinfo_[wireId3.rawId()] * INCREASED_RES_POS_POW * 10));
       if (shift_sl1 < shift_sl3) {
-	shift_for_lut = shift_sl1;
-      } 
-      else
-	shift_for_lut = shift_sl3;
+        shift_for_lut = shift_sl1;
+      } else
+        shift_for_lut = shift_sl3;
     }
-    x_lut = double(jm_x)*10.*INCREASED_RES_POS_POW - shift_for_lut;    // position in cm * precision in JM RF
+    x_lut = double(jm_x) * 10. * INCREASED_RES_POS_POW - shift_for_lut;  // position in cm * precision in JM RF
     slope_lut = -(double(mPath->tanPhi()) * INCREASED_RES_SLOPE_POW);
 
     auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), SL_for_LUT, x_lut, slope_lut);
-    phi  = global_coords[0];
+    phi = global_coords[0];
     phiB = global_coords[1];
     mPath->setPhi(phi);
     mPath->setPhiB(phiB);
@@ -466,11 +463,12 @@ void MuonPathAnalyzerInChamber::setWirePosAndTimeInMP(MuonPathPtr &mpath) {
 void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPathPtr &mpath,
                                                        TLateralities laterality,
                                                        int present_layer[NUM_LAYERS_2SL],
-						       int &lat_added) {
+                                                       int &lat_added) {
   // Get number of hits in current muonPath
   int n_hits = 0;
-  for (int l = 0; l < 8; ++l){
-    if (present_layer[l] == 1) n_hits++;
+  for (int l = 0; l < 8; ++l) {
+    if (present_layer[l] == 1)
+      n_hits++;
   }
 
   // First prepare mpath for fit:
@@ -611,7 +609,7 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPathPtr &mpath,
     recres[lay] = xhit[lay] - zwire[lay] * recslope - b[lay] * recpos - (-1 + 2 * laterality[lay]) * rect0vdrift;
 
     // If a hit is too close to the wire, set its corresponding "swap" flag to 1
-    if (abs(rectdriftvdrift[lay]) < 3){
+    if (abs(rectdriftvdrift[lay]) < 3) {
       swap_laterality[lay] = 1;
     }
 
@@ -631,39 +629,40 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPathPtr &mpath,
     }
   }
 
-  // Now consider all possible alternative lateralities and push to lateralities_ those 
+  // Now consider all possible alternative lateralities and push to lateralities_ those
   // we aren't considering yet
-  if (lat_added == 0){
+  if (lat_added == 0) {
     std::vector<TLateralities> additional_lateralities;
     additional_lateralities.clear();
     additional_lateralities.push_back(laterality);
     // Everytime the swap flag is 1, duplicate all the current elements
     // of additional_lateralities and swap their laterality
-    for (int swap = 0; swap < 8; ++swap){
-      if (swap_laterality[swap] == 1){
-	int add_lat_size = int(additional_lateralities.size());
-	for (int ll = 0; ll < add_lat_size; ++ll){
-	  TLateralities tmp_lat = additional_lateralities[ll];
-	  if (tmp_lat[swap] == LEFT) 
-	    tmp_lat[swap] = RIGHT;
-	  else if (tmp_lat[swap] == RIGHT) 
-	    tmp_lat[swap] = LEFT;
-	  else continue;
-	  additional_lateralities.push_back(tmp_lat);
-	}
+    for (int swap = 0; swap < 8; ++swap) {
+      if (swap_laterality[swap] == 1) {
+        int add_lat_size = int(additional_lateralities.size());
+        for (int ll = 0; ll < add_lat_size; ++ll) {
+          TLateralities tmp_lat = additional_lateralities[ll];
+          if (tmp_lat[swap] == LEFT)
+            tmp_lat[swap] = RIGHT;
+          else if (tmp_lat[swap] == RIGHT)
+            tmp_lat[swap] = LEFT;
+          else
+            continue;
+          additional_lateralities.push_back(tmp_lat);
+        }
       }
     }
     // Now compare all the additional lateralities with the lateralities we are considering:
     // if they are not there, add them
     int already_there = 0;
-    for (int k = 0; k < int(additional_lateralities.size()); ++k){
+    for (int k = 0; k < int(additional_lateralities.size()); ++k) {
       already_there = 0;
-      for (int j = 0; j < int(lateralities_.size()); ++j){
-	if (additional_lateralities[k] == lateralities_[j]) 
-	  already_there = 1;
+      for (int j = 0; j < int(lateralities_.size()); ++j) {
+        if (additional_lateralities[k] == lateralities_[j])
+          already_there = 1;
       }
-      if (already_there == 0){
-	lateralities_.push_back(additional_lateralities[k]);
+      if (already_there == 0) {
+        lateralities_.push_back(additional_lateralities[k]);
       }
     }
     additional_lateralities.clear();
@@ -718,19 +717,20 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPathPtr &mpath,
 void MuonPathAnalyzerInChamber::evaluateQuality(MuonPathPtr &mPath) {
   mPath->setQuality(NOPATH);
 
-  int validHits(0),nPrimsUp(0),nPrimsDown(0);
-  for (int i=0; i<NUM_LAYERS_2SL; i++) {
-    
+  int validHits(0), nPrimsUp(0), nPrimsDown(0);
+  for (int i = 0; i < NUM_LAYERS_2SL; i++) {
     if (mPath->primitive(i)->isValidTime()) {
-      validHits++;       
-      if      ( i<4  ) nPrimsDown++; 
-      else if ( i>=4 ) nPrimsUp++; 
+      validHits++;
+      if (i < 4)
+        nPrimsDown++;
+      else if (i >= 4)
+        nPrimsUp++;
     }
   }
-  
+
   mPath->setNPrimitivesUp(nPrimsUp);
   mPath->setNPrimitivesDown(nPrimsDown);
-  
+
   if (mPath->nprimitivesUp() >= 4 && mPath->nprimitivesDown() >= 4) {
     mPath->setQuality(HIGHHIGHQ);
   } else if ((mPath->nprimitivesUp() == 4 && mPath->nprimitivesDown() == 3) ||

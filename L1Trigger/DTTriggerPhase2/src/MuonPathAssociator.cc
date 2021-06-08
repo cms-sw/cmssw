@@ -266,25 +266,25 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
             double phi = -999.;
             double phiB = -999.;
-            double phi_cmssw  = -999.;
+            double phi_cmssw = -999.;
             double phiB_cmssw = -999.;
-	    double z = 0;
-	    if (ChId.station() >= 3)
-	      z = Z_SHIFT_MB4;
-	    GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(
-                  LocalPoint(MeanPos, 0., z));  //Jm_x is already extrapolated to the middle of the SL
-	    int thisec = ChId.sector();
-	    if (se == 13)
-	      thisec = 4;
-	    if (se == 14)
-	      thisec = 10;
-	    phi_cmssw = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
-	    double psi = atan(NewSlope);
-	    phiB_cmssw = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi_cmssw : -psi - phi_cmssw;
+            double z = 0;
+            if (ChId.station() >= 3)
+              z = Z_SHIFT_MB4;
+            GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(
+                LocalPoint(MeanPos, 0., z));  //Jm_x is already extrapolated to the middle of the SL
+            int thisec = ChId.sector();
+            if (se == 13)
+              thisec = 4;
+            if (se == 14)
+              thisec = 10;
+            phi_cmssw = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
+            double psi = atan(NewSlope);
+            phiB_cmssw = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi_cmssw : -psi - phi_cmssw;
 
-	    auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), 0, pos, tanpsi);
-	    phi = global_coords[0];
-	    phiB = global_coords[1];
+            auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), 0, pos, tanpsi);
+            phi = global_coords[0];
+            phiB = global_coords[1];
 
             if (!clean_chi2_correlation_)
               outMPaths.emplace_back(ChId.rawId(),
@@ -700,9 +700,9 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                                                    SL3metaPrimitive->t0,
                                                    SL3metaPrimitive->x,
                                                    SL3metaPrimitive->tanPhi,
-			                           SL3metaPrimitive->phi,
+                                                   SL3metaPrimitive->phi,
                                                    SL3metaPrimitive->phiB,
-			                           SL3metaPrimitive->phi_cmssw,
+                                                   SL3metaPrimitive->phi_cmssw,
                                                    SL3metaPrimitive->phiB_cmssw,
                                                    SL3metaPrimitive->chi2,
                                                    new_quality,

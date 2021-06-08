@@ -36,11 +36,29 @@ public:
   //  Constructors
   L1Phase2MuDTExtPhDigi();
 
-  L1Phase2MuDTExtPhDigi(int bx, int wh, int sc, int st, int sl, int phi, int phib, int qual, int idx, int t0, int chi2, int x, int tan, int phi_cmssw, int phib_cmssw, int rpc = -10, int wireId[8] = 0, int tdc[8] = 0,int lat[8] = 0);
+  L1Phase2MuDTExtPhDigi(int bx,
+                        int wh,
+                        int sc,
+                        int st,
+                        int sl,
+                        int phi,
+                        int phib,
+                        int qual,
+                        int idx,
+                        int t0,
+                        int chi2,
+                        int x,
+                        int tan,
+                        int phi_cmssw,
+                        int phib_cmssw,
+                        int rpc = -10,
+                        int wireId[8] = nullptr,
+                        int tdc[8] = nullptr,
+                        int lat[8] = nullptr);
 
   L1Phase2MuDTExtPhDigi(const L1Phase2MuDTExtPhDigi &digi);
-  
-  ~L1Phase2MuDTExtPhDigi() override {};
+
+  ~L1Phase2MuDTExtPhDigi() override{};
 
   // Operations
   int xLocal() const;
@@ -51,10 +69,9 @@ public:
 
   int pathWireId(int) const;
   int pathTDC(int) const;
-  int pathLat(int) const; 
+  int pathLat(int) const;
 
 private:
-
   int m_xLocal;
   int m_tanPsi;
 

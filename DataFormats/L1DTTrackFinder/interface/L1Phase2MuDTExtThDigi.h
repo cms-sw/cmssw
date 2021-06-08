@@ -32,15 +32,31 @@
 // ---------------------
 
 class L1Phase2MuDTExtThDigi : public L1Phase2MuDTThDigi {
- public:
+public:
   //  Constructors
   L1Phase2MuDTExtThDigi();
 
-  L1Phase2MuDTExtThDigi(int bx, int wh, int sc, int st, int z, int k, int qual, int idx, int t0, int chi2, int y, int z_cmssw, int k_cmssw, int rpc = -10, int wireId[4] = 0, int tdc[4] = 0,int lat[4] = 0);
+  L1Phase2MuDTExtThDigi(int bx,
+                        int wh,
+                        int sc,
+                        int st,
+                        int z,
+                        int k,
+                        int qual,
+                        int idx,
+                        int t0,
+                        int chi2,
+                        int y,
+                        int z_cmssw,
+                        int k_cmssw,
+                        int rpc = -10,
+                        int wireId[4] = nullptr,
+                        int tdc[4] = nullptr,
+                        int lat[4] = nullptr);
 
   L1Phase2MuDTExtThDigi(const L1Phase2MuDTExtThDigi &digi);
-  
-  ~L1Phase2MuDTExtThDigi() override {};
+
+  ~L1Phase2MuDTExtThDigi() override{};
 
   // Operations
   int yLocal() const;
@@ -50,10 +66,9 @@ class L1Phase2MuDTExtThDigi : public L1Phase2MuDTThDigi {
 
   int pathWireId(int) const;
   int pathTDC(int) const;
-  int pathLat(int) const; 
+  int pathLat(int) const;
 
- private:
-
+private:
   int m_yLocal;
 
   int m_zCMSSW;

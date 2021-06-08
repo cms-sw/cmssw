@@ -338,7 +338,7 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId,
       z = z1;
     else if (MuonPathSLId.superLayer() == 3)
       z = z3;
-    
+
     // cmssw-like calculation
     GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(pos_f, 0., z));
     int thisec = MuonPathSLId.sector();
@@ -349,13 +349,12 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId,
     phi_cmssw = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
     double psi = atan(slope_f);
     phiB_cmssw = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi_cmssw : -psi - phi_cmssw;
-    
+
     auto global_coords =
-      globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), MuonPathSLId.superLayer(), pos, slope);
+        globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), MuonPathSLId.superLayer(), pos, slope);
     phi = global_coords[0];
     phiB = global_coords[1];
-  }
-  else {
+  } else {
     // Impose the thresholds
     if (std::abs(MuonPathSLId.wheel()) == 2) {
       if (slope_f > tanPhiThw2max_ or slope_f < tanPhiThw2min_)
@@ -382,8 +381,10 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId,
     GlobalPoint wire1_in_global = dtGeo_->layer(SL2_layer2Id)->toGlobal(wire1_in_layer);
     LocalPoint wire1_in_sl = dtGeo_->superLayer(MuonPathSLId)->toLocal(wire1_in_global);
     double x_shift = wire1_in_sl.x();
-    jm_y = (dtGeo_->superLayer(MuonPathSLId)->toGlobal(LocalPoint(double(pos)/(10*pow(2, INCREASED_RES_POS)) + x_shift ,0., 0))).z();
-    phi_cmssw  = jm_y;
+    jm_y = (dtGeo_->superLayer(MuonPathSLId)
+                ->toGlobal(LocalPoint(double(pos) / (10 * pow(2, INCREASED_RES_POS)) + x_shift, 0., 0)))
+               .z();
+    phi_cmssw = jm_y;
     phiB_cmssw = slope_f;
   }
 
