@@ -100,12 +100,12 @@ public:
     //empty vector if product not found
     if (oH.failedToGet()) {
       edm::LogError("StringBranchHelper") << "cannot open: " << B.src();
-      value_.reset(new std::vector<float>(0));
+      value_ = std::make_unique<std::vector<float>>(0);
     } else {
       //parser for the object expression
       StringObjectFunction<Object> expr(B.expr());
       //allocate enough memory for the data holder
-      value_.reset(new std::vector<float>(1));
+      value_ = std::make_unique<std::vector<float>>(1);
       try {
         (*value_)[0] = (expr)(*oH);
       } catch (...) {
@@ -138,12 +138,12 @@ public:
       if (!(iEvent.isRealData() && B.className() == "reco::GenParticle")) {  //don't output genparticle error in data
         edm::LogError("StringBranchHelper") << "cannot open: " << B.src() << "  " << B.className();
       }
-      value_.reset(new std::vector<float>());
+      value_ = std::make_unique<std::vector<float>>();
     } else {
       //parser for the object expression
       StringObjectFunction<Object> expr(B.expr());
       //allocate enough memory for the data holder
-      value_.reset(new std::vector<float>());
+      value_ = std::make_unique<std::vector<float>>();
       value_->reserve(oH->size());
 
       StringCutObjectSelector<Object>* selection = nullptr;
@@ -238,12 +238,12 @@ public:
           uint sep = leavesS[l].find(separator);
           std::string name = leavesS[l].substr(0, sep);
           //removes spaces from the variable name
-          /*uint*/ int space = name.find(" ");
+          /*uint*/ int space = name.find(' ');
           while (space != -1 /*std::string::npos*/) {
             std::string first = name.substr(0, space);
             std::string second = name.substr(space + 1);
             name = first + second;
-            space = name.find(" ");
+            space = name.find(' ');
           }
           std::string expr = leavesS[l].substr(sep + 1);
           std::string branchAlias = branches[b] + "_" + name;
