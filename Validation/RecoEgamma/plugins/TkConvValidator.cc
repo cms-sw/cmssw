@@ -96,7 +96,8 @@ using namespace std;
 TkConvValidator::TkConvValidator(const edm::ParameterSet& pset)
     : magneticFieldToken_{esConsumes<edm::Transition::BeginRun>()},
       caloGeometryToken_{esConsumes()},
-      transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))} {
+      transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
+      trackerGeometryToken_{esConsumes()} {
   fName_ = pset.getUntrackedParameter<std::string>("Name");
   verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
   parameters_ = pset;
@@ -1308,8 +1309,9 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   const reco::BeamSpot& thebs = *bsHandle.product();
 
   //get tracker geometry for hits positions
-  edm::ESHandle<TrackerGeometry> tracker;
-  esup.get<TrackerDigiGeometryRecord>().get(tracker);
+  //edm::ESHandle<TrackerGeometry> tracker;
+  //esup.get<TrackerDigiGeometryRecord>().get(tracker);
+  auto tracker = esup.getHandle(trackerGeometryToken_);
   const TrackerGeometry* trackerGeom = tracker.product();
 
   //////////////////// Get the MC truth
