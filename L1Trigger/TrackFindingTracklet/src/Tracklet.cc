@@ -749,7 +749,8 @@ Track Tracklet::makeTrack(const vector<const L1TStub*>& l1stubs) {
 
   vector<L1TStub> tmp2;
 
-  for (auto stub : tmp) {
+  tmp2.reserve(tmp.size());
+ for (auto stub : tmp) {
     tmp2.push_back(*stub);
   }
 
