@@ -66,7 +66,7 @@ namespace {
   struct HistoTraits<TH1F> {
     static TH1F *get(MonitorElement *me) { return me->getTH1F(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book1D(std::forward<Args>(args)...);
     }
   };
@@ -74,7 +74,7 @@ namespace {
   struct HistoTraits<TH1S> {
     static TH1S *get(MonitorElement *me) { return me->getTH1S(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book1S(std::forward<Args>(args)...);
     }
   };
@@ -82,7 +82,7 @@ namespace {
   struct HistoTraits<TH1D> {
     static TH1D *get(MonitorElement *me) { return me->getTH1D(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book1DD(std::forward<Args>(args)...);
     }
   };
@@ -90,7 +90,7 @@ namespace {
   struct HistoTraits<TH2F> {
     static TH2F *get(MonitorElement *me) { return me->getTH2F(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book2D(std::forward<Args>(args)...);
     }
   };
@@ -98,7 +98,7 @@ namespace {
   struct HistoTraits<TH2S> {
     static TH2S *get(MonitorElement *me) { return me->getTH2S(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book2S(std::forward<Args>(args)...);
     }
   };
@@ -106,7 +106,7 @@ namespace {
   struct HistoTraits<TH2D> {
     static TH2D *get(MonitorElement *me) { return me->getTH2D(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book2DD(std::forward<Args>(args)...);
     }
   };
@@ -114,7 +114,7 @@ namespace {
   struct HistoTraits<TH3F> {
     static TH3F *get(MonitorElement *me) { return me->getTH3F(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book3D(std::forward<Args>(args)...);
     }
   };
@@ -122,7 +122,7 @@ namespace {
   struct HistoTraits<TProfile> {
     static TProfile *get(MonitorElement *me) { return me->getTProfile(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.bookProfile(std::forward<Args>(args)...);
     }
   };
@@ -130,7 +130,7 @@ namespace {
   struct HistoTraits<TProfile2D> {
     static TProfile2D *get(MonitorElement *me) { return me->getTProfile2D(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.bookProfile2D(std::forward<Args>(args)...);
     }
   };
@@ -219,14 +219,14 @@ namespace {
   template <>
   struct AddMonitorElement<long long> {
     template <typename... Args>
-    static MonitorElement *call(Args &&... args) {
+    static MonitorElement *call(Args &&...args) {
       return AddMonitorElementForIntegers<long long>::call(std::forward<Args>(args)...);
     }
   };
   template <>
   struct AddMonitorElement<int> {
     template <typename... Args>
-    static MonitorElement *call(Args &&... args) {
+    static MonitorElement *call(Args &&...args) {
       return AddMonitorElementForIntegers<int>::call(std::forward<Args>(args)...);
     }
   };
