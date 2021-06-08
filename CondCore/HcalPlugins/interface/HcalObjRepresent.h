@@ -1133,10 +1133,10 @@ namespace HcalObjRepresent {
   }
 
   inline void fillOneGain(std::vector<TH2F>& graphData,
-                   HcalGains::tAllContWithNames& allContainers,
-                   std::string name,
-                   int id,
-                   std::string units = "") {
+                          HcalGains::tAllContWithNames& allContainers,
+                          std::string name,
+                          int id,
+                          std::string units = "") {
     setup(graphData, name);
 
     std::stringstream x;

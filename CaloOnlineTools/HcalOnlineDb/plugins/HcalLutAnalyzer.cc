@@ -230,8 +230,10 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
 
       float theval = (val1 + val2 + val3 + val4) / 4.0;
 
-      HcalSubdetector subdet =
-          det == "HB" ? HcalBarrel : det == "HE" ? HcalEndcap : det == "HF" ? HcalForward : HcalOther;
+      HcalSubdetector subdet = det == "HB"   ? HcalBarrel
+                               : det == "HE" ? HcalEndcap
+                               : det == "HF" ? HcalForward
+                                             : HcalOther;
 
       HcalDetId id(subdet, ieta, iphi, idep);
       lutgain[ii].insert(LUTINPUT::value_type(id.rawId(), theval));
@@ -254,8 +256,10 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
 
       float theval = (val1 + val2 + val3 + val4) / 4.0;
 
-      HcalSubdetector subdet =
-          det == "HB" ? HcalBarrel : det == "HE" ? HcalEndcap : det == "HF" ? HcalForward : HcalOther;
+      HcalSubdetector subdet = det == "HB"   ? HcalBarrel
+                               : det == "HE" ? HcalEndcap
+                               : det == "HF" ? HcalForward
+                                             : HcalOther;
 
       HcalDetId id(subdet, ieta, iphi, idep);
       lutpede[ii].insert(LUTINPUT::value_type(id.rawId(), theval));
@@ -277,8 +281,10 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
 
       float theval = val1;
 
-      HcalSubdetector subdet =
-          det == "HB" ? HcalBarrel : det == "HE" ? HcalEndcap : det == "HF" ? HcalForward : HcalOther;
+      HcalSubdetector subdet = det == "HB"   ? HcalBarrel
+                               : det == "HE" ? HcalEndcap
+                               : det == "HF" ? HcalForward
+                                             : HcalOther;
 
       HcalDetId id(subdet, ieta, iphi, idep);
       lutresp[ii].insert(LUTINPUT::value_type(id.rawId(), theval));
@@ -298,9 +304,11 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
 
       float theval = val1;
 
-      HcalSubdetector subdet =
-          det == "HB" ? HcalBarrel
-                      : det == "HE" ? HcalEndcap : det == "HF" ? HcalForward : det == "HO" ? HcalOuter : HcalOther;
+      HcalSubdetector subdet = det == "HB"   ? HcalBarrel
+                               : det == "HE" ? HcalEndcap
+                               : det == "HF" ? HcalForward
+                               : det == "HO" ? HcalOuter
+                                             : HcalOther;
 
       HcalDetId id(subdet, ieta, iphi, idep);
       if (theval != 0)

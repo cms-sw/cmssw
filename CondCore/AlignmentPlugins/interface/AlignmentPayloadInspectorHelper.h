@@ -71,7 +71,9 @@ namespace AlignmentPI {
                                   PARTITION::TECp,
                                   PARTITION::TECm};
 
-  inline std::ostream& operator<<(std::ostream& o, PARTITION x) { return o << std::underlying_type<PARTITION>::type(x); }
+  inline std::ostream& operator<<(std::ostream& o, PARTITION x) {
+    return o << std::underlying_type<PARTITION>::type(x);
+  }
 
   enum regions {
     BPixL1o,          //0  Barrel Pixel Layer 1 outer
@@ -858,8 +860,8 @@ namespace AlignmentPI {
 
   /*--------------------------------------------------------------------*/
   inline void TkAlBarycenters::computeBarycenters(const std::vector<AlignTransform>& input,
-                                           const TrackerTopology& tTopo,
-                                           const std::map<AlignmentPI::coordinate, float>& GPR)
+                                                  const TrackerTopology& tTopo,
+                                                  const std::map<AlignmentPI::coordinate, float>& GPR)
   /*--------------------------------------------------------------------*/
   {
     for (const auto& ali : input) {
