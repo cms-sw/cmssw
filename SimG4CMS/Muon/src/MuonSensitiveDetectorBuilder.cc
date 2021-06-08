@@ -25,38 +25,36 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MuonSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
-  explicit MuonSensitiveDetectorBuilder(edm::ParameterSet const&, edm::ConsumesCollector cc) {}
+  explicit MuonSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc)
+      : offmap_{nullptr}, mdc_{nullptr}, offsetToken_{cc.esConsumes()}, geomConstantsToken_{cc.esConsumes()} {
+    edm::ParameterSet muonSD = p.getParameter<edm::ParameterSet>("MuonSD");
+    ePersistentCutGeV_ = muonSD.getParameter<double>("EnergyThresholdForPersistency") / CLHEP::GeV;  //Default 1. GeV
+    allMuonsPersistent_ = muonSD.getParameter<bool>("AllMuonsPersistent");
+    printHits_ = muonSD.getParameter<bool>("PrintHits");
+    dd4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
+  }
 
   void beginRun(const edm::EventSetup& es) final {
-    edm::ESHandle<MuonOffsetMap> mom;
-    es.get<IdealGeometryRecord>().get(mom);
+    edm::ESHandle<MuonOffsetMap> mom = es.getHandle(offsetToken_);
     offmap_ = (mom.isValid()) ? mom.product() : nullptr;
     edm::LogVerbatim("MuonSim") << "Finds the offset map at " << offmap_;
-    edm::ESHandle<MuonGeometryConstants> mdc;
-    es.get<IdealGeometryRecord>().get(mdc);
-    mdc_ = mdc.product();
+    mdc_ = &es.getData(geomConstantsToken_);
   }
+
   std::unique_ptr<SensitiveDetector> make(const std::string& iname,
                                           const edm::EventSetup& es,
                                           const SensitiveDetectorCatalog& clg,
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    edm::ParameterSet m_MuonSD = p.getParameter<edm::ParameterSet>("MuonSD");
-    auto ePersistentCutGeV =
-        m_MuonSD.getParameter<double>("EnergyThresholdForPersistency") / CLHEP::GeV;  //Default 1. GeV
-    auto allMuonsPersistent = m_MuonSD.getParameter<bool>("AllMuonsPersistent");
-    auto printHits = m_MuonSD.getParameter<bool>("PrintHits");
-    bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
-    //
-
     auto sd = std::make_unique<MuonSensitiveDetector>(
-        iname, offmap_, *mdc_, clg, ePersistentCutGeV, allMuonsPersistent, printHits, dd4hep, man);
+        iname, offmap_, *mdc_, clg, ePersistentCutGeV_, allMuonsPersistent_, printHits_, dd4hep_, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
@@ -64,6 +62,12 @@ public:
 private:
   const MuonOffsetMap* offmap_;
   const MuonGeometryConstants* mdc_;
+  const edm::ESGetToken<MuonOffsetMap, IdealGeometryRecord> offsetToken_;
+  const edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> geomConstantsToken_;
+  double ePersistentCutGeV_;
+  bool allMuonsPersistent_;
+  bool printHits_;
+  bool dd4hep_;
 };
 
 DEFINE_SENSITIVEDETECTORBUILDER(MuonSensitiveDetectorBuilder, MuonSensitiveDetector);
