@@ -146,7 +146,7 @@ std::vector<T> CommandLine::getVector(const std::string& name) {
     std::string::size_type pos;
     if (!tmp.empty()) {
       do {
-        pos = tmp.find(",");
+        pos = tmp.find(',');
         std::stringstream ss;
         ss << tmp.substr(0, pos);
         tmp.erase(0, pos + 1);
@@ -189,7 +189,7 @@ bool CommandLine::parse(int argc, char** argv) {
 
   for (int i = 1; i < argc; i++) {
     std::string opt = argv[i];
-    if (0 != opt.find("-")) {
+    if (0 != opt.find('-')) {
       if (i == 1) {
         bool success = parse_file(opt);
         if (!success)
@@ -210,7 +210,7 @@ bool CommandLine::parse(int argc, char** argv) {
     i++;
     if (i < argc - 1) {
       next = argv[i + 1];
-      while (next.find("-") != 0) {
+      while (next.find('-') != 0) {
         _options[opt].first += "," + next;
         i++;
         next = (i < argc - 1) ? argv[i + 1] : "-";
@@ -254,7 +254,7 @@ void CommandLine::print() {
       std::string::size_type length = tmp.length();
       std::string::size_type pos;
       do {
-        pos = tmp.find(",");
+        pos = tmp.find(',');
         if (tmp.length() == length) {
           std::cout << std::setiosflags(std::ios::left) << std::setw(22) << it->first
                     << std::resetiosflags(std::ios::left) << std::setw(3) << "=" << std::setiosflags(std::ios::right)
@@ -308,8 +308,8 @@ bool CommandLine::parse_file(const std::string& file_name) {
       last_token = "";
       value = "";
     } else if (!last_token.empty()) {
-      if (last_token.find("\"") == 0) {
-        if (last_token.rfind("\"") == last_token.length() - 1) {
+      if (last_token.find('\"') == 0) {
+        if (last_token.rfind('\"') == last_token.length() - 1) {
           last_token = last_token.substr(1, last_token.length() - 2);
           value += (!value.empty()) ? "," + last_token : last_token;
           last_token = token;
@@ -324,7 +324,7 @@ bool CommandLine::parse_file(const std::string& file_name) {
     ss >> token;
   }
   if (!last_token.empty()) {
-    if (last_token.find("\"") == 0 && last_token.rfind("\"") == last_token.length() - 1)
+    if (last_token.find('\"') == 0 && last_token.rfind('\"') == last_token.length() - 1)
       last_token = last_token.substr(1, last_token.length() - 2);
     value += (!value.empty()) ? "," + last_token : last_token;
   }
