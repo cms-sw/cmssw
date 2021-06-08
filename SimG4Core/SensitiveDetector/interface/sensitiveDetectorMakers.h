@@ -29,9 +29,11 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // forward declarations
-
+namespace edm {
+  class ParameterSet;
+}
 namespace sim {
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> sensitiveDetectorMakers(
-      edm::ConsumesCollector, std::vector<std::string> const& chosenMakers);
+      edm::ParameterSet const&, edm::ConsumesCollector, std::vector<std::string> const& chosenMakers);
 }
 #endif

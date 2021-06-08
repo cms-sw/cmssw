@@ -167,7 +167,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_p(iConfig),
       m_simEvent(nullptr),
       m_sVerbose(nullptr) {
-  m_sdMakers = sim::sensitiveDetectorMakers(iC, std::vector<std::string>());
+  m_sdMakers = sim::sensitiveDetectorMakers(m_p, iC, std::vector<std::string>());
   std::vector<edm::ParameterSet> watchers = iConfig.getParameter<std::vector<edm::ParameterSet> >("Watchers");
   m_hasWatchers = !watchers.empty();
   initializeTLS();

@@ -20,7 +20,7 @@
 
 namespace sim {
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> sensitiveDetectorMakers(
-      edm::ConsumesCollector cc, std::vector<std::string> const& chosenMakers) {
+      edm::ParameterSet const& pset, edm::ConsumesCollector cc, std::vector<std::string> const& chosenMakers) {
     std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> retValue;
     if (chosenMakers.empty()) {
       //load all
@@ -31,12 +31,12 @@ namespace sim {
             << "When trying to load all SensitiveDetectorMakerBase, no plugins found";
       } else {
         for (auto const& info : infosItr->second) {
-          retValue[info.name_] = SensitiveDetectorPluginFactory::get()->create(info.name_, cc);
+          retValue[info.name_] = SensitiveDetectorPluginFactory::get()->create(info.name_, pset, cc);
         }
       }
     } else {
       for (auto const& name : chosenMakers) {
-        retValue[name] = SensitiveDetectorPluginFactory::get()->create(name, cc);
+        retValue[name] = SensitiveDetectorPluginFactory::get()->create(name, pset, cc);
       }
     }
     return retValue;
