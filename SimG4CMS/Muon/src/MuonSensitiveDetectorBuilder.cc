@@ -48,7 +48,6 @@ public:
   }
 
   std::unique_ptr<SensitiveDetector> make(const std::string& iname,
-                                          const edm::EventSetup& es,
                                           const SensitiveDetectorCatalog& clg,
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
