@@ -79,13 +79,15 @@ void PackedCandidateGenAssociationProducer::produce(edm::StreamID,
 
   const auto& genToPrunedAssocWSO = iEvent.get(genToPrunedWSOToken_);
 
-  const auto& tracks = iEvent.get(tracksToken_);
+  auto trackHandle = iEvent.getHandle(tracksToken_);
+  const auto& tracks = *trackHandle;
 
   auto out = std::make_unique<edm::Association<reco::GenParticleCollection>>(prunedCollection);
 
   auto trackToGenAssocHandle = iEvent.getHandle(trackToGenToken_);
-  if (not trackToGenAssocHandle.isValid()) {
+  if (not trackToGenAssocHandle.isValid() or not trackToGenAssocHandle->contains(trackHandle.id())) {
     // not track to gen association available, possibly an old AODSIM, or a missing RECOSIM step
+    // alternatively, the track association may not contain our tracks, as in the case of RECOSIM run on an old RAWSIM
     // early exit with an empty collection to avoid crash
     iEvent.put(std::move(out));
     return;
