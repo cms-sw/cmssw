@@ -66,7 +66,7 @@ public:
   }
   const std::string& branchAlias() const { return branchAlias_; }
   const std::string& branchTitle() const { return branchTitle_; }
-  typedef std::unique_ptr<std::vector<float> > value;
+  typedef std::unique_ptr<std::vector<float>> value;
   value branch(const edm::Event& iEvent);
 
   std::vector<float>** dataHolderPtrAdress() { return &dataHolderPtr_; }
@@ -120,7 +120,7 @@ private:
   value value_;
 };
 
-template <typename Object, typename Collection = std::vector<Object> >
+template <typename Object, typename Collection = std::vector<Object>>
 class StringBranchHelper {
 public:
   typedef TreeBranch::value value;
@@ -233,7 +233,7 @@ public:
 
       //do it once with configuration [vstring vars = { "x:x" ,... } ] where ":"=separator
       if (leavesPSet.exists("vars")) {
-        std::vector<std::string> leavesS = leavesPSet.getParameter<std::vector<std::string> >("vars");
+        std::vector<std::string> leavesS = leavesPSet.getParameter<std::vector<std::string>>("vars");
         for (uint l = 0; l != leavesS.size(); ++l) {
           uint sep = leavesS[l].find(separator);
           std::string name = leavesS[l].substr(0, sep);
@@ -347,7 +347,7 @@ public:
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
           //a vector of float for each leave
-          producesCollector.produces<std::vector<float> >(b.branchName()).setBranchAlias(b.branchAlias());
+          producesCollector.produces<std::vector<float>>(b.branchName()).setBranchAlias(b.branchAlias());
           nLeaves++;
         }
       }
@@ -371,7 +371,7 @@ public:
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
           // grab the vector of values from the interpretation of expression for the associated collection
-          std::unique_ptr<std::vector<float> > branch(b.branch(iEvent));
+          std::unique_ptr<std::vector<float>> branch(b.branch(iEvent));
           // calculate the maximum index size.
           if (branch->size() > maxS)
             maxS = branch->size();
@@ -430,7 +430,7 @@ public:
         uint maxS = 0;
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
-          std::unique_ptr<std::vector<float> > branch(b.branch(iEvent));
+          std::unique_ptr<std::vector<float>> branch(b.branch(iEvent));
           if (branch->size() > maxS)
             maxS = branch->size();
           iEvent.put(std::move(branch), b.branchName());
@@ -470,7 +470,7 @@ public:
   }
 
 protected:
-  typedef std::map<std::string, std::vector<TreeBranch> > Branches;
+  typedef std::map<std::string, std::vector<TreeBranch>> Branches;
   Branches branches_;
 
   bool ownTheTree_;
