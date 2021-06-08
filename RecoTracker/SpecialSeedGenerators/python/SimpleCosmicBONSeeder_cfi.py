@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi
-
 def makeSimpleCosmicSeedLayers(*layers):
     layerList = cms.vstring()
     if 'ALL' in layers: 
@@ -29,8 +27,34 @@ def makeSimpleCosmicSeedLayers(*layers):
     #print "SEEDING LAYER LIST = ", layerList
     return layerList
 
-layerInfo = RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi.layerInfo.clone(
-    TEC = dict(useSimpleRphiHitsCleaner = False)
+layerInfo = dict(
+    MTIB = cms.PSet(
+        TTRHBuilder = cms.string('WithTrackAngle'),
+            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
+    ),
+    TIB = cms.PSet(
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        TTRHBuilder = cms.string('WithTrackAngle'),
+            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
+    ),
+    MTOB = cms.PSet(
+        TTRHBuilder = cms.string('WithTrackAngle'),            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
+    ),
+    TOB = cms.PSet(
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        TTRHBuilder = cms.string('WithTrackAngle'),            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
+    ),
+    TEC = cms.PSet(
+        useSimpleRphiHitsCleaner = cms.bool(False),
+        minRing = cms.int32(5),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        useRingSlector = cms.bool(False),
+        TTRHBuilder = cms.string('WithTrackAngle'),            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+        maxRing = cms.int32(7)
+    ),
 )
 layerList = makeSimpleCosmicSeedLayers('ALL'),
 
