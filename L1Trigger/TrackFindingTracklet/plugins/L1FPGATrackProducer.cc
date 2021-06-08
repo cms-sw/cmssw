@@ -565,7 +565,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   int ntracks = 0;
 
-  for (auto track : tracks) {
+  for (const auto& track : tracks) {
     if (track.duplicate())
       continue;
 
@@ -605,7 +605,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     vector<trklet::L1TStub> stubs;
 
     stubs.reserve(stubptrs.size());
-    for (auto stubptr : stubptrs) {
+    for (const auto& stubptr : stubptrs) {
       stubs.push_back(stubptr);
     }
 

@@ -94,7 +94,7 @@ namespace trklet {
         hexword = "1110";
       if (word == 'F')
         hexword = "1111";
-      if (hexword == "") {
+      if (hexword.empty()) {
         throw cms::Exception("Inconsistency")
             << __FILE__ << " " << __LINE__ << " hex string format invalid: " << stubwordhex;
       }

@@ -31,7 +31,7 @@ void TrackletEngineUnit::init(const TEData& tedata) {
   nreg_ = 0;
   istub_ = 0;
   idle_ = false;
-  assert(tedata_.regions_.size() > 0);
+  assert(!tedata_.regions_.empty());
   std::tie(next_, ireg_, nstub_) = tedata_.regions_[0];
 }
 

@@ -872,7 +872,7 @@ void TrackletLUT::writeTable() const {
     return;
   }
 
-  if (name_ == "") {
+  if (name_.empty()) {
     return;
   }
 

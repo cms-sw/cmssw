@@ -768,10 +768,10 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
                   }
                 }
               }
-              assert(ext != "");
+              assert(!ext.empty());
             }
 
-            if (ext == "") {
+            if (ext.empty()) {
               ext = "_" + LayerName(l1) + iTCStr(iTC);
             }
 

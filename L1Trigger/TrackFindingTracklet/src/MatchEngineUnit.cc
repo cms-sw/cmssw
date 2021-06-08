@@ -54,7 +54,7 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   if (usesecondPlus) {
     use_.emplace_back(1, 1);
   }
-  assert(use_.size() != 0);
+  assert(!use_.empty());
   isPSseed_ = isPSseed;
   proj_ = proj;
 
