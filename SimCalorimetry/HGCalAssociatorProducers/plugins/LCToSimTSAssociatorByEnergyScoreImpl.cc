@@ -46,7 +46,7 @@ hgcal::RecoToSimTracksterCollection LCToSimTSAssociatorByEnergyScoreImpl::associ
         }
         else {
           LogDebug("LCToSimTSAssociatorByEnergyScoreImpl")
-            << "layerCluster Id: \t" << lcId << "\t CP Id: \t" << cpPair->first << "\t score \t" << cpPair->second << "\n";
+            << "layerCluster Id: \t" << lcId << "\t CP Id: \t" << cpPair->first.index() << "\t score \t" << cpPair->second << "\n";
           // Fill AssociationMap
           returnValue.insert(lcRef,  // Ref to LC
                              std::make_pair(edm::Ref<ticl::TracksterCollection>(sTCH, tsId), // Pair <Ref to TS, score>
@@ -73,7 +73,7 @@ hgcal::RecoToSimTracksterCollection LCToSimTSAssociatorByEnergyScoreImpl::associ
         }
         else {
           LogDebug("LCToSimTSAssociatorByEnergyScoreImpl")
-            << "layerCluster Id: \t" << lcId << "\t SC Id: \t" << scPair->first << "\t score \t" << scPair->second << "\n";
+            << "layerCluster Id: \t" << lcId << "\t SC Id: \t" << scPair->first.index() << "\t score \t" << scPair->second << "\n";
           // Fill AssociationMap
           returnValue.insert(lcRef,  // Ref to LC
                              std::make_pair(edm::Ref<ticl::TracksterCollection>(sTCH, tsId), // Pair <Ref to TS, score>
