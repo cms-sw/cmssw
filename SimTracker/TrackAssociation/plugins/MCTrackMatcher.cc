@@ -63,12 +63,12 @@ void MCTrackMatcher::produce(edm::StreamID, Event &evt, const EventSetup &es) co
   evt.getByToken(genParticleInts_, barCodes);
   Handle<GenParticleCollection> genParticles;
   evt.getByToken(genParticles_, genParticles);
-  RecoToSimCollection associations = associator->associateRecoToSim(tracks, trackingParticles);
   unique_ptr<GenParticleMatch> match(new GenParticleMatch(GenParticleRefProd(genParticles)));
   if (not throwOnMissingTPCollection_ and not trackingParticlesFound) {
     evt.put(std::move(match));
     return;
   }
+  RecoToSimCollection associations = associator->associateRecoToSim(tracks, trackingParticles);
   GenParticleMatch::Filler filler(*match);
   size_t n = tracks->size();
   vector<int> indices(n, -1);

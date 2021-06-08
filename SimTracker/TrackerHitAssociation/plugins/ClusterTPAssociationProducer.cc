@@ -111,6 +111,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   if (not throwOnMissingCollections_ and foundPixelClusters and not pixelSimLinksFound) {
     auto clusterTPList = std::make_unique<ClusterTPAssociation>();
     iEvent.put(std::move(clusterTPList));
+    return;
   }
 
   // SiStrip DigiSimLink
@@ -119,6 +120,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   if (not throwOnMissingCollections_ and foundStripClusters and not stripSimLinksFound) {
     auto clusterTPList = std::make_unique<ClusterTPAssociation>();
     iEvent.put(std::move(clusterTPList));
+    return;
   }
 
   // Phase2 OT DigiSimLink
@@ -127,6 +129,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   if (not throwOnMissingCollections_ and foundPhase2OTClusters and not phase2OTSimLinksFound) {
     auto clusterTPList = std::make_unique<ClusterTPAssociation>();
     iEvent.put(std::move(clusterTPList));
+    return;
   }
 
   // TrackingParticle
@@ -135,6 +138,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   if (not throwOnMissingCollections_ and not tpFound) {
     auto clusterTPList = std::make_unique<ClusterTPAssociation>();
     iEvent.put(std::move(clusterTPList));
+    return;
   }
 
   auto clusterTPList = std::make_unique<ClusterTPAssociation>(TPCollectionH);
