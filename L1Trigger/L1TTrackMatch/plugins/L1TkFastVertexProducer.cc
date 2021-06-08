@@ -109,7 +109,7 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
           consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
       trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()) {
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
   zMax_ = (float)iConfig.getParameter<double>("ZMAX");
   chi2Max_ = (float)iConfig.getParameter<double>("CHI2MAX");
   pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
@@ -147,8 +147,7 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
   auto result = std::make_unique<TkPrimaryVertexCollection>();
 
   // Tracker Topology
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  const TrackerTopology* tTopo = tTopoHandle.product();
+  const TrackerTopology& tTopo = iSetup.getData(topoToken_);
 
   TH1F htmp("htmp", ";z (cm); Tracks", nBinning_, xmin_, xmax_);
   TH1F htmp_weight("htmp_weight", ";z (cm); Tracks", nBinning_, xmin_, xmax_);
@@ -271,9 +270,9 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
       bool isPS = false;
       DetId detId(stub->getDetId());
       if (detId.det() == DetId::Detector::Tracker) {
-        if (detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3)
+        if (detId.subdetId() == StripSubdetector::TOB && tTopo.tobLayer(detId) <= 3)
           isPS = true;
-        else if (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9)
+        else if (detId.subdetId() == StripSubdetector::TID && tTopo.tidRing(detId) <= 9)
           isPS = true;
       }
       if (isPS)

@@ -77,6 +77,9 @@ private:
   const edm::EDGetTokenT<DetSetVec> stubToken_;
   const edm::EDGetTokenT<TTStubAssMap> stubTruthToken_;
   const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
 
 //
@@ -89,7 +92,9 @@ TPStubValueMapProducer::TPStubValueMapProducer(const edm::ParameterSet& iConfig)
       tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
       stubToken_(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
       stubTruthToken_(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
-      clusterTruthToken_(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))) {
+      clusterTruthToken_(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
+      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
+      tGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("", ""))) {
   // Define EDM output to be written to file (if required)
   produces<TrackingParticleCollection>();
   produces<edm::ValueMap<l1tVertexFinder::TP>>(outputCollectionNames_[0]);
@@ -147,13 +152,11 @@ void TPStubValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
   }
 
   // Get the tracker geometry info needed to unpack the stub info.
-  edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-  const TrackerGeometry* trackerGeometry = trackerGeometryHandle.product();
+  const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
+  const TrackerGeometry& tGeom = iSetup.getData(tGeomToken_);
 
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-  const TrackerTopology* trackerTopology = trackerTopologyHandle.product();
+  const TrackerTopology* tTopology = &tTopo;
+  const TrackerGeometry* tGeometry = &tGeom;
 
   //Create the vector of Stub for the TTStubRef->Stub value map
   unsigned int nStubs = ttStubHandle->size();
@@ -163,7 +166,7 @@ void TPStubValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
     for (DetSet::const_iterator p_ttstub = p_module->begin(); p_ttstub != p_module->end(); p_ttstub++) {
       TTStubRef ttStubRef = edmNew::makeRefTo(ttStubHandle, p_ttstub);
       // Store the Stub info, using class Stub to provide easy access to the most useful info.
-      l1tVertexFinder::Stub stub(ttStubRef, settings_, trackerGeometry, trackerTopology);
+      l1tVertexFinder::Stub stub(ttStubRef, settings_, tGeometry, tTopology);
       // Also fill truth associating stubs to tracking particles.
       stub.fillTruth(mcTruthTTStubHandle, mcTruthTTClusterHandle);
       vAllStubs->push_back(stub);
