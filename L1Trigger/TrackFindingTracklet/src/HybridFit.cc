@@ -201,7 +201,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
       chi2rphi = trk.chi2rphi_bcon();
       phi0 = trk.phi0_bcon();
       qoverpt = trk.qOverPt_bcon();
-    } else if (!trk.done_bcon()) {
+    } else {
       d0 = trk.d0();
       chi2rphi = trk.chi2rphi();
       phi0 = trk.phi0();
