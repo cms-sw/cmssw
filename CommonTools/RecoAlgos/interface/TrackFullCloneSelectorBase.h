@@ -22,7 +22,7 @@
 #include <algorithm>
 #include <map>
 #include <memory>
-        #include <utility>
+#include <utility>
 #include <vector>
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

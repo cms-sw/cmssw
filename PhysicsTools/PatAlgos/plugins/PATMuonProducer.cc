@@ -907,8 +907,10 @@ double PATMuonProducer::puppiCombinedIsolation(const pat::Muon& muon, const pat:
 
   for (const auto& cand : *pc) {  //pat::pat::PackedCandidate loop start
 
-    const particleType pType =
-        isChargedHadron(cand.pdgId()) ? CH : isNeutralHadron(cand.pdgId()) ? NH : isPhoton(cand.pdgId()) ? PH : OTHER;
+    const particleType pType = isChargedHadron(cand.pdgId())   ? CH
+                               : isNeutralHadron(cand.pdgId()) ? NH
+                               : isPhoton(cand.pdgId())        ? PH
+                                                               : OTHER;
     if (pType == OTHER) {
       if (cand.pdgId() != 1 && cand.pdgId() != 2 && abs(cand.pdgId()) != 11 && abs(cand.pdgId()) != 13) {
         LogTrace("PATMuonProducer") << "candidate with PDGID = " << cand.pdgId()

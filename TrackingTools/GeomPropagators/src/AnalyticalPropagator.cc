@@ -34,18 +34,15 @@ std::pair<TrajectoryStateOnSurface, double> AnalyticalPropagator::propagateWithP
   double s;
 
   // check if already on plane
-  if
-    LIKELY(plane.localZclamped(fts.position()) != 0) {
-      // propagate
-      bool parametersOK = this->propagateParametersOnPlane(fts, plane, x, p, s);
-      // check status and deltaPhi limit
-      float dphi2 = float(s) * rho;
-      dphi2 = dphi2 * dphi2 * fts.momentum().perp2();
-      if
-        UNLIKELY(!parametersOK || dphi2 > theMaxDPhi2 * fts.momentum().mag2())
+  if LIKELY (plane.localZclamped(fts.position()) != 0) {
+    // propagate
+    bool parametersOK = this->propagateParametersOnPlane(fts, plane, x, p, s);
+    // check status and deltaPhi limit
+    float dphi2 = float(s) * rho;
+    dphi2 = dphi2 * dphi2 * fts.momentum().perp2();
+    if UNLIKELY (!parametersOK || dphi2 > theMaxDPhi2 * fts.momentum().mag2())
       return TsosWP(TrajectoryStateOnSurface(), 0.);
-    }
-  else {
+  } else {
     LogDebug("AnalyticalPropagator") << "not going anywhere. Already on surface.\n"
                                      << "plane.localZ(fts.position()): " << plane.localZ(fts.position()) << "\n"
                                      << "plane.position().mag(): " << plane.position().mag() << "\n"
@@ -58,9 +55,8 @@ std::pair<TrajectoryStateOnSurface, double> AnalyticalPropagator::propagateWithP
   // Compute propagated state and check change in curvature
   //
   GlobalTrajectoryParameters gtp(x, p, fts.charge(), theField);
-  if
-    UNLIKELY(std::abs(gtp.transverseCurvature() - rho) > theMaxDBzRatio * std::abs(rho))
-  return TsosWP(TrajectoryStateOnSurface(), 0.);
+  if UNLIKELY (std::abs(gtp.transverseCurvature() - rho) > theMaxDBzRatio * std::abs(rho))
+    return TsosWP(TrajectoryStateOnSurface(), 0.);
   //
   // construct TrajectoryStateOnSurface
   //
@@ -81,16 +77,14 @@ std::pair<TrajectoryStateOnSurface, double> AnalyticalPropagator::propagateWithP
   // check status and deltaPhi limit
   float dphi2 = s * rho;
   dphi2 = dphi2 * dphi2 * fts.momentum().perp2();
-  if
-    UNLIKELY(!parametersOK || dphi2 > theMaxDPhi2 * fts.momentum().mag2())
-  return TsosWP(TrajectoryStateOnSurface(), 0.);
+  if UNLIKELY (!parametersOK || dphi2 > theMaxDPhi2 * fts.momentum().mag2())
+    return TsosWP(TrajectoryStateOnSurface(), 0.);
   //
   // Compute propagated state and check change in curvature
   //
   GlobalTrajectoryParameters gtp(x, p, fts.charge(), theField);
-  if
-    UNLIKELY(std::abs(gtp.transverseCurvature() - rho) > theMaxDBzRatio * std::abs(rho))
-  return TsosWP(TrajectoryStateOnSurface(), 0.);
+  if UNLIKELY (std::abs(gtp.transverseCurvature() - rho) > theMaxDBzRatio * std::abs(rho))
+    return TsosWP(TrajectoryStateOnSurface(), 0.);
   //
   // create result TSOS on TangentPlane (local parameters & errors are better defined)
   //
@@ -145,8 +139,9 @@ std::pair<TrajectoryStateOnSurface, double> AnalyticalPropagator::propagatedStat
 bool AnalyticalPropagator::propagateParametersOnCylinder(
     const FreeTrajectoryState& fts, const Cylinder& cylinder, GlobalPoint& x, GlobalVector& p, double& s) const {
   GlobalPoint const& sp = cylinder.position();
-  if
-    UNLIKELY(sp.x() != 0. || sp.y() != 0.) { throw PropagationException("Cannot propagate to an arbitrary cylinder"); }
+  if UNLIKELY (sp.x() != 0. || sp.y() != 0.) {
+    throw PropagationException("Cannot propagate to an arbitrary cylinder");
+  }
   // preset output
   x = fts.position();
   p = fts.momentum();
@@ -157,9 +152,8 @@ bool AnalyticalPropagator::propagateParametersOnCylinder(
   // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um
   // difference in transversal position at 10m.
   //
-  if
-    UNLIKELY(std::abs(rho) < 1.e-10f)
-  return propagateWithLineCrossing(fts.position(), p, cylinder, x, s);
+  if UNLIKELY (std::abs(rho) < 1.e-10f)
+    return propagateWithLineCrossing(fts.position(), p, cylinder, x, s);
   //
   // Helix case
   //
@@ -172,8 +166,8 @@ bool AnalyticalPropagator::propagateParametersOnCylinder(
   // Instantiate HelixBarrelCylinderCrossing and get solutions
   //
   HelixBarrelCylinderCrossing cylinderCrossing(fts.position(), fts.momentum(), rho, propagationDirection(), cylinder);
-  if
-    UNLIKELY(!cylinderCrossing.hasSolution()) return false;
+  if UNLIKELY (!cylinderCrossing.hasSolution())
+    return false;
   // path length
   s = cylinderCrossing.pathLength();
   // point
@@ -195,9 +189,8 @@ bool AnalyticalPropagator::propagateParametersOnPlane(
   // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um
   // difference in transversal position at 10m.
   //
-  if
-    UNLIKELY(std::abs(rho) < 1.e-10f)
-  return propagateWithLineCrossing(fts.position(), p, plane, x, s);
+  if UNLIKELY (std::abs(rho) < 1.e-10f)
+    return propagateWithLineCrossing(fts.position(), p, plane, x, s);
   //
   // Helix case
   //
@@ -209,11 +202,10 @@ bool AnalyticalPropagator::propagateParametersOnPlane(
   //
   HelixPlaneCrossing::PositionType helixPos(x);
   HelixPlaneCrossing::DirectionType helixDir(p);
-  if
-    LIKELY(isOldPropagationType) {
-      OptimalHelixPlaneCrossing planeCrossing(plane, helixPos, helixDir, rho, propagationDirection());
-      return propagateWithHelixCrossing(*planeCrossing, plane, fts.momentum().mag(), x, p, s);
-    }
+  if LIKELY (isOldPropagationType) {
+    OptimalHelixPlaneCrossing planeCrossing(plane, helixPos, helixDir, rho, propagationDirection());
+    return propagateWithHelixCrossing(*planeCrossing, plane, fts.momentum().mag(), x, p, s);
+  }
 
   //--- Alternative implementation to be used for the propagation of the parameters  of looping
   //    particles that cross twice the (infinite) surface of the plane. It is not trivial to determine
@@ -385,8 +377,8 @@ bool AnalyticalPropagator::propagateWithHelixCrossing(HelixPlaneCrossing& planeC
                                                       double& s) const {
   // get solution
   std::pair<bool, double> propResult = planeCrossing.pathLength(plane);
-  if
-    UNLIKELY(!propResult.first) return false;
+  if UNLIKELY (!propResult.first)
+    return false;
 
   s = propResult.second;
   x = GlobalPoint(planeCrossing.position(s));

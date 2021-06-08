@@ -11,7 +11,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/CaloRecHitResolutionProvider.h"
 #include <memory>
 
-        #include <tuple>
+#include <tuple>
 
 class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
 public:

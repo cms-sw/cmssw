@@ -52,7 +52,7 @@ ForwardDetLayer* PixelForwardLayerBuilder<T1, T2>::build(const GeometricDet* aPi
   PixelBladeBuilder<T1> myBladeBuilder;
 
   theBlades.reserve((panelsSize / 2));
- for (int i = 0; i < (panelsSize / 2); i++) {
+  for (int i = 0; i < (panelsSize / 2); i++) {
     theBlades.push_back(
         myBladeBuilder.build(theGeometricPanels[i], theGeometricPanels[i + (panelsSize / 2)], theGeomDetGeometry));
   }
