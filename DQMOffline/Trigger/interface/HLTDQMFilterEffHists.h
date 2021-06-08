@@ -124,7 +124,7 @@ void HLTDQMFilterEffHists<ObjType>::book1D(DQMStore::IBooker& iBooker, const edm
   auto binLowEdgesDouble = histConfig.getParameter<std::vector<double> >("binLowEdges");
   std::vector<float> binLowEdges;
   binLowEdges.reserve(binLowEdgesDouble.size());
- for (double lowEdge : binLowEdgesDouble)
+  for (double lowEdge : binLowEdgesDouble)
     binLowEdges.push_back(lowEdge);
   auto nameSuffex = histConfig.getParameter<std::string>("nameSuffex");
   auto mePass = iBooker.book1D((baseHistName_ + filterName_ + nameSuffex + "_pass").c_str(),
@@ -156,10 +156,10 @@ void HLTDQMFilterEffHists<ObjType>::book2D(DQMStore::IBooker& iBooker, const edm
   std::vector<float> xBinLowEdges;
   std::vector<float> yBinLowEdges;
   xBinLowEdges.reserve(xBinLowEdgesDouble.size());
- for (double lowEdge : xBinLowEdgesDouble)
+  for (double lowEdge : xBinLowEdgesDouble)
     xBinLowEdges.push_back(lowEdge);
   yBinLowEdges.reserve(yBinLowEdgesDouble.size());
- for (double lowEdge : yBinLowEdgesDouble)
+  for (double lowEdge : yBinLowEdgesDouble)
     yBinLowEdges.push_back(lowEdge);
   auto nameSuffex = histConfig.getParameter<std::string>("nameSuffex");
   auto mePass = iBooker.book2D((baseHistName_ + filterName_ + nameSuffex + "_pass").c_str(),
