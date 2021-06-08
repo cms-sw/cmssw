@@ -56,7 +56,7 @@
 <test name="import-decorator" command="python3 -c 'import decorator'"/>
 <test name="import-docopt" command="python3 -c 'import docopt'"/>
 <test name="import-downhill" command="python3 -c 'import downhill'"/>
-<test name="import-dxr" command="python3 -c 'import dxr'"/>
+<test name="dxr-build"  command="dxr-build.py --help"/>
 <test name="import-enum" command="python3 -c 'import enum'"/>
 <test name="import-flake8" command="python3 -c 'import flake8'"/>
 <test name="import-funcsigs" command="python3 -c 'import funcsigs'"/>
