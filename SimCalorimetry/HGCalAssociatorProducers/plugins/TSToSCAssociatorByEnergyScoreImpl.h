@@ -40,9 +40,9 @@ namespace hgcal {
 class TSToSCAssociatorByEnergyScoreImpl : public hgcal::TracksterToSimClusterAssociatorBaseImpl {
 public:
   explicit TSToSCAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
-                                                bool,
-                                                std::shared_ptr<hgcal::RecHitTools>,
-                                                const std::unordered_map<DetId, const HGCRecHit *> *);
+                                             bool,
+                                             std::shared_ptr<hgcal::RecHitTools>,
+                                             const std::unordered_map<DetId, const HGCRecHit *> *);
 
   hgcal::RecoToSimCollectionTracksters associateRecoToSim(const edm::Handle<ticl::TracksterCollection> &tCH,
                                                           const edm::Handle<reco::CaloClusterCollection> &lCCH,

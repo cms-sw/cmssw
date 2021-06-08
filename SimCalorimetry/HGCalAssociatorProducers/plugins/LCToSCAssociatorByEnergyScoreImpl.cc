@@ -84,8 +84,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
           << "    SimClusterIdx: " << lcsInSimCluster[sc][sclay].simClusterId << std::endl;
       LogDebug("LCToSCAssociatorByEnergyScoreImpl")
           << "    Energy:          " << lcsInSimCluster[sc][sclay].energy << std::endl;
-      LogDebug("LCToSCAssociatorByEnergyScoreImpl")
-          << "    # of clusters :          " << nLayerClusters << std::endl;
+      LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "    # of clusters :          " << nLayerClusters << std::endl;
       double tot_energy = 0.;
       for (auto const& haf : lcsInSimCluster[sc][sclay].hits_and_fractions) {
         LogDebug("LCToSCAssociatorByEnergyScoreImpl")
@@ -96,7 +95,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
       LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "    Tot Sum haf: " << tot_energy << std::endl;
       for (auto const& lc : lcsInSimCluster[sc][sclay].layerClusterIdToEnergyAndScore) {
         LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "      lcIdx/energy/score: " << lc.first << "/"
-                                                          << lc.second.first << "/" << lc.second.second << std::endl;
+                                                      << lc.second.first << "/" << lc.second.second << std::endl;
       }
     }
   }
@@ -262,19 +261,19 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
     }
 
     LogDebug("LCToSCAssociatorByEnergyScoreImpl") << std::setw(10) << "LayerId:"
-                                                      << "\t" << std::setw(12) << "layerCluster"
-                                                      << "\t" << std::setw(10) << "lc energy"
-                                                      << "\t" << std::setw(5) << "nhits"
-                                                      << "\t" << std::setw(12) << "noise hits"
-                                                      << "\t" << std::setw(22) << "maxSCId_byNumberOfHits"
-                                                      << "\t" << std::setw(8) << "nhitsSC"
-                                                      << "\t" << std::setw(13) << "maxSCId_byEnergy"
-                                                      << "\t" << std::setw(20) << "maxEnergySharedLCandSC"
-                                                      << "\t" << std::setw(22) << "totalSCEnergyOnLayer"
-                                                      << "\t" << std::setw(22) << "energyFractionOfLCinSC"
-                                                      << "\t" << std::setw(25) << "energyFractionOfSCinLC"
-                                                      << "\t"
-                                                      << "\n";
+                                                  << "\t" << std::setw(12) << "layerCluster"
+                                                  << "\t" << std::setw(10) << "lc energy"
+                                                  << "\t" << std::setw(5) << "nhits"
+                                                  << "\t" << std::setw(12) << "noise hits"
+                                                  << "\t" << std::setw(22) << "maxSCId_byNumberOfHits"
+                                                  << "\t" << std::setw(8) << "nhitsSC"
+                                                  << "\t" << std::setw(13) << "maxSCId_byEnergy"
+                                                  << "\t" << std::setw(20) << "maxEnergySharedLCandSC"
+                                                  << "\t" << std::setw(22) << "totalSCEnergyOnLayer"
+                                                  << "\t" << std::setw(22) << "energyFractionOfLCinSC"
+                                                  << "\t" << std::setw(25) << "energyFractionOfSCinLC"
+                                                  << "\t"
+                                                  << "\n";
     LogDebug("LCToSCAssociatorByEnergyScoreImpl")
         << std::setw(10) << lcLayerId << "\t" << std::setw(12) << lcId << "\t" << std::setw(10)
         << clusters[lcId].energy() << "\t" << std::setw(5) << numberOfHitsInLC << "\t" << std::setw(12)
@@ -305,7 +304,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
       LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "    Tot Sum haf: " << tot_energy << std::endl;
       for (auto const& lc : lcsInSimCluster[sc][sclay].layerClusterIdToEnergyAndScore) {
         LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "      lcIdx/energy/score: " << lc.first << "/"
-                                                          << lc.second.first << "/" << lc.second.second << std::endl;
+                                                      << lc.second.first << "/" << lc.second.second << std::endl;
       }
     }
   }
@@ -339,7 +338,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
       for (auto& scPair : scsInLayerCluster[lcId]) {
         scPair.second = 1.;
         LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "layerClusterId : \t " << lcId << "\t SC id : \t"
-                                                          << scPair.first << "\t score \t " << scPair.second << "\n";
+                                                      << scPair.first << "\t score \t " << scPair.second << "\n";
       }
       continue;
     }
@@ -385,8 +384,8 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
 #ifdef EDM_ML_DEBUG
     if (scsInLayerCluster[lcId].empty())
       LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "layerCluster Id: \t" << lcId << "\tSC id:\t-1 "
-                                                        << "\t score \t-1"
-                                                        << "\n";
+                                                    << "\t score \t-1"
+                                                    << "\n";
 #endif
   }  // End of loop over LayerClusters
 
@@ -468,8 +467,8 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
 #ifdef EDM_ML_DEBUG
       if (lcsInSimCluster[scId][layerId].layerClusterIdToEnergyAndScore.empty())
         LogDebug("LCToSCAssociatorByEnergyScoreImpl") << "SC Id: \t" << scId << "\tLC id:\t-1 "
-                                                          << "\t score \t-1"
-                                                          << "\n";
+                                                      << "\t score \t-1"
+                                                      << "\n";
 
       for (const auto& lcPair : lcsInSimCluster[scId][layerId].layerClusterIdToEnergyAndScore) {
         LogDebug("LCToSCAssociatorByEnergyScoreImpl")
