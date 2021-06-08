@@ -4,6 +4,13 @@ namespace l1tVertexFinder {
 
   // Template specializations
   template <>
+  RecoVertexWithTP& RecoVertexWithTP::operator+=(const RecoVertex& rhs) {
+    this->tracks_.insert(std::end(this->tracks_), std::begin(rhs.tracks()), std::end(rhs.tracks()));
+    this->trueTracks_.insert(std::begin(rhs.trueTracks()), std::end(rhs.trueTracks()));
+    return *this;
+  }
+
+  template <>
   void RecoVertexWithTP::clear() {
     tracks_.clear();
     trueTracks_.clear();
