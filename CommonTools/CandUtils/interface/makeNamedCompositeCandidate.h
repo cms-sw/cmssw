@@ -60,7 +60,7 @@ helpers::NamedCompositeCandidateMaker makeNamedCompositeCandidate(const typename
                                                                   const std::vector<std::string>::const_iterator sbegin,
                                                                   const std::vector<std::string>::const_iterator send) {
   helpers::NamedCompositeCandidateMaker cmp(
-      std::unique_ptr<reco::NamedCompositeCandidate>(new reco::NamedCompositeCandidate));
+      std::make_unique<reco::NamedCompositeCandidate>());
   std::vector<std::string>::const_iterator si = sbegin;
   for (typename C::const_iterator i = begin; i != end && si != send; ++i, ++si)
     cmp.addDaughter(*i, *si);
@@ -95,7 +95,7 @@ helpers::NamedCompositeCandidateMaker makeNamedCompositeCandidateWithRefsToMaste
     const std::vector<std::string>::const_iterator sbegin,
     const std::vector<std::string>::const_iterator send) {
   helpers::NamedCompositeCandidateMaker cmp(
-      std::unique_ptr<reco::NamedCompositeCandidate>(new reco::NamedCompositeCandidate));
+      std::make_unique<reco::NamedCompositeCandidate>());
   std::vector<std::string>::const_iterator si = sbegin;
   for (typename C::const_iterator i = begin; i != end && si != send; ++i, ++si)
     cmp.addDaughter(ShallowCloneCandidate(CandidateBaseRef(*i)), *si);
