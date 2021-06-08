@@ -225,8 +225,9 @@ namespace {
   }
 
   constexpr enum align::StructureType stringToObjectId(char const *name, AlignableObjectId::entry const *entries) {
-    return !entries->name ? align::invalid
-                          : same(entries->name, name) ? entries->type : stringToObjectId(name, entries + 1);
+    return !entries->name              ? align::invalid
+           : same(entries->name, name) ? entries->type
+                                       : stringToObjectId(name, entries + 1);
   }
 }  // namespace
 
