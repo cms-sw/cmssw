@@ -28,19 +28,21 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MuonSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
+  void beginRun(const edm::EventSetup& es) final {
+    edm::ESHandle<MuonOffsetMap> mom;
+    es.get<IdealGeometryRecord>().get(mom);
+    offmap_ = (mom.isValid()) ? mom.product() : nullptr;
+    edm::LogVerbatim("MuonSim") << "Finds the offset map at " << offmap_;
+    edm::ESHandle<MuonGeometryConstants> mdc;
+    es.get<IdealGeometryRecord>().get(mdc);
+    mdc_ = mdc.product();
+  }
   std::unique_ptr<SensitiveDetector> make(const std::string& iname,
                                           const edm::EventSetup& es,
                                           const SensitiveDetectorCatalog& clg,
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
-                                          SimActivityRegistry& reg) const override {
-    edm::ESHandle<MuonOffsetMap> mom;
-    es.get<IdealGeometryRecord>().get(mom);
-    const MuonOffsetMap* offmap = (mom.isValid()) ? mom.product() : nullptr;
-    edm::LogVerbatim("MuonSim") << "Finds the offset map at " << offmap;
-    edm::ESHandle<MuonGeometryConstants> mdc;
-    es.get<IdealGeometryRecord>().get(mdc);
-
+                                          SimActivityRegistry& reg) const final {
     edm::ParameterSet m_MuonSD = p.getParameter<edm::ParameterSet>("MuonSD");
     auto ePersistentCutGeV =
         m_MuonSD.getParameter<double>("EnergyThresholdForPersistency") / CLHEP::GeV;  //Default 1. GeV
@@ -50,10 +52,14 @@ class MuonSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
     //
 
     auto sd = std::make_unique<MuonSensitiveDetector>(
-        iname, offmap, *mdc, clg, ePersistentCutGeV, allMuonsPersistent, printHits, dd4hep, man);
+        iname, offmap_, *mdc_, clg, ePersistentCutGeV, allMuonsPersistent, printHits, dd4hep, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
+
+private:
+  const MuonOffsetMap* offmap_;
+  const MuonGeometryConstants* mdc_;
 };
 
 DEFINE_SENSITIVEDETECTORBUILDER(MuonSensitiveDetectorBuilder, MuonSensitiveDetector);

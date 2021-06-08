@@ -27,18 +27,27 @@ namespace edm {
 
 class SensitiveDetectorMakerBase {
 public:
-  explicit SensitiveDetectorMakerBase(){};
-  virtual ~SensitiveDetectorMakerBase(){};
+  explicit SensitiveDetectorMakerBase() = default;
+  virtual ~SensitiveDetectorMakerBase();
   SensitiveDetectorMakerBase(const SensitiveDetectorMakerBase&) = delete;
   const SensitiveDetectorMakerBase& operator=(const SensitiveDetectorMakerBase&) = delete;
 
+  virtual void beginRun(edm::EventSetup const&);
+
   // ---------- const member functions ---------------------
+  //deprecated API
   virtual std::unique_ptr<SensitiveDetector> make(const std::string& iname,
                                                   const edm::EventSetup& es,
                                                   const SensitiveDetectorCatalog& clg,
                                                   const edm::ParameterSet& p,
                                                   const SimTrackManager* man,
-                                                  SimActivityRegistry& reg) const = 0;
+                                                  SimActivityRegistry& reg) const;
+
+  virtual std::unique_ptr<SensitiveDetector> make(const std::string& iname,
+                                                  const SensitiveDetectorCatalog& clg,
+                                                  const edm::ParameterSet& p,
+                                                  const SimTrackManager* man,
+                                                  SimActivityRegistry& reg) const;
 };
 
 #endif
