@@ -56,10 +56,10 @@ LCToSimTSAssociatorEDProducer::LCToSimTSAssociatorEDProducer(const edm::Paramete
   SimTSCollectionToken_(consumes<ticl::TracksterCollection>(pset.getParameter<edm::InputTag>("label_simTst"))),
   associatorToken_(consumes<hgcal::LayerClusterToSimTracksterAssociator>(pset.getParameter<edm::InputTag>("associator"))),
   CPCollectionToken_(consumes<CaloParticleCollection>(pset.getParameter<edm::InputTag>("label_cp"))),
-  associatorCP_(pset.getUntrackedParameter<edm::InputTag>("layerClusterCaloParticleAssociator")),
+  associatorCP_(pset.getParameter<edm::InputTag>("associator_cp")),
   associationMapCPToken_(consumes<hgcal::RecoToSimCollection>(associatorCP_)),
   SCCollectionToken_(consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("label_scl"))),
-  associatorSC_(pset.getUntrackedParameter<edm::InputTag>("layerClusterSimClusterAssociator")),
+  associatorSC_(pset.getParameter<edm::InputTag>("associator_sc")),
   associationMapSCToken_(consumes<hgcal::RecoToSimCollectionWithSimClusters>(associatorSC_))
 {
   produces<hgcal::SimTracksterToRecoCollection>();
