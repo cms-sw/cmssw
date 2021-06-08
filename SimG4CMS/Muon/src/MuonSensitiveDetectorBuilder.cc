@@ -30,7 +30,7 @@
 
 class MuonSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
-  explicit MuonSensitiveDetectorBuilder(edm::ConsumesCollector cc) {}
+  explicit MuonSensitiveDetectorBuilder(edm::ParameterSet const&, edm::ConsumesCollector cc) {}
 
   void beginRun(const edm::EventSetup& es) final {
     edm::ESHandle<MuonOffsetMap> mom;

@@ -9,7 +9,11 @@
 
 #include <string>
 
-typedef edmplugin::PluginFactory<SensitiveDetectorMakerBase *(edm::ConsumesCollector)> SensitiveDetectorPluginFactory;
+namespace edm {
+  class ParameterSet;
+}
+typedef edmplugin::PluginFactory<SensitiveDetectorMakerBase *(edm::ParameterSet const &, edm::ConsumesCollector)>
+    SensitiveDetectorPluginFactory;
 
 #define DEFINE_SENSITIVEDETECTOR(type) \
   DEFINE_EDM_PLUGIN(SensitiveDetectorPluginFactory, SensitiveDetectorMaker<type>, #type)
