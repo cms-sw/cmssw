@@ -38,4 +38,6 @@ L1Phase2MuDTExtThContainer::L1Phase2MuDTExtThContainer() {}
 //--------------
 void L1Phase2MuDTExtThContainer::setContainer(const Segment_Container& inputSegments) { m_segments = inputSegments; }
 
-L1Phase2MuDTExtThContainer::Segment_Container const* L1Phase2MuDTExtThContainer::getContainer() const { return &m_segments; }
+L1Phase2MuDTExtThContainer::Segment_Container const* L1Phase2MuDTExtThContainer::getContainer() const {
+  return &m_segments;
+}
