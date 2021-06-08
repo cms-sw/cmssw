@@ -47,6 +47,8 @@
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorMakerBase.h"
+#include "SimG4Core/SensitiveDetector/interface/sensitiveDetectorMakers.h"
 
 #include "G4Timer.hh"
 #include "G4Event.hh"
@@ -320,8 +322,9 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   }
 
   // attach sensitive detector
+  auto makers = sim::sensitiveDetectorMakers(std::vector<std::string>());
   auto sensDets =
-      sim::attachSD(es, runManagerMaster->catalog(), m_p, m_tls->trackManager.get(), *(m_tls->registry.get()));
+      sim::attachSD(makers, es, runManagerMaster->catalog(), m_p, m_tls->trackManager.get(), *(m_tls->registry.get()));
 
   m_tls->sensTkDets.swap(sensDets.first);
   m_tls->sensCaloDets.swap(sensDets.second);
