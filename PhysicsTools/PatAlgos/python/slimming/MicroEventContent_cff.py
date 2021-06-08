@@ -88,6 +88,8 @@ MicroEventContent = cms.PSet(
         'keep recoForwardProtons_ctppsProtons_*_*',
 	# displacedStandAlone muon collection for EXO
 	'keep recoTracks_displacedStandAloneMuons__*',
+        'keep recoTracks_displacedGlobalMuons__*',
+        'keep recoTracks_displacedTracks__*',
         # L1 prefiring weights
         'keep *_prefiringweight_*_*',
         # patLowPtElectrons
@@ -118,12 +120,6 @@ MicroEventContentGEN = cms.PSet(
         'keep *_genParticles_t0_*',
     )
 )
-
-# keep displaced objects for b-parking era
-from Configuration.Eras.Modifier_bParking_cff import bParking
-_bparking_displaced_extraCommands = ['keep recoTracks_displacedGlobalMuons_*_*', 
-                                     'keep recoTracks_displacedTracks_*_*',]
-bParking.toModify(MicroEventContent,outputCommands = MicroEventContent.outputCommands + _bparking_displaced_extraCommands)
 
 # --- Only for 2018 data & MC
 _run2_HCAL_2018_extraCommands = ["keep *_packedPFCandidates_hcalDepthEnergyFractions_*"]
