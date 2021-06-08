@@ -17,6 +17,7 @@
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/SensitiveDetector/interface/sensitiveDetectorMakers.h"
+#include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -76,6 +77,9 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
   if (otherRegistry)
     m_registry.connect(*otherRegistry);
   createWatchers(m_p, m_registry, m_watchers, m_producers);
+
+  m_sdMakers = sim::sensitiveDetectorMakers(std::vector<std::string>());
+
   produces<int>();
 }
 
@@ -103,7 +107,12 @@ void GeometryProducer::beginLuminosityBlock(edm::LuminosityBlock &, edm::EventSe
   //     updateMagneticField( es );
 }
 
-void GeometryProducer::beginRun(const edm::Run &run, const edm::EventSetup &es) { updateMagneticField(es); }
+void GeometryProducer::beginRun(const edm::Run &run, const edm::EventSetup &es) {
+  updateMagneticField(es);
+  for (auto &maker : m_sdMakers) {
+    maker.second->beginRun(es);
+  }
+}
 
 void GeometryProducer::endRun(const edm::Run &, const edm::EventSetup &) {}
 
@@ -146,9 +155,8 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
     // instantiate and attach the sensitive detectors
     m_trackManager = std::make_unique<SimTrackManager>();
     {
-      auto makers = sim::sensitiveDetectorMakers(std::vector<std::string>());
       std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *>> sensDets =
-          sim::attachSD(makers, es, catalog, m_p, m_trackManager.get(), m_registry);
+          sim::attachSD(m_sdMakers, es, catalog, m_p, m_trackManager.get(), m_registry);
 
       m_sensTkDets.swap(sensDets.first);
       m_sensCaloDets.swap(sensDets.second);

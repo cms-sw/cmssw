@@ -167,6 +167,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_p(iConfig),
       m_simEvent(nullptr),
       m_sVerbose(nullptr) {
+  m_sdMakers = sim::sensitiveDetectorMakers(std::vector<std::string>());
   std::vector<edm::ParameterSet> watchers = iConfig.getParameter<std::vector<edm::ParameterSet> >("Watchers");
   m_hasWatchers = !watchers.empty();
   initializeTLS();
@@ -217,6 +218,12 @@ void RunManagerMTWorker::resetTLS() {
     }
   }
   --n_tls_shutdown_task;
+}
+
+void RunManagerMTWorker::beginRun(edm::EventSetup const& es) {
+  for (auto& maker : m_sdMakers) {
+    maker.second->beginRun(es);
+  }
 }
 
 void RunManagerMTWorker::endRun() {
@@ -322,9 +329,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   }
 
   // attach sensitive detector
-  auto makers = sim::sensitiveDetectorMakers(std::vector<std::string>());
-  auto sensDets =
-      sim::attachSD(makers, es, runManagerMaster->catalog(), m_p, m_tls->trackManager.get(), *(m_tls->registry.get()));
+  auto sensDets = sim::attachSD(
+      m_sdMakers, es, runManagerMaster->catalog(), m_p, m_tls->trackManager.get(), *(m_tls->registry.get()));
 
   m_tls->sensTkDets.swap(sensDets.first);
   m_tls->sensCaloDets.swap(sensDets.second);
