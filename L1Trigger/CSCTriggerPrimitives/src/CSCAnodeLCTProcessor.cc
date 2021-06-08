@@ -297,6 +297,18 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
           if (patternDetection(i_wire, hits_in_patterns)) {
             trigger = true;
             int ghost_cleared[2] = {0, 0};
+            /*
+              In older versions of the ALCT emulation, the ghost cancellation was performed after
+              the ALCTs were found. In December 2018 it became clear that during the study of data
+              and emulation comparison on 2018 data, a small disagreement between data and emulation
+              was found. The changes we implemented then allow re-triggering on one wiregroup after
+              some dead time once an earlier ALCT was constructed built on this wiregroup. Before this
+              commit the ALCT processor would prohibit the wiregroup from triggering in one event after
+              an ALCT was found on that wiregroup. In the firwmare, the wiregroup with ALCT is only dead
+              for a few BX before it can be triggered by next muon. The implementation of ghost cancellation
+              logic was changed to accommodate the re-triggering change while the idea of ghost cancellation
+              logic is kept the same.
+            */
             ghostCancellationLogicOneWire(i_wire, ghost_cleared);
 
             int bx = (use_corrected_bx) ? first_bx_corrected[i_wire] : first_bx[i_wire];
@@ -349,6 +361,12 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
 
   // Do the rest only if there is at least one trigger candidate.
   if (trigger) {
+    /* In Run-1 and Run-2, the ghost cancellation was done after the trigger.
+       In the firmware however, the ghost cancellation is done during the trigger
+       on each wiregroup in parallel. For Run-3 and beyond, the ghost cancellation is
+       implemented per wiregroup earlier in the code. See function
+       "ghostCancellationLogicOneWire". Therefore, the line below is commented out.
+    */
     //ghostCancellationLogic();
     lctSearch();
   }
