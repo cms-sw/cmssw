@@ -16,7 +16,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Event.h"
-        #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
