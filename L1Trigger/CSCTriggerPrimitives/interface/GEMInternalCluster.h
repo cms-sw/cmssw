@@ -12,15 +12,30 @@
 
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
+#include "DataFormats/GEMDigi/interface/GEMCoPadDigi.h"
 
 class GEMInternalCluster {
 public:
   // constructor
   GEMInternalCluster(const GEMDetId& id, const GEMPadDigiCluster& cluster1, const GEMPadDigiCluster& cluster2);
 
+  // empty object
+  GEMInternalCluster() {}
+
   GEMDetId id() const { return id_; }
   GEMPadDigiCluster cl1() const { return cl1_; }
   GEMPadDigiCluster cl2() const { return cl2_; }
+
+  // an internal cluster is valid if at least one is valid
+  bool isValid() const { return cl1_.isValid() or cl2_.isValid(); }
+
+  // return the centers of the pads
+  GEMPadDigi mid1() const;
+  GEMPadDigi mid2() const;
+
+  // return the coincidence pad
+  GEMCoPadDigi copad() const;
 
   int bx() const { return bx_; }
   int roll() const { return id_.roll(); }
@@ -32,7 +47,14 @@ public:
   int layer1_max_wg() const { return layer1_max_wg_; }
   int layer2_min_wg() const { return layer2_min_wg_; }
   int layer2_max_wg() const { return layer2_max_wg_; }
+  int min_wg() const;
+  int max_wg() const;
   bool isCoincidence() const { return isCoincidence_; }
+
+  // return "key wiregroup" and "key half-strip" for a cluster
+  // these are approximate numbers obviously for LCTs with lower quality
+  unsigned getKeyWG() const { return (min_wg() + max_wg()) / 2.; }
+  uint16_t getKeyStrip(int n = 2) const;
 
   // first and last 1/2-strips
   int layer1_first_hs() const { return layer1_first_hs_; }

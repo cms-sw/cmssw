@@ -1242,7 +1242,7 @@ void CSCAnodeLCTProcessor::dumpDigis(
 
 // Returns vector of read-out ALCTs, if any.  Starts with the vector of
 // all found ALCTs and selects the ones in the read-out time window.
-std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs(int nMaxALCTs) const {
+std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() const {
   std::vector<CSCALCTDigi> tmpV;
 
   // The number of LCT bins in the read-out is given by the
@@ -1272,7 +1272,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs(int nMaxALCTs) const
 
   // Start from the vector of all found ALCTs and select those within
   // the ALCT*L1A coincidence window.
-  const std::vector<CSCALCTDigi>& all_alcts = getALCTs(nMaxALCTs);
+  const std::vector<CSCALCTDigi>& all_alcts = getALCTs();
   for (const auto& p : all_alcts) {
     if (!p.isValid())
       continue;
@@ -1310,14 +1310,14 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs(int nMaxALCTs) const
   // do a final check on the ALCTs in readout
   qualityControl_->checkMultiplicityBX(tmpV);
   for (const auto& alct : tmpV) {
-    qualityControl_->checkValid(alct, nMaxALCTs);
+    qualityControl_->checkValid(alct);
   }
 
   return tmpV;
 }
 
 // Returns vector of all found ALCTs, if any.  Used in ALCT-CLCT matching.
-std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs(unsigned nMaxALCTs) const {
+std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() const {
   std::vector<CSCALCTDigi> tmpV;
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     if (bestALCT[bx].isValid())

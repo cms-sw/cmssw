@@ -46,8 +46,7 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 
   // ignore unphysical ALCT-CLCT matches
   ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
-  const edm::ParameterSet me11luts(conf.getParameter<edm::ParameterSet>("wgCrossHsME11Params"));
-  cscOverlap_ = std::make_unique<CSCALCTCrossCLCT>(endcap, station, theRing, gangedME1a_, me11luts);
+  cscOverlap_ = std::make_unique<CSCALCTCrossCLCT>(endcap, station, theRing, ignoreAlctCrossClct, conf);
 }
 
 void CSCUpgradeMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc) {
@@ -240,7 +239,7 @@ void CSCUpgradeMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
 }
 
 bool CSCUpgradeMotherboard::doesALCTCrossCLCT(const CSCALCTDigi& a, const CSCCLCTDigi& c) const {
-  return cscOverlap_->doesALCTCrossCLCT(a, c, ignoreAlctCrossClct);
+  return cscOverlap_->doesALCTCrossCLCT(a, c);
 }
 
 //readout LCTs
