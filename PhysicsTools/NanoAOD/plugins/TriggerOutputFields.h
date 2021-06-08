@@ -13,7 +13,7 @@ namespace edm {
 class TriggerFieldPtr {
 public:
   TriggerFieldPtr() = default;
-  TriggerFieldPtr(std::string name, int index, std::string fieldName, RNTupleModel& model);
+  TriggerFieldPtr(std::string name, int index, std::string fieldName, std::string fieldDesc, RNTupleModel& model);
   void fill(const edm::TriggerResults& triggers);
   const std::string& getTriggerName() const { return m_triggerName; }
   void setIndex(int newIndex) { m_triggerIndex = newIndex; }

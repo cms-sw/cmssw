@@ -153,6 +153,10 @@ void TableCollection::createFields(const edm::EventForOutput& event, RNTupleMode
   for (auto& extension : m_extensions) {
     extension.createFields(event, *collectionModel);
   }
+  edm::Handle<nanoaod::FlatTable> handle;
+  event.getByToken(m_main.getToken(), handle);
+  const nanoaod::FlatTable& table = *handle;
+  collectionModel->SetDescription(table.doc());
   m_collection = eventModel.MakeCollection(m_collectionName, std::move(collectionModel));
 }
 

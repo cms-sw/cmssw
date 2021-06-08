@@ -23,14 +23,14 @@ public:
     m_flatTableName = table.columnName(i);
     // case 1: field has a name (table may or may not have a name)
     if (!table.columnName(i).empty()) {
-      m_field = RNTupleFieldPtr<T>(table.columnName(i), model);
+      m_field = RNTupleFieldPtr<T>(table.columnName(i), table.columnDoc(i), model);
       return;
     }
     // case 2: field doesn't have a name: use the table name as the RNTuple field name
     if (table.name().empty()) {
       throw cms::Exception("LogicError", "Empty FlatTable name and field name");
     }
-    m_field = RNTupleFieldPtr<T>(table.name(), model);
+    m_field = RNTupleFieldPtr<T>(table.name(), table.doc(), model);
   }
   // For collection fields and singleton fields
   void fill(const nanoaod::FlatTable& table, std::size_t i) {

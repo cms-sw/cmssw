@@ -17,8 +17,8 @@ using ROOT::Experimental::Detail::RPageSinkFile;
 
 void LumiNTuple::createFields(const edm::LuminosityBlockID& id, TFile& file) {
   auto model = RNTupleModel::Create();
-  m_run = RNTupleFieldPtr<UInt_t>("run", *model);
-  m_luminosityBlock = RNTupleFieldPtr<UInt_t>("luminosityBlock", *model);
+  m_run = RNTupleFieldPtr<UInt_t>("run", "", *model);
+  m_luminosityBlock = RNTupleFieldPtr<UInt_t>("luminosityBlock", "", *model);
   // TODO use Append when we bump our RNTuple version:
   // m_ntuple = RNTupleWriter::Append(std::move(model), "LuminosityBlocks", file);
   RNTupleWriteOptions options;
@@ -42,7 +42,7 @@ void RunNTuple::registerToken(const edm::EDGetToken& token) { m_tokens.push_back
 
 void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
   auto model = RNTupleModel::Create();
-  m_run = RNTupleFieldPtr<UInt_t>("run", *model);
+  m_run = RNTupleFieldPtr<UInt_t>("run", "", *model);
 
   edm::Handle<nanoaod::MergeableCounterTable> handle;
   for (const auto& token : m_tokens) {
@@ -76,8 +76,8 @@ void RunNTuple::finalizeWrite() { m_ntuple.reset(); }
 void PSetNTuple::createFields(TFile& file) {
   // use a collection to emulate std::pair
   auto pairModel = RNTupleModel::Create();
-  m_psetId = RNTupleFieldPtr<std::string>("first", *pairModel);
-  m_psetBlob = RNTupleFieldPtr<std::string>("second", *pairModel);
+  m_psetId = RNTupleFieldPtr<std::string>("first", "", *pairModel);
+  m_psetBlob = RNTupleFieldPtr<std::string>("second", "", *pairModel);
   auto model = RNTupleModel::Create();
   m_collection = model->MakeCollection(edm::poolNames::idToParameterSetBlobsBranchName(), std::move(pairModel));
   // TODO use Append when we bump our RNTuple version
@@ -110,7 +110,7 @@ void PSetNTuple::finalizeWrite() { m_ntuple.reset(); }
 void MetadataNTuple::createFields(TFile& file) {
   auto procHistModel = RNTupleModel::Create();
   // ProcessHistory.transients_.phid_ replacement
-  m_phId = RNTupleFieldPtr<std::string>("transients_phid_", *procHistModel);
+  m_phId = RNTupleFieldPtr<std::string>("transients_phid_", "", *procHistModel);
   auto model = RNTupleModel::Create();
   m_procHist = model->MakeCollection(edm::poolNames::processHistoryBranchName(), std::move(procHistModel));
   RNTupleWriteOptions options;

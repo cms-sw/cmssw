@@ -33,9 +33,10 @@ namespace {
 
 }  // anonymous namespace
 
-TriggerFieldPtr::TriggerFieldPtr(std::string name, int index, std::string fieldName, RNTupleModel& model)
+TriggerFieldPtr::TriggerFieldPtr(
+    std::string name, int index, std::string fieldName, std::string fieldDesc, RNTupleModel& model)
     : m_triggerName(name), m_triggerIndex(index) {
-  m_field = RNTupleFieldPtr<bool>(fieldName, model);
+  m_field = RNTupleFieldPtr<bool>(fieldName, fieldDesc, model);
 }
 
 void TriggerFieldPtr::fill(const edm::TriggerResults& triggers) {
@@ -82,7 +83,8 @@ void TriggerOutputFields::createFields(const edm::EventForOutput& event, RNTuple
     trimVersionSuffix(name);
     std::string modelName = name;
     makeUniqueFieldName(model, modelName);
-    m_triggerFields.emplace_back(TriggerFieldPtr(name, i, modelName, model));
+    std::string desc = std::string("Trigger/flag bit (process: ") + m_processName + ")";
+    m_triggerFields.emplace_back(TriggerFieldPtr(name, i, modelName, desc, model));
   }
 }
 
