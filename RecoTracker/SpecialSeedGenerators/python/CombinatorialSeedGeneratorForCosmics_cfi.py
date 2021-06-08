@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 
-layerInfo = cms.PSet(
+layerInfo = dict(
     MTIB = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
             clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),

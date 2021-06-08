@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cfi import *
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
-regionalCosmicTrackerSeedingLayers = cms.EDProducer("SeedingLayersEDProducer",
-    layerInfo,
-    layerList = layerList
+regionalCosmicTrackerSeedingLayers = _mod.seedingLayersEDProducer.clone(
+    layerList = layerList,
+    **layerInfo
 )
