@@ -12,9 +12,9 @@ import re
 class BaseLHEMerger(object):
     """Base class of the LHE merge schemes"""
 
-    def __init__(self, input_files, output_filename):
+    def __init__(self, input_files, output_file):
         self.input_files = input_files
-        self.output_filename = output_filename
+        self.output_file = output_file
 
     def merge(self):
         """Output the merged LHE"""
@@ -24,8 +24,8 @@ class DefaultLHEMerger(BaseLHEMerger):
     """Default LHE merge scheme that copies the header of the first LHE file,
     merges and outputs the init block, then concatenates all event blocks."""
 
-    def __init__(self, input_files, output_filename, **kwargs):
-        super(DefaultLHEMerger, self).__init__(input_files, output_filename)
+    def __init__(self, input_files, output_file, **kwargs):
+        super(DefaultLHEMerger, self).__init__(input_files, output_file)
 
         self.bypass_check = kwargs.get('bypass_check', False)
         # line-by-line iterator for each input file
@@ -176,7 +176,7 @@ class DefaultLHEMerger(BaseLHEMerger):
         self._merged_init_str = self._init_str[0].split('\n')[0].strip().rsplit(' ', 1)[0] \
             + ' ' + str(len(new_init_block)) + '\n'
         # Form the merged init block
-        logging.info('Output file: %s' % self.output_filename)
+        logging.info('Output file: %s' % self.output_file)
         for ipr in sorted(list(new_init_block.keys()), reverse=True):
             # reverse order: follow the MG5 custom
             new_init_block[ipr][0] /= tot_nevent
@@ -191,7 +191,7 @@ class DefaultLHEMerger(BaseLHEMerger):
         return self._merged_init_str
 
     def merge(self):
-        with open(self.output_filename, 'w') as fw:
+        with open(self.output_file, 'w') as fw:
             # Read the header for the all input files
             for i in range(len(self._f)):
                 header = []
@@ -281,8 +281,8 @@ class MG5LOLHEMerger(BaseLHEMerger):
     https://github.com/cms-sw/genproductions/blob/master/bin/MadGraph5_aMCatNLO/Utilities/merge.pl
     """
 
-    def __init__(self, input_files, output_filename, **kwargs):
-        super(MG5LOLHEMerger, self).__init__(input_files, output_filename)
+    def __init__(self, input_files, output_file, **kwargs):
+        super(MG5LOLHEMerger, self).__init__(input_files, output_file)
         self._merger_script_url = \
             'https://raw.githubusercontent.com/cms-sw/genproductions/5c1e865a6fbe3a762a28363835d9a804c9cf0dbe/bin/MadGraph5_aMCatNLO/Utilities/merge.pl'
 
@@ -291,8 +291,8 @@ class MG5LOLHEMerger(BaseLHEMerger):
             ('Use the merger script in genproductions dedicated for '
             'MadGraph5-produced LHEs'))
         os.system('curl -s -L %s | perl - %s %s.gz banner.txt' \
-            % (self._merger_script_url, ' '.join(self.input_files), self.output_filename))
-        os.system('gzip -df %s.gz' % self.output_filename)
+            % (self._merger_script_url, ' '.join(self.input_files), self.output_file))
+        os.system('gzip -df %s.gz' % self.output_file)
         os.system('rm banner.txt')
 
 
@@ -301,8 +301,8 @@ class ExternalCppLHEMerger(BaseLHEMerger):
     https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSubgroupMC#1_2_Using_pLHE_campaigns
     """
 
-    def __init__(self, input_files, output_filename, **kwargs):
-        super(ExternalCppLHEMerger, self).__init__(input_files, output_filename)
+    def __init__(self, input_files, output_file, **kwargs):
+        super(ExternalCppLHEMerger, self).__init__(input_files, output_file)
         self._merger_script_url = \
             'https://twiki.cern.ch/twiki/bin/viewfile/CMSPublic/SWGuideSubgroupMC?filename=mergeLheFiles.cpp;rev=2'
 
@@ -313,7 +313,7 @@ class ExternalCppLHEMerger(BaseLHEMerger):
         with open('mergeLheFiles.cpp') as f:
             script_str = f.read()
         with open('mergeLheFiles.cpp', 'w') as fw:
-            fw.write(script_str.replace('/tmp/covarell/out.lhe', self.output_filename))
+            fw.write(script_str.replace('/tmp/covarell/out.lhe', self.output_file))
         with open('input_files.txt', 'w') as fw:
             fw.write('\n'.join(self.input_files) + '\n')
 
@@ -351,11 +351,11 @@ def main(argv = None):
                     "Example usage:\n"
                     "    mergeLHE.py -i 'thread*/*.lhe,another_file/another.lhe' -o output.lhe"),
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("-i", "--input-paths", type=str,
-                        help="input LHE path(s) separated by commas. Shell-type wildcards are supported.")
-    parser.add_argument("-o", "--output-filename",
+    parser.add_argument("-i", "--input-files", type=str,
+                        help="Input LHE file paths separated by commas. Shell-type wildcards are supported.")
+    parser.add_argument("-o", "--output-file",
                         default='output.lhe', type=str,
-                        help="output LHE file name.")
+                        help="Output LHE file path.")
     parser.add_argument("--force-mglo-merger", action='store_true',
                         help=("Force to use the merger script dedicated for MG5 LO LHEs, as introduced in "
                              "https://github.com/cms-sw/genproductions/blob/master/bin/MadGraph5_aMCatNLO/Utilities/merge.pl"))
@@ -376,39 +376,39 @@ def main(argv = None):
     logging.info('>>> launch mergeLHE.py in %s' % os.path.abspath(os.getcwd()))
 
     # Extract input LHE files from the path
-    assert len(args.input_paths), \
-        ('Please specify your input LHE paths by -i/--input-paths. '
+    assert len(args.input_files), \
+        ('Please specify your input LHE files by -i/--input-files. '
         'Run \'mergeLHE.py -h\' for details.')
-    input_files = []
-    for path in args.input_paths.split(','):
+    input_files = [] # each individual input file
+    for path in args.input_files.split(','):
         find_files = glob.glob(path)
         if len(find_files) == 0:
             logging.info('Warning: cannot find files in %s' % path)
         input_files += find_files
     input_files.sort()
     logging.info('>>> Merge %d files: [%s]' % (len(input_files), ', '.join(input_files)))
-    logging.info('>>> Write to output: %s ' % args.output_filename)
+    logging.info('>>> Write to output: %s ' % args.output_file)
 
-    if not os.path.exists(os.path.dirname(os.path.realpath(args.output_filename))):
-        os.makedirs(os.path.dirname(os.path.realpath(args.output_filename)))
+    if not os.path.exists(os.path.dirname(os.path.realpath(args.output_file))):
+        os.makedirs(os.path.dirname(os.path.realpath(args.output_file)))
 
     # Check arguments
     assert len(input_files) > 0, 'Input LHE files should be more than 0.'
     if len(input_files) == 1:
         logging.warning('Input LHE only has 1 file. Will copy this file to the destination.')
         import shutil
-        shutil.copy(input_files[0], args.output_filename)
+        shutil.copy(input_files[0], args.output_file)
         return
     assert [args.force_mglo_merger, args.force_cpp_merger].count(True) <= 1, \
         "Can only specify at most one from --force-mglo-merger or --force-cpp-merger."
 
     # Determine the merging scheme
     if args.force_mglo_merger:
-        lhe_merger = MG5LOLHEMerger(input_files, args.output_filename)
+        lhe_merger = MG5LOLHEMerger(input_files, args.output_file)
     elif args.force_cpp_merger:
-        lhe_merger = ExternalCppLHEMerger(input_files, args.output_filename)
+        lhe_merger = ExternalCppLHEMerger(input_files, args.output_file)
     else:
-        lhe_merger = DefaultLHEMerger(input_files, args.output_filename, bypass_check=args.bypass_check)
+        lhe_merger = DefaultLHEMerger(input_files, args.output_file, bypass_check=args.bypass_check)
 
     # Do merging
     lhe_merger.merge()
