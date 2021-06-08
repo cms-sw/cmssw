@@ -160,33 +160,120 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
   namespace po = boost::program_options;
   po::options_description desc(descString);
   desc.add_options()(kInputFilesCommandOpt, po::value<std::vector<std::string> >(), "Input root files")(
-      kConfigFileCommandOpt, po::value<std::string>(), "Include configuration file")(
-      kNoConfigFileCommandOpt, "Empty configuration")(kNoVersionCheck, "No file version check")(
-      kGeomFileCommandOpt, po::value<std::string>(), "Reco geometry file. Default is cmsGeom10.root")(
-      kSimGeomFileCommandOpt,
+      kConfigFileCommandOpt,
       po::value<std::string>(),
-      "Geometry file for browsing in table view. Default is CmsSimGeom-14.root. Can be simulation or reco geometry in "
-      "TGeo format")(kTGeoNameCommandOpt, po::value<std::string>(), "TGeoManager name. The default is \"cmsGeo;1\"")(
-      kFieldCommandOpt, po::value<double>(), "Set magnetic field value explicitly. Default is auto-field estimation")(
-      kRootInteractiveCommandOpt, "Enable root interactive prompt")(
-      kSoftCommandOpt, "Try to force software rendering to avoid problems with bad hardware drivers")(
-      kExpertCommandOpt, "Enable PF user plugins.")(kHelpCommandOpt, "Display help message");
+      "Include configuration file")(kNoConfigFileCommandOpt,
+                                    "Empty configuration")(kNoVersionCheck,
+                                                           "No file version check")(kGeomFileCommandOpt,
+                                                                                    po::value<std::string>(),
+                                                                                    "Reco geometry file. Default is "
+                                                                                    "cmsGeom10."
+                                                                                    "root")(kSimGeomFileCommandOpt,
+                                                                                            po::value<std::string>(),
+                                                                                            "Geometry file for "
+                                                                                            "browsing in table view. "
+                                                                                            "Default is "
+                                                                                            "CmsSimGeom-14.root. Can "
+                                                                                            "be simulation or reco "
+                                                                                            "geometry in "
+                                                                                            "TGeo "
+                                                                                            "forma"
+                                                                                            "t")(kTGeoNameCommandOpt,
+                                                                                                 po::value<std::string>(),
+                                                                                                 "TGeoManager name. "
+                                                                                                 "The default is "
+                                                                                                 "\"cmsGeo;"
+                                                                                                 "1"
+                                                                                                 "\"")(kFieldCommandOpt,
+                                                                                                       po::value<
+                                                                                                           double>(),
+                                                                                                       "Set magnetic "
+                                                                                                       "field value "
+                                                                                                       "explicitly. "
+                                                                                                       "Default is "
+                                                                                                       "auto-field "
+                                                                                                       "estimatio"
+                                                                                                       "n")(kRootInteractiveCommandOpt,
+                                                                                                            "Enable "
+                                                                                                            "root "
+                                                                                                            "interactiv"
+                                                                                                            "e "
+                                                                                                            "promp"
+                                                                                                            "t")(kSoftCommandOpt,
+                                                                                                                 "Try "
+                                                                                                                 "to "
+                                                                                                                 "force"
+                                                                                                                 " soft"
+                                                                                                                 "ware "
+                                                                                                                 "rende"
+                                                                                                                 "ring "
+                                                                                                                 "to "
+                                                                                                                 "avoid"
+                                                                                                                 " prob"
+                                                                                                                 "lems "
+                                                                                                                 "with "
+                                                                                                                 "bad "
+                                                                                                                 "hardw"
+                                                                                                                 "are "
+                                                                                                                 "drive"
+                                                                                                                 "r"
+                                                                                                                 "s")(kExpertCommandOpt,
+                                                                                                                      "Enable PF user plugins.")(kHelpCommandOpt,
+                                                                                                                                                 "Display help message");
 
   po::options_description livedesc("Live Event Display");
   livedesc.add_options()(
       kPlayCommandOpt, po::value<float>(), "Start in play mode with given interval between events in seconds")(
-      kPortCommandOpt, po::value<unsigned int>(), "Listen to port for new data files to open")(
-      kLoopCommandOpt, "Loop events in play mode")(
-      kChainCommandOpt,
+      kPortCommandOpt,
       po::value<unsigned int>(),
-      "Chain up to a given number of recently open files. Default is 1 - no chain")(
-      kLiveCommandOpt, "Enforce playback mode if a user is not using display")(
-      kAutoSaveAllViews,
-      po::value<std::string>(),
-      "Auto-save all views with given prefix (run_event_lumi_view.<auto-save-type> is appended)")(
-      kAutoSaveType, po::value<std::string>(), "Image type of auto-saved views, png or jpg (png is default)")(
-      kAutoSaveHeight, po::value<int>(), "Screenshots height when auto-save-all-views is enabled")(
-      kSyncAllViews, "Synchronize all views on new event");
+      "Listen to port for new data files to open")(kLoopCommandOpt,
+                                                   "Loop events in play mode")(kChainCommandOpt,
+                                                                               po::value<unsigned int>(),
+                                                                               "Chain up to a given number of recently "
+                                                                               "open files. Default is 1 - no "
+                                                                               "chain")(kLiveCommandOpt,
+                                                                                        "Enforce playback mode if a "
+                                                                                        "user is not using "
+                                                                                        "display")(kAutoSaveAllViews,
+                                                                                                   po::value<
+                                                                                                       std::string>(),
+                                                                                                   "Auto-save all "
+                                                                                                   "views with given "
+                                                                                                   "prefix "
+                                                                                                   "(run_event_lumi_"
+                                                                                                   "view.<auto-save-"
+                                                                                                   "type> is "
+                                                                                                   "appended"
+                                                                                                   ")")(kAutoSaveType,
+                                                                                                        po::value<
+                                                                                                            std::string>(),
+                                                                                                        "Image type of "
+                                                                                                        "auto-saved "
+                                                                                                        "views, png or "
+                                                                                                        "jpg (png is "
+                                                                                                        "default"
+                                                                                                        ")")(kAutoSaveHeight,
+                                                                                                             po::value<
+                                                                                                                 int>(),
+                                                                                                             "Screensho"
+                                                                                                             "ts "
+                                                                                                             "height "
+                                                                                                             "when "
+                                                                                                             "auto-"
+                                                                                                             "save-all-"
+                                                                                                             "views is "
+                                                                                                             "enable"
+                                                                                                             "d")(kSyncAllViews,
+                                                                                                                  "Sync"
+                                                                                                                  "hron"
+                                                                                                                  "ize "
+                                                                                                                  "all "
+                                                                                                                  "view"
+                                                                                                                  "s "
+                                                                                                                  "on "
+                                                                                                                  "new "
+                                                                                                                  "even"
+                                                                                                                  "t");
 
   po::options_description debugdesc("Debug");
   debugdesc.add_options()(kLogLevelCommandOpt,
@@ -197,8 +284,9 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
 
   po::options_description tcachedesc("TreeCache");
   tcachedesc.add_options()(kLogTreeCacheOpt, "Log tree cache operations and status")(
-      kSizeTreeCacheOpt, po::value<int>(), "Set size of TTreeCache for data access in MB (default is 50)")(
-      kPrefetchTreeCacheOpt, "Enable prefetching");
+      kSizeTreeCacheOpt,
+      po::value<int>(),
+      "Set size of TTreeCache for data access in MB (default is 50)")(kPrefetchTreeCacheOpt, "Enable prefetching");
 
   po::options_description rnrdesc("Appearance");
   rnrdesc.add_options()(kFreePaletteCommandOpt, "Allow free color selection (requires special configuration!)")(
