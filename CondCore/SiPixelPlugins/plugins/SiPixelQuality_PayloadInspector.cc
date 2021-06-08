@@ -144,45 +144,65 @@ namespace {
   };
 
   /************************************************
-   occupancy style map BPix
+   occupancy style map whole
   *************************************************/
-
-  class SiPixelBPixQualityMap
+  template <SiPixelPI::DetType myType>
+  class SiPixelQualityMap
       : public cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiPixelBPixQualityMap()
+    SiPixelQualityMap()
         : cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelQuality Barrel Pixel Map"),
+              "SiPixelQuality Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
+      auto tagname = tag.name;
       std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
 
-      Phase1PixelROCMaps theBPixMap("");
+      Phase1PixelROCMaps theMap("");
 
       auto theDisabledModules = payload->getBadComponentList();
       for (const auto& mod : theDisabledModules) {
         int subid = DetId(mod.DetID).subdetId();
-        std::bitset<16> bad_rocs(mod.BadRocs);
-        if (subid == PixelSubdetector::PixelBarrel) {
+
+        if ((subid == PixelSubdetector::PixelBarrel && myType == SiPixelPI::t_barrel) ||
+            (subid == PixelSubdetector::PixelEndcap && myType == SiPixelPI::t_forward) ||
+            (myType == SiPixelPI::t_all)) {
+          std::bitset<16> bad_rocs(mod.BadRocs);
           if (payload->IsModuleBad(mod.DetID)) {
-            theBPixMap.fillWholeModule(mod.DetID, 1.);
+            theMap.fillWholeModule(mod.DetID, 1.);
           } else {
-            theBPixMap.fillSelectedRocs(mod.DetID, bad_rocs, 1.);
+            theMap.fillSelectedRocs(mod.DetID, bad_rocs, 1.);
           }
         }
       }
 
       gStyle->SetOptStat(0);
       //=========================
-      TCanvas canvas("Summary", "Summary", 1200, 1200);
-      theBPixMap.drawBarrelMaps(canvas);
+      TCanvas canvas("Summary", "Summary", 1200, k_height[myType]);
+      canvas.cd();
+      const auto headerText =
+          fmt::sprintf("#color[4]{%s},  IOV: #color[4]{%s}", tagname, std::to_string(std::get<0>(iov)));
 
+      switch (myType) {
+        case SiPixelPI::t_barrel:
+          theMap.drawBarrelMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_forward:
+          theMap.drawForwardMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_all:
+          theMap.drawMaps(canvas, headerText);
+          break;
+        default:
+          throw cms::Exception("SiPixelQualityMap") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
+      }
+
+      /*
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
-
       for (unsigned int lay = 1; lay <= 4; lay++) {
         canvas.cd(lay);
         auto ltx = TLatex();
@@ -196,85 +216,25 @@ namespace {
                              ? ("IOV:" + std::to_string(unpacked.second)).c_str()
                              : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
+      */
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 #ifdef MMDEBUG
-      canvas.SaveAs("outBPix.root");
+      canvas.SaveAs("outAll.root");
 #endif
 
       return true;
     }
 
   private:
+    static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
     TrackerTopology m_trackerTopo;
   };
 
-  /************************************************
-   occupancy style map FPix
-  *************************************************/
-
-  class SiPixelFPixQualityMap
-      : public cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV> {
-  public:
-    SiPixelFPixQualityMap()
-        : cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelQuality Forward Pixel Map"),
-          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
-
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      auto iov = tag.iovs.front();
-      std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
-
-      Phase1PixelROCMaps theFPixMap("");
-
-      auto theDisabledModules = payload->getBadComponentList();
-      for (const auto& mod : theDisabledModules) {
-        int subid = DetId(mod.DetID).subdetId();
-        std::bitset<16> bad_rocs(mod.BadRocs);
-        if (subid == PixelSubdetector::PixelEndcap) {
-          if (payload->IsModuleBad(mod.DetID)) {
-            theFPixMap.fillWholeModule(mod.DetID, 1.);
-          } else {
-            theFPixMap.fillSelectedRocs(mod.DetID, bad_rocs, 1.);
-          }
-        }  // if it's endcap
-      }    // loop on disable moduels
-
-      gStyle->SetOptStat(0);
-      //=========================
-      TCanvas canvas("Summary", "Summary", 1200, 600);
-      theFPixMap.drawForwardMaps(canvas);
-
-      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
-
-      for (unsigned int ring = 1; ring <= 2; ring++) {
-        canvas.cd(ring);
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.050);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0
-                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
-                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
-      }
-
-      std::string fileName(m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
-#ifdef MMDEBUG
-      canvas.SaveAs("outFPix.root");
-#endif
-      return true;
-    }
-
-  private:
-    TrackerTopology m_trackerTopo;
-  };
+  using SiPixelBPixQualityMap = SiPixelQualityMap<SiPixelPI::t_barrel>;
+  using SiPixelFPixQualityMap = SiPixelQualityMap<SiPixelPI::t_forward>;
+  using SiPixelFullQualityMap = SiPixelQualityMap<SiPixelPI::t_all>;
 
 }  // namespace
 
@@ -285,4 +245,5 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelQuality) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory);
   PAYLOAD_INSPECTOR_CLASS(SiPixelBPixQualityMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFullQualityMap);
 }
