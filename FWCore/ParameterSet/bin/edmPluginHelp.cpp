@@ -230,30 +230,65 @@ int main(int argc, char** argv) try {
   descString += "Allowed options:";
   boost::program_options::options_description desc(descString);
   desc.add_options()(kHelpCommandOpt, "produce help message")(
-      kPluginCommandOpt, boost::program_options::value<std::string>(), "only print descriptions for this plugin")(
-      kLibraryCommandOpt,
+      kPluginCommandOpt,
       boost::program_options::value<std::string>(),
-      "only print descriptions for plugins in this library")(
-      kAllLibrariesCommandOpt,
-      "allows the program to run without selecting a plugin or library. "
-      "This will take a significant amount of time.")(kModuleLabelCommandOpt,
-                                                      boost::program_options::value<std::string>(),
-                                                      "only print descriptions for this module label")(
-      kBriefCommandOpt,
-      "do not print comments, more compact format, suppress text"
-      " added to help the user understand what the output means")(
-      kPrintOnlyLabelsCommandOpt,
-      "do not print parameter descriptions, just list module labels matching selection criteria")(
-      kPrintOnlyPluginsCommandOpt,
-      "do not print parameter descriptions or module labels, just list plugins matching selection criteria")(
-      kLineWidthCommandOpt,
-      boost::program_options::value<unsigned>(),
-      "try to limit lines to this length by inserting newlines between words in comments. Long words or names can "
-      "cause the line length to exceed this limit. Defaults to terminal screen width or 80")(
-      kTopLevelCommandOpt,
-      boost::program_options::value<std::string>(),
-      "print only the description for the top level parameter set with this name. Allowed names are 'options', "
-      "'maxEvents', 'maxLuminosityBlocks', and 'maxSecondsUntilRampdown'.");
+      "only print descriptions for this plugin")(kLibraryCommandOpt,
+                                                 boost::program_options::value<std::string>(),
+                                                 "only print descriptions for plugins in this "
+                                                 "library")(kAllLibrariesCommandOpt,
+                                                            "allows the program to run without selecting a plugin or "
+                                                            "library. "
+                                                            "This will take a significant amount of "
+                                                            "time.")(kModuleLabelCommandOpt,
+                                                                     boost::program_options::value<std::string>(),
+                                                                     "only print descriptions for this module "
+                                                                     "label")(kBriefCommandOpt,
+                                                                              "do not print comments, more compact "
+                                                                              "format, suppress text"
+                                                                              " added to help the user understand what "
+                                                                              "the output "
+                                                                              "means")(kPrintOnlyLabelsCommandOpt,
+                                                                                       "do not print parameter "
+                                                                                       "descriptions, just list module "
+                                                                                       "labels matching selection "
+                                                                                       "criteri"
+                                                                                       "a")(kPrintOnlyPluginsCommandOpt,
+                                                                                            "do not print parameter "
+                                                                                            "descriptions or module "
+                                                                                            "labels, just list plugins "
+                                                                                            "matching selection "
+                                                                                            "criteri"
+                                                                                            "a")(kLineWidthCommandOpt,
+                                                                                                 boost::program_options::
+                                                                                                     value<unsigned>(),
+                                                                                                 "try to limit lines "
+                                                                                                 "to this length by "
+                                                                                                 "inserting newlines "
+                                                                                                 "between words in "
+                                                                                                 "comments. Long words "
+                                                                                                 "or names can "
+                                                                                                 "cause the line "
+                                                                                                 "length to exceed "
+                                                                                                 "this limit. Defaults "
+                                                                                                 "to terminal screen "
+                                                                                                 "width or "
+                                                                                                 "8"
+                                                                                                 "0")(kTopLevelCommandOpt,
+                                                                                                      boost::program_options::
+                                                                                                          value<
+                                                                                                              std::string>(),
+                                                                                                      "print only the "
+                                                                                                      "description for "
+                                                                                                      "the top level "
+                                                                                                      "parameter set "
+                                                                                                      "with this name. "
+                                                                                                      "Allowed names "
+                                                                                                      "are 'options', "
+                                                                                                      "'maxEvents', "
+                                                                                                      "'maxLuminosityBl"
+                                                                                                      "ocks', and "
+                                                                                                      "'maxSecondsUntil"
+                                                                                                      "Rampdown'.");
 
   boost::program_options::variables_map vm;
   try {

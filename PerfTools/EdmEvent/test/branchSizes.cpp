@@ -147,13 +147,26 @@ int main(int argc, char *argv[]) {
   descString += "data_file \nAllowed options";
   options_description desc(descString);
 
-  desc.add_options()(kHelpCommandOpt, "produce help message")(kAutoLoadCommandOpt,
-                                                              "automatic library loading (avoid root warnings)")(
-      kDataFileCommandOpt, value<string>(), "data file")(kAlphabeticOrderCommandOpt,
-                                                         "sort by alphabetic order (default: sort by size)")(
-      kPlotCommandOpt, value<string>(), "produce a summary plot")(
-      kPlotTopCommandOpt, value<int>(), "plot only the <arg> top size branches")(
-      kSavePlotCommandOpt, value<string>(), "save plot into root file <arg>")(kVerboseCommandOpt, "verbose printout");
+  desc.add_options()(kHelpCommandOpt, "produce help message")(
+      kAutoLoadCommandOpt,
+      "automatic library loading (avoid root warnings)")(kDataFileCommandOpt,
+                                                         value<string>(),
+                                                         "data file")(kAlphabeticOrderCommandOpt,
+                                                                      "sort by alphabetic order (default: sort by "
+                                                                      "size)")(kPlotCommandOpt,
+                                                                               value<string>(),
+                                                                               "produce a summary "
+                                                                               "plot")(kPlotTopCommandOpt,
+                                                                                       value<int>(),
+                                                                                       "plot only the <arg> top size "
+                                                                                       "branches")(kSavePlotCommandOpt,
+                                                                                                   value<string>(),
+                                                                                                   "save plot into "
+                                                                                                   "root file "
+                                                                                                   "<arg"
+                                                                                                   ">")(kVerboseCommandOpt,
+                                                                                                        "verbose "
+                                                                                                        "printout");
 
   positional_options_description p;
 

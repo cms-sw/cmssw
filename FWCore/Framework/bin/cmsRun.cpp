@@ -152,20 +152,24 @@ int main(int argc, char* argv[]) {
       boost::program_options::options_description desc(descString);
 
       desc.add_options()(kHelpCommandOpt, "produce help message")(
-          kParameterSetCommandOpt, boost::program_options::value<std::string>(), "configuration file")(
-          kJobreportCommandOpt,
+          kParameterSetCommandOpt,
           boost::program_options::value<std::string>(),
-          "file name to use for a job report file: default extension is .xml")(
-          kEnableJobreportCommandOpt, "enable job report files (if any) specified in configuration file")(
-          kJobModeCommandOpt,
-          boost::program_options::value<std::string>(),
-          "Job Mode for MessageLogger defaults - default mode is grid")(
-          kNumberOfThreadsCommandOpt,
-          boost::program_options::value<unsigned int>(),
-          "Number of threads to use in job (0 is use all CPUs)")(
-          kSizeOfStackForThreadCommandOpt,
-          boost::program_options::value<unsigned int>(),
-          "Size of stack in KB to use for extra threads (0 is use system default size)")(kStrictOpt, "strict parsing");
+          "configuration file")(kJobreportCommandOpt,
+                                boost::program_options::value<std::string>(),
+                                "file name to use for a job report file: default extension is "
+                                ".xml")(kEnableJobreportCommandOpt,
+                                        "enable job report files (if any) specified in configuration "
+                                        "file")(kJobModeCommandOpt,
+                                                boost::program_options::value<std::string>(),
+                                                "Job Mode for MessageLogger defaults - default mode is "
+                                                "grid")(kNumberOfThreadsCommandOpt,
+                                                        boost::program_options::value<unsigned int>(),
+                                                        "Number of threads to use in job (0 is use all "
+                                                        "CPUs)")(kSizeOfStackForThreadCommandOpt,
+                                                                 boost::program_options::value<unsigned int>(),
+                                                                 "Size of stack in KB to use for extra threads (0 is "
+                                                                 "use system default size)")(kStrictOpt,
+                                                                                             "strict parsing");
 
       // anything at the end will be ignored, and sent to python
       boost::program_options::positional_options_description p;
