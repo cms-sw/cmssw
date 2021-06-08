@@ -161,8 +161,9 @@ namespace edm {
 
   void ErrorObj::setSeverity(const messagelogger::ELseverityLevel& sev) {
     using namespace edm::messagelogger;
-    myXid.severity = (sev <= ELzeroSeverity) ? (ELseverityLevel)ELdebug
-                                             : (sev >= ELhighestSeverity) ? (ELseverityLevel)ELsevere : sev;
+    myXid.severity = (sev <= ELzeroSeverity)      ? (ELseverityLevel)ELdebug
+                     : (sev >= ELhighestSeverity) ? (ELseverityLevel)ELsevere
+                                                  : sev;
   }
 
   void ErrorObj::setID(std::string_view id) {

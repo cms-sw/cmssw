@@ -48,16 +48,48 @@ int main(int argc, char* argv[]) {
   descString += "data_file \nAllowed options";
   options_description desc(descString);
 
-  desc.add_options()(kHelpCommandOpt, "produce help message")(kAutoLoadCommandOpt,
-                                                              "automatic library loading (avoid root warnings)")(
-      kDataFileCommandOpt, value<string>(), "data file")(
-      kTreeNameCommandOpt, value<string>(), "tree name (default \"Events\")")(
-      kOutputCommandOpt, value<string>(), "output file")(kAlphabeticOrderCommandOpt,
-                                                         "sort by alphabetic order (default: sort by size)")(
-      kFormatNamesCommandOpt, "format product name as \"product:label (type)\" (default: use full branch name)")(
-      kPlotCommandOpt, value<string>(), "produce a summary plot")(
-      kPlotTopCommandOpt, value<int>(), "plot only the <arg> top size branches")(
-      kSavePlotCommandOpt, value<string>(), "save plot into root file <arg>")(kVerboseCommandOpt, "verbose printout");
+  desc.add_options()(kHelpCommandOpt, "produce help message")(
+      kAutoLoadCommandOpt,
+      "automatic library loading (avoid root warnings)")(kDataFileCommandOpt,
+                                                         value<string>(),
+                                                         "data file")(kTreeNameCommandOpt,
+                                                                      value<string>(),
+                                                                      "tree name (default "
+                                                                      "\"Events\")")(kOutputCommandOpt,
+                                                                                     value<string>(),
+                                                                                     "output "
+                                                                                     "file")(kAlphabeticOrderCommandOpt,
+                                                                                             "sort by alphabetic order "
+                                                                                             "(default: sort by "
+                                                                                             "size"
+                                                                                             ")")(kFormatNamesCommandOpt,
+                                                                                                  "format product name "
+                                                                                                  "as \"product:label "
+                                                                                                  "(type)\" (default: "
+                                                                                                  "use full branch "
+                                                                                                  "name"
+                                                                                                  ")")(kPlotCommandOpt,
+                                                                                                       value<string>(),
+                                                                                                       "produce a "
+                                                                                                       "summary "
+                                                                                                       "plo"
+                                                                                                       "t")(kPlotTopCommandOpt,
+                                                                                                            value<int>(),
+                                                                                                            "plot only "
+                                                                                                            "the <arg> "
+                                                                                                            "top size "
+                                                                                                            "branche"
+                                                                                                            "s")(kSavePlotCommandOpt,
+                                                                                                                 value<
+                                                                                                                     string>(),
+                                                                                                                 "save "
+                                                                                                                 "plot "
+                                                                                                                 "into "
+                                                                                                                 "root "
+                                                                                                                 "file "
+                                                                                                                 "<arg"
+                                                                                                                 ">")(kVerboseCommandOpt,
+                                                                                                                      "verbose printout");
 
   positional_options_description p;
 

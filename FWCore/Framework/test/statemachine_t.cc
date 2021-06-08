@@ -20,9 +20,11 @@ int main(int argc, char* argv[]) try {
   std::string outputFile;
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()("help,h", "produce help message")(
-      "inputFile,i", boost::program_options::value<std::string>(&inputFile)->default_value(""))(
-      "outputFile,o",
-      boost::program_options::value<std::string>(&outputFile)->default_value("statemachine_test_output.txt"));
+      "inputFile,i",
+      boost::program_options::value<std::string>(&inputFile)
+          ->default_value(""))("outputFile,o",
+                               boost::program_options::value<std::string>(&outputFile)
+                                   ->default_value("statemachine_test_output.txt"));
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
