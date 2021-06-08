@@ -45,7 +45,8 @@ namespace lowptgsfeleid {
     float ele_pt_ = -1.;
   public:
     std::vector<float> get();
-    void set( const reco::GsfElectronRef& ele, double rho );
+    inline void set( const reco::GsfElectronRef& ele, double rho ) { set(*ele, rho); }
+    void set( const reco::GsfElectron& ele, double rho );
   };
   
   class HeavyObjectCache {
