@@ -32,7 +32,10 @@
 class MuonSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
   explicit MuonSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc)
-      : offmap_{nullptr}, mdc_{nullptr}, offsetToken_{cc.esConsumes()}, geomConstantsToken_{cc.esConsumes()} {
+      : offmap_{nullptr},
+        mdc_{nullptr},
+        offsetToken_{cc.esConsumes<edm::Transition::BeginRun>()},
+        geomConstantsToken_{cc.esConsumes<edm::Transition::BeginRun>()} {
     edm::ParameterSet muonSD = p.getParameter<edm::ParameterSet>("MuonSD");
     ePersistentCutGeV_ = muonSD.getParameter<double>("EnergyThresholdForPersistency") / CLHEP::GeV;  //Default 1. GeV
     allMuonsPersistent_ = muonSD.getParameter<bool>("AllMuonsPersistent");
