@@ -51,14 +51,8 @@ HcalForwardAnalysis::~HcalForwardAnalysis() {}
 //
 
 void HcalForwardAnalysis::produce(edm::Event& iEvent, const edm::EventSetup&) {
-  //std::auto_ptr<HFShowerPhotonCollection> product(new HFShowerPhotonCollection);
-  //edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis: =====> Filling  event";
-  //fillEvent(*product);
-  //iEvent.put(product);
-  //std::auto_ptr<PHcalForwardLibInfo> product(new PHcalForwardLibInfo);
-  //fillEvent(*product);
-  fillEvent();
-  //iEvent.put(product);
+  if (fillt)
+    fillEvent();
 }
 
 void HcalForwardAnalysis::init() {
@@ -116,6 +110,7 @@ void HcalForwardAnalysis::update(const EndOfEvent* evt) {
 }
 
 void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
+  fillt = true;
   int idHC, j;
   FiberG4HitsCollection* theHC;
   // Look for the Hit Collection of HCal
@@ -159,6 +154,7 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
                                          << " depth " << aHit->depth();
     }
   } else {
+    fillt = false;
     edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons(): No Photons!";
     return;
   }
@@ -179,6 +175,7 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
   //	the chamber hit is for primary particle, but step size can be small
   //	(in newer Geant4 versions) and as a result primary particle may have
   //	multiple hits. We want to take last one which is close the HF absorber
+  //  if (idHC >= 0 && theChamberHC != nullptr && theChamberHC->entries()>0) {
   if (idHC >= 0 && theChamberHC != nullptr) {
     edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() Chamber Hits size: "
                                        << theChamberHC->entries();
@@ -193,50 +190,71 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
       primTimeOnSurf = aHit->time();
     }
   } else {
-    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons(): No Chamber hits. Something is wrong!";
+    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons(): No Chamber hits are stored";
+    fillt = false;
     return;
   }
   primX = primPosOnSurf.x();
   primY = primPosOnSurf.y();
   primZ = primPosOnSurf.z();
+  if (primZ < 990) {  // there were interactions before HF
+    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis::setPhotons(): First interaction before HF";
+    fillt = false;
+    return;
+  }
   primT = primTimeOnSurf;
   primMomX = primMomDirOnSurf.x();
   primMomY = primMomDirOnSurf.y();
   primMomZ = primMomDirOnSurf.z();
-  //production point of Cherenkov photons in long fibers w.r.t local coordinates
-  float photonProdX = 0.;
-  float photonProdY = 0.;
-  float photonProdZ = 0.;
-  float photonProdTime = 0.;
   //angles for rotation matrices
   double theta = primMomDirOnSurf.theta();
   double phi = primMomDirOnSurf.phi();
 
+  // my insert ----------------------------------------------------------------
+  double sphi = sin(phi);
+  double cphi = cos(phi);
+  double ctheta = cos(theta);
+  double stheta = sin(theta);
+
+  double pex = 0, pey = 0, zv = 0;
+  double xx, yy, zz;
+
   for (unsigned int k = 0; k < LongFiberPhotons.size(); ++k) {
     HFShowerPhoton aPhoton = LongFiberPhotons[k];
-    photonProdX = aPhoton.x() * cos(theta) * cos(phi) + aPhoton.y() * cos(theta) * sin(phi) - aPhoton.z() * sin(theta) -
-                  primPosOnSurf.x();
-    photonProdY = -aPhoton.x() * sin(phi) + aPhoton.y() * cos(phi) - primPosOnSurf.y();
-    photonProdZ = aPhoton.x() * sin(theta) * cos(phi) + aPhoton.y() * sin(theta) * sin(phi) + aPhoton.z() * cos(theta) -
-                  primPosOnSurf.z();
-    photonProdTime = aPhoton.t() - primTimeOnSurf;
-    thePhotons.push_back(Photon(1, photonProdX, photonProdY, photonProdZ, photonProdTime, aPhoton.lambda()));
+    // global coordinates
+    xx = aPhoton.x();
+    yy = aPhoton.y();
+    zz = aPhoton.z();
+
+    // local coordinates in rotated to shower axis system and vs shower origin
+    pex = xx * ctheta * cphi + yy * ctheta * sphi - zz * stheta;
+    pey = -xx * sphi + yy * cphi;
+    zv = xx * stheta * cphi + yy * stheta * sphi + zz * ctheta - primZ / ctheta;
+
+    double photonProdTime = aPhoton.t() - primTimeOnSurf;
+    thePhotons.push_back(Photon(1, pex, pey, zv, photonProdTime, aPhoton.lambda()));
   }
   for (unsigned int k = 0; k < ShortFiberPhotons.size(); ++k) {
     HFShowerPhoton aPhoton = ShortFiberPhotons[k];
-    photonProdX = aPhoton.x() * cos(theta) * cos(phi) + aPhoton.y() * cos(theta) * sin(phi) - aPhoton.z() * sin(theta) -
-                  primPosOnSurf.x();
-    photonProdY = -aPhoton.x() * sin(phi) + aPhoton.y() * cos(phi) - primPosOnSurf.y();
-    photonProdZ = aPhoton.x() * sin(theta) * cos(phi) + aPhoton.y() * sin(theta) * sin(phi) + aPhoton.z() * cos(theta) -
-                  primPosOnSurf.z();
-    photonProdTime = aPhoton.t() - primTimeOnSurf;
-    thePhotons.push_back(Photon(2, photonProdX, photonProdY, photonProdZ, photonProdTime, aPhoton.lambda()));
+    // global coordinates
+    xx = aPhoton.x();
+    yy = aPhoton.y();
+    zz = aPhoton.z();
+
+    // local coordinates in rotated to shower axis system and vs shower origin
+    pex = xx * ctheta * cphi + yy * ctheta * sphi - zz * stheta;
+    pey = -xx * sphi + yy * cphi;
+    zv = xx * stheta * cphi + yy * stheta * sphi + zz * ctheta - primZ / ctheta;
+
+    double photonProdTime = aPhoton.t() - primTimeOnSurf;
+    thePhotons.push_back(Photon(2, pex, pey, zv, photonProdTime, aPhoton.lambda()));
   }
 }
+
 void HcalForwardAnalysis::fillEvent() {
   /*
-	 edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis: =====> filledEvent";
-	 */
+    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis: =====> filledEvent";
+  */
   nphot = int(thePhotons.size());
   for (int i = 0; i < nphot; ++i) {
     x[i] = thePhotons[i].x;
@@ -248,6 +266,7 @@ void HcalForwardAnalysis::fillEvent() {
   }
   theTree->Fill();
 }
+
 void HcalForwardAnalysis::parseDetId(int id, int& tower, int& cell, int& fiber) {
   tower = id / 10000;
   cell = id / 10 - tower * 10;
