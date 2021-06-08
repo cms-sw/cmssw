@@ -24,10 +24,14 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MuonSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
+public:
+  explicit MuonSensitiveDetectorBuilder(edm::ConsumesCollector cc) {}
+
   void beginRun(const edm::EventSetup& es) final {
     edm::ESHandle<MuonOffsetMap> mom;
     es.get<IdealGeometryRecord>().get(mom);

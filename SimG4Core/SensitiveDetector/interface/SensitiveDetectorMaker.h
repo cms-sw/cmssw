@@ -16,6 +16,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // forward declarations
 class SimTrackManager;
@@ -30,7 +31,7 @@ namespace edm {
 template <class T>
 class SensitiveDetectorMaker : public SensitiveDetectorMakerBase {
 public:
-  explicit SensitiveDetectorMaker(){};
+  explicit SensitiveDetectorMaker(edm::ConsumesCollector){};
   SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete;
   const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete;
 

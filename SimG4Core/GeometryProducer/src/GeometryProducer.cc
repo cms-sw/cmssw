@@ -4,6 +4,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -78,7 +79,7 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
     m_registry.connect(*otherRegistry);
   createWatchers(m_p, m_registry, m_watchers, m_producers);
 
-  m_sdMakers = sim::sensitiveDetectorMakers(std::vector<std::string>());
+  m_sdMakers = sim::sensitiveDetectorMakers(consumesCollector(), std::vector<std::string>());
 
   produces<int>();
 }
