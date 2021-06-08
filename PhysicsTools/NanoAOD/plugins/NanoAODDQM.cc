@@ -10,7 +10,7 @@
 #include <memory>
 
 #include <numeric>
-        #include <regex>
+#include <regex>
 #include <sstream>
 
 namespace {
