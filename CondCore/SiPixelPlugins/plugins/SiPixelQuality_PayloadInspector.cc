@@ -184,8 +184,14 @@ namespace {
       //=========================
       TCanvas canvas("Summary", "Summary", 1200, k_height[myType]);
       canvas.cd();
-      const auto headerText =
-          fmt::sprintf("#color[4]{%s},  IOV: #color[4]{%s}", tagname, std::to_string(std::get<0>(iov)));
+
+      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
+
+      std::string IOVstring = (unpacked.first == 0)
+                                  ? std::to_string(unpacked.second)
+                                  : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second));
+
+      const auto headerText = fmt::sprintf("#color[4]{%s},  IOV: #color[4]{%s}", tagname, IOVstring);
 
       switch (myType) {
         case SiPixelPI::t_barrel:
@@ -200,23 +206,6 @@ namespace {
         default:
           throw cms::Exception("SiPixelQualityMap") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
       }
-
-      /*
-      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
-      for (unsigned int lay = 1; lay <= 4; lay++) {
-        canvas.cd(lay);
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.055);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0
-                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
-                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
-      }
-      */
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
