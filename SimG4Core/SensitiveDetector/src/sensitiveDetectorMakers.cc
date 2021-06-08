@@ -26,7 +26,7 @@ namespace sim {
       //load all
       auto const& categoriesToInfo = edmplugin::PluginManager::get()->categoryToInfos();
       auto infosItr = categoriesToInfo.find(SensitiveDetectorPluginFactory::get()->category());
-      if (infosItr != categoriesToInfo.end()) {
+      if (infosItr == categoriesToInfo.end()) {
         throw cms::Exception("MissingPlugins")
             << "When trying to load all SensitiveDetectorMakerBase, no plugins found";
       } else {
