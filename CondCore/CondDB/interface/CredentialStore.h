@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include <algorithm>
 //
 #include "CoralBase/MessageStream.h"
 
@@ -19,10 +20,9 @@ namespace coral {
 
 }  // namespace coral
 
-std::string to_lower(const std::string& s) {
+inline std::string to_lower(const std::string& s) {
   std::string str(s);
-  for (auto& c : str)
-    c = tolower(c);
+  std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::tolower(c); });
   return str;
 }
 
