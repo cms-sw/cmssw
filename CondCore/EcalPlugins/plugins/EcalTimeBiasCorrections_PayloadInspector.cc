@@ -20,9 +20,9 @@
 
 namespace {
 
-  /*******************************************************
- 2d plot of Ecal TimeBias Corrections of 1 IOV
- *******************************************************/
+  /****************************************************
+      2d plot of Ecal TimeBias Corrections of 1 IOV
+   ****************************************************/
   class EcalTimeBiasCorrectionsPlot : public cond::payloadInspector::PlotImage<EcalTimeBiasCorrections> {
   public:
     //void fillPlot_align(std::vector<float>& vect,TH2F* align, float column, double row);
@@ -114,33 +114,46 @@ std::cout<<str.str()<<std::endl;
     }
   };
 
-  /*******************************************************
- 2d plot of Ecal Time Bias Corrections difference between 2 IOVs
-*******************************************************/
-
-  class EcalTimeBiasCorrectionsDiff : public cond::payloadInspector::PlotImage<EcalTimeBiasCorrections> {
+  /********************************************************************
+     2d plot of Ecal Time Bias Corrections difference between 2 IOVs
+   ********************************************************************/
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalTimeBiasCorrectionsDiffBase
+      : public cond::payloadInspector::PlotImage<EcalTimeBiasCorrections, nIOVs, ntags> {
   public:
-    //void fillDiff_align(const std::vector<float>& vect,TH2F* align,float val[],const float column, double row,unsigned irun);
-
-    EcalTimeBiasCorrectionsDiff()
-        : cond::payloadInspector::PlotImage<EcalTimeBiasCorrections>("Ecal Time Bias Corrections difference") {
-      setSingleIov(false);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      unsigned int run[2], irun = 0;
+    EcalTimeBiasCorrectionsDiffBase()
+        : cond::payloadInspector::PlotImage<EcalTimeBiasCorrections, nIOVs, ntags>(
+              "Ecal Time Bias Corrections difference") {}
+    bool fill() override {
+      unsigned int run[2], NbRows = 0;
       float val[4][36];
       TH2F* align = new TH2F("", "", 1, 0., 1., 1, 0., 1.);  // pseudo creation
-      int NbRows = 0;
-
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalTimeBiasCorrections> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
-
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalTimeBiasCorrections> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           EcalTimeBiasCorrections it = (*payload);
-          NbRows = it.EBTimeCorrAmplitudeBins.size();
 
+          NbRows = it.EBTimeCorrAmplitudeBins.size();
           if (irun == 1) {
             align =
                 new TH2F("Ecal Time Bias Corrections",
@@ -164,7 +177,6 @@ std::cout<<str.str()<<std::endl;
         }  //  if payload.get()
         else
           return false;
-        irun++;
       }  // loop over IOVs
 
       gStyle->SetPalette(1);
@@ -189,7 +201,7 @@ std::cout<<str.str()<<std::endl;
       align->GetYaxis()->SetTickLength(0.);
       align->GetYaxis()->SetLabelSize(0.);
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
 
       return true;
@@ -209,12 +221,15 @@ std::cout<<str.str()<<std::endl;
         irow++;
       }
     }
-  };
+  };  // class EcalTimeBiasCorrectionsDiffBase
+  using EcalTimeBiasCorrectionsDiffOneTag = EcalTimeBiasCorrectionsDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using EcalTimeBiasCorrectionsDiffTwoTags = EcalTimeBiasCorrectionsDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(EcalTimeBiasCorrections) {
   PAYLOAD_INSPECTOR_CLASS(EcalTimeBiasCorrectionsPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalTimeBiasCorrectionsDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalTimeBiasCorrectionsDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalTimeBiasCorrectionsDiffTwoTags);
 }
