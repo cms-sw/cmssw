@@ -5,9 +5,11 @@ import FWCore.ParameterSet.Config as cms
 # AOD content
 RecoLocalMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
+        'keep *_dt1DRecHits_*_*',
         'keep *_dt4DSegments_*_*', 
         'keep *_dt4DCosmicSegments_*_*',
-        'keep *_cscSegments_*_*', 
+        'keep *_cscSegments_*_*',
+        'keep *_csc2DRecHits_*_*',
         'keep *_rpcRecHits_*_*')
 )
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
