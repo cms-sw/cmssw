@@ -216,7 +216,7 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   if (_showRings)
     nTEClayers = 7;  // number of rings
 
-  quality_ = new SiStripQuality;
+  quality_ = new SiStripQuality(reader->info());
 }
 
 SiStripHitEffFromCalibTree::~SiStripHitEffFromCalibTree() {}
@@ -1104,7 +1104,7 @@ void SiStripHitEffFromCalibTree::makeSQLite() {
   std::vector<unsigned int> BadStripList;
   unsigned short NStrips;
   unsigned int id1;
-  std::unique_ptr<SiStripQuality> pQuality = std::make_unique<SiStripQuality>();
+  std::unique_ptr<SiStripQuality> pQuality = std::make_unique<SiStripQuality>(reader->info());
   //This is the list of the bad strips, use to mask out entire APVs
   //Now simply go through the bad hit list and mask out things that
   //are bad!

@@ -2,6 +2,7 @@
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
   <use name="CommonTools/TrackerMap"/>
+  <use name="CalibTracker/SiStripCommon"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
@@ -9,6 +10,7 @@
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/SiStripObjects"/>
+  <use name="CalibTracker/SiStripCommon"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
@@ -19,6 +21,7 @@
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="CalibTracker/SiStripCommon"/>
   <use name="DQM/TrackerRemapper"/>
   <use name="roothistpainter"/>
 </library>
@@ -28,6 +31,7 @@
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
+  <use name="CalibTracker/SiStripCommon"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
   <use name="DQM/TrackerRemapper"/>
   <use name="roothistpainter"/>
@@ -38,6 +42,7 @@
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
+  <use name="CalibTracker/SiStripCommon"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
@@ -45,6 +50,7 @@
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/SiStripObjects"/>
+  <use name="CalibTracker/SiStripCommon"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
@@ -55,6 +61,7 @@
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="CalibTracker/SiStripCommon"/>
 </library>
 
 <library file="SiStripConfObject_PayloadInspector.cc" name="SiStripConfObject_PayloadInspector">
@@ -72,6 +79,7 @@
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="CalibTracker/SiStripCommon"/>
 </library>
 
 <library file="SiStripLatency_PayloadInspector.cc" name="SiStripLatency_PayloadInspector">
@@ -79,6 +87,7 @@
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
+  <use name="CalibTracker/SiStripCommon"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
@@ -87,6 +96,7 @@
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
+  <use name="CalibTracker/SiStripCommon"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
