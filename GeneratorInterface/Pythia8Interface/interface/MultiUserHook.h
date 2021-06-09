@@ -45,8 +45,8 @@ public:
         ++nCanVetoMPIStep;
       if (hook->canSetResonanceScale())
         ++nCanSetResonanceScale;
-      if (hook->canEnhanceEmission() || hook->canEnhanceTrial())
-        ++nCanEnhance;
+   //   if (hook->canEnhanceEmission() || hook->canEnhanceTrial())
+   //     ++nCanEnhance;
     }
 
     if (nCanVetoPT > 1) {
@@ -429,39 +429,39 @@ public:
   }
 
   // Enhance emission rates (sec. 4 in EPJC (2013) 73).
-  bool canEnhanceEmission() override {
+/*  bool canEnhanceEmission() override {
     bool test = false;
     for (Pythia8::UserHooks *hook : hooks_) {
       test |= hook->canEnhanceEmission();
     }
     return test;
-  }
+  } */
 
   // Bookkeeping of weights for enhanced actual or trial emissions
   // (sec. 3 in EPJC (2013) 73).
-  bool canEnhanceTrial() override {
+/*  bool canEnhanceTrial() override {
     bool test = false;
     for (Pythia8::UserHooks *hook : hooks_) {
       test |= hook->canEnhanceTrial();
     }
     return test;
-  }
+  }*/
 
-  double enhanceFactor(std::string str) override {
+/*  double enhanceFactor(std::string str) override {
     for (Pythia8::UserHooks *hook : hooks_) {
       if (hook->canEnhanceEmission() || hook->canEnhanceTrial())
         return hook->enhanceFactor(str);
     }
     return 1.;
-  };
+  }; */
 
-  double vetoProbability(std::string str) override {
+/*  double vetoProbability(std::string str) override {
     for (Pythia8::UserHooks *hook : hooks_) {
       if (hook->canEnhanceEmission() || hook->canEnhanceTrial())
         return hook->vetoProbability(str);
     }
     return 0.;
-  };
+  };*/
 
   // Can change fragmentation parameters.
   bool canChangeFragPar() override {
