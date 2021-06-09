@@ -6,7 +6,6 @@ from Configuration.Generator.Herwig7Settings.Herwig7StableParticlesForDetector_c
 from Configuration.Generator.Herwig7Settings.Herwig7LHECommonSettings_cfi import *
 from Configuration.Generator.Herwig7Settings.Herwig7LHEPowhegSettings_cfi import *
 
-externalLHEProducer.generateConcurrently = cms.untracked.bool(False)
 
 generator = cms.EDFilter("Herwig7GeneratorFilter",
     herwig7CH3SettingsBlock,
