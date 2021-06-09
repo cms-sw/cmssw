@@ -15,17 +15,17 @@ public:
   bool initAfterBeams() override {
     bool test = true;
     for (Pythia8::UserHooks *hook : hooks_) {
-//      hook->initPtr(infoPtr,
-//                    settingsPtr,
-//                    particleDataPtr,
-//                    rndmPtr,
-//                    beamAPtr,
-//                    beamBPtr,
-//                    beamPomAPtr,
-//                    beamPomBPtr,
-//                    coupSMPtr,
-//                    partonSystemsPtr,
-//                    sigmaTotPtr);
+      //      hook->initPtr(infoPtr,
+      //                    settingsPtr,
+      //                    particleDataPtr,
+      //                    rndmPtr,
+      //                    beamAPtr,
+      //                    beamBPtr,
+      //                    beamPomAPtr,
+      //                    beamPomBPtr,
+      //                    coupSMPtr,
+      //                    partonSystemsPtr,
+      //                    sigmaTotPtr);
       test &= hook->initAfterBeams();
     }
 
@@ -45,8 +45,8 @@ public:
         ++nCanVetoMPIStep;
       if (hook->canSetResonanceScale())
         ++nCanSetResonanceScale;
-   //   if (hook->canEnhanceEmission() || hook->canEnhanceTrial())
-   //     ++nCanEnhance;
+      //   if (hook->canEnhanceEmission() || hook->canEnhanceTrial())
+      //     ++nCanEnhance;
     }
 
     if (nCanVetoPT > 1) {
@@ -429,7 +429,7 @@ public:
   }
 
   // Enhance emission rates (sec. 4 in EPJC (2013) 73).
-/*  bool canEnhanceEmission() override {
+  /*  bool canEnhanceEmission() override {
     bool test = false;
     for (Pythia8::UserHooks *hook : hooks_) {
       test |= hook->canEnhanceEmission();
@@ -439,7 +439,7 @@ public:
 
   // Bookkeeping of weights for enhanced actual or trial emissions
   // (sec. 3 in EPJC (2013) 73).
-/*  bool canEnhanceTrial() override {
+  /*  bool canEnhanceTrial() override {
     bool test = false;
     for (Pythia8::UserHooks *hook : hooks_) {
       test |= hook->canEnhanceTrial();
@@ -447,7 +447,7 @@ public:
     return test;
   }*/
 
-/*  double enhanceFactor(std::string str) override {
+  /*  double enhanceFactor(std::string str) override {
     for (Pythia8::UserHooks *hook : hooks_) {
       if (hook->canEnhanceEmission() || hook->canEnhanceTrial())
         return hook->enhanceFactor(str);
@@ -455,7 +455,7 @@ public:
     return 1.;
   }; */
 
-/*  double vetoProbability(std::string str) override {
+  /*  double vetoProbability(std::string str) override {
     for (Pythia8::UserHooks *hook : hooks_) {
       if (hook->canEnhanceEmission() || hook->canEnhanceTrial())
         return hook->vetoProbability(str);
