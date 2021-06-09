@@ -814,7 +814,7 @@ namespace {
           thePixLAMap.drawMaps(canvas, headerText);
           break;
         default:
-          throw cms::Exception("SiPixelQualityMap") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
+          throw cms::Exception("SiPixelLorentzAngleMap") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
       }
 
       if (myType == SiPixelPI::t_barrel || myType == SiPixelPI::t_all) {

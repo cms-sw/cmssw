@@ -79,8 +79,9 @@ public:
 /--------------------------------------------------------------------*/
 class Phase1PixelROCMaps {
 public:
-  Phase1PixelROCMaps(const char* option)
+  Phase1PixelROCMaps(const char* option, const std::string& zAxisTitle = "")
       : m_option{option},
+        m_zAxisTitle{zAxisTitle},
         m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
             edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
     // ---------------------    BOOK HISTOGRAMS
@@ -89,6 +90,11 @@ public:
       int nlad = nlad_list[lay - 1];
       std::string name = "occ_Layer_" + std::to_string(lay);
       std::string title = "; Module # ; Ladder #";
+
+      // if a z-axis title is specified, add the z-axis title
+      if (!m_zAxisTitle.empty()) {
+        title += fmt::sprintf(" ;%s", m_zAxisTitle.c_str());
+      }
 
       h_bpix_maps[lay - 1] = std::make_shared<TH2D>(
           name.c_str(), title.c_str(), 72, -n_layers - 0.5, n_layers + 0.5, (nlad * 4 + 2), -nlad - 0.5, nlad + 0.5);
@@ -100,6 +106,11 @@ public:
       float y = nxbins_list[ring - 1] + 0.5;
       std::string name = "occ_ring_" + std::to_string(ring);
       std::string title = "; Disk # ; Blade/Panel #";
+
+      // if a z-axis title is specified, add the z-axis title
+      if (!m_zAxisTitle.empty()) {
+        title += fmt::sprintf(" ;%s", m_zAxisTitle.c_str());
+      }
 
       h_fpix_maps[ring - 1] =
           std::make_shared<TH2D>(name.c_str(), title.c_str(), 56, -n_rings - 1.5, n_rings + 1.5, n, -y, y);
@@ -120,6 +131,7 @@ public:
 
 private:
   Option_t* m_option;
+  std::string m_zAxisTitle;
   TrackerTopology m_trackerTopo;
 
   // tough luck, we can only do phase-1...

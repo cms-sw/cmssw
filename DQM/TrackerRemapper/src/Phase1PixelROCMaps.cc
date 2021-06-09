@@ -301,25 +301,38 @@ void PixelROCMapHelper::dress_plot(TPad*& canv,
 /*--------------------------------------------------------------------*/
 {
   std::string s_title;
+  const auto zAxisTitle = fmt::sprintf("%s", h->GetZaxis()->GetTitle());
 
   if (lay > 0) {
     canv->cd(lay);
     canv->cd(lay)->SetTopMargin(0.05);
     canv->cd(lay)->SetBottomMargin(0.07);
     canv->cd(lay)->SetLeftMargin(0.1);
+    if (!zAxisTitle.empty()) {
+      h->GetZaxis()->SetTitleOffset(1.3);
+      h->GetZaxis()->CenterTitle(true);
+      canv->cd(lay)->SetRightMargin(0.14);
+    } else {
+      canv->cd(lay)->SetRightMargin(0.11);
+    }
     s_title = "Barrel Pixel Layer " + std::to_string(lay);
   } else {
     canv->cd(ring);
     canv->cd(ring)->SetTopMargin(0.05);
     canv->cd(ring)->SetBottomMargin(0.07);
     canv->cd(ring)->SetLeftMargin(0.1);
+    if (!zAxisTitle.empty()) {
+      h->GetZaxis()->SetTitleOffset(1.3);
+      h->GetZaxis()->CenterTitle(true);
+      canv->cd(ring)->SetRightMargin(0.14);
+    } else {
+      canv->cd(ring)->SetRightMargin(0.11);
+    }
     if (ring > 4) {
       ring = ring - 4;
     }
     s_title = "Forward Pixel Ring " + std::to_string(ring);
   }
-
-  gStyle->SetPadRightMargin(0.125);
 
   if (standard_palette) {
     gStyle->SetPalette(1);
@@ -593,7 +606,7 @@ void Phase1PixelROCMaps::drawBarrelMaps(TCanvas& canvas, const std::string& text
   canvas.cd();
   canvas.Modified();
 
-  auto topPad = new TPad("pad1", "upper pad", 0.01, 0.96, 0.99, 0.99);
+  auto topPad = new TPad("pad1", "upper pad", 0.005, 0.96, 0.995, 0.995);
   topPad->Draw();
   topPad->cd();
   auto ltx = TLatex();
@@ -602,7 +615,7 @@ void Phase1PixelROCMaps::drawBarrelMaps(TCanvas& canvas, const std::string& text
   ltx.DrawLatexNDC(0.02, 0.3, text.c_str());
 
   canvas.cd();
-  auto bottomPad = new TPad("pad2", "lower pad", 0.01, 0.01, 0.99, 0.955);
+  auto bottomPad = new TPad("pad2", "lower pad", 0.005, 0.005, 0.995, 0.955);
   bottomPad->Draw();
   bottomPad->cd();
   bottomPad->Divide(2, 2);
@@ -618,7 +631,7 @@ void Phase1PixelROCMaps::drawForwardMaps(TCanvas& canvas, const std::string& tex
   canvas.cd();
   canvas.Modified();
 
-  auto topPad = new TPad("pad1", "upper pad", 0.005, 0.94, 0.995, 0.99);
+  auto topPad = new TPad("pad1", "upper pad", 0.005, 0.94, 0.995, 0.995);
   topPad->Draw();
   topPad->cd();
   auto ltx = TLatex();
@@ -627,7 +640,7 @@ void Phase1PixelROCMaps::drawForwardMaps(TCanvas& canvas, const std::string& tex
   ltx.DrawLatexNDC(0.02, 0.3, text.c_str());
 
   canvas.cd();
-  auto bottomPad = new TPad("pad2", "lower pad", 0.005, 0.01, 0.995, 0.935);
+  auto bottomPad = new TPad("pad2", "lower pad", 0.005, 0.005, 0.995, 0.935);
   bottomPad->Draw();
   bottomPad->cd();
   bottomPad->Divide(2, 1);
@@ -643,7 +656,7 @@ void Phase1PixelROCMaps::drawMaps(TCanvas& canvas, const std::string& text)
   canvas.cd();
   canvas.Modified();
 
-  auto topPad = new TPad("pad1", "upper pad", 0.01, 0.97, 0.99, 0.99);
+  auto topPad = new TPad("pad1", "upper pad", 0.005, 0.97, 0.995, 0.995);
   topPad->Draw();
   topPad->cd();
   auto ltx = TLatex();
@@ -652,7 +665,7 @@ void Phase1PixelROCMaps::drawMaps(TCanvas& canvas, const std::string& text)
   ltx.DrawLatexNDC(0.02, 0.2, text.c_str());
 
   canvas.cd();
-  auto bottomPad = new TPad("pad2", "lower pad", 0.01, 0.01, 0.99, 0.97);
+  auto bottomPad = new TPad("pad2", "lower pad", 0.005, 0.005, 0.995, 0.97);
   bottomPad->Draw();
   bottomPad->cd();
   bottomPad->Divide(2, 3);
