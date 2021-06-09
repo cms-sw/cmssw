@@ -45,6 +45,8 @@
 
 #include <iostream>
 
+#include "tbb/task_arena.h"
+
 class NanoAODOutputModule : public edm::one::OutputModule<> {
 public:
   NanoAODOutputModule(edm::ParameterSet const& pset);
@@ -216,7 +218,7 @@ void NanoAODOutputModule::write(edm::EventForOutput const& iEvent) {
   // fill event branches
   for (auto& t : m_evstrings)
     t.fill(iEvent, *m_tree);
-  m_tree->Fill();
+  tbb::this_task_arena::isolate([&] { m_tree->Fill(); });
 
   m_processHistoryRegistry.registerProcessHistory(iEvent.processHistory());
 }
@@ -230,7 +232,7 @@ void NanoAODOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
   for (auto& t : m_lumiTables)
     t.fill(iLumi, *m_lumiTree);
 
-  m_lumiTree->Fill();
+  tbb::this_task_arena::isolate([&] { m_lumiTree->Fill(); });
 
   m_processHistoryRegistry.registerProcessHistory(iLumi.processHistory());
 }
@@ -262,7 +264,7 @@ void NanoAODOutputModule::writeRun(edm::RunForOutput const& iRun) {
     }
   }
 
-  m_runTree->Fill();
+  tbb::this_task_arena::isolate([&] { m_runTree->Fill(); });
 
   m_processHistoryRegistry.registerProcessHistory(iRun.processHistory());
 }
