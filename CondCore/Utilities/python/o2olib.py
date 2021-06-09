@@ -127,7 +127,7 @@ class O2OJobMgr(object):
             url = sqlalchemy_tpl %(username,pwd,db_service)
         session = None
         try:
-            self.eng = sqlalchemy.create_engine( url )
+            self.eng = sqlalchemy.create_engine( url, max_identifier_length=30)
             session = sqlalchemy.orm.scoped_session( sqlalchemy.orm.sessionmaker(bind=self.eng))
         except sqlalchemy.exc.SQLAlchemyError as dberror:
             self.logger.error( str(dberror) )
