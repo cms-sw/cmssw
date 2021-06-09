@@ -63,8 +63,8 @@ SiStripPayloadHandler<SiStripPayload>::SiStripPayloadHandler(const edm::Paramete
       m_localCondDbFile(iConfig.getParameter<std::string>("condDbFile")),
       m_targetTag(iConfig.getParameter<std::string>("targetTag")),
       m_since(iConfig.getParameter<uint32_t>("since")),
-      p_type(cond::demangledName(typeid(SiStripPayload))),
-      p_cfgstr(condObjBuilder->getConfigString(typeid(SiStripPayload))) {
+      p_type(cond::demangledName(typeid(SiStripPayload))) {
+  p_cfgstr = condObjBuilder->getConfigString(typeid(SiStripPayload));
   if (iConfig.exists("configMapDatabase"))
     m_configMapDb = iConfig.getParameter<std::string>("configMapDatabase");
   if (iConfig.exists("cfgMapDbFile"))
