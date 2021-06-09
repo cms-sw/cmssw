@@ -388,7 +388,7 @@ void StackingAction::initPointer() {
       trackerRegions.push_back(reg);
     }
     if (savePDandCinCalo && (rname == "HcalRegion" || rname == "EcalRegion" || rname == "PreshowerSensRegion" ||
-                             rname == "PreshowerRegion")) {
+                             rname == "PreshowerRegion" || rname == "APDRegion" || rname == "HGCalRegion")) {
       caloRegions.push_back(reg);
     }
     if (savePDandCinMuon && (rname == "MuonChamber" || rname == "MuonSensitive_RPC" || rname == "MuonIron" ||
