@@ -448,12 +448,12 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
   static constexpr int base = 10;
   double rin2 = rin * rin;
   double rout2 = rout * rout;
-  double dx0[corners] = {HGCalTypes::c00 * delX, 
-			 HGCalTypes::c10 * delX, 
-			 HGCalTypes::c10 * delX, 
-			 HGCalTypes::c00 * delX,
-			 -HGCalTypes::c10 * delX,
-			 -HGCalTypes::c10 * delX};
+  double dx0[corners] = {HGCalTypes::c00 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c00 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c10 * delX};
   double dy0[corners] = {-HGCalTypes::c10 * delY,
                          -HGCalTypes::c50 * delY,
                          HGCalTypes::c50 * delY,
@@ -487,29 +487,29 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                          -HGCalTypes::c10 * delX,
                          -HGCalTypes::c50 * delX};
   double dy1[corners] = {-HGCalTypes::c75 * delY,
-			 HGCalTypes::c00 * delY,
-			 HGCalTypes::c75 * delY,
-			 HGCalTypes::c75 * delY,
-			 HGCalTypes::c00 * delY,
-			 -HGCalTypes::c75 * delY};
+                         HGCalTypes::c00 * delY,
+                         HGCalTypes::c75 * delY,
+                         HGCalTypes::c75 * delY,
+                         HGCalTypes::c00 * delY,
+                         -HGCalTypes::c75 * delY};
   double dx2[corners] = {HGCalTypes::c50 * delX,
                          -HGCalTypes::c50 * delX,
                          -HGCalTypes::c10 * delX,
                          -HGCalTypes::c50 * delX,
                          HGCalTypes::c50 * delX,
                          HGCalTypes::c10 * delX};
-  double dy2[corners] = {HGCalTypes::c75 * delY, 
-			 HGCalTypes::c75 * delY, 
-			 HGCalTypes::c00 * delY,
-			 -HGCalTypes::c75 * delY,
-			 -HGCalTypes::c75 * delY,
-			 HGCalTypes::c00 * delY};
+  double dy2[corners] = {HGCalTypes::c75 * delY,
+                         HGCalTypes::c75 * delY,
+                         HGCalTypes::c00 * delY,
+                         -HGCalTypes::c75 * delY,
+                         -HGCalTypes::c75 * delY,
+                         HGCalTypes::c00 * delY};
   double dx3[corners] = {HGCalTypes::c22 * delX,
-			 HGCalTypes::c10 * delX,
-			 HGCalTypes::c77 * delX,
-			 -HGCalTypes::c22 * delX,
-			 -HGCalTypes::c10 * delX,
-			 -HGCalTypes::c77 * delX};
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c77 * delX,
+                         -HGCalTypes::c22 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c77 * delX};
   double dy3[corners] = {-HGCalTypes::c88 * delY,
                          -HGCalTypes::c27 * delY,
                          HGCalTypes::c61 * delY,
@@ -534,12 +534,12 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                          HGCalTypes::c50 * delX,
                          HGCalTypes::c10 * delX,
                          HGCalTypes::c50 * delX};
-  double dy5[corners] = {HGCalTypes::c75 * delY, 
-			 HGCalTypes::c00 * delY,
-			 -HGCalTypes::c75 * delY,
-			 -HGCalTypes::c75 * delY,
-			 HGCalTypes::c00 * delY,
-			 HGCalTypes::c75 * delY};
+  double dy5[corners] = {HGCalTypes::c75 * delY,
+                         HGCalTypes::c00 * delY,
+                         -HGCalTypes::c75 * delY,
+                         -HGCalTypes::c75 * delY,
+                         HGCalTypes::c00 * delY,
+                         HGCalTypes::c75 * delY};
   double dx6[corners] = {-HGCalTypes::c77 * delX,
                          -HGCalTypes::c10 * delX,
                          -HGCalTypes::c22 * delX,
@@ -633,13 +633,13 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
     if ((type == HGCalTypes::WaferThree) && (wType == 0)) {
       rpos12 = ((xpos + dx1[rotn]) * (xpos + dx1[rotn]) + (ypos + dy1[rotn]) * (ypos + dy1[rotn]));
       if (rpos12 <= rout2 && rpos12 >= rin2) {
-	rpos22 = ((xpos + dx5[rotn]) * (xpos + dx5[rotn]) + (ypos + dy5[rotn]) * (ypos + dy5[rotn]));
-	if (rpos22 <= rout2 && rpos22 >= rin2)
-	  type = HGCalTypes::WaferSemi;
+        rpos22 = ((xpos + dx5[rotn]) * (xpos + dx5[rotn]) + (ypos + dy5[rotn]) * (ypos + dy5[rotn]));
+        if (rpos22 <= rout2 && rpos22 >= rin2)
+          type = HGCalTypes::WaferSemi;
       }
       if (debug)
-	edm::LogVerbatim("HGCalGeom") << "Test for Semi " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type "
-				      << type;
+        edm::LogVerbatim("HGCalGeom") << "Test for Semi " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type "
+                                      << type;
     }
     if ((type == HGCalTypes::WaferThree) && (wType == 0)) {
       rpos12 = ((xpos + dx3[rotn]) * (xpos + dx3[rotn]) + (ypos + dy3[rotn]) * (ypos + dy3[rotn]));
@@ -662,7 +662,7 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
       if (rpos22 <= rout2 && rpos22 >= rin2)
         type = HGCalTypes::WaferHalf2;
       else
-	rotn = HGCalTypes::WaferCorner0;
+        rotn = HGCalTypes::WaferCorner0;
     }
     if (debug)
       edm::LogVerbatim("HGCalGeom") << "Test for Half2 " << std::sqrt(rpos12) << ":" << std::sqrt(rpos22) << " Type "
@@ -690,12 +690,12 @@ bool HGCalWaferMask::goodTypeMode(
   static constexpr int corner2 = 2 * HGCalTypes::WaferCornerMax;
   static constexpr int base = 10;
   static constexpr int base2 = 100;
-  double dx0[corners] = {HGCalTypes::c00 * delX, 
-			 HGCalTypes::c10 * delX, 
-			 HGCalTypes::c10 * delX, 
-			 HGCalTypes::c00 * delX,
-			 -HGCalTypes::c10 * delX,
-			 -HGCalTypes::c10 * delX};
+  double dx0[corners] = {HGCalTypes::c00 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c10 * delX,
+                         HGCalTypes::c00 * delX,
+                         -HGCalTypes::c10 * delX,
+                         -HGCalTypes::c10 * delX};
   double dy0[corners] = {-HGCalTypes::c10 * delY,
                          -HGCalTypes::c50 * delY,
                          HGCalTypes::c50 * delY,
@@ -709,11 +709,11 @@ bool HGCalWaferMask::goodTypeMode(
                          -HGCalTypes::c10 * delX,
                          -HGCalTypes::c50 * delX};
   double dy1[corners] = {-HGCalTypes::c75 * delY,
-			 HGCalTypes::c00 * delY, 
-			 HGCalTypes::c75 * delY, 
-			 HGCalTypes::c75 * delY, 
-			 HGCalTypes::c00 * delY,
-			 -HGCalTypes::c75 * delY};
+                         HGCalTypes::c00 * delY,
+                         HGCalTypes::c75 * delY,
+                         HGCalTypes::c75 * delY,
+                         HGCalTypes::c00 * delY,
+                         -HGCalTypes::c75 * delY};
   double dx2[corner2] = {HGCalTypes::c22 * delX,
                          HGCalTypes::c77 * delX,
                          HGCalTypes::c10 * delX,
@@ -917,7 +917,7 @@ bool HGCalWaferMask::goodTypeMode(
     }
     case (HGCalTypes::WaferFive2): {
       static constexpr int nc60[corners] = {450, 150, 201, 312, 423, 534};
-      static constexpr int nc61[corners] = {601, 803,1005,   7, 209, 411};
+      static constexpr int nc61[corners] = {601, 803, 1005, 7, 209, 411};
       int nc = nc60[rotn];
       for (int k1 = 0; k1 < 3; ++k1) {
         int k = nc % base;
@@ -948,7 +948,7 @@ bool HGCalWaferMask::goodTypeMode(
     }
     case (HGCalTypes::WaferHalf2): {
       static constexpr int nc70[corners] = {45, 50, 1, 12, 23, 34};
-      static constexpr int nc71[corners] = {611, 801,1003, 5, 207, 409};
+      static constexpr int nc71[corners] = {611, 801, 1003, 5, 207, 409};
       int nc = nc70[rotn];
       for (int k1 = 0; k1 < 2; ++k1) {
         int k = nc % base;
