@@ -264,36 +264,10 @@ namespace {
       Phase1PixelROCMaps theMap("", "#Delta payload A - payload B");
 
       // first loop on the first payload (newest)
-      auto f_theDisabledModules = first_payload->getBadComponentList();
-      for (const auto& mod : f_theDisabledModules) {
-        int subid = DetId(mod.DetID).subdetId();
-        if ((subid == PixelSubdetector::PixelBarrel && myType == SiPixelPI::t_barrel) ||
-            (subid == PixelSubdetector::PixelEndcap && myType == SiPixelPI::t_forward) ||
-            (myType == SiPixelPI::t_all)) {
-          std::bitset<16> bad_rocs(mod.BadRocs);
-          if (first_payload->IsModuleBad(mod.DetID)) {
-            theMap.fillWholeModule(mod.DetID, 1.);  // this will color in hot
-          } else {
-            theMap.fillSelectedRocs(mod.DetID, bad_rocs, 1.);
-          }
-        }
-      }
+      fillTheMapFromPayload(theMap, first_payload, false);
 
       // then loop on the second payload (oldest)
-      auto l_theDisabledModules = last_payload->getBadComponentList();
-      for (const auto& mod : l_theDisabledModules) {
-        int subid = DetId(mod.DetID).subdetId();
-        if ((subid == PixelSubdetector::PixelBarrel && myType == SiPixelPI::t_barrel) ||
-            (subid == PixelSubdetector::PixelEndcap && myType == SiPixelPI::t_forward) ||
-            (myType == SiPixelPI::t_all)) {
-          std::bitset<16> bad_rocs(mod.BadRocs);
-          if (last_payload->IsModuleBad(mod.DetID)) {
-            theMap.fillWholeModule(mod.DetID, -1.);  // this will color in cold
-          } else {
-            theMap.fillSelectedRocs(mod.DetID, bad_rocs, -1.);
-          }
-        }
-      }
+      fillTheMapFromPayload(theMap, last_payload, true);  // true will subtract
 
       gStyle->SetOptStat(0);
       //=========================
@@ -348,6 +322,26 @@ namespace {
   private:
     static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
     TrackerTopology m_trackerTopo;
+
+    //____________________________________________________________________________________________
+    void fillTheMapFromPayload(Phase1PixelROCMaps& theMap,
+                               const std::shared_ptr<SiPixelQuality>& payload,
+                               bool subtract) {
+      const auto theDisabledModules = payload->getBadComponentList();
+      for (const auto& mod : theDisabledModules) {
+        int subid = DetId(mod.DetID).subdetId();
+        if ((subid == PixelSubdetector::PixelBarrel && myType == SiPixelPI::t_barrel) ||
+            (subid == PixelSubdetector::PixelEndcap && myType == SiPixelPI::t_forward) ||
+            (myType == SiPixelPI::t_all)) {
+          std::bitset<16> bad_rocs(mod.BadRocs);
+          if (payload->IsModuleBad(mod.DetID)) {
+            theMap.fillWholeModule(mod.DetID, (subtract ? -1. : 1.));
+          } else {
+            theMap.fillSelectedRocs(mod.DetID, bad_rocs, (subtract ? -1. : 1.));
+          }
+        }
+      }
+    }
   };
 
   using SiPixelBPixQualityMapCompareSingleTag =
