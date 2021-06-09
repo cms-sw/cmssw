@@ -236,17 +236,17 @@ run2_nanoAOD_94X2016.toModify( prefiringweight, JetMaxMuonFraction = cms.double(
 l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
     name = cms.string("L1PreFiringWeight"),
     variables = cms.PSet(
-        L1PreFiringWeight_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProb"), "float", doc = "L1 pre-firing event correction weight (1-probability)", precision=8),
-        L1PreFiringWeight_Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbUp"), "float", doc = "L1 pre-firing event correction weight (1-probability), up var.", precision=8),
-        L1PreFiringWeight_Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbDown"), "float", doc = "L1 pre-firing event correction weight (1-probability), down var.", precision=8),
-        L1PreFiringWeightMuon_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuon"), "float", doc = "Muon L1 pre-firing event correction weight (1-probability)", precision=8),
-        L1PreFiringWeightMuon_SystUp = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonSystUp"), "float", doc = "Muon L1 pre-firing event correction weight (1-probability), up var. syst.", precision=8),
-        L1PreFiringWeightMuon_SystDn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonSystDown"), "float", doc = "Muon L1 pre-firing event correction weight (1-probability), down var. syst.", precision=8),
-        L1PreFiringWeightMuon_StatUp = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonStatUp"), "float", doc = "Muon L1 pre-firing event correction weight (1-probability), up var. stat.", precision=8),
-        L1PreFiringWeightMuon_StatDn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonStatDown"), "float", doc = "Muon L1 pre-firing event correction weight (1-probability), down var. stat.", precision=8),
-        L1PreFiringWeightECAL_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbECAL"), "float", doc = "ECAL L1 pre-firing event correction weight (1-probability)", precision=8),
-        L1PreFiringWeightECAL_Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbECALUp"), "float", doc = "ECAL L1 pre-firing event correction weight (1-probability), up var.", precision=8),
-        L1PreFiringWeightECAL_Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbECALDown"), "float", doc = "ECAL L1 pre-firing event correction weight (1-probability), down var.", precision=8),
+        Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProb"), "float", doc = "L1 pre-firing event correction weight (1-probability)", precision=8),
+        Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbUp"), "float", doc = "L1 pre-firing event correction weight (1-probability), up var.", precision=8),
+        Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbDown"), "float", doc = "L1 pre-firing event correction weight (1-probability), down var.", precision=8),
+        Muon_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuon"), "float", doc = "Muon L1 pre-firing event correction weight (1-probability)", precision=8),
+        Muon_SystUp = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonSystUp"), "float", doc = "Muon L1 pre-firing event correction weight (1-probability), up var. syst.", precision=8),
+        Muon_SystDn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonSystDown"), "float", doc = "Muon L1 pre-firing event correction weight (1-probability), down var. syst.", precision=8),
+        Muon_StatUp = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonStatUp"), "float", doc = "Muon L1 pre-firing event correction weight (1-probability), up var. stat.", precision=8),
+        Muon_StatDn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonStatDown"), "float", doc = "Muon L1 pre-firing event correction weight (1-probability), down var. stat.", precision=8),
+        ECAL_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbECAL"), "float", doc = "ECAL L1 pre-firing event correction weight (1-probability)", precision=8),
+        ECAL_Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbECALUp"), "float", doc = "ECAL L1 pre-firing event correction weight (1-probability), up var.", precision=8),
+        ECAL_Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbECALDown"), "float", doc = "ECAL L1 pre-firing event correction weight (1-probability), down var.", precision=8),
     )
 )
 
