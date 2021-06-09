@@ -44,7 +44,9 @@ slimmedLowPtElectrons = cms.EDProducer("PATElectronSlimmer",
 )
 
 from RecoEgamma.EgammaTools.lowPtElectronModifier_cfi import lowPtElectronModifier
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
 from Configuration.Eras.Modifier_bParking_cff import bParking
-(~bParking & run2_miniAOD_devel).toModify(slimmedLowPtElectrons.modifierConfig.modifications,
-                                          func = lambda m: m.append(lowPtElectronModifier))
+_modifiers = (~bParking & run2_miniAOD_devel) | (bParking & run2_miniAOD_UL)
+_modifiers.toModify(slimmedLowPtElectrons.modifierConfig.modifications,
+                    func = lambda m: m.append(lowPtElectronModifier))
