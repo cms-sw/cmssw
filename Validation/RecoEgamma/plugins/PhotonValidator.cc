@@ -28,8 +28,6 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 //
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
@@ -60,7 +58,6 @@
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 //
@@ -84,8 +81,9 @@
 using namespace std;
 
 PhotonValidator::PhotonValidator(const edm::ParameterSet& pset)
-
-{
+    : magneticFieldToken_{esConsumes<edm::Transition::BeginRun>()},
+      caloGeometryToken_{esConsumes()},
+      transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))} {
   fName_ = pset.getParameter<std::string>("analyzerName");
   verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
   parameters_ = pset;
@@ -158,7 +156,7 @@ PhotonValidator::PhotonValidator(const edm::ParameterSet& pset)
 
 PhotonValidator::~PhotonValidator() {}
 
-void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& es) {
+void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const&) {
   double resMin = parameters_.getParameter<double>("resMin");
   double resMax = parameters_.getParameter<double>("resMax");
   int resBin = parameters_.getParameter<int>("resBin");
@@ -3161,14 +3159,12 @@ void PhotonValidator::dqmBeginRun(edm::Run const& r, edm::EventSetup const& theE
   //get magnetic field
   edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field"
                                           << "\n";
-  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
+  theMF_ = theEventSetup.getHandle(magneticFieldToken_);
 
   thePhotonMCTruthFinder_ = std::make_unique<PhotonMCTruthFinder>();
 }
 
-void PhotonValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
-  thePhotonMCTruthFinder_.reset();
-}
+void PhotonValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const&) { thePhotonMCTruthFinder_.reset(); }
 
 void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) {
   thePhotonMCTruthFinder_->clear();
@@ -3191,15 +3187,14 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
                              << "\n";
 
   // get the geometry from the event setup:
-  esup.get<CaloGeometryRecord>().get(theCaloGeom_);
+  theCaloGeom_ = esup.getHandle(caloGeometryToken_);
 
   edm::Handle<reco::VertexCollection> vtxH;
   e.getByToken(offline_pvToken_, vtxH);
   h_nRecoVtx_->Fill(float(vtxH->size()));
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
-  edm::ESHandle<TransientTrackBuilder> theTTB;
-  esup.get<TransientTrackRecord>().get("TransientTrackBuilder", theTTB);
+  auto theTTB = esup.getHandle(transientTrackBuilderToken_);
 
   ///// Get the recontructed  photons
   Handle<reco::PhotonCollection> photonHandle;

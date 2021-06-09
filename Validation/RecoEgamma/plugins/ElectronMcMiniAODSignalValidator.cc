@@ -420,14 +420,9 @@ void ElectronMcSignalValidatorMiniAOD::bookHistograms(DQMStore::IBooker& iBooker
 
 void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get collections
-  edm::Handle<pat::ElectronCollection> electrons;
-  iEvent.getByToken(electronToken_, electrons);
-
-  edm::Handle<pat::ElectronCollection> electrons_endcaps;
-  iEvent.getByToken(electronTokenEndcaps_, electrons_endcaps);
-
-  edm::Handle<edm::View<reco::GenParticle> > genParticles;
-  iEvent.getByToken(mcTruthCollection_, genParticles);
+  auto electrons = iEvent.getHandle(electronToken_);
+  auto electrons_endcaps = iEvent.getHandle(electronTokenEndcaps_);
+  auto genParticles = iEvent.getHandle(mcTruthCollection_);
 
   edm::Handle<pat::ElectronCollection> mergedElectrons;
 

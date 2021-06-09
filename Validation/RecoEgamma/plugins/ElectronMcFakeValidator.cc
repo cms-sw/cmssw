@@ -52,10 +52,8 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
       consumes<reco::ElectronSeedCollection>(conf.getParameter<edm::InputTag>("electronSeedCollection"));
   matchingObjectCollection_ =
       consumes<reco::GenJetCollection>(conf.getParameter<edm::InputTag>("matchingObjectCollection"));
-  /* new 03/02/2015 */
   offlineVerticesCollection_ =
       consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("offlinePrimaryVertices"));
-  /* fin new */
 
   beamSpotTag_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
   readAOD_ = conf.getParameter<bool>("readAOD");
@@ -176,7 +174,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_recCoreNum_ = nullptr;
   h1_recTrackNum_ = nullptr;
   h1_recSeedNum_ = nullptr;
-  h1_recOfflineVertices_ = nullptr;  // new 2015.04.02
+  h1_recOfflineVertices_ = nullptr;
 
   h1_matchingObjectEta = nullptr;
   h1_matchingObjectAbsEta = nullptr;
@@ -2412,49 +2410,34 @@ ElectronMcFakeValidator::~ElectronMcFakeValidator() {}
 
 void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get reco electrons
-  edm::Handle<reco::GsfElectronCollection> gsfElectrons;
-  iEvent.getByToken(electronCollection_, gsfElectrons);
-  edm::Handle<GsfElectronCoreCollection> gsfElectronCores;
-  iEvent.getByToken(electronCoreCollection_, gsfElectronCores);
-  edm::Handle<GsfTrackCollection> gsfElectronTracks;
-  iEvent.getByToken(electronTrackCollection_, gsfElectronTracks);
-  edm::Handle<ElectronSeedCollection> gsfElectronSeeds;
-  iEvent.getByToken(electronSeedCollection_, gsfElectronSeeds);
+  auto gsfElectrons = iEvent.getHandle(electronCollection_);
+  auto gsfElectronCores = iEvent.getHandle(electronCoreCollection_);
+  auto gsfElectronTracks = iEvent.getHandle(electronTrackCollection_);
+  auto gsfElectronSeeds = iEvent.getHandle(electronSeedCollection_);
 
-  edm::Handle<edm::ValueMap<double>> isoFromDepsTk03Handle;
-  iEvent.getByToken(isoFromDepsTk03Tag_, isoFromDepsTk03Handle);
-  edm::Handle<edm::ValueMap<double>> isoFromDepsTk04Handle;
-  iEvent.getByToken(isoFromDepsTk04Tag_, isoFromDepsTk04Handle);
-  edm::Handle<edm::ValueMap<double>> isoFromDepsEcalFull03Handle;
-  iEvent.getByToken(isoFromDepsEcalFull03Tag_, isoFromDepsEcalFull03Handle);
-  edm::Handle<edm::ValueMap<double>> isoFromDepsEcalFull04Handle;
-  iEvent.getByToken(isoFromDepsEcalFull04Tag_, isoFromDepsEcalFull04Handle);
-  edm::Handle<edm::ValueMap<double>> isoFromDepsEcalReduced03Handle;
-  iEvent.getByToken(isoFromDepsEcalReduced03Tag_, isoFromDepsEcalReduced03Handle);
-  edm::Handle<edm::ValueMap<double>> isoFromDepsEcalReduced04Handle;
-  iEvent.getByToken(isoFromDepsEcalReduced04Tag_, isoFromDepsEcalReduced04Handle);
-  edm::Handle<edm::ValueMap<double>> isoFromDepsHcal03Handle;
-  iEvent.getByToken(isoFromDepsHcal03Tag_, isoFromDepsHcal03Handle);
-  edm::Handle<edm::ValueMap<double>> isoFromDepsHcal04Handle;
-  iEvent.getByToken(isoFromDepsHcal04Tag_, isoFromDepsHcal04Handle);
+  auto isoFromDepsTk03Handle = iEvent.getHandle(isoFromDepsTk03Tag_);
+  auto isoFromDepsTk04Handle = iEvent.getHandle(isoFromDepsTk04Tag_);
+  auto isoFromDepsEcalFull03Handle = iEvent.getHandle(isoFromDepsEcalFull03Tag_);
+  auto isoFromDepsEcalFull04Handle = iEvent.getHandle(isoFromDepsEcalFull04Tag_);
+  auto isoFromDepsEcalReduced03Handle = iEvent.getHandle(isoFromDepsEcalReduced03Tag_);
+  auto isoFromDepsEcalReduced04Handle = iEvent.getHandle(isoFromDepsEcalReduced04Tag_);
+  auto isoFromDepsHcal03Handle = iEvent.getHandle(isoFromDepsHcal03Tag_);
+  auto isoFromDepsHcal04Handle = iEvent.getHandle(isoFromDepsHcal04Tag_);
 
-  /* new 2015.04.02 */
-  edm::Handle<reco::VertexCollection> vertexCollectionHandle;
-  iEvent.getByToken(offlineVerticesCollection_, vertexCollectionHandle);
+  /*edm::Handle<reco::VertexCollection> vertexCollectionHandle;
+  iEvent.getByToken(offlineVerticesCollection_, vertexCollectionHandle);*/
+  auto vertexCollectionHandle = iEvent.getHandle(offlineVerticesCollection_);
   if (!vertexCollectionHandle.isValid()) {
     edm::LogInfo("ElectronMcFakeValidator::analyze") << "vertexCollectionHandle KO";
   } else {
     edm::LogInfo("ElectronMcFakeValidator::analyze") << "vertexCollectionHandle OK";
   }
-  /* fin new */
 
   // get gen jets
-  edm::Handle<reco::GenJetCollection> genJets;
-  iEvent.getByToken(matchingObjectCollection_, genJets);
+  auto genJets = iEvent.getHandle(matchingObjectCollection_);
 
   // get the beamspot from the Event:
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByToken(beamSpotTag_, recoBeamSpotHandle);
+  auto recoBeamSpotHandle = iEvent.getHandle(beamSpotTag_);
   const BeamSpot bs = *recoBeamSpotHandle;
 
   edm::LogInfo("ElectronMcFakeValidator::analyze")
@@ -2463,7 +2446,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   h1_recCoreNum_->Fill((*gsfElectronCores).size());
   h1_recTrackNum_->Fill((*gsfElectronTracks).size());
   h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
-  h1_recOfflineVertices_->Fill((*vertexCollectionHandle).size());  // new 2015.04.02
+  h1_recOfflineVertices_->Fill((*vertexCollectionHandle).size());
 
   // all rec electrons
   reco::GsfElectronCollection::const_iterator gsfIter;

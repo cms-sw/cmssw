@@ -137,7 +137,7 @@ void ElectronConversionRejectionValidator::bookHistograms(DQMStore::IBooker& ibo
       "convLeadTrackAlgo", "# of Electrons", reco::TrackBase::algoSize, -0.5, reco::TrackBase::algoSize - 0.5);
 }
 
-void ElectronConversionRejectionValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) {
+void ElectronConversionRejectionValidator::analyze(const edm::Event& e, const edm::EventSetup&) {
   using namespace edm;
 
   nEvt_++;
@@ -146,16 +146,14 @@ void ElectronConversionRejectionValidator::analyze(const edm::Event& e, const ed
       << "\n";
 
   ///// Get the recontructed  conversions
-  Handle<reco::ConversionCollection> convHandle;
-  e.getByToken(convToken_, convHandle);
+  auto convHandle = e.getHandle(convToken_);
   if (!convHandle.isValid()) {
     edm::LogError("ElectronConversionRejectionValidator") << "Error! Can't get the Conversion collection " << std::endl;
     return;
   }
 
   ///// Get the recontructed  photons
-  Handle<reco::GsfElectronCollection> gsfElectronHandle;
-  e.getByToken(gsfElecToken_, gsfElectronHandle);
+  auto gsfElectronHandle = e.getHandle(gsfElecToken_);
   const reco::GsfElectronCollection& gsfElectronCollection = *(gsfElectronHandle.product());
   if (!gsfElectronHandle.isValid()) {
     edm::LogError("ElectronConversionRejectionValidator") << "Error! Can't get the Electron collection " << std::endl;
@@ -163,8 +161,7 @@ void ElectronConversionRejectionValidator::analyze(const edm::Event& e, const ed
   }
 
   // offline  Primary vertex
-  edm::Handle<reco::VertexCollection> vertexHandle;
-  e.getByToken(offline_pvToken_, vertexHandle);
+  auto vertexHandle = e.getHandle(offline_pvToken_);
   if (!vertexHandle.isValid()) {
     edm::LogError("ElectronConversionRejectionValidator") << "Error! Can't get the product primary Vertex Collection "
                                                           << "\n";
@@ -172,8 +169,7 @@ void ElectronConversionRejectionValidator::analyze(const edm::Event& e, const ed
   }
   const reco::Vertex& thevtx = vertexHandle->at(0);
 
-  edm::Handle<reco::BeamSpot> bsHandle;
-  e.getByToken(beamspotToken_, bsHandle);
+  auto bsHandle = e.getHandle(beamspotToken_);
   if (!bsHandle.isValid()) {
     edm::LogError("ElectronConversionRejectionValidator") << "Error! Can't get the product beamspot Collection "
                                                           << "\n";
