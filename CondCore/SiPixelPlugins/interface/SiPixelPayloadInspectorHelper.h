@@ -572,6 +572,7 @@ namespace SiPixelPI {
   }
 
   enum DetType { t_barrel = 0, t_forward = 1, t_all = 2 };
+  const std::array<std::string, 3> DetNames = {{"Barrel", "End Caps", "Whole"}};
 
   enum regions {
     BPixL1o,        //0  Barrel Pixel Layer 1 outer
