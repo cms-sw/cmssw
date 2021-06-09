@@ -2,12 +2,12 @@
 #include "RecoLocalTracker/SiStripDataCompressor/include/anlz4cmssw.h"
 #include <iostream>
 
-SiStripCompressionAlgorithm::SiStripCompressionAlgorithm() { this->LoadRealModelDataFromFile(); }
+SiStripCompressionAlgorithm::SiStripCompressionAlgorithm() {LoadRealModelDataFromFile(); }
 
 void SiStripCompressionAlgorithm::compress(vclusters_t const& ncColl, vcomp_clusters_t& compColl) {
-  for (vclusters_t::const_iterator itInColl = ncColl.begin(); itInColl != ncColl.end(); itInColl++) {
-    vcomp_clusters_t::TSFastFiller ff(compColl, itInColl->detId());
-    commpressDetModule(*itInColl, ff);
+  for(const auto itInColl:ncColl ){
+   vcomp_clusters_t::TSFastFiller ff(compColl, itInColl.detId());
+   commpressDetModule(itInColl, ff);
     if (ff.empty())
       ff.abort();
   }
@@ -19,10 +19,9 @@ void SiStripCompressionAlgorithm::commpressDetModule(const clusters_t& ncCluster
   std::vector<std::uint8_t> compAmplitudes;
   SiStripDetSetCompressedCluster compCluster;
 
-  for (clusters_t::const_iterator itNcClusters = ncClusters.begin(); itNcClusters != ncClusters.end(); itNcClusters++) {
-    compCluster.push_back_supportInfo(
-        itNcClusters->firstStrip(), itNcClusters->isMerged(), itNcClusters->getSplitClusterError());
-    std::vector<uint8_t> clsuterToBeCompressed(itNcClusters->begin(), itNcClusters->end());
+  for(const auto itNcClusters: ncClusters) {
+    compCluster.push_back_supportInfo(itNcClusters.firstStrip(), itNcClusters.isMerged());
+    std::vector<uint8_t> clsuterToBeCompressed(itNcClusters.begin(), itNcClusters.end());
     toBeCompressed.push_back(clsuterToBeCompressed);
   }
 

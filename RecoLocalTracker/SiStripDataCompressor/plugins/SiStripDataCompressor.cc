@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -16,7 +16,7 @@
 #include <vector>
 #include <memory>
 
-class SiStripDataCompressor : public edm::stream::EDProducer<> {
+class SiStripDataCompressor : public edm::one::EDProducer<> {
 public:
   explicit SiStripDataCompressor(const edm::ParameterSet& conf);
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -32,18 +32,16 @@ private:
 
 SiStripDataCompressor::SiStripDataCompressor(const edm::ParameterSet& conf) {
   inputTagClusters = conf.getParameter<edm::InputTag>("clustersToBeCompressed");
+ 
   clusterToken = consumes<edmNew::DetSetVector<SiStripCluster> >(inputTagClusters);
-
   produces<vcomp_clusters_t>();
 }
 
 void SiStripDataCompressor::produce(edm::Event& event, const edm::EventSetup& es) {
   auto outClusters = std::make_unique<vcomp_clusters_t>();
+  const auto& inClusters = event.get(clusterToken);
 
-  edm::Handle<vclusters_t> inClusters;
-  event.getByToken(clusterToken, inClusters);
-
-  algorithm->compress(*inClusters, *outClusters);
+  algorithm->compress(inClusters, *outClusters);
 
   event.put(std::move(outClusters));
 }
