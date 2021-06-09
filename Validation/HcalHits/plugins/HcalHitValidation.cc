@@ -26,7 +26,7 @@
 class HcalHitValidation : public DQMEDAnalyzer {
 public:
   HcalHitValidation(const edm::ParameterSet &ps);
-  ~HcalHitValidation();
+  ~HcalHitValidation() override;
 
 protected:
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
