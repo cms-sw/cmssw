@@ -154,23 +154,25 @@ int main(int argc, char** argv) try {
   descString += "Instead of specifying a library, there is also an option to specify a plugin.\n\n";
   descString += "Allowed options";
   boost::program_options::options_description desc(descString);
+
+  // clang-format off
   desc.add_options()(kHelpCommandOpt, "produce help message")(
-      kLibraryCommandOpt,
+      kLibraryCommandOpt, boost::program_options::value<std::string>(), "library filename")(
+      kPathCommandOpt,
+      "When this option is set, the library filename "
+      "is interpreted as a relative or absolute path. If there are no directories in "
+      "the library filename, then it looks for the library file in the current directory. "
+      "Fails with an error message if the path does not lead to a library file that exists "
+      "or can be loaded. "
+      "If this option is not set, then the library filename should only be "
+      "a filename without any directories.  In that case, it is assumed "
+      "the build system has already put the library file in the "
+      "appropriate place, built the edmplugincache, and the PluginManager "
+      "is used to find and load the library.")(
+      kPluginCommandOpt,
       boost::program_options::value<std::string>(),
-      "library filename")(kPathCommandOpt,
-                          "When this option is set, the library filename "
-                          "is interpreted as a relative or absolute path. If there are no directories in "
-                          "the library filename, then it looks for the library file in the current directory. "
-                          "Fails with an error message if the path does not lead to a library file that exists "
-                          "or can be loaded. "
-                          "If this option is not set, then the library filename should only be "
-                          "a filename without any directories.  In that case, it is assumed "
-                          "the build system has already put the library file in the "
-                          "appropriate place, built the edmplugincache, and the PluginManager "
-                          "is used to find and load the library.")(kPluginCommandOpt,
-                                                                   boost::program_options::value<std::string>(),
-                                                                   "plugin name. You must specify either a library or "
-                                                                   "plugin, but not both.");
+      "plugin name. You must specify either a library or plugin, but not both.");
+  // clang-format on
 
   boost::program_options::positional_options_description p;
   p.add(kLibraryOpt, -1);

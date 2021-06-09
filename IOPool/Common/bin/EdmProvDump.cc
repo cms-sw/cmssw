@@ -1055,76 +1055,25 @@ int main(int argc, char* argv[]) {
   descString += " [options] <filename>";
   descString += "\nAllowed options";
   options_description desc(descString);
-  desc.add_options()(kHelpCommandOpt, "show help message")(
-      kSortCommandOpt,
-      "alphabetially sort EventSetup components")(kDependenciesCommandOpt,
-                                                  "print what data each EDProducer is directly "
-                                                  "dependent "
-                                                  "upon")(kExtendedAncestorsCommandOpt,
-                                                          "print what data each EDProducer is "
-                                                          "dependent upon including "
-                                                          "indirect "
-                                                          "dependence"
-                                                          "s")(kExtendedDescendantsCommandOpt,
-                                                               "print what data depends on the data "
-                                                               "each EDProducer produces including "
-                                                               "indirect "
-                                                               "dependence"
-                                                               "s")(kExcludeESModulesCommandOpt,
-                                                                    "do not print ES module "
-                                                                    "informatio"
-                                                                    "n")(kShowAllModulesCommandOpt,
-                                                                         "show all modules (not "
-                                                                         "just those that created "
-                                                                         "data in the "
-                                                                         "file"
-                                                                         ")")(kShowTopLevelPSetsCommandOpt,
-                                                                              "show all top level "
-                                                                              "PSet"
-                                                                              "s")(kFindMatchCommandOpt,
-                                                                                   boost::program_options::value<
-                                                                                       std::vector<std::string>>(),
-                                                                                   "show only "
-                                                                                   "modules whose "
-                                                                                   "information "
-                                                                                   "contains the "
-                                                                                   "matching string "
-                                                                                   "(or all the "
-                                                                                   "matching "
-                                                                                   "strings, this "
-                                                                                   "option can "
-                                                                                   "be repeated "
-                                                                                   "with different "
-                                                                                   "strings"
-                                                                                   ")")(kDontPrintProductsCommandOpt,
-                                                                                        "do not "
-                                                                                        "print "
-                                                                                        "products "
-                                                                                        "produced "
-                                                                                        "by "
-                                                                                        "modul"
-                                                                                        "e")(kDumpPSetIDCommandOpt,
-                                                                                             value<std::string>(),
-                                                                                             "print "
-                                                                                             "the "
-                                                                                             "parame"
-                                                                                             "ter "
-                                                                                             "set "
-                                                                                             "associ"
-                                                                                             "ated "
-                                                                                             "with "
-                                                                                             "the "
-                                                                                             "parame"
-                                                                                             "ter "
-                                                                                             "set "
-                                                                                             "ID "
-                                                                                             "string"
-                                                                                             " (and "
-                                                                                             "print "
-                                                                                             "nothin"
-                                                                                             "g "
-                                                                                             "else"
-                                                                                             ")");
+
+  // clang-format off
+  desc.add_options()(kHelpCommandOpt, "show help message")(kSortCommandOpt, "alphabetially sort EventSetup components")(
+      kDependenciesCommandOpt, "print what data each EDProducer is directly dependent upon")(
+      kExtendedAncestorsCommandOpt, "print what data each EDProducer is dependent upon including indirect dependences")(
+      kExtendedDescendantsCommandOpt,
+      "print what data depends on the data each EDProducer produces including indirect dependences")(
+      kExcludeESModulesCommandOpt, "do not print ES module information")(
+      kShowAllModulesCommandOpt, "show all modules (not just those that created data in the file)")(
+      kShowTopLevelPSetsCommandOpt, "show all top level PSets")(
+      kFindMatchCommandOpt,
+      boost::program_options::value<std::vector<std::string>>(),
+      "show only modules whose information contains the matching string (or all the matching strings, this option can "
+      "be repeated with different strings)")(kDontPrintProductsCommandOpt, "do not print products produced by module")(
+      kDumpPSetIDCommandOpt,
+      value<std::string>(),
+      "print the parameter set associated with the parameter set ID string (and print nothing else)");
+  // clang-format on
+
   //we don't want users to see these in the help messages since this
   // name only exists since the parser needs it
   options_description hidden;
