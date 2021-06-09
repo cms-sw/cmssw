@@ -13,8 +13,10 @@
  */
 
 #include <atomic>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <memory>
+
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
@@ -46,7 +48,7 @@ public:
   ~HLTPrescaler() override;
 
   static std::unique_ptr<trigger::Efficiency> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::unique_ptr<trigger::Efficiency>(new trigger::Efficiency());
+    return std::make_unique<trigger::Efficiency>();
   }
 
   //
