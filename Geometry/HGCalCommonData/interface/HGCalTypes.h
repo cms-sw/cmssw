@@ -55,6 +55,8 @@ public:
     WaferSemi = 5,
     WaferSemi2 = 6,
     WaferThree = 7,
+    WaferHalf2 = 8,
+    WaferFive2 = 9,
     WaferLDTop = 11,
     WaferLDBottom = 12,
     WaferLDLeft = 13,
