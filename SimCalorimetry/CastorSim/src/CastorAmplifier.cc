@@ -12,6 +12,7 @@
 #include "CLHEP/Random/RandGaussQ.h"
 
 #include <iostream>
+#include <cassert>
 
 CastorAmplifier::CastorAmplifier(const CastorSimParameterMap *parameters, bool addNoise)
     : theDbService(nullptr), theParameterMap(parameters), theStartingCapId(0), addNoise_(addNoise) {}
