@@ -3,7 +3,7 @@
 // 15.04.2021 V.Ivanchenko EM physics of CMS mirgrated to Geant4 10.7
 //                         based on option4 Geant4 EM and called EMN
 //                         several simlifications to original option4
-//                         are added 
+//                         are added
 //
 //--------------------------------------------------------------------
 

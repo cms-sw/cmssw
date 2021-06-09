@@ -60,30 +60,28 @@
 
 #include "G4SystemOfUnits.hh"
 
-CMSEmStandardPhysicsEMZ::CMSEmStandardPhysicsEMZ(G4int ver)
-    : G4VPhysicsConstructor("CMSEmStandard_emz") {
+CMSEmStandardPhysicsEMZ::CMSEmStandardPhysicsEMZ(G4int ver) : G4VPhysicsConstructor("CMSEmStandard_emz") {
   SetVerboseLevel(ver);
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(ver);
-  param->SetMinEnergy(100*CLHEP::eV);
-  param->SetLowestElectronEnergy(100*CLHEP::eV);
+  param->SetMinEnergy(100 * CLHEP::eV);
+  param->SetLowestElectronEnergy(100 * CLHEP::eV);
   param->SetNumberOfBinsPerDecade(20);
   param->ActivateAngularGeneratorForIonisation(true);
-  param->SetStepFunction(0.2, 10*CLHEP::um);
-  param->SetStepFunctionMuHad(0.1, 50*CLHEP::um);
-  param->SetStepFunctionLightIons(0.1, 20*CLHEP::um);
-  param->SetStepFunctionIons(0.1, 1*CLHEP::um);
-  param->SetUseMottCorrection(true); // use Mott-correction for e-/e+ msc gs
-  param->SetMscStepLimitType(fUseSafetyPlus); // for e-/e+ msc gs
-  param->SetMscSkin(3);              // error-free stepping for e-/e+ msc gs
-  param->SetMscRangeFactor(0.08);    // error-free stepping for e-/e+ msc gs
+  param->SetStepFunction(0.2, 10 * CLHEP::um);
+  param->SetStepFunctionMuHad(0.1, 50 * CLHEP::um);
+  param->SetStepFunctionLightIons(0.1, 20 * CLHEP::um);
+  param->SetStepFunctionIons(0.1, 1 * CLHEP::um);
+  param->SetUseMottCorrection(true);           // use Mott-correction for e-/e+ msc gs
+  param->SetMscStepLimitType(fUseSafetyPlus);  // for e-/e+ msc gs
+  param->SetMscSkin(3);                        // error-free stepping for e-/e+ msc gs
+  param->SetMscRangeFactor(0.08);              // error-free stepping for e-/e+ msc gs
   param->SetMuHadLateralDisplacement(true);
   param->SetFluo(true);
   param->SetUseICRU90Data(true);
-  param->SetMaxNIELEnergy(1*CLHEP::MeV);
+  param->SetMaxNIELEnergy(1 * CLHEP::MeV);
   SetPhysicsType(bElectromagnetic);
-
 }
 
 CMSEmStandardPhysicsEMZ::~CMSEmStandardPhysicsEMZ() {}
@@ -110,7 +108,7 @@ void CMSEmStandardPhysicsEMZ::ConstructProcess() {
   //  G4NuclearStopping* pnuc(nullptr);
   G4double nielEnergyLimit = G4EmParameters::Instance()->MaxNIELEnergy();
   G4NuclearStopping* pnuc = nullptr;
-  if(nielEnergyLimit > 0.0) {
+  if (nielEnergyLimit > 0.0) {
     pnuc = new G4NuclearStopping();
     pnuc->SetMaxKinEnergy(nielEnergyLimit);
   }
@@ -130,7 +128,7 @@ void CMSEmStandardPhysicsEMZ::ConstructProcess() {
   G4ComptonScattering* cs = new G4ComptonScattering;
   cs->SetEmModel(new G4KleinNishinaModel());
   G4VEmModel* theLowEPComptonModel = new G4LowEPComptonModel();
-  theLowEPComptonModel->SetHighEnergyLimit(20*CLHEP::MeV);
+  theLowEPComptonModel->SetHighEnergyLimit(20 * CLHEP::MeV);
   cs->AddEmModel(0, theLowEPComptonModel);
 
   // Gamma conversion
@@ -167,9 +165,9 @@ void CMSEmStandardPhysicsEMZ::ConstructProcess() {
   msc->SetEmModel(msc1);
   msc->SetEmModel(msc2);
 
-  G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel(); 
+  G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
   G4CoulombScattering* ss = new G4CoulombScattering();
-  ss->SetEmModel(ssm); 
+  ss->SetEmModel(ssm);
   ss->SetMinKinEnergy(highEnergyLimit);
   ssm->SetLowEnergyLimit(highEnergyLimit);
   ssm->SetActivationLowEnergyLimit(highEnergyLimit);
@@ -185,8 +183,8 @@ void CMSEmStandardPhysicsEMZ::ConstructProcess() {
   // ionisation
   G4eIonisation* eioni = new G4eIonisation();
   G4VEmModel* theIoniLiv = new G4LivermoreIonisationModel();
-  theIoniLiv->SetHighEnergyLimit(0.1*CLHEP::MeV); 
-  eioni->AddEmModel(0, theIoniLiv, new G4UniversalFluctuation() );
+  theIoniLiv->SetHighEnergyLimit(0.1 * CLHEP::MeV);
+  eioni->AddEmModel(0, theIoniLiv, new G4UniversalFluctuation());
 
   // bremsstrahlung
   G4eBremsstrahlung* brem = new G4eBremsstrahlung();
@@ -260,7 +258,8 @@ void CMSEmStandardPhysicsEMZ::ConstructProcess() {
   ionIoni->SetEmModel(new G4IonParametrisedLossModel());
   ph->RegisterProcess(hmsc, particle);
   ph->RegisterProcess(ionIoni, particle);
-  if(nullptr != pnuc) ph->RegisterProcess(pnuc, particle);
+  if (nullptr != pnuc)
+    ph->RegisterProcess(pnuc, particle);
 
   // muons, hadrons, ions
   G4EmBuilder::ConstructCharged(hmsc, pnuc);

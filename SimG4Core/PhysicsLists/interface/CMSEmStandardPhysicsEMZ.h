@@ -19,7 +19,6 @@ public:
 
   void ConstructParticle() override;
   void ConstructProcess() override;
-
 };
 
 #endif
