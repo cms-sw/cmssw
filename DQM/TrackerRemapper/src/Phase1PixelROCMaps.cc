@@ -295,9 +295,9 @@ void PixelROCMapHelper::dress_plot(TPad*& canv,
                                    int lay,
                                    int ring = 0,
                                    int phase = 0,
+                                   bool standard_palette = true,
                                    bool half_shift = true,
-                                   bool mark_zero = true,
-                                   bool standard_palette = true)
+                                   bool mark_zero = true)
 /*--------------------------------------------------------------------*/
 {
   std::string s_title;
@@ -337,7 +337,7 @@ void PixelROCMapHelper::dress_plot(TPad*& canv,
   if (standard_palette) {
     gStyle->SetPalette(1);
   } else {
-    // this is the fine gradient palette
+    /*
     const Int_t NRGBs = 5;
     const Int_t NCont = 255;
 
@@ -347,6 +347,22 @@ void PixelROCMapHelper::dress_plot(TPad*& canv,
     Double_t blue[NRGBs] = {0.51, 1.00, 0.12, 0.00, 0.00};
     TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
     gStyle->SetNumberContours(NCont);
+    */
+
+    // this is the fine gradient palette (blue to red)
+    double max = h->GetMaximum();
+    double min = h->GetMinimum();
+    double val_white = 0.;
+    double per_white = (val_white - min) / (max - min);
+
+    const int Number = 3;
+    double Red[Number] = {0., 1., 1.};
+    double Green[Number] = {0., 1., 0.};
+    double Blue[Number] = {1., 1., 0.};
+    double Stops[Number] = {0., per_white, 1.};
+    int nb = 256;
+    h->SetContour(nb);
+    TColor::CreateGradientColorTable(Number, Stops, Red, Green, Blue, nb);
   }
 
   h->SetMarkerSize(0.7);
@@ -611,7 +627,13 @@ void Phase1PixelROCMaps::drawBarrelMaps(TCanvas& canvas, const std::string& text
   topPad->cd();
   auto ltx = TLatex();
   ltx.SetTextFont(62);
-  ltx.SetTextSize(1.);
+
+  std::size_t found = text.find("Delta");
+  if (found != std::string::npos) {
+    ltx.SetTextSize(0.7);
+  } else {
+    ltx.SetTextSize(1.);
+  }
   ltx.DrawLatexNDC(0.02, 0.3, text.c_str());
 
   canvas.cd();
@@ -620,7 +642,7 @@ void Phase1PixelROCMaps::drawBarrelMaps(TCanvas& canvas, const std::string& text
   bottomPad->cd();
   bottomPad->Divide(2, 2);
   for (unsigned int lay = 1; lay <= n_layers; lay++) {
-    PixelROCMapHelper::dress_plot(bottomPad, h_bpix_maps[lay - 1].get(), lay, 0, 1);
+    PixelROCMapHelper::dress_plot(bottomPad, h_bpix_maps[lay - 1].get(), lay, 0, 1, found == std::string::npos);
   }
 }
 
@@ -636,7 +658,13 @@ void Phase1PixelROCMaps::drawForwardMaps(TCanvas& canvas, const std::string& tex
   topPad->cd();
   auto ltx = TLatex();
   ltx.SetTextFont(62);
-  ltx.SetTextSize(1.);
+
+  std::size_t found = text.find("Delta");
+  if (found != std::string::npos) {
+    ltx.SetTextSize(0.7);
+  } else {
+    ltx.SetTextSize(1.);
+  }
   ltx.DrawLatexNDC(0.02, 0.3, text.c_str());
 
   canvas.cd();
@@ -645,7 +673,7 @@ void Phase1PixelROCMaps::drawForwardMaps(TCanvas& canvas, const std::string& tex
   bottomPad->cd();
   bottomPad->Divide(2, 1);
   for (unsigned int ring = 1; ring <= n_rings; ring++) {
-    PixelROCMapHelper::dress_plot(bottomPad, h_fpix_maps[ring - 1].get(), 0, ring, 1);
+    PixelROCMapHelper::dress_plot(bottomPad, h_fpix_maps[ring - 1].get(), 0, ring, 1, found == std::string::npos);
   }
 }
 
@@ -661,7 +689,13 @@ void Phase1PixelROCMaps::drawMaps(TCanvas& canvas, const std::string& text)
   topPad->cd();
   auto ltx = TLatex();
   ltx.SetTextFont(62);
-  ltx.SetTextSize(1.1);
+
+  std::size_t found = text.find("Delta");
+  if (found != std::string::npos) {
+    ltx.SetTextSize(0.7);
+  } else {
+    ltx.SetTextSize(1.);
+  }
   ltx.DrawLatexNDC(0.02, 0.2, text.c_str());
 
   canvas.cd();
@@ -672,7 +706,7 @@ void Phase1PixelROCMaps::drawMaps(TCanvas& canvas, const std::string& text)
 
   // dress the plots
   for (unsigned int lay = 1; lay <= n_layers; lay++) {
-    PixelROCMapHelper::dress_plot(bottomPad, h_bpix_maps[lay - 1].get(), lay, 0, 1);
+    PixelROCMapHelper::dress_plot(bottomPad, h_bpix_maps[lay - 1].get(), lay, 0, 1, found == std::string::npos);
   }
 
   bottomPad->Update();
@@ -680,6 +714,7 @@ void Phase1PixelROCMaps::drawMaps(TCanvas& canvas, const std::string& text)
   bottomPad->cd();
 
   for (unsigned int ring = 1; ring <= n_rings; ring++) {
-    PixelROCMapHelper::dress_plot(bottomPad, h_fpix_maps[ring - 1].get(), 0, n_layers + ring, 1);
+    PixelROCMapHelper::dress_plot(
+        bottomPad, h_fpix_maps[ring - 1].get(), 0, n_layers + ring, 1, found == std::string::npos);
   }
 }
