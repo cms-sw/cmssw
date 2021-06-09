@@ -30,6 +30,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
 namespace {
@@ -128,7 +129,9 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
 }
 
 std::unique_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord) {
-  auto quality = std::make_unique<SiStripQuality>();
+  edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
+  SiStripDetInfoFileReader reader(path.fullPath());
+  auto quality = std::make_unique<SiStripQuality>(reader.info());
   edm::LogInfo("SiStripQualityESProducer") << "produce called";
 
   // Set the debug output level

@@ -10,6 +10,7 @@
 </library>
 
 <bin name="TestCalibFormatsSiStripObjects" file="UnitTests/TestSiStripGain.cc, UnitTests/TestSiStripDelay.cc, UnitTests/MasterTest.cpp">
+  <use name="CalibTracker/SiStripCommon"/>
   <use name="CalibFormats/SiStripObjects"/>
   <use name="cppunit"/>
 </bin>

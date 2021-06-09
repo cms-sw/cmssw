@@ -13,21 +13,11 @@ using namespace cms;
 using namespace std;
 
 SiStripDetInfoFileReader& SiStripDetInfoFileReader::operator=(const SiStripDetInfoFileReader& copy) {
-  detData_ = copy.detData_;
-  detIds_ = copy.detIds_;
+  info_ = copy.info_;
   return *this;
 }
 
-SiStripDetInfoFileReader::SiStripDetInfoFileReader(const edm::ParameterSet& pset, const edm::ActivityRegistry& ar) {
-  edm::FileInPath fp(
-      pset.getUntrackedParameter<std::string>("filePath", "CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
-  reader(fp.fullPath());
-}
-
-SiStripDetInfoFileReader::SiStripDetInfoFileReader(const SiStripDetInfoFileReader& copy) {
-  detData_ = copy.detData_;
-  detIds_ = copy.detIds_;
-}
+SiStripDetInfoFileReader::SiStripDetInfoFileReader(const SiStripDetInfoFileReader& copy) : info_{copy.info_} {}
 
 SiStripDetInfoFileReader::SiStripDetInfoFileReader(std::string filePath) { reader(filePath); }
 
@@ -38,8 +28,8 @@ void SiStripDetInfoFileReader::reader(std::string filePath) {
 
   edm::LogInfo("SiStripDetInfoFileReader") << "filePath " << filePath << std::endl;
 
-  detData_.clear();
-  detIds_.clear();
+  std::map<uint32_t, DetInfo> detData_;
+  std::vector<uint32_t> detIds_;
 
   inputFile_.open(filePath.c_str());
 
@@ -88,6 +78,7 @@ void SiStripDetInfoFileReader::reader(std::string filePath) {
     return;
   }
 
+  info_ = SiStripDetInfo(detData_, detIds_);
   //   int i=0;
   //   for(std::map<uint32_t, std::pair<unsigned short, double> >::iterator it =detData_.begin(); it!=detData_.end(); it++ ) {
   //     std::cout<< it->first << " " << (it->second).first << " " << (it->second).second<<endl;
@@ -97,33 +88,3 @@ void SiStripDetInfoFileReader::reader(std::string filePath) {
 }
 
 SiStripDetInfoFileReader::~SiStripDetInfoFileReader() {}
-
-const std::pair<unsigned short, double> SiStripDetInfoFileReader::getNumberOfApvsAndStripLength(uint32_t detId) const {
-  std::map<uint32_t, DetInfo>::const_iterator it = detData_.find(detId);
-
-  if (it != detData_.end()) {
-    return std::pair<unsigned short, double>(it->second.nApvs, it->second.stripLength);
-
-  } else {
-    std::pair<unsigned short, double> defaultValue(0, 0.);
-    edm::LogWarning(
-        "SiStripDetInfoFileReader::getNumberOfApvsAndStripLength - Unable to find requested detid. Returning invalid "
-        "data ")
-        << endl;
-    return defaultValue;
-  }
-}
-
-const float& SiStripDetInfoFileReader::getThickness(uint32_t detId) const {
-  std::map<uint32_t, DetInfo>::const_iterator it = detData_.find(detId);
-
-  if (it != detData_.end()) {
-    return it->second.thickness;
-
-  } else {
-    static const float defaultValue = 0;
-    edm::LogWarning("SiStripDetInfoFileReader::getThickness - Unable to find requested detid. Returning invalid data ")
-        << endl;
-    return defaultValue;
-  }
-}

@@ -15,13 +15,14 @@
 
 //Insert here the include to the algos
 #include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig),
       dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel", "")),
       conf_(iConfig),
-      fp_(iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
+      fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))),
       Cluster_src_(iConfig.getParameter<edm::InputTag>("Cluster_src")),
       Track_src_(iConfig.getUntrackedParameter<edm::InputTag>("Track_src")),
       tracksCollection_in_EventTree(iConfig.getUntrackedParameter<bool>("RemoveTrackClusters", false)),
@@ -53,7 +54,10 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifier::getNewObject(
     theIdentifier.setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries", 100));
     theIdentifier.setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip", 5));
 
-    SiStripQuality* qobj = new SiStripQuality();
+    edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
+    SiStripDetInfoFileReader reader(path.fullPath());
+
+    SiStripQuality* qobj = new SiStripQuality(reader.info());
     theIdentifier.extractBadStrips(qobj, ClusterPositionHistoMap, stripQuality_);
 
     edm::LogInfo("SiStripQualityHotStripIdentifier")

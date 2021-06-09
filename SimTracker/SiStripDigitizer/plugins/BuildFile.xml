@@ -8,5 +8,6 @@
   <use name="SimGeneral/HepPDTRecord"/>
   <use name="SimGeneral/MixingModule"/>
   <use name="SimGeneral/PreMixingModule"/>
+  <use name="Geometry/TrackerNumberingBuilder"/>
   <flags EDM_PLUGIN="1"/>
 </library>
