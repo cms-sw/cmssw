@@ -66,57 +66,63 @@
  * Sequence of Global Parameters. Add new line or edit existing in form:
  * (( type (C++), name (upper case), default value, "description" )) \
  */
-#define CONFIG_PARAMETERS_SEQ                                                                                           \
-                                                                                                                        \
-  ((bool, PROCESS_DDU, true, "enter DDU (and latter Chamber) sections (EventProcessor flag)"))(                         \
-      (bool, PROCESS_CSC, true, "enter Chamber section (EventProcessor flag)"))(                                        \
-      (bool, PROCESS_EFF_HISTOS, true, "calculate efficiency histograms (Dispatcher flag)"))(                           \
-      (bool, PROCESS_EFF_PARAMETERS, true, "calculate efficiency parameters (EventProcessor flag)"))(                   \
-      (bool, BINCHECKER_CRC_ALCT, false, "check ALCT CRC (CSCDCCExaminer flag)"))(                                      \
-      (bool, BINCHECKER_CRC_CLCT, false, "check CLCT CRC (CSCDCCExaminer flag)"))(                                      \
-      (bool, BINCHECKER_CRC_CFEB, false, "check CFEB CRC (CSCDCCExaminer flag)"))(                                      \
-      (bool, BINCHECKER_MODE_DDU, true, "set DDU mode (CSCDCCExaminer flag)"))(                                         \
-      (bool, BINCHECKER_OUTPUT, false, "print 1 and 2 output (CSCDCCExaminer flag)"))(                                  \
-      (bool,                                                                                                            \
-       FRAEFF_AUTO_UPDATE,                                                                                              \
-       false,                                                                                                           \
-       "start fractional and efficiency histogram update automatically (Dispatcher flag)"))(                            \
-      (bool,                                                                                                            \
-       FRAEFF_SEPARATE_THREAD,                                                                                          \
-       false,                                                                                                           \
-       "start fractional and efficiency histogram update on separate thread (EventProcessor flag)"))(                   \
-      (bool, PRINT_STATS_ON_EXIT, true, "print statistics on exit (destruction)"))(                                     \
-      (bool, IN_FULL_STANDBY, true, "full detector is in standby mode from the beginning of the run"))(                 \
-      (std::string, BOOKING_XML_FILE, "", "histogram description (booking) file in XML format (Collection)"))(          \
-      (std::string, FOLDER_EMU, "", "root file folder name to be used for EMU histograms (EventProcessor)"))(           \
-      (std::string, FOLDER_DDU, "", "root file folder name to be used for DDU histograms (EventProcessor)"))(           \
-      (std::string, FOLDER_CSC, "", "root file folder name to be used for CSC histograms (EventProcessor)"))(           \
-      (std::string, FOLDER_PAR, "", "root file folder name to be used for parameters (EventProcessor)"))((              \
-      unsigned int, DDU_CHECK_MASK, 0xFFFFFFFF, "mask for cumulative EmuFileReader DDU error flags (EventProcessor)"))( \
-      (unsigned int, DDU_BINCHECK_MASK, 0x02080016, "mask for DDU level examiner errors (CSCDCCExaminer)"))(            \
-      (unsigned int, BINCHECK_MASK, 0xFFFFFFFF, "mask for chamber level examiner errors (CSCDCCExaminer)"))(            \
-      (unsigned int,                                                                                                    \
-       FRAEFF_AUTO_UPDATE_START,                                                                                        \
-       5,                                                                                                               \
-       "event number to start automatic fractional and efficiency histogram updates from (Dispatcer)"))(                \
-      (unsigned int,                                                                                                    \
-       FRAEFF_AUTO_UPDATE_FREQ,                                                                                         \
-       1,                                                                                                               \
-       "frequency in events to perform automatic fractional and efficiency histogram updates (Dispatcher)"))((          \
-      double, EFF_COLD_THRESHOLD, 0.1, "threshold in fraction to check for cold (not reporting) HW (EventProcessor)"))( \
-      (double, EFF_COLD_SIGFAIL, 5.0, "statistical significance for cold (not reporting) HW (EventProcessor)"))(        \
-      (double, EFF_HOT_THRESHOLD, 0.1, "threshold in fraction to check for hot HW (EventProcessor)"))(                  \
-      (double, EFF_HOT_SIGFAIL, 5.0, "statistical significance for hot HW (EventProcessor)"))(                          \
-      (double, EFF_ERR_THRESHOLD, 0.1, "threshold in fraction to check for errors in HW (EventProcessor)"))(            \
-      (double, EFF_ERR_SIGFAIL, 5.0, "statistical significance for errors in HW (EventProcessor)"))(                    \
-      (double,                                                                                                          \
-       EFF_NODATA_THRESHOLD,                                                                                            \
-       0.1,                                                                                                             \
-       "threshold in fraction to check for not reporting elements in HW (EventProcessor)"))(                            \
-      (double, EFF_NODATA_SIGFAIL, 5.0, "statistical significance for not reportingelements in HW (EventProcessor)"))(  \
-      (unsigned int, EVENTS_ECHO, 1000, "frequency in events to print echo message (EventProcessor)"))(                 \
-      (std::string, FOLDER_FED, "", "root file folder name to be used for FED histograms (EventProcessor)"))(           \
-      (bool, PREBOOK_ALL_HISTOS, true, "pre-book all FED, DDU, CSC histogragrams before run begins"))
+#define CONFIG_PARAMETERS_SEQ                                                                                          \
+                                                                                                                       \
+  ((bool, PROCESS_DDU, true, "enter DDU (and latter Chamber) sections (EventProcessor flag)"))(                        \
+      (bool, PROCESS_CSC, true, "enter Chamber section (EventProcessor flag)"))(                                       \
+      (bool, PROCESS_EFF_HISTOS, true, "calculate efficiency histograms (Dispatcher flag)"))((                         \
+      bool, PROCESS_EFF_PARAMETERS, true, "calculate efficiency parameters (EventProcessor flag)"))((                  \
+      bool, BINCHECKER_CRC_ALCT, false, "check ALCT CRC (CSCDCCExaminer flag)"))((                                     \
+      bool, BINCHECKER_CRC_CLCT, false, "check CLCT CRC (CSCDCCExaminer flag)"))((                                     \
+      bool, BINCHECKER_CRC_CFEB, false, "check CFEB CRC (CSCDCCExaminer flag)"))((                                     \
+      bool, BINCHECKER_MODE_DDU, true, "set DDU mode (CSCDCCExaminer flag)"))((                                        \
+      bool, BINCHECKER_OUTPUT, false, "print 1 and 2 output (CSCDCCExaminer flag)"))((                                 \
+      bool,                                                                                                            \
+      FRAEFF_AUTO_UPDATE,                                                                                              \
+      false,                                                                                                           \
+      "start fractional and efficiency histogram update automatically (Dispatcher flag)"))((                           \
+      bool,                                                                                                            \
+      FRAEFF_SEPARATE_THREAD,                                                                                          \
+      false,                                                                                                           \
+      "start fractional and efficiency histogram update on separate thread (EventProcessor flag)"))((                  \
+      bool, PRINT_STATS_ON_EXIT, true, "print statistics on exit (destruction)"))((                                    \
+      bool, IN_FULL_STANDBY, true, "full detector is in standby mode from the beginning of the run"))((                \
+      std::string, BOOKING_XML_FILE, "", "histogram description (booking) file in XML format (Collection)"))((         \
+      std::string, FOLDER_EMU, "", "root file folder name to be used for EMU histograms (EventProcessor)"))((          \
+      std::string, FOLDER_DDU, "", "root file folder name to be used for DDU histograms (EventProcessor)"))((          \
+      std::string, FOLDER_CSC, "", "root file folder name to be used for CSC histograms (EventProcessor)"))((          \
+      std::string, FOLDER_PAR, "", "root file folder name to be used for parameters (EventProcessor)"))((              \
+      unsigned int,                                                                                                    \
+      DDU_CHECK_MASK,                                                                                                  \
+      0xFFFFFFFF,                                                                                                      \
+      "mask for cumulative EmuFileReader DDU error flags (EventProcessor)"))((                                         \
+      unsigned int, DDU_BINCHECK_MASK, 0x02080016, "mask for DDU level examiner errors (CSCDCCExaminer)"))((           \
+      unsigned int, BINCHECK_MASK, 0xFFFFFFFF, "mask for chamber level examiner errors (CSCDCCExaminer)"))((           \
+      unsigned int,                                                                                                    \
+      FRAEFF_AUTO_UPDATE_START,                                                                                        \
+      5,                                                                                                               \
+      "event number to start automatic fractional and efficiency histogram updates from (Dispatcer)"))((               \
+      unsigned int,                                                                                                    \
+      FRAEFF_AUTO_UPDATE_FREQ,                                                                                         \
+      1,                                                                                                               \
+      "frequency in events to perform automatic fractional and efficiency histogram updates (Dispatcher)"))((          \
+      double,                                                                                                          \
+      EFF_COLD_THRESHOLD,                                                                                              \
+      0.1,                                                                                                             \
+      "threshold in fraction to check for cold (not reporting) HW (EventProcessor)"))((                                \
+      double, EFF_COLD_SIGFAIL, 5.0, "statistical significance for cold (not reporting) HW (EventProcessor)"))((       \
+      double, EFF_HOT_THRESHOLD, 0.1, "threshold in fraction to check for hot HW (EventProcessor)"))((                 \
+      double, EFF_HOT_SIGFAIL, 5.0, "statistical significance for hot HW (EventProcessor)"))((                         \
+      double, EFF_ERR_THRESHOLD, 0.1, "threshold in fraction to check for errors in HW (EventProcessor)"))((           \
+      double, EFF_ERR_SIGFAIL, 5.0, "statistical significance for errors in HW (EventProcessor)"))((                   \
+      double,                                                                                                          \
+      EFF_NODATA_THRESHOLD,                                                                                            \
+      0.1,                                                                                                             \
+      "threshold in fraction to check for not reporting elements in HW (EventProcessor)"))((                           \
+      double, EFF_NODATA_SIGFAIL, 5.0, "statistical significance for not reportingelements in HW (EventProcessor)"))(( \
+      unsigned int, EVENTS_ECHO, 1000, "frequency in events to print echo message (EventProcessor)"))((                \
+      std::string, FOLDER_FED, "", "root file folder name to be used for FED histograms (EventProcessor)"))((          \
+      bool, PREBOOK_ALL_HISTOS, true, "pre-book all FED, DDU, CSC histogragrams before run begins"))
 
 /**
  * Global Parameter Manipulation macros.
@@ -151,7 +157,7 @@
   BOOST_PP_CAT(set, BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem))          \
   (ps.getUntrackedParameter<BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 0, elem)>( \
       BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem)),    \
-      BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 2, elem)));
+                         BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 2, elem)));
 
 #endif
 
