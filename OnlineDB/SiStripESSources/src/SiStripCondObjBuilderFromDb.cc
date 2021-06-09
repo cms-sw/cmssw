@@ -875,7 +875,7 @@ void SiStripCondObjBuilderFromDb::buildFEDRelatedObjects(SiStripConfigDb* const 
   pedestals_ = new SiStripPedestals();
   noises_ = new SiStripNoises();
   threshold_ = new SiStripThreshold();
-  quality_ = new SiStripQuality();
+  quality_ = new SiStripQuality(m_reader->info());
 
   i_trackercon detids_end = tc.end();
 

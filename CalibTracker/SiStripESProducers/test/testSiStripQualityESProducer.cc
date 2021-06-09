@@ -48,12 +48,12 @@ void testSiStripQualityESProducer::analyze(const edm::Event& e, const edm::Event
     edm::LogInfo("testSiStripQualityESProducer")
         << canvas << "[testSiStripQualityESProducer::analyze] Print difference (First - Second) SiStripQuality Rcd"
         << canvas << std::endl;
-    const SiStripQuality& tmp1 = *SiStripQualityESH_ - *twoSiStripQualityESH_;
+    const SiStripQuality& tmp1 = SiStripQualityESH_->difference(*twoSiStripQualityESH_);
     printObject(&tmp1);
     edm::LogInfo("testSiStripQualityESProducer")
         << canvas << "[testSiStripQualityESProducer::analyze] Print difference (Second - First) SiStripQuality Rcd"
         << canvas << std::endl;
-    const SiStripQuality& tmp2 = *twoSiStripQualityESH_ - *SiStripQualityESH_;
+    const SiStripQuality& tmp2 = twoSiStripQualityESH_->difference(*SiStripQualityESH_);
     printObject(&tmp2);
   }
 
@@ -65,12 +65,12 @@ void testSiStripQualityESProducer::analyze(const edm::Event& e, const edm::Event
     edm::LogInfo("testSiStripQualityESProducer")
         << canvas << "[testSiStripQualityESProducer::analyze] Print difference (Current - Previous) SiStripQuality Rcd"
         << canvas << std::endl;
-    const SiStripQuality& tmp1 = *SiStripQualityESH_ - *m_Quality_;
+    const SiStripQuality& tmp1 = SiStripQualityESH_->difference(*m_Quality_);
     printObject(&tmp1);
     edm::LogInfo("testSiStripQualityESProducer")
         << canvas << "[testSiStripQualityESProducer::analyze] Print difference (Previous - Current) SiStripQuality Rcd"
         << canvas << std::endl;
-    const SiStripQuality& tmp2 = *m_Quality_ - *SiStripQualityESH_;
+    const SiStripQuality& tmp2 = m_Quality_->difference(*SiStripQualityESH_);
     printObject(&tmp2);
   }
 

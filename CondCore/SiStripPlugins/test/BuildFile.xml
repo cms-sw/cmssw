@@ -4,5 +4,6 @@
 <use name="CalibTracker/StandaloneTrackerTopology"/>
 <use name="roothistpainter"/>
 <use name="DQM/TrackerRemapper"/>
+<use name="CalibTracker/SiStripCommon"/>
 <bin file="testSiStripPayloadInspector.cpp" name="testSiStripPayloadInspector">
 </bin>
