@@ -42,9 +42,10 @@ namespace dqmoffline {
       MonitorElement *den = igetter.get(denominatorName);
 
       if (!num || !den) {
-        edm::LogWarning("L1TEfficiencyPlotHandler")
-            << (!num && !den ? numeratorName + " && " + denominatorName : !num ? numeratorName : denominatorName)
-            << " not gettable. Quitting booking" << endl;
+        edm::LogWarning("L1TEfficiencyPlotHandler") << (!num && !den ? numeratorName + " && " + denominatorName
+                                                        : !num       ? numeratorName
+                                                                     : denominatorName)
+                                                    << " not gettable. Quitting booking" << endl;
         return;
       }
 
@@ -52,9 +53,10 @@ namespace dqmoffline {
       TH1 *denH = den->getTH1();
 
       if (!numH || !denH) {
-        edm::LogWarning("L1TEfficiencyPlotHandler")
-            << (!numH && !denH ? numeratorName + " && " + denominatorName : !num ? numeratorName : denominatorName)
-            << " is not TH1F. Quitting booking" << endl;
+        edm::LogWarning("L1TEfficiencyPlotHandler") << (!numH && !denH ? numeratorName + " && " + denominatorName
+                                                        : !num         ? numeratorName
+                                                                       : denominatorName)
+                                                    << " is not TH1F. Quitting booking" << endl;
 
         return;
       }
