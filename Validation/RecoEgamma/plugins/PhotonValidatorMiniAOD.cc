@@ -43,9 +43,7 @@ PhotonValidatorMiniAOD::PhotonValidatorMiniAOD(const edm::ParameterSet &iConfig)
 
 PhotonValidatorMiniAOD::~PhotonValidatorMiniAOD() {}
 
-void PhotonValidatorMiniAOD::bookHistograms(DQMStore::IBooker &iBooker,
-                                            edm::Run const &run,
-                                            edm::EventSetup const &) {
+void PhotonValidatorMiniAOD::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &run, edm::EventSetup const &) {
   double eMin = parameters_.getParameter<double>("eMin");
   double eMax = parameters_.getParameter<double>("eMax");
   int eBin = parameters_.getParameter<int>("eBin");
