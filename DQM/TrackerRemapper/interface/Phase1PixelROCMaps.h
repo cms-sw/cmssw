@@ -163,7 +163,7 @@ protected:
   //============================================================================
   // Taken from pixel naming classes
   // BmO (-z-x) = 1, BmI (-z+x) = 2 , BpO (+z-x) = 3 , BpI (+z+x) = 4
-  int quadrant(const DetId& detid, bool phase_) {
+  inline int quadrant(const DetId& detid, bool phase_) {
     if (detid.subdetId() == PixelSubdetector::PixelBarrel) {
       return PixelBarrelName(detid, &m_trackerTopo, phase_).shell();
     } else {
@@ -174,7 +174,7 @@ protected:
   //============================================================================
   // Online ladder convention taken from pixel naming class for barrel
   // Apply sign convention (- sign for BmO and BpO)
-  int signed_ladder(const DetId& detid, bool phase_) {
+  inline int signed_ladder(const DetId& detid, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelBarrel)
       return -9999;
     int signed_ladder = PixelBarrelName(detid, &m_trackerTopo, phase_).ladderName();
@@ -186,7 +186,7 @@ protected:
   //============================================================================
   // Online mdoule convention taken from pixel naming class for barrel
   // Apply sign convention (- sign for BmO and BmI)
-  int signed_module(const DetId& detid, bool phase_) {
+  inline int signed_module(const DetId& detid, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelBarrel)
       return -9999;
     int signed_module = PixelBarrelName(detid, &m_trackerTopo, phase_).moduleName();
@@ -202,7 +202,7 @@ protected:
   //   Panel 1 plq 1-2, Panel 2, plq 1   = Ring 1
   //   Panel 1 plq 3-4, Panel 2, plq 2-3 = Ring 2
   // Phase 1: Using pixel naming class for endcap
-  int ring(const DetId& detid, bool phase_) {
+  inline int ring(const DetId& detid, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelEndcap)
       return -9999;
     int ring = -9999;
@@ -217,7 +217,7 @@ protected:
   //============================================================================
   // Online blade convention taken from pixel naming class for endcap
   // Apply sign convention (- sign for BmO and BpO)
-  int signed_blade(const DetId& detid, bool phase_) {
+  inline int signed_blade(const DetId& detid, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelEndcap)
       return -9999;
     int signed_blade = PixelEndcapName(detid, &m_trackerTopo, phase_).bladeName();
@@ -227,7 +227,7 @@ protected:
   }
 
   //============================================================================
-  int signed_blade_panel(const DetId& detid, bool phase_) {
+  inline int signed_blade_panel(const DetId& detid, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelEndcap)
       return -9999;
     int signed_blade_panel = signed_blade(detid, phase_) + (m_trackerTopo.pxfPanel(detid) - 1);
@@ -237,7 +237,7 @@ protected:
   //============================================================================
   // Online disk convention
   // Apply sign convention (- sign for BmO and BmI)
-  int signed_disk(const DetId& detid, bool phase_) {
+  inline int signed_disk(const DetId& detid, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelEndcap)
       return -9999;
     int signed_disk = m_trackerTopo.pxfDisk(DetId(detid));
@@ -248,7 +248,7 @@ protected:
 
   //============================================================================
   // Determines if the BPix ldder is inner or outer
-  bool isBPixOuterLadder(const DetId& detid, bool isPhase0) {
+  inline bool isBPixOuterLadder(const DetId& detid, bool isPhase0) {
     bool isOuter = false;
     int layer = m_trackerTopo.pxbLayer(detid.rawId());
     bool odd_ladder = m_trackerTopo.pxbLadder(detid.rawId()) % 2;
