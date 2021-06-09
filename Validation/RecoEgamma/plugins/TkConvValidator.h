@@ -19,6 +19,9 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 //
 //DQM services
@@ -106,6 +109,11 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociator_Token_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
 
   std::string dqmpath_;
 
