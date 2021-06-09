@@ -57,14 +57,14 @@ PhotonPostprocessing::~PhotonPostprocessing() {}
 
 void PhotonPostprocessing::beginJob() {}
 
-void PhotonPostprocessing::analyze(const edm::Event& e, const edm::EventSetup& esup) {}
+void PhotonPostprocessing::analyze(const edm::Event& e, const edm::EventSetup&) {}
 
 void PhotonPostprocessing::endJob() {
   if (standAlone_)
     runPostprocessing();
 }
 
-void PhotonPostprocessing::endRun(const edm::Run& run, const edm::EventSetup& setup) {
+void PhotonPostprocessing::endRun(const edm::Run& run, const edm::EventSetup&) {
   if (!standAlone_)
     runPostprocessing();
 }

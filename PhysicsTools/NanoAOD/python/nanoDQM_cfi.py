@@ -854,5 +854,16 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('rawMVAoldDMdR032017v2', 'rawMVAoldDMdR032017v2', 20, -1, 1, 'byIsolationMVArun2017v2DBoldDMdR0p3wLT raw output discriminator (2017v2)'),
             )
         ),
+	L1PreFiringWeight = cms.PSet(
+		sels = cms.PSet(),
+		plots = cms.VPSet(
+			Plot1D('Nom', 'Nom', 21, 0.8, 1.01, 'L1 prefiring weight nominal'),
+			Plot1D('Up', 'Up', 21, 0.8, 1.01, 'L1 prefiring weight uncertainy up'),
+			Plot1D('Dn', 'Dn', 21, 0.8, 1.01, 'L1 prefiring weight uncertainty down'),
+			Plot1D('ECAL_Nom', 'ECAL_Nom', 21, 0.8, 1.01, 'L1 prefiring weight for ECAL objects nominal'),
+			Plot1D('Muon_Nom', 'Muon_Nom', 21, 0.8, 1.01, 'L1 prefiring weight for muons nominal'),
+		)
+
+	),
     )
 )

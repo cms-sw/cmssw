@@ -30,8 +30,6 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 //
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 //
@@ -73,7 +71,6 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 
@@ -96,7 +93,11 @@
 
 using namespace std;
 
-TkConvValidator::TkConvValidator(const edm::ParameterSet& pset) {
+TkConvValidator::TkConvValidator(const edm::ParameterSet& pset)
+    : magneticFieldToken_{esConsumes<edm::Transition::BeginRun>()},
+      caloGeometryToken_{esConsumes()},
+      transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
+      trackerGeometryToken_{esConsumes()} {
   fName_ = pset.getUntrackedParameter<std::string>("Name");
   verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
   parameters_ = pset;
@@ -143,7 +144,7 @@ TkConvValidator::TkConvValidator(const edm::ParameterSet& pset) {
 
 TkConvValidator::~TkConvValidator() {}
 
-void TkConvValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& es) {
+void TkConvValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const&) {
   nEvt_ = 0;
   nEntry_ = 0;
   nRecConv_ = 0;
@@ -1227,14 +1228,12 @@ void TkConvValidator::dqmBeginRun(edm::Run const& r, edm::EventSetup const& theE
   //get magnetic field
   edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field"
                                           << "\n";
-  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
+  theMF_ = theEventSetup.getHandle(magneticFieldToken_);
 
   thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
 }
 
-void TkConvValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
-  delete thePhotonMCTruthFinder_;
-}
+void TkConvValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const&) { delete thePhotonMCTruthFinder_; }
 
 void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) {
   thePhotonMCTruthFinder_->clear();
@@ -1257,11 +1256,10 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   //  std::cout << "TkConvValidator Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
 
   // get the geometry from the event setup:
-  esup.get<CaloGeometryRecord>().get(theCaloGeom_);
+  theCaloGeom_ = esup.getHandle(caloGeometryToken_);
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
-  edm::ESHandle<TransientTrackBuilder> theTTB;
-  esup.get<TransientTrackRecord>().get("TransientTrackBuilder", theTTB);
+  auto theTTB = esup.getHandle(transientTrackBuilderToken_);
 
   ///// Get the recontructed  conversions
   Handle<reco::ConversionCollection> convHandle;
@@ -1311,8 +1309,9 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   const reco::BeamSpot& thebs = *bsHandle.product();
 
   //get tracker geometry for hits positions
-  edm::ESHandle<TrackerGeometry> tracker;
-  esup.get<TrackerDigiGeometryRecord>().get(tracker);
+  //edm::ESHandle<TrackerGeometry> tracker;
+  //esup.get<TrackerDigiGeometryRecord>().get(tracker);
+  auto tracker = esup.getHandle(trackerGeometryToken_);
   const TrackerGeometry* trackerGeom = tracker.product();
 
   //////////////////// Get the MC truth
