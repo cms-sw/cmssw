@@ -28,7 +28,6 @@ private:
   G4double fSafetyFactor;
   G4double fLambdaLimit;
   G4MscStepLimitType fStepLimitType;
-  G4int verbose;
 };
 
 #endif

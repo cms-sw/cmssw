@@ -20,8 +20,6 @@ public:
   void ConstructParticle() override;
   void ConstructProcess() override;
 
-private:
-  G4int verbose;
 };
 
 #endif

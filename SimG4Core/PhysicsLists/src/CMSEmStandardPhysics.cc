@@ -43,10 +43,11 @@
 #include <string>
 
 CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p)
-    : G4VPhysicsConstructor("CMSEmStandard_emm"), verbose(ver) {
+    : G4VPhysicsConstructor("CMSEmStandard_emm") {
+  SetVerboseLevel(ver);
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
-  param->SetVerbose(verbose);
+  param->SetVerbose(ver);
   param->SetApplyCuts(true);
   param->SetStepFunction(0.8, 1 * CLHEP::mm);
   param->SetMscRangeFactor(0.2);
@@ -75,7 +76,7 @@ void CMSEmStandardPhysics::ConstructParticle() {
 }
 
 void CMSEmStandardPhysics::ConstructProcess() {
-  if (verbose > 0) {
+  if (verboseLevel > 0) {
     edm::LogVerbatim("PhysicsList") << "### " << GetPhysicsName() << " Construct EM Processes";
   }
 
