@@ -88,10 +88,10 @@ rocBins Phase1PixelROCMaps::maskedBarrelRocsToBins(DetCoordinates coord, std::bi
     if (myRocs.test(idx)) {
       //////////////////////////////////////////////////////////////////////////////////////
       //		                        |					  //
-      // In BPix Layer1 and module>0 in L2,3,4  |   In BPix Layer 2,3,4 module > 0	  //
+      // In BPix Layer1 & module > 0 in L2,3,4  |   In BPix Layer 2,3,4 module < 0        //
       //                                        |					  //
       // ROCs are ordered in the following      |   ROCs are ordered in the following     //
-      // fashion for unplipped modules   	|   fashion for unplipped modules         //
+      // fashion for unflipped modules          |   fashion for unflipped modules         //
       //				        |  				          //
       // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
       // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
@@ -185,7 +185,7 @@ rocBins Phase1PixelROCMaps::maskedForwardRocsToBins(DetCoordinates coord, std::b
       // In FPix + (Disk 1,2,3)                 |   In FPix - (Disk -1,-2,-3)	          //
       //                                        |					  //
       // ROCs are ordered in the following      |   ROCs are ordered in the following     //
-      // fashion for unplipped modules 	        |   fashion for unplipped modules         //
+      // fashion for unflipped modules          |   fashion for unflipped modules         //
       //					|  				          //
       // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
       // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
