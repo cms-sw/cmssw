@@ -94,8 +94,8 @@ private:
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> > > barrelEcalHits_token_;
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> > > endcapEcalHits_token_;
 
-  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> CaloGeometryToken_;
-  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> CaloTopologyToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
 
   double minPhoEtCut_;
 
