@@ -18,8 +18,7 @@
 using namespace std;
 
 PiZeroAnalyzer::PiZeroAnalyzer(const edm::ParameterSet& pset)
-  : caloGeometryToken_{esConsumes()},
-    caloTopologyToken_{esConsumes()} {
+    : caloGeometryToken_{esConsumes()}, caloTopologyToken_{esConsumes()} {
   fName_ = pset.getUntrackedParameter<std::string>("Name");
   prescaleFactor_ = pset.getUntrackedParameter<int>("prescaleFactor", 1);
 
