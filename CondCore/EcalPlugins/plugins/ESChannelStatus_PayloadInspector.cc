@@ -21,9 +21,9 @@ namespace {
   enum { kESChannels = 137216 };
   enum { IX_MIN = 1, IY_MIN = 1, IX_MAX = 40, IY_MAX = 40 };  // endcaps lower and upper bounds on x and y
 
-  /*********************************************************
-       2d plot of ES channel status of 1 IOV
-  *********************************************************/
+  /********************************************
+      2d plot of ES channel status of 1 IOV
+  *********************************************/
   class ESChannelStatusPlot : public cond::payloadInspector::PlotImage<ESChannelStatus> {
   public:
     ESChannelStatusPlot() : cond::payloadInspector::PlotImage<ESChannelStatus>("ES channel status") {
@@ -117,9 +117,9 @@ namespace {
     }  // fill method
   };
 
-  /************************************************************************
-       2d plot of ES channel status difference between 2 IOVs
-  ************************************************************************/
+  /*************************************************************
+      2d plot of ES channel status difference between 2 IOVs
+  **************************************************************/
   template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
   class ESChannelStatusDiffBase : public cond::payloadInspector::PlotImage<ESChannelStatus, nIOVs, ntags> {
   public:
@@ -200,15 +200,19 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       int len = l_tagname[0].length() + l_tagname[1].length();
-      if (ntags == 2 && len < 60) {
-        t1.SetTextSize(0.03);
-        t1.DrawLatex(
-            0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+      if (ntags == 2) {
+        if (len < 60) {
+          t1.SetTextSize(0.03);
+          t1.DrawLatex(
+              0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+        } else {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5, 0.96, Form("ES Channel Status, IOV %i - %i", run[1], run[0]));
+        }
       } else {
         t1.SetTextSize(0.05);
-        t1.DrawLatex(0.5, 0.96, Form("ES Channel Status, IOV %i - %i", run[1], run[0]));
+        t1.DrawLatex(0.5, 0.96, Form("%s IOV %i - %i", l_tagname[0].c_str(), run[1], run[0]));
       }
-      t1.SetTextSize(0.025);
 
       float xmi[2] = {0.0, 0.5};
       float xma[2] = {0.5, 1.0};

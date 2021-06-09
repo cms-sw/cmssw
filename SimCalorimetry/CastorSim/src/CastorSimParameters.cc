@@ -6,6 +6,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimCalorimetry/CastorSim/src/CastorSimParameters.h"
+#include <cassert>
 
 CastorSimParameters::CastorSimParameters(double simHitToPhotoelectrons,
                                          double photoelectronsToAnalog,

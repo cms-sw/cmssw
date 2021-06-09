@@ -122,24 +122,44 @@ namespace {
   };
 
   /*********************************************************
- 2d plot of ECAL Alignment difference between 2 IOVs
- **********************************************************/
-  class EcalAlignmentDiff : public cond::payloadInspector::PlotImage<Alignments> {
+      2d plot of ECAL Alignment difference between 2 IOVs
+  **********************************************************/
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalAlignmentDiffBase : public cond::payloadInspector::PlotImage<Alignments, nIOVs, ntags> {
   public:
-    EcalAlignmentDiff() : cond::payloadInspector::PlotImage<Alignments>("ECAL Alignment difference") {
-      setSingleIov(false);
-    }
+    EcalAlignmentDiffBase()
+        : cond::payloadInspector::PlotImage<Alignments, nIOVs, ntags>("ECAL Alignment difference") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      unsigned int run[2], irun = 0;
+    bool fill() override {
+      unsigned int run[2];
       float val[6][36];
       TH2F* align = new TH2F("", "", 1, 0., 1., 1, 0., 1.);  // pseudo creation
       std::string subdet;
       int NbRows = 0;
+      std::string l_tagname[2];
 
-      for (auto const& iov : iovs) {
-        std::shared_ptr<Alignments> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<Alignments> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
 
         if (payload.get()) {
           NbRows = (*payload).m_align.size();
@@ -190,7 +210,6 @@ namespace {
         }  //  if payload.get()
         else
           return false;
-        irun++;
       }  // loop over IOVs
 
       gStyle->SetPalette(1);
@@ -199,10 +218,16 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
       t1.SetTextColor(2);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal %s Alignment, IOV %i - %i", subdet.c_str(), run[1], run[0]));
-
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      if (ntags == 2 && len < 58) {
+        t1.SetTextSize(0.025);
+        t1.DrawLatex(
+            0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("Ecal %s Alignment, IOV %i - %i", subdet.c_str(), run[1], run[0]));
+      }
       TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
       pad->Draw();
       pad->cd();
@@ -228,16 +253,19 @@ namespace {
       align->GetYaxis()->SetTickLength(0.);
       align->GetYaxis()->SetLabelSize(0.);
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalAlignmentDiffBase
+  using EcalAlignmentDiffOneTag = EcalAlignmentDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using EcalAlignmentDiffTwoTags = EcalAlignmentDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(EcalAlignment) {
   PAYLOAD_INSPECTOR_CLASS(EcalAlignmentPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalAlignmentDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalAlignmentDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalAlignmentDiffTwoTags);
 }

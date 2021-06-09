@@ -1,4 +1,3 @@
-
 #ifndef EGAMMAOBJECTS_GBRForest
 #define EGAMMAOBJECTS_GBRForest
 
@@ -19,12 +18,12 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/GBRForest/interface/GBRTree.h"
 
-#include <vector>
 #include <cmath>
+#include <vector>
 
 class GBRForest {
 public:
-  GBRForest();
+  GBRForest() {}
 
   double GetResponse(const float* vector) const;
   double GetGradBoostClassifier(const float* vector) const;
@@ -39,7 +38,7 @@ public:
   const std::vector<GBRTree>& Trees() const { return fTrees; }
 
 protected:
-  double fInitialResponse;
+  double fInitialResponse = 0.0;
   std::vector<GBRTree> fTrees;
 
   COND_SERIALIZABLE;
@@ -48,8 +47,8 @@ protected:
 //_______________________________________________________________________
 inline double GBRForest::GetResponse(const float* vector) const {
   double response = fInitialResponse;
-  for (std::vector<GBRTree>::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
-    response += it->GetResponse(vector);
+  for (auto const& tree : fTrees) {
+    response += tree.GetResponse(vector);
   }
   return response;
 }
@@ -57,7 +56,7 @@ inline double GBRForest::GetResponse(const float* vector) const {
 //_______________________________________________________________________
 inline double GBRForest::GetGradBoostClassifier(const float* vector) const {
   double response = GetResponse(vector);
-  return 2.0 / (1.0 + exp(-2.0 * response)) - 1;  //MVA output between -1 and 1
+  return 2.0 / (1.0 + std::exp(-2.0 * response)) - 1;  //MVA output between -1 and 1
 }
 
 #endif

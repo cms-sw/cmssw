@@ -16,6 +16,8 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <map>
 #include <vector>
 
