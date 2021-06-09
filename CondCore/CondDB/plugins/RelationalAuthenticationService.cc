@@ -16,15 +16,17 @@
 #include <memory>
 #include <sys/stat.h>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include "CoralBase/MessageStream.h"
 
 cond::RelationalAuthenticationService::RelationalAuthenticationService::RelationalAuthenticationService(
     const std::string& key)
     : coral::Service(key), m_authenticationPath(""), m_db(), m_cache(), m_callbackID(0) {
-  boost::function1<void, std::string> cb(boost::bind(
-      &cond::RelationalAuthenticationService::RelationalAuthenticationService::setAuthenticationPath, this, _1));
+  boost::function1<void, std::string> cb(
+      boost::bind(&cond::RelationalAuthenticationService::RelationalAuthenticationService::setAuthenticationPath,
+                  this,
+                  boost::placeholders::_1));
 
   coral::Property* pm = dynamic_cast<coral::Property*>(
       coral::Context::instance().PropertyManager().property(auth::COND_AUTH_PATH_PROPERTY));
