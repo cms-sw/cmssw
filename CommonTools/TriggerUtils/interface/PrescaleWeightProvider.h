@@ -88,6 +88,6 @@ PrescaleWeightProvider::PrescaleWeightProvider(const edm::ParameterSet& config, 
 template <typename T>
 PrescaleWeightProvider::PrescaleWeightProvider(const edm::ParameterSet& config, edm::ConsumesCollector& iC, T& module)
     : PrescaleWeightProvider(config, iC) {
-  hltPrescaleProvider_.reset(new HLTPrescaleProvider(config, iC, module));
+  hltPrescaleProvider_ = std::make_unique<HLTPrescaleProvider>(config, iC, module);
 }
 #endif
