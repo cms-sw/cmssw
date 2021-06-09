@@ -25,17 +25,12 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
-#include <map>
-#include <cstdio>
-#include <cmath>
-#include "Rtypes.h"
 
 class GBRTreeD {
 public:
   GBRTreeD() {}
   template <typename InputTreeT>
   GBRTreeD(const InputTreeT &tree);
-  virtual ~GBRTreeD();
 
   //double GetResponse(const float* vector) const;
   double GetResponse(int termidx) const { return fResponses[termidx]; }
