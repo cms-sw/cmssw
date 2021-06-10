@@ -1055,6 +1055,8 @@ int main(int argc, char* argv[]) {
   descString += " [options] <filename>";
   descString += "\nAllowed options";
   options_description desc(descString);
+
+  // clang-format off
   desc.add_options()(kHelpCommandOpt, "show help message")(kSortCommandOpt, "alphabetially sort EventSetup components")(
       kDependenciesCommandOpt, "print what data each EDProducer is directly dependent upon")(
       kExtendedAncestorsCommandOpt, "print what data each EDProducer is dependent upon including indirect dependences")(
@@ -1070,6 +1072,8 @@ int main(int argc, char* argv[]) {
       kDumpPSetIDCommandOpt,
       value<std::string>(),
       "print the parameter set associated with the parameter set ID string (and print nothing else)");
+  // clang-format on
+
   //we don't want users to see these in the help messages since this
   // name only exists since the parser needs it
   options_description hidden;

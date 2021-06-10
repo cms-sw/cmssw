@@ -33,7 +33,7 @@ namespace edmtest {
   };
 
   AcquireIntStreamProducer::AcquireIntStreamProducer(edm::ParameterSet const& pset)
-      : m_token{edm::Service<test_acquire::WaitingService>{}->getToken()} {
+      : m_token{edm::Service<test_acquire::WaitingService>()->getToken()} {
     for (auto const& tag : pset.getParameter<std::vector<edm::InputTag>>("tags")) {
       m_getTokens.emplace_back(consumes<IntProduct>(tag));
     }

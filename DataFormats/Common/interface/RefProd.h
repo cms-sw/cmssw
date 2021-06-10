@@ -127,7 +127,7 @@ namespace edm {
     EDProductGetter const* productGetter() const { return product_.productGetter(); }
 
     /// Checks if product is in memory.
-    bool hasCache() const { return product_.productPtr() != 0; }
+    bool hasCache() const { return product_.productPtr() != nullptr; }
 
     /// Checks if product is in memory.
     bool hasProductCache() const { return hasCache(); }

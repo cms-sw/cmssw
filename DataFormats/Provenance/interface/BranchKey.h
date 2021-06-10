@@ -36,19 +36,14 @@ namespace edm {
   };
 
   inline bool operator<(BranchKey const& a, BranchKey const& b) {
-    return a.friendlyClassName() < b.friendlyClassName()
-               ? true
-               : a.friendlyClassName() > b.friendlyClassName()
-                     ? false
-                     : a.moduleLabel() < b.moduleLabel()
-                           ? true
-                           : a.moduleLabel() > b.moduleLabel()
-                                 ? false
-                                 : a.productInstanceName() < b.productInstanceName()
-                                       ? true
-                                       : a.productInstanceName() > b.productInstanceName()
-                                             ? false
-                                             : a.processName() < b.processName() ? true : false;
+    return a.friendlyClassName() < b.friendlyClassName()       ? true
+           : a.friendlyClassName() > b.friendlyClassName()     ? false
+           : a.moduleLabel() < b.moduleLabel()                 ? true
+           : a.moduleLabel() > b.moduleLabel()                 ? false
+           : a.productInstanceName() < b.productInstanceName() ? true
+           : a.productInstanceName() > b.productInstanceName() ? false
+           : a.processName() < b.processName()                 ? true
+                                                               : false;
   }
 
   inline bool operator==(BranchKey const& a, BranchKey const& b) { return !(a < b || b < a); }
