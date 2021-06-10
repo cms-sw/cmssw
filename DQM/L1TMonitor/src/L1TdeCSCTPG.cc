@@ -169,21 +169,31 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     // ignore non-ME1/1 chambers when using B904 test-stand data
     if (B904Setup_ and !((*it).first).isME11())
       continue;
+
+    // remove the duplicate CLCTs
+    // these are CLCTs that have the same properties as CLCTs found
+    // before by the emulator, except for the BX, which is off by +1
+    std::vector<CSCCLCTDigi> cleanedemul;
     for (auto clct = range.first; clct != range.second; clct++) {
-      if (clct->isValid()) {
-        chamberHistos[type]["clct_pattern_emul"]->Fill(clct->getPattern());
-        chamberHistos[type]["clct_quality_emul"]->Fill(clct->getQuality());
-        chamberHistos[type]["clct_halfstrip_emul"]->Fill(clct->getKeyStrip());
-        chamberHistos[type]["clct_bend_emul"]->Fill(clct->getBend());
+      if (not isDuplicateCLCT(*clct, cleanedemul))
+        cleanedemul.push_back(*clct);
+    }
+
+    for (const auto& clct : cleanedemul) {
+      if (clct.isValid()) {
+        chamberHistos[type]["clct_pattern_emul"]->Fill(clct.getPattern());
+        chamberHistos[type]["clct_quality_emul"]->Fill(clct.getQuality());
+        chamberHistos[type]["clct_halfstrip_emul"]->Fill(clct.getKeyStrip());
+        chamberHistos[type]["clct_bend_emul"]->Fill(clct.getBend());
         if (isRun3_) {
-          chamberHistos[type]["clct_run3pattern_emul"]->Fill(clct->getRun3Pattern());
-          chamberHistos[type]["clct_quartstrip_emul"]->Fill(clct->getKeyStrip(4));
-          chamberHistos[type]["clct_eighthstrip_emul"]->Fill(clct->getKeyStrip(8));
-          chamberHistos[type]["clct_slope_emul"]->Fill(clct->getSlope());
-          chamberHistos[type]["clct_compcode_emul"]->Fill(clct->getCompCode());
+          chamberHistos[type]["clct_run3pattern_emul"]->Fill(clct.getRun3Pattern());
+          chamberHistos[type]["clct_quartstrip_emul"]->Fill(clct.getKeyStrip(4));
+          chamberHistos[type]["clct_eighthstrip_emul"]->Fill(clct.getKeyStrip(8));
+          chamberHistos[type]["clct_slope_emul"]->Fill(clct.getSlope());
+          chamberHistos[type]["clct_compcode_emul"]->Fill(clct.getCompCode());
           if (B904Setup_) {
-            chamberHistos[type]["clct_quartstripbit_emul"]->Fill(clct->getQuartStripBit());
-            chamberHistos[type]["clct_eighthstripbit_emul"]->Fill(clct->getEighthStripBit());
+            chamberHistos[type]["clct_quartstripbit_emul"]->Fill(clct.getQuartStripBit());
+            chamberHistos[type]["clct_eighthstripbit_emul"]->Fill(clct.getEighthStripBit());
           }
         }
       }
@@ -223,24 +233,86 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     // ignore non-ME1/1 chambers when using B904 test-stand data
     if (B904Setup_ and !((*it).first).isME11())
       continue;
+
+    // remove the duplicate LCTs
+    // these are LCTs that have the same properties as LCTs found
+    // before by the emulator, except for the BX, which is off by +1
+    std::vector<CSCCorrelatedLCTDigi> cleanedemul;
     for (auto lct = range.first; lct != range.second; lct++) {
-      if (lct->isValid()) {
-        chamberHistos[type]["lct_pattern_emul"]->Fill(lct->getPattern());
-        chamberHistos[type]["lct_quality_emul"]->Fill(lct->getQuality());
-        chamberHistos[type]["lct_wiregroup_emul"]->Fill(lct->getKeyWG());
-        chamberHistos[type]["lct_halfstrip_emul"]->Fill(lct->getStrip());
-        chamberHistos[type]["lct_bend_emul"]->Fill(lct->getBend());
+      if (not isDuplicateLCT(*lct, cleanedemul))
+        cleanedemul.push_back(*lct);
+    }
+
+    for (const auto& lct : cleanedemul) {
+      if (lct.isValid()) {
+        chamberHistos[type]["lct_pattern_emul"]->Fill(lct.getPattern());
+        chamberHistos[type]["lct_quality_emul"]->Fill(lct.getQuality());
+        chamberHistos[type]["lct_wiregroup_emul"]->Fill(lct.getKeyWG());
+        chamberHistos[type]["lct_halfstrip_emul"]->Fill(lct.getStrip());
+        chamberHistos[type]["lct_bend_emul"]->Fill(lct.getBend());
         if (isRun3_) {
-          chamberHistos[type]["lct_run3pattern_emul"]->Fill(lct->getRun3Pattern());
-          chamberHistos[type]["lct_slope_emul"]->Fill(lct->getSlope());
-          chamberHistos[type]["lct_quartstrip_emul"]->Fill(lct->getStrip(4));
-          chamberHistos[type]["lct_eighthstrip_emul"]->Fill(lct->getStrip(8));
+          chamberHistos[type]["lct_run3pattern_emul"]->Fill(lct.getRun3Pattern());
+          chamberHistos[type]["lct_slope_emul"]->Fill(lct.getSlope());
+          chamberHistos[type]["lct_quartstrip_emul"]->Fill(lct.getStrip(4));
+          chamberHistos[type]["lct_eighthstrip_emul"]->Fill(lct.getStrip(8));
           if (B904Setup_) {
-            chamberHistos[type]["lct_quartstripbit_emul"]->Fill(lct->getQuartStripBit());
-            chamberHistos[type]["lct_eighthstripbit_emul"]->Fill(lct->getEighthStripBit());
+            chamberHistos[type]["lct_quartstripbit_emul"]->Fill(lct.getQuartStripBit());
+            chamberHistos[type]["lct_eighthstripbit_emul"]->Fill(lct.getEighthStripBit());
           }
         }
       }
     }
   }
+}
+
+bool L1TdeCSCTPG::isDuplicateCLCT(const CSCCLCTDigi& clct, const std::vector<CSCCLCTDigi>& container) const {
+  // if the temporary container is empty, the TP cannot be a duplicate
+  if (container.empty())
+    return false;
+  else {
+    for (const auto& rhs : container) {
+      if (isCLCTOffByOneBX(clct, rhs))
+        return true;
+    }
+    return false;
+  }
+}
+
+bool L1TdeCSCTPG::isDuplicateLCT(const CSCCorrelatedLCTDigi& lct,
+                                 const std::vector<CSCCorrelatedLCTDigi>& container) const {
+  // if the temporary container is empty, the TP cannot be a duplicate
+  if (container.empty())
+    return false;
+  else {
+    for (const auto& rhs : container) {
+      if (isLCTOffByOneBX(lct, rhs))
+        return true;
+    }
+    return false;
+  }
+}
+
+bool L1TdeCSCTPG::isCLCTOffByOneBX(const CSCCLCTDigi& lhs, const CSCCLCTDigi& rhs) const {
+  // because the comparator code is degenerate (several comparator codes can produce the
+  // same slope and position), we leave it out of the comparison
+  bool returnValue = false;
+  if (lhs.isValid() == rhs.isValid() && lhs.getQuality() == rhs.getQuality() && lhs.getPattern() == rhs.getPattern() &&
+      lhs.getRun3Pattern() == rhs.getRun3Pattern() && lhs.getKeyStrip() == rhs.getKeyStrip() &&
+      lhs.getStripType() == rhs.getStripType() && lhs.getBend() == rhs.getBend() && lhs.getBX() == rhs.getBX() + 1 &&
+      lhs.getQuartStripBit() == rhs.getQuartStripBit() && lhs.getEighthStripBit() == rhs.getEighthStripBit()) {
+    returnValue = true;
+  }
+  return returnValue;
+}
+
+bool L1TdeCSCTPG::isLCTOffByOneBX(const CSCCorrelatedLCTDigi& lhs, const CSCCorrelatedLCTDigi& rhs) const {
+  bool returnValue = false;
+  if (lhs.isValid() == rhs.isValid() && lhs.getQuality() == rhs.getQuality() && lhs.getPattern() == rhs.getPattern() &&
+      lhs.getRun3Pattern() == rhs.getRun3Pattern() && lhs.getStrip() == rhs.getStrip() &&
+      lhs.getStripType() == rhs.getStripType() && lhs.getBend() == rhs.getBend() && lhs.getBX() == rhs.getBX() + 1 &&
+      lhs.getQuartStripBit() == rhs.getQuartStripBit() && lhs.getEighthStripBit() == rhs.getEighthStripBit() &&
+      lhs.getKeyWG() == rhs.getKeyWG()) {
+    returnValue = true;
+  }
+  return returnValue;
 }
