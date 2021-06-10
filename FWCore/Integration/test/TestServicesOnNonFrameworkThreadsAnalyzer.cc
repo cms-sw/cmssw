@@ -7,6 +7,7 @@
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/edm_MessageLogger.h"
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -90,6 +91,8 @@ namespace edmtest {
         edm::ServiceRegistry::Operate srSentry(*m_serviceToken);
         try {
           edm::Service<edm::RandomNumberGenerator> rng;
+          edm::Service<edm::MessageLogger> ml;
+          ml->setThreadContext(*m_moduleCallingContext);
           edm::LogSystem("ModuleThread") << "  ++running with rng "
                                          << CLHEP::RandFlat::shootInt(&rng->getEngine(m_streamID), 10);
         } catch (...) {
