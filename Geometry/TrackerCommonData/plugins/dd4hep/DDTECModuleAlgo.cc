@@ -409,7 +409,6 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     dy = 0.5 * pitchThick;
     dz = 0.5 * pitchHeight;
     solid = Box(dx, dy, dz);
-    name += "Box";
     ns.addSolidNS(name, solid);
     edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Box made of " << pitchMat
                                 << " of dimensions " << dx << ", " << dy << ", " << dz;
@@ -420,7 +419,6 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     bl2 = 0.5 * pitchHeight - 0.5 * dz * sin(detTilt);
     thet = atan((bl1 - bl2) / (2. * dz));
     solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
-    name += "Trap";
     ns.addSolidNS(name, solid);
     edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << pitchMat
                                 << " of dimensions " << dz << ", " << convertRadToDeg(thet) << ", 0, " << h1 << ", "

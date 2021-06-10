@@ -449,11 +449,6 @@ namespace {
     return ns.rotation(ns.prepend(nam));
   }
 
-  const Rotation3D& myrot(cms::DDNamespace& ns, const string& nam, const Rotation3D& r) {
-    ns.addRotation(nam, r);
-    return ns.rotation(ns.prepend(nam));
-  }
-
   Solid mytrap(const std::string& nam, const EcalTrapezoidParameters& t) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("EBGeom") << nam << " Trap " << convertRadToDeg(t.theta()) << ":" << convertRadToDeg(t.phi())
@@ -1174,12 +1169,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               const double yy(radius * sin(phi));
               const double xx(radius * cos(phi));
               ++ptmCopy;
-              xilyLog.placeVolume(ilyPTMLog,
-                                  ptmCopy,
-                                  Transform3D(myrot(ns,
-                                                    std::string(ilyPTMLog.name()) + "_rot" + std::to_string(ptmCopy),
-                                                    Rotation3D(RotationZ(phi))),
-                                              Position(xx, yy, ily.vecIlyPTMZ[ilyPTM] - ilyLengthHalf)));
+              xilyLog.placeVolume(
+                  ilyPTMLog,
+                  ptmCopy,
+                  Transform3D(RotationZ(phi), Position(xx, yy, ily.vecIlyPTMZ[ilyPTM] - ilyLengthHalf)));
 #ifdef EDM_ML_DEBUG
               edm::LogVerbatim("EBGeomX")
                   << ilyPTMLog.name() << ":" << ptmCopy << " positioned in " << xilyLog.name() << " at ("
@@ -1196,13 +1189,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               const double yy(radius * sin(phi));
               const double xx(radius * cos(phi));
               ++fanOutCopy;
-              xilyLog.placeVolume(
-                  ilyFanOutLog,
-                  fanOutCopy,
-                  Transform3D(myrot(ns,
-                                    std::string(ilyFanOutLog.name()) + "_rot" + std::to_string(fanOutCopy),
-                                    RotationZ(phi) * RotationY(180._deg)),
-                              Position(xx, yy, ily.vecIlyFanOutZ[ilyFO] - ilyLengthHalf)));
+              xilyLog.placeVolume(ilyFanOutLog,
+                                  fanOutCopy,
+                                  Transform3D(RotationZ(phi) * RotationY(180._deg),
+                                              Position(xx, yy, ily.vecIlyFanOutZ[ilyFO] - ilyLengthHalf)));
 #ifdef EDM_ML_DEBUG
               edm::LogVerbatim("EBGeomX")
                   << ilyFanOutLog.name() << ":" << fanOutCopy << " positioned in " << xilyLog.name() << " at ("
@@ -1217,12 +1207,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               const double yy(radius * sin(phi));
               const double xx(radius * cos(phi));
               ++femCopy;
-              xilyLog.placeVolume(ilyFEMLog,
-                                  femCopy,
-                                  Transform3D(myrot(ns,
-                                                    std::string(ilyFEMLog.name()) + "_rot" + std::to_string(femCopy),
-                                                    Rotation3D(RotationZ(phi))),
-                                              Position(xx, yy, ily.vecIlyFEMZ[ilyFEM] - ilyLengthHalf)));
+              xilyLog.placeVolume(
+                  ilyFEMLog,
+                  femCopy,
+                  Transform3D(RotationZ(phi), Position(xx, yy, ily.vecIlyFEMZ[ilyFEM] - ilyLengthHalf)));
 #ifdef EDM_ML_DEBUG
               edm::LogVerbatim("EBGeomX")
                   << ilyFEMLog.name() << ":" << femCopy << " positioned in " << xilyLog.name() << " at ("
@@ -1254,11 +1242,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                 xilyLog.placeVolume(
                     ilyPipeLog[type],
                     copyNum[type],
-                    Transform3D(
-                        myrot(ns,
-                              std::string(ilyPipeLog[type].name()) + "_rot" + std::to_string(ly),
-                              Rotation3D(ROOT::Math::AxisAngle(ROOT::Math::AxisAngle::XYZVector(xx, yy, 0), 90._deg))),
-                        Position(xx, yy, zz)));
+                    Transform3D(Rotation3D(ROOT::Math::AxisAngle(ROOT::Math::AxisAngle::XYZVector(xx, yy, 0), 90._deg)),
+                                Position(xx, yy, zz)));
 #ifdef EDM_ML_DEBUG
                 edm::LogVerbatim("EBGeomX") << ilyPipeLog[type].name() << ":" << copyNum[type] << " positioned in "
                                             << xilyLog.name() << " at (" << cms::convert2mm(xx) << ","
@@ -1405,7 +1390,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
     Solid fawSolid = SubtractionSolid(fawSolid1,
                                       fawCutBox,
-                                      Transform3D(myrot(ns, fawCutName + "_rot", fawCutForm.getRotation()),
+                                      Transform3D(myrot(ns, fawCutName + "R", fawCutForm.getRotation()),
                                                   Position(fawCutForm.getTranslation().x(),
                                                            fawCutForm.getTranslation().y(),
                                                            fawCutForm.getTranslation().z())));
@@ -1428,7 +1413,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         ns.assembly(alvWedge.hawRName),
         copyOne,
         Transform3D(
-            myrot(ns, alvWedge.hawRName + "_rot", hawRform.getRotation()),
+            myrot(ns, alvWedge.hawRName + "R", hawRform.getRotation()),
             Position(hawRform.getTranslation().x(), hawRform.getTranslation().y(), hawRform.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("EBGeomX") << ns.assembly(alvWedge.hawRName).name() << ":" << copyOne << " positioned in "
@@ -1441,10 +1426,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         ns.assembly(alvWedge.hawRName),
         copyTwo,
         Transform3D(
-            myrot(
-                ns,
-                alvWedge.hawRName + "R2",
-                Rotation3D(1., 0., 0., 0., 1., 0., 0., 0., -1.) * RotationY(M_PI)),  // rotate about Y after refl thru Z
+            Rotation3D(1., 0., 0., 0., 1., 0., 0., 0., -1.) * RotationY(M_PI),  // rotate about Y after refl thru Z
             Position(-hawRform.getTranslation().x(), -hawRform.getTranslation().y(), -hawRform.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("EBGeomX") << ns.assembly(alvWedge.hawRName).name() << ":" << copyTwo << " positioned in "
@@ -1507,7 +1489,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       ns.assembly(alvWedge.hawRName)
           .placeVolume(gridLog,
                        copyOne,
-                       Transform3D(myrot(ns, grid.name + "_rot", gridForm.getRotation()),
+                       Transform3D(myrot(ns, grid.name + "R", gridForm.getRotation()),
                                    Position(gridForm.getTranslation().x(),
                                             gridForm.getTranslation().y(),
                                             gridForm.getTranslation().z())));
@@ -1577,7 +1559,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       );
 
       const string cryDDName(cry.name + sType);
-      Solid crySolid = mytrap(cryDDName, trapCry);
+      Solid crySolid = mytrap(cry.name, trapCry);
       Volume cryLog = Volume(cryDDName, crySolid, ns.material(cry.mat));
 
       //++++++++++++++++++++++++++++++++++  APD ++++++++++++++++++++++++++++++++++
