@@ -3,6 +3,4 @@
 
 TritonException::TritonException(std::string const& aCategory) : cms::Exception(aCategory) {}
 
-void TritonException::convertToWarning() const {
-  edm::LogWarning(category()) << explainSelf();
-}
+void TritonException::convertToWarning() const { edm::LogWarning(category()) << explainSelf(); }

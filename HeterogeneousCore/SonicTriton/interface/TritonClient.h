@@ -52,6 +52,8 @@ protected:
   //helpers
   void getResults(std::shared_ptr<nvidia::inferenceserver::client::InferResult> results);
   void evaluate() override;
+  template <typename F>
+  bool handle_exception(F&& call);
 
   void reportServerSideStats(const ServerSideStats& stats) const;
   ServerSideStats summarizeServerStats(const inference::ModelStatistics& start_status,
