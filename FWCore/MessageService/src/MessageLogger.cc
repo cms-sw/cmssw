@@ -867,14 +867,14 @@ namespace edm {
     }
 
     void MessageLogger::postEndJob() {
-      SummarizeInJobReport();    // Put summary info into Job Rep  // change log 10
+      summarizeInJobReport();    // Put summary info into Job Rep  // change log 10
       MessageLoggerQ::MLqSUM();  // trigger summary info.		// change log 9
     }
 
     void MessageLogger::jobFailure() {
       MessageDrop* messageDrop = MessageDrop::instance();
       messageDrop->setSinglet("jobFailure");
-      SummarizeInJobReport();    // Put summary info into Job Rep  // change log 10
+      summarizeInJobReport();    // Put summary info into Job Rep  // change log 10
       MessageLoggerQ::MLqSUM();  // trigger summary info.		// change log 9
     }
 
@@ -882,7 +882,7 @@ namespace edm {
     // Other methods
     //
 
-    void MessageLogger::SummarizeInJobReport() {
+    void MessageLogger::summarizeInJobReport() {
       if (fjrSummaryRequested_) {
         std::map<std::string, double>* smp = new std::map<std::string, double>();
         MessageLoggerQ::MLqJRS(smp);

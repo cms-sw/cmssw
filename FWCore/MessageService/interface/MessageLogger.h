@@ -49,7 +49,7 @@ namespace edm {
       MessageLogger(ParameterSet const&, ActivityRegistry&);
 
     private:
-      static void SummarizeInJobReport();
+      static void summarizeInJobReport();
 
       void postBeginJob();
       void preEndJob();
