@@ -434,7 +434,8 @@
     <use name="FWCore/MessageLogger"/>
     <use name="clhep"/>
   </library>
-
+  <test name="TestFWCoreIntegrationModuleThread" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/moduleThread_test_cfg.py"/>
+  
   <bin file="RandomIntProducer_t.cpp">
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
