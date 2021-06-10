@@ -503,7 +503,7 @@ namespace HTXS {
   template <class Vvec4>
   inline TLVs MakeTLVs(Vvec4 const &rivet_jets) {
     TLVs jets;
-    for (auto jet : rivet_jets)
+    for (const auto &jet : rivet_jets)
       jets.push_back(MakeTLV(jet));
     return jets;
   }

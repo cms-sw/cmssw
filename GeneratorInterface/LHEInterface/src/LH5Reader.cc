@@ -1,12 +1,14 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
-#include <sstream>
-#include <fstream>
+#include <memory>
+
+#include <cstdio>
 #include <cstring>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <cstdio>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -179,13 +181,13 @@ namespace lhef {
       if (!curDoc) {
         if (!fileURLs.empty()) {
           logFileAction("  Initiating request to open LHE file ", fileURLs[curIndex]);
-          curSource.reset(new FileSource(fileURLs[curIndex]));
+          curSource = std::make_unique<FileSource>(fileURLs[curIndex]);
           logFileAction("  Successfully opened LHE file ", fileURLs[curIndex]);
           if (newFileOpened != nullptr)
             *newFileOpened = true;
           ++curIndex;
         } else if (!strName.empty()) {
-          curSource.reset(new StringSource(strName));
+          curSource = std::make_unique<StringSource>(strName);
         }
         // New "doc" has been opened.    This is the same as a new source.
         curDoc = true;
