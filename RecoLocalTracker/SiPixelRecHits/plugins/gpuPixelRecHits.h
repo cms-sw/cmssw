@@ -184,8 +184,8 @@ namespace gpuPixelRecHits {
         hits.clusterSizeX(h) = clusParams.xsize[ic];
         hits.clusterSizeY(h) = clusParams.ysize[ic];
 
-        hits.xerrLocal(h) = clusParams.xerr[ic] * clusParams.xerr[ic];
-        hits.yerrLocal(h) = clusParams.yerr[ic] * clusParams.yerr[ic];
+        hits.xerrLocal(h) = clusParams.xerr[ic] * clusParams.xerr[ic] + cpeParams->detParams(me).apeX;
+        hits.yerrLocal(h) = clusParams.yerr[ic] * clusParams.yerr[ic] + cpeParams->detParams(me).apeY;
 
         // keep it local for computations
         float xg, yg, zg;
