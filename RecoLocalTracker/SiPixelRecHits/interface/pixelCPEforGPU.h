@@ -41,7 +41,7 @@ namespace pixelCPEforGPU {
 
     float x0, y0, z0;  // the vertex in the local coord of the detector
 
-    // float apeX, apexY;  // ape^2
+    float apeX, apeY;  // ape^2
     uint8_t sx2, sy1, sy2;
     uint8_t sigmax[16], sigmax1[16], sigmay[16];  // in micron
     float xfact[5], yfact[5];
