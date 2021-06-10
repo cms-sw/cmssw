@@ -508,7 +508,7 @@ L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
                      T& module,
                      UseEventSetupIn useEventSetupIn)
     : L1GtUtils(iC, useEventSetupIn) {
-  m_l1GtUtilsHelper.reset(new L1GtUtilsHelper(pset, iC, useL1GtTriggerMenuLite, module));
+  m_l1GtUtilsHelper = std::make_unique<L1GtUtilsHelper>(pset, iC, useL1GtTriggerMenuLite, module);
 }
 
 template <typename T>
@@ -539,13 +539,13 @@ L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
                      edm::InputTag const& l1GtTriggerMenuLiteInputTag,
                      UseEventSetupIn useEventSetupIn)
     : L1GtUtils(iC, useEventSetupIn) {
-  m_l1GtUtilsHelper.reset(new L1GtUtilsHelper(pset,
-                                              iC,
-                                              useL1GtTriggerMenuLite,
-                                              module,
-                                              l1GtRecordInputTag,
-                                              l1GtReadoutRecordInputTag,
-                                              l1GtTriggerMenuLiteInputTag));
+  m_l1GtUtilsHelper = std::make_unique<L1GtUtilsHelper>(pset,
+                                                        iC,
+                                                        useL1GtTriggerMenuLite,
+                                                        module,
+                                                        l1GtRecordInputTag,
+                                                        l1GtReadoutRecordInputTag,
+                                                        l1GtTriggerMenuLiteInputTag);
 }
 
 #endif /*GlobalTriggerAnalyzer_L1GtUtils_h*/
