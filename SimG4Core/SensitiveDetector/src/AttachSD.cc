@@ -20,8 +20,6 @@ std::pair<std::vector<SensitiveTkDetector*>, std::vector<SensitiveCaloDetector*>
   std::pair<std::vector<SensitiveTkDetector*>, std::vector<SensitiveCaloDetector*>> detList;
   const std::vector<std::string_view>& rouNames = clg.readoutNames();
 
-  //auto makers = sim::sensitiveDetectorMakers(makerNames);
-
   edm::LogVerbatim("SimG4CoreSensitiveDetector") << " AttachSD: Initialising " << rouNames.size() << " SDs";
   for (auto& rname : rouNames) {
     std::string_view className = clg.className({rname.data(), rname.size()});
