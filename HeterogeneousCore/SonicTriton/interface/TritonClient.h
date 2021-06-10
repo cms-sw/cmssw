@@ -51,7 +51,6 @@ public:
 protected:
   //helpers
   void getResults(std::shared_ptr<nvidia::inferenceserver::client::InferResult> results);
-  bool checkEptr();
   void evaluate() override;
 
   void reportServerSideStats(const ServerSideStats& stats) const;

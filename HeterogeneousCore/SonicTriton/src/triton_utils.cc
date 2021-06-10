@@ -1,7 +1,7 @@
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/Likely.h"
 
 #include <sstream>
 #include <experimental/iterator>
@@ -20,7 +20,7 @@ namespace triton_utils {
 
   void throwIfError(const Error& err, std::string_view msg) {
     if (!err.IsOk())
-      throw cms::Exception("TritonFailure") << msg << (err.Message().empty() ? "" : ": " + err.Message());
+      throw TritonException("TritonFailure") << msg << (err.Message().empty() ? "" : ": " + err.Message());
   }
 }  // namespace triton_utils
 
