@@ -48,14 +48,9 @@ namespace edm {
     public:
       MessageLogger(ParameterSet const&, ActivityRegistry&);
 
-      void fillErrorObj(edm::ErrorObj& obj) const;
-      bool debugEnabled() const { return debugEnabled_; }
-
-      static bool anyDebugEnabled() { return anyDebugEnabled_; }
-
+    private:
       static void SummarizeInJobReport();
 
-    private:
       void postBeginJob();
       void preEndJob();
       void postEndJob();
