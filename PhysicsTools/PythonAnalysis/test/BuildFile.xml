@@ -42,7 +42,6 @@
 <test name="import-argparse" command="python3 -c 'import argparse'"/>
 <test name="import-autopep8" command="python3 -c 'import autopep8'"/>
 <test name="import-avro" command="python3 -c 'import avro'"/>
-<test name="import-backports_abc" command="python3 -c 'import backports_abc'"/>
 <test name="import-backports.lzma" command="python3 -c 'import backports.lzma'"/>
 <test name="import-backports.ssl_match_hostname" command="python3 -c 'import backports.ssl_match_hostname'"/>
 <test name="import-bleach" command="python3 -c 'import bleach'"/>
@@ -89,7 +88,6 @@
 <test name="import-notebook" command="python3 -c 'import notebook'"/>
 <test name="import-numexpr" command="python3 -c 'import numexpr'"/>
 <test name="import-numpy" command="python3 -c 'import numpy'"/>
-<test name="import-ordereddict" command="python2 -c 'import ordereddict'"/>
 <test name="import-packaging" command="python3 -c 'import packaging'"/>
 <test name="import-pandas" command="python3 -c 'import pandas'"/>
 <test name="import-pandocfilters" command="python3 -c 'import pandocfilters'"/>
