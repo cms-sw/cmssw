@@ -9,7 +9,7 @@ prunedTpClusterProducer = tpClusterProducer.clone(
     trackingParticleSrc = cms.InputTag("prunedTrackingParticles"),
     pixelSimLinkSrc = cms.InputTag("prunedDigiSimLinks", "siPixel"),
     stripSimLinkSrc = cms.InputTag("prunedDigiSimLinks", "siStrip"),
-    throwOnMissingCollections = cms.bool(False)
+    throwOnMissingCollections = cms.bool(True)
 )
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
@@ -17,7 +17,7 @@ _phase2_prunedTpClusterProducer = tpClusterProducer.clone(
     trackingParticleSrc = cms.InputTag("prunedTrackingParticles"),
     pixelSimLinkSrc = cms.InputTag("prunedDigiSimLinks", "siPixel"),
     phase2OTSimLinkSrc = cms.InputTag("prunedDigiSimLinks", "siphase2OT"),
-    throwOnMissingCollections = cms.bool(False)
+    throwOnMissingCollections = cms.bool(True)
 )
 phase2_tracker.toReplaceWith( 
     prunedTpClusterProducer,
@@ -33,7 +33,7 @@ prunedTrackMCMatch = cms.EDProducer("MCTrackMatcher",
     tracks = cms.InputTag("generalTracks"),
     genParticles = cms.InputTag("genParticles"),
     associator = cms.string('quickPrunedTrackAssociatorByHits'),
-    throwOnMissingTPCollection = cms.bool(False)
+    throwOnMissingTPCollection = cms.bool(True)
 )
 
 trackPrunedMCMatchTask = cms.Task(prunedTpClusterProducer,quickPrunedTrackAssociatorByHits,prunedTrackMCMatch)
