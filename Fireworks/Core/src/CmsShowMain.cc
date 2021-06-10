@@ -159,6 +159,7 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
 
   namespace po = boost::program_options;
   po::options_description desc(descString);
+  // clang-format off
   desc.add_options()(kInputFilesCommandOpt, po::value<std::vector<std::string> >(), "Input root files")(
       kConfigFileCommandOpt, po::value<std::string>(), "Include configuration file")(
       kNoConfigFileCommandOpt, "Empty configuration")(kNoVersionCheck, "No file version check")(
@@ -187,6 +188,7 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
       kAutoSaveType, po::value<std::string>(), "Image type of auto-saved views, png or jpg (png is default)")(
       kAutoSaveHeight, po::value<int>(), "Screenshots height when auto-save-all-views is enabled")(
       kSyncAllViews, "Synchronize all views on new event");
+  // clang-format on
 
   po::options_description debugdesc("Debug");
   debugdesc.add_options()(kLogLevelCommandOpt,
@@ -197,8 +199,9 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
 
   po::options_description tcachedesc("TreeCache");
   tcachedesc.add_options()(kLogTreeCacheOpt, "Log tree cache operations and status")(
-      kSizeTreeCacheOpt, po::value<int>(), "Set size of TTreeCache for data access in MB (default is 50)")(
-      kPrefetchTreeCacheOpt, "Enable prefetching");
+      kSizeTreeCacheOpt,
+      po::value<int>(),
+      "Set size of TTreeCache for data access in MB (default is 50)")(kPrefetchTreeCacheOpt, "Enable prefetching");
 
   po::options_description rnrdesc("Appearance");
   rnrdesc.add_options()(kFreePaletteCommandOpt, "Allow free color selection (requires special configuration!)")(
