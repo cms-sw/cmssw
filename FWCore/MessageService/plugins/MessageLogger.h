@@ -33,7 +33,7 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/MessageLogger/interface/edm_MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -44,9 +44,11 @@ namespace edm {
   class ParameterSet;
   namespace service {
 
-    class MessageLogger {
+    class MessageLogger : public edm::MessageLogger {
     public:
       MessageLogger(ParameterSet const&, ActivityRegistry&);
+
+      void setThreadContext(ModuleCallingContext const&) final;
 
     private:
       static void summarizeInJobReport();
