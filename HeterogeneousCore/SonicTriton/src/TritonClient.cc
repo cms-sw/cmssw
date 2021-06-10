@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonException.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
@@ -19,6 +20,20 @@
 
 namespace ni = nvidia::inferenceserver;
 namespace nic = ni::client;
+
+//TritonExceptions are intended/expected to be recoverable, i.e. retries should be allowed
+//other exceptions are not: execution should stop if they are encountered
+//(they will be propagated to edm::WaitingTaskWithArenaHolder)
+#define TRITON_CATCH() \
+  catch(TritonException& e) { \
+    e.convertToWarning(); \
+    finish(false); \
+    return; \
+  } \
+  catch(...) { \
+    finish(false, std::current_exception()); \
+    return; \
+  }
 
 //based on https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/examples/simple_grpc_async_infer_client.cc
 //and https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/perf_client/perf_client.cc
@@ -203,15 +218,6 @@ void TritonClient::getResults(std::shared_ptr<nic::InferResult> results) {
   }
 }
 
-bool TritonClient::checkEptr() {
-  std::exception_ptr eptr = std::current_exception();
-  if (eptr) {
-    finish(false, eptr);
-    return false;
-  }
-  return true;
-}
-
 //default case for sync and pseudo async
 void TritonClient::evaluate() {
   //in case there is nothing to process
@@ -225,20 +231,16 @@ void TritonClient::evaluate() {
     for (auto& element : output_) {
       element.second.prepare();
     }
-  } catch (...) {
-    if (!checkEptr())
-      return;
   }
+  TRITON_CATCH();
 
   // Get the status of the server prior to the request being made.
   inference::ModelStatistics start_status;
   try {
     if (verbose())
       start_status = getServerSideStatus();
-  } catch (...) {
-    if (!checkEptr())
-      return;
   }
+  TRITON_CATCH();
 
   if (mode_ == SonicMode::Async) {
     //non-blocking call
@@ -251,10 +253,8 @@ void TritonClient::evaluate() {
                 std::shared_ptr<nic::InferResult> results_ptr(results);
                 try {
                   triton_utils::throwIfError(results_ptr->RequestStatus(), "evaluate(): unable to get result");
-                } catch (...) {
-                  if (!checkEptr())
-                    return;
                 }
+                TRITON_CATCH();
                 auto t2 = std::chrono::high_resolution_clock::now();
 
                 if (!debugName_.empty())
@@ -265,10 +265,8 @@ void TritonClient::evaluate() {
                   inference::ModelStatistics end_status;
                   try {
                     end_status = getServerSideStatus();
-                  } catch (...) {
-                    if (!checkEptr())
-                      return;
                   }
+                  TRITON_CATCH();
 
                   const auto& stats = summarizeServerStats(start_status, end_status);
                   reportServerSideStats(stats);
@@ -277,10 +275,8 @@ void TritonClient::evaluate() {
                 //check result
                 try {
                   getResults(results_ptr);
-                } catch (...) {
-                  if (!checkEptr())
-                    return;
                 }
+                TRITON_CATCH();
 
                 //finish
                 finish(true);
@@ -289,11 +285,9 @@ void TritonClient::evaluate() {
               inputsTriton_,
               outputsTriton_),
           "evaluate(): unable to launch async run");
-    } catch (...) {
-      //if AsyncRun failed, finish() wasn't called
-      if (!checkEptr())
-        return;
     }
+    //if AsyncInfer failed, finish() wasn't called
+    TRITON_CATCH();
   } else {
     //blocking call
     auto t1 = std::chrono::high_resolution_clock::now();
@@ -301,10 +295,8 @@ void TritonClient::evaluate() {
     try {
       triton_utils::throwIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_),
                                  "evaluate(): unable to run and/or get result");
-    } catch (...) {
-      if (!checkEptr())
-        return;
     }
+    TRITON_CATCH();
 
     auto t2 = std::chrono::high_resolution_clock::now();
     if (!debugName_.empty())
@@ -315,10 +307,8 @@ void TritonClient::evaluate() {
       inference::ModelStatistics end_status;
       try {
         end_status = getServerSideStatus();
-      } catch (...) {
-        if (!checkEptr())
-          return;
       }
+      TRITON_CATCH();
 
       const auto& stats = summarizeServerStats(start_status, end_status);
       reportServerSideStats(stats);
@@ -327,10 +317,8 @@ void TritonClient::evaluate() {
     std::shared_ptr<nic::InferResult> results_ptr(results);
     try {
       getResults(results_ptr);
-    } catch (...) {
-      if (!checkEptr())
-        return;
     }
+    TRITON_CATCH();
 
     finish(true);
   }
