@@ -22,6 +22,14 @@ protected:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
+  // CLCTs and LCTs are considered duplicates if there is an earlier copy
+  bool isDuplicateCLCT(const CSCCLCTDigi& clct, const std::vector<CSCCLCTDigi>& container) const;
+  bool isDuplicateLCT(const CSCCorrelatedLCTDigi& lct, const std::vector<CSCCorrelatedLCTDigi>& container) const;
+
+  // all properties are the same, except for the BX which is off by +1
+  bool isCLCTOffByOneBX(const CSCCLCTDigi& lhs, const CSCCLCTDigi& rhs) const;
+  bool isLCTOffByOneBX(const CSCCorrelatedLCTDigi& lhs, const CSCCorrelatedLCTDigi& rhs) const;
+
   edm::EDGetTokenT<CSCALCTDigiCollection> dataALCT_token_;
   edm::EDGetTokenT<CSCALCTDigiCollection> emulALCT_token_;
   edm::EDGetTokenT<CSCCLCTDigiCollection> dataCLCT_token_;

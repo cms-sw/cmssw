@@ -206,8 +206,17 @@ void CSCCLCTDigi::print() const {
 }
 
 std::ostream& operator<<(std::ostream& o, const CSCCLCTDigi& digi) {
-  return o << "CSC CLCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
-           << " Pattern = " << digi.getPattern() << " StripType = " << digi.getStripType()
-           << " Bend = " << digi.getBend() << " Strip = " << digi.getStrip() << " KeyStrip = " << digi.getKeyStrip()
-           << " CFEB = " << digi.getCFEB() << " BX = " << digi.getBX() << " Comp Code " << digi.getCompCode();
+  if (digi.isRun3())
+    return o << "CSC CLCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " BX = " << digi.getBX()
+             << " Run-2 Pattern = " << digi.getPattern() << " Run-3 Pattern = " << digi.getRun3Pattern()
+             << " Quality = " << digi.getQuality() << " Comp Code " << digi.getCompCode()
+             << " Bend = " << digi.getBend() << "\n"
+             << " Slope = " << digi.getSlope() << " CFEB = " << digi.getCFEB() << " Strip = " << digi.getStrip()
+             << " KeyHalfStrip = " << digi.getKeyStrip() << " KeyQuartStrip = " << digi.getKeyStrip(4)
+             << " KeyEighthStrip = " << digi.getKeyStrip(8);
+  else
+    return o << "CSC CLCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " BX = " << digi.getBX()
+             << " Pattern = " << digi.getPattern() << " Quality = " << digi.getQuality() << " Bend = " << digi.getBend()
+             << " CFEB = " << digi.getCFEB() << " HalfStrip = " << digi.getStrip()
+             << " KeyHalfStrip = " << digi.getKeyStrip();
 }
