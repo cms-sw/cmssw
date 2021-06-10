@@ -32,7 +32,7 @@ threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorPro
                                threshold_scintillator = cms.double(2.), # MipT
                                coarsenTriggerCells = cms.vuint32(0,0,0),
                                fixedDataSizePerHGCROC = cms.bool(False),
-                               allTrigCellsInTrigSums = cms.bool(False),
+                               allTrigCellsInTrigSums = cms.bool(True),
                                ctcSize = cms.vuint32(CTC_SIZE),
                                )
 
