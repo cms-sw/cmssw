@@ -160,20 +160,34 @@ void PixelCPEFast::fillParamsForGpu() {
 
     // errors .....
     ClusterParamGeneric cp;
-    auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchX;
-    auto gvy = p.theOrigin.y();
-    auto gvz = 1.f / p.theOrigin.z();
-    //--- Note that the normalization is not required as only the ratio used
-
-    // calculate angles
-    cp.cotalpha = gvx * gvz;
-    cp.cotbeta = gvy * gvz;
 
     cp.with_track_angle = false;
 
     auto lape = p.theDet->localAlignmentError();
     if (lape.invalid())
       lape = LocalError();  // zero....
+
+    auto apeX = lape.xx();
+    auto apeY = lape.yy();
+
+    auto toMicronX = [&](float x) {
+      x = std::sqrt(x * x + apeX);
+      return std::min(511, int(x * 1.e4f + 0.5f));
+    };
+    auto toMicronY = [&](float x) {
+      x = std::sqrt(x * x + apeY);
+      return std::min(511, int(x * 1.e4f + 0.5f));
+    };
+
+    {
+      // average angle
+      auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchX;
+      auto gvy = p.theOrigin.y();
+      auto gvz = 1.f / p.theOrigin.z();
+      cp.cotalpha = gvx * gvz;
+      cp.cotbeta = gvy * gvz;
+      errorFromTemplates(p, cp, 20000.);
+    }
 
 #ifdef EDM_ML_DEBUG
     auto m = 10000.f;
@@ -185,21 +199,104 @@ void PixelCPEFast::fillParamsForGpu() {
     LogDebug("PixelCPEFast") << i << ' ' << m * std::sqrt(lape.xx()) << ' ' << m * std::sqrt(lape.yy());
 #endif  // EDM_ML_DEBUG
 
-    errorFromTemplates(p, cp, 20000.f);
     g.pixmx = std::max(0, cp.pixmx);
-    g.sx[0] = cp.sigmax;
-    g.sx[1] = cp.sx1;
-    g.sx[2] = cp.sx2;
+    g.sx2 = toMicronX(cp.sx2);
+    g.sy1 = toMicronY(cp.sy1);
+    g.sy2 = std::max(55, toMicronY(cp.sy2));
 
-    g.sy[0] = cp.sigmay;
-    g.sy[1] = cp.sy1;
-    g.sy[2] = cp.sy2;
+    // sample xerr as function of position
+    auto xoff = -81.f * commonParamsGPU_.thePitchX;
 
-    for (int i = 0; i < 3; ++i) {
-      g.sx[i] = std::sqrt(g.sx[i] * g.sx[i] + lape.xx());
-      g.sy[i] = std::sqrt(g.sy[i] * g.sy[i] + lape.yy());
+    for (int ix = 0; ix < 16; ++ix) {
+      auto x = xoff + (0.5f + float(ix)) * 162.f * commonParamsGPU_.thePitchX / 16.f;
+      auto gvx = p.theOrigin.x() - x;
+      auto gvy = p.theOrigin.y();
+      auto gvz = 1.f / p.theOrigin.z();
+      cp.cotbeta = gvy * gvz;
+      cp.cotalpha = gvx * gvz;
+      errorFromTemplates(p, cp, 20000.f);
+      g.sigmax[ix] = toMicronX(cp.sigmax);
+      g.sigmax1[ix] = toMicronX(cp.sx1);
+#ifdef EDM_ML_DEBUG
+      LogDebug("PixelCPEFast") << "sigmax vs x " << i << ' ' << x << ' ' << cp.cotalpha << ' ' << int(g.sigmax[ix])
+                               << ' ' << int(g.sigmax1[ix]) << ' ' << 10000.f * cp.sigmay << std::endl;
+#endif  // EDM_ML_DEBUG
     }
-  }
+#ifdef EDM_ML_DEBUG
+    // sample yerr as function of position
+    auto yoff = -54 * 4.f * commonParamsGPU_.thePitchY;
+    for (int ix = 0; ix < 16; ++ix) {
+      auto y = yoff + (0.5f + float(ix)) * 432.f * commonParamsGPU_.thePitchY / 16.f;
+      auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchY;
+      auto gvy = p.theOrigin.y() - y;
+      auto gvz = 1.f / p.theOrigin.z();
+      cp.cotbeta = gvy * gvz;
+      cp.cotalpha = gvx * gvz;
+      errorFromTemplates(p, cp, 20000.f);
+      LogDebug("PixelCPEFast") << "sigmay vs y " << i << ' ' << y << ' ' << cp.cotbeta << ' ' << 10000.f * cp.sigmay
+                               << std::endl;
+    }
+#endif  // EDM_ML_DEBUG
+
+    // average angle
+    auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchX;
+    auto gvy = p.theOrigin.y();
+    auto gvz = 1.f / p.theOrigin.z();
+    //--- Note that the normalization is not required as only the ratio used
+
+    // calculate angles
+    cp.cotalpha = gvx * gvz;
+    cp.cotbeta = gvy * gvz;
+    auto aveCB = cp.cotbeta;
+
+    // sample x by charge
+    int qbin = 5;  // low charge
+    int k = 0;
+    for (int qclus = 1000; qclus < 200000; qclus += 1000) {
+      errorFromTemplates(p, cp, qclus);
+      if (cp.qBin_ == qbin)
+        continue;
+      qbin = cp.qBin_;
+      g.xfact[k] = cp.sigmax;
+      g.yfact[k] = cp.sigmay;
+      g.minCh[k++] = qclus;
+#ifdef EDM_ML_DEBUG
+      LogDebug("PixelCPEFast") << i << ' ' << g.rawId << ' ' << cp.cotalpha << ' ' << qclus << ' ' << cp.qBin_ << ' '
+                               << cp.pixmx << ' ' << m * cp.sigmax << ' ' << m * cp.sx1 << ' ' << m * cp.sx2 << ' '
+                               << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2 << std::endl;
+#endif  // EDM_ML_DEBUG
+    }
+    assert(k <= 5);
+    // fill the rest  (sometimes bin 4 is missing)
+    for (int kk = k; kk < 5; ++kk) {
+      g.xfact[kk] = g.xfact[k - 1];
+      g.yfact[kk] = g.yfact[k - 1];
+      g.minCh[kk] = g.minCh[k - 1];
+    }
+    auto detx = 1.f / g.xfact[0];
+    auto dety = 1.f / g.yfact[0];
+    for (int kk = 0; kk < 5; ++kk) {
+      g.xfact[kk] *= detx;
+      g.yfact[kk] *= dety;
+    }
+    // sample y in angle
+    float ys = 8.f - 4.f;  // apperent bias of half pixel (see plot)
+    // sample yerr as function of "size"
+    for (int iy = 0; iy < 16; ++iy) {
+      ys += 1.f;  // first bin 0 is for size 9  (and size is in fixed point 2^3)
+      if (15 == iy)
+        ys += 8.f;  // last bin for "overflow"
+      // cp.cotalpha = ys*100.f/(8.f*285.f);
+      cp.cotbeta = std::copysign(ys * 150.f / (8.f * 285.f), aveCB);
+      errorFromTemplates(p, cp, 20000.f);
+      g.sigmay[iy] = toMicronY(cp.sigmay);
+#ifdef EDM_ML_DEBUG
+      LogDebug("PixelCPEFast") << "sigmax/sigmay " << i << ' ' << (ys + 4.f) / 8.f << ' ' << cp.cotalpha << '/'
+                               << cp.cotbeta << ' ' << 10000.f * cp.sigmax << '/' << int(g.sigmay[iy]) << std::endl;
+#endif  // EDM_ML_DEBUG
+    }
+
+  }  // loop over det
 
   // compute ladder baricenter (only in global z) for the barrel
   auto& aveGeom = averageGeometry_;
@@ -350,10 +447,17 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
   cp.q_f_Y[0] = q_f_Y;
   cp.q_l_Y[0] = q_l_Y;
 
+  cp.charge[0] = theClusterParam.theCluster->charge();
+
   auto ind = theDetParam.theDet->index();
   pixelCPEforGPU::position(commonParamsGPU_, detParamsGPU_[ind], cp, 0);
   auto xPos = cp.xpos[0];
   auto yPos = cp.ypos[0];
+
+  // set the error  (mind ape....)
+  pixelCPEforGPU::errorFromDB(commonParamsGPU_, detParamsGPU_[ind], cp, 0);
+  theClusterParam.sigmax = cp.xerr[0];
+  theClusterParam.sigmay = cp.yerr[0];
 
   LogDebug("PixelCPEFast") << " in PixelCPEFast:localPosition - pos = " << xPos << " " << yPos << " size "
                            << cp.maxRow[0] - cp.minRow[0] << ' ' << cp.maxCol[0] - cp.minCol[0];
@@ -371,35 +475,8 @@ LocalPoint PixelCPEFast::localPosition(DetParam const& theDetParam, ClusterParam
 LocalError PixelCPEFast::localError(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
-  // local variables
-  float xerr, yerr;
-  bool edgex, edgey, bigInX, bigInY;
-  int maxPixelCol, maxPixelRow, minPixelCol, minPixelRow;
-  uint sizex, sizey;
-
-  initializeLocalErrorVariables(xerr,
-                                yerr,
-                                edgex,
-                                edgey,
-                                bigInX,
-                                bigInY,
-                                maxPixelCol,
-                                maxPixelRow,
-                                minPixelCol,
-                                minPixelRow,
-                                sizex,
-                                sizey,
-                                theDetParam,
-                                theClusterParam);
-
-  // from PixelCPEGenericBase
-  setXYErrors(
-      xerr, yerr, edgex, edgey, sizex, sizey, bigInX, bigInY, useErrorsFromTemplates_, theDetParam, theClusterParam);
-
-  if (!useErrorsFromTemplates_) {
-    LogDebug("PixelCPEFast") << "Track angles are not known.\n"
-                             << "Default angle estimation which assumes track from PV (0,0,0) does not work.";
-  }
+  auto xerr = theClusterParam.sigmax;
+  auto yerr = theClusterParam.sigmay;
 
   LogDebug("PixelCPEFast") << " errors  " << xerr << " " << yerr;
 
