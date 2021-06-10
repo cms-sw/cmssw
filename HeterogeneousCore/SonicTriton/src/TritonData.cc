@@ -90,8 +90,8 @@ void TritonData<IO>::setShape(unsigned loc, int64_t val) {
 
   //check boundary
   if (locFull >= fullShape_.size())
-    throw cms::Exception("TritonDataError") << name_ << " setShape(): dimension " << locFull << " out of bounds ("
-                                        << fullShape_.size() << ")";
+    throw cms::Exception("TritonDataError")
+        << name_ << " setShape(): dimension " << locFull << " out of bounds (" << fullShape_.size() << ")";
 
   if (val != fullShape_[locFull]) {
     if (dims_[locFull] == -1)

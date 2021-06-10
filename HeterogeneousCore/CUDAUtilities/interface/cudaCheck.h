@@ -34,8 +34,11 @@ namespace cms {
       throw std::runtime_error(out.str());
     }
 
-    inline bool cudaCheck_(
-        const char* file, int line, const char* cmd, CUresult result, std::string_view description = std::string_view()) {
+    inline bool cudaCheck_(const char* file,
+                           int line,
+                           const char* cmd,
+                           CUresult result,
+                           std::string_view description = std::string_view()) {
       if (LIKELY(result == CUDA_SUCCESS))
         return true;
 
@@ -47,8 +50,11 @@ namespace cms {
       return false;
     }
 
-    inline bool cudaCheck_(
-        const char* file, int line, const char* cmd, cudaError_t result, std::string_view description = std::string_view()) {
+    inline bool cudaCheck_(const char* file,
+                           int line,
+                           const char* cmd,
+                           cudaError_t result,
+                           std::string_view description = std::string_view()) {
       if (LIKELY(result == cudaSuccess))
         return true;
 
