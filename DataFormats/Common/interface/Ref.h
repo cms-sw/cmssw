@@ -253,7 +253,7 @@ namespace edm {
     key_type index() const { return index_; }
 
     /// Returns true if container referenced by the Ref has been cached
-    bool hasProductCache() const { return product_.productPtr() != 0; }
+    bool hasProductCache() const { return product_.productPtr() != nullptr; }
 
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.

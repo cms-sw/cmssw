@@ -151,6 +151,7 @@ int main(int argc, char* argv[]) {
       descString += "] config_file \nAllowed options";
       boost::program_options::options_description desc(descString);
 
+      // clang-format off
       desc.add_options()(kHelpCommandOpt, "produce help message")(
           kParameterSetCommandOpt, boost::program_options::value<std::string>(), "configuration file")(
           kJobreportCommandOpt,
@@ -166,6 +167,7 @@ int main(int argc, char* argv[]) {
           kSizeOfStackForThreadCommandOpt,
           boost::program_options::value<unsigned int>(),
           "Size of stack in KB to use for extra threads (0 is use system default size)")(kStrictOpt, "strict parsing");
+      // clang-format on
 
       // anything at the end will be ignored, and sent to python
       boost::program_options::positional_options_description p;

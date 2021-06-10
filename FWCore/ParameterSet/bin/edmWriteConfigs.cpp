@@ -154,6 +154,8 @@ int main(int argc, char** argv) try {
   descString += "Instead of specifying a library, there is also an option to specify a plugin.\n\n";
   descString += "Allowed options";
   boost::program_options::options_description desc(descString);
+
+  // clang-format off
   desc.add_options()(kHelpCommandOpt, "produce help message")(
       kLibraryCommandOpt, boost::program_options::value<std::string>(), "library filename")(
       kPathCommandOpt,
@@ -170,6 +172,7 @@ int main(int argc, char** argv) try {
       kPluginCommandOpt,
       boost::program_options::value<std::string>(),
       "plugin name. You must specify either a library or plugin, but not both.");
+  // clang-format on
 
   boost::program_options::positional_options_description p;
   p.add(kLibraryOpt, -1);

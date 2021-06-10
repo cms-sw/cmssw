@@ -26,8 +26,9 @@ namespace edm {
     void operator=(MessageLoggerQ const&) = delete;
 
     // --- enumerate types of messages that can be enqueued:
-    enum OpCode   // abbrev's used hereinafter
-    { END_THREAD  // END
+    enum OpCode  // abbrev's used hereinafter
+    {
+      END_THREAD  // END
       ,
       LOG_A_MESSAGE  // LOG
       ,
