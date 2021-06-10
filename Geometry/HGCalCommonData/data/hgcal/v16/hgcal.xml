@@ -3,6 +3,7 @@
 
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="WaferSize"             value="166.4408*mm"/>
+  <Constant name="WaferThickness"        value="0.31*mm"/>
   <Constant name="WaferThicknessFine"    value="0.30*mm"/>
   <Constant name="WaferThicknessCoarse1" value="0.20*mm"/>
   <Constant name="WaferThicknessCoarse2" value="0.30*mm"/>
