@@ -20,7 +20,7 @@
 --> 
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
-  <String  name="SolidName"        value="PixelForwardOuterDiskOuterRing"/> 
+  <String  name="SolidName"        value="PixelForwardOuterDiskOuterRingZminus"/> 
   <String  name="Material"         value="pixfwdMaterials:C_C_OuterOuterRing"/> 
   <Numeric name="zPos"             value="[OuterRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingRMin]"/>
@@ -31,7 +31,7 @@
 </Algorithm>
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
-  <String  name="SolidName"        value="PixelForwardOuterDiskCFOuterRing"/> 
+  <String  name="SolidName"        value="PixelForwardOuterDiskCFOuterRingZminus"/> 
   <String  name="Material"         value="pixfwdMaterials:FPix_CFSkin_OuterOuterRing"/> 
   <Numeric name="zPos"             value="[OuterRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMin]"/>
@@ -42,7 +42,7 @@
 </Algorithm>
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
-  <String  name="SolidName"        value="PixelForwardOuterDiskInnerRing"/> 
+  <String  name="SolidName"        value="PixelForwardOuterDiskInnerRingZminus"/> 
   <String  name="Material"         value="pixfwdMaterials:C_C_OuterInnerRing"/> 
   <Numeric name="zPos"             value="[InnerRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingRMin]"/>
@@ -53,7 +53,7 @@
 </Algorithm>
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
-  <String  name="SolidName"        value="PixelForwardOuterDiskCFInnerRing"/> 
+  <String  name="SolidName"        value="PixelForwardOuterDiskCFInnerRingZminus"/> 
   <String  name="Material"         value="pixfwdMaterials:FPix_CFSkin_OuterInnerRing"/> 
   <Numeric name="zPos"             value="[InnerRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingCFRMin]"/>
