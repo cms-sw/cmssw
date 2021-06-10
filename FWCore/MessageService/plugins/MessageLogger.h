@@ -1,12 +1,12 @@
-#ifndef FWCore_MessageService_MessageLogger_h
-#define FWCore_MessageService_MessageLogger_h
+#ifndef FWCore_MessageService_service_MessageLogger_h
+#define FWCore_MessageService_service_MessageLogger_h
 
 // -*- C++ -*-
 //
-// Package:     Services
+// Package:     MessageService
 // Class  :     MessageLogger
 //
-/**\class MessageLogger MessageLogger.h FWCore/MessageService/interface/MessageLogger.h
+/**\class edm::service::MessageLogger MessageLogger.h FWCore/MessageService/plugins/MessageLogger.h
 
  Description: <one line class summary>
 
@@ -188,4 +188,4 @@ namespace edm {
 
 }  // namespace edm
 
-#endif  // FWCore_MessageService_MessageLogger_h
+#endif  // FWCore_MessageService_service_MessageLogger_h
