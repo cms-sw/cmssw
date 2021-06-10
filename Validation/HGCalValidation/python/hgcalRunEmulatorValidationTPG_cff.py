@@ -14,9 +14,11 @@ from Validation.HGCalValidation.hgcalValidationTPG_cfi import *
 from DQMServices.Core.DQM_cfg import *
 from DQMServices.Components.DQMEnvironment_cfi import *
 from Configuration.StandardSequences.EDMtoMEAtJobEnd_cff import *
-# import DQMStore service
-from DQMOffline.Configuration.DQMOffline_cff import *
-dqmSaver.workflow = '/validation/' + 'HGCAL' + '/TPG'
 
+onlineSaver = cms.EDAnalyzer("DQMFileSaverOnline",
+    producer = cms.untracked.string('DQM'),
+    path = cms.untracked.string('./'),
+    tag = cms.untracked.string('new')
+)
 
-hgcalTPGRunEmulatorValidation = cms.Sequence(hgcalTriggerPrimitives*hgcalTrigPrimValidation*dqmSaver)
+hgcalTPGRunEmulatorValidation = cms.Sequence(hgcalTriggerPrimitives*hgcalTrigPrimValidation*onlineSaver)
