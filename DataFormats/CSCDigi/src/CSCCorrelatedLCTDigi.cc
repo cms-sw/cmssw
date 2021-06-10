@@ -153,11 +153,19 @@ void CSCCorrelatedLCTDigi::print() const {
 }
 
 std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
-  return o << "CSC LCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
-           << " MPC Link = " << digi.getMPCLink() << " cscID = " << digi.getCSCID()
-           << " syncErr = " << digi.getSyncErr() << " Type (SIM) = " << digi.getType() << "\n"
-           << "  cathode info: Strip = " << digi.getStrip() << " Pattern = " << digi.getPattern()
-           << " Bend = " << ((digi.getBend() == 0) ? 'L' : 'R') << "\n"
-           << "    anode info: Key wire = " << digi.getKeyWG() << " BX = " << digi.getBX()
-           << " bx0 = " << digi.getBX0();
+  // do not print out CSCID and sync error. They are not used anyway in the firmware, or the emulation
+  if (digi.isRun3())
+    return o << "CSC LCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " BX = " << digi.getBX()
+             << " Run-2 Pattern = " << digi.getPattern() << " Run-3 Pattern = " << digi.getRun3Pattern()
+             << " Quality = " << digi.getQuality() << " Bend = " << digi.getBend() << " Slope = " << digi.getSlope()
+             << "\n"
+             << " KeyHalfStrip = " << digi.getStrip() << " KeyQuartStrip = " << digi.getStrip(4)
+             << " KeyEighthStrip = " << digi.getStrip(8) << " KeyWireGroup = " << digi.getKeyWG()
+             << " Type (SIM) = " << digi.getType() << " MPC Link = " << digi.getMPCLink();
+  else
+    return o << "CSC LCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " BX = " << digi.getBX()
+             << " Pattern = " << digi.getPattern() << " Quality = " << digi.getQuality() << " Bend = " << digi.getBend()
+             << "\n"
+             << " KeyHalfStrip = " << digi.getStrip() << " KeyWireGroup = " << digi.getKeyWG()
+             << " Type (SIM) = " << digi.getType() << " MPC Link = " << digi.getMPCLink();
 }
