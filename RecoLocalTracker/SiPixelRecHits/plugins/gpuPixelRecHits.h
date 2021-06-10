@@ -146,8 +146,9 @@ namespace gpuPixelRecHits {
         assert(cl < MaxHitsInIter);
         auto x = digis.xx(i);
         auto y = digis.yy(i);
-        auto ch = std::min(digis.adc(i), pixmx);
+        auto ch = digis.adc(i);
         atomicAdd(&clusParams.charge[cl], ch);
+        ch = std::min(ch, pixmx);
         if (clusParams.minRow[cl] == x)
           atomicAdd(&clusParams.q_f_X[cl], ch);
         if (clusParams.maxRow[cl] == x)
