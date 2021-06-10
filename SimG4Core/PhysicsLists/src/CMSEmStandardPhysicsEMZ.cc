@@ -1,4 +1,4 @@
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsEMZ.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SystemOfUnits.hh"
@@ -44,6 +44,12 @@
 #include "G4Positron.hh"
 #include "G4GenericIon.hh"
 
+#include "G4IonParametrisedLossModel.hh"
+#include "G4NuclearStopping.hh"
+#include "G4ePairProduction.hh"
+#include "G4LivermoreIonisationModel.hh"
+#include "G4PenelopeIonisationModel.hh"
+
 #include "G4PhysicsListHelper.hh"
 #include "G4BuilderType.hh"
 #include "G4GammaGeneralProcess.hh"
@@ -54,43 +60,38 @@
 
 #include "G4SystemOfUnits.hh"
 
-CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSet& p)
-    : G4VPhysicsConstructor("CMSEmStandard_emn") {
+CMSEmStandardPhysicsEMZ::CMSEmStandardPhysicsEMZ(G4int ver) : G4VPhysicsConstructor("CMSEmStandard_emz") {
   SetVerboseLevel(ver);
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(ver);
-  param->SetApplyCuts(true);
   param->SetMinEnergy(100 * CLHEP::eV);
+  param->SetLowestElectronEnergy(100 * CLHEP::eV);
   param->SetNumberOfBinsPerDecade(20);
-  param->SetStepFunction(0.8, 1 * CLHEP::mm);
-  param->SetMscRangeFactor(0.2);
-  param->SetMscStepLimitType(fMinimal);
+  param->ActivateAngularGeneratorForIonisation(true);
+  param->SetStepFunction(0.2, 10 * CLHEP::um);
+  param->SetStepFunctionMuHad(0.1, 50 * CLHEP::um);
+  param->SetStepFunctionLightIons(0.1, 20 * CLHEP::um);
+  param->SetStepFunctionIons(0.1, 1 * CLHEP::um);
+  param->SetUseMottCorrection(true);           // use Mott-correction for e-/e+ msc gs
+  param->SetMscStepLimitType(fUseSafetyPlus);  // for e-/e+ msc gs
+  param->SetMscSkin(3);                        // error-free stepping for e-/e+ msc gs
+  param->SetMscRangeFactor(0.08);              // error-free stepping for e-/e+ msc gs
+  param->SetMuHadLateralDisplacement(true);
   param->SetFluo(true);
-  param->SetUseMottCorrection(true);  // use Mott-correction for e-/e+ msc gs
+  param->SetUseICRU90Data(true);
+  param->SetMaxNIELEnergy(1 * CLHEP::MeV);
   SetPhysicsType(bElectromagnetic);
-  fRangeFactor = p.getParameter<double>("G4MscRangeFactor");
-  fGeomFactor = p.getParameter<double>("G4MscGeomFactor");
-  fSafetyFactor = p.getParameter<double>("G4MscSafetyFactor");
-  fLambdaLimit = p.getParameter<double>("G4MscLambdaLimit") * CLHEP::mm;
-  std::string msc = p.getParameter<std::string>("G4MscStepLimit");
-  fStepLimitType = fUseSafety;
-  if (msc == "UseSafetyPlus") {
-    fStepLimitType = fUseSafetyPlus;
-  }
-  if (msc == "Minimal") {
-    fStepLimitType = fMinimal;
-  }
 }
 
-CMSEmStandardPhysicsXS::~CMSEmStandardPhysicsXS() {}
+CMSEmStandardPhysicsEMZ::~CMSEmStandardPhysicsEMZ() {}
 
-void CMSEmStandardPhysicsXS::ConstructParticle() {
+void CMSEmStandardPhysicsEMZ::ConstructParticle() {
   // minimal set of particles for EM physics
   G4EmBuilder::ConstructMinimalEmSet();
 }
 
-void CMSEmStandardPhysicsXS::ConstructProcess() {
+void CMSEmStandardPhysicsEMZ::ConstructProcess() {
   if (verboseLevel > 0) {
     edm::LogVerbatim("PhysicsList") << "### " << GetPhysicsName() << " Construct Processes";
   }
@@ -103,14 +104,17 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   // processes used by several particles
-  G4ePairProduction* ee = new G4ePairProduction();
   G4hMultipleScattering* hmsc = new G4hMultipleScattering("ionmsc");
-  G4NuclearStopping* pnuc(nullptr);
+  //  G4NuclearStopping* pnuc(nullptr);
+  G4double nielEnergyLimit = G4EmParameters::Instance()->MaxNIELEnergy();
+  G4NuclearStopping* pnuc = nullptr;
+  if (nielEnergyLimit > 0.0) {
+    pnuc = new G4NuclearStopping();
+    pnuc->SetMaxKinEnergy(nielEnergyLimit);
+  }
 
   // high energy limit for e+- scattering models
   G4double highEnergyLimit = G4EmParameters::Instance()->MscEnergyLimit();
-  const G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
-  const G4Region* bRegion = G4RegionStore::GetInstance()->GetRegion("HGCalRegion", false);
 
   // Add gamma EM Processes
   G4ParticleDefinition* particle = G4Gamma::Gamma();
@@ -123,6 +127,9 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   // Compton scattering
   G4ComptonScattering* cs = new G4ComptonScattering;
   cs->SetEmModel(new G4KleinNishinaModel());
+  G4VEmModel* theLowEPComptonModel = new G4LowEPComptonModel();
+  theLowEPComptonModel->SetHighEnergyLimit(20 * CLHEP::MeV);
+  cs->AddEmModel(0, theLowEPComptonModel);
 
   // Gamma conversion
   G4GammaConversion* gc = new G4GammaConversion();
@@ -149,40 +156,15 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
 
   // multiple scattering
   G4eMultipleScattering* msc = new G4eMultipleScattering();
-  G4UrbanMscModel* msc1 = new G4UrbanMscModel();
+  // e-/e+ msc gs with Mott-correction
+  // (Mott-correction is set through G4EmParameters)
+  G4GoudsmitSaundersonMscModel* msc1 = new G4GoudsmitSaundersonMscModel();
   G4WentzelVIModel* msc2 = new G4WentzelVIModel();
-  G4UrbanMscModel* msc4 = new G4UrbanMscModel();
-  G4GoudsmitSaundersonMscModel* msc3 = new G4GoudsmitSaundersonMscModel();
   msc1->SetHighEnergyLimit(highEnergyLimit);
   msc2->SetLowEnergyLimit(highEnergyLimit);
-  msc3->SetHighEnergyLimit(highEnergyLimit);
-  msc4->SetHighEnergyLimit(highEnergyLimit);
-
-  // e-/e+ msc GS with Mott-correction
-  // (Mott-correction is set through G4EmParameters)
-  msc3->SetRangeFactor(0.08);
-  msc3->SetSkin(3.);
-  msc3->SetStepLimitType(fUseSafetyPlus);
-
-  // e-/e+ msc for HCAL using the Urban model
-  msc4->SetRangeFactor(fRangeFactor);
-  msc4->SetGeomFactor(fGeomFactor);
-  msc4->SetSafetyFactor(fSafetyFactor);
-  msc4->SetLambdaLimit(fLambdaLimit);
-  msc4->SetStepLimitType(fStepLimitType);
-
-  msc3->SetLocked(true);
-  msc4->SetLocked(true);
   msc->SetEmModel(msc1);
   msc->SetEmModel(msc2);
-  if (nullptr != aRegion) {
-    msc->AddEmModel(-1, msc4, aRegion);
-  }
-  if (nullptr != bRegion) {
-    msc->AddEmModel(-1, msc3, bRegion);
-  }
 
-  // single scattering
   G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
   G4CoulombScattering* ss = new G4CoulombScattering();
   ss->SetEmModel(ssm);
@@ -190,8 +172,19 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   ssm->SetLowEnergyLimit(highEnergyLimit);
   ssm->SetActivationLowEnergyLimit(highEnergyLimit);
 
+  // single scattering
+  ssm = new G4eCoulombScatteringModel();
+  ss = new G4CoulombScattering();
+  ss->SetEmModel(ssm);
+  ss->SetMinKinEnergy(highEnergyLimit);
+  ssm->SetLowEnergyLimit(highEnergyLimit);
+  ssm->SetActivationLowEnergyLimit(highEnergyLimit);
+
   // ionisation
   G4eIonisation* eioni = new G4eIonisation();
+  G4VEmModel* theIoniLiv = new G4LivermoreIonisationModel();
+  theIoniLiv->SetHighEnergyLimit(0.1 * CLHEP::MeV);
+  eioni->AddEmModel(0, theIoniLiv, new G4UniversalFluctuation());
 
   // bremsstrahlung
   G4eBremsstrahlung* brem = new G4eBremsstrahlung();
@@ -202,6 +195,8 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   brem->SetEmModel(br1);
   brem->SetEmModel(br2);
   br1->SetHighEnergyLimit(CLHEP::GeV);
+
+  G4ePairProduction* ee = new G4ePairProduction();
 
   // register processes
   ph->RegisterProcess(msc, particle);
@@ -215,38 +210,14 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
 
   // multiple scattering
   msc = new G4eMultipleScattering();
-  msc1 = new G4UrbanMscModel();
+  // e-/e+ msc gs with Mott-correction
+  // (Mott-correction is set through G4EmParameters)
+  msc1 = new G4GoudsmitSaundersonMscModel();
   msc2 = new G4WentzelVIModel();
-  msc4 = new G4UrbanMscModel();
-  msc3 = new G4GoudsmitSaundersonMscModel();
   msc1->SetHighEnergyLimit(highEnergyLimit);
   msc2->SetLowEnergyLimit(highEnergyLimit);
-  msc3->SetHighEnergyLimit(highEnergyLimit);
-  msc4->SetHighEnergyLimit(highEnergyLimit);
-
-  // e-/e+ msc GS with Mott-correction
-  // (Mott-correction is set through G4EmParameters)
-  msc3->SetRangeFactor(0.08);
-  msc3->SetSkin(3.);
-  msc3->SetStepLimitType(fUseSafetyPlus);
-
-  // e-/e+ msc for HCAL using the Urban model
-  msc4->SetRangeFactor(fRangeFactor);
-  msc4->SetGeomFactor(fGeomFactor);
-  msc4->SetSafetyFactor(fSafetyFactor);
-  msc4->SetLambdaLimit(fLambdaLimit);
-  msc4->SetStepLimitType(fStepLimitType);
-
-  msc3->SetLocked(true);
-  msc4->SetLocked(true);
   msc->SetEmModel(msc1);
   msc->SetEmModel(msc2);
-  if (nullptr != aRegion) {
-    msc->AddEmModel(-1, msc4, aRegion);
-  }
-  if (nullptr != bRegion) {
-    msc->AddEmModel(-1, msc3, bRegion);
-  }
 
   // single scattering
   ssm = new G4eCoulombScatteringModel();
@@ -258,7 +229,11 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
 
   // ionisation
   eioni = new G4eIonisation();
-
+  /*
+  G4VEmModel* pen = new G4PenelopeIonisationModel();
+  pen->SetHighEnergyLimit(0.1*CLHEP::MeV);
+  eioni->AddEmModel(0, pen, new G4UniversalFluctuation());
+  */
   // bremsstrahlung
   brem = new G4eBremsstrahlung();
   br1 = new G4SeltzerBergerModel();
@@ -280,8 +255,11 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   // generic ion
   particle = G4GenericIon::GenericIon();
   G4ionIonisation* ionIoni = new G4ionIonisation();
+  ionIoni->SetEmModel(new G4IonParametrisedLossModel());
   ph->RegisterProcess(hmsc, particle);
   ph->RegisterProcess(ionIoni, particle);
+  if (nullptr != pnuc)
+    ph->RegisterProcess(pnuc, particle);
 
   // muons, hadrons, ions
   G4EmBuilder::ConstructCharged(hmsc, pnuc);
