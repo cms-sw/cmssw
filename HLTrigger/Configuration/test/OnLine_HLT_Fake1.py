@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_0_0/Fake1 --type Fake1 --unprescale --process HLTFake1 --globaltag auto:run2_hlt_Fake1 --input file:RelVal_Raw_Fake1_DATA.root
 
-# /dev/CMSSW_12_0_0/Fake1/V1 (CMSSW_11_3_0)
+# /dev/CMSSW_12_0_0/Fake1/V3 (CMSSW_12_0_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake1" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_0_0/Fake1/V1')
+  tableName = cms.string('/dev/CMSSW_12_0_0/Fake1/V3')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
