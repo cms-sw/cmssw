@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # from https://gist.github.com/IevaZarina/ef63197e089169a9ea9f3109058a9679
 
 from __future__ import print_function
