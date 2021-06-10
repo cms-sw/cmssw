@@ -194,7 +194,7 @@ void PixelCPEFast::fillParamsForGpu() {
 
     g.pixmx = std::max(0, cp.pixmx);
     g.sx2 = toMicron(cp.sx2);
-    g.sy1 = toMicron(cp.sy1);
+    g.sy1 = std::max(21, toMicron(cp.sy1));  // for some angles sy1 is very small
     g.sy2 = std::max(55, toMicron(cp.sy2));  // sometimes sy2 is smaller than others (due to angle?)
 
     // sample xerr as function of position
