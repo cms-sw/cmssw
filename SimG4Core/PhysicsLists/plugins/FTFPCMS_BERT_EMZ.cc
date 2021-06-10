@@ -1,5 +1,6 @@
 #include "FTFPCMS_BERT_EMZ.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsEMZ.h"
 #include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT.h"
 
 #include "G4DecayPhysics.hh"
@@ -23,7 +24,7 @@ FTFPCMS_BERT_EMZ::FTFPCMS_BERT_EMZ(const edm::ParameterSet& p) : PhysicsList(p) 
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new G4EmStandardPhysics_option4(ver));
+    RegisterPhysics(new CMSEmStandardPhysicsEMZ(ver));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
