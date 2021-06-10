@@ -21,7 +21,7 @@ namespace edmtest {
   class TestServicesOnNonFrameworkThreadsAnalyzer : public edm::stream::EDAnalyzer<> {
   public:
     TestServicesOnNonFrameworkThreadsAnalyzer(edm::ParameterSet const&);
-    ~TestServicesOnNonFrameworkThreadsAnalyzer() final;
+    ~TestServicesOnNonFrameworkThreadsAnalyzer() override;
 
     void analyze(edm::Event const&, edm::EventSetup const&) final;
 
