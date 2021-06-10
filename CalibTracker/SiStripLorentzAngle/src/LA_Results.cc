@@ -44,11 +44,10 @@ LA_Filler_Fitter::Result LA_Filler_Fitter::result(Method m, const std::string na
         p.measured = std::make_pair<float, float>(p.reco.first + f->GetParameter(0), f->GetParameter(1));
         p.chi2 = f->GetParameter(2);
         p.ndof = (unsigned)(f->GetParameter(3));
-        p.entries = (m & PROB1)
-                        ? (unsigned)book[base + "_w1"]->GetEntries()
-                        : (m & (AVGV2 | RMSV2))
-                              ? (unsigned)book[base + method(AVGV2, false)]->GetEntries()
-                              : (m & (AVGV3 | RMSV3)) ? (unsigned)book[base + method(AVGV3, false)]->GetEntries() : 0;
+        p.entries = (m & PROB1)             ? (unsigned)book[base + "_w1"]->GetEntries()
+                    : (m & (AVGV2 | RMSV2)) ? (unsigned)book[base + method(AVGV2, false)]->GetEntries()
+                    : (m & (AVGV3 | RMSV3)) ? (unsigned)book[base + method(AVGV3, false)]->GetEntries()
+                                            : 0;
         break;
       }
       default:
