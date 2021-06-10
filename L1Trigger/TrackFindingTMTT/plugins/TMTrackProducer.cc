@@ -13,7 +13,6 @@
 #include "L1Trigger/TrackFindingTMTT/interface/Array2D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/PrintL1trk.h"
 
-#include "FWCore/MessageService/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <iostream>
