@@ -225,7 +225,7 @@ I will ask you some questions to fill the metadata file. For some of the questio
         if getInput('n',
                     '\nIs it fine (i.e. save in %s and *upload* the conditions if this is the latest file)?\nAnswer [n]: ' % metadataFilename).lower() == 'y':
             break
-    print('Saving generated metadata in %s...', metadataFilename)
+    print('Saving generated metadata in %s...'% metadataFilename)
     with open(metadataFilename, 'wb') as metadataFile:
         metadataFile.write(metadata)
 
