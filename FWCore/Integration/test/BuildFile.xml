@@ -427,6 +427,12 @@
     <use name="boost"/>
     <use name="clhep"/>
   </library>
+  <library file="TestServicesOnNonFrameworkThreadsAnalyzer.cc" name = "TestServicesOnNonFrameworkThreadsAnalyzer">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="clhep"/>
+  </library>
 
   <bin file="RandomIntProducer_t.cpp">
     <use name="FWCore/Framework"/>
