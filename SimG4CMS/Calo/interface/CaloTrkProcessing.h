@@ -4,6 +4,8 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4VTouchable.hh"

@@ -20,6 +20,7 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "CondFormats/GeometryObjects/interface/MuonOffsetMap.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 
 #include <string>
 
@@ -37,9 +38,13 @@ class SimTrackManager;
 class MuonSensitiveDetector : public SensitiveTkDetector, public Observer<const BeginOfEvent*> {
 public:
   explicit MuonSensitiveDetector(const std::string&,
-                                 const edm::EventSetup&,
+                                 const MuonOffsetMap*,
+                                 const MuonGeometryConstants&,
                                  const SensitiveDetectorCatalog&,
-                                 edm::ParameterSet const&,
+                                 double ePersistentCutGeV,
+                                 bool allMuonsPersistent,
+                                 bool aPrintHits,
+                                 bool dd4hep,
                                  const SimTrackManager*);
   ~MuonSensitiveDetector() override;
   G4bool ProcessHits(G4Step*, G4TouchableHistory*) override;

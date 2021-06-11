@@ -24,11 +24,7 @@ FiberSD::FiberSD(const std::string& iname,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
-    : SensitiveCaloDetector(iname, es, clg, p),
-      m_trackManager(manager),
-      theShower(nullptr),
-      theHCID(-1),
-      theHC(nullptr) {
+    : SensitiveCaloDetector(iname, clg), m_trackManager(manager), theShower(nullptr), theHCID(-1), theHC(nullptr) {
   edm::LogVerbatim("FiberSim") << "FiberSD : Instantiating for " << iname;
   // Get pointer to HcalDDDConstants and HcalSimulationConstants
   edm::ESHandle<HcalSimulationConstants> hdsc;

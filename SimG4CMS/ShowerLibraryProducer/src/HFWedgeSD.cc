@@ -21,7 +21,7 @@ HFWedgeSD::HFWedgeSD(const std::string& iname,
                      const SensitiveDetectorCatalog& clg,
                      edm::ParameterSet const& p,
                      const SimTrackManager* manager)
-    : SensitiveCaloDetector(iname, es, clg, p), m_trackManager(manager), hcID(-1), theHC(nullptr), currentHit(nullptr) {
+    : SensitiveCaloDetector(iname, clg), m_trackManager(manager), hcID(-1), theHC(nullptr), currentHit(nullptr) {
   edm::LogVerbatim("FiberSim") << "HFWedgeSD : Instantiated for " << iname;
 }
 

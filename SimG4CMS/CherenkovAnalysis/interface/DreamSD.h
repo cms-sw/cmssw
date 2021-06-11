@@ -4,6 +4,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 #include "G4PhysicsFreeVector.hh"
 
 #include <DD4hep/DD4hepUnits.h>

@@ -6,6 +6,7 @@
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HcalTB06BeamSD.h"
@@ -22,7 +23,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
                                const SensitiveDetectorCatalog& clg,
                                edm::ParameterSet const& p,
                                const SimTrackManager* manager)
-    : CaloSD(name, es, clg, p, manager) {
+    : CaloSD(name, clg, p, manager) {
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HcalTB06BeamSD");
   useBirk_ = m_HC.getParameter<bool>("UseBirkLaw");
