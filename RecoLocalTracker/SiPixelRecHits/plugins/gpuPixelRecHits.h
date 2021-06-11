@@ -174,7 +174,7 @@ namespace gpuPixelRecHits {
         pixelCPEforGPU::errorFromDB(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
 
         // store it
-        hits.charge(h) = clusParams.charge[ic];
+        hits.setChargeAndStatus(h, clusParams.charge[ic], clusParams.status[ic]);
         hits.detectorIndex(h) = me;
 
         float xl, yl;
