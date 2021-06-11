@@ -190,4 +190,4 @@ namespace edm {
 
 }  // namespace edm
 
-#endif  // FWCore_MessageService_service_MessageLogger_h
+#endif  // FWCore_MessageService_plugins_MessageLogger_h
