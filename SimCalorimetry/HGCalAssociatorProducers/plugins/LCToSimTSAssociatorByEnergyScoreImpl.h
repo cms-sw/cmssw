@@ -1,4 +1,4 @@
-// Original Author: Marco Rovere
+// Original Author: Leonardo Cristella
 
 #include <vector>
 #include <map>
@@ -30,7 +30,11 @@ public:
                                                 const hgcal::RecoToSimCollectionWithSimClusters &lCToSCs) const override;
 
   hgcal::SimTracksterToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                const edm::Handle<ticl::TracksterCollection> &sTCH) const override;
+                                                const edm::Handle<ticl::TracksterCollection> &sTCH,
+                                                const edm::Handle<CaloParticleCollection>& cPCH,
+                                                const hgcal::SimToRecoCollection &cPToLCs,
+                                                const edm::Handle<SimClusterCollection>& sCCH,
+                                                const hgcal::SimToRecoCollectionWithSimClusters &sCToLCs) const override;
 
 private:
   const bool hardScatterOnly_;

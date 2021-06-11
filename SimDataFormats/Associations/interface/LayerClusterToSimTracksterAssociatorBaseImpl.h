@@ -7,7 +7,7 @@
  * the handle of LayerClusters and the SimTrackster collections and return an
  * AssociationMap (oneToManyWithQuality)
  *
- *  \author Marco Rovere
+ *  \author Leonardo Cristella
  */
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -46,7 +46,11 @@ namespace hgcal {
 
     /// Associate a SimTrackster to LayerClusters
     virtual hgcal::SimTracksterToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                          const edm::Handle<ticl::TracksterCollection> &sTCH) const;
+                                                          const edm::Handle<ticl::TracksterCollection> &sTCH,
+                                                          const edm::Handle<CaloParticleCollection>& cPCH,
+                                                          const hgcal::SimToRecoCollection &cPToLCs,
+                                                          const edm::Handle<SimClusterCollection>& sCCH,
+                                                          const hgcal::SimToRecoCollectionWithSimClusters &sCToLCs) const;
   };
 }  // namespace hgcal
 

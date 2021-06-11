@@ -1,6 +1,6 @@
 #ifndef SimDataFormats_Associations_LayerClusterToSimTracksterAssociator_h
 #define SimDataFormats_Associations_LayerClusterToSimTracksterAssociator_h
-// Original Author:  Marco Rovere
+// Original Author:  Leonardo Cristella
 
 // system include files
 #include <memory>
@@ -34,8 +34,12 @@ namespace hgcal {
 
     /// Associate a SimTrackster to LayerClusters
     hgcal::SimTracksterToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                  const edm::Handle<ticl::TracksterCollection> &sTCH) const {
-      return m_impl->associateSimToReco(cCCH, sTCH);
+                                                  const edm::Handle<ticl::TracksterCollection> &sTCH,
+                                                  const edm::Handle<CaloParticleCollection>& cPCH,
+                                                  const hgcal::SimToRecoCollection &cpToLCs,
+                                                  const edm::Handle<SimClusterCollection>& sCCH,
+                                                  const hgcal::SimToRecoCollectionWithSimClusters &sCToLCs) const {
+      return m_impl->associateSimToReco(cCCH, sTCH, cPCH, cpToLCs, sCCH, sCToLCs);
     }
 
   private:

@@ -1,4 +1,4 @@
-// Original Author: Marco Rovere
+// Original Author: Leonardo Cristella
 
 #include "SimDataFormats/Associations/interface/LayerClusterToSimTracksterAssociator.h"
 
