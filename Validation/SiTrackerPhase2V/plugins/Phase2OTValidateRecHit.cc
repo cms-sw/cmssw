@@ -203,8 +203,6 @@ void Phase2OTValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<bool>("associateRecoTracks", false);
   desc.add<edm::InputTag>("pixelSimLinkSrc", edm::InputTag("simSiPixelDigis", "Pixel"));
   desc.add<bool>("usePhase2Tracker", true);
-  desc.add<edm::InputTag>("OuterTrackerDigiSimLinkSource", edm::InputTag("simSiPixelDigis", "Tracker"));
-  desc.add<edm::InputTag>("OuterTrackerDigiSource", edm::InputTag("mix", "Tracker"));
   desc.add<edm::InputTag>("rechitsSrc", edm::InputTag("siPhase2RecHits"));
   desc.add<edm::InputTag>("simTracksSrc", edm::InputTag("g4SimHits"));
   desc.add<double>("SimTrackMinPt", 2.0);
