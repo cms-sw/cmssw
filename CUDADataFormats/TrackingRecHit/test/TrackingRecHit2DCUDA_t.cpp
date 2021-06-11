@@ -25,7 +25,7 @@ int main() {
     TrackingRecHit2DHost tkhitH(nHits, nullptr, nullptr, stream, &tkhit);
     cudaStreamSynchronize(stream);
     assert(tkhitH.view());
-    assert(tkhitH.view()->nHits() == nHits);
+    assert(tkhitH.view()->nHits() == unsigned(nHits));
   }
 
   cudaCheck(cudaStreamDestroy(stream));
