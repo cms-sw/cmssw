@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 from GeneratorInterface.EvtGenInterface.EvtGenSetting_cff import *
-from Configuration.Generator.PSweightsPythia.PythiaPSweightsSettings_cfi import *
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          comEnergy = cms.double(14000.0),
@@ -60,7 +59,6 @@ End"""
         PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CP5SettingsBlock,
-        pythia8PSweightsSettingsBlock,
         processParameters = cms.vstring(
             "SoftQCD:nonDiffractive = on",
             'PTFilter:filter = on', # this turn on the filter
@@ -69,7 +67,6 @@ End"""
         parameterSets = cms.vstring(
             'pythia8CommonSettings',
             'pythia8CP5Settings',
-            'pythia8PSweightsSettings',
             'processParameters',
         )
     )
