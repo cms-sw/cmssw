@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition>
+    <ConstantsSection label="CTPPS_210_Right_Station.xml" eval="true">
+        <Constant name="RP_210_Right_Station_Length" value="-([CTPPS_Stations_Assembly:CTPPS_220_Right_Station_Position_z]-[CTPPS_Stations_Assembly:CTPPS_210_Right_Station_Position_z])"/>
+        <!--Positions calculated from the wall closer to IP point-->
+        <Constant name="RP_210_Right_Prim_Vert_z" value="608*mm"/>
+        <Constant name="RP_210_Right_Prim_Hor_z" value="1058*mm"/>
+        <Constant name="RP_210_Right_Sec_Hor_z" value="9781*mm"/>
+        <Constant name="RP_210_Right_Sec_Vert_z" value="10231*mm"/>
+
+        <Constant name="RP_210_Right_Sec_Rot_Angle" value="8*deg"/>
+        <Constant name="RP_210_Right_Sec_Rot_Angle_neg8" value="-8*deg"/>
+        <Constant name="RP_210_Right_Sec_Rot_Angle_180" value="180*deg"/>
+        <Constant name="RP_210_Right_Sec_Rot_Angle_172" value="172*deg"/>
+
+        <Constant name="RP_210_Right_Hor_Vac_Length" value="[RP_Device:RP_Device_Envelope_Radius]+[RP_Device:RP_Device_Length_y]/2-[RP_Horizontal_Device:RP_Device_Hor_Closed_Wall_Thick_Int]"/>
+    </ConstantsSection>
+
+    <RotationSection label="CTPPS_210_Right_Station.xml">
+        <Rotation name="RP_210_Right_Sec_Rotation" 
+            phiX="[RP_210_Right_Sec_Rot_Angle]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Right_Sec_Rot_Angle])" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="0*deg"/>
+        <Rotation name="RP_210_Right_90_y_Sec_Rotation_neg8" 
+            phiX="0*deg" thetaX="180*deg" 
+            phiY="(90*deg+[RP_210_Right_Sec_Rot_Angle_neg8])" thetaY="90*deg" 
+            phiZ="(0*deg+[RP_210_Right_Sec_Rot_Angle_neg8])" thetaZ="90*deg"/>
+        <Rotation name="RP_210_Right_90_x_Sec_Rotation_neg8" 
+            phiX="(0*deg+[RP_210_Right_Sec_Rot_Angle_neg8])" thetaX="90*deg" 
+            phiY="0*deg" thetaY="180*deg" 
+            phiZ="(90*deg+[RP_210_Right_Sec_Rot_Angle_neg8])" thetaZ="90*deg"/>
+        <Rotation name="RP_210_Right_Sec_Rotation_neg8" 
+            phiX="[RP_210_Right_Sec_Rot_Angle_neg8]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Right_Sec_Rot_Angle_neg8])" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="0*deg"/>
+        <Rotation name="RP_210_Right_Sec_Rotation_180" 
+            phiX="[RP_210_Right_Sec_Rot_Angle_180]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Right_Sec_Rot_Angle_180])" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="0*deg"/>
+        <Rotation name="RP_210_Right_Sec_Rotation_172" 
+            phiX="[RP_210_Right_Sec_Rot_Angle_172]" thetaX="90*deg" 
+            phiY="(90*deg+[RP_210_Right_Sec_Rot_Angle_172])" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="0*deg"/>
+    </RotationSection>
+
+    <SolidSection label="CTPPS_210_Right_Station.xml">  
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_Envelope_Radius]*1.1" dz="[RP_210_Right_Station_Length]/2" name="RP_210_Right_Station"/>
+        <Tube rMin="[RP_Device:RP_Device_Beam_Hole_Diam]/2" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="([RP_210_Right_Prim_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2" name="RP_210_Right_Station_Tube_1"/>
+        <Tube rMin="[RP_Device:RP_Device_Beam_Hole_Diam]/2" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="([RP_210_Right_Prim_Hor_z]-[RP_210_Right_Prim_Vert_z]-[RP_Device:RP_Device_Length_z])/2" name="RP_210_Right_Station_Tube_2"/>
+        <Tube rMin="[RP_Device:RP_Device_Beam_Hole_Diam]/2" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="([RP_210_Right_Sec_Hor_z]-[RP_210_Right_Prim_Hor_z]-[RP_Device:RP_Device_Length_z])/2" name="RP_210_Right_Station_Tube_3"/>
+        <Tube rMin="[RP_Device:RP_Device_Beam_Hole_Diam]/2" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="([RP_210_Right_Sec_Vert_z]-[RP_210_Right_Sec_Hor_z]-[RP_Device:RP_Device_Length_z])/2" name="RP_210_Right_Station_Tube_4"/>
+        <Tube rMin="[RP_Device:RP_Device_Beam_Hole_Diam]/2" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="([RP_210_Right_Station_Length]-[RP_210_Right_Sec_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2" name="RP_210_Right_Station_Tube_5"/>
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2" dz="[RP_210_Right_Station_Length]/2" name="RP_210_Right_Station_Vacuum_1"/>
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_RP_Hole_Diam]/2" dz="[RP_Device:RP_Device_Envelope_Radius]" name="RP_210_Right_Station_Vert_Vacuum"/>
+        <UnionSolid name="RP_210_Right_Station_Vacuum_2">
+            <rSolid name="RP_210_Right_Station_Vacuum_1"/>
+            <rSolid name="RP_210_Right_Station_Vert_Vacuum"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+[RP_210_Right_Prim_Vert_z])"/>
+        </UnionSolid>
+        <UnionSolid name="RP_210_Right_Station_Vacuum_3">
+            <rSolid name="RP_210_Right_Station_Vacuum_2"/>
+            <rSolid name="RP_210_Right_Station_Vert_Vacuum"/>
+            <rRotation name="RP_210_Right_90_x_Sec_Rotation_neg8"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+[RP_210_Right_Sec_Vert_z])"/>
+        </UnionSolid>
+        <Polycone name="RP_210_Right_Station_Hor_Vacuum" startPhi="0*deg" deltaPhi="360*deg" >
+            <ZSection z="-[RP_Device:RP_Device_Length_y]/2+[RP_Horizontal_Device:RP_Device_Hor_Closed_Wall_Thick_Int]" rMin="0*mm" rMax="[RP_Device:RP_Device_RP_Hole_Diam]/2"/>
+            <ZSection z="-[RP_Device:RP_Device_Length_y]/2+[RP_Horizontal_Device:RP_Device_Hor_Closed_Wall_Thick_Int] + [RP_210_Right_Hor_Vac_Length]" rMin="0*mm" rMax="[RP_Device:RP_Device_RP_Hole_Diam]/2"/>
+        </Polycone> 
+        <UnionSolid name="RP_210_Right_Station_Vacuum_4">
+            <rSolid name="RP_210_Right_Station_Vacuum_3"/>
+            <rSolid name="RP_210_Right_Station_Hor_Vacuum"/>
+            <rRotation name="RP_Transformations:RP_y_90_rot"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+[RP_210_Right_Prim_Hor_z])"/>
+        </UnionSolid>
+        <UnionSolid name="RP_210_Right_Station_Vacuum_5">
+            <rSolid name="RP_210_Right_Station_Vacuum_4"/>
+            <rSolid name="RP_210_Right_Station_Hor_Vacuum"/>
+            <rRotation name="RP_210_Right_90_y_Sec_Rotation_neg8"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+[RP_210_Right_Sec_Hor_z])"/>
+        </UnionSolid>
+
+        <Polycone name="RP_210_Right_Station_Vacuum_1_Far" startPhi="0*deg" deltaPhi="360*deg" >
+            <ZSection z="0*mm" rMin="0*mm" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2"/>
+            <ZSection z="-([RP_210_Right_Station_Length]/2)" rMin="0*mm" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2"/>
+        </Polycone> 
+        <UnionSolid name="RP_210_Right_Station_Vacuum_2_Far">
+            <rSolid name="RP_210_Right_Station_Vacuum_1_Far"/>
+            <rSolid name="RP_210_Right_Station_Vert_Vacuum"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+[RP_210_Right_Sec_Vert_z])"/>
+        </UnionSolid>
+        <UnionSolid name="RP_210_Right_Station_Vacuum_3_Far">
+            <rSolid name="RP_210_Right_Station_Vacuum_2_Far"/>
+            <rSolid name="RP_210_Right_Station_Hor_Vacuum"/>
+            <rRotation name="RP_Transformations:RP_y_90_rot"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+[RP_210_Right_Sec_Hor_z])"/>
+        </UnionSolid>
+    </SolidSection>
+
+    <LogicalPartSection label="CTPPS_210_Right_Station.xml">
+        <LogicalPart name="RP_210_Right_Station">
+            <rSolid name="RP_210_Right_Station"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="RP_210_Right_Station_Tube_1">
+            <rSolid name="RP_210_Right_Station_Tube_1"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_210_Right_Station_Tube_2">
+            <rSolid name="RP_210_Right_Station_Tube_2"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_210_Right_Station_Tube_3">
+            <rSolid name="RP_210_Right_Station_Tube_3"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_210_Right_Station_Tube_4">
+            <rSolid name="RP_210_Right_Station_Tube_4"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_210_Right_Station_Tube_5">
+            <rSolid name="RP_210_Right_Station_Tube_5"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_210_Right_Station_Vacuum_5">
+            <rSolid name="RP_210_Right_Station_Vacuum_5"/>
+            <rMaterial name="materials:Vacuum"/>
+        </LogicalPart>
+        <LogicalPart name="RP_210_Right_Station_Vacuum_3_Far">
+            <rSolid name="RP_210_Right_Station_Vacuum_3_Far"/>
+            <rMaterial name="materials:Vacuum"/>
+        </LogicalPart>
+    </LogicalPartSection>
+
+    <PosPartSection label="CTPPS_210_Right_Station.xml">
+        <PosPart copyNumber="1">
+            <rParent name="RP_210_Right_Station"/>
+            <rChild name="RP_Vertical_Device:RP_Device_Vert_Corp_3"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+[RP_210_Right_Prim_Vert_z])"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="RP_210_Right_Station"/>
+            <rChild name="RP_Vertical_Device:RP_Device_Vert_Corp_3"/>
+            <rRotation name="RP_210_Right_Sec_Rotation_neg8"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+[RP_210_Right_Sec_Vert_z])"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_210_Right_Station"/>
+            <rChild name="RP_Horizontal_Device:RP_Device_Hor_Corp_3"/>
+            <rRotation name="RP_210_Right_Sec_Rotation_180"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+[RP_210_Right_Prim_Hor_z])"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="RP_210_Right_Station"/>
+            <rChild name="RP_Horizontal_Device:RP_Device_Hor_Corp_3"/>
+            <rRotation name="RP_210_Right_Sec_Rotation_172"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+[RP_210_Right_Sec_Hor_z])"/>
+        </PosPart>
+
+        <PosPart copyNumber="1">
+            <rParent name="RP_210_Right_Station"/>
+            <rChild name="RP_210_Right_Station_Tube_1"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+([RP_210_Right_Prim_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_210_Right_Station"/>
+            <rChild name="RP_210_Right_Station_Tube_2"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+([RP_210_Right_Prim_Vert_z]+[RP_210_Right_Prim_Hor_z])/2)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_210_Right_Station"/>
+            <rChild name="RP_210_Right_Station_Tube_3"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+([RP_210_Right_Prim_Hor_z]+[RP_210_Right_Sec_Hor_z])/2)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_210_Right_Station"/>
+            <rChild name="RP_210_Right_Station_Tube_4"/>
+            <Translation x="0*mm" y="0*mm" z="-(-[RP_210_Right_Station_Length]/2+([RP_210_Right_Sec_Hor_z]+[RP_210_Right_Sec_Vert_z])/2)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_210_Right_Station"/>
+            <rChild name="RP_210_Right_Station_Tube_5"/>
+            <Translation x="0*mm" y="0*mm" z="-([RP_210_Right_Station_Length]/2-([RP_210_Right_Station_Length]-[RP_210_Right_Sec_Vert_z]-[RP_Device:RP_Device_Length_z]/2)/2)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_210_Right_Station"/>
+            <rChild name="RP_210_Right_Station_Vacuum_5"/>
+            <rRotation name="RP_210_Right_Sec_Rotation_180"/>
+        </PosPart>
+
+        <PosPart copyNumber="1">
+            <rParent name="RP_210_Right_Station_Vacuum_5"/>
+            <rChild name="RP_210_Right_Station_Vacuum_3_Far"/>
+            <rRotation name="RP_210_Right_Sec_Rotation_neg8"/>
+        </PosPart>
+
+        <PosPart copyNumber="100">
+            <rParent name="RP_210_Right_Station_Vacuum_5"/>
+            <rChild name="RP_Box_100:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_180_z_180_y_rot"/>
+            <Translation x="0*mm" y="-[RP_Dist_Beam_Cent:RP_147_Right_Det_Dist_1]-[RP_Box:RP_Box_primary_vacuum_y]/2" z="-([RP_210_Right_Prim_Vert_z]-[RP_210_Right_Station_Length]/2)"/>
+        </PosPart>
+        <PosPart copyNumber="101">
+            <rParent name="RP_210_Right_Station_Vacuum_5"/>
+            <rChild name="RP_Box_101:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm" y="[RP_Dist_Beam_Cent:RP_147_Right_Det_Dist_0]+[RP_Box:RP_Box_primary_vacuum_y]/2" z="-([RP_210_Right_Prim_Vert_z]-[RP_210_Right_Station_Length]/2)"/>
+        </PosPart>
+        <PosPart copyNumber="102">
+            <rParent name="RP_210_Right_Station_Vacuum_5"/>
+            <rChild name="RP_Box_102:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_90_z_cw_180_y_rot"/>
+            <Translation x="-(-[RP_Dist_Beam_Cent:RP_147_Right_Det_Dist_2]-[RP_Box:RP_Box_primary_vacuum_y]/2)" y="0*mm" z="-([RP_210_Right_Prim_Hor_z]-[RP_210_Right_Station_Length]/2)"/>
+        </PosPart>
+        <PosPart copyNumber="10103">
+            <rParent name="RP_210_Right_Station_Vacuum_3_Far"/>
+            <rChild name="RP_Box_103:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_90_z_cw_180_y_rot"/>
+            <Translation x="-(-[RP_Dist_Beam_Cent:RP_147_Right_Det_Dist_3]-[RP_Box:RP_Box_primary_vacuum_y]/2)" y="0*mm" z="-([RP_210_Right_Sec_Hor_z]-[RP_210_Right_Station_Length]/2)"/>
+        </PosPart>
+        <PosPart copyNumber="104">
+            <rParent name="RP_210_Right_Station_Vacuum_3_Far"/>
+            <rChild name="RP_Box_104:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_180_z_180_y_rot"/>
+            <Translation x="0*mm" y="-[RP_Dist_Beam_Cent:RP_147_Right_Det_Dist_5]-[RP_Box:RP_Box_primary_vacuum_y]/2" z="-([RP_210_Right_Sec_Vert_z]-[RP_210_Right_Station_Length]/2)"/>
+        </PosPart>
+        <PosPart copyNumber="105">
+            <rParent name="RP_210_Right_Station_Vacuum_3_Far"/>
+            <rChild name="RP_Box_105:RP_box_primary_vacuum"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm" y="[RP_Dist_Beam_Cent:RP_147_Right_Det_Dist_4]+[RP_Box:RP_Box_primary_vacuum_y]/2" z="-([RP_210_Right_Sec_Vert_z]-[RP_210_Right_Station_Length]/2)"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>
