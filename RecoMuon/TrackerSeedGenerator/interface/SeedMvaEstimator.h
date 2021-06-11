@@ -32,18 +32,18 @@ public:
   std::vector<double> scale_std_;
 
   double computeMva(const TrajectorySeed&,
-                    GlobalVector,
-                    edm::Handle<l1t::MuonBxCollection>,
+                    const GlobalVector&,
+                    const l1t::MuonBxCollection&,
                     int minL1Qual,
-                    edm::Handle<reco::RecoChargedCandidateCollection>,
+                    const reco::RecoChargedCandidateCollection&,
                     bool isFromL1) const;
 
 private:
   std::unique_ptr<const GBRForest> gbrForest_;
 
   void getL1MuonVariables(
-      const TrajectorySeed&, GlobalVector, edm::Handle<l1t::MuonBxCollection>, int minL1Qual, float&, float&) const;
+      const TrajectorySeed&, const GlobalVector&, const l1t::MuonBxCollection&, int minL1Qual, float&, float&) const;
   void getL2MuonVariables(
-      const TrajectorySeed&, GlobalVector, edm::Handle<reco::RecoChargedCandidateCollection>, float&, float&) const;
+      const TrajectorySeed&, const GlobalVector&, const reco::RecoChargedCandidateCollection&, float&, float&) const;
 };
 #endif
