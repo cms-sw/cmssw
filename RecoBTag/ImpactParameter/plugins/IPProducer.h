@@ -307,8 +307,8 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
       reco::GhostTrackFitter fitter;
       GlobalPoint origin = RecoVertex::convertPos(pv->position());
       GlobalError error = RecoVertex::convertError(pv->error());
-      ghostTrack.reset(
-          new reco::GhostTrack(fitter.fit(origin, error, direction, m_ghostTrackPriorDeltaR, transientTracks)));
+      ghostTrack = std::make_unique<reco::GhostTrack>(
+          fitter.fit(origin, error, direction, m_ghostTrackPriorDeltaR, transientTracks));
 
       /*
 	if (std::sqrt(jetMomentum.Perp2()) > 30) {
@@ -432,7 +432,7 @@ void IPProducer<Container, Base, Helper>::checkEventSetup(const edm::EventSetup&
     const TrackProbabilityCalibration* ca2D = calib2DHandle.product();
     const TrackProbabilityCalibration* ca3D = calib3DHandle.product();
 
-    m_probabilityEstimator.reset(new HistogramProbabilityEstimator(ca3D, ca2D));
+    m_probabilityEstimator = std::make_unique<HistogramProbabilityEstimator>(ca3D, ca2D);
   }
   m_calibrationCacheId3D = cacheId3D;
   m_calibrationCacheId2D = cacheId2D;

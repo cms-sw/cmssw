@@ -83,11 +83,9 @@ vector<const DetLayer*> SimpleForwardNavigableLayer::nextLayers(const FreeTrajec
       (!(dir == oppositeToMomentum) && isInOutTrackFWD) || ((dir == oppositeToMomentum) && !isInOutTrackFWD);
   //bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ( (dir == oppositeToMomentum) && !isInOutTrack);
 
-  if
-    LIKELY(dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel) {  //standard tracks
-      wellInside(ftsWithoutErrors, dir, theOuterLayers, result);
-    }
-  else if (!dirOppositeXORisInOutTrackFWD && !dirOppositeXORisInOutTrackBarrel) {  // !dirOppositeXORisInOutTrack
+  if LIKELY (dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel) {  //standard tracks
+    wellInside(ftsWithoutErrors, dir, theOuterLayers, result);
+  } else if (!dirOppositeXORisInOutTrackFWD && !dirOppositeXORisInOutTrackBarrel) {  // !dirOppositeXORisInOutTrack
     wellInside(ftsWithoutErrors, dir, theInnerLayers, result);
   } else if (!dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel) {
     wellInside(ftsWithoutErrors, dir, theInnerForwardLayers.begin(), theInnerForwardLayers.end(), result);

@@ -79,12 +79,11 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts,
   // FIXME  clean this and optimize the rest of the code once understood and validated
   if (true) {  // collector.filter()) {
     emptyMono = theMonoDet->empty(data);
-    if
-      LIKELY(!emptyMono) {
-        // mono does require "projection" for precise estimate
-        TrajectoryStateOnSurface mts = fastProp(ts, geomDet().surface(), theMonoDet->geomDet().surface());
-        theMonoDet->simpleRecHits(mts, collector.estimator(), data, monoHits);
-      }
+    if LIKELY (!emptyMono) {
+      // mono does require "projection" for precise estimate
+      TrajectoryStateOnSurface mts = fastProp(ts, geomDet().surface(), theMonoDet->geomDet().surface());
+      theMonoDet->simpleRecHits(mts, collector.estimator(), data, monoHits);
+    }
     // print("mono", mts,ts);
     mf = monoHits.size();
   } else {
@@ -95,12 +94,11 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts,
   // stereo requires "projection" for precision and change in coordinates
   if (collector.filter()) {
     emptyStereo = theStereoDet->empty(data);
-    if
-      LIKELY(!emptyStereo) {
-        TrajectoryStateOnSurface pts = fastProp(ts, geomDet().surface(), theStereoDet->geomDet().surface());
-        theStereoDet->simpleRecHits(pts, collector.estimator(), data, stereoHits);
-        // print("stereo", pts,ts);
-      }
+    if LIKELY (!emptyStereo) {
+      TrajectoryStateOnSurface pts = fastProp(ts, geomDet().surface(), theStereoDet->geomDet().surface());
+      theStereoDet->simpleRecHits(pts, collector.estimator(), data, stereoHits);
+      // print("stereo", pts,ts);
+    }
     sf = stereoHits.size();
   } else {
     theStereoDet->simpleRecHits(ts, data, stereoHits);
@@ -113,22 +111,20 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts,
     stat(mh, sh, mf, sf);
   }
 
-  if
-    UNLIKELY(emptyMono & emptyStereo) return;
+  if UNLIKELY (emptyMono & emptyStereo)
+    return;
 
-  if
-    UNLIKELY(emptyStereo) {
-      // make mono TTRHs and project them
-      projectOnGluedDet(collector, monoHits, glbDir);
-      return;
-    }
+  if UNLIKELY (emptyStereo) {
+    // make mono TTRHs and project them
+    projectOnGluedDet(collector, monoHits, glbDir);
+    return;
+  }
 
-  if
-    UNLIKELY(emptyMono) {
-      // make stereo TTRHs and project them
-      projectOnGluedDet(collector, stereoHits, glbDir);
-      return;
-    }
+  if UNLIKELY (emptyMono) {
+    // make stereo TTRHs and project them
+    projectOnGluedDet(collector, stereoHits, glbDir);
+    return;
+  }
 
   if ((!monoHits.empty()) & (!stereoHits.empty())) {
     const GluedGeomDet* gluedDet = &specificGeomDet();
