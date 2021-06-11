@@ -66,7 +66,7 @@ namespace cmsutils {
         : back(tail), value(std::move(val)), refCount(0) {}
     // emplace
     template <typename... Args>
-    _bqueue_item(boost::intrusive_ptr<_bqueue_item<T> > tail, Args &&... args)
+    _bqueue_item(boost::intrusive_ptr<_bqueue_item<T> > tail, Args &&...args)
         : back(tail), value(std::forward<Args>(args)...), refCount(0) {}
     boost::intrusive_ptr<_bqueue_item<T> > back;
     T const value;
@@ -174,7 +174,7 @@ namespace cmsutils {
 
     // emplace
     template <typename... Args>
-    void emplace_back(Args &&... args) {
+    void emplace_back(Args &&...args) {
       m_tail = itemptr(new item(this->m_tail, std::forward<Args>(args)...));
       if ((++m_size) == 1) {
         m_head = m_tail;

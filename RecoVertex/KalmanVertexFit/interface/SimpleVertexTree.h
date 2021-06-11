@@ -88,7 +88,7 @@ public:
 private:
   void defineTrackBranch(const TString& prefix,
                          const TString& type,
-                         const float* (VertexFitterResult::*pfunc)(const int)const,
+                         const float* (VertexFitterResult::*pfunc)(const int) const,
                          const TString& index);
 
   float simPos[3];

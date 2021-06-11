@@ -9,6 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/CaloRecHitResolutionProvider.h"
+#include <memory>
+
 #include <tuple>
 
 class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
@@ -65,12 +67,12 @@ public:
     _timeResolutionCalcBarrel.reset(nullptr);
     if (conf.exists("timeResolutionCalcBarrel")) {
       const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalcBarrel");
-      _timeResolutionCalcBarrel.reset(new CaloRecHitResolutionProvider(timeResConf));
+      _timeResolutionCalcBarrel = std::make_unique<CaloRecHitResolutionProvider>(timeResConf);
     }
     _timeResolutionCalcEndcap.reset(nullptr);
     if (conf.exists("timeResolutionCalcEndcap")) {
       const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalcEndcap");
-      _timeResolutionCalcEndcap.reset(new CaloRecHitResolutionProvider(timeResConf));
+      _timeResolutionCalcEndcap = std::make_unique<CaloRecHitResolutionProvider>(timeResConf);
     }
 
     switch (_posCalcNCrystals) {
