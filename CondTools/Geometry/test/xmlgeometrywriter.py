@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("XMLGeometryWriter")
+
 process.load('CondCore.CondDB.CondDB_cfi')
 
 process.source = cms.Source("EmptyIOVSource",
@@ -11,7 +12,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./geTagXX.xml"),
+                                           XMLFileName = cms.untracked.string("./geSingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
 
@@ -19,7 +20,7 @@ process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Extended_TagXX')))
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_120DD4hepV4X_Extended_mc')))
                                           )
 
 process.maxEvents = cms.untracked.PSet(
