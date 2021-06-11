@@ -98,8 +98,8 @@ public:
   ~HGCalTriggerValidator() override;
 
 private:
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
-  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, Histograms const&) const override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &, Histograms &) const override;
+  void dqmAnalyze(edm::Event const &, edm::EventSetup const &, Histograms const &) const override;
 
 private:
   // ----------member data ---------------------------
@@ -119,18 +119,16 @@ HGCalTriggerValidator::HGCalTriggerValidator(const edm::ParameterSet &iConfig)
       multiclusters_token_{consumes<l1t::HGCalMulticlusterBxCollection>(iConfig.getParameter<edm::InputTag>("Multiclusters"))},
       towers_token_{consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("Towers"))},
       id_{HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT")} {
-          
   id_->initialize(iConfig.getParameter<edm::ParameterSet>("EGIdentification"));
   triggerTools_ = std::make_shared<HGCalTriggerTools>();
-
 }
 
 HGCalTriggerValidator::~HGCalTriggerValidator() {}
 
-void HGCalTriggerValidator::bookHistograms(DQMStore::IBooker& iBooker,
-                                           edm::Run const&,
-                                           edm::EventSetup const& iSetup,
-                                           Histograms& histograms) const {
+void HGCalTriggerValidator::bookHistograms(DQMStore::IBooker &iBooker,
+                                           edm::Run const &,
+                                           edm::EventSetup const &iSetup,
+                                           Histograms &histograms) const {
   iBooker.cd();
   iBooker.setCurrentFolder("HGCALTPG");
 
@@ -193,9 +191,9 @@ void HGCalTriggerValidator::bookHistograms(DQMStore::IBooker& iBooker,
   histograms.h_tower_iPhi_ = iBooker.book1D("tower_iPhi", "tower iPhi; iPhi", 80, 0, 80);
 }
 
-void HGCalTriggerValidator::dqmAnalyze(edm::Event const& iEvent, 
-                                       edm::EventSetup const& iSetup, 
-                                       Histograms const& histograms) const {
+void HGCalTriggerValidator::dqmAnalyze(edm::Event const &iEvent,
+                                       edm::EventSetup const &iSetup,
+                                       Histograms const &histograms) const {
   int tc_n = 0;
   int cl_n = 0;
   int cl3d_n = 0;
