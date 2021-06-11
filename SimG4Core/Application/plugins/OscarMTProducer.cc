@@ -169,6 +169,7 @@ void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) {
 
 void OscarMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun";
+  m_runManagerWorker->beginRun(es);
   m_runManagerWorker->initializeG4(m_masterThread->runManagerMasterPtr(), es);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun done";
 }

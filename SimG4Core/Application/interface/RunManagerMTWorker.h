@@ -9,6 +9,8 @@
 
 #include <memory>
 #include <tbb/concurrent_vector.h>
+#include <unordered_map>
+#include <string>
 
 namespace edm {
   class ParameterSet;
@@ -34,6 +36,7 @@ class G4Field;
 
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
+class SensitiveDetectorMakerBase;
 
 class SimWatcher;
 class SimProducer;
@@ -43,6 +46,7 @@ public:
   explicit RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& i);
   ~RunManagerMTWorker();
 
+  void beginRun(const edm::EventSetup&);
   void endRun();
 
   std::unique_ptr<G4SimEvent> produce(const edm::Event& inpevt,
@@ -62,7 +66,7 @@ public:
   SimTrackManager* GetSimTrackManager();
   std::vector<SensitiveTkDetector*>& sensTkDetectors();
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
-  std::vector<std::shared_ptr<SimProducer> >& producers();
+  std::vector<std::shared_ptr<SimProducer>>& producers();
 
   void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
 
@@ -106,6 +110,7 @@ private:
 
   G4SimEvent* m_simEvent;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
+  std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
 };
 
 #endif
