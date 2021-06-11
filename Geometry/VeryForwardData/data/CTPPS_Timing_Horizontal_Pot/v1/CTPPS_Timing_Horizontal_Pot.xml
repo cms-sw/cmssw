@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition>
+
+  <ConstantsSection label="CTPPS_Timing_Horizontal_Pot.xml" eval="true">
+    <Constant name="inner_diameter" value="141*mm"/>
+    <Constant name="plane_length" value="135*mm"/>
+    <Constant name="cut_width" value="16.57*mm"/>
+    <Constant name="cut_depth" value="1.7*mm"/>
+    <Constant name="thin_window_thickness" value="0.2*mm"/>
+    <Constant name="bottom_wall_thickness" value="[thin_window_thickness]+[cut_depth]"/>
+    <Constant name="external_wall_thickness" value="1*mm"/>
+  </ConstantsSection>
+
+  <SolidSection label="CTPPS_Timing_Horizontal_Pot.xml">
+    <Tubs name="Primary_Vacuum_nocut" rMin="0*mm" rMax="[inner_diameter]/2+[external_wall_thickness]" dz="[plane_length]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Bottom_Wall_nocut" rMin="0*mm" rMax="[inner_diameter]/2" dz="([bottom_wall_thickness])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="External_Wall" rMin="[inner_diameter]/2" rMax="[inner_diameter]/2+[external_wall_thickness]" dz="[plane_length]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Trd1 name="Window_Cut" dz="[cut_depth]/2" dy2="[cut_width]/2+[cut_depth]" dy1="[cut_width]/2" dx1="[inner_diameter]/2" dx2="[inner_diameter]/2"/>
+    <UnionSolid name="Primary_Vacuum">
+      <rSolid name="Primary_Vacuum_nocut"/>
+      <rSolid name="Window_Cut"/>
+      <Translation x="0*mm" y="0*mm" z="-([plane_length]+[cut_depth])/2"/>
+    </UnionSolid>
+    <SubtractionSolid name="Bottom_Wall">
+      <rSolid name="Bottom_Wall_nocut"/>
+      <rSolid name="Window_Cut"/>
+      <Translation x="0*mm" y="0*mm" z="[bottom_wall_thickness]/2-[cut_depth]/2"/>
+    </SubtractionSolid>
+  </SolidSection>
+
+  <LogicalPartSection label="CTPPS_Timing_Horizontal_Pot.xml">
+    <LogicalPart name="Primary_Vacuum">
+      <rSolid name="Primary_Vacuum"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+    <LogicalPart name="External_Wall">
+      <rSolid name="External_Wall"/>
+      <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+    </LogicalPart>
+    <LogicalPart name="Bottom_Wall">
+      <rSolid name="Bottom_Wall"/>
+      <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+  <PosPartSection label="CTPPS_Timing_Horizontal_Pot.xml">
+    <PosPart copyNumber="1">
+      <rParent name="Primary_Vacuum"/>
+      <rChild name="External_Wall"/>
+      <Translation x="0*cm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="Primary_Vacuum"/>
+      <rChild name="Bottom_Wall"/>
+      <Translation x="0*cm" y="0*mm" z="-[plane_length]/2+[bottom_wall_thickness]/2"/>
+    </PosPart>
+  </PosPartSection>
+
+</DDDefinition>
+
