@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
-    tracks                     = cms.InputTag("generalTracks"),
+    tracks             = cms.InputTag("generalTracks"),
 
     minTrackHits       = cms.uint32(0),
     minTrackPt         = cms.double(10),
@@ -29,6 +29,7 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
 import RecoTracker.DeDx.DeDxEstimatorProducer_cfi as _mod
 
 dedxHarmonic2 = _mod.DeDxEstimatorProducer.clone(
+    estimator          = 'generic',
     fraction           = 0.4,        #Used only if estimator='truncated'
     exponent           = -2.0,       #Used only if estimator='generic'
     Reccord            = "SiStripDeDxMip_3D_Rcd", #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
