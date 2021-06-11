@@ -1,5 +1,5 @@
-#ifndef FWCore_MessageService_service_MessageLogger_h
-#define FWCore_MessageService_service_MessageLogger_h
+#ifndef FWCore_MessageService_plugins_MessageLogger_h
+#define FWCore_MessageService_plugins_MessageLogger_h
 
 // -*- C++ -*-
 //
