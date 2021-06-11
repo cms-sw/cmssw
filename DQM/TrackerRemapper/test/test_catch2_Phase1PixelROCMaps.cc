@@ -5,6 +5,8 @@
 #include "DQM/TrackerRemapper/interface/Phase1PixelROCMaps.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 
+static const std::string k_geo = "SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt";
+
 TEST_CASE("Phase1PixelROCMaps testing", "[Phase1PixelROCMaps]") {
   //_____________________________________________________________
   SECTION("Check barrel plotting") {
@@ -42,8 +44,7 @@ TEST_CASE("Phase1PixelROCMaps testing", "[Phase1PixelROCMaps]") {
     Phase1PixelROCMaps theMap("");
     gStyle->SetOptStat(0);
     TCanvas c = TCanvas("c", "c", 1200, 1600);
-    SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(
-        edm::FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt").fullPath());
+    SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
     const auto& detIds = reader_.getAllDetIds();
     for (const auto& it : detIds) {
       int subid = DetId(it).subdetId();
@@ -88,8 +89,7 @@ TEST_CASE("Phase1PixelROCMaps testing", "[Phase1PixelROCMaps]") {
     Phase1PixelROCMaps theMap("", "#Delta: flipped vs unflipped");
     gStyle->SetOptStat(0);
     TCanvas c = TCanvas("c", "c", 1200, 1600);
-    SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(
-        edm::FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt").fullPath());
+    SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
     const auto& detIds = reader_.getAllDetIds();
     for (const auto& it : detIds) {
       bool isFlipped = theMap.findDetCoordinates(it).isFlipped();
@@ -120,8 +120,7 @@ TEST_CASE("Phase1PixelROCMaps testing", "[Phase1PixelROCMaps]") {
     Phase1PixelROCMaps theMap("");
     gStyle->SetOptStat(0);
     TCanvas c = TCanvas("c", "c", 1200, 1600);
-    SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(
-        edm::FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt").fullPath());
+    SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
     const auto& detIds = reader_.getAllDetIds();
     for (const auto& it : detIds) {
       for (unsigned i = 0; i < 16; i++) {
