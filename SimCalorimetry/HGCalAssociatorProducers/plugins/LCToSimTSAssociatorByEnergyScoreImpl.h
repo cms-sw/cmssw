@@ -1,4 +1,6 @@
 // Original Author: Leonardo Cristella
+#ifndef SimCalorimetry_HGCalAssociatorProducers_LCToSimTSAssociatorByEnergyScoreImpl_h
+#define SimCalorimetry_HGCalAssociatorProducers_LCToSimTSAssociatorByEnergyScoreImpl_h
 
 #include <vector>
 #include <map>
@@ -19,24 +21,26 @@ namespace edm {
 
 class LCToSimTSAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToSimTracksterAssociatorBaseImpl {
 public:
-  explicit LCToSimTSAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
-                                             bool);
+  explicit LCToSimTSAssociatorByEnergyScoreImpl(edm::EDProductGetter const &);
 
-  hgcal::RecoToSimTracksterCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                const edm::Handle<ticl::TracksterCollection> &sTCH,
-                                                const edm::Handle<CaloParticleCollection>& cPCH,
-                                                const hgcal::RecoToSimCollection &lCToCPs,
-                                                const edm::Handle<SimClusterCollection>& sCCH,
-                                                const hgcal::RecoToSimCollectionWithSimClusters &lCToSCs) const override;
+  hgcal::RecoToSimTracksterCollection associateRecoToSim(
+      const edm::Handle<reco::CaloClusterCollection> &cCH,
+      const edm::Handle<ticl::TracksterCollection> &sTCH,
+      const edm::Handle<CaloParticleCollection> &cPCH,
+      const hgcal::RecoToSimCollection &lCToCPs,
+      const edm::Handle<SimClusterCollection> &sCCH,
+      const hgcal::RecoToSimCollectionWithSimClusters &lCToSCs) const override;
 
-  hgcal::SimTracksterToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                const edm::Handle<ticl::TracksterCollection> &sTCH,
-                                                const edm::Handle<CaloParticleCollection>& cPCH,
-                                                const hgcal::SimToRecoCollection &cPToLCs,
-                                                const edm::Handle<SimClusterCollection>& sCCH,
-                                                const hgcal::SimToRecoCollectionWithSimClusters &sCToLCs) const override;
+  hgcal::SimTracksterToRecoCollection associateSimToReco(
+      const edm::Handle<reco::CaloClusterCollection> &cCH,
+      const edm::Handle<ticl::TracksterCollection> &sTCH,
+      const edm::Handle<CaloParticleCollection> &cPCH,
+      const hgcal::SimToRecoCollection &cPToLCs,
+      const edm::Handle<SimClusterCollection> &sCCH,
+      const hgcal::SimToRecoCollectionWithSimClusters &sCToLCs) const override;
 
 private:
-  const bool hardScatterOnly_;
   edm::EDProductGetter const *productGetter_;
 };
+
+#endif
