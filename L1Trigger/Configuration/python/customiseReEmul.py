@@ -61,7 +61,7 @@ def L1TReEmulFromRAW2015(process):
         cms.InputTag('hcalDigis')
     )
     process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
-    process.simDtTriggerPrimitiveDigis.digiTag = 'muonDTDigis'  
+    process.simDtTriggerPrimitiveDigis.digiTag = 'muonDTDigis'
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
 
@@ -131,6 +131,7 @@ def L1TReEmulFromRAW2016(process):
                 cms.InputTag('hcalDigis'),
                 cms.InputTag('hcalDigis')
     )
+    process.simDtTriggerPrimitiveDigis.digiTag = cms.InputTag("muonDTDigis")
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
     process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
@@ -261,6 +262,14 @@ def L1TReEmulMCFromRAW(process):
     L1TReEmulFromRAW(process)
     stage2L1Trigger.toModify(process.simEmtfDigis, CSCInput = 'simCscTriggerPrimitiveDigis:MPCSORTED')
     stage2L1Trigger.toModify(process.simOmtfDigis, srcCSC   = 'simCscTriggerPrimitiveDigis:MPCSORTED')
+
+    # Temporary fix for OMTF inputs in MC re-emulation
+    run3_GEM.toModify(process.simOmtfDigis,
+        srcRPC   = 'muonRPCDigis',
+        srcDTPh  = 'simDtTriggerPrimitiveDigis',
+        srcDTTh  = 'simDtTriggerPrimitiveDigis'
+    )
+
     return process
 
 def L1TReEmulMCFromRAWSimEcalTP(process):
