@@ -7,6 +7,6 @@ from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForBeamHalo_cfi
 import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 beamhaloTrackerSeedingLayers = _mod.seedingLayersEDProducer.clone(
+    layerInfo,
     layerList = layerList,
-    **layerInfo
 )

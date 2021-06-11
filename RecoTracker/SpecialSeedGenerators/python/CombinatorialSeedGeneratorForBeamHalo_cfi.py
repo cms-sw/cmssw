@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 
-layerInfo = dict(
+layerInfo = cms.PSet(
     TID = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(False),

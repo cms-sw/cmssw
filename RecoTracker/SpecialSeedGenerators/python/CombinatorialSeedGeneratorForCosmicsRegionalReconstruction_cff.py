@@ -4,6 +4,6 @@ from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsRegio
 import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 regionalCosmicTrackerSeedingLayers = _mod.seedingLayersEDProducer.clone(
-    layerList = layerList,
-    **layerInfo
+    layerInfo,
+    layerList = layerList
 )
