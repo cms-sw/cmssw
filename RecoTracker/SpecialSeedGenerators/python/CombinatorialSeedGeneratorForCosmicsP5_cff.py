@@ -24,28 +24,28 @@ import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 # seeding layers
 combinatorialcosmicseedingtripletsP5 = _mod.seedingLayersEDProducer.clone(
+    layerInfo,
     layerList = ['MTOB4+MTOB5+MTOB6', 
-        'MTOB3+MTOB5+MTOB6', 
-        'MTOB3+MTOB4+MTOB5', 
-        'TOB2+MTOB4+MTOB5', 
-        'MTOB3+MTOB4+MTOB6', 
-        'TOB2+MTOB4+MTOB6'],
-    **layerInfo
+                 'MTOB3+MTOB5+MTOB6', 
+                 'MTOB3+MTOB4+MTOB5', 
+                 'TOB2+MTOB4+MTOB5', 
+                 'MTOB3+MTOB4+MTOB6', 
+                 'TOB2+MTOB4+MTOB6'],
 )
 combinatorialcosmicseedingpairsTOBP5 = _mod.seedingLayersEDProducer.clone( 
+    layerInfo,
     layerList = ['MTOB5+MTOB6', 
-        'MTOB4+MTOB5'],
-    **layerInfo
+                 'MTOB4+MTOB5'],
 )
 combinatorialcosmicseedingpairsTECposP5 = _mod.seedingLayersEDProducer.clone(
     layerList = ['TEC1_pos+TEC2_pos', 
-        'TEC2_pos+TEC3_pos', 
-        'TEC3_pos+TEC4_pos', 
-        'TEC4_pos+TEC5_pos', 
-        'TEC5_pos+TEC6_pos', 
-        'TEC6_pos+TEC7_pos', 
-        'TEC7_pos+TEC8_pos', 
-        'TEC8_pos+TEC9_pos'],
+                 'TEC2_pos+TEC3_pos', 
+                 'TEC3_pos+TEC4_pos', 
+                 'TEC4_pos+TEC5_pos', 
+                 'TEC5_pos+TEC6_pos', 
+                 'TEC6_pos+TEC7_pos', 
+                 'TEC7_pos+TEC8_pos', 
+                 'TEC8_pos+TEC9_pos'],
     TEC = cms.PSet(
         minRing = cms.int32(5),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
@@ -58,13 +58,13 @@ combinatorialcosmicseedingpairsTECposP5 = _mod.seedingLayersEDProducer.clone(
 )
 combinatorialcosmicseedingpairsTECnegP5 = _mod.seedingLayersEDProducer.clone(
     layerList = ['TEC1_neg+TEC2_neg', 
-        'TEC2_neg+TEC3_neg', 
-        'TEC3_neg+TEC4_neg', 
-        'TEC4_neg+TEC5_neg', 
-        'TEC5_neg+TEC6_neg', 
-        'TEC6_neg+TEC7_neg', 
-        'TEC7_neg+TEC8_neg', 
-        'TEC8_neg+TEC9_neg'],
+                 'TEC2_neg+TEC3_neg', 
+                 'TEC3_neg+TEC4_neg', 
+                 'TEC4_neg+TEC5_neg', 
+                 'TEC5_neg+TEC6_neg', 
+                 'TEC6_neg+TEC7_neg', 
+                 'TEC7_neg+TEC8_neg', 
+                 'TEC8_neg+TEC9_neg'],
     TEC = cms.PSet(
         minRing = cms.int32(5),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
