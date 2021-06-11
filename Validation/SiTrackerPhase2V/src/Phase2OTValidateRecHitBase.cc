@@ -475,10 +475,10 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     psd0.add<int>("NyBins", 250);
     psd0.add<double>("ymin", -250.0);
     psd0.add<double>("ymax", 250.0);
-    psd0.add<int>("NxBins", 82);
+    psd0.add<int>("NxBins", 41);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.1);
-    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("xmin", 0.);
     desc.add<edm::ParameterSetDescription>("Delta_X_vs_eta_Strip", psd0);
   }
   {
@@ -488,10 +488,10 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     psd0.add<int>("NyBins", 100);
     psd0.add<double>("ymin", -5.0);
     psd0.add<double>("ymax", 5.0);
-    psd0.add<int>("NxBins", 82);
+    psd0.add<int>("NxBins", 41);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.1);
-    psd0.add<double>("xmin", -4.1);
+    psd0.add<double>("xmin", 0.);
     desc.add<edm::ParameterSetDescription>("Delta_Y_vs_eta_Strip", psd0);
   }
 
