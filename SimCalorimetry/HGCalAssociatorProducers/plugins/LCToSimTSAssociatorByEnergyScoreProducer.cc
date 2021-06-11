@@ -24,13 +24,11 @@ public:
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
-  const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
 };
 
 LCToSimTSAssociatorByEnergyScoreProducer::LCToSimTSAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
-    : caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")) {
+    : caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   rhtools_.reset(new hgcal::RecHitTools());
 
   // Register the product
@@ -40,21 +38,18 @@ LCToSimTSAssociatorByEnergyScoreProducer::LCToSimTSAssociatorByEnergyScoreProduc
 LCToSimTSAssociatorByEnergyScoreProducer::~LCToSimTSAssociatorByEnergyScoreProducer() {}
 
 void LCToSimTSAssociatorByEnergyScoreProducer::produce(edm::StreamID,
-                                                    edm::Event &iEvent,
-                                                    const edm::EventSetup &es) const {
+                                                       edm::Event &iEvent,
+                                                       const edm::EventSetup &es) const {
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
-  auto impl =
-      std::make_unique<LCToSimTSAssociatorByEnergyScoreImpl>(iEvent.productGetter(), hardScatterOnly_);
+  auto impl = std::make_unique<LCToSimTSAssociatorByEnergyScoreImpl>(iEvent.productGetter());
   auto toPut = std::make_unique<hgcal::LayerClusterToSimTracksterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 
 void LCToSimTSAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("hardScatterOnly", true);
-
   cfg.add("layerClusterSimTracksterAssociatorByEnergyScore", desc);
 }
 
