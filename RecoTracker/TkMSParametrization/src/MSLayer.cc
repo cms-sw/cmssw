@@ -129,12 +129,10 @@ float MSLayer::distance2(const PixelRecoPointRZ& point) const {
 
 //----------------------------------------------------------------------
 float MSLayer::x0(float cotTheta) const {
-  if
-    LIKELY(theX0Data.hasX0) {
-      float OverSinTheta = std::sqrt(1.f + cotTheta * cotTheta);
-      return (theFace == barrel) ? theX0Data.x0 * OverSinTheta : theX0Data.x0 * OverSinTheta / std::abs(cotTheta);
-    }
-  else if (theX0Data.allLayers) {
+  if LIKELY (theX0Data.hasX0) {
+    float OverSinTheta = std::sqrt(1.f + cotTheta * cotTheta);
+    return (theFace == barrel) ? theX0Data.x0 * OverSinTheta : theX0Data.x0 * OverSinTheta / std::abs(cotTheta);
+  } else if (theX0Data.allLayers) {
     const MSLayer* dataLayer = theX0Data.allLayers->layers(cotTheta).findLayer(*this);
     if (dataLayer)
       return dataLayer->x0(cotTheta);
@@ -144,21 +142,19 @@ float MSLayer::x0(float cotTheta) const {
 
 //----------------------------------------------------------------------
 float MSLayer::sumX0D(float cotTheta) const {
-  if
-    LIKELY(theX0Data.hasX0) {
-      switch (theFace) {
-        case barrel:
-          return theX0Data.sumX0D *
-                 std::sqrt(std::sqrt((1.f + cotTheta * cotTheta) / (1.f + theX0Data.cotTheta * theX0Data.cotTheta)));
-        case endcap:
-          return (theX0Data.hasFSlope)
-                     ? theX0Data.sumX0D + theX0Data.slopeSumX0D * (1.f / cotTheta - 1.f / theX0Data.cotTheta)
-                     : theX0Data.sumX0D;
-        case invalidLoc:
-          break;  // make gcc happy
-      }
+  if LIKELY (theX0Data.hasX0) {
+    switch (theFace) {
+      case barrel:
+        return theX0Data.sumX0D *
+               std::sqrt(std::sqrt((1.f + cotTheta * cotTheta) / (1.f + theX0Data.cotTheta * theX0Data.cotTheta)));
+      case endcap:
+        return (theX0Data.hasFSlope)
+                   ? theX0Data.sumX0D + theX0Data.slopeSumX0D * (1.f / cotTheta - 1.f / theX0Data.cotTheta)
+                   : theX0Data.sumX0D;
+      case invalidLoc:
+        break;  // make gcc happy
     }
-  else if (theX0Data.allLayers) {
+  } else if (theX0Data.allLayers) {
     const MSLayer* dataLayer = theX0Data.allLayers->layers(cotTheta).findLayer(*this);
     if (dataLayer)
       return dataLayer->sumX0D(cotTheta);

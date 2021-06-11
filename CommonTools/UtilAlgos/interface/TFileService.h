@@ -61,7 +61,7 @@ public:
 
   /// make new ROOT object
   template <typename T, typename... Args>
-  T *make(const Args &... args) const {
+  T *make(const Args &...args) const {
     return tFileDirectory_.make<T>(args...);
   }
 

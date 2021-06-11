@@ -36,6 +36,8 @@
 
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 
+#include <memory>
+
 #include <string>
 #include <type_traits>
 
@@ -87,7 +89,7 @@ public:
     skipMuons_ = cfg.getParameter<bool>("skipMuons");
     if (skipMuons_) {
       std::string skipMuonSelection_string = cfg.getParameter<std::string>("skipMuonSelection");
-      skipMuonSelection_.reset(new StringCutObjectSelector<reco::Candidate>(skipMuonSelection_string, true));
+      skipMuonSelection_ = std::make_unique<StringCutObjectSelector<reco::Candidate>>(skipMuonSelection_string, true);
     }
 
     calcMuonSubtrRawPtAsValueMap_ = cfg.getParameter<bool>("calcMuonSubtrRawPtAsValueMap");

@@ -70,8 +70,8 @@ public:
 
   void check() const {
 #ifdef TR_DEBUG
-    if
-      UNLIKELY(!theData) std::cout << "dead proxyBase11 " << references() << std::endl;
+    if UNLIKELY (!theData)
+      std::cout << "dead proxyBase11 " << references() << std::endl;
 #endif
   }
 

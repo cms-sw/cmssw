@@ -102,17 +102,16 @@ void TransientTrackFromFTS::setBeamSpot(const BeamSpot& beamSpot) {
 }
 
 TrajectoryStateOnSurface TransientTrackFromFTS::impactPointState() const {
-  if
-    UNLIKELY(!initialTSOSAvailable) calculateTSOSAtVertex();
+  if UNLIKELY (!initialTSOSAvailable)
+    calculateTSOSAtVertex();
   return initialTSOS;
 }
 
 TrajectoryStateClosestToPoint TransientTrackFromFTS::impactPointTSCP() const {
-  if
-    UNLIKELY(!initialTSCPAvailable) {
-      initialTSCP = builder(initialFTS, initialFTS.position());
-      initialTSCPAvailable = true;
-    }
+  if UNLIKELY (!initialTSCPAvailable) {
+    initialTSCP = builder(initialFTS, initialFTS.position());
+    initialTSCPAvailable = true;
+  }
   return initialTSCP;
 }
 
@@ -138,25 +137,23 @@ TrajectoryStateOnSurface TransientTrackFromFTS::stateOnSurface(const GlobalPoint
 }
 
 const Track& TransientTrackFromFTS::track() const {
-  if
-    UNLIKELY(!trackAvailable) {
-      GlobalPoint v = initialFTS.position();
-      math::XYZPoint pos(v.x(), v.y(), v.z());
-      GlobalVector p = initialFTS.momentum();
-      math::XYZVector mom(p.x(), p.y(), p.z());
+  if UNLIKELY (!trackAvailable) {
+    GlobalPoint v = initialFTS.position();
+    math::XYZPoint pos(v.x(), v.y(), v.z());
+    GlobalVector p = initialFTS.momentum();
+    math::XYZVector mom(p.x(), p.y(), p.z());
 
-      theTrack = Track(0., 0., pos, mom, initialFTS.charge(), initialFTS.curvilinearError());
-      trackAvailable = true;
-    }
+    theTrack = Track(0., 0., pos, mom, initialFTS.charge(), initialFTS.curvilinearError());
+    trackAvailable = true;
+  }
   return theTrack;
 }
 
 TrajectoryStateClosestToBeamLine TransientTrackFromFTS::stateAtBeamLine() const {
-  if
-    UNLIKELY(!blStateAvailable) {
-      TSCBLBuilderNoMaterial blsBuilder;
-      trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
-      blStateAvailable = true;
-    }
+  if UNLIKELY (!blStateAvailable) {
+    TSCBLBuilderNoMaterial blsBuilder;
+    trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
+    blStateAvailable = true;
+  }
   return trajectoryStateClosestToBeamLine;
 }

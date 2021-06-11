@@ -57,7 +57,7 @@ public:
 private:
   static std::vector<Trajectory> makeVect(Trajectory&& outTraj) {
     if (outTraj.isValid())
-      return std::vector<Trajectory>(1, std::move(outTraj));
+      return std::vector<Trajectory>(1, outTraj);
     return std::vector<Trajectory>();
   }
 };

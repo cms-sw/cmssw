@@ -9,8 +9,9 @@ StripClusterParameterEstimator::LocalValues StripCPEgeometric::localParameters(
 
   const LocalPoint& pos = ltp.position();
   LocalVector track = ltp.momentum();
-  track *= (track.z() < 0) ? fabs(p.thickness / track.z())
-                           : (track.z() > 0) ? -fabs(p.thickness / track.z()) : p.maxLength / track.mag();
+  track *= (track.z() < 0)   ? fabs(p.thickness / track.z())
+           : (track.z() > 0) ? -fabs(p.thickness / track.z())
+                             : p.maxLength / track.mag();
 
   const float fullProjection = p.coveredStrips(track + p.drift, pos);
   stats_t<float> projection;
