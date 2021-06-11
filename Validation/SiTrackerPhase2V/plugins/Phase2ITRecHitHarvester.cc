@@ -126,8 +126,8 @@ void Phase2ITRecHitHarvester::gausFitslices(MonitorElement* srcME, MonitorElemen
       float minfit = histoY->GetMean() - histoY->GetRMS();
       float maxfit = histoY->GetMean() + histoY->GetRMS();
 
-      TF1* fitFcn = new TF1(TString("g") + histo->GetName() + iString, "gaus", minfit, maxfit);
-      histoY->Fit(fitFcn, "QR0 SERIAL", "", minfit, maxfit);
+      std::unique_ptr<TF1> fitFcn{new TF1(TString("g") + histo->GetName() + iString, "gaus", minfit, maxfit)};
+      histoY->Fit(fitFcn.get(), "QR0 SERIAL", "", minfit, maxfit);
 
       double* par = fitFcn->GetParameters();
       const double* err = fitFcn->GetParErrors();
@@ -138,8 +138,6 @@ void Phase2ITRecHitHarvester::gausFitslices(MonitorElement* srcME, MonitorElemen
       sigmaME->setBinContent(i, par[2]);
       sigmaME->setBinError(i, err[2]);
 
-      if (fitFcn)
-        delete fitFcn;
       if (histoY)
         delete histoY;
     } else {
@@ -238,7 +236,7 @@ void Phase2ITRecHitHarvester::fillDescriptions(edm::ConfigurationDescriptions& d
   psd7.add<bool>("switch", true);
   desc.add<edm::ParameterSetDescription>("meanYvsphi", psd7);
 
-  desc.add<unsigned int>("NFitThreshold", 5);
+  desc.add<unsigned int>("NFitThreshold", 100);
 
   descriptions.add("Phase2ITRechitHarvester", desc);
   // or use the following to generate the label from the module's C++ type
