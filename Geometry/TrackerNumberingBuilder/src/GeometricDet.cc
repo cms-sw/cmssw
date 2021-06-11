@@ -1,6 +1,8 @@
 #include <DD4hep/DD4hepUnits.h>
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/Rounding.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -112,6 +114,12 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
       shape_(fv->shape()),
       params_(computeLegacyShapeParameters(shape_, fv->solid())),
       isFromDD4hep_(true) {
+  using namespace angle_units::operators;
+  if (almostEqual(phi_, -1._pi, 10)) {
+    phi_ = 1._pi;
+    // Standardize phi values of |pi| to be always +pi instead of sometimes -pi.
+  }
+
   // Only look for sensor-related info on sensor volumes!
   if (type_ == DetUnit) {
     // IT sensors only (NB: hence could add a branch here, but not a critical part on perf)
@@ -316,11 +324,18 @@ std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSoli
   // Tub
   else if (mySolidShape == cms::DDSolidShape::ddtubs) {
     const dd4hep::Tube& myTube = dd4hep::Tube(mySolid);
+    double phi1 = static_cast<double>(angle_units::operators::convertDegToRad(myTube->GetPhi1()));
+    phi1 = cms_rounding::roundIfNear0(phi1);
+    if (phi1 != 0.0) {
+      using namespace angle0to2pi;
+      phi1 = make0To2pi(phi1) - 2._pi;
+      // Turn positive angle to negative
+    }
     myOldDDShapeParameters = {
         (myTube->GetDz()) / dd4hep::mm,
         (myTube->GetRmin()) / dd4hep::mm,
         (myTube->GetRmax()) / dd4hep::mm,
-        static_cast<double>(fmod(angle_units::operators::convertDegToRad(myTube->GetPhi1()), 2. * M_PI) - 2. * M_PI),
+        phi1,
         static_cast<double>(angle_units::operators::convertDegToRad(myTube->GetPhi2() - myTube->GetPhi1()))};
   }
 
