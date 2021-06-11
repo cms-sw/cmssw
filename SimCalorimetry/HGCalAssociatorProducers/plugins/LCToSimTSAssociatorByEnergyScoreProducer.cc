@@ -1,4 +1,4 @@
-// Original author: Marco Rovere
+// Original author: Leonardo Cristella
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

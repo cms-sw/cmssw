@@ -1,4 +1,4 @@
-// Original Author: Marco Rovere
+// Original Author: Leonardo Cristella
 
 #include "SimDataFormats/Associations/interface/LayerClusterToSimTracksterAssociatorBaseImpl.h"
 
@@ -14,7 +14,9 @@ namespace hgcal {
   }
 
   hgcal::SimTracksterToRecoCollection LayerClusterToSimTracksterAssociatorBaseImpl::associateSimToReco(
-      const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<ticl::TracksterCollection> &sTCH) const {
+      const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<ticl::TracksterCollection> &sTCH,
+      const edm::Handle<CaloParticleCollection>& cPCH, const hgcal::SimToRecoCollection &cPToLCs,
+      const edm::Handle<SimClusterCollection>& sCCH, const hgcal::SimToRecoCollectionWithSimClusters &sCToLCs) const {
     return hgcal::SimTracksterToRecoCollection();
   }
 
