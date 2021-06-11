@@ -13,7 +13,6 @@
 #include <vector>
 
 namespace {
-  struct vfdictionary {
     l1tVertexFinder::InputData id;
     l1tVertexFinder::Vertex vtx;
     l1tVertexFinder::TP tp;
@@ -50,7 +49,6 @@ namespace {
     edm::Wrapper<std::vector<l1tVertexFinder::TP>> wvtp;
     edm::Wrapper<std::vector<l1tVertexFinder::Vertex>> wvvtx;
     edm::Wrapper<l1tVertexFinder::InputData> wid;
-  };
 }  // namespace
 
 #endif

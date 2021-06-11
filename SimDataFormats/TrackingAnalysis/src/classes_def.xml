@@ -23,6 +23,8 @@
 
   <class name="TrackingParticleRefVector" />
   <class name="edm::Wrapper<TrackingParticleRefVector>"/>
+
+  <class name="std::map<edm::Ptr<TrackingParticle>,edm::RefToBase<TrackingParticle> >"/>
  
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track> >" />
   <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::Track>,edm::RefProd<std::vector<TrackingParticle> > >" />
