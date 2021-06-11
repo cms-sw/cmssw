@@ -3,6 +3,9 @@
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "Geometry/HGCalCommonData/interface/AHCalParameters.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
@@ -49,7 +52,6 @@ AHCalSD::AHCalSD(const std::string& name,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
     : CaloSD(name,
-             es,
              clg,
              p,
              manager,

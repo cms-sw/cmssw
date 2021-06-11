@@ -11,6 +11,7 @@
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4EventManager.hh"
@@ -33,13 +34,12 @@
 //#define EDM_ML_DEBUG
 
 CaloSD::CaloSD(const std::string& name,
-               const edm::EventSetup& es,
                const SensitiveDetectorCatalog& clg,
                edm::ParameterSet const& p,
                const SimTrackManager* manager,
                float timeSliceUnit,
                bool ignoreTkID)
-    : SensitiveCaloDetector(name, es, clg, p),
+    : SensitiveCaloDetector(name, clg),
       G4VGFlashSensitiveDetector(),
       eminHit(0.),
       currentHit(nullptr),

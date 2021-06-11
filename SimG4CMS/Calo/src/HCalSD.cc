@@ -50,7 +50,6 @@ HCalSD::HCalSD(const std::string& name,
                edm::ParameterSet const& p,
                const SimTrackManager* manager)
     : CaloSD(name,
-             es,
              clg,
              p,
              manager,

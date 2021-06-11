@@ -9,6 +9,7 @@
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4EventManager.hh"
@@ -27,7 +28,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
                                      const SensitiveDetectorCatalog& clg,
                                      edm::ParameterSet const& p,
                                      const SimTrackManager*)
-    : SensitiveCaloDetector(name, es, clg, p), lastTrackID_(-1) {
+    : SensitiveCaloDetector(name, clg), lastTrackID_(-1) {
   //Initialise the parameter set
   bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
   int addlevel = dd4hep ? 1 : 0;

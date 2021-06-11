@@ -21,7 +21,7 @@ HFChamberSD::HFChamberSD(const std::string& name,
                          const SensitiveDetectorCatalog& clg,
                          edm::ParameterSet const& p,
                          const SimTrackManager* manager)
-    : SensitiveCaloDetector(name, es, clg, p), m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {
+    : SensitiveCaloDetector(name, clg), m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {
   edm::LogVerbatim("FiberSim") << "HFChamberSD : Instantiated for " << name;
 }
 
