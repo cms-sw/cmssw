@@ -24,6 +24,14 @@ Phase2OTRechitHarvester_PS=Phase2ITRechitHarvester.clone(
     ResidualYvsEta = cms.string('Delta_Y_vs_Eta_Pixel'),
     ResidualYvsPhi = cms.string('Delta_Y_vs_Phi_Pixel'),
 )
+Phase2OTRechitHarvester_PS.resXvseta.name = cms.string('resolutionXFitvseta_Pixel')
+Phase2OTRechitHarvester_PS.resYvseta.name = cms.string('resolutionYFitvseta_Pixel')
+Phase2OTRechitHarvester_PS.resXvsphi.name = cms.string('resolutionXFitvsphi_Pixel')
+Phase2OTRechitHarvester_PS.resYvsphi.name = cms.string('resolutionYFitvsphi_Pixel')
+Phase2OTRechitHarvester_PS.meanXvseta.name = cms.string('meanXFitvseta_Pixel')
+Phase2OTRechitHarvester_PS.meanYvseta.name = cms.string('meanYFitvseta_Pixel')
+Phase2OTRechitHarvester_PS.meanXvsphi.name = cms.string('meanXFitvsphi_Pixel')
+Phase2OTRechitHarvester_PS.meanYvsphi.name = cms.string('meanYFitvsphi_Pixel')
 
 Phase2OTRechitHarvester_2S=Phase2OTRechitHarvester_PS.clone(
     NbarrelLayers = cms.uint32(3),
@@ -35,6 +43,15 @@ Phase2OTRechitHarvester_2S=Phase2OTRechitHarvester_PS.clone(
     ResidualYvsPhi = cms.string('Delta_Y_vs_Phi_Strip'),
 
 )
+Phase2OTRechitHarvester_2S.resXvseta.name = cms.string('resolutionXFitvseta_Strip')
+Phase2OTRechitHarvester_2S.resYvseta.name = cms.string('resolutionYFitvseta_Strip')
+Phase2OTRechitHarvester_2S.resXvsphi.name = cms.string('resolutionXFitvsphi_Strip')
+Phase2OTRechitHarvester_2S.resYvsphi.name = cms.string('resolutionYFitvsphi_Strip')
+Phase2OTRechitHarvester_2S.meanXvseta.name = cms.string('meanXFitvseta_Strip')
+Phase2OTRechitHarvester_2S.meanYvseta.name = cms.string('meanYFitvseta_Strip')
+Phase2OTRechitHarvester_2S.meanXvsphi.name = cms.string('meanXFitvsphi_Strip')
+Phase2OTRechitHarvester_2S.meanYvsphi.name = cms.string('meanYFitvsphi_Strip')
+
 #OTTracking rechit
 Phase2OTTrackingRechitHarvester_PS=Phase2OTRechitHarvester_PS.clone(
     TopFolder = cms.string('TrackerPhase2OTTrackingRecHitV')
@@ -44,7 +61,11 @@ Phase2OTTrackingRechitHarvester_2S=Phase2OTRechitHarvester_2S.clone(
     TopFolder = cms.string('TrackerPhase2OTTrackingRecHitV')
 )
 
-trackerphase2ValidationHarvesting = cms.Sequence(Phase2ITRechitHarvester*Phase2ITtrackingrechitHarvester)
+trackerphase2ValidationHarvesting = cms.Sequence(Phase2ITRechitHarvester
+                                                 * Phase2ITtrackingrechitHarvester
+                                                 * Phase2OTTrackingRechitHarvester_PS
+                                                 * Phase2OTTrackingRechitHarvester_2S
+)
 
 trackerphase2ValidationHarvesting_standalone = cms.Sequence(Phase2ITRechitHarvester
                                                             * Phase2ITtrackingrechitHarvester
