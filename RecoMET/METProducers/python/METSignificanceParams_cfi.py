@@ -44,5 +44,6 @@ METSignificanceParams_Data=cms.PSet(
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
-(run2_miniAOD_UL|run2_nanoAOD_106Xv1).toModify(METSignificanceParams, useDeltaRforFootprint = True)
-(run2_miniAOD_UL|run2_nanoAOD_106Xv1).toModify(METSignificanceParams_Data, useDeltaRforFootprint = True)
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
+(run2_miniAOD_UL|run2_nanoAOD_106Xv1|run2_nanoAOD_106Xv2).toModify(METSignificanceParams, useDeltaRforFootprint = True)
+(run2_miniAOD_UL|run2_nanoAOD_106Xv1|run2_nanoAOD_106Xv2).toModify(METSignificanceParams_Data, useDeltaRforFootprint = True)
