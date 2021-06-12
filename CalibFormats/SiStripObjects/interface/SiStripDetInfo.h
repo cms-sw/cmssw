@@ -23,7 +23,7 @@
 // user include files
 #include <map>
 #include <vector>
-
+#include <cstdint>
 // forward declarations
 
 class SiStripDetInfo {
