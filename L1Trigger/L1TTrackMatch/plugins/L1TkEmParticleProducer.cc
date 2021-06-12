@@ -261,14 +261,10 @@ float L1TkEmParticleProducer::CorrectedEta(float eta, float zv) const {
   float tantheta = tan(theta);
 
   float delta;
-  if (IsBarrel) {
+  if (IsBarrel)
     delta = REcal / tantheta;
-  } else {
-    if (theta > 0)
-      delta = ZEcal;
-    if (theta < 0)
-      delta = -ZEcal;
-  }
+  else
+    delta = eta > 0 ? ZEcal : -ZEcal;
 
   float tanthetaprime = delta * tantheta / (delta - zv);
 
