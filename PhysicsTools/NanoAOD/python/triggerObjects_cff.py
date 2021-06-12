@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
-from Configuration.Eras.Modifier_run2_HLTconditions_2017_cff import run2_HLTconditions_2017
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from PhysicsTools.NanoAOD.common_cff import ExtVar
+from PhysicsTools.NanoAOD.nano_eras_cff import *
+from PhysicsTools.NanoAOD.common_cff import *
 import copy
 
 unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
@@ -218,19 +216,48 @@ run2_HLTconditions_2016.toModify(
   selections = selections2016
 )
 
-from PhysicsTools.PatUtils.L1ECALPrefiringWeightProducer_cff import prefiringweight
-run2_HLTconditions_2016.toModify(prefiringweight, DataEra = cms.string("2016BtoH"))
+from PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff import prefiringweight
+#Next lines are for UL2016 maps
+(run2_muon_2016 & tracker_apv_vfp30_2016).toModify( prefiringweight, DataEraECAL = cms.string("UL2016preVFP"),  DataEraMuon = cms.string("2016preVFP"))
+(run2_muon_2016 & ~tracker_apv_vfp30_2016).toModify( prefiringweight, DataEraECAL = cms.string("UL2016postVFP"),  DataEraMuon = cms.string("2016postVFP"))
+#Next line is for UL2017 maps 
+run2_jme_2017.toModify( prefiringweight, DataEraECAL = cms.string("UL2017BtoF"), DataEraMuon = cms.string("20172018"))
+#Next line is for UL2018 maps 
+run2_muon_2018.toModify( prefiringweight, DataEraECAL = cms.string("None"), DataEraMuon = cms.string("20172018"))
+
+#For pre-UL 2017 reprocessing, one should use the original maps and no muon jet protection  
+for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+    modifier.toModify( prefiringweight, DataEraECAL = cms.string("2017BtoF"), DataEraMuon = cms.string("20172018"))
+    modifier.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
+#For pre-UL 2016 reprocessing, same thing
+run2_nanoAOD_94X2016.toModify( prefiringweight, DataEraECAL = cms.string("2016BtoH"), DataEraMuon = cms.string("2016") )
+run2_nanoAOD_94X2016.toModify( prefiringweight, JetMaxMuonFraction = cms.double(-1.) )
 
 l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
+    name = cms.string("L1PreFiringWeight"),
     variables = cms.PSet(
-        L1PreFiringWeight_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProb"), "double", doc = "L1 pre-firing event correction weight (1-probability)", precision=8),
-        L1PreFiringWeight_Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbUp"), "double", doc = "L1 pre-firing event correction weight (1-probability), up var.", precision=8),
-        L1PreFiringWeight_Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbDown"), "double", doc = "L1 pre-firing event correction weight (1-probability), down var.", precision=8),
+        Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProb"), "double", doc = "L1 pre-firing event correction weight (1-probability)", precision=8),
+        Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbUp"), "double", doc = "L1 pre-firing event correction weight (1-probability), up var.", precision=8),
+        Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbDown"), "double", doc = "L1 pre-firing event correction weight (1-probability), down var.", precision=8),
+        Muon_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuon"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability)", precision=8),
+        Muon_SystUp = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonSystUp"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability), up var. syst.", precision=8),
+        Muon_SystDn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonSystDown"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability), down var. syst.", precision=8),
+        Muon_StatUp = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonStatUp"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability), up var. stat.", precision=8),
+        Muon_StatDn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbMuonStatDown"), "double", doc = "Muon L1 pre-firing event correction weight (1-probability), down var. stat.", precision=8),
+        ECAL_Nom = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbECAL"), "double", doc = "ECAL L1 pre-firing event correction weight (1-probability)", precision=8),
+        ECAL_Up = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbECALUp"), "double", doc = "ECAL L1 pre-firing event correction weight (1-probability), up var.", precision=8),
+        ECAL_Dn = ExtVar(cms.InputTag("prefiringweight:nonPrefiringProbECALDown"), "double", doc = "ECAL L1 pre-firing event correction weight (1-probability), down var.", precision=8),
     )
 )
 
 triggerObjectTables = cms.Sequence( unpackedPatTrigger + triggerObjectTable )
 
+#protect nano V8 production from changes to prefiring weights introduce for V9
+(run2_jme_2016 & run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(prefiringweight,DataEraECAL = cms.string("2016BtoH"))
+(run2_jme_2017 & run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(prefiringweight,DataEraECAL = cms.string("2017BtoF"))
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(prefiringweight,DoMuons = cms.bool(False))
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(l1PreFiringEventWeightTable.variables , Muon_Nom = None, Muon_SystUp = None, Muon_SystDn = None, Muon_StatUp = None, Muon_StatDn = None, ECAL_Nom = None, ECAL_Up = None, ECAL_Dn = None)
+
 _triggerObjectTables_withL1PreFiring = triggerObjectTables.copy()
 _triggerObjectTables_withL1PreFiring.replace(triggerObjectTable, prefiringweight + l1PreFiringEventWeightTable + triggerObjectTable)
-(run2_HLTconditions_2016 | run2_HLTconditions_2017).toReplaceWith(triggerObjectTables, _triggerObjectTables_withL1PreFiring)
+(run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018).toReplaceWith(triggerObjectTables, _triggerObjectTables_withL1PreFiring)
