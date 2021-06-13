@@ -181,8 +181,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   float shift = offsets[0];
 
   for (unsigned i = 1; i < segments.size() - 1; i++) {
-    solid = dd4hep::UnionSolid(
-        solidOutput + "_uni_" + std::to_string(i + 1), solid, segments[i], dd4hep::Position(0., 0., offsets[i] - shift));
+    solid = dd4hep::UnionSolid(solidOutput + "_uni_" + std::to_string(i + 1),
+                               solid,
+                               segments[i],
+                               dd4hep::Position(0., 0., offsets[i] - shift));
   }
 
   solid = dd4hep::UnionSolid(solidOutput,
