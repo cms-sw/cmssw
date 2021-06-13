@@ -102,6 +102,8 @@ MicroEventContentGEN = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
+        'keep *_packedPFCandidateToGenAssociation_*_*',
+        'keep *_lostTracksToGenAssociation_*_*',
         'keep LHEEventProduct_*_*_*',
         'keep GenFilterInfo_*_*_*',
         'keep GenLumiInfoHeader_generator_*_*',
