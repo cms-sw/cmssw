@@ -8,6 +8,7 @@ from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices4D_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVerticesWithBS_cfi import *
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
+from PhysicsTools.PatAlgos.slimming.genParticleAssociation_cff import *
 from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
@@ -74,6 +75,10 @@ from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_
 _mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
 (pp_on_AA_2018 | _mAOD).toReplaceWith(slimmingTask,
                                       slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
+
+from Configuration.Eras.Modifier_bParking_cff import bParking
+_bParking_slimmingTask = cms.Task(slimmingTask.copy(),packedCandidateToGenAssociationTask)
+bParking.toReplaceWith(slimmingTask,_bParking_slimmingTask)
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
