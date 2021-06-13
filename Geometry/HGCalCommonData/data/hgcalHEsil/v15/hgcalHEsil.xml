@@ -15,6 +15,7 @@
     <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
     <Numeric name="Sectors"          value="36"/>
+    <String  name="LayerRotation"    value="hgcal:LayerRotation"/>
     <Vector name="WaferNamesFull" type="string" nEntries="3">
       hgcalwafer:HGCalHEWafer0Fine,    hgcalwafer:HGCalHEWafer0Coarse1,
       hgcalwafer:HGCalHEWafer0Coarse2</Vector>
