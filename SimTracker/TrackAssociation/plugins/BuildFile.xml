@@ -6,6 +6,7 @@
 <use name="SimDataFormats/TrackerDigiSimLink"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="PhysicsTools/HepMCCandAlgos"/>
 <library name="SimTrackerTrackAssociation_plugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
