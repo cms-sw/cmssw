@@ -35,7 +35,7 @@ workflows.addOverride(1303.17,overridesEv5)
 workflows[1302.18] = ['', ['ProdTTbar_13UP18','DIGIUP18PROD1','RECOPRODUP18','MINIAODMCUP18','NANOPRODUP18']]
 #workflows[1303.18] = ['', ['ProdQCD_Pt_3000_3500_13UP18','DIGIUP18PROD1','RECOPRODUP18']]
 workflows[1304.18] = ['', ['ProdZEE_13UP18','DIGIUP18PROD1','RECOPRODUP18','MINIAODMCUP18','NANOPRODUP18']]
-workflows[1304.182] = ['', ['ProdZEE_13UP18','DIGIUP18PROD1','RECOPRODUP18bParking','MINIAODMCUP18bParking']]
+workflows[1304.182] = ['', ['ProdZEE_13UP18','DIGIUP18PROD1bParking','RECOPRODUP18bParking','MINIAODMCUP18bParking']]
 #workflows.addOverride(1303.17,overridesEv5)
 
 #####Prod2018 with concurrentlumi

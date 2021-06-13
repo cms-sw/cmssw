@@ -31,6 +31,7 @@ private:
   edm::EDGetTokenT<GenParticleCollection> genParticles_;
   edm::EDGetTokenT<std::vector<int>> genParticleInts_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_;
+  bool throwOnMissingTPCollection_;
   typedef edm::Association<reco::GenParticleCollection> GenParticleMatch;
 };
 
@@ -45,7 +46,8 @@ MCTrackMatcher::MCTrackMatcher(const ParameterSet &p)
       tracks_(consumes<edm::View<reco::Track>>(p.getParameter<InputTag>("tracks"))),
       genParticles_(consumes<GenParticleCollection>(p.getParameter<InputTag>("genParticles"))),
       genParticleInts_(consumes<std::vector<int>>(p.getParameter<InputTag>("genParticles"))),
-      trackingParticles_(consumes<TrackingParticleCollection>(p.getParameter<InputTag>("trackingParticles"))) {
+      trackingParticles_(consumes<TrackingParticleCollection>(p.getParameter<InputTag>("trackingParticles"))),
+      throwOnMissingTPCollection_(p.getParameter<bool>("throwOnMissingTPCollection")) {
   produces<GenParticleMatch>();
 }
 
@@ -56,13 +58,17 @@ void MCTrackMatcher::produce(edm::StreamID, Event &evt, const EventSetup &es) co
   Handle<View<Track>> tracks;
   evt.getByToken(tracks_, tracks);
   Handle<TrackingParticleCollection> trackingParticles;
-  evt.getByToken(trackingParticles_, trackingParticles);
+  auto trackingParticlesFound = evt.getByToken(trackingParticles_, trackingParticles);
   Handle<vector<int>> barCodes;
   evt.getByToken(genParticleInts_, barCodes);
   Handle<GenParticleCollection> genParticles;
   evt.getByToken(genParticles_, genParticles);
-  RecoToSimCollection associations = associator->associateRecoToSim(tracks, trackingParticles);
   unique_ptr<GenParticleMatch> match(new GenParticleMatch(GenParticleRefProd(genParticles)));
+  if (not throwOnMissingTPCollection_ and not trackingParticlesFound) {
+    evt.put(std::move(match));
+    return;
+  }
+  RecoToSimCollection associations = associator->associateRecoToSim(tracks, trackingParticles);
   GenParticleMatch::Filler filler(*match);
   size_t n = tracks->size();
   vector<int> indices(n, -1);
