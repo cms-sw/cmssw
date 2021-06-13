@@ -16,6 +16,7 @@
     <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
     <Numeric name="Sectors"          value="36"/>
+    <String  name="LayerRotation"    value="hgcal:LayerRotation"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="4">
       0, 0, 0, 0</Vector>
     <Vector name="ZFrontBottom" type="numeric" nEntries="4">

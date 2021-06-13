@@ -3,6 +3,7 @@
 
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="WaferSize"             value="166.4408*mm"/>
+  <Constant name="WaferThickness"        value="0.31*mm"/>
   <Constant name="WaferThicknessFine"    value="0.30*mm"/>
   <Constant name="WaferThicknessCoarse1" value="0.20*mm"/>
   <Constant name="WaferThicknessCoarse2" value="0.30*mm"/>
@@ -18,6 +19,7 @@
   <Constant name="NumberOfCellsCoarse"   value="8"/>
   <Constant name="NPhiBinBH"             value="288"/>
   <Constant name="FirstMixedLayer"       value="9"/>
+  <Constant name="LayerRotation"         value="30*deg"/>
   <Constant name="rad100200P0"           value="-1.60163E-06"/>
   <Constant name="rad100200P1"           value="2.50640E-03"/>
   <Constant name="rad100200P2"           value="-1.46943E+00"/>
@@ -126,6 +128,12 @@
   <Constant name="rMaxHGCalHEmix4"       value="[rMaxHGCal10]"/>
   <Constant name="rMaxHGCalHEmix5"       value="[rMaxHGCal12]"/>
 </ConstantsSection>
+
+<RotationSection label="hgcal.xml">
+  <Rotation name="LayerRotation" phiX="[LayerRotation]" thetaX="90*deg" 
+	    phiY="(90*deg+[LayerRotation])" thetaY="90*deg" 
+	    phiZ="0*deg" thetaZ="0*deg"/>
+</RotationSection>
 
 <SolidSection label="hgcal.xml" eval="true">
   <Polycone name="HGCalService" startPhi="0*deg" deltaPhi="360*deg">
