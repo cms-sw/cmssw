@@ -111,6 +111,12 @@
   <Constant name="rMaxHGCalHEmix5"       value="[rMaxHGCal12]"/>
 </ConstantsSection>
 
+<RotationSection label="hgcal.xml">
+  <Rotation name="LayerRotation" phiX="[LayerRotation]" thetaX="90*deg" 
+	    phiY="(90*deg+[LayerRotation])" thetaY="90*deg" 
+	    phiZ="0*deg" thetaZ="0*deg"/>
+</RotationSection>
+
 <SolidSection label="hgcal.xml" eval="true">
   <Polycone name="HGCalService" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="[zHGCal0]"  rMin="[rMinHGCal1]" rMax="[rMaxHGCal0S]"/>
