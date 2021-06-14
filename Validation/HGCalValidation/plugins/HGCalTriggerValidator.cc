@@ -114,9 +114,11 @@ private:
 };
 
 HGCalTriggerValidator::HGCalTriggerValidator(const edm::ParameterSet &iConfig)
-    : trigger_cells_token_{consumes<l1t::HGCalTriggerCellBxCollection>(iConfig.getParameter<edm::InputTag>("TriggerCells"))},
+    : trigger_cells_token_{consumes<l1t::HGCalTriggerCellBxCollection>(
+          iConfig.getParameter<edm::InputTag>("TriggerCells"))},
       clusters_token_{consumes<l1t::HGCalClusterBxCollection>(iConfig.getParameter<edm::InputTag>("Clusters"))},
-      multiclusters_token_{consumes<l1t::HGCalMulticlusterBxCollection>(iConfig.getParameter<edm::InputTag>("Multiclusters"))},
+      multiclusters_token_{
+          consumes<l1t::HGCalMulticlusterBxCollection>(iConfig.getParameter<edm::InputTag>("Multiclusters"))},
       towers_token_{consumes<l1t::HGCalTowerBxCollection>(iConfig.getParameter<edm::InputTag>("Towers"))},
       id_{HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT")} {
   id_->initialize(iConfig.getParameter<edm::ParameterSet>("EGIdentification"));
@@ -163,8 +165,10 @@ void HGCalTriggerValidator::bookHistograms(DQMStore::IBooker &iBooker,
   histograms.h_cl3d_phi_ = iBooker.book1D("cl3d_phi", "cl3duster3D phi; phi", 60, -3.14, 3.14);
   histograms.h_cl3d_clusters_n_ = iBooker.book1D("cl3d_clusters_n", "cl3duster3D clusters_n; clusters_n", 30, 0, 30);
   // cluster shower shapes
-  histograms.h_cl3d_showerlength_ = iBooker.book1D("cl3d_showerlength", "cl3duster3D showerlength; showerlength", 50, 0, 50);
-  histograms.h_cl3d_coreshowerlength_ = iBooker.book1D("cl3d_coreshowerlength", "cl3duster3D coreshowerlength; coreshowerlength", 16, 0, 16);
+  histograms.h_cl3d_showerlength_ =
+      iBooker.book1D("cl3d_showerlength", "cl3duster3D showerlength; showerlength", 50, 0, 50);
+  histograms.h_cl3d_coreshowerlength_ =
+      iBooker.book1D("cl3d_coreshowerlength", "cl3duster3D coreshowerlength; coreshowerlength", 16, 0, 16);
   histograms.h_cl3d_firstlayer_ = iBooker.book1D("cl3d_firstlayer", "cl3duster3D firstlayer; firstlayer", 50, 0, 50);
   histograms.h_cl3d_maxlayer_ = iBooker.book1D("cl3d_maxlayer", "cl3duster3D maxlayer; maxlayer", 50, 0, 50);
   histograms.h_cl3d_seetot_ = iBooker.book1D("cl3d_seetot", "cl3duster3D seetot; seetot", 50, 0, 0.05);
