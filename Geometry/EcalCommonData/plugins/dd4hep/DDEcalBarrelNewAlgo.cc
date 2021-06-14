@@ -1559,7 +1559,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       );
 
       const string cryDDName(cry.name + sType);
-      Solid crySolid = mytrap(cry.name, trapCry);
+      Solid crySolid = mytrap(cryDDName, trapCry);
       Volume cryLog = Volume(cryDDName, crySolid, ns.material(cry.mat));
 
       //++++++++++++++++++++++++++++++++++  APD ++++++++++++++++++++++++++++++++++
