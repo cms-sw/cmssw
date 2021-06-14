@@ -53,9 +53,9 @@ combinatorialcosmicseedingpairsTECpos_layerList = cms.vstring('TEC1_pos+TEC2_pos
     'TEC7_pos+TEC8_pos',
     'TEC8_pos+TEC9_pos')
 combinatorialcosmicseedingtripletsTIB_layerList = cms.vstring('TIB1+TIB2+MTIB3')
+
 combinatorialcosmicseedfinder = cms.EDProducer("CtfSpecialSeedGenerator",
     SeedMomentum = cms.double(5.0), ##initial momentum in GeV !!!set to a lower value for slice test data
-
     ErrorRescaling = cms.double(50.0),
     RegionFactoryPSet = cms.PSet(
         RegionPSetBlock,
@@ -75,18 +75,18 @@ combinatorialcosmicseedfinder = cms.EDProducer("CtfSpecialSeedGenerator",
         PropagationDirection = cms.string('alongMomentum'),
         NavigationDirection = cms.string('outsideIn')
     ), 
-        cms.PSet(
-            ComponentName = cms.string('GenericPairGenerator'),
-            LayerSrc = cms.InputTag("combinatorialcosmicseedingpairsTECpos"),
-            PropagationDirection = cms.string('alongMomentum'),
-            NavigationDirection = cms.string('outsideIn')
-        ), 
-        cms.PSet(
-            ComponentName = cms.string('GenericTripletGenerator'),
-            LayerSrc = cms.InputTag("combinatorialcosmicseedingtripletsTIB"),
-            PropagationDirection = cms.string('oppositeToMomentum'),
-            NavigationDirection = cms.string('insideOut')
-        )),
+    cms.PSet(
+        ComponentName = cms.string('GenericPairGenerator'),
+        LayerSrc = cms.InputTag("combinatorialcosmicseedingpairsTECpos"),
+        PropagationDirection = cms.string('alongMomentum'),
+        NavigationDirection = cms.string('outsideIn')
+    ), 
+    cms.PSet(
+        ComponentName = cms.string('GenericTripletGenerator'),
+        LayerSrc = cms.InputTag("combinatorialcosmicseedingtripletsTIB"),
+        PropagationDirection = cms.string('oppositeToMomentum'),
+        NavigationDirection = cms.string('insideOut')
+    )),
     UseScintillatorsConstraint = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
     LowerScintillatorParameters = cms.PSet(
