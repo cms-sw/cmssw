@@ -87,6 +87,9 @@ class output():
 				print(message)
 			elif level < output.DEBUG:
 				print(message)
+		elif self._debug:
+			if level == output.DEBUG:
+				print(message)
 		elif level <= output.ERROR:
 			print(message)
 		if self._log_handle != None:
@@ -281,7 +284,7 @@ class uploader(object):
 					exit()
 		elif not("error" in response_dict.keys()) and "log_data" in response_dict.keys():
 			# store the log data, if it's there, in memory - this is used if a request times out and we don't get any log data back
-			self._log_data = response_dict["log_data"]
+			self._log_data = response_dict["log_data"][2:-1]
 			return True
 
 	def write_server_side_log(self, log_data):
