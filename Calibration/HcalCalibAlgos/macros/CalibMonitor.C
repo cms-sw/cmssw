@@ -80,9 +80,9 @@
 //                               energy distributions;  l=2/1/0 for type of
 //                               correction (2 for overall response corrections;
 //                               1 for depth dependence corrections; 0 for
-//                               raddam corrections); t=bit information (lower 
-//                               bit set will apply a cut on L1 closeness; and 
-//                               higher bit set read correction file with 
+//                               raddam corrections); t=bit information (lower
+//                               bit set will apply a cut on L1 closeness; and
+//                               higher bit set read correction file with
 //                               Marina format); h=1/0 for making or not
 //                               plots of momentum and total energies in the
 //                               two calorimeters ECAL/HCAL; d=1/0 for making

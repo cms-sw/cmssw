@@ -508,14 +508,14 @@ results fitOneGauss(TH1D* hist, bool fitTwice, bool debug) {
   return results(value, error, width, werror);
 }
 
-void readCorrFactors(char* infile, 
-		     double scale, 
-		     std::map<int, cfactors>& cfacs, 
-		     int& etamin, 
-		     int& etamax, 
-		     int& maxdepth, 
-		     int iformat = 0,
-		     bool debug = false) {
+void readCorrFactors(char* infile,
+                     double scale,
+                     std::map<int, cfactors>& cfacs,
+                     int& etamin,
+                     int& etamax,
+                     int& maxdepth,
+                     int iformat = 0,
+                     bool debug = false) {
   cfacs.clear();
   std::ifstream fInput(infile);
   if (!fInput.good()) {
@@ -553,13 +553,10 @@ void readCorrFactors(char* infile,
   }
   if (debug) {
     unsigned k(0);
-    std::cout << "Eta Range " << etamin << ":" << etamax << " Max Depth "
-	      << maxdepth << std::endl;
-    for (std::map<int,cfactors>::const_iterator itr = cfacs.begin();
-	 itr != cfacs.end(); ++itr, ++k)  
-      std::cout << "[" << k << "] " << std::hex << itr->first << std::dec << ": "
-		<< (itr->second).ieta << " "  << (itr->second).depth << " " 
-		<< (itr->second).corrf << " " << (itr->second).dcorr << std::endl;
+    std::cout << "Eta Range " << etamin << ":" << etamax << " Max Depth " << maxdepth << std::endl;
+    for (std::map<int, cfactors>::const_iterator itr = cfacs.begin(); itr != cfacs.end(); ++itr, ++k)
+      std::cout << "[" << k << "] " << std::hex << itr->first << std::dec << ": " << (itr->second).ieta << " "
+                << (itr->second).depth << " " << (itr->second).corrf << " " << (itr->second).dcorr << std::endl;
   }
 }
 
@@ -1925,7 +1922,7 @@ void PlotHistCorrFactor(char* infile,
                         int nmin = 100,
                         bool dataMC = false,
                         bool drawStatBox = true,
-			int iformat = 0,
+                        int iformat = 0,
                         int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
@@ -2158,7 +2155,7 @@ void PlotHistCorrFactors(char* infile1,
                          int nmin = 100,
                          bool dataMC = false,
                          int year = 2018,
-			 int iformat = 0,
+                         int iformat = 0,
                          int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
@@ -2576,7 +2573,13 @@ void PlotHistCorrLumis(std::string infilec, int conds, double lumi, int save = 0
   }
 }
 
-void PlotHistCorrRel(char* infile1, char* infile2, std::string text1, std::string text2, int iformat1 = 0, int iformat2 = 0, int save = 0) {
+void PlotHistCorrRel(char* infile1,
+                     char* infile2,
+                     std::string text1,
+                     std::string text2,
+                     int iformat1 = 0,
+                     int iformat2 = 0,
+                     int save = 0) {
   std::map<int, cfactors> cfacs1, cfacs2;
   int etamin(100), etamax(-100), maxdepth(0);
   readCorrFactors(infile1, 1.0, cfacs1, etamin, etamax, maxdepth, iformat1);
@@ -2695,7 +2698,16 @@ void PlotHistCorrRel(char* infile1, char* infile2, std::string text1, std::strin
   }
 }
 
-void PlotHistCorrDepth(char* infile1, char* infile2, std::string text1, std::string text2, int depth, int ietamax, int iformat1 = 0, int iformat2 = 0, int save = 0, int debug = 1) {
+void PlotHistCorrDepth(char* infile1,
+                       char* infile2,
+                       std::string text1,
+                       std::string text2,
+                       int depth,
+                       int ietamax,
+                       int iformat1 = 0,
+                       int iformat2 = 0,
+                       int save = 0,
+                       int debug = 1) {
   std::map<int, cfactors> cfacs1, cfacs2;
   int etamin(100), etamax(-100), maxdepth(0);
   readCorrFactors(infile1, 1.0, cfacs1, etamin, etamax, maxdepth, iformat1, (debug > 1));
@@ -2710,23 +2722,26 @@ void PlotHistCorrDepth(char* infile1, char* infile2, std::string text1, std::str
       double er2 = (ktr->second).dcorr / (ktr->second).corrf;
       double tmp = (ktr->second).corrf / (itr->second).corrf;
       double dtmp = tmp * sqrt(er1 * er1 + er2 * er2);
-      double rat = (tmp > 1.0) ? 1.0/tmp : tmp;
+      double rat = (tmp > 1.0) ? 1.0 / tmp : tmp;
       double drt = (tmp > 1.0) ? dtmp / (tmp * tmp) : dtmp;
       rat = fabs(1.0 - rat);
       ratMax = std::max(ratMax, rat);
       ++npt0;
-      if (debug > 0) 
-	std::cout << std::hex << (itr->first) << std::dec << " ieta:depth" << (itr->second).ieta << ":" << (itr->second).depth << " Corr " << (itr->second).corrf << ":" << (ktr->second).corrf << " Ratio " << rat << ":" << drt << std::endl;
+      if (debug > 0)
+        std::cout << std::hex << (itr->first) << std::dec << " ieta:depth" << (itr->second).ieta << ":"
+                  << (itr->second).depth << " Corr " << (itr->second).corrf << ":" << (ktr->second).corrf << " Ratio "
+                  << rat << ":" << drt << std::endl;
       if (std::abs((itr->second).ieta) <= ietamax) {
-	sumNum += (rat / (drt * drt));
-	sumDen += (1.0 / (drt * drt));
-	++npt1;
+        sumNum += (rat / (drt * drt));
+        sumDen += (1.0 / (drt * drt));
+        ++npt1;
       }
     }
   }
-  sumNum  = (sumDen>0)  ? (sumNum/sumDen) : 0;
-  sumDen  = (sumDen>0)  ? 1.0/sqrt(sumDen) : 0;
-  std::cout << "Get Ratio of mean for " << npt0 << ":" << npt1 << " points for depth " << depth << " Mean " << sumNum << " +- " << sumDen << " (Maximum " << ratMax << ")" << std::endl;
+  sumNum = (sumDen > 0) ? (sumNum / sumDen) : 0;
+  sumDen = (sumDen > 0) ? 1.0 / sqrt(sumDen) : 0;
+  std::cout << "Get Ratio of mean for " << npt0 << ":" << npt1 << " points for depth " << depth << " Mean " << sumNum
+            << " +- " << sumDen << " (Maximum " << ratMax << ")" << std::endl;
 
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetCanvasColor(kWhite);
@@ -2745,25 +2760,25 @@ void PlotHistCorrDepth(char* infile1, char* infile2, std::string text1, std::str
     TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
     if (j == 0) {
       for (std::map<int, cfactors>::const_iterator itr = cfacs1.begin(); itr != cfacs1.end(); ++itr) {
-	if ((itr->second).depth == depth) {
-	  int ieta = (itr->second).ieta;
-	  int bin = ieta - etamin + 1;
-	  float val = (itr->second).corrf;
-	  float dvl = (itr->second).dcorr;
-	  h->SetBinContent(bin, val);
-	  h->SetBinError(bin, dvl);
-	}
+        if ((itr->second).depth == depth) {
+          int ieta = (itr->second).ieta;
+          int bin = ieta - etamin + 1;
+          float val = (itr->second).corrf;
+          float dvl = (itr->second).dcorr;
+          h->SetBinContent(bin, val);
+          h->SetBinError(bin, dvl);
+        }
       }
     } else {
       for (std::map<int, cfactors>::const_iterator itr = cfacs2.begin(); itr != cfacs2.end(); ++itr) {
-	if ((itr->second).depth == depth) {
-	  int ieta = (itr->second).ieta;
-	  int bin = ieta - etamin + 1;
-	  float val = (itr->second).corrf;
-	  float dvl = (itr->second).dcorr;
-	  h->SetBinContent(bin, val);
-	  h->SetBinError(bin, dvl);
-	}
+        if ((itr->second).depth == depth) {
+          int ieta = (itr->second).ieta;
+          int bin = ieta - etamin + 1;
+          float val = (itr->second).corrf;
+          float dvl = (itr->second).dcorr;
+          h->SetBinContent(bin, val);
+          h->SetBinError(bin, dvl);
+        }
       }
     }
     h->SetLineColor(colors[j]);

@@ -107,7 +107,8 @@ unsigned int repackId(const std::string& det, int eta, int depth) {
   int subdet = (det == "HE") ? 2 : 1;
   int zside = (eta >= 0) ? 1 : -1;
   int ieta = (eta >= 0) ? eta : -eta;
-  unsigned int id = (subdet << 25) | (0x1000000) | ((depth & 0xF) << 20) | ((zside > 0) ? (0x80000 | (ieta << 10)) : (ieta << 10));
+  unsigned int id =
+      (subdet << 25) | (0x1000000) | ((depth & 0xF) << 20) | ((zside > 0) ? (0x80000 | (ieta << 10)) : (ieta << 10));
   return id;
 }
 
@@ -115,7 +116,8 @@ unsigned int repackId(int eta, int depth) {
   int zside = (eta >= 0) ? 1 : -1;
   int ieta = (eta >= 0) ? eta : -eta;
   int subdet = ((ieta > 16) || ((ieta == 16) && (depth > 3))) ? 2 : 1;
-  unsigned int id = (subdet << 25) | (0x1000000) | ((depth & 0xF) << 20) | ((zside > 0) ? (0x80000 | (ieta << 10)) : (ieta << 10));
+  unsigned int id =
+      (subdet << 25) | (0x1000000) | ((depth & 0xF) << 20) | ((zside > 0) ? (0x80000 | (ieta << 10)) : (ieta << 10));
   return id;
 }
 
@@ -415,7 +417,10 @@ CalibCorrFactor::CalibCorrFactor(const char* infile, int useScale, double scale,
   }
   if (std::string(infile) != "") {
     corrE_ = readCorrFactor(infile, marina);
-    std::cout << "Reads " << cfactors_.size() << " correction factors from " << infile << " with flag " << corrE_ << std::endl << "Flag for scale " << useScale_ << " with scale " << scale_ << "; flag for etaMax " << etaMax_ << " and flag for Format " << marina << std::endl;
+    std::cout << "Reads " << cfactors_.size() << " correction factors from " << infile << " with flag " << corrE_
+              << std::endl
+              << "Flag for scale " << useScale_ << " with scale " << scale_ << "; flag for etaMax " << etaMax_
+              << " and flag for Format " << marina << std::endl;
   } else {
     corrE_ = false;
     std::cout << "No correction factors provided; Flag for scale " << useScale_ << " with scale " << scale_
@@ -464,9 +469,9 @@ bool CalibCorrFactor::readCorrFactor(const char* fname, bool marina) {
           std::cout << "Ignore  line: " << buffer << std::endl;
         } else {
           ++good;
-	  int ieta = (marina) ? std::atoi(items[0].c_str()) : std::atoi(items[1].c_str());
-	  int depth = (marina) ? std::atoi(items[1].c_str()) : std::atoi(items[2].c_str());
-	  float corrf = std::atof(items[3].c_str());
+          int ieta = (marina) ? std::atoi(items[0].c_str()) : std::atoi(items[1].c_str());
+          int depth = (marina) ? std::atoi(items[1].c_str()) : std::atoi(items[2].c_str());
+          float corrf = std::atof(items[3].c_str());
           double scale = getFactor(std::abs(ieta));
           cfactors_[std::pair<int, int>(ieta, depth)] = scale * corrf;
           if (ieta > etamp_ && depth == 1)
