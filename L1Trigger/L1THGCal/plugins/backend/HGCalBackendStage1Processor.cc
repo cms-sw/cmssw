@@ -7,9 +7,9 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalClusteringImpl.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalClusteringDummyImpl.h"
 
-class HGCalBackendStage1Processor : public HGCalBackendStage1ProcessorBase {
+class HGCalBackendStage1Processor : public HGCalBackendLayer1ProcessorBase {
 public:
-  HGCalBackendStage1Processor(const edm::ParameterSet& conf) : HGCalBackendStage1ProcessorBase(conf) {
+  HGCalBackendStage1Processor(const edm::ParameterSet& conf) : HGCalBackendLayer1ProcessorBase(conf) {
     std::string typeCluster(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
     if (typeCluster == "dRC2d") {
       clusteringAlgorithmType_ = dRC2d;
@@ -28,7 +28,7 @@ public:
     }
   }
 
-  void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
+    void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
            l1t::HGCalClusterBxCollection& collCluster2D,
            const edm::EventSetup& es) override {
     es.get<CaloGeometryRecord>().get("", triggerGeometry_);
@@ -36,21 +36,24 @@ public:
       clustering_->eventSetup(es);
     if (clusteringDummy_)
       clusteringDummy_->eventSetup(es);
-
+   const l1t::HGCalTriggerCellBxCollection& collInput = *collHandle; 
     /*To split jobs in fpga modules*/
-    std::unordered_map<uint32_t, std::vector<l1t::HGCalTriggerCell>> stage1_modules;
-    for (const auto& trigCell : collInput) {
-      uint32_t module = geometry_->getStage1FpgaFromModule(trigMod.moduleId());
-      stage1_modules[module].push_back(trigMod);
+    std::unordered_map<uint32_t,std::vector<l1t::HGCalTriggerCell>> triggerCellsPtrs;
+//    std::vector<edm::Ptr<l1t::HGCalTriggerCell> > triggerCellsPtrs;
+    for (const auto& trigMod : collInput) {
+      uint32_t module = geometry_->getModuleFromTriggerCell(trigMod.detId());
+      uint32_t fpga = geometry_->getStage1FpgaFromModule(trigMod.module());
+      triggerCellsPtrs[module].push_back(trigMod);
     }
 
     /* create a persistent vector of pointers to the trigger-cells */
-    std::vector<edm::Ptr<l1t::HGCalTriggerCell>> triggerCellsPtrs;
-    for (unsigned i = 0; i < collHandle->size(); ++i) {
-      edm::Ptr<l1t::HGCalTriggerCell> ptr(collHandle, i);
-      triggerCellsPtrs.push_back(ptr);
-    }
-
+//    std::vector<edm::Ptr<l1t::HGCalTriggerCell>> triggerCellsPtrs;
+//    for (unsigned i = 0; i < collHandle->size(); ++i) {
+//      edm::Ptr<l1t::HGCalTriggerCell> ptr(collHandle, i);
+//      triggerCellsPtrs.push_back(ptr);
+//    }
+     
+    
     std::sort(triggerCellsPtrs.begin(),
               triggerCellsPtrs.end(),
               [](const edm::Ptr<l1t::HGCalTriggerCell>& a, const edm::Ptr<l1t::HGCalTriggerCell>& b) -> bool {
