@@ -1,34 +1,195 @@
-//
-//
+/**
+  \class    pat::PATPhotonProducer PATPhotonProducer.h "PhysicsTools/PatAlgos/interface/PATPhotonProducer.h"
+  \brief    Produces the pat::Photon
 
-#include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+   The PATPhotonProducer produces the analysis-level pat::Photon starting from
+   a collection of objects of PhotonType.
 
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/Records/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+  \author   Steven Lowette
+  \version  $Id: PATPhotonProducer.h,v 1.19 2009/06/25 23:49:35 gpetrucc Exp $
+*/
 
 #include "CommonTools/Egamma/interface/ConversionTools.h"
-#include "RecoEgamma/EgammaTools/interface/EcalRegressionData.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-
+#include "CommonTools/Utils/interface/EtComparator.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
+#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEgamma/EgammaTools/interface/EcalRegressionData.h"
 
-#include "TVector2.h"
-#include "DataFormats/Math/interface/deltaR.h"
+namespace pat {
 
-#include <memory>
+  class PATPhotonProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATPhotonProducer(const edm::ParameterSet& iConfig);
+    ~PATPhotonProducer() override;
+
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  private:
+    // configurables
+    edm::EDGetTokenT<edm::View<reco::Photon>> photonToken_;
+    edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+    edm::EDGetTokenT<reco::ConversionCollection> hConversionsToken_;
+    edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
+
+    bool embedSuperCluster_;
+    bool embedSeedCluster_;
+    bool embedBasicClusters_;
+    bool embedPreshowerClusters_;
+    bool embedRecHits_;
+
+    edm::InputTag reducedBarrelRecHitCollection_;
+    edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
+    edm::InputTag reducedEndcapRecHitCollection_;
+    edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
+
+    const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+
+    bool addPFClusterIso_;
+    bool addPuppiIsolation_;
+    edm::EDGetTokenT<edm::ValueMap<float>> ecalPFClusterIsoT_;
+    edm::EDGetTokenT<edm::ValueMap<float>> hcalPFClusterIsoT_;
+
+    bool addGenMatch_;
+    bool embedGenMatch_;
+    std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>>> genMatchTokens_;
+
+    // tools
+    GreaterByEt<Photon> eTComparator_;
+
+    typedef std::vector<edm::Handle<edm::ValueMap<IsoDeposit>>> IsoDepositMaps;
+    typedef std::vector<edm::Handle<edm::ValueMap<double>>> IsolationValueMaps;
+    typedef std::pair<pat::IsolationKeys, edm::InputTag> IsolationLabel;
+    typedef std::vector<IsolationLabel> IsolationLabels;
+
+    pat::helper::MultiIsolator isolator_;
+    pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_;  // better here than recreate at each event
+    std::vector<edm::EDGetTokenT<edm::ValueMap<IsoDeposit>>> isoDepositTokens_;
+    std::vector<edm::EDGetTokenT<edm::ValueMap<double>>> isolationValueTokens_;
+
+    IsolationLabels isoDepositLabels_;
+    IsolationLabels isolationValueLabels_;
+
+    /// fill the labels vector from the contents of the parameter set,
+    /// for the isodeposit or isolation values embedding
+    template <typename T>
+    void readIsolationLabels(const edm::ParameterSet& iConfig,
+                             const char* psetName,
+                             IsolationLabels& labels,
+                             std::vector<edm::EDGetTokenT<edm::ValueMap<T>>>& tokens);
+
+    bool addEfficiencies_;
+    pat::helper::EfficiencyLoader efficiencyLoader_;
+
+    bool addResolutions_;
+    pat::helper::KinResolutionsLoader resolutionLoader_;
+
+    bool addPhotonID_;
+    typedef std::pair<std::string, edm::InputTag> NameTag;
+    std::vector<NameTag> photIDSrcs_;
+    std::vector<edm::EDGetTokenT<edm::ValueMap<Bool_t>>> photIDTokens_;
+
+    bool useUserData_;
+    //PUPPI isolation tokens
+    edm::EDGetTokenT<edm::ValueMap<float>> PUPPIIsolation_charged_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float>> PUPPIIsolation_neutral_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float>> PUPPIIsolation_photons_;
+    pat::PATUserDataHelper<pat::Photon> userDataHelper_;
+
+    const CaloTopology* ecalTopology_;
+    const CaloGeometry* ecalGeometry_;
+
+    bool saveRegressionData_;
+  };
+
+}  // namespace pat
+
+template <typename T>
+void pat::PATPhotonProducer::readIsolationLabels(const edm::ParameterSet& iConfig,
+                                                 const char* psetName,
+                                                 pat::PATPhotonProducer::IsolationLabels& labels,
+                                                 std::vector<edm::EDGetTokenT<edm::ValueMap<T>>>& tokens) {
+  labels.clear();
+
+  if (iConfig.exists(psetName)) {
+    edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>(psetName);
+
+    if (depconf.exists("tracker"))
+      labels.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+    if (depconf.exists("ecal"))
+      labels.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+    if (depconf.exists("hcal"))
+      labels.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
+    if (depconf.exists("pfAllParticles")) {
+      labels.push_back(std::make_pair(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
+    }
+    if (depconf.exists("pfChargedHadrons")) {
+      labels.push_back(
+          std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
+    }
+    if (depconf.exists("pfChargedAll")) {
+      labels.push_back(std::make_pair(pat::PfChargedAllIso, depconf.getParameter<edm::InputTag>("pfChargedAll")));
+    }
+    if (depconf.exists("pfPUChargedHadrons")) {
+      labels.push_back(
+          std::make_pair(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons")));
+    }
+    if (depconf.exists("pfNeutralHadrons")) {
+      labels.push_back(
+          std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));
+    }
+    if (depconf.exists("pfPhotons")) {
+      labels.push_back(std::make_pair(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfPhotons")));
+    }
+    if (depconf.exists("user")) {
+      std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag>>("user");
+      std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+      int key = pat::IsolationKeys::UserBaseIso;
+      for (; it != ed; ++it, ++key) {
+        labels.push_back(std::make_pair(pat::IsolationKeys(key), *it));
+      }
+    }
+
+    tokens = edm::vector_transform(
+        labels, [this](IsolationLabel const& label) { return consumes<edm::ValueMap<T>>(label.second); });
+  }
+  tokens = edm::vector_transform(
+      labels, [this](IsolationLabel const& label) { return consumes<edm::ValueMap<T>>(label.second); });
+}
 
 using namespace pat;
 
-PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
+PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet& iConfig)
     :
 
       ecalClusterToolsESGetTokens_{consumesCollector()},
@@ -61,7 +222,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
     } else {
       genMatchTokens_ = edm::vector_transform(
           iConfig.getParameter<std::vector<edm::InputTag>>("genParticleMatch"),
-          [this](edm::InputTag const &tag) { return consumes<edm::Association<reco::GenParticleCollection>>(tag); });
+          [this](edm::InputTag const& tag) { return consumes<edm::Association<reco::GenParticleCollection>>(tag); });
     }
   }
   // Efficiency configurables
@@ -119,7 +280,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
                                             << "\t}\n";
   }
   photIDTokens_ = edm::vector_transform(
-      photIDSrcs_, [this](NameTag const &tag) { return mayConsume<edm::ValueMap<Bool_t>>(tag.second); });
+      photIDSrcs_, [this](NameTag const& tag) { return mayConsume<edm::ValueMap<Bool_t>>(tag.second); });
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
@@ -143,7 +304,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
 
 PATPhotonProducer::~PATPhotonProducer() {}
 
-void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void PATPhotonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // switch off embedding (in unschedules mode)
   if (iEvent.isRealData()) {
     addGenMatch_ = false;
@@ -228,7 +389,7 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   }
 
   // loop over photons
-  std::vector<Photon> *PATPhotons = new std::vector<Photon>();
+  std::vector<Photon>* PATPhotons = new std::vector<Photon>();
   for (edm::View<reco::Photon>::const_iterator itPhoton = photons->begin(); itPhoton != photons->end(); itPhoton++) {
     // construct the Photon from the ref -> save ref to original object
     unsigned int idx = itPhoton - photons->begin();
@@ -261,7 +422,7 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
         selectedCells.insert(selectedCells.end(), dets5x5.begin(), dets5x5.end());
 
         //get all xtals belonging to cluster
-        for (const std::pair<DetId, float> &hit : (*clusIt)->hitsAndFractions()) {
+        for (const std::pair<DetId, float>& hit : (*clusIt)->hitsAndFractions()) {
           selectedCells.push_back(hit.first);
         }
       }
@@ -280,7 +441,7 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 
     //orginal code would throw an exception via the handle not being valid but now it'll just have a null pointer error
     //should have little effect, if its not barrel or endcap, something very bad has happened elsewhere anyways
-    const EcalRecHitCollection *recHits = nullptr;
+    const EcalRecHitCollection* recHits = nullptr;
     if (photonRef->superCluster()->seed()->hitsAndFractions().at(0).first.subdetId() == EcalBarrel)
       recHits = recHitsEBHandle.product();
     else if (photonRef->superCluster()->seed()->hitsAndFractions().at(0).first.subdetId() == EcalEndcap)
@@ -477,7 +638,7 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 }
 
 // ParameterSet description for module
-void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription iDesc;
   iDesc.setComment("PAT photon producer module");
 
@@ -586,5 +747,4 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions &descrip
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 DEFINE_FWK_MODULE(PATPhotonProducer);
