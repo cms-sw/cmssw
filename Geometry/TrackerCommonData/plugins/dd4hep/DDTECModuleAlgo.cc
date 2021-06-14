@@ -404,6 +404,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   }
   //Pitch Adapter
   name = idName + "PA";
+  name = ns.prepend(name);
   if (!isStereo) {
     dx = 0.5 * pitchWidth;
     dy = 0.5 * pitchThick;
