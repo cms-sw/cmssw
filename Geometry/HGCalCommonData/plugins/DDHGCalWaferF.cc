@@ -67,7 +67,9 @@ void DDHGCalWaferF::initialize(const DDNumericArguments& nArgs,
   waferSepar_ = nArgs["SensorSeparation"];
   waferThick_ = nArgs["WaferThickness"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Module " << parent().name() << " made of " << material_ << " T " << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_ << " T " << waferThick_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Module " << parent().name() << " made of " << material_ << " T "
+                                << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_ << " T "
+                                << waferThick_;
 #endif
   layerNames_ = vsArgs["LayerNames"];
   materials_ = vsArgs["LayerMaterials"];
@@ -141,11 +143,11 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
     unsigned int i = layers_[l];
     if (copyNumber_[i] == 1) {
       if (layerType_[i] > 0) {
-	zw[0] = -0.5 * waferThick_;
-	zw[1] = 0.5 * waferThick_;
+        zw[0] = -0.5 * waferThick_;
+        zw[1] = 0.5 * waferThick_;
       } else {
-	zw[0] = -0.5 * layerThick_[i];
-	zw[1] = 0.5 * layerThick_[i];
+        zw[0] = -0.5 * layerThick_[i];
+        zw[1] = 0.5 * layerThick_[i];
       }
       solid = DDSolidFactory::extrudedpolygon(layerNames_[i], xL, yL, zw, zx, zy, scale);
       DDName matN(DDSplit(materials_[i]).first, DDSplit(materials_[i]).second);
