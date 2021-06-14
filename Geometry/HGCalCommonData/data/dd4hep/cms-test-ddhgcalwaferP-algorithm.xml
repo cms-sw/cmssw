@@ -24,10 +24,10 @@
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v1/cms.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v15p/hgcal.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v15/hgcalcell.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v15p/hgcalwafer.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v15p/hgcalpos.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v16p/hgcal.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v16/hgcalcell.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v16p/hgcalwafer.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v16p/hgcalpos.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/dd4hep/world.xml"/>
   </IncludeSection>
   
