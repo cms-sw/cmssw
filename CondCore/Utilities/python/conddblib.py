@@ -337,7 +337,7 @@ class Connection(object):
                 self.engine.execute('pragma foreign_keys = on')
 
         else:
-            self.engine = sqlalchemy.create_engine(url)
+            self.engine = sqlalchemy.create_engine(url, max_identifier_length=30)
 
         self._session = sqlalchemy.orm.scoped_session(sqlalchemy.orm.sessionmaker(bind=self.engine))
 
