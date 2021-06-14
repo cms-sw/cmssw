@@ -78,6 +78,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     RestorePhysicsTables = cms.untracked.bool(False),
     UseParametrisedEMPhysics = cms.untracked.bool(True),
     CheckGeometry = cms.untracked.bool(False),
+    OnlySDs = cms.vstring(),                           
     G4CheckOverlap = cms.untracked.PSet(
         OutputBaseName = cms.string('2017'),
         MaterialFlag = cms.bool(True),

@@ -167,7 +167,8 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_p(iConfig),
       m_simEvent(nullptr),
       m_sVerbose(nullptr) {
-  m_sdMakers = sim::sensitiveDetectorMakers(m_p, iC, std::vector<std::string>());
+  std::vector<std::string> onlySDs = iConfig.getParameter<std::vector<std::string>>("OnlySDs");
+  m_sdMakers = sim::sensitiveDetectorMakers(m_p, iC, onlySDs);
   std::vector<edm::ParameterSet> watchers = iConfig.getParameter<std::vector<edm::ParameterSet> >("Watchers");
   m_hasWatchers = !watchers.empty();
   initializeTLS();
@@ -176,6 +177,9 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
     m_LHCToken = iC.consumes<edm::HepMCProduct>(edm::InputTag("LHCTransport"));
   }
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker is constructed for the thread " << thisID;
+  unsigned int k = 0;
+  for (std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>>::const_iterator itr = m_sdMakers.begin(); itr !=  m_sdMakers.end(); ++itr, ++k)
+    edm::LogVerbatim("SimG4CoreApplication") << "SD[" << k << "] " << itr->first;
 }
 
 RunManagerMTWorker::~RunManagerMTWorker() {

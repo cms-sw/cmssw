@@ -15,8 +15,6 @@ process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
 process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
 process.load('Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalEENumberingInitialization_cfi')
-#process.load('Configuration.Geometry.GeometryExtended2026D84Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D84_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -26,7 +24,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1),
+    input = cms.untracked.int32(10),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -35,6 +33,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCSim=dict()
     process.MessageLogger.G4cout=dict()
     process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.SimG4CoreApplication=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -158,6 +157,11 @@ process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
+process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 
+                             'HGCScintillatorSensitiveDetector',
+                             'CaloTrkProcessing',
+                             'HGCSensitiveDetector',
+                             'HcalSensitiveDetector']
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.FEVTDEBUGoutput_step)
