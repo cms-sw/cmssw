@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
+from FWCore.ParameterSet.pfnInPath import pfnInPath
 import FWCore.ParameterSet.Config as cms
 import sys
 import os
@@ -49,27 +50,7 @@ def callDOMCount(schemaPath, xmlPath):
     os.system ("rm %s" % (xmlFilename))
 
 # Find the schema file
-schema = os.environ['LOCAL_TOP_DIR'] + '/src/DetectorDescription/Schema/DDLSchema.xsd'
-if os.path.isfile(schema):
-    pass
-else:
-    # It is an error if the file is not there but the package is
-    packageDirectory = os.environ['LOCAL_TOP_DIR'] + '/src/DetectorDescription/Schema'
-    if os.path.isdir(packageDirectory):
-        print('Error, schema file not found')
-        print('DDLSchema.xsd not found in ' + packageDirectory)
-        print('Quitting, cannot test XML files without a schema')
-        sys.exit(0)
-
-    # if there is a base release then try to find the file there
-    schema = os.getenv('CMSSW_RELEASE_BASE') + '/src/DetectorDescription/Schema/DDLSchema.xsd'
-    if os.path.isfile(schema):
-        pass
-    else:
-        print('Error, schema file not found')
-        print('DetectorDescription/Schema/DDLSchema.xsd')
-        print('Quitting, cannot test XML files without a schema')
-        sys.exit(0)
+schema = pfnInPath("DetectorDescription/Schema/DDLSchema.xsd").replace('file:','')
 print("schema file is:")
 print(schema)
 sys.stdout.flush()
