@@ -20,30 +20,32 @@ from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi import *
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi import *
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
+
 # seeding layers
-combinatorialcosmicseedingtripletsP5 = cms.EDProducer("SeedingLayersEDProducer",
+combinatorialcosmicseedingtripletsP5 = _mod.seedingLayersEDProducer.clone(
     layerInfo,
-    layerList = cms.vstring('MTOB4+MTOB5+MTOB6', 
-        'MTOB3+MTOB5+MTOB6', 
-        'MTOB3+MTOB4+MTOB5', 
-        'TOB2+MTOB4+MTOB5', 
-        'MTOB3+MTOB4+MTOB6', 
-        'TOB2+MTOB4+MTOB6')
+    layerList = ['MTOB4+MTOB5+MTOB6', 
+                 'MTOB3+MTOB5+MTOB6', 
+                 'MTOB3+MTOB4+MTOB5', 
+                 'TOB2+MTOB4+MTOB5', 
+                 'MTOB3+MTOB4+MTOB6', 
+                 'TOB2+MTOB4+MTOB6'],
 )
-combinatorialcosmicseedingpairsTOBP5 = cms.EDProducer("SeedingLayersEDProducer",
+combinatorialcosmicseedingpairsTOBP5 = _mod.seedingLayersEDProducer.clone( 
     layerInfo,
-    layerList = cms.vstring('MTOB5+MTOB6', 
-        'MTOB4+MTOB5')
+    layerList = ['MTOB5+MTOB6', 
+                 'MTOB4+MTOB5'],
 )
-combinatorialcosmicseedingpairsTECposP5 = cms.EDProducer("SeedingLayersEDProducer",
-    layerList = cms.vstring('TEC1_pos+TEC2_pos', 
-        'TEC2_pos+TEC3_pos', 
-        'TEC3_pos+TEC4_pos', 
-        'TEC4_pos+TEC5_pos', 
-        'TEC5_pos+TEC6_pos', 
-        'TEC6_pos+TEC7_pos', 
-        'TEC7_pos+TEC8_pos', 
-        'TEC8_pos+TEC9_pos'),
+combinatorialcosmicseedingpairsTECposP5 = _mod.seedingLayersEDProducer.clone(
+    layerList = ['TEC1_pos+TEC2_pos', 
+                 'TEC2_pos+TEC3_pos', 
+                 'TEC3_pos+TEC4_pos', 
+                 'TEC4_pos+TEC5_pos', 
+                 'TEC5_pos+TEC6_pos', 
+                 'TEC6_pos+TEC7_pos', 
+                 'TEC7_pos+TEC8_pos', 
+                 'TEC8_pos+TEC9_pos'],
     TEC = cms.PSet(
         minRing = cms.int32(5),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
@@ -54,15 +56,15 @@ combinatorialcosmicseedingpairsTECposP5 = cms.EDProducer("SeedingLayersEDProduce
         maxRing = cms.int32(7)
     )
 )
-combinatorialcosmicseedingpairsTECnegP5 = cms.EDProducer("SeedingLayersEDProducer",
-    layerList = cms.vstring('TEC1_neg+TEC2_neg', 
-        'TEC2_neg+TEC3_neg', 
-        'TEC3_neg+TEC4_neg', 
-        'TEC4_neg+TEC5_neg', 
-        'TEC5_neg+TEC6_neg', 
-        'TEC6_neg+TEC7_neg', 
-        'TEC7_neg+TEC8_neg', 
-        'TEC8_neg+TEC9_neg'),
+combinatorialcosmicseedingpairsTECnegP5 = _mod.seedingLayersEDProducer.clone(
+    layerList = ['TEC1_neg+TEC2_neg', 
+                 'TEC2_neg+TEC3_neg', 
+                 'TEC3_neg+TEC4_neg', 
+                 'TEC4_neg+TEC5_neg', 
+                 'TEC5_neg+TEC6_neg', 
+                 'TEC6_neg+TEC7_neg', 
+                 'TEC7_neg+TEC8_neg', 
+                 'TEC8_neg+TEC9_neg'],
     TEC = cms.PSet(
         minRing = cms.int32(5),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),

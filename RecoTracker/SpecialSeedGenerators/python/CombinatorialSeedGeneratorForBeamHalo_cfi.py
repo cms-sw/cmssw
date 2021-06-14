@@ -41,7 +41,7 @@ layerInfo = cms.PSet(
     ),
 )
 
-layerList = cms.vstring(
+layerList = [
     'FPix1_pos+FPix2_pos', 
     'FPix1_neg+FPix2_neg', 
     'TID2_pos+TID3_pos', 
@@ -60,7 +60,7 @@ layerList = cms.vstring(
     'MTEC7_pos+MTEC8_pos',
     'MTEC8_neg+MTEC9_neg',
     'MTEC8_pos+MTEC9_pos'
-    )
+    ]
 
 beamhaloTrackerSeeds = cms.EDProducer("CtfSpecialSeedGenerator",
     SeedMomentum = cms.double(15.0), ##initial momentum in GeV !!!set to a lower value for slice test data
