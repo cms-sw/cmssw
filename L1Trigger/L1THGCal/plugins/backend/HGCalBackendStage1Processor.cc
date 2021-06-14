@@ -42,7 +42,7 @@ public:
 //    std::vector<edm::Ptr<l1t::HGCalTriggerCell> > triggerCellsPtrs;
     for (const auto& trigMod : collInput) {
       uint32_t module = geometry_->getModuleFromTriggerCell(trigMod.detId());
-      uint32_t fpga = geometry_->getStage1FpgaFromModule(trigMod.module());
+      uint32_t fpga = geometry_->getStage1FpgaFromModule(trigMod.moduleId());
       triggerCellsPtrs[module].push_back(trigMod);
     }
 
