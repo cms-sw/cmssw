@@ -1,22 +1,69 @@
-//
-//
+/**
+  \class    pat::PATPFParticleProducer PATPFParticleProducer.h "PhysicsTools/PatAlgos/interface/PATPFParticleProducer.h"
+  \brief    Produces pat::PFParticle's
 
-#include "PhysicsTools/PatAlgos/plugins/PATPFParticleProducer.h"
+   The PATPFParticleProducer produces analysis-level pat::PFParticle's starting from
+   a collection of objects of reco::PFCandidate.
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+  \author   Steven Lowette, Roger Wolf
+  \version  $Id: PATPFParticleProducer.h,v 1.8 2012/05/26 10:42:53 gpetrucc Exp $
+*/
 
+#include "CommonTools/Utils/interface/PtComparator.h"
+#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
-#include "DataFormats/Common/interface/Association.h"
-
-#include "TMath.h"
+#include "DataFormats/PatCandidates/interface/PFParticle.h"
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
+#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 #include <vector>
 #include <memory>
+
+namespace pat {
+
+  class LeptonLRCalc;
+
+  class PATPFParticleProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATPFParticleProducer(const edm::ParameterSet& iConfig);
+    ~PATPFParticleProducer() override;
+
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+  private:
+    // configurables
+    edm::EDGetTokenT<edm::View<reco::PFCandidate> > pfCandidateToken_;
+    bool embedPFCandidate_;
+    bool addGenMatch_;
+    bool embedGenMatch_;
+    std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
+    // tools
+    GreaterByPt<PFParticle> pTComparator_;
+
+    bool addEfficiencies_;
+    pat::helper::EfficiencyLoader efficiencyLoader_;
+
+    bool addResolutions_;
+    pat::helper::KinResolutionsLoader resolutionLoader_;
+
+    bool useUserData_;
+    pat::PATUserDataHelper<pat::PFParticle> userDataHelper_;
+  };
+
+}  // namespace pat
 
 using namespace pat;
 
@@ -127,5 +174,4 @@ void PATPFParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 DEFINE_FWK_MODULE(PATPFParticleProducer);
