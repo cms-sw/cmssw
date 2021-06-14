@@ -146,8 +146,8 @@ int ComparatorCodeLUT::calculateComparatorCode(const pattern& halfStripPattern) 
 }
 
 unsigned ComparatorCodeLUT::convertSlopeToRun2Pattern(const unsigned slope) const {
-  const unsigned slopeList[32] = {10, 10, 10, 8, 8, 8, 6, 6, 6, 6, 4, 4, 2, 2, 2, 2,
-                                  10, 10, 10, 9, 9, 9, 7, 7, 7, 7, 5, 5, 3, 3, 3, 3};
+  const unsigned slopeList[32] = {10, 10, 10, 8, 8, 8, 6, 6, 6, 4, 4, 4, 2, 2, 2, 2,
+                                  10, 10, 10, 9, 9, 9, 7, 7, 7, 5, 5, 5, 3, 3, 3, 3};
   return slopeList[slope];
 }
 
