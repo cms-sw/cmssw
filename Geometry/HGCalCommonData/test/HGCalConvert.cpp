@@ -393,11 +393,11 @@ void ConvertSiliconV1::convert(
           int thck = static_cast<int>(std::find(thick, thick + 4, items[2]) - thick);
           int part = std::atoi(items[1].c_str());
           if ((thck < 4) && (part >= 0)) {
-	    if (addType[thck] == 0)
-	      part = partTypeH[part];
-	    else
-	      part = partTypeL[part];
-	  }
+            if (addType[thck] == 0)
+              part = partTypeH[part];
+            else
+              part = partTypeL[part];
+          }
           int orient = std::atoi(items[5].c_str());
           wafer waf(thck, part, orient);
           if (layer <= layMax1_) {
