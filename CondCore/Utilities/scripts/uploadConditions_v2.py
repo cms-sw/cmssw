@@ -21,10 +21,11 @@ Takes user arguments and passes them to the main upload module CondDBFW.uploads,
 
 __version__ = 1
 
-#import pycurl
-import requests
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+try: 
+	from CondCore.Utilities.CondDBFW.url_query import url_query
+except:
+	print("ERROR: Could not access the url query utiliy. Yoy are probably not in a CMSSW environment.")
+	exit(-1)
 try:
 	from StringIO import StringIO
 except:
@@ -450,7 +451,9 @@ def parse_arguments():
 	return metadata_dictionary
 
 def get_version(url):
-	return requests.get(url + "script_version/", verify=False)
+	query = url_query(url=url + "script_version/")
+	response = query.send()
+	return response
 
 
 if __name__ == "__main__":
@@ -461,7 +464,7 @@ if __name__ == "__main__":
 	final_service_url = upload_metadata["server"]
 	try:
 		response = get_version(final_service_url)
-		server_version = response.json()
+		server_version = json.loads(response)
 	except Exception as e:
 		print(horizontal_rule)
 		print(e)
