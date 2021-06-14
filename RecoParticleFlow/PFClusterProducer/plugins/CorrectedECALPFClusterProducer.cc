@@ -133,8 +133,10 @@ void CorrectedECALPFClusterProducer::produce(edm::Event& e, const edm::EventSetu
 void CorrectedECALPFClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<double>("minimumPSEnergy", 0.0);
-  desc.add<bool>("skipPS", false);
-  desc.add<edm::InputTag>("inputPS", edm::InputTag("particleFlowClusterPS"));
+  desc.ifValue(
+      edm::ParameterDescription<bool>("skipPS", false, true),
+      true >> (edm::ParameterDescription<edm::InputTag>("inputPS", edm::InputTag(""), true)) or
+          false >> (edm::ParameterDescription<edm::InputTag>("inputPS", edm::InputTag("particleFlowClusterPS"), true)));
   {
     edm::ParameterSetDescription psd0;
     psd0.add<bool>("applyCrackCorrections", false);
