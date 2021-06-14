@@ -1355,6 +1355,11 @@ def listRuns_(args):
             logging.info('Found %s Run entries.'%len(table))
     for i in range(len(table)):
         table[i] = table[i] + ( (calendar.timegm( table[i][1].utctimetuple() ) << 32), (calendar.timegm( table[i][2].utctimetuple() ) << 32) )
+    # check if last run is ongoing
+    last_start = table[len(table)-1][1]
+    last_end = table[len(table)-1][2]
+    if last_start==last_end:
+        table[len(table)-1]=(table[len(table)-1][0],table[len(table)-1][1],'on going...',table[len(table)-1][3],'-')
     output_table(args, table, ['Run_number','Start_time','End_time','Start_IOV','End_IOV'],
     )
     return 0
