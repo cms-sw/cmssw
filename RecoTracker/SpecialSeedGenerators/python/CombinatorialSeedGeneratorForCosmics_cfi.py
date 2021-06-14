@@ -36,7 +36,7 @@ layerInfo = cms.PSet(
         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         maxRing = cms.int32(7)
-  )
+    )
 )
 combinatorialcosmicseedingtripletsTOB_layerList = cms.vstring('MTOB4+MTOB5+MTOB6',
     'MTOB3+MTOB5+MTOB6',
@@ -69,24 +69,26 @@ combinatorialcosmicseedfinder = cms.EDProducer("CtfSpecialSeedGenerator",
         GlobalY = cms.double(300.0)
     ),
     Charges = cms.vint32(-1),
-    OrderedHitsFactoryPSets = cms.VPSet(cms.PSet(
-        ComponentName = cms.string('GenericTripletGenerator'),
-        LayerSrc = cms.InputTag("combinatorialcosmicseedingtripletsTOB"),
-        PropagationDirection = cms.string('alongMomentum'),
-        NavigationDirection = cms.string('outsideIn')
-    ), 
-    cms.PSet(
-        ComponentName = cms.string('GenericPairGenerator'),
-        LayerSrc = cms.InputTag("combinatorialcosmicseedingpairsTECpos"),
-        PropagationDirection = cms.string('alongMomentum'),
-        NavigationDirection = cms.string('outsideIn')
-    ), 
-    cms.PSet(
-        ComponentName = cms.string('GenericTripletGenerator'),
-        LayerSrc = cms.InputTag("combinatorialcosmicseedingtripletsTIB"),
-        PropagationDirection = cms.string('oppositeToMomentum'),
-        NavigationDirection = cms.string('insideOut')
-    )),
+    OrderedHitsFactoryPSets = cms.VPSet(
+        cms.PSet(
+            ComponentName = cms.string('GenericTripletGenerator'),
+            LayerSrc = cms.InputTag("combinatorialcosmicseedingtripletsTOB"),
+            PropagationDirection = cms.string('alongMomentum'),
+            NavigationDirection = cms.string('outsideIn')
+        ), 
+        cms.PSet(
+            ComponentName = cms.string('GenericPairGenerator'),
+            LayerSrc = cms.InputTag("combinatorialcosmicseedingpairsTECpos"),
+            PropagationDirection = cms.string('alongMomentum'),
+            NavigationDirection = cms.string('outsideIn')
+        ), 
+        cms.PSet(
+            ComponentName = cms.string('GenericTripletGenerator'),
+            LayerSrc = cms.InputTag("combinatorialcosmicseedingtripletsTIB"),
+            PropagationDirection = cms.string('oppositeToMomentum'),
+            NavigationDirection = cms.string('insideOut')
+        )
+    ),
     UseScintillatorsConstraint = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
     LowerScintillatorParameters = cms.PSet(
