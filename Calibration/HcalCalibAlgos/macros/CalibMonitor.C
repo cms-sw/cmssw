@@ -935,7 +935,7 @@ void CalibMonitor::Loop() {
       break;
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
-    if (jentry % 100000 == 0)
+    if (jentry % 1000000 == 0)
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     bool p4060 = ((pmom >= 40.0) && (pmom <= 60.0));
@@ -2623,7 +2623,7 @@ void CalibPlotProperties::Loop() {
       break;
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
-    if (jentry % 100000 == 0)
+    if (jentry % 1000000 == 0)
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
     bool select = (std::find(entries_.begin(), entries_.end(), jentry) == entries_.end());
     if (!select) {

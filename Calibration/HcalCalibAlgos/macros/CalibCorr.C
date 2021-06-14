@@ -178,10 +178,44 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
       if (debug)
         std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
                   << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
-    } else {  // 21pu
+    } else if (type == 6) {  // 21pu (old)
       const double CONST_COR_COEF[6] = {0.98913, 0.982008, 0.974011, 0.496234, 0.368110, 0.294053};
       const double LINEAR_COR_COEF[6] = {-0.0491388, -0.124058, -0.249718, -0.0667390, -0.0770766, -0.0580492};
       const double SQUARE_COR_COEF[6] = {0, 0, 0.0368657, 0.00656337, 0.00724508, 0.00568967};
+      const int PU_IETA_1 = 7;
+      const int PU_IETA_2 = 16;
+      const int PU_IETA_3 = 25;
+      const int PU_IETA_4 = 26;
+      const int PU_IETA_5 = 27;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3) +
+                       unsigned(jeta >= PU_IETA_4) + unsigned(jeta >= PU_IETA_5));
+      double deltaCut = (icor > 2) ? 1.0 : DELTA_CUT;
+      if (d2p > deltaCut)
+        fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
+      if (debug)
+        std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
+                  << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else if (type == 99) {  // dlphin
+      const double CONST_COR_COEF[6] = {0.98312, 0.978532, 0.972211, 0.756004, 0.638075, 0.547192};
+      const double LINEAR_COR_COEF[6] = {-0.0472436, -0.186206, -0.247339, -0.166062, -0.159781, -0.118747};
+      const double SQUARE_COR_COEF[6] = {0, 0, 0.0356827, 0.0202461, 0.01785078, 0.0123003};
+      const int PU_IETA_1 = 7;
+      const int PU_IETA_2 = 16;
+      const int PU_IETA_3 = 25;
+      const int PU_IETA_4 = 26;
+      const int PU_IETA_5 = 27;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3) +
+                       unsigned(jeta >= PU_IETA_4) + unsigned(jeta >= PU_IETA_5));
+      double deltaCut = (icor > 2) ? 1.0 : DELTA_CUT;
+      if (d2p > deltaCut)
+        fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
+      if (debug)
+        std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
+                  << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else {  // 21pu (June, 2021)
+      const double CONST_COR_COEF[6] = {0.989727, 0.981923, 0.97571, 0.562475, 0.467947, 0.411831};
+      const double LINEAR_COR_COEF[6] = {-0.0469558, -0.125805, -0.251383, -0.0668994, -0.0964236, -0.0947158};
+      const double SQUARE_COR_COEF[6] = {0, 0, 0.0399785, 0.00610104, 0.00952528, 0.0100645};
       const int PU_IETA_1 = 7;
       const int PU_IETA_2 = 16;
       const int PU_IETA_3 = 25;
@@ -307,9 +341,10 @@ private:
   const int useScale_;
   const double scale_;
   const bool etaMax_, debug_;
+  static const int depMax_ = 10;
   bool corrE_;
   int etamp_, etamn_;
-  double cfacmp_, cfacmn_;
+  double cfacmp_[depMax_], cfacmn_[depMax_];
   std::map<std::pair<int, int>, double> cfactors_;
 };
 
@@ -357,7 +392,11 @@ private:
 };
 
 CalibCorrFactor::CalibCorrFactor(const char* infile, int useScale, double scale, bool etamax, bool debug)
-    : useScale_(useScale), scale_(scale), etaMax_(etamax), debug_(debug), etamp_(0), etamn_(0), cfacmp_(1), cfacmn_(1) {
+    : useScale_(useScale), scale_(scale), etaMax_(etamax), debug_(debug), etamp_(0), etamn_(0) {
+  for (int i = 0; i < depMax_; ++i) {
+    cfacmp_[i] = 1.0;
+    cfacmn_[i] = 1.0;
+  }
   if (std::string(infile) != "") {
     corrE_ = readCorrFactor(infile);
     std::cout << "Reads " << cfactors_.size() << " correction factors from " << infile << " with flag " << corrE_
@@ -382,9 +421,9 @@ double CalibCorrFactor::getCorr(unsigned int id) {
       cfac = itr->second;
     } else if (etaMax_) {
       if (zside > 0 && ieta > etamp_)
-        cfac = cfacmp_;
+        cfac = (depth < depMax_) ? cfacmp_[depth] : cfacmp_[depMax_ - 1];
       if (zside < 0 && ieta > -etamn_)
-        cfac = cfacmn_;
+        cfac = (depth < depMax_) ? cfacmn_[depth] : cfacmn_[depMax_ - 1];
     }
   } else if (useScale_ != 0) {
     int subdet, zside, ieta, iphi, depth;
@@ -417,20 +456,21 @@ bool CalibCorrFactor::readCorrFactor(const char* fname) {
           float corrf = std::atof(items[3].c_str());
           double scale = getFactor(std::abs(ieta));
           cfactors_[std::pair<int, int>(ieta, depth)] = scale * corrf;
-          if (ieta > etamp_ && depth == 1) {
+          if (ieta > etamp_ && depth == 1)
             etamp_ = ieta;
-            cfacmp_ = scale * corrf;
-          }
-          if (ieta < etamn_ && depth == 1) {
+          if (ieta == etamp_ && depth < depMax_)
+            cfacmp_[depth] = scale * corrf;
+          if (ieta < etamn_ && depth == 1)
             etamn_ = ieta;
-            cfacmn_ = scale * corrf;
-          }
+          if (ieta == etamn_ && depth < depMax_)
+            cfacmn_[depth] = scale * corrf;
         }
       }
       fInput.close();
       std::cout << "Reads total of " << all << " and " << good << " good records"
-                << " Max eta (z>0) " << etamp_ << ":" << cfacmp_ << " eta (z<0) " << etamn_ << ":" << cfacmn_
-                << std::endl;
+                << " Max eta (z>0) " << etamp_ << " eta (z<0) " << etamn_ << std::endl;
+      for (int i = 0; i < depMax_; ++i)
+        std::cout << "[" << i << "] C+ " << cfacmp_[i] << " C- " << cfacmn_[i] << std::endl;
       if (good > 0)
         ok = true;
     }
