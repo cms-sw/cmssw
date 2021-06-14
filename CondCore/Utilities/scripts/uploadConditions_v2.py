@@ -250,8 +250,8 @@ def parse_arguments():
 	# non-metadata arguments
 	parser.add_option("-m", "--metadataFile", type=str, help="Metadata file to take metadata from.")
 
-	parser.add_option("-d", "--debug", action="store_true")
-	parser.add_option("-v", "--verbose", action="store_true", default="true")
+	parser.add_option("-d", "--debug", action="store_true", default=False)
+	parser.add_option("-v", "--verbose", action="store_true", default=False)
 	parser.add_option("-T", "--testing", action="store_true")
 	parser.add_option("--fcsr-filter", type=str, help="Synchronization to take FCSR from for local filtering of IOVs.")
 
