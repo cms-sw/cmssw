@@ -28,3 +28,5 @@
 
 typedef SingleObjectSelector<reco::PFDisplacedVertexCollection, StringCutObjectSelector<reco::PFDisplacedVertex> >
     PFDisplacedVertexSelector;
+
+DEFINE_FWK_MODULE(PFDisplacedVertexSelector);
