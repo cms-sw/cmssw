@@ -43,6 +43,7 @@ process.dtTriggerPhase2BayesPrimitiveDigis = process.dtTriggerPhase2PrimitiveDig
 process.dtTriggerPhase2BayesPrimitiveDigis.algo = 1 ## bayes grouping
 
 process.dtTriggerPhase2BayesPrimitiveDigis.minHits4Fit = 3
+process.dtTriggerPhase2BayesPrimitiveDigis.df_extended = 2
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minNLayerHits = 3
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMax = 3 
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMin = 0 
@@ -53,6 +54,7 @@ process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.allowedVariance = 
 # STD
 process.dtTriggerPhase2StdPrimitiveDigis   = process.dtTriggerPhase2PrimitiveDigis.clone()
 process.dtTriggerPhase2StdPrimitiveDigis.algo = 0 ## initial grouping
+process.dtTriggerPhase2StdPrimitiveDigis.df_extended = 2
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
