@@ -5,6 +5,8 @@
 #include "DQM/TrackerRemapper/interface/Phase1PixelMaps.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 
+static const std::string k_geo = "SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt";
+
 TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
   //_____________________________________________________________
   SECTION("Check barrel plotting") {
@@ -14,7 +16,8 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
     theMap.bookBarrelHistograms("mytest", "test", "test");
     theMap.bookBarrelBins("mytest");
     theMap.drawBarrelMaps("mytest", c, "colz0");
-    c.SaveAs("Phase1PixelMaps_barrel.png");
+    theMap.beautifyAllHistograms();
+    c.SaveAs("Phase1PixelMaps_Barrel.png");
     REQUIRE(true);
   }
 
@@ -22,25 +25,27 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
   SECTION("Check endcap plotting") {
     gStyle->SetOptStat(0);
     Phase1PixelMaps theMap("");
-    TCanvas c = TCanvas("c", "c", 1200, 1200);
+    TCanvas c = TCanvas("c", "c", 1200, 800);
     theMap.bookForwardHistograms("mytest", "test", "test");
     theMap.bookForwardBins("mytest");
     theMap.drawForwardMaps("mytest", c, "colz0");
-    c.SaveAs("Phase1PixelMaps_endcap.png");
+    theMap.beautifyAllHistograms();
+    c.SaveAs("Phase1PixelMaps_Endcap.png");
     REQUIRE(true);
   }
 
   //_____________________________________________________________
   SECTION("Check summary plotting") {
     gStyle->SetOptStat(0);
-    Phase1PixelMaps theMap("");
-    TCanvas c = TCanvas("c", "c", 1200, 1200);
+    Phase1PixelMaps theMap("COLZA L");  // needed to not show the axis
+    TCanvas c = TCanvas("c", "c", 1200, 800);
     theMap.bookBarrelHistograms("mytest", "test", "test");
     theMap.bookBarrelBins("mytest");
     theMap.bookForwardHistograms("mytest", "test", "test");
     theMap.bookForwardBins("mytest");
+    theMap.beautifyAllHistograms();
     theMap.drawSummaryMaps("mytest", c);
-    c.SaveAs("Phase1PixelMaps_summary.png");
+    c.SaveAs("Phase1PixelMaps_Summary.png");
     REQUIRE(true);
   }
 
@@ -54,8 +59,7 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
     theMap.bookForwardHistograms("mytest", "test", "test");
     theMap.bookForwardBins("mytest");
 
-    SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(
-        edm::FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt").fullPath());
+    SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
     const auto& detIds = reader_.getAllDetIds();
     int count = 0;
     for (const auto& it : detIds) {
@@ -67,9 +71,58 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
         theMap.fillForwardBin("mytest", it, count);
       }
     }
-
+    theMap.beautifyAllHistograms();
     theMap.drawSummaryMaps("mytest", c);
-    c.SaveAs("Phase1PixelMaps_summary_full.png");
+    c.SaveAs("Phase1PixelMaps_Summary_Filled.png");
+    REQUIRE(true);
+  }
+
+  //_____________________________________________________________
+  SECTION("Check summary filling V2") {
+    gStyle->SetOptStat(0);
+    gStyle->SetPalette(kRainBow);
+    Phase1PixelMaps theMap("COLZA L");
+
+    TCanvas c = TCanvas("c", "c", 1200, 800);
+    theMap.book("mytest", "module counts", "module counts");
+
+    SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
+    const auto& detIds = reader_.getAllDetIds();
+    int count = 0;
+    for (const auto& it : detIds) {
+      count++;
+      theMap.fill("mytest", it, count);
+    }
+
+    theMap.beautifyAllHistograms();
+    theMap.drawSummaryMaps("mytest", c);
+    c.SaveAs("Phase1PixelMaps_Summary_Filled_V2.png");
+    REQUIRE(true);
+  }
+
+  //_____________________________________________________________
+  SECTION("Check summary filling V3") {
+    gStyle->SetOptStat(0);
+    gStyle->SetPalette(kBlackBody);
+    Phase1PixelMaps theMap("COLZA L");
+
+    TCanvas c = TCanvas("c", "c", 1200, 800);
+    theMap.book("mytest", "module counts", "module counts");
+
+    SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
+    const auto& detIds = reader_.getAllDetIds();
+    int count = 0;
+    for (const auto& it : detIds) {
+      count++;
+      theMap.fill("mytest", it, count);
+    }
+
+    theMap.setNoRescale();
+    theMap.beautifyAllHistograms();
+    theMap.drawSummaryMaps("mytest", c);
+    theMap.setBarrelScale("mytest", std::make_pair(0., 100.));
+    theMap.setForwardScale("mytest", std::make_pair(0., 20.));
+    c.SaveAs("Phase1PixelMaps_Summary_Filled_V3.png");
     REQUIRE(true);
   }
 }
