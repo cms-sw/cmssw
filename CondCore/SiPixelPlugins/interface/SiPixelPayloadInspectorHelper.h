@@ -216,13 +216,13 @@ namespace SiPixelPI {
 
   //============================================================================
   inline void dress_occup_plot(TCanvas& canv,
-                        TH2* h,
-                        int lay,
-                        int ring = 0,
-                        int phase = 0,
-                        bool half_shift = true,
-                        bool mark_zero = true,
-                        bool standard_palette = true) {
+                               TH2* h,
+                               int lay,
+                               int ring = 0,
+                               int phase = 0,
+                               bool half_shift = true,
+                               bool mark_zero = true,
+                               bool standard_palette = true) {
     std::string s_title;
 
     if (lay > 0) {
