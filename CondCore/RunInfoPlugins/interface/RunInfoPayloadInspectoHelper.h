@@ -36,7 +36,7 @@ namespace RunInfoPI {
   };
 
   /************************************************/
-  float theBField(const float current) {
+  inline float theBField(const float current) {
     // logic is taken from https://github.com/cms-sw/cmssw/blob/master/MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducerFromDB.cc#L156
 
     int i = 0;
@@ -49,7 +49,7 @@ namespace RunInfoPI {
   }
 
   /************************************************/
-  float runDuration(const std::shared_ptr<RunInfo>& payload) {
+  inline float runDuration(const std::shared_ptr<RunInfo>& payload) {
     // calculation of the run duration in seconds
     time_t start_time = payload->m_start_time_ll;
     ctime(&start_time);
@@ -59,19 +59,19 @@ namespace RunInfoPI {
   }
 
   /************************************************/
-  std::string runStartTime(const std::shared_ptr<RunInfo>& payload) {
+  inline std::string runStartTime(const std::shared_ptr<RunInfo>& payload) {
     const time_t start_time = payload->m_start_time_ll / 1.0e+6;
     return std::asctime(std::gmtime(&start_time));
   }
 
   /************************************************/
-  std::string runEndTime(const std::shared_ptr<RunInfo>& payload) {
+  inline std::string runEndTime(const std::shared_ptr<RunInfo>& payload) {
     const time_t end_time = payload->m_stop_time_ll / 1.0e+6;
     return std::asctime(std::gmtime(&end_time));
   }
 
   /************************************************/
-  std::string getStringFromTypeEnum(const parameters& parameter) {
+  inline std::string getStringFromTypeEnum(const parameters& parameter) {
     switch (parameter) {
       case m_run:
         return "run number";
@@ -101,7 +101,7 @@ namespace RunInfoPI {
   }
 
   /************************************************/
-  void reportSummaryMapPalette(TH2* obj) {
+  inline void reportSummaryMapPalette(TH2* obj) {
     static int pcol[20];
 
     float rgb[20][3];
