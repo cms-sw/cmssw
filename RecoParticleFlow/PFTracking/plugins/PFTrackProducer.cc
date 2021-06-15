@@ -1,17 +1,61 @@
-#include <memory>
-#include "RecoParticleFlow/PFTracking/interface/PFTrackProducer.h"
-#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+/// \brief Abstract
+/*!
+\author Daniele Benedetti
+\date November 2010
+  PFTrackTransformer transforms all the tracks in the PFRecTracks.
+  NOTE the PFRecTrack collection is transient.  
+*/
+
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+
+class PFTrackProducer : public edm::stream::EDProducer<> {
+public:
+  ///Constructor
+  explicit PFTrackProducer(const edm::ParameterSet&);
+
+private:
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+
+  ///Produce the PFRecTrack collection
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+
+  ///PFTrackTransformer
+  std::unique_ptr<PFTrackTransformer> pfTransformer_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection>> tracksContainers_;
+  std::vector<edm::EDGetTokenT<std::vector<Trajectory>>> trajContainers_;
+  edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackLabel_;
+  edm::EDGetTokenT<reco::MuonCollection> muonColl_;
+  edm::EDGetTokenT<reco::VertexCollection> vtx_h;
+  ///TRACK QUALITY
+  bool useQuality_;
+  reco::TrackBase::TrackQuality trackQuality_;
+  bool trajinev_;
+  bool gsfinev_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFTrackProducer);
 
 using namespace std;
 using namespace edm;
@@ -22,7 +66,7 @@ PFTrackProducer::PFTrackProducer(const ParameterSet& iConfig)
       pfTransformer_() {
   produces<reco::PFRecTrackCollection>();
 
-  std::vector<InputTag> tags = iConfig.getParameter<vector<InputTag> >("TkColList");
+  std::vector<InputTag> tags = iConfig.getParameter<vector<InputTag>>("TkColList");
   trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
   tracksContainers_.reserve(tags.size());
   if (trajinev_) {
@@ -31,7 +75,7 @@ PFTrackProducer::PFTrackProducer(const ParameterSet& iConfig)
   for (auto const& tag : tags) {
     tracksContainers_.push_back(consumes<reco::TrackCollection>(tag));
     if (trajinev_) {
-      trajContainers_.push_back(consumes<std::vector<Trajectory> >(tag));
+      trajContainers_.push_back(consumes<std::vector<Trajectory>>(tag));
     }
   }
 
@@ -96,7 +140,7 @@ void PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     const vector<Trajectory>* Tj = &dummyTj;
     if (trajinev_) {
       //Trajectory collection
-      Handle<vector<Trajectory> > tjCollection;
+      Handle<vector<Trajectory>> tjCollection;
       iEvent.getByToken(trajContainers_[istr], tjCollection);
 
       Tj = tjCollection.product();
