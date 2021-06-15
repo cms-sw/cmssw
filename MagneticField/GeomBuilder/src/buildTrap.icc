@@ -4,7 +4,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void volumeHandle::buildTrap(double x1,
+inline void volumeHandle::buildTrap(double x1,
                              double x2,
                              double x3,
                              double x4,

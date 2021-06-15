@@ -6,7 +6,7 @@
 
 #include "DataFormats/GeometrySurface/interface/SimpleConeBounds.h"
 
-void volumeHandle::buildCons(double zhalf,
+inline void volumeHandle::buildCons(double zhalf,
                              double rInMinusZ,
                              double rOutMinusZ,
                              double rInPlusZ,

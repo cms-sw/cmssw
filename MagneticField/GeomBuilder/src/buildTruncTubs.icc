@@ -9,7 +9,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void volumeHandle::buildTruncTubs(double zhalf,
+inline void volumeHandle::buildTruncTubs(double zhalf,
                                   double rIn,
                                   double rOut,
                                   double startPhi,
